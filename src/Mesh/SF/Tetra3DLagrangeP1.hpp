@@ -52,149 +52,38 @@ typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates
 /// @param shapeFunc Vector storing the result
-static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
-{
-  shapeFunc[0] = 1.0 - mappedCoord[0] - mappedCoord[1] - mappedCoord[2];
-  shapeFunc[1] = mappedCoord[0];
-  shapeFunc[2] = mappedCoord[1];
-  shapeFunc[3] = mappedCoord[2];
-}
+static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc);
 
 /// Compute Mapped Coordinates
 /// @param coord contains the coordinates to be mapped
 /// @param nodes contains the nodes
 /// @param mappedCoord Store the output mapped coordinates
-template<typename NodesT>
-static void mapped_coordinates(const CoordsT& coord, const NodesT& nodes, MappedCoordsT& mappedCoord)
-{
-  RealMatrix3 M;
-  M.col(0) = nodes.row(1) - nodes.row(0);
-  M.col(1) = nodes.row(2) - nodes.row(0);
-  M.col(2) = nodes.row(3) - nodes.row(0);
-  
-  mappedCoord = M.inverse() * (coord - nodes.row(0).transpose());
-}
+static void mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord);
 
 /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
 /// mapped coordinates. The result needs to be multiplied with the inverse jacobian to get the result in real
 /// coordinates.
 /// @param mappedCoord The mapped coordinates where the gradient should be calculated
 /// @param result Storage for the resulting gradient matrix
-static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
-{
-  result(XX, 0) = -1.;
-  result(YY, 0) = -1.;
-  result(ZZ, 0) = -1.;
-  result(XX, 1) = 1.;
-  result(YY, 1) = 0.;
-  result(ZZ, 1) = 0.;
-  result(XX, 2) = 0.;
-  result(YY, 2) = 1.;
-  result(ZZ, 2) = 0.;
-  result(XX, 3) = 0.;
-  result(YY, 3) = 0.;
-  result(ZZ, 3) = 1.;
-}
+static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result);
 
 /// Compute the jacobian determinant at the given mapped coordinates
-template<typename NodesT>
-static Real jacobian_determinant(const MappedCoordsT& mappedCoord, const NodesT& nodes)
-{
-  return jacobian_determinant(nodes);
-}
+static Real jacobian_determinant(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes);
 
 /// Compute the Jacobian matrix
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting Jacobian matrix
-template<typename NodesT>
-static void jacobian(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
-{
-  const Real x0 = nodes(0, XX);
-  const Real y0 = nodes(0, YY);
-  const Real z0 = nodes(0, ZZ);
-
-  const Real x1 = nodes(1, XX);
-  const Real y1 = nodes(1, YY);
-  const Real z1 = nodes(1, ZZ);
-
-  const Real x2 = nodes(2, XX);
-  const Real y2 = nodes(2, YY);
-  const Real z2 = nodes(2, ZZ);
-
-  const Real x3 = nodes(3, XX);
-  const Real y3 = nodes(3, YY);
-  const Real z3 = nodes(3, ZZ);
-
-  const Real dxdksi = -x0 + x1;
-  const Real dydksi = -y0 + y1;
-  const Real dzdksi = -z0 + z1;
-
-  const Real dxdeta = -x0 + x2;
-  const Real dydeta = -y0 + y2;
-  const Real dzdeta = -z0 + z2;
-
-  const Real dxdzta = -x0 + x3;
-  const Real dydzta = -y0 + y3;
-  const Real dzdzta = -z0 + z3;
-
-  // Derivatives of shape functions are constant
-  // hence Jacobians are independent of the mappedCoord
-  result(KSI,XX) = dxdksi;
-  result(KSI,YY) = dydksi;
-  result(KSI,ZZ) = dzdksi;
-
-  result(ETA,XX) = dxdeta;
-  result(ETA,YY) = dydeta;
-  result(ETA,ZZ) = dzdeta;
-
-  result(ZTA,XX) = dxdzta;
-  result(ZTA,YY) = dydzta;
-  result(ZTA,ZZ) = dzdzta;
-}
+static void jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result);
 
 /// Compute the adjoint of Jacobian matrix
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting adjoint
-template<typename NodesT>
-static void jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
-{
-  JacobianT J;
-  jacobian(mapped_coord, nodes, J);
-  result(0, 0) =  (J(1, 1)*J(2, 2) - J(1, 2)*J(2, 1));
-  result(0, 1) = -(J(0, 1)*J(2, 2) - J(0, 2)*J(2, 1));
-  result(0, 2) =  (J(0, 1)*J(1, 2) - J(1, 1)*J(0, 2));
-  result(1, 0) = -(J(1, 0)*J(2, 2) - J(1, 2)*J(2, 0));
-  result(1, 1) =  (J(0, 0)*J(2, 2) - J(0, 2)*J(2, 0));
-  result(1, 2) = -(J(0, 0)*J(1, 2) - J(0, 2)*J(1, 0));
-  result(2, 0) =  (J(1, 0)*J(2, 1) - J(1, 1)*J(2, 0));
-  result(2, 1) = -(J(0, 0)*J(2, 1) - J(0, 1)*J(2, 0));
-  result(2, 2) =  (J(0, 0)*J(1, 1) - J(0, 1)*J(1, 0));
-}
+static void jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes, JacobianT& result);
 
 /// Volume of the cell
-template<typename NodesT>
-static Real volume(const NodesT& nodes)
-{
-  return jacobian_determinant(nodes) / 6.;
-}
+static Real volume(const NodeMatrixT& nodes);
 
-template<typename NodesT>
-static bool in_element(const CoordsT& coord, const NodesT& nodes)
-{
-  MappedCoordsT mapped_coord;
-  mapped_coordinates(coord, nodes, mapped_coord);
-  if((mapped_coord[KSI] >= -Math::MathConsts::eps()) &&
-     (mapped_coord[ETA] >= -Math::MathConsts::eps()) &&
-     (mapped_coord[ZTA] >= -Math::MathConsts::eps()) &&
-     (mapped_coord.sum() <= 1.))
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
+static bool in_element(const CoordsT& coord, const NodeMatrixT& nodes);
 
 static const FaceConnectivity& faces();
 

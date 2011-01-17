@@ -49,58 +49,32 @@ struct MESH_SF_API Line2DLagrangeP1  : public Line2D
   /// mapped coordinates
   /// @param mappedCoord The mapped coordinates
   /// @param shapeFunc Vector storing the result
-  static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
-  {
-    shapeFunc[0] = 0.5 * (1.0 - mappedCoord[KSI]);
-    shapeFunc[1] = 0.5 * (1.0 + mappedCoord[KSI]);
-  }
+  static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc);
 
   /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
   /// mapped coordinates.
   /// @param mappedCoord The mapped coordinates where the gradient should be calculated
   /// @param result Storage for the resulting gradient matrix
-  static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
-  {
-    result(XX, 0) = -0.5;
-    result(XX, 1) = 0.5;
-  }
-
+  static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result);
+  
   /// Compute the Jacobian matrix
   /// In the case of the Line2D element, this is the vector corresponding to the line segment
   /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting Jacobian matrix
-  template<typename NodesT>
-  static void jacobian(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
-  {
-    result(KSI,XX) = 0.5*(nodes(1, XX) - nodes(0, XX));
-    result(KSI,YY) = 0.5*(nodes(1, YY) - nodes(0, YY));
-  }
+  static void jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result);
 
   /// Normal vector to the surface. Length equals the jacobian norm.
   /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting Jacobian matrix
-  template<typename NodesT>
-  static void normal(const MappedCoordsT& mappedCoord, const NodesT& nodes, CoordsT& result)
-  {
-    result[XX] = 0.5*( nodes(1, YY) - nodes(0, YY));
-    result[YY] = 0.5*(-nodes(1, XX) + nodes(0, XX));
-  }
+  static void normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result);
 
   /// Volume of the cell. 0 in case of elements with a dimensionality that is less than
   /// the dimension of the problem
-  template<typename NodesT>
-  static Real volume(const NodesT& nodes)
-  {
-    return 0.;
-  }
+  static Real volume(const NodeMatrixT& nodes);
 
   /// The area of an element that represents a surface in the solution space, i.e.
   /// 1D elements in 2D space or 2D elements in 3D space
-  template<typename NodesT>
-  static Real area(const NodesT& nodes)
-  {
-    return (nodes.row(1)-nodes.row(0)).norm();
-  }
+  static Real area(const NodeMatrixT& nodes);
 
   /// Given nodal values, write the interpolation
 //   template<typename NodalValuesT, typename ValueT>

@@ -50,73 +50,33 @@ struct MESH_SF_API Quad3DLagrangeP1  : public Quad3D
   /// mapped coordinates
   /// @param mappedCoord The mapped coordinates
   /// @param shapeFunc Vector storing the result
-  static void shape_function(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
-  {
-    Quad2DLagrangeP1::shape_function(mapped_coord, shape_func);
-  }
+  static void shape_function(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func);
 
   /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
   /// mapped coordinates.
   /// @param mappedCoord The mapped coordinates where the gradient should be calculated
   /// @param result Storage for the resulting gradient matrix
-  static void mapped_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
-  {
-    Quad2DLagrangeP1::mapped_gradient(mapped_coord, result);
-  }
+  static void mapped_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result);
 
   /// Compute the Jacobian matrix
   /// In the case of the Quad3D element, this is the vector corresponding to the line segment
   /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting Jacobian matrix
-  template<typename NodesT>
-  static void jacobian(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
-  {
-    JacobianCoefficients jc(nodes);
-
-    const Real xi = mappedCoord[KSI];
-    const Real eta = mappedCoord[ETA];
-
-    result(KSI,XX) = jc.bx + jc.dx*eta;
-    result(KSI,YY) = jc.by + jc.dy*eta;
-    result(KSI,ZZ) = jc.bz + jc.dz*eta;
-
-    result(ETA,XX) = jc.cx + jc.dx*xi;
-    result(ETA,YY) = jc.cy + jc.dy*xi;
-    result(ETA,ZZ) = jc.cz + jc.dz*xi;
-  }
+  static void jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result);
 
   /// Normal vector to the surface.
   /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting Jacobian matrix
-  template<typename NodesT>
-  static void normal(const MappedCoordsT& mappedCoord, const NodesT& nodes, CoordsT& result)
-  {
-    JacobianT jac;
-    jacobian(mappedCoord, nodes, jac);
-
-    result[XX] = jac(KSI,YY)*jac(ETA,ZZ) - jac(KSI,ZZ)*jac(ETA,YY);
-    result[YY] = jac(KSI,ZZ)*jac(ETA,XX) - jac(KSI,XX)*jac(ETA,ZZ);
-    result[ZZ] = jac(KSI,XX)*jac(ETA,YY) - jac(KSI,YY)*jac(ETA,XX);
-  }
+  static void normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result);
 
   /// Volume of the cell. 0 in case of elements with a dimensionality that is less than
   /// the dimension of the problem
-  template<typename NodesT>
-  static Real volume(const NodesT& nodes)
-  {
-    return 0.;
-  }
+  static Real volume(const NodeMatrixT& nodes);
 
   /// The area of an element that represents a surface in the solution space, i.e.
   /// 1D elements in 2D space or 2D elements in 3D space
-  template<typename NodesT>
-  static Real area(const NodesT& nodes)
-  {
-    CoordsT n;
-    normal(MappedCoordsT::Zero(), nodes, n);
-    return 4.*n.norm();
-  }
-
+  static Real area(const NodeMatrixT& nodes);
+  
   /// Given nodal values, write the interpolation
 //   template<typename NodalValuesT, typename ValueT>
 //   void operator()(const RealVector& mapped_coord, const NodalValuesT& nodal_values, ValueT& interpolation) const

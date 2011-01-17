@@ -24,26 +24,32 @@ aLine2DLagrangeP1_Builder;
 
 Line2DLagrangeP1::Line2DLagrangeP1(const std::string& name) : Line2D(name)
 {
-   
-
   m_nb_nodes = nb_nodes;
   m_order = order;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 std::string Line2DLagrangeP1::element_type_name() const
 {
   return LibSF::library_namespace() + "." + type_name();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 Real Line2DLagrangeP1::compute_volume(const NodesT& coord) const
 {
   return 0;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 bool Line2DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
-	return false;
+  return false;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP1::face_connectivity() const
 {
@@ -57,13 +63,61 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP1::face_connectivi
   return connectivity;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 const CF::Mesh::ElementType& Line2DLagrangeP1::face_type(const CF::Uint face) const
 {
   static const Line2DLagrangeP1 facetype;
   return facetype;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
+void Line2DLagrangeP1::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
+{
+  shapeFunc[0] = 0.5 * (1.0 - mappedCoord[KSI]);
+  shapeFunc[1] = 0.5 * (1.0 + mappedCoord[KSI]);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line2DLagrangeP1::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
+{
+  result(XX, 0) = -0.5;
+  result(XX, 1) = 0.5;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line2DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
+{
+  result(KSI,XX) = 0.5*(nodes(1, XX) - nodes(0, XX));
+  result(KSI,YY) = 0.5*(nodes(1, YY) - nodes(0, YY));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line2DLagrangeP1::normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result)
+{
+  result[XX] = 0.5*( nodes(1, YY) - nodes(0, YY));
+  result[YY] = 0.5*(-nodes(1, XX) + nodes(0, XX));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Line2DLagrangeP1::volume(const NodeMatrixT& nodes)
+{
+  return 0.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Line2DLagrangeP1::area(const NodeMatrixT& nodes)
+{
+  return (nodes.row(1)-nodes.row(0)).norm();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // SF
 } // Mesh

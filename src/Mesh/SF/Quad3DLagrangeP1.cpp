@@ -15,35 +15,38 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Quad3DLagrangeP1,
-                         ElementType,
-                         LibSF >
-aQuad3DLagrangeP1_Builder;
+Common::ComponentBuilder < Quad3DLagrangeP1, ElementType, LibSF > aQuad3DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Quad3DLagrangeP1::Quad3DLagrangeP1(const std::string& name) : Quad3D(name)
 {
-   
-
   m_nb_nodes = nb_nodes;
   m_order = order;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 std::string Quad3DLagrangeP1::element_type_name() const
 {
   return LibSF::library_namespace() + "." + type_name();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 Real Quad3DLagrangeP1::compute_volume(const NodesT& coord) const
 {
   return 0;
 }
-	
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool Quad3DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
 	return false;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 const ElementType::FaceConnectivity& Quad3DLagrangeP1::face_connectivity() const
 {
@@ -57,14 +60,75 @@ const ElementType::FaceConnectivity& Quad3DLagrangeP1::face_connectivity() const
   return connectivity;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 const CF::Mesh::ElementType& Quad3DLagrangeP1::face_type(const CF::Uint face) const
 {
   static const Quad3DLagrangeP1 facetype;
   return facetype;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
+void Quad3DLagrangeP1::shape_function(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
+{
+  Quad2DLagrangeP1::shape_function(mapped_coord, shape_func);
+}
 
+////////////////////////////////////////////////////////////////////////////////
+
+void Quad3DLagrangeP1::mapped_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
+{
+  Quad2DLagrangeP1::mapped_gradient(mapped_coord, result);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Quad3DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
+{
+  JacobianCoefficients jc(nodes);
+
+  const Real xi = mappedCoord[KSI];
+  const Real eta = mappedCoord[ETA];
+
+  result(KSI,XX) = jc.bx + jc.dx*eta;
+  result(KSI,YY) = jc.by + jc.dy*eta;
+  result(KSI,ZZ) = jc.bz + jc.dz*eta;
+
+  result(ETA,XX) = jc.cx + jc.dx*xi;
+  result(ETA,YY) = jc.cy + jc.dy*xi;
+  result(ETA,ZZ) = jc.cz + jc.dz*xi;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Quad3DLagrangeP1::normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result)
+{
+  JacobianT jac;
+  jacobian(mappedCoord, nodes, jac);
+
+  result[XX] = jac(KSI,YY)*jac(ETA,ZZ) - jac(KSI,ZZ)*jac(ETA,YY);
+  result[YY] = jac(KSI,ZZ)*jac(ETA,XX) - jac(KSI,XX)*jac(ETA,ZZ);
+  result[ZZ] = jac(KSI,XX)*jac(ETA,YY) - jac(KSI,YY)*jac(ETA,XX);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Quad3DLagrangeP1::volume(const NodeMatrixT& nodes)
+{
+  return 0.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Quad3DLagrangeP1::area(const NodeMatrixT& nodes)
+{
+  CoordsT n;
+  normal(MappedCoordsT::Zero(), nodes, n);
+  return 4.*n.norm();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // SF
 } // Mesh

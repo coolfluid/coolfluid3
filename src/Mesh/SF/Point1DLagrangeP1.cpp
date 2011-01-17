@@ -24,26 +24,32 @@ aPoint1DLagrangeP1_Builder;
 
 Point1DLagrangeP1::Point1DLagrangeP1(const std::string& name) : Point1D(name)
 {
-   
-
   m_nb_nodes = nb_nodes;
   m_order = order;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 std::string Point1DLagrangeP1::element_type_name() const
 {
   return LibSF::library_namespace() + "." + type_name();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 Real Point1DLagrangeP1::compute_volume(const NodesT& coord) const
 {
   return 0;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 bool Point1DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
   return false;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 const CF::Mesh::ElementType::FaceConnectivity& Point1DLagrangeP1::face_connectivity() const
 {
@@ -57,11 +63,64 @@ const CF::Mesh::ElementType::FaceConnectivity& Point1DLagrangeP1::face_connectiv
   return connectivity;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 const CF::Mesh::ElementType& Point1DLagrangeP1::face_type(const CF::Uint face) const
 {
   static const Point1DLagrangeP1 facetype;
   return facetype;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Point1DLagrangeP1::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
+{
+  shapeFunc[0] = 1.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Point1DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord)
+{
+  mappedCoord[KSI] = 0.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Point1DLagrangeP1::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
+{
+  result(XX, 0) = 0.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Point1DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
+{
+  result(KSI,XX) = 1.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Point1DLagrangeP1::normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result)
+{
+  result[XX] = 1.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Point1DLagrangeP1::area(const NodeMatrixT& nodes)
+{
+  return 1.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Point1DLagrangeP1::volume(const NodeMatrixT& nodes)
+{
+  return 0.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // SF
 } // Mesh

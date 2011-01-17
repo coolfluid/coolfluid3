@@ -25,26 +25,32 @@ aTetra3DLagrangeP1_Builder;
 
 Tetra3DLagrangeP1::Tetra3DLagrangeP1(const std::string& name) : Tetra3D(name)
 {
-   
-
   m_nb_nodes = nb_nodes;
   m_order = order;
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 std::string Tetra3DLagrangeP1::element_type_name() const
 {
   return LibSF::library_namespace() + "." + type_name();
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 Real Tetra3DLagrangeP1::compute_volume(const NodesT& coord) const
 {
   return volume(coord);
 }
-	
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool Tetra3DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
-	return in_element(coord,nodes);
+  return in_element(coord,nodes);
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 const CF::Mesh::ElementType::FaceConnectivity& Tetra3DLagrangeP1::faces()
 {
@@ -61,10 +67,14 @@ const CF::Mesh::ElementType::FaceConnectivity& Tetra3DLagrangeP1::faces()
   return connectivity;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 const CF::Mesh::ElementType::FaceConnectivity& Tetra3DLagrangeP1::face_connectivity() const
 {
   return faces();
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 const CF::Mesh::ElementType& Tetra3DLagrangeP1::face_type(const CF::Uint face) const
 {
@@ -72,8 +82,143 @@ const CF::Mesh::ElementType& Tetra3DLagrangeP1::face_type(const CF::Uint face) c
   return facetype;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
+void Tetra3DLagrangeP1::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
+{
+  shapeFunc[0] = 1.0 - mappedCoord[0] - mappedCoord[1] - mappedCoord[2];
+  shapeFunc[1] = mappedCoord[0];
+  shapeFunc[2] = mappedCoord[1];
+  shapeFunc[3] = mappedCoord[2];
+}
 
+////////////////////////////////////////////////////////////////////////////////
+
+void Tetra3DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord)
+{
+  RealMatrix3 M;
+  M.col(0) = nodes.row(1) - nodes.row(0);
+  M.col(1) = nodes.row(2) - nodes.row(0);
+  M.col(2) = nodes.row(3) - nodes.row(0);
+  
+  mappedCoord = M.inverse() * (coord - nodes.row(0).transpose());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void Tetra3DLagrangeP1::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
+{
+  result(XX, 0) = -1.;
+  result(YY, 0) = -1.;
+  result(ZZ, 0) = -1.;
+  result(XX, 1) = 1.;
+  result(YY, 1) = 0.;
+  result(ZZ, 1) = 0.;
+  result(XX, 2) = 0.;
+  result(YY, 2) = 1.;
+  result(ZZ, 2) = 0.;
+  result(XX, 3) = 0.;
+  result(YY, 3) = 0.;
+  result(ZZ, 3) = 1.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Tetra3DLagrangeP1::jacobian_determinant(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes)
+{
+  return jacobian_determinant(nodes);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Tetra3DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
+{
+  const Real x0 = nodes(0, XX);
+  const Real y0 = nodes(0, YY);
+  const Real z0 = nodes(0, ZZ);
+
+  const Real x1 = nodes(1, XX);
+  const Real y1 = nodes(1, YY);
+  const Real z1 = nodes(1, ZZ);
+
+  const Real x2 = nodes(2, XX);
+  const Real y2 = nodes(2, YY);
+  const Real z2 = nodes(2, ZZ);
+
+  const Real x3 = nodes(3, XX);
+  const Real y3 = nodes(3, YY);
+  const Real z3 = nodes(3, ZZ);
+
+  const Real dxdksi = -x0 + x1;
+  const Real dydksi = -y0 + y1;
+  const Real dzdksi = -z0 + z1;
+
+  const Real dxdeta = -x0 + x2;
+  const Real dydeta = -y0 + y2;
+  const Real dzdeta = -z0 + z2;
+
+  const Real dxdzta = -x0 + x3;
+  const Real dydzta = -y0 + y3;
+  const Real dzdzta = -z0 + z3;
+
+  // Derivatives of shape functions are constant
+  // hence Jacobians are independent of the mappedCoord
+  result(KSI,XX) = dxdksi;
+  result(KSI,YY) = dydksi;
+  result(KSI,ZZ) = dzdksi;
+
+  result(ETA,XX) = dxdeta;
+  result(ETA,YY) = dydeta;
+  result(ETA,ZZ) = dzdeta;
+
+  result(ZTA,XX) = dxdzta;
+  result(ZTA,YY) = dydzta;
+  result(ZTA,ZZ) = dzdzta;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Tetra3DLagrangeP1::jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes, JacobianT& result)
+{
+  JacobianT J;
+  jacobian(mapped_coord, nodes, J);
+  result(0, 0) =  (J(1, 1)*J(2, 2) - J(1, 2)*J(2, 1));
+  result(0, 1) = -(J(0, 1)*J(2, 2) - J(0, 2)*J(2, 1));
+  result(0, 2) =  (J(0, 1)*J(1, 2) - J(1, 1)*J(0, 2));
+  result(1, 0) = -(J(1, 0)*J(2, 2) - J(1, 2)*J(2, 0));
+  result(1, 1) =  (J(0, 0)*J(2, 2) - J(0, 2)*J(2, 0));
+  result(1, 2) = -(J(0, 0)*J(1, 2) - J(0, 2)*J(1, 0));
+  result(2, 0) =  (J(1, 0)*J(2, 1) - J(1, 1)*J(2, 0));
+  result(2, 1) = -(J(0, 0)*J(2, 1) - J(0, 1)*J(2, 0));
+  result(2, 2) =  (J(0, 0)*J(1, 1) - J(0, 1)*J(1, 0));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Tetra3DLagrangeP1::volume(const NodeMatrixT& nodes)
+{
+  return jacobian_determinant(nodes) / 6.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool Tetra3DLagrangeP1::in_element(const CoordsT& coord, const NodeMatrixT& nodes)
+{
+  MappedCoordsT mapped_coord;
+  mapped_coordinates(coord, nodes, mapped_coord);
+  if((mapped_coord[KSI] >= -Math::MathConsts::eps()) &&
+     (mapped_coord[ETA] >= -Math::MathConsts::eps()) &&
+     (mapped_coord[ZTA] >= -Math::MathConsts::eps()) &&
+     (mapped_coord.sum() <= 1.))
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // SF
 } // Mesh
