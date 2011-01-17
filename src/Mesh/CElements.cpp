@@ -6,6 +6,7 @@
 
 #include <set>
 
+#include "Common/Log.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CreateComponent.hpp"
@@ -76,6 +77,7 @@ void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
   
   m_nodes = create_static_component<CLink>("nodes");
   m_nodes->add_tag("nodes");
+  m_nodes->link_to(nodes.follow());
   
   m_used_nodes = create_static_component<CList<Uint> >("used_nodes");
   m_used_nodes->properties()["brief"] = std::string("The local node indices used by this connectivity specific connectivity table");
@@ -89,7 +91,8 @@ void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
   const Uint nb_nodes = m_element_type->nb_nodes();
   connectivity_table().set_row_size(nb_nodes);
   
-  m_nodes->link_to(nodes.follow());
+  m_element_coordinates.resize(element_type().nb_nodes(),element_type().dimension());
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +110,14 @@ void CElements::initialize(CElements& elements)
   m_connectivity_table = create_static_component<CLink>("connectivity_table");
   boost::static_pointer_cast<CLink>(m_connectivity_table)->link_to(elements.connectivity_table().self());
   
+  m_nodes = create_static_component<CLink>("nodes");
+  m_nodes->add_tag("nodes");
+  m_nodes->link_to(elements.nodes().self());
+  
   m_used_nodes = boost::dynamic_pointer_cast< CList<Uint> >(elements.used_nodes().shared_from_this());
+  
+  m_element_coordinates.resize(element_type().nb_nodes(),element_type().dimension());
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,6 +304,14 @@ CList<Uint>& CElements::used_nodes(Component& parent)
       nodes_array[i] = node;
   }
   return *used_nodes;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const RealMatrix& CElements::element_coordinates(const Uint idx)
+{
+  fill(m_element_coordinates, nodes().coordinates() , connectivity_table()[idx]);
+  return m_element_coordinates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

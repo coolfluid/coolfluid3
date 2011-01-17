@@ -113,6 +113,8 @@ public: // functions
   
   static CList<Uint>& used_nodes(Component& parent);
   
+  const RealMatrix& element_coordinates(const Uint idx);
+  
 protected: // data
 
   boost::shared_ptr<ElementType> m_element_type;
@@ -126,6 +128,9 @@ protected: // data
   boost::shared_ptr<CList<Uint> > m_global_numbering;
 
   boost::shared_ptr<Common::CLink> m_support;
+
+  /// dummy storage for element_coordinates
+  RealMatrix m_element_coordinates;
 
 };
 
