@@ -239,8 +239,9 @@ void CField2::create_data_storage()
       Uint data_size = 0;
       boost_foreach(CElements& field_elements, find_components_recursively<CElements>(topology()))
       {
+        m_elements_start_idx[&field_elements] = data_size;
         CFieldView& field_view = field_elements.register_field(*this);
-        data_size = field_view.initialize(*this, data_size);
+        data_size = field_view.initialize(*this);
       }
       m_data->resize(data_size);
       break;      
@@ -304,6 +305,7 @@ const CList<Uint>& CField2::used_nodes() const
 {
   return *m_used_nodes;
 }
+
 //////////////////////////////////////////////////////////////////////////////  
 
 CTable<Real>::ConstRow CField2::coords(const Uint idx) const
@@ -313,20 +315,15 @@ CTable<Real>::ConstRow CField2::coords(const Uint idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint CFieldView::initialize(CField2& field, const Uint start_idx, CElements::Ptr elements)
+Uint CFieldView::initialize(CField2& field, CElements::Ptr elements)
 {
 
   // If run-time error occurs in this if-statement, the default argument must be given a valid CElements::Ptr
   if (is_null(elements))
     elements = find_parent_component<CElements>(*this).as_type<CElements>();
-  
-  m_elements = elements;
-  m_field = field.as_type<CField2>();
-  m_field_data = field.data().as_type<CTable<Real> >();
-  m_stride = 1; // this is the number of states per element (high order methods)
-  m_start_idx = start_idx;
-  m_end_idx = start_idx + m_stride * elements->size();
-  m_size = m_end_idx - m_start_idx;
+
+  set_field(field);  
+  set_elements(elements);
   return m_end_idx;
 }
 

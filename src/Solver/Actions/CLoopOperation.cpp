@@ -27,13 +27,13 @@ namespace Actions {
 
 CLoopOperation::CLoopOperation ( const std::string& name ) : 
   Common::CAction(name),
+  m_call_config_elements(true),
   m_idx(0)
 {  
   // Following option is ignored if the loop is not about elements
   m_properties.add_option< OptionURI > ("Elements","Elements that are being looped", URI("cpath:"));
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
   
-  // Following option is ignored if the loop is not about elements
   m_properties.add_option< OptionT<Uint> > ("LoopIndex","Index that is being looped", 0u );
   m_properties["LoopIndex"].as_option().link_to( &m_idx );
   
@@ -43,12 +43,35 @@ CLoopOperation::CLoopOperation ( const std::string& name ) :
 
 void CLoopOperation::config_elements()
 {
-  URI uri;
-  property("Elements").put_value(uri);
-  m_elements = Core::instance().root()->look_component<CElements>(uri);
-  if ( is_null(m_elements.lock()) )
-    throw CastingFailed (FromHere(), "Elements must be of a CElements or derived type");
+  // Safeguard in case elements are set using set_elements
+  // otherwise this would get triggered
+  if (m_call_config_elements)
+  {
+    URI uri;
+    property("Elements").put_value(uri);
+    m_elements = Core::instance().root()->look_component<CElements>(uri);
+    if ( is_null(m_elements.lock()) )
+      throw CastingFailed (FromHere(), "Elements must be of a CElements or derived type");    
+  }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CLoopOperation::set_elements(CElements& elements)
+{
+  // disable CLoopOperation::config_elements() trigger
+  m_call_config_elements = false;
+  
+  // Set elements
+  m_elements = elements.as_type<CElements>();
+  
+  // Call triggers
+  property("Elements").as_option().trigger();
+  
+  // re-enable CLoop::Operation::config_elements() trigger
+  m_call_config_elements = true;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // Actions

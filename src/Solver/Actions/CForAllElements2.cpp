@@ -39,7 +39,7 @@ void CForAllElements2::execute()
     // Setup all child operations
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {
-      op.configure_property("Elements",elements.full_path());
+      op.set_elements(elements);
       const Uint nb_elem = elements.size();
       for ( Uint elem = 0; elem != nb_elem; ++elem )
       {

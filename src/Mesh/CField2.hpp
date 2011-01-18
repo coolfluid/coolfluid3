@@ -47,17 +47,11 @@ public: // typedefs
   typedef boost::shared_ptr<CField2> Ptr;
   typedef boost::shared_ptr<CField2 const> ConstPtr;
   
+  typedef CTable<Real>::ArrayT::array_view<2>::type View;
+  typedef const CTable<Real>::ArrayT::const_array_view<2>::type ConstView;
+  
   enum DataBasis { ELEMENT_BASED=0,  NODE_BASED=1};
   enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
-  
-  // typedef CTable<Real>::ArrayT::array_view<2>::type View;
-  // typedef CTable<Real>::ArrayT::const_array_view<2>::type ConstView;
-  
-  typedef boost::array_view_gen<CTable<Real>::ArrayT,2>::type View;
-  
-  /// @typedef the const type of a row in the internal structure of the table
-  //typedef const boost::const_array_view_gen<CTable<Real>::ArrayT,2>::type ConstView;
-  
 
 public: // functions
 
@@ -118,6 +112,11 @@ public: // functions
   
   const std::string& registration_name() const { return m_registration_name; }
   
+  Uint elements_start_idx(const CElements& elements)
+  {
+    return m_elements_start_idx[&elements];
+  }
+  
 private:
   
   std::string m_registration_name;
@@ -132,6 +131,8 @@ private:
   
   std::vector<std::string> m_var_names;
   std::vector<VarType> m_var_types;
+  
+  std::map<CElements const*,Uint> m_elements_start_idx;
   
 protected: 
 
@@ -180,7 +181,10 @@ public: // typedefs
   typedef boost::shared_ptr<CFieldView> Ptr;
   typedef boost::shared_ptr<CFieldView const> ConstPtr;
 
-private: // typedefs
+  typedef CTable<Real>::Row View;
+  typedef CTable<Real>::ConstRow ConstView;
+  
+protected: // typedefs
 
   typedef boost::multi_array_types::index_range Range;
 
@@ -203,28 +207,32 @@ public: // functions
   static std::string type_name () { return "CFieldView"; }
 
   /// @return end_idx
-  Uint initialize(CField2& field, const Uint start_idx, CElements::Ptr elements = CElements::Ptr());
+  Uint initialize(CField2& field, CElements::Ptr elements = CElements::Ptr());
   
   CField2::View operator()()
   {
     return m_field_data.lock()->array()[ boost::indices[Range(m_start_idx,m_end_idx)][Range()] ];
   }
-  
-  CField2::View operator()(const Uint idx)
-  {
-    cf_assert( idx < m_size );    
-    Uint data_idx = m_start_idx+idx;
-    Range range = Range().start(data_idx).finish(data_idx + m_stride);
-    return m_field_data.lock()->array()[ boost::indices[range][Range()] ];
-  }
 
+  CField2::ConstView operator()() const
+  {
+    return m_field_data.lock()->array()[ boost::indices[Range(m_start_idx,m_end_idx)][Range()] ];
+  }
+  
   CTable<Real>::Row operator[](const Uint idx)
   {
     cf_assert( idx < m_size );
     Uint data_idx = m_start_idx+idx;
     return m_field_data.lock()->array()[data_idx];
   }
-  
+
+  CTable<Real>::ConstRow operator[](const Uint idx) const
+  {
+    cf_assert( idx < m_size );
+    Uint data_idx = m_start_idx+idx;
+    return m_field_data.lock()->array()[data_idx];
+  }
+
   CField2& field() { return *m_field.lock(); }
   
   CElements& elements() { return *m_elements.lock(); }
@@ -232,6 +240,46 @@ public: // functions
   Uint stride() const { return m_stride; }
   
   Uint size() const { return m_size; }
+  
+  template <typename T>
+  T& as() { return *as_ptr<T>(); }
+
+  template <typename T>
+  boost::shared_ptr<T> as_ptr() { return boost::static_pointer_cast<T>(self()); }
+  
+  void set_elements(CElements& elements) 
+  { 
+    cf_assert( is_not_null(m_field.lock()) );
+    m_elements = elements.as_type<CElements>();
+    m_stride = 1; // this is the number of states per element (high order methods)
+    m_start_idx = m_field.lock()->elements_start_idx(elements);
+    m_end_idx = m_start_idx + m_stride * elements.size();
+    m_size = m_end_idx - m_start_idx;
+  }
+  
+  void set_elements(CElements::Ptr elements)
+  {
+    cf_assert( is_not_null(m_field.lock()) );
+    m_elements = elements; 
+    m_stride = 1; // this is the number of states per element (high order methods)
+    m_start_idx = m_field.lock()->elements_start_idx(*elements);
+    m_end_idx = m_start_idx + m_stride * elements->size();
+    m_size = m_end_idx - m_start_idx;
+  }
+
+  void set_field(CField2& field) 
+  { 
+    m_field = field.as_type<CField2>(); 
+    m_field_data = field.data().as_type<CTable<Real> >();
+    cf_assert( is_not_null(m_field_data.lock()) );
+  }
+  
+  void set_field(CField2::Ptr field) 
+  { 
+    m_field = field;
+    m_field_data = field->data().as_type<CTable<Real> >();
+    cf_assert( is_not_null(m_field_data.lock()) );
+  }
   
 protected: 
 
@@ -247,6 +295,90 @@ protected:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+class Mesh_API CMultiStateFieldView : public CFieldView
+{
+public: // typedefs
+
+  typedef boost::shared_ptr<CMultiStateFieldView> Ptr;
+  typedef boost::shared_ptr<CMultiStateFieldView const> ConstPtr;
+
+  typedef CTable<Real>::ArrayT::array_view<2>::type View;
+  typedef const CTable<Real>::ArrayT::const_array_view<2>::type ConstView;
+
+public: // functions
+
+  /// Contructor
+  /// @param name of the component
+  CMultiStateFieldView ( const std::string& name ) : CFieldView (name) {}
+
+  /// Virtual destructor
+  virtual ~CMultiStateFieldView() {}
+
+  /// Get the class name
+  static std::string type_name () { return "CMultiStateFieldView"; }
+  
+  View operator[](const Uint idx)
+  {
+    cf_assert( idx < m_size );    
+    Uint data_idx = m_start_idx+idx;
+    Range range = Range().start(data_idx).finish(data_idx + m_stride);
+    cf_assert( is_not_null(m_field_data.lock()) );
+    return m_field_data.lock()->array()[ boost::indices[range][Range()] ];
+  }
+
+  ConstView operator[](const Uint idx) const
+  {
+    cf_assert( idx < m_size );    
+    Uint data_idx = m_start_idx+idx;
+    Range range = Range().start(data_idx).finish(data_idx + m_stride);
+    cf_assert( is_not_null(m_field_data.lock()) );
+    return m_field_data.lock()->array()[ boost::indices[range][Range()] ];
+  }
+  
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+class Mesh_API CScalarFieldView : public CFieldView
+{
+public: // typedefs
+
+  typedef boost::shared_ptr<CScalarFieldView> Ptr;
+  typedef boost::shared_ptr<CScalarFieldView const> ConstPtr;
+
+  typedef Real& View;
+  typedef const Real& ConstView;
+
+public: // functions
+
+  /// Contructor
+  /// @param name of the component
+  CScalarFieldView ( const std::string& name ) : CFieldView (name) {}
+
+  /// Virtual destructor
+  virtual ~CScalarFieldView() {}
+
+  /// Get the class name
+  static std::string type_name () { return "CScalarFieldView"; }
+
+  Real& operator[](const Uint idx)
+  {
+    cf_assert( idx < m_size );    
+    Uint data_idx = m_start_idx+idx;
+    cf_assert( is_not_null(m_field_data.lock()) );
+    return m_field_data.lock()->array()[data_idx][0];
+  }
+
+  const Real& operator[](const Uint idx) const
+  {
+    cf_assert( idx < m_size );    
+    Uint data_idx = m_start_idx+idx;
+    cf_assert( is_not_null(m_field_data.lock()) );
+    return m_field_data.lock()->array()[data_idx][0];
+  }
+
+};
 
   
 } // Mesh

@@ -49,16 +49,18 @@ public: // functions
   /// Typically accesses components and stores their address, since they are not expected to change over looping.
   virtual void create_loop_helper ( Mesh::CElements& geometry_elements ) {}
   
+  void set_elements(Mesh::CElements& elements);
   
 protected: // functions
 
-  Uint idx() const { return m_idx; }
+  Uint idx() const { return m_idx; }  
   
   Mesh::CElements const& elements() const { cf_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
   Mesh::CElements& elements() { cf_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
   
 private: // functions 
 
+  bool m_call_config_elements;
   void config_elements();
 
 private: // data
@@ -66,7 +68,7 @@ private: // data
   Uint m_idx;
 
   boost::weak_ptr<Mesh::CElements>  m_elements;
-  
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

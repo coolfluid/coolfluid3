@@ -37,6 +37,7 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
   
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
 
+  m_volume = create_static_component<CScalarFieldView>("volume_view");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,18 +46,17 @@ void CComputeVolume::config_field()
 {
   URI uri;
   property("Volumes").put_value(uri);
-  m_field = Core::instance().root()->look_component<CField2>(uri);
-  if ( is_null(m_field.lock()) )
+  CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
+  if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
+  m_volume->set_field(comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CComputeVolume::trigger_elements()
 {
-  if ( is_null(m_field.lock()) )
-    throw ValueNotFound (FromHere(),"Volumes option must be configured first");
-  m_field_view = elements().field_view(*m_field.lock()).as_type<CFieldView>();
+  m_volume->set_elements(elements());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -66,14 +66,23 @@ void CComputeVolume::execute()
   // idx() is the index that is set using the function set_loop_idx() or configuration LoopIndex
   
   CElements& elems = elements();
-  
-  volume()[idx()][0] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
 
-  // alternately the following is equivalent, and takes sub_elements into account!
+  Uint sub_elem = 0;
+  Uint var_idx = 0;
+
+  // 3 ways to access the field through field views:
+    
+  // 1) as simple scalar field --> only 1 index needed (this is already default here)
+  CScalarFieldView& volume = *m_volume;
+  volume[idx()] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
   
-  // CField2::View view = volume()(idx());
-  // boost_foreach (CTable<Real>::Row volume, view)
-  //   volume[0] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+  // 2) as simple field --> extra index for multiple variables per field 
+  CFieldView& view = m_volume->as<CFieldView>();
+  view[idx()][var_idx] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+
+  // 3) as complex field --> extra index for the case with sub elements
+  CMultiStateFieldView& multi_state_view = m_volume->as<CMultiStateFieldView>();
+  multi_state_view[idx()][sub_elem][var_idx] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
 
 }
 

@@ -288,9 +288,13 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   CComputeVolume::Ptr compute_volume = root->create_component<CComputeVolume>("compute_volume");
   CElements& elems = *root->look_component<CElements>(URI("cpath://Root/mesh/field_topology/default_id1084/fluid/elements_CF.Mesh.SF.Triag2DLagrangeP1"));
   compute_volume->configure_property("Volumes",volumes.full_path());
+  BOOST_CHECK(true);
   compute_volume->configure_property("Elements",elems.full_path());
+  BOOST_CHECK(true);
   compute_volume->configure_property("LoopIndex",12u);
+  BOOST_CHECK(true);
   compute_volume->execute();
+  BOOST_CHECK(true);
   BOOST_CHECK_EQUAL( elems.field_view(volumes)[12][0] , 0.0035918050864676932);
 
   CLoop::Ptr elem_loop = root->create_component< CForAllElements2 >("elem_loop");
