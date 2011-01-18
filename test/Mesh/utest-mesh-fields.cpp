@@ -178,6 +178,40 @@ BOOST_AUTO_TEST_CASE( SpecialFieldCreation )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( FieldOperators )
+{
+  CMesh& mesh = *m_mesh;
+
+  std::vector<std::string> names;
+  std::vector<std::string> types;
+
+  CFieldRegion& field_region = *mesh.get_child<CFieldRegion>("special_topology");
+
+  CField2& special = *mesh.get_child<CField2>("special");
+  CField2& special_copy = *mesh.create_component<CField2>("special_copy");
+  special_copy.configure_property("Topology",field_region.full_path());
+  special_copy.configure_property("FieldType",std::string("NodeBased"));
+  special_copy.create_data_storage();
+
+  special.data()[0][0] = 25.;
+  special_copy.data() = special.data();
+  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 25. );
+  special_copy.data() += special_copy.data();
+  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 50. );
+  special_copy.data() *= 2;
+  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 100. );
+  special_copy.data() /= 2;
+  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 50. );
+  special_copy.data() *= special_copy.data();
+  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 2500. );
+  special_copy.data() /= special_copy.data();
+  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 1. );
+  special_copy.data() -= special_copy.data();
+  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 0. );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////

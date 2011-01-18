@@ -140,6 +140,126 @@ public: // functions
     for(Uint j=0; j<row.size(); ++j)
       row_to_set[j] = row[j];
   }
+  
+////////////////////////////////////////////////////////////////////////////////
+
+  // Index operator. 
+  // --------------
+  ///  c = U[i]
+  // Real& operator[](int index);   
+  // const Real& operator[](int index) const;
+
+  // // Binary arithmetic operators. 
+  // // ----------------------------
+  // /// U = U + U
+  // friend CTable operator +(const CTable& U1, const CTable& U2);
+  // /// U = U - U
+  // friend CTable operator -(const CTable& U1, const CTable& U2);
+  // /// U = U * c
+  // friend CTable operator *(const CTable& U, const Real& a);
+  // /// U = c * U
+  // friend CTable operator *(const Real& a, const CTable& U);
+  // /// U = U * U (row-wise)
+  // friend CTable operator *(const CTable& U1, const CTable& U2);
+  // /// U = U / c
+  // friend CTable operator /(const CTable& U, const Real& a);
+  // /// U = U / U (row-wise)
+  // friend CTable operator /(const CTable& U1, const CTable& U2);
+  // 
+  // // Unary arithmetic operators.
+  // // ---------------------------
+  // /// U = -U
+  // friend CTable operator -(const CTable& U);
+  // //friend CTable fabs(const CTable& U);
+
+  // Shortcut arithmetic operators.
+  // ------------------------------
+  /// U = U
+  CTable& operator =(const CTable& U)
+  { 
+    cf_assert(size() == U.size()); 
+    array() = U.array();
+  }
+  
+  /// U += U
+  CTable& operator +=(const CTable& U) 
+  { 
+    cf_assert(size() == U.size());
+    cf_assert(row_size() == U.row_size());
+    for (Uint i=0; i<size(); ++i)
+      for (Uint j=0; j<row_size(); ++j)
+        array()[i][j] += U.array()[i][j];
+  }
+  
+  /// U -= U
+  CTable& operator -=(const CTable& U) 
+  { 
+    cf_assert(size() == U.size());
+    cf_assert(row_size() == U.row_size());
+    for (Uint i=0; i<size(); ++i)
+      for (Uint j=0; j<row_size(); ++j)
+        array()[i][j] -= U.array()[i][j];
+  }
+  
+  /// U *= c
+  CTable& operator *=(const value_type& c)
+  { 
+    for (Uint i=0; i<size(); ++i)
+      for (Uint j=0; j<row_size(); ++j)
+        array()[i][j] *= c;
+  }
+  
+  /// U *= U
+  CTable& operator *=(const CTable& U) 
+  { 
+    cf_assert(size() == U.size());
+    cf_assert(row_size() == U.row_size());
+    for (Uint i=0; i<size(); ++i)
+      for (Uint j=0; j<row_size(); ++j)
+        array()[i][j] *= U.array()[i][j];
+  }
+
+  /// U /= a
+  CTable& operator /=(const value_type& c)
+  { 
+    for (Uint i=0; i<size(); ++i)
+      for (Uint j=0; j<row_size(); ++j)
+        array()[i][j] /= c;
+  }
+
+  /// U /= U
+  CTable& operator /=(const CTable& U) 
+  { 
+    cf_assert(size() == U.size());
+    cf_assert(row_size() == U.row_size());
+    for (Uint i=0; i<size(); ++i)
+      for (Uint j=0; j<row_size(); ++j)
+        array()[i][j] /= U.array()[i][j];
+  }
+  
+
+  // // Relational operators.
+  // // ---------------------
+  // /// U == U
+  // friend bool operator ==(const CTable& U1, const CTable& U2);
+  // /// U != U
+  // friend bool operator !=(const CTable& U1, const CTable& U2);
+  // // /// U <= U
+  // // friend bool operator <=(const CTable& U1, const CTable& U2);
+  // // /// U >= U
+  // // friend bool operator >=(const CTable& U1, const CTable& U2);
+  // // /// U < U
+  // // friend bool operator <(const CTable& U1, const CTable& U2);
+  // // /// U > U
+  // // friend bool operator >(const CTable& U1, const CTable& U2);
+  // 
+  // // Input-output operators.
+  // // ----------------------
+  // /// ostream << U
+  // friend ostream& operator << (ostream& out, const CTable& U);
+  // /// istream >> U
+  // friend istream& operator >> (istream& in,  CTable& U);
+
 
 private: // data
 
