@@ -119,6 +119,8 @@ namespace Common {
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node ) = 0;
+    
+    void trigger() const;
 
   protected: // data
     /// storage of the default value of the option

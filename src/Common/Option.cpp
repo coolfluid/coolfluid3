@@ -35,9 +35,8 @@ void Option::configure_option ( XmlNode& node )
 {
   this->configure(node); // update the value
 
-  // call all process functors
-  boost_foreach( Option::Trigger_t& process, m_triggers )
-      process();
+  // call all trigger functors
+  trigger();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -58,11 +57,19 @@ void Option::change_value ( const boost::any& value )
 
   Property::change_value(value);
 
-  // call all process functors
-  boost_foreach( Option::Trigger_t& process, m_triggers )
-    process();
-    
+  // call all trigger functors
+  trigger();
+  
   copy_to_linked_params(value);
 };
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Option::trigger () const
+{
+  // call all trigger functors
+  boost_foreach( const Option::Trigger_t& call_trigger, m_triggers )
+    call_trigger();
+}
 
 //////////////////////////////////////////////////////////////////////////////
