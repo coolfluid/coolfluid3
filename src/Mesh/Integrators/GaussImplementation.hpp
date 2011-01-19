@@ -13,6 +13,8 @@
 
 #include "Mesh/GeoShape.hpp"
 
+#include "Common/Log.hpp"
+
 namespace CF {
 namespace Mesh {
 namespace Integrators {
@@ -159,6 +161,43 @@ struct GaussMappedCoordsImpl<1, GeoShape::TRIAG>
     return result;
   }
 };
+
+template<>
+struct GaussMappedCoordsImpl<2, GeoShape::TRIAG>
+{
+  static const Uint nb_points = 3;
+
+  typedef Eigen::Matrix<Real, 2, nb_points> CoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_points> WeightsT;
+
+  static CoordsT coords()
+  {
+    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
+    CoordsT result;
+    result.resize(DIM_2D, nb_points);
+    result(KSI,0) = 0.5;
+    result(ETA,0) = 0.0;
+    result(KSI,1) = 0.5;
+    result(ETA,1) = 0.5;
+    result(KSI,2) = 0.0;
+    result(ETA,2) = 0.5;
+
+    return result;
+  }
+
+  static WeightsT weights()
+  {
+    WeightsT result;
+    result.resize(3);
+    result(0) = 1.0/6.0;
+    result(1) = 1.0/6.0;
+    result(2) = 1.0/6.0;
+    return result;
+  }
+};
+
+
+
 
 template<>
 struct GaussMappedCoordsImpl<1, GeoShape::TETRA>
@@ -373,6 +412,26 @@ struct GaussIntegrator<1, GeoShape::TRIAG>
     mapped_coords[KSI] = mu;
     mapped_coords[ETA] = mu;
     result = w * functor();
+  }
+};
+
+template<>
+struct GaussIntegrator<2, GeoShape::TRIAG>
+{
+  template<typename FunctorT, typename MappedCoordsT, typename ResultT>
+  static void integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, ResultT& result)
+  {
+    static const double w = 1.0/6.0;
+    mapped_coords.resize(2,0);
+    mapped_coords[KSI] = 0.5;
+    mapped_coords[ETA] = 0.0;
+    result = w * functor();
+    mapped_coords[KSI] = 0.5;
+    mapped_coords[ETA] = 0.5;
+    result += w * functor();
+    mapped_coords[KSI] = 0.0;
+    mapped_coords[ETA] = 0.5;
+    result += w * functor();
   }
 };
 

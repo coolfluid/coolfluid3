@@ -1,6 +1,8 @@
 set( CF_RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Dir for resources" )
 
 list( APPEND resources_files
+   advection_p2.msh
+   advection-p2-quad.msh
    hextet.neu
    quadtriag.neu
    rotation-qd.neu

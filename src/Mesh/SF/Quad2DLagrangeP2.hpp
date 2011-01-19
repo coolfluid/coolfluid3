@@ -82,7 +82,7 @@ static void jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes,
 static void jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result);
 
 /// Volume of the cell
-inline static Real volume(const NodeMatrixT& nodes);
+static Real volume(const NodeMatrixT& nodes);
 
 /// Connectivity info for the faces
 static const FaceConnectivity& faces();

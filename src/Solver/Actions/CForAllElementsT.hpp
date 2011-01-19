@@ -77,9 +77,13 @@ public: // functions
 
   virtual void execute()
   {
+//    CFinfo << "execute for all elems" << CFendl;
+
     BOOST_FOREACH(Mesh::CRegion::Ptr& region, m_loop_regions)
     {
 //      CFinfo << "execute for " << region->full_path().string_without_scheme() << CFendl;
+//      CFinfo << "This region has " << region->recursive_elements_count() << " elements and ";
+//      CFinfo << region->recursive_nodes_count() << " nodes " << CFendl;
       Looper looper(*this,*region);
       boost::mpl::for_each< Mesh::SF::Types >(looper);
     }
@@ -94,12 +98,15 @@ private:
   public: // functions
 
     /// Constructor
-    Looper(CForAllElementsT& this_class, Mesh::CRegion& region_in ) : region(region_in) , op(*this_class.m_action) { }
+    Looper(CForAllElementsT& this_class, Mesh::CRegion& region_in ) : region(region_in) , op(*this_class.m_action)
+    {  /* CFinfo << " building Looper " << CFendl;*/ }
 
     /// Operator
     template < typename SFType >
     void operator() ( SFType& T )
     {
+//      CFinfo << " Looper::operator() " << CFendl;
+
       boost_foreach(Mesh::CElements& elements, Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsComponentElementType<SFType>()))
       {
 //        CFinfo << " .. for elements " << elements.full_path().string_without_scheme() << CFendl;
@@ -107,6 +114,7 @@ private:
 
         // loop on elements. Nothing may be virtual starting from here!
         const Uint elem_count = elements.elements_count();
+        CFinfo << "ELEM COUNT: " << elem_count << CFendl;
         for ( Uint elem = 0; elem != elem_count; ++elem )
         {
           op.select_loop_idx(elem);
