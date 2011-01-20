@@ -76,16 +76,15 @@ public:
   /// @param name of component
   CBuilderT(const std::string& name) : CBuilder(name)
   {
-
-
     // verify that BASE derives or is same type of Component
     BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );
     // verify that CONCRETE derives from BASE
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
 
     this->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, this, _1 ) );
-    this->signal("build_component").signature.template insert<std::string>("Component name", "Name for created component" )
-                                               .template insert<URI>("Parent component", "Path to component where place the newly built component");
+
+    signal("build_component").signature->connect(
+        boost::bind(&CBuilderT<BASE,CONCRETE>::build_component_signature, this, _1));
   }
 
   /// @brief Virtual destructor.
@@ -124,6 +123,14 @@ public:
     URI parent_path ( params.get_option<URI>("Parent component") );
     Component::Ptr parent = this->look_component( parent_path );
     parent->add_component( comp );
+  }
+
+  void build_component_signature ( XmlNode& node )
+  {
+    XmlParams p(node);
+
+    p.add_option<std::string>("Component name", "Name for created component" );
+    p.add_option<URI>("Parent component", "Path to component where place the newly built component");
   }
 
   //@} END SIGNALS

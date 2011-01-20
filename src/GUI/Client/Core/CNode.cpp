@@ -239,11 +239,11 @@ void CNode::setSignals(CF::Common::XmlNode & node)
         cf_assert( key_attr != nullptr );
         cf_assert( key_attr->value_size() > 0 );
 
-        si.m_name = key_attr->value();
-        si.m_readableName = name_attr != nullptr ? name_attr->value() : "";
-        si.m_description = desc_attr != nullptr ? desc_attr->value() : "";
-        si.m_signature = XmlSignature(*map);
-        si.m_isLocal = false;
+        si.name = key_attr->value();
+        si.readableName = name_attr != nullptr ? name_attr->value() : "";
+        si.description = desc_attr != nullptr ? desc_attr->value() : "";
+//        si.m_signature = XmlSignature(*map);
+        si.isLocal = false;
 
         m_actionSigs.append(si);
 
@@ -358,6 +358,14 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
     if(valid)
       ClientRoot::instance().core()->sendSignal(*docnode.get());
   }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::localSignature(const QString & name, Common::XmlNode& node )
+{
+  ( *signal( name.toStdString() ).signature )(node);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -629,11 +637,11 @@ void CNode::actions(QList<ActionInfo> & actions)
         ActionInfo ai;
         const Signal & sig = m_signals.find(it->toStdString())->second;
 
-        ai.m_name = it->toStdString().c_str();
-        ai.m_description = sig.description.c_str();
-        ai.m_readableName = sig.readable_name.c_str();
-        ai.m_signature = sig.signature;
-        ai.m_isLocal = true;
+        ai.name = it->toStdString().c_str();
+        ai.description = sig.description.c_str();
+        ai.readableName = sig.readable_name.c_str();
+//        ai.m_signature = sig.signature;
+        ai.isLocal = true;
 
         actions.append(ai);
       }

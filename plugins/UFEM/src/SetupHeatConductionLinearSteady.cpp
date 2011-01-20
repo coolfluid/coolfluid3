@@ -36,12 +36,14 @@ CF::Common::ComponentBuilder < UFEM::SetupHeatConductionLinearSteady, Component,
 SetupHeatConductionLinearSteady::SetupHeatConductionLinearSteady(const std::string& name) : Component ( name )
 {
   this->regist_signal ( "create_model" , "Creates a linear, steady heat conduction model", "Create Model" )->connect( boost::bind ( &SetupHeatConductionLinearSteady::create_model, this, _1 ) );
-  signal("create_model").signature.insert<std::string>("Model name", "Name for created model" );
 
   signal("create_component").is_hidden = true;
   signal("rename_component").is_hidden = true;
   signal("delete_component").is_hidden = true;
   signal("move_component").is_hidden   = true;
+
+  signal("create_model").signature->connect(
+      boost::bind( &SetupHeatConductionLinearSteady::create_model_signature, this, _1));
 }
 
 void SetupHeatConductionLinearSteady::create_model(Common::XmlNode& node)
@@ -73,7 +75,12 @@ void SetupHeatConductionLinearSteady::create_model(Common::XmlNode& node)
   model->add_component( mesh_reader );
 }
 
+void SetupHeatConductionLinearSteady::create_model_signature( XmlNode& node )
+{
+  XmlParams p(node);
 
+  p.add_option<std::string>("Model name", std::string(), "Name for created model" );
+}
 
 } // UFEM
 } // CF

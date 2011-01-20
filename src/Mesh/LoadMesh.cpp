@@ -35,14 +35,10 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
 
   m_properties["brief"] = std::string("Loads meshes, guessing automatically the format from the file extension");
   mark_basic();
-  
+
   // signals
 
   regist_signal ( "load_mesh" , "Loads meshes, guessing automatically the format", "Load Mesh" )->connect ( boost::bind ( &LoadMesh::signal_load_mesh, this, _1 ) );
-
-  signal("load_mesh").signature
-      .insert<URI>("Domain", "Path to the domain to hold the mesh")
-      .insert_array<URI>( "Files" , "Files to read" );
 
   signal("create_component").is_hidden = true;
   signal("rename_component").is_hidden = true;
@@ -132,7 +128,7 @@ void LoadMesh::signal_load_mesh ( Common::XmlNode& node )
     {
       boost::filesystem::path fpath( file.string_without_scheme() );
       const std::string extension = fpath.extension();
-      
+
       if ( m_extensions_to_readers.count(extension) == 0 )
       {
         throw ValueNotFound (FromHere(), "No meshreader exists for files with extension " + extension);
@@ -161,10 +157,19 @@ void LoadMesh::signal_load_mesh ( Common::XmlNode& node )
   else
   {
     throw BadValue( FromHere(), "No mesh was read because no files were selected." );
-  }   
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void LoadMesh::load_mesh_signature ( Common::XmlNode& node)
+{
+  XmlParams p(node);
+  std::vector<URI> dummy;
+
+  p.add_option<URI>("Domain", URI(), "Path to the domain to hold the mesh" );
+  p.add_array<URI>("Files", dummy , "Files to read" );
+}
 
 } // Mesh
 } // CF

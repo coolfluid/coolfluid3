@@ -47,9 +47,8 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
   add_static_component(m_changes);
 
   this->regist_signal ( "load_balance" , "partitions and migrates elements between processors", "Load Balance" )->connect ( boost::bind ( &CMeshPartitioner::load_balance,this, _1 ) );
-  signal("load_balance").signature
-  .insert<URI>("Mesh", "Mesh to load balance" );
 
+  signal("load_balance").signature->connect( boost::bind(&CMeshPartitioner::load_balance_signature, this, _1));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -81,6 +80,15 @@ void CMeshPartitioner::load_balance( XmlNode& xml  )
 	partition_graph();
 
 	migrate();
+}
+
+//////////////////////////////////////////////////////////////////////
+
+void CMeshPartitioner::load_balance_signature ( Common::XmlNode& node )
+{
+	XmlParams p(node);
+
+	p.add_option<URI>("Mesh", URI(), "Mesh to load balance" );
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -127,7 +135,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   boost_foreach ( CElements& elements, find_components_recursively<CElements>(mesh))
   {
     m_nb_owned_obj += elements.size();
-   
+
     // boost_foreach (Uint glb_idx, global_elem_indices.array())
     // {
     //   if (m_hash->subhash(ELEMS)->owns(glb_idx))

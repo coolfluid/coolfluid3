@@ -59,6 +59,8 @@ namespace Common {
     /// creates a component from this component
     void load_library ( XmlNode& node );
 
+    void load_library_signature ( XmlNode& node );
+
     //@} END SIGNALS
 
 

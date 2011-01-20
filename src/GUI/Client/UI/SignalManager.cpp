@@ -16,7 +16,6 @@
 
 #include "Common/URI.hpp"
 #include "Common/XmlHelpers.hpp"
-#include "Common/XmlSignature.hpp"
 
 #include "GUI/Client/UI/SignatureDialog.hpp"
 
@@ -73,17 +72,17 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
 
   for( ; it!= sigs.end() ; it++)
   {
-    if(!it->m_readableName.isEmpty())
+    if(!it->readableName.isEmpty())
     {
-      QAction * action = m_menu->addAction(it->m_readableName);
+      QAction * action = m_menu->addAction(it->readableName);
 
-      action->setStatusTip(it->m_description);
+      action->setStatusTip(it->description);
 
       connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
       connect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));
 
       m_signals[action] = *it;
-      m_localStatus[action] = it->m_isLocal;
+      m_localStatus[action] = it->isLocal;
     }
   }
 
@@ -103,47 +102,15 @@ void SignalManager::actionTriggered()
     m_currentAction = action;
     m_waitingForSignature = true;
 
-    m_node->requestSignalSignature( m_signals[action].m_name );
-
-//    URI path = m_node->full_path();
-//    ActionInfo & info = m_signals[action];
-//    boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-//    XmlNode & node = *XmlOps::goto_doc_node(*doc.get());
-//    XmlNode & frame = *XmlOps::add_signal_frame(node, info.m_name.toStdString(),
-//                                                path, path, true);
-//    XmlParams p(frame);
-
-//    XmlNode & map = *p.add_map(XmlParams::tag_key_options());
-
-//    info.m_signature.put_signature(map);
-
-//    try
-//    {
-//      SignatureDialog * sg = new SignatureDialog();
-
-//      if(sg->show(map, action->text()))
-//      {
-//        if(m_localStatus[action])
-//        {
-//          try
-//          {
-//            m_node->call_signal(info.m_name.toStdString(), frame);
-//          }
-//          catch(InvalidURI ip)
-//          {
-//            ClientRoot::instance().log()->addException(ip.what());
-//          }
-//        }
-//        else
-//          ClientRoot::instance().core()->sendSignal(*doc);
-//      }
-
-//      delete sg;
-//    }
-//    catch( Exception & e)
-//    {
-//      ClientRoot::instance().log()->addException(e.what());
-//    }
+    if(!m_localStatus[action])
+      m_node->requestSignalSignature( m_signals[action].name );
+    else
+    {
+      boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
+      XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
+      m_node->localSignature(m_signals[action].name, nodedoc);
+      signalSignature(nodedoc);
+    }
   }
 }
 
@@ -171,47 +138,47 @@ void SignalManager::signalSignature(XmlNode & node)
     ActionInfo & info = m_signals[m_currentAction];
     boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
     XmlNode & doc_node = *XmlOps::goto_doc_node(*doc.get());
-    XmlNode & frame = *XmlOps::add_signal_frame(doc_node, info.m_name.toStdString(),
+    XmlNode & frame = *XmlOps::add_signal_frame(doc_node, info.name.toStdString(),
                                                 path, path, true);
     XmlParams p(frame);
     XmlParams originalp(node);
 
+    std::string str;
+    XmlOps::xml_to_string(node, str);
+
+    qDebug() << str.c_str() << originalp.option_map;
+
+    XmlNode & map = *p.add_map(XmlParams::tag_key_options());
+
     if(originalp.option_map != nullptr)
-    {
-      XmlNode & map = *p.add_map(XmlParams::tag_key_options());
-
-      //  info.m_signature.put_signature(map);
-
       XmlOps::deep_copy(*originalp.option_map, map);
 
-      try
-      {
-        SignatureDialog * sg = new SignatureDialog();
+    try
+    {
+      SignatureDialog * sg = new SignatureDialog();
 
-        if(sg->show(map, m_currentAction->text()))
+      if(sg->show(map, m_currentAction->text()))
+      {
+        if(m_localStatus[m_currentAction])
         {
-          if(m_localStatus[m_currentAction])
+          try
           {
-            try
-            {
-              m_node->call_signal(info.m_name.toStdString(), frame);
-            }
-            catch(InvalidURI ip)
-            {
-              ClientRoot::instance().log()->addException(ip.what());
-            }
+            m_node->call_signal(info.name.toStdString(), frame);
           }
-          else
-            ClientRoot::instance().core()->sendSignal(*doc);
+          catch(InvalidURI ip)
+          {
+            ClientRoot::instance().log()->addException(ip.what());
+          }
         }
-
-        delete sg;
-      }
-      catch( Exception & e)
-      {
-        ClientRoot::instance().log()->addException(e.what());
+        else
+          ClientRoot::instance().core()->sendSignal(*doc);
       }
 
+      delete sg;
+    }
+    catch( Exception & e)
+    {
+      ClientRoot::instance().log()->addException(e.what());
     }
 
     m_waitingForSignature = false;

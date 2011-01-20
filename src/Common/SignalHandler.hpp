@@ -12,7 +12,7 @@
 #include <boost/signals2/signal.hpp>
 
 #include "Common/Exception.hpp"
-#include "Common/XmlSignature.hpp"
+#include "Common/XmlHelpers.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -55,8 +55,6 @@ struct Signal
     Ptr signal_ptr;
     /// signal description
     desc_t description;
-    /// signal xml signature
-    XmlSignature signature;
     /// signal readable name (used by the GUI). For exemple, if key is
     /// "set_options", readable should be "Set options".
     readable_t readable_name;
@@ -66,7 +64,7 @@ struct Signal
 
     bool is_hidden;
 
-    Ptr new_signature;
+    Ptr signature;
 
 }; // Signal
 

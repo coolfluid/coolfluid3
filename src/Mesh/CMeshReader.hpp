@@ -23,7 +23,7 @@ namespace Mesh {
 
   class CMesh;
   class CRegion;
-	
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CMeshReader component class
@@ -57,6 +57,8 @@ public: // functions
   /// @note: This doesn't read anything from the xml node argument.
   ///        It just reads the config options
   void signal_read( Common::XmlNode& node  );
+
+  void read_signature( Common::XmlNode& node );
 
   //@} END SIGNALS
 
@@ -94,7 +96,7 @@ protected: // functions
   /// remove all regions with empty connectivity tables inside a given region
   /// @param [in] parent_region  Region in which the removal will take place
   void remove_empty_element_regions(CRegion& parent_region);
-	
+
 protected: // data
 
 };

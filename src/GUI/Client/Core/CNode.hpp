@@ -88,24 +88,21 @@ namespace ClientCore {
   struct ClientCore_API ActionInfo
   {
     /// @brief The action name.
-    QString m_name;
+    QString name;
 
     /// @brief The action readable name. This name is intended to be displayed and
     /// should spaces instead of undescores.
-    QString m_readableName;
+    QString readableName;
 
     /// @brief The action description.
-    QString m_description;
+    QString description;
 
     /// @brief Indicates whether the action is local or not.
 
     /// If @c true, the action is considered as local and has to be executed on the
     /// local component. If @c false, the action has to be executed on the remote
     /// component (on COOLFluiD side)
-    bool m_isLocal;
-
-    /// @brief Action signature.
-    Common::XmlSignature m_signature;
+    bool isLocal;
   };
 
   ////////////////////////////////////////////////////////////////////////////
@@ -338,6 +335,8 @@ namespace ClientCore {
     void signal_signature_reply( Common::XmlNode & node );
 
     //@} END Signals
+
+    void localSignature(const QString & name, Common::XmlNode& node );
 
   protected: // data
 

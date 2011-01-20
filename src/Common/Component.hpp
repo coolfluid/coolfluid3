@@ -12,6 +12,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 
+#include "Common/PropertyList.hpp"
 #include "Common/SignalHandler.hpp"
 #include "Common/TaggedObject.hpp"
 #include "Common/URI.hpp"

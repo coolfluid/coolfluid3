@@ -7,6 +7,7 @@
 #include "Common/CLibraries.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/LibLoader.hpp"
+#include "Common/XmlHelpers.hpp"
 
 namespace CF {
 namespace Common {
@@ -20,13 +21,12 @@ CLibraries::CLibraries ( const std::string& name) : Component ( name )
   // signals
   regist_signal ( "load_library" , "loads a library", "Load Library" )->connect ( boost::bind ( &CLibraries::load_library, this, _1 ) );
 
-  signal("load_library").signature
-      .insert<URI>("Lib", "Library to load" );
-
   signal("create_component").is_hidden = true;
   signal("rename_component").is_hidden = true;
   signal("move_component").is_hidden = true;
   signal("delete_component").is_hidden = true;
+
+  signal("load_library").signature->connect( boost::bind(&CLibraries::load_library_signature, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +73,15 @@ void CLibraries::load_library ( XmlNode& node )
     throw BadValue( FromHere(), "No library was loaded because no files were selected." );
   }
 #endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CLibraries::load_library_signature ( XmlNode& node )
+{
+  XmlParams p(node);
+
+  p.add_option<URI>("Lib", URI(), "Library to load" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

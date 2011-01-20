@@ -43,11 +43,16 @@ public: // functions
 
   /// Signal to run the model
   void run(Common::XmlNode& node);
-  
+
   /// Signal to add Dirichlet boundary conditions
   void add_dirichlet_bc( Common::XmlNode& node );
-  
+
+  /// Signal to define add_dirichlet_bc signature
+  void add_dirichlet_bc_signature( Common::XmlNode& node );
+
   //@} END SIGNALS
+
+
 private:
   // LSS variable needs to be persistent
   Solver::Actions::Proto::MeshTerm<2, Solver::Actions::Proto::LSS> m_blocks;

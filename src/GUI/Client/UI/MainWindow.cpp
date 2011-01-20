@@ -659,25 +659,18 @@ void MainWindow::connectToServer()
 {
   boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
   XmlNode & docnode = *XmlOps::goto_doc_node(*xmldoc.get());
-  XmlNode & mainMapNode = *XmlOps::add_node_to(docnode, "map");
-  XmlNode & valnode = *XmlOps::add_node_to(mainMapNode, "value");
-  XmlNode & mapNode = *XmlOps::add_node_to(valnode, "map");
   SignatureDialog dlg(this);
   TSshInformation sshInfo;
 
-  XmlSignature sig;
+  XmlParams p(docnode);
 
-  XmlOps::add_attribute_to(valnode, "key", "options");
+  p.add_option("Hostname", std::string("localhost"),
+               "Name of the computer that hosts the server.");
+  p.add_option("Port number", CF::Uint(62784),
+               "The port number the server is listening to.");
 
-  sig.insert<std::string>("Hostname", "Name of the computer that hosts the server", std::string("localhost"))
-      .insert<CF::Uint>("Port number", "The port number the server is listening to", CF::Uint(62784));
-
-  sig.put_signature(mapNode);
-
-  if(dlg.show(mapNode, "Connect to server"))
+  if(dlg.show(*p.option_map, "Connect to server"))
   {
-    XmlParams p(mainMapNode);
-
     sshInfo.m_hostname = p.get_option<std::string>("Hostname").c_str();
     sshInfo.m_port = p.get_option<CF::Uint>("Port number");
 

@@ -41,12 +41,14 @@ public: // functions
   static std::string type_name () { return "LoadMesh"; }
 
   // functions specific to the LoadMesh component
-  
+
   /// Signal run_operation
   void signal_load_mesh ( Common::XmlNode& node );
-  
+
+  void load_mesh_signature ( Common::XmlNode& node);
+
   LoadMesh& operation(const std::string& name);
-  
+
 protected: // helper functions
 
   /// updates the list of avialable readers and regists each one to the extension it supports

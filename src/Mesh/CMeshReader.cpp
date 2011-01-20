@@ -35,9 +35,7 @@ CMeshReader::CMeshReader ( const std::string& name  ) :
   /// @todo future way to handle signatures
   // signal("read").regist_signature( &CMeshReader::signature_read );
 
-  signal("read").signature
-      .insert<URI>("Domain", "Domain to load mesh into" )
-      .insert_array<URI>( "Files" , "Files to read" );
+  signal("read").signature->connect( boost::bind(&CMeshReader::read_signature, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,6 +151,19 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
       }
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMeshReader::read_signature( Common::XmlNode& node )
+{
+  XmlParams p(node);
+  std::vector<URI> dummy;
+
+  p.add_option<URI>("Domain", URI(), "Domain to load mesh into" );
+  p.add_array<URI>("Files", dummy , "Files to read" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

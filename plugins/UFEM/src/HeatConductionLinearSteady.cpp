@@ -29,7 +29,6 @@ CF::Common::ComponentBuilder < UFEM::HeatConductionLinearSteady, CMethod, LibUFE
 HeatConductionLinearSteady::HeatConductionLinearSteady(const std::string& name) : CMethod (name), m_blocks("LSS")
 {
   this->regist_signal("add_dirichlet_bc" , "Add a Dirichlet boundary condition", "Add Dirichlet BC")->connect( boost::bind ( &HeatConductionLinearSteady::add_dirichlet_bc, this, _1 ) );
-  signal("add_dirichlet_bc").signature.insert<std::string>("BCName", "Name of the boundary condition" );
 
   this->regist_signal("run" , "Run the method", "Run")->connect( boost::bind ( &HeatConductionLinearSteady::run, this, _1 ) );
 
@@ -38,6 +37,9 @@ HeatConductionLinearSteady::HeatConductionLinearSteady(const std::string& name) 
   signal("delete_component").is_hidden = true;
   signal("move_component").is_hidden   = true;
   signal("run_operation").is_hidden   = true;
+
+  signal("add_dirichlet_bc").signature->connect(
+      boost::bind(&HeatConductionLinearSteady::add_dirichlet_bc_signature, this, _1));
 }
 
 void HeatConductionLinearSteady::initialize()
@@ -104,6 +106,13 @@ void HeatConductionLinearSteady::run(XmlNode& node)
 
   // Solve the linear system
   lss->solve();
+}
+
+void HeatConductionLinearSteady::add_dirichlet_bc_signature( Common::XmlNode& node )
+{
+  XmlParams p(node);
+
+  p.add_option<std::string>("BCName", std::string(), "Name of the boundary condition" );
 }
 
 } // UFEM
