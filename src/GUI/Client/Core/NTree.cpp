@@ -57,6 +57,8 @@ NTree::NTree(NRoot::Ptr rootNode)
   m_properties.add_option< OptionArrayT<CF::Real> >("realArray", "Array of ints", vectReal)->mark_basic();
   m_properties.add_option< OptionArrayT<std::string> >("stringArray", "Array of ints", vectString)->mark_basic();
 
+  m_signals.erase("list_tree"); // unregister base class signal
+
   regist_signal("list_tree", "New tree")->connect(boost::bind(&NTree::list_tree_reply, this, _1));
 }
 
