@@ -14,7 +14,6 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Log.hpp"
 #include "Common/CLink.hpp"
-#include "Common/CGroup.hpp"
 #include "Common/Foreach.hpp"
 
 #include "Solver/CIterativeSolver.hpp"
@@ -92,23 +91,20 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   BOOST_CHECK(true);
 
   std::vector<URI> files;
-//    files.push_back( "file:rotation-tg.neu" );
-//    files.push_back( "file:rotation-qd.neu" );
+//  files.push_back( "file:rotation-tg.neu" );
+    files.push_back( "file:rotation-qd.neu" );
 //  files.push_back( "file:advection_p2.msh" );
-  files.push_back( "file:advection-p2-quad.msh" );
+//  files.push_back( "file:advection-p2-quad.msh" );
   xmlp.add_option<URI>("Domain", URI( domain.full_path().string()) );
   xmlp.add_array("Files", files);
 
   // get the generic mesh loader from the Tools
 
-  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child<CGroup>("Tools")->get_child<LoadMesh>("LoadMesh");
+  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child("Tools")->get_child<LoadMesh>("LoadMesh");
   cf_assert( is_not_null(load_mesh) );
   
   load_mesh->signal_load_mesh( node );
 
-//  CMeshReader& reader = find_component_recursively<CMeshReader>(*Core::instance().root());
-//  reader.signal_read(node);
-  
   BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
 }
 
@@ -120,7 +116,7 @@ BOOST_AUTO_TEST_CASE( configuration )
   CIterativeSolver& solver = find_component_recursively<CIterativeSolver>(*Core::instance().root());
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("Number of Iterations", 600u);
+  solver.configure_property("Number of Iterations", 10u);
   
   CDiscretization::Ptr discretization = solver.get_child<CDiscretization>("Discretization");
   BOOST_CHECK ( is_not_null(discretization) );

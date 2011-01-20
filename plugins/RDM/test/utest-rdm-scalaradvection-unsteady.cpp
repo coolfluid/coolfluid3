@@ -26,6 +26,7 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/LoadMesh.hpp"
 
 #include "RDM/ScalarAdvection.hpp"
 #include "RDM/ResidualDistribution.hpp"
@@ -71,7 +72,6 @@ BOOST_AUTO_TEST_CASE( constructor )
 
 BOOST_AUTO_TEST_CASE( read_mesh )
 {
-
   CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
 
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
@@ -84,8 +84,12 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   p.add_option<URI>("Domain", URI( domain.full_path() ));
   p.add_array("Files", files);
 
-  CMeshReader& reader = find_component_recursively<CMeshReader>(*Core::instance().root());
-  reader.signal_read(node);
+  // get the generic mesh loader from the Tools
+
+  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child("Tools")->get_child<LoadMesh>("LoadMesh");
+  cf_assert( is_not_null(load_mesh) );
+
+  load_mesh->signal_load_mesh( node );
 
   BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
 }

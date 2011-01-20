@@ -13,6 +13,7 @@
 #include "Common/BasicExceptions.hpp"
 
 #include "Mesh/CField.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/ElementType.hpp"
 

@@ -1,8 +1,6 @@
 list( APPEND coolfluid_rdm_files
   LibRDM.cpp
   LibRDM.hpp
-  CSchemeLDA.cpp
-  CSchemeLDA.hpp
   CSchemeLDAT.hpp
   ResidualDistribution.cpp
   ResidualDistribution.hpp

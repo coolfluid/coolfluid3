@@ -15,7 +15,6 @@
 #include "Solver/Actions/CForAllNodes.hpp"
 
 #include "RDM/ResidualDistribution.hpp"
-#include "RDM/CSchemeLDA.hpp"
 #include "RDM/CSchemeLDAT.hpp"
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
@@ -51,12 +50,12 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
     
   // setup of the static components
 
-  const Uint order = 8;
+  const Uint order = 1;
 
 //  typedef SF::Triag2DLagrangeP1 ShapeFunctionT;
-//  typedef SF::Quad2DLagrangeP1 ShapeFunctionT;
-//    typedef SF::Triag2DLagrangeP2 ShapeFunctionT;
-  typedef SF::Quad2DLagrangeP2 ShapeFunctionT;
+    typedef SF::Quad2DLagrangeP1 ShapeFunctionT;
+//  typedef SF::Triag2DLagrangeP2 ShapeFunctionT
+//  typedef SF::Quad2DLagrangeP2 ShapeFunctionT;
 
   typedef Mesh::Integrators::GaussMappedCoords<order,ShapeFunctionT::shape> QuadratureT;
 
