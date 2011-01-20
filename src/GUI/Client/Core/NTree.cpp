@@ -22,7 +22,14 @@
 #include "GUI/Client/Core/NTree.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientCore;
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientCore {
+
+/////////////////////////////////////////////////////////////////////////
 
 NTree::NTree(NRoot::Ptr rootNode)
   : CNode(CLIENT_TREE, "NTree", CNode::TREE_NODE),
@@ -614,6 +621,17 @@ URI NTree::completeRelativePath(const URI & uri) const
   return completedPath;
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NTree::contentListed(Component::Ptr node)
+{
+  if(m_currentIndex.isValid() && indexToNode(m_currentIndex).get() == node.get())
+  {
+    emit currentIndexChanged(m_currentIndex, QModelIndex());
+  }
+}
+
 /*============================================================================
 
                              PRIVATE METHODS
@@ -654,3 +672,11 @@ bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
 
   return match;
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+} // ClientCore
+} // GUI
+} // CF
+
+//////////////////////////////////////////////////////////////////////////////

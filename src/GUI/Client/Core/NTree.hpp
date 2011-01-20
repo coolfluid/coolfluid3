@@ -304,6 +304,8 @@ namespace ClientCore {
 
     /// @} END Signals
 
+    void contentListed(Component::Ptr node);
+
   public slots:
 
     /// @brief Clears the tree.

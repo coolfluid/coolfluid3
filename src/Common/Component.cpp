@@ -74,12 +74,15 @@ Component::Component ( const std::string& name ) :
 
   regist_signal( "save_tree", "Saves the tree", "Save tree")->connect( boost::bind(&Component::save_tree, this, _1) );
 
+  regist_signal( "list_content", "Lists component content", "List content")->connect(boost::bind(&Component::list_content, this, _1));
+
   // these signals should not be seen from the GUI
   signal("list_tree").is_hidden = true;
   signal("list_properties").is_hidden = true;
   signal("list_signals").is_hidden = true;
   signal("configure").is_hidden = true;
   signal("save_tree").is_hidden = true;
+  signal("list_content").is_hidden = true;
 
   // properties
 
@@ -712,6 +715,8 @@ void Component::list_properties( XmlNode& node )
 
   XmlParams p(*node.parent());
 
+  CFinfo << "Adding properties" << CFendl;
+
   for( ; it != m_properties.store.end() ; it++)
   {
     std::string name = it->first;
@@ -854,17 +859,12 @@ void Component::save_tree ( XmlNode& node )
 void Component::list_content( XmlNode& node )
 {
   XmlNode& reply = *XmlOps::add_reply_frame( node );
-//  XmlNode& props_map = *XmlOps::add_node_to(reply, XmlParams::tag_node_map());
-//  XmlNode& options_map = *XmlOps::add_node_to(reply, XmlParams::tag_node_map());
-//  XmlNode& signals_map = *XmlOps::add_node_to(reply, XmlParams::tag_node_map());
+  XmlNode& map_node = *XmlOps::add_node_to(reply, XmlParams::tag_node_map());
 
   XmlOps::add_attribute_to( reply, "sender", full_path().string_without_scheme() );
-//  XmlOps::add_attribute_to( props_map, XmlParams::tag_attr_key(), XmlParams::tag_key_properties() );
-//  XmlOps::add_attribute_to( options_map, XmlParams::tag_attr_key(), XmlParams::tag_key_options() );
-//  XmlOps::add_attribute_to( signals_map, XmlParams::tag_attr_key(), XmlParams::tag_key_signals() );
 
-  list_properties(reply);
-  list_signals(reply);
+  list_properties(map_node);
+  list_signals(map_node);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

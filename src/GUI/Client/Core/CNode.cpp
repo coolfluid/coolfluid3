@@ -72,17 +72,27 @@ void CNodeNotifier::notifyChildCountChanged()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void CNodeNotifier::notifyContentListed()
+{
+  emit contentListed();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 CNode::CNode(const QString & name, const QString & componentType, CNode::Type type)
   : Component(name.toStdString()),
     m_type(type),
     m_notifier(new CNodeNotifier(this)),
     m_componentType(componentType),
-    m_informationFetched(false)
+    m_contentListed( isClientComponent() ),
+    m_listingContent(false)
 {
   m_mutex = new QMutex();
 
   regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure_reply, this, _1));
   regist_signal("tree_updated", "Event that notifies a path has changed")->connect(boost::bind(&CNode::update_tree, this, _1));
+  regist_signal("list_content", "Updates node contents")->connect(boost::bind(&CNode::list_content_reply, this, _1));
 
   m_properties.add_property("originalComponentType", m_componentType.toStdString());
 }
@@ -493,22 +503,33 @@ void CNode::configure_reply(CF::Common::XmlNode & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void fetch_info_reply( CF::Common::XmlNode & node )
+void CNode::list_content_reply( CF::Common::XmlNode & node )
 {
+  std::string str;
 
+  XmlOps::xml_to_string(node, str);
+
+  setOptions(node);
+  setProperties(node);
+  setSignals(node);
+
+  m_contentListed = true;
+  m_listingContent = false;
+
+  ClientRoot::instance().tree()->contentListed( boost::dynamic_pointer_cast<CNode>(self()) );
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::options(QList<Option::ConstPtr> & list) const
+void CNode::options(QList<Option::ConstPtr> & list)
 {
-  if(!m_informationFetched)
-    ;
+  QMutexLocker locker(m_mutex);
+
+  if(!m_contentListed)
+    fetchContent();
   else
   {
-    QMutexLocker locker(m_mutex);
-
     PropertyList::PropertyStorage_t::const_iterator it;
 
     it = m_properties.store.begin();
@@ -526,44 +547,47 @@ void CNode::options(QList<Option::ConstPtr> & list) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::properties(QMap<QString, QString> & props) const
+void CNode::properties(QMap<QString, QString> & props)
 {
   QMutexLocker locker(m_mutex);
 
-  PropertyList::PropertyStorage_t::const_iterator it = m_properties.store.begin();
-
-  boost::any val = int(120);
-
-  props.clear();
-
-  for( ; it != m_properties.store.end() ; it++)
+  if(!m_contentListed)
+    fetchContent();
+  else
   {
-    Property::Ptr prop = it->second;
-    std::string valueStr;
+    PropertyList::PropertyStorage_t::const_iterator it = m_properties.store.begin();
 
-    if(prop->is_option())
-       valueStr = prop->value_str().c_str();
-    else
+    props.clear();
+
+    for( ; it != m_properties.store.end() ; it++)
     {
-      std::string propType = prop->type();
+      Property::Ptr prop = it->second;
+      std::string valueStr;
 
-      if(propType.compare( XmlTag<bool>::type() ) == 0)              // bool prop
-        valueStr = to_str(prop->value<bool>());
-      else if(propType.compare( XmlTag<int>::type() ) == 0)          // int prop
-        valueStr = to_str(prop->value<int>());
-      else if(propType.compare( XmlTag<CF::Uint>::type() ) == 0)     // Uint prop
-        valueStr = to_str(prop->value<CF::Uint>());
-      else if(propType.compare( XmlTag<CF::Real>::type() ) == 0)     // Real prop
-        valueStr = to_str(prop->value<CF::Real>());
-      else if(propType.compare( XmlTag<std::string>::type() ) == 0)  // string prop
-        valueStr = prop->value_str();
-      else if(propType.compare( XmlTag<URI>::type() ) == 0)          // URI prop
-        valueStr = to_str(prop->value<URI>());
+      if(prop->is_option())
+        valueStr = prop->value_str().c_str();
       else
-        throw CastingFailed(FromHere(), "Unable to convert " + propType + " to string.");
-    }
+      {
+        std::string propType = prop->type();
 
-    props[ it->first.c_str() ] = valueStr.c_str();
+        if(propType.compare( XmlTag<bool>::type() ) == 0)              // bool prop
+          valueStr = to_str(prop->value<bool>());
+        else if(propType.compare( XmlTag<int>::type() ) == 0)          // int prop
+          valueStr = to_str(prop->value<int>());
+        else if(propType.compare( XmlTag<CF::Uint>::type() ) == 0)     // Uint prop
+          valueStr = to_str(prop->value<CF::Uint>());
+        else if(propType.compare( XmlTag<CF::Real>::type() ) == 0)     // Real prop
+          valueStr = to_str(prop->value<CF::Real>());
+        else if(propType.compare( XmlTag<std::string>::type() ) == 0)  // string prop
+          valueStr = prop->value_str();
+        else if(propType.compare( XmlTag<URI>::type() ) == 0)          // URI prop
+          valueStr = to_str(prop->value<URI>());
+        else
+          throw CastingFailed(FromHere(), "Unable to convert " + propType + " to string.");
+      }
+
+      props[ it->first.c_str() ] = valueStr.c_str();
+    }
   }
 
 }
@@ -571,32 +595,37 @@ void CNode::properties(QMap<QString, QString> & props) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::actions(QList<ActionInfo> & actions) const
+void CNode::actions(QList<ActionInfo> & actions)
 {
   QMutexLocker locker(m_mutex);
 
-  actions = m_actionSigs;
-
-  QStringList::const_iterator it = m_localSignals.begin();
-
-  for( ; it != m_localSignals.end() ; it++)
+  if(!m_contentListed)
+    fetchContent();
+  else
   {
+    actions = m_actionSigs;
 
-    if(m_signals.find(it->toStdString()) != m_signals.end())
+    QStringList::const_iterator it = m_localSignals.begin();
+
+    for( ; it != m_localSignals.end() ; it++)
     {
-      ActionInfo ai;
-      const Signal & sig = m_signals.find(it->toStdString())->second;
 
-      ai.m_name = it->toStdString().c_str();
-      ai.m_description = sig.description.c_str();
-      ai.m_readableName = sig.readable_name.c_str();
-      ai.m_signature = sig.signature;
-      ai.m_isLocal = true;
+      if(m_signals.find(it->toStdString()) != m_signals.end())
+      {
+        ActionInfo ai;
+        const Signal & sig = m_signals.find(it->toStdString())->second;
 
-      actions.append(ai);
+        ai.m_name = it->toStdString().c_str();
+        ai.m_description = sig.description.c_str();
+        ai.m_readableName = sig.readable_name.c_str();
+        ai.m_signature = sig.signature;
+        ai.m_isLocal = true;
+
+        actions.append(ai);
+      }
+      else
+        ClientRoot::instance().log()->addError(*it + ": local signal not found");
     }
-    else
-      ClientRoot::instance().log()->addError(*it + ": local signal not found");
   }
 }
 
@@ -658,8 +687,6 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
 
         if(node.get() != nullptr)
         {
-          // CF_DEBUG_OBJ( node->full_path().string() );
-
           if(rootNode->checkType(ROOT_NODE))
             rootNode->castTo<NRoot>()->root()->add_component(node);
           else
@@ -793,12 +820,22 @@ Signal::return_t CNode::update_tree(XmlNode & node)
 
 void CNode::fetchContent()
 {
-  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
-  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+  if(!m_contentListed && !m_listingContent)
+  {
+    boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
+    XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+    URI path;
 
-  XmlOps::add_signal_frame(*docNode, "list_content", full_path(), full_path(), true);
+    if( m_type == ROOT_NODE )
+      path = URI(CLIENT_ROOT_PATH, URI::Scheme::CPATH);
+    else
+      path = full_path();
 
-  ClientRoot::instance().core()->sendSignal(*root.get());
+    XmlOps::add_signal_frame(*docNode, "list_content", path, path, true);
+
+    ClientRoot::instance().core()->sendSignal(*root.get());
+    m_listingContent = true;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -63,10 +63,17 @@ namespace ClientCore {
     /// @brief Emits @c #childCountChanged() signal.
     void notifyChildCountChanged();
 
+    /// @brief Emits @c #contentChanged() signal.
+    void notifyContentListed();
+
   signals:
 
     /// @brief Signal emitted when children have been added or removed.
     void childCountChanged();
+
+    /// @brief Signal emitted when the node content been listed from the
+    /// server.
+    void contentListed();
 
   private:
 
@@ -220,14 +227,14 @@ namespace ClientCore {
     /// @brief Gives options
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
-    void options(QList<CF::Common::Option::ConstPtr> & list) const;
+    void options(QList<CF::Common::Option::ConstPtr> & list);
 
     /// @brief Gives properties
     /// @param props Reference to a map where properties will be put. The map
     /// cleared before first use.
-    void properties(QMap<QString, QString> & props) const;
+    void properties(QMap<QString, QString> & props);
 
-    void actions(QList<ActionInfo> & actions) const;
+    void actions(QList<ActionInfo> & actions);
 
     /// @brief Creates an object tree from a given node
 
@@ -350,9 +357,18 @@ namespace ClientCore {
     /// @brief List of signals that can be remotely executed
     QList<ActionInfo> m_actionSigs;
 
-    bool m_informationFetched;
+    /// @c false until the node content has been retrieved from
+    /// the server.
+    bool m_contentListed;
+
+    /// Idicates whether this node is already waiting for content
+    /// from the server.
+    /// This is used to avoid sending multiple requests to the server
+    /// in case it is overloaded and takes some time to reply.
+    bool m_listingContent;
 
   private: // helper functions
+
     /// @brief Creates an @c #OptionT option with a value of type TYPE.
     /// @param name Option name
     /// @param descr Option description
@@ -361,8 +377,8 @@ namespace ClientCore {
     /// @return Returns the created option.
     template<typename TYPE>
     static CF::Common::Option::Ptr makeOptionT(const std::string & name,
-                                                      const std::string & descr,
-                                                      CF::Common::XmlNode & node)
+                                               const std::string & descr,
+                                               CF::Common::XmlNode & node)
     {
       TYPE value;
       CF::Common::to_value(node, value);
