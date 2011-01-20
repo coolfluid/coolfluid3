@@ -146,8 +146,6 @@ void SignalManager::signalSignature(XmlNode & node)
     std::string str;
     XmlOps::xml_to_string(node, str);
 
-    qDebug() << str.c_str() << originalp.option_map;
-
     XmlNode & map = *p.add_map(XmlParams::tag_key_options());
 
     if(originalp.option_map != nullptr)

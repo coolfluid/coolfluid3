@@ -59,7 +59,7 @@ void NTreeTest::test_setRoot()
   QCOMPARE(t.treeRoot(), newRoot);
 
   // the tree root should have 3 children now
-  QCOMPARE((int) t.treeRoot()->root()->get_child_count(), 3);
+  QCOMPARE((int) t.treeRoot()->root()->get_child_count(), 2);
 }
 
 ////////////////////////////////////////////////////////////////////////////
