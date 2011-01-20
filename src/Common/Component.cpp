@@ -72,14 +72,14 @@ Component::Component ( const std::string& name ) :
   signal("move_component").signature
           .insert< URI >("Path", "Path to the new component to which this one will move to" );
 
-  regist_signal( "dump_tree", "Dumps the tree", "Dump tree")->connect( boost::bind(&Component::dump_tree, this, _1) );
+  regist_signal( "save_tree", "Saves the tree", "Save tree")->connect( boost::bind(&Component::save_tree, this, _1) );
 
   // these signals should not be seen from the GUI
   signal("list_tree").is_hidden = true;
   signal("list_properties").is_hidden = true;
   signal("list_signals").is_hidden = true;
   signal("configure").is_hidden = true;
-  signal("dump_tree").is_hidden = true;
+  signal("save_tree").is_hidden = true;
 
   // properties
 
@@ -574,7 +574,7 @@ void Component::print_info ( XmlNode& node  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::write_xml_tree( XmlNode& node )
+void Component::write_xml_tree( XmlNode& node, bool put_all_content )
 {
   std::string type_name = derived_type_name();
 
@@ -600,15 +600,17 @@ void Component::write_xml_tree( XmlNode& node )
     }
     else
     {
-      XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_map());
+      if( put_all_content && !m_properties.store.empty() )
+      {
+        XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_map());
 
-      // add properties and signals
-      list_properties(options);
-      list_signals(options);
+        // add properties
+        list_properties(options);
+      }
 
       boost_foreach( CompStorage_t::value_type c, m_components )
       {
-        c.second->write_xml_tree( this_node );
+        c.second->write_xml_tree( this_node, put_all_content );
       }
     }
   }
@@ -622,7 +624,7 @@ void Component::list_tree( XmlNode& node )
 
   XmlOps::add_attribute_to( reply, "sender", full_path().string_without_scheme() );
 
-  write_xml_tree(reply);
+  write_xml_tree(reply, false);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -836,7 +838,7 @@ void Component::rename_component ( XmlNode& node )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::dump_tree ( XmlNode& node )
+void Component::save_tree ( XmlNode& node )
 {
   XmlParams p(node);
   URI filename = p.get_option<URI>("filename");
@@ -844,21 +846,39 @@ void Component::dump_tree ( XmlNode& node )
   if(filename.scheme() != URI::Scheme::FILE)
     throw InvalidURI(FromHere(), "A file was expected but got \'" + filename.string() + "\'");
 
-  dump_tree_to( filename.string_without_scheme() );
+  save_tree_to( filename.string_without_scheme() );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::dump_tree_to( const boost::filesystem::path & path )
+void Component::list_content( XmlNode& node )
+{
+  XmlNode& reply = *XmlOps::add_reply_frame( node );
+//  XmlNode& props_map = *XmlOps::add_node_to(reply, XmlParams::tag_node_map());
+//  XmlNode& options_map = *XmlOps::add_node_to(reply, XmlParams::tag_node_map());
+//  XmlNode& signals_map = *XmlOps::add_node_to(reply, XmlParams::tag_node_map());
+
+  XmlOps::add_attribute_to( reply, "sender", full_path().string_without_scheme() );
+//  XmlOps::add_attribute_to( props_map, XmlParams::tag_attr_key(), XmlParams::tag_key_properties() );
+//  XmlOps::add_attribute_to( options_map, XmlParams::tag_attr_key(), XmlParams::tag_key_options() );
+//  XmlOps::add_attribute_to( signals_map, XmlParams::tag_attr_key(), XmlParams::tag_key_signals() );
+
+  list_properties(reply);
+  list_signals(reply);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::save_tree_to( const boost::filesystem::path & path )
 {
   boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
   XmlNode & doc_node = *XmlOps::goto_doc_node(*xmldoc.get());
 
-  write_xml_tree(doc_node);
+  write_xml_tree(doc_node, true);
 
   XmlOps::write_xml_node(*xmldoc.get(), path);
 
-  CFinfo << "Tree dumped to '" << path.string() << "'" << CFendl;
+  CFinfo << "Tree saved to '" << path.string() << "'" << CFendl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

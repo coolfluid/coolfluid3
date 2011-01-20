@@ -33,8 +33,8 @@ CJournal::CJournal (const std::string & name)
       connect( boost::bind( &CJournal::list_journal, this, _1) );
   regist_signal("load_journal", "Loads the journal entries from file.", "Load journal")->
       connect( boost::bind( &CJournal::load_journal, this, _1) );
-  regist_signal("dump_journal", "Dumps all journal entries.", "Dump journal")->
-      connect( boost::bind( &CJournal::dump_journal, this, _1) );
+  regist_signal("save_journal", "Saves all journal entries.", "Save journal")->
+      connect( boost::bind( &CJournal::save_journal, this, _1) );
 
   signal("list_journal").is_hidden = true;
 
@@ -197,7 +197,7 @@ void CJournal::load_journal ( XmlNode & node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::dump_journal ( XmlNode & node )
+void CJournal::save_journal ( XmlNode & node )
 {
   URI file_path("./server-journal.xml", URI::Scheme::FILE);
   boost::filesystem::path path(file_path.string_without_scheme());

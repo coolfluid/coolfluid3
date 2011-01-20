@@ -74,7 +74,7 @@ namespace Common {
 
     void load_journal ( XmlNode & node );
 
-    void dump_journal ( XmlNode & node );
+    void save_journal ( XmlNode & node );
 
     // @} END SIGNALS
 

@@ -299,14 +299,17 @@ public: // functions
   void rename_component ( XmlNode& xml) ;
 
   /// dumps the tree to a file
-  void dump_tree ( XmlNode &xml);
+  void save_tree ( XmlNode& xml );
+
+  /// gives information about this component such as options, signals, ...
+  void list_content( XmlNode& node );
 
   //@} END SIGNALS
 
   /// marks this component as basic.
   void mark_basic();
 
-  void dump_tree_to( const boost::filesystem::path & path );
+  void save_tree_to( const boost::filesystem::path & path );
 
 protected: // functions
 
@@ -322,7 +325,9 @@ private: // helper functions
   std::string ensure_unique_name ( Ptr subcomp );
 
   /// writes the underlying component tree to the xml node
-  void write_xml_tree( XmlNode& node );
+  /// @param put_all_content If @c false, options and properties are not put
+  /// in the node.
+  void write_xml_tree( XmlNode& node, bool put_all_content );
 
   /// Put all subcomponents in a given vector, optionally recursive
   /// @param [out] vec  A vector of all (recursive) subcomponents

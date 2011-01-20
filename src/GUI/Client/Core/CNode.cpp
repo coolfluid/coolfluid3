@@ -43,10 +43,19 @@ for( ; itList != list.end() ; itList++)\
  p.add_array(it.key().toStdString(), data);\
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Common::String;
 using namespace CF::GUI::ClientCore;
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientCore {
+
+/////////////////////////////////////////////////////////////////////////
 
 CNodeNotifier::CNodeNotifier(CNode * parent)
   : m_parent(parent)
@@ -67,7 +76,8 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
   : Component(name.toStdString()),
     m_type(type),
     m_notifier(new CNodeNotifier(this)),
-    m_componentType(componentType)
+    m_componentType(componentType),
+    m_informationFetched(false)
 {
   m_mutex = new QMutex();
 
@@ -483,20 +493,33 @@ void CNode::configure_reply(CF::Common::XmlNode & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void fetch_info_reply( CF::Common::XmlNode & node )
+{
+
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void CNode::options(QList<Option::ConstPtr> & list) const
 {
-  QMutexLocker locker(m_mutex);
-
-  PropertyList::PropertyStorage_t::const_iterator it;
-
-  it = m_properties.store.begin();
-
-  for( ; it != m_properties.store.end() ; it++)
+  if(!m_informationFetched)
+    ;
+  else
   {
-    Property::Ptr prop = it->second;
+    QMutexLocker locker(m_mutex);
 
-    if(prop->is_option())
-      list.append(boost::dynamic_pointer_cast<Option const>(prop));
+    PropertyList::PropertyStorage_t::const_iterator it;
+
+    it = m_properties.store.begin();
+
+    for( ; it != m_properties.store.end() ; it++)
+    {
+      Property::Ptr prop = it->second;
+
+      if(prop->is_option())
+        list.append(boost::dynamic_pointer_cast<Option const>(prop));
+    }
   }
 }
 
@@ -764,5 +787,26 @@ Signal::return_t CNode::update_tree(XmlNode & node)
 {
   ClientRoot::instance().core()->updateTree();
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::fetchContent()
+{
+  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
+  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+
+  XmlOps::add_signal_frame(*docNode, "list_content", full_path(), full_path(), true);
+
+  ClientRoot::instance().core()->sendSignal(*root.get());
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+} // ClientCore
+} // GUI
+} // CF
+
+//////////////////////////////////////////////////////////////////////////////
 
 #undef ADD_ARRAY_TO_XML

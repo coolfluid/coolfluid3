@@ -325,9 +325,11 @@ namespace ClientCore {
     /// @param node An XML representation of the modified options.
     void configure_reply(CF::Common::XmlNode & node);
 
+    void list_content_reply( CF::Common::XmlNode & node );
+
     //@} END Signals
 
-  protected:
+  protected: // data
 
     /// @brief This node type.
     CNode::Type m_type;
@@ -340,7 +342,7 @@ namespace ClientCore {
 
     QMutex * m_mutex;
 
-  private:
+  private: // data
 
     /// @brief Component type name.
     QString m_componentType;
@@ -348,6 +350,9 @@ namespace ClientCore {
     /// @brief List of signals that can be remotely executed
     QList<ActionInfo> m_actionSigs;
 
+    bool m_informationFetched;
+
+  private: // helper functions
     /// @brief Creates an @c #OptionT option with a value of type TYPE.
     /// @param name Option name
     /// @param descr Option description
@@ -447,6 +452,8 @@ namespace ClientCore {
 
       return returnList;
     }
+
+    void fetchContent();
 
   }; // class CNode
 

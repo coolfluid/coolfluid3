@@ -74,7 +74,7 @@ int main(int argc, char * argv[])
 
         journal->execute_signals(journal_file);
 
-        Core::instance().root()->dump_tree_to("./my-tree.xml");
+        Core::instance().root()->save_tree_to("./my-tree.xml");
 
         return 0;
       }
