@@ -59,7 +59,10 @@ private: // functions
 
   void build_inner_faces_bottom_up(Component::Ptr parent);
 
-  void build_face_elements(CRegion& in_region, CFaceCellConnectivity& from_face_to_cell);
+  void build_inner_face_elements(CRegion& in_region, CFaceCellConnectivity& from_face_to_cell);
+  
+  void build_outer_face_elements(CRegion& in_region, CFaceCellConnectivity& from_face_to_cell);
+  
 
 private: // data
 

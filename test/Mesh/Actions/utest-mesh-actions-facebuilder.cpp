@@ -101,6 +101,10 @@ BOOST_AUTO_TEST_CASE( build_faces )
   facebuilder->execute();
   
   CFinfo << mesh->tree() << CFendl;
+  
+  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  std::vector<std::string> args;
+  info->transform(mesh,args);
 }
 
 //////////////////////////////////////////////////////////////////////////////

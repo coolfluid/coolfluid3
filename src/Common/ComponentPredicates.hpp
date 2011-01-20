@@ -85,6 +85,144 @@ public:
 // Range type shorthands and automatic const deduction
 ////////////////////////////////////////////////////////////////////////////////
 
+template<typename T, typename Predicate=IsComponentTrue>
+struct DerivedComponentIteratorRange : //public iterator_range<typename T::const_iterator>::type
+                                       public boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T> > >
+{
+  typedef boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T> > > Base;
+  typedef boost::filter_iterator< Predicate, ComponentIterator<T> > Filter;
+  typedef DerivedComponentIteratorRange type;
+
+  DerivedComponentIteratorRange ( const ComponentIterator<T>& b, const ComponentIterator<T>& e )
+  : Base ( Filter( Predicate() , b , e ) ,
+           Filter( Predicate() , e , e ) )
+  {}
+
+  DerivedComponentIteratorRange ( const ComponentIterator<T>& b, const ComponentIterator<T>& e , const Predicate& pred )
+  : Base ( Filter( pred , b , e ) ,
+           Filter( pred , e , e ) )
+  {}
+  
+  bool operator==( const DerivedComponentIteratorRange& rhs )  { return equal( rhs) ; }
+  bool operator!=( const DerivedComponentIteratorRange& rhs )  { return !equal( rhs) ; }
+
+  std::vector<boost::shared_ptr<T> > as_vector()
+  {
+    std::vector<boost::shared_ptr<T> > result (0);
+    BOOST_FOREACH ( T& val, *this )
+      result.push_back(val.template as_type<T>());
+    return result;
+  }
+  
+  std::vector<boost::shared_ptr<T const> > as_const_vector()
+  {
+    std::vector<boost::shared_ptr<T const> > result (0);
+    BOOST_FOREACH ( const T& val, *this )
+      result.push_back(val.as_const()->template as_type<T>());
+    return result;
+  }
+  
+  Uint size() const
+  {
+    Uint result = 0;
+    BOOST_FOREACH ( const T& val, *this )
+      ++result;
+    return result;
+  }
+};
+
+
+template<typename T, typename Predicate=IsComponentTrue>
+struct DerivedConstComponentIteratorRange : //public iterator_range<typename T::const_iterator>::type
+                                       public boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T const> > >
+{
+  typedef boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T const> > > Base;
+  typedef boost::filter_iterator< Predicate, ComponentIterator<T const> > ConstFilter;
+  typedef boost::filter_iterator< Predicate, ComponentIterator<T> > Filter;
+
+  DerivedConstComponentIteratorRange ( ComponentIterator<T const> b, ComponentIterator<T const> e )
+  : Base ( ConstFilter( Predicate() , b , e ) ,
+           ConstFilter( Predicate() , e , e ) )
+  {}
+
+  DerivedConstComponentIteratorRange ( ComponentIterator<T const> b, ComponentIterator<T const> e , const Predicate& pred )
+  : Base ( ConstFilter( pred , b , e ) ,
+           ConstFilter( pred , e , e ) )
+  {}
+  
+  DerivedConstComponentIteratorRange( const DerivedComponentIteratorRange<T,Predicate>& rhs  )
+  : Base ( rhs.begin(), rhs.end() )
+  {}
+  
+  bool operator==( const DerivedConstComponentIteratorRange& rhs )  { return equal( rhs) ; }
+  bool operator!=( const DerivedConstComponentIteratorRange& rhs )  { return !equal( rhs) ; }
+
+  std::vector<boost::shared_ptr<T const> > as_vector()
+  {
+    std::vector<boost::shared_ptr<T> > result (0);
+    BOOST_FOREACH ( const T& val, *this )
+      result.push_back(val.template as_type<T>());
+    return result;
+  }
+  
+  std::vector<boost::shared_ptr<T const> > as_const_vector()
+  {
+    return as_vector();
+  }
+  
+  Uint size() const
+  {
+    Uint result = 0;
+    BOOST_FOREACH ( const T& val, *this )
+      ++result;
+    return result;
+  }
+};
+
+
+
+template <typename T, typename Predicate>
+inline DerivedComponentIteratorRange<T, Predicate>
+make_new_range(ComponentIterator<T> from, ComponentIterator<T> to , const Predicate& pred = IsComponentTrue() )
+{
+  return DerivedComponentIteratorRange<T,Predicate>(from,to,pred);
+}
+
+
+// template<typename T, typename Predicate=IsComponentTrue>
+// struct DerivedConstComponentIteratorRange : //public iterator_range<typename T::const_iterator>::type
+// public boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T const> > >
+// {
+// //  typedef ComponentIterator<T> iterator;
+// //  typedef ComponentIterator<T const> const_iterator;
+//   typedef boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T const> > > Base;
+//   
+//   template <typename T2>
+//   DerivedConstComponentIteratorRange ( const T2& c )
+//   : Base ( c.template begin<T>(), c.template end<T>() )
+//   {}
+// 
+//   DerivedConstComponentIteratorRange (  ComponentIterator<T> b, ComponentIterator<T> e )
+//   : Base ( b, e )
+//   {}
+// 
+//   DerivedConstComponentIteratorRange ( ComponentIterator<T const> b, ComponentIterator<T const> e )
+//   : Base ( b, e )
+//   {}
+// 
+//   DerivedConstComponentIteratorRange( const DerivedComponentIteratorRange<T>& rhs  )
+//   : Base ( rhs.begin(), rhs.end() )
+//   {}
+// 
+//   // DerivedConstComponentIteratorRange( const DerivedConstComponentIteratorRange<T>& rhs  )
+//   // : Base ( rhs.begin(), rhs.end() )
+//   // {}
+// 
+//   bool operator==( const DerivedConstComponentIteratorRange& rhs )  { return equal( rhs) ; }
+//   bool operator!=( const DerivedConstComponentIteratorRange& rhs )  { return !equal( rhs) ; }
+// 
+// };
+
 /// Shorthand for a range of two filtered iterators
 template<typename IteratorT, typename Predicate=IsComponentTrue>
 struct FilteredIteratorRange {
@@ -113,10 +251,14 @@ struct FilteredIteratorRange<IteratorT, IsComponentTrue> {
 /// Derive the correct range type based on the constness of ParentT, which should be the type of the parent component
 template<typename ParentT, typename ComponentT=Component, typename Predicate=IsComponentTrue>
 struct ComponentIteratorRange {
-  typedef typename FilteredIteratorRange<typename boost::mpl::if_c<boost::is_const<ParentT>::value, // if ParentT is const
-                                                                    ComponentIterator<ComponentT const>, // use a const component iterator
-                                                                    ComponentIterator<ComponentT> >::type, // or the mutable one otherwise
-                                          Predicate>::type type;
+  // typedef typename FilteredIteratorRange<typename boost::mpl::if_c<boost::is_const<ParentT>::value, // if ParentT is const
+  //                                                                   ComponentIterator<ComponentT const>, // use a const component iterator
+  //                                                                   ComponentIterator<ComponentT> >::type, // or the mutable one otherwise
+  //                                         Predicate>::type type;
+  typedef typename DerivedComponentIteratorRange<typename boost::mpl::if_c<boost::is_const<ParentT>::value, // if ParentT is const
+                                                                     ComponentT const, // use a const component iterator
+                                                                     ComponentT >::type, // or the mutable one otherwise
+                                           Predicate>::type type;
 };
 
 /// Reference to ComponentT, constness determined by the constness of ParentT
@@ -191,13 +333,31 @@ inline std::vector< boost::shared_ptr<const T> > range_to_const_vector( boost::i
 
 /// Given two iterators delimiting a component range, return a range that conforms to the
 /// given predicate. The unfiltered version is not provided, since boost::make_iterator_range(from, to) is equivalent.
-template <typename Predicate, typename IteratorT>
-inline typename FilteredIteratorRange<IteratorT, Predicate>::type
-make_filtered_range(const IteratorT& from, const IteratorT& to , const Predicate& pred)
+template <typename Predicate, typename T>
+inline typename DerivedComponentIteratorRange<T,Predicate>::type
+make_filtered_range(const ComponentIterator<T>& from, const ComponentIterator<T>& to , const Predicate& pred)
 {
-  return FilteredIteratorRange<IteratorT, Predicate>::make_range(from, to, pred);
+  return DerivedComponentIteratorRange<T,Predicate>(from,to,pred);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+inline typename DerivedComponentIteratorRange<T,IsComponentTrue>::type
+make_filtered_range(const ComponentIterator<T>& from, const ComponentIterator<T>& to)
+{
+  return DerivedComponentIteratorRange<T,IsComponentTrue>(from,to,IsComponentTrue());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// template <typename Predicate, typename IteratorT>
+// inline typename FilteredIteratorRange<IteratorT, Predicate>::type
+// make_filtered_range(const IteratorT& from, const IteratorT& to , const Predicate& pred)
+// {
+//   return FilteredIteratorRange<IteratorT, Predicate>::make_range(from, to, pred);
+//   
+// }
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -205,20 +365,23 @@ make_filtered_range(const IteratorT& from, const IteratorT& to , const Predicate
 inline ComponentIteratorRange<Component, Component>::type
 find_components(Component& parent)
 {
-  return boost::make_iterator_range(parent.begin(),parent.end());
+  return make_filtered_range(parent.begin(),parent.end());
+  // return boost::make_iterator_range(parent.begin(),parent.end());
 }
 
 inline ComponentIteratorRange<const Component, Component>::type
 find_components(const Component& parent)
 {
-  return boost::make_iterator_range(parent.begin(),parent.end());
+  return make_filtered_range(parent.begin(),parent.end());
+  // return boost::make_iterator_range(parent.begin(),parent.end());
 }
 
 template <typename ComponentT, typename ParentT>
 inline typename ComponentIteratorRange<ParentT, ComponentT>::type
 find_components(ParentT& parent)
 {
-  return boost::make_iterator_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>());
+  return make_filtered_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>());
+  // return boost::make_iterator_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -292,20 +455,21 @@ find_components_with_tag(ParentT& parent, const std::string& tag)
 inline ComponentIteratorRange<Component, Component>::type
 find_components_recursively(Component& parent)
 {
-  return boost::make_iterator_range(parent.recursive_begin(),parent.recursive_end());
+  return make_filtered_range(parent.recursive_begin(),parent.recursive_end());
+  // return boost::make_iterator_range(parent.recursive_begin(),parent.recursive_end());
 }
 
 inline ComponentIteratorRange<Component const, Component>::type
 find_components_recursively(const Component& parent)
 {
-  return boost::make_iterator_range(parent.recursive_begin(),parent.recursive_end());
+  return make_filtered_range(parent.recursive_begin(),parent.recursive_end());
 }
 
 template <typename ComponentT, typename ParentT>
 inline typename ComponentIteratorRange<ParentT, ComponentT>::type
 find_components_recursively(ParentT& parent)
 {
-  return boost::make_iterator_range(parent.template recursive_begin<ComponentT>(),parent.template recursive_end<ComponentT>());
+  return make_filtered_range(parent.template recursive_begin<ComponentT>(),parent.template recursive_end<ComponentT>());
 }
 
 //////////////////////////////////////////////////////////////////////////////

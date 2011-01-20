@@ -32,7 +32,7 @@ CNodeElementConnectivity::CNodeElementConnectivity ( const std::string& name ) :
 
 void CNodeElementConnectivity::setup(CRegion& region)
 {
-  set_elements(find_components_recursively<CElements>(region));
+  add_elements(find_components_recursively<CElements>(region).as_vector());
   build_connectivity();
 }
 
@@ -80,7 +80,6 @@ void CNodeElementConnectivity::build_connectivity()
       ++glb_elem_idx;
     }
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -58,7 +58,7 @@ public:
   /// @param [in] elements_range the elements range to see if they are connected to the nodes.
   ///                            Can be made using "find_components_recursively<CElements>()" function
   template<typename ElementsRangeT>
-      void set_elements( const ElementsRangeT& range)
+      void add_elements( const ElementsRangeT& range)
   {
     m_elements->add_data(range);
     cf_assert(m_elements->size());

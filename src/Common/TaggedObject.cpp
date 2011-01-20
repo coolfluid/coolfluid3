@@ -20,8 +20,8 @@ TaggedObject::TaggedObject() :
 
 void TaggedObject::add_tag(const std::string& tag)
 {
-	if (!has_tag(tag))
-		m_tags += tag + ":";
+  if (!has_tag(tag))
+    m_tags += tag + ":";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -59,14 +59,17 @@ bool TaggedObject::has_tag(const std::string& tag) const
 
 void TaggedObject::remove_tag(const std::string& tag)
 {
-  std::string tags;
+  if (has_tag(tag))
+  {
+    std::string tags;
 
-  typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-  boost::char_separator<char> sep(":");
-  Tokenizer tokens(m_tags, sep);
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    boost::char_separator<char> sep(":");
+    Tokenizer tokens(m_tags, sep);
 
-  for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
-    if (*tok_iter!=tag)
-      tags += *tok_iter + ":";
-  m_tags=tags;
+    for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+      if (*tok_iter!=tag)
+        tags += *tok_iter + ":";
+    m_tags=tags;
+  }
 }

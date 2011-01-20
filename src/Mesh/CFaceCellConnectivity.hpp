@@ -82,10 +82,15 @@ public:
   
   /// const access to the node to element connectivity table in unified indices
   const CTable<Uint>& connectivity() const { return *m_connectivity; }
-  
+
   Uint size() const { return connectivity().size(); }
   
-  std::vector<Uint> nodes(const Uint face) const;
+  virtual std::vector<Uint> nodes(const Uint face) { return nodes_using_inner_face_connectivity(face); }
+  
+  std::vector<Uint> nodes_using_inner_face_connectivity(const Uint face) const;
+  std::vector<Uint> nodes_using_bdry_face_connectivity(const Uint face) const;
+  
+  void match_faces();
   
   void set_elements(CUnifiedData<CElements>::Ptr elements);
   
@@ -111,7 +116,11 @@ private: // data
   /// Actual connectivity table
   CTable<Uint>::Ptr m_connectivity;
   
+  CList<Uint>::Ptr m_bdry_faces;
+  
   CList<Uint>::Ptr m_face_nb_in_first_elem;
+
+  CList<Uint>::Ptr m_bdry_face_nb_in_first_elem;
   
   CList<Uint>::Ptr m_is_bdry_face;
 
