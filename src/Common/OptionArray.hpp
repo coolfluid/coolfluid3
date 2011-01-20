@@ -9,8 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/foreach.hpp>
-
 #include "Common/Option.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/XML.hpp"

@@ -11,6 +11,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"

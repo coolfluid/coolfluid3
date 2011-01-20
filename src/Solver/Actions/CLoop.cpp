@@ -6,6 +6,9 @@
 
 #include "Common/URI.hpp"
 #include "Common/CreateComponent.hpp"
+
+#include "Common/OptionArray.hpp"
+
 #include "Solver/Actions/CLoop.hpp"
 
 #include "Mesh/CRegion.hpp"

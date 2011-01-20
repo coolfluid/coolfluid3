@@ -17,6 +17,7 @@
 
 #include "Common/Component.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/XML.hpp"
 #include "Common/XmlHelpers.hpp"
 

@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/OptionArray.hpp"
+
 #include "Solver/CDiscretization.hpp"
 
 namespace CF {
@@ -25,7 +27,6 @@ CDiscretization::CDiscretization ( const std::string& name  ) :
 
   std::vector< URI > dummy;
   m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

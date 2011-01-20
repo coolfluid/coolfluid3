@@ -14,6 +14,8 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/String/Conversion.hpp"
 #include "Common/Log.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CField.hpp"
@@ -36,8 +38,6 @@ Common::ComponentBuilder < CField, Component, LibMesh >  CField_Builder;
 CField::CField ( const std::string& name  ) :
   Component ( name )
 {
-
-
   std::vector<std::string> var_names;
   std::vector<std::string> var_types;
   std::vector<Uint> var_sizes;
@@ -50,8 +50,7 @@ CField::CField ( const std::string& name  ) :
   m_properties["VarTypes"].as_option().attach_trigger ( boost::bind ( &CField::config_var_types,   this ) );
 
   m_support = create_static_component<CLink>("support");
-  m_support->add_tag("support");
-  
+  m_support->add_tag("support"); 
 }
   
 ////////////////////////////////////////////////////////////////////////////////

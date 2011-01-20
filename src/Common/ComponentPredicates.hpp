@@ -15,6 +15,7 @@
 #include <boost/type_traits/is_const.hpp>
 
 #include "Common/Component.hpp"
+#include "Common/Foreach.hpp"
 
 namespace CF {
 namespace Common {

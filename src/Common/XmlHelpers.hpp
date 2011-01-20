@@ -10,10 +10,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/filesystem/path.hpp>
+#include <boost/any.hpp>
 
 #include "Common/XML.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/OptionArray.hpp"
 
 #include "Common/String/Conversion.hpp"
 
