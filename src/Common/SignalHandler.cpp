@@ -74,6 +74,7 @@ Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Sig
     Signal& sig = m_signals[sname];
 
     sig.signal_ptr = Signal::Ptr( new Signal::type() );
+    sig.new_signature = Signal::Ptr( new Signal::type() );
     sig.description = desc;
     sig.readable_name = readable_name;
     sig.is_read_only = false;

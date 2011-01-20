@@ -185,7 +185,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
         tree->listNodeActions(indexInModel, actions);
         path =  tree->currentPath();
 
-        m_signalManager->showMenu(QCursor::pos(), path, actions);
+        m_signalManager->showMenu(QCursor::pos(), tree->nodeByPath(path), actions);
       }
       else if(!tree->areFromSameNode(indexInModel, tree->currentIndex()))
       {

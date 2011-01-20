@@ -215,7 +215,9 @@ namespace Common {
 
     /// add a key-value node to the options
     template < typename TYPE >
-    static XmlNode * add_value_to (XmlNode & map, const std::string& key, const TYPE& value);
+        static XmlNode * add_value_to (XmlNode & map, const std::string& key,
+                                       const TYPE& value,
+                                       const std::string & desc = std::string());
 
     /// add a map node to the options
     static XmlNode * add_map_to (XmlNode & map, const std::string& key,
@@ -223,7 +225,9 @@ namespace Common {
 
     /// add an array node to the options
     template < typename TYPE >
-    static XmlNode * add_array_to (XmlNode & map, const std::string& key, const std::vector<TYPE>& value);
+    static XmlNode * add_array_to (XmlNode & map, const std::string& key,
+                                   const std::vector<TYPE>& value,
+                                   const std::string & desc = std::string());
 
     /// reference to the XmlNode to retrieve params from
     XmlNode& xmlnode;
@@ -319,20 +323,9 @@ namespace Common {
       if ( option_map == 0 )
         option_map = add_map( tag_key_options() );
 
-      XmlNode * node = add_value_to(*option_map, key, value);
+      XmlNode * node = add_value_to(*option_map, key, value, desc);
 
       XmlOps::add_attribute_to(*node, "mode", basic ? "basic" : "adv" );
-
-      // add the description if any
-      if(!desc.empty())
-      {
-        const char* desc_str = xmldoc.allocate_string( tag_attr_descr() );
-        const char* descvalue_str = xmldoc.allocate_string( desc.c_str() );
-
-        // create the attribute
-        XmlAttr* desc_attr = xmldoc.allocate_attribute( desc_str, descvalue_str );
-        node->append_attribute(desc_attr);
-      }
 
       if(!restricted_vals.empty())
       {
@@ -370,21 +363,9 @@ namespace Common {
     if ( option_map == 0 )
       option_map = add_map( tag_key_options() );
 
-    XmlNode * node = add_array_to(*option_map, key, vect);
+    XmlNode * node = add_array_to(*option_map, key, vect, desc);
 
     XmlOps::add_attribute_to(*node, "mode", basic ? "basic" : "adv" );
-
-    // add the description if any
-    if(!desc.empty())
-    {
-      const char* desc_str = xmldoc.allocate_string( tag_attr_descr() );
-      const char* descvalue_str = xmldoc.allocate_string( desc.c_str() );
-
-      // create the attribute
-      XmlAttr* desc_attr = xmldoc.allocate_attribute( desc_str, descvalue_str );
-      node->append_attribute(desc_attr);
-    }
-
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -469,7 +450,8 @@ namespace Common {
 
   /// add a key-value node to the options
   template < typename TYPE >
-      XmlNode * XmlParams::add_value_to (XmlNode & map, const std::string& key, const TYPE& value)
+      XmlNode * XmlParams::add_value_to (XmlNode & map, const std::string& key, const TYPE& value,
+                                         const std::string & desc)
   {
     std::string type_name = XmlTag<TYPE>::type();
     std::string value_str = from_value(value); // convert value to string
@@ -483,6 +465,10 @@ namespace Common {
     // add "key" attribute
     XmlOps::add_attribute_to(*node, tag_attr_key(), key);
 
+    // add the description if anny
+    if( !desc.empty() )
+      XmlOps::add_attribute_to(*node, XmlParams::tag_attr_descr(), desc);
+
     return node;
   }
 
@@ -490,23 +476,27 @@ namespace Common {
 
   /// add a key-value node to the options
   template < typename TYPE >
-      XmlNode * XmlParams::add_array_to (XmlNode & map, const std::string& key, const std::vector<TYPE>& vect)
+      XmlNode * XmlParams::add_array_to (XmlNode & map, const std::string& key, const std::vector<TYPE>& vect,
+                                         const std::string & desc)
   {
     // create the "array" node and append it to the map
     XmlNode* node = XmlOps::add_node_to( map, XmlTag<TYPE>::array());
 
 		// add "key", "size" and "type" attributes to "array" node
-	// note : the size of the array has to be explicitly cast to CF::Uint or
-	// MSVC will consider the value to be of type "unsigned __int64"
-	// (defined by Microsoft) and the linking will fail because
-	// String::to_str<unsigned __int64>() is not defined.
+		// note : the size of the array has to be explicitly cast to CF::Uint or
+		// MSVC will consider the value to be of type "unsigned __int64"
+		// (defined by Microsoft) and the linking will fail because
+		// String::to_str<unsigned __int64>() is not defined.
 		XmlOps::add_attribute_to(*node, tag_attr_key(), key);
-	XmlOps::add_attribute_to(*node, tag_attr_size(), String::to_str( (CF::Uint) vect.size() ));
+		XmlOps::add_attribute_to(*node, tag_attr_size(), String::to_str( (CF::Uint) vect.size() ));
 		XmlOps::add_attribute_to(*node, tag_attr_type(), XmlTag<TYPE>::type());
 
     for(size_t i = 0 ; i < vect.size() ; i++)
       XmlOps::add_node_to(*node, "e", from_value(vect[i]));
 
+    // add the description if anny
+    if( !desc.empty() )
+      XmlOps::add_attribute_to(*node, XmlParams::tag_attr_descr(), desc);
 
     return node;
   }

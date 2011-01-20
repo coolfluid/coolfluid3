@@ -64,16 +64,15 @@ namespace ClientCore {
     void notifyChildCountChanged();
 
     /// @brief Emits @c #contentChanged() signal.
-    void notifyContentListed();
+    void notifySignalSignature(Common::XmlNode & node);
 
   signals:
 
     /// @brief Signal emitted when children have been added or removed.
     void childCountChanged();
 
-    /// @brief Signal emitted when the node content been listed from the
-    /// server.
-    void contentListed();
+    /// @brief Signal emitted when a signal signature has been received.
+    void signalSignature(Common::XmlNode & node);
 
   private:
 
@@ -106,7 +105,7 @@ namespace ClientCore {
     bool m_isLocal;
 
     /// @brief Action signature.
-    CF::Common::XmlSignature m_signature;
+    Common::XmlSignature m_signature;
   };
 
   ////////////////////////////////////////////////////////////////////////////
@@ -114,7 +113,7 @@ namespace ClientCore {
   /// @brief Base component adapted to fit the client needs.
   /// @author Quentin Gasper
   class ClientCore_API CNode :
-      public CF::Common::Component
+      public Common::Component
   {
   public:
 
@@ -172,7 +171,7 @@ namespace ClientCore {
     /// @param index Index of the wanted child. Should be between 0 (included)
     /// and @c #get_child_count() (excluded).
     /// @return Returns the found child.
-    CNode::Ptr child(CF::Uint index);
+    CNode::Ptr child(Uint index);
 
     /// @brief Gives the node tooltip.
     /// @return Returns the tooltip text.
@@ -203,18 +202,18 @@ namespace ClientCore {
 
     /// @brief Sets node options
     /// @param node Note containing the options
-    void setOptions(CF::Common::XmlNode & node);
+    void setOptions(Common::XmlNode & node);
 
     /// @brief Sets node properties
     /// @param node Note containing the options
-    void setProperties(CF::Common::XmlNode & node);
+    void setProperties(Common::XmlNode & node);
 
     /// @brief Sets node signals
     /// Those are considered as non-local ones, meaning that asking the node
     /// to execute them will result to the sendng of a request to the remote
     /// component.
     /// @param node Node containing the signals
-    void setSignals(CF::Common::XmlNode & node);
+    void setSignals(Common::XmlNode & node);
 
     /// @brief Modifies options
 
@@ -227,7 +226,7 @@ namespace ClientCore {
     /// @brief Gives options
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
-    void options(QList<CF::Common::Option::ConstPtr> & list);
+    void options(QList<Common::Option::ConstPtr> & list);
 
     /// @brief Gives properties
     /// @param props Reference to a map where properties will be put. The map
@@ -241,7 +240,7 @@ namespace ClientCore {
     /// @param node Node to convert
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr createFromXml(CF::Common::XmlNode & node);
+    static CNode::Ptr createFromXml(Common::XmlNode & node);
 
     /// @brief Casts this node to a constant component of type TYPE.
     /// @return Returns the cast pointer
@@ -277,8 +276,8 @@ namespace ClientCore {
     /// It is recommended to add child nodes using this method in order to
     /// guarantee the view is correctly updated.
     /// @param node Node to add.
-    /// @throw CF::Common::ValueExists Forwards to the upper level any
-    /// @c CF::Common::ValueExists exception thrown by
+    /// @throw Common::ValueExists Forwards to the upper level any
+    /// @c Common::ValueExists exception thrown by
     /// @c Component::add_component()
     void addNode(CNode::Ptr node);
 
@@ -290,8 +289,8 @@ namespace ClientCore {
     /// It is recommended to remove child nodes using this method in order to
     /// guarantee the view is correctly updated.
     /// @param node Node to remove.
-    /// @throw CF::Common::ValueNotFound Forwards to the upper level any
-    /// @c CF::Common::ValueNotFound exception thrown by
+    /// @throw Common::ValueNotFound Forwards to the upper level any
+    /// @c Common::ValueNotFound exception thrown by
     /// @c Component::remove_component()
     void removeNode(const QString & nodeName);
 
@@ -316,7 +315,9 @@ namespace ClientCore {
     /// @param node THe XML node from where the option has to be created.
     /// @return Returns the created option.
     /// @note This function should be removed once the new XML layer is operational.
-    static CF::Common::Option::Ptr makeOption(const CF::Common::XmlNode & node);
+    static Common::Option::Ptr makeOption(const Common::XmlNode & node);
+
+    void requestSignalSignature(const QString & name);
 
     /// @name Signals
     //@{
@@ -325,14 +326,16 @@ namespace ClientCore {
     /// This methods calls @c NCore::update_tree() method to resquet an update
     /// of the tree.
     /// @param node Signal data. This parameter is not used.
-    CF::Common::Signal::return_t update_tree( CF::Common::XmlNode & node);
+    Common::Signal::return_t update_tree( Common::XmlNode & node);
 
     /// @brief Method called when receiving a reply to a previously sent
     /// "configure" signal.
     /// @param node An XML representation of the modified options.
-    void configure_reply(CF::Common::XmlNode & node);
+    void configure_reply(Common::XmlNode & node);
 
-    void list_content_reply( CF::Common::XmlNode & node );
+    void list_content_reply( Common::XmlNode & node );
+
+    void signal_signature_reply( Common::XmlNode & node );
 
     //@} END Signals
 
@@ -376,25 +379,25 @@ namespace ClientCore {
     /// the restricted values list.
     /// @return Returns the created option.
     template<typename TYPE>
-    static CF::Common::Option::Ptr makeOptionT(const std::string & name,
+    static Common::Option::Ptr makeOptionT(const std::string & name,
                                                const std::string & descr,
-                                               CF::Common::XmlNode & node)
+                                               Common::XmlNode & node)
     {
       TYPE value;
-      CF::Common::to_value(node, value);
-      CF::Common::XmlNode * next = node.next_sibling();
+      Common::to_value(node, value);
+      Common::XmlNode * next = node.next_sibling();
 
-      CF::Common::Option::Ptr option(new CF::Common::OptionT<TYPE>(name, descr, value));
+      Common::Option::Ptr option(new Common::OptionT<TYPE>(name, descr, value));
 
       if(next != nullptr &&
-         std::strcmp(next->name(), CF::Common::XmlTag<TYPE>::array()) == 0)
+         std::strcmp(next->name(), Common::XmlTag<TYPE>::array()) == 0)
       {
 
-        CF::Common::XmlNode * elem_node = next->first_node("e");
+        Common::XmlNode * elem_node = next->first_node("e");
 
         for( ; elem_node != nullptr ; elem_node = elem_node->next_sibling("e"))
         {
-          CF::Common::to_value(*elem_node, value);
+          Common::to_value(*elem_node, value);
           option->restricted_list().push_back(TYPE(value));
         }
       }
@@ -409,29 +412,29 @@ namespace ClientCore {
     /// the restricted values list.
     /// @return Returns the created option.
     template<typename TYPE>
-    static CF::Common::Option::Ptr makeOptionArrayT(const std::string & name,
+    static Common::Option::Ptr makeOptionArrayT(const std::string & name,
                                                     const std::string & descr,
-                                                    const CF::Common::XmlNode & node)
+                                                    const Common::XmlNode & node)
     {
       std::vector<TYPE> value;
-      //CF::Common::to_value(node, value);
-      CF::Common::XmlNode * next = node.next_sibling();
+      //Common::to_value(node, value);
+      Common::XmlNode * next = node.next_sibling();
 
       if(next != nullptr &&
-         std::strcmp(next->name(), CF::Common::XmlTag<TYPE>::array()) == 0)
+         std::strcmp(next->name(), Common::XmlTag<TYPE>::array()) == 0)
       {
 
-        CF::Common::XmlNode * elem_node = next->first_node("e");
+        Common::XmlNode * elem_node = next->first_node("e");
 
         for( ; elem_node != nullptr ; elem_node = elem_node->next_sibling("e"))
         {
           TYPE elem_value;
-          CF::Common::to_value(*elem_node, elem_value);
+          Common::to_value(*elem_node, elem_value);
           value.push_back(TYPE(elem_value));
         }
       }
 
-      CF::Common::Option::Ptr option(new CF::Common::OptionArrayT<TYPE>(name, descr, value));
+      Common::Option::Ptr option(new Common::OptionArrayT<TYPE>(name, descr, value));
 
       return option;
     }
@@ -448,8 +451,8 @@ namespace ClientCore {
     /// @param linkTargets Map where links
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr createFromXmlRec(CF::Common::XmlNode & node,
-               QMap<boost::shared_ptr<NLink>, CF::Common::URI> & linkTargets);
+    static CNode::Ptr createFromXmlRec(Common::XmlNode & node,
+               QMap<boost::shared_ptr<NLink>, Common::URI> & linkTargets);
 
     /// @brief Converts a std::vector<boost::any> to a string list.
 
@@ -464,7 +467,7 @@ namespace ClientCore {
       std::vector<boost::any>::const_iterator it = vect.begin();
 
       for( ; it != vect.end() ; it++)
-        returnList << CF::Common::from_value( boost::any_cast<TYPE>(*it) ).c_str();
+        returnList << Common::from_value( boost::any_cast<TYPE>(*it) ).c_str();
 
       return returnList;
     }

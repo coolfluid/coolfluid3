@@ -43,8 +43,6 @@ NTree::NTree(NRoot::Ptr rootNode)
 
   m_columns << "Name" << "Type";
 
-
-
   std::vector<int> vectInt;
   std::vector<bool> vectBool;
   std::vector<CF::Uint> vectUint;

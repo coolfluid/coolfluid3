@@ -66,6 +66,8 @@ struct Signal
 
     bool is_hidden;
 
+    Ptr new_signature;
+
 }; // Signal
 
 /// SignalHandler executes calls received as string by issuing singals to the slots

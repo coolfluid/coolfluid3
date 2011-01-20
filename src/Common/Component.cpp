@@ -49,32 +49,31 @@ Component::Component ( const std::string& name ) :
       .insert<bool>("Basic mode", "Component will be visible in basic mode", false );
 
 
-  regist_signal ( "list_tree" , "lists the component tree inside this component", "List tree" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
-    signal("list_tree").is_read_only = true;
+  regist_signal( "list_tree" , "lists the component tree inside this component", "List tree" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
 
-  regist_signal ( "list_properties" , "lists the options of this component", "List properties" )->connect ( boost::bind ( &Component::list_properties, this, _1 ) );
+  regist_signal( "list_properties" , "lists the options of this component", "List properties" )->connect ( boost::bind ( &Component::list_properties, this, _1 ) );
 
-  regist_signal ( "list_signals" , "lists the options of this component", "List signals" )->connect ( boost::bind ( &Component::list_signals, this, _1 ) );
+  regist_signal( "list_signals" , "lists the options of this component", "List signals" )->connect ( boost::bind ( &Component::list_signals, this, _1 ) );
 
-  regist_signal ( "configure" , "configures this component", "Configure" )->connect ( boost::bind ( &Component::configure, this, _1 ) );
+  regist_signal( "configure" , "configures this component", "Configure" )->connect ( boost::bind ( &Component::configure, this, _1 ) );
 
-  regist_signal ( "print_info" , "prints info on this component", "Info" )->connect ( boost::bind ( &Component::print_info, this, _1 ) );
+  regist_signal( "print_info" , "prints info on this component", "Info" )->connect ( boost::bind ( &Component::print_info, this, _1 ) );
 
-  regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
+  regist_signal( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
   signal("rename_component").signature
       .insert<std::string>("New Name", "Component new name");
 
-  regist_signal ( "delete_component" , "Deletes a component", "Delete" )->connect ( boost::bind ( &Component::delete_component, this, _1 ) );
-//  signal("delete_component").signature
-//          .insert< URI >("Component", "Path to the component to be deleted" );
+  regist_signal( "delete_component" , "Deletes a component", "Delete" )->connect ( boost::bind ( &Component::delete_component, this, _1 ) );
 
-  regist_signal ( "move_component" , "Moves a component to another component", "Move" )->connect ( boost::bind ( &Component::move_component, this, _1 ) );
+  regist_signal( "move_component" , "Moves a component to another component", "Move" )->connect ( boost::bind ( &Component::move_component, this, _1 ) );
   signal("move_component").signature
           .insert< URI >("Path", "Path to the new component to which this one will move to" );
 
   regist_signal( "save_tree", "Saves the tree", "Save tree")->connect( boost::bind(&Component::save_tree, this, _1) );
 
   regist_signal( "list_content", "Lists component content", "List content")->connect(boost::bind(&Component::list_content, this, _1));
+
+  regist_signal( "signal_signature", "Gives signature of a signal", "")->connect( boost::bind(&Component::signal_signature, this, _1));
 
   // these signals should not be seen from the GUI
   signal("list_tree").is_hidden = true;
@@ -83,6 +82,15 @@ Component::Component ( const std::string& name ) :
   signal("configure").is_hidden = true;
   signal("save_tree").is_hidden = true;
   signal("list_content").is_hidden = true;
+  signal("signal_signature").is_hidden = true;
+
+  // these signals are read-only
+  signal("list_tree").is_read_only = true;
+
+  // signatures
+  signal("create_component").new_signature->connect( boost::bind(&Component::create_component_signature, this, _1) );
+  signal("rename_component").new_signature->connect( boost::bind(&Component::rename_component_signature, this, _1) );
+  signal("move_component").new_signature->connect( boost::bind(&Component::move_component_signature, this, _1) );
 
   // properties
 
@@ -715,8 +723,6 @@ void Component::list_properties( XmlNode& node )
 
   XmlParams p(*node.parent());
 
-  CFinfo << "Adding properties" << CFendl;
-
   for( ; it != m_properties.store.end() ; it++)
   {
     std::string name = it->first;
@@ -836,7 +842,7 @@ void Component::rename_component ( XmlNode& node )
 {
   XmlParams p(node);
 
-  std::string new_name = p.get_option<std::string>("New Name");
+  std::string new_name = p.get_option<std::string>("New name");
 
   rename(new_name);
 }
@@ -865,6 +871,18 @@ void Component::list_content( XmlNode& node )
 
   list_properties(map_node);
   list_signals(map_node);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_signature( XmlNode & node )
+{
+  XmlParams p(node);
+  XmlNode & reply = *XmlOps::add_reply_frame(node);
+
+  XmlOps::add_attribute_to( reply, "sender", full_path().string_without_scheme() );
+
+  ( *signal( p.get_option<std::string>("name") ).new_signature )(reply);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -906,6 +924,38 @@ void Component::mark_basic()
 {
   add_tag("basic");
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::create_component_signature( XmlNode& node )
+{
+  XmlParams p(node);
+
+  p.add_option("Component name", std::string(), "Name for created component.");
+  p.add_option("Generic name", std::string(), "Generic type of the component.");
+  p.add_option("Concrete type", std::string(), "Concrete type of the component.");
+  p.add_option("Basic mode", false, "Component will be visible in basic mode.");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::rename_component_signature( XmlNode& node )
+{
+  XmlParams p(node);
+
+  p.add_option("New name", std::string(), "Component new name.");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::move_component_signature( XmlNode& node )
+{
+  XmlParams p(node);
+
+  p.add_option("Path", std::string(), "Path to the new component to which this one will move to.");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF

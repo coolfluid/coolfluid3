@@ -47,7 +47,6 @@ for( ; itList != list.end() ; itList++)\
 
 using namespace CF::Common;
 using namespace CF::Common::String;
-using namespace CF::GUI::ClientCore;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +58,9 @@ namespace ClientCore {
 
 CNodeNotifier::CNodeNotifier(CNode * parent)
   : m_parent(parent)
-{ }
+{
+  //qRegisterMetaType<XmlNode>("CF::Common::XmlNode");
+}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -72,9 +73,9 @@ void CNodeNotifier::notifyChildCountChanged()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNodeNotifier::notifyContentListed()
+void CNodeNotifier::notifySignalSignature(XmlNode & node)
 {
-  emit contentListed();
+  emit signalSignature(node);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -93,6 +94,10 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
   regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure_reply, this, _1));
   regist_signal("tree_updated", "Event that notifies a path has changed")->connect(boost::bind(&CNode::update_tree, this, _1));
   regist_signal("list_content", "Updates node contents")->connect(boost::bind(&CNode::list_content_reply, this, _1));
+
+  m_signals.erase("signal_signature"); // unregister base class signal
+
+  regist_signal("signal_signature", "")->connect(boost::bind(&CNode::signal_signature_reply, this, _1));
 
   m_properties.add_property("originalComponentType", m_componentType.toStdString());
 }
@@ -522,6 +527,15 @@ void CNode::list_content_reply( CF::Common::XmlNode & node )
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void CNode::signal_signature_reply( XmlNode & node )
+{
+  ClientRoot::instance().log()->addMessage("Reveived signature.");
+  m_notifier->notifySignalSignature(node);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void CNode::options(QList<Option::ConstPtr> & list)
 {
   QMutexLocker locker(m_mutex);
@@ -805,6 +819,28 @@ Option::Ptr CNode::makeOption(const CF::Common::XmlNode & node)
     throw XmlError(FromHere(), "No [" + std::string(XmlParams::tag_attr_key()) +"] attribute found.");
 
   return option;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::requestSignalSignature(const QString & name)
+{
+  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
+  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+  URI path;
+  XmlNode * node;
+
+  if( m_type == ROOT_NODE )
+    path = URI(CLIENT_ROOT_PATH, URI::Scheme::CPATH);
+  else
+    path = full_path();
+
+  node = XmlOps::add_signal_frame(*docNode, "signal_signature", path, path, true);
+
+  XmlParams(*node).add_option("name", name.toStdString());
+
+  ClientRoot::instance().core()->sendSignal(*root.get());
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

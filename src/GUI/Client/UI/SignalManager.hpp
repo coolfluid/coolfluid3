@@ -11,8 +11,6 @@
 
 #include <QObject>
 
-#include "Common/URI.hpp"
-
 #include "GUI/Client/Core/CNode.hpp"
 
 class QMenu;
@@ -39,7 +37,7 @@ namespace ClientUI {
 
     ~SignalManager();
 
-    void showMenu(const QPoint & pos, const CF::Common::URI & path,
+    void showMenu(const QPoint & pos, ClientCore::CNode::Ptr node,
                   const QList<CF::GUI::ClientCore::ActionInfo> & sigs);
 
   private slots:
@@ -48,15 +46,21 @@ namespace ClientUI {
 
     void actionHovered();
 
+    void signalSignature(Common::XmlNode & node);
+
   private:
 
     QMenu * m_menu;
 
-    CF::Common::URI m_path;
+    ClientCore::CNode::Ptr m_node;
 
-    QMap<QAction *, CF::GUI::ClientCore::ActionInfo> m_signals;
+    QMap<QAction *, ClientCore::ActionInfo> m_signals;
 
     QMap<QAction *, bool> m_localStatus;
+
+    QAction * m_currentAction;
+
+    bool m_waitingForSignature;
 
   }; // class SignalManager
 

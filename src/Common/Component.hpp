@@ -304,7 +304,27 @@ public: // functions
   /// gives information about this component such as options, signals, ...
   void list_content( XmlNode& node );
 
+  /// Gives a signal signature, if any
+  void signal_signature( XmlNode & node );
+
   //@} END SIGNALS
+
+  /// @name SIGNAL SIGNATURES
+  //@{
+
+  /// Defines the signature of "create_component" signal.
+  /// @param node The frame under which signature is added.
+  void create_component_signature( XmlNode& node );
+
+  /// Defines the signature of "rename_component" signal.
+  /// @param node The frame under which signature is added.
+  void rename_component_signature( XmlNode& node );
+
+  /// Defines the signature of "move_component" signal.
+  /// @param node The frame under which signature is added.
+  void move_component_signature( XmlNode& node );
+
+  //@} END SIGNAL SIGNATURES
 
   /// marks this component as basic.
   void mark_basic();

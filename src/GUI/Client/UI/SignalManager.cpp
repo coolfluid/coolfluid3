@@ -14,6 +14,7 @@
 
 #include <QDebug>
 
+#include "Common/URI.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/XmlSignature.hpp"
 
@@ -21,12 +22,24 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 
+//////////////////////////////////////////////////////////////////////////////
+
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::ClientUI;
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+/////////////////////////////////////////////////////////////////////////
+
 
 SignalManager::SignalManager(QMainWindow *parent) :
-    QObject(parent)
+    QObject(parent),
+    m_currentAction(nullptr),
+    m_waitingForSignature(false)
 {
   m_menu = new QMenu();
 }
@@ -43,13 +56,20 @@ SignalManager::~SignalManager()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void SignalManager::showMenu(const QPoint & pos, const CF::Common::URI & path,
+void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
                              const QList<ActionInfo> & sigs)
 {
   QList<ActionInfo>::const_iterator it = sigs.begin();
+
+  cf_assert( node.get() != nullptr );
+
   m_menu->clear();
 
-  m_path = path;
+  m_node = node;
+  m_currentAction = nullptr;
+
+  connect(node->notifier(), SIGNAL(signalSignature(Common::XmlNode&)),
+          this, SLOT(signalSignature(Common::XmlNode&)));
 
   for( ; it!= sigs.end() ; it++)
   {
@@ -80,47 +100,50 @@ void SignalManager::actionTriggered()
 
   if(action != nullptr)
   {
-    ActionInfo & info = m_signals[action];
-    boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-    XmlNode & node = *XmlOps::goto_doc_node(*doc.get());
-    XmlNode & frame = *XmlOps::add_signal_frame(node, info.m_name.toStdString(),
-                                               m_path, m_path, true);
-    XmlParams p(frame);
+    m_currentAction = action;
+    m_waitingForSignature = true;
 
-    XmlNode & map = *p.add_map(XmlParams::tag_key_options());
+    m_node->requestSignalSignature( m_signals[action].m_name );
 
-    info.m_signature.put_signature(map);
+//    URI path = m_node->full_path();
+//    ActionInfo & info = m_signals[action];
+//    boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+//    XmlNode & node = *XmlOps::goto_doc_node(*doc.get());
+//    XmlNode & frame = *XmlOps::add_signal_frame(node, info.m_name.toStdString(),
+//                                                path, path, true);
+//    XmlParams p(frame);
 
-    try
-    {
-      SignatureDialog * sg = new SignatureDialog();
+//    XmlNode & map = *p.add_map(XmlParams::tag_key_options());
 
-      if(sg->show(map, action->text()))
-      {
-        if(m_localStatus[action])
-        {
-          try
-          {
-            if(ClientRoot::instance().root()->root()->full_path().string() == m_path.string())
-              ClientRoot::instance().root()->call_signal(info.m_name.toStdString(), frame);
-            else
-              ClientRoot::instance().root()->root()->access_component(m_path)->call_signal(info.m_name.toStdString(), frame);
-          }
-          catch(InvalidURI ip)
-          {
-            ClientRoot::instance().log()->addException(ip.what());
-          }
-        }
-        else
-          ClientRoot::instance().core()->sendSignal(*doc);
-      }
+//    info.m_signature.put_signature(map);
 
-      delete sg;
-    }
-    catch( Exception & e)
-    {
-      ClientRoot::instance().log()->addException(e.what());
-    }
+//    try
+//    {
+//      SignatureDialog * sg = new SignatureDialog();
+
+//      if(sg->show(map, action->text()))
+//      {
+//        if(m_localStatus[action])
+//        {
+//          try
+//          {
+//            m_node->call_signal(info.m_name.toStdString(), frame);
+//          }
+//          catch(InvalidURI ip)
+//          {
+//            ClientRoot::instance().log()->addException(ip.what());
+//          }
+//        }
+//        else
+//          ClientRoot::instance().core()->sendSignal(*doc);
+//      }
+
+//      delete sg;
+//    }
+//    catch( Exception & e)
+//    {
+//      ClientRoot::instance().log()->addException(e.what());
+//    }
   }
 }
 
@@ -136,3 +159,70 @@ void SignalManager::actionHovered()
     static_cast<QMainWindow*>(parent())->statusBar()->showMessage(action->statusTip(), 3000);
   }
 }
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void SignalManager::signalSignature(XmlNode & node)
+{
+  if(m_waitingForSignature)
+  {
+    URI path = m_node->full_path();
+    ActionInfo & info = m_signals[m_currentAction];
+    boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+    XmlNode & doc_node = *XmlOps::goto_doc_node(*doc.get());
+    XmlNode & frame = *XmlOps::add_signal_frame(doc_node, info.m_name.toStdString(),
+                                                path, path, true);
+    XmlParams p(frame);
+    XmlParams originalp(node);
+
+    if(originalp.option_map != nullptr)
+    {
+      XmlNode & map = *p.add_map(XmlParams::tag_key_options());
+
+      //  info.m_signature.put_signature(map);
+
+      XmlOps::deep_copy(*originalp.option_map, map);
+
+      try
+      {
+        SignatureDialog * sg = new SignatureDialog();
+
+        if(sg->show(map, m_currentAction->text()))
+        {
+          if(m_localStatus[m_currentAction])
+          {
+            try
+            {
+              m_node->call_signal(info.m_name.toStdString(), frame);
+            }
+            catch(InvalidURI ip)
+            {
+              ClientRoot::instance().log()->addException(ip.what());
+            }
+          }
+          else
+            ClientRoot::instance().core()->sendSignal(*doc);
+        }
+
+        delete sg;
+      }
+      catch( Exception & e)
+      {
+        ClientRoot::instance().log()->addException(e.what());
+      }
+
+    }
+
+    m_waitingForSignature = false;
+  }
+
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF
+
+//////////////////////////////////////////////////////////////////////////////
