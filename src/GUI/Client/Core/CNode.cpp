@@ -73,7 +73,7 @@ void CNodeNotifier::notifyChildCountChanged()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNodeNotifier::notifySignalSignature(XmlNode & node)
+void CNodeNotifier::notifySignalSignature(XmlNode * node)
 {
   emit signalSignature(node);
 }
@@ -538,7 +538,7 @@ void CNode::list_content_reply( CF::Common::XmlNode & node )
 void CNode::signal_signature_reply( XmlNode & node )
 {
   ClientRoot::instance().log()->addMessage("Reveived signature.");
-  m_notifier->notifySignalSignature(node);
+  m_notifier->notifySignalSignature(&node);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

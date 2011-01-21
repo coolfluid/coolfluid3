@@ -65,7 +65,7 @@ namespace ClientCore {
     void notifyChildCountChanged();
 
     /// @brief Emits @c #contentChanged() signal.
-    void notifySignalSignature(Common::XmlNode & node);
+    void notifySignalSignature(Common::XmlNode * node);
 
   signals:
 
@@ -73,7 +73,7 @@ namespace ClientCore {
     void childCountChanged();
 
     /// @brief Signal emitted when a signal signature has been received.
-    void signalSignature(Common::XmlNode & node);
+    void signalSignature(Common::XmlNode * node);
 
   private:
 

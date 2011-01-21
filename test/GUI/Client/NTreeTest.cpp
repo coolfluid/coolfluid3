@@ -108,7 +108,7 @@ void NTreeTest::test_getNodeParams()
   t.listNodeOptions(index, options, &ok);
 
   QVERIFY(ok);
-  QCOMPARE(options.count(), 2);
+  QCOMPARE(options.count(), 0);
 
   t.treeRoot()->root()->remove_component(node->name());
 }

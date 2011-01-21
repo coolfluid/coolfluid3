@@ -67,8 +67,8 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
   m_node = node;
   m_currentAction = nullptr;
 
-  connect(node->notifier(), SIGNAL(signalSignature(Common::XmlNode&)),
-          this, SLOT(signalSignature(Common::XmlNode&)));
+  connect(node->notifier(), SIGNAL(signalSignature(Common::XmlNode*)),
+          this, SLOT(signalSignature(Common::XmlNode*)));
 
   for( ; it!= sigs.end() ; it++)
   {
@@ -107,8 +107,8 @@ void SignalManager::actionTriggered()
     else
     {
       boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
-      XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
-      m_node->localSignature(m_signals[action].name, nodedoc);
+      XmlNode * nodedoc = XmlOps::goto_doc_node(*xmldoc.get());
+      m_node->localSignature(m_signals[action].name, *nodedoc);
       signalSignature(nodedoc);
     }
   }
@@ -130,8 +130,10 @@ void SignalManager::actionHovered()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void SignalManager::signalSignature(XmlNode & node)
+void SignalManager::signalSignature(XmlNode * node)
 {
+  cf_assert(node != nullptr);
+
   if(m_waitingForSignature)
   {
     URI path = m_node->full_path();
@@ -141,10 +143,7 @@ void SignalManager::signalSignature(XmlNode & node)
     XmlNode & frame = *XmlOps::add_signal_frame(doc_node, info.name.toStdString(),
                                                 path, path, true);
     XmlParams p(frame);
-    XmlParams originalp(node);
-
-    std::string str;
-    XmlOps::xml_to_string(node, str);
+    XmlParams originalp(*node);
 
     XmlNode & map = *p.add_map(XmlParams::tag_key_options());
 
