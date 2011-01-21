@@ -129,8 +129,8 @@ public:
   {
     XmlParams p(node);
 
-    p.add_option<std::string>("Component name", "Name for created component" );
-    p.add_option<URI>("Parent component", "Path to component where place the newly built component");
+    p.add_option<std::string>("Component name", std::string(), "Name for created component" );
+    p.add_option<URI>("Parent component", URI(), "Path to component where place the newly built component");
   }
 
   //@} END SIGNALS
