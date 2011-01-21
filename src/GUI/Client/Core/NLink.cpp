@@ -25,23 +25,9 @@ using namespace CF::GUI::ClientCore;
 NLink::NLink(const QString & name)
   : CNode(name, "CLink", LINK_NODE)
 {
-
-
   regist_signal("goToTarget", "Switch to the target node", "Go to target node")->connect(boost::bind(&NLink::goToTarget, this, _1));
 
   m_localSignals << "goToTarget";
-
-//  QAction * action;
-
-//  action = new QAction("Go to target node", m_contextMenu);
-//  connect(action, SIGNAL(triggered()), this, SLOT(goToTarget()));
-//  m_contextMenu->addAction(action);
-
-//  action = new QAction("Change target path", m_contextMenu);
-//  connect(action, SIGNAL(triggered()), this, SLOT(changeTarget()));
-//  m_contextMenu->addAction(action);
-
-//  regist_signal("change_link", "Change target")->connect(boost::bind(&NLink::change_link, this, _1));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

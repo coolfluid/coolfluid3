@@ -60,7 +60,7 @@ CCore::CCore()
   regist_signal("shutdown", "Shutdown the server")->connect(boost::bind(&CCore::shutdown, this, _1));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.+++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 CCore::~CCore()
@@ -236,6 +236,8 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
       // Build the reply
       XmlNode * replyNode = XmlOps::add_reply_frame(node);
       XmlParams reply(*replyNode);
+
+      XmlOps::add_attribute_to( *replyNode, "sender", full_path().string_without_scheme() );
 
       reply.add_option("dirPath", directory.toStdString());
       reply.add_array("dirs", dirList);
