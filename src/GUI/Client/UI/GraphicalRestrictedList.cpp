@@ -42,7 +42,7 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
     else
       throw CastingFailed(FromHere(), type + ": Unknown type");
 
-    m_comboChoices->addItems(list);
+    setRestrictedList(list);
   }
 
   setValue(m_comboChoices->currentText());
@@ -65,8 +65,14 @@ GraphicalRestrictedList::~GraphicalRestrictedList()
 
 void GraphicalRestrictedList::setRestrictedList(const QStringList & list)
 {
+  QStringList mList(list);
+  mList.removeAll("");
+
   m_comboChoices->clear();
-  m_comboChoices->addItems(list);
+  m_comboChoices->addItems(mList);
+
+  if(!mList.isEmpty())
+    setValue(mList.front());
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
