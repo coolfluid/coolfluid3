@@ -227,7 +227,7 @@ void CField::create_data_storage(const DataBasis basis)
       field_data->add_tag("field_data");
       field_data->set_row_size(row_size);
       field_data->resize(nodes.size());
-      data_for_nodes[nodes.full_path().string_without_scheme()] = field_data.get();
+      data_for_nodes[nodes.full_path().path()] = field_data.get();
       
       // create a link to the coordinates in the data
       CLink::Ptr nodes_link = field_data->create_component<CLink>("nodes");
@@ -363,7 +363,7 @@ CTable<Real>& CField::data_table()
 {
   Component::Ptr data = find_component_ptr_with_tag(*this, "field_data");
   if(!data)
-    throw ValueNotFound(FromHere(), "Field " + full_path().string_without_scheme() + " has no associated data");
+    throw ValueNotFound(FromHere(), "Field " + full_path().path() + " has no associated data");
   CTable<Real>::Ptr result = data->follow()->as_type<CTable<Real> >();
   cf_assert( is_not_null(result) );
   return *result;
@@ -373,7 +373,7 @@ const CF::Mesh::CTable< Real >& CField::data_table() const
 {
   Component::ConstPtr data = find_component_ptr_with_tag(*this, "field_data");
   if(!data)
-    throw ValueNotFound(FromHere(), "Field " + full_path().string_without_scheme() + " has no associated data");
+    throw ValueNotFound(FromHere(), "Field " + full_path().path() + " has no associated data");
   CTable<Real>::ConstPtr result = data->follow()->as_type<CTable<Real> const>();
   
   cf_assert( is_not_null(result) );

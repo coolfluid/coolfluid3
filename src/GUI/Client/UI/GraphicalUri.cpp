@@ -114,7 +114,7 @@ bool GraphicalUri::setValue(const QVariant & value)
     URI uriString(value.toString().toStdString());
 
     m_originalValue = uriString.string().c_str();
-    m_editPath->setText(uriString.string_without_scheme().c_str());
+    m_editPath->setText(uriString.path().c_str());
     return true;
   }
 

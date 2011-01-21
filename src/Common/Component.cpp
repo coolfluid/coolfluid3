@@ -109,10 +109,10 @@ Component::ConstPtr Component::follow() const
 void Component::rename ( const std::string& name )
 {
   const std::string new_name = name;
-  if ( new_name == m_name.string_without_scheme() ) // skip if name does not change
+  if ( new_name == m_name.path() ) // skip if name does not change
     return;
 
-  const std::string old_name = m_name.string_without_scheme();
+  const std::string old_name = m_name.path();
 
   // notification should be done before the real renaming since the path changes
   raise_path_changed();
@@ -264,7 +264,7 @@ Component::Ptr Component::remove_component ( const std::string& name )
     throw ValueNotFound(FromHere(), "Dynamic component with name '"
                         + name + "' does not exist in component '"
                         + this->name() + "' with path ["
-                        + m_path.string_without_scheme() + "]");
+                        + m_path.path() + "]");
   }
 }
 
@@ -290,7 +290,7 @@ void Component::complete_path ( URI& path ) const
   boost::shared_ptr<Component> parent = m_raw_parent->self();
   boost::shared_ptr<Component> root   = m_root.lock();
 
-  std::string sp = path.string_without_scheme();
+  std::string sp = path.path();
 
   if ( path.is_relative() ) // transform it to absolute
   {
@@ -300,13 +300,13 @@ void Component::complete_path ( URI& path ) const
     // substitute leading "../" for full_path() of parent
     if (starts_with(sp,".."))
     {
-      std::string pfp = parent->full_path().string_without_scheme();
+      std::string pfp = parent->full_path().path();
       boost::algorithm::replace_first(sp, "..", pfp);
     }
     else // substitute leading "./" for full_path() of this component
       if (starts_with(sp,"."))
       {
-        boost::algorithm::replace_first(sp, ".", full_path().string_without_scheme());
+        boost::algorithm::replace_first(sp, ".", full_path().path());
       }
   }
 
@@ -418,7 +418,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
   {
     using namespace boost::algorithm;
 
-    std::string sp = path.string_without_scheme();
+    std::string sp = path.path();
 
     // break path in tokens and loop on them, while concatenaitng to a new path
     boost::char_separator<char> sep("/");
@@ -438,7 +438,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
         Component::ConstPtr parent = look_comp;
         look_comp = look_comp->get_child(*el);
         if( is_null(look_comp) )
-          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string_without_scheme());
+          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().path());
       }
     }
     return look_comp;
@@ -464,7 +464,7 @@ Component::Ptr Component::look_component ( const URI& path )
   {
     using namespace boost::algorithm;
 
-    std::string sp = path.string_without_scheme();
+    std::string sp = path.path();
 
     // break path in tokens and loop on them, while concatenaitng to a new path
     boost::char_separator<char> sep("/");
@@ -484,7 +484,7 @@ Component::Ptr Component::look_component ( const URI& path )
         Component::Ptr parent = look_comp;
         look_comp = look_comp->get_child(*el);
         if( is_null(look_comp) )
-          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string_without_scheme());
+          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().path());
       }
     }
     return look_comp;
@@ -527,7 +527,7 @@ void Component::delete_component ( XmlNode& node  )
 //  if( ! path.is_protocol("cpath") )
 //    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
-//  Component::Ptr comp = look_component( path.string_without_scheme() )->get_parent();
+//  Component::Ptr comp = look_component( path.path() )->get_parent();
 //  Component::Ptr parent = comp->get_parent();
 //  parent->remove_component( comp->name() );
 
@@ -549,7 +549,7 @@ void Component::move_component ( XmlNode& node  )
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
-  Component::Ptr new_parent = look_component( path.string_without_scheme() );
+  Component::Ptr new_parent = look_component( path.path() );
 
   this->move_to( new_parent );
 }
@@ -558,7 +558,7 @@ void Component::move_component ( XmlNode& node  )
 
 void Component::print_info ( XmlNode& node  )
 {
-  CFinfo << "Info on component \'" << full_path().string_without_scheme() << "\'" << CFendl;
+  CFinfo << "Info on component \'" << full_path().path() << "\'" << CFendl;
 
   CFinfo << "  sub components:" << CFendl;
   BOOST_FOREACH( CompStorage_t::value_type c, m_components )
@@ -594,7 +594,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
     if( is_not_null(lnk) ) // if it is a link, we put the target path as value
     {
       if ( lnk->is_linked() )
-       this_node.value( this_node.document()->allocate_string( self()->full_path().string_without_scheme().c_str() ));
+       this_node.value( this_node.document()->allocate_string( self()->full_path().path().c_str() ));
 //      else
 //        this_node.value( this_node.document()->allocate_string( "//Root" ));
     }
@@ -622,7 +622,7 @@ void Component::list_tree( XmlNode& node )
 {
   XmlNode& reply = *XmlOps::add_reply_frame( node );
 
-  XmlOps::add_attribute_to( reply, "sender", full_path().string_without_scheme() );
+  XmlOps::add_attribute_to( reply, "sender", full_path().path() );
 
   write_xml_tree(reply, false);
 }
@@ -845,7 +845,7 @@ void Component::save_tree ( XmlNode& node )
   if(filename.scheme() != URI::Scheme::FILE)
     throw InvalidURI(FromHere(), "A file was expected but got \'" + filename.string() + "\'");
 
-  save_tree_to( filename.string_without_scheme() );
+  save_tree_to( filename.path() );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -855,7 +855,7 @@ void Component::list_content( XmlNode& node )
   XmlNode& reply = *XmlOps::add_reply_frame( node );
   XmlNode& map_node = *XmlOps::add_node_to(reply, XmlParams::tag_node_map());
 
-  XmlOps::add_attribute_to( reply, "sender", full_path().string_without_scheme() );
+  XmlOps::add_attribute_to( reply, "sender", full_path().path() );
 
   list_properties(map_node);
   list_signals(map_node);
@@ -868,7 +868,7 @@ void Component::signal_signature( XmlNode & node )
   XmlParams p(node);
   XmlNode & reply = *XmlOps::add_reply_frame(node);
 
-  XmlOps::add_attribute_to( reply, "sender", full_path().string_without_scheme() );
+  XmlOps::add_attribute_to( reply, "sender", full_path().path() );
 
   ( *signal( p.get_option<std::string>("name") ).signature )(reply);
 }

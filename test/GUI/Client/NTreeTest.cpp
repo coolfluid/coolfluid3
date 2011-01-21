@@ -168,7 +168,7 @@ void NTreeTest::test_getNodeByPath()
   QCOMPARE(logNode.get(), ClientRoot::instance().log().get());
 
   // no risk of segfault if the test has failed (null pointer)
-  QCOMPARE(logNode->full_path().string_without_scheme(), std::string(CLIENT_LOG_PATH));
+  QCOMPARE(logNode->full_path().path(), std::string(CLIENT_LOG_PATH));
 }
 
 ////////////////////////////////////////////////////////////////////////////

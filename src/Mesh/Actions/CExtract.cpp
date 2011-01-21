@@ -104,14 +104,14 @@ void CExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::string>&
     {
       BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
       {
-        keep_region_paths.push_back(elements.get_parent()->full_path().string_without_scheme());
+        keep_region_paths.push_back(elements.get_parent()->full_path().path());
       }
     }
     else if (boost::regex_match(region_name,boost::regex("[Vv]olume(s)?"))) // Volume, Volumes, volume, volumes
     {
       BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsVolume()))
       {
-        keep_region_paths.push_back(elements.get_parent()->full_path().string_without_scheme());
+        keep_region_paths.push_back(elements.get_parent()->full_path().path());
       }
     }
   }
@@ -123,10 +123,10 @@ void CExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::string>&
     bool found = false;
     BOOST_FOREACH(const std::string& expression, args)
     {
-      if (boost::regex_match(region.full_path().string_without_scheme(),boost::regex(".*"+expression+".*")))
+      if (boost::regex_match(region.full_path().path(),boost::regex(".*"+expression+".*")))
       {
         found = true;
-        keep_region_paths.push_back(region.full_path().string_without_scheme());
+        keep_region_paths.push_back(region.full_path().path());
         break;
       }
     }

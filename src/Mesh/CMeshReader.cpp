@@ -77,7 +77,7 @@ void CMeshReader::signal_read( XmlNode& xml  )
     // Get the file paths
     boost_foreach(URI file, files)
     {
-      boost::filesystem::path fpath( file.string_without_scheme() );
+      boost::filesystem::path fpath( file.path() );
       read_from_to(fpath, mesh);
     }
   }

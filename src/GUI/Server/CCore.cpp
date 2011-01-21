@@ -237,7 +237,7 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
       XmlNode * replyNode = XmlOps::add_reply_frame(node);
       XmlParams reply(*replyNode);
 
-      XmlOps::add_attribute_to( *replyNode, "sender", full_path().string_without_scheme() );
+      XmlOps::add_attribute_to( *replyNode, "sender", full_path().path() );
 
       reply.add_option("dirPath", directory.toStdString());
       reply.add_array("dirs", dirList);

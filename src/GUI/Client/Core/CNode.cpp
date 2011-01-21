@@ -447,9 +447,9 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
     itEnd = root->end<const CNode>();
 
     if(it->get_child_count() > 0)
-      list << QString(root->full_path().string_without_scheme().c_str()) /*+ '/'*/;
+      list << QString(root->full_path().path().c_str()) /*+ '/'*/;
     else
-      list << root->full_path().string_without_scheme().c_str();
+      list << root->full_path().path().c_str();
   }
 
   for( ; it != itEnd ; it++)
@@ -457,9 +457,9 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
     if(!it->isClientComponent() || clientNodes)
     {
       if(it->get_child_count() > 0)
-        list << QString(it->full_path().string_without_scheme().c_str()) /*+ '/'*/;
+        list << QString(it->full_path().path().c_str()) /*+ '/'*/;
       else
-        list << it->full_path().string_without_scheme().c_str();
+        list << it->full_path().path().c_str();
     }
 
     if(recursive)
@@ -510,7 +510,7 @@ void CNode::removeNode(const QString & nodeName)
 void CNode::configure_reply(CF::Common::XmlNode & node)
 {
   ClientRoot::instance().tree()->optionsChanged(this->full_path());
-  ClientRoot::instance().log()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string_without_scheme().c_str()));
+  ClientRoot::instance().log()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().path().c_str()));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

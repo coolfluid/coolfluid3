@@ -227,7 +227,7 @@ bool NTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right)
 
 CNode::Ptr NTree::nodeByPath(const URI & path) const
 {
-  QString pathStr = path.string_without_scheme().c_str();
+  QString pathStr = path.path().c_str();
   QStringList comps;
   QStringList::iterator it;
   CNode::Ptr node = m_rootNode->node();
@@ -257,7 +257,7 @@ CNode::Ptr NTree::nodeByPath(const URI & path) const
 QModelIndex NTree::indexByPath(const URI & path) const
 {
   QModelIndex index = this->index(0,0);
-  QString pathStr = path.string_without_scheme().c_str();
+  QString pathStr = path.path().c_str();
   QStringList comps;
   QStringList::iterator it;
   TreeNode * treeNode = m_rootNode;
@@ -562,7 +562,7 @@ void NTree::list_tree_reply(XmlNode & node)
     // child count may have changed, ask the root TreeNode to update its internal data
     m_rootNode->updateChildList();
 
-    if(!currentIndexPath.string_without_scheme().empty())
+    if(!currentIndexPath.path().empty())
       m_currentIndex = this->indexByPath(currentIndexPath);
 
     // tell the view to update the whole thing

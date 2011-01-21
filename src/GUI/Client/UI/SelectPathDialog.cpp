@@ -63,7 +63,7 @@ SelectPathDialog::SelectPathDialog(QWidget *parent) :
 URI SelectPathDialog::show(const URI & path)
 {
   m_treeView->selectItem(path);
-  m_editPath->setText(path.string_without_scheme().c_str());
+  m_editPath->setText(path.path().c_str());
 
   m_okClicked = false;
 
@@ -99,7 +99,7 @@ void SelectPathDialog::btCancelClicked()
 void SelectPathDialog::itemClicked(const QModelIndex & index)
 {
   m_nodeClicked = true;
-  m_editPath->setText(m_treeView->selectedPath().string_without_scheme().c_str());
+  m_editPath->setText(m_treeView->selectedPath().path().c_str());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -125,7 +125,7 @@ void SelectPathDialog::pathChanged(const QString & path)
         newPath = path.left(lastSlash);
 
       if(newPath == "/")
-        newPath = root->full_path().string_without_scheme().c_str();
+        newPath = root->full_path().path().c_str();
 
       node = root->access_component<CNode>(newPath.toStdString());
 

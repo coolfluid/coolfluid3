@@ -44,7 +44,7 @@ void CLibraries::load_library ( XmlNode& node )
   if( file.empty() || file.scheme() != URI::Scheme::FILE )
     throw InvalidURI( FromHere(), "Expected a file:// got \'" + file.string() + "\'" );
 
-  boost::filesystem::path fpath( file.string_without_scheme() );
+  boost::filesystem::path fpath( file.path() );
 
   OSystem::instance().lib_loader()->load_library( fpath.string() );
 
@@ -63,9 +63,9 @@ void CLibraries::load_library ( XmlNode& node )
     // Get the file paths
     BOOST_FOREACH(URI file, files)
     {
-      boost::filesystem::path fpath( file.string_without_scheme() );
+      boost::filesystem::path fpath( file.path() );
 
-      OSystem::instance().lib_loader()->load_library( fpath.string_without_scheme() );
+      OSystem::instance().lib_loader()->load_library( fpath.path() );
     }
   }
   else

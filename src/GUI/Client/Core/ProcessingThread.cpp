@@ -52,7 +52,7 @@ void ProcessingThread::run()
       NRoot::Ptr root = ClientRoot::instance().root();
       CRoot::Ptr realRoot = root->root();
 
-      if(realRoot->full_path().string_without_scheme() == receiver)
+      if(realRoot->full_path().path() == receiver)
         root->call_signal(type, *nodeToProcess);
       else
         realRoot->access_component(receiver)->call_signal(type, *nodeToProcess);

@@ -183,7 +183,7 @@ void CJournal::list_journal ( XmlNode & node )
 {
   XmlNode & reply_node = *XmlOps::add_reply_frame(node);
 
-  XmlOps::add_attribute_to( reply_node, "sender", full_path().string_without_scheme() );
+  XmlOps::add_attribute_to( reply_node, "sender", full_path().path() );
 
   copy_node(*m_signals_map, reply_node);
 }
@@ -200,7 +200,7 @@ void CJournal::load_journal ( XmlNode & node )
 void CJournal::save_journal ( XmlNode & node )
 {
   URI file_path("./server-journal.xml", URI::Scheme::FILE);
-  boost::filesystem::path path(file_path.string_without_scheme());
+  boost::filesystem::path path(file_path.path());
 
   XmlOps::write_xml_node(*m_xmldoc.get(), path);
 

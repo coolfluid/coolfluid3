@@ -81,7 +81,7 @@ public: // functions
 
     BOOST_FOREACH(Mesh::CRegion::Ptr& region, m_loop_regions)
     {
-//      CFinfo << "execute for " << region->full_path().string_without_scheme() << CFendl;
+//      CFinfo << "execute for " << region->full_path().path() << CFendl;
 //      CFinfo << "This region has " << region->recursive_elements_count() << " elements and ";
 //      CFinfo << region->recursive_nodes_count() << " nodes " << CFendl;
       Looper looper(*this,*region);
@@ -109,7 +109,7 @@ private:
 
       boost_foreach(Mesh::CElements& elements, Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsComponentElementType<SFType>()))
       {
-//        CFinfo << " .. for elements " << elements.full_path().string_without_scheme() << CFendl;
+//        CFinfo << " .. for elements " << elements.full_path().path() << CFendl;
         op.create_loop_helper( elements );
 
         // loop on elements. Nothing may be virtual starting from here!

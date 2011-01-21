@@ -29,7 +29,7 @@ namespace Common {
     root->m_raw_parent = raw_root;
 
     // put himself in the database
-    root->m_toc[root->full_path().string_without_scheme()] = root;
+    root->m_toc[root->full_path().path()] = root;
 
     return root;
   }
@@ -57,25 +57,25 @@ namespace Common {
   {
     cf_assert ( path.is_complete() );
 
-    CompStorage_t::iterator itr = m_toc.find(path.string_without_scheme());
+    CompStorage_t::iterator itr = m_toc.find(path.path());
     if ( itr != m_toc.end() )
       return itr->second;
     else
-      throw InvalidURI(FromHere(), "No component exists with path [" + path.string_without_scheme() + "]");
+      throw InvalidURI(FromHere(), "No component exists with path [" + path.path() + "]");
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
   void CRoot::change_component_path( const URI& path , boost::shared_ptr<Component> comp )
   {
-    remove_component_path( comp->full_path().string_without_scheme() );
+    remove_component_path( comp->full_path().path() );
 
     // set the new path
-    CompStorage_t::iterator itr = m_toc.find(path.string_without_scheme());
+    CompStorage_t::iterator itr = m_toc.find(path.path());
     if ( itr != m_toc.end() )
-      throw ValueExists(FromHere(), "A component exists with path [" + path.string_without_scheme() + "]");
+      throw ValueExists(FromHere(), "A component exists with path [" + path.path() + "]");
 
-    m_toc[path.string_without_scheme()] = comp;
+    m_toc[path.path()] = comp;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ namespace Common {
     cf_assert ( path.scheme() == URI::Scheme::CPATH );
 
     // remove the current path of the component, if exists
-    CompStorage_t::iterator old = m_toc.find( path.string_without_scheme() );
+    CompStorage_t::iterator old = m_toc.find( path.path() );
     if ( old != m_toc.end() )
       m_toc.erase(old);
   }
@@ -98,7 +98,7 @@ namespace Common {
     cf_assert ( path.is_complete() );
     cf_assert ( path.scheme() == URI::Scheme::CPATH );
 
-    return ( m_toc.find( path.string_without_scheme() ) != m_toc.end() );
+    return ( m_toc.find( path.path() ) != m_toc.end() );
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +110,7 @@ namespace Common {
     CompStorage_t::const_iterator itr = m_toc.begin();
     for ( ; itr != m_toc.end(); ++itr )
     {
-      out << itr->first << " " << itr->second->full_path().string_without_scheme() << "\n";
+      out << itr->first << " " << itr->second->full_path().path() << "\n";
     }
 
     return out.str();

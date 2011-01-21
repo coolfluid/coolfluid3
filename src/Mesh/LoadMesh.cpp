@@ -128,7 +128,7 @@ void LoadMesh::signal_load_mesh ( Common::XmlNode& node )
     // Get the file paths
     boost_foreach(URI file, files)
     {
-      boost::filesystem::path fpath( file.string_without_scheme() );
+      boost::filesystem::path fpath( file.path() );
       const std::string extension = fpath.extension();
 
       if ( m_extensions_to_readers.count(extension) == 0 )

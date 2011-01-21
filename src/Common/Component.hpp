@@ -142,7 +142,7 @@ public: // functions
   bool is_link () const { return m_is_link; }
 
   /// Access the name of the component
-  std::string name () const { return m_name.string_without_scheme(); }
+  std::string name () const { return m_name.path(); }
 
   /// Rename the component
   void rename ( const std::string& name );

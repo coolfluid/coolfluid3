@@ -134,7 +134,7 @@ void CWriter::write_header(std::fstream& file)
   Uint phys_name_counter(0);
   boost_foreach(const CRegion& groupRegion, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
-    std::string name = groupRegion.full_path().string_without_scheme();
+    std::string name = groupRegion.full_path().path();
     m_groupnumber[name] = phys_name_counter++;
   }
 
@@ -223,7 +223,7 @@ void CWriter::write_connectivity(std::fstream& file)
     {
       if ( is_null(elements->as_type<CFieldElements>()) )
       {
-        group_name = elements->get_parent()->full_path().string_without_scheme();
+        group_name = elements->get_parent()->full_path().path();
         group_number = m_groupnumber[group_name];
 
         m_element_start_idx[elements]=elm_number;

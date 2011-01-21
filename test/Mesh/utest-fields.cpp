@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_CASE( FieldTest )
 	CFinfo << mesh.tree() << CFendl;
 
   // Check if the fields have been created inside the mesh
-  BOOST_CHECK_EQUAL(mesh.field("Volume").full_path().string_without_scheme(),"mesh/Volume");
-  BOOST_CHECK_EQUAL(mesh.field("Solution").full_path().string_without_scheme(),"mesh/Solution");
+  BOOST_CHECK_EQUAL(mesh.field("Volume").full_path().path(),"mesh/Volume");
+  BOOST_CHECK_EQUAL(mesh.field("Solution").full_path().path(),"mesh/Solution");
 
   // Check if support is filled in correctly
   BOOST_CHECK_EQUAL(mesh.field("Volume").support().name(), "topology");
@@ -91,12 +91,12 @@ BOOST_AUTO_TEST_CASE( FieldTest )
                     &mesh.domain().subregion("quadtriag").subregion("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table());
 
   // test the CRegion::get_field function, to return the matching field
-  BOOST_CHECK_EQUAL(mesh.domain().get_field("Volume").full_path().string_without_scheme(),"mesh/Volume");
-  BOOST_CHECK_EQUAL(mesh.domain().subregion("quadtriag").subregion("gas").get_field("Volume").full_path().string_without_scheme(),"mesh/Volume/quadtriag/gas");
+  BOOST_CHECK_EQUAL(mesh.domain().get_field("Volume").full_path().path(),"mesh/Volume");
+  BOOST_CHECK_EQUAL(mesh.domain().subregion("quadtriag").subregion("gas").get_field("Volume").full_path().path(),"mesh/Volume/quadtriag/gas");
 
-  BOOST_CHECK_EQUAL(mesh.look_component("topology/quadtriag/gas")->full_path().string_without_scheme(),"mesh/topology/quadtriag/gas");
-  BOOST_CHECK_EQUAL(mesh.look_component("topology/quadtriag/gas/../liquid")->full_path().string_without_scheme(),"mesh/topology/quadtriag/liquid");
-  BOOST_CHECK_EQUAL(mesh.look_component<CRegion>("topology/quadtriag/gas/../liquid")->get_field("Volume").full_path().string_without_scheme(),"mesh/Volume/quadtriag/liquid");
+  BOOST_CHECK_EQUAL(mesh.look_component("topology/quadtriag/gas")->full_path().path(),"mesh/topology/quadtriag/gas");
+  BOOST_CHECK_EQUAL(mesh.look_component("topology/quadtriag/gas/../liquid")->full_path().path(),"mesh/topology/quadtriag/liquid");
+  BOOST_CHECK_EQUAL(mesh.look_component<CRegion>("topology/quadtriag/gas/../liquid")->get_field("Volume").full_path().path(),"mesh/Volume/quadtriag/liquid");
 
 
   // Check if element based data is correctly created

@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( node_elem_connectivity )
     CElements::Ptr connected_comp; 
     Uint connected_idx;
     tie(connected_comp,connected_idx) = c->element_location(elem);
-    CFinfo << "   " << connected_comp->full_path().string_without_scheme() << "  [" <<connected_idx <<  "] " << CFendl;
+    CFinfo << "   " << connected_comp->full_path().path() << "  [" <<connected_idx <<  "] " << CFendl;
   }
   CFinfo << CFendl;  
 }

@@ -38,7 +38,7 @@ QString NLink::toolTip() const
   QString path = "<No target>";
 
   if(m_target.get() != nullptr)
-    path = m_target->full_path().string_without_scheme().c_str();
+    path = m_target->full_path().path().c_str();
 
   return QString("Target: %1").arg(path);
 }
@@ -91,7 +91,7 @@ void NLink::goToTarget(XmlNode & node)
 		ClientRoot::instance().tree()->setCurrentIndex(index);
 	else
 		ClientRoot::instance().log()->addError(QString("%1: path does not exist")
-																.arg(m_target->full_path().string_without_scheme().c_str()));
+																.arg(m_target->full_path().path().c_str()));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -130,7 +130,7 @@ void NLink::change_link(CF::Common::XmlNode & node)
     this->setTargetPath(p.get_option<std::string>("target_path"));
 
     ClientRoot::instance().log()->addMessage(QString("Link '%1' now points to '%2'.")
-                                     .arg(full_path().string_without_scheme().c_str()).arg(path.c_str()));
+                                     .arg(full_path().path().c_str()).arg(path.c_str()));
 
   }
   catch(InvalidURI & ip)

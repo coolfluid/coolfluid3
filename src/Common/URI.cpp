@@ -182,7 +182,7 @@ URI::Scheme::Type URI::scheme() const
   return m_scheme;
 }
 
-std::string URI::string_without_scheme() const
+std::string URI::path() const
 {
   return m_path;
 }

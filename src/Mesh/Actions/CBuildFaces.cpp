@@ -101,7 +101,7 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
       CFaceCellConnectivity::Ptr face_to_cell = allocate_component<CFaceCellConnectivity>("face_to_cell");
       //face_to_cell->configure_property("StoreIsBdry",true);
       //face_to_cell->configure_property("FilterBdry",true); //
-      CFinfo << "creating face to cell for interfaces for " << interface.full_path().string_without_scheme() << CFendl;
+      CFinfo << "creating face to cell for interfaces for " << interface.full_path().path() << CFendl;
       face_to_cell->setup(*regions[i],*regions[j]);
       // for (Uint i=0; i<face_to_cell->size(); ++i)
       // {
@@ -163,7 +163,7 @@ void CBuildFaces::build_inner_faces_bottom_up(Component::Ptr parent)
       }
 
       CFaceCellConnectivity::Ptr face_to_cell = allocate_component<CFaceCellConnectivity>("face_to_cell");
-      CFinfo << "creating face to cell for inner cells of " << region.full_path().string_without_scheme() << CFendl;
+      CFinfo << "creating face to cell for inner cells of " << region.full_path().path() << CFendl;
       face_to_cell->setup(cells);
       
       // for (Uint i=0; i<face_to_cell->size(); ++i)

@@ -127,7 +127,7 @@ namespace Common {
 
     /// Gives the string value without the protocol
     /// @return Returns the string without the protocol
-    std::string string_without_scheme() const;
+    std::string path() const;
 
     /// Overloading of the stream operator "<<" for the output.
     /// No "\n"ine introduced.
