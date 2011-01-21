@@ -46,6 +46,8 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
   signal("move_component").is_hidden   = true;
 
   update_list_of_available_readers();
+
+  signal("load_mesh").signature->connect(boost::bind(&LoadMesh::load_mesh_signature, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,8 +168,21 @@ void LoadMesh::load_mesh_signature ( Common::XmlNode& node)
 {
   XmlParams p(node);
   std::vector<URI> dummy;
+  CFactory::Ptr meshreader_factory = Core::instance().factories()->get_factory<CMeshReader>();
+  std::vector<std::string> readers;
+
+  // build the restricted list
+  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_factory ) )
+  {
+    readers.push_back(bdr.name());
+  }
 
   p.add_option<URI>("Domain", URI(), "Path to the domain to hold the mesh" );
+
+  // create de value and add the restricted list
+  XmlNode& rdrs_node = *XmlParams::add_value_to(*p.option_map, "Readers", std::string() , "Available readers" );
+  XmlParams::add_array_to(rdrs_node, XmlParams::tag_attr_restricted_values(), readers);
+
   p.add_array<URI>("Files", dummy , "Files to read" );
 }
 
