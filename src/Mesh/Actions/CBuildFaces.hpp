@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/bimap/bimap.hpp>
+
 #include "Mesh/CMeshTransformer.hpp"
 
 #include "Mesh/Actions/LibActions.hpp"
@@ -36,6 +38,9 @@ public: // typedefs
     typedef boost::shared_ptr<CBuildFaces const> ConstPtr;
 
 private: // typedefs
+
+  typedef boost::bimaps::bimap< boost::bimaps::set_of<Uint> , boost::bimaps::set_of<Uint> > matched_faces_t;
+  typedef matched_faces_t::value_type match_t;
   
 public: // functions
   
@@ -57,12 +62,13 @@ private: // functions
  
   void make_interfaces(Component::Ptr parent);
 
-  void build_inner_faces_bottom_up(Component::Ptr parent);
+  void build_face_cell_connectivity_bottom_up(Component::Ptr parent);
+  void build_faces_bottom_up(Component::Ptr parent);
 
-  void build_inner_face_elements(CRegion& in_region, CFaceCellConnectivity& from_face_to_cell);
-  
-  void build_outer_face_elements(CRegion& in_region, CFaceCellConnectivity& from_face_to_cell);
-  
+  void build_face_elements(CRegion& in_region, CFaceCellConnectivity& from_face_to_cell, const bool inner);
+    
+  boost::shared_ptr<CFaceCellConnectivity> match_faces(CRegion& region1, CRegion& region2);
+  void match_boundary(CRegion& bdry_region, CRegion& region2);
 
 private: // data
 

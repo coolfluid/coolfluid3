@@ -15,6 +15,7 @@
 
 #include "Common/BoostArray.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/String/Conversion.hpp"
 
 #include "Mesh/LibMesh.hpp"
 
@@ -87,6 +88,8 @@ public: // functions
   /// @return the index in the array+buffers. If array has size 4, and buffer size 3, the last idx will be 6;
   template<typename vectorType>
   Uint add_row(const vectorType& row);
+  
+  Uint add_empty_row();
   
   /// Add a row directly to the array
   /// @param [in] row Row to be added to buffer or array
@@ -344,7 +347,9 @@ inline typename ArrayBufferT<T>::SubArray_t ArrayBufferT<T>::get_row(const Uint 
       cummulative_size += buffer.size();
     }
   }
-  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
+  std::string msg = "Trying to access index " + Common::String::to_str(idx) 
+  + " that is not allocated: size = " + Common::String::to_str(cummulative_size);
+  throw Common::BadValue(FromHere(),msg);
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -387,6 +392,18 @@ inline Uint ArrayBufferT<T>::add_row(const vectorType& row)
     add_buffer(); // will make a whole lot of new newBufferRows
   Uint idx = m_newBufferRows.front();
   set_row(idx,row);
+  m_newBufferRows.pop_front();
+  return idx;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+inline Uint ArrayBufferT<T>::add_empty_row()
+{ 
+  if (m_newBufferRows.empty())
+    add_buffer(); // will make a whole lot of new newBufferRows
+  Uint idx = m_newBufferRows.front();
   m_newBufferRows.pop_front();
   return idx;
 }

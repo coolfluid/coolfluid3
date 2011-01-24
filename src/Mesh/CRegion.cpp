@@ -123,7 +123,7 @@ Uint CRegion::recursive_elements_count() const
 {
   Uint elem_count = 0;
   boost_foreach (const CElements& elements, elements_range() )
-    elem_count += elements.elements_count();
+    elem_count += elements.size();
   return elem_count;
 }
   

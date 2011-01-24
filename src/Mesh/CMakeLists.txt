@@ -43,6 +43,8 @@ list( APPEND coolfluid_mesh_files
   CNodes.cpp
   CNodeElementConnectivity.hpp
   CNodeElementConnectivity.cpp
+  CNodeFaceCellConnectivity.hpp
+  CNodeFaceCellConnectivity.cpp
   CFieldOperation.hpp
   CFieldOperation.cpp
   ConnectivityData.cpp

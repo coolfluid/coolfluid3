@@ -88,6 +88,8 @@ public:
   /// @return boost::tuple<data_type::ConstPtr component, Uint idx_in_component>   
   const_data_location_type data_location(const Uint data_glb_idx) const;
   
+  boost::tuple<Uint,Uint> data_local_idx(const Uint data_glb_idx) const;
+  
   /// Get the total number of data spanning multiple components
   /// @return the size
   Uint size() const;
@@ -182,6 +184,21 @@ inline typename CUnifiedData<DATA>::const_data_location_type CUnifiedData<DATA>:
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
   cf_assert(data_vector_idx<m_data_vector.size());
   return boost::make_tuple(m_data_vector[data_vector_idx].as_const().as_type<CUnifiedData<DATA>::data_type>(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Get the const component and local index in the component
+/// given a continuous index spanning multiple components
+/// @param [in] data_glb_idx continuous index covering multiple components
+/// @return boost::tuple<Uint component_idx, Uint idx_in_component>
+template <typename DATA>
+inline boost::tuple<Uint,Uint> CUnifiedData<DATA>::data_local_idx(const Uint data_glb_idx) const
+{
+  cf_assert(data_glb_idx<m_size);
+  const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
+  cf_assert(data_vector_idx<m_data_vector.size());
+  return boost::make_tuple(data_vector_idx, data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

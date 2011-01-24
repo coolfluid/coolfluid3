@@ -56,16 +56,12 @@ public:
   /// @param [in] elements_range the elements range to see if they are connected to the nodes.
   ///                            Can be made using "find_components_recursively<CElements>()" function
   void setup(CRegion& region);
-
-  void setup(CRegion& region1, CRegion& region2);
   
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
   
   void build_connectivity();
-
-  void build_interface_connectivity();
 
   /// Find the elements connected to a given node by its index
   /// The return type is CDynTable<Uint>::ConstRow which (or "std::vector<Uint> const&")
@@ -83,23 +79,16 @@ public:
   /// const access to the node to element connectivity table in unified indices
   const CTable<Uint>& connectivity() const { return *m_connectivity; }
 
+  /// access to see if the face is a bdry face
+  const CList<Uint>& is_bdry_face() const { cf_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
+  
   Uint size() const { return connectivity().size(); }
   
-  virtual std::vector<Uint> nodes(const Uint face) { return nodes_using_inner_face_connectivity(face); }
+  std::vector<Uint> nodes(const Uint face) const;
   
-  std::vector<Uint> nodes_using_inner_face_connectivity(const Uint face) const;
-  std::vector<Uint> nodes_using_bdry_face_connectivity(const Uint face) const;
-  
-  void match_faces();
-  
-  void set_elements(CUnifiedData<CElements>::Ptr elements);
+  void add_elements(CUnifiedData<CElements>::Ptr elements);
   
 private: // data
-
-  /// boolean set by configuration to see if 
-  /// "CList<Uint> is_bdry" gets stored in CElements
-  bool m_store_is_bdry;
-  bool m_filter_bdry;
 
   /// nb_faces
   Uint m_nb_faces;
@@ -107,21 +96,12 @@ private: // data
   /// unified view of the elements
   CUnifiedData<CElements>::Ptr m_elements;
 
-  /// unified view of the elements
-  CUnifiedData<CElements>::Ptr m_elements_1;
-
-  /// unified view of the elements
-  CUnifiedData<CElements>::Ptr m_elements_2;
-
   /// Actual connectivity table
   CTable<Uint>::Ptr m_connectivity;
   
-  CList<Uint>::Ptr m_bdry_faces;
-  
   CList<Uint>::Ptr m_face_nb_in_first_elem;
-
-  CList<Uint>::Ptr m_bdry_face_nb_in_first_elem;
   
+  // @todo make a CList<bool> (some bug prevents using CList<bool>::Buffer with CList<bool> )
   CList<Uint>::Ptr m_is_bdry_face;
 
 }; // CFaceCellConnectivity
