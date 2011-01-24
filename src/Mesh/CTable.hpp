@@ -179,6 +179,7 @@ public: // functions
   { 
     cf_assert(size() == U.size()); 
     array() = U.array();
+    return *this;
   }
   
   /// U += U
@@ -189,6 +190,7 @@ public: // functions
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] += U.array()[i][j];
+    return *this;
   }
   
   /// U -= U
@@ -199,6 +201,7 @@ public: // functions
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] -= U.array()[i][j];
+    return *this;
   }
   
   /// U *= c
@@ -207,6 +210,7 @@ public: // functions
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] *= c;
+    return *this;
   }
   
   /// U *= U
@@ -217,6 +221,7 @@ public: // functions
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] *= U.array()[i][j];
+    return *this;
   }
 
   /// U /= a
@@ -225,6 +230,7 @@ public: // functions
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] /= c;
+    return *this;
   }
 
   /// U /= U
@@ -235,6 +241,7 @@ public: // functions
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] /= U.array()[i][j];
+    return *this;
   }
   
 
