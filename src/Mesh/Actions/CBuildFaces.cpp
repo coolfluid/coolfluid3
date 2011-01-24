@@ -157,7 +157,7 @@ void CBuildFaces::build_face_cell_connectivity_bottom_up(Component::Ptr parent)
 
       CFaceCellConnectivity::Ptr face_to_cell = region.create_component<CFaceCellConnectivity>("face_to_cell");
       face_to_cell->add_tag("inner_faces");
-      CFinfo << "creating face to cell for inner cells of " << region.full_path().string_without_scheme() << CFendl;
+      CFinfo << "creating face to cell for inner cells of " << region.full_path().path() << CFendl;
       face_to_cell->setup(region);
 
       for (Uint i=0; i<face_to_cell->size(); ++i)
@@ -490,6 +490,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
     if (is_null(bdry_connectivity))
       bdry_connectivity = faces1.create_component<CFaceCellConnectivity>("cell_connectivity");
 
+    find_component<CTable<Uint> >(*bdry_connectivity).set_row_size(1);
     CTable<Uint>::Buffer f2c = find_component<CTable<Uint> >(*bdry_connectivity).create_buffer();
     CList<Uint>::Buffer fnb = find_component_with_name<CList<Uint> >(*bdry_connectivity,"face_number").create_buffer();
     CList<Uint>::Buffer bdry = find_component_with_name<CList<Uint> >(*bdry_connectivity,"is_bdry_face").create_buffer();
@@ -504,8 +505,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
       CFLogVar(find_component<CTable<Uint> >(*faces2).size());
     }
 
-    std::vector<Uint> elems(2);
-    enum {LEFT=0,RIGHT=1};
+    std::vector<Uint> elems(1);
     Uint nb_matches(0);
     
     boost_foreach(CTable<Uint>::ConstRow face_nodes, faces1.connectivity_table().array())
@@ -539,10 +539,9 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
               Uint faces2_idx;
               boost::tie(faces2_idx,f2_idx) = node2faces2.face_local_idx(f2);
               faces2 = Ufaces2->data_components()[faces2_idx];
-              elems[LEFT]  = 0;//faces1->elements(f1_idx)[0] + elems_1_start_idx[faces1_idx];
-              elems[RIGHT] = faces2->elements(f2_idx)[0] + elems_2_start_idx[faces2_idx];
+              elems[0] = faces2->elements(f2_idx)[0] + elems_2_start_idx[faces2_idx];
               
-              CFinfo << "match found: " << f1 << " <--> " << elems[RIGHT] << CFendl;
+              CFinfo << "match found: " << f1 << " <--> " << elems[0] << CFendl;
               
               // Remove matches from the 2 connectivity tables and add to the interface
               f2c.add_row(elems);
