@@ -53,7 +53,7 @@ namespace detail {
 void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::string, std::string>& patch_types)
 {
   // root region and coordinates
-  CRegion& block_mesh_region = mesh.create_region("block_mesh_region");
+  CRegion& block_mesh_region = mesh.topology().create_region("block_mesh_region");
   CNodes& block_nodes = block_mesh_region.create_nodes(DIM_3D);
   
   // Fill the coordinates array
@@ -546,7 +546,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   CMesh::Ptr tmp_mesh3d = dims.first == DIM_3D ? CMesh::Ptr() : allocate_component<CMesh>("tmp_mesh3d");
   
   // Create the node coordinates
-  CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->create_region("root_region") : mesh.create_region("root_region");
+  CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->topology().create_region("root_region") : mesh.topology().create_region("root_region");
   CNodes& mesh_nodes_comp = root_region.create_nodes(DIM_3D);
   CTable<Real>::ArrayT& mesh_coords = mesh_nodes_comp.coordinates().array();
   mesh_nodes_comp.resize(nodes_end - nodes_begin);
@@ -647,7 +647,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   // Create the boundary elements
   std::map<std::string, std::vector<Uint> > patch_first_elements;
   std::map<std::string, std::vector<Uint> > patch_elements_counts;
-  const CRegion& block_mesh_region = find_component<CRegion>(*block_mesh);
+  const CRegion& block_mesh_region = find_component<CRegion>(block_mesh->topology());
   BOOST_FOREACH(const CElements& patch_block, find_components_recursively_with_filter<CElements>(block_mesh_region, IsElementsSurface()))
   {
     const CFaceConnectivity& adjacency_data = find_component<CFaceConnectivity>(patch_block);
@@ -740,7 +740,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
     
     // Create the 2D mesh
     // Create the node coordinates
-    CRegion& root_region_2d = mesh.create_region("root_region");
+    CRegion& root_region_2d = mesh.topology().create_region("root_region");
     CNodes& mesh_nodes_comp_2d = root_region_2d.create_nodes(DIM_3D);
     CTable<Real>::ArrayT& mesh_coords_2d = mesh_nodes_comp_2d.coordinates().array();
     
@@ -942,7 +942,7 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
   const Uint nb_blocks = blocks_in.block_points.size();
   
   CElements& block_elements = find_component_recursively_with_name<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
-  CTable<Real>::ArrayT& block_coordinates = find_component<CTable<Real> >(*block_elements.get_parent()->get_parent()).array();
+  CTable<Real>::ArrayT& block_coordinates = block_elements.nodes().coordinates().array();
   const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
   
   // Direction to search from

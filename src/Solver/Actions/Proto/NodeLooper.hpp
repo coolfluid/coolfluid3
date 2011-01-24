@@ -21,8 +21,8 @@
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/vector_c.hpp>
 
-#include "Solver/Actions/Proto/NodeData.hpp"
-#include "Solver/Actions/Proto/NodeGrammar.hpp"
+#include "NodeData.hpp"
+#include "NodeGrammar.hpp"
 
 /// @file
 /// Loop over the nodes for a region
@@ -37,22 +37,10 @@ template<typename ExprT>
 void for_each_node(Mesh::CRegion& root_region, const ExprT& expr)
 {
   // Number of variables (integral constant)
-  typedef typename boost::result_of<ExprVarArity(ExprT)>::type NbVarsT;
-  
-  // init empty vector that will store variable indices
-  typedef boost::mpl::vector_c<Uint> EmptyRangeT;
-  
-  // Fill the vector with indices 0 to 9, so we allow 10 different (field or node related) variables in an expression
-  typedef typename boost::mpl::copy<
-      boost::mpl::range_c<int,0,NbVarsT::value>
-    , boost::mpl::back_inserter< EmptyRangeT >
-    >::type NbVarsRangeT;
-  
-  // Get the type for each variable that is used, or set to boost::mpl::void_ for unused indices
-  typedef typename boost::mpl::transform<NbVarsRangeT, DefineTypeOp<boost::mpl::_1, ExprT > >::type VarTypesT;
+  typedef typename ExpressionProperties<ExprT>::NbVarsT NbVarsT;
   
   // Type of a fusion vector that can contain a copy of each variable that is used in the expression
-  typedef typename boost::fusion::result_of::as_vector<VarTypesT>::type VariablesT;
+  typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
   
   // Store the variables
   VariablesT vars;

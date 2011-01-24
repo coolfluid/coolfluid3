@@ -10,7 +10,7 @@
 #include <boost/mpl/max.hpp>
 #include <boost/proto/proto.hpp>
 
-#include "Solver/Actions/Proto/Terminals.hpp"
+#include "Terminals.hpp"
 
 /// @file
 /// Some generally useful transforms, not bound to mesh or node related expressions
@@ -64,6 +64,24 @@ struct DefineTypeOp
 {
   typedef typename boost::result_of<DefineType<I::value>(Expr)>::type var_type;
   typedef typename boost::mpl::if_<boost::mpl::is_void_<var_type>, boost::mpl::void_, typename var_type::type>::type type;
+};
+
+/// Convenience struct to get easy access to the numberof variables and their type
+template<typename ExprT>
+struct ExpressionProperties
+{
+  /// Number of variables in the expression (boost mpl integral constant)
+  typedef typename boost::result_of<ExprVarArity(ExprT)>::type NbVarsT;
+  
+  /// Types of the used variables
+  typedef typename boost::fusion::result_of::as_vector
+  <
+    typename boost::mpl::transform
+    <
+      typename boost::mpl::copy<boost::mpl::range_c<int,0,NbVarsT::value>, boost::mpl::back_inserter< boost::mpl::vector_c<Uint> > >::type, //range from 0 to NbVarsT
+      DefineTypeOp<boost::mpl::_1, ExprT>
+    >::type
+  >::type VariablesT;
 };
 
 /// Copy the terminal values to a fusion list

@@ -10,8 +10,9 @@
 #include <boost/proto/proto.hpp>
 
 #include "Math/MatrixTypes.hpp"
+#include "Solver/CEigenLSS.hpp"
 
-#include "Solver/Actions/Proto/Transforms.hpp"
+#include "Transforms.hpp"
 
 namespace CF {
 namespace Solver {
@@ -24,7 +25,11 @@ struct NeumannBC
 };
 
 /// Placeholder to define dirichlet boundary conditions
-static boost::proto::terminal<NeumannBC>::type const neumann = {{}};
+boost::proto::result_of::make_expr< boost::proto::tag::function, NeumannBC, StoredReference<Solver::CEigenLSS> >::type const
+neumann(Solver::CEigenLSS& arg)
+{
+  return boost::proto::make_expr<boost::proto::tag::function>( NeumannBC(), store(arg) );
+}
   
 struct NeumannBCSetter :
   boost::proto::transform< NeumannBCSetter >
@@ -34,24 +39,14 @@ struct NeumannBCSetter :
   {
     typedef void result_type;
     
-    typedef typename boost::result_of
-    <
-      VarValue
-      (
-        ExprT,
-        StateT,
-        typename boost::result_of<NumberedData(ExprT, StateT, DataT)>::type
-      )
-    >::type LSST;
-    
     result_type operator ()(
                 typename impl::expr_param expr
               , typename impl::state_param state
               , typename impl::data_param data
     ) const
     {
-      LSST var = VarValue()(expr, state, NumberedData()(expr, state, data));
-      var.lss().rhs()[data.node_idx] = state;
+      Solver::CEigenLSS& lss = boost::proto::value(expr).get();
+      lss.rhs()[data.node_idx] = state;
     }
   };
 };
@@ -63,7 +58,7 @@ struct NeumannBCGrammar :
     boost::proto::function
     <
       boost::proto::terminal<NeumannBC>,
-      boost::proto::terminal< Var< boost::proto::_, LSS > >
+      boost::proto::terminal< StoredReference<Solver::CEigenLSS> >
     >,
     boost::proto::_
   >

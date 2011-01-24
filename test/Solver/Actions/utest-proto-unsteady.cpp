@@ -31,7 +31,6 @@
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Types.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
 #include "Solver/CEigenLSS.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -116,20 +115,15 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   CRoot::Ptr root = CRoot::create("Root");
   
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
-  root->create_component<Solver::CPhysicalModel>("PhysicalModel");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS::Ptr lss = root->create_component<CEigenLSS>("LSS");
-  lss->matrix().resize(nb_segments+1, nb_segments+1);
-  lss->matrix().setZero();
-  lss->rhs().resize(nb_segments+1);
-  lss->rhs().setZero();
+  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
   const std::vector<std::string> vars(1, "T[1]");
   mesh->create_field("Temperature", vars, CField::NODE_BASED);
-  lss->configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
+  lss.configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
   
   // Create a field for the analytical solution
   mesh->create_field("TemperatureAnalytical", vars, CField::NODE_BASED);
@@ -141,17 +135,14 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   
   // Term for the geometric suport
   MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
-  
-  // Term for the linear system
-  MeshTerm<1, LSS> blocks("system", lss);
-  
+
   // Read-only access to the result field (faster)
-  MeshTerm<2, ConstField<Real> > temperature("Temperature", "T");
+  MeshTerm<1, ConstField<Real> > temperature("Temperature", "T");
   
   // Writable access to the result field
-  MeshTerm<3, Field<Real> > temperature_writable("Temperature", "T");
+  MeshTerm<2, Field<Real> > temperature_writable("Temperature", "T");
   
-  MeshTerm<4, Field<Real> > temperature_analytical("TemperatureAnalytical", "T");
+  MeshTerm<3, Field<Real> > temperature_analytical("TemperatureAnalytical", "T");
   
   // Set initial condition. We should use the analytical solution at start_time != 0 because it is smooth
   set_analytical_solution(fluid, "Temperature", "T");
@@ -161,31 +152,29 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     // Fill the system matrix
     for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
     (
-      blocks += integral<1>( ( invdt * sf_outer_product(temperature) + 0.5 * alpha * laplacian(nodes, temperature) ) * jacobian_determinant(nodes) )
-    );
-    
-    // Fill RHS
-    for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
-    (
-      accumulate_rhs(blocks) += integral<1>( ( laplacian(nodes, temperature) ) * ( jacobian_determinant(nodes) * (-alpha) ) * temperature) 
+      group
+      (
+        system_matrix(lss) += integral<1>( ( invdt * sf_outer_product(temperature) + 0.5 * alpha * laplacian(nodes, temperature) ) * jacobian_determinant(nodes) ),
+        system_rhs(lss) += integral<1>( ( laplacian(nodes, temperature) ) * ( jacobian_determinant(nodes) * (-alpha) ) * temperature)
+      )
     );
     
     // Left boundary at ambient temperature
     for_each_node
     (
       xneg,
-      dirichlet(blocks) = ambient_temp - temperature
+      dirichlet(lss) = ambient_temp - temperature
     );
     
     // Right boundary at ambient temperature
     for_each_node
     (
       xpos,
-      dirichlet(blocks) = ambient_temp - temperature
+      dirichlet(lss) = ambient_temp - temperature
     );
     
     // Solve the system!
-    lss->solve();
+    lss.solve();
     
     // Check the solution
     set_analytical_solution(fluid, "TemperatureAnalytical", "T");

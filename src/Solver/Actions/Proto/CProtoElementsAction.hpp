@@ -39,7 +39,7 @@ public:
   /// Set the expression
   void set_expression(const ExprT& expr)
   {
-    m_expr = boost::proto::deep_copy(expr);
+    m_expr.reset( new CopiedExprT(boost::proto::deep_copy(expr)) );
     // Store the variables
     CopyNumberedVars<VariablesT> ctx(m_variables);
     boost::proto::eval(expr, ctx);
@@ -71,7 +71,7 @@ public:
         NbVarsT, // number of variables
         boost::mpl::int_<0>, // Start index, as MPL integral constant
         typename IsSFDependent< typename boost::remove_reference< typename boost::fusion::result_of::front<VariablesT>::type >::type >::type // Determine if the first var needs a shape function
-      >(m_variables, m_expr, elements).run();
+      >(m_variables, *m_expr, elements).run();
     }
   }
   
@@ -101,7 +101,7 @@ private:
   VariablesT m_variables;
   
   /// Copy of the expression
-  CopiedExprT m_expr;
+  boost::scoped_ptr<CopiedExprT> m_expr;
 };
 
 /// Returns a configurable CAction object that will execute the supplied expression for all elements

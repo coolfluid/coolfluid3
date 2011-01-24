@@ -42,6 +42,7 @@ if(CF_ENABLE_PROTO)
     Proto/ElementLooper.hpp
     Proto/ElementTransforms.hpp
     Proto/ElementVariables.hpp
+    Proto/ExpressionGroup.hpp
     Proto/Functions.hpp
     Proto/NeumannBC.hpp
     Proto/NodeData.hpp
@@ -62,6 +63,7 @@ else()
     Proto/ElementLooper.hpp
     Proto/ElementTransforms.hpp
     Proto/ElementVariables.hpp
+    Proto/ExpressionGroup.hpp
     Proto/Functions.hpp
     Proto/NeumannBC.hpp
     Proto/NodeData.hpp

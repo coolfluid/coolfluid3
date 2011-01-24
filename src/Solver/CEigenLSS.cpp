@@ -24,6 +24,7 @@ CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 {
   Common::Option::Ptr option = m_properties.add_option<Common::OptionURI>("SolutionField", "Path to the field that will store the solution", "");
   boost::dynamic_pointer_cast<Common::OptionURI>(option)->supported_protocol(CF::Common::URI::Scheme::CPATH);
+  option->attach_trigger(boost::bind(&CEigenLSS::on_solution_field_change, this));
 }
 
 void CEigenLSS::resize ( Uint nb_dofs )
@@ -64,6 +65,21 @@ void CEigenLSS::solve()
     output_data[row][col] += solution[i];
   }
 }
+
+void CEigenLSS::on_solution_field_change()
+{
+  Mesh::CField::Ptr output_field = look_component<Mesh::CField>(property("SolutionField").value_str());
+  if(output_field)
+  {
+    const Mesh::CTable<Real>& output_data = output_field->data_table();
+    resize(output_data.row_size() * output_data.size());
+    m_system_matrix.setZero();
+    m_rhs.setZero();
+  }
+  
+  
+}
+
 
 } // Solver
 } // CF

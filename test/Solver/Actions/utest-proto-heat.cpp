@@ -31,7 +31,6 @@
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Types.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
 #include "Solver/CEigenLSS.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -54,35 +53,38 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
 {
   const Uint nb_segments = 5;
   
-  CMesh::Ptr mesh(allocate_component<CMesh>("line"));
+  // Setup document structure and mesh
+  CRoot::Ptr root = CRoot::create("Root");
+  
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, 5., nb_segments);
   
+  // Linear system
+  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  
+  // Create output field
+  const std::vector<std::string> vars(1, "T[1]");
+  mesh->create_field("Temperature", vars, CField::NODE_BASED);
+  lss.configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
+  
   // Geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
+  MeshTerm<0, ConstNodes> nodes( "CalculationRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     _cout << "elem result:\n" << integral<1>( laplacian(nodes, nodes) * jacobian_determinant(nodes) ) << "\n"
   );
   
-  // Linear system
-  CEigenLSS::Ptr lss(allocate_component<CEigenLSS>("LSS"));
-  lss->matrix().resize(nb_segments+1, nb_segments+1);
-  lss->matrix().setZero();
-  lss->rhs().resize(nb_segments+1);
-  lss->rhs().setZero();
-  MeshTerm<1, LSS> blocks("system", lss);
-  
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     
-    blocks +=integral<1>
+    system_matrix(lss) +=integral<1>
     (
       transpose( gradient(nodes, nodes) ) * gradient(nodes, nodes) * jacobian_determinant(nodes)
     )
   );
   
-  std::cout << lss->matrix() << std::endl;
+  std::cout << lss.matrix() << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE( Heat1D )
@@ -93,42 +95,44 @@ BOOST_AUTO_TEST_CASE( Heat1D )
 
   const Uint nb_segments = 20;
 
-  // build the mesh
-  CMesh::Ptr mesh(allocate_component<CMesh>("line"));
+  // Setup document structure and mesh
+  CRoot::Ptr root = CRoot::create("Root");
+  
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
-  // Geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
-  
   // Linear system
-  CEigenLSS::Ptr lss(allocate_component<CEigenLSS>("LSS"));
-  lss->matrix().resize(nb_segments+1, nb_segments+1);
-  lss->matrix().setZero();
-  lss->rhs().resize(nb_segments+1);
-  lss->rhs().setZero();
-  MeshTerm<1, LSS> blocks("system", lss);
+  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  
+  // Create output field
+  const std::vector<std::string> vars(1, "T[1]");
+  mesh->create_field("Temperature", vars, CField::NODE_BASED);
+  lss.configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
+  
+  // Geometric suport
+  MeshTerm<0, ConstNodes> nodes( "CalculationRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
-    blocks += integral<1>( laplacian(nodes, nodes) * jacobian_determinant(nodes) )
+    system_matrix(lss) += integral<1>( laplacian(nodes, nodes) * jacobian_determinant(nodes) )
   );
   
   // Left boundary at temp_start
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(*mesh, "xneg"),
-    dirichlet(blocks) = temp_start
+    dirichlet(lss) = temp_start
   );
 
   // Right boundary at temp_stop
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(*mesh, "xpos"),
-    dirichlet(blocks) = temp_stop
+    dirichlet(lss) = temp_stop
   );
 
   // Solve the system!
-  const RealVector solution = lss->matrix().colPivHouseholderQr().solve(lss->rhs());
+  const RealVector solution = lss.matrix().colPivHouseholderQr().solve(lss.rhs());
   
   // Check solution
   for(int i = 0; i != solution.rows(); ++i)
@@ -154,50 +158,42 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
   CRoot::Ptr root = CRoot::create("Root");
   
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
-  root->create_component<Solver::CPhysicalModel>("PhysicalModel");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS::Ptr lss = root->create_component<CEigenLSS>("LSS");
-  lss->matrix().resize(nb_segments+1, nb_segments+1);
-  lss->matrix().setZero();
-  lss->rhs().resize(nb_segments+1);
-  lss->rhs().setZero();
+  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
   const std::vector<std::string> vars(1, "T[1]");
   mesh->create_field("Temperature", vars, CField::NODE_BASED);
-  lss->configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
+  lss.configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
   
   // Term for the geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", mesh->topology().as_type<CRegion>() );
-  
-  // Term for the linear system
-  MeshTerm<1, LSS> blocks("system", lss);
+  MeshTerm<0, ConstNodes> nodes( "CalculationRegion", mesh->topology().as_type<CRegion>() );
   
   MeshTerm<2, ConstField<Real> > temperature("Temperature", "T");
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
-    blocks += integral<1>( k * laplacian(nodes, temperature) * jacobian_determinant(nodes) )
+    system_matrix(lss) += integral<1>( k * laplacian(nodes, temperature) * jacobian_determinant(nodes) )
   );
   
   // Right boundary at constant heat flux
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(*mesh, "xpos"),
-    neumann(blocks) = q
+    neumann(lss) = q
   );
   
   // Left boundary at temp_start
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(*mesh, "xneg"),
-    dirichlet(blocks) = temp_start
+    dirichlet(lss) = temp_start
   );
   
   // Solve the system!
-  lss->solve();
+  lss.solve();
   
   // Check solution
   for_each_node
@@ -215,43 +211,39 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   
   BOOST_CHECK(true);
 
-  // Create a document structure
+  // Setup document structure and mesh
   CRoot::Ptr root = CRoot::create("Root");
+  
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
-  CPhysicalModel::Ptr phys_mod = root->create_component<Solver::CPhysicalModel>("PhysicalModel");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
-  CEigenLSS::Ptr lss = root->create_component<CEigenLSS>("LSS");
+  
+  // Linear system
+  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   BOOST_CHECK(true);
 
   // Create output field
   const std::vector<std::string> vars(1, "T[1]");
   mesh->create_field("Temperature", vars, CField::NODE_BASED);
-  lss->configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
+  lss.configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
   
   BOOST_CHECK(true);
 
   // Variable holding the geometric support
-  MeshTerm<0, ConstNodes> nodes("ConductivityRegion");
+  MeshTerm<0, ConstNodes> nodes("CalculationRegion");
   
   // Variable holding the field
   MeshTerm<1, ConstField<Real> > temperature("Temperature", "T");
   
-  // Variable holding the LSS
-  MeshTerm<2, LSS> blocks("LSS");
-  
   BOOST_CHECK(true);
 
   // Create a CAction executing the expression
-  CAction::Ptr heat1d_action = build_elements_action("Heat1D", *root, blocks += integral<1>( laplacian(nodes, temperature) * jacobian_determinant(nodes) ));
+  CAction::Ptr heat1d_action = build_elements_action("Heat1D", *root, system_matrix(lss) += integral<1>( laplacian(nodes, temperature) * jacobian_determinant(nodes) ));
   
   BOOST_CHECK(true);
 
   // Configure the CAction
-  heat1d_action->configure_property("ConductivityRegion", mesh->topology().full_path() );
-  heat1d_action->configure_property("LSS", URI("cpath://Root/LSS"));
-  
-  CFinfo << "Nb dofs: " << phys_mod->nb_dof() << CFendl;
+  heat1d_action->configure_property("CalculationRegion", mesh->topology().full_path());
   
   // Run the expression
   heat1d_action->execute();
@@ -260,9 +252,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Left boundary condition
   MeshTerm<3, ConfigurableConstant<Real> > xneg_temp("XnegTemp", "Temperature at the start of the domain");
-  CAction::Ptr xneg_action = build_nodes_action("xneg", *root, dirichlet(blocks) = xneg_temp );
+  CAction::Ptr xneg_action = build_nodes_action("xneg", *root, dirichlet(lss) = xneg_temp );  
   xneg_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg").full_path());
-  xneg_action->configure_property("LSS", URI("cpath://Root/LSS"));
   xneg_action->configure_property("XnegTemp", 10.);
   xneg_action->execute();
   
@@ -270,14 +261,13 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Right boundary condition
   MeshTerm<4, ConfigurableConstant<Real> > xpos_temp("XposTemp", "Temperature at the end of the domain");
-  CAction::Ptr xpos_action = build_nodes_action("xpos", *root, dirichlet(blocks) = xpos_temp );  
+  CAction::Ptr xpos_action = build_nodes_action("xpos", *root, dirichlet(lss) = xpos_temp );  
   xpos_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos").full_path());
-  xpos_action->configure_property("LSS", URI("//Root/LSS"));
   xpos_action->configure_property("XposTemp", 35.);
   xpos_action->execute();
   
   // Solve system
-  lss->solve();
+  lss.solve();
   
   // Print solution field
   for_each_node
@@ -296,56 +286,53 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   const Real k             = 100.; // thermal conductivity
   const Real q             = 100.; // Heat production per volume
 
-  // build the mesh
-  CMesh::Ptr mesh(allocate_component<CMesh>("line"));
+  // Setup document structure and mesh
+  CRoot::Ptr root = CRoot::create("Root");
+  
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
-  // Geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", mesh->topology().as_type<CRegion>() );
-  
   // Linear system
-  CEigenLSS::Ptr lss(allocate_component<CEigenLSS>("LSS"));
-  lss->matrix().resize(nb_segments+1, nb_segments+1);
-  lss->matrix().setZero();
-  lss->rhs().resize(nb_segments+1);
-  lss->rhs().setZero();
-  MeshTerm<1, LSS> blocks("system", lss);
+  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  
+  // Geometric suport
+  MeshTerm<0, ConstNodes> nodes( "CalculationRegion", mesh->topology().as_type<CRegion>() );
   
   // Create output field
   const std::vector<std::string> vars(1, "T[1]");
   mesh->create_field("Temperature", vars, CField::NODE_BASED);
-  lss->configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
+  lss.configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
   
   // Variable holding the field
   MeshTerm<2, ConstField<Real> > temperature("Temperature", "T");
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
-    blocks += integral<1>( k * laplacian(nodes, temperature) * jacobian_determinant(nodes) )
+    system_matrix(lss) += integral<1>( k * laplacian(nodes, temperature) * jacobian_determinant(nodes) )
   );
   
   MeshTerm<3, ConstField<Real> > heat("heat", q);
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
-    accumulate_rhs(blocks) += integral<1>( jacobian_determinant(nodes) * sf_outer_product(temperature) * heat )
+    system_rhs(lss) += integral<1>( jacobian_determinant(nodes) * sf_outer_product(temperature) * heat )
   );
   
   // Left boundary at ambient temperature
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg"),
-    dirichlet(blocks) = ambient_temp
+    dirichlet(lss) = ambient_temp
   );
   
   // Right boundary at ambient temperature
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos"),
-    dirichlet(blocks) = ambient_temp
+    dirichlet(lss) = ambient_temp
   );
   // Solve the system!
-  const RealVector solution = lss->matrix().colPivHouseholderQr().solve(lss->rhs());
+  const RealVector solution = lss.matrix().colPivHouseholderQr().solve(lss.rhs());
   
   // Check solution
   for(int i = 0; i != solution.rows(); ++i)

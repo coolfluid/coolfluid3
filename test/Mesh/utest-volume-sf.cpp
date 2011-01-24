@@ -8,8 +8,15 @@
 #define BOOST_TEST_MODULE "Common tests for shape functions that can be used to model the volume of a mesh"
 
 #include <boost/mpl/for_each.hpp>
+#include <boost/mpl/transform_view.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
+
+#include <boost/fusion/adapted/mpl.hpp>
+#include <boost/fusion/support/pair.hpp>
+#include <boost/fusion/container/map.hpp>
+#include <boost/fusion/container/map/convert.hpp>
+#include <boost/fusion/sequence/intrinsic/at_key.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
@@ -93,28 +100,84 @@ struct FunctorForDim<3>
 
 struct VolumeSFFixture
 {
-  typedef RealMatrix NodesT;
-  typedef std::map<GeoShape::Type, NodesT> NodesMapT;
+  /// Functor to create a fusion pair between a shape function and its node matrix
+  template<typename SF>
+  struct MakeSFNodesPair
+  {
+    typedef boost::fusion::pair<SF, typename SF::NodeMatrixT> type;
+  };
+
+  /// Map between a shape function and its node matrix. Used to store nodes for each possible test
+  typedef boost::fusion::result_of::as_map
+  <
+    boost::mpl::transform_view
+    <
+      VolumeTypes,
+      MakeSFNodesPair<boost::mpl::_1>
+    >
+  >::type NodesMapT;
 
   /// common setup for each test case
-  VolumeSFFixture()
+  VolumeSFFixture() :
+    // If you get a compile error here, you forrgot to add nodes for a new volume shape function type
+    nodes
+    (
+      boost::fusion::make_pair<Line1DLagrangeP1>( (Line1DLagrangeP1::NodeMatrixT() << 
+        5.,
+        10.
+      ).finished() ),
+      boost::fusion::make_pair<Triag2DLagrangeP1>( (Triag2DLagrangeP1::NodeMatrixT() << 
+        0.5, 0.3,
+        1.1, 1.2,
+        0.8, 2.1
+      ).finished() ),
+      boost::fusion::make_pair<Triag2DLagrangeP2>( (Triag2DLagrangeP2::NodeMatrixT() <<
+        0.5, 0.3,
+        1.1, 1.2,
+        0.8, 2.1,
+        0.9, 0.5,
+        1.0, 1.5,
+        0.75,1.6
+      ).finished() ),
+      boost::fusion::make_pair<Quad2DLagrangeP1>( (Quad2DLagrangeP1::NodeMatrixT() <<
+        0.5, 0.3,
+        1.1, 1.2,
+        1.35, 1.9,
+        0.8, 2.1
+      ).finished() ),
+     boost::fusion::make_pair<Quad2DLagrangeP2>( (Quad2DLagrangeP2::NodeMatrixT() <<
+        0.5, 0.3,
+        1.1, 1.2,
+        1.35, 1.9,
+        0.8, 2.1,
+        0.9, 0.5,
+        1.2, 1.3,
+        1.0,2.0,
+        0.75,1.6,
+        1.0,1.0
+      ).finished() ),
+      boost::fusion::make_pair<Hexa3DLagrangeP1>( (Hexa3DLagrangeP1::NodeMatrixT() <<
+        0.5, 0.5, 0.5,
+        1., 0., 0.,
+        1.,1.,0.,
+        0., 1., 0.,
+        0., 0., 1.,
+        1., 0., 1.,
+        1.5, 1.5, 1.5,
+        0., 1., 1.
+      ).finished() ),
+      boost::fusion::make_pair<Tetra3DLagrangeP1>( (Tetra3DLagrangeP1::NodeMatrixT() <<
+        0.830434, 0.885201, 0.188108,
+        0.89653, 0.899961, 0.297475,
+        0.888273, 0.821744, 0.211428,
+        0.950439, 0.904872, 0.20736
+      ).finished() )
+    ) // end nodes(...) construction
   {
-    nodes[GeoShape::LINE]  = RealMatrix(2, 1);
-    nodes[GeoShape::TRIAG] = RealMatrix(3, 2);
-    nodes[GeoShape::QUAD]  = RealMatrix(4, 2);
-    nodes[GeoShape::TETRA] = RealMatrix(4, 3);
-    nodes[GeoShape::HEXA]  = RealMatrix(8, 3);
-    
-    nodes[GeoShape::LINE]  << 5., 10.;
-    nodes[GeoShape::TRIAG] << 0.5, 0.3, 1.1, 1.2, 0.8, 2.1;
-    nodes[GeoShape::QUAD]  << 0.5, 0.3, 1.1, 1.2, 1.35, 1.9, 0.8, 2.1;
-    nodes[GeoShape::TETRA] << 0.830434, 0.885201, 0.188108, 0.89653, 0.899961, 0.297475, 0.888273, 0.821744, 0.211428, 0.950439, 0.904872, 0.20736;
-    nodes[GeoShape::HEXA]  << 0.5, 0.5, 0.5, 1., 0., 0., 1.,1.,0., 0., 1., 0., 0., 0., 1., 1., 0., 1., 1.5, 1.5, 1.5, 0., 1., 1.;
   }
 
   // Store test nodes per shape type
-  NodesMapT nodes;
-
+  const NodesMapT nodes;
   
   /// Applies a functor if the element is a volume element
   template<typename FunctorT>
@@ -128,10 +191,14 @@ struct VolumeSFFixture
       cf_assert(ShapeFunctionT::dimension == ShapeFunctionT::dimensionality);
       CFinfo << "---------------------- Start " << T.element_type_name() << " test ----------------------" << CFendl;
       const Uint segments = 5; // number of segments in each direction for the mapped coord calculation
-      const NodesMapT::const_iterator shape_nodes_it = m_nodes.find(ShapeFunctionT::shape);
-      cf_assert(shape_nodes_it != m_nodes.end());
-      const NodesT& nodes = shape_nodes_it->second;
-      FunctorForDim<ShapeFunctionT::dimension>()(segments, T, nodes, functor);
+      try
+      {
+        FunctorForDim<ShapeFunctionT::dimension>()(segments, T, boost::fusion::at_key<ShapeFunctionT>(m_nodes), functor);
+      }
+      catch(...)
+      {
+        CFinfo << "  Unimplemented method for " << T.element_type_name() << CFendl;
+      }
     }
 
   private:

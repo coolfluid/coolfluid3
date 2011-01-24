@@ -20,9 +20,6 @@
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/ElementType.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
-
-
 /// @file
 /// Some commonly used, statically defined terminal types
 
@@ -150,15 +147,13 @@ struct ConstNodes : OptionVariable
 protected:
   virtual void add_options()
   {
-    m_region_path = add_option<Common::URI>(m_name, m_description, boost::bind(&ConstNodes::on_trigger, this));
+    m_region_path = add_option<Common::URI>("CalculationRegion", m_description, boost::bind(&ConstNodes::on_trigger, this));
     m_region_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
-    m_physical_model = Common::find_component_ptr<Solver::CPhysicalModel>(*m_owner.lock()->get_parent());
   }
 
 private:
   /// Root region with which the nodes are associated
   boost::weak_ptr<Mesh::CRegion> m_region;
-  boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
 
   /// Option with the path to the region
   boost::weak_ptr<Common::OptionURI> m_region_path;
@@ -166,8 +161,6 @@ private:
   void on_trigger()
   {
     m_region = m_owner.lock()->look_component<Mesh::CRegion>(m_region_path.lock()->value_str());
-    const Uint node_count = region().recursive_nodes_count();
-    m_physical_model.lock()->configure_property("DOFs", node_count);
   }
 };
 
@@ -335,6 +328,30 @@ struct MeshTerm :
   BOOST_PROTO_EXTENDS_USING_ASSIGN(MeshTerm)
 };
 
+/// Store a given reference, so it can safely be shallow-copied when deep-copying expressions
+template<typename T>
+struct StoredReference
+{
+  explicit StoredReference(T& t) : m_t(&t)
+  {
+  }
+  
+  /// Get a reference to the originally referenced object
+  T& get() const
+  {
+    return *m_t;
+  }
+  
+private:
+  T* m_t;
+};
+
+/// Easily store a reference
+template<typename T>
+StoredReference<T> store(T& t)
+{
+  return StoredReference<T>(t);
+}
 
 /// Wrap std::cout
 static boost::proto::terminal< std::ostream & >::type _cout = {std::cout};
@@ -343,20 +360,6 @@ static boost::proto::terminal< std::ostream & >::type _cout = {std::cout};
 inline Real atan_vec(const RealVector2& vec)
 {
   return atan2(vec[1], vec[0]);
-}
-
-/// Store the given type by value
-template<typename Arg>
-typename boost::proto::result_of::make_expr<
-    boost::proto::tag::terminal
-  , Arg const
->::type const
-val(Arg arg)
-{
-    return boost::proto::make_expr<boost::proto::tag::terminal>
-    (
-      arg   // Second child (by reference)
-    );
 }
 
 // Wrap some math functions

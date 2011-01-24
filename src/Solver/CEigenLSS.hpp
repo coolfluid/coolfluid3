@@ -59,6 +59,9 @@ private:
   
   /// Right hand side
   RealVector m_rhs;
+  
+  /// Called when the solution field is changed
+  void on_solution_field_change();
 
 };
   

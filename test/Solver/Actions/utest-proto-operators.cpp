@@ -10,10 +10,10 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Actions/Proto/ElementLooper.hpp"
-#include "Actions/Proto/Functions.hpp"
-#include "Actions/Proto/NodeLooper.hpp"
-#include "Actions/Proto/Terminals.hpp"
+#include "Solver/Actions/Proto/ElementLooper.hpp"
+#include "Solver/Actions/Proto/Functions.hpp"
+#include "Solver/Actions/Proto/NodeLooper.hpp"
+#include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Common/Log.hpp"
 

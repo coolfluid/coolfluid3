@@ -11,7 +11,9 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Solver/Actions/Proto/Transforms.hpp"
+#include "Solver/CEigenLSS.hpp"
+
+#include "Transforms.hpp"
 
 namespace CF {
 namespace Solver {
@@ -24,7 +26,11 @@ struct DirichletBC
 };
 
 /// Placeholder to define dirichlet boundary conditions
-boost::proto::terminal<DirichletBC>::type const dirichlet = {{}};
+boost::proto::result_of::make_expr< boost::proto::tag::function, DirichletBC, StoredReference<Solver::CEigenLSS> >::type const
+dirichlet(Solver::CEigenLSS& arg)
+{
+  return boost::proto::make_expr<boost::proto::tag::function>( DirichletBC(), store(arg) );
+}
 
 /// Helper function for assignment
 template<typename MatrixT, typename RhsT>
@@ -47,24 +53,14 @@ struct DirichletBCSetter :
   {
     typedef void result_type;
     
-    typedef typename boost::result_of
-    <
-      VarValue
-      (
-        ExprT,
-        StateT,
-        typename boost::result_of<NumberedData(ExprT, StateT, DataT)>::type
-      )
-    >::type LSST;
-    
     result_type operator ()(
                 typename impl::expr_param expr
               , typename impl::state_param state
               , typename impl::data_param data
     ) const
     {
-      LSST var = VarValue()(expr, state, NumberedData()(expr, state, data));
-      assign_dirichlet(var.lss().matrix(), var.lss().rhs(), state, data.node_idx);
+      Solver::CEigenLSS& lss = boost::proto::value(expr).get();
+      assign_dirichlet(lss.matrix(), lss.rhs(), state, data.node_idx);
     }
   };
 };
@@ -76,7 +72,7 @@ struct DirichletBCGrammar :
     boost::proto::function
     <
       boost::proto::terminal<DirichletBC>,
-      boost::proto::terminal< Var< boost::proto::_, LSS > >
+      boost::proto::terminal< StoredReference<Solver::CEigenLSS> >
     >,
     boost::proto::_
   >

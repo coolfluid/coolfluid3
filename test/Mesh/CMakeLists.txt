@@ -58,7 +58,7 @@ coolfluid_add_unittest( utest-mesh-components )
 
 list( APPEND utest-mesh-cgns_cflibs      coolfluid_mesh_actions coolfluid_mesh_cgns3 coolfluid_mesh_neutral coolfluid_mesh_gmsh )
 list( APPEND utest-mesh-cgns_files       utest-mesh-cgns.cpp )
-#list( APPEND utest-mesh-cgns_includedirs ${CGNS_INCLUDE_DIR} )
+list( APPEND utest-mesh-cgns_includedirs ${CGNS_INCLUDE_DIR} )
 
 set( utest-mesh-cgns_condition ${coolfluid_mesh_cgns3_builds} )
 

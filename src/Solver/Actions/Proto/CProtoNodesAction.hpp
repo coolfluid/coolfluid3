@@ -38,7 +38,7 @@ public:
   /// Set the expression
   void set_expression(const ExprT& expr)
   {
-    m_expr = boost::proto::deep_copy(expr);
+    m_expr.reset(new CopiedExprT(boost::proto::deep_copy(expr)));
     // Store the variables
     CopyNumberedVars<VariablesT> ctx(m_variables);
     boost::proto::eval(expr, ctx);
@@ -65,7 +65,7 @@ public:
       for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
       {
         node_data.set_node(node_idx);
-        grammar(m_expr, 0, node_data); // The "0" is the proto state, which is unused at the top-level expression
+        grammar(*m_expr, 0, node_data); // The "0" is the proto state, which is unused at the top-level expression
       }
     }
     else // no coordinates found, assert that all CElements share the same coords, and use it to construct a list of nodes to visit
@@ -77,7 +77,7 @@ public:
       for(Uint i = 0; i != nb_nodes; ++i)
       {
         node_data.set_node(nodes[i]);
-        grammar(m_expr, 0, node_data); // The "0" is the proto state, which is unused at the top-level expression
+        grammar(*m_expr, 0, node_data); // The "0" is the proto state, which is unused at the top-level expression
       }
     }
   }
@@ -108,7 +108,7 @@ private:
   VariablesT m_variables;
 
   /// Copy of the expression
-  CopiedExprT m_expr;
+  boost::scoped_ptr<CopiedExprT> m_expr;
 
   /// Link to the option with the path to the region to loop over
   boost::weak_ptr<Common::OptionURI> m_region_path;

@@ -9,8 +9,9 @@
 
 #include <boost/proto/proto.hpp>
 
-#include "Solver/Actions/Proto/BlockAccumulator.hpp"
-#include "Solver/Actions/Proto/ElementTransforms.hpp"
+#include "BlockAccumulator.hpp"
+#include "ElementTransforms.hpp"
+#include "ExpressionGroup.hpp"
 
 /// @file 
 /// Grammars related to element-wise mesh operations
@@ -20,10 +21,7 @@ namespace Solver {
 namespace Actions {
 namespace Proto {
 
-
-  
-/// Matches and evaluates element-wise expressions
-struct ElementGrammar :
+struct SingleExprElementGrammar :
   boost::proto::or_
   <
     // Assignment to system matrix
@@ -32,13 +30,22 @@ struct ElementGrammar :
     // Stream output
     boost::proto::when
     <
-      boost::proto::shift_left< boost::proto::terminal< std::ostream & >, ElementGrammar >,
-      boost::proto::_default<ElementGrammar>
+      boost::proto::shift_left< boost::proto::terminal< std::ostream & >, SingleExprElementGrammar >,
+      boost::proto::_default<SingleExprElementGrammar>
     >
   >
 {
 };
-  
+
+/// Matches and evaluates element-wise expressions
+struct ElementGrammar :
+  boost::proto::or_
+  <
+    SingleExprElementGrammar,
+    GroupGrammar<SingleExprElementGrammar>
+  >
+{
+};  
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver
