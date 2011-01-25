@@ -7,17 +7,71 @@
 #ifndef CF_Common_mpi_all_reduce_hpp
 #define CF_Common_mpi_all_reduce_hpp
 
-////////////////////////////////////////////////////////////////////////////////
 
+/*******************************************************************/
+
+#include <Common/MPI/PE.hpp>
+#include <Common/MPI/tools.hpp>
+#include <Common/MPI/operations.hpp>
+#include <Common/MPI/datatype.hpp>
+
+namespace CF {
+  namespace Common {
+    namespace mpi {
+
+
+////  template<typename T, typename Op>
+////  void
+////  all_reduce(const PE::Communicator& comm, const T* in_values, int n, T* out_values, Op /*op*/)
+
+
+//  template<typename T>
+//  void
+//  all_reduce(const PE::Communicator& comm, const T* in_values, int n, T* out_values, op<T>& OP)
+
+//  {
+///*
+//    MPI_CHECK_RESULT(MPI_Allreduce,
+//                     (const_cast<T*>(in_values), out_values, n,
+//                     mpi::get_mpi_datatype<T>(*in_values),
+
+//                     mpi::get_mpi_op<plus,T>
+
+//                     , comm));
+
+//  }
+//*/
+//  if (mpi::get_mpi_op<T>(OP)==MPI_SUM) { CFinfo << "TRUE" << CFendl; }
+//  else { CFinfo << "FALSE" << CFendl; }
+//  }
+
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+/*******************************************************************/
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////
+/*
 #include <vector>
 
-#include <boost/mpi/datatype.hpp>
-
 #include "Common/MPI/PE.hpp"
+#include <Common/MPI/datatype.hpp>
 #include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/CodeLocation.hpp"
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -31,7 +85,7 @@
 **/
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
 namespace CF {
   namespace Common {
     namespace mpi {
@@ -41,7 +95,7 @@ namespace CF {
 namespace detail {
 
 ////////////////////////////////////////////////////////////////////////////////
-
+*/
   /**
     Implementation to the all reduce interface.
     Don't call this function directly, use mpi::alltoallvm instead.
@@ -55,6 +109,7 @@ namespace detail {
     @param out_map array of size #processes holding the mapping
     @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
   **/
+/*
   template<typename T, typename Op>
   inline void
   all_reduce_impl(const PE& pe,  Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride)
@@ -100,7 +155,7 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
 } // end namespace detail
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -112,6 +167,7 @@ namespace detail {
   @param out_values pointer to the receive buffer
   @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
 **/
+/*
 template<typename T, typename Op>
 inline T*
 all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, T* out_values, const int stride=1)
@@ -129,7 +185,7 @@ all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, T* ou
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
+*/
 /**
   Interface to all_reduce communication with specialization to std::vector.
   @param comm mpi::communicator
@@ -137,6 +193,7 @@ all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, T* ou
   @param out_values receive buffer
   @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
 **/
+/*
 template<typename T, typename Op>
 inline void
 all_reduce(const PE& pe, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
@@ -149,7 +206,7 @@ all_reduce(const PE& pe, const Op& op, const std::vector<T>& in_values, std::vec
   // call impl
   detail::all_reduce_impl(pe, op, (T*)(&in_values[0]), in_values.size()/stride, 0, (T*)(&out_values[0]), 0, stride);
 }
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -166,6 +223,7 @@ all_reduce(const PE& pe, const Op& op, const std::vector<T>& in_values, std::vec
   @param out_map array of size #processes holding the mapping
   @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
 **/
+/*
 template<typename T, typename Op>
 inline T*
 all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
@@ -186,7 +244,7 @@ all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, const
   detail::all_reduce_impl(pe, op, in_values, in_n, in_map, out_buf, out_map, stride);
   return out_buf;
 }
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -204,6 +262,7 @@ all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, const
   @param out_map array of size #processes holding the mapping. If zero pointer or zero size vector passed, no mapping on receive side.
   @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
 **/
+/*
 template<typename T, typename Op>
 inline void
 all_reduce(const PE& pe, Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
@@ -236,5 +295,5 @@ all_reduce(const PE& pe, Op& op, const std::vector<T>& in_values, const std::vec
 } // end namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
-
+*/
 #endif // CF_Common_mpi_all_reduce_hpp

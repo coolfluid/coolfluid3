@@ -21,6 +21,7 @@
   @file datatype.hpp
   @author Tamas Banyai
   This header serves the necessary routines to interface C/C++ datatypes to MPI types.
+  It is basically a reduced version of boost.mpi.
   Use the function get_mpi_datatype to acces MPI_type;
   New plain old data types are automatically registered.
   Non built-in types with smaller sizes result to lower performance due to memcpy.

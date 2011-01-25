@@ -76,7 +76,7 @@ class logical_xor {}; template<typename T> struct get_mpi_op<T, logical_xor> { p
 class bitwise_and {}; template<typename T> struct get_mpi_op<T, bitwise_and> { public: static MPI_Op op() { return MPI_BAND; } };
 class bitwise_or {};  template<typename T> struct get_mpi_op<T, bitwise_or>  { public: static MPI_Op op() { return MPI_BOR;  } };
 class bitwise_xor {}; template<typename T> struct get_mpi_op<T, bitwise_xor> { public: static MPI_Op op() { return MPI_BXOR; } };
-// TODO: what are those doing? check and implement
+// TODO: maybe worth implementing those?
 //#define MPI_MAXLOC OMPI_PREDEFINED_GLOBAL(MPI_Op, ompi_mpi_op_maxloc)
 //#define MPI_MINLOC OMPI_PREDEFINED_GLOBAL(MPI_Op, ompi_mpi_op_minloc)
 //#define MPI_REPLACE OMPI_PREDEFINED_GLOBAL(MPI_Op, ompi_mpi_op_replace)
@@ -97,11 +97,11 @@ class customplus {
     static const bool is_commutative=true;
 
     /// Implementation of the operation. See MPI_Op_create in MPI standard documentation for details.
-    template<typename T> static void func(void* in, void* out, int* len, MPI_datatype* type){
+    template<typename T> static void func(void* in, void* out, int* len, MPI_Datatype* type){
       int rank,i;
       T *in_=(T*)in;
       T *out_=(T*)out;
-      MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+      MPI_CHECK_RESULT(MPI_Comm_rank, (MPI_COMM_WORLD,&rank));
       std::cout << "rank" << rank << "\t: "; for (i=0; i<(const int)(*len); i++) std::cout << " " << in_[i]; std::cout << "\n";
       std::cout << "sum" << rank << "\t: "; for (i=0; i<(const int)(*len); i++) { out_[i]+=in_[i]; std::cout << " " << out_[i]; } std::cout << "\n";
     }

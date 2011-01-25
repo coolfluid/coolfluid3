@@ -167,6 +167,7 @@ list( APPEND utest-parallel-collective_cflibs coolfluid_common )
 list( APPEND utest-parallel-collective_files
   utest-parallel-collective.cpp
   utest-parallel-collective-all_to_all.hpp
+  utest-parallel-collective-all_reduce.hpp
 )
 
 coolfluid_add_mpi_unittest( utest-parallel-collective ${CF_MPI_TESTS_NB_PROCS} )
@@ -190,6 +191,16 @@ list( APPEND utest-parallel-datatype_files
 )
 
 coolfluid_add_mpi_unittest( utest-parallel-datatype ${CF_MPI_TESTS_NB_PROCS} )
+
+################################################################################
+# Test PE - operations
+
+list( APPEND utest-parallel-operations_cflibs coolfluid_common )
+list( APPEND utest-parallel-operations_files
+  utest-parallel-operations.cpp
+)
+
+coolfluid_add_mpi_unittest( utest-parallel-operations ${CF_MPI_TESTS_NB_PROCS} )
 
 ################################################################################
 # Test PE - memcheck
