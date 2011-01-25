@@ -7,23 +7,27 @@
 #include <boost/timer.hpp>
 #include <boost/program_options.hpp>
 
+
 #include "matrix_sizes.h"
-#include "matrix_matrix_mult.h"
+#include "matrix_mult.h"
+
+
 
 // Allocates a matrix with random float entries
-void random_init(float* data, int size)
+void random_init( array_2D &data, int size )
 {
-    for (int i = 0; i < size; ++i)
+    for( int i = 0; i < 5; i++ )
+        for (int j = 0; j < size; j++)
       //  data[i] = 10*i;
-        data[i] = rand() / (float)RAND_MAX;
+        data[i][j] = rand() / (float)RAND_MAX;
 }
 
 
 int main(int argc, char * argv[])
 {
 
- // Declare the supported options.
-    boost::program_options::options_description desc("allowed options");
+  // Declare the supported options.
+  boost::program_options::options_description desc("allowed options");
   desc.add_options()
       ("help", "produce help message")
       ("file", boost::program_options::value<std::string>() , "naem of the file to create" )
@@ -48,13 +52,9 @@ int main(int argc, char * argv[])
   unsigned int size_B = WB * HB;
   unsigned int size_C = WC * HC;
 
-  unsigned int mem_size_A = sizeof(float) * size_A;
-  unsigned int mem_size_B = sizeof(float) * size_B;
-  unsigned int mem_size_C = sizeof(float) * size_C;
-
-  float* h_A = (float*) malloc(mem_size_A);
-  float* h_B = (float*) malloc(mem_size_B);
-  float* h_C = (float*) malloc(mem_size_C);
+  array_2D h_A( boost::extents[5][size_A] );
+  array_2D h_B( boost::extents[5][size_B] );
+  array_2D h_C( boost::extents[5][size_C] );
 
   /* 2. initialize host memory*/
   random_init(h_A, size_A);
@@ -67,17 +67,7 @@ int main(int argc, char * argv[])
 
     boost::timer ntimer;
 
-    for(unsigned int i=0;i< HA;i++)
-    {
-      for(unsigned int j=0;j< WB;j++)
-      {
-        h_C[i * WC + j] = 0.0;
-        for(unsigned int k=0;k< WA;k++)
-        {
-          h_C[i * WC + j] += + h_A[i * WA + k] * h_B[k * WB +j];
-        }
-      }
-    }
+    cpu_multiplication( h_A, h_B, h_C, 5 );
 
     printf("[native] time: %6.3f seconds\n", ntimer.elapsed() );
 
@@ -87,17 +77,11 @@ int main(int argc, char * argv[])
 
   if (vm.count("opencl"))
   {
-    CLEnv clenv;
-    opencl_setup(clenv);
-
     boost::timer ctimer;
 
-    opencl_mat_mul(clenv, h_A, h_B, h_C);
+    mat_mul(h_A, h_B, h_C, 5 );
 
     printf("[opencl] time: %6.3f seconds\n", ctimer.elapsed() );
-
-    opencl_unsetup(clenv);
-
   }
 
 
@@ -108,19 +92,19 @@ int main(int argc, char * argv[])
     std::string filename = vm["file"].as<std::string>();
     std::cout << "writing to " << filename << std::endl;
     std::ofstream fout ( filename.c_str() );
-    for( unsigned  int i = 0; i < size_C; i++)
+    for( int idx = 0; idx < 5; idx++ )
     {
-      fout << h_C[i] << " ";
-      if(((i + 1) % WC) == 0 ) fout << "\n";
+        for( unsigned  int i = 0; i < size_C; i++)
+        {
+           fout << h_C[idx][i] << " ";
+           if(((i + 1) % WC) == 0 ) fout << "\n";
+        }
+        fout << std::endl;
     }
     fout.close();
   }
 
   // clean up memory -------------------------------------------------------
-
-  free(h_A);
-  free(h_B);
-  free(h_C);
 
   return 0;
 }
