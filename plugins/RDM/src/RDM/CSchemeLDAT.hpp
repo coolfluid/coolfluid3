@@ -20,6 +20,7 @@
 #include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
+#include "RDM/LinearScalarFluxOperator.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,8 +76,22 @@ private: // data
 
   boost::shared_ptr<LoopHelper> m_loop_helper;
 
-  const QUADRATURE& m_quadrature;
+  LinearScalarFluxOperator<SHAPEFUNC,QUADRATURE> m_oper;
 
+  //Values of the solution located in the dof of the element
+  RealVector m_solution_values;
+
+  //The operator L in the advection equation Lu = f
+  //Matrix m_sf_oper_values stores the value L(N_i) at each quadrature point for each shape function N_i
+  typename LinearScalarFluxOperator<SHAPEFUNC,QUADRATURE>::SFMatrixT m_sf_oper_values;
+
+  //Values of the operator L(u) computed in quadrature points. These operator L returns these values
+  //multiplied by Jacobian and quadrature weight
+  
+  RealVector m_flux_oper_values;
+
+  //Nodal residuals
+  RealVector m_phi;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -94,8 +109,7 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE>::create_loop_helper (Mesh::CElements& ge
 
 template<typename SHAPEFUNC, typename QUADRATURE>
 CSchemeLDAT<SHAPEFUNC,QUADRATURE>::CSchemeLDAT ( const std::string& name ) :
-  CLoopOperation(name),
-  m_quadrature( QUADRATURE::instance() )
+  CLoopOperation(name)
 {
   regist_typeinfo(this);
 
@@ -105,6 +119,11 @@ CSchemeLDAT<SHAPEFUNC,QUADRATURE>::CSchemeLDAT ( const std::string& name ) :
   m_properties.add_option< Common::OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
   m_properties.add_option< Common::OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
   m_properties.add_option< Common::OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inverse_updatecoeff")->mark_basic();
+
+  m_solution_values.resize(SHAPEFUNC::nb_nodes);
+  m_flux_oper_values.resize(QUADRATURE::nb_points);
+  m_phi.resize(SHAPEFUNC::nb_nodes);
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -118,76 +137,32 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE>::execute()
   typename SHAPEFUNC::NodeMatrixT nodes;
   fill(nodes, m_loop_helper->coordinates, m_loop_helper->connectivity_table[idx()]);
 
-  typename SHAPEFUNC::MappedGradientT mapped_grad; //Gradient of the shape functions in reference space
-  typename SHAPEFUNC::ShapeFunctionsT shapefunc;     //Values of shape functions in reference space
-  typename SHAPEFUNC::CoordsT grad_solution;
-  typename SHAPEFUNC::CoordsT grad_x;
-  typename SHAPEFUNC::CoordsT grad_y;
-  Real denominator;
-  RealVector nominator(SHAPEFUNC::nb_nodes);
-  RealVector phi(SHAPEFUNC::nb_nodes);
-
-  phi.setZero();
-
-  for (Uint q=0; q<QUADRATURE::nb_points; ++q) //Loop over quadrature points
-  {
-    SHAPEFUNC::mapped_gradient( m_quadrature.coords.col(q), mapped_grad );
-    SHAPEFUNC::shape_function ( m_quadrature.coords.col(q), shapefunc   );
-
-    Real x=0;
-    Real y=0;
-
-    for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    {
-      x += shapefunc[n] * nodes(n, XX);
-      y += shapefunc[n] * nodes(n, YY);
-    }
-
-    grad_x.setZero();
-    grad_y.setZero();
-
-    // Compute the components of the Jacobian matrix representing the transformation
-    // physical -> reference space
-    for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    {
-      grad_x[XX] += mapped_grad(XX,n) * nodes(n, XX);
-      grad_x[YY] += mapped_grad(YY,n) * nodes(n, XX);
-      grad_y[XX] += mapped_grad(XX,n) * nodes(n, YY);
-      grad_y[YY] += mapped_grad(YY,n) * nodes(n, YY);
-    }
-
-    const Real jacobian = grad_x[XX]*grad_y[YY]-grad_x[YY]*grad_y[XX];
-
-    //Compute the gradient of the solution in physical space
-    grad_solution.setZero();
-    denominator = 0;
-
-    for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    {
-      const Real dNdx = 1.0/jacobian * (  grad_y[YY]*mapped_grad(XX,n) - grad_y[XX]*mapped_grad(YY,n) );
-      const Real dNdy = 1.0/jacobian * ( -grad_x[YY]*mapped_grad(XX,n) + grad_x[XX]*mapped_grad(YY,n) );
-
-      grad_solution[XX] += dNdx*m_loop_helper->solution[node_idx[n]][0];
-      grad_solution[YY] += dNdy*m_loop_helper->solution[node_idx[n]][0];
-
-      nominator[n] = std::max(0.0,y*dNdx - x*dNdy);
-      denominator += nominator[n];
-    }
+  for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+    m_solution_values[n] = m_loop_helper->solution[node_idx[n]][0];
 
 
-    const Real nablaF = (y*grad_solution[XX] - x*grad_solution[YY]);
+ m_phi.setZero();
 
-    for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    {
-      phi[n] += nominator[n]/denominator * nablaF * m_quadrature.weights[q] * jacobian;
-    }
+ m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values);
 
-  }
+ for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
+ {
+   Real sumLplus = 0.0;
+   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+   {
+     sumLplus += std::max(0.0,m_sf_oper_values(q,n));
+   }
 
-  // Loop over quadrature nodes
+   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+   {
+     m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q];
+   }
+ }
+  
+
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    m_loop_helper->residual[node_idx[n]][0] += phi[n];
+    m_loop_helper->residual[node_idx[n]][0] += m_phi[n];
 
   // computing average advection speed on element
 

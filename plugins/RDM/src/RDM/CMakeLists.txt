@@ -10,6 +10,7 @@ list( APPEND coolfluid_rdm_files
   ScalarAdvection.cpp
   CTakeStep.hpp
   CTakeStep.cpp
+  LinearScalarFluxOperator.hpp
 )
 
 list( APPEND coolfluid_rdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_solver_actions coolfluid_solver )
