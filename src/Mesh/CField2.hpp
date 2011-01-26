@@ -30,7 +30,6 @@ namespace Common
 namespace Mesh {
   
   class CRegion;
-  class CFieldRegion;
   class CNodes;
   class CFieldView;
  

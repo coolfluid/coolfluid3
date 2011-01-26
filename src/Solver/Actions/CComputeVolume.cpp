@@ -67,7 +67,7 @@ void CComputeVolume::execute()
   
   CElements& elems = elements();
 
-  Uint sub_elem = 0;
+  Uint state_idx = 0;
   Uint var_idx = 0;
 
   // 3 ways to access the field through field views:
@@ -80,9 +80,9 @@ void CComputeVolume::execute()
   CFieldView& view = m_volume->as<CFieldView>();
   view[idx()][var_idx] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
 
-  // 3) as complex field --> extra index for the case with sub elements
+  // 3) as complex field --> extra index for the case with multiple states per element
   CMultiStateFieldView& multi_state_view = m_volume->as<CMultiStateFieldView>();
-  multi_state_view[idx()][sub_elem][var_idx] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+  multi_state_view[idx()][state_idx][var_idx] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
 
 }
 

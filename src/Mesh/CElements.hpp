@@ -26,8 +26,6 @@ namespace Mesh {
   class CFieldElements;
   template <typename T> class CList;
   class CNodes;
-  class CField2;
-  class CFieldView;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -110,9 +108,9 @@ public: // functions
 
   static CList<Uint>& used_nodes(Component& parent);
 
-  const RealMatrix& element_coordinates(const Uint idx);
+  RealMatrix element_coordinates(const Uint elem_idx, const Uint space=0) const;
   
-  void put_nodes(std::vector<Uint>& nodes, const Uint idx, const Uint space=0);
+  virtual std::vector<Uint> element_nodes(const Uint elem_idx, const Uint space=0) const;
 
 protected: // data
 
@@ -125,9 +123,6 @@ protected: // data
   boost::shared_ptr<Common::CLink> m_nodes;
   
   boost::shared_ptr<CList<Uint> > m_global_numbering;
-
-  /// dummy storage for element_coordinates
-  RealMatrix m_element_coordinates;
 
 };
 

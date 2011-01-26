@@ -57,9 +57,7 @@ void CFieldElements::initialize(CElements& elements)
   m_nodes->link_to(elements.nodes().self());
   
   m_used_nodes = boost::dynamic_pointer_cast< CList<Uint> >(elements.used_nodes().shared_from_this());
-  
-  m_element_coordinates.resize(element_type().nb_nodes(),element_type().dimension());
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

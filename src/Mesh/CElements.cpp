@@ -17,7 +17,6 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CField2.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -91,9 +90,7 @@ void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
 
   const Uint nb_nodes = m_element_type->nb_nodes();
   connectivity_table().set_row_size(nb_nodes);
-  
-  m_element_coordinates.resize(element_type().nb_nodes(),element_type().dimension());
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -263,20 +260,28 @@ CList<Uint>& CElements::used_nodes(Component& parent)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const RealMatrix& CElements::element_coordinates(const Uint idx)
+RealMatrix CElements::element_coordinates(const Uint elem_idx, const Uint space) const
 {
-  fill(m_element_coordinates, nodes().coordinates() , connectivity_table()[idx]);
-  return m_element_coordinates;
+  const std::vector<Uint> elem_nodes = element_nodes(elem_idx,space);
+  const CTable<Real>& coords_table = nodes().coordinates();
+
+  const Uint nb_nodes=elem_nodes.size();
+  const Uint dim=coords_table.row_size();
+  RealMatrix elem_coords(nb_nodes,dim);
+  
+  for(Uint node = 0; node != nb_nodes; ++node)
+    for (Uint d=0; d<dim; ++d)
+      elem_coords(node,d) = coords_table[node][d];
+  
+  return elem_coords;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CElements::put_nodes(std::vector<Uint>& nodes, const Uint idx, const Uint space)
+std::vector<Uint> CElements::element_nodes(const Uint elem_idx, const Uint space) const
 {
-  nodes.resize(element_type(space).nb_nodes());
-  CTable<Uint>::ConstRow elem_nodes = connectivity_table()[idx];
-  for (Uint i=0; i<nodes.size(); ++i)
-    nodes[i]=elem_nodes[i];
+  CTable<Uint>::ConstRow elem_nodes = connectivity_table(space)[elem_idx];
+  return std::vector<Uint> (elem_nodes.begin(),elem_nodes.end());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
