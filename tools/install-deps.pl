@@ -1071,8 +1071,8 @@ sub install_boost_jam()
       $ENV{GXX} = $ENV{CXX};
     }
 
-    if( is_mac() ) {  $toolset = "darwin" unless ( $toolset eq "cc" ) }
-
+    if( is_mac() and $toolset eq "gcc" ) { $toolset = "darwin"; }
+	
     my $output = run_command("sh build.sh $toolset");
 
     my $boost_arch = boost_arch();
@@ -1097,8 +1097,8 @@ sub install_boost()
 
   unless ($opt_fetchonly)
   {
-    rmtree "$opt_tmp_dir/$pack";
-    untar_src("$pack");
+    #rmtree "$opt_tmp_dir/$pack";
+    #untar_src("$pack");
     safe_chdir("$opt_tmp_dir/$pack/");
 
 	# select the toolset
@@ -1112,14 +1112,26 @@ sub install_boost()
       $ENV{GXX} = $ENV{CXX};
     }
 
-    if( is_mac() ) {  $toolset = "darwin" unless ( $toolset eq "clang" ) }
+    if( is_mac() and $toolset eq "gcc" ) { $toolset = "darwin"; }
 
-    # check if we need to build bjam
+    # check if we need to build bjam and build if needed
  
   	my $bjampath = run_command("which bjam");
     chomp $bjampath;
 
     my $boost_arch = boost_arch();
+
+    if ($bjampath eq "" and -d "tools/build/v2/engine/src" ) # newer builds of boost >= 1.45
+    {
+      print "building tools/build/v2/engine/src\n";
+
+      safe_chdir("tools/build/v2/engine/src");
+
+      run_command_or_die("sh build.sh $toolset");
+
+      $bjampath="$opt_tmp_dir/$pack/tools/build/v2/engine/src/bin.$boost_arch/bjam";
+      if ( not -e $bjampath ) { die "Cannot find bjam in $bjampath" }
+    }
 
     if ($bjampath eq "" and -d "tools/jam/src" ) # older builds of boost <= 1.44
     {
@@ -1133,17 +1145,6 @@ sub install_boost()
       if ( not -e $bjampath ) { die "Cannot find bjam in $bjampath" }
     }
 
-    if ($bjampath eq "" and -d "tools/build/v2/engine/src" ) # newer builds of boost >= 1.45
-    {
-      print "building tools/build/v2/engine/src\n";
-
-      safe_chdir("tools/build/v2/engine/src");
-
-      run_command_or_die("sh build.sh $toolset");
-
-      $bjampath="$opt_tmp_dir/$pack/tools/build/v2/engine/src/bin.$boost_arch/bjam";
-      if ( not -e $bjampath ) { die "Cannot find bjam in $bjampath" }
-    }
 
     if ($bjampath eq "") # still empty so something went wrong
     {
@@ -1180,9 +1181,7 @@ using mpi : $opt_mpi_dir/bin/mpicxx ;
 ZZZ
       close (USERCONFIGJAM); 
     }
-
     run_command_or_die("$bjampath --user-config=$bjamcfg --prefix=$opt_install_dir --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
-
   }
 }
 
