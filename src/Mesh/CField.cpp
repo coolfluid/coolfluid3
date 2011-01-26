@@ -215,7 +215,7 @@ void CField::create_data_storage(const DataBasis basis)
       BOOST_FOREACH(CFieldElements& field_elements, find_components_recursively<CFieldElements>(*this))
       {
         field_elements.add_element_based_storage();
-        field_elements.data().array().resize(boost::extents[field_elements.elements_count()][row_size]);
+        field_elements.data().array().resize(boost::extents[field_elements.size()][row_size]);
       }
       break;
     case NODE_BASED:

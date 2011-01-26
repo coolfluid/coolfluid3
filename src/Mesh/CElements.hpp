@@ -62,13 +62,7 @@ public: // functions
 
   /// return the elementType
   const ElementType& element_type(const Uint space=0) const;
-  
-  /// return the number of elements
-  Uint elements_count() const;
-  
-  /// update the node list using the connectivity table
-  CList<Uint>& update_used_nodes();
-  
+
   /// Mutable access to the connectivity table
   CTable<Uint>& connectivity_table(const Uint space=0);
   
@@ -80,12 +74,6 @@ public: // functions
   
   /// Const access to the coordinates
   virtual const CNodes& nodes() const;
-  
-  /// Mutable access to the list of nodes
-  CList<Uint>& used_nodes();
-  
-  /// Const access to the list of nodes
-  const CList<Uint>& used_nodes() const;
 
   /// Mutable access to the list of nodes
   CList<Uint>& glb_idx() { return *m_global_numbering; }
@@ -104,6 +92,7 @@ public: // functions
   /// @param name of a field
   const CFieldElements& get_field_elements(const std::string& field_name) const;
   
+  /// return the number of elements
   Uint size() const { return connectivity_table().size(); }
 
   static CList<Uint>& used_nodes(Component& parent);
@@ -117,8 +106,6 @@ protected: // data
   boost::shared_ptr<ElementType> m_element_type;
 
   Component::Ptr m_connectivity_table;
-
-  boost::shared_ptr<CList<Uint> > m_used_nodes;
 
   boost::shared_ptr<Common::CLink> m_nodes;
   

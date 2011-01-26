@@ -77,7 +77,7 @@ public: // functions
   template <typename Predicate>
     Uint recursive_filtered_elements_count(const Predicate& pred) const;
 
-  Uint recursive_nodes_count() const;
+  Uint recursive_nodes_count();
 
   CField& get_field(const std::string& field_name);
   
@@ -118,7 +118,7 @@ inline Uint CRegion::recursive_filtered_elements_count(const Predicate& pred) co
 {
   Uint elem_count = 0;
   BOOST_FOREACH(const CElements& elements, Common::find_components_recursively_with_filter<CElements>(*this,pred))
-    elem_count += elements.elements_count();
+    elem_count += elements.size();
 
   return elem_count;
 }

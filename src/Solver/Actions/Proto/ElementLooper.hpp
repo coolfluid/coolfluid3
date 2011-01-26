@@ -171,7 +171,7 @@ struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, Variabl
   {
     typedef typename boost::fusion::result_of::as_vector<VariablesDataT>::type VariablesDataVectorT; // the result of fusion::push_back operations is not random-access
     ElementData<VariablesT, VariablesDataVectorT, SupportIdxT> data(variables, elements);
-    const Uint nb_elems = elements.elements_count();
+    const Uint nb_elems = elements.size();
     ElementGrammar grammar;
     for(Uint elem = 0; elem != nb_elems; ++elem)
     {

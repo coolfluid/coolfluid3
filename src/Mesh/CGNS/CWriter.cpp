@@ -238,7 +238,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
 
       BOOST_FOREACH(CElements::ConstPtr elements, grouped_elements)
       {
-        int nbElems = elements->elements_count();
+        int nbElems = elements->size();
         m_section.elemNodeCount = elements->element_type().nb_nodes();
         m_section.elemStartIdx = m_section.elemEndIdx + 1;
         m_section.elemEndIdx = m_section.elemEndIdx + nbElems;
@@ -267,7 +267,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
     default:
     {
       const CElements& elements = *grouped_elements[0];
-      int nbElems = elements.elements_count();
+      int nbElems = elements.size();
       m_section.elemNodeCount = elements.element_type().nb_nodes();
       m_section.elemStartIdx = m_section.elemEndIdx + 1;
       m_section.elemEndIdx = m_section.elemEndIdx + nbElems;

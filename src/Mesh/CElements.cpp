@@ -79,9 +79,6 @@ void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
   m_nodes->add_tag("nodes");
   m_nodes->link_to(nodes.follow());
   
-  m_used_nodes = create_static_component<CList<Uint> >("used_nodes");
-  m_used_nodes->properties()["brief"] = std::string("The local node indices used by this connectivity specific connectivity table");
-  
   m_global_numbering = create_static_component<CList<Uint> >("global_element_indices");
   m_global_numbering->add_tag("global_element_indices");
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
@@ -99,27 +96,6 @@ void CElements::set_element_type(const std::string& etype_name, const Uint space
 {
   m_element_type = create_component_abstract_type<ElementType>( etype_name, etype_name );
   add_static_component( m_element_type );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-CList<Uint>& CElements::update_used_nodes()
-{
-  // Assemble all unique node numbers in a set
-  std::set<Uint> node_set;
-  BOOST_FOREACH(CTable<Uint>::Row row, connectivity_table().array())
-  BOOST_FOREACH(const Uint node, row)
-  {
-    node_set.insert(node);
-  }
-  
-  // Copy the set to the node_list
-  m_used_nodes->resize(node_set.size());
-  Uint cnt=0;
-  BOOST_FOREACH(const Uint node, node_set)
-    (*m_used_nodes)[cnt++] = node;
-  
-  return *m_used_nodes;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -156,27 +132,6 @@ CNodes& CElements::nodes()
 const CNodes& CElements::nodes() const
 {
   return *m_nodes->follow()->as_type<CNodes>();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-CList<Uint>& CElements::used_nodes()
-{
-  return *m_used_nodes;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-const CList<Uint>& CElements::used_nodes() const
-{
-  return *m_used_nodes;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-Uint CElements::elements_count() const
-{
-  return size();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -222,6 +177,8 @@ CList<Uint>& CElements::used_nodes(Component& parent)
   {
     used_nodes = parent.create_component<CList<Uint> >("used_nodes");
     used_nodes->add_tag("used_nodes");
+    used_nodes->properties()["brief"] = std::string("The local node indices used by the parent component");
+    
     // Assemble all unique node numbers in a set
     std::set<Uint> node_set;
     
@@ -271,8 +228,8 @@ RealMatrix CElements::element_coordinates(const Uint elem_idx, const Uint space)
   
   for(Uint node = 0; node != nb_nodes; ++node)
     for (Uint d=0; d<dim; ++d)
-      elem_coords(node,d) = coords_table[node][d];
-  
+      elem_coords(node,d) = coords_table[elem_nodes[node]][d];
+
   return elem_coords;
 }
 

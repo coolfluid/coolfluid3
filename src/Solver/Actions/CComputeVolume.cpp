@@ -67,6 +67,8 @@ void CComputeVolume::execute()
   
   CElements& elems = elements();
 
+  Real vol = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+
   Uint state_idx = 0;
   Uint var_idx = 0;
 
@@ -74,15 +76,15 @@ void CComputeVolume::execute()
     
   // 1) as simple scalar field --> only 1 index needed (this is already default here)
   CScalarFieldView& volume = *m_volume;
-  volume[idx()] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+  volume[idx()] = vol;
   
   // 2) as simple field --> extra index for multiple variables per field 
   CFieldView& view = m_volume->as<CFieldView>();
-  view[idx()][var_idx] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+  view[idx()][var_idx] = vol;
 
   // 3) as complex field --> extra index for the case with multiple states per element
   CMultiStateFieldView& multi_state_view = m_volume->as<CMultiStateFieldView>();
-  multi_state_view[idx()][state_idx][var_idx] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+  multi_state_view[idx()][state_idx][var_idx] = vol;
 
 }
 

@@ -55,9 +55,6 @@ void CFieldElements::initialize(CElements& elements)
   m_nodes = create_static_component<CLink>("nodes");
   m_nodes->add_tag("nodes");
   m_nodes->link_to(elements.nodes().self());
-  
-  m_used_nodes = boost::dynamic_pointer_cast< CList<Uint> >(elements.used_nodes().shared_from_this());
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

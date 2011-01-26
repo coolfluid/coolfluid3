@@ -135,10 +135,6 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 //  // clean-up
 
-  // update the node lists contained by the element regions
-  BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(*m_region))
-    elements.update_used_nodes();
-
 //  // update the number of cells and nodes in the mesh
   m_mesh->properties()["nb_cells"] = m_mesh->property("nb_cells").value<Uint>() + m_total_nb_elements;
   m_mesh->properties()["nb_nodes"] = m_mesh->property("nb_nodes").value<Uint>() + m_total_nb_nodes;

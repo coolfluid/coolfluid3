@@ -113,7 +113,7 @@ private:
         op.create_loop_helper( elements );
 
         // loop on elements. Nothing may be virtual starting from here!
-        const Uint elem_count = elements.elements_count();
+        const Uint elem_count = elements.size();
         CFinfo << "ELEM COUNT: " << elem_count << CFendl;
         for ( Uint elem = 0; elem != elem_count; ++elem )
         {

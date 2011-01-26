@@ -59,7 +59,7 @@ private: // data
     LoopHelper(Mesh::CElements& geometry_elements, CLoopOperation& op) :
 		field_data(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).data()),
 		coordinates(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).nodes().coordinates()),
-		used_nodes(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).used_nodes())
+		used_nodes(Mesh::CElements::used_nodes(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>())))
     { }
     Mesh::CTable<Real>& field_data;
     Mesh::CTable<Real>& coordinates;

@@ -152,7 +152,7 @@ std::string CInfo::print_elements(const Component& region, Uint level)
     for (Uint i=0; i<level; i++)
       tree += "    ";
     std::string dimensionality = IsElementsVolume()(elements_region) ? "volume" : "surface";
-    tree += elements_region.name() + " -- " + dimensionality + "  (" + String::to_str<Uint>(elements_region.elements_count()) +  ")\n";
+    tree += elements_region.name() + " -- " + dimensionality + "  (" + String::to_str<Uint>(elements_region.size()) +  ")\n";
   }
   return tree;
 }

@@ -79,7 +79,7 @@ public: // functions
     Uint elem_count = 0;
     BOOST_FOREACH(const CElements& elements, Common::find_components_recursively<CElements>(*this))
     {
-      elem_count += elements.elements_count();
+      elem_count += elements.size();
     }
     return elem_count;
   }
@@ -91,7 +91,7 @@ public: // functions
     Uint elem_count = 0;
     BOOST_FOREACH(const CElements& elements, Common::find_components_recursively_with_filter<CElements>(*this,pred))
     {
-      elem_count += elements.elements_count();
+      elem_count += elements.size();
     }
     return elem_count;
   }

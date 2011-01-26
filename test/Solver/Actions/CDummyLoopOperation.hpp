@@ -55,7 +55,7 @@ private: // data
   struct LoopHelper
   {
     LoopHelper(Mesh::CElements& geometry_elements) :
-      used_nodes(geometry_elements.used_nodes())
+      used_nodes(Mesh::CElements::used_nodes(geometry_elements))
     { }
     Mesh::CList<Uint>& used_nodes;
   };

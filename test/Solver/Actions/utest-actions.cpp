@@ -24,7 +24,6 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/CField2.hpp"
-#include "Mesh/CFieldRegion.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Solver/Actions/CSetFieldValues.hpp"
@@ -257,17 +256,14 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   boost::filesystem::path fp_in("rotation-tg.neu");
   meshreader->read_from_to(fp_in,mesh);
   
-  CFieldRegion& field_topology = *mesh->create_component<CFieldRegion>("field_topology");
-  field_topology.synchronize_with_region(mesh->topology());
-
   BOOST_CHECK(true);
 
   CField2& field = *mesh->create_component<CField2>("field");
-  field.configure_property("Topology",field_topology.full_path());
+  field.configure_property("Topology",mesh->topology().full_path());
   field.configure_property("FieldType",std::string("NodeBased"));
   field.create_data_storage();
   
-  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/field_topology"));
+  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
   
 	CLoop::Ptr node_loop = root->create_component< CForAllNodes2 >("node_loop");
 	node_loop->configure_property("Regions",regions);
@@ -279,14 +275,14 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
   
   CField2& volumes = *mesh->create_component<CField2>("volumes");
-  volumes.configure_property("Topology",field_topology.full_path());
+  volumes.configure_property("Topology",mesh->topology().full_path());
   volumes.configure_property("FieldType",std::string("ElementBased"));
   volumes.create_data_storage();
 
   BOOST_CHECK(true);
 
   CComputeVolume::Ptr compute_volume = root->create_component<CComputeVolume>("compute_volume");
-  CElements& elems = *root->look_component<CElements>(URI("cpath://Root/mesh/field_topology/default_id1084/fluid/elements_CF.Mesh.SF.Triag2DLagrangeP1"));
+  CElements& elems = *root->look_component<CElements>(URI("cpath://Root/mesh/topology/default_id1084/fluid/elements_CF.Mesh.SF.Triag2DLagrangeP1"));
   compute_volume->configure_property("Volumes",volumes.full_path());
   BOOST_CHECK(true);
   compute_volume->configure_property("Elements",elems.full_path());
@@ -295,7 +291,9 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
   compute_volume->execute();
   BOOST_CHECK(true);
-  BOOST_CHECK_EQUAL( elems.field_view(volumes)[12][0] , 0.0035918050864676932);
+  CScalarFieldView volume_view("volume_view");
+  volume_view.initialize(volumes,elems.as_type<CElements>());
+  BOOST_CHECK_EQUAL( volume_view[12] , 0.0035918050864676932);
 
   CLoop::Ptr elem_loop = root->create_component< CForAllElements2 >("elem_loop");
   elem_loop->configure_property("Regions",regions);

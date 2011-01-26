@@ -241,7 +241,7 @@ void CField2::create_data_storage()
       {
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
-        data_size = field_view.initialize(*this);
+        data_size = field_view.initialize(*this,field_elements.as_type<CElements>());
       }
       m_data->resize(data_size);
       break;      

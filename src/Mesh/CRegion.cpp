@@ -129,15 +129,9 @@ Uint CRegion::recursive_elements_count() const
   
 //////////////////////////////////////////////////////////////////////////////
 
-Uint CRegion::recursive_nodes_count() const
+Uint CRegion::recursive_nodes_count()
 {
-  std::set<Uint> nodes;
-  boost_foreach (const CElements& elements, find_components_recursively<CElements>(*this))
-  {
-    boost_foreach (const Uint node, elements.used_nodes().array())
-      nodes.insert(node);
-  }
-  return nodes.size();
+  return CElements::used_nodes(*this).size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
