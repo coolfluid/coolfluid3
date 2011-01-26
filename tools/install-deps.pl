@@ -1097,8 +1097,8 @@ sub install_boost()
 
   unless ($opt_fetchonly)
   {
-    #rmtree "$opt_tmp_dir/$pack";
-    #untar_src("$pack");
+    rmtree "$opt_tmp_dir/$pack";
+    untar_src("$pack");
     safe_chdir("$opt_tmp_dir/$pack/");
 
 	# select the toolset
