@@ -52,9 +52,7 @@ public: // functions
 
   /// Initialize the CElements using the given type
   void initialize(const std::string& element_type_name, CNodes& nodes);
-  
-  void initialize(CElements& elements);
-  
+    
   /// Virtual destructor
   virtual ~CElements();
 
@@ -62,10 +60,10 @@ public: // functions
   static std::string type_name () { return "CElements"; }
 
   /// set the element type
-  void set_element_type(const std::string& etype_name);
+  void set_element_type(const std::string& etype_name, const Uint space=0);
 
   /// return the elementType
-  const ElementType& element_type() const;
+  const ElementType& element_type(const Uint space=0) const;
   
   /// return the number of elements
   Uint elements_count() const;
@@ -74,10 +72,10 @@ public: // functions
   CList<Uint>& update_used_nodes();
   
   /// Mutable access to the connectivity table
-  CTable<Uint>& connectivity_table();
+  CTable<Uint>& connectivity_table(const Uint space=0);
   
   /// Const access to the connectivity table
-  const CTable<Uint>& connectivity_table() const;
+  const CTable<Uint>& connectivity_table(const Uint space=0) const;
     
   /// Mutable access to the nodes
   virtual CNodes& nodes();
@@ -109,16 +107,12 @@ public: // functions
   const CFieldElements& get_field_elements(const std::string& field_name) const;
   
   Uint size() const { return connectivity_table().size(); }
-    
-  CElements& support();
-  
+
   static CList<Uint>& used_nodes(Component& parent);
-  
+
   const RealMatrix& element_coordinates(const Uint idx);
-
-  CFieldView& register_field( const CField2& field );
-
-  CFieldView& field_view( const CField2& field);
+  
+  void put_nodes(std::vector<Uint>& nodes, const Uint idx, const Uint space=0);
 
 protected: // data
 
@@ -131,10 +125,6 @@ protected: // data
   boost::shared_ptr<Common::CLink> m_nodes;
   
   boost::shared_ptr<CList<Uint> > m_global_numbering;
-
-  boost::shared_ptr<Common::CLink> m_support;
-  
-  boost::shared_ptr<Common::CGroup> m_field_views;
 
   /// dummy storage for element_coordinates
   RealMatrix m_element_coordinates;

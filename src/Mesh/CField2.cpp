@@ -22,7 +22,6 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CFieldElements.hpp"
-#include "Mesh/CFieldRegion.hpp"
 #include "Mesh/CMesh.hpp"
 
 namespace CF {
@@ -241,7 +240,7 @@ void CField2::create_data_storage()
       boost_foreach(CElements& field_elements, find_components_recursively<CElements>(topology()))
       {
         m_elements_start_idx[&field_elements] = data_size;
-        CFieldView& field_view = field_elements.register_field(*this);
+        CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this);
       }
       m_data->resize(data_size);

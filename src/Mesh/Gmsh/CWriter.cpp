@@ -636,7 +636,8 @@ void CWriter::write_element_data2(std::fstream& file)
         const CTable<Real>& field_data = elementbased_field.data();
         boost_foreach(CElements& field_elements, find_components_recursively<CElements>(elementbased_field.topology()))
         {
-          CFieldView& field_view = field_elements.field_view(elementbased_field);
+          CFieldView field_view("field_view");
+          field_view.initialize(elementbased_field,field_elements.as_type<CElements>());
           Uint elm_number = m_element_start_idx[&field_elements];
           Uint local_nb_elms = field_elements.size();
           for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)

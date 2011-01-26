@@ -40,6 +40,7 @@ public: // functions
   
   /// Initialize the CFieldElements using the given type
   //void initialize(const std::string& element_type_name, CTable<Real>& data);
+  void initialize(CElements& elements);
     
   void add_element_based_storage();
   void add_node_based_storage(CTable<Real>& nodal_data);
@@ -67,6 +68,7 @@ public: // functions
 
 protected: // data
 
+  boost::shared_ptr<Common::CLink> m_support;
   std::string m_data_name;
 
 private:

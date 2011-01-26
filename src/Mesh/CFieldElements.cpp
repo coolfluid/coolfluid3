@@ -11,7 +11,7 @@
 
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CList.hpp"
 
 namespace CF {
@@ -35,6 +35,31 @@ CFieldElements::CFieldElements ( const std::string& name ) :
 
 CFieldElements::~CFieldElements()
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CFieldElements::initialize(CElements& elements)
+{
+  m_support = create_static_component<CLink>("support");
+  m_support->link_to(elements.follow());
+  m_support->add_tag("support");
+  
+  // Set the shape function
+  set_element_type(elements.element_type().element_type_name());
+  cf_assert(m_element_type);
+  
+  m_connectivity_table = create_static_component<CLink>("connectivity_table");
+  boost::static_pointer_cast<CLink>(m_connectivity_table)->link_to(elements.connectivity_table().self());
+  
+  m_nodes = create_static_component<CLink>("nodes");
+  m_nodes->add_tag("nodes");
+  m_nodes->link_to(elements.nodes().self());
+  
+  m_used_nodes = boost::dynamic_pointer_cast< CList<Uint> >(elements.used_nodes().shared_from_this());
+  
+  m_element_coordinates.resize(element_type().nb_nodes(),element_type().dimension());
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

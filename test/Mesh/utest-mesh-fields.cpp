@@ -23,7 +23,6 @@
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CMeshReader.hpp"
-#include "Mesh/CFieldRegion.hpp"
 #include "Mesh/CNodes.hpp"
 
 using namespace boost;
@@ -118,9 +117,6 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   std::vector<std::string> names;
   std::vector<std::string> types;
 
-  // CFieldRegion& field_region = *mesh.create_component<CFieldRegion>("field_tree");
-  // field_region.synchronize_with_region(mesh.topology());
-  
   CField2& solution = *mesh.create_component<CField2>("solution");
   names = list_of("rho")("U")("p");
   types = list_of("scalar")("Vector2D")("scalar");
@@ -155,29 +151,6 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( SpecialFieldCreation )
-{
-  CMesh& mesh = *m_mesh;
-
-  std::vector<std::string> names;
-  std::vector<std::string> types;
-
-  CFieldRegion& field_region = *mesh.create_component<CFieldRegion>("special_topology");
-  field_region.synchronize_with_region(mesh.topology());
-
-  CField2& special = *mesh.create_component<CField2>("special");
-  special.configure_property("Topology",field_region.full_path());
-  special.configure_property("FieldType",std::string("NodeBased"));
-  special.create_data_storage();
-  
-  BOOST_CHECK_EQUAL( special.basis() , CField2::NODE_BASED );
-  BOOST_CHECK_EQUAL( special.var_name() , std::string("special") );
-  BOOST_CHECK_EQUAL( special.var_type() , CField2::SCALAR );
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 BOOST_AUTO_TEST_CASE( FieldOperators )
 {
   CMesh& mesh = *m_mesh;
@@ -185,29 +158,32 @@ BOOST_AUTO_TEST_CASE( FieldOperators )
   std::vector<std::string> names;
   std::vector<std::string> types;
 
-  CFieldRegion& field_region = *mesh.get_child<CFieldRegion>("special_topology");
 
-  CField2& special = *mesh.get_child<CField2>("special");
-  CField2& special_copy = *mesh.create_component<CField2>("special_copy");
-  special_copy.configure_property("Topology",field_region.full_path());
-  special_copy.configure_property("FieldType",std::string("NodeBased"));
-  special_copy.create_data_storage();
+  CField2& solution = *mesh.get_child<CField2>("solution");
+  CField2& solution_copy = *mesh.create_component<CField2>("solution_copy");
+  names = list_of("rho")("U")("p");
+  types = list_of("scalar")("Vector2D")("scalar");
+  solution_copy.configure_property("Topology",mesh.topology().full_path());
+  solution_copy.configure_property("VarNames",names);
+  solution_copy.configure_property("VarTypes",types);
+  solution_copy.configure_property("FieldType",std::string("NodeBased"));
+  solution_copy.create_data_storage();
 
-  special.data()[0][0] = 25.;
-  special_copy.data() = special.data();
-  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 25. );
-  special_copy.data() += special_copy.data();
-  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 50. );
-  special_copy.data() *= 2;
-  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 100. );
-  special_copy.data() /= 2;
-  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 50. );
-  special_copy.data() *= special_copy.data();
-  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 2500. );
-  special_copy.data() /= special_copy.data();
-  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 1. );
-  special_copy.data() -= special_copy.data();
-  BOOST_CHECK_EQUAL ( special_copy.data()[0][0] , 0. );
+  solution.data()[0][0] = 25.;
+  solution_copy.data() = solution.data();
+  BOOST_CHECK_EQUAL ( solution_copy.data()[0][0] , 25. );
+  solution_copy.data() += solution_copy.data();
+  BOOST_CHECK_EQUAL ( solution_copy.data()[0][0] , 50. );
+  solution_copy.data() *= 2;
+  BOOST_CHECK_EQUAL ( solution_copy.data()[0][0] , 100. );
+  solution_copy.data() /= 2;
+  BOOST_CHECK_EQUAL ( solution_copy.data()[0][0] , 50. );
+  solution_copy.data() *= solution_copy.data();
+  BOOST_CHECK_EQUAL ( solution_copy.data()[0][0] , 2500. );
+  solution_copy.data() /= solution_copy.data();
+  BOOST_CHECK_EQUAL ( solution_copy.data()[0][0] , 1. );
+  solution_copy.data() -= solution_copy.data();
+  BOOST_CHECK_EQUAL ( solution_copy.data()[0][0] , 0. );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

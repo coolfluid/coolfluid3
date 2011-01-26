@@ -15,8 +15,6 @@ list( APPEND coolfluid_mesh_files
   CField.cpp
   CField2.hpp
   CField2.cpp
-  CFieldRegion.hpp
-  CFieldRegion.cpp
   CFieldElements.hpp
   CFieldElements.cpp
   CFieldLink.hpp

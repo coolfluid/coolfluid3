@@ -98,42 +98,7 @@ void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CElements::initialize(CElements& elements)
-{
-  m_support = create_static_component<CLink>("support");
-  m_support->link_to(elements.follow());
-  m_support->add_tag("support");
-  
-  // Set the shape function
-  set_element_type(elements.element_type().element_type_name());
-  cf_assert(m_element_type);
-  
-  m_connectivity_table = create_static_component<CLink>("connectivity_table");
-  boost::static_pointer_cast<CLink>(m_connectivity_table)->link_to(elements.connectivity_table().self());
-  
-  m_nodes = create_static_component<CLink>("nodes");
-  m_nodes->add_tag("nodes");
-  m_nodes->link_to(elements.nodes().self());
-  
-  m_used_nodes = boost::dynamic_pointer_cast< CList<Uint> >(elements.used_nodes().shared_from_this());
-  
-  m_element_coordinates.resize(element_type().nb_nodes(),element_type().dimension());
-  
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CElements& CElements::support()
-{
-  if (is_null(m_support))
-    return *this;
-  else
-    return *m_support->follow()->as_type<CElements>();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CElements::set_element_type(const std::string& etype_name)
+void CElements::set_element_type(const std::string& etype_name, const Uint space)
 {
   m_element_type = create_component_abstract_type<ElementType>( etype_name, etype_name );
   add_static_component( m_element_type );
@@ -162,7 +127,7 @@ CList<Uint>& CElements::update_used_nodes()
 
 //////////////////////////////////////////////////////////////////////////////
 
-const ElementType& CElements::element_type() const 
+const ElementType& CElements::element_type(const Uint space) const 
 { 
   cf_assert_desc("element_type not initialized", is_not_null(m_element_type));
   return *m_element_type; 
@@ -170,14 +135,14 @@ const ElementType& CElements::element_type() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-CTable<Uint>& CElements::connectivity_table()
+CTable<Uint>& CElements::connectivity_table(const Uint space)
 {
   return *boost::static_pointer_cast<CTable<Uint> >(m_connectivity_table->follow());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CTable<Uint>& CElements::connectivity_table() const
+const CTable<Uint>& CElements::connectivity_table(const Uint space) const
 {
   return *boost::static_pointer_cast<CTable<Uint> >(m_connectivity_table->follow());
 }
@@ -306,20 +271,12 @@ const RealMatrix& CElements::element_coordinates(const Uint idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFieldView& CElements::register_field( const CField2& field )
+void CElements::put_nodes(std::vector<Uint>& nodes, const Uint idx, const Uint space)
 {
-  if (is_null(m_field_views))
-    m_field_views = create_static_component<CGroup>("field_views");
-  return *m_field_views->create_component<CFieldView>(field.registration_name());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CFieldView& CElements::field_view( const CField2& field )
-{
-  cf_assert( is_not_null(m_field_views) );
-  cf_assert( &m_field_views->get_child<CFieldView>(field.registration_name())->field() == &field);
-  return *m_field_views->get_child<CFieldView>(field.registration_name());
+  nodes.resize(element_type(space).nb_nodes());
+  CTable<Uint>::ConstRow elem_nodes = connectivity_table()[idx];
+  for (Uint i=0; i<nodes.size(); ++i)
+    nodes[i]=elem_nodes[i];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
