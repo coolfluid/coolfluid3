@@ -75,7 +75,7 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
   if (gid->size()!=0) {
     m_isUpToDate=false;
     std::vector<int> map(gid->size());
-    for(int i=0; i<(const int)map.size(); i++) map[i]=i;
+    for(int i=0; i<(int)map.size(); i++) map[i]=i;
     Uint *igid=(Uint*)gid->pack(map);
     std::vector<Uint>::iterator irank=rank.begin();
     for (;irank!=rank.end();irank++,igid++)

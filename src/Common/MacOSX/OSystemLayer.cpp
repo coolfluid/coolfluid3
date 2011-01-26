@@ -177,7 +177,7 @@ feenableexcept (unsigned int excepts)
   fenv.__control &= ~new_excepts;
   fenv.__mxcsr   &= ~(new_excepts << 7);
 
-  return ( fesetenv (&fenv) ? -1 : old_excepts );
+  return ( fesetenv (&fenv) ? -1 : (int)old_excepts );
 }
 
 #if 0 // not used for the moment

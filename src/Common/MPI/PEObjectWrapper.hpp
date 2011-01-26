@@ -60,33 +60,33 @@ class Common_API PEObjectWrapper : public Component {
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map) = 0;
+    virtual const void* pack(std::vector<int>& map) const = 0;
 
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual const void unpack(std::vector<int>& map, void* buf) = 0;
+    virtual void unpack(std::vector<int>& map, void* buf) const = 0;
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
-    virtual const int size_of() = 0;
+    virtual int size_of() const = 0;
 
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
-    virtual const int size() = 0;
+    virtual int size() const = 0;
 
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
     /// @return number of items to be treated as one
-    virtual const int stride() = 0;
+    virtual int stride() const = 0;
 
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
-    virtual const bool is_data_type_Uint() = 0;
+    virtual bool is_data_type_Uint() const = 0;
 
     /// accessor to lag telling if wrapped data needs to be synchronized,
     /// if not then it will only be modified if commpattern changes (for example coordinates of a mesh)
     /// @return true or false depending if to be synchronized
-    const bool needs_update() { return m_needs_update; };
+    bool needs_update() const { return m_needs_update; };
 
     /// Get the class name
     static std::string type_name () { return "PEObjectWrapper"; }
@@ -159,7 +159,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map)
+    virtual const void* pack(std::vector<int>& map) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* tbuf=new T[map.size()*m_stride+1];
@@ -167,7 +167,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
       T* data=&(*m_data)[0];
       std::vector<int>::iterator imap=map.begin();
       for (T* itbuf=tbuf; imap!=map.end(); imap++)
-        for (int i=0; i<(const int)m_stride; i++)
+        for (int i=0; i<(int)m_stride; i++)
           *itbuf++=data[*imap*m_stride + i];
       return (void*)tbuf;
     }
@@ -175,31 +175,31 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual const void unpack(std::vector<int>& map, void* buf)
+    virtual void unpack(std::vector<int>& map, void* buf) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       std::vector<int>::iterator imap=map.begin();
       T* data=&(*m_data)[0];
       for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
-        for (int i=0; i<(const int)m_stride; i++)
+        for (int i=0; i<(int)m_stride; i++)
           data[*imap*m_stride + i]=*itbuf++;
     }
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
-    const int size_of() { return sizeof(T); };
+    int size_of() const { return sizeof(T); };
 
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
-    const int size() { return m_size; };
+    int size() const { return m_size; };
 
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
     /// @return number of items to be treated as one
-    const int stride() { return m_stride; };
+    int stride() const { return m_stride; };
 
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
-    const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; };
+    bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; };
 
   private:
 
@@ -263,14 +263,14 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map)
+    virtual const void* pack(std::vector<int>& map) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* tbuf=new T[map.size()*m_stride+1];
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       std::vector<int>::iterator imap=map.begin();
       for (T* itbuf=tbuf; imap!=map.end(); imap++)
-        for (int i=0; i<(const int)m_stride; i++)
+        for (int i=0; i<(int)m_stride; i++)
           *itbuf++=(*m_data)[*imap*m_stride + i];
       return (void*)tbuf;
     }
@@ -278,34 +278,34 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual const void unpack(std::vector<int>& map, void* buf)
+    virtual void unpack(std::vector<int>& map, void* buf) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       std::vector<int>::iterator imap=map.begin();
       for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
-        for (int i=0; i<(const int)m_stride; i++)
+        for (int i=0; i<(int)m_stride; i++)
           (*m_data)[*imap*m_stride + i]=*itbuf++;
     }
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
-    const int size_of() { return sizeof(T); };
+    int size_of() const { return sizeof(T); }
 
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
-    const int size() {
+    int size() const {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       if (m_data->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       return m_data->size()/m_stride;
-    };
+    }
 
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
     /// @return number of items to be treated as one
-    const int stride() { return m_stride; };
+    int stride() const { return m_stride; }
 
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
-    const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; };
+    bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
 
   private:
 
@@ -355,7 +355,7 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map)
+    virtual const void* pack(std::vector<int>& map) const
     {
       if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* tbuf=new T[map.size()*m_stride+1];
@@ -363,7 +363,7 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
       std::vector<int>::iterator imap=map.begin();
       for (T* itbuf=tbuf; imap!=map.end(); imap++)
-        for (int i=0; i<(const int)m_stride; i++)
+        for (int i=0; i<(int)m_stride; i++)
           *itbuf++=(*sp)[*imap*m_stride + i];
       return (void*)tbuf;
     }
@@ -371,36 +371,36 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual const void unpack(std::vector<int>& map, void* buf)
+    virtual void unpack(std::vector<int>& map, void* buf) const
     {
       if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
       std::vector<int>::iterator imap=map.begin();
       for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
-        for (int i=0; i<(const int)m_stride; i++)
+        for (int i=0; i<(int)m_stride; i++)
           (*sp)[*imap*m_stride + i]=*itbuf++;
     }
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
-    const int size_of() { return sizeof(T); };
+    int size_of() const { return sizeof(T); }
 
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array, if pointer is invalid then returns zero
-    const int size() {
+    int size() const {
       if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
       if (sp->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       return sp->size()/m_stride;
-    };
+    }
 
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
     /// @return number of items to be treated as one
-    const int stride() { return m_stride; };
+    int stride() const { return m_stride; };
 
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
-    const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; };
+    bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
 
   private:
 

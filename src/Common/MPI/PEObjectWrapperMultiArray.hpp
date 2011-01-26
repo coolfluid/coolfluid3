@@ -75,7 +75,7 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map)
+    virtual const void* pack(std::vector<int>& map) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       Uint* tbuf=new Uint[map.size()*m_stride+1];
@@ -92,7 +92,7 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual const void unpack(std::vector<int>& map, void* buf)
+    virtual void unpack(std::vector<int>& map, void* buf) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* itbuf=(T*)buf;
@@ -104,22 +104,23 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
-    const int size_of() { return sizeof(T); }
+    int size_of() const { return sizeof(T); }
 
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
-    const int size() {
+    int size() const
+	{
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       return m_data->num_elements();
     }
 
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
     /// @return number of items to be treated as one
-    const int stride() { return m_stride; }
+    int stride() const { return m_stride; }
 
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
-    const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; }
+    bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
 
   private:
 
@@ -165,7 +166,7 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map)
+    virtual const void* pack(std::vector<int>& map) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       Uint* tbuf=new Uint[map.size()*m_stride+1];
@@ -183,7 +184,7 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual const void unpack(std::vector<int>& map, void* buf)
+    virtual void unpack(std::vector<int>& map, void* buf) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* itbuf=(T*)buf;
@@ -196,22 +197,22 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
-    const int size_of() { return sizeof(T); }
+    int size_of() const { return sizeof(T); }
 
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
-    const int size() {
+    int size() const {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       return m_data->size();
     }
 
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
     /// @return number of items to be treated as one
-    const int stride() { return m_stride; }
+    int stride() const { return m_stride; }
 
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
-    const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; }
+    bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
 
   private:
 

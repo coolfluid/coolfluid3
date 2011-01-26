@@ -42,7 +42,7 @@ namespace Common {
   const Option & Property::as_option() const
   {
     cf_assert(m_is_option);
-    return *(static_cast<const Option* const >(this));
+    return *(static_cast<const Option* >(this));
   }
 
   const char * Property::tag() const

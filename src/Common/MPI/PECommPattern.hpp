@@ -201,11 +201,11 @@ public:
 
   /// accessor to check if setup is needed to call or not
   /// @return true or false, respectively
-  const bool isUpToDate() { return m_isUpToDate; }
+  bool isUpToDate() const { return m_isUpToDate; }
 
   /// accessor to check if setup is needed to call or not
   /// @return true or false, respectively
-  const bool isFreeze() { return m_isFreeze; }
+  bool isFreeze() const { return m_isFreeze; }
 
   //@} END ACCESSORS
 
