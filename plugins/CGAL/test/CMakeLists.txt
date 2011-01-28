@@ -4,7 +4,7 @@
 list( APPEND utest-tetra-sf_cflibs coolfluid_mesh_sf coolfluid_cgal coolfluid_mesh_gmsh )
 list( APPEND utest-tetra-sf_files  utest-tetra-sf.cpp )
 
-set( utest-tetra-sf_condition  ${CF_HAVE_CGAL} )
+set( utest-tetra-sf_condition  ${coolfluid_cgal_builds} )
 
 coolfluid_add_unittest( utest-tetra-sf )
 
