@@ -21,14 +21,13 @@
 #include "Common/StreamHelpers.hpp"
 
 #include "Common/MPI/PE.hpp"
+#include "Common/MPI/tools.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CFieldElements.hpp"
-#include "Mesh/CField.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ConnectivityData.hpp"
 
@@ -142,8 +141,6 @@ struct PTScotchTests_Fixture
   
   void build_graph()
   {
-    SCOTCH_dgraphFree(&graph);
-    
     if (SCOTCH_dgraphInit(&graph, Common::mpi::PE::instance()))
       throw BadValue(FromHere(),"ptscotch error");
 
@@ -161,9 +158,8 @@ struct PTScotchTests_Fixture
                            to_ptr(edgegsttab),  // edgegsttab,  //   (optional) if passed it is assumed an empty array that will be filled by SCOTHC_dgraphGhst if required
                            NULL))   //edloloctab)) //   (optional) arc load array of size edgelocsiz
       throw BadValue(FromHere(),"ptscotch error");
-    
-    
-    gather_global_data();
+        
+    gather_global_data();    
 
   }
   
