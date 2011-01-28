@@ -7,7 +7,7 @@
 #ifndef CF_Solver_Actions_CDummyLoopOperation_hpp
 #define CF_Solver_Actions_CDummyLoopOperation_hpp
 
-#include "Mesh/CFieldElements.hpp"
+#include "Mesh/CElements.hpp"
 
 #include "Solver/Actions/CNodeOperation.hpp"
 

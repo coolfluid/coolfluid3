@@ -23,7 +23,6 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ElementData.hpp"
-#include "Mesh/CFieldElements.hpp"
 #include "Mesh/CNodes.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -98,7 +97,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 				if (s_geom_elements)
 				{
 					// look for the source_field elements
-					const CFieldElements& s_field_elements = s_geom_elements->get_field_elements(source.field_name());
+					const CElements& s_field_elements = s_geom_elements->get_field_elements(source.field_name());
 					
 					// extract the single source element of interest
 					CTable<Uint>::ConstRow s_elm = s_field_elements.connectivity_table()[s_elm_idx];
@@ -188,7 +187,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 	}
 	else if (source.basis() == CField::NODE_BASED && target.basis() == CField::ELEMENT_BASED)
 	{
-		boost_foreach(CFieldElements& t_elems, find_components_recursively<CFieldElements>(target))
+		boost_foreach(CElements& t_elems, find_components_recursively_with_tag<CElements>(target,"field_elements"))
 		{
 			RealVector t_centroid(m_dim);
       t_centroid.setZero();
@@ -219,7 +218,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 				if (s_geom_elements)
 				{
 					// look for the source_field elements
-					const CFieldElements& s_field_elements = s_geom_elements->get_field_elements(source.field_name());
+					const CElements& s_field_elements = s_geom_elements->get_field_elements(source.field_name());
 					
 					// extract the single source element of interest
 					CTable<Uint>::ConstRow s_elm = s_field_elements.connectivity_table()[s_elm_idx];
@@ -247,7 +246,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 	}
 	else if (source.basis() == CField::ELEMENT_BASED && target.basis() == CField::ELEMENT_BASED)
 	{
-		boost_foreach(CFieldElements& t_elems, find_components_recursively<CFieldElements>(target))
+		boost_foreach(CElements& t_elems, find_components_recursively_with_tag<CElements>(target,"field_elements"))
 		{
 			RealVector t_centroid(m_dim);
       t_centroid.setZero();
@@ -352,7 +351,7 @@ void CHoneycombInterpolator::create_honeycomb()
     V*=L[d];
   }
 
-  m_nb_elems = find_component<CRegion>(*m_source_mesh).recursive_filtered_elements_count(IsElementsVolume());
+  m_nb_elems = m_source_mesh->topology().recursive_filtered_elements_count(IsElementsVolume());
 
 
   if (property("Divisions").value<std::vector<Uint> >().size() > 0)

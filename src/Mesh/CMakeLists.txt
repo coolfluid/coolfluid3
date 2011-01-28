@@ -7,6 +7,8 @@ list( APPEND coolfluid_mesh_files
   CDomain.cpp
   CDynTable.hpp
   CDynTable.cpp
+  CEntities.hpp
+  CEntities.cpp
   CElements.hpp
   CElements.cpp
   CFaceCellConnectivity.hpp
@@ -15,8 +17,6 @@ list( APPEND coolfluid_mesh_files
   CField.cpp
   CField2.hpp
   CField2.cpp
-  CFieldElements.hpp
-  CFieldElements.cpp
   CFieldLink.hpp
   CFieldLink.cpp
   CHash.hpp
@@ -43,6 +43,8 @@ list( APPEND coolfluid_mesh_files
   CNodeElementConnectivity.cpp
   CNodeFaceCellConnectivity.hpp
   CNodeFaceCellConnectivity.cpp
+  CProxyFaces.hpp
+  CProxyFaces.cpp
   CFieldOperation.hpp
   CFieldOperation.cpp
   ConnectivityData.cpp

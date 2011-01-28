@@ -109,10 +109,10 @@ public: // functions
   CField& subfield(const std::string& name);
   
   /// @return the elements with given name
-  const CFieldElements& elements (const std::string& element_type_name) const;
+  const CElements& elements (const std::string& element_type_name) const;
   
   /// @return the elements with given name
-  CFieldElements& elements (const std::string& element_type_name);
+  CElements& elements (const std::string& element_type_name);
   
   std::string var_name(Uint i=0) const;
   VarType var_type(Uint i=0) const { return m_var_types[i]; }

@@ -122,7 +122,7 @@ CField& CRegion::get_field(const std::string& field_name)
 Uint CRegion::recursive_elements_count() const
 {
   Uint elem_count = 0;
-  boost_foreach (const CElements& elements, elements_range() )
+  boost_foreach (const CEntities& elements, elements_range() )
     elem_count += elements.size();
   return elem_count;
 }
@@ -180,14 +180,14 @@ CNodes& CRegion::nodes()
 
 CRegion::ConstElementsRange CRegion::elements_range() const
 { 
-  return find_components_recursively<CElements>(*this); 
+  return find_components_recursively<CEntities>(*this); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CRegion::ElementsRange CRegion::elements_range()
 { 
-  return find_components_recursively<CElements>(*this); 
+  return find_components_recursively<CEntities>(*this); 
 }
 
 //////////////////////////////////////////////////////////////////////////////

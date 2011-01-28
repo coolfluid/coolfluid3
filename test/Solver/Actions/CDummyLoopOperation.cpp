@@ -8,7 +8,6 @@
 #include "Common/RegistLibrary.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
-#include "Mesh/CFieldElements.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"
 #include "CDummyLoopOperation.hpp"

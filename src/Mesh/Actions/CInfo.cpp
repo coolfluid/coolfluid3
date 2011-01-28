@@ -31,7 +31,7 @@ namespace Actions {
     
     bool operator()(const Component& component)
     {
-      return !find_components<CTable<Uint> >(component).empty() && !find_components<CElements>(component).empty();
+      return !find_components<CTable<Uint> >(component).empty() && !find_components<CEntities>(component).empty();
     }
     
   }; // IsElementRegion
@@ -147,11 +147,11 @@ std::string CInfo::print_field_tree(const CField& field, Uint level)
 std::string CInfo::print_elements(const Component& region, Uint level)
 {
   std::string tree;
-  BOOST_FOREACH( const CElements& elements_region, find_components<CElements>(region))
+  BOOST_FOREACH( const CEntities& elements_region, find_components<CEntities>(region))
   {
     for (Uint i=0; i<level; i++)
       tree += "    ";
-    std::string dimensionality = IsElementsVolume()(elements_region) ? "volume" : "surface";
+    std::string dimensionality = elements_region.element_type().dimension() == elements_region.element_type().dimensionality() ? "volume" : "surface";
     tree += elements_region.name() + " -- " + dimensionality + "  (" + String::to_str<Uint>(elements_region.size()) +  ")\n";
   }
   return tree;

@@ -14,7 +14,6 @@
 
 #include "Mesh/CField.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CFieldElements.hpp"
 #include "Mesh/ElementType.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"

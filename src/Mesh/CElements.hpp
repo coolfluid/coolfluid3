@@ -9,30 +9,23 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
 
-#include "Mesh/LibMesh.hpp"
+#include "Mesh/CEntities.hpp"
 #include "Mesh/ElementType.hpp"
 
 namespace CF {
   namespace Common
   {
     class CLink;
-    class CGroup;
   }
 namespace Mesh {
-
-  template <typename T> class CTable;
-  class CFieldElements;
-  template <typename T> class CList;
-  class CNodes;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CElements component class
 /// This class stores information about a set of elements of the same type
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
-class Mesh_API CElements : public Common::Component {
+class Mesh_API CElements : public CEntities {
 
 public: // typedefs
 
@@ -57,59 +50,63 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CElements"; }
 
-  /// set the element type
-  void set_element_type(const std::string& etype_name, const Uint space=0);
-
-  /// return the elementType
-  const ElementType& element_type(const Uint space=0) const;
-
   /// Mutable access to the connectivity table
-  CTable<Uint>& connectivity_table(const Uint space=0);
+  CTable<Uint>& connectivity_table();
   
   /// Const access to the connectivity table
-  const CTable<Uint>& connectivity_table(const Uint space=0) const;
-    
-  /// Mutable access to the nodes
-  virtual CNodes& nodes();
-  
-  /// Const access to the coordinates
-  virtual const CNodes& nodes() const;
+  const CTable<Uint>& connectivity_table() const;
 
-  /// Mutable access to the list of nodes
-  CList<Uint>& glb_idx() { return *m_global_numbering; }
-  
-  /// Const access to the list of nodes
-  const CList<Uint>& glb_idx() const { return *m_global_numbering; }
-  
   /// Link a CFieldElements to this CElements
   void add_field_elements_link(CElements& field_elements);
   
   /// Mutable access to a field by its elements
   /// @param name of a field
-  CFieldElements& get_field_elements(const std::string& field_name);
+  CElements& get_field_elements(const std::string& field_name);
   
   /// Const access to a field by its elements
   /// @param name of a field
-  const CFieldElements& get_field_elements(const std::string& field_name) const;
+  const CElements& get_field_elements(const std::string& field_name) const;
   
   /// return the number of elements
-  Uint size() const { return connectivity_table().size(); }
+  virtual Uint size() const { return connectivity_table().size(); }
 
-  static CList<Uint>& used_nodes(Component& parent);
-
-  RealMatrix element_coordinates(const Uint elem_idx, const Uint space=0) const;
+  virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx);
   
-  virtual std::vector<Uint> element_nodes(const Uint elem_idx, const Uint space=0) const;
+  RealMatrix get_coordinates(const Uint elem_idx) const;
+
+  void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
 
 protected: // data
 
-  boost::shared_ptr<ElementType> m_element_type;
-
-  Component::Ptr m_connectivity_table;
-
-  boost::shared_ptr<Common::CLink> m_nodes;
+  CTable<Uint>::Ptr m_connectivity_table;
   
-  boost::shared_ptr<CList<Uint> > m_global_numbering;
+  
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+// between these comment lines is compatibility for the soon to be retired CField
+
+  public:
+  /// Initialize the CFieldElements using the given type
+  //void initialize(const std::string& element_type_name, CTable<Real>& data);
+  void initialize(CElements& elements);
+    
+  void add_element_based_storage();
+  void add_node_based_storage(CTable<Real>& nodal_data);
+
+  /// Mutable access to the nodal data (e.g. node coordinates);
+  CTable<Real>& data();
+  const CTable<Real>& data() const;
+
+  CElements& get_geometry_elements();
+  const CElements& get_geometry_elements() const;
+
+  private:
+  boost::shared_ptr<Common::CLink> m_support;
+  std::string m_data_name;
+  
+// until here
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 };
 
@@ -120,10 +117,10 @@ class IsElementsVolume
 public:
   IsElementsVolume () {}
   
-  bool operator()(const CElements::Ptr& component)
+  bool operator()(const CEntities::Ptr& component)
   { return component->element_type().dimension() == component->element_type().dimensionality(); }
   
-  bool operator()(const CElements& component)
+  bool operator()(const CEntities& component)
   { return component.element_type().dimension() == component.element_type().dimensionality(); }
 };
 
@@ -132,10 +129,10 @@ class IsElementsSurface
 public:
   IsElementsSurface () {}
   
-  bool operator()(const CElements::Ptr& component)
+  bool operator()(const CEntities::Ptr& component)
   { return component->element_type().dimension() == component->element_type().dimensionality() + 1; }
   
-  bool operator()(const CElements& component)
+  bool operator()(const CEntities& component)
   { return component.element_type().dimension() == component.element_type().dimensionality() + 1; }
 };
   

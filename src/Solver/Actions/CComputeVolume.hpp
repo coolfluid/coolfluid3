@@ -58,6 +58,8 @@ private: // helper functions
 private: // data
   
   boost::shared_ptr<Mesh::CScalarFieldView> m_volume;
+  
+  RealMatrix m_coordinates;
     
 };
 

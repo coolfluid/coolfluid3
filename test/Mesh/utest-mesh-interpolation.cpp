@@ -23,7 +23,6 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CFieldElements.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CMeshReader.hpp"

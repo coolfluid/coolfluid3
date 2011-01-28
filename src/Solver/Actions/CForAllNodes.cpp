@@ -8,8 +8,6 @@
 #include "Common/Foreach.hpp"
 
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldElements.hpp"
 #include "Mesh/CList.hpp"
 
 #include "Solver/Actions/CNodeOperation.hpp"

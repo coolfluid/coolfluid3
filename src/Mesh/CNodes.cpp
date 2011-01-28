@@ -4,15 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <set>
 
-#include "Common/CLink.hpp"
-#include "Common/CGroup.hpp"
 #include "Common/CreateComponent.hpp"
 
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CFieldElements.hpp"
-#include "Mesh/CField.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 

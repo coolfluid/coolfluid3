@@ -21,7 +21,6 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CFieldElements.hpp"
 #include "Mesh/CMesh.hpp"
 
 namespace CF {
@@ -212,7 +211,7 @@ void CField::create_data_storage(const DataBasis basis)
   switch (m_basis)
   {
     case ELEMENT_BASED:
-      BOOST_FOREACH(CFieldElements& field_elements, find_components_recursively<CFieldElements>(*this))
+      BOOST_FOREACH(CElements& field_elements, find_components_recursively<CElements>(*this))
       {
         field_elements.add_element_based_storage();
         field_elements.data().array().resize(boost::extents[field_elements.size()][row_size]);
@@ -242,7 +241,7 @@ void CField::create_data_storage(const DataBasis basis)
 			}
 
       // Add the correct data according to the map in every field elements component
-      boost_foreach(CFieldElements& field_elements, find_components_recursively<CFieldElements>(*this))
+      boost_foreach(CElements& field_elements, find_components_recursively<CElements>(*this))
       {
         field_elements.add_node_based_storage(*field_data);
       }
@@ -284,7 +283,7 @@ void CField::create_data_storage(const DataBasis basis)
 
 CElements& CField::create_elements(CElements& geometry_elements)
 {
-  CFieldElements& field_elements = *create_component<CFieldElements>(geometry_elements.name());
+  CElements& field_elements = *create_component<CElements>(geometry_elements.name());
   field_elements.initialize(geometry_elements);
   geometry_elements.add_field_elements_link(field_elements);
   return field_elements;
@@ -320,16 +319,16 @@ CField& CField::subfield(const std::string& name)
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CFieldElements& CField::elements(const std::string& name) const
+const CElements& CField::elements(const std::string& name) const
 {
-  return find_component_with_name<CFieldElements const>(*this,name);
+  return find_component_with_name<CElements const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFieldElements& CField::elements(const std::string& name)
+CElements& CField::elements(const std::string& name)
 {
-  return find_component_with_name<CFieldElements>(*this,name);
+  return find_component_with_name<CElements>(*this,name);
 }
 
 Uint CField::find_var ( const std::string& vname ) const

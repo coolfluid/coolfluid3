@@ -38,8 +38,8 @@ public: // typedefs
   typedef boost::shared_ptr<CRegion> Ptr;
   typedef boost::shared_ptr<CRegion const> ConstPtr;
 
-  typedef Common::DerivedComponentIteratorRange<CElements const> ConstElementsRange;
-  typedef Common::DerivedComponentIteratorRange<CElements>       ElementsRange;
+  typedef Common::DerivedComponentIteratorRange<CEntities const> ConstElementsRange;
+  typedef Common::DerivedComponentIteratorRange<CEntities>       ElementsRange;
 
 public: // functions
 
@@ -117,7 +117,7 @@ template <typename Predicate>
 inline Uint CRegion::recursive_filtered_elements_count(const Predicate& pred) const
 {
   Uint elem_count = 0;
-  BOOST_FOREACH(const CElements& elements, Common::find_components_recursively_with_filter<CElements>(*this,pred))
+  BOOST_FOREACH(const CEntities& elements, Common::find_components_recursively_with_filter<CEntities>(*this,pred))
     elem_count += elements.size();
 
   return elem_count;

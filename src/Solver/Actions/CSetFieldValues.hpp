@@ -7,8 +7,8 @@
 #ifndef CF_Solver_Actions_CSetFieldValues_hpp
 #define CF_Solver_Actions_CSetFieldValues_hpp
 
-#include "Mesh/CFieldElements.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CElements.hpp"
 
 #include "Solver/Actions/CNodeOperation.hpp"
 
@@ -17,7 +17,6 @@
 namespace CF {
 namespace Mesh {
   template <typename T> class CTable;
-  class CFieldElements;
 }
 namespace Solver {
 namespace Actions {

@@ -12,9 +12,8 @@
 #include "Common/StreamHelpers.hpp"
 
 #include "Mesh/Actions/CBuildFaces.hpp"
-#include "Mesh/CElements.hpp"
+#include "Mesh/CProxyFaces.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
@@ -243,7 +242,6 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
 {  
   std::set<std::string> face_types;
   std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > f2c_buffer_map;
-  std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > f2n_buffer_map; 
   std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer>  > fnb_buffer_map; 
   
   CElements::Ptr elem_comp;
@@ -260,16 +258,14 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   
   boost_foreach( const std::string& face_type , face_types)
   {
-    CElements& elements = region.create_elements(face_type,m_mesh->nodes());
+    CProxyFaces& faces = *region.create_component<CProxyFaces>("faces_"+face_type);
+    faces.initialize(face_type,m_mesh->nodes());
     if (is_inner)
-      elements.add_tag("inner_faces");
+      faces.add_tag("inner_faces");
     else
-      elements.add_tag("outer_faces");
-    
-    CTable<Uint>& f2n = elements.connectivity_table();
-    f2n_buffer_map[face_type] = boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(f2n.create_buffer()) );
-    
-    CFaceCellConnectivity& f2c = *elements.create_component<CFaceCellConnectivity>("cell_connectivity");
+      faces.add_tag("outer_faces");
+        
+    CFaceCellConnectivity& f2c = faces.cell_connectivity();
     CTable<Uint>& raw_table = *f2c.get_child<CTable<Uint> >(f2c.connectivity().name());
     raw_table.set_row_size(is_inner?2:1);
     f2c.add_elements(face_to_cell.get_child<CUnifiedData<CElements> >("elements"));
@@ -289,7 +285,6 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
       {
         f2c_buffer_map[face_type]->add_row(face_to_cell.connectivity()[f]);
         fnb_buffer_map[face_type]->add_row(face_number[f]);
-        f2n_buffer_map[face_type]->add_row(face_to_cell.nodes(f));
       }      
     }
     else
@@ -299,7 +294,6 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
         std::vector<Uint> dummy(1,face_to_cell.connectivity()[f][0]);
         f2c_buffer_map[face_type]->add_row(dummy);
         fnb_buffer_map[face_type]->add_row(face_number[f]);
-        f2n_buffer_map[face_type]->add_row(face_to_cell.nodes(f));
       }
     }
   }
@@ -310,15 +304,13 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   {
     f2c_buffer_map[face_type]->flush();
     fnb_buffer_map[face_type]->flush();
-    f2n_buffer_map[face_type]->flush();
     
-    CElements& elements = region.elements("elements_"+face_type);
+    CProxyFaces& faces = *region.get_child<CProxyFaces>("faces_"+face_type);
     
-    CTable<Uint>&           f2n = elements.connectivity_table();
-    CFaceCellConnectivity&  f2c = *elements.get_child<CFaceCellConnectivity>("cell_connectivity");
+    CFaceCellConnectivity&  f2c = faces.cell_connectivity();
     CList<Uint>&            fnb = *f2c.get_child<CList<Uint> > ("face_number");
-    cf_assert(f2n.size() == f2c.size());
     cf_assert(f2c.size() == fnb.size());
+    cf_assert(fnb.size() == faces.size());
   }
   
   
@@ -480,8 +472,6 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
   node2faces2.add_face_cell_connectivity(Ufaces2->data_components()); // it is assumed this is only face types
   node2faces2.set_nodes(m_mesh->nodes());
   node2faces2.build_connectivity();
-  
-  
   
   Uint f1(0);
   boost_foreach(CElements& faces1, find_components<CElements>(bdry_region))

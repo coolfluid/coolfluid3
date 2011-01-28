@@ -57,6 +57,7 @@ void CComputeVolume::config_field()
 void CComputeVolume::trigger_elements()
 {
   m_volume->set_elements(elements());
+  m_coordinates.resize(elements().element_type().nb_nodes(),elements().element_type().dimension());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +68,9 @@ void CComputeVolume::execute()
   
   CElements& elems = elements();
 
-  Real vol = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+  elems.put_coordinates(m_coordinates,idx());
+  
+  Real vol = elems.element_type().compute_volume( m_coordinates );
 
   Uint state_idx = 0;
   Uint var_idx = 0;

@@ -17,7 +17,6 @@
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CFieldElements.hpp"
 #include "Mesh/ElementType.hpp"
 
 /// @file

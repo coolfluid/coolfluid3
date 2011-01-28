@@ -66,8 +66,8 @@ private: // data
 
   std::map<std::string,Uint> m_elementTypes;
 
-  std::map<CElements*,Uint> m_node_start_idx;
-  std::map<CElements*,Uint> m_element_start_idx;
+  std::map<CEntities*,Uint> m_node_start_idx;
+  std::map<CEntities*,Uint> m_element_start_idx;
 
 }; // end CWriter
 

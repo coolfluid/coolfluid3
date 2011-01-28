@@ -14,7 +14,6 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CField.hpp"
-#include "Mesh/CFieldElements.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/ConnectivityData.hpp"
@@ -183,7 +182,7 @@ private: // data
       field_elements(geometry_elements.get_field_elements(scalar_field.field_name())),
       scalars(field_elements.data())
     { }
-    CFieldElements& field_elements;
+    CElements& field_elements;
     CTable<Real>& scalars;
   };
 
@@ -253,7 +252,7 @@ private: // data
       coordinates(field_elements.nodes().coordinates()),
       connectivity_table(field_elements.connectivity_table())
     { }
-    CFieldElements& field_elements;
+    CElements& field_elements;
     CTable<Real>& volumes;
     CTable<Real>& coordinates;
     CTable<Uint>& connectivity_table;

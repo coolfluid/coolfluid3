@@ -21,7 +21,6 @@
 #include "Mesh/CField2.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CFieldElements.hpp"
 #include "Mesh/CMesh.hpp"
 
 namespace CF {

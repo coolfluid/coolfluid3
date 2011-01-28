@@ -22,7 +22,6 @@
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CField2.hpp"
-#include "Mesh/CFieldElements.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -201,11 +200,7 @@ void CWriter::write_connectivity(std::fstream& file)
   // file << "number-of-elements                                                      \n";
   // file << "elm-number elm-type number-of-tags < tag > ... node-number-list ...     \n";
   // file << "$EndElements\n";
-  Uint nbElems = 0;
-  boost_foreach(const CRegion& region, find_components<CRegion>(*m_mesh))
-  {
-    nbElems += region.recursive_elements_count();
-  }
+  Uint nbElems = m_mesh->topology().recursive_elements_count();
 
   file << "$Elements\n";
   file << nbElems << "\n";
@@ -216,32 +211,25 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint elm_number=0;
   Uint partition_number = mpi::PE::instance().rank();
 
-  foreach_container( (const CNodes* nodes) (std::list<CElements*> elements_list) , m_all_nodes)
+  boost_foreach(CEntities& elements, m_mesh->topology().elements_range())
   {
-    nodes->follow();
-    boost_foreach(CElements* elements, elements_list)
+    group_name = elements.get_parent()->full_path().path();
+    group_number = m_groupnumber[group_name];
+
+    m_element_start_idx[&elements]=elm_number;
+
+    //file << "// Region " << elements.full_path().string() << "\n";
+    elm_type = m_elementTypes[elements.element_type().element_type_name()];
+    Uint node_start_idx = m_node_start_idx[&elements];
+    const Uint nb_elem = elements.size();
+    for (Uint e=0; e<nb_elem; ++e, ++elm_number)
     {
-      if ( is_null(elements->as_type<CFieldElements>()) )
+      file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number << " " << partition_number;
+      boost_foreach(const Uint local_node_idx, elements.get_nodes(e))
       {
-        group_name = elements->get_parent()->full_path().path();
-        group_number = m_groupnumber[group_name];
-
-        m_element_start_idx[elements]=elm_number;
-
-        //file << "// Region " << elements.full_path().string() << "\n";
-        elm_type = m_elementTypes[elements->element_type().element_type_name()];
-        Uint node_start_idx = m_node_start_idx[elements];
-        boost_foreach(const CTable<Uint>::ConstRow& row, elements->connectivity_table().array())
-        {
-          elm_number++;
-          file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number << " " << partition_number;
-          boost_foreach(const Uint local_node_idx, row)
-          {
-            file << " " << node_start_idx+local_node_idx+1;
-          }
-          file << "\n";
-        }
+        file << " " << node_start_idx+local_node_idx+1;
       }
+      file << "\n";
     }
   }
   file << "$EndElements\n";
@@ -304,7 +292,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
       file << 1 << "\n" << 0.0 << "\n";
       file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
 
-      boost_foreach(CFieldElements& field_elements, find_components_recursively<CFieldElements>(nodebased_field))
+      boost_foreach(CElements& field_elements, find_components_recursively<CElements>(nodebased_field))
       {
         const CTable<Real>& field_data = field_elements.data();
         Uint nb_nodes_per_element = field_elements.element_type().nb_nodes();
@@ -523,7 +511,7 @@ void CWriter::write_element_data(std::fstream& file)
       file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
       file << 1 << "\n" << 0.0 << "\n";
       file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
-      boost_foreach(CFieldElements& field_elements, find_components_recursively<CFieldElements>(elementbased_field))
+      boost_foreach(CElements& field_elements, find_components_recursively<CElements>(elementbased_field))
       {
         const CTable<Real>& field_data = field_elements.data();
 

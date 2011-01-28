@@ -20,7 +20,6 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CFieldElements.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CMeshReader.hpp"
 
@@ -100,11 +99,11 @@ BOOST_AUTO_TEST_CASE( FieldTest )
 
 
   // Check if element based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Volume/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().size(), (Uint) 2);
-  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Volume/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 1);
+  BOOST_CHECK_EQUAL(mesh.look_component<CElements>("Volume/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(mesh.look_component<CElements>("Volume/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 1);
 
   // Check if node based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Solution/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 5);
+  BOOST_CHECK_EQUAL(mesh.look_component<CElements>("Solution/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 5);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
