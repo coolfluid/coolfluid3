@@ -8,13 +8,13 @@ mark_as_advanced( CF_LIBRARY_LINK_FLAGS )
 if( CMAKE_CXX_COMPILER_ID STREQUAL "Intel" )
   # suppress warning (remark) #279: controlling expression is constant
   # because of boost use of BOOST_ASSERT( expr && "message")
-  coolfluid_add_c_flags_or_die("-wd279")
-  coolfluid_add_cxx_flags_or_die("-wd279")
+  coolfluid_add_c_flags("-wd279")
+  coolfluid_add_cxx_flags("-wd279")
 
   # suppress warning #2196: routine is both "inline" and "noinline" ("noinline" assumed)
   # because of Eigen declarations such as "static EIGEN_DONT_INLINE void run()"
-  coolfluid_add_c_flags_or_die("-wd2196")
-  coolfluid_add_cxx_flags_or_die("-wd2196")
+  coolfluid_add_c_flags("-wd2196")
+  coolfluid_add_cxx_flags("-wd2196")
 
 endif()
 
