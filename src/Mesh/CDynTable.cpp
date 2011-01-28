@@ -27,31 +27,31 @@ Common::ComponentBuilder < CDynTable<std::string>, Component, LibMesh > CDynTabl
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<<(std::ostream& os, const CDynTable<bool>::ConstRow row)
+std::ostream& operator<<(std::ostream& os, CDynTable<bool>::ConstRow row)
 {
   print_vector(os, row);
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CDynTable<Uint>::ConstRow row)
+std::ostream& operator<<(std::ostream& os, CDynTable<Uint>::ConstRow row)
 {
   print_vector(os, row);
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CDynTable<int>::ConstRow row)
+std::ostream& operator<<(std::ostream& os, CDynTable<int>::ConstRow row)
 {
   print_vector(os, row);
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CDynTable<Real>::ConstRow row)
+std::ostream& operator<<(std::ostream& os, CDynTable<Real>::ConstRow row)
 {
   print_vector(os, row);
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CDynTable<std::string>::ConstRow row)
+std::ostream& operator<<(std::ostream& os, CDynTable<std::string>::ConstRow row)
 {
   print_vector(os, row);
   return os;

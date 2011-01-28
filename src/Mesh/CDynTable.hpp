@@ -109,12 +109,12 @@ private: // data
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<<(std::ostream& os, const CDynTable<bool>::ConstRow row);
-std::ostream& operator<<(std::ostream& os, const CDynTable<Uint>::ConstRow row);
-std::ostream& operator<<(std::ostream& os, const CDynTable<int>::ConstRow row);
-std::ostream& operator<<(std::ostream& os, const CDynTable<Real>::ConstRow row);
-std::ostream& operator<<(std::ostream& os, const CDynTable<std::string>::ConstRow row);
-
+std::ostream& operator<<(std::ostream& os, CDynTable<bool>::ConstRow row);
+std::ostream& operator<<(std::ostream& os, CDynTable<Uint>::ConstRow row);
+std::ostream& operator<<(std::ostream& os, CDynTable<int>::ConstRow row);
+std::ostream& operator<<(std::ostream& os, CDynTable<Real>::ConstRow row);
+std::ostream& operator<<(std::ostream& os, CDynTable<std::string>::ConstRow row);
+                                          
 std::ostream& operator<<(std::ostream& os, const CDynTable<bool>& table);
 std::ostream& operator<<(std::ostream& os, const CDynTable<Uint>& table);
 std::ostream& operator<<(std::ostream& os, const CDynTable<int>& table);
