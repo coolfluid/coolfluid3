@@ -24,6 +24,7 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/CField2.hpp"
+#include "Mesh/CFieldView.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Solver/Actions/CSetFieldValues.hpp"

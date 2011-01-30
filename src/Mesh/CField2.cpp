@@ -4,9 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/assign/list_of.hpp>
-#include <boost/assign/std/vector.hpp>
 #include <boost/regex.hpp>
+#include <boost/assign/std/vector.hpp>
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -15,20 +14,21 @@
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
-#include "Common/String/Conversion.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CTable.hpp"
+#include "Mesh/CList.hpp"
+#include "Mesh/CFieldView.hpp"
 
 namespace CF {
 namespace Mesh {
 
-using namespace boost::assign;
 using namespace Common;
-using namespace Common::String;
+using namespace boost::assign;
 
 Common::ComponentBuilder < CField2, Component, LibMesh >  CField2_Builder;
 
@@ -315,20 +315,6 @@ const CList<Uint>& CField2::used_nodes() const
 CTable<Real>::ConstRow CField2::coords(const Uint idx) const
 {
   return (*m_coords)[used_nodes()[idx]];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Uint CFieldView::initialize(CField2& field, CElements::Ptr elements)
-{
-
-  // If run-time error occurs in this if-statement, the default argument must be given a valid CElements::Ptr
-  if (is_null(elements))
-    elements = find_parent_component<CElements>(*this).as_type<CElements>();
-
-  set_field(field);  
-  set_elements(elements);
-  return m_end_idx;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

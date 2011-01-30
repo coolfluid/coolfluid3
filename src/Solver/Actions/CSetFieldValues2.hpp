@@ -9,7 +9,6 @@
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CFieldLink.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"
 

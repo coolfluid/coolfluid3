@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   BOOST_CHECK_EQUAL( coordinates.var_type(0) , CField2::VECTOR_2D );
   BOOST_CHECK_EQUAL( coordinates.var_type("coordinates") , CField2::VECTOR_2D );
   BOOST_CHECK_EQUAL( coordinates.topology().full_path().string() , mesh.topology().full_path().string() );
-  BOOST_CHECK_EQUAL( coordinates.space() , 0u );
+  BOOST_CHECK_EQUAL( coordinates.space_idx() , 0u );
   
   
   CNodes& nodes = mesh.nodes();  
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   BOOST_CHECK_EQUAL( solution.var_type("U") , CField2::VECTOR_2D );
   BOOST_CHECK_EQUAL( solution.var_type("p") , CField2::SCALAR );
   BOOST_CHECK_EQUAL( solution.topology().full_path().string() , mesh.topology().full_path().string() );
-  BOOST_CHECK_EQUAL( solution.space() , 0u );
+  BOOST_CHECK_EQUAL( solution.space_idx() , 0u );
   
 }
 

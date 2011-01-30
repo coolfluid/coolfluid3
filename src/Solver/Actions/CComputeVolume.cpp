@@ -6,10 +6,11 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/Log.hpp"
+
+#include "Mesh/CFieldView.hpp"
 #include "Mesh/CField2.hpp"
-#include "Math/MatrixTypes.hpp"
+#include "Mesh/CSpace.hpp"
+#include "Mesh/ElementType.hpp"
 
 #include "Solver/Actions/CComputeVolume.hpp"
 

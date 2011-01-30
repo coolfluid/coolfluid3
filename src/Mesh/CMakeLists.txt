@@ -21,8 +21,8 @@ list( APPEND coolfluid_mesh_files
   CField.cpp
   CField2.hpp
   CField2.cpp
-  CFieldLink.hpp
-  CFieldLink.cpp
+  CFieldView.hpp
+  CFieldView.cpp
   CHash.hpp
   CHash.cpp
   CHoneycombInterpolator.hpp

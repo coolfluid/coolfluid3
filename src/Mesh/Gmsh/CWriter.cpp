@@ -22,6 +22,7 @@
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CField2.hpp"
+#include "Mesh/CFieldView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
