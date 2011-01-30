@@ -16,7 +16,7 @@
 
 #include "Common/Component.hpp"
 #include "Common/Foreach.hpp"
-
+#include "Common/Log.hpp"
 namespace CF {
 namespace Common {
 
@@ -1079,14 +1079,42 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with
 {
   bool not_found=true;
   typename ComponentPtr<ComponentT>::type parent = comp.get_parent() ;
+  if ( is_null(parent) )
+    throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
   while (not_found)
   {
     if ( pred(parent) && IsComponentType<ParentT>()(parent) )
       not_found = false;
     else
+    {
       parent = parent->get_parent();
+      if ( is_null(parent) )
+        throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
+    }
   }
   return  *parent->template as_type<ParentT>();
+}
+
+template <typename ParentT, typename ComponentT, typename Predicate>
+typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
+{
+  bool not_found=true;
+  typename ComponentPtr<ComponentT>::type parent = comp.get_parent() ;
+  if ( is_null(parent) )
+    throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
+
+  while (not_found)
+  {
+    if ( pred(parent) && IsComponentType<ParentT>()(parent) )
+      not_found = false;
+    else
+    {
+      parent = parent->get_parent();
+      if ( is_null(parent) )
+        throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
+    }
+  } 
+  return  parent->template as_type<ParentT>();
 }
 
 template <typename ComponentT, typename Predicate>
@@ -1095,6 +1123,14 @@ typename ComponentReference<ComponentT>::type find_parent_component_with_filter(
   return find_parent_component_with_filter<Component>(comp,pred);
 }
 
+template <typename ComponentT, typename Predicate>
+typename ComponentPtr<ComponentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
+{
+  return find_parent_component_ptr_with_filter<Component>(comp,pred);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 template <typename ParentT, typename ComponentT>
 typename ComponentReference<ComponentT,ParentT>::type find_parent_component(ComponentT& comp)
 {
@@ -1102,16 +1138,38 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component(Comp
 }
 
 template <typename ParentT, typename ComponentT>
+typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr(ComponentT& comp)
+{
+  return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentTrue());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename ParentT, typename ComponentT>
 typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_name(ComponentT& comp, const std::string& name)
 {
   return find_parent_component_with_filter<ParentT>(comp,IsComponentName(name));
 }
 
+template <typename ParentT, typename ComponentT>
+typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_with_name(ComponentT& comp, const std::string& name)
+{
+  return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentName(name));
+}
+
 template <typename ComponentT>
 typename ComponentReference<ComponentT>::type find_parent_component_with_name(ComponentT& comp, const std::string& name)
 {
-  return find_parent_component_with_filter<Component>(comp,IsComponentName(name));
+  return find_parent_component_with_filter(comp,IsComponentName(name));
 }
+
+template <typename ComponentT>
+typename ComponentPtr<ComponentT>::type find_parent_component_ptr_with_name(ComponentT& comp, const std::string& name)
+{
+  return find_parent_component_ptr_with_filter(comp,IsComponentName(name));
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 template <typename ParentT, typename ComponentT>
 typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_tag(ComponentT& comp, const std::string& tag)
@@ -1119,10 +1177,22 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with
   return find_parent_component_with_filter<ParentT>(comp,IsComponentTag(tag));
 }
 
+template <typename ParentT, typename ComponentT>
+typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
+{
+  return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentTag(tag));
+}
+
 template <typename ComponentT>
 typename ComponentReference<ComponentT>::type find_parent_component_with_tag(ComponentT& comp, const std::string& tag)
 {
-  return find_parent_component_with_filter<Component>(comp,IsComponentTag(tag));
+  return find_parent_component_with_filter(comp,IsComponentTag(tag));
+}
+
+template <typename ComponentT>
+typename ComponentPtr<ComponentT>::type find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
+{
+  return find_parent_component_ptr_with_filter(comp,IsComponentTag(tag));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
