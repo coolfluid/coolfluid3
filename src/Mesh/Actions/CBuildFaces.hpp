@@ -9,8 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/bimap/bimap.hpp>
-
 #include "Mesh/CMeshTransformer.hpp"
 
 #include "Mesh/Actions/LibActions.hpp"
@@ -37,11 +35,6 @@ public: // typedefs
     typedef boost::shared_ptr<CBuildFaces> Ptr;
     typedef boost::shared_ptr<CBuildFaces const> ConstPtr;
 
-private: // typedefs
-
-  typedef boost::bimaps::bimap< boost::bimaps::set_of<Uint> , boost::bimaps::set_of<Uint> > matched_faces_t;
-  typedef matched_faces_t::value_type match_t;
-  
 public: // functions
   
   /// constructor

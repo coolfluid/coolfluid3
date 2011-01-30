@@ -7,7 +7,7 @@
 #include <boost/foreach.hpp>
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
-#include "common/CreateComponent.hpp"
+#include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StreamHelpers.hpp"
@@ -87,7 +87,6 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
   CElements::Ptr comp;
   Uint idx_in_comp;
   
-  boost::shared_ptr<matched_faces_t> matched_faces;
   std::vector<CRegion::Ptr> regions = range_to_vector(find_components<CRegion>(*parent));
   const Uint n=regions.size();
   if (n>1)
