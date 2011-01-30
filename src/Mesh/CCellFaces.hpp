@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CProxyFaces_hpp
-#define CF_Mesh_CProxyFaces_hpp
+#ifndef CF_Mesh_CCellFaces_hpp
+#define CF_Mesh_CCellFaces_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,27 +17,27 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CProxyFaces component class
+/// CCellFaces component class
 /// This class stores information about a set of elements of the same type
 /// @author Willem Deconinck
-class Mesh_API CProxyFaces : public CEntities {
+class Mesh_API CCellFaces : public CEntities {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CProxyFaces> Ptr;
-  typedef boost::shared_ptr<CProxyFaces const> ConstPtr;
+  typedef boost::shared_ptr<CCellFaces> Ptr;
+  typedef boost::shared_ptr<CCellFaces const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CProxyFaces ( const std::string& name );
+  CCellFaces ( const std::string& name );
     
   /// Virtual destructor
-  virtual ~CProxyFaces();
+  virtual ~CCellFaces();
 
   /// Get the class name
-  static std::string type_name () { return "CProxyFaces"; }
+  static std::string type_name () { return "CCellFaces"; }
 
   /// return the number of elements
   virtual Uint size() const { return m_cell_connectivity->size(); }
@@ -69,4 +69,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CProxyFaces_hpp
+#endif // CF_Mesh_CCellFaces_hpp

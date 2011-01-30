@@ -12,7 +12,7 @@
 #include "Common/StreamHelpers.hpp"
 
 #include "Mesh/Actions/CBuildFaces.hpp"
-#include "Mesh/CProxyFaces.hpp"
+#include "Mesh/CCellFaces.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
@@ -258,7 +258,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   
   boost_foreach( const std::string& face_type , face_types)
   {
-    CProxyFaces& faces = *region.create_component<CProxyFaces>("faces_"+face_type);
+    CCellFaces& faces = *region.create_component<CCellFaces>("faces_"+face_type);
     faces.initialize(face_type,m_mesh->nodes());
     if (is_inner)
       faces.add_tag("inner_faces");
@@ -305,7 +305,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     f2c_buffer_map[face_type]->flush();
     fnb_buffer_map[face_type]->flush();
     
-    CProxyFaces& faces = *region.get_child<CProxyFaces>("faces_"+face_type);
+    CCellFaces& faces = *region.get_child<CCellFaces>("faces_"+face_type);
     
     CFaceCellConnectivity&  f2c = faces.cell_connectivity();
     CList<Uint>&            fnb = *f2c.get_child<CList<Uint> > ("face_number");

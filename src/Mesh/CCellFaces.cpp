@@ -6,7 +6,7 @@
 
 #include "Common/CreateComponent.hpp"
 
-#include "Mesh/CProxyFaces.hpp"
+#include "Mesh/CCellFaces.hpp"
 #include "Mesh/CNodes.hpp"
 
 namespace CF {
@@ -14,11 +14,11 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < CProxyFaces, CEntities, LibMesh > CProxyFaces_Builder;
+Common::ComponentBuilder < CCellFaces, CEntities, LibMesh > CCellFaces_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CProxyFaces::CProxyFaces ( const std::string& name ) :
+CCellFaces::CCellFaces ( const std::string& name ) :
   CEntities ( name )
 {
   properties()["brief"] = std::string("Holds information of faces of one element type");
@@ -32,13 +32,13 @@ CProxyFaces::CProxyFaces ( const std::string& name ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CProxyFaces::~CProxyFaces()
+CCellFaces::~CCellFaces()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CTable<Uint>::ConstRow CProxyFaces::get_nodes(const Uint face_idx)
+CTable<Uint>::ConstRow CCellFaces::get_nodes(const Uint face_idx)
 {
   m_proxy_nodes.resize(boost::extents[1][element_type().nb_nodes()]);
   
@@ -50,7 +50,7 @@ CTable<Uint>::ConstRow CProxyFaces::get_nodes(const Uint face_idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealMatrix CProxyFaces::get_coordinates(const Uint face_idx)
+RealMatrix CCellFaces::get_coordinates(const Uint face_idx)
 {
   const CTable<Real>& coords_table = nodes().coordinates();
   std::vector<Uint> face_nodes = m_cell_connectivity->nodes(face_idx);
@@ -67,7 +67,7 @@ RealMatrix CProxyFaces::get_coordinates(const Uint face_idx)
   
 }
 
-void CProxyFaces::put_coordinates(RealMatrix& elem_coords, const Uint face_idx) const
+void CCellFaces::put_coordinates(RealMatrix& elem_coords, const Uint face_idx) const
 {
   const CTable<Real>& coords_table = nodes().coordinates();
   std::vector<Uint> face_nodes = m_cell_connectivity->nodes(face_idx);
