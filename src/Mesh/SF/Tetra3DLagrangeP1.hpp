@@ -33,6 +33,8 @@ struct MESH_SF_API Tetra3DLagrangeP1  : public Tetra3D
 
   static std::string type_name() { return "Tetra3DLagrangeP1"; }
 
+  virtual std::string builder_name() const { return LibSF::library_namespace()+"."+type_name(); }
+
 /// Number of nodes
 static const Uint nb_nodes = 4;
 

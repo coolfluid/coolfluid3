@@ -486,16 +486,6 @@ void CReader::read_groups()
     getline(m_file,line);  // finish the line (read new line)
     getline(m_file,line);  // ENDOFSECTION
   }
-  
-
-  CFactory& sf_factory = *Core::instance().factories()->get_factory<ElementType>();
-  std::map<std::string,std::string> builder_name;
-	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
-	{
-		ElementType::Ptr sf = sf_builder.build("sf")->as_type<ElementType>();
-    builder_name[sf->element_type_name()] = sf_builder.name();
-	}
-
 
   // Create Region for each group
   boost_foreach(GroupData& group, groups)
@@ -520,7 +510,7 @@ void CReader::read_groups()
     {
       CElements::Ptr tmp_elems = m_global_to_tmp[global_element].first;
       Uint local_element = m_global_to_tmp[global_element].second;
-      std::string etype = builder_name[tmp_elems->element_type().element_type_name()];
+      std::string etype = tmp_elems->element_type().builder_name();
       
       Uint idx = buffer[etype]->add_row(tmp_elems->connectivity_table().array()[local_element]);
       std::string new_elems_name = tmp_elems->name();
@@ -543,16 +533,7 @@ void CReader::read_groups()
 
 void CReader::read_boundaries()
 {
-  
-  CFactory& sf_factory = *Core::instance().factories()->get_factory<ElementType>();
-  std::map<std::string,std::string> builder_name;
-	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
-	{
-		ElementType::Ptr sf = sf_builder.build("sf")->as_type<ElementType>();
-    builder_name[sf->element_type_name()] = sf_builder.name();
-	}
-  
-  
+
   Uint glb_element_count = m_headerData.NELEM;
   cf_assert(m_boundary_condition_positions.size() == m_headerData.NBSETS)
 
@@ -614,7 +595,7 @@ void CReader::read_boundaries()
           row.push_back(elem_nodes[node]);
 
         // add the row to the buffer of the face region
-        std::string face_type = builder_name[etype.face_type(faceIdx).element_type_name()];
+        std::string face_type = etype.face_type(faceIdx).builder_name();
         buffer[face_type]->add_row(row);
 
         glb_elm_indices[face_type]->add_row(glb_element_count++);

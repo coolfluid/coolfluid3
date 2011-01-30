@@ -7,6 +7,7 @@
 #include <boost/foreach.hpp>
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
+#include "common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StreamHelpers.hpp"
@@ -240,14 +241,6 @@ void CBuildFaces::build_faces_bottom_up(Component::Ptr parent)
 
 void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& face_to_cell, bool is_inner)
 {  
-  CFactory& sf_factory = *Core::instance().factories()->get_factory<ElementType>();
-  std::map<std::string,std::string> builder_name;
-	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
-	{
-		ElementType::Ptr sf = sf_builder.build("sf")->as_type<ElementType>();
-    builder_name[sf->element_type_name()] = sf_builder.name();
-	}
-  
   
   std::set<std::string> face_types;
   std::map<std::string,CTable<Uint>::Buffer::Ptr > f2c_buffer_map;
@@ -262,12 +255,13 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   {
     boost::tie(elem_comp,elem_idx) = face_to_cell.element_location(face_to_cell.connectivity()[f][0]);
     const Uint face_nb = face_number[f];
-    face_types.insert(builder_name[elem_comp->element_type().face_type(face_nb).element_type_name()]);
+    face_types.insert(elem_comp->element_type().face_type(face_nb).builder_name());
   }
   
   boost_foreach( const std::string& face_type , face_types)
   {
-    CCellFaces& faces = *region.create_component<CCellFaces>("faces_"+face_type);
+    const std::string shape_name = create_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
+    CCellFaces& faces = *region.create_component<CCellFaces>(shape_name);
     faces.initialize(face_type,m_mesh->nodes());
     if (is_inner)
       faces.add_tag("inner_faces");
@@ -286,7 +280,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   {
     boost::tie(elem_comp,elem_idx) = face_to_cell.element_location(face_to_cell.connectivity()[f][0]);
     const Uint face_nb = face_number[f];
-    const std::string face_type = builder_name[elem_comp->element_type().face_type(face_nb).element_type_name()];
+    const std::string face_type = elem_comp->element_type().face_type(face_nb).builder_name();
 
     if (is_inner)
     {
@@ -314,7 +308,8 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     f2c_buffer_map[face_type]->flush();
     fnb_buffer_map[face_type]->flush();
     
-    CCellFaces& faces = *region.get_child<CCellFaces>("faces_"+face_type);
+    const std::string shape_name = create_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
+    CCellFaces& faces = *region.get_child<CCellFaces>(shape_name);
     
     CFaceCellConnectivity&  f2c = faces.cell_connectivity();
     CList<Uint>&            fnb = *f2c.get_child<CList<Uint> > ("face_number");

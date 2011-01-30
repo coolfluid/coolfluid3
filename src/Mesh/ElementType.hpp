@@ -109,6 +109,8 @@ public: // functions
 
   /// get a string with the element type name
   virtual std::string element_type_name() const = 0;
+  
+  virtual std::string builder_name() const = 0;
 
   /// compute volume given coordinates
   virtual Real compute_volume(const NodesT& coord) const = 0;

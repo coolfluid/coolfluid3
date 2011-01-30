@@ -196,15 +196,7 @@ void CWriter::write_coordinates(std::fstream& file)
 
 void CWriter::write_connectivity(std::fstream& file)
 {
-  CFactory& sf_factory = *Core::instance().factories()->get_factory<ElementType>();
-  std::map<std::string,std::string> builder_name;
-	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
-	{
-		ElementType::Ptr sf = sf_builder.build("sf")->as_type<ElementType>();
-    builder_name[sf->element_type_name()] = sf_builder.name();
-	}
-  
-  
+
   // file << "$Elements                                                               \n";
   // file << "number-of-elements                                                      \n";
   // file << "elm-number elm-type number-of-tags < tag > ... node-number-list ...     \n";
@@ -228,7 +220,7 @@ void CWriter::write_connectivity(std::fstream& file)
     m_element_start_idx[&elements]=elm_number;
 
     //file << "// Region " << elements.full_path().string() << "\n";
-    elm_type = m_elementTypes[builder_name[elements.element_type().element_type_name()]];
+    elm_type = m_elementTypes[elements.element_type().builder_name()];
     Uint node_start_idx = m_node_start_idx[&elements];
     const Uint nb_elem = elements.size();
     for (Uint e=0; e<nb_elem; ++e, ++elm_number)

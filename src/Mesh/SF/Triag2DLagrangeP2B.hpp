@@ -34,6 +34,8 @@ struct MESH_SF_API Triag2DLagrangeP2B  : public Triag2D
 
   static std::string type_name() { return "Triag2DLagrangeP2B"; }
 
+  virtual std::string builder_name() const { return LibSF::library_namespace()+"."+type_name(); }
+
   /// Number of nodes
   static const Uint nb_nodes = 7;
 

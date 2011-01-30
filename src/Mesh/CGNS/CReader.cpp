@@ -664,15 +664,6 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
   void* NormalList(NULL);
   CALL_CGNS(cg_boco_read(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_elems, NormalList));
 
-  CFactory& sf_factory = *Core::instance().factories()->get_factory<ElementType>();
-  std::map<std::string,std::string> builder_name;
-	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
-	{
-		ElementType::Ptr sf = sf_builder.build("sf")->as_type<ElementType>();
-    builder_name[sf->element_type_name()] = sf_builder.name();
-	}
-  
-
   switch (m_boco.ptset_type)
   {
     case ElementRange : // all bc elements are within a range given by 2 global element numbers
@@ -713,7 +704,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct CElements component through its buffer
-        buffer[builder_name[element_region->element_type().element_type_name()]]->add_row(element_region->connectivity_table()[local_element]);
+        buffer[element_region->element_type().builder_name()]->add_row(element_region->connectivity_table()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -763,7 +754,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct CElements component through its buffer
-        buffer[builder_name[element_region->element_type().element_type_name()]]->add_row(element_region->connectivity_table()[local_element]);
+        buffer[element_region->element_type().builder_name()]->add_row(element_region->connectivity_table()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions

@@ -31,6 +31,8 @@ struct MESH_SF_API Line1DLagrangeP1  : public Line1D {
 
   static std::string type_name() { return "Line1DLagrangeP1"; }
 
+  virtual std::string builder_name() const { return LibSF::library_namespace()+"."+type_name(); }
+  
   /// Number of nodes
   static const Uint nb_nodes = 2;
 
