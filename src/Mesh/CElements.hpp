@@ -76,6 +76,8 @@ public: // functions
 
   void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
 
+  virtual CSpace& create_space0();
+
 protected: // data
 
   CTable<Uint>::Ptr m_connectivity_table;

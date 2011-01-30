@@ -21,6 +21,7 @@ namespace Mesh {
   template <typename T> class CList;
   class CNodes;
   class ElementType;
+  class CSpace;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -59,10 +60,10 @@ public: // functions
   const ElementType& element_type() const;
 
   /// Mutable access to the nodes
-  virtual CNodes& nodes();
+  CNodes& nodes();
   
   /// Const access to the coordinates
-  virtual const CNodes& nodes() const;
+  const CNodes& nodes() const;
 
   /// Mutable access to the list of nodes
   CList<Uint>& glb_idx() { return *m_global_numbering; }
@@ -76,6 +77,12 @@ public: // functions
   static CList<Uint>& used_nodes(Component& parent);
   
   virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) ;
+  
+  const CSpace& space (const Uint space_idx) { return *m_spaces[space_idx]; }
+
+  CSpace& create_space( const std::string& shape_function_builder_name );
+
+  virtual CSpace& create_space0();
 
 protected: // data
 
@@ -85,6 +92,8 @@ protected: // data
   
   boost::shared_ptr<CList<Uint> > m_global_numbering;
 
+  std::vector<boost::shared_ptr<CSpace> > m_spaces;
+  
 };
 
 ////////////////////////////////////////////////////////////////////////////////

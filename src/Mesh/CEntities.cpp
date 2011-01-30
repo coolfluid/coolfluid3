@@ -9,16 +9,19 @@
 #include "Common/CLink.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/String/Conversion.hpp"
 
 #include "Mesh/CEntities.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
+#include "Mesh/CSpace.hpp"
 
 namespace CF {
 namespace Mesh {
 
 using namespace Common;
+using namespace Common::String;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +39,6 @@ CEntities::CEntities ( const std::string& name ) :
 
   m_nodes = create_static_component<CLink>("nodes");
   m_nodes->add_tag("nodes");
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +54,8 @@ void CEntities::initialize(const std::string& element_type_name, CNodes& nodes)
   m_nodes->link_to(nodes.follow());
 
   set_element_type(element_type_name);
+  
+  create_space0();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -148,5 +152,22 @@ CTable<Uint>::ConstRow CEntities::get_nodes(const Uint elem_idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+CSpace& CEntities::create_space( const std::string& shape_function_builder_name )
+{
+  Uint nb_existing_spaces = m_spaces.size();
+  CSpace::Ptr space = create_component<CSpace>("space["+to_str(nb_existing_spaces)+"]");
+  space->initialize(shape_function_builder_name);
+  m_spaces.push_back(space);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CSpace& CEntities::create_space0()
+{
+  cf_assert(m_spaces.size()==0);
+  create_space(element_type().builder_name());
+}
+
+////////////////////////////////////////////////////////////////////////////////
 } // Mesh
 } // CF

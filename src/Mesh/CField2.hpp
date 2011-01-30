@@ -18,6 +18,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
+#include "Mesh/CSpace.hpp"
 
 
 namespace CF {
@@ -99,6 +100,8 @@ public: // functions
   
   const CList<Uint>& used_nodes() const;
   
+  Uint space() const { return m_space; }
+  
   /// Operator to have modifiable access to a table-row
   /// @return A mutable row of the underlying array
   CTable<Real>::Row operator[](const Uint idx) { return m_data->array()[idx]; }
@@ -121,6 +124,8 @@ private:
   std::string m_registration_name;
   
   DataBasis m_basis;
+  
+  Uint m_space;
 
   void config_var_names();
   void config_var_sizes();
@@ -250,7 +255,7 @@ public: // functions
   { 
     cf_assert( is_not_null(m_field.lock()) );
     m_elements = elements.as_type<CElements>();
-    m_stride = 1; // this is the number of states per element (high order methods)
+    m_stride = elements.space(m_field.lock()->space()).nb_states(); // this is the number of states per element (high order methods)
     m_start_idx = m_field.lock()->elements_start_idx(elements);
     m_end_idx = m_start_idx + m_stride * elements.size();
     m_size = m_end_idx - m_start_idx;
@@ -259,11 +264,7 @@ public: // functions
   void set_elements(CElements::Ptr elements)
   {
     cf_assert( is_not_null(m_field.lock()) );
-    m_elements = elements; 
-    m_stride = 1; // this is the number of states per element (high order methods)
-    m_start_idx = m_field.lock()->elements_start_idx(*elements);
-    m_end_idx = m_start_idx + m_stride * elements->size();
-    m_size = m_end_idx - m_start_idx;
+    set_elements(*elements);
   }
 
   void set_field(CField2& field) 

@@ -16,6 +16,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CSpace.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -164,7 +165,7 @@ CTable<Uint>::ConstRow CElements::get_nodes(const Uint elem_idx)
 void CElements::initialize(CElements& elements)
 {
   add_tag("field_elements");
-  CEntities::initialize("CF.Mesh.SF."+elements.element_type().element_type_name(),elements.nodes());
+  CEntities::initialize(elements.element_type().builder_name(),elements.nodes());
 
   m_support = create_static_component<CLink>("support");
   m_support->link_to(elements.follow());
@@ -227,6 +228,17 @@ const CElements& CElements::get_geometry_elements() const
 {
   return *m_support->follow()->as_type<CElements>();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+CSpace& CElements::create_space0()
+{
+  cf_assert(m_spaces.size() == 0);
+  CSpace::Ptr space = create_component<CSpace>("space[0]");
+  space->initialize(*this);
+  m_spaces.push_back(space);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////

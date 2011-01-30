@@ -57,6 +57,8 @@ list( APPEND coolfluid_mesh_files
   CMeshPartitioner.cpp
   CRegion.hpp
   CRegion.cpp
+  CSpace.hpp
+  CSpace.cpp
   CTable.hpp
   CTable.cpp
   CUnifiedData.hpp
