@@ -127,11 +127,8 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   //  m_region = m_mesh->create_region(m_headerData.mesh_name,!property("Serial Merge").value<bool>()).as_type<CRegion>();
 
   find_ghost_nodes();
-    
   read_coordinates();
-  
   read_connectivity();
-
 	if (property("Read Boundaries").value<bool>())
 		read_boundaries();
 
@@ -340,17 +337,15 @@ void CReader::read_connectivity()
   m_file.seekg(m_elements_cells_position,std::ios::beg);
 
   m_node_to_glb_elements.resize(m_nodes->size());
-  std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > buffer =
-      create_element_regions_with_buffermap(*m_tmp,*m_nodes,m_supported_types);
-
-  std::map<std::string,CElements::Ptr> element_regions;
-  boost_foreach(const std::string& etype, m_supported_types)
-    element_regions[etype] = find_component_ptr_with_name<CElements>(*m_tmp, "elements_" + etype);
-
-  std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
-  boost_foreach(const std::string& etype, m_supported_types)
-    glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(element_regions[etype]->glb_idx().create_buffer()) );
-
+  std::map<std::string,CElements::Ptr> elements = create_cells_in_region(*m_tmp,*m_nodes,m_supported_types);
+  std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+  std::map<std::string,CList<Uint>::Buffer::Ptr> glb_elm_indices;
+  
+  foreach_container((const std::string& etype) (CTable<Uint>::Buffer::Ptr buf), buffer)
+  {
+    glb_elm_indices[etype] = elements[etype]->glb_idx().create_buffer_ptr();
+  }
+  
   // skip next line
   std::string line;
   getline(m_file,line);
@@ -394,7 +389,7 @@ void CReader::read_connectivity()
       }
       etype_CF = element_type(elementType,nbElementNodes);
       table_idx = buffer[etype_CF]->add_row(cf_element);
-      m_global_to_tmp[elementNumber] = std::make_pair(element_regions[etype_CF],table_idx);
+      m_global_to_tmp[elementNumber] = std::make_pair(elements[etype_CF],table_idx);
       glb_elm_indices[etype_CF]->add_row(elementNumber-1);
     }
     else
@@ -493,6 +488,15 @@ void CReader::read_groups()
   }
   
 
+  CFactory& sf_factory = *Core::instance().factories()->get_factory<ElementType>();
+  std::map<std::string,std::string> builder_name;
+	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
+	{
+		ElementType::Ptr sf = sf_builder.build("sf")->as_type<ElementType>();
+    builder_name[sf->element_type_name()] = sf_builder.name();
+	}
+
+
   // Create Region for each group
   boost_foreach(GroupData& group, groups)
   {
@@ -501,28 +505,26 @@ void CReader::read_groups()
     
     //CFinfo << "region " << region.full_path().string() << " created" << CFendl;
     // Create regions for each element type in each group-region
-    std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > buffer =
-    create_element_regions_with_buffermap(region,*m_nodes,m_supported_types);
+    std::map<std::string,CElements::Ptr> elements = create_cells_in_region(region,*m_nodes,m_supported_types);
+    std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+    std::map<std::string,CList<Uint>::Buffer::Ptr> glb_elm_indices;
     
-    std::map<std::string,CElements::Ptr> element_regions;
-    boost_foreach(const std::string& etype, m_supported_types)
-      element_regions[etype] = find_component_ptr_with_name<CElements>(region, "elements_" + etype);
-
-    std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
-    boost_foreach(const std::string& etype, m_supported_types)
-      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(element_regions[etype]->glb_idx().create_buffer()) ) ;
+    foreach_container((const std::string& etype) (CTable<Uint>::Buffer::Ptr buf), buffer)
+    {
+      glb_elm_indices[etype] = elements[etype]->glb_idx().create_buffer_ptr();
+    }
     
     
     // Copy elements from tmp_region in the correct region
     boost_foreach(Uint global_element, group.ELEM)
     {
-      CElements::Ptr tmp_region = m_global_to_tmp[global_element].first;
+      CElements::Ptr tmp_elems = m_global_to_tmp[global_element].first;
       Uint local_element = m_global_to_tmp[global_element].second;
-      std::string etype = tmp_region->element_type().element_type_name();
+      std::string etype = builder_name[tmp_elems->element_type().element_type_name()];
       
-      Uint idx = buffer[etype]->add_row(tmp_region->connectivity_table().array()[local_element]);
-      std::string new_region_name = "elements_" + tmp_region->element_type().element_type_name();
-      m_global_to_tmp[global_element] = std::make_pair(region.get_child<CElements>(new_region_name),idx);
+      Uint idx = buffer[etype]->add_row(tmp_elems->connectivity_table().array()[local_element]);
+      std::string new_elems_name = tmp_elems->name();
+      m_global_to_tmp[global_element] = std::make_pair(region.get_child<CElements>(new_elems_name),idx);
       Uint local_elm_idx = glb_elm_indices[etype]->add_row(global_element-1);
       
       if (local_elm_idx != idx)
@@ -541,6 +543,16 @@ void CReader::read_groups()
 
 void CReader::read_boundaries()
 {
+  
+  CFactory& sf_factory = *Core::instance().factories()->get_factory<ElementType>();
+  std::map<std::string,std::string> builder_name;
+	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
+	{
+		ElementType::Ptr sf = sf_builder.build("sf")->as_type<ElementType>();
+    builder_name[sf->element_type_name()] = sf_builder.name();
+	}
+  
+  
   Uint glb_element_count = m_headerData.NELEM;
   cf_assert(m_boundary_condition_positions.size() == m_headerData.NBSETS)
 
@@ -567,17 +579,13 @@ void CReader::read_boundaries()
     CRegion& bc_region = m_region->create_region(NAME);
 
     // create all kind of element type regions
-    BufferMap buffer = create_element_regions_with_buffermap (bc_region,*m_nodes,m_supported_types);
-
-
-    std::map<std::string,CElements::Ptr> element_regions;
-    boost_foreach(const std::string& etype, m_supported_types)
-      element_regions[etype] = find_component_ptr_with_name<CElements>(bc_region, "elements_" + etype);
-
+    std::map<std::string,CElements::Ptr> elements = create_faces_in_region (bc_region,*m_nodes,m_supported_types);
+    std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap (elements);
     std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
-    boost_foreach(const std::string& etype, m_supported_types)
-      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(element_regions[etype]->glb_idx().create_buffer()) );
-
+    foreach_container((const std::string& etype) (CTable<Uint>::Buffer::Ptr buf), buffer)
+    {
+      glb_elm_indices[etype] = elements[etype]->glb_idx().create_buffer_ptr();
+    }
     // read boundary elements connectivity
     for (int i=0; i<NENTRY; ++i) 
     {
@@ -589,24 +597,24 @@ void CReader::read_boundaries()
       std::map<Uint,Region_TableIndex_pair>::iterator it = m_global_to_tmp.find(global_element);
       if (it != m_global_to_tmp.end())
       {
-        CElements::Ptr tmp_region = it->second.first;
+        CElements::Ptr tmp_elements = it->second.first;
         Uint local_element = it->second.second;
                 
         //Uint elementType = ETYPE;
         Uint faceIdx = m_faces_neu_to_cf[ETYPE][FACE];
 
-        const ElementType& etype = tmp_region->element_type();
+        const ElementType& etype = tmp_elements->element_type();
         const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
         
         // make a row of nodes
-        const CTable<Uint>::Row& elem_nodes = tmp_region->connectivity_table()[local_element];
+        const CTable<Uint>::Row& elem_nodes = tmp_elements->connectivity_table()[local_element];
         std::vector<Uint> row;
         row.reserve(face_connectivity.face_node_counts[faceIdx]);
         boost_foreach(const Uint& node, face_connectivity.face_node_range(faceIdx))
           row.push_back(elem_nodes[node]);
 
         // add the row to the buffer of the face region
-        std::string face_type = etype.face_type(faceIdx).element_type_name();
+        std::string face_type = builder_name[etype.face_type(faceIdx).element_type_name()];
         buffer[face_type]->add_row(row);
 
         glb_elm_indices[face_type]->add_row(glb_element_count++);
@@ -639,6 +647,7 @@ std::string CReader::element_type(const Uint neu_type, const Uint nb_nodes)
                                + to_str<int>(neu_type) + "/" + to_str<int>(nb_nodes) +
                                " in Neutral format");
   }
+  
   return cf_type;
 }
 

@@ -14,10 +14,13 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/MPI/PE.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CDomain.hpp"
+#include "Mesh/CCells.hpp"
+#include "Mesh/CFaces.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -103,18 +106,54 @@ CMesh::Ptr CMeshReader::create_mesh_from(boost::filesystem::path& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-CMeshReader::BufferMap
-  CMeshReader::create_element_regions_with_buffermap (CRegion& parent_region, CNodes& nodes,
-                                                    const std::vector<std::string>& etypes)
+std::map<std::string,CElements::Ptr>
+  CMeshReader::create_cells_in_region (CRegion& parent_region, CNodes& nodes,
+                                       const std::vector<std::string>& etypes)
 {
-  // Create regions for each element type
-  BufferMap buffermap;
+  std::map<std::string,CElements::Ptr> cells_map;
   boost_foreach(const std::string& etype, etypes)
   {
-    CElements& etype_region = parent_region.create_elements(etype,nodes);
-    // CFinfo << "create: " << etype_region->full_path().string() << "\n" << CFflush;
+    ElementType::Ptr element_type = create_component_abstract_type<ElementType>(etype,etype);
+    if (element_type->dimensionality() == element_type->dimension())
+    {
+      CCells& etype_cells = *parent_region.create_component<CCells>(element_type->shape_name());
+      etype_cells.initialize(etype,nodes);
+      cells_map[etype] = etype_cells.as_type<CElements>();
+    }
+  }
+  return cells_map;
+}
 
-    buffermap[etype] = boost::shared_ptr<CTable<Uint>::Buffer> (new CTable<Uint>::Buffer(etype_region.connectivity_table().create_buffer()));
+////////////////////////////////////////////////////////////////////////////////
+
+std::map<std::string,CElements::Ptr>
+  CMeshReader::create_faces_in_region (CRegion& parent_region, CNodes& nodes,
+                                       const std::vector<std::string>& etypes)
+{
+  std::map<std::string,CElements::Ptr> faces_map;
+  boost_foreach(const std::string& etype, etypes)
+  {
+    ElementType::Ptr element_type = create_component_abstract_type<ElementType>(etype,etype);
+    if (element_type->dimensionality() == element_type->dimension() - 1)
+    {
+      CFaces& etype_faces = *parent_region.create_component<CFaces>(element_type->shape_name());
+      etype_faces.initialize(etype,nodes);
+      faces_map[etype] = etype_faces.as_type<CElements>();
+    }
+  }
+  return faces_map;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::map<std::string,CTable<Uint>::Buffer::Ptr>
+  CMeshReader::create_connectivity_buffermap (std::map<std::string,CElements::Ptr>& elems_map)
+{
+  // Create regions for each element type
+  std::map<std::string,CTable<Uint>::Buffer::Ptr> buffermap;
+  foreach_container((const std::string& etype)(CElements::Ptr elements), elems_map)
+  {
+    buffermap[etype] = elements->connectivity_table().create_buffer_ptr();
   }
   return buffermap;
 }

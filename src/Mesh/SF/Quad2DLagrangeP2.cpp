@@ -33,7 +33,7 @@ Quad2DLagrangeP2::Quad2DLagrangeP2(const std::string& name) : Quad2D(name)
 
 std::string Quad2DLagrangeP2::element_type_name() const
 {
-  return LibSF::library_namespace() + "." + type_name();
+  return type_name();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -23,6 +23,8 @@ namespace Mesh {
 
   class CMesh;
   class CRegion;
+  class CCells;
+  class CFaces;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -83,15 +85,21 @@ public: // functions
 protected: // functions
 
   /// Map type from string to a CTable<Uint>::Buffer
-  typedef std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > BufferMap;
+  typedef std::map<std::string,CTable<Uint>::Buffer::Ptr> BufferMap;
 
   /// Create element regions for each given type inside a given region
   /// @param [in] parent_region   Region in which the elementregions will be made
   /// @param [in] etypes          List of element type names that will be used
   /// @return a BufferMap with key an etype name and value a buffer for the region
   ///         with name of the etype
-  BufferMap create_element_regions_with_buffermap(CRegion& parent_region, CNodes& nodes,
-                                              const std::vector<std::string>& etypes);
+  std::map<std::string,CElements::Ptr> create_cells_in_region(CRegion& parent_region, CNodes& nodes,
+                                   const std::vector<std::string>& etypes);
+
+  std::map<std::string,CElements::Ptr> create_faces_in_region(CRegion& parent_region, CNodes& nodes,
+                                   const std::vector<std::string>& etypes);
+
+  std::map<std::string,CTable<Uint>::Buffer::Ptr> create_connectivity_buffermap (std::map<std::string,CElements::Ptr>& elems_map);
+
 
   /// remove all regions with empty connectivity tables inside a given region
   /// @param [in] parent_region  Region in which the removal will take place

@@ -30,7 +30,7 @@ Triag2DLagrangeP2::Triag2DLagrangeP2(const std::string& name) : Triag2D(name)
 
 std::string Triag2DLagrangeP2::element_type_name() const
 {
-  return LibSF::library_namespace() + "." + type_name();
+  return type_name();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

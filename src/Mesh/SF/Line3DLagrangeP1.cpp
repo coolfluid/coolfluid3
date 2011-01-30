@@ -29,7 +29,7 @@ Line3DLagrangeP1::Line3DLagrangeP1(const std::string& name) : Line3D(name)
 
 std::string Line3DLagrangeP1::element_type_name() const
 {
-  return LibSF::library_namespace() + "." + type_name();
+  return type_name();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

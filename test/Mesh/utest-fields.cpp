@@ -85,9 +85,9 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("quadtriag").subfield("gas").support().recursive_elements_count(), (Uint) 6);
 
   // Check if connectivity_table is properly linked to the support ones
-  BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("quadtriag").subfield("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table().size(), (Uint) 2);
-  BOOST_CHECK_EQUAL(&mesh.field("Volume").subfield("quadtriag").subfield("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table(),
-                    &mesh.domain().subregion("quadtriag").subregion("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table());
+  BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("quadtriag").subfield("gas").elements("Quad").connectivity_table().size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(&mesh.field("Volume").subfield("quadtriag").subfield("gas").elements("Quad").connectivity_table(),
+                    &mesh.domain().subregion("quadtriag").subregion("gas").elements("Quad").connectivity_table());
 
   // test the CRegion::get_field function, to return the matching field
   BOOST_CHECK_EQUAL(mesh.domain().get_field("Volume").full_path().path(),"mesh/Volume");
@@ -99,11 +99,11 @@ BOOST_AUTO_TEST_CASE( FieldTest )
 
 
   // Check if element based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component<CElements>("Volume/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().size(), (Uint) 2);
-  BOOST_CHECK_EQUAL(mesh.look_component<CElements>("Volume/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 1);
+  BOOST_CHECK_EQUAL(mesh.look_component<CElements>("Volume/quadtriag/gas/Quad")->data().size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(mesh.look_component<CElements>("Volume/quadtriag/gas/Quad")->data().row_size(), (Uint) 1);
 
   // Check if node based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component<CElements>("Solution/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 5);
+  BOOST_CHECK_EQUAL(mesh.look_component<CElements>("Solution/quadtriag/gas/Quad")->data().row_size(), (Uint) 5);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

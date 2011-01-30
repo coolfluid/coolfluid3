@@ -33,7 +33,7 @@ Triag2DLagrangeP2B::Triag2DLagrangeP2B(const std::string& name) : Triag2D(name)
 
 std::string Triag2DLagrangeP2B::element_type_name() const
 {
-  return LibSF::library_namespace() + "." + type_name();
+  return type_name();
 }
 
 Real Triag2DLagrangeP2B::compute_volume(const NodesT& coord) const

@@ -3,6 +3,8 @@ coolfluid_find_orphan_files()
 list( APPEND coolfluid_mesh_files
   ArrayBase.hpp
   ArrayBufferT.hpp
+  CCells.hpp
+  CCells.cpp
   CDomain.hpp
   CDomain.cpp
   CDynTable.hpp
@@ -13,6 +15,8 @@ list( APPEND coolfluid_mesh_files
   CElements.cpp
   CFaceCellConnectivity.hpp
   CFaceCellConnectivity.cpp
+  CFaces.hpp
+  CFaces.cpp
   CField.hpp
   CField.cpp
   CField2.hpp

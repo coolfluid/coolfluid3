@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
 
   CComputeVolume::Ptr compute_volume = root->create_component<CComputeVolume>("compute_volume");
-  CElements& elems = *root->look_component<CElements>(URI("cpath://Root/mesh/topology/default_id1084/fluid/elements_CF.Mesh.SF.Triag2DLagrangeP1"));
+  CElements& elems = *root->look_component<CElements>(URI("cpath://Root/mesh/topology/default_id1084/fluid/Triag"));
   compute_volume->configure_property("Volumes",volumes.full_path());
   BOOST_CHECK(true);
   compute_volume->configure_property("Elements",elems.full_path());

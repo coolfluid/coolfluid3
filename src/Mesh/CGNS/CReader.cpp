@@ -421,9 +421,8 @@ void CReader::read_section(CRegion& parent_region)
   if (m_section.type == MIXED)
   {
     // Create CElements component for each element type.
-    BufferMap buffer = create_element_regions_with_buffermap(this_region,
-                                                             all_nodes,
-                                                             get_supported_element_types());
+    std::map<std::string,CElements::Ptr> elements = create_cells_in_region(this_region,all_nodes,get_supported_element_types());
+    std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
 
     // Handle each element of this section separately to see in which CElements component it will be written
     for (int elem=m_section.eBegin;elem<=m_section.eEnd;++elem)
@@ -665,6 +664,15 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
   void* NormalList(NULL);
   CALL_CGNS(cg_boco_read(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_elems, NormalList));
 
+  CFactory& sf_factory = *Core::instance().factories()->get_factory<ElementType>();
+  std::map<std::string,std::string> builder_name;
+	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
+	{
+		ElementType::Ptr sf = sf_builder.build("sf")->as_type<ElementType>();
+    builder_name[sf->element_type_name()] = sf_builder.name();
+	}
+  
+
   switch (m_boco.ptset_type)
   {
     case ElementRange : // all bc elements are within a range given by 2 global element numbers
@@ -693,8 +701,9 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       CNodes& nodes = *m_zone.nodes;
 
       // Create CElements components for every possible element type supported.
-      BufferMap buffer = create_element_regions_with_buffermap(this_region,nodes,get_supported_element_types());
-
+      std::map<std::string,CElements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
+      std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+      
       for (int global_element=boco_elems[0]-1;global_element<boco_elems[1];++global_element)
       {
         // Check which region this global_element belongs to
@@ -704,7 +713,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct CElements component through its buffer
-        buffer[element_region->element_type().element_type_name()]->add_row(element_region->connectivity_table()[local_element]);
+        buffer[builder_name[element_region->element_type().element_type_name()]]->add_row(element_region->connectivity_table()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -740,7 +749,8 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       CNodes& nodes = *m_zone.nodes;
 
       // Create CElements components for every possible element type supported.
-      BufferMap buffer = create_element_regions_with_buffermap(this_region,nodes,get_supported_element_types());
+      std::map<std::string,CElements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
+      std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
 
       for (int i=0; i<m_boco.nBC_elem; ++i)
       {
@@ -753,7 +763,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct CElements component through its buffer
-        buffer[element_region->element_type().element_type_name()]->add_row(element_region->connectivity_table()[local_element]);
+        buffer[builder_name[element_region->element_type().element_type_name()]]->add_row(element_region->connectivity_table()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
