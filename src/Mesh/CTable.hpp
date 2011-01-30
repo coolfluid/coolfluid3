@@ -110,6 +110,14 @@ public: // functions
     cf_assert(row_size() > 0);
     return Buffer(m_array,buffersize); 
   }
+  
+  typename Buffer::Ptr create_buffer_ptr(const size_t buffersize=16384)
+  {
+    // make sure the array has its columnsize defined
+    cf_assert(row_size() > 0);
+    return typename Buffer::Ptr ( new Buffer (m_array,buffersize) );
+  }
+  
 
   /// Operator to have modifiable access to a table-row
   /// @return A mutable row of the underlying array

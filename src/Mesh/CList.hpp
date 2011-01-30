@@ -9,7 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/BoostArray.hpp"
 #include "Common/Component.hpp"
 
 #include "Mesh/LibMesh.hpp"
@@ -96,6 +95,16 @@ public: // functions
   {
     return Buffer(m_array,buffersize); 
   }
+  
+  /// Create a buffer with a given number of entries
+  /// @param[in] buffersize the size that the buffer is allocated with
+  ///                       the default value is 16384
+  /// @return A Buffer object that can fill this Array
+  typename Buffer::Ptr create_buffer_ptr(const size_t buffersize=16384)
+  {
+    return typename Buffer::Ptr ( new Buffer(m_array,buffersize) );
+  }
+  
 
   /// Operator to have modifiable access to a list-entry
   /// @return A mutable entry of the underlying array

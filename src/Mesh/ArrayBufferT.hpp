@@ -41,10 +41,14 @@ namespace Mesh {
 /// or manually by calling flush().
 ///
 /// @author Willem Deconinck
+
 template < typename T >
-class ArrayBufferT {
+class ArrayBufferT
+{
 
 public: // typedef
+
+  typedef boost::shared_ptr<ArrayBufferT> Ptr;
   
   typedef boost::multi_array<T,2> Array_t;
   typedef boost::detail::multi_array::sub_array<T,1> SubArray_t;

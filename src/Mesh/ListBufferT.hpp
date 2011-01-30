@@ -37,7 +37,8 @@ namespace Mesh {
 /// the buffer is flushed.
 /// @author Willem Deconinck
 template < typename T >
-class ListBufferT {
+class ListBufferT
+{
 
 public: // typedef
   
@@ -49,6 +50,8 @@ public: // typedef
 	
   typedef boost::multi_array<T,1> Array_t;
   typedef T value_type;
+  
+  typedef boost::shared_ptr<ListBufferT> Ptr;
 
 public: // functions
   
