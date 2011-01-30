@@ -42,7 +42,7 @@ public: // functions
   //void initialize(const std::string& element_type_name, CTable<Real>& coordinates);
 
   /// Initialize the CElements using the given type
-  void initialize(const std::string& element_type_name, CNodes& nodes);
+  virtual void initialize(const std::string& element_type_name, CNodes& nodes);
     
   /// Virtual destructor
   virtual ~CElements();

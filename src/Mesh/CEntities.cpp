@@ -29,12 +29,13 @@ CEntities::CEntities ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
   
-  m_nodes = create_static_component<CLink>("nodes");
-  m_nodes->add_tag("nodes");
   
   m_global_numbering = create_static_component<CList<Uint> >("global_element_indices");
   m_global_numbering->add_tag("global_element_indices");
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
+
+  m_nodes = create_static_component<CLink>("nodes");
+  m_nodes->add_tag("nodes");
   
 }
 
@@ -58,6 +59,7 @@ void CEntities::initialize(const std::string& element_type_name, CNodes& nodes)
 void CEntities::set_element_type(const std::string& etype_name)
 {
   m_element_type = create_component_abstract_type<ElementType>( etype_name, etype_name );
+  m_element_type->rename(m_element_type->element_type_name());
   add_static_component( m_element_type );
 }
 

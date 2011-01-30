@@ -22,7 +22,9 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < CElements, Component, LibMesh > CElements_Builder;
+////////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentBuilder < CElements, CEntities, LibMesh > CElements_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -162,7 +164,7 @@ CTable<Uint>::ConstRow CElements::get_nodes(const Uint elem_idx)
 void CElements::initialize(CElements& elements)
 {
   add_tag("field_elements");
-  CEntities::initialize(elements.element_type().element_type_name(),elements.nodes());
+  CEntities::initialize("CF.Mesh.SF."+elements.element_type().element_type_name(),elements.nodes());
 
   m_support = create_static_component<CLink>("support");
   m_support->link_to(elements.follow());
