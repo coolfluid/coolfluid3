@@ -240,9 +240,18 @@ void CBuildFaces::build_faces_bottom_up(Component::Ptr parent)
 
 void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& face_to_cell, bool is_inner)
 {  
+  CFactory& sf_factory = *Core::instance().factories()->get_factory<ElementType>();
+  std::map<std::string,std::string> builder_name;
+	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
+	{
+		ElementType::Ptr sf = sf_builder.build("sf")->as_type<ElementType>();
+    builder_name[sf->element_type_name()] = sf_builder.name();
+	}
+  
+  
   std::set<std::string> face_types;
-  std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > f2c_buffer_map;
-  std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer>  > fnb_buffer_map; 
+  std::map<std::string,CTable<Uint>::Buffer::Ptr > f2c_buffer_map;
+  std::map<std::string,CList<Uint>::Buffer::Ptr  > fnb_buffer_map; 
   
   CElements::Ptr elem_comp;
   Uint elem_idx;
@@ -253,7 +262,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   {
     boost::tie(elem_comp,elem_idx) = face_to_cell.element_location(face_to_cell.connectivity()[f][0]);
     const Uint face_nb = face_number[f];
-    face_types.insert(elem_comp->element_type().face_type(face_nb).element_type_name());
+    face_types.insert(builder_name[elem_comp->element_type().face_type(face_nb).element_type_name()]);
   }
   
   boost_foreach( const std::string& face_type , face_types)
@@ -269,15 +278,15 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     CTable<Uint>& raw_table = *f2c.get_child<CTable<Uint> >(f2c.connectivity().name());
     raw_table.set_row_size(is_inner?2:1);
     f2c.add_elements(face_to_cell.get_child<CUnifiedData<CElements> >("elements"));
-    f2c_buffer_map[face_type] = boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(raw_table.create_buffer()) );
-    fnb_buffer_map[face_type] = boost::shared_ptr<CList<Uint>::Buffer>  ( new CList<Uint>::Buffer (f2c.get_child<CList<Uint> > ("face_number")->create_buffer()) );
+    f2c_buffer_map[face_type] = raw_table.create_buffer_ptr();
+    fnb_buffer_map[face_type] = f2c.get_child<CList<Uint> > ("face_number")->create_buffer_ptr();
   }
   
   for (Uint f=0; f<face_to_cell.size(); ++f)
   {
     boost::tie(elem_comp,elem_idx) = face_to_cell.element_location(face_to_cell.connectivity()[f][0]);
     const Uint face_nb = face_number[f];
-    const std::string face_type = elem_comp->element_type().face_type(face_nb).element_type_name();
+    const std::string face_type = builder_name[elem_comp->element_type().face_type(face_nb).element_type_name()];
 
     if (is_inner)
     {
