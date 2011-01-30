@@ -19,7 +19,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CSpace.hpp"
-
+#include "Mesh/CNodes.hpp"
 
 namespace CF {
 
@@ -31,7 +31,6 @@ namespace Common
 namespace Mesh {
   
   class CRegion;
-  class CNodes;
   class CFieldView;
  
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +99,7 @@ public: // functions
   
   const CList<Uint>& used_nodes() const;
   
-  Uint space() const { return m_space; }
+  Uint space_idx() const { return m_space_idx; }
   
   /// Operator to have modifiable access to a table-row
   /// @return A mutable row of the underlying array
@@ -114,9 +113,9 @@ public: // functions
   
   const std::string& registration_name() const { return m_registration_name; }
   
-  Uint elements_start_idx(const CElements& elements)
+  Uint elements_start_idx(const CElements& elements) const
   {
-    return m_elements_start_idx[&elements];
+    return m_elements_start_idx.find(&elements)->second;
   }
   
 private:
@@ -125,7 +124,7 @@ private:
   
   DataBasis m_basis;
   
-  Uint m_space;
+  Uint m_space_idx;
 
   void config_var_names();
   void config_var_sizes();
@@ -237,9 +236,9 @@ public: // functions
     return m_field_data.lock()->array()[data_idx];
   }
 
-  CField2& field() { return *m_field.lock(); }
+  const CField2& field() { return *m_field.lock(); }
   
-  CElements& elements() { return *m_elements.lock(); }
+  const CElements& elements() const { return *m_elements.lock(); }
   
   Uint stride() const { return m_stride; }
   
@@ -251,15 +250,20 @@ public: // functions
   template <typename T>
   boost::shared_ptr<T> as_ptr() { return boost::static_pointer_cast<T>(self()); }
   
-  void set_elements(CElements& elements) 
+  void set_elements(const CElements& elements) 
   { 
-    cf_assert( is_not_null(m_field.lock()) );
-    m_elements = elements.as_type<CElements>();
-    m_stride = elements.space(m_field.lock()->space()).nb_states(); // this is the number of states per element (high order methods)
-    m_start_idx = m_field.lock()->elements_start_idx(elements);
+    cf_assert_desc("Field must be set before elements", is_not_null(m_field.lock()) );
+    const CField2& field = *m_field.lock();
+    m_elements = elements.as_const()->as_type<CElements>();
+    m_space = elements.space(field.space_idx()).as_type<CSpace>();
+    m_stride = m_space.lock()->nb_states(); // this is the number of states per element (high order methods)
+    m_start_idx = field.elements_start_idx(elements);
     m_end_idx = m_start_idx + m_stride * elements.size();
     m_size = m_end_idx - m_start_idx;
+    m_coords_table = elements.nodes().coordinates().as_type<CTable<Real> >();
   }
+
+  const CSpace& space() const { return *m_space.lock(); }
   
   void set_elements(CElements::Ptr elements)
   {
@@ -269,16 +273,31 @@ public: // functions
 
   void set_field(CField2& field) 
   { 
-    m_field = field.as_type<CField2>(); 
+    m_field = field.as_const()->as_type<CField2>(); 
     m_field_data = field.data().as_type<CTable<Real> >();
     cf_assert( is_not_null(m_field_data.lock()) );
   }
   
   void set_field(CField2::Ptr field) 
   { 
-    m_field = field;
-    m_field_data = field->data().as_type<CTable<Real> >();
-    cf_assert( is_not_null(m_field_data.lock()) );
+    set_field(*field);
+  }
+
+  void allocate_coordinates(RealMatrix& coords)
+  {
+    coords.resize(space().shape_function().nb_nodes(),space().shape_function().dimension());
+  }
+  
+  void put_coordinates(RealMatrix& coords, const Uint elem_idx) const
+  {
+    CTable<Uint>::ConstRow elem_nodes = space().connectivity_table()[elem_idx];
+    const CTable<Real>::ArrayT& coords_table = m_coords_table.lock()->array();
+
+    cf_assert(coords.rows() == elem_nodes.size());
+    
+    for(Uint node = 0; node != coords.rows(); ++node)
+      for (Uint d=0; d != coords.cols(); ++d)
+        coords(node,d) = coords_table[elem_nodes[node]][d];
   }
   
 protected: 
@@ -288,10 +307,11 @@ protected:
   Uint m_stride;
   Uint m_size;
 
-  boost::weak_ptr<CField2>       m_field;
-  boost::weak_ptr<CTable<Real> > m_field_data;
-  boost::weak_ptr<CElements>     m_elements;
-
+  boost::weak_ptr<CField2 const>      m_field;
+  boost::weak_ptr<CTable<Real> >      m_field_data;
+  boost::weak_ptr<CElements const>    m_elements;
+  boost::weak_ptr<CTable<Real> const> m_coords_table;
+  boost::weak_ptr<CSpace const>       m_space;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -380,6 +400,7 @@ public: // functions
 
 };
 
+////////////////////////////////////////////////////////////////////////////////
   
 } // Mesh
 } // CF

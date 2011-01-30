@@ -57,7 +57,7 @@ void CComputeVolume::config_field()
 void CComputeVolume::trigger_elements()
 {
   m_volume->set_elements(elements());
-  m_coordinates.resize(elements().element_type().nb_nodes(),elements().element_type().dimension());
+  m_volume->allocate_coordinates(m_coordinates);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -66,11 +66,8 @@ void CComputeVolume::execute()
 {
   // idx() is the index that is set using the function set_loop_idx() or configuration LoopIndex
   
-  CElements& elems = elements();
-
-  elems.put_coordinates(m_coordinates,idx());
-  
-  Real vol = elems.element_type().compute_volume( m_coordinates );
+  m_volume->put_coordinates(m_coordinates,idx());
+  Real vol = m_volume->space().shape_function().compute_volume( m_coordinates );
 
   Uint state_idx = 0;
   Uint var_idx = 0;

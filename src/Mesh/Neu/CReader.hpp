@@ -92,7 +92,6 @@ private: // data
 	
 	std::set<Uint> m_ghost_nodes;
 	std::map<Uint,Uint> m_node_to_coord_idx;
-	bool m_repartition;
 	
   std::vector<std::set<Uint> > m_node_to_glb_elements;
 	

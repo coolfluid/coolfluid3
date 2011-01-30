@@ -43,38 +43,23 @@ CF::Common::ComponentBuilder < Neu::CReader, CMeshReader, LibNeu > aNeuReader_Bu
 
 CReader::CReader( const std::string& name )
 : CMeshReader(name),
-  Shared(),
-  m_repartition(false)
+  Shared()
 {
   // options
-  m_properties.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
   m_properties.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
   m_properties.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_init()?mpi::PE::instance().rank():0);
   m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_init()?mpi::PE::instance().size():1);
   m_properties.add_option<OptionT <bool> >("Read Boundaries","Read the surface elements for the boundary",true);
 
-  m_properties.add_option<OptionT <bool> >("new_api","new_api",false);
-
-
-  m_properties.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
-  m_properties.add_option<OptionT <Uint> >("OutputRank","shows output for the specified rank",0);
-
-  m_properties["Repartition"].as_option().attach_trigger ( boost::bind ( &CReader::config_repartition,   this ) );
   
   m_properties["brief"] = std::string("Neutral file mesh reader component");
   
   std::string desc;
   desc += "This component can read in parallel.\n";
-  desc += "It can also read multiple files in serial, combining them in one large mesh.\n";
   desc += "Available coolfluid-element types are:\n";
   boost_foreach(const std::string& supported_type, m_supported_types)
   desc += "  - " + supported_type + "\n";
   m_properties["description"] = desc;
-}
-
-void CReader::config_repartition()
-{
-  property("Repartition").put_value(m_repartition);
 }
   
 //////////////////////////////////////////////////////////////////////////////
@@ -142,8 +127,8 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   remove_empty_element_regions(find_component<CRegion>(*m_mesh));
 
   // update the number of cells and nodes in the mesh
-  m_mesh->properties()["nb_cells"] = m_mesh->property("nb_cells").value<Uint>() + m_headerData.NELEM;
-  m_mesh->properties()["nb_nodes"] = m_mesh->property("nb_nodes").value<Uint>() + m_headerData.NUMNP;
+//  m_mesh->properties()["nb_cells"] = m_mesh->property("nb_cells").value<Uint>() + m_headerData.NELEM;
+//  m_mesh->properties()["nb_nodes"] = m_mesh->property("nb_nodes").value<Uint>() + m_headerData.NUMNP;
 
   // close the file
   m_file.close();
@@ -266,15 +251,12 @@ void CReader::find_ghost_nodes()
 
 void CReader::read_coordinates()
 {   
-  Uint global_start_idx = m_mesh->properties()["nb_nodes"].value<Uint>();
-  
   m_file.seekg(m_nodal_coordinates_position,std::ios::beg);
   
   // Create the nodes
   m_nodes = m_region->create_nodes(m_headerData.NDFCD).as_type<CNodes>();
   
-  Uint nodes_start_idx = m_nodes->size();
-  m_nodes->resize(nodes_start_idx + m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
+  m_nodes->resize(m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
   std::string line;
   // skip one line
   getline(m_file,line);
@@ -284,7 +266,7 @@ void CReader::read_coordinates()
 
   std::set<Uint>::const_iterator it;
 
-  Uint coord_idx=nodes_start_idx;
+  Uint coord_idx=0;
   for (Uint node_idx=1; node_idx<=m_headerData.NUMNP; ++node_idx) 
   {
     if (m_headerData.NUMNP > 100000)
@@ -295,7 +277,7 @@ void CReader::read_coordinates()
     getline(m_file,line);
 		if (m_hash->subhash(NODES)->owns(node_idx-1))
 		{
-      m_nodes->glb_idx()[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
+      m_nodes->glb_idx()[coord_idx] = node_idx - 1; // -1 because base zero
       m_nodes->is_ghost()[coord_idx] = false;
       m_node_to_coord_idx[node_idx]=coord_idx;
       std::stringstream ss(line);
@@ -311,7 +293,7 @@ void CReader::read_coordinates()
 			if (it != m_ghost_nodes.end())
 			{
 				// add global node index
-				m_nodes->glb_idx()[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
+				m_nodes->glb_idx()[coord_idx] = node_idx - 1; // -1 because base zero
 				m_nodes->is_ghost()[coord_idx] = true;
 				m_node_to_coord_idx[node_idx]=coord_idx;
 				std::stringstream ss(line);

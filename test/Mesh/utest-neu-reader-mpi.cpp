@@ -62,7 +62,7 @@ BOOST_FIXTURE_TEST_SUITE( NeuReaderMPITests_TestSuite, NeuReaderMPITests_Fixture
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-	//mpi::PE::instance().init(m_argc,m_argv);
+  mpi::PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +72,6 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 	
-	meshreader->configure_property("Repartition",true);
-	meshreader->configure_property("OutputRank",(Uint) 0);
 	meshreader->configure_property("Unified Zones",false);
 	
   // the file to read from
@@ -116,8 +114,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
       CFinfo << "node " << nodes.glb_idx()[n] << " is a ghost node" << CFendl;
       nb_ghosts++;
     }
-    CFinfo << "ghost node count = " << nb_ghosts << CFendl;
   }
+  CFinfo << "ghost node count = " << nb_ghosts << CFendl;
   
   BOOST_FOREACH(const CList<Uint>& global_element_indices, find_components_recursively_with_name<CList<Uint> >(*mesh,"global_element_indices"))
   {
@@ -209,7 +207,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-	//mpi::PE::instance().finalize();
+  mpi::PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

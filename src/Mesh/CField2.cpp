@@ -37,7 +37,7 @@ Common::ComponentBuilder < CField2, Component, LibMesh >  CField2_Builder;
 CField2::CField2 ( const std::string& name  ) :
   Component ( name ),
   m_registration_name ( name ),
-  m_space(0u)
+  m_space_idx(0u)
 {
   Option::Ptr uri_option;
   uri_option = m_properties.add_option<OptionURI>("Topology","The field tree this field will be registered in",URI("cpath:"));
@@ -51,7 +51,7 @@ CField2::CField2 ( const std::string& name  ) :
   option->mark_basic();
   
   option = m_properties.add_option< OptionT<Uint> >("Space", "The type of the field", 0u);
-  option->link_to(&m_space);
+  option->link_to(&m_space_idx);
   option->mark_basic();
   
   std::vector<std::string> var_names;

@@ -78,7 +78,7 @@ public: // functions
   
   virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) ;
   
-  const CSpace& space (const Uint space_idx) { return *m_spaces[space_idx]; }
+  const CSpace& space (const Uint space_idx) const { return *m_spaces[space_idx]; }
 
   CSpace& create_space( const std::string& shape_function_builder_name );
 
