@@ -75,7 +75,7 @@ namespace detail {
     // set up out_buf
     T *out_buf=out_values;
     if ((out_map!=0)||(in_values==out_values)) {
-      if ( (out_buf=new T[in_n+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (out_buf=new T[in_n*stride+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     }
 
     // do the communication

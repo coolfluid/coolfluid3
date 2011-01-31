@@ -68,7 +68,7 @@ BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "test/Common/utest-parallel-collective-all_to_all.hpp"
+//#include "test/Common/utest-parallel-collective-all_to_all.hpp"
 #include "test/Common/utest-parallel-collective-all_reduce.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

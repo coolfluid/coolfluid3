@@ -124,8 +124,8 @@ boost::this_thread::sleep(boost::posix_time::milliseconds(msec));               
  Macro for printing an std::vector
 **/
 #define PEDebugVector(v,size) { \
-  CFinfo << PE::instance().rank() << "/" << PE::instance().rank() << ": " << #v << CFendl; \
-  for(int _tmp_i_=0; _tmp_i_<(int)size; _tmp_i_++)  CFinfo << v[_tmp_i_] << " "; \
+  CFinfo << mpi::PE::instance().rank() << "/" << mpi::PE::instance().rank() << ": " << #v << CFendl; \
+  for(int _tmp_i_=0; _tmp_i_<(const int)(size); _tmp_i_++)  CFinfo << v[_tmp_i_] << " "; \
   CFinfo << CFendl; \
 }
 
