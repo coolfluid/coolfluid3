@@ -4,4 +4,6 @@ list( APPEND utest-heat-steady_files
 
 list( APPEND utest-heat-steady_args ${CMAKE_CURRENT_SOURCE_DIR}/meshes )
 
+set( utest-heat-steady_condition ${coolfluid_ufem_builds} )
+
 coolfluid_add_unittest( utest-heat-steady )
