@@ -60,7 +60,7 @@ namespace detail {
   all_to_allc_impl(const PE::Communicator& comm, const T* in_values, const int in_n, T* out_values, const  int stride )
   {
     // get data type and number of processors
-    MPI_Datatype type = mpi::get_mpi_datatype<T>(*in_values);
+    MPI_Datatype type = mpi::get_mpi_datatype(*in_values);
     int nproc;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
@@ -105,7 +105,7 @@ namespace detail {
   all_to_allvm_impl(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, const int *out_n, const int *out_map, const int stride )
   {
     // get data type and number of processors
-    MPI_Datatype type = mpi::get_mpi_datatype<T>(*in_values);
+    MPI_Datatype type = mpi::get_mpi_datatype(*in_values);
     int nproc;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
