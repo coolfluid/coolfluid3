@@ -80,7 +80,7 @@ struct IsCompatibleWith
 };
 
 /// List of all supported shapefunctions for volume elements, 
-typedef boost::mpl::filter_view<Types, IsVolumeElement> VolumeTypes;
+typedef boost::mpl::filter_view<Types, IsVolumeElement> CellTypes;
 
 } // LagrangeSF
 } // Mesh

@@ -112,7 +112,7 @@ struct VolumeSFFixture
   <
     boost::mpl::transform_view
     <
-      VolumeTypes,
+      CellTypes,
       MakeSFNodesPair<boost::mpl::_1>
     >
   >::type NodesMapT;
@@ -294,7 +294,7 @@ BOOST_FIXTURE_TEST_SUITE( VolumeSFSuite, VolumeSFFixture )
 BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 {
   VolumeMPLFunctor<CheckJacobianDeterminant> functor(nodes);
-  boost::mpl::for_each<VolumeTypes>(functor);
+  boost::mpl::for_each<CellTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 BOOST_AUTO_TEST_CASE( TestJacobianInverse )
 {
   VolumeMPLFunctor<CheckJacobianInverse> functor(nodes);
-  boost::mpl::for_each<VolumeTypes>(functor);
+  boost::mpl::for_each<CellTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianInverse )
 BOOST_AUTO_TEST_CASE( TestGradientX )
 {
   VolumeMPLFunctor<CheckGradientX> functor(nodes);
-  boost::mpl::for_each<VolumeTypes>(functor);
+  boost::mpl::for_each<CellTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

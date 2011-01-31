@@ -63,7 +63,7 @@ public:
       // This recurses through the variables, selecting the appropriate shape function for each variable
       ExpressionRunner
       <
-        Mesh::SF::VolumeTypes, // We consider volume functions for element expressions
+        Mesh::SF::CellTypes, // We consider volume functions for element expressions
         CopiedExprT, // type of the expression
         boost::mpl::void_, // No support by default
         VariablesT, // type of the fusion vector with the variables
