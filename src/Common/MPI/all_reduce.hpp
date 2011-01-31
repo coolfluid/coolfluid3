@@ -166,13 +166,18 @@ all_reduce(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_
 **/
 template<typename T, typename Op>
 inline T*
-all_reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
+all_reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride=1)
 {
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
   if (out_values==0) {
-    const int size=stride*in_n>1?stride*in_n:1;
-    if ( (out_buf=new T[size]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+    int out_sum=in_n;
+    if (out_map!=0){
+      int out_sum_tmp=0;
+      for (int i=0; i<out_sum; i++) out_sum_tmp=out_map[i]>out_sum_tmp?out_map[i]:out_sum_tmp;
+      out_sum=out_sum_tmp+1;
+    }
+    if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call impl
@@ -207,7 +212,7 @@ all_reduce(const PE::Communicator& comm, Op& op, const std::vector<T>& in_values
   out_values.reserve(in_values.size());
 
   // call impl
-  detail::all_reduce_impl(comm, op, (T*)(&in_values[0]), in_values.size()/stride, (int*)in_map, (T*)(&out_values[0]), (int*)out_map, stride);
+  detail::all_reduce_impl(comm, op, (T*)(&in_values[0]), in_values.size()/stride, &in_map[0], (T*)(&out_values[0]), &out_map[0], stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

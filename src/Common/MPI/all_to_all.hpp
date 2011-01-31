@@ -109,7 +109,7 @@ namespace detail {
     int nproc;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
-    // if stride is greater than one and unsupported functionality
+    // if stride is smaller than one and unsupported functionality
     cf_assert( stride>0 );
 
     // compute displacements both on send an receive side
