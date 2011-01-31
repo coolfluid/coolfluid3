@@ -78,12 +78,12 @@ void RungeKutta::trigger_Domain()
   if (is_not_null(mesh))
   {
     std::vector<URI> volume_regions;
-    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"fluid"))
-      volume_regions.push_back(URI("cpath:"+region.full_path().path()));
+    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+      volume_regions.push_back( region.full_path() );
 
-    std::vector<URI> all_regions;
-    boost_foreach( const CRegion& region, find_components<CRegion>(*mesh))
-      all_regions.push_back(URI("cpath:"+region.full_path().path()));
+//    std::vector<URI> all_regions;
+//    boost_foreach( const CRegion& region, find_components<CRegion>(*mesh))
+//      all_regions.push_back( region.full_path() );
 
     m_take_step->configure_property( "Regions" , volume_regions );
     discretization_method().configure_property( "Regions" , volume_regions );

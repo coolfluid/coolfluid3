@@ -108,7 +108,7 @@ namespace Common {
     /// @return if the path is empty
     bool empty() const { return m_path.empty(); }
 
-    /// @return the path as a string
+    /// @return the full URI as a string
     std::string string() const;
 
     /// @return the base path
@@ -125,8 +125,8 @@ namespace Common {
     /// protocol has been specified.
     Scheme::Type scheme() const;
 
-    /// Gives the string value without the protocol
-    /// @return Returns the string without the protocol
+    /// Gives the URI path, which is the URI without the scheme (protocol)
+    /// @return Returns the URI path
     std::string path() const;
 
     /// Overloading of the stream operator "<<" for the output.
