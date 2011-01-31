@@ -11,7 +11,7 @@
 #include "Common/Log.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
-#include "Solver/Actions/CForAllElementsT.hpp"
+#include "Solver/Actions/CForAllT.hpp"
 #include "Solver/Actions/CForAllNodes.hpp"
 
 #include "RDM/ResidualDistribution.hpp"
@@ -60,7 +60,7 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   typedef Mesh::Integrators::GaussMappedCoords<order,ShapeFunctionT::shape> QuadratureT;
 
   m_elem_loop = create_static_component<
-      CForAllElementsT< CSchemeLDAT< ShapeFunctionT, QuadratureT > > >("loop_LDA");
+      CForAllT< CSchemeLDAT< ShapeFunctionT, QuadratureT > , Mesh::SF::CellTypes > >("cell_loop");
   
 }
 

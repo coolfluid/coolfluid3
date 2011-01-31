@@ -5,6 +5,7 @@ list( APPEND coolfluid_solver_actions_files
   CNodeOperation.cpp
   CLoopOperation.hpp
   CLoopOperation.cpp
+  CForAllT.hpp
   CForAllElementsT.hpp
   CForAllElements.hpp
   CForAllElements.cpp
