@@ -84,16 +84,22 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 	meshwriter->write_from_to(mesh_ptr,fp_out_1);
 	
   CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+  
   CMeshPartitioner& p = *partitioner_ptr;
+  BOOST_CHECK_EQUAL(p.name(),"partitioner");
   
   //p.configure_property("Number of Partitions", (Uint) 4);
   p.configure_property("Graph Package", std::string("PHG"));
-	p.configure_property("Debug Level", 2u);
+  p.configure_property("Debug Level", 2u);
+  BOOST_CHECK(true);
   p.initialize(mesh);
+  BOOST_CHECK(true);
   p.partition_graph();
+  BOOST_CHECK(true);
   p.show_changes();
+  BOOST_CHECK(true);
 	p.migrate();
-  
+  BOOST_CHECK(true);
 	boost::filesystem::path fp_out_2 ("quadtriag_repartitioned.msh");
 	meshwriter->write_from_to(mesh_ptr,fp_out_2);
 }

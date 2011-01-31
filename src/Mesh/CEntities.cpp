@@ -158,6 +158,7 @@ CSpace& CEntities::create_space( const std::string& shape_function_builder_name 
   CSpace::Ptr space = create_component<CSpace>("space["+to_str(nb_existing_spaces)+"]");
   space->initialize(shape_function_builder_name);
   m_spaces.push_back(space);
+  return *space;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +166,7 @@ CSpace& CEntities::create_space( const std::string& shape_function_builder_name 
 CSpace& CEntities::create_space0()
 {
   cf_assert(m_spaces.size()==0);
-  create_space(element_type().builder_name());
+  return create_space(element_type().builder_name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

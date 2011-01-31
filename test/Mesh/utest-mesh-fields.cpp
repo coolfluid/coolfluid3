@@ -62,8 +62,7 @@ BOOST_FIXTURE_TEST_SUITE( FieldTests_TestSuite, FieldTests_Fixture )
 BOOST_AUTO_TEST_CASE( MeshCreation )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  meshreader->configure_property("new_api",true);
-  
+
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
   // the mesh to store in

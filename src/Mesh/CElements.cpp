@@ -237,6 +237,7 @@ CSpace& CElements::create_space0()
   CSpace::Ptr space = create_component<CSpace>("space[0]");
   space->initialize(*this);
   m_spaces.push_back(space);
+  return *space;
 }
 
 

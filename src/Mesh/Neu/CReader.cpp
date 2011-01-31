@@ -127,8 +127,8 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   remove_empty_element_regions(find_component<CRegion>(*m_mesh));
 
   // update the number of cells and nodes in the mesh
-//  m_mesh->properties()["nb_cells"] = m_mesh->property("nb_cells").value<Uint>() + m_headerData.NELEM;
-//  m_mesh->properties()["nb_nodes"] = m_mesh->property("nb_nodes").value<Uint>() + m_headerData.NUMNP;
+  m_mesh->properties()["nb_cells"] = m_headerData.NELEM;
+  m_mesh->properties()["nb_nodes"] = m_headerData.NUMNP;
 
   // close the file
   m_file.close();
