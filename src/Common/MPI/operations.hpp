@@ -68,7 +68,7 @@ template<typename T, typename Op> class get_mpi_op
 
 class max {};         template<typename T> struct get_mpi_op<T, max>         { public: static MPI_Op op() { return MPI_MAX;  } };
 class min {};         template<typename T> struct get_mpi_op<T, min>         { public: static MPI_Op op() { return MPI_MIN;  } };
-class plus {};        template<typename T> struct get_mpi_op<T, plus>        { public: static MPI_Op op() { return MPI_SUM;  } };
+//class plus {};        template<typename T> struct get_mpi_op<T, plus>        { public: static MPI_Op op() { return MPI_SUM;  } };
 class multiplies {};  template<typename T> struct get_mpi_op<T, multiplies>  { public: static MPI_Op op() { return MPI_PROD; } };
 class logical_and {}; template<typename T> struct get_mpi_op<T, logical_and> { public: static MPI_Op op() { return MPI_LAND; } };
 class logical_or {};  template<typename T> struct get_mpi_op<T, logical_or>  { public: static MPI_Op op() { return MPI_LOR;  } };
@@ -80,6 +80,19 @@ class bitwise_xor {}; template<typename T> struct get_mpi_op<T, bitwise_xor> { p
 //#define MPI_MAXLOC OMPI_PREDEFINED_GLOBAL(MPI_Op, ompi_mpi_op_maxloc)
 //#define MPI_MINLOC OMPI_PREDEFINED_GLOBAL(MPI_Op, ompi_mpi_op_minloc)
 //#define MPI_REPLACE OMPI_PREDEFINED_GLOBAL(MPI_Op, ompi_mpi_op_replace)
+
+
+class plus {
+  public:
+    static const bool is_commutative=true;
+    template<typename T> static void func(void* in, void* out, int* len, MPI_Datatype* type){
+      T *in_=(T*)in;
+      T *out_=(T*)out;
+      for (int i=0; i<(const int)(*len); i++) out_[i]+=in_[i];
+    }
+};
+template<typename T> struct get_mpi_op<T, plus>        { public: static MPI_Op op() { return MPI_SUM;  } };
+
 
 /// @}
 

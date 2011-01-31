@@ -57,7 +57,7 @@ namespace detail {
 
   template<typename T, typename Op>
   inline void
-  all_reduce_impl(const PE& pe,  Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride)
+  all_reduce_impl(const PE::Communicator& comm,  Op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride)
   { 
     // get data type, op and some checkings
     MPI_Datatype type = get_mpi_datatype(*in_values);
@@ -65,7 +65,7 @@ namespace detail {
     BOOST_ASSERT( stride>0 );
 
     // there is in_map
-    T *in_buf=in_values;
+    T *in_buf=(T*)in_values;
     if (in_map!=0){
       if ( (in_buf=new T[in_n+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
       if (stride==1) { for(int i=0; i<in_n; i++) in_buf[i]=in_values[in_map[i]]; }
@@ -79,7 +79,7 @@ namespace detail {
     }
 
     // do the communication
-    BOOST_MPI_CHECK_RESULT(MPI_Allreduce, ( in_buf, out_buf, in_n*stride, type, op_, pe ));
+    MPI_CHECK_RESULT(MPI_Allreduce, ( in_buf, out_buf, in_n*stride, type, op_, comm ));
 
     // re-populate out_values
     if (out_map!=0) {
@@ -112,7 +112,7 @@ namespace detail {
 **/
 template<typename T, typename Op>
 inline T*
-all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, T* out_values, const int stride=1)
+all_reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const int in_n, T* out_values, const int stride=1)
 {
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
@@ -122,7 +122,7 @@ all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, T* ou
   }
 
   // call impl
-  detail::all_reduce_impl(pe,op,in_values,in_n,0,out_buf,0,stride);
+  detail::all_reduce_impl(comm,op,in_values,in_n,0,out_buf,0,stride);
   return out_buf;
 }
 
@@ -137,7 +137,7 @@ all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, T* ou
 **/
 template<typename T, typename Op>
 inline void
-all_reduce(const PE& pe, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
+all_reduce(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
 {
   // set out_values's sizes
   BOOST_ASSERT( in_values.size() % stride == 0 );
@@ -145,7 +145,7 @@ all_reduce(const PE& pe, const Op& op, const std::vector<T>& in_values, std::vec
   out_values.reserve(in_values.size());
 
   // call impl
-  detail::all_reduce_impl(pe, op, (T*)(&in_values[0]), in_values.size()/stride, 0, (T*)(&out_values[0]), 0, stride);
+  detail::all_reduce_impl(comm, op, (T*)(&in_values[0]), in_values.size()/stride, 0, (T*)(&out_values[0]), 0, stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ all_reduce(const PE& pe, const Op& op, const std::vector<T>& in_values, std::vec
 **/
 template<typename T, typename Op>
 inline T*
-all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
+all_reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
 {
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
@@ -176,7 +176,7 @@ all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, const
   }
 
   // call impl
-  detail::all_reduce_impl(pe,op,in_values,in_n,in_map,out_buf,out_map,stride);
+  detail::all_reduce_impl(comm,op,in_values,in_n,in_map,out_buf,out_map,stride);
   return out_buf;
 }
 
@@ -199,7 +199,7 @@ all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, const
 **/
 template<typename T, typename Op>
 inline void
-all_reduce(const PE& pe, Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
+all_reduce(const PE::Communicator& comm, Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
 {
   // set out_values's sizes
   BOOST_ASSERT( in_values.size() % stride == 0 );
@@ -207,7 +207,7 @@ all_reduce(const PE& pe, Op& op, const std::vector<T>& in_values, const std::vec
   out_values.reserve(in_values.size());
 
   // call impl
-  detail::all_reduce_impl(pe, op, (T*)(&in_values[0]), in_values.size()/stride, (int*)in_map, (T*)(&out_values[0]), (int*)out_map, stride);
+  detail::all_reduce_impl(comm, op, (T*)(&in_values[0]), in_values.size()/stride, (int*)in_map, (T*)(&out_values[0]), (int*)out_map, stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -23,6 +23,8 @@
 #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/tools.hpp"
+#include "Common/MPI/datatype.hpp"
+#include "Common/MPI/operations.hpp"
 #include "Common/MPI/all_to_all.hpp"
 #include "Common/MPI/all_reduce.hpp"
 
@@ -67,9 +69,6 @@ BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "test/Common/utest-parallel-collective-all_to_all.hpp"
-
-////////////////////////////////////////////////////////////////////////////////
-
 #include "test/Common/utest-parallel-collective-all_reduce.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
