@@ -9,12 +9,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/CLink.hpp"
+
 #include "Solver/CDiscretization.hpp"
 
 #include "FVM/LibFVM.hpp"
-
 namespace CF {
-  
+
   namespace Solver {
   namespace Actions { 
     class CLoop; 
@@ -65,9 +66,20 @@ private: // functions
   /// function triggered when regions option is updated
   void trigger_Regions();
   
+  void configure_solution();
+  void configure_residual();
+  void configure_update_coeff();
+  
 private: // data
 
   boost::shared_ptr<Solver::Actions::CForAllFaces> m_face_loop;
+  
+  Common::CLink::Ptr m_solution;
+  
+  Common::CLink::Ptr m_residual;
+  
+  Common::CLink::Ptr m_update_coeff;
+  
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1,12 +1,12 @@
 list( APPEND coolfluid_fvm_files
   LibFVM.cpp
   LibFVM.hpp
-  CTakeStep.hpp
-  CTakeStep.cpp
   FiniteVolume.hpp
   FiniteVolume.cpp
   ForwardEuler.hpp
   ForwardEuler.cpp
+  RoeFluxSplitter.hpp
+  RoeFluxSplitter.cpp
   ShockTube.hpp
   ShockTube.cpp
 )

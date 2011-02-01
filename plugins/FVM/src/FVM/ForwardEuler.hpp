@@ -66,8 +66,6 @@ private: // functions
   void trigger_Domain();
 
 private: // data
-
-  boost::shared_ptr<Solver::Actions::CLoop> m_take_step;
   
   Common::CLink::Ptr m_solution;
   

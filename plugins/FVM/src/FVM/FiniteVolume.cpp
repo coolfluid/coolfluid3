@@ -10,8 +10,10 @@
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/OptionURI.hpp"
 
 #include "Mesh/CField2.hpp"
+#include "Mesh/CRegion.hpp"
 
 #include "Solver/CIterativeSolver.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
@@ -37,17 +39,23 @@ FiniteVolume::FiniteVolume ( const std::string& name  ) :
 {
   // properties
 
-  properties()["brief"] = std::string("Residual Distribution Method");
-  properties()["description"] = std::string("Discretize the PDE's using the Residual Distribution Method");
-  
-  m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &FiniteVolume::trigger_Regions,   this ) );
+  properties()["brief"] = std::string("Finite Volume Method");
+  properties()["description"] = std::string("Discretize the PDE's using the Cell Centered Finite Volume Method");
     
+  m_properties.add_option< OptionURI >("Solution","Solution Field to discretize",URI("cpath:"));
+  m_properties.add_option< OptionURI >("Residual","Residual Field to compute",URI("cpath:"));
+  m_properties.add_option< OptionURI >("UpdateCoeff","UpdateCoeff to compute",URI("cpath:"));
+  m_properties["Solution"].as_option().attach_trigger ( boost::bind ( &FiniteVolume::configure_solution,   this ) );
+  m_properties["Residual"].as_option().attach_trigger ( boost::bind ( &FiniteVolume::configure_residual,   this ) );
+  m_properties["UpdateCoeff"].as_option().attach_trigger ( boost::bind ( &FiniteVolume::configure_update_coeff,   this ) );
+  
+  m_solution = create_static_component<CLink>("solution");
+  m_residual = create_static_component<CLink>("residual");
+  m_update_coeff = create_static_component<CLink>("update_coeff");
+  
   // setup of the static components
   m_face_loop = create_static_component<CForAllFaces>("for_all_faces");
-  m_face_loop->create_action("CF.Solver.Actions.CComputeVolume");
-  // m_elem_loop = create_static_component<
-  //     CForAllT< CSchemeLDAT< ShapeFunctionT, QuadratureT > , Mesh::SF::CellTypes > >("cell_loop");
-  
+  m_face_loop->create_action("CF.Solver.Actions.CComputeVolume");  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,14 +66,39 @@ FiniteVolume::~FiniteVolume()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void FiniteVolume::trigger_Regions()
+void FiniteVolume::configure_solution()
 {
+  URI uri; property("Solution").put_value(uri);
+  CField2::Ptr field = Core::instance().root()->look_component<CField2>(uri);
+  m_solution->link_to(field);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void FiniteVolume::configure_residual()
+{
+  URI uri; property("Residual").put_value(uri);
+  CField2::Ptr field = Core::instance().root()->look_component<CField2>(uri);
+  m_residual->link_to(field);
+  
   CFinfo << "face_loop configuration" << CFendl;
-  m_face_loop->configure_property("Regions" , property("Regions").value<std::vector<URI> >());
-  m_face_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volumes",find_component_recursively_with_name<CField2>(*Core::instance().root(),"residual").full_path());
+  std::vector<URI> faces_to_loop;
+  faces_to_loop.push_back(field->topology().full_path());
+  m_face_loop->configure_property("Regions" , faces_to_loop);
+  m_face_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volumes",field->full_path());  
   
 }
-//////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+
+void FiniteVolume::configure_update_coeff()
+{
+  URI uri; property("UpdateCoeff").put_value(uri);
+  CField2::Ptr field = Core::instance().root()->look_component<CField2>(uri);
+  m_update_coeff->link_to(field);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 void FiniteVolume::create_bc( XmlNode& xml )
 {

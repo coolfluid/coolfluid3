@@ -41,7 +41,11 @@ Common::ComponentBuilder < ForwardEuler, CIterativeSolver, LibFVM > ForwardEuler
 
 ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( name )
 {
-  properties()["brief"] = std::string("Iterative FVM component");
+  properties()["brief"] = std::string("Forward Euler Time Stepper");
+  std::string description; 
+  description += " 1) compute residual and update_coeff using discretization method\n";
+  description += " 2) solution = update_coeff * residual\n";
+  
   properties()["description"] = std::string("Forward Euler Time Stepper");
 
   m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &ForwardEuler::trigger_Domain,   this ) );
@@ -50,10 +54,6 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( nam
   // signal("solve").signature
   //     .insert<URI>("Domain", "Domain to load mesh into" )
   //     .insert_array<URI>( "Files" , "Files to read" );
-
-  m_take_step = allocate_component<CForAllNodes>("take_step");
-  m_take_step->create_action("CF.FVM.CTakeStep");
-  add_static_component(m_take_step);
 
   m_solution = create_static_component<CLink>("solution");
   m_residual = create_static_component<CLink>("residual");
@@ -90,17 +90,15 @@ void ForwardEuler::trigger_Domain()
       update_coeff = mesh->create_component<CField2>("update_coeff");
     m_update_coeff->link_to(update_coeff);
 
-    std::vector<URI> regions = list_of( mesh->topology().full_path() );
-    discretization_method().configure_property( "Regions" , regions );
-    //m_take_step->configure_property( "Regions" , volume_regions );
-    
+    discretization_method().configure_property( "Solution"    , solution->full_path() );
+    discretization_method().configure_property( "Residual"    , residual->full_path() );
+    discretization_method().configure_property( "UpdateCoeff" , update_coeff->full_path() );
+        
   }
   else
   {
-    CFinfo << "domain has no mesh " << CFendl;
-    return;
+    throw ValueNotFound(FromHere(),"domain has no mesh ");
   }
-  CFinfo << "domain has mesh" << CFendl;
 }
 //////////////////////////////////////////////////////////////////////////////
 
@@ -113,7 +111,15 @@ CDiscretization& ForwardEuler::discretization_method()
 
 void ForwardEuler::solve()
 {
-  //CFinfo << "Setting up links" << CFendl;
+  if ( is_null(m_solution->follow()) )
+    throw SetupError (FromHere(), "solution is not linked to solution field");
+
+  if ( is_null(m_residual->follow()) )
+    throw SetupError (FromHere(), "residual is not linked to solution field");
+
+  if ( is_null(m_update_coeff->follow()) )
+    throw SetupError (FromHere(), "update_coeff is not linked to solution field");
+    
   CField2& solution     = *m_solution->follow()->as_type<CField2>();
   CField2& residual     = *m_residual->follow()->as_type<CField2>();
   CField2& update_coeff = *m_update_coeff->follow()->as_type<CField2>();
@@ -127,9 +133,9 @@ void ForwardEuler::solve()
     // compute RHS
     discretization_method().compute_rhs();
 
-    // explicit update
-    //m_take_step->execute();
-
+    residual.data() *= update_coeff.data();
+    solution.data() += residual.data();
+    
     // compute norm
     Real rhs_L2=0;
     boost_foreach(CTable<Real>::ConstRow rhs , residual.data().array())
