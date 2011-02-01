@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   lss.configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
   
   // Geometric suport
-  MeshTerm<0, ConstNodes> nodes( "CalculationRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
+  MeshTerm<0, ConstNodes> nodes( "CalculationRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "cells") );
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   lss.configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
   
   // Geometric suport
-  MeshTerm<0, ConstNodes> nodes( "CalculationRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
+  MeshTerm<0, ConstNodes> nodes( "CalculationRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "cells") );
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (

@@ -168,7 +168,7 @@ void CBuildFaces::build_face_cell_connectivity_bottom_up(Component::Ptr parent)
           if (j==1 && face_to_cell->is_bdry_face()[i])
             continue;
           boost::tie(comp,idx_in_comp) = face_to_cell->element_location(elem_idx);
-          CFinfo << "   " << comp->glb_idx()[idx_in_comp];  
+          CFinfo << "   " << idx_in_comp;//comp->glb_idx()[idx_in_comp];  
           ++j;
         }
         CFinfo << CFendl;
@@ -372,8 +372,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
   node2faces2.add_face_cell_connectivity(Ufaces2->data_components()); // it is assumed this is only face types
   node2faces2.set_nodes(m_mesh->nodes());
   node2faces2.build_connectivity();
-  
-  
+    
   Uint f1(0);
   index_foreach(faces1_idx, CFaceCellConnectivity::Ptr faces1, Ufaces1->data_components())
   {
@@ -475,7 +474,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
   node2faces2.add_face_cell_connectivity(Ufaces2->data_components()); // it is assumed this is only face types
   node2faces2.set_nodes(m_mesh->nodes());
   node2faces2.build_connectivity();
-  
+
   Uint f1(0);
   boost_foreach(CElements& faces1, find_components<CElements>(bdry_region))
   {
@@ -495,7 +494,6 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
       elems_2_start_idx.push_back(nb_elems);
       nb_elems += find_component<CUnifiedData<CElements> >(*faces2).size();
       bdry_connectivity->add_elements(find_component_ptr<CUnifiedData<CElements> >(*faces2));
-      CFLogVar(find_component<CTable<Uint> >(*faces2).size());
     }
 
     std::vector<Uint> elems(1);
@@ -519,6 +517,31 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
           if ( it == not_found)
           {
             found_faces[f2]=1;
+            if (nb_nodes_per_face == 1)
+            {
+              match_found = true;
+              CFaceCellConnectivity::Ptr faces2;
+              Uint f2_idx;
+              Uint faces2_idx;
+              boost::tie(faces2_idx,f2_idx) = node2faces2.face_local_idx(f2);
+              faces2 = Ufaces2->data_components()[faces2_idx];
+              elems[0] = faces2->elements(f2_idx)[0] + elems_2_start_idx[faces2_idx];
+              
+              CFinfo << "match found: " << f1 << " <--> " << elems[0] << CFendl;
+              
+              // Remove matches from the 2 connectivity tables and add to the interface
+              f2c.add_row(elems);
+              fnb.add_row(buf_fnb2[faces2_idx]->get_row(f2_idx));
+              bdry.add_row(true);
+              
+              buf_f2c2[faces2_idx]->rm_row(f2_idx);
+              buf_fnb2[faces2_idx]->rm_row(f2_idx);
+              buf_bdryf2[faces2_idx]->rm_row(f2_idx);
+              // 
+              
+              ++nb_matches;
+              break;
+            }
           }
           else
           {
@@ -564,12 +587,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
     buf_fnb2[faces2_idx]->flush();
     buf_bdryf2[faces2_idx]->flush();
   }
-  
-  boost_foreach(CFaceCellConnectivity::Ptr faces2, Ufaces2->data_components())
-  {
-    CFLogVar(find_component<CTable<Uint> >(*faces2).size());
-  }
-  
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

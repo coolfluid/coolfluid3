@@ -16,16 +16,14 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-  Line3D::Line3D(const std::string& name) : ElementType(name)
-  {
-     
-
-    m_shape = shape;
-    m_dimension = dimension;
-    m_dimensionality = dimensionality;
-    m_nb_faces = nb_faces;
-    m_nb_edges = nb_edges;
-  }
+Line3D::Line3D(const std::string& name) : ElementType(name)
+{
+  m_shape = shape;
+  m_dimension = dimension;
+  m_dimensionality = dimensionality;
+  m_nb_faces = nb_faces;
+  m_nb_edges = nb_edges;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

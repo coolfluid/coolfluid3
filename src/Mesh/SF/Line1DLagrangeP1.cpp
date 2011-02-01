@@ -8,6 +8,7 @@
 
 #include "LibSF.hpp"
 #include "Line1DLagrangeP1.hpp"
+#include "Point1DLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -15,8 +16,7 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Line1DLagrangeP1,ElementType, LibSF >
-aLine1DLagrangeP1_Builder;
+Common::ComponentBuilder < Line1DLagrangeP1,ElementType, LibSF > Line1DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,16 +61,30 @@ bool Line1DLagrangeP1::is_coord_in_element( const RealVector& coord, const Nodes
 
 const CF::Mesh::ElementType::FaceConnectivity& Line1DLagrangeP1::face_connectivity() const
 {
-  static FaceConnectivity connectivity;
-  return connectivity;
+  faces();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const CF::Mesh::ElementType& Line1DLagrangeP1::face_type(const CF::Uint face) const
 {
-  // TODO: Add a Point1DLagrangeP1 type to complete this
-  throw Common::NotImplemented(FromHere(), "Line1DLagrangeP1::face_type requires a point type");
+  const static Point1DLagrangeP1 facetype;
+  return facetype;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const CF::Mesh::ElementType::FaceConnectivity& Line1DLagrangeP1::faces()
+{
+  static FaceConnectivity connectivity;
+  if(connectivity.face_first_nodes.empty())
+  {
+    connectivity.face_first_nodes = boost::assign::list_of(0)(1);
+    connectivity.face_node_counts.assign(2, 1);
+    connectivity.face_nodes = boost::assign::list_of(0)
+                                                    (1);
+  }
+  return connectivity;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

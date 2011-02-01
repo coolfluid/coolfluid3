@@ -128,12 +128,12 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   mesh->create_field("TemperatureAnalytical", vars, CField::NODE_BASED);
   
   // Regions
-  CRegion& fluid = find_component_recursively_with_name<CRegion>(*mesh, "region");
+  CRegion& fluid = find_component_recursively_with_name<CRegion>(*mesh, "cells");
   CRegion& xneg = find_component_recursively_with_name<CRegion>(*mesh, "xneg");
   CRegion& xpos = find_component_recursively_with_name<CRegion>(*mesh, "xpos");
   
   // Term for the geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
+  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "cells") );
 
   // Read-only access to the result field (faster)
   MeshTerm<1, ConstField<Real> > temperature("Temperature", "T");
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     set_analytical_solution(fluid, "TemperatureAnalytical", "T");
     for_each_node
     (
-      find_component_recursively_with_name<CRegion>(*mesh, "region"),
+      find_component_recursively_with_name<CRegion>(*mesh, "cells"),
       _check_close(temperature_analytical, temperature, 0.2)
     );
     

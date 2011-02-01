@@ -78,7 +78,7 @@ protected: // classes
 
      bool operator()(const Component& component)
      {
-       return count(Common::find_components<CElements>(component));
+       return count(Common::find_components<CEntities>(component));
      }
      
   }; // IsGroup

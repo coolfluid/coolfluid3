@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( SystemBasics )
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
+  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "cells") );
   
   Uint elem_idx = 0;
   

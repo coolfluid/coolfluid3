@@ -90,6 +90,7 @@ public:
   /// const access to the node to element connectivity table in unified indices
   const CDynTable<Uint>& connectivity() const { return *m_connectivity; }
 
+  Uint size() const { return connectivity().size(); }
 //private: //functions
 
   /// set the nodes for the node to element connectivity

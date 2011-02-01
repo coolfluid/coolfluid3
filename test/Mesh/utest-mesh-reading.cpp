@@ -49,6 +49,9 @@ struct MeshReading_Fixture
     domain = root->create_component<CDomain>("MyDom");
 
     root->add_component( reader );
+    
+    ExceptionManager::instance().ExceptionOutputs = false;
+    ExceptionManager::instance().ExceptionDumps = false;
   }
 
   /// common tear-down for each test case

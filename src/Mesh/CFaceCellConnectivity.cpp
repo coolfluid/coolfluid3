@@ -114,7 +114,6 @@ void CFaceCellConnectivity::build_connectivity()
   boost_foreach (CElements::Ptr& elements, m_elements->data_components() )
   {
     const Uint nb_faces_in_elem = elements->element_type().nb_faces();
-
     CList<bool>& is_bdry_elem = *elements->get_child<CList<bool> >("is_bdry");
 
     // loop over the elements of this type

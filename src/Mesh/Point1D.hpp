@@ -41,7 +41,7 @@ struct Mesh_API Point1D : public ElementType
   static const Uint nb_edges = 0;
   
   /// @return m_dimensionality
-  static const Uint dimensionality = 1;
+  static const Uint dimensionality = 0;
   
   /// @return m_dimension
   static const Uint dimension = 1;

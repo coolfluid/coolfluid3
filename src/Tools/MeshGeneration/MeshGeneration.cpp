@@ -31,8 +31,8 @@ namespace MeshGeneration {
 
 void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 {
-  CRegion& region = mesh.topology().create_region("region");
-  CNodes& nodes = region.create_nodes(DIM_1D);
+  CRegion& region = mesh.topology().create_region("cells");
+  CNodes& nodes = mesh.topology().create_nodes(DIM_1D);
   nodes.resize(x_segments+1);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   for(Uint i = 0; i <= x_segments; ++i)
@@ -50,12 +50,12 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   }
   
   // Left boundary point
-  CTable<Uint>& xneg_connectivity = region.create_region("xneg").create_elements("CF.Mesh.SF.Point1DLagrangeP1", nodes).connectivity_table();
+  CTable<Uint>& xneg_connectivity = mesh.topology().create_region("xneg").create_elements("CF.Mesh.SF.Point1DLagrangeP1", nodes).connectivity_table();
   xneg_connectivity.resize(1);
   xneg_connectivity[0][0] = 0;
   
   // right boundary point
-  CTable<Uint>& xpos_connectivity = region.create_region("xpos").create_elements("CF.Mesh.SF.Point1DLagrangeP1", nodes).connectivity_table();
+  CTable<Uint>& xpos_connectivity = mesh.topology().create_region("xpos").create_elements("CF.Mesh.SF.Point1DLagrangeP1", nodes).connectivity_table();
   xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;
 }

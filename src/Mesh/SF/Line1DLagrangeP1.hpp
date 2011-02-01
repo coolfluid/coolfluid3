@@ -39,6 +39,9 @@ struct MESH_SF_API Line1DLagrangeP1  : public Line1D {
   /// Order of the shape function
   static const Uint order = 1;
   
+  /// Connectivity info for the faces
+  static const FaceConnectivity& faces();
+  
   /// Types for the matrices used
   typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
   typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;

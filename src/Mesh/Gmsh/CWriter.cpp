@@ -45,6 +45,9 @@ CWriter::CWriter( const std::string& name )
 
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
+
+  m_elementTypes["CF.Mesh.SF.Point1DLagrangeP1"]=15;
+  
   m_elementTypes["CF.Mesh.SF.Line1DLagrangeP1" ]=1;
   m_elementTypes["CF.Mesh.SF.Line2DLagrangeP1" ]=1;
   m_elementTypes["CF.Mesh.SF.Line3DLagrangeP1" ]=1;
@@ -210,7 +213,7 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint group_number;
   Uint elm_type;
   Uint number_of_tags=3; // 1 for physical entity,  1 for elementary geometrical entity,  1 for mesh partition
-  Uint elm_number=0;
+  Uint elm_number=1;
   Uint partition_number = mpi::PE::instance().rank();
 
   boost_foreach(CEntities& elements, m_mesh->topology().elements_range())
@@ -226,7 +229,7 @@ void CWriter::write_connectivity(std::fstream& file)
     const Uint nb_elem = elements.size();
     for (Uint e=0; e<nb_elem; ++e, ++elm_number)
     {
-      file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number << " " << partition_number;
+      file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << 0 << " " << partition_number;
       boost_foreach(const Uint local_node_idx, elements.get_nodes(e))
       {
         file << " " << node_start_idx+local_node_idx+1;
