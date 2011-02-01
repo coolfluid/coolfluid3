@@ -21,7 +21,8 @@ namespace Mesh {
 
   class CNodes;
   class CRegion;
-
+  class CField2;
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Mesh component class
@@ -83,6 +84,8 @@ public: // functions
   
   /// create a field with the default support being the full mesh geometry
   CField& create_field( const std::string& name , const std::vector<std::string>& variables, const CField::DataBasis basis);
+  
+  CField2& create_field2( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const std::string& field_type);
   
   /// @return the field with given name
   const CField& field(const std::string& name) const;

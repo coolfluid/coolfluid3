@@ -54,8 +54,6 @@ void CEntities::initialize(const std::string& element_type_name, CNodes& nodes)
   m_nodes->link_to(nodes.follow());
 
   set_element_type(element_type_name);
-  
-  create_space0();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,7 +164,17 @@ CSpace& CEntities::create_space( const std::string& shape_function_builder_name 
 CSpace& CEntities::create_space0()
 {
   cf_assert(m_spaces.size()==0);
-  return create_space(element_type().builder_name());
+  CSpace& space = create_space(element_type().builder_name());
+  CTable<Uint>& table = space.connectivity_table();
+  table.set_row_size(space.shape_function().nb_nodes());
+  table.resize(size());
+  for (Uint i=0; i!=table.size(); ++i)
+  {
+    CTable<Uint>::ConstRow nodes = get_nodes(i);
+    for (Uint j=0; j!=table.row_size(); ++j)
+      table[i][j] = nodes[j];
+  }
+  return space;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

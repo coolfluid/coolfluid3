@@ -19,7 +19,7 @@ namespace Common
 namespace Mesh {
   
   class CRegion;
-  class CElements;
+  class CEntities;
   template <typename T> class CList;
   
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ public: // functions
   
   const std::string& registration_name() const { return m_registration_name; }
   
-  Uint elements_start_idx(const CElements& elements) const
+  Uint elements_start_idx(const CEntities& elements) const
   {
     return m_elements_start_idx.find(&elements)->second;
   }
@@ -121,7 +121,7 @@ private:
   std::vector<std::string> m_var_names;
   std::vector<VarType> m_var_types;
   
-  std::map<CElements const*,Uint> m_elements_start_idx;
+  std::map<CEntities const*,Uint> m_elements_start_idx;
   
 protected: 
 

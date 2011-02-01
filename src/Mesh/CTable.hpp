@@ -190,6 +190,14 @@ public: // functions
     return *this;
   }
   
+  CTable& operator =(const Real& c)
+  { 
+    for (Uint i=0; i<size(); ++i)
+      for (Uint j=0; j<row_size(); ++j)
+        array()[i][j] = c;
+    return *this;
+  }
+  
   /// U += U
   CTable& operator +=(const CTable& U) 
   { 

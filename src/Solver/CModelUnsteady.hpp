@@ -14,6 +14,9 @@
 #include "Solver/CTime.hpp"
 
 namespace CF {
+namespace Mesh{
+  class CField2;
+}
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +44,8 @@ public: // functions
 
   /// Simulates this model
   virtual void simulate();
+  
+  CTime& time() { return *m_time; }
 
  protected: // data
 

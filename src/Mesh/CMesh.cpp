@@ -17,6 +17,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
+#include "Mesh/CField2.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -122,6 +123,36 @@ CRegion& CMesh::create_domain( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+CField2& CMesh::create_field2( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const std::string& field_type)
+{
+
+  std::vector<std::string> names;
+  std::vector<std::string> types;
+  BOOST_FOREACH(std::string var, variables)
+  { 
+    boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
+    
+    boost::match_results<std::string::const_iterator> what;
+    if (regex_search(var,what,e_variable))
+    {
+      names.push_back(what[1]);
+      types.push_back(what[2]);
+    }
+    else
+      throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
+  }
+
+  CField2& field = *create_component<CField2>(name);
+  field.configure_property("Topology",support.full_path());
+  field.configure_property("VarNames",names);
+  field.configure_property("VarTypes",types);
+  field.configure_property("FieldType",field_type); // used to be databasis
+  field.create_data_storage();
+
+  return field;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 CField& CMesh::create_field( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis)
 {

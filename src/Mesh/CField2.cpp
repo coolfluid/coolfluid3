@@ -241,11 +241,11 @@ void CField2::create_data_storage()
     case ELEMENT_BASED:
     {
       Uint data_size = 0;
-      boost_foreach(CElements& field_elements, find_components_recursively<CElements>(topology()))
+      boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(topology()))
       {
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
-        data_size = field_view.initialize(*this,field_elements.as_type<CElements>());
+        data_size = field_view.initialize(*this,field_elements.as_type<CEntities>());
       }
       m_data->resize(data_size);
       break;      

@@ -60,6 +60,7 @@ void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
 {
   CEntities::initialize(element_type_name,nodes);
   connectivity_table().set_row_size(m_element_type->nb_nodes());
+  create_space0();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -172,6 +173,8 @@ void CElements::initialize(CElements& elements)
   m_support->add_tag("support");
   
   m_connectivity_table = elements.connectivity_table().as_type<CTable<Uint> >();
+  
+  create_space0();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

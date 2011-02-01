@@ -23,7 +23,7 @@ CTime::CTime ( const std::string& name  ) :
   Component ( name )
 {
   m_properties.add_option< OptionT<Real> > ("Time","Current time of the simulation", 0.)->mark_basic();
-  m_properties.add_option< OptionT<Real> > ("Time Step","Time of start of simulation", 0.)->mark_basic();
+  m_properties.add_option< OptionT<Real> > ("Time Step","Time Step of simulation", 0.)->mark_basic();
   m_properties.add_option< OptionT<Real> > ("End Time", "Time at which to finish the simulation", 0.0)->mark_basic();
 
   m_properties["Time"].as_option().link_to( &m_time );

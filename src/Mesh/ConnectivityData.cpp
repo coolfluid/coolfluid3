@@ -6,6 +6,9 @@
 
 #include <boost/foreach.hpp>
 
+///@todo remove
+#include "Common/Log.hpp"
+
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/ConnectivityData.hpp"
@@ -266,6 +269,8 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
   const Uint elements_begin = 0;
   const Uint elements_end = connectivity_table.size();
   const Uint nb_faces = own_celements.element_type().nb_faces();
+  CFLogVar(nb_faces);
+  CFLogVar(own_celements.full_path().path());
   for(Uint element_idx = elements_begin; element_idx != elements_end; ++element_idx)
   {
     //const Uint global_element_idx = global_offset + element_idx;
@@ -280,7 +285,7 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
       const Uint adjacent_celements_idx = std::upper_bound(celements_first_elements.begin(), celements_first_elements.end(), adjacent_global_elem) - 1 - celements_first_elements.begin();
       const CElements& adjacent_celements = *celements_vector[adjacent_celements_idx]; 
       const Uint adjacent_nb_faces = adjacent_celements.element_type().nb_faces();
-      
+      CFLogVar(adjacent_nb_faces);
       // if we have a neighbour inside own_celements, we can use the face_element_connectivity table for fast lookup of the connecting face
       if(vector_has_own_celements && adjacent_celements_idx == own_celements_idx)
       {

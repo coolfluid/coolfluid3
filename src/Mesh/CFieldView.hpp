@@ -16,7 +16,7 @@ namespace CF {
 namespace Mesh {
 
   template <typename T> class CList;
-  class CElements;
+  class CEntities;
   class CField2;
   class CSpace;
   
@@ -49,7 +49,7 @@ public: // functions
   static std::string type_name () { return "CFieldView"; }
 
   /// @return end_idx
-  Uint initialize(CField2& field, boost::shared_ptr<CElements> elements);
+  Uint initialize(CField2& field, boost::shared_ptr<CEntities> elements);
   
   CTable<Real>::Row operator[](const Uint idx);
 
@@ -57,7 +57,7 @@ public: // functions
 
   const CField2& field() { return *m_field.lock(); }
   
-  const CElements& elements() const { return *m_elements.lock(); }
+  const CEntities& elements() const { return *m_elements.lock(); }
   
   Uint stride() const { return m_stride; }
   
@@ -69,11 +69,11 @@ public: // functions
   template <typename T>
   boost::shared_ptr<T> as_ptr() { return boost::static_pointer_cast<T>(self()); }
 
-  void set_elements(const CElements& elements);
+  void set_elements(const CEntities& elements);
 
   const CSpace& space() const { return *m_space.lock(); }
   
-  void set_elements(boost::shared_ptr<CElements> elements);
+  void set_elements(boost::shared_ptr<CEntities> elements);
 
   void set_field(CField2& field);
   
@@ -92,7 +92,7 @@ protected:
 
   boost::weak_ptr<CField2 const>      m_field;
   boost::weak_ptr<CTable<Real> >      m_field_data;
-  boost::weak_ptr<CElements const>    m_elements;
+  boost::weak_ptr<CEntities const>    m_elements;
   boost::weak_ptr<CTable<Real> const> m_coords_table;
   boost::weak_ptr<CSpace const>       m_space;
 };

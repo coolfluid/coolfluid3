@@ -314,6 +314,8 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     CList<Uint>&            fnb = *f2c.get_child<CList<Uint> > ("face_number");
     cf_assert(f2c.size() == fnb.size());
     cf_assert(fnb.size() == faces.size());
+    
+    faces.create_space0();
   }
   
   

@@ -16,6 +16,7 @@
 namespace CF {
 namespace Mesh {
   class CElements;
+  class CEntities;
   template <typename T> class CList;
 }
 namespace Solver {
@@ -49,14 +50,14 @@ public: // functions
   /// Typically accesses components and stores their address, since they are not expected to change over looping.
   virtual void create_loop_helper ( Mesh::CElements& geometry_elements ) {}
   
-  void set_elements(Mesh::CElements& elements);
+  void set_elements(Mesh::CEntities& elements);
   
 protected: // functions
 
   Uint idx() const { return m_idx; }  
   
-  Mesh::CElements const& elements() const { cf_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
-  Mesh::CElements& elements() { cf_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
+  Mesh::CEntities const& elements() const { cf_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
+  Mesh::CEntities& elements() { cf_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
   
 private: // functions 
 
@@ -67,7 +68,7 @@ private: // data
   
   Uint m_idx;
 
-  boost::weak_ptr<Mesh::CElements>  m_elements;
+  boost::weak_ptr<Mesh::CEntities>  m_elements;
 
 };
 

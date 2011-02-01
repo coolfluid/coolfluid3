@@ -12,7 +12,8 @@
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CElements.hpp"
+#include "Mesh/CEntities.hpp"
+#include "Mesh/ElementType.hpp"
 #include "Mesh/CSpace.hpp"
 
 namespace CF {
@@ -35,7 +36,7 @@ CFieldView::CFieldView ( const std::string& name ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint CFieldView::initialize(CField2& field, CElements::Ptr elements)
+Uint CFieldView::initialize(CField2& field, CEntities::Ptr elements)
 {
   cf_assert(is_not_null(elements));
   set_field(field);  
@@ -63,11 +64,11 @@ CTable<Real>::ConstRow CFieldView::operator[](const Uint idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldView::set_elements(const CElements& elements) 
+void CFieldView::set_elements(const CEntities& elements) 
 { 
   cf_assert_desc("Field must be set before elements", is_not_null(m_field.lock()) );
   const CField2& field = *m_field.lock();
-  m_elements = elements.as_const()->as_type<CElements>();
+  m_elements = elements.as_const()->as_type<CEntities>();
   m_space = elements.space(field.space_idx()).as_type<CSpace>();
   m_stride = m_space.lock()->nb_states(); // this is the number of states per element (high order methods)
   m_start_idx = field.elements_start_idx(elements);
@@ -78,7 +79,7 @@ void CFieldView::set_elements(const CElements& elements)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldView::set_elements(CElements::Ptr elements)
+void CFieldView::set_elements(CEntities::Ptr elements)
 {
   cf_assert( is_not_null(m_field.lock()) );
   set_elements(*elements);
@@ -111,11 +112,12 @@ void CFieldView::allocate_coordinates(RealMatrix& coords)
 
 void CFieldView::put_coordinates(RealMatrix& coords, const Uint elem_idx) const
 {
+  cf_assert(elem_idx < space().connectivity_table().size());
   CTable<Uint>::ConstRow elem_nodes = space().connectivity_table()[elem_idx];
   const CTable<Real>::ArrayT& coords_table = m_coords_table.lock()->array();
-
+    
   cf_assert(coords.rows() == elem_nodes.size());
-  
+  cf_assert(coords.cols() == coords_table.shape()[1]);
   for(Uint node = 0; node != coords.rows(); ++node)
     for (Uint d=0; d != coords.cols(); ++d)
       coords(node,d) = coords_table[elem_nodes[node]][d];

@@ -8,6 +8,7 @@
 #include "Common/Foreach.hpp"
 
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CCellFaces.hpp"
 
 #include "Solver/Actions/CForAllFaces.hpp"
 
@@ -33,12 +34,11 @@ CForAllFaces::CForAllFaces ( const std::string& name ) :
 void CForAllFaces::execute()
 {
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
-    boost_foreach(CElements& elements, find_components_recursively_with_filter<CElements>(*region,IsElementsSurface()))
+    boost_foreach(CEntities& elements, find_components_recursively<CCellFaces>(*region) )
   {
     // Setup all child operations
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {
-      op.create_loop_helper( elements );
       op.configure_property("Elements",elements.full_path());
       const Uint nb_elem = elements.size();
       for ( Uint elem = 0; elem != nb_elem; ++elem )
