@@ -130,6 +130,7 @@ list( APPEND coolfluid_common_files
       MPI/scatter.hpp
       MPI/all_to_all.hpp
       MPI/all_reduce.hpp
+      MPI/reduce.hpp
 )
 endif()
 

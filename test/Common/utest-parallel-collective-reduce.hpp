@@ -9,10 +9,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct PEAllReduceFixture
+struct PEReduceFixture
 {
   /// common setup for each test case
-  PEAllReduceFixture()
+  PEReduceFixture()
   {
     // rank and proc
     nproc=mpi::PE::instance().size();
@@ -41,7 +41,7 @@ struct PEAllReduceFixture
   }
 
   /// common tear-down for each test case
-  ~PEAllReduceFixture()
+  ~PEReduceFixture()
   {
     delete[] ptr_snddat;
     delete[] ptr_rcvdat;
@@ -124,7 +124,7 @@ struct PEAllReduceFixture
     vec_rcvdat2.assign(ptr_rcvdat2,ptr_rcvdat2+4*nproc);
   }
 
-  /// test class with operator + to test if operations and all_reduce can work with it
+  /// test class with operator + to test if operations and reduce can work with it
   class optest {
     public:
       /// simple data
@@ -154,20 +154,20 @@ struct PEAllReduceFixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( PEAllReduceSuite, PEAllReduceFixture )
+BOOST_FIXTURE_TEST_SUITE( PEReduceSuite, PEReduceFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( all_reduce )
+BOOST_AUTO_TEST_CASE( reduce )
 {
-  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Testing all_reduce " << irank << "/" << nproc << CFendl; );
+  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Testing reduce " << irank << "/" << nproc << CFendl; );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( all_reduce_most_common_ops )
+BOOST_AUTO_TEST_CASE( reduce_most_common_ops )
 {
-  int i;
+  int i,r;
   int ival,itest,iresult;
   double dval,dtest,dresult;
   ival=irank+1;
@@ -179,9 +179,9 @@ BOOST_AUTO_TEST_CASE( all_reduce_most_common_ops )
   for(i=0; i<nproc; i++) { itest+=i+1; dtest+=(double)i+1.; }
   iresult=-1;
   dresult=-1.;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), &ival, 1, &iresult);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), &ival, 1, &iresult, r);
   BOOST_CHECK_EQUAL( iresult, itest );
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), &dval, 1, &dresult);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), &dval, 1, &dresult, r);
   BOOST_CHECK_EQUAL( dresult, dtest );
 
   // testing multiplies
@@ -190,9 +190,9 @@ BOOST_AUTO_TEST_CASE( all_reduce_most_common_ops )
   for(i=0; i<nproc; i++) { itest*=i+1; dtest*=(double)i+1.; }
   iresult=-1;
   dresult=-1.;
-  mpi::all_reduce(mpi::PE::instance(), mpi::multiplies(), &ival, 1, &iresult);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::multiplies(), &ival, 1, &iresult, r);
   BOOST_CHECK_EQUAL( iresult, itest );
-  mpi::all_reduce(mpi::PE::instance(), mpi::multiplies(), &dval, 1, &dresult);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::multiplies(), &dval, 1, &dresult, r);
   BOOST_CHECK_EQUAL( dresult, dtest );
 
   // testing max
@@ -200,9 +200,9 @@ BOOST_AUTO_TEST_CASE( all_reduce_most_common_ops )
   dtest=(double)nproc;
   iresult=-1;
   dresult=-1.;
-  mpi::all_reduce(mpi::PE::instance(), mpi::max(), &ival, 1, &iresult);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::max(), &ival, 1, &iresult, r);
   BOOST_CHECK_EQUAL( iresult, itest );
-  mpi::all_reduce(mpi::PE::instance(), mpi::max(), &dval, 1, &dresult);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::max(), &dval, 1, &dresult, r);
   BOOST_CHECK_EQUAL( dresult, dtest );
 
   // testing min
@@ -210,19 +210,19 @@ BOOST_AUTO_TEST_CASE( all_reduce_most_common_ops )
   dtest=1.;
   iresult=-1;
   dresult=-1.;
-  mpi::all_reduce(mpi::PE::instance(), mpi::min(), &ival, 1, &iresult);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::min(), &ival, 1, &iresult, r);
   BOOST_CHECK_EQUAL( iresult, itest );
-  mpi::all_reduce(mpi::PE::instance(), mpi::min(), &dval, 1, &dresult);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::min(), &dval, 1, &dresult, r);
   BOOST_CHECK_EQUAL( dresult, dtest );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( all_reduce_operator_of_class )
+BOOST_AUTO_TEST_CASE( reduce_operator_of_class )
 {
 /*
   optest in,out;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), &in, 1, &out);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), &in, 1, &out);
   PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << nproc << " results: " << out.ival << " " << out.dval << CFendl;);
   BOOST_CHECK_EQUAL( out.test() , true );
 */
@@ -230,161 +230,232 @@ BOOST_AUTO_TEST_CASE( all_reduce_operator_of_class )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( all_reduce_ptr_constant )
+BOOST_AUTO_TEST_CASE( reduce_ptr_constant )
 {
-  int i;
+  int i,r;
 
   setup_data_constant();
 
   delete[] ptr_tmprcv;
   ptr_tmprcv=0;
-
-  ptr_tmprcv=mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, (double*)0);
+  for(r=0; r<nproc; r++) {
+    if (r==irank) {
+      ptr_tmprcv=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, (double*)0, r);
+    } else {
+      mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, (double*)0, r);
+    }
+  }
   for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
 
   for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=0.;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_tmprcv);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_tmprcv, r);
   for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
 
-  for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_tmprcv, sndcnt, ptr_tmprcv);
-  for (i=0; i<2*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+  for(r=0; r<nproc; r++) {
+    for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
+    mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_tmprcv, sndcnt, ptr_tmprcv, r);
+    if (irank==r) {
+      for (i=0; i<2*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+    } else {
+      for (i=0; i<2*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_snddat[i] );
+    }
+  }
 
   delete[] ptr_tmprcv2;
   ptr_tmprcv2=0;
-
-  ptr_tmprcv2=mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, (double*)0, 2);
+  for(r=0; r<nproc; r++) {
+    if (r==irank) {
+      ptr_tmprcv2=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, (double*)0, r, 2);
+    } else {
+      mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, (double*)0, r, 2);
+    }
+  }
   for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
 
   for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=0.;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_tmprcv2, 2);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_tmprcv2, r, 2);
   for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
 
-  for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=ptr_snddat2[i];
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_tmprcv2, sndcnt, ptr_tmprcv2, 2);
-  for (i=0; i<4*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
-
+  for(r=0; r<nproc; r++) {
+    for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=ptr_snddat2[i];
+    mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_tmprcv2, sndcnt, ptr_tmprcv2, r, 2);
+    if (irank==r) {
+      for (i=0; i<4*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
+    } else {
+      for (i=0; i<4*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_snddat2[i] );
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( all_reduce_vector_constant )
+BOOST_AUTO_TEST_CASE( reduce_vector_constant )
 {
-  int i;
+  int i,r;
 
   setup_data_constant();
 
   vec_tmprcv.resize(0);
   vec_tmprcv.reserve(0);
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_tmprcv);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_tmprcv, r);
   for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
   BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , sndcnt );
 
   vec_tmprcv.assign(2*nproc,0.);
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_tmprcv);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_tmprcv, r);
   for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
 
-  vec_tmprcv=vec_snddat;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_tmprcv, vec_tmprcv);
-  for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
+  for(r=0; r<nproc; r++) {
+    vec_tmprcv=vec_snddat;
+    mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_tmprcv, vec_tmprcv, r);
+    if (irank==r) {
+      for (i=0; i<2*nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
+    } else {
+      for (i=0; i<2*nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_snddat[i] );
+    }
+  }
 
   vec_tmprcv2.resize(0);
   vec_tmprcv2.reserve(0);
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_tmprcv2, 2);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_tmprcv2, r, 2);
   for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_rcvdat2[i] );
   BOOST_CHECK_EQUAL( (int)vec_tmprcv2.size() , 2*sndcnt );
 
   vec_tmprcv2.assign(4*nproc,0.);
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_tmprcv2, 2);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_tmprcv2, r, 2);
   for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_rcvdat2[i] );
 
-  vec_tmprcv2=vec_snddat2;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_tmprcv2, vec_tmprcv2, 2);
-  for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_rcvdat2[i] );
+  for(r=0; r<nproc; r++) {
+    vec_tmprcv2=vec_snddat2;
+    mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_tmprcv2, vec_tmprcv2, r, 2);
+    if (irank==r) {
+      for (i=0; i<4*nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_rcvdat2[i] );
+    } else {
+      for (i=0; i<4*nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_snddat2[i] );
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( all_reduce_ptr_variable )
+BOOST_AUTO_TEST_CASE( reduce_ptr_variable )
 {
-  int i;
+  int i,r;
 
   setup_data_variable();
 
   delete[] ptr_tmprcv;
   ptr_tmprcv=0;
-  ptr_tmprcv=mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap);
+  for(r=0; r<nproc; r++) {
+    if (r==irank) {
+      ptr_tmprcv=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
+    } else {
+      mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
+    }
+  }
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_rcvdat[2*i] );
 
   delete[] ptr_tmprcv;
   ptr_tmprcv=new double[2*nproc];
   for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=0.;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_rcvdat[2*i] );
 
-  for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_tmprcv, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_rcvdat[2*i] );
+  for(r=0; r<nproc; r++) {
+    for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
+    mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_tmprcv, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
+    if (irank==r) {
+      for (i=0; i<nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_rcvdat[2*i] );
+    } else {
+      for (i=0; i<nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_snddat[2*i] );
+    }
+  }
 
   delete[] ptr_tmprcv2;
   ptr_tmprcv2=0;
-  ptr_tmprcv2=mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, 2);
+  for(r=0; r<nproc; r++) {
+    if (r==irank) {
+      ptr_tmprcv2=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r, 2);
+    } else {
+      mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r, 2);
+    }
+  }
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_rcvdat2[4*i+0] );
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+1] , ptr_rcvdat2[4*i+1] );
 
   delete[] ptr_tmprcv2;
   ptr_tmprcv2=new double[4*nproc];
   for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=0.;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, ptr_tmprcv2, ptr_rcvmap, 2);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, ptr_tmprcv2, ptr_rcvmap, r, 2);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_rcvdat2[4*i+0] );
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+1] , ptr_rcvdat2[4*i+1] );
 
-  for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=ptr_snddat2[i];
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), ptr_tmprcv2, sndcnt, ptr_sndmap, ptr_tmprcv2, ptr_rcvmap, 2);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_rcvdat2[4*i+0] );
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+1] , ptr_rcvdat2[4*i+1] );
+  for(r=0; r<nproc; r++) {
+    for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=ptr_snddat2[i];
+    mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_tmprcv2, sndcnt, ptr_sndmap, ptr_tmprcv2, ptr_rcvmap, r, 2);
+    if (irank==r) {
+      for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_rcvdat2[4*i+0] );
+      for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+1] , ptr_rcvdat2[4*i+1] );
+    } else {
+      for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_snddat2[4*i+0] );
+      for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+1] , ptr_snddat2[4*i+1] );
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( all_reduce_vector_variable )
+BOOST_AUTO_TEST_CASE( reduce_vector_variable )
 {
-  int i;
+  int i,r;
 
   setup_data_variable();
 
   vec_tmprcv.resize(0);
   vec_tmprcv.reserve(0);
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_rcvdat[2*i] );
 
   vec_tmprcv.resize(2*nproc);
   vec_tmprcv.reserve(2*nproc);
   for (i=0; i<2*nproc; i++) vec_tmprcv[i]=0.;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_rcvdat[2*i] );
 
-  vec_tmprcv=vec_snddat;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_tmprcv, vec_sndmap, vec_tmprcv, vec_rcvmap);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_rcvdat[2*i] );
+  for(r=0; r<nproc; r++) {
+    vec_tmprcv=vec_snddat;
+    mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_tmprcv, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
+    if (irank==r) {
+      for (i=0; i<nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_rcvdat[2*i] );
+    } else {
+      for (i=0; i<nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_snddat[2*i] );
+    }
+  }
 
   vec_tmprcv2.resize(0);
   vec_tmprcv2.reserve(0);
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_sndmap, vec_tmprcv2, vec_rcvmap, 2);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_sndmap, vec_tmprcv2, vec_rcvmap, r, 2);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_rcvdat2[4*i+0] );
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_rcvdat2[4*i+1] );
 
   vec_tmprcv2.resize(4*nproc);
   vec_tmprcv2.reserve(4*nproc);
   vec_tmprcv2.assign(4*nproc,0.);
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_sndmap, vec_tmprcv2, vec_rcvmap, 2);
+  for(r=0; r<nproc; r++) mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_sndmap, vec_tmprcv2, vec_rcvmap, r, 2);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_rcvdat2[4*i+0] );
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_rcvdat2[4*i+1] );
 
-  vec_tmprcv2=vec_snddat2;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), vec_tmprcv2, vec_sndmap, vec_tmprcv2, vec_rcvmap, 2);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_rcvdat2[4*i+0] );
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_rcvdat2[4*i+1] );
+  for(r=0; r<nproc; r++) {
+    vec_tmprcv2=vec_snddat2;
+    mpi::reduce(mpi::PE::instance(), mpi::plus(), vec_tmprcv2, vec_sndmap, vec_tmprcv2, vec_rcvmap, r, 2);
+    if (irank==r) {
+      for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_rcvdat2[4*i+0] );
+      for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_rcvdat2[4*i+1] );
+    } else {
+      for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_snddat2[4*i+0] );
+      for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_snddat2[4*i+1] );
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
