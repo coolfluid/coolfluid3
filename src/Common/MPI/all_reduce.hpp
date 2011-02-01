@@ -67,7 +67,7 @@ namespace detail {
     // there is in_map
     T *in_buf=(T*)in_values;
     if (in_map!=0){
-      if ( (in_buf=new T[in_n+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (in_buf=new T[stride*in_n+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
       if (stride==1) { for(int i=0; i<in_n; i++) in_buf[i]=in_values[in_map[i]]; }
       else { for(int i=0; i<(const int)(in_n); i++) memcpy(&in_buf[stride*i],&in_values[stride*in_map[i]],stride*sizeof(T)); }
     }
@@ -204,15 +204,23 @@ all_reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const
 **/
 template<typename T, typename Op>
 inline void
-all_reduce(const PE::Communicator& comm, Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
+all_reduce(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
 {
   // set out_values's sizes
   BOOST_ASSERT( in_values.size() % stride == 0 );
-  out_values.resize(in_values.size());
-  out_values.reserve(in_values.size());
+
+  // resize out_values if vector size is zero
+  if (out_values.size() == 0 ){
+    int out_sum=in_map.size();
+    if (out_map.size()!=0) {
+      boost_foreach( int i, out_map ) out_sum=i>out_sum?i:out_sum;
+    }
+    out_values.resize(stride*out_sum);
+    out_values.reserve(stride*out_sum);
+  }
 
   // call impl
-  detail::all_reduce_impl(comm, op, (T*)(&in_values[0]), in_values.size()/stride, &in_map[0], (T*)(&out_values[0]), &out_map[0], stride);
+  detail::all_reduce_impl(comm, op, (T*)(&in_values[0]), in_map.size(), &in_map[0], (T*)(&out_values[0]), &out_map[0], stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
