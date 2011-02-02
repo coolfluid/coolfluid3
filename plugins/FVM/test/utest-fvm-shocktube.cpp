@@ -56,10 +56,14 @@ BOOST_AUTO_TEST_CASE( constructor )
   
   ShockTube::Ptr s = allocate_component<ShockTube>("shocktube_wizard");
 
+  CF_DEBUG_POINT;
+  
   // 1) create model
   // ---------------
   s->signal_create_model(node);
 
+  CF_DEBUG_POINT;
+  
   BOOST_CHECK(true);  
   
   // 2) Load the mesh in Domain
@@ -95,9 +99,6 @@ BOOST_AUTO_TEST_CASE( constructor )
   // -------------
   path file("shocktube.msh");
   
-  std::vector<URI> fields = list_of
-    (mesh->get_child("solution")->full_path())
-    (mesh->get_child("residual")->full_path());
 //  meshwriter->configure_property("Fields",fields);
   model->look_component<CMeshWriter>("cpath:./tools/gmsh_writer")->write_from_to(mesh,file);
   

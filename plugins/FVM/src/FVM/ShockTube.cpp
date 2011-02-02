@@ -10,6 +10,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/CGroup.hpp"
+#include "Common/Foreach.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CField2.hpp"
@@ -152,6 +153,10 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   solver.configure_property("Domain" , model->get_child<CDomain>("domain")->full_path() );
   solver.configure_property("Number of Iterations", 1u);
   
+  std::vector<URI> fields;
+  boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
+    fields.push_back(field.full_path());
+  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -627,15 +627,15 @@ void CWriter::write_element_data2(std::fstream& file)
         file << 1 << "\n" << 0.0 << "\n";
         file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
         const CTable<Real>& field_data = elementbased_field.data();
-        boost_foreach(CElements& field_elements, find_components_recursively<CElements>(elementbased_field.topology()))
+        boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(elementbased_field.topology()))
         {
           CFieldView field_view("field_view");
-          field_view.initialize(elementbased_field,field_elements.as_type<CElements>());
+          field_view.initialize(elementbased_field,field_elements.as_type<CEntities>());
           Uint elm_number = m_element_start_idx[&field_elements];
           Uint local_nb_elms = field_elements.size();
           for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
           {
-            file << ++elm_number << " " ;
+            file << elm_number++ << " " ;
             if (var_type==CField2::TENSOR_2D)
             {
               data[0]=field_view[local_elm_idx][row_idx+0];

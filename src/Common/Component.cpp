@@ -190,13 +190,12 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp )
 Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
 {
   std::string unique_name = ensure_unique_name(subcomp);
-
+  cf_always_assert_desc("static components must always have a unique name", unique_name == subcomp->name());
   m_components[unique_name] = subcomp;
 
   raise_path_changed();
 
   subcomp->change_parent( this );
-  subcomp->rename( unique_name );
 
   return subcomp;
 }

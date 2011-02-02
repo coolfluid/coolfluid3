@@ -133,7 +133,7 @@ void ForwardEuler::solve()
     // compute RHS
     discretization_method().compute_rhs();
 
-    residual.data() *= update_coeff.data();
+    //residual.data() *= update_coeff.data();
     solution.data() += residual.data();
     
     // compute norm

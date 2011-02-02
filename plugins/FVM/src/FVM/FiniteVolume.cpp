@@ -54,8 +54,9 @@ FiniteVolume::FiniteVolume ( const std::string& name  ) :
   m_update_coeff = create_static_component<CLink>("update_coeff");
   
   // setup of the static components
+  CF_DEBUG_POINT;
   m_face_loop = create_static_component<CForAllFaces>("for_all_faces");
-  m_face_loop->create_action("CF.Solver.Actions.CComputeVolume");  
+  m_face_loop->create_action("CF.FVM.ComputeFlux");  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,6 +72,7 @@ void FiniteVolume::configure_solution()
   URI uri; property("Solution").put_value(uri);
   CField2::Ptr field = Core::instance().root()->look_component<CField2>(uri);
   m_solution->link_to(field);
+  m_face_loop->action("CF.FVM.ComputeFlux").configure_property("Solution",field->full_path());  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +87,7 @@ void FiniteVolume::configure_residual()
   std::vector<URI> faces_to_loop;
   faces_to_loop.push_back(field->topology().full_path());
   m_face_loop->configure_property("Regions" , faces_to_loop);
-  m_face_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volumes",field->full_path());  
+  m_face_loop->action("CF.FVM.ComputeFlux").configure_property("Residual",field->full_path());  
   
 }
 
