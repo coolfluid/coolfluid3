@@ -138,13 +138,14 @@ void CWriter::write_header(std::fstream& file)
   boost_foreach(const CRegion& groupRegion, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
     std::string name = groupRegion.full_path().path();
-    m_groupnumber[name] = phys_name_counter++;
+    m_groupnumber[name] = ++phys_name_counter;
   }
 
   file << "$PhysicalNames\n";
   file << phys_name_counter << "\n";
   foreach_container((const std::string& g_name)(const Uint g_number), m_groupnumber)
   {
+    /// @todo this should be the dimensionality of the physical group
     CFinfo << m_coord_dim << " " << g_number << " \"" << g_name << "\"\n" << CFflush;
     file << m_coord_dim << " " << g_number << " \"" << g_name << "\"\n";
   }

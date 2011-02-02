@@ -14,6 +14,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/StreamHelpers.hpp"
 #include "Common/String/Conversion.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
@@ -109,8 +110,10 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // set the internal mesh pointer
   m_mesh = mesh;
 
+  CF_DEBUG_POINT;
   // Read file once and store positions
   get_file_positions();
+  CF_DEBUG_POINT;
   
   //Create a hash
   m_hash = create_component<CMixedHash>("hash");
@@ -123,14 +126,16 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
   m_region = m_mesh->topology().create_region("main",!property("Serial Merge").value<bool>()).as_type<CRegion>();
 
+  CF_DEBUG_POINT;
 
   find_ghost_nodes();
 
 //  CFinfo << m_mesh->tree() << CFendl;
 //  CFinfo << "nodes to read = " << m_nodes_to_read.size() << CFendl;
-  
+  CF_DEBUG_POINT;
   read_coordinates();
   
+  CF_DEBUG_POINT;
   read_connectivity();
 
 //  // clean-up
@@ -396,19 +401,19 @@ void CReader::read_connectivity()
 
  //Each entry of this vector holds a map (gmsh_type_idx, pointer to connectivity table of this gmsh type).
  //Each row corresponds to one region of the mesh
- std::vector<std::map<Uint, CElements* > > conn_table_idx;
+ std::vector<std::map<Uint, CEntities* > > conn_table_idx;
  conn_table_idx.resize(m_nb_regions);
  for(Uint ir = 0; ir < m_nb_regions; ++ir)
  {
     conn_table_idx[ir].clear();
  }
 
- std::map<Uint, CElements*>::iterator elem_table_iter;
+ std::map<Uint, CEntities*>::iterator elem_table_iter;
 
  //Loop over all regions and allocate a connectivity table of proper size for each element type that
  //is present in each region. Counting of elements was done during the first pass in the function
  //get_file_positions
-
+ CF_DEBUG_POINT;
  for(Uint ir = 0; ir < m_nb_regions; ++ir)
  {
    // create new region
@@ -421,20 +426,32 @@ void CReader::read_connectivity()
      {
        const std::string cf_elem_name = Shared::gmsh_name_to_cf_name(m_mesh_dimension,etype);
 
-       CElements & elements = new_region->create_elements(cf_elem_name, *m_nodes);
-       CTable<Uint>& elem_table = elements.connectivity_table();
+       ElementType::Ptr allocated_type = create_component_abstract_type<ElementType>(cf_elem_name,"tmp");
+       CEntities::Ptr elements;
+       if (allocated_type->dimensionality() == allocated_type->dimension()-1)
+         elements = create_component_abstract_type<CEntities>("CF.Mesh.CFaces","Cells");
+       else
+         elements = create_component_abstract_type<CEntities>("CF.Mesh.CCells","Faces");
+      new_region->add_component(elements);
+      elements->initialize(cf_elem_name,*m_nodes);
+
+      // Celements& elements = new_region->create_component<CElements>(cf_elem_name);
+      // elements.initialize(cf_elem_name,*m_nodes);
+       
+       CTable<Uint>& elem_table = elements->as_type<CElements>()->connectivity_table();
        elem_table.set_row_size(Shared::m_nodes_in_gmsh_elem[etype]);
        elem_table.resize((m_nb_gmsh_elem_in_region[ir])[etype]);
 
-       CList<Uint>& global_node_idx = elements.glb_idx();
+       CList<Uint>& global_node_idx = elements->glb_idx();
        global_node_idx.resize((m_nb_gmsh_elem_in_region[ir])[etype]);
 
-       conn_table_idx[ir].insert(std::pair<Uint,CElements*>(etype,&elements));
+       conn_table_idx[ir].insert(std::pair<Uint,CEntities*>(etype,elements.get()));
      }
  
 
  }
 
+ CF_DEBUG_POINT;
    std::string etype_CF;
    std::set<Uint>::const_iterator it;
    std::vector<Uint> cf_element;
@@ -457,6 +474,7 @@ void CReader::read_connectivity()
      for(Uint etype = 0; etype < Shared::nb_gmsh_types; ++etype)
       (m_nb_gmsh_elem_in_region[ir])[etype] = 0;
 
+    CF_DEBUG_POINT;
   for (Uint i=0; i<m_total_nb_elements; ++i)
   {
     if (m_total_nb_elements > 100000)
@@ -464,7 +482,7 @@ void CReader::read_connectivity()
       if(i%(m_total_nb_elements/20)==0)
         CFinfo << 100*i/m_total_nb_elements << "% " << CFendl;
     }
-    
+    CF_DEBUG_POINT;
     // element description
     Uint element_number, gmsh_element_type, nb_element_nodes;
     m_file >> element_number >> gmsh_element_type;
@@ -482,10 +500,15 @@ void CReader::read_connectivity()
 //      CFinfo << "Reading element " << element_number << " of type " << gmsh_element_type;
 //      CFinfo << " in region " << phys_tag << " with " << nb_element_nodes << " nodes " << CFendl;
 
+        CF_DEBUG_POINT;
+        CFLogVar(nb_element_nodes);
       cf_element.resize(nb_element_nodes);
       for (Uint j=0; j<nb_element_nodes; ++j)
       {
+        CFLogVar(j);
+        CFLogVar(gmsh_element_type);
         cf_idx = m_nodes_gmsh_to_cf[gmsh_element_type][j];
+        CFLogVar(cf_idx);
         m_file >> gmsh_node_number;
         cf_node_number = m_node_to_coord_idx[gmsh_node_number];
         cf_element[cf_idx] = cf_node_number;
@@ -495,10 +518,10 @@ void CReader::read_connectivity()
             m_node_to_glb_elements[cf_node_number].insert(element_number-1);
         }
       }
-
+      CF_DEBUG_POINT;
       elem_table_iter = conn_table_idx[phys_tag-1].find(gmsh_element_type);
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
-      CTable<Uint>::Row element_nodes = (*(elem_table_iter->second)).connectivity_table()[row_idx];
+      CTable<Uint>::Row element_nodes = (*(elem_table_iter->second)).as_type<CElements>()->connectivity_table()[row_idx];
 
       for(Uint node = 0; node < nb_element_nodes; ++node)
       {
@@ -530,7 +553,7 @@ void CReader::read_connectivity()
   }
   getline(m_file,line);  // ENDOFSECTION
   
-  
+  CF_DEBUG_POINT;
   index_foreach( node_idx ,  std::set<Uint>& glb_elems , m_node_to_glb_elements)
     m_nodes->glb_elem_connectivity().set_row(node_idx,glb_elems);
   
