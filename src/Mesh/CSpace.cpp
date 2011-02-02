@@ -6,6 +6,8 @@
 
 #include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/CBuilder.hpp"
+
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/ElementType.hpp"
@@ -15,6 +17,8 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+
+Common::ComponentBuilder < CSpace, Component, LibMesh > CSpace_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
