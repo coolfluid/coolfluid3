@@ -10,6 +10,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CLink.hpp"
+#include "Common/CGroup.hpp"
+#include "Common/CAction.hpp"
 
 #include "Solver/CDiscretization.hpp"
 
@@ -72,14 +74,15 @@ private: // functions
   
 private: // data
 
-  boost::shared_ptr<Solver::Actions::CForAllFaces> m_face_loop;
-  
   Common::CLink::Ptr m_solution;
   
   Common::CLink::Ptr m_residual;
   
   Common::CLink::Ptr m_update_coeff;
   
+  Common::CAction::Ptr m_apply_bcs;
+  
+  Common::CAction::Ptr m_compute_rhs;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

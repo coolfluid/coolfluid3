@@ -55,9 +55,13 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( nam
   //     .insert<URI>("Domain", "Domain to load mesh into" )
   //     .insert_array<URI>( "Files" , "Files to read" );
 
+
+  m_properties.add_option<OptionT<bool> >("OutputDiagnostics","Output information of convergence",false)->mark_basic();
+  
   m_solution = create_static_component<CLink>("solution");
   m_residual = create_static_component<CLink>("residual");
   m_update_coeff = create_static_component<CLink>("update_coeff");
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,23 +131,36 @@ void ForwardEuler::solve()
   //CFinfo << "Starting Iterative loop" << CFendl;
   for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
   {
+    // initialize loop
     residual.data() = 0.;
     update_coeff.data() = 0.;
     
-    // compute RHS
-    discretization_method().compute_rhs();
+    // apply boundary conditions
+    discretization_method().get_child<CAction>("apply_boundary_conditions")->execute();
+    
+    // compute residual = flux_in - flux_out
+    discretization_method().get_child<CAction>("compute_rhs")->execute();
 
-    //residual.data() *= update_coeff.data();
+    // calculate update coefficient  =  dt/dx
+    Real dx = property("dx").value<Real>();
+    Real dt = get_parent()->get_child("Time")->property("Time Step").value<Real>();    
+    residual.data() *= dt/dx;
+    
+    // update solution = old_solution  + dt/dx * (flux_in - flux_out)
     solution.data() += residual.data();
     
-    // compute norm
-    Real rhs_L2=0;
-    boost_foreach(CTable<Real>::ConstRow rhs , residual.data().array())
-      rhs_L2 += rhs[0]*rhs[0];
-    rhs_L2 = sqrt(rhs_L2) / residual.data().size();
+    
+    if (property("OutputDiagnostics").value<bool>())
+    {
+      // compute norm
+      Real rhs_L2=0;
+      boost_foreach(CTable<Real>::ConstRow rhs , residual.data().array())
+        rhs_L2 += rhs[0]*rhs[0];
+      rhs_L2 = sqrt(rhs_L2) / residual.data().size();
 
-    // output convergence info
-    CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
+      // output convergence info
+      CFinfo << "ForwardEuler Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
+    }
   }
 }
 

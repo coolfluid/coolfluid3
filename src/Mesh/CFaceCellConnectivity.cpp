@@ -12,11 +12,14 @@
 #include "Common/CLink.hpp"
 #include "Common/Log.hpp"
 
+#include "Math/MatrixTypes.hpp"
+
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CCells.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -30,7 +33,7 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
   m_nb_faces(0)
 {
 
-  m_elements = create_static_component<CUnifiedData<CElements> >("elements");
+  m_elements = create_static_component<CUnifiedData<CCells> >("elements");
   m_connectivity = create_static_component<CTable<Uint> >("connectivity_table");
   m_face_nb_in_first_elem = create_static_component<CList<Uint> >("face_number");
   m_is_bdry_face = create_static_component<CList<Uint> >("is_bdry_face");
@@ -43,7 +46,7 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
 
 void CFaceCellConnectivity::setup(CRegion& region)
 {
-  m_elements->add_data(find_components_recursively_with_filter<CElements>(region,IsElementsVolume()).as_vector());  
+  m_elements->add_data(find_components_recursively<CCells>(region).as_vector());  
   build_connectivity();
 }
 
@@ -72,7 +75,7 @@ void CFaceCellConnectivity::build_connectivity()
   Uint max_nb_faces(0);
 
   // calculate max_nb_faces
-  boost_foreach ( CElements::Ptr elements, m_elements->data_components() )
+  boost_foreach ( CCells::Ptr elements, m_elements->data_components() )
   { 
     if (elements->element_type().dimensionality() != elements->element_type().dimension() )
       continue;
@@ -82,7 +85,7 @@ void CFaceCellConnectivity::build_connectivity()
   
   // allocate storage if doesn't exist that says if the element is at the boundary of a region
   // ( = not the same as the mesh boundary)
-  boost_foreach (CElements::Ptr elements, m_elements->data_components())
+  boost_foreach (CCells::Ptr elements, m_elements->data_components())
   {
     CList<bool>::Ptr is_bdry_elem = elements->get_child<CList<bool> >("is_bdry");
     const Uint nb_elem = elements->size();
@@ -106,12 +109,12 @@ void CFaceCellConnectivity::build_connectivity()
   Uint node;
   Uint nb_nodes;
   bool found_face = false;
-  CElements::Ptr elem_location_comp;
+  CCells::Ptr elem_location_comp;
   Uint elem_location_idx;
 
   // loop over the element types
   m_nb_faces=0;
-  boost_foreach (CElements::Ptr& elements, m_elements->data_components() )
+  boost_foreach (CCells::Ptr& elements, m_elements->data_components() )
   {
     const Uint nb_faces_in_elem = elements->element_type().nb_faces();
     CList<bool>& is_bdry_elem = *elements->get_child<CList<bool> >("is_bdry");
@@ -222,12 +225,12 @@ void CFaceCellConnectivity::build_connectivity()
   //CF_DEBUG_POINT;
   is_bdry_face.flush();
 
-  CFinfo << "Total nb faces [" << m_nb_faces << "]" << CFendl;
-  CFinfo << "Inner nb faces [" << nb_inner_faces << "]" << CFendl;
+  //CFinfo << "Total nb faces [" << m_nb_faces << "]" << CFendl;
+  //CFinfo << "Inner nb faces [" << nb_inner_faces << "]" << CFendl;
 
   // total number of boundary + partition boundary faces
   const Uint nb_bdry_plus_partition_faces = m_nb_faces - nb_inner_faces;
-  CFinfo << "Boundary and Partition faces [" << nb_bdry_plus_partition_faces << "]" << CFendl;
+  //CFinfo << "Boundary and Partition faces [" << nb_bdry_plus_partition_faces << "]" << CFendl;
 
   cf_assert(m_nb_faces <= max_nb_faces);
   cf_assert(nb_inner_faces <= max_nb_faces);
@@ -270,14 +273,14 @@ CTable<Uint>::ConstRow CFaceCellConnectivity::elements(const Uint unified_face_i
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CUnifiedData<CElements>::data_location_type CFaceCellConnectivity::element_location(const Uint unified_elem_idx)
+CUnifiedData<CCells>::data_location_type CFaceCellConnectivity::element_location(const Uint unified_elem_idx)
 {
   return m_elements->data_location(unified_elem_idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CUnifiedData<CElements>::const_data_location_type CFaceCellConnectivity::element_location(const Uint unified_elem_idx) const
+CUnifiedData<CCells>::const_data_location_type CFaceCellConnectivity::element_location(const Uint unified_elem_idx) const
 {
   return m_elements->data_location(unified_elem_idx);
 }
@@ -287,7 +290,7 @@ CUnifiedData<CElements>::const_data_location_type CFaceCellConnectivity::element
 std::vector<Uint> CFaceCellConnectivity::nodes(const Uint face) const
 {
   Uint unified_elem_idx = (*m_connectivity)[face][0];
-  CElements::Ptr elem_comp;
+  CCells::Ptr elem_comp;
   Uint elem_idx;
   boost::tie(elem_comp,elem_idx) = m_elements->data_location(unified_elem_idx);
   std::vector<Uint> nodes(elem_comp->element_type().face_type((*m_face_nb_in_first_elem)[face]).nb_nodes());
@@ -300,10 +303,18 @@ std::vector<Uint> CFaceCellConnectivity::nodes(const Uint face) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFaceCellConnectivity::add_elements( CUnifiedData<CElements>::Ptr elements )
+void CFaceCellConnectivity::add_elements( CUnifiedData<CCells>::Ptr elements )
 {
   m_elements->add_data(find_components(elements->data_links()).as_vector());
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+boost::tuple<Uint,Uint> CFaceCellConnectivity::element_loc_idx(const Uint unified_elem_idx)
+{
+  return m_elements->data_local_idx(unified_elem_idx);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

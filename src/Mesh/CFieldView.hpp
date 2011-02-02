@@ -55,7 +55,9 @@ public: // functions
 
   CTable<Real>::ConstRow operator[](const Uint idx) const;
 
-  const CField2& field() { return *m_field.lock(); }
+  const CField2& field() const { return *m_field.lock(); }
+
+  CField2& field() { return *m_field.lock(); }
   
   const CEntities& elements() const { return *m_elements.lock(); }
   
@@ -90,7 +92,7 @@ protected:
   Uint m_stride;
   Uint m_size;
 
-  boost::weak_ptr<CField2 const>      m_field;
+  boost::weak_ptr<CField2>      m_field;
   boost::weak_ptr<CTable<Real> >      m_field_data;
   boost::weak_ptr<CEntities const>    m_elements;
   boost::weak_ptr<CTable<Real> const> m_coords_table;

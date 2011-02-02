@@ -42,6 +42,13 @@ Real Line1DLagrangeP1::compute_volume(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Line1DLagrangeP1::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  centroid[0] = 0.5*(coord(0,XX)+coord(1,XX));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool Line1DLagrangeP1::is_coord_in_element( const RealVector& coord, const NodesT& nodes) const
 {
   MappedCoordsT mapped_coord;
@@ -61,7 +68,7 @@ bool Line1DLagrangeP1::is_coord_in_element( const RealVector& coord, const Nodes
 
 const CF::Mesh::ElementType::FaceConnectivity& Line1DLagrangeP1::face_connectivity() const
 {
-  faces();
+  return faces();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

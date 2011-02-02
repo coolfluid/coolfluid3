@@ -1,6 +1,8 @@
 list( APPEND coolfluid_fvm_files
   LibFVM.cpp
   LibFVM.hpp
+  BCDirichlet.hpp
+  BCDirichlet.cpp
   ComputeFlux.hpp
   ComputeFlux.cpp
   FiniteVolume.hpp

@@ -19,6 +19,7 @@
 #include "Solver/Actions/CForAllFaces.hpp"
 
 #include "FVM/FiniteVolume.hpp"
+#include "FVM/ComputeFlux.hpp"
 
 using namespace boost::assign;
 
@@ -53,10 +54,12 @@ FiniteVolume::FiniteVolume ( const std::string& name  ) :
   m_residual = create_static_component<CLink>("residual");
   m_update_coeff = create_static_component<CLink>("update_coeff");
   
+  m_apply_bcs = create_static_component<CAction>("apply_boundary_conditions");
+  
   // setup of the static components
-  CF_DEBUG_POINT;
-  m_face_loop = create_static_component<CForAllFaces>("for_all_faces");
-  m_face_loop->create_action("CF.FVM.ComputeFlux");  
+  m_compute_rhs = create_static_component<CAction>("compute_rhs");
+  CAction::Ptr for_all_faces = m_compute_rhs->create_component<CForAllFaces>("for_all_inner_faces");
+  for_all_faces->create_component<ComputeFlux>("add_flux_to_rhs");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,7 +75,7 @@ void FiniteVolume::configure_solution()
   URI uri; property("Solution").put_value(uri);
   CField2::Ptr field = Core::instance().root()->look_component<CField2>(uri);
   m_solution->link_to(field);
-  m_face_loop->action("CF.FVM.ComputeFlux").configure_property("Solution",field->full_path());  
+  m_compute_rhs->look_component("cpath:./for_all_inner_faces/add_flux_to_rhs")->configure_property("Solution",field->full_path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,12 +86,9 @@ void FiniteVolume::configure_residual()
   CField2::Ptr field = Core::instance().root()->look_component<CField2>(uri);
   m_residual->link_to(field);
   
-  CFinfo << "face_loop configuration" << CFendl;
-  std::vector<URI> faces_to_loop;
-  faces_to_loop.push_back(field->topology().full_path());
-  m_face_loop->configure_property("Regions" , faces_to_loop);
-  m_face_loop->action("CF.FVM.ComputeFlux").configure_property("Residual",field->full_path());  
-  
+  std::vector<URI> faces_to_loop (1, field->topology().get_child("cells")->full_path());
+  m_compute_rhs->look_component("cpath:./for_all_inner_faces")->configure_property("Regions",faces_to_loop);
+  m_compute_rhs->look_component("cpath:./for_all_inner_faces/add_flux_to_rhs")->configure_property("Residual",field->full_path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,12 +106,9 @@ void FiniteVolume::create_bc( XmlNode& xml )
 {
   XmlParams p (xml);
 
-  std::string name = p.get_option<std::string>("Name");
-//   
-//   CLoop::Ptr apply_bc = create_component< CForAllNodes >(name);
-// 
-//   apply_bc->create_action("CF.Solver.Actions.CSetFieldValues");
-//   apply_bc->action("CF.Solver.Actions.CSetFieldValues").configure_property("Field",std::string("solution"));
+  std::string name     = p.get_option<std::string>("Name");
+  std::string provider = p.get_option<std::string>("ConcreteType");
+   
 //   apply_bc->add_tag("apply_bc_action");
 }
 
@@ -119,16 +116,9 @@ void FiniteVolume::create_bc( XmlNode& xml )
 
 void FiniteVolume::compute_rhs()
 {
-  // apply BC
-  boost_foreach (CLoop& apply_bc, find_components_with_tag<CLoop>(*this,"apply_bc_action"))
-  {
-    CFinfo << apply_bc.name() << CFendl;
-    apply_bc.execute();
-  }
-
   // compute element residual distribution
-  CFinfo << "execute " << m_face_loop->name() << CFendl;
-  m_face_loop->execute();
+  CFinfo << "execute " << m_compute_rhs->name() << CFendl;
+  m_compute_rhs->execute();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

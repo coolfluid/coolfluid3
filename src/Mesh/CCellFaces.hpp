@@ -9,6 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Math/MatrixTypes.hpp"
 #include "Mesh/CEntities.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 

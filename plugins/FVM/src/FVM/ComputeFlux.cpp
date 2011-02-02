@@ -7,13 +7,14 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/Foreach.hpp"
-
+#include "Common/Log.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 
 #include "FVM/ComputeFlux.hpp"
+#include "FVM/RoeFluxSplitter.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,8 +43,7 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
   
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &ComputeFlux::trigger_elements,   this ) );
 
-  m_solution = create_static_component<CFieldView>("solution_view");
-  m_residual = create_static_component<CFieldView>("residual_view");
+  m_fluxsplitter = create_static_component<RoeFluxSplitter>("Roe_fluxsplitter");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ void ComputeFlux::config_solution()
   CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
-  m_solution->set_field(comp);
+  m_connected_solution.set_field(comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,15 +65,15 @@ void ComputeFlux::config_residual()
   CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
-  m_residual->set_field(comp);
+  m_connected_residual.set_field(comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void ComputeFlux::trigger_elements()
 {
-  m_solution->set_elements(elements());
-  m_residual->set_elements(elements());
+  m_connected_solution.set_elements(elements().as_type<CCellFaces>());
+  m_connected_residual.set_elements(elements().as_type<CCellFaces>());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -82,10 +82,26 @@ void ComputeFlux::execute()
 {
   // idx() is the index that is set using the function set_loop_idx() or configuration LoopIndex
   // 2) as simple field --> extra index for multiple variables per field
-  CFieldView& residual = *m_residual;
-  residual[idx()][0] = 1.;
-  residual[idx()][1] = 1.;
-  residual[idx()][2] = 1.;
+  // CFieldView& residual = *m_residual;
+  // residual[idx()][0] = 1.;
+  // residual[idx()][1] = 1.;
+  // residual[idx()][2] = 1.;
+  enum {LEFT=0,RIGHT=1};
+
+  RealVector U_L(3), U_R(3);
+  for (Uint i=0; i<3; ++i)
+  {
+    U_L[i]=m_connected_solution[idx()][LEFT ][i];
+    U_R[i]=m_connected_solution[idx()][RIGHT][i];
+  }
+  
+  RealVector flux = m_fluxsplitter->solve(U_L,U_R);
+  
+  for (Uint i=0; i<3; ++i)
+  {
+    m_connected_residual[idx()][LEFT ][i] -= flux[i]; // flux going OUT of left cell
+    m_connected_residual[idx()][RIGHT][i] += flux[i]; // flux going IN to right cell
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

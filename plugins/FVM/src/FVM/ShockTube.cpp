@@ -16,6 +16,10 @@
 #include "Mesh/CField2.hpp"
 #include "Mesh/Gmsh/CWriter.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
+#include "Mesh/CFieldView.hpp"
+#include "Mesh/CCells.hpp"
+#include "Mesh/CSpace.hpp"
+#include "Mesh/CRegion.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CPhysicalModel.hpp"
@@ -154,9 +158,73 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   solver.configure_property("Number of Iterations", 1u);
   
   std::vector<URI> fields;
-  boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
+  boost_foreach(const CField2& field, find_components_recursively_with_name<CField2>(*mesh,"solution"))
     fields.push_back(field.full_path());
   model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
+  
+  
+  
+  // set initial condition
+  
+  RealVector left(3);
+  RealVector right(3);
+  
+  Real g=1.4;
+  
+  const Real r_L = 4.696;     const Real r_R = 1.408;
+  const Real u_L = 0.;        const Real u_R = 0.;
+  const Real p_L = 404400;    const Real p_R = 101100;
+
+  left <<  r_L, r_L*u_L, p_L/(g-1.) + 0.5*r_L*u_L*u_L;
+  right << r_R, r_R*u_R, p_R/(g-1.) + 0.5*r_R*u_R*u_R;
+  
+  RealMatrix node_coordinates;
+  RealVector centroid(1);
+  CFieldView solution_view("solution_view");
+  solution_view.set_field(solution);
+  boost_foreach(const CCells& cells, find_components_recursively<CCells>(*mesh))
+  {
+    solution_view.set_elements(cells);
+    solution_view.allocate_coordinates(node_coordinates);
+    for (Uint e=0; e<cells.size(); ++e)
+    {
+      solution_view.put_coordinates(node_coordinates,e);
+      solution_view.space().shape_function().compute_centroid(node_coordinates,centroid);
+      if (centroid[XX] <= 5.)
+      {
+        for(Uint i=0; i<left.size(); ++i)
+          solution_view[e][i] = left[i];
+      }
+      else
+      {
+        for(Uint i=0; i<right.size(); ++i)
+          solution_view[e][i] = right[i];
+      }
+    }
+  }
+  
+  CAction& apply_bcs = *solver.look_component<CAction>("cpath:./Discretization/apply_boundary_conditions");
+  std::vector<URI> faces_to_loop(1);
+  
+  CAction& apply_inlet_bc = apply_bcs.create_action("CF.Solver.Actions.CForAllFaces","inlet");
+  faces_to_loop[0] = solution.topology().get_child("xneg")->full_path();
+  apply_inlet_bc.configure_property("Regions" , faces_to_loop);
+  CAction& inlet_bc = apply_inlet_bc.create_action("CF.FVM.BCDirichlet","dirichlet");
+  
+  inlet_bc.configure_property("Solution",solution.full_path());
+  inlet_bc.configure_property("rho",r_L);
+  inlet_bc.configure_property("u",u_L);
+  inlet_bc.configure_property("p",p_L);
+  
+  CAction& apply_outlet_bc = apply_bcs.create_action("CF.Solver.Actions.CForAllFaces","outlet");
+  faces_to_loop[0] = solution.topology().get_child("xpos")->full_path();
+  apply_outlet_bc.configure_property("Regions" , faces_to_loop);
+  CAction& outlet_bc = apply_outlet_bc.create_action("CF.FVM.BCDirichlet","dirichlet");
+  outlet_bc.configure_property("Solution",solution.full_path());
+  outlet_bc.configure_property("rho",r_R);
+  outlet_bc.configure_property("u",u_R);
+  outlet_bc.configure_property("p",p_R);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

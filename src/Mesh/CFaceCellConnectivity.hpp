@@ -7,7 +7,7 @@
 #ifndef CF_Mesh_CFaceCellConnectivity_hpp
 #define CF_Mesh_CFaceCellConnectivity_hpp
 
-#include "Mesh/CElements.hpp"
+//#include "Mesh/CElements.hpp"
 #include "Mesh/CUnifiedData.hpp"
 #include "Mesh/CTable.hpp"
 
@@ -21,6 +21,7 @@ namespace Mesh {
   
   class CNodes;
   class CRegion;
+  class CCells;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,11 +71,11 @@ public:
 
   /// Find the element location given a unified element index
   /// @return boost::tuple<CElements::Ptr,Uint>(elem_component,elem_idx)
-  CUnifiedData<CElements>::data_location_type element_location(const Uint unified_elem_idx);
+  CUnifiedData<CCells>::data_location_type element_location(const Uint unified_elem_idx);
 
   /// Find the element location given a unified element index
   /// @return boost::tuple<CElements::ConstPtr,Uint>(elem_component,elem_idx)  
-  CUnifiedData<CElements>::const_data_location_type element_location(const Uint unified_elem_idx) const;
+  CUnifiedData<CCells>::const_data_location_type element_location(const Uint unified_elem_idx) const;
   
   /// const access to the node to element connectivity table in unified indices
   const CTable<Uint>& connectivity() const { return *m_connectivity; }
@@ -86,15 +87,19 @@ public:
   
   std::vector<Uint> nodes(const Uint face) const;
   
-  void add_elements(CUnifiedData<CElements>::Ptr elements);
-  
+  void add_elements(CUnifiedData<CCells>::Ptr elements);
+
+  std::vector<boost::shared_ptr<CCells> >& cells_components() { return m_elements->data_components(); } 
+
+  boost::tuple<Uint,Uint> element_loc_idx(const Uint unified_elem_idx);
+
 private: // data
 
   /// nb_faces
   Uint m_nb_faces;
 
   /// unified view of the elements
-  CUnifiedData<CElements>::Ptr m_elements;
+  CUnifiedData<CCells>::Ptr m_elements;
 
   /// Actual connectivity table
   CTable<Uint>::Ptr m_connectivity;

@@ -8,6 +8,7 @@
 
 #include "Mesh/CCellFaces.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/ElementType.hpp"
 
 namespace CF {
 namespace Mesh {

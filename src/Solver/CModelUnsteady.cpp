@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iomanip>
+
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/ComponentPredicates.hpp"
@@ -43,24 +45,18 @@ CModelUnsteady::~CModelUnsteady()
 ////////////////////////////////////////////////////////////////////////////////
 
 void CModelUnsteady::simulate ()
-{  
+{
+  CFinfo << "\n" << name() << " starting simulation:" << CFendl;
   const Real ti  = m_time->time();
   const Real tf  = m_time->property("End Time").value<Real>();
 
   Real dt  = m_time->property("Time Step").value<Real>();
   Real ct  = ti;
 
-  CFLogVar(dt);
-  CFLogVar(ct);
-  CFLogVar(tf);
-
-  // initial condition
-  CField2::Ptr solution = find_component_ptr_recursively_with_name<CField2>(*this,"solution");
-  if (is_not_null(solution))
-    solution->data() = 0.;
-  
   // loop over time
-  while( ct < tf )
+  Uint iter(0);
+  Real tol=1e-12;
+  while( ct < tf-tol )
   {
     // compute which dt to take
     if( ct + dt > tf )
@@ -68,16 +64,13 @@ void CModelUnsteady::simulate ()
       dt = tf - ct;
       m_time->dt() = dt;
     }
-    
-    //CFLogVar(dt);
-    
-    // call all (non-linear) iterative solvers
-    // to solve this dt step
+
+    // call all (non-linear) iterative solvers to solve this dt step
     boost_foreach(CIterativeSolver& is, find_components<CIterativeSolver>(*this))
       is.solve();
 
     ct += dt; // update time
-    CFinfo << "Time [" << ct << "]" << CFendl;
+    CFinfo << "Iter [" << std::setw(4) << ++iter << "]    Time [" << std::setw(6) << ct << "]" << CFendl;
   }
 }
 

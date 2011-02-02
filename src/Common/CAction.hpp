@@ -36,7 +36,9 @@ public: // functions
   static std::string type_name () { return "CAction"; }
 
   /// execute the action
-  virtual void execute () = 0;
+  virtual void execute ();
+  
+  virtual CAction& create_action(const std::string& action_provider, const std::string& name);
 
   /// Templated version for high efficiency
   template < typename T >

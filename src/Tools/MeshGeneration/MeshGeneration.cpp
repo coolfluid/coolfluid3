@@ -10,6 +10,8 @@
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
+#include "Mesh/CFaces.hpp"
+#include "Mesh/CCells.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CNodes.hpp"
 
@@ -40,7 +42,9 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
     nodes.coordinates()[i][XX] = static_cast<Real>(i) * x_step;
   }
   
-  CTable<Uint>& connectivity = region.create_elements("CF.Mesh.SF.Line1DLagrangeP1",nodes).connectivity_table();
+  CCells::Ptr cells = region.create_component<CCells>("Line");
+  cells->initialize("CF.Mesh.SF.Line1DLagrangeP1",nodes);
+  CTable<Uint>& connectivity = cells->connectivity_table();
   connectivity.resize(x_segments);
   for(Uint i = 0; i < x_segments; ++i)
   {
@@ -50,12 +54,16 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   }
   
   // Left boundary point
-  CTable<Uint>& xneg_connectivity = mesh.topology().create_region("xneg").create_elements("CF.Mesh.SF.Point1DLagrangeP1", nodes).connectivity_table();
+  CFaces::Ptr xneg = mesh.topology().create_region("xneg").create_component<CFaces>("Point");
+  xneg->initialize("CF.Mesh.SF.Point1DLagrangeP1", nodes);
+  CTable<Uint>& xneg_connectivity = xneg->connectivity_table();
   xneg_connectivity.resize(1);
   xneg_connectivity[0][0] = 0;
   
   // right boundary point
-  CTable<Uint>& xpos_connectivity = mesh.topology().create_region("xpos").create_elements("CF.Mesh.SF.Point1DLagrangeP1", nodes).connectivity_table();
+  CFaces::Ptr xpos = mesh.topology().create_region("xpos").create_component<CFaces>("Point");
+  xpos->initialize("CF.Mesh.SF.Point1DLagrangeP1", nodes);
+  CTable<Uint>& xpos_connectivity = xpos->connectivity_table();
   xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;
 }

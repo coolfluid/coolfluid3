@@ -45,6 +45,14 @@ public: // functions
   RealVector roe_average(const RealVector& left, const RealVector& right) const;
   
   RealVector flux(const RealVector& state) const;
+  
+private:
+  
+  /// gamma
+  const Real m_g;
+  
+  /// gamma - 1 
+  const Real m_gm1;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

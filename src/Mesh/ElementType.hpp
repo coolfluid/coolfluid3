@@ -114,6 +114,9 @@ public: // functions
 
   /// compute volume given coordinates
   virtual Real compute_volume(const NodesT& coord) const = 0;
+
+  /// compute volume given coordinates
+  virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const {};
   
   /// Return the face connectivity information
   virtual const FaceConnectivity& face_connectivity() const = 0;

@@ -21,7 +21,7 @@ namespace CF {
 namespace Solver {
 namespace Actions {
 
-ComponentBuilder < CForAllFaces, CLoop, LibActions > CForAllFaces_builder;
+ComponentBuilder < CForAllFaces, CAction, LibActions > CForAllFaces_builder;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,7 @@ CForAllFaces::CForAllFaces ( const std::string& name ) :
 void CForAllFaces::execute()
 {
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
-    boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(*region,"face_entity") )
+    boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(*region,"face_entity") )    
   {
     // Setup all child operations
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))

@@ -56,21 +56,20 @@ BOOST_AUTO_TEST_CASE( constructor )
   
   ShockTube::Ptr s = allocate_component<ShockTube>("shocktube_wizard");
 
-  CF_DEBUG_POINT;
-  
   // 1) create model
   // ---------------
   s->signal_create_model(node);
-
-  CF_DEBUG_POINT;
+  CModelUnsteady::Ptr model = Core::instance().root()->get_child<CModelUnsteady>("shocktube");
   
   BOOST_CHECK(true);  
   
   // 2) Load the mesh in Domain
   // --------------------------
-  CDomain::Ptr domain = Core::instance().root()->look_component("cpath://Root/shocktube/domain")->as_type<CDomain>();
+  Uint nb_segments = 70;
+  CDomain::Ptr domain = model->get_child<CDomain>("domain");
   CMesh::Ptr mesh = domain->create_component<CMesh>("line");
-  create_line(*mesh, 10. , 5u );
+  create_line(*mesh, 10. , nb_segments );
+  model->get_child("IterativeSolver")->properties()["dx"]=10./Real(nb_segments);
 
   BOOST_CHECK(true);
   
@@ -82,9 +81,10 @@ BOOST_AUTO_TEST_CASE( constructor )
   
   // 4) Configure time
   // -----------------
-  CModelUnsteady::Ptr model = Core::instance().root()->get_child<CModelUnsteady>("shocktube");
-  model->time().configure_property("Time Step", 2.);
-  model->time().configure_property("End Time", 11.);
+  model->time().configure_property("Time Step", 0.0002);
+  model->time().configure_property("End Time", 0.008);
+  model->get_child("IterativeSolver")->configure_property("OutputDiagnostics",false);
+  
   //BOOST_CHECK_EQUAL( model->time().dt() , 1.);
 
   BOOST_CHECK(true);

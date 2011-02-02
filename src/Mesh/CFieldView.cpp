@@ -89,7 +89,7 @@ void CFieldView::set_elements(CEntities::Ptr elements)
 
 void CFieldView::set_field(CField2& field) 
 { 
-  m_field = field.as_const()->as_type<CField2>(); 
+  m_field = field.as_type<CField2>(); 
   m_field_data = field.data().as_type<CTable<Real> >();
   cf_assert( is_not_null(m_field_data.lock()) );
 }
