@@ -88,7 +88,10 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
       row[YY] = y;
     }
   }
-  CTable<Uint>& connectivity = region.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",nodes).connectivity_table();
+  
+  CCells::Ptr cells = region.create_component<CCells>("Quad");
+  cells->initialize("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
+  CTable<Uint>& connectivity = cells->connectivity_table();
   connectivity.resize((x_segments)*(y_segments));
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -145,7 +148,10 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
 {
   CRegion& region = mesh.topology().create_region("region");
   CNodes& nodes = region.create_nodes(DIM_2D);
-  CTable<Uint>& connectivity = region.create_elements("CF.Mesh.SF.Line2DLagrangeP1",nodes).connectivity_table();
+
+  CCells::Ptr cells = region.create_component<CCells>("Line");
+  cells->initialize("CF.Mesh.SF.Line1DLagrangeP1",nodes);
+  CTable<Uint>& connectivity = cells->connectivity_table();
   
   const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*pi()) < eps();
   

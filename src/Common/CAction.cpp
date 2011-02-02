@@ -8,11 +8,15 @@
 #include "Common/Foreach.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/CBuilder.hpp"
+#include "Common/LibCommon.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common {
+
+ComponentBuilder < CAction, CAction, LibCommon > CAction_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
