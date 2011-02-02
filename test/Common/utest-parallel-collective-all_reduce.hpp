@@ -130,8 +130,8 @@ struct PEAllReduceFixture
       /// simple data
       int ival;
       double dval;
-      /// constructor for giving values for i and d
-      optest(){
+      /// giving values for i and d
+      void init(){
         ival=mpi::PE::instance().rank()+1;
         dval=(double)mpi::PE::instance().rank()+10.;
       }
@@ -141,7 +141,7 @@ struct PEAllReduceFixture
       bool test()
       {
         int i;
-        int nproc=mpi::PE::instance().rank();
+        int nproc=mpi::PE::instance().size();
         int itest=0;
         for(i=0; i<nproc; i++) itest+=i+1;
         int dtest=0;
@@ -220,12 +220,15 @@ BOOST_AUTO_TEST_CASE( all_reduce_most_common_ops )
 
 BOOST_AUTO_TEST_CASE( all_reduce_operator_of_class )
 {
-/*
-  optest in,out;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), &in, 1, &out);
-  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << nproc << " results: " << out.ival << " " << out.dval << CFendl;);
-  BOOST_CHECK_EQUAL( out.test() , true );
-*/
+  int r;
+  optest in[3],out[3];
+  in[0].init();
+  in[1].init();
+  in[2].init();
+  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), in, 3, out);
+  BOOST_CHECK_EQUAL( out[0].test() , true );
+  BOOST_CHECK_EQUAL( out[1].test() , true );
+  BOOST_CHECK_EQUAL( out[2].test() , true );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

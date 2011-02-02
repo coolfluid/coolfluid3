@@ -54,7 +54,6 @@ namespace detail {
     @param out_map array of size #processes holding the mapping
     @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
   **/
-
   template<typename T, typename Op>
   inline void
   reduce_impl(const PE::Communicator& comm,  Op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride)
