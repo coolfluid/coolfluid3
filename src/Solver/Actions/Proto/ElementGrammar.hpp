@@ -20,19 +20,14 @@ namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
-
+  
 struct SingleExprElementGrammar :
   boost::proto::or_
   <
     // Assignment to system matrix
     BlockAccumulation<ElementMath>,
     ElementMath, // Math expressions
-    // Stream output
-    boost::proto::when
-    <
-      boost::proto::shift_left< boost::proto::terminal< std::ostream & >, SingleExprElementGrammar >,
-      boost::proto::_default<SingleExprElementGrammar>
-    >
+    StreamOutput<SingleExprElementGrammar> // Stream output 
   >
 {
 };

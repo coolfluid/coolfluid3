@@ -26,7 +26,7 @@ struct DirichletBC
 };
 
 /// Placeholder to define dirichlet boundary conditions
-boost::proto::result_of::make_expr< boost::proto::tag::function, DirichletBC, StoredReference<Solver::CEigenLSS> >::type const
+inline boost::proto::result_of::make_expr< boost::proto::tag::function, DirichletBC, StoredReference<Solver::CEigenLSS> >::type const
 dirichlet(Solver::CEigenLSS& arg)
 {
   return boost::proto::make_expr<boost::proto::tag::function>( DirichletBC(), store(arg) );

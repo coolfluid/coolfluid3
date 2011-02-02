@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <iostream>
+#include <set>
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
@@ -18,19 +19,25 @@
 namespace CF {
 namespace Solver {
 
+using namespace CF::Mesh;
+  
 CF::Common::ComponentBuilder < CEigenLSS, Common::Component, LibSolver > aCeigenLSS_Builder;
 
 CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 {
-  Common::Option::Ptr option = m_properties.add_option<Common::OptionURI>("SolutionField", "Path to the field that will store the solution", "");
-  boost::dynamic_pointer_cast<Common::OptionURI>(option)->supported_protocol(CF::Common::URI::Scheme::CPATH);
-  option->attach_trigger(boost::bind(&CEigenLSS::on_solution_field_change, this));
 }
 
 void CEigenLSS::resize ( Uint nb_dofs )
 {
+  if(nb_dofs == m_system_matrix.rows())
+    return;
+  
   m_system_matrix.resize(nb_dofs, nb_dofs);
   m_rhs.resize(nb_dofs);
+  m_solution.resize(nb_dofs);
+  
+  m_system_matrix.setZero();
+  m_rhs.setZero();
 }
 
 Uint CEigenLSS::size() const
@@ -48,36 +55,59 @@ RealVector& CEigenLSS::rhs()
   return m_rhs;
 }
 
-void CEigenLSS::solve()
+const RealVector& CEigenLSS::solution()
 {
-  Mesh::CField::Ptr output_field = look_component<Mesh::CField>(property("SolutionField").value_str());
-  cf_assert(output_field);
-
-  Mesh::CTable<Real>& output_data = Common::find_component_with_filter< Mesh::CTable<Real> >(*output_field, Common::IsComponentTag("field_data"));
-  const Uint row_size = output_data.row_size();
-
-  const RealVector solution = matrix().colPivHouseholderQr().solve(rhs());
-
-  for(Uint i = 0; i != size(); ++i)
-  {
-    const Uint row = i / row_size;
-    const Uint col = i % row_size;
-    output_data[row][col] += solution[i];
-  }
+  return m_solution;
 }
 
-void CEigenLSS::on_solution_field_change()
+
+void CEigenLSS::solve()
 {
-  Mesh::CField::Ptr output_field = look_component<Mesh::CField>(property("SolutionField").value_str());
-  if(output_field)
+  m_solution = matrix().colPivHouseholderQr().solve(rhs());
+}
+
+void increment_solution(const RealVector& solution, const std::vector<std::string>& field_names, const std::vector<std::string>& var_names, const std::vector<Uint>& var_sizes, CMesh& solution_mesh)
+{ 
+  const Uint nb_vars = var_names.size();
+  
+  std::vector<Uint> var_offsets;
+  var_offsets.push_back(0);
+  for(Uint i = 0; i != nb_vars; ++i)
   {
-    const Mesh::CTable<Real>& output_data = output_field->data_table();
-    resize(output_data.row_size() * output_data.size());
-    m_system_matrix.setZero();
-    m_rhs.setZero();
+    var_offsets.push_back(var_offsets.back() + var_sizes[i]);
   }
   
-  
+  // Copy the data to the fields, where each field value is incremented with the value from the solution vector 
+  std::set<std::string> unique_field_names;
+  BOOST_FOREACH(const std::string& field_name, field_names)
+  {
+    if(unique_field_names.insert(field_name).second)
+    {
+      CField& field = solution_mesh.field(field_name);
+      CTable<Real>& field_table = field.data_table();
+      const Uint field_size = field_table.size();
+      for(Uint row_idx = 0; row_idx != field_size; ++row_idx)
+      {
+        CTable<Real>::Row row = field_table[row_idx];
+        for(Uint i = 0; i != nb_vars; ++i)
+        {
+          if(field_names[i] != field_name)
+            continue;
+          
+          const Uint solution_begin = var_offsets.back() * row_idx + var_offsets[i];
+          const Uint solution_end = solution_begin + var_sizes[i];
+          Uint field_idx = field.var_index(var_names[i]);
+          
+          cf_assert(field.var_length(var_names[i]) == var_sizes[i]);
+          
+          for(Uint sol_idx = solution_begin; sol_idx != solution_end; ++sol_idx)
+          {
+            row[field_idx++] += solution[sol_idx];
+          }
+        }
+      }
+    }
+  }
 }
 
 

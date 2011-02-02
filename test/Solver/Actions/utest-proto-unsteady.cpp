@@ -10,8 +10,6 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Solver/Actions/Proto/CProtoElementsAction.hpp"
-#include "Solver/Actions/Proto/CProtoNodesAction.hpp"
 #include "Solver/Actions/Proto/ElementLooper.hpp"
 #include "Solver/Actions/Proto/Functions.hpp"
 #include "Solver/Actions/Proto/NodeLooper.hpp"
@@ -44,6 +42,9 @@ using namespace CF::Mesh;
 
 using namespace boost;
 
+typedef std::vector<std::string> StringsT;
+typedef std::vector<Uint> SizesT;
+
 struct ProtoUnsteadyFixture
 {
   ProtoUnsteadyFixture() :
@@ -63,8 +64,7 @@ struct ProtoUnsteadyFixture
   /// Write the analytical solution, according to "A Heat transfer textbook", section 5.3
   void set_analytical_solution(CRegion& region, const std::string& field_name, const std::string& var_name)
   {
-    MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", boost::dynamic_pointer_cast<CRegion>(region.follow()) );
-    MeshTerm<1, Field<Real> > T(field_name, var_name);
+    MeshTerm<0, Field<Real> > T(field_name, var_name);
     
     // Zero the field
     for_each_node
@@ -80,7 +80,7 @@ struct ProtoUnsteadyFixture
       for_each_node
       (
         region,
-        T += 4./pi() * 1./n * _exp( pow<2>( 0.5*n*pi() ) * (-Fo) ) * _sin(0.5*n*pi()*nodes(0,0)/(0.5*length))
+        T += 4./pi() * 1./n * _exp( pow<2>( 0.5*n*pi() ) * (-Fo) ) * _sin(0.5*n*pi()*coordinates(0,0)/(0.5*length))
       );
     }
     
@@ -121,40 +121,36 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   
   // Create output field
   const std::vector<std::string> vars(1, "T[1]");
-  mesh->create_field("Temperature", vars, CField::NODE_BASED);
-  lss.configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
+  lss.resize(mesh->create_field("Temperature", vars, CField::NODE_BASED).data_table().size());
   
   // Create a field for the analytical solution
   mesh->create_field("TemperatureAnalytical", vars, CField::NODE_BASED);
   
   // Regions
-  CRegion& fluid = find_component_recursively_with_name<CRegion>(*mesh, "cells");
   CRegion& xneg = find_component_recursively_with_name<CRegion>(*mesh, "xneg");
   CRegion& xpos = find_component_recursively_with_name<CRegion>(*mesh, "xpos");
-  
-  // Term for the geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "cells") );
 
   // Read-only access to the result field (faster)
-  MeshTerm<1, ConstField<Real> > temperature("Temperature", "T");
+  MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
   
   // Writable access to the result field
-  MeshTerm<2, Field<Real> > temperature_writable("Temperature", "T");
+  MeshTerm<1, Field<Real> > temperature_writable("Temperature", "T");
   
-  MeshTerm<3, Field<Real> > temperature_analytical("TemperatureAnalytical", "T");
+  MeshTerm<2, Field<Real> > temperature_analytical("TemperatureAnalytical", "T");
   
   // Set initial condition. We should use the analytical solution at start_time != 0 because it is smooth
-  set_analytical_solution(fluid, "Temperature", "T");
+  set_analytical_solution(mesh->topology(), "Temperature", "T");
   
   while(t < end_time)
-  {
+  { 
     // Fill the system matrix
-    for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
+    for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
     (
+      mesh->topology(),
       group
       (
-        system_matrix(lss) += integral<1>( ( invdt * sf_outer_product(temperature) + 0.5 * alpha * laplacian(nodes, temperature) ) * jacobian_determinant(nodes) ),
-        system_rhs(lss) += integral<1>( ( laplacian(nodes, temperature) ) * ( jacobian_determinant(nodes) * (-alpha) ) * temperature)
+        system_matrix(lss) += integral<1>( ( invdt * sf_outer_product(temperature) + 0.5 * alpha * laplacian(temperature) ) * jacobian_determinant ),
+        system_rhs(lss) -= alpha * integral<1>( laplacian(temperature) * jacobian_determinant ) * temperature
       )
     );
     
@@ -174,12 +170,13 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     
     // Solve the system!
     lss.solve();
+    increment_solution(lss.solution(), StringsT(1, "Temperature"), StringsT(1, "T"), SizesT(1, 1), *mesh);
     
     // Check the solution
-    set_analytical_solution(fluid, "TemperatureAnalytical", "T");
+    set_analytical_solution(mesh->topology(), "TemperatureAnalytical", "T");
     for_each_node
     (
-      find_component_recursively_with_name<CRegion>(*mesh, "cells"),
+      mesh->topology(),
       _check_close(temperature_analytical, temperature, 0.2)
     );
     

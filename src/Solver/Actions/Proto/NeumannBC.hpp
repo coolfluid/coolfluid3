@@ -25,7 +25,7 @@ struct NeumannBC
 };
 
 /// Placeholder to define dirichlet boundary conditions
-boost::proto::result_of::make_expr< boost::proto::tag::function, NeumannBC, StoredReference<Solver::CEigenLSS> >::type const
+inline boost::proto::result_of::make_expr< boost::proto::tag::function, NeumannBC, StoredReference<Solver::CEigenLSS> >::type const
 neumann(Solver::CEigenLSS& arg)
 {
   return boost::proto::make_expr<boost::proto::tag::function>( NeumannBC(), store(arg) );

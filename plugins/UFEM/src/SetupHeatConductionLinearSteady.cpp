@@ -29,7 +29,6 @@ using namespace Common;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
-using namespace Solver::Actions::Proto;
 
 CF::Common::ComponentBuilder < UFEM::SetupHeatConductionLinearSteady, Component, LibUFEM > aSetupHeatConductionLinearSteady_Builder;
 
@@ -65,10 +64,8 @@ void SetupHeatConductionLinearSteady::create_model(Common::XmlNode& node)
 
   // Setup heat conduction method
   HeatConductionLinearSteady::Ptr hc = model->create_component<HeatConductionLinearSteady>("HeatConductionLinearSteady");
-  hc->create_component<CPhysicalModel>("Physics")->mark_basic();
-  hc->initialize();
   hc->mark_basic();
-  hc->get_child("HeatEquation")->configure_property( "LSS", URI(lss->full_path().string()) );
+  hc->configure_property( "LSS", URI(lss->full_path().string()) );
 
   CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
   mesh_reader->mark_basic();

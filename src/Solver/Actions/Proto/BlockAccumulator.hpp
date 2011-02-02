@@ -33,7 +33,7 @@ struct SystemMatrixTag
 };
 
 /// Indicate that we want to operate on the system matrix of a linear system
-boost::proto::result_of::make_expr< boost::proto::tag::function, SystemMatrixTag, StoredReference<Solver::CEigenLSS> >::type const
+inline boost::proto::result_of::make_expr< boost::proto::tag::function, SystemMatrixTag, StoredReference<Solver::CEigenLSS> >::type const
 system_matrix(Solver::CEigenLSS& arg)
 {
   return boost::proto::make_expr<boost::proto::tag::function>( SystemMatrixTag(), store(arg) );
@@ -45,7 +45,7 @@ struct SystemRHSTag
 };
   
 /// Indicate that we want to operate on the RHS of a linear system
-boost::proto::result_of::make_expr< boost::proto::tag::function, SystemRHSTag, StoredReference<Solver::CEigenLSS> >::type const
+inline boost::proto::result_of::make_expr< boost::proto::tag::function, SystemRHSTag, StoredReference<Solver::CEigenLSS> >::type const
 system_rhs(Solver::CEigenLSS& arg)
 {
   return boost::proto::make_expr<boost::proto::tag::function>( SystemRHSTag(), store(arg) );
@@ -82,6 +82,7 @@ struct MatrixAssignOpsCases
 
 MAKE_ASSIGN_OP_SYSTEM(assign, =)
 MAKE_ASSIGN_OP_SYSTEM(plus_assign, +=)
+MAKE_ASSIGN_OP_SYSTEM(minus_assign, -=)
 
 
 //#undef MAKE_ASSIGN_OP_SYSTEM
@@ -95,7 +96,7 @@ struct BlockAssignmentOp<SystemRHSTag, boost::proto::tag::__tagname> \
   static void assign(Solver::CEigenLSS& lss, const ElementVectorT& elem_rhs_contrib, const ConnectivityT& connectivity) \
   { \
     for(Uint i = 0; i != ElementVectorT::RowsAtCompileTime; ++i) \
-      lss.rhs()[connectivity[i]] += elem_rhs_contrib[i]; \
+      lss.rhs()[connectivity[i]] __op elem_rhs_contrib[i]; \
   } \
 }; \
 \
@@ -112,6 +113,7 @@ struct RHSAssignOpsCases
 
 MAKE_ASSIGN_OP_RHS(assign, =)
 MAKE_ASSIGN_OP_RHS(plus_assign, +=)
+MAKE_ASSIGN_OP_RHS(minus_assign, -=)
 
 /// Primitive transform to handle assignment to an LSS matrix
 struct BlockAccumulator :

@@ -56,7 +56,7 @@ struct IsVolumeElement
 };
 
 /// Compile-time predicate to determine if the given shape function is compatible with the shape function given as template argument
-/// i.e. when dimension and shape are equal
+/// i.e. when dimension, shape and number of nodes are equal
 template<typename ShapeFunctionT>
 struct IsCompatibleWith
 {
@@ -74,6 +74,11 @@ struct IsCompatibleWith
       <
         boost::mpl::int_<ShapeFunctionT::shape>,
         boost::mpl::int_<OtherShapeFunctionT::shape>
+      >,
+      boost::mpl::equal_to
+      <
+        boost::mpl::int_<ShapeFunctionT::nb_nodes>,
+        boost::mpl::int_<OtherShapeFunctionT::nb_nodes>
       >
     >::type type;
   };

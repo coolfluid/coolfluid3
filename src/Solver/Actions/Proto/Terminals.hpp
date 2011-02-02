@@ -119,50 +119,6 @@ inline OptionType<Common::URI>::type OptionVariable::add_option<Common::URI>(con
   return boost::dynamic_pointer_cast< Common::OptionURI >(option);
 }
 
-/// Represent const element nodes. Using this in an expression is like passing the nodes of the current element
-struct ConstNodes : OptionVariable
-{
-  ConstNodes() : OptionVariable("aConstNodes", "Geometric support region")
-  {
-  }
-
-  ConstNodes(const std::string& aname, Mesh::CRegion::Ptr r = Mesh::CRegion::Ptr()) :
-    OptionVariable(aname, "Geometric support region for " + aname),
-    m_region(r)
-  {
-  }
-
-  /// Get the element type, based on the CElements currently traversed.
-  const Mesh::ElementType& element_type(const Mesh::CElements& elements) const
-  {
-    return elements.element_type();
-  }
-
-  Mesh::CRegion& region()
-  {
-    return *m_region.lock();
-  }
-
-protected:
-  virtual void add_options()
-  {
-    m_region_path = add_option<Common::URI>("CalculationRegion", m_description, boost::bind(&ConstNodes::on_trigger, this));
-    m_region_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
-  }
-
-private:
-  /// Root region with which the nodes are associated
-  boost::weak_ptr<Mesh::CRegion> m_region;
-
-  /// Option with the path to the region
-  boost::weak_ptr<Common::OptionURI> m_region_path;
-
-  void on_trigger()
-  {
-    m_region = m_owner.lock()->look_component<Mesh::CRegion>(m_region_path.lock()->value_str());
-  }
-};
-
 /// Constant field data
 template<typename T>
 struct ConstField : OptionVariable

@@ -80,30 +80,28 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
   CMesh::Ptr mesh( allocate_component<CMesh>("rect") );
   Tools::MeshGeneration::create_rectangle(*mesh, 5, 5, 5, 5);
   
-  // Create the variables
-  MeshTerm<0, ConstNodes> nodes( "Region", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
-  
   RealVector center_coords(2);
   center_coords.setZero();
   
   // Use the volume function
-  for_each_element<VolumeTypes>(_cout << "Volume = " << volume(nodes) << ", centroid = " << transpose(nodes(center_coords)) << "\n");
+  for_each_element<VolumeTypes>(mesh->topology(), _cout << "Volume = " << volume << ", centroid = " << transpose(coordinates(center_coords)) << "\n");
   std::cout << std::endl; // Can't be in expression
   
   // volume calculation
   Real vol1 = 0.;
-  for_each_element<VolumeTypes>(vol1 += volume(nodes));
+  for_each_element<VolumeTypes>(mesh->topology(), vol1 += volume);
   
   CFinfo << "Mesh volume: " << vol1 << CFendl;
   
-  // For an all-quad mesh, this is the same... cool or what?
-  Real vol2 = 0.;
-  for_each_element<VolumeTypes>
-  (
-    vol2 += 0.5*((nodes(2, 0) - nodes(0, 0)) * (nodes(3, 1) - nodes(1, 1))
-              -  (nodes(2, 1) - nodes(0, 1)) * (nodes(3, 0) - nodes(1, 0)))
-  );
-  BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
+  // For an all-quad mesh, this is the same... cool or what? TODO: restore this
+//   Real vol2 = 0.;
+//   for_each_element<VolumeTypes>
+//   (
+//     mesh->topology(),
+//     vol2 += 0.5*((coordinates(2, 0) - coordinates(0, 0)) * (coordinates(3, 1) - coordinates(1, 1))
+//               -  (coordinates(2, 1) - coordinates(0, 1)) * (coordinates(3, 0) - coordinates(1, 0)))
+//   );
+//   BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
 }
 
 // Deactivated, until for_each_element_node is ported from the old proto code
@@ -143,8 +141,6 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   CMesh::Ptr mesh(allocate_component<CMesh>("circle"));
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
   
-  MeshTerm<0, ConstNodes> nodes("Region", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
-  
   typedef boost::mpl::vector< SF::Line2DLagrangeP1> SurfaceTypes;
   
   RealVector2 force;
@@ -152,12 +148,13 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   
   for_each_element<SurfaceTypes>
   (
+    mesh->topology(),
     force += integral<1>
     (
       pow<2>
       (
-        2. * u * _sin(_atan_vec(nodes())) + circulation / (2. * pi() * radius)
-      )  * 0.5 * rho * normal(nodes) 
+        2. * u * _sin(_atan_vec(coordinates)) + circulation / (2. * pi() * radius)
+      )  * 0.5 * rho * normal 
     )
   );
 
@@ -182,7 +179,6 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   
   CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*mesh, "region");
   
-  MeshTerm<0, ConstNodes> nodes("Region", region);
   MeshTerm<1, Field<Real> > p("Pressure", "p"); // Pressure field
 
   typedef boost::mpl::vector< SF::Line2DLagrangeP1> SurfaceTypes;
@@ -190,10 +186,10 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   // Set a field with the pressures
   for_each_node
   (
-    *region,
+    mesh->topology(),
     p += pow<2>
     (
-      2. * u * _sin(_atan_vec(nodes)) + circulation / (2. * pi() * radius)
+      2. * u * _sin(_atan_vec(coordinates)) + circulation / (2. * pi() * radius)
     )  * 0.5 * rho
   );
 
@@ -204,7 +200,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   
   for_each_element<SurfaceTypes>
   (
-    force += integral<1>(const_p() * normal(nodes))
+    mesh->topology(),
+    force += integral<1>(const_p * normal)
   );
     
 
@@ -246,22 +243,9 @@ BOOST_FIXTURE_TEST_CASE( VolumeDirect2D, ProtoOperatorsFixture ) // timed and pr
 BOOST_FIXTURE_TEST_CASE( Volume2D, ProtoOperatorsFixture )
 {
   Real vol = 0.;
-  CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*grid_2d, "region");
   
-  MeshTerm<0, ConstNodes> nodes("Region", region);
-  for_each_element<SF::VolumeTypes>(vol += volume(nodes));
+  for_each_element<SF::CellTypes>(grid_2d->topology(), vol += volume);
   
-  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
-}
-
-// Compute volume, using an unnecessarily high var index
-BOOST_FIXTURE_TEST_CASE( VolumeVector10, ProtoOperatorsFixture )
-{
-  Real vol = 0.;
-  CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*grid_2d, "region");
-  
-  MeshTerm<9, ConstNodes> nodes("Region", region);
-  for_each_element<SF::VolumeTypes>(vol += volume(nodes));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
@@ -269,10 +253,9 @@ BOOST_FIXTURE_TEST_CASE( VolumeVector10, ProtoOperatorsFixture )
 BOOST_FIXTURE_TEST_CASE( Integral2D, ProtoOperatorsFixture )
 {
   Real vol = 0.;
-  CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*grid_2d, "region");
   
-  MeshTerm<0, ConstNodes> nodes("Region", region);
-  for_each_element<SF::VolumeTypes>(vol += integral<1>(jacobian_determinant(nodes)));
+  for_each_element<SF::CellTypes>(grid_2d->topology(), vol += integral<1>(jacobian_determinant));
+  
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
@@ -280,10 +263,9 @@ BOOST_FIXTURE_TEST_CASE( Integral2D, ProtoOperatorsFixture )
 BOOST_FIXTURE_TEST_CASE( IntegralOrder4, ProtoOperatorsFixture )
 {
   Real vol = 0.;
-  CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*grid_2d, "region");
   
-  MeshTerm<0, ConstNodes> nodes("Region", region);
-  for_each_element<HigherIntegrationElements>(vol += integral<4>(jacobian_determinant(nodes)));
+  for_each_element<HigherIntegrationElements>(grid_2d->topology(), vol += integral<4>(jacobian_determinant));
+  
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
@@ -300,10 +282,9 @@ BOOST_FIXTURE_TEST_CASE( CreateMesh3D, ProtoOperatorsFixture )
 BOOST_FIXTURE_TEST_CASE( Volume3D, ProtoOperatorsFixture )
 {
   Real vol = 0.;
-  CRegion& region = find_component_recursively_with_name<CRegion>(*channel_3d, "volume");
   
-  MeshTerm<0, ConstNodes> nodes("Region", boost::dynamic_pointer_cast<CRegion>(region.self()));
-  for_each_element<SF::VolumeTypes>(vol += volume(nodes));
+  for_each_element<SF::CellTypes>(channel_3d->topology(), vol += volume);
+  
   BOOST_CHECK_CLOSE(vol, 50., 1e-6);
 }
 
@@ -311,10 +292,9 @@ BOOST_FIXTURE_TEST_CASE( Volume3D, ProtoOperatorsFixture )
 BOOST_FIXTURE_TEST_CASE( Integral3D, ProtoOperatorsFixture )
 {
   Real vol = 0.;
-  CRegion& region = find_component_recursively_with_name<CRegion>(*channel_3d, "volume");
   
-  MeshTerm<0, ConstNodes> nodes("Region", boost::dynamic_pointer_cast<CRegion>(region.self()));
-  for_each_element<SF::VolumeTypes>(vol += integral<1>(jacobian_determinant(nodes)));
+  for_each_element<SF::CellTypes>(channel_3d->topology(), vol += integral<1>(jacobian_determinant));
+  
   BOOST_CHECK_CLOSE(vol, 50., 1e-6);
 }
 
@@ -342,10 +322,10 @@ BOOST_FIXTURE_TEST_CASE( SurfaceIntegral3D, ProtoOperatorsFixture )
   
   CRegion& region = find_component_recursively_with_name<CRegion>(*channel_3d, "bottomWall");
   
-  MeshTerm<0, ConstNodes> nodes("Region", boost::dynamic_pointer_cast<CRegion>(region.self()));
   for_each_element< boost::mpl::vector<SF::Quad3DLagrangeP1> >
   (
-    area += integral<1>(normal(nodes))
+    region,
+    area += integral<1>(normal)
   );
   
   /// Normal vector on the bottom wall should point down, with a length equal to the area

@@ -13,6 +13,8 @@
 
 #include "Math/MatrixTypes.hpp"
 
+#include "Mesh/CMesh.hpp"
+
 #include "LibSolver.hpp"
 
 namespace CF {
@@ -42,6 +44,7 @@ public: // functions
   /// Set the number of equations
   void resize ( Uint nb_dofs );
   
+  /// Number of equations
   Uint size() const;
   
   /// Reference to the system matrix
@@ -50,7 +53,10 @@ public: // functions
   /// Reference to the RHS vector
   RealVector& rhs();
   
-  /// Solve the system and store the result in the field that is set in the SolutionField option
+  /// Const access to the solution
+  const RealVector& solution();
+  
+  /// Solve the system and store the result in the solution vector
   void solve();
   
 private:
@@ -60,11 +66,13 @@ private:
   /// Right hand side
   RealVector m_rhs;
   
-  /// Called when the solution field is changed
-  void on_solution_field_change();
-
+  /// Solution
+  RealVector m_solution;
 };
-  
+
+/// Helper function to increment the solution field(s) with the given solution vector from a LSS, i.e. treat the solution vector as the differece between the new  and old field values
+void increment_solution(const RealVector& solution, const std::vector<std::string>& field_names, const std::vector<std::string>& var_names, const std::vector<Uint>& var_sizes, Mesh::CMesh& solution_mesh);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver

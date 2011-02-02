@@ -9,6 +9,8 @@
 
 #include <boost/proto/proto.hpp>
 
+#include "Common/CF.hpp"
+
 /// @file
 /// Variables used in element-wise expressions
 
@@ -17,46 +19,160 @@ namespace Solver {
 namespace Actions {
 namespace Proto {
 
-/// Indicates the terminal represents a shape function member function that is global for the element, i.e. requires only information about the geometry
-template<typename TagT>
-struct SFGlobalFunction
+/// Placeholder to indicate that a terminal is a shape function operation
+template<typename OpT>
+struct SFOp
 {
 };
 
-/// Indicates the terminal represents a shape function member function that requires information about the
-/// geometry (support) and mapped coordinates
-template<typename TagT>
-struct SFSupportFunction
+/// Element volume
+struct VolumeOp
 {
+  template<typename SupportT, typename MappedCoordsT, typename DataT>
+  struct apply
+  {
+    typedef Real result_type;
+    
+    result_type operator()(SupportT& support, MappedCoordsT, DataT)
+    {
+      return support.volume();
+    }
+    
+  };
 };
 
-/// Indicates the terminal represents a shape function member function that requires information about the
-/// geometry (support), the field (states) and mapped coordinates
-template<typename TagT>
-struct SFFieldFunction
+/// Interpolated real-world coordinates at mapped coordinates
+struct CoordinatesOp
 {
+  template<typename SupportT, typename MappedCoordsT, typename DataT>
+  struct apply
+  {
+    typedef const typename SupportT::CoordsT& result_type;
+    
+    result_type operator()(SupportT& support, MappedCoordsT mapped_coords, DataT)
+    {
+      return support.coordinates(mapped_coords);
+    }
+  };
 };
 
-/// Define the different function tags
-struct VolumeTag {};
-struct JacobianTag {};
-struct JacobianDeterminantTag {};
-struct NormalTag {};
-struct GradientTag {};
-struct LaplacianTag {};
-struct SFOuterProductTag {};
+/// Interpolated values at mapped coordinates
+struct InterpolationOp
+{
+  template<typename SupportT, typename MappedCoordsT, typename DataT>
+  struct apply
+  {
+    typedef typename boost::remove_reference<DataT>::type::EvalT result_type;
+    
+    result_type operator()(SupportT&, MappedCoordsT mapped_coords, DataT data)
+    {
+      return data.eval(mapped_coords);
+    }
+  };
+};
+
+/// Jacobian matrix
+struct JacobianOp
+{
+  template<typename SupportT, typename MappedCoordsT, typename DataT>
+  struct apply
+  {
+    typedef const typename SupportT::ShapeFunctionT::JacobianT& result_type;
+    
+    result_type operator()(SupportT& support, MappedCoordsT mapped_coords, DataT)
+    {
+      return support.jacobian(mapped_coords);
+    }
+  };
+};
+
+/// Jacobian determinant
+struct JacobianDeterminantOp
+{
+  template<typename SupportT, typename MappedCoordsT, typename DataT>
+  struct apply
+  {
+    typedef Real result_type;
+    
+    result_type operator()(SupportT& support, MappedCoordsT mapped_coords, DataT)
+    {
+      return support.jacobian_determinant(mapped_coords);
+    }
+  };
+};
+
+/// Face Normal
+struct NormalOp
+{
+  template<typename SupportT, typename MappedCoordsT, typename DataT>
+  struct apply
+  {
+    typedef const typename SupportT::ShapeFunctionT::CoordsT& result_type;
+    
+    result_type operator()(SupportT& support, MappedCoordsT mapped_coords, DataT)
+    {
+      return support.normal(mapped_coords);
+    }
+  };
+};
+
+/// Gradient
+struct GradientOp
+{
+  template<typename SupportT, typename MappedCoordsT, typename DataT>
+  struct apply
+  {
+    typedef const typename SupportT::ShapeFunctionT::MappedGradientT& result_type;
+    
+    result_type operator()(SupportT& support, MappedCoordsT mapped_coords, DataT data)
+    {
+      return data.gradient(mapped_coords, support);
+    }
+  };
+};
+
+/// Laplacian
+struct LaplacianOp
+{
+  template<typename SupportT, typename MappedCoordsT, typename DataT>
+  struct apply
+  {
+    typedef const typename SupportT::LaplacianT& result_type;
+    
+    result_type operator()(SupportT& support, MappedCoordsT mapped_coords, DataT data)
+    {
+      return data.laplacian(mapped_coords, support);
+    }
+  };
+};
+
+/// Outer product
+struct OuterProductOp
+{
+  template<typename SupportT, typename MappedCoordsT, typename DataT>
+  struct apply
+  {
+    typedef const typename SupportT::LaplacianT& result_type;
+    
+    result_type operator()(SupportT& support, MappedCoordsT mapped_coords, DataT data)
+    {
+      return data.sf_outer_product(mapped_coords);
+    }
+  };
+};
 
 /// Static terminals that can be used in proto expressions
-boost::proto::terminal< SFGlobalFunction<VolumeTag> >::type const volume = {{}};
+boost::proto::terminal< SFOp<VolumeOp> >::type const volume = {{}};
 
-boost::proto::terminal< SFSupportFunction<JacobianTag> >::type const jacobian = {{}};
-boost::proto::terminal< SFSupportFunction<JacobianDeterminantTag> >::type const jacobian_determinant = {{}};
-boost::proto::terminal< SFSupportFunction<NormalTag> >::type const normal = {{}};
+boost::proto::terminal< SFOp<CoordinatesOp> >::type const coordinates = {{}};
+boost::proto::terminal< SFOp<JacobianOp> >::type const jacobian = {{}};
+boost::proto::terminal< SFOp<JacobianDeterminantOp> >::type const jacobian_determinant = {{}};
+boost::proto::terminal< SFOp<NormalOp> >::type const normal = {{}};
 
-boost::proto::terminal< SFFieldFunction<GradientTag> >::type const gradient = {{}};
-boost::proto::terminal< SFFieldFunction<LaplacianTag> >::type const laplacian = {{}};
+boost::proto::terminal< SFOp<GradientOp> >::type const gradient = {{}};
+boost::proto::terminal< SFOp<LaplacianOp> >::type const laplacian = {{}};
 
-boost::proto::terminal< SFOuterProductTag >::type const sf_outer_product = {{}};
+boost::proto::terminal< SFOp<OuterProductOp> >::type const sf_outer_product = {{}};
 
 /// Tag for an integral, wit the order provided as an MPL integral constant
 template<typename OrderT>

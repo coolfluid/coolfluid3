@@ -14,11 +14,8 @@
 #include <boost/fusion/include/make_vector.hpp>
 #include <boost/mpl/max_element.hpp>
 
-#include "Solver/Actions/Proto/CProtoElementsAction.hpp"
-#include "Solver/Actions/Proto/CProtoNodesAction.hpp"
 #include "Solver/Actions/Proto/ElementLooper.hpp"
 #include "Solver/Actions/Proto/Functions.hpp"
-#include "Solver/Actions/Proto/NodeLooper.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Common/CRoot.hpp"
@@ -46,86 +43,6 @@ using namespace CF::Common;
 using namespace CF::Math::MathConsts;
 using namespace CF::Mesh;
 
-using namespace boost;
-
-template<typename I>
-struct DefineTypeExpr
-{
-  template<typename ExprT>
-  struct apply
-  {
-    typedef typename boost::result_of<DefineType<I::value>(ExprT)>::type var_type;
-    typedef typename boost::mpl::if_<boost::mpl::is_void_<var_type>, boost::mpl::void_, typename var_type::type>::type type;
-  };
-};
-
-template<typename SystemT>
-struct DefineTypeSystem
-{
-  template<typename I>
-  struct apply
-  {
-    /// type for every expression in the system
-    typedef typename boost::mpl::transform< SystemT,  DefineTypeExpr<I> >::type var_types;
-    
-    /// find non-void values, if any
-    typedef typename boost::mpl::find_if
-    <
-      var_types,
-      boost::mpl::is_not_void_<boost::mpl::_1>
-    >::type iter;
-    
-    /// if no non-void values were found, return void, otherwise return the found type
-    typedef typename boost::mpl::if_
-    <
-      boost::is_same< boost::mpl::end<var_types>, iter >,
-      boost::mpl::void_,
-      typename boost::mpl::deref<iter>::type
-    >::type type;
-  };
-};
-
-/// Turns a single expression into a system containing only one expression, to make a uniform treatment of systems and single equations possible
-template<typename ExprT>
-struct ExprSystemType
-{
-  typedef typename boost::mpl::if_
-  <
-    boost::proto::is_expr<ExprT>,
-    boost::fusion::vector1<ExprT>,
-    ExprT
-  >::type type;
-};
-
-/// Extracts number of variables and their types from the given equation or system of equations
-template<typename ExprT>
-struct ExpressionProperties
-{
-  /// Always use a system of equations, even if there is only one
-  typedef typename ExprSystemType<ExprT>::type SystemT;
-  
-  typedef typename boost::mpl::deref
-  <
-    typename boost::mpl::max_element
-    <
-      typename boost::fusion::result_of::transform
-      <
-        SystemT, ExprVarArity
-      >::type
-    >::type
-  >::type NbVarsT;
-  
-  /// Types of the used variables
-  typedef typename boost::fusion::result_of::as_vector
-  <
-    typename boost::mpl::transform
-    <
-      typename boost::mpl::copy<boost::mpl::range_c<int,0,NbVarsT::value>, boost::mpl::back_inserter< boost::mpl::vector_c<Uint> > >::type, //range from 0 to NbVarsT
-      DefineTypeSystem<SystemT>
-    >::type
-  >::type VariablesT;
-};
-
 BOOST_AUTO_TEST_SUITE( ProtoSystemsSuite )
 
 //Test using a fusion vector of proto expressions
@@ -138,16 +55,23 @@ BOOST_AUTO_TEST_CASE( SystemBasics )
   CMesh::Ptr mesh(allocate_component<CMesh>("line"));
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
-  // Geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "cells") );
-  
   Uint elem_idx = 0;
   
-  for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
+  const std::vector<std::string> vars(1, "T[1]");
+  mesh->create_field("Temperature", vars, CField::NODE_BASED);
+  
+  MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
+  
+  RealVector mc(1);
+  mc.setZero();
+  
+  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
+    mesh->topology(),
     group
     (
-      _cout << "Volume for element " << elem_idx << ": " << volume(nodes) << "\n",
+      _cout << 2. * integral<1>( laplacian(temperature) * laplacian(temperature) * laplacian(temperature) ) << "\n",
+      _cout << "Volume for element " << elem_idx << ": " << volume << "\n",
       ++boost::proto::lit(elem_idx)
     )
   );

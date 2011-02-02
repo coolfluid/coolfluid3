@@ -7,18 +7,14 @@
 #ifndef CF_UFEM_HeatConductionLinearSteady_hpp
 #define CF_UFEM_HeatConductionLinearSteady_hpp
 
-#include "Solver/Actions/Proto/BlockAccumulator.hpp"
-#include "Solver/Actions/Proto/Terminals.hpp"
-
-#include "Solver/CMethod.hpp"
-
 #include "LibUFEM.hpp"
+#include "LinearSystem.hpp"
 
 namespace CF {
 namespace UFEM {
 
 /// Wizard to set up steady linear heat conduction
-class UFEM_API HeatConductionLinearSteady : public Solver::CMethod
+class UFEM_API HeatConductionLinearSteady : public LinearSystem
 {
 public: // typedefs
 
@@ -34,28 +30,8 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "HeatConductionLinearSteady"; }
 
-  // functions specific to the HeatConductionLinearSteady component
-  /// Set up the equation
-  void initialize();
-
-  /// @name SIGNALS
-  //@{
-
-  /// Signal to run the model
-  void run(Common::XmlNode& node);
-
-  /// Signal to add Dirichlet boundary conditions
-  void add_dirichlet_bc( Common::XmlNode& node );
-
-  /// Signal to define add_dirichlet_bc signature
-  void add_dirichlet_bc_signature( Common::XmlNode& node );
-
-  //@} END SIGNALS
-
-
-private:
-  // LSS variable needs to be persistent
-  Solver::Actions::Proto::MeshTerm<2, Solver::Actions::Proto::LSS> m_blocks;
+protected: // Linear system interface implementation
+  virtual Solver::Actions::CFieldAction::Ptr build_equation();
 };
 
 } // UFEM

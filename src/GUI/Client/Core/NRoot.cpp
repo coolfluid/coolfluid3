@@ -21,9 +21,9 @@ using namespace CF::Common;
 using namespace CF::GUI::ClientCore;
 
 NRoot::NRoot(const QString & name)
-  : CNode(name, "CRoot", ROOT_NODE),
-    m_uuid(boost::uuids::random_generator()())
+  : CNode(name, "CRoot", ROOT_NODE)
 {
+  m_uuid = boost::uuids::random_generator()();
   regist_signal( "save_tree_local", "Saves the server component tree.", "Save server tree" )->connect( boost::bind(&NRoot::save_tree_local, this, _1));
 
   m_localSignals << "save_tree_local";

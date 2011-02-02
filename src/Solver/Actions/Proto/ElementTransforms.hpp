@@ -23,119 +23,95 @@ namespace Solver {
 namespace Actions {
 namespace Proto {
 
-/// Matches types that represent geometry
-struct SFSupportVariables :
-  boost::proto::terminal< Var< boost::proto::_, ConstNodes > >
+/// Primitive transform to apply a given shape function operation
+struct ApplySFOp :
+  boost::proto::transform< ApplySFOp >
 {
-};
-
-/// Matches types that represent field data
-struct SFFieldVariables :
-  boost::proto::or_
-  <
-    SFSupportVariables, // all support variables also can be used as fields
-    boost::proto::terminal< Var< boost::proto::_, ConstField<boost::proto::_> > >,
-    boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >
-  >
-{
-};
-  
-/// Evaluate a shape function at the supplied mapped coordinates
-struct EvalSF :
-  boost::proto::transform< EvalSF >
-{
-  /// Determine the type of evaluation for EvalSF
-  struct EvalType
+  /// Helper struct to get the data type and data
+  template<typename DataT, typename I>
+  struct GetData
   {
-    /// Perform evaluation
-    struct Eval {};
+    BOOST_MPL_ASSERT(( boost::is_reference<DataT> ));
+    typedef typename boost::remove_reference<DataT>::type::template DataType<I>::type type;
     
-    /// Get shape functions outer product
-    struct SFOuterProduct {};
-    
-    template<typename ExprT>
-    struct GetType
+    static type& data(DataT d)
     {
-      typedef typename boost::mpl::if_
-      <
-        boost::proto::matches
-        <
-          typename boost::proto::result_of::child<ExprT>::type,
-          SFFieldVariables
-        >,
-        Eval,
-        SFOuterProduct
-      >::type type;
-    };
-  };
-  
-  template<typename EvalT, typename MappedCoordsT, typename DataT>
-  struct evaluator;
-  
-  template<typename MappedCoordsT, typename DataT>
-  struct evaluator<EvalType::Eval, MappedCoordsT, DataT>
-  {
-    typedef typename boost::remove_reference<DataT>::type::EvalT result_type;
-    
-    result_type operator()(MappedCoordsT mapped_coords, DataT data)
-    {
-      return data.eval(mapped_coords);
+      return d.template var_data<I>();
     }
   };
   
-  template<typename MappedCoordsT, typename DataT>
-  struct evaluator<EvalType::SFOuterProduct, MappedCoordsT, DataT>
+  /// When the variable has no number, return the global data
+  template<typename DataT>
+  struct GetData<DataT, boost::mpl::void_>
   {
-    typedef const typename boost::remove_reference<DataT>::type::LaplacianT& result_type;
+    BOOST_MPL_ASSERT(( boost::is_reference<DataT> ));
+    typedef typename boost::remove_reference<DataT>::type type;
     
-    result_type operator()(MappedCoordsT mapped_coords, DataT data)
+    static type& data(DataT d)
     {
-      return data.sf_outer_product(mapped_coords);
+      return d;
     }
   };
   
-  template<typename ExprT, typename MappedCoordsT, typename DataT>
-  struct impl : boost::proto::transform_impl<ExprT, MappedCoordsT, DataT>
-  { 
-    typedef evaluator<typename EvalType::GetType<ExprT>::type, MappedCoordsT, DataT> EvaluationT;
-    typedef typename EvaluationT::result_type result_type;
-  
-    result_type operator ()(
-                typename impl::expr_param expr
-              , typename impl::state_param mapped_coords
-              , typename impl::data_param data
-    ) const
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    // ExprT should be OpTypeForVar<OpT, I>
+    typedef typename ExprT::OpType OpT; // Operation type
+    typedef typename ExprT::VarIdxT I; // Variable index
+    
+    typedef typename OpT::template apply
+    <
+      typename boost::remove_reference<DataT>::type::SupportT,
+      StateT,
+      typename GetData<DataT, I>::type&
+    > ApplyT;
+    
+    typedef typename ApplyT::result_type result_type;
+    
+    // state: mapped coords, if any, data: global data associated with geometric support and numbered variables
+    result_type operator ()(typename impl::expr_param, typename impl::state_param state, typename impl::data_param data) const
     {
-      return EvaluationT()(mapped_coords, data);
+      return ApplyT()( data.support(), state, GetData<DataT, I>::data(data) );
     }
   };
-  
 };
-
-/// Get the tag type from an SFFunction
-struct SFFunctionTag :
-  boost::proto::transform< SFFunctionTag >
+  
+/// Stores the type of the operation, and the number of the variable (if applicable)
+template<typename OpT, typename I=boost::mpl::void_>
+struct OpTypeForVar
 {
-  /// Specialise this for each of the existing function types
+  /// Type of operation
+  typedef OpT OpType;
+  
+  /// Integral constant for the variable, or void if not applicable
+  typedef I VarIdxT;
+};
+ 
+/// Primitive transform to get the operation type from a terminal representing a shape function operation, as well as the variable index it applies to
+/// The terminal index should be supplied as a state parameter (as MPL integral constant)
+struct ExtractOpType :
+  boost::proto::transform< ExtractOpType >
+{
   template<typename T>
-  struct ExtractTagImpl;
+  struct ExtractOpImpl;
   
-  template<typename TagT>
-  struct ExtractTagImpl< SFGlobalFunction<TagT> >
+  template<typename OpT>
+  struct ExtractOpImpl< SFOp<OpT> >
   {
-    typedef TagT type;
+    typedef OpT type;
   };
   
-  template<typename TagT>
-  struct ExtractTagImpl< SFSupportFunction<TagT> >
+  template<typename T>
+  struct ExtractIdx
   {
-    typedef TagT type;
+    typedef boost::mpl::void_ type;
   };
   
-  template<typename TagT>
-  struct ExtractTagImpl< SFFieldFunction<TagT> >
+  template<int I>
+  struct ExtractIdx< boost::mpl::int_<I> >
   {
-    typedef TagT type;
+    typedef boost::mpl::int_<I> type;
   };
   
   template<typename ExprT, typename StateT, typename DataT>
@@ -151,7 +127,11 @@ struct SFFunctionTag :
     >::type TermValueT;
     
     /// Actual tag type
-    typedef typename ExtractTagImpl<TermValueT>::type result_type;
+    typedef OpTypeForVar
+    <
+      typename ExtractOpImpl<TermValueT>::type,
+      typename ExtractIdx<typename boost::remove_reference<StateT>::type>::type
+    > result_type;
     
     result_type operator ()(typename impl::expr_param, typename impl::state_param, typename impl::data_param) const
     {
@@ -159,49 +139,17 @@ struct SFFunctionTag :
     }
   };
 };
-
-/// Evaluate shape function member functions pertaining to geometry only
-struct EvalSFGlobalFunction :
-  boost::proto::transform< EvalSFGlobalFunction >
+  
+/// Matches types that represent field data
+struct SFFieldVariables :
+  boost::proto::or_
+  <
+    boost::proto::terminal< Var< boost::proto::_, ConstField<boost::proto::_> > >,
+    boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >
+  >
 {
-  template<typename TagT, typename StateT, typename DataT>
-  struct impl : boost::proto::transform_impl<TagT, StateT, DataT>
-  {
-    /// DataT is also a functor that adheres to the TR1 result_of protocol, so we can easily determine the result type in a generic way
-    typedef typename boost::result_of<typename boost::remove_reference<DataT>::type(TagT)>::type result_type;
-  
-    result_type operator ()(
-                typename impl::expr_param tag
-              , typename impl::state_param state
-              , typename impl::data_param data
-    ) const
-    {
-      return data(tag);
-    }
-  };
-};
+};    
 
-/// Evaluate shape function member functions pertaining to geometry and mapped coordinates
-struct EvalSFSupportFunction :
-  boost::proto::transform< EvalSFSupportFunction >
-{
-  template<typename TagT, typename MappedCoordsT, typename DataT>
-  struct impl : boost::proto::transform_impl<TagT, MappedCoordsT, DataT>
-  {
-    /// DataT is also a functor that adheres to the TR1 result_of protocol, so we can easily determine the result type in a generic way
-    typedef typename boost::result_of<typename boost::remove_reference<DataT>::type(TagT)>::type result_type;
-  
-    result_type operator ()(
-                typename impl::expr_param tag
-              , typename impl::state_param mapped_coords
-              , typename impl::data_param data
-    ) const
-    {
-      return data(tag, mapped_coords);
-    }
-  };
-};
-  
 /// Matches possible storage for mapped coordinates
 struct MappedCoordinate :
   boost::proto::or_
@@ -214,209 +162,100 @@ struct MappedCoordinate :
 {
 };
 
-/// Evaluate shape function member functions pertaining to fields and mapped coordinates
-struct EvalSFFieldFunction :
-  boost::proto::transform< EvalSFFieldFunction >
+/// SF operations needing only a support
+struct SFSupportOp :
+  boost::proto::terminal< SFOp<VolumeOp> >
 {
-  /// Helper struct to do the actual evaluations. Intermediate data is stored in the data associated with the field
-  template<typename SupportDataT, typename FieldDataT>
-  struct FieldEvaluator
-  {
-    /// Gradient type
-    typedef typename FieldDataT::GradientT GradientT;
-    
-    /// Laplacian type
-    typedef typename FieldDataT::LaplacianT LaplacianT;
-    
-    /// Matrix type for the outer product of shape functions
-    typedef LaplacianT OuterProductT;
-    
-    /// Mapped coords
-    typedef typename FieldDataT::ShapeFunctionT::MappedCoordsT MappedCoordsT;
-    
-    /// result of implementation
-    template<typename Signature>
-    struct result;
-
-    template<typename ThisT>
-    struct result<ThisT(GradientTag)>
-    {
-      typedef const GradientT& type;
-    };
-    
-    template<typename ThisT>
-    struct result<ThisT(LaplacianTag)>
-    {
-      typedef const LaplacianT& type;
-    };
-    
-    /// Return the gradient
-    const GradientT& operator()(const GradientTag&, SupportDataT& support, FieldDataT& field, const MappedCoordsT& mapped_coords)
-    {
-      field.gradient.noalias() = support(JacobianTag(), mapped_coords).inverse() * field.mapped_gradient(mapped_coords);
-      return field.gradient;
-    }
-    
-    /// Return the laplacian
-    const LaplacianT& operator()(const LaplacianTag&, SupportDataT& support, FieldDataT& field, const MappedCoordsT& mapped_coords)
-    {
-      // Calculate the gradient
-      operator()(GradientTag(), support, field, mapped_coords);
-      field.laplacian.noalias() = field.gradient.transpose() * field.gradient;
-      return field.laplacian;
-    }
-  };
-  
-  template<typename ExprT, typename MappedCoordsT, typename DataT>
-  struct impl : boost::proto::transform_impl<ExprT, MappedCoordsT, DataT>
-  { 
-    // The complexity here is needed because we can only pass one data item, but we need both the field and support data, so lookup of both is done
-    // manually from the top-level global data structure.
-    /// function argument 0 contains the terminal representing the function, and thus also the tag
-    typedef typename boost::proto::result_of::child_c<ExprT, 0>::type TagExprT;
-    /// Arg 1 is the support
-    typedef typename boost::proto::result_of::child_c<ExprT, 1>::type SupportExprT;
-    /// Arg 2 is the field
-    typedef typename boost::proto::result_of::child_c<ExprT, 2>::type FieldExprT;
-    
-    /// Tag type
-    typedef typename boost::result_of<SFFunctionTag(TagExprT)>::type TagT;
-    /// Data type for support
-    typedef typename boost::remove_reference<typename boost::result_of<NumberedData(SupportExprT, int, DataT)>::type>::type SupportDataT;
-    /// Data type for field
-    typedef typename boost::remove_reference<typename boost::result_of<NumberedData(FieldExprT, int, DataT)>::type>::type FieldDataT;
-    
-    typedef typename boost::result_of<FieldEvaluator<SupportDataT, FieldDataT>(TagT)>::type result_type;
-  
-    result_type operator ()(
-                typename impl::expr_param expr
-              , typename impl::state_param mapped_coords
-              , typename impl::data_param data
-    ) const
-    {
-      return FieldEvaluator<SupportDataT, FieldDataT>()
-      (
-        TagT(),
-        NumberedData()(boost::proto::child_c<1>(expr), 0, data),
-        NumberedData()(boost::proto::child_c<2>(expr), 0, data),
-        mapped_coords
-      );
-    }
-  };
 };
-  
-/// Evaluation of global shape functions (independent of mapped coords)
-struct SFFunctionsGlobal :
-  boost::proto::when
+
+/// SF operations needing a support and mapped coordinates
+struct SFSupportMappedOp :
+  boost::proto::or_
   <
-    boost::proto::function< boost::proto::terminal< SFGlobalFunction< boost::proto::_ > >, SFSupportVariables>,
-    EvalSFGlobalFunction
-    (
-      SFFunctionTag(boost::proto::_child_c<0>), // tag of the function
-      boost::proto::_state, // unused (no mapped coords needed)
-      NumberedData(boost::proto::_child_c<1>) // data for the given numbered variable
-    )
+    boost::proto::terminal< SFOp<CoordinatesOp> >,
+    boost::proto::terminal< SFOp<JacobianOp> >,
+    boost::proto::terminal< SFOp<JacobianDeterminantOp> >,
+    boost::proto::terminal< SFOp<NormalOp> >
   >
 {
 };
 
-/// Matches different types of shape function-related calls. Mapped coordinates are provided explicitely
-struct SFFunctionsExplicit :
+/// SF operations needing a support, a field and mapped coordinates
+struct SFSupportFieldMappedOp :
   boost::proto::or_
   <
-    // Evaluation of fields in terms of mapped coordinates (explicit)
-    boost::proto::when
+    boost::proto::terminal< SFOp<OuterProductOp> >,
+    boost::proto::terminal< SFOp<GradientOp> >,
+    boost::proto::terminal< SFOp<LaplacianOp> >
+  >
+{
+};
+
+/// Evaluates Shape Fuction operations with explicitely defined mapped coordinates
+struct SFOpsExplicit :
+  boost::proto::or_
+  <
+    boost::proto::when // Functions depending only on geometry
+    <
+      SFSupportOp,
+      ApplySFOp(ExtractOpType)
+    >,
+    boost::proto::when // Functions depending only on geometry and mapped coords
+    <
+      boost::proto::function<SFSupportMappedOp, MappedCoordinate>,
+      ApplySFOp( ExtractOpType(boost::proto::_child_c<0>), boost::proto::_value(boost::proto::_child_c<1>) )
+    >,
+    boost::proto::when // Functions depending on geometry and a field
+    <
+      boost::proto::function<SFSupportFieldMappedOp, SFFieldVariables, MappedCoordinate>,
+      ApplySFOp( ExtractOpType( boost::proto::_child_c<0>, VarNumber(boost::proto::_child_c<1>) ), boost::proto::_value(boost::proto::_child_c<2>) )
+    >,
+    boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
     <
       boost::proto::function<SFFieldVariables, MappedCoordinate>,
-      EvalSF( boost::proto::_expr, boost::proto::_value(boost::proto::_right), NumberedData(boost::proto::_left) )
-    >,
-    boost::proto::when
-    <
-      boost::proto::function<boost::proto::terminal<SFOuterProductTag>, SFFieldVariables, MappedCoordinate>,
-      EvalSF( boost::proto::_expr, boost::proto::_value(boost::proto::_child_c<2>), NumberedData(boost::proto::_child_c<1>) )
-    >,
-    SFFunctionsGlobal,
-    // Evaluation of support shape functions. Mapped coords explicit.
-    boost::proto::when
-    <
-      boost::proto::function< boost::proto::terminal< SFSupportFunction< boost::proto::_ > >, SFSupportVariables, MappedCoordinate>,
-      EvalSFSupportFunction
-      (
-        SFFunctionTag(boost::proto::_child_c<0>), // tag of the function
-        boost::proto::_value(boost::proto::_child_c<2>), // mapped coordinates go to the state
-        NumberedData(boost::proto::_child_c<1>) // data for the given numbered variable
-      )
-    >,
-    // Evaluation of field shape functions. Mapped coords explicit.
-    boost::proto::when
-    <
-      boost::proto::function< boost::proto::terminal< SFFieldFunction< boost::proto::_ > >, SFSupportVariables, SFFieldVariables, MappedCoordinate>,
-      EvalSFFieldFunction
-      (
-        boost::proto::_expr, // pass the whole expression, to allow extracting the support and field in the primitive transform
-        boost::proto::_value(boost::proto::_child_c<3>), // mapped coordinates go to the state
-        boost::proto::_data // We pass the global data, since we need data from two different numbered vars
-      )
+      ApplySFOp( ExtractOpType( boost::proto::terminal< SFOp<InterpolationOp> >(), VarNumber(boost::proto::_child_c<0>) ), boost::proto::_value(boost::proto::_child_c<1>) )
     >
   >
 {
 };
 
-/// Matches different types of shape function-related calls. Mapped coordinates are provided implicitly
-struct SFFunctionsImplicit :
+/// Evaluates Shape Fuction operations where the mapped coordinates are implicit (i.e. during integration)
+struct SFOpsImplicit :
   boost::proto::or_
   <
-    // Evaluation of fields in terms of mapped coordinates (implict)
-    boost::proto::when
+    boost::proto::when // Functions depending only on geometry
     <
-      boost::proto::function<SFFieldVariables>,
-      EvalSF( boost::proto::_expr, boost::proto::_state, NumberedData(boost::proto::_left) )
+      SFSupportOp,
+      ApplySFOp(ExtractOpType)
     >,
-    boost::proto::when
+    boost::proto::when // Functions depending only on geometry and mapped coords
     <
-      boost::proto::function<boost::proto::terminal<SFOuterProductTag>, SFFieldVariables>,
-      EvalSF( boost::proto::_expr, boost::proto::_state, NumberedData(boost::proto::_child_c<1>) )
+      SFSupportMappedOp,
+      ApplySFOp(ExtractOpType)
     >,
-    SFFunctionsGlobal,
-    // Evaluation of support shape functions. Mapped coords implicit.
-    boost::proto::when
+    boost::proto::when // Functions depending on geometry and a field
     <
-      boost::proto::function< boost::proto::terminal< SFSupportFunction< boost::proto::_ > >, SFSupportVariables>,
-      EvalSFSupportFunction
-      (
-        SFFunctionTag(boost::proto::_child_c<0>), // tag of the function
-        boost::proto::_state, // mapped coordinates go to the state
-        NumberedData(boost::proto::_child_c<1>) // data for the given numbered variable
-      )
+      boost::proto::function<SFSupportFieldMappedOp, SFFieldVariables>,
+      ApplySFOp( ExtractOpType( boost::proto::_child_c<0>, VarNumber(boost::proto::_child_c<1>) ) )
     >,
-    // Evaluation of field shape functions. Mapped coords explicit.
-    boost::proto::when
+    boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
     <
-      boost::proto::function< boost::proto::terminal< SFFieldFunction< boost::proto::_ > >, SFSupportVariables, SFFieldVariables>,
-      EvalSFFieldFunction
+      SFFieldVariables,
+      ApplySFOp( ExtractOpType( boost::proto::terminal< SFOp<InterpolationOp> >(), VarNumber ) )
     >
   >
 {
 };
 
-/// Forward declaration
-struct GaussIntegral;
-  
-/// Matches expressions that can be used as terms in math formulas for element expressions
-struct ElementMath :
+/// Expressions with implicitely known mapped coordinates, valid in i.e. integration, where the integrator
+/// is responsible for setting the mapped coordinates of the points to evaluate
+struct ElementMathImplicit :
   boost::proto::or_
   <
-    SFFunctionsExplicit, // Evaluation of shape function functions
-    SFFunctionsImplicit, // TODO: Should only be inside integration
-    MathTerminals, // Scalars and matrices
-    EigenMath<ElementMath>, // Special Eigen functions and Eigen multiplication (overrides default product)
-    // Handle integration
-    boost::proto::when
-    <
-      boost::proto::function<boost::proto::terminal< IntegralTag<boost::proto::_> >, ElementMath >,
-      GaussIntegral
-    >,
-    MathOpDefault<ElementMath> // Default evaluation of certain math expressions
+    SFOpsImplicit,
+    MathTerminals,
+    EigenMath<ElementMathImplicit>,
+    MathOpDefault<ElementMathImplicit>
   >
 {
 };
@@ -471,7 +310,7 @@ public:
       <
         typename boost::result_of
         <
-          ElementMath
+          ElementMathImplicit
           (
             ChildT,
             const MappedCoordsT&,
@@ -487,18 +326,39 @@ public:
       EigenExprT
     > ValueT;
     
-    typedef typename ValueT::type result_type;
+    typedef typename ValueT::NestedT result_type;
     
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param, typename impl::data_param data) const
     {
       typedef Mesh::Integrators::GaussMappedCoords<order, ShapeFunctionT::shape> GaussT;
       ChildT e = boost::proto::child_c<1>(expr); // expression to integrate
-      result_type r = GaussT::instance().weights[0] * ElementMath()(e, GaussT::instance().coords.col(0), data);
+      typename ValueT::type r = GaussT::instance().weights[0] * ElementMathImplicit()(e, GaussT::instance().coords.col(0), data);
       for(Uint i = 1; i != GaussT::nb_points; ++i)
-        r += GaussT::instance().weights[i] * ElementMath()(e, GaussT::instance().coords.col(i), data);
+        r += GaussT::instance().weights[i] * ElementMathImplicit()(e, GaussT::instance().coords.col(i), data);
       return r;
     }
   };  
+};
+
+struct ElementIntegration :
+  boost::proto::when
+  <
+    boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, ElementMathImplicit >,
+    GaussIntegral
+  >
+{
+};
+
+struct ElementMath :
+  boost::proto::or_
+  <
+    SFOpsExplicit,
+    MathTerminals,
+    ElementIntegration,
+    EigenMath<ElementMath>,
+    MathOpDefault<ElementMath>
+  >
+{
 };
   
 } // namespace Proto

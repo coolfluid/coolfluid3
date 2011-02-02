@@ -32,50 +32,67 @@ namespace Solver {
 namespace Actions {
 namespace Proto {
 
-/// Visit all nodes used by root_region exactly once, executing expr
+/// Loop over nodes, using static-sized vectors to store coordinates
 template<typename ExprT>
-void for_each_node(Mesh::CRegion& root_region, const ExprT& expr)
+struct NodeLooper
 {
-  // Number of variables (integral constant)
-  typedef typename ExpressionProperties<ExprT>::NbVarsT NbVarsT;
-  
-  // Type of a fusion vector that can contain a copy of each variable that is used in the expression
+  /// Type of a fusion vector that can contain a copy of each variable that is used in the expression
   typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
   
-  // Store the variables
-  VariablesT vars;
-  CopyNumberedVars<VariablesT> ctx(vars);
-  boost::proto::eval(expr, ctx);
-  
-  // Create data used for the evaluation
-  NodeData<VariablesT> node_data(vars, root_region);
-  
-  // Grammar used for the evaluation
-  NodeGrammar grammar;
-  
-  Mesh::CTable<Real>* coordinates = Common::find_component_ptr_with_tag<Mesh::CTable<Real> >(root_region, "coordinates").get();
-  if(coordinates) // region owns coordinates, so we assume a loop over all nodes
+  NodeLooper(const ExprT& expr, Mesh::CRegion& region, VariablesT& variables) :
+    m_expr(expr),
+    m_region(region),
+    m_variables(variables)
   {
-    // Evaluate the expression for each node
-    const Uint nb_nodes = coordinates->size();
-    for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
-    {
-      node_data.set_node(node_idx);
-      grammar(expr, 0, node_data); // The "0" is the proto state, which is unused at the top-level expression
-    }
   }
-  else // no coordinates found, assert that all CElements share the same coords, and use it to construct a list of nodes to visit
+
+  
+  template<typename NbDimsT>
+  void operator()(const NbDimsT&)
   {
-    const Mesh::CTable<Real>& coords = extract_coordinates(root_region);
+    Mesh::CTable<Real>& coords = m_region.nodes().coordinates();
+    if(NbDimsT::value != coords.row_size())
+      return;
+    
+    // Create data used for the evaluation
+    NodeData<VariablesT, NbDimsT> node_data(m_variables, m_region, coords);
+    
+    // Grammar used for the evaluation
+    NodeGrammar grammar;
+    
     std::vector<Uint> nodes;
-    make_node_list(root_region, coords, nodes);
+    make_node_list(m_region, coords, nodes);
     const Uint nb_nodes = nodes.size();
     for(Uint i = 0; i != nb_nodes; ++i)
     {
       node_data.set_node(nodes[i]);
-      grammar(expr, 0, node_data); // The "0" is the proto state, which is unused at the top-level expression
+      grammar(m_expr, 0, node_data); // The "0" is the proto state, which is unused at the top-level expression
     }
   }
+  
+private:
+  const ExprT& m_expr;
+  Mesh::CRegion& m_region;
+  VariablesT& m_variables;
+};
+  
+/// Visit all nodes used by root_region exactly once, executing expr
+template<typename ExprT>
+void for_each_node(Mesh::CRegion& root_region, const ExprT& expr)
+{
+  // IF COMPILATION FAILS HERE: the espression passed is invalid
+  BOOST_MPL_ASSERT_MSG(
+    (boost::proto::matches<ExprT, NodeGrammar>::value),
+    INVALID_NODE_EXPRESSION,
+    (NodeGrammar));
+  
+  typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
+  
+  VariablesT vars;
+  CopyNumberedVars<VariablesT> ctx(vars);
+  boost::proto::eval(expr, ctx);
+  
+  boost::mpl::for_each< boost::mpl::range_c<Uint, 1, 4> >( NodeLooper<ExprT>(expr, root_region, vars) );
 }
 
 } // namespace Proto

@@ -3,6 +3,8 @@ list( APPEND coolfluid_ufem_files
   HeatConductionLinearSteady.hpp
   LibUFEM.cpp
   LibUFEM.hpp
+  LinearSystem.cpp
+  LinearSystem.hpp
   SetupHeatConductionLinearSteady.cpp
   SetupHeatConductionLinearSteady.hpp
 )

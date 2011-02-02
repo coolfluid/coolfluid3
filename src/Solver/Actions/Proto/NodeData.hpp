@@ -10,6 +10,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/range_c.hpp>
 
+#include "Mesh/CField.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CElements.hpp"
@@ -26,7 +27,7 @@ namespace Actions {
 namespace Proto {
 
 /// Extract the coordinates, given a specific region
-const Mesh::CTable<Real>& extract_coordinates(const Mesh::CRegion& region)
+inline const Mesh::CTable<Real>& extract_coordinates(const Mesh::CRegion& region)
 {
   const Mesh::CTable<Real>* coordinates = nullptr;
   coordinates = Common::find_component_ptr_with_tag<Mesh::CTable<Real> >(region, "coordinates").get();
@@ -70,35 +71,6 @@ struct NodeVarData
   
 private:
   T& m_var;
-};
-
-template<>
-struct NodeVarData<ConstNodes>
-{
-  NodeVarData(const ConstNodes&, Mesh::CRegion& region) : coordinates(extract_coordinates(region))
-  {
-    dim = coordinates.row_size();
-    nodes.resize(dim);
-  }
-  
-  void set_node(const Uint idx)
-  {
-    Mesh::CTable<Real>::ConstRow row = coordinates[idx];
-    for(Uint i = 0; i != dim; ++i)
-      nodes[i] = row[i];
-  }
-  
-  typedef RealVector ValueT;
-  typedef const ValueT& ValueResultT;
-  
-  ValueResultT value() const
-  {
-    return nodes;
-  }
-  
-  RealVector nodes;
-  Uint dim;
-  const Mesh::CTable<Real>& coordinates;
 };
 
 template<>
@@ -196,7 +168,7 @@ struct AddNodeData
   typedef NodeVarData<VarT>* type;
 };
 
-template<typename VariablesT>
+template<typename VariablesT, typename NbDims>
 class NodeData
 {
 public:
@@ -229,9 +201,13 @@ public:
     return *boost::fusion::at<I>(m_variables_data);
   }
   
-  NodeData(VariablesT& variables, Mesh::CRegion& region) :
+  /// Type of the coordinates
+  typedef Eigen::Matrix<Real, NbVarsT::value, 1> CoordsT;
+  
+  NodeData(VariablesT& variables, Mesh::CRegion& region, const Mesh::CTable<Real>& coords) :
     m_variables(variables),
-    m_region(region)
+    m_region(region),
+    m_coordinates(coords)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_region, m_variables_data));
   }
@@ -251,6 +227,17 @@ public:
   /// Current node index
   Uint node_idx;
   
+  /// Access to the current coordinates
+  const CoordsT& coordinates() const
+  {
+    const Mesh::CTable<Real>::ConstRow row = m_coordinates[node_idx];
+    for(Uint i = 0; i != NbDims::value; ++i)
+    {
+      m_position[i] = row[i];
+    }
+    return m_position;
+  }
+  
 private:
   /// Variables used in the expression
   VariablesT& m_variables;
@@ -258,8 +245,14 @@ private:
   /// Referred region
   Mesh::CRegion& m_region;
   
+  /// Aray holding the coordinate values
+  const Mesh::CTable<Real>& m_coordinates;
+  
   /// Data associated with each numbered variable
   VariablesDataT m_variables_data;
+  
+  /// Current coordinates
+  mutable CoordsT m_position;
   
   ///////////// helper functions and structs /////////////
 private:
@@ -322,7 +315,7 @@ private:
 };
 
 /// Creates a list of unique nodes in the region
-void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>& coordinates, std::vector<Uint>& nodes)
+inline void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>& coordinates, std::vector<Uint>& nodes)
 {
   std::vector<bool> node_is_used(coordinates.size(), false);
   

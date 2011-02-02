@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   Component::Ptr heat_eq = ufem_method->get_child("HeatEquation");
   BOOST_CHECK(heat_eq);
   
-  heat_eq->configure_property("ConductivityRegion", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads"));
+  heat_eq->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads"));
   heat_eq->configure_property("TemperatureFieldName", std::string("Temperature"));
   heat_eq->configure_property("TemperatureVariableName", std::string("T"));
   

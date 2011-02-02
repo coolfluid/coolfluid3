@@ -5,6 +5,7 @@ list( APPEND coolfluid_solver_actions_files
   CNodeOperation.cpp
   CLoopOperation.hpp
   CLoopOperation.cpp
+  CFieldAction.hpp
   CForAllT.hpp
   CForAllElementsT.hpp
   CForAllElements.hpp
@@ -35,6 +36,7 @@ if(CF_ENABLE_PROTO)
   list( APPEND coolfluid_solver_actions_files 
     Proto/BlockAccumulator.hpp
     Proto/CProtoElementsAction.hpp
+    Proto/CProtoFieldAction.hpp
     Proto/CProtoNodesAction.hpp
     Proto/DirichletBC.hpp
     Proto/EigenTransforms.hpp
@@ -56,6 +58,7 @@ else()
   coolfluid_mark_not_orphan(
     Proto/BlockAccumulator.hpp
     Proto/CProtoElementsAction.hpp
+    Proto/CProtoFieldAction.hpp
     Proto/CProtoNodesAction.hpp
     Proto/DirichletBC.hpp
     Proto/EigenTransforms.hpp

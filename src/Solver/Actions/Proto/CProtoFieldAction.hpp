@@ -1,0 +1,310 @@
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+#ifndef CF_Solver_Actions_Proto_CProtoFieldAction_hpp
+#define CF_Solver_Actions_Proto_CProtoFieldAction_hpp
+
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
+
+#include "Common/BasicExceptions.hpp"
+#include "Common/ComponentPredicates.hpp"
+
+#include "Mesh/CMesh.hpp"
+#include "Mesh/CField.hpp"
+
+#include "Solver/Actions/CFieldAction.hpp"
+
+#include "Terminals.hpp"
+#include "Transforms.hpp"
+
+namespace CF {
+namespace Solver {
+namespace Actions {
+namespace Proto {
+  
+/// Abstract base class that encapsulates proto expressions that will be executed for a given region
+template<typename ExprT>
+class CProtoFieldAction : public CFieldAction
+{
+public:
+  typedef boost::shared_ptr< CProtoFieldAction<ExprT> > Ptr;
+  typedef boost::shared_ptr< CProtoFieldAction<ExprT> const> ConstPtr;
+
+  CProtoFieldAction(const std::string& name) :
+    CFieldAction(name)
+  {
+    m_region_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().template add_option<Common::OptionURI>("Region", "Region to loop over", std::string()) );
+    m_region_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
+    m_region_path.lock()->mark_basic();
+  }
+
+  static std::string type_name() { return "CProtoFieldAction"; }
+
+  /// Set the expression
+  void set_expression(const ExprT& expr)
+  {
+    m_expr.reset(new CopiedExprT(boost::proto::deep_copy(expr)));
+    // Store the variables
+    CopyNumberedVars<VariablesT> ctx(m_variables);
+    boost::proto::eval(expr, ctx);
+    boost::fusion::for_each(m_variables, AddVariableOptions(follow()));
+    raise_event("tree_updated");
+  }
+
+  /// Returns a reference to the region that we want to run an expression for
+  Mesh::CRegion& root_region()
+  {
+    return *look_component<Mesh::CRegion>(m_region_path.lock()->value_str());
+  }
+  
+  /// Returns a reference to the region that we want to run an expression for
+  const Mesh::CRegion& root_region() const
+  {
+    return *look_component<Mesh::CRegion>(m_region_path.lock()->value_str());
+  }
+  
+  virtual StringsT variable_names() const
+  {
+    StringsT result;
+    boost::fusion::for_each( m_variables, GetVariableNames(result) );
+    return result;
+  }
+  
+  virtual StringsT field_names() const
+  {
+    StringsT result;
+    boost::fusion::for_each( m_variables, GetFieldNames(result) );
+    return result;
+  }
+  
+  virtual SizesT variable_sizes() const
+  {
+    SizesT result;
+    boost::fusion::for_each( m_variables, GetVariableSizes(result) );
+    return result;
+  }
+  
+  virtual Real nb_dofs() const
+  {
+    // Access the mesh
+    const Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>( root_region() );
+    
+    const SizesT var_sizes = variable_sizes();
+    const StringsT fd_names = field_names();
+    Uint result = 0;
+    const Uint nb_vars = var_sizes.size();
+    
+    std::set<std::string> unique_fields;
+    BOOST_FOREACH(const std::string& fd_name, fd_names)
+    {
+      if(unique_fields.insert(fd_name).second)
+      {
+        const Uint nb_field_rows = mesh.field(fd_name).data_table().size();
+        for(Uint i = 0; i != nb_vars; ++i)
+        {
+          if(fd_names[i] == fd_name)
+            result += var_sizes[i] * nb_field_rows;
+        }
+      }
+    }
+    
+    return result;
+  }
+  
+  virtual void create_fields()
+  {
+    // Access the mesh
+    Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>( root_region() );
+    
+    const StringsT fd_names = field_names();
+    
+    const Uint nb_fd_vars = fd_names.size();
+    
+    std::set<std::string> unique_fields;
+    BOOST_FOREACH(const std::string& s, fd_names)
+    {
+      unique_fields.insert(s);
+    }
+    
+    const StringsT var_names = variable_names();
+    const SizesT var_sizes = variable_sizes();
+    
+    BOOST_FOREACH(const std::string& fd_name, unique_fields)
+    {
+      StringsT vars;
+      
+      // Check if the field exists
+      Mesh::CField::ConstPtr existing_field = mesh.get_child<Mesh::CField>(fd_name);
+      
+      Uint var_idx = 0;
+      for(Uint i = 0; i != nb_fd_vars; ++i)
+      {
+        if(fd_names[i] != fd_name)
+          continue;
+        
+        std::stringstream s;
+        s << var_names[i] << "[" << var_sizes[i] << "]";
+        vars.push_back(s.str());
+        ++var_idx;
+        
+        if(existing_field)
+        {
+          if(   existing_field->nb_vars() <= var_idx
+             || existing_field->var_name(var_idx) != var_names[i]
+             || existing_field->var_length(var_names[i]) != var_sizes[i])
+            throw Common::ValueExists(FromHere(), "Field with name " + fd_name + " exists, but is incompatible with the requested solution.");
+        }
+      }
+      
+      if(!existing_field)
+        mesh.create_field(fd_name, vars, Mesh::CField::NODE_BASED);
+    }
+  }
+
+protected:
+  // Type of a fusion vector that can contain a copy of each variable that is used in the expression
+  typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
+
+  // type of the copied expression
+  typedef typename boost::proto::result_of::deep_copy<ExprT>::type CopiedExprT;
+
+  /// Copy of each variable in the expression
+  VariablesT m_variables;
+
+  /// Copy of the expression
+  boost::scoped_ptr<CopiedExprT> m_expr;
+
+private:
+  /// Link to the option with the path to the region to loop over
+  boost::weak_ptr<Common::OptionURI> m_region_path;
+  
+  /// Functor to get the variable names
+  struct GetVariableNames
+  {
+    template<typename T>
+    struct impl
+    {
+      void operator()(const T&, StringsT&) {}
+    };
+    
+    template<typename T>
+    struct impl< ConstField<T> >
+    {
+      void operator()(const ConstField<T>& var, StringsT& r)
+      {
+        r.push_back(var.var_name);
+      }
+    };
+    
+    template<typename T>
+    struct impl< Field<T> >
+    {
+      void operator()(const Field<T>& var, StringsT& r)
+      {
+        r.push_back(var.var_name);
+      }
+    };
+    
+    GetVariableNames(StringsT& s) : result(s)
+    {
+    }
+    
+    template<typename T>
+    void operator()(const T& var) const
+    {
+      impl<T>()(var, result);
+    }
+    
+    StringsT& result;
+  };
+  
+  /// Functor to get the field names
+  struct GetFieldNames
+  {
+    template<typename T>
+    struct impl
+    {
+      void operator()(const T&, StringsT&) {}
+    };
+    
+    template<typename T>
+    struct impl< ConstField<T> >
+    {
+      void operator()(const ConstField<T>& var, StringsT& r)
+      {
+        r.push_back(var.field_name);
+      }
+    };
+    
+    template<typename T>
+    struct impl< Field<T> >
+    {
+      void operator()(const Field<T>& var, StringsT& r)
+      {
+        r.push_back(var.field_name);
+      }
+    };
+    
+    GetFieldNames(StringsT& s) : result(s)
+    {
+    }
+    
+    template<typename T>
+    void operator()(const T& var) const
+    {
+      impl<T>()(var, result);
+    }
+    
+    StringsT& result;
+  };
+  
+  /// Functor to get the variable sizes
+  struct GetVariableSizes
+  {
+    
+    template<typename T>
+    struct impl
+    {
+      void operator()(const T&, SizesT&) {}
+    };
+    
+    template<typename T>
+    struct impl< ConstField<T> >
+    {
+      void operator()(const ConstField<T>& var, SizesT& r)
+      {
+        r.push_back(1);
+      }
+    };
+    
+    template<typename T>
+    struct impl< Field<T> >
+    {
+      void operator()(const Field<T>& var, SizesT& r)
+      {
+        r.push_back(1);
+      }
+    };
+    GetVariableSizes(SizesT& s) : result(s)
+    {
+    }
+    
+    template<typename T>
+    void operator()(const T& var) const
+    {
+      impl<T>()(var, result);
+    }
+    
+    SizesT& result;
+  };
+};
+
+} // namespace Proto
+} // namespace Actions
+} // namespace Solver
+} // namespace CF
+
+#endif // CF_Solver_Actions_Proto_CProtoFieldAction_hpp

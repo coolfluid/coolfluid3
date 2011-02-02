@@ -8,12 +8,9 @@
 #define CF_Solver_Actions_Proto_ElementData_hpp
 
 #include <boost/fusion/algorithm.hpp>
-#include <boost/fusion/include/algorithm.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
-#include <boost/fusion/include/mpl.hpp>
 #include <boost/fusion/mpl.hpp>
 #include <boost/fusion/container/vector/convert.hpp>
-#include <boost/fusion/include/as_vector.hpp>
 #include <boost/fusion/sequence.hpp>
 #include <boost/fusion/container/vector.hpp>
 
@@ -36,7 +33,7 @@ namespace Solver {
 namespace Actions {
 namespace Proto {
   
-/// Data to facilitate the evaluation of shape function member functions
+/// Data to facilitate the evaluation of shape function member functions that are a function of mapped coordinates only
 template<typename SF>
 struct SFData
 {
@@ -46,45 +43,133 @@ struct SFData
   /// Type for mapped coordinates
   typedef typename SF::MappedCoordsT MappedCoordsT;
   
-  /// Type for the gradient
-  typedef typename SF::MappedGradientT GradientT;
-  
   /// Type for the laplacian
   typedef Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> LaplacianT;
   
   /// Shape function matrix
-  const typename SF::ShapeFunctionsT& shape_function(const MappedCoordsT& mapped_coords)
+  const typename SF::ShapeFunctionsT& shape_function(const MappedCoordsT& mapped_coords) const
   {
     SF::shape_function(mapped_coords, m_sf);
     return m_sf;
   }
   
   /// Mapped gradient computed by the shape function
-  const typename SF::MappedGradientT& mapped_gradient(const MappedCoordsT& mapped_coords)
+  const typename SF::MappedGradientT& mapped_gradient(const MappedCoordsT& mapped_coords) const
   {
     SF::mapped_gradient(mapped_coords, m_mapped_gradient_matrix);
     return m_mapped_gradient_matrix;
   }
   
   /// Outer product of the shape function with itself
-  const LaplacianT& sf_outer_product(const MappedCoordsT& mapped_coords)
+  const LaplacianT& sf_outer_product(const MappedCoordsT& mapped_coords) const
   {
     SF::shape_function(mapped_coords, m_sf);
     m_sf_outer_product.noalias() = m_sf.transpose() * m_sf;
     return m_sf_outer_product;
   }
   
-  /// Storage for the gradient. It is calculated in a primitive transform.
-  GradientT gradient;
-  
-  /// Storage for the laplacian. It is calculated in a primitive transform.
-  LaplacianT laplacian;
-  
 private:
-  typename SF::ShapeFunctionsT m_sf;
-  typename SF::MappedGradientT m_mapped_gradient_matrix;
-  LaplacianT m_sf_outer_product;
+  mutable typename SF::ShapeFunctionsT m_sf;
+  mutable typename SF::MappedGradientT m_mapped_gradient_matrix;
+  mutable LaplacianT m_sf_outer_product;
 };
+
+/// Functions and operators associated with a geometric support
+template<typename SF>
+class GeometricSupport
+  : public SFData<SF>
+{
+public:
+  /// The shape function type
+  typedef SF ShapeFunctionT;
+  
+  /// The value type for all element nodes
+  typedef typename SF::NodeMatrixT ValueT;
+ 
+  /// Return type of the value() method
+  typedef const ValueT& ValueResultT;
+  
+  /// Type for passing mapped coordinates
+  typedef typename SF::MappedCoordsT MappedCoordsT;
+  
+  /// Type of the real-world coordinates
+  typedef typename SF::CoordsT CoordsT;
+  
+  /// We store nodes as a fixed-size Eigen matrix, so we need to make sure alignment is respected
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  GeometricSupport(const Mesh::CElements& elements) :
+    m_coordinates(elements.nodes().coordinates()),
+    m_connectivity(elements.connectivity_table())
+  {
+  }
+
+  /// Update nodes for the current element
+  void set_element(const Uint element_idx)
+  {
+    m_element_idx = element_idx;
+    Mesh::fill(m_nodes, m_coordinates, m_connectivity[element_idx]);
+  }
+  
+  /// Reference to the current nodes
+  ValueResultT nodes() const
+  {
+    return m_nodes;
+  }
+  
+  /// Connectivity data for the current element
+  Mesh::CTable<Uint>::ConstRow element_connectivity()
+  {
+    return m_connectivity[m_element_idx];
+  }
+  
+  Real volume() const
+  {
+    return SF::volume(m_nodes);
+  }
+  
+  const CoordsT& coordinates(const MappedCoordsT& mapped_coords)
+  {
+    m_eval_result = SFData<SF>::shape_function(mapped_coords) * m_nodes;
+    return m_eval_result;
+  }
+  
+  /// Jacobian matrix computed by the shape function
+  const typename SF::JacobianT& jacobian(const MappedCoordsT& mapped_coords)
+  {
+    SF::jacobian(mapped_coords, m_nodes, m_jacobian_matrix);
+    return m_jacobian_matrix;
+  }
+  
+  Real jacobian_determinant(const MappedCoordsT& mapped_coords)
+  {
+    return SF::jacobian_determinant(mapped_coords, m_nodes);
+  }
+  
+  const typename SF::CoordsT& normal(const MappedCoordsT& mapped_coords)
+  {
+    SF::normal(mapped_coords, m_nodes, m_normal_vector);
+    return m_normal_vector;
+  }
+
+private:
+  /// Stored node data
+  ValueT m_nodes;
+  
+  /// Coordinates table
+  const Mesh::CTable<Real>& m_coordinates;
+  
+  /// Connectivity table
+  const Mesh::CTable<Uint>& m_connectivity;
+  
+  Uint m_element_idx;
+  
+  /// Temp storage for non-scalar results
+  typename SF::CoordsT m_eval_result;
+  typename SF::JacobianT m_jacobian_matrix;
+  typename SF::CoordsT m_normal_vector;
+};
+
   
 /// Storage for per-variable data
 template<typename T>
@@ -146,148 +231,56 @@ private:
   const T& m_value;
 };
 
+/// Data associated with fields
+template<typename FieldSF>
+struct FieldData : public SFData<FieldSF>
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  typedef typename FieldSF::MappedGradientT GradientT;
+  typedef typename SFData<FieldSF>::LaplacianT LaplacianT;
+  typedef typename FieldSF::MappedCoordsT MappedCoordsT;
+  
+  /// Return the gradient
+  template<typename SupportT>
+  const GradientT& gradient(const MappedCoordsT& mapped_coords, SupportT& support) const
+  {
+    m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * mapped_gradient(mapped_coords);
+    return m_gradient;
+  }
+  
+  /// Return the laplacian
+  template<typename SupportT>
+  const LaplacianT& laplacian(const MappedCoordsT& mapped_coords, SupportT& support) const
+  {
+    // Calculate the gradient
+    gradient(mapped_coords, support);
+    m_laplacian.noalias() = m_gradient.transpose() * m_gradient;
+    return m_laplacian;
+  }
+  
+private:
+  mutable GradientT m_gradient;
+  mutable LaplacianT m_laplacian;
+};
+
+
 /// Storage for per-variable data for variables that depend on a shape function
 template<typename SF, typename T>
 struct SFVariableData;
 
-/// Data associated with ConstNodes variables
-template<typename SF>
-class SFVariableData<SF, ConstNodes>
-  : public SFData<SF>
-{
-public:
-  /// The shape function type
-  typedef SF ShapeFunctionT;
-  
-  /// The value type for all element nodes
-  typedef typename SF::NodeMatrixT ValueT;
- 
-  /// Return type of the value() method
-  typedef const ValueT& ValueResultT;
-  
-  /// Type for passing mapped coordinates
-  typedef typename SF::MappedCoordsT MappedCoordsT;
-  
-  /// The result type of an interpolation at given mapped coordinates
-  typedef const typename SF::CoordsT& EvalT;
-  
-  /// We store nodes as a fixed-size Eigen matrix, so we need to make sure alignment is respected
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-  SFVariableData(const ConstNodes&, const Mesh::CElements& elements) :
-    m_coordinates(elements.nodes().coordinates()),
-    m_connectivity(elements.connectivity_table())
-  {
-  }
-
-  /// Update nodes for the current element
-  void set_element(const Uint element_idx)
-  {
-    m_element_idx = element_idx;
-    Mesh::fill(m_nodes, m_coordinates, m_connectivity[element_idx]);
-  }
-  
-  /// Reference to the stored data
-  ValueResultT value() const
-  {
-    return m_nodes;
-  }
-  
-  /// Interpolation at the given mapped coordinates
-  EvalT eval(const typename SF::MappedCoordsT& mapped_coords)
-  {
-    m_eval_result = SFData<SF>::shape_function(mapped_coords) * m_nodes;
-    return m_eval_result;
-  }
-  
-  
-
-/// Operators to evaluate support (geometry) related shape function operations
-public:
-  /// Follow the TR1 result_of protocol. See http://cpp-next.com/archive/2010/11/expressive-c-fun-with-function-composition
-  template<typename Signature>
-  struct result;
-
-  template<typename ThisT>
-  struct result<ThisT(VolumeTag)>
-  {
-    typedef Real type;
-  };
-  
-  template<typename ThisT>
-  struct result<ThisT(JacobianTag)>
-  {
-    typedef const typename SF::JacobianT& type;
-  };
-  
-  template<typename ThisT>
-  struct result<ThisT(JacobianDeterminantTag)>
-  {
-    typedef Real type;
-  };
-  
-  template<typename ThisT>
-  struct result<ThisT(NormalTag)>
-  {
-    typedef const typename SF::CoordsT& type;
-  };
-  
-  /// Volume computed by the shape function
-  Real operator()(const VolumeTag&) const
-  {
-    return SF::volume(m_nodes);
-  }
-  
-  /// Jacobian matrix computed by the shape function
-  const typename SF::JacobianT& operator()(const JacobianTag&, const MappedCoordsT& mapped_coords)
-  {
-    SF::jacobian(mapped_coords, m_nodes, m_jacobian_matrix);
-    return m_jacobian_matrix;
-  }
-  
-  Real operator()(const JacobianDeterminantTag&, const MappedCoordsT& mapped_coords)
-  {
-    return SF::jacobian_determinant(mapped_coords, m_nodes);
-  }
-  
-  const typename SF::CoordsT& operator()(const NormalTag&, const MappedCoordsT& mapped_coords)
-  {
-    SF::normal(mapped_coords, m_nodes, m_normal_vector);
-    return m_normal_vector;
-  }
-  
-  /// Connectivity data for the current element
-  Mesh::CTable<Uint>::ConstRow element_connectivity()
-  {
-    return m_connectivity[m_element_idx];
-  }
-
-private:
-  /// Stored node data
-  ValueT m_nodes;
-  
-  /// Coordinates table
-  const Mesh::CTable<Real>& m_coordinates;
-  
-  /// Connectivity table
-  const Mesh::CTable<Uint>& m_connectivity;
-  
-  Uint m_element_idx;
-  
-  /// Temp storage for non-scalar results
-  typename SF::CoordsT m_eval_result;
-  typename SF::JacobianT m_jacobian_matrix;
-  typename SF::CoordsT m_normal_vector;
-};
-
 /// Data associated with ConstField<Real> variables
 template<typename SF>
 class SFVariableData<SF, ConstField<Real> >
-  : public SFData<SF>
+  : public FieldData<SF>
 {
 public:
   /// The shape function type
   typedef SF ShapeFunctionT;
+  
+  /// Types of the base classes
+  typedef FieldData<SF> FieldDataT;
+  typedef SFData<SF> SFDataT;
   
   /// The value type for all element values
   typedef Eigen::Matrix<Real, SF::nb_nodes, 1> ValueT;
@@ -306,7 +299,7 @@ public:
 
   SFVariableData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) : m_data(0), m_connectivity(0)
   {
-    if(placeholder.is_const)
+    if(placeholder.is_const) // the field has a single constant value over the entire domain
     {
       m_element_values.setConstant(placeholder.value);
     }
@@ -335,23 +328,22 @@ public:
     Mesh::fill(m_element_values, *m_data, (*m_connectivity)[element_idx], var_begin);
   }
   
+  const Mesh::CTable<Uint>::ConstRow element_connectivity()
+  {
+    return m_connectivity[m_element_idx];
+  }
+  
   /// Reference to the stored data
   ValueResultT value() const
   {
     return m_element_values;
   }
   
-  /// Interpolation at the given mapped coordinates
-  EvalT eval(const typename SF::MappedCoordsT& mapped_coords)
+  EvalT eval(const MappedCoordsT& mapped_coords)
   {
     return SFData<SF>::shape_function(mapped_coords) * m_element_values;
   }
   
-  const Mesh::CTable<Uint>::ConstRow element_connectivity()
-  {
-    return m_connectivity[m_element_idx];
-  }
-
 private:
   /// Value of the field in each element node
   ValueT m_element_values;
@@ -372,8 +364,8 @@ private:
 /// i.e. it is intended for use as 3rd argument for proto transforms.
 /// VariablesT is a fusion sequence containing each unique variable in the expression
 /// VariablesDataT is a fusion sequence of pointers to the data (also in proto sense) associated with each of the variables
-/// SupportIdxT is the index of the geometric support, or void if it was no found
-template<typename VariablesT, typename VariablesDataT, typename SupportIdxT>
+/// SupportSF is the shape function for the geometric support
+template<typename VariablesT, typename VariablesDataT, typename SupportSF>
 class ElementData
 {
 public:
@@ -383,7 +375,8 @@ public:
   
   ElementData(VariablesT& variables, Mesh::CElements& elements) :
     m_variables(variables),
-    m_elements(elements)
+    m_elements(elements),
+    m_support(elements)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data));
   }
@@ -397,6 +390,7 @@ public:
   void set_element(const Uint element_idx)
   {
     m_element_idx = element_idx;
+    m_support.set_element(element_idx);
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(SetElement(m_variables_data, element_idx));
   }
   
@@ -432,13 +426,7 @@ public:
     >::type type;
   };
   
-  /// Type of the geometric support, if it exists
-  typedef typename boost::mpl::if_
-  <
-    boost::mpl::is_void_<SupportIdxT>,
-    boost::mpl::void_,
-    typename DataType<SupportIdxT>::type
-  >::type SupportT;
+  typedef GeometricSupport<SupportSF> SupportT;
   
   /// Return the data stored at index I
   template<typename I>
@@ -457,7 +445,7 @@ public:
   /// Get the data associated with the geometric support
   SupportT& support()
   {
-    return var_data<SupportIdxT>();
+    return m_support;
   }
   
 private:
@@ -466,6 +454,9 @@ private:
   
   /// Referred CElements
   Mesh::CElements& m_elements;
+  
+  /// Data for the geometric support
+  SupportT m_support;
   
   /// Data associated with each numbered variable
   VariablesDataT m_variables_data;

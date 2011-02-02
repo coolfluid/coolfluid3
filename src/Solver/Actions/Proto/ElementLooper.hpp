@@ -14,6 +14,7 @@
 #include <boost/fusion/mpl.hpp>
 #include <boost/fusion/container/vector/convert.hpp>
 #include <boost/fusion/include/as_vector.hpp>
+#include <boost/fusion/sequence/intrinsic/empty.hpp>
 #include <boost/fusion/sequence.hpp>
 
 #include <boost/mpl/assert.hpp>
@@ -46,13 +47,6 @@ struct IsSFDependent
   typedef SFIndependent type;
 };
 
-/// ConstNodes variables need shape functions
-template<>
-struct IsSFDependent<ConstNodes>
-{
-  typedef SFDependent type;
-};
-
 /// Field variables need shape functions
 template<typename T>
 struct IsSFDependent< Field<T> >
@@ -83,12 +77,12 @@ struct SFDependency<VariablesT, NbVarsT, NbVarsT>
 };
 
 /// Associates helper data (things such as the element nodes) with each variable
-template<typename ShapeFunctionsT, typename ExprT, typename SupportIdxT, typename VariablesT, typename VariablesDataT, typename NbVarsT, typename VarIdxT, typename NeedSFTrait>
+template<typename ShapeFunctionsT, typename ExprT, typename SupportSF, typename VariablesT, typename VariablesDataT, typename NbVarsT, typename VarIdxT, typename NeedSFTrait>
 struct ExpressionRunner;
 
 /// Specialization for variables that don't depend on shape functions
-template<typename ShapeFunctionsT, typename ExprT, typename SupportIdxT, typename VariablesT, typename VariablesDataT, typename NbVarsT, typename VarIdxT>
-struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, VariablesDataT, NbVarsT, VarIdxT, SFIndependent>
+template<typename ShapeFunctionsT, typename ExprT, typename SupportSF, typename VariablesT, typename VariablesDataT, typename NbVarsT, typename VarIdxT>
+struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportSF, VariablesT, VariablesDataT, NbVarsT, VarIdxT, SFIndependent>
 {
   ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems) {}
   
@@ -102,7 +96,7 @@ struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, Variabl
     >::type NewVariablesDataT;
     typedef typename boost::mpl::next<VarIdxT>::type NextIdxT;
     typedef typename SFDependency<VariablesT, NbVarsT, NextIdxT>::type SFDependencyT;
-    ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, NewVariablesDataT, NbVarsT, NextIdxT, SFDependencyT>(variables, expression, elements).run();
+    ExpressionRunner<ShapeFunctionsT, ExprT, SupportSF, VariablesT, NewVariablesDataT, NbVarsT, NextIdxT, SFDependencyT>(variables, expression, elements).run();
   }
   
   VariablesT& variables;
@@ -111,8 +105,8 @@ struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, Variabl
 };
 
 /// Specialization for variables that depend on shape functions
-template<typename ShapeFunctionsT, typename ExprT, typename SupportIdxT, typename VariablesT, typename VariablesDataT, typename NbVarsT, typename VarIdxT>
-struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, VariablesDataT, NbVarsT, VarIdxT, SFDependent>
+template<typename ShapeFunctionsT, typename ExprT, typename SupportSF, typename VariablesT, typename VariablesDataT, typename NbVarsT, typename VarIdxT>
+struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportSF, VariablesT, VariablesDataT, NbVarsT, VarIdxT, SFDependent>
 { 
   ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems) {}
   
@@ -136,18 +130,12 @@ struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, Variabl
     >::type NewVariablesDataT;
     typedef typename boost::mpl::next<VarIdxT>::type NextIdxT;
     typedef typename SFDependency<VariablesT, NbVarsT, NextIdxT>::type SFDependencyT;
-    
-    // Determine if the numbered variable is a candidate to be the geometric support
-    typedef boost::mpl::vector // types representing a support
-    <
-      ConstNodes
-    > SupportTypesT;
 
     ExpressionRunner
     <
-      boost::mpl::filter_view< ShapeFunctionsT, Mesh::SF::IsCompatibleWith<SF> >, // This ensures we only choose shape functions compatible with those found already
+      ShapeFunctionsT,
       ExprT,
-      typename boost::mpl::if_<boost::mpl::contains<SupportTypesT, VarT>, VarIdxT, SupportIdxT>::type,
+      SupportSF,
       VariablesT,
       NewVariablesDataT,
       NbVarsT,
@@ -162,15 +150,15 @@ struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, Variabl
 };
 
 /// When we recursed to the last variable, actually run the expression
-template<typename ShapeFunctionsT, typename ExprT, typename SupportIdxT, typename VariablesT, typename VariablesDataT, typename NbVarsT>
-struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, VariablesDataT, NbVarsT, NbVarsT, void>
+template<typename ShapeFunctionsT, typename ExprT, typename SupportSF, typename VariablesT, typename VariablesDataT, typename NbVarsT>
+struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportSF, VariablesT, VariablesDataT, NbVarsT, NbVarsT, void>
 {
   ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems) {}
   
   void run() const
   {
     typedef typename boost::fusion::result_of::as_vector<VariablesDataT>::type VariablesDataVectorT; // the result of fusion::push_back operations is not random-access
-    ElementData<VariablesT, VariablesDataVectorT, SupportIdxT> data(variables, elements);
+    ElementData<VariablesT, VariablesDataVectorT, SupportSF> data(variables, elements);
     const Uint nb_elems = elements.size();
     ElementGrammar grammar;
     for(Uint elem = 0; elem != nb_elems; ++elem)
@@ -187,39 +175,79 @@ struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, Variabl
   Mesh::CElements& elements;
 };
 
+/// mpl::for_each compatible functor to loop over elements, using the correct shape function for the geometry
 template<typename ShapeFunctionsT, typename ExprT>
-void for_each_element(const ExprT& expr)
-{ 
-  // Number of variables (integral constant)
-  typedef typename ExpressionProperties<ExprT>::NbVarsT NbVarsT;
+struct ElementLooper
+{
   
   // Type of a fusion vector that can contain a copy of each variable that is used in the expression
   typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
   
-  // Store the variables
-  VariablesT vars;
-  CopyNumberedVars<VariablesT> ctx(vars);
-  boost::proto::eval(expr, ctx);
-  
-  // Use the first ConstNodes we can find to get the root region too loop over
-  Mesh::CRegion& root_region = (*boost::fusion::find<ConstNodes>(vars)).region();
-  
-  // Traverse all CElements under the root and evaluate the expression
-  BOOST_FOREACH(Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(root_region))
+  ElementLooper(Mesh::CElements& elements, const ExprT& expr, VariablesT& variables) :
+    m_elements(elements),
+    m_expr(expr),
+    m_variables(variables)
   {
+  }
+  
+  
+  template < typename SF >
+  void operator() ( SF& T ) const
+  {
+    if(!Mesh::IsElementType<SF>()(m_elements.element_type()))
+      return;
+    
+    // Number of variables (integral constant)
+    typedef typename ExpressionProperties<ExprT>::NbVarsT NbVarsT;
+    
     // Create an expression runner, taking rather many template arguments, and use it to run the expression.
     // This recurses through the variables, selecting the appropriate shape function for each variable
     ExpressionRunner
     <
-      ShapeFunctionsT, // MPL vector with the shape functions to consider
+      boost::mpl::filter_view< ShapeFunctionsT, Mesh::SF::IsCompatibleWith<SF> >, // MPL vector with the shape functions to consider
       ExprT, // type of the expression
-      boost::mpl::void_, // No support by default
+      SF, // Shape function for the support
       VariablesT, // type of the fusion vector with the variables
       boost::fusion::vector0<>, // Start with an empty vector for the per-variable data
       NbVarsT, // number of variables
       boost::mpl::int_<0>, // Start index, as MPL integral constant
-      typename IsSFDependent< typename boost::remove_reference< typename boost::fusion::result_of::front<VariablesT>::type >::type >::type // Determine if the first var needs a shape function
-    >(vars, expr, elements).run();
+      typename boost::mpl::if_ // Determine if the first var needs a shape function, if there are numbered variables
+      <
+        typename boost::fusion::result_of::empty<VariablesT>::type,
+        void,
+        typename IsSFDependent<typename boost::remove_reference
+        <
+          typename boost::fusion::result_of::front<VariablesT>::type
+        >::type >::type
+      >::type
+    >(m_variables, m_expr, m_elements).run();
+  }
+  
+private:
+  Mesh::CElements& m_elements;
+  const ExprT& m_expr;
+  VariablesT& m_variables;
+};
+
+template<typename ShapeFunctionsT, typename ExprT>
+void for_each_element(Mesh::CRegion& root_region, const ExprT& expr)
+{
+  // IF COMPILATION FAILS HERE: the espression passed to for_each_element is invalid
+  BOOST_MPL_ASSERT_MSG(
+    (boost::proto::matches<ExprT, ElementGrammar>::value),
+    INVALID_ELEMENT_EXPRESSION,
+    (ElementGrammar));
+  
+  // Store the variables
+  typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
+  VariablesT vars;
+  CopyNumberedVars<VariablesT> ctx(vars); // This is a proto context
+  boost::proto::eval(expr, ctx); // calling eval using the above context stores all variables in vars
+  
+  // Traverse all CElements under the root and evaluate the expression
+  BOOST_FOREACH(Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(root_region))
+  {
+    boost::mpl::for_each<ShapeFunctionsT>( ElementLooper<ShapeFunctionsT, ExprT>(elements, expr, vars) );
   }
 };
 

@@ -11,6 +11,8 @@
 
 #include "Math/MatrixTypes.hpp"
 
+#include "Transforms.hpp"
+
 /// @file Transforms related to Eigen matrix library functionality
 
 /// Required extension to eigen, in order to pass matrix product expressions by value
@@ -113,11 +115,7 @@ template<typename T>
 struct ValueType
 {
   typedef typename Eigen::MatrixBase<T>::PlainObject type;
-  
-  static void set_zero(type& val)
-  {
-    val.setZero();
-  }
+  typedef Eigen::NestByValue<type> NestedT;
 };
 
 /// Specialize for Eigen matrices
@@ -125,11 +123,7 @@ template<int I, int J>
 struct ValueType< Eigen::Matrix<Real, I, J> >
 {
   typedef Eigen::Matrix<Real, I, J> type;
-  
-  static void set_zero(type& val)
-  {
-    val.setZero();
-  }
+  typedef Eigen::NestByValue<type> NestedT;
 };
 
 /// Specialise for reals
@@ -137,11 +131,7 @@ template<>
 struct ValueType<Real>
 {
   typedef Real type;
-  
-  static void set_zero(type& val)
-  {
-    val = 0.;
-  }
+  typedef Real NestedT;
 };
 
 /// Terminal to indicate we want a transpose
@@ -188,21 +178,40 @@ struct MatrixElementAccess :
   };
 };
 
+/// Handle multiplication cases
+template<typename GrammarT>
+struct EigenMultiplication :
+  boost::proto::or_
+  <
+//     boost::proto::when
+//     <
+//       boost::proto::multiplies<Scalar, Scalar>,
+//       boost::proto::_default<Scalar>
+//     >,
+//     boost::proto::when
+//     <
+//       boost::proto::multiplies<Scalar, GrammarT>,
+//       Eigen::CwiseUnaryOp<Eigen::ei_scalar_multiple_op<Scalar(boost::proto::_left)>, GrammarT(boost::proto::_right) >(boost::proto::_default<GrammarT>)
+//     >,
+    boost::proto::when
+    <
+      boost::proto::multiplies<GrammarT, GrammarT>,
+      EigenProduct
+      <
+        GrammarT(boost::proto::_left),
+        GrammarT(boost::proto::_right)
+      >(boost::proto::_default<GrammarT>)
+    >
+  >
+{
+};
+
 /// Grammar for valid Eigen expressions, composed of primitives matching GrammarT
 template<typename GrammarT>
 struct EigenMath :
   boost::proto::or_
   <
-    // Handle Eigen multiplication specially, in order to avoid dangling references
-//     boost::proto::when
-//     <
-//       boost::proto::multiplies<GrammarT, GrammarT>,
-//       EigenProduct
-//       <
-//         GrammarT(boost::proto::_left),
-//         GrammarT(boost::proto::_right)
-//       >(boost::proto::_default<GrammarT>)
-//     >,
+    EigenMultiplication<GrammarT>,
     // Indexing
     boost::proto::when
     <
