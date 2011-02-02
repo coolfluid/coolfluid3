@@ -151,16 +151,6 @@ list( APPEND utest-parallel-environment_files
 coolfluid_add_mpi_unittest( utest-parallel-environment ${CF_MPI_TESTS_NB_PROCS} )
 
 ################################################################################
-# Test PE - all_reduce communication
-
-list( APPEND utest-parallel-all_reduce_cflibs coolfluid_common )
-list( APPEND utest-parallel-all_reduce_files
-  utest-parallel-all_reduce.cpp
-)
-
-coolfluid_add_mpi_unittest( utest-parallel-all_reduce ${CF_MPI_TESTS_NB_PROCS} )
-
-################################################################################
 # Test PE - collective type of communications
 
 list( APPEND utest-parallel-collective_cflibs coolfluid_common )
@@ -202,16 +192,6 @@ list( APPEND utest-parallel-operations_files
 )
 
 coolfluid_add_mpi_unittest( utest-parallel-operations ${CF_MPI_TESTS_NB_PROCS} )
-
-################################################################################
-# Test PE - memcheck
-
-list( APPEND utest-parallel-memcheck_cflibs coolfluid_common )
-list( APPEND utest-parallel-memcheck_files
-  utest-parallel-memcheck.cpp
-)
-
-coolfluid_add_mpi_unittest( utest-parallel-memcheck ${CF_MPI_TESTS_NB_PROCS} )
 
 ################################################################################
 # Test Foreach - boost_foreach etc.
