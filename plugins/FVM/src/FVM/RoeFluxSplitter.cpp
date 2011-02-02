@@ -15,7 +15,7 @@ namespace FVM {
 
 using namespace Common;
 
-//Common::ComponentBuilder < RoeFluxSplitter, CIterativeSolver, LibFVM > RoeFluxSplitter_Builder;
+Common::ComponentBuilder < RoeFluxSplitter, Component, LibFVM > RoeFluxSplitter_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

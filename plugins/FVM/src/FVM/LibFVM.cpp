@@ -5,22 +5,34 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/RegistLibrary.hpp"
+#include "Common/CRoot.hpp"
 
-#include "LibFVM.hpp"
+#include "FVM/LibFVM.hpp"
+
+#include "FVM/ShockTube.hpp"
 
 namespace CF {
 namespace FVM {
 
+  using namespace Common;
+  
 CF::Common::RegistLibrary<LibFVM> LibFVM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void LibFVM::initiate()
 {
+  Core::instance().root()
+      ->get_child("Tools")
+      ->create_component<FVM::ShockTube>( "wizard_shocktube" )
+      ->mark_basic();
 }
 
 void LibFVM::terminate()
 {
+  Core::instance().root()
+      ->get_child("Tools")
+      ->remove_component("wizard_shocktube");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
