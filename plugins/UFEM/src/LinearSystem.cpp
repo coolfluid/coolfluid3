@@ -87,6 +87,8 @@ void LinearSystem::run(XmlNode& node)
 
   builder->create_fields();
   lss().resize( builder->nb_dofs() );
+  
+  CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(*region);
 
   // Build the system
   builder->execute();
@@ -99,7 +101,7 @@ void LinearSystem::run(XmlNode& node)
 
   // Solve the linear system
   lss().solve();
-  increment_solution( lss().solution(), builder->field_names(), builder->variable_names(), builder->variable_sizes(), Common::find_parent_component<Mesh::CMesh>(*region) );
+  increment_solution(lss().solution(), builder->field_names(), builder->variable_names(), builder->variable_sizes(), mesh);
 }
 
 void LinearSystem::on_lss_set()

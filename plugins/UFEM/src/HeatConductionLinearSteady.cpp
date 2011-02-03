@@ -33,11 +33,14 @@ HeatConductionLinearSteady::HeatConductionLinearSteady(const std::string& name) 
 CFieldAction::Ptr HeatConductionLinearSteady::build_equation()
 {
   MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
+  //MeshTerm<1, ConfigurableConstant<Real> > k("k", "Thermal conductivity (J/(mK))");
+  //MeshTerm<2, ConfigurableConstant<Real> > heat("heat", "Heat added to the volume (J)");
+
   return build_elements_action
   (
     "HeatEquation",
     *this,
-    system_matrix( lss() ) += integral<1>( laplacian(temperature) * jacobian_determinant )
+    system_matrix( lss() ) +=  integral<1>( laplacian(temperature) * jacobian_determinant )
   );
 }
 

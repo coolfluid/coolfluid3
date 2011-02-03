@@ -29,7 +29,7 @@ OptionURI::~OptionURI()
 
 void OptionURI::supported_protocol(URI::Scheme::Type protocol)
 {
-  if(std::find(m_protocols.begin(), m_protocols.end(), protocol) != m_protocols.end())
+  if(std::find(m_protocols.begin(), m_protocols.end(), protocol) == m_protocols.end())
     m_protocols.push_back(protocol);
 }
 

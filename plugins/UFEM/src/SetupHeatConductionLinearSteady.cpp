@@ -12,6 +12,7 @@
 #include "Solver/CEigenLSS.hpp"
 
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CDomain.hpp"
 
 #include "Solver/CModelSteady.hpp"
@@ -67,6 +68,10 @@ void SetupHeatConductionLinearSteady::create_model(Common::XmlNode& node)
   hc->mark_basic();
   hc->configure_property( "LSS", URI(lss->full_path().string()) );
 
+  CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter>( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  mesh_writer->mark_basic();
+  model->add_component( mesh_writer );
+  
   CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
   mesh_reader->mark_basic();
   model->add_component( mesh_reader );
