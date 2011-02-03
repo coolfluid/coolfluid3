@@ -36,6 +36,7 @@ Common::ComponentBuilder < CField2, Component, LibMesh >  CField2_Builder;
 
 CField2::CField2 ( const std::string& name  ) :
   Component ( name ),
+  m_basis(NODE_BASED),
   m_registration_name ( name ),
   m_space_idx(0u)
 {
@@ -248,7 +249,7 @@ void CField2::create_data_storage()
         data_size = field_view.initialize(*this,field_elements.as_type<CEntities>());
       }
       m_data->resize(data_size);
-      break;      
+      break;
     }
     case NODE_BASED:
     {

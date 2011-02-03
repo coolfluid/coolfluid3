@@ -111,8 +111,9 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   write_header(file);
   write_coordinates(file);
   write_connectivity(file);
-  write_elem_nodal_data(file);
-  write_nodal_data(file); // uses CField2
+  //write_elem_nodal_data(file);
+  write_nodal_data(file); // uses CField
+  write_nodal_data2(file); // uses CField2
   write_element_data(file);
   write_element_data2(file); // uses CField2
   file.close();
@@ -179,8 +180,7 @@ void CWriter::write_coordinates(std::fstream& file)
 
     boost_foreach(CTable<Real>::ConstRow row, nodes->coordinates().array())
     {
-      ++node_number;
-      file << node_number << " ";
+      file << ++node_number << " ";
       for (Uint d=0; d<3; d++)
       {
         if (d<m_coord_dim)
@@ -214,7 +214,7 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint group_number;
   Uint elm_type;
   Uint number_of_tags=3; // 1 for physical entity,  1 for elementary geometrical entity,  1 for mesh partition
-  Uint elm_number=1;
+  Uint elm_number=0;
   Uint partition_number = mpi::PE::instance().rank();
 
   boost_foreach(CEntities& elements, m_mesh->topology().elements_range())
@@ -230,7 +230,7 @@ void CWriter::write_connectivity(std::fstream& file)
     const Uint nb_elem = elements.size();
     for (Uint e=0; e<nb_elem; ++e, ++elm_number)
     {
-      file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << 0 << " " << partition_number;
+      file << elm_number+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << 0 << " " << partition_number;
       boost_foreach(const Uint local_node_idx, elements.get_nodes(e))
       {
         file << " " << node_start_idx+local_node_idx+1;
@@ -306,8 +306,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
         Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
         boost_foreach(const CTable<Uint>::ConstRow& row, field_elements.connectivity_table().array())
         {
-          elm_number++;
-          file << elm_number << " " << nb_nodes_per_element << " ";
+          file << ++elm_number << " " << nb_nodes_per_element << " ";
           boost_foreach(const Uint local_node_idx, row)
           {
             if (var_type==CField::TENSOR_2D)
@@ -338,7 +337,131 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
   file.precision(prec);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 void CWriter::write_nodal_data(std::fstream& file)
+{
+	//  $NodeData
+	//  1              // 1 string tag:
+	//  "a_string_tag" //   the name of the view
+	//  1              // 1 real tag:
+	//  0              //  time value == 0
+	//  3              // 3 integer tags:
+	//  0              //  time step == 0 (time steps always start at 0)
+	//  1              //  1-component field (scalar) (only 1,3,9 are valid)
+	//  6              //  6 values follow:
+	//  1 0.0          //  value associated with node 1 == 0.0
+	//  2 0.1          //  ...
+	//  3 0.2
+	//  4 0.0
+	//  5 0.2
+	//  6 0.4
+	//  $EndNodeData
+
+	//  $ElementNodeData
+	//  number-of-string-tags
+	//  < "string-tag" >
+	//  ...
+	//  number-of-real-tags
+	//  < real-tag >
+	//  ...
+	//  number-of-integer-tags
+	//  < integer-tag >
+	//  ...
+	//  elm-number number-of-nodes-per-element value ...
+	//  ...
+	//  $ElementEndNodeData
+
+	// set precision for Real
+	Uint prec = file.precision();
+	file.precision(8);
+
+	boost_foreach(CField& nodebased_field, find_components_with_filter<CField>(*m_mesh,IsFieldNodeBased()))
+	{
+		std::string field_name = nodebased_field.field_name();
+
+		// data_header
+		Uint row_idx=0;
+		for (Uint iVar=0; iVar<nodebased_field.nb_vars(); ++iVar)
+		{
+			CField::VarType var_type = nodebased_field.var_type(iVar);
+			std::string var_name = nodebased_field.var_name(iVar);
+
+			Uint datasize(var_type);
+			switch (var_type)
+			{
+				case CField::VECTOR_2D:
+					datasize=Uint(CField::VECTOR_3D);
+					break;
+				case CField::TENSOR_2D:
+					datasize=Uint(CField::TENSOR_3D);
+					break;
+				default:
+					break;
+			}
+			RealVector data(datasize);
+      data.setZero();
+			std::set<std::string> field_data_paths;
+			boost_foreach(CElements& field_elements, find_components_recursively<CElements>(nodebased_field))
+			{
+				field_data_paths.insert(field_elements.data().full_path().path());
+			}
+
+			Uint nb_nodes=0;
+			boost_foreach(const URI& field_data_path, field_data_paths)
+			{
+				const CTable<Real>& field_data = *m_mesh->look_component<CTable<Real> >(field_data_path);
+
+				nb_nodes += field_data.size();
+			}
+
+			file << "$NodeData\n";
+			file << 1 << "\n";
+			file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+			file << 1 << "\n" << 0.0 << "\n";
+			file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_nodes <<"\n";
+
+
+
+			Uint local_node_idx=1;   // +1 for gmsh base starting at 1
+			boost_foreach(const URI& field_data_path, field_data_paths)
+			{
+				const CTable<Real>& field_data = *m_mesh->look_component<CTable<Real> >(field_data_path);
+
+				boost_foreach(CTable<Real>::ConstRow field_per_node, field_data.array())
+				{
+					file << local_node_idx++ << " ";
+
+					if (var_type==CField::TENSOR_2D)
+					{
+						data[0]=field_per_node[row_idx+0];
+						data[1]=field_per_node[row_idx+1];
+						data[3]=field_per_node[row_idx+2];
+						data[4]=field_per_node[row_idx+3];
+						for (Uint idx=0; idx<datasize; ++idx)
+							file << " " << data[idx];
+					}
+					else
+					{
+						for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
+							file << " " << field_per_node[idx];
+						if (var_type == CField::VECTOR_2D)
+							file << " " << 0.0;
+					}
+					file << "\n";
+				}
+			}
+			file << "$EndNodeData\n";
+			row_idx += Uint(var_type);
+		}
+	}
+	// restore precision
+	file.precision(prec);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CWriter::write_nodal_data2(std::fstream& file)
 {
   //  $NodeData
   //  1              // 1 string tag:
@@ -391,7 +514,7 @@ void CWriter::write_nodal_data(std::fstream& file)
         switch (var_type)
         {
           case CField2::VECTOR_2D:
-            datasize=Uint(CField::VECTOR_3D);
+            datasize=Uint(CField2::VECTOR_3D);
             break;
           case CField2::TENSOR_2D:
             datasize=Uint(CField2::TENSOR_3D);
@@ -410,13 +533,13 @@ void CWriter::write_nodal_data(std::fstream& file)
         file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_nodes <<"\n";
 
 
-        Uint local_node_idx=1;   // +1 for gmsh base starting at 1
+        Uint local_node_idx=0;
         const CTable<Real>& field_data = nodebased_field.data();
         //const CList<Uint>& used_nodes = nodebased_field.used_nodes();
 
         boost_foreach(CTable<Real>::ConstRow field_per_node, field_data.array())
         {          
-          file << local_node_idx << " ";
+          file << ++local_node_idx << " ";
 
           if (var_type==CField2::TENSOR_2D)
           {
@@ -435,7 +558,6 @@ void CWriter::write_nodal_data(std::fstream& file)
               file << " " << 0.0;
           }
           file << "\n";
-          ++local_node_idx;
         }
         file << "$EndNodeData\n";
         row_idx += Uint(var_type);
@@ -627,7 +749,6 @@ void CWriter::write_element_data2(std::fstream& file)
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
         file << 1 << "\n" << 0.0 << "\n";
         file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
-        const CTable<Real>& field_data = elementbased_field.data();
         boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(elementbased_field.topology()))
         {
           CFieldView field_view("field_view");
@@ -636,13 +757,13 @@ void CWriter::write_element_data2(std::fstream& file)
           Uint local_nb_elms = field_elements.size();
           for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
           {
-            file << elm_number++ << " " ;
+            file << ++elm_number << " " ;
             if (var_type==CField2::TENSOR_2D)
             {
               data[0]=field_view[local_elm_idx][row_idx+0];
-              data[1]=field_data[local_elm_idx][row_idx+1];
-              data[3]=field_data[local_elm_idx][row_idx+2];
-              data[4]=field_data[local_elm_idx][row_idx+3];
+              data[1]=field_view[local_elm_idx][row_idx+1];
+              data[3]=field_view[local_elm_idx][row_idx+2];
+              data[4]=field_view[local_elm_idx][row_idx+3];
               for (Uint idx=0; idx<datasize; ++idx)
                 file << " " << data[idx];
             }

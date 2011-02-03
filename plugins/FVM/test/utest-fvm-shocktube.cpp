@@ -102,6 +102,13 @@ BOOST_AUTO_TEST_CASE( constructor )
 //  meshwriter->configure_property("Fields",fields);
   model->look_component<CMeshWriter>("cpath:./tools/gmsh_writer")->write_from_to(mesh,file);
   
+  CFinfo << "model:"<<CFendl;
+  CFinfo << "------"<<CFendl;
+  CFinfo << model->tree() << CFendl;
+  CFinfo << "---------------------------------------------------------------------------------" << CFendl;
+  CFinfo << "Iterative Solver:" << CFendl;
+  CFinfo << "-----------------" << CFendl;
+  CFinfo << model->get_child("IterativeSolver")->tree() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
