@@ -280,7 +280,7 @@ QModelIndex NTree::indexByPath(const URI & path) const
       else
       {
         index = QModelIndex();
-        ClientRoot::instance().log()->addError("index not found");
+        ClientRoot::instance().log()->addError(QString("index not found for %1").arg(path.string().c_str()));
       }
     }
   }
