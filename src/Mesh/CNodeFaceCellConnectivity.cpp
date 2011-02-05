@@ -7,6 +7,7 @@
 #include "Common/ComponentPredicates.hpp"
 
 #include "Common/CLink.hpp"
+#include "Common/CBuilder.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CNodes.hpp"
@@ -16,6 +17,8 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+
+Common::ComponentBuilder < CNodeFaceCellConnectivity , Component, LibMesh > CNodeFaceCellConnectivity_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

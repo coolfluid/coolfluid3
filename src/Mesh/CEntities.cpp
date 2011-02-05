@@ -163,18 +163,38 @@ CSpace& CEntities::create_space( const std::string& shape_function_builder_name 
 
 CSpace& CEntities::create_space0()
 {
-  cf_assert(m_spaces.size()==0);
-  CSpace& space = create_space(element_type().builder_name());
-  CTable<Uint>& table = space.connectivity_table();
-  table.set_row_size(space.shape_function().nb_nodes());
-  table.resize(size());
-  for (Uint i=0; i!=table.size(); ++i)
+  if (m_spaces.size() == 0)
   {
-    CTable<Uint>::ConstRow nodes = get_nodes(i);
-    for (Uint j=0; j!=table.row_size(); ++j)
-      table[i][j] = nodes[j];
+    CSpace& space = create_space(element_type().builder_name());
+    CTable<Uint>& table = space.connectivity_table();
+    table.set_row_size(space.shape_function().nb_nodes());
+    table.resize(size());
+    for (Uint i=0; i!=table.size(); ++i)
+    {
+      CTable<Uint>::ConstRow nodes = get_nodes(i);
+      for (Uint j=0; j!=table.row_size(); ++j)
+        table[i][j] = nodes[j];
+    }
   }
-  return space;
+  return *m_spaces[0];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const CSpace& CEntities::space (const Uint space_idx) const
+{
+  return *m_spaces[space_idx];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool CEntities::exists_space(const Uint space_idx) const
+{
+  bool exists = false;
+  if (m_spaces.size() > space_idx)
+    if ( is_not_null (m_spaces[space_idx]) )
+      exists = true;
+  return exists;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

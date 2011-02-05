@@ -36,6 +36,7 @@
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoopOperation.hpp"
 #include "Solver/Actions/CComputeVolume.hpp"
+#include "Solver/Actions/CComputeArea.hpp"
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
@@ -280,6 +281,11 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   volumes.configure_property("FieldType",std::string("ElementBased"));
   volumes.create_data_storage();
 
+  CField2& areas = *mesh->create_component<CField2>("areas");
+  areas.configure_property("Topology",mesh->topology().full_path());
+  areas.configure_property("FieldType",std::string("ElementBased"));
+  areas.create_data_storage();
+
   BOOST_CHECK(true);
 
   CComputeVolume::Ptr compute_volume = root->create_component<CComputeVolume>("compute_volume");
@@ -298,8 +304,13 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   CLoop::Ptr elem_loop = root->create_component< CForAllElements2 >("elem_loop");
   elem_loop->configure_property("Regions",regions);
+  
   elem_loop->create_action("CF.Solver.Actions.CComputeVolume");
   elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volumes",volumes.full_path());
+  
+  elem_loop->create_action("CF.Solver.Actions.CComputeArea");
+  elem_loop->action("CF.Solver.Actions.CComputeArea").configure_property("Area",areas.full_path());
+  
   elem_loop->execute();
 
   BOOST_CHECK(true);
@@ -307,6 +318,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   std::vector<CField2::Ptr> fields;
   fields.push_back(volumes.as_type<CField2>());
   fields.push_back(field.as_type<CField2>());
+  fields.push_back(areas.as_type<CField2>());
   boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);

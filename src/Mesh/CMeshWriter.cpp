@@ -21,9 +21,9 @@ using namespace Common;
 CMeshWriter::CMeshWriter ( const std::string& name  ) :
   Component ( name ), m_coord_dim(0), m_max_dimensionality(0)
 {
-//   std::vector<URI> fields;
-//   m_properties.add_option< OptionArrayT<URI> > ("Fields","Fields to output",fields);
-//   m_properties["Fields"].as_option().attach_trigger( boost::bind( &CMeshWriter::config_fields,   this ) );
+  std::vector<URI> fields;
+  m_properties.add_option< OptionArrayT<URI> > ("Fields","Fields to output",fields)->mark_basic();
+  m_properties["Fields"].as_option().attach_trigger( boost::bind( &CMeshWriter::config_fields,   this ) );
   
   // m_properties.add_option< OptionT<std::string> >  ( "File",  "File to read" , "" );
   // m_properties.add_option< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
@@ -39,7 +39,7 @@ CMeshWriter::CMeshWriter ( const std::string& name  ) :
   file_path->mark_basic();
   
   // Signal for writing the mesh
-  this->regist_signal("write_mesh" , "Write the mesh", "Write Mesh")->connect( boost::bind ( &CMeshWriter::write, this, _1 ) );
+  this->regist_signal("write_mesh" , "Write the mesh", "Write Mesh")->connect( boost::bind ( &CMeshWriter::signal_write, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,33 +75,23 @@ CMeshWriter::~CMeshWriter()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshWriter::write( XmlNode& node  )
+void CMeshWriter::signal_write( XmlNode& node  )
 {
-//   // Get the mesh component in the tree
-//   /// @todo[1]: wait for Tiago for functionality
-// 
-//   // Get the file path
-//   boost::filesystem::path file = property("File").value<std::string>();
-// 
-//   // Call implementation
-//   /// @todo wait for todo[1]
-//   // write_from_to(mesh,file);
-  CMesh::Ptr mesh = look_component<CMesh>(property("Mesh").value_str());
-  write_from(mesh);
+  write();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-boost::filesystem::path CMeshWriter::write_from(const CMesh::Ptr& mesh)
+void CMeshWriter::write()
 {
+  // Get the mesh
+  CMesh::Ptr mesh = look_component<CMesh>(property("Mesh").value_str());
+  
   // Get the file path
-  boost::filesystem::path file = property("File").value_str();
+  boost::filesystem::path file (property("File").value_str());
 
   // Call implementation
   write_from_to(mesh,file);
-
-  // return the file
-  return file;
 }
 
 //////////////////////////////////////////////////////////////////////////////

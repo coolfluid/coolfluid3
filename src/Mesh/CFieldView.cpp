@@ -69,12 +69,19 @@ void CFieldView::set_elements(const CEntities& elements)
   cf_assert_desc("Field must be set before elements", is_not_null(m_field.lock()) );
   const CField2& field = *m_field.lock();
   m_elements = elements.as_const()->as_type<CEntities>();
-  m_space = elements.space(field.space_idx()).as_type<CSpace>();
-  m_stride = m_space.lock()->nb_states(); // this is the number of states per element (high order methods)
-  m_start_idx = field.elements_start_idx(elements);
-  m_end_idx = m_start_idx + m_stride * elements.size();
-  m_size = m_end_idx - m_start_idx;
-  m_coords_table = elements.nodes().coordinates().as_type<CTable<Real> >();
+  if (field.exists_for_entities(elements))
+  {
+    m_space = elements.space(field.space_idx()).as_type<CSpace>();
+    m_stride = m_space.lock()->nb_states(); // this is the number of states per element (high order methods)
+    m_start_idx = field.elements_start_idx(elements);
+    m_end_idx = m_start_idx + m_stride * elements.size();
+    m_size = m_end_idx - m_start_idx;
+    m_coords_table = elements.nodes().coordinates().as_type<CTable<Real> >();
+  }
+  else
+  {
+    m_size = 0;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

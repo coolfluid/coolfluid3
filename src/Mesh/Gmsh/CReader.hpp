@@ -13,7 +13,7 @@
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
 
 #include "Mesh/Gmsh/LibGmsh.hpp"

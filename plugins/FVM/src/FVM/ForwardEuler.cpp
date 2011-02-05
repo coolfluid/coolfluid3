@@ -83,21 +83,14 @@ void ForwardEuler::trigger_Domain()
     if ( is_null(solution) )
       solution = mesh->create_component<CField2>("solution");
     m_solution->link_to(solution);
-
     CField2::Ptr residual = find_component_ptr_with_name<CField2>(*mesh,"residual");
     if ( is_null(residual) )
       residual = mesh->create_component<CField2>("residual");
     m_residual->link_to(residual);
-
     CField2::Ptr update_coeff = find_component_ptr_with_name<CField2>(*mesh,"update_coeff");
     if ( is_null(update_coeff) )
       update_coeff = mesh->create_component<CField2>("update_coeff");
     m_update_coeff->link_to(update_coeff);
-
-    discretization_method().configure_property( "Solution"    , solution->full_path() );
-    discretization_method().configure_property( "Residual"    , residual->full_path() );
-    discretization_method().configure_property( "UpdateCoeff" , update_coeff->full_path() );
-        
   }
   else
   {
@@ -119,10 +112,10 @@ void ForwardEuler::solve()
     throw SetupError (FromHere(), "solution is not linked to solution field");
 
   if ( is_null(m_residual->follow()) )
-    throw SetupError (FromHere(), "residual is not linked to solution field");
+    throw SetupError (FromHere(), "residual is not linked to residual field");
 
   if ( is_null(m_update_coeff->follow()) )
-    throw SetupError (FromHere(), "update_coeff is not linked to solution field");
+    throw SetupError (FromHere(), "update_coeff is not linked to update_coeff field");
     
   CField2& solution     = *m_solution->follow()->as_type<CField2>();
   CField2& residual     = *m_residual->follow()->as_type<CField2>();
@@ -135,20 +128,20 @@ void ForwardEuler::solve()
     residual.data() = 0.;
     update_coeff.data() = 0.;
     
-    // apply boundary conditions
-    discretization_method().get_child<CAction>("apply_boundary_conditions")->execute();
-    
     // compute residual = flux_in - flux_out
     discretization_method().get_child<CAction>("compute_rhs")->execute();
 
     // calculate update coefficient  =  dt/dx
     Real dx = property("dx").value<Real>();
-    Real dt = get_parent()->get_child("Time")->property("Time Step").value<Real>();    
-    residual.data() *= dt/dx;
+    Real dt = get_parent()->get_child("Time")->property("Time Step").value<Real>();
+    update_coeff.data() = dt/dx;
+    
+    residual.data() *= update_coeff.data();
     
     // update solution = old_solution  + dt/dx * (flux_in - flux_out)
     solution.data() += residual.data();
     
+    discretization_method().get_child<CAction>("apply_boundary_conditions")->execute();
     
     if (property("OutputDiagnostics").value<bool>())
     {

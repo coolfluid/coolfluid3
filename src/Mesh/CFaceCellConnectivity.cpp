@@ -11,6 +11,7 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Log.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -25,6 +26,8 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+
+Common::ComponentBuilder < CFaceCellConnectivity , Component, LibMesh > CFaceCellConnectivity_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

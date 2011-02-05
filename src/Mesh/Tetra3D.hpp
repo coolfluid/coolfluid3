@@ -46,6 +46,8 @@ struct Mesh_API Tetra3D : public ElementType
   /// @return m_dimension
   static const Uint dimension = 3;
 
+  virtual Real compute_area(const NodesT& coord) const { return 0.; }
+
 }; // end Tetra3D
   
 ////////////////////////////////////////////////////////////////////////////////

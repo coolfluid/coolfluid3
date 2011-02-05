@@ -51,7 +51,7 @@ public: // functions
 
   // --------- Signals ---------
 
-  void write( Common::XmlNode& node  );
+  void signal_write( Common::XmlNode& node  );
 
   // --------- Direct access ---------
 
@@ -61,7 +61,7 @@ public: // functions
 
   virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path) = 0;
 
-  boost::filesystem::path write_from(const CMesh::Ptr& mesh);
+  void write();
   
   void set_fields(const std::vector<boost::shared_ptr<CField2> >& fields);
 

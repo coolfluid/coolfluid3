@@ -15,7 +15,9 @@
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/Gmsh/CWriter.hpp"
+#include "Mesh/Gmsh/CReader.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
+#include "Mesh/Actions/CBuildFaceNormals.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
@@ -26,6 +28,7 @@
 #include "Solver/CIterativeSolver.hpp"
 #include "Solver/CDiscretization.hpp"
 
+#include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 #include "FVM/ShockTube.hpp"
 
@@ -114,7 +117,21 @@ void ShockTube::signal_create_model ( Common::XmlNode& node )
   CGroup& tools = *model->create_component<CGroup>("tools");
   
   CBuildFaces& build_faces = *tools.create_component<CBuildFaces>("build_faces");
+  CBuildFaceNormals& build_face_normals = *tools.create_component<CBuildFaceNormals>("build_face_normals");
+  
+  Gmsh::CReader& gmsh_reader = *tools.create_component<Gmsh::CReader>("gmsh_reader");
   Gmsh::CWriter& gmsh_writer = *tools.create_component<Gmsh::CWriter>("gmsh_writer");
+  
+  
+  Uint nb_segments = 70;
+  CDomain::Ptr domain = model->get_child<CDomain>("domain");
+  CMesh::Ptr mesh = domain->create_component<CMesh>("line");
+  Tools::MeshGeneration::create_line(*mesh, 10. , nb_segments );
+  // path file_in("line.msh");
+  //   model->look_component<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
+  
+  model->get_child("IterativeSolver")->properties()["dx"]=10./Real(nb_segments);
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,29 +157,32 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>(*model);
   if (is_null(mesh))
     throw ValueNotFound (FromHere(), "Mesh is not found in the model");
-  
+    
   std::vector<std::string> args;  
   model->look_component<CBuildFaces>("cpath:./tools/build_faces")->transform(mesh,args);
-  
-  std::vector<std::string> solution_vars = list_of("rho[1]")("rhoU[1]")("rhoE[1]");
-  CField2& solution = mesh->create_field2("solution",mesh->topology(),solution_vars,"ElementBased");
+  model->look_component<CBuildFaceNormals>("cpath:./tools/build_face_normals")->transform(mesh,args);
+    
+  std::vector<std::string> solution_vars = list_of("rho[scalar]")("rhoU[scalar]")("rhoE[scalar]");
+  CField2& solution = mesh->create_field2("solution",mesh->topology(),solution_vars,"CellBased");
 
-  std::vector<std::string> residual_vars = list_of("delta_rho[1]")("delta_rhoU[1]")("delta_rhoE[1]");
-  CField2& residual = mesh->create_field2("residual",mesh->topology(),residual_vars,"ElementBased");
+  std::vector<std::string> residual_vars = list_of("delta_rho[scalar]")("delta_rhoU[scalar]")("delta_rhoE[scalar]");
+  CField2& residual = mesh->create_field2("residual",mesh->topology(),residual_vars,"CellBased");
 
-  std::vector<std::string> update_coeff_vars = list_of("uc_rho[1]")("uc_rhoU[1]")("uc_rhoE[1]");
-  CField2& update_coeff = mesh->create_field2("update_coeff",mesh->topology(),update_coeff_vars,"ElementBased");
+  std::vector<std::string> update_coeff_vars = list_of("update_coeff[scalar]");
+  CField2& update_coeff = mesh->create_field2("update_coeff",mesh->topology(),update_coeff_vars,"CellBased");
 
-  CIterativeSolver& solver = find_component<CIterativeSolver>(*model);  
+  CIterativeSolver& solver = find_component<CIterativeSolver>(*model);
   solver.configure_property("Domain" , model->get_child<CDomain>("domain")->full_path() );
   solver.configure_property("Number of Iterations", 1u);
-  
+
   std::vector<URI> fields;
-  boost_foreach(const CField2& field, find_components_recursively_with_name<CField2>(*mesh,"solution"))
+  boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
     fields.push_back(field.full_path());
   model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
+  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("File",std::string("shocktube.msh"));
+  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Mesh",mesh->full_path());
   
-  
+  CF_DEBUG_POINT;
   
   // set initial condition
   
@@ -203,11 +223,18 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
     }
   }
   
-  CAction& apply_bcs = *solver.look_component<CAction>("cpath:./Discretization/apply_boundary_conditions");
+  CF_DEBUG_POINT;
   std::vector<URI> faces_to_loop(1);
   
+  faces_to_loop[0]=find_component_recursively_with_name<CRegion>(*mesh,"fluid").full_path();
+  find_component_recursively_with_name<CAction>(solver,"for_all_inner_faces").configure_property("Regions",faces_to_loop);
+  find_component_recursively_with_name<CAction>(solver,"add_flux_to_rhs").configure_property("Solution",solution.full_path());
+  find_component_recursively_with_name<CAction>(solver,"add_flux_to_rhs").configure_property("Residual",residual.full_path());
+  
+  CAction& apply_bcs = *solver.look_component<CAction>("cpath:./Discretization/apply_boundary_conditions");
+  
   CAction& apply_inlet_bc = apply_bcs.create_action("CF.Solver.Actions.CForAllFaces","inlet");
-  faces_to_loop[0] = solution.topology().get_child("xneg")->full_path();
+  faces_to_loop[0] = find_component_recursively_with_name<CRegion>(solution.topology(),"xneg").full_path();
   apply_inlet_bc.configure_property("Regions" , faces_to_loop);
   CAction& inlet_bc = apply_inlet_bc.create_action("CF.FVM.BCDirichlet","dirichlet");
   
@@ -217,7 +244,7 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   inlet_bc.configure_property("p",p_L);
   
   CAction& apply_outlet_bc = apply_bcs.create_action("CF.Solver.Actions.CForAllFaces","outlet");
-  faces_to_loop[0] = solution.topology().get_child("xpos")->full_path();
+  faces_to_loop[0] = find_component_recursively_with_name<CRegion>(solution.topology(),"xpos").full_path();
   apply_outlet_bc.configure_property("Regions" , faces_to_loop);
   CAction& outlet_bc = apply_outlet_bc.create_action("CF.FVM.BCDirichlet","dirichlet");
   outlet_bc.configure_property("Solution",solution.full_path());

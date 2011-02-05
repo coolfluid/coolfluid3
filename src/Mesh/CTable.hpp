@@ -233,10 +233,19 @@ public: // functions
   CTable& operator *=(const CTable& U) 
   { 
     cf_assert(size() == U.size());
-    cf_assert(row_size() == U.row_size());
-    for (Uint i=0; i<size(); ++i)
-      for (Uint j=0; j<row_size(); ++j)
-        array()[i][j] *= U.array()[i][j];
+    if (U.row_size() == 1) // U is a scalar field
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] *= U.array()[i][0];
+    }
+    else
+    {
+      cf_assert(row_size() == U.row_size()); // field must be same size
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] *= U.array()[i][j];
+    }
     return *this;
   }
 

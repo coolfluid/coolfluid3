@@ -113,8 +113,19 @@ public: // functions
   virtual std::string builder_name() const = 0;
 
   /// compute volume given coordinates
+  /// @note Only in elements of dimensionality == dimension will
+  /// the volume be different from zero
   virtual Real compute_volume(const NodesT& coord) const = 0;
 
+  /// compute area using given coordinates.
+  /// @note Only in elements of dimensionality == dimensionality-1
+  /// will the area be different from zero
+  virtual Real compute_area(const NodesT& coord) const = 0;
+
+  /// compute the normal to the element. The direction will be taken according
+  /// to the order of the coordinates
+  virtual void compute_normal(const NodesT& coord, RealVector& normal) const {};
+  
   /// compute volume given coordinates
   virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const {};
   

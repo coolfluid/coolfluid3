@@ -33,7 +33,7 @@ namespace MeshGeneration {
 
 void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 {
-  CRegion& region = mesh.topology().create_region("cells");
+  CRegion& region = mesh.topology().create_region("fluid");
   CNodes& nodes = mesh.topology().create_nodes(DIM_1D);
   nodes.resize(x_segments+1);
   const Real x_step = x_len / static_cast<Real>(x_segments);

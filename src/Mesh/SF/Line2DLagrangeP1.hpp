@@ -93,6 +93,8 @@ struct MESH_SF_API Line2DLagrangeP1  : public Line2D
   /// The volume of an element with a dimensionality that is less than
   /// the dimension of the problem is 0.
   virtual Real compute_volume(const NodesT& coord) const;
+  virtual Real compute_area(const NodesT& coord) const;
+  virtual void compute_normal(const NodesT& coord, RealVector& normal) const;
 	virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
   virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
   virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;

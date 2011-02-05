@@ -45,6 +45,8 @@ struct Mesh_API Line3D : public ElementType
   
   /// @return m_dimension
   static const Uint dimension = DIM_3D;
+  
+  virtual Real compute_area(const NodesT& coord) const { return 0.; }
 
 }; // end Line3D
   

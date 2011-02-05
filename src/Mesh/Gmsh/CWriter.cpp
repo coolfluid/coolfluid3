@@ -501,7 +501,7 @@ void CWriter::write_nodal_data2(std::fstream& file)
   boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
   {
     CField2& nodebased_field = *field_ptr.lock();
-    if (nodebased_field.basis() == CField2::NODE_BASED)
+    if (nodebased_field.basis() == CField2::POINT_BASED)
     {
       std::string field_name = nodebased_field.name();
       // data_header
@@ -717,11 +717,20 @@ void CWriter::write_element_data2(std::fstream& file)
   boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
   {
     CField2& elementbased_field = *field_ptr.lock();
-    if (elementbased_field.basis() == CField2::ELEMENT_BASED)
+    if (elementbased_field.basis() == CField2::ELEMENT_BASED ||
+        elementbased_field.basis() == CField2::CELL_BASED    ||
+        elementbased_field.basis() == CField2::FACE_BASED    )
     {
       std::string field_name = elementbased_field.name();
-      Uint nb_elements = elementbased_field.topology().recursive_elements_count();
-
+      Uint nb_elements = 0;
+      boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(elementbased_field.topology()))
+      {
+        if (elementbased_field.exists_for_entities(field_elements))
+        {
+          nb_elements += field_elements.size();
+        }
+      }
+      
       // data_header
       Uint row_idx=0;
       for (Uint iVar=0; iVar<elementbased_field.nb_vars(); ++iVar)
@@ -751,30 +760,33 @@ void CWriter::write_element_data2(std::fstream& file)
         file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
         boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(elementbased_field.topology()))
         {
-          CFieldView field_view("field_view");
-          field_view.initialize(elementbased_field,field_elements.as_type<CEntities>());
-          Uint elm_number = m_element_start_idx[&field_elements];
-          Uint local_nb_elms = field_elements.size();
-          for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
+          if (elementbased_field.exists_for_entities(field_elements))
           {
-            file << ++elm_number << " " ;
-            if (var_type==CField2::TENSOR_2D)
+            CFieldView field_view("field_view");
+            field_view.initialize(elementbased_field,field_elements.as_type<CEntities>());
+            Uint elm_number = m_element_start_idx[&field_elements];
+            Uint local_nb_elms = field_elements.size();
+            for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
             {
-              data[0]=field_view[local_elm_idx][row_idx+0];
-              data[1]=field_view[local_elm_idx][row_idx+1];
-              data[3]=field_view[local_elm_idx][row_idx+2];
-              data[4]=field_view[local_elm_idx][row_idx+3];
-              for (Uint idx=0; idx<datasize; ++idx)
-                file << " " << data[idx];
+              file << ++elm_number << " " ;
+              if (var_type==CField2::TENSOR_2D)
+              {
+                data[0]=field_view[local_elm_idx][row_idx+0];
+                data[1]=field_view[local_elm_idx][row_idx+1];
+                data[3]=field_view[local_elm_idx][row_idx+2];
+                data[4]=field_view[local_elm_idx][row_idx+3];
+                for (Uint idx=0; idx<datasize; ++idx)
+                  file << " " << data[idx];
+              }
+              else
+              {
+                for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
+                  file << " " << field_view[local_elm_idx][idx];
+                if (var_type == CField2::VECTOR_2D)
+                  file << " " << 0.0;
+              }
+              file << "\n";
             }
-            else
-            {
-              for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
-                file << " " << field_view[local_elm_idx][idx];
-              if (var_type == CField2::VECTOR_2D)
-                file << " " << 0.0;
-            }
-            file << "\n";
           }
         }
         file << "$EndElementData\n";

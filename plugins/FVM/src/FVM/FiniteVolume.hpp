@@ -62,23 +62,8 @@ public: // functions
   void create_bc( Common::XmlNode& xml );
 
   //@} END SIGNALS
-
-private: // functions
-  
-  /// function triggered when regions option is updated
-  void trigger_Regions();
-  
-  void configure_solution();
-  void configure_residual();
-  void configure_update_coeff();
   
 private: // data
-
-  Common::CLink::Ptr m_solution;
-  
-  Common::CLink::Ptr m_residual;
-  
-  Common::CLink::Ptr m_update_coeff;
   
   Common::CAction::Ptr m_apply_bcs;
   

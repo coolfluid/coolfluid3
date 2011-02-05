@@ -45,6 +45,10 @@ struct Mesh_API Point1D : public ElementType
   
   /// @return m_dimension
   static const Uint dimension = 1;
+  
+  virtual Real compute_area(const NodesT& coord) const { return 1.; }
+  
+  virtual void compute_normal(const NodesT& coord, RealVector& normal) const { normal[XX] = 1.0; }
 
 }; // end Point1D
   

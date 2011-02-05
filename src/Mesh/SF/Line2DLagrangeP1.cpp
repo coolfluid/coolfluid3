@@ -44,6 +44,22 @@ Real Line2DLagrangeP1::compute_volume(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Real Line2DLagrangeP1::compute_area(const NodesT& coord) const
+{
+  return area(coord);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line2DLagrangeP1::compute_normal(const NodesT& coord, RealVector& normal) const
+{
+  normal[XX] = -coord(0,YY) + coord(1,YY);
+  normal[YY] = -coord(1,XX) + coord(0,XX);
+  normal /= normal.norm();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool Line2DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
   return false;

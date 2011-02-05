@@ -57,6 +57,7 @@ private: // functions
 	void write_nodal_data2(std::fstream& file);
 
   void write_elem_nodal_data(std::fstream& file);
+  void write_elem_nodal_data2(std::fstream& file);
 
   void write_element_data(std::fstream& file);
   void write_element_data2(std::fstream& file);

@@ -23,6 +23,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CFieldView.hpp"
+#include "Mesh/CCells.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -36,7 +37,7 @@ Common::ComponentBuilder < CField2, Component, LibMesh >  CField2_Builder;
 
 CField2::CField2 ( const std::string& name  ) :
   Component ( name ),
-  m_basis(NODE_BASED),
+  m_basis(POINT_BASED),
   m_registration_name ( name ),
   m_space_idx(0u)
 {
@@ -46,8 +47,10 @@ CField2::CField2 ( const std::string& name  ) :
   uri_option->mark_basic();
   
   Option::Ptr option;
-  option = m_properties.add_option< OptionT<std::string> >("FieldType", "The type of the field", std::string("NodeBased"));
+  option = m_properties.add_option< OptionT<std::string> >("FieldType", "The type of the field", std::string("PointBased"));
   option->restricted_list() += std::string("ElementBased");  
+  option->restricted_list() += std::string("CellBased");  
+  option->restricted_list() += std::string("FaceBased");  
   option->attach_trigger ( boost::bind ( &CField2::config_field_type,   this ) );
   option->mark_basic();
   
@@ -65,7 +68,7 @@ CField2::CField2 ( const std::string& name  ) :
   std::vector<std::string> var_types;
   var_types.push_back("scalar");
   option = m_properties.add_option<OptionArrayT<std::string> >("VarTypes","Types of the variables",var_types);
-  option->restricted_list() += std::string("scalar") ,
+  m_properties["VarTypes"].as_option().restricted_list() += std::string("scalar") ,
                                std::string("vector2D"),
                                std::string("vector3D"),
                                std::string("tensor2D"),
@@ -74,16 +77,8 @@ CField2::CField2 ( const std::string& name  ) :
   option->mark_basic();
   config_var_types();
 
-  
-  std::vector<Uint> var_sizes;
-  var_sizes.push_back(1);
-  option = m_properties.add_option<OptionArrayT<Uint> >("VarSizes","Sizes of the variables",var_sizes);
-  option->attach_trigger ( boost::bind ( &CField2::config_var_sizes,   this ) );
-  config_var_sizes();
-
   m_topology = create_static_component<CLink>("topology");
   m_data = create_static_component<CTable<Real> >("data");
-  
 }
   
 ////////////////////////////////////////////////////////////////////////////////
@@ -114,12 +109,6 @@ void CField2::config_var_types()
       m_var_types[iVar++]=TENSOR_3D;
   }
   
-  std::vector<Uint> var_sizes(m_var_types.size());
-  for (Uint i=0; i<m_var_types.size(); ++i)
-    var_sizes[i]=Uint(m_var_types[i]);
-  boost_foreach(CField2& subfield, find_components<CField2>(*this))
-    subfield.configure_property("VarSizes",var_sizes);
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -131,28 +120,18 @@ void CField2::config_var_names()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CField2::config_var_sizes()
-{
-  std::vector<Uint> var_sizes; property("VarSizes").put_value(var_sizes);
-  Uint iVar=0;
-  m_var_types.resize(var_sizes.size());
-  boost_foreach(Uint var_type, var_sizes)
-  m_var_types[iVar++]=VarType(var_type);
-  
-  boost_foreach(CField2& subfield, find_components<CField2>(*this))
-    subfield.configure_property("VarSizes",var_sizes);  
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void CField2::config_field_type()
 {
   std::string field_type;
   property("FieldType").put_value(field_type);
-  if (field_type == "NodeBased")
-    m_basis = NODE_BASED;
-  else
+  if (field_type == "PointBased")
+    m_basis = POINT_BASED;
+  else if (field_type == "ElementBased")
     m_basis = ELEMENT_BASED;
+  else if (field_type == "CellBased")
+    m_basis = CELL_BASED;
+  else if (field_type == "FaceBased")
+    m_basis = FACE_BASED;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -214,6 +193,14 @@ void CField2::config_tree()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void CField2::set_topology(CRegion& region)
+{
+  m_topology->link_to(region.self());
+  properties()["Topology"]=region.full_path();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 CField2::~CField2()
 {
 }
@@ -239,11 +226,20 @@ void CField2::create_data_storage()
   
   switch (m_basis)
   {
+    case POINT_BASED:
+    {
+      m_used_nodes = CElements::used_nodes(topology()).as_type<CList<Uint> >();
+      m_data->resize(m_used_nodes->size());
+      break;
+    }
     case ELEMENT_BASED:
     {
       Uint data_size = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(topology()))
       {
+        if (m_space_idx == 0 && ! field_elements.exists_space(m_space_idx) )
+          field_elements.create_space0();
+        cf_assert( field_elements.exists_space(m_space_idx) );
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this,field_elements.as_type<CEntities>());
@@ -251,12 +247,37 @@ void CField2::create_data_storage()
       m_data->resize(data_size);
       break;
     }
-    case NODE_BASED:
+    case CELL_BASED:
     {
-      m_used_nodes = CElements::used_nodes(topology()).as_type<CList<Uint> >();
-      m_data->resize(m_used_nodes->size());
-    }
+      Uint data_size = 0;
+      boost_foreach(CEntities& field_elements, find_components_recursively<CCells>(topology()))
+      {
+        if (m_space_idx == 0 && ! field_elements.exists_space(m_space_idx) )
+          field_elements.create_space0();
+        cf_assert( field_elements.exists_space(m_space_idx) );
+        m_elements_start_idx[&field_elements] = data_size;
+        CFieldView field_view("tmp_field_view");
+        data_size = field_view.initialize(*this,field_elements.as_type<CEntities>());
+      }
+      m_data->resize(data_size);
       break;
+    }
+    case FACE_BASED:
+    {
+      Uint data_size = 0;
+      boost_foreach(CEntities& field_elements, find_components_recursively_with_tag<CEntities>(topology(),"face_entity"))
+      {
+        if (m_space_idx == 0 && ! field_elements.exists_space(m_space_idx) )
+          field_elements.create_space0();
+        cf_assert( field_elements.exists_space(m_space_idx) );
+        m_elements_start_idx[&field_elements] = data_size;
+        CFieldView field_view("tmp_field_view");
+        data_size = field_view.initialize(*this,field_elements.as_type<CEntities>());
+      }
+      m_data->resize(data_size);
+      break;
+    }
+    
     default:
       throw NotSupported(FromHere() , "DataBasis can only be ELEMENT_BASED or NODE_BASED");
       break;

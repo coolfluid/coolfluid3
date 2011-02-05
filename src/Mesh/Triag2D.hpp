@@ -46,6 +46,8 @@ struct Mesh_API Triag2D : public ElementType
   /// @return m_dimension
   static const Uint dimension = 2;
 
+  virtual Real compute_area(const NodesT& coord) const { return 0.; }
+
 }; // end Triag2D
   
 ////////////////////////////////////////////////////////////////////////////////

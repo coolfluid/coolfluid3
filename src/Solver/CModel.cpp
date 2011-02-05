@@ -24,6 +24,7 @@ CModel::CModel( const std::string& name  ) :
 
    this->regist_signal ( "simulate" , "Simulates this model", "Simulate" )
        ->connect ( boost::bind ( &CModel::signal_simulate, this, _1 ) );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

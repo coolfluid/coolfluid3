@@ -125,6 +125,7 @@ private: // data
 template <typename DATA>
 inline CUnifiedData<DATA>::CUnifiedData ( const std::string& name ) : Component(name)
 {
+	regist_typeinfo(this);
   m_data_indices = create_static_component<CList<Uint> >  ("data_indices");
   m_data_links   = create_static_component<Common::CGroup>("data_links");
   m_data_indices->resize(1);

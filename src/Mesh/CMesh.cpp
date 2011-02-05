@@ -143,7 +143,7 @@ CField2& CMesh::create_field2( const std::string& name , CRegion& support, const
   }
 
   CField2& field = *create_component<CField2>(name);
-  field.configure_property("Topology",support.full_path());
+  field.set_topology(support);
   field.configure_property("VarNames",names);
   field.configure_property("VarTypes",types);
   field.configure_property("FieldType",field_type); // used to be databasis

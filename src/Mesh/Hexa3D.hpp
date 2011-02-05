@@ -44,6 +44,8 @@ struct Mesh_API Hexa3D : public ElementType
   
   /// @return m_dimension
   static const Uint dimension = DIM_3D;
+  
+  virtual Real compute_area(const NodesT& coord) const { return 0.; }
 
 }; // end Hexa3D
   

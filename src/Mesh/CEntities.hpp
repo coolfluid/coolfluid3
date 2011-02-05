@@ -78,11 +78,13 @@ public: // functions
   
   virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) ;
   
-  const CSpace& space (const Uint space_idx) const { return *m_spaces[space_idx]; }
+  const CSpace& space (const Uint space_idx) const;
 
   CSpace& create_space( const std::string& shape_function_builder_name );
 
   virtual CSpace& create_space0();
+  
+  bool exists_space(const Uint space_idx) const;
 
 protected: // data
 
@@ -93,7 +95,7 @@ protected: // data
   boost::shared_ptr<CList<Uint> > m_global_numbering;
 
   std::vector<boost::shared_ptr<CSpace> > m_spaces;
-  
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

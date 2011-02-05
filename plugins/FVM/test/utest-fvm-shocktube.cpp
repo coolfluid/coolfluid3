@@ -26,6 +26,7 @@
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/CMeshReader.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
 
 #include "FVM/ShockTube.hpp"
@@ -65,11 +66,14 @@ BOOST_AUTO_TEST_CASE( constructor )
   
   // 2) Load the mesh in Domain
   // --------------------------
-  Uint nb_segments = 70;
-  CDomain::Ptr domain = model->get_child<CDomain>("domain");
-  CMesh::Ptr mesh = domain->create_component<CMesh>("line");
-  create_line(*mesh, 10. , nb_segments );
-  model->get_child("IterativeSolver")->properties()["dx"]=10./Real(nb_segments);
+  // Uint nb_segments = 70;
+  // CDomain::Ptr domain = model->get_child<CDomain>("domain");
+  // CMesh::Ptr mesh = domain->create_component<CMesh>("line");
+  // //create_line(*mesh, 10. , nb_segments );
+  // path file_in("line.msh");
+  // model->look_component<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
+  // 
+  // model->get_child("IterativeSolver")->properties()["dx"]=10./Real(nb_segments);
 
   BOOST_CHECK(true);
   
@@ -96,11 +100,8 @@ BOOST_AUTO_TEST_CASE( constructor )
   BOOST_CHECK(true);
   
   // 6) Write mesh
-  // -------------
-  path file("shocktube.msh");
-  
-//  meshwriter->configure_property("Fields",fields);
-  model->look_component<CMeshWriter>("cpath:./tools/gmsh_writer")->write_from_to(mesh,file);
+  // -------------  
+  model->look_component<CMeshWriter>("cpath:./tools/gmsh_writer")->write();
   
   CFinfo << "model:"<<CFendl;
   CFinfo << "------"<<CFendl;

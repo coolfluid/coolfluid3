@@ -316,6 +316,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     cf_assert(fnb.size() == faces.size());
     
     faces.create_space0();
+    
   }
   
   

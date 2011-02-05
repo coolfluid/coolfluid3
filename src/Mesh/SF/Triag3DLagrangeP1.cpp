@@ -41,6 +41,13 @@ Real Triag3DLagrangeP1::compute_volume(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Real Triag3DLagrangeP1::compute_area(const NodesT& coord) const
+{
+  return area(coord);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool Triag3DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
 	return false;

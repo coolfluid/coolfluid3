@@ -35,7 +35,7 @@ public: // typedefs
   typedef boost::shared_ptr<CField2> Ptr;
   typedef boost::shared_ptr<CField2 const> ConstPtr;
   
-  enum DataBasis { ELEMENT_BASED=0,  NODE_BASED=1};
+  enum DataBasis { POINT_BASED=0,  ELEMENT_BASED=1, CELL_BASED=2, FACE_BASED=3};
   enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
 
 public: // functions
@@ -77,6 +77,8 @@ public: // functions
   /// Return the const table that holds the data for this field
   const CTable<Real>& data() const { return *m_data; }
   
+  void set_topology(CRegion& topology);
+  
   const CRegion& topology() const;
 
   CRegion& topology();
@@ -104,6 +106,11 @@ public: // functions
     return m_elements_start_idx.find(&elements)->second;
   }
   
+  bool exists_for_entities(const CEntities& elements) const
+  {
+    return m_elements_start_idx.find(&elements) != m_elements_start_idx.end();
+  }
+  
 private:
   
   std::string m_registration_name;
@@ -113,7 +120,6 @@ private:
   Uint m_space_idx;
 
   void config_var_names();
-  void config_var_sizes();
   void config_var_types();
   void config_tree();
   void config_field_type();
@@ -136,30 +142,30 @@ protected:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-  
-class IsField2NodeBased
-{
-public:
-  IsField2NodeBased () {}
-  
-  bool operator()(const CField2::Ptr& component)
-  { return component->basis() == CField2::NODE_BASED; }
-  
-  bool operator()(const CField2& component)
-  { return component.basis() == CField2::NODE_BASED; }
-};
-
-class IsField2ElementBased
-{
-public:
-  IsField2ElementBased () {}
-  
-  bool operator()(const CField2::Ptr& component)
-  { return component->basis() == CField2::ELEMENT_BASED; }
-  
-  bool operator()(const CField2& component)
-  { return component.basis() == CField2::ELEMENT_BASED; }
-};
+//   
+// class IsField2NodeBased
+// {
+// public:
+//   IsField2NodeBased () {}
+//   
+//   bool operator()(const CField2::Ptr& component)
+//   { return component->basis() == CField2::POINT_BASED; }
+//   
+//   bool operator()(const CField2& component)
+//   { return component.basis() == CField2::NODE_BASED; }
+// };
+// 
+// class IsField2ElementBased
+// {
+// public:
+//   IsField2ElementBased () {}
+//   
+//   bool operator()(const CField2::Ptr& component)
+//   { return component->basis() == CField2::ELEMENT_BASED; }
+//   
+//   bool operator()(const CField2& component)
+//   { return component.basis() == CField2::ELEMENT_BASED; }
+// };
 
 ////////////////////////////////////////////////////////////////////////////////
   
