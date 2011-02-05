@@ -86,11 +86,11 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   coordinates.configure_property("Topology",mesh.topology().full_path());
   coordinates.configure_property("VarNames",names);
   coordinates.configure_property("VarTypes",types);
-  coordinates.configure_property("FieldType",std::string("NodeBased"));
+  coordinates.configure_property("FieldType",std::string("PointBased"));
   coordinates.configure_property("Space",0u);
   coordinates.create_data_storage();
 
-  BOOST_CHECK_EQUAL( coordinates.basis() , CField2::NODE_BASED );
+  BOOST_CHECK_EQUAL( coordinates.basis() , CField2::POINT_BASED );
   BOOST_CHECK_EQUAL( coordinates.var_name() , std::string("coordinates") );
   BOOST_CHECK_EQUAL( coordinates.var_name(0) , std::string("coordinates") );
   BOOST_CHECK_EQUAL( coordinates.var_index("coordinates") , 0u );
@@ -124,11 +124,11 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   solution.configure_property("Topology",mesh.topology().full_path());
   solution.configure_property("VarNames",names);
   solution.configure_property("VarTypes",types);
-  solution.configure_property("FieldType",std::string("NodeBased"));
+  solution.configure_property("FieldType",std::string("PointBased"));
   solution.create_data_storage();
   
   
-  BOOST_CHECK_EQUAL( solution.basis() , CField2::NODE_BASED );
+  BOOST_CHECK_EQUAL( solution.basis() , CField2::POINT_BASED );
   BOOST_CHECK_EQUAL( solution.var_name() , std::string("rho") );
   BOOST_CHECK_EQUAL( solution.var_name(0) , std::string("rho") );
   BOOST_CHECK_EQUAL( solution.var_name(1) , std::string("U") );
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( FieldOperators )
   solution_copy.configure_property("Topology",mesh.topology().full_path());
   solution_copy.configure_property("VarNames",names);
   solution_copy.configure_property("VarTypes",types);
-  solution_copy.configure_property("FieldType",std::string("NodeBased"));
+  solution_copy.configure_property("FieldType",std::string("PointBased"));
   solution_copy.create_data_storage();
 
   solution.data()[0][0] = 25.;
