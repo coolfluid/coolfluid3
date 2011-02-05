@@ -411,7 +411,6 @@ void CWriter::write_nodal_data(std::fstream& file)
 			boost_foreach(const URI& field_data_path, field_data_paths)
 			{
 				const CTable<Real>& field_data = *m_mesh->look_component<CTable<Real> >(field_data_path);
-
 				nb_nodes += field_data.size();
 			}
 
@@ -427,7 +426,6 @@ void CWriter::write_nodal_data(std::fstream& file)
 			boost_foreach(const URI& field_data_path, field_data_paths)
 			{
 				const CTable<Real>& field_data = *m_mesh->look_component<CTable<Real> >(field_data_path);
-
 				boost_foreach(CTable<Real>::ConstRow field_per_node, field_data.array())
 				{
 					file << local_node_idx++ << " ";

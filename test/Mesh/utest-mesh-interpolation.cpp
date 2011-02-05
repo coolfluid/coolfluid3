@@ -19,6 +19,7 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CLink.hpp"
+#include "Common/CRoot.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -84,11 +85,12 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   boost::filesystem::path fp_source ("hextet.neu");
   CMesh::Ptr source = meshreader->create_mesh_from(fp_source);
-
+  Core::instance().root()->add_component(source);
   BOOST_CHECK( true );
 
   boost::filesystem::path fp_target ("quadtriag.neu");
   CMesh::Ptr target = meshreader->create_mesh_from(fp_target);
+  Core::instance().root()->add_component(target);
 
 
   BOOST_CHECK( true );
