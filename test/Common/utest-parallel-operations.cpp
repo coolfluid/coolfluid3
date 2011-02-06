@@ -54,7 +54,7 @@ struct PEOperationsFixture
         int rank,i;
         T *in_=(T*)in;
         T *out_=(T*)out;
-        for (i=0; i<(const int)(*len); i++) out_[i]= out_[i]*in_[i];
+        for (i=0; i<*len; i++) out_[i]= out_[i]*in_[i];
       }
   };
 

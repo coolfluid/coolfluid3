@@ -79,7 +79,7 @@ template<typename T, typename Op, typename selector = void > class get_mpi_op
       {                                                                                          \
         T *in=(T*)in_;                                                                           \
         T *out=(T*)out_;                                                                         \
-        for (int i=0; i<(const int)(*len); i++)                                                  \
+        for (int i=0; i<*len; i++)                                                  \
         {                                                                                        \
           expression;                                                                            \
           in++;                                                                                  \

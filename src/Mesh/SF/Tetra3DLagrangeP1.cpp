@@ -205,10 +205,11 @@ bool Tetra3DLagrangeP1::in_element(const CoordsT& coord, const NodeMatrixT& node
 {
   MappedCoordsT mapped_coord;
   mapped_coordinates(coord, nodes, mapped_coord);
-  if((mapped_coord[KSI] >= -Math::MathConsts::eps()) &&
-     (mapped_coord[ETA] >= -Math::MathConsts::eps()) &&
-     (mapped_coord[ZTA] >= -Math::MathConsts::eps()) &&
-     (mapped_coord.sum() <= 1.))
+  const Real tolerance = 10*Math::MathConsts::eps();
+  if((mapped_coord[KSI] >= -tolerance) &&
+     (mapped_coord[ETA] >= -tolerance) &&
+     (mapped_coord[ZTA] >= -tolerance) &&
+     (mapped_coord.sum() <= 1.+tolerance))
   {
     return true;
   }
