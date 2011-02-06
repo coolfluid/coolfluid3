@@ -97,7 +97,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   
   // Read mesh information
   read_headerData();
-
+  
 	// Create a hash 
 	m_hash = create_component<CMixedHash>("hash");
   std::vector<Uint> num_obj(2);
@@ -118,8 +118,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 		read_boundaries();
 
   if (!property("Unified Zones").value<bool>())
-    read_groups();
-  
+    read_groups();  
   
   // clean-up
   // --------

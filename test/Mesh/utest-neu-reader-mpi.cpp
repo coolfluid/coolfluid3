@@ -37,8 +37,8 @@ struct NeuReaderMPITests_Fixture
   /// common setup for each test case
   NeuReaderMPITests_Fixture()
   {
-		m_argc = boost::unit_test::framework::master_test_suite().argc;
-		m_argv = boost::unit_test::framework::master_test_suite().argv;
+    m_argc = boost::unit_test::framework::master_test_suite().argc;
+    m_argv = boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
@@ -49,8 +49,8 @@ struct NeuReaderMPITests_Fixture
 
 
   /// common values accessed by all tests goes here
-	int    m_argc;
-	char** m_argv;
+  int    m_argc;
+  char** m_argv;
 
 };
 
@@ -71,21 +71,19 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 {
 
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-	
-	meshreader->configure_property("Unified Zones",false);
-	
+  
+  meshreader->configure_property("Unified Zones",false);
+  
   // the file to read from
   //boost::filesystem::path fp_in ("hextet.neu");
-	boost::filesystem::path fp_in ("quadtriag.neu");
-	
+  boost::filesystem::path fp_in ("quadtriag.neu");
+  
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
-  
-	
-	//CFinfo.setFilterRankZero(false);
+
   meshreader->read_from_to(fp_in,mesh);
-	//CFinfo.setFilterRankZero(true);
-	
+
+
   CFinfo << "elements count = " << find_component<CRegion>(*mesh).recursive_elements_count() << CFendl;
   CFinfo << "nodes count    = " << find_component<CRegion>(*mesh).recursive_nodes_count() << CFendl;
   
@@ -96,9 +94,9 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   gmsh_writer->write_from_to(mesh,fp_out);
   
   BOOST_CHECK(true);
-	
-	CFinfo << mesh->tree() << CFendl;
-	
+  
+  CFinfo << mesh->tree() << CFendl;
+  
   CNodes& nodes = find_component_recursively<CNodes>(*mesh);
   for (Uint n=0; n<nodes.size(); ++n)
   {
@@ -123,7 +121,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
     BOOST_FOREACH(Uint glb_idx, global_element_indices.array())
       CFinfo << global_element_indices.full_path().string()<<"["<<local_idx++ <<"] = " << glb_idx <<  CFendl;
   }
-	
+  
 
 } 
 
@@ -131,75 +129,75 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 /*
 BOOST_AUTO_TEST_CASE( threeD_test )
 {
-	
+  
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-	
-	meshreader->configure_property("number_of_processors",(Uint) PE::instance().size());
-	meshreader->configure_property("rank",(Uint) PE::instance().rank());
-	meshreader->configure_property("Repartition",false);
-	meshreader->configure_property("OutputRank",(Uint) 2);
-	
+  
+  meshreader->configure_property("number_of_processors",(Uint) PE::instance().size());
+  meshreader->configure_property("rank",(Uint) PE::instance().rank());
+  meshreader->configure_property("Repartition",false);
+  meshreader->configure_property("OutputRank",(Uint) 2);
+  
   // the file to read from
   boost::filesystem::path fp_in ("hextet.neu");
-	
+  
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
   
-	
-	CFinfo.setFilterRankZero(false);
+  
+  CFinfo.setFilterRankZero(false);
   meshreader->read_from_to(fp_in,mesh);
-	CFinfo.setFilterRankZero(true);
-	
+  CFinfo.setFilterRankZero(true);
+  
   boost::filesystem::path fp_out ("hextet.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
   
   BOOST_CHECK(true);
-	
+  
 }
 */
 ////////////////////////////////////////////////////////////////////////////////
 /*
 BOOST_AUTO_TEST_CASE( read_multiple_2D )
 {
-	
+  
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-	
-	meshreader->configure_property("Repartition",true);
-	meshreader->configure_property("OutputRank",(Uint) 0);
-	
+  
+  meshreader->configure_property("Repartition",true);
+  meshreader->configure_property("OutputRank",(Uint) 0);
+  
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
-	
+  
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
   
-	
-	CFinfo.setFilterRankZero(false);	
-	
-	
+  
+  CFinfo.setFilterRankZero(false);  
+  
+  
 
-	for (Uint count=1; count<=2; ++count)
-	{
-		CFinfo << "\n\n\nMesh parallel:" << CFendl;
-		meshreader->read_from_to(fp_in,mesh);
-	}
-	
-	
-	
-	CFinfo.setFilterRankZero(true);
-	CFinfo << mesh->tree() << CFendl;
-	CFinfo << meshreader->tree() << CFendl;
-	CMeshTransformer::Ptr info  = create_component_abstract_type<CMeshTransformer>("Info","info");
-	info->transform(mesh);
+  for (Uint count=1; count<=2; ++count)
+  {
+    CFinfo << "\n\n\nMesh parallel:" << CFendl;
+    meshreader->read_from_to(fp_in,mesh);
+  }
+  
+  
+  
+  CFinfo.setFilterRankZero(true);
+  CFinfo << mesh->tree() << CFendl;
+  CFinfo << meshreader->tree() << CFendl;
+  CMeshTransformer::Ptr info  = create_component_abstract_type<CMeshTransformer>("Info","info");
+  info->transform(mesh);
 
-	
+  
   boost::filesystem::path fp_out ("quadtriag_mult.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
   
   BOOST_CHECK_EQUAL(1,1);
-	
+  
 }
 */
 ////////////////////////////////////////////////////////////////////////////////

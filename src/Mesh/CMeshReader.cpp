@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/filesystem/path.hpp>
-#include <boost/mpi/collectives.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
@@ -14,6 +13,8 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/MPI/PE.hpp"
+#include "Common/MPI/all_reduce.hpp"
+#include "Common/MPI/operations.hpp"
 #include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMeshReader.hpp"
@@ -162,16 +163,16 @@ std::map<std::string,CTable<Uint>::Buffer::Ptr>
 
 void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 {
-
   boost_foreach(CElements& region, find_components_recursively<CElements>(parent_region))
   {
     // find the empty regions
-    bool empty_on_this_rank = region.connectivity_table().array().empty();
-    bool empty_on_all_ranks = empty_on_this_rank;
-    if (mpi::PE::instance().is_init()) {
-      boost::mpi::communicator world;
-      empty_on_all_ranks = boost::mpi::all_reduce(world, empty_on_this_rank, std::logical_and<bool>());
-    }
+    Uint empty_on_this_rank = region.connectivity_table().array().empty();
+    Uint empty_on_all_ranks = empty_on_this_rank;
+    
+    /// @todo boolean type had to be converted to Uint for it to work
+    if (mpi::PE::instance().is_init()) 
+      mpi::all_reduce(mpi::PE::instance(), mpi::logical_and(), &empty_on_this_rank, 1, &empty_on_all_ranks);
+
     if ( empty_on_all_ranks )
     {
       CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.get_parent()->remove_component(region.name()));
