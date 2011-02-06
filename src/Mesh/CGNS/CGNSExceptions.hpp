@@ -27,6 +27,8 @@ struct Mesh_CGNS_API CGNSException : public Common::Exception {
  CGNSException (const Common::CodeLocation& where, const std::string& what)
    : Common::Exception(where, what, "CGNSException") {}
 
+ virtual ~CGNSException() throw() {}
+ 
 }; // end CGNSException
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -24,6 +24,8 @@ struct OutOfBounds : public Common::Exception {
 
   /// Constructor
   OutOfBounds (const Common::CodeLocation& where, const std::string& what);
+  
+  virtual ~OutOfBounds() throw();
 
 }; // end OutOfBounds
 
@@ -35,6 +37,8 @@ struct ZeroDeterminant  : public Common::Exception {
 
   /// Constructor
   ZeroDeterminant (const Common::CodeLocation& where, const std::string& what);
+  
+  virtual ~ZeroDeterminant() throw();
 
 }; // end ZeroDeterminant
 

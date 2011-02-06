@@ -19,10 +19,16 @@ OutOfBounds::OutOfBounds (const Common::CodeLocation& where, const std::string& 
 : Common::Exception(where, what, "OutOfBounds")
 {}
 
+OutOfBounds::~OutOfBounds() throw()
+{}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 ZeroDeterminant::ZeroDeterminant ( const Common::CodeLocation& where, const std::string& what)
 : Common::Exception(where, what, "ZeroDeterminant")
+{}
+
+ZeroDeterminant::~ZeroDeterminant() throw()
 {}
 
 ////////////////////////////////////////////////////////////////////////////////

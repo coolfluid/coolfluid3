@@ -25,6 +25,8 @@ struct Common_API FailedAssertion : public Common::Exception {
   /// Constructor
   FailedAssertion (const Common::CodeLocation& where, const std::string& what);
 
+  virtual ~FailedAssertion() throw();
+
 }; // end FailedAssertion
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +38,8 @@ struct Common_API BadValue: public Common::Exception {
   /// Constructor
   BadValue( const Common::CodeLocation& where, const std::string& what);
 
+  virtual ~BadValue() throw();
+
 }; //  BadValue
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,6 +50,9 @@ struct Common_API CastingFailed: public Common::Exception {
 
   /// Constructor
   CastingFailed( const Common::CodeLocation& where, const std::string& what);
+  
+  virtual ~CastingFailed() throw();
+  
 
 }; //  CastingFailed
 
@@ -57,6 +64,8 @@ struct Common_API FileFormatError: public Common::Exception {
 
   /// Constructor
   FileFormatError(const Common::CodeLocation& where, const std::string& what);
+
+  virtual ~FileFormatError() throw();
 
 }; //  FileFormatError
 
@@ -71,6 +80,8 @@ struct Common_API FileSystemError: public Common::Exception {
   /// @see Exception()
   FileSystemError(const Common::CodeLocation& where, const std::string& what);
 
+  virtual ~FileSystemError() throw();
+
 }; //  FileSystemError
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,6 +92,8 @@ struct Common_API FloatingPointError: public Common::Exception {
 
   /// Constructor
   FloatingPointError( const Common::CodeLocation& where, const std::string& what);
+
+  virtual ~FloatingPointError() throw();
 
 }; //  FloatingPointError
 
@@ -94,6 +107,8 @@ struct Common_API ValueExists: public Common::Exception {
   /// Constructor
   ValueExists( const Common::CodeLocation& where, const std::string& what);
 
+  virtual ~ValueExists() throw();
+
 }; //  StorageExists
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,6 +120,8 @@ struct Common_API ValueNotFound: public Common::Exception {
   /// Constructor
   ValueNotFound( const Common::CodeLocation& where, const std::string& what);
 
+  virtual ~ValueNotFound() throw();
+
 }; //  NoSuchValue
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +132,8 @@ struct Common_API FailedToConverge : public Common::Exception {
 
   /// Constructor
   FailedToConverge(const Common::CodeLocation& where, const std::string& what);
+
+  virtual ~FailedToConverge() throw();
 
 }; // class FailedToConverge
 
@@ -128,6 +147,9 @@ struct Common_API  NotImplemented: public Common::Exception {
   /// Constructor
   /// @see CF::Exception()
   NotImplemented(const Common::CodeLocation& where, const std::string& what);
+  
+  virtual ~NotImplemented() throw();
+  
 }; //  NotImplemented
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,6 +162,9 @@ struct Common_API  NotSupported: public Common::Exception {
   /// Constructor
   /// @see CF::Exception()
   NotSupported(const Common::CodeLocation& where, const std::string& what);
+  
+  virtual ~NotSupported() throw();
+  
 }; //  NotSupported
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,6 +175,8 @@ struct Common_API ParallelError: public Common::Exception {
 
   /// Constructor
   ParallelError(const Common::CodeLocation& where, const std::string& what);
+  
+  virtual ~ParallelError() throw();
 
 }; //  ParallelError
 
@@ -162,6 +189,8 @@ struct Common_API ParsingFailed: public Common::Exception {
   /// Constructor
   ParsingFailed( const Common::CodeLocation& where, const std::string& what);
 
+  virtual ~ParsingFailed() throw();
+
 }; //  ParsingFailed
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -172,6 +201,8 @@ struct Common_API SetupError : public Common::Exception {
 
   /// Constructor
   SetupError ( const Common::CodeLocation& where, const std::string& what);
+
+  virtual ~SetupError() throw();
 
 }; //  Setup
 
@@ -187,6 +218,8 @@ struct Common_API ShouldNotBeHere: public Common::Exception {
   /// Constructor
   ShouldNotBeHere(const Common::CodeLocation& where, const std::string& what);
 
+  virtual ~ShouldNotBeHere() throw();
+
 }; //  ShouldNotBeHere
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -197,6 +230,8 @@ struct Common_API URLError : public Common::Exception {
 
   /// Constructor
   URLError (const Common::CodeLocation& where, const std::string& what);
+
+  virtual ~URLError() throw();
 
 }; //  URL
 
@@ -209,6 +244,8 @@ struct Common_API XmlError: public Common::Exception {
   /// Constructor
   XmlError( const Common::CodeLocation& where, const std::string& what);
 
+  virtual ~XmlError() throw();
+
 }; //  XmlError
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -219,6 +256,8 @@ struct Common_API InvalidStructure: public Common::Exception {
 
   /// Constructor
   InvalidStructure( const Common::CodeLocation& where, const std::string& what);
+
+  virtual ~InvalidStructure() throw();
 
 }; //  InvalidStructure
 
@@ -232,6 +271,8 @@ struct Common_API IllegalCall: public Common::Exception {
   /// Constructor
   IllegalCall( const Common::CodeLocation& where, const std::string& what);
 
+  virtual ~IllegalCall() throw();
+
 }; //  IllegalCall
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -242,6 +283,8 @@ struct Common_API NotEnoughMemory: public Common::Exception {
 
   /// Constructor
   NotEnoughMemory( const Common::CodeLocation& where, const std::string& what);
+
+  virtual ~NotEnoughMemory() throw();
 
 }; //  NotEnoughMemory
 
@@ -255,6 +298,8 @@ struct Common_API ProtocolError: public Common::Exception {
   /// Constructor
   ProtocolError( const Common::CodeLocation& where, const std::string& what);
 
+  virtual ~ProtocolError() throw();
+
 }; //  ProtocolError
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -265,6 +310,8 @@ struct Common_API BadPointer: public Common::Exception {
 
   /// Constructor
   BadPointer( const Common::CodeLocation& where, const std::string& what);
+
+  virtual ~BadPointer() throw();
 
 }; //  BadPointer
 
