@@ -69,7 +69,7 @@ namespace detail {
     if (in_map!=0){
       if ( (in_buf=new T[stride*in_n+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
       if (stride==1) { for(int i=0; i<in_n; i++) in_buf[i]=in_values[in_map[i]]; }
-      else { for(int i=0; i<(const int)(in_n); i++) memcpy(&in_buf[stride*i],&in_values[stride*in_map[i]],stride*sizeof(T)); }
+      else { for(int i=0; i<in_n; i++) memcpy(&in_buf[stride*i],&in_values[stride*in_map[i]],stride*sizeof(T)); }
     }
 
     // set up out_buf
@@ -84,7 +84,7 @@ namespace detail {
     // re-populate out_values
     if (out_map!=0) {
       if (stride==1) { for(int i=0; i<in_n; i++) out_values[out_map[i]]=out_buf[i]; }
-      else { for(int i=0; i<(const int)(in_n); i++) memcpy(&out_values[stride*out_map[i]],&out_buf[stride*i],stride*sizeof(T)); }
+      else { for(int i=0; i<in_n; i++) memcpy(&out_values[stride*out_map[i]],&out_buf[stride*i],stride*sizeof(T)); }
       delete[] out_buf;
     } else if (in_values==out_values) {
       memcpy(out_values,out_buf,in_n*stride*sizeof(T));
