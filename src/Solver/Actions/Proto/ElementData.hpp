@@ -245,7 +245,7 @@ struct FieldData : public SFData<FieldSF>
   template<typename SupportT>
   const GradientT& gradient(const MappedCoordsT& mapped_coords, SupportT& support) const
   {
-    m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * mapped_gradient(mapped_coords);
+    m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * support.mapped_gradient(mapped_coords);
     return m_gradient;
   }
   
