@@ -52,12 +52,16 @@ public: // functions
   
   void set_elements(Mesh::CEntities& elements);
   
+  bool can_start_loop() { return m_can_start_loop; }
+  
 protected: // functions
 
   Uint idx() const { return m_idx; }  
   
   Mesh::CEntities const& elements() const { cf_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
   Mesh::CEntities& elements() { cf_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
+
+  bool m_can_start_loop;
   
 private: // functions 
 

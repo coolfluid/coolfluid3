@@ -39,12 +39,15 @@ void CForAllFaces::execute()
     // Setup all child operations
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {
-      op.configure_property("Elements",elements.full_path());
-      const Uint nb_elem = elements.size();
-      for ( Uint elem = 0; elem != nb_elem; ++elem )
+      if (op.can_start_loop())
       {
-        op.select_loop_idx(elem);
-        op.execute();
+        op.configure_property("Elements",elements.full_path());
+        const Uint nb_elem = elements.size();
+        for ( Uint elem = 0; elem != nb_elem; ++elem )
+        {
+          op.select_loop_idx(elem);
+          op.execute();
+        }
       }
     }
   }

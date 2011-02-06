@@ -59,6 +59,7 @@ void CComputeVolume::trigger_elements()
 {
   m_volume->set_elements(elements());
   m_volume->allocate_coordinates(m_coordinates);
+  m_can_start_loop = m_volume->field().exists_for_entities(elements());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -28,7 +28,8 @@ namespace Actions {
 CLoopOperation::CLoopOperation ( const std::string& name ) : 
   Common::CAction(name),
   m_call_config_elements(true),
-  m_idx(0)
+  m_idx(0),
+  m_can_start_loop(true)
 {  
   // Following option is ignored if the loop is not about elements
   m_properties.add_option< OptionURI > ("Elements","Elements that are being looped", URI("cpath:"));

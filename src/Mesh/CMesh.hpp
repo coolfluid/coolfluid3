@@ -50,20 +50,6 @@ public: // functions
   static std::string type_name () { return "CMesh"; }
 
   // functions specific to the CMesh component
-
-  /// create a region
-  /// @param name of the region
-  CRegion& create_region ( const std::string& name, bool ensure_unique = false );
-
-  /// create a domain
-  /// @param name of the domain
-  CRegion& create_domain( const std::string& name );
-
-  /// @return the geometry
-  const CRegion& domain() const;
-  
-  /// @return the geometry
-  CRegion& domain();
   
   /// @return the geometry topology
   const CRegion& topology() const { return *m_topology; }
@@ -85,7 +71,7 @@ public: // functions
   /// create a field with the default support being the full mesh geometry
   CField& create_field( const std::string& name , const std::vector<std::string>& variables, const CField::DataBasis basis);
   
-  CField2& create_field2( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const std::string& field_type);
+  CField2& create_field2( const std::string& name , const std::string& base, const std::string& variables = "scalar_same_name");
   
   /// @return the field with given name
   const CField& field(const std::string& name) const;

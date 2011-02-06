@@ -77,8 +77,7 @@ void CBuildFaceNormals::transform(const CMesh::Ptr& mesh, const std::vector<std:
   m_mesh = mesh;
 
   const Uint dimension = mesh->nodes().coordinates().row_size();
-  std::vector<std::string> variable(1,"face_normal["+to_str(dimension)+"]");
-  CField2& field_face_normals = mesh->create_field2("face_normals",mesh->topology(),variable,"FaceBased");
+  CField2& field_face_normals = mesh->create_field2("face_normals","FaceBased","face_normal["+to_str(dimension)+"]");
   CFieldView face_normals("face_normals_view");
   face_normals.set_field(field_face_normals);
   boost_foreach( CEntities& faces, find_components_recursively_with_tag<CEntities>(m_mesh->topology(),"face_entity") )

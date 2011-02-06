@@ -87,11 +87,11 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   // Check if connectivity_table is properly linked to the support ones
   BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("quadtriag").subfield("gas").elements("Quad").connectivity_table().size(), (Uint) 2);
   BOOST_CHECK_EQUAL(&mesh.field("Volume").subfield("quadtriag").subfield("gas").elements("Quad").connectivity_table(),
-                    &mesh.domain().subregion("quadtriag").subregion("gas").elements("Quad").connectivity_table());
+                    &mesh.topology().subregion("quadtriag").subregion("gas").elements("Quad").connectivity_table());
 
   // test the CRegion::get_field function, to return the matching field
-  BOOST_CHECK_EQUAL(mesh.domain().get_field("Volume").full_path().path(),"mesh/Volume");
-  BOOST_CHECK_EQUAL(mesh.domain().subregion("quadtriag").subregion("gas").get_field("Volume").full_path().path(),"mesh/Volume/quadtriag/gas");
+  BOOST_CHECK_EQUAL(mesh.topology().get_field("Volume").full_path().path(),"mesh/Volume");
+  BOOST_CHECK_EQUAL(mesh.topology().subregion("quadtriag").subregion("gas").get_field("Volume").full_path().path(),"mesh/Volume/quadtriag/gas");
 
   BOOST_CHECK_EQUAL(mesh.look_component("topology/quadtriag/gas")->full_path().path(),"mesh/topology/quadtriag/gas");
   BOOST_CHECK_EQUAL(mesh.look_component("topology/quadtriag/gas/../liquid")->full_path().path(),"mesh/topology/quadtriag/liquid");

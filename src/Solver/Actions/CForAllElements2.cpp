@@ -40,11 +40,14 @@ void CForAllElements2::execute()
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {
       op.set_elements(elements);
-      const Uint nb_elem = elements.size();
-      for ( Uint elem = 0; elem != nb_elem; ++elem )
+      if (op.can_start_loop())
       {
-        op.select_loop_idx(elem);
-        op.execute();
+        const Uint nb_elem = elements.size();
+        for ( Uint elem = 0; elem != nb_elem; ++elem )
+        {
+          op.select_loop_idx(elem);
+          op.execute();
+        }
       }
     }
   }

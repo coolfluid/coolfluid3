@@ -58,6 +58,7 @@ void CComputeArea::trigger_elements()
 {
   m_area->set_elements(elements());
   m_area->allocate_coordinates(m_coordinates);
+  m_can_start_loop = m_area->field().exists_for_entities(elements());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -72,7 +72,7 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
 
 void CWriter::write_base()
 {
-  CRegion& base_region = m_mesh->domain();
+  CRegion& base_region = m_mesh->topology();
   m_base.name = base_region.name();
   m_base.cell_dim = m_max_dimensionality;
   m_base.phys_dim = m_coord_dim;

@@ -27,6 +27,9 @@
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CIterativeSolver.hpp"
 #include "Solver/CDiscretization.hpp"
+#include "Solver/Actions/CForAllElements2.hpp"
+#include "Solver/Actions/CForAllFaces.hpp"
+#include "Solver/Actions/CLoop.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -41,6 +44,7 @@ using namespace CF::Common::String;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
 using namespace CF::Solver;
+using namespace CF::Solver::Actions;
 
 Common::ComponentBuilder < ShockTube, Component, LibFVM > ShockTube_Builder;
 
@@ -162,14 +166,12 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   model->look_component<CBuildFaces>("cpath:./tools/build_faces")->transform(mesh,args);
   model->look_component<CBuildFaceNormals>("cpath:./tools/build_face_normals")->transform(mesh,args);
     
-  std::vector<std::string> solution_vars = list_of("rho[scalar]")("rhoU[scalar]")("rhoE[scalar]");
-  CField2& solution = mesh->create_field2("solution",mesh->topology(),solution_vars,"CellBased");
-
-  std::vector<std::string> residual_vars = list_of("delta_rho[scalar]")("delta_rhoU[scalar]")("delta_rhoE[scalar]");
-  CField2& residual = mesh->create_field2("residual",mesh->topology(),residual_vars,"CellBased");
-
-  std::vector<std::string> update_coeff_vars = list_of("update_coeff[scalar]");
-  CField2& update_coeff = mesh->create_field2("update_coeff",mesh->topology(),update_coeff_vars,"CellBased");
+  CField2& solution = mesh->create_field2("solution","CellBased","rho[1],rhoU[1],rhoE[1]");
+  CField2& residual = mesh->create_field2("residual","CellBased","delta_rho[1],delta_rhoU[1],delta_rhoE[1]");
+  CField2& update_coeff = mesh->create_field2("update_coeff","CellBased");
+  CField2& volume = mesh->create_field2("volume","CellBased");
+  CField2& area = mesh->create_field2("area","FaceBased");
+  CField2& face_area_normals = mesh->create_field2("face_area_normals","FaceBased","area_normal["+to_str(mesh->nodes().coordinates().row_size())+"]");
 
   CIterativeSolver& solver = find_component<CIterativeSolver>(*model);
   solver.configure_property("Domain" , model->get_child<CDomain>("domain")->full_path() );
@@ -252,6 +254,23 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   outlet_bc.configure_property("u",u_R);
   outlet_bc.configure_property("p",p_R);
 
+  std::vector<URI> regions_to_loop(1);
+  regions_to_loop[0]=volume.topology().full_path();
+  CLoop::Ptr compute_volume = solver.create_component< CForAllElements2 >("compute_volume");
+  compute_volume->configure_property("Regions",regions_to_loop);
+  compute_volume->create_action("CF.Solver.Actions.CComputeVolume");
+  compute_volume->action("CF.Solver.Actions.CComputeVolume").configure_property("Volumes",volume.full_path());
+  compute_volume->execute();
+  
+  regions_to_loop[0]=area.topology().full_path();
+  CLoop::Ptr compute_area = solver.create_component< CForAllFaces >("compute_area");
+  compute_area->configure_property("Regions",regions_to_loop);
+  compute_area->create_action("CF.Solver.Actions.CComputeArea");
+  compute_area->action("CF.Solver.Actions.CComputeArea").configure_property("Area",area.full_path());
+  compute_area->execute();
+  
+  face_area_normals.data() = find_component_with_name<CField2>(*mesh,"face_normals").data();
+  face_area_normals.data() *= area.data();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

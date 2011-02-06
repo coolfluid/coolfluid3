@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/regex.hpp>
+#include <boost/tokenizer.hpp>
 
 #include "Common/CBuilder.hpp"
 #include "Common/CLink.hpp"
@@ -51,84 +52,28 @@ CMesh::~CMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
+CField2& CMesh::create_field2( const std::string& name , const std::string& base, const std::string& variables)
 {
-  CRegion::Ptr new_region;
+  std::vector<std::string> tokenized_variables(0);
   
-  
-  if ( find_components<CRegion>(*this).empty() )
+  if (variables == "scalar_same_name")
   {
-    new_region = create_component<CRegion>(name);
-    new_region->add_tag("grid_zone");
+    tokenized_variables.push_back(name+"[scalar]");
   }
   else
   {
-    CRegion& existing_region = find_component<CRegion>(*this);
-    if (existing_region.has_tag("grid_base"))
-    {
-//      //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
-//      Uint count = 0;
-//      boost::regex e(name+"(_[0-9]+)?");
-//      
-//      BOOST_FOREACH(const CRegion& region, find_components<CRegion>(existing_region))
-//        if (boost::regex_match(region.name(), e))
-//          count++;
-//
-//      std::string append = (count == 0) ? "" : "_"+to_str(count);
-      new_region = existing_region.create_region(name,ensure_unique).as_type<CRegion>();
-      new_region->add_tag("grid_zone");
-    }
-    else if (existing_region.has_tag("grid_zone"))
-    {
-      // Create a parent region "base" for the existing region
-      CRegion::Ptr base_region = create_component<CRegion>("base");
-      base_region->add_tag("grid_base");
-      existing_region.move_to(base_region);
-            
-//      //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
-//      Uint count = 0;
-//      boost::regex e(name+"(_[0-9]+)?");
-//      
-//      BOOST_FOREACH(const CRegion& region, find_components<CRegion>(*base_region))
-//      if (boost::regex_match(region.name(), e))
-//        count++;
-//
-//      std::string append = (count == 0) ? "" : "_"+to_str(count);
-      new_region = base_region->create_region(name,ensure_unique).as_type<CRegion>();
-      new_region->add_tag("grid_zone");
-    }
-    else
-    {
-      throw ValueNotFound (FromHere(), "The existing region " + existing_region.full_path().string() + " does not have a tag \"grid_zone\" or \"grid_base\"");
-    }
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    boost::char_separator<char> sep(",");
+    Tokenizer tokens(variables, sep);
 
-    
+    for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+      tokenized_variables.push_back(*tok_iter);
   }
-  
-  return *new_region;
-}
 
-////////////////////////////////////////////////////////////////////////////////
-
-CRegion& CMesh::create_domain( const std::string& name )
-{
-  CRegion::Ptr new_region = get_child<CRegion>(name);
-  if (!new_region)
-  {
-    new_region = create_component<CRegion>(name);
-    new_region->add_tag("grid_base");
-  }
-  return *new_region;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CField2& CMesh::create_field2( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const std::string& field_type)
-{
 
   std::vector<std::string> names;
   std::vector<std::string> types;
-  BOOST_FOREACH(std::string var, variables)
+  BOOST_FOREACH(std::string var, tokenized_variables)
   { 
     boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
     
@@ -143,10 +88,10 @@ CField2& CMesh::create_field2( const std::string& name , CRegion& support, const
   }
 
   CField2& field = *create_component<CField2>(name);
-  field.set_topology(support);
+  field.set_topology(topology());
   field.configure_property("VarNames",names);
   field.configure_property("VarTypes",types);
-  field.configure_property("FieldType",field_type); // used to be databasis
+  field.configure_property("FieldType",base);
   field.create_data_storage();
 
   return field;
@@ -184,7 +129,7 @@ CField& CMesh::create_field( const std::string& name , CRegion& support, const s
   
 CField& CMesh::create_field( const std::string& name , const std::vector<std::string>& variables, const CField::DataBasis basis)
 {
-  return create_field(name,domain(),variables,basis);
+  return create_field(name,topology(),variables,basis);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -208,21 +153,7 @@ CField& CMesh::create_field( const std::string& name , CRegion& support, const U
 
 CField& CMesh::create_field( const std::string& name, const Uint size, const CField::DataBasis basis )
 {
-  return create_field(name,domain(),size,basis);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-const CRegion& CMesh::domain() const
-{
-  return find_component<CRegion const>(*this);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CRegion& CMesh::domain()
-{
-  return find_component<CRegion>(*this);
+  return create_field(name,topology(),size,basis);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
