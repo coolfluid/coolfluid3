@@ -39,11 +39,11 @@ RoeFluxSplitter::~RoeFluxSplitter()
 RealVector RoeFluxSplitter::solve(const RealVector& left, const RealVector& right) const
 {
   // compute the roe average
-  RealVector rho_avg = roe_average(left,right);
+  RealVector roe_avg = roe_average(left,right);
 
-  const Real r=rho_avg[0];
-  const Real u=rho_avg[1]/r;
-  const Real h = m_g*rho_avg[2]/r - 0.5*m_gm1*u*u;
+  const Real r=roe_avg[0];
+  const Real u=roe_avg[1]/r;
+  const Real h = m_g*roe_avg[2]/r - 0.5*m_gm1*u*u;
   const Real a = sqrt(m_gm1*(h-u*u/2.));
 
   // Compute eigenvectors (rc) and eigenvalues (lambda)
