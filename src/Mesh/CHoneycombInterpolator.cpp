@@ -334,7 +334,8 @@ void CHoneycombInterpolator::create_honeycomb()
   std::vector<Real> L(3);
   for (Uint d=0; d<m_dim; ++d)
   {
-    m_ranges[d].resize(2,0.0);
+    m_ranges[d].resize(2);
+    m_ranges[d].setZero();
   }
 
   Real V=1;

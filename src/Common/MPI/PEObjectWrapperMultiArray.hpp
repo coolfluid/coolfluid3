@@ -78,9 +78,9 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
     virtual const void* pack(std::vector<int>& map) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      Uint* tbuf=new Uint[map.size()*m_stride+1];
+      T* tbuf=new T[map.size()*m_stride+1];
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
-      Uint* itbuf=tbuf;
+      T* itbuf=tbuf;
 
       boost_foreach( int local_idx, map)
       {
@@ -169,9 +169,9 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
     virtual const void* pack(std::vector<int>& map) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      Uint* tbuf=new Uint[map.size()*m_stride+1];
+      T* tbuf=new T[map.size()*m_stride+1];
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
-      Uint* itbuf=tbuf;
+      T* itbuf=tbuf;
 
       boost_foreach( int local_idx, map)
       {

@@ -144,7 +144,7 @@ struct PEReduceFixture
         int nproc=mpi::PE::instance().size();
         int itest=0;
         for(i=0; i<nproc; i++) itest+=i+1;
-        int dtest=0;
+        double dtest=0;
         for(i=0; i<nproc; i++) dtest+=(double)i+10.;
         return ((ival==itest)&&(dval==dtest));
       }
