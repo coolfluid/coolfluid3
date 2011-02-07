@@ -107,7 +107,10 @@ inline typename OptionType<OptionValueT>::type OptionVariable::add_option(const 
   Common::Option::Ptr option = m_owner.lock()->properties().add_option< Common::OptionT<OptionValueT> >(name, description, OptionValueT());
   option->mark_basic();
   option->attach_trigger( trigger );
-  return boost::dynamic_pointer_cast< Common::OptionT<OptionValueT> >(option);
+  boost::shared_ptr< Common::OptionT<OptionValueT> > cast_option = boost::dynamic_pointer_cast< Common::OptionT<OptionValueT> >(option);
+  if(is_null(cast_option))
+    throw Common::CastingFailed(FromHere(),"Option could not be cast");
+  return cast_option;
 }
 
 template<>
@@ -116,7 +119,10 @@ inline OptionType<Common::URI>::type OptionVariable::add_option<Common::URI>(con
   Common::Option::Ptr option = m_owner.lock()->properties().add_option< Common::OptionURI >(name, description, std::string());
   option->mark_basic();
   option->attach_trigger( trigger );
-  return boost::dynamic_pointer_cast< Common::OptionURI >(option);
+  boost::shared_ptr< Common::OptionURI > cast_option = boost::dynamic_pointer_cast< Common::OptionURI >(option);
+  if(is_null(cast_option))
+    throw Common::CastingFailed(FromHere(),"Option could not be cast");
+  return cast_option;
 }
 
 /// Constant field data
@@ -163,9 +169,13 @@ protected:
   virtual void add_options()
   {
     m_is_const_option = add_option<bool>( m_name + std::string("IsConst"), "True if this field is just a constant value", boost::bind(&ConstField::on_is_const_changed, this) );
+    cf_assert(is_not_null(m_is_const_option.lock()));
     m_value_option = add_option<T>( m_name + std::string("Value"), "Value to use if the field is to be treated as constant", boost::bind(&ConstField::on_value_changed, this) );
+    cf_assert(is_not_null(m_value_option.lock()));
     m_field_option = add_option<std::string>( m_name + std::string("FieldName"), "Field name", boost::bind(&ConstField::on_field_changed, this) );
+    cf_assert(is_not_null(m_field_option.lock()));
     m_var_option = add_option<std::string>( m_name + std::string("VariableName"), "Variable name", boost::bind(&ConstField::on_var_changed, this) );
+    cf_assert(is_not_null(m_var_option.lock()));
   }
 
 private:
