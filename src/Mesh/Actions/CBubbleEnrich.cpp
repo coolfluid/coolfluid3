@@ -74,7 +74,7 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
     // backup the connectivity table
     CTable<Uint>::Ptr backup = this->create_component< CTable<Uint> > ("backup");
     CTable<Uint>::ArrayT backtable = backup->array();
-    backtable = elements.connectivity_table();
+    backtable = elements.connectivity_table().array();
 
     // compute new nb cols
     const Uint currnodes = elements.connectivity_table().row_size();
@@ -108,12 +108,10 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
       // add a node to the nodes structure
       Uint idx = buf.add_row( centroid );
 
-      // modify this row
-      CTable<Uint>::Row row = conntable[elem];
       // add the index of the node to the connectivity table
       for ( Uint n = 0; n != currnodes; ++n )
-        row(n) = backtable(n);
-      row(currnodes) = idx;
+        conntable[elem][n] = backtable[elem][n];
+      conntable[elem][currnodes] = idx;
     }
 
     // delete backup table
