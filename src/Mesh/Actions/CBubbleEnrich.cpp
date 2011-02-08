@@ -13,7 +13,7 @@
 #include "Common/StreamHelpers.hpp"
 
 #include "Mesh/Actions/CBubbleEnrich.hpp"
-#include "Mesh/CElements.hpp"
+#include "Mesh/CCells.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField2.hpp"
@@ -65,14 +65,29 @@ std::string CBubbleEnrich::help() const
 void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
                                const std::vector<std::string>& args)
 {
+  /// @todo only supports simplexes
 
   CMesh& mesh = *meshptr;
 
   boost_foreach(CRegion& region, find_components_recursively<CRegion>(mesh) )
-    boost_foreach(CElements& elements, find_components_recursively<CElements>(region))
+    boost_foreach(CElements& elements, find_components_recursively<CCells>(region))
   {
+    CFinfo << "---------------------------------------------------" << CFendl;
+
+    CFinfo << elements.full_path().string() << CFendl;
+
+    CFinfo << "elems size " << elements.size() << CFendl;
+    CFinfo << "conn size "  << elements.connectivity_table().size() << " x "
+                            << elements.connectivity_table().row_size() << CFendl;
+    CFinfo << "coords size "<< elements.nodes().coordinates().size() << " x "
+                            << elements.nodes().coordinates().row_size() << CFendl;
+
     // backup the connectivity table
     CTable<Uint>::Ptr backup = this->create_component< CTable<Uint> > ("backup");
+
+    backup->set_row_size(elements.connectivity_table().row_size()); // size appropriately
+    backup->resize(elements.connectivity_table().size());           // size appropriately
+
     CTable<Uint>::ArrayT backtable = backup->array();
     backtable = elements.connectivity_table().array();
 
@@ -81,6 +96,9 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
     const Uint newnbcols = currnodes + 1;
     // resize and keep same nb of rows (nb elements)
     elements.connectivity_table().set_row_size(newnbcols);
+
+    CFinfo << "new conn size "  << elements.connectivity_table().size() << " x "
+                                << elements.connectivity_table().row_size() << CFendl;
 
     // get connectivity table
     CTable<Uint>::ArrayT conntable = elements.connectivity_table().array();
@@ -98,12 +116,17 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
     // get a buffer to the coordinates
     CTable<Real>::Buffer buf = coords.create_buffer();
 
+    // loop on the elements
     for ( Uint elem = 0; elem != nb_elem; ++elem )
     {
       // compute average of node coordinates
-      for ( Uint n = 0; n != currnodes; ++n )
+      for ( Uint n = 0; n != dim+1; ++n )
+      {
+        const Uint nodeid = backtable[elem][n];
         for ( Uint d = 0; d != dim; ++d )
-         centroid[d] += coords[elem][d];
+         centroid[d] += coords[nodeid][d];
+      }
+      centroid /= dim+1;
 
       // add a node to the nodes structure
       Uint idx = buf.add_row( centroid );
@@ -113,6 +136,9 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
         conntable[elem][n] = backtable[elem][n];
       conntable[elem][currnodes] = idx;
     }
+
+    // flush the table
+    buf.flush();
 
     // delete backup table
     this->remove_component("backup");
