@@ -133,6 +133,8 @@ public: // functions
 
   /// Number of columns , or number of elements of one table-row
 	/// @return The number of elements in each row, i.e. the number of columns of the array
+	/// @note All row_sizes are the same, so an index is not required, but
+	/// could be passed to be consistent with CDynTable with variable row_sizes
   Uint row_size(Uint i=0) const { return m_array.shape()[1]; }
 
   /// copy a given row into the array, The row type must have the size() function declared
@@ -262,10 +264,19 @@ public: // functions
   CTable& operator /=(const CTable& U) 
   { 
     cf_assert(size() == U.size());
-    cf_assert(row_size() == U.row_size());
-    for (Uint i=0; i<size(); ++i)
-      for (Uint j=0; j<row_size(); ++j)
-        array()[i][j] /= U.array()[i][j];
+    if (U.row_size() == 1) // U is a scalar field
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] /= U.array()[i][0];
+    }
+    else
+    {
+      cf_assert(row_size() == U.row_size()); // field must be same size
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] /= U.array()[i][j];
+    }
     return *this;
   }
   
