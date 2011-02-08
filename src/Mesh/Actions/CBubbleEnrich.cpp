@@ -69,8 +69,8 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
 
   CMesh& mesh = *meshptr;
 
-  boost_foreach(CRegion& region, find_components_recursively<CRegion>(mesh) )
-    boost_foreach(CElements& elements, find_components_recursively<CCells>(region))
+//  boost_foreach(CRegion& region, find_components_recursively<CRegion>(mesh) )
+  boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
   {
     CFinfo << "---------------------------------------------------" << CFendl;
 

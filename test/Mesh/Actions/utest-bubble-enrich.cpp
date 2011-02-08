@@ -117,7 +117,15 @@ BOOST_AUTO_TEST_CASE( enrich )
 
   std::vector<std::string> args;
 
+//  CFinfo << "---------------------------------------------------" << CFendl;
+//  CFinfo << Core::instance().root()->tree() << CFendl;
+//  CFinfo << "---------------------------------------------------" << CFendl;
+
   enricher->transform( mesh, args );
+
+//  CFinfo << "---------------------------------------------------" << CFendl;
+//  CFinfo << Core::instance().root()->tree() << CFendl;
+//  CFinfo << "---------------------------------------------------" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
