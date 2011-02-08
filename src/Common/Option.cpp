@@ -41,10 +41,11 @@ void Option::configure_option ( XmlNode& node )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void Option::mark_basic()
+Option::Ptr Option::mark_basic()
 {
   if(!has_tag("basic"))
     add_tag("basic");
+  return shared_from_this();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -55,12 +56,12 @@ void Option::change_value ( const boost::any& value )
 //            std::find(m_restricted_list.begin(), m_restricted_list.end(), value)
 //            != m_restricted_list.end());
 
-  Property::change_value(value);
-
+  boost::any data = value_to_data(value);
+  Property::change_value(data);
+  copy_to_linked_params(data);
   // call all trigger functors
   trigger();
   
-  copy_to_linked_params(value);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

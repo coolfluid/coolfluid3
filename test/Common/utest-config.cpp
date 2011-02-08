@@ -22,6 +22,8 @@
 #include "Common/XmlHelpers.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/URI.hpp"
+#include "Common/OptionComponent.hpp"
+#include "Common/OptionURI.hpp"
 
 #include "test/Common/DummyComponents.hpp"
 
@@ -35,15 +37,21 @@ using namespace CF::Common;
 /////////////////////////////////////////////////////////////////////////////////////
 
 class MyC : public Component {
-
+public:
   static string type_name() { return "MyC"; }
+
+  typedef boost::shared_ptr<MyC> Ptr;
+  typedef boost::shared_ptr<MyC const> CosntPtr;
 
   private: // data
 
     std::string m_str;
     int m_i;
+    boost::weak_ptr<CConcrete1> m_component;
 
   public: // functions
+
+  CConcrete1::Ptr comp() { return m_component.lock(); }
 
   MyC ( const std::string& name ) :  Component(name)
   {
@@ -81,8 +89,21 @@ class MyC : public Component {
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
+    m_properties.add_option< OptionComponent<CConcrete1> >( "OptC", "component option", Core::instance().root()->full_path());
+    m_properties.link_to_parameter ( "OptC", &m_component );
+    Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2","component option",Core::instance().root()->full_path()));    
+    m_properties.add_option(opt2)->link_to( &m_component )->mark_basic();
+     Option::Ptr opt3 = m_properties.add_option
+       (OptionComponent<CConcrete1>::create("OptC3","component option",&m_component));
+       
+     CFinfo << opt3->value_str() << CFendl;
+     CFinfo << opt3->def_str() << CFendl;
+    //   ->mark_basic()
+    //   ->as_type<OptionComponent<CConcrete1> >();
+    // 
   };
 
+  
   void config_bool ()
   {
     boost::any value = property("OptBool").value();
@@ -256,6 +277,29 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
   URI relative_friend_path = component1->property("MyRelativeFriend").value<URI>();
   CConcrete1::Ptr relative_friend = component1->look_component<CConcrete1>(relative_friend_path);
   BOOST_CHECK_EQUAL(relative_friend->name(),"component2");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( optionComponent )
+{
+  // Setup a little data-structure
+  CRoot::Ptr root = Core::instance().root();
+  MyC::Ptr component1 = root->create_component<MyC>("component1");
+  CConcrete1::Ptr component2 = root->create_component<CConcrete1>("component2");
+
+  // Configure component 1 without XML (It could also be done with xml)
+  component1->configure_property("OptC",URI("cpath://Root/component2"));
+
+  BOOST_CHECK( component1->comp() == component2 );
+  // // Check if everything worked OK.
+  // URI absolute_friend_path = component1->property("MyAbsoluteFriend").value<URI>();
+  // CConcrete1::Ptr absolute_friend = component1->look_component<CConcrete1>(absolute_friend_path);
+  // BOOST_CHECK_EQUAL(absolute_friend->name(),"component2");
+  // 
+  // URI relative_friend_path = component1->property("MyRelativeFriend").value<URI>();
+  // CConcrete1::Ptr relative_friend = component1->look_component<CConcrete1>(relative_friend_path);
+  // BOOST_CHECK_EQUAL(relative_friend->name(),"component2");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

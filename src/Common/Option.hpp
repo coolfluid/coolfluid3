@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
+#include <boost/enable_shared_from_this.hpp>
+
 #include "Common/TaggedObject.hpp"
 #include "Common/Property.hpp"
 
@@ -40,7 +42,7 @@ namespace Common {
 
   /// @author Tiago Quintino
   /// @author Quentin Gasper
-  class Common_API Option :
+  class Common_API Option : public boost::enable_shared_from_this<Option>,
       public Property,
       public TaggedObject
   {
@@ -64,6 +66,8 @@ namespace Common {
 
     virtual const char * tag() const = 0;
 
+    virtual std::string data_type() const = 0;
+    
     //@} END VIRTUAL FUNCTIONS
 
     /// configure this option using the passed xml node
@@ -91,15 +95,22 @@ namespace Common {
 
     /// Link the state of this option to the passed parameter
     template < typename TYPE >
-        void link_to ( TYPE* par )
+        Ptr link_to ( TYPE* par )
     {
-      cf_assert ( class_name<TYPE>() == type() );
+      cf_assert_desc (class_name<TYPE>()+"!="+data_type(), class_name<TYPE>() == data_type() );
       m_linked_params.push_back(par);
+      return shared_from_this();
     }
 
     /// this option is tagged as a basic option on the GUI
-    void mark_basic ();
+    Ptr mark_basic ();
 
+    template < typename Option_t>
+        boost::shared_ptr<Option_t> as_type()
+    {
+      return boost::dynamic_pointer_cast<Option_t>(shared_from_this());
+    }
+    
     /// change the value of this option
     void change_value ( const boost::any& value);
 
@@ -137,6 +148,8 @@ namespace Common {
     std::vector<boost::any> m_restricted_list;
 
   protected: // function
+
+    virtual boost::any value_to_data ( const boost::any& value ) { return value; }
 
     /// copy the configured update value to all linked parameters
     virtual void copy_to_linked_params ( const boost::any& val ) = 0;

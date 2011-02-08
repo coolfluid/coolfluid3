@@ -40,6 +40,8 @@ namespace Common {
 
     /// @name VIRTUAL FUNCTIONS
     //@{
+      
+    virtual std::string data_type() const { return type(); }
 
     /// @returns the xml tag for this option
     virtual const char * tag() const { return XmlTag<URI>::type(); }

@@ -88,10 +88,11 @@ namespace Common {
     // accessor functions
 
     /// @returns the type of the option as a string
-    std::string type() const
+    virtual std::string type() const
     {
       return CF::class_name_from_typeinfo(m_value.type());
     }
+    
     /// @returns @c true if the property is an option
     bool is_option() const { return m_is_option; }
 

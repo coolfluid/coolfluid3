@@ -51,6 +51,8 @@ namespace Common {
     /// @returns the default value as a sd::string
     virtual std::string def_str () const  { return from_value ( def<TYPE>() ); }
 
+    virtual std::string data_type() const { return type(); }
+
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node );

@@ -42,6 +42,17 @@ namespace Common {
       store.insert( std::make_pair(name, opt ) );
       return opt;
     }
+    
+    /// adds an option to the list
+    template < typename OPTION_TYPE >
+    Option::Ptr add_option (boost::shared_ptr<OPTION_TYPE> option)
+    {
+      cf_assert_desc ( "Class has already property with same name",
+                       this->store.find(option->name()) == store.end() );
+      Option::Ptr opt = boost::dynamic_pointer_cast<Option>(option);
+      store.insert( std::make_pair(option->name(), opt ) );
+      return opt;
+    }
 
     /// sets a link to the option
     template < typename TYPE >
