@@ -7,8 +7,6 @@
 #ifndef CF_Mesh_SF_Triag2DLagrangeP2_hpp
 #define CF_Mesh_SF_Triag2DLagrangeP2_hpp
 
-#include "Common/BasicExceptions.hpp"
-
 #include "Math/MatrixTypes.hpp"
 #include "Math/MathConsts.hpp"
 

@@ -52,16 +52,6 @@ using namespace boost::assign;
 
 BOOST_AUTO_TEST_SUITE( TestActionsSuite )
 
-//////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( ConstructorTest )
-{
-//  CForAllElementsT<CSchemeLDA>::Ptr elem_loop ( allocate_component< CForAllElementsT<CSchemeLDA> >("loop_LDA") );
-//  BOOST_CHECK(elem_loop);
-//  CLoopOperation::Ptr lda_scheme = create_component_abstract_type<CLoopOperation>("CF.Actions.CSchemeLDA","lda_scheme");
-//  BOOST_CHECK(lda_scheme);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( Node_Looping_Test )

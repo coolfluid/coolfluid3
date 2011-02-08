@@ -19,14 +19,13 @@ namespace CF {
 namespace Mesh {
   
   class CField;
-  class CFaceCellConnectivity;
 
 namespace Actions {
   
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
-/// that returns information about the mesh
+/// that builds the coordinates field
 /// @author Willem Deconinck
 class Mesh_Actions_API CBuildCoordinatesField : public CMeshTransformer
 {
@@ -55,7 +54,7 @@ public: // functions
   
 private: // functions
   
-}; // end CBuildCoordinatesField
+}; // CBuildCoordinatesField
 
 
 ////////////////////////////////////////////////////////////////////////////////

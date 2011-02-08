@@ -91,10 +91,13 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   BOOST_CHECK(true);
 
   std::vector<URI> files;
+
 //  files.push_back( "file:rotation-tg.neu" );
     files.push_back( "file:rotation-qd.neu" );
 //  files.push_back( "file:advection_p2.msh" );
 //  files.push_back( "file:advection-p2-quad.msh" );
+//  files.push_back( "file:rotation-tg-p3.msh" );
+
   xmlp.add_option<URI>("Domain", URI( domain.full_path().string()) );
   xmlp.add_array("Files", files);
 

@@ -4,11 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/BasicExceptions.hpp"
 #include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
-#include "Triag2DLagrangeP2.hpp"
-//#include "Line2DLagrangeP1.hpp"  //@todo: create Line2DLagrangeP2.hpp
+#include "Triag2DLagrangeP3.hpp"
+//#include "Line2DLagrangeP2.hpp"  //@todo: create Line2DLagrangeP2.hpp
 
 namespace CF {
 namespace Mesh {
@@ -16,11 +17,11 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Triag2DLagrangeP2,ElementType,LibSF > aTriag2DLagrangeP2_Builder;
+Common::ComponentBuilder < Triag2DLagrangeP3,ElementType,LibSF > aTriag2DLagrangeP3_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Triag2DLagrangeP2::Triag2DLagrangeP2(const std::string& name) : Triag2D(name)
+Triag2DLagrangeP3::Triag2DLagrangeP3(const std::string& name) : Triag2D(name)
 {
   m_nb_nodes = nb_nodes;
   m_order = order;
@@ -28,28 +29,28 @@ Triag2DLagrangeP2::Triag2DLagrangeP2(const std::string& name) : Triag2D(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string Triag2DLagrangeP2::element_type_name() const
+std::string Triag2DLagrangeP3::element_type_name() const
 {
   return type_name();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Triag2DLagrangeP2::compute_volume(const NodesT& coord) const
+Real Triag2DLagrangeP3::compute_volume(const NodesT& coord) const
 {
   return volume(coord);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool Triag2DLagrangeP2::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
+bool Triag2DLagrangeP3::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
 	return in_element(coord,nodes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP2::faces()
+const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP3::faces()
 {
   throw Common::NotImplemented( FromHere(), "" );
 
@@ -68,40 +69,48 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP2::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP2::face_connectivity() const
+const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP3::face_connectivity() const
 {
   return faces();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Triag2DLagrangeP2::face_type(const CF::Uint face) const
+const CF::Mesh::ElementType& Triag2DLagrangeP3::face_type(const CF::Uint face) const
 {
   throw Common::NotImplemented( FromHere(), "" );
 
-  //static const Line2DLagrangeP1 facetype;
+  //static const Line2DLagrangeP3 facetype;
   //return facetype;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2DLagrangeP2::shape_function(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
+void Triag2DLagrangeP3::shape_function(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
 {
   const Real L0 = 1.0 - map_coord[0] - map_coord[1];
   const Real L1 = map_coord[0];
   const Real L2 = map_coord[1];
 
-  shapef[0] = ( 2*L0 - 1.0 ) * L0;
-  shapef[1] = ( 2*L1 - 1.0 ) * L1;
-  shapef[2] = ( 2*L2 - 1.0 ) * L2;
-  shapef[3] = 4*L0*L1;
-  shapef[4] = 4*L1*L2;
-  shapef[5] = 4*L2*L0;
+  shapef[0] = 0.5*( 3*L0 - 1. )*( 3*L0 - 2.)*L0;
+  shapef[1] = 0.5*( 3*L1 - 1. )*( 3*L1 - 2.)*L1;
+  shapef[2] = 0.5*( 3*L2 - 1. )*( 3*L2 - 2.)*L2;
+
+  shapef[3] = 9./2. * L0*L1*( 3*L0 - 1. );
+  shapef[4] = 9./2. * L0*L1*( 3*L1 - 1. );
+
+  shapef[5] = 9./2. * L1*L2*( 3*L1 - 1. );
+  shapef[6] = 9./2. * L1*L2*( 3*L2 - 1. );
+
+  shapef[7] = 9./2. * L2*L0*( 3*L2 - 1. );
+  shapef[8] = 9./2. * L2*L0*( 3*L0 - 1. );
+
+  shapef[9] = 27.*L0*L1*L2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2DLagrangeP2::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& map_coord)
+void Triag2DLagrangeP3::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& map_coord)
 {
   throw Common::NotImplemented( FromHere(), "" );
 
@@ -118,8 +127,10 @@ void Triag2DLagrangeP2::mapped_coordinates(const CoordsT& coord, const NodeMatri
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2DLagrangeP2::mapped_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
+void Triag2DLagrangeP3::mapped_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
 {
+  throw Common::NotImplemented( FromHere(), "derive these gradients" );
+
   const Real L0 = 1.0 - map_coord[0] - map_coord[1];
   const Real L1 = map_coord[0];
   const Real L2 = map_coord[1];
@@ -145,15 +156,17 @@ void Triag2DLagrangeP2::mapped_gradient(const MappedCoordsT& map_coord, MappedGr
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Triag2DLagrangeP2::jacobian_determinant(const MappedCoordsT& map_coord, const NodeMatrixT& nodes)
+Real Triag2DLagrangeP3::jacobian_determinant(const MappedCoordsT& map_coord, const NodeMatrixT& nodes)
 {
   return jacobian_determinant(nodes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2DLagrangeP2::jacobian(const MappedCoordsT& map_coord, const NodeMatrixT& nodes, JacobianT& result)
+void Triag2DLagrangeP3::jacobian(const MappedCoordsT& map_coord, const NodeMatrixT& nodes, JacobianT& result)
 {
+  /// @warning only valid for linear geometries of the support
+
   result(KSI,XX) = nodes(1, XX) - nodes(0, XX);
   result(KSI,YY) = nodes(1, YY) - nodes(0, YY);
   result(ETA,XX) = nodes(2, XX) - nodes(0, XX);
@@ -162,7 +175,7 @@ void Triag2DLagrangeP2::jacobian(const MappedCoordsT& map_coord, const NodeMatri
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2DLagrangeP2::jacobian_adjoint(const MappedCoordsT& map_coord, const NodeMatrixT& nodes, JacobianT& result)
+void Triag2DLagrangeP3::jacobian_adjoint(const MappedCoordsT& map_coord, const NodeMatrixT& nodes, JacobianT& result)
 {
   throw Common::NotImplemented( FromHere(), "" );
 
@@ -175,14 +188,14 @@ void Triag2DLagrangeP2::jacobian_adjoint(const MappedCoordsT& map_coord, const N
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Triag2DLagrangeP2::volume(const NodeMatrixT& nodes)
+Real Triag2DLagrangeP3::volume(const NodeMatrixT& nodes)
 {
   throw Common::NotImplemented( FromHere(), "" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool Triag2DLagrangeP2::in_element(const CoordsT& coord, const NodeMatrixT& nodes)
+bool Triag2DLagrangeP3::in_element(const CoordsT& coord, const NodeMatrixT& nodes)
 {
   throw Common::NotImplemented( FromHere(), "" );
 
@@ -202,7 +215,7 @@ bool Triag2DLagrangeP2::in_element(const CoordsT& coord, const NodeMatrixT& node
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Triag2DLagrangeP2::jacobian_determinant(const NodeMatrixT& nodes)
+Real Triag2DLagrangeP3::jacobian_determinant(const NodeMatrixT& nodes)
 {
   throw Common::NotImplemented( FromHere(), "" );
 

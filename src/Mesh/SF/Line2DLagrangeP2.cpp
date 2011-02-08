@@ -8,6 +8,7 @@
 
 #include "LibSF.hpp"
 #include "Line2DLagrangeP2.hpp"
+#include "Point1DLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -74,7 +75,7 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP2::face_connectivi
 
 const CF::Mesh::ElementType& Line2DLagrangeP2::face_type(const CF::Uint face) const
 {
-  static const Line2DLagrangeP2 facetype;
+  const static Point1DLagrangeP1 facetype;
   return facetype;
 }
 

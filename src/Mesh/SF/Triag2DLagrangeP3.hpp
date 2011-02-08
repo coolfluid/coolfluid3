@@ -4,10 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_SF_Triag2DLagrangeP2_hpp
-#define CF_Mesh_SF_Triag2DLagrangeP2_hpp
-
-#include "Common/BasicExceptions.hpp"
+#ifndef CF_Mesh_SF_Triag2DLagrangeP3_hpp
+#define CF_Mesh_SF_Triag2DLagrangeP3_hpp
 
 #include "Math/MatrixTypes.hpp"
 #include "Math/MathConsts.hpp"
@@ -21,17 +19,14 @@ namespace Mesh {
 namespace SF {
 
 /// This class provides the lagrangian shape function describing the
-/// representation of the solution and/or the geometry in a P1 (linear)
+/// representation of the solution and/or the geometry in a P3 cubic
 /// triangular element.
-/// @author Andrea Lani
-/// @author Geoffrey Deliege
 /// @author Tiago Quintino
-/// @author Bart Janssens
-struct MESH_SF_API Triag2DLagrangeP2  : public Triag2D
+struct MESH_SF_API Triag2DLagrangeP3  : public Triag2D
 {
-  Triag2DLagrangeP2(const std::string& name = type_name());
+  Triag2DLagrangeP3(const std::string& name = type_name());
 
-  static std::string type_name() { return "Triag2DLagrangeP2"; }
+  static std::string type_name() { return "Triag2DLagrangeP3"; }
 
   virtual std::string builder_name() const { return LibSF::library_namespace()+"."+type_name(); }
 
@@ -39,17 +34,17 @@ struct MESH_SF_API Triag2DLagrangeP2  : public Triag2D
   typedef Triag2D Support;
 
   /// Number of nodes
-  static const Uint nb_nodes = 6;
+  static const Uint nb_nodes = 10;
 
   /// Order of the shape function
-  static const Uint order = 2;
+  static const Uint order = 3;
   
   /// Types for the matrices used
-  typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
-  typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
-  typedef Eigen::Matrix<Real, nb_nodes, dimension> NodeMatrixT;
-  typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
-  typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
+  typedef Eigen::Matrix<Real, dimension, 1>              CoordsT;
+  typedef Eigen::Matrix<Real, dimensionality, 1>         MappedCoordsT;
+  typedef Eigen::Matrix<Real, nb_nodes, dimension>       NodeMatrixT;
+  typedef Eigen::Matrix<Real, 1, nb_nodes>               ShapeFunctionsT;
+  typedef Eigen::Matrix<Real, dimensionality, nb_nodes>  MappedGradientT;
   typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
 
   /// Compute the shape functions corresponding to the given
@@ -108,4 +103,4 @@ private:
 } // Mesh
 } // CF
 
-#endif /* CF_Mesh_SF_Triag2DLagrangeP2 */
+#endif /* CF_Mesh_SF_Triag2DLagrangeP3 */

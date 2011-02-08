@@ -16,9 +16,11 @@
 #include "Line1DLagrangeP1.hpp"
 #include "Line2DLagrangeP1.hpp"
 #include "Line2DLagrangeP2.hpp"
+#include "Line2DLagrangeP3.hpp"
 #include "Line3DLagrangeP1.hpp"
 #include "Triag2DLagrangeP1.hpp"
 #include "Triag2DLagrangeP2.hpp"
+#include "Triag2DLagrangeP3.hpp"
 #include "Triag3DLagrangeP1.hpp"
 #include "Quad2DLagrangeP1.hpp"
 #include "Quad2DLagrangeP2.hpp"
@@ -34,9 +36,11 @@ namespace SF {
 typedef boost::mpl::vector< Line1DLagrangeP1,
                             Line2DLagrangeP1,
                             Line2DLagrangeP2,
+                            Line2DLagrangeP3,
                             Line3DLagrangeP1,
                             Triag2DLagrangeP1,
                             Triag2DLagrangeP2,
+                            Triag2DLagrangeP3,
                             Triag3DLagrangeP1,
                             Quad2DLagrangeP1,
                             Quad2DLagrangeP2,

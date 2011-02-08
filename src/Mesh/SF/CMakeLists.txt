@@ -9,6 +9,8 @@ list( APPEND coolfluid_mesh_sf_files
   Line2DLagrangeP1.hpp
   Line2DLagrangeP2.cpp
   Line2DLagrangeP2.hpp
+  Line2DLagrangeP3.cpp
+  Line2DLagrangeP3.hpp
   Line3DLagrangeP1.cpp
   Line3DLagrangeP1.hpp
   Point1DLagrangeP1.cpp
@@ -23,10 +25,12 @@ list( APPEND coolfluid_mesh_sf_files
   Tetra3DLagrangeP1.hpp
   Triag2DLagrangeP1.cpp
   Triag2DLagrangeP1.hpp
-  Triag2DLagrangeP2B.cpp
-  Triag2DLagrangeP2B.hpp
   Triag2DLagrangeP2.cpp
   Triag2DLagrangeP2.hpp
+  Triag2DLagrangeP2B.cpp
+  Triag2DLagrangeP2B.hpp
+  Triag2DLagrangeP3.cpp
+  Triag2DLagrangeP3.hpp
   Triag3DLagrangeP1.cpp
   Triag3DLagrangeP1.hpp
   Types.hpp
