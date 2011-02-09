@@ -56,12 +56,6 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   s->create_model(node);
 
-  //--------------------------------------------
-
-  // CFinfo << Core::instance().root()->tree() << CFendl;
-
-  //--------------------------------------------
-
   boost::shared_ptr<XmlDoc> tree_doc = XmlOps::create_doc();
   XmlNode& tree_node  = *XmlOps::goto_doc_node(*doc.get());
 
@@ -80,7 +74,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
   // everything is OK
   std::vector<URI> files;
-  files.push_back( "file:rotation-qd.neu" );
+  files.push_back( "file:advection_p2.msh" );
   p.add_option<URI>("Domain", URI( domain.full_path() ));
   p.add_array("Files", files);
 

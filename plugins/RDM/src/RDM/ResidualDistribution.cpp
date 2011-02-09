@@ -53,7 +53,7 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
     
   // setup of the static components
 
-  const Uint order = 1;
+  const Uint order = 2;
 
   //  typedef SF::Triag2DLagrangeP1 ShapeFunctionT;
   //  typedef SF::Quad2DLagrangeP1  ShapeFunctionT;
