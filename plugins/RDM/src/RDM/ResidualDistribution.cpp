@@ -16,6 +16,7 @@
 
 #include "RDM/ResidualDistribution.hpp"
 #include "RDM/CSchemeLDAT.hpp"
+#include "RDM/CSchemeN.hpp"
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 #include "Mesh/SF/Triag2DLagrangeP2.hpp"
@@ -62,7 +63,7 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   typedef Mesh::Integrators::GaussMappedCoords<order,ShapeFunctionT::shape> QuadratureT;
 
   m_elem_loop = create_static_component<
-      CForAllT< CSchemeLDAT< ShapeFunctionT, QuadratureT > , Mesh::SF::CellTypes > >("cell_loop");
+      CForAllT< CSchemeN< ShapeFunctionT, QuadratureT > , Mesh::SF::CellTypes > >("cell_loop");
   
 }
 

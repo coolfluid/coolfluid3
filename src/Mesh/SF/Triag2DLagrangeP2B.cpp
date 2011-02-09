@@ -158,6 +158,9 @@ Real Triag2DLagrangeP2B::jacobian_determinant(const MappedCoordsT& map_coord, co
 
 void Triag2DLagrangeP2B::jacobian(const MappedCoordsT& map_coord, const NodeMatrixT& nodes, JacobianT& result)
 {
+
+    /// @todo function Triag2DLagrangeP2B::jacobian needs to be updated for curvilinear elements
+
   result(KSI,XX) = nodes(1, XX) - nodes(0, XX);
   result(KSI,YY) = nodes(1, YY) - nodes(0, YY);
   result(ETA,XX) = nodes(2, XX) - nodes(0, XX);

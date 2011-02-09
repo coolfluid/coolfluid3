@@ -23,9 +23,11 @@
 
 namespace CF {
 namespace Mesh {
+
 class CElements;
 class CRegion;
 class CMixedHash;
+
 namespace Gmsh {
 
 //////////////////////////////////////////////////////////////////////////////

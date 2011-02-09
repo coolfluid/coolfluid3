@@ -23,10 +23,8 @@ namespace SF {
 /// This class provides the lagrangian shape function describing the
 /// representation of the solution and/or the geometry in a P1 (linear)
 /// triangular element.
-/// @author Andrea Lani
-/// @author Geoffrey Deliege
 /// @author Tiago Quintino
-/// @author Bart Janssens
+/// @author Mario Ricchiuto
 struct MESH_SF_API Triag2DLagrangeP2B  : public Triag2D
 {
 
