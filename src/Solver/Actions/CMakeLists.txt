@@ -12,6 +12,7 @@ list( APPEND coolfluid_solver_actions_files
   CForAllElements.cpp
   CForAllElements2.hpp
   CForAllElements2.cpp
+  CForAllElementsT2.hpp
   CForAllNodes.hpp
   CForAllNodes.cpp
   CForAllNodes2.hpp

@@ -6,7 +6,6 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
-
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CNodes.hpp"
@@ -64,7 +63,7 @@ CTable<Real>::ConstRow CFieldView::operator[](const Uint idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldView::set_elements(const CEntities& elements) 
+bool CFieldView::set_elements(const CEntities& elements) 
 { 
   cf_assert_desc("Field must be set before elements", is_not_null(m_field.lock()) );
   const CField2& field = *m_field.lock();
@@ -77,19 +76,22 @@ void CFieldView::set_elements(const CEntities& elements)
     m_end_idx = m_start_idx + m_stride * elements.size();
     m_size = m_end_idx - m_start_idx;
     m_coords_table = elements.nodes().coordinates().as_type<CTable<Real> >();
+    return true;
   }
   else
   {
     m_size = 0;
+    return false;
   }
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldView::set_elements(CEntities::Ptr elements)
+bool CFieldView::set_elements(CEntities::Ptr elements)
 {
   cf_assert( is_not_null(m_field.lock()) );
-  set_elements(*elements);
+  return set_elements(*elements);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,6 +114,7 @@ void CFieldView::set_field(CField2::Ptr field)
 
 void CFieldView::allocate_coordinates(RealMatrix& coords)
 {
+  cf_assert( !m_space.expired() );
   coords.resize(space().shape_function().nb_nodes(),space().shape_function().dimension());
 }
   

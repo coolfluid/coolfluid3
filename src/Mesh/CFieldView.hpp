@@ -71,11 +71,13 @@ public: // functions
   template <typename T>
   boost::shared_ptr<T> as_ptr() { return boost::static_pointer_cast<T>(self()); }
 
-  void set_elements(const CEntities& elements);
+  /// @return elements_exist_in_field
+  bool set_elements(const CEntities& elements);
 
   const CSpace& space() const { return *m_space.lock(); }
   
-  void set_elements(boost::shared_ptr<CEntities> elements);
+  /// @return elements_exist_in_field
+  bool set_elements(boost::shared_ptr<CEntities> elements);
 
   void set_field(CField2& field);
   

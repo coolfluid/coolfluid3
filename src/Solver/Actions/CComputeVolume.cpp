@@ -6,11 +6,11 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
-
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
+#include "Mesh/CEntities.hpp"
 
 #include "Solver/Actions/CComputeVolume.hpp"
 
@@ -57,9 +57,9 @@ void CComputeVolume::config_field()
 
 void CComputeVolume::trigger_elements()
 {
-  m_volume->set_elements(elements());
-  m_volume->allocate_coordinates(m_coordinates);
-  m_can_start_loop = m_volume->field().exists_for_entities(elements());
+  m_can_start_loop = m_volume->set_elements(elements());
+  if (m_can_start_loop)
+    m_volume->allocate_coordinates(m_coordinates);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

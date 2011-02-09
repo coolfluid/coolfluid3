@@ -31,6 +31,7 @@
 #include "Solver/Actions/CForAllElementsT.hpp"
 #include "Solver/Actions/CForAllElements.hpp"
 #include "Solver/Actions/CForAllElements2.hpp"
+#include "Solver/Actions/CForAllElementsT2.hpp"
 #include "Solver/Actions/CForAllNodes.hpp"
 #include "Solver/Actions/CForAllNodes2.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
@@ -314,6 +315,43 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(mesh,fp_out);
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE ( test_CForAllElementsT2 )
+{
+  CRoot::Ptr root = Core::instance().root();//CRoot::create("Root");
+  CMesh::Ptr mesh = root->get_child<CMesh>("mesh");
+
+  BOOST_CHECK(true);
+
+  CField2& field = mesh->create_field2("test_CForAllElementsT2","CellBased","var[1]");
+
+  BOOST_CHECK(true);
+  
+  std::vector<URI> topology = list_of(URI("cpath://Root/mesh/topology"));
+    
+  CForAllElementsT2<CComputeVolume>::Ptr compute_all_cell_volumes =
+    root->create_component< CForAllElementsT2<CComputeVolume> > ("compute_all_cell_volumes");
+  
+  BOOST_CHECK(true);
+  
+  compute_all_cell_volumes->configure_property("Regions",topology);
+  BOOST_CHECK(true);
+  
+  compute_all_cell_volumes->action().configure_property("Volumes",field.full_path());
+  BOOST_CHECK(true);
+  
+  compute_all_cell_volumes->execute();
+  
+  std::vector<CField2::Ptr> fields;
+  fields.push_back(field.as_type<CField2>());
+  boost::filesystem::path fp_out ("test_utest-actions_CForAllElementsT2.msh");
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  gmsh_writer->set_fields(fields);
+  gmsh_writer->write_from_to(mesh,fp_out);
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
