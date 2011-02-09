@@ -1,14 +1,14 @@
 #########################################################################
 # tests the rdm component
 
-list( APPEND utest-rdm_cflibs coolfluid_rdm  )
+list( APPEND utest-rdm_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm  )
 list( APPEND utest-rdm_files  utest-rdm.cpp )
 
 coolfluid_add_unittest( utest-rdm )
 
 ##########################################################################
 
-list( APPEND utest-rdm-scalaradvection-steady_cflibs coolfluid_rdm coolfluid_mesh_neutral )
+list( APPEND utest-rdm-scalaradvection-steady_cflibs coolfluid_mesh_actions coolfluid_mesh_actions coolfluid_rdm  )
 list( APPEND utest-rdm-scalaradvection-steady_files  utest-rdm-scalaradvection-steady.cpp )
 
 coolfluid_add_unittest( utest-rdm-scalaradvection-steady )
@@ -23,7 +23,7 @@ add_custom_command(TARGET utest-rdm-scalaradvection-steady
 
 ##########################################################################
 
-list( APPEND utest-rdm-scalaradvection-unsteady_cflibs coolfluid_rdm coolfluid_mesh_neutral )
+list( APPEND utest-rdm-scalaradvection-unsteady_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm )
 list( APPEND utest-rdm-scalaradvection-unsteady_files  utest-rdm-scalaradvection-unsteady.cpp )
 
 coolfluid_add_unittest( utest-rdm-scalaradvection-unsteady )

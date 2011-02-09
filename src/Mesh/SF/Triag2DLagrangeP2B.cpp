@@ -25,8 +25,6 @@ aTriag2DLagrangeP2B_Builder;
 
 Triag2DLagrangeP2B::Triag2DLagrangeP2B(const std::string& name) : Triag2D(name)
 {
-   
-
   m_nb_nodes = nb_nodes;
   m_order = order;
 }
@@ -84,7 +82,7 @@ void Triag2DLagrangeP2B::shape_function(const MappedCoordsT& map_coord, ShapeFun
   const Real L1 = map_coord[0];
   const Real L2 = map_coord[1];
 
-  const Real Phi6 = L0 * L1 * L2;
+  const Real Phi6 = 0.; // L0 * L1 * L2;
 
   shapef[0] = ( 2*L0 - 1.0 ) * L0 + 3 * Phi6 ;
   shapef[1] = ( 2*L1 - 1.0 ) * L1 + 3 * Phi6 ;
@@ -121,8 +119,8 @@ void Triag2DLagrangeP2B::mapped_gradient(const MappedCoordsT& map_coord, MappedG
   const Real L1L2 = L1*L2;
   const Real L2L0 = L2*L0;
 
-  const Real L2L0_L1L2 = L2L0 - L1L2;
-  const Real L0L1_L2L1 = L0L1 - L1L2;
+  const Real L2L0_L1L2 = 0.; // L2L0 - L1L2;
+  const Real L0L1_L2L1 = 0.; // L0L1 - L1L2;
 
   result(XX, 0) = - (4*L0-1)  +  3*(L2L0_L1L2);
   result(YY, 0) = - (4*L0-1)  +  3*(L0L1_L2L1);

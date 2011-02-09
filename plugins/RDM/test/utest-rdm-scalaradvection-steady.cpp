@@ -23,10 +23,13 @@
 #include "Solver/Actions/CLoop.hpp"
 
 #include "Mesh/LoadMesh.hpp"
+#include "Mesh/CCells.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/Actions/CBubbleEnrich.hpp"
+#include "Mesh/Actions/CBubbleRemove.hpp"
 
 #include "RDM/ScalarAdvection.hpp"
 #include "RDM/ResidualDistribution.hpp"
@@ -37,6 +40,8 @@ using namespace CF::Mesh;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::RDM;
+
+// #define BUBBLE
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -58,12 +63,6 @@ BOOST_AUTO_TEST_CASE( constructor )
   s->create_model(node);
 
   BOOST_CHECK(true);
-
-  //--------------------------------------------
-
-  // CFinfo << Core::instance().root()->tree() << CFendl;
-
-  //--------------------------------------------
 
   boost::shared_ptr<XmlDoc> tree_doc = XmlOps::create_doc();
   XmlNode& tree_node  = *XmlOps::goto_doc_node(*doc.get());
@@ -93,8 +92,8 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   std::vector<URI> files;
 
 //  files.push_back( "file:rotation-tg.neu" );
-    files.push_back( "file:rotation-qd.neu" );
-//  files.push_back( "file:advection_p2.msh" );
+//  files.push_back( "file:rotation-qd.neu" );
+  files.push_back( "file:advection_p2.msh" );
 //  files.push_back( "file:advection-p2-quad.msh" );
 //  files.push_back( "file:rotation-tg-p3.msh" );
 
@@ -109,6 +108,19 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   load_mesh->signal_load_mesh( node );
 
   BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
+
+#ifdef BUBBLE // enrich the mesh with bubble functions
+  CMeshTransformer::Ptr enricher =
+      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
+
+  domain.add_component( enricher );
+
+  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+
+  std::vector<std::string> args;
+  enricher->transform( mesh, args );
+#endif
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -119,7 +131,7 @@ BOOST_AUTO_TEST_CASE( configuration )
   CIterativeSolver& solver = find_component_recursively<CIterativeSolver>(*Core::instance().root());
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("Number of Iterations", 500u);
+  solver.configure_property("Number of Iterations", 2000u);
   
   CDiscretization::Ptr discretization = solver.get_child<CDiscretization>("Discretization");
   BOOST_CHECK ( is_not_null(discretization) );
@@ -164,8 +176,21 @@ BOOST_AUTO_TEST_CASE( solve )
 
 BOOST_AUTO_TEST_CASE( output )
 {
+//  CFinfo << Core::instance().root()->tree() << CFendl;
+
   CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
-  CMesh::Ptr mesh = domain.get_child<CMesh>("Mesh");
+  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+
+#ifdef BUBBLE // remove the bubble functions from the mesh
+  CMeshTransformer::Ptr remover =
+      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
+
+  domain.add_component( remover );
+
+  std::vector<std::string> args;
+  remover->transform( mesh, args );
+#endif
+
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   boost::filesystem::path file ("scalar_advection.msh");
   mesh_writer->write_from_to(mesh,file);

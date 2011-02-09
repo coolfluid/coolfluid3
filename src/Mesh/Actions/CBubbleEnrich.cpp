@@ -41,8 +41,7 @@ CBubbleEnrich::CBubbleEnrich( const std::string& name )
 {
    
   properties()["brief"] = std::string("Enriches a Lagrangian space with bubble functions in each element");
-  std::string desc = "  Usage: CBubbleEnrich \n\n";
-	properties()["description"] = desc;
+  properties()["description"] = std::string("  Usage: CBubbleEnrich");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -65,22 +64,39 @@ std::string CBubbleEnrich::help() const
 void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
                                const std::vector<std::string>& args)
 {
+  CFinfo << "---------------------------------------------------" << CFendl;
+  CFinfo << FromHere().str() << CFendl;
+
   /// @todo only supports simplexes
 
   CMesh& mesh = *meshptr;
 
+  // print connectivity
+//  boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
+//  {
+//    CFinfo << "---------------------------------------------------" << CFendl;
+//    CFinfo << elements.connectivity_table().full_path().string()  << CFendl;    // loop on the elements
+//    for ( Uint elem = 0; elem != elements.connectivity_table().size(); ++elem )
+//    {
+//      for ( Uint n = 0; n != elements.connectivity_table().row_size(); ++n )
+//        CFinfo << " " << elements.connectivity_table().array()[elem][n];
+//      CFinfo << CFendl;
+//    }
+//  }
+
+
 //  boost_foreach(CRegion& region, find_components_recursively<CRegion>(mesh) )
   boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
-  {
+  {     
     CFinfo << "---------------------------------------------------" << CFendl;
 
     CFinfo << elements.full_path().string() << CFendl;
 
-    CFinfo << "elems size " << elements.size() << CFendl;
-    CFinfo << "conn size "  << elements.connectivity_table().size() << " x "
-                            << elements.connectivity_table().row_size() << CFendl;
-    CFinfo << "coords size "<< elements.nodes().coordinates().size() << " x "
-                            << elements.nodes().coordinates().row_size() << CFendl;
+//    CFinfo << "elems size " << elements.size() << CFendl;
+//    CFinfo << "conn size "  << elements.connectivity_table().size() << " x "
+//                            << elements.connectivity_table().row_size() << CFendl;
+//    CFinfo << "coords size "<< elements.nodes().coordinates().size() << " x "
+//                            << elements.nodes().coordinates().row_size() << CFendl;
 
     // backup the connectivity table
     CTable<Uint>::Ptr backup = this->create_component< CTable<Uint> > ("backup");
@@ -88,8 +104,8 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
     backup->set_row_size(elements.connectivity_table().row_size()); // size appropriately
     backup->resize(elements.connectivity_table().size());           // size appropriately
 
-    CTable<Uint>::ArrayT backtable = backup->array();
-    backtable = elements.connectivity_table().array();
+    *backup = elements.connectivity_table(); /* copy table */
+    CTable<Uint>::ArrayT& backtable = backup->array();
 
     // compute new nb cols
     const Uint currnodes = elements.connectivity_table().row_size();
@@ -97,11 +113,11 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
     // resize and keep same nb of rows (nb elements)
     elements.connectivity_table().set_row_size(newnbcols);
 
-    CFinfo << "new conn size "  << elements.connectivity_table().size() << " x "
-                                << elements.connectivity_table().row_size() << CFendl;
+//    CFinfo << "new conn size "  << elements.connectivity_table().size() << " x "
+//                                << elements.connectivity_table().row_size() << CFendl;
 
     // get connectivity table
-    CTable<Uint>::ArrayT conntable = elements.connectivity_table().array();
+    CTable<Uint>::ArrayT& conntable = elements.connectivity_table().array();
 
     // get coordinates
     CTable<Real>& coords = elements.nodes().coordinates();
@@ -135,9 +151,10 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
       for ( Uint n = 0; n != currnodes; ++n )
         conntable[elem][n] = backtable[elem][n];
       conntable[elem][currnodes] = idx;
+
     }
 
-    // flush the table
+    // flush the coordinate buffer
     buf.flush();
 
     // delete backup table
@@ -149,7 +166,22 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
 
     // add the new shape function
     elements.set_element_type( "CF.Mesh.SF.Triag2DLagrangeP2B" );
-  }
+
+  } // loop element types
+
+  // print connectivity
+//  boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
+//  {
+//    CFinfo << "---------------------------------------------------" << CFendl;
+//    CFinfo << elements.connectivity_table().full_path().string()  << CFendl;    // loop on the elements
+//    for ( Uint elem = 0; elem != elements.connectivity_table().size(); ++elem )
+//    {
+//      for ( Uint n = 0; n != elements.connectivity_table().row_size(); ++n )
+//        CFinfo << " " << elements.connectivity_table().array()[elem][n];
+//      CFinfo << CFendl;
+//    }
+//  }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

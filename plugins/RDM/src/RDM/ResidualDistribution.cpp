@@ -20,6 +20,7 @@
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 #include "Mesh/SF/Triag2DLagrangeP2.hpp"
+#include "Mesh/SF/Triag2DLagrangeP2B.hpp"
 #include "Mesh/SF/Triag2DLagrangeP3.hpp"
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
 #include "Mesh/SF/Quad2DLagrangeP2.hpp"
@@ -54,11 +55,12 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
 
   const Uint order = 1;
 
-//  typedef SF::Triag2DLagrangeP1 ShapeFunctionT;
-  typedef SF::Quad2DLagrangeP1 ShapeFunctionT;
-//  typedef SF::Triag2DLagrangeP2 ShapeFunctionT
-//  typedef SF::Triag2DLagrangeP3 ShapeFunctionT;
-//  typedef SF::Quad2DLagrangeP2 ShapeFunctionT;
+  //  typedef SF::Triag2DLagrangeP1 ShapeFunctionT;
+  //  typedef SF::Quad2DLagrangeP1  ShapeFunctionT;
+      typedef SF::Triag2DLagrangeP2 ShapeFunctionT;
+  //  typedef SF::Triag2DLagrangeP2B ShapeFunctionT;
+  //  typedef SF::Triag2DLagrangeP3 ShapeFunctionT;
+  //  typedef SF::Quad2DLagrangeP2  ShapeFunctionT;
 
   typedef Mesh::Integrators::GaussMappedCoords<order,ShapeFunctionT::shape> QuadratureT;
 

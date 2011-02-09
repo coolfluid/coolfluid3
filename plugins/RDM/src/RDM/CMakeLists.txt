@@ -11,6 +11,7 @@ list( APPEND coolfluid_rdm_files
   ScalarAdvection.cpp
   CTakeStep.hpp
   CTakeStep.cpp
+  SupportedTypes.hpp
   LinearScalarFluxOperator.hpp
 )
 

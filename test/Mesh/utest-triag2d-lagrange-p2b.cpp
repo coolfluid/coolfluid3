@@ -29,14 +29,17 @@ struct Triag2DLagrangeP2BFixture
 {
   typedef SFT::NodeMatrixT NodesT;
   /// common setup for each test case
-  Triag2DLagrangeP2BFixture() : mapped_coords(1./6., 1./6.), nodes((NodesT() <<  1.0, 0.0,
-                                                                                 0.0, 2.0,
-                                                                                -1.0, 0.0,
-                                                                                 0.5, 1.0,
-                                                                                -0.5, 1.0,
-                                                                                 0.0, 0.0,
-                                                                                 0.0, 2./3.).finished())
- {}
+  Triag2DLagrangeP2BFixture() :
+    mapped_coords(1./6., 1./6.),
+    nodes((NodesT() <<
+           1.0, 0.0,
+           0.0, 2.0,
+           -1.0, 0.0,
+           0.5, 1.0,
+           -0.5, 1.0,
+           0.0, 0.0,
+           0.0, 2./3.).finished())
+  {}
 
   /// common tear-down for each test case
   ~Triag2DLagrangeP2BFixture()  {}
