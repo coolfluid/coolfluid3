@@ -82,6 +82,7 @@ void ResidualDistribution::trigger_Regions()
   CFinfo << "elem_loop configuration" << CFendl;
   m_elem_loop->configure_property("Regions" , property("Regions").value<std::vector<URI> >());
 }
+
 //////////////////////////////////////////////////////////////////////////////
 
 void ResidualDistribution::create_bc( XmlNode& xml )

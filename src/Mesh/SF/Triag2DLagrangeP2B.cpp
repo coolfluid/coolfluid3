@@ -16,10 +16,7 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Triag2DLagrangeP2B,
-                         ElementType,
-                         LibSF >
-aTriag2DLagrangeP2B_Builder;
+Common::ComponentBuilder < Triag2DLagrangeP2B, ElementType, LibSF > aTriag2DLagrangeP2B_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,17 +43,15 @@ bool Triag2DLagrangeP2B::is_coord_in_element(const RealVector& coord, const Node
 
 const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP2B::faces()
 {
-  throw Common::NotImplemented( FromHere(), "" );
-
   static FaceConnectivity connectivity;
 
   if(connectivity.face_first_nodes.empty())
   {
-    connectivity.face_first_nodes = boost::assign::list_of(0)(2)(4);
-    connectivity.face_node_counts.assign(nb_nodes, 2);
-    connectivity.face_nodes = boost::assign::list_of(0)(1)
-                                                    (1)(2)
-                                                    (2)(0);
+    connectivity.face_node_counts.assign(nb_nodes, 3);
+    connectivity.face_first_nodes = boost::assign::list_of(0)(3)(6);
+    connectivity.face_nodes = boost::assign::list_of(0)(1)(3)
+                                                    (1)(2)(4)
+                                                    (2)(0)(5);
   }
   return connectivity;
 }
@@ -68,7 +63,7 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP2B::face_connecti
 
 const CF::Mesh::ElementType& Triag2DLagrangeP2B::face_type(const CF::Uint face) const
 {
-  throw Common::NotImplemented( FromHere(), "" );
+  throw Common::NotImplemented( FromHere(), "Line2DLagrangeP2 does not exist yet" );
 
   static const Line2DLagrangeP1 facetype;
   return facetype;
