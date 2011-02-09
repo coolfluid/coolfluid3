@@ -20,11 +20,13 @@ Common::ComponentBuilder < CTime, Component, LibSolver > CTime_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 CTime::CTime ( const std::string& name  ) :
-  Component ( name )
+  Component ( name ),
+  m_time(0.),
+  m_dt(0.)
 {
-  m_properties.add_option< OptionT<Real> > ("Time","Current time of the simulation", 0.)->mark_basic();
-  m_properties.add_option< OptionT<Real> > ("Time Step","Time Step of simulation", 0.)->mark_basic();
-  m_properties.add_option< OptionT<Real> > ("End Time", "Time at which to finish the simulation", 0.0)->mark_basic();
+  m_properties.add_option< OptionT<Real> > ("Time","Current time of the simulation", m_time)->mark_basic();
+  m_properties.add_option< OptionT<Real> > ("Time Step","Time Step of simulation", m_dt)->mark_basic();
+  m_properties.add_option< OptionT<Real> > ("End Time", "Time at which to finish the simulation", m_time)->mark_basic();
 
   m_properties["Time"].as_option().link_to( &m_time );
   m_properties["Time Step"].as_option().link_to( &m_dt );

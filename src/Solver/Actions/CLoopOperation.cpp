@@ -7,6 +7,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
+#include "Common/OptionComponent.hpp"
 
 #include "Mesh/CList.hpp"
 #include "Mesh/CElements.hpp"
@@ -32,8 +33,9 @@ CLoopOperation::CLoopOperation ( const std::string& name ) :
   m_can_start_loop(true)
 {  
   // Following option is ignored if the loop is not about elements
-  m_properties.add_option< OptionURI > ("Elements","Elements that are being looped", URI("cpath:"));
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
+  m_properties.add_option(OptionComponent<Mesh::CEntities>::create("Elements","Elements that are being looped",&m_elements));
+  //m_properties.add_option< OptionURI > ("Elements","Elements that are being looped", URI("cpath:"));
+  // m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
   
   m_properties.add_option< OptionT<Uint> > ("LoopIndex","Index that is being looped", 0u );
   m_properties["LoopIndex"].as_option().link_to( &m_idx );

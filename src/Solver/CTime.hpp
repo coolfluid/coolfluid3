@@ -49,11 +49,11 @@ public: // functions
   const Real& time() const { return m_time; }
 
   /// @return modifiable time step
-  Real& dt() { return m_time; }
+  Real& dt() { return m_dt; }
 
   /// @return time step
-  const Real& dt() const { return m_time; }
-  
+  const Real& dt() const { return m_dt; }
+
 private: // data
 
   Real m_time;

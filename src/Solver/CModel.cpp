@@ -6,10 +6,13 @@
 
 #include "Solver/CModel.hpp"
 
+#include "Mesh/CDomain.hpp"
+
 namespace CF {
 namespace Solver {
 
 using namespace Common;
+using namespace Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,6 +28,7 @@ CModel::CModel( const std::string& name  ) :
    this->regist_signal ( "simulate" , "Simulates this model", "Simulate" )
        ->connect ( boost::bind ( &CModel::signal_simulate, this, _1 ) );
 
+   m_domain = create_static_component<CDomain>("domain");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

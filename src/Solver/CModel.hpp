@@ -13,6 +13,9 @@
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
+namespace Mesh {
+  class CDomain;
+}
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +55,12 @@ public: // functions
   void signal_simulate ( Common::XmlNode& node );
 
   //@} END SIGNALS
+  
+  Mesh::CDomain& domain() { return *m_domain; }
+
+protected:
+  
+  boost::shared_ptr<Mesh::CDomain> m_domain;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

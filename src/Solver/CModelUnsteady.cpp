@@ -47,31 +47,34 @@ CModelUnsteady::~CModelUnsteady()
 void CModelUnsteady::simulate ()
 {
   CFinfo << "\n" << name() << " starting simulation:" << CFendl;
-  const Real ti  = m_time->time();
-  const Real tf  = m_time->property("End Time").value<Real>();
 
-  Real dt  = m_time->property("Time Step").value<Real>();
-  Real ct  = ti;
+  const Real tf  = m_time->property("End Time").value<Real>();
 
   // loop over time
   Uint iter(0);
   Real tol=1e-12;
-  while( ct < tf-tol )
+  while( m_time->time() < tf-tol )
   {
+    // reset time step to user-specified
+    m_time->dt() = m_time->property("Time Step").value<Real>();
+    
     // compute which dt to take
-    if( ct + dt > tf )
-    {
-      dt = tf - ct;
-      m_time->dt() = dt;
-    }
+    if( m_time->time() + m_time->dt() > tf )
+      m_time->dt() = tf - m_time->time();
 
     // call all (non-linear) iterative solvers to solve this dt step
     boost_foreach(CIterativeSolver& is, find_components<CIterativeSolver>(*this))
       is.solve();
 
-    ct += dt; // update time
-    CFinfo << "Iter [" << std::setw(4) << ++iter << "]    Time [" << std::setw(6) << ct << "]" << CFendl;
+    m_time->time() += m_time->dt();
+    
+    CFinfo << "Iter [" << std::setw(4) << ++iter << "]";
+    CFinfo << "      Time [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << m_time->time() << "]";
+    CFinfo << "      Time Step [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << m_time->dt() << "]";
+    CFinfo << "      To Do [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << tf-m_time->time() << "]";
+    CFinfo << CFendl;
   }
+  m_time->configure_property("Time",m_time->time());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
