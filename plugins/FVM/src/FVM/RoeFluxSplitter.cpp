@@ -8,6 +8,8 @@
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
 
+#include "Mesh/LibMesh.hpp"
+
 #include "FVM/RoeFluxSplitter.hpp"
 
 namespace CF {
@@ -22,7 +24,8 @@ Common::ComponentBuilder < RoeFluxSplitter, Component, LibFVM > RoeFluxSplitter_
 RoeFluxSplitter::RoeFluxSplitter ( const std::string& name  ) 
 : Component(name),
   m_g(1.4),
-  m_gm1(m_g-1.)
+  m_gm1(m_g-1.),
+  m_roe_avg(3)
 {
   properties()["brief"] = std::string("Roe Flux Splitter");
   properties()["description"] = std::string("Solves the Riemann problem using the Roe scheme");
@@ -36,44 +39,68 @@ RoeFluxSplitter::~RoeFluxSplitter()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealVector RoeFluxSplitter::solve(const RealVector& left, const RealVector& right) const
+RealVector RoeFluxSplitter::interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal)
 {
-  // compute the roe average
-  RealVector roe_avg = roe_average(left,right);
-
-  const Real r=roe_avg[0];
-  const Real u=roe_avg[1]/r;
-  const Real h = m_g*roe_avg[2]/r - 0.5*m_gm1*u*u;
-  const Real a = sqrt(m_gm1*(h-u*u/2.));
-
-  // Compute eigenvectors (rc) and eigenvalues (lambda)
-  // dFdU = lc(3x3) . Lambda(3,3) . rc(3,3)   (lc = inv(rc))
-  RealMatrix rc(3,3); rc << 
-        -r/(2.*a),   -r/(2.*a)*(u-a),   -r/(2.*a)*(h-a*u),
-        1.,          u,                 0.5*u*u,
-        r/(2.*a),    r/(2.*a)*(u+a),    r/(2.*a)*(h+a*u);
-
-  RealMatrix lc(3,3); lc <<  
-         m_gm1/(r*a)*(-u*u/2.0-a*u/m_gm1),        m_gm1/(r*a)*(u+a/m_gm1),   -m_gm1/(r*a),
-         m_gm1/(r*a)*(r/a*(-u*u/2.0+a*a/m_gm1)),  m_gm1/(r*a)*(r/a*u),       m_gm1/(r*a)*(-r/a),
-         m_gm1/(r*a)*(u*u/2.0 - a*u/m_gm1),       m_gm1/(r*a)*(-u+a/m_gm1),  m_gm1/(r*a);
-
-  RealVector lambda(3); lambda <<    u-a,   u,   u+a;
-  
-  RealVector alpha = lc * (right-left);
-  RealVector upwind_part(3);
-  for(Uint j=0; j<3; j++)
-  {
-    upwind_part[j]=0;
-    for(Uint i=0; i<3; i++)
-      upwind_part[j] += std::abs(lambda[i]) * alpha[i] * rc(i,j);
-  }
-  return 0.5*(flux(left)+flux(right))-0.5*upwind_part;
+  RealVector interface_flux(3);
+  Real dummy; // not interested in wavespeeds
+  solve( 
+          //input
+          left,right,normal,
+          //output
+          interface_flux,dummy,dummy
+        );
+  return interface_flux;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealVector RoeFluxSplitter::roe_average(const RealVector& left, const RealVector& right) const
+void RoeFluxSplitter::solve(const RealVector& left, const RealVector& right, const RealVector& normal , 
+                            RealVector& interface_flux, Real& left_wave_speed, Real& right_wave_speed)
+{
+  // compute the roe average
+  compute_roe_average(left,right,m_roe_avg);
+
+  const Real r=m_roe_avg[0];
+  const Real u=m_roe_avg[1]/r;
+  const Real h = m_g*m_roe_avg[2]/r - 0.5*m_gm1*u*u;
+  const Real a = sqrt(m_gm1*(h-u*u/2.));
+
+  const Real nx = normal[XX];
+  
+  // right eigenvectors
+  RealMatrix3 right_eigenvectors; right_eigenvectors << 
+  
+        1.,           0.5*r/a,             0.5*r/a,
+        u,            0.5*r/a*(u+a*nx),    0.5*r/a*(u-a*nx),
+        0.5*u*u,      0.5*r/a*(h+u*a*nx),  0.5*r/a*(h-u*a*nx);
+
+
+  // left eigenvectors = inverse(rc)
+  RealMatrix3 left_eigenvectors; left_eigenvectors << 
+  
+        1.-0.5*m_gm1*u*u/(a*a),              m_gm1*u/(a*a),          -m_gm1/(a*a),
+        a/r*(0.5*m_gm1*u*u/(a*a)-u*nx/a),    1./r*(nx-m_gm1*u/a),    m_gm1/(r*a),
+        a/r*(0.5*m_gm1*u*u/(a*a)+u*nx/a),    -1./r*(nx+m_gm1*u/a),   m_gm1/(r*a);
+  
+  
+  // eigenvalues
+  RealVector3 eigenvalues(3); eigenvalues <<    
+  
+        u*nx,   u*nx+a,   u*nx-a;
+
+  // calculate absolute jacobian
+  RealMatrix3 abs_jacobian = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+  
+  // flux = central part + upwind part
+  interface_flux = 0.5*(flux(left)+flux(right)) - 0.5*abs_jacobian*(right-left);
+  
+  left_wave_speed  = u*nx    - a; // most negative eigenvalue according to normal
+  right_wave_speed = u*(-nx) - a; // most negative eigenvalue against the normal
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void RoeFluxSplitter::compute_roe_average(const RealVector& left, const RealVector& right, RealVector& roe_avg) const
 {  
   const Real rho_L  = left[0];       const Real rho_R  = right[0];
   const Real rhou_L = left[1];       const Real rhou_R = right[1];
@@ -93,11 +120,9 @@ RealVector RoeFluxSplitter::roe_average(const RealVector& left, const RealVector
   const Real h_A   = (sqrt_rho_L*h_L + sqrt_rho_R*h_R) / (sqrt_rho_L + sqrt_rho_R);
   
   // return as conserved variables
-  RealVector roe_avg(3);
   roe_avg[0] = rho_A;
   roe_avg[1] = rho_A * u_A;
   roe_avg[2] = rho_A/m_g * (h_A + 0.5*(m_gm1*u_A*u_A) );
-  return roe_avg;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +136,6 @@ RealVector RoeFluxSplitter::flux(const RealVector& state) const
   RealVector F(3);
   F <<     r*u,   r*u*u+p,   (rE+p)*u;
   return F;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

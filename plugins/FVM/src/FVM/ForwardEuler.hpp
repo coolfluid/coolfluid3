@@ -71,7 +71,9 @@ private: // data
   
   Common::CLink::Ptr m_residual;
   
-  Common::CLink::Ptr m_update_coeff;
+  Common::CLink::Ptr m_advection;
+
+  Common::CLink::Ptr m_volume;
   
 };
 

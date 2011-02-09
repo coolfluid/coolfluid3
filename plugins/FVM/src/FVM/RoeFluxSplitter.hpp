@@ -40,12 +40,15 @@ public: // functions
   static std::string type_name () { return "RoeFluxSplitter"; }
 
   // functions specific to the RoeFluxSplitter component
-  RealVector solve(const RealVector& left, const RealVector& right) const;
+  RealVector interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal);
 
-  RealVector roe_average(const RealVector& left, const RealVector& right) const;
+  void solve(const RealVector& left, const RealVector& right, const RealVector& normal, 
+             RealVector& flux, Real& left_wave_speed, Real& right_wave_speed);
+
+  void compute_roe_average(const RealVector& left, const RealVector& right, RealVector& roe_avg) const;
   
   RealVector flux(const RealVector& state) const;
-  
+    
 private:
   
   /// gamma
@@ -53,6 +56,8 @@ private:
   
   /// gamma - 1 
   const Real m_gm1;
+  
+  RealVector m_roe_avg;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

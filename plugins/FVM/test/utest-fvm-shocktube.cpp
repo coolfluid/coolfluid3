@@ -79,14 +79,15 @@ BOOST_AUTO_TEST_CASE( constructor )
   
   // 3) Setup model and allocate data
   // --------------------------------
+  p.add_option<Uint>("Number of Cells", 100u );
+  p.add_option<Real>("End Time", 0.008);
+  p.add_option<Real>("Time Step", 0.0004);
   s->signal_setup_model(node);
   
   BOOST_CHECK(true);
   
   // 4) Configure time
   // -----------------
-  model->time().configure_property("Time Step", 0.0002);
-  model->time().configure_property("End Time", 0.008);
   model->get_child("IterativeSolver")->configure_property("OutputDiagnostics",false);
   
   //BOOST_CHECK_EQUAL( model->time().dt() , 1.);

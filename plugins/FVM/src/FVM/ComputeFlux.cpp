@@ -13,6 +13,8 @@
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 
+#include "Math/MathChecks.hpp"
+
 #include "FVM/ComputeFlux.hpp"
 #include "FVM/RoeFluxSplitter.hpp"
 
@@ -32,7 +34,11 @@ Common::ComponentBuilder < ComputeFlux, CLoopOperation, LibFVM > ComputeFlux_Bui
 ///////////////////////////////////////////////////////////////////////////////////////
   
 ComputeFlux::ComputeFlux ( const std::string& name ) : 
-  CLoopOperation(name)
+  CLoopOperation(name),
+  m_flux(3),
+  m_normal(1),
+  m_state_L(3),
+  m_state_R(3)
 {
   // options
   m_properties.add_option< OptionURI > ("Solution","Cell based solution", URI("cpath:"))->mark_basic();
@@ -40,10 +46,21 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
 
   m_properties.add_option< OptionURI > ("Residual","Residual to compute", URI("cpath:"))->mark_basic();
   m_properties["Residual" ].as_option().attach_trigger ( boost::bind ( &ComputeFlux::config_residual,   this ) );
+
+  m_properties.add_option< OptionURI > ("Advection","Advection to compute", URI("cpath:"))->mark_basic();
+  m_properties["Advection" ].as_option().attach_trigger ( boost::bind ( &ComputeFlux::config_advection,   this ) );
+
+  m_properties.add_option< OptionURI > ("Area","Face area", URI("cpath:"))->mark_basic();
+  m_properties["Area" ].as_option().attach_trigger ( boost::bind ( &ComputeFlux::config_area,   this ) );
+
+  m_properties.add_option< OptionURI > ("FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"))->mark_basic();
+  m_properties["FaceNormal" ].as_option().attach_trigger ( boost::bind ( &ComputeFlux::config_normal,   this ) );
   
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &ComputeFlux::trigger_elements,   this ) );
 
   m_fluxsplitter = create_static_component<RoeFluxSplitter>("Roe_fluxsplitter");
+  m_face_area = create_static_component<CScalarFieldView>("face_area_view");
+  m_face_normal = create_static_component<CFieldView>("face_normal_view");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,8 +69,6 @@ void ComputeFlux::config_solution()
 {
   URI uri;  property("Solution").put_value(uri);
   CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
-  if ( is_null(comp) )
-    throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
   m_connected_solution.set_field(comp);
 }
 
@@ -63,9 +78,34 @@ void ComputeFlux::config_residual()
 {
   URI uri;  property("Residual").put_value(uri);
   CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
-  if ( is_null(comp) )
-    throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
   m_connected_residual.set_field(comp);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ComputeFlux::config_advection()
+{
+  URI uri;  property("Advection").put_value(uri);
+  CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
+  m_connected_advection.set_field(comp);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ComputeFlux::config_area()
+{
+  URI uri;  property("Area").put_value(uri);
+  CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
+  m_face_area->set_field(comp);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ComputeFlux::config_normal()
+{
+  URI uri;  property("FaceNormal").put_value(uri);
+  CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
+  m_face_normal->set_field(comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,34 +114,46 @@ void ComputeFlux::trigger_elements()
 {
   m_connected_solution.set_elements(elements().as_type<CCellFaces>());
   m_connected_residual.set_elements(elements().as_type<CCellFaces>());
+  m_connected_advection.set_elements(elements().as_type<CCellFaces>());
+  m_face_normal->set_elements(elements());
+  m_face_area->set_elements(elements());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 void ComputeFlux::execute()
 {
-  // idx() is the index that is set using the function set_loop_idx() or configuration LoopIndex
-  // 2) as simple field --> extra index for multiple variables per field
-  // CFieldView& residual = *m_residual;
-  // residual[idx()][0] = 1.;
-  // residual[idx()][1] = 1.;
-  // residual[idx()][2] = 1.;
-  enum {LEFT=0,RIGHT=1};
+  // Copy the left and right states to a RealVector
+  for (Uint i=0; i<3; ++i)
+  {
+    m_state_L[i]=m_connected_solution[idx()][LEFT ][i];
+    m_state_R[i]=m_connected_solution[idx()][RIGHT][i];
+  }
+  
+  // Copy the face normal to a RealVector
+  m_normal[XX] = (*m_face_normal)[idx()][XX];
 
-  RealVector U_L(3), U_R(3);
+
+  // Solve the riemann problem on this face.
+  m_fluxsplitter->solve( 
+                         // intput
+                         m_state_L,m_state_R,m_normal,
+                         // output
+                         m_flux, m_wave_speed_left, m_wave_speed_right 
+                        );
+
+
+  // accumulate fluxes to the residual
   for (Uint i=0; i<3; ++i)
   {
-    U_L[i]=m_connected_solution[idx()][LEFT ][i];
-    U_R[i]=m_connected_solution[idx()][RIGHT][i];
+    m_connected_residual[idx()][LEFT ][i] -= m_flux[i]; // flux going OUT of left cell
+    m_connected_residual[idx()][RIGHT][i] += m_flux[i]; // flux going IN to right cell
   }
-  
-  RealVector flux = m_fluxsplitter->solve(U_L,U_R);
-  
-  for (Uint i=0; i<3; ++i)
-  {
-    m_connected_residual[idx()][LEFT ][i] -= flux[i]; // flux going OUT of left cell
-    m_connected_residual[idx()][RIGHT][i] += flux[i]; // flux going IN to right cell
-  }
+
+  // accumulate most negative wave_speeds * area, for use in CFL condition
+  m_connected_advection[idx()][LEFT ][0] -= std::min(m_wave_speed_left ,0.) * (*m_face_area)[idx()];
+  m_connected_advection[idx()][RIGHT][0] -= std::min(m_wave_speed_right,0.) * (*m_face_area)[idx()];
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -12,6 +12,8 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"
 
+#include "Mesh/LibMesh.hpp"
+
 #include "FVM/RoeFluxSplitter.hpp"
 
 using namespace CF;
@@ -29,6 +31,8 @@ BOOST_AUTO_TEST_CASE( Roe )
   
   RealVector left(3);
   RealVector right(3);
+  RealVector normal(1);
+  normal[XX] = 1.;
   
   Real g=1.4;
   
@@ -44,9 +48,9 @@ BOOST_AUTO_TEST_CASE( Roe )
   BOOST_CHECK_EQUAL(roe.flux(left),F_L);
   BOOST_CHECK_EQUAL(roe.flux(right),F_R);
   const Real tol (0.000001);
-  BOOST_CHECK_CLOSE(roe.solve(left,right)[0] , 450.190834 , tol);
-  BOOST_CHECK_CLOSE(roe.solve(left,right)[1] , 252750 , tol);
-  BOOST_CHECK_CLOSE(roe.solve(left,right)[2] , 127710965.918678 , tol);
+  BOOST_CHECK_CLOSE(roe.interface_flux(left,right,normal)[0] , 450.190834 , tol);
+  BOOST_CHECK_CLOSE(roe.interface_flux(left,right,normal)[1] , 252750 , tol);
+  BOOST_CHECK_CLOSE(roe.interface_flux(left,right,normal)[2] , 127710965.918678 , tol);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

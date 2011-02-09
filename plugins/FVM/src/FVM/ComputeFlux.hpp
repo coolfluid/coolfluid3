@@ -118,6 +118,9 @@ private: // helper functions
 
   void config_solution();
   void config_residual();
+  void config_advection();
+  void config_area();
+  void config_normal();
 
   void trigger_elements();
   
@@ -125,6 +128,19 @@ private: // data
   
   ConnectedCellFaceFieldView m_connected_residual;
   ConnectedCellFaceFieldView m_connected_solution;
+  ConnectedCellFaceFieldView m_connected_advection;
+  
+  Mesh::CScalarFieldView::Ptr m_face_area;
+  Mesh::CFieldView::Ptr m_face_normal;
+  
+  RealVector m_flux;
+  Real m_wave_speed_left;
+  Real m_wave_speed_right;
+  RealVector m_normal;
+  RealVector m_state_L;
+  RealVector m_state_R;
+  
+  enum {LEFT=0,RIGHT=1};
   
   boost::shared_ptr<RoeFluxSplitter> m_fluxsplitter;
 };
