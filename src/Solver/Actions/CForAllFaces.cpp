@@ -28,7 +28,6 @@ ComponentBuilder < CForAllFaces, CAction, LibActions > CForAllFaces_builder;
 CForAllFaces::CForAllFaces ( const std::string& name ) :
   CLoop(name)
 {
-
 }
 
 void CForAllFaces::execute()
