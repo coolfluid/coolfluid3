@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 {
   BOOST_CHECK(true);
   
-  CDomain::Ptr domain = Core::instance().root()->create_component<CDomain>("domain");
+  CDomain::Ptr domain = Core::instance().root()->create_component<CDomain>("Domain");
   
   BOOST_CHECK(true);
   

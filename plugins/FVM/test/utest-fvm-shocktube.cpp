@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   // 2) Load the mesh in Domain
   // --------------------------
   // Uint nb_segments = 70;
-  // CDomain::Ptr domain = model->get_child<CDomain>("domain");
+  // CDomain::Ptr domain = model->get_child<CDomain>("Domain");
   // CMesh::Ptr mesh = domain->create_component<CMesh>("line");
   // //create_line(*mesh, 10. , nb_segments );
   // path file_in("line.msh");

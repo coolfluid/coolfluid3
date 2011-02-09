@@ -70,6 +70,8 @@ BOOST_AUTO_TEST_CASE( constructor )
   Core::instance().root()->list_tree(tree_node);
 
   BOOST_CHECK(true);
+
+  CFinfo << Core::instance().root()->tree() << CFendl;
 }
 
 //////////////////////////////////////////////////////////////////////////////
