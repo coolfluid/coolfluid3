@@ -6,7 +6,7 @@
 
 #include "Common/LibCommon.hpp"
 #include "Common/Component.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/CBuilder.hpp"
 
 #ifndef DUMMYCOMPONENTS_HPP
@@ -60,8 +60,8 @@ public: // functions
   {
     // options
     URI def_path("cpath://");
-    m_properties.add_option< OptionT<URI> > ( "MyRelativeFriend", "a path to another component"   , def_path  );
-    m_properties.add_option< OptionT<URI> > ( "MyAbsoluteFriend", "a path to another component"   , def_path  );
+    m_properties.add_option< OptionURI > ( "MyRelativeFriend", "a path to another component"   , def_path  );
+    m_properties.add_option< OptionURI > ( "MyAbsoluteFriend", "a path to another component"   , def_path  );
   }
 
   /// Virtual destructor

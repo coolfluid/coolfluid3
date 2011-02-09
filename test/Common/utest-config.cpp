@@ -24,6 +24,7 @@
 #include "Common/URI.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionURI.hpp"
+#include "Common/OptionT.hpp"
 
 #include "test/Common/DummyComponents.hpp"
 
@@ -61,7 +62,7 @@ public:
     m_properties.add_option< OptionT<Uint> >            ( "OptUInt", "int option"    , 10     );
     m_properties.add_option< OptionT<Real> >            ( "OptReal", "real option"   , 0.0   );
     m_properties.add_option< OptionT<std::string> >     ( "OptStr",  "string option" , "LOLO" );
-    m_properties.add_option< OptionT<URI> >             ( "OptURI",  "URI option"    , "cpath://lolo" );
+    m_properties.add_option< OptionURI >             ( "OptURI",  "URI option"    , URI("cpath://lolo") );
 
     // vector of POD's
     std::vector<int> def;

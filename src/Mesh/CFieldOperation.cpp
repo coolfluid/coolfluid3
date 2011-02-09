@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CreateComponent.hpp"
-
+#include "Common/OptionURI.hpp"
 #include "Mesh/CFieldOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@ namespace Mesh {
 CFieldOperation::CFieldOperation ( const std::string& name ) :
   Component(name), m_counter(0)
 {
-  m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
+  m_properties.add_option< Common::OptionURI > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

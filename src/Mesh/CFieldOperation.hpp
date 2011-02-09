@@ -8,7 +8,7 @@
 #define CF_Mesh_CFieldOperation_hpp
 
 #include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CRegion.hpp"
@@ -277,7 +277,7 @@ public: // functions
   /// @param name of the component
   CSetValue ( const std::string& name ) : CFieldOperation(name)
   {
-    m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
+    m_properties.add_option< Common::OptionURI > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
     m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );
   }
 

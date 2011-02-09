@@ -73,7 +73,13 @@ namespace Common {
     /// configure this option using the passed xml node
     void configure_option ( XmlNode& node );
 
-    void attach_trigger ( Trigger_t trigger ) { m_triggers.push_back(trigger); }
+    /// attach a function that will be triggered when an option gets configured
+    /// @return this option
+    Ptr attach_trigger ( Trigger_t trigger ) 
+    { 
+      m_triggers.push_back(trigger); 
+      return shared_from_this();
+    }
 
     /// @returns the name of the option
     std::string name() const { return m_name; }
@@ -94,6 +100,7 @@ namespace Common {
         void put_def( TYPE& def ) const { def = boost::any_cast<TYPE>(m_default); }
 
     /// Link the state of this option to the passed parameter
+    /// @return this option
     template < typename TYPE >
         Ptr link_to ( TYPE* par )
     {
@@ -103,6 +110,7 @@ namespace Common {
     }
 
     /// this option is tagged as a basic option on the GUI
+    /// @return this option
     Ptr mark_basic ();
 
     template < typename Option_t>

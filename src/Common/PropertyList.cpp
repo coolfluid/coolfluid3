@@ -13,101 +13,117 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-  Property::Ptr PropertyList::add_property (const std::string& name,
-                                            const boost::any & value )
-  {
-    cf_assert_desc ( "Class has already property with same name",
-                     this->store.find(name) == store.end() );
-    Property::Ptr prop ( new Property(value) );
-    store.insert( std::make_pair(name, prop ) );
-    return prop;
+Property::Ptr PropertyList::add_property (const std::string& name,
+                                          const boost::any & value )
+{
+  cf_assert_desc ( "Class has already property with same name",
+                   this->store.find(name) == store.end() );
+  Property::Ptr prop ( new Property(value) );
+  store.insert( std::make_pair(name, prop ) );
+  return prop;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const Property & PropertyList::property( const std::string& pname) const
+{
+  PropertyStorage_t::const_iterator itr = store.find(pname);
+  if ( itr != store.end() )
+    return *itr->second.get();
+  else
+  {       
+    std::string msg;
+    msg += "Property with name ["+pname+"] not found. Available properties are:\n";
+    PropertyStorage_t::const_iterator it = store.begin();
+    for (; it!=store.end(); it++)
+      msg += "  - " + it->first + "\n";
+    throw ValueNotFound(FromHere(),msg);
   }
+  
+}
 
-  const Property & PropertyList::property( const std::string& pname) const
-  {
-    PropertyStorage_t::const_iterator itr = store.find(pname);
-    if ( itr != store.end() )
-      return *itr->second.get();
-    else
-		{ 			
-			std::string msg;
-			msg += "Property with name ["+pname+"] not found. Available properties are:\n";
-      PropertyStorage_t::const_iterator it = store.begin();
-      for (; it!=store.end(); it++)
-				msg += "  - " + it->first + "\n";
-			throw ValueNotFound(FromHere(),msg);
-		}
-		
-	}
+////////////////////////////////////////////////////////////////////////////////
 
-  const Option & PropertyList::option( const std::string& pname) const
+const Option & PropertyList::option( const std::string& pname) const
+{
+  return property(pname).as_option();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PropertyList::erase( const std::string& pname)
+{
+  PropertyStorage_t::iterator itr = store.find(pname);
+  if ( itr != store.end() )
+    store.erase(itr);
+  else
+    throw ValueNotFound(FromHere(), "Property with name [" + pname + "] not found" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Property & PropertyList::operator [] (const std::string & pname)
+{
+  Property::Ptr prop;
+  PropertyStorage_t::iterator itr = store.find(pname);
+
+  if ( itr != store.end() )
+    prop = itr->second;
+  else
+    prop = add_property(pname, boost::any());
+
+  return *prop.get();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const Property & PropertyList::operator [] (const std::string & pname) const
+{
+  Property::ConstPtr prop;
+  PropertyStorage_t::const_iterator itr = store.find(pname);
+  
+  if ( itr != store.end() )
+    prop = itr->second;
+  else
   {
-    return property(pname).as_option();
+    std::string msg;
+    msg += "Property with name ["+pname+"] not found. Available properties are:\n";
+    PropertyStorage_t::const_iterator it = store.begin();
+    for (; it!=store.end(); it++)
+      msg += "  - " + it->first + "\n";
+    throw ValueNotFound(FromHere(),msg);
   }
+  return *prop.get();
+}
 
-  void PropertyList::erase( const std::string& pname)
+////////////////////////////////////////////////////////////////////////////////
+
+void PropertyList::configure_property(const std::string& pname, const boost::any& val)
+{
+  PropertyStorage_t::iterator itr = store.find(pname);
+  if (itr == store.end())
   {
-    PropertyStorage_t::iterator itr = store.find(pname);
-    if ( itr != store.end() )
-      store.erase(itr);
-    else
-      throw ValueNotFound(FromHere(), "Property with name [" + pname + "] not found" );
+    std::string msg;
+    msg += "Property with name ["+pname+"] not found. Available properties are:\n";
+    PropertyStorage_t::iterator it = store.begin();
+    for (; it!=store.end(); it++)
+      msg += "  - " + it->first + "\n";
+    throw ValueNotFound(FromHere(),msg);
   }
-
-  Property & PropertyList::operator [] (const std::string & pname)
+  
+  Property::Ptr prop = itr->second;
+  
+  // update the value and trigger its actions (if it is an option)
+  if(prop->is_option())
   {
-    Property::Ptr prop;
-    PropertyStorage_t::iterator itr = store.find(pname);
-
-    if ( itr != store.end() )
-      prop = itr->second;
-    else
-      prop = add_property(pname, boost::any());
-
-    return *prop.get();
+    prop->as_option().change_value(val);
   }
-	
-	const Property & PropertyList::operator [] (const std::string & pname) const
+  else
   {
-    Property::ConstPtr prop;
-    PropertyStorage_t::const_iterator itr = store.find(pname);
-		
-    if ( itr != store.end() )
-      prop = itr->second;
-    else
-		{
-			std::string msg;
-			msg += "Property with name ["+pname+"] not found. Available properties are:\n";
-      PropertyStorage_t::const_iterator it = store.begin();
-      for (; it!=store.end(); it++)
-				msg += "  - " + it->first + "\n";
-			throw	ValueNotFound(FromHere(),msg);
-		}
-    return *prop.get();
+    prop->change_value(val);
   }
-
-	void PropertyList::configure_property(const std::string& pname, const boost::any& val)
-	{
-    PropertyStorage_t::iterator itr = store.find(pname);
-    if (itr == store.end())
-		{
-			std::string msg;
-			msg += "Property with name ["+pname+"] not found. Available properties are:\n";
-      PropertyStorage_t::iterator it = store.begin();
-      for (; it!=store.end(); it++)
-				msg += "  - " + it->first + "\n";
-			throw ValueNotFound(FromHere(),msg);
-		}
-		
-		Property::Ptr prop = itr->second;
-		
-		// update the value and trigger its actions (if it is an option)
-		if(prop->is_option())
-			prop->as_option().change_value(val);
-		else
-			prop->change_value(val);
-	}
-	
+}
+  
 
 /////////////////////////////////////////////////////////////////////////////////////
 

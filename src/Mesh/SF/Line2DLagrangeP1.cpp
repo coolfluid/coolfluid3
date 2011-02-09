@@ -56,7 +56,7 @@ void Line2DLagrangeP1::compute_normal(const NodesT& coord, RealVector& normal) c
 {
   normal[XX] = -coord(0,YY) + coord(1,YY);
   normal[YY] = -coord(1,XX) + coord(0,XX);
-  normal /= normal.norm();
+  normal.normalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
