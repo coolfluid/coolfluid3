@@ -8,7 +8,7 @@
 #include "Common/CRoot.hpp"
 
 #include "LibUFEM.hpp"
-#include "SetupHeatConductionLinearSteady.hpp"
+#include "SetupLinearSystem.hpp"
 
 namespace CF {
 namespace UFEM {
@@ -23,7 +23,7 @@ void LibUFEM::initiate()
 {
   Core::instance().root()
     ->get_child("Tools")
-    ->create_component<SetupHeatConductionLinearSteady>( "SetupHeatConduction" )
+    ->create_component<SetupLinearSystem>( "SetupHeatConduction" )
     ->mark_basic();
 }
 

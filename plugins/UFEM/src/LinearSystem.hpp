@@ -54,10 +54,22 @@ public: // functions
   /// Signature for the add_dirichlet_bc ssignal
   void dirichlet_bc_signature( Common::XmlNode& node);
   
+  /// Signal to add an intial condition
+  void add_initial_condition( Common::XmlNode& node );
+  
+  /// Signature for add_initial_condition
+  void add_initial_condition_signature(Common::XmlNode& node);
+  
+  /// Signal to run the intialization phase
+  void signal_initialize_fields(Common::XmlNode& node);
+  
   //@} END SIGNALS
 protected:
   /// Override this to return a CAction that will build the linear system
   virtual Solver::Actions::CFieldAction::Ptr build_equation() = 0;
+  
+  /// Overridable implementation that is called when the action is run
+  virtual void on_run();
   
   /// Called when the LSS is changed
   void on_lss_set();

@@ -17,6 +17,7 @@
 #include "Solver/Actions/Proto/NodeLooper.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
+#include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
 
@@ -48,16 +49,30 @@ using namespace boost;
 typedef std::vector<std::string> StringsT;
 typedef std::vector<Uint> SizesT;
 
-BOOST_AUTO_TEST_SUITE( ProtoHeatSuite )
+struct ProtoHeatFixture
+{
+  ProtoHeatFixture() :
+    root( Core::instance().root() )
+  {
+  }
+  
+  ~ProtoHeatFixture()
+  {
+    root->remove_component("mesh");
+    root->remove_component("LSS");
+  }
+  
+  CRoot::Ptr root;
+  
+};
+
+BOOST_FIXTURE_TEST_SUITE( ProtoHeatSuite, ProtoHeatFixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( Laplacian1D )
 {
   const Uint nb_segments = 5;
-  
-  // Setup document structure and mesh
-  CRoot::Ptr root = CRoot::create("Root");
   
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, 5., nb_segments);
@@ -66,10 +81,9 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  const std::vector<std::string> vars(1, "T[1]");
-  lss.resize(mesh->create_field("Temperature", vars, CField::NODE_BASED).data_table().size());
+  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::DataBasis::POINT_BASED).data().size());
   
-  MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
+  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
@@ -80,7 +94,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    system_matrix(lss) +=integral<1>(transpose( gradient(temperature) ) * gradient(temperature) * jacobian_determinant)
+    system_matrix(lss, temperature) +=integral<1>(transpose( gradient(temperature) ) * gradient(temperature) * jacobian_determinant)
   );
   
   std::cout << lss.matrix() << std::endl;
@@ -93,9 +107,6 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   Real temp_stop  =   500.;
 
   const Uint nb_segments = 20;
-
-  // Setup document structure and mesh
-  CRoot::Ptr root = CRoot::create("Root");
   
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
@@ -104,29 +115,28 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  const std::vector<std::string> vars(1, "T[1]");
-  lss.resize(mesh->create_field("Temperature", vars, CField::NODE_BASED).data_table().size());
+  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::DataBasis::POINT_BASED).data().size());
   
-  MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
+  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    system_matrix(lss) += integral<1>( laplacian(temperature) * jacobian_determinant )
+    system_matrix(lss, temperature) += integral<1>( laplacian(temperature) * jacobian_determinant )
   );
   
   // Left boundary at temp_start
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(*mesh, "xneg"),
-    dirichlet(lss) = temp_start
+    dirichlet(lss, temperature) = temp_start
   );
 
   // Right boundary at temp_stop
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(*mesh, "xpos"),
-    dirichlet(lss) = temp_stop
+    dirichlet(lss, temperature) = temp_stop
   );
 
   // Solve the system!
@@ -154,9 +164,6 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
 
   const Uint nb_segments = 5;
 
-  // Setup document structure and mesh
-  CRoot::Ptr root = CRoot::create("Root");
-  
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
@@ -164,29 +171,28 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  const std::vector<std::string> vars(1, "T[1]");
-  lss.resize(mesh->create_field("Temperature", vars, CField::NODE_BASED).data_table().size());
+  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::DataBasis::POINT_BASED).data().size());
   
-  MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
+  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    system_matrix(lss) += k * integral<1>( laplacian(temperature) * jacobian_determinant )
+    system_matrix(lss, temperature) += k * integral<1>( laplacian(temperature) * jacobian_determinant )
   );
   
   // Right boundary at constant heat flux
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(*mesh, "xpos"),
-    neumann(lss) = q
+    neumann(lss, temperature) = q
   );
   
   // Left boundary at temp_start
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(*mesh, "xneg"),
-    dirichlet(lss) = temp_start
+    dirichlet(lss, temperature) = temp_start
   );
   
   // Solve the system!
@@ -211,9 +217,6 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   
   BOOST_CHECK(true);
 
-  // Setup document structure and mesh
-  CRoot::Ptr root = CRoot::create("Root");
-  
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
@@ -223,12 +226,12 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   BOOST_CHECK(true);
   
   // Variable holding the field
-  MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
+  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
   
   BOOST_CHECK(true);
 
   // Create a CAction executing the expression
-  CFieldAction::Ptr heat1d_action = build_elements_action( "Heat1D", *root, system_matrix(lss) += integral<1>(laplacian(temperature) * jacobian_determinant) );
+  CFieldAction::Ptr heat1d_action = build_elements_action( "Heat1D", *root, system_matrix(lss, temperature) += integral<1>(laplacian(temperature) * jacobian_determinant) );
   
   BOOST_CHECK(true);
 
@@ -244,7 +247,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Left boundary condition
   MeshTerm<1, ConfigurableConstant<Real> > xneg_temp("XnegTemp", "Temperature at the start of the domain");
-  CAction::Ptr xneg_action = build_nodes_action("xneg", *root, dirichlet(lss) = xneg_temp );  
+  CAction::Ptr xneg_action = build_nodes_action("xneg", *root, dirichlet(lss, temperature) = xneg_temp );  
   xneg_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg").full_path());
   xneg_action->configure_property("XnegTemp", 10.);
   xneg_action->execute();
@@ -253,7 +256,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Right boundary condition
   MeshTerm<2, ConfigurableConstant<Real> > xpos_temp("XposTemp", "Temperature at the end of the domain");
-  CAction::Ptr xpos_action = build_nodes_action("xpos", *root, dirichlet(lss) = xpos_temp );  
+  CAction::Ptr xpos_action = build_nodes_action("xpos", *root, dirichlet(lss, temperature) = xpos_temp );  
   xpos_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos").full_path());
   xpos_action->configure_property("XposTemp", 35.);
   xpos_action->execute();
@@ -279,9 +282,6 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   const Real k             = 100.; // thermal conductivity
   const Real q             = 100.; // Heat production per volume
 
-  // Setup document structure and mesh
-  CRoot::Ptr root = CRoot::create("Root");
-  
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
@@ -289,16 +289,15 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  const std::vector<std::string> vars(1, "T[1]");
-  lss.resize(mesh->create_field("Temperature", vars, CField::NODE_BASED).data_table().size());
+  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::DataBasis::POINT_BASED).data().size());
   
   // Variable holding the field
-  MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
+  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    system_matrix(lss) += integral<1>( k * laplacian(temperature) * jacobian_determinant )
+    system_matrix(lss, temperature) += integral<1>( k * laplacian(temperature) * jacobian_determinant )
   );
   
   MeshTerm<1, ConstField<Real> > heat("heat", q);
@@ -306,21 +305,21 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    system_rhs(lss) += integral<1>( jacobian_determinant * sf_outer_product(temperature) ) * heat
+    system_rhs(lss, temperature) += integral<1>( jacobian_determinant * sf_outer_product(temperature) ) * heat
   );
   
   // Left boundary at ambient temperature
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg"),
-    dirichlet(lss) = ambient_temp
+    dirichlet(lss, temperature) = ambient_temp
   );
   
   // Right boundary at ambient temperature
   for_each_node
   (
     find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos"),
-    dirichlet(lss) = ambient_temp
+    dirichlet(lss, temperature) = ambient_temp
   );
   
   // Solve the system!

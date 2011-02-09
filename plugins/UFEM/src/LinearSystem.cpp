@@ -34,7 +34,11 @@ LinearSystem::LinearSystem(const std::string& name) : CMethod (name)
   this->regist_signal("add_dirichlet_bc" , "Add a Dirichlet boundary condition", "Add Dirichlet BC")->connect( boost::bind ( &LinearSystem::add_dirichlet_bc, this, _1 ) );
   signal("add_dirichlet_bc").signature->connect( boost::bind( &LinearSystem::dirichlet_bc_signature, this, _1) );
 
+  this->regist_signal("add_initial_condition" , "Add an initial condition for a field", "Add Initial Condition")->connect( boost::bind ( &LinearSystem::add_initial_condition, this, _1 ) );
+  signal("add_initial_condition").signature->connect( boost::bind( &LinearSystem::add_initial_condition_signature, this, _1) );
+  
   this->regist_signal("run" , "Run the method", "Run")->connect( boost::bind ( &LinearSystem::run, this, _1 ) );
+  this->regist_signal("initialize" , "Initialize the solution", "Initialize")->connect( boost::bind ( &LinearSystem::signal_initialize_fields, this, _1 ) );
 
   signal("create_component").is_hidden = true;
   signal("rename_component").is_hidden = true;
@@ -57,6 +61,8 @@ void LinearSystem::dirichlet_bc_signature(XmlNode& node)
   XmlParams p(node);
 
   p.add_option<std::string>("BCName", std::string(), "Name for the boundary condition" );
+  p.add_option<std::string>("FieldName", std::string(), "Name for the field for which to set the BC" );
+  p.add_option<std::string>("VariableName", std::string(), "Name for the variable for which to set the BC" );
 }
 
 
@@ -65,15 +71,48 @@ void LinearSystem::add_dirichlet_bc( XmlNode& node )
   XmlParams p(node);
 
   const std::string bc_name = p.get_option<std::string>("BCName");
+  const std::string field_name = p.get_option<std::string>("FieldName");
+  const std::string var_name = p.get_option<std::string>("VariableName");
 
   MeshTerm<0, ConfigurableConstant<Real> > bc_value(bc_name, "Dirichlet boundary condition");
+  MeshTerm<1, Field<Real> > bc_var(field_name, var_name);
   
-  CAction::Ptr bc = build_nodes_action(bc_name, *this, dirichlet( lss() ) = bc_value );
+  CAction::Ptr bc = build_nodes_action(bc_name, *this, dirichlet( lss(), bc_var ) = bc_value );
   bc->add_tag("dirichlet_bc");
+}
+
+void LinearSystem::add_initial_condition_signature(XmlNode& node)
+{
+  XmlParams p(node);
+
+  p.add_option<std::string>("Name", std::string(), "Name for the initial condition" );
+  p.add_option<std::string>("FieldName", std::string(), "Name for the field for which to set the initial values" );
+  p.add_option<std::string>("VariableName", std::string(), "Name for the variable for which to set the initial values" );
+}
+
+
+void LinearSystem::add_initial_condition( XmlNode& node )
+{
+  XmlParams p(node);
+
+  const std::string name = p.get_option<std::string>("Name");
+  const std::string field_name = p.get_option<std::string>("FieldName");
+  const std::string var_name = p.get_option<std::string>("VariableName");
+
+  MeshTerm<0, ConfigurableConstant<Real> > value(name, "Value for the initial value");
+  MeshTerm<1, Field<Real> > var(field_name, var_name);
+  
+  CAction::Ptr bc = build_nodes_action(name, *this, var = value );
+  bc->add_tag("initial_condition");
 }
 
 
 void LinearSystem::run(XmlNode& node)
+{
+  on_run();
+}
+
+void LinearSystem::on_run()
 {
   // Action component that will build the linear system
   CFieldAction::Ptr builder = m_system_builder.lock();
@@ -84,9 +123,6 @@ void LinearSystem::run(XmlNode& node)
   CRegion::Ptr region = look_component<CRegion>( builder->property("Region").value_str() );
   if(!region)
     throw ValueNotFound(FromHere(), "Region at path " + get_child("HeatEquation")->property("ConductivityRegion").value_str() + " not found when looking for calculation Region.");
-
-  builder->create_fields();
-  lss().resize( builder->nb_dofs() );
   
   CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(*region);
 
@@ -103,6 +139,7 @@ void LinearSystem::run(XmlNode& node)
   lss().solve();
   increment_solution(lss().solution(), builder->field_names(), builder->variable_names(), builder->variable_sizes(), mesh);
 }
+
 
 void LinearSystem::on_lss_set()
 {
@@ -122,6 +159,22 @@ void LinearSystem::on_lss_set()
   m_system_builder = build_equation();
 }
 
+void LinearSystem::signal_initialize_fields(XmlNode& node)
+{
+  CFieldAction::Ptr builder = m_system_builder.lock();
+  if(!builder)
+    throw ValueNotFound(FromHere(), "System builder action not found. Did you set a LSS?");
+  
+  // Create the fields and adjust the LSS size
+  builder->create_fields();
+  lss().resize( builder->nb_dofs() );
+  
+  // Set the initial values
+  boost_foreach(CAction& action, find_components_with_tag<CAction>(*this, "initial_condition"))
+  {
+    action.execute();
+  }
+}
 
 } // UFEM
 } // CF

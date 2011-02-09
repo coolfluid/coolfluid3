@@ -13,7 +13,7 @@
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/CField2.hpp"
 
 #include "Solver/Actions/CFieldAction.hpp"
 
@@ -102,7 +102,7 @@ public:
     {
       if(unique_fields.insert(fd_name).second)
       {
-        const Uint nb_field_rows = mesh.field(fd_name).data_table().size();
+        const Uint nb_field_rows = mesh.get_child<Mesh::CField2>(fd_name)->data().size();
         for(Uint i = 0; i != nb_vars; ++i)
         {
           if(fd_names[i] == fd_name)
@@ -132,35 +132,39 @@ public:
     const StringsT var_names = variable_names();
     const SizesT var_sizes = variable_sizes();
     
+    std::vector<bool> field_constness;
+    boost::fusion::for_each( m_variables, GetFieldConstness(field_constness) );
+    
     BOOST_FOREACH(const std::string& fd_name, unique_fields)
     {
-      StringsT vars;
+      StringsT fd_var_names;
+      std::vector<Mesh::CField2::VarType> fd_var_types;
       
       // Check if the field exists
-      Mesh::CField::ConstPtr existing_field = mesh.get_child<Mesh::CField>(fd_name);
+      Mesh::CField2::ConstPtr existing_field = mesh.get_child<Mesh::CField2>(fd_name);
       
       Uint var_idx = 0;
       for(Uint i = 0; i != nb_fd_vars; ++i)
       {
-        if(fd_names[i] != fd_name)
+        if(fd_names[i] != fd_name || field_constness[i])
           continue;
         
-        std::stringstream s;
-        s << var_names[i] << "[" << var_sizes[i] << "]";
-        vars.push_back(s.str());
-        ++var_idx;
+        fd_var_names.push_back(var_names[i]);
+        fd_var_types.push_back( static_cast<Mesh::CField2::VarType>(var_sizes[i]) );
         
         if(existing_field)
         {
           if(   existing_field->nb_vars() <= var_idx
              || existing_field->var_name(var_idx) != var_names[i]
-             || existing_field->var_length(var_names[i]) != var_sizes[i])
+             || existing_field->var_type(var_names[i]) != var_sizes[i])
             throw Common::ValueExists(FromHere(), "Field with name " + fd_name + " exists, but is incompatible with the requested solution.");
         }
+        
+        ++var_idx;
       }
       
-      if(!existing_field)
-        mesh.create_field(fd_name, vars, Mesh::CField::NODE_BASED);
+      if(!existing_field && fd_var_names.size())
+        mesh.create_field2(fd_name, Mesh::CField2::DataBasis::POINT_BASED, fd_var_names, fd_var_types);
     }
   }
 
@@ -188,15 +192,6 @@ private:
     struct impl
     {
       void operator()(const T&, StringsT&) {}
-    };
-    
-    template<typename T>
-    struct impl< ConstField<T> >
-    {
-      void operator()(const ConstField<T>& var, StringsT& r)
-      {
-        r.push_back(var.var_name);
-      }
     };
     
     template<typename T>
@@ -228,15 +223,6 @@ private:
     struct impl
     {
       void operator()(const T&, StringsT&) {}
-    };
-    
-    template<typename T>
-    struct impl< ConstField<T> >
-    {
-      void operator()(const ConstField<T>& var, StringsT& r)
-      {
-        r.push_back(var.field_name);
-      }
     };
     
     template<typename T>
@@ -272,15 +258,6 @@ private:
     };
     
     template<typename T>
-    struct impl< ConstField<T> >
-    {
-      void operator()(const ConstField<T>& var, SizesT& r)
-      {
-        r.push_back(1);
-      }
-    };
-    
-    template<typename T>
     struct impl< Field<T> >
     {
       void operator()(const Field<T>& var, SizesT& r)
@@ -299,6 +276,37 @@ private:
     }
     
     SizesT& result;
+  };
+  
+  /// Functor to determine if fields are const
+  struct GetFieldConstness
+  {
+    
+    template<typename T>
+    struct impl
+    {
+      void operator()(const T&, std::vector<bool>&) {}
+    };
+    
+    template<typename T>
+    struct impl< Field<T> >
+    {
+      void operator()(const Field<T>& var, std::vector<bool>& r)
+      {
+        r.push_back(var.is_const);
+      }
+    };
+    GetFieldConstness(std::vector<bool>& b) : result(b)
+    {
+    }
+    
+    template<typename T>
+    void operator()(const T& var) const
+    {
+      impl<T>()(var, result);
+    }
+    
+    std::vector<bool>& result;
   };
 };
 

@@ -17,9 +17,14 @@ namespace Solver {
 namespace Actions {
 namespace Proto {
 
+/// Base class of all functions that can be evaluated using "default" C++ semantics
+struct FunctionBase
+{
+};
+  
 /// Pow function based on Proto docs example
 template<Uint Exp>
-struct pow_fun
+struct pow_fun : FunctionBase
 {
   typedef Real result_type;
   Real operator()(Real d) const

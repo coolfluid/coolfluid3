@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/EnumT.hpp"
+
 #include "Mesh/CTable.hpp"
 
 namespace CF {
@@ -35,9 +37,26 @@ public: // typedefs
   typedef boost::shared_ptr<CField2> Ptr;
   typedef boost::shared_ptr<CField2 const> ConstPtr;
   
-  enum DataBasis { POINT_BASED=0,  ELEMENT_BASED=1, CELL_BASED=2, FACE_BASED=3};
   enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
 
+  class Mesh_API DataBasis
+  {
+  public:
+
+    /// Enumeration of the Shapes recognized in CF
+    enum Type { INVALID=-1, POINT_BASED=0,  ELEMENT_BASED=1, CELL_BASED=2, FACE_BASED=3 };
+
+    typedef Common::EnumT< DataBasis > ConverterBase;
+
+    struct Mesh_API Convert : public ConverterBase
+    {
+      /// constructor where all the converting maps are built
+      Convert();
+      /// get the unique instance of the converter class
+      static Convert& instance();
+    };
+  };
+  
 public: // functions
 
   /// Contructor
@@ -52,9 +71,9 @@ public: // functions
   
   void create_data_storage();
     
-  DataBasis basis() const { return m_basis; }
+  DataBasis::Type basis() const { return m_basis; }
   
-  void set_basis(const DataBasis& basis) { m_basis = basis;}
+  void set_basis(const DataBasis::Type basis) { m_basis = basis;}
     
   std::string var_name(Uint i=0) const;
   
@@ -115,7 +134,7 @@ private:
   
   std::string m_registration_name;
   
-  DataBasis m_basis;
+  DataBasis::Type m_basis;
   
   Uint m_space_idx;
 

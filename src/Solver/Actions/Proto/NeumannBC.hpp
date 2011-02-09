@@ -25,10 +25,11 @@ struct NeumannBC
 };
 
 /// Placeholder to define dirichlet boundary conditions
-inline boost::proto::result_of::make_expr< boost::proto::tag::function, NeumannBC, StoredReference<Solver::CEigenLSS> >::type const
-neumann(Solver::CEigenLSS& arg)
+template<Uint I, typename T>
+inline typename boost::proto::result_of::make_expr< boost::proto::tag::function, NeumannBC, StoredReference<Solver::CEigenLSS>, MeshTerm<I, T> const & >::type const
+neumann(Solver::CEigenLSS& lss, MeshTerm<I, T> const & var)
 {
-  return boost::proto::make_expr<boost::proto::tag::function>( NeumannBC(), store(arg) );
+  return boost::proto::make_expr<boost::proto::tag::function>( NeumannBC(), store(lss), boost::ref(var) );
 }
   
 struct NeumannBCSetter :
@@ -40,27 +41,35 @@ struct NeumannBCSetter :
     typedef void result_type;
     
     result_type operator ()(
-                typename impl::expr_param expr
+                typename impl::expr_param expr // Of the form neumann(lss, variable)
               , typename impl::state_param state
               , typename impl::data_param data
     ) const
     {
-      Solver::CEigenLSS& lss = boost::proto::value(expr).get();
-      lss.rhs()[data.node_idx] = state;
+      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>(expr) ).get();
+      const std::vector<Uint>& offsets = data.variable_offsets();
+      const Uint sys_idx = data.node_idx*offsets.back() + offsets[VarNumber()( boost::proto::child_c<2>(expr) )];
+      lss.rhs()[sys_idx] = state;
     }
   };
 };
 
 /// Matches the proper formulation of Neumann BC
+template<typename GrammarT>
 struct NeumannBCGrammar :
-  boost::proto::assign
+  boost::proto::when
   <
-    boost::proto::function
+    boost::proto::assign
     <
-      boost::proto::terminal<NeumannBC>,
-      boost::proto::terminal< StoredReference<Solver::CEigenLSS> >
+      boost::proto::function
+      <
+        boost::proto::terminal<NeumannBC>,
+        boost::proto::terminal< StoredReference<Solver::CEigenLSS> >,
+        boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >
+      >,
+      GrammarT
     >,
-    boost::proto::_
+    NeumannBCSetter(boost::proto::_left, GrammarT(boost::proto::_right))
   >
 {
 };

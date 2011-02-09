@@ -15,6 +15,8 @@
 #include "Solver/Actions/Proto/NodeLooper.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"
@@ -171,11 +173,10 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   const Real circulation = 975.;
   const Real rho = 1.225;
   
-  CMesh::Ptr mesh( allocate_component<CMesh>("circle") );
+  CMesh::Ptr mesh = Core::instance().root()->create_component<CMesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
   
-  const std::vector<std::string> vars(1, "p[1]");
-  mesh->create_field("Pressure", vars, CField::NODE_BASED);
+  mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField2::DataBasis::POINT_BASED);
   
   CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*mesh, "region");
   

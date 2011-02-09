@@ -149,8 +149,8 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
   CRegion& region = mesh.topology().create_region("region");
   CNodes& nodes = region.create_nodes(DIM_2D);
 
-  CCells::Ptr cells = region.create_component<CCells>("Line");
-  cells->initialize("CF.Mesh.SF.Line1DLagrangeP1",nodes);
+  CFaces::Ptr cells = region.create_component<CFaces>("Faces");
+  cells->initialize("CF.Mesh.SF.Line2DLagrangeP1",nodes);
   CTable<Uint>& connectivity = cells->connectivity_table();
   
   const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*pi()) < eps();
@@ -180,7 +180,6 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
     coord_row[XX] = radius * cos(end_angle);
     coord_row[YY] = radius * sin(end_angle);
   }
-
 }
 
 void create_channel_3d(BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)

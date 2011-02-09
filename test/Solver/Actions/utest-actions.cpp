@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   CField2& field = *mesh->create_component<CField2>("field");
   field.configure_property("Topology",mesh->topology().full_path());
-  field.configure_property("FieldType",std::string("NodeBased"));
+  field.configure_property("FieldType",std::string("PointBased"));
   field.create_data_storage();
   
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));

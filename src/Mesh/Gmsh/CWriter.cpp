@@ -499,7 +499,7 @@ void CWriter::write_nodal_data2(std::fstream& file)
   boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
   {
     CField2& nodebased_field = *field_ptr.lock();
-    if (nodebased_field.basis() == CField2::POINT_BASED)
+    if (nodebased_field.basis() == CField2::DataBasis::POINT_BASED)
     {
       std::string field_name = nodebased_field.name();
       // data_header
@@ -715,9 +715,9 @@ void CWriter::write_element_data2(std::fstream& file)
   boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
   {
     CField2& elementbased_field = *field_ptr.lock();
-    if (elementbased_field.basis() == CField2::ELEMENT_BASED ||
-        elementbased_field.basis() == CField2::CELL_BASED    ||
-        elementbased_field.basis() == CField2::FACE_BASED    )
+    if (elementbased_field.basis() == CField2::DataBasis::ELEMENT_BASED ||
+        elementbased_field.basis() == CField2::DataBasis::CELL_BASED    ||
+        elementbased_field.basis() == CField2::DataBasis::FACE_BASED    )
     {
       std::string field_name = elementbased_field.name();
       Uint nb_elements = 0;

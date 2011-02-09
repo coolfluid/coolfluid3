@@ -181,27 +181,14 @@ struct MatrixElementAccess :
 /// Handle multiplication cases
 template<typename GrammarT>
 struct EigenMultiplication :
-  boost::proto::or_
+  boost::proto::when
   <
-//     boost::proto::when
-//     <
-//       boost::proto::multiplies<Scalar, Scalar>,
-//       boost::proto::_default<Scalar>
-//     >,
-//     boost::proto::when
-//     <
-//       boost::proto::multiplies<Scalar, GrammarT>,
-//       Eigen::CwiseUnaryOp<Eigen::ei_scalar_multiple_op<Scalar(boost::proto::_left)>, GrammarT(boost::proto::_right) >(boost::proto::_default<GrammarT>)
-//     >,
-    boost::proto::when
+    boost::proto::multiplies<GrammarT, GrammarT>,
+    EigenProduct
     <
-      boost::proto::multiplies<GrammarT, GrammarT>,
-      EigenProduct
-      <
-        GrammarT(boost::proto::_left),
-        GrammarT(boost::proto::_right)
-      >(boost::proto::_default<GrammarT>)
-    >
+      GrammarT(boost::proto::_left),
+      GrammarT(boost::proto::_right)
+    >(boost::proto::_default<GrammarT>)
   >
 {
 };

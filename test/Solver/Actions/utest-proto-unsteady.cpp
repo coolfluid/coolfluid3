@@ -15,13 +15,14 @@
 #include "Solver/Actions/Proto/NodeLooper.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
+#include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/CField2.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ElementData.hpp"
 
@@ -50,13 +51,13 @@ struct ProtoUnsteadyFixture
   ProtoUnsteadyFixture() :
     length(5.),
     ambient_temp(500.),
-    initial_temp(298.),
+    initial_temp(150.),
     nb_segments(100),
     k(1.),
     alpha(1.),
     start_time(1.),
-    end_time(1.1),
-    dt(0.005),
+    end_time(1.5),
+    dt(0.01),
     t(start_time)
   {
   }
@@ -111,7 +112,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   const Real invdt = 1. / dt;
 
   // Setup document structure and mesh
-  CRoot::Ptr root = CRoot::create("Root");
+  CRoot::Ptr root = Core::instance().root();
   
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
@@ -120,23 +121,17 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  const std::vector<std::string> vars(1, "T[1]");
-  lss.resize(mesh->create_field("Temperature", vars, CField::NODE_BASED).data_table().size());
+  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::DataBasis::POINT_BASED).data().size());
   
   // Create a field for the analytical solution
-  mesh->create_field("TemperatureAnalytical", vars, CField::NODE_BASED);
+  mesh->create_scalar_field("TemperatureAnalytical", "T", CField2::DataBasis::POINT_BASED);
   
   // Regions
   CRegion& xneg = find_component_recursively_with_name<CRegion>(*mesh, "xneg");
   CRegion& xpos = find_component_recursively_with_name<CRegion>(*mesh, "xpos");
 
-  // Read-only access to the result field (faster)
-  MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
-  
-  // Writable access to the result field
-  MeshTerm<1, Field<Real> > temperature_writable("Temperature", "T");
-  
-  MeshTerm<2, Field<Real> > temperature_analytical("TemperatureAnalytical", "T");
+  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
+  MeshTerm<1, Field<Real> > temperature_analytical("TemperatureAnalytical", "T");
   
   // Set initial condition. We should use the analytical solution at start_time != 0 because it is smooth
   set_analytical_solution(mesh->topology(), "Temperature", "T");
@@ -149,8 +144,8 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
       mesh->topology(),
       group
       (
-        system_matrix(lss) += integral<1>( ( invdt * sf_outer_product(temperature) + 0.5 * alpha * laplacian(temperature) ) * jacobian_determinant ),
-        system_rhs(lss) -= alpha * integral<1>( laplacian(temperature) * jacobian_determinant ) * temperature
+        system_matrix(lss, temperature) += integral<1>( ( invdt * sf_outer_product(temperature) + 0.5 * alpha * laplacian(temperature) ) * jacobian_determinant ),
+        system_rhs(lss, temperature) -= alpha * integral<1>( laplacian(temperature) * jacobian_determinant ) * temperature
       )
     );
     
@@ -158,14 +153,14 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     for_each_node
     (
       xneg,
-      dirichlet(lss) = ambient_temp - temperature
+      dirichlet(lss, temperature) = ambient_temp
     );
     
     // Right boundary at ambient temperature
     for_each_node
     (
       xpos,
-      dirichlet(lss) = ambient_temp - temperature
+      dirichlet(lss, temperature) = ambient_temp
     );
     
     // Solve the system!
@@ -177,7 +172,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     for_each_node
     (
       mesh->topology(),
-      _check_close(temperature_analytical, temperature, 0.2)
+      _check_close(temperature_analytical, temperature, 2.)
     );
     
     t += dt;

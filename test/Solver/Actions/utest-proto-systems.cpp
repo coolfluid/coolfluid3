@@ -18,6 +18,7 @@
 #include "Solver/Actions/Proto/Functions.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
+#include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
 
@@ -50,15 +51,14 @@ BOOST_AUTO_TEST_CASE( SystemBasics )
 {
   Real length              = 5.;
   const Uint nb_segments   = 5;
-
+  
   // build the mesh
-  CMesh::Ptr mesh(allocate_component<CMesh>("line"));
+  CMesh::Ptr mesh = Core::instance().root()->create_component<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   Uint elem_idx = 0;
   
-  const std::vector<std::string> vars(1, "T[1]");
-  mesh->create_field("Temperature", vars, CField::NODE_BASED);
+  mesh->create_scalar_field("Temperature", "T", CF::Mesh::CField2::DataBasis::POINT_BASED);
   
   MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
   

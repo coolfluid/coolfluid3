@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( JacobianAdjoint )
   Tetra3DLagrangeP1::jacobian_adjoint(mapped_coords, nodes, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 5);
 }
 
 BOOST_AUTO_TEST_CASE( Is_coord_in_element )

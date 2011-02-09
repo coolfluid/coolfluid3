@@ -34,7 +34,7 @@ LibLoader::~LibLoader()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibLoader::set_search_paths(std::vector< boost::filesystem::path >& paths)
+void LibLoader::set_search_paths(const std::vector< boost::filesystem::path >& paths)
 {
   m_search_paths = paths;
 }

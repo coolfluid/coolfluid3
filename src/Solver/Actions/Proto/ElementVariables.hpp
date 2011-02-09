@@ -174,36 +174,6 @@ boost::proto::terminal< SFOp<LaplacianOp> >::type const laplacian = {{}};
 
 boost::proto::terminal< SFOp<OuterProductOp> >::type const sf_outer_product = {{}};
 
-/// Tag for an integral, wit the order provided as an MPL integral constant
-template<typename OrderT>
-struct IntegralTag
-{
-};
-
-/// Placeholder for integration
-template<Uint Order, typename ArgT>
-typename boost::proto::function
-<
-  typename boost::proto::terminal
-  <
-    IntegralTag< boost::mpl::int_<Order> >
-  >::type,
-  ArgT
->::type
-integral(ArgT const &arg)
-{
-  typedef typename boost::proto::function
-  <
-    typename boost::proto::terminal
-    <
-      IntegralTag< boost::mpl::int_<Order> >
-    >::type,
-    ArgT
-  >::type result_type;
-
-  result_type result = {{{}}, arg};
-  return result;
-}
 
 } // namespace Proto
 } // namespace Actions

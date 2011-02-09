@@ -14,6 +14,7 @@
 #include <boost/mpl/vector_c.hpp>
 #include <boost/proto/proto.hpp>
 
+#include "Functions.hpp"
 #include "Terminals.hpp"
 
 /// @file
@@ -86,6 +87,43 @@ struct ExpressionProperties
       DefineTypeOp<boost::mpl::_1, ExprT>
     >::type
   >::type VariablesT;
+};
+
+/// Calculate the local offset for each Field<> variable
+struct CalculateOffsets
+{
+  typedef std::vector<Uint> SizesT;
+  
+  CalculateOffsets(SizesT& offsets) : m_offsets(offsets)
+  {
+    m_offsets.push_back(0);
+  }
+  
+  template<typename T, typename DummyT=boost::mpl::void_> // DummyT type to avoid error when explicitely specialising inline. *sigh*
+  struct impl
+  {
+    void operator()(const T&, SizesT& r) const
+    {
+      r.push_back( r.back() );
+    }
+  };
+  
+  template<typename DummyT>
+  struct impl< Field<Real>, DummyT >
+  {
+    void operator()(const Field<Real>&, SizesT& r) const
+    {
+      r.push_back( 1 + r.back() );
+    }
+  };
+  
+  template<typename T>
+  void operator()(const T& var) const
+  {
+    impl<T>()(var, m_offsets);
+  }
+  
+  SizesT& m_offsets;
 };
 
 /// Copy the terminal values to a fusion list
@@ -208,12 +246,50 @@ struct VarValue :
   };
 };
 
+/// Unwraps a StoredReference
+struct UnwrapStoredReference :
+  boost::proto::transform< UnwrapStoredReference >
+{
+  template<typename VarT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<VarT, StateT, DataT>
+  { 
+    
+    typedef typename boost::remove_reference<VarT>::type::value_type& result_type;
+  
+    result_type operator ()(
+                typename impl::expr_param var
+              , typename impl::state_param state
+              , typename impl::data_param data
+    ) const
+    {
+      return var.get();
+    }
+  };
+};
+
 /// Matches scalar terminals
 struct Scalar :
-  boost::proto::when
+  boost::proto::or_
   <
-    boost::proto::or_< boost::proto::terminal<Real>, boost::proto::terminal<Uint> >, // Plain scalar
-    boost::proto::_value
+    boost::proto::when
+    <
+      boost::proto::or_< boost::proto::terminal<Real>, boost::proto::terminal<Uint> >, // Plain scalar
+      boost::proto::_value
+    >,
+    // Stored references
+    boost::proto::when
+    <
+      boost::proto::or_
+      <
+        boost::proto::terminal< const StoredReference<const Real>& >,
+        boost::proto::terminal< const StoredReference<Real>& >,
+        boost::proto::terminal< StoredReference<const Real>& >,
+        boost::proto::terminal< StoredReference<Real>& >,
+        boost::proto::terminal< StoredReference<const Real> >,
+        boost::proto::terminal< StoredReference<Real> >
+      >,
+      UnwrapStoredReference(boost::proto::_value)
+    >
   >
 {
 };
@@ -254,6 +330,36 @@ struct MathTerminals :
 {
 };
 
+/// Matches a terminal containing a function pointer
+struct FunctionPointer :
+  boost::proto::and_
+  <
+    boost::proto::terminal<boost::proto::_>,
+    boost::proto::if_< boost::is_pointer<boost::proto::_value >() >,
+    boost::proto::if_< boost::is_function<boost::remove_pointer< boost::proto::_value > >() >
+  >
+{};
+
+/// Matches a terminal containing a proto function that can be evaluated using operator()
+struct ProtoDefaultFunction :
+  boost::proto::and_
+  <
+    boost::proto::terminal<boost::proto::_>,
+    boost::proto::if_< boost::is_base_of<FunctionBase, boost::proto::_value >() >
+  >
+{
+};
+
+/// All possible default-evaluated functions
+struct DefaultFunctions :
+  boost::proto::or_
+  <
+    FunctionPointer,
+    ProtoDefaultFunction
+  >
+{
+};
+
 /// Split up MapthOpDefault using cases, for better compilation performance
 template<typename GrammarT>
 struct MathOpDefaultCases
@@ -272,7 +378,7 @@ struct MathOpDefaultCases
   template<int Dummy> struct case_<boost::proto::tag::divides, Dummy> : boost::proto::divides<GrammarT, Scalar> {};
   template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign<GrammarT, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<GrammarT, GrammarT> {};
-  template<int Dummy> struct case_<boost::proto::tag::function, Dummy> : boost::proto::function< boost::proto::_, boost::proto::vararg<GrammarT> > {};
+  template<int Dummy> struct case_<boost::proto::tag::function, Dummy> : boost::proto::function< DefaultFunctions, boost::proto::vararg<GrammarT> > {};
 };
 
 
@@ -294,8 +400,8 @@ struct StreamOutput :
   <
     boost::proto::or_
     <
-      boost::proto::shift_left< boost::proto::terminal< std::ostream & >, boost::proto::_ >,
-      boost::proto::shift_left< StreamOutput<GrammarT>, boost::proto::_ >
+      boost::proto::shift_left< boost::proto::terminal< std::ostream & >, boost::proto::or_< GrammarT, boost::proto::terminal<const char*> > >,
+      boost::proto::shift_left< StreamOutput<GrammarT>, boost::proto::or_< GrammarT, boost::proto::terminal<const char*> > >
     >,
     boost::proto::_default<GrammarT>
   >

@@ -24,7 +24,7 @@ using namespace Solver;
 using namespace Solver::Actions;
 using namespace Solver::Actions::Proto;
 
-CF::Common::ComponentBuilder < UFEM::HeatConductionLinearSteady, CMethod, LibUFEM > aHeatConductionLinearSteady_Builder;
+CF::Common::ComponentBuilder < UFEM::HeatConductionLinearSteady, LinearSystem, LibUFEM > aHeatConductionLinearSteady_Builder;
 
 HeatConductionLinearSteady::HeatConductionLinearSteady(const std::string& name) : LinearSystem(name)
 {
@@ -32,15 +32,19 @@ HeatConductionLinearSteady::HeatConductionLinearSteady(const std::string& name) 
 
 CFieldAction::Ptr HeatConductionLinearSteady::build_equation()
 {
-  MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
-  //MeshTerm<1, ConfigurableConstant<Real> > k("k", "Thermal conductivity (J/(mK))");
-  //MeshTerm<2, ConfigurableConstant<Real> > heat("heat", "Heat added to the volume (J)");
+  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
+  MeshTerm<1, ConfigurableConstant<Real> > k("k", "Thermal conductivity (J/(mK))");
+  MeshTerm<2, ConstField<Real> > heat("Heat", "q");
 
   return build_elements_action
   (
     "HeatEquation",
     *this,
-    system_matrix( lss() ) +=  integral<1>( laplacian(temperature) * jacobian_determinant )
+    group
+    (
+      system_matrix( lss(), temperature ) +=  k * integral<1>( laplacian(temperature) * jacobian_determinant ),
+      system_rhs( lss(), temperature ) += integral<1>( sf_outer_product(temperature) * jacobian_determinant ) * heat
+    )
   );
 }
 

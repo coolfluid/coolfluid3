@@ -21,12 +21,14 @@
 #include <boost/mpl/vector_c.hpp>
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/CField2.hpp"
+#include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
 
-#include "Solver/Actions/Proto/ElementVariables.hpp"
-#include "Solver/Actions/Proto/Terminals.hpp"
+#include "ElementVariables.hpp"
+#include "Terminals.hpp"
+#include "Transforms.hpp"
 
 namespace CF {
 namespace Solver {
@@ -118,7 +120,7 @@ public:
   }
   
   /// Connectivity data for the current element
-  Mesh::CTable<Uint>::ConstRow element_connectivity()
+  Mesh::CTable<Uint>::ConstRow element_connectivity() const
   {
     return m_connectivity[m_element_idx];
   }
@@ -237,6 +239,7 @@ struct FieldData : public SFData<FieldSF>
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
+  typedef SFData<FieldSF> BaseT;
   typedef typename FieldSF::MappedGradientT GradientT;
   typedef typename SFData<FieldSF>::LaplacianT LaplacianT;
   typedef typename FieldSF::MappedCoordsT MappedCoordsT;
@@ -245,7 +248,7 @@ struct FieldData : public SFData<FieldSF>
   template<typename SupportT>
   const GradientT& gradient(const MappedCoordsT& mapped_coords, SupportT& support) const
   {
-    m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * support.mapped_gradient(mapped_coords);
+    m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * BaseT::mapped_gradient(mapped_coords);
     return m_gradient;
   }
   
@@ -271,7 +274,7 @@ struct SFVariableData;
 
 /// Data associated with ConstField<Real> variables
 template<typename SF>
-class SFVariableData<SF, ConstField<Real> >
+class RealFieldData
   : public FieldData<SF>
 {
 public:
@@ -297,7 +300,7 @@ public:
   /// We store data as a fixed-size Eigen matrix, so we need to make sure alignment is respected
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  SFVariableData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) : m_data(0), m_connectivity(0)
+  RealFieldData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) : m_data(0), m_connectivity(0)
   {
     if(placeholder.is_const) // the field has a single constant value over the entire domain
     {
@@ -305,17 +308,15 @@ public:
     }
     else
     {
-      m_data = &elements.get_field_elements(placeholder.field_name).data();
-      cf_assert(m_data);
-      
-      m_connectivity = &elements.get_field_elements(placeholder.field_name).connectivity_table();
-      cf_assert(m_connectivity);
-      
-      Mesh::CField::ConstPtr field = boost::dynamic_pointer_cast<Mesh::CField const>(elements.get_field_elements(placeholder.field_name).get_parent());
+      Mesh::CField2::ConstPtr field = Common::find_parent_component<Mesh::CMesh>(elements).get_child<Mesh::CField2>(placeholder.field_name);
       cf_assert(field);
       
+      m_data = &field->data();
+      
+      m_connectivity = &elements.connectivity_table();    
+      
       var_begin = field->var_index(placeholder.var_name);
-      cf_assert(field->var_length(placeholder.var_name) == 1);
+      cf_assert(field->var_type(placeholder.var_name) == 1);
     }
   }
 
@@ -328,9 +329,9 @@ public:
     Mesh::fill(m_element_values, *m_data, (*m_connectivity)[element_idx], var_begin);
   }
   
-  const Mesh::CTable<Uint>::ConstRow element_connectivity()
+  const Mesh::CTable<Uint>::ConstRow element_connectivity() const
   {
-    return m_connectivity[m_element_idx];
+    return (*m_connectivity)[m_element_idx];
   }
   
   /// Reference to the stored data
@@ -360,6 +361,22 @@ private:
   Uint var_begin;
 };
 
+template<typename SF>
+class SFVariableData<SF, ConstField<Real> > : public RealFieldData<SF>
+{
+  typedef RealFieldData<SF> BaseT;
+public:
+  SFVariableData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) : BaseT(placeholder, elements) {}
+};
+
+template<typename SF>
+class SFVariableData<SF, Field<Real> > : public RealFieldData<SF>
+{
+  typedef RealFieldData<SF> BaseT;
+public:
+  SFVariableData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) : BaseT(placeholder, elements) {}
+};
+
 /// Stores data that is used when looping over elements to execut Proto expressions. "Data" is meant here in the boost::proto sense,
 /// i.e. it is intended for use as 3rd argument for proto transforms.
 /// VariablesT is a fusion sequence containing each unique variable in the expression
@@ -379,6 +396,7 @@ public:
     m_support(elements)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data));
+    boost::fusion::for_each( m_variables, CalculateOffsets(m_offsets) );
   }
   
   ~ElementData()
@@ -448,6 +466,11 @@ public:
     return m_support;
   }
   
+  const std::vector<Uint>& variable_offsets() const
+  {
+    return m_offsets;
+  }
+  
 private:
   /// Variables used in the expression
   VariablesT& m_variables;
@@ -462,6 +485,8 @@ private:
   VariablesDataT m_variables_data;
   
   Uint m_element_idx;
+  
+  std::vector<Uint> m_offsets;
   
   ///////////// helper functions and structs /////////////
   

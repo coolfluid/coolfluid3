@@ -81,18 +81,8 @@ struct NodeMath :
 struct NodeGrammar :
   boost::proto::or_
   <
-    // Dirichlet BC
-    boost::proto::when
-    <
-      DirichletBCGrammar,
-      DirichletBCSetter(boost::proto::_child_c<1>(boost::proto::_left), NodeMath(boost::proto::_right))
-    >,
-    // Neumann BC
-    boost::proto::when
-    <
-      NeumannBCGrammar,
-      NeumannBCSetter(boost::proto::_child_c<1>(boost::proto::_left), NodeMath(boost::proto::_right))
-    >,
+    DirichletBCGrammar<NodeMath>,
+    NeumannBCGrammar<NodeMath>,
     NodeMath, // Math expressions
     StreamOutput<NodeGrammar>
   >

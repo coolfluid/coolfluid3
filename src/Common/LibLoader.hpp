@@ -55,7 +55,7 @@ public: // methods
 
   /// class interface to add paths to search for libraries
   ///
-  virtual void set_search_paths(std::vector< boost::filesystem::path >& paths) = 0;
+  virtual void set_search_paths(const std::vector< boost::filesystem::path >& paths) = 0;
 
   /// Gets the Class name
   static std::string type_name() { return "LibLoader"; }

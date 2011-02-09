@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_SetupHeatConductionLinearSteady_hpp
-#define CF_UFEM_SetupHeatConductionLinearSteady_hpp
+#ifndef CF_UFEM_SetupLinearSystem_hpp
+#define CF_UFEM_SetupLinearSystem_hpp
 
 #include "Common/Component.hpp"
 
@@ -15,21 +15,21 @@ namespace CF {
 namespace UFEM {
 
 /// Wizard to set up steady linear heat conduction
-class UFEM_API SetupHeatConductionLinearSteady : public Common::Component
+class UFEM_API SetupLinearSystem : public Common::Component
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<SetupHeatConductionLinearSteady> Ptr;
-  typedef boost::shared_ptr<SetupHeatConductionLinearSteady const> ConstPtr;
+  typedef boost::shared_ptr<SetupLinearSystem> Ptr;
+  typedef boost::shared_ptr<SetupLinearSystem const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  SetupHeatConductionLinearSteady ( const std::string& name );
+  SetupLinearSystem ( const std::string& name );
 
   /// Get the class name
-  static std::string type_name () { return "SetupHeatConductionLinearSteady"; }
+  static std::string type_name () { return "SetupLinearSystem"; }
 
   // functions specific to the HeatConductionLinearSteady component
 
@@ -48,4 +48,4 @@ public: // functions
 } // CF
 
 
-#endif // CF_UFEM_SetupHeatConductionLinearSteady_hpp
+#endif // CF_UFEM_SetupLinearSystem_hpp

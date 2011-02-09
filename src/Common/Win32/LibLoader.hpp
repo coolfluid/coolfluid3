@@ -34,7 +34,7 @@ public: // functions
   virtual void load_library(const std::string& lib);
 
   /// class interface to add paths to search for libraries
-  virtual void set_search_paths(std::vector< boost::filesystem::path >& paths);
+  virtual void set_search_paths(const std::vector< boost::filesystem::path >& paths);
 
   private: // data
 

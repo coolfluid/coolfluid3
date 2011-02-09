@@ -12,7 +12,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/CField2.hpp"
 
 #include "CEigenLSS.hpp"
 
@@ -83,8 +83,8 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
   {
     if(unique_field_names.insert(field_name).second)
     {
-      CField& field = solution_mesh.field(field_name);
-      CTable<Real>& field_table = field.data_table();
+      CField2& field = *solution_mesh.get_child<CField2>(field_name);
+      CTable<Real>& field_table = field.data();
       const Uint field_size = field_table.size();
       for(Uint row_idx = 0; row_idx != field_size; ++row_idx)
       {
@@ -98,7 +98,7 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
           const Uint solution_end = solution_begin + var_sizes[i];
           Uint field_idx = field.var_index(var_names[i]);
           
-          cf_assert(field.var_length(var_names[i]) == var_sizes[i]);
+          cf_assert(field.var_type(var_names[i]) == var_sizes[i]);
           
           for(Uint sol_idx = solution_begin; sol_idx != solution_end; ++sol_idx)
           {

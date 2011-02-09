@@ -10,13 +10,17 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/range_c.hpp>
 
-#include "Mesh/CField.hpp"
+#include "Common/ComponentPredicates.hpp"
+
+#include "Mesh/CField2.hpp"
+#include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 
-#include "Solver/Actions/Proto/Terminals.hpp"
+#include "Terminals.hpp"
+#include "Transforms.hpp"
 
 /// @file
 /// Data associated with node expressions
@@ -77,11 +81,11 @@ template<>
 struct NodeVarData< Field<Real> >
 {
   NodeVarData(const Field<Real>& placeholder, Mesh::CRegion& region) :
-    m_field(region.get_field(placeholder.field_name)),
-    m_data(m_field.data_table())
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child<Mesh::CField2>(placeholder.field_name) ),
+    m_data( m_field.data() )
   {
     m_var_begin = m_field.var_index(placeholder.var_name);
-    cf_assert(m_field.var_length(placeholder.var_name) == 1);
+    cf_assert(m_field.var_type(placeholder.var_name) == 1);
   }
   
   void set_node(const Uint idx)
@@ -99,7 +103,7 @@ struct NodeVarData< Field<Real> >
   }
   
 private:
-  Mesh::CField& m_field;
+  Mesh::CField2& m_field;
   Uint m_var_begin;
   Mesh::CTable<Real>& m_data;
   Real* m_value;
@@ -109,11 +113,11 @@ template<>
 struct NodeVarData< ConstField<Real> >
 {
   NodeVarData(const ConstField<Real>& placeholder, Mesh::CRegion& region) :
-    m_field(region.get_field(placeholder.field_name)),
-    m_data(m_field.data_table())
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child<Mesh::CField2>(placeholder.field_name) ),
+    m_data( m_field.data() )
   {
     m_var_begin = m_field.var_index(placeholder.var_name);
-    cf_assert(m_field.var_length(placeholder.var_name) == 1);
+    cf_assert(m_field.var_type(placeholder.var_name) == 1);
   }
   
   void set_node(const Uint idx)
@@ -131,7 +135,7 @@ struct NodeVarData< ConstField<Real> >
   }
   
 private:
-  Mesh::CField& m_field;
+  Mesh::CField2& m_field;
   Uint m_var_begin;
   Mesh::CTable<Real>& m_data;
   Real m_value;
@@ -210,6 +214,7 @@ public:
     m_coordinates(coords)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_region, m_variables_data));
+    boost::fusion::for_each( m_variables, CalculateOffsets(m_offsets) );
   }
   
   ~NodeData()
@@ -238,6 +243,11 @@ public:
     return m_position;
   }
   
+  const std::vector<Uint>& variable_offsets() const
+  {
+    return m_offsets;
+  }
+  
 private:
   /// Variables used in the expression
   VariablesT& m_variables;
@@ -253,6 +263,9 @@ private:
   
   /// Current coordinates
   mutable CoordsT m_position;
+  
+  /// Offsets for field variables (so they can be referenced in a linear system, if any)
+  std::vector<Uint> m_offsets;
   
   ///////////// helper functions and structs /////////////
 private:

@@ -7,6 +7,8 @@
 #ifndef CF_Solver_Actions_Proto_ElementTransforms_hpp
 #define CF_Solver_Actions_Proto_ElementTransforms_hpp
 
+#include <boost/mpl/assert.hpp>
+
 #include "Mesh/Integrators/Gauss.hpp"
 
 #include "Solver/Actions/Proto/EigenTransforms.hpp"
@@ -260,6 +262,25 @@ struct ElementMathImplicit :
 {
 };
 
+/// Tag for an integral, wit the order provided as an MPL integral constant
+template<typename OrderT>
+struct IntegralTag
+{
+};
+
+template<Uint Order, typename ExprT>
+inline typename boost::proto::result_of::make_expr< boost::proto::tag::function, IntegralTag< boost::mpl::int_<Order> >, ExprT const & >::type const
+integral(ExprT const & expr)
+{
+  // IF COMPILATION FAILS HERE: the espression passed to for_each_element is invalid
+  BOOST_MPL_ASSERT_MSG(
+    (boost::proto::matches<ExprT, ElementMathImplicit>::value),
+    INVALID_EXPRESSION_FOR_INTEGRAL,
+    (ElementMathImplicit));
+
+  return boost::proto::make_expr<boost::proto::tag::function>( IntegralTag< boost::mpl::int_<Order> >(), boost::ref(expr) );
+}
+
 /// Primitive transform that evaluates an integral using the Gauss points
 struct GaussIntegral :
   boost::proto::transform< GaussIntegral >
@@ -349,14 +370,22 @@ struct ElementIntegration :
 {
 };
 
-struct ElementMath :
+struct ElementMathBase :
   boost::proto::or_
   <
     SFOpsExplicit,
     MathTerminals,
     ElementIntegration,
-    EigenMath<ElementMath>,
-    MathOpDefault<ElementMath>
+    EigenMath<ElementMathBase>
+  >
+{
+};
+
+struct ElementMath :
+  boost::proto::or_
+  <
+    ElementMathBase,
+    MathOpDefault<ElementMathBase>
   >
 {
 };

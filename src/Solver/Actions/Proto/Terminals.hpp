@@ -157,7 +157,8 @@ struct ConstField : OptionVariable
   /// Get the element type, based on the CElements currently traversed.
   const Mesh::ElementType& element_type(const Mesh::CElements& elements) const
   {
-    return is_const ? elements.element_type() : elements.get_field_elements(field_name).element_type();
+    return elements.element_type();
+    //return is_const ? elements.element_type() : elements.get_field_elements(field_name).element_type();
   }
 
   bool is_const;
@@ -224,6 +225,7 @@ struct Field : ConstField<T>
   Field() : ConstField<T>() {}
   Field(const std::string& name) : ConstField<T>(name) {}
   Field(const std::string& field_nm, const std::string var_nm) : ConstField<T>(field_nm, var_nm) {}
+  Field(const std::string& name, const T& val) : ConstField<T>(name, val) {}
 };
 
 /// Store a user-configurable constant value, used i.e. for constant boundary conditions or model constants
@@ -297,6 +299,7 @@ struct MeshTerm :
 template<typename T>
 struct StoredReference
 {
+  typedef T value_type;
   explicit StoredReference(T& t) : m_t(&t)
   {
   }

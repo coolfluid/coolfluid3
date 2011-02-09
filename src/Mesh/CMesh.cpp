@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -96,6 +97,36 @@ CField2& CMesh::create_field2( const std::string& name , const std::string& base
 
   return field;
 }
+
+CField2& CMesh::create_field2(const std::string& name, const CField2::DataBasis::Type base, const std::vector< std::string >& variable_names, const std::vector< CField2::VarType > variable_types)
+{
+  cf_assert(variable_names.size() == variable_types.size());
+  
+  // TODO: Treat variable_types using EnumT, and store enum values in the option instead of strings
+  std::vector<std::string> types_str;
+  types_str.reserve( variable_types.size() );
+  boost_foreach(const CField2::VarType var_type, variable_types)
+  {
+    types_str.push_back( boost::lexical_cast<std::string>(var_type) );
+  }
+  
+  CField2& field = *create_component<CField2>(name);
+  field.set_topology(topology());
+  field.configure_property("VarNames",variable_names);
+  field.configure_property("VarTypes",types_str);
+  field.configure_property("FieldType", CField2::DataBasis::Convert::instance().to_str(base) );
+  field.create_data_storage();
+
+  return field;
+}
+
+CField2& CMesh::create_scalar_field(const std::string& field_name, const std::string& variable_name, const CF::Mesh::CField2::DataBasis::Type base)
+{
+  const std::vector<std::string> names(1, variable_name);
+  const std::vector< CField2::VarType > types(1, CField2::SCALAR);
+  return create_field2(field_name, base, names, types);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

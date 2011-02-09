@@ -4,24 +4,24 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-
+#include "Common/Core.hpp"
 #include "Common/CBuilder.hpp"
+#include "Common/CFactory.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/CreateComponent.hpp"
-
-#include "Solver/CEigenLSS.hpp"
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CDomain.hpp"
 
+#include "Solver/CDiscretization.hpp"
+#include "Solver/CEigenLSS.hpp"
+#include "Solver/CIterativeSolver.hpp"
 #include "Solver/CModelSteady.hpp"
 #include "Solver/CPhysicalModel.hpp"
-#include "Solver/CIterativeSolver.hpp"
-#include "Solver/CDiscretization.hpp"
 
-#include "HeatConductionLinearSteady.hpp"
-#include "SetupHeatConductionLinearSteady.hpp"
+#include "LinearSystem.hpp"
+#include "SetupLinearSystem.hpp"
 
 namespace CF {
 namespace UFEM {
@@ -31,11 +31,11 @@ using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
 
-CF::Common::ComponentBuilder < UFEM::SetupHeatConductionLinearSteady, Component, LibUFEM > aSetupHeatConductionLinearSteady_Builder;
+CF::Common::ComponentBuilder < UFEM::SetupLinearSystem, Component, LibUFEM > aSetupLinearSystem_Builder;
 
-SetupHeatConductionLinearSteady::SetupHeatConductionLinearSteady(const std::string& name) : Component ( name )
+SetupLinearSystem::SetupLinearSystem(const std::string& name) : Component ( name )
 {
-  this->regist_signal ( "create_model" , "Creates a linear, steady heat conduction model", "Create Model" )->connect( boost::bind ( &SetupHeatConductionLinearSteady::create_model, this, _1 ) );
+  this->regist_signal ( "create_model" , "Creates a linear, steady heat conduction model", "Create Model" )->connect( boost::bind ( &SetupLinearSystem::create_model, this, _1 ) );
 
   signal("create_component").is_hidden = true;
   signal("rename_component").is_hidden = true;
@@ -43,15 +43,16 @@ SetupHeatConductionLinearSteady::SetupHeatConductionLinearSteady(const std::stri
   signal("move_component").is_hidden   = true;
 
   signal("create_model").signature->connect(
-      boost::bind( &SetupHeatConductionLinearSteady::create_model_signature, this, _1));
+      boost::bind( &SetupLinearSystem::create_model_signature, this, _1));
 }
 
-void SetupHeatConductionLinearSteady::create_model(Common::XmlNode& node)
+void SetupLinearSystem::create_model(Common::XmlNode& node)
 {
   XmlParams p ( node );
 
   // create the model
-  std::string name  = p.get_option<std::string>("Model name");
+  const std::string solver_name = p.get_option<std::string>("Solver");
+  const std::string name  = p.get_option<std::string>("Model name");
 
   CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
 
@@ -63,8 +64,9 @@ void SetupHeatConductionLinearSteady::create_model(Common::XmlNode& node)
   CEigenLSS::Ptr lss = model->create_component<CEigenLSS>("LSS");
   lss->mark_basic();
 
-  // Setup heat conduction method
-  HeatConductionLinearSteady::Ptr hc = model->create_component<HeatConductionLinearSteady>("HeatConductionLinearSteady");
+  // Setup method
+  LinearSystem::Ptr hc = create_component_abstract_type<LinearSystem>(solver_name, "LinearModel");
+  model->add_component(hc);
   hc->mark_basic();
   hc->configure_property( "LSS", URI(lss->full_path().string()) );
 
@@ -77,9 +79,23 @@ void SetupHeatConductionLinearSteady::create_model(Common::XmlNode& node)
   model->add_component( mesh_reader );
 }
 
-void SetupHeatConductionLinearSteady::create_model_signature( XmlNode& node )
+void SetupLinearSystem::create_model_signature( XmlNode& node )
 {
   XmlParams p(node);
+
+  std::vector<URI> dummy;
+  CFactory::Ptr linear_system_factory = Core::instance().factories()->get_factory<LinearSystem>();
+  std::vector<std::string> systems;
+
+  // build the restricted list
+  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *linear_system_factory ) )
+  {
+    systems.push_back(bdr.name());
+  }
+
+  // create de value and add the restricted list
+  XmlNode& systems_node = *XmlParams::add_value_to(*p.option_map, "Solver", std::string() , "Available solvers" );
+  XmlParams::add_array_to(systems_node, XmlParams::tag_attr_restricted_values(), systems);
 
   p.add_option<std::string>("Model name", std::string(), "Name for created model" );
 }

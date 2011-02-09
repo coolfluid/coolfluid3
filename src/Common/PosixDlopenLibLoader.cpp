@@ -38,7 +38,7 @@ PosixDlopenLibLoader::~PosixDlopenLibLoader()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PosixDlopenLibLoader::set_search_paths(std::vector< boost::filesystem::path >& paths)
+void PosixDlopenLibLoader::set_search_paths(const std::vector< boost::filesystem::path >& paths)
 {
   m_search_paths = paths;
 }

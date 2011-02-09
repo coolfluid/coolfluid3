@@ -1,12 +1,16 @@
 list( APPEND coolfluid_ufem_files
   HeatConductionLinearSteady.cpp
   HeatConductionLinearSteady.hpp
+  HeatConductionLinearUnsteady.cpp
+  HeatConductionLinearUnsteady.hpp
   LibUFEM.cpp
   LibUFEM.hpp
   LinearSystem.cpp
   LinearSystem.hpp
-  SetupHeatConductionLinearSteady.cpp
-  SetupHeatConductionLinearSteady.hpp
+  LinearSystemUnsteady.cpp
+  LinearSystemUnsteady.hpp
+  SetupLinearSystem.cpp
+  SetupLinearSystem.hpp
 )
 
 list( APPEND coolfluid_ufem_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_solver_actions coolfluid_solver)

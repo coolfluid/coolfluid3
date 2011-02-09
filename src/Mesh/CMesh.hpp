@@ -12,6 +12,7 @@
 #include "Common/Component.hpp"
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CField.hpp"
+#include "Mesh/CField2.hpp"
 
 namespace CF {
   namespace Common {
@@ -21,7 +22,6 @@ namespace Mesh {
 
   class CNodes;
   class CRegion;
-  class CField2;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -71,7 +71,21 @@ public: // functions
   /// create a field with the default support being the full mesh geometry
   CField& create_field( const std::string& name , const std::vector<std::string>& variables, const CField::DataBasis basis);
   
+  /// Create a field
+  /// @param name Name for the field component
+  /// @param base String representing the storage method. See CField2::DataBasis for valid values
+  /// @param variables Either a comma-separated string of the form variable_name[size], or "scalar_same_name" (the default), which indicates the field holds a single scalar
   CField2& create_field2( const std::string& name , const std::string& base, const std::string& variables = "scalar_same_name");
+  
+  /// Create a field
+  /// @param name Name for the field component
+  /// @param base Storage method
+  /// @param variable_names The names of the variables to add
+  /// @param variable_types The types of the variables to add
+  CField2& create_field2( const std::string& name , const CField2::DataBasis::Type base, const std::vector<std::string>& variable_names, const std::vector<CField2::VarType> variable_types);
+  
+  /// Create a field containing a single scalar
+  CField2& create_scalar_field( const std::string& field_name, const std::string& variable_name, const CField2::DataBasis::Type base);
   
   /// @return the field with given name
   const CField& field(const std::string& name) const;
