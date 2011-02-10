@@ -127,7 +127,7 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
 
     // average coordinate
     RealVector centroid (dim);
-    centroid.setZero();
+
 
     // get a buffer to the coordinates
     CTable<Real>::Buffer buf = coords.create_buffer();
@@ -135,6 +135,8 @@ void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
     // loop on the elements
     for ( Uint elem = 0; elem != nb_elem; ++elem )
     {
+      centroid.setZero();
+
       // compute average of node coordinates
       for ( Uint n = 0; n != dim+1; ++n )
       {

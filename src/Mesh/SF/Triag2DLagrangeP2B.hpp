@@ -34,6 +34,9 @@ struct MESH_SF_API Triag2DLagrangeP2B  : public Triag2D
 
   virtual std::string builder_name() const { return LibSF::library_namespace()+"."+type_name(); }
 
+  /// typedef for the supporting geometry
+  typedef Triag2D Support;
+
   /// Number of nodes
   static const Uint nb_nodes = 7;
 

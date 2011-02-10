@@ -192,6 +192,7 @@ struct GaussMappedCoordsImpl<1, GeoShape::TRIAG>
   }
 };
 
+
 template<>
 struct GaussMappedCoordsImpl<2, GeoShape::TRIAG>
 {
@@ -226,6 +227,87 @@ struct GaussMappedCoordsImpl<2, GeoShape::TRIAG>
   }
 };
 
+template<>
+struct GaussMappedCoordsImpl<3, GeoShape::TRIAG>
+{
+  static const Uint nb_points = 4;
+
+  typedef Eigen::Matrix<Real, 2, nb_points> CoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_points> WeightsT;
+
+  static CoordsT coords()
+  {
+    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
+    CoordsT result;
+    result.resize(DIM_2D, nb_points);
+    result(KSI,0) = 1./3.;
+    result(ETA,0) = 1./3.;
+    result(KSI,1) = 0.2;
+    result(ETA,1) = 0.2;
+    result(KSI,2) = 0.6;
+    result(ETA,2) = 0.2;
+    result(KSI,3) = 0.2;
+    result(ETA,3) = 0.6;
+
+    return result;
+  }
+
+  static WeightsT weights()
+  {
+    WeightsT result;
+    result.resize(4);
+    result(0) = -27./96.;
+    result(1) =  25./96.;
+    result(2) =  25./96.;
+    result(3) =  25./96.;
+    return result;
+  }
+};
+
+
+template<>
+struct GaussMappedCoordsImpl<4, GeoShape::TRIAG>
+{
+  static const Uint nb_points = 6;
+
+  typedef Eigen::Matrix<Real, 2, nb_points> CoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_points> WeightsT;
+
+  static CoordsT coords()
+  {
+    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
+    CoordsT result;
+    result.resize(DIM_2D, nb_points);
+    result(KSI,0) = 0.091576213509771;
+    result(ETA,0) = 0.091576213509771;
+    result(KSI,1) = 0.816847572980459;
+    result(ETA,1) = 0.091576213509771;
+    result(KSI,2) = 0.091576213509771;
+    result(ETA,2) = 0.816847572980459;
+    result(KSI,3) = 0.445948490915965;
+    result(ETA,3) = 0.445948490915965;
+    result(KSI,4) = 0.108103018168070;
+    result(ETA,4) = 0.445948490915965;
+    result(KSI,5) = 0.445948490915965;
+    result(ETA,5) = 0.108103018168070;
+
+    return result;
+  }
+
+  static WeightsT weights()
+  {
+    WeightsT result;
+    result.resize(6);
+    result(0) = 0.109951743655322/2.;
+    result(1) = 0.109951743655322/2.;
+    result(2) = 0.109951743655322/2.;
+    result(3) = 0.223381589678011/2.;
+    result(4) = 0.223381589678011/2.;
+    result(5) = 0.223381589678011/2.;
+
+    return result;
+  }
+};
 
 
 

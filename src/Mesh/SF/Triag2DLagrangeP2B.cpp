@@ -77,7 +77,7 @@ void Triag2DLagrangeP2B::shape_function(const MappedCoordsT& map_coord, ShapeFun
   const Real L1 = map_coord[0];
   const Real L2 = map_coord[1];
 
-  const Real Phi6 = 0.; // L0 * L1 * L2;
+  const Real Phi6 = L0 * L1 * L2;
 
   shapef[0] = ( 2*L0 - 1.0 ) * L0 + 3 * Phi6 ;
   shapef[1] = ( 2*L1 - 1.0 ) * L1 + 3 * Phi6 ;
@@ -94,6 +94,10 @@ void Triag2DLagrangeP2B::shape_function(const MappedCoordsT& map_coord, ShapeFun
 void Triag2DLagrangeP2B::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& map_coord)
 {
   throw Common::NotImplemented( FromHere(), "" );
+
+    cf_assert(coord.size() == 2);
+    cf_assert(map_coord.size() == 2);
+    cf_assert(nodes.size() == 7);
   
   const Real invDet = 1. / jacobian_determinant(nodes);
 
@@ -110,33 +114,33 @@ void Triag2DLagrangeP2B::mapped_gradient(const MappedCoordsT& map_coord, MappedG
   const Real L1 = map_coord[0];
   const Real L2 = map_coord[1];
 
-  const Real L0L1 = L0*L1;
-  const Real L1L2 = L1*L2;
-  const Real L2L0 = L2*L0;
+  const Real DX_L0 = -1.;
+  const Real DY_L0 = -1.;
+  const Real DX_L1 =  1.;
+  const Real DY_L1 =  0.;
+  const Real DX_L2 =  0.;
+  const Real DY_L2 =  1.;
 
-  const Real L2L0_L1L2 = 0.; // L2L0 - L1L2;
-  const Real L0L1_L2L1 = 0.; // L0L1 - L1L2;
+  result(XX, 0) = (4.*L0-1.)*DX_L0  + 3.*L1*L2*DX_L0 + 3.*L0*L2*DX_L1 + 3.*L0*L1*DX_L2;
+  result(YY, 0) = (4.*L0-1.)*DY_L0  + 3.*L1*L2*DY_L0 + 3.*L0*L2*DY_L1 + 3.*L0*L1*DY_L2;
 
-  result(XX, 0) = - (4*L0-1)  +  3*(L2L0_L1L2);
-  result(YY, 0) = - (4*L0-1)  +  3*(L0L1_L2L1);
+  result(XX, 1) =  (4.*L1-1.)*DX_L1 + 3.*L1*L2*DX_L0 + 3.*L0*L2*DX_L1 + 3.*L0*L1*DX_L2;
+  result(YY, 1) =  (4.*L1-1.)*DY_L1 + 3.*L1*L2*DY_L0 + 3.*L0*L2*DY_L1 + 3.*L0*L1*DY_L2;
 
-  result(XX, 1) =   (4*L1-1)  +  3*(L2L0_L1L2);
-  result(YY, 1) =                3*(L0L1_L2L1);
+  result(XX, 2) =  (4.*L2-1.)*DX_L2 + 3.*L1*L2*DX_L0 + 3.*L0*L2*DX_L1 + 3.*L0*L1*DX_L2;
+  result(YY, 2) =  (4.*L2-1.)*DY_L2 + 3.*L1*L2*DY_L0 + 3.*L0*L2*DY_L1 + 3.*L0*L1*DY_L2;
 
-  result(XX, 2) =                3*(L2L0_L1L2);
-  result(YY, 2) =   (4*L2-1)  +  3*(L0L1_L2L1);
+  result(XX, 3) = 4.*L1*DX_L0 + 4.*L0*DX_L1 - 12.*L1*L2*DX_L0 - 12.*L0*L2*DX_L1 - 12.*L0*L1*DX_L2;
+  result(YY, 3) = 4.*L1*DY_L0 + 4.*L0*DY_L1 - 12.*L1*L2*DY_L0 - 12.*L0*L2*DY_L1 - 12.*L0*L1*DY_L2;
 
-  result(XX, 3) =   4*(L0-L1) - 12*(L2L0_L1L2);
-  result(YY, 3) = - 4*L1      - 12*(L0L1_L2L1);
+  result(XX, 4) = 4.*L2*DX_L1 + 4.*L1*DX_L2 - 12.*L1*L2*DX_L0 - 12.*L0*L2*DX_L1 - 12.*L0*L1*DX_L2;
+  result(YY, 4) = 4.*L2*DY_L1 + 4.*L1*DY_L2 - 12.*L1*L2*DY_L0 - 12.*L0*L2*DY_L1 - 12.*L0*L1*DY_L2;
 
-  result(XX, 4) =   4*L2      - 12*(L2L0_L1L2);
-  result(YY, 4) =   4*L1      - 12*(L0L1_L2L1);
+  result(XX, 5) = 4.*L2*DX_L0 + 4.*L0*DX_L2 - 12.*L1*L2*DX_L0 - 12.*L0*L2*DX_L1 - 12.*L0*L1*DX_L2;
+  result(YY, 5) = 4.*L2*DY_L0 + 4.*L0*DY_L2 - 12.*L1*L2*DY_L0 - 12.*L0*L2*DY_L1 - 12.*L0*L1*DY_L2;
 
-  result(XX, 5) = - 4*L2      - 12*(L2L0_L1L2);
-  result(YY, 5) =   4*(L0-L2) - 12*(L0L1_L2L1);
-
-  result(XX, 6) =   27*L2L0_L1L2 ;
-  result(YY, 6) =   27*L0L1_L2L1 ;
+  result(XX, 6) = 27.*L1*L2*DX_L0 + 27.*L0*L2*DX_L1 + 27.*L0*L1*DX_L2;
+  result(YY, 6) = 27.*L1*L2*DY_L0 + 27.*L0*L2*DY_L1 + 27.*L0*L1*DY_L2;
 
 }
 

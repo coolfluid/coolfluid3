@@ -69,10 +69,9 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
   std::cout<< result << std::endl;
   std::cout<< result.sum() << std::endl;
 
-  CF::Tools::Testing::Accumulator accumulator;
-  CF::Tools::Testing::vector_test(result, reference_result, accumulator);
 
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
+  BOOST_CHECK_CLOSE ( result.sum(), 1.0, 1e-8    );
+
 }
 
 BOOST_AUTO_TEST_CASE( Gradient )
@@ -98,10 +97,7 @@ BOOST_AUTO_TEST_CASE( Gradient )
   std::cout<< result(XX,0) + result(XX,1) + result(XX,2) + result(XX,3) + result(XX,4) + result(XX,5) + result(XX,6)  << std::endl;
   std::cout<< result(YY,0) + result(YY,1) + result(YY,2) + result(YY,3) + result(YY,4) + result(YY,5) + result(YY,6)  << std::endl;
 
-  //  CF::Tools::Testing::Accumulator accumulator;
-//  CF::Tools::Testing::vector_test(result, reference_result, accumulator);
-
-//  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
+  BOOST_CHECK_LE ( std::abs(result.sum()), 1e-14 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

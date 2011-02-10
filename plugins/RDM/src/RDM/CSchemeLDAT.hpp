@@ -181,6 +181,7 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE>::execute()
   }
   centroid /= SHAPEFUNC::nb_nodes;
 
+
   // compute a bounding box of the element:
 
   Real xmin = nodes(0, XX);
@@ -206,8 +207,8 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE>::execute()
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
     m_loop_helper->inverse_updatecoeff[node_idx[n]][0] +=
-        std::sqrt( dx*dx+dy*dy) *
-        std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
+        std::sqrt( dx*dx+dy*dy);// *
+//        std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }
 
 

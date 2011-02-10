@@ -41,7 +41,7 @@ using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::RDM;
 
-// #define BUBBLE
+#define BUBBLE
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE( configuration )
   CIterativeSolver& solver = find_component_recursively<CIterativeSolver>(*Core::instance().root());
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("Number of Iterations", 50u);
+  solver.configure_property("Number of Iterations", 1000u);
   
   CDiscretization::Ptr discretization = solver.get_child<CDiscretization>("Discretization");
   BOOST_CHECK ( is_not_null(discretization) );

@@ -152,8 +152,8 @@ void CBubbleRemove::transform( const CMesh::Ptr& meshptr,
 
   boost_foreach(CField& field, find_components_recursively<CField>(mesh))
   {
-    CFinfo << " --- FIELD ----------------- " << CFendl;
-    CFinfo << field.full_path().string() << CFendl;
+//    CFinfo << " --- FIELD ----------------- " << CFendl;
+//    CFinfo << field.full_path().string() << CFendl;
 
     boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
     {
@@ -165,7 +165,7 @@ void CBubbleRemove::transform( const CMesh::Ptr& meshptr,
       elements.set_element_type( "CF.Mesh.SF.Triag2DLagrangeP2" );
     }
 
-    CFinfo << field.tree() << CFendl;
+//    CFinfo << field.tree() << CFendl;
 
   }
 
