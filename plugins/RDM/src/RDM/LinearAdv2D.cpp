@@ -26,12 +26,19 @@ LinearAdv2D::~LinearAdv2D()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Real LinearAdv2D::flux(const RealVector2 & point, const RealVector2 & grad)
+Real LinearAdv2D::beta(const RealVector2 & coord, const Real sf, const RealVector2 & grad_sf)
 {
-   return grad[XX];
-   //return 1.0*grad[XX] + 1.0 * grad[YY];
+    return 1.0*grad_sf[XX] + 1.0 * grad_sf[YY];
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+
+Real LinearAdv2D::residual(const RealVector2 & coord, const Real sol, const RealVector2 & grad_sol)
+{
+    return 1.0 * grad_sol[XX] + 1.0 * grad_sol[YY];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF

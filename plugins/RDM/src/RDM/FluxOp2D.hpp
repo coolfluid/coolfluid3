@@ -44,34 +44,42 @@ public: // functions
                SFMatrixT& sf_oper_values,
                RealVector& flux_oper_values);
     
-protected: // data
+protected:
+
+  //typedefs
+  typedef Eigen::Matrix<Real, QUADRATURE::nb_points, DIM_2D> GradientMatrixT;
+
+  //data
 
   const QUADRATURE& m_quadrature;
 
-  RealVector2 m_qd_pt; //Quadrature point in physical space
-  RealVector2 m_dN;    //Derivatives of shape functions in physical space
+  RealVector2 m_coord;
+  Real        m_sf;      //Shape function values at one point
+  RealVector2 m_sf_grad; //Derivatives of shape functions in physical space
+  Real        m_sol;
+  RealVector2 m_sol_grad;
+
 
   Real m_u_q; //Solution value at quadrature point
 
-  Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_N;
-  Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_dNdksi;
-  Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_dNdeta;
+  SFMatrixT m_N;       //Values of all shape functions at all quadrature point (Vandermonde matrix for SF)
+  SFMatrixT m_dNdksi;
+  SFMatrixT m_dNdeta;
 
   typename SHAPEFUNC::MappedGradientT m_mapped_grad; //Gradient of the shape functions in reference space
   typename SHAPEFUNC::ShapeFunctionsT m_shapefunc;   //Values of shape functions in reference space
 
-  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_qdpt_phys; //coordinates of quadrature points in physical space
+  GradientMatrixT m_qdpt_phys; //coordinates of quadrature points in physical space
   Eigen::Matrix<Real,QUADRATURE::nb_points, 1u> m_qdsol_phys; //solution at quadrature points in physical space
-  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_qdsol_deriv_phys; //derivatives of solution
+  GradientMatrixT m_qdsol_deriv_phys; //derivatives of solution
 
-  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dx; //Stores dx/dksi and dx/deta at each quadrature point
-  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dy; //Stores dy/dksi and dy/deta at each quadrature point
+  GradientMatrixT m_dx; //Stores dx/dksi and dx/deta at each quadrature point
+  GradientMatrixT m_dy; //Stores dy/dksi and dy/deta at each quadrature point
 
   Eigen::Matrix<Real,QUADRATURE::nb_points, 1u> m_j;      //jacobian of transformation phys->ref at each qd. pt
 
-  Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_dNdx; //Derivatives of shape functions
-                                                                        //at all quadrature points in phys. space
-  Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_dNdy;
+  SFMatrixT m_dNdx; //Derivatives of shape functions at all quadrature points in phys. space
+  SFMatrixT m_dNdy;
 };
 
 
@@ -129,25 +137,23 @@ void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::N
    m_qdsol_deriv_phys.col(XX) = m_dNdx * solution;
    m_qdsol_deriv_phys.col(YY) = m_dNdy * solution;
 
-  RealVector2 qd_pt;
-  RealVector2 dN;
-  RealVector2 du;
-
   for(Uint q=0; q < QUADRATURE::nb_points; ++q)
   {
-    qd_pt[XX] = m_qdpt_phys(q,XX);
-    qd_pt[YY] = m_qdpt_phys(q,YY);
-    du[XX]    = m_qdsol_deriv_phys(q,XX);
-    du[YY]    = m_qdsol_deriv_phys(q,YY);
+    m_coord[XX]    = m_qdpt_phys(q,XX);
+    m_coord[YY]    = m_qdpt_phys(q,YY);
+    m_sol          = m_qdsol_phys[q];
+    m_sol_grad[XX] = m_qdsol_deriv_phys(q,XX);
+    m_sol_grad[YY] = m_qdsol_deriv_phys(q,YY);
 
     for(Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
     {
-     dN[XX]    = m_dNdx(q,n);
-     dN[YY]    = m_dNdy(q,n);
+     m_sf           = m_N(q,n);
+     m_sf_grad[XX]  = m_dNdx(q,n);
+     m_sf_grad[YY]  = m_dNdy(q,n);
 
-     sf_oper_values(q,n) = PHYSICS::flux(qd_pt,dN);
+     sf_oper_values(q,n) = PHYSICS::beta(m_coord,m_sf,m_sf_grad);
     }
-     flux_oper_values[q] = PHYSICS::flux(qd_pt,du) * m_j[q] * m_quadrature.weights[q];
+     flux_oper_values[q] = PHYSICS::residual(m_coord,m_sol,m_sol_grad) * m_j[q] * m_quadrature.weights[q];
   }
 
 

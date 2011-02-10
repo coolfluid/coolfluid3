@@ -26,11 +26,19 @@ RotationAdv2D::~RotationAdv2D()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Real RotationAdv2D::flux(const RealVector2 & point, const RealVector2 & grad)
+/// Function to compute the variable beta
+Real RotationAdv2D::beta(const RealVector2 & coord, const Real sf, const RealVector2 & grad_sf)
 {
-   return point[YY]*grad[XX] - point[XX]*grad[YY];
+   return coord[YY] * grad_sf[XX] - coord[XX] * grad_sf[YY];
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+
+/// Compute the operator applied to solution
+Real RotationAdv2D::residual(const RealVector2 & coord, const Real sol, const RealVector2 & grad_sol)
+{
+   return coord[YY] * grad_sol[XX] - coord[XX] * grad_sol[YY];
+}
 
 } // RDM
 } // CF
