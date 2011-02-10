@@ -35,8 +35,9 @@ Common::ComponentBuilder < BCDirichlet, CAction, LibFVM > BCDirichlet_Builder;
 BCDirichlet::BCDirichlet ( const std::string& name ) : 
   CLoopOperation(name)
 {
+  mark_basic();
   // options
-  m_properties.add_option< OptionURI > ("Solution","Cell based solution", URI("cpath:"))->mark_basic();
+  m_properties.add_option< OptionURI > ("Solution","Cell based solution", URI("cpath:"));
   m_properties["Solution" ].as_option().attach_trigger ( boost::bind ( &BCDirichlet::config_solution,   this ) );
   
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &BCDirichlet::trigger_elements,   this ) );

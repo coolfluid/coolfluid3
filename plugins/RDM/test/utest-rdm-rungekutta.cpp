@@ -53,8 +53,6 @@ BOOST_AUTO_TEST_CASE( constructor )
     CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
 
     // create the CDomain
-    // CDomain::Ptr domain =
-        model->create_component<CDomain>("Domain");
 
     // create the Physical Model
     CPhysicalModel::Ptr pm = model->create_component<CPhysicalModel>("Physics");

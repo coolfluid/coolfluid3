@@ -61,7 +61,8 @@ FiniteVolume::FiniteVolume ( const std::string& name  ) :
   
   // set the compute rhs action
   CAction::Ptr for_all_faces = m_compute_rhs->create_component<CForAllFaces>("for_all_inner_faces");
-  for_all_faces->create_component<ComputeFlux>("add_flux_to_rhs");
+  for_all_faces->mark_basic();
+  for_all_faces->create_component<ComputeFlux>("add_flux_to_rhs")->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

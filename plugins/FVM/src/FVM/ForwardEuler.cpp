@@ -15,7 +15,8 @@
 #include "Common/Foreach.hpp"
 
 #include "FVM/ForwardEuler.hpp"
-#include "Solver/CDiscretization.hpp"
+#include "FVM/ComputeUpdateCoefficient.hpp"
+
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -25,7 +26,7 @@
 
 #include "Solver/Actions/CLoop.hpp"
 #include "Solver/Actions/CForAllNodes.hpp"
-#include "Solver/CTime.hpp"
+#include "Solver/CDiscretization.hpp"
 
 #include "Math/MathConsts.hpp"
 
@@ -59,8 +60,9 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( nam
   m_solution = create_static_component<CLink>("solution");
   m_residual = create_static_component<CLink>("residual");
   m_advection = create_static_component<CLink>("advection");
-  m_volume = create_static_component<CLink>("volume");
+  m_update_coeff = create_static_component<CLink>("update_coeff");
   
+  m_compute_update_coefficient = create_static_component<ComputeUpdateCoefficient>("compute_update_coeff");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,11 +92,10 @@ void ForwardEuler::trigger_Domain()
     if ( is_null(advection) )
       advection = mesh->create_component<CField2>("advection");
     m_advection->link_to(advection);
-    CField2::Ptr volume = find_component_ptr_with_name<CField2>(*mesh,"volume");
-    if ( is_null(volume) )
-      volume = mesh->create_component<CField2>("volume");
-    m_volume->link_to(volume);
-    
+    CField2::Ptr update_coeff = find_component_ptr_with_name<CField2>(*mesh,"update_coeff");
+    if ( is_null(update_coeff) )
+      update_coeff = mesh->create_component<CField2>("update_coeff");
+    m_update_coeff->link_to(update_coeff);
   }
   else
   {
@@ -121,14 +122,13 @@ void ForwardEuler::solve()
   if ( is_null(m_advection->follow()) )
     throw SetupError (FromHere(), "advection is not linked to advection field");
 
-  if ( is_null(m_volume->follow()) )
-    throw SetupError (FromHere(), "volume is not linked to volume field");
+  if ( is_null(m_update_coeff->follow()) )
+    throw SetupError (FromHere(), "update_coeff is not linked to update_coeff field");
     
   CField2& solution     = *m_solution->follow()->as_type<CField2>();
   CField2& residual     = *m_residual->follow()->as_type<CField2>();
   CField2& advection    = *m_advection->follow()->as_type<CField2>();
-  CField2& volume       = *m_volume->follow()->as_type<CField2>();
-
+  CField2& update_coeff = *m_update_coeff->follow()->as_type<CField2>();
 
   //CFinfo << "Starting Iterative loop" << CFendl;
   for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
@@ -138,25 +138,13 @@ void ForwardEuler::solve()
     advection.data() = Math::MathConsts::eps();
     
     // compute residual = flux_in - flux_out
+    discretization_method().get_child<CAction>("apply_boundary_conditions")->execute();
     discretization_method().get_child<CAction>("compute_rhs")->execute();
 
-    // calculate update coefficient  =  dt/dx
-    Real CFL = 1.;
-    CTime& time = *get_parent()->get_child<CTime>("Time");
-    Real dt = time.dt();
-    for (Uint i=0; i<advection.size(); ++i)
-    {
-      //CFLogVar( CFL*volume[i][0]/advection[i][0] );
-      dt = std::min(dt, CFL*volume[i][0]/advection[i][0] );
-    }
-
-    cf_assert(dt>0.);
+    // Compute the update coefficient = dt/dx = CFL/advection
+    m_compute_update_coefficient->execute();
+    residual.data() *= update_coeff.data();
     
-    time.dt() = dt;
-
-    residual.data() /= volume.data();
-    residual.data() *= time.dt();
-  
     // update solution = old_solution  + dt/dx * (flux_in - flux_out)
     solution.data() += residual.data();
     

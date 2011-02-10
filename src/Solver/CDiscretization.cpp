@@ -26,7 +26,7 @@ CDiscretization::CDiscretization ( const std::string& name  ) :
   // options
 
   std::vector< URI > dummy;
-  m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
+  m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

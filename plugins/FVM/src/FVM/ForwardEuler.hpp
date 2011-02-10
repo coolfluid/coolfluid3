@@ -13,6 +13,7 @@
 
 #include "Solver/CIterativeSolver.hpp"
 
+#include "FVM/ComputeUpdateCoefficient.hpp"
 #include "FVM/LibFVM.hpp"
 
 namespace CF {
@@ -29,7 +30,7 @@ namespace Mesh {
 }
 
 namespace FVM {
-
+  class ComputeUpdateCoefficient;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +74,9 @@ private: // data
   
   Common::CLink::Ptr m_advection;
 
-  Common::CLink::Ptr m_volume;
+  Common::CLink::Ptr m_update_coeff;
+
+  boost::shared_ptr<ComputeUpdateCoefficient> m_compute_update_coefficient;
   
 };
 

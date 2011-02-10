@@ -10,6 +10,8 @@
 #include "Common/Foreach.hpp"
 #include "Common/ComponentPredicates.hpp"
 
+#include "Math/MathConsts.hpp"
+
 #include "Mesh/CField2.hpp"
 #include "Mesh/CMesh.hpp"
 
@@ -28,7 +30,8 @@ Common::ComponentBuilder < CModelUnsteady, Component, LibSolver > CModelUnsteady
 
 CModelUnsteady::CModelUnsteady( const std::string& name  ) :
   CModel ( name ),
-  m_time()
+  m_time(),
+  m_max_iter(10000)
 {
   m_time = create_static_component<CTime>("Time");
 
@@ -44,6 +47,10 @@ CModelUnsteady::CModelUnsteady( const std::string& name  ) :
   " - \"iterative solver\" which will advance the solution in time\n"
   "   The iterative solver delegates space discretization to a \"discretization method\"";
   properties()["description"] = description;
+  
+  
+  properties().add_option< OptionT<Uint> >("Max Iterations","Maximal number of iterations",m_max_iter)
+    ->link_to(&m_max_iter);
 
 }
 
@@ -57,14 +64,14 @@ CModelUnsteady::~CModelUnsteady()
 
 void CModelUnsteady::simulate ()
 {
-  CFinfo << "\n" << name() << " starting simulation:" << CFendl;
+  CFinfo << "\n" << name() << ": start simulation" << CFendl;
 
   const Real tf  = m_time->property("End Time").value<Real>();
 
   // loop over time
   Uint iter(0);
   Real tol=1e-12;
-  while( m_time->time() < tf-tol )
+  while( m_time->time() < tf-tol && iter != m_max_iter)
   {
     // reset time step to user-specified
     m_time->dt() = m_time->property("Time Step").value<Real>();
@@ -86,6 +93,7 @@ void CModelUnsteady::simulate ()
     CFinfo << CFendl;
   }
   m_time->configure_property("Time",m_time->time());
+  CFinfo << name() << ": end simulation\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

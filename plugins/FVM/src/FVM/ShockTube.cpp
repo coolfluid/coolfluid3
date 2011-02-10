@@ -157,6 +157,7 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   CField2& solution = mesh->create_field2("solution","CellBased","rho[1],rhoU[1],rhoE[1]");
   CField2& residual = mesh->create_field2("residual","CellBased","delta_rho[1],delta_rhoU[1],delta_rhoE[1]");
   CField2& advection = mesh->create_field2("advection","CellBased");
+  CField2& update_coeff = mesh->create_field2("update_coeff","CellBased");
   CField2& volume = mesh->create_field2("volume","CellBased");
   CField2& area = mesh->create_field2("area","FaceBased");
   CField2& face_area_normals = mesh->create_field2("face_area_normals","FaceBased","area_normal["+to_str(mesh->nodes().coordinates().row_size())+"]");
@@ -171,6 +172,14 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
   model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("File",model->name()+".msh");
   model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Mesh",mesh->full_path());
+
+  Component& compute_update_coeff = find_component_recursively_with_name(solver,"compute_update_coeff");
+  compute_update_coeff.configure_property("UpdateCoeff",update_coeff.full_path());
+  compute_update_coeff.configure_property("Advection",advection.full_path());
+  compute_update_coeff.configure_property("Volume",volume.full_path());
+  compute_update_coeff.configure_property("Time",model->time().full_path());
+  compute_update_coeff.configure_property("Time Accurate",true);
+  compute_update_coeff.configure_property("CFL",1.);
 
   // set initial condition
   
@@ -259,7 +268,6 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   
   face_area_normals.data() = find_component_with_name<CField2>(*mesh,"face_normals").data();
   face_area_normals.data() *= area.data();
-  
   
   model->time().configure_property("Time Step", p.get_option<Real>("Time Step"));
   Real dt = model->time().dt();

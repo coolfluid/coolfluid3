@@ -5,6 +5,8 @@ list( APPEND coolfluid_fvm_files
   BCDirichlet.cpp
   ComputeFlux.hpp
   ComputeFlux.cpp
+  ComputeUpdateCoefficient.hpp
+  ComputeUpdateCoefficient.cpp
   FiniteVolume.hpp
   FiniteVolume.cpp
   ForwardEuler.hpp
