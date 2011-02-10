@@ -33,6 +33,8 @@ using namespace Common;
 CMeshReader::CMeshReader ( const std::string& name  ) :
   Component ( name )
 {
+  mark_basic();
+  
   // signals
   this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::signal_read, this, _1 ) );
 

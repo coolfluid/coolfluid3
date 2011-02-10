@@ -33,6 +33,17 @@ CModelUnsteady::CModelUnsteady( const std::string& name  ) :
   m_time = create_static_component<CTime>("Time");
 
   properties()["steady"] = bool(false);
+  
+  properties()["brief"] = std::string("Unsteady simulator object");
+  std::string description =
+  "This object handles unsteady time accurate simulations.\n"
+  "The simulator consists of some specific components:\n"
+  " - \"domain\" which specifies 1 or more geometries used in the simulation.\n"
+  " - \"time\" which holds track of time steps and simulation time.\n"
+  " - \"physics\" which define the physics of the problem, equations, ...\n"
+  " - \"iterative solver\" which will advance the solution in time\n"
+  "   The iterative solver delegates space discretization to a \"discretization method\"";
+  properties()["description"] = description;
 
 }
 

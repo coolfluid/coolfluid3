@@ -25,7 +25,11 @@ CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
   // properties
 
   properties()["brief"]=std::string("Iterative Solver component");
-  properties()["description"]=std::string("Handles time stepping and convergence operations");
+  std::string description =
+    "Handles time stepping and convergence operations.\n"
+    "The iterative solver delegates space discretization to a discretization method, \n"
+    "or can call another iterative solver which then takes care of space discretization.";
+  properties()["description"] = description;
 
   m_properties.add_option<OptionT <Uint> >("Number of Iterations","Maximum number of iterations",m_nb_iter)->mark_basic();
   m_properties["Number of Iterations"].as_option().link_to( &m_nb_iter );

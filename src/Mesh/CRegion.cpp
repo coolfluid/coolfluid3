@@ -34,7 +34,7 @@ Common::ComponentBuilder < CRegion, Component, LibMesh > CRegion_Builder;
 CRegion::CRegion ( const std::string& name  ) :
   Component ( name )
 {
-   
+  mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

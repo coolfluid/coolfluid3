@@ -196,6 +196,10 @@ Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
   raise_path_changed();
 
   subcomp->change_parent( this );
+  subcomp->signal("rename_component").is_hidden = true;
+  subcomp->signal("delete_component").is_hidden = true;
+  subcomp->signal("move_component").is_hidden   = true;
+  
 
   return subcomp;
 }

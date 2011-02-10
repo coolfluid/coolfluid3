@@ -23,6 +23,8 @@ using namespace Common;
 CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
   CAction ( name )
 {
+  mark_basic();
+  
   OptionURI::Ptr option;
   option = boost::dynamic_pointer_cast<OptionURI>(m_properties.add_option<OptionURI>("Mesh","The mesh to be transformed",URI()));
   option->supported_protocol(CF::Common::URI::Scheme::CPATH);

@@ -22,6 +22,9 @@ Common::ComponentBuilder < CEnv, Component, LibCommon > aCEnv_Builder;
 
 CEnv::CEnv ( const std::string& name) : Component ( name )
 {
+  m_properties["brief"] = std::string("Environment");
+  m_properties["description"] = std::string("Controls general behavior of coolfluid");
+  
   // properties
   m_properties.add_option< OptionT<bool> >("OnlyCP0Writes", "If true, only processor P0 writes the log info to files. If false, all processors write.", true);
   m_properties.add_option< OptionT<bool> >("AssertionThrows", "If true, failed assertions throw exceptions instead of abording.", false); /// @todo is it ok ?

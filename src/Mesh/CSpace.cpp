@@ -28,6 +28,7 @@ CSpace::CSpace ( const std::string& name ) :
   properties()["brief"] = std::string("Spaces are other views of CEntities, for instance a higher-order representation");
 //  properties()["description"] = std::string("");
 
+  mark_basic();
 
 }
 

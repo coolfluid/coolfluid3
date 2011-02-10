@@ -13,6 +13,12 @@ namespace Common {
 
 CFactories::CFactories ( const std::string& name) : Component ( name )
 {
+  m_properties["brief"] = std::string("Factories");
+  std::string description =
+    "Stores all Component Builders.\n"
+    "Builders can be accessed in advanced mode, to build components\n";
+  m_properties["description"] = description;
+  
   signal("create_component").is_hidden = true;
   signal("rename_component").is_hidden = true;
   signal("delete_component").is_hidden = true;

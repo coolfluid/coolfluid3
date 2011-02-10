@@ -60,7 +60,10 @@ Core::Core() :
   m_root->add_component( m_libraries )->mark_basic();
   m_root->add_component( m_factories )->mark_basic();
 
-  m_root->create_component<CGroup>("Tools")->mark_basic();
+  CGroup::Ptr tools = m_root->create_component<CGroup>("Tools");
+  tools->mark_basic();
+  tools->properties()["brief"] = std::string("General tools");
+  tools->properties()["description"] = std::string("");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

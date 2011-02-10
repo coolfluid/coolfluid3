@@ -45,19 +45,14 @@ Common::ComponentBuilder < ForwardEuler, CIterativeSolver, LibFVM > ForwardEuler
 ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( name )
 {
   properties()["brief"] = std::string("Forward Euler Time Stepper");
-  std::string description; 
-  description += " 1) compute residual and update_coeff using discretization method\n";
-  description += " 2) solution = update_coeff * residual\n";
-  
-  properties()["description"] = std::string("Forward Euler Time Stepper");
+  std::string description =
+    " 1) compute residual and update_coeff using discretization method\n"
+    " 2) solution = update_coeff * residual\n";
+  properties()["description"] = description;
 
   m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &ForwardEuler::trigger_Domain,   this ) );
 
   this->regist_signal ( "solve" , "Solve", "Solve" )->connect ( boost::bind ( &ForwardEuler::solve, this ) );
-  // signal("solve").signature
-  //     .insert<URI>("Domain", "Domain to load mesh into" )
-  //     .insert_array<URI>( "Files" , "Files to read" );
-
 
   m_properties.add_option<OptionT<bool> >("OutputDiagnostics","Output information of convergence",false)->mark_basic();
   

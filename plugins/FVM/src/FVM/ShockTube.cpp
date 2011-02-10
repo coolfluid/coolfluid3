@@ -115,7 +115,7 @@ void ShockTube::signal_create_model ( Common::XmlNode& node )
   solver->add_component( cdm );
   
   CGroup& tools = *model->create_component<CGroup>("tools");
-  
+  tools.mark_basic();
   CBuildFaces& build_faces = *tools.create_component<CBuildFaces>("build_faces");
   CBuildFaceNormals& build_face_normals = *tools.create_component<CBuildFaceNormals>("build_face_normals");
   

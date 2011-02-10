@@ -21,6 +21,8 @@ using namespace Common;
 CMeshWriter::CMeshWriter ( const std::string& name  ) :
   Component ( name ), m_coord_dim(0), m_max_dimensionality(0)
 {
+  mark_basic();
+  
   std::vector<URI> fields;
   m_properties.add_option< OptionArrayT<URI> > ("Fields","Fields to output",fields)->mark_basic();
   m_properties["Fields"].as_option().attach_trigger( boost::bind( &CMeshWriter::config_fields,   this ) );

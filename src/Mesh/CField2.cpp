@@ -64,6 +64,8 @@ CField2::CField2 ( const std::string& name  ) :
   m_registration_name ( name ),
   m_space_idx(0u)
 {
+  mark_basic();
+  
   Option::Ptr uri_option;
   uri_option = m_properties.add_option<OptionURI>("Topology","The field tree this field will be registered in",URI("cpath:"));
   uri_option->attach_trigger ( boost::bind ( &CField2::config_tree,   this ) );

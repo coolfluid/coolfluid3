@@ -24,6 +24,18 @@ CTime::CTime ( const std::string& name  ) :
   m_time(0.),
   m_dt(0.)
 {
+  mark_basic();
+  
+  m_properties["brief"] = std::string("Time Tracking object");
+  std::string description =
+    "Offers configuration options for users to set a time step, the end time,\n"
+    "and the current time.\n"
+    "It also offers access functions to these values internally.\n"
+    "Notice that the configuration options don't change value automatically to reflext the internal state,\n"
+    "unless the code explicitely (re)configures them.";
+  m_properties["description"] = description;
+  
+  
   m_properties.add_option< OptionT<Real> > ("Time","Current time of the simulation", m_time)->mark_basic();
   m_properties.add_option< OptionT<Real> > ("Time Step","Time Step of simulation", m_dt)->mark_basic();
   m_properties.add_option< OptionT<Real> > ("End Time", "Time at which to finish the simulation", m_time)->mark_basic();
