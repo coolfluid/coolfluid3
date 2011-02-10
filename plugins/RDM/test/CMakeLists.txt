@@ -41,3 +41,10 @@ list( APPEND utest-rdm-rungekutta_cflibs coolfluid_solver coolfluid_rdm coolflui
 list( APPEND utest-rdm-rungekutta_files  utest-rdm-rungekutta.cpp )
 
 coolfluid_add_unittest( utest-rdm-rungekutta )
+
+##########################################################################
+
+list( APPEND utest-rdm-burgers-steady_cflibs coolfluid_mesh_actions coolfluid_mesh_actions coolfluid_rdm  )
+list( APPEND utest-rdm-burgers-steady_files  utest-rdm-burgers-steady.cpp )
+
+coolfluid_add_unittest( utest-rdm-burgers-steady )

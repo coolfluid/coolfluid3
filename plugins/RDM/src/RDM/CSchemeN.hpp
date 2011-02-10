@@ -173,8 +173,8 @@ void CSchemeN<SHAPEFUNC, QUADRATURE>::execute()
      m_diss[n] += std::max(0.0,m_sf_oper_values(q,n)) * ( m_solution_values[n] - u_out );
    }
  }
-  
 
+  
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     m_loop_helper->residual[node_idx[n]][0] += m_phi[n] + m_diss[n];

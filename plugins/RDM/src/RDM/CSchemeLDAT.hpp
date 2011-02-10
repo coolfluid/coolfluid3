@@ -21,6 +21,7 @@
 #include "RDM/LibRDM.hpp"
 #include "RDM/FluxOp2D.hpp"
 #include "RDM/RotationAdv2D.hpp"
+#include "RDM/Burgers2D.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +78,7 @@ private: // data
   boost::shared_ptr<LoopHelper> m_loop_helper;
 
 
-  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,RotationAdv2D> DiscreteOpType;
+  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,Burgers2D> DiscreteOpType;
 
   DiscreteOpType m_oper;
 

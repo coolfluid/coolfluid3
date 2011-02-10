@@ -35,11 +35,8 @@ public: // functions
   /// Number of equations in this physical model
   static Uint nbeqs() { return 1u; }
 
-  /// Function to compute the variable beta
-  static Real beta(const RealVector2 & coord, const Real sf, const RealVector2 & grad_sf);
-
-  /// Compute the operator applied to solution
-  static Real residual(const RealVector2 & coord, const Real sol, const RealVector2 & grad_sol);
+  /// Function to compute the burgers flux
+  static Real Lu(const RealVector2 & point, const RealVector2 & grad, const Real & u);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////

@@ -310,6 +310,72 @@ struct GaussMappedCoordsImpl<4, GeoShape::TRIAG>
 };
 
 
+template<>
+struct GaussMappedCoordsImpl<5, GeoShape::TRIAG>
+{
+  static const Uint nb_points = 12;
+
+  typedef Eigen::Matrix<Real, 2, nb_points> CoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_points> WeightsT;
+
+  static CoordsT coords()
+  {
+    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
+    CoordsT result;
+    result.resize(DIM_2D, nb_points);
+    result(KSI,0)  = 0.063089014491502;
+    result(ETA,0)  = 0.063089014491502;
+    result(KSI,1)  = 0.873821971016996;
+    result(ETA,1)  = 0.063089014491502;
+    result(KSI,2)  = 0.063089014491502;
+    result(ETA,2)  = 0.873821971016996;
+    result(KSI,3)  = 0.249286745170910;
+    result(ETA,3)  = 0.501426509658179;
+    result(KSI,4)  = 0.501426509658179;
+    result(ETA,4)  = 0.249286745170910;
+    result(KSI,5)  = 0.249286745170910;
+    result(ETA,5)  = 0.249286745170910;
+    result(KSI,6)  = 0.310352451033785;
+    result(ETA,6)  = 0.053145049844816;
+    result(KSI,7)  = 0.053145049844816;
+    result(ETA,7)  = 0.310352451033785;
+    result(KSI,8)  = 0.636502499121399;
+    result(ETA,8)  = 0.053145049844816;
+    result(KSI,9)  = 0.636502499121399;
+    result(ETA,9)  = 0.310352451033785;
+    result(KSI,10) = 0.053145049844816;
+    result(ETA,10) = 0.636502499121399;
+    result(KSI,11) = 0.310352451033785;
+    result(ETA,11) = 0.636502499121399;
+
+    return result;
+  }
+
+  static WeightsT weights()
+  {
+    WeightsT result;
+    result.resize(12);
+    result(0)  = 0.050844906370207/2.;
+    result(1)  = 0.050844906370207/2.;
+    result(2)  = 0.050844906370207/2.;
+    result(3)  = 0.116786275726379/2.;
+    result(4)  = 0.116786275726379/2.;
+    result(5)  = 0.116786275726379/2.;
+    result(6)  = 0.082851075618374/2.;
+    result(7)  = 0.082851075618374/2.;
+    result(8)  = 0.082851075618374/2.;
+    result(9)  = 0.082851075618374/2.;
+    result(10) = 0.082851075618374/2.;
+    result(11) = 0.082851075618374/2.;
+
+    return result;
+  }
+};
+
+
+
+
+
 
 template<>
 struct GaussMappedCoordsImpl<1, GeoShape::TETRA>

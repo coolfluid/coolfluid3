@@ -16,7 +16,7 @@
 
 #include "RDM/ResidualDistribution.hpp"
 #include "RDM/CSchemeLDAT.hpp"
-// #include "RDM/CSchemeN.hpp"
+#include "RDM/CSchemeN.hpp"
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 #include "Mesh/SF/Triag2DLagrangeP2.hpp"
@@ -53,11 +53,11 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
     
   // setup of the static components
 
-  const Uint order = 3;
+  const Uint order = 5;
 
   //  typedef SF::Triag2DLagrangeP1 ShapeFunctionT;
-  //  typedef SF::Quad2DLagrangeP1  ShapeFunctionT;
-//      typedef SF::Triag2DLagrangeP2 ShapeFunctionT;
+   // typedef SF::Quad2DLagrangeP1  ShapeFunctionT;
+   //   typedef SF::Triag2DLagrangeP2 ShapeFunctionT;
     typedef SF::Triag2DLagrangeP2B ShapeFunctionT;
   //  typedef SF::Triag2DLagrangeP3 ShapeFunctionT;
   //  typedef SF::Quad2DLagrangeP2  ShapeFunctionT;

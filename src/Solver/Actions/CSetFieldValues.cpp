@@ -40,10 +40,14 @@ void CSetFieldValues::execute()
   const Uint row_size = m_loop_helper->field_data.row_size();
 	for (Uint i = 0; i != row_size; ++i)
 	{
-		if (x >= -1.4 && x <= -0.6)
-			m_loop_helper->field_data[idx()][i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
-		else
-			m_loop_helper->field_data[idx()][i] = 0.0;
+            // hard coding for scalar advaction
+//		if (x >= -1.4 && x <= -0.6)
+//			m_loop_helper->field_data[idx()][i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
+//		else
+//			m_loop_helper->field_data[idx()][i] = 0.0;
+            // hard coding for steady Burgers test
+                 m_loop_helper->field_data[idx()][i] = 1.5 - 2.*x;
+
 	}
 }
 

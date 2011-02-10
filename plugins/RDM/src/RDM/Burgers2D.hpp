@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_RotationAdv2D_hpp
-#define CF_Solver_RotationAdv2D_hpp
+#ifndef CF_Solver_Burgers2D_hpp
+#define CF_Solver_Burgers2D_hpp
 
 //#include <Eigen/Dense>
 #include "Mesh/LibMesh.hpp"
@@ -19,24 +19,24 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API RotationAdv2D
+class RDM_API Burgers2D
 {
 
 public: // functions
   /// Constructor
-  RotationAdv2D ( );
+  Burgers2D ( );
 
   /// Destructor
-  ~RotationAdv2D();
+  ~Burgers2D();
 
   /// Get the class name
-  static std::string type_name () { return "LinearAdv2D"; }
+  static std::string type_name () { return "Burgers2D"; }
 
   /// Number of equations in this physical model
   static Uint nbeqs() { return 1u; }
 
   /// Function to compute the burgers flux
-  static Real Lu(const RealVector2 & point, const RealVector2 & grad, const Real & u );
+  static Real Lu(const RealVector2 & point, const RealVector2 & grad, const Real & u);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////
