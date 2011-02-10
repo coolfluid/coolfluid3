@@ -19,7 +19,8 @@
 #include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
-#include "RDM/LinearScalarFluxOperator.hpp"
+#include "RDM/FluxOp2D.hpp"
+#include "RDM/LinearAdv2D.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,14 +76,16 @@ private: // data
 
   boost::shared_ptr<LoopHelper> m_loop_helper;
 
-  LinearScalarFluxOperator<SHAPEFUNC,QUADRATURE> m_oper;
+  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,LinearAdv2D> DiscreteOpType;
+
+  DiscreteOpType m_oper;
 
   //Values of the solution located in the dof of the element
-  RealVector m_solution_values;
+  typename DiscreteOpType::SolutionMatrixT m_solution_values;
 
   //The operator L in the advection equation Lu = f
   //Matrix m_sf_oper_values stores the value L(N_i) at each quadrature point for each shape function N_i
-  typename LinearScalarFluxOperator<SHAPEFUNC,QUADRATURE>::SFMatrixT m_sf_oper_values;
+  typename DiscreteOpType::SFMatrixT m_sf_oper_values;
 
   //Values of the operator L(u) computed in quadrature points. These operator L returns these values
   //multiplied by Jacobian and quadrature weight
