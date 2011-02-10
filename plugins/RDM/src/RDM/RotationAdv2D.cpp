@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#include "RDM/LinearAdv2D.hpp"
+#include "RDM/RotationAdv2D.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -14,22 +14,21 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-LinearAdv2D::LinearAdv2D()
+RotationAdv2D::RotationAdv2D()
 {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-LinearAdv2D::~LinearAdv2D()
+RotationAdv2D::~RotationAdv2D()
 {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Real LinearAdv2D::flux(const RealVector2 & point, const RealVector2 & grad)
+Real RotationAdv2D::flux(const RealVector2 & point, const RealVector2 & grad)
 {
-   return grad[XX];
-   //return 1.0*grad[XX] + 1.0 * grad[YY];
+   return point[YY]*grad[XX] - point[XX]*grad[YY];
 }
 
 
