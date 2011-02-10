@@ -133,6 +133,7 @@ list( APPEND coolfluid_common_files
       MPI/gather.hpp
       MPI/all_to_all.hpp
       MPI/all_reduce.hpp
+      MPI/broadcast.hpp
       MPI/reduce.hpp
 )
 endif()

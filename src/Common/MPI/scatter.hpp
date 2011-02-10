@@ -23,7 +23,7 @@
 /**
   @file scatter.hpp
   @author Tamas Banyai
-  All to all collective communication interface to MPI standard.
+  Scatter collective communication interface to MPI standard.
   Due to the nature of MPI standard, at the lowest level the memory required to be linear meaning &xyz[0] should give a single and continous block of memory.
   Some functions support automatic evaluation of number of items on the receive side but be very cautious with using them because it requires two collective communication and may end up with degraded performance.
   Currently, the interface supports raw pointers and std::vectors.
@@ -46,7 +46,7 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
   /**
-    Implementation to the all to all interface with constant size communication.
+    Implementation to the scatter interface with constant size communication.
     Don't call this function directly, use mpi::alltoall instead.
     In_values and out_values must be linear in memory and their sizes should be #processes*n.
     @param comm mpi::PE::Communicator
@@ -60,16 +60,17 @@ namespace detail {
   scatterc_impl(const PE::Communicator& comm, const T* in_values, const int in_n, T* out_values, const int root, const  int stride )
   {
     // get data type and number of processors
-    MPI_Datatype type = mpi::get_mpi_datatype<T>(*in_values);
-    int nproc;
+    MPI_Datatype type = mpi::get_mpi_datatype(*in_values);
+    int nproc,irank;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
+    MPI_CHECK_RESULT(MPI_Comm_size,(comm,&irank));
 
     // if stride is greater than one
     cf_assert( stride>0 );
 
     // set up out_buf
     T* out_buf=0;
-    if (in_values==out_values) {
+    if ((irank==root)&&(in_values==out_values)) {
       if ( (out_buf=new T[nproc*in_n*stride+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     } else {
       out_buf=out_values;
@@ -79,7 +80,7 @@ namespace detail {
     MPI_CHECK_RESULT(MPI_Scatter, (const_cast<T*>(in_values), in_n*stride, type, out_buf, in_n*stride, type, root, comm));
 
     // deal with out_buf
-    if (in_values==out_values) {
+    if ((irank==root)&&(in_values==out_values)) {
       memcpy(out_values,out_buf,nproc*in_n*stride*sizeof(T));
       delete[] out_buf;
     }
@@ -88,7 +89,7 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
   /**
-    Implementation to the all to all interface with variable size communication through in and out map.
+    Implementation to the scatter interface with variable size communication through in and out map.
     Don't call this function directly, use mpi::alltoallvm instead.
     In_values and out_values must be linear in memory and their sizes should be sum(in_n[i]) and sum(out_n[i]) i=0..#processes-1.
     @param comm mpi::PE::Communicator
@@ -102,15 +103,15 @@ namespace detail {
   **/
   template<typename T>
   inline void
-  scattervm_impl(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int out_n, const int *out_map, const int root, const int stride )
+  scattervm_impl(const PE::Communicator& comm, const T* in_values, const int* in_n, const int* in_map, T* out_values, int& out_n, const int *out_map, const int root, const int stride )
   {
     // get data type and number of processors
-    MPI_Datatype type = mpi::get_mpi_datatype<T>(*in_values);
+    MPI_Datatype type = mpi::get_mpi_datatype(*in_values);
     int nproc,irank;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-    MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
+    MPI_CHECK_RESULT(MPI_Comm_size,(comm,&irank));
 
-    // if stride is greater than one and unsupported functionality
+    // if stride is smaller than one and unsupported functionality
     cf_assert( stride>0 );
 
     int *in_nstride=(int*)0;
@@ -178,7 +179,7 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the constant size all to all communication with specialization to raw pointer.
+  Interface to the constant size scatter communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated and the pointer to it is returned, otherwise out_values is returned.
   @param comm mpi::PE::Communicator
   @param in_values pointer to the send buffer
@@ -214,7 +215,7 @@ scatter(const PE::Communicator& comm, const T* in_values, const int in_n, T* out
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the constant size all to all communication with specialization to std::vector.
+  Interface to the constant size scatter communication with specialization to std::vector.
   @param comm mpi::PE::Communicator
   @param in_values send buffer
   @param out_values receive buffer
@@ -250,7 +251,7 @@ inline T*
 scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1);
 
 /**
-  Interface to the variable size all to all communication with specialization to raw pointer.
+  Interface to the variable size scatter communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated and the pointer to it is returned, otherwise out_values is returned.
   If out_n (receive counts) contains only -1, then a pre communication occurs to fill out_n.
   @param comm mpi::PE::Communicator
@@ -276,7 +277,7 @@ inline void
 scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1);
 
 /**
-  Interface to the constant size all to all communication with specialization to std::vector.
+  Interface to the constant size scatter communication with specialization to std::vector.
   If out_values's size is zero then its resized.
   If out_n (receive counts) is not of size of #processes, then error occurs.
   If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
@@ -300,7 +301,7 @@ scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the variable size mapped all to all communication with specialization to raw pointer.
+  Interface to the variable size mapped scatter communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated to fit the max in map and the pointer is returned, otherwise out_values is returned.
   If out_n (receive counts) contains only -1, then a pre communication occurs to fill out_n.
   However due to the fact that map already needs all the information if you use scatter to allocate out_values and fill out_n then you most probably doing something wrong.
@@ -353,7 +354,7 @@ scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the constant size all to all communication with specialization to raw pointer.
+  Interface to the constant size scatter communication with specialization to raw pointer.
   If out_values's size is zero then its resized.
   If out_n (receive counts) is not of size of #processes, then error occurs.
   If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
