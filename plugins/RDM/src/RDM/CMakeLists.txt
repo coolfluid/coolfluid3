@@ -2,7 +2,7 @@ list( APPEND coolfluid_rdm_files
   LibRDM.cpp
   LibRDM.hpp
   CSchemeLDAT.hpp
-#  CSchemeN.hpp
+  CSchemeN.hpp
   ResidualDistribution.cpp
   ResidualDistribution.hpp
   RungeKutta.cpp
@@ -12,7 +12,9 @@ list( APPEND coolfluid_rdm_files
   CTakeStep.hpp
   CTakeStep.cpp
   SupportedTypes.hpp
-  LinearScalarFluxOperator.hpp
+  FluxOp2D.hpp
+  LinearAdv2D.hpp
+  LinearAdv2D.cpp
 )
 
 list( APPEND coolfluid_rdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_solver_actions coolfluid_solver )
