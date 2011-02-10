@@ -44,7 +44,7 @@ int main(int argc, char * argv[])
   /* set seed for rand()*/
   srand(2006);
 
-  unsigned int size_A = WA * HA;
+  unsigned int size_A = WA * HA*1;
   unsigned int size_B = WB * HB;
   unsigned int size_C = WC * HC;
 

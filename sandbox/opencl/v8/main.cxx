@@ -13,7 +13,7 @@
 void random_init( float *data, int size )
 {
     for( int i = 0; i < size; i++ )
-        data[i] = i;//rand() / (float)RAND_MAX;
+        data[i] = 1;//rand() / (float)RAND_MAX;
 }
 
 void printData( float *data, int size )
@@ -27,32 +27,19 @@ void printData( float *data, int size )
 
 int main(int argc, char * argv[])
 {
-  /*std::cout<<"Choose the platform for computation:"<<std::endl;
-  std::cout<<"===================================="<<std::endl;
-  std::cout<<"      1. Native CPU                 "<<std::endl;
-  std::cout<<"      2. openCl GPGPU               "<<std::endl;
-
-  int param;
-
-  std::cin>>param;
-  std::cout<<"===================================="<<std::endl;
-  */
-
-
-
   // create matrices -----------------------------------------------------
 
   /* set seed for rand()*/
   srand(2006);
 
   unsigned int size_A = WA * HA;
-  unsigned int size_B = WB * HB*N_BLOCKS;
-  unsigned int size_C = WC * HC*N_BLOCKS;
+  unsigned int size_B = WB * HB*N_BLOCKS*VARIABLES;
+  unsigned int size_C = WC * HC*N_BLOCKS*VARIABLES;
 
   float A[size_A];
   float B[size_B];
   float C[size_C];
-
+  
   /* 2. initialize host memory*/
   random_init(A, size_A);
   random_init(B, size_B);
@@ -60,7 +47,7 @@ int main(int argc, char * argv[])
   // run with native code ---------------------------------------------------
 
   //if (param==1)
-/*  {
+  {
 
     boost::timer ntimer;
 
@@ -74,45 +61,45 @@ int main(int argc, char * argv[])
               C[idx * HC + j] += + A[j * WA + k] * B[idx * WB +k];
             }
           }
-    }
+    }    
 
     printf("[native] time: %6.3f seconds\n", ntimer.elapsed() );
 
-  }*/
+  }
 
   // run with opencl code -----------------------------------------------------
 
-
-
+  
+ 
   //if (param==2)
   {
-    std::cout<<"OpenCL"<<std::endl;
+        std::cout<<"OpenCL"<<std::endl;
 
     CLEnv clenv;
-    CLEnv clenv1;
-    OpenCL_setup(clenv); OpenCL_program_setup(clenv, "matrix_matrix_mult.cl" );
-    OpenCL_setup(clenv1); OpenCL_program_setup(clenv1, "matrix_vector_mult.cl" );
+    
+    OpenCL_setup(clenv);
+    OpenCL_matrix_vector_basic_setup( clenv );
+    OpenCL_matrix_vector_advanced_setup( clenv );
+    OpenCL_matrix_matrix_setup( clenv );
     boost::timer ctimer;
-
-
-
-    //matrix_matrix_mult(clenv, A, B, C, WA, HA, WB, N_BLOCKS );
-    matrix_vector_mult(clenv1, A, B, C, WA, HA, N_BLOCKS );
-    OpenCL_program_unsetup(clenv);
-    OpenCL_program_unsetup(clenv1);
-    printf("[opencl] time: %6.3f seconds\n", ctimer.elapsed() );
-
-
-    OpenCL_unsetup(clenv);
-    OpenCL_unsetup(clenv1);
-    printData(A,size_A);
-    printData(B,size_B);
-    printData(C,size_C);
-
+    matrix_matrix_mult(clenv, A, B, C, WA, HA, WB, N_BLOCKS );
+    //for( int i = 0; i < 5; i++ )
+    matrix_vector_mult(clenv, A, B, C, WA, HA, N_BLOCKS ); // multiplication of single of variables
+    matrix_vector_mult_advanced(clenv, A, B, C, WA, HA, VARIABLES,N_BLOCKS); // multiplication of blocks of variables
+    //printData(C,size_C);
+    printf("[native] time: %6.4f seconds\n", ctimer.elapsed() );
+    //printData(C,size_C);
+    //printData(C,size_C);
+    //OpenCL_program_unsetup(clenv1);
+    //printData(A,size_A);
+    //printData(B,size_B);
+    
+    //OpenCL_unsetup(clenv);
 
 
   }
 
+ 
   // clean up memory -------------------------------------------------------
 
 

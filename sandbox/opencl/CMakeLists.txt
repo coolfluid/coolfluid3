@@ -9,7 +9,6 @@ if(OPENCL_FOUND)
   add_subdirectory(v4)
   add_subdirectory(v5)
   add_subdirectory(v6)
-  add_subdirectory(v1v)
-
+  add_subdirectory(v8)
   
 endif()
