@@ -39,6 +39,16 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CDomain"; }
 
+  /// Signal to load a mesh
+  void signal_load_mesh ( Common::XmlNode& node );
+
+  void signature_load_mesh ( Common::XmlNode& node);
+
+  /// Signal to generate a mesh
+  void signal_generate_mesh ( Common::XmlNode& node );
+
+  void signature_generate_mesh( Common::XmlNode& node);
+  
 };
 
 ////////////////////////////////////////////////////////////////////////////////

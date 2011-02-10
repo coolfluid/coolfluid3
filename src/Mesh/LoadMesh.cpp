@@ -47,7 +47,7 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
 
   update_list_of_available_readers();
 
-  signal("load_mesh").signature->connect(boost::bind(&LoadMesh::load_mesh_signature, this, _1));
+  signal("load_mesh").signature->connect(boost::bind(&LoadMesh::signature_load_mesh, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -88,6 +88,38 @@ void LoadMesh::update_list_of_available_readers()
     }
     else
       throw SetupError(FromHere(), "Component with name \'" + bdr.name() + "\' is not a Mesh Reader" );
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CMesh::Ptr LoadMesh::load_mesh(const URI& file)
+{
+  update_list_of_available_readers();
+  
+  boost::filesystem::path fpath( file.path() );
+  const std::string extension = fpath.extension();
+
+  if ( m_extensions_to_readers.count(extension) == 0 )
+  {
+    throw FileFormatError (FromHere(), "No meshreader exists for files with extension " + extension);
+  }
+  else
+  {
+    if (m_extensions_to_readers[extension].size()>1)
+    {
+      std::string msg;
+      msg = file.string() + " has ambiguous extension " + extension + "\n"
+        +  "Possible readers for this extension are: \n";
+      boost_foreach(const CMeshReader::Ptr reader , m_extensions_to_readers[extension])
+        msg += " - " + reader->name() + "\n";
+      throw FileFormatError( FromHere(), msg);
+    }
+    else
+    {
+      CMeshReader::Ptr meshreader = m_extensions_to_readers[extension][0];
+      return meshreader->create_mesh_from(fpath);
+    }
   }
 }
 
@@ -164,7 +196,7 @@ void LoadMesh::signal_load_mesh ( Common::XmlNode& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LoadMesh::load_mesh_signature ( Common::XmlNode& node)
+void LoadMesh::signature_load_mesh ( Common::XmlNode& node)
 {
   XmlParams p(node);
   std::vector<URI> dummy;
