@@ -32,6 +32,18 @@ namespace Common {
     OptionURI(const std::string & name, const std::string & desc,
               const URI & def);
 
+    static Option::Ptr create(const std::string & name, const std::string & desc, const URI& def)
+    {
+      return Option::Ptr ( new OptionURI(name,desc,def) );
+    }
+    
+    static Option::Ptr create(const std::string & name, const std::string & desc, const URI& def, URI::Scheme::Type protocol)
+    {
+      Option::Ptr option ( new OptionURI(name,desc,def) );
+      boost::dynamic_pointer_cast<OptionURI>(option)->supported_protocol(protocol);
+      return option;
+    }
+
     virtual ~OptionURI();
 
     void supported_protocol(URI::Scheme::Type protocol);

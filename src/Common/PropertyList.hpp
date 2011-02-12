@@ -24,6 +24,9 @@ namespace Common {
 
     /// type to store the options per name
     typedef std::map < std::string , Property::Ptr > PropertyStorage_t;
+    
+    typedef PropertyStorage_t::iterator       iterator;
+    typedef PropertyStorage_t::const_iterator const_iterator;
 
   public:
 
@@ -87,6 +90,14 @@ namespace Common {
     /// erases a property
     /// @param prop_name the property name
     void erase (const std::string & pname);
+    
+    iterator begin() { return store.begin(); }
+    
+    iterator end()  { return store.end(); }
+
+    const_iterator begin() const { return store.begin(); }
+    
+    const_iterator end() const  { return store.end(); }
 
   public:
 

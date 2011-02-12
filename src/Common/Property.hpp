@@ -10,12 +10,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/shared_ptr.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
 #include <boost/any.hpp>
 
-#include "Common/TaggedObject.hpp"
+#include "Common/BasicExceptions.hpp"
 #include "Common/XML.hpp"
+#include "Common/CF.hpp"
 
 namespace CF {
 namespace Common {
@@ -80,7 +79,14 @@ namespace Common {
     /// @returns the value as a sd::string
     virtual std::string value_str () const
     {
-      return boost::any_cast<std::string>(m_value);
+      try 
+      {
+        return boost::any_cast<std::string>(m_value);
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        throw CastingFailed( FromHere(), "Bad boost::any cast");
+      }
     }
 
     //@} END VIRTUAL FUNCTIONS
@@ -88,10 +94,7 @@ namespace Common {
     // accessor functions
 
     /// @returns the type of the option as a string
-    virtual std::string type() const
-    {
-      return CF::class_name_from_typeinfo(m_value.type());
-    }
+    virtual std::string type() const;
     
     /// @returns @c true if the property is an option
     bool is_option() const { return m_is_option; }
@@ -105,12 +108,32 @@ namespace Common {
 
     /// @returns the value of the option casted to TYPE
     template < typename TYPE >
-        const TYPE value() const { return boost::any_cast< TYPE >(m_value); }
+        const TYPE value() const 
+    { 
+      try 
+      {
+        return boost::any_cast< TYPE >(m_value);
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        throw CastingFailed( FromHere(), "Bad boost::any cast");
+      }
+    }
 
     /// @returns puts the value of the option casted to TYPE on the passed parameter
     /// @param value which to assign the option value
     template < typename TYPE >
-        void put_value( TYPE& value ) const { value = boost::any_cast<TYPE>(m_value); }
+        void put_value( TYPE& value ) const
+    { 
+      try 
+      {
+        value = boost::any_cast<TYPE>(m_value);
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        throw CastingFailed( FromHere(), "Bad boost::any cast");
+      }
+    }
 
     /// change the value of this option
     void change_value ( const boost::any& value);

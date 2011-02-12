@@ -69,19 +69,33 @@ public:
   /// @returns the value as a std::string
   virtual std::string value_str () const
   { 
-    data_t val = boost::any_cast< data_t >(m_value);
-    if (is_null(val.lock()))
-      return "cpath:";
-    return val.lock()->full_path().string(); 
+    try 
+    {
+      data_t val = boost::any_cast< data_t >(m_value);
+      if (is_null(val.lock()))
+        return "cpath:";
+      return val.lock()->full_path().string(); 
+    }
+    catch(boost::bad_any_cast& e)
+    {
+      throw CastingFailed( FromHere(), "Bad boost::any cast");
+    }    
   }
 
   /// @returns the default value as a sd::string
   virtual std::string def_str () const
   { 
-    data_t val = boost::any_cast< data_t >(m_default);
-    if (is_null(val.lock()))
-      return "cpath:";
-    return val.lock()->full_path().string(); 
+    try 
+    {
+      data_t val = boost::any_cast< data_t >(m_default);
+      if (is_null(val.lock()))
+        return "cpath:";
+      return val.lock()->full_path().string(); 
+    }
+    catch(boost::bad_any_cast& e)
+    {
+      throw CastingFailed( FromHere(), "Bad boost::any cast");
+    }    
   }
 
   /// updates the option value using the xml configuration
@@ -107,7 +121,14 @@ protected: // functions
 
   virtual boost::any value_to_data( const boost::any& value)
   {
-    return data_t(Core::instance().root()->look_component<T>(boost::any_cast<URI>(value)));
+    try 
+    {
+      return data_t(Core::instance().root()->look_component<T>(boost::any_cast<URI>(value)));
+    }
+    catch(boost::bad_any_cast& e)
+    {
+      throw CastingFailed( FromHere(), "Bad boost::any cast");
+    }    
   }
 
   /// copy the configured update value to all linked parameters
@@ -116,7 +137,14 @@ protected: // functions
     BOOST_FOREACH ( void* v, this->m_linked_params )
     {
       data_t* cv = static_cast<data_t*>(v);
-      *cv = boost::any_cast<data_t>(data);
+      try 
+      {
+        *cv = boost::any_cast<data_t>(data);
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        throw CastingFailed( FromHere(), "Bad boost::any cast");
+      }
     }
   }
 

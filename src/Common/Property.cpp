@@ -60,6 +60,11 @@ namespace Common {
     return *this;
   }
 
+  std::string Property::type() const
+  {
+    return CF::class_name_from_typeinfo(m_value.type());
+  }
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // Common

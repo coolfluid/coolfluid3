@@ -85,7 +85,14 @@ void OptionArrayT<TYPE>::copy_to_linked_params ( const boost::any& val )
   BOOST_FOREACH ( void* v, this->m_linked_params )
   {
     value_type* cv = static_cast<value_type*>(v);
-    *cv = boost::any_cast<value_type>(val);
+    try 
+    {
+      *cv = boost::any_cast<value_type>(val);
+    }
+    catch(boost::bad_any_cast& e)
+    {
+      throw CastingFailed( FromHere(), "Bad boost::any cast");
+    }    
   }
 }
 
@@ -104,15 +111,21 @@ std::string OptionArrayT<TYPE>::def_str () const
 template < typename TYPE >
 std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
 {
-  value_type values = boost::any_cast<value_type>(c);
   std::string result;
-
-  BOOST_FOREACH ( TYPE v, values )
+  
+  try 
   {
-    result += from_value ( v );
-    result += "@@";
+    value_type values = boost::any_cast<value_type>(c);
+    BOOST_FOREACH ( TYPE v, values )
+    {
+      result += from_value ( v );
+      result += "@@";
+    }
   }
-
+  catch(boost::bad_any_cast& e)
+  {
+    throw CastingFailed( FromHere(), "Bad boost::any cast");
+  }    
 
   if ( !result.empty() ) // remove last "@@"
     result.erase(result.size()-1);
@@ -123,7 +136,14 @@ std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
 template<typename TYPE>
 std::vector<TYPE> OptionArrayT<TYPE>::value_vect() const
 {
-  return boost::any_cast<value_type>(m_value);
+  try 
+  {
+    return boost::any_cast<value_type>(m_value);
+  }
+  catch(boost::bad_any_cast& e)
+  {
+    throw CastingFailed( FromHere(), "Bad boost::any cast");
+  }    
 }
 
 ////////////////////////////////////////////////////////////////////////////////

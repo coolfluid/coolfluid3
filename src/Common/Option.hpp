@@ -10,9 +10,12 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 #include "Common/TaggedObject.hpp"
 #include "Common/Property.hpp"
+#include "Common/BasicExceptions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -92,12 +95,32 @@ namespace Common {
 
     /// @returns the default value of the option casted to TYPE
     template < typename TYPE >
-        const TYPE def() const { return boost::any_cast<TYPE>(m_default); }
+        const TYPE def() const
+    { 
+      try 
+      {
+        return boost::any_cast<TYPE>(m_default);
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        throw CastingFailed( FromHere(), "Bad boost::any cast");
+      }
+    }
 
     /// @returns puts the default value of the option casted to TYPE on the passed parameter
     /// @param value which to assign the default option value
     template < typename TYPE >
-        void put_def( TYPE& def ) const { def = boost::any_cast<TYPE>(m_default); }
+        void put_def( TYPE& def ) const
+    { 
+      try 
+      {
+        def = boost::any_cast<TYPE>(m_default); 
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        throw CastingFailed( FromHere(), "Bad boost::any cast");
+      }
+    }
 
     /// Link the state of this option to the passed parameter
     /// @return this option
