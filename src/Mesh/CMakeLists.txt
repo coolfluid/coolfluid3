@@ -95,6 +95,8 @@ list( APPEND coolfluid_mesh_files
   Triag2D.cpp
   Triag3D.hpp
   Triag3D.cpp
+  WriteMesh.hpp
+  WriteMesh.cpp
 
 # directories with headers only can have their contents appended to base dir
   Integrators/Gauss.hpp

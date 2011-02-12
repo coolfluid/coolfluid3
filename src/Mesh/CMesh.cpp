@@ -20,6 +20,7 @@
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CField2.hpp"
+#include "Mesh/WriteMesh.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -43,6 +44,9 @@ CMesh::CMesh ( const std::string& name  ) :
   
   m_nodes_link = create_static_component<CLink>("nodes");
   m_topology = create_static_component<CRegion>("topology");
+  
+  regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) );
+  signal("write_mesh").signature->connect(boost::bind(&CMesh::signature_write_mesh, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -274,6 +278,49 @@ const CNodes& CMesh::nodes() const
 
 //////////////////////////////////////////////////////////////////////////////
 
+void CMesh::signature_write_mesh ( Common::XmlNode& node)
+{
+  XmlParams p(node);
+
+  p.add_option<std::string>("File" , name()+".msh" , "File to write" );
+
+  boost_foreach (CField2& field, find_components<CField2>(*this))
+  {
+    p.add_option<bool>(field.name(), false, "Mark if field gets to be written");
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMesh::signal_write_mesh ( Common::XmlNode& node )
+{
+  WriteMesh::Ptr mesh_writer = create_component<WriteMesh>("writer");
+
+  XmlParams p (node);
+
+  std::string file = p.get_option<std::string>("File");
+
+  // check protocol for file loading
+  // if( file.scheme() != URI::Scheme::FILE )
+  //   throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
+
+  URI fpath( file );
+//  if( fpath.scheme() != URI::Scheme::FILE )
+//    throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + fpath.string() + "\'" );
+
+  std::vector<URI> fields;
+  
+  boost_foreach( CField2& field, find_components<CField2>(*this))
+  {
+    bool add_field = p.get_option<bool>(field.name());
+    if (add_field)
+      fields.push_back(field.full_path());
+  }
+  mesh_writer->write_mesh(*this,fpath,fields);
+  remove_component(mesh_writer->name());
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

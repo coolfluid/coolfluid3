@@ -104,6 +104,10 @@ public: // functions
   
   /// @return the nodes of the mesh , non-modifiable access
   const CNodes& nodes() const;
+  
+  void signal_write_mesh ( Common::XmlNode& node );
+
+  void signature_write_mesh ( Common::XmlNode& node);
 
 private:
   

@@ -9,6 +9,7 @@
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/LoadMesh.hpp"
+#include "Mesh/WriteMesh.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -25,6 +26,11 @@ void LibMesh::initiate()
       ->get_child("Tools")
       ->create_component<Mesh::LoadMesh>( "LoadMesh" )
       ->mark_basic();
+      
+  Core::instance().root()
+      ->get_child("Tools")
+      ->create_component<Mesh::WriteMesh>( "WriteMesh" )
+      ->mark_basic();
 }
 
 void LibMesh::terminate()
@@ -32,6 +38,10 @@ void LibMesh::terminate()
   Core::instance().root()
       ->get_child("Tools")
       ->remove_component("LoadMesh");
+  Core::instance().root()
+      ->get_child("Tools")
+      ->remove_component("WriteMesh");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
