@@ -33,8 +33,11 @@ CComputeArea::CComputeArea ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
-  m_properties.add_option< OptionURI > ("Area","Field to set", URI("cpath:"))->mark_basic();
-  m_properties["Area" ].as_option().attach_trigger ( boost::bind ( &CComputeArea::config_field,   this ) );
+  m_properties.add_option(OptionURI::create("Area","Field to set", URI("cpath:"), URI::Scheme::CPATH) )
+    ->mark_basic()
+    ->attach_trigger ( boost::bind ( &CComputeArea::config_field,   this ) )
+    ->add_tag("area");
+    
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
 
   m_area = create_static_component<CScalarFieldView>("area_view");

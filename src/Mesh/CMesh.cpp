@@ -98,6 +98,69 @@ CField2& CMesh::create_field2( const std::string& name , const std::string& base
   return field;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+CField2& CMesh::create_scalar_field( const std::string& name , CField2& based_on_field)
+{
+  CField2& field = *create_component<CField2>(name);
+  field.set_topology(based_on_field.topology());
+  
+  std::vector<std::string> names(1,name);
+  field.configure_property("VarNames",names);
+  
+  std::vector<std::string> types(1,"scalar");
+  field.configure_property("VarTypes",types);
+  
+  std::string base;   based_on_field.property("FieldType").put_value(base);
+  field.configure_property("FieldType",base);
+  
+  Uint space; based_on_field.property("Space").put_value(space);
+  field.configure_property("Space",space);
+  
+  field.create_data_storage();
+
+  return field;
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CField2& CMesh::create_field2( const std::string& name , CField2& based_on_field)
+{
+  CField2& field = *create_component<CField2>(name);
+  field.set_topology(based_on_field.topology());
+
+  std::vector<std::string> names; based_on_field.property("VarNames").put_value(names);
+  
+  for (Uint i=0; i<names.size(); ++i)
+    names[i] = name+"["+to_str(i)+"]";
+  field.configure_property("VarNames",names);
+  
+  std::vector<std::string> types; based_on_field.property("VarTypes").put_value(types);
+  field.configure_property("VarTypes",types);
+  
+  std::string base;   based_on_field.property("FieldType").put_value(base);
+  field.configure_property("FieldType",base);
+  
+  Uint space; based_on_field.property("Space").put_value(space);
+  field.configure_property("Space",space);
+ 
+  field.create_data_storage();
+  return field;
+  
+}
+////////////////////////////////////////////////////////////////////////////////
+
+CField2& CMesh::create_scalar_field(const std::string& field_name, const std::string& variable_name, const CF::Mesh::CField2::DataBasis::Type base)
+{
+  const std::vector<std::string> names(1, variable_name);
+  const std::vector< CField2::VarType > types(1, CField2::SCALAR);
+  return create_field2(field_name, base, names, types);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 CField2& CMesh::create_field2(const std::string& name, const CField2::DataBasis::Type base, const std::vector< std::string >& variable_names, const std::vector< CField2::VarType > variable_types)
 {
   cf_assert(variable_names.size() == variable_types.size());
@@ -119,14 +182,6 @@ CField2& CMesh::create_field2(const std::string& name, const CField2::DataBasis:
 
   return field;
 }
-
-CField2& CMesh::create_scalar_field(const std::string& field_name, const std::string& variable_name, const CF::Mesh::CField2::DataBasis::Type base)
-{
-  const std::vector<std::string> names(1, variable_name);
-  const std::vector< CField2::VarType > types(1, CField2::SCALAR);
-  return create_field2(field_name, base, names, types);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

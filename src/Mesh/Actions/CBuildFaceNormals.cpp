@@ -77,12 +77,13 @@ void CBuildFaceNormals::transform(const CMesh::Ptr& mesh, const std::vector<std:
   m_mesh = mesh;
 
   const Uint dimension = mesh->nodes().coordinates().row_size();
-  CField2& field_face_normals = mesh->create_field2("face_normals","FaceBased","face_normal["+to_str(dimension)+"]");
-  CFieldView face_normals("face_normals_view");
-  face_normals.set_field(field_face_normals);
+  CField2& face_normal_field = mesh->create_field2("face_normal","FaceBased","face_normal["+to_str(dimension)+"]");
+  face_normal_field.add_tag("face_normal");
+  CFieldView face_normal("face_normal_view");
+  face_normal.set_field(face_normal_field);
   boost_foreach( CEntities& faces, find_components_recursively_with_tag<CEntities>(m_mesh->topology(),"face_entity") )
   {
-    face_normals.set_elements(faces);
+    face_normal.set_elements(faces);
     
     CFaceCellConnectivity::Ptr face2cell_ptr = find_component_ptr<CFaceCellConnectivity>(faces);
     if (is_not_null(face2cell_ptr))
@@ -94,10 +95,10 @@ void CBuildFaceNormals::transform(const CMesh::Ptr& mesh, const std::vector<std:
       {
         // The normal will be outward to the first connected element
         Uint elem = face2cell.elements(face)[0];
-        face_normals.put_coordinates(coordinates,face);
-        face_normals.space().shape_function().compute_normal(coordinates,normal);
+        face_normal.put_coordinates(coordinates,face);
+        face_normal.space().shape_function().compute_normal(coordinates,normal);
         for (Uint i=0; i<normal.size(); ++i)
-          face_normals[face][i] = normal[i];
+          face_normal[face][i] = normal[i];
       }
     }
   }

@@ -33,8 +33,10 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
-  m_properties.add_option< OptionURI > ("Volumes","Field to set", URI("cpath:"))->mark_basic();
-  m_properties["Volumes" ].as_option().attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) );
+  m_properties.add_option(OptionURI::create("Volume","Field to set", URI("cpath:"),URI::Scheme::CPATH))
+    ->mark_basic()
+    ->attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
+    ->add_tag("volume");
   
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
 
@@ -46,7 +48,7 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
 void CComputeVolume::config_field()
 {
   URI uri;
-  property("Volumes").put_value(uri);
+  property("Volume").put_value(uri);
   CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");

@@ -34,11 +34,10 @@ CLoopOperation::CLoopOperation ( const std::string& name ) :
 {  
   // Following option is ignored if the loop is not about elements
   //m_properties.add_option(OptionComponent<Mesh::CEntities>::create("Elements","Elements that are being looped",&m_elements));
-  m_properties.add_option< OptionURI > ("Elements","Elements that are being looped", URI("cpath:"));
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
+  m_properties.add_option(OptionURI::create("Elements","Elements that are being looped", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
   
-  m_properties.add_option< OptionT<Uint> > ("LoopIndex","Index that is being looped", 0u );
-  m_properties["LoopIndex"].as_option().link_to( &m_idx );
+  m_properties.add_option< OptionT<Uint> > ("LoopIndex","Index that is being looped", 0u )->link_to( &m_idx );
   
 }
 
@@ -52,7 +51,7 @@ void CLoopOperation::config_elements()
   {
     URI uri;
     property("Elements").put_value(uri);
-    m_elements = Core::instance().root()->look_component<CEntities>(uri);
+    m_elements = look_component<CEntities>(uri);
     if ( is_null(m_elements.lock()) )
       throw CastingFailed (FromHere(), "Elements must be of a CEntities or derived type");    
   }

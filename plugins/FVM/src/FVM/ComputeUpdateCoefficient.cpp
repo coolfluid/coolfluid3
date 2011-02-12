@@ -8,7 +8,9 @@
 #include "Common/OptionURI.hpp"
 #include "Common/OptionT.hpp"
 #include "Mesh/CField2.hpp"
+#include "Mesh/CMesh.hpp"
 #include "Solver/CTime.hpp"
+#include "Solver/CModel.hpp"
 #include "FVM/ComputeUpdateCoefficient.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -36,23 +38,29 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
   // options
   m_properties.add_option< OptionT<bool> > ("Time Accurate", "Time Accurate", m_time_accurate)
     ->mark_basic()
-    ->link_to(&m_time_accurate);
+    ->link_to(&m_time_accurate)
+    ->add_tag("time_accurate");
     
   m_properties.add_option< OptionT<Real> > ("CFL", "Courant Number", m_CFL)
     ->mark_basic()
-    ->link_to(&m_CFL);
+    ->link_to(&m_CFL)
+    ->add_tag("cfl");
 
-  m_properties.add_option< OptionURI > ("UpdateCoeff","Update coefficient", URI("cpath:"));
-  m_properties["UpdateCoeff" ].as_option().attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_update_coeff,   this ) );
+  m_properties.add_option(OptionURI::create("UpdateCoeff","Update coefficient", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_update_coeff,   this ) )
+    ->add_tag("update_coeff");
 
-  m_properties.add_option< OptionURI > ("Advection","Advection needed", URI("cpath:"));
-  m_properties["Advection" ].as_option().attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_advection,   this ) );
+  m_properties.add_option(OptionURI::create("Advection","Advection needed", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_advection,   this ) )
+    ->add_tag("advection");
 
-  m_properties.add_option< OptionURI > ("Volume","Volume needed", URI("cpath:"));
-  m_properties["Volume" ].as_option().attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) );
+  m_properties.add_option(OptionURI::create("Volume","Volume needed for time accurate simulations", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) )
+    ->add_tag("volume");
 
-  m_properties.add_option< OptionURI > ("Time","Time", URI("cpath:"));
-  m_properties["Time" ].as_option().attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_time,   this ) );
+  m_properties.add_option(OptionURI::create("Time","Time", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_time,   this ) )
+    ->add_tag("time");
 
 }
 
@@ -88,7 +96,7 @@ void ComputeUpdateCoefficient::config_time()
   m_time = Core::instance().root()->look_component<CTime>(uri);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 void ComputeUpdateCoefficient::execute()
 {
@@ -97,7 +105,7 @@ void ComputeUpdateCoefficient::execute()
   
   CTable<Real>& advection = m_advection.lock()->data();
   CTable<Real>& update_coeff = m_update_coeff.lock()->data();
-  
+
   if (m_time_accurate) // global time stepping
   {
     if (m_time.expired())   throw SetupError(FromHere(), "Time component was not set");
@@ -113,7 +121,9 @@ void ComputeUpdateCoefficient::execute()
     
     // Make time step stricter through the CFL number
     for (Uint i=0; i<advection.size(); ++i)
+    {
       dt = std::min(dt, m_CFL*volume[i][0]/advection[i][0] );
+    }
     
     // Update to more strict time step
     time.dt() = dt;

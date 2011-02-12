@@ -17,7 +17,7 @@
 #include "Mesh/Gmsh/CWriter.hpp"
 #include "Mesh/Gmsh/CReader.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
-#include "Mesh/Actions/CBuildFaceNormals.hpp"
+#include "Mesh/Actions/CBuildVolume.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
@@ -33,6 +33,7 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
+#include "FVM/FiniteVolume.hpp"
 #include "FVM/ShockTube.hpp"
 
 namespace CF {
@@ -117,8 +118,8 @@ void ShockTube::signal_create_model ( Common::XmlNode& node )
   CGroup& tools = *model->create_component<CGroup>("tools");
   tools.mark_basic();
   CBuildFaces& build_faces = *tools.create_component<CBuildFaces>("build_faces");
-  CBuildFaceNormals& build_face_normals = *tools.create_component<CBuildFaceNormals>("build_face_normals");
-  
+  CBuildVolume& build_volume = *tools.create_component<CBuildVolume>("build_volume");
+
   Gmsh::CReader& gmsh_reader = *tools.create_component<Gmsh::CReader>("gmsh_reader");
   Gmsh::CWriter& gmsh_writer = *tools.create_component<Gmsh::CWriter>("gmsh_writer");
 
@@ -133,7 +134,9 @@ void ShockTube::signature_create_model( XmlNode& node )
   p.add_option<std::string>("Model name", std::string(), "Name for created model" );
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void ShockTube::signal_setup_model ( Common::XmlNode& node )
 {
@@ -142,8 +145,14 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
 
   CModelUnsteady::Ptr model = Core::instance().root()->get_child<CModelUnsteady>( name );
   if (is_null(model))
-    throw ValueNotFound (FromHere(), "invalid model");
-  // configure the solution field etc.
+    throw ValueNotFound (FromHere(), "invalid model"); 
+  
+  CIterativeSolver& solver = find_component<CIterativeSolver>(*model);
+  FiniteVolume& finite_volume = find_component<FiniteVolume>(solver);
+  
+  ////////////////////////////////////////////////////////////////////////////////
+  // Generate mesh
+  ////////////////////////////////////////////////////////////////////////////////
   
   CMesh::Ptr mesh = model->domain().create_component<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 10. , p.get_option<Uint>("Number of Cells"));
@@ -152,36 +161,18 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
 
   std::vector<std::string> args;  
   model->look_component<CBuildFaces>("cpath:./tools/build_faces")->transform(mesh,args);
-  model->look_component<CBuildFaceNormals>("cpath:./tools/build_face_normals")->transform(mesh,args);
+  model->look_component<CBuildVolume>("cpath:./tools/build_volume")->transform(mesh,args);
+  model->configure_option_recursively("volume",find_component_recursively_with_tag<CField2>(model->domain(),"volume").full_path());
     
+  ////////////////////////////////////////////////////////////////////////////////
+  // Create basic fields
+  ////////////////////////////////////////////////////////////////////////////////
+  
   CField2& solution = mesh->create_field2("solution","CellBased","rho[1],rhoU[1],rhoE[1]");
-  CField2& residual = mesh->create_field2("residual","CellBased","delta_rho[1],delta_rhoU[1],delta_rhoE[1]");
-  CField2& advection = mesh->create_field2("advection","CellBased");
-  CField2& update_coeff = mesh->create_field2("update_coeff","CellBased");
-  CField2& volume = mesh->create_field2("volume","CellBased");
-  CField2& area = mesh->create_field2("area","FaceBased");
-  CField2& face_area_normals = mesh->create_field2("face_area_normals","FaceBased","area_normal["+to_str(mesh->nodes().coordinates().row_size())+"]");
 
-  CIterativeSolver& solver = find_component<CIterativeSolver>(*model);
-  solver.configure_property("Domain" , model->domain().full_path() );
-  solver.configure_property("Number of Iterations", 1u);
-
-  std::vector<URI> fields;
-  boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
-    fields.push_back(field.full_path());
-  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
-  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("File",model->name()+".msh");
-  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Mesh",mesh->full_path());
-
-  Component& compute_update_coeff = find_component_recursively_with_name(solver,"compute_update_coeff");
-  compute_update_coeff.configure_property("UpdateCoeff",update_coeff.full_path());
-  compute_update_coeff.configure_property("Advection",advection.full_path());
-  compute_update_coeff.configure_property("Volume",volume.full_path());
-  compute_update_coeff.configure_property("Time",model->time().full_path());
-  compute_update_coeff.configure_property("Time Accurate",true);
-  compute_update_coeff.configure_property("CFL",1.);
-
-  // set initial condition
+  ////////////////////////////////////////////////////////////////////////////////
+  // Initial condition
+  ////////////////////////////////////////////////////////////////////////////////
   
   RealVector left(3);
   RealVector right(3);
@@ -220,64 +211,55 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
     }
   }
   
-  std::vector<URI> faces_to_loop(1);
   
-  faces_to_loop[0]=find_component_recursively_with_name<CRegion>(*mesh,"fluid").full_path();
-  find_component_recursively_with_name<CAction>(solver,"for_all_inner_faces").configure_property("Regions",faces_to_loop);
-  find_component_recursively_with_name<CAction>(solver,"add_flux_to_rhs").configure_property("Solution",solution.full_path());
-  find_component_recursively_with_name<CAction>(solver,"add_flux_to_rhs").configure_property("Residual",residual.full_path());
-  find_component_recursively_with_name<CAction>(solver,"add_flux_to_rhs").configure_property("Advection",advection.full_path());
-  find_component_recursively_with_name<CAction>(solver,"add_flux_to_rhs").configure_property("Area",area.full_path());
-  find_component_recursively_with_name<CAction>(solver,"add_flux_to_rhs").configure_property("FaceNormal",find_component_with_name<CField2>(*mesh,"face_normals").full_path());
+  ////////////////////////////////////////////////////////////////////////////////
+  // Boundary conditions
+  ////////////////////////////////////////////////////////////////////////////////
   
-  CAction& apply_bcs = *solver.look_component<CAction>("cpath:./Discretization/apply_boundary_conditions");
-  
-  CAction& apply_inlet_bc = apply_bcs.create_action("CF.Solver.Actions.CForAllFaces","inlet");
-  faces_to_loop[0] = find_component_recursively_with_name<CRegion>(solution.topology(),"xneg").full_path();
-  apply_inlet_bc.configure_property("Regions" , faces_to_loop);
-  CAction& inlet_bc = apply_inlet_bc.create_action("CF.FVM.BCDirichlet","dirichlet");
-  
-  inlet_bc.configure_property("Solution",solution.full_path());
+  CRegion& inlet = find_component_recursively_with_name<CRegion>(solution.topology(),"xneg");
+  CAction& inlet_bc = finite_volume.create_bc("inlet",inlet,"CF.FVM.BCDirichlet");
   inlet_bc.configure_property("rho",r_L);
   inlet_bc.configure_property("u",u_L);
   inlet_bc.configure_property("p",p_L);
   
-  CAction& apply_outlet_bc = apply_bcs.create_action("CF.Solver.Actions.CForAllFaces","outlet");
-  faces_to_loop[0] = find_component_recursively_with_name<CRegion>(solution.topology(),"xpos").full_path();
-  apply_outlet_bc.configure_property("Regions" , faces_to_loop);
-  CAction& outlet_bc = apply_outlet_bc.create_action("CF.FVM.BCDirichlet","dirichlet");
-  outlet_bc.configure_property("Solution",solution.full_path());
+  
+  CRegion& outlet = find_component_recursively_with_name<CRegion>(solution.topology(),"xpos");
+  CAction& outlet_bc = finite_volume.create_bc("outlet",outlet,"CF.FVM.BCDirichlet");
   outlet_bc.configure_property("rho",r_R);
   outlet_bc.configure_property("u",u_R);
-  outlet_bc.configure_property("p",p_R);
+  outlet_bc.configure_property("p",p_R);  
+  
+  ////////////////////////////////////////////////////////////////////////////////
+  // Solver / Discretization configuration
+  ////////////////////////////////////////////////////////////////////////////////
 
-  std::vector<URI> regions_to_loop(1);
-  regions_to_loop[0]=volume.topology().full_path();
-  CLoop::Ptr compute_volume = solver.create_component< CForAllElements2 >("compute_volume");
-  compute_volume->configure_property("Regions",regions_to_loop);
-  compute_volume->create_action("CF.Solver.Actions.CComputeVolume");
-  compute_volume->action("CF.Solver.Actions.CComputeVolume").configure_property("Volumes",volume.full_path());
-  compute_volume->execute();
-  
-  regions_to_loop[0]=area.topology().full_path();
-  CLoop::Ptr compute_area = solver.create_component< CForAllFaces >("compute_area");
-  compute_area->configure_property("Regions",regions_to_loop);
-  compute_area->create_action("CF.Solver.Actions.CComputeArea");
-  compute_area->action("CF.Solver.Actions.CComputeArea").configure_property("Area",area.full_path());
-  compute_area->execute();
-  
-  face_area_normals.data() = find_component_with_name<CField2>(*mesh,"face_normals").data();
-  face_area_normals.data() *= area.data();
+  solver.configure_property("Number of Iterations", 1u);
   
   model->time().configure_property("Time Step", p.get_option<Real>("Time Step"));
-  Real dt = model->time().dt();
-  cf_assert(dt != 0 );
-  cf_assert(model->time().dt() == 0.0004);
-  model->time().configure_property("End Time", p.get_option<Real>("End Time"));
+  model->time().configure_property("End Time", p.get_option<Real>("End Time"));  
   
+  solver.configure_property("Solution",solution.full_path());
+  model->configure_option_recursively("time_accurate",true);
+  model->configure_option_recursively("time",model->time().full_path());
+  model->configure_option_recursively("cfl",1.);
+  model->configure_option_recursively("mesh",mesh->full_path());
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Writer
+  ////////////////////////////////////////////////////////////////////////////////
+  
+  std::vector<URI> fields;
+  boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
+    fields.push_back(field.full_path());
+  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
+  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("File",model->name()+".msh");
+  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Mesh",mesh->full_path());
+
 }
 
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void ShockTube::signature_setup_model( XmlNode& node )
 {

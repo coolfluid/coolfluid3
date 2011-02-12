@@ -40,17 +40,17 @@ public:
   void set_field(Mesh::CField2::Ptr field) { return set_field(*field); }
   void set_field(Mesh::CField2& field) { m_field = field.as_type<Mesh::CField2>(); }
 
-  void set_elements(Mesh::CFaces::Ptr faces)
+  bool set_elements(Mesh::CFaces::Ptr faces)
   {
     cf_assert(is_not_null(faces));
-    set_elements(*faces);
+    return set_elements(*faces);
   }
   
-  void set_elements(Mesh::CFaces& faces)
+  bool set_elements(Mesh::CFaces& faces)
   {
     if (is_null(m_field.lock()))
       throw Common::SetupError(FromHere(),"set_field(field) must be called first");
-      
+
     m_faces = faces.as_type<Mesh::CFaces>();
     Mesh::CFaceCellConnectivity::Ptr f2c = faces.get_child<Mesh::CFaceCellConnectivity>("cell_connectivity");
     m_views.resize(f2c->cells_components().size());
@@ -60,6 +60,7 @@ public:
       m_views[i] = Common::allocate_component<Mesh::CFieldView>("view");
       m_views[i]->initialize(*m_field.lock(), cells);
     }
+    return true;
   }
 
   Mesh::CTable<Real>::Row operator[](const Uint face_idx)

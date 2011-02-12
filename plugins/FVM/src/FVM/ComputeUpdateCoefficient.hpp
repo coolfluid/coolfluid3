@@ -43,7 +43,7 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "ComputeUpdateCoefficient"; }
-
+  
   /// execute the action
   virtual void execute ();
 

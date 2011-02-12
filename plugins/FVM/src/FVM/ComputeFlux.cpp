@@ -41,20 +41,25 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
   m_state_R(3)
 {
   // options
-  m_properties.add_option< OptionURI > ("Solution","Cell based solution", URI("cpath:"));
-  m_properties["Solution" ].as_option().attach_trigger ( boost::bind ( &ComputeFlux::config_solution,   this ) );
+  m_properties.add_option(OptionURI::create("Solution","Cell based solution", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_solution,   this ) )
+    ->add_tag("solution");
 
-  m_properties.add_option< OptionURI > ("Residual","Residual to compute", URI("cpath:"));
-  m_properties["Residual" ].as_option().attach_trigger ( boost::bind ( &ComputeFlux::config_residual,   this ) );
+  m_properties.add_option(OptionURI::create("Residual","Residual to compute", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_residual,   this ) )
+    ->add_tag("residual");
 
-  m_properties.add_option< OptionURI > ("Advection","Advection to compute", URI("cpath:"));
-  m_properties["Advection" ].as_option().attach_trigger ( boost::bind ( &ComputeFlux::config_advection,   this ) );
+  m_properties.add_option(OptionURI::create("Advection","Advection to compute", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_advection,   this ) )
+    ->add_tag("advection");
 
-  m_properties.add_option< OptionURI > ("Area","Face area", URI("cpath:"));
-  m_properties["Area" ].as_option().attach_trigger ( boost::bind ( &ComputeFlux::config_area,   this ) );
+  m_properties.add_option(OptionURI::create("Area","Face area", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_area,   this ) )
+    ->add_tag("area");
 
-  m_properties.add_option< OptionURI > ("FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"));
-  m_properties["FaceNormal" ].as_option().attach_trigger ( boost::bind ( &ComputeFlux::config_normal,   this ) );
+  m_properties.add_option(OptionURI::create("FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_normal,   this ) )
+    ->add_tag("face_normal");
   
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &ComputeFlux::trigger_elements,   this ) );
 
@@ -112,11 +117,17 @@ void ComputeFlux::config_normal()
 
 void ComputeFlux::trigger_elements()
 {
-  m_connected_solution.set_elements(elements().as_type<CCellFaces>());
-  m_connected_residual.set_elements(elements().as_type<CCellFaces>());
-  m_connected_advection.set_elements(elements().as_type<CCellFaces>());
-  m_face_normal->set_elements(elements());
-  m_face_area->set_elements(elements());
+  if (CCellFaces::Ptr faces = elements().as_type<CCellFaces>() )
+  {
+    m_connected_solution.set_elements(faces);
+    m_connected_residual.set_elements(faces);
+    m_connected_advection.set_elements(faces);
+    m_face_normal->set_elements(faces);
+    m_face_area->set_elements(faces);
+    m_can_start_loop = true;
+  }
+  else
+    m_can_start_loop = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

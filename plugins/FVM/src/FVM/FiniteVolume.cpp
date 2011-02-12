@@ -11,8 +11,11 @@
 #include "Common/Log.hpp"
 #include "Common/ComponentPredicates.hpp"
 
+#include "Mesh/Actions/CBuildFaceNormals.hpp"
+
 #include "Mesh/CField2.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CMesh.hpp"
 
 #include "Solver/CIterativeSolver.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
@@ -24,6 +27,7 @@ using namespace boost::assign;
 
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Mesh::Actions;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 
@@ -60,9 +64,35 @@ FiniteVolume::FiniteVolume ( const std::string& name  ) :
   m_compute_rhs->mark_basic();
   
   // set the compute rhs action
-  CAction::Ptr for_all_faces = m_compute_rhs->create_component<CForAllFaces>("for_all_inner_faces");
+  CAction::Ptr for_all_faces = m_compute_rhs->create_static_component<CForAllFaces>("for_all_inner_faces");
   for_all_faces->mark_basic();
-  for_all_faces->create_component<ComputeFlux>("add_flux_to_rhs")->mark_basic();
+  for_all_faces->create_static_component<ComputeFlux>("add_flux_to_rhs")->mark_basic();
+  
+  properties()["Mesh"].as_option().attach_trigger( boost::bind( &FiniteVolume::on_config_mesh, this));
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void FiniteVolume::on_config_mesh()
+{
+  m_compute_rhs->get_child("for_all_inner_faces")
+    ->configure_property("Regions",std::vector<URI>(1,m_mesh.lock()->topology().full_path()));
+
+  std::vector<std::string> args;
+  CBuildFaceNormals::Ptr build_face_normals = create_component<CBuildFaceNormals>("build_face_normals");
+  build_face_normals->transform(m_mesh.lock(),args);
+  remove_component(build_face_normals->name());
+  configure_option_recursively("face_normal", find_component_with_tag<CField2>(*m_mesh.lock(),"face_normal").full_path());
+  
+  CField2& area = m_mesh.lock()->create_field2("area","FaceBased");
+  CLoop::Ptr compute_area = create_component< CForAllFaces >("compute_area");
+  compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().full_path()));
+  compute_area->create_action("CF.Solver.Actions.CComputeArea");
+  configure_option_recursively("area",area.full_path());
+  compute_area->execute();
+  remove_component(compute_area->name());
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,6 +107,28 @@ void FiniteVolume::compute_rhs()
 {
   m_apply_bcs->execute();
   m_compute_rhs->execute();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CAction& FiniteVolume::create_bc(const std::string& name, const std::vector<CRegion::Ptr>& regions, const std::string& bc_builder_name)
+{
+  std::vector<URI> regions_uri; regions_uri.reserve(regions.size());
+  boost_foreach(CRegion::Ptr region, regions)
+    regions_uri.push_back(region->full_path());
+
+  CAction::Ptr for_all_faces = m_apply_bcs->create_component<CForAllFaces>(name);
+  for_all_faces->configure_property("Regions",regions_uri);
+  return for_all_faces->create_action(bc_builder_name,"bc");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CAction& FiniteVolume::create_bc(const std::string& name, const CRegion& region, const std::string& bc_builder_name)
+{
+  CAction::Ptr for_all_faces = m_apply_bcs->create_component<CForAllFaces>(name);
+  for_all_faces->configure_property("Regions",std::vector<URI>(1,region.full_path()));
+  return for_all_faces->create_action(bc_builder_name,"bc");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

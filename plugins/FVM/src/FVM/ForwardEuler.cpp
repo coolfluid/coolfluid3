@@ -47,8 +47,10 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( nam
 {
   properties()["brief"] = std::string("Forward Euler Time Stepper");
   std::string description =
-    " 1) compute residual and update_coeff using discretization method\n"
-    " 2) solution = update_coeff * residual\n";
+    " U[n+1] = U[n] + dt/dx * R \n"
+    " 1) delegate computation of the residual and advection to the discretization method\n"
+    " 2) compute the update coefficient = dt/dx = CFL/advection"
+    " 3) solution = update_coeff * residual\n";
   properties()["description"] = description;
 
   m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &ForwardEuler::trigger_Domain,   this ) );
@@ -56,7 +58,9 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( nam
   this->regist_signal ( "solve" , "Solve", "Solve" )->connect ( boost::bind ( &ForwardEuler::solve, this ) );
 
   m_properties.add_option<OptionT<bool> >("OutputDiagnostics","Output information of convergence",false)->mark_basic();
-  
+  m_properties.add_option<OptionURI>("Solution","Solution to march in time",URI())
+    ->attach_trigger ( boost::bind ( &ForwardEuler::trigger_solution,   this ) );
+
   m_solution = create_static_component<CLink>("solution");
   m_residual = create_static_component<CLink>("residual");
   m_advection = create_static_component<CLink>("advection");
@@ -80,28 +84,42 @@ void ForwardEuler::trigger_Domain()
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>(*look_component(domain));
   if (is_not_null(mesh))
   {
-    CField2::Ptr solution = find_component_ptr_with_name<CField2>(*mesh,"solution");
-    if ( is_null(solution) )
-      solution = mesh->create_component<CField2>("solution");
-    m_solution->link_to(solution);
-    CField2::Ptr residual = find_component_ptr_with_name<CField2>(*mesh,"residual");
-    if ( is_null(residual) )
-      residual = mesh->create_component<CField2>("residual");
-    m_residual->link_to(residual);
-    CField2::Ptr advection = find_component_ptr_with_name<CField2>(*mesh,"advection");
-    if ( is_null(advection) )
-      advection = mesh->create_component<CField2>("advection");
-    m_advection->link_to(advection);
-    CField2::Ptr update_coeff = find_component_ptr_with_name<CField2>(*mesh,"update_coeff");
-    if ( is_null(update_coeff) )
-      update_coeff = mesh->create_component<CField2>("update_coeff");
-    m_update_coeff->link_to(update_coeff);
+    CFinfo << "domain has mesh" << CFendl;
+    configure_option_recursively("mesh",mesh->full_path());
   }
   else
   {
     throw ValueNotFound(FromHere(),"domain has no mesh ");
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ForwardEuler::trigger_solution()
+{
+  URI uri; property("Solution").put_value(uri);
+  m_solution->link_to(look_component(uri));
+  
+  CField2& solution = *m_solution->follow()->as_type<CField2>();
+  CMesh::Ptr mesh = solution.get_parent()->as_type<CMesh>();
+  if (is_null(mesh)) throw SetupError (FromHere(), "Solution must be located inside a CMesh");
+
+  CField2& residual = mesh->create_field2("residual",solution);
+  m_residual->link_to(residual.self());
+  configure_option_recursively("residual",residual.full_path());
+  
+  CField2& advection = mesh->create_scalar_field("advection",solution);
+  m_advection->link_to(advection.self());
+  configure_option_recursively("advection",advection.full_path());
+  
+  CField2& update_coeff = mesh->create_scalar_field("update_coeff",solution);
+  m_update_coeff->link_to(update_coeff.self());
+  configure_option_recursively("update_coeff",update_coeff.full_path());
+  
+  configure_option_recursively("solution",solution.full_path());
+  
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 CDiscretization& ForwardEuler::discretization_method()
@@ -113,17 +131,7 @@ CDiscretization& ForwardEuler::discretization_method()
 
 void ForwardEuler::solve()
 {
-  if ( is_null(m_solution->follow()) )
-    throw SetupError (FromHere(), "solution is not linked to solution field");
-
-  if ( is_null(m_residual->follow()) )
-    throw SetupError (FromHere(), "residual is not linked to residual field");
-
-  if ( is_null(m_advection->follow()) )
-    throw SetupError (FromHere(), "advection is not linked to advection field");
-
-  if ( is_null(m_update_coeff->follow()) )
-    throw SetupError (FromHere(), "update_coeff is not linked to update_coeff field");
+  if ( is_null(m_solution->follow()) )  throw SetupError (FromHere(), "solution is not linked to solution field");
     
   CField2& solution     = *m_solution->follow()->as_type<CField2>();
   CField2& residual     = *m_residual->follow()->as_type<CField2>();
@@ -143,6 +151,7 @@ void ForwardEuler::solve()
 
     // Compute the update coefficient = dt/dx = CFL/advection
     m_compute_update_coefficient->execute();
+
     residual.data() *= update_coeff.data();
     
     // update solution = old_solution  + dt/dx * (flux_in - flux_out)

@@ -17,12 +17,10 @@
 
 #include "FVM/LibFVM.hpp"
 namespace CF {
-
   namespace Solver {
-  namespace Actions { 
-    class CLoop; 
+    namespace Actions { class CLoop; }
   }
-  }
+  namespace Mesh { class CRegion;  }
 
 namespace FVM {
 
@@ -51,7 +49,7 @@ public: // functions
   static std::string type_name () { return "FiniteVolume"; }
 
   // functions specific to the FiniteVolume component
-  
+
   /// computes the discrete rhs of the PDE
   virtual void compute_rhs();
 
@@ -59,15 +57,24 @@ public: // functions
   //@{
 
   /// creates a boundary condition
-  void create_bc( Common::XmlNode& xml );
+  void signal_create_bc( Common::XmlNode& xml );
 
+
+  Common::CAction& create_bc(const std::string& name, const std::vector<boost::shared_ptr<Mesh::CRegion> >& regions, const std::string& bc_builder_name);
+  Common::CAction& create_bc(const std::string& name, const Mesh::CRegion& region, const std::string& bc_builder_name);
+  
   //@} END SIGNALS
   
+private: // functions
+
+  void on_config_mesh();
+
 private: // data
   
   Common::CAction::Ptr m_apply_bcs;
   
   Common::CAction::Ptr m_compute_rhs;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

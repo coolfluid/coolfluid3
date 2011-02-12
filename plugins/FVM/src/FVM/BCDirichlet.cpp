@@ -37,9 +37,10 @@ BCDirichlet::BCDirichlet ( const std::string& name ) :
 {
   mark_basic();
   // options
-  m_properties.add_option< OptionURI > ("Solution","Cell based solution", URI("cpath:"));
-  m_properties["Solution" ].as_option().attach_trigger ( boost::bind ( &BCDirichlet::config_solution,   this ) );
-  
+  m_properties.add_option(OptionURI::create("Solution","Cell based solution","cpath:/",URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &BCDirichlet::config_solution,   this ) )
+    ->add_tag("solution");
+
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &BCDirichlet::trigger_elements,   this ) );
 
   m_rho=1.225;
@@ -64,8 +65,7 @@ void BCDirichlet::config_solution()
 {
   URI uri;  property("Solution").put_value(uri);
   CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
-  if ( is_null(comp) )
-    throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
+  if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
   m_connected_solution.set_field(comp);
 }
 
@@ -73,7 +73,7 @@ void BCDirichlet::config_solution()
 
 void BCDirichlet::trigger_elements()
 {
-  m_connected_solution.set_elements(elements().as_type<CFaces>());
+  m_can_start_loop = m_connected_solution.set_elements(elements().as_type<CFaces>());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

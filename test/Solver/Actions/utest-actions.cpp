@@ -281,7 +281,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   CComputeVolume::Ptr compute_volume = root->create_component<CComputeVolume>("compute_volume");
   CElements& elems = *root->look_component<CElements>(URI("cpath://Root/mesh/topology/default_id1084/fluid/Triag"));
-  compute_volume->configure_property("Volumes",volumes.full_path());
+  compute_volume->configure_property("Volume",volumes.full_path());
   BOOST_CHECK(true);
   compute_volume->configure_property("Elements",elems.full_path());
   BOOST_CHECK(true);
@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   elem_loop->configure_property("Regions",regions);
   
   elem_loop->create_action("CF.Solver.Actions.CComputeVolume");
-  elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volumes",volumes.full_path());
+  elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volume",volumes.full_path());
   
   elem_loop->create_action("CF.Solver.Actions.CComputeArea");
   elem_loop->action("CF.Solver.Actions.CComputeArea").configure_property("Area",areas.full_path());
@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT2 )
   compute_all_cell_volumes->configure_property("Regions",topology);
   BOOST_CHECK(true);
   
-  compute_all_cell_volumes->action().configure_property("Volumes",field.full_path());
+  compute_all_cell_volumes->action().configure_property("Volume",field.full_path());
   BOOST_CHECK(true);
   
   compute_all_cell_volumes->execute();

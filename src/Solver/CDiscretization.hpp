@@ -13,6 +13,7 @@
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
+  namespace Mesh { class CMesh; }
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,9 +42,15 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CDiscretization"; }
 
+  virtual void setup() {}
+
   // functions specific to the CDiscretization component
   
   virtual void compute_rhs() = 0;
+  
+protected: // data
+
+  boost::weak_ptr<Mesh::CMesh> m_mesh;
   
 };
 
