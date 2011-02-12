@@ -131,15 +131,13 @@ void LoadMesh::signal_load_mesh ( Common::XmlNode& node )
 
   XmlParams p (node);
 
-  URI path = p.get_option<URI>("Domain");
+  URI path = p.get_option<URI>("Parent Component");
 
   if( path.scheme() != URI::Scheme::CPATH )
-    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
+    throw ProtocolError( FromHere(), "Wrong protocol to access the Parent Component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  CDomain::Ptr domain = look_component<CDomain>( path );
-  if (!domain)
-    throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
+  Component::Ptr parent_component = look_component( path );
 
   // std::vector<URI> files = property("Files").value<std::vector<URI> >();
   std::vector<URI> files = p.get_array<URI>("Files");
@@ -155,7 +153,7 @@ void LoadMesh::signal_load_mesh ( Common::XmlNode& node )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = domain->create_component<CMesh>("Mesh");
+    CMesh::Ptr mesh = parent_component->create_component<CMesh>("Mesh");
 
     // Get the file paths
     boost_foreach(URI file, files)
@@ -166,7 +164,7 @@ void LoadMesh::signal_load_mesh ( Common::XmlNode& node )
       if ( m_extensions_to_readers.count(extension) == 0 )
       {
         throw ValueNotFound (FromHere(), "No meshreader exists for files with extension " + extension);
-        domain->remove_component(mesh->name());
+        parent_component->remove_component(mesh->name());
       }
       else
       {
@@ -178,7 +176,7 @@ void LoadMesh::signal_load_mesh ( Common::XmlNode& node )
           boost_foreach(const CMeshReader::Ptr reader , m_extensions_to_readers[extension])
             msg += " - " + reader->name() + "\n";
           throw BadValue( FromHere(), msg);
-          domain->remove_component(mesh->name());
+          parent_component->remove_component(mesh->name());
         }
         else
         {
@@ -209,7 +207,7 @@ void LoadMesh::signature_load_mesh ( Common::XmlNode& node)
     readers.push_back(bdr.name());
   }
 
-  p.add_option<URI>("Domain", URI(), "Path to the domain to hold the mesh" );
+  p.add_option<URI>("Parent Component", URI(), "Path to the component to hold the mesh" );
 
   // create de value and add the restricted list
   XmlNode& rdrs_node = *XmlParams::add_value_to(*p.option_map, "Readers", std::string() , "Available readers" );
