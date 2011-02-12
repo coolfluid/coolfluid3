@@ -269,6 +269,8 @@ public: // functions
     m_properties.configure_property(optname,val);
   }
 
+  void configure_option_recursively(const std::string& tag, const boost::any& val);
+
   /// @name SIGNALS
   //@{
 
