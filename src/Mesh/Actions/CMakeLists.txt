@@ -15,6 +15,8 @@ list( APPEND coolfluid_mesh_actions_files
   CBuildFaceNormals.cpp
   CBuildCoordinatesField.hpp
   CBuildCoordinatesField.cpp
+  CBuildVolume.hpp
+  CBuildVolume.cpp
   LibActions.hpp
   LibActions.cpp
 )
