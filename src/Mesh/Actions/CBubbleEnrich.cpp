@@ -61,8 +61,7 @@ std::string CBubbleEnrich::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CBubbleEnrich::transform( const CMesh::Ptr& meshptr,
-                               const std::vector<std::string>& args)
+void CBubbleEnrich::transform( const CMesh::Ptr& meshptr )
 {
   CFinfo << "---------------------------------------------------" << CFendl;
   CFinfo << FromHere().str() << CFendl;

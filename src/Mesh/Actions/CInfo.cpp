@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/foreach.hpp>
-
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/Foreach.hpp"
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
+#include "Mesh/CField2.hpp"
 
 #include "Mesh/Actions/CInfo.hpp"
 
@@ -86,19 +86,27 @@ std::string CInfo::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CInfo::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
+void CInfo::transform(const CMesh::Ptr& mesh)
 {
 
   m_mesh = mesh;
 
   CFinfo << "Element distribution:" << CFendl;
-  BOOST_FOREACH( const CRegion& region, find_components_with_filter<CRegion>(*m_mesh,IsComponentTrue()))
+  boost_foreach( const CRegion& region, find_components_with_filter<CRegion>(*m_mesh,IsComponentTrue()))
   {
     CFinfo << print_region_tree(region) << CFflush;
   }  
 
   CFinfo << "Fields:" << CFendl;
-  BOOST_FOREACH( const CField& region, find_components_with_filter<CField>(*m_mesh,IsComponentTrue()))
+  boost_foreach( const CField2& field, find_components<CField2>(*m_mesh) )
+  {
+    CFinfo << " - " << field.name() << "  (" << CField2::DataBasis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
+    for (Uint i=0; i<field.nb_vars(); ++i)
+    {
+      CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_type(i) << "]" << CFendl;
+    }
+  }
+  boost_foreach( const CField& region, find_components_with_filter<CField>(*m_mesh,IsComponentTrue()))
   {
     CFinfo << print_field_tree(region) << CFflush;
   }  
@@ -116,7 +124,7 @@ std::string CInfo::print_region_tree(const CRegion& region, Uint level)
   
   tree += print_elements(region,level+1);
   
-  BOOST_FOREACH( const CRegion& subregion, find_components_with_filter<CRegion>(region,IsComponentTrue()))
+  boost_foreach( const CRegion& subregion, find_components_with_filter<CRegion>(region,IsComponentTrue()))
   {
     tree += print_region_tree(subregion,level+1);
   }
@@ -135,7 +143,7 @@ std::string CInfo::print_field_tree(const CField& field, Uint level)
   
   tree += print_elements(field,level+1);
   
-  BOOST_FOREACH( const CField& subfield, find_components_with_filter<CField>(field,IsComponentTrue()))
+  boost_foreach( const CField& subfield, find_components_with_filter<CField>(field,IsComponentTrue()))
   {
     tree += print_field_tree(subfield,level+1);
   }
@@ -147,7 +155,7 @@ std::string CInfo::print_field_tree(const CField& field, Uint level)
 std::string CInfo::print_elements(const Component& region, Uint level)
 {
   std::string tree;
-  BOOST_FOREACH( const CEntities& elements_region, find_components<CEntities>(region))
+  boost_foreach( const CEntities& elements_region, find_components<CEntities>(region))
   {
     for (Uint i=0; i<level; i++)
       tree += "    ";

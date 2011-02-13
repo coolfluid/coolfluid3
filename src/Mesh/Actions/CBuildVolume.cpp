@@ -60,7 +60,7 @@ std::string CBuildVolume::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CBuildVolume::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
+void CBuildVolume::transform(const CMesh::Ptr& mesh)
 {
 
   m_mesh = mesh;

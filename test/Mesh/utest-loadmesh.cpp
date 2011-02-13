@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:rotation-tg.neu" );
-  p.add_option<URI>("Domain", URI( domain->full_path().string()) );
+  p.add_option<URI>("Parent Component", URI( domain->full_path().string()) );
   p.add_array("Files", files);
   
   load_mesh->signal_load_mesh(node);

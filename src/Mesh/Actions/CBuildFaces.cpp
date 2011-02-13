@@ -66,7 +66,7 @@ std::string CBuildFaces::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaces::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
+void CBuildFaces::transform(const CMesh::Ptr& mesh)
 {
 
   m_mesh = mesh;

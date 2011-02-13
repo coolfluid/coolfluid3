@@ -71,7 +71,7 @@ std::string CBuildFaceNormals::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaceNormals::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
+void CBuildFaceNormals::transform(const CMesh::Ptr& mesh)
 {
 
   m_mesh = mesh;

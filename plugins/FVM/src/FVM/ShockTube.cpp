@@ -159,9 +159,8 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   // path file_in("line.msh");
   //   model->look_component<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
 
-  std::vector<std::string> args;  
-  model->look_component<CBuildFaces>("cpath:./tools/build_faces")->transform(mesh,args);
-  model->look_component<CBuildVolume>("cpath:./tools/build_volume")->transform(mesh,args);
+  model->look_component<CBuildFaces>("cpath:./tools/build_faces")->transform(mesh);
+  model->look_component<CBuildVolume>("cpath:./tools/build_volume")->transform(mesh);
   model->configure_option_recursively("volume",find_component_recursively_with_tag<CField2>(model->domain(),"volume").full_path());
     
   ////////////////////////////////////////////////////////////////////////////////

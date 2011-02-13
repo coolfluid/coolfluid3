@@ -106,8 +106,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 
   // Create inner_faces
   CMeshTransformer::Ptr facebuilder = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
-  std::vector<std::string> args;
-  //facebuilder->transform(mesh,args);
+  //facebuilder->transform(mesh);
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
 	CLoop::Ptr face_loop = root->create_component< CForAllFaces >("face_loop");
@@ -119,7 +118,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   BOOST_CHECK(true);
 
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
-  info->transform(mesh,args);
+  info->transform(mesh);
   
   root->remove_component(mesh->name());
 	

@@ -81,8 +81,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
   CFinfo << mesh->tree() << CFendl;
   
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
-  std::vector<std::string> args;
-  info->transform(mesh,args);
+  info->transform(mesh);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,8 +97,7 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
   CFinfo << mesh->tree() << CFendl;
   
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
-  std::vector<std::string> args;
-  info->transform(mesh,args);
+  info->transform(mesh);
   
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","writer");
 

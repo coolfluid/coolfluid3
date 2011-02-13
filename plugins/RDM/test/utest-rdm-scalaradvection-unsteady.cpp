@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:advection_p2.msh" );
-  p.add_option<URI>("Domain", URI( domain.full_path() ));
+  p.add_option<URI>("Parent Component", URI( domain.full_path() ));
   p.add_array("Files", files);
 
   // get the generic mesh loader from the Tools

@@ -48,13 +48,12 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CMeshTransformer"; }
-  
-  // --------- Signals ---------
-
 
   // --------- Direct access ---------
 
-  virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args = std::vector<std::string>())= 0;
+  virtual void transform(const CMesh::Ptr& mesh)= 0;
+  
+  void configure_arguments(const std::vector<std::string>& args);
   
   void execute();
   

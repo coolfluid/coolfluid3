@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 //  files.push_back( "file:advection-p2-quad.msh" );
 //  files.push_back( "file:rotation-tg-p3.msh" );
 
-  xmlp.add_option<URI>("Domain", URI( domain.full_path().string()) );
+  xmlp.add_option<URI>("Parent Component", URI( domain.full_path().string()) );
   xmlp.add_array("Files", files);
 
   // get the generic mesh loader from the Tools
@@ -119,8 +119,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  std::vector<std::string> args;
-  enricher->transform( mesh, args );
+  enricher->transform( mesh );
 #endif
 
 }
@@ -190,7 +189,7 @@ BOOST_AUTO_TEST_CASE( output )
   domain.add_component( remover );
 
   std::vector<std::string> args;
-  remover->transform( mesh, args );
+  remover->transform( mesh );
 #endif
 
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );

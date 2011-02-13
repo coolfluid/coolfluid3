@@ -81,7 +81,7 @@ void FiniteVolume::on_config_mesh()
 
   std::vector<std::string> args;
   CBuildFaceNormals::Ptr build_face_normals = create_component<CBuildFaceNormals>("build_face_normals");
-  build_face_normals->transform(m_mesh.lock(),args);
+  build_face_normals->transform(m_mesh.lock());
   remove_component(build_face_normals->name());
   configure_option_recursively("face_normal", find_component_with_tag<CField2>(*m_mesh.lock(),"face_normal").full_path());
   

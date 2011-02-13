@@ -11,6 +11,9 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/String/Conversion.hpp"
+
+#include "Math/MathChecks.hpp"
 
 #include "RDM/RungeKutta.hpp"
 #include "Solver/CDiscretization.hpp"
@@ -27,9 +30,11 @@ namespace CF {
 namespace RDM {
 
 using namespace Common;
+using namespace Common::String;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
+using namespace Math::MathChecks;
 
 Common::ComponentBuilder < RungeKutta, CIterativeSolver, LibRDM > RungeKutta_Builder;
 
@@ -168,6 +173,8 @@ void RungeKutta::solve()
 
     // output convergence info
     CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
+    if ( is_nan(rhs_L2) || is_inf(rhs_L2) )
+      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iter)+" iterations");
   }
 }
 

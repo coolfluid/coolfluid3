@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   std::vector<URI> files;
   files.push_back( "file:rectangle-tg-p2.msh" );
 
-  xmlp.add_option<URI>("Domain", URI( Core::instance().root()->get_child("Domain")->full_path().string()) );
+  xmlp.add_option<URI>("Parent Component", URI( Core::instance().root()->get_child("Domain")->full_path().string()) );
   xmlp.add_array("Files", files);
 
   // get the generic mesh loader from the Tools
@@ -128,8 +128,7 @@ BOOST_AUTO_TEST_CASE( enricher )
 //  CFinfo << Core::instance().root()->tree() << CFendl;
 //  CFinfo << "---------------------------------------------------" << CFendl;
 
-  std::vector<std::string> args;
-  enricher->transform( mesh, args );
+  enricher->transform( mesh );
 
 //  CFinfo << "---------------------------------------------------" << CFendl;
 //  CFinfo << Core::instance().root()->tree() << CFendl;
@@ -181,8 +180,7 @@ BOOST_AUTO_TEST_CASE( remover )
 //  CFinfo << Core::instance().root()->tree() << CFendl;
 //  CFinfo << "---------------------------------------------------" << CFendl;
 
-  std::vector<std::string> args;
-  remover->transform( mesh, args );
+  remover->transform( mesh );
 
 //  CFinfo << "---------------------------------------------------" << CFendl;
 //  CFinfo << Core::instance().root()->tree() << CFendl;

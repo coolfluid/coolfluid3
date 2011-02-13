@@ -66,7 +66,7 @@ std::string CBuildCoordinatesField::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CBuildCoordinatesField::transform(const CMesh::Ptr& meshptr, const std::vector<std::string>& args)
+void CBuildCoordinatesField::transform(const CMesh::Ptr& meshptr)
 {
 
   CMesh& mesh = *meshptr;

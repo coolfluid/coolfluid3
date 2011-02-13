@@ -44,7 +44,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CBuildCoordinatesField"; }
 
-  virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args);
+  virtual void transform(const CMesh::Ptr& mesh );
   
   /// brief description, typically one line
   virtual std::string brief_description() const;

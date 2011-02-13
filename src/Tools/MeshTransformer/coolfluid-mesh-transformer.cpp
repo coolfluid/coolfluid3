@@ -238,7 +238,9 @@ int main(int argc, char * argv[])
 				{
 					CMeshTransformer::Ptr transformer = name_to_transformers[transformer_name];
 					CFinfo << "\nTransforming mesh with " << transformer_name << " [" << transformer_args << "]" << CFendl;
-					if (!dryrun) transformer->transform(mesh, parsed_transformer_args);
+					if (!dryrun) transformer->set_mesh(mesh);
+					if (!dryrun) transformer->configure_arguments(parsed_transformer_args);
+					if (!dryrun) transformer->execute();
 				}
 				else
 				{
@@ -280,6 +282,10 @@ int main(int argc, char * argv[])
 					
 					CFinfo << "\nWriting " << outputfile << " with " << writer->get_format() << CFendl;
 					
+          std::vector<CField2::Ptr> fields;
+          boost_foreach ( CField2& field, find_components<CField2>(*mesh) )
+            fields.push_back(field.as_type<CField2>());
+					if (!dryrun) writer->set_fields(fields);
 					if (!dryrun) writer->write_from_to(mesh,outputfile);
 				}
 			}
