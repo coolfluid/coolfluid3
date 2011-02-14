@@ -103,6 +103,11 @@ URI::URI ( const std::string& s, URI::Scheme::Type p ):
   // throw NotImplemented(FromHere(), "Implement this");
 }
 
+bool URI::operator== (const URI& right) const
+{
+  return m_scheme == right.m_scheme && m_path == right.m_path;
+}
+
 URI& URI::operator/= (const URI& rhs)
 {
   if ( !m_path.empty() && !rhs.m_path.empty() ) m_path += separator();
