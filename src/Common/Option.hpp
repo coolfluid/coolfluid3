@@ -61,6 +61,19 @@ namespace Common {
 
     virtual ~Option();
 
+    template<typename TYPE>
+    const TYPE value() const
+    {
+      try
+      {
+        return boost::any_cast< TYPE >( data_to_value(m_value) );
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        throw CastingFailed( FromHere(), "Bad boost::any cast");
+      }
+    }
+
     /// @name VIRTUAL FUNCTIONS
     //@{
 
@@ -70,7 +83,7 @@ namespace Common {
     virtual const char * tag() const = 0;
 
     virtual std::string data_type() const = 0;
-    
+
     //@} END VIRTUAL FUNCTIONS
 
     /// configure this option using the passed xml node
@@ -78,9 +91,9 @@ namespace Common {
 
     /// attach a function that will be triggered when an option gets configured
     /// @return this option
-    Ptr attach_trigger ( Trigger_t trigger ) 
-    { 
-      m_triggers.push_back(trigger); 
+    Ptr attach_trigger ( Trigger_t trigger )
+    {
+      m_triggers.push_back(trigger);
       return shared_from_this();
     }
 
@@ -96,8 +109,8 @@ namespace Common {
     /// @returns the default value of the option casted to TYPE
     template < typename TYPE >
         const TYPE def() const
-    { 
-      try 
+    {
+      try
       {
         return boost::any_cast<TYPE>(m_default);
       }
@@ -111,10 +124,10 @@ namespace Common {
     /// @param value which to assign the default option value
     template < typename TYPE >
         void put_def( TYPE& def ) const
-    { 
-      try 
+    {
+      try
       {
-        def = boost::any_cast<TYPE>(m_default); 
+        def = boost::any_cast<TYPE>(m_default);
       }
       catch(boost::bad_any_cast& e)
       {
@@ -141,7 +154,7 @@ namespace Common {
     {
       return boost::dynamic_pointer_cast<Option_t>(shared_from_this());
     }
-    
+
     /// change the value of this option
     void change_value ( const boost::any& value);
 
@@ -161,12 +174,12 @@ namespace Common {
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node ) = 0;
-    
+
     void trigger() const;
 
   protected: // data
     /// storage of the default value of the option
-    const boost::any m_default;
+    boost::any m_default;
     /// option name
     std::string m_name;
     /// option description
@@ -180,7 +193,9 @@ namespace Common {
 
   protected: // function
 
-    virtual boost::any value_to_data ( const boost::any& value ) { return value; }
+    virtual boost::any value_to_data ( const boost::any& value ) const { return value; }
+
+    virtual boost::any data_to_value ( const boost::any& data ) const { return data; }
 
     /// copy the configured update value to all linked parameters
     virtual void copy_to_linked_params ( const boost::any& val ) = 0;

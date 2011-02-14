@@ -53,6 +53,7 @@ GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent)
   connect(m_comboType, SIGNAL(activated(QString)), this, SLOT(changeType(QString)));
 
   this->updateModel("");
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

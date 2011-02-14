@@ -200,7 +200,7 @@ Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
   subcomp->signal("rename_component").is_hidden = true;
   subcomp->signal("delete_component").is_hidden = true;
   subcomp->signal("move_component").is_hidden   = true;
-  
+
 
   return subcomp;
 }
@@ -669,7 +669,7 @@ void add_array_to_xml(XmlParams & params, const std::string & name,
 
   optArray = boost::dynamic_pointer_cast< OptionArrayT<TYPE> >(array);
 
-  params.add_array(name, boost::any_cast< std::vector<TYPE> >(optArray->value()), desc, basic);
+  params.add_array(name, optArray->value_vect(), desc, basic);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -681,15 +681,14 @@ template<typename TYPE>
 void add_prop_to_xml(XmlParams & params, const std::string & name,
                      boost::shared_ptr<Property> prop)
 {
-  TYPE value = prop->value<TYPE>();
-
   if(!prop->is_option())
-    params.add_property(name, value);
+    params.add_property( name, prop->value<TYPE>() );
   else
   {
     Option & opt = prop->as_option();
     bool basic = opt.has_tag("basic");
     std::string desc = opt.description();
+    TYPE value = opt.value<TYPE>();
     XmlNode * node;
 
     if(opt.has_restricted_list())
@@ -960,16 +959,16 @@ void Component::configure_option_recursively(const std::string& tag, const boost
       if (option->has_tag(tag))
       {
         if (option->data_type() != class_name_from_typeinfo(val.type()) )
-          throw SetupError(FromHere(), 
+          throw SetupError(FromHere(),
             "Option [" + name + "] of component [" + full_path().path() +"] "
             "with tag ["+tag+"] has a data_type that does not match with passed data");
-        
+
         option->change_value(val);
         ++nb_changes;
       }
     }
   }
-  
+
   // configure all child's options recursively
   boost_foreach( Component& component, find_components_recursively(*this) )
   {
@@ -980,10 +979,10 @@ void Component::configure_option_recursively(const std::string& tag, const boost
         if (option->has_tag(tag))
         {
           if (option->type() != class_name_from_typeinfo(val.type()) )
-            throw SetupError(FromHere(), 
+            throw SetupError(FromHere(),
               "Option [" + name + "] of component [" + component.full_path().path() +"] "
               "with tag ["+tag+"] has a data_type that does not match with passed data");
-          
+
           option->change_value(val);
           ++nb_changes;
         }
