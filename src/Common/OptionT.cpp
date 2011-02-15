@@ -51,15 +51,15 @@ void OptionT<TYPE>::copy_to_linked_params (const boost::any& val )
   BOOST_FOREACH ( void* v, this->m_linked_params )
   {
     TYPE* cv = static_cast<TYPE*>(v);
-    try 
+    try
     {
       *cv = boost::any_cast<TYPE>(val);
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast");
-    }    
-    
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+class_name<TYPE>());
+    }
+
   }
 }
 

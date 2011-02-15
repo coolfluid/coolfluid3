@@ -61,7 +61,7 @@ namespace Common {
   {
   public:
 
-    typedef boost::shared_ptr<Property>   Ptr;
+		typedef boost::shared_ptr<Property>   Ptr;
 		typedef boost::shared_ptr<Property const>   ConstPtr;
 
     /// Constructor
@@ -79,13 +79,13 @@ namespace Common {
     /// @returns the value as a sd::string
     virtual std::string value_str () const
     {
-      try 
+      try
       {
         return boost::any_cast<std::string>(m_value);
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed( FromHere(), "Bad boost::any cast");
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+class_name<std::string>());
       }
     }
 
@@ -95,7 +95,7 @@ namespace Common {
 
     /// @returns the type of the option as a string
     virtual std::string type() const;
-    
+
     /// @returns @c true if the property is an option
     bool is_option() const { return m_is_option; }
 
@@ -108,15 +108,15 @@ namespace Common {
 
     /// @returns the value of the option casted to TYPE
     template < typename TYPE >
-        const TYPE value() const 
-    { 
-      try 
+        const TYPE value() const
+    {
+      try
       {
         return boost::any_cast< TYPE >(m_value);
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed( FromHere(), "Bad boost::any cast");
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+class_name<TYPE>());
       }
     }
 
@@ -124,14 +124,14 @@ namespace Common {
     /// @param value which to assign the option value
     template < typename TYPE >
         void put_value( TYPE& value ) const
-    { 
-      try 
+    {
+      try
       {
         value = boost::any_cast<TYPE>(m_value);
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed( FromHere(), "Bad boost::any cast");
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+class_name<TYPE>());
       }
     }
 
