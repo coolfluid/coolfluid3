@@ -12,8 +12,6 @@
 
 #include "Math/MathConsts.hpp"
 
-#include "GUI/Client/UI/UintSpinBox.hpp"
-
 #include "GUI/Client/UI/GraphicalInt.hpp"
 
 using namespace CF::GUI::ClientUI;
