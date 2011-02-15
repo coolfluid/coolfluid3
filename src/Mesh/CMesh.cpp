@@ -155,7 +155,7 @@ CField2& CMesh::create_field2( const std::string& name , CField2& based_on_field
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-CField2& CMesh::create_scalar_field(const std::string& field_name, const std::string& variable_name, const CF::Mesh::CField2::DataBasis::Type base)
+CField2& CMesh::create_scalar_field(const std::string& field_name, const std::string& variable_name, const CF::Mesh::CField2::Basis::Type base)
 {
   const std::vector<std::string> names(1, variable_name);
   const std::vector< CField2::VarType > types(1, CField2::SCALAR);
@@ -165,7 +165,7 @@ CField2& CMesh::create_scalar_field(const std::string& field_name, const std::st
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField2& CMesh::create_field2(const std::string& name, const CField2::DataBasis::Type base, const std::vector< std::string >& variable_names, const std::vector< CField2::VarType > variable_types)
+CField2& CMesh::create_field2(const std::string& name, const CField2::Basis::Type base, const std::vector< std::string >& variable_names, const std::vector< CField2::VarType > variable_types)
 {
   cf_assert(variable_names.size() == variable_types.size());
   

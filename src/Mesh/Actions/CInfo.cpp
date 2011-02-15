@@ -100,7 +100,7 @@ void CInfo::transform(const CMesh::Ptr& mesh)
   CFinfo << "Fields:" << CFendl;
   boost_foreach( const CField2& field, find_components<CField2>(*m_mesh) )
   {
-    CFinfo << " - " << field.name() << "  (" << CField2::DataBasis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
+    CFinfo << " - " << field.name() << "  (" << CField2::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
       CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_type(i) << "]" << CFendl;

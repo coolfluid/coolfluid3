@@ -83,7 +83,7 @@ public: // functions
   /// @param variable_names The names of the variables to add
   /// @param variable_types The types of the variables to add
   CField2& create_field2( const std::string& name, 
-                          const CField2::DataBasis::Type base, 
+                          const CField2::Basis::Type base,
                           const std::vector<std::string>& variable_names, 
                           const std::vector<CField2::VarType> variable_types);
 
