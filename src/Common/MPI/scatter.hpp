@@ -246,7 +246,7 @@ scatter(const PE::Communicator& comm, const std::vector<T>& in_values, std::vect
 //needs a forward
 template<typename T>
 inline T*
-scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int& out_n, const int *out_map, const int root, const int stride);
+scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int& out_n, const int *out_map, const int root, const int stride=1);
 
 /**
   Interface to the variable size scatter communication with specialization to raw pointer.
@@ -272,7 +272,7 @@ scatter(const PE::Communicator& comm, const T* in_values, const int* in_n, T* ou
 //needs a forward
 template<typename T>
 inline void
-scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, int& out_n, const std::vector<int>& out_map, const int root, const int stride);
+scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, int& out_n, const std::vector<int>& out_map, const int root, const int stride=1);
 
 /**
   Interface to the constant size scatter communication with specialization to std::vector.
@@ -314,7 +314,7 @@ scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std
 **/
 template<typename T>
 inline T*
-scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int &out_n, const int *out_map, const int root, const int stride)
+scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int& out_n, const int *out_map, const int root, const int stride)
 {
   // number of processes
   int nproc,irank;
@@ -323,7 +323,7 @@ scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const
 
   // if out_n consist of -1s then communicate for number of receives
   int out_sum=out_n;
-  if (out_sum=-1) {
+  if (out_sum==-1) {
     if (out_map!=0) throw CF::Common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
     detail::scatterc_impl(comm,in_n,1,&out_n,root,1);
     out_sum=out_n;

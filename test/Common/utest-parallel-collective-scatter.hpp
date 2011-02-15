@@ -282,24 +282,25 @@ BOOST_AUTO_TEST_CASE( scatter_ptr_variable )
 
 
 
-/*
+
 /////////////////////////////////////
     delete[] ptr_tmprcv;
     ptr_tmprcv=0;
+
     ptr_tmprcv=mpi::scatter(mpi::PE::instance(), ptr_snddat, ptr_sndcnt, ptr_sndmap, (double*)0, ptr_rcvcnt[r], ptr_rcvmap, r);
-    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) if (i==r) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
+    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) if (i==r) BOOST_CHECK_EQUAL( ptr_tmprcv[j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
 
     for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) if (i==r) ptr_tmprcv[i*nproc+j]=0.;
     mpi::scatter(mpi::PE::instance(), ptr_snddat, ptr_sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvcnt[r], ptr_rcvmap, r);
-    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) if (i==r) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
+    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) if (i==r) BOOST_CHECK_EQUAL( ptr_tmprcv[j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=new double[nproc*nproc];
     for (i=0; i<nproc*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
     mpi::scatter(mpi::PE::instance(), ptr_tmprcv, ptr_sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvcnt[r], ptr_rcvmap, r);
-    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) if (i==r) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
+    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) if (i==r) BOOST_CHECK_EQUAL( ptr_tmprcv[j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
 /////////////////////////////////////
-*/
+
 
 
 /*
