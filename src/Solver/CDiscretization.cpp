@@ -24,7 +24,7 @@ CDiscretization::CDiscretization ( const std::string& name  ) :
   CMethod ( name )
 {
   // properties
-
+  CF_DEBUG_POINT;
   properties()["brief"]=std::string("Discretization Method component");
   properties()["description"]=std::string("Handles the discretization of the PDE's");
   
@@ -32,7 +32,7 @@ CDiscretization::CDiscretization ( const std::string& name  ) :
   m_properties.add_option(OptionComponent<CMesh>::create("Mesh","Mesh the Discretization Method will be applied to",&m_mesh))
     ->mark_basic()
     ->add_tag("mesh");
-  
+  CF_DEBUG_POINT;
   /// @todo not necessary, solution.topology() should provide this information.
 
   // for old compatibility

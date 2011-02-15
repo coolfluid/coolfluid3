@@ -72,8 +72,6 @@ private: // helper functions
     cf_assert( is_not_null( csolution ) );
     solution = csolution->data_ptr();
 
-    m_solution_field->set_field( csolution );
-
     Mesh::CField2::Ptr cresidual = look_component( "cpath:../../../residual" )
         ->follow()->as_type<Mesh::CField2>();
     cf_assert( is_not_null( cresidual ) );
@@ -84,10 +82,7 @@ private: // helper functions
     cf_assert( is_not_null( cupdate_coeff ) );
     update_coeff = cupdate_coeff->data_ptr();
 
-//    m_can_start_loop =
-        m_solution_field->set_elements( elements() );
-
-//    CFinfo << " --- start loop [" << m_can_start_loop << "]" << CFendl;
+    m_can_start_loop = true;
   }
 
 
@@ -133,8 +128,6 @@ CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeLDAT ( const std::string& name
   regist_typeinfo(this);
 
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::trigger_elements,   this ) );
-
-  m_solution_field = create_static_component<Mesh::CFieldView>("solution_view");
 
   m_flux_oper_values.resize(QUADRATURE::nb_points);
   m_phi.resize(SHAPEFUNC::nb_nodes);

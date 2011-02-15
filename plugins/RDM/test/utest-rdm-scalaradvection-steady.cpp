@@ -53,8 +53,9 @@ struct scalar_advection_global_fixture
     XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
     XmlParams p(node);
     p.add_option<std::string>("Model name","mymodel");
-
+    CF_DEBUG_POINT;
     scalar_advection_wizard->create_model(node);
+    CF_DEBUG_POINT;
   }
 
   ScalarAdvection::Ptr scalar_advection_wizard;
@@ -88,6 +89,7 @@ BOOST_AUTO_TEST_SUITE( scalar_advection_test_suite )
 
 BOOST_FIXTURE_TEST_CASE( check_tree , scalar_advection_local_fixture )
 {
+  CF_DEBUG_POINT;
   BOOST_CHECK(true);
 
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
@@ -102,6 +104,7 @@ BOOST_FIXTURE_TEST_CASE( check_tree , scalar_advection_local_fixture )
 
 BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
 {
+  CF_DEBUG_POINT;
   BOOST_CHECK(true);
     
   // create the xml parameters for the read mesh signal
@@ -120,6 +123,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
 //  files.push_back( "file:advection-p2-quad.msh" );
 //  files.push_back( "file:rotation-tg-p3.msh" );
 
+  CF_DEBUG_POINT;
   xmlp.add_option<URI>("Parent Component", URI( domain.full_path().string()) );
   xmlp.add_array("Files", files);
 
@@ -128,10 +132,11 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
   LoadMesh::Ptr load_mesh = Core::instance().root()->get_child("Tools")->get_child<LoadMesh>("LoadMesh");
   cf_assert( is_not_null(load_mesh) );
   
+  CF_DEBUG_POINT;
   load_mesh->signal_load_mesh( node );
-
+  CF_DEBUG_POINT;
   BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
-
+  CF_DEBUG_POINT;
 #ifdef BUBBLE // enrich the mesh with bubble functions
   CMeshTransformer::Ptr enricher =
       create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
@@ -143,12 +148,16 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
   enricher->transform( mesh );
 #endif
 
+  CF_DEBUG_POINT;
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , scalar_advection_local_fixture )
 {
+  CF_DEBUG_POINT;
+  
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
@@ -159,6 +168,8 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , scalar_advection_local_fixture
 
 BOOST_FIXTURE_TEST_CASE( create_boundary_term , scalar_advection_local_fixture )
 {
+  CF_DEBUG_POINT;
+  
   BOOST_CHECK(true);
 
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
@@ -216,6 +227,8 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , scalar_advection_local_fixture )
 BOOST_FIXTURE_TEST_CASE( solve , scalar_advection_local_fixture )
 {
   BOOST_CHECK(true);
+
+  CFinfo << model.tree() << CFendl;
 
   solver.solve();
 }

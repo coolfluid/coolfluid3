@@ -75,10 +75,12 @@ void ScalarAdvection::create_model ( Common::XmlNode& node )
   CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.RDM.RungeKutta", "IterativeSolver");
   solver->mark_basic();
   model->add_component( solver );
+  CF_DEBUG_POINT;
   solver->configure_property("Domain" , URI("cpath:../Domain"));
-
+  CF_DEBUG_POINT;
   // setup discretization method
   CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.RDM.ResidualDistribution", "Discretization");
+  CF_DEBUG_POINT;
   cdm->mark_basic();
   solver->add_component( cdm );
 }
