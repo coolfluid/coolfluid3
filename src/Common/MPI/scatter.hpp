@@ -69,7 +69,7 @@ namespace detail {
     cf_assert( stride>0 );
 
     // set up out_buf
-    T* out_buf=out_buf=out_values;
+    T* out_buf=out_values;
     if ((irank==root)&&(in_values==out_values)) {
       if ( (out_buf=new T[nproc*in_n*stride+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     }
@@ -228,7 +228,7 @@ scatter(const PE::Communicator& comm, const std::vector<T>& in_values, std::vect
 
   // set out_values's sizes
   cf_assert( in_values.size() % (nproc*stride) == 0 );
-  if (out_values!=in_values) {
+  if (((in_values!=out_values)&&(irank!=root))||(out_values.size()==0)) {
     out_values.resize(in_values.size()/nproc);
     out_values.reserve(in_values.size()/nproc);
   }
@@ -238,6 +238,12 @@ scatter(const PE::Communicator& comm, const std::vector<T>& in_values, std::vect
     detail::scatterc_impl(comm, (T*)(&in_values[0]), in_values.size()/(nproc*stride), (T*)(&out_values[0]), root, stride);
   } else {
     detail::scatterc_impl(comm, (T*)0, in_values.size()/(nproc*stride), (T*)(&out_values[0]), root, stride);
+  }
+
+  // reduce size if in_values=out_values
+  if (irank==root) {
+    out_values.resize(in_values.size()/nproc);
+    out_values.reserve(in_values.size()/nproc);
   }
 }
 
