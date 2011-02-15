@@ -63,7 +63,7 @@ namespace detail {
     MPI_Datatype type = mpi::get_mpi_datatype(*in_values);
     int nproc,irank;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-    MPI_CHECK_RESULT(MPI_Comm_size,(comm,&irank));
+    MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
     // if stride is greater than one
     cf_assert( stride>0 );
@@ -107,7 +107,7 @@ namespace detail {
     MPI_Datatype type = mpi::get_mpi_datatype(*in_values);
     int nproc,irank;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-    MPI_CHECK_RESULT(MPI_Comm_size,(comm,&irank));
+    MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
     // if stride is smaller than one and unsupported functionality
     cf_assert( stride>0 );
