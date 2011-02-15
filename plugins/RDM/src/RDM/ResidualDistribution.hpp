@@ -55,19 +55,21 @@ public: // functions
   /// @name SIGNALS
   //@{
 
-  /// creates a boundary condition
-  void create_bc( Common::XmlNode& xml );
+  /// creates a boundary term
+  void create_boundary_term( Common::XmlNode& xml );
+
+  /// creates a domain term
+  void create_domain_term( Common::XmlNode& xml );
 
   //@} END SIGNALS
 
-private: // functions
-  
-  /// function triggered when regions option is updated
-  void trigger_Regions();
-  
 private: // data
 
-  boost::shared_ptr<Solver::Actions::CLoop> m_elem_loop;
+  /// action to compute the boundary face terms
+  Common::CAction::Ptr m_compute_boundary_face_terms;
+
+  /// action to compute the domain cell terms
+  Common::CAction::Ptr m_compute_volume_cell_terms;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

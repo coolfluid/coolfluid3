@@ -43,47 +43,68 @@ using namespace CF::RDM;
 
 #define BUBBLE
 
+struct scalar_advection_global_fixture
+{
+  scalar_advection_global_fixture()
+  {
+    scalar_advection_wizard = allocate_component<ScalarAdvection>("scalar_advection");
+
+    boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+    XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
+    XmlParams p(node);
+    p.add_option<std::string>("Model name","scalar_advection");
+
+    scalar_advection_wizard->create_model(node);
+  }
+
+  ScalarAdvection::Ptr scalar_advection_wizard;
+
+};
+
+struct scalar_advection_local_fixture
+{
+  scalar_advection_local_fixture() :
+    model  ( * Core::instance().root()->get_child("scalar_advection")->as_type<CModel>() ),
+    domain ( find_component_recursively<CDomain>(model)  ),
+    solver ( find_component_recursively<CIterativeSolver>(model) ),
+    discretization( find_component_recursively<CDiscretization>(solver) )
+
+  {}
+
+  CModel& model;
+  CDomain& domain;
+  CIterativeSolver& solver;
+  CDiscretization& discretization;
+};
+
+
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_SUITE( ScalarAdvection_steady_Suite )
+BOOST_GLOBAL_FIXTURE( scalar_advection_global_fixture )
+
+BOOST_AUTO_TEST_SUITE( scalar_advection_test_suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( constructor )
+BOOST_FIXTURE_TEST_CASE( check_tree , scalar_advection_local_fixture )
 {
   BOOST_CHECK(true);
 
-  ScalarAdvection::Ptr s = allocate_component<ScalarAdvection>("scalar_advection");
-
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
-  XmlParams p(node);
-  p.add_option<std::string>("Model name","scalar_advection");
-
-  s->create_model(node);
-
-  BOOST_CHECK(true);
-
-  boost::shared_ptr<XmlDoc> tree_doc = XmlOps::create_doc();
   XmlNode& tree_node  = *XmlOps::goto_doc_node(*doc.get());
 
   Core::instance().root()->list_tree(tree_node);
 
-  BOOST_CHECK(true);
-
-  CFinfo << Core::instance().root()->tree() << CFendl;
+  CFinfo << model.tree() << CFendl;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( read_mesh )
+BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
 {
-  
   BOOST_CHECK(true);
-
-  CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
     
-  // create the xml parameters for the signal
+  // create the xml parameters for the read mesh signal
 
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
   XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
@@ -126,26 +147,23 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( configuration )
+BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , scalar_advection_local_fixture )
 {
-  CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
-  CIterativeSolver& solver = find_component_recursively<CIterativeSolver>(*Core::instance().root());
+  BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("Number of Iterations", 1000u);
-  
-  CDiscretization::Ptr discretization = solver.get_child<CDiscretization>("Discretization");
-  BOOST_CHECK ( is_not_null(discretization) );
-  
+  solver.configure_property("Number of Iterations", 5u);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( create_boundary_term , scalar_advection_local_fixture )
+{
+  BOOST_CHECK(true);
+
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
   XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
   XmlParams p(node);
-
-  p.add_option<std::string>("Name","apply_inlet");
-
-  discretization->as_type<ResidualDistribution>()->create_bc(node);
-  
-  CLoop::Ptr apply_inlet = discretization->get_child<CLoop>("apply_inlet");
 
   std::vector<URI> bc_regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
@@ -153,33 +171,61 @@ BOOST_AUTO_TEST_CASE( configuration )
 
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
-  apply_inlet->configure_property("Regions", bc_regions);
+  p.add_option<std::string>("Name","INLET");
+  p.add_option<std::string>("Type","CF.RDM.BcDirichlet");
+  p.add_array("Regions", bc_regions);
 
-  BOOST_CHECK(true);
+  discretization.as_type<ResidualDistribution>()->create_boundary_term(node);
 
   CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
-  
+
   BOOST_CHECK(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( solve )
+BOOST_FIXTURE_TEST_CASE( create_domain_term , scalar_advection_local_fixture )
 {
   BOOST_CHECK(true);
-  CIterativeSolver& solver = find_component_recursively<CIterativeSolver>(*Core::instance().root());
+
+  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+
+  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
+  XmlParams p(node);
+
+  std::vector<URI> bc_regions;
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+    bc_regions.push_back( region.full_path() );
+
+  BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
+
+  p.add_option<std::string>("Name","INTERNAL");
+  p.add_option<std::string>("Type","CF.RDM.LDA");
+  p.add_array("Regions", bc_regions);
+
+  discretization.as_type<ResidualDistribution>()->create_domain_term(node);
+
+  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
+
   BOOST_CHECK(true);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( solve , scalar_advection_local_fixture )
+{
+  BOOST_CHECK(true);
+
   solver.solve();
-  BOOST_CHECK(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( output )
+BOOST_FIXTURE_TEST_CASE( output , scalar_advection_local_fixture )
 {
-//  CFinfo << Core::instance().root()->tree() << CFendl;
+  BOOST_CHECK(true);
 
-  CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
 #ifdef BUBBLE // remove the bubble functions from the mesh
@@ -192,9 +238,12 @@ BOOST_AUTO_TEST_CASE( output )
   remover->transform( mesh );
 #endif
 
+  BOOST_CHECK(true);
+
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   boost::filesystem::path file ("scalar_advection.msh");
   mesh_writer->write_from_to(mesh,file);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -47,11 +47,30 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   // properties
 
   properties()["brief"] = std::string("Residual Distribution Method");
-  properties()["description"] = std::string("Discretize the PDE's using the Residual Distribution Method");
-  
-  m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &ResidualDistribution::trigger_Regions,   this ) );
+  std::string desc =
+        "Discretize the PDE's using the Cell Centered Finite Volume Method\n"
+        "This method ... (explain)";
+  properties()["description"] = desc ;
+
+
+  // signals
+
+  regist_signal ( "create_boundary_term" , "creates a boundary condition term", "Create Boundary Condition" )->connect ( boost::bind ( &ResidualDistribution::create_boundary_term, this, _1 ) );
+  regist_signal ( "create_domain_term" , "creates a domain volume term", "Create Domain Term" )->connect ( boost::bind ( &ResidualDistribution::create_domain_term, this, _1 ) );
     
   // setup of the static components
+
+  // create apply boundary conditions action
+  m_compute_boundary_face_terms = create_static_component<CAction>("compute_boundary_faces");
+  m_compute_boundary_face_terms->mark_basic();
+
+  // create compute rhs action
+  m_compute_volume_cell_terms = create_static_component<CAction>("compute_volume_cells");
+  m_compute_volume_cell_terms->mark_basic();
+
+
+#ifdef RDOLD
+//--- move from here ---
 
   const Uint order = 5;
 
@@ -67,50 +86,61 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   m_elem_loop = create_static_component<
       CForAllT< CSchemeLDAT< ShapeFunctionT, QuadratureT > , Mesh::SF::CellTypes > >("cell_loop");
   
+// ---------------------
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ResidualDistribution::~ResidualDistribution()
-{
-}
+ResidualDistribution::~ResidualDistribution() {}
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ResidualDistribution::trigger_Regions()
-{
-  CFinfo << "elem_loop configuration" << CFendl;
-  m_elem_loop->configure_property("Regions" , property("Regions").value<std::vector<URI> >());
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void ResidualDistribution::create_bc( XmlNode& xml )
+void ResidualDistribution::create_boundary_term( XmlNode& xml )
 {
   XmlParams p (xml);
 
   std::string name = p.get_option<std::string>("Name");
-  
-  CLoop::Ptr apply_bc = create_component< CForAllNodes >(name);
+  std::string type = p.get_option<std::string>("Type");
 
-  apply_bc->create_action("CF.Solver.Actions.CSetFieldValues");
-  apply_bc->action("CF.Solver.Actions.CSetFieldValues").configure_property("Field",std::string("solution"));
-  apply_bc->add_tag("apply_bc_action");
+  std::vector<URI> regions = p.get_array<URI>("Regions");
+
+  CAction& face_loop =
+      m_compute_boundary_face_terms->create_action("CF.Solver.Actions.CForAllFaces", name);
+
+  face_loop.configure_property("Regions" , regions);
+  face_loop.mark_basic();
+
+  CAction& face_action = face_loop.create_action( type , "action" );
+  face_action.mark_basic();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ResidualDistribution::create_domain_term( XmlNode& xml )
+{
+  XmlParams p (xml);
+
+  std::string name = p.get_option<std::string>("Name");
+  std::string type = p.get_option<std::string>("Type");
+
+  std::vector<URI> regions = p.get_array<URI>("Regions");
+
+  CAction& cell_loop = m_compute_volume_cell_terms->create_action("CF.RDM.CForAllCells", name);
+
+  cell_loop.configure_property("Regions" , regions);
+  cell_loop.mark_basic();
+
+  CAction& cell_action = cell_loop.create_action( type , "action" );
+  cell_action.mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void ResidualDistribution::compute_rhs()
 {
-  // apply BC
-  boost_foreach (CLoop& apply_bc, find_components_with_tag<CLoop>(*this,"apply_bc_action"))
-  {
-//    CFinfo << apply_bc.name() << CFendl;
-    apply_bc.execute();
-  }
-
-  // compute element residual distribution
-  m_elem_loop->execute();
+  m_compute_boundary_face_terms->execute();
+  m_compute_volume_cell_terms->execute();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
