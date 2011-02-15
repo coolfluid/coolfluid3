@@ -1,4 +1,8 @@
-list( APPEND coolfluid-mesh-transformer_files coolfluid-mesh-transformer.cpp )
+list( APPEND coolfluid-mesh-transformer_files 
+        coolfluid-mesh-transformer.cpp
+        Transformer.hpp
+        Transformer.cpp 
+    )
 
 list( APPEND coolfluid-mesh-transformer_cflibs  coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh )
 
