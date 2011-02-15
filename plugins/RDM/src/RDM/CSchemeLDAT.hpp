@@ -240,7 +240,7 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
     (*update_coeff)[nodes_idx[n]][0] += std::sqrt( dx*dx+dy*dy);
-//  std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
+//       * std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }
 
 
