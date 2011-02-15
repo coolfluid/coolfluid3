@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( configuration )
 
   p.add_option<std::string>("Name","apply_inlet");
 
-  discretization->as_type<ResidualDistribution>()->create_bc(node);
+  discretization->as_type<ResidualDistribution>()->create_boundary_term(node);
   
   CLoop::Ptr apply_inlet = discretization->get_child<CLoop>("apply_inlet");
 

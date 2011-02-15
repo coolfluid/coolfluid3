@@ -15,8 +15,6 @@
 #include "Solver/Actions/CForAllNodes.hpp"
 
 #include "RDM/ResidualDistribution.hpp"
-#include "RDM/CSchemeLDAT.hpp"
-#include "RDM/CSchemeN.hpp"
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 #include "Mesh/SF/Triag2DLagrangeP2.hpp"
@@ -68,26 +66,6 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   m_compute_volume_cell_terms = create_static_component<CAction>("compute_volume_cells");
   m_compute_volume_cell_terms->mark_basic();
 
-
-#ifdef RDOLD
-//--- move from here ---
-
-  const Uint order = 5;
-
-  //  typedef SF::Triag2DLagrangeP1 ShapeFunctionT;
-   // typedef SF::Quad2DLagrangeP1  ShapeFunctionT;
-   //   typedef SF::Triag2DLagrangeP2 ShapeFunctionT;
-    typedef SF::Triag2DLagrangeP2B ShapeFunctionT;
-  //  typedef SF::Triag2DLagrangeP3 ShapeFunctionT;
-  //  typedef SF::Quad2DLagrangeP2  ShapeFunctionT;
-
-  typedef Mesh::Integrators::GaussMappedCoords<order,ShapeFunctionT::shape> QuadratureT;
-
-  m_elem_loop = create_static_component<
-      CForAllT< CSchemeLDAT< ShapeFunctionT, QuadratureT > , Mesh::SF::CellTypes > >("cell_loop");
-  
-// ---------------------
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

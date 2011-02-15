@@ -30,16 +30,17 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename SHAPEFUNC, typename QUADRATURE>
+template < typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS >
 class RDM_API CSchemeLDAT : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< CSchemeLDAT<SHAPEFUNC,QUADRATURE> > Ptr;
-  typedef boost::shared_ptr< CSchemeLDAT<SHAPEFUNC,QUADRATURE> const> ConstPtr;
+  typedef boost::shared_ptr< CSchemeLDAT > Ptr;
+  typedef boost::shared_ptr< CSchemeLDAT const> ConstPtr;
 
 public: // functions
+
   /// Contructor
   /// @param name of the component
   CSchemeLDAT ( const std::string& name );
@@ -49,36 +50,19 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CSchemeLDAT<" + SHAPEFUNC::type_name() + ">"; }
-
-  /// Set the loop_helper
-  void create_loop_helper (Mesh::CElements& geometry_elements );
 	
   /// execute the action
   virtual void execute ();
-    
+
+private: // helper functions
+
+  void config_field();
+
+  void trigger_elements();
+
 private: // data
 
-  struct LoopHelper
-  {
-    LoopHelper(Mesh::CElements& geometry_elements, CLoopOperation& op) :
-			solution(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).data()),
-      residual(geometry_elements.get_field_elements(op.properties()["ResidualField"].value<std::string>()).data()),
-      inverse_updatecoeff(geometry_elements.get_field_elements(op.properties()["InverseUpdateCoeff"].value<std::string>()).data()),
-      // Assume coordinates and connectivity_table are the same for solution and residual (pretty safe)
-      coordinates(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).nodes().coordinates()),
-      connectivity_table(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).connectivity_table())
-    { }
-    Mesh::CTable<Real>& solution;
-    Mesh::CTable<Real>& residual;
-    Mesh::CTable<Real>& inverse_updatecoeff;
-    Mesh::CTable<Real>& coordinates;
-    Mesh::CTable<Uint>& connectivity_table;
-  };
-
-  boost::shared_ptr<LoopHelper> m_loop_helper;
-
-
-  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,Burgers2D> DiscreteOpType;
+  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
 
   DiscreteOpType m_oper;
 
@@ -101,40 +85,20 @@ private: // data
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename SHAPEFUNC, typename QUADRATURE>
-void CSchemeLDAT<SHAPEFUNC, QUADRATURE>::create_loop_helper (Mesh::CElements& geometry_elements )
-{
-  if ( Mesh::IsElementType<SHAPEFUNC>()(geometry_elements.element_type()) )
-    m_loop_helper.reset( new LoopHelper(geometry_elements , *this ) );
-  else
-   throw Common::BadValue ( FromHere() , "Tried to solve on elements with wrong type: [" + geometry_elements.full_path().string() + "]");
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-template<typename SHAPEFUNC, typename QUADRATURE>
-CSchemeLDAT<SHAPEFUNC,QUADRATURE>::CSchemeLDAT ( const std::string& name ) :
+template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
+CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeLDAT ( const std::string& name ) :
   CLoopOperation(name)
 {
   regist_typeinfo(this);
 
-  properties()["brief"] = std::string("Element Loop component that computes the residual and update coefficient using the LDA scheme");
-  properties()["description"] = std::string("Write here the full description of this component");
-
-  m_properties.add_option< Common::OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
-  m_properties.add_option< Common::OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
-  m_properties.add_option< Common::OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inverse_updatecoeff")->mark_basic();
-
-  //m_solution_values.resize(SHAPEFUNC::nb_nodes);
   m_flux_oper_values.resize(QUADRATURE::nb_points);
   m_phi.resize(SHAPEFUNC::nb_nodes);
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-template<typename SHAPEFUNC,typename QUADRATURE>
-void CSchemeLDAT<SHAPEFUNC, QUADRATURE>::execute()
+template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
+void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 {
   // inside element with index m_idx
 
@@ -211,7 +175,6 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE>::execute()
         std::sqrt( dx*dx+dy*dy);// *
 //        std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }
-
 
 }
 

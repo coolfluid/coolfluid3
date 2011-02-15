@@ -35,8 +35,8 @@ class RDM_API CSchemeN : public Solver::Actions::CLoopOperation
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< CSchemeN<SHAPEFUNC,QUADRATURE> > Ptr;
-  typedef boost::shared_ptr< CSchemeN<SHAPEFUNC,QUADRATURE> const> ConstPtr;
+  typedef boost::shared_ptr< CSchemeN > Ptr;
+  typedef boost::shared_ptr< CSchemeN const> ConstPtr;
 
 public: // functions
   /// Contructor
