@@ -102,7 +102,7 @@ void ForwardEuler::trigger_solution()
   m_solution->link_to(look_component(uri));
   
   CField2& solution = *m_solution->follow()->as_type<CField2>();
-  CMesh::Ptr mesh = solution.get_parent()->as_type<CMesh>();
+  CMesh::Ptr mesh = solution.parent()->as_type<CMesh>();
   if (is_null(mesh)) throw SetupError (FromHere(), "Solution must be located inside a CMesh");
 
   CField2& residual = mesh->create_field2("residual",solution);
