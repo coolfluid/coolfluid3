@@ -59,16 +59,16 @@ private: // helper functions
   {
     m_can_start_loop = m_solution_field->set_elements( elements() );
 
-    connectivity_table = elements().as_type<CElements>()->connectivity_table();
+    connectivity_table = elements().as_type<Mesh::CElements>()->connectivity_table();
 
     cf_assert( is_not_null(connectivity_table) );
 
-    Component::Ptr parent = parent();
+    Component::Ptr p = parent();
 
-//    coordinates_field  = parent->get_child<CField2>();
-//    solution_field     = parent->get_child<CField2>();
-//    residual_field     = parent->get_child<CField2>();
-//    update_coeff_field = parent->get_child<CField2>();
+//    coordinates_field  = p->get_child<CField2>();
+//    solution_field     = p->get_child<CField2>();
+//    residual_field     = p->get_child<CField2>();
+//    update_coeff_field = p->get_child<CField2>();
 
   }
 

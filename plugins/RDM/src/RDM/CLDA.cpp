@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/CBuilder.hpp"
+
 #include "RDM/CLDA.hpp"
 
 using namespace CF::Common;
@@ -32,7 +34,7 @@ void CLDA::execute()
   {
     CFinfo << region->full_path().string() << CFendl;
 
-    CLDA::ElementLoop loop( *region );
+    CLDA::ElementLoop loop( *this, *region );
 
     boost::mpl::for_each< RDM::CellTypes >( loop );
   }

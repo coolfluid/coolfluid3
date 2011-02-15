@@ -13,8 +13,6 @@ list( APPEND coolfluid_rdm_files
   RungeKutta.hpp
   ScalarAdvection.hpp
   ScalarAdvection.cpp
-  CTakeStep.hpp
-  CTakeStep.cpp
   SupportedTypes.hpp
   FluxOp2D.hpp
   LinearAdv2D.hpp

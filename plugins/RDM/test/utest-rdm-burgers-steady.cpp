@@ -151,7 +151,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , scalar_advection_local_fixture
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("Number of Iterations", 5u);
+  solver.configure_property("Number of Iterations", 1u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -204,7 +204,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , scalar_advection_local_fixture )
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
   p.add_option<std::string>("Name","INTERNAL");
-  p.add_option<std::string>("Type","CF.RDM.LDA");
+  p.add_option<std::string>("Type","CF.RDM.CLDA");
   p.add_array("Regions", bc_regions);
 
   discretization.as_type<ResidualDistribution>()->create_domain_term(node);

@@ -26,12 +26,12 @@ namespace RDM {
 
 /// List of all supported shapefunctions
 typedef boost::mpl::vector<
-Triag2DLagrangeP1,
-Triag2DLagrangeP2,
-Triag2DLagrangeP2B,
-Triag2DLagrangeP3,
-Quad2DLagrangeP1,
-Quad2DLagrangeP2,
+Mesh::SF::Triag2DLagrangeP1,
+Mesh::SF::Triag2DLagrangeP2,
+Mesh::SF::Triag2DLagrangeP2B,
+Mesh::SF::Triag2DLagrangeP3,
+Mesh::SF::Quad2DLagrangeP1,
+Mesh::SF::Quad2DLagrangeP2
 > CellTypes;
 
 /// Predicate class to test if the region contains a specific element type

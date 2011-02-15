@@ -13,6 +13,7 @@
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CRegion.hpp"
+#include "Mesh/Integrators/GaussImplementation.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
 
@@ -58,28 +59,28 @@ class RDM_API CLDA : public Solver::Actions::CLoop
         {
           // create an LDA for this specific type
 
-          CFinfo << elements->full_path().string() << CFendl;
+          CFinfo << elements.full_path().string() << CFendl;
 
-          const Uint order = 5;
+          const Uint order = 1;
 
           typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> QD;
           typedef CSchemeLDAT< SF, QD, Burgers2D > SchemeT;
 
           // get the scheme
-          SchemeT::Ptr scheme = comp.get_child<SchemeT>( SchemeT::type_name() );
+          typename SchemeT::Ptr scheme = comp.get_child<SchemeT>( SchemeT::type_name() );
           if( is_null(scheme) )
             scheme = comp.create_component< SchemeT >( SchemeT::type_name() );
 
           // loop on elements of that type
-          scheme.set_elements(elements);
+          scheme->set_elements(elements);
 
-          if (scheme.can_start_loop())
+          if (scheme->can_start_loop())
           {
             const Uint nb_elem = elements.size();
             for ( Uint elem = 0; elem != nb_elem; ++elem )
             {
-              scheme.select_loop_idx(elem);
-              scheme.execute();
+              scheme->select_loop_idx(elem);
+              scheme->execute();
             }
           }
         }

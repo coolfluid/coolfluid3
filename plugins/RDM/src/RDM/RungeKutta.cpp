@@ -113,17 +113,17 @@ void RungeKutta::solve()
 
   CField2::Ptr solution = find_component_ptr_with_name<CField2>(mesh,"solution");
   if ( is_null(solution) )
-    solution = mesh.create_field2("solution","PointBased","u[1]");
+    solution = mesh.create_field2("solution","PointBased","u[1]").as_type<CField2>();
   m_solution_field->link_to(solution);
 
   CField2::Ptr residual = find_component_ptr_with_name<CField2>(mesh,"residual");
   if ( is_null(residual) )
-    residual = mesh.create_field2("residual","PointBased","ru[1]");
+    residual = mesh.create_field2("residual","PointBased","ru[1]").as_type<CField2>();
   m_residual_field->link_to(residual);
 
   CField2::Ptr update_coeff = find_component_ptr_with_name<CField2>(mesh,"update_coeff");
   if ( is_null(update_coeff) )
-    update_coeff = mesh.mesh->create_field2("update_coeff","PointBased");
+    update_coeff = mesh.create_field2("update_coeff","PointBased").as_type<CField2>();
   m_update_coeff_field->link_to(update_coeff);
 
 
@@ -131,7 +131,6 @@ void RungeKutta::solve()
   /// @todo should be moved out of here
   boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_solution_field->follow(), "node_data"))
   {
-    CFLogVar(node_data.size());
     for (Uint i=0; i<node_data.size(); ++i)
       node_data[i][0]=0;
   }
@@ -161,7 +160,9 @@ void RungeKutta::solve()
     discretization_method().compute_rhs();
 
     // explicit update
-    m_take_step->execute();
+
+    solution[idx()][0] += - ( 0.9/m_loop_helper->update_coeff[idx()][0] ) * m_loop_helper->residual[idx()][0];
+
 
     // compute norm
     Real rhs_L2=0;

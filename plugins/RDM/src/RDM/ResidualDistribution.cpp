@@ -104,13 +104,10 @@ void ResidualDistribution::create_domain_term( XmlNode& xml )
 
   std::vector<URI> regions = p.get_array<URI>("Regions");
 
-  CAction& cell_loop = m_compute_volume_cell_terms->create_action("CF.RDM.CForAllCells", name);
+  CAction& cell_loop = m_compute_volume_cell_terms->create_action(type, name);
 
   cell_loop.configure_property("Regions" , regions);
   cell_loop.mark_basic();
-
-  CAction& cell_action = cell_loop.create_action( type , "action" );
-  cell_action.mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
