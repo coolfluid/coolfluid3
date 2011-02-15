@@ -83,7 +83,6 @@ public: // typedefs
 
   typedef boost::shared_ptr< CForAllElementsT2 > Ptr;
   typedef boost::shared_ptr< CForAllElementsT2 const > ConstPtr;
-//  friend struct CForAllElementsT2::ElementLooper<ActionT>;
 
 public: // functions
 
