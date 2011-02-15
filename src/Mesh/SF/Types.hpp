@@ -32,6 +32,8 @@ namespace CF {
 namespace Mesh {
 namespace SF {
 
+///////////////////////////////////////////////////////////////////////////////
+
 /// List of all supported shapefunctions
 typedef boost::mpl::vector< Line1DLagrangeP1,
                             Line2DLagrangeP1,
@@ -48,6 +50,8 @@ typedef boost::mpl::vector< Line1DLagrangeP1,
                             Hexa3DLagrangeP1,
                             Tetra3DLagrangeP1
 > Types;
+
+///////////////////////////////////////////////////////////////////////////////
 
 /// Compile-time predicate to determine if the given shape function represents a volume element, i.e. dimensions == dimensionality
 struct IsVolumeElement
@@ -90,6 +94,8 @@ struct IsCompatibleWith
 
 /// List of all supported shapefunctions for volume elements, 
 typedef boost::mpl::filter_view<Types, IsVolumeElement> CellTypes;
+
+///////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeSF
 } // Mesh

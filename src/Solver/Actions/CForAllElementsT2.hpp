@@ -25,81 +25,65 @@ namespace Actions {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T> class CForAllElementsT2;
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-namespace CForAllElementsT2_detail{
-  
-////////////////////////////////////////////////////////////////////////////////
-
-/// Predicate class to test if the region contains a specific element type
-template < typename TYPE >
-struct IsShapeFunction
-{
-  bool operator()(const Mesh::CElements& component)
-  {
-    return Mesh::IsElementType<TYPE>()( component.element_type() );
-  }
-}; // IsElementRegion
-  
-/////////////////////////////////////////////////////////////////////////////////////
-
-/// Looper defines a functor taking the type that boost::mpl::for_each
-/// passes. It is the core of the looping mechanism.
-template <typename ActionT>
-struct ElementLooper
-{
-  private: // data
-
-    /// Region to loop on
-    Mesh::CRegion& region;
-
-    /// Operation to perform
-    ActionT& op;
-  
-  public: // functions
-
-    /// Constructor
-    ElementLooper(ActionT& operation, Mesh::CRegion& region_in ) 
-      : region(region_in) , op(operation)
-    {}
-
-    /// Operator
-    template < typename SFType >
-    void operator() ( SFType& T )
-    {
-      boost_foreach(Mesh::CElements& elements, Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsShapeFunction<SFType>()))
-      {
-        op.set_elements(elements);
-        if (op.can_start_loop())
-        {
-          const Uint nb_elem = elements.size();
-          for ( Uint elem = 0; elem != nb_elem; ++elem )
-          {
-            op.select_loop_idx(elem);
-            op.template executeT<SFType>();
-          }
-        }
-      }
-    }
-    
-}; // ElementLooper
-
-////////////////////////////////////////////////////////////////////////////////
-
-} // namespace CForAllElementsT2_detail
-
-/////////////////////////////////////////////////////////////////////////////////////
-
 template<typename ActionT>
 class Solver_Actions_API CForAllElementsT2 : public CLoop
 {
+
+  /// Predicate class to test if the region contains a specific element type
+  template < typename TYPE >
+  struct IsShapeFunction
+  {
+    bool operator()(const Mesh::CElements& component)
+    {
+      return Mesh::IsElementType<TYPE>()( component.element_type() );
+    }
+  };
+
+  /// Looper defines a functor taking the type that boost::mpl::for_each
+  /// passes. It is the core of the looping mechanism.
+  struct ElementLooper
+  {
+    private: // data
+
+      /// Region to loop on
+      Mesh::CRegion& region;
+
+      /// Operation to perform
+      ActionT& op;
+
+    public: // functions
+
+      /// Constructor
+      ElementLooper(ActionT& operation, Mesh::CRegion& region_in )
+        : region(region_in) , op(operation)
+      {}
+
+      /// Operator
+      template < typename SFType >
+      void operator() ( SFType& T )
+      {
+        boost_foreach(Mesh::CElements& elements, Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsShapeFunction<SFType>()))
+        {
+          op.set_elements(elements);
+          if (op.can_start_loop())
+          {
+            const Uint nb_elem = elements.size();
+            for ( Uint elem = 0; elem != nb_elem; ++elem )
+            {
+              op.select_loop_idx(elem);
+              op.template executeT<SFType>();
+            }
+          }
+        }
+      }
+
+  }; // ElementLooper
+
 public: // typedefs
 
   typedef boost::shared_ptr< CForAllElementsT2 > Ptr;
   typedef boost::shared_ptr< CForAllElementsT2 const > ConstPtr;
-  friend struct CForAllElementsT2_detail::ElementLooper<ActionT>;
+//  friend struct CForAllElementsT2::ElementLooper<ActionT>;
 
 public: // functions
 
@@ -138,7 +122,7 @@ public: // functions
     {
       CFinfo << region->full_path().string() << CFendl;
       
-      CForAllElementsT2_detail::ElementLooper<ActionT> loop_elements(*m_action,*region);
+      CForAllElementsT2::ElementLooper loop_elements(*m_action,*region);
       boost::mpl::for_each< Mesh::SF::Types >(loop_elements);
     }
   }
