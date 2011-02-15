@@ -62,14 +62,14 @@ private: // data
     LoopHelper(Mesh::CElements& geometry_elements, CLoopOperation& op) :
 			solution(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).data()),
       residual(geometry_elements.get_field_elements(op.properties()["ResidualField"].value<std::string>()).data()),
-      inverse_updatecoeff(geometry_elements.get_field_elements(op.properties()["InverseUpdateCoeff"].value<std::string>()).data()),
+      update_coeff(geometry_elements.get_field_elements(op.properties()["InverseUpdateCoeff"].value<std::string>()).data()),
       // Assume coordinates and connectivity_table are the same for solution and residual (pretty safe)
       coordinates(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).nodes().coordinates()),
       connectivity_table(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).connectivity_table())
     { }
     Mesh::CTable<Real>& solution;
     Mesh::CTable<Real>& residual;
-    Mesh::CTable<Real>& inverse_updatecoeff;
+    Mesh::CTable<Real>& update_coeff;
     Mesh::CTable<Real>& coordinates;
     Mesh::CTable<Uint>& connectivity_table;
   };
@@ -123,7 +123,7 @@ CSchemeN<SHAPEFUNC,QUADRATURE>::CSchemeN ( const std::string& name ) :
 
   m_properties.add_option< Common::OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
   m_properties.add_option< Common::OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
-  m_properties.add_option< Common::OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inverse_updatecoeff")->mark_basic();
+  m_properties.add_option< Common::OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "update_coeff")->mark_basic();
 
   m_solution_values.resize(SHAPEFUNC::nb_nodes);
   m_flux_oper_values.resize(QUADRATURE::nb_points);
@@ -216,7 +216,7 @@ void CSchemeN<SHAPEFUNC, QUADRATURE>::execute()
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
-    m_loop_helper->inverse_updatecoeff[node_idx[n]][0] +=
+    m_loop_helper->update_coeff[node_idx[n]][0] +=
         std::sqrt( dx*dx+dy*dy) *
         std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }

@@ -1078,7 +1078,7 @@ template <typename ParentT, typename ComponentT, typename Predicate>
 typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_filter(ComponentT& comp, const Predicate& pred)
 {
   bool not_found=true;
-  typename ComponentPtr<ComponentT>::type parent = comp.get_parent() ;
+  typename ComponentPtr<ComponentT>::type parent = comp.parent() ;
   if ( is_null(parent) )
     throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
   while (not_found)
@@ -1087,7 +1087,7 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with
       not_found = false;
     else
     {
-      parent = parent->get_parent();
+      parent = parent->parent();
       if ( is_null(parent) )
         throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
     }
@@ -1099,7 +1099,7 @@ template <typename ParentT, typename ComponentT, typename Predicate>
 typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
 {
   bool not_found=true;
-  typename ComponentPtr<ComponentT>::type parent = comp.get_parent() ;
+  typename ComponentPtr<ComponentT>::type parent = comp.parent() ;
   if ( is_null(parent) )
     throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
 
@@ -1109,7 +1109,7 @@ typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr_with_f
       not_found = false;
     else
     {
-      parent = parent->get_parent();
+      parent = parent->parent();
       if ( is_null(parent) )
         throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
     }

@@ -193,10 +193,10 @@ public: // functions
 
   /// @returns the pointer to parent component
   /// @pre parent pointer is valid
-  Ptr get_parent();
+  Ptr parent();
   /// @returns the const pointer to parent component
   /// @pre parent pointer is valid
-  ConstPtr get_parent() const;
+  ConstPtr parent() const;
 
   /// Get the named child from the direct subcomponents.
   Ptr get_child(const std::string& name);

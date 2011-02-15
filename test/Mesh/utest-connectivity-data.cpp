@@ -76,8 +76,8 @@ void print_connectivity(const Component& root, const bool print_empty = true)
 {
   BOOST_FOREACH(const CFaceConnectivity& face_connectivity, find_components_recursively<CFaceConnectivity>(root))
   {
-    CFinfo << "------------------------- Connectivity for " << face_connectivity.get_parent()->path().string() << "/" << face_connectivity.get_parent()->name() << " -------------------------" << CFendl;
-    CElements::ConstPtr celements = boost::dynamic_pointer_cast<CElements const>(face_connectivity.get_parent());
+    CFinfo << "------------------------- Connectivity for " << face_connectivity.parent()->path().string() << "/" << face_connectivity.parent()->name() << " -------------------------" << CFendl;
+    CElements::ConstPtr celements = boost::dynamic_pointer_cast<CElements const>(face_connectivity.parent());
     const Uint nb_elements = celements->connectivity_table().array().size();
     const Uint nb_faces = celements->element_type().nb_faces();
     for(Uint elem = 0; elem != nb_elements; ++elem)

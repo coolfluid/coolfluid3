@@ -13,6 +13,7 @@
 #include "Common/BasicExceptions.hpp"
 
 #include "Mesh/CField.hpp"
+#include "Mesh/CFieldView.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
 
@@ -20,8 +21,6 @@
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/FluxOp2D.hpp"
-#include "RDM/RotationAdv2D.hpp"
-#include "RDM/Burgers2D.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,11 +55,33 @@ public: // functions
 
 private: // helper functions
 
-  void config_field();
+  void trigger_elements()
+  {
+    m_can_start_loop = m_solution_field->set_elements( elements() );
 
-  void trigger_elements();
+    connectivity_table = elements().as_type<CElements>()->connectivity_table();
+
+    cf_assert( is_not_null(connectivity_table) );
+
+    Component::Ptr parent = parent();
+
+//    coordinates_field  = parent->get_child<CField2>();
+//    solution_field     = parent->get_child<CField2>();
+//    residual_field     = parent->get_child<CField2>();
+//    update_coeff_field = parent->get_child<CField2>();
+
+  }
+
 
 private: // data
+
+  Mesh::CTable<Uint>::Ptr connectivity_table;
+  Mesh::CTable<Real>::Ptr coordinates;
+  Mesh::CTable<Real>::Ptr solution;
+  Mesh::CTable<Real>::Ptr residual;
+  Mesh::CTable<Real>::Ptr update_coeff;
+
+  boost::shared_ptr<Mesh::CFieldView> m_solution_field;
 
   typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
 
@@ -100,14 +121,22 @@ CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeLDAT ( const std::string& name
 template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
 void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 {
-  // inside element with index m_idx
 
-  const Mesh::CTable<Uint>::ConstRow node_idx = m_loop_helper->connectivity_table[idx()];
+  CFinfo << "LDA ELEM [" << idx() << "]" << CFendl;
+
+#if 0
+
+  const Uint eidx = idx();// idx() is the element index
+  const Mesh::CTable<Uint>::ConstRow nodes_idx = *connectivity_table[idx()];
+
   typename SHAPEFUNC::NodeMatrixT nodes;
-  fill(nodes, m_loop_helper->coordinates, m_loop_helper->connectivity_table[idx()]);
+
+  m_solution_field->put_coordinates( nodes, idx());
+
+  fill(nodes, coordinates, nodes_idx );
 
   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    m_solution_values[n] = m_loop_helper->solution[node_idx[n]][0];
+    m_solution_values[n] = solution[nodes_idx[n]][0];
 
 
  m_phi.setZero();
@@ -131,7 +160,7 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    m_loop_helper->residual[node_idx[n]][0] += m_phi[n];
+    residual[nodes_idx[n]][0] += m_phi[n];
 
   // computing average advection speed on element
 
@@ -168,13 +197,13 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   const Real dy = ymax - ymin;
 
   // The update coeff is updated by a product of bb radius and norm of advection velocity
-
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
-    m_loop_helper->inverse_updatecoeff[node_idx[n]][0] +=
-        std::sqrt( dx*dx+dy*dy);// *
-//        std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
+    update_coeff[nodes_idx[n]][0] += std::sqrt( dx*dx+dy*dy);
+//  std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }
+
+#endif
 
 }
 

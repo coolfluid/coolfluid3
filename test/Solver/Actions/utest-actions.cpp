@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   // create a node-based scalar solution and residual field
   mesh->create_field("solution",1,CField::NODE_BASED);
   CField& residual = mesh->create_field("residual",1,CField::NODE_BASED);
-  CField& inv_update_coeff = mesh->create_field("inverse_updatecoeff",1,CField::NODE_BASED);
+  CField& inv_update_coeff = mesh->create_field("update_coeff",1,CField::NODE_BASED);
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
 	CLoop::Ptr apply_bc = root->create_component< CForAllNodes >("apply_bc");
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   elem_loop->configure_property("Regions",regions_to_loop);  
   elem_loop->action("CF.Actions.CSchemeLDA").configure_property("SolutionField",std::string("solution"));
   elem_loop->action("CF.Actions.CSchemeLDA").configure_property("ResidualField",std::string("residual"));
-  elem_loop->action("CF.Actions.CSchemeLDA").configure_property("InverseUpdateCoeff",std::string("inverse_updatecoeff"));
+  elem_loop->action("CF.Actions.CSchemeLDA").configure_property("InverseUpdateCoeff",std::string("update_coeff"));
 
 	BOOST_CHECK(true);
 
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 	take_step->configure_property("Regions",regions_to_loop);
   take_step->action("CF.Actions.CTakeStep").configure_property("SolutionField",std::string("solution"));
   take_step->action("CF.Actions.CTakeStep").configure_property("ResidualField",std::string("residual"));
-  take_step->action("CF.Actions.CTakeStep").configure_property("InverseUpdateCoeff",std::string("inverse_updatecoeff"));
+  take_step->action("CF.Actions.CTakeStep").configure_property("InverseUpdateCoeff",std::string("update_coeff"));
   
   for ( Uint iter = 0; iter < 500;  ++iter)
   {

@@ -121,10 +121,10 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::DataBasis::POINT_BASED).data().size());
+  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::Basis::POINT_BASED).data().size());
   
   // Create a field for the analytical solution
-  mesh->create_scalar_field("TemperatureAnalytical", "T", CField2::DataBasis::POINT_BASED);
+  mesh->create_scalar_field("TemperatureAnalytical", "T", CField2::Basis::POINT_BASED);
   
   // Regions
   CRegion& xneg = find_component_recursively_with_name<CRegion>(*mesh, "xneg");

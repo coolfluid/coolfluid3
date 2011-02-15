@@ -85,7 +85,7 @@ void CElements::add_field_elements_link(CElements& field_elements)
   if ( is_null(field_group) )
     field_group = create_component<CGroup>("fields");
 
-  const std::string field_name = field_elements.get_parent()->as_type<CField>()->field_name();
+  const std::string field_name = field_elements.parent()->as_type<CField>()->field_name();
   field_group->create_component<CLink>(field_name)->link_to(field_elements.follow());
 }
 

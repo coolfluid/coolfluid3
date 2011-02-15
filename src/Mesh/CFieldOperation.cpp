@@ -206,7 +206,7 @@ Common::ComponentBuilder < CSetValue,       CFieldOperation, LibMesh > CSetValue
 //  
 //  void setup (CFieldElements& field_elements )
 //  {
-//    scalar_name = field_elements.get_parent()->as_type<CField>()->field_name();
+//    scalar_name = field_elements.parent()->as_type<CField>()->field_name();
 //    scalars = field_elements.elemental_data().as_type<CTable<Real> >();
 //    CFinfo << field_elements.full_path().string() << CFendl;
 //  }
@@ -230,7 +230,7 @@ Common::ComponentBuilder < CSetValue,       CFieldOperation, LibMesh > CSetValue
 //  
 //  void setup (CFieldElements& field_elements )
 //  {
-//    vector_name = field_elements.get_parent()->as_type<CField>()->field_name();
+//    vector_name = field_elements.parent()->as_type<CField>()->field_name();
 //    vectors = field_elements.elemental_data().as_type<CTable<Real> >();
 //    CFinfo << field_elements.full_path().string() << CFendl;
 //  }

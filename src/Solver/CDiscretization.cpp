@@ -6,6 +6,7 @@
 
 #include "Common/OptionArray.hpp"
 #include "Common/OptionComponent.hpp"
+#include "Common/OptionURI.hpp"
 
 #include "Mesh/CMesh.hpp"
 
@@ -33,8 +34,13 @@ CDiscretization::CDiscretization ( const std::string& name  ) :
     ->add_tag("mesh");
   
   /// @todo not necessary, solution.topology() should provide this information.
+
+  // for old compatibility
   std::vector< URI > dummy;
   m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy);
+
+  URI empty;
+  m_properties.add_option< OptionURI > ("Mesh", "Mesh to descretize", empty);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

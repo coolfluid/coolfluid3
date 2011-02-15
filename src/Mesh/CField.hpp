@@ -42,7 +42,7 @@ public: // typedefs
   typedef boost::shared_ptr<CField> Ptr;
   typedef boost::shared_ptr<CField const> ConstPtr;
   
-  enum DataBasis { ELEMENT_BASED=0,  NODE_BASED=1};
+  enum Basis { ELEMENT_BASED=0,  NODE_BASED=1};
 	enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
 
 public: // functions
@@ -63,7 +63,7 @@ public: // functions
   /// @param name of the field
   CField& synchronize_with_region(CRegion& support, const std::string& field_name = "");
 	
-  void create_data_storage(const DataBasis basis);
+  void create_data_storage(const Basis basis);
 
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the field
@@ -98,9 +98,9 @@ public: // functions
   
   std::string field_name() const { return m_field_name; }
   
-  DataBasis basis() const { return m_basis; }
+  Basis basis() const { return m_basis; }
   
-  void set_basis(const DataBasis& basis) { m_basis = basis;}
+  void set_basis(const Basis& basis) { m_basis = basis;}
   
   /// @return the field with given name
   const CField& subfield(const std::string& name) const;
@@ -137,7 +137,7 @@ private:
   
   std::string m_field_name;
   
-  DataBasis m_basis;
+  Basis m_basis;
 				
 	void config_var_names();
 	void config_var_sizes();

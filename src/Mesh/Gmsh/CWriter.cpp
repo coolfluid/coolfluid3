@@ -219,7 +219,7 @@ void CWriter::write_connectivity(std::fstream& file)
 
   boost_foreach(CEntities& elements, m_mesh->topology().elements_range())
   {
-    group_name = elements.get_parent()->full_path().path();
+    group_name = elements.parent()->full_path().path();
     group_number = m_groupnumber[group_name];
 
     m_element_start_idx[&elements]=elm_number;
@@ -499,7 +499,7 @@ void CWriter::write_nodal_data2(std::fstream& file)
   boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
   {
     CField2& nodebased_field = *field_ptr.lock();
-    if (nodebased_field.basis() == CField2::DataBasis::POINT_BASED)
+    if (nodebased_field.basis() == CField2::Basis::POINT_BASED)
     {
       std::string field_name = nodebased_field.name();
       // data_header
@@ -715,9 +715,9 @@ void CWriter::write_element_data2(std::fstream& file)
   boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
   {
     CField2& elementbased_field = *field_ptr.lock();
-    if (elementbased_field.basis() == CField2::DataBasis::ELEMENT_BASED ||
-        elementbased_field.basis() == CField2::DataBasis::CELL_BASED    ||
-        elementbased_field.basis() == CField2::DataBasis::FACE_BASED    )
+    if (elementbased_field.basis() == CField2::Basis::ELEMENT_BASED ||
+        elementbased_field.basis() == CField2::Basis::CELL_BASED    ||
+        elementbased_field.basis() == CField2::Basis::FACE_BASED    )
     {
       std::string field_name = elementbased_field.name();
       Uint nb_elements = 0;

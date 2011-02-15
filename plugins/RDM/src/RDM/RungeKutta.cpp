@@ -20,7 +20,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/CField2.hpp"
 #include "Mesh/CTable.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
@@ -82,24 +82,21 @@ void RungeKutta::trigger_Domain()
   const CMesh::Ptr& mesh = find_component_ptr_recursively<CMesh>(*look_component(domain));
   if (is_not_null(mesh))
   {
+    discretization_method().configure_property( "Mesh" , mesh->full_path() );
+
     std::vector<URI> volume_regions;
     boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
       volume_regions.push_back( region.full_path() );
 
-//    std::vector<URI> all_regions;
-//    boost_foreach( const CRegion& region, find_components<CRegion>(*mesh))
-//      all_regions.push_back( region.full_path() );
-
     m_take_step->configure_property( "Regions" , volume_regions );
-    discretization_method().configure_property( "Regions" , volume_regions );
   }
   else
   {
     CFinfo << "domain has no mesh " << CFendl;
     return;
   }
-  CFinfo << "domain has mesh" << CFendl;
 }
+
 //////////////////////////////////////////////////////////////////////////////
 
 CDiscretization& RungeKutta::discretization_method()
@@ -114,23 +111,24 @@ void RungeKutta::solve()
   CFinfo << "Setting up links" << CFendl;
   CMesh& mesh = find_component_recursively<CMesh>(*Core::instance().root());
 
-  CField::Ptr solution = find_component_ptr_with_name<CField>(mesh,"solution");
+  CField2::Ptr solution = find_component_ptr_with_name<CField2>(mesh,"solution");
   if ( is_null(solution) )
-    solution = mesh.create_field("solution",1,CField::NODE_BASED).as_type<CField>();
+    solution = mesh.create_field2("solution","PointBased","u[1]");
   m_solution_field->link_to(solution);
 
-  CField::Ptr residual = find_component_ptr_with_name<CField>(mesh,"residual");
+  CField2::Ptr residual = find_component_ptr_with_name<CField2>(mesh,"residual");
   if ( is_null(residual) )
-    residual = mesh.create_field("residual",1,CField::NODE_BASED).as_type<CField>();
+    residual = mesh.create_field2("residual","PointBased","ru[1]");
   m_residual_field->link_to(residual);
 
-  CField::Ptr inverse_updatecoeff = find_component_ptr_with_name<CField>(mesh,"inverse_updatecoeff");
-  if ( is_null(inverse_updatecoeff) )
-    inverse_updatecoeff = mesh.create_field("inverse_updatecoeff",1,CField::NODE_BASED).as_type<CField>();
-  m_update_coeff_field->link_to(inverse_updatecoeff);
+  CField2::Ptr update_coeff = find_component_ptr_with_name<CField2>(mesh,"update_coeff");
+  if ( is_null(update_coeff) )
+    update_coeff = mesh.mesh->create_field2("update_coeff","PointBased");
+  m_update_coeff_field->link_to(update_coeff);
 
 
-  // initial condition
+  // initialize to zero condition
+  /// @todo should be moved out of here
   boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_solution_field->follow(), "node_data"))
   {
     CFLogVar(node_data.size());
@@ -138,19 +136,26 @@ void RungeKutta::solve()
       node_data[i][0]=0;
   }
 
-  CFinfo << "Starting Iterative loop" << CFendl;
+  CFinfo << "* starting iterative loop *" << CFendl;
+
   for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
   {
     /// @todo move this into an action
 
-    // update coefficient and residual to zero
+    // set update coefficient and residual to zero
     // Set the field data of the source field
     boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->follow(), "node_data"))
-        for (Uint i=0; i<node_data.size(); ++i)
+    {
+      Uint size = node_data.size();
+      for (Uint i=0; i<size; ++i)
         node_data[i][0]=0;
+    }
     boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_update_coeff_field->follow(),"node_data"))
-        for (Uint i=0; i<node_data.size(); ++i)
+    {
+      Uint size = node_data.size();
+      for (Uint i=0; i<size; ++i)
         node_data[i][0]=0;
+    }
 
     // compute RHS
     discretization_method().compute_rhs();

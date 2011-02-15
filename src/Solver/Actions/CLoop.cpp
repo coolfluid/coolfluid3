@@ -38,8 +38,8 @@ CLoop::CLoop ( const std::string& name ) :
 
 CLoopOperation& CLoop::create_action(const std::string action_provider)
 {
-  // The execuation of operations must be in chronological order, hence
-  // they get an alphabetical name
+  // The execuation of operations must be in chronological order,
+  // hence they get an alphabetical name
   std::string name = action_provider;
   CLoopOperation::Ptr sub_operation =
     (create_component_abstract_type<CLoopOperation>(action_provider,name));

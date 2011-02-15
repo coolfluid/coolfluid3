@@ -20,7 +20,10 @@
 #include "RDM/SupportedTypes.hpp"
 
 #include "RDM/CSchemeLDAT.hpp"
-#include "RDM/CSchemeN.hpp"
+//#include "RDM/CSchemeN.hpp"
+
+#include "RDM/RotationAdv2D.hpp"
+#include "RDM/Burgers2D.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,17 +39,17 @@ class RDM_API CLDA : public Solver::Actions::CLoop
   /// passes. It is the core of the looping mechanism.
   struct ElementLoop
   {
-    private: // data
-
-      /// Region to loop on
-      Mesh::CRegion& region;
+    /// region to loop on
+    Mesh::CRegion& region;
+    /// component containing the element loop
+    CLDA& comp;
 
     public: // functions
 
       /// Constructor
-      ElementLoop( Mesh::CRegion& region_in ) : region(region_in) {}
+      ElementLoop( CLDA& comp_in, Mesh::CRegion& region_in ) : comp(comp_in), region(region_in) {}
 
-      /// Operator needed for the loop over shape functions (SF)
+      /// Operator needed for the loop over element types, identified by shape functions (SF)
       template < typename SF >
       void operator() ( SF& T )
       {
@@ -55,22 +58,28 @@ class RDM_API CLDA : public Solver::Actions::CLoop
         {
           // create an LDA for this specific type
 
+          CFinfo << elements->full_path().string() << CFendl;
+
           const Uint order = 5;
 
           typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> QD;
+          typedef CSchemeLDAT< SF, QD, Burgers2D > SchemeT;
 
-          create_static_component< CSchemeLDAT< SF, QD, > >("cell_loop");
+          // get the scheme
+          SchemeT::Ptr scheme = comp.get_child<SchemeT>( SchemeT::type_name() );
+          if( is_null(scheme) )
+            scheme = comp.create_component< SchemeT >( SchemeT::type_name() );
 
           // loop on elements of that type
-          op.set_elements(elements);
+          scheme.set_elements(elements);
 
-          if (op.can_start_loop())
+          if (scheme.can_start_loop())
           {
             const Uint nb_elem = elements.size();
             for ( Uint elem = 0; elem != nb_elem; ++elem )
             {
-              op.select_loop_idx(elem);
-              op.template executeT<SF>();
+              scheme.select_loop_idx(elem);
+              scheme.execute();
             }
           }
         }
@@ -87,30 +96,16 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CLDA ( const std::string& name ) :
-    CLoop(name)
-  {
-    regist_typeinfo(this);
-  }
+  CLDA ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CLDA() {}
+  virtual ~CLDA();
 
   /// Get the class name
   static std::string type_name () { return "CLDA"; }
 
   /// Execute the loop for all elements
-  virtual void execute()
-  {
-    boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
-    {
-      CFinfo << region->full_path().string() << CFendl;
-      
-      CLDA::ElementLoop elem_loop(*m_action,*region);
-
-      boost::mpl::for_each< RDM::CellTypes >(elem_loop);
-    }
-  }
+  virtual void execute();
 
 };
 

@@ -59,12 +59,12 @@ private: // data
     LoopHelper(Mesh::CElements& geometry_elements, CLoopOperation& op) :
 		solution(geometry_elements.get_field_elements(op.properties()["Solution Field"].value<std::string>()).data()),
 		residual(geometry_elements.get_field_elements(op.properties()["Residual Field"].value<std::string>()).data()),
-		inverse_updatecoeff(geometry_elements.get_field_elements(op.properties()["Inverse Update Coefficient"].value<std::string>()).data()),
+		update_coeff(geometry_elements.get_field_elements(op.properties()["Inverse Update Coefficient"].value<std::string>()).data()),
 		used_nodes(Mesh::CElements::used_nodes(geometry_elements.get_field_elements(op.properties()["Solution Field"].value<std::string>())))
     { }
     Mesh::CTable<Real>& solution;
     Mesh::CTable<Real>& residual;
-    Mesh::CTable<Real>& inverse_updatecoeff;
+    Mesh::CTable<Real>& update_coeff;
     Mesh::CList<Uint>&  used_nodes;
   };
 	

@@ -191,7 +191,7 @@ CField& CField::synchronize_with_region(CRegion& support, const std::string& fie
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void CField::create_data_storage(const DataBasis basis)
+void CField::create_data_storage(const Basis basis)
 {
   m_basis = basis;
   BOOST_FOREACH(CField& subfield, find_components_recursively<CField>(*this))
@@ -248,7 +248,7 @@ void CField::create_data_storage(const DataBasis basis)
     }
       break;
     default:
-      throw NotSupported(FromHere() , "DataBasis can only be ELEMENT_BASED or NODE_BASED");
+      throw NotSupported(FromHere() , "Basis can only be ELEMENT_BASED or NODE_BASED");
       break;
   }
 }

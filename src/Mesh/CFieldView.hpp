@@ -94,7 +94,7 @@ protected:
   Uint m_stride;
   Uint m_size;
 
-  boost::weak_ptr<CField2>      m_field;
+  boost::weak_ptr<CField2>            m_field;
   boost::weak_ptr<CTable<Real> >      m_field_data;
   boost::weak_ptr<CEntities const>    m_elements;
   boost::weak_ptr<CTable<Real> const> m_coords_table;

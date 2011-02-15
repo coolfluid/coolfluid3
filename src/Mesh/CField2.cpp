@@ -36,31 +36,31 @@ Common::ComponentBuilder < CField2, Component, LibMesh >  CField2_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField2::DataBasis::Convert::Convert()
+CField2::Basis::Convert::Convert()
 {
   all_fwd = boost::assign::map_list_of
-      ( CField2::DataBasis::POINT_BASED, "PointBased" )
-      ( CField2::DataBasis::ELEMENT_BASED, "ElementBased" )
-      ( CField2::DataBasis::CELL_BASED, "CellBased" )
-      ( CField2::DataBasis::FACE_BASED, "FaceBased" );
+      ( CField2::Basis::POINT_BASED, "PointBased" )
+      ( CField2::Basis::ELEMENT_BASED, "ElementBased" )
+      ( CField2::Basis::CELL_BASED, "CellBased" )
+      ( CField2::Basis::FACE_BASED, "FaceBased" );
 
   all_rev = boost::assign::map_list_of
-      ("PointBased",  CField2::DataBasis::POINT_BASED )
-      ("ElementBased",  CField2::DataBasis::ELEMENT_BASED )
-      ("CellBased",  CField2::DataBasis::CELL_BASED )
-      ("FaceBased",  CField2::DataBasis::FACE_BASED );
+      ("PointBased",    CField2::Basis::POINT_BASED )
+      ("ElementBased",  CField2::Basis::ELEMENT_BASED )
+      ("CellBased",     CField2::Basis::CELL_BASED )
+      ("FaceBased",     CField2::Basis::FACE_BASED );
 }
 
-CField2::DataBasis::Convert& CField2::DataBasis::Convert::instance()
+CField2::Basis::Convert& CField2::Basis::Convert::instance()
 {
-  static CField2::DataBasis::Convert instance;
+  static CField2::Basis::Convert instance;
   return instance;
 }
 
 
 CField2::CField2 ( const std::string& name  ) :
   Component ( name ),
-  m_basis(DataBasis::POINT_BASED),
+  m_basis(Basis::POINT_BASED),
   m_registration_name ( name ),
   m_space_idx(0u)
 {
@@ -149,7 +149,7 @@ void CField2::config_field_type()
 {
   std::string field_type;
   property("FieldType").put_value(field_type);
-  set_basis( DataBasis::Convert::instance().to_enum(field_type) );
+  set_basis( Basis::Convert::instance().to_enum(field_type) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -244,13 +244,13 @@ void CField2::create_data_storage()
   
   switch (m_basis)
   {
-    case DataBasis::POINT_BASED:
+    case Basis::POINT_BASED:
     {
       m_used_nodes = CElements::used_nodes(topology()).as_type<CList<Uint> >();
       m_data->resize(m_used_nodes->size());
       break;
     }
-    case DataBasis::ELEMENT_BASED:
+    case Basis::ELEMENT_BASED:
     {
       Uint data_size = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(topology()))
@@ -265,7 +265,7 @@ void CField2::create_data_storage()
       m_data->resize(data_size);
       break;
     }
-    case DataBasis::CELL_BASED:
+    case Basis::CELL_BASED:
     {
       Uint data_size = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CCells>(topology()))
@@ -280,7 +280,7 @@ void CField2::create_data_storage()
       m_data->resize(data_size);
       break;
     }
-    case DataBasis::FACE_BASED:
+    case Basis::FACE_BASED:
     {
       Uint data_size = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively_with_tag<CEntities>(topology(),"face_entity"))
@@ -297,7 +297,7 @@ void CField2::create_data_storage()
     }
 
     default:
-      throw NotSupported(FromHere() , "DataBasis can only be ELEMENT_BASED or NODE_BASED");
+      throw NotSupported(FromHere() , "Basis can only be ELEMENT_BASED or NODE_BASED");
       break;
   }
 }

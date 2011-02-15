@@ -181,7 +181,7 @@ CField2& CMesh::create_field2(const std::string& name, const CField2::DataBasis:
   field.set_topology(topology());
   field.configure_property("VarNames",variable_names);
   field.configure_property("VarTypes",types_str);
-  field.configure_property("FieldType", CField2::DataBasis::Convert::instance().to_str(base) );
+  field.configure_property("FieldType", CField2::Basis::Convert::instance().to_str(base) );
   field.create_data_storage();
 
   return field;
@@ -189,7 +189,7 @@ CField2& CMesh::create_field2(const std::string& name, const CField2::DataBasis:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis)
+CField& CMesh::create_field( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const CField::Basis basis)
 {
   CField& field = *create_component<CField>(name);
   field.synchronize_with_region(support);
@@ -217,14 +217,14 @@ CField& CMesh::create_field( const std::string& name , CRegion& support, const s
   return field;
 }
   
-CField& CMesh::create_field( const std::string& name , const std::vector<std::string>& variables, const CField::DataBasis basis)
+CField& CMesh::create_field( const std::string& name , const std::vector<std::string>& variables, const CField::Basis basis)
 {
   return create_field(name,topology(),variables,basis);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const std::string& name , CRegion& support, const Uint size, const CField::DataBasis basis)
+CField& CMesh::create_field( const std::string& name , CRegion& support, const Uint size, const CField::Basis basis)
 {
   std::vector<std::string> variables;
   if (size==1)
@@ -241,7 +241,7 @@ CField& CMesh::create_field( const std::string& name , CRegion& support, const U
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const std::string& name, const Uint size, const CField::DataBasis basis )
+CField& CMesh::create_field( const std::string& name, const Uint size, const CField::Basis basis )
 {
   return create_field(name,topology(),size,basis);
 }

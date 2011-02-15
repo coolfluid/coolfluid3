@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
 
 
-  std::string name  = "scalar_advection";
+  std::string name  = "mymodel";
 
     CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
 

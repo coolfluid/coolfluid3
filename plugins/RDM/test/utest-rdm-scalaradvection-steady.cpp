@@ -47,12 +47,12 @@ struct scalar_advection_global_fixture
 {
   scalar_advection_global_fixture()
   {
-    scalar_advection_wizard = allocate_component<ScalarAdvection>("scalar_advection");
+    scalar_advection_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
     XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
     XmlParams p(node);
-    p.add_option<std::string>("Model name","scalar_advection");
+    p.add_option<std::string>("Model name","mymodel");
 
     scalar_advection_wizard->create_model(node);
   }
@@ -64,7 +64,7 @@ struct scalar_advection_global_fixture
 struct scalar_advection_local_fixture
 {
   scalar_advection_local_fixture() :
-    model  ( * Core::instance().root()->get_child("scalar_advection")->as_type<CModel>() ),
+    model  ( * Core::instance().root()->get_child("mymodel")->as_type<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CIterativeSolver>(model) ),
     discretization( find_component_recursively<CDiscretization>(solver) )

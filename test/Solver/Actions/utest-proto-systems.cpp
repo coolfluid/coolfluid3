@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( SystemBasics )
   
   Uint elem_idx = 0;
   
-  mesh->create_scalar_field("Temperature", "T", CF::Mesh::CField2::DataBasis::POINT_BASED);
+  mesh->create_scalar_field("Temperature", "T", CF::Mesh::CField2::Basis::POINT_BASED);
   
   MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
   

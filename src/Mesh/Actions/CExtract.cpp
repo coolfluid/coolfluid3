@@ -107,14 +107,14 @@ void CExtract::transform(const CMesh::Ptr& mesh)
     {
       BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
       {
-        keep_region_paths.push_back(elements.get_parent()->full_path().path());
+        keep_region_paths.push_back(elements.parent()->full_path().path());
       }
     }
     else if (boost::regex_match(region_name,boost::regex("[Vv]olume(s)?"))) // Volume, Volumes, volume, volumes
     {
       BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsVolume()))
       {
-        keep_region_paths.push_back(elements.get_parent()->full_path().path());
+        keep_region_paths.push_back(elements.parent()->full_path().path());
       }
     }
   }
@@ -147,7 +147,7 @@ void CExtract::transform(const CMesh::Ptr& mesh)
   BOOST_FOREACH( CRegion& region, find_components_recursively<CRegion>(*m_mesh))
   {
     bool found = (std::find(keep_region.begin(),keep_region.end(),region.name()) != keep_region.end());
-    if (!found)  region.get_parent()->remove_component(region.name());
+    if (!found)  region.parent()->remove_component(region.name());
   }
 
 
@@ -157,7 +157,7 @@ void CExtract::transform(const CMesh::Ptr& mesh)
     if (region.recursive_elements_count() == 0)
     {
       CFinfo << "removing empty element_region " << region.full_path().string() << CFendl;
-      region.get_parent()->remove_component(region.name());
+      region.parent()->remove_component(region.name());
     }
   }
 

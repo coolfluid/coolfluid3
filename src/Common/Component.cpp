@@ -149,13 +149,13 @@ void Component::rename ( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::get_parent()
+Component::Ptr Component::parent()
 {
   cf_assert( is_not_null(m_raw_parent) );
   return m_raw_parent->self();
 }
 
-Component::ConstPtr Component::get_parent() const
+Component::ConstPtr Component::parent() const
 {
   cf_assert( is_not_null(m_raw_parent) );
   return m_raw_parent->self();
@@ -398,7 +398,7 @@ void Component::change_parent ( Component* new_parent )
 
 void Component::move_to ( Component::Ptr new_parent )
 {
-  Component::Ptr this_ptr = get_parent()->remove_component( this->name() );
+  Component::Ptr this_ptr = parent()->remove_component( this->name() );
   new_parent->add_component( this_ptr );
   raise_path_changed();
 }
@@ -436,7 +436,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
       if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
 
       if ( equals (*el, "..") )              // substitute any "../" for base path
-        look_comp = look_comp->get_parent();
+        look_comp = look_comp->parent();
       else
       {
         Component::ConstPtr parent = look_comp;
@@ -482,7 +482,7 @@ Component::Ptr Component::look_component ( const URI& path )
       if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
 
       if ( equals (*el, "..") )              // substitute any "../" for base path
-        look_comp = look_comp->get_parent();
+        look_comp = look_comp->parent();
       else
       {
         Component::Ptr parent = look_comp;
@@ -531,14 +531,14 @@ void Component::delete_component ( XmlNode& node  )
 //  if( ! path.is_protocol("cpath") )
 //    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
-//  Component::Ptr comp = look_component( path.path() )->get_parent();
-//  Component::Ptr parent = comp->get_parent();
+//  Component::Ptr comp = look_component( path.path() )->parent();
+//  Component::Ptr parent = comp->parent();
 //  parent->remove_component( comp->name() );
 
   // when goes out of scope it gets deleted
   // unless someone else shares it
   Component::Ptr meself = self();
-  Component::Ptr parent = meself->get_parent();
+  Component::Ptr parent = meself->parent();
 
   parent->remove_component( meself->name() );
 }

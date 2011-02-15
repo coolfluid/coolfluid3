@@ -32,7 +32,7 @@ CTakeStep::CTakeStep ( const std::string& name ) :
   // actions
   m_properties.add_option< OptionT<std::string> > ("Solution Field","Solution Field for calculation", "solution")->mark_basic();
   m_properties.add_option< OptionT<std::string> > ("Residual Field","Residual Field updated after calculation", "residual")->mark_basic();
-  m_properties.add_option< OptionT<std::string> > ("Inverse Update Coefficient","Inverse update coefficient Field updated after calculation", "inverse_updatecoeff")->mark_basic();
+  m_properties.add_option< OptionT<std::string> > ("Inverse Update Coefficient","Inverse update coefficient Field updated after calculation", "update_coeff")->mark_basic();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ CTakeStep::CTakeStep ( const std::string& name ) :
 void CTakeStep::execute()
 {  
   cf_assert( is_not_null(m_loop_helper) );
-  m_loop_helper->solution[idx()][0] += - ( 0.9/m_loop_helper->inverse_updatecoeff[idx()][0] ) * m_loop_helper->residual[idx()][0];
+  m_loop_helper->solution[idx()][0] += - ( 0.9/m_loop_helper->update_coeff[idx()][0] ) * m_loop_helper->residual[idx()][0];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

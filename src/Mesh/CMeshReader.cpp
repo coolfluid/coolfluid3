@@ -177,7 +177,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 
     if ( empty_on_all_ranks )
     {
-      CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.get_parent()->remove_component(region.name()));
+      CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.parent()->remove_component(region.name()));
       removed.reset();
     }
   }
@@ -188,7 +188,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
     // find the empty regions
     if ( find_components<CRegion>(region).empty() && find_components<CElements>(region).empty() )
       {
-        CRegion::Ptr removed = boost::dynamic_pointer_cast<CRegion>(region.get_parent()->remove_component(region.name()));
+        CRegion::Ptr removed = boost::dynamic_pointer_cast<CRegion>(region.parent()->remove_component(region.name()));
         removed.reset();
       }
   }
