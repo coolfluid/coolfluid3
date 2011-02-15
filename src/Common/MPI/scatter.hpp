@@ -28,7 +28,7 @@
   Some functions support automatic evaluation of number of items on the receive side but be very cautious with using them because it requires two collective communication and may end up with degraded performance.
   Currently, the interface supports raw pointers and std::vectors.
   Three types of communications is implemented:
-  - Constant size send and receive on all processors via MPI_alltoall
+  - Constant size +send and receive on all processors via MPI_alltoall
   - Variable size send and receive via MPI_alltoallv
   - Extension of the variable sized communication to support mapped storage both on send and receive side.
 **/
@@ -69,11 +69,9 @@ namespace detail {
     cf_assert( stride>0 );
 
     // set up out_buf
-    T* out_buf=0;
+    T* out_buf=out_buf=out_values;
     if ((irank==root)&&(in_values==out_values)) {
       if ( (out_buf=new T[nproc*in_n*stride+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
-    } else {
-      out_buf=out_values;
     }
 
     // do the communication
@@ -119,7 +117,7 @@ namespace detail {
     T *in_buf=0;
     int in_sum;
     if (irank==root){
-      // compute displacements both on send side
+      // compute displacements on send side
       in_nstride=new int[nproc];
       in_disp=new int[nproc];
       in_disp[0]=0;
@@ -167,9 +165,7 @@ namespace detail {
     // free internal memory
     if (irank==root) if (in_map!=0) delete[] in_buf;
     delete[] in_disp;
-    delete[] out_disp;
     delete[] in_nstride;
-    delete[] out_nstride;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -194,7 +190,7 @@ scatter(const PE::Communicator& comm, const T* in_values, const int in_n, T* out
   // get nproc
   int nproc,irank;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&rank));
+  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
@@ -205,9 +201,9 @@ scatter(const PE::Communicator& comm, const T* in_values, const int in_n, T* out
 
   // call c_impl
   if (irank==root){
-    detail::scatterc_impl(comm, in_values, in_n, out_buf, stride);
+    detail::scatterc_impl(comm, in_values, in_n, out_buf, root, stride);
   } else {
-    detail::scatterc_impl(comm, (T*)0, in_n, out_buf, stride);
+    detail::scatterc_impl(comm, (T*)0, in_n, out_buf, root, stride);
   }
   return out_buf;
 }
@@ -228,18 +224,20 @@ scatter(const PE::Communicator& comm, const std::vector<T>& in_values, std::vect
   // get number of processors
   int nproc,irank;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&rank));
+  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
   // set out_values's sizes
   cf_assert( in_values.size() % (nproc*stride) == 0 );
-  out_values.resize(in_values.size());
-  out_values.reserve(in_values.size());
+  if (out_values!=in_values) {
+    out_values.resize(in_values.size()/nproc);
+    out_values.reserve(in_values.size()/nproc);
+  }
 
   // call c_impl
   if (irank==root){
-    detail::scatterc_impl(comm, (T*)(&in_values[0]), in_values.size()/(nproc*stride), (T*)(&out_values[0]), stride);
+    detail::scatterc_impl(comm, (T*)(&in_values[0]), in_values.size()/(nproc*stride), (T*)(&out_values[0]), root, stride);
   } else {
-    detail::scatterc_impl(comm, (T*)0, in_values.size()/(nproc*stride), (T*)(&out_values[0]), stride);
+    detail::scatterc_impl(comm, (T*)0, in_values.size()/(nproc*stride), (T*)(&out_values[0]), root, stride);
   }
 }
 
@@ -248,7 +246,7 @@ scatter(const PE::Communicator& comm, const std::vector<T>& in_values, std::vect
 //needs a forward
 template<typename T>
 inline T*
-scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1);
+scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int& out_n, const int *out_map, const int root, const int stride);
 
 /**
   Interface to the variable size scatter communication with specialization to raw pointer.
@@ -263,10 +261,10 @@ scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const
 **/
 template<typename T>
 inline T*
-scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, T* out_values, int *out_n, const int stride=1)
+scatter(const PE::Communicator& comm, const T* in_values, const int* in_n, T* out_values, int& out_n, const int root, const int stride=1)
 {
   // call mapped variable scatter
-  return scatter(comm,in_values,in_n,0,out_values,out_n,0,stride);
+  return scatter(comm,in_values,in_n,0,out_values,out_n,0,root,stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -274,7 +272,7 @@ scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, T* ou
 //needs a forward
 template<typename T>
 inline void
-scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1);
+scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, int& out_n, const std::vector<int>& out_map, const int root, const int stride);
 
 /**
   Interface to the constant size scatter communication with specialization to std::vector.
@@ -290,12 +288,12 @@ scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std
 **/
 template<typename T>
 inline void
-scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int stride=1)
+scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, int& out_n, const int root, const int stride=1)
 {
   // call mapped variable scatter
   std::vector<int> in_map(0);
   std::vector<int> out_map(0);
-  scatter(comm,in_values,in_n,in_map,out_values,out_n,out_map,stride);
+  scatter(comm,in_values,in_n,in_map,out_values,out_n,out_map,root,stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -316,7 +314,7 @@ scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std
 **/
 template<typename T>
 inline T*
-scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int &out_n, const int *out_map, const in root, const int stride)
+scatter(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int &out_n, const int *out_map, const int root, const int stride)
 {
   // number of processes
   int nproc,irank;
@@ -377,7 +375,6 @@ scatter(const PE::Communicator& comm, const std::vector<T>& in_values, const std
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
   MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
   cf_assert( (int)in_n.size() == nproc );
-  if ((int)out_n.size()!=nproc) CF::Common::BadValue(FromHere(),"Size of vector for number of items to be received does not match to number of processes.");
 
   // compute number of send and receive
   int in_sum=0;
