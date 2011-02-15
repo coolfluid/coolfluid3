@@ -183,7 +183,7 @@ void RungeKutta::solve()
     const Uint nbdofs = solution->size();
     for (Uint i=0; i< nbdofs; ++i)
       (*solution)[i][0] += - ( CFL / (*update_coeff)[i][0] ) * (*residual)[i][0];
-
+//        solution[idx()][0] += - ( 0.9/update_coeff[idx()][0] ) * residual[idx()][0];
 //    CFinfo << " --  computing the norm" << CFendl;
     Real rhs_L2 = 0.;
     for (Uint i=0; i< nbdofs; ++i)

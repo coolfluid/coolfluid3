@@ -23,6 +23,7 @@
 #include "RDM/CSchemeLDAT.hpp"
 //#include "RDM/CSchemeN.hpp"
 
+#include "RDM/LinearAdv2D.hpp"
 #include "RDM/RotationAdv2D.hpp"
 #include "RDM/Burgers2D.hpp"
 
