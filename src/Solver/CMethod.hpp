@@ -10,7 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
-#include "Common/OptionT.hpp"
 
 #include "Solver/LibSolver.hpp"
 
