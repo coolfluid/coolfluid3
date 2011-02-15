@@ -11,7 +11,7 @@
 
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
-class QSpinBox;
+class QDoubleSpinBox;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -38,11 +38,11 @@ namespace ClientUI {
 
   private slots:
 
-    void integerChanged(int value);
+    void integerChanged(double value);
 
   private:
 
-    QSpinBox * m_spinBox;
+    QDoubleSpinBox * m_spinBox;
 
     bool m_isUint;
 

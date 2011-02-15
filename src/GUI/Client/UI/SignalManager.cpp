@@ -177,6 +177,11 @@ void SignalManager::signalSignature(XmlNode * node)
     {
       ClientRoot::instance().log()->addException(e.what());
     }
+    catch( ... )
+    {
+      ClientRoot::instance().log()->addException("Unknown exception caught");
+    }
+
 
     m_waitingForSignature = false;
   }

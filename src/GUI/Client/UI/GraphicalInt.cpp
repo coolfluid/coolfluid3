@@ -4,11 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QSpinBox>
+#include <QDoubleSpinBox>
 #include <QVariant>
 #include <QVBoxLayout>
 
 #include <climits>
+
+#include "Math/MathConsts.hpp"
+
+#include "GUI/Client/UI/UintSpinBox.hpp"
 
 #include "GUI/Client/UI/GraphicalInt.hpp"
 
@@ -18,11 +22,18 @@ GraphicalInt::GraphicalInt(bool isUint, CF::Common::Option::ConstPtr opt, QWidge
   : GraphicalValue(parent),
     m_isUint(isUint)
 {
-  m_spinBox = new QSpinBox(this);
+  m_spinBox = new QDoubleSpinBox(/*isUint, */this);
 
-  m_spinBox->setRange((m_isUint ? 0 : INT_MIN), INT_MAX);
+  if(m_isUint)
+    m_spinBox->setRange(Math::MathConsts::Uint_min(), Math::MathConsts::Uint_max());
+  else
+    m_spinBox->setRange(Math::MathConsts::int_min(), Math::MathConsts::int_max());
 
   m_layout->addWidget(m_spinBox);
+
+  m_spinBox->setDecimals(0);
+
+//  m_spinBox->setValue(12.34)s;
 
   if(opt.get() != nullptr)
   {
@@ -31,8 +42,7 @@ GraphicalInt::GraphicalInt(bool isUint, CF::Common::Option::ConstPtr opt, QWidge
     else
       this->setValue(opt->value<int>());
   }
-
-  connect(m_spinBox, SIGNAL(valueChanged(int)), this, SLOT(integerChanged(int)));
+  connect(m_spinBox, SIGNAL(valueChanged(double)), this, SLOT(integerChanged(double)));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -63,13 +73,16 @@ bool GraphicalInt::setValue(const QVariant & value)
 
 QVariant GraphicalInt::value() const
 {
-  return m_spinBox->value();
+  if(m_isUint)
+    return (Uint) m_spinBox->value();
+
+  return (int) m_spinBox->value();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void GraphicalInt::integerChanged(int value)
+void GraphicalInt::integerChanged(double value)
 {
   emit valueChanged();
 }
