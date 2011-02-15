@@ -47,7 +47,7 @@ public:
   }
 
   OptionComponent(const std::string & name, const std::string & desc, data_t* linked_component)
-    : OptionURI(name, desc, linked_component->lock()->full_path())
+    : OptionURI(name, desc, URI("cpath:"))
   {
     m_default = data_t(*linked_component);
     m_value = m_default;
