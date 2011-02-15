@@ -58,7 +58,7 @@ void ScalarAdvection::create_model ( Common::XmlNode& node )
 {
   XmlParams p ( node );
 
-// create the model
+  CFinfo << "creating a scalar advection model" << CFendl;
 
   std::string name  = p.get_option<std::string>("Model name");
 

@@ -54,14 +54,16 @@ class RDM_API CLDA : public Solver::Actions::CLoop
       template < typename SF >
       void operator() ( SF& T )
       {
+        CFinfo << " -- CLDA in [" << region.full_path().string() << "]" << CFendl;
+
         boost_foreach(Mesh::CElements& elements,
                       Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
         {
+          CFinfo << " --- elements " << elements.full_path().string() << CFendl;
+
           // create an LDA for this specific type
 
-          CFinfo << elements.full_path().string() << CFendl;
-
-          const Uint order = 1;
+          const Uint order = 2;
 
           typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> QD;
           typedef CSchemeLDAT< SF, QD, Burgers2D > SchemeT;
@@ -76,6 +78,8 @@ class RDM_API CLDA : public Solver::Actions::CLoop
 
           if (scheme->can_start_loop())
           {
+            CF_DEBUG_POINT;
+
             const Uint nb_elem = elements.size();
             for ( Uint elem = 0; elem != nb_elem; ++elem )
             {

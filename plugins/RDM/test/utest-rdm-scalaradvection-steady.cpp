@@ -95,7 +95,7 @@ BOOST_FIXTURE_TEST_CASE( check_tree , scalar_advection_local_fixture )
 
   Core::instance().root()->list_tree(tree_node);
 
-  CFinfo << model.tree() << CFendl;
+//  CFinfo << model.tree() << CFendl;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -239,6 +239,8 @@ BOOST_FIXTURE_TEST_CASE( output , scalar_advection_local_fixture )
 #endif
 
   BOOST_CHECK(true);
+
+//  CFinfo << model.tree() << CFendl;
 
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   boost::filesystem::path file ("scalar_advection.msh");

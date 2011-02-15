@@ -94,7 +94,7 @@ BOOST_FIXTURE_TEST_CASE( check_tree , scalar_advection_local_fixture )
 
   Core::instance().root()->list_tree(tree_node);
 
-  CFinfo << model.tree() << CFendl;
+//  CFinfo << model.tree() << CFendl;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -180,7 +180,7 @@ BOOST_FIXTURE_TEST_CASE( create_boundary_term , scalar_advection_local_fixture )
 
   discretization.as_type<ResidualDistribution>()->create_boundary_term(node);
 
-  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
+//  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
   BOOST_CHECK(true);
 }
@@ -209,7 +209,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , scalar_advection_local_fixture )
 
   discretization.as_type<ResidualDistribution>()->create_domain_term(node);
 
-  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
+//  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
   BOOST_CHECK(true);
 }

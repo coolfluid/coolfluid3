@@ -12,7 +12,8 @@
 #include "Common/OptionT.hpp"
 #include "Common/BasicExceptions.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/ElementData.hpp"
+#include "Mesh/CField2.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
@@ -56,27 +57,46 @@ public: // functions
 private: // helper functions
 
   void trigger_elements()
-  {
-    m_can_start_loop = m_solution_field->set_elements( elements() );
+  { 
+    /// @todo improve this (ugly)
 
-    connectivity_table = elements().as_type<Mesh::CElements>()->connectivity_table();
+    connectivity_table = elements().as_type<Mesh::CElements>()->connectivity_table().self()->as_type< Mesh::CTable<Uint> >();
+    coordinates = elements().nodes().coordinates().self()->as_type< Mesh::CTable<Real> >();
 
     cf_assert( is_not_null(connectivity_table) );
 
-    Component::Ptr p = parent();
+    /// @todo this should maybe be on a setup function
 
-//    coordinates_field  = p->get_child<CField2>();
-//    solution_field     = p->get_child<CField2>();
-//    residual_field     = p->get_child<CField2>();
-//    update_coeff_field = p->get_child<CField2>();
+    Mesh::CField2::Ptr csolution = look_component( "cpath:../../../solution" )
+        ->follow()->as_type<Mesh::CField2>();
+    cf_assert( is_not_null( csolution ) );
+    solution = csolution->data_ptr();
 
+    m_solution_field->set_field( csolution );
+
+    Mesh::CField2::Ptr cresidual = look_component( "cpath:../../../residual" )
+        ->follow()->as_type<Mesh::CField2>();
+    cf_assert( is_not_null( cresidual ) );
+    residual = cresidual->data_ptr();
+
+    Mesh::CField2::Ptr cupdate_coeff = look_component( "cpath:../../../update_coeff" )
+        ->follow()->as_type<Mesh::CField2>();
+    cf_assert( is_not_null( cupdate_coeff ) );
+    update_coeff = cupdate_coeff->data_ptr();
+
+//    m_can_start_loop =
+        m_solution_field->set_elements( elements() );
+
+    CFinfo << " --- start loop [" << m_can_start_loop << "]" << CFendl;
   }
 
 
 private: // data
 
   Mesh::CTable<Uint>::Ptr connectivity_table;
+
   Mesh::CTable<Real>::Ptr coordinates;
+
   Mesh::CTable<Real>::Ptr solution;
   Mesh::CTable<Real>::Ptr residual;
   Mesh::CTable<Real>::Ptr update_coeff;
@@ -112,6 +132,10 @@ CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeLDAT ( const std::string& name
 {
   regist_typeinfo(this);
 
+  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::trigger_elements,   this ) );
+
+  m_solution_field = create_static_component<Mesh::CFieldView>("solution_view");
+
   m_flux_oper_values.resize(QUADRATURE::nb_points);
   m_phi.resize(SHAPEFUNC::nb_nodes);
 }
@@ -122,21 +146,18 @@ template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
 void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 {
 
-  CFinfo << "LDA ELEM [" << idx() << "]" << CFendl;
+//  CFinfo << "LDA ELEM [" << idx() << "]" << CFendl;
 
-#if 0
-
-  const Uint eidx = idx();// idx() is the element index
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = *connectivity_table[idx()];
+  const Mesh::CTable<Uint>::ConstRow nodes_idx = connectivity_table->array()[idx()];
 
   typename SHAPEFUNC::NodeMatrixT nodes;
 
-  m_solution_field->put_coordinates( nodes, idx());
+//  m_solution_field->put_coordinates( nodes, idx() );
 
-  fill(nodes, coordinates, nodes_idx );
+  Mesh::fill(nodes, *coordinates, nodes_idx );
 
   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    m_solution_values[n] = solution[nodes_idx[n]][0];
+    m_solution_values[n] = (*solution)[nodes_idx[n]][0];
 
 
  m_phi.setZero();
@@ -158,9 +179,8 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
  }
   
 
-
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    residual[nodes_idx[n]][0] += m_phi[n];
+    (*residual)[nodes_idx[n]][0] += m_phi[n];
 
   // computing average advection speed on element
 
@@ -199,11 +219,9 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   // The update coeff is updated by a product of bb radius and norm of advection velocity
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
-    update_coeff[nodes_idx[n]][0] += std::sqrt( dx*dx+dy*dy);
+    (*update_coeff)[nodes_idx[n]][0] += std::sqrt( dx*dx+dy*dy);
 //  std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }
-
-#endif
 
 }
 

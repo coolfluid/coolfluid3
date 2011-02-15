@@ -15,8 +15,10 @@
 
 namespace CF {
 
-namespace Mesh {
+namespace Mesh
+{
   class CField2;
+  class CFieldView;
 }
 
 namespace RDM {
@@ -45,11 +47,15 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
+private: // helper functions
+
+  void trigger_elements();
+  void config_field();
+
 private: // data
 
+  boost::shared_ptr<Mesh::CFieldView> m_field_view;
   boost::weak_ptr<Mesh::CField2> m_field;
-
-  void config_field();
 
 };
 

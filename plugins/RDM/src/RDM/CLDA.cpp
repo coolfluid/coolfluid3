@@ -26,10 +26,6 @@ CLDA::~CLDA() {}
 
 void CLDA::execute()
 {
-  // access the fields
-
-
-
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
     CFinfo << region->full_path().string() << CFendl;

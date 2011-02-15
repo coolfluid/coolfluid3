@@ -47,7 +47,7 @@ public: // functions
   // functions specific to the CDiscretization component
   
   virtual void compute_rhs() = 0;
-  
+
 protected: // data
 
   boost::weak_ptr<Mesh::CMesh> m_mesh;

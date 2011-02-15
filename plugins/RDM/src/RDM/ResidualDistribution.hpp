@@ -63,7 +63,15 @@ public: // functions
 
   //@} END SIGNALS
 
+private: // functions
+
+  void trigger_Mesh();
+
 private: // data
+
+  Common::CLink::Ptr m_solution_field;
+  Common::CLink::Ptr m_residual_field;
+  Common::CLink::Ptr m_update_coeff_field;
 
   /// action to compute the boundary face terms
   Common::CAction::Ptr m_compute_boundary_face_terms;

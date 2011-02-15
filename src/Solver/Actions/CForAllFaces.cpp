@@ -39,6 +39,9 @@ void CForAllFaces::execute()
   {
     boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(*region,"face_entity") )    
     {
+
+    CFinfo << "CForAllFaces in [" << elements.full_path().string() << "]" << CFendl;
+
       // Setup all child operations
       boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
       {

@@ -65,9 +65,7 @@ private: // functions
 private: // data
   
   Common::CLink::Ptr m_solution_field;
-  
   Common::CLink::Ptr m_residual_field;
-  
   Common::CLink::Ptr m_update_coeff_field;
 
 };

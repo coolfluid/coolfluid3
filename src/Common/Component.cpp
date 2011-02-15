@@ -638,7 +638,12 @@ std::string Component::tree(Uint level) const
   std::string tree;
   for (Uint i=0; i<level; i++)
     tree += "  ";
-  tree += name() + "\n";
+  tree += name() ;
+
+  if( is_link() && follow() )
+    tree += " -> " + follow()->full_path().string();
+
+  tree += "\n";
 
   boost_foreach( CompStorage_t::value_type c, m_components )
   {

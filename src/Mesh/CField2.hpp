@@ -92,10 +92,16 @@ public: // functions
   
   /// Return the table that holds the data for this field
   CTable<Real>& data() { return *m_data; }
-  
+
   /// Return the const table that holds the data for this field
   const CTable<Real>& data() const { return *m_data; }
-  
+
+  /// Return the table that holds the data for this field
+  CTable<Real>::Ptr data_ptr() { return m_data; }
+
+  /// Return the const table that holds the data for this field
+  CTable<Real>::ConstPtr data_ptr() const { return m_data; }
+
   void set_topology(CRegion& topology);
   
   const CRegion& topology() const;
