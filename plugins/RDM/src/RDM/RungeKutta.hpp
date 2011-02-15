@@ -69,8 +69,6 @@ private: // data
   Common::CLink::Ptr m_residual_field;
   
   Common::CLink::Ptr m_update_coeff_field;
-  
-  boost::shared_ptr<Solver::Actions::CLoop> m_take_step;
 
 };
 

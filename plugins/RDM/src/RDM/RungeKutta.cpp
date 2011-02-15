@@ -52,19 +52,6 @@ RungeKutta::RungeKutta ( const std::string& name  ) : CIterativeSolver ( name )
   // signal("solve").signature
   //     .insert<URI>("Domain", "Domain to load mesh into" )
   //     .insert_array<URI>( "Files" , "Files to read" );
-
-  m_take_step = allocate_component<CForAllNodes>("take_step");
-  m_take_step->create_action("CF.RDM.CTakeStep");
-  add_static_component(m_take_step);
-
-  m_solution_field = allocate_component<CLink>("solution_field");
-  add_static_component(m_solution_field);
-
-  m_residual_field = allocate_component<CLink>("residual_field");
-  add_static_component(m_residual_field);
-
-  m_update_coeff_field = allocate_component<CLink>("update_coeff_field");
-  add_static_component(m_update_coeff_field);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,8 +74,6 @@ void RungeKutta::trigger_Domain()
     std::vector<URI> volume_regions;
     boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
       volume_regions.push_back( region.full_path() );
-
-    m_take_step->configure_property( "Regions" , volume_regions );
   }
   else
   {
@@ -159,10 +144,13 @@ void RungeKutta::solve()
     // compute RHS
     discretization_method().compute_rhs();
 
+    // CFL
+    const Real CFL = 0.9;
+
     // explicit update
-
-    solution[idx()][0] += - ( 0.9/m_loop_helper->update_coeff[idx()][0] ) * m_loop_helper->residual[idx()][0];
-
+    const Uint nbdofs = solution->size();
+    for (Uint i=0; i< nbdofs; ++i)
+      (*solution)[i][0] += - ( CFL / (*update_coeff)[i][0] ) * (*residual)[i][0];
 
     // compute norm
     Real rhs_L2=0;
