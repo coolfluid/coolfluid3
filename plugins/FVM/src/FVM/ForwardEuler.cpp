@@ -10,6 +10,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
