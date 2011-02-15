@@ -594,11 +594,12 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
     XmlOps::add_attribute_to( this_node, "atype", type_name);
     XmlOps::add_attribute_to( this_node, "mode", has_tag("basic") ? "basic" : "adv");
 
-    CLink::Ptr lnk = this->as_type<CLink>();
-    if( is_not_null(lnk) ) // if it is a link, we put the target path as value
+    CLink::Ptr lnk = boost::dynamic_pointer_cast<CLink>(shared_from_this());//this->as_type<CLink>();
+
+    if( is_not_null(lnk.get()) ) // if it is a link, we put the target path as value
     {
       if ( lnk->is_linked() )
-       this_node.value( this_node.document()->allocate_string( self()->full_path().path().c_str() ));
+       this_node.value( this_node.document()->allocate_string( lnk->follow()->full_path().string().c_str() ));
 //      else
 //        this_node.value( this_node.document()->allocate_string( "//Root" ));
     }
