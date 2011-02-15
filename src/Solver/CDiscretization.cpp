@@ -38,9 +38,6 @@ CDiscretization::CDiscretization ( const std::string& name  ) :
   // for old compatibility
   std::vector< URI > dummy;
   m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy);
-
-  URI empty;
-  m_properties.add_option< OptionURI > ("Mesh", "Mesh to descretize", empty);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

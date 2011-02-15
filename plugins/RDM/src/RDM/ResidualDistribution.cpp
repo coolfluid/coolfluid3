@@ -83,13 +83,11 @@ ResidualDistribution::~ResidualDistribution() {}
 
 void ResidualDistribution::trigger_Mesh()
 {
-  CMesh::Ptr mesh = look_component<CMesh>( property("Mesh").value<URI>() );
-  if( is_null(mesh) )
-    throw InvalidURI( FromHere(), "Path does not point to a Mesh");
+  CMesh& mesh = *m_mesh.lock();
 
-  CField2::Ptr solution = find_component_ptr_with_name<CField2>(*mesh,"solution");
-  CField2::Ptr residual = find_component_ptr_with_name<CField2>(*mesh,"residual");
-  CField2::Ptr update_coeff = find_component_ptr_with_name<CField2>(*mesh,"update_coeff");
+  CField2::Ptr solution = find_component_ptr_with_name<CField2>(mesh,"solution");
+  CField2::Ptr residual = find_component_ptr_with_name<CField2>(mesh,"residual");
+  CField2::Ptr update_coeff = find_component_ptr_with_name<CField2>(mesh,"update_coeff");
 
   m_solution_field->link_to(solution);
   m_residual_field->link_to(residual);
@@ -140,9 +138,9 @@ void ResidualDistribution::create_domain_term( XmlNode& xml )
 
 void ResidualDistribution::compute_rhs()
 {
-  CFinfo << " --  computing boundary face terms" << CFendl;
+//  CFinfo << " --  computing boundary face terms" << CFendl;
   m_compute_boundary_face_terms->execute();
-  CFinfo << " --  computing volume cell terms" << CFendl;
+//  CFinfo << " --  computing volume cell terms" << CFendl;
   m_compute_volume_cell_terms->execute();
 }
 

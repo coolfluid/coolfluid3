@@ -49,11 +49,13 @@ void CSetFieldValues2::config_field()
 
 void CSetFieldValues2::execute()
 {
+  CFinfo << "face [" << idx() << "]" << CFendl;
+
   // m_idx is the index that is set using the function set_loop_idx()
   CField2& field = *m_field.lock();
   CTable<Real>::Row data = field[idx()];
   const Real x = field.coords(idx())[XX];
-  //const CF::Real y =  m_field.field().coords(m_idx)[YY];
+  //const CF::Real y =  field.coords(idx())[YY];
   
   const Uint row_size = data.size();
   for (Uint i = 0; i != row_size; ++i)

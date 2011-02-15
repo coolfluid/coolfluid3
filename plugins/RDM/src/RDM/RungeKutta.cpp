@@ -152,7 +152,7 @@ void RungeKutta::solve()
   {
     /// @todo move this into an action
 
-    CFinfo << " --  cleaning residual field" << CFendl;
+//    CFinfo << " --  cleaning residual field" << CFendl;
 
     // set update coefficient and residual to zero
     // Set the field data of the source field
@@ -163,7 +163,7 @@ void RungeKutta::solve()
         node_data[i][0]=0;
     }
 
-    CFinfo << " --  cleaning update coeff" << CFendl;
+//    CFinfo << " --  cleaning update coeff" << CFendl;
     boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_update_coeff_field->follow(),"node_data"))
     {
       Uint size = node_data.size();
@@ -172,35 +172,28 @@ void RungeKutta::solve()
     }
 
     // compute RHS
-    CFinfo << " --  computing the rhs" << CFendl;
+//    CFinfo << " --  computing the rhs" << CFendl;
     discretization_method().compute_rhs();
 
     // CFL
-    const Real CFL = 0.9;
+    const Real CFL = 0.15;
 
     // explicit update
-    CFinfo << " --  updating solution" << CFendl;
+//    CFinfo << " --  updating solution" << CFendl;
     const Uint nbdofs = solution->size();
     for (Uint i=0; i< nbdofs; ++i)
       (*solution)[i][0] += - ( CFL / (*update_coeff)[i][0] ) * (*residual)[i][0];
 
-    CFinfo << " --  computing the norm" << CFendl;
-    Real rhs_L2=0;
-    Uint dof=0;
-    boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->follow(),"node_data"))
-    {
-      for (Uint i=0; i<node_data.size(); ++i)
-      {
-        rhs_L2 += node_data[i][0]*node_data[i][0];
-        dof++;
-      }
-    }
-    rhs_L2 = sqrt(rhs_L2)/dof;
+//    CFinfo << " --  computing the norm" << CFendl;
+    Real rhs_L2 = 0.;
+    for (Uint i=0; i< nbdofs; ++i)
+      rhs_L2 += (*residual)[i][0] * (*residual)[i][0];
+    rhs_L2 = sqrt(rhs_L2)/nbdofs;
 
     // output convergence info
     CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
-    if ( is_nan(rhs_L2) || is_inf(rhs_L2) )
-      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iter)+" iterations");
+//    if ( is_nan(rhs_L2) || is_inf(rhs_L2) )
+//      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iter)+" iterations");
   }
 }
 

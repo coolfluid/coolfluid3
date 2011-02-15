@@ -9,6 +9,7 @@
 #include "Common/Log.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CFieldView.hpp"
+#include "Mesh/CEntities.hpp"
 
 #include "RDM/BcDirichlet.hpp"
 
@@ -42,7 +43,10 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 
 void BcDirichlet::trigger_elements()
 {
-  m_can_start_loop = m_field_view->set_elements( elements() );
+//  CFinfo << "elements [" << elements().full_path().string() << "]" << CFendl;
+
+//  m_can_start_loop =
+      m_field_view->set_elements( elements() );
 }
 
 void BcDirichlet::config_field()
@@ -65,14 +69,14 @@ void BcDirichlet::config_field()
 
 void BcDirichlet::execute()
 {
-  CFinfo << "face [" << idx() << "]" << CFendl;
+//  CFinfo << "face [" << idx() << "]" << CFendl;
 
   // m_idx is the index that is set using the function set_loop_idx()
   CField2& field = *m_field.lock();
   CTable<Real>::Row data = field[idx()];
   const Real x = field.coords(idx())[XX];
-  //const CF::Real y =  m_field.field().coords(m_idx)[YY];
-  
+//  const CF::Real y =  field.coords(idx())[XX];
+
   const Uint row_size = data.size();
   for (Uint i = 0; i != row_size; ++i)
   {

@@ -152,7 +152,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , scalar_advection_local_fixture
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("Number of Iterations", 5u);
+  solver.configure_property("Number of Iterations", 10u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ BOOST_FIXTURE_TEST_CASE( create_boundary_term , scalar_advection_local_fixture )
 
   discretization.as_type<ResidualDistribution>()->create_boundary_term(node);
 
-  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
+//  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
   BOOST_CHECK(true);
 }
@@ -206,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , scalar_advection_local_fixture )
 
   discretization.as_type<ResidualDistribution>()->create_domain_term(node);
 
-  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
+//  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
   BOOST_CHECK(true);
 }
@@ -242,9 +242,22 @@ BOOST_FIXTURE_TEST_CASE( output , scalar_advection_local_fixture )
 
 //  CFinfo << model.tree() << CFendl;
 
+  ////////////////////////////////////////////////////////////////////////////////
+  // Writer
+  ////////////////////////////////////////////////////////////////////////////////
+
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
-  boost::filesystem::path file ("scalar_advection.msh");
-  mesh_writer->write_from_to(mesh,file);
+  model.add_component(mesh_writer);
+
+  std::vector<URI> fields;
+  boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
+    fields.push_back(field.full_path());
+
+  mesh_writer->configure_property("Fields",fields);
+  mesh_writer->configure_property("File",model.name()+".msh");
+  mesh_writer->configure_property("Mesh",mesh->full_path());
+
+  mesh_writer->write();
 
 }
 

@@ -80,6 +80,9 @@ FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::FluxOp2D() : m_quadrature( QUADRATURE::i
 {
    ///Set up the matrices to be used for interpolation
    for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
+   {
+//     std::cout << "W[" << q << "] = " << m_quadrature.weights[q] << std::endl;
+
      for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
      {
         SHAPEFUNC::mapped_gradient( m_quadrature.coords.col(q), m_mapped_grad );
@@ -89,6 +92,7 @@ FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::FluxOp2D() : m_quadrature( QUADRATURE::i
         m_dNdksi(q,n) = m_mapped_grad(KSI,n);
         m_dNdeta(q,n) = m_mapped_grad(ETA,n);
      }
+   }
 }
 
 
@@ -143,16 +147,20 @@ void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::N
 
     for(Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
     {
-     dN[XX]    = m_dNdx(q,n);
-     dN[YY]    = m_dNdy(q,n);
+      dN[XX]    = m_dNdx(q,n);
+      dN[YY]    = m_dNdy(q,n);
 
-     sf_oper_values(q,n) = PHYSICS::Lu(qd_pt,dN,m_qdsol_phys[q]);
+      sf_oper_values(q,n) = PHYSICS::Lu(qd_pt,dN,m_qdsol_phys[q]);
     }
-     flux_oper_values[q] = PHYSICS::Lu(qd_pt,du,m_qdsol_phys[q]) * m_j[q] * m_quadrature.weights[q];
+
+    flux_oper_values[q] = PHYSICS::Lu(qd_pt,du,m_qdsol_phys[q]) * m_j[q] * m_quadrature.weights[q];
+//    std::cout << "X [" << q << "] = " << qd_pt << std::endl;
+//    std::cout << "dU[" << q << "] = " << du << std::endl;
+//    std::cout << "U [" << q << "] = " << m_qdsol_phys[q] << std::endl;
+//    std::cout << "J [" << q << "] = " << m_j[q] << std::endl;
+
+//       std::cout << du << std::endl;
   }
-
-
-
 }
 
 

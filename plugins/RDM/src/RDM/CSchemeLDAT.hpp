@@ -87,7 +87,7 @@ private: // helper functions
 //    m_can_start_loop =
         m_solution_field->set_elements( elements() );
 
-    CFinfo << " --- start loop [" << m_can_start_loop << "]" << CFendl;
+//    CFinfo << " --- start loop [" << m_can_start_loop << "]" << CFendl;
   }
 
 
@@ -156,6 +156,12 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
   Mesh::fill(nodes, *coordinates, nodes_idx );
 
+//  std::cout << "nodes_idx";
+//  for ( Uint i = 0; i < nodes_idx.size(); ++i)
+//     std::cout << " " << nodes_idx[i];
+//  std::cout << std::endl;
+//  std::cout << "nodes: " << nodes << std::endl;
+
   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
     m_solution_values[n] = (*solution)[nodes_idx[n]][0];
 
@@ -163,6 +169,10 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
  m_phi.setZero();
 
  m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values);
+
+// std::cout << "solution_values  [" << m_solution_values << "]" << std::endl;
+// std::cout << "sf_oper_values   [" << m_sf_oper_values << "]" << std::endl;
+// std::cout << "flux_oper_values [" << m_flux_oper_values << "]" << std::endl;
 
  for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
  {
@@ -178,9 +188,19 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
    }
  }
   
+//   std::cout << "phi [";
+//   for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
+//      std::cout << m_phi[n] << " ";
+//   std::cout << "]" << std::endl;
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     (*residual)[nodes_idx[n]][0] += m_phi[n];
+
+//  std::cout << "residual [";
+//  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
+//     std::cout << (*residual)[nodes_idx[n]][0] << " ";
+//  std::cout << "]" << std::endl;
+
 
   // computing average advection speed on element
 
@@ -222,6 +242,14 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
     (*update_coeff)[nodes_idx[n]][0] += std::sqrt( dx*dx+dy*dy);
 //  std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }
+
+
+//  std::cout << "update_coeff [";
+//  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
+//     std::cout << (*update_coeff)[nodes_idx[n]][0] << " ";
+//  std::cout << "]" << std::endl;
+
+//  std::cout << " --------------------------------------------------------------- " << std::endl;
 
 }
 

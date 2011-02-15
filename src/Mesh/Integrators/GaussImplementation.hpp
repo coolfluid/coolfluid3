@@ -203,7 +203,7 @@ struct GaussMappedCoordsImpl<2, GeoShape::TRIAG>
 
   static CoordsT coords()
   {
-    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
+//    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
     CoordsT result;
     result.resize(DIM_2D, nb_points);
     result(KSI,0) = 0.5;
@@ -237,7 +237,7 @@ struct GaussMappedCoordsImpl<3, GeoShape::TRIAG>
 
   static CoordsT coords()
   {
-    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
+//    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
     CoordsT result;
     result.resize(DIM_2D, nb_points);
     result(KSI,0) = 1./3.;
@@ -275,7 +275,7 @@ struct GaussMappedCoordsImpl<4, GeoShape::TRIAG>
 
   static CoordsT coords()
   {
-    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
+//    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
     CoordsT result;
     result.resize(DIM_2D, nb_points);
     result(KSI,0) = 0.091576213509771;
@@ -320,7 +320,7 @@ struct GaussMappedCoordsImpl<5, GeoShape::TRIAG>
 
   static CoordsT coords()
   {
-    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
+//    CFinfo << "GaussMappedCoordsImpl::coords()" << CFendl;
     CoordsT result;
     result.resize(DIM_2D, nb_points);
     result(KSI,0)  = 0.063089014491502;

@@ -26,7 +26,7 @@ RotationAdv2D::~RotationAdv2D()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Real RotationAdv2D::Lu(const RealVector2 & point, const RealVector2 & grad, const Real & u )
+Real RotationAdv2D::Lu(const RealVector2& point, const RealVector2& grad, const Real& u )
 {
    return point[YY]*grad[XX] - point[XX]*grad[YY];
 }

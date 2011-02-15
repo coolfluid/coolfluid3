@@ -28,8 +28,6 @@ void CLDA::execute()
 {
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
-    CFinfo << region->full_path().string() << CFendl;
-
     CLDA::ElementLoop loop( *this, *region );
 
     boost::mpl::for_each< RDM::CellTypes >( loop );
