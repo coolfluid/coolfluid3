@@ -26,13 +26,18 @@ AboutCFDialog::AboutCFDialog(QWidget * parent)
 
   m_btOK = new QPushButton("OK");
 
+  m_labQwt = new QLabel("COOLFluiD client is based in part on the \n"
+                        "work of the Qwt project (http://qwt.sf.net).", this);
+
   m_infoList << new CFInfo("CF version:", CF_VERSION_STR, m_infoLayout);
   m_infoList << new CFInfo("Kernel version:", CF_KERNEL_VERSION_STR, m_infoLayout);
   m_infoList << new CFInfo("Build operating system:", QString("%1 [%2bits]").arg(CF_OS_LONGNAME).arg(CF_OS_BITS), m_infoLayout);
   m_infoList << new CFInfo("Build processor:", CF_BUILD_PROCESSOR, m_infoLayout);
   m_infoList << new CFInfo("Qt version:", QT_VERSION_STR, m_infoLayout);
 
+
   m_mainLayout->addLayout(m_infoLayout);
+  m_mainLayout->addWidget(m_labQwt);
   m_mainLayout->addWidget(m_btOK);
 
   connect(m_btOK, SIGNAL(clicked()), this, SLOT(accept()));
@@ -44,6 +49,7 @@ AboutCFDialog::AboutCFDialog(QWidget * parent)
 AboutCFDialog::~AboutCFDialog()
 {
   delete m_btOK;
+  delete m_labQwt;
   delete m_infoLayout;
   delete m_mainLayout;
 }

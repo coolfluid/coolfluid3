@@ -41,6 +41,8 @@ namespace ClientUI {
       ~CFInfo();
     };
 
+
+
   public:
 
     AboutCFDialog(QWidget * parent = nullptr);
@@ -56,6 +58,8 @@ namespace ClientUI {
     QFormLayout * m_infoLayout;
 
     QList<CFInfo *> m_infoList;
+
+    QLabel * m_labQwt;
 
   }; // class AboutCFDialog
 

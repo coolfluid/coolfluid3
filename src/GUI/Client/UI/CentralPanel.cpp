@@ -11,6 +11,9 @@
 #include <QScrollArea>
 #include <QSplitter>
 
+#include <qwidget.h>
+
+
 #include "Common/CF.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"

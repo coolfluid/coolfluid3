@@ -20,7 +20,7 @@ if(APPLE)
   set(QT_USE_FRAMEWORKS TRUE)
 endif()
 
-find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
+find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest QtSvg )
 
 if(NOT DEFINED QT_FOUND)
   set(QT_FOUND NO)
