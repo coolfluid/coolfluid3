@@ -6,6 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CFieldView.hpp"
@@ -32,7 +33,26 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 {
   // options
   m_properties.add_option< OptionURI > ("Field","Field to apply Bc to", URI("cpath:"))->mark_basic();
+  m_properties.add_option<
+      OptionT<std::string> > ("Function", "Math function applied as Dirichlet boundary condition (vars x,y)", "0.");
+
   m_properties["Field"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_field,   this ) );
+  m_properties["Function"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) );
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void BcDirichlet::config_function()
+{
+  std::string func = m_properties["Function"].value<std::string>();
+  int res = m_fparser.Parse(func, "x,y");
+
+  if(res > 0)
+    throw ParsingFailed(FromHere(),
+                        "Parsing of math function failed with error \'"
+                        + std::string(m_fparser.ErrorMsg())
+                        + "\'" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,34 +77,26 @@ void BcDirichlet::execute()
 {
 //  CFinfo << "boundary node [" << idx() << "]" << CFendl;
 
+
   // m_idx is the index that is set using the function set_loop_idx()
   CField2& field = *m_field.lock();
   CTable<Real>::Row data = field[idx()];
-  const Real x = field.coords(idx())[XX];
-  const Real y =  field.coords(idx())[YY];
+
+  Real vars[2];
+  vars[XX] = field.coords(idx())[XX];
+  vars[YY] = field.coords(idx())[YY];
 
 //  CFinfo << "  --  coords " <<  x  << " " << y << CFendl;
+//  CFinfo << "parsed function: " << func << CFendl;
 
   const Uint row_size = data.size();
-//  Scalar advection - inlet bc:
-//  for (Uint i = 0; i != row_size; ++i)
-//  {
-//    if (x >= -1.4 && x <= -0.6)
-//      data[i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
-//    else
-//      data[i] = 0.0;
-//  }
-
 
   // Burgers - inlet bc:
   for (Uint i = 0; i != row_size; ++i)
   {
-      data[i] = 1.5-2.0*x;
+      data[i] = m_fparser.Eval(vars);
+//      CFinfo << "data at x = " << vars[XX] << " = " << data[i] << CFendl;
   }
-
-//  CFinfo << "x = " << x << CFendl;
-//  CFinfo << "data = " << data[0] << CFendl;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

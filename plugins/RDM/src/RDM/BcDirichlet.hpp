@@ -7,6 +7,8 @@
 #ifndef CF_Solver_Actions_BcDirichlet_hpp
 #define CF_Solver_Actions_BcDirichlet_hpp
 
+#include "fparser/fparser.hh"
+
 #include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
@@ -50,10 +52,13 @@ public: // functions
 private: // helper functions
 
   void config_field();
+  void config_function();
 
 private: // data
 
   boost::weak_ptr<Mesh::CField2> m_field;
+
+  FunctionParser  m_fparser;
 
 };
 

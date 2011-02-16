@@ -113,7 +113,8 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
 
   std::vector<URI> files;
 
-  files.push_back( "file:square1x1-tg-p1.msh" );
+//  files.push_back( "file:square1x1-tg-p1.msh" );
+  files.push_back( "file:square1x1-tg-p2.msh" );
 //  files.push_back( "file:rotation-tg.neu" );
 //  files.push_back( "file:rotation-qd.neu" );
 //  files.push_back( "file:advection_p2.msh" );
@@ -175,11 +176,19 @@ BOOST_FIXTURE_TEST_CASE( create_boundary_term , scalar_advection_local_fixture )
 
   BOOST_CHECK_EQUAL( bc_regions.size() , 3u);
 
-  p.add_option<std::string>("Name","INLET");
+
+  std::string name = "INLET";
+
+  p.add_option<std::string>("Name",name);
   p.add_option<std::string>("Type","CF.RDM.BcDirichlet");
   p.add_array("Regions", bc_regions);
 
   discretization.as_type<ResidualDistribution>()->create_boundary_term(node);
+
+  Component::Ptr inletbc = find_component_ptr_recursively_with_name( discretization, name );
+  cf_assert( is_not_null(inletbc) );
+
+  inletbc->get_child("action")->configure_property("Function", std::string("1.5-2.0*x") );
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 

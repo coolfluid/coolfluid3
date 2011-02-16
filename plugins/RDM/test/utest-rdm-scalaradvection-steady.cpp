@@ -171,11 +171,19 @@ BOOST_FIXTURE_TEST_CASE( create_boundary_term , scalar_advection_local_fixture )
 
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
-  p.add_option<std::string>("Name","INLET");
+  std::string name ("INLET");
+
+  p.add_option<std::string>("Name",name);
   p.add_option<std::string>("Type","CF.RDM.BcDirichlet");
   p.add_array("Regions", bc_regions);
 
   discretization.as_type<ResidualDistribution>()->create_boundary_term(node);
+
+  Component::Ptr inletbc = find_component_ptr_recursively_with_name( discretization, name );
+  cf_assert( is_not_null(inletbc) );
+
+  inletbc->get_child("action")->
+      configure_property("Function", std::string("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)") );
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
