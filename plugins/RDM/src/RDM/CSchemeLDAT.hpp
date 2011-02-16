@@ -85,10 +85,10 @@ private: // helper functions
     cf_assert( is_not_null( cupdate_coeff ) );
     update_coeff = cupdate_coeff->data_ptr();
 
-    CFinfo << "ELEMENT TYPE:";
-    CFinfo << elements().element_type().element_type_name() << CFendl;
-    CFinfo << "TEMPLATE PARAMETERS:";
-    CFinfo << SHAPEFUNC::type_name() << CFendl;
+//    CFinfo << "ELEMENT TYPE:";
+//    CFinfo << elements().element_type().element_type_name() << CFendl;
+//    CFinfo << "TEMPLATE PARAMETERS:";
+//    CFinfo << SHAPEFUNC::type_name() << CFendl;
   }
 
 

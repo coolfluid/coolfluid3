@@ -19,6 +19,8 @@
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
 #include "Mesh/SF/Quad2DLagrangeP2.hpp"
 
+#include "Mesh/Integrators/GaussImplementation.hpp"
+
 namespace CF {
 namespace RDM {
 
@@ -42,6 +44,21 @@ struct IsElementType
   {
     return Mesh::IsElementType<TYPE>()( component.element_type() );
   }
+};
+
+template < typename SF, Uint order = SF::order >
+struct DefaultQuadrature
+{
+  typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> type;
+};
+
+/// Partial specialization for P2 with bubble.
+/// Standard second order integration uses only boundary quadrature points,
+/// where bubble function is zero, thus has uncoupled modes.
+template <>
+struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP2B, 2 >
+{
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP2B::shape> type;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////

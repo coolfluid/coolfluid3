@@ -13,7 +13,6 @@
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CRegion.hpp"
-#include "Mesh/Integrators/GaussImplementation.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
 
@@ -50,38 +49,8 @@ class RDM_API CLDA : public Solver::Actions::CLoop
 
       /// Operator needed for the loop over element types, identified by shape functions (SF)
       template < typename SF >
-      void operator() ( SF& T )
-      {
-//        CFinfo << " -- CLDA in [" << region.full_path().string() << "]" << CFendl;
+      void operator() ( SF& T );
 
-        boost_foreach(Mesh::CElements& elements,
-                      Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
-        {
-//          CFinfo << " --- elements " << elements.full_path().string() << CFendl;
-
-          // create an LDA for this specific type
-
-          const Uint order = 4;
-
-          typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> QD;
-          typedef CSchemeLDAT< SF, QD, PHYS > SchemeT;
-
-          // get the scheme
-          typename SchemeT::Ptr scheme = comp.get_child<SchemeT>( SchemeT::type_name() );
-          if( is_null(scheme) )
-            scheme = comp.create_component< SchemeT >( SchemeT::type_name() );
-
-          // loop on elements of that type
-          scheme->set_elements(elements);
-
-          const Uint nb_elem = elements.size();
-          for ( Uint elem = 0; elem != nb_elem; ++elem )
-          {
-            scheme->select_loop_idx(elem);
-            scheme->execute();
-          }
-        }
-      }
 
   }; // ElementLoop
 

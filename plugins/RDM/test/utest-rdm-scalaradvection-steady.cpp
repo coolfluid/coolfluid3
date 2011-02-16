@@ -41,7 +41,7 @@ using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::RDM;
 
-#define BUBBLE
+//#define BUBBLE
 
 struct scalar_advection_global_fixture
 {
@@ -117,8 +117,8 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
 //  files.push_back( "file:square1x1-tg-p1.msh" );
 //  files.push_back( "file:rotation-tg.neu" );
 //  files.push_back( "file:rotation-qd.neu" );
-  files.push_back( "file:advection_p2.msh" );
-//  files.push_back( "file:advection-p2-quad.msh" );
+//  files.push_back( "file:advection_p2.msh" );
+  files.push_back( "file:advection-p2-quad.msh" );
 //  files.push_back( "file:rotation-tg-p3.msh" );
 
   xmlp.add_option<URI>("Parent Component", URI( domain.full_path().string()) );

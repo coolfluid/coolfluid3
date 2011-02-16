@@ -45,6 +45,42 @@ void CLDA<PHYS>::execute()
   }
 }
 
+
+/// Operator needed for the loop over element types, identified by shape functions (SF)
+template < typename PHYS>
+template < typename SF >
+void CLDA<PHYS>::ElementLoop::operator() ( SF& T )
+{
+//        CFinfo << " -- CLDA in [" << region.full_path().string() << "]" << CFendl;
+
+  boost_foreach(Mesh::CElements& elements,
+                Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
+  {
+//          CFinfo << " --- elements " << elements.full_path().string() << CFendl;
+
+    // create an LDA for this specific type
+
+    typedef typename RDM::DefaultQuadrature<SF>::type QD;
+
+    typedef CSchemeLDAT< SF, QD, PHYS > SchemeT;
+
+    // get the scheme
+    typename SchemeT::Ptr scheme = comp.get_child<SchemeT>( SchemeT::type_name() );
+    if( is_null(scheme) )
+      scheme = comp.create_component< SchemeT >( SchemeT::type_name() );
+
+    // loop on elements of that type
+    scheme->set_elements(elements);
+
+    const Uint nb_elem = elements.size();
+    for ( Uint elem = 0; elem != nb_elem; ++elem )
+    {
+      scheme->select_loop_idx(elem);
+      scheme->execute();
+    }
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 } // RDM
