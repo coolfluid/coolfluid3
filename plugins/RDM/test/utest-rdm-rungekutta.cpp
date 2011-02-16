@@ -38,14 +38,17 @@ BOOST_AUTO_TEST_CASE( constructor )
   CIterativeSolver::Ptr comp = create_component_abstract_type<CIterativeSolver>("CF.RDM.RungeKutta", "RungeKutta");
   BOOST_CHECK( is_not_null(comp) );
 
-  BOOST_CHECK( find_component_with_name<CLink>(*comp, "solution_field").is_link() == true );  
-  BOOST_CHECK( find_component_with_name<CLink>(*comp, "solution_field").is_linked() == false );
-  BOOST_CHECK( is_null(find_component_with_name<CLink>(*comp, "solution_field").follow()) );
+  BOOST_CHECK( find_component_with_name<CLink>(*comp, "solution").is_link() == true );
+  BOOST_CHECK( find_component_with_name<CLink>(*comp, "solution").is_linked() == false );
+  BOOST_CHECK( is_null(find_component_with_name<CLink>(*comp, "solution").follow()) );
 
-  BOOST_CHECK( find_component_with_name<CLink>(*comp, "residual_field").is_link() == true );  
-  BOOST_CHECK( find_component_with_name<CLink>(*comp, "residual_field").is_linked() == false );
-  BOOST_CHECK( is_null(find_component_with_name<CLink>(*comp, "residual_field").follow()) );
+  BOOST_CHECK( find_component_with_name<CLink>(*comp, "residual").is_link() == true );
+  BOOST_CHECK( find_component_with_name<CLink>(*comp, "residual").is_linked() == false );
+  BOOST_CHECK( is_null(find_component_with_name<CLink>(*comp, "residual").follow()) );
 
+  BOOST_CHECK( find_component_with_name<CLink>(*comp, "update_coeff").is_link() == true );
+  BOOST_CHECK( find_component_with_name<CLink>(*comp, "update_coeff").is_linked() == false );
+  BOOST_CHECK( is_null(find_component_with_name<CLink>(*comp, "update_coeff").follow()) );
 
 
   std::string name  = "mymodel";

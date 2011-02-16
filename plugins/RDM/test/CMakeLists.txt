@@ -1,3 +1,44 @@
+##########################################################################
+
+list( APPEND utest-rdm-linearadv2d_cflibs coolfluid_mesh_actions coolfluid_mesh_actions coolfluid_rdm  )
+list( APPEND utest-rdm-linearadv2d_files  utest-rdm-linearadv2d.cpp )
+
+coolfluid_add_unittest( utest-rdm-linearadv2d )
+
+add_custom_command(TARGET utest-rdm-linearadv2d
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/advection-tg-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/advection-qd-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
+
+##########################################################################
+
+list( APPEND utest-rdm-rotationadv2d_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm )
+list( APPEND utest-rdm-rotationadv2d_files  utest-rdm-rotationadv2d.cpp )
+
+coolfluid_add_unittest( utest-rdm-rotationadv2d )
+
+add_custom_command(TARGET utest-rdm-rotationadv2d
+                 POST_BUILD
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                )
+
+##########################################################################
+
+list( APPEND utest-rdm-burgers2d_cflibs coolfluid_mesh_actions coolfluid_mesh_actions coolfluid_rdm  )
+list( APPEND utest-rdm-burgers2d_files  utest-rdm-burgers2d.cpp )
+
+coolfluid_add_unittest( utest-rdm-burgers2d )
+
+add_custom_command(TARGET utest-rdm-rotationadv2d
+                 POST_BUILD
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/square1x1-tg-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/square1x1-qd-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/square1x1-tg-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/square1x1-qd-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                )
+
 #########################################################################
 # tests the rdm component
 
@@ -5,34 +46,6 @@ list( APPEND utest-rdm_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm  )
 list( APPEND utest-rdm_files  utest-rdm.cpp )
 
 coolfluid_add_unittest( utest-rdm )
-
-##########################################################################
-
-list( APPEND utest-rdm-scalaradvection-steady_cflibs coolfluid_mesh_actions coolfluid_mesh_actions coolfluid_rdm  )
-list( APPEND utest-rdm-scalaradvection-steady_files  utest-rdm-scalaradvection-steady.cpp )
-
-coolfluid_add_unittest( utest-rdm-scalaradvection-steady )
-
-add_custom_command(TARGET utest-rdm-scalaradvection-steady
-                   POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/advection_p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/advection-p2-quad.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                  )
-
-##########################################################################
-
-list( APPEND utest-rdm-scalaradvection-unsteady_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm )
-list( APPEND utest-rdm-scalaradvection-unsteady_files  utest-rdm-scalaradvection-unsteady.cpp )
-
-coolfluid_add_unittest( utest-rdm-scalaradvection-unsteady )
-
-add_custom_command(TARGET utest-rdm-scalaradvection-unsteady
-                 POST_BUILD
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                )
 
 #########################################################################
 # test runge kutta
@@ -42,9 +55,3 @@ list( APPEND utest-rdm-rungekutta_files  utest-rdm-rungekutta.cpp )
 
 coolfluid_add_unittest( utest-rdm-rungekutta )
 
-##########################################################################
-
-list( APPEND utest-rdm-burgers-steady_cflibs coolfluid_mesh_actions coolfluid_mesh_actions coolfluid_rdm  )
-list( APPEND utest-rdm-burgers-steady_files  utest-rdm-burgers-steady.cpp )
-
-coolfluid_add_unittest( utest-rdm-burgers-steady )

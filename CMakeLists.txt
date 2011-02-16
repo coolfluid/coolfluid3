@@ -7,8 +7,12 @@
 # -DCMAKE_INSTALL_PREFIX=DIR   will specify where to install
 # -DCF_PLUGIN_DIRS:STRING="/dir/path1;/dir/path2"
 ##############################################################################
+#
 # TODO
+#
 #  * try using precompiled headers and add a check to their support
+#  * add CScale and CTranslate mesh transformers
+#
 ##############################################################################
 
 ##############################################################################

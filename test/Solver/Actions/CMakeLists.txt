@@ -9,7 +9,7 @@ list( APPEND utest-actions_files
 
 coolfluid_add_unittest( utest-actions )
 
-list( APPEND mesh_files  rotation-tg.neu  rotation-qd.neu  )
+list( APPEND mesh_files  rotation-tg-p1.neu  rotation-qd-p1.neu  )
 foreach( mfile ${mesh_files} )
   add_custom_command(TARGET utest-actions
                      POST_BUILD

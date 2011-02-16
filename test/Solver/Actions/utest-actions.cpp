@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 	
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  boost::filesystem::path fp_in("rotation-tg.neu");
+  boost::filesystem::path fp_in("rotation-tg-p1.neu");
   meshreader->read_from_to(fp_in,mesh);
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology/default_id1084/inlet"))
                                     (URI("cpath://Root/mesh/topology/default_id1084/outlet"));
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 	
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  boost::filesystem::path fp_in("rotation-tg.neu");
+  boost::filesystem::path fp_in("rotation-tg-p1.neu");
   meshreader->read_from_to(fp_in,mesh);
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
 
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  boost::filesystem::path fp_in("rotation-qd.neu");
+  boost::filesystem::path fp_in("rotation-qd-p1.neu");
   meshreader->read_from_to(fp_in,mesh);
 
 //  root->access_component( "//Root/mesh/Base/rotation-qd" )->rename("rotation");
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 	
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  boost::filesystem::path fp_in("rotation-tg.neu");
+  boost::filesystem::path fp_in("rotation-tg-p1.neu");
   meshreader->read_from_to(fp_in,mesh);
   
   BOOST_CHECK(true);

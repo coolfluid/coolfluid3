@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // everything is OK
   std::vector<URI> files;
-  files.push_back( "file:rotation-tg.neu" );
+  files.push_back( "file:rotation-tg-p1.neu" );
   p.add_option<URI>("Parent Component", URI( domain->full_path().string()) );
   p.add_array("Files", files);
   

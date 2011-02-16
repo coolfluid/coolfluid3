@@ -44,7 +44,6 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   CDiscretization ( name )
 {
   // properties
-  CF_DEBUG_POINT;
   properties()["brief"] = std::string("Residual Distribution Method");
   std::string desc =
         "Discretize the PDE's using the Cell Centered Finite Volume Method\n"
@@ -59,16 +58,15 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   regist_signal ( "create_domain_term" , "creates a domain volume term", "Create Domain Term" )->connect ( boost::bind ( &ResidualDistribution::create_domain_term, this, _1 ) );
     
   // setup of the static components
-  CF_DEBUG_POINT;
+
   // create apply boundary conditions action
   m_compute_boundary_face_terms = create_static_component<CAction>("compute_boundary_faces");
   m_compute_boundary_face_terms->mark_basic();
-  CF_DEBUG_POINT;
+
   // create compute rhs action
   m_compute_volume_cell_terms = create_static_component<CAction>("compute_volume_cells");
   m_compute_volume_cell_terms->mark_basic();
 
-  CF_DEBUG_POINT;
   m_solution_field =     create_static_component<CLink>( "solution" );
   m_residual_field =     create_static_component<CLink>( "residual" );
   m_update_coeff_field = create_static_component<CLink>( "update_coeff" );

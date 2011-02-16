@@ -43,27 +43,27 @@ using namespace CF::RDM;
 
 //#define BUBBLE
 
-struct scalar_advection_global_fixture
+struct linearadv2d_global_fixture
 {
-  scalar_advection_global_fixture()
+  linearadv2d_global_fixture()
   {
-    scalar_advection_wizard = allocate_component<ScalarAdvection>("mymodel");
+    linearadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
     XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
     XmlParams p(node);
     p.add_option<std::string>("Model name","mymodel");
 
-    scalar_advection_wizard->create_model(node);
+    linearadv2d_wizard->create_model(node);
   }
 
-  ScalarAdvection::Ptr scalar_advection_wizard;
+  ScalarAdvection::Ptr linearadv2d_wizard;
 
 };
 
-struct scalar_advection_local_fixture
+struct linearadv2d_local_fixture
 {
-  scalar_advection_local_fixture() :
+  linearadv2d_local_fixture() :
     model  ( * Core::instance().root()->get_child("mymodel")->as_type<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CIterativeSolver>(model) ),
@@ -77,15 +77,16 @@ struct scalar_advection_local_fixture
   CDiscretization& discretization;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-BOOST_GLOBAL_FIXTURE( scalar_advection_global_fixture )
-
-BOOST_AUTO_TEST_SUITE( scalar_advection_test_suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( check_tree , scalar_advection_local_fixture )
+BOOST_GLOBAL_FIXTURE( linearadv2d_global_fixture )
+
+BOOST_AUTO_TEST_SUITE( linearadv2d_test_suite )
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( check_tree , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -99,10 +100,10 @@ BOOST_FIXTURE_TEST_CASE( check_tree , scalar_advection_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
+BOOST_FIXTURE_TEST_CASE( read_mesh , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
-
+    
   // create the xml parameters for the read mesh signal
 
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
@@ -114,11 +115,10 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
   std::vector<URI> files;
 
 //  files.push_back( "file:square1x1-tg-p1.msh" );
-  files.push_back( "file:square1x1-tg-p2.msh" );
-//  files.push_back( "file:rotation-tg.neu" );
-//  files.push_back( "file:rotation-qd.neu" );
-//  files.push_back( "file:advection_p2.msh" );
-//  files.push_back( "file:advection-p2-quad.msh" );
+//  files.push_back( "file:rotation-tg-p1.neu" );
+//  files.push_back( "file:rotation-qd-p1.neu" );
+//  files.push_back( "file:advection-tg-p2.msh" );
+  files.push_back( "file:advection-qd-p2.msh" );
 //  files.push_back( "file:rotation-tg-p3.msh" );
 
   xmlp.add_option<URI>("Parent Component", URI( domain.full_path().string()) );
@@ -128,7 +128,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
 
   LoadMesh::Ptr load_mesh = Core::instance().root()->get_child("Tools")->get_child<LoadMesh>("LoadMesh");
   cf_assert( is_not_null(load_mesh) );
-
+  
   load_mesh->signal_load_mesh( node );
 
   BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
@@ -143,12 +143,11 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
 
   enricher->transform( mesh );
 #endif
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , scalar_advection_local_fixture )
+BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -158,7 +157,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , scalar_advection_local_fixture
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( create_boundary_term , scalar_advection_local_fixture )
+BOOST_FIXTURE_TEST_CASE( create_boundary_term , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -169,15 +168,10 @@ BOOST_FIXTURE_TEST_CASE( create_boundary_term , scalar_advection_local_fixture )
   std::vector<URI> bc_regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
     bc_regions.push_back( region.full_path() );
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
-    bc_regions.push_back( region.full_path() );
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"right"))
-    bc_regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( bc_regions.size() , 3u);
+  BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
-
-  std::string name = "INLET";
+  std::string name ("INLET");
 
   p.add_option<std::string>("Name",name);
   p.add_option<std::string>("Type","CF.RDM.BcDirichlet");
@@ -188,7 +182,8 @@ BOOST_FIXTURE_TEST_CASE( create_boundary_term , scalar_advection_local_fixture )
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( discretization, name );
   cf_assert( is_not_null(inletbc) );
 
-  inletbc->get_child("action")->configure_property("Function", std::string("1.5-2.0*x") );
+  inletbc->get_child("action")->
+      configure_property("Function", std::string("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)") );
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
@@ -197,7 +192,7 @@ BOOST_FIXTURE_TEST_CASE( create_boundary_term , scalar_advection_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( create_domain_term , scalar_advection_local_fixture )
+BOOST_FIXTURE_TEST_CASE( create_domain_term , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -214,7 +209,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , scalar_advection_local_fixture )
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
   p.add_option<std::string>("Name","INTERNAL");
-  p.add_option<std::string>("Type","CF.RDM.CLDA<Burgers2D>");
+  p.add_option<std::string>("Type","CF.RDM.CLDA<LinearAdv2D>");
   p.add_array("Regions", bc_regions);
 
   discretization.as_type<ResidualDistribution>()->create_domain_term(node);
@@ -226,7 +221,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , scalar_advection_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve , scalar_advection_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -237,7 +232,7 @@ BOOST_FIXTURE_TEST_CASE( solve , scalar_advection_local_fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( output , scalar_advection_local_fixture )
+BOOST_FIXTURE_TEST_CASE( output , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -248,10 +243,18 @@ BOOST_FIXTURE_TEST_CASE( output , scalar_advection_local_fixture )
       create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
 
   domain.add_component( remover );
+
+  std::vector<std::string> args;
   remover->transform( mesh );
 #endif
 
   BOOST_CHECK(true);
+
+//  CFinfo << model.tree() << CFendl;
+
+  ////////////////////////////////////////////////////////////////////////////////
+  // Writer
+  ////////////////////////////////////////////////////////////////////////////////
 
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(mesh_writer);
