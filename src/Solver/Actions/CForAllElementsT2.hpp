@@ -121,7 +121,7 @@ public: // functions
     {
       CFinfo << region->full_path().string() << CFendl;
       
-      CForAllElementsT2::ElementLooper loop_elements(*m_action,*region);
+      ElementLooper loop_elements(*m_action,*region);
       boost::mpl::for_each< Mesh::SF::Types >(loop_elements);
     }
   }
