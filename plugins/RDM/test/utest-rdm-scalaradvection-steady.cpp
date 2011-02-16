@@ -119,8 +119,8 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , scalar_advection_local_fixture )
 
 //  files.push_back( "file:square1x1-tg-p1.msh" );
 //  files.push_back( "file:rotation-tg.neu" );
-  files.push_back( "file:rotation-qd.neu" );
-//  files.push_back( "file:advection_p2.msh" );
+//  files.push_back( "file:rotation-qd.neu" );
+  files.push_back( "file:advection_p2.msh" );
 //  files.push_back( "file:advection-p2-quad.msh" );
 //  files.push_back( "file:rotation-tg-p3.msh" );
 
@@ -162,7 +162,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , scalar_advection_local_fixture
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("Number of Iterations", 1000u);
+  solver.configure_property("Number of Iterations", 150u);
 }
 
 //////////////////////////////////////////////////////////////////////////////

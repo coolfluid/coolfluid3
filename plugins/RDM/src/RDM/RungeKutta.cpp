@@ -143,6 +143,11 @@ void RungeKutta::solve()
   CTable<Real>& residual = m_residual_field->follow()->as_type<CField2>()->data();
   CTable<Real>& update_coeff = m_update_coeff_field->follow()->as_type<CField2>()->data();
 
+  CFinfo << "DATA TABLE SIZES:" << CFendl;
+  CFinfo << "solution: " << solution.size() << " x " << solution.row_size() << CFendl;
+  CFinfo << "residual: " << residual.size() << " x " << residual.row_size() << CFendl;
+  CFinfo << "update_coeff: " << update_coeff.size() << " x " << update_coeff.row_size() << CFendl;
+
 
 
   CFinfo << " - initializing solution" << CFendl;
