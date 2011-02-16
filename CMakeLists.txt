@@ -11,7 +11,7 @@
 # TODO
 #
 #  * try using precompiled headers and add a check to their support
-#  * add CScale and CTranslate mesh transformers
+#  * add CScale, CTranslate and CRotate mesh transformers
 #
 ##############################################################################
 
