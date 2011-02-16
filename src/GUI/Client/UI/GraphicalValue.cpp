@@ -22,7 +22,6 @@
 #include "GUI/Client/UI/GraphicalString.hpp"
 #include "GUI/Client/UI/GraphicalUri.hpp"
 #include "GUI/Client/UI/GraphicalUriArray.hpp"
-#include "GUI/Client/UI/GraphicalUrlArray.hpp"
 
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
