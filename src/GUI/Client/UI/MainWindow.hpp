@@ -221,6 +221,8 @@ namespace ClientUI {
 
     QTabWidget * m_tabWindow;
 
+    QTabWidget * m_centralTab;
+
     QTableView * m_propertyView;
 
     ClientCore::PropertyModel * m_propertyModel;

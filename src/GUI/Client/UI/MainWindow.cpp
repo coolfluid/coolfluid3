@@ -72,6 +72,7 @@ MainWindow::MainWindow()
   m_centralSplitter = new QSplitter(Qt::Vertical, this);
   m_centralWidgetLayout = new QVBoxLayout(m_centralSplitter);
   m_tabWindow = new QTabWidget(m_centralPanel);
+  m_centralTab = new QTabWidget();
   m_logList = new LoggingList(m_tabWindow);
   m_propertyModel = new PropertyModel();
   m_propertyView = new QTableView(m_tabWindow);
@@ -99,7 +100,10 @@ MainWindow::MainWindow()
   m_tabWindow->addTab(m_propertyView, "Properties");
   m_tabWindow->addTab(m_scrollDescription, "Description");
 
-  m_centralWidgetLayout->addWidget(m_centralPanel);
+  m_centralTab->addTab(m_centralPanel, "Options");
+  m_centralTab->addTab(new QWidget(), "XY-Plot");
+
+  m_centralWidgetLayout->addWidget(m_centralTab);
   m_centralWidgetLayout->addWidget(m_tabWindow);
 
   m_centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
