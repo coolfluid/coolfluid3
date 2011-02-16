@@ -864,7 +864,7 @@ Signal::return_t CNode::update_tree(XmlNode & node)
 
 void CNode::fetchContent()
 {
-  if(!m_contentListed && !m_listingContent)
+  if(!m_contentListed && !m_listingContent && ClientRoot::instance().core()->isConnected())
   {
     boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
     XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
