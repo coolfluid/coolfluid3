@@ -29,6 +29,7 @@
 #include "GUI/Client/UI/LoggingList.hpp"
 #include "GUI/Client/UI/MenuActionInfo.hpp"
 #include "GUI/Client/UI/CentralPanel.hpp"
+#include "GUI/Client/UI/Graph.hpp"
 #include "GUI/Client/UI/NRemoteSave.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 #include "GUI/Client/UI/SelectFileDialog.hpp"
@@ -79,6 +80,7 @@ MainWindow::MainWindow()
   m_labDescription = new QLabel(m_tabWindow);
   m_treeBrowser = new TreeBrowser(m_treeView, this);
   m_scrollDescription = new QScrollArea(this);
+  m_graphXYPlot = new Graph(this);
 
   m_aboutCFDialog = new AboutCFDialog(this);
 
@@ -101,7 +103,7 @@ MainWindow::MainWindow()
   m_tabWindow->addTab(m_scrollDescription, "Description");
 
   m_centralTab->addTab(m_centralPanel, "Options");
-  m_centralTab->addTab(new QWidget(), "XY-Plot");
+  m_centralTab->addTab(m_graphXYPlot, "XY-Plot");
 
   m_centralWidgetLayout->addWidget(m_centralTab);
   m_centralWidgetLayout->addWidget(m_tabWindow);

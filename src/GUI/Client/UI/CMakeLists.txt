@@ -6,10 +6,12 @@
 
 # List of classes to "moc"
 list( APPEND coolfluid_client_ui_moc_classes
+  BodePlot.hpp
   CentralPanel.hpp
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
   FilteringModel.hpp # needs to be added because base class emits signals
+  Graph.hpp
   GraphicalArray.hpp
   GraphicalArrayRestrictedList.hpp
   GraphicalBool.hpp
@@ -43,6 +45,8 @@ QT4_WRAP_CPP(coolfluid_client_ui_moc_files ${coolfluid_client_ui_moc_classes})
 list( APPEND coolfluid_client_ui_files
   AboutCFDialog.cpp
   AboutCFDialog.hpp
+  BodePlot.cpp
+  BodePlot.hpp
   CentralPanel.cpp
   CentralPanel.hpp
   CommitDetailsDialog.cpp
@@ -53,6 +57,8 @@ list( APPEND coolfluid_client_ui_files
   FilesListItem.hpp
   FilteringModel.cpp
   FilteringModel.hpp
+  Graph.hpp
+  Graph.cpp
   GraphicalArray.hpp
   GraphicalArray.cpp
   GraphicalArrayRestrictedList.hpp
@@ -91,6 +97,7 @@ list( APPEND coolfluid_client_ui_files
   NRemoteOpen.hpp
   NRemoteSave.cpp
   NRemoteSave.hpp
+  PixMaps.hpp
   SelectFileDialog.cpp
   SelectFileDialog.hpp
   SelectPathDialog.cpp
@@ -108,7 +115,7 @@ list( APPEND coolfluid_client_ui_files
   TreeView.cpp
   TreeView.hpp
   TypeAndNameDialog.cpp
-  TypeAndNameDialog.hpp)
+  TypeAndNameDialog.hpp )
 
 list( APPEND coolfluid_client_ui_cflibs coolfluid_client_core )
 

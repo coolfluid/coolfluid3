@@ -45,6 +45,7 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  class Graph;
   class LoggingList;
   class CentralPanel;
   class StatusPanel;
@@ -232,6 +233,8 @@ namespace ClientUI {
     QScrollArea * m_scrollDescription;
 
     TreeBrowser * m_treeBrowser;
+
+    Graph * m_graphXYPlot;
 
     /// @brief Creates actions and menus
     void buildMenus();
