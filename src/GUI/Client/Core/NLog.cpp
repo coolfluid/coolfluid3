@@ -6,6 +6,7 @@
 
 #include <QDateTime>
 #include <QFileIconProvider>
+#include <QDebug>
 
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/list_of.hpp>
@@ -27,7 +28,7 @@ using namespace CF::GUI::ClientCore;
 NLog::NLog()
   : CNode(CLIENT_LOG, "NLog", CNode::LOG_NODE)
 {
-   
+
 
   m_typeNames[ LogMessage::INFO ]      = "  Info   ";
   m_typeNames[ LogMessage::EXCEPTION ] = "Exception";
@@ -35,42 +36,6 @@ NLog::NLog()
   m_typeNames[ LogMessage::WARNING ]   = " Warning ";
 
   regist_signal("message", "Log message")->connect(boost::bind(&NLog::message, this, _1));
-
-  Option::Ptr option;
-  std::vector<std::string> vect;
-
-  option = m_properties.add_option< OptionT<std::string> >("MonthsOne", "Month names", std::string("January"));
-
-    option->restricted_list() += std::string("March"),
-                                 std::string("April"),
-                                 std::string("May"),
-                                 std::string("June"),
-                                 std::string("July"),
-                                 std::string("August"),
-                                 std::string("Septemeber"),
-                                 std::string("October"),
-                                 std::string("November"),
-                                 std::string("December");
-    option->mark_basic();
-
-
-  vect.push_back("January");
-  vect.push_back("February");
-
-  option = m_properties.add_option< OptionArrayT<std::string> >("MonthsTwo", "Month names", vect);
-
-  option->restricted_list() += std::string("March"),
-                               std::string("April"),
-                               std::string("May"),
-                               std::string("June"),
-                               std::string("July"),
-                               std::string("August"),
-                               std::string("Septemeber"),
-                               std::string("October"),
-                               std::string("November"),
-                               std::string("December");
-
-  option->mark_basic();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

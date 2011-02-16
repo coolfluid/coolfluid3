@@ -43,18 +43,6 @@ NTree::NTree(NRoot::Ptr rootNode)
 
   m_columns << "Name" << "Type";
 
-  std::vector<int> vectInt;
-  std::vector<bool> vectBool;
-  std::vector<CF::Uint> vectUint;
-  std::vector<CF::Real> vectReal;
-  std::vector<std::string> vectString;
-
-  m_properties.add_option< OptionArrayT<int> >("intArray", "Array of ints", vectInt)->mark_basic();
-  m_properties.add_option< OptionArrayT<bool> >("boolArray", "Array of ints", vectBool)->mark_basic();
-  m_properties.add_option< OptionArrayT<CF::Uint> >("uIntArray", "Array of ints", vectUint)->mark_basic();
-  m_properties.add_option< OptionArrayT<CF::Real> >("realArray", "Array of ints", vectReal)->mark_basic();
-  m_properties.add_option< OptionArrayT<std::string> >("stringArray", "Array of ints", vectString)->mark_basic();
-
   m_signals.erase("list_tree"); // unregister base class signal
 
   regist_signal("list_tree", "New tree")->connect(boost::bind(&NTree::list_tree_reply, this, _1));

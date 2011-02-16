@@ -26,21 +26,7 @@ Common::ComponentBuilder < CGroup, Component, LibCommon > CGroup_Builder;
 
 CGroup::CGroup ( const std::string& name ) : Component ( name )
 {
-  m_properties.add_option< OptionT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
 
-  Option::Ptr opt = m_properties.add_option< OptionT<std::string> >("count", "From one to ten", std::string("One"));
-
-  opt->restricted_list() += std::string("Two"),
-                            std::string("Three"),
-                            std::string("Four"),
-                            std::string("Five"),
-                            std::string("Six"),
-                            std::string("Seven"),
-                            std::string("Eight"),
-                            std::string("Nine"),
-                            std::string("Ten");
-
-  opt->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
