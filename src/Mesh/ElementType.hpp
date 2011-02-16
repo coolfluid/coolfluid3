@@ -168,10 +168,13 @@ struct IsElementType
   bool operator()(const ElementType& etype)
   {
     return
-        ( etype.shape()          == ETYPE::shape         &&
-          etype.order()          == ETYPE::order         &&
-          etype.dimension()      == ETYPE::dimension     &&
-          etype.dimensionality() == ETYPE::dimensionality );
+//        ( etype.shape()          == ETYPE::shape         &&
+//          etype.order()          == ETYPE::order         &&
+//          etype.nb_nodes()       == ETYPE::nb_nodes      &&
+//          etype.dimension()      == ETYPE::dimension     &&
+//          etype.dimensionality() == ETYPE::dimensionality )
+//        &&
+        ( etype.element_type_name() == ETYPE::type_name() );
   }
 };
 
