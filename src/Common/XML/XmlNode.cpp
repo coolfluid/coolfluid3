@@ -1,0 +1,195 @@
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+#include <fstream>
+
+#include "rapidxml/rapidxml_print.hpp" // includes rapidxml/rapidxml.hpp
+
+#include "Common/BasicExceptions.hpp"
+#include "Common/Log.hpp"
+
+#include "Common/XML/XmlDoc.hpp"
+
+/////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace Common {
+namespace XML {
+
+/////////////////////////////////////////////////////////////////////////////
+
+XmlNode::XmlNode () :
+    content(nullptr)
+{
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+XmlNode::~XmlNode ()
+{
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+XmlNode::XmlNode (rapidxml::xml_node<> * impl) :
+    content(impl)
+{
+
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+XmlNode XmlNode::add_node ( const std::string & name, const std::string & value ) const
+{
+  cf_assert( is_valid() );
+
+  rapidxml::xml_document<>& doc = *content->document();
+  rapidxml::xml_node<>* node = doc.allocate_node( rapidxml::node_element,
+                                      doc.allocate_string( name.c_str()),
+                                      doc.allocate_string( value.c_str()) );
+  content->append_node(node);
+
+  return node;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void XmlNode::set_attribute ( const std::string & name, const std::string & value )
+{
+  cf_assert( is_valid() );
+  cf_assert( is_not_null(content->document()) );
+
+  rapidxml::xml_document<>& doc = *content->document();
+  rapidxml::xml_attribute<>* attr = content->first_attribute( name.c_str() );
+  const char * the_value = doc.allocate_string( value.c_str() );
+
+  if( attr == nullptr )
+  {
+    attr = doc.allocate_attribute( doc.allocate_string(name.c_str()), the_value );
+    content->append_attribute(attr);
+  }
+  else
+    attr->value( the_value );
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void XmlNode::set_name ( const char * name )
+{
+  cf_assert( is_valid() );
+
+  content->name(content->document()->allocate_string(name));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void XmlNode::set_value ( const char * value )
+{
+  cf_assert( is_valid() );
+
+  content->value(content->document()->allocate_string(value));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool XmlNode::is_valid() const
+{
+  return is_not_null(content);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void XmlNode::deep_copy ( XmlNode& out ) const
+{
+  cf_assert( is_valid() );
+  cf_assert( out.is_valid() );
+
+  rapidxml::xml_document<>& doc = *out.content->document();
+
+  doc.clone_node(content, out.content);
+
+  deep_copy_names_values(*this, out);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void XmlNode::deep_copy_names_values ( const XmlNode& in, XmlNode& out ) const
+{
+  out.set_name(in.content->name());
+  out.set_value(in.content->value());
+
+  // copy names and values of the attributes
+  rapidxml::xml_attribute<> * iattr = in.content->first_attribute();
+  rapidxml::xml_attribute<> * oattr = out.content->first_attribute();
+
+  for ( ; iattr != nullptr ; iattr = iattr->next_attribute(), oattr = oattr->next_attribute() )
+  {
+    oattr->name( oattr->document()->allocate_string(iattr->name()) );
+    oattr->value( oattr->document()->allocate_string(iattr->value()) );
+  }
+
+  // copy names and values of the child nodes
+  XmlNode inode(in.content->first_node());
+  XmlNode onode(out.content->first_node());
+
+  for ( ; inode.is_valid() ; inode.content = inode.content->next_sibling(),
+        onode.content = onode.content->next_sibling() )
+  {
+
+    deep_copy_names_values( inode, onode );
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+void XmlNode::to_file ( const boost::filesystem::path& fpath) const
+{
+  std::ofstream fout ( fpath.string().c_str() );
+
+  std::string xml_as_string;
+
+  to_string( xml_as_string );
+
+  fout << xml_as_string << std::endl;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+void XmlNode::to_string ( std::string& str ) const
+{
+  rapidxml::print(std::back_inserter(str), *content);
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+void XmlNode::print ( Uint nesting ) const
+{
+  std::string nest_str (nesting, '+');
+  rapidxml::xml_attribute<>* attr;
+  XmlNode itr;
+
+  CFinfo << nest_str
+      << " Node \'" << content->name() << "\' [" << content->value() << "]\n";
+
+  for (attr = content->first_attribute(); attr != nullptr ; attr = attr->next_attribute())
+  {
+    CFinfo << nest_str
+        << " - attribute \'" << attr->name() << "\' [" << attr->value() << "]\n";
+  }
+
+  for (itr.content = content->first_node(); itr.is_valid() ; itr.content = itr.content->next_sibling() )
+  {
+    itr.print ( nesting+1 );
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
+} // XML
+} // Common
+} // CF

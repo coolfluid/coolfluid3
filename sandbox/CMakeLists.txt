@@ -42,4 +42,8 @@ add_subdirectory( mpi )
 ### test for fexcept_t - currently some problems with clang in linux
 add_subdirectory( fexcept )
 
+###############################################################################
+### test for XML layer
+add_subdirectory( xml-layer )
+
 

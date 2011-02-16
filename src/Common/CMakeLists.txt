@@ -112,6 +112,19 @@ list( APPEND coolfluid_common_files
     XmlHelpers.cpp
     XML.hpp
     XML.cpp
+
+		XML/CastingFunctions.cpp
+		XML/CastingFunctions.hpp
+		XML/Map.cpp
+		XML/Map.hpp
+		XML/Protocol.cpp
+		XML/Protocol.hpp
+		XML/SignalFrame.cpp
+		XML/SignalFrame.hpp
+		XML/XmlDoc.cpp
+		XML/XmlDoc.hpp
+		XML/XmlNode.cpp
+		XML/XmlNode.hpp
 )
 
 ###############################################################################
