@@ -39,7 +39,8 @@ public:
   OptionComponent(const std::string & name, const std::string & desc, const URI & def)
     : OptionURI(name, desc, def)
   {
-    m_default = data_t(Core::instance().root()->look_component<T>(def));
+    typename T::Ptr component = Core::instance().root()->look_component<T>(def);
+    m_default = data_t(component);
     m_value = m_default;
     supported_protocol(URI::Scheme::CPATH);
 
@@ -47,7 +48,7 @@ public:
   }
 
   OptionComponent(const std::string & name, const std::string & desc, data_t* linked_component)
-    : OptionURI(name, desc, URI("cpath:"))
+    : OptionURI(name, desc, linked_component->expired()? URI("cpath:") : linked_component->lock()->full_path())
   {
     m_default = data_t(*linked_component);
     m_value = m_default;
@@ -145,8 +146,9 @@ protected: // functions
     {
       boost::shared_ptr<T> data_shared = boost::any_cast<data_t>(data).lock();
       if ( is_null(data_shared) )
-         throw ValueNotFound(FromHere(), "Bad weak pointer");
-      return data_shared->full_path();
+        return URI("cpath:");
+      else
+        return data_shared->full_path();
     }
     catch(boost::bad_any_cast& e)
     {
