@@ -89,6 +89,7 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
     else
     {
       OptionArray::ConstPtr array = boost::dynamic_pointer_cast<OptionArray const>(option);
+      std::string value_str = array->value_str();
 
       tag = array->elem_type();
 
@@ -107,15 +108,13 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
       else if(tag.compare(XmlTag<std::string>::type()) == 0)   // string option
         value = new GraphicalArray(nullptr, parent);
       else if(tag.compare(XmlTag<URI>::type()) == 0)           // URI option
-      {
-        std::string value_str = array->value_str();
-
         value = new GraphicalUriArray(parent);
-
-        value->setValue( QString(value_str.c_str()).split("@@") );
-      }
       else
         throw CastingFailed(FromHere(), tag + ": Unknown type");
+
+      ClientRoot::instance().log()->addMessage(QString(value_str.c_str()));
+
+      value->setValue( QString(value_str.c_str()).split("@@") );
     }
   }
   return value;

@@ -57,6 +57,7 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
   {
     OptionArray::ConstPtr array;
     std::string type;
+    Property::ConstPtr prop = boost::dynamic_pointer_cast< Property const >(opt);
 
     try
     {
@@ -74,32 +75,32 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
     if(type.compare(XmlTag<bool>::type()) == 0)              // bool option
     {
       vectToStringList<bool>(vect, restrList);
-      anyToStringList<bool>(opt->value<bool>(), valList);
+      anyToStringList<bool>(prop->value(), valList);
     }
     else if(type.compare(XmlTag<CF::Real>::type()) == 0)     // Real option
     {
       vectToStringList<CF::Real>(vect, restrList);
-      anyToStringList<CF::Real>(opt->value<CF::Real>(), valList);
+      anyToStringList<CF::Real>(prop->value(), valList);
     }
     else if(type.compare(XmlTag<int>::type()) == 0)          // int option
     {
       vectToStringList<int>(vect, restrList);
-      anyToStringList<int>(opt->value<int>(), valList);
+      anyToStringList<int>(prop->value(), valList);
     }
     else if(type.compare(XmlTag<CF::Uint>::type()) == 0)     // Uint option
     {
       vectToStringList<CF::Uint>(vect, restrList);
-      anyToStringList<CF::Uint>(opt->value<CF::Uint>(), valList);
+      anyToStringList<CF::Uint>(prop->value(), valList);
     }
     else if(type.compare(XmlTag<std::string>::type()) == 0)  // string option
     {
       vectToStringList<std::string>(vect, restrList);
-      anyToStringList<std::string>(opt->value<std::string>(), valList);
+      anyToStringList<std::string>(prop->value(), valList);
     }
     else if(type.compare(XmlTag<URI>::type()) == 0)          // URI option
     {
       vectToStringList<URI>(vect, restrList);
-      anyToStringList<URI>(opt->value<URI>(), valList);
+      anyToStringList<URI>(prop->value(), valList);
     }
     else
       throw CastingFailed(FromHere(), type + ": Unknown type");

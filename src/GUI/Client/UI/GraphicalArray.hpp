@@ -50,8 +50,6 @@ namespace ClientUI {
 
   private slots:
 
-    void btAddClicked();
-
     void btRemoveClicked();
 
   private:
@@ -61,8 +59,6 @@ namespace ClientUI {
     QStringListModel * m_model;
 
     QListView * m_listView;
-
-    QPushButton * m_btAdd;
 
     QPushButton * m_btRemove;
 

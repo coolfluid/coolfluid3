@@ -25,7 +25,6 @@ GraphicalArray::GraphicalArray(QValidator * validator, QWidget * parent)
   m_editAdd = new QLineEdit(this);
   m_model = new QStringListModel(this);
   m_listView = new QListView(this);
-  m_btAdd = new QPushButton("Add"/*, this*/);
   m_btRemove = new QPushButton("Remove", this);
 
   m_buttonsLayout = new QVBoxLayout();
@@ -36,7 +35,6 @@ GraphicalArray::GraphicalArray(QValidator * validator, QWidget * parent)
   m_listView->setModel(m_model);
   m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-//  m_buttonsLayout->addWidget(m_btAdd);
   m_buttonsLayout->addWidget(m_btRemove);
 
   m_leftLayout->addWidget(m_editAdd);
@@ -45,7 +43,6 @@ GraphicalArray::GraphicalArray(QValidator * validator, QWidget * parent)
   m_layout->addLayout(m_leftLayout);
   m_layout->addLayout(m_buttonsLayout);
 
-  connect(m_btAdd, SIGNAL(clicked()), this, SLOT(btAddClicked()));
   connect(m_btRemove, SIGNAL(clicked()), this, SLOT(btRemoveClicked()));
 }
 
@@ -57,7 +54,6 @@ GraphicalArray::~GraphicalArray()
   delete m_editAdd;
   delete m_model;
   delete m_listView;
-  delete m_btAdd;
   delete m_btRemove;
   delete m_buttonsLayout;
   delete m_leftLayout;
@@ -81,6 +77,9 @@ bool GraphicalArray::setValue(const QVariant & value)
   bool success;
   const QValidator * validator = m_editAdd->validator();
   int pos;
+
+  ClientRoot::instance().log()->addMessage(" Adding " + value.toStringList().join(" "));
+
 
   if(value.type() == QVariant::String)
   {
@@ -148,15 +147,6 @@ bool GraphicalArray::setValue(const QVariant & value)
 QVariant GraphicalArray::value() const
 {
   return m_model->stringList();
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void GraphicalArray::btAddClicked()
-{
-
-  emit valueChanged();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
