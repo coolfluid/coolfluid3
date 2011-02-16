@@ -6,6 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/Foreach.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CNodes.hpp"
@@ -14,9 +15,13 @@
 #include "Mesh/CEntities.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CSpace.hpp"
+#include "Mesh/CFaceCellConnectivity.hpp"
+#include "Mesh/CCells.hpp"
 
 namespace CF {
 namespace Mesh {
+  
+  using namespace CF::Common;
 
 Common::ComponentBuilder < CFieldView, CFieldView, LibMesh >  CFieldView_Builder;
 Common::ComponentBuilder < CScalarFieldView, CFieldView, LibMesh >  CScalarFieldView_Builder;
@@ -192,6 +197,73 @@ const Real& CScalarFieldView::operator[](const Uint idx) const
   cf_assert( is_not_null(m_field_data.lock()) );
   return m_field_data.lock()->array()[data_idx][0];
 }
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+void CConnectedFieldView::initialize(CField2::Ptr field, boost::shared_ptr<CEntities> faces)
+{
+  set_field(field);
+  set_elements(faces);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CConnectedFieldView::set_field(CField2::Ptr field) { return set_field(*field); }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CConnectedFieldView::set_field(CField2& field) { m_field = field.as_type<CField2>(); }
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool CConnectedFieldView::set_elements(boost::shared_ptr<CEntities> elements)
+{
+  cf_assert(is_not_null(elements));
+  return set_elements(*elements);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool CConnectedFieldView::set_elements(CEntities& elements)
+{
+  if (is_null(m_field.lock()))
+    throw Common::SetupError(FromHere(),"set_field(field) must be called first");
+
+  m_elements = elements.as_type<CEntities>();
+  m_face2cells = find_component_ptr<CFaceCellConnectivity>(elements);
+  m_views.resize(m_face2cells.lock()->cells_components().size());
+  index_foreach(i,CCells::Ptr cells, m_face2cells.lock()->cells_components())
+  {
+    cf_assert(is_not_null(cells));
+    m_views[i] = Common::allocate_component<CFieldView>("view");
+    m_views[i]->initialize(*m_field.lock(), cells);
+  }
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_idx)
+{
+  cf_assert(m_views.size());
+  std::vector<CTable<Real>::Row> vec;
+  boost_foreach(const Uint cell, m_face2cells.lock()->elements(elem_idx))
+  {
+    boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->element_loc_idx(cell);
+    cf_assert(cells_comp_idx < m_views.size());
+    cf_assert( is_not_null(m_views[cells_comp_idx]) );
+    cf_assert(cell_idx < m_views[cells_comp_idx]->size());
+    vec.push_back((*m_views[cells_comp_idx])[cell_idx]);
+  }
+  return vec;
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Mesh::CField2& CConnectedFieldView::field() { return *m_field.lock(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 

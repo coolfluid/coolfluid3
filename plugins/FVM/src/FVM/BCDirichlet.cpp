@@ -13,6 +13,7 @@
 #include "Mesh/CField2.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
+#include "Mesh/CEntities.hpp"
 
 #include "FVM/BCDirichlet.hpp"
 #include "FVM/RoeFluxSplitter.hpp"
@@ -33,7 +34,8 @@ Common::ComponentBuilder < BCDirichlet, CAction, LibFVM > BCDirichlet_Builder;
 ///////////////////////////////////////////////////////////////////////////////////////
   
 BCDirichlet::BCDirichlet ( const std::string& name ) : 
-  CLoopOperation(name)
+  CLoopOperation(name),
+  m_connected_solution("solution_view")
 {
   mark_basic();
   // options
@@ -73,16 +75,16 @@ void BCDirichlet::config_solution()
 
 void BCDirichlet::trigger_elements()
 {
-  m_can_start_loop = m_connected_solution.set_elements(elements().as_type<CFaces>());
+  m_can_start_loop = m_connected_solution.set_elements(elements());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 void BCDirichlet::execute()
 {
-  m_connected_solution[idx()][0] = m_rho;
-  m_connected_solution[idx()][1] = m_rho*m_u;
-  m_connected_solution[idx()][2] = m_p/m_gm1 + 0.5*m_rho*m_u*m_u;
+  m_connected_solution[idx()][FIRST][0] = m_rho;
+  m_connected_solution[idx()][FIRST][1] = m_rho*m_u;
+  m_connected_solution[idx()][FIRST][2] = m_p/m_gm1 + 0.5*m_rho*m_u*m_u;
   
 }
 

@@ -79,20 +79,26 @@ void FiniteVolume::on_config_mesh()
   m_compute_rhs->get_child("for_all_inner_faces")
     ->configure_property("Regions",std::vector<URI>(1,m_mesh.lock()->topology().full_path()));
 
-  std::vector<std::string> args;
-  CBuildFaceNormals::Ptr build_face_normals = create_component<CBuildFaceNormals>("build_face_normals");
-  build_face_normals->transform(m_mesh.lock());
-  remove_component(build_face_normals->name());
-  configure_option_recursively("face_normal", find_component_with_tag<CField2>(*m_mesh.lock(),"face_normal").full_path());
-  
-  CField2& area = m_mesh.lock()->create_field2("area","FaceBased");
-  CLoop::Ptr compute_area = create_component< CForAllFaces >("compute_area");
-  compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().full_path()));
-  compute_area->create_action("CF.Solver.Actions.CComputeArea");
-  configure_option_recursively("area",area.full_path());
-  compute_area->execute();
-  remove_component(compute_area->name());
-  
+  if ( is_null(find_component_ptr_with_tag<CField2>(*m_mesh.lock(),"face_normal") ) )
+  {
+    CBuildFaceNormals::Ptr build_face_normals = create_component<CBuildFaceNormals>("build_face_normals");
+    build_face_normals->transform(m_mesh.lock());
+    remove_component(build_face_normals->name());
+    configure_option_recursively("face_normal", find_component_with_tag<CField2>(*m_mesh.lock(),"face_normal").full_path());    
+  }
+
+  if ( is_null(find_component_ptr_with_tag<CField2>(*m_mesh.lock(),"area") ) )
+  {
+    CField2& area = m_mesh.lock()->create_field2("area","FaceBased");
+    area.add_tag("area");
+    CLoop::Ptr compute_area = create_component< CForAllFaces >("compute_area");
+    compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().full_path()));
+    compute_area->create_action("CF.Solver.Actions.CComputeArea");
+    configure_option_recursively("area",area.full_path());
+    compute_area->execute();
+    remove_component(compute_area->name());
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

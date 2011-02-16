@@ -241,7 +241,6 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   model->configure_option_recursively("time_accurate",true);
   model->configure_option_recursively("time",model->time().full_path());
   model->configure_option_recursively("cfl",1.);
-  model->configure_option_recursively("mesh",mesh->full_path());
 
   ////////////////////////////////////////////////////////////////////////////////
   // Writer

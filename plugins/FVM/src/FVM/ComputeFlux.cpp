@@ -35,6 +35,11 @@ Common::ComponentBuilder < ComputeFlux, CLoopOperation, LibFVM > ComputeFlux_Bui
   
 ComputeFlux::ComputeFlux ( const std::string& name ) : 
   CLoopOperation(name),
+  m_connected_residual("residual_view"),
+  m_connected_solution("solution_view"),
+  m_connected_advection("advection_view"),
+  m_face_normal("face_normal_view"),
+  m_face_area("face_area_view"),  
   m_flux(3),
   m_normal(1),
   m_state_L(3),
@@ -64,8 +69,6 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &ComputeFlux::trigger_elements,   this ) );
 
   m_fluxsplitter = create_static_component<RoeFluxSplitter>("Roe_fluxsplitter");
-  m_face_area = create_static_component<CScalarFieldView>("face_area_view");
-  m_face_normal = create_static_component<CFieldView>("face_normal_view");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +104,7 @@ void ComputeFlux::config_area()
 {
   URI uri;  property("Area").put_value(uri);
   CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
-  m_face_area->set_field(comp);
+  m_face_area.set_field(comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -110,7 +113,7 @@ void ComputeFlux::config_normal()
 {
   URI uri;  property("FaceNormal").put_value(uri);
   CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
-  m_face_normal->set_field(comp);
+  m_face_normal.set_field(comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,8 +125,8 @@ void ComputeFlux::trigger_elements()
     m_connected_solution.set_elements(faces);
     m_connected_residual.set_elements(faces);
     m_connected_advection.set_elements(faces);
-    m_face_normal->set_elements(faces);
-    m_face_area->set_elements(faces);
+    m_face_normal.set_elements(faces);
+    m_face_area.set_elements(faces);
     m_can_start_loop = true;
   }
   else
@@ -142,7 +145,7 @@ void ComputeFlux::execute()
   }
   
   // Copy the face normal to a RealVector
-  m_normal[XX] = (*m_face_normal)[idx()][XX];
+  m_normal[XX] = m_face_normal[idx()][XX];
 
 
   // Solve the riemann problem on this face.
@@ -162,8 +165,8 @@ void ComputeFlux::execute()
   }
 
   // accumulate most negative wave_speeds * area, for use in CFL condition
-  m_connected_advection[idx()][LEFT ][0] -= std::min(m_wave_speed_left ,0.) * (*m_face_area)[idx()];
-  m_connected_advection[idx()][RIGHT][0] -= std::min(m_wave_speed_right,0.) * (*m_face_area)[idx()];
+  m_connected_advection[idx()][LEFT ][0] -= std::min(m_wave_speed_left ,0.) * m_face_area[idx()];
+  m_connected_advection[idx()][RIGHT][0] -= std::min(m_wave_speed_right,0.) * m_face_area[idx()];
 
 }
 

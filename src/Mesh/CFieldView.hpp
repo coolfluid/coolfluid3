@@ -19,6 +19,7 @@ namespace Mesh {
   class CEntities;
   class CField2;
   class CSpace;
+  class CFaceCellConnectivity;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +78,7 @@ public: // functions
   const CSpace& space() const { return *m_space.lock(); }
   
   /// @return elements_exist_in_field
-  bool set_elements(boost::shared_ptr<CEntities> elements);
+  virtual bool set_elements(boost::shared_ptr<CEntities> elements);
 
   void set_field(CField2& field);
   
@@ -162,7 +163,49 @@ public: // functions
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+class Mesh_API CConnectedFieldView : public Common::Component
+{
+public:
+  /// Contructor
+  /// @param name of the component
+  CConnectedFieldView ( const std::string& name ) : Common::Component(name) {}
+
+  /// Virtual destructor
+  virtual ~CConnectedFieldView() {}
+
+  /// Get the class name
+  static std::string type_name () { return "CConnectedFieldView"; }
   
+  void initialize(boost::shared_ptr<CField2> field, boost::shared_ptr<CEntities> faces);
+  
+  void set_field(boost::shared_ptr<CField2> field);
+  
+  void set_field(CField2& field);
+
+  bool set_elements(boost::shared_ptr<CEntities> elements);
+  
+  bool set_elements(CEntities& elements);
+
+  std::vector<CTable<Real>::Row> operator[](const Uint elem_idx);
+  
+  Mesh::CField2& field();
+  
+private:
+
+  boost::weak_ptr<CEntities> m_elements;
+  boost::weak_ptr<CFaceCellConnectivity> m_face2cells;
+  std::vector<CFieldView::Ptr> m_views;
+  
+  boost::weak_ptr<CField2> m_field;
+
+  Uint cells_comp_idx;
+  Uint cell_idx;
+
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF
 

@@ -23,73 +23,10 @@
 namespace CF {
 namespace Mesh {
   class CFieldView;
+  class CConnectedFieldView;
 }
 namespace FVM {
-
-class FVM_API ConnectedCellFaceFieldView
-{
-public:
   
-  void initialize(Mesh::CField2::Ptr field, Mesh::CCellFaces::Ptr faces)
-  {
-    set_field(field);
-    set_elements(faces);
-  }
-  
-  void set_field(Mesh::CField2::Ptr field) { return set_field(*field); }
-  void set_field(Mesh::CField2& field) { m_field = field.as_type<Mesh::CField2>(); }
-
-  void set_elements(Mesh::CCellFaces::Ptr faces)
-  {
-    cf_assert(is_not_null(faces));
-    set_elements(*faces);
-  }
-  
-  void set_elements(Mesh::CCellFaces& faces)
-  {
-    if (is_null(m_field.lock()))
-      throw Common::SetupError(FromHere(),"set_field(field) must be called first");
-      
-    m_faces = faces.as_type<Mesh::CCellFaces>();
-    m_views.resize(faces.cell_connectivity().cells_components().size());
-    index_foreach(i,Mesh::CCells::Ptr cells, faces.cell_connectivity().cells_components())
-    {
-      cf_assert(is_not_null(cells));
-      m_views[i] = Common::allocate_component<Mesh::CFieldView>("view");
-      m_views[i]->initialize(*m_field.lock(), cells);
-    }
-  }
-
-  std::vector<Mesh::CTable<Real>::Row> operator[](const Uint face_idx)
-  {
-    cf_assert(m_views.size());
-    std::vector<Mesh::CTable<Real>::Row> vec;
-    Mesh::CCellFaces& faces = *m_faces.lock();
-    boost_foreach(const Uint cell, faces.cell_connectivity().elements(face_idx))
-    {
-      boost::tie(cells_comp_idx,cell_idx) = faces.cell_connectivity().element_loc_idx(cell);
-      cf_assert(cells_comp_idx < m_views.size());
-      cf_assert( is_not_null(m_views[cells_comp_idx]) );
-      cf_assert(cell_idx < m_views[cells_comp_idx]->size());
-      vec.push_back((*m_views[cells_comp_idx])[cell_idx]);
-    }
-    return vec;
-  }
-  
-  Mesh::CField2& field() { return *m_field.lock(); }
-  
-private:
-
-  boost::weak_ptr<Mesh::CCellFaces> m_faces;
-  std::vector<Mesh::CFieldView::Ptr> m_views;
-  
-  boost::weak_ptr<Mesh::CField2> m_field;
-
-  Uint cells_comp_idx;
-  Uint cell_idx;
-
-};
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class FVM_API ComputeFlux : public Solver::Actions::CLoopOperation
@@ -126,12 +63,11 @@ private: // helper functions
   
 private: // data
   
-  ConnectedCellFaceFieldView m_connected_residual;
-  ConnectedCellFaceFieldView m_connected_solution;
-  ConnectedCellFaceFieldView m_connected_advection;
-  
-  Mesh::CScalarFieldView::Ptr m_face_area;
-  Mesh::CFieldView::Ptr m_face_normal;
+  Mesh::CConnectedFieldView m_connected_residual;
+  Mesh::CConnectedFieldView m_connected_solution;
+  Mesh::CConnectedFieldView m_connected_advection;
+  Mesh::CScalarFieldView    m_face_area;
+  Mesh::CFieldView          m_face_normal;
   
   RealVector m_flux;
   Real m_wave_speed_left;

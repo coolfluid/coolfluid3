@@ -60,7 +60,8 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( nam
 
   m_properties.add_option<OptionT<bool> >("OutputDiagnostics","Output information of convergence",false)->mark_basic();
   m_properties.add_option<OptionURI>("Solution","Solution to march in time",URI())
-    ->attach_trigger ( boost::bind ( &ForwardEuler::trigger_solution,   this ) );
+    ->attach_trigger ( boost::bind ( &ForwardEuler::trigger_solution,   this ) )
+    ->mark_basic();
 
   m_solution = create_static_component<CLink>("solution");
   m_residual = create_static_component<CLink>("residual");
@@ -104,6 +105,8 @@ void ForwardEuler::trigger_solution()
   CField2& solution = *m_solution->follow()->as_type<CField2>();
   CMesh::Ptr mesh = solution.parent()->as_type<CMesh>();
   if (is_null(mesh)) throw SetupError (FromHere(), "Solution must be located inside a CMesh");
+
+  discretization_method().configure_property("Mesh",mesh->full_path());
 
   CField2& residual = mesh->create_field2("residual",solution);
   m_residual->link_to(residual.self());
