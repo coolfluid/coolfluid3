@@ -201,7 +201,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , scalar_advection_local_fixture )
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
   p.add_option<std::string>("Name","INTERNAL");
-  p.add_option<std::string>("Type","CF.RDM.CLDA");
+  p.add_option<std::string>("Type","CF.RDM.CLDA<RotationAdv2D>");
   p.add_array("Regions", bc_regions);
 
   discretization.as_type<ResidualDistribution>()->create_domain_term(node);

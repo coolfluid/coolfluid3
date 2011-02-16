@@ -8,27 +8,34 @@
 
 #include "RDM/CLDA.hpp"
 
+// supported physics
+
+#include "RDM/LinearAdv2D.hpp"
+#include "RDM/RotationAdv2D.hpp"
+#include "RDM/Burgers2D.hpp"
+
 using namespace CF::Common;
 
 namespace CF {
 namespace RDM {
 
-Common::ComponentBuilder < CLDA, CAction, LibRDM > CLDA_Builder;
-
-// Common::ComponentBuilder < CLDA<LinearAdv2D>,   CAction, LibRDM > CLDALinearAdv2D_Builder;
-// Common::ComponentBuilder < CLDA<RotationAdv2D>, CAction, LibRDM > CLDARotationAdv2D_Builder;
-// Common::ComponentBuilder < CLDA<Burgers2D>,     CAction, LibRDM > CLDABurgers2D_Builder;
+Common::ComponentBuilder < CLDA<LinearAdv2D>,   CAction, LibRDM > CLDA_LinearAdv2D_Builder;
+Common::ComponentBuilder < CLDA<RotationAdv2D>, CAction, LibRDM > CLDA_RotationAdv2D_Builder;
+Common::ComponentBuilder < CLDA<Burgers2D>,     CAction, LibRDM > CLDA_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CLDA::CLDA ( const std::string& name  ): CLoop(name)
+template < typename PHYS >
+CLDA<PHYS>::CLDA ( const std::string& name  ): CLoop(name)
 {
   regist_typeinfo(this);
 }
 
-CLDA::~CLDA() {}
+template < typename PHYS >
+CLDA<PHYS>::~CLDA() {}
 
-void CLDA::execute()
+template < typename PHYS >
+void CLDA<PHYS>::execute()
 {
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {

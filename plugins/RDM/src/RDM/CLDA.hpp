@@ -23,12 +23,6 @@
 #include "RDM/CSchemeLDAT.hpp"
 //#include "RDM/CSchemeN.hpp"
 
-#include "RDM/LinearAdv2D.hpp"
-#include "RDM/RotationAdv2D.hpp"
-#include "RDM/LinearAdv2D.hpp"
-#include "RDM/Burgers2D.hpp"
-
-
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -36,6 +30,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+template < typename PHYS >
 class RDM_API CLDA : public Solver::Actions::CLoop
 {
 
@@ -69,7 +64,7 @@ class RDM_API CLDA : public Solver::Actions::CLoop
           const Uint order = 4;
 
           typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> QD;
-          typedef CSchemeLDAT< SF, QD, RotationAdv2D > SchemeT;
+          typedef CSchemeLDAT< SF, QD, PHYS > SchemeT;
 
           // get the scheme
           typename SchemeT::Ptr scheme = comp.get_child<SchemeT>( SchemeT::type_name() );
@@ -105,7 +100,7 @@ public: // functions
   virtual ~CLDA();
 
   /// Get the class name
-  static std::string type_name () { return "CLDA"; }
+  static std::string type_name () { return "CLDA<" + PHYS::type_name() + ">"; }
 
   /// Execute the loop for all elements
   virtual void execute();
