@@ -79,14 +79,11 @@ class RDM_API CLDA : public Solver::Actions::CLoop
           // loop on elements of that type
           scheme->set_elements(elements);
 
-          if (scheme->can_start_loop())
+          const Uint nb_elem = elements.size();
+          for ( Uint elem = 0; elem != nb_elem; ++elem )
           {
-            const Uint nb_elem = elements.size();
-            for ( Uint elem = 0; elem != nb_elem; ++elem )
-            {
-              scheme->select_loop_idx(elem);
-              scheme->execute();
-            }
+            scheme->select_loop_idx(elem);
+            scheme->execute();
           }
         }
       }

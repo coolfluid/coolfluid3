@@ -33,21 +33,9 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
   // options
   m_properties.add_option< OptionURI > ("Field","Field to apply Bc to", URI("cpath:"))->mark_basic();
   m_properties["Field"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_field,   this ) );
-
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::trigger_elements,   this ) );
-
-  m_field_view = create_static_component<CFieldView>("field_view");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void BcDirichlet::trigger_elements()
-{
-//  CFinfo << "elements [" << elements().full_path().string() << "]" << CFendl;
-
-//  m_can_start_loop =
-      m_field_view->set_elements( elements() );
-}
 
 void BcDirichlet::config_field()
 {
@@ -61,8 +49,6 @@ void BcDirichlet::config_field()
   m_field = found->as_type<CField2>();
   if ( is_null( m_field.lock() ) )
     throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
-
-  m_field_view->set_field( m_field.lock() );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +61,9 @@ void BcDirichlet::execute()
   CField2& field = *m_field.lock();
   CTable<Real>::Row data = field[idx()];
   const Real x = field.coords(idx())[XX];
-//  const CF::Real y =  field.coords(idx())[XX];
+  const Real y =  field.coords(idx())[YY];
+
+//  CFinfo << "  --  coords " <<  x  << " " << y << CFendl;
 
   const Uint row_size = data.size();
   for (Uint i = 0; i != row_size; ++i)

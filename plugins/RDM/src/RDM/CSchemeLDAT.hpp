@@ -67,6 +67,9 @@ private: // helper functions
 
     /// @todo this should maybe be on a setup function
 
+    solution_field = look_component( "cpath:../../../solution" )->follow()->as_type<Mesh::CField2>();
+    cf_assert( is_not_null( solution_field.lock() ) );
+
     Mesh::CField2::Ptr csolution = look_component( "cpath:../../../solution" )
         ->follow()->as_type<Mesh::CField2>();
     cf_assert( is_not_null( csolution ) );
@@ -82,13 +85,10 @@ private: // helper functions
     cf_assert( is_not_null( cupdate_coeff ) );
     update_coeff = cupdate_coeff->data_ptr();
 
-    m_can_start_loop = true;
-
     CFinfo << "ELEMENT TYPE:";
     CFinfo << elements().element_type().element_type_name() << CFendl;
     CFinfo << "TEMPLATE PARAMETERS:";
     CFinfo << SHAPEFUNC::type_name() << CFendl;
-
   }
 
 
@@ -98,11 +98,11 @@ private: // data
 
   Mesh::CTable<Real>::Ptr coordinates;
 
+  boost::weak_ptr<Mesh::CField2> solution_field;
+
   Mesh::CTable<Real>::Ptr solution;
   Mesh::CTable<Real>::Ptr residual;
   Mesh::CTable<Real>::Ptr update_coeff;
-
-  boost::shared_ptr<Mesh::CFieldView> m_solution_field;
 
   typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
 
@@ -149,21 +149,23 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = connectivity_table->array()[idx()];
 
-  typename SHAPEFUNC::NodeMatrixT nodes;
-
-//m_solution_field->put_coordinates( nodes, idx() );
-//std::cout << "Coordinates after put_coordinates() :" << std::endl;
-//std::cout << "nodes: " << nodes << std::endl;
-
-
- Mesh::fill(nodes, *coordinates, nodes_idx );
-
-
 //  std::cout << "nodes_idx";
 //  for ( Uint i = 0; i < nodes_idx.size(); ++i)
 //     std::cout << " " << nodes_idx[i];
-//    std::cout << std::endl;
-//    std::cout << "nodes: " << nodes << std::endl;
+
+  typename SHAPEFUNC::NodeMatrixT nodes;
+
+ Mesh::fill(nodes, *coordinates, nodes_idx );
+
+//  elements().as_type<Mesh::CElements>()->put_coordinates( nodes, idx() );
+
+//  std::cout << "field put_coordinates function" <<  std::endl;
+//  std::cout << "nodes: " << nodes << std::endl;
+
+
+//  std::cout << "mesh::fill function" <<  std::endl;
+//  std::cout << "nodes: " << nodes << std::endl;
+
 
   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
     m_solution_values[n] = (*solution)[nodes_idx[n]][0];

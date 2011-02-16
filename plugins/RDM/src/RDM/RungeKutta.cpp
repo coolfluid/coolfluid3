@@ -180,7 +180,7 @@ void RungeKutta::solve()
     {
       Uint size = node_data.size();
       for (Uint i=0; i<size; ++i)
-        node_data[i][0]=0;
+        node_data[i][0]=0.;
     }
 
 //    CFinfo << " --  cleaning update coeff" << CFendl;
@@ -188,7 +188,7 @@ void RungeKutta::solve()
     {
       Uint size = node_data.size();
       for (Uint i=0; i<size; ++i)
-        node_data[i][0]=0;
+        node_data[i][0]=0.;
     }
     */
 

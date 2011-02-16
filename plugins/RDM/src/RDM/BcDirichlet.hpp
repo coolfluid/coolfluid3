@@ -49,12 +49,10 @@ public: // functions
 
 private: // helper functions
 
-  void trigger_elements();
   void config_field();
 
 private: // data
 
-  boost::shared_ptr<Mesh::CFieldView> m_field_view;
   boost::weak_ptr<Mesh::CField2> m_field;
 
 };
