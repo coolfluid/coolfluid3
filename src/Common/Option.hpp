@@ -169,7 +169,7 @@ namespace Common {
     /// @brief Checks whether the option has a list of restricted values.
     /// @return Returns @c true if the option a such list; otherwise, returns
     /// @c false.
-    bool has_restricted_list() const { return m_restricted_list.size() > 1; }
+    virtual bool has_restricted_list() const = 0;
 
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option

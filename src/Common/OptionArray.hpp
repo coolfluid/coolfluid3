@@ -72,6 +72,11 @@ namespace Common {
     /// @returns the xml tag for this option
     virtual const char * tag() const { return "array"; }
 
+    /// @brief Checks whether the option has a list of restricted values.
+    /// @return Returns @c true if the option a such list; otherwise, returns
+    /// @c false.
+    bool has_restricted_list() const { return m_restricted_list.size() != value_vect().size(); }
+
     /// @returns the value as a sd::string
     virtual std::string value_str () const;
 

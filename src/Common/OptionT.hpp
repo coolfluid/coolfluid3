@@ -51,6 +51,11 @@ namespace Common {
     /// @returns the default value as a sd::string
     virtual std::string def_str () const  { return from_value ( def<TYPE>() ); }
 
+    /// @brief Checks whether the option has a list of restricted values.
+    /// @return Returns @c true if the option a such list; otherwise, returns
+    /// @c false.
+    bool has_restricted_list() const { return m_restricted_list.size() > 1; }
+
     virtual std::string data_type() const { return type(); }
 
     /// updates the option value using the xml configuration

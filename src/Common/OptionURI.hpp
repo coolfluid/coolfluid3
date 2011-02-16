@@ -36,7 +36,7 @@ namespace Common {
     {
       return Option::Ptr ( new OptionURI(name,desc,def) );
     }
-    
+
     static Option::Ptr create(const std::string & name, const std::string & desc, const URI& def, URI::Scheme::Type protocol)
     {
       Option::Ptr option ( new OptionURI(name,desc,def) );
@@ -52,7 +52,7 @@ namespace Common {
 
     /// @name VIRTUAL FUNCTIONS
     //@{
-      
+
     virtual std::string data_type() const { return type(); }
 
     /// @returns the xml tag for this option
@@ -63,6 +63,11 @@ namespace Common {
 
     /// @returns the default value as a sd::string
     virtual std::string def_str () const  { return from_value( def<URI>() ); }
+
+    /// @brief Checks whether the option has a list of restricted values.
+    /// @return Returns @c true if the option a such list; otherwise, returns
+    /// @c false.
+    bool has_restricted_list() const { return m_restricted_list.size() > 1; }
 
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option

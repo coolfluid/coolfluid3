@@ -118,17 +118,16 @@ std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
     value_type values = boost::any_cast<value_type>(c);
     BOOST_FOREACH ( TYPE v, values )
     {
+      if(!result.empty())
+        result += "@@";
+
       result += from_value ( v );
-      result += "@@";
     }
   }
   catch(boost::bad_any_cast& e)
   {
     throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(c.type())+" to "+class_name<value_type>());
   }
-
-  if ( !result.empty() ) // remove last "@@"
-    result.erase(result.size()-1);
 
   return result;
 }
