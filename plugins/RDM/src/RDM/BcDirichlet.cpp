@@ -66,13 +66,22 @@ void BcDirichlet::execute()
 //  CFinfo << "  --  coords " <<  x  << " " << y << CFendl;
 
   const Uint row_size = data.size();
+//  Scalar advection - inlet bc:
+//  for (Uint i = 0; i != row_size; ++i)
+//  {
+//    if (x >= -1.4 && x <= -0.6)
+//      data[i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
+//    else
+//      data[i] = 0.0;
+//  }
+
+
+  // Burgers - inlet bc:
   for (Uint i = 0; i != row_size; ++i)
   {
-    if (x >= -1.4 && x <= -0.6)
-      data[i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
-    else
-      data[i] = 0.0;
+      data[i] = 1.5-2.0*x;
   }
+
 //  CFinfo << "x = " << x << CFendl;
 //  CFinfo << "data = " << data[0] << CFendl;
 

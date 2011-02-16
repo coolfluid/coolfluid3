@@ -41,7 +41,7 @@ using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::RDM;
 
-#define BUBBLE
+//#define BUBBLE
 
 struct scalar_advection_global_fixture
 {
@@ -205,7 +205,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , scalar_advection_local_fixture )
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
   p.add_option<std::string>("Name","INTERNAL");
-  p.add_option<std::string>("Type","CF.RDM.CLDA<RotationAdv2D>");
+  p.add_option<std::string>("Type","CF.RDM.CLDA<Burgers2D>");
   p.add_array("Regions", bc_regions);
 
   discretization.as_type<ResidualDistribution>()->create_domain_term(node);
