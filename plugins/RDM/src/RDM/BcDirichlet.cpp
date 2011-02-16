@@ -85,6 +85,8 @@ void BcDirichlet::execute()
     else
       data[i] = 0.0;
   }
+//  CFinfo << "x = " << x << CFendl;
+//  CFinfo << "data = " << data[0] << CFendl;
 
 }
 

@@ -30,7 +30,7 @@ public: // functions
   ~RotationAdv2D();
 
   /// Get the class name
-  static std::string type_name () { return "LinearAdv2D"; }
+  static std::string type_name () { return "RotationAdv2D"; }
 
   /// Number of equations in this physical model
   static Uint nbeqs() { return 1u; }

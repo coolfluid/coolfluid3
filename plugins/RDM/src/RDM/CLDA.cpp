@@ -15,6 +15,10 @@ namespace RDM {
 
 Common::ComponentBuilder < CLDA, CAction, LibRDM > CLDA_Builder;
 
+// Common::ComponentBuilder < CLDA<LinearAdv2D>,   CAction, LibRDM > CLDALinearAdv2D_Builder;
+// Common::ComponentBuilder < CLDA<RotationAdv2D>, CAction, LibRDM > CLDARotationAdv2D_Builder;
+// Common::ComponentBuilder < CLDA<Burgers2D>,     CAction, LibRDM > CLDABurgers2D_Builder;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CLDA::CLDA ( const std::string& name  ): CLoop(name)

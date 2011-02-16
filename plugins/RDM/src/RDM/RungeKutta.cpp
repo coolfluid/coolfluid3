@@ -132,9 +132,18 @@ void RungeKutta::solve()
   if( is_null(domain) )
     throw InvalidURI( FromHere(), "Path does not poitn to Domain");
 
+  /*
   CField2::Ptr solution     = m_solution_field->follow()->as_type<CField2>();
   CField2::Ptr residual     = m_residual_field->follow()->as_type<CField2>();
   CField2::Ptr update_coeff = m_update_coeff_field->follow()->as_type<CField2>();
+  */
+
+
+  CTable<Real>& solution = m_solution_field->follow()->as_type<CField2>()->data();
+  CTable<Real>& residual = m_residual_field->follow()->as_type<CField2>()->data();
+  CTable<Real>& update_coeff = m_update_coeff_field->follow()->as_type<CField2>()->data();
+
+
 
   CFinfo << " - initializing solution" << CFendl;
 
@@ -146,6 +155,8 @@ void RungeKutta::solve()
       node_data[i][0]=0;
   }
 
+
+
   CFinfo << " - starting iterative loop" << CFendl;
 
   for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
@@ -156,6 +167,10 @@ void RungeKutta::solve()
 
     // set update coefficient and residual to zero
     // Set the field data of the source field
+
+
+
+   /*
     boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->follow(), "node_data"))
     {
       Uint size = node_data.size();
@@ -170,24 +185,37 @@ void RungeKutta::solve()
       for (Uint i=0; i<size; ++i)
         node_data[i][0]=0;
     }
+    */
+
+    Uint size = residual.size();
+    for (Uint i=0; i<size; ++i)
+      residual[i][0]=0;
+
+    size = update_coeff.size();
+    for (Uint i=0; i<size; ++i)
+      update_coeff[i][0]=0;
+
+
+
+
 
     // compute RHS
 //    CFinfo << " --  computing the rhs" << CFendl;
     discretization_method().compute_rhs();
 
     // CFL
-    const Real CFL = 0.15;
+    const Real CFL = 1.0;
 
     // explicit update
 //    CFinfo << " --  updating solution" << CFendl;
-    const Uint nbdofs = solution->size();
+    const Uint nbdofs = solution.size();
     for (Uint i=0; i< nbdofs; ++i)
-      (*solution)[i][0] += - ( CFL / (*update_coeff)[i][0] ) * (*residual)[i][0];
-//        solution[idx()][0] += - ( 0.9/update_coeff[idx()][0] ) * residual[idx()][0];
+      solution[i][0] += - ( CFL / update_coeff[i][0] ) * residual[i][0];
+
 //    CFinfo << " --  computing the norm" << CFendl;
     Real rhs_L2 = 0.;
     for (Uint i=0; i< nbdofs; ++i)
-      rhs_L2 += (*residual)[i][0] * (*residual)[i][0];
+      rhs_L2 += residual[i][0] * residual[i][0];
     rhs_L2 = sqrt(rhs_L2)/nbdofs;
 
     // output convergence info

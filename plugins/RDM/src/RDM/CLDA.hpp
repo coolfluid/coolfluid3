@@ -25,7 +25,9 @@
 
 #include "RDM/LinearAdv2D.hpp"
 #include "RDM/RotationAdv2D.hpp"
+#include "RDM/LinearAdv2D.hpp"
 #include "RDM/Burgers2D.hpp"
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +69,7 @@ class RDM_API CLDA : public Solver::Actions::CLoop
           const Uint order = 2;
 
           typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> QD;
-          typedef CSchemeLDAT< SF, QD, Burgers2D > SchemeT;
+          typedef CSchemeLDAT< SF, QD, RotationAdv2D > SchemeT;
 
           // get the scheme
           typename SchemeT::Ptr scheme = comp.get_child<SchemeT>( SchemeT::type_name() );

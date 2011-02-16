@@ -83,6 +83,12 @@ private: // helper functions
     update_coeff = cupdate_coeff->data_ptr();
 
     m_can_start_loop = true;
+
+    CFinfo << "ELEMENT TYPE:";
+    CFinfo << elements().element_type().element_type_name() << CFendl;
+    CFinfo << "TEMPLATE PARAMETERS:";
+    CFinfo << SHAPEFUNC::type_name() << CFendl;
+
   }
 
 
@@ -145,15 +151,19 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
   typename SHAPEFUNC::NodeMatrixT nodes;
 
-//  m_solution_field->put_coordinates( nodes, idx() );
+//m_solution_field->put_coordinates( nodes, idx() );
+//std::cout << "Coordinates after put_coordinates() :" << std::endl;
+//std::cout << "nodes: " << nodes << std::endl;
 
-  Mesh::fill(nodes, *coordinates, nodes_idx );
+
+ Mesh::fill(nodes, *coordinates, nodes_idx );
+
 
 //  std::cout << "nodes_idx";
 //  for ( Uint i = 0; i < nodes_idx.size(); ++i)
 //     std::cout << " " << nodes_idx[i];
-//  std::cout << std::endl;
-//  std::cout << "nodes: " << nodes << std::endl;
+//    std::cout << std::endl;
+//    std::cout << "nodes: " << nodes << std::endl;
 
   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
     m_solution_values[n] = (*solution)[nodes_idx[n]][0];
@@ -165,7 +175,11 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
 // std::cout << "solution_values  [" << m_solution_values << "]" << std::endl;
 // std::cout << "sf_oper_values   [" << m_sf_oper_values << "]" << std::endl;
+// std::cout << std::endl;
 // std::cout << "flux_oper_values [" << m_flux_oper_values << "]" << std::endl;
+//// if (m_flux_oper_values.norm() > 0.0)
+////     std::cin.get();
+// std::cout << std::endl;
 
  for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
  {
