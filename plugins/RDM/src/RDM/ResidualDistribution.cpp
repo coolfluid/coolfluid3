@@ -9,6 +9,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
 #include "Solver/Actions/CForAllT.hpp"
@@ -105,13 +106,16 @@ void ResidualDistribution::create_boundary_term( XmlNode& xml )
 
   std::vector<URI> regions = p.get_array<URI>("Regions");
 
-  CAction& face_loop =
-      m_compute_boundary_face_terms->create_action("CF.Solver.Actions.CForAllFaces", name);
+//  CAction& face_loop =
+//      m_compute_boundary_face_terms->create_action("CF.Solver.Actions.CForAllFaces", name);
 
-  face_loop.configure_property("Regions" , regions);
-  face_loop.mark_basic();
+  CAction::Ptr face_loop = create_component_abstract_type<CLoop>("CF.Solver.Actions.CForAllNodes2",name);
+  m_compute_boundary_face_terms->add_component(face_loop);
 
-  CAction& face_action = face_loop.create_action( type , "action" );
+  face_loop->configure_property("Regions" , regions);
+  face_loop->mark_basic();
+
+  CAction& face_action = face_loop->create_action( type , "action" );
   face_action.mark_basic();
 
   face_action.configure_property("Field", m_solution_field->follow()->full_path());

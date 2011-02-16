@@ -66,7 +66,7 @@ class RDM_API CLDA : public Solver::Actions::CLoop
 
           // create an LDA for this specific type
 
-          const Uint order = 2;
+          const Uint order = 4;
 
           typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> QD;
           typedef CSchemeLDAT< SF, QD, RotationAdv2D > SchemeT;

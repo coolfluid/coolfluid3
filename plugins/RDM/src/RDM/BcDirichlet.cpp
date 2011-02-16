@@ -55,7 +55,7 @@ void BcDirichlet::config_field()
 
 void BcDirichlet::execute()
 {
-//  CFinfo << "face [" << idx() << "]" << CFendl;
+//  CFinfo << "boundary node [" << idx() << "]" << CFendl;
 
   // m_idx is the index that is set using the function set_loop_idx()
   CField2& field = *m_field.lock();

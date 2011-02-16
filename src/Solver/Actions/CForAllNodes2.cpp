@@ -6,9 +6,11 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/Log.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CList.hpp"
+
 
 #include "Solver/Actions/CNodeOperation.hpp"
 #include "Solver/Actions/CForAllNodes2.hpp"
@@ -35,9 +37,9 @@ void CForAllNodes2::execute()
 {
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {
-    boost_foreach(const Uint node, CElements::used_nodes(*region).array())
+    boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {
-      boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
+     boost_foreach(const Uint node, CElements::used_nodes(*region).array())
       {
         op.select_loop_idx(node);
         op.execute();

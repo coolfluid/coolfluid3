@@ -145,7 +145,7 @@ template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
 void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 {
 
-  CFinfo << "LDA ELEM [" << idx() << "]" << CFendl;
+//  CFinfo << "LDA ELEM [" << idx() << "]" << CFendl;
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = connectivity_table->array()[idx()];
 

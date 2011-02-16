@@ -41,7 +41,7 @@ using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::RDM;
 
-//#define BUBBLE
+#define BUBBLE
 
 struct scalar_advection_global_fixture
 {
@@ -152,7 +152,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , scalar_advection_local_fixture
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("Number of Iterations", 150u);
+  solver.configure_property("Number of Iterations", 1500u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
