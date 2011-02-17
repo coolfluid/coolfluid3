@@ -51,7 +51,7 @@ public: // functions
 
 private: // helper functions
 
-  void config_field();
+  void config_solution();
   void config_function();
 
 private: // data

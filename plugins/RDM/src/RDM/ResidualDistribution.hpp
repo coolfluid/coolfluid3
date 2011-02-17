@@ -65,7 +65,7 @@ public: // functions
 
 private: // functions
 
-  void trigger_Mesh();
+  void config_mesh();
 
 private: // data
 

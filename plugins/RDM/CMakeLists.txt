@@ -5,7 +5,12 @@
 # TODO
 #
 # soon ...
+#
 # * simplify configuration
+#     * make fields OptionComponent in RD and RK
+#     * modify Bc dirichlet n merge CForAllNodes2 with the LoopAction
+# * solution initialization
+# * obtain cfl from option and/or separate component
 # * P3 triangle
 # * P3 quad
 # * n scheme
@@ -16,6 +21,7 @@
 # * rk time stepping
 #
 # later ...
+#
 # * physical model user side configuration
 # * configuration of linear adv speed
 # * automatic bubble enrichment in rk case

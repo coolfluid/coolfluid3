@@ -60,7 +60,7 @@ public: // functions
   
 private: // functions
 
-  void trigger_Domain();
+  void config_domain();
   
 private: // data
   

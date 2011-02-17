@@ -50,7 +50,7 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
         "This method ... (explain)";
   properties()["description"] = desc ;
 
-  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( & ResidualDistribution::trigger_Mesh, this ) );
+  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( & ResidualDistribution::config_mesh, this ) );
 
   // signals
 
@@ -80,7 +80,7 @@ ResidualDistribution::~ResidualDistribution() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ResidualDistribution::trigger_Mesh()
+void ResidualDistribution::config_mesh()
 {
   CMesh& mesh = *m_mesh.lock();
 
@@ -116,7 +116,7 @@ void ResidualDistribution::create_boundary_term( XmlNode& xml )
   CAction& face_action = face_loop->create_action( type , "action" );
   face_action.mark_basic();
 
-  face_action.configure_property("Field", m_solution_field->follow()->full_path());
+  face_action.configure_property("Solution", m_solution_field->follow()->full_path());
 }
 
 //////////////////////////////////////////////////////////////////////////////

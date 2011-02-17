@@ -33,11 +33,6 @@ CDiscretization::CDiscretization ( const std::string& name  ) :
     ->mark_basic()
     ->add_tag("mesh");
 
-  /// @todo not necessary, solution.topology() should provide this information.
-
-  // for old compatibility
-  std::vector< URI > dummy;
-  m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -47,7 +47,7 @@ RungeKutta::RungeKutta ( const std::string& name  ) :
   properties()["brief"] = std::string("Iterative RDM component");
   properties()["description"] = std::string("Forward Euler Time Stepper");
 
-  m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &RungeKutta::trigger_Domain,   this ) );
+  m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &RungeKutta::config_domain,   this ) );
 
 
   this->regist_signal ( "solve" , "Solve", "Solve" )->connect ( boost::bind ( &RungeKutta::solve, this ) );
@@ -69,7 +69,7 @@ RungeKutta::~RungeKutta()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RungeKutta::trigger_Domain()
+void RungeKutta::config_domain()
 {
   CDomain::Ptr domain = look_component<CDomain>( property("Domain").value<URI>() );
   if( is_null(domain) )
@@ -78,32 +78,38 @@ void RungeKutta::trigger_Domain()
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>( *domain );
   if (is_not_null(mesh))
   {
-
-//    std::vector<URI> volume_regions;
-//    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-//      volume_regions.push_back( region.full_path() );
-
-    CFinfo << " - setting solution field" << CFendl;
-
-    CField2::Ptr solution = find_component_ptr_with_name<CField2>(*mesh,"solution");
+    std::string solution_tag("solution");
+    CField2::Ptr solution = find_component_ptr_with_tag<CField2>(*mesh, solution_tag);
     if ( is_null(solution) )
+    {
       solution = mesh->create_field2("solution","PointBased","u[1]").as_type<CField2>();
+      solution->add_tag(solution_tag);
+    }
     m_solution_field->link_to(solution);
 
-    CFinfo << " - setting residual field" << CFendl;
+    CFinfo << " - solution field : " << solution->full_path().string() << CFendl;
 
-    CField2::Ptr residual = find_component_ptr_with_name<CField2>(*mesh,"residual");
+    std::string residual_tag("residual");
+    CField2::Ptr residual = find_component_ptr_with_tag<CField2>(*mesh, residual_tag);
     if ( is_null(residual) )
-      residual = mesh->create_field2("residual","PointBased","ru[1]").as_type<CField2>();
+    {
+      residual = mesh->create_field2("residual","PointBased","u[1]").as_type<CField2>();
+      residual->add_tag(residual_tag);
+    }
     m_residual_field->link_to(residual);
 
-    CFinfo << " - setting update_coeff field" << CFendl;
+    CFinfo << " - residual field : " << residual->full_path().string() << CFendl;
 
-    CField2::Ptr update_coeff = find_component_ptr_with_name<CField2>(*mesh,"update_coeff");
+    std::string update_coeff_tag("update_coeff");
+    CField2::Ptr update_coeff = find_component_ptr_with_tag<CField2>(*mesh, update_coeff_tag);
     if ( is_null(update_coeff) )
-      update_coeff = mesh->create_field2("update_coeff","PointBased").as_type<CField2>();
+    {
+      update_coeff = mesh->create_field2("update_coeff","PointBased","u[1]").as_type<CField2>();
+      update_coeff->add_tag(update_coeff_tag);
+    }
     m_update_coeff_field->link_to(update_coeff);
 
+    CFinfo << " - update_coeff field : " << update_coeff->full_path().string() << CFendl;
 
     // configure DM mesh after fields are created since DM will look for them
     // on the attached configuration trigger
@@ -143,12 +149,10 @@ void RungeKutta::solve()
   CTable<Real>& residual = m_residual_field->follow()->as_type<CField2>()->data();
   CTable<Real>& update_coeff = m_update_coeff_field->follow()->as_type<CField2>()->data();
 
-  CFinfo << "DATA TABLE SIZES:" << CFendl;
-  CFinfo << "solution: " << solution.size() << " x " << solution.row_size() << CFendl;
-  CFinfo << "residual: " << residual.size() << " x " << residual.row_size() << CFendl;
-  CFinfo << "update_coeff: " << update_coeff.size() << " x " << update_coeff.row_size() << CFendl;
-
-
+//  CFinfo << "DATA TABLE SIZES:" << CFendl;
+//  CFinfo << "solution: " << solution.size() << " x " << solution.row_size() << CFendl;
+//  CFinfo << "residual: " << residual.size() << " x " << residual.row_size() << CFendl;
+//  CFinfo << "update_coeff: " << update_coeff.size() << " x " << update_coeff.row_size() << CFendl;
 
   CFinfo << " - initializing solution" << CFendl;
 

@@ -32,13 +32,20 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
   Solver::Actions::CLoopOperation(name)
 {
   // options
-  m_properties.add_option< OptionURI > ("Field","Field to apply Bc to", URI("cpath:"))->mark_basic();
+
+  m_properties.add_option< OptionURI > ("Solution",
+                                        "Solution field where to apply the boundary condition",
+                                        URI("cpath:"))
+      ->attach_trigger ( boost::bind ( &BcDirichlet::config_solution,   this ) )
+      ->mark_basic()
+      ->add_tag("solution");
+
   m_properties.add_option<
-      OptionT<std::string> > ("Function", "Math function applied as Dirichlet boundary condition (vars x,y)", "0.");
-
-  m_properties["Field"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_field,   this ) );
-  m_properties["Function"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) );
-
+      OptionT<std::string> > ("Function",
+                              "Math function applied as Dirichlet boundary condition (vars x,y)",
+                              "0.")
+      ->attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) )
+      ->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,10 +64,10 @@ void BcDirichlet::config_function()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void BcDirichlet::config_field()
+void BcDirichlet::config_solution()
 {
   URI uri;
-  property("Field").put_value(uri);
+  property("Solution").put_value(uri);
 
   Component::Ptr found = look_component(uri);
   if( is_null(found) )
@@ -68,7 +75,7 @@ void BcDirichlet::config_field()
 
   m_field = found->as_type<CField2>();
   if ( is_null( m_field.lock() ) )
-    throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
+    throw CastingFailed (FromHere(), "Solution field must be of a CField2 or derived type");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
