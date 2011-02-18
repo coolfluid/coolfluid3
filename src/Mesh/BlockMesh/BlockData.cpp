@@ -124,7 +124,7 @@ std::pair<Uint,Uint> dimensionality(const Uint nb_elements, const CFaceConnectiv
       const CFaceConnectivity::ElementReferenceT adjacent_element = volume_connectivity.adjacent_element(elem, face);
       if(adjacent_element.first->element_type().dimensionality() == DIM_2D)
       {
-        const std::string patch_name = adjacent_element.first->get_parent()->name();
+        const std::string patch_name = adjacent_element.first->parent()->name();
         patch_types_per_direction[face].push_back(patch_types[patch_name]);
       }
     }
@@ -652,7 +652,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   {
     const CFaceConnectivity& adjacency_data = find_component<CFaceConnectivity>(patch_block);
     // Create the volume cells connectivity
-    const std::string& patch_name = patch_block.get_parent()->name();
+    const std::string& patch_name = patch_block.parent()->name();
     CElements& patch_elements = root_region.create_region(patch_name).create_elements("CF.Mesh.SF.Quad3DLagrangeP1", mesh_nodes_comp);
     CTable<Uint>::ArrayT& patch_connectivity = patch_elements.connectivity_table().array();
     
@@ -761,7 +761,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
       cf_assert(segments[direction] == 1); // We require this, although BlockMesh does not
       const CFaceConnectivity::ElementReferenceT adjacent_patch = volume_to_face_connectivity.adjacent_element(block, dims.second);
       cf_assert(adjacent_patch.first->element_type().dimensionality() == DIM_2D);
-      const std::string& adjacent_name = adjacent_patch.first->get_parent()->name();
+      const std::string& adjacent_name = adjacent_patch.first->parent()->name();
       const CRegion& adjacent_region = find_component_with_name<CRegion>(root_region, adjacent_name);
       const CElements& adjacent_celements = find_component<CElements>(adjacent_region);
       const CTable<Uint>::ArrayT& adj_tbl = adjacent_celements.connectivity_table().array();
@@ -1206,7 +1206,7 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
           const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, transverse_direction);
           if(adjacent_element.first->element_type().dimensionality() == DIM_2D)
           {
-            const Uint patch_idx = patch_idx_map[adjacent_element.first->get_parent()->name()];
+            const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
             BOOST_FOREACH(const Uint i, Hexa3DLagrangeP1::faces().face_node_range(transverse_direction))
             {
               blocks_out.patch_points[patch_idx].push_back(new_blocks[block_idx][i]);
@@ -1228,7 +1228,7 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
       const CFaceConnectivity::ElementReferenceT adjacent_element = volume_to_face_connectivity.adjacent_element(block_idx, lengthwise_direcion);
       if(adjacent_element.first->element_type().dimensionality() == DIM_2D)
       {
-        const Uint patch_idx = patch_idx_map[adjacent_element.first->get_parent()->name()];
+        const Uint patch_idx = patch_idx_map[adjacent_element.first->parent()->name()];
         BOOST_FOREACH(const Uint i, Hexa3DLagrangeP1::faces().face_node_range(lengthwise_direcion))
         {
           blocks_out.patch_points[patch_idx].push_back(blocks_in.block_points[block_idx][i]);
