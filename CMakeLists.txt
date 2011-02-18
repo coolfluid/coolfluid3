@@ -12,7 +12,8 @@
 #
 #  * try using precompiled headers and add a check to their support
 #  * mesh transformers
-#     * CScale, CRotate, CTranslate, CMirror, CCopy
+#     * CScale, CRotate, CTranslate, 
+#     * CMirror, CCopy
 #     * CMerge
 #
 ##############################################################################
