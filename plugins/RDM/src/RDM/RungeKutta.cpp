@@ -93,7 +93,7 @@ void RungeKutta::config_domain()
     CField2::Ptr residual = find_component_ptr_with_tag<CField2>(*mesh, residual_tag);
     if ( is_null(residual) )
     {
-      residual = mesh->create_field2("residual","PointBased","u[1]").as_type<CField2>();
+      residual = mesh->create_field2("residual","PointBased","residual[1]").as_type<CField2>();
       residual->add_tag(residual_tag);
     }
     m_residual_field->link_to(residual);
@@ -104,7 +104,7 @@ void RungeKutta::config_domain()
     CField2::Ptr update_coeff = find_component_ptr_with_tag<CField2>(*mesh, update_coeff_tag);
     if ( is_null(update_coeff) )
     {
-      update_coeff = mesh->create_field2("update_coeff","PointBased","u[1]").as_type<CField2>();
+      update_coeff = mesh->create_field2("update_coeff","PointBased","update_coeff[1]").as_type<CField2>();
       update_coeff->add_tag(update_coeff_tag);
     }
     m_update_coeff_field->link_to(update_coeff);
