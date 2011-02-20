@@ -36,7 +36,10 @@ public: // functions
   static Uint nbeqs() { return 1u; }
 
   /// Function to compute the burgers flux
-  static Real Lu(const RealVector2 & point, const RealVector2 & grad, const Real & u);
+  static Real flux(const RealVector2 & coord, const Real & u, const RealVector2 & gradu);
+
+  /// Function to compute the operator L(N) for Burgers
+  static Real Lu(const RealVector2 & coord, const Real & u, const RealVector2 & gradN);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////

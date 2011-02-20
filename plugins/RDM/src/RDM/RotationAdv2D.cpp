@@ -26,9 +26,16 @@ RotationAdv2D::~RotationAdv2D()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Real RotationAdv2D::Lu(const RealVector2& point, const RealVector2& grad, const Real& u )
+Real RotationAdv2D::flux(const RealVector2& coord, const Real & u, const RealVector2& gradu)
 {
-   return point[YY]*grad[XX] - point[XX]*grad[YY];
+   return coord[YY]*gradu[XX] - coord[XX]*gradu[YY];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+Real RotationAdv2D::Lu(const RealVector2& coord, const Real & u, const RealVector2& gradN)
+{
+   return coord[YY]*gradN[XX] - coord[XX]*gradN[YY];
 }
 
 

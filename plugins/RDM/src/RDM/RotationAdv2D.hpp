@@ -35,8 +35,11 @@ public: // functions
   /// Number of equations in this physical model
   static Uint nbeqs() { return 1u; }
 
-  /// Function to compute the burgers flux
-  static Real Lu(const RealVector2 & point, const RealVector2 & grad, const Real & u );
+  /// Function to compute the flux for rotation
+  static Real flux(const RealVector2 & coord, const Real & u, const RealVector2 & gradu);
+
+  /// Function to compute L(u) for rotation
+  static Real Lu(const RealVector2 & coord, const Real & u, const RealVector2 & gradN);
 };
 
 ////////////////////////////////////////////////////////////////////////////////////

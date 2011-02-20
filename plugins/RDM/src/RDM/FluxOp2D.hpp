@@ -42,7 +42,7 @@ public: // functions
   void compute(const typename SHAPEFUNC::NodeMatrixT & nodes,
                const SolutionMatrixT & solution,
                SFMatrixT& sf_oper_values,
-               RealVector& flux_oper_values);
+               RealVector& flux_oper_values,Eigen::Matrix<Real,QUADRATURE::nb_points, 1u> & wj);
     
 protected: // data
 
@@ -57,12 +57,12 @@ protected: // data
   Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_dNdksi;
   Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_dNdeta;
 
-  typename SHAPEFUNC::MappedGradientT m_mapped_grad; //Gradient of the shape functions in reference space
-  typename SHAPEFUNC::ShapeFunctionsT m_shapefunc;   //Values of shape functions in reference space
+  typename SHAPEFUNC::MappedGradientT m_sf_grad_ref; //Gradient of the shape functions in reference space
+  typename SHAPEFUNC::ShapeFunctionsT m_sf_ref;   //Values of shape functions in reference space
 
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_qdpt_phys; //coordinates of quadrature points in physical space
-  Eigen::Matrix<Real,QUADRATURE::nb_points, 1u> m_qdsol_phys; //solution at quadrature points in physical space
-  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_qdsol_deriv_phys; //derivatives of solution
+  Eigen::Matrix<Real,QUADRATURE::nb_points, 1u> m_u_phys; //solution at quadrature points in physical space
+  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_u_grad_phys; //derivatives of solution
 
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dx; //Stores dx/dksi and dx/deta at each quadrature point
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dy; //Stores dy/dksi and dy/deta at each quadrature point
@@ -72,6 +72,7 @@ protected: // data
   Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_dNdx; //Derivatives of shape functions
                                                                         //at all quadrature points in phys. space
   Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_dNdy;
+
 };
 
 
@@ -85,12 +86,12 @@ FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::FluxOp2D() : m_quadrature( QUADRATURE::i
 
      for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
      {
-        SHAPEFUNC::mapped_gradient( m_quadrature.coords.col(q), m_mapped_grad );
-        SHAPEFUNC::shape_function ( m_quadrature.coords.col(q), m_shapefunc   );
+        SHAPEFUNC::mapped_gradient( m_quadrature.coords.col(q), m_sf_grad_ref );
+        SHAPEFUNC::shape_function ( m_quadrature.coords.col(q), m_sf_ref   );
 
-        m_N(q,n) = m_shapefunc[n];
-        m_dNdksi(q,n) = m_mapped_grad(KSI,n);
-        m_dNdeta(q,n) = m_mapped_grad(ETA,n);
+        m_N(q,n) = m_sf_ref[n];
+        m_dNdksi(q,n) = m_sf_grad_ref(KSI,n);
+        m_dNdeta(q,n) = m_sf_grad_ref(ETA,n);
      }
    }
 }
@@ -101,12 +102,12 @@ template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
 void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::NodeMatrixT & nodes,
                                                      const SolutionMatrixT& solution,
                                                      SFMatrixT& sf_oper_values,
-                                                     RealVector& flux_oper_values)
+                                                     RealVector& flux_oper_values, Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> & wj)
 {
    //Coordinates of quadrature points in physical space
    m_qdpt_phys  = m_N * nodes;
    //Solution at all quadrature points in physical space
-   m_qdsol_phys = m_N * solution;
+   m_u_phys = m_N * solution;
 
    //Jacobian of transformation phys -> ref:
    //    |   dx/dksi    dx/deta    |
@@ -131,36 +132,39 @@ void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::N
        m_dNdy(q,n) = 1.0/m_j[q] * ( -m_dNdksi(q,n)*m_dx(q,YY) + m_dNdeta(q,n) * m_dx(q,XX));
      }
 
-   m_qdsol_deriv_phys.col(XX) = m_dNdx * solution;
-   m_qdsol_deriv_phys.col(YY) = m_dNdy * solution;
+   m_u_grad_phys.col(XX) = m_dNdx * solution;
+   m_u_grad_phys.col(YY) = m_dNdy * solution;
 
-  RealVector2 qd_pt;
+  RealVector2 coord_q;
   RealVector2 dN;
   RealVector2 du;
 
   for(Uint q=0; q < QUADRATURE::nb_points; ++q)
   {
-    qd_pt[XX] = m_qdpt_phys(q,XX);
-    qd_pt[YY] = m_qdpt_phys(q,YY);
-    du[XX]    = m_qdsol_deriv_phys(q,XX);
-    du[YY]    = m_qdsol_deriv_phys(q,YY);
+    coord_q[XX] = m_qdpt_phys(q,XX);
+    coord_q[YY] = m_qdpt_phys(q,YY);
+    du[XX]      = m_u_grad_phys(q,XX);
+    du[YY]      = m_u_grad_phys(q,YY);
 
     for(Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
     {
       dN[XX]    = m_dNdx(q,n);
       dN[YY]    = m_dNdy(q,n);
 
-      sf_oper_values(q,n) = PHYSICS::Lu(qd_pt,dN,m_qdsol_phys[q]);
+      sf_oper_values(q,n) = PHYSICS::Lu(coord_q,m_u_phys[q],dN);
     }
 
-    flux_oper_values[q] = PHYSICS::Lu(qd_pt,du,m_qdsol_phys[q]) * m_j[q] * m_quadrature.weights[q];
+    flux_oper_values[q] = PHYSICS::flux(coord_q,m_u_phys[q],du);
 //    std::cout << "X [" << q << "] = " << qd_pt << std::endl;
 //    std::cout << "dU[" << q << "] = " << du << std::endl;
 //    std::cout << "U [" << q << "] = " << m_qdsol_phys[q] << std::endl;
 //    std::cout << "J [" << q << "] = " << m_j[q] << std::endl;
 
 //       std::cout << du << std::endl;
-  }
+
+   wj[q] = m_j[q]*m_quadrature.weights[q];
+
+  } //Loop over quadrature points
 }
 
 

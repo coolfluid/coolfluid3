@@ -9,6 +9,8 @@
 
 #include <boost/assign.hpp>
 
+#include <Eigen/Dense>
+
 #include "Common/OptionT.hpp"
 #include "Common/BasicExceptions.hpp"
 
@@ -123,6 +125,10 @@ private: // data
 
   //Nodal residuals
   RealVector m_phi;
+
+  //Integration factor (jacobian multiplied by quadrature weight)
+  Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> m_wj;
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +179,7 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  m_phi.setZero();
 
- m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values);
+ m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values,m_wj);
 
 // std::cout << "solution_values  [" << m_solution_values << "]" << std::endl;
 // std::cout << "sf_oper_values   [" << m_sf_oper_values << "]" << std::endl;
@@ -193,7 +199,7 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
-     m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q];
+     m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q] * m_wj[q];
    }
  }
   

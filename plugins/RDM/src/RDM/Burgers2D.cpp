@@ -26,9 +26,16 @@ Burgers2D::~Burgers2D()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Real Burgers2D::Lu(const RealVector2 & point, const RealVector2 & grad, const Real & u)
+Real Burgers2D::flux(const RealVector2 & coord, const Real & u, const RealVector2 & gradu)
+{
+   return u*gradu[XX] + gradu[YY];
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+Real Burgers2D::Lu(const RealVector2 & coord, const Real & u, const RealVector2 & gradN)
 {  
-   return u*grad[XX] + grad[YY];
+   return u*gradN[XX] + gradN[YY];
 }
 
 
