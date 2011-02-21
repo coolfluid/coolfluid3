@@ -55,7 +55,7 @@ struct rotationadv2d_global_fixture
     p.add_option<std::string>("Model name","mymodel");
     p.add_option<std::string>("Physical model","RotationAdv2D");
 
-    rotationadv2d_wizard->create_model(node);
+    rotationadv2d_wizard->signal_create_model(node);
   }
 
   ScalarAdvection::Ptr rotationadv2d_wizard;
@@ -115,18 +115,12 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 
   std::vector<URI> files;
 
-  files.push_back( "file:rotation-tg-p1.neu" );
-//  files.push_back( "file:rotation-qd-p1.neu" );
+  URI file ( "file:rotation-tg-p1.neu" );
+  //  URI file ( "file:rotation-qd-p1.neu" );
 
-  xmlp.add_option<URI>("Parent Component", URI( domain.full_path().string()) );
-  xmlp.add_array("Files", files);
+  xmlp.add_option<URI>("File", file );
 
-  // get the generic mesh loader from the Tools
-
-  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child("Tools")->get_child<LoadMesh>("LoadMesh");
-  cf_assert( is_not_null(load_mesh) );
-
-  load_mesh->signal_load_mesh( node );
+  domain.signal_load_mesh( node );
 
   BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
 

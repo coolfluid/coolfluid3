@@ -13,9 +13,7 @@
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
-namespace Mesh {
-  class CDomain;
-}
+namespace Mesh { class CDomain; }
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,22 +43,34 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CModel"; }
 
+  /// creates a domain in this model
+  virtual boost::shared_ptr<Mesh::CDomain> create_domain( const std::string& name );
+
   /// Simulates this model
   virtual void simulate() = 0;
 
   /// @name SIGNALS
   //@{
 
-  /// Signal to start solving
+  /// Signature of create domain signal @see signal_create_domain
+  void signature_create_domain ( Common::XmlNode& node );
+  /// Signal to create a domain and load a mesh into it
+  void signal_create_domain ( Common::XmlNode& node );
+
+  /// Signal to start simulating
   void signal_simulate ( Common::XmlNode& node );
 
   //@} END SIGNALS
   
-  Mesh::CDomain& domain() { return *m_domain; }
 
 protected:
   
-  boost::shared_ptr<Mesh::CDomain> m_domain;
+  /// path to working directory
+  Common::URI m_working_dir;
+
+  /// path to results directory
+  Common::URI m_results_dir;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

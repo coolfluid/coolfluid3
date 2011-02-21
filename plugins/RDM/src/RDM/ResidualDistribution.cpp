@@ -65,9 +65,12 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
 
   // signals
 
-  regist_signal ( "create_boundary_term" , "creates a boundary condition term", "Create Boundary Condition" )->connect ( boost::bind ( &ResidualDistribution::create_boundary_term, this, _1 ) );
-  regist_signal ( "create_domain_term" , "creates a domain volume term", "Create Domain Term" )->connect ( boost::bind ( &ResidualDistribution::create_domain_term, this, _1 ) );
-    
+  regist_signal ( "create_boundary_term" , "creates a boundary condition term", "Create Boundary Condition" )->connect ( boost::bind ( &ResidualDistribution::signal_create_boundary_term, this, _1 ) );
+  signal("create_boundary_term").signature->connect( boost::bind( &ResidualDistribution::signature_create_boundary_term, this, _1));
+
+  regist_signal ( "create_domain_term" , "creates a domain volume term", "Create Domain Term" )->connect ( boost::bind ( &ResidualDistribution::signal_create_domain_term, this, _1 ) );
+  signal("create_domain_term").signature->connect( boost::bind( &ResidualDistribution::signature_create_domain_term, this, _1));
+
   // setup of the static components
 
   // create apply boundary conditions action
@@ -105,7 +108,7 @@ void ResidualDistribution::config_mesh()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ResidualDistribution::create_boundary_term( XmlNode& xml )
+void ResidualDistribution::signal_create_boundary_term( XmlNode& xml )
 {
   XmlParams p (xml);
 
@@ -130,9 +133,31 @@ void ResidualDistribution::create_boundary_term( XmlNode& xml )
   face_action.configure_property("Solution", m_solution_field->follow()->full_path());
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void ResidualDistribution::signature_create_boundary_term( XmlNode& node )
+{
+  const bool basic = true;
+
+  XmlParams p(node);
+
+  // name
+  p.add_option<std::string>("Name", std::string(), "Name for created boundary term" );
+
+  // type
+  std::vector< boost::any > restricted;
+  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
+  p.add_option<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary", basic, restricted );
+
+  // regions
+  std::vector<URI> dummy;
+  // create here the list of restricted surface regions
+  p.add_array<URI>("Regions", dummy , "Regions where to apply the boundary condition" );
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
-void ResidualDistribution::create_domain_term( XmlNode& xml )
+void ResidualDistribution::signal_create_domain_term( XmlNode& xml )
 {
   XmlParams p (xml);
 
@@ -145,6 +170,28 @@ void ResidualDistribution::create_domain_term( XmlNode& xml )
 
   cell_loop.configure_property("Regions" , regions);
   cell_loop.mark_basic();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ResidualDistribution::signature_create_domain_term( XmlNode& node )
+{
+  const bool basic = true;
+
+  XmlParams p(node);
+
+  // name
+  p.add_option<std::string>("Name", std::string(), "Name for created volume term" );
+
+  // type
+  std::vector< boost::any > restricted;
+  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
+  p.add_option<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary", basic, restricted );
+
+  // regions
+  std::vector<URI> dummy;
+  // create here the list of restricted surface regions
+  p.add_array<URI>("Regions", dummy , "Regions where to apply the boundary condition" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

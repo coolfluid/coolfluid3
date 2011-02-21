@@ -36,14 +36,14 @@ ScalarAdvection::ScalarAdvection ( const std::string& name  ) :
 {
   // signals
 
-  this->regist_signal ( "create_model" , "Creates a scalar advection model", "Create Model" )->connect ( boost::bind ( &ScalarAdvection::create_model, this, _1 ) );
+  this->regist_signal ( "create_model" , "Creates a scalar advection model", "Create Model" )->connect ( boost::bind ( &ScalarAdvection::signal_create_model, this, _1 ) );
 
   signal("create_component").is_hidden = true;
   signal("rename_component").is_hidden = true;
   signal("delete_component").is_hidden = true;
   signal("move_component").is_hidden   = true;
 
-  signal("create_model").signature->connect( boost::bind( &ScalarAdvection::create_model_signature, this, _1));
+  signal("create_model").signature->connect( boost::bind( &ScalarAdvection::signature_create_model, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ ScalarAdvection::~ScalarAdvection()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::create_model ( Common::XmlNode& node )
+void ScalarAdvection::signal_create_model ( Common::XmlNode& node )
 {
   XmlParams p ( node );
 
@@ -74,11 +74,12 @@ void ScalarAdvection::create_model ( Common::XmlNode& node )
   pm->configure_property( "DOFs", 1u );
   pm->configure_property( "Dimensions", 2u );
 
+  model->create_domain( "Domain" );
+
   // setup iterative solver
   CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.RDM.RungeKutta", "IterativeSolver");
   solver->mark_basic();
   model->add_component( solver );
-  solver->configure_property("Domain" , URI("cpath:../Domain"));
 
   // setup discretization method
   CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.RDM.ResidualDistribution", "Discretization");
@@ -88,14 +89,13 @@ void ScalarAdvection::create_model ( Common::XmlNode& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::create_model_signature( XmlNode& node )
+void ScalarAdvection::signature_create_model( XmlNode& node )
 {
   XmlParams p(node);
 
   p.add_option<std::string>("Model name", std::string(), "Name for created model" );
 
   std::vector< boost::any > restricted;
-  restricted.push_back( std::string("LinearAdv2D") );
   restricted.push_back( std::string("RotationAdv2D") );
   restricted.push_back( std::string("Burgers2D") );
 

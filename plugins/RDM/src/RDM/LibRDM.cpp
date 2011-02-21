@@ -6,6 +6,7 @@
 
 #include "Common/RegistLibrary.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/CGroup.hpp"
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/ScalarAdvection.hpp"
@@ -21,9 +22,13 @@ CF::Common::RegistLibrary<LibRDM> libRDM;
 
 void LibRDM::initiate()
 {
-  Core::instance().root()
+  CGroup::Ptr rdm_group =
+    Core::instance().root()
       ->get_child("Tools")
-      ->create_component<RDM::ScalarAdvection>( "SetupScalarAdvection" )
+      ->create_component<CGroup>( "RDM" );
+  rdm_group->mark_basic();
+
+  rdm_group->create_component<RDM::ScalarAdvection>( "SetupScalarSimulation" )
       ->mark_basic();
 }
 
@@ -31,7 +36,11 @@ void LibRDM::terminate()
 {
   Core::instance().root()
       ->get_child("Tools")
-      ->remove_component("SetupScalarAdvection");
+      ->get_child("RDM")
+      ->remove_component( "SetupScalarSimulation" );
+  Core::instance().root()
+      ->get_child("Tools")
+      ->remove_component("RDM");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
