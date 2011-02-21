@@ -11,6 +11,7 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/String/Conversion.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CField2.hpp"
@@ -18,6 +19,7 @@
 #include "Mesh/Gmsh/CReader.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
 #include "Mesh/Actions/CBuildVolume.hpp"
+#include "Mesh/Actions/CInitSolution.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
@@ -185,42 +187,27 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   // Initial condition
   ////////////////////////////////////////////////////////////////////////////////
   
+  CInitSolution::Ptr init_solution = model->get_child("tools")->create_component<CInitSolution>("init_solution");
+  
   RealVector left(3);
   RealVector right(3);
   
   Real g=1.4;
-  
+    
   const Real r_L = 4.696;     const Real r_R = 1.408;
   const Real u_L = 0.;        const Real u_R = 0.;
   const Real p_L = 404400;    const Real p_R = 101100;
-
+  
   left <<  r_L, r_L*u_L, p_L/(g-1.) + 0.5*r_L*u_L*u_L;
   right << r_R, r_R*u_R, p_R/(g-1.) + 0.5*r_R*u_R*u_R;
   
-  RealMatrix node_coordinates;
-  RealVector centroid(1);
-  CFieldView solution_view("solution_view");
-  solution_view.set_field(find_component_with_tag<CField2>(*mesh,"solution"));
-  boost_foreach(const CCells& cells, find_components_recursively<CCells>(*mesh))
-  {
-    solution_view.set_elements(cells);
-    solution_view.allocate_coordinates(node_coordinates);
-    for (Uint e=0; e<cells.size(); ++e)
-    {
-      solution_view.put_coordinates(node_coordinates,e);
-      solution_view.space().shape_function().compute_centroid(node_coordinates,centroid);
-      if (centroid[XX] <= 5.)
-      {
-        for(Uint i=0; i<left.size(); ++i)
-          solution_view[e][i] = left[i];
-      }
-      else
-      {
-        for(Uint i=0; i<right.size(); ++i)
-          solution_view[e][i] = right[i];
-      }
-    }
-  }
+  std::vector<std::string> function(3);
+  function[0]="if(x<=5,"+to_str(left[0])+","+to_str(right[0])+")";
+  function[1]="if(x<=5,"+to_str(left[1])+","+to_str(right[1])+")";
+  function[2]="if(x<=5,"+to_str(left[2])+","+to_str(right[2])+")";
+  
+  init_solution->configure_property("Functions",function);
+  init_solution->transform(mesh);
   
   ////////////////////////////////////////////////////////////////////////////////
   // Boundary conditions
