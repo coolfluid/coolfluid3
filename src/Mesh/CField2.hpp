@@ -70,6 +70,8 @@ public: // functions
   static std::string type_name () { return "CField2"; }
   
   void create_data_storage();
+  
+  void signal_create_data_storage( Common::XmlNode& node ) { create_data_storage(); }
     
   Basis::Type basis() const { return m_basis; }
   
