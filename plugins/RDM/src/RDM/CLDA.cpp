@@ -39,7 +39,7 @@ void CLDA<PHYS>::execute()
 {
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
-    CLDA::ElementLoop loop( *this, *region );
+    ElementLoop loop( *this, *region );
 
     boost::mpl::for_each< RDM::CellTypes >( loop );
   }
