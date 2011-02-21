@@ -17,10 +17,14 @@
 #include "qwt/qwt_plot_panner.h"
 #include "qwt/qwt_plot_zoomer.h"
 
+#include "GUI/Client/Core/NHistory.hpp"
+
 #include "GUI/Client/UI/PixMaps.hpp"
 #include "GUI/Client/UI/BodePlot.hpp"
 
 #include "GUI/Client/UI/Graph.hpp"
+
+using namespace CF::GUI::ClientCore;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,19 +34,22 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  //class that manage qwt zoom
   class Zoomer: public QwtPlotZoomer
   {
   public:
     Zoomer(int xAxis, int yAxis, QwtPlotCanvas *canvas):
         QwtPlotZoomer(xAxis, yAxis, canvas)
     {
+      //if draged the mouse, get a canvas, if double clicking
+      //use the whole curent view as canvas
       setSelectionFlags(QwtPicker::DragSelection | QwtPicker::CornerToCorner);
       setTrackerMode(QwtPicker::AlwaysOff);
       setRubberBand(QwtPicker::NoRubberBand);
+      setMaxStackDepth(10); //max zoom
 
       // RightButton: zoom out by 1
       // Ctrl+RightButton: zoom out to full size
-
       setMousePattern(QwtEventPattern::MouseSelect2,
                       Qt::RightButton, Qt::ControlModifier);
 
@@ -55,171 +62,242 @@ namespace ClientUI {
   Graph::Graph(QWidget *parent) :
       QWidget(parent)
   {
-    this->setLayout(new QGridLayout());
 
-    QHBoxLayout * layoutH = new QHBoxLayout();
-    QHBoxLayout * layoutH2 = new QHBoxLayout();
-    QHBoxLayout * layoutH3 = new QHBoxLayout();
+    ////creation phase
+
+    //creat a grid layout
+    QGridLayout * layout_grid = new QGridLayout();
+
+    //creat 3 horizontal layout
+    QHBoxLayout * layout_h = new QHBoxLayout();
+    QHBoxLayout * layout_h2 = new QHBoxLayout();
+    QHBoxLayout * layout_h3 = new QHBoxLayout();
+    QVBoxLayout * layout_h4 = new QVBoxLayout();
+
+    //creat the BodePlot
+    m_plot = new BodePlot(this,true); //
+    m_plot->setMargin(5);
+
+    //create the toolbar that contain the widget's button
+    QToolBar * tool_bar = new QToolBar(this);
+
+    //cearte a zoom button
+    QToolButton * btn_zoom = new QToolButton(tool_bar);
+    btn_zoom->setText("Zoom");
+    btn_zoom->setIcon(QIcon(zoom_xpm));
+    btn_zoom->setCheckable(true);
+    btn_zoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+
+    //create a SVG sae button
+    QToolButton * btn_svg = new QToolButton(tool_bar);
+    btn_svg->setText("SVG");
+    btn_svg->setIcon(QIcon(print_xpm));
+    btn_svg->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+
+    //creating label to display information
+    m_label_bottom = new QLabel(this);
+
+    //creating advanced option button
+    //to do
 
 
-    ((QGridLayout *)this->layout())->addLayout(layoutH,0,0,1,1);
-    ((QGridLayout *)this->layout())->addLayout(layoutH2,1,0,1,1);
-    ((QGridLayout *)this->layout())->addLayout(layoutH3,2,0,1,1);
+    ////Placment and initialisation
 
+    //assign the grid layout to this widget
+    this->setLayout(layout_grid);
 
-    d_plot = new BodePlot(this,true);
-    d_plot->setMargin(5);
+    //adding 3 horizontal layout to grid layout
+    layout_grid->addLayout(layout_h,0,0,1,1);
+    layout_grid->addLayout(layout_h2,1,0,1,1);
+    layout_grid->addLayout(layout_h3,2,0,1,1);
+    layout_grid->addLayout(layout_h4,3,0,1,1);
+
 
     setContextMenuPolicy(Qt::NoContextMenu);
 
-    d_zoomer[0] = new Zoomer( QwtPlot::xBottom, QwtPlot::yLeft,
-                              d_plot->canvas());
-    d_zoomer[0]->setRubberBand(QwtPicker::RectRubberBand);
-    d_zoomer[0]->setRubberBandPen(QColor(Qt::green));
-    d_zoomer[0]->setTrackerMode(QwtPicker::ActiveOnly);
-    d_zoomer[0]->setTrackerPen(QColor(Qt::white));
+    //initialising the 2 zoom mode
+    m_zoomer[0] = new Zoomer( QwtPlot::xBottom, QwtPlot::yLeft,
+                              m_plot->canvas());
+    m_zoomer[0]->setRubberBand(QwtPicker::RectRubberBand);
+    m_zoomer[0]->setRubberBandPen(QColor(Qt::green));
+    m_zoomer[0]->setTrackerMode(QwtPicker::ActiveOnly);
+    m_zoomer[0]->setTrackerPen(QColor(Qt::white));
 
-    d_zoomer[1] = new Zoomer(QwtPlot::xTop, QwtPlot::yRight,
-                             d_plot->canvas());
+    m_zoomer[1] = new Zoomer(QwtPlot::xTop, QwtPlot::yRight,
+                             m_plot->canvas());
 
-    d_panner = new QwtPlotPanner(d_plot->canvas());
-    d_panner->setMouseButton(Qt::MidButton);
+    //assign the canvas to the panner
+    m_panner = new QwtPlotPanner(m_plot->canvas());
+    m_panner->setMouseButton(Qt::MidButton);
+    m_panner->setEnabled(true);
 
-    d_picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
+    //set the mouse over canvas style
+    m_picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft,
                                  QwtPicker::PointSelection | QwtPicker::DragSelection,
                                  QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn,
-                                 d_plot->canvas());
-    d_picker->setRubberBandPen(QColor(Qt::green));
-    d_picker->setRubberBand(QwtPicker::CrossRubberBand);
-    d_picker->setTrackerPen(QColor(Qt::black));
+                                 m_plot->canvas());
+    m_picker->setRubberBandPen(QColor(Qt::green));
+    m_picker->setRubberBand(QwtPicker::CrossRubberBand);
+    m_picker->setTrackerPen(QColor(Qt::black));
 
-    //setCentralWidget(d_plot);
-    //this->layout()->addWidget(d_plot);
-    layoutH2->addWidget(d_plot);
+    //adding buttons to the toolbar
+    tool_bar->addWidget(btn_zoom);
+    tool_bar->addWidget(btn_svg);
+
+    //set the mouse to not be used for zoom
+    enable_zoom_mode(false);
+
+    //display first information ( default information )
+    show_info();
+
+    //adding widget to layout to make the composant visible and well placed
+    layout_h->addWidget(tool_bar);
+    layout_h2->addWidget(m_plot);
+    layout_h3->addWidget(m_label_bottom);
+    //layout_h4->addWidget();
 
 
-    QToolBar *toolBar = new QToolBar(this);
-
-    QToolButton *btnZoom = new QToolButton(toolBar);
-
-    btnZoom->setText("Zoom");
-    btnZoom->setIcon(QIcon(zoom_xpm));
-    btnZoom->setCheckable(true);
-    btnZoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-
-#ifdef QT_SVG_LIB
-    QToolButton *btnSVG = new QToolButton(toolBar);
-    btnSVG->setText("SVG");
-    btnSVG->setIcon(QIcon(print_xpm));
-    btnSVG->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-#endif
-
-    toolBar->addWidget(btnZoom);
-
-#ifdef QT_SVG_LIB
-    toolBar->addWidget(btnSVG);
-#endif
-
-    layoutH->addWidget(toolBar);
-
-    labelBottom = new QLabel(this);
-
-    layoutH3->addWidget(labelBottom);
-
-    /*
-  #ifndef QT_NO_STATUSBAR
-    (void)statusBar();
-  #endif
-  */
-    enableZoomMode(false);
-    showInfo();
-
-#ifdef QT_SVG_LIB
-    connect(btnSVG, SIGNAL(clicked()), SLOT(exportSVG()));
-#endif
-
-    connect(btnZoom, SIGNAL(toggled(bool)), SLOT(enableZoomMode(bool)));
-
-    connect(d_picker, SIGNAL(moved(const QPoint &)),
+    ////Conncetion phase
+    connect(btn_svg, SIGNAL(clicked()), SLOT(export_svg()));
+    connect(btn_zoom, SIGNAL(toggled(bool)), SLOT(enable_zoom_mode(bool)));
+    connect(m_picker, SIGNAL(moved(const QPoint &)),
             SLOT(moved(const QPoint &)));
-    connect(d_picker, SIGNAL(selected(const QwtPolygon &)),
+    connect(m_picker, SIGNAL(selected(const QwtPolygon &)),
             SLOT(selected(const QwtPolygon &)));
+
+    CHistoryNotifier::instance().notify_history.connect(
+        boost::bind(&Graph::set_xy_data, this, _1, _2) );
+
+    this->setVisible(false);
   }
 
+  Graph::~Graph(){
+    // just in case, but all Qt element will be destroyed proprely by the parent
+    /*
+    if(m_plot != 0){
+      delete m_plot;
+      m_plot = 0;
+    }
 
-  void Graph::exportSVG()
+    if(m_label_bottom != 0){
+      delete m_label_bottom;
+      m_label_bottom = 0;
+    }
+
+    if(m_zoomer != 0){
+      delete[] m_zoomer;
+      m_zoomer[0] = 0;
+      m_zoomer[1] = 0;
+    }
+
+    if(m_picker != 0){
+      delete m_picker;
+      m_picker = 0;
+    }
+    if(m_panner != 0){
+      delete m_panner;
+      m_panner = 0;
+    }
+    */
+  }
+
+  void Graph::export_svg()
   {
-    QString fileName = "bode.svg";
+    //default file name
+    QString file_name = "bode.svg";
 
-#ifdef QT_SVG_LIB
-#ifndef QT_NO_FILEDIALOG
-    fileName = QFileDialog::getSaveFileName(
+    //getting the file name and path for saving file
+    file_name = QFileDialog::getSaveFileName(
         this, "Export File Name", QString(),
         "SVG Documents (*.svg)");
-#endif
-    if ( !fileName.isEmpty() )
+
+    if ( !file_name.isEmpty() )
     {
+      //create generator with file spec
       QSvgGenerator generator;
-      generator.setFileName(fileName);
+      generator.setFileName(file_name);
       generator.setSize(QSize(800, 600));
-
-      d_plot->print(generator);
+      m_plot->print(generator);
     }
-#endif
   }
 
-  void Graph::enableZoomMode(bool on)
+  void Graph::enable_zoom_mode(bool on)
   {
-    d_panner->setEnabled(on);
+    m_zoomer[0]->setEnabled(on);
+    //m_zoomer[0]->zoom(0);
 
-    d_zoomer[0]->setEnabled(on);
-    d_zoomer[0]->zoom(0);
+    m_zoomer[1]->setEnabled(on);
+    //m_zoomer[1]->zoom(0);
 
-    d_zoomer[1]->setEnabled(on);
-    d_zoomer[1]->zoom(0);
+    m_picker->setEnabled(!on);
 
-    d_picker->setEnabled(!on);
-
-    showInfo();
+    show_info();
   }
 
 
-  void Graph::showInfo(QString text)
+  void Graph::show_info(QString text)
   {
 
     if ( text == QString::null )
     {
-      if ( d_picker->rubberBand() )
+      if ( m_picker->isEnabled() )
+      {
         text = "Cursor Pos: Press left mouse button in plot region";
+      }
       else
+      {
         text = "Zoom: Press mouse button and drag";
+        text += " / Maximum zoom = ";
+        text.append(QString("%1").arg(m_zoomer[0]->maxStackDepth()));
+      }
     }
 
-    labelBottom->setText(text);
-
-    /*
-  #ifndef QT_NO_STATUSBAR
-      statusBar()->showMessage(text);
-  #endif
-      */
+    m_label_bottom->setText(text);
   }
 
 
   void Graph::moved(const QPoint &pos)
   {
     QString info;
-    info.sprintf("Freq=%g, Ampl=%g, Phase=%g",
-                 d_plot->invTransform(QwtPlot::xBottom, pos.x()),
-                 d_plot->invTransform(QwtPlot::yLeft, pos.y()),
-                 d_plot->invTransform(QwtPlot::yRight, pos.y())
-                 );
-    showInfo(info);
+    info.sprintf("X=%g, Y=%g",
+        m_plot->invTransform(QwtPlot::xBottom, pos.x()),
+        m_plot->invTransform(QwtPlot::yLeft, pos.y())
+    );
+    show_info(info);
   }
 
   void Graph::selected(const QwtPolygon &)
   {
-    showInfo();
+    show_info();
   }
+
+  void Graph::set_xy_data(std::vector<double> & xs, std::vector<double> & ys){
+    cf_assert( is_not_null(m_plot) );
+    m_plot->set_xy_data_on_graph(xs,ys);
+
+    cf_assert( is_not_null(m_zoomer[0]) );
+    m_zoomer[0]->setZoomBase(true);
+    cf_assert( is_not_null(m_zoomer[1]) );
+    m_zoomer[1]->setZoomBase(true);
+
+    this->setVisible(true);
+
+  }
+
+  void Graph::add_xy_data(std::vector<double> & xs, std::vector<double> & ys){
+    cf_assert( is_not_null(m_plot) );
+    m_plot->add_xy_data_on_graph(xs,ys);
+    cf_assert( is_not_null(m_zoomer[0]) );
+    m_zoomer[0]->setZoomBase(true);
+    cf_assert( is_not_null(m_zoomer[1]) );
+    m_zoomer[1]->setZoomBase(true);
+
+    this->setVisible(true);
+  }
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

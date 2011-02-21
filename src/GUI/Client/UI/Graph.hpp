@@ -36,30 +36,57 @@ class Graph: public QWidget
 
 public:
 
+  /// Graph's constructor.
+  /// @param parent Parent of this QWidget.
   Graph(QWidget *parent = 0);
+
+  /// Graph's destructor
+  ~Graph();
+
+  /// Add data to the current graph.
+  /// @param xs The new xs to add to the graph.
+  /// @param xy The new xy to add to the graph (corresponding with the xs).
+  void set_xy_data(std::vector<double> & xs, std::vector<double> & ys);
+
+  /// Erase existing data and put the new one on the current graph.
+  /// @param xs The new xs to set.
+  /// @param xy The new xy to set (corresponding with the xs).
+  void add_xy_data(std::vector<double> & xs, std::vector<double> & ys);
+
+private: //function
+
+  /// Show the string in the m_label_bottom, or recomendation if string is empty.
+  /// @param text Text to show.
+  void show_info(QString text = QString::null);
+
+
+private: //data
+  /// The BodePlot who is shown in the graph x,y axes area.
+  BodePlot * m_plot;
+
+  /// QLabel that stand on the bottom where we display informations
+  QLabel * m_label_bottom;
+
+  /// Array that content the 2 type of zoom ( rectangle zoom, whole zoom )
+  QwtPlotZoomer * m_zoomer[2];
+  /// Represent the cursor when over the canvas
+  QwtPlotPicker * m_picker;
+  /// Panner that contain the canvas
+  QwtPlotPanner * m_panner;
 
 private slots:
 
+  /// Called when moving while clicking
   void moved(const QPoint &);
 
+  /// Called on mous click
   void selected(const QwtPolygon &);
 
-  //void print();
-  void exportSVG();
+  /// Called by btn_svg button
+  void export_svg();
 
-  void enableZoomMode(bool);
-
-private:
-
-  void showInfo(QString text = QString::null);
-
-  BodePlot *d_plot;
-
-  QLabel * labelBottom;
-
-  QwtPlotZoomer *d_zoomer[2];
-  QwtPlotPicker *d_picker;
-  QwtPlotPanner *d_panner;
+  /// Enable or disable zoom mode, when enable, the mouse is used to zoom
+  void enable_zoom_mode(bool);
 
 }; // Graph
 

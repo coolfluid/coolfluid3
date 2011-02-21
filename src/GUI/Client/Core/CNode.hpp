@@ -148,7 +148,10 @@ namespace ClientCore {
       JOURNAL_BROWSER_NODE,
 
       /// Generic node
-      GENERIC_NODE
+      GENERIC_NODE,
+
+      /// XY-Plot node
+      HISTORY_NODE
 
     }; // enum Type
 
@@ -179,8 +182,9 @@ namespace ClientCore {
     /// @return Returns @c true if this node is a client component.
     bool isClientComponent() const
     {
-      return (m_type == LOG_NODE) | (m_type == TREE_NODE) | (m_type == CORE_NODE) |
-          (m_type == BROWSER_NODE) | (m_type == JOURNAL_BROWSER_NODE);
+      return (m_type == LOG_NODE) || (m_type == TREE_NODE) ||
+          (m_type == CORE_NODE) || (m_type == BROWSER_NODE) ||
+          (m_type == JOURNAL_BROWSER_NODE);
     }
 
     /// Gives the node type

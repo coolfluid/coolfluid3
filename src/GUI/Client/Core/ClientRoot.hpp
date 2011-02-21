@@ -67,7 +67,7 @@ public:
   inline NTree::Ptr tree() { return m_tree; }
 
   /// @brief Gives the core node.
-  /// @return Returns the tree node.
+  /// @return Returns the core node.
   inline NCore::Ptr core() { return m_core; }
 
   /// @brief Gives the root UUID.

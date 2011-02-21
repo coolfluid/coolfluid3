@@ -8,6 +8,7 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
+#include "Common/CHistory.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/NotificationQueue.hpp"
@@ -73,6 +74,7 @@ CRoot::Ptr ServerRoot::root()
     Component::Ptr tools = root->get_child("Tools");
 
     tools->create_component<CJournal>("Journal")->mark_basic();
+    tools->create_component<CHistory>("History")->mark_basic();
   }
 
   return root;

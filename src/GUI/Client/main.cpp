@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
   QApplication app(argc, argv);
   int returnValue;
 
-  JournalBrowserBuilder::instance();
+//  JournalBrowserBuilder::instance();
 
   CF::AssertionManager::instance().AssertionThrows = true;
   CF::AssertionManager::instance().AssertionDumps = true;

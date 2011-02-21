@@ -33,6 +33,8 @@ list( APPEND coolfluid_common_files
     CRoot.cpp
     CGroup.hpp
     CGroup.cpp
+    CHistory.cpp
+    CHistory.hpp
     CJournal.cpp
     CJournal.hpp
     CLibraries.cpp
@@ -113,18 +115,18 @@ list( APPEND coolfluid_common_files
     XML.hpp
     XML.cpp
 
-		XML/CastingFunctions.cpp
-		XML/CastingFunctions.hpp
-		XML/Map.cpp
-		XML/Map.hpp
-		XML/Protocol.cpp
-		XML/Protocol.hpp
-		XML/SignalFrame.cpp
-		XML/SignalFrame.hpp
-		XML/XmlDoc.cpp
-		XML/XmlDoc.hpp
-		XML/XmlNode.cpp
-		XML/XmlNode.hpp
+    XML/CastingFunctions.cpp
+    XML/CastingFunctions.hpp
+    XML/Map.cpp
+    XML/Map.hpp
+    XML/Protocol.cpp
+    XML/Protocol.hpp
+    XML/SignalFrame.cpp
+    XML/SignalFrame.hpp
+    XML/XmlDoc.cpp
+    XML/XmlDoc.hpp
+    XML/XmlNode.cpp
+    XML/XmlNode.hpp
 )
 
 ###############################################################################

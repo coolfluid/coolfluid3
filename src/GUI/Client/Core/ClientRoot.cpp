@@ -82,7 +82,7 @@ void ClientRoot::processSignalString(const QString & signal)
 
   connect(pt, SIGNAL(finished()), this, SLOT(processingFinished()));
 
-  pt->start();
+  pt->run();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
