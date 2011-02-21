@@ -95,9 +95,9 @@ void ScalarAdvection::create_model_signature( XmlNode& node )
   p.add_option<std::string>("Model name", std::string(), "Name for created model" );
 
   std::vector< boost::any > restricted;
-  restrict.push_back( std::string("LinearAdv2D") );
-  restrict.push_back( std::string("RotationAdv2D") );
-  restrict.push_back( std::string("Burgers2D") );
+  restricted.push_back( std::string("LinearAdv2D") );
+  restricted.push_back( std::string("RotationAdv2D") );
+  restricted.push_back( std::string("Burgers2D") );
 
   p.add_option<std::string>("Physical model",
                             std::string("LinearAdv2D" ),
