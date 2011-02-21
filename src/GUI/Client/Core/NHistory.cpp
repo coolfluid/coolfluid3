@@ -40,9 +40,13 @@ namespace ClientCore {
     std::vector<Real> x_axis = p.get_array<Real>("x_axis");
     std::vector<Real> y_axis = p.get_array<Real>("y_axis");
 
+    std::vector< std::vector<Real> > fcts(2);
+    fcts[0] = x_axis;
+    fcts[1] = y_axis;
+
     ClientRoot::instance().log()->addMessage("Apres parsing");
 
-    CHistoryNotifier::instance().notify_history(x_axis, y_axis);
+    CHistoryNotifier::instance().notify_history(fcts);
 
     ClientRoot::instance().log()->addMessage("Apres signal");
 

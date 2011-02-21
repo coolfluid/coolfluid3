@@ -8,6 +8,7 @@
 list( APPEND coolfluid_client_ui_moc_classes
   BodePlot.hpp
   CentralPanel.hpp
+  ColorSelector.hpp
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
   FilteringModel.hpp # needs to be added because base class emits signals
@@ -17,6 +18,7 @@ list( APPEND coolfluid_client_ui_moc_classes
   GraphicalBool.hpp
   GraphicalDouble.hpp
   GraphicalInt.hpp
+  GraphOption.hpp
   GraphicalRestrictedList.hpp
   GraphicalString.hpp
   GraphicalUri.hpp
@@ -49,6 +51,8 @@ list( APPEND coolfluid_client_ui_files
   BodePlot.hpp
   CentralPanel.cpp
   CentralPanel.hpp
+  ColorSelector.cpp
+  ColorSelector.hpp
   CommitDetailsDialog.cpp
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.cpp
@@ -69,6 +73,8 @@ list( APPEND coolfluid_client_ui_files
   GraphicalDouble.cpp
   GraphicalInt.hpp
   GraphicalInt.cpp
+  GraphOption.cpp
+  GraphOption.hpp
   GraphicalRestrictedList.cpp
   GraphicalRestrictedList.hpp
   GraphicalString.hpp

@@ -22,7 +22,10 @@ class CHistoryNotifier{
 public:
 
   /// signal for the set_xy_data of graph.
+  /*
   typedef boost::signals2::signal< void ( std::vector<double>&, std::vector<double>& ) >  sig_type;
+  */
+  typedef boost::signals2::signal< void ( std::vector< std::vector<double> > & fcts ) >  sig_type;
 
   /// implementation of instance that return this ( staticly ).
   static CHistoryNotifier & instance(){

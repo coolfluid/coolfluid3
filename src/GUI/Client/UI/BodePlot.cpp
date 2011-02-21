@@ -47,6 +47,7 @@ BodePlot::BodePlot(QWidget *parent):
   setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine); //echelle lineaire ou log
 
   // curves
+  /*
   m_curve = new QwtPlotCurve("");
   m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
   m_curve->setPen(QPen(Qt::red));
@@ -57,7 +58,7 @@ BodePlot::BodePlot(QWidget *parent):
   setAutoReplot(false);
 
   setAutoReplot(doReplot);
-
+  */
   replot();
 
   setAutoReplot(true);
@@ -96,12 +97,12 @@ BodePlot::BodePlot(QWidget *parent,bool test):
 
   draw_graph();
 
-  show_xy_label_on_graph(true);
-  set_fct_name("Gil's function");
-  show_fct_name_on_graph(true);
-  show_legend_on_graph(true);
-  set_graph_title("Gil's awsome graph");
-  show_title_on_graph(true);
+  //show_xy_label_on_graph(true);
+  //set_fct_name("Gil's function");
+  //show_fct_name_on_graph(true);
+  //show_legend_on_graph(true);
+  //set_graph_title("Gil's awsome graph");
+  //show_title_on_graph(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,13 +114,13 @@ void BodePlot::draw_graph()
   setCanvasBackground(m_background_color);
 
   // legend
-  if(m_show_legend){
+  if(!m_show_legend){
     if(m_legend != 0){
       m_legend->~QwtLegend();
     }
     m_legend = new QwtLegend;
     m_legend->setFrameStyle(QFrame::Box|QFrame::Sunken);
-    insertLegend(m_legend, QwtPlot::BottomLegend);
+    insertLegend(m_legend, QwtPlot::RightLegend);
   }
 
   // grid
@@ -145,6 +146,7 @@ void BodePlot::draw_graph()
 
 
   // curves
+  /*
   m_curve = new QwtPlotCurve(m_fct_name);
   if(m_antialiasing){
     m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -152,7 +154,7 @@ void BodePlot::draw_graph()
   m_curve->setPen(QPen(m_fct_color));
   m_curve->setYAxis(QwtPlot::yLeft);
   m_curve->attach(this);
-
+  */
   //sinus();
 
   replot();
@@ -277,7 +279,7 @@ void BodePlot::show_legend_on_graph(bool show){
     }
     m_legend = new QwtLegend;
     m_legend->setFrameStyle(QFrame::Box|QFrame::Sunken);
-    insertLegend(m_legend, QwtPlot::BottomLegend);
+    insertLegend(m_legend, QwtPlot::RightLegend);
   }else{
 
   }
