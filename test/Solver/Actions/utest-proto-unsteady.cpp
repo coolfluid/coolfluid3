@@ -55,10 +55,11 @@ struct ProtoUnsteadyFixture
     nb_segments(100),
     k(1.),
     alpha(1.),
-    start_time(1.),
-    end_time(1.5),
+    start_time(0.),
+    end_time(10),
     dt(0.01),
-    t(start_time)
+    t(start_time),
+    write_interval(100)
   {
   }
   
@@ -67,30 +68,41 @@ struct ProtoUnsteadyFixture
   {
     MeshTerm<0, Field<Real> > T(field_name, var_name);
     
-    // Zero the field
-    for_each_node
-    (
-      region,
-      T = 0.
-    );
-    
-    const Real Fo = alpha * t / (0.25*length*length); // Fourier number
-    for(Uint i = 0; i != 1000; ++i) // First 1000 (to be sure ;) terms of the series that makes up the analytical solution (in terms of adimensional temperature)
+    if(t == 0.)
     {
-      const Real n = 1. + 2. * static_cast<Real>(i);
       for_each_node
       (
         region,
-        T += 4./pi() * 1./n * _exp( pow<2>( 0.5*n*pi() ) * (-Fo) ) * _sin(0.5*n*pi()*coordinates(0,0)/(0.5*length))
+        T = initial_temp
       );
     }
-    
-    // Convert the result from the adimensional form to a real temperature
-    for_each_node
-    (
-      region,
-      T = T*(initial_temp - ambient_temp) + ambient_temp
-    );
+    else
+    {
+      // Zero the field
+      for_each_node
+      (
+        region,
+        T = 0.
+      );
+      
+      const Real Fo = alpha * t / (0.25*length*length); // Fourier number
+      for(Uint i = 0; i != 100; ++i) // First 100 (to be sure ;) terms of the series that makes up the analytical solution (in terms of adimensional temperature)
+      {
+        const Real n = 1. + 2. * static_cast<Real>(i);
+        for_each_node
+        (
+          region,
+          T += 4./(pi()*n) * _exp( -0.25*n*n*pi()*pi()*Fo ) * _sin(0.5*n*pi()*(coordinates[0]/(0.5*length)))
+        );
+      }
+      
+      // Convert the result from the adimensional form to a real temperature
+      for_each_node
+      (
+        region,
+        T = T*(initial_temp - ambient_temp) + ambient_temp
+      );
+    }
   }
   
   const Real length;
@@ -102,6 +114,7 @@ struct ProtoUnsteadyFixture
   const Real start_time;
   const Real end_time;
   const Real dt;
+  const Uint write_interval;
   Real t;
 };
 
@@ -131,21 +144,37 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   CRegion& xpos = find_component_recursively_with_name<CRegion>(*mesh, "xpos");
 
   MeshTerm<0, Field<Real> > temperature("Temperature", "T");
-  MeshTerm<1, Field<Real> > temperature_analytical("TemperatureAnalytical", "T");
+  MeshTerm< 1, ElementMatrix<0> > A; // Spatial disctitization element matrix
+  MeshTerm< 2, ElementMatrix<0> > T; // Temporal disctitization element matrix
+  MeshTerm<4, Field<Real> > temperature_analytical("TemperatureAnalytical", "T");
   
-  // Set initial condition. We should use the analytical solution at start_time != 0 because it is smooth
+  
+  // Set initial condition.
   set_analytical_solution(mesh->topology(), "Temperature", "T");
+
+// Analytical derivation of the element matrices:
+//  const Real seg_length = length / static_cast<Real>(nb_segments);
+//   RealMatrix2 A;
+//   A << 1, -1, -1, 1;
+//   A *= alpha / seg_length;
+//   
+//   RealMatrix2 T;
+//   T << 1. / 3., 1. / 6. , 1. / 6., 1. / 3.;
+//   T *= invdt * seg_length;
   
   while(t < end_time)
   { 
     // Fill the system matrix
+    lss.set_zero();
     for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
     (
       mesh->topology(),
       group
       (
-        system_matrix(lss, temperature) += integral<1>( ( invdt * sf_outer_product(temperature) + 0.5 * alpha * laplacian(temperature) ) * jacobian_determinant ),
-        system_rhs(lss, temperature) -= alpha * integral<1>( laplacian(temperature) * jacobian_determinant ) * temperature
+        A = alpha * integral<1>(laplacian(temperature) * jacobian_determinant),
+        T = invdt * integral<1>(sf_outer_product(temperature) * jacobian_determinant),
+        system_matrix(lss, temperature) += T + 0.5 * A,
+        system_rhs(lss, temperature) -= A * temperature
       )
     );
     
@@ -167,15 +196,39 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     lss.solve();
     increment_solution(lss.solution(), StringsT(1, "Temperature"), StringsT(1, "T"), SizesT(1, 1), *mesh);
     
-    // Check the solution
-    set_analytical_solution(mesh->topology(), "TemperatureAnalytical", "T");
-    for_each_node
-    (
-      mesh->topology(),
-      _check_close(temperature_analytical, temperature, 2.)
-    );
-    
     t += dt;
+        
+    // Output solution (pylab-compatible)
+    if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
+    {
+      std::cout << "PyVarX = [";
+      for_each_node
+      (
+        mesh->topology(),
+        _cout << coordinates << ", "
+      );
+      std::cout << "]\n";
+      
+      std::cout << "PyVarT = [";
+      for_each_node
+      (
+        mesh->topology(),
+        _cout << temperature << ", "
+      );
+      std::cout << "]\n";
+      
+      std::cout << "PyVarLabel = \'t = " << t << "\'\n";
+      
+      set_analytical_solution(mesh->topology(), "TemperatureAnalytical", "T");
+      
+      std::cout << "Checking solution at t = " << t << std::endl;
+      
+      for_each_node
+      (
+        mesh->topology(),
+        _check_close(temperature_analytical, temperature, 1.)
+      );
+    }
   }
 }
 

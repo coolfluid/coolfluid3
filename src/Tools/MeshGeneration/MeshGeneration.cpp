@@ -104,6 +104,50 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
       nodes[2] = nodes[3] + 1;
     }
   }
+  
+  CFaces::Ptr left = mesh.topology().create_region("left").create_component<CFaces>("Line");
+  left->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+  CTable<Uint>& left_connectivity = left->connectivity_table();
+  left_connectivity.resize(y_segments);
+  for(Uint j = 0; j < y_segments; ++j)
+  {
+    CTable<Uint>::Row crow = left_connectivity[j];
+    crow[0] = j * (x_segments+1);
+    crow[1] = (j+1) * (x_segments+1);
+  }
+  
+  CFaces::Ptr right = mesh.topology().create_region("right").create_component<CFaces>("Line");
+  right->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+  CTable<Uint>& right_connectivity = right->connectivity_table();
+  right_connectivity.resize(y_segments);
+  for(Uint j = 0; j < y_segments; ++j)
+  {
+    CTable<Uint>::Row nodes = right_connectivity[j];
+    nodes[1] = j * (x_segments+1) + x_segments;
+    nodes[0] = (j+1) * (x_segments+1) + x_segments;
+  }
+  
+  CFaces::Ptr bottom = mesh.topology().create_region("bottom").create_component<CFaces>("Line");
+  bottom->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+  CTable<Uint>& bottom_connectivity = bottom->connectivity_table();
+  bottom_connectivity.resize(x_segments);
+  for(Uint i = 0; i < x_segments; ++i)
+  {
+    CTable<Uint>::Row nodes = bottom_connectivity[i];
+    nodes[0] = i;
+    nodes[1] = i+1;
+  }
+  
+  CFaces::Ptr top = mesh.topology().create_region("top").create_component<CFaces>("Line");
+  top->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+  CTable<Uint>& top_connectivity = top->connectivity_table();
+  top_connectivity.resize(x_segments);
+  for(Uint i = 0; i < x_segments; ++i)
+  {
+    CTable<Uint>::Row nodes = top_connectivity[i];
+    nodes[1] = y_segments * (x_segments+1) + i;
+    nodes[0] = nodes[1] + 1;
+  }
 }
 
 /*

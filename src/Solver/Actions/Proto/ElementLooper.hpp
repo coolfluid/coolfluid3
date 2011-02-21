@@ -14,6 +14,7 @@
 #include <boost/fusion/mpl.hpp>
 #include <boost/fusion/container/vector/convert.hpp>
 #include <boost/fusion/include/as_vector.hpp>
+#include <boost/fusion/sequence/intrinsic/at.hpp>
 #include <boost/fusion/sequence/intrinsic/empty.hpp>
 #include <boost/fusion/sequence.hpp>
 
@@ -57,6 +58,18 @@ struct IsSFDependent< Field<T> >
 /// Field variables need shape functions
 template<typename T>
 struct IsSFDependent< ConstField<T> >
+{
+  typedef SFDependent type;
+};
+
+template<>
+struct IsSFDependent< VectorField >
+{
+  typedef SFDependent type;
+};
+
+template<Uint I>
+struct IsSFDependent< ElementMatrix<I> >
 {
   typedef SFDependent type;
 };
@@ -112,37 +125,87 @@ struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportSF, VariablesT, Variables
   
   void run() const
   {
-    boost::mpl::for_each<ShapeFunctionsT>(*this);
+    typedef typename boost::remove_reference<typename boost::fusion::result_of::at<VariablesT, VarIdxT>::type>::type VarT;
+    boost::mpl::for_each<ShapeFunctionsT>( apply<VarT>(variables, expression, elements) );
   }
   
-  template < typename SF >
-  void operator() ( SF& T ) const
+  template<typename VarT>
+  struct apply
   {
-    typedef typename boost::remove_reference<typename boost::fusion::result_of::at<VariablesT, VarIdxT>::type>::type VarT;
-    const VarT& var = boost::fusion::at<VarIdxT>(variables);
-    if(!Mesh::IsElementType<SF>()(var.element_type(elements)))
-      return;
+    apply(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : m_variables(vars), m_expression(expr), m_elements(elems) {}
     
-    typedef typename boost::fusion::result_of::push_back
-    <
-      VariablesDataT,
-      SFVariableData<SF, VarT> *
-    >::type NewVariablesDataT;
-    typedef typename boost::mpl::next<VarIdxT>::type NextIdxT;
-    typedef typename SFDependency<VariablesT, NbVarsT, NextIdxT>::type SFDependencyT;
+    template <typename SF>
+    void operator() ( SF& T ) const
+    {
+      const VarT& var = boost::fusion::at<VarIdxT>(m_variables);
+      if(!Mesh::IsElementType<SF>()(var.element_type(m_elements)))
+        return;
+      
+      typedef typename boost::fusion::result_of::push_back
+      <
+        VariablesDataT,
+        SFVariableData<SF, VarT> *
+      >::type NewVariablesDataT;
+      typedef typename boost::mpl::next<VarIdxT>::type NextIdxT;
+      typedef typename SFDependency<VariablesT, NbVarsT, NextIdxT>::type SFDependencyT;
 
-    ExpressionRunner
-    <
-      ShapeFunctionsT,
-      ExprT,
-      SupportSF,
-      VariablesT,
-      NewVariablesDataT,
-      NbVarsT,
-      NextIdxT,
-      SFDependencyT
-    >(variables, expression, elements).run();
-  }
+      ExpressionRunner
+      <
+        ShapeFunctionsT,
+        ExprT,
+        SupportSF,
+        VariablesT,
+        NewVariablesDataT,
+        NbVarsT,
+        NextIdxT,
+        SFDependencyT
+      >(m_variables, m_expression, m_elements).run();
+    }
+    
+    VariablesT& m_variables;
+    const ExprT& m_expression;
+    Mesh::CElements& m_elements;
+    
+  };
+  
+  template<Uint I>
+  struct apply< ElementMatrix<I> >
+  {
+    apply(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : m_variables(vars), m_expression(expr), m_elements(elems) {}
+    
+    template <typename SF>
+    void operator() ( SF& T ) const
+    {
+      typedef typename boost::remove_reference<typename boost::fusion::result_of::at<VariablesT, VarIdxT>::type>::type VarT;
+      if(!Mesh::IsElementType<SF>()(boost::fusion::at_c<I>(m_variables).element_type(m_elements)))
+        return;
+      
+      typedef typename boost::fusion::result_of::push_back
+      <
+        VariablesDataT,
+        SFVariableData<SF, VarT> *
+      >::type NewVariablesDataT;
+      typedef typename boost::mpl::next<VarIdxT>::type NextIdxT;
+      typedef typename SFDependency<VariablesT, NbVarsT, NextIdxT>::type SFDependencyT;
+
+      ExpressionRunner
+      <
+        ShapeFunctionsT,
+        ExprT,
+        SupportSF,
+        VariablesT,
+        NewVariablesDataT,
+        NbVarsT,
+        NextIdxT,
+        SFDependencyT
+      >(m_variables, m_expression, m_elements).run();
+    }
+    
+    VariablesT& m_variables;
+    const ExprT& m_expression;
+    Mesh::CElements& m_elements;
+    
+  };
   
   VariablesT& variables;
   const ExprT& expression;

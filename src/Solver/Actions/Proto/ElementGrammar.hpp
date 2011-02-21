@@ -12,6 +12,7 @@
 #include "BlockAccumulator.hpp"
 #include "ElementTransforms.hpp"
 #include "ExpressionGroup.hpp"
+#include "ForEachDimension.hpp"
 
 /// @file 
 /// Grammars related to element-wise mesh operations
@@ -27,7 +28,7 @@ struct SingleExprElementGrammar :
     // Assignment to system matrix
     BlockAccumulation<ElementMath>,
     ElementMath, // Math expressions
-    StreamOutput<SingleExprElementGrammar> // Stream output 
+    StreamOutput<SingleExprElementGrammar> // Stream output
   >
 {
 };
@@ -37,7 +38,8 @@ struct ElementGrammar :
   boost::proto::or_
   <
     SingleExprElementGrammar,
-    GroupGrammar<SingleExprElementGrammar>
+    GroupGrammar<SingleExprElementGrammar>,
+    ForEachDimensionGrammar<ElementGrammar>
   >
 {
 };  

@@ -24,7 +24,7 @@ namespace Proto {
 
 /// Provide access to the geometry coordinates in case of node expressions
 struct GetCoordinates :
-  boost::proto::transform< GetCoordinates >
+  boost::proto::transform<GetCoordinates>
 {
   template<typename TagT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<TagT, StateT, DataT>
@@ -61,6 +61,36 @@ struct CoordinatesGrammar :
 {
 };
 
+/// Handle assignment to a VectorField
+struct VectorFieldAssign :
+  boost::proto::transform<VectorFieldAssign>
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+  
+    result_type operator ()(
+                typename impl::expr_param expr // The evaluated values
+              , typename impl::state_param state
+              , typename impl::data_param data // The data corresponding to the LHS
+    ) const
+    {
+      data.set_values(expr);
+    }
+  };
+};
+
+template<typename GrammarT>
+struct VectorFieldAssignGrammar :
+  boost::proto::when
+  <
+    boost::proto::assign<boost::proto::terminal< Var<boost::proto::_, VectorField> >, GrammarT>,
+    VectorFieldAssign(GrammarT(boost::proto::_right), boost::proto::_state, NumberedData(boost::proto::_left))
+  >
+{
+};
+
 /// Forward declaration
 struct NodeMath;
 
@@ -69,9 +99,9 @@ struct NodeMath :
   boost::proto::or_
   <
     MathTerminals, // Scalars and matrices
-    EigenMath<NodeMath>, // Special Eigen functions and Eigen multiplication (overrides default product)
     CoordinatesGrammar,
-    // Default evaluation of certain math expressions
+    EigenMath<NodeMath>, // Special Eigen functions and Eigen multiplication (overrides default product)
+    VectorFieldAssignGrammar<NodeMath>,
     MathOpDefault<NodeMath>
   >
 {

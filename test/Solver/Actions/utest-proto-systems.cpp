@@ -7,28 +7,30 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
+#include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <boost/fusion/container/generation/make_vector.hpp>
-#include <boost/fusion/include/make_vector.hpp>
-#include <boost/mpl/max_element.hpp>
-
 #include "Solver/Actions/Proto/ElementLooper.hpp"
 #include "Solver/Actions/Proto/Functions.hpp"
+#include "Solver/Actions/Proto/NodeLooper.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Common/Core.hpp"
+#include "Common/CreateComponent.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
+#include "Common/LibLoader.hpp"
+#include "Common/OSystem.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/CField2.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ElementData.hpp"
 
+#include "Mesh/CMeshWriter.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Types.hpp"
 
@@ -44,37 +46,129 @@ using namespace CF::Common;
 using namespace CF::Math::MathConsts;
 using namespace CF::Mesh;
 
-BOOST_AUTO_TEST_SUITE( ProtoSystemsSuite )
+using namespace boost;
 
-//Test using a fusion vector of proto expressions
-BOOST_AUTO_TEST_CASE( SystemBasics )
+typedef std::vector<std::string> StringsT;
+typedef std::vector<Uint> SizesT;
+
+BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
+
+BOOST_AUTO_TEST_CASE( ProtoSystem )
 {
-  Real length              = 5.;
-  const Uint nb_segments   = 5;
+  const Real length = 5.;
+  const RealVector2 outside_temp(1., 1.);
+  const RealVector2 initial_temp(100., 200.);
+  const Uint nb_segments = 10;
+  const RealVector2 alpha(1., 2.);
+  const Real start_time = 0.;
+  const Real end_time = 0.5;
+  const Real dt = 0.5;
+  Real t = start_time;
+  const Uint write_interval = 5;
   
-  // build the mesh
-  CMesh::Ptr mesh = Core::instance().root()->create_component<CMesh>("line");
-  Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
+  const Real invdt = 1. / dt;
+
+  // Load the required libraries (we assume the working dir is the binary path)
+  LibLoader& loader = *OSystem::instance().lib_loader();
   
-  Uint elem_idx = 0;
+  const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../../src/Mesh/Gmsh");
+  loader.set_search_paths(lib_paths);
   
-  mesh->create_scalar_field("Temperature", "T", CF::Mesh::CField2::Basis::POINT_BASED);
+  loader.load_library("coolfluid_mesh_gmsh");
   
-  MeshTerm<0, ConstField<Real> > temperature("Temperature", "T");
+  // Setup document structure and mesh
+  CRoot::Ptr root = Core::instance().root();
   
-  RealVector mc(1);
-  mc.setZero();
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  Tools::MeshGeneration::create_rectangle(*mesh, length, 0.5*length, 2*nb_segments, nb_segments);
   
-  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
+  // Linear system
+  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  
+  // Create output field
+  CField2& t_fld = mesh->create_field2( "Temperature", CField2::Basis::POINT_BASED, std::vector<std::string>(1, "T"), std::vector<CField2::VarType>(1, CField2::VECTOR_2D) );
+  lss.resize(t_fld.data().size() * 2);
+  
+  // Setup a mesh writer
+  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  root->add_component(writer);
+  writer->configure_property( "Fields", std::vector<URI>(1, t_fld.full_path() ) );
+  
+  // Regions
+  CRegion& left = find_component_recursively_with_name<CRegion>(*mesh, "left");
+  CRegion& right = find_component_recursively_with_name<CRegion>(*mesh, "right");
+  CRegion& bottom = find_component_recursively_with_name<CRegion>(*mesh, "bottom");
+  CRegion& top = find_component_recursively_with_name<CRegion>(*mesh, "top");
+
+  // Expression variables
+  MeshTerm<0, VectorField > temperature("Temperature", "T");
+  MeshTerm< 1, ElementMatrix<0> > A; // Spatial disctitization element matrix
+  MeshTerm< 2, ElementMatrix<0> > T; // Temporal disctitization element matrix
+  
+  // Set initial condition.
+  for_each_node
   (
     mesh->topology(),
-    group
-    (
-      _cout << 2. * integral<1>( laplacian(temperature) * laplacian(temperature) * laplacian(temperature) ) << "\n",
-      _cout << "Volume for element " << elem_idx << ": " << volume << "\n",
-      ++boost::proto::lit(elem_idx)
-    )
+    temperature = initial_temp
   );
+
+  while(t < end_time)
+  {
+    // Fill the system matrix
+    lss.set_zero();
+    for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
+    (
+      mesh->topology(),
+      for_each_dimension
+      (
+        group
+        (
+          A = boost::proto::lit(alpha)[_dim] * integral<1>(laplacian(temperature) * jacobian_determinant),
+          T = invdt * integral<1>(sf_outer_product(temperature) * jacobian_determinant),
+          system_matrix(lss, temperature, _dim) += T + 0.5 * A,
+          system_rhs(lss, temperature, _dim) -= A * temperature(_col, _dim)
+        )
+      )
+    );
+    
+    // All boundaries at outside temp
+    for_each_node
+    (
+      left,
+      dirichlet(lss, temperature) = outside_temp
+    );
+    
+    for_each_node
+    (
+      right,
+      dirichlet(lss, temperature) = outside_temp
+    );
+    
+    for_each_node
+    (
+      top,
+      dirichlet(lss, temperature) = outside_temp
+    );
+    
+    for_each_node
+    (
+      bottom,
+      dirichlet(lss, temperature) = outside_temp
+    );
+     
+    // Solve the system!
+    lss.solve();
+    increment_solution(lss.solution(), StringsT(1, "Temperature"), StringsT(1, "T"), SizesT(1, 2), *mesh);
+    
+    t += dt;
+        
+    // Output using Gmsh
+    if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
+    {
+      boost::filesystem::path output_file("grid-vec.msh");
+      writer->write_from_to(mesh, output_file);
+    }
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

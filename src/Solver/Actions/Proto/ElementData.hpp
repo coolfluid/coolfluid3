@@ -42,6 +42,8 @@ struct SFData
   /// Allocate aligned data for Eigen
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
+  typedef SF ShapeFunctionT;
+  
   /// Type for mapped coordinates
   typedef typename SF::MappedCoordsT MappedCoordsT;
   
@@ -377,7 +379,134 @@ public:
   SFVariableData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) : BaseT(placeholder, elements) {}
 };
 
-/// Stores data that is used when looping over elements to execut Proto expressions. "Data" is meant here in the boost::proto sense,
+/// Data associated with VectorField variables
+template<typename SF>
+class VectorFieldData
+  : public FieldData<SF>
+{
+public:
+  /// The shape function type
+  typedef SF ShapeFunctionT;
+  
+  /// Types of the base classes
+  typedef FieldData<SF> FieldDataT;
+  typedef SFData<SF> SFDataT;
+  
+  /// The value type for all element values
+  typedef Eigen::Matrix<Real, SF::nb_nodes, SF::dimension> ValueT;
+ 
+  /// Return type of the value() method
+  typedef const ValueT& ValueResultT;
+  
+  /// Type for passing mapped coordinates
+  typedef typename SF::MappedCoordsT MappedCoordsT;
+  
+  /// The result type of an interpolation at given mapped coordinates
+  typedef const typename SF::CoordsT& EvalT;
+  
+  /// We store data as a fixed-size Eigen matrix, so we need to make sure alignment is respected
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  VectorFieldData(const VectorField& placeholder, const Mesh::CElements& elements) : m_data(0), m_connectivity(0)
+  {
+    Mesh::CField2::ConstPtr field = Common::find_parent_component<Mesh::CMesh>(elements).get_child<Mesh::CField2>(placeholder.field_name);
+    cf_assert(field);
+    
+    m_data = &field->data();
+    
+    m_connectivity = &elements.connectivity_table();    
+    
+    var_begin = field->var_index(placeholder.var_name);
+  }
+
+  /// Update nodes for the current element
+  void set_element(const Uint element_idx)
+  {
+    if(!m_data)
+      return;
+    m_element_idx = element_idx;
+    Mesh::fill(m_element_values, *m_data, (*m_connectivity)[element_idx], var_begin);
+  }
+  
+  const Mesh::CTable<Uint>::ConstRow element_connectivity() const
+  {
+    return (*m_connectivity)[m_element_idx];
+  }
+  
+  /// Reference to the stored data
+  ValueResultT value() const
+  {
+    return m_element_values;
+  }
+  
+  EvalT eval(const MappedCoordsT& mapped_coords) const
+  {
+    m_eval_result = SFData<SF>::shape_function(mapped_coords) * m_element_values;
+    return m_eval_result;
+  }
+  
+private:
+  /// Value of the field in each element node
+  ValueT m_element_values;
+  
+  /// Coordinates table
+  Mesh::CTable<Real> const* m_data;
+  
+  /// Connectivity table
+  Mesh::CTable<Uint> const* m_connectivity;
+  
+  Uint m_element_idx;
+  
+  /// Index of where the variable we need is in the field data row
+  Uint var_begin;
+  
+  /// Last interpolated value
+  mutable typename SF::CoordsT m_eval_result;
+};
+
+template<typename SF>
+class SFVariableData<SF, VectorField > : public VectorFieldData<SF>
+{
+  typedef VectorFieldData<SF> BaseT;
+public:
+  SFVariableData(const VectorField& placeholder, const Mesh::CElements& elements) : BaseT(placeholder, elements) {}
+};
+
+/// Stores an element matrix
+template<typename SF, Uint I>
+class SFVariableData< SF, ElementMatrix<I> >
+{
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  /// The shape function type
+  typedef SF ShapeFunctionT;
+  
+  /// The value type for all element values
+  typedef Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> ValueT;
+ 
+  /// Return type of the value() method
+  typedef ValueT& ValueResultT;
+  
+  SFVariableData(const ElementMatrix<I>&, const Mesh::CElements&)
+  {
+  }
+  
+  void set_element(const Uint)
+  {
+  }
+  
+  /// Reference to the stored data
+  ValueResultT value()
+  {
+    return m_element_matrix;
+  }
+  
+private:
+  ValueT m_element_matrix;
+};
+
+/// Stores data that is used when looping over elements to execute Proto expressions. "Data" is meant here in the boost::proto sense,
 /// i.e. it is intended for use as 3rd argument for proto transforms.
 /// VariablesT is a fusion sequence containing each unique variable in the expression
 /// VariablesDataT is a fusion sequence of pointers to the data (also in proto sense) associated with each of the variables
@@ -396,7 +525,7 @@ public:
     m_support(elements)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data));
-    boost::fusion::for_each( m_variables, CalculateOffsets(m_offsets) );
+    boost::fusion::for_each( m_variables, CalculateOffsets(m_offsets, SupportSF::dimension) );
   }
   
   ~ElementData()

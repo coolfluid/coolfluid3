@@ -65,7 +65,7 @@ struct NeumannBCGrammar :
       <
         boost::proto::terminal<NeumannBC>,
         boost::proto::terminal< StoredReference<Solver::CEigenLSS> >,
-        boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >
+        FieldTypes
       >,
       GrammarT
     >,

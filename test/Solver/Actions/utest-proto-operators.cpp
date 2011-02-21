@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
     (
       pow<2>
       (
-        2. * u * _sin(_atan_vec(coordinates)) + circulation / (2. * pi() * radius)
+        2. * u * _sin( _atan2(coordinates[1], coordinates[0]) ) + circulation / (2. * pi() * radius)
       )  * 0.5 * rho * normal 
     )
   );
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   CMesh::Ptr mesh = Core::instance().root()->create_component<CMesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
   
-  mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField2::DataBasis::POINT_BASED);
+  mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField2::Basis::POINT_BASED);
   
   CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*mesh, "region");
   
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
     mesh->topology(),
     p += pow<2>
     (
-      2. * u * _sin(_atan_vec(coordinates)) + circulation / (2. * pi() * radius)
+      2. * u * _sin( _atan2(coordinates[1], coordinates[0]) ) + circulation / (2. * pi() * radius)
     )  * 0.5 * rho
   );
 

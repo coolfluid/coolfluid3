@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <Eigen/Sparse>
+
 #include "Common/Component.hpp"
 
 #include "Math/MatrixTypes.hpp"
@@ -47,8 +49,14 @@ public: // functions
   /// Number of equations
   Uint size() const;
   
-  /// Reference to the system matrix
-  RealMatrix& matrix();
+  /// Access to the elements
+  Real& at(const Uint row, const Uint col);
+  
+  /// Zero the system (RHS and system matrix)
+  void set_zero();
+  
+  /// Set a dirichlet BC value, zeroing the corresponding row and column and adjusting the RHS
+  void set_dirichlet_bc(const Uint row, const Real value, const Real coeff = 1.);
   
   /// Reference to the RHS vector
   RealVector& rhs();
@@ -59,9 +67,12 @@ public: // functions
   /// Solve the system and store the result in the solution vector
   void solve();
   
+  void print_matrix();
+  
 private:
   /// System matrix
-  RealMatrix m_system_matrix;
+  typedef Eigen::DynamicSparseMatrix<Real, Eigen::RowMajor> MatrixT;
+  MatrixT m_system_matrix;
   
   /// Right hand side
   RealVector m_rhs;

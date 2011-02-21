@@ -52,6 +52,7 @@ find_package(GooglePerftools) # dynamic profiler and memory checker
 find_package(CGNS)            # CGNS library
 find_package(PythonInterp)    # Python interpreter
 find_package(Realtime)        # POSIX Realtime library
+find_package(SuperLU)         # SuperLU sparse sirect solver
 
 if( CF_ENAGLE_OPENCL AND CF_ENABLE_GPU )
   find_package(OpenCL)          # opencl support

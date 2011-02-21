@@ -125,30 +125,15 @@ inline OptionType<Common::URI>::type OptionVariable::add_option<Common::URI>(con
   return cast_option;
 }
 
-/// Constant field data
-template<typename T>
-struct ConstField : OptionVariable
+/// Base class for field data
+struct FieldBase : OptionVariable
 {
-  ConstField() : OptionVariable("aConstField", "Const access to a field"), is_const(false)
+  FieldBase() : OptionVariable("aField", "Access to a field")
   {
   }
 
-  ConstField(const std::string& name) :
-    OptionVariable(name, "Const access to a field"),
-    is_const(false)
-  {
-  }
-  
-  ConstField(const std::string& name, const T& val) :
-    OptionVariable(name, "Const access to a field"),
-    is_const(true),
-    value(val)
-  {
-  }
-
-  ConstField(const std::string& field_nm, const std::string varname) :
+  FieldBase(const std::string& field_nm, const std::string varname) :
     OptionVariable(field_nm, "Field name for variable " + varname),
-    is_const(false),
     field_name(field_nm),
     var_name(varname)
   {
@@ -161,22 +146,70 @@ struct ConstField : OptionVariable
     //return is_const ? elements.element_type() : elements.get_field_elements(field_name).element_type();
   }
 
-  bool is_const;
-  T value;
   std::string field_name;
   std::string var_name;
 
 protected:
   virtual void add_options()
   {
+    m_field_option = add_option<std::string>( m_name + std::string("FieldName"), "Field name", boost::bind(&FieldBase::on_field_changed, this) );
+    cf_assert(is_not_null(m_field_option.lock()));
+    m_var_option = add_option<std::string>( m_name + std::string("VariableName"), "Variable name", boost::bind(&FieldBase::on_var_changed, this) );
+    cf_assert(is_not_null(m_var_option.lock()));
+  }
+
+private:  
+  /// Called when the field name option is changed
+  void on_field_changed()
+  {
+    field_name = m_field_option.lock()->value<std::string>();
+  }
+
+  /// Called when the var name option is changed
+  void on_var_changed()
+  {
+    var_name = m_var_option.lock()->value<std::string>();
+  }
+  
+  /// Option for the field name
+  boost::weak_ptr< Common::OptionT<std::string> > m_field_option;
+
+  /// Option for the variable name
+  boost::weak_ptr< Common::OptionT<std::string> > m_var_option;
+};
+
+/// Constant field data
+template<typename T>
+struct ConstField : FieldBase
+{
+  ConstField() : FieldBase(), is_const(false)
+  {
+  }
+  
+  ConstField(const std::string& name, const T& val) :
+    FieldBase(name, name),
+    is_const(true),
+    value(val)
+  {
+  }
+
+  ConstField(const std::string& field_nm, const std::string varname) :
+    FieldBase(field_nm, varname),
+    is_const(false)
+  {
+  }
+
+  bool is_const;
+  T value;
+
+protected:
+  virtual void add_options()
+  {
+    FieldBase::add_options();
     m_is_const_option = add_option<bool>( m_name + std::string("IsConst"), "True if this field is just a constant value", boost::bind(&ConstField::on_is_const_changed, this) );
     cf_assert(is_not_null(m_is_const_option.lock()));
     m_value_option = add_option<T>( m_name + std::string("Value"), "Value to use if the field is to be treated as constant", boost::bind(&ConstField::on_value_changed, this) );
     cf_assert(is_not_null(m_value_option.lock()));
-    m_field_option = add_option<std::string>( m_name + std::string("FieldName"), "Field name", boost::bind(&ConstField::on_field_changed, this) );
-    cf_assert(is_not_null(m_field_option.lock()));
-    m_var_option = add_option<std::string>( m_name + std::string("VariableName"), "Variable name", boost::bind(&ConstField::on_var_changed, this) );
-    cf_assert(is_not_null(m_var_option.lock()));
   }
 
 private:
@@ -191,31 +224,12 @@ private:
   {
     value = m_value_option.lock()->template value<T>();
   }
-  
-  /// Called when the field name option is changed
-  void on_field_changed()
-  {
-    field_name = m_field_option.lock()->template value<std::string>();
-  }
-
-  /// Called when the var name option is changed
-  void on_var_changed()
-  {
-    var_name = m_var_option.lock()->template value<std::string>();
-  }
 
   /// Option to indicate the field really is a constant that has the same value everywhere
   boost::weak_ptr< Common::OptionT<bool> > m_is_const_option;
 
   /// Value to store
   boost::weak_ptr< Common::OptionT<T> > m_value_option;
-  
-  /// Option for the field name
-  boost::weak_ptr< Common::OptionT<std::string> > m_field_option;
-
-  /// Option for the variable name
-  boost::weak_ptr< Common::OptionT<std::string> > m_var_option;
-
 };
 
 /// Mutable field data
@@ -223,9 +237,15 @@ template<typename T>
 struct Field : ConstField<T>
 {
   Field() : ConstField<T>() {}
-  Field(const std::string& name) : ConstField<T>(name) {}
   Field(const std::string& field_nm, const std::string var_nm) : ConstField<T>(field_nm, var_nm) {}
   Field(const std::string& name, const T& val) : ConstField<T>(name, val) {}
+};
+
+/// Field data for a vector having the dimension of the problem
+struct VectorField : FieldBase
+{
+  VectorField() : FieldBase() {}
+  VectorField(const std::string& field_nm, const std::string var_nm) : FieldBase(field_nm, var_nm) {}
 };
 
 /// Store a user-configurable constant value, used i.e. for constant boundary conditions or model constants
@@ -259,6 +279,12 @@ private:
 
   /// Option for the field name
   boost::weak_ptr< Common::OptionT<T> > m_value_option;
+};
+
+/// Represents storage for an element matrix (i.e. of size nb_nodes x nb_nodes) corresponding to the variable with the index supplied in the template parameter
+template<Uint I>
+struct ElementMatrix
+{
 };
 
 /// Shorthand for terminals containing a numbered variable

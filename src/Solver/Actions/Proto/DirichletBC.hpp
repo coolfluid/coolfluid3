@@ -34,19 +34,22 @@ dirichlet(Solver::CEigenLSS& lss, MeshTerm<I, T> const & var)
 }
 
 /// Helper function for assignment
-template<typename MatrixT, typename RhsT>
-void assign_dirichlet(MatrixT& matrix, RhsT& rhs, const Real value, const std::vector<Uint>& offsets, const Uint node_idx, const Uint var_idx, const Real old_value)
+inline void assign_dirichlet(CEigenLSS& lss, const Real value, const std::vector<Uint>& offsets, const Uint node_idx, const Uint var_idx, const Real old_value)
 {
-  const int size = matrix.rows();
-  cf_assert(matrix.cols() == size);
-  cf_assert(rhs.rows() == size);
-  
   // Index in the global system
   const Uint sys_idx = node_idx*offsets.back() + offsets[var_idx];
   
-  matrix.row(sys_idx).setZero();
-  matrix(sys_idx, sys_idx) = 1.;
-  rhs[sys_idx] = value - old_value;
+  lss.set_dirichlet_bc(sys_idx, value - old_value);
+}
+
+/// Overload for vector types
+template<typename NewT, typename OldT>
+inline void assign_dirichlet(CEigenLSS& lss, const NewT& value, const std::vector<Uint>& offsets, const Uint node_idx, const Uint var_idx, const OldT& old_value)
+{
+  // Index in the global system
+  const Uint sys_idx = node_idx*offsets.back() + offsets[var_idx];
+  for(Uint i = 0; i != OldT::RowsAtCompileTime; ++i)
+    lss.set_dirichlet_bc(sys_idx+i, value[i] - old_value[i]);
 }
   
 struct DirichletBCSetter :
@@ -67,7 +70,7 @@ struct DirichletBCSetter :
     ) const
     {
       Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>(expr) ).get();
-      assign_dirichlet( lss.matrix(), lss.rhs(), state, data.variable_offsets(), data.node_idx,
+      assign_dirichlet( lss, state, data.variable_offsets(), data.node_idx,
                         I::value,
                         data.template var_data<I>().value() );
     }
@@ -85,7 +88,7 @@ struct DirichletBCGrammar :
       <
         boost::proto::terminal<DirichletBC>,
         boost::proto::terminal< StoredReference<Solver::CEigenLSS> >,
-        boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >
+        FieldTypes
       >,
       GrammarT
     >,

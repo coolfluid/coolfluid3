@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
     system_matrix(lss, temperature) +=integral<1>(transpose( gradient(temperature) ) * gradient(temperature) * jacobian_determinant)
   );
   
-  std::cout << lss.matrix() << std::endl;
+  lss.print_matrix();
 }
 
 BOOST_AUTO_TEST_CASE( Heat1D )

@@ -14,6 +14,7 @@
 #include <boost/mpl/vector_c.hpp>
 #include <boost/proto/proto.hpp>
 
+#include "ForEachDimension.hpp"
 #include "Functions.hpp"
 #include "Terminals.hpp"
 
@@ -94,7 +95,7 @@ struct CalculateOffsets
 {
   typedef std::vector<Uint> SizesT;
   
-  CalculateOffsets(SizesT& offsets) : m_offsets(offsets)
+  CalculateOffsets(SizesT& offsets, const Uint dimension) : m_offsets(offsets), m_dimension(dimension)
   {
     m_offsets.push_back(0);
   }
@@ -102,7 +103,7 @@ struct CalculateOffsets
   template<typename T, typename DummyT=boost::mpl::void_> // DummyT type to avoid error when explicitely specialising inline. *sigh*
   struct impl
   {
-    void operator()(const T&, SizesT& r) const
+    void operator()(const T&, SizesT& r, const Uint) const
     {
       r.push_back( r.back() );
     }
@@ -111,19 +112,29 @@ struct CalculateOffsets
   template<typename DummyT>
   struct impl< Field<Real>, DummyT >
   {
-    void operator()(const Field<Real>&, SizesT& r) const
+    void operator()(const Field<Real>&, SizesT& r, const Uint) const
     {
       r.push_back( 1 + r.back() );
+    }
+  };
+  
+  template<typename DummyT>
+  struct impl< VectorField, DummyT >
+  {
+    void operator()(const VectorField&, SizesT& r, const Uint dimension) const
+    {
+      r.push_back( dimension + r.back() );
     }
   };
   
   template<typename T>
   void operator()(const T& var) const
   {
-    impl<T>()(var, m_offsets);
+    impl<T>()(var, m_offsets, m_dimension);
   }
   
   SizesT& m_offsets;
+  const Uint m_dimension;
 };
 
 /// Copy the terminal values to a fusion list
@@ -154,25 +165,26 @@ struct AddVariableOptions
   }
   
   template<typename T>
-  inline void operator()(T& t) const;
+  inline void operator()(T& t) const
+  {
+    apply(typename boost::is_base_of<OptionVariable, T>::type(), t);
+  }
+  
+  /// Chosen when T derives from OptionVariable
+  template<typename T>
+  inline void apply(boost::true_type, T& t) const
+  {
+    t.set_owner(owner);
+  }
+  
+  /// Chose in other cases (do nothing)
+  template<typename T>
+  inline void apply(boost::false_type, T& t) const
+  {
+  }
 
   Common::Component::Ptr owner;
 };
-
-template<typename T>
-inline void AddVariableOptions::operator()(T& var) const
-{
-  // Add options in case we derive from OptionVariableBase
-  if(boost::is_base_of<OptionVariable, T>::value)
-  {
-    var.set_owner(owner);
-  }
-}
-
-template<>
-inline void AddVariableOptions::operator()<boost::mpl::void_>(boost::mpl::void_&) const
-{
-}
 
 /// Returns the index of a numbered variable as a boost integral constant
 struct VarNumber :
@@ -267,13 +279,28 @@ struct UnwrapStoredReference :
   };
 };
 
-/// Matches scalar terminals
-struct Scalar :
+/// Matches integer terminals
+struct Integers :
   boost::proto::or_
   <
     boost::proto::when
     <
-      boost::proto::or_< boost::proto::terminal<Real>, boost::proto::terminal<Uint> >, // Plain scalar
+      boost::proto::or_< boost::proto::terminal<Uint>, boost::proto::terminal<int> >,
+      boost::proto::_value
+    >,
+    boost::proto::terminal<DimensionIdxTag>
+  >
+{
+};
+
+/// Matches scalar terminals
+struct Scalar :
+  boost::proto::or_
+  <
+    Integers,
+    boost::proto::when
+    <
+      boost::proto::or_< boost::proto::terminal<Real> >, // Plain scalar
       boost::proto::_value
     >,
     // Stored references
@@ -404,6 +431,16 @@ struct StreamOutput :
       boost::proto::shift_left< StreamOutput<GrammarT>, boost::proto::or_< GrammarT, boost::proto::terminal<const char*> > >
     >,
     boost::proto::_default<GrammarT>
+  >
+{
+};
+
+/// Match field types
+struct FieldTypes :
+  boost::proto::or_
+  <
+    boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >,
+    boost::proto::terminal< Var<boost::proto::_, VectorField> >
   >
 {
 };

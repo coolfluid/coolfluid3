@@ -137,11 +137,26 @@ struct LaplacianOp
   template<typename SupportT, typename MappedCoordsT, typename DataT>
   struct apply
   {
-    typedef const typename SupportT::LaplacianT& result_type;
+    typedef const typename boost::remove_reference<DataT>::type::LaplacianT& result_type;
     
     result_type operator()(SupportT& support, MappedCoordsT mapped_coords, DataT data)
     {
       return data.laplacian(mapped_coords, support);
+    }
+  };
+};
+
+/// Shape functions
+struct ShapeFunctionOp
+{
+  template<typename SupportT, typename MappedCoordsT, typename DataT>
+  struct apply
+  {
+    typedef const typename boost::remove_reference<DataT>::type::ShapeFunctionT::ShapeFunctionsT& result_type;
+    
+    result_type operator()(SupportT& support, MappedCoordsT mapped_coords, DataT data)
+    {
+      return data.shape_function(mapped_coords);
     }
   };
 };
@@ -152,7 +167,7 @@ struct OuterProductOp
   template<typename SupportT, typename MappedCoordsT, typename DataT>
   struct apply
   {
-    typedef const typename SupportT::LaplacianT& result_type;
+    typedef const typename boost::remove_reference<DataT>::type::LaplacianT& result_type;
     
     result_type operator()(SupportT& support, MappedCoordsT mapped_coords, DataT data)
     {
@@ -172,6 +187,7 @@ boost::proto::terminal< SFOp<NormalOp> >::type const normal = {{}};
 boost::proto::terminal< SFOp<GradientOp> >::type const gradient = {{}};
 boost::proto::terminal< SFOp<LaplacianOp> >::type const laplacian = {{}};
 
+boost::proto::terminal< SFOp<ShapeFunctionOp> >::type const shape_function = {{}};
 boost::proto::terminal< SFOp<OuterProductOp> >::type const sf_outer_product = {{}};
 
 

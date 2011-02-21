@@ -9,6 +9,14 @@
 #include <iostream>
 #include <set>
 
+#include "coolfluid_config.h"
+
+#ifdef CF_HAVE_SUPERLU
+  #include <Eigen/SuperLUSupport>
+#else
+  #include <Eigen/SparseExtra>
+#endif
+
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
 
@@ -45,10 +53,53 @@ Uint CEigenLSS::size() const
   return m_system_matrix.cols();
 }
 
-RealMatrix& CEigenLSS::matrix()
+Real& CEigenLSS::at(const CF::Uint row, const CF::Uint col)
 {
-  return m_system_matrix;
+#ifdef CF_HAVE_SUPERLU
+  return m_system_matrix.coeffRef(row, col);
+#else
+  // Hack to make sure the system is symmetric in case SUperLU is not found.
+  // We must only store the lower triangular part and have a diagonal with only non-zeros in this case
+  static Real dummyval = 0.;
+  if(row >= col)
+    return m_system_matrix.coeffRef(row, col);
+  else
+    return dummyval;
+#endif
 }
+
+
+void CEigenLSS::set_zero()
+{
+  m_system_matrix.setZero();
+  m_rhs.setZero();
+}
+
+void CEigenLSS::set_dirichlet_bc(const CF::Uint row, const CF::Real value, const CF::Real coeff)
+{
+  for(int k=0; k < m_system_matrix.outerSize(); ++k)
+  {
+    for(MatrixT::InnerIterator it(m_system_matrix, k); it; ++it)
+    {
+      if(it.row() == row && it.col() != row)
+      {
+        it.valueRef() = 0.;
+      }
+      else if(it.row() == row && it.col() == row)
+      {
+        it.valueRef() = coeff;
+      }
+      else if(it.row() != row && it.col() == row)
+      {
+        m_rhs[it.row()] -= it.value() * value;
+        it.valueRef() = 0.;
+      }
+    }
+  }
+  
+  m_rhs[row] = coeff * value;
+}
+
 
 RealVector& CEigenLSS::rhs()
 {
@@ -63,8 +114,23 @@ const RealVector& CEigenLSS::solution()
 
 void CEigenLSS::solve()
 {
-  m_solution = matrix().colPivHouseholderQr().solve(rhs());
+  Eigen::SparseMatrix<Real> A(m_system_matrix);
+#ifdef CF_HAVE_SUPERLU
+  Eigen::SparseLU<Eigen::SparseMatrix<Real>,Eigen::SuperLU> lu_of_A(A);
+  if(!lu_of_A.solve(rhs(), &m_solution))
+    throw Common::FailedToConverge(FromHere(), "Solution failed.");
+#else
+  // WARNING: This only works for symmetric matrices
+  Eigen::SparseLLT< Eigen::SparseMatrix<Real> > llt(A);
+  m_solution = llt.solve(m_rhs);
+#endif
 }
+
+void CEigenLSS::print_matrix()
+{
+  std::cout << m_system_matrix << std::endl;
+}
+
 
 void increment_solution(const RealVector& solution, const std::vector<std::string>& field_names, const std::vector<std::string>& var_names, const std::vector<Uint>& var_sizes, CMesh& solution_mesh)
 { 

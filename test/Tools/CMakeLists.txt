@@ -1,0 +1,9 @@
+list( APPEND utest-mesh-generation_cflibs coolfluid_mesh_generation coolfluid_mesh_sf coolfluid_mesh )
+list( APPEND utest-mesh-generation_files
+  utest-mesh-generation.cpp )
+
+list( APPEND utest-mesh-generation_args ${CMAKE_CURRENT_SOURCE_DIR}/meshes )
+
+set( utest-mesh-generation_condition ${coolfluid_mesh_generation_builds} )
+
+coolfluid_add_unittest( utest-mesh-generation )

@@ -147,7 +147,8 @@ struct SFFieldVariables :
   boost::proto::or_
   <
     boost::proto::terminal< Var< boost::proto::_, ConstField<boost::proto::_> > >,
-    boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >
+    boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >,
+    boost::proto::terminal< Var< boost::proto::_, VectorField > >
   >
 {
 };    
@@ -186,6 +187,7 @@ struct SFSupportMappedOp :
 struct SFSupportFieldMappedOp :
   boost::proto::or_
   <
+    boost::proto::terminal< SFOp<ShapeFunctionOp> >,
     boost::proto::terminal< SFOp<OuterProductOp> >,
     boost::proto::terminal< SFOp<GradientOp> >,
     boost::proto::terminal< SFOp<LaplacianOp> >
@@ -272,7 +274,7 @@ template<Uint Order, typename ExprT>
 inline typename boost::proto::result_of::make_expr< boost::proto::tag::function, IntegralTag< boost::mpl::int_<Order> >, ExprT const & >::type const
 integral(ExprT const & expr)
 {
-  // IF COMPILATION FAILS HERE: the espression passed to for_each_element is invalid
+  // IF COMPILATION FAILS HERE: the espression passed to integral() is invalid
   BOOST_MPL_ASSERT_MSG(
     (boost::proto::matches<ExprT, ElementMathImplicit>::value),
     INVALID_EXPRESSION_FOR_INTEGRAL,
@@ -355,7 +357,9 @@ public:
       ChildT e = boost::proto::child_c<1>(expr); // expression to integrate
       typename ValueT::type r = GaussT::instance().weights[0] * ElementMathImplicit()(e, GaussT::instance().coords.col(0), data);
       for(Uint i = 1; i != GaussT::nb_points; ++i)
+      {
         r += GaussT::instance().weights[i] * ElementMathImplicit()(e, GaussT::instance().coords.col(i), data);
+      }
       return r;
     }
   };  

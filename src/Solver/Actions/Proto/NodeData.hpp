@@ -52,7 +52,7 @@ inline const Mesh::CTable<Real>& extract_coordinates(const Mesh::CRegion& region
 }
 
 /// Struct keeping track of data associated with numbered variables in node expressions
-template<typename T>
+template<typename T, Uint Dim = 1>
 struct NodeVarData
 {
   /// Stored value type
@@ -141,6 +141,50 @@ private:
   Real m_value;
 };
 
+template<Uint Dim>
+struct NodeVarData<VectorField, Dim>
+{
+  typedef Eigen::Matrix<Real, Dim, 1> ValueT;
+  typedef const ValueT& ValueResultT;
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  NodeVarData(const VectorField& placeholder, Mesh::CRegion& region) :
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child<Mesh::CField2>(placeholder.field_name) ),
+    m_data( m_field.data() )
+  {
+    m_var_begin = m_field.var_index(placeholder.var_name);
+  }
+  
+  void set_node(const Uint idx)
+  {
+    m_idx = idx;
+    for(Uint i = 0; i != Dim; ++i)
+      m_value[i] = m_data[idx][m_var_begin + i];
+  }
+  
+  /// Return a reference to the stored value
+  ValueResultT value() const
+  {
+    return m_value;
+  }
+  
+  /// Sets values using a vector-like container
+  template<typename VectorT>
+  void set_values(const VectorT& v)
+  {
+    for(Uint i = 0; i != Dim; ++i)
+      m_data[m_idx][m_var_begin + i] = v[i];
+  }
+  
+private:
+  Mesh::CField2& m_field;
+  Uint m_var_begin;
+  Mesh::CTable<Real>& m_data;
+  ValueT m_value;
+  Uint m_idx;
+};
+
 template<typename T>
 struct NodeVarData< ConfigurableConstant<T> >
 {
@@ -166,10 +210,20 @@ private:
 };
 
 /// MPL transform operator to wrap a variable in its data type
-template<typename VarT>
+template<Uint Dim>
 struct AddNodeData
 {
-  typedef NodeVarData<VarT>* type;
+  template<typename VarT, int Dummy=0>
+  struct apply
+  {
+    typedef NodeVarData<VarT>* type;
+  };
+  
+  template<int Dummy>
+  struct apply<VectorField, Dummy>
+  {
+    typedef NodeVarData<VectorField, Dim>* type;
+  };
 };
 
 template<typename VariablesT, typename NbDims>
@@ -180,7 +234,7 @@ public:
   typedef typename boost::fusion::result_of::size<VariablesT>::type NbVarsT;
   
   /// Type of the per-variable data
-  typedef typename boost::mpl::transform< VariablesT, AddNodeData<boost::mpl::_1> >::type VariablesDataT;
+  typedef typename boost::mpl::transform< VariablesT, AddNodeData<NbDims::value> >::type VariablesDataT;
   
   /// Return the type of the data stored for variable I (I being an Integral Constant in the boost::mpl sense)
   template<typename I>
@@ -206,7 +260,7 @@ public:
   }
   
   /// Type of the coordinates
-  typedef Eigen::Matrix<Real, NbVarsT::value, 1> CoordsT;
+  typedef Eigen::Matrix<Real, NbDims::value, 1> CoordsT;
   
   NodeData(VariablesT& variables, Mesh::CRegion& region, const Mesh::CTable<Real>& coords) :
     m_variables(variables),
@@ -214,7 +268,7 @@ public:
     m_coordinates(coords)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_region, m_variables_data));
-    boost::fusion::for_each( m_variables, CalculateOffsets(m_offsets) );
+    boost::fusion::for_each( m_variables, CalculateOffsets(m_offsets, NbDims::value) );
   }
   
   ~NodeData()

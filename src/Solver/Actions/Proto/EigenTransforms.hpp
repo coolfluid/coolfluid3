@@ -13,6 +13,7 @@
 
 #include "Transforms.hpp"
 
+struct C;
 /// @file Transforms related to Eigen matrix library functionality
 
 /// Required extension to eigen, in order to pass matrix product expressions by value
@@ -178,6 +179,70 @@ struct MatrixElementAccess :
   };
 };
 
+/// Primitive transform to access matrix elements using operator[]
+struct MatrixSubscript :
+  boost::proto::transform< MatrixSubscript >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::remove_reference<ExprT>::type ExprValT;
+    
+    typedef typename boost::mpl::if_c<ExprValT::ColsAtCompileTime == 1, Real, typename ExprValT::RowXpr>::type result_type;
+    
+    /// Static dispatch through 2 versions of do_eval, in order to avoid compile errors
+    inline Real do_eval(boost::mpl::true_, ExprT expr, StateT state) const
+    {
+      return expr[state];
+    }
+    
+    inline typename ExprValT::RowXpr do_eval(boost::mpl::false_, ExprT expr, StateT state) const
+    {
+      return expr.row(state);
+    }
+    
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      // go through overloaded do_eval to get the correct expression, depending on if we are subscripting a vector or a matrix
+      return do_eval(boost::mpl::bool_<ExprValT::ColsAtCompileTime == 1>(), expr, state);
+    }
+  };
+};
+
+struct MatrixRowAccess :
+  boost::proto::transform< MatrixRowAccess >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::remove_reference<ExprT>::type ExprValT;
+    
+    typedef typename ExprValT::RowXpr result_type;
+    
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      return expr.row(state);
+    }
+  };
+};
+
+struct MatrixColAccess :
+  boost::proto::transform< MatrixColAccess >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::remove_reference<ExprT>::type ExprValT;
+    
+    typedef typename ExprValT::ColXpr result_type;
+    
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      return expr.col(state);
+    }
+  };
+};
+
 /// Handle multiplication cases
 template<typename GrammarT>
 struct EigenMultiplication :
@@ -193,6 +258,18 @@ struct EigenMultiplication :
 {
 };
 
+/// Placeholders to indicate if we should get a row or a column
+struct RowTag
+{
+};
+
+struct ColTag
+{
+};
+
+static boost::proto::terminal<RowTag>::type _row = {};
+static boost::proto::terminal<ColTag>::type _col = {};
+
 /// Grammar for valid Eigen expressions, composed of primitives matching GrammarT
 template<typename GrammarT>
 struct EigenMath :
@@ -202,8 +279,24 @@ struct EigenMath :
     // Indexing
     boost::proto::when
     <
-      boost::proto::function< GrammarT, boost::proto::terminal<int>, boost::proto::terminal<int> >,
+      boost::proto::function< GrammarT, Integers, Integers >,
       MatrixElementAccess( boost::proto::_expr, GrammarT(boost::proto::_child0) )
+    >,
+    boost::proto::when
+    <
+      boost::proto::function< GrammarT, boost::proto::terminal<RowTag>, Integers >,
+      MatrixRowAccess( GrammarT(boost::proto::_child0), Integers(boost::proto::_child2) )
+    >,
+    boost::proto::when
+    <
+      boost::proto::function< GrammarT, boost::proto::terminal<ColTag>, Integers >,
+      MatrixColAccess( GrammarT(boost::proto::_child0), Integers(boost::proto::_child2) )
+    >,
+    // Subscripting
+    boost::proto::when
+    <
+      boost::proto::subscript< GrammarT, Integers >,
+      MatrixSubscript( GrammarT(boost::proto::_left), Integers(boost::proto::_right) )
     >,
     // Transpose
     boost::proto::when

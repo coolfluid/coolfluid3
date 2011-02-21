@@ -93,12 +93,12 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   heat_eq->configure_property("HeatValue", 0.);
   
   // Material properties (copper)
-  heat_eq->configure_property("k", 398.);
-  heat_eq->configure_property("alpha", 11.57e-5);
+  heat_eq->configure_property("k", /*398.*/1.);
+  heat_eq->configure_property("alpha", /*11.57e-5*/1.);
   
   // Time stepping parameters
-  ufem_method->configure_property("Timestep", 0.001);
-  ufem_method->configure_property("StopTime", 0.01);
+  ufem_method->configure_property("Timestep", 0.01);
+  ufem_method->configure_property("StopTime", 0.2);
   
   // Initial condition value
   boost::shared_ptr<XmlDoc> init_root = XmlOps::create_doc();
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   Component::Ptr init = ufem_method->get_child("InitialTemperature");
   BOOST_CHECK(init);
   init->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology"));
-  init->configure_property("InitialTemperature", 320.);
+  init->configure_property("InitialTemperature", 500.);
   
   // Inside boundary condition
   boost::shared_ptr<XmlDoc> inside_bc_root = XmlOps::create_doc();
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   Component::Ptr inside_bc = ufem_method->get_child("Inside");
   BOOST_CHECK(inside_bc);
   inside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/inner"));
-  inside_bc->configure_property("Inside", 293.);
+  inside_bc->configure_property("Inside", 300.);
   
   // Outside boundary condition
   boost::shared_ptr<XmlDoc> outside_bc_root = XmlOps::create_doc();
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   Component::Ptr outside_bc = ufem_method->get_child("Outside");
   BOOST_CHECK(outside_bc);
   outside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/outer"));
-  outside_bc->configure_property("Outside", 293.);
+  outside_bc->configure_property("Outside", 300.);
   
   // Run the solver
   boost::shared_ptr<XmlDoc> run_root = XmlOps::create_doc();
