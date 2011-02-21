@@ -63,6 +63,9 @@ private: // functions
   void config_domain();
   
 private: // data
+
+  /// CFL number
+  CF::Real m_cfl;
   
   Common::CLink::Ptr m_solution_field;
   Common::CLink::Ptr m_residual_field;

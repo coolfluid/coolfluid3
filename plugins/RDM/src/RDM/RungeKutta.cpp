@@ -7,6 +7,7 @@
 #include <iomanip>
 
 #include "Common/CBuilder.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Log.hpp"
@@ -42,18 +43,25 @@ Common::ComponentBuilder < RungeKutta, CIterativeSolver, LibRDM > RungeKutta_Bui
 ////////////////////////////////////////////////////////////////////////////////
 
 RungeKutta::RungeKutta ( const std::string& name  ) :
-  CIterativeSolver ( name )
+  CIterativeSolver ( name ),
+  m_cfl(1.0)
 {
+  // options
+  m_properties.add_option< OptionT<Real> > ("CFL", "Courant Number", m_cfl)
+    ->mark_basic()
+    ->link_to(&m_cfl)
+    ->add_tag("cfl");
+
+  // properties
+
   properties()["brief"] = std::string("Iterative RDM component");
   properties()["description"] = std::string("Forward Euler Time Stepper");
 
   m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &RungeKutta::config_domain,   this ) );
 
+  // signals
 
   this->regist_signal ( "solve" , "Solve", "Solve" )->connect ( boost::bind ( &RungeKutta::solve, this ) );
-  // signal("solve").signature
-  //     .insert<URI>("Domain", "Domain to load mesh into" )
-  //     .insert_array<URI>( "Files" , "Files to read" );
 
   m_solution_field =     create_static_component<CLink>( "solution" );
   m_residual_field =     create_static_component<CLink>( "residual" );
@@ -207,14 +215,11 @@ void RungeKutta::solve()
 //    CFinfo << " --  computing the rhs" << CFendl;
     discretization_method().compute_rhs();
 
-    // CFL
-    const Real CFL = 1.0;
-
     // explicit update
 //    CFinfo << " --  updating solution" << CFendl;
     const Uint nbdofs = solution.size();
     for (Uint i=0; i< nbdofs; ++i)
-      solution[i][0] += - ( CFL / update_coeff[i][0] ) * residual[i][0];
+      solution[i][0] += - ( m_cfl / update_coeff[i][0] ) * residual[i][0];
 
 //    CFinfo << " --  computing the norm" << CFendl;
     Real rhs_L2 = 0.;

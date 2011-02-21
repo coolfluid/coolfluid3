@@ -9,7 +9,7 @@
 # * simplify configuration
 #     * select physics from the ScalarSimulation
 #     * select the numerical scheme according the physical model (name)
-#     * make fields OptionComponent in RD and RK
+#     * make fields OptionComponent in RD and RK with weak_ptr
 #     * modify Bc dirichlet n merge CForAllNodes2 with the LoopAction
 # * solution initialization
 # * obtain cfl from option and/or separate component
