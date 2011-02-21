@@ -9,6 +9,8 @@
 #include "Common/Core.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
+#include "Common/ComponentPredicates.hpp"
+
 #include "Solver/CModel.hpp"
 
 #include "Mesh/CDomain.hpp"
@@ -48,6 +50,15 @@ CModel::CModel( const std::string& name  ) :
 }
 
 CModel::~CModel() {}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CDomain::Ptr CModel::domain()
+{
+  CDomain::Ptr dom = find_component_ptr<CDomain>(*this);
+  cf_assert( is_not_null(dom) );
+  return dom;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

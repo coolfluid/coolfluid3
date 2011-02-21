@@ -65,8 +65,8 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
 
   // signals
 
-  regist_signal ( "create_boundary_term" , "creates a boundary condition term", "Create Boundary Condition" )->connect ( boost::bind ( &ResidualDistribution::signal_create_boundary_term, this, _1 ) );
-  signal("create_boundary_term").signature->connect( boost::bind( &ResidualDistribution::signature_create_boundary_term, this, _1));
+  regist_signal ( "signal_create_boundary_term" , "creates a boundary condition term", "Create Boundary Condition" )->connect ( boost::bind ( &ResidualDistribution::signal_create_boundary_term, this, _1 ) );
+  signal("signal_create_boundary_term").signature->connect( boost::bind( &ResidualDistribution::signature_signal_create_boundary_term, this, _1));
 
   regist_signal ( "create_domain_term" , "creates a domain volume term", "Create Domain Term" )->connect ( boost::bind ( &ResidualDistribution::signal_create_domain_term, this, _1 ) );
   signal("create_domain_term").signature->connect( boost::bind( &ResidualDistribution::signature_create_domain_term, this, _1));
@@ -135,7 +135,7 @@ void ResidualDistribution::signal_create_boundary_term( XmlNode& xml )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ResidualDistribution::signature_create_boundary_term( XmlNode& node )
+void ResidualDistribution::signature_signal_create_boundary_term( XmlNode& node )
 {
   const bool basic = true;
 

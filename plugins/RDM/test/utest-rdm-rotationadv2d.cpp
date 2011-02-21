@@ -148,7 +148,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( create_boundary_term , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -168,7 +168,7 @@ BOOST_FIXTURE_TEST_CASE( create_boundary_term , rotationadv2d_local_fixture )
   p.add_option<std::string>("Type","CF.RDM.BcDirichlet");
   p.add_array("Regions", bc_regions);
 
-  discretization.as_type<ResidualDistribution>()->create_boundary_term(node);
+  discretization.as_type<ResidualDistribution>()->signal_create_boundary_term(node);
 
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( discretization, name );
   cf_assert( is_not_null(inletbc) );
@@ -203,7 +203,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , rotationadv2d_local_fixture )
   p.add_option<std::string>("Type","CF.RDM.CLDA<RotationAdv2D>");
   p.add_array("Regions", bc_regions);
 
-  discretization.as_type<ResidualDistribution>()->create_domain_term(node);
+  discretization.as_type<ResidualDistribution>()->signal_create_domain_term(node);
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
