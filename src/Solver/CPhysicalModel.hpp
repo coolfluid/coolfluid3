@@ -50,6 +50,10 @@ public: // functions
   /// @return the number of degrees of freedom (DOFs)
   Uint nb_dof() const { return m_nbdofs; }
 
+  /// @return the physical model type
+  /// @todo make this a pure virtual function
+  std::string type() const { return m_type; }
+
 private: // data
 
   /// type of the physcial model
