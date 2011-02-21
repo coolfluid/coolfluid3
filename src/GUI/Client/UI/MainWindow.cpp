@@ -69,9 +69,8 @@ MainWindow::MainWindow()
   m_centralPanel = new CentralPanel(this);
   m_treeView = new TreeView(m_centralPanel, this);
   m_statusPanel = nullptr;//new StatusPanel(m_statusModel, this);
-  m_splitter = new QSplitter(Qt::Horizontal, this);
-  m_centralSplitter = new QSplitter(Qt::Vertical, this);
-  m_centralWidgetLayout = new QVBoxLayout(m_centralSplitter);
+  m_splitter = new QSplitter(/*Qt::Horizontal, this*/);
+  m_centralSplitter = new QSplitter(Qt::Vertical/*, this*/);
   m_tabWindow = new QTabWidget(m_centralPanel);
   m_centralTab = new QTabWidget();
   m_logList = new LoggingList(m_tabWindow);
@@ -105,18 +104,15 @@ MainWindow::MainWindow()
   m_centralTab->addTab(m_centralPanel, "Options");
   m_centralTab->addTab(m_graphXYPlot, "XY-Plot");
 
-  m_centralWidgetLayout->addWidget(m_centralTab);
-  m_centralWidgetLayout->addWidget(m_tabWindow);
-
-  m_centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
-
   m_centralSplitter->setStretchFactor(0, 10);
 
   // add the components to the splitter
   m_splitter->addWidget(m_treeBrowser);
 
+  m_centralSplitter->addWidget(m_centralTab);
+  m_centralSplitter->addWidget(m_tabWindow);
   m_splitter->addWidget(m_centralSplitter);
-//  m_splitter->addWidget(m_statusPanel);
+
   m_splitter->setStretchFactor(1, 10);
 
   m_splitter->setHandleWidth(0);
@@ -128,7 +124,8 @@ MainWindow::MainWindow()
   connect(ClientRoot::instance().log().get(), SIGNAL(newException(QString)),
           this, SLOT(newException(QString)));
 
-  connect(ClientRoot::instance().log().get(), SIGNAL(newMessage(QString, CF::GUI::Network::LogMessage::Type)),
+  connect(ClientRoot::instance().log().get(),
+          SIGNAL(newMessage(QString, CF::GUI::Network::LogMessage::Type)),
           this, SLOT(newLogMessage(QString,CF::GUI::Network::LogMessage::Type)));
 
   connect(ClientRoot::instance().core().get(), SIGNAL(connectedToServer()),
@@ -137,7 +134,8 @@ MainWindow::MainWindow()
   connect(ClientRoot::instance().core().get(), SIGNAL(disconnectedFromServer()),
           this, SLOT(disconnectedFromServer()));
 
-  connect(ClientRoot::instance().tree().get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
+  connect(ClientRoot::instance().tree().get(),
+          SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
           this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
 
   connect(m_tabWindow, SIGNAL(currentChanged(int)), this, SLOT(tabClicked(int)));

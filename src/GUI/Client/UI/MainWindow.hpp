@@ -216,8 +216,6 @@ namespace ClientUI {
 
     QTextStream m_logFile;
 
-    QVBoxLayout * m_centralWidgetLayout;
-
     QSplitter * m_centralSplitter;
 
     QTabWidget * m_tabWindow;
