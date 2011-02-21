@@ -12,6 +12,8 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/OptionComponent.hpp"
 
+#include "Mesh/CField2.hpp"
+
 #include "Solver/Actions/CLoop.hpp"
 #include "Solver/Actions/CForAllT.hpp"
 #include "Solver/Actions/CForAllNodes.hpp"

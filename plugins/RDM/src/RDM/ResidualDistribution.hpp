@@ -74,9 +74,9 @@ private: // data
 
   /// @note new approach
 
-  boost::weak_ptr<CField2> m_solution;
-  boost::weak_ptr<CField2> m_residual;
-  boost::weak_ptr<CField2> m_update_coeff;
+  boost::weak_ptr<Mesh::CField2> m_solution;
+  boost::weak_ptr<Mesh::CField2> m_residual;
+  boost::weak_ptr<Mesh::CField2> m_update_coeff;
 
   /// action to compute the boundary face terms
   Common::CAction::Ptr m_compute_boundary_face_terms;
