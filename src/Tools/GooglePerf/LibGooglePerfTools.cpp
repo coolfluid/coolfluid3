@@ -8,9 +8,6 @@
 
 #include "Common/Core.hpp"
 #include "Common/RegistLibrary.hpp"
-#include "Common/DirPaths.hpp"
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
 
 namespace CF {
 namespace Tools {

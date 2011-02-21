@@ -102,6 +102,7 @@ void ScalarAdvection::create_model_signature( XmlNode& node )
   p.add_option<std::string>("Physical model",
                             std::string("LinearAdv2D" ),
                             "Type of physical model",
+                            true,
                             restricted );
 }
 

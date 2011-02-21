@@ -12,6 +12,7 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/OptionComponent.hpp"
 
+#include "Mesh/CMesh.hpp"
 #include "Mesh/CField2.hpp"
 
 #include "Solver/Actions/CLoop.hpp"

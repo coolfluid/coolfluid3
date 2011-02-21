@@ -148,11 +148,11 @@ namespace Common {
 
     /// add a key-value node to the options
     template < typename TYPE >
-    XmlNode * add_option ( const std::string& key, const TYPE& value,
-                          const std::string& desc = std::string(),
-                          bool basic = false,
-                          const std::vector<boost::any> & restricted_val =
-                          std::vector<boost::any>());
+        XmlNode * add_option (const std::string& key,
+                              const TYPE& value,
+                              const std::string& desc = std::string(),
+                              bool basic = false,
+                              const std::vector<boost::any> & restricted_val = std::vector<boost::any>());
 
     /// add a key-value node to the options
     template < typename TYPE >
