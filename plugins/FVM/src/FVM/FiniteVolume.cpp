@@ -46,11 +46,11 @@ FiniteVolume::FiniteVolume ( const std::string& name  ) :
   properties()["brief"] = std::string("Finite Volume Method");
   std::string description =
     "Discretize the PDE's using the Cell Centered Finite Volume Method\n"
-    "This method is expected to fill the residual field, and the advection field.\n"
+    "This method is expected to fill the residual field, and the wave_speed field.\n"
     " - The residual for cell[i] being F[i+1/2] - F[i-1/2],\n"
     "   F[i+1/2] is calculated using an approximate Riemann solver on the face\n"
     "   between cell[i] and cell[i+1]\n"
-    " - The advection being the wavespeed \"a\" in the Courant number defined as:\n"
+    " - The wave_speed being the wave speed \"a\" in the Courant number defined as:\n"
     "        CFL = a * dt / V ,\n"
     "   with V the volume of a cell (notice not length) and dt the timestep to take.";
   properties()["description"] = description; 

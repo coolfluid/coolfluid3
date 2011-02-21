@@ -37,7 +37,7 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
   CLoopOperation(name),
   m_connected_residual("residual_view"),
   m_connected_solution("solution_view"),
-  m_connected_advection("advection_view"),
+  m_connected_wave_speed("wave_speed_view"),
   m_face_normal("face_normal_view"),
   m_face_area("face_area_view"),  
   m_flux(3),
@@ -54,9 +54,9 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_residual,   this ) )
     ->add_tag("residual");
 
-  m_properties.add_option(OptionURI::create("Advection","Advection to compute", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeFlux::config_advection,   this ) )
-    ->add_tag("advection");
+  m_properties.add_option(OptionURI::create("WaveSpeed","WaveSpeed to compute", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_wave_speed,   this ) )
+    ->add_tag("wave_speed");
 
   m_properties.add_option(OptionURI::create("Area","Face area", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_area,   this ) )
@@ -91,11 +91,11 @@ void ComputeFlux::config_residual()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ComputeFlux::config_advection()
+void ComputeFlux::config_wave_speed()
 {
-  URI uri;  property("Advection").put_value(uri);
+  URI uri;  property("WaveSpeed").put_value(uri);
   CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
-  m_connected_advection.set_field(comp);
+  m_connected_wave_speed.set_field(comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +124,7 @@ void ComputeFlux::trigger_elements()
   {
     m_connected_solution.set_elements(faces);
     m_connected_residual.set_elements(faces);
-    m_connected_advection.set_elements(faces);
+    m_connected_wave_speed.set_elements(faces);
     m_face_normal.set_elements(faces);
     m_face_area.set_elements(faces);
     m_can_start_loop = true;
@@ -165,8 +165,8 @@ void ComputeFlux::execute()
   }
 
   // accumulate most negative wave_speeds * area, for use in CFL condition
-  m_connected_advection[idx()][LEFT ][0] -= std::min(m_wave_speed_left ,0.) * m_face_area[idx()];
-  m_connected_advection[idx()][RIGHT][0] -= std::min(m_wave_speed_right,0.) * m_face_area[idx()];
+  m_connected_wave_speed[idx()][LEFT ][0] -= std::min(m_wave_speed_left ,0.) * m_face_area[idx()];
+  m_connected_wave_speed[idx()][RIGHT][0] -= std::min(m_wave_speed_right,0.) * m_face_area[idx()];
 
 }
 

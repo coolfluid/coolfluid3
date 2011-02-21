@@ -50,9 +50,9 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_update_coeff,   this ) )
     ->add_tag("update_coeff");
 
-  m_properties.add_option(OptionURI::create("Advection","Advection needed", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_advection,   this ) )
-    ->add_tag("advection");
+  m_properties.add_option(OptionURI::create("WaveSpeed","WaveSpeed needed", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_wave_speed,   this ) )
+    ->add_tag("wave_speed");
 
   m_properties.add_option(OptionURI::create("Volume","Volume needed for time accurate simulations", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) )
@@ -82,10 +82,10 @@ void ComputeUpdateCoefficient::config_volume()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ComputeUpdateCoefficient::config_advection()
+void ComputeUpdateCoefficient::config_wave_speed()
 {
-  URI uri;  property("Advection").put_value(uri);
-  m_advection = Core::instance().root()->look_component<CField2>(uri);
+  URI uri;  property("WaveSpeed").put_value(uri);
+  m_wave_speed = Core::instance().root()->look_component<CField2>(uri);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,10 +100,10 @@ void ComputeUpdateCoefficient::config_time()
 
 void ComputeUpdateCoefficient::execute()
 {
-  if (m_advection.expired())    throw SetupError(FromHere(), "Advection field was not set");
+  if (m_wave_speed.expired())    throw SetupError(FromHere(), "WaveSpeed field was not set");
   if (m_update_coeff.expired()) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
   
-  CTable<Real>& advection = m_advection.lock()->data();
+  CTable<Real>& wave_speed = m_wave_speed.lock()->data();
   CTable<Real>& update_coeff = m_update_coeff.lock()->data();
 
   if (m_time_accurate) // global time stepping
@@ -120,9 +120,9 @@ void ComputeUpdateCoefficient::execute()
     Real dt = time.dt();
     
     // Make time step stricter through the CFL number
-    for (Uint i=0; i<advection.size(); ++i)
+    for (Uint i=0; i<wave_speed.size(); ++i)
     {
-      dt = std::min(dt, m_CFL*volume[i][0]/advection[i][0] );
+      dt = std::min(dt, m_CFL*volume[i][0]/wave_speed[i][0] );
     }
     
     // Update to more strict time step
@@ -136,9 +136,9 @@ void ComputeUpdateCoefficient::execute()
   {
     if (!m_time.expired())  m_time.lock()->dt() = 0.;
 
-    // Calculate the update_coefficient = CFL/advection
+    // Calculate the update_coefficient = CFL/wave_speed
     update_coeff = m_CFL;
-    update_coeff /= advection;
+    update_coeff /= wave_speed;
   }
 }
 

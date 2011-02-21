@@ -18,8 +18,8 @@ namespace FVM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Wizard to setup a scalar advection simulation
-/// @author Tiago Quintino
+/// Wizard to setup a 1D Euler shocktube simulation
+/// @author Willem Deconinck
 class FVM_API ShockTube : public Common::Component {
 
 public: // typedefs

@@ -50,14 +50,14 @@ public: // functions
 private: // helper functions
 
   void config_update_coeff();
-  void config_advection();
+  void config_wave_speed();
   void config_volume();
   void config_time();
   
 private: // data
   
   boost::weak_ptr<Mesh::CField2> m_update_coeff;
-  boost::weak_ptr<Mesh::CField2> m_advection;
+  boost::weak_ptr<Mesh::CField2> m_wave_speed;
   boost::weak_ptr<Mesh::CField2> m_volume;
   boost::weak_ptr<Solver::CTime> m_time;
   

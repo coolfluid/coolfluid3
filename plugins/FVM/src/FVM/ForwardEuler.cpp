@@ -49,8 +49,8 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( nam
   properties()["brief"] = std::string("Forward Euler Time Stepper");
   std::string description =
     " U[n+1] = U[n] + dt/dx * R \n"
-    " 1) delegate computation of the residual and advection to the discretization method\n"
-    " 2) compute the update coefficient = dt/dx = CFL/advection"
+    " 1) delegate computation of the residual and wave_speed to the discretization method\n"
+    " 2) compute the update coefficient = dt/dx = CFL/wave_speed"
     " 3) solution = update_coeff * residual\n";
   properties()["description"] = description;
 
@@ -62,7 +62,7 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( nam
 
   m_solution = create_static_component<CLink>("solution");
   m_residual = create_static_component<CLink>("residual");
-  m_advection = create_static_component<CLink>("advection");
+  m_wave_speed = create_static_component<CLink>("wave_speed");
   m_update_coeff = create_static_component<CLink>("update_coeff");
   
   m_compute_update_coefficient = create_static_component<ComputeUpdateCoefficient>("compute_update_coeff");
@@ -97,13 +97,13 @@ void ForwardEuler::trigger_Domain()
   }
   m_residual->link_to(residual_ptr);
 
-  Component::Ptr advection_ptr = find_component_ptr_with_tag(*mesh,"advection");
-  if ( is_null(advection_ptr) )
+  Component::Ptr wave_speed_ptr = find_component_ptr_with_tag(*mesh,"wave_speed");
+  if ( is_null(wave_speed_ptr) )
   {
-    advection_ptr = mesh->create_field2("advection",solution).self();
-    advection_ptr->add_tag("advection");
+    wave_speed_ptr = mesh->create_field2("wave_speed",solution).self();
+    wave_speed_ptr->add_tag("wave_speed");
   }
-  m_advection->link_to(advection_ptr);
+  m_wave_speed->link_to(wave_speed_ptr);
 
   Component::Ptr update_coeff_ptr = find_component_ptr_with_tag(*mesh,"update_coeff");
   if ( is_null(update_coeff_ptr) )
@@ -114,7 +114,7 @@ void ForwardEuler::trigger_Domain()
   m_update_coeff->link_to(update_coeff_ptr);
 
   configure_option_recursively("solution",solution.full_path());
-  configure_option_recursively("advection",advection_ptr->full_path());
+  configure_option_recursively("wave_speed",wave_speed_ptr->full_path());
   configure_option_recursively("residual",residual_ptr->full_path());
   configure_option_recursively("update_coeff",update_coeff_ptr->full_path());
 }
@@ -134,7 +134,7 @@ void ForwardEuler::solve()
     
   CField2& solution     = *m_solution->follow()->as_type<CField2>();
   CField2& residual     = *m_residual->follow()->as_type<CField2>();
-  CField2& advection    = *m_advection->follow()->as_type<CField2>();
+  CField2& wave_speed    = *m_wave_speed->follow()->as_type<CField2>();
   CField2& update_coeff = *m_update_coeff->follow()->as_type<CField2>();
 
   //CFinfo << "Starting Iterative loop" << CFendl;
@@ -142,13 +142,13 @@ void ForwardEuler::solve()
   {
     // initialize loop
     residual.data() = 0.;
-    advection.data() = Math::MathConsts::eps();
+    wave_speed.data() = Math::MathConsts::eps();
     
     // compute residual = flux_in - flux_out
     discretization_method().get_child<CAction>("apply_boundary_conditions")->execute();
     discretization_method().get_child<CAction>("compute_rhs")->execute();
 
-    // Compute the update coefficient = dt/dx = CFL/advection
+    // Compute the update coefficient = dt/dx = CFL/wave_speed
     m_compute_update_coefficient->execute();
 
     residual.data() *= update_coeff.data();

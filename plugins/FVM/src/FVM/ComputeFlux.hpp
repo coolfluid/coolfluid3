@@ -55,7 +55,7 @@ private: // helper functions
 
   void config_solution();
   void config_residual();
-  void config_advection();
+  void config_wave_speed();
   void config_area();
   void config_normal();
 
@@ -65,7 +65,7 @@ private: // data
   
   Mesh::CConnectedFieldView m_connected_residual;
   Mesh::CConnectedFieldView m_connected_solution;
-  Mesh::CConnectedFieldView m_connected_advection;
+  Mesh::CConnectedFieldView m_connected_wave_speed;
   Mesh::CScalarFieldView    m_face_area;
   Mesh::CFieldView          m_face_normal;
   

@@ -72,7 +72,7 @@ private: // data
   
   Common::CLink::Ptr m_residual;
   
-  Common::CLink::Ptr m_advection;
+  Common::CLink::Ptr m_wave_speed;
 
   Common::CLink::Ptr m_update_coeff;
 
