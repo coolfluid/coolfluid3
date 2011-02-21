@@ -53,6 +53,7 @@ struct rotationadv2d_global_fixture
     XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
     XmlParams p(node);
     p.add_option<std::string>("Model name","mymodel");
+    p.add_option<std::string>("Physical model","RotationAdv2D");
 
     rotationadv2d_wizard->create_model(node);
   }

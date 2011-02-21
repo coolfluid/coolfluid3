@@ -15,11 +15,8 @@
 
 namespace CF {
   
-  namespace Solver {
-  namespace Actions { 
-    class CLoop; 
-  }
-  }
+namespace Mesh { class CField2; }
+namespace Solver { namespace Actions {  class CLoop; } }
 
 namespace RDM {
 
@@ -69,9 +66,17 @@ private: // functions
 
 private: // data
 
+  /// @note still here for compatibility with schemes and bcs
+
   Common::CLink::Ptr m_solution_field;
   Common::CLink::Ptr m_residual_field;
   Common::CLink::Ptr m_update_coeff_field;
+
+  /// @note new approach
+
+  boost::weak_ptr<CField2> m_solution;
+  boost::weak_ptr<CField2> m_residual;
+  boost::weak_ptr<CField2> m_update_coeff;
 
   /// action to compute the boundary face terms
   Common::CAction::Ptr m_compute_boundary_face_terms;

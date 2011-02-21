@@ -21,32 +21,35 @@ Common::ComponentBuilder < CPhysicalModel, Component, LibSolver > CPhysicalModel
 ////////////////////////////////////////////////////////////////////////////////
 
 CPhysicalModel::CPhysicalModel(const std::string& name) : Component(name),
-m_dim(0u),
-m_nbdofs(0u)
+  m_type("null"),
+  m_dim(0u),
+  m_nbdofs(0u)
 {
   // options
-  m_properties.add_option<OptionT <Uint> >("Dimensions", "Dimensionality of the problem, i.e. the number of components for the spatial coordinates", 0u);
-  m_properties.add_option<OptionT <Uint> >("DOFs", "Degrees of freedom", 0u);
 
-  m_properties["Dimensions"].as_option().mark_basic();
-  m_properties["DOFs"].as_option().mark_basic();
+  /// @todo later this will be removed when the physical model stops beign so generic
 
-  m_properties["Dimensions"].as_option().attach_trigger ( boost::bind ( &CPhysicalModel::trigger_dimensionality, this ) );
-  m_properties["DOFs"].as_option().attach_trigger ( boost::bind ( &CPhysicalModel::trigger_nbdofs, this ) );
+  m_properties.add_option<OptionT <std::string> >("Type",
+                                           "Type of the physical model (serves to identify the model)",
+                                           "null")
+      ->mark_basic()
+      ->link_to(&m_type);
+
+  m_properties.add_option<OptionT <Uint> >("Dimensions",
+                                           "Dimensionality of the problem, i.e. the number of components for the spatial coordinates",
+                                           0u)
+      ->mark_basic()
+      ->link_to(&m_dim);
+
+  m_properties.add_option<OptionT <Uint> >("DOFs",
+                                           "Degrees of freedom",
+                                           0u)
+      ->mark_basic()
+      ->link_to(&m_nbdofs);
 }
 
 CPhysicalModel::~CPhysicalModel()
 {
-}
-
-void CPhysicalModel::trigger_dimensionality()
-{
-  m_dim = boost::any_cast<Uint>(property("Dimensions").value());
-}
-
-void CPhysicalModel::trigger_nbdofs()
-{
-  m_nbdofs = boost::any_cast<Uint>(property("DOFs").value());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

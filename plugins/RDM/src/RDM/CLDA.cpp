@@ -51,19 +51,12 @@ template < typename PHYS>
 template < typename SF >
 void CLDA<PHYS>::ElementLoop::operator() ( SF& T )
 {
-//        CFinfo << " -- CLDA in [" << region.full_path().string() << "]" << CFendl;
+  typedef typename RDM::DefaultQuadrature<SF>::type QD; // create a quadrature for this specific type
+  typedef CSchemeLDAT< SF, QD, PHYS > SchemeT;          // create a scheme for this specific type
 
   boost_foreach(Mesh::CElements& elements,
                 Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
   {
-//          CFinfo << " --- elements " << elements.full_path().string() << CFendl;
-
-    // create an LDA for this specific type
-
-    typedef typename RDM::DefaultQuadrature<SF>::type QD;
-
-    typedef CSchemeLDAT< SF, QD, PHYS > SchemeT;
-
     // get the scheme
     typename SchemeT::Ptr scheme = comp.get_child<SchemeT>( SchemeT::type_name() );
     if( is_null(scheme) )

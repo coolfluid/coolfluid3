@@ -68,6 +68,9 @@ void ScalarAdvection::create_model ( Common::XmlNode& node )
   CPhysicalModel::Ptr pm = model->create_component<CPhysicalModel>("Physics");
   pm->mark_basic();
 
+  std::string phys  = p.get_option<std::string>("Physical model");
+
+  pm->configure_property( "Type", phys );
   pm->configure_property( "DOFs", 1u );
   pm->configure_property( "Dimensions", 2u );
 
@@ -90,6 +93,16 @@ void ScalarAdvection::create_model_signature( XmlNode& node )
   XmlParams p(node);
 
   p.add_option<std::string>("Model name", std::string(), "Name for created model" );
+
+  std::vector< boost::any > restricted;
+  restrict.push_back( std::string("LinearAdv2D") );
+  restrict.push_back( std::string("RotationAdv2D") );
+  restrict.push_back( std::string("Burgers2D") );
+
+  p.add_option<std::string>("Physical model",
+                            std::string("LinearAdv2D" ),
+                            "Type of physical model",
+                            restricted );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

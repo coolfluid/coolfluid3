@@ -67,7 +67,7 @@ private: // helper functions
 
     cf_assert( is_not_null(connectivity_table) );
 
-    /// @todo this should maybe be on a setup function
+    /// @todo modify these to option components configured from
 
     solution_field = look_component( "cpath:../../../solution" )->follow()->as_type<Mesh::CField2>();
     cf_assert( is_not_null( solution_field.lock() ) );
@@ -86,11 +86,6 @@ private: // helper functions
         ->follow()->as_type<Mesh::CField2>();
     cf_assert( is_not_null( cupdate_coeff ) );
     update_coeff = cupdate_coeff->data_ptr();
-
-//    CFinfo << "ELEMENT TYPE:";
-//    CFinfo << elements().element_type().element_type_name() << CFendl;
-//    CFinfo << "TEMPLATE PARAMETERS:";
-//    CFinfo << SHAPEFUNC::type_name() << CFendl;
   }
 
 
@@ -110,20 +105,19 @@ private: // data
 
   DiscreteOpType m_oper;
 
-  //Values of the solution located in the dof of the element
-  //RealVector m_solution_values;
+  // Values of the solution located in the dof of the element
+  // RealVector m_solution_values;
   typename DiscreteOpType::SolutionMatrixT m_solution_values;
 
-  //The operator L in the advection equation Lu = f
-  //Matrix m_sf_oper_values stores the value L(N_i) at each quadrature point for each shape function N_i
+  // The operator L in the advection equation Lu = f
+  // Matrix m_sf_oper_values stores the value L(N_i) at each quadrature point for each shape function N_i
   typename DiscreteOpType::SFMatrixT m_sf_oper_values;
 
-  //Values of the operator L(u) computed in quadrature points. These operator L returns these values
-  //multiplied by Jacobian and quadrature weight
-  
+  // Values of the operator L(u) computed in quadrature points. These operator L returns these values
+  // multiplied by Jacobian and quadrature weight
   RealVector m_flux_oper_values;
 
-  //Nodal residuals
+  // Nodal residuals
   RealVector m_phi;
 
   //Integration factor (jacobian multiplied by quadrature weight)

@@ -115,11 +115,6 @@ void RungeKutta::config_domain()
     // on the attached configuration trigger
     discretization_method().configure_property( "Mesh" , mesh->full_path() );
   }
-  else
-  {
-    CFinfo << "domain has no mesh " << CFendl;
-    return;
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

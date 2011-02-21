@@ -29,10 +29,10 @@ CDiscretization::CDiscretization ( const std::string& name  ) :
   properties()["description"]=std::string("Handles the discretization of the PDE's");
   
   // options
+
   m_properties.add_option(OptionComponent<CMesh>::create("Mesh","Mesh the Discretization Method will be applied to",&m_mesh))
     ->mark_basic()
     ->add_tag("mesh");
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

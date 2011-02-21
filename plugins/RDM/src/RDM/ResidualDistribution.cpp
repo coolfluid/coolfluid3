@@ -10,21 +10,13 @@
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
+#include "Common/OptionComponent.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
 #include "Solver/Actions/CForAllT.hpp"
 #include "Solver/Actions/CForAllNodes.hpp"
 
 #include "RDM/ResidualDistribution.hpp"
-
-#include "Mesh/SF/Triag2DLagrangeP1.hpp"
-#include "Mesh/SF/Triag2DLagrangeP2.hpp"
-#include "Mesh/SF/Triag2DLagrangeP2B.hpp"
-#include "Mesh/SF/Triag2DLagrangeP3.hpp"
-#include "Mesh/SF/Quad2DLagrangeP1.hpp"
-#include "Mesh/SF/Quad2DLagrangeP2.hpp"
-
-#include "Mesh/Integrators/Gauss.hpp"
 
 using namespace boost::assign;
 
@@ -44,13 +36,29 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   CDiscretization ( name )
 {
   // properties
+
   properties()["brief"] = std::string("Residual Distribution Method");
+
   std::string desc =
         "Discretize the PDE's using the Cell Centered Finite Volume Method\n"
         "This method ... (explain)";
   properties()["description"] = desc ;
 
   m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( & ResidualDistribution::config_mesh, this ) );
+
+  // options
+
+  m_properties.add_option( OptionComponent<CField2>::create("Solution","Solution field",&m_solution) )
+    ->mark_basic()
+    ->add_tag("solution");
+
+  m_properties.add_option( OptionComponent<CField2>::create("Residual","Residual field",&m_residual) )
+    ->mark_basic()
+    ->add_tag("residual");
+
+  m_properties.add_option( OptionComponent<CField2>::create("Update Coeffs","Update coefficients field",&m_update_coeff) )
+    ->mark_basic()
+    ->add_tag("update_coeff");
 
   // signals
 
@@ -70,7 +78,6 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   m_solution_field =     create_static_component<CLink>( "solution" );
   m_residual_field =     create_static_component<CLink>( "residual" );
   m_update_coeff_field = create_static_component<CLink>( "update_coeff" );
-
 }
 
 
@@ -84,8 +91,8 @@ void ResidualDistribution::config_mesh()
 {
   CMesh& mesh = *m_mesh.lock();
 
-  CField2::Ptr solution = find_component_ptr_with_name<CField2>(mesh,"solution");
-  CField2::Ptr residual = find_component_ptr_with_name<CField2>(mesh,"residual");
+  CField2::Ptr solution     = find_component_ptr_with_name<CField2>(mesh,"solution");
+  CField2::Ptr residual     = find_component_ptr_with_name<CField2>(mesh,"residual");
   CField2::Ptr update_coeff = find_component_ptr_with_name<CField2>(mesh,"update_coeff");
 
   m_solution_field->link_to(solution);
@@ -104,6 +111,7 @@ void ResidualDistribution::create_boundary_term( XmlNode& xml )
 
   std::vector<URI> regions = p.get_array<URI>("Regions");
 
+// this will be for neunamm bcs
 //  CAction& face_loop =
 //      m_compute_boundary_face_terms->create_action("CF.Solver.Actions.CForAllFaces", name);
 
@@ -140,9 +148,10 @@ void ResidualDistribution::create_domain_term( XmlNode& xml )
 
 void ResidualDistribution::compute_rhs()
 {
-//  CFinfo << " --  computing boundary face terms" << CFendl;
+  //  CFinfo << " --  computing boundary face terms" << CFendl;
   m_compute_boundary_face_terms->execute();
-//  CFinfo << " --  computing volume cell terms" << CFendl;
+
+  //  CFinfo << " --  computing volume cell terms" << CFendl;
   m_compute_volume_cell_terms->execute();
 }
 

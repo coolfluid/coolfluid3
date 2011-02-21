@@ -50,15 +50,10 @@ public: // functions
   /// @return the number of degrees of freedom (DOFs)
   Uint nb_dof() const { return m_nbdofs; }
 
-private: // helper functions
-
-  /// trigger for configuration of dimensions
-  void trigger_dimensionality();
-
-  /// trigger for configuration of dofs
-  void trigger_nbdofs();
-
 private: // data
+
+  /// type of the physcial model
+  std::string m_type;
 
   /// dimensionality of physics
   Uint m_dim;
