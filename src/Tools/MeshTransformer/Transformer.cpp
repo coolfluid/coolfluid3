@@ -153,7 +153,7 @@ void Transformer::command( boost::program_options::parsed_options& parsed )
   }
   
   // create mesh object
-  CRoot::Ptr root = CRoot::create("root");
+  CRoot::Ptr root = Core::instance().root();
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   
   
