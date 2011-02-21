@@ -99,6 +99,16 @@ void FiniteVolume::on_config_mesh()
     remove_component(compute_area->name());
   }
 
+
+  // create/initialize a solution if it is not available
+  CField2::Ptr solution_ptr = find_component_ptr_with_tag<CField2>(*m_mesh.lock(),"solution");
+  if ( is_null(solution_ptr) )
+  {
+    ///@todo get variable names etc, from Physics
+    CField2& solution = m_mesh.lock()->create_field2("solution","CellBased","rho[1],rhoU[1],rhoE[1]");
+    solution.add_tag("solution"); 
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +135,9 @@ CAction& FiniteVolume::create_bc(const std::string& name, const std::vector<CReg
 
   CAction::Ptr for_all_faces = m_apply_bcs->create_component<CForAllFaces>(name);
   for_all_faces->configure_property("Regions",regions_uri);
-  return for_all_faces->create_action(bc_builder_name,"bc");
+  CAction& bc = for_all_faces->create_action(bc_builder_name,bc_builder_name);
+  configure_option_recursively("solution", find_component_with_tag<CField2>(*m_mesh.lock(),"solution").full_path());    
+  return bc;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +146,9 @@ CAction& FiniteVolume::create_bc(const std::string& name, const CRegion& region,
 {
   CAction::Ptr for_all_faces = m_apply_bcs->create_component<CForAllFaces>(name);
   for_all_faces->configure_property("Regions",std::vector<URI>(1,region.full_path()));
-  return for_all_faces->create_action(bc_builder_name,"bc");
+  CAction& bc = for_all_faces->create_action(bc_builder_name,bc_builder_name);
+  configure_option_recursively("solution", find_component_with_tag<CField2>(*m_mesh.lock(),"solution").full_path());    
+  return bc;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

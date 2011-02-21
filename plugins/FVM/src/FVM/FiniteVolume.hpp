@@ -52,7 +52,7 @@ public: // functions
 
   /// computes the discrete rhs of the PDE
   virtual void compute_rhs();
-
+  
   /// @name SIGNALS
   //@{
 

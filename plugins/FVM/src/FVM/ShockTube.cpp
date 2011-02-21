@@ -161,13 +161,23 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
 
   model->look_component<CBuildFaces>("cpath:./tools/build_faces")->transform(mesh);
   model->look_component<CBuildVolume>("cpath:./tools/build_volume")->transform(mesh);
-  model->configure_option_recursively("volume",find_component_recursively_with_tag<CField2>(model->domain(),"volume").full_path());
-    
+  model->configure_option_recursively("volume",find_component_recursively_with_tag<CField2>(model->domain(),"volume").full_path());  
+
   ////////////////////////////////////////////////////////////////////////////////
-  // Create basic fields
+  // Solver / Discretization configuration
   ////////////////////////////////////////////////////////////////////////////////
+
+  solver.configure_property("Number of Iterations", 1u);
   
-  CField2& solution = mesh->create_field2("solution","CellBased","rho[1],rhoU[1],rhoE[1]");
+  model->time().configure_property("Time Step", p.get_option<Real>("Time Step"));
+  model->time().configure_property("End Time", p.get_option<Real>("End Time"));  
+  
+  model->configure_option_recursively("time_accurate",true);
+  model->configure_option_recursively("time",model->time().full_path());
+  model->configure_option_recursively("cfl",1.);
+
+  // This will trigger setup of everything correctly
+  solver.configure_property("Domain", find_component<CDomain>(*model).full_path() );
 
   ////////////////////////////////////////////////////////////////////////////////
   // Initial condition
@@ -188,7 +198,7 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   RealMatrix node_coordinates;
   RealVector centroid(1);
   CFieldView solution_view("solution_view");
-  solution_view.set_field(solution);
+  solution_view.set_field(find_component_with_tag<CField2>(*mesh,"solution"));
   boost_foreach(const CCells& cells, find_components_recursively<CCells>(*mesh))
   {
     solution_view.set_elements(cells);
@@ -210,37 +220,22 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
     }
   }
   
-  
   ////////////////////////////////////////////////////////////////////////////////
   // Boundary conditions
   ////////////////////////////////////////////////////////////////////////////////
   
-  CRegion& inlet = find_component_recursively_with_name<CRegion>(solution.topology(),"xneg");
+  CRegion& inlet = find_component_recursively_with_name<CRegion>(mesh->topology(),"xneg");
   CAction& inlet_bc = finite_volume.create_bc("inlet",inlet,"CF.FVM.BCDirichlet");
   inlet_bc.configure_property("rho",r_L);
   inlet_bc.configure_property("u",u_L);
   inlet_bc.configure_property("p",p_L);
+
   
-  
-  CRegion& outlet = find_component_recursively_with_name<CRegion>(solution.topology(),"xpos");
+  CRegion& outlet = find_component_recursively_with_name<CRegion>(mesh->topology(),"xpos");
   CAction& outlet_bc = finite_volume.create_bc("outlet",outlet,"CF.FVM.BCDirichlet");
   outlet_bc.configure_property("rho",r_R);
   outlet_bc.configure_property("u",u_R);
   outlet_bc.configure_property("p",p_R);  
-  
-  ////////////////////////////////////////////////////////////////////////////////
-  // Solver / Discretization configuration
-  ////////////////////////////////////////////////////////////////////////////////
-
-  solver.configure_property("Number of Iterations", 1u);
-  
-  model->time().configure_property("Time Step", p.get_option<Real>("Time Step"));
-  model->time().configure_property("End Time", p.get_option<Real>("End Time"));  
-  
-  solver.configure_property("Solution",solution.full_path());
-  model->configure_option_recursively("time_accurate",true);
-  model->configure_option_recursively("time",model->time().full_path());
-  model->configure_option_recursively("cfl",1.);
 
   ////////////////////////////////////////////////////////////////////////////////
   // Writer

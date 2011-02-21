@@ -59,9 +59,6 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( nam
   this->regist_signal ( "solve" , "Solve", "Solve" )->connect ( boost::bind ( &ForwardEuler::solve, this ) );
 
   m_properties.add_option<OptionT<bool> >("OutputDiagnostics","Output information of convergence",false)->mark_basic();
-  m_properties.add_option<OptionURI>("Solution","Solution to march in time",URI())
-    ->attach_trigger ( boost::bind ( &ForwardEuler::trigger_solution,   this ) )
-    ->mark_basic();
 
   m_solution = create_static_component<CLink>("solution");
   m_residual = create_static_component<CLink>("residual");
@@ -84,44 +81,42 @@ void ForwardEuler::trigger_Domain()
   URI domain; property("Domain").put_value(domain);
 
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>(*look_component(domain));
-  if (is_not_null(mesh))
-  {
-    CFinfo << "domain has mesh" << CFendl;
-    configure_option_recursively("mesh",mesh->full_path());
-  }
-  else
-  {
-    throw ValueNotFound(FromHere(),"domain has no mesh ");
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void ForwardEuler::trigger_solution()
-{
-  URI uri; property("Solution").put_value(uri);
-  m_solution->link_to(look_component(uri));
-  
-  CField2& solution = *m_solution->follow()->as_type<CField2>();
-  CMesh::Ptr mesh = solution.parent()->as_type<CMesh>();
-  if (is_null(mesh)) throw SetupError (FromHere(), "Solution must be located inside a CMesh");
+  if (is_null(mesh))
+    throw SetupError(FromHere(),"Domain has no mesh");
 
   discretization_method().configure_property("Mesh",mesh->full_path());
 
-  CField2& residual = mesh->create_field2("residual",solution);
-  m_residual->link_to(residual.self());
-  configure_option_recursively("residual",residual.full_path());
-  
-  CField2& advection = mesh->create_scalar_field("advection",solution);
-  m_advection->link_to(advection.self());
-  configure_option_recursively("advection",advection.full_path());
-  
-  CField2& update_coeff = mesh->create_scalar_field("update_coeff",solution);
-  m_update_coeff->link_to(update_coeff.self());
-  configure_option_recursively("update_coeff",update_coeff.full_path());
-  
+  CField2& solution = find_component_with_tag<CField2>(*mesh,"solution");
+  m_solution->link_to(solution.self());    
+
+  Component::Ptr residual_ptr = find_component_ptr_with_tag(*mesh,"residual");
+  if ( is_null(residual_ptr) )
+  {
+    residual_ptr = mesh->create_field2("residual",solution).self();
+    residual_ptr->add_tag("residual");
+  }
+  m_residual->link_to(residual_ptr);
+
+  Component::Ptr advection_ptr = find_component_ptr_with_tag(*mesh,"advection");
+  if ( is_null(advection_ptr) )
+  {
+    advection_ptr = mesh->create_field2("advection",solution).self();
+    advection_ptr->add_tag("advection");
+  }
+  m_advection->link_to(advection_ptr);
+
+  Component::Ptr update_coeff_ptr = find_component_ptr_with_tag(*mesh,"update_coeff");
+  if ( is_null(update_coeff_ptr) )
+  {
+    update_coeff_ptr = mesh->create_field2("update_coeff",solution).self();
+    update_coeff_ptr->add_tag("update_coeff");
+  }
+  m_update_coeff->link_to(update_coeff_ptr);
+
   configure_option_recursively("solution",solution.full_path());
-  
+  configure_option_recursively("advection",advection_ptr->full_path());
+  configure_option_recursively("residual",residual_ptr->full_path());
+  configure_option_recursively("update_coeff",update_coeff_ptr->full_path());
 }
 
 //////////////////////////////////////////////////////////////////////////////

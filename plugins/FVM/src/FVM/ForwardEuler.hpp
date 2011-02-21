@@ -65,7 +65,6 @@ public: // functions
 private: // functions
 
   void trigger_Domain();
-  void trigger_solution();
 
 private: // data
   
