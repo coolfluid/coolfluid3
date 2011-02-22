@@ -42,6 +42,7 @@ namespace FVM {
 
 using namespace boost::assign;
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
 using namespace CF::Solver;
@@ -88,9 +89,9 @@ ShockTube::~ShockTube()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ShockTube::signal_create_model ( Common::XmlNode& node )
+void ShockTube::signal_create_model ( Signal::arg_t& args )
 {
-  XmlParams p ( node );
+  SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
 // create the model
 
@@ -129,20 +130,20 @@ void ShockTube::signal_create_model ( Common::XmlNode& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ShockTube::signature_create_model( XmlNode& node )
+void ShockTube::signature_create_model( Signal::arg_t& args )
 {
-  XmlParams p(node);
+  SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
-  p.add_option<std::string>("Model name", std::string(), "Name for created model" );
+  p.set_option<std::string>("Model name", std::string(), "Name for created model" );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShockTube::signal_setup_model ( Common::XmlNode& node )
+void ShockTube::signal_setup_model ( Signal::arg_t& args )
 {
-  XmlParams p ( node );
+  SignalFrame& p = args.map( Protocol::Tags::key_options() );
   std::string name  = p.get_option<std::string>("Model name");
 
   CModelUnsteady::Ptr model = Core::instance().root()->get_child<CModelUnsteady>( name );
@@ -241,14 +242,14 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShockTube::signature_setup_model( XmlNode& node )
+void ShockTube::signature_setup_model( Signal::arg_t& args )
 {
-  XmlParams p(node);
+  SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
-  p.add_option<std::string>("Model name", std::string(), "Name for created model" );
-  p.add_option<Uint>("Number of Cells", 100u , "Number of Cells to be generated");
-  p.add_option<Real>("End Time", 0.008, "Time to stop simulation");
-  p.add_option<Real>("Time Step", 0.0004, "Maximum allowed time step to take");
+  p.set_option<std::string>("Model name", std::string(), "Name for created model" );
+  p.set_option<Uint>("Number of Cells", 100u , "Number of Cells to be generated");
+  p.set_option<Real>("End Time", 0.008, "Time to stop simulation");
+  p.set_option<Real>("Time Step", 0.0004, "Maximum allowed time step to take");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

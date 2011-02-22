@@ -45,14 +45,14 @@ public: // functions
   //@{
 
   /// Signal to create a model
-  void signal_create_model ( Common::XmlNode& node );
+  void signal_create_model ( Common::Signal::arg_t& node );
 
-  void signature_create_model( Common::XmlNode& node);
+  void signature_create_model( Common::Signal::arg_t& node);
 
   /// Signal to create a model
-  void signal_setup_model ( Common::XmlNode& node );
+  void signal_setup_model ( Common::Signal::arg_t& node );
 
-  void signature_setup_model( Common::XmlNode& node);
+  void signature_setup_model( Common::Signal::arg_t& node);
 
   //@} END SIGNALS
 

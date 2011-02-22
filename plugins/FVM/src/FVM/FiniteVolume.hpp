@@ -57,22 +57,22 @@ public: // functions
   //@{
 
   /// creates a boundary condition
-  void signal_create_bc( Common::XmlNode& xml );
+  void signal_create_bc( Common::Signal::arg_t& xml );
 
 
   Common::CAction& create_bc(const std::string& name, const std::vector<boost::shared_ptr<Mesh::CRegion> >& regions, const std::string& bc_builder_name);
   Common::CAction& create_bc(const std::string& name, const Mesh::CRegion& region, const std::string& bc_builder_name);
-  
+
   //@} END SIGNALS
-  
+
 private: // functions
 
   void on_config_mesh();
 
 private: // data
-  
+
   Common::CAction::Ptr m_apply_bcs;
-  
+
   Common::CAction::Ptr m_compute_rhs;
 
 };
