@@ -181,6 +181,8 @@ list( APPEND utest-parallel-collective_files
   utest-parallel-collective-reduce.hpp
   utest-parallel-collective-scatter.hpp
   utest-parallel-collective-broadcast.hpp
+  utest-parallel-collective-gather.hpp
+  utest-parallel-collective-all_gather.hpp
 )
 
 coolfluid_add_mpi_unittest( utest-parallel-collective ${CF_MPI_TESTS_NB_PROCS} )

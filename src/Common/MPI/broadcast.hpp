@@ -41,7 +41,7 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
   /**
-    Implementation to the all reduce interface.
+    Implementation to the broadcast interface.
     Don't call this function directly, use mpi::broadcastvm instead.
     In_values and out_values must be linear in memory and their sizes should be sum(in_n[i]) and sum(out_n[i]) i=0..#processes-1.
     @param comm mpi::communicator
@@ -53,34 +53,42 @@ namespace detail {
     @param out_map array of size #processes holding the mapping
     @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
   **/
-
   template<typename T>
   inline void
-  broadcast_impl(const PE::Communicator& comm, const T* inout_values, const int inout_n, const int *inout_map, const int root, const int stride)
+  broadcast_impl(const PE::Communicator& comm,  const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride)
   {
+    // get rank
+    int irank;
+    MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
+
     // get data type, op and some checkings
-    MPI_Datatype type = get_mpi_datatype(*inout_values);
+    MPI_Datatype type = get_mpi_datatype(*in_values);
     BOOST_ASSERT( stride>0 );
 
-    // there is inout_map
-    T *inout_buf=(T*)inout_values;
-    if (inout_map!=0){
-      if ( (inout_buf=new T[stride*inout_n+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
-      if (stride==1) { for(int i=0; i<inout_n; i++) inout_buf[i]=inout_values[inout_map[i]]; }
-      else { for(int i=0; i<inout_n; i++) memcpy(&inout_buf[stride*i],&inout_values[stride*inout_map[i]],stride*sizeof(T)); }
+    // there is in_map
+    T *inout_buf=(T*)out_values;
+    if (((in_map!=0)&&(irank==root))||(out_map!=0)){
+      if ( (inout_buf=new T[stride*in_n+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if (irank==root) {
+        if (stride==1) { for(int i=0; i<in_n; i++) inout_buf[i]=in_values[in_map[i]]; }
+        else { for(int i=0; i<in_n; i++) memcpy(&inout_buf[stride*i],&in_values[stride*in_map[i]],stride*sizeof(T)); }
+      }
+    } else if ((irank==root)&&(in_values!=out_values)) {
+      memcpy(inout_buf,in_values,stride*in_n*sizeof(T));
     }
 
     // do the communication
-    MPI_CHECK_RESULT(MPI_Bcast, ( inout_buf, inout_n*stride, type, root, comm ));
+    MPI_CHECK_RESULT(MPI_Bcast, ( inout_buf, in_n*stride, type, root, comm ));
 
     // re-populate out_values
-    if (inout_map!=0){
-      if (stride==1) { for(int i=0; i<in_n; i++) inout_values[inout_map[i]]=inout_buf[i]; }
-      else { for(int i=0; i<in_n; i++) memcpy(&inout_values[stride*inout_map[i]],&inout_buf[stride*i],stride*sizeof(T)); }
-      delete[] inout_buf;
+    if (out_map!=0) {
+      if (stride==1) { for(int i=0; i<in_n; i++) out_values[out_map[i]]=inout_buf[i]; }
+      else { for(int i=0; i<in_n; i++) memcpy(&out_values[stride*out_map[i]],&inout_buf[stride*i],stride*sizeof(T)); }
     }
 
-  }
+    // free internal memory
+    if (((in_map!=0)&&(irank==root))||(out_map!=0)) delete[] inout_buf;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -99,30 +107,27 @@ namespace detail {
 **/
 template<typename T>
 inline T*
-broadcast(const PE::Communicator& comm, const T* inout_values, const int &inout_n, const int root, const int stride=1)
+broadcast(const PE::Communicator& comm, const T* in_values, const int &in_n, T* out_values, const int root, const int stride=1)
 {
-  // get data type and number of processors
+  // get rank
   int irank;
   MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
-  T* inout_buf=inout_values;
-  if (inout_n==-1){
-    if (irank==root) throw CF::Common::BadValue(FromHere(),"The inout_n cannot be -1 on root.");
-    detail::broadcast_impl(comm,&inout_n,1,0,root,stride);
-    if (irank!=root) if ( (inout_buf=new T[stride*inout_n]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+  // allocate out_buf if incoming pointer is null
+  T* out_buf=out_values;
+  if (out_values==0) {
+    const int size=stride*in_n>1?stride*in_n:1;
+    if ( (out_buf=new T[size]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call impl
-  detail::broadcast_impl(comm,inout_values,inout_n,0,root,stride);
+  if (irank==root) {
+    detail::broadcast_impl(comm,in_values,in_n,(int*)0,out_buf,(int*)0,root,stride);
+  } else {
+    detail::broadcast_impl(comm,(T*)0,in_n,(int*)0,out_buf,(int*)0,root,stride);
+  }
   return out_buf;
 }
-
-////////// TILL HERE ////////////////
-//////////     |     ////////////////
-//////////     |     ////////////////
-//////////     |     ////////////////
-//////////    \ /    ////////////////
-//////////     V     ////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -133,17 +138,25 @@ broadcast(const PE::Communicator& comm, const T* inout_values, const int &inout_
   @param out_values receive buffer
   @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
 **/
-template<typename T, typename Op>
+template<typename T>
 inline void
-broadcast(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
+broadcast(const PE::Communicator& comm, const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
 {
+  // get rank
+  int irank;
+  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
+
   // set out_values's sizes
   BOOST_ASSERT( in_values.size() % stride == 0 );
   out_values.resize(in_values.size());
   out_values.reserve(in_values.size());
 
   // call impl
-  detail::broadcast_impl(comm, op, (T*)(&in_values[0]), in_values.size()/stride, 0, (T*)(&out_values[0]), 0, stride);
+  if (irank==root) {
+    detail::broadcast_impl(comm, (T*)(&in_values[0]), in_values.size()/stride, (int*)0, (T*)(&out_values[0]), (int*)0, root, stride);
+  } else {
+    detail::broadcast_impl(comm, (T*)0, in_values.size()/stride, (int*)0, (T*)(&out_values[0]), (int*)0, root, stride);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -162,10 +175,14 @@ broadcast(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_v
   @param out_map array of size #processes holding the mapping
   @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
 **/
-template<typename T, typename Op>
+template<typename T>
 inline T*
-broadcast(const PE::Communicator& comm, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride=1)
+broadcast(const PE::Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride=1)
 {
+  // get rank
+  int irank;
+  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
+
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
   if (out_values==0) {
@@ -179,7 +196,11 @@ broadcast(const PE::Communicator& comm, const Op& op, const T* in_values, const 
   }
 
   // call impl
-  detail::broadcast_impl(comm,op,in_values,in_n,in_map,out_buf,out_map,stride);
+  if (irank==root){
+    detail::broadcast_impl(comm,in_values,in_n,in_map,out_buf,out_map,root,stride);
+  } else {
+    detail::broadcast_impl(comm,(T*)0,in_n,(int*)0,out_buf,out_map,root,stride);
+  }
   return out_buf;
 }
 
@@ -200,10 +221,14 @@ broadcast(const PE::Communicator& comm, const Op& op, const T* in_values, const 
   @param out_map array of size #processes holding the mapping. If zero pointer or zero size vector passed, no mapping on receive side.
   @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
 **/
-template<typename T, typename Op>
+template<typename T>
 inline void
-broadcast(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int root, const int stride=1)
+broadcast(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int root, const int stride=1)
 {
+  // get rank
+  int irank;
+  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
+
   // set out_values's sizes
   BOOST_ASSERT( in_values.size() % stride == 0 );
 
@@ -218,7 +243,11 @@ broadcast(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_v
   }
 
   // call impl
-  detail::broadcast_impl(comm, op, (T*)(&in_values[0]), in_map.size(), &in_map[0], (T*)(&out_values[0]), &out_map[0], stride);
+  if (irank==root){
+    detail::broadcast_impl(comm, (T*)(&in_values[0]), in_map.size(), &in_map[0], (T*)(&out_values[0]), &out_map[0], root, stride);
+  } else {
+    detail::broadcast_impl(comm, (T*)0, in_map.size(), (int*)0, (T*)(&out_values[0]), &out_map[0], root, stride);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -14,30 +14,29 @@ struct PEBroadcastFixture
   /// common setup for each test case
   PEBroadcastFixture()
   {
+    int i;
+
     // rank and proc
     nproc=mpi::PE::instance().size();
     irank=mpi::PE::instance().rank();
 
     // ptr helpers
     sndcnt=0;
-    ptr_snddat=new double[2*nproc];
-    ptr_rcvdat=new double[2*nproc];
-    ptr_tmprcv=new double[2*nproc];
+    rcvcnt=0;
+    ptr_snddat=new double[nproc];
+    ptr_rcvdat=new double[nproc*nproc];
     ptr_sndmap=new int[nproc];
     ptr_rcvmap=new int[nproc];
-    ptr_snddat2=new double[4*nproc];
-    ptr_rcvdat2=new double[4*nproc];
-    ptr_tmprcv2=new double[4*nproc];
+    ptr_tmprcv=new double[nproc];
 
     // std::Vector helpers
-    vec_snddat.resize(2*nproc);
-    vec_rcvdat.resize(2*nproc);
-    vec_tmprcv.resize(2*nproc);
+    vec_snddat.resize(nproc);
+    vec_rcvdat.resize(nproc*nproc);
     vec_sndmap.resize(nproc);
     vec_rcvmap.resize(nproc);
-    vec_snddat2.resize(4*nproc);
-    vec_rcvdat2.resize(4*nproc);
-    vec_tmprcv2.resize(4*nproc);
+    vec_tmprcv.resize(0);
+    vec_tmprcvchr.resize(nproc*sizeof(double));
+    vec_snddatchr.resize(nproc*sizeof(double));
   }
 
   /// common tear-down for each test case
@@ -48,9 +47,6 @@ struct PEBroadcastFixture
     delete[] ptr_sndmap;
     delete[] ptr_rcvmap;
     delete[] ptr_tmprcv;
-    delete[] ptr_snddat2;
-    delete[] ptr_rcvdat2;
-    delete[] ptr_tmprcv2;
   }
 
   /// number of processes
@@ -60,95 +56,63 @@ struct PEBroadcastFixture
 
   /// data for raw pointers
   int     sndcnt;
+  int     rcvcnt;
   double* ptr_snddat;
   double* ptr_rcvdat;
-  double* ptr_tmprcv;
   int*    ptr_sndmap;
   int*    ptr_rcvmap;
-  double* ptr_snddat2;
-  double* ptr_rcvdat2;
-  double* ptr_tmprcv2;
+  double* ptr_tmprcv;
 
   /// data for std::vectors
   std::vector<double> vec_snddat;
   std::vector<double> vec_rcvdat;
-  std::vector<double> vec_tmprcv;
   std::vector<int>    vec_sndmap;
   std::vector<int>    vec_rcvmap;
-  std::vector<double> vec_snddat2;
-  std::vector<double> vec_rcvdat2;
-  std::vector<double> vec_tmprcv2;
+  std::vector<double> vec_tmprcv;
+  std::vector<char>   vec_tmprcvchr;
+  std::vector<char>   vec_snddatchr;
 
   /// helper function for constant size data - setting up input and verification data
   void setup_data_constant()
   {
-    int i,j,k;
-    for (i=0; i<2*nproc; i++)
-    {
-      ptr_snddat[i]=(irank+1)*10000+(i+1);
-      ptr_rcvdat[i]=0.;
-      for (k=0; k<nproc; k++) ptr_rcvdat[i]+=(k+1)*10000+(i+1);
+    int i,j;
+    for (i=0; i<nproc; i++){
+      ptr_snddat[i]=(irank+1)*1000+(i+1);
+      for (j=0; j<nproc; j++) ptr_rcvdat[i*nproc+j]=(i+1)*1000+(j+1);
     }
-    for (i=0; i<2*nproc; i++) { ptr_snddat2[2*i+0]=ptr_snddat[i]; ptr_snddat2[2*i+1]=ptr_snddat[i]+1; }
-    for (i=0; i<2*nproc; i++) { ptr_rcvdat2[2*i+0]=ptr_rcvdat[i]; ptr_rcvdat2[2*i+1]=ptr_rcvdat[i]+nproc; }
-    sndcnt=2*nproc;
-    vec_snddat.assign(ptr_snddat,ptr_snddat+2*nproc);
-    vec_rcvdat.assign(ptr_rcvdat,ptr_rcvdat+2*nproc);
-    vec_snddat2.assign(ptr_snddat2,ptr_snddat2+4*nproc);
-    vec_rcvdat2.assign(ptr_rcvdat2,ptr_rcvdat2+4*nproc);
+    sndcnt=nproc;
+    rcvcnt=nproc;
+    vec_snddat.assign(ptr_snddat,ptr_snddat+nproc);
+    vec_rcvdat.assign(ptr_rcvdat,ptr_rcvdat+nproc*nproc);
+    vec_snddatchr.assign((char*)(ptr_snddat),(char*)(ptr_snddat+nproc));
   }
 
   /// helper function for variable size data - setting up input and verification data
   void setup_data_variable()
   {
-    int i,j,k;
-    for (i=0; i<2*nproc; i++) {
-      ptr_snddat[i]=-1.;
-      ptr_rcvdat[i]=0.;
+    int i,j,k,l;
+    sndcnt=nproc/2;
+    rcvcnt=nproc/2;
+    for(i=0; i<nproc; i++) { // making debugger shut up for uninitialized values
+      ptr_snddat[i]=0.;
+      ptr_sndmap[i]=0;
+      ptr_rcvmap[i]=0;
     }
-    for (i=0; i<nproc; i++)
-    {
-      ptr_snddat[2*i]=(irank+1)*10000+(i+1);
-      ptr_sndmap[i]=2*i; // taking only every second
-      ptr_rcvmap[i]=2*(nproc-1-i); // inverts order and puts to every second
-      for (k=0; k<nproc; k++) ptr_rcvdat[2*(nproc-1-i)]+=(k+1)*10000+(i+1);
+    for(i=0; i<nproc; i++) for(j=0; j<nproc; j++) ptr_rcvdat[i*nproc+j]=0; // making debugger shut up for uninitialized values
+    for (i=0; i<nproc; i++){
+      ptr_snddat[i]=(irank+1)*1000+(i+1);
+      for (j=0; j<nproc; j++) ptr_rcvdat[i*nproc+j]=(i+1)*1000+(2*(rcvcnt-j)-1);
     }
-    for (i=0; i<2*nproc; i++) { ptr_snddat2[2*i+0]=ptr_snddat[i]; ptr_snddat2[2*i+1]=ptr_snddat[i]+1; }
-    for (i=0; i<2*nproc; i++) { ptr_rcvdat2[2*i+0]=ptr_rcvdat[i]; ptr_rcvdat2[2*i+1]=ptr_rcvdat[i]+(double)nproc; }
-    sndcnt=nproc;
-    vec_snddat.assign(ptr_snddat,ptr_snddat+2*nproc);
-    vec_rcvdat.assign(ptr_rcvdat,ptr_rcvdat+2*nproc);
-    vec_sndmap.assign(ptr_sndmap,ptr_sndmap+nproc);
-    vec_rcvmap.assign(ptr_rcvmap,ptr_rcvmap+nproc);
-    vec_snddat2.assign(ptr_snddat2,ptr_snddat2+4*nproc);
-    vec_rcvdat2.assign(ptr_rcvdat2,ptr_rcvdat2+4*nproc);
+    for (i=0; i<sndcnt; i++)
+      ptr_sndmap[i]=2*i; // every second
+    for (i=0; i<rcvcnt; i++)
+      ptr_rcvmap[i]=rcvcnt-1-i; // inverse into contiguous
+    vec_snddat.assign(ptr_snddat,ptr_snddat+nproc);
+    vec_rcvdat.assign(ptr_rcvdat,ptr_rcvdat+nproc*nproc);
+    vec_snddatchr.assign((char*)(ptr_snddat),(char*)(ptr_snddat+nproc));
+    vec_sndmap.assign(ptr_sndmap,ptr_sndmap+sndcnt);
+    vec_rcvmap.assign(ptr_rcvmap,ptr_rcvmap+rcvcnt);
   }
-
-  /// test class with operator + to test if operations and broadcast can work with it
-  class optest {
-    public:
-      /// simple data
-      int ival;
-      double dval;
-      /// giving values for i and d
-      void init(){
-        ival=mpi::PE::instance().rank()+1;
-        dval=(double)mpi::PE::instance().rank()+10.;
-      }
-      /// operator +
-      optest operator +(const optest& b) const { optest t; t.ival=ival+b.ival; t.dval=dval+b.dval; return t; };
-      /// function to test result
-      bool test()
-      {
-        int i;
-        int nproc=mpi::PE::instance().size();
-        int itest=0;
-        for(i=0; i<nproc; i++) itest+=i+1;
-        double dtest=0.;
-        for(i=0; i<nproc; i++) dtest+=(double)i+10.;
-        return ((ival==itest)&&(dval==dtest));
-      }
-  };
 
 };
 
@@ -158,175 +122,175 @@ BOOST_FIXTURE_TEST_SUITE( PEBroadcastSuite, PEBroadcastFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( broadcast )
+BOOST_AUTO_TEST_CASE( Broadcast )
 {
-  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Testing broadcast " << irank << "/" << nproc << CFendl; );
+  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Testing Broadcast " << irank << "/" << nproc << CFendl; );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( broadcast_ptr_constant )
 {
-/*
-  int i;
+  int i,r;
 
   setup_data_constant();
 
-  delete[] ptr_tmprcv;
-  ptr_tmprcv=0;
+  for (r=0; r<nproc; r++) {
 
-  ptr_tmprcv=mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, (double*)0);
-  for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=0;
 
-  for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=0.;
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_tmprcv);
-  for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+    ptr_tmprcv=mpi::broadcast(mpi::PE::instance(), ptr_snddat, nproc, (double*)0, r);
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
 
-  for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_tmprcv, sndcnt, ptr_tmprcv);
-  for (i=0; i<2*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+    for (i=0; i<nproc; i++) ptr_tmprcv[i]=0.;
+    mpi::broadcast(mpi::PE::instance(), ptr_snddat, nproc, ptr_tmprcv, r);
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
 
-  delete[] ptr_tmprcv2;
-  ptr_tmprcv2=0;
+    for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
+    mpi::broadcast(mpi::PE::instance(), ptr_tmprcv, nproc, ptr_tmprcv, r);
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
 
-  ptr_tmprcv2=mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, (double*)0, 2);
-  for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=0;
 
-  for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=0.;
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_tmprcv2, 2);
-  for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
+    ptr_tmprcv=(double*)mpi::broadcast(mpi::PE::instance(), (char*)ptr_snddat, nproc, (char*)0, r, sizeof(double));
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
 
-  for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=ptr_snddat2[i];
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_tmprcv2, sndcnt, ptr_tmprcv2, 2);
-  for (i=0; i<4*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
-*/
+    for (i=0; i<nproc; i++) ptr_tmprcv[i]=0.;
+    mpi::broadcast(mpi::PE::instance(), (char*)ptr_snddat, nproc, (char*)ptr_tmprcv, r, sizeof(double));
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
+
+    for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
+    mpi::broadcast(mpi::PE::instance(), (char*)ptr_tmprcv, nproc, (char*)ptr_tmprcv, r, sizeof(double));
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( broadcast_vector_constant )
 {
-/*
-  int i;
+  int i,r;
 
   setup_data_constant();
 
-  vec_tmprcv.resize(0);
-  vec_tmprcv.reserve(0);
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_tmprcv);
-  for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
-  BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , sndcnt );
+  for (r=0; r<nproc; r++) {
 
-  vec_tmprcv.assign(2*nproc,0.);
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_tmprcv);
-  for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
+    vec_tmprcv.resize(0);
+    vec_tmprcv.reserve(0);
+    mpi::broadcast(mpi::PE::instance(), vec_snddat, vec_tmprcv, r);
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[r*nproc+i] );
+    BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , rcvcnt );
 
-  vec_tmprcv=vec_snddat;
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_tmprcv, vec_tmprcv);
-  for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
+    vec_tmprcv.assign(nproc*nproc,0.);
+    mpi::broadcast(mpi::PE::instance(), vec_snddat, vec_tmprcv, r);
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[r*nproc+i] );
 
-  vec_tmprcv2.resize(0);
-  vec_tmprcv2.reserve(0);
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_tmprcv2, 2);
-  for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_rcvdat2[i] );
-  BOOST_CHECK_EQUAL( (int)vec_tmprcv2.size() , 2*sndcnt );
+    vec_tmprcv=vec_snddat;
+    mpi::broadcast(mpi::PE::instance(), vec_tmprcv, vec_tmprcv, r);
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[r*nproc+i] );
 
-  vec_tmprcv2.assign(4*nproc,0.);
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_tmprcv2, 2);
-  for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_rcvdat2[i] );
+    vec_tmprcvchr.resize(0);
+    vec_tmprcvchr.reserve(0);
+    mpi::broadcast(mpi::PE::instance(), vec_snddatchr, vec_tmprcvchr, r );
+    BOOST_CHECK_EQUAL( vec_tmprcvchr.size() , sizeof(double)*rcvcnt );
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[r*nproc+i] );
 
-  vec_tmprcv2=vec_snddat2;
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_tmprcv2, vec_tmprcv2, 2);
-  for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_rcvdat2[i] );
-*/
+    for (i=0; i<nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=0.;
+    mpi::broadcast(mpi::PE::instance(), vec_snddatchr, vec_tmprcvchr, r );
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[r*nproc+i] );
+
+    vec_tmprcvchr.assign((char*)(ptr_snddat),(char*)(ptr_snddat+nproc));
+    mpi::broadcast(mpi::PE::instance(), vec_tmprcvchr, vec_tmprcvchr, r );
+    for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[r*nproc+i] );
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( broadcast_ptr_variable )
 {
-/*
-  int i;
+
+  int i,j,k,r;
 
   setup_data_variable();
 
-  delete[] ptr_tmprcv;
-  ptr_tmprcv=0;
-  ptr_tmprcv=mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_rcvdat[2*i] );
+  for (r=0; r<nproc; r++) {
 
-  delete[] ptr_tmprcv;
-  ptr_tmprcv=new double[2*nproc];
-  for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=0.;
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_rcvdat[2*i] );
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=0;
 
-  for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_tmprcv, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_rcvdat[2*i] );
+    ptr_tmprcv=mpi::broadcast(mpi::PE::instance(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
 
-  delete[] ptr_tmprcv2;
-  ptr_tmprcv2=0;
-  ptr_tmprcv2=mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, 2);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_rcvdat2[4*i+0] );
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+1] , ptr_rcvdat2[4*i+1] );
+    for (i=0; i<sndcnt; i++) ptr_tmprcv[i]=0.;
+    mpi::broadcast(mpi::PE::instance(), ptr_snddat, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
 
-  delete[] ptr_tmprcv2;
-  ptr_tmprcv2=new double[4*nproc];
-  for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=0.;
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, ptr_tmprcv2, ptr_rcvmap, 2);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_rcvdat2[4*i+0] );
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+1] , ptr_rcvdat2[4*i+1] );
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=new double[nproc];
+    for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
+    mpi::broadcast(mpi::PE::instance(), ptr_tmprcv, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
 
-  for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=ptr_snddat2[i];
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), ptr_tmprcv2, sndcnt, ptr_sndmap, ptr_tmprcv2, ptr_rcvmap, 2);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_rcvdat2[4*i+0] );
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+1] , ptr_rcvdat2[4*i+1] );
-*/
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=0;
+    ptr_tmprcv=(double*)mpi::broadcast(mpi::PE::instance(), (char*)ptr_snddat, sndcnt, ptr_sndmap, (char*)0, ptr_rcvmap, r, sizeof(double));
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
+
+    for (i=0; i<sndcnt; i++) ptr_tmprcv[i]=0.;
+    mpi::broadcast(mpi::PE::instance(), (char*)ptr_snddat, sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvmap, r, sizeof(double));
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
+
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=new double[nproc];
+    for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
+    mpi::broadcast(mpi::PE::instance(), (char*)ptr_tmprcv, sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvmap, r, sizeof(double));
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( broadcast_vector_variable )
 {
-/*
-  int i;
+  int i,j,k,r;
 
   setup_data_variable();
 
-  vec_tmprcv.resize(0);
-  vec_tmprcv.reserve(0);
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_rcvdat[2*i] );
+  for (r=0; r<nproc; r++) {
 
-  vec_tmprcv.resize(2*nproc);
-  vec_tmprcv.reserve(2*nproc);
-  for (i=0; i<2*nproc; i++) vec_tmprcv[i]=0.;
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_rcvdat[2*i] );
+    vec_tmprcv.resize(0);
+    vec_tmprcv.reserve(0);
+    mpi::broadcast(mpi::PE::instance(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[nproc*r+i] );
 
-  vec_tmprcv=vec_snddat;
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_tmprcv, vec_sndmap, vec_tmprcv, vec_rcvmap);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_rcvdat[2*i] );
+    for (i=0; i<sndcnt; i++) vec_tmprcv[i]=0.;
+    mpi::broadcast(mpi::PE::instance(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[nproc*r+i] );
 
-  vec_tmprcv2.resize(0);
-  vec_tmprcv2.reserve(0);
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_sndmap, vec_tmprcv2, vec_rcvmap, 2);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_rcvdat2[4*i+0] );
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_rcvdat2[4*i+1] );
+    vec_tmprcv.resize(nproc);
+    vec_tmprcv.reserve(nproc);
+    for (i=0; i<nproc; i++) vec_tmprcv[i]=vec_snddat[i];
+    mpi::broadcast(mpi::PE::instance(), vec_tmprcv, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[nproc*r+i] );
 
-  vec_tmprcv2.resize(4*nproc);
-  vec_tmprcv2.reserve(4*nproc);
-  vec_tmprcv2.assign(4*nproc,0.);
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_snddat2, vec_sndmap, vec_tmprcv2, vec_rcvmap, 2);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_rcvdat2[4*i+0] );
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_rcvdat2[4*i+1] );
+    vec_tmprcvchr.resize(0);
+    vec_tmprcvchr.reserve(0);
+    mpi::broadcast(mpi::PE::instance(), vec_snddatchr, vec_sndmap, vec_tmprcvchr, vec_rcvmap, r, sizeof(double));
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ((double*)&vec_tmprcvchr[0])[i] , vec_rcvdat[nproc*r+i] );
 
-  vec_tmprcv2=vec_snddat2;
-  mpi::broadcast(mpi::PE::instance(), mpi::plus(), vec_tmprcv2, vec_sndmap, vec_tmprcv2, vec_rcvmap, 2);
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_rcvdat2[4*i+0] );
-  for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_rcvdat2[4*i+1] );
-*/
+    for (i=0; i<nproc; i++) ((double*)&vec_tmprcvchr[0])[i]=0.;
+    mpi::broadcast(mpi::PE::instance(), vec_snddatchr, vec_sndmap, vec_tmprcvchr, vec_rcvmap, r, sizeof(double));
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ((double*)&vec_tmprcvchr[0])[i] , vec_rcvdat[nproc*r+i] );
+
+    vec_tmprcvchr.resize(nproc*sizeof(double));
+    vec_tmprcvchr.reserve(nproc*sizeof(double));
+    for (i=0; i<nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=vec_snddat[i];
+    mpi::broadcast(mpi::PE::instance(), vec_tmprcvchr, vec_sndmap, vec_tmprcvchr, vec_rcvmap, r, sizeof(double));
+    for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ((double*)&vec_tmprcvchr[0])[i] , vec_rcvdat[nproc*r+i] );
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -334,3 +298,4 @@ BOOST_AUTO_TEST_CASE( broadcast_vector_variable )
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
+

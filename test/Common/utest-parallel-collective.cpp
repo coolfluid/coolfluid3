@@ -29,6 +29,9 @@
 #include "Common/MPI/all_reduce.hpp"
 #include "Common/MPI/reduce.hpp"
 #include "Common/MPI/scatter.hpp"
+#include "Common/MPI/broadcast.hpp"
+#include "Common/MPI/gather.hpp"
+#include "Common/MPI/all_gather.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +78,8 @@ BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 #include "test/Common/utest-parallel-collective-reduce.hpp"
 #include "test/Common/utest-parallel-collective-scatter.hpp"
 #include "test/Common/utest-parallel-collective-broadcast.hpp"
+#include "test/Common/utest-parallel-collective-all_gather.hpp"
+//#include "test/Common/utest-parallel-collective-gather.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

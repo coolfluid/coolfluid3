@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_mpi_gather_hpp
-#define CF_Common_mpi_gather_hpp
+#ifndef CF_Common_mpi_all_gather_hpp
+#define CF_Common_mpi_all_gather_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,15 +21,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file gather.hpp
+  @file all_gather.hpp
   @author Tamas Banyai
-  Gather collective communication interface to MPI standard.
+  all_gather collective communication interface to MPI standard.
   Due to the nature of MPI standard, at the lowest level the memory required to be linear meaning &xyz[0] should give a single and continous block of memory.
   Some functions support automatic evaluation of number of items on the receive side but be very cautious with using them because it requires two collective communication and may end up with degraded performance.
   Currently, the interface supports raw pointers and std::vectors.
   Three types of communications is implemented:
-  - Constant size send and receive on all processors via MPI_gather
-  - Variable size send and receive via MPI_gatherv
+  - Constant size send and receive on all processors via MPI_all_gather
+  - Variable size send and receive via MPI_all_gatherv
   - Extension of the variable sized communication to support mapped storage both on send and receive side.
 **/
 
@@ -46,8 +46,8 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
   /**
-    Implementation to the Gather interface with constant size communication.
-    Don't call this function directly, use mpi::gather instead.
+    Implementation to the all_gather interface with constant size communication.
+    Don't call this function directly, use mpi::all_gather instead.
     In_values and out_values must be linear in memory and their sizes should be #processes*n.
     @param comm mpi::PE::Communicator
     @param in_values pointer to the send buffer
@@ -57,28 +57,34 @@ namespace detail {
   **/
   template<typename T>
   inline void
-  gatherc_impl(const PE::Communicator& comm, const T* in_values, const int in_n, T* out_values, const int root, const  int stride )
+  all_gatherc_impl(const PE::Communicator& comm, const T* in_values, const int in_n, T* out_values, const  int stride )
   {
     // get data type and number of processors
     MPI_Datatype type = mpi::get_mpi_datatype(*in_values);
-    int nproc,irank;
+    int nproc;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-    MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
     // if stride is greater than one
     cf_assert( stride>0 );
 
     // set up out_buf
     T* out_buf=out_values;
-    if (irank==root) if (in_values==out_values) {
+    if (in_values==out_values) {
       if ( (out_buf=new T[nproc*in_n*stride+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     }
 
     // do the communication
-    MPI_CHECK_RESULT(MPI_Gather, (const_cast<T*>(in_values), in_n*stride, type, out_buf, in_n*stride, type, root, comm));
+    // BUG IN OPENMPI: MPI_CHECK_RESULT(MPI_Allgather, (const_cast<T*>(in_values), in_n*stride, type, out_buf, in_n*stride, type, comm));
+    int *displs=new int[nproc];
+    for (int i=0; i<nproc; i++) displs[i]=i*in_n*stride;
+    int *counts=new int[nproc];
+    for (int i=0; i<nproc; i++) counts[i]=in_n*stride;
+    MPI_CHECK_RESULT(MPI_Allgatherv, (const_cast<T*>(in_values), in_n*stride, type, out_buf, counts, displs, type, comm ));
+    delete[] displs;
+    delete[] counts;
 
     // deal with out_buf
-    if (irank==root) if (in_values==out_values) {
+    if (in_values==out_values) {
       memcpy(out_values,out_buf,nproc*in_n*stride*sizeof(T));
       delete[] out_buf;
     }
@@ -87,8 +93,8 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
   /**
-    Implementation to the Gather interface with variable size communication through in and out map.
-    Don't call this function directly, use mpi::gathervm instead.
+    Implementation to the all_gather interface with variable size communication through in and out map.
+    Don't call this function directly, use mpi::all_gathervm instead.
     In_values and out_values must be linear in memory and their sizes should be sum(in_n[i]) and sum(out_n[i]) i=0..#processes-1.
     @param comm mpi::PE::Communicator
     @param in_values pointer to the send buffer
@@ -101,13 +107,12 @@ namespace detail {
   **/
   template<typename T>
   inline void
-  gathervm_impl(const PE::Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_n, const int *out_map, const int root, const int stride )
+  all_gathervm_impl(const PE::Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_n, const int *out_map, const int stride )
   {
     // get data type and number of processors
     MPI_Datatype type = mpi::get_mpi_datatype(*in_values);
-    int nproc,irank;
+    int nproc;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-    MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
     // if stride is smaller than one and unsupported functionality
     cf_assert( stride>0 );
@@ -137,23 +142,21 @@ namespace detail {
 
     // set up out_buf
     T *out_buf=out_values;
-    if (irank==root) if ((out_map!=0)||(in_values==out_values)) {
+    if ((out_map!=0)||(in_values==out_values)) {
       if ( (out_buf=new T[out_sum+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     }
 
     // do the communication
-    MPI_CHECK_RESULT(MPI_Gatherv, (in_buf, in_sum, type, out_buf, out_nstride, out_disp, type, comm));
+    MPI_CHECK_RESULT(MPI_Allgatherv, (in_buf, in_sum, type, out_buf, out_nstride, out_disp, type, comm));
 
     // re-populate out_values
-    if (irank==root) {
-      if (out_map!=0) {
-        if (stride==1) { for(int i=0; i<out_sum; i++) out_values[out_map[i]]=out_buf[i]; }
-        else { for(int i=0; i<out_sum/stride; i++) memcpy(&out_values[stride*out_map[i]],&out_buf[stride*i],stride*sizeof(T)); }
-        delete[] out_buf;
-      } else if (in_values==out_values) {
-        memcpy(out_values,out_buf,out_sum*sizeof(T));
-        delete[] out_buf;
-      }
+    if (out_map!=0) {
+      if (stride==1) { for(int i=0; i<out_sum; i++) out_values[out_map[i]]=out_buf[i]; }
+      else { for(int i=0; i<out_sum/stride; i++) memcpy(&out_values[stride*out_map[i]],&out_buf[stride*i],stride*sizeof(T)); }
+      delete[] out_buf;
+    } else if (in_values==out_values) {
+      memcpy(out_values,out_buf,out_sum*sizeof(T));
+      delete[] out_buf;
     }
 
     // free internal memory
@@ -169,7 +172,7 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the constant size Gather communication with specialization to raw pointer.
+  Interface to the constant size all_gather communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated and the pointer to it is returned, otherwise out_values is returned.
   @param comm mpi::PE::Communicator
   @param in_values pointer to the send buffer
@@ -179,33 +182,28 @@ namespace detail {
 **/
 template<typename T>
 inline T*
-gather(const PE::Communicator& comm, const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
+all_gather(const PE::Communicator& comm, const T* in_values, const int in_n, T* out_values, const int stride=1)
 {
   // get nproc, irank
-  int nproc,irank;
+  int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
-  if (irank==root) if (out_values==0) {
+  if (out_values==0) {
     const int size=stride*nproc*in_n>1?stride*nproc*in_n:1;
     if ( (out_buf=new T[size]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call c_impl
-  if (irank==root) {
-    detail::gatherc_impl(comm, in_values, in_n, out_buf, root, stride);
-  } else {
-    detail::gatherc_impl(comm, in_values, in_n, (T*)0, root, stride);
-  }
+  detail::all_gatherc_impl(comm, in_values, in_n, out_buf, stride);
   return out_buf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the constant size Gather communication with specialization to std::vector.
+  Interface to the constant size all_gather communication with specialization to std::vector.
   @param comm mpi::PE::Communicator
   @param in_values send buffer
   @param out_values receive buffer
@@ -213,27 +211,20 @@ gather(const PE::Communicator& comm, const T* in_values, const int in_n, T* out_
 **/
 template<typename T>
 inline void
-gather(const PE::Communicator& comm, const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
+all_gather(const PE::Communicator& comm, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
 {
   // get nproc, irank
-  int nproc,irank;
+  int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
   // set out_values's sizes
   cf_assert( in_values.size() % (stride) == 0 );
   int in_n=(int)in_values.size();
-  if (irank==root) {
-    out_values.resize(in_n*nproc);
-    out_values.reserve(in_n*nproc);
-  }
+  out_values.resize(in_n*nproc);
+  out_values.reserve(in_n*nproc);
 
   // call c_impl
-  if (irank==root) {
-    detail::gatherc_impl(comm, (T*)(&in_values[0]), in_n/(stride), (T*)(&out_values[0]), stride);
-  } else {
-    detail::gatherc_impl(comm, (T*)(&in_values[0]), in_n/(stride), (T*)0, stride);
-  }
+  detail::all_gatherc_impl(comm, (T*)(&in_values[0]), in_n/(stride), (T*)(&out_values[0]), stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -241,10 +232,10 @@ gather(const PE::Communicator& comm, const std::vector<T>& in_values, std::vecto
 //needs a forward
 template<typename T>
 inline T*
-gather(const PE::Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int root, const int stride=1);
+all_gather(const PE::Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1);
 
 /**
-  Interface to the variable size Gather communication with specialization to raw pointer.
+  Interface to the variable size all_gather communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated and the pointer to it is returned, otherwise out_values is returned.
   If out_n (receive counts) contains only -1, then a pre communication occurs to fill out_n.
   @param comm mpi::PE::Communicator
@@ -256,10 +247,10 @@ gather(const PE::Communicator& comm, const T* in_values, const int in_n, const i
 **/
 template<typename T>
 inline T*
-gather(const PE::Communicator& comm, const T* in_values, const int in_n, T* out_values, int *out_n, const int root, const int stride=1)
+all_gather(const PE::Communicator& comm, const T* in_values, const int in_n, T* out_values, int *out_n, const int stride=1)
 {
-  // call mapped variable gather
-  return gather(comm,in_values,in_n,0,out_values,out_n,0,stride);
+  // call mapped variable all_gather
+  return all_gather(comm,in_values,in_n,0,out_values,out_n,0,stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,10 +258,10 @@ gather(const PE::Communicator& comm, const T* in_values, const int in_n, T* out_
 //needs a forward
 template<typename T>
 inline void
-gather(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int root, const int stride=1);
+all_gather(const PE::Communicator& comm, const std::vector<T>& in_values, const int in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1);
 
 /**
-  Interface to the constant size Gather communication with specialization to std::vector.
+  Interface to the constant size all_gather communication with specialization to std::vector.
   If out_values's size is zero then its resized.
   If out_n (receive counts) is not of size of #processes, then error occurs.
   If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
@@ -283,21 +274,21 @@ gather(const PE::Communicator& comm, const std::vector<T>& in_values, const std:
 **/
 template<typename T>
 inline void
-gather(const PE::Communicator& comm, const std::vector<T>& in_values, std::vector<T>& out_values, std::vector<int>& out_n, const int root, const int stride=1)
+all_gather(const PE::Communicator& comm, const std::vector<T>& in_values, const int in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int stride=1)
 {
-  // call mapped variable gather
+  // call mapped variable all_gather
   std::vector<int> in_map(0);
   std::vector<int> out_map(0);
-  gather(comm,in_values,(int)in_values.size(),in_map,out_values,out_n,out_map,stride);
+  all_gather(comm,in_values,in_n,in_map,out_values,out_n,out_map,stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the variable size mapped Gather communication with specialization to raw pointer.
+  Interface to the variable size mapped all_gather communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated to fit the max in map and the pointer is returned, otherwise out_values is returned.
   If out_n (receive counts) contains only -1, then a pre communication occurs to fill out_n.
-  However due to the fact that map already needs all the information if you use gather to allocate out_values and fill out_n then you most probably doing something wrong.
+  However due to the fact that map already needs all the information if you use all_gather to allocate out_values and fill out_n then you most probably doing something wrong.
   @param comm mpi::PE::Communicator
   @param in_values pointer to the send buffer
   @param in_n array holding send counts of size #processes
@@ -309,53 +300,46 @@ gather(const PE::Communicator& comm, const std::vector<T>& in_values, std::vecto
 **/
 template<typename T>
 inline T*
-gather(const PE::Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int root, const int stride)
+all_gather(const PE::Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride)
 {
   // get nproc, irank
-  int nproc,irank;
+  int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
   // if out_n consist of -1s then communicate for number of receives
   int out_sum=0;
   for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   if (out_sum==-nproc) {
     if (out_map!=0) throw CF::Common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
-    detail::gatherc_impl(comm,&in_n,1,out_n,root,1);
+    detail::all_gatherc_impl(comm,&in_n,1,out_n,1);
     out_sum=0;
-    if (irank==root) for (int i=0; i<nproc; i++) out_sum+=out_n[i];
+    for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   }
 
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
-  if (irank==root) {
-    if (out_values==0) {
-      if (out_map!=0){
-        int out_sum_tmp=0;
-        for (int i=0; i<out_sum; i++) out_sum_tmp=out_map[i]>out_sum_tmp?out_map[i]:out_sum_tmp;
-        out_sum=out_sum_tmp+1;
-      }
-      if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+  if (out_values==0) {
+    if (out_map!=0){
+      int out_sum_tmp=0;
+      for (int i=0; i<out_sum; i++) out_sum_tmp=out_map[i]>out_sum_tmp?out_map[i]:out_sum_tmp;
+      out_sum=out_sum_tmp+1;
     }
+    if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call vm_impl
-  if (irank==root) {
-    detail::gathervm_impl(comm, in_values, in_n, in_map, out_buf, out_n, out_map, root, stride);
-  } else {
-    detail::gathervm_impl(comm, in_values, in_n, in_map, (T*)0, (int*)0, (int*)0, root, stride);
-  }
+  detail::all_gathervm_impl(comm, in_values, in_n, in_map, out_buf, out_n, out_map, stride);
   return out_buf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the constant size Gather communication with specialization to raw pointer.
+  Interface to the constant size all_gather communication with specialization to raw pointer.
   If out_values's size is zero then its resized.
   If out_n (receive counts) is not of size of #processes, then error occurs.
   If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
-  However due to the fact that map already needs all the information if you use gather to allocate out_values and fill out_n then you most probably doing something wrong.
+  However due to the fact that map already needs all the information if you use all_gather to allocate out_values and fill out_n then you most probably doing something wrong.
   @param comm mpi::PE::Communicator
   @param in_values send buffer
   @param in_n send counts of size #processes
@@ -367,12 +351,11 @@ gather(const PE::Communicator& comm, const T* in_values, const int in_n, const i
 **/
 template<typename T>
 inline void
-gather(const PE::Communicator& comm, const std::vector<T>& in_values, const int in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int root, const int stride)
+all_gather(const PE::Communicator& comm, const std::vector<T>& in_values, const int in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride)
 {
   // number of processes and checking in_n and out_n (out_n deliberately throws exception because the vector can arrive from arbitrary previous usage)
-  int nproc,irank;
+  int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
   if ((int)out_n.size()!=nproc) CF::Common::BadValue(FromHere(),"Size of vector for number of items to be received does not match to number of processes.");
 
   // compute number of send and receive
@@ -382,30 +365,24 @@ gather(const PE::Communicator& comm, const std::vector<T>& in_values, const int 
   // if necessary, do communication for out_n
   if (out_sum == -nproc){
     if (out_map.size()!=0) throw CF::Common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
-    detail::gatherc_impl(comm,&in_n,1,&out_n[0],root,1);
+    detail::all_gatherc_impl(comm,&in_n,1,&out_n[0],1);
     out_sum=0;
-    if (irank==root) boost_foreach( int & i, out_n ) out_sum+=i;
+    boost_foreach( int & i, out_n ) out_sum+=i;
   }
 
   // resize out_values if vector size is zero
-  if (irank==root) {
-    if (out_values.size() == 0 ){
-      if (out_map.size()!=0) {
-        out_sum=0;
-        boost_foreach( int i, out_map ) out_sum=i>out_sum?i:out_sum;
-        if (out_sum!=0) out_sum++;
-      }
-      out_values.resize(stride*out_sum);
-      out_values.reserve(stride*out_sum);
+  if (out_values.size() == 0 ){
+    if (out_map.size()!=0) {
+      out_sum=0;
+      boost_foreach( int i, out_map ) out_sum=i>out_sum?i:out_sum;
+      if (out_sum!=0) out_sum++;
     }
+    out_values.resize(stride*out_sum);
+    out_values.reserve(stride*out_sum);
   }
 
   // call vm_impl
-  if (irank==root) {
-    detail::gathervm_impl(comm, (T*)(&in_values[0]), in_n, &in_map[0], (T*)(&out_values[0]), &out_n[0], &out_map[0], root, stride);
-  } else {
-    detail::gathervm_impl(comm, (T*)(&in_values[0]), in_n, &in_map[0], (T*)0, (int*)0, (int*)0, root, stride);
-  }
+  detail::all_gathervm_impl(comm, (T*)(&in_values[0]), in_n, &in_map[0], (T*)(&out_values[0]), &out_n[0], &out_map[0], stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -416,4 +393,4 @@ gather(const PE::Communicator& comm, const std::vector<T>& in_values, const int 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_mpi_gather_hpp
+#endif // CF_Common_mpi_all_gather_hpp

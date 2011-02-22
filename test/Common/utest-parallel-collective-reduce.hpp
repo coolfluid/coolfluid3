@@ -245,7 +245,8 @@ BOOST_AUTO_TEST_CASE( reduce_ptr_constant )
     if (r==irank) {
       ptr_tmprcv=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, (double*)0, r);
     } else {
-      mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, (double*)0, r);
+      T* dummy=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, (double*)0, r);
+      BOOST_CHECK_EQUAL( dummy , (T*)0 );
     }
   }
   for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
@@ -270,7 +271,8 @@ BOOST_AUTO_TEST_CASE( reduce_ptr_constant )
     if (r==irank) {
       ptr_tmprcv2=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, (double*)0, r, 2);
     } else {
-      mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, (double*)0, r, 2);
+      T* dummy=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, (double*)0, r, 2);
+      BOOST_CHECK_EQUAL( dummy , (T*)0 );
     }
   }
   for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
@@ -353,7 +355,8 @@ BOOST_AUTO_TEST_CASE( reduce_ptr_variable )
     if (r==irank) {
       ptr_tmprcv=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
     } else {
-      mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
+      T* dummy=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
+      BOOST_CHECK_EQUAL( dummy , (T*)0 );
     }
   }
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_rcvdat[2*i] );
@@ -380,7 +383,8 @@ BOOST_AUTO_TEST_CASE( reduce_ptr_variable )
     if (r==irank) {
       ptr_tmprcv2=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r, 2);
     } else {
-      mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r, 2);
+      T* dummy=mpi::reduce(mpi::PE::instance(), mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r, 2);
+      BOOST_CHECK_EQUAL( dummy , (T*)0 );
     }
   }
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_rcvdat2[4*i+0] );
