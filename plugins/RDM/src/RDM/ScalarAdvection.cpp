@@ -76,15 +76,23 @@ void ScalarAdvection::signal_create_model ( Common::XmlNode& node )
 
   model->create_domain( "Domain" );
 
+  CFinfo << " creating solver" << CFendl;
+
   // setup iterative solver
   CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.RDM.RungeKutta", "IterativeSolver");
   solver->mark_basic();
   model->add_component( solver );
 
+  CFinfo << " creating dm" << CFendl;
+
   // setup discretization method
   CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.RDM.ResidualDistribution", "Discretization");
   cdm->mark_basic();
   solver->add_component( cdm );
+
+
+  CFinfo << "------------------------" << CFendl;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

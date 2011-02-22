@@ -8,6 +8,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionComponent.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Log.hpp"
@@ -47,10 +48,20 @@ RungeKutta::RungeKutta ( const std::string& name  ) :
   m_cfl(1.0)
 {
   // options
+
   m_properties.add_option< OptionT<Real> > ("CFL", "Courant Number", m_cfl)
-    ->mark_basic()
-    ->link_to(&m_cfl)
-    ->add_tag("cfl");
+      ->mark_basic()
+      ->link_to(&m_cfl)
+      ->add_tag("cfl");
+
+  m_properties.add_option( OptionComponent<CField2>::create("Solution","Solution field",&m_solution) )
+      ->add_tag("solution");
+
+  m_properties.add_option( OptionComponent<CField2>::create("Residual","Residual field",&m_residual) )
+      ->add_tag("residual");
+
+  m_properties.add_option( OptionComponent<CField2>::create("Update Coeffs","Update coefficients field",&m_update_coeff) )
+      ->add_tag("update_coeff");
 
   // properties
 
@@ -61,11 +72,7 @@ RungeKutta::RungeKutta ( const std::string& name  ) :
 
   // signals
 
-  this->regist_signal ( "solve" , "Solve", "Solve" )->connect ( boost::bind ( &RungeKutta::solve, this ) );
-
-  m_solution_field =     create_static_component<CLink>( "solution" );
-  m_residual_field =     create_static_component<CLink>( "residual" );
-  m_update_coeff_field = create_static_component<CLink>( "update_coeff" );
+  this->regist_signal ( "solve" , "Solve", "Solve" )->connect ( boost::bind ( &RungeKutta::solve, this ) );  
 
 }
 
@@ -86,42 +93,33 @@ void RungeKutta::config_domain()
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>( *domain );
   if (is_not_null(mesh))
   {
-    std::string solution_tag("solution");
-    CField2::Ptr solution = find_component_ptr_with_tag<CField2>(*mesh, solution_tag);
-    if ( is_null(solution) )
-    {
-      solution = mesh->create_field2("solution","PointBased","u[1]").as_type<CField2>();
-      solution->add_tag(solution_tag);
-    }
-    m_solution_field->link_to(solution);
-
-    CFinfo << " - solution field : " << solution->full_path().string() << CFendl;
-
-    std::string residual_tag("residual");
-    CField2::Ptr residual = find_component_ptr_with_tag<CField2>(*mesh, residual_tag);
-    if ( is_null(residual) )
-    {
-      residual = mesh->create_field2("residual","PointBased","residual[1]").as_type<CField2>();
-      residual->add_tag(residual_tag);
-    }
-    m_residual_field->link_to(residual);
-
-    CFinfo << " - residual field : " << residual->full_path().string() << CFendl;
-
-    std::string update_coeff_tag("update_coeff");
-    CField2::Ptr update_coeff = find_component_ptr_with_tag<CField2>(*mesh, update_coeff_tag);
-    if ( is_null(update_coeff) )
-    {
-      update_coeff = mesh->create_field2("update_coeff","PointBased","update_coeff[1]").as_type<CField2>();
-      update_coeff->add_tag(update_coeff_tag);
-    }
-    m_update_coeff_field->link_to(update_coeff);
-
-    CFinfo << " - update_coeff field : " << update_coeff->full_path().string() << CFendl;
-
-    // configure DM mesh after fields are created since DM will look for them
-    // on the attached configuration trigger
+    // configure DM mesh first to ensure that solution is there
     discretization_method().configure_property( "Mesh" , mesh->full_path() );
+
+    CField2::Ptr solution = find_component_ptr_with_tag<CField2>(*mesh, "solution");
+    cf_assert( is_not_null(solution) );
+    m_solution = solution;
+
+    // configure residual
+    std::string residual_tag("residual");
+    m_residual = find_component_ptr_with_tag<CField2>(*mesh, residual_tag);
+    if ( is_null( m_residual.lock() ) )
+    {
+      CFinfo << " +++ creating residual field " << CFendl;
+      m_residual = mesh->create_field2("residual",*solution).as_type<CField2>();
+      m_residual.lock()->add_tag(residual_tag);
+    }
+
+    // configure update_coeff
+    std::string update_coeff_tag("update_coeff");
+    m_update_coeff = find_component_ptr_with_tag<CField2>(*mesh, update_coeff_tag);
+    if ( is_null(m_update_coeff.lock()) )
+    {
+      CFinfo << " +++ creating update_coeff field " << CFendl;
+      m_update_coeff = mesh->create_scalar_field("update_coeff",*solution).as_type<CField2>();
+      m_update_coeff.lock()->add_tag(update_coeff_tag);
+    }
+
   }
 }
 
@@ -141,33 +139,23 @@ void RungeKutta::solve()
   if( is_null(domain) )
     throw InvalidURI( FromHere(), "Path does not poitn to Domain");
 
-  /*
-  CField2::Ptr solution     = m_solution_field->follow()->as_type<CField2>();
-  CField2::Ptr residual     = m_residual_field->follow()->as_type<CField2>();
-  CField2::Ptr update_coeff = m_update_coeff_field->follow()->as_type<CField2>();
-  */
-
-
-  CTable<Real>& solution = m_solution_field->follow()->as_type<CField2>()->data();
-  CTable<Real>& residual = m_residual_field->follow()->as_type<CField2>()->data();
-  CTable<Real>& update_coeff = m_update_coeff_field->follow()->as_type<CField2>()->data();
+  CTable<Real>& solution     = m_solution.lock()->data();
+  CTable<Real>& residual     = m_residual.lock()->data();
+  CTable<Real>& update_coeff = m_update_coeff.lock()->data();
 
 //  CFinfo << "DATA TABLE SIZES:" << CFendl;
 //  CFinfo << "solution: " << solution.size() << " x " << solution.row_size() << CFendl;
 //  CFinfo << "residual: " << residual.size() << " x " << residual.row_size() << CFendl;
 //  CFinfo << "update_coeff: " << update_coeff.size() << " x " << update_coeff.row_size() << CFendl;
 
-  CFinfo << " - initializing solution" << CFendl;
+//  CFinfo << " - initializing solution" << CFendl;
 
   // initialize to zero condition
+
   /// @todo should be moved out of here
-  boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_solution_field->follow(), "node_data"))
-  {
-    for (Uint i=0; i<node_data.size(); ++i)
-      node_data[i][0]=0;
-  }
-
-
+  Uint size = residual.size();
+  for (Uint i=0; i<size; ++i)
+    solution[i][0]=0;
 
   CFinfo << " - starting iterative loop" << CFendl;
 
@@ -175,29 +163,7 @@ void RungeKutta::solve()
   {
     /// @todo move this into an action
 
-//    CFinfo << " --  cleaning residual field" << CFendl;
-
     // set update coefficient and residual to zero
-    // Set the field data of the source field
-
-
-
-   /*
-    boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->follow(), "node_data"))
-    {
-      Uint size = node_data.size();
-      for (Uint i=0; i<size; ++i)
-        node_data[i][0]=0.;
-    }
-
-//    CFinfo << " --  cleaning update coeff" << CFendl;
-    boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_update_coeff_field->follow(),"node_data"))
-    {
-      Uint size = node_data.size();
-      for (Uint i=0; i<size; ++i)
-        node_data[i][0]=0.;
-    }
-    */
 
     Uint size = residual.size();
     for (Uint i=0; i<size; ++i)
@@ -208,20 +174,15 @@ void RungeKutta::solve()
       update_coeff[i][0]=0;
 
 
-
-
-
     // compute RHS
-//    CFinfo << " --  computing the rhs" << CFendl;
     discretization_method().compute_rhs();
 
     // explicit update
-//    CFinfo << " --  updating solution" << CFendl;
     const Uint nbdofs = solution.size();
     for (Uint i=0; i< nbdofs; ++i)
       solution[i][0] += - ( m_cfl / update_coeff[i][0] ) * residual[i][0];
 
-//    CFinfo << " --  computing the norm" << CFendl;
+    //  computing the norm
     Real rhs_L2 = 0.;
     for (Uint i=0; i< nbdofs; ++i)
       rhs_L2 += residual[i][0] * residual[i][0];
@@ -229,8 +190,8 @@ void RungeKutta::solve()
 
     // output convergence info
     CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
-//    if ( is_nan(rhs_L2) || is_inf(rhs_L2) )
-//      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iter)+" iterations");
+    if ( is_nan(rhs_L2) || is_inf(rhs_L2) )
+      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iter)+" iterations");
   }
 }
 

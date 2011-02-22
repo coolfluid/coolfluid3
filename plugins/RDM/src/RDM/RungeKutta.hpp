@@ -17,14 +17,8 @@
 
 namespace CF {
 
-namespace Solver
-{
-  class CDiscretization; 
-  namespace Actions
-  {
-    class CLoop; 
-  }
-}
+namespace Mesh   { class CField2; }
+namespace Solver { class CDiscretization; }
 
 namespace RDM {
 
@@ -67,9 +61,12 @@ private: // data
   /// CFL number
   CF::Real m_cfl;
   
-  Common::CLink::Ptr m_solution_field;
-  Common::CLink::Ptr m_residual_field;
-  Common::CLink::Ptr m_update_coeff_field;
+  /// solution field pointer
+  boost::weak_ptr<Mesh::CField2> m_solution;
+  /// residual field pointer
+  boost::weak_ptr<Mesh::CField2> m_residual;
+  /// update_coeff field pointer
+  boost::weak_ptr<Mesh::CField2> m_update_coeff;
 
 };
 

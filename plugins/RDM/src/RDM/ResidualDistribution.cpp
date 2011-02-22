@@ -49,27 +49,23 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
 
   m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( & ResidualDistribution::config_mesh, this ) );
 
-  // options
-
-  m_properties.add_option( OptionComponent<CField2>::create("Solution","Solution field",&m_solution) )
-    ->mark_basic()
-    ->add_tag("solution");
-
-  m_properties.add_option( OptionComponent<CField2>::create("Residual","Residual field",&m_residual) )
-    ->mark_basic()
-    ->add_tag("residual");
-
-  m_properties.add_option( OptionComponent<CField2>::create("Update Coeffs","Update coefficients field",&m_update_coeff) )
-    ->mark_basic()
-    ->add_tag("update_coeff");
-
   // signals
 
-  regist_signal ( "signal_create_boundary_term" , "creates a boundary condition term", "Create Boundary Condition" )->connect ( boost::bind ( &ResidualDistribution::signal_create_boundary_term, this, _1 ) );
-  signal("signal_create_boundary_term").signature->connect( boost::bind( &ResidualDistribution::signature_signal_create_boundary_term, this, _1));
+  regist_signal ("signal_create_boundary_term" ,
+                 "creates a boundary condition term",
+                 "Create Boundary Condition" )
+      ->connect ( boost::bind ( &ResidualDistribution::signal_create_boundary_term, this, _1 ) );
 
-  regist_signal ( "create_domain_term" , "creates a domain volume term", "Create Domain Term" )->connect ( boost::bind ( &ResidualDistribution::signal_create_domain_term, this, _1 ) );
-  signal("create_domain_term").signature->connect( boost::bind( &ResidualDistribution::signature_create_domain_term, this, _1));
+  signal("signal_create_boundary_term").signature
+      ->connect( boost::bind( &ResidualDistribution::signature_signal_create_boundary_term, this, _1));
+
+  regist_signal ("create_domain_term",
+                 "creates a domain volume term",
+                 "Create Domain Term" )
+      ->connect ( boost::bind ( &ResidualDistribution::signal_create_domain_term, this, _1 ) );
+
+  signal("create_domain_term").signature
+      ->connect( boost::bind( &ResidualDistribution::signature_create_domain_term, this, _1));
 
   // setup of the static components
 
@@ -80,10 +76,6 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   // create compute rhs action
   m_compute_volume_cell_terms = create_static_component<CAction>("compute_volume_cells");
   m_compute_volume_cell_terms->mark_basic();
-
-  m_solution_field =     create_static_component<CLink>( "solution" );
-  m_residual_field =     create_static_component<CLink>( "residual" );
-  m_update_coeff_field = create_static_component<CLink>( "update_coeff" );
 }
 
 
@@ -95,15 +87,24 @@ ResidualDistribution::~ResidualDistribution() {}
 
 void ResidualDistribution::config_mesh()
 {
-  CMesh& mesh = *m_mesh.lock();
+  CMesh& mesh = *( m_mesh.lock() );
 
-  CField2::Ptr solution     = find_component_ptr_with_name<CField2>(mesh,"solution");
-  CField2::Ptr residual     = find_component_ptr_with_name<CField2>(mesh,"residual");
-  CField2::Ptr update_coeff = find_component_ptr_with_name<CField2>(mesh,"update_coeff");
+  // check if a solution field exist, and create if does not
 
-  m_solution_field->link_to(solution);
-  m_residual_field->link_to(residual);
-  m_update_coeff_field->link_to(update_coeff);
+  std::string solution_tag("solution");
+  CField2::Ptr solution = find_component_ptr_with_tag<CField2>( mesh, solution_tag );
+  if ( is_null(solution) )
+  {
+    CFinfo << " +++ creating solution field " << CFendl;
+    solution = mesh.create_field2("solution","PointBased","u[1]").as_type<CField2>();
+    solution->add_tag(solution_tag);
+  }
+
+  //    CFinfo << " - solution field : " << m_solution.lock()->full_path().string() << CFendl;
+
+  /// @todo should check if space() order is correct,
+  ///       if not the change space() by enriching or other appropriate action
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -130,7 +131,7 @@ void ResidualDistribution::signal_create_boundary_term( XmlNode& xml )
   CAction& face_action = face_loop->create_action( type , "action" );
   face_action.mark_basic();
 
-  face_action.configure_property("Solution", m_solution_field->follow()->full_path());
+  face_action.configure_property("Mesh", m_mesh.lock()->full_path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_SUITE( linearadv2d_test_suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( check_tree , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -101,7 +101,7 @@ BOOST_FIXTURE_TEST_CASE( check_tree , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( read_mesh , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
     
@@ -142,7 +142,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -152,7 +152,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -187,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , linearadv2d_local_fixture
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( create_domain_term , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_create_domain_term , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -216,7 +216,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_solve , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -227,7 +227,7 @@ BOOST_FIXTURE_TEST_CASE( solve , linearadv2d_local_fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( output , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_output , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 

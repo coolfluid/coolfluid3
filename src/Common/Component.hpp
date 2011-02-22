@@ -271,14 +271,19 @@ public: // functions
 
   void configure_option_recursively(const std::string& tag, const boost::any& val);
 
+  /// Configures all the options on this class from a list of strings.
+  /// Each string provides the configuration of one property following the
+  /// format var_name:type=value var_name:array[type]=val1,val2
+  void configure (const std::vector<std::string>& args);
+
   /// @name SIGNALS
   //@{
 
   /// configures all the options on this class
-  void configure ( XmlNode& xml );
+  void signal_configure ( XmlNode& xml );
 
   /// creates a component from this component
-  void create_component_signal ( XmlNode& xml );
+  void signal_create_component ( XmlNode& xml );
 
   /// deletes a component from this component
   void delete_component ( XmlNode& xml );

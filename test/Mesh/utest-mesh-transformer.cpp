@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( test_arguments )
   args.push_back("array_vars:array<bool>=true,false,true");
   //args.push_back("center:double=[x,y,z]");
   
-  //transformer->configure_arguments(args);
+  //transformer->configure(args);
   
 }
 

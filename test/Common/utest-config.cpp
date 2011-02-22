@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE( configure )
 
 //  CFinfo << "FRAME [" << frame.name() << "]" << CFendl;
 
-  pm->configure( frame );
+  pm->signal_configure( frame );
 
   BOOST_CHECK_EQUAL ( pm->property("OptBool").value<bool>(), true  );
   BOOST_CHECK_EQUAL ( pm->property("OptBool").value_str() , "true" );

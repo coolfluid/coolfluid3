@@ -19,6 +19,8 @@
 #include "Common/String/Conversion.hpp"
 #include "Common/ComponentPredicates.hpp"
 
+using namespace CF::Common::String;
+
 namespace CF {
 namespace Common {
 
@@ -41,7 +43,7 @@ Component::Component ( const std::string& name ) :
 
   // signals
 
-  regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component_signal, this, _1 ) );
+  regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::signal_create_component, this, _1 ) );
 
   regist_signal( "list_tree" , "lists the component tree inside this component", "List tree" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
 
@@ -49,7 +51,7 @@ Component::Component ( const std::string& name ) :
 
   regist_signal( "list_signals" , "lists the options of this component", "List signals" )->connect ( boost::bind ( &Component::list_signals, this, _1 ) );
 
-  regist_signal( "configure" , "configures this component", "Configure" )->connect ( boost::bind ( &Component::configure, this, _1 ) );
+  regist_signal( "configure" , "configures this component", "Configure" )->connect ( boost::bind ( &Component::signal_configure, this, _1 ) );
 
   regist_signal( "print_info" , "prints info on this component", "Info" )->connect ( boost::bind ( &Component::print_info, this, _1 ) );
 
@@ -497,7 +499,7 @@ Component::Ptr Component::look_component ( const URI& path )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::create_component_signal ( XmlNode& node  )
+void Component::signal_create_component ( XmlNode& node  )
 {
   XmlParams p ( node );
 
@@ -794,7 +796,7 @@ void Component::list_signals( XmlNode& node )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::configure ( XmlNode& node )
+void Component::signal_configure ( XmlNode& node )
 {
   XmlParams pn ( node );
 
@@ -996,6 +998,122 @@ void Component::configure_option_recursively(const std::string& tag, const boost
     }
   }
   cf_assert_desc("No options with tag ["+tag+"] were configured recursively in ["+full_path().path()+"]", nb_changes > 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Component::configure (const std::vector<std::string>& args)
+{
+  // extract:   variable_name:type=value
+  boost::regex expression(  "([[:word:]]+)(\\:([[:word:]]+)(\\[([[:word:]]+)\\])?=(.*))?"  );
+  boost::match_results<std::string::const_iterator> what;
+
+  boost_foreach (const std::string& arg, args)
+  {
+
+    std::string name;
+    std::string type;
+    std::string subtype; // in case of array<type>
+    std::string value;
+
+    if (regex_search(arg,what,expression))
+    {
+      name=what[1];
+      type=what[3];
+      subtype=what[5];
+      value=what[6];
+      //CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("<"+subtype+">"))  << "=" << value << CFendl;
+      if (properties().check(name) == false) // not found
+        throw ValueNotFound(FromHere(), "Option with name ["+name+"] not found in "+ full_path().path());
+
+      if (type.empty())
+      {
+        CFinfo << "this must be a signal without signature" << CFendl;
+      }
+      else if (type == "bool")
+      {
+        configure_property(name,from_str<bool>(value));
+      }
+      else if (type == "unsigned")
+      {
+        configure_property(name,from_str<Uint>(value));
+      }
+      else if (type == "integer")
+      {
+        configure_property(name,from_str<int>(value));
+      }
+      else if (type == "real")
+      {
+        configure_property(name,from_str<Real>(value));
+      }
+      else if (type == "string")
+      {
+        configure_property(name,value);
+      }
+      else if (type == "uri")
+      {
+        configure_property(name,from_str<URI>(value));
+      }
+      else if (type == "array")
+      {
+        std::vector<std::string> array;
+        typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+        boost::char_separator<char> sep(",");
+        Tokenizer tokens(value, sep);
+
+        for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+        {
+          array.push_back(*tok_iter);
+          boost::algorithm::trim(array.back()); // remove leading and trailing spaces
+        }
+        if (subtype == "bool")
+        {
+          std::vector<bool> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<bool>(str_val));
+          configure_property(name,vec);
+        }
+        else if (subtype == "unsigned")
+        {
+          std::vector<Uint> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<Uint>(str_val));
+          configure_property(name,vec);
+        }
+        else if (subtype == "integer")
+        {
+          std::vector<int> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<int>(str_val));
+          configure_property(name,vec);
+        }
+        else if (subtype == "real")
+        {
+          std::vector<Real> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<Real>(str_val));
+          configure_property(name,vec);
+        }
+        else if (subtype == "string")
+        {
+          configure_property(name,array);
+        }
+        else if (subtype == "uri")
+        {
+          std::vector<URI> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<URI>(str_val));
+          configure_property(name,vec);
+        }
+      }
+      else
+      {
+        throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] for ["+ full_path().path() +"] is invalid");
+      }
+    }
+    else
+      throw ParsingFailed(FromHere(), "Could not parse [" + arg + "] in ["+ full_path().path() +"]");
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

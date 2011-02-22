@@ -11,8 +11,10 @@
 
 #include <Eigen/Dense>
 
+#include "Common/Core.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/ElementData.hpp"
 #include "Mesh/CField2.hpp"
@@ -69,21 +71,15 @@ private: // helper functions
 
     /// @todo modify these to option components configured from
 
-    solution_field = look_component( "cpath:../../../solution" )->follow()->as_type<Mesh::CField2>();
-    cf_assert( is_not_null( solution_field.lock() ) );
-
-    Mesh::CField2::Ptr csolution = look_component( "cpath:../../../solution" )
-        ->follow()->as_type<Mesh::CField2>();
+    Mesh::CField2::Ptr csolution = Common::find_component_ptr_recursively_with_tag<Mesh::CField2>( *Common::Core::instance().root(), "solution" );
     cf_assert( is_not_null( csolution ) );
     solution = csolution->data_ptr();
 
-    Mesh::CField2::Ptr cresidual = look_component( "cpath:../../../residual" )
-        ->follow()->as_type<Mesh::CField2>();
+    Mesh::CField2::Ptr cresidual = Common::find_component_ptr_recursively_with_tag<Mesh::CField2>( *Common::Core::instance().root(), "residual" );
     cf_assert( is_not_null( cresidual ) );
     residual = cresidual->data_ptr();
 
-    Mesh::CField2::Ptr cupdate_coeff = look_component( "cpath:../../../update_coeff" )
-        ->follow()->as_type<Mesh::CField2>();
+    Mesh::CField2::Ptr cupdate_coeff = Common::find_component_ptr_recursively_with_tag<Mesh::CField2>( *Common::Core::instance().root(), "update_coeff" );
     cf_assert( is_not_null( cupdate_coeff ) );
     update_coeff = cupdate_coeff->data_ptr();
   }
@@ -94,8 +90,6 @@ private: // data
   Mesh::CTable<Uint>::Ptr connectivity_table;
 
   Mesh::CTable<Real>::Ptr coordinates;
-
-  boost::weak_ptr<Mesh::CField2> solution_field;
 
   Mesh::CTable<Real>::Ptr solution;
   Mesh::CTable<Real>::Ptr residual;

@@ -53,9 +53,7 @@ public: // functions
 
   virtual void transform(const CMesh::Ptr& mesh)= 0;
   
-  void configure_arguments(const std::vector<std::string>& args);
-  
-  void execute();
+  virtual void execute();
   
   /// brief description, typically one line
   virtual std::string brief_description() const = 0;

@@ -8,8 +8,9 @@
 #include "Common/OptionURI.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
+
 #include "Mesh/CField2.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/CMesh.hpp"
 #include "Mesh/CEntities.hpp"
 
 #include "RDM/BcDirichlet.hpp"
@@ -36,9 +37,15 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
   m_properties.add_option< OptionURI > ("Solution",
                                         "Solution field where to apply the boundary condition",
                                         URI("cpath:"))
-      ->attach_trigger ( boost::bind ( &BcDirichlet::config_solution,   this ) )
-      ->mark_basic()
-      ->add_tag("solution");
+       ->attach_trigger ( boost::bind ( &BcDirichlet::config_mesh,   this ) )
+       ->mark_basic()
+       ->add_tag("solution");
+
+  m_properties.add_option< OptionURI > ("Mesh",
+                                        "Mesh where the boundary exists",
+                                        URI("cpath:"))
+      ->attach_trigger ( boost::bind ( &BcDirichlet::config_mesh,   this ) )
+      ->add_tag("mesh");
 
   m_properties.add_option<
       OptionT<std::string> > ("Function",
@@ -64,45 +71,46 @@ void BcDirichlet::config_function()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void BcDirichlet::config_solution()
+void BcDirichlet::config_mesh()
 {
-  URI uri;
-  property("Solution").put_value(uri);
+  URI mesh_uri = property("Mesh").value<URI>();
 
-  Component::Ptr found = look_component(uri);
-  if( is_null(found) )
-    throw InvalidURI (FromHere(), "URI does not point to a component " + uri.string() );
+  Component::Ptr mesh_comp = look_component(mesh_uri);
+  if( is_null(mesh_comp) )
+    throw InvalidURI (FromHere(), "URI does not point to a component " + mesh_uri.string() );
 
-  m_field = found->as_type<CField2>();
-  if ( is_null( m_field.lock() ) )
-    throw CastingFailed (FromHere(), "Solution field must be of a CField2 or derived type");
+  m_mesh = mesh_comp->as_type<CMesh>();
+  if ( is_null( m_mesh.lock() ) )
+    throw CastingFailed (FromHere(), "Could not find a CMesh on path " + mesh_uri.string() );
+
+  URI sol_uri  = property("Solution").value<URI>();
+  m_solution = look_component(sol_uri)->as_type<CField2>();
+  if( is_null(m_solution.lock()) )
+    m_solution = find_component_ptr_with_tag<CField2>( *(m_mesh.lock()) , "solution" );
+
+  if( is_null(m_solution.lock()) )
+    throw CastingFailed (FromHere(), "Could not find a solution field on mesh " + mesh_uri.string() );
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 void BcDirichlet::execute()
 {
-//  CFinfo << "boundary node [" << idx() << "]" << CFendl;
+  // idx() is the node index
 
-
-  // m_idx is the index that is set using the function set_loop_idx()
-  CField2& field = *m_field.lock();
+  CField2& field = *m_solution.lock();
   CTable<Real>::Row data = field[idx()];
 
   Real vars[2];
   vars[XX] = field.coords(idx())[XX];
   vars[YY] = field.coords(idx())[YY];
 
-//  CFinfo << "  --  coords " <<  x  << " " << y << CFendl;
-//  CFinfo << "parsed function: " << func << CFendl;
-
   const Uint row_size = data.size();
 
-  // Burgers - inlet bc:
   for (Uint i = 0; i != row_size; ++i)
   {
       data[i] = m_fparser.Eval(vars);
-//      CFinfo << "data at x = " << vars[XX] << " = " << data[i] << CFendl;
   }
 }
 

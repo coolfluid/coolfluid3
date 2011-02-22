@@ -3,6 +3,8 @@ list( APPEND coolfluid_rdm_files
   LibRDM.hpp
   BcDirichlet.hpp
   BcDirichlet.cpp
+  CAction.hpp
+  CAction.cpp
   CLDA.hpp
   CLDA.cpp
   CSchemeLDAT.hpp

@@ -48,7 +48,7 @@ CDomain::~CDomain()
 void CDomain::signal_load_mesh ( Common::XmlNode& node )
 {
   XmlParams p(node);
-  LoadMesh::Ptr mesh_loader = allocate_component<LoadMesh>("mesh_loader");
+  LoadMesh::Ptr mesh_loader = find_component_ptr<LoadMesh>( *Core::instance().root()->get_child("Tools") );
   CMesh::Ptr mesh = mesh_loader->load_mesh(p.get_option<URI>("File"));
   add_component(mesh);
 }

@@ -17,11 +17,7 @@
 
 namespace CF {
 
-namespace Mesh
-{
-  class CField2;
-  class CFieldView;
-}
+namespace Mesh { class CMesh; }
 
 namespace RDM {
 
@@ -51,13 +47,16 @@ public: // functions
 
 private: // helper functions
 
-  void config_solution();
+  void config_mesh();
   void config_function();
 
 private: // data
 
-  boost::weak_ptr<Mesh::CField2> m_field;
-
+  /// access to the mesh
+  boost::weak_ptr<Mesh::CMesh>   m_mesh;
+  /// access to the solution field on the mesh
+  boost::weak_ptr<Mesh::CField2> m_solution;
+  /// function parser for the math formula of the dirichlet condition
   FunctionParser  m_fparser;
 
 };

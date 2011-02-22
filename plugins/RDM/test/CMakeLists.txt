@@ -46,12 +46,3 @@ list( APPEND utest-rdm_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm  )
 list( APPEND utest-rdm_files  utest-rdm.cpp )
 
 coolfluid_add_unittest( utest-rdm )
-
-#########################################################################
-# test runge kutta
-
-list( APPEND utest-rdm-rungekutta_cflibs coolfluid_solver coolfluid_rdm coolfluid_mesh_neutral )
-list( APPEND utest-rdm-rungekutta_files  utest-rdm-rungekutta.cpp )
-
-coolfluid_add_unittest( utest-rdm-rungekutta )
-
