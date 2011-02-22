@@ -7,7 +7,7 @@
 #include <QtCore>
 #include <QtTest>
 
-#include "Common/XmlHelpers.hpp"
+#include "rapidxml/rapidxml.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CNode.hpp"
@@ -26,6 +26,7 @@
 #include "test/GUI/Client/CNodeTest.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientTest;
 
@@ -99,8 +100,8 @@ void CNodeTest::test_setOptions()
 {
   MyNode node("Node");
 
-  boost::shared_ptr<XmlDoc> wrongOpt = XmlOps::parse(std::string("<map>"
-      "<value key=\"options\">"
+  XmlDoc::Ptr wrongOpt = XmlDoc::parse_string("<node><map>"
+      "<value key=\"properties\">"
       " <map>"
       " 	<value key=\"pi\" descr=\"Pi value\">"
       "   	<real>3.141592</real>"
@@ -110,10 +111,10 @@ void CNodeTest::test_setOptions()
       "  </value>"
       " </map>"
       "</value>"
-      "</map>"));
+      "</map></node>");
 
-  boost::shared_ptr<XmlDoc> correctOpt = XmlOps::parse(std::string("<map>"
-      "<value key=\"options\">"
+  XmlDoc::Ptr correctOpt = XmlDoc::parse_string("<node><map>"
+      "<value key=\"properties\">"
       " <map>"
       " 	<value key=\"pi\" descr=\"Pi value\">"
       "   	<real>3.141592</real>"
@@ -123,11 +124,11 @@ void CNodeTest::test_setOptions()
       "  </value>"
       " </map>"
       "</value>"
-      "</map>"));
+      "</map></node>");
 
-  GUI_CHECK_THROW(MyNode("Node").setOptions(*wrongOpt->first_node()), ShouldNotBeHere);
+    GUI_CHECK_THROW(MyNode("Node").setProperties(XmlNode(wrongOpt->content->first_node())), ShouldNotBeHere);
 
-  GUI_CHECK_NO_THROW(node.setOptions(*correctOpt->first_node()));
+    GUI_CHECK_NO_THROW(node.setProperties(XmlNode(correctOpt->content->first_node())));
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -139,7 +140,7 @@ void CNodeTest::test_getOptions()
 
   QList<Option::ConstPtr> nodeOptList;
 
-  boost::shared_ptr<XmlDoc> options = XmlOps::parse(std::string("<map>"
+  XmlDoc::Ptr options = XmlDoc::parse_string("<node><map>"
       "<value key=\"options\">"
       " <map>"
       " 	<value key=\"pi\" descr=\"Pi value\">"
@@ -150,11 +151,11 @@ void CNodeTest::test_getOptions()
       "  </value>"
       " </map>"
       "</value>"
-      "</map>"));
+      "</map></node>");
 
   th.add(node);
 
-  node->setOptions(*options->first_node());
+  node->setProperties(XmlNode(options->content->first_node()));
 
   GUI_CHECK_NO_THROW(node->options(nodeOptList));
 

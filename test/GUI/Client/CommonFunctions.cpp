@@ -6,7 +6,7 @@
 
 #include <QTest>
 
-#include "Common/XmlHelpers.hpp"
+#include "rapidxml/rapidxml.hpp"
 
 #include "GUI/Client/Core/CNode.hpp"
 
@@ -14,14 +14,15 @@
 #include "test/GUI/Client/CommonFunctions.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientTest;
 
 NRoot::Ptr CF::GUI::ClientTest::makeTreeFromFile()
 {
-  static boost::shared_ptr<XmlDoc> doc = XmlOps::parse(boost::filesystem::path("./tree.xml"));
+  static XmlDoc::Ptr doc = XmlDoc::parse_file(boost::filesystem::path("./tree.xml"));
 
-  static NRoot::Ptr root = CNode::createFromXml(*doc->first_node())->castTo<NRoot>();
+  static NRoot::Ptr root = CNode::createFromXml(doc->content->first_node())->castTo<NRoot>();
   return root;
 }
 

@@ -9,8 +9,6 @@
 
 #include <iostream>
 
-#include "Common/XmlHelpers.hpp"
-
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"

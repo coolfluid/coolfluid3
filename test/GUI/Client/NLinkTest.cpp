@@ -8,7 +8,6 @@
 #include <QModelIndex>
 
 #include "Common/URI.hpp"
-#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NLink.hpp"
