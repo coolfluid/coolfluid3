@@ -22,7 +22,7 @@ namespace Mesh {
 
   class CMesh;
   class CRegion;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CInterpolator component class
@@ -48,15 +48,15 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CInterpolator"; }
-  
+
   // --------- Signals ---------
 
-  void interpolate( Common::XmlNode& node  );
+  void interpolate( Common::Signal::arg_t& node  );
 
   // --------- Direct access ---------
 
   virtual void construct_internal_storage(const CMesh::Ptr& source) = 0;
-  
+
   virtual void interpolate_field_from_to(const CField& source, CField& target) = 0;
 
 };

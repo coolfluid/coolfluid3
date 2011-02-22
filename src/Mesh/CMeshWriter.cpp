@@ -22,24 +22,24 @@ CMeshWriter::CMeshWriter ( const std::string& name  ) :
   Component ( name ), m_coord_dim(0), m_max_dimensionality(0)
 {
   mark_basic();
-  
+
   std::vector<URI> fields;
   m_properties.add_option< OptionArrayT<URI> > ("Fields","Fields to output",fields)->mark_basic();
   m_properties["Fields"].as_option().attach_trigger( boost::bind( &CMeshWriter::config_fields,   this ) );
-  
+
   // m_properties.add_option< OptionT<std::string> >  ( "File",  "File to read" , "" );
   // m_properties.add_option< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
-  
+
   // Path to the mesh to write
   Common::OptionURI::Ptr mesh_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("Mesh", "Mesh to write", std::string()) );
   mesh_path->supported_protocol(CF::Common::URI::Scheme::CPATH);
   mesh_path->mark_basic();
-  
+
   // Output file path
   Common::Option::Ptr file_path = properties().add_option< OptionT<std::string> >("File", "File to save to", std::string());
   //file_path->supported_protocol(CF::Common::URI::Scheme::FILE);
   file_path->mark_basic();
-  
+
   // Signal for writing the mesh
   this->regist_signal("write_mesh" , "Write the mesh", "Write Mesh")->connect( boost::bind ( &CMeshWriter::signal_write, this, _1 ) );
 }
@@ -50,7 +50,7 @@ void CMeshWriter::config_fields()
 {
   std::vector<URI> field_uris;
   m_properties["Fields"].put_value(field_uris);
-  
+
   m_fields.resize(0);
   boost_foreach ( const URI& uri, field_uris)
   {
@@ -77,7 +77,7 @@ CMeshWriter::~CMeshWriter()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshWriter::signal_write( XmlNode& node  )
+void CMeshWriter::signal_write( Signal::arg_t& node  )
 {
   write();
 }
@@ -88,7 +88,7 @@ void CMeshWriter::write()
 {
   // Get the mesh
   CMesh::Ptr mesh = look_component<CMesh>(property("Mesh").value_str());
-  
+
   // Get the file path
   boost::filesystem::path file (property("File").value_str());
 

@@ -946,12 +946,11 @@ void Component::mark_basic()
 void Component::create_component_signature( Signal::arg_t& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
-  const char * tag = Protocol::Tags::attr_descr();
 
-  p.set_option("Component name", std::string()).set_attribute(tag, "Name for created component.");
-  p.set_option("Generic name", std::string()).set_attribute(tag, "Generic type of the component.");
-  p.set_option("Concrete type", std::string()).set_attribute(tag, "Concrete type of the component.");
-  p.set_option("Basic mode", false).set_attribute(tag, "Component will be visible in basic mode.");
+  p.set_option("Component name", std::string(), "Name for created component.");
+  p.set_option("Generic name", std::string(), "Generic type of the component.");
+  p.set_option("Concrete type", std::string(), "Concrete type of the component.");
+  p.set_option("Basic mode", false, "Component will be visible in basic mode.");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -959,9 +958,8 @@ void Component::create_component_signature( Signal::arg_t& args )
 void Component::rename_component_signature( Signal::arg_t& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
-  const char * tag = Protocol::Tags::attr_descr();
 
-  p.set_option("New name", std::string()).set_attribute(tag, "Component new name.");
+  p.set_option("New name", std::string(), "Component new name.");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -969,10 +967,8 @@ void Component::rename_component_signature( Signal::arg_t& args )
 void Component::move_component_signature( Signal::arg_t& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
-  const char * tag = Protocol::Tags::attr_descr();
 
-  p.set_option("Path", std::string()).
-      set_attribute(tag, "Path to the new component to which this one will move to.");
+  p.set_option("Path", std::string(), "Path to the new component to which this one will move to.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

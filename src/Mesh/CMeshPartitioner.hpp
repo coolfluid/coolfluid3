@@ -71,19 +71,19 @@ public: // functions
 	/// @todo this is now virtual because Zoltan is used.
 	virtual void migrate();
 
-	void load_balance ( Common::XmlNode& xml );
+	void load_balance ( Common::Signal::arg_t& xml );
 
-	void load_balance_signature ( Common::XmlNode& node );
+	void load_balance_signature ( Common::Signal::arg_t& node );
 
-  /// location finding functions
+	/// location finding functions
 
 	boost::tuple<Component::Ptr,Uint> to_local(const Uint glb_obj) const;
 
 	void build_global_to_local_index(CMesh& mesh);
 
-  /// Graph building functions
+	/// Graph building functions
 
-  Uint nb_owned_objects() const;
+	Uint nb_owned_objects() const;
 
   template <typename VectorT>
   void list_of_owned_objects(VectorT& obj_list) const;
@@ -157,7 +157,7 @@ public: // functions
 
   boost::tuple<Uint,Uint,bool> to_local_indices_from_glb_obj(const Uint glb_obj) const;
 
-	void config_nb_parts();
+  void config_nb_parts();
 
 	Uint proc_of_obj(const Uint obj) {
 		return m_hash->proc_of_obj(obj);
@@ -177,15 +177,15 @@ private: // data
 
   Uint m_nb_owned_obj;
 
-	bool m_map_built;
+  bool m_map_built;
 
-	std::vector<Common::Component::Ptr> m_local_components;
+  std::vector<Common::Component::Ptr> m_local_components;
 
-	std::vector<Uint> m_local_start_index;
+  std::vector<Uint> m_local_start_index;
 
-	std::vector<Uint> m_local_index;
+  std::vector<Uint> m_local_index;
 
-	Common::CMap<Uint,Uint>::Ptr m_global_to_local;
+  Common::CMap<Uint,Uint>::Ptr m_global_to_local;
 
   CMixedHash::Ptr m_hash;
   enum HashType {NODES=0, ELEMS=1};

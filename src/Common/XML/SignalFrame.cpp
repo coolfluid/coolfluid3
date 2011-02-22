@@ -15,8 +15,8 @@
 
 // makes explicit instantiation for all template functions with a same type
 #define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
-Common_TEMPLATE template XmlNode SignalFrame::set_option<T>(const std::string&, const T&);\
-Common_TEMPLATE template XmlNode SignalFrame::set_array<T>(const std::string&, const std::vector<T>&, const std::string&);\
+Common_TEMPLATE template XmlNode SignalFrame::set_option<T>(const std::string&, const T&, const std::string&);\
+Common_TEMPLATE template XmlNode SignalFrame::set_array<T>(const std::string&, const std::vector<T>&, const std::string&, const std::string&);\
 Common_TEMPLATE template T SignalFrame::get_option<T>(const std::string&) const;\
 Common_TEMPLATE template std::vector<T> SignalFrame::get_array<T>(const std::string&) const;
 
@@ -86,23 +86,25 @@ SignalFrame::~SignalFrame()
 ////////////////////////////////////////////////////////////////////////////
 
 template<typename TYPE>
-XmlNode SignalFrame::set_option ( const std::string & name, const TYPE & value )
+XmlNode SignalFrame::set_option ( const std::string & name, const TYPE & value,
+                                  const std::string & descr )
 {
   cf_assert ( node.is_valid() );
 
-  return main_map.set_value( name, value);
+  return main_map.set_value( name, value, descr);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 template<typename TYPE>
 XmlNode SignalFrame::set_array ( const std::string & name,
-                              const std::vector<TYPE> & value,
-                              const std::string & delimiter )
+                                 const std::vector<TYPE> & value,
+                                 const std::string & delimiter,
+                                 const std::string & descr )
 {
   cf_assert ( node.is_valid() );
 
-  return main_map.set_array(name, value, delimiter);
+  return main_map.set_array(name, value, delimiter, descr);
 }
 
 ////////////////////////////////////////////////////////////////////////////

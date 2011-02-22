@@ -27,6 +27,7 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+using namespace Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +35,7 @@ CMeshReader::CMeshReader ( const std::string& name  ) :
   Component ( name )
 {
   mark_basic();
-  
+
   // signals
   this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::signal_read, this, _1 ) );
 
@@ -52,11 +53,11 @@ CMeshReader::~CMeshReader()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::signal_read( XmlNode& xml  )
+void CMeshReader::signal_read( Signal::arg_t& node  )
 {
-  XmlParams p (xml);
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-  URI path = p.get_option<URI>("Domain");
+  URI path = options.get_option<URI>("Domain");
 
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
@@ -66,7 +67,7 @@ void CMeshReader::signal_read( XmlNode& xml  )
   if (!domain)
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
 
-  std::vector<URI> files = p.get_array<URI>("Files");
+  std::vector<URI> files = options.get_array<URI>("Files");
 
   // check protocol for file loading
   boost_foreach(URI file, files)
@@ -170,9 +171,9 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
     // find the empty regions
     Uint empty_on_this_rank = region.connectivity_table().array().empty();
     Uint empty_on_all_ranks = empty_on_this_rank;
-    
+
     /// @todo boolean type had to be converted to Uint for it to work
-    if (mpi::PE::instance().is_init()) 
+    if (mpi::PE::instance().is_init())
       mpi::all_reduce(mpi::PE::instance(), mpi::logical_and(), &empty_on_this_rank, 1, &empty_on_all_ranks);
 
     if ( empty_on_all_ranks )
@@ -196,13 +197,14 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::read_signature( Common::XmlNode& node )
+void CMeshReader::read_signature( Signal::arg_t& node )
 {
-  XmlParams p(node);
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+
   std::vector<URI> dummy;
 
-  p.add_option<URI>("Domain", URI(), "Domain to load mesh into" );
-  p.add_array<URI>("Files", dummy , "Files to read" );
+  options.set_option<URI>("Domain", URI(), "Domain to load mesh into" );
+  options.set_array<URI>("Files", dummy, " ; " , "Files to read");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

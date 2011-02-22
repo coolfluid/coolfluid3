@@ -58,9 +58,9 @@ public: // functions
 
   /// @note: This doesn't read anything from the xml node argument.
   ///        It just reads the config options
-  void signal_read( Common::XmlNode& node  );
+  void signal_read( Common::Signal::arg_t& node  );
 
-  void read_signature( Common::XmlNode& node );
+  void read_signature( Common::Signal::arg_t & node );
 
   //@} END SIGNALS
 

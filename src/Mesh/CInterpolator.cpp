@@ -17,13 +17,14 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+using namespace Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CInterpolator::CInterpolator ( const std::string& name  ) :
   Component ( name )
 {
-   
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +35,7 @@ CInterpolator::~CInterpolator()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CInterpolator::interpolate( XmlNode& node  )
+void CInterpolator::interpolate( Signal::arg_t& node  )
 {
 }
 

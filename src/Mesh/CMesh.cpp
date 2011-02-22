@@ -26,6 +26,7 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+using namespace Common::XML;
 
 Common::ComponentBuilder < CMesh, Component, LibMesh > CMesh_Builder;
 
@@ -277,27 +278,28 @@ const CNodes& CMesh::nodes() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMesh::signature_write_mesh ( Common::XmlNode& node)
+void CMesh::signature_write_mesh ( Signal::arg_t& node)
 {
-  XmlParams p(node);
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-  p.add_option<std::string>("File" , name()+".msh" , "File to write" );
+  options.set_option<std::string>("File" , name()+".msh" , "File to write" );
 
   boost_foreach (CField2& field, find_components<CField2>(*this))
   {
-    p.add_option<bool>(field.name(), false, "Mark if field gets to be written");
+    options.set_option<bool>(field.name(), false, "Mark if field gets to be written");
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMesh::signal_write_mesh ( Common::XmlNode& node )
+void CMesh::signal_write_mesh ( Signal::arg_t& node )
 {
   WriteMesh::Ptr mesh_writer = create_component<WriteMesh>("writer");
 
-  XmlParams p (node);
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-  std::string file = p.get_option<std::string>("File");
+
+  std::string file = options.get_option<std::string>("File");
 
   // check protocol for file loading
   // if( file.scheme() != URI::Scheme::FILE )
@@ -311,7 +313,7 @@ void CMesh::signal_write_mesh ( Common::XmlNode& node )
 
   boost_foreach( CField2& field, find_components<CField2>(*this))
   {
-    bool add_field = p.get_option<bool>(field.name());
+    bool add_field = options.get_option<bool>(field.name());
     if (add_field)
       fields.push_back(field.full_path());
   }

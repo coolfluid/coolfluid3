@@ -51,7 +51,8 @@ public:
   /// @param value The option value.
   /// @see Map::set_value()
   template<typename TYPE>
-  XmlNode set_option ( const std::string & name, const TYPE & value );
+  XmlNode set_option ( const std::string & name, const TYPE & value,
+                       const std::string & descr = std::string() );
 
   /// Sets an option to the main map.
   /// @c #Map::set_array_value() is used to acheive this.
@@ -61,7 +62,8 @@ public:
   /// @see Map::set_value()
   template<typename TYPE>
   XmlNode set_array ( const std::string & name, const std::vector<TYPE> & value,
-                   const std::string & delimiter );
+                      const std::string & delimiter,
+                      const std::string & descr = std::string());
 
   /// Gets an option from the main map.
   /// @param name The option name.

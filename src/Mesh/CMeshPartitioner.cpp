@@ -19,10 +19,13 @@
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CNodes.hpp"
 
+#include "Common/XML/Protocol.hpp"
+
 namespace CF {
 namespace Mesh {
 
   using namespace Common;
+  using namespace Common::XML;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -60,11 +63,11 @@ void CMeshPartitioner::config_nb_parts()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::load_balance( XmlNode& xml  )
+void CMeshPartitioner::load_balance( Signal::arg_t& node  )
 {
-	XmlParams p (xml);
+	SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-	URI path = p.get_option<URI>("Mesh");
+	URI path = options.get_option<URI>("Mesh");
 
 	if( path.scheme() != URI::Scheme::CPATH )
 		throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
@@ -83,11 +86,11 @@ void CMeshPartitioner::load_balance( XmlNode& xml  )
 
 //////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::load_balance_signature ( Common::XmlNode& node )
+void CMeshPartitioner::load_balance_signature ( Common::Signal::arg_t& node )
 {
-	XmlParams p(node);
+	SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-	p.add_option<URI>("Mesh", URI(), "Mesh to load balance" );
+	options.set_option<URI>("Mesh", URI(), "Mesh to load balance" );
 }
 
 //////////////////////////////////////////////////////////////////////

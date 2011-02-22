@@ -9,10 +9,14 @@
 #include "Mesh/CDomain.hpp"
 #include "Mesh/LoadMesh.hpp"
 
+#include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalFrame.hpp"
+
 namespace CF {
 namespace Mesh {
 
 using namespace Common;
+using namespace Common::XML;
 
 Common::ComponentBuilder < CDomain, Component, LibMesh > CDomain_Builder;
 
@@ -44,36 +48,39 @@ CDomain::~CDomain()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CDomain::signal_load_mesh ( Common::XmlNode& node )
+void CDomain::signal_load_mesh ( Common::Signal::arg_t& node )
 {
-  XmlParams p(node);
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+
   LoadMesh::Ptr mesh_loader = find_component_ptr<LoadMesh>( *Core::instance().root()->get_child("Tools") );
-  CMesh::Ptr mesh = mesh_loader->load_mesh(p.get_option<URI>("File"));
+  CMesh::Ptr mesh = mesh_loader->load_mesh(options.get_option<URI>("File"));
   add_component(mesh);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CDomain::signature_load_mesh ( Common::XmlNode& node )
+void CDomain::signature_load_mesh ( Common::Signal::arg_t& node )
 {
-  XmlParams p(node);
-  p.add_option<URI>("File", URI(), "Location of the file holding the mesh" );
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+
+  options.set_option<URI>("File", URI(), "Location of the file holding the mesh" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void CDomain::signal_generate_mesh ( Common::XmlNode& node )
+void CDomain::signal_generate_mesh ( Common::Signal::arg_t& node )
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CDomain::signature_generate_mesh ( Common::XmlNode& node )
+void CDomain::signature_generate_mesh ( Common::Signal::arg_t& node )
 {
-  XmlParams p(node);
-  p.add_option<std::string>("Sorry", std::string("Not implemented"), "Sorry again" );
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+
+  options.set_option<std::string>("Sorry", std::string("Not implemented"), "Sorry again" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

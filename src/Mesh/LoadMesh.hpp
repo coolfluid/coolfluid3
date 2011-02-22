@@ -43,14 +43,14 @@ public: // functions
   // functions specific to the LoadMesh component
 
   /// Signal run_operation
-  void signal_load_mesh ( Common::XmlNode& node );
+  void signal_load_mesh ( Common::Signal::arg_t& node );
 
-  void signature_load_mesh ( Common::XmlNode& node);
+  void signature_load_mesh ( Common::Signal::arg_t& node);
 
   LoadMesh& operation(const std::string& name);
 
   boost::shared_ptr<CMesh> load_mesh(const Common::URI& file);
-  
+
 protected: // helper functions
 
   /// updates the list of avialable readers and regists each one to the extension it supports

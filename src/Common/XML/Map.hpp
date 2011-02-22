@@ -61,7 +61,8 @@ namespace XML {
     ///        @li the value exists and its type does not match to TYPE
     ///        @li the value exists but does not have a type
     template<typename TYPE>
-    XmlNode set_value ( const std::string& val_key, const TYPE & value );
+    XmlNode set_value ( const std::string& val_key, const TYPE & value,
+                        const std::string& descr = std::string());
 
     /// Adds or modifies an array.
     /// The TYPE must be one of those supported by @c #from_value(). @n
@@ -89,8 +90,9 @@ namespace XML {
     ///        @li the array exists but does not have a type
     template<typename TYPE>
     XmlNode set_array ( const std::string& val_key,
-                              const std::vector<TYPE> & value,
-                              const std::string& delimiter );
+                        const std::vector<TYPE> & value,
+                        const std::string& delimiter,
+                        const std::string& descr = std::string() );
 
     /// Searches for a value in this map.
 

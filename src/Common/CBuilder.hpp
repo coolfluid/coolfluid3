@@ -130,12 +130,9 @@ public:
   void build_component_signature ( Signal::arg_t& args )
   {
     XML::SignalFrame p = args.map( XML::Protocol::Tags::key_options() );
-    const char * tag = XML::Protocol::Tags::attr_descr();
 
-    p.set_option<std::string>("Component name", std::string()).
-        set_attribute(tag, "Name for created component" );
-    p.set_option<URI>("Parent component", URI()).
-        set_attribute(tag, "Path to component where place the newly built component");
+    p.set_option<std::string>("Component name", std::string(), "Name for created component" );
+    p.set_option<URI>("Parent component", URI(), "Path to component where place the newly built component");
   }
 
   //@} END SIGNALS

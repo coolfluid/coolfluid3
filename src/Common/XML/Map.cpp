@@ -22,8 +22,8 @@
 #define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
   Common_TEMPLATE template void Map::split_string<T>(const std::string&, const std::string&, std::vector<T>&);\
   Common_TEMPLATE template bool Map::value_has_type<T>(const XmlNode&);\
-  Common_TEMPLATE template XmlNode Map::set_value<T>(const std::string&, const T&);\
-  Common_TEMPLATE template XmlNode Map::set_array<T>(const std::string&, const std::vector<T>&, const std::string&);\
+  Common_TEMPLATE template XmlNode Map::set_value<T>(const std::string&, const T&, const std::string&);\
+  Common_TEMPLATE template XmlNode Map::set_array<T>(const std::string&, const std::vector<T>&, const std::string&, const std::string&);\
   Common_TEMPLATE template T Map::get_value<T>(const std::string&) const;\
   Common_TEMPLATE template std::vector<T> Map::get_array<T>(const std::string&) const;\
   Common_TEMPLATE template std::vector<T> Map::array_to_vector<T>(const XmlNode&) const
@@ -70,7 +70,8 @@ Map::Map(XmlNode node) :
 ///////////////////////////////////////////////////////////////////////////////
 
 template<typename TYPE>
-XmlNode Map::set_value ( const std::string& value_key, const TYPE & value )
+XmlNode Map::set_value ( const std::string& value_key, const TYPE & value,
+                         const std::string& descr )
 {
   cf_assert ( content.is_valid() );
 
@@ -108,6 +109,9 @@ XmlNode Map::set_value ( const std::string& value_key, const TYPE & value )
     type_node->value( type_node->document()->allocate_string(value_str.c_str()) );
   }
 
+  if( !descr.empty() )
+    value_node.set_attribute( Protocol::Tags::attr_descr(), descr );
+
   return value_node;
 }
 
@@ -116,7 +120,8 @@ XmlNode Map::set_value ( const std::string& value_key, const TYPE & value )
 template<typename TYPE>
 XmlNode Map::set_array ( const std::string& value_key,
                          const std::vector<TYPE> & value,
-                         const std::string& delimiter )
+                         const std::string& delimiter,
+                         const std::string& descr)
 {
   cf_assert ( content.is_valid() );
 //  cf_assert ( is_not_null(content.content->document()) );
@@ -182,6 +187,9 @@ XmlNode Map::set_array ( const std::string& value_key,
   array_node.set_attribute( Protocol::Tags::attr_array_delimiter(), delimiter );
 
   array_node.content->value( array_node.content->document()->allocate_string(value_str.c_str()) );
+
+  if( !descr.empty() )
+    array_node.set_attribute( Protocol::Tags::attr_descr(), descr );
 
   return array_node;
 }

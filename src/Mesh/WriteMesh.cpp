@@ -11,6 +11,8 @@
 #include "Common/CRoot.hpp"
 #include "Common/Foreach.hpp"
 
+#include "Common/XML/Protocol.hpp"
+
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CDomain.hpp"
@@ -21,6 +23,7 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+using namespace Common::XML;
 using namespace CF::Mesh;
 
 Common::ComponentBuilder < WriteMesh, Component, LibMesh > WriteMesh_Builder;
@@ -119,13 +122,13 @@ void WriteMesh::write_mesh( CMesh& mesh, const URI& file, const std::vector<URI>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void WriteMesh::signal_write_mesh ( Common::XmlNode& node )
+void WriteMesh::signal_write_mesh ( Common::Signal::arg_t& node )
 {
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+
   update_list_of_available_writers();
 
-  XmlParams p (node);
-
-  URI mesh_uri = p.get_option<URI>("Mesh");
+  URI mesh_uri = options.get_option<URI>("Mesh");
 
   if( mesh_uri.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Mesh, expecting a \'cpath\' but got \'" + mesh_uri.string() +"\'");
@@ -133,7 +136,7 @@ void WriteMesh::signal_write_mesh ( Common::XmlNode& node )
   // get the domain
   CMesh::Ptr mesh = look_component<CMesh>( mesh_uri );
 
-  std::string file = p.get_option<std::string>("File");
+  std::string file = options.get_option<std::string>("File");
 
   // check protocol for file loading
   // if( file.scheme() != URI::Scheme::FILE )
@@ -148,10 +151,10 @@ void WriteMesh::signal_write_mesh ( Common::XmlNode& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void WriteMesh::signature_write_mesh ( Common::XmlNode& node)
+void WriteMesh::signature_write_mesh ( Common::Signal::arg_t& node)
 {
-  XmlParams p(node);
-  URI dummy;
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+
   CFactory::Ptr meshwriter_factory = Core::instance().factories()->get_factory<CMeshWriter>();
   std::vector<std::string> writers;
 
@@ -161,14 +164,13 @@ void WriteMesh::signature_write_mesh ( Common::XmlNode& node)
     writers.push_back(bdr.name());
   }
 
-  p.add_option<URI>("Mesh", URI(), "Path to the mesh" );
+  options.set_option<URI>("Mesh", URI(), "Path to the mesh" );
 
   // create the value and add the restricted list
-  XmlNode& wrts_node = *XmlParams::add_value_to(*p.option_map, "Available Writers", std::string() , "Available writers" );
-  XmlParams::add_array_to(wrts_node, XmlParams::tag_attr_restricted_values(), writers);
+  XmlNode wrts_node = options.set_option( "Available writers", std::string() , "Available writers" );
+  Map(wrts_node).set_array( Protocol::Tags::key_restricted_values(), writers, " ; ");
 
-  p.add_option<std::string>("File", std::string() , "File to write" );
-
+  options.set_option<std::string>("File", std::string() , "File to write" );
 }
 
 } // Mesh

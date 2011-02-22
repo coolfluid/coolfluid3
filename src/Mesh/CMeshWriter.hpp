@@ -19,10 +19,10 @@
 
 namespace CF {
 namespace Mesh {
-  
+
   class CNodes;
   class CField2;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CMeshWriter component class
@@ -51,7 +51,7 @@ public: // functions
 
   // --------- Signals ---------
 
-  void signal_write( Common::XmlNode& node  );
+  void signal_write( Common::Signal::arg_t& node  );
 
   // --------- Direct access ---------
 
@@ -62,7 +62,7 @@ public: // functions
   virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path) = 0;
 
   void write();
-  
+
   void set_fields(const std::vector<boost::shared_ptr<CField2> >& fields);
 
 private: // functions
@@ -70,7 +70,7 @@ private: // functions
   void config_fields();
 
 protected: // classes
-  
+
   class IsGroup
   {
    public:
@@ -80,18 +80,18 @@ protected: // classes
      {
        return count(Common::find_components<CEntities>(component));
      }
-     
+
   }; // IsGroup
 
 protected:
-  
+
   CMesh::Ptr m_mesh;
-  
+
   typedef std::map<CNodes*,std::list<CElements*> > NodesElementsMap;
   NodesElementsMap m_all_nodes;
   Uint m_coord_dim;
   Uint m_max_dimensionality;
-  
+
   void compute_mesh_specifics();
 
   std::vector<boost::weak_ptr<CField2> > m_fields;

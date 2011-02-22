@@ -43,14 +43,14 @@ public: // functions
   // functions specific to the WriteMesh component
 
   /// Signal run_operation
-  void signal_write_mesh ( Common::XmlNode& node );
+  void signal_write_mesh ( Common::Signal::arg_t& node );
 
-  void signature_write_mesh ( Common::XmlNode& node);
+  void signature_write_mesh ( Common::Signal::arg_t& node);
 
   WriteMesh& operation(const std::string& name);
 
   void write_mesh( CMesh&, const Common::URI& file, const std::vector<Common::URI>& fields);
-  
+
 protected: // helper functions
 
   /// updates the list of avialable readers and regists each one to the extension it supports
