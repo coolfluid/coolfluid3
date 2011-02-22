@@ -20,6 +20,7 @@
 #include "GUI/Client/UI/GraphOption.hpp"
 #include "GUI/Client/UI/ColorSelector.hpp"
 #include "fparser/fparser.hh"
+#include "GUI/Client/Core/ClientRoot.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -65,10 +66,12 @@ namespace ClientUI {
 
       QPushButton * button_draw = new QPushButton("Draw fonction(s)");
 
+      in_line_function_name = new QLineEdit();
       in_line_function = new QLineEdit();
 
       QPushButton * button_generate_function = new QPushButton("Generate Function");
 
+      horisontal_function_layout->addWidget(in_line_function_name);
       horisontal_function_layout->addWidget(in_line_function);
       horisontal_function_layout->addWidget(button_generate_function);
 
@@ -158,7 +161,8 @@ namespace ClientUI {
   }
 
 
-  void GraphOption::add_data(std::vector<double> & fct, QString formule){
+  void GraphOption::add_data(std::vector<double> & fct, QString formule,
+                             QString function_name){
 
     m_fcts.push_back(fct);
 
@@ -167,9 +171,8 @@ namespace ClientUI {
     m_tableau->setRowCount(1 + old_row_count);
 
     for(int i = m_tableau->rowCount()-1; i < m_tableau->rowCount(); ++i ){
-      qDebug() << i;
       m_tableau->setCellWidget(i,0,new QCheckBox());
-      m_tableau->setCellWidget(i,1,new QLabel(formule)); //fct_label[i])
+      m_tableau->setCellWidget(i,1,new QLabel(function_name));
       m_tableau->setCellWidget(i,2,new QComboBox());
       ((QComboBox *)m_tableau->cellWidget(i,2))->addItem("y",0);
       ((QComboBox *)m_tableau->cellWidget(i,2))->addItem("x",1);
@@ -188,27 +191,52 @@ namespace ClientUI {
 
     FunctionParser fparser;
 
-    QString variable;
+    QString variable = "";
     for(int i=0; i < m_fcts.size(); ++i){
+      if(!(((QLabel *)m_tableau->cellWidget(i,1))->text()).isEmpty()){
+        if(!variable.isEmpty()){
+          variable += ",";
+        }
         variable.append(((QLabel *)m_tableau->cellWidget(i,1))->text());
-        variable += ",";
+      }
     }
-
 
     int res = fparser.Parse(in_line_function->text().toStdString().c_str(),
-                            variable.toStdString().c_str());//variable.toStdString()
+                            variable.toStdString().c_str());
 
-    if(res > 0) return;
-
-    std::vector<double> vector_temp(10000);
-
-    double vals[] = { 0 };
-    for(vals[0] = 0; vals[0] <= 10000; vals[0] += 1)
-    {
-        vector_temp[vals[0]] = fparser.Eval(vals);
+    if(res > 0){
+      ClientCore::ClientRoot::instance().log()->addError("The funtion is not reconized.");
+      return;
     }
 
-    this->add_data(vector_temp,in_line_function->text());
+
+    int max_it = 0;
+    if(m_fcts.size()>0)
+    {
+      max_it = m_fcts[0].size();
+      for(int i=1;i<m_fcts.size();++i)
+      {
+        max_it = std::min((int)max_it,(int)m_fcts[i].size());
+      }
+    }else{
+      return;
+    }
+
+    std::vector<double> vector_temp(max_it);
+
+    double vals[m_fcts.size()];
+    for(int i=0;i<max_it;++i)
+    {
+
+      for(int j=0;j<m_fcts.size();++j)
+      {
+        vals[j] = m_fcts[j][i];
+      }
+
+      vector_temp[i] = fparser.Eval(vals);
+    }
+
+    this->add_data(vector_temp,in_line_function->text(),in_line_function_name->text());
 
   }
 

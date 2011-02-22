@@ -111,10 +111,10 @@ namespace ClientUI {
 
     //creating advanced option button
     //to do
-    m_line_x1 = new QLineEdit("X point top left");
-    m_line_x2 = new QLineEdit("Y point top left");
-    m_line_y1 = new QLineEdit("Weigth");
-    m_line_y2 = new QLineEdit("Height");
+    m_line_x1 = new QLineEdit();
+    m_line_x2 = new QLineEdit();
+    m_line_y1 = new QLineEdit();
+    m_line_y2 = new QLineEdit();
     m_bt_zoom_coord = new QPushButton("Set scale");
 
 

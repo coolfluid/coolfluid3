@@ -36,7 +36,8 @@ public:
                   std::vector<QString> & fct_label);
 
     /// add the data to show in the option tab
-    void add_data(std::vector<double> & fct, QString formule);
+    void add_data(std::vector<double> & fct, QString formule,
+                  QString function_name);
 
 private:
     /// QwtPlot pointer, refer to the plot where we draw cures
@@ -47,6 +48,9 @@ private:
 
     /// User tipe his function here
     QLineEdit * in_line_function;
+
+    /// User tipe name funtion
+    QLineEdit * in_line_function_name;
 
     /// cell and item table
     QTableWidget * m_tableau;
