@@ -362,14 +362,14 @@ void ServerNetworkComm::newData()
       XmlDoc::Ptr xmldoc = XmlDoc::parse_string( frame.toStdString() );
 
       XmlNode nodedoc = Protocol::goto_doc_node(*xmldoc.get());
-      SignalFrame frame ( nodedoc.content->first_node() );
+      SignalFrame * sig_frame = new SignalFrame( nodedoc.content->first_node() );
 
-      frame.xml_doc = xmldoc;
+      sig_frame->xml_doc = xmldoc;
 
-      target = this->getAttr(frame.node, "target", errorMsg);
-      receiver = this->getAttr(frame.node, "receiver", errorMsg);
-      clientId = this->getAttr(frame.node, "clientid", errorMsg);
-      frameId = this->getAttr(frame.node, "frameid", errorMsg);
+      target = this->getAttr(sig_frame->node, "target", errorMsg);
+      receiver = this->getAttr(sig_frame->node, "receiver", errorMsg);
+      clientId = this->getAttr(sig_frame->node, "clientid", errorMsg);
+      frameId = this->getAttr(sig_frame->node, "frameid", errorMsg);
 
       if(errorMsg.isEmpty())
       {
@@ -382,7 +382,7 @@ void ServerNetworkComm::newData()
             m_clients[socket] = clientId;
 
             // Build the reply
-            SignalFrame reply = frame.create_reply();
+            SignalFrame reply = sig_frame->create_reply();
             SignalFrame& roptions = reply.map( Protocol::Tags::key_options() );
 
             roptions.set_option("accepted", true);
@@ -401,7 +401,7 @@ void ServerNetworkComm::newData()
                                "and '%2' (used for identification) do not "
                                "match.").arg(m_clients[socket].c_str()).arg(clientId.c_str());
           else
-            ServerRoot::processSignal(target, receiver, clientId, frameId, frame);
+            ServerRoot::processSignal(target, receiver, clientId, frameId, *sig_frame);
         }
       }
 

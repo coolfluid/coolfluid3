@@ -33,11 +33,9 @@ namespace Server {
 
     void run();
 
-    Common::Signal::arg_t & getNode() const;
-
   private:
 
-    Common::Signal::arg_t & m_signal;
+    Common::Signal::arg_t m_signal;
 
     std::string m_target;
 
