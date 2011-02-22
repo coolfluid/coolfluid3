@@ -18,6 +18,7 @@ namespace CF {
 namespace UFEM {
 
 using namespace Common;
+using namespace Common::XML;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
@@ -55,19 +56,19 @@ CEigenLSS& LinearSystem::lss()
   return *m_lss.lock();
 }
 
-void LinearSystem::dirichlet_bc_signature(XmlNode& node)
+void LinearSystem::dirichlet_bc_signature(Signal::arg_t& args)
 {
-  XmlParams p(node);
+  SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
-  p.add_option<std::string>("BCName", std::string(), "Name for the boundary condition" );
-  p.add_option<std::string>("FieldName", std::string(), "Name for the field for which to set the BC" );
-  p.add_option<std::string>("VariableName", std::string(), "Name for the variable for which to set the BC" );
+  p.set_option<std::string>("BCName", std::string(), "Name for the boundary condition" );
+  p.set_option<std::string>("FieldName", std::string(), "Name for the field for which to set the BC" );
+  p.set_option<std::string>("VariableName", std::string(), "Name for the variable for which to set the BC" );
 }
 
 
-void LinearSystem::add_dirichlet_bc( XmlNode& node )
+void LinearSystem::add_dirichlet_bc( Signal::arg_t& node )
 {
-  XmlParams p(node);
+  SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
   const std::string bc_name = p.get_option<std::string>("BCName");
   const std::string field_name = p.get_option<std::string>("FieldName");
@@ -80,19 +81,19 @@ void LinearSystem::add_dirichlet_bc( XmlNode& node )
   bc->add_tag("dirichlet_bc");
 }
 
-void LinearSystem::add_initial_condition_signature(XmlNode& node)
+void LinearSystem::add_initial_condition_signature(Signal::arg_t& node)
 {
-  XmlParams p(node);
+  SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
-  p.add_option<std::string>("Name", std::string(), "Name for the initial condition" );
-  p.add_option<std::string>("FieldName", std::string(), "Name for the field for which to set the initial values" );
-  p.add_option<std::string>("VariableName", std::string(), "Name for the variable for which to set the initial values" );
+  p.set_option<std::string>("Name", std::string(), "Name for the initial condition" );
+  p.set_option<std::string>("FieldName", std::string(), "Name for the field for which to set the initial values" );
+  p.set_option<std::string>("VariableName", std::string(), "Name for the variable for which to set the initial values" );
 }
 
 
-void LinearSystem::add_initial_condition( XmlNode& node )
+void LinearSystem::add_initial_condition( Signal::arg_t& node )
 {
-  XmlParams p(node);
+  SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
   const std::string name = p.get_option<std::string>("Name");
   const std::string field_name = p.get_option<std::string>("FieldName");
@@ -106,7 +107,7 @@ void LinearSystem::add_initial_condition( XmlNode& node )
 }
 
 
-void LinearSystem::run(XmlNode& node)
+void LinearSystem::run(Signal::arg_t& node)
 {
   on_run();
 }
@@ -158,7 +159,7 @@ void LinearSystem::on_lss_set()
   m_system_builder = build_equation();
 }
 
-void LinearSystem::signal_initialize_fields(XmlNode& node)
+void LinearSystem::signal_initialize_fields(Signal::arg_t& node)
 {
   CFieldAction::Ptr builder = m_system_builder.lock();
   if(!builder)
