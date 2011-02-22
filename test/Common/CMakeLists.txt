@@ -102,16 +102,6 @@ coolfluid_add_unittest( utest-signals )
 ################################################################################
 # Test Component
 
-list( APPEND utest-xml-params_cflibs coolfluid_common )
-list( APPEND utest-xml-params_files
-  utest-xml-params.cpp
-)
-
-coolfluid_add_unittest( utest-xml-params )
-
-################################################################################
-# Test Component
-
 list( APPEND utest-xml-map_cflibs coolfluid_common )
 list( APPEND utest-xml-map_files
   utest-xml-map.cpp

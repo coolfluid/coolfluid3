@@ -17,6 +17,8 @@
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
 
+#include "Common/StringConversion.hpp"
+
 using namespace CF;
 using namespace CF::Common;
 

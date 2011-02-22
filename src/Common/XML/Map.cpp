@@ -25,7 +25,8 @@
   Common_TEMPLATE template XmlNode Map::set_value<T>(const std::string&, const T&);\
   Common_TEMPLATE template XmlNode Map::set_array<T>(const std::string&, const std::vector<T>&, const std::string&);\
   Common_TEMPLATE template T Map::get_value<T>(const std::string&) const;\
-  Common_TEMPLATE template std::vector<T> Map::get_array<T>(const std::string&) const
+  Common_TEMPLATE template std::vector<T> Map::get_array<T>(const std::string&) const;\
+  Common_TEMPLATE template std::vector<T> Map::array_to_vector<T>(const XmlNode&) const
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -296,7 +297,6 @@ std::vector<TYPE> Map::get_array ( const std::string& array_key ) const
 {
   cf_assert ( content.is_valid() );
 
-  std::vector<TYPE> result;
   const char * type_name = Protocol::Tags::type<TYPE>();
   rapidxml::xml_attribute<> * delim_attr = nullptr;
 
@@ -313,17 +313,42 @@ std::vector<TYPE> Map::get_array ( const std::string& array_key ) const
                      std::string(type_name) + "] with \'key\' attribute  [" +
                      array_key + "]." );
 
-  delim_attr = found_node.content->first_attribute( Protocol::Tags::attr_array_delimiter() );
+
+  return array_to_vector<TYPE>( found_node );
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+
+template<typename TYPE>
+std::vector<TYPE> Map::array_to_vector ( const XmlNode & array_node ) const
+{
+  cf_assert( array_node.is_valid() );
+  std::vector<TYPE> result;
+  rapidxml::xml_attribute<> * delim_attr = nullptr;
+
+  delim_attr = array_node.content->first_attribute( Protocol::Tags::attr_array_delimiter() );
 
   // check that the delimiter is present and not empty
   if(delim_attr == nullptr || delim_attr->value()[0] == '\0')
     throw XmlError(FromHere(), "No delimiter found.");
 
   // convert xml value to TYPE
-  split_string(found_node.content->value(), delim_attr->value(), result);
+  split_string(array_node.content->value(), delim_attr->value(), result);
+
+  rapidxml::xml_attribute<>* size_attr = array_node.content->first_attribute( "size" );
+  if ( !size_attr )
+    throw ParsingFailed (FromHere(), "Array does not have \'size\' attribute" );
+
+  Uint expected_size = from_str<Uint>( size_attr->value() );
+
+  if ( expected_size != result.size() )
+    throw ParsingFailed (FromHere(), "Array \'size\' did not match number of entries "
+                         "(expected " + to_str(expected_size) + " but found " +
+                         to_str(result.size()) + " item(s)).");
 
   return result;
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 

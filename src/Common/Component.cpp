@@ -818,7 +818,7 @@ void Component::signal_configure ( Signal::arg_t& args )
 {
   using namespace rapidxml;
 
-  if ( args.has_map( Protocol::Tags::key_options() ) )
+  if ( !args.has_map( Protocol::Tags::key_options() ) )
     throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(Protocol::Tags::key_options()) + "\' map" );
 
   XmlNode opt_map = args.map( Protocol::Tags::key_options() ).main_map.content;

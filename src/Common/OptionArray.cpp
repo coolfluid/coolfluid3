@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
 
@@ -53,7 +55,10 @@ template < typename TYPE >
     void OptionArrayT<TYPE>::configure ( XmlNode& node )
 {
   rapidxml::xml_attribute<>* attr = node.content->first_attribute( "type" );
-  XmlNode itr = node.content->first_node();
+//  rapidxml::xml_attribute<> * delim_attr = nullptr;
+//  XmlNode itr = node.content->first_node();
+//  using namespace boost::algorithm;
+
 
   if ( !attr )
     throw ParsingFailed (FromHere(), "OptionArray does not have \'type\' attribute" );
@@ -64,26 +69,9 @@ template < typename TYPE >
                          + "\' but got \'"
                          +  std::string(elem_type()) + "\'"  );
 
-  value_type val; // empty vector
+  m_value = Map().array_to_vector<TYPE>( node );
 
-  for ( ; itr.is_valid() ; itr.content = itr.content->next_sibling() )
-  {
-    val.push_back(to_value<TYPE>(itr));
-  }
-
-
-  rapidxml::xml_attribute<>* size_attr = node.content->first_attribute( "size" );
-  if ( !size_attr )
-    throw ParsingFailed (FromHere(), "OptionArray does not have \'size\' attribute" );
-
-  Uint expected_size = from_str<Uint>( size_attr->value() );
-
-  if ( expected_size != val.size() )
-    throw ParsingFailed (FromHere(), "OptionArray \'size\' did not match number of entries" );
-
-  m_value = val;
-
-  copy_to_linked_params(val);
+  copy_to_linked_params(m_value);
 }
 
 template < typename TYPE >

@@ -43,7 +43,7 @@ void OptionT<TYPE>::configure ( XmlNode& node )
   XmlNode type_node(node.content->first_node(type_str));
 
   if( type_node.is_valid() )
-    from_str<TYPE>( type_node.content->name() );
+    val = from_str<TYPE>( type_node.content->value() );
   else
     throw XmlError(FromHere(), std::string("Could not find a value of this type [") + type_str + "].");
 

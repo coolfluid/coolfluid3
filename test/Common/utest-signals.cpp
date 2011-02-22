@@ -13,12 +13,14 @@
 #include "Common/LibCommon.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
-#include "Common/XmlHelpers.hpp"
+
+#include "Common/XML/SignalFrame.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
+using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -50,26 +52,19 @@ public: // functions
 
   void trigger_signal_print_message ( Component& receiver )
   {
-    boost::shared_ptr<XmlDoc> xmlroot = XmlOps::create_doc();
+    SignalFrame signal_frame( "Target", "//Root", "//Root");
 
-    XmlNode& docnode = *XmlOps::goto_doc_node(*xmlroot.get());
+    SignalFrame & options = signal_frame.map("options");
 
-    XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode, "", "", "", true );
-
-    XmlParams p ( signal_frame );
-
-    p.add_option<int>( "Counter", 10 );
+    options.set_option<int>( "Counter", 10 );
 
     receiver.call_signal( "print_message", signal_frame );
   }
 
   void trigger_signal_list_tree ( Component& receiver )
   {
-    boost::shared_ptr<XmlDoc> xmlroot = XmlOps::create_doc();
+    SignalFrame signal_frame( "list_tree", full_path(), receiver.full_path());
 
-    XmlNode& docnode = *XmlOps::goto_doc_node(*xmlroot.get());
-
-    XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode, "list_tree", full_path(), receiver.full_path(), false);
 
 //    std::vector < std::pair < Signal::id_t, Signal::desc_t > > lists = receiver.list_signals();
 //    for ( int i = 0; i < lists.size(); i++)
@@ -86,9 +81,9 @@ public: // functions
   //@{
 
   /// creates a component from this component
-  void print_message ( XmlNode& xml )
+  void print_message ( Signal::arg_t& xml )
   {
-    XmlParams p (xml);
+//    XmlParams p (xml);
 
   //  CFinfo << "Component [" << name() << "] received counter [" << p.get_option<int>("Counter") << "]" << CFendl;
   }

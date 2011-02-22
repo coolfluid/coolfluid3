@@ -18,12 +18,15 @@
 #include "Common/CRoot.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
-#include "Common/XmlHelpers.hpp"
+
+#include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalFrame.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
+using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -260,16 +263,11 @@ BOOST_AUTO_TEST_CASE( create_component_signal )
 {
   CRoot::Ptr root = CRoot::create ( "croot" );
 
-  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc ();
+  SignalFrame sf("Signal", "//Root", "//Root");
 
-
-  XmlNode& node = *XmlOps::goto_doc_node( *doc.get() );
-
-  XmlParams params ( node );
-
-  params.add_option<std::string>( "name",  "MyMesh" );
-  params.add_option<std::string>( "atype", "CMeshReader" );
-  params.add_option<std::string>( "ctype", "CGNS" );
+  sf.set_option<std::string>( "name",  "MyMesh" );
+  sf.set_option<std::string>( "atype", "CMeshReader" );
+  sf.set_option<std::string>( "ctype", "CGNS" );
 
 //  XmlOps::print_xml_node( *doc.get() );
 //  XmlOps::write_xml_node( *doc.get(),  "test.xml" );

@@ -154,6 +154,14 @@ namespace XML {
     template<typename TYPE>
     std::vector<TYPE> get_array ( const std::string& val_key ) const;
 
+    /// Converts an array XML node to a vector of TYPE
+    /// @param The array node to convert. Must be valid.
+    /// @throw XmlError if no delimiter is found.
+    /// @throw ParsingFailed if no size is found or if the found size does not
+    /// match with the number of found elements.
+    template<typename TYPE>
+    std::vector<TYPE> array_to_vector ( const XmlNode & array_node ) const;
+
   public: // data
 
     /// The managed node.

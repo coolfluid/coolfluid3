@@ -18,7 +18,6 @@
 #include "Common/CRoot.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
-#include "Common/XmlHelpers.hpp"
 
 using namespace std;
 using namespace boost;

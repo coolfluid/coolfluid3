@@ -19,12 +19,14 @@
 #include "Common/OptionArray.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
-#include "Common/XmlHelpers.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/URI.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/OptionT.hpp"
+
+#include "Common/XML/Protocol.hpp"
+#include "Common/XML/XmlDoc.hpp"
 
 #include "test/Common/DummyComponents.hpp"
 
@@ -92,19 +94,19 @@ public:
 
     m_properties.add_option< OptionComponent<CConcrete1> >( "OptC", "component option", Core::instance().root()->full_path());
     m_properties.link_to_parameter ( "OptC", &m_component );
-    Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2","component option",Core::instance().root()->full_path()));    
+    Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2","component option",Core::instance().root()->full_path()));
     m_properties.add_option(opt2)->link_to( &m_component )->mark_basic();
      Option::Ptr opt3 = m_properties.add_option
        (OptionComponent<CConcrete1>::create("OptC3","component option",&m_component));
-       
+
      CFinfo << opt3->value_str() << CFendl;
      CFinfo << opt3->def_str() << CFendl;
     //   ->mark_basic()
     //   ->as_type<OptionComponent<CConcrete1> >();
-    // 
+    //
   };
 
-  
+
   void config_bool ()
   {
     boost::any value = property("OptBool").value();
@@ -174,7 +176,7 @@ BOOST_AUTO_TEST_CASE( configure )
   std::string text = (
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       "<cfxml version=\"1.0\">"
-      "<signal>"
+      "<frame>"
       " <map>"
       "  <value key=\"options\">"
       "   <map>"
@@ -199,34 +201,27 @@ BOOST_AUTO_TEST_CASE( configure )
       "     <value key=\"mb\"> <bool> 1 </bool> </value>"
       "</map>"
       ""
-      "<array key=\"VecInt\" type=\"integer\" size=\"3\" >"
-      "  <e> 2 </e>"
-      "  <e> 8 </e>"
-      "  <e> 9 </e>"
-      "</array>"
+      "<array key=\"VecInt\" type=\"integer\" size=\"3\" delimiter=\" ; \" > 2 ; 8 ; 9</array>"
       ""
-      "<array key=\"VecStr\" type=\"string\" size=\"2\" >"
-      "  <e> aabbcc </e>"
-      "  <e> ddeeff </e>"
-      "</array>"
+      "<array key=\"VecStr\" type=\"string\" size=\"2\" delimiter=\" ; \">aabbcc ; ddeeff</array>"
       ""
       "   </map>"
       "  </value>"
       " </map>"
-      "</signal>"
+      "</frame>"
       "</cfxml>"
    );
 
-  boost::shared_ptr<XmlDoc> xml = XmlOps::parse(text);
+  boost::shared_ptr<XmlDoc> xml = XmlDoc::parse_string(text);
 
-  XmlNode& doc   = *XmlOps::goto_doc_node(*xml.get());
-  XmlNode& frame = *XmlOps::first_frame_node( doc );
+  XmlNode doc = Protocol::goto_doc_node(*xml.get());
+  SignalFrame frame( Protocol::first_frame_node( doc ) );
 
 //  CFinfo << "FRAME [" << frame.name() << "]" << CFendl;
 
   pm->signal_configure( frame );
 
-  BOOST_CHECK_EQUAL ( pm->property("OptBool").value<bool>(), true  );
+  BOOST_CHECK ( pm->property("OptBool").value<bool>() );
   BOOST_CHECK_EQUAL ( pm->property("OptBool").value_str() , "true" );
 
   BOOST_CHECK_EQUAL ( pm->property("OptInt").value<int>(),   -156  );
@@ -297,7 +292,7 @@ BOOST_AUTO_TEST_CASE( optionComponent )
   // URI absolute_friend_path = component1->property("MyAbsoluteFriend").value<URI>();
   // CConcrete1::Ptr absolute_friend = component1->look_component<CConcrete1>(absolute_friend_path);
   // BOOST_CHECK_EQUAL(absolute_friend->name(),"component2");
-  // 
+  //
   // URI relative_friend_path = component1->property("MyRelativeFriend").value<URI>();
   // CConcrete1::Ptr relative_friend = component1->look_component<CConcrete1>(relative_friend_path);
   // BOOST_CHECK_EQUAL(relative_friend->name(),"component2");
