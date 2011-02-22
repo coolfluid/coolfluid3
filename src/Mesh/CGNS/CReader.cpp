@@ -14,7 +14,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -28,7 +28,6 @@ namespace Mesh {
 namespace CGNS {
 
 using namespace Common;
-using namespace Common::String;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -446,7 +445,7 @@ void CReader::read_section(CRegion& parent_region)
         row[n-1]=start_idx+(elemNodes[0][n]-1); // -1 because cgns has index-base 1 instead of 0
 
       // Convert the cgns element type to the CF element type
-      const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype_cgns]+String::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype_cgns]+ to_str<int>(m_base.phys_dim)+"DLagrangeP1";
 
       // Add the nodes to the correct CElements component using its buffer
       Uint table_idx = buffer[etype_CF]->add_row(row);
@@ -468,7 +467,7 @@ void CReader::read_section(CRegion& parent_region)
     int nbElems = m_section.elemDataSize/m_section.elemNodeCount;
 
     // Convert the CGNS element type to the CF element type
-    const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+String::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+    const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
 
 
     // Create element component in this region for this CF element type, automatically creates connectivity_table
@@ -694,7 +693,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       // Create CElements components for every possible element type supported.
       std::map<std::string,CElements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
       std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
-      
+
       for (int global_element=boco_elems[0]-1;global_element<boco_elems[1];++global_element)
       {
         // Check which region this global_element belongs to

@@ -11,7 +11,7 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StreamHelpers.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Mesh/Actions/CBuildFaceNormals.hpp"
 #include "Mesh/CCellFaces.hpp"
@@ -30,11 +30,10 @@
 namespace CF {
 namespace Mesh {
 namespace Actions {
-  
+
   using namespace Common;
   using namespace Math::MathFunctions;
-  using namespace Common::String;
-    
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CBuildFaceNormals, CMeshTransformer, LibActions> CBuildFaceNormals_Builder;
@@ -44,13 +43,13 @@ Common::ComponentBuilder < CBuildFaceNormals, CMeshTransformer, LibActions> CBui
 CBuildFaceNormals::CBuildFaceNormals( const std::string& name )
 : CMeshTransformer(name)
 {
-   
+
   properties()["brief"] = std::string("Print information of the mesh");
   std::string desc;
-  desc = 
+  desc =
   "  Usage: Info \n\n"
   "          Information given: internal mesh hierarchy,\n"
-  "      element distribution for each region, and element type"; 
+  "      element distribution for each region, and element type";
   properties()["description"] = desc;
 }
 
@@ -63,12 +62,12 @@ std::string CBuildFaceNormals::brief_description() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-  
+
 std::string CBuildFaceNormals::help() const
 {
   return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
-}  
-  
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CBuildFaceNormals::transform(const CMesh::Ptr& mesh)
@@ -84,7 +83,7 @@ void CBuildFaceNormals::transform(const CMesh::Ptr& mesh)
   boost_foreach( CEntities& faces, find_components_recursively_with_tag<CEntities>(m_mesh->topology(),"face_entity") )
   {
     face_normal.set_elements(faces);
-    
+
     CFaceCellConnectivity::Ptr face2cell_ptr = find_component_ptr<CFaceCellConnectivity>(faces);
     if (is_not_null(face2cell_ptr))
     {

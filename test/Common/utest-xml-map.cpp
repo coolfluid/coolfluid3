@@ -15,7 +15,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Common/XML/Protocol.hpp"
 
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE ( set_array )
   // 2d. it should have the right size
   tmp_attr = value_node.content->first_attribute( Protocol::Tags::attr_array_size() );
   BOOST_CHECK ( is_not_null(tmp_attr) );
-  BOOST_CHECK_EQUAL ( std::string(tmp_attr->value()), std::string( String::to_str(size_first) ));
+  BOOST_CHECK_EQUAL ( std::string(tmp_attr->value()), std::string( to_str(size_first) ));
 
   // 2e. it should have the right delimiter
   tmp_attr = value_node.content->first_attribute( Protocol::Tags::attr_array_delimiter() );
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE ( set_array )
   // 4b. the size should have been updated
   tmp_attr = mod_value_node.content->first_attribute( Protocol::Tags::attr_array_size() );
   BOOST_CHECK ( is_not_null(tmp_attr) );
-  BOOST_CHECK_EQUAL ( std::string(tmp_attr->value()), std::string( String::to_str(size_second) ));
+  BOOST_CHECK_EQUAL ( std::string(tmp_attr->value()), std::string( to_str(size_second) ));
 
   // 4c. the delimiter should have been updated
   tmp_attr = mod_value_node.content->first_attribute( Protocol::Tags::attr_array_delimiter() );

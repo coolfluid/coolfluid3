@@ -26,14 +26,7 @@ namespace XML {
   template < typename T>
   T to_value (XmlNode& node);
 
-  /// converts the value inside the xml node to the type
-  template < typename T>
-  std::string from_value (const T& val);
-
-  template < typename T>
-  T from_string_value (const std::string & str);
-
-////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
 
 } // XML
 } // Common

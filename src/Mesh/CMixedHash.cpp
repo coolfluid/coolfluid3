@@ -10,7 +10,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 #include "Common/Log.hpp"
 
 #include "Mesh/CMixedHash.hpp"
@@ -20,13 +20,12 @@ namespace CF {
 namespace Mesh {
 
   using namespace Common;
-  using namespace Common::String;
-  
+
 Common::ComponentBuilder < CMixedHash, Component, LibMesh > CMixedHash_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CMixedHash::CMixedHash ( const std::string& name ) : 
+CMixedHash::CMixedHash ( const std::string& name ) :
     Component(name),
     m_nb_obj(),
     m_base(0),
@@ -35,9 +34,9 @@ CMixedHash::CMixedHash ( const std::string& name ) :
   m_properties.add_option<OptionArrayT <Uint> >("Number of Objects","Total number of objects of each subhash. Subhashes will be created upon configuration with names hash_0 hash_1, ...",m_nb_obj);
   m_properties.add_option<OptionT <Uint> >("Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
   m_properties.add_option<OptionT <Uint> >("Base","Start index for global numbering",m_base);
-  
+
   m_properties["Number of Partitions"].as_option().attach_trigger( boost::bind ( &CMixedHash::config_nb_parts , this) );
-  m_properties["Base"].as_option().link_to( &m_base );  
+  m_properties["Base"].as_option().link_to( &m_base );
   m_properties["Number of Objects"].as_option().attach_trigger( boost::bind ( &CMixedHash::config_nb_obj , this) );
 }
 
@@ -110,7 +109,7 @@ bool CMixedHash::owns(const Uint obj) const
   else
     return false;
 }
-	
+
 //////////////////////////////////////////////////////////////////////////////
 
 Uint CMixedHash::nb_objects_in_part(const Uint part) const
@@ -124,10 +123,10 @@ Uint CMixedHash::nb_objects_in_proc(const Uint proc) const
 {
   Uint part_begin = m_nb_parts/mpi::PE::instance().size()*proc;
   Uint part_end = (proc == mpi::PE::instance().size()-1) ? m_nb_parts : m_nb_parts/mpi::PE::instance().size()*(proc+1);
-	Uint nb_obj = 0;
-	for (Uint part = part_begin ; part < part_end; ++part)
-		nb_obj += nb_objects_in_part(part);
-	return nb_obj;
+  Uint nb_obj = 0;
+  for (Uint part = part_begin ; part < part_end; ++part)
+    nb_obj += nb_objects_in_part(part);
+  return nb_obj;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -154,7 +153,7 @@ Uint CMixedHash::end_idx_in_part(const Uint part) const
 
 Uint CMixedHash::start_idx_in_proc(const Uint proc) const
 {
-  Uint part_begin = m_nb_parts/mpi::PE::instance().size()*proc;
+	Uint part_begin = m_nb_parts/mpi::PE::instance().size()*proc;
 	return start_idx_in_part(part_begin);
 }
 
@@ -165,7 +164,7 @@ Uint CMixedHash::subhash_of_obj(const Uint obj) const
   Uint part = part_of_obj(obj);
   Uint start_idx_of_obj_part = start_idx_in_part( part );
   Uint offset = obj - start_idx_of_obj_part;
-  
+
   Uint psize = 0;
   index_foreach(i, CHash::ConstPtr hash, m_subhash)
   {
@@ -178,6 +177,6 @@ Uint CMixedHash::subhash_of_obj(const Uint obj) const
 }
 
 //////////////////////////////////////////////////////////////////////////////
-	
+
 } // Mesh
 } // CF

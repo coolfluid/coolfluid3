@@ -10,12 +10,10 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/URI.hpp"
 #include "Common/XML.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 namespace CF {
 namespace Common {
-
-  using namespace String;
 
 ////////////////////////////////////////////////////////////////////////////////
 

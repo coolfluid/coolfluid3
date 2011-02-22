@@ -8,7 +8,7 @@
 
 #include "Common/CreateComponent.hpp"
 #include "Common/OSystemLayer.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #ifdef CF_HAVE_DLOPEN
   #include "Common/PosixDlopenLibLoader.hpp"

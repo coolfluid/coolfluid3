@@ -13,7 +13,7 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/URI.hpp"
 #include "Common/Log.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 namespace CF {
 namespace Common {

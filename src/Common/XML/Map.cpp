@@ -12,7 +12,7 @@
 #include "Common/URI.hpp"
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 #include "Common/XML/CastingFunctions.hpp"
 #include "Common/XML/Protocol.hpp"
 
@@ -49,7 +49,7 @@ void Map::split_string ( const std::string & str, const std::string & delimiter,
   try
   {
     for( it = split_string.begin() ; it != split_string.end() ; ++it )
-      result.push_back( from_string_value<TYPE>(*it) );
+      result.push_back( from_str<TYPE>(*it) );
   }
   catch( const boost::bad_lexical_cast & e )
   {
@@ -77,7 +77,7 @@ XmlNode Map::set_value ( const std::string& value_key, const TYPE & value )
     throw BadValue(FromHere(), "The key is empty.");
 
   std::string type_name = Protocol::Tags::type<TYPE>();
-  std::string value_str = from_value(value); // convert value to string
+  std::string value_str = to_str(value); // convert value to string
   XmlNode value_node = seek_value( value_key );
 
   if( !value_node.is_valid() ) // if the value was not found
@@ -139,7 +139,7 @@ XmlNode Map::set_array ( const std::string& value_key,
     if( !value_str.empty() )
       value_str += delimiter;
 
-    value_str += from_value(*it);
+    value_str += to_str(*it);
   }
 
   if( !array_node.is_valid() ) // if the array was not found
@@ -174,9 +174,9 @@ XmlNode Map::set_array ( const std::string& value_key,
   // note: we explicitly cast the array size to CF::Uint for compatibility
   // reasons: MSVC's typedef of std::size_t is for unsigned __int64
   // (which is defined by Microsoft) instead of unsigned int. Since
-  // String::to_str<unsigned __int64>() is not defined, it may cause a
+  // to_str<unsigned __int64>() is not defined, it may cause a
   // lining error on Windows.
-  array_node.set_attribute( Protocol::Tags::attr_array_size(), String::to_str( (CF::Uint) value.size() ));
+  array_node.set_attribute( Protocol::Tags::attr_array_size(), to_str( (CF::Uint) value.size() ));
 
   array_node.set_attribute( Protocol::Tags::attr_array_delimiter(), delimiter );
 

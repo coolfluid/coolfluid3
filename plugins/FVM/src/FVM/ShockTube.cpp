@@ -11,7 +11,6 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/String/Conversion.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CField2.hpp"
@@ -43,7 +42,6 @@ namespace FVM {
 
 using namespace boost::assign;
 using namespace CF::Common;
-using namespace CF::Common::String;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
 using namespace CF::Solver;
@@ -149,11 +147,11 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
 
   CModelUnsteady::Ptr model = Core::instance().root()->get_child<CModelUnsteady>( name );
   if (is_null(model))
-    throw ValueNotFound (FromHere(), "invalid model"); 
-  
+    throw ValueNotFound (FromHere(), "invalid model");
+
   CIterativeSolver& solver = find_component<CIterativeSolver>(*model);
   FiniteVolume& finite_volume = find_component<FiniteVolume>(solver);
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   // Generate mesh
   ////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +189,7 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   
   RealVector left(3);
   RealVector right(3);
-  
+
   Real g=1.4;
     
   const Real r_L = 4.696;     const Real r_R = 1.408;
@@ -229,7 +227,7 @@ void ShockTube::signal_setup_model ( Common::XmlNode& node )
   ////////////////////////////////////////////////////////////////////////////////
   // Writer
   ////////////////////////////////////////////////////////////////////////////////
-  
+
   std::vector<URI> fields;
   boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
     fields.push_back(field.full_path());

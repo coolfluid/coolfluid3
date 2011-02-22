@@ -13,7 +13,7 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Math/MathChecks.hpp"
 
@@ -33,7 +33,6 @@ namespace CF {
 namespace RDM {
 
 using namespace Common;
-using namespace Common::String;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;

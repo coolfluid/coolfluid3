@@ -11,7 +11,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Mesh/LibMesh.hpp"
 
@@ -26,7 +26,6 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
-using namespace Common::String;
 
 Common::ComponentBuilder < CMesh, Component, LibMesh > CMesh_Builder;
 
@@ -41,10 +40,10 @@ CMesh::CMesh ( const std::string& name  ) :
   m_properties.add_property("dimension",Uint(0));
 
   mark_basic(); // by default meshes are visible
-  
+
   m_nodes_link = create_static_component<CLink>("nodes");
   m_topology = create_static_component<CRegion>("topology");
-  
+
   regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) );
   signal("write_mesh").signature->connect(boost::bind(&CMesh::signature_write_mesh, this, _1));
 }
@@ -60,7 +59,7 @@ CMesh::~CMesh()
 CField2& CMesh::create_field2( const std::string& name , const std::string& base, const std::string& variables)
 {
   std::vector<std::string> tokenized_variables(0);
-  
+
   if (variables == "scalar_same_name")
   {
     tokenized_variables.push_back(name+"[scalar]");
@@ -79,9 +78,9 @@ CField2& CMesh::create_field2( const std::string& name , const std::string& base
   std::vector<std::string> names;
   std::vector<std::string> types;
   BOOST_FOREACH(std::string var, tokenized_variables)
-  { 
+  {
     boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
-    
+
     boost::match_results<std::string::const_iterator> what;
     if (regex_search(var,what,e_variable))
     {
@@ -108,23 +107,23 @@ CField2& CMesh::create_scalar_field( const std::string& name , CField2& based_on
 {
   CField2& field = *create_component<CField2>(name);
   field.set_topology(based_on_field.topology());
-  
+
   std::vector<std::string> names(1,name);
   field.configure_property("VarNames",names);
-  
+
   std::vector<std::string> types(1,"scalar");
   field.configure_property("VarTypes",types);
-  
+
   std::string base;   based_on_field.property("FieldType").put_value(base);
   field.configure_property("FieldType",base);
-  
+
   Uint space; based_on_field.property("Space").put_value(space);
   field.configure_property("Space",space);
-  
+
   field.create_data_storage();
 
   return field;
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,23 +134,23 @@ CField2& CMesh::create_field2( const std::string& name , CField2& based_on_field
   field.set_topology(based_on_field.topology());
 
   std::vector<std::string> names; based_on_field.property("VarNames").put_value(names);
-  
+
   for (Uint i=0; i<names.size(); ++i)
     names[i] = name+"["+to_str(i)+"]";
   field.configure_property("VarNames",names);
-  
+
   std::vector<std::string> types; based_on_field.property("VarTypes").put_value(types);
   field.configure_property("VarTypes",types);
-  
+
   std::string base;   based_on_field.property("FieldType").put_value(base);
   field.configure_property("FieldType",base);
-  
+
   Uint space; based_on_field.property("Space").put_value(space);
   field.configure_property("Space",space);
- 
+
   field.create_data_storage();
   return field;
-  
+
 }
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -168,7 +167,7 @@ CField2& CMesh::create_scalar_field(const std::string& field_name, const std::st
 CField2& CMesh::create_field2(const std::string& name, const CField2::Basis::Type base, const std::vector< std::string >& variable_names, const std::vector< CField2::VarType > variable_types)
 {
   cf_assert(variable_names.size() == variable_types.size());
-  
+
   // TODO: Treat variable_types using EnumT, and store enum values in the option instead of strings
   std::vector<std::string> types_str;
   types_str.reserve( variable_types.size() );
@@ -176,7 +175,7 @@ CField2& CMesh::create_field2(const std::string& name, const CField2::Basis::Typ
   {
     types_str.push_back( boost::lexical_cast<std::string>(var_type) );
   }
-  
+
   CField2& field = *create_component<CField2>(name);
   field.set_topology(topology());
   field.configure_property("VarNames",variable_names);
@@ -197,9 +196,9 @@ CField& CMesh::create_field( const std::string& name , CRegion& support, const s
   std::vector<std::string> names;
   std::vector<std::string> types;
   BOOST_FOREACH(std::string var, variables)
-  { 
+  {
     boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
-    
+
     boost::match_results<std::string::const_iterator> what;
     if (regex_search(var,what,e_variable))
     {
@@ -216,7 +215,7 @@ CField& CMesh::create_field( const std::string& name , CRegion& support, const s
 
   return field;
 }
-  
+
 CField& CMesh::create_field( const std::string& name , const std::vector<std::string>& variables, const CField::Basis basis)
 {
   return create_field(name,topology(),variables,basis);
@@ -262,16 +261,16 @@ CField& CMesh::field(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodes& CMesh::nodes() 
-{ 
+CNodes& CMesh::nodes()
+{
   cf_assert( is_not_null(m_nodes_link->follow()) );
   return *m_nodes_link->follow()->as_type<CNodes>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CNodes& CMesh::nodes() const 
-{ 
+const CNodes& CMesh::nodes() const
+{
   cf_assert( is_not_null(m_nodes_link->follow()) );
   return *m_nodes_link->follow()->as_type<CNodes>();
 }
@@ -309,7 +308,7 @@ void CMesh::signal_write_mesh ( Common::XmlNode& node )
 //    throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + fpath.string() + "\'" );
 
   std::vector<URI> fields;
-  
+
   boost_foreach( CField2& field, find_components<CField2>(*this))
   {
     bool add_field = p.get_option<bool>(field.name());

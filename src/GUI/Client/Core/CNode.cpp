@@ -19,7 +19,7 @@
 #include "Common/Log.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/XmlHelpers.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NCore.hpp"
@@ -47,7 +47,6 @@ for( ; itList != list.end() ; itList++)\
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
-using namespace CF::Common::String;
 
 //////////////////////////////////////////////////////////////////////////////
 

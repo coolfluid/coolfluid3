@@ -12,7 +12,7 @@
 #include "Common/MPI/PE.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Mesh/Gmsh/CWriter.hpp"
 
@@ -27,7 +27,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
-using namespace CF::Common::String;
 
 namespace CF {
 namespace Mesh {
@@ -47,7 +46,7 @@ CWriter::CWriter( const std::string& name )
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
 
   m_elementTypes["CF.Mesh.SF.Point1DLagrangeP1"]=15;
-  
+
   m_elementTypes["CF.Mesh.SF.Line1DLagrangeP1" ]=1;
   m_elementTypes["CF.Mesh.SF.Line2DLagrangeP1" ]=1;
   m_elementTypes["CF.Mesh.SF.Line3DLagrangeP1" ]=1;
@@ -400,7 +399,7 @@ void CWriter::write_nodal_data(std::fstream& file)
 					break;
 			}
 			RealVector data(datasize);
-      data.setZero();
+			data.setZero();
 			std::set<std::string> field_data_paths;
 			boost_foreach(CElements& field_elements, find_components_recursively<CElements>(nodebased_field))
 			{
@@ -495,7 +494,7 @@ void CWriter::write_nodal_data2(std::fstream& file)
   // set precision for Real
   Uint prec = file.precision();
   file.precision(8);
-  
+
   boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
   {
     CField2& nodebased_field = *field_ptr.lock();
@@ -520,10 +519,10 @@ void CWriter::write_nodal_data2(std::fstream& file)
           default:
             break;
         }
-        
+
         RealVector data(datasize);
         Uint nb_nodes = nodebased_field.size();
-        
+
         file << "$NodeData\n";
         file << 1 << "\n";
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
@@ -536,7 +535,7 @@ void CWriter::write_nodal_data2(std::fstream& file)
         //const CList<Uint>& used_nodes = nodebased_field.used_nodes();
 
         boost_foreach(CTable<Real>::ConstRow field_per_node, field_data.array())
-        {          
+        {
           file << ++local_node_idx << " ";
 
           if (var_type==CField2::TENSOR_2D)
@@ -728,7 +727,7 @@ void CWriter::write_element_data2(std::fstream& file)
           nb_elements += field_elements.size();
         }
       }
-      
+
       // data_header
       Uint row_idx=0;
       for (Uint iVar=0; iVar<elementbased_field.nb_vars(); ++iVar)
@@ -789,9 +788,9 @@ void CWriter::write_element_data2(std::fstream& file)
         }
         file << "$EndElementData\n";
         row_idx += Uint(var_type);
-      }      
-    } 
-    
+      }
+    }
+
   }
   // restore precision
   file.precision(prec);

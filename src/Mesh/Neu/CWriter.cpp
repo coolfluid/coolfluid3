@@ -356,7 +356,7 @@ void CWriter::write_boundaries(std::fstream& file)
             }
             else
             {
-              std::string error_msg = "Face " + String::to_str(face) + " of element " + String::to_str(elem)
+              std::string error_msg = "Face " + to_str(face) + " of element " + to_str(elem)
                                      + " of " + elementregion.full_path().string() + " has no neighbour."; 
               throw ValueNotFound (FromHere(), error_msg);
             }

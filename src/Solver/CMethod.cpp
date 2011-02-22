@@ -13,7 +13,6 @@ namespace CF {
 namespace Solver {
 
 using namespace Common;
-using namespace Common::String;
 
 Common::ComponentBuilder < CMethod, Component, LibSolver > CMethod_Builder;
 

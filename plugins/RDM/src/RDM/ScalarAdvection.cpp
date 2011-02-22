@@ -23,7 +23,6 @@ namespace CF {
 namespace RDM {
 
 using namespace CF::Common;
-using namespace CF::Common::String;
 using namespace CF::Mesh;
 using namespace CF::Solver;
 

@@ -30,7 +30,7 @@ struct ComponentIterationFixture
     ExceptionManager::instance().ExceptionOutputs = false;
     ExceptionManager::instance().ExceptionDumps = false;
     ExceptionManager::instance().ExceptionAborts = false;
-    
+
     m_root = CRoot::create ( "root" );
     Component::Ptr comp1 = m_root->create_component<Component>("comp1");
     top_component_names.push_back(comp1->name());
@@ -79,7 +79,7 @@ struct ComponentIterationFixture
     CGroup::Ptr group2_1_1 = group2_1->create_component<CGroup>("group2_1_1");
     component_names.push_back(group2_1_1->name());
     group_names.push_back(group2_1_1->name());
-    group2_1_1->add_tag("very_special");  
+    group2_1_1->add_tag("very_special");
     CLink::Ptr link2 = group2->create_component<CLink>("link2");
     component_names.push_back(link2->name());
     CGroup::Ptr group3 = m_root->create_component<CGroup>("group3");
@@ -93,7 +93,7 @@ struct ComponentIterationFixture
     CLink::Ptr link1 = m_root->create_component<CLink>("link1");
     component_names.push_back(link1->name());
     top_component_names.push_back(link1->name());
-    
+
     //root
     //root/comp1
     //root/comp1/comp1_1
@@ -112,8 +112,8 @@ struct ComponentIterationFixture
     //root/group3
     //root/group3/group3_1
     //root/link1
-    
-    
+
+
   }
 
   /// common tear-down for each test case
@@ -165,19 +165,19 @@ BOOST_FIXTURE_TEST_SUITE( ComponentIteration, ComponentIterationFixture )
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( test_find_parent )
-{  
+{
   const CGroup& group2 = find_parent_component<CGroup>(const_group2_1());
   BOOST_CHECK_EQUAL(group2.full_path().string() , "cpath://root/group2");
 
   CRoot& root = find_parent_component<CRoot>(group2_1());
   BOOST_CHECK_EQUAL(root.full_path().string() , "cpath://root");
-  
+
   Component& group22 = find_parent_component_with_filter(group2_1(),IsComponentName("group2"));
   BOOST_CHECK_EQUAL(group22.full_path().string() , "cpath://root/group2");
-  
+
   CRoot& root2 = find_parent_component_with_filter<CRoot>(group2_1(),IsComponentType<CRoot>());
   BOOST_CHECK_EQUAL(root2.full_path().string() , "cpath://root");
-  
+
 }
 //////////////////////////////////////////////////////////////////////////////
 
@@ -349,17 +349,17 @@ BOOST_AUTO_TEST_CASE( GetByNameRecursive )
 BOOST_AUTO_TEST_CASE( test_find_components )
 {
   Uint counter;
-  
+
   counter = 0;
   BOOST_FOREACH(CGroup& group, find_components<CGroup>(group1()))
     BOOST_CHECK_EQUAL(group.name(),group1_group_names[counter++]);
   BOOST_CHECK_EQUAL(counter, group1_group_names.size());
-  
+
   counter = 0;
   BOOST_FOREACH(const CGroup& group, find_components<CGroup>(const_group1()))
     BOOST_CHECK_EQUAL(group.name(),group1_group_names[counter++]);
   BOOST_CHECK_EQUAL(counter, group1_group_names.size());
-  
+
   counter = 0;
   BOOST_FOREACH(Component& group, find_components(group1()))
     BOOST_CHECK_EQUAL(group.name(),group1_component_names[counter++]);
@@ -368,7 +368,7 @@ BOOST_AUTO_TEST_CASE( test_find_components )
   counter = 0;
   BOOST_FOREACH(const Component& group, find_components(const_group1()))
     BOOST_CHECK_EQUAL(group.name(),group1_component_names[counter++]);
-  BOOST_CHECK_EQUAL(counter, group1_component_names.size());  
+  BOOST_CHECK_EQUAL(counter, group1_component_names.size());
 }
 
 BOOST_AUTO_TEST_CASE( test_find_components_with_filter )
@@ -379,14 +379,14 @@ BOOST_AUTO_TEST_CASE( test_find_components_with_filter )
   BOOST_CHECK_EQUAL(find_components_with_filter<CGroup>(const_group1(),IsComponentTag("special")).empty() , false);
   BOOST_CHECK_EQUAL(find_components_with_filter(group1(),IsComponentTag("special")).empty() , false);
   BOOST_CHECK_EQUAL(find_components_with_filter(const_group1(),IsComponentTag("special")).empty() , false);
-  
+
   BOOST_FOREACH(CGroup& group, find_components_with_filter<CGroup>(group1(),IsComponentTag("special")))
     BOOST_CHECK_EQUAL(group.name(),"group1_2");
 
   counter = 0;
   BOOST_FOREACH(const CGroup& group, find_components_with_filter<CGroup>(const_group1(),IsComponentTag("special")))
     BOOST_CHECK_EQUAL(group.name(),"group1_2");
-    
+
   counter = 0;
   BOOST_FOREACH(Component& group, find_components_with_filter(group1(),IsComponentTag("special")))
     BOOST_CHECK_EQUAL(group.name(),special_component_names[counter++]);
@@ -404,18 +404,18 @@ BOOST_AUTO_TEST_CASE( test_find_components_with_tag )
   BOOST_CHECK_EQUAL(find_components_with_tag<CGroup>(const_group2(),"special").empty() , true);
   BOOST_CHECK_EQUAL(find_components_with_tag(group2(),"special").empty() , true);
   BOOST_CHECK_EQUAL(find_components_with_tag(const_group2(),"special").empty() , true);
-  
+
   BOOST_CHECK_EQUAL(find_components_with_tag<CGroup>(group1(),"special").empty() , false);
   BOOST_CHECK_EQUAL(find_components_with_tag<CGroup>(const_group1(),"special").empty() , false);
   BOOST_CHECK_EQUAL(find_components_with_tag(group1(),"special").empty() , false);
   BOOST_CHECK_EQUAL(find_components_with_tag(const_group1(),"special").empty() , false);
-  
+
   BOOST_FOREACH(CGroup& group, find_components_with_tag<CGroup>(group1(),"special"))
     BOOST_CHECK_EQUAL(group.name(),"group1_2");
 
   BOOST_FOREACH(const CGroup& group, find_components_with_tag<CGroup>(group1(),"special"))
     BOOST_CHECK_EQUAL(group.name(),"group1_2");
-  
+
   counter = 0;
   BOOST_FOREACH(Component& group, find_components_with_tag(group1(),"special"))
     BOOST_CHECK_EQUAL(group.name(),special_component_names[counter++]);
@@ -428,18 +428,18 @@ BOOST_AUTO_TEST_CASE( test_find_components_with_tag )
 }
 
 BOOST_AUTO_TEST_CASE( test_find_components_with_name )
-{  
+{
   BOOST_CHECK_EQUAL(find_components_with_name<CGroup>(group1(),"group1_2").empty() , false);
   BOOST_CHECK_EQUAL(find_components_with_name<CGroup>(const_group1(),"group1_2").empty() , false);
   BOOST_CHECK_EQUAL(find_components_with_name(group1(),"group1_2").empty() , false);
   BOOST_CHECK_EQUAL(find_components_with_name(const_group1(),"group1_2").empty() , false);
-  
+
   BOOST_FOREACH(CGroup& group, find_components_with_name<CGroup>(group1(),"group1_2"))
     BOOST_CHECK_EQUAL(group.name(),"group1_2");
 
   BOOST_FOREACH(const CGroup& group, find_components_with_name<CGroup>(const_group1(),"group1_2"))
     BOOST_CHECK_EQUAL(group.name(),"group1_2");
-    
+
   BOOST_FOREACH(Component& group, find_components_with_name(group1(),"group1_2"))
     BOOST_CHECK_EQUAL(group.name(),"group1_2");
 
@@ -450,17 +450,17 @@ BOOST_AUTO_TEST_CASE( test_find_components_with_name )
 BOOST_AUTO_TEST_CASE( test_find_components_recursively )
 {
   Uint counter;
-  
+
   counter = 0;
   BOOST_FOREACH(CGroup& group, find_components_recursively<CGroup>(group1()))
     BOOST_CHECK_EQUAL(group.name(),group1_group_names[counter++]);
   BOOST_CHECK_EQUAL(counter, group1_group_names.size());
-  
+
   counter = 0;
   BOOST_FOREACH(const CGroup& group, find_components_recursively<CGroup>(group1()))
     BOOST_CHECK_EQUAL(group.name(),group1_group_names[counter++]);
   BOOST_CHECK_EQUAL(counter, group1_group_names.size());
-  
+
   counter = 0;
   BOOST_FOREACH(Component& group, find_components_recursively(group1()))
     BOOST_CHECK_EQUAL(group.name(),group1_component_names[counter++]);
@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE( test_find_components_recursively )
   counter = 0;
   BOOST_FOREACH(const Component& group, find_components_recursively(const_group1()))
     BOOST_CHECK_EQUAL(group.name(),group1_component_names[counter++]);
-  BOOST_CHECK_EQUAL(counter, group1_component_names.size());  
+  BOOST_CHECK_EQUAL(counter, group1_component_names.size());
 }
 
 BOOST_AUTO_TEST_CASE( test_find_components_recursively_with_filter )
@@ -480,22 +480,22 @@ BOOST_AUTO_TEST_CASE( test_find_components_recursively_with_filter )
   BOOST_CHECK_EQUAL(find_components_recursively_with_filter<CGroup>(const_group1(),IsComponentTag("special")).empty() , false);
   BOOST_CHECK_EQUAL(find_components_recursively_with_filter(group1(),IsComponentTag("special")).empty() , false);
   BOOST_CHECK_EQUAL(find_components_recursively_with_filter(const_group1(),IsComponentTag("special")).empty() , false);
-  
+
   BOOST_FOREACH(CGroup& group, find_components_recursively_with_filter<CGroup>(group1(),IsComponentTag("special")))
     BOOST_CHECK_EQUAL(group.name(),"group1_2");
 
   BOOST_FOREACH(const CGroup& group, find_components_recursively_with_filter<CGroup>(const_group1(),IsComponentTag("special")))
     BOOST_CHECK_EQUAL(group.name(),"group1_2");
-    
+
   counter = 0;
   BOOST_FOREACH(Component& group, find_components_recursively_with_filter(group1(),IsComponentTag("special")))
     BOOST_CHECK_EQUAL(group.name(),special_component_names[counter++]);
   BOOST_CHECK_EQUAL(counter, special_component_names.size());
-  
+
   counter = 0;
   BOOST_FOREACH(const Component& group, find_components_recursively_with_filter(const_group1(),IsComponentTag("special")))
     BOOST_CHECK_EQUAL(group.name(),special_component_names[counter++]);
-  BOOST_CHECK_EQUAL(counter, special_component_names.size());  
+  BOOST_CHECK_EQUAL(counter, special_component_names.size());
 }
 
 BOOST_AUTO_TEST_CASE( test_find_components_recursively_with_tag )
@@ -505,47 +505,47 @@ BOOST_AUTO_TEST_CASE( test_find_components_recursively_with_tag )
   BOOST_CHECK_EQUAL(find_components_recursively_with_tag<CGroup>(const_group2(),"very_special").empty() , false);
   BOOST_CHECK_EQUAL(find_components_recursively_with_tag(group2(),"very_special").empty() , false);
   BOOST_CHECK_EQUAL(find_components_recursively_with_tag(const_group2(),"very_special").empty() , false);
-  
+
   BOOST_FOREACH(CGroup& group, find_components_recursively_with_tag<CGroup>(group2(),"very_special"))
     BOOST_CHECK_EQUAL(group.name(),"group2_1_1");
 
   BOOST_FOREACH(const CGroup& group, find_components_recursively_with_tag<CGroup>(const_group2(),"very_special"))
     BOOST_CHECK_EQUAL(group.name(),"group2_1_1");
-    
+
   BOOST_FOREACH(Component& group, find_components_recursively_with_tag(group2(),"very_special"))
     BOOST_CHECK_EQUAL(group.name(),"group2_1_1");
-  
+
   BOOST_FOREACH(const Component& group, find_components_recursively_with_tag(const_group2(),"very_special"))
     BOOST_CHECK_EQUAL(group.name(),"group2_1_1");
 }
 
 BOOST_AUTO_TEST_CASE( test_find_components_recursively_with_name )
-{  
+{
   BOOST_CHECK_EQUAL(find_components_recursively_with_name<CGroup>(group2(),"group2_1_1").empty() , false);
   BOOST_CHECK_EQUAL(find_components_recursively_with_name<CGroup>(const_group2(),"group2_1_1").empty() , false);
   BOOST_CHECK_EQUAL(find_components_recursively_with_name(group2(),"group2_1_1").empty() , false);
   BOOST_CHECK_EQUAL(find_components_recursively_with_name(const_group2(),"group2_1_1").empty() , false);
-  
+
   BOOST_FOREACH(CGroup& group, find_components_recursively_with_name<CGroup>(group2(),"group2_1_1"))
     BOOST_CHECK_EQUAL(group.name(),"group2_1_1");
 
   BOOST_FOREACH(const CGroup& group, find_components_recursively_with_name<CGroup>(const_group2(),"group2_1_1"))
     BOOST_CHECK_EQUAL(group.name(),"group2_1_1");
-    
+
   BOOST_FOREACH(Component& group, find_components_recursively_with_name(group2(),"group2_1_1"))
     BOOST_CHECK_EQUAL(group.name(),"group2_1_1");
-  
+
   BOOST_FOREACH(const Component& group, find_components_recursively_with_name(const_group2(),"group2_1_1"))
     BOOST_CHECK_EQUAL(group.name(),"group2_1_1");
 }
 
 BOOST_AUTO_TEST_CASE( test_find_component )
-{  
+{
   BOOST_CHECK_EQUAL(find_component(group2_1()).name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr(group2_1()) != nullptr );
   BOOST_CHECK_EQUAL(find_component(const_group2_1()).name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr(const_group2_1()) != nullptr );
-  
+
   BOOST_CHECK_EQUAL(find_component<CGroup>(group2()).name() , "group2_1" );
   BOOST_CHECK(find_component_ptr<CGroup>(group2()) != nullptr );
   BOOST_CHECK_EQUAL(find_component_ptr<CGroup>(group2())->name() , "group2_1" );
@@ -555,12 +555,12 @@ BOOST_AUTO_TEST_CASE( test_find_component )
 }
 
 BOOST_AUTO_TEST_CASE( test_find_component_with_filter )
-{  
+{
   BOOST_CHECK_EQUAL(find_component_with_filter(group2(),IsComponentName("group2_1")).name() , "group2_1" );
   BOOST_CHECK(find_component_ptr_with_filter(group2(),IsComponentName("group2_1")) != nullptr );
   BOOST_CHECK_EQUAL(find_component_with_filter(const_group2(),IsComponentName("group2_1")).name() , "group2_1" );
   BOOST_CHECK(find_component_ptr_with_filter(const_group2(),IsComponentName("group2_1")) != nullptr );
-  
+
   BOOST_CHECK_EQUAL(find_component_with_filter<CGroup>(group2(),IsComponentName("group2_1")).name() , "group2_1" );
   BOOST_CHECK(find_component_ptr_with_filter<CGroup>(group2(),IsComponentName("group2_1")) != nullptr );
   BOOST_CHECK_EQUAL(find_component_ptr_with_filter<CGroup>(group2(),IsComponentName("group2_1"))->name() , "group2_1" );
@@ -570,12 +570,12 @@ BOOST_AUTO_TEST_CASE( test_find_component_with_filter )
 }
 
 BOOST_AUTO_TEST_CASE( test_find_component_with_name )
-{  
+{
   BOOST_CHECK_EQUAL(find_component_with_name(group2(),"group2_1").name() , "group2_1" );
   BOOST_CHECK(find_component_ptr_with_name(group2(),"group2_1") != nullptr );
   BOOST_CHECK_EQUAL(find_component_with_name(const_group2(),"group2_1").name() , "group2_1" );
   BOOST_CHECK(find_component_ptr_with_name(const_group2(),"group2_1") != nullptr );
-  
+
   BOOST_CHECK_EQUAL(find_component_with_name<CGroup>(group2(),"group2_1").name() , "group2_1" );
   BOOST_CHECK(find_component_ptr_with_name<CGroup>(group2(),"group2_1") != nullptr );
   BOOST_CHECK_EQUAL(find_component_ptr_with_name<CGroup>(group2(),"group2_1")->name() , "group2_1" );
@@ -585,12 +585,12 @@ BOOST_AUTO_TEST_CASE( test_find_component_with_name )
 }
 
 BOOST_AUTO_TEST_CASE( test_find_component_with_tag )
-{  
+{
   BOOST_CHECK_EQUAL(find_component_with_tag(group2_1(),"very_special").name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_with_tag(group2_1(),"very_special") != nullptr );
   BOOST_CHECK_EQUAL(find_component_with_tag(const_group2_1(),"very_special").name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_with_tag(const_group2_1(),"very_special") != nullptr );
-  
+
   BOOST_CHECK_EQUAL(find_component_with_tag<CGroup>(group1(),"special").name() , "group1_2" );
   BOOST_CHECK(find_component_ptr_with_tag<CGroup>(group1(),"special") != nullptr );
   BOOST_CHECK_EQUAL(find_component_ptr_with_tag<CGroup>(group1(),"special")->name() , "group1_2" );
@@ -600,12 +600,12 @@ BOOST_AUTO_TEST_CASE( test_find_component_with_tag )
 }
 
 BOOST_AUTO_TEST_CASE( test_find_component_recursively )
-{  
+{
   BOOST_CHECK_EQUAL(find_component_recursively(group2_1()).name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively(group2_1()) != nullptr );
   BOOST_CHECK_EQUAL(find_component_recursively(const_group2_1()).name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively(const_group2_1()) != nullptr );
-  
+
   BOOST_CHECK_EQUAL(find_component_recursively<CGroup>(group2_1()).name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively<CGroup>(group2_1()) != nullptr );
   BOOST_CHECK_EQUAL(find_component_ptr_recursively<CGroup>(group2_1())->name() , "group2_1_1" );
@@ -615,12 +615,12 @@ BOOST_AUTO_TEST_CASE( test_find_component_recursively )
 }
 
 BOOST_AUTO_TEST_CASE( test_find_component_recursively_with_filter )
-{  
+{
   BOOST_CHECK_EQUAL(find_component_recursively_with_filter(group2(),IsComponentTag("very_special")).name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively_with_filter(group2(),IsComponentTag("very_special")) != nullptr );
   BOOST_CHECK_EQUAL(find_component_recursively_with_filter(const_group2(),IsComponentTag("very_special")).name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively_with_filter(const_group2(),IsComponentTag("very_special")) != nullptr );
-  
+
   BOOST_CHECK_EQUAL(find_component_recursively_with_filter<CGroup>(group2(),IsComponentTag("very_special")).name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively_with_filter<CGroup>(group2(),IsComponentTag("very_special")) != nullptr );
   BOOST_CHECK_EQUAL(find_component_ptr_recursively_with_filter<CGroup>(group2(),IsComponentTag("very_special"))->name() , "group2_1_1" );
@@ -630,12 +630,12 @@ BOOST_AUTO_TEST_CASE( test_find_component_recursively_with_filter )
 }
 
 BOOST_AUTO_TEST_CASE( test_find_component_recursively_with_name )
-{  
+{
   BOOST_CHECK_EQUAL(find_component_recursively_with_name(group2(),"group2_1_1").name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively_with_name(group2(),"group2_1_1") != nullptr );
   BOOST_CHECK_EQUAL(find_component_recursively_with_name(const_group2(),"group2_1_1").name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively_with_name(const_group2(),"group2_1_1") != nullptr );
-  
+
   BOOST_CHECK_EQUAL(find_component_recursively_with_name<CGroup>(group2(),"group2_1_1").name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively_with_name<CGroup>(group2(),"group2_1_1") != nullptr );
   BOOST_CHECK_EQUAL(find_component_ptr_recursively_with_name<CGroup>(group2(),"group2_1_1")->name() , "group2_1_1" );
@@ -645,12 +645,12 @@ BOOST_AUTO_TEST_CASE( test_find_component_recursively_with_name )
 }
 
 BOOST_AUTO_TEST_CASE( test_find_component_recursively_with_tag )
-{  
+{
   BOOST_CHECK_EQUAL(find_component_recursively_with_tag(group2(),"very_special").name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively_with_tag(group2(),"very_special") != nullptr );
   BOOST_CHECK_EQUAL(find_component_recursively_with_tag(const_group2(),"very_special").name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively_with_tag(const_group2(),"very_special") != nullptr );
-  
+
   BOOST_CHECK_EQUAL(find_component_recursively_with_tag<CGroup>(group2(),"very_special").name() , "group2_1_1" );
   BOOST_CHECK(find_component_ptr_recursively_with_tag<CGroup>(group2(),"very_special") != nullptr );
   BOOST_CHECK_EQUAL(find_component_ptr_recursively_with_tag<CGroup>(group2(),"very_special")->name() , "group2_1_1" );
@@ -668,14 +668,14 @@ BOOST_AUTO_TEST_CASE( speed_find_tag )
   // allocate 5000 components
   for ( Uint i = 0; i < 250 ; ++i)
   {
-    mg->create_component<CGroup>( std::string("ggg") + String::to_str(i) )->add_tag("CGroup");
+    mg->create_component<CGroup>( std::string("ggg") + to_str(i) )->add_tag("CGroup");
   }
 
   boost::timer timer;
   Uint counter = 0;
   BOOST_FOREACH(Component& comp, find_components_recursively_with_tag(*mg, "CGroup" ) )
   {
-		comp.is_link(); // to disable unused variable warning
+    comp.is_link(); // to disable unused variable warning
     ++counter;
   }
   std::cout << "iterate by [tag] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
@@ -690,14 +690,14 @@ BOOST_AUTO_TEST_CASE( speed_find_type )
   // allocate 5000 components
   for ( Uint i = 0; i < 250 ; ++i)
   {
-    mg->create_component<CGroup>( std::string("ggg") + String::to_str(i) );
+    mg->create_component<CGroup>( std::string("ggg") + to_str(i) );
   }
 
   boost::timer timer;
   Uint counter = 0;
   BOOST_FOREACH(Component& comp, find_components_recursively<CGroup>(*mg) )
   {
-		comp.is_link(); // to disable unused variable warning
+    comp.is_link(); // to disable unused variable warning
     ++counter;
   }
   std::cout << "iterate by [type] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
@@ -712,7 +712,7 @@ BOOST_AUTO_TEST_CASE( test_range_to_vector )
   // allocate 10 components
   for ( Uint i = 0; i < 10 ; ++i)
   {
-    mg->create_component<CGroup>( std::string("ggg") + String::to_str(i) );
+    mg->create_component<CGroup>( std::string("ggg") + to_str(i) );
   }
 
   std::vector<CGroup::Ptr> vector = range_to_vector(find_components_recursively<CGroup>(*mg));
@@ -721,7 +721,7 @@ BOOST_AUTO_TEST_CASE( test_range_to_vector )
   CGroup::ConstPtr const_mg (mg);
   std::vector<CGroup::ConstPtr> const_vector = range_to_vector(find_components_recursively<CGroup>(*const_mg));
   BOOST_CHECK_EQUAL(const_vector.size(), 10u);
-  
+
   const_vector = range_to_const_vector(find_components_recursively<CGroup>(*mg));
   BOOST_CHECK_EQUAL(const_vector.size(), 10u);
 }
@@ -747,7 +747,7 @@ BOOST_AUTO_TEST_CASE( test_new_range )
   CF_DEBUG_POINT;
   typedef DerivedComponentIteratorRange<CGroup,IsComponentName> filtered_range;
   typedef DerivedComponentIteratorRange<CGroup> group_range;
-  
+
   BOOST_FOREACH( CGroup& comp, filtered_range( root().begin<CGroup>(), root().end<CGroup>() , IsComponentName("group1") ) )
     CFLogVar(comp.name());
 
@@ -772,12 +772,12 @@ BOOST_AUTO_TEST_CASE( test_new_range )
   BOOST_FOREACH( const CGroup& comp, new_range6 )
     CFLogVar(comp.name());
   CFLogVar(new_range6.size());
-  
-  // 
+
+  //
   // CF_DEBUG_POINT;
   // BOOST_FOREACH( const CGroup& comp, DerivedConstComponentIteratorRange<CGroup>(const_root()) )
   //   CFLogVar(comp.name());
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

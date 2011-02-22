@@ -18,7 +18,6 @@ namespace CF {
 namespace UFEM {
 
 using namespace Common;
-using namespace Common::String;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;

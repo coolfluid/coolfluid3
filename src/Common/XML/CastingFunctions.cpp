@@ -8,53 +8,13 @@
 
 #include "Common/CommonAPI.hpp"
 #include "Common/URI.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Common/XML/CastingFunctions.hpp"
-
-using namespace CF::Common::String;
 
 namespace CF {
 namespace Common {
 namespace XML {
-
-////////////////////////////////////////////////////////////////////////////////
-
-  template <>
-  Common_API std::string from_value<bool> (const bool& val)
-  {
-    return to_str(val);
-  }
-
-  template <>
-  Common_API std::string from_value<int> (const int& val)
-  {
-    return to_str(val);
-  }
-
-  template <>
-  Common_API std::string from_value<Uint> (const Uint& val)
-  {
-    return to_str(val);
-  }
-
-  template <>
-  Common_API std::string from_value<Real> (const Real& val)
-  {
-    return to_str(val);
-  }
-
-  template <>
-  Common_API std::string from_value<std::string> (const std::string& val)
-  {
-    return val;
-  }
-
-  template <>
-  Common_API std::string from_value<URI> (const URI& val)
-  {
-    return to_str(val);
-  }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -137,26 +97,6 @@ namespace XML {
   {
     return from_str<URI>(node.content->value());
   }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  template <>
-      Common_API std::string from_string_value<std::string> ( const std::string & str )
-  {
-    return str;
-  }
-
-  template <typename T>
-      T from_string_value ( const std::string & str)
-  {
-    return from_str<T>(str);
-  }
-
-  Common_TEMPLATE template bool from_string_value<bool>( const std::string & str );
-  Common_TEMPLATE template int from_string_value<int>( const std::string & str );
-  Common_TEMPLATE template Uint from_string_value<Uint>( const std::string & str );
-  Common_TEMPLATE template Real from_string_value<Real>( const std::string & str );
-  Common_TEMPLATE template URI from_string_value<URI>( const std::string & str );
 
 ////////////////////////////////////////////////////////////////////////////////
 

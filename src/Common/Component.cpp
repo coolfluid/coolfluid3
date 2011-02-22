@@ -16,7 +16,7 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 using namespace CF::Common::String;
@@ -220,13 +220,13 @@ std::string Component::ensure_unique_name ( Component::Ptr subcomp )
     {
       Uint count = 1;
 
-      new_name = name + "_" + String::to_str(count);
+      new_name = name + "_" + to_str(count);
 
       // make sure constructed name does not exist
       while ( m_components.find(new_name) != m_components.end() )
       {
         ++count;
-        new_name = name  + "_" + String::to_str(count);
+        new_name = name  + "_" + to_str(count);
       }
 
 //      CFwarn << "Component named \'" << subcomp->full_path().string() << "\' already exists. Component renamed to \'" << new_name << "\'" << CFendl;

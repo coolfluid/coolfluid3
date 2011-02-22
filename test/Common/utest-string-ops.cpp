@@ -11,15 +11,13 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 #include "Common/URI.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Common::String;
-
 
 BOOST_AUTO_TEST_SUITE( String_TestSuite )
 

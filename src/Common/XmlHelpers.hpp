@@ -15,7 +15,7 @@
 #include "Common/XML.hpp"
 #include "Common/BasicExceptions.hpp"
 
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 namespace CF {
 namespace Common {
@@ -333,7 +333,7 @@ namespace Common {
         XmlNode* vals_node = XmlOps::add_node_to(*node, XmlTag<TYPE>::array());
 
         XmlOps::add_attribute_to(*vals_node, tag_attr_key(), tag_attr_restricted_values());
-        XmlOps::add_attribute_to(*vals_node, tag_attr_size(), String::to_str( (CF::Uint) restricted_vals.size() ));
+        XmlOps::add_attribute_to(*vals_node, tag_attr_size(), to_str( (CF::Uint) restricted_vals.size() ));
         XmlOps::add_attribute_to(*vals_node, tag_attr_type(), XmlTag<TYPE>::type());
 
         for(size_t i = 0 ; i < restricted_vals.size() ; i++)
@@ -486,9 +486,9 @@ namespace Common {
 		// note : the size of the array has to be explicitly cast to CF::Uint or
 		// MSVC will consider the value to be of type "unsigned __int64"
 		// (defined by Microsoft) and the linking will fail because
-		// String::to_str<unsigned __int64>() is not defined.
+		// to_str<unsigned __int64>() is not defined.
 		XmlOps::add_attribute_to(*node, tag_attr_key(), key);
-		XmlOps::add_attribute_to(*node, tag_attr_size(), String::to_str( (CF::Uint) vect.size() ));
+		XmlOps::add_attribute_to(*node, tag_attr_size(), to_str( (CF::Uint) vect.size() ));
 		XmlOps::add_attribute_to(*node, tag_attr_type(), XmlTag<TYPE>::type());
 
     for(size_t i = 0 ; i < vect.size() ; i++)

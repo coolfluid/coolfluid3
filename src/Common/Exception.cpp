@@ -11,7 +11,7 @@
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,10 +24,10 @@ namespace CF {
 ExceptionManager::ExceptionManager() :
   ExceptionOutputs ( true ),
   ExceptionDumps   ( true ),
-  ExceptionAborts  ( false ) 
-	{
-		std::set_terminate(std::abort);
-	}
+  ExceptionAborts  ( false )
+  {
+    std::set_terminate(std::abort);
+  }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -96,7 +96,6 @@ const char* Exception::what() const throw()
 
 std::string Exception::full_description () const throw ()
 {
-	using namespace String;
   std::string desc;
   desc += "\n\n";
   desc += "+++ Exception thrown on rank "+ to_str(mpi::PE::instance().rank()) + " ++++++++\n";

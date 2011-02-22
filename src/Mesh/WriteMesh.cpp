@@ -21,7 +21,6 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
-using namespace Common::String;
 using namespace CF::Mesh;
 
 Common::ComponentBuilder < WriteMesh, Component, LibMesh > WriteMesh_Builder;
@@ -96,7 +95,7 @@ void WriteMesh::update_list_of_available_writers()
 void WriteMesh::write_mesh( CMesh& mesh, const URI& file, const std::vector<URI>& fields)
 {
   update_list_of_available_writers();
-  
+
   boost::filesystem::path fpath( file.path() );
   const std::string extension = fpath.extension();
 
@@ -112,7 +111,7 @@ void WriteMesh::write_mesh( CMesh& mesh, const URI& file, const std::vector<URI>
        msg += " - " + writer->name() + "\n";
      throw FileFormatError( FromHere(), msg);
    }
-   
+
   CMeshWriter::Ptr writer = m_extensions_to_writers[extension][0];
   writer->configure_property("Fields",fields);
   return writer->write_from_to(mesh.as_type<CMesh>(),fpath);

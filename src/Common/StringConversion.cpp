@@ -10,13 +10,12 @@
 
 #include "Common/URI.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common {
-namespace String {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -64,6 +63,12 @@ namespace String {
   Common_API std::string to_str<URI> (const URI & v)
   {
     return v.string();
+  }
+
+  template <>
+  Common_API std::string to_str<std::string> (const std::string & v)
+  {
+    return v;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -128,8 +133,13 @@ namespace String {
     return URI( str );
   }
 
+  template <>
+  Common_API std::string from_str<std::string> (const std::string& str)
+  {
+    return str;
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 
-} // String
 } // Common
 } // CF

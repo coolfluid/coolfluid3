@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_String_Conversion_hpp
-#define CF_Common_String_Conversion_hpp
+#ifndef CF_Common_StringConversion_hpp
+#define CF_Common_StringConversion_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,8 +16,7 @@
 
 namespace CF {
 namespace Common {
-namespace String {
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Conversions from and to std::string
@@ -41,10 +40,9 @@ namespace String {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // String
 } // Common
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_String_Conversion_hpp
+#endif // CF_Common_StringConversion_hpp

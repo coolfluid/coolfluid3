@@ -8,7 +8,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Math/VectorialFunction.hpp"
 

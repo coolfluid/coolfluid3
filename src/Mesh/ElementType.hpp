@@ -12,7 +12,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/range.hpp>
 
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 #include "Common/Component.hpp"
 
 #include "Math/MatrixTypes.hpp"

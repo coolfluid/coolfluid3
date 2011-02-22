@@ -14,7 +14,6 @@ namespace CF {
 namespace UFEM {
 
 using namespace Common;
-using namespace Common::String;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
@@ -25,10 +24,10 @@ LinearSystemUnsteady::LinearSystemUnsteady(const std::string& name) : LinearSyst
   Common::Option::Ptr tstep_prop = properties().add_option< OptionT<Real> >("Timestep", "Timestep", 1.);
   tstep_prop->attach_trigger( boost::bind(&LinearSystemUnsteady::trigger_timestep, this) );
   tstep_prop->mark_basic();
-  
+
   Common::Option::Ptr current_prop = properties().add_option< OptionT<Real> >("CurrentTime", "Current time", 0.);
   current_prop->mark_basic();
-  
+
   Common::Option::Ptr stop_prop = properties().add_option< OptionT<Real> >("StopTime", "Stoppint time", 1.);
   stop_prop->mark_basic();
 }
@@ -38,14 +37,14 @@ void LinearSystemUnsteady::on_run()
   const Real start_time = property("CurrentTime").value<Real>();
   const Real stop_time = property("StopTime").value<Real>();
   const Real dt = property("Timestep").value<Real>();
-  
+
   Real current_time = start_time;
   while(current_time < stop_time)
   {
     CF::UFEM::LinearSystem::on_run();
     current_time += dt;
   }
-  
+
   properties()["CurrentTime"].change_value(current_time);
 }
 

@@ -10,7 +10,7 @@
 #include "Common/MPI/operations.hpp"
 #include "Common/MPI/all_reduce.hpp"
 #include "Common/Log.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 #include "Common/MPI/tools.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -23,7 +23,6 @@ namespace CF {
 namespace Mesh {
 
   using namespace Common;
-  using namespace Common::String;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -164,7 +163,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   }
   //CFinfo << "adding elements " << CFendl;
   boost_foreach ( CElements& elements, find_components_recursively<CElements>(mesh))
-  {    
+  {
     boost_foreach (Uint glb_idx, elements.glb_idx().array())
     {
       m_global_to_local->insert_blindly(from_elem_glb(glb_idx),loc_idx++);
@@ -177,7 +176,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   // check validity
   cf_assert(loc_idx == tot_nb_obj);
   Uint glb_nb_owned_obj;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), &m_nb_owned_obj, 1, &glb_nb_owned_obj);  
+  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), &m_nb_owned_obj, 1, &glb_nb_owned_obj);
   cf_assert(glb_nb_owned_obj == mesh.property("nb_nodes").value<Uint>() + mesh.property("nb_cells").value<Uint>());
 }
 

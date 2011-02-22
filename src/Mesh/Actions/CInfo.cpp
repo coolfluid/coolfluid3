@@ -120,7 +120,7 @@ std::string CInfo::print_region_tree(const CRegion& region, Uint level)
     
   for (Uint i=0; i<level; i++)
     tree += "    ";
-  tree += region.name() + " (" + String::to_str<Uint>(region.recursive_elements_count()) +  ")\n";
+  tree += region.name() + " (" + to_str<Uint>(region.recursive_elements_count()) +  ")\n";
   
   tree += print_elements(region,level+1);
   
@@ -139,7 +139,7 @@ std::string CInfo::print_field_tree(const CField& field, Uint level)
   
   for (Uint i=0; i<level; i++)
     tree += "    ";
-  tree += field.name() + " (" + String::to_str<Uint>(field.recursive_elements_count()) +  ")\n";
+  tree += field.name() + " (" + to_str<Uint>(field.recursive_elements_count()) +  ")\n";
   
   tree += print_elements(field,level+1);
   
@@ -160,7 +160,7 @@ std::string CInfo::print_elements(const Component& region, Uint level)
     for (Uint i=0; i<level; i++)
       tree += "    ";
     std::string dimensionality = elements_region.element_type().dimension() == elements_region.element_type().dimensionality() ? "volume" : "surface";
-    tree += elements_region.name() + " -- " + dimensionality + "  (" + String::to_str<Uint>(elements_region.size()) +  ")\n";
+    tree += elements_region.name() + " -- " + dimensionality + "  (" + to_str<Uint>(elements_region.size()) +  ")\n";
   }
   return tree;
 }

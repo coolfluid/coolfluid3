@@ -13,7 +13,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/StreamHelpers.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
@@ -33,8 +33,7 @@ namespace Mesh {
 namespace Neu {
 
   using namespace Common;
-  using namespace Common::String;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CF::Common::ComponentBuilder < Neu::CReader, CMeshReader, LibNeu > aNeuReader_Builder;
@@ -51,9 +50,9 @@ CReader::CReader( const std::string& name )
   m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_init()?mpi::PE::instance().size():1);
   m_properties.add_option<OptionT <bool> >("Read Boundaries","Read the surface elements for the boundary",true);
 
-  
+
   m_properties["brief"] = std::string("Neutral file mesh reader component");
-  
+
   std::string desc;
   desc += "This component can read in parallel.\n";
   desc += "Available coolfluid-element types are:\n";
@@ -61,7 +60,7 @@ CReader::CReader( const std::string& name )
   desc += "  - " + supported_type + "\n";
   m_properties["description"] = desc;
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 std::vector<std::string> CReader::get_extensions()
@@ -88,23 +87,23 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   }
 
   m_file_basename = boost::filesystem::basename(fp);
-  
+
   // set the internal mesh pointer
   m_mesh = mesh;
 
   // Read file once and store positions
   get_file_positions();
-  
+
   // Read mesh information
   read_headerData();
-  
-	// Create a hash 
+
+	// Create a hash
 	m_hash = create_component<CMixedHash>("hash");
-  std::vector<Uint> num_obj(2);
-  num_obj[0] = m_headerData.NUMNP;
-  num_obj[1] = m_headerData.NELEM;
+	std::vector<Uint> num_obj(2);
+	num_obj[0] = m_headerData.NUMNP;
+	num_obj[1] = m_headerData.NELEM;
 	m_hash->configure_property("Number of Objects",num_obj);
-	
+
   // Create a region component inside the mesh with the name mesh_name
   //if (property("new_api").value<bool>())
     m_region = m_mesh->topology().create_region(m_headerData.mesh_name).as_type<CRegion>();
@@ -114,12 +113,12 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   find_ghost_nodes();
   read_coordinates();
   read_connectivity();
-	if (property("Read Boundaries").value<bool>())
-		read_boundaries();
+  if (property("Read Boundaries").value<bool>())
+    read_boundaries();
 
   if (!property("Unified Zones").value<bool>())
-    read_groups();  
-  
+    read_groups();
+
   // clean-up
   // --------
   // Remove regions with empty connectivity tables
@@ -134,17 +133,17 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-  
+
 void CReader::get_file_positions()
-{   
+{
   std::string nodal_coordinates("NODAL COORDINATES");
   std::string elements_cells("ELEMENTS/CELLS");
   std::string element_group("ELEMENT GROUP");
   std::string boundary_condition("BOUNDARY CONDITIONS");
-  
+
   m_element_group_positions.resize(0);
   m_boundary_condition_positions.resize(0);
-  
+
   int p;
   std::string line;
   while (!m_file.eof())
@@ -161,7 +160,7 @@ void CReader::get_file_positions()
       m_boundary_condition_positions.push_back(p);
   }
   m_file.clear();
-  
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -169,16 +168,16 @@ void CReader::get_file_positions()
 void CReader::read_headerData()
 {
   m_file.seekg(0,std::ios::beg);
-  
+
   Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
   std::string line;
 
   // skip 2 lines
   for (Uint i=0; i<2; ++i)
     getline(m_file,line);
-  
+
   m_file >> m_headerData.mesh_name;   getline(m_file,line);
-  
+
   // skip 3 lines
   for (Uint i=0; i<3; ++i)
     getline(m_file,line);
@@ -194,7 +193,7 @@ void CReader::read_headerData()
   m_headerData.NBSETS = NBSETS;
   m_headerData.NDFCD  = NDFCD;
   m_headerData.NDFVL  = NDFVL;
-	
+
   getline(m_file,line);
 }
 
@@ -203,7 +202,7 @@ void CReader::read_headerData()
 void CReader::find_ghost_nodes()
 {
   m_ghost_nodes.clear();
-  
+
   // Only find ghost nodes if the domain is split up
   if (property("Number of Parts").value<Uint>() > 1)
   {
@@ -215,7 +214,7 @@ void CReader::find_ghost_nodes()
 
     // read every line and store the connectivity in the correct region through the buffer
     Uint elementNumber, elementType, nbElementNodes;
-    for (Uint i=0; i<m_headerData.NELEM; ++i) 
+    for (Uint i=0; i<m_headerData.NELEM; ++i)
     {
       if (m_headerData.NELEM > 100000)
       {
@@ -249,12 +248,12 @@ void CReader::find_ghost_nodes()
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::read_coordinates()
-{   
+{
   m_file.seekg(m_nodal_coordinates_position,std::ios::beg);
-  
+
   // Create the nodes
   m_nodes = m_region->create_nodes(m_headerData.NDFCD).as_type<CNodes>();
-  
+
   m_nodes->resize(m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
   std::string line;
   // skip one line
@@ -266,16 +265,16 @@ void CReader::read_coordinates()
   std::set<Uint>::const_iterator it;
 
   Uint coord_idx=0;
-  for (Uint node_idx=1; node_idx<=m_headerData.NUMNP; ++node_idx) 
+  for (Uint node_idx=1; node_idx<=m_headerData.NUMNP; ++node_idx)
   {
     if (m_headerData.NUMNP > 100000)
-    {  
+    {
       if(node_idx%(m_headerData.NUMNP/20)==0)
         CFinfo << 100*node_idx/m_headerData.NUMNP << "% " << CFendl;
     }
     getline(m_file,line);
-		if (m_hash->subhash(NODES)->owns(node_idx-1))
-		{
+    if (m_hash->subhash(NODES)->owns(node_idx-1))
+    {
       m_nodes->glb_idx()[coord_idx] = node_idx - 1; // -1 because base zero
       m_nodes->is_ghost()[coord_idx] = false;
       m_node_to_coord_idx[node_idx]=coord_idx;
@@ -285,24 +284,24 @@ void CReader::read_coordinates()
       for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
         ss >> m_nodes->coordinates()[coord_idx][dim];
       coord_idx++;
-		}
-		else
-		{
-			it = m_ghost_nodes.find(node_idx);
-			if (it != m_ghost_nodes.end())
-			{
-				// add global node index
-				m_nodes->glb_idx()[coord_idx] = node_idx - 1; // -1 because base zero
-				m_nodes->is_ghost()[coord_idx] = true;
-				m_node_to_coord_idx[node_idx]=coord_idx;
-				std::stringstream ss(line);
-				Uint nodeNumber;
-				ss >> nodeNumber;
-				for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
-					ss >> m_nodes->coordinates()[coord_idx][dim];
-				coord_idx++;
-			}			
-		}
+    }
+    else
+    {
+      it = m_ghost_nodes.find(node_idx);
+      if (it != m_ghost_nodes.end())
+      {
+        // add global node index
+        m_nodes->glb_idx()[coord_idx] = node_idx - 1; // -1 because base zero
+        m_nodes->is_ghost()[coord_idx] = true;
+        m_node_to_coord_idx[node_idx]=coord_idx;
+        std::stringstream ss(line);
+        Uint nodeNumber;
+        ss >> nodeNumber;
+        for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
+          ss >> m_nodes->coordinates()[coord_idx][dim];
+        coord_idx++;
+      }
+    }
   }
   getline(m_file,line);
 }
@@ -311,7 +310,7 @@ void CReader::read_coordinates()
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::read_connectivity()
-{  
+{
   m_tmp = m_region->create_region("main").as_type<CRegion>();
 
   m_global_to_tmp.clear();
@@ -321,12 +320,12 @@ void CReader::read_connectivity()
   std::map<std::string,CElements::Ptr> elements = create_cells_in_region(*m_tmp,*m_nodes,m_supported_types);
   std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
   std::map<std::string,CList<Uint>::Buffer::Ptr> glb_elm_indices;
-  
+
   foreach_container((const std::string& etype) (CTable<Uint>::Buffer::Ptr buf), buffer)
   {
     glb_elm_indices[etype] = elements[etype]->glb_idx().create_buffer_ptr();
   }
-  
+
   // skip next line
   std::string line;
   getline(m_file,line);
@@ -339,19 +338,19 @@ void CReader::read_connectivity()
   Uint cf_node_number;
   Uint cf_idx;
   Uint table_idx;
-  
-  for (Uint i=0; i<m_headerData.NELEM; ++i) 
+
+  for (Uint i=0; i<m_headerData.NELEM; ++i)
   {
     if (m_headerData.NELEM > 100000)
     {
       if(i%(m_headerData.NELEM/20)==0)
         CFinfo << 100*i/m_headerData.NELEM << "% " << CFendl;
     }
-    
+
     // element description
     Uint elementNumber, elementType, nbElementNodes;
     m_file >> elementNumber >> elementType >> nbElementNodes;
-          
+
     // get element nodes
     if (m_hash->subhash(ELEMS)->owns(i))
     {
@@ -365,7 +364,7 @@ void CReader::read_connectivity()
         if (!m_nodes->is_ghost()[cf_node_number])
         {
           //if (m_nodes_to_read.find(neu_node_number) != m_nodes_to_read.end() )
-            m_node_to_glb_elements[cf_node_number].insert(elementNumber-1); 
+            m_node_to_glb_elements[cf_node_number].insert(elementNumber-1);
         }
       }
       etype_CF = element_type(elementType,nbElementNodes);
@@ -378,11 +377,11 @@ void CReader::read_connectivity()
       for (Uint j=0; j<nbElementNodes; ++j)
       {
         m_file >> neu_node_number;
-				if (m_hash->subhash(NODES)->owns(neu_node_number-1))
-				{
-					cf_node_number = m_node_to_coord_idx[neu_node_number];
-					m_node_to_glb_elements[cf_node_number].insert(elementNumber-1);
-				}
+        if (m_hash->subhash(NODES)->owns(neu_node_number-1))
+        {
+          cf_node_number = m_node_to_coord_idx[neu_node_number];
+          m_node_to_glb_elements[cf_node_number].insert(elementNumber-1);
+        }
       }
     }
 
@@ -390,32 +389,32 @@ void CReader::read_connectivity()
     getline(m_file,line);
   }
   getline(m_file,line);  // ENDOFSECTION
-  
+
   index_foreach( node_idx ,  std::set<Uint>& glb_elems , m_node_to_glb_elements)
     m_nodes->glb_elem_connectivity().set_row(node_idx,glb_elems);
-  
+
   m_node_to_coord_idx.clear();
   m_node_to_glb_elements.clear();
-  
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::read_groups()
 {
-  
+
   cf_assert(m_element_group_positions.size() == m_headerData.NGRPS)
-  
+
   std::vector<GroupData> groups(m_headerData.NGRPS);
   std::string line;
   int dummy;
-  
+
   std::set<Uint>::const_iterator it;
-  
+
   for (Uint g=0; g<m_headerData.NGRPS; ++g)
-  {    
+  {
     m_file.seekg(m_element_group_positions[g],std::ios::beg);
-    
+
     std::string ELMMAT;
     Uint NGP, NELGP, MTYP, NFLAGS, I;
     getline(m_file,line);  // ELEMENT GROUP...
@@ -426,11 +425,11 @@ void CReader::read_groups()
     groups[g].NFLAGS = NFLAGS;
     groups[g].ELMMAT = ELMMAT;
     //groups[g].print();
-    
+
     for (Uint i=0; i<NFLAGS; ++i)
       m_file >> dummy;
-    
-    
+
+
     // 2 cases:
     // 1) there is only one group --> The tmp region can just be renamed
     //    and put in the filesystem as subcomponent of "mesh/regions"
@@ -440,30 +439,30 @@ void CReader::read_groups()
       m_tmp.reset();
       return;
     }
-    
+
     // 2) there are multiple groups --> New regions have to be created
     //    and the elements from the tmp region have to be distributed among
     //    these new regions.
-    
+
 		// Read first to see howmany elements to allocate
 		int p = m_file.tellg();
 		Uint nb_elems_in_group = 0;
-    for (Uint i=0; i<NELGP; ++i) 
-    {
-      m_file >> I;
+		for (Uint i=0; i<NELGP; ++i)
+		{
+			m_file >> I;
 			if (m_hash->subhash(ELEMS)->owns(I-1))
 				nb_elems_in_group++;
-    }
+		}
 		// now allocate and read again
 		groups[g].ELEM.reserve(nb_elems_in_group);
 		m_file.seekg(p,std::ios::beg);
-    for (Uint i=0; i<NELGP; ++i) 
-    {
-      m_file >> I;
+		for (Uint i=0; i<NELGP; ++i)
+		{
+			m_file >> I;
 			if (m_hash->subhash(ELEMS)->owns(I-1))
 				groups[g].ELEM.push_back(I);     // set element index
-    }
-		
+		}
+
     getline(m_file,line);  // finish the line (read new line)
     getline(m_file,line);  // ENDOFSECTION
   }
@@ -471,33 +470,33 @@ void CReader::read_groups()
   // Create Region for each group
   boost_foreach(GroupData& group, groups)
   {
-    
+
     CRegion& region = m_region->create_region(group.ELMMAT);
-    
+
     //CFinfo << "region " << region.full_path().string() << " created" << CFendl;
     // Create regions for each element type in each group-region
     std::map<std::string,CElements::Ptr> elements = create_cells_in_region(region,*m_nodes,m_supported_types);
     std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
     std::map<std::string,CList<Uint>::Buffer::Ptr> glb_elm_indices;
-    
+
     foreach_container((const std::string& etype) (CTable<Uint>::Buffer::Ptr buf), buffer)
     {
       glb_elm_indices[etype] = elements[etype]->glb_idx().create_buffer_ptr();
     }
-    
-    
+
+
     // Copy elements from tmp_region in the correct region
     boost_foreach(Uint global_element, group.ELEM)
     {
       CElements::Ptr tmp_elems = m_global_to_tmp[global_element].first;
       Uint local_element = m_global_to_tmp[global_element].second;
       std::string etype = tmp_elems->element_type().builder_name();
-      
+
       Uint idx = buffer[etype]->add_row(tmp_elems->connectivity_table().array()[local_element]);
       std::string new_elems_name = tmp_elems->name();
       m_global_to_tmp[global_element] = std::make_pair(region.get_child<CElements>(new_elems_name),idx);
       Uint local_elm_idx = glb_elm_indices[etype]->add_row(global_element-1);
-      
+
       if (local_elm_idx != idx)
       {
         throw BadValue(FromHere(), "global_indexes don't match with connectivity table: "+to_str(local_elm_idx)+"!="+to_str(idx));
@@ -507,9 +506,9 @@ void CReader::read_groups()
 
   m_region->remove_component(m_tmp->name());
   m_tmp.reset();
-  
+
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::read_boundaries()
@@ -522,7 +521,7 @@ void CReader::read_boundaries()
   for (Uint t=0; t<m_headerData.NBSETS; ++t) {
 
     m_file.seekg(m_boundary_condition_positions[t],std::ios::beg);
-      
+
     std::string NAME;
     int ITYPE, NENTRY, NVALUES, IBCODE1, IBCODE2, IBCODE3, IBCODE4, IBCODE5;
 
@@ -549,25 +548,25 @@ void CReader::read_boundaries()
       glb_elm_indices[etype] = elements[etype]->glb_idx().create_buffer_ptr();
     }
     // read boundary elements connectivity
-    for (int i=0; i<NENTRY; ++i) 
+    for (int i=0; i<NENTRY; ++i)
     {
       int ELEM, ETYPE, FACE;
       m_file >> ELEM >> ETYPE >> FACE;
 
       Uint global_element = ELEM;
-      
+
       std::map<Uint,Region_TableIndex_pair>::iterator it = m_global_to_tmp.find(global_element);
       if (it != m_global_to_tmp.end())
       {
         CElements::Ptr tmp_elements = it->second.first;
         Uint local_element = it->second.second;
-                
+
         //Uint elementType = ETYPE;
         Uint faceIdx = m_faces_neu_to_cf[ETYPE][FACE];
 
         const ElementType& etype = tmp_elements->element_type();
         const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
-        
+
         // make a row of nodes
         const CTable<Uint>::Row& elem_nodes = tmp_elements->connectivity_table()[local_element];
         std::vector<Uint> row;
@@ -609,7 +608,7 @@ std::string CReader::element_type(const Uint neu_type, const Uint nb_nodes)
                                + to_str<int>(neu_type) + "/" + to_str<int>(nb_nodes) +
                                " in Neutral format");
   }
-  
+
   return cf_type;
 }
 

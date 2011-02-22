@@ -21,7 +21,6 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
-using namespace Common::String;
 using namespace CF::Mesh;
 
 Common::ComponentBuilder < LoadMesh, Component, LibMesh > LoadMesh_Builder;
@@ -96,7 +95,7 @@ void LoadMesh::update_list_of_available_readers()
 CMesh::Ptr LoadMesh::load_mesh(const URI& file)
 {
   update_list_of_available_readers();
-  
+
   boost::filesystem::path fpath( file.path() );
   const std::string extension = fpath.extension();
 

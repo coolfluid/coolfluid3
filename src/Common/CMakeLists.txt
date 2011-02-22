@@ -98,8 +98,8 @@ list( APPEND coolfluid_common_files
     OSystemLayer.hpp
     RegistLibrary.hpp
     StreamHelpers.hpp
-    String/Conversion.hpp
-    String/Conversion.cpp
+    StringConversion.hpp
+    StringConversion.cpp
     SignalHandler.hpp
     SignalHandler.cpp
     TaggedObject.hpp
@@ -229,6 +229,4 @@ coolfluid_add_library( coolfluid_common )
 add_subdirectory( MacOSX )   # support for Mac OSX
 add_subdirectory( Linux  )   # support for Linux
 add_subdirectory( Win32  )   # support for Win32
-
-add_subdirectory( String  )  # std::string conversions
 
