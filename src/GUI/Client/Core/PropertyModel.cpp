@@ -6,7 +6,7 @@
 
 #include <QModelIndex>
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NTree.hpp"
 
 #include "GUI/Client/Core/PropertyModel.hpp"
 
@@ -15,11 +15,11 @@ using namespace CF::GUI::ClientCore;
 PropertyModel::PropertyModel()
   : QAbstractItemModel()
 {
-  currentIndexChanged(ClientRoot::instance().tree()->currentIndex(), QModelIndex());
+  currentIndexChanged(NTree::globalTree()->currentIndex(), QModelIndex());
 
   m_columns << "Name" << "Value";
 
-  connect(ClientRoot::instance().tree().get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
+  connect(NTree::globalTree().get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
           this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
 }
 
@@ -128,7 +128,7 @@ void PropertyModel::currentIndexChanged(const QModelIndex & newIndex,
 
   emit layoutAboutToBeChanged();
 
-  ClientRoot::instance().tree()->listNodeProperties(newIndex, props);
+  NTree::globalTree()->listNodeProperties(newIndex, props);
 
   this->emptyList();
 

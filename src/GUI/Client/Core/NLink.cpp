@@ -14,7 +14,8 @@
 #include "Common/URI.hpp"
 #include "Common/BasicExceptions.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/NTree.hpp"
 //#include "GUI/Client/Core/SelectPathDialog.hpp"
 
 #include "GUI/Client/Core/NLink.hpp"
@@ -73,7 +74,7 @@ void NLink::setTargetPath(const URI & path)
 void NLink::setTargetNode(const CNode::Ptr & node)
 {
   if(node.get() == nullptr)
-    ClientRoot::instance().log()->addError("Target is null");
+    NLog::globalLog()->addError("Target is null");
   else
     m_target = node;
 }
@@ -86,12 +87,12 @@ void NLink::goToTarget(Signal::arg_t & )
 	if ( is_null(m_target) )
 		throw ValueNotFound (FromHere(), "Target of this link is not set or not valid");
 
-	QModelIndex index = ClientRoot::instance().tree()->indexByPath(m_target->full_path());
+	QModelIndex index = NTree::globalTree()->indexByPath(m_target->full_path());
 
 	if(index.isValid())
-		ClientRoot::instance().tree()->setCurrentIndex(index);
+		NTree::globalTree()->setCurrentIndex(index);
 	else
-		ClientRoot::instance().log()->addError(QString("%1: path does not exist")
+		NLog::globalLog()->addError(QString("%1: path does not exist")
 																.arg(m_target->full_path().path().c_str()));
 }
 
@@ -108,12 +109,12 @@ void NLink::change_link(Signal::arg_t & args)
 
     this->setTargetPath(path);
 
-    ClientRoot::instance().log()->addMessage(QString("Link '%1' now points to '%2'.")
+    NLog::globalLog()->addMessage(QString("Link '%1' now points to '%2'.")
                                      .arg(full_path().path().c_str()).arg(path.c_str()));
 
   }
   catch(InvalidURI & ip)
   {
-    ClientRoot::instance().log()->addError(ip.msg().c_str());
+    NLog::globalLog()->addError(ip.msg().c_str());
   }
 }

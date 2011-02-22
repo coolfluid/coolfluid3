@@ -54,6 +54,8 @@ public:
 
   //@} END VIRTUAL FUNCTIONS
 
+  static Ptr globalJournal();
+
 signals:
 
   void journalRequest(bool local);

@@ -10,7 +10,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/UI/TypeAndNameDialog.hpp"
 #include "GUI/Client/UI/NRemoteSave.hpp"
 
@@ -20,7 +20,7 @@ using namespace CF::GUI::ClientUI;
 NRemoteSave::NRemoteSave(QMainWindow * parent)
   : NRemoteBrowser("NRemoteSave", parent)
 {
-   
+
 
   this->setIncludeFiles(true);
   this->setIncludeNoExtension(false);
@@ -62,7 +62,7 @@ NRemoteSave::Ptr NRemoteSave::create(QMainWindow * parent)
 {
   NRemoteSave::Ptr rsf(new NRemoteSave(parent));
 
-  ClientRoot::instance().browser()->addNode(rsf);
+  NBrowser::globalBrowser()->addNode(rsf);
 
   return rsf;
 }

@@ -342,7 +342,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
     }
 
     if(valid)
-      ClientRoot::instance().core()->sendSignal(frame);
+      NCore::globalCore()->sendSignal(frame);
   }
 }
 
@@ -491,8 +491,8 @@ void CNode::removeNode(const QString & nodeName)
 
 void CNode::configure_reply(Signal::arg_t & args)
 {
-  ClientRoot::instance().tree()->optionsChanged(this->full_path());
-  ClientRoot::instance().log()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().path().c_str()));
+  NTree::globalTree()->optionsChanged(this->full_path());
+  NLog::globalLog()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().path().c_str()));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -506,7 +506,7 @@ void CNode::list_content_reply( Signal::arg_t & node )
   m_contentListed = true;
   m_listingContent = false;
 
-  ClientRoot::instance().tree()->contentListed( boost::dynamic_pointer_cast<CNode>(self()) );
+  NTree::globalTree()->contentListed( boost::dynamic_pointer_cast<CNode>(self()) );
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -624,7 +624,7 @@ void CNode::actions(QList<ActionInfo> & actions)
         actions.append(ai);
       }
       else
-        ClientRoot::instance().log()->addError(*it + ": local signal not found");
+        NLog::globalLog()->addError(*it + ": local signal not found");
     }
   }
 }
@@ -699,7 +699,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
     }
     catch (Exception & e)
     {
-      ClientRoot::instance().log()->addException(e.msg().c_str());
+      NLog::globalLog()->addException(e.msg().c_str());
     }
 
     child.content = child.content->next_sibling();
@@ -816,7 +816,7 @@ void CNode::requestSignalSignature(const QString & name)
 
   frame.map( Protocol::Tags::key_options() ).set_option("name", name.toStdString());
 
-  ClientRoot::instance().core()->sendSignal(frame);
+  NCore::globalCore()->sendSignal(frame);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -824,7 +824,7 @@ void CNode::requestSignalSignature(const QString & name)
 
 Signal::return_t CNode::update_tree(Signal::arg_t & node)
 {
-  ClientRoot::instance().core()->updateTree();
+  NCore::globalCore()->updateTree();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -832,7 +832,7 @@ Signal::return_t CNode::update_tree(Signal::arg_t & node)
 
 void CNode::fetchContent()
 {
-  if(!m_contentListed && !m_listingContent && ClientRoot::instance().core()->isConnected())
+  if(!m_contentListed && !m_listingContent && NCore::globalCore()->isConnected())
   {
     URI path;
 
@@ -843,7 +843,7 @@ void CNode::fetchContent()
 
     SignalFrame frame("list_content", path, path);
 
-    ClientRoot::instance().core()->sendSignal(frame);
+    NCore::globalCore()->sendSignal(frame);
     m_listingContent = true;
   }
 }

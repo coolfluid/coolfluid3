@@ -24,8 +24,12 @@
 
 #include "Common/Exception.hpp"
 
+#include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/NTree.hpp"
+
+
 #include "GUI/Client/UI/AboutCFDialog.hpp"
-#include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/UI/LoggingList.hpp"
 #include "GUI/Client/UI/MenuActionInfo.hpp"
 #include "GUI/Client/UI/CentralPanel.hpp"
@@ -122,20 +126,20 @@ MainWindow::MainWindow()
 
   this->buildMenus();
 
-  connect(ClientRoot::instance().log().get(), SIGNAL(newException(QString)),
+  connect(NLog::globalLog().get(), SIGNAL(newException(QString)),
           this, SLOT(newException(QString)));
 
-  connect(ClientRoot::instance().log().get(),
+  connect(NLog::globalLog().get(),
           SIGNAL(newMessage(QString, CF::GUI::Network::LogMessage::Type)),
           this, SLOT(newLogMessage(QString,CF::GUI::Network::LogMessage::Type)));
 
-  connect(ClientRoot::instance().core().get(), SIGNAL(connectedToServer()),
+  connect(NCore::globalCore().get(), SIGNAL(connectedToServer()),
           this, SLOT(connectedToServer()));
 
-  connect(ClientRoot::instance().core().get(), SIGNAL(disconnectedFromServer()),
+  connect(NCore::globalCore().get(), SIGNAL(disconnectedFromServer()),
           this, SLOT(disconnectedFromServer()));
 
-  connect(ClientRoot::instance().tree().get(),
+  connect(NTree::globalTree().get(),
           SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
           this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
 
@@ -143,7 +147,7 @@ MainWindow::MainWindow()
 
   this->setConnectedState(false);
 
-  ClientRoot::instance().log()->addMessage("Client successfully launched.");
+  NLog::globalLog()->addMessage("Client successfully launched.");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -265,7 +269,7 @@ void MainWindow::buildMenus()
   actionInfo.m_shortcut = tr("ctrl+U");
 
   tmpAction = actionInfo.buildAction(this);
-  connect(tmpAction, SIGNAL(triggered()), ClientRoot::instance().core().get(), SLOT(updateTree()));
+  connect(tmpAction, SIGNAL(triggered()), NCore::globalCore().get(), SLOT(updateTree()));
   m_actions[MainWindow::ACTION_UPDATE_TREE] = tmpAction;
 
 
@@ -527,7 +531,7 @@ bool MainWindow::saveToFileLocally(const QString & filename)
   }
   catch(Exception & e)
   {
-    ClientRoot::instance().log()->addException(e.what());
+    NLog::globalLog()->addException(e.what());
   }
 
   return retValue;
@@ -610,7 +614,7 @@ void MainWindow::closeEvent(QCloseEvent * event)
 
 void MainWindow::quit()
 {
-  ClientRoot::instance().core()->disconnectFromServer(false);
+  NCore::globalCore()->disconnectFromServer(false);
   qApp->exit(0);
 }
 
@@ -620,7 +624,7 @@ void MainWindow::quit()
 void MainWindow::toggleAdvanced()
 {
   bool advanced = m_actions[ ACTION_TOGGLE_ADVANCED_MODE ]->isChecked();
-  ClientRoot::instance().tree()->setAdvancedMode(advanced);
+  NTree::globalTree()->setAdvancedMode(advanced);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -629,7 +633,7 @@ void MainWindow::toggleAdvanced()
 void MainWindow::toggleDebugMode()
 {
   bool debug = m_actions[ ACTION_TOGGLE_DEBUG_MODE ]->isChecked();
-  ClientRoot::instance().tree()->setDebugModeEnabled(debug);
+  NTree::globalTree()->setDebugModeEnabled(debug);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -676,7 +680,7 @@ void MainWindow::connectToServer()
     sshInfo.m_hostname = frame.get_option<std::string>("Hostname").c_str();
     sshInfo.m_port = frame.get_option<CF::Uint>("Port number");
 
-    ClientRoot::instance().core()->connectToServer(sshInfo);
+    NCore::globalCore()->connectToServer(sshInfo);
   }
 }
 
@@ -685,7 +689,7 @@ void MainWindow::connectToServer()
 
 void MainWindow::disconnectFromServer()
 {
-  ClientRoot::instance().core()->disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
+  NCore::globalCore()->disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -702,7 +706,7 @@ void MainWindow::connectedToServer()
 void MainWindow::disconnectedFromServer()
 {
   this->setConnectedState(false);
-  ClientRoot::instance().tree()->clearTree();
+  NTree::globalTree()->clearTree();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -781,7 +785,7 @@ void MainWindow::currentIndexChanged(const QModelIndex & newIndex, const QModelI
   QString text = "<b>%1</b><br><br>%2";
   QMap<QString, QString> data;
 
-  ClientRoot::instance().tree()->listNodeProperties(newIndex, data);
+  NTree::globalTree()->listNodeProperties(newIndex, data);
 
   text = text.arg(data["brief"]).arg(data["description"]);
   m_labDescription->setText(text.replace("\n","<br>"));

@@ -12,7 +12,8 @@
 
 #include "Common/URI.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NTree.hpp"
+
 #include "GUI/Client/UI/TreeView.hpp"
 
 #include "GUI/Client/UI/TreeBrowser.hpp"
@@ -176,8 +177,8 @@ void TreeBrowser::updateButtons()
 
       if(path.isEmpty())
       {
-        path = ClientRoot::instance().tree()->treeRoot()->root()->full_path().path().c_str();
-        //icon = ClientRoot::instance().tree()->getRoot()->getIcon();
+        path = NTree::globalTree()->treeRoot()->root()->full_path().path().c_str();
+        //icon = NTree::globalTree()->getRoot()->getIcon();
       }
 
       QAction * action = new QAction(icon, path, this);

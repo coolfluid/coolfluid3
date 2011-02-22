@@ -8,7 +8,13 @@
 #include <string>
 #include <cstring>
 
+
+#include "GUI/Client/Core/NBrowser.hpp"
+#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/NRoot.hpp"
+#include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/NCore.hpp"
+
 #include "GUI/Client/Core/ProcessingThread.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
@@ -37,29 +43,30 @@ ClientRoot & ClientRoot::instance()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 ClientRoot::ClientRoot() :
-    m_root(new NRoot(CLIENT_ROOT)),
-    m_log(new NLog()),
-    m_browser(new NBrowser()),
-    m_tree(new NTree(m_root)),
-    m_core(new NCore())
+    m_root(new NRoot(CLIENT_ROOT))
 {
   CRoot::Ptr realRoot = m_root->root();
 
+  NLog::Ptr log(new NLog());
+  NBrowser::Ptr browser(new NBrowser());
+  NTree::Ptr tree(new NTree(m_root));
+  NCore::Ptr core(new NCore());
+
   // add components to the root
-  realRoot->add_component(m_core);
-  realRoot->add_component(m_log);
-  realRoot->add_component(m_browser);
-  realRoot->add_component(m_tree);
+  realRoot->add_component(core);
+  realRoot->add_component(log);
+  realRoot->add_component(browser);
+  realRoot->add_component(tree);
 
   // mark all components as basic
   m_root->mark_basic();
-  m_core->mark_basic();
-  m_log->mark_basic();
-  m_browser->mark_basic();
-  m_tree->mark_basic();
+  core->mark_basic();
+  log->mark_basic();
+  browser->mark_basic();
+  tree->mark_basic();
 
   // set the root as model root
-  m_tree->setRoot(m_root);
+  tree->setRoot(m_root);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

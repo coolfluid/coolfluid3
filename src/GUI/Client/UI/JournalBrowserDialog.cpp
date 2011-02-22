@@ -14,8 +14,8 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include "GUI/Client/Core/ClientRoot.hpp"
-
+#include "GUI/Client/Core/NBrowser.hpp"
+#include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NJournal.hpp"
 #include "GUI/Client/Core/NJournalBrowser.hpp"
 #include "GUI/Client/Core/SignalNode.hpp"
@@ -70,7 +70,7 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
 
   m_mainLayout = new QVBoxLayout(this);
 
-  ClientRoot::instance().browser()->add_component(m_model);
+  NBrowser::globalBrowser()->add_component(m_model);
 
   m_view->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   m_view->horizontalHeader()->setStretchLastSection(true);
@@ -100,7 +100,7 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
 
 JournalBrowserDialog::~JournalBrowserDialog()
 {
-  ClientRoot::instance().browser()->remove_component(m_model->name());
+  NBrowser::globalBrowser()->remove_component(m_model->name());
   delete m_view;
   delete m_buttons;
   delete m_mainLayout;
@@ -144,7 +144,7 @@ void JournalBrowserDialog::btClicked(QAbstractButton *button)
     }
     catch(Exception & e)
     {
-      ClientRoot::instance().log()->addMessage(e.what());
+      NLog::globalLog()->addMessage(e.what());
     }
   }
 }

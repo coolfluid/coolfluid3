@@ -12,6 +12,9 @@
 #include "Common/XML/Protocol.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/NRoot.hpp"
+#include "GUI/Client/Core/NTree.hpp"
 
 #include "GUI/Client/Core/ProcessingThread.hpp"
 
@@ -66,11 +69,11 @@ void ProcessingThread::run()
     }
     catch(CF::Common::Exception & cfe)
     {
-      ClientRoot::instance().log()->addException(cfe.what());
+      NLog::globalLog()->addException(cfe.what());
     }
     catch(std::exception & stde)
     {
-      ClientRoot::instance().log()->addException(stde.what());
+      NLog::globalLog()->addException(stde.what());
     }
     catch(...)
     {

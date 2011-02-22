@@ -17,6 +17,7 @@
 #include "qwt/qwt_plot_curve.h"
 
 // headers
+#include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/UI/GraphOption.hpp"
 #include "GUI/Client/UI/ColorSelector.hpp"
 #include "fparser/fparser.hh"
@@ -205,7 +206,7 @@ namespace ClientUI {
                             variable.toStdString().c_str());
 
     if(res > 0){
-      ClientCore::ClientRoot::instance().log()->addError("The funtion is not reconized.");
+      ClientCore::NLog::globalLog()->addError("The funtion is not reconized.");
       return;
     }
 

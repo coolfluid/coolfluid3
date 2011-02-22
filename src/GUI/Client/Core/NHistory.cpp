@@ -59,7 +59,7 @@ void NHistory::convergence_history ( Signal::arg_t& node )
 
   /*
     for( int x = 0 ; x < x_axis.size() ; ++x)
-      ClientRoot::instance().log()->addMessage("Avant parsing");
+      NLog::globalLog()->addMessage("Avant parsing");
     */
 }
 

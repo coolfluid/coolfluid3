@@ -14,16 +14,18 @@
 
 #include "Common/CF.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Network/ComponentType.hpp"
+#include "GUI/Network/ComponentNames.hpp"
+
 #include "GUI/Client/Core/CommitDetails.hpp"
+#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/NTree.hpp"
+
 #include "GUI/Client/UI/FilteringModel.hpp"
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 #include "GUI/Client/UI/CentralPanel.hpp"
 #include "GUI/Client/UI/SignalManager.hpp"
-
-#include "GUI/Network/ComponentType.hpp"
-#include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/UI/TreeView.hpp"
 
@@ -45,7 +47,7 @@ TreeView::TreeView(CentralPanel * optionsPanel, QMainWindow * parent,
   m_centralPanel = optionsPanel;
   m_signalManager = new SignalManager(parent);
 
-  m_modelFilter->setSourceModel(ClientRoot::instance().tree().get());
+  m_modelFilter->setSourceModel(NTree::globalTree().get());
   m_modelFilter->setDynamicSortFilter(true);
 
   this->setModel(m_modelFilter);
@@ -61,7 +63,7 @@ TreeView::TreeView(CentralPanel * optionsPanel, QMainWindow * parent,
 
   if(m_contextMenuAllowed)
   {
-    connect(ClientRoot::instance().tree().get(),
+    connect(NTree::globalTree().get(),
             SIGNAL(currentIndexChanged(QModelIndex, QModelIndex)),
             this,
             SLOT(currentIndexChanged(QModelIndex, QModelIndex)));
@@ -104,7 +106,7 @@ URI TreeView::selectedPath() const
   {
     QModelIndex indexInModel = m_modelFilter->mapToSource(currentPath);
 
-    path = ClientRoot::instance().tree()->pathFromIndex(indexInModel);
+    path = NTree::globalTree()->pathFromIndex(indexInModel);
   }
 
   return path;
@@ -115,7 +117,7 @@ URI TreeView::selectedPath() const
 
 URI TreeView::pathFromIndex(const QModelIndex & index)
 {
-  return ClientRoot::instance().tree()->pathFromIndex(m_modelFilter->mapToSource(index));
+  return NTree::globalTree()->pathFromIndex(m_modelFilter->mapToSource(index));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -124,7 +126,7 @@ URI TreeView::pathFromIndex(const QModelIndex & index)
 QIcon TreeView::iconFromIndex(const QModelIndex & index)
 {
   QModelIndex indexInModel = m_modelFilter->mapToSource(index);
-  return ClientRoot::instance().tree()->data(indexInModel, Qt::DecorationRole).value<QIcon>();
+  return NTree::globalTree()->data(indexInModel, Qt::DecorationRole).value<QIcon>();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -132,7 +134,7 @@ QIcon TreeView::iconFromIndex(const QModelIndex & index)
 
 void TreeView::selectItem(const URI & path)
 {
-  QModelIndex index = ClientRoot::instance().tree()->indexByPath(path);
+  QModelIndex index = NTree::globalTree()->indexByPath(path);
 
   if(index.isValid())
   {
@@ -166,7 +168,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   QPoint mousePosition = event->pos() + this->geometry().topLeft();
 
   QModelIndex index = this->indexAt(mousePosition);
-  NTree::Ptr tree = ClientRoot::instance().tree();
+  NTree::Ptr tree = NTree::globalTree();
 
   QModelIndex indexInModel = m_modelFilter->mapToSource(this->currentIndex());
 
@@ -198,7 +200,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   }
   catch(Exception & e)
   {
-    ClientRoot::instance().log()->addException(e.what());
+    NLog::globalLog()->addException(e.what());
   }
 }
 
@@ -216,7 +218,7 @@ void TreeView::mouseDoubleClickEvent(QMouseEvent * event)
 
 void TreeView::keyPressEvent(QKeyEvent * event)
 {
-  NTree::Ptr tree= ClientRoot::instance().tree();
+  NTree::Ptr tree= NTree::globalTree();
   QModelIndex currentIndex = m_modelFilter->mapFromSource(tree->currentIndex());
 
   if(m_contextMenuAllowed)
@@ -257,7 +259,7 @@ void TreeView::keyPressEvent(QKeyEvent * event)
 bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameIndex)
 {
   bool confirmed = true;
-  NTree::Ptr tree = ClientRoot::instance().tree();
+  NTree::Ptr tree = NTree::globalTree();
 
   if(!okIfSameIndex &&  tree->areFromSameNode(tree->currentIndex(), index))
     return confirmed;

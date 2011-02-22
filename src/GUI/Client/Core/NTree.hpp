@@ -306,6 +306,8 @@ namespace ClientCore {
 
     void contentListed(Component::Ptr node);
 
+    static Ptr globalTree();
+
   public slots:
 
     /// @brief Clears the tree.

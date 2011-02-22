@@ -4,6 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "GUI/Network/ComponentNames.hpp"
+
+#include "GUI/Client/Core/ClientRoot.hpp"
+
 #include "GUI/Client/Core/NJournal.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -68,6 +72,14 @@ QString NJournal::toolTip() const
 void NJournal::list_journal(Signal::arg_t &)
 {
   emit journalRequest(false);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+NJournal::Ptr NJournal::globalJournal()
+{
+  return ClientRoot::instance().rootChild<NJournal>(CLIENT_JOURNAL);
 }
 
 /////////////////////////////////////////////////////////////////////////////

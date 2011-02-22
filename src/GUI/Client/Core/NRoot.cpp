@@ -14,7 +14,11 @@
 #include "Common/CF.hpp"
 #include "Common/URI.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Network/ComponentNames.hpp"
+
+#include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/NLog.hpp"
+
 #include "GUI/Client/Core/NRoot.hpp"
 
 using namespace CF::Common;
@@ -80,8 +84,8 @@ std::string NRoot::uuid() const
 
 void NRoot::save_tree_local ( Signal::arg_t & )
 {
-  if( !ClientRoot::instance().core()->isConnected() )
-    ClientRoot::instance().log()->addError("The client needs to be connected to a server to do that.");
+  if( !NCore::globalCore()->isConnected() )
+    NLog::globalLog()->addError("The client needs to be connected to a server to do that.");
   else
   {
     SignalFrame frame("save_tree", CLIENT_ROOT_PATH, SERVER_ROOT_PATH);
@@ -89,6 +93,6 @@ void NRoot::save_tree_local ( Signal::arg_t & )
 
     options.set_option("filename", URI("./server-tree.xml", URI::Scheme::FILE));
 
-    ClientRoot::instance().core()->sendSignal(frame);
+    NCore::globalCore()->sendSignal(frame);
   }
 }

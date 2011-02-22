@@ -13,7 +13,7 @@
 
 #include "Common/URI.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/UI/SelectPathDialog.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 
@@ -131,7 +131,7 @@ void GraphicalUri::btBrowseClicked()
   {
     SelectPathDialog spd;
     QString modified_path = m_editPath->text();
-    URI completePath = ClientRoot::instance().tree()->completeRelativePath(modified_path.toStdString());
+    URI completePath = NTree::globalTree()->completeRelativePath(modified_path.toStdString());
 
     URI path = spd.show(completePath);
 

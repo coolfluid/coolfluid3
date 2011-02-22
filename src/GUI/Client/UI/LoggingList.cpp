@@ -23,7 +23,7 @@ LoggingList::LoggingList(QWidget * parent, unsigned int maxLogLines)
   this->setWordWrapMode(QTextOption::NoWrap);
   this->setReadOnly(true);
 
-  connect(ClientRoot::instance().log().get(), SIGNAL(newMessage(QString,CF::GUI::Network::LogMessage::Type)),
+  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString,CF::GUI::Network::LogMessage::Type)),
            this, SLOT(newMessage(QString,CF::GUI::Network::LogMessage::Type)));
 }
 

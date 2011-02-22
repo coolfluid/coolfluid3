@@ -7,7 +7,7 @@
 #include <QFileIconProvider>
 #include <QStringList>
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/UI/FilesListItem.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 
@@ -35,7 +35,7 @@ NRemoteOpen::Ptr NRemoteOpen::create(QMainWindow * parent)
 {
   NRemoteOpen::Ptr rop(new NRemoteOpen(parent));
 
-  ClientRoot::instance().browser()->addNode(rop);
+  NBrowser::globalBrowser()->addNode(rop);
 
   return rop;
 }

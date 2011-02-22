@@ -8,6 +8,8 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
+#include "GUI/Client/Core/ClientRoot.hpp"
+
 #include "GUI/Client/Core/NBrowser.hpp"
 
 using namespace CF::GUI::ClientCore;
@@ -34,3 +36,7 @@ QString NBrowser::toolTip() const
   return this->getComponentType();
 }
 
+NBrowser::Ptr NBrowser::globalBrowser()
+{
+  return ClientRoot::instance().rootChild<NBrowser>(CLIENT_BROWSERS);
+}

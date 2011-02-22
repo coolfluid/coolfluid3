@@ -47,6 +47,8 @@ namespace ClientCore {
     /// @return The name of the class.
     virtual QString toolTip() const;
 
+    static Ptr globalBrowser();
+
   private:
 
     /// @brief Browser counter.

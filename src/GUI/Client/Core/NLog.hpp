@@ -79,6 +79,8 @@ namespace ClientCore {
     /// @return The name of the class.
     virtual QString toolTip() const;
 
+    static Ptr globalLog();
+
   signals:
 
     /// @brief Signal emitted when a new message arrives.

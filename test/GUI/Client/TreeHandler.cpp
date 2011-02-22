@@ -8,7 +8,7 @@
 
 //#include "Common/Component"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NTree.hpp"
 
 #include "test/GUI/Client/TreeHandler.hpp"
 
@@ -21,12 +21,12 @@ TreeHandler::~TreeHandler()
   QStringList::iterator it = names.begin();
 
   for( ; it != names.end() ; it++)
-    ClientRoot::instance().tree()->treeRoot()->removeNode(*it);
+    NTree::globalTree()->treeRoot()->removeNode(*it);
 }
 
 void TreeHandler::add(CNode::Ptr node)
 {
-  ClientRoot::instance().tree()->treeRoot()->addNode(node);
+  NTree::globalTree()->treeRoot()->addNode(node);
   names << node->name().c_str();
 }
 

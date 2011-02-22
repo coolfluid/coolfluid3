@@ -16,6 +16,7 @@
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/TreeNode.hpp"
 #include "GUI/Client/Core/NLink.hpp"
+#include "GUI/Client/Core/NLog.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -269,7 +270,7 @@ QModelIndex NTree::indexByPath(const URI & path) const
       else
       {
         index = QModelIndex();
-        ClientRoot::instance().log()->addError(QString("index not found for %1").arg(path.string().c_str()));
+        NLog::globalLog()->addError(QString("index not found for %1").arg(path.string().c_str()));
       }
     }
   }
@@ -389,7 +390,7 @@ void NTree::modifyOptions(const QModelIndex & index,
   if(node != nullptr)
     node->node()->modifyOptions(options);
   else
-    ClientRoot::instance().log()->addError("Could not modify options! Invalid node.");
+    NLog::globalLog()->addError("Could not modify options! Invalid node.");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -559,11 +560,11 @@ void NTree::list_tree_reply(Signal::arg_t & args)
 
     emit currentIndexChanged(m_currentIndex, QModelIndex());
 
-    ClientRoot::instance().log()->addMessage("Tree updated.");
+    NLog::globalLog()->addMessage("Tree updated.");
   }
   catch(XmlError & xe)
   {
-    ClientRoot::instance().log()->addException(xe.what());
+    NLog::globalLog()->addException(xe.what());
   }
 }
 
@@ -660,6 +661,14 @@ bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
     match |= (m_debugModeEnabled || !it->isClientComponent()) && this->nodeMatchesRec(it.get(), regex);
 
   return match;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+NTree::Ptr NTree::globalTree()
+{
+  ClientRoot::instance().rootChild<NTree>(CLIENT_TREE);
 }
 
 ////////////////////////////////////////////////////////////////////////////

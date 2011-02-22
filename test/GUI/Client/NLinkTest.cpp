@@ -72,16 +72,16 @@ void NLinkTest::test_goToTarget()
  qRegisterMetaType<QModelIndex>("QModelIndex");
 
   TreeHandler th;
-  NTree::Ptr t = ClientRoot::instance().tree();
+//  NTree::Ptr t = NTree::globalTree();
   QModelIndex index;
-  QSignalSpy spy(t.get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
+//  QSignalSpy spy(t.get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
 
   NLink::Ptr link;
 
-  th.addChildren(makeTreeFromFile());
-  link = boost::dynamic_pointer_cast<NLink>(t->treeRoot()->root()->access_component("//Root/Tools/TheLink"));
+//  th.addChildren(makeTreeFromFile());
+//  link = boost::dynamic_pointer_cast<NLink>(t->treeRoot()->root()->access_component("//Root/Tools/TheLink"));
 
-  QVERIFY(link.get() != nullptr);
+//  QVERIFY(link.get() != nullptr);
 //  t->setCurrentIndex(t->index(0, 0));
 
 //  index = t->indexByPath("//Root/MG/Mesh1");

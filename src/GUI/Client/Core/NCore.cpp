@@ -13,6 +13,8 @@
 
 #include "GUI/Client/Core/ClientNetworkComm.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/NTree.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/ComponentNames.hpp"
@@ -77,9 +79,9 @@ void NCore::disconnectFromServer(bool shutdown)
 
 void NCore::disconnected()
 {
-  ClientRoot::instance().tree()->setCurrentIndex(QModelIndex());
+  NTree::globalTree()->setCurrentIndex(QModelIndex());
 
-  ClientRoot::instance().log()->addMessage("Disconnected from the server.");
+  NLog::globalLog()->addMessage("Disconnected from the server.");
 
   emit disconnectedFromServer();
 }
@@ -125,8 +127,8 @@ void NCore::connected()
   QString msg1 = "Now connected to server '%1' on port %2.";
   QString msg2 = "Attempting to register with UUID %1.";
 
-  ClientRoot::instance().log()->addMessage(msg1.arg(host).arg(port));
-  ClientRoot::instance().log()->addMessage(msg2.arg(uuid.c_str()));
+  NLog::globalLog()->addMessage(msg1.arg(host).arg(port));
+  NLog::globalLog()->addMessage(msg2.arg(uuid.c_str()));
 
   // build and send signal
   SignalFrame frame("client_registration", CLIENT_CORE_PATH, SERVER_CORE_PATH);
@@ -139,7 +141,7 @@ void NCore::connected()
 
 void NCore::shutdown(Signal::arg_t & node)
 {
-  ClientRoot::instance().log()->addMessage("The server is shutting down. Disconnecting...");
+  NLog::globalLog()->addMessage("The server is shutting down. Disconnecting...");
   this->disconnectFromServer(false);
 }
 
@@ -150,14 +152,14 @@ void NCore::client_registration(Signal::arg_t & node)
 {
   if( node.map(Protocol::Tags::key_options()).get_option<bool>("accepted") )
   {
-    ClientRoot::instance().log()->addMessage("Registration was successful.");
+    NLog::globalLog()->addMessage("Registration was successful.");
     m_networkComm->saveNetworkInfo();
     emit connectedToServer();
     this->updateTree();
   }
   else
   {
-    ClientRoot::instance().log()->addError("Registration failed. Disconnecting...");
+    NLog::globalLog()->addError("Registration failed. Disconnecting...");
     this->disconnectFromServer(false);
   }
 }
@@ -174,5 +176,13 @@ void NCore::frame_rejected(Signal::arg_t & args)
 
   QString msg("Action %1 has been rejected by the server: %2");
 
-  ClientRoot::instance().log()->addError(msg.arg(frameid.c_str()).arg(reason.c_str()));
+  NLog::globalLog()->addError(msg.arg(frameid.c_str()).arg(reason.c_str()));
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+NCore::Ptr NCore::globalCore()
+{
+  ClientRoot::instance().rootChild<NCore>(CLIENT_CORE);
 }

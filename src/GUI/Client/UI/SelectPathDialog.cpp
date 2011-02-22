@@ -13,7 +13,7 @@
 
 #include "Common/URI.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/UI/TreeView.hpp"
 
 #include "GUI/Client/UI/SelectPathDialog.hpp"
@@ -116,7 +116,7 @@ void SelectPathDialog::pathChanged(const QString & path)
     m_nodeClicked = false;
   else
   {
-    CRoot::Ptr root = ClientRoot::instance().tree()->treeRoot()->root();
+    CRoot::Ptr root = NTree::globalTree()->treeRoot()->root();
     try
     {
       if(root->access_component<CNode>(path.toStdString()) != nullptr)

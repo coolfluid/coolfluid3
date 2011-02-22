@@ -131,3 +131,11 @@ QString NLog::toolTip() const
 {
   return this->getComponentType();
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+NLog::Ptr NLog::globalLog()
+{
+  return ClientRoot::instance().rootChild<NLog>(CLIENT_LOG);
+}

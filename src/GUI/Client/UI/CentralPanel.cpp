@@ -16,9 +16,10 @@
 
 #include "Common/CF.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CommitDetails.hpp"
 #include "GUI/Client/Core/CNode.hpp"
+#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/NTree.hpp"
 
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
@@ -36,7 +37,7 @@ CentralPanel::CentralPanel(QWidget * parent)
   : QWidget(parent),
     m_modelReset(false)
 {
-  NTree::Ptr tree = ClientRoot::instance().tree();
+  NTree::Ptr tree = NTree::globalTree();
 
   // create the components
   m_scrollBasicOptions = new QScrollArea();
@@ -139,7 +140,7 @@ CentralPanel::~CentralPanel()
 void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
 {
   QList<Option::ConstPtr>::const_iterator it = list.begin();
-  const NTree::Ptr & tree = ClientRoot::instance().tree();
+  const NTree::Ptr & tree = NTree::globalTree();
 
   // delete old options
   m_basicOptionLayout->clearOptions();
@@ -171,7 +172,7 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
     }
     catch(Exception e)
     {
-      ClientRoot::instance().log()->addException(e.what());
+      NLog::globalLog()->addException(e.what());
     }
 
     it++;
@@ -258,16 +259,16 @@ void CentralPanel::btApplyClicked()
   {
     try
     {
-      QModelIndex currentIndex = ClientRoot::instance().tree()->currentIndex();
+      QModelIndex currentIndex = NTree::globalTree()->currentIndex();
 
-      ClientRoot::instance().tree()->modifyOptions(currentIndex, options);
+      NTree::globalTree()->modifyOptions(currentIndex, options);
 
       m_basicOptionLayout->commitOpions();
       m_advancedOptionLayout->commitOpions();
     }
     catch (ValueNotFound & vnf)
     {
-      ClientRoot::instance().log()->addException(vnf.msg().c_str());
+      NLog::globalLog()->addException(vnf.msg().c_str());
     }
   }
 }
@@ -278,7 +279,7 @@ void CentralPanel::btApplyClicked()
 void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
   QList<Option::ConstPtr> options;
-  ClientRoot::instance().tree()->listNodeOptions(newIndex, options);
+  NTree::globalTree()->listNodeOptions(newIndex, options);
 
   this->setOptions(options);
 }
@@ -288,7 +289,7 @@ void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QMode
 
 void CentralPanel::advancedModeChanged(bool advanced)
 {
-  NTree::Ptr tree = ClientRoot::instance().tree();
+  NTree::Ptr tree = NTree::globalTree();
 
   // if the node went to a hidden state, we clear everything
   /// @todo what if options are modified ???
@@ -314,7 +315,7 @@ void CentralPanel::advancedModeChanged(bool advanced)
 
 void CentralPanel::dataChanged(const QModelIndex & first, const QModelIndex & last)
 {
-  QModelIndex currIndex = ClientRoot::instance().tree()->currentIndex();
+  QModelIndex currIndex = NTree::globalTree()->currentIndex();
 
   if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
     this->currentIndexChanged(first, QModelIndex());
@@ -337,7 +338,7 @@ void CentralPanel::btSeeChangesClicked()
 
 void CentralPanel::btForgetClicked()
 {
-  this->currentIndexChanged(ClientRoot::instance().tree()->currentIndex(), QModelIndex());
+  this->currentIndexChanged(NTree::globalTree()->currentIndex(), QModelIndex());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -10,15 +10,13 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QObject>
+#include <QMap>
 
-#include "GUI/Network/ComponentNames.hpp"
-#include "GUI/Client/Core/NBrowser.hpp"
-#include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
-#include "GUI/Client/Core/NTree.hpp"
-#include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/Core/LibClientCore.hpp"
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -50,31 +48,21 @@ public:
   /// @param signal Xml document with the signal description
   void processSignalString(const QString & signal);
 
-  /// @brief Gives the root node.
-  /// @return Returns the root node.
-  inline NRoot::Ptr root() { return m_root; }
-
-  /// @brief Gives the log node.
-  /// @return Returns the log node.
-  inline NLog::Ptr log() { return m_log; }
-
-  /// @brief Gives the browser node.
-  /// @return Returns the browser node
-  inline NBrowser::Ptr browser() { return m_browser; }
-
-  /// @brief Gives the tree node.
-  /// @return Returns the tree node.
-  inline NTree::Ptr tree() { return m_tree; }
-
-  /// @brief Gives the core node.
-  /// @return Returns the core node.
-  inline NCore::Ptr core() { return m_core; }
-
   /// @brief Gives the root UUID.
   /// @return Returns the root UUID.
   inline std::string getUUID() { return m_root->uuid(); }
 
   Common::XML::XmlDoc::Ptr docFromPtr(const Common::XML::XmlDoc * doc) const;
+
+  template<typename TYPE>
+  typename TYPE::Ptr rootChild(const std::string & name) const
+  {
+    return m_root->root()->get_child<TYPE>(name);
+  }
+
+  NRoot::ConstPtr root() const { return m_root; }
+
+  NRoot::Ptr root() { return m_root; }
 
 private slots:
 
@@ -82,17 +70,9 @@ private slots:
 
 private:
 
-  ClientRoot();
-
   NRoot::Ptr m_root;
 
-  NLog::Ptr m_log;
-
-  NBrowser::Ptr m_browser;
-
-  NTree::Ptr m_tree;
-
-  NCore::Ptr m_core;
+  ClientRoot();
 
   QMap<ProcessingThread*, Common::XML::XmlDoc::Ptr > m_threads;
 

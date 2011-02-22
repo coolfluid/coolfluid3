@@ -12,7 +12,7 @@
 #include <QValidator>
 #include <QVBoxLayout>
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NLog.hpp"
 
 #include "GUI/Client/UI/GraphicalArray.hpp"
 
@@ -78,7 +78,7 @@ bool GraphicalArray::setValue(const QVariant & value)
   const QValidator * validator = m_editAdd->validator();
   int pos;
 
-  ClientRoot::instance().log()->addMessage(" Adding " + value.toStringList().join(" "));
+  NLog::globalLog()->addMessage(" Adding " + value.toStringList().join(" "));
 
 
   if(value.type() == QVariant::String)
@@ -135,7 +135,7 @@ bool GraphicalArray::setValue(const QVariant & value)
 
     msg = msg.arg(invalidValues.join("\"\n   \"").prepend("\n   \"").append("\""));
 
-    ClientRoot::instance().log()->addMessage(msg);
+    NLog::globalLog()->addMessage(msg);
   }
 
   return success;

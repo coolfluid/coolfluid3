@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
    window.showMaximized();
 //   TSshInformation info("localhost", 62784);
 
-//   ClientRoot::instance().core()->connectToServer(info);
+//   NCore::globalCore()->connectToServer(info);
    returnValue = app.exec();
   }
   catch(Exception e)

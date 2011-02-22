@@ -14,7 +14,11 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include "GUI/Network/ComponentNames.hpp"
+
 #include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NBrowser.hpp"
+#include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/SignalNode.hpp"
 
 #include "GUI/Client/Core/NJournalBrowser.hpp"
@@ -34,7 +38,7 @@ namespace ClientCore {
 
 NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
     QAbstractItemModel(parent),
-    CNode(ClientRoot::instance().browser()->generateName(), "NJournalBrowser", CNode::JOURNAL_BROWSER_NODE)
+    CNode(NBrowser::globalBrowser()->generateName(), "NJournalBrowser", CNode::JOURNAL_BROWSER_NODE)
 {
   setRootNode(rootNode);
 
@@ -222,7 +226,7 @@ void NJournalBrowser::requestJournal()
 {
   SignalFrame frame("list_journal", full_path(), SERVER_JOURNAL_PATH);
 
-  ClientRoot::instance().core()->sendSignal(frame);
+  NCore::globalCore()->sendSignal(frame);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -263,7 +267,7 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
   ss << boost::uuids::random_generator()();
   frame.node.set_attribute( Protocol::Tags::attr_frameid(), ss.str());
 
-  ClientRoot::instance().core()->sendSignal(frame);
+  NCore::globalCore()->sendSignal(frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////

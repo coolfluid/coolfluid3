@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "GUI/Client/UI/SignalManager.hpp"
-
 #include <QList>
 #include <QMainWindow>
 #include <QMap>
@@ -16,9 +14,12 @@
 
 #include "Common/URI.hpp"
 
+#include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/NLog.hpp"
+
 #include "GUI/Client/UI/SignatureDialog.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/UI/SignalManager.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -133,7 +134,7 @@ void SignalManager::actionHovered()
 
 void SignalManager::signalSignature(Signal::arg_t & args)
 {
-  ClientRoot::instance().log()->addMessage("In SignalManager::signalSignature(Signal::arg_t & args)");
+  NLog::globalLog()->addMessage("In SignalManager::signalSignature(Signal::arg_t & args)");
 
   if(m_waitingForSignature)
   {
@@ -161,22 +162,22 @@ void SignalManager::signalSignature(Signal::arg_t & args)
           }
           catch(InvalidURI ip)
           {
-            ClientRoot::instance().log()->addException(ip.what());
+            NLog::globalLog()->addException(ip.what());
           }
         }
         else
-          ClientRoot::instance().core()->sendSignal(frame);
+          NCore::globalCore()->sendSignal(frame);
       }
 
       delete sg;
     }
     catch( Exception & e)
     {
-      ClientRoot::instance().log()->addException(e.what());
+      NLog::globalLog()->addException(e.what());
     }
     catch( ... )
     {
-      ClientRoot::instance().log()->addException("Unknown exception caught");
+      NLog::globalLog()->addException("Unknown exception caught");
     }
 
 

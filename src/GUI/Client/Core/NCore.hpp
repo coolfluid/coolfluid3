@@ -83,6 +83,8 @@ namespace ClientCore {
     /// otherwise returns @c false.
     bool isConnected();
 
+    static Ptr globalCore();
+
   public slots:
 
     /// @brief Sends a request to update de tree
