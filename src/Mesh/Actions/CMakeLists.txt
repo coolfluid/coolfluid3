@@ -19,8 +19,8 @@ list( APPEND coolfluid_mesh_actions_files
   CBuildVolume.cpp
   CInitSolution.hpp
   CInitSolution.cpp
-#  CMatchNodes.hpp
-#  CMatchNodes.cpp
+  CMatchNodes.hpp
+  CMatchNodes.cpp
   LibActions.hpp
   LibActions.cpp
 )
