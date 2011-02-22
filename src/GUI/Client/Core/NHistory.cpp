@@ -33,22 +33,20 @@ namespace ClientCore {
 
   void NHistory::convergence_history ( XmlNode& node )
   {
-    ClientRoot::instance().log()->addMessage("Avant parsing");
-
     XmlParams p(node);
 
+    std::vector<QString> fct_label;
+
     std::vector<Real> x_axis = p.get_array<Real>("x_axis");
+    fct_label.push_back("x");
     std::vector<Real> y_axis = p.get_array<Real>("y_axis");
+    fct_label.push_back("y");
 
     std::vector< std::vector<Real> > fcts(2);
     fcts[0] = x_axis;
     fcts[1] = y_axis;
 
-    ClientRoot::instance().log()->addMessage("Apres parsing");
-
-    CHistoryNotifier::instance().notify_history(fcts);
-
-    ClientRoot::instance().log()->addMessage("Apres signal");
+    CHistoryNotifier::instance().notify_history(fcts,fct_label);
 
     /*
     for( int x = 0 ; x < x_axis.size() ; ++x)

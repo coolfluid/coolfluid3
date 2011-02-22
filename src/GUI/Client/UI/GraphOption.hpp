@@ -26,18 +26,27 @@ class GraphOption : public QWidget
 public:
 
     /// constructor
-    GraphOption(std::vector< std::vector<double> > & fcts, QwtPlot * ptr_plot,
+    GraphOption(std::vector< std::vector<double> > & fcts,
+                std::vector<QString> & fct_label,
+                QwtPlot * ptr_plot,
                 QWidget *parent = 0);
 
     /// set the data to show in the option tab
-    void set_data(std::vector< std::vector<double> > & fcts);
+    void set_data(std::vector< std::vector<double> > & fcts,
+                  std::vector<QString> & fct_label);
+
+    /// add the data to show in the option tab
+    void add_data(std::vector<double> & fct, QString formule);
 
 private:
     /// QwtPlot pointer, refer to the plot where we draw cures
     QwtPlot * m_ptr_plot;
 
     /// the curves data
-    std::vector< std::vector<double> > m_ptr_fcts;
+    std::vector< std::vector<double> > m_fcts;
+
+    /// User tipe his function here
+    QLineEdit * in_line_function;
 
     /// cell and item table
     QTableWidget * m_tableau;
@@ -49,6 +58,9 @@ private slots:
 
     /// draw curves according to the data and options
     void draw_action();
+
+    /// function that user inserted QString to make a function
+    void generate_function();
 
 };
 

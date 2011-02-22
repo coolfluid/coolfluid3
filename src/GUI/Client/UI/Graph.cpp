@@ -190,7 +190,8 @@ namespace ClientUI {
     layout_zoom->addWidget(m_bt_zoom_coord);
 
     std::vector< std::vector<double> > vector_temp(0);
-    graph_option = new GraphOption(vector_temp,m_plot);
+    std::vector<QString> vector_temp2(0);
+    graph_option = new GraphOption(vector_temp,vector_temp2,m_plot);
 
     layout_option->addWidget(graph_option);
 
@@ -207,7 +208,7 @@ namespace ClientUI {
     ////Connection Boost
 
     CHistoryNotifier::instance().notify_history.connect(
-        boost::bind(&Graph::set_xy_data, this, _1) );
+        boost::bind(&Graph::set_xy_data, this, _1, _2) );
 
   }
 
@@ -347,10 +348,11 @@ namespace ClientUI {
     m_zoomer[1]->setZoomBase(true);
   }
   */
-  void Graph::set_xy_data(std::vector< std::vector<double> > & fcts){
+  void Graph::set_xy_data(std::vector< std::vector<double> > & fcts,
+                          std::vector<QString> & fct_label){
 
     cf_assert( is_not_null(m_plot) );
-    graph_option->set_data(fcts);
+    graph_option->set_data(fcts, fct_label);
 
     m_zoomer[0]->setZoomBase(new QwtDoubleRect(
         m_plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound(),

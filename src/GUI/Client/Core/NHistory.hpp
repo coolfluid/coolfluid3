@@ -25,7 +25,8 @@ public:
   /*
   typedef boost::signals2::signal< void ( std::vector<double>&, std::vector<double>& ) >  sig_type;
   */
-  typedef boost::signals2::signal< void ( std::vector< std::vector<double> > & fcts ) >  sig_type;
+  typedef boost::signals2::signal< void ( std::vector< std::vector<double> > & fcts,
+                                          std::vector<QString> & fct_label) >  sig_type;
 
   /// implementation of instance that return this ( staticly ).
   static CHistoryNotifier & instance(){

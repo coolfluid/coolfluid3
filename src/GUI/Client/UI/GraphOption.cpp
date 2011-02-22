@@ -11,15 +11,15 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLineEdit>
-
 #include <QDebug>
 
 // Qwt headers
-#include <qwt/qwt_plot_curve.h>
+#include "qwt/qwt_plot_curve.h"
 
 // headers
 #include "GUI/Client/UI/GraphOption.hpp"
 #include "GUI/Client/UI/ColorSelector.hpp"
+#include "fparser/fparser.hh"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,17 +31,19 @@ namespace ClientUI {
 
 
   GraphOption::GraphOption(std::vector< std::vector<double> > & fcts,
+                           std::vector<QString> & fct_label,
                            QwtPlot * ptr_plot,QWidget *parent) :
+  //
           QWidget(parent)
   {
       m_ptr_plot = ptr_plot;
-      m_ptr_fcts = fcts;
 
       QVBoxLayout * verticalLayout = new QVBoxLayout();
       this->setLayout(verticalLayout);
+      QHBoxLayout * horisontal_function_layout = new QHBoxLayout();
 
       //creating and initialising the option table with 5 columns
-      m_tableau = new QTableWidget(0,5,this);
+      m_tableau = new QTableWidget(0,6,this);
 
       //labels of the columns
       QStringList tableau_labels;
@@ -50,6 +52,7 @@ namespace ClientUI {
       tableau_labels.push_back(QString("X or Y"));
       tableau_labels.push_back(QString("Color"));
       tableau_labels.push_back(QString("Line Type"));
+      tableau_labels.push_back(QString("Generated Function"));
 
       //seting the columns labels to he table
       m_tableau->setHorizontalHeaderLabels(tableau_labels);
@@ -60,29 +63,24 @@ namespace ClientUI {
       //adding the table to the vertical label
       verticalLayout->addWidget(m_tableau);
 
-      //adding row for eatch function
-      m_tableau->setRowCount(m_ptr_fcts.size());
+      QPushButton * button_draw = new QPushButton("Draw fonction(s)");
 
-      QPushButton * boutonDraw = new QPushButton("Draw fonction(s)");
+      in_line_function = new QLineEdit();
 
-      for(int i = 0; i < m_tableau->rowCount(); ++i ){
-          m_tableau->setCellWidget(i,0,new QCheckBox());
-          m_tableau->setCellWidget(i,1,new QLineEdit("label")); //to do
-          m_tableau->setCellWidget(i,2,new QComboBox());
-          ((QComboBox *)m_tableau->cellWidget(i,2))->addItem("y",0);
-          ((QComboBox *)m_tableau->cellWidget(i,2))->addItem("x",1);
-          m_tableau->setCellWidget(i,4,new QComboBox());
-          ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Lines",1);
-          ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Sticks",2);
-          ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Steps",3);
-          ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Dots",4);
-          //((QComboBox *)tableau->cellWidget(i,4))->addItem("dotted line",5);
-          m_tableau->setCellWidget(i,3,new ColorSelector());
-      }
+      QPushButton * button_generate_function = new QPushButton("Generate Function");
 
-      verticalLayout->addWidget(boutonDraw);
+      horisontal_function_layout->addWidget(in_line_function);
+      horisontal_function_layout->addWidget(button_generate_function);
 
-      connect (boutonDraw, SIGNAL (clicked()), this, SLOT (draw_action()));
+      set_data(fcts,fct_label);
+
+      verticalLayout->addWidget(button_draw);
+
+      verticalLayout->addLayout(horisontal_function_layout);
+
+      connect (button_draw, SIGNAL (clicked()), this, SLOT (draw_action()));
+      connect (button_generate_function, SIGNAL (clicked()), this, SLOT (generate_function()));
+
 
   }
 
@@ -97,24 +95,26 @@ namespace ClientUI {
                                    "Pleas chose ONE X axes and check it's line",0);
       }else{
           for(int i = 0; i < m_tableau->rowCount(); ++i ){
+
               if(((QCheckBox *)m_tableau->cellWidget(i,0))->isChecked() && (i!=find_x())){
                   ////new curve
                   QwtPlotCurve * temp =
-                      new QwtPlotCurve(((QLineEdit *)m_tableau->cellWidget(i,1))->text());
+                      new QwtPlotCurve(((QLabel *)m_tableau->cellWidget(i,1))->text());
                   //temp->setRenderHint(QwtPlotItem::RenderAntialiased);
                   temp->setPen(QPen(((ColorSelector *)m_tableau->cellWidget(i,3))->
                                     get_color()));
                   temp->setStyle((QwtPlotCurve::CurveStyle)
                                  (((QComboBox *)m_tableau->cellWidget(i,4))->
                                  currentIndex()+1));
-                  temp->setData(&m_ptr_fcts[find_x()][0],
-                               &m_ptr_fcts[i][0],
-                               m_ptr_fcts[i].size());
+                  temp->setData(&m_fcts[find_x()][0],
+                               &m_fcts[i][0],
+                               m_fcts[i].size());
 
                   temp->attach(m_ptr_plot);
 
                   m_ptr_plot->replot();
               }
+
           }
       }
       m_ptr_plot->setAxisAutoScale(QwtPlot::xBottom);
@@ -133,29 +133,85 @@ namespace ClientUI {
       return -1;
   }
 
-  void GraphOption::set_data(std::vector< std::vector<double> > & fcts){
-    m_ptr_fcts = fcts;
+  void GraphOption::set_data(std::vector< std::vector<double> > & fcts,
+                             std::vector<QString> & fct_label){
+    m_fcts = fcts;
 
     //adding row for eatch function
-    m_tableau->setRowCount(m_ptr_fcts.size());
-
-    QPushButton * boutonDraw = new QPushButton("Draw fonction(s)");
+    m_tableau->setRowCount(m_fcts.size());
 
     for(int i = 0; i < m_tableau->rowCount(); ++i ){
         m_tableau->setCellWidget(i,0,new QCheckBox());
-        m_tableau->setCellWidget(i,1,new QLineEdit("label")); //to do
+        m_tableau->setCellWidget(i,1,new QLabel(fct_label[i]));
         m_tableau->setCellWidget(i,2,new QComboBox());
         ((QComboBox *)m_tableau->cellWidget(i,2))->addItem("y",0);
         ((QComboBox *)m_tableau->cellWidget(i,2))->addItem("x",1);
+        m_tableau->setCellWidget(i,3,new ColorSelector());
         m_tableau->setCellWidget(i,4,new QComboBox());
         ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Lines",1);
         ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Sticks",2);
         ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Steps",3);
         ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Dots",4);
         //((QComboBox *)tableau->cellWidget(i,4))->addItem("dotted line",5);
-        m_tableau->setCellWidget(i,3,new ColorSelector());
+        m_tableau->setCellWidget(i,5,new QLabel());
     }
   }
+
+
+  void GraphOption::add_data(std::vector<double> & fct, QString formule){
+
+    m_fcts.push_back(fct);
+
+    //adding row for eatch function
+    int old_row_count = m_tableau->rowCount();
+    m_tableau->setRowCount(1 + old_row_count);
+
+    for(int i = m_tableau->rowCount()-1; i < m_tableau->rowCount(); ++i ){
+      qDebug() << i;
+      m_tableau->setCellWidget(i,0,new QCheckBox());
+      m_tableau->setCellWidget(i,1,new QLabel(formule)); //fct_label[i])
+      m_tableau->setCellWidget(i,2,new QComboBox());
+      ((QComboBox *)m_tableau->cellWidget(i,2))->addItem("y",0);
+      ((QComboBox *)m_tableau->cellWidget(i,2))->addItem("x",1);
+      m_tableau->setCellWidget(i,3,new ColorSelector());
+      m_tableau->setCellWidget(i,4,new QComboBox());
+      ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Lines",1);
+      ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Sticks",2);
+      ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Steps",3);
+      ((QComboBox *)m_tableau->cellWidget(i,4))->addItem("Dots",4);
+      //((QComboBox *)tableau->cellWidget(i,4))->addItem("dotted line",5);
+      m_tableau->setCellWidget(i,5,new QLabel(formule));
+    }
+  }
+
+  void  GraphOption::generate_function(){
+
+    FunctionParser fparser;
+
+    QString variable;
+    for(int i=0; i < m_fcts.size(); ++i){
+        variable.append(((QLabel *)m_tableau->cellWidget(i,1))->text());
+        variable += ",";
+    }
+
+
+    int res = fparser.Parse(in_line_function->text().toStdString().c_str(),
+                            variable.toStdString().c_str());//variable.toStdString()
+
+    if(res > 0) return;
+
+    std::vector<double> vector_temp(10000);
+
+    double vals[] = { 0 };
+    for(vals[0] = 0; vals[0] <= 10000; vals[0] += 1)
+    {
+        vector_temp[vals[0]] = fparser.Eval(vals);
+    }
+
+    this->add_data(vector_temp,in_line_function->text());
+
+  }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
