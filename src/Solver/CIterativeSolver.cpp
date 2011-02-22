@@ -50,7 +50,7 @@ CIterativeSolver::~CIterativeSolver()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CIterativeSolver::signal_solve ( Common::XmlNode& node )
+void CIterativeSolver::signal_solve ( Common::Signal::arg_t& node )
 {
   // XmlParams p ( node );
 

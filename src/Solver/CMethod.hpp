@@ -44,12 +44,12 @@ public: // functions
   static std::string type_name () { return "CMethod"; }
 
   // functions specific to the CMethod component
-  
+
   // Signal run_operation
-  void run_operation( Common::XmlNode& node ) {}
-  
+  void run_operation( Common::Signal::arg_t& node ) {}
+
   CMethod& operation(const std::string& name);
-  
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

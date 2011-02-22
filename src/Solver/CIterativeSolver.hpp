@@ -51,7 +51,7 @@ public: // functions
   //@{
 
   /// Signal to start solving
-  void signal_solve ( Common::XmlNode& node );
+  void signal_solve ( Common::Signal::arg_t& node );
 
   //@} END SIGNALS
 
@@ -59,7 +59,7 @@ protected: // data
 
   /// Maximum number of iterations
   Uint m_nb_iter;
-  
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

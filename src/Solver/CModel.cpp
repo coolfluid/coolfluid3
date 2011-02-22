@@ -15,6 +15,7 @@
 
 #include "Mesh/CDomain.hpp"
 
+
 namespace CF {
 namespace Solver {
 
@@ -90,7 +91,7 @@ void CModel::signal_create_domain ( Common::XmlNode& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signal_simulate ( Common::XmlNode& node )
+void CModel::signal_simulate ( Common::Signal::arg_t& node )
 {
   // XmlParams p ( node );
 
