@@ -184,7 +184,7 @@ SignalFrame SignalFrame::create_reply ( const URI & sender )
 
   SignalFrame reply(Protocol::add_reply_frame( node ));
 
-  reply.node.set_attribute("receiver", sender_uri.string() );
+  reply.node.set_attribute("sender", sender_uri.string() );
 
   return reply;
 }
