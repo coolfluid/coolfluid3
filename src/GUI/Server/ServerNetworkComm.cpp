@@ -10,7 +10,9 @@
 #include <QtNetwork>
 #include <QtCore>
 
-#include "Common/XmlHelpers.hpp"
+#include "rapidxml/rapidxml.hpp"
+
+#include "Common/XML/Protocol.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/LogMessage.hpp"
@@ -23,6 +25,7 @@
 
 using namespace std;
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::Network;
 using namespace CF::GUI::Server;
 
@@ -111,7 +114,7 @@ bool ServerNetworkComm::openPort(const QString & hostAddress, quint16 port)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int ServerNetworkComm::send(QTcpSocket * client, const XmlNode & signal)
+int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
 {
   QByteArray block;
   QDataStream out(&block, QIODevice::WriteOnly);
@@ -119,7 +122,7 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlNode & signal)
 
   std::string signalStr;
 
-  XmlOps::xml_to_string(signal, signalStr);
+  signal.to_string(signalStr);
 
   out.setVersion(QDataStream::Qt_4_6);
   // reserving 2 bytes to store the data size
@@ -158,7 +161,7 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlNode & signal)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerNetworkComm::sendSignalToClient(const XmlNode & signal, const string & uuid)
+void ServerNetworkComm::sendSignalToClient(const XmlDoc & signal, const string & uuid)
 {
   QTcpSocket * socket = this->getSocket(uuid);
   this->send(socket, signal);
@@ -203,16 +206,13 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
                                           const URI & sender,
                                           const QString & reason)
 {
-  boost::shared_ptr<XmlNode> doc = XmlOps::create_doc();
-  XmlNode * signal = XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
-                                              "frame_rejected", sender,
-                                              CLIENT_CORE_PATH, false);
-  XmlParams p(*signal);
+  SignalFrame frame("frame_rejected", sender, CLIENT_CORE_PATH);
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  p.add_option("frameid", frameid);
-  p.add_option("reason", reason.toStdString());
+  options.set_option("frameid", frameid);
+  options.set_option("reason", reason.toStdString());
 
-  return this->send(clientId, *doc) != 0;
+  return this->send(clientId, *frame.xml_doc.get()) != 0;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -221,19 +221,17 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
 bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message,
                                     LogMessage::Type type)
 {
-  boost::shared_ptr<XmlNode> doc = XmlOps::create_doc();
-  XmlNode * signal = XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
-                                              "message", SERVER_CORE_PATH,
-                                              CLIENT_LOG_PATH, false);
-  XmlParams p(*signal);
+  SignalFrame frame("message", SERVER_CORE_PATH, CLIENT_LOG_PATH);
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+
 
   if(type == LogMessage::INVALID)
     type = LogMessage::INFO;
 
-  p.add_option("type", LogMessage::Convert::instance().to_str(type));
-  p.add_option("text", message.toStdString());
+  options.set_option("type", LogMessage::Convert::instance().to_str(type));
+  options.set_option("text", message.toStdString());
 
-  return this->send(client, *doc) != 0;
+  return this->send(client, *frame.xml_doc.get()) != 0;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -280,7 +278,7 @@ string ServerNetworkComm::getAttr(const XmlNode & node, const char * paramName,
 
 	if (reason.isEmpty())
 	{
-		XmlAttr * tmpAttr = node.first_attribute(paramName);
+		rapidxml::xml_attribute<>* tmpAttr = node.content->first_attribute(paramName);
 
 		if(tmpAttr == nullptr)
 			reason = QString("%1 is missing.").arg(paramName);
@@ -361,15 +359,17 @@ void ServerNetworkComm::newData()
 
       m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
 
-      boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse( frame.toStdString() );
+      XmlDoc::Ptr xmldoc = XmlDoc::parse_string( frame.toStdString() );
 
-      XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
-      XmlNode& frameNode = *nodedoc.first_node();
+      XmlNode nodedoc = Protocol::goto_doc_node(*xmldoc.get());
+      SignalFrame frame ( nodedoc.content->first_node() );
 
-      target = this->getAttr(frameNode, "target", errorMsg);
-      receiver = this->getAttr(frameNode, "receiver", errorMsg);
-      clientId = this->getAttr(frameNode, "clientid", errorMsg);
-      frameId = this->getAttr(frameNode, "frameid", errorMsg);
+      frame.xml_doc = xmldoc;
+
+      target = this->getAttr(frame.node, "target", errorMsg);
+      receiver = this->getAttr(frame.node, "receiver", errorMsg);
+      clientId = this->getAttr(frame.node, "clientid", errorMsg);
+      frameId = this->getAttr(frame.node, "frameid", errorMsg);
 
       if(errorMsg.isEmpty())
       {
@@ -382,10 +382,10 @@ void ServerNetworkComm::newData()
             m_clients[socket] = clientId;
 
             // Build the reply
-            XmlNode * replyNode = XmlOps::add_reply_frame(*nodedoc.first_node());
-            XmlParams reply(*replyNode);
+            SignalFrame reply = frame.create_reply();
+            SignalFrame& roptions = reply.map( Protocol::Tags::key_options() );
 
-            reply.add_option("accepted", true);
+            roptions.set_option("accepted", true);
 
             this->send(socket, *xmldoc.get());
 
@@ -401,7 +401,7 @@ void ServerNetworkComm::newData()
                                "and '%2' (used for identification) do not "
                                "match.").arg(m_clients[socket].c_str()).arg(clientId.c_str());
           else
-            ServerRoot::processSignal(target, receiver, clientId, frameId, nodedoc, xmldoc);
+            ServerRoot::processSignal(target, receiver, clientId, frameId, frame);
         }
       }
 

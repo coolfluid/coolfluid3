@@ -13,11 +13,12 @@
 #include "GUI/Server/ProcessingThread.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::Server;
 
-ProcessingThread::ProcessingThread(XmlNode & node, const std::string & target,
+ProcessingThread::ProcessingThread(Signal::arg_t & signal, const std::string & target,
                                    Component::Ptr receiver)
-  : m_node(node),
+  : m_signal(signal),
     m_target(target),
     m_receiver(receiver)
 {
@@ -31,9 +32,9 @@ void ProcessingThread::run()
 {
   try
   {
-    m_receiver->call_signal(m_target, *m_node.first_node() );
+    m_receiver->call_signal( m_target, m_signal );
   }
-  catch(CF::Common::Exception & cfe)
+  catch(Exception & cfe)
   {
     ServerRoot::core()->sendException(cfe.what());
   }
@@ -52,7 +53,7 @@ void ProcessingThread::run()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-XmlNode & ProcessingThread::getNode() const
+Signal::arg_t & ProcessingThread::getNode() const
 {
-  return m_node;
+  return m_signal;
 }

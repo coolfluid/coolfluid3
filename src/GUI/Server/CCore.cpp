@@ -10,10 +10,13 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include "rapidxml/rapidxml.hpp"
+
 #include "Common/BasicExceptions.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/Log.hpp"
-#include "Common/XmlHelpers.hpp"
+
+#include "Common/XML/Protocol.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -25,6 +28,7 @@
 #include "GUI/Server/CCore.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::Network;
 using namespace CF::GUI::Server;
 
@@ -79,7 +83,7 @@ bool CCore::listenToNetwork(const QString & hostname, quint16 portNumber)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CCore::sendSignal( const CF::Common::XmlNode & signal )
+void CCore::sendSignal( const XmlDoc & signal )
 {
   m_commServer->sendSignalToClient(signal);
 }
@@ -198,20 +202,22 @@ bool CCore::getDirContent(const QString & directory,
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-Signal::return_t CCore::read_dir(Signal::arg_t & node)
+Signal::return_t CCore::read_dir(Signal::arg_t & args)
 {
-  XmlParams p(node);
+  SignalFrame & options = args.map( Protocol::Tags::key_options() );
+
   std::vector<std::string> dirList;
   std::vector<std::string> fileList;
   QString directory;
-  std::string clientId = p.get_clientid();
+  rapidxml::xml_attribute<>* attr = args.node.content->first_attribute( "clientid" );
+  std::string clientId( attr != nullptr ? attr->value() : "" );
 
   try
   {
-    QString dirPath = p.get_option<std::string>("dirPath").c_str();
-    bool includeFiles = p.get_option<bool>("includeFiles");
-    bool includeNoExtension = p.get_option<bool>("includeNoExtensions");
-    std::vector<std::string> extensions = p.get_array<std::string>("extensions");
+    QString dirPath = options.get_option<std::string>("dirPath").c_str();
+    bool includeFiles = options.get_option<bool>("includeFiles");
+    bool includeNoExtension = options.get_option<bool>("includeNoExtensions");
+    std::vector<std::string> extensions = options.get_array<std::string>("extensions");
 
     if(dirPath.isEmpty())
       directory = this->DEFAULT_PATH;
@@ -234,14 +240,12 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
     else
     {
       // Build the reply
-      XmlNode * replyNode = XmlOps::add_reply_frame(node);
-      XmlParams reply(*replyNode);
+      SignalFrame reply = args.create_reply( full_path() );
+      SignalFrame& roptions = reply.map( Protocol::Tags::key_options() );
 
-      XmlOps::add_attribute_to( *replyNode, "sender", full_path().path() );
-
-      reply.add_option("dirPath", directory.toStdString());
-      reply.add_array("dirs", dirList);
-      reply.add_array("files", fileList);
+      roptions.set_option("dirPath", directory.toStdString());
+      roptions.set_array("dirs", dirList, " ; ");
+      roptions.set_array("files", fileList, " ; ");
     }
   }
   catch(Exception e)
@@ -256,11 +260,9 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
 
 void CCore::newEvent(const std::string & name, const URI & path)
 {
-  boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
-  XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());
-  XmlOps::add_signal_frame(*rootNode, name, path, path, false);
+  SignalFrame frame(name, path, path);
 
-  m_commServer->sendSignalToClient(*docnode.get());
+  m_commServer->sendSignalToClient(*frame.xml_doc.get());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -268,9 +270,7 @@ void CCore::newEvent(const std::string & name, const URI & path)
 
 Signal::return_t CCore::createDir(Signal::arg_t & node)
 {
-  XmlParams p(node);
-
-  m_commServer->sendMessageToClient("Cannot create a directory yet", LogMessage::ERROR, p.get_clientid());
+  m_commServer->sendMessageToClient("Cannot create a directory yet", LogMessage::ERROR);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -278,7 +278,6 @@ Signal::return_t CCore::createDir(Signal::arg_t & node)
 
 Signal::return_t CCore::shutdown(Signal::arg_t & node)
 {
-  XmlOps::add_reply_frame(node);
   qApp->exit(0); // exit the Qt event loop
 }
 
@@ -287,10 +286,7 @@ Signal::return_t CCore::shutdown(Signal::arg_t & node)
 
 Signal::return_t CCore::saveConfig(Signal::arg_t & node)
 {
-  XmlParams p(node);
-
-  m_commServer->sendMessageToClient("Cannot save the configuration yet", LogMessage::ERROR,
-                                    p.get_clientid());
+  m_commServer->sendMessageToClient("Cannot save the configuration yet", LogMessage::ERROR);
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -6,15 +6,18 @@
 
 #include <QtCore>
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "rapidxml/rapidxml.hpp"
 
 #include "Common/CHistory.hpp"
 #include "Common/Core.hpp"
+
 #include "Common/CRoot.hpp"
 #include "Common/NotificationQueue.hpp"
-#include "Common/XmlHelpers.hpp"
+#include "Common/XML/Protocol.hpp"
 
 #include "Solver/CMethod.hpp"
+
+#include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Server/Notifier.hpp"
 #include "GUI/Server/ProcessingThread.hpp"
@@ -23,6 +26,7 @@
 
 using namespace std;
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::Server;
 
 NotificationQueue * ServerRoot::m_queue;
@@ -31,18 +35,21 @@ Notifier * ServerRoot::m_notifier;
 ProcessingThread * ServerRoot::m_thread = nullptr;
 QMutex ServerRoot::m_mutex;
 SignalCatcher * ServerRoot::m_catcher = new SignalCatcher();
-boost::shared_ptr<XmlDoc> ServerRoot::m_doc;
+XmlDoc::Ptr ServerRoot::m_doc;
 
 void SignalCatcher::finished()
 {
-  XmlNode& nodedoc = *XmlOps::goto_doc_node(*ServerRoot::m_doc.get());
-  XmlNode& frameNode = *nodedoc.first_node();
+  XmlNode nodedoc = Protocol::goto_doc_node(*ServerRoot::m_doc.get());
+  SignalFrame frame(nodedoc.content->first_node());
 
-  if(frameNode.next_sibling() != nullptr)
+  SignalFrame reply = frame.get_reply();
+
+  if( reply.node.is_valid() )
   {
     ServerRoot::core()->sendSignal(*ServerRoot::m_doc.get());
-    ServerRoot::journal()->add_signal(*frameNode.next_sibling());
+    ServerRoot::journal()->add_signal( reply );
   }
+
 
   delete ServerRoot::m_thread;
   ServerRoot::m_thread = nullptr;
@@ -87,15 +94,16 @@ void ServerRoot::processSignal(const string & target,
                                const URI & receiver,
                                const string & clientid,
                                const string & frameid,
-                               XmlNode & node, boost::shared_ptr<XmlDoc> doc)
+                               Signal::arg_t & signal)
 {
   if(m_mutex.tryLock())
   {
-    m_doc.swap(doc);
+    m_doc.swap(signal.xml_doc);
     Component::Ptr receivingCompo = root()->access_component(receiver);
-    m_thread = new ProcessingThread(node, target, receivingCompo);
+
+    m_thread = new ProcessingThread(signal, target, receivingCompo);
     QObject::connect(m_thread, SIGNAL(finished()), m_catcher, SLOT(finished()));
-    journal()->add_signal(*node.first_node());
+    journal()->add_signal( signal );
     m_thread->start();
   }
   else
@@ -106,16 +114,15 @@ void ServerRoot::processSignal(const string & target,
 
       if( comp->signal(target).is_read_only )
       {
-        comp->call_signal(target, *node.first_node() );
-        journal()->add_signal(node);
+        comp->call_signal(target, signal );
+        journal()->add_signal(signal);
 
-        XmlNode& nodedoc = *XmlOps::goto_doc_node(*doc.get());
-        XmlNode& frameNode = *nodedoc.first_node();
+        SignalFrame reply = signal.get_reply();
 
-        if(frameNode.next_sibling() != nullptr)
+        if( reply.node.is_valid() )
         {
-          core()->sendSignal(*doc.get());
-          journal()->add_signal(*frameNode.next_sibling());
+          core()->sendSignal(*m_doc.get());
+          journal()->add_signal( reply );
         }
       }
       else

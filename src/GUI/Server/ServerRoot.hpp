@@ -52,8 +52,7 @@ namespace Server {
                               const CF::Common::URI & receiver,
                               const std::string & clientid,
                               const std::string & frameid,
-                              CF::Common::XmlNode & node,
-                              boost::shared_ptr<CF::Common::XmlDoc> doc);
+                              Common::Signal::arg_t & node);
 
     static CCore::Ptr core();
 
@@ -63,7 +62,7 @@ namespace Server {
 
   private:
 
-    static boost::shared_ptr<CF::Common::XmlDoc> m_doc;
+    static Common::XML::XmlDoc::Ptr m_doc;
 
     static ProcessingThread * m_thread;
 
@@ -71,7 +70,7 @@ namespace Server {
 
     static QMutex m_mutex;
 
-    static CF::Common::NotificationQueue * m_queue;
+    static Common::NotificationQueue * m_queue;
 
     static Notifier * m_notifier;
 

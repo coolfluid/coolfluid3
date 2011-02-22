@@ -62,7 +62,7 @@ namespace Server {
      /// @throw NetworkException
      bool listenToNetwork(const QString & hostname, quint16 portNumber);
 
-     void sendSignal(const CF::Common::XmlNode & signal);
+     void sendSignal(const Common::XML::XmlDoc & signal);
 
      static std::string type_name() { return "CCore"; }
 

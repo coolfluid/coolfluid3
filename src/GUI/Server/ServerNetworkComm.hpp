@@ -17,8 +17,6 @@
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/LogMessage.hpp"
 
-#include "Common/XmlHelpers.hpp"
-
 class QHostAdress;
 class QTcpServer;
 class QTcpSocket;
@@ -91,12 +89,12 @@ namespace Server {
                              Network::LogMessage::Type type,
                              const std::string & uuid = std::string());
 
-    void sendSignalToClient(const CF::Common::XmlNode & signal,
+    void sendSignalToClient(const Common::XML::XmlDoc & signal,
                             const std::string & uuid = std::string());
 
     void sendFrameRejectedToClient(const std::string clientid,
                                    const std::string & frameid,
-                                   const CF::Common::URI & sender,
+                                   const Common::URI & sender,
                                    const QString & reason);
 
     void disconnectAll();
@@ -178,7 +176,7 @@ namespace Server {
     /// to all clients.
     /// @param signal Signal frame to send.
     /// @return Returns the number of bytes sent.
-    int send(QTcpSocket * client, const CF::Common::XmlNode & signal);
+    int send(QTcpSocket * client, const Common::XML::XmlDoc & signal);
 
 		bool sendFrameRejected(QTcpSocket * client,
 													 const std::string & frameid,
@@ -193,7 +191,7 @@ namespace Server {
     /// @throw UnknownClientIdException if Client id is unknown.
     QTcpSocket * getSocket(const std::string & uuid) const;
 
-		std::string getAttr(const CF::Common::XmlNode & node,
+		std::string getAttr(const Common::XML::XmlNode & node,
 												const char * paramName,
 												QString & reason);
 
