@@ -67,8 +67,10 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
   m_node = node;
   m_currentAction = nullptr;
 
-  connect(node->notifier(), SIGNAL(signalSignature(Common::XmlNode*)),
-          this, SLOT(signalSignature(Common::XmlNode*)));
+  node->signal("signal_signature").signal_ptr->connect( boost::bind(&SignalManager::signalSignature, this, _1) );
+
+//  connect(node->notifier(), SIGNAL(signalSignature(CF::Common::Signal::arg_t*)),
+//          this, SLOT(signalSignature(CF::Common::Signal::arg_t*)));
 
   for( ; it!= sigs.end() ; it++)
   {
@@ -131,6 +133,8 @@ void SignalManager::actionHovered()
 
 void SignalManager::signalSignature(Signal::arg_t & args)
 {
+  ClientRoot::instance().log()->addMessage("In SignalManager::signalSignature(Signal::arg_t & args)");
+
   if(m_waitingForSignature)
   {
     URI path = m_node->full_path();

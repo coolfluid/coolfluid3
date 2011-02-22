@@ -61,9 +61,7 @@ public:
 
   virtual QString toolTip() const;
 
-  void get_history ( Common::XmlNode& node );
-
-  void convergence_history ( Common::XmlNode& node );
+  void convergence_history ( Common::Signal::arg_t& node );
 
 }; //  XYPlot
 

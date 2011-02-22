@@ -59,7 +59,7 @@ void ProcessingThread::run()
       CRoot::Ptr realRoot = root->root();
       SignalFrame frame(nodeToProcess);
 
-      if(realRoot->full_path().path() == receiver)
+      if(realRoot->full_path().path() == URI(receiver).path())
         root->call_signal(type, frame);
       else
         realRoot->access_component(receiver)->call_signal(type, frame);

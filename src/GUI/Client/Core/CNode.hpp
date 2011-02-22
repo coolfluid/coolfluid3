@@ -198,10 +198,6 @@ namespace ClientCore {
       return m_type == type;
     }
 
-    /// Sets node options
-    /// @param node Note containing the options
-//    void setOptions(Common::Signal::arg_t & node);
-
     /// Sets node properties
     /// @param node Note containing the options
     void setProperties(const Common::Signal::arg_t & node);

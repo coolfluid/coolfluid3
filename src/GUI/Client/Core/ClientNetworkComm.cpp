@@ -124,9 +124,6 @@ bool ClientNetworkComm::send(Signal::arg_t & signal)
   bool success = false;
   std::string str;
 
-  signal.node.to_string(str);
-  ClientRoot::instance().log()->addMessage(str.c_str());
-
   if(this->checkConnected())
   {
     signal.node.set_attribute( "clientid", ClientRoot::instance().getUUID() );
@@ -196,7 +193,7 @@ void ClientNetworkComm::newData()
 
     in >> frame;
 
-//    qDebug() << frame;
+    qDebug() << frame;
 
     try
     {

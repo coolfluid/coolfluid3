@@ -506,7 +506,7 @@ void NTree::list_tree_reply(Signal::arg_t & args)
   try
   {
     NRoot::Ptr treeRoot = m_rootNode->node()->castTo<NRoot>();
-    NRoot::Ptr rootNode = CNode::createFromXml(args.node.content->first_node())->castTo<NRoot>();
+    NRoot::Ptr rootNode = CNode::createFromXml(args.main_map.content.content->first_node())->castTo<NRoot>();
     ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
     URI currentIndexPath;
 

@@ -13,7 +13,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include <cstring>
+//#include <cstring>
 
 #include "rapidxml/rapidxml.hpp"
 
@@ -44,7 +44,7 @@ array = boost::dynamic_pointer_cast<OptionArrayT<type> >(array);\
 for( ; itList != list.end() ; itList++)\
  data.push_back( from_str<type>(itList->toStdString()) );\
 \
- p.add_array(it.key().toStdString(), data);\
+ p.set_array(it.key().toStdString(), data, " ; ");\
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
 
   m_signals.erase("signal_signature"); // unregister base class signal
 
-  regist_signal("signal_signature", "")->connect(boost::bind(&CNode::signal_signature_reply, this, _1));
+  regist_signal("signal_signature", "");//->connect(boost::bind(&CNode::signal_signature_reply, this, _1));
 
   m_properties.add_property("originalComponentType", m_componentType.toStdString());
 }
@@ -125,138 +125,121 @@ CNode::Type CNode::type() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//void CNode::setOptions(Signal::arg_t & options)
-//{
-//  QMutexLocker locker(m_mutex);
-
-//  if( options.has_map( Protocol::Tags::key_options() ) )
-//  {
-//    Map map = options.map(Protocol::Tags::key_options()).main_map;
-//    XmlNode node( map.content.content->first_node( ) );
-
-//    // iterate through options
-//    for ( ; node.is_valid() ; node.content = node.content->next_sibling() )
-//    {
-//      Option::Ptr opt = makeOption(node);
-//      m_properties.store[ opt->name() ] = opt;
-//    }
-//  }
-//}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void CNode::setProperties(const Signal::arg_t & options)
 {
   QMutexLocker locker(m_mutex);
 
-  throw NotImplemented(FromHere(), "Check what is returned by the server");
+  if( options.has_map( Protocol::Tags::key_properties() ) )
+  {
+    Map prop_map = options.map( Protocol::Tags::key_properties() ).main_map;
+    XmlNode curr_node( prop_map.content.content->first_node() );
 
-//  if( options.has_map( Protocol::Tags::key_properties() ) )
-//  {
-//    // iterate through properties
-//    XmlNode* node = p.property_map->first_node();
-//    for ( ; node != nullptr ; node = node->next_sibling(  ) )
-//    {
-//      rapidxml::xml_node<> * keyAttr = node->first_attribute( Protocol::Tags::attr_key() );
+    for( ; curr_node.is_valid() ; curr_node.content = curr_node.content->next_sibling())
+    {
+      rapidxml::xml_node<>* node = curr_node.content;
+      rapidxml::xml_attribute<>* attr = node->first_attribute("is_option");
 
-//      if ( keyAttr != nullptr )
-//      {
-//        const char * keyVal = keyAttr->value(); // option name
+      if( is_not_null(attr) && from_str<bool>(attr->value()) ) // if it is an option
+      {
+        Option::Ptr opt = makeOption(node);
+        m_properties.store[ opt->name() ] = opt;
+      }
+      else // it is a property
+      {
+        rapidxml::xml_attribute<> * keyAttr = node->first_attribute( Protocol::Tags::attr_key() );
 
-//        if(std::strcmp(node->name(), XmlParams::tag_node_value())  == 0)
-//        {
-//          XmlNode * type_node = node->first_node();
+        if ( keyAttr != nullptr )
+        {
+          const char * keyVal = keyAttr->value();
+          std::string typeVal = Map::get_value_type(curr_node); // type name
+          const char * value = curr_node.content->first_node()->value();
 
-//          if( type_node != nullptr)
-//          {
-//            const char * typeVal = type_node->name(); // type name
+          if(m_properties.check(keyVal))
+          {
+            if( typeVal == Protocol::Tags::type<bool>() )
+              configure_property(keyVal, from_str<bool>(value));
+            else if( typeVal == Protocol::Tags::type<int>() )
+              configure_property(keyVal, from_str<int>(value));
+            else if( typeVal == Protocol::Tags::type<CF::Uint>() )
+              configure_property(keyVal, from_str<CF::Uint>(value));
+            else if( typeVal == Protocol::Tags::type<CF::Real>() )
+              configure_property(keyVal, from_str<CF::Real>(value));
+            else if( typeVal == Protocol::Tags::type<std::string>() )
+              configure_property(keyVal, std::string(value));
+            else if( typeVal == Protocol::Tags::type<URI>() )
+              configure_property(keyVal, from_str<URI>(value));
+            else
+              throw ShouldNotBeHere(FromHere(), typeVal + ": Unknown type.");
+          }
+          else
+          {
 
-//            if(m_properties.check(keyVal))
-//            {
-//              if(std::strcmp(typeVal, "bool") == 0)
-//                configure_property(keyVal, from_str<bool>(type_node->value()));
-//              else if(std::strcmp(typeVal, "integer") == 0)
-//                configure_property(keyVal, from_str<int>(type_node->value()));
-//              else if(std::strcmp(typeVal, "unsigned") == 0)
-//                configure_property(keyVal, from_str<CF::Uint>(type_node->value()));
-//              else if(std::strcmp(typeVal, "real") == 0)
-//                configure_property(keyVal, from_str<CF::Real>(type_node->value()));
-//              else if(std::strcmp(typeVal, "string") == 0)
-//                configure_property(keyVal, std::string(type_node->value()));
-//              else if(std::strcmp(typeVal, "uri") == 0)
-//                configure_property(keyVal, from_str<URI>(type_node->value()));
-//              else
-//                throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type parent is " + node->name());
-//            }
-//            else
-//            {
-//              const char * value = type_node->value();
-//              if(std::strcmp(typeVal, "bool") == 0)
-//                m_properties.add_property(keyVal, from_str<bool>(value));
-//              else if(std::strcmp(typeVal, "integer") == 0)
-//                m_properties.add_property(keyVal, from_str<int>(value));
-//              else if(std::strcmp(typeVal, "unsigned") == 0)
-//                m_properties.add_property(keyVal, from_str<CF::Uint>(value));
-//              else if(std::strcmp(typeVal, "real") == 0)
-//                m_properties.add_property(keyVal, from_str<CF::Real>(value));
-//              else if(std::strcmp(typeVal, "string") == 0)
-//                m_properties.add_property(keyVal, std::string(value));
-//              else if(std::strcmp(typeVal, "uri") == 0)
-//                m_properties.add_property(keyVal, from_str<URI>(value));
-//              else
-//                throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type parent is " + node->name());
-
-//            }
-//          }
-//        }
-//      }
-//    }
-//  }
+            if( typeVal == Protocol::Tags::type<bool>() )
+              m_properties.add_property(keyVal, from_str<bool>(value));
+            else if( typeVal == Protocol::Tags::type<int>() )
+              m_properties.add_property(keyVal, from_str<int>(value));
+            else if( typeVal == Protocol::Tags::type<CF::Uint>() )
+              m_properties.add_property(keyVal, from_str<CF::Uint>(value));
+            else if( typeVal == Protocol::Tags::type<CF::Real>() )
+              m_properties.add_property(keyVal, from_str<CF::Real>(value));
+            else if( typeVal == Protocol::Tags::type<std::string>() )
+              m_properties.add_property(keyVal, std::string(value));
+            else if( typeVal == Protocol::Tags::type<URI>() )
+              m_properties.add_property(keyVal, from_str<URI>(value));
+            else
+              throw ShouldNotBeHere(FromHere(), typeVal + ": Unknown type.");
+          }
+        }
+      }
+    }
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::setSignals(const Signal::arg_t & node)
+void CNode::setSignals(const Signal::arg_t & args)
 {
   QMutexLocker locker(m_mutex);
 
-  throw NotImplemented(FromHere(), "Check what is returned by the server");
+//  throw NotImplemented(FromHere(), "Check what is returned by the server");
 
-//  if( node.has_map( Protocol::Tags::key_signals() ) )
-//  {
+  if( args.has_map( Protocol::Tags::key_signals() ) )
+  {
+    Map sig_map = args.map( Protocol::Tags::key_signals() ).main_map;
+
 //    Map map = node.map(Protocol::Tags::key_signals());
 
-//    m_actionSigs.clear();
+    m_actionSigs.clear();
 
-//    while(map != nullptr)
-//    {
-//      ActionInfo si;
-//      XmlAttr * key_attr = map->first_attribute( XmlParams::tag_attr_key() );
-//      XmlAttr * desc_attr = map->first_attribute( XmlParams::tag_attr_descr() );
-//      XmlAttr * name_attr = map->first_attribute( "name" );
-//      XmlAttr * hidden_attr = map->first_attribute( "hidden" );
+    while( sig_map.content.is_valid() )
+    {
+      ActionInfo si;
+      rapidxml::xml_node<>* node = sig_map.content.content;
+      rapidxml::xml_attribute<> * key_attr = node->first_attribute( Protocol::Tags::attr_key() );
+      rapidxml::xml_attribute<> * desc_attr = node->first_attribute( Protocol::Tags::attr_descr() );
+      rapidxml::xml_attribute<> * name_attr = node->first_attribute( "name" );
+      rapidxml::xml_attribute<> * hidden_attr = node->first_attribute( "hidden" );
 
-//      if(hidden_attr == nullptr || std::strcmp(hidden_attr->value(), "false") == 0)
-//      {
-//        cf_assert( key_attr != nullptr );
-//        cf_assert( key_attr->value_size() > 0 );
+      if(hidden_attr == nullptr || !from_str<bool>(hidden_attr->value()) )
+      {
+        cf_assert( key_attr != nullptr );
+        cf_assert( key_attr->value_size() > 0 );
 
-//        si.name = key_attr->value();
-//        si.readableName = name_attr != nullptr ? name_attr->value() : "";
-//        si.description = desc_attr != nullptr ? desc_attr->value() : "";
-////        si.m_signature = XmlSignature(*map);
-//        si.isLocal = false;
+        si.name = key_attr->value();
+        si.readableName = name_attr != nullptr ? name_attr->value() : "";
+        si.description = desc_attr != nullptr ? desc_attr->value() : "";
+//        si.m_signature = XmlSignature(*map);
+        si.isLocal = false;
 
-//        m_actionSigs.append(si);
+        m_actionSigs.append(si);
 
-//      }
+      }
 
-//      map = map->next_sibling();
-//    }
+      sig_map.content.content = node->next_sibling();
+    }
 
-//  }
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -266,102 +249,101 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
 {
   QMutexLocker locker(m_mutex);
 
-//  QMap<QString, QString>::const_iterator it = options.begin();
+  QMap<QString, QString>::const_iterator it = options.begin();
 
-//  if(isClientComponent())
-//  {
-//    for ( ; it != options.end() ; it++)
-//    {
-////			if(m_options.contains(it.key()))
-////				m_options[it.key()].m_paramValue = it.value();
-//    }
-//  }
-//  else
-//  {
-//    boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
-//    XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());
-//    XmlNode * signalNode = XmlOps::add_signal_frame(*rootNode, "configure", full_path(), full_path(), true);
-//    XmlParams p(*signalNode);
-//    bool valid = true;
+  if(isClientComponent())
+  {
+    throw NotImplemented(FromHere(), "CNode::modifyOptions()");
+    for ( ; it != options.end() ; it++)
+    {
+//			if(m_options.contains(it.key()))
+//				m_options[it.key()].m_paramValue = it.value();
+    }
+  }
+  else
+  {
+    SignalFrame frame("configure", full_path(), full_path());
+    SignalFrame& p = frame.map( Protocol::Tags::key_options() );
+    bool valid = true;
 
-//    for ( ; it != options.end() ; it++)
-//    {
-//      Property * prop = &m_properties[it.key().toStdString()].as_option();
+    for ( ; it != options.end() ; it++)
+    {
+      Property * prop = &m_properties[it.key().toStdString()].as_option();
 
-//      if( prop != nullptr && strcmp( prop->tag() , "array" ) )
-//      {
-//        std::string name = it.key().toStdString();
-//        QString value = it.value();
+      if( prop != nullptr && strcmp( prop->tag() , "array" ) )
+      {
+        std::string name = it.key().toStdString();
+        QString value = it.value();
 
-//        if(prop->type() == "bool")
-//          p.add_option(name, QVariant(value).toBool());
-//        else if(prop->type() == "integer")
-//          p.add_option(name, value.toInt());
-//        else if(prop->type() == "unsigned")
-//          p.add_option(name, value.toUInt());
-//        else if(prop->type() == "real")
-//          p.add_option(name, value.toDouble());
-//        else if(prop->type() == "string")
-//          p.add_option(name, value.toStdString());
-//        else if(prop->type() == "uri")
-//          p.add_option(name, URI(value.toStdString()));
-//        else
-//          throw ValueNotFound(FromHere(), prop->type() + ": Unknown type for option " + name );
-//      }
-//      else if( prop != nullptr && !strcmp ( prop->tag() , "array" ))
-//      {
-//        OptionArray * optArray;
-//        QStringList list = it.value().split("@@");
-//        QStringList::iterator itList = list.begin();
+        if(prop->type() == "bool")
+          p.set_option(name, QVariant(value).toBool());
+        else if(prop->type() == "integer")
+          p.set_option(name, value.toInt());
+        else if(prop->type() == "unsigned")
+          p.set_option(name, value.toUInt());
+        else if(prop->type() == "real")
+          p.set_option(name, value.toDouble());
+        else if(prop->type() == "string")
+          p.set_option(name, value.toStdString());
+        else if(prop->type() == "uri")
+          p.set_option(name, URI(value.toStdString()));
+        else
+          throw ValueNotFound(FromHere(), prop->type() + ": Unknown type for option " + name );
+      }
+      else if( prop != nullptr && !strcmp ( prop->tag() , "array" ))
+      {
+        OptionArray * optArray;
+        QStringList list = it.value().split("@@");
+        QStringList::iterator itList = list.begin();
 
-//        optArray = static_cast<OptionArray*>(prop);
+        optArray = static_cast<OptionArray*>(prop);
 
-//        cf_assert(optArray != nullptr);
+        cf_assert(optArray != nullptr);
 
-//        const char * elemType = optArray->elem_type();
+        const char * elemType = optArray->elem_type();
 
-//        if(std::strcmp(elemType, "bool") == 0)
-//          ADD_ARRAY_TO_XML(bool)
-//        else if(std::strcmp(elemType, "integer") == 0)
-//          ADD_ARRAY_TO_XML(int)
-//        else if(std::strcmp(elemType, "unsigned") == 0)
-//          ADD_ARRAY_TO_XML(CF::Uint)
-//        else if(std::strcmp(elemType, "real") == 0)
-//          ADD_ARRAY_TO_XML(CF::Real)
-//        else if(std::strcmp(elemType, "string") == 0)
-//        {
-//          std::vector<std::string> data;
-//          boost::shared_ptr<OptionArrayT<std::string> > array;
+        if(std::strcmp(elemType, "bool") == 0)
+          ADD_ARRAY_TO_XML(bool)
+        else if(std::strcmp(elemType, "integer") == 0)
+          ADD_ARRAY_TO_XML(int)
+        else if(std::strcmp(elemType, "unsigned") == 0)
+          ADD_ARRAY_TO_XML(CF::Uint)
+        else if(std::strcmp(elemType, "real") == 0)
+          ADD_ARRAY_TO_XML(CF::Real)
+        else if(std::strcmp(elemType, "string") == 0)
+        {
+          std::vector<std::string> data;
+          boost::shared_ptr<OptionArrayT<std::string> > array;
 
-//          array = boost::dynamic_pointer_cast<OptionArrayT<std::string> >(array);
+          array = boost::dynamic_pointer_cast<OptionArrayT<std::string> >(array);
 
-//          for( ; itList != list.end() ; itList++)
-//            data.push_back( itList->toStdString() );
+          for( ; itList != list.end() ; itList++)
+            data.push_back( itList->toStdString() );
 
-//          p.add_array(it.key().toStdString(), data);
-//        }
-//        else if(std::strcmp(elemType, "uri") == 0)
-//        {
-//          std::vector<URI> data;
-//          boost::shared_ptr<OptionArrayT<URI> > array;
+          p.set_array(it.key().toStdString(), data, " ; ");
+        }
+        else if(std::strcmp(elemType, "uri") == 0)
+        {
+          std::vector<URI> data;
+          boost::shared_ptr<OptionArrayT<URI> > array;
 
-//          array = boost::dynamic_pointer_cast<OptionArrayT<URI> >(array);
+          array = boost::dynamic_pointer_cast<OptionArrayT<URI> >(array);
 
-//          for( ; itList != list.end() ; itList++)
-//          {
-//            data.push_back( URI(itList->toStdString()) );
-//          }
+          for( ; itList != list.end() ; itList++)
+          {
+            data.push_back( URI(itList->toStdString()) );
+          }
 
-//          p.add_array(it.key().toStdString(), data);
-//        }
-//        else
-//          throw ValueNotFound(FromHere(), std::string(elemType) + ": Unknown type for option array " + optArray->name());
-//      }
-//    }
+          p.set_array(it.key().toStdString(), data, " ; ");
+        }
+        else
+          throw ValueNotFound(FromHere(), std::string(elemType) + ": Unknown type for option array " + optArray->name());
+      }
+    }
 
-//    if(valid)
-//      ClientRoot::instance().core()->sendSignal(*docnode.get());
-//  }
+    if(valid)
+      ClientRoot::instance().core()->sendSignal(frame);
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -683,7 +665,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
     rootNode = boost::shared_ptr<NJournal>(new NJournal(nodeName));
   else if( typeName == "CRoot" )
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
-  else if(std::strcmp(typeName, "CHistory") == 0)
+  else if( typeName == "CHistory" )
     rootNode = boost::shared_ptr<NHistory>(new NHistory(nodeName));
   else
     rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, typeName));
