@@ -11,6 +11,8 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/regex.hpp>
 
+#include "rapidxml/rapidxml.hpp"
+
 #include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
@@ -54,9 +56,9 @@ struct TestCGNS_Fixture
   }
 
   /// possibly common functions used on the tests below
-  
+
   /// These are handy functions that should maybe be implemented somewhere easily accessible.
-  
+
   /// create a Real vector with 2 coordinates
   RealVector create_coord(const Real& x, const Real& y) {
     RealVector coordVec(2);
@@ -64,7 +66,7 @@ struct TestCGNS_Fixture
     coordVec[YY]=y;
     return coordVec;
   }
-  
+
   /// create a Uint vector with 4 node ID's
   std::vector<Uint> create_quad(const Uint& A, const Uint& B, const Uint& C, const Uint& D) {
     Uint quad[] = {A,B,C,D};
@@ -72,7 +74,7 @@ struct TestCGNS_Fixture
     quadVec.assign(quad,quad+4);
     return quadVec;
   }
-  
+
   /// create a Uint vector with 3 node ID's
   std::vector<Uint> create_triag(const Uint& A, const Uint& B, const Uint& C) {
     Uint triag[] = {A,B,C};
@@ -80,14 +82,14 @@ struct TestCGNS_Fixture
     triagVec.assign(triag,triag+3);
     return triagVec;
   }
-  
+
   /// common values accessed by all tests goes here
 
   std::string xml_config;
-  rapidxml::xml_document<> doc;    // character type defaults to char
+  rapidxml::xml_document<char> doc;
   char* ctext;
 
-  rapidxml::xml_node<>* parsed_config()
+  rapidxml::xml_node<char>* parsed_config()
   {
     ctext = doc.allocate_string(xml_config.c_str());
     doc.parse< rapidxml::parse_no_data_nodes >(ctext);
@@ -412,10 +414,10 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
 {
   /*
    dimension statements (note that tri-dimensional arrays
-   x,y,z must be dimensioned exactly as [N][17][21] (N>=9) 
-   for this particular case or else they will be written to 
-   the CGNS file incorrectly!  Other options are to use 1-D 
-   arrays, use dynamic memory, or pass index values to a 
+   x,y,z must be dimensioned exactly as [N][17][21] (N>=9)
+   for this particular case or else they will be written to
+   the CGNS file incorrectly!  Other options are to use 1-D
+   arrays, use dynamic memory, or pass index values to a
    subroutine and dimension exactly there):
    */
   double x1[2][3][5],y1[2][3][5],z1[2][3][5];
@@ -426,7 +428,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   int index_zone,index_coord,index_bc;
   char basename[33],zonename[33];
   int ilo,ihi,jlo,jhi,klo,khi;
-  
+
   /* create gridpoints for simple example: */
   ni=5;
   nj=3;
@@ -447,7 +449,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
     }
   }
   printf("\ncreated simple 3-D grid points (2 zones)");
-  
+
   /*  WRITE X, Y, Z GRID POINTS TO CGNS FILE */
   /*  open CGNS file for write */
   cg_open("grid_str_2zones.cgns",CG_MODE_WRITE,&index_file);
@@ -476,7 +478,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x1,&index_coord);
   cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y1,&index_coord);
   cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z1,&index_coord);
-  
+
   ilo=1;
   ihi=isize[0][0];
   jlo=1;
@@ -549,8 +551,8 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   ipnts[1][1]=jhi;
   ipnts[1][2]=khi;
   cg_boco_write(index_file,index_base,index_zone,"Khi",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
-  
-    
+
+
   /*  define zone 2 name (user can give any name) */
   strcpy(zonename,"Zone 2");
   /*  create zone */
@@ -559,8 +561,8 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x2,&index_coord);
   cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y2,&index_coord);
   cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z2,&index_coord);
-  
-  
+
+
   ilo=1;
   ihi=isize[0][0];
   jlo=1;
@@ -636,11 +638,11 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
   /* close CGNS file */
   cg_close(index_file);
   printf("\nSuccessfully added BCs (PointRange) to file grid_c.cgns\n");
-  
+
   /*  close CGNS file */
   cg_close(index_file);
   printf("\nSuccessfully wrote grid to file grid_str_2zones.cgns\n");
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -673,8 +675,8 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
   // Write to Gmsh
   boost::filesystem::path gmsh_out ("cgns2neu2gmsh.msh");
   gmsh_writer->write_from_to(mesh_from_neu,gmsh_out);
-  
-  
+
+
   //CFinfo << mesh_from_neu->tree() << CFendl;
   BOOST_CHECK(true);
 }
@@ -683,36 +685,36 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
 
 BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
 {
-  
+
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","meshreader");
-  
+
   // the file to read from
   boost::filesystem::path fp_in ("grid_str_2zones.cgns");
-  
+
   // the mesh to store in
   CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
-    
+
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
   info->transform(mesh);
   // Write to Gmsh
   boost::filesystem::path fp_out ("grid_str_2zones.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
-  
+
   // Write to Neu
   boost::filesystem::path neu_out ("grid_str_2zones.neu");
   CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
   neu_writer->write_from_to(mesh,neu_out);
-  
+
   // Read from Neu
   CMeshReader::Ptr neu_reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   CMesh::Ptr mesh_from_neu = neu_reader->create_mesh_from(neu_out);
-  
+
   // Write to Gmsh
   boost::filesystem::path gmsh_out ("cgns2neu2gmsh_str_2zondes.msh");
   gmsh_writer->write_from_to(mesh_from_neu,gmsh_out);
-  
-  
+
+
   CFinfo << mesh_from_neu->tree() << CFendl;
   BOOST_CHECK(true);
 
@@ -722,17 +724,17 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
 
 BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
 {
-  
+
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","meshreader");
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
 
-  
+
   // the file to read from
   boost::filesystem::path fp_in ("grid_c.cgns");
-  
+
   // the mesh to store in
   CMesh::Ptr mesh (new CMesh("mesh"), Deleter<CMesh>());
-    
+
   for (Uint count=0; count<4; ++count)
   {
     meshreader->read_from_to(fp_in,mesh);
@@ -740,7 +742,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
     BOOST_CHECK_EQUAL(find_component<CRegion>(*mesh).recursive_elements_count(), (1+count)*3776);
   }
   info->transform(mesh);
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -748,20 +750,20 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
 BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","meshreader");
-  
+
   // the files to read from and write to
   boost::filesystem::path fp_in ("grid_c.cgns");
   boost::filesystem::path fp_out ("grid_c2cgns.cgns");
-  
+
   // the mesh to store in
   CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
-  
+
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.CGNS.CWriter","meshwriter");
 
   meshwriter->write_from_to(mesh,fp_out);
-  
+
   CMesh::Ptr mesh2 = meshreader->create_mesh_from(fp_out);
-    
+
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
   //info->transform(mesh2);
 
@@ -782,21 +784,21 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_mixed )
   // the files to read from and write to
   boost::filesystem::path fp_in ("quadtriag.neu");
   boost::filesystem::path fp_out ("quadtriag2cgns.cgns");
-  
+
   // the mesh to store in
   CMesh::Ptr mesh = neu_reader->create_mesh_from(fp_in);
-  
+
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.CGNS.CWriter","meshwriter");
-  
+
   meshwriter->write_from_to(mesh,fp_out);
-  
+
   CMeshReader::Ptr cgns_reader = create_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","meshreader");
-  
+
   CMesh::Ptr mesh2 = cgns_reader->create_mesh_from(fp_out);
-    
+
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
   //info->transform(mesh2);
-  
+
   // Write to Gmsh
   boost::filesystem::path gmsh_out ("quadtriag2cgns2gmsh.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");

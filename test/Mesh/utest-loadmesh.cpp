@@ -23,6 +23,7 @@
 
 using namespace CF;
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::Mesh;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -34,26 +35,25 @@ BOOST_AUTO_TEST_SUITE( LoadMesh_Suite )
 BOOST_AUTO_TEST_CASE( constructor )
 {
   BOOST_CHECK(true);
-  
+
   CDomain::Ptr domain = Core::instance().root()->create_component<CDomain>("Domain");
-  
+
   BOOST_CHECK(true);
-  
+
   LoadMesh::Ptr load_mesh = Core::instance().root()->create_component<LoadMesh>("load_mesh");
-  
+
   BOOST_CHECK(true);
-  
-  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
-  XmlParams p(node);
+
+  SignalFrame frame("Target", "//Root", "//Root");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:rotation-tg-p1.neu" );
-  p.add_option<URI>("Parent Component", URI( domain->full_path().string()) );
-  p.add_array("Files", files);
-  
-  load_mesh->signal_load_mesh(node);
+  options.set_option<URI>("Parent Component", URI( domain->full_path().string()) );
+  options.set_array("Files", files, " ; ");
+
+  load_mesh->signal_load_mesh(frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -24,6 +24,7 @@
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
 
@@ -90,24 +91,24 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
   // create the xml parameters for the signal
 
-  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
-  XmlParams xmlp (node);
+
+  SignalFrame frame("Target", "//Root", "//Root");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   BOOST_CHECK(true);
 
   std::vector<URI> files;
   files.push_back( "file:rectangle-tg-p2.msh" );
 
-  xmlp.add_option<URI>("Parent Component", URI( Core::instance().root()->get_child("Domain")->full_path().string()) );
-  xmlp.add_array("Files", files);
+  options.set_option<URI>("Parent Component", URI( Core::instance().root()->get_child("Domain")->full_path().string()) );
+  options.set_array("Files", files, " ; ");
 
   // get the generic mesh loader from the Tools
 
   LoadMesh::Ptr load_mesh = Core::instance().root()->get_child("Tools")->get_child<LoadMesh>("LoadMesh");
   cf_assert( is_not_null(load_mesh) );
 
-  load_mesh->signal_load_mesh( node );
+  load_mesh->signal_load_mesh( frame );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
