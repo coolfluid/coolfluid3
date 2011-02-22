@@ -18,6 +18,9 @@ namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
 
+/// Component to maintain convergence history
+/// @author Gil Wertz
+/// @author Quentin Gasper
 class CHistory :
     public Component
 {
@@ -36,7 +39,7 @@ public:
     /// Get the class name
     static std::string type_name () { return "CHistory"; }
 
-    void convergence_history( XmlNode & node );
+    void convergence_history( Signal::arg_t & args );
 
     /// @param points Number of points to compute.
     void sine (int points);

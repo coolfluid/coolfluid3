@@ -10,6 +10,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/XML/Protocol.hpp"
 
 #include "Solver/CModel.hpp"
 
@@ -20,6 +21,7 @@ namespace CF {
 namespace Solver {
 
 using namespace Common;
+using namespace Common::XML;
 using namespace Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,21 +72,22 @@ CDomain::Ptr CModel::create_domain( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signature_create_domain ( Common::XmlNode& node )
+void CModel::signature_create_domain ( Common::Signal::arg_t& node )
 {
-  XmlParams p(node);
-  p.add_option<URI>("File", URI(), "Location of the file holding the mesh" );
+  SignalFrame& options = node.map( Protocol::Tags::key_options() );
+
+  options.set_option<URI>("File", URI(), "Location of the file holding the mesh" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signal_create_domain ( Common::XmlNode& node )
+void CModel::signal_create_domain ( Common::Signal::arg_t& node )
 {
-  XmlParams p ( node );
+  SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
   CDomain::Ptr domain = this->create_domain("Domain"); // dispatch to virtual function
 
-  URI file = p.get_option<URI>("File");
+  URI file = options.get_option<URI>("File");
   if (!file.empty())
     domain->signal_load_mesh( node );
 }

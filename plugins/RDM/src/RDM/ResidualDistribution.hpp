@@ -53,12 +53,12 @@ public: // functions
   //@{
 
   /// signature for @see signal_create_boundary_term
-  void signature_signal_create_boundary_term( Common::XmlNode& node );
+  void signature_signal_create_boundary_term( Common::Signal::arg_t& node );
   /// creates a boundary term
   void signal_create_boundary_term( Common::Signal::arg_t& xml );
 
   /// signature for @see signal_create_boundary_term
-  void signature_create_domain_term( Common::XmlNode& node );
+  void signature_create_domain_term( Common::Signal::arg_t& node );
   /// creates a domain term
   void signal_create_domain_term( Common::Signal::arg_t& xml );
 

@@ -56,18 +56,18 @@ public: // functions
   //@{
 
   /// Signature of create domain signal @see signal_create_domain
-  void signature_create_domain ( Common::XmlNode& node );
+  void signature_create_domain ( Common::Signal::arg_t& node );
   /// Signal to create a domain and load a mesh into it
-  void signal_create_domain ( Common::XmlNode& node );
+  void signal_create_domain ( Common::Signal::arg_t& node );
 
   /// Signal to start simulating
-  void signal_simulate ( Common::XmlNode& node );
+  void signal_simulate ( Common::Signal::arg_t& node );
 
   //@} END SIGNALS
-  
+
 
 protected:
-  
+
   /// path to working directory
   Common::URI m_working_dir;
 

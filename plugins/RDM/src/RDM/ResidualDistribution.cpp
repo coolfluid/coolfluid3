@@ -137,24 +137,25 @@ void ResidualDistribution::signal_create_boundary_term( Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ResidualDistribution::signature_signal_create_boundary_term( XmlNode& node )
+void ResidualDistribution::signature_signal_create_boundary_term( Signal::arg_t& node )
 {
   const bool basic = true;
 
-  XmlParams p(node);
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
   // name
-  p.add_option<std::string>("Name", std::string(), "Name for created boundary term" );
+  options.set_option<std::string>("Name", std::string(), "Name for created boundary term" );
 
   // type
   std::vector< boost::any > restricted;
   restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-  p.add_option<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary", basic, restricted );
+  XmlNode type_node = options.set_option<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary");
+  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
-  p.add_array<URI>("Regions", dummy , "Regions where to apply the boundary condition" );
+  options.set_array<URI>("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -176,24 +177,25 @@ void ResidualDistribution::signal_create_domain_term( Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ResidualDistribution::signature_create_domain_term( XmlNode& node )
+void ResidualDistribution::signature_create_domain_term( Signal::arg_t& node )
 {
   const bool basic = true;
 
-  XmlParams p(node);
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
   // name
-  p.add_option<std::string>("Name", std::string(), "Name for created volume term" );
+  options.set_option<std::string>("Name", std::string(), "Name for created volume term" );
 
   // type
   std::vector< boost::any > restricted;
   restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-  p.add_option<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary", basic, restricted );
+  XmlNode type_node = options.set_option<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary");
+  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
-  p.add_array<URI>("Regions", dummy , "Regions where to apply the boundary condition" );
+  options.set_array<URI>("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

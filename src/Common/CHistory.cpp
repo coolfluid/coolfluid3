@@ -6,57 +6,59 @@
 
 #include <cmath>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
-
 #include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/Log.hpp"
 
-#include "Common/XmlHelpers.hpp"
-
 #include "Common/CHistory.hpp"
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+using namespace CF::Common::XML;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common {
 
+/////////////////////////////////////////////////////////////////////////////////////
+
 ComponentBuilder < CHistory, Component, LibCommon > CHistory_Builder;
 
+/////////////////////////////////////////////////////////////////////////////////////
+
 CHistory::CHistory(const std::string& name) :
-    Component(name),m_num_it(10000)
+    Component(name),
+    m_num_it(10000)
 {
   regist_signal("convergence_history", "Lists convergence history", "Get history")->
       connect( boost::bind( &CHistory::convergence_history, this, _1));
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+
 CHistory::~CHistory()
 {
 
 }
 
-void CHistory::convergence_history( XmlNode & node )
-{
-  XmlNode & reply = *XmlOps::add_reply_frame( node );
-  XmlParams p(reply);
+/////////////////////////////////////////////////////////////////////////////////////
 
-//  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-//  CFinfo << "avant sine @ " << boost::posix_time::to_simple_string(now) << CFendl;
+void CHistory::convergence_history( Signal::arg_t & args )
+{
+  SignalFrame reply = args.create_reply( full_path() );
+  SignalFrame& options = reply.map( Protocol::Tags::key_options() );
 
   sine(m_num_it);
 
-//  now = boost::posix_time::second_clock::local_time();
-//  CFinfo << "avant add_array @ " << boost::posix_time::to_simple_string(now) << CFendl;
-
-  p.add_array("x_axis", m_x_axis);
-  p.add_array("y_axis", m_y_axis);
-
-//  now = boost::posix_time::second_clock::local_time();
-//  CFinfo << "apres add_array @ " << boost::posix_time::to_simple_string(now) << CFendl;
+  options.set_array("x_axis", m_x_axis, " ; ");
+  options.set_array("y_axis", m_y_axis, " ; ");
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 void CHistory::sine(int points)
 {
@@ -65,11 +67,14 @@ void CHistory::sine(int points)
 
   for (double x = 0; x < points; ++x)
   {
-    m_x_axis[x] = x; // x entre 0 et nbPoints
-    m_y_axis[x] = (std::sin(x/(points/10)) * 20); //y entre 20 et -20
+    m_x_axis[x] = x; // x between 0 and points
+    m_y_axis[x] = (std::sin(x/(points/10)) * 20); // y between 20 and -20
   }
+
   m_num_it += m_num_it;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF

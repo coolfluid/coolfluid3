@@ -68,7 +68,7 @@ void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
   CPhysicalModel::Ptr pm = model->create_component<CPhysicalModel>("Physics");
   pm->mark_basic();
 
-  std::string phys  = p.get_option<std::string>("Physical model");
+  std::string phys  = options.get_option<std::string>("Physical model");
 
   pm->configure_property( "Type", phys );
   pm->configure_property( "DOFs", 1u );

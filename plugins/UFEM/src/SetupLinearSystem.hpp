@@ -37,9 +37,9 @@ public: // functions
   //@{
 
   /// Signal to create a model
-  void create_model ( Common::XmlNode& node );
+  void create_model ( Common::Signal::arg_t& node );
 
-  void create_model_signature ( Common::XmlNode& node );
+  void create_model_signature ( Common::Signal::arg_t& node );
 
   //@} END SIGNALS
 };

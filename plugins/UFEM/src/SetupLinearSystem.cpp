@@ -27,6 +27,7 @@ namespace CF {
 namespace UFEM {
 
 using namespace Common;
+using namespace Common::XML;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
@@ -46,13 +47,13 @@ SetupLinearSystem::SetupLinearSystem(const std::string& name) : Component ( name
       boost::bind( &SetupLinearSystem::create_model_signature, this, _1));
 }
 
-void SetupLinearSystem::create_model(Common::XmlNode& node)
+void SetupLinearSystem::create_model( Signal::arg_t& node)
 {
-  XmlParams p ( node );
+  SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
   // create the model
-  const std::string solver_name = p.get_option<std::string>("Solver");
-  const std::string name  = p.get_option<std::string>("Model name");
+  const std::string solver_name = options.get_option<std::string>("Solver");
+  const std::string name  = options.get_option<std::string>("Model name");
 
   CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
 
@@ -79,9 +80,9 @@ void SetupLinearSystem::create_model(Common::XmlNode& node)
   model->add_component( mesh_reader );
 }
 
-void SetupLinearSystem::create_model_signature( XmlNode& node )
+void SetupLinearSystem::create_model_signature( Signal::arg_t& node )
 {
-  XmlParams p(node);
+  SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
   std::vector<URI> dummy;
   CFactory::Ptr linear_system_factory = Core::instance().factories()->get_factory<LinearSystem>();
@@ -94,10 +95,10 @@ void SetupLinearSystem::create_model_signature( XmlNode& node )
   }
 
   // create de value and add the restricted list
-  XmlNode& systems_node = *XmlParams::add_value_to(*p.option_map, "Solver", std::string() , "Available solvers" );
-  XmlParams::add_array_to(systems_node, XmlParams::tag_attr_restricted_values(), systems);
+  XmlNode systems_node = options.set_option( "Solver", std::string() , "Available solvers" );
+  Map(systems_node).set_array( Protocol::Tags::key_restricted_values(), systems, " ; " );
 
-  p.add_option<std::string>("Model name", std::string(), "Name for created model" );
+  options.set_option<std::string>("Model name", std::string(), "Name for created model" );
 }
 
 } // UFEM

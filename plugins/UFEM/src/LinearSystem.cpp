@@ -66,7 +66,7 @@ void LinearSystem::dirichlet_bc_signature(Signal::arg_t& args)
 }
 
 
-void LinearSystem::add_dirichlet_bc( Signal::arg_t& node )
+void LinearSystem::add_dirichlet_bc( Signal::arg_t& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -81,7 +81,7 @@ void LinearSystem::add_dirichlet_bc( Signal::arg_t& node )
   bc->add_tag("dirichlet_bc");
 }
 
-void LinearSystem::add_initial_condition_signature(Signal::arg_t& node)
+void LinearSystem::add_initial_condition_signature(Signal::arg_t& args)
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -91,7 +91,7 @@ void LinearSystem::add_initial_condition_signature(Signal::arg_t& node)
 }
 
 
-void LinearSystem::add_initial_condition( Signal::arg_t& node )
+void LinearSystem::add_initial_condition( Signal::arg_t& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
