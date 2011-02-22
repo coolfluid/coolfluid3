@@ -11,8 +11,6 @@
 
 #include <QThread>
 
-#include "Common/XmlHelpers.hpp"
-
 #include "GUI/Client/Core/LibClientCore.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -26,18 +24,18 @@ namespace ClientCore {
 class ClientCore_API ProcessingThread : public QThread
 {
   Q_OBJECT
-  
+
 public:
 
-  ProcessingThread(boost::shared_ptr<Common::XmlDoc> m_node);
+  ProcessingThread(Common::XML::XmlDoc::Ptr m_node);
 
   void run();
 
-  CF::Common::XmlNode & getNode() const;
+  Common::XML::XmlNode & getNode() const;
 
 private:
 
-  boost::shared_ptr<Common::XmlDoc> m_node;
+  Common::XML::XmlDoc::Ptr m_node;
 
 }; // ProcessingThread
 

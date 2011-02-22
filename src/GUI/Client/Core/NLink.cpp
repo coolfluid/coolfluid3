@@ -20,6 +20,7 @@
 #include "GUI/Client/Core/NLink.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 
 NLink::NLink(const QString & name)
@@ -80,7 +81,7 @@ void NLink::setTargetNode(const CNode::Ptr & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLink::goToTarget(XmlNode & node)
+void NLink::goToTarget(Signal::arg_t & )
 {
 	if ( is_null(m_target) )
 		throw ValueNotFound (FromHere(), "Target of this link is not set or not valid");
@@ -97,37 +98,15 @@ void NLink::goToTarget(XmlNode & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLink::changeTarget()
+void NLink::change_link(Signal::arg_t & args)
 {
-	throw NotImplemented(FromHere(), "This feature uses GUI");
-//  SelectPathDialog spd;
-
-//  CPath path = spd.show(m_target->full_path());
-
-//  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
-//  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
-
-//  XmlNode * signal = XmlOps::add_signal_frame(*docNode, "change_link", full_path(),
-//                           full_path(), true);
-//  XmlParams p(*signal);
-
-//  p.add_option("target_path", path.string());
-
-//  ClientRoot::instance().core()->sendSignal(*root.get());
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NLink::change_link(CF::Common::XmlNode & node)
-{
-  XmlParams p(node);
+  SignalFrame & options = args.map( Protocol::Tags::key_options() );
 
   try
   {
-    std::string path = p.get_option<std::string>("target_path");
+    std::string path = options.get_option<std::string>("target_path");
 
-    this->setTargetPath(p.get_option<std::string>("target_path"));
+    this->setTargetPath(path);
 
     ClientRoot::instance().log()->addMessage(QString("Link '%1' now points to '%2'.")
                                      .arg(full_path().path().c_str()).arg(path.c_str()));

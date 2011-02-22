@@ -300,7 +300,7 @@ namespace ClientCore {
     /// @brief Signal called when the tree needs to be updated
 
     /// @param node New tree
-    void list_tree_reply(CF::Common::XmlNode & node);
+    void list_tree_reply(CF::Common::Signal::arg_t & node);
 
     /// @} END Signals
 

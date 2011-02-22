@@ -9,6 +9,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -64,7 +65,7 @@ QString NJournal::toolTip() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NJournal::list_journal(XmlNode & node)
+void NJournal::list_journal(Signal::arg_t &)
 {
   emit journalRequest(false);
 }

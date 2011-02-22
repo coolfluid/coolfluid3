@@ -15,7 +15,6 @@
 #include <QDebug>
 
 #include "Common/URI.hpp"
-#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/UI/SignatureDialog.hpp"
 
@@ -24,6 +23,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -106,10 +106,9 @@ void SignalManager::actionTriggered()
       m_node->requestSignalSignature( m_signals[action].name );
     else
     {
-      boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
-      XmlNode * nodedoc = XmlOps::goto_doc_node(*xmldoc.get());
-      m_node->localSignature(m_signals[action].name, *nodedoc);
-      signalSignature(nodedoc);
+      SignalFrame frame("","","");
+      m_node->localSignature(m_signals[action].name, frame);
+      signalSignature(frame);
     }
   }
 }
@@ -130,31 +129,25 @@ void SignalManager::actionHovered()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void SignalManager::signalSignature(XmlNode * node)
+void SignalManager::signalSignature(Signal::arg_t & args)
 {
-  cf_assert(node != nullptr);
-
   if(m_waitingForSignature)
   {
     URI path = m_node->full_path();
     ActionInfo & info = m_signals[m_currentAction];
-    boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-    XmlNode & doc_node = *XmlOps::goto_doc_node(*doc.get());
-    XmlNode & frame = *XmlOps::add_signal_frame(doc_node, info.name.toStdString(),
-                                                path, path, true);
-    XmlParams p(frame);
-    XmlParams originalp(*node);
+    const char * tag = Protocol::Tags::key_options();
 
-    XmlNode & map = *p.add_map(XmlParams::tag_key_options());
+    SignalFrame frame(info.name.toStdString(), path, path);
+    SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-    if(originalp.option_map != nullptr)
-      XmlOps::deep_copy(*originalp.option_map, map);
+    if( args.has_map(tag) )
+      args.map(tag).main_map.content.deep_copy( options.main_map.content );
 
     try
     {
       SignatureDialog * sg = new SignatureDialog();
 
-      if(sg->show(map, m_currentAction->text()))
+      if(sg->show(options.main_map.content, m_currentAction->text()))
       {
         if(m_localStatus[m_currentAction])
         {
@@ -168,7 +161,7 @@ void SignalManager::signalSignature(XmlNode * node)
           }
         }
         else
-          ClientRoot::instance().core()->sendSignal(*doc);
+          ClientRoot::instance().core()->sendSignal(frame);
       }
 
       delete sg;

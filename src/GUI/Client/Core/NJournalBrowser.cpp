@@ -12,7 +12,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include "Common/XmlHelpers.hpp"
+#include "rapidxml/rapidxml.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/SignalNode.hpp"
@@ -22,6 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -189,14 +190,14 @@ const SignalNode & NJournalBrowser::signal(const QModelIndex & index) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NJournalBrowser::setRootNode(const Common::XmlNode * rootNode)
+void NJournalBrowser::setRootNode(const XmlNode * rootNode)
 {
   emit layoutAboutToBeChanged();
 
   m_rootNode = rootNode;
 
   if(m_rootNode != nullptr)
-    m_doc = ClientRoot::instance().docFromPtr(m_rootNode->document());
+    m_doc = ClientRoot::instance().docFromPtr(new XmlDoc(m_rootNode->content->document()));
   else
     m_doc = boost::shared_ptr<XmlDoc>();
 
@@ -204,10 +205,10 @@ void NJournalBrowser::setRootNode(const Common::XmlNode * rootNode)
 
   if(m_rootNode != nullptr)
   {
-    const XmlNode * currNode = m_rootNode->first_node("frame");
+    rapidxml::xml_node<> * currNode = m_rootNode->content->first_node("frame");
 
     for( ; currNode != nullptr ; currNode = currNode->next_sibling() )
-      m_children.append(new SignalNode(currNode));
+      m_children.append(new SignalNode(new SignalFrame(currNode)));
   }
 
   // the underlying data changed, so we tell the view(s) to update
@@ -219,23 +220,17 @@ void NJournalBrowser::setRootNode(const Common::XmlNode * rootNode)
 
 void NJournalBrowser::requestJournal()
 {
-  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
-  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+  SignalFrame frame("list_journal", full_path(), SERVER_JOURNAL_PATH);
 
-  XmlOps::add_signal_frame(*docNode, "list_journal", full_path(),
-                           SERVER_JOURNAL_PATH, true);
-
-  ClientRoot::instance().core()->sendSignal(*root.get());
+  ClientRoot::instance().core()->sendSignal(frame);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NJournalBrowser::list_journal(XmlNode & node)
+void NJournalBrowser::list_journal(Signal::arg_t & args)
 {
-  XmlOps::write_xml_node(node, "./journal.xml");
-
-  setRootNode(node.first_node());
+  setRootNode(&args.node);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -250,28 +245,25 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
     throw ValueNotFound(FromHere(), "Index is not part of this model");
 
   std::stringstream ss;
-  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-  XmlNode & frameNode = *XmlOps::add_node_to(*XmlOps::goto_doc_node(*doc.get()), "tmp");
-  SignalNode * node = indexToSignalNode(index);
-  XmlOps::deep_copy(*node->node(), frameNode);
+  SignalFrame frame("","","");
 
-  XmlAttr * clientIdAttr = frameNode.first_attribute( XmlParams::tag_attr_clientid() );
-  XmlAttr * frameIdAttr = frameNode.first_attribute( XmlParams::tag_attr_frameid() );
+  SignalNode * signal_node = indexToSignalNode(index);
+  signal_node->node()->node.deep_copy(frame.node);
+
+  rapidxml::xml_attribute<> * clientIdAttr;
+
+  clientIdAttr = frame.node.content->first_attribute( "clientid" );
 
   // if found,  we remove the old client UUID.
   // (sending the signal automatically adds the correct UUID)
   if(clientIdAttr != nullptr)
-    frameNode.remove_attribute(clientIdAttr);
+    frame.node.content->remove_attribute(clientIdAttr);
 
-  // if found,  we remove the old frame UUID...
-  if(frameIdAttr != nullptr)
-    frameNode.remove_attribute(frameIdAttr);
-
-  // ...and we add a newly generated one
+  // modify the frame UUID
   ss << boost::uuids::random_generator()();
-  XmlOps::add_attribute_to(frameNode, XmlParams::tag_attr_frameid(), ss.str() );
+  frame.node.set_attribute( Protocol::Tags::attr_frameid(), ss.str());
 
-  ClientRoot::instance().core()->sendSignal(*doc.get());
+  ClientRoot::instance().core()->sendSignal(frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////

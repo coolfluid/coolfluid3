@@ -12,10 +12,13 @@
 #include "Common/Core.hpp"
 #include "Common/Exception.hpp"
 
+#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/UI/MainWindow.hpp"
 #include "GUI/Client/UI/JournalBrowserDialog.hpp"
 
 using namespace CF::Common;
+using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 
 int main(int argc, char *argv[])
@@ -35,6 +38,9 @@ int main(int argc, char *argv[])
   {
    MainWindow window;
    window.showMaximized();
+//   TSshInformation info("localhost", 62784);
+
+//   ClientRoot::instance().core()->connectToServer(info);
    returnValue = app.exec();
   }
   catch(Exception e)

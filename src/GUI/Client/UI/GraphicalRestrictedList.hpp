@@ -48,13 +48,7 @@ namespace ClientUI {
 
     template<typename TYPE>
     void vectToStringList(const std::vector<boost::any> & vect,
-                          QStringList & list) const
-    {
-      std::vector<boost::any>::const_iterator it = vect.begin();
-
-      for( ; it != vect.end() ; it++)
-        list << CF::Common::from_value( boost::any_cast<TYPE>(*it) ).c_str();
-    }
+                          QStringList & list) const;
   }; // class GraphicalRestrictedList
 
   /////////////////////////////////////////////////////////////////////////////

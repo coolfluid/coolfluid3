@@ -9,10 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QObject>
 #include <QAbstractSocket>
-
-#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 
@@ -85,7 +82,7 @@ namespace ClientCore {
     /// otherwise, returns @c false.
     bool isConnected() const;
 
-    bool send(CF::Common::XmlDoc & signal);
+    bool send(Common::Signal::arg_t & signal);
 
     void saveNetworkInfo () const;
 
@@ -93,9 +90,6 @@ namespace ClientCore {
 
     /// @brief Slot called when there is an error on the socket.
     void newData();
-
-    /// @brief Slot called when the connection has been successfully established.
-    void connectionEstablished();
 
     /// @brief Slot called when the connection has been broken.
     void disconnected();
@@ -141,10 +135,6 @@ namespace ClientCore {
 
     /// @brief Indicates wether the upper level requested a disconnection.
     bool m_requestDisc;
-
-    /// @brief Indicates wether the m_socket is open and connected to the
-    /// server.
-    bool m_connectedToServer;
 
     /// @brief Indicates wether a "Connection refused" error must be skip.
 

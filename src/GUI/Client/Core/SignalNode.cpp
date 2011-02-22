@@ -6,13 +6,17 @@
 
 #include <QString>
 
+#include "rapidxml/rapidxml.hpp"
+
 #include "Common/CF.hpp"
+#include "Common/XML/SignalFrame.hpp"
 
 #include "GUI/Client/Core/SignalNode.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +26,7 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////
 
-SignalNode::SignalNode(const XmlNode * node) :
+SignalNode::SignalNode(const SignalFrame * node) :
     m_node(node)
 {
   cf_assert(node != nullptr);
@@ -33,7 +37,7 @@ SignalNode::SignalNode(const XmlNode * node) :
 
 QString SignalNode::target() const
 {
-  XmlAttr * attr = m_node->first_attribute("target");
+  rapidxml::xml_attribute<>* attr = m_node->node.content->first_attribute("target");
 
   if(attr != nullptr)
     return attr->value();
@@ -46,7 +50,7 @@ QString SignalNode::target() const
 
 QString SignalNode::sender() const
 {
-  XmlAttr * attr = m_node->first_attribute("sender");
+  rapidxml::xml_attribute<>* attr = m_node->node.content->first_attribute("sender");
 
   if(attr != nullptr)
     return attr->value();
@@ -60,7 +64,7 @@ QString SignalNode::sender() const
 
 QString SignalNode::receiver() const
 {
-  XmlAttr * attr = m_node->first_attribute("receiver");
+  rapidxml::xml_attribute<>* attr = m_node->node.content->first_attribute("receiver");
 
   if(attr != nullptr)
     return attr->value();
@@ -73,7 +77,7 @@ QString SignalNode::receiver() const
 
 QString SignalNode::type() const
 {
-  XmlAttr * attr = m_node->first_attribute("type");
+  rapidxml::xml_attribute<>* attr = m_node->node.content->first_attribute("type");
 
   if(attr != nullptr)
     return attr->value();
@@ -94,7 +98,7 @@ QString SignalNode::direction() const
 
 QString SignalNode::time() const
 {
-  XmlAttr * attr = m_node->first_attribute("time");
+  rapidxml::xml_attribute<>* attr = m_node->node.content->first_attribute("time");
 
   if(attr != nullptr)
     return attr->value();
@@ -105,7 +109,7 @@ QString SignalNode::time() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-const XmlNode * SignalNode::node() const
+const SignalFrame * SignalNode::node() const
 {
   return m_node;
 }

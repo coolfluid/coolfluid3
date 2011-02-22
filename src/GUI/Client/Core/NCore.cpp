@@ -21,6 +21,7 @@
 
 using namespace std;
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::Network;
 
@@ -48,7 +49,7 @@ NCore::~NCore()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NCore::sendSignal(XmlDoc & signal)
+void NCore::sendSignal(Signal::arg_t & signal)
 {
   m_networkComm->send(signal);
 }
@@ -96,12 +97,8 @@ QString NCore::toolTip() const
 
 void NCore::updateTree()
 {
-  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
-  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
-
-  XmlOps::add_signal_frame(*docNode, "list_tree", CLIENT_TREE_PATH,
-                           SERVER_ROOT_PATH, true);
-  m_networkComm->send(*root.get());
+  SignalFrame frame("list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
+  m_networkComm->send(frame);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -132,19 +129,15 @@ void NCore::connected()
   ClientRoot::instance().log()->addMessage(msg2.arg(uuid.c_str()));
 
   // build and send signal
-  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
-  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+  SignalFrame frame("client_registration", CLIENT_CORE_PATH, SERVER_CORE_PATH);
 
-  XmlOps::add_signal_frame(*docNode, "client_registration", CLIENT_CORE_PATH,
-                           SERVER_ROOT_PATH, true);
-
-  m_networkComm->send(*root.get());
+  m_networkComm->send(frame);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NCore::shutdown(XmlNode & node)
+void NCore::shutdown(Signal::arg_t & node)
 {
   ClientRoot::instance().log()->addMessage("The server is shutting down. Disconnecting...");
   this->disconnectFromServer(false);
@@ -153,11 +146,9 @@ void NCore::shutdown(XmlNode & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NCore::client_registration(XmlNode & node)
+void NCore::client_registration(Signal::arg_t & node)
 {
-  XmlParams p(node);
-
-  if(p.get_option<bool>("accepted"))
+  if( node.map(Protocol::Tags::key_options()).get_option<bool>("accepted") )
   {
     ClientRoot::instance().log()->addMessage("Registration was successful.");
     m_networkComm->saveNetworkInfo();
@@ -174,11 +165,12 @@ void NCore::client_registration(XmlNode & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NCore::frame_rejected(CF::Common::XmlNode & node)
+void NCore::frame_rejected(Signal::arg_t & args)
 {
-  XmlParams p(node);
-  string frameid = p.get_option<string>("frameid");
-  string reason = p.get_option<string>("reason");
+  SignalFrame & options = args.map( Protocol::Tags::key_options() );
+
+  string frameid = options.get_option<string>("frameid");
+  string reason = options.get_option<string>("reason");
 
   QString msg("Action %1 has been rejected by the server: %2");
 

@@ -12,7 +12,6 @@
 #include <boost/assign/list_of.hpp>
 
 #include "Common/CF.hpp"
-#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Network/ComponentNames.hpp"
@@ -22,6 +21,7 @@
 using namespace boost::assign; // for operator+=()
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::Network;
 using namespace CF::GUI::ClientCore;
 
@@ -111,12 +111,12 @@ void NLog::appendToLog(LogMessage::Type type, bool fromServer,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLog::message(XmlNode & node)
+void NLog::message(Signal::arg_t & node)
 {
-  XmlParams p(node);
+  SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
-  std::string typeStr = p.get_option<std::string>("type");
-  std::string message = p.get_option<std::string>("text");
+  std::string typeStr = options.get_option<std::string>("type");
+  std::string message = options.get_option<std::string>("text");
   LogMessage::Type type = LogMessage::Convert::instance().to_enum(typeStr);
 
   cf_assert(type != LogMessage::INVALID);

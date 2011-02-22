@@ -7,11 +7,14 @@
 #include <QComboBox>
 #include <QVBoxLayout>
 
+#include "Common/StringConversion.hpp"
 #include "Common/URI.hpp"
+#include "Common/XML/Protocol.hpp"
 
 #include "GUI/Client/UI/GraphicalRestrictedList.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientUI;
 
 GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget * parent)
@@ -27,17 +30,17 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
   {
     std::string type = opt->type();
 
-    if(type.compare(XmlTag<bool>::type()) == 0)              // bool option
+    if(type == Protocol::Tags::type<bool>())              // bool option
       vectToStringList<bool>(vect, list);
-    else if(type.compare(XmlTag<CF::Real>::type()) == 0)     // Real option
-      vectToStringList<CF::Real>(vect, list);
-    else if(type.compare(XmlTag<int>::type()) == 0)          // int option
+    else if(type == Protocol::Tags::type<Uint>())         // Real option
+      vectToStringList<Real>(vect, list);
+    else if(type == Protocol::Tags::type<int>())          // int option
       vectToStringList<int>(vect, list);
-    else if(type.compare(XmlTag<CF::Uint>::type()) == 0)     // Uint option
-      vectToStringList<CF::Uint>(vect, list);
-    else if(type.compare(XmlTag<std::string>::type()) == 0)  // string option
+    else if(type == Protocol::Tags::type<Uint>())         // Uint option
+      vectToStringList<Uint>(vect, list);
+    else if(type == Protocol::Tags::type<std::string>())  // string option
       vectToStringList<std::string>(vect, list);
-    else if(type.compare(XmlTag<URI>::type()) == 0)          // URI option
+    else if(type == Protocol::Tags::type<URI>())          // URI option
       vectToStringList<URI>(vect, list);
     else
       throw CastingFailed(FromHere(), type + ": Unknown type");
@@ -112,3 +115,35 @@ void GraphicalRestrictedList::currentIndexChanged(int)
 {
   emit valueChanged();
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+template<typename TYPE>
+void GraphicalRestrictedList::vectToStringList(const std::vector<boost::any> & vect,
+                      QStringList & list) const
+{
+  std::vector<boost::any>::const_iterator it = vect.begin();
+
+  for( ; it != vect.end() ; it++)
+    list << to_str( boost::any_cast<TYPE>(*it) ).c_str();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+#define TEMPLATE_EXPLICIT_INSTANTIATON(T) \
+Common_TEMPLATE template void GraphicalRestrictedList::vectToStringList<T>(\
+    const std::vector<boost::any>&,QStringList&) const
+
+
+TEMPLATE_EXPLICIT_INSTANTIATON( bool );
+TEMPLATE_EXPLICIT_INSTANTIATON( int );
+TEMPLATE_EXPLICIT_INSTANTIATON( CF::Uint );
+TEMPLATE_EXPLICIT_INSTANTIATON( CF::Real );
+TEMPLATE_EXPLICIT_INSTANTIATON( std::string );
+TEMPLATE_EXPLICIT_INSTANTIATON( URI );
+
+#undef TEMPLATE_EXPLICIT_INSTANTIATON
+

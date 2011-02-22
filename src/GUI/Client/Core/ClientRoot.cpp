@@ -8,8 +8,6 @@
 #include <string>
 #include <cstring>
 
-#include "Common/XmlHelpers.hpp"
-
 #include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/ProcessingThread.hpp"
 
@@ -18,6 +16,7 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::Network;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -68,17 +67,13 @@ ClientRoot::ClientRoot() :
 
 void ClientRoot::processSignalString(const QString & signal)
 {
-  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toStdString() );
-
-  std::string str;
-
-  XmlOps::xml_to_string(*xmldoc.get(), str);
+  XmlDoc::Ptr xmldoc = XmlDoc::parse_string( signal.toStdString() );
 
   ProcessingThread * pt = new ProcessingThread(xmldoc);
 
   m_threads[pt] = xmldoc;
 
-  m_currentDocs[xmldoc.get()] = xmldoc;
+  m_currentDocs[xmldoc->content] = xmldoc;
 
   connect(pt, SIGNAL(finished()), this, SLOT(processingFinished()));
 
@@ -94,7 +89,7 @@ void ClientRoot::processingFinished()
 
   if(pt != nullptr && m_threads.contains(pt))
   {
-    m_currentDocs.remove( m_threads[pt].get() );
+    m_currentDocs.remove( m_threads[pt]->content );
     m_threads.remove(pt);
 
     delete pt;
@@ -106,8 +101,8 @@ void ClientRoot::processingFinished()
 
 boost::shared_ptr<XmlDoc> ClientRoot::docFromPtr(const XmlDoc *doc) const
 {
-  if(m_currentDocs.contains(doc))
-    return m_currentDocs[doc];
+  if(m_currentDocs.contains(doc->content))
+    return m_currentDocs[doc->content];
 
   return boost::shared_ptr<XmlDoc>();
 }

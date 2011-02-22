@@ -12,8 +12,6 @@
 #include <QDialog>
 #include <QMap>
 
-#include "Common/XmlHelpers.hpp"
-
 class QDialogButtonBox;
 class QFormLayout;
 class QVBoxLayout;
@@ -21,6 +19,11 @@ class QVBoxLayout;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+namespace Common {
+  namespace XML { class XmlNode; }
+}
+
 namespace GUI {
 namespace ClientUI {
 
@@ -38,7 +41,7 @@ namespace ClientUI {
 
     ~SignatureDialog();
 
-    bool show(CF::Common::XmlNode & sig, const QString & title);
+    bool show(Common::XML::XmlNode & sig, const QString & title);
 
   private slots:
 
@@ -55,8 +58,6 @@ namespace ClientUI {
     QVBoxLayout * m_mainLayout;
 
     bool m_okClicked;
-
-    QMap<QString, CF::Common::XmlNode*> m_nodes;
 
   }; // class SignatureDialog
 

@@ -24,8 +24,6 @@
 #include <stdexcept>
 #include <cstdlib>      // for abs()
 
-#include "Common/XmlHelpers.hpp"
-
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/NLog.hpp"
@@ -38,6 +36,7 @@
 #include "GUI/Client/UI/NRemoteBrowser.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 using namespace CF::GUI::Network;
@@ -747,10 +746,9 @@ void NRemoteBrowser::updateModel(QStandardItemModel * model,
 
 void NRemoteBrowser::openDir(const QString & path)
 {
-  boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
-  XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());
-  XmlNode * signalNode = XmlOps::add_signal_frame(*rootNode, "read_dir", full_path(), SERVER_CORE_PATH, true);
-  XmlParams p(*signalNode);
+  SignalFrame frame("read_dir", full_path(), SERVER_CORE_PATH);
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+
   std::vector<std::string> vect;
   QStringList::iterator it = m_extensions.begin();
 
@@ -760,25 +758,25 @@ void NRemoteBrowser::openDir(const QString & path)
     it++;
   }
 
-  p.add_option("dirPath", path.toStdString());
-  p.add_option("includeFiles", m_includeFiles);
-  p.add_option("includeNoExtensions", m_includeNoExtension);
-  p.add_array("extensions", vect);
+  options.set_option("dirPath", path.toStdString());
+  options.set_option("includeFiles", m_includeFiles);
+  options.set_option("includeNoExtensions", m_includeNoExtension);
+  options.set_array("extensions", vect, " ; ");
 
-  m_clientCore->sendSignal(*docnode.get());
+  m_clientCore->sendSignal(frame);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t NRemoteBrowser::read_dir(Signal::arg_t & node)
+Signal::return_t NRemoteBrowser::read_dir(Signal::arg_t & args)
 {
-  XmlParams p(node);
+  SignalFrame& options = args.map( Protocol::Tags::key_options() );
 
   std::vector<std::string> dirs;
   std::vector<std::string> files;
 
-  m_currentPath = p.get_option<std::string>("dirPath").c_str();
+  m_currentPath = options.get_option<std::string>("dirPath").c_str();
 
   // add an ending '/' if the string does not have any
   if(!m_currentPath.endsWith(m_pathSep))
@@ -793,8 +791,8 @@ Signal::return_t NRemoteBrowser::read_dir(Signal::arg_t & node)
   else
     m_updatingCompleter = false;
 
-  dirs = p.get_array<std::string>("dirs");
-  files = p.get_array<std::string>("files");
+  dirs = options.get_array<std::string>("dirs");
+  files = options.get_array<std::string>("files");
 
   this->updateModel(m_viewModel, "", dirs, files, m_items);
   this->updateModel(m_completerModel, m_currentPath, dirs,

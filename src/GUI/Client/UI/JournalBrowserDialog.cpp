@@ -27,6 +27,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 
 namespace CF {
@@ -108,7 +109,7 @@ JournalBrowserDialog::~JournalBrowserDialog()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void JournalBrowserDialog::show(const Common::XmlNode *rootNode)
+void JournalBrowserDialog::show(const XmlNode * rootNode)
 {
   m_model->setRootNode(rootNode);
   m_model->requestJournal();

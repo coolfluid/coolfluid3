@@ -15,7 +15,6 @@
 #include "Common/Core.hpp"
 #include "Common/URI.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"
@@ -26,9 +25,10 @@
 
 #include "GUI/Client/Core/ClientNetworkComm.hpp"
 
+using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::Network;
-using namespace CF::Common;
 
 ClientNetworkComm::ClientNetworkComm()
 {
@@ -40,11 +40,10 @@ ClientNetworkComm::ClientNetworkComm()
   connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
           SLOT(socketError(QAbstractSocket::SocketError)));
 
-  connect(m_socket, SIGNAL(connected()), this, SLOT(connectionEstablished()));
+  connect(m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
 
   m_blockSize = 0;
   m_requestDisc = false;
-  m_connectedToServer = false;
   m_skipRefused = false;
 }
 
@@ -73,19 +72,14 @@ void ClientNetworkComm::disconnectFromServer(bool shutServer)
 {
   if(shutServer)
   {
-    boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
+    SignalFrame frame("shutdown", CLIENT_CORE_PATH, SERVER_CORE_PATH);
 
-    XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
-
-    XmlOps::add_signal_frame(*docNode, "shutdown", CLIENT_CORE_PATH, SERVER_CORE_PATH, true);
-
-    this->send(*root.get());
+    this->send(frame);
   }
 
   m_requestDisc = true;
-  m_connectedToServer = false;
 
-  // close the m_socket
+  // close the socket
   m_socket->abort();
   m_socket->close();
 }
@@ -95,7 +89,7 @@ void ClientNetworkComm::disconnectFromServer(bool shutServer)
 
 bool ClientNetworkComm::isConnected() const
 {
-  return m_connectedToServer;
+  return m_socket->state() == QAbstractSocket::ConnectedState;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -123,20 +117,21 @@ int ClientNetworkComm::send(const QString & frame) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ClientNetworkComm::send(XmlDoc & signal)
+bool ClientNetworkComm::send(Signal::arg_t & signal)
 {
+  cf_assert ( signal.node.is_valid() );
+  cf_assert ( is_not_null(signal.xml_doc.get()) );
   bool success = false;
   std::string str;
 
+  signal.node.to_string(str);
+  ClientRoot::instance().log()->addMessage(str.c_str());
+
   if(this->checkConnected())
   {
-    XmlNode& nodedoc = *XmlOps::goto_doc_node(signal);
-    XmlNode * node = nodedoc.first_node(XmlParams::tag_node_frame());
-    XmlParams p(*node);
+    signal.node.set_attribute( "clientid", ClientRoot::instance().getUUID() );
 
-    p.set_clientid(ClientRoot::instance().getUUID());
-
-    XmlOps::xml_to_string(signal, str);
+    signal.xml_doc->to_string(str);
 
     success = this->send(str.c_str()) > 0;
   }
@@ -160,15 +155,17 @@ void ClientNetworkComm::saveNetworkInfo () const
 
 bool ClientNetworkComm::checkConnected()
 {
-  if(!m_connectedToServer)
+  bool connected = isConnected();
+
+  if(!connected)
     ClientRoot::instance().log()->addError("Not connected to the server.");
 
-  return m_connectedToServer;
+  return connected;
 }
 
 /****************************************************************************
 
- SLOTS
+                                    SLOTS
 
  ****************************************************************************/
 
@@ -217,24 +214,13 @@ void ClientNetworkComm::newData()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ClientNetworkComm::connectionEstablished()
-{
-  m_connectedToServer = true;
-  emit connected();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void ClientNetworkComm::disconnected()
 {
   if(!m_requestDisc)
   {
-    ClientRoot::instance().log()->addError("The connection has been closed");
+    ClientRoot::instance().log()->addError("The connection has been closed.");
   }
   emit disconnectedFromServer();
-
-  m_connectedToServer = false;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -247,7 +233,7 @@ void ClientNetworkComm::socketError(QAbstractSocket::SocketError err)
   if(m_requestDisc)
     return;
 
-  if(m_connectedToServer)
+  if( isConnected() )
   {
     m_requestDisc = true;
     m_socket->disconnectFromHost();

@@ -73,7 +73,7 @@ namespace ClientCore {
     /// @return Returns the Client UUID
     std::string uuid() const;
 
-    void save_tree_local ( Common::XmlNode & node);
+    void save_tree_local ( Common::Signal::arg_t & node);
 
   private :
 

@@ -8,13 +8,14 @@
 #include <QTextEdit>
 #include <QVBoxLayout>
 
-#include "Common/XmlHelpers.hpp"
+#include "Common/XML/SignalFrame.hpp"
 
 #include "GUI/Client/Core/SignalNode.hpp"
 
 #include "GUI/Client/UI/SignalInspectorDialog.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +61,7 @@ void SignalInspectorDialog::show(const ClientCore::SignalNode & node)
 {
   std::string str;
 
-  XmlOps::xml_to_string(*node.node(), str);
+  node.node()->node.to_string(str);
 
   m_textArea->setText(QString(str.c_str()).replace('\t', "  "));
 

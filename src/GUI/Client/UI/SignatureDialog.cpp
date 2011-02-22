@@ -7,6 +7,9 @@
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QVBoxLayout>
+#include <QDebug>
+
+#include "rapidxml/rapidxml.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 
@@ -16,6 +19,7 @@
 #include "GUI/Client/UI/SignatureDialog.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 
@@ -47,23 +51,25 @@ SignatureDialog::~SignatureDialog()
 
 bool SignatureDialog::show(XmlNode & sig, const QString & title)
 {
-  XmlNode * node;
+  cf_assert( sig.is_valid() );
+
+  XmlNode node = sig.content->first_node();
   QString name;
+  QMap<QString, XmlNode> nodes;
 
   m_okClicked = false;
 
   this->setWindowTitle(title);
 
   m_dataLayout->clearOptions();
-  m_nodes.clear();
 
-  for(node = sig.first_node() ; node != nullptr ; node = node->next_sibling())
+  for( ; node.is_valid() ; node.content = node.content->next_sibling())
   {
-    m_dataLayout->addOption( CNode::makeOption(*node) );
+    m_dataLayout->addOption( CNode::makeOption(node) );
 
-    name = node->first_attribute(XmlParams::tag_attr_key())->value();
+    name = node.content->first_attribute( Protocol::Tags::attr_key() )->value();
 
-    m_nodes[name] = node;
+    nodes[name] = node;
   }
 
   if( m_dataLayout->hasOptions() )
@@ -76,27 +82,37 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title)
 
       m_dataLayout->options(options, true);
 
-      QMap<QString, XmlNode*>::iterator it = m_nodes.begin();
+      QMap<QString, XmlNode>::iterator it = nodes.begin();
 
-      for( ; it != m_nodes.end() ; it++)
+      for( ; it != nodes.end() ; it++)
       {
-        XmlNode & optionNode = *it.value();
-        if(std::strcmp((*it)->name(), "array") != 0)
+        XmlNode & optionNode = it.value();
+        if( Map::is_single_value(optionNode) )
         {
-          XmlNode * node = optionNode.first_node();
+          XmlNode node( optionNode.content->first_node() );
           const char * value = options[it.key()].toStdString().c_str();
 
-          node->value( node->document()->allocate_string(value) );
+          node.content->value( node.content->document()->allocate_string(value) );
         }
         else
         {
           QStringList value = options[it.key()].split("@@");
           QStringList::iterator itValue = value.begin();
 
-          optionNode.remove_all_nodes();
+          std::string delim(optionNode.content->first_attribute( Protocol::Tags::attr_array_delimiter() )->value());
+          std::string val_str;
+
+
+//          optionNode.remove_all_nodes();
 
           for( ; itValue != value.end() ; itValue++)
-            XmlOps::add_node_to(optionNode, "e", itValue->toStdString());
+          {
+            if(!val_str.empty())
+              val_str += delim;
+
+            val_str += itValue->toStdString();
+          }
+//            XmlOps::add_node_to(optionNode, "e", itValue->toStdString());
 
         }
       }

@@ -18,6 +18,7 @@
 #include "GUI/Client/Core/NRoot.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 
 NRoot::NRoot(const QString & name)
@@ -77,24 +78,17 @@ std::string NRoot::uuid() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NRoot::save_tree_local ( Common::XmlNode & node )
+void NRoot::save_tree_local ( Signal::arg_t & )
 {
   if( !ClientRoot::instance().core()->isConnected() )
     ClientRoot::instance().log()->addError("The client needs to be connected to a server to do that.");
   else
   {
-    boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
-    XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
-    XmlNode * frameNode;
-    XmlNode * mapNode;
+    SignalFrame frame("save_tree", CLIENT_ROOT_PATH, SERVER_ROOT_PATH);
+    SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-    frameNode = XmlOps::add_signal_frame(*docNode, "save_tree", CLIENT_ROOT_PATH,
-                                         SERVER_ROOT_PATH, true);
+    options.set_option("filename", URI("./server-tree.xml", URI::Scheme::FILE));
 
-    mapNode = XmlOps::add_node_to(*frameNode, XmlParams::tag_node_map());
-
-    XmlParams(*frameNode).add_option("filename", URI("./server-tree.xml", URI::Scheme::FILE));
-
-    ClientRoot::instance().core()->sendSignal(*root.get());
+    ClientRoot::instance().core()->sendSignal(frame);
   }
 }

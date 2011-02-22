@@ -9,13 +9,16 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/XML.hpp"
-
 class QString;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+namespace Common {
+  namespace XML { class SignalFrame; }
+}
+
 namespace GUI {
 namespace ClientCore {
 
@@ -26,7 +29,7 @@ namespace ClientCore {
 
   public:
 
-    SignalNode(const Common::XmlNode * node);
+    SignalNode(const Common::XML::SignalFrame * node);
 
     QString target() const;
 
@@ -40,11 +43,11 @@ namespace ClientCore {
 
     QString time() const;
 
-    const Common::XmlNode * node() const;
+    const Common::XML::SignalFrame * node() const;
 
   private:
 
-    const Common::XmlNode * m_node;
+    const Common::XML::SignalFrame * m_node;
 
   }; // class SignalNode
 

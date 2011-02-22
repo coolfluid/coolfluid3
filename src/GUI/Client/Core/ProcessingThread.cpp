@@ -4,14 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "rapidxml/rapidxml.hpp"
+
 #include "Common/Component.hpp"
 #include "Common/Log.hpp"
+
+#include "Common/XML/Protocol.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 
 #include "GUI/Client/Core/ProcessingThread.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -22,7 +27,7 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////
 
-ProcessingThread::ProcessingThread(boost::shared_ptr<XmlDoc> node)
+  ProcessingThread::ProcessingThread(XmlDoc::Ptr node)
   : m_node(node)
 {
   cf_assert(node.get() != nullptr);
@@ -33,12 +38,13 @@ ProcessingThread::ProcessingThread(boost::shared_ptr<XmlDoc> node)
 
 void ProcessingThread::run()
 {
-  XmlNode& nodedoc = *XmlOps::goto_doc_node(*m_node.get());
-  XmlNode * nodeToProcess = nodedoc.first_node(XmlParams::tag_node_frame());
+  const char * tag = Protocol::Tags::node_frame();
+  XmlNode nodedoc = Protocol::goto_doc_node(*m_node.get());
+  rapidxml::xml_node<>* nodeToProcess = nodedoc.content->first_node(tag);
 
   if(nodeToProcess != nullptr)
   {
-    XmlNode * tmpNode = nodeToProcess->next_sibling(XmlParams::tag_node_frame());
+    rapidxml::xml_node<>* tmpNode = nodeToProcess->next_sibling( tag );
 
     // check this is a reply
     if(tmpNode != nullptr && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
@@ -51,11 +57,12 @@ void ProcessingThread::run()
     {
       NRoot::Ptr root = ClientRoot::instance().root();
       CRoot::Ptr realRoot = root->root();
+      SignalFrame frame(nodeToProcess);
 
       if(realRoot->full_path().path() == receiver)
-        root->call_signal(type, *nodeToProcess);
+        root->call_signal(type, frame);
       else
-        realRoot->access_component(receiver)->call_signal(type, *nodeToProcess);
+        realRoot->access_component(receiver)->call_signal(type, frame);
     }
     catch(CF::Common::Exception & cfe)
     {

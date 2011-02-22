@@ -11,13 +11,8 @@
 
 #include <QObject>
 
-#include "Common/XmlHelpers.hpp"
-
 #include "GUI/Client/Core/TSshInformation.hpp"
-
 #include "GUI/Client/Core/CNode.hpp"
-
-#include "GUI/Client/Core/LibClientCore.hpp"
 
 class QString;
 
@@ -67,7 +62,7 @@ namespace ClientCore {
     /// @brief Sends a signal to the network layer
     /// @param signal The signal to send. Build the signal using @c #XmlOps and
     /// @c #XmlParams classes.
-    void sendSignal(CF::Common::XmlDoc & signal);
+    void sendSignal(CF::Common::Signal::arg_t & signal);
 
     /// @brief Attempts to connect to a server.
     /// @param sshInfo Connection information
@@ -125,7 +120,7 @@ namespace ClientCore {
 
     /// @brief Method called when the server sends a shutdown event.
     /// @param node Signal parameters. This parameter is not used.
-    void shutdown(CF::Common::XmlNode & node);
+    void shutdown(Common::Signal::arg_t & node);
 
     /// @brief Method called when the server confirms/rejects the client
     /// registration.
@@ -133,13 +128,13 @@ namespace ClientCore {
     /// "accepted". If this value is @c true, the server has accepted the
     /// registration. Otherwise the server rejects the registration, in this
     /// case, the method closes the network connection.
-    void client_registration(CF::Common::XmlNode & node);
+    void client_registration(Common::Signal::arg_t & node);
 
     /// @brief Method called when the server rejects a request.
     /// @param node Signal parameters. Should contain two values:
     /// @li a string named "uuid" that contains the rejected frame UUID
     /// @li a string named "reason" that contains the reason of the reject
-    void frame_rejected(CF::Common::XmlNode & node);
+    void frame_rejected(Common::Signal::arg_t & node);
 
     //@} END Signals
 

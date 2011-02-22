@@ -12,14 +12,10 @@
 #include <QMap>
 #include <QObject>
 #include <QStringList>
-#include <QDebug>
-
 
 #include "Common/Component.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
-#include "Common/XML.hpp"
-#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/Core/LibClientCore.hpp"
 
@@ -65,7 +61,7 @@ namespace ClientCore {
     void notifyChildCountChanged();
 
     /// Emits @c #contentChanged() signal.
-    void notifySignalSignature(Common::XmlNode * node);
+    void notifySignalSignature(Common::Signal::arg_t * node);
 
   signals:
 
@@ -73,7 +69,7 @@ namespace ClientCore {
     void childCountChanged();
 
     /// Signal emitted when a signal signature has been received.
-    void signalSignature(Common::XmlNode * node);
+    void signalSignature(Common::Signal::arg_t * node);
 
   private:
 
@@ -204,18 +200,18 @@ namespace ClientCore {
 
     /// Sets node options
     /// @param node Note containing the options
-    void setOptions(Common::XmlNode & node);
+//    void setOptions(Common::Signal::arg_t & node);
 
     /// Sets node properties
     /// @param node Note containing the options
-    void setProperties(Common::XmlNode & node);
+    void setProperties(const Common::Signal::arg_t & node);
 
     /// Sets node signals
     /// Those are considered as non-local ones, meaning that asking the node
     /// to execute them will result to the sendng of a request to the remote
     /// component.
     /// @param node Node containing the signals
-    void setSignals(Common::XmlNode & node);
+    void setSignals(const Common::Signal::arg_t & node);
 
     /// Modifies options
 
@@ -245,7 +241,7 @@ namespace ClientCore {
     /// @param node Node to convert
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr createFromXml(Common::XmlNode & node);
+    static CNode::Ptr createFromXml(Common::XML::XmlNode node);
 
     /// Casts this node to a constant component of type TYPE.
     /// @return Returns the cast pointer
@@ -320,7 +316,7 @@ namespace ClientCore {
     /// @param node THe XML node from where the option has to be created.
     /// @return Returns the created option.
     /// @note This function should be removed once the new XML layer is operational.
-    static Common::Option::Ptr makeOption(const Common::XmlNode & node);
+    static Common::Option::Ptr makeOption(const Common::XML::XmlNode & node);
 
     void requestSignalSignature(const QString & name);
 
@@ -331,23 +327,23 @@ namespace ClientCore {
     /// This methods calls @c NCore::update_tree() method to resquet an update
     /// of the tree.
     /// @param node Signal data. This parameter is not used.
-    Common::Signal::return_t update_tree( Common::XmlNode & node);
+    Common::Signal::return_t update_tree( Common::Signal::arg_t & node);
 
     /// Method called when receiving a reply to a previously sent
     /// "configure" signal.
     /// @param node An XML representation of the modified options.
-    void configure_reply(Common::XmlNode & node);
+    void configure_reply(Common::Signal::arg_t & node);
 
     /// Method called when the server replies to a @c list_content request.
     /// @param node Signal data.
-    void list_content_reply( Common::XmlNode & node );
+    void list_content_reply( Common::Signal::arg_t & node );
 
     /// Method called when the server replies to a @c
-    void signal_signature_reply( Common::XmlNode & node );
+    void signal_signature_reply( Common::Signal::arg_t & node );
 
     //@} END Signals
 
-    void localSignature(const QString & name, Common::XmlNode& node );
+    void localSignature(const QString & name, Common::Signal::arg_t& node );
 
   protected: // data
 
@@ -390,30 +386,8 @@ namespace ClientCore {
     /// @return Returns the created option.
     template<typename TYPE>
     static Common::Option::Ptr makeOptionT(const std::string & name,
-                                               const std::string & descr,
-                                               Common::XmlNode & node)
-    {
-      TYPE value;
-      Common::to_value(node, value);
-      Common::XmlNode * next = node.next_sibling();
-
-      Common::Option::Ptr option(new Common::OptionT<TYPE>(name, descr, value));
-
-      if(next != nullptr &&
-         std::strcmp(next->name(), Common::XmlTag<TYPE>::array()) == 0)
-      {
-
-        Common::XmlNode * elem_node = next->first_node("e");
-
-        for( ; elem_node != nullptr ; elem_node = elem_node->next_sibling("e"))
-        {
-          Common::to_value(*elem_node, value);
-          option->restricted_list().push_back(TYPE(value));
-        }
-      }
-
-      return option;
-    }
+                                           const std::string & descr,
+                                           Common::XML::XmlNode & node);
 
     /// Creates an @c #OptionArrayT option with values of type TYPE.
     /// @param name Option name
@@ -423,31 +397,8 @@ namespace ClientCore {
     /// @return Returns the created option.
     template<typename TYPE>
     static Common::Option::Ptr makeOptionArrayT(const std::string & name,
-                                                    const std::string & descr,
-                                                    const Common::XmlNode & node)
-    {
-      std::vector<TYPE> value;
-      //Common::to_value(node, value);
-      Common::XmlNode * next = node.next_sibling();
-
-      if(next != nullptr &&
-         std::strcmp(next->name(), Common::XmlTag<TYPE>::array()) == 0)
-      {
-
-        Common::XmlNode * elem_node = next->first_node("e");
-
-        for( ; elem_node != nullptr ; elem_node = elem_node->next_sibling("e"))
-        {
-          TYPE elem_value;
-          Common::to_value(*elem_node, elem_value);
-          value.push_back(TYPE(elem_value));
-        }
-      }
-
-      Common::Option::Ptr option(new Common::OptionArrayT<TYPE>(name, descr, value));
-
-      return option;
-    }
+                                                const std::string & descr,
+                                                const Common::XML::XmlNode & node);
 
     /// Creates an object tree from a given node
 
@@ -461,26 +412,8 @@ namespace ClientCore {
     /// @param linkTargets Map where links
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr createFromXmlRec(Common::XmlNode & node,
+    static CNode::Ptr createFromXmlRec(Common::XML::XmlNode & node,
                QMap<boost::shared_ptr<NLink>, Common::URI> & linkTargets);
-
-    /// Converts a std::vector<boost::any> to a string list.
-
-    /// Vector elements are supposed to be of type TYPE.
-    /// @param vect The vector to convert.
-    /// @return Returns the built list. May be empty, if the vector is empty.
-    /// @throw boost::bad_any_cast If the casting failed.
-    template<typename TYPE>
-    QStringList vectToStringList(const std::vector<boost::any> & vect) const
-    {
-      QStringList returnList;
-      std::vector<boost::any>::const_iterator it = vect.begin();
-
-      for( ; it != vect.end() ; it++)
-        returnList << Common::from_value( boost::any_cast<TYPE>(*it) ).c_str();
-
-      return returnList;
-    }
 
     void fetchContent();
 

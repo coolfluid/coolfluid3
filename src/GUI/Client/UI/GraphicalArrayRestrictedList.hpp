@@ -66,45 +66,11 @@ namespace ClientUI {
 
     template<typename TYPE>
     void vectToStringList(const std::vector<boost::any> & vect,
-                          QStringList & list) const
-    {
-      std::vector<boost::any>::const_iterator it = vect.begin();
-
-      try
-      {
-        for( ; it != vect.end() ; it++)
-          list << CF::Common::from_value( boost::any_cast<TYPE>(*it) ).c_str();
-      }
-      catch(boost::bad_any_cast & bac)
-      {
-        std::string realType = CF::Common::demangle(it->type().name());
-        std::string typeToCast = CF::Common::XmlTag<TYPE>::type();
-
-        throw CF::Common::CastingFailed(FromHere(), "Unable to cast [" + realType
-                                        + "] to [" + typeToCast +"]");
-      }
-    }
+                          QStringList & list) const;
 
     template<typename TYPE>
-    void anyToStringList(const boost::any & value, QStringList & list) const
-    {
-      try
-      {
-        std::vector<TYPE> vect = boost::any_cast<std::vector<TYPE> >(value);
-        typename std::vector<TYPE>::const_iterator it = vect.begin();
+    void anyToStringList(const boost::any & value, QStringList & list) const;
 
-        for( ; it != vect.end() ; it++)
-          list << CF::Common::from_value(*it).c_str();
-      }
-      catch(boost::bad_any_cast & bac)
-      {
-        std::string realType = CF::Common::demangle(value.type().name());
-        std::string typeToCast = CF::Common::XmlTag<TYPE>::type();
-
-        throw CF::Common::CastingFailed(FromHere(), "Unable to cast [" + realType
-                                        + "] to [" + typeToCast +"]");
-      }
-    }
   }; // class GraphicalArrayRestrictedList
 
   //////////////////////////////////////////////////////////////////////////

@@ -34,8 +34,8 @@ namespace ClientUI {
     static GraphicalValue * createFromOption(CF::Common::Option::ConstPtr option,
                                              QWidget * parent = nullptr);
 
-    static GraphicalValue * createFromXml(const CF::Common::XmlNode & node,
-                                          QWidget * parent = nullptr);
+//    static GraphicalValue * createFromXml(const CF::Common::XML::XmlNode & node,
+//                                          QWidget * parent = nullptr);
 
     GraphicalValue(QWidget * parent = 0);
 

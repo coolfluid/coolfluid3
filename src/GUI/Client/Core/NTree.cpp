@@ -6,10 +6,10 @@
 
 #include <QFileIconProvider>
 #include <QMutableMapIterator>
-#include <QDebug>
+
+#include "rapidxml/rapidxml.hpp"
 
 #include "Common/CF.hpp"
-#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CNode.hpp"
@@ -22,6 +22,7 @@
 #include "GUI/Client/Core/NTree.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -500,12 +501,12 @@ QVariant NTree::headerData(int section, Qt::Orientation orientation,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NTree::list_tree_reply(XmlNode & node)
+void NTree::list_tree_reply(Signal::arg_t & args)
 {
   try
   {
     NRoot::Ptr treeRoot = m_rootNode->node()->castTo<NRoot>();
-    NRoot::Ptr rootNode = CNode::createFromXml(*node.first_node())->castTo<NRoot>();
+    NRoot::Ptr rootNode = CNode::createFromXml(args.node.content->first_node())->castTo<NRoot>();
     ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
     URI currentIndexPath;
 

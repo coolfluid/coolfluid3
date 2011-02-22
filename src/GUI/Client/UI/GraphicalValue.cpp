@@ -8,8 +8,6 @@
 #include <QRegExpValidator>
 #include <QDebug>
 
-#include "Common/XML.hpp"
-
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 
@@ -26,6 +24,7 @@
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 
@@ -48,8 +47,8 @@ GraphicalValue::~GraphicalValue()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr option,
-                                        QWidget * parent)
+GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
+                                                  QWidget * parent)
 {
   GraphicalValue * value = nullptr;
 
@@ -58,7 +57,7 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
 
   std::string tag(option->tag());
 
-  if(tag.compare("array") != 0)
+  if(tag != "array" )
   {
     if(option->has_restricted_list())
       value = new GraphicalRestrictedList(option, parent);
@@ -66,17 +65,17 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
     {
       std::string type(option->type());
 
-      if(type.compare(XmlTag<bool>::type()) == 0)               // bool option
+      if(type == Protocol::Tags::type<bool>())               // bool option
         value = new GraphicalBool(option, parent);
-      else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
+      else if(type == Protocol::Tags::type<Real>())          // Real option
         value = new GraphicalDouble(option, parent);
-      else if(tag.compare(XmlTag<int>::type()) == 0)           // int option
+      else if(type == Protocol::Tags::type<int>())           // int option
         value = new GraphicalInt(false, option, parent);
-      else if(tag.compare(XmlTag<CF::Uint>::type()) == 0)      // Uint option
+      else if(type == Protocol::Tags::type<Uint>())          // Uint option
         value = new GraphicalInt(true, option, parent);
-      else if(tag.compare(XmlTag<std::string>::type()) == 0)   // string option
+      else if(type == Protocol::Tags::type<std::string>())   // string option
         value = new GraphicalString(option, parent);
-      else if(tag.compare(XmlTag<URI>::type()) == 0)           // URI option
+      else if(type == Protocol::Tags::type<URI>())           // URI option
         value = new GraphicalUri(boost::dynamic_pointer_cast<OptionURI const>(option), parent);
       else
         throw CastingFailed(FromHere(), tag + ": Unknown type");
@@ -90,29 +89,26 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
     {
       OptionArray::ConstPtr array = boost::dynamic_pointer_cast<OptionArray const>(option);
       std::string value_str = array->value_str();
+      std::string type(array->elem_type());
 
-      tag = array->elem_type();
-
-      if(tag.compare(XmlTag<bool>::type()) == 0)               // bool option
+      if(type == Protocol::Tags::type<bool>())                 // bool option
         value = new GraphicalArray(new QRegExpValidator(QRegExp("(true)|(false)|(1)|(0)"), parent), parent);
-      else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
+      else if(type == Protocol::Tags::type<Real>())            // Real option
       {
         QDoubleValidator * val = new QDoubleValidator(nullptr);
         val->setNotation(QDoubleValidator::ScientificNotation);
         value = new GraphicalArray(val, parent);
       }
-      else if(tag.compare(XmlTag<int>::type()) == 0)           // int option
+      else if(type == Protocol::Tags::type<int>())              // int option
         value = new GraphicalArray(new QIntValidator(), parent);
-      else if(tag.compare(XmlTag<CF::Uint>::type()) == 0)      // Uint option
+      else if(type == Protocol::Tags::type<Uint>())             // Uint option
         value = new GraphicalArray(new QIntValidator(0, INT_MAX, parent), parent);
-      else if(tag.compare(XmlTag<std::string>::type()) == 0)   // string option
+      else if(type == Protocol::Tags::type<std::string>())      // string option
         value = new GraphicalArray(nullptr, parent);
-      else if(tag.compare(XmlTag<URI>::type()) == 0)           // URI option
+      else if(type == Protocol::Tags::type<URI>())              // URI option
         value = new GraphicalUriArray(parent);
       else
         throw CastingFailed(FromHere(), tag + ": Unknown type");
-
-      ClientRoot::instance().log()->addMessage(QString(value_str.c_str()));
 
       value->setValue( QString(value_str.c_str()).split("@@") );
     }

@@ -101,7 +101,7 @@ namespace ClientCore {
 
     /// @brief Boost slot called when a message comes from the server
     /// @param node Signal node
-    void message(CF::Common::XmlNode & node);
+    void message(Common::Signal::arg_t & node);
 
     /// @brief Appends a message to the log
 

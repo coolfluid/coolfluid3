@@ -42,7 +42,7 @@ public: // typedefs
 
 public:
 
-  NJournalBrowser(const Common::XmlNode * rootNode, QObject * parent = 0);
+  NJournalBrowser(const Common::XML::XmlNode * rootNode, QObject * parent = 0);
 
   /// @name VIRTUAL FUNCTIONS
   //@{
@@ -109,11 +109,11 @@ public:
 
   const SignalNode & signal(const QModelIndex & index) const;
 
-  void setRootNode(const Common::XmlNode * rootNode);
+  void setRootNode(const Common::XML::XmlNode * rootNode);
 
   void requestJournal();
 
-  void list_journal(Common::XmlNode & node);
+  void list_journal(Common::Signal::arg_t & node);
 
   void sendExecSignal(const QModelIndex & index);
 
@@ -125,11 +125,11 @@ private: // data
 
   QStringList m_columns;
 
-  const Common::XmlNode * m_rootNode;
+  const Common::XML::XmlNode * m_rootNode;
 
   QList<SignalNode *> m_children;
 
-  boost::shared_ptr<Common::XmlDoc> m_doc;
+  Common::XML::XmlDoc::Ptr m_doc;
 
   /// @brief Converts an index to a signal node
 

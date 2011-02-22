@@ -11,8 +11,6 @@
 
 #include <QDialog>
 
-#include "Common/XML.hpp"
-
 #include "GUI/Client/Core/NJournal.hpp"
 #include "GUI/Client/Core/NJournalBrowser.hpp"
 
@@ -25,6 +23,11 @@ class QVBoxLayout;
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+namespace Common {
+  namespace XML { class XmlNode; }
+}
+
 namespace GUI {
 namespace ClientUI {
 
@@ -64,7 +67,7 @@ public:
 
   ~JournalBrowserDialog();
 
-  void show(const Common::XmlNode * rootNode);
+  void show(const Common::XML::XmlNode * rootNode);
 
 private slots:
 

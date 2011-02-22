@@ -12,7 +12,6 @@ ClientRoot.hpp
 NJournalBrowser.hpp
 NCore.hpp
 NJournal.hpp
-NLink.hpp
 NLog.hpp
 NTree.hpp
 NHistory.hpp

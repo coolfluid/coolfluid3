@@ -54,6 +54,7 @@ using namespace CF::GUI::ClientUI;
 using namespace CF::GUI::Network;
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 
 MainWindow::MainWindow()
   : m_logFile(new QFile(QString("coolfluid_client-") +
@@ -661,22 +662,19 @@ void MainWindow::newException(const QString & msg)
 
 void MainWindow::connectToServer()
 {
-  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
-  XmlNode & docnode = *XmlOps::goto_doc_node(*xmldoc.get());
+  SignalFrame frame("connect", "", "");
   SignatureDialog dlg(this);
   TSshInformation sshInfo;
 
-  XmlParams p(docnode);
+  frame.set_option("Hostname", std::string("localhost"),
+                   "Name of the computer that hosts the server.");
+  frame.set_option("Port number", CF::Uint(62784),
+                   "The port number the server is listening to.");
 
-  p.add_option("Hostname", std::string("localhost"),
-               "Name of the computer that hosts the server.");
-  p.add_option("Port number", CF::Uint(62784),
-               "The port number the server is listening to.");
-
-  if(dlg.show(*p.option_map, "Connect to server"))
+  if(dlg.show(frame.main_map.content, "Connect to server"))
   {
-    sshInfo.m_hostname = p.get_option<std::string>("Hostname").c_str();
-    sshInfo.m_port = p.get_option<CF::Uint>("Port number");
+    sshInfo.m_hostname = frame.get_option<std::string>("Hostname").c_str();
+    sshInfo.m_port = frame.get_option<CF::Uint>("Port number");
 
     ClientRoot::instance().core()->connectToServer(sshInfo);
   }
