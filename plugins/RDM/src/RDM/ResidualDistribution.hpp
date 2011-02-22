@@ -45,7 +45,7 @@ public: // functions
   static std::string type_name () { return "ResidualDistribution"; }
 
   // functions specific to the ResidualDistribution component
-  
+
   /// computes the discrete rhs of the PDE
   virtual void compute_rhs();
 
@@ -55,12 +55,12 @@ public: // functions
   /// signature for @see signal_create_boundary_term
   void signature_signal_create_boundary_term( Common::XmlNode& node );
   /// creates a boundary term
-  void signal_create_boundary_term( Common::XmlNode& xml );
+  void signal_create_boundary_term( Common::Signal::arg_t& xml );
 
   /// signature for @see signal_create_boundary_term
   void signature_create_domain_term( Common::XmlNode& node );
   /// creates a domain term
-  void signal_create_domain_term( Common::XmlNode& xml );
+  void signal_create_domain_term( Common::Signal::arg_t& xml );
 
   //@} END SIGNALS
 

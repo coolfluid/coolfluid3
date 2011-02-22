@@ -24,6 +24,7 @@
 using namespace boost::assign;
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
@@ -109,14 +110,14 @@ void ResidualDistribution::config_mesh()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ResidualDistribution::signal_create_boundary_term( XmlNode& xml )
+void ResidualDistribution::signal_create_boundary_term( Signal::arg_t& node )
 {
-  XmlParams p (xml);
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-  std::string name = p.get_option<std::string>("Name");
-  std::string type = p.get_option<std::string>("Type");
+  std::string name = options.get_option<std::string>("Name");
+  std::string type = options.get_option<std::string>("Type");
 
-  std::vector<URI> regions = p.get_array<URI>("Regions");
+  std::vector<URI> regions = options.get_array<URI>("Regions");
 
 // this will be for neunamm bcs
 //  CAction& face_loop =
@@ -158,14 +159,14 @@ void ResidualDistribution::signature_signal_create_boundary_term( XmlNode& node 
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ResidualDistribution::signal_create_domain_term( XmlNode& xml )
+void ResidualDistribution::signal_create_domain_term( Signal::arg_t& node )
 {
-  XmlParams p (xml);
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-  std::string name = p.get_option<std::string>("Name");
-  std::string type = p.get_option<std::string>("Type");
+  std::string name = options.get_option<std::string>("Name");
+  std::string type = options.get_option<std::string>("Type");
 
-  std::vector<URI> regions = p.get_array<URI>("Regions");
+  std::vector<URI> regions = options.get_array<URI>("Regions");
 
   CAction& cell_loop = m_compute_volume_cell_terms->create_action(type, name);
 

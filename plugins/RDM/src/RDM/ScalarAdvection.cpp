@@ -23,6 +23,7 @@ namespace CF {
 namespace RDM {
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Solver;
 
@@ -53,13 +54,13 @@ ScalarAdvection::~ScalarAdvection()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::signal_create_model ( Common::XmlNode& node )
+void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
 {
-  XmlParams p ( node );
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
   CFinfo << "creating a scalar advection model" << CFendl;
 
-  std::string name  = p.get_option<std::string>("Model name");
+  std::string name  = options.get_option<std::string>("Model name");
 
   CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
 
@@ -96,21 +97,11 @@ void ScalarAdvection::signal_create_model ( Common::XmlNode& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::signature_create_model( XmlNode& node )
+void ScalarAdvection::signature_create_model( Signal::arg_t& node )
 {
-  XmlParams p(node);
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-  p.add_option<std::string>("Model name", std::string(), "Name for created model" );
-
-  std::vector< boost::any > restricted;
-  restricted.push_back( std::string("RotationAdv2D") );
-  restricted.push_back( std::string("Burgers2D") );
-
-  p.add_option<std::string>("Physical model",
-                            std::string("LinearAdv2D" ),
-                            "Type of physical model",
-                            true,
-                            restricted );
+  options.set_option<std::string>("Model name", std::string(), "Name for created model" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
