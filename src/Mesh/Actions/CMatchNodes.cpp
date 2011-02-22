@@ -13,7 +13,7 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StreamHelpers.hpp"
-#include "Common/String/Conversion.hpp"
+#include "Common/StringConversion.hpp"
 #include "Common/OptionArray.hpp"
 
 #include "Mesh/Actions/CMatchNodes.hpp"
@@ -38,7 +38,6 @@ namespace Actions {
   using namespace Common;
   using namespace Math::MathFunctions;
   using namespace Math::MathConsts;
-  using namespace Common::String;
     
 ////////////////////////////////////////////////////////////////////////////////
 
