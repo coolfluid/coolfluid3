@@ -6,10 +6,16 @@
 
 #include <boost/foreach.hpp>
 
+#include "rapidxml/rapidxml.hpp"
+
+#include "Common/StringConversion.hpp"
+#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/Protocol.hpp"
+
 #include "Common/OptionURI.hpp"
-#include "Common/XmlHelpers.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 
 OptionURI::OptionURI(const std::string & name, const std::string & desc,
                      const URI & def) :
@@ -38,10 +44,10 @@ void OptionURI::supported_protocol(URI::Scheme::Type protocol)
 void OptionURI::configure ( XmlNode& node )
 {
   URI val;
-  XmlNode * type_node = node.first_node(XmlTag<URI>::type());
+  rapidxml::xml_node<>* type_node = node.content->first_node( tag() );
 
   if(type_node != nullptr)
-    to_value(*type_node, val);
+    from_str<URI>(type_node->value());
   else
     throw XmlError(FromHere(), "Could not find a value for this option.");
 
@@ -51,6 +57,27 @@ void OptionURI::configure ( XmlNode& node )
     throw XmlError(FromHere(), URI::Scheme::Convert::instance().to_str(protocol) + ": unsupported protocol.");
 
   m_value = val;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+const char * OptionURI::tag() const
+{
+  return Protocol::Tags::type<URI>();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::string OptionURI::value_str () const
+{
+  return to_str( value<URI>() );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::string OptionURI::def_str () const
+{
+  return to_str( def<URI>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////

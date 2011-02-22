@@ -7,9 +7,15 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
 
+#include "rapidxml/rapidxml.hpp"
+
 #include "Common/OptionArray.hpp"
+#include "Common/StringConversion.hpp"
 #include "Common/URI.hpp"
 #include "Common/Log.hpp"
+#include "Common/XML/CastingFunctions.hpp"
+
+using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
@@ -44,9 +50,10 @@ OptionArrayT<TYPE>::OptionArrayT ( const std::string& name, const std::string& d
 }
 
 template < typename TYPE >
-void OptionArrayT<TYPE>::configure ( XmlNode& node )
+    void OptionArrayT<TYPE>::configure ( XmlNode& node )
 {
-  XmlAttr *attr = node.first_attribute( "type" );
+  rapidxml::xml_attribute<>* attr = node.content->first_attribute( "type" );
+  XmlNode itr = node.content->first_node();
 
   if ( !attr )
     throw ParsingFailed (FromHere(), "OptionArray does not have \'type\' attribute" );
@@ -59,18 +66,18 @@ void OptionArrayT<TYPE>::configure ( XmlNode& node )
 
   value_type val; // empty vector
 
-  for (XmlNode * itr = node.first_node(); itr ; itr = itr->next_sibling() )
+  for ( ; itr.is_valid() ; itr.content = itr.content->next_sibling() )
   {
-    val.push_back(to_value<TYPE>(*itr));
+    val.push_back(to_value<TYPE>(itr));
   }
 
 
-  XmlAttr *size_attr = node.first_attribute( "size" );
+  rapidxml::xml_attribute<>* size_attr = node.content->first_attribute( "size" );
   if ( !size_attr )
     throw ParsingFailed (FromHere(), "OptionArray does not have \'size\' attribute" );
 
-  Uint expected_size = 0;
-  to_value(*size_attr,expected_size);
+  Uint expected_size = from_str<Uint>( size_attr->value() );
+
   if ( expected_size != val.size() )
     throw ParsingFailed (FromHere(), "OptionArray \'size\' did not match number of entries" );
 
@@ -121,7 +128,7 @@ std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
       if(!result.empty())
         result += "@@";
 
-      result += from_value ( v );
+      result += to_str( v );
     }
   }
   catch(boost::bad_any_cast& e)

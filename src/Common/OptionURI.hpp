@@ -56,13 +56,13 @@ namespace Common {
     virtual std::string data_type() const { return type(); }
 
     /// @returns the xml tag for this option
-    virtual const char * tag() const { return XmlTag<URI>::type(); }
+    virtual const char * tag() const;
 
     /// @returns the value as a sd::string
-    virtual std::string value_str () const { return from_value( value<URI>() ); }
+    virtual std::string value_str () const;
 
     /// @returns the default value as a sd::string
-    virtual std::string def_str () const  { return from_value( def<URI>() ); }
+    virtual std::string def_str () const;
 
     /// @brief Checks whether the option has a list of restricted values.
     /// @return Returns @c true if the option a such list; otherwise, returns
@@ -71,7 +71,7 @@ namespace Common {
 
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
-    virtual void configure ( XmlNode& node );
+    virtual void configure ( XML::XmlNode& node );
 
     //@} END VIRTUAL FUNCTIONS
 

@@ -57,9 +57,9 @@ namespace Common {
     //@{
 
     /// creates a component from this component
-    void load_library ( XmlNode& node );
+    void load_library ( Signal::arg_t& args );
 
-    void load_library_signature ( XmlNode& node );
+    void load_library_signature ( Signal::arg_t& args );
 
     //@} END SIGNALS
 

@@ -7,9 +7,12 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
-#include "Common/XmlHelpers.hpp"
+
+#include "Common/XML/SignalFrame.hpp"
 
 #include "Common/CLink.hpp"
+
+using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
@@ -69,18 +72,17 @@ void CLink::link_to ( Component::Ptr lnkto )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLink::change_link( XmlNode & node )
+void CLink::change_link( Signal::arg_t & args )
 {
-  XmlParams p(node);
+  SignalFrame options = args.map("options");
+  SignalFrame reply = args.create_reply();
 
-  std::string path = p.get_option<std::string>("target_path");
+  std::string path = options.get_option<std::string>("target_path");
   Component::Ptr target = m_root.lock()->look_component(path);
 
   link_to (target);
 
-  XmlNode * reply = XmlOps::add_reply_frame(node);
-
-  XmlParams(*reply).add_option("target_path", path);
+  reply.map("options").set_option("target_path", path);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

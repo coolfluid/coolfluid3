@@ -11,7 +11,7 @@
 
 #include "Common/Option.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/XML.hpp"
+#include "Common/XML/Protocol.hpp"
 
 namespace CF {
 namespace Common {
@@ -67,10 +67,10 @@ namespace Common {
     //@{
 
     /// Returns a C-strng representation of element type
-    virtual const char * elem_type() const { return XmlTag<element_type>::type(); }
+    virtual const char * elem_type() const { return XML::Protocol::Tags::type<element_type>(); }
 
     /// @returns the xml tag for this option
-    virtual const char * tag() const { return "array"; }
+    virtual const char * tag() const { return XML::Protocol::Tags::node_array(); }
 
     /// @brief Checks whether the option has a list of restricted values.
     /// @return Returns @c true if the option a such list; otherwise, returns
@@ -89,7 +89,7 @@ namespace Common {
 
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
-    virtual void configure ( XmlNode& node );
+    virtual void configure ( XML::XmlNode& node );
 
   protected:
 

@@ -12,7 +12,7 @@
 #include <boost/signals2/signal.hpp>
 
 #include "Common/Exception.hpp"
-#include "Common/XmlHelpers.hpp"
+#include "Common/XML/SignalFrame.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ struct Signal
     /// signal return type
     typedef void return_t;
     /// signal argument
-    typedef XmlNode arg_t;
+    typedef XML::SignalFrame arg_t;
     /// signal type
     typedef boost::signals2::signal< Signal::return_t ( Signal::arg_t& ) >  type;
     /// signal pointer

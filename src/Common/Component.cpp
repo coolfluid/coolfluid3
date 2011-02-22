@@ -9,17 +9,19 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "rapidxml/rapidxml.hpp"
+
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/XmlHelpers.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/XML/Protocol.hpp"
 
-using namespace CF::Common::String;
+using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
@@ -499,15 +501,15 @@ Component::Ptr Component::look_component ( const URI& path )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_create_component ( XmlNode& node  )
+void Component::signal_create_component ( Signal::arg_t& args  )
 {
-  XmlParams p ( node );
+  SignalFrame options = args.map( Protocol::Tags::key_options() );
 
-  std::string name  = p.get_option<std::string>("Component name");
-  std::string atype = p.get_option<std::string>("Generic type");
-  std::string ctype = p.get_option<std::string>("Concrete type");
+  std::string name  = options.get_option<std::string>("Component name");
+  std::string atype = options.get_option<std::string>("Generic type");
+  std::string ctype = options.get_option<std::string>("Concrete type");
 
-  bool basic = p.get_option<bool>("Basic mode");
+  bool basic = options.get_option<bool>("Basic mode");
 
   CFactories::Ptr factories = Core::instance().root()->get_child< CFactories >("Factories");
   CFactory::Ptr factory = factories->get_child< CFactory >( atype );
@@ -525,7 +527,7 @@ void Component::signal_create_component ( XmlNode& node  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::delete_component ( XmlNode& node  )
+void Component::delete_component ( Signal::arg_t& args  )
 {
 //  XmlParams p ( node );
 
@@ -547,11 +549,11 @@ void Component::delete_component ( XmlNode& node  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::move_component ( XmlNode& node  )
+void Component::move_component ( Signal::arg_t& args  )
 {
-  XmlParams p ( node );
+  SignalFrame options = args.map( Protocol::Tags::key_options() );
 
-  URI path = p.get_option<URI>("Path");
+  URI path = options.get_option<URI>("Path");
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
@@ -562,7 +564,7 @@ void Component::move_component ( XmlNode& node  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::print_info ( XmlNode& node  )
+void Component::print_info ( Signal::arg_t& args  )
 {
   CFinfo << "Info on component \'" << full_path().path() << "\'" << CFendl;
 
@@ -582,6 +584,8 @@ void Component::print_info ( XmlNode& node  )
 
 void Component::write_xml_tree( XmlNode& node, bool put_all_content )
 {
+  cf_assert( node.is_valid() );
+
   std::string type_name = derived_type_name();
 
 //  CFinfo << "xml tree for " << name() << CFendl;
@@ -591,17 +595,18 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
             << ". Was this class added to the component builder?" << CFendl;
   else
   {
-    XmlNode& this_node = *XmlOps::add_node_to( node, "node");
-    XmlOps::add_attribute_to( this_node, "name", name() );
-    XmlOps::add_attribute_to( this_node, "atype", type_name);
-    XmlOps::add_attribute_to( this_node, "mode", has_tag("basic") ? "basic" : "adv");
+    XmlNode this_node = node.add_node( "node" );
+
+    this_node.set_attribute( "name", name() );
+    this_node.set_attribute( "atype", type_name );
+    this_node.set_attribute( "mode", has_tag("basic") ? "basic" : "adv");
 
     CLink::Ptr lnk = boost::dynamic_pointer_cast<CLink>(shared_from_this());//this->as_type<CLink>();
 
     if( is_not_null(lnk.get()) ) // if it is a link, we put the target path as value
     {
       if ( lnk->is_linked() )
-       this_node.value( this_node.document()->allocate_string( lnk->follow()->full_path().string().c_str() ));
+       this_node.content->value( this_node.content->document()->allocate_string( lnk->follow()->full_path().string().c_str() ));
 //      else
 //        this_node.value( this_node.document()->allocate_string( "//Root" ));
     }
@@ -609,10 +614,9 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
     {
       if( put_all_content && !m_properties.store.empty() )
       {
-        XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_map());
-
-        // add properties
-        list_properties(options);
+        // add properties if needed
+        SignalFrame sf(this_node);
+        list_properties( sf );
       }
 
       boost_foreach( CompStorage_t::value_type c, m_components )
@@ -625,13 +629,11 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_tree( XmlNode& node )
+void Component::list_tree( Signal::arg_t& args )
 {
-  XmlNode& reply = *XmlOps::add_reply_frame( node );
+  SignalFrame reply = args.create_reply( full_path() );
 
-  XmlOps::add_attribute_to( reply, "sender", full_path().path() );
-
-  write_xml_tree(reply, false);
+  write_xml_tree(reply.main_map.content, false);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -668,7 +670,7 @@ size_t Component::get_child_count() const
 /// @param params XmlParams object that manages the tree
 /// @param array Array to add. It must be an OptionArrayT<TYPE>
 template<typename TYPE>
-void add_array_to_xml(XmlParams & params, const std::string & name,
+void add_array_to_xml(Map & map, const std::string & name,
                       boost::shared_ptr<OptionArray> array)
 {
   boost::shared_ptr<OptionArrayT<TYPE> > optArray;
@@ -677,7 +679,10 @@ void add_array_to_xml(XmlParams & params, const std::string & name,
 
   optArray = boost::dynamic_pointer_cast< OptionArrayT<TYPE> >(array);
 
-  params.add_array(name, optArray->value_vect(), desc, basic);
+  XmlNode array_node = map.set_array(name, optArray->value_vect(), " ; ");
+
+  array_node.set_attribute( Protocol::Tags::attr_descr(), desc);
+  array_node.set_attribute( "mode", (basic ? "basic" : "adv") );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -686,23 +691,32 @@ void add_array_to_xml(XmlParams & params, const std::string & name,
 /// @param params XmlParams object that manages the tree
 /// @param prop Property to add
 template<typename TYPE>
-void add_prop_to_xml(XmlParams & params, const std::string & name,
+void add_prop_to_xml(Map & map, const std::string & name,
                      boost::shared_ptr<Property> prop)
 {
-  if(!prop->is_option())
-    params.add_property( name, prop->value<TYPE>() );
-  else
+  XmlNode value_node = map.set_value( name, prop->value<TYPE>() );
+
+  if( prop->is_option() )
   {
     Option & opt = prop->as_option();
     bool basic = opt.has_tag("basic");
     std::string desc = opt.description();
-    TYPE value = opt.value<TYPE>();
-    XmlNode * node;
 
-    if(opt.has_restricted_list())
-      node = params.add_option(name, value, desc, basic, opt.restricted_list());
-    else
-      node = params.add_option(name, value, desc, basic);
+    value_node.set_attribute( Protocol::Tags::attr_descr(), desc);
+    value_node.set_attribute( "is_option", to_str(prop->is_option()) );
+    value_node.set_attribute( "mode", (basic ? "basic" : "adv") );
+
+    if( opt.has_restricted_list() )
+    {
+      Map value_map(value_node);
+      std::vector<TYPE> vect;
+      std::vector<boost::any>::iterator it = opt.restricted_list().begin();
+
+      for( ; it != opt.restricted_list().end() ; ++it )
+        vect.push_back( boost::any_cast<TYPE>(*it) );
+
+      value_map.set_array( Protocol::Tags::key_restricted_values(), vect, " ; " );
+    }
 
     if(std::strcmp(opt.tag(), "uri") == 0)
     {
@@ -710,40 +724,41 @@ void add_prop_to_xml(XmlParams & params, const std::string & name,
       std::vector<URI::Scheme::Type>::iterator it = prots.begin();
 
       for( ; it != prots.end() ; it++)
-        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), URI::Scheme::Convert::instance().to_str(*it));
+        value_node.set_attribute( Protocol::Tags::attr_uri_protocols(), URI::Scheme::Convert::instance().to_str(*it));
     }
   }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_properties( XmlNode& node )
+void Component::list_properties( SignalFrame& args )
 {
   PropertyList::PropertyStorage_t::iterator it = m_properties.store.begin();
 
-  XmlParams p(*node.parent());
+  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
 
   for( ; it != m_properties.store.end() ; it++)
   {
     std::string name = it->first;
     Property::Ptr prop = it->second;
 
-    if(std::strcmp(prop->tag(), "array") != 0)
+    // if it is not an array
+    if(std::strcmp(prop->tag(), Protocol::Tags::node_array()) != 0)
     {
       std::string type = prop->type();
 
-      if(type == "string")
-        add_prop_to_xml<std::string>(p, name, prop);
-      else if(type == "bool")
-        add_prop_to_xml<bool>(p, name, prop);
-      else if(type == "integer")
-        add_prop_to_xml<int>(p, name, prop);
-      else if(type == "unsigned")
-        add_prop_to_xml<CF::Uint>(p, name, prop);
-      else if(type == "real" || type == "double")
-        add_prop_to_xml<CF::Real>(p, name, prop);
-      else if(type == "uri")
-        add_prop_to_xml<URI>(p, name, prop);
+      if(type == Protocol::Tags::type<std::string>())
+        add_prop_to_xml<std::string>(options, name, prop);
+      else if(type == Protocol::Tags::type<bool>())
+        add_prop_to_xml<bool>(options, name, prop);
+      else if(type == Protocol::Tags::type<int>())
+        add_prop_to_xml<int>(options, name, prop);
+      else if(type == Protocol::Tags::type<Uint>())
+        add_prop_to_xml<Uint>(options, name, prop);
+      else if(type == Protocol::Tags::type<Real>())
+        add_prop_to_xml<Real>(options, name, prop);
+      else if(type == Protocol::Tags::type<URI>())
+        add_prop_to_xml<URI>(options, name, prop);
       else
         throw ShouldNotBeHere(FromHere(),
              std::string("Don't know how the manage \"") + type + "\" type.");
@@ -756,18 +771,18 @@ void Component::list_properties( XmlNode& node )
 
       const char * elem_type = optArray->elem_type();
 
-      if(strcmp(elem_type, "string") == 0)
-        add_array_to_xml< std::string >(p, name, optArray);
-      else if(strcmp(elem_type, "bool") == 0)
-        add_array_to_xml< bool >(p, name, optArray);
-      else if(strcmp(elem_type, "integer") == 0)
-        add_array_to_xml< int >(p, name, optArray);
-      else if(strcmp(elem_type, "unsigned") == 0)
-        add_array_to_xml< CF::Uint >(p, name, optArray);
-      else if(strcmp(elem_type, "real") == 0 || strcmp(elem_type, "double") == 0)
-        add_array_to_xml< CF::Real >(p, name, optArray);
-      else if(strcmp(elem_type, "uri") == 0)
-        add_array_to_xml< URI >(p, name, optArray);
+      if(strcmp(elem_type, Protocol::Tags::type<std::string>()) == 0)
+        add_array_to_xml< std::string >(options, name, optArray);
+      else if(strcmp(elem_type, Protocol::Tags::type<bool>()) == 0)
+        add_array_to_xml< bool >(options, name, optArray);
+      else if(strcmp(elem_type, Protocol::Tags::type<int>()) == 0)
+        add_array_to_xml< int >(options, name, optArray);
+      else if(strcmp(elem_type, Protocol::Tags::type<Uint>()) == 0)
+        add_array_to_xml< Uint >(options, name, optArray);
+      else if(strcmp(elem_type, Protocol::Tags::type<Real>()) == 0)
+        add_array_to_xml< Real >(options, name, optArray);
+      else if(strcmp(elem_type, Protocol::Tags::type<URI>()) == 0)
+        add_array_to_xml< URI >(options, name, optArray);
       else
         throw ShouldNotBeHere(FromHere(),
              std::string("Don't know how the manage OptionArrayT<") +
@@ -778,54 +793,60 @@ void Component::list_properties( XmlNode& node )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_signals( XmlNode& node )
+void Component::list_signals( Signal::arg_t& args )
 {
   sigmap_t::iterator it = m_signals.begin();
 
-  XmlNode & value_node = *XmlOps::add_node_to(node, "value");
+  XmlNode value_node = args.main_map.content.add_node( Protocol::Tags::node_value() );
 
-  XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_key(), XmlParams::tag_key_signals());
+  value_node.set_attribute( Protocol::Tags::attr_key(), Protocol::Tags::key_signals() );
 
   for( ; it != m_signals.end() ; it++)
   {
-    XmlNode & map = *XmlParams::add_map_to(value_node, it->first, it->second.description);
-    XmlOps::add_attribute_to(map, "name", it->second.readable_name);
-    XmlOps::add_attribute_to(map, "hidden", it->second.is_hidden ? "true" : "false");
+    XmlNode signal_node = value_node.add_node( Protocol::Tags::node_map() );
+
+    signal_node.set_attribute( Protocol::Tags::attr_key(), it->first );
+    signal_node.set_attribute( Protocol::Tags::attr_descr(), it->second.description );
+    signal_node.set_attribute( "name", it->second.readable_name );
+    signal_node.set_attribute( "hidden", to_str(it->second.is_hidden) );
   }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_configure ( XmlNode& node )
+void Component::signal_configure ( Signal::arg_t& args )
 {
-  XmlParams pn ( node );
+  using namespace rapidxml;
 
-  if ( pn.option_map == 0 )
-    throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_map()) + "\' node" );
+  if ( args.has_map( Protocol::Tags::key_options() ) )
+    throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(Protocol::Tags::key_options()) + "\' map" );
+
+  XmlNode opt_map = args.map( Protocol::Tags::key_options() ).main_map.content;
 
   // get the list of options
   PropertyList::PropertyStorage_t& options = m_properties.store;
 
   // loop on the param nodes
-  for (XmlNode* itr =  pn.option_map->first_node(); itr; itr = itr->next_sibling() )
+  for (xml_node<>* itr =  opt_map.content->first_node(); itr; itr = itr->next_sibling() )
   {
     // search for the attribute with key
-    XmlAttr* att = itr->first_attribute( XmlParams::tag_attr_key() );
-    if ( att )
+    xml_attribute<>* att = itr->first_attribute( Protocol::Tags::attr_key() );
+    if ( is_not_null(att) )
     {
       PropertyList::PropertyStorage_t::iterator opt = options.find( att->value() );
       if (opt != options.end() && opt->second->is_option())
-        opt->second->as_option().configure_option(*itr);
+      {
+        XmlNode node(itr);
+        opt->second->as_option().configure_option( node );
+      }
     }
   }
 
   // add a reply frame
-  /// @todo adapt when the new XML layer is in place
-  XmlNode & reply_node = *XmlOps::add_reply_frame(node);
-  XmlParams p_reply(reply_node);
-  XmlNode & map_node = *p_reply.add_map(XmlParams::tag_key_options()); //XmlOps::add_node_to(reply_node, XmlParams::tag_node_map());
+  SignalFrame reply = args.create_reply( full_path() );
+  Map map_node = reply.map( Protocol::Tags::key_options() ).main_map;
 
-  XmlOps::deep_copy(*pn.option_map, map_node);
+  opt_map.deep_copy( map_node.content );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -837,9 +858,9 @@ const Property& Component::property( const std::string& optname ) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::rename_component ( XmlNode& node )
+void Component::rename_component ( Signal::arg_t& args )
 {
-  XmlParams p(node);
+  SignalFrame p = args.map( Protocol::Tags::key_options() );
 
   std::string new_name = p.get_option<std::string>("New name");
 
@@ -848,9 +869,10 @@ void Component::rename_component ( XmlNode& node )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::save_tree ( XmlNode& node )
+void Component::save_tree ( Signal::arg_t& args )
 {
-  XmlParams p(node);
+  SignalFrame p = args.map( Protocol::Tags::key_options() );
+
   URI filename = p.get_option<URI>("filename");
 
   if(filename.scheme() != URI::Scheme::FILE)
@@ -861,25 +883,20 @@ void Component::save_tree ( XmlNode& node )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_content( XmlNode& node )
+void Component::list_content( Signal::arg_t& args )
 {
-  XmlNode& reply = *XmlOps::add_reply_frame( node );
-  XmlNode& map_node = *XmlOps::add_node_to(reply, XmlParams::tag_node_map());
+  SignalFrame reply = args.create_reply( full_path() );
 
-  XmlOps::add_attribute_to( reply, "sender", full_path().path() );
-
-  list_properties(map_node);
-  list_signals(map_node);
+  list_properties(reply);
+  list_signals(reply);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_signature( XmlNode & node )
+void Component::signal_signature( Signal::arg_t & args )
 {
-  XmlParams p(node);
-  XmlNode & reply = *XmlOps::add_reply_frame(node);
-
-  XmlOps::add_attribute_to( reply, "sender", full_path().path() );
+  SignalFrame reply = args.create_reply( full_path() );
+  SignalFrame p = args.map( Protocol::Tags::key_options() );
 
   ( *signal( p.get_option<std::string>("name") ).signature )(reply);
 }
@@ -888,12 +905,12 @@ void Component::signal_signature( XmlNode & node )
 
 void Component::save_tree_to( const boost::filesystem::path & path )
 {
-  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
-  XmlNode & doc_node = *XmlOps::goto_doc_node(*xmldoc.get());
+  XmlDoc::Ptr xmldoc = Protocol::create_doc();
+  XmlNode doc_node = Protocol::goto_doc_node(*xmldoc.get());
 
   write_xml_tree(doc_node, true);
 
-  XmlOps::write_xml_node(*xmldoc.get(), path);
+  xmldoc->to_file(path);
 
   CFinfo << "Tree saved to '" << path.string() << "'" << CFendl;
 }
@@ -926,32 +943,36 @@ void Component::mark_basic()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::create_component_signature( XmlNode& node )
+void Component::create_component_signature( Signal::arg_t& args )
 {
-  XmlParams p(node);
+  SignalFrame p = args.map( Protocol::Tags::key_options() );
+  const char * tag = Protocol::Tags::attr_descr();
 
-  p.add_option("Component name", std::string(), "Name for created component.");
-  p.add_option("Generic name", std::string(), "Generic type of the component.");
-  p.add_option("Concrete type", std::string(), "Concrete type of the component.");
-  p.add_option("Basic mode", false, "Component will be visible in basic mode.");
+  p.set_option("Component name", std::string()).set_attribute(tag, "Name for created component.");
+  p.set_option("Generic name", std::string()).set_attribute(tag, "Generic type of the component.");
+  p.set_option("Concrete type", std::string()).set_attribute(tag, "Concrete type of the component.");
+  p.set_option("Basic mode", false).set_attribute(tag, "Component will be visible in basic mode.");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::rename_component_signature( XmlNode& node )
+void Component::rename_component_signature( Signal::arg_t& args )
 {
-  XmlParams p(node);
+  SignalFrame p = args.map( Protocol::Tags::key_options() );
+  const char * tag = Protocol::Tags::attr_descr();
 
-  p.add_option("New name", std::string(), "Component new name.");
+  p.set_option("New name", std::string()).set_attribute(tag, "Component new name.");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::move_component_signature( XmlNode& node )
+void Component::move_component_signature( Signal::arg_t& args )
 {
-  XmlParams p(node);
+  SignalFrame p = args.map( Protocol::Tags::key_options() );
+  const char * tag = Protocol::Tags::attr_descr();
 
-  p.add_option("Path", std::string(), "Path to the new component to which this one will move to.");
+  p.set_option("Path", std::string()).
+      set_attribute(tag, "Path to the new component to which this one will move to.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

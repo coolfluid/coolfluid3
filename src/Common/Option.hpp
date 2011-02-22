@@ -16,6 +16,7 @@
 #include "Common/TaggedObject.hpp"
 #include "Common/Property.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/SignalHandler.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -87,7 +88,7 @@ namespace Common {
     //@} END VIRTUAL FUNCTIONS
 
     /// configure this option using the passed xml node
-    void configure_option ( XmlNode& node );
+    void configure_option ( XML::XmlNode & node );
 
     /// attach a function that will be triggered when an option gets configured
     /// @return this option
@@ -173,7 +174,7 @@ namespace Common {
 
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
-    virtual void configure ( XmlNode& node ) = 0;
+    virtual void configure ( XML::XmlNode & node ) = 0;
 
     void trigger() const;
 

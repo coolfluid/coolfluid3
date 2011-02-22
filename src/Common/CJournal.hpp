@@ -63,32 +63,32 @@ namespace Common {
 
     /// Adds a signal to the journal.
     /// @param signal_node Signal to add.
-    void add_signal ( const XmlNode & signal_node );
+    void add_signal ( const Signal::arg_t & signal_node );
 
     void execute_signals (const boost::filesystem::path & filename);
 
     /// @name SIGNALS
     // @{
 
-    void list_journal ( XmlNode & node );
+    void list_journal ( Signal::arg_t & node );
 
-    void load_journal ( XmlNode & node );
+    void load_journal ( Signal::arg_t & node );
 
-    void save_journal ( XmlNode & node );
+    void save_journal ( Signal::arg_t & node );
 
     // @} END SIGNALS
 
   private: // data
 
     /// The journal XML document.
-    boost::shared_ptr<XmlDoc> m_xmldoc;
+    boost::shared_ptr<XML::XmlDoc> m_xmldoc;
 
-    XmlNode * m_info_node;
+    XML::Map m_info_node;
 
-    XmlNode * m_signals_map;
+    XML::Map m_signals_map;
 
     /// The pointers to signals.
-    std::vector<XmlNode*> m_signals;
+    std::vector<XML::XmlNode> m_signals;
 
     /// Existing child nodes under @c out are not deleted and its name is not
     /// modified.
@@ -96,7 +96,7 @@ namespace Common {
     /// @param out Node where the copy has to be appended to.
     /// @return Returns the added node.
     /// @todo This method should be removed when the new Xml layer is in place.
-    XmlNode * copy_node(const XmlNode & in, XmlNode & out) const;
+    XML::XmlNode copy_node(const XML::XmlNode & in, XML::XmlNode & out) const;
 
   }; // CJournal
 

@@ -7,7 +7,11 @@
 #include "Common/CLibraries.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/LibLoader.hpp"
-#include "Common/XmlHelpers.hpp"
+#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/Protocol.hpp"
+#include "Common/XML/XmlNode.hpp"
+
+using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
@@ -38,9 +42,9 @@ CLibraries::~CLibraries()
 {
 }
 
-void CLibraries::load_library ( XmlNode& node )
+void CLibraries::load_library ( Signal::arg_t& args )
 {
-  XmlParams p ( node );
+  SignalFrame p = args.map( Protocol::Tags::key_options() );
 
   URI file = p.get_option<URI>("Lib");
 
@@ -80,11 +84,11 @@ void CLibraries::load_library ( XmlNode& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::load_library_signature ( XmlNode& node )
+void CLibraries::load_library_signature ( Signal::arg_t& args )
 {
-  XmlParams p(node);
+  SignalFrame p = args.map( Protocol::Tags::key_options() );
 
-  p.add_option<URI>("Lib", URI(), "Library to load" );
+  p.set_option<URI>("Lib", URI()).set_attribute(Protocol::Tags::attr_descr(), "Library to load" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

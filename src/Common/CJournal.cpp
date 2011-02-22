@@ -5,14 +5,20 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/date_time/posix_time/posix_time.hpp>
+
+#include "rapidxml/rapidxml.hpp"
+
 #include "Common/CBuilder.hpp"
 #include "Common/Core.hpp"
 #include "Common/Log.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/XML/Protocol.hpp"
+#include "Common/XML/XmlDoc.hpp"
 
 #include "Common/CJournal.hpp"
 
+using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +33,7 @@ Common::ComponentBuilder < CJournal, Component, LibCommon > CJournal_Builder;
 
 CJournal::CJournal (const std::string & name)
   : Component(name),
-    m_xmldoc(XmlOps::create_doc())
+    m_xmldoc(Protocol::create_doc())
 {
   regist_signal("list_journal", "Lists all journal entries.", "List journal")->
       connect( boost::bind( &CJournal::list_journal, this, _1) );
@@ -42,18 +48,18 @@ CJournal::CJournal (const std::string & name)
 
   m_properties["RecordReplies"].as_option().mark_basic();
 
-  /// @todo change this when the XML layer arrives
-  XmlNode & doc_node = *XmlOps::goto_doc_node(*m_xmldoc.get());
+  XmlNode doc_node = Protocol::goto_doc_node(*m_xmldoc.get());
+  const char * tag_map = Protocol::Tags::node_map();
 
-  m_info_node = XmlOps::add_node_to(doc_node, XmlParams::tag_node_map());
-  m_signals_map = XmlOps::add_node_to(doc_node, XmlParams::tag_node_map());
+  m_info_node = Map(doc_node.add_node( tag_map ));
+  m_signals_map = Map(doc_node.add_node( tag_map ));
 
-  XmlOps::add_attribute_to(*m_signals_map, "key", "signals");
+  m_signals_map.content.set_attribute( "key", "signals" );
 
-  XmlOps::add_attribute_to(*m_info_node, XmlParams::tag_attr_key(), "journalInfo");
+  m_info_node.content.set_attribute( Protocol::Tags::attr_key(), "journalInfo");
 
-  XmlParams::add_value_to(*m_info_node, "hostname", Core::instance().network_info().hostname());
-  XmlParams::add_value_to(*m_info_node, "port", (Uint)Core::instance().network_info().port());
+  m_info_node.set_value( "hostname", Core::instance().network_info().hostname() );
+  m_info_node.set_value( "port", (Uint)Core::instance().network_info().port());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,31 +88,31 @@ void CJournal::load_journal_file ( const boost::filesystem::path & file_path )
   /// @todo handle m_info_node and m_signals_map
 
   m_signals.clear();
-  m_xmldoc = XmlOps::parse(file_path);
+  m_xmldoc = XmlDoc::parse_file(file_path);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CJournal::dump_journal_to ( const boost::filesystem::path & file_path ) const
 {
-  XmlOps::write_xml_node(*m_xmldoc.get(), file_path);
+  m_xmldoc->to_file( file_path );
 
   CFinfo << "Journal dumped to '" << file_path.string() << "'" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::add_signal ( const XmlNode & signal_node )
+void CJournal::add_signal ( const Signal::arg_t & signal_node )
 {
-  XmlAttr * type_attr = signal_node.first_attribute("type");
+  rapidxml::xml_attribute<> * type_attr = signal_node.node.content->first_attribute("type");
 
   if(m_properties["RecordReplies"].value<bool>() ||
      (type_attr != nullptr && std::strcmp(type_attr->value(), "signal") == 0) )
   {
-    XmlNode * copy = copy_node(signal_node, *m_signals_map);
+    XmlNode copy = copy_node(signal_node.node, m_signals_map.content);
 
     boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-    XmlOps::add_attribute_to(*copy, "time", boost::posix_time::to_simple_string(now));
+    copy.set_attribute("time", boost::posix_time::to_simple_string(now));
   }
 }
 
@@ -119,36 +125,39 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
   if (m_root.expired())
     throw IllegalCall(FromHere(), "Component \'" + name() + "\' has no root");
 
-  boost::shared_ptr<XmlNode> xmldoc = XmlOps::parse(filename);
-  XmlNode & doc_node = *XmlOps::goto_doc_node(*xmldoc.get());
-  XmlNode * signals_map = doc_node.first_node();
+  boost::shared_ptr<XmlDoc> xmldoc = XmlDoc::parse_file(filename);
+  XmlNode doc_node = Protocol::goto_doc_node(*xmldoc.get());
+//  rapidxml::xml_node * signals_map = doc_node.content->first_node();
   bool found_map = false;
-  XmlNode * node = nullptr;
-  XmlAttr * key_attr = nullptr;
+  rapidxml::xml_node<>* node = nullptr;
+//  rapidxml::xml_attribute<>* key_attr = nullptr;
   CRoot::Ptr root = Core::instance().root();
+  const char * frame_tag = Protocol::Tags::node_frame();
 
-  for( ; signals_map != nullptr ; signals_map = signals_map->next_sibling())
-  {
-    key_attr = signals_map->first_attribute("key");
-    found_map = key_attr != nullptr && std::strcmp(key_attr->value(), "signals") == 0;
+  XmlNode signal_map = Map(doc_node).seek_value( Protocol::Tags::key_signals() );
 
-    if(found_map)
-      break;
-  }
+//  for( ; signals_map != nullptr ; signals_map = signals_map->next_sibling())
+//  {
+//    key_attr = signals_map->first_attribute("key");
+//    found_map = key_attr != nullptr && std::strcmp(key_attr->value(), "signals") == 0;
 
-  if(!found_map)
+//    if(found_map)
+//      break;
+//  }
+
+  if( !signal_map.is_valid() )
     throw XmlError(FromHere(), "Could not find \'signals\' map.");
 
-  node = signals_map->first_node("frame");
+  node = signal_map.content->first_node( frame_tag );
 
-  for( ; node != nullptr ; node = node->next_sibling("frame"))
+  for( ; node != nullptr ; node = node->next_sibling(frame_tag) )
   {
-    XmlAttr * type_attr = node->first_attribute("type");
+    rapidxml::xml_attribute<>* type_attr = node->first_attribute("type");
 
     if(type_attr != nullptr && std::strcmp(type_attr->value(), "signal") == 0)
     {
-      XmlAttr * target_attr = node->first_attribute("target");
-      XmlAttr * receiver_attr = node->first_attribute("receiver");
+      rapidxml::xml_attribute<>* target_attr = node->first_attribute("target");
+      rapidxml::xml_attribute<>* receiver_attr = node->first_attribute("receiver");
 
       std::string target = target_attr != nullptr ? target_attr->value() : "";
       std::string receiver = receiver_attr != nullptr ? receiver_attr->value() : "";
@@ -164,12 +173,12 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
 
       try
       {
-        CFinfo << "Executing: '" << target << "'\t on '" << receiver << "'." << CFendl;
-        root->access_component(receiver)->call_signal(target, *node);
+        SignalFrame sf(node);
+        root->access_component(receiver)->call_signal(target, sf);
       }
       catch(Exception & e)
       {
-        CFerror << e.what();
+        CFerror << e.what() << CFendl;
       }
 
     }
@@ -179,54 +188,54 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::list_journal ( XmlNode & node )
+void CJournal::list_journal ( Signal::arg_t & args )
 {
-  XmlNode & reply_node = *XmlOps::add_reply_frame(node);
+  SignalFrame reply = args.create_reply( full_path() );
 
-  XmlOps::add_attribute_to( reply_node, "sender", full_path().path() );
-
-  copy_node(*m_signals_map, reply_node);
+  copy_node(m_signals_map.content, reply.main_map.content);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::load_journal ( XmlNode & node )
+void CJournal::load_journal ( Signal::arg_t & args )
 {
   throw NotImplemented(FromHere(), "CJournal::load_journal()");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::save_journal ( XmlNode & node )
+void CJournal::save_journal ( Signal::arg_t & args )
 {
   URI file_path("./server-journal.xml", URI::Scheme::FILE);
   boost::filesystem::path path(file_path.path());
 
-  XmlOps::write_xml_node(*m_xmldoc.get(), path);
+  m_xmldoc->to_file(path);
 
   CFinfo << "Journal dumped to '" << path.canonize().string() << "'" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-XmlNode * CJournal::copy_node(const XmlNode & in, XmlNode & out) const
+XmlNode CJournal::copy_node(const XmlNode & in, XmlNode & out) const
 {
-  XmlNode * copy = XmlOps::add_node_to(out, in.name(), in.value());
-  XmlAttr * attr = in.first_attribute();
-  XmlNode * node = in.first_node();
+  rapidxml::xml_node<>* content = in.content;
+
+  XmlNode copy = out.add_node(content->name(), content->value());
+  rapidxml::xml_attribute<>* attr = content->first_attribute();
+  XmlNode node( content->first_node() );
 
   while( attr != nullptr )
   {
-    XmlOps::add_attribute_to(*copy, attr->name(), attr->value());
+    copy.set_attribute(attr->name(), attr->value());
     attr = attr->next_attribute();
   }
 
 
-  while( node != nullptr )
+  while( node.is_valid() )
   {
-    copy_node(*node, *copy);
+    copy_node(node, copy);
 
-    node = node->next_sibling();
+    node = node.content->next_sibling();
   }
 
   return copy;

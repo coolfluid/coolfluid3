@@ -19,6 +19,7 @@
 #include "Common/Core.hpp"
 #include "Common/CLibrary.hpp"
 #include "Common/CLibraries.hpp"
+#include "Common/XML/Protocol.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +89,7 @@ public:
   }
 
   /// @brief Virtual destructor.
-  virtual ~CBuilderT() {};
+  virtual ~CBuilderT() {}
 
   /// @returns the class name
   static std::string type_name() { return "CBuilderT<" + CONCRETE::type_name() + ">"; }
@@ -116,21 +117,25 @@ public:
   //@{
 
   /// creates a component from this component
-  void build_component ( XmlNode& xml )
+  void build_component ( Signal::arg_t& args )
   {
-    XmlParams params (xml);
+    XML::SignalFrame params = args.map( XML::Protocol::Tags::key_options() );
+
     typename BASE::Ptr comp = this->build_component_typed ( params.get_option<std::string>("Component name") );
     URI parent_path ( params.get_option<URI>("Parent component") );
     Component::Ptr parent = this->look_component( parent_path );
     parent->add_component( comp );
   }
 
-  void build_component_signature ( XmlNode& node )
+  void build_component_signature ( Signal::arg_t& args )
   {
-    XmlParams p(node);
+    XML::SignalFrame p = args.map( XML::Protocol::Tags::key_options() );
+    const char * tag = XML::Protocol::Tags::attr_descr();
 
-    p.add_option<std::string>("Component name", std::string(), "Name for created component" );
-    p.add_option<URI>("Parent component", URI(), "Path to component where place the newly built component");
+    p.set_option<std::string>("Component name", std::string()).
+        set_attribute(tag, "Name for created component" );
+    p.set_option<URI>("Parent component", URI()).
+        set_attribute(tag, "Path to component where place the newly built component");
   }
 
   //@} END SIGNALS

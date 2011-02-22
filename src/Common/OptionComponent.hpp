@@ -9,14 +9,22 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "rapidxml/rapidxml.hpp"
+
+#include <boost/foreach.hpp>
+
 #include "Common/URI.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/Component.hpp"
 
-#include <boost/foreach.hpp>
 #include "Common/CRoot.hpp"
 #include "Common/Core.hpp"
 #include "Common/Log.hpp"
+
+#include "Common/XML/Protocol.hpp"
+#include "Common/XML/CastingFunctions.hpp"
+
+using namespace CF::Common::XML;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -68,12 +76,12 @@ public:
   /// @name VIRTUAL FUNCTIONS
   //@{
 
-  virtual std::string type() const { return XmlTag<URI>::type(); }
+  virtual std::string type() const { return Protocol::Tags::type<URI>(); }
 
   virtual std::string data_type() const { return class_name<data_t>(); }
 
   /// @returns the xml tag for this option
-  virtual const char * tag() const { return XmlTag<URI>::type(); }
+  virtual const char * tag() const { return Protocol::Tags::type<URI>(); }
 
   /// @returns the value as a std::string
   virtual std::string value_str () const
@@ -112,10 +120,10 @@ public:
   virtual void configure ( XmlNode& node )
   {
     URI val;
-    XmlNode * type_node = node.first_node(XmlTag<URI>::type());
+    XmlNode type_node(node.content->first_node(Protocol::Tags::type<URI>()));
 
-    if(type_node != nullptr)
-      to_value(*type_node, val);
+    if( type_node.is_valid() )
+      to_value( type_node, val );
     else
       throw XmlError(FromHere(), "Could not find a value for this option.");
 

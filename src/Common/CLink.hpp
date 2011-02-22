@@ -48,7 +48,7 @@ public: // functions
 
   virtual void link_to ( Component::Ptr lnkto );
 
-  void change_link( XmlNode & node );
+  void change_link( Signal::arg_t & args );
 
 private: // data
 

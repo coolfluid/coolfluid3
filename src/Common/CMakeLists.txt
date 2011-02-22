@@ -110,10 +110,6 @@ list( APPEND coolfluid_common_files
     URI.cpp
     WorkerStatus.cpp
     WorkerStatus.hpp
-    XmlHelpers.hpp
-    XmlHelpers.cpp
-    XML.hpp
-    XML.cpp
 
     XML/CastingFunctions.cpp
     XML/CastingFunctions.hpp

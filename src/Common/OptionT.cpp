@@ -6,8 +6,16 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include "rapidxml/rapidxml.hpp"
+
 #include "Common/OptionT.hpp"
+#include "Common/StringConversion.hpp"
 #include "Common/URI.hpp"
+
+#include "Common/XML/Protocol.hpp"
+
+
+using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
@@ -31,16 +39,14 @@ template < typename TYPE>
 void OptionT<TYPE>::configure ( XmlNode& node )
 {
   TYPE val;
-  const char * type_str = XmlTag<TYPE>::type();
-  XmlNode * type_node = node.first_node(type_str);
+  const char * type_str = Protocol::Tags::type<TYPE>();
+  XmlNode type_node(node.content->first_node(type_str));
 
-  if(type_node != nullptr)
-    to_value(*type_node,val);
+  if( type_node.is_valid() )
+    from_str<TYPE>( type_node.content->name() );
   else
-  {
-    std::string str;
     throw XmlError(FromHere(), std::string("Could not find a value of this type [") + type_str + "].");
-  }
+
   m_value = val;
   copy_to_linked_params(val);
 }
@@ -66,7 +72,19 @@ void OptionT<TYPE>::copy_to_linked_params (const boost::any& val )
 template < typename TYPE >
 const char* OptionT<TYPE>::tag () const
 {
-  return XmlTag<TYPE>::type();
+  return Protocol::Tags::type<TYPE>();
+}
+
+template<typename TYPE>
+std::string OptionT<TYPE>::value_str () const
+{
+  return to_str( value<TYPE>() );
+}
+
+template<typename TYPE>
+std::string OptionT<TYPE>::def_str () const
+{
+  return to_str( def<TYPE>() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

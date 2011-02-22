@@ -12,6 +12,7 @@
 
 using namespace boost::assign;
 using namespace CF::Common;
+using namespace CF::Common::XML;
 
 Option::Option(const std::string & name, const std::string & desc, boost::any def)
   : Property(def),
@@ -33,6 +34,8 @@ Option::~Option()
 
 void Option::configure_option ( XmlNode& node )
 {
+  cf_assert ( node.is_valid() );
+
   this->configure(node); // update the value
 
   // call all trigger functors
@@ -61,7 +64,7 @@ void Option::change_value ( const boost::any& value )
   copy_to_linked_params(data);
   // call all trigger functors
   trigger();
-  
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

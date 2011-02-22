@@ -280,40 +280,40 @@ public: // functions
   //@{
 
   /// configures all the options on this class
-  void signal_configure ( XmlNode& xml );
+  void signal_configure ( Signal::arg_t& args );
 
   /// creates a component from this component
-  void signal_create_component ( XmlNode& xml );
+  void signal_create_component ( Signal::arg_t& xml );
 
   /// deletes a component from this component
-  void delete_component ( XmlNode& xml );
+  void delete_component ( Signal::arg_t& args );
 
   /// moves a component from this component to another
-  void move_component ( XmlNode& xml );
+  void move_component ( Signal::arg_t& args );
 
   /// lists the sub components and puts them on the xml_tree
-  void list_tree ( XmlNode& xml );
+  void list_tree ( Signal::arg_t& args );
 
   /// lists the properties of this component
-  void list_properties ( XmlNode& xml );
+  void list_properties ( Signal::arg_t& args );
 
   /// lists the signals of this component
-  void list_signals ( XmlNode& xml );
+  void list_signals ( Signal::arg_t& args );
 
   ///  gets info on this component
-  void print_info ( XmlNode& xml );
+  void print_info ( Signal::arg_t& args );
 
   /// renames this component
-  void rename_component ( XmlNode& xml) ;
+  void rename_component ( Signal::arg_t& args ) ;
 
   /// dumps the tree to a file
-  void save_tree ( XmlNode& xml );
+  void save_tree ( Signal::arg_t& args );
 
   /// gives information about this component such as options, signals, ...
-  void list_content( XmlNode& node );
+  void list_content( Signal::arg_t& args );
 
   /// Gives a signal signature, if any
-  void signal_signature( XmlNode & node );
+  void signal_signature( Signal::arg_t & args );
 
   //@} END SIGNALS
 
@@ -322,15 +322,15 @@ public: // functions
 
   /// Defines the signature of "create_component" signal.
   /// @param node The frame under which signature is added.
-  void create_component_signature( XmlNode& node );
+  void create_component_signature( Signal::arg_t& args );
 
   /// Defines the signature of "rename_component" signal.
   /// @param node The frame under which signature is added.
-  void rename_component_signature( XmlNode& node );
+  void rename_component_signature( Signal::arg_t& args );
 
   /// Defines the signature of "move_component" signal.
   /// @param node The frame under which signature is added.
-  void move_component_signature( XmlNode& node );
+  void move_component_signature( Signal::arg_t& args );
 
   //@} END SIGNAL SIGNATURES
 
@@ -355,7 +355,7 @@ private: // helper functions
   /// writes the underlying component tree to the xml node
   /// @param put_all_content If @c false, options and properties are not put
   /// in the node.
-  void write_xml_tree( XmlNode& node, bool put_all_content );
+  void write_xml_tree( XML::XmlNode& node, bool put_all_content );
 
   /// Put all subcomponents in a given vector, optionally recursive
   /// @param [out] vec  A vector of all (recursive) subcomponents
