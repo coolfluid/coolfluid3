@@ -36,6 +36,7 @@
 
 using namespace CF;
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
@@ -49,13 +50,13 @@ struct linearadv2d_global_fixture
   {
     linearadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
-    boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-    XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
-    XmlParams p(node);
-    p.add_option<std::string>("Model name","mymodel");
-    p.add_option<std::string>("Physical model","LinearAdv2D");
+    SignalFrame frame("", "", "");
+    SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-    linearadv2d_wizard->signal_create_model(node);
+    options.set_option<std::string>("Model name","mymodel");
+    options.set_option<std::string>("Physical model","LinearAdv2D");
+
+    linearadv2d_wizard->signal_create_model(frame);
   }
 
   ScalarAdvection::Ptr linearadv2d_wizard;
@@ -91,10 +92,10 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-  XmlNode& tree_node  = *XmlOps::goto_doc_node(*doc.get());
+  SignalFrame frame("", "", "");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  Core::instance().root()->list_tree(tree_node);
+  Core::instance().root()->list_tree(frame);
 
 //  CFinfo << model.tree() << CFendl;
 }
@@ -104,12 +105,11 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadv2d_local_fixture )
 BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
-    
+
   // create the xml parameters for the read mesh signal
 
-  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
-  XmlParams xmlp (node);
+  SignalFrame frame("", "", "");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   BOOST_CHECK(true);
 
@@ -122,9 +122,9 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
   URI file ( "file:advection-qd-p2.msh" );
 //  URI file( "file:rotation-tg-p3.msh" );
 
-  xmlp.add_option<URI>("File", file );
+  options.set_option<URI>("File", file );
 
-  domain.signal_load_mesh( node );
+  domain.signal_load_mesh( frame );
 
   BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
 
@@ -156,9 +156,8 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
-  XmlParams p(node);
+  SignalFrame frame("", "", "");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<URI> bc_regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
@@ -168,11 +167,11 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
 
   std::string name ("INLET");
 
-  p.add_option<std::string>("Name",name);
-  p.add_option<std::string>("Type","CF.RDM.BcDirichlet");
-  p.add_array("Regions", bc_regions);
+  options.set_option<std::string>("Name",name);
+  options.set_option<std::string>("Type","CF.RDM.BcDirichlet");
+  options.set_array("Regions", bc_regions, " ; ");
 
-  discretization.as_type<ResidualDistribution>()->signal_create_boundary_term(node);
+  discretization.as_type<ResidualDistribution>()->signal_create_boundary_term(frame);
 
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( discretization, name );
   cf_assert( is_not_null(inletbc) );
@@ -193,9 +192,8 @@ BOOST_FIXTURE_TEST_CASE( test_create_domain_term , linearadv2d_local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
-  XmlParams p(node);
+  SignalFrame frame("", "", "");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<URI> bc_regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
@@ -203,11 +201,11 @@ BOOST_FIXTURE_TEST_CASE( test_create_domain_term , linearadv2d_local_fixture )
 
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
-  p.add_option<std::string>("Name","INTERNAL");
-  p.add_option<std::string>("Type","CF.RDM.CLDA<LinearAdv2D>");
-  p.add_array("Regions", bc_regions);
+  options.set_option<std::string>("Name","INTERNAL");
+  options.set_option<std::string>("Type","CF.RDM.CLDA<LinearAdv2D>");
+  options.set_array("Regions", bc_regions, " ; ");
 
-  discretization.as_type<ResidualDistribution>()->signal_create_domain_term(node);
+  discretization.as_type<ResidualDistribution>()->signal_create_domain_term(frame);
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
