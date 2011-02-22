@@ -32,7 +32,6 @@
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Types.hpp"
 
-
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 #include "Tools/Testing/ProfiledTestFixture.hpp"

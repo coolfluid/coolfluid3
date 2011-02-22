@@ -4,9 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 6
-#define BOOST_PROTO_MAX_ARITY 6
+// #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
+// #define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 6
+// #define BOOST_PROTO_MAX_ARITY 6
 
 #include "Common/Foreach.hpp"
 #include "Common/CBuilder.hpp"
@@ -52,8 +52,7 @@ CFieldAction::Ptr HeatConductionLinearUnsteady::build_equation()
       A = alpha * integral<1>(laplacian(temperature) * jacobian_determinant),
       T = integral<1>(sf_outer_product(temperature) * jacobian_determinant), // note: we skip multiplying by invdt() so we can reuse this in the source terms
       system_matrix(lss(), temperature) += invdt() * T + 0.5 * A,
-      system_rhs(lss(), temperature)    += (alpha / k) * T * heat,
-      system_rhs(lss(), temperature)    -= A * temperature
+      system_rhs(lss(), temperature)    += (alpha / k) * T * heat - transpose(A * temperature)
     )
   );
 }

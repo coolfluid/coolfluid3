@@ -46,6 +46,15 @@ using namespace boost;
 typedef std::vector<std::string> StringsT;
 typedef std::vector<Uint> SizesT;
 
+/// Check close, fo testing purposes
+inline void 
+check_close(const Real a, const Real b, const Real threshold)
+{
+  BOOST_CHECK_CLOSE(a, b, threshold);
+}
+
+static boost::proto::terminal< void(*)(Real, Real, Real) >::type const _check_close = {&check_close};
+
 struct ProtoUnsteadyFixture
 {
   ProtoUnsteadyFixture() :
