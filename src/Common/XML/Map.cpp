@@ -45,7 +45,8 @@ void Map::split_string ( const std::string & str, const std::string & delimiter,
   std::vector<std::string> split_string;
   std::vector<std::string>::iterator it;
 
-  split(split_string, str, is_any_of(delimiter), token_compress_on);
+  if(!str.empty())
+    split(split_string, str, is_any_of(delimiter), token_compress_on);
 
   try
   {
