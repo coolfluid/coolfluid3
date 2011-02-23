@@ -9,20 +9,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <set>
-
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/LibMesh.hpp"
 
-#include "Mesh/CElements.hpp"
+#include "Mesh/CEntities.hpp"
 
 namespace CF {
 namespace Mesh {
   
-  class CField;
   template <typename T> class CTable;
   class CNodes;
+  class CElements;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -68,8 +66,6 @@ public: // functions
   /// @param dim dimension of the node coordinates
   CNodes& create_nodes(const Uint& dim);
   
-  void add_field_link(CField& field);
-
   /// @return the number of elements stored in this region, including any subregions
   Uint recursive_elements_count() const;
 
@@ -79,8 +75,6 @@ public: // functions
 
   Uint recursive_nodes_count();
 
-  CField& get_field(const std::string& field_name);
-  
   /// @return the subregion with given name
   const CRegion& subregion(const std::string& name) const;
   

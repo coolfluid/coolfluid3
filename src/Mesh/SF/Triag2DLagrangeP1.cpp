@@ -41,6 +41,15 @@ Real Triag2DLagrangeP1::compute_volume(const NodesT& coord) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void Triag2DLagrangeP1::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  centroid[XX] = coord(0,XX)+coord(1,XX)+coord(2,XX);
+  centroid[YY] = coord(0,YY)+coord(1,YY)+coord(2,YY);
+  centroid /= 3.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 	
 bool Triag2DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {

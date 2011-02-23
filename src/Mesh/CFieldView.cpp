@@ -117,6 +117,14 @@ void CFieldView::set_field(CField2::Ptr field)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void CFieldView::set_field(const CField2& field)
+{ 
+  set_field(boost::const_pointer_cast<CField2>(field.as_type<CField2>())); 
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 void CFieldView::allocate_coordinates(RealMatrix& coords)
 {
   cf_assert( !m_space.expired() );

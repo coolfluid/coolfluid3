@@ -18,7 +18,6 @@ namespace Mesh {
 namespace PTScotch {
 
   using namespace Common;
-  using namespace Common::String;
   using namespace Common::mpi;
 
 ////////////////////////////////////////////////////////////////////////////////

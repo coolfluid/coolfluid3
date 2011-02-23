@@ -16,7 +16,6 @@
 #include "Math/MathConsts.hpp"
 
 #include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Triag3DLagrangeP1.hpp"
 

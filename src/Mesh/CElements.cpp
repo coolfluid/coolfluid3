@@ -12,7 +12,6 @@
 #include "Common/CreateComponent.hpp"
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CNodes.hpp"
@@ -77,40 +76,6 @@ const CTable<Uint>& CElements::connectivity_table() const
   return *m_connectivity_table;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-void CElements::add_field_elements_link(CElements& field_elements)
-{
-  CGroup::Ptr field_group = get_child<CGroup>("fields");
-  if ( is_null(field_group) )
-    field_group = create_component<CGroup>("fields");
-
-  const std::string field_name = field_elements.parent()->as_type<CField>()->field_name();
-  field_group->create_component<CLink>(field_name)->link_to(field_elements.follow());
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-CElements& CElements::get_field_elements(const std::string& field_name)
-{
-  Component::Ptr all_fields = get_child("fields");
-  cf_assert(all_fields.get());
-  Component::Ptr field = all_fields->get_child(field_name);
-  cf_assert(field.get());
-  return *field->as_type<CElements>();
-}
-  
-//////////////////////////////////////////////////////////////////////////////
-
-const CElements& CElements::get_field_elements(const std::string& field_name) const
-{
-  Component::ConstPtr all_fields = get_child("fields");
-  cf_assert(all_fields.get());
-  Component::ConstPtr field = all_fields->get_child(field_name);
-  cf_assert(field.get());
-  return *field->as_type<CElements const>();
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 RealMatrix CElements::get_coordinates(const Uint elem_idx) const
@@ -156,84 +121,6 @@ CTable<Uint>::ConstRow CElements::get_nodes(const Uint elem_idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-
-void CElements::initialize(CElements& elements)
-{
-  add_tag("field_elements");
-  CEntities::initialize(elements.element_type().builder_name(),elements.nodes());
-
-  m_support = create_static_component<CLink>("support");
-  m_support->link_to(elements.follow());
-  m_support->add_tag("support");
-  
-  m_connectivity_table = elements.connectivity_table().as_type<CTable<Uint> >();
-  
-  create_space0();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CElements::add_node_based_storage(CTable<Real>& nodal_data)
-{
-  // Set the nodal data
-  m_data_name = "node_data";
-  CLink::Ptr node_data = create_component<CLink>(m_data_name);
-  nodal_data.add_tag(m_data_name);
-	node_data->add_tag(m_data_name);
-  node_data->link_to(nodal_data.follow());
-  properties()["node_based"] = true;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CElements::add_element_based_storage()
-{
-  // Create elemental data
-  m_data_name = "element_data";
-  CTable<Real>::Ptr elm_data = create_component<CTable<Real> >(m_data_name);
-  elm_data->add_tag(m_data_name);
-	elm_data->add_tag("field_data");
-  properties()["element_based"] = true;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-CTable<Real>& CElements::data()
-{
-  Component& data = find_component_with_filter(*this,IsComponentTag(m_data_name));
-  return *data.follow()->as_type<CTable<Real> >();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-const CTable<Real>& CElements::data() const
-{
-  const Component& data = find_component_with_filter(*this,IsComponentTag(m_data_name));
-  return *data.follow()->as_type<CTable<Real> const>();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-CElements& CElements::get_geometry_elements()
-{
-  return *m_support->follow()->as_type<CElements>();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-const CElements& CElements::get_geometry_elements() const
-{
-  return *m_support->follow()->as_type<CElements>();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 CSpace& CElements::create_space0()
 {
   cf_assert(m_spaces.size() == 0);
@@ -242,12 +129,6 @@ CSpace& CElements::create_space0()
   m_spaces.push_back(space);
   return *space;
 }
-
-
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

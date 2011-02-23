@@ -45,6 +45,15 @@ Real Tetra3DLagrangeP1::compute_volume(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Tetra3DLagrangeP1::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  centroid[XX] = 0.25*(coord(0,XX)+coord(1,XX)+coord(2,XX)+coord(3,XX));
+  centroid[YY] = 0.25*(coord(0,YY)+coord(1,YY)+coord(2,YY)+coord(3,YY));
+  centroid[ZZ] = 0.25*(coord(0,ZZ)+coord(1,ZZ)+coord(2,ZZ)+coord(3,ZZ));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool Tetra3DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
   return in_element(coord,nodes);

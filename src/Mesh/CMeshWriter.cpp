@@ -62,7 +62,7 @@ void CMeshWriter::config_fields()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshWriter::set_fields(const std::vector<boost::shared_ptr<CField2> >& fields)
+void CMeshWriter::set_fields(const std::vector<CField2::Ptr>& fields)
 {
   m_fields.resize(0);
   boost_foreach( CField2::Ptr field, fields )

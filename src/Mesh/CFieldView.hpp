@@ -78,9 +78,10 @@ public: // functions
   const CSpace& space() const { return *m_space.lock(); }
   
   /// @return elements_exist_in_field
-  virtual bool set_elements(boost::shared_ptr<CEntities> elements);
+  bool set_elements(boost::shared_ptr<CEntities> elements);
 
   void set_field(CField2& field);
+  void set_field(const CField2& field);
   
   void set_field(boost::shared_ptr<CField2> field);
 

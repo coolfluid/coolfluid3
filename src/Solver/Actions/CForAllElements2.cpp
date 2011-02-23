@@ -9,6 +9,7 @@
 #include "Common/Foreach.hpp"
 
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CElements.hpp"
 
 #include "Solver/Actions/CForAllElements2.hpp"
 

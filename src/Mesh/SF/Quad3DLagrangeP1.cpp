@@ -41,6 +41,15 @@ Real Quad3DLagrangeP1::compute_volume(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Quad3DLagrangeP1::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  centroid[0] = 0.25*(coord(0,XX)+coord(1,XX)+coord(2,XX)+coord(3,XX));
+  centroid[1] = 0.25*(coord(0,YY)+coord(1,YY)+coord(2,YY)+coord(3,YY));
+  centroid[2] = 0.25*(coord(0,ZZ)+coord(1,ZZ)+coord(2,ZZ)+coord(3,ZZ));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Real Quad3DLagrangeP1::compute_area(const NodesT& coord) const
 {
   return area(coord);

@@ -56,17 +56,6 @@ public: // functions
   /// Const access to the connectivity table
   const CTable<Uint>& connectivity_table() const;
 
-  /// Link a CFieldElements to this CElements
-  void add_field_elements_link(CElements& field_elements);
-  
-  /// Mutable access to a field by its elements
-  /// @param name of a field
-  CElements& get_field_elements(const std::string& field_name);
-  
-  /// Const access to a field by its elements
-  /// @param name of a field
-  const CElements& get_field_elements(const std::string& field_name) const;
-  
   /// return the number of elements
   virtual Uint size() const { return connectivity_table().size(); }
 
@@ -81,34 +70,6 @@ public: // functions
 protected: // data
 
   CTable<Uint>::Ptr m_connectivity_table;
-  
-  
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-// between these comment lines is compatibility for the soon to be retired CField
-
-  public:
-  /// Initialize the CFieldElements using the given type
-  //void initialize(const std::string& element_type_name, CTable<Real>& data);
-  void initialize(CElements& elements);
-    
-  void add_element_based_storage();
-  void add_node_based_storage(CTable<Real>& nodal_data);
-
-  /// Mutable access to the nodal data (e.g. node coordinates);
-  CTable<Real>& data();
-  const CTable<Real>& data() const;
-
-  CElements& get_geometry_elements();
-  const CElements& get_geometry_elements() const;
-
-  private:
-  boost::shared_ptr<Common::CLink> m_support;
-  std::string m_data_name;
-  
-// until here
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
 
 };
 

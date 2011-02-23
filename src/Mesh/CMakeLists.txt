@@ -17,8 +17,6 @@ list( APPEND coolfluid_mesh_files
   CFaceCellConnectivity.cpp
   CFaces.hpp
   CFaces.cpp
-  CField.hpp
-  CField.cpp
   CField2.hpp
   CField2.cpp
   CFieldView.hpp
@@ -49,8 +47,6 @@ list( APPEND coolfluid_mesh_files
   CNodeFaceCellConnectivity.cpp
   CCellFaces.hpp
   CCellFaces.cpp
-  CFieldOperation.hpp
-  CFieldOperation.cpp
   ConnectivityData.cpp
   ConnectivityData.hpp
   CMeshPartitioner.hpp

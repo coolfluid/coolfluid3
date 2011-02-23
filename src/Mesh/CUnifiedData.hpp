@@ -13,6 +13,7 @@
 #include "Common/Component.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
+#include "Common/ComponentPredicates.hpp"
 #include "Common/StringConversion.hpp"
 
 #include "Mesh/CList.hpp"
@@ -50,8 +51,8 @@ public:
 
   /// Get the class name
   static std::string type_name () { return "CUnifiedData<"+data_type::type_name()+">"; }
-
-  void add_data(std::vector<boost::shared_ptr<DATA> >& range )
+  
+/*  void add_data(std::vector<boost::shared_ptr<DATA> >& range )
   {
     CList<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
     boost_foreach(Component::Ptr data_val, range)
@@ -66,9 +67,9 @@ public:
     data_start_indices.flush();
 
     cf_assert(m_data_vector.size()==m_data_indices->size()-1);
-
-  }
-
+    
+  }*/
+  
   /// set the data given a range of components obtained for instance
   /// using the find_components_recursively<data_type>() function
   /// @param [in] range  The range of data components to be unified
@@ -143,10 +144,10 @@ template <typename DataVectorPtr>
 inline void CUnifiedData<DATA>::add_data(DataVectorPtr range)
 {
   CList<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
-  boost_foreach(Component::Ptr data_val, range)
+  boost_foreach(typename Common::ComponentPtr<DATA>::type data_val, range)
   {
-    typename CUnifiedData<DATA>::data_type::Ptr linked = data_val->follow()->as_type<typename CUnifiedData<DATA>::data_type>(); // in case it is a link
-    m_data_links->create_component<Common::CLink>("data_component_"+Common::to_str(m_data_vector.size()))->link_to(linked);
+    typename Common::ComponentPtr<DATA,DATA>::type linked = data_val->follow()->as_type<typename CUnifiedData<DATA>::data_type>(); // in case it is a link
+    m_data_links->create_component<Common::CLink>("data_component_"+Common::to_str(m_data_vector.size()))->link_to(*linked);
     m_data_vector.push_back(linked);
     m_size += linked->size();
     data_start_indices.add_row(m_size);

@@ -19,7 +19,6 @@
 #include "Common/Log.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshTransformer.hpp"
@@ -27,12 +26,8 @@
 #include "Mesh/CFieldView.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
-#include "Solver/Actions/CSetFieldValues.hpp"
-#include "Solver/Actions/CForAllElementsT.hpp"
-#include "Solver/Actions/CForAllElements.hpp"
 #include "Solver/Actions/CForAllElements2.hpp"
 #include "Solver/Actions/CForAllElementsT2.hpp"
-#include "Solver/Actions/CForAllNodes.hpp"
 #include "Solver/Actions/CForAllNodes2.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoopOperation.hpp"
@@ -69,23 +64,11 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-	CLoop::Ptr node_loop = root->create_component< CForAllNodes >("node_loop");
-  node_loop->create_action("CF.TestActions.CDummyLoopOperation");
-	node_loop->configure_property("Regions",regions);
-	CFinfo << "\n\n\nNode loop" << CFendl;
-  node_loop->execute();
-
 	CLoop::Ptr node_loop2 = root->create_component< CForAllNodes2 >("node_loop");
   node_loop2->create_action("CF.TestActions.CDummyLoopOperation");
 	node_loop2->configure_property("Regions",regions);
 	CFinfo << "\n\n\nNode loop 2 " << CFendl;
   node_loop2->execute();
-
-	CLoop::Ptr elem_loop = root->create_component< CForAllElements >("elem_loop");
-  elem_loop->create_action("CF.TestActions.CDummyLoopOperation");
-	elem_loop->configure_property("Regions",regions);
-	CFinfo << "\n\n\nElement loop" << CFendl;
-  elem_loop->execute();
 
 	BOOST_CHECK(true);
 	

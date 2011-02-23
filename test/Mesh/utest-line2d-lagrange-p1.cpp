@@ -19,6 +19,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementData.hpp"
+#include "Mesh/CElements.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Line2DLagrangeP1.hpp"
 

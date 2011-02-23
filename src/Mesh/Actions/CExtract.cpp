@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <set>
+
 #include <boost/foreach.hpp>
 #include <boost/regex.hpp>
 #include <boost/filesystem.hpp>

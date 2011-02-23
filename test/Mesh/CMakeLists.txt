@@ -219,13 +219,6 @@ add_custom_command(TARGET utest-nodes
 
 ################################################################################
 
-list( APPEND utest-field_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
-list( APPEND utest-field_files  utest-fields.cpp )
-
-coolfluid_add_unittest( utest-field )
-
-################################################################################
-
 list( APPEND utest-mesh-fields_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
 list( APPEND utest-mesh-fields_files  utest-mesh-fields.cpp )
 

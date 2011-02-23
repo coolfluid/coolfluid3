@@ -47,6 +47,15 @@ Real Hexa3DLagrangeP1::compute_volume(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Hexa3DLagrangeP1::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  centroid[XX] = 0.125*(coord(0,XX)+coord(1,XX)+coord(2,XX)+coord(3,XX)+coord(4,XX)+coord(5,XX)+coord(6,XX)+coord(7,XX));
+  centroid[YY] = 0.125*(coord(0,YY)+coord(1,YY)+coord(2,YY)+coord(3,YY)+coord(4,YY)+coord(5,YY)+coord(6,YY)+coord(7,YY));
+  centroid[ZZ] = 0.125*(coord(0,ZZ)+coord(1,ZZ)+coord(2,ZZ)+coord(3,ZZ)+coord(4,ZZ)+coord(5,ZZ)+coord(6,ZZ)+coord(7,ZZ));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool Hexa3DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
 	return in_element(coord,nodes);

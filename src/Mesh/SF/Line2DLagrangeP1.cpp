@@ -52,6 +52,14 @@ Real Line2DLagrangeP1::compute_area(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Line2DLagrangeP1::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  centroid[XX] = 0.5*(coord(0,XX)+coord(1,XX));
+  centroid[YY] = 0.5*(coord(0,YY)+coord(1,YY));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void Line2DLagrangeP1::compute_normal(const NodesT& coord, RealVector& normal) const
 {
   normal[XX] = -coord(0,YY) + coord(1,YY);

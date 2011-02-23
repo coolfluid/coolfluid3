@@ -4,14 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/foreach.hpp>
-
-#include "Common/Log.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/ComponentPredicates.hpp"
-
 #include "Mesh/CInterpolator.hpp"
-#include "Mesh/CRegion.hpp"
+#include "Mesh/CMesh.hpp"
+#include "Mesh/CField2.hpp"
 
 namespace CF {
 namespace Mesh {

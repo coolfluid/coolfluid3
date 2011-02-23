@@ -9,7 +9,7 @@
 
 #include "Mesh/CElements.hpp"
 
-#include "Solver/Actions/CNodeOperation.hpp"
+#include "Solver/Actions/CLoopOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ namespace TestActions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class CDummyLoopOperation : public Solver::Actions::CNodeOperation
+class CDummyLoopOperation : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
 
@@ -40,27 +40,12 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CDummyLoopOperation"; }
-
-  /// Set the loop_helper
-  void create_loop_helper (CF::Mesh::CElements& geometry_elements );
 	
   /// execute the action
   virtual void execute ();
 	
-	/// @return the nodes to loop over
-  virtual Mesh::CList<Uint>& loop_list () const;
 		
 private: // data
-	
-  struct LoopHelper
-  {
-    LoopHelper(Mesh::CElements& geometry_elements) :
-      used_nodes(Mesh::CElements::used_nodes(geometry_elements))
-    { }
-    Mesh::CList<Uint>& used_nodes;
-  };
-	
-  boost::shared_ptr<LoopHelper> m_loop_helper;
 
 };
 

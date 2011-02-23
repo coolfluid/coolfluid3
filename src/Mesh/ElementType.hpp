@@ -124,10 +124,11 @@ public: // functions
 
   /// compute the normal to the element. The direction will be taken according
   /// to the order of the coordinates
-  virtual void compute_normal(const NodesT& coord, RealVector& normal) const {};
+  virtual void compute_normal(const NodesT& coord, RealVector& normal) const;
   
-  /// compute volume given coordinates
-  virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const {};
+  /// compute centroid of element given coordinates
+  virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const;
+  
   
   /// Return the face connectivity information
   virtual const FaceConnectivity& face_connectivity() const = 0;

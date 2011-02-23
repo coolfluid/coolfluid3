@@ -11,8 +11,6 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CList.hpp"
 
-
-#include "Solver/Actions/CNodeOperation.hpp"
 #include "Solver/Actions/CForAllNodes2.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////

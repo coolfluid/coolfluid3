@@ -42,6 +42,14 @@ Real Quad2DLagrangeP1::compute_volume(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Quad2DLagrangeP1::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  centroid[0] = 0.25*(coord(0,XX)+coord(1,XX)+coord(2,XX)+coord(3,XX));
+  centroid[1] = 0.25*(coord(0,YY)+coord(1,YY)+coord(2,YY)+coord(3,YY));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool Quad2DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
   MappedCoordsT mapped_coord;

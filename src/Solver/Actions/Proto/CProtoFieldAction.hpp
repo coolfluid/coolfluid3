@@ -7,6 +7,8 @@
 #ifndef CF_Solver_Actions_Proto_CProtoFieldAction_hpp
 #define CF_Solver_Actions_Proto_CProtoFieldAction_hpp
 
+#include <set>
+
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 
 #include "Common/BasicExceptions.hpp"

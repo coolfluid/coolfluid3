@@ -146,28 +146,6 @@ void CBubbleRemove::transform( const CMesh::Ptr& meshptr )
 
   }
 
-  // modify the CFields SF
-  /// @todo this should go away when we move to CField2
-
-  boost_foreach(CField& field, find_components_recursively<CField>(mesh))
-  {
-//    CFinfo << " --- FIELD ----------------- " << CFendl;
-//    CFinfo << field.full_path().string() << CFendl;
-
-    boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
-    {
-      // remove the old shape function
-      const ElementType& etype = elements.element_type();
-      elements.remove_component(etype.name());
-
-      // add the new shape function
-      elements.set_element_type( "CF.Mesh.SF.Triag2DLagrangeP2" );
-    }
-
-//    CFinfo << field.tree() << CFendl;
-
-  }
-
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -189,81 +189,8 @@ CField2& CMesh::create_field2(const std::string& name, const CField2::Basis::Typ
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const CField::Basis basis)
-{
-  CField& field = *create_component<CField>(name);
-  field.synchronize_with_region(support);
-
-  std::vector<std::string> names;
-  std::vector<std::string> types;
-  BOOST_FOREACH(std::string var, variables)
-  {
-    boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
-
-    boost::match_results<std::string::const_iterator> what;
-    if (regex_search(var,what,e_variable))
-    {
-      names.push_back(what[1]);
-      types.push_back(what[2]);
-    }
-    else
-      throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
-  }
-
-  field.configure_property("VarNames",names);
-  field.configure_property("VarTypes",types);
-  field.create_data_storage(basis);
-
-  return field;
-}
-
-CField& CMesh::create_field( const std::string& name , const std::vector<std::string>& variables, const CField::Basis basis)
-{
-  return create_field(name,topology(),variables,basis);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CField& CMesh::create_field( const std::string& name , CRegion& support, const Uint size, const CField::Basis basis)
-{
-  std::vector<std::string> variables;
-  if (size==1)
-  {
-    variables.push_back(name+"[scalar]");
-  }
-  else
-  {
-    for (Uint iVar=0; iVar<size; ++iVar)
-      variables.push_back(name+to_str(iVar)+"[scalar]");
-  }
-  return create_field(name,support,variables,basis);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CField& CMesh::create_field( const std::string& name, const Uint size, const CField::Basis basis )
-{
-  return create_field(name,topology(),size,basis);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-const CField& CMesh::field(const std::string& name) const
-{
-  return find_component_with_name<CField const>(*this,name);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CField& CMesh::field(const std::string& name)
-{
-  return find_component_with_name<CField>(*this,name);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CNodes& CMesh::nodes()
-{
+CNodes& CMesh::nodes() 
+{ 
   cf_assert( is_not_null(m_nodes_link->follow()) );
   return *m_nodes_link->follow()->as_type<CNodes>();
 }

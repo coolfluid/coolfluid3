@@ -8,8 +8,6 @@
 #include <boost/assign/list_of.hpp>
 
 #include "Common/CBuilder.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionURI.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Log.hpp"
@@ -18,15 +16,11 @@
 #include "FVM/ForwardEuler.hpp"
 #include "FVM/ComputeUpdateCoefficient.hpp"
 
-
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CTable.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
-#include "Solver/Actions/CForAllNodes.hpp"
 #include "Solver/CDiscretization.hpp"
 
 #include "Math/MathConsts.hpp"

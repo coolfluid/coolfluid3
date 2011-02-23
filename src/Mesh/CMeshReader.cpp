@@ -22,6 +22,7 @@
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CFaces.hpp"
+#include "Mesh/CElements.hpp"
 
 namespace CF {
 namespace Mesh {

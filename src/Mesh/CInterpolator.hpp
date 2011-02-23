@@ -9,20 +9,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/filesystem/path.hpp>
 
 #include "Common/Component.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
 
 namespace CF {
 namespace Mesh {
 
   class CMesh;
-  class CRegion;
-
+  class CField2;
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CInterpolator component class
@@ -55,9 +53,9 @@ public: // functions
 
   // --------- Direct access ---------
 
-  virtual void construct_internal_storage(const CMesh::Ptr& source) = 0;
-
-  virtual void interpolate_field_from_to(const CField& source, CField& target) = 0;
+  virtual void construct_internal_storage(const CMesh& source) = 0;
+  
+  virtual void interpolate_field_from_to(const CField2& source, CField2& target) = 0;
 
 };
 

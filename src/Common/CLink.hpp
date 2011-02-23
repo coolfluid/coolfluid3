@@ -46,7 +46,10 @@ public: // functions
   /// link to component
   bool is_linked () const;
 
-  virtual void link_to ( Component::Ptr lnkto );
+  void link_to ( Component::Ptr lnkto );
+  
+  void link_to ( Component& lnkto );
+  void link_to ( const Component& lnkto );
 
   void change_link( Signal::arg_t & args );
 

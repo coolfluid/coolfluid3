@@ -72,6 +72,26 @@ void CLink::link_to ( Component::Ptr lnkto )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void CLink::link_to ( Component& lnkto )
+{
+  if (lnkto.is_link())
+    throw SetupError(FromHere(), "Cannot link a CLink to another CLink");
+
+  m_link_component = lnkto.self();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CLink::link_to ( Component const& lnkto )
+{
+  if (lnkto.is_link())
+    throw SetupError(FromHere(), "Cannot link a CLink to another CLink");
+
+  m_link_component = boost::const_pointer_cast<Component>(lnkto.self());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void CLink::change_link( Signal::arg_t & args )
 {
   SignalFrame options = args.map("options");

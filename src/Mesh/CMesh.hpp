@@ -11,7 +11,6 @@
 
 #include "Common/Component.hpp"
 #include "Mesh/LibMesh.hpp"
-#include "Mesh/CField.hpp"
 #include "Mesh/CField2.hpp"
 
 namespace CF {
@@ -57,20 +56,6 @@ public: // functions
   /// @return the geometry topology
   CRegion& topology() { return *m_topology; }
 
-  /// create a field with a given support
-  /// @param name of the field
-  CField& create_field( const std::string& name , CRegion& support, const Uint size, const CField::Basis basis);
-
-  /// create a field with the default support being the full mesh geometry
-  CField& create_field( const std::string& name , const Uint size, const CField::Basis basis);
-
-  /// create a field with a given support
-  /// @param name of the field
-  CField& create_field( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const CField::Basis basis);
-
-  /// create a field with the default support being the full mesh geometry
-  CField& create_field( const std::string& name , const std::vector<std::string>& variables, const CField::Basis basis);
-
   /// Create a field
   /// @param name Name for the field component
   /// @param base String representing the storage method. See CField2::Basis for valid values
@@ -93,12 +78,6 @@ public: // functions
   CField2& create_scalar_field( const std::string& field_name, const std::string& variable_name, const CField2::Basis::Type base);
 
   CField2& create_scalar_field( const std::string& name , CField2& based_on_field);
-
-  /// @return the field with given name
-  const CField& field(const std::string& name) const;
-
-  /// @return the field with given name
-  CField& field(const std::string& name);
 
   void update_statistics();
 

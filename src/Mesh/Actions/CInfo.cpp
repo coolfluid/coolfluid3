@@ -8,10 +8,10 @@
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
 #include "Mesh/CField2.hpp"
 
 #include "Mesh/Actions/CInfo.hpp"
@@ -106,10 +106,6 @@ void CInfo::transform(const CMesh::Ptr& mesh)
       CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_type(i) << "]" << CFendl;
     }
   }
-  boost_foreach( const CField& region, find_components_with_filter<CField>(*m_mesh,IsComponentTrue()))
-  {
-    CFinfo << print_field_tree(region) << CFflush;
-  }  
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -120,32 +116,13 @@ std::string CInfo::print_region_tree(const CRegion& region, Uint level)
     
   for (Uint i=0; i<level; i++)
     tree += "    ";
-  tree += region.name() + " (" + to_str<Uint>(region.recursive_elements_count()) +  ")\n";
+  tree += region.name() + " (" + to_str(region.recursive_elements_count()) +  ")\n";
   
   tree += print_elements(region,level+1);
   
   boost_foreach( const CRegion& subregion, find_components_with_filter<CRegion>(region,IsComponentTrue()))
   {
     tree += print_region_tree(subregion,level+1);
-  }
-  return tree;    
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-std::string CInfo::print_field_tree(const CField& field, Uint level)
-{
-  std::string tree;
-  
-  for (Uint i=0; i<level; i++)
-    tree += "    ";
-  tree += field.name() + " (" + to_str<Uint>(field.recursive_elements_count()) +  ")\n";
-  
-  tree += print_elements(field,level+1);
-  
-  boost_foreach( const CField& subfield, find_components_with_filter<CField>(field,IsComponentTrue()))
-  {
-    tree += print_field_tree(subfield,level+1);
   }
   return tree;    
 }
@@ -160,7 +137,7 @@ std::string CInfo::print_elements(const Component& region, Uint level)
     for (Uint i=0; i<level; i++)
       tree += "    ";
     std::string dimensionality = elements_region.element_type().dimension() == elements_region.element_type().dimensionality() ? "volume" : "surface";
-    tree += elements_region.name() + " -- " + dimensionality + "  (" + to_str<Uint>(elements_region.size()) +  ")\n";
+    tree += elements_region.name() + " -- " + dimensionality + "  (" + to_str(elements_region.size()) +  ")\n";
   }
   return tree;
 }

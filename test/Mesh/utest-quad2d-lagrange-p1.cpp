@@ -17,6 +17,7 @@
 #include "Mesh/CNodes.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
+#include "Mesh/CElements.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 

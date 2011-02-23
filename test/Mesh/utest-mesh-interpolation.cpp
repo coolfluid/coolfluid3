@@ -28,6 +28,8 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CInterpolator.hpp"
+#include "Mesh/CFieldView.hpp"
+#include "Mesh/CSpace.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -107,56 +109,87 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   //interpolator->configure_property("Divisions", divisions );
 
   // Create the honeycomb
-  interpolator->construct_internal_storage(source);
-
+  interpolator->construct_internal_storage(*source);
+  
 	BOOST_CHECK(true);
-
-	std::vector<std::string> nvars;
-	std::vector<std::string> nvars_2;
-	std::vector<std::string> evars;
-	std::vector<std::string> evars_2;
-
-  nvars +=   "rho_n[1]"   , "V_n[3]"   , "p_n[1]";
-  nvars_2 += "rho_n_2[1]" , "V_n_2[3]" , "p_n_2[1]";
-  evars +=   "rho_e[1]"   , "V_e[3]"   , "p_e[1]";
-  evars_2 += "rho_e_2[1]" , "V_e_2[3]" , "p_e_2[1]";
-
+	
+	std::string nvars = "rho_n[1] , V_n[3] , p_n[1]";
+	std::string nvars_2;
+	std::string evars;
+	std::string evars_2;
+	
+  nvars_2 = "rho_n_2[1] , V_n_2[3] , p_n_2[1]";
+	evars =   "rho_e[1] , V_e[3] , p_e[1]";
+  evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
+	
   // Create empty fields
-  source->create_field( "nodebased",      nvars,   CField::NODE_BASED    );
-  source->create_field( "elementbased",   evars,   CField::ELEMENT_BASED );
+  CField2& s_nodebased = source->create_field2( "nodebased", "PointBased" , "rho_n[1] , V_n[3] , p_n[1]"    );
+	CField2& s_elembased = source->create_field2( "elementbased", "ElementBased" , "rho_e[1], V_e[3] , p_e[1]" );
 
-	target->create_field( "nodebased",      nvars,   CField::NODE_BASED    );
-	target->create_field( "nodebased_2",    nvars_2, CField::NODE_BASED    );
-	target->create_field( "elementbased",   evars,   CField::ELEMENT_BASED );
-	target->create_field( "elementbased_2", evars_2, CField::ELEMENT_BASED );
-
+  CField2& t_nodebased   = target->create_field2( "nodebased",   "PointBased" , "rho_n[1] , V_n[3] , p_n[1]"  );
+  CField2& t_nodebased_2 = target->create_field2( "nodebased_2", "PointBased" , "rho_n_2[1] , V_n_2[3] , p_n_2[1]" );
+  CField2& t_elembased   = target->create_field2( "elementbased", "ElementBased" , "rho_e[1], V_e[3] , p_e[1]" );
+	
+//	target->create_field2( "nodebased_2",    nvars_2, CField2::Basis::POINT_BASED    );
+//	target->create_field2( "elementbased",   evars,   CField2::Basis::ELEMENT_BASED );
+//	target->create_field2( "elementbased_2", evars_2, CField2::Basis::ELEMENT_BASED );
+  
 	BOOST_CHECK(true);
+  
+  for ( Uint idx=0; idx!=s_nodebased.size(); ++idx)
+  {      
+    CTable<Real>::ConstRow coords = s_nodebased.coords(idx);
+    
+    CTable<Real>::Row data = s_nodebased[idx];
+    
+    data[0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
+		data[1]=coords[XX];
+		data[2]=coords[YY];
+    data[3]=7.0;
+		data[4]=coords[XX];
 
-  // Set the field data of the source field
-  BOOST_FOREACH(CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*source,"node_data"))
+  }
+  
+  CFieldView s_elembased_view("s_elembased_view");
+  s_elembased_view.set_field(s_elembased);
+  RealMatrix coordinates;
+  boost_foreach( CElements& elements, find_components_recursively<CElements>(s_elembased.topology()) )
   {
-    CFinfo << node_data.full_path().string() << CFendl;
-    CTable<Real>& coordinates = find_component_with_tag(node_data,"nodes_link").follow()->as_type<CNodes>()->coordinates();
+    if (s_elembased_view.set_elements(elements.as_type<CEntities>()))
+    {
+      s_elembased_view.allocate_coordinates(coordinates);
+      RealVector coords(coordinates.rows());
+      
+      for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
+      {
+        s_elembased_view.put_coordinates( coordinates, elem_idx );
+        s_elembased_view.space().shape_function().compute_centroid( coordinates , coords );
+        
+        s_elembased_view[elem_idx][0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
+    		s_elembased_view[elem_idx][1]=coords[XX];
+    		s_elembased_view[elem_idx][2]=coords[YY];
+        s_elembased_view[elem_idx][3]=7.0;
+    		s_elembased_view[elem_idx][4]=coords[XX];
+      }
 
-		for (Uint i=0; i<coordinates.size(); ++i)
-		{
-			node_data[i][0]=coordinates[i][XX]+2.*coordinates[i][YY]+2.*coordinates[i][ZZ];
-			node_data[i][1]=coordinates[i][XX];
-			node_data[i][2]=coordinates[i][YY];
-			node_data[i][3]=7.0;
-			node_data[i][4]=coordinates[i][XX];
-		}
-	}
-
-	BOOST_CHECK(true);
+    }
+    
+  }
+  
+  
+  BOOST_CHECK(true);
 
   // Interpolate the source field data to the target field. Note it can be in same or different meshes
-  interpolator->interpolate_field_from_to(source->field("nodebased"),target->field("nodebased"));
-  interpolator->interpolate_field_from_to(source->field("nodebased"),target->field("elementbased"));
-  interpolator->interpolate_field_from_to(source->field("nodebased"),source->field("elementbased"));
-  interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("elementbased_2"));
-  interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("nodebased_2"));
-
+  interpolator->interpolate_field_from_to(s_nodebased,s_elembased);
+  interpolator->interpolate_field_from_to(s_nodebased,t_nodebased);
+  interpolator->interpolate_field_from_to(s_elembased,t_nodebased_2);
+  interpolator->interpolate_field_from_to(s_elembased,t_elembased);
+  
+  // interpolator->interpolate_field_from_to(source->field("nodebased"),target->field("elementbased"));
+  // interpolator->interpolate_field_from_to(source->field("nodebased"),source->field("elementbased"));
+  // interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("elementbased_2"));
+  // interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("nodebased_2"));
+  
 	BOOST_CHECK(true);
 
   // Write the fields to file.
@@ -166,9 +199,20 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   BOOST_CHECK(true);
 
+  std::vector<CField2::Ptr> s_fields;
+  boost_foreach(CField2& field, find_components_recursively<CField2>(*source))
+    s_fields.push_back(field.as_type<CField2>());
+
+  meshwriter->set_fields(s_fields);
 	meshwriter->write_from_to(source,fp_source_out);
 	BOOST_CHECK(true);
 
+
+  std::vector<CField2::Ptr> t_fields;
+  boost_foreach(CField2& field, find_components_recursively<CField2>(*target))
+    t_fields.push_back(field.as_type<CField2>());
+
+  meshwriter->set_fields(t_fields);
 	meshwriter->write_from_to(target,fp_interpolated);
 	BOOST_CHECK(true);
 
