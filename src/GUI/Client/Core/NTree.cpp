@@ -670,6 +670,7 @@ NTree::Ptr NTree::globalTree()
 {
   static NTree::Ptr tree = ClientRoot::instance().rootChild<NTree>(CLIENT_TREE);
   cf_assert( tree.get() != nullptr );
+
   return tree;
 }
 

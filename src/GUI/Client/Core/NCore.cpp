@@ -186,5 +186,6 @@ NCore::Ptr NCore::globalCore()
 {
   static NCore::Ptr core = ClientRoot::instance().rootChild<NCore>(CLIENT_CORE);
   cf_assert( is_not_null(core.get()) );
+
   return core;
 }
