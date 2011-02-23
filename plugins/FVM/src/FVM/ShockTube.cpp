@@ -26,7 +26,7 @@
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CPhysicalModel.hpp"
-#include "Solver/CIterativeSolver.hpp"
+#include "Solver/CSolver.hpp"
 #include "Solver/CDiscretization.hpp"
 #include "Solver/Actions/CForAllElements2.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
@@ -107,7 +107,7 @@ void ShockTube::signal_create_model ( Signal::arg_t& args )
   pm->configure_property( "Dimensions", 1u );
 
   // setup iterative solver
-  CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.FVM.ForwardEuler", "IterativeSolver");
+  CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.FVM.ForwardEuler", "IterativeSolver");
   solver->mark_basic();
   model->add_component( solver );
 
@@ -150,7 +150,7 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   if (is_null(model))
     throw ValueNotFound (FromHere(), "invalid model");
 
-  CIterativeSolver& solver = find_component<CIterativeSolver>(*model);
+  CSolver& solver = find_component<CSolver>(*model);
   FiniteVolume& finite_volume = find_component<FiniteVolume>(solver);
 
   ////////////////////////////////////////////////////////////////////////////////

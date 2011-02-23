@@ -16,7 +16,7 @@
 
 #include "Solver/CDiscretization.hpp"
 #include "Solver/CEigenLSS.hpp"
-#include "Solver/CIterativeSolver.hpp"
+#include "Solver/CSolver.hpp"
 #include "Solver/CModelSteady.hpp"
 #include "Solver/CPhysicalModel.hpp"
 

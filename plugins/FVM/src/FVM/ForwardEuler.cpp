@@ -34,11 +34,11 @@ using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
 
-Common::ComponentBuilder < ForwardEuler, CIterativeSolver, LibFVM > ForwardEuler_Builder;
+Common::ComponentBuilder < ForwardEuler, CSolver, LibFVM > ForwardEuler_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ForwardEuler::ForwardEuler ( const std::string& name  ) : CIterativeSolver ( name )
+ForwardEuler::ForwardEuler ( const std::string& name  ) : CSolver ( name )
 {
   properties()["brief"] = std::string("Forward Euler Time Stepper");
   std::string description =

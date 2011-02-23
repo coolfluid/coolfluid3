@@ -38,12 +38,12 @@ using namespace Solver;
 using namespace Solver::Actions;
 using namespace Math::MathChecks;
 
-Common::ComponentBuilder < RungeKutta, CIterativeSolver, LibRDM > RungeKutta_Builder;
+Common::ComponentBuilder < RungeKutta, CSolver, LibRDM > RungeKutta_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 RungeKutta::RungeKutta ( const std::string& name  ) :
-  CIterativeSolver ( name ),
+  CSolver ( name ),
   m_cfl(1.0)
 {
   // options

@@ -17,7 +17,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMesh.hpp"
 
-#include "Solver/CIterativeSolver.hpp"
+#include "Solver/CSolver.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
 
 #include "FVM/FiniteVolume.hpp"

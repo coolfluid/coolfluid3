@@ -13,8 +13,8 @@ list( APPEND coolfluid_solver_files
   CDiscretization.cpp
   CEigenLSS.cpp
   CEigenLSS.hpp
-  CIterativeSolver.hpp
-  CIterativeSolver.cpp
+  CSolver.hpp
+  CSolver.cpp
   CTime.hpp
   CTime.cpp
   CMethod.hpp

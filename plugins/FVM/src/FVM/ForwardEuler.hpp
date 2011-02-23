@@ -11,7 +11,7 @@
 
 #include "Common/CLink.hpp"
 
-#include "Solver/CIterativeSolver.hpp"
+#include "Solver/CSolver.hpp"
 
 #include "FVM/ComputeUpdateCoefficient.hpp"
 #include "FVM/LibFVM.hpp"
@@ -37,7 +37,7 @@ namespace FVM {
 /// RKRD iterative solver
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class FVM_API ForwardEuler : public Solver::CIterativeSolver {
+class FVM_API ForwardEuler : public Solver::CSolver {
 
 public: // typedefs
 

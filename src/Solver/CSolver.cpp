@@ -7,7 +7,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 
-#include "Solver/CIterativeSolver.hpp"
+#include "Solver/CSolver.hpp"
 
 namespace CF {
 namespace Solver {
@@ -16,7 +16,7 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
+CSolver::CSolver ( const std::string& name  ) :
   CMethod ( name ),
   m_nb_iter(0)
 {
@@ -39,18 +39,18 @@ CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
   // signals
 
   this->regist_signal ( "solve" , "Solves by executing a number of iterations", "Solve" )
-      ->connect ( boost::bind ( &CIterativeSolver::signal_solve, this, _1 ) );
+      ->connect ( boost::bind ( &CSolver::signal_solve, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CIterativeSolver::~CIterativeSolver()
+CSolver::~CSolver()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CIterativeSolver::signal_solve ( Common::Signal::arg_t& node )
+void CSolver::signal_solve ( Common::Signal::arg_t& node )
 {
   // XmlParams p ( node );
 

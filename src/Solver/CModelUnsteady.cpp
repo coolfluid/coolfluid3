@@ -17,7 +17,7 @@
 #include "Mesh/CMesh.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
-#include "Solver/CIterativeSolver.hpp"
+#include "Solver/CSolver.hpp"
 
 namespace CF {
 namespace Solver {
@@ -83,7 +83,7 @@ void CModelUnsteady::simulate ()
       m_time->dt() = tf - m_time->time();
 
     // call all (non-linear) iterative solvers to solve this dt step
-    boost_foreach(CIterativeSolver& is, find_components<CIterativeSolver>(*this))
+    bCSolvererativeSolver& is, finCSolvererativeSolver>(*this))
       is.solve();
 
     m_time->time() += m_time->dt();

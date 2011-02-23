@@ -16,7 +16,7 @@
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
 
-#include "Solver/CIterativeSolver.hpp"
+#include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
 #include "Solver/CDiscretization.hpp"
 #include "Solver/CPhysicalModel.hpp"
@@ -68,14 +68,14 @@ struct rotationadv2d_local_fixture
   rotationadv2d_local_fixture() :
     model  ( * Core::instance().root()->get_child("mymodel")->as_type<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
-    solver ( find_component_recursively<CIterativeSolver>(model) ),
+    solver ( find_component_recursively<CSolver>(model) ),
     discretization( find_component_recursively<CDiscretization>(solver) )
 
   {}
 
   CModel& model;
   CDomain& domain;
-  CIterativeSolver& solver;
+  CSolver& solver;
   CDiscretization& discretization;
 };
 

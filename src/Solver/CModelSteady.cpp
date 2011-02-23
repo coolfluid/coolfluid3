@@ -9,7 +9,7 @@
 #include "Common/ComponentPredicates.hpp"
 
 #include "Solver/CModelSteady.hpp"
-#include "Solver/CIterativeSolver.hpp"
+#include "Solver/CSolver.hpp"
 
 namespace CF {
 namespace Solver {
@@ -36,7 +36,7 @@ CModelSteady::~CModelSteady()
 
 void CModelSteady::simulate ()
 {
-  boost_foreach(CIterativeSolver& is, find_components<CIterativeSolver>(*this))
+  bCSolvererativeSolver& is, finCSolvererativeSolver>(*this))
     is.solve();
 }
 

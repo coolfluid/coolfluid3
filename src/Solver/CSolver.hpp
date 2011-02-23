@@ -21,23 +21,23 @@ namespace Solver {
 /// Iterative solver component
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class Solver_API CIterativeSolver : public Solver::CMethod {
+class Solver_API CSolver : public Solver::CMethod {
 
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<CIterativeSolver> Ptr;
+  typedef boost::shared_ptr<CSolver> Ptr;
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<CIterativeSolver const> ConstPtr;
+  typedef boost::shared_ptr<CSolver const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CIterativeSolver ( const std::string& name );
+  CSolver ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CIterativeSolver();
+  virtual ~CSolver();
 
   /// Get the class name
   static std::string type_name () { return "CIterativeSolver"; }

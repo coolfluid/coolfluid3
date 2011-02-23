@@ -13,7 +13,7 @@
 
 #include "Solver/CModelSteady.hpp"
 #include "Solver/CPhysicalModel.hpp"
-#include "Solver/CIterativeSolver.hpp"
+#include "Solver/CSolver.hpp"
 #include "Solver/CDiscretization.hpp"
 
 
@@ -79,7 +79,7 @@ void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
   CFinfo << " creating solver" << CFendl;
 
   // setup iterative solver
-  CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.RDM.RungeKutta", "IterativeSolver");
+  CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.RDM.RungeKutta", "IterativeSolver");
   solver->mark_basic();
   model->add_component( solver );
 
