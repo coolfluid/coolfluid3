@@ -13,12 +13,10 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/CreateComponent.hpp"
 #include "Common/StringConversion.hpp"
 
 #include "Math/MathChecks.hpp"
-
-#include "RDM/RKRD.hpp"
-#include "Solver/CDiscretization.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
@@ -28,6 +26,9 @@
 
 #include "Solver/Actions/CLoop.hpp"
 #include "Solver/Actions/CForAllNodes.hpp"
+
+#include "RDM/RKRD.hpp"
+#include "RDM/CAction.hpp"
 
 namespace CF {
 namespace RDM {
@@ -66,7 +67,7 @@ RKRD::RKRD ( const std::string& name  ) :
 
   m_properties.add_option(OptionComponent<CMesh>::create("Mesh","Mesh the Discretization Method will be applied to",&m_mesh))
     ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
-  properties()["Mesh"].as_option()->add_tag("mesh");
+  properties()["Mesh"].as_option().add_tag("mesh");
 
   // properties
 
@@ -111,14 +112,20 @@ RKRD::~RKRD() {}
 
 void RKRD::config_domain()
 {
+  CFinfo << FromHere().short_str() << CFendl;
+
   CDomain::Ptr domain = look_component<CDomain>( property("Domain").value<URI>() );
   if( is_null(domain) )
     throw InvalidURI( FromHere(), "Path does not point to Domain");
 
+  CFinfo << FromHere().short_str() << CFendl;
+
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>( *domain );
+
+  CFinfo << "mesh " << mesh->full_path().string() << CFendl;
   if (is_not_null(mesh))
   {
-    m_mesh.lock() = mesh;
+    m_mesh = mesh;
     config_mesh();
   }
 }
@@ -127,6 +134,15 @@ void RKRD::config_domain()
 
 void RKRD::config_mesh()
 {
+  CFinfo << FromHere().short_str() << CFendl;
+
+  if( is_null(m_mesh.lock()) )
+      return;
+
+  CFinfo << FromHere().short_str() << CFendl;
+
+  CMesh& mesh = *(m_mesh.lock());
+
   // configure solution
   std::string solution_tag("solution");
   m_solution = find_component_ptr_with_tag<CField2>( mesh, solution_tag );
@@ -142,21 +158,21 @@ void RKRD::config_mesh()
 
   // configure residual
   std::string residual_tag("residual");
-  m_residual = find_component_ptr_with_tag<CField2>(*mesh, residual_tag);
+  m_residual = find_component_ptr_with_tag<CField2>( mesh, residual_tag);
   if ( is_null( m_residual.lock() ) )
   {
     CFinfo << " +++ creating residual field " << CFendl;
-    m_residual = mesh->create_field2("residual",*solution).as_type<CField2>();
+    m_residual = mesh.create_field2("residual",*m_solution.lock()).as_type<CField2>();
     m_residual.lock()->add_tag(residual_tag);
   }
 
   // configure update_coeff
   std::string update_coeff_tag("update_coeff");
-  m_update_coeff = find_component_ptr_with_tag<CField2>(*mesh, update_coeff_tag);
+  m_update_coeff = find_component_ptr_with_tag<CField2>( mesh, update_coeff_tag);
   if ( is_null(m_update_coeff.lock()) )
   {
     CFinfo << " +++ creating update_coeff field " << CFendl;
-    m_update_coeff = mesh->create_scalar_field("update_coeff",*solution).as_type<CField2>();
+    m_update_coeff = mesh.create_scalar_field("update_coeff",*m_solution.lock()).as_type<CField2>();
     m_update_coeff.lock()->add_tag(update_coeff_tag);
   }
 }
@@ -233,7 +249,7 @@ void RKRD::signal_create_boundary_term( Signal::arg_t& node )
 //  CAction& face_loop =
 //      m_compute_boundary_face_terms->create_action("CF.Solver.Actions.CForAllFaces", name);
 
-  CAction::Ptr face_loop = create_component_abstract_type<CLoop>("CF.Solver.Actions.CForAllNodes2",name);
+  Common::CAction::Ptr face_loop = create_component_abstract_type<CLoop>("CF.Solver.Actions.CForAllNodes2",name);
   m_compute_boundary_face_terms->add_component(face_loop);
 
   face_loop->configure_property("Regions" , regions);

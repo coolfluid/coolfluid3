@@ -18,7 +18,6 @@
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
-#include "Solver/CDiscretization.hpp"
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/Actions/CLoop.hpp"
 
@@ -31,8 +30,8 @@
 #include "Mesh/Actions/CBubbleEnrich.hpp"
 #include "Mesh/Actions/CBubbleRemove.hpp"
 
+#include "RDM/RKRD.hpp"
 #include "RDM/ScalarAdvection.hpp"
-#include "RDM/ResidualDistribution.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -68,15 +67,12 @@ struct rotationadv2d_local_fixture
   rotationadv2d_local_fixture() :
     model  ( * Core::instance().root()->get_child("mymodel")->as_type<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
-    solver ( find_component_recursively<CSolver>(model) ),
-    discretization( find_component_recursively<CDiscretization>(solver) )
-
+    solver ( find_component_recursively<CSolver>(model) )
   {}
 
   CModel& model;
   CDomain& domain;
   CSolver& solver;
-  CDiscretization& discretization;
 };
 
 
@@ -166,9 +162,9 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   options.set_option<std::string>("Type","CF.RDM.BcDirichlet");
   options.set_array("Regions", bc_regions, " ; ");
 
-  discretization.as_type<ResidualDistribution>()->signal_create_boundary_term(frame);
+  solver.as_type<RKRD>()->signal_create_boundary_term(frame);
 
-  Component::Ptr inletbc = find_component_ptr_recursively_with_name( discretization, name );
+  Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   cf_assert( is_not_null(inletbc) );
 
   inletbc->get_child("action")->
@@ -200,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , rotationadv2d_local_fixture )
   options.set_option<std::string>("Type","CF.RDM.CLDA<RotationAdv2D>");
   options.set_array("Regions", bc_regions, " ; ");
 
-  discretization.as_type<ResidualDistribution>()->signal_create_domain_term(frame);
+  solver.as_type<RKRD>()->signal_create_domain_term(frame);
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 

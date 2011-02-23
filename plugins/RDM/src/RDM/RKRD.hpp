@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CLink.hpp"
+#include "Common/CAction.hpp"
 
 #include "Solver/CSolver.hpp"
 
@@ -17,8 +18,7 @@
 
 namespace CF {
 
-namespace Mesh   { class CField2; }
-namespace Solver { class CDiscretization; }
+namespace Mesh   { class CField2; class CMesh; }
 
 namespace RDM {
 

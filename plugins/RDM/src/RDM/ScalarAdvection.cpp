@@ -14,7 +14,6 @@
 #include "Solver/CModelSteady.hpp"
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CSolver.hpp"
-#include "Solver/CDiscretization.hpp"
 
 
 #include "RDM/ScalarAdvection.hpp"

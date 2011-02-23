@@ -29,7 +29,7 @@ namespace RDM {
 /////////////////////////////////////////////////////////////////////////////////////
 
 template < typename PHYS >
-class RDM_API CLDA : public RDM::CAction
+class RDM_API CLDA : public RDM::Action
 {
 
   /// Looper defines a functor taking the type that boost::mpl::for_each

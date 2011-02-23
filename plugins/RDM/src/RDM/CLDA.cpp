@@ -26,7 +26,7 @@ Common::ComponentBuilder < CLDA<Burgers2D>,     CAction, LibRDM > CLDA_Burgers2D
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename PHYS >
-CLDA<PHYS>::CLDA ( const std::string& name  ): RDM::CAction(name)
+CLDA<PHYS>::CLDA ( const std::string& name  ): RDM::Action(name)
 {
   regist_typeinfo(this);
 }

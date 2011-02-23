@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_CAction_hpp
-#define CF_RDM_CAction_hpp
+#ifndef CF_RDM_Action_hpp
+#define CF_RDM_Action_hpp
 
 #include "Common/CAction.hpp"
 
@@ -21,27 +21,27 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API CAction : public Common::CAction
+class RDM_API Action : public Common::CAction
 {
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< CAction > Ptr;
-  typedef boost::shared_ptr< CAction const > ConstPtr;
+  typedef boost::shared_ptr< Action > Ptr;
+  typedef boost::shared_ptr< Action const > ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CAction ( const std::string& name );
+  Action ( const std::string& name );
 
   void config_regions();
 
   /// Virtual destructor
-  virtual ~CAction() {}
+  virtual ~Action() {}
 
   /// Get the class name
-  static std::string type_name () { return "CAction"; }
+  static std::string type_name () { return "Action"; }
 
   /// Executes this action
   virtual void execute() = 0;
@@ -52,7 +52,7 @@ protected:
   boost::weak_ptr< Mesh::CMesh > m_mesh;
 
   /// regions of the mesh to loop over
-  std::vector< boost::weak_ptr< Mesh::CRegion > > m_loop_regions;
+  std::vector< boost::shared_ptr< Mesh::CRegion > > m_loop_regions;
 
 };
 
@@ -63,4 +63,4 @@ protected:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_CAction_hpp
+#endif // CF_RDM_Action_hpp

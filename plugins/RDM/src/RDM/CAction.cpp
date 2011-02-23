@@ -25,7 +25,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CAction::CAction ( const std::string& name ) :
+Action::Action ( const std::string& name ) :
   Common::CAction(name)
 {
   mark_basic();
@@ -38,18 +38,18 @@ CAction::CAction ( const std::string& name ) :
     ->mark_basic()
     ->add_tag("mesh");
 
-//  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( & CAction::config_mesh, this ) );
+//  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( & Action::config_mesh, this ) );
 
   std::vector< URI > dummy;
   m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy);
 
-  m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &CAction::config_regions,   this ) );
+  m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CAction::config_regions()
+void Action::config_regions()
 {
   std::vector<URI> vec; property("Regions").put_value(vec);
 
