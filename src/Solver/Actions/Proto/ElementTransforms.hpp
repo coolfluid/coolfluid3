@@ -217,7 +217,7 @@ struct SFOpsExplicit :
     boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
     <
       boost::proto::function<SFFieldVariables, MappedCoordinate>,
-      ApplySFOp( ExtractOpType( boost::proto::terminal< SFOp<InterpolationOp> >(), VarNumber(boost::proto::_child_c<0>) ), boost::proto::_value(boost::proto::_child_c<1>) )
+      ApplySFOp( ExtractOpType( boost::proto::_make_terminal(SFOp<InterpolationOp>()), VarNumber(boost::proto::_child_c<0>) ), boost::proto::_value(boost::proto::_child_c<1>) )
     >
   >
 {
@@ -245,7 +245,7 @@ struct SFOpsImplicit :
     boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
     <
       SFFieldVariables,
-      ApplySFOp( ExtractOpType( boost::proto::terminal< SFOp<InterpolationOp> >(), VarNumber ) )
+      ApplySFOp( ExtractOpType( boost::proto::_make_terminal(SFOp<InterpolationOp>()), VarNumber ) )
     >
   >
 {

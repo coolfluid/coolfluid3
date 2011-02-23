@@ -14,6 +14,7 @@
 #include <boost/mpi/collectives.hpp>
 
 #include "Common/Log.hpp"
+#include "Common/ComponentPredicates.hpp"
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CTable.hpp"
