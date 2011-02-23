@@ -26,7 +26,7 @@ Common::ComponentBuilder < CLDA<Burgers2D>,     CAction, LibRDM > CLDA_Burgers2D
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename PHYS >
-CLDA<PHYS>::CLDA ( const std::string& name  ): CLoop(name)
+CLDA<PHYS>::CLDA ( const std::string& name  ): RDM::CAction(name)
 {
   regist_typeinfo(this);
 }
@@ -45,6 +45,7 @@ void CLDA<PHYS>::execute()
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////
 
 /// Operator needed for the loop over element types, identified by shape functions (SF)
 template < typename PHYS>

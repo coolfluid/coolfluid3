@@ -9,10 +9,8 @@ list( APPEND coolfluid_rdm_files
   CLDA.cpp
   CSchemeLDAT.hpp
   CSchemeN.hpp
-  ResidualDistribution.cpp
-  ResidualDistribution.hpp
-  RungeKutta.cpp
-  RungeKutta.hpp
+  RKRD.cpp
+  RKRD.hpp
   ScalarAdvection.hpp
   ScalarAdvection.cpp
   SupportedTypes.hpp
@@ -28,11 +26,3 @@ list( APPEND coolfluid_rdm_files
 list( APPEND coolfluid_rdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_solver_actions coolfluid_solver )
 
 coolfluid_add_library( coolfluid_rdm )
-
-coolfluid_mark_not_orphan(
-       FluxOp2D.martin.hpp
-       CSchemeLDAT.martin.hpp
-       FluxOp2D.mario.hpp
-       CSchemeN.martin.hpp
-       CSchemeLDAT.mario.hpp
- )

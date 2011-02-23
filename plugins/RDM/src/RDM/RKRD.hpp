@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_RungeKutta_hpp
-#define CF_RDM_RungeKutta_hpp
+#ifndef CF_RDM_RKRD_hpp
+#define CF_RDM_RKRD_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CLink.hpp"
 
-#include "Solver/CIterativeSolver.hpp"
+#include "Solver/CSolver.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -24,49 +24,73 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// RKRD iterative solver
+/// RKRD solver
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class RDM_API RungeKutta : public Solver::CIterativeSolver {
+class RDM_API RKRD : public Solver::CSolver {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<RungeKutta> Ptr;
-  typedef boost::shared_ptr<RungeKutta const> ConstPtr;
+  typedef boost::shared_ptr<RKRD> Ptr;
+  typedef boost::shared_ptr<RKRD const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  RungeKutta ( const std::string& name );
+  RKRD ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~RungeKutta();
+  virtual ~RKRD();
 
   /// Get the class name
-  static std::string type_name () { return "RungeKutta"; }
+  static std::string type_name () { return "RKRD"; }
 
-  // functions specific to the RungeKutta component
+  // functions specific to the RKRD component
   
   virtual void solve();
   
-  Solver::CDiscretization& discretization_method();
-  
+  /// @name SIGNALS
+  //@{
+
+  /// signature for @see signal_create_boundary_term
+  void signature_signal_create_boundary_term( Common::Signal::arg_t& node );
+  /// creates a boundary term
+  void signal_create_boundary_term( Common::Signal::arg_t& xml );
+
+  /// signature for @see signal_create_boundary_term
+  void signature_create_domain_term( Common::Signal::arg_t& node );
+  /// creates a domain term
+  void signal_create_domain_term( Common::Signal::arg_t& xml );
+
+  //@} END SIGNALS
+
+
 private: // functions
 
   void config_domain();
-  
+  void config_mesh();
+
 private: // data
 
   /// CFL number
   CF::Real m_cfl;
-  
+
+  /// mesh which this solver operates
+  boost::weak_ptr<Mesh::CMesh> m_mesh;
+
   /// solution field pointer
   boost::weak_ptr<Mesh::CField2> m_solution;
   /// residual field pointer
   boost::weak_ptr<Mesh::CField2> m_residual;
   /// update_coeff field pointer
   boost::weak_ptr<Mesh::CField2> m_update_coeff;
+
+  /// action to compute the boundary face terms
+  Common::CAction::Ptr m_compute_boundary_face_terms;
+
+  /// action to compute the domain cell terms
+  Common::CAction::Ptr m_compute_volume_cell_terms;
 
 };
 
@@ -77,4 +101,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_RungeKutta_hpp
+#endif // CF_RDM_RKRD_hpp

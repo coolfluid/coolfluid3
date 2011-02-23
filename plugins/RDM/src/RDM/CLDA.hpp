@@ -14,9 +14,8 @@
 
 #include "Mesh/CRegion.hpp"
 
-#include "Solver/Actions/CLoop.hpp"
-
 #include "RDM/LibRDM.hpp"
+#include "RDM/CAction.hpp"
 #include "RDM/SupportedTypes.hpp"
 
 #include "RDM/CSchemeLDAT.hpp"
@@ -30,7 +29,7 @@ namespace RDM {
 /////////////////////////////////////////////////////////////////////////////////////
 
 template < typename PHYS >
-class RDM_API CLDA : public Solver::Actions::CLoop
+class RDM_API CLDA : public RDM::CAction
 {
 
   /// Looper defines a functor taking the type that boost::mpl::for_each

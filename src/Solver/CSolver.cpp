@@ -24,21 +24,26 @@ CSolver::CSolver ( const std::string& name  ) :
 
   // properties
 
-  properties()["brief"]=std::string("Iterative Solver component");
-  std::string description =
-    "Handles time stepping and convergence operations.\n"
-    "The iterative solver delegates space discretization to a discretization method, \n"
-    "or can call another iterative solver which then takes care of space discretization.";
-  properties()["description"] = description;
+  properties()["brief"] = std::string("Residual Distribution Solver");
+  properties()["description"] = std::string("");
 
-  m_properties.add_option<OptionT <Uint> >("Number of Iterations","Maximum number of iterations",m_nb_iter)->mark_basic();
-  m_properties["Number of Iterations"].as_option().link_to( &m_nb_iter );
+  // options
 
-  m_properties.add_option< OptionURI > ("Domain", "Domain to solve", URI("cpath:../Domain"));
+  m_properties.add_option<OptionT <Uint> >("Number of Iterations",
+                                           "Maximum number of iterations",
+                                           m_nb_iter)
+      ->mark_basic()
+      ->link_to( &m_nb_iter );
+
+  m_properties.add_option< OptionURI > ("Domain",
+                                        "Domain to solve",
+                                        URI("cpath:../Domain"));
 
   // signals
 
-  this->regist_signal ( "solve" , "Solves by executing a number of iterations", "Solve" )
+  regist_signal ("solve" ,
+                 "Solves by executing a number of iterations",
+                 "Solve" )
       ->connect ( boost::bind ( &CSolver::signal_solve, this, _1 ) );
 }
 
@@ -52,10 +57,9 @@ CSolver::~CSolver()
 
 void CSolver::signal_solve ( Common::Signal::arg_t& node )
 {
-  // XmlParams p ( node );
-
   this->solve(); // dispatch to the virtual function
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CIterativeSolver_hpp
-#define CF_Solver_CIterativeSolver_hpp
+#ifndef CF_Solver_CSolver_hpp
+#define CF_Solver_CSolver_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,9 +40,9 @@ public: // functions
   virtual ~CSolver();
 
   /// Get the class name
-  static std::string type_name () { return "CIterativeSolver"; }
+  static std::string type_name () { return "CSolver"; }
 
-  // functions specific to the CIterativeSolver component
+  // functions specific to the CSolver component
 
   /// Solves a non-linear problem by converging its solution
   virtual void solve() = 0;
@@ -69,4 +69,4 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CIterativeSolver_hpp
+#endif // CF_Solver_CSolver_hpp

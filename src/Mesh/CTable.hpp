@@ -192,7 +192,7 @@ public: // functions
     return *this;
   }
   
-  CTable& operator =(const Real& c)
+  CTable& operator =(const value_type& c)
   { 
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)

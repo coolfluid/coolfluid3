@@ -60,7 +60,7 @@ public: // functions
 
 private: // helper functions
 
-  void trigger_elements()
+  void change_elements()
   { 
     /// @todo improve this (ugly)
 
@@ -127,7 +127,7 @@ CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeLDAT ( const std::string& name
 {
   regist_typeinfo(this);
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::trigger_elements,   this ) );
+  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
 
   m_flux_oper_values.resize(QUADRATURE::nb_points);
   m_phi.resize(SHAPEFUNC::nb_nodes);

@@ -79,17 +79,9 @@ void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
   CFinfo << " creating solver" << CFendl;
 
   // setup iterative solver
-  CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.RDM.RungeKutta", "IterativeSolver");
+  CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.RDM.RKRD", "IterativeSolver");
   solver->mark_basic();
   model->add_component( solver );
-
-  CFinfo << " creating dm" << CFendl;
-
-  // setup discretization method
-  CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.RDM.ResidualDistribution", "Discretization");
-  cdm->mark_basic();
-  solver->add_component( cdm );
-
 
   CFinfo << "------------------------" << CFendl;
 
