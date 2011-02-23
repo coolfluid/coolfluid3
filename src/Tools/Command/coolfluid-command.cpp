@@ -84,30 +84,6 @@ int main(int argc, char * argv[])
         return 1;
       }
     }
-
-    //-------------------------------------------------------------------------------
-
-    // read the mesh
-    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-
-    // the file to read from
-    boost::filesystem::path inputfile ("quadtriag.neu");
-
-    // the mesh to store in
-    CRoot::Ptr root = CRoot::create("root");
-    CMesh::Ptr mesh = meshreader->create_mesh_from(inputfile);
-    root->add_component(mesh);
-
-    mesh->create_field("volumes",1, CField::ELEMENT_BASED);
-
-    std::vector<URI> regions_to_loop = boost::assign::list_of(URI("cpath://root/mesh/quadtriag"));
-
-    CFinfo << CFendl << CFendl;
-
-    std::cout << mesh->tree() << std::endl;
-
-    CFinfo << CFendl << CFendl;
-
   }
   catch ( std::exception& ex )
   {
