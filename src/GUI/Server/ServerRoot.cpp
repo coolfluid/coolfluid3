@@ -8,7 +8,6 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/CPlotXY.hpp"
 #include "Common/Core.hpp"
 
 #include "Common/CRoot.hpp"
@@ -85,7 +84,6 @@ CRoot::Ptr ServerRoot::root()
     Component::Ptr tools = root->get_child("Tools");
 
     tools->create_component<CJournal>("Journal")->mark_basic();
-    tools->create_component<CPlotXY>("History")->mark_basic();
     tools->create_component<CPlotter>("Plotter")->mark_basic();
 
     CTable<Real>::Ptr table = tools->create_component< CTable<Real> >("MyTable");
