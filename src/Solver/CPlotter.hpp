@@ -9,14 +9,16 @@
 
 #include "Common/Component.hpp"
 
+#include "Solver/LibSolver.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Common {
+namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Common_API CPlotter : public Component
+class Solver_API CPlotter : public Common::Component
 {
 public: // typedefs
 
@@ -29,14 +31,14 @@ public:
 
   static std::string type_name() { return "CPlotter"; }
 
-  void add_data_set(const URI & uri);
+  void add_data_set(const Common::URI & uri);
 
   /// @name SIGNALS
   //@{
 
-  void signal_create_xyplot( Signal::arg_t & args);
+  void signal_create_xyplot( Common::Signal::arg_t & args);
 
-  void signature_create_xyplot( Signal::arg_t & args);
+  void signature_create_xyplot( Common::Signal::arg_t & args);
 
   //@} END SIGNALS
 

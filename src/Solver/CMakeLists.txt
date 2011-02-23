@@ -19,6 +19,10 @@ list( APPEND coolfluid_solver_files
   CTime.cpp
   CMethod.hpp
   CMethod.cpp
+  CPlotter.cpp
+  CPlotter.hpp
+  CPlotXY.cpp
+  CPlotXY.hpp
   LibSolver.hpp
   LibSolver.cpp
 )

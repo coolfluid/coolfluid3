@@ -11,13 +11,13 @@
 #include "Common/Core.hpp"
 
 #include "Common/CRoot.hpp"
-#include "Common/CPlotter.hpp"
 #include "Common/NotificationQueue.hpp"
 #include "Common/XML/Protocol.hpp"
 
 #include "Mesh/CTable.hpp"
 
 #include "Solver/CMethod.hpp"
+#include "Solver/CPlotter.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -31,6 +31,7 @@ using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::GUI::Server;
 using namespace CF::Mesh;
+using namespace CF::Solver;
 
 NotificationQueue * ServerRoot::m_queue;
 Notifier * ServerRoot::m_notifier;

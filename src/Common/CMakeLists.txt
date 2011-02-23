@@ -33,8 +33,6 @@ list( APPEND coolfluid_common_files
     CRoot.cpp
     CGroup.hpp
     CGroup.cpp
-    CPlotXY.cpp
-    CPlotXY.hpp
     CJournal.cpp
     CJournal.hpp
     CLibraries.cpp
@@ -46,8 +44,6 @@ list( APPEND coolfluid_common_files
     CMap.hpp
     Core.hpp
     Core.cpp
-    CPlotter.cpp
-    CPlotter.hpp
     CreateComponent.hpp
     CreateComponentDataType.hpp
     DirPaths.cpp

@@ -4,23 +4,24 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CPlotXY.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/LibCommon.hpp"
-#include "Common/Log.hpp"
 
-#include "Common/CPlotter.hpp"
+#include "Solver/CPlotXY.hpp"
+#include "Solver/LibSolver.hpp"
+
+#include "Solver/CPlotter.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
+
+using namespace CF::Common;
+using namespace CF::Common::XML;
 
 namespace CF {
-namespace Common {
-
-using namespace XML;
+namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder < CPlotter, Component, LibCommon > CPlotter_Builder;
+ComponentBuilder < CPlotter, Component, LibSolver > CPlotter_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +46,7 @@ CPlotter::CPlotter(const std::string & name) :
 
 void CPlotter::signal_create_xyplot(Signal::arg_t &args)
 {
-  XML::SignalFrame& options = args.map( XML::Protocol::Tags::key_options() );
+  SignalFrame& options = args.map( Protocol::Tags::key_options() );
 
   std::string name = options.get_option<std::string>("Plot name");
   URI parent = options.get_option<URI>("Parent");
@@ -71,11 +72,9 @@ void CPlotter::signal_create_xyplot(Signal::arg_t &args)
 
 void CPlotter::signature_create_xyplot(Signal::arg_t &args)
 {
-  XML::SignalFrame& options = args.map( XML::Protocol::Tags::key_options() );
+  SignalFrame& options = args.map( Protocol::Tags::key_options() );
 
   options.set_option("Plot name", std::string(), "Name for the new plot");
-  XmlNode set_node = options.set_option("Data set", std::string(), "The data set to watch");
-  Map(set_node).set_array( Protocol::Tags::key_restricted_values(), m_data_sets, " ; ");
   options.set_option("Parent", Core::instance().root()->full_path(), "Parent of the new component");
 }
 

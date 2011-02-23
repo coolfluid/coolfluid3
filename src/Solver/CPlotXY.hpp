@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CPlotXY_hpp
-#define CF_Common_CPlotXY_hpp
+#ifndef CF_Solver_CPlotXY_hpp
+#define CF_Solver_CPlotXY_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +14,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Common {
+namespace Solver {
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ namespace Common {
 /// @author Gil Wertz
 /// @author Quentin Gasper
 class CPlotXY :
-    public Component
+    public Common::Component
 {
 public: // typedefs
 
@@ -39,7 +39,9 @@ public:
     /// Get the class name
     static std::string type_name () { return "CPlotXY"; }
 
-    void convergence_history( Signal::arg_t & args );
+    void set_data (const Common::URI & uri);
+
+    void convergence_history( Common::Signal::arg_t & args );
 
     /// @param points Number of points to compute.
     void sine (int points);
@@ -56,9 +58,9 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Common
+} // Solver
 } // CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CPlotXY_hpp
+#endif // CF_Solver_CPlotXY_hpp
