@@ -86,11 +86,29 @@ CRoot::Ptr ServerRoot::root()
     tools->create_component<CJournal>("Journal")->mark_basic();
     tools->create_component<CHistory>("History")->mark_basic();
 
-//    CTable::Ptr table = tools->create_component<CTable>("MyTable");
+    CTable<Real>::Ptr table = tools->create_component< CTable<Real> >("MyTable");
+    table->set_row_size(8); // reserve 8 columns
+    CTable<Real>::Buffer buffer = table->create_buffer();
 
-//    table->set_row_size(8); //
+    table->mark_basic();
 
-//    table->mark_basic();
+    // fill the table
+    std::vector<Real> row(8);
+
+    for(Real value = 0.0 ; value != 1000.0 ; value += 1.0 )
+    {
+      row[0] = value / 1000;          // x
+      row[1] = 0;                     // y
+      row[2] = (value / 1000) - 1;    // z
+      row[3] = std::sin(4 * row[0]);  // u
+      row[4] = 0;                     // v
+      row[5] = std::cos(4 * row[2]);  // w
+      row[6] = 1000;                  // p
+      row[7] = 278 * row[0];          // t
+
+      buffer.add_row( row );
+    }
+
   }
 
   return root;
