@@ -25,7 +25,6 @@ using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
-using namespace CF::Common::String;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +36,7 @@ struct ZoltanTests_Fixture
     // uncomment if you want to use arguments to the test executable
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
-    
+
   }
 
   /// common tear-down for each test case
@@ -47,7 +46,7 @@ struct ZoltanTests_Fixture
   }
 
   /// possibly common functions used on the tests below
-  
+
   int m_argc;
   char** m_argv;
 };
@@ -74,7 +73,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
-  
+
   // the mesh to store in
   CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
   CMesh& mesh = *mesh_ptr;
@@ -82,12 +81,12 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   boost::filesystem::path fp_out_1 ("quadtriag.msh");
   meshwriter->write_from_to(mesh_ptr,fp_out_1);
-  
+
   CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
-  
+
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
-  
+
   //p.configure_property("Number of Partitions", (Uint) 4);
   p.configure_property("Graph Package", std::string("PHG"));
   p.configure_property("Debug Level", 2u);
