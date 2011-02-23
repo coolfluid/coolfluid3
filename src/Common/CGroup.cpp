@@ -4,16 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-/// @todo can be removed when removing "count" option,
-/// as well as the "using namespace boost::assign;" directive.
-#include <boost/assign/std/vector.hpp>
-
 #include "Common/CGroup.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/OptionT.hpp"
-
-using namespace boost::assign; // for operator+=()
 
 namespace CF {
 namespace Common {
