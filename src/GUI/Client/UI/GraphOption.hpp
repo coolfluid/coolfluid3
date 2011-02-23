@@ -9,6 +9,8 @@
 #define GRAPHOPTION_HPP
 
 #include <QTableWidget>
+#include <QPushButton>
+
 #include <qwt/qwt_plot.h>
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,48 +25,95 @@ namespace ClientUI {
 class GraphOption : public QWidget
 {
     Q_OBJECT
-public:
+public: //functions
 
     /// constructor
+    /// @param fcts Data of functions.
+    /// @param fcts_label Name of functions.
+    /// @param ptr_plot Pointer of the QwtPlot where we draw functions.
+    /// @param parent The QWidget of this QWidget.
     GraphOption(std::vector< std::vector<double> > & fcts,
-                std::vector<QString> & fct_label,
+                std::vector<QString> & fcts_label,
                 QwtPlot * ptr_plot,
                 QWidget *parent = 0);
 
-    /// set the data to show in the option tab
-    void set_data(std::vector< std::vector<double> > & fcts,
-                  std::vector<QString> & fct_label);
+    /// Set the data to show in the option tab.
+    /// @param fcts Data of functions.
+    /// @param fcts_label Name of functions.
+    void set_data(std::vector< std::vector<double> > & fcts,std::vector<QString> & fcts_label);
 
-    /// add the data to show in the option tab
-    void add_data(std::vector<double> & fct, QString formule,
-                  QString function_name);
+    /// Add a function in the function set with it name and formula.
+    /// @param fct Data of the function.
+    /// @param function_name Name of the function.
+    /// @param formula Formula of the function.
+    void add_data(std::vector<double> & fct, QString fct_label ,QString formula = "");
 
-private:
-    /// QwtPlot pointer, refer to the plot where we draw cures
-    QwtPlot * m_ptr_plot;
 
-    /// the curves data
-    std::vector< std::vector<double> > m_fcts;
+private: //functions
 
-    /// User tipe his function here
-    QLineEdit * in_line_function;
+    /// Same that the slot.
+    void  generate_function(QString name,QString fct);
 
-    /// User tipe name funtion
-    QLineEdit * in_line_function_name;
+private: //datas
 
-    /// cell and item table
-    QTableWidget * m_tableau;
+  /// QwtPlot pointer, refer to the plot where we draw cures.
+  QwtPlot * m_ptr_plot;
 
-    /// function that find whitch data are the referance x
-    int find_x();
+  /// The curves data.
+  std::vector< std::vector<double> > m_fcts;
 
-private slots:
+  /// User function's formula  line input.
+  QLineEdit * m_line_function;
 
-    /// draw curves according to the data and options
+  /// User function's name line input.
+  QLineEdit * m_line_function_name;
+
+  /// Line table.
+  QTableWidget * m_line_table;
+
+  /// Data table.
+  QTableWidget * m_data_table;
+
+  /// Generate function button.
+  QPushButton * button_generate_function;
+
+  /// Draw line button.
+  QPushButton * button_draw;
+
+private slots: //functions - slots
+
+    /// Function that user inserted QString to make a function.
+    void generate_function();
+
+    /// Add a line to draw.
+    void add_line();
+
+    /// Remove selected line(s).
+    void remove_line();
+
+    /// Set the check state to each line selected and redraw curve(s).
+    /// @param check_state The checked state.
+    void checked_changed(int check_state);
+
+    /// Set the color to each line selected and redraw curve(s).
+    /// @param color The selected color.
+    void color_changed(QColor color);
+
+    /// Set the curve style to each line selected and redraw curve(s).
+    /// @param current_index Index of the curve style.
+    void line_type_changed(int current_index);
+
+    /// Draw curves according to the data and options, and set axis auto scale.
+    void draw_and_resize();
+
+    /// Draw curves according to the data and options.
     void draw_action();
 
-    /// function that user inserted QString to make a function
-    void generate_function();
+    /// Clear line table selection, unselect all line.
+    void clear_line_table_selection();
+
+    /// Select all raw of line table.
+    void select_all_line_table();
 
 };
 

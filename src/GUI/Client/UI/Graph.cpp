@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+// Qt header
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QLabel>
@@ -12,6 +13,7 @@
 #include <QToolButton>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QDoubleValidator>
 
 // Qwt headers
 #include "qwt/qwt_picker.h"
@@ -20,8 +22,11 @@
 #include "qwt/qwt_plot_zoomer.h"
 #include "qwt/qwt_double_rect.h"
 #include "qwt/qwt_scale_widget.h"
+#include "qwt/qwt_polygon.h"
 
+//header
 #include "GUI/Client/Core/NPlotXY.hpp"
+#include "GUI/Client/Core/NLog.hpp"
 
 #include "GUI/Client/UI/PixMaps.hpp"
 #include "GUI/Client/UI/BodePlot.hpp"
@@ -71,7 +76,7 @@ namespace ClientUI {
     //creat a grid layout
     QGridLayout * layout_grid = new QGridLayout();
 
-    //creat 3 horizontal layout
+    //creat layout
     QHBoxLayout * layout_h = new QHBoxLayout();
     QHBoxLayout * layout_h2 = new QHBoxLayout();
     QHBoxLayout * layout_h3 = new QHBoxLayout();
@@ -92,13 +97,14 @@ namespace ClientUI {
     QToolBar * tool_bar = new QToolBar(this);
 
     //cearte a zoom button
-    /*
+
     QToolButton * btn_zoom = new QToolButton(tool_bar);
     btn_zoom->setText("Zoom");
     btn_zoom->setIcon(QIcon(zoom_xpm));
     btn_zoom->setCheckable(true);
     btn_zoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    */
+
+
 
     //create a SVG sae button
     QToolButton * btn_svg = new QToolButton(tool_bar);
@@ -109,13 +115,16 @@ namespace ClientUI {
     //creating label to display information
     m_label_bottom = new QLabel(this);
 
-    //creating advanced option button
-    //to do
-    m_line_x1 = new QLineEdit();
-    m_line_x2 = new QLineEdit();
-    m_line_y1 = new QLineEdit();
-    m_line_y2 = new QLineEdit();
-    m_bt_zoom_coord = new QPushButton("Set scale");
+    //set scale inline system
+    m_line_min_x = new QLineEdit();
+    m_line_min_x->setValidator(new QDoubleValidator(nullptr));
+    m_line_max_x = new QLineEdit();
+    m_line_max_x->setValidator(new QDoubleValidator(nullptr));
+    m_line_min_y = new QLineEdit();
+    m_line_min_y->setValidator(new QDoubleValidator(nullptr));
+    m_line_max_y = new QLineEdit();
+    m_line_max_y->setValidator(new QDoubleValidator(nullptr));
+    m_button_set_scale = new QPushButton("Set scale");
 
 
     ////Placment and initialisation
@@ -133,16 +142,14 @@ namespace ClientUI {
 
     setContextMenuPolicy(Qt::NoContextMenu);
 
-    //initialising the 2 zoom mode
-    m_zoomer[0] = new Zoomer( QwtPlot::xBottom, QwtPlot::yLeft,
+    //initialising the zoom mode
+    m_zoomer = new Zoomer( QwtPlot::xBottom, QwtPlot::yLeft,
                               m_plot->canvas());
-    m_zoomer[0]->setRubberBand(QwtPicker::RectRubberBand);
-    m_zoomer[0]->setRubberBandPen(QColor(Qt::green));
-    m_zoomer[0]->setTrackerMode(QwtPicker::ActiveOnly);
-    m_zoomer[0]->setTrackerPen(QColor(Qt::white));
+    m_zoomer->setRubberBand(QwtPicker::RectRubberBand);
+    m_zoomer->setRubberBandPen(QColor(Qt::green));
+    m_zoomer->setTrackerMode(QwtPicker::ActiveOnly);
+    m_zoomer->setTrackerPen(QColor(Qt::white));
 
-    m_zoomer[1] = new Zoomer(QwtPlot::xTop, QwtPlot::yRight,
-                             m_plot->canvas());
 
     //assign the canvas to the panner
     m_panner = new QwtPlotPanner(m_plot->canvas());
@@ -159,7 +166,7 @@ namespace ClientUI {
     m_picker->setTrackerPen(QColor(Qt::black));
 
     //adding buttons to the toolbar
-    //tool_bar->addWidget(btn_zoom);
+    tool_bar->addWidget(btn_zoom);
     tool_bar->addWidget(btn_svg);
 
     //set the mouse to not be used for zoom
@@ -175,19 +182,19 @@ namespace ClientUI {
 
 
     layout_zoom_option_point->addWidget(new QLabel("x min"));
-    layout_zoom_option_point->addWidget(m_line_x1);
+    layout_zoom_option_point->addWidget(m_line_min_x);
     layout_zoom_option_point->addWidget(new QLabel("y min"));
-    layout_zoom_option_point->addWidget(m_line_x2);
+    layout_zoom_option_point->addWidget(m_line_max_x);
     layout_zoom_option_size->addWidget(new QLabel("x max"));
-    layout_zoom_option_size->addWidget(m_line_y1);
+    layout_zoom_option_size->addWidget(m_line_min_y);
     layout_zoom_option_size->addWidget(new QLabel("y max"));
-    layout_zoom_option_size->addWidget(m_line_y2);
+    layout_zoom_option_size->addWidget(m_line_max_y);
 
     layout_zoom_option->addLayout(layout_zoom_option_point);
     layout_zoom_option->addLayout(layout_zoom_option_size);
 
     layout_zoom->addLayout(layout_zoom_option);
-    layout_zoom->addWidget(m_bt_zoom_coord);
+    layout_zoom->addWidget(m_button_set_scale);
 
     std::vector< std::vector<double> > vector_temp(0);
     std::vector<QString> vector_temp2(0);
@@ -197,12 +204,12 @@ namespace ClientUI {
 
     ////Conncetion phase
     connect(btn_svg, SIGNAL(clicked()), SLOT(export_svg()));
-    //connect(btn_zoom, SIGNAL(toggled(bool)), SLOT(enable_zoom_mode(bool)));
+    connect(btn_zoom, SIGNAL(toggled(bool)), SLOT(enable_zoom_mode(bool)));
     connect(m_picker, SIGNAL(moved(const QPoint &)),
             SLOT(moved(const QPoint &)));
     connect(m_picker, SIGNAL(selected(const QwtPolygon &)),
             SLOT(selected(const QwtPolygon &)));
-    connect(m_bt_zoom_coord, SIGNAL(clicked()), SLOT(set_scale()));
+    connect(m_button_set_scale, SIGNAL(clicked()), SLOT(set_scale()));
 
 
     ////Connection Boost
@@ -264,11 +271,10 @@ namespace ClientUI {
 
   void Graph::enable_zoom_mode(bool on)
   {
-    m_zoomer[0]->setEnabled(on);
-    //m_zoomer[0]->zoom(0);
+    m_curently_zooming = on;
 
-    m_zoomer[1]->setEnabled(on);
-    //m_zoomer[1]->zoom(0);
+    m_zoomer->setEnabled(on);
+    //m_zoomer[0]->zoom(0);
 
     m_picker->setEnabled(!on);
 
@@ -289,9 +295,9 @@ namespace ClientUI {
       {
         text = "Zoom: Press mouse button and drag";
         text += " / Maximum zoom = ";
-        text.append(QString("%1").arg(m_zoomer[0]->maxStackDepth()));
+        text.append(QString("%1").arg(m_zoomer->maxStackDepth()));
         text += " / Current zoom = ";
-        text.append(QString("%1").arg(m_zoomer[0]->zoomRectIndex()));
+        text.append(QString("%1").arg(m_zoomer->zoomRectIndex()));
       }
 
       text += " / Current zoom x = ";
@@ -311,6 +317,21 @@ namespace ClientUI {
 
   void Graph::moved(const QPoint &pos)
   {
+/*
+    if(m_curently_zooming)
+    {
+      if(m_zoom_point[0] == 0)
+      {
+        m_zoom_point[0] = new QwtDoublePoint(pos.x(),pos.y());
+      }
+      if(m_zoom_point[1] == 0)
+      {
+        m_plot->setAxisScale(QwtPlot::xBottom,m_zoom_point[0]->x(),pos.x());
+        m_plot->setAxisScale(QwtPlot::yLeft,m_zoom_point[0]->y(),pos.y());
+
+      }
+    }
+*/
     QString info;
     info.sprintf("X=%g, Y=%g",
         m_plot->invTransform(QwtPlot::xBottom, pos.x()),
@@ -319,83 +340,38 @@ namespace ClientUI {
     show_info(info);
   }
 
-  void Graph::selected(const QwtPolygon &)
+  void Graph::selected(const QwtPolygon & poly)
   {
     show_info();
   }
 
-  /*
-  void Graph::set_xy_data(std::vector<double> & xs, std::vector<double> & ys){
-    cf_assert( is_not_null(m_plot) );
-    m_plot->set_xy_data_on_graph(xs,ys);
-
-    cf_assert( is_not_null(m_zoomer[0]) );
-    m_zoomer[0]->setZoomBase(true);
-    cf_assert( is_not_null(m_zoomer[1]) );
-    m_zoomer[1]->setZoomBase(true);
-
-    this->setVisible(true);
-
-  }
-
-  void Graph::add_xy_data(std::vector<double> & xs, std::vector<double> & ys){
-    cf_assert( is_not_null(m_plot) );
-    m_plot->add_xy_data_on_graph(xs,ys);
-
-    cf_assert( is_not_null(m_zoomer[0]) );
-    m_zoomer[0]->setZoomBase(true);
-    cf_assert( is_not_null(m_zoomer[1]) );
-    m_zoomer[1]->setZoomBase(true);
-  }
-  */
   void Graph::set_xy_data(std::vector< std::vector<double> > & fcts,
                           std::vector<QString> & fct_label){
 
     cf_assert( is_not_null(m_plot) );
-    graph_option->set_data(fcts, fct_label);
-
-    m_zoomer[0]->setZoomBase(new QwtDoubleRect(
-        m_plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound(),
-        m_plot->axisScaleDiv(QwtPlot::xBottom)->upperBound(),
-        m_plot->axisScaleDiv(QwtPlot::yLeft)->lowerBound(),
-        m_plot->axisScaleDiv(QwtPlot::yLeft)->upperBound()));
-
-    m_zoomer[1]->setZoomBase(new QwtDoubleRect(
-        m_plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound(),
-        m_plot->axisScaleDiv(QwtPlot::xBottom)->upperBound(),
-        m_plot->axisScaleDiv(QwtPlot::yLeft)->lowerBound(),
-        m_plot->axisScaleDiv(QwtPlot::yLeft)->upperBound()));
-
+    graph_option->set_data(fcts,fct_label);
 
     show_info();
-
-    //m_plot->canvas()->rect()
-    /*
-    cf_assert( is_not_null(m_zoomer[0]) );
-    m_zoomer[0]->setZoomBase(true);
-    cf_assert( is_not_null(m_zoomer[1]) );
-    m_zoomer[1]->setZoomBase(true);
-    */
   }
 
   void Graph::add_xy_data(std::vector< std::vector<double> > & fcts){
-    /*
-    cf_assert( is_not_null(m_plot) );
-    m_plot->add_xy_data_on_graph(xs,ys);
-    cf_assert( is_not_null(m_zoomer[0]) );
-    m_zoomer[0]->setZoomBase(true);
-    cf_assert( is_not_null(m_zoomer[1]) );
-    m_zoomer[1]->setZoomBase(true);
-    */
+
   }
 
   void Graph::set_scale(){
 
     //this provide full support of double input and give coherant result
-    double x = m_line_x1->text().toDouble();
-    double y = m_line_x2->text().toDouble();
-    double weight = m_line_y1->text().toDouble();
-    double height = m_line_y2->text().toDouble();
+    if(m_line_min_x->text().isEmpty() || m_line_max_x->text().isEmpty() ||
+       m_line_min_y->text().isEmpty() || m_line_max_y->text().isEmpty())
+    {
+      ClientCore::NLog::globalLog()->addError("One or more Scale value are empty.");
+      return;
+    }
+
+    double x = m_line_min_x->text().toDouble();
+    double y = m_line_max_x->text().toDouble();
+    double weight = m_line_min_y->text().toDouble();
+    double height = m_line_max_y->text().toDouble();
 
     m_plot->setAxisScale(QwtPlot::xBottom,x,weight);
     m_plot->setAxisScale(QwtPlot::yLeft,y,height);

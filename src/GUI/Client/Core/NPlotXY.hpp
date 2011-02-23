@@ -18,7 +18,7 @@ namespace GUI {
 namespace ClientCore {
 
 
-class CHistoryNotifier{
+class ClientCore_API CHistoryNotifier{
 public:
 
   /// signal for the set_xy_data of graph.
@@ -44,7 +44,7 @@ private:
   ~CHistoryNotifier(){}
 };
 
-class NPlotXY :
+class ClientCore_API NPlotXY :
     public QObject,
     public CNode
 {

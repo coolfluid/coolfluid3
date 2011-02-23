@@ -193,7 +193,7 @@ void ClientNetworkComm::newData()
 
     in >> frame;
 
-    qDebug() << frame;
+    //qDebug() << frame;
 
     try
     {

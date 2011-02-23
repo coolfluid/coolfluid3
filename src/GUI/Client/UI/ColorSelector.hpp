@@ -14,23 +14,36 @@ class ColorSelector : public QLabel
 {
     Q_OBJECT
 
-public:
-    /// Constructor
+public: //function
+    /// Constructor.
+    /// @param parent Parent of this widget.
     ColorSelector(QWidget * parent = 0);
 
     /// Return the selected color
     QColor get_color();
 
-private:
-    /// The selected color
-    QColor m_color;
+    /// Set the color.
+    /// @param color The new color.
+    void set_color(QColor color);
 
-    /// Set the color choosed as the m_color
+private: //function
+    /// Set the color choosed as the m_color.
     void set_color();
 
-protected:
-    /// called when the QLabel is clicked
+protected: //function
+    /// called when the QLabel is clicked.
+    /// @param event The ;ouse event.
     void mousePressEvent ( QMouseEvent * event ) ;
+
+private: //data
+    /// The selected color.
+    QColor m_color;
+
+signals: //signals
+    /// Signal emited when the color value has changed.
+    /// @param color The new color value.
+    void valueChanged(QColor color);
+
 };
 
 #endif // COLORSELECTOR_HPP

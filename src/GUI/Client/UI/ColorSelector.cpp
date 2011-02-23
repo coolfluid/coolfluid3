@@ -17,23 +17,47 @@ ColorSelector::ColorSelector(QWidget * parent )
 
 void ColorSelector::set_color()
 {
-    m_color = QColorDialog::getColor(Qt::red,this);
-    if (m_color.isValid()) {
-        QPalette pal(QColor(255,255,255));
-        pal.setColor( QPalette::Text, m_color);
-        this->setPalette(pal);
-    }else{
-        m_color = Qt::black;
-        QPalette pal(QColor(255,255,255));
-        pal.setColor( QPalette::Text, m_color);
-        this->setPalette(pal);
-    }
-    QString labelTemp("color");
-    labelTemp += "(";
-    labelTemp += m_color.name();
-    labelTemp += ")";
-    this->setText(labelTemp);
+  m_color = QColorDialog::getColor(Qt::red,this);
+  if (m_color.isValid()) {
+    QPalette pal(QColor(255,255,255));
+    pal.setColor( QPalette::Text, m_color);
+    this->setPalette(pal);
+  }else{
+    m_color = Qt::black;
+    QPalette pal(QColor(255,255,255));
+    pal.setColor( QPalette::Text, m_color);
+    this->setPalette(pal);
+  }
+  QString labelTemp("color");
+  labelTemp += "(";
+  labelTemp += m_color.name();
+  labelTemp += ")";
+  this->setText(labelTemp);
+
+  emit valueChanged(m_color);
 }
+
+
+void ColorSelector::set_color(QColor color){
+  m_color = color;
+  if (m_color.isValid()) {
+      QPalette pal(QColor(255,255,255));
+      pal.setColor( QPalette::Text, m_color);
+      this->setPalette(pal);
+  }else{
+      m_color = Qt::black;
+      QPalette pal(QColor(255,255,255));
+      pal.setColor( QPalette::Text, m_color);
+      this->setPalette(pal);
+  }
+  QString labelTemp("color");
+  labelTemp += "(";
+  labelTemp += m_color.name();
+  labelTemp += ")";
+  this->setText(labelTemp);
+}
+
+
 
 void ColorSelector::mousePressEvent ( QMouseEvent * event )
 {
