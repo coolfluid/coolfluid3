@@ -26,6 +26,7 @@
 #define EIGEN_NOALIAS_H
 
 /** \class NoAlias
+  * \ingroup Core_Module
   *
   * \brief Pseudo expression providing an operator = assuming no aliasing
   *
@@ -42,6 +43,7 @@
 template<typename ExpressionType, template <typename> class StorageBase>
 class NoAlias
 {
+    typedef typename ExpressionType::Scalar Scalar;
   public:
     NoAlias(ExpressionType& expression) : m_expression(expression) {}
 
@@ -49,17 +51,31 @@ class NoAlias
       * \sa MatrixBase::lazyAssign() */
     template<typename OtherDerived>
     EIGEN_STRONG_INLINE ExpressionType& operator=(const StorageBase<OtherDerived>& other)
-    { return m_expression.lazyAssign(other.derived()); }
+    { return internal::assign_selector<ExpressionType,OtherDerived,false>::run(m_expression,other.derived()); }
 
     /** \sa MatrixBase::operator+= */
     template<typename OtherDerived>
     EIGEN_STRONG_INLINE ExpressionType& operator+=(const StorageBase<OtherDerived>& other)
-    { return m_expression.lazyAssign(m_expression + other.derived()); }
+    {
+      typedef SelfCwiseBinaryOp<internal::scalar_sum_op<Scalar>, ExpressionType, OtherDerived> SelfAdder;
+      SelfAdder tmp(m_expression);
+      typedef typename internal::nested<OtherDerived>::type OtherDerivedNested;
+      typedef typename internal::remove_all<OtherDerivedNested>::type _OtherDerivedNested;
+      internal::assign_selector<SelfAdder,_OtherDerivedNested,false>::run(tmp,OtherDerivedNested(other.derived()));
+      return m_expression;
+    }
 
     /** \sa MatrixBase::operator-= */
     template<typename OtherDerived>
     EIGEN_STRONG_INLINE ExpressionType& operator-=(const StorageBase<OtherDerived>& other)
-    { return m_expression.lazyAssign(m_expression - other.derived()); }
+    {
+      typedef SelfCwiseBinaryOp<internal::scalar_difference_op<Scalar>, ExpressionType, OtherDerived> SelfAdder;
+      SelfAdder tmp(m_expression);
+      typedef typename internal::nested<OtherDerived>::type OtherDerivedNested;
+      typedef typename internal::remove_all<OtherDerivedNested>::type _OtherDerivedNested;
+      internal::assign_selector<SelfAdder,_OtherDerivedNested,false>::run(tmp,OtherDerivedNested(other.derived()));
+      return m_expression;
+    }
 
 #ifndef EIGEN_PARSED_BY_DOXYGEN
     template<typename ProductDerived, typename Lhs, typename Rhs>

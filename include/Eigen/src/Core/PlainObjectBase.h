@@ -32,24 +32,31 @@
 # define EIGEN_INITIALIZE_BY_ZERO_IF_THAT_OPTION_IS_ENABLED
 #endif
 
-template <typename Derived, typename OtherDerived = Derived, bool IsVector = static_cast<bool>(Derived::IsVectorAtCompileTime)> struct ei_conservative_resize_like_impl;
-template<typename MatrixTypeA, typename MatrixTypeB, bool SwapPointers> struct ei_matrix_swap_impl;
+namespace internal {
+
+template <typename Derived, typename OtherDerived = Derived, bool IsVector = static_cast<bool>(Derived::IsVectorAtCompileTime)> struct conservative_resize_like_impl;
+
+template<typename MatrixTypeA, typename MatrixTypeB, bool SwapPointers> struct matrix_swap_impl;
+
+} // end namespace internal
 
 /**
-* \brief Dense storage base class for matrices and arrays.
-**/
+  * \brief %Dense storage base class for matrices and arrays.
+  * \sa \ref TopicClassHierarchy
+  */
 template<typename Derived>
-class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
+class PlainObjectBase : public internal::dense_xpr_base<Derived>::type
 {
   public:
-    enum { Options = ei_traits<Derived>::Options };
-    typedef typename ei_dense_xpr_base<Derived>::type Base;
+    enum { Options = internal::traits<Derived>::Options };
+    typedef typename internal::dense_xpr_base<Derived>::type Base;
 
-    typedef typename ei_traits<Derived>::StorageKind StorageKind;
-    typedef typename ei_traits<Derived>::Index Index;
-    typedef typename ei_traits<Derived>::Scalar Scalar;
-    typedef typename ei_packet_traits<Scalar>::type PacketScalar;
+    typedef typename internal::traits<Derived>::StorageKind StorageKind;
+    typedef typename internal::traits<Derived>::Index Index;
+    typedef typename internal::traits<Derived>::Scalar Scalar;
+    typedef typename internal::packet_traits<Scalar>::type PacketScalar;
     typedef typename NumTraits<Scalar>::Real RealScalar;
+    typedef Derived DenseType;
 
     using Base::RowsAtCompileTime;
     using Base::ColsAtCompileTime;
@@ -60,13 +67,23 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
     using Base::IsVectorAtCompileTime;
     using Base::Flags;
 
+    template<typename PlainObjectType, int MapOptions, typename StrideType> friend class Eigen::Map;
     friend  class Eigen::Map<Derived, Unaligned>;
-    typedef class Eigen::Map<Derived, Unaligned>  UnalignedMapType;
+    typedef Eigen::Map<Derived, Unaligned>  MapType;
+    friend  class Eigen::Map<const Derived, Unaligned>;
+    typedef const Eigen::Map<const Derived, Unaligned> ConstMapType;
     friend  class Eigen::Map<Derived, Aligned>;
-    typedef class Eigen::Map<Derived, Aligned>    AlignedMapType;
+    typedef Eigen::Map<Derived, Aligned> AlignedMapType;
+    friend  class Eigen::Map<const Derived, Aligned>;
+    typedef const Eigen::Map<const Derived, Aligned> ConstAlignedMapType;
+    template<typename StrideType> struct StridedMapType { typedef Eigen::Map<Derived, Unaligned, StrideType> type; };
+    template<typename StrideType> struct StridedConstMapType { typedef Eigen::Map<const Derived, Unaligned, StrideType> type; };
+    template<typename StrideType> struct StridedAlignedMapType { typedef Eigen::Map<Derived, Aligned, StrideType> type; };
+    template<typename StrideType> struct StridedConstAlignedMapType { typedef Eigen::Map<const Derived, Aligned, StrideType> type; };
+    
 
   protected:
-    ei_matrix_storage<Scalar, Base::MaxSizeAtCompileTime, Base::RowsAtCompileTime, Base::ColsAtCompileTime, Options> m_storage;
+    DenseStorage<Scalar, Base::MaxSizeAtCompileTime, Base::RowsAtCompileTime, Base::ColsAtCompileTime, Options> m_storage;
 
   public:
     enum { NeedsToAlign = (!(Options&DontAlign))
@@ -105,34 +122,51 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
       return m_storage.data()[index];
     }
 
+    EIGEN_STRONG_INLINE const Scalar& coeffRef(Index row, Index col) const
+    {
+      if(Flags & RowMajorBit)
+        return m_storage.data()[col + row * m_storage.cols()];
+      else // column-major
+        return m_storage.data()[row + col * m_storage.rows()];
+    }
+
+    EIGEN_STRONG_INLINE const Scalar& coeffRef(Index index) const
+    {
+      return m_storage.data()[index];
+    }
+
+    /** \internal */
     template<int LoadMode>
     EIGEN_STRONG_INLINE PacketScalar packet(Index row, Index col) const
     {
-      return ei_ploadt<Scalar, LoadMode>
+      return internal::ploadt<PacketScalar, LoadMode>
                (m_storage.data() + (Flags & RowMajorBit
                                    ? col + row * m_storage.cols()
                                    : row + col * m_storage.rows()));
     }
 
+    /** \internal */
     template<int LoadMode>
     EIGEN_STRONG_INLINE PacketScalar packet(Index index) const
     {
-      return ei_ploadt<Scalar, LoadMode>(m_storage.data() + index);
+      return internal::ploadt<PacketScalar, LoadMode>(m_storage.data() + index);
     }
 
+    /** \internal */
     template<int StoreMode>
     EIGEN_STRONG_INLINE void writePacket(Index row, Index col, const PacketScalar& x)
     {
-      ei_pstoret<Scalar, PacketScalar, StoreMode>
+      internal::pstoret<Scalar, PacketScalar, StoreMode>
               (m_storage.data() + (Flags & RowMajorBit
                                    ? col + row * m_storage.cols()
                                    : row + col * m_storage.rows()), x);
     }
 
+    /** \internal */
     template<int StoreMode>
     EIGEN_STRONG_INLINE void writePacket(Index index, const PacketScalar& x)
     {
-      ei_pstoret<Scalar, PacketScalar, StoreMode>(m_storage.data() + index, x);
+      internal::pstoret<Scalar, PacketScalar, StoreMode>(m_storage.data() + index, x);
     }
 
     /** \returns a const pointer to the data array of this matrix */
@@ -184,8 +218,8 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
       */
     inline void resize(Index size)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_ONLY(DenseStorageBase)
-      ei_assert(SizeAtCompileTime == Dynamic || SizeAtCompileTime == size);
+      EIGEN_STATIC_ASSERT_VECTOR_ONLY(PlainObjectBase)
+      eigen_assert(SizeAtCompileTime == Dynamic || SizeAtCompileTime == size);
       #ifdef EIGEN_INITIALIZE_MATRICES_BY_ZERO
         bool size_changed = size != this->size();
       #endif
@@ -238,12 +272,12 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
       const Index othersize = other.rows()*other.cols();
       if(RowsAtCompileTime == 1)
       {
-        ei_assert(other.rows() == 1 || other.cols() == 1);
+        eigen_assert(other.rows() == 1 || other.cols() == 1);
         resize(1, othersize);
       }
       else if(ColsAtCompileTime == 1)
       {
-        ei_assert(other.rows() == 1 || other.cols() == 1);
+        eigen_assert(other.rows() == 1 || other.cols() == 1);
         resize(othersize, 1);
       }
       else resize(other.rows(), other.cols());
@@ -260,7 +294,7 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
       */
     EIGEN_STRONG_INLINE void conservativeResize(Index rows, Index cols)
     {
-      ei_conservative_resize_like_impl<Derived>::run(*this, rows, cols);
+      internal::conservative_resize_like_impl<Derived>::run(*this, rows, cols);
     }
 
     EIGEN_STRONG_INLINE void conservativeResize(Index rows, NoChange_t)
@@ -285,19 +319,19 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
       */
     EIGEN_STRONG_INLINE void conservativeResize(Index size)
     {
-      ei_conservative_resize_like_impl<Derived>::run(*this, size);
+      internal::conservative_resize_like_impl<Derived>::run(*this, size);
     }
 
     template<typename OtherDerived>
     EIGEN_STRONG_INLINE void conservativeResizeLike(const DenseBase<OtherDerived>& other)
     {
-      ei_conservative_resize_like_impl<Derived,OtherDerived>::run(*this, other);
+      internal::conservative_resize_like_impl<Derived,OtherDerived>::run(*this, other);
     }
 
     /** This is a special case of the templated operator=. Its purpose is to
       * prevent a default operator= from hiding the templated operator=.
       */
-    EIGEN_STRONG_INLINE Derived& operator=(const DenseStorageBase& other)
+    EIGEN_STRONG_INLINE Derived& operator=(const PlainObjectBase& other)
     {
       return _set(other);
     }
@@ -317,7 +351,7 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
       return Base::operator=(func);
     }
 
-    EIGEN_STRONG_INLINE explicit DenseStorageBase() : m_storage()
+    EIGEN_STRONG_INLINE explicit PlainObjectBase() : m_storage()
     {
 //       _check_template_params();
 //       EIGEN_INITIALIZE_BY_ZERO_IF_THAT_OPTION_IS_ENABLED
@@ -326,14 +360,14 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
 #ifndef EIGEN_PARSED_BY_DOXYGEN
     // FIXME is it still needed ?
     /** \internal */
-    DenseStorageBase(ei_constructor_without_unaligned_array_assert)
-      : m_storage(ei_constructor_without_unaligned_array_assert())
+    PlainObjectBase(internal::constructor_without_unaligned_array_assert)
+      : m_storage(internal::constructor_without_unaligned_array_assert())
     {
 //       _check_template_params(); EIGEN_INITIALIZE_BY_ZERO_IF_THAT_OPTION_IS_ENABLED
     }
 #endif
 
-    EIGEN_STRONG_INLINE DenseStorageBase(Index size, Index rows, Index cols)
+    EIGEN_STRONG_INLINE PlainObjectBase(Index size, Index rows, Index cols)
       : m_storage(size, rows, cols)
     {
 //       _check_template_params();
@@ -352,7 +386,7 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
 
     /** \sa MatrixBase::operator=(const EigenBase<OtherDerived>&) */
     template<typename OtherDerived>
-    EIGEN_STRONG_INLINE DenseStorageBase(const EigenBase<OtherDerived> &other)
+    EIGEN_STRONG_INLINE PlainObjectBase(const EigenBase<OtherDerived> &other)
       : m_storage(other.derived().rows() * other.derived().cols(), other.derived().rows(), other.derived().cols())
     {
       _check_template_params();
@@ -370,31 +404,69 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
       * \see class Map
       */
     //@{
-    inline static const UnalignedMapType Map(const Scalar* data)
-    { return UnalignedMapType(data); }
-    inline static UnalignedMapType Map(Scalar* data)
-    { return UnalignedMapType(data); }
-    inline static const UnalignedMapType Map(const Scalar* data, Index size)
-    { return UnalignedMapType(data, size); }
-    inline static UnalignedMapType Map(Scalar* data, Index size)
-    { return UnalignedMapType(data, size); }
-    inline static const UnalignedMapType Map(const Scalar* data, Index rows, Index cols)
-    { return UnalignedMapType(data, rows, cols); }
-    inline static UnalignedMapType Map(Scalar* data, Index rows, Index cols)
-    { return UnalignedMapType(data, rows, cols); }
+    inline static ConstMapType Map(const Scalar* data)
+    { return ConstMapType(data); }
+    inline static MapType Map(Scalar* data)
+    { return MapType(data); }
+    inline static ConstMapType Map(const Scalar* data, Index size)
+    { return ConstMapType(data, size); }
+    inline static MapType Map(Scalar* data, Index size)
+    { return MapType(data, size); }
+    inline static ConstMapType Map(const Scalar* data, Index rows, Index cols)
+    { return ConstMapType(data, rows, cols); }
+    inline static MapType Map(Scalar* data, Index rows, Index cols)
+    { return MapType(data, rows, cols); }
 
-    inline static const AlignedMapType MapAligned(const Scalar* data)
-    { return AlignedMapType(data); }
+    inline static ConstAlignedMapType MapAligned(const Scalar* data)
+    { return ConstAlignedMapType(data); }
     inline static AlignedMapType MapAligned(Scalar* data)
     { return AlignedMapType(data); }
-    inline static const AlignedMapType MapAligned(const Scalar* data, Index size)
-    { return AlignedMapType(data, size); }
+    inline static ConstAlignedMapType MapAligned(const Scalar* data, Index size)
+    { return ConstAlignedMapType(data, size); }
     inline static AlignedMapType MapAligned(Scalar* data, Index size)
     { return AlignedMapType(data, size); }
-    inline static const AlignedMapType MapAligned(const Scalar* data, Index rows, Index cols)
-    { return AlignedMapType(data, rows, cols); }
+    inline static ConstAlignedMapType MapAligned(const Scalar* data, Index rows, Index cols)
+    { return ConstAlignedMapType(data, rows, cols); }
     inline static AlignedMapType MapAligned(Scalar* data, Index rows, Index cols)
     { return AlignedMapType(data, rows, cols); }
+
+    template<int Outer, int Inner>
+    inline static typename StridedConstMapType<Stride<Outer, Inner> >::type Map(const Scalar* data, const Stride<Outer, Inner>& stride)
+    { return typename StridedConstMapType<Stride<Outer, Inner> >::type(data, stride); }
+    template<int Outer, int Inner>
+    inline static typename StridedMapType<Stride<Outer, Inner> >::type Map(Scalar* data, const Stride<Outer, Inner>& stride)
+    { return typename StridedMapType<Stride<Outer, Inner> >::type(data, stride); }
+    template<int Outer, int Inner>
+    inline static typename StridedConstMapType<Stride<Outer, Inner> >::type Map(const Scalar* data, Index size, const Stride<Outer, Inner>& stride)
+    { return typename StridedConstMapType<Stride<Outer, Inner> >::type(data, size, stride); }
+    template<int Outer, int Inner>
+    inline static typename StridedMapType<Stride<Outer, Inner> >::type Map(Scalar* data, Index size, const Stride<Outer, Inner>& stride)
+    { return typename StridedMapType<Stride<Outer, Inner> >::type(data, size, stride); }
+    template<int Outer, int Inner>
+    inline static typename StridedConstMapType<Stride<Outer, Inner> >::type Map(const Scalar* data, Index rows, Index cols, const Stride<Outer, Inner>& stride)
+    { return typename StridedConstMapType<Stride<Outer, Inner> >::type(data, rows, cols, stride); }
+    template<int Outer, int Inner>
+    inline static typename StridedMapType<Stride<Outer, Inner> >::type Map(Scalar* data, Index rows, Index cols, const Stride<Outer, Inner>& stride)
+    { return typename StridedMapType<Stride<Outer, Inner> >::type(data, rows, cols, stride); }
+
+    template<int Outer, int Inner>
+    inline static typename StridedConstAlignedMapType<Stride<Outer, Inner> >::type MapAligned(const Scalar* data, const Stride<Outer, Inner>& stride)
+    { return typename StridedConstAlignedMapType<Stride<Outer, Inner> >::type(data, stride); }
+    template<int Outer, int Inner>
+    inline static typename StridedAlignedMapType<Stride<Outer, Inner> >::type MapAligned(Scalar* data, const Stride<Outer, Inner>& stride)
+    { return typename StridedAlignedMapType<Stride<Outer, Inner> >::type(data, stride); }
+    template<int Outer, int Inner>
+    inline static typename StridedConstAlignedMapType<Stride<Outer, Inner> >::type MapAligned(const Scalar* data, Index size, const Stride<Outer, Inner>& stride)
+    { return typename StridedConstAlignedMapType<Stride<Outer, Inner> >::type(data, size, stride); }
+    template<int Outer, int Inner>
+    inline static typename StridedAlignedMapType<Stride<Outer, Inner> >::type MapAligned(Scalar* data, Index size, const Stride<Outer, Inner>& stride)
+    { return typename StridedAlignedMapType<Stride<Outer, Inner> >::type(data, size, stride); }
+    template<int Outer, int Inner>
+    inline static typename StridedConstAlignedMapType<Stride<Outer, Inner> >::type MapAligned(const Scalar* data, Index rows, Index cols, const Stride<Outer, Inner>& stride)
+    { return typename StridedConstAlignedMapType<Stride<Outer, Inner> >::type(data, rows, cols, stride); }
+    template<int Outer, int Inner>
+    inline static typename StridedAlignedMapType<Stride<Outer, Inner> >::type MapAligned(Scalar* data, Index rows, Index cols, const Stride<Outer, Inner>& stride)
+    { return typename StridedAlignedMapType<Stride<Outer, Inner> >::type(data, rows, cols, stride); }
     //@}
 
     using Base::setConstant;
@@ -413,8 +485,8 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
     Derived& setRandom(Index size);
     Derived& setRandom(Index rows, Index cols);
 
-    #ifdef EIGEN_DENSESTORAGEBASE_PLUGIN
-    #include EIGEN_DENSESTORAGEBASE_PLUGIN
+    #ifdef EIGEN_PLAINOBJECTBASE_PLUGIN
+    #include EIGEN_PLAINOBJECTBASE_PLUGIN
     #endif
 
   protected:
@@ -429,11 +501,12 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
     EIGEN_STRONG_INLINE void _resize_to_match(const EigenBase<OtherDerived>& other)
     {
       #ifdef EIGEN_NO_AUTOMATIC_RESIZING
-      ei_assert((this->size()==0 || (IsVectorAtCompileTime ? (this->size() == other.size())
+      eigen_assert((this->size()==0 || (IsVectorAtCompileTime ? (this->size() == other.size())
                  : (rows() == other.rows() && cols() == other.cols())))
         && "Size mismatch. Automatic resizing is disabled because EIGEN_NO_AUTOMATIC_RESIZING is defined");
-      #endif
+      #else
       resizeLike(other);
+      #endif
     }
 
     /**
@@ -453,15 +526,15 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
     template<typename OtherDerived>
     EIGEN_STRONG_INLINE Derived& _set(const DenseBase<OtherDerived>& other)
     {
-      _set_selector(other.derived(), typename ei_meta_if<static_cast<bool>(int(OtherDerived::Flags) & EvalBeforeAssigningBit), ei_meta_true, ei_meta_false>::ret());
+      _set_selector(other.derived(), typename internal::conditional<static_cast<bool>(int(OtherDerived::Flags) & EvalBeforeAssigningBit), internal::true_type, internal::false_type>::type());
       return this->derived();
     }
 
     template<typename OtherDerived>
-    EIGEN_STRONG_INLINE void _set_selector(const OtherDerived& other, const ei_meta_true&) { _set_noalias(other.eval()); }
+    EIGEN_STRONG_INLINE void _set_selector(const OtherDerived& other, const internal::true_type&) { _set_noalias(other.eval()); }
 
     template<typename OtherDerived>
-    EIGEN_STRONG_INLINE void _set_selector(const OtherDerived& other, const ei_meta_false&) { _set_noalias(other); }
+    EIGEN_STRONG_INLINE void _set_selector(const OtherDerived& other, const internal::false_type&) { _set_noalias(other); }
 
     /** \internal Like _set() but additionally makes the assumption that no aliasing effect can happen (which
       * is the case when creating a new matrix) so one can enforce lazy evaluation.
@@ -476,36 +549,36 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
       //_resize_to_match(other);
       // the 'false' below means to enforce lazy evaluation. We don't use lazyAssign() because
       // it wouldn't allow to copy a row-vector into a column-vector.
-      return ei_assign_selector<Derived,OtherDerived,false>::run(this->derived(), other.derived());
+      return internal::assign_selector<Derived,OtherDerived,false>::run(this->derived(), other.derived());
     }
 
     template<typename T0, typename T1>
-    EIGEN_STRONG_INLINE void _init2(Index rows, Index cols, typename ei_enable_if<Base::SizeAtCompileTime!=2,T0>::type* = 0)
+    EIGEN_STRONG_INLINE void _init2(Index rows, Index cols, typename internal::enable_if<Base::SizeAtCompileTime!=2,T0>::type* = 0)
     {
-      ei_assert(rows > 0 && (RowsAtCompileTime == Dynamic || RowsAtCompileTime == rows)
-             && cols > 0 && (ColsAtCompileTime == Dynamic || ColsAtCompileTime == cols));
+      eigen_assert(rows >= 0 && (RowsAtCompileTime == Dynamic || RowsAtCompileTime == rows)
+             && cols >= 0 && (ColsAtCompileTime == Dynamic || ColsAtCompileTime == cols));
       m_storage.resize(rows*cols,rows,cols);
       EIGEN_INITIALIZE_BY_ZERO_IF_THAT_OPTION_IS_ENABLED
     }
     template<typename T0, typename T1>
-    EIGEN_STRONG_INLINE void _init2(const Scalar& x, const Scalar& y, typename ei_enable_if<Base::SizeAtCompileTime==2,T0>::type* = 0)
+    EIGEN_STRONG_INLINE void _init2(const Scalar& x, const Scalar& y, typename internal::enable_if<Base::SizeAtCompileTime==2,T0>::type* = 0)
     {
-      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(DenseStorageBase, 2)
+      EIGEN_STATIC_ASSERT_VECTOR_SPECIFIC_SIZE(PlainObjectBase, 2)
       m_storage.data()[0] = x;
       m_storage.data()[1] = y;
     }
 
     template<typename MatrixTypeA, typename MatrixTypeB, bool SwapPointers>
-    friend struct ei_matrix_swap_impl;
+    friend struct internal::matrix_swap_impl;
 
     /** \internal generic implementation of swap for dense storage since for dynamic-sized matrices of same type it is enough to swap the
       * data pointers.
       */
     template<typename OtherDerived>
-    void _swap(DenseBase<OtherDerived> EIGEN_REF_TO_TEMPORARY other)
+    void _swap(DenseBase<OtherDerived> const & other)
     {
-      enum { SwapPointers = ei_is_same_type<Derived, OtherDerived>::ret && Base::SizeAtCompileTime==Dynamic };
-      ei_matrix_swap_impl<Derived, OtherDerived, bool(SwapPointers)>::run(this->derived(), other.const_cast_derived());
+      enum { SwapPointers = internal::is_same<Derived, OtherDerived>::value && Base::SizeAtCompileTime==Dynamic };
+      internal::matrix_swap_impl<Derived, OtherDerived, bool(SwapPointers)>::run(this->derived(), other.const_cast_derived());
     }
 
   public:
@@ -524,10 +597,13 @@ class DenseStorageBase : public ei_dense_xpr_base<Derived>::type
         INVALID_MATRIX_TEMPLATE_PARAMETERS)
     }
 #endif
+
+private:
+    enum { ThisConstantIsPrivateInPlainObjectBase };
 };
 
 template <typename Derived, typename OtherDerived, bool IsVector>
-struct ei_conservative_resize_like_impl
+struct internal::conservative_resize_like_impl
 {
   typedef typename Derived::Index Index;
   static void run(DenseBase<Derived>& _this, Index rows, Index cols)
@@ -586,8 +662,10 @@ struct ei_conservative_resize_like_impl
   }
 };
 
+namespace internal {
+
 template <typename Derived, typename OtherDerived>
-struct ei_conservative_resize_like_impl<Derived,OtherDerived,true>
+struct conservative_resize_like_impl<Derived,OtherDerived,true>
 {
   typedef typename Derived::Index Index;
   static void run(DenseBase<Derived>& _this, Index size)
@@ -613,7 +691,7 @@ struct ei_conservative_resize_like_impl<Derived,OtherDerived,true>
 };
 
 template<typename MatrixTypeA, typename MatrixTypeB, bool SwapPointers>
-struct ei_matrix_swap_impl
+struct matrix_swap_impl
 {
   static inline void run(MatrixTypeA& a, MatrixTypeB& b)
   {
@@ -622,12 +700,14 @@ struct ei_matrix_swap_impl
 };
 
 template<typename MatrixTypeA, typename MatrixTypeB>
-struct ei_matrix_swap_impl<MatrixTypeA, MatrixTypeB, true>
+struct matrix_swap_impl<MatrixTypeA, MatrixTypeB, true>
 {
   static inline void run(MatrixTypeA& a, MatrixTypeB& b)
   {
     static_cast<typename MatrixTypeA::Base&>(a).m_storage.swap(static_cast<typename MatrixTypeB::Base&>(b).m_storage);
   }
 };
+
+} // end namespace internal
 
 #endif // EIGEN_DENSESTORAGEBASE_H

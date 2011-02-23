@@ -25,13 +25,14 @@
 #ifndef EIGEN_SELFADJOINT_MATRIX_MATRIX_H
 #define EIGEN_SELFADJOINT_MATRIX_MATRIX_H
 
+namespace internal {
+
 // pack a selfadjoint block diagonal for use with the gebp_kernel
-template<typename Scalar, typename Index, int mr, int StorageOrder>
-struct ei_symm_pack_lhs
+template<typename Scalar, typename Index, int Pack1, int Pack2, int StorageOrder>
+struct symm_pack_lhs
 {
-  enum { PacketSize = ei_packet_traits<Scalar>::size };
   template<int BlockRows> inline
-  void pack(Scalar* blockA, const ei_const_blas_data_mapper<Scalar,Index,StorageOrder>& lhs, Index cols, Index i, Index& count)
+  void pack(Scalar* blockA, const const_blas_data_mapper<Scalar,Index,StorageOrder>& lhs, Index cols, Index i, Index& count)
   {
     // normal copy
     for(Index k=0; k<i; k++)
@@ -42,9 +43,9 @@ struct ei_symm_pack_lhs
     for(Index k=i; k<i+BlockRows; k++)
     {
       for(Index w=0; w<h; w++)
-        blockA[count++] = ei_conj(lhs(k, i+w)); // transposed
+        blockA[count++] = conj(lhs(k, i+w)); // transposed
 
-      blockA[count++] = ei_real(lhs(k,k));   // real (diagonal)
+      blockA[count++] = real(lhs(k,k));   // real (diagonal)
 
       for(Index w=h+1; w<BlockRows; w++)
         blockA[count++] = lhs(i+w, k);          // normal
@@ -53,22 +54,22 @@ struct ei_symm_pack_lhs
     // transposed copy
     for(Index k=i+BlockRows; k<cols; k++)
       for(Index w=0; w<BlockRows; w++)
-        blockA[count++] = ei_conj(lhs(k, i+w)); // transposed
+        blockA[count++] = conj(lhs(k, i+w)); // transposed
   }
   void operator()(Scalar* blockA, const Scalar* _lhs, Index lhsStride, Index cols, Index rows)
   {
-    ei_const_blas_data_mapper<Scalar,Index,StorageOrder> lhs(_lhs,lhsStride);
+    const_blas_data_mapper<Scalar,Index,StorageOrder> lhs(_lhs,lhsStride);
     Index count = 0;
-    Index peeled_mc = (rows/mr)*mr;
-    for(Index i=0; i<peeled_mc; i+=mr)
+    Index peeled_mc = (rows/Pack1)*Pack1;
+    for(Index i=0; i<peeled_mc; i+=Pack1)
     {
-      pack<mr>(blockA, lhs, cols, i, count);
+      pack<Pack1>(blockA, lhs, cols, i, count);
     }
 
-    if(rows-peeled_mc>=PacketSize)
+    if(rows-peeled_mc>=Pack2)
     {
-      pack<PacketSize>(blockA, lhs, cols, peeled_mc, count);
-      peeled_mc += PacketSize;
+      pack<Pack2>(blockA, lhs, cols, peeled_mc, count);
+      peeled_mc += Pack2;
     }
 
     // do the same with mr==1
@@ -77,23 +78,23 @@ struct ei_symm_pack_lhs
       for(Index k=0; k<i; k++)
         blockA[count++] = lhs(i, k);              // normal
 
-      blockA[count++] = ei_real(lhs(i, i));       // real (diagonal)
+      blockA[count++] = real(lhs(i, i));       // real (diagonal)
 
       for(Index k=i+1; k<cols; k++)
-        blockA[count++] = ei_conj(lhs(k, i));     // transposed
+        blockA[count++] = conj(lhs(k, i));     // transposed
     }
   }
 };
 
 template<typename Scalar, typename Index, int nr, int StorageOrder>
-struct ei_symm_pack_rhs
+struct symm_pack_rhs
 {
-  enum { PacketSize = ei_packet_traits<Scalar>::size };
-  void operator()(Scalar* blockB, const Scalar* _rhs, Index rhsStride, Scalar alpha, Index rows, Index cols, Index k2)
+  enum { PacketSize = packet_traits<Scalar>::size };
+  void operator()(Scalar* blockB, const Scalar* _rhs, Index rhsStride, Index rows, Index cols, Index k2)
   {
     Index end_k = k2 + rows;
     Index count = 0;
-    ei_const_blas_data_mapper<Scalar,Index,StorageOrder> rhs(_rhs,rhsStride);
+    const_blas_data_mapper<Scalar,Index,StorageOrder> rhs(_rhs,rhsStride);
     Index packet_cols = (cols/nr)*nr;
 
     // first part: normal case
@@ -101,12 +102,12 @@ struct ei_symm_pack_rhs
     {
       for(Index k=k2; k<end_k; k++)
       {
-        blockB[count+0] = alpha*rhs(k,j2+0);
-        blockB[count+1] = alpha*rhs(k,j2+1);
+        blockB[count+0] = rhs(k,j2+0);
+        blockB[count+1] = rhs(k,j2+1);
         if (nr==4)
         {
-          blockB[count+2] = alpha*rhs(k,j2+2);
-          blockB[count+3] = alpha*rhs(k,j2+3);
+          blockB[count+2] = rhs(k,j2+2);
+          blockB[count+3] = rhs(k,j2+3);
         }
         count += nr;
       }
@@ -119,12 +120,12 @@ struct ei_symm_pack_rhs
       // transpose
       for(Index k=k2; k<j2; k++)
       {
-        blockB[count+0] = alpha*ei_conj(rhs(j2+0,k));
-        blockB[count+1] = alpha*ei_conj(rhs(j2+1,k));
+        blockB[count+0] = conj(rhs(j2+0,k));
+        blockB[count+1] = conj(rhs(j2+1,k));
         if (nr==4)
         {
-          blockB[count+2] = alpha*ei_conj(rhs(j2+2,k));
-          blockB[count+3] = alpha*ei_conj(rhs(j2+3,k));
+          blockB[count+2] = conj(rhs(j2+2,k));
+          blockB[count+3] = conj(rhs(j2+3,k));
         }
         count += nr;
       }
@@ -134,25 +135,25 @@ struct ei_symm_pack_rhs
       {
         // normal
         for (Index w=0 ; w<h; ++w)
-          blockB[count+w] = alpha*rhs(k,j2+w);
+          blockB[count+w] = rhs(k,j2+w);
 
-        blockB[count+h] = alpha*rhs(k,k);
+        blockB[count+h] = real(rhs(k,k));
 
         // transpose
         for (Index w=h+1 ; w<nr; ++w)
-          blockB[count+w] = alpha*ei_conj(rhs(j2+w,k));
+          blockB[count+w] = conj(rhs(j2+w,k));
         count += nr;
         ++h;
       }
       // normal
       for(Index k=j2+nr; k<end_k; k++)
       {
-        blockB[count+0] = alpha*rhs(k,j2+0);
-        blockB[count+1] = alpha*rhs(k,j2+1);
+        blockB[count+0] = rhs(k,j2+0);
+        blockB[count+1] = rhs(k,j2+1);
         if (nr==4)
         {
-          blockB[count+2] = alpha*rhs(k,j2+2);
-          blockB[count+3] = alpha*rhs(k,j2+3);
+          blockB[count+2] = rhs(k,j2+2);
+          blockB[count+3] = rhs(k,j2+3);
         }
         count += nr;
       }
@@ -163,12 +164,12 @@ struct ei_symm_pack_rhs
     {
       for(Index k=k2; k<end_k; k++)
       {
-        blockB[count+0] = alpha*ei_conj(rhs(j2+0,k));
-        blockB[count+1] = alpha*ei_conj(rhs(j2+1,k));
+        blockB[count+0] = conj(rhs(j2+0,k));
+        blockB[count+1] = conj(rhs(j2+1,k));
         if (nr==4)
         {
-          blockB[count+2] = alpha*ei_conj(rhs(j2+2,k));
-          blockB[count+3] = alpha*ei_conj(rhs(j2+3,k));
+          blockB[count+2] = conj(rhs(j2+2,k));
+          blockB[count+3] = conj(rhs(j2+3,k));
         }
         count += nr;
       }
@@ -181,13 +182,13 @@ struct ei_symm_pack_rhs
       Index half = std::min(end_k,j2);
       for(Index k=k2; k<half; k++)
       {
-        blockB[count] = alpha*ei_conj(rhs(j2,k));
+        blockB[count] = conj(rhs(j2,k));
         count += 1;
       }
 
       if(half==j2 && half<k2+rows)
       {
-        blockB[count] = alpha*ei_real(rhs(j2,j2));
+        blockB[count] = real(rhs(j2,j2));
         count += 1;
       }
       else
@@ -196,7 +197,7 @@ struct ei_symm_pack_rhs
       // normal
       for(Index k=half+1; k<k2+rows; k++)
       {
-        blockB[count] = alpha*rhs(k,j2);
+        blockB[count] = rhs(k,j2);
         count += 1;
       }
     }
@@ -210,12 +211,12 @@ template <typename Scalar, typename Index,
           int LhsStorageOrder, bool LhsSelfAdjoint, bool ConjugateLhs,
           int RhsStorageOrder, bool RhsSelfAdjoint, bool ConjugateRhs,
           int ResStorageOrder>
-struct ei_product_selfadjoint_matrix;
+struct product_selfadjoint_matrix;
 
 template <typename Scalar, typename Index,
           int LhsStorageOrder, bool LhsSelfAdjoint, bool ConjugateLhs,
           int RhsStorageOrder, bool RhsSelfAdjoint, bool ConjugateRhs>
-struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,LhsSelfAdjoint,ConjugateLhs, RhsStorageOrder,RhsSelfAdjoint,ConjugateRhs,RowMajor>
+struct product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,LhsSelfAdjoint,ConjugateLhs, RhsStorageOrder,RhsSelfAdjoint,ConjugateRhs,RowMajor>
 {
 
   static EIGEN_STRONG_INLINE void run(
@@ -225,7 +226,7 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,LhsSelfAdjoint
     Scalar* res,       Index resStride,
     Scalar alpha)
   {
-    ei_product_selfadjoint_matrix<Scalar, Index,
+    product_selfadjoint_matrix<Scalar, Index,
       EIGEN_LOGICAL_XOR(RhsSelfAdjoint,RhsStorageOrder==RowMajor) ? ColMajor : RowMajor,
       RhsSelfAdjoint, NumTraits<Scalar>::IsComplex && EIGEN_LOGICAL_XOR(RhsSelfAdjoint,ConjugateRhs),
       EIGEN_LOGICAL_XOR(LhsSelfAdjoint,LhsStorageOrder==RowMajor) ? ColMajor : RowMajor,
@@ -238,7 +239,7 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,LhsSelfAdjoint
 template <typename Scalar, typename Index,
           int LhsStorageOrder, bool ConjugateLhs,
           int RhsStorageOrder, bool ConjugateRhs>
-struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,true,ConjugateLhs, RhsStorageOrder,false,ConjugateRhs,ColMajor>
+struct product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,true,ConjugateLhs, RhsStorageOrder,false,ConjugateRhs,ColMajor>
 {
 
   static EIGEN_DONT_INLINE void run(
@@ -250,15 +251,12 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,true,Conjugate
   {
     Index size = rows;
 
-    ei_const_blas_data_mapper<Scalar, Index, LhsStorageOrder> lhs(_lhs,lhsStride);
-    ei_const_blas_data_mapper<Scalar, Index, RhsStorageOrder> rhs(_rhs,rhsStride);
+    const_blas_data_mapper<Scalar, Index, LhsStorageOrder> lhs(_lhs,lhsStride);
+    const_blas_data_mapper<Scalar, Index, RhsStorageOrder> rhs(_rhs,rhsStride);
 
-    if (ConjugateRhs)
-      alpha = ei_conj(alpha);
+    typedef gebp_traits<Scalar,Scalar> Traits;
 
-    typedef ei_product_blocking_traits<Scalar> Blocking;
-
-    Index kc = size; // cache block size along the K direction
+    Index kc = size;  // cache block size along the K direction
     Index mc = rows;  // cache block size along the M direction
     Index nc = cols;  // cache block size along the N direction
     computeProductBlockingSizes<Scalar,Scalar>(kc, mc, nc);
@@ -266,14 +264,15 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,true,Conjugate
     kc = std::min(kc,mc);
 
     Scalar* blockA = ei_aligned_stack_new(Scalar, kc*mc);
-    std::size_t sizeB = kc*Blocking::PacketSize*Blocking::nr + kc*cols;
+    std::size_t sizeW = kc*Traits::WorkSpaceFactor;
+    std::size_t sizeB = sizeW + kc*cols;
     Scalar* allocatedBlockB = ei_aligned_stack_new(Scalar, sizeB);
-    Scalar* blockB = allocatedBlockB + kc*Blocking::PacketSize*Blocking::nr;
+    Scalar* blockB = allocatedBlockB + sizeW;
 
-    ei_gebp_kernel<Scalar, Index, Blocking::mr, Blocking::nr, ei_conj_helper<ConjugateLhs,ConjugateRhs> > gebp_kernel;
-    ei_symm_pack_lhs<Scalar, Index, Blocking::mr,LhsStorageOrder> pack_lhs;
-    ei_gemm_pack_rhs<Scalar, Index, Blocking::nr,RhsStorageOrder> pack_rhs;
-    ei_gemm_pack_lhs<Scalar, Index, Blocking::mr,LhsStorageOrder==RowMajor?ColMajor:RowMajor, true> pack_lhs_transposed;
+    gebp_kernel<Scalar, Scalar, Index, Traits::mr, Traits::nr, ConjugateLhs, ConjugateRhs> gebp_kernel;
+    symm_pack_lhs<Scalar, Index, Traits::mr, Traits::LhsProgress, LhsStorageOrder> pack_lhs;
+    gemm_pack_rhs<Scalar, Index, Traits::nr,RhsStorageOrder> pack_rhs;
+    gemm_pack_lhs<Scalar, Index, Traits::mr, Traits::LhsProgress, LhsStorageOrder==RowMajor?ColMajor:RowMajor, true> pack_lhs_transposed;
 
     for(Index k2=0; k2<size; k2+=kc)
     {
@@ -282,7 +281,7 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,true,Conjugate
       // we have selected one row panel of rhs and one column panel of lhs
       // pack rhs's panel into a sequential chunk of memory
       // and expand each coeff to a constant packet for further reuse
-      pack_rhs(blockB, &rhs(k2,0), rhsStride, alpha, actual_kc, cols);
+      pack_rhs(blockB, &rhs(k2,0), rhsStride, actual_kc, cols);
 
       // the select lhs's panel has to be split in three different parts:
       //  1 - the transposed panel above the diagonal block => transposed packed copy
@@ -294,7 +293,7 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,true,Conjugate
         // transposed packed copy
         pack_lhs_transposed(blockA, &lhs(k2, i2), lhsStride, actual_kc, actual_mc);
 
-        gebp_kernel(res+i2, resStride, blockA, blockB, actual_mc, actual_kc, cols);
+        gebp_kernel(res+i2, resStride, blockA, blockB, actual_mc, actual_kc, cols, alpha);
       }
       // the block diagonal
       {
@@ -302,16 +301,16 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,true,Conjugate
         // symmetric packed copy
         pack_lhs(blockA, &lhs(k2,k2), lhsStride, actual_kc, actual_mc);
 
-        gebp_kernel(res+k2, resStride, blockA, blockB, actual_mc, actual_kc, cols);
+        gebp_kernel(res+k2, resStride, blockA, blockB, actual_mc, actual_kc, cols, alpha);
       }
 
       for(Index i2=k2+kc; i2<size; i2+=mc)
       {
         const Index actual_mc = std::min(i2+mc,size)-i2;
-        ei_gemm_pack_lhs<Scalar, Index, Blocking::mr,LhsStorageOrder,false>()
+        gemm_pack_lhs<Scalar, Index, Traits::mr, Traits::LhsProgress, LhsStorageOrder,false>()
           (blockA, &lhs(i2, k2), lhsStride, actual_kc, actual_mc);
 
-        gebp_kernel(res+i2, resStride, blockA, blockB, actual_mc, actual_kc, cols);
+        gebp_kernel(res+i2, resStride, blockA, blockB, actual_mc, actual_kc, cols, alpha);
       }
     }
 
@@ -324,7 +323,7 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,true,Conjugate
 template <typename Scalar, typename Index,
           int LhsStorageOrder, bool ConjugateLhs,
           int RhsStorageOrder, bool ConjugateRhs>
-struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,false,ConjugateLhs, RhsStorageOrder,true,ConjugateRhs,ColMajor>
+struct product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,false,ConjugateLhs, RhsStorageOrder,true,ConjugateRhs,ColMajor>
 {
 
   static EIGEN_DONT_INLINE void run(
@@ -336,12 +335,9 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,false,Conjugat
   {
     Index size = cols;
 
-    ei_const_blas_data_mapper<Scalar, Index, LhsStorageOrder> lhs(_lhs,lhsStride);
+    const_blas_data_mapper<Scalar, Index, LhsStorageOrder> lhs(_lhs,lhsStride);
 
-    if (ConjugateRhs)
-      alpha = ei_conj(alpha);
-
-    typedef ei_product_blocking_traits<Scalar> Blocking;
+    typedef gebp_traits<Scalar,Scalar> Traits;
 
     Index kc = size; // cache block size along the K direction
     Index mc = rows;  // cache block size along the M direction
@@ -349,19 +345,20 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,false,Conjugat
     computeProductBlockingSizes<Scalar,Scalar>(kc, mc, nc);
 
     Scalar* blockA = ei_aligned_stack_new(Scalar, kc*mc);
-    std::size_t sizeB = kc*Blocking::PacketSize*Blocking::nr + kc*cols;
+    std::size_t sizeW = kc*Traits::WorkSpaceFactor;
+    std::size_t sizeB = sizeW + kc*cols;
     Scalar* allocatedBlockB = ei_aligned_stack_new(Scalar, sizeB);
-    Scalar* blockB = allocatedBlockB + kc*Blocking::PacketSize*Blocking::nr;
+    Scalar* blockB = allocatedBlockB + sizeW;
 
-    ei_gebp_kernel<Scalar, Index, Blocking::mr, Blocking::nr, ei_conj_helper<ConjugateLhs,ConjugateRhs> > gebp_kernel;
-    ei_gemm_pack_lhs<Scalar, Index, Blocking::mr,LhsStorageOrder> pack_lhs;
-    ei_symm_pack_rhs<Scalar, Index, Blocking::nr,RhsStorageOrder> pack_rhs;
+    gebp_kernel<Scalar, Scalar, Index, Traits::mr, Traits::nr, ConjugateLhs, ConjugateRhs> gebp_kernel;
+    gemm_pack_lhs<Scalar, Index, Traits::mr, Traits::LhsProgress, LhsStorageOrder> pack_lhs;
+    symm_pack_rhs<Scalar, Index, Traits::nr,RhsStorageOrder> pack_rhs;
 
     for(Index k2=0; k2<size; k2+=kc)
     {
       const Index actual_kc = std::min(k2+kc,size)-k2;
 
-      pack_rhs(blockB, _rhs, rhsStride, alpha, actual_kc, cols, k2);
+      pack_rhs(blockB, _rhs, rhsStride, actual_kc, cols, k2);
 
       // => GEPP
       for(Index i2=0; i2<rows; i2+=mc)
@@ -369,7 +366,7 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,false,Conjugat
         const Index actual_mc = std::min(i2+mc,rows)-i2;
         pack_lhs(blockA, &lhs(i2, k2), lhsStride, actual_kc, actual_mc);
 
-        gebp_kernel(res+i2, resStride, blockA, blockB, actual_mc, actual_kc, cols);
+        gebp_kernel(res+i2, resStride, blockA, blockB, actual_mc, actual_kc, cols, alpha);
       }
     }
 
@@ -378,14 +375,18 @@ struct ei_product_selfadjoint_matrix<Scalar,Index,LhsStorageOrder,false,Conjugat
   }
 };
 
+} // end namespace internal
+
 /***************************************************************************
-* Wrapper to ei_product_selfadjoint_matrix
+* Wrapper to product_selfadjoint_matrix
 ***************************************************************************/
 
+namespace internal {
 template<typename Lhs, int LhsMode, typename Rhs, int RhsMode>
-struct ei_traits<SelfadjointProductMatrix<Lhs,LhsMode,false,Rhs,RhsMode,false> >
-  : ei_traits<ProductBase<SelfadjointProductMatrix<Lhs,LhsMode,false,Rhs,RhsMode,false>, Lhs, Rhs> >
+struct traits<SelfadjointProductMatrix<Lhs,LhsMode,false,Rhs,RhsMode,false> >
+  : traits<ProductBase<SelfadjointProductMatrix<Lhs,LhsMode,false,Rhs,RhsMode,false>, Lhs, Rhs> >
 {};
+}
 
 template<typename Lhs, int LhsMode, typename Rhs, int RhsMode>
 struct SelfadjointProductMatrix<Lhs,LhsMode,false,Rhs,RhsMode,false>
@@ -404,7 +405,7 @@ struct SelfadjointProductMatrix<Lhs,LhsMode,false,Rhs,RhsMode,false>
 
   template<typename Dest> void scaleAndAddTo(Dest& dst, Scalar alpha) const
   {
-    ei_assert(dst.rows()==m_lhs.rows() && dst.cols()==m_rhs.cols());
+    eigen_assert(dst.rows()==m_lhs.rows() && dst.cols()==m_rhs.cols());
 
     const ActualLhsType lhs = LhsBlasTraits::extract(m_lhs);
     const ActualRhsType rhs = RhsBlasTraits::extract(m_rhs);
@@ -412,18 +413,18 @@ struct SelfadjointProductMatrix<Lhs,LhsMode,false,Rhs,RhsMode,false>
     Scalar actualAlpha = alpha * LhsBlasTraits::extractScalarFactor(m_lhs)
                                * RhsBlasTraits::extractScalarFactor(m_rhs);
 
-    ei_product_selfadjoint_matrix<Scalar, Index,
+    internal::product_selfadjoint_matrix<Scalar, Index,
       EIGEN_LOGICAL_XOR(LhsIsUpper,
-                        ei_traits<Lhs>::Flags &RowMajorBit) ? RowMajor : ColMajor, LhsIsSelfAdjoint,
+                        internal::traits<Lhs>::Flags &RowMajorBit) ? RowMajor : ColMajor, LhsIsSelfAdjoint,
       NumTraits<Scalar>::IsComplex && EIGEN_LOGICAL_XOR(LhsIsUpper,bool(LhsBlasTraits::NeedToConjugate)),
       EIGEN_LOGICAL_XOR(RhsIsUpper,
-                        ei_traits<Rhs>::Flags &RowMajorBit) ? RowMajor : ColMajor, RhsIsSelfAdjoint,
+                        internal::traits<Rhs>::Flags &RowMajorBit) ? RowMajor : ColMajor, RhsIsSelfAdjoint,
       NumTraits<Scalar>::IsComplex && EIGEN_LOGICAL_XOR(RhsIsUpper,bool(RhsBlasTraits::NeedToConjugate)),
-      ei_traits<Dest>::Flags&RowMajorBit  ? RowMajor : ColMajor>
+      internal::traits<Dest>::Flags&RowMajorBit  ? RowMajor : ColMajor>
       ::run(
         lhs.rows(), rhs.cols(),                 // sizes
-        &lhs.coeff(0,0),    lhs.outerStride(),  // lhs info
-        &rhs.coeff(0,0),    rhs.outerStride(),  // rhs info
+        &lhs.coeffRef(0,0),    lhs.outerStride(),  // lhs info
+        &rhs.coeffRef(0,0),    rhs.outerStride(),  // rhs info
         &dst.coeffRef(0,0), dst.outerStride(),  // result info
         actualAlpha                             // alpha
       );

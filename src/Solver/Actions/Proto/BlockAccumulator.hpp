@@ -120,7 +120,7 @@ struct BlockAssignmentOp<SystemRHSTag, boost::proto::tag::__tagname> \
   static void assign(Solver::CEigenLSS& lss, const ElementVectorT& elem_rhs_contrib, const DataT& data, const std::vector<Uint>& offsets, const Uint var_idx, const Uint local_idx) \
   { \
     static const Uint rhs_dim = ElementVectorT::RowsAtCompileTime == 1 ? ElementVectorT::ColsAtCompileTime : ElementVectorT::RowsAtCompileTime; \
-    const typename Eigen::ei_eval<ElementVectorT>::type r = elem_rhs_contrib.eval(); \
+    const typename Eigen::internal::eval<ElementVectorT>::type r = elem_rhs_contrib.eval(); \
     const Mesh::CTable<Uint>::ConstRow connectivity = data.element_connectivity(); \
     const Uint offset = offsets[var_idx]; \
     const Uint total_width = offsets.back(); \

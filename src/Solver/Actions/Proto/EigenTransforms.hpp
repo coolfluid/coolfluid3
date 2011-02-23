@@ -55,12 +55,15 @@ protected:
   const NestedProduct m_prod;
 };
 
+namespace internal {
+
 template<typename T>
-struct ei_nested< NestByValue<T> >
+struct nested< NestByValue<T> >
 {
   typedef NestByValue<T> const type;
 };
 
+} // namespace internal
 } // namespace Eigen
 
 namespace CF {
@@ -94,14 +97,14 @@ struct EigenProduct
 template<typename RightT>
 struct EigenProduct<Real, RightT>
 {
-  typedef Eigen::CwiseUnaryOp<Eigen::ei_scalar_multiple_op<Real>, RightT> type;
+  typedef Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Real>, const RightT> type;
 };
 
 /// Scalar on the right
 template<typename LeftT>
 struct EigenProduct<LeftT, Real>
 {
-  typedef Eigen::CwiseUnaryOp<Eigen::ei_scalar_multiple_op<Real>, LeftT> type;
+  typedef Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Real>, const LeftT> type;
 };
 
 /// Scalar - scalar
@@ -116,7 +119,8 @@ template<typename T>
 struct ValueType
 {
   typedef typename Eigen::MatrixBase<T>::PlainObject type;
-  typedef Eigen::NestByValue<type> NestedT;
+//   typedef Eigen::NestByValue<type> NestedT;
+  typedef type NestedT;
 };
 
 /// Specialize for Eigen matrices
@@ -124,7 +128,8 @@ template<int I, int J>
 struct ValueType< Eigen::Matrix<Real, I, J> >
 {
   typedef Eigen::Matrix<Real, I, J> type;
-  typedef Eigen::NestByValue<type> NestedT;
+  //typedef Eigen::NestByValue<type> NestedT;
+  typedef type NestedT;
 };
 
 /// Specialise for reals
@@ -149,7 +154,7 @@ struct TransposeTransform :
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   { 
-    typedef Eigen::Transpose<typename boost::remove_const<typename boost::remove_reference<StateT>::type>::type> result_type;
+    typedef Eigen::Transpose<typename boost::remove_reference<typename impl::state_param>::type> result_type;
     
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
@@ -234,7 +239,7 @@ struct MatrixColAccess :
   {
     typedef typename boost::remove_reference<ExprT>::type ExprValT;
     
-    typedef typename ExprValT::ColXpr result_type;
+    typedef typename ExprValT::ConstColXpr result_type;
     
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
@@ -249,11 +254,12 @@ struct EigenMultiplication :
   boost::proto::when
   <
     boost::proto::multiplies<GrammarT, GrammarT>,
-    EigenProduct
-    <
-      GrammarT(boost::proto::_left),
-      GrammarT(boost::proto::_right)
-    >(boost::proto::_default<GrammarT>)
+    boost::proto::_default<GrammarT>
+//     EigenProduct
+//     <
+//       GrammarT(boost::proto::_left),
+//       GrammarT(boost::proto::_right)
+//     >(boost::proto::_default<GrammarT>)
   >
 {
 };

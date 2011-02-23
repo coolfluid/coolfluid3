@@ -13,7 +13,9 @@
 #include <Eigen/Dense>
 
 #include "Mesh/BlockMesh/BlockData.hpp"
+#include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CRegion.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
@@ -139,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE( RealVector2D, VectorBenchmarkFixture )
   RealVector c3(2);
   RealVector result(2);
   
-  centroid_2d(find_component_recursively_with_filter<CTable<Uint> >(*grid_2d, IsComponentTrue()).array(), find_component_recursively_with_filter<CTable<Real> >(*grid_2d, IsComponentTrue()).array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<CElements>( *grid_2d, IsElementsVolume() ).connectivity_table().array(), grid_2d->topology().nodes().coordinates().array(), c0, c1, c2, c3, result);
   
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -153,7 +155,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector2DStatic, VectorBenchmarkFixture )
   boost::numeric::ublas::c_vector<Real, 2> c3(2);
   boost::numeric::ublas::c_vector<Real, 2> result(2);
   
-  centroid_2d(find_component_recursively_with_filter<CTable<Uint> >(*grid_2d, IsComponentTrue()).array(), find_component_recursively_with_filter<CTable<Real> >(*grid_2d, IsComponentTrue()).array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<CElements>( *grid_2d, IsElementsVolume() ).connectivity_table().array(), grid_2d->topology().nodes().coordinates().array(), c0, c1, c2, c3, result);
   
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -167,7 +169,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector2DDynamic, VectorBenchmarkFixture )
   boost::numeric::ublas::vector<Real> c3(2);
   boost::numeric::ublas::vector<Real> result(2);
   
-  centroid_2d(find_component_recursively_with_filter<CTable<Uint> >(*grid_2d, IsComponentTrue()).array(), find_component_recursively_with_filter<CTable<Real> >(*grid_2d, IsComponentTrue()).array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<CElements>( *grid_2d, IsElementsVolume() ).connectivity_table().array(), grid_2d->topology().nodes().coordinates().array(), c0, c1, c2, c3, result);
   
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -247,7 +249,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector2DStatic, VectorBenchmarkFixture )
   Eigen::Vector2d c3(2);
   Eigen::Vector2d result(2);
   
-  centroid_2d(find_component_recursively_with_filter<CTable<Uint> >(*grid_2d, IsComponentTrue()).array(), find_component_recursively_with_filter<CTable<Real> >(*grid_2d, IsComponentTrue()).array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<CElements>( *grid_2d, IsElementsVolume() ).connectivity_table().array(), grid_2d->topology().nodes().coordinates().array(), c0, c1, c2, c3, result);
   
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -261,7 +263,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector2DDynamic, VectorBenchmarkFixture )
   Eigen::VectorXd c3(2);
   Eigen::VectorXd result(2);
   
-  centroid_2d(find_component_recursively_with_filter<CTable<Uint> >(*grid_2d, IsComponentTrue()).array(), find_component_recursively_with_filter<CTable<Real> >(*grid_2d, IsComponentTrue()).array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<CElements>( *grid_2d, IsElementsVolume() ).connectivity_table().array(), grid_2d->topology().nodes().coordinates().array(), c0, c1, c2, c3, result);
   
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);

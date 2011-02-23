@@ -53,7 +53,7 @@ public:
   /** corresponding linear transformation matrix type */
   typedef Matrix<Scalar,Dim,Dim> LinearMatrixType;
   /** corresponding affine transformation type */
-  typedef Transform<Scalar,Dim> AffineTransformType;
+  typedef Transform<Scalar,Dim,Affine> AffineTransformType;
 
 protected:
 
@@ -66,14 +66,14 @@ public:
   /**  */
   inline Translation(const Scalar& sx, const Scalar& sy)
   {
-    ei_assert(Dim==2);
+    eigen_assert(Dim==2);
     m_coeffs.x() = sx;
     m_coeffs.y() = sy;
   }
   /**  */
   inline Translation(const Scalar& sx, const Scalar& sy, const Scalar& sz)
   {
-    ei_assert(Dim==3);
+    eigen_assert(Dim==3);
     m_coeffs.x() = sx;
     m_coeffs.y() = sy;
     m_coeffs.z() = sz;
@@ -97,6 +97,9 @@ public:
 
   const VectorType& vector() const { return m_coeffs; }
   VectorType& vector() { return m_coeffs; }
+
+  const VectorType& translation() const { return m_coeffs; }
+  VectorType& translation() { return m_coeffs; }
 
   /** Concatenates two translation */
   inline Translation operator* (const Translation& other) const
@@ -128,9 +131,9 @@ public:
     return res;
   }
 
-  /** Concatenates a translation and an affine transformation */
-  template<int Mode>
-  inline Transform<Scalar,Dim,Mode> operator* (const Transform<Scalar,Dim,Mode>& t) const
+  /** Concatenates a translation and a transformation */
+  template<int Mode, int Options>
+  inline Transform<Scalar,Dim,Mode> operator* (const Transform<Scalar,Dim,Mode,Options>& t) const
   {
     Transform<Scalar,Dim,Mode> res = t;
     res.pretranslate(m_coeffs);
@@ -150,14 +153,16 @@ public:
     return *this;
   }
 
+  static const Translation Identity() { return Translation(VectorType::Zero()); }
+
   /** \returns \c *this with scalar type casted to \a NewScalarType
     *
     * Note that if \a NewScalarType is equal to the current scalar type of \c *this
     * then this function smartly returns a const reference to \c *this.
     */
   template<typename NewScalarType>
-  inline typename ei_cast_return_type<Translation,Translation<NewScalarType,Dim> >::type cast() const
-  { return typename ei_cast_return_type<Translation,Translation<NewScalarType,Dim> >::type(*this); }
+  inline typename internal::cast_return_type<Translation,Translation<NewScalarType,Dim> >::type cast() const
+  { return typename internal::cast_return_type<Translation,Translation<NewScalarType,Dim> >::type(*this); }
 
   /** Copy constructor with scalar type conversion */
   template<typename OtherScalarType>

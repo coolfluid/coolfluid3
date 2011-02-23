@@ -27,6 +27,7 @@
 #define EIGEN_COMMAINITIALIZER_H
 
 /** \class CommaInitializer
+  * \ingroup Core_Module
   *
   * \brief Helper class used by the comma initializer operator
   *
@@ -63,12 +64,12 @@ struct CommaInitializer
       m_row+=m_currentBlockRows;
       m_col = 0;
       m_currentBlockRows = 1;
-      ei_assert(m_row<m_xpr.rows()
+      eigen_assert(m_row<m_xpr.rows()
         && "Too many rows passed to comma initializer (operator<<)");
     }
-    ei_assert(m_col<m_xpr.cols()
+    eigen_assert(m_col<m_xpr.cols()
       && "Too many coefficients passed to comma initializer (operator<<)");
-    ei_assert(m_currentBlockRows==1);
+    eigen_assert(m_currentBlockRows==1);
     m_xpr.coeffRef(m_row, m_col++) = s;
     return *this;
   }
@@ -82,12 +83,12 @@ struct CommaInitializer
       m_row+=m_currentBlockRows;
       m_col = 0;
       m_currentBlockRows = other.rows();
-      ei_assert(m_row+m_currentBlockRows<=m_xpr.rows()
+      eigen_assert(m_row+m_currentBlockRows<=m_xpr.rows()
         && "Too many rows passed to comma initializer (operator<<)");
     }
-    ei_assert(m_col<m_xpr.cols()
+    eigen_assert(m_col<m_xpr.cols()
       && "Too many coefficients passed to comma initializer (operator<<)");
-    ei_assert(m_currentBlockRows==other.rows());
+    eigen_assert(m_currentBlockRows==other.rows());
     if (OtherDerived::SizeAtCompileTime != Dynamic)
       m_xpr.template block<OtherDerived::RowsAtCompileTime != Dynamic ? OtherDerived::RowsAtCompileTime : 1,
                               OtherDerived::ColsAtCompileTime != Dynamic ? OtherDerived::ColsAtCompileTime : 1>
@@ -100,7 +101,7 @@ struct CommaInitializer
 
   inline ~CommaInitializer()
   {
-    ei_assert((m_row+m_currentBlockRows) == m_xpr.rows()
+    eigen_assert((m_row+m_currentBlockRows) == m_xpr.rows()
          && m_col == m_xpr.cols()
          && "Too few coefficients passed to comma initializer (operator<<)");
   }

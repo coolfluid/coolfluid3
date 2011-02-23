@@ -46,15 +46,6 @@
 #define EIGEN_CACHEFRIENDLY_PRODUCT_THRESHOLD 8
 #endif
 
-/** Defines the maximal size in Bytes of blocks fitting in CPU cache.
-  * The current value is set to generate blocks of 256x256 for float
-  *
-  * Typically for a single-threaded application you would set that to 25% of the size of your CPU caches in bytes
-  */
-#ifndef EIGEN_TUNE_FOR_CPU_CACHE_SIZE
-#define EIGEN_TUNE_FOR_CPU_CACHE_SIZE (sizeof(float)*512*512)
-#endif
-
 /** Defines the maximal width of the blocks used in the triangular product and solver
   * for vectors (level 2 blas xTRMV and xTRSV). The default is 8.
   */
@@ -67,12 +58,7 @@
   * Currently it must be 8 or 16. Other values will fail.
   */
 #ifndef EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS
-#if (defined __i386__)
 #define EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS 8
-#else
-#define EIGEN_ARCH_DEFAULT_NUMBER_OF_REGISTERS 16
-#endif
-
 #endif
 
 #endif // EIGEN_DEFAULT_SETTINGS_H

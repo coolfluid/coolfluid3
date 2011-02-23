@@ -25,7 +25,7 @@ struct EigenFixture
     va.resize(5);
     va << 1.0, 2.0, 3.0, 5.0, 7.0;
 
-    vb = VectorXd::LinSpaced(2.0, 10.0, 5);
+    vb = VectorXd::LinSpaced(5, 2.0, 10.0);
 
     vc = VectorXd::Constant(5, 7.0);
 

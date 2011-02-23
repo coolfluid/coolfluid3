@@ -60,8 +60,8 @@ LDL License:
     and a notice that the code was modified is included.
  */
 
-#ifndef EIGEN_SPARSELDLT_H
-#define EIGEN_SPARSELDLT_H
+#ifndef EIGEN_SPARSELDLT_LEGACY_H
+#define EIGEN_SPARSELDLT_LEGACY_H
 
 /** \ingroup Sparse_Module
   *
@@ -99,7 +99,7 @@ class SparseLDLT
     SparseLDLT(int flags = 0)
       : m_flags(flags), m_status(0)
     {
-      ei_assert((MatrixType::Flags&RowMajorBit)==0);
+      eigen_assert((MatrixType::Flags&RowMajorBit)==0);
       m_precision = RealScalar(0.1) * Eigen::NumTraits<RealScalar>::dummy_precision();
     }
 
@@ -108,7 +108,7 @@ class SparseLDLT
     SparseLDLT(const MatrixType& matrix, int flags = 0)
       : m_matrix(matrix.rows(), matrix.cols()), m_flags(flags), m_status(0)
     {
-      ei_assert((MatrixType::Flags&RowMajorBit)==0);
+      eigen_assert((MatrixType::Flags&RowMajorBit)==0);
       m_precision = RealScalar(0.1) * Eigen::NumTraits<RealScalar>::dummy_precision();
       compute(matrix);
     }
@@ -166,11 +166,11 @@ class SparseLDLT
     bool solveInPlace(MatrixBase<Derived> &b) const;
 
     template<typename Rhs>
-    inline const ei_solve_retval<SparseLDLT<MatrixType>, Rhs>
+    inline const internal::solve_retval<SparseLDLT<MatrixType>, Rhs>
     solve(const MatrixBase<Rhs>& b) const
     {
-      ei_assert(true && "SparseLDLT is not initialized.");
-      return ei_solve_retval<SparseLDLT<MatrixType>, Rhs>(*this, b.derived());
+      eigen_assert(true && "SparseLDLT is not initialized.");
+      return internal::solve_retval<SparseLDLT<MatrixType>, Rhs>(*this, b.derived());
     }
 
     inline Index cols() const { return m_matrix.cols(); }
@@ -187,19 +187,19 @@ class SparseLDLT
     VectorXi m_parent; // elimination tree
     VectorXi m_nonZerosPerCol;
 //     VectorXi m_w; // workspace
+    PermutationMatrix<Dynamic> m_P;
+    PermutationMatrix<Dynamic> m_Pinv;
     RealScalar m_precision;
     int m_flags;
     mutable int m_status;
     bool m_succeeded;
 };
 
-
-
-
+namespace internal {
 
 template<typename _MatrixType, typename Rhs>
-struct ei_solve_retval<SparseLDLT<_MatrixType>, Rhs>
-  : ei_solve_retval_base<SparseLDLT<_MatrixType>, Rhs>
+struct solve_retval<SparseLDLT<_MatrixType>, Rhs>
+  : solve_retval_base<SparseLDLT<_MatrixType>, Rhs>
 {
   typedef SparseLDLT<_MatrixType> SpLDLTDecType;
   EIGEN_MAKE_SOLVE_HELPERS(SpLDLTDecType,Rhs)
@@ -207,7 +207,7 @@ struct ei_solve_retval<SparseLDLT<_MatrixType>, Rhs>
   template<typename Dest> void evalTo(Dest& dst) const
   {
     //Index size = dec().matrixL().rows();
-    ei_assert(dec().matrixL().rows()==rhs().rows());
+    eigen_assert(dec().matrixL().rows()==rhs().rows());
 
     Rhs b(rhs().rows(), rhs().cols());
     b = rhs();
@@ -225,7 +225,7 @@ struct ei_solve_retval<SparseLDLT<_MatrixType>, Rhs>
     
 };
 
-
+} // end namespace internal
 
 /** Computes / recomputes the LDLT decomposition of matrix \a a
   * using the default algorithm.
@@ -250,15 +250,22 @@ void SparseLDLT<_MatrixType,Backend>::_symbolic(const _MatrixType& a)
   const Index* Ap = a._outerIndexPtr();
   const Index* Ai = a._innerIndexPtr();
   Index* Lp = m_matrix._outerIndexPtr();
+  
   const Index* P = 0;
   Index* Pinv = 0;
 
-  if (P)
+  if(P)
   {
-    /* If P is present then compute Pinv, the inverse of P */
-    for (Index k = 0; k < size; ++k)
-      Pinv[P[k]] = k;
+    m_P.indices()     = VectorXi::Map(P,size);
+    m_Pinv = m_P.inverse();
+    Pinv = m_Pinv.indices().data();
   }
+  else
+  {
+    m_P.resize(0);
+    m_Pinv.resize(0);
+  }
+
   for (Index k = 0; k < size; ++k)
   {
     /* L(k,:) pattern: all nodes reachable in etree from nz in A(0:k-1,k) */
@@ -313,9 +320,16 @@ bool SparseLDLT<_MatrixType,Backend>::_numeric(const _MatrixType& a)
   Scalar * y = ei_aligned_stack_new(Scalar, size);
   Index * pattern = ei_aligned_stack_new(Index, size);
   Index * tags = ei_aligned_stack_new(Index, size);
-
-  const Index* P = 0;
-  const Index* Pinv = 0;
+  
+  Index* P = 0;
+  Index* Pinv = 0;
+  
+  if(m_P.size()==size)
+  {
+    P = m_P.indices().data();
+    Pinv = m_Pinv.indices().data();
+  }
+  
   bool ok = true;
 
   for (Index k = 0; k < size; ++k)
@@ -332,7 +346,7 @@ bool SparseLDLT<_MatrixType,Backend>::_numeric(const _MatrixType& a)
       Index i = Pinv ? Pinv[Ai[p]] : Ai[p]; /* get A(i,k) */
       if (i <= k)
       {
-        y[i] += ei_conj(Ax[p]);            /* scatter A(i,k) into Y (sum duplicates) */
+        y[i] += internal::conj(Ax[p]);            /* scatter A(i,k) into Y (sum duplicates) */
         Index len;
         for (len = 0; tags[i] != k; i = m_parent[i])
         {
@@ -355,9 +369,9 @@ bool SparseLDLT<_MatrixType,Backend>::_numeric(const _MatrixType& a)
       Index p2 = Lp[i] + m_nonZerosPerCol[i];
       Index p;
       for (p = Lp[i]; p < p2; ++p)
-        y[Li[p]] -= ei_conj(Lx[p]) * (yi);
+        y[Li[p]] -= internal::conj(Lx[p]) * (yi);
       Scalar l_ki = yi / m_diag[i];       /* the nonzero entry L(k,i) */
-      m_diag[k] -= l_ki * ei_conj(yi);
+      m_diag[k] -= l_ki * internal::conj(yi);
       Li[p] = k;                          /* store L(k,i) in column form of L */
       Lx[p] = (l_ki);
       ++m_nonZerosPerCol[i];              /* increment count of nonzeros in col i */
@@ -382,9 +396,12 @@ template<typename Derived>
 bool SparseLDLT<_MatrixType, Backend>::solveInPlace(MatrixBase<Derived> &b) const
 {
   //Index size = m_matrix.rows();
-  ei_assert(m_matrix.rows()==b.rows());
+  eigen_assert(m_matrix.rows()==b.rows());
   if (!m_succeeded)
     return false;
+  
+  if(m_P.size()>0)
+    b = m_Pinv * b;
 
   if (m_matrix.nonZeros()>0) // otherwise L==I
     m_matrix.template triangularView<UnitLower>().solveInPlace(b);
@@ -392,7 +409,10 @@ bool SparseLDLT<_MatrixType, Backend>::solveInPlace(MatrixBase<Derived> &b) cons
   if (m_matrix.nonZeros()>0) // otherwise L==I
     m_matrix.adjoint().template triangularView<UnitUpper>().solveInPlace(b);
 
+  if(m_P.size()>0)
+    b = m_P * b;
+  
   return true;
 }
 
-#endif // EIGEN_SPARSELDLT_H
+#endif // EIGEN_SPARSELDLT_LEGACY_H

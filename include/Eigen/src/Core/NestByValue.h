@@ -27,6 +27,7 @@
 #define EIGEN_NESTBYVALUE_H
 
 /** \class NestByValue
+  * \ingroup Core_Module
   *
   * \brief Expression which must be nested by value
   *
@@ -37,16 +38,19 @@
   *
   * \sa MatrixBase::nestByValue()
   */
+
+namespace internal {
 template<typename ExpressionType>
-struct ei_traits<NestByValue<ExpressionType> > : public ei_traits<ExpressionType>
+struct traits<NestByValue<ExpressionType> > : public traits<ExpressionType>
 {};
+}
 
 template<typename ExpressionType> class NestByValue
-  : public ei_dense_xpr_base< NestByValue<ExpressionType> >::type
+  : public internal::dense_xpr_base< NestByValue<ExpressionType> >::type
 {
   public:
 
-    typedef typename ei_dense_xpr_base<NestByValue>::type Base;
+    typedef typename internal::dense_xpr_base<NestByValue>::type Base;
     EIGEN_DENSE_PUBLIC_INTERFACE(NestByValue)
 
     inline NestByValue(const ExpressionType& matrix) : m_expression(matrix) {}

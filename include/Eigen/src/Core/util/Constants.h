@@ -38,7 +38,7 @@ const int Dynamic = -1;
   */
 const int Infinity = -1;
 
-/** \defgroup flags flags
+/** \defgroup flags Flags
   * \ingroup Core_Module
   *
   * These are the possible bits which can be OR'ed to constitute the flags of a matrix or
@@ -56,7 +56,8 @@ const int Infinity = -1;
   * for a matrix, this means that the storage order is row-major.
   * If this bit is not set, the storage order is column-major.
   * For an expression, this determines the storage order of
-  * the matrix created by evaluation of that expression. */
+  * the matrix created by evaluation of that expression. 
+  * \sa \ref TopicStorageOrders */
 const unsigned int RowMajorBit = 0x1;
 
 /** \ingroup flags
@@ -125,19 +126,33 @@ const unsigned int LinearAccessBit = 0x10;
 
 /** \ingroup flags
   *
-  * Means that the underlying array of coefficients can be directly accessed. This means two things.
-  * First, references to the coefficients must be available through coeffRef(int, int). This rules out read-only
-  * expressions whose coefficients are computed on demand by coeff(int, int). Second, the memory layout of the
-  * array of coefficients must be exactly the natural one suggested by rows(), cols(), outerStride(), innerStride(), and the RowMajorBit.
-  * This rules out expressions such as Diagonal, whose coefficients, though referencable, do not have
-  * such a regular memory layout.
+  * Means the expression has a coeffRef() method, i.e. is writable as its individual coefficients are directly addressable.
+  * This rules out read-only expressions.
+  *
+  * Note that DirectAccessBit and LvalueBit are mutually orthogonal, as there are examples of expression having one but note
+  * the other:
+  *   \li writable expressions that don't have a very simple memory layout as a strided array, have LvalueBit but not DirectAccessBit
+  *   \li Map-to-const expressions, for example Map<const Matrix>, have DirectAccessBit but not LvalueBit
+  *
+  * Expressions having LvalueBit also have their coeff() method returning a const reference instead of returning a new value.
   */
-const unsigned int DirectAccessBit = 0x20;
+const unsigned int LvalueBit = 0x20;
+
+/** \ingroup flags
+  *
+  * Means that the underlying array of coefficients can be directly accessed as a plain strided array. The memory layout
+  * of the array of coefficients must be exactly the natural one suggested by rows(), cols(),
+  * outerStride(), innerStride(), and the RowMajorBit. This rules out expressions such as Diagonal, whose coefficients,
+  * though referencable, do not have such a regular memory layout.
+  *
+  * See the comment on LvalueBit for an explanation of how LvalueBit and DirectAccessBit are mutually orthogonal.
+  */
+const unsigned int DirectAccessBit = 0x40;
 
 /** \ingroup flags
   *
   * means the first coefficient packet is guaranteed to be aligned */
-const unsigned int AlignedBit = 0x40;
+const unsigned int AlignedBit = 0x80;
 
 const unsigned int NestByRefBit = 0x100;
 
@@ -176,7 +191,9 @@ enum {
   LinearVectorizedTraversal,
   /** \internal Generic vectorization path using one vectorized loop per row/column with some
     * scalar loops to handle the unaligned boundaries */
-  SliceVectorizedTraversal
+  SliceVectorizedTraversal,
+  /** \internal Special case to properly handle incompatible scalar types or other defecting cases*/
+  InvalidTraversal
 };
 
 enum {
@@ -194,18 +211,11 @@ enum {
   DontAlign = 0x2
 };
 
+/** \brief Enum for specifying whether to apply or solve on the left or right. 
+  */
 enum {
-  OnTheLeft = 1,
-  OnTheRight = 2
-};
-
-// options for SVD decomposition
-enum {
-  SkipU = 0x1,
-  SkipV = 0x2,
-  AtLeastAsManyRowsAsCols = 0x4,
-  AtLeastAsManyColsAsRows = 0x8,
-  Square = AtLeastAsManyRowsAsCols | AtLeastAsManyColsAsRows
+  OnTheLeft = 1,  /**< \brief Apply transformation on the left. */
+  OnTheRight = 2  /**< \brief Apply transformation on the right. */
 };
 
 /* the following could as well be written:
@@ -234,18 +244,31 @@ enum {
   IsSparse
 };
 
+enum AccessorLevels {
+  ReadOnlyAccessors, WriteAccessors, DirectAccessors, DirectWriteAccessors
+};
+
 enum DecompositionOptions {
   Pivoting            = 0x01, // LDLT,
   NoPivoting          = 0x02, // LDLT,
-  ComputeU            = 0x10, // SVD,
-  ComputeR            = 0x20, // SVD,
+  ComputeFullU        = 0x04, // SVD,
+  ComputeThinU        = 0x08, // SVD,
+  ComputeFullV        = 0x10, // SVD,
+  ComputeThinV        = 0x20, // SVD,
   EigenvaluesOnly     = 0x40, // all eigen solvers
-  ComputeEigenvectors = 0x80,  // all eigen solvers
+  ComputeEigenvectors = 0x80, // all eigen solvers
   EigVecMask = EigenvaluesOnly | ComputeEigenvectors,
   Ax_lBx              = 0x100,
   ABx_lx              = 0x200,
   BAx_lx              = 0x400,
   GenEigMask = Ax_lBx | ABx_lx | BAx_lx
+};
+
+enum QRPreconditioners {
+  NoQRPreconditioner,
+  HouseholderQRPreconditioner,
+  ColPivHouseholderQRPreconditioner,
+  FullPivHouseholderQRPreconditioner
 };
 
 /** \brief Enum for reporting the status of a computation.

@@ -27,6 +27,7 @@
 #define EIGEN_MATRIX_H
 
 /** \class Matrix
+  * \ingroup Core_Module
   *
   * \brief The matrix class, also used for vectors and row-vectors
   *
@@ -44,7 +45,7 @@
   * The remaining template parameters are optional -- in most cases you don't have to worry about them.
   * \tparam _Options \anchor matrix_tparam_options A combination of either \b RowMajor or \b ColMajor, and of either
   *                 \b AutoAlign or \b DontAlign.
-  *                 The former controls storage order, and defaults to column-major. The latter controls alignment, which is required
+  *                 The former controls \ref TopicStorageOrders "storage order", and defaults to column-major. The latter controls alignment, which is required
   *                 for vectorization. It defaults to aligning matrices except for fixed sizes that aren't a multiple of the packet size.
   * \tparam _MaxRows Maximum number of rows. Defaults to \a _Rows (\ref maxrows "note").
   * \tparam _MaxCols Maximum number of columns. Defaults to \a _Cols (\ref maxrows "note").
@@ -106,10 +107,13 @@
   * are the dimensions of the original matrix, while _Rows and _Cols are Dynamic.</dd>
   * </dl>
   *
-  * \see MatrixBase for the majority of the API methods for matrices
+  * \see MatrixBase for the majority of the API methods for matrices, \ref TopicClassHierarchy, 
+  * \ref TopicStorageOrders 
   */
+
+namespace internal {
 template<typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
-struct ei_traits<Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> >
+struct traits<Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> >
 {
   typedef _Scalar Scalar;
   typedef Dense StorageKind;
@@ -120,24 +124,25 @@ struct ei_traits<Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> >
     ColsAtCompileTime = _Cols,
     MaxRowsAtCompileTime = _MaxRows,
     MaxColsAtCompileTime = _MaxCols,
-    Flags = ei_compute_matrix_flags<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>::ret,
+    Flags = compute_matrix_flags<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>::ret,
     CoeffReadCost = NumTraits<Scalar>::ReadCost,
     Options = _Options,
     InnerStrideAtCompileTime = 1,
     OuterStrideAtCompileTime = (Options&RowMajor) ? ColsAtCompileTime : RowsAtCompileTime
   };
 };
+}
 
 template<typename _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols>
 class Matrix
-  : public DenseStorageBase<Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> >
+  : public PlainObjectBase<Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols> >
 {
   public:
 
     /** \brief Base class typedef.
-      * \sa DenseStorageBase
+      * \sa PlainObjectBase
       */
-    typedef DenseStorageBase<Matrix> Base;
+    typedef PlainObjectBase<Matrix> Base;
 
     enum { Options = _Options };
 
@@ -216,8 +221,8 @@ class Matrix
     }
 
     // FIXME is it still needed
-    Matrix(ei_constructor_without_unaligned_array_assert)
-      : Base(ei_constructor_without_unaligned_array_assert())
+    Matrix(internal::constructor_without_unaligned_array_assert)
+      : Base(internal::constructor_without_unaligned_array_assert())
     { Base::_check_template_params(); EIGEN_INITIALIZE_BY_ZERO_IF_THAT_OPTION_IS_ENABLED }
 
     /** \brief Constructs a vector or row-vector with given dimension. \only_for_vectors
@@ -231,8 +236,8 @@ class Matrix
     {
       Base::_check_template_params();
       EIGEN_STATIC_ASSERT_VECTOR_ONLY(Matrix)
-      ei_assert(dim > 0);
-      ei_assert(SizeAtCompileTime == Dynamic || SizeAtCompileTime == dim);
+      eigen_assert(dim >= 0);
+      eigen_assert(SizeAtCompileTime == Dynamic || SizeAtCompileTime == dim);
       EIGEN_INITIALIZE_BY_ZERO_IF_THAT_OPTION_IS_ENABLED
     }
 
@@ -281,6 +286,11 @@ class Matrix
     EIGEN_STRONG_INLINE Matrix(const MatrixBase<OtherDerived>& other)
              : Base(other.rows() * other.cols(), other.rows(), other.cols())
     {
+      // This test resides here, to bring the error messages closer to the user. Normally, these checks
+      // are performed deeply within the library, thus causing long and scary error traces.
+      EIGEN_STATIC_ASSERT((internal::is_same<Scalar, typename OtherDerived::Scalar>::value),
+        YOU_MIXED_DIFFERENT_NUMERIC_TYPES__YOU_NEED_TO_USE_THE_CAST_METHOD_OF_MATRIXBASE_TO_CAST_NUMERIC_TYPES_EXPLICITLY)
+
       Base::_check_template_params();
       Base::_set_noalias(other);
     }
@@ -319,7 +329,7 @@ class Matrix
       * of same type it is enough to swap the data pointers.
       */
     template<typename OtherDerived>
-    void swap(MatrixBase<OtherDerived> EIGEN_REF_TO_TEMPORARY other)
+    void swap(MatrixBase<OtherDerived> const & other)
     { this->_swap(other.derived()); }
 
     inline Index innerStride() const { return 1; }
@@ -332,6 +342,13 @@ class Matrix
     template<typename OtherDerived>
     Matrix& operator=(const RotationBase<OtherDerived,ColsAtCompileTime>& r);
 
+    #ifdef EIGEN2_SUPPORT
+    template<typename OtherDerived>
+    explicit Matrix(const eigen2_RotationBase<OtherDerived,ColsAtCompileTime>& r);
+    template<typename OtherDerived>
+    Matrix& operator=(const eigen2_RotationBase<OtherDerived,ColsAtCompileTime>& r);
+    #endif
+
     // allow to extend Matrix outside Eigen
     #ifdef EIGEN_MATRIX_PLUGIN
     #include EIGEN_MATRIX_PLUGIN
@@ -339,7 +356,7 @@ class Matrix
 
   protected:
     template <typename Derived, typename OtherDerived, bool IsVector>
-    friend struct ei_conservative_resize_like_impl;
+    friend struct internal::conservative_resize_like_impl;
 
     using Base::m_storage;
 };
