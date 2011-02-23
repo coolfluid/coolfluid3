@@ -29,6 +29,8 @@ public:
 
   static std::string type_name() { return "CPlotter"; }
 
+  void add_data_set(const URI & uri);
+
   /// @name SIGNALS
   //@{
 
@@ -38,6 +40,9 @@ public:
 
   //@} END SIGNALS
 
+private: // data
+
+  std::vector<std::string> m_data_sets;
 
 }; // CPlotter
 

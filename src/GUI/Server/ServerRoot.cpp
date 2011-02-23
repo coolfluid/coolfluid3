@@ -84,13 +84,16 @@ CRoot::Ptr ServerRoot::root()
     Component::Ptr tools = root->get_child("Tools");
 
     tools->create_component<CJournal>("Journal")->mark_basic();
-    tools->create_component<CPlotter>("Plotter")->mark_basic();
+    CPlotter::Ptr plotter = tools->create_component<CPlotter>("Plotter");
+
+    plotter->mark_basic();
 
     CTable<Real>::Ptr table = tools->create_component< CTable<Real> >("MyTable");
     table->set_row_size(8); // reserve 8 columns
     CTable<Real>::Buffer buffer = table->create_buffer();
 
     table->mark_basic();
+    plotter->add_data_set( table->full_path() );
 
     // fill the table
     std::vector<Real> row(8);

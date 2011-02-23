@@ -748,7 +748,7 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
       {
         URI value;
         to_value(type_node, value);
-        XmlNode restr_node = Map(type_node).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
+        XmlNode restr_node = Map(node).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
         std::vector<URI> restr_list;
 
@@ -761,9 +761,12 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
 
           std::vector<URI>::iterator it;
 
+          option->restricted_list().push_back( value );
+
           for( it = restr_list.begin() ; it != restr_list.end() ; ++it)
             option->restricted_list().push_back( *it );
         }
+
 
         /// @todo manage protocols
 
@@ -855,7 +858,7 @@ Option::Ptr CNode::makeOptionT(const std::string & name, const std::string & des
 {
   TYPE value;
   to_value(node, value);
-  XmlNode restr_node = Map(node).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
+  XmlNode restr_node = Map(node.content->parent()).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
   std::vector<TYPE> restr_list;
 
@@ -866,6 +869,8 @@ Option::Ptr CNode::makeOptionT(const std::string & name, const std::string & des
     restr_list = Map().array_to_vector<TYPE>( restr_node );
 
     typename std::vector<TYPE>::iterator it;
+
+    option->restricted_list().push_back( value );
 
     for( it = restr_list.begin() ; it != restr_list.end() ; ++it)
       option->restricted_list().push_back( *it );
@@ -884,7 +889,7 @@ Option::Ptr CNode::makeOptionArrayT(const std::string & name, const std::string 
 
   Option::Ptr option(new Common::OptionArrayT<TYPE>(name, descr, value));
 
-  XmlNode restr_node = Map(node).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
+  XmlNode restr_node = Map(node.content->parent()).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
   std::vector<TYPE> restr_list;
 
@@ -893,6 +898,8 @@ Option::Ptr CNode::makeOptionArrayT(const std::string & name, const std::string 
     restr_list = Map().array_to_vector<TYPE>( restr_node );
 
     typename std::vector<TYPE>::iterator it;
+
+    option->restricted_list().push_back( value );
 
     for( it = restr_list.begin() ; it != restr_list.end() ; ++it)
       option->restricted_list().push_back( *it );
