@@ -86,9 +86,11 @@ CRoot::Ptr ServerRoot::root()
     tools->create_component<CJournal>("Journal")->mark_basic();
     tools->create_component<CHistory>("History")->mark_basic();
 
-    CTable::Ptr table = tools->create_component<CTable>("MyTable");
+//    CTable::Ptr table = tools->create_component<CTable>("MyTable");
 
-    table->mark_basic();
+//    table->set_row_size(8); //
+
+//    table->mark_basic();
   }
 
   return root;
