@@ -88,6 +88,7 @@ my %packages = (  #  version   default install priority      function
     "google-perftools" => [ "1.6",'off',   'off', $priority++,  \&install_google_perftools ],
     "cgal"       => [ "3.6.1",    'off',   'off', $priority++,  \&install_cgal ],
     "zoltan"     => [ "3.3",      'off',   'off', $priority++,  \&install_zoltan ],
+    "superlu"     => [ "4.1",      'off',   'off', $priority++,  \&install_superlu ],
 );
 
 # supported extensions for downloading and uncompressing
@@ -1300,6 +1301,29 @@ $opt_tmp_dir/$lib-$version-Source"
     run_command_or_die("make install");
   }
 
+}
+
+#==========================================================================
+
+sub install_superlu() {
+  my $lib = "superlu";
+  my $version = $packages{$lib}[$vrs];
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
+
+  safe_chdir($opt_tmp_dir);
+  download_src("$lib-$version");
+  unless ($opt_fetchonly)
+  {
+    rmtree "$opt_tmp_dir/$lib-$version";
+    untar_src("$lib-$version");
+    safe_chdir("$opt_tmp_dir/$lib-$version/");
+    
+    mkpath("build",1);
+    safe_chdir("build");
+    run_command_or_die("cmake ../ -DBOOST_ROOT=$opt_install_dir -DCMAKE_INSTALL_PREFIX=$opt_install_dir -DCMAKE_BUILD_TYPE=Release" );
+    run_command_or_die("make $opt_makeopts");
+    run_command_or_die("make install");
+  }
 }
 
 #==========================================================================
