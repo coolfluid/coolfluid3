@@ -12,7 +12,7 @@
 #include "Common/LibCommon.hpp"
 #include "Common/Log.hpp"
 
-#include "Common/CHistory.hpp"
+#include "Common/CPlotXY.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,29 +25,29 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder < CHistory, Component, LibCommon > CHistory_Builder;
+ComponentBuilder < CPlotXY, Component, LibCommon > CPlotXY_Builder;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CHistory::CHistory(const std::string& name) :
+CPlotXY::CPlotXY(const std::string& name) :
     Component(name),
     m_num_it(10000)
 {
   regist_signal("convergence_history", "Lists convergence history", "Get history")->
-      connect( boost::bind( &CHistory::convergence_history, this, _1));
+      connect( boost::bind( &CPlotXY::convergence_history, this, _1));
 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CHistory::~CHistory()
+CPlotXY::~CPlotXY()
 {
 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CHistory::convergence_history( Signal::arg_t & args )
+void CPlotXY::convergence_history( Signal::arg_t & args )
 {
   SignalFrame reply = args.create_reply( full_path() );
   SignalFrame& options = reply.map( Protocol::Tags::key_options() );
@@ -60,7 +60,7 @@ void CHistory::convergence_history( Signal::arg_t & args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CHistory::sine(int points)
+void CPlotXY::sine(int points)
 {
   m_x_axis = std::vector<double>(points);
   m_y_axis = std::vector<double>(points);

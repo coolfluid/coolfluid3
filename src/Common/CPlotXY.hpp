@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CHistory_hpp
-#define CF_Common_CHistory_hpp
+#ifndef CF_Common_CPlotXY_hpp
+#define CF_Common_CPlotXY_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -21,23 +21,23 @@ namespace Common {
 /// Component to maintain convergence history
 /// @author Gil Wertz
 /// @author Quentin Gasper
-class CHistory :
+class CPlotXY :
     public Component
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CHistory> Ptr;
-  typedef boost::shared_ptr<CHistory const> ConstPtr;
+  typedef boost::shared_ptr<CPlotXY> Ptr;
+  typedef boost::shared_ptr<CPlotXY const> ConstPtr;
 
 public:
 
-    CHistory(const std::string& name);
+    CPlotXY(const std::string& name);
 
-    virtual ~CHistory();
+    virtual ~CPlotXY();
 
     /// Get the class name
-    static std::string type_name () { return "CHistory"; }
+    static std::string type_name () { return "CPlotXY"; }
 
     void convergence_history( Signal::arg_t & args );
 
@@ -52,7 +52,7 @@ public:
 
     int m_num_it;
 
-}; // CHistory
+}; // CPlotXY
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -61,4 +61,4 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CHistory_hpp
+#endif // CF_Common_CPlotXY_hpp

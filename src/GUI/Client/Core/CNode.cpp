@@ -665,7 +665,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
     rootNode = boost::shared_ptr<NJournal>(new NJournal(nodeName));
   else if( typeName == "CRoot" )
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
-  else if( typeName == "CHistory" )
+  else if( typeName == "CPlotXY" )
     rootNode = boost::shared_ptr<NHistory>(new NHistory(nodeName));
   else
     rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, typeName));
