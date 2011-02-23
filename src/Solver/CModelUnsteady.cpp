@@ -83,7 +83,7 @@ void CModelUnsteady::simulate ()
       m_time->dt() = tf - m_time->time();
 
     // call all (non-linear) iterative solvers to solve this dt step
-    bCSolvererativeSolver& is, finCSolvererativeSolver>(*this))
+    boost_foreach(CSolver& is, find_components<CSolver>(*this))
       is.solve();
 
     m_time->time() += m_time->dt();

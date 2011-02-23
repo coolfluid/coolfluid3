@@ -36,7 +36,7 @@ CModelSteady::~CModelSteady()
 
 void CModelSteady::simulate ()
 {
-  bCSolvererativeSolver& is, finCSolvererativeSolver>(*this))
+  boost_foreach(CSolver& is, find_components<CSolver>(*this))
     is.solve();
 }
 
