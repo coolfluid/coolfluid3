@@ -7,9 +7,11 @@
 #include <boost/mpi/collectives.hpp>
 
 #include "Common/MPI/PE.hpp"
+#include "Common/ComponentPredicates.hpp"
 #include "Common/Log.hpp"
 
 #include "Mesh/SimpleCommunicationPattern.hpp"
+#include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CNodes.hpp"
