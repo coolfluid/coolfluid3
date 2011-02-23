@@ -13,7 +13,7 @@ __kernel void matrix_vector_mult_advanced(__global float* C, __global float* A, 
                 
                 for( unsigned int l = 0; l < wA; l++ )
                 {
-                    unsigned int elemA = j * hA + l;
+                    unsigned int elemA = j * wA + l;
                     unsigned int elemB = tx * ( n_variables * wA ) + l * n_variables + k;
                     
                     value += A[elemA] * B[elemB];

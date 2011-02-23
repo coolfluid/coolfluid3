@@ -72,7 +72,7 @@ const char * own_matrix_vector_global =
 "               \n"
 "               for( unsigned int l = 0; l < wA; l++ )\n"
 "               {\n"
-"                    unsigned int elemA = j * hA + l;\n"
+"                    unsigned int elemA = j * wA + l;\n"
 "                    unsigned int elemB = tx * ( nVariables * wA ) + l * nVariables + k;\n"
 "                    \n"
 "                    value += A[elemA] * B[elemB];\n"
