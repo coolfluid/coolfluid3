@@ -113,9 +113,12 @@ void matrix_matrix_mult(CLEnv& env, float* h_A, float* h_B, float* h_C, int wa, 
   cl_mem d_C;
 
   // Setup device memory
-  d_A = clCreateBuffer(env.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mem_size_A, h_A, &env.errcode );
-  d_B = clCreateBuffer(env.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mem_size_B, h_B, &env.errcode );
+  d_A = clCreateBuffer(env.context, CL_MEM_READ_ONLY, mem_size_A, h_A, &env.errcode );
+  d_B = clCreateBuffer(env.context, CL_MEM_READ_ONLY, mem_size_B, h_B, &env.errcode );
   d_C = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, mem_size_C, NULL, &env.errcode);
+  env.errcode = clEnqueueWriteBuffer(env.command_queue, d_A, CL_FALSE, 0, mem_size_A, h_A, 0, NULL, NULL);
+  env.errcode |= clEnqueueWriteBuffer(env.command_queue, d_B, CL_FALSE, 0, mem_size_B, h_B, 0, NULL, NULL);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
   // 7. Launch OpenCL kernel
   
@@ -169,9 +172,12 @@ void matrix_vector_mult(CLEnv& env, float* h_A, float* h_B, float* h_C, int wa, 
   cl_mem d_C;
 
   // Setup device memory
-  d_A = clCreateBuffer(env.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mem_size_A, h_A, &env.errcode);
-  d_B = clCreateBuffer(env.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mem_size_B, h_B, &env.errcode);
+  d_A = clCreateBuffer(env.context, CL_MEM_READ_ONLY, mem_size_A, h_A, &env.errcode);
+  d_B = clCreateBuffer(env.context, CL_MEM_READ_ONLY, mem_size_B, h_B, &env.errcode);
   d_C = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY,                       mem_size_C, NULL, &env.errcode);
+  env.errcode = clEnqueueWriteBuffer(env.command_queue, d_A, CL_FALSE, 0, mem_size_A, h_A, 0, NULL, NULL);
+  env.errcode |= clEnqueueWriteBuffer(env.command_queue, d_B, CL_FALSE, 0, mem_size_B, h_B, 0, NULL, NULL);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
   // 7. Launch OpenCL kernel
   //size_t localWorkSize[2], globalWorkSize[2];
@@ -223,9 +229,12 @@ void matrix_vector_mult_advanced(CLEnv& env, float* h_A, float* h_B, float* h_C,
   cl_mem d_C;
 
   // Setup device memory
-  d_A = clCreateBuffer(env.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mem_size_A, h_A, &env.errcode);
-  d_B = clCreateBuffer(env.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mem_size_B, h_B, &env.errcode);
+  d_A = clCreateBuffer(env.context, CL_MEM_READ_ONLY, mem_size_A, h_A, &env.errcode);
+  d_B = clCreateBuffer(env.context, CL_MEM_READ_ONLY, mem_size_B, h_B, &env.errcode);
   d_C = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY,                       mem_size_C, NULL, &env.errcode);
+  env.errcode = clEnqueueWriteBuffer(env.command_queue, d_A, CL_FALSE, 0, mem_size_A, h_A, 0, NULL, NULL);
+  env.errcode |= clEnqueueWriteBuffer(env.command_queue, d_B, CL_FALSE, 0, mem_size_B, h_B, 0, NULL, NULL);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
   // 7. Launch OpenCL kernel
   //size_t localWorkSize[2], globalWorkSize[2];
