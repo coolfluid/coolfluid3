@@ -146,7 +146,7 @@ inline void CUnifiedData<DATA>::add_data(DataVectorPtr range)
   boost_foreach(Component::Ptr data_val, range)
   {
     typename CUnifiedData<DATA>::data_type::Ptr linked = data_val->follow()->as_type<typename CUnifiedData<DATA>::data_type>(); // in case it is a link
-    m_data_links->create_component<Common::CLink>("data_component_"+to_str(m_data_vector.size()))->link_to(linked);
+    m_data_links->create_component<Common::CLink>("data_component_"+Common::to_str(m_data_vector.size()))->link_to(linked);
     m_data_vector.push_back(linked);
     m_size += linked->size();
     data_start_indices.add_row(m_size);
