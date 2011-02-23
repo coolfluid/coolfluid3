@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_Core_NHistory_hpp
-#define CF_GUI_Client_Core_NHistory_hpp
+#ifndef CF_GUI_Client_Core_NPlotXY_hpp
+#define CF_GUI_Client_Core_NPlotXY_hpp
 
 #include <boost/signals2/signal.hpp>
 
@@ -44,7 +44,7 @@ private:
   ~CHistoryNotifier(){}
 };
 
-class NHistory :
+class NPlotXY :
     public QObject,
     public CNode
 {
@@ -52,12 +52,12 @@ class NHistory :
 
 public: //typedefs
 
-  typedef boost::shared_ptr<NHistory> Ptr;
-  typedef boost::shared_ptr<NHistory const> ConstPtr;
+  typedef boost::shared_ptr<NPlotXY> Ptr;
+  typedef boost::shared_ptr<NPlotXY const> ConstPtr;
 
 public:
 
-  NHistory(const QString & name);
+  NPlotXY(const QString & name);
 
   virtual QString toolTip() const;
 
@@ -70,4 +70,4 @@ public:
 } // CF
 
 
-#endif // CF_GUI_Client_Core_NHistory_hpp
+#endif // CF_GUI_Client_Core_NPlotXY_hpp

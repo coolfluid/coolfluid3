@@ -9,7 +9,7 @@
 #include "Common/XML/SignalFrame.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
-#include "GUI/Client/Core/NHistory.hpp"
+#include "GUI/Client/Core/NPlotXY.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -24,23 +24,23 @@ namespace ClientCore {
 
 //////////////////////////////////////////////////////////////////////////////
 
-NHistory::NHistory(const QString & name) :
-    CNode( name, "CHistory", HISTORY_NODE )
+NPlotXY::NPlotXY(const QString & name) :
+    CNode( name, "NPlotXY", PLOTXY_NODE )
 {
   regist_signal("convergence_history", "Lists convergence history", "Get history")->
-      connect( boost::bind( &NHistory::convergence_history, this, _1));
+      connect( boost::bind( &NPlotXY::convergence_history, this, _1));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-QString NHistory::toolTip() const
+QString NPlotXY::toolTip() const
 {
   return getComponentType();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NHistory::convergence_history ( Signal::arg_t& node )
+void NPlotXY::convergence_history ( Signal::arg_t& node )
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 

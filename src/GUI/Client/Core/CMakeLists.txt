@@ -14,7 +14,7 @@ NCore.hpp
 NJournal.hpp
 NLog.hpp
 NTree.hpp
-NHistory.hpp
+NPlotXY.hpp
 ProcessingThread.hpp # moc'ed because the base class emits signals
 PropertyModel.hpp
 TreeNode.hpp
@@ -55,8 +55,8 @@ NRoot.cpp
 NRoot.hpp
 NTree.cpp
 NTree.hpp
-NHistory.cpp
-NHistory.hpp
+NPlotXY.cpp
+NPlotXY.hpp
 ProcessingThread.cpp
 ProcessingThread.hpp
 PropertyModel.cpp

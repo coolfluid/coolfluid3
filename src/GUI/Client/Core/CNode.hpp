@@ -147,7 +147,7 @@ namespace ClientCore {
       GENERIC_NODE,
 
       /// XY-Plot node
-      HISTORY_NODE
+      PLOTXY_NODE
 
     }; // enum Type
 

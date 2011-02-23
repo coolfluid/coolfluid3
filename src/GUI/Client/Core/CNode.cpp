@@ -27,7 +27,7 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"
-#include "GUI/Client/Core/NHistory.hpp"
+#include "GUI/Client/Core/NPlotXY.hpp"
 #include "GUI/Client/Core/NJournal.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NLink.hpp"
@@ -666,7 +666,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
   else if( typeName == "CRoot" )
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
   else if( typeName == "CPlotXY" )
-    rootNode = boost::shared_ptr<NHistory>(new NHistory(nodeName));
+    rootNode = boost::shared_ptr<NPlotXY>(new NPlotXY(nodeName));
   else
     rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, typeName));
 

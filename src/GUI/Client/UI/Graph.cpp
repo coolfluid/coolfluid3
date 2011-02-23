@@ -21,7 +21,7 @@
 #include "qwt/qwt_double_rect.h"
 #include "qwt/qwt_scale_widget.h"
 
-#include "GUI/Client/Core/NHistory.hpp"
+#include "GUI/Client/Core/NPlotXY.hpp"
 
 #include "GUI/Client/UI/PixMaps.hpp"
 #include "GUI/Client/UI/BodePlot.hpp"
