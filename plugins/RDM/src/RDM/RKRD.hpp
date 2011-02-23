@@ -83,8 +83,8 @@ private: // data
   boost::weak_ptr<Mesh::CField2> m_solution;
   /// residual field pointer
   boost::weak_ptr<Mesh::CField2> m_residual;
-  /// update_coeff field pointer
-  boost::weak_ptr<Mesh::CField2> m_update_coeff;
+  /// wave_speed field pointer
+  boost::weak_ptr<Mesh::CField2> m_wave_speed;
 
   /// action to compute the boundary face terms
   Common::CAction::Ptr m_compute_boundary_face_terms;

@@ -79,9 +79,9 @@ private: // helper functions
     cf_assert( is_not_null( cresidual ) );
     residual = cresidual->data_ptr();
 
-    Mesh::CField2::Ptr cupdate_coeff = Common::find_component_ptr_recursively_with_tag<Mesh::CField2>( *Common::Core::instance().root(), "update_coeff" );
-    cf_assert( is_not_null( cupdate_coeff ) );
-    update_coeff = cupdate_coeff->data_ptr();
+    Mesh::CField2::Ptr cwave_speed = Common::find_component_ptr_recursively_with_tag<Mesh::CField2>( *Common::Core::instance().root(), "wave_speed" );
+    cf_assert( is_not_null( cwave_speed ) );
+    wave_speed = cwave_speed->data_ptr();
   }
 
 
@@ -93,7 +93,7 @@ private: // data
 
   Mesh::CTable<Real>::Ptr solution;
   Mesh::CTable<Real>::Ptr residual;
-  Mesh::CTable<Real>::Ptr update_coeff;
+  Mesh::CTable<Real>::Ptr wave_speed;
 
   typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
 
@@ -242,14 +242,14 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   // The update coeff is updated by a product of bb radius and norm of advection velocity
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
-    (*update_coeff)[nodes_idx[n]][0] += std::sqrt( dx*dx+dy*dy);
+    (*wave_speed)[nodes_idx[n]][0] += std::sqrt( dx*dx+dy*dy);
 //       * std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }
 
 
-//  std::cout << "update_coeff [";
+//  std::cout << "wave_speed [";
 //  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
-//     std::cout << (*update_coeff)[nodes_idx[n]][0] << " ";
+//     std::cout << (*wave_speed)[nodes_idx[n]][0] << " ";
 //  std::cout << "]" << std::endl;
 
 //  std::cout << " --------------------------------------------------------------- " << std::endl;

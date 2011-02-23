@@ -8,6 +8,7 @@
 #include "Common/OptionURI.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
+#include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CField2.hpp"
 #include "Mesh/CMesh.hpp"

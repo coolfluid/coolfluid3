@@ -25,7 +25,6 @@
 #include "Mesh/CTable.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
-#include "Solver/Actions/CForAllNodes.hpp"
 
 #include "RDM/RKRD.hpp"
 #include "RDM/CAction.hpp"
@@ -62,8 +61,8 @@ RKRD::RKRD ( const std::string& name  ) :
   m_properties.add_option( OptionComponent<CField2>::create("Residual","Residual field",&m_residual) )
       ->add_tag("residual");
 
-  m_properties.add_option( OptionComponent<CField2>::create("Update Coeffs","Update coefficients field",&m_update_coeff) )
-      ->add_tag("update_coeff");
+  m_properties.add_option( OptionComponent<CField2>::create("Update Coeffs","Update coefficients field",&m_wave_speed) )
+      ->add_tag("wave_speed");
 
   m_properties.add_option(OptionComponent<CMesh>::create("Mesh","Mesh the Discretization Method will be applied to",&m_mesh))
     ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
@@ -166,14 +165,14 @@ void RKRD::config_mesh()
     m_residual.lock()->add_tag(residual_tag);
   }
 
-  // configure update_coeff
-  std::string update_coeff_tag("update_coeff");
-  m_update_coeff = find_component_ptr_with_tag<CField2>( mesh, update_coeff_tag);
-  if ( is_null(m_update_coeff.lock()) )
+  // configure wave_speed
+  std::string wave_speed_tag("wave_speed");
+  m_wave_speed = find_component_ptr_with_tag<CField2>( mesh, wave_speed_tag);
+  if ( is_null(m_wave_speed.lock()) )
   {
-    CFinfo << " +++ creating update_coeff field " << CFendl;
-    m_update_coeff = mesh.create_scalar_field("update_coeff",*m_solution.lock()).as_type<CField2>();
-    m_update_coeff.lock()->add_tag(update_coeff_tag);
+    CFinfo << " +++ creating wave_speed field " << CFendl;
+    m_wave_speed = mesh.create_scalar_field("wave_speed",*m_solution.lock()).as_type<CField2>();
+    m_wave_speed.lock()->add_tag(wave_speed_tag);
   }
 }
 
@@ -188,7 +187,7 @@ void RKRD::solve()
 
   CTable<Real>& solution     = m_solution.lock()->data();
   CTable<Real>& residual     = m_residual.lock()->data();
-  CTable<Real>& update_coeff = m_update_coeff.lock()->data();
+  CTable<Real>& wave_speed = m_wave_speed.lock()->data();
 
   // initialize to zero condition
 
@@ -203,10 +202,10 @@ void RKRD::solve()
   {
     /// @todo move this into an action
 
-    // cleanup residual and update_coeff
+    // cleanup residual and wave_speed
 
     residual = 0.;
-    update_coeff = 0.;
+    wave_speed = 0.;
 
     // compute RHS
 
@@ -219,7 +218,7 @@ void RKRD::solve()
     // explicit update
     const Uint nbdofs = solution.size();
     for (Uint i=0; i< nbdofs; ++i)
-      solution[i][0] += - ( m_cfl / update_coeff[i][0] ) * residual[i][0];
+      solution[i][0] += - ( m_cfl / wave_speed[i][0] ) * residual[i][0];
 
     //  computing the norm
     Real rhs_L2 = 0.;
