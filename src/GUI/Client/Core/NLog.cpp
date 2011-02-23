@@ -137,5 +137,7 @@ QString NLog::toolTip() const
 
 NLog::Ptr NLog::globalLog()
 {
-  return ClientRoot::instance().rootChild<NLog>(CLIENT_LOG);
+  static NLog::Ptr log = ClientRoot::instance().rootChild<NLog>(CLIENT_LOG);
+  cf_assert( is_not_null(log.get()) );
+  return log;
 }

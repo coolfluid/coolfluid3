@@ -15,6 +15,8 @@
 #include "Common/NotificationQueue.hpp"
 #include "Common/XML/Protocol.hpp"
 
+#include "Mesh/CTable.hpp"
+
 #include "Solver/CMethod.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
@@ -28,6 +30,7 @@ using namespace std;
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::GUI::Server;
+using namespace CF::Mesh;
 
 NotificationQueue * ServerRoot::m_queue;
 Notifier * ServerRoot::m_notifier;
@@ -82,6 +85,10 @@ CRoot::Ptr ServerRoot::root()
 
     tools->create_component<CJournal>("Journal")->mark_basic();
     tools->create_component<CHistory>("History")->mark_basic();
+
+    CTable::Ptr table = tools->create_component<CTable>("MyTable");
+
+    table->mark_basic();
   }
 
   return root;

@@ -668,7 +668,9 @@ bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
 
 NTree::Ptr NTree::globalTree()
 {
-  ClientRoot::instance().rootChild<NTree>(CLIENT_TREE);
+  static NTree::Ptr tree = ClientRoot::instance().rootChild<NTree>(CLIENT_TREE);
+  cf_assert( tree.get() != nullptr );
+  return tree;
 }
 
 ////////////////////////////////////////////////////////////////////////////

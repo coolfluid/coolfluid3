@@ -74,14 +74,6 @@ void NJournal::list_journal(Signal::arg_t &)
   emit journalRequest(false);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-NJournal::Ptr NJournal::globalJournal()
-{
-  return ClientRoot::instance().rootChild<NJournal>(CLIENT_JOURNAL);
-}
-
 /////////////////////////////////////////////////////////////////////////////
 
 } // ClientCore

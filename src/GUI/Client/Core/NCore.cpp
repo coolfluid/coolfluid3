@@ -184,5 +184,7 @@ void NCore::frame_rejected(Signal::arg_t & args)
 
 NCore::Ptr NCore::globalCore()
 {
-  ClientRoot::instance().rootChild<NCore>(CLIENT_CORE);
+  static NCore::Ptr core = ClientRoot::instance().rootChild<NCore>(CLIENT_CORE);
+  cf_assert( is_not_null(core.get()) );
+  return core;
 }
