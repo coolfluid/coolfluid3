@@ -42,7 +42,7 @@ Transformer::Transformer()
 
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_fac ) )
   {
-    CMeshReader::Ptr reader = bdr.build("reader")->as_type<CMeshReader>();
+    CMeshReader::Ptr reader = bdr.build("reader")->as_ptr<CMeshReader>();
     readers.push_back(reader);
     boost_foreach(const std::string& extension, reader->get_extensions())
       extensions_to_readers[extension].push_back(reader);
@@ -52,7 +52,7 @@ Transformer::Transformer()
 
   boost_foreach(CBuilder& bdw, find_components_recursively<CBuilder>( *meshwriter_fac ) )
   {
-    CMeshWriter::Ptr writer = bdw.build("writer")->as_type<CMeshWriter>();
+    CMeshWriter::Ptr writer = bdw.build("writer")->as_ptr<CMeshWriter>();
     writers.push_back(writer);
     boost_foreach(const std::string& extension, writer->get_extensions())
       extensions_to_writers[extension].push_back(writer);
@@ -62,7 +62,7 @@ Transformer::Transformer()
 
   boost_foreach(CBuilder& bdt, find_components_recursively<CBuilder>( *meshtrans_fac ))
   {
-    CMeshTransformer::Ptr transformer = bdt.build("transformer")->as_type<CMeshTransformer>();
+    CMeshTransformer::Ptr transformer = bdt.build("transformer")->as_ptr<CMeshTransformer>();
     transformers_description[bdt.builder_concrete_type_name()] = transformer->brief_description();
     name_to_transformers[bdt.builder_concrete_type_name()] = transformer;
   }
@@ -263,7 +263,7 @@ void Transformer::command( boost::program_options::parsed_options& parsed )
         
         std::vector<CField2::Ptr> fields;
         boost_foreach ( CField2& field, find_components<CField2>(*mesh) )
-          fields.push_back(field.as_type<CField2>());
+          fields.push_back(field.as_ptr<CField2>());
         if (!dryrun) writer->set_fields(fields);
         if (!dryrun) writer->write_from_to(mesh,outputfile);
       }

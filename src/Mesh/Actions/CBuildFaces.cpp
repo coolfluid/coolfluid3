@@ -83,7 +83,7 @@ void CBuildFaces::transform(const CMesh::Ptr& mesh)
 void CBuildFaces::make_interfaces(Component::Ptr parent)
 {
   cf_assert_desc("parent must be a CRegion or CMesh", 
-    is_not_null( parent->as_type<CMesh>() ) || is_not_null( parent->as_type<CRegion>() ) );
+    is_not_null( parent->as_ptr<CMesh>() ) || is_not_null( parent->as_ptr<CRegion>() ) );
  
   CElements::Ptr comp;
   Uint idx_in_comp;
@@ -135,7 +135,7 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
 void CBuildFaces::build_face_cell_connectivity_bottom_up(Component::Ptr parent)
 {
   cf_assert_desc("parent must be a CRegion or CMesh", 
-    is_not_null( parent->as_type<CMesh>() ) || is_not_null( parent->as_type<CRegion>() ) );
+    is_not_null( parent->as_ptr<CMesh>() ) || is_not_null( parent->as_ptr<CRegion>() ) );
   
   CCells::Ptr comp;
   Uint idx_in_comp;
@@ -197,7 +197,7 @@ void CBuildFaces::build_face_cell_connectivity_bottom_up(Component::Ptr parent)
 void CBuildFaces::build_faces_bottom_up(Component::Ptr parent)
 {
   cf_assert_desc("parent must be a CRegion or CMesh", 
-    is_not_null( parent->as_type<CMesh>() ) || is_not_null( parent->as_type<CRegion>() ) );
+    is_not_null( parent->as_ptr<CMesh>() ) || is_not_null( parent->as_ptr<CRegion>() ) );
   
   CElements::Ptr comp;
   Uint idx_in_comp;

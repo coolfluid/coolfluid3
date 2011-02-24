@@ -531,7 +531,7 @@ void CReader::read_section(CRegion& parent_region)
         element_buffer.add_row_directly(row);
 
         // Store the global element number to a pair of (region , local element number)
-        m_global_to_region.push_back(Region_TableIndex_pair(element_region.as_type<CElements>(),elem));
+        m_global_to_region.push_back(Region_TableIndex_pair(element_region.as_ptr<CElements>(),elem));
       } // for elem
     }
 
@@ -675,7 +675,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       CElements::Ptr last_elements = m_global_to_region[boco_elems[1]-1].first;
       if (first_elements->parent() == last_elements->parent())
       {
-        CRegion::Ptr group_region = first_elements->parent()->as_type<CRegion>();
+        CRegion::Ptr group_region = first_elements->parent()->as_ptr<CRegion>();
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
@@ -724,7 +724,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       CElements::Ptr last_elements = m_global_to_region[boco_elems[m_boco.nBC_elem-1]-1].first;
       if (first_elements->parent() == last_elements->parent())
       {
-        CRegion::Ptr group_region = first_elements->parent()->as_type<CRegion>();
+        CRegion::Ptr group_region = first_elements->parent()->as_ptr<CRegion>();
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {

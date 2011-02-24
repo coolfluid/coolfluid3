@@ -65,7 +65,7 @@ struct rotationadv2d_global_fixture
 struct rotationadv2d_local_fixture
 {
   rotationadv2d_local_fixture() :
-    model  ( * Core::instance().root()->get_child("mymodel")->as_type<CModel>() ),
+    model  ( * Core::instance().root()->get_child("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
   {}
@@ -162,7 +162,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   options.set_option<std::string>("Type","CF.RDM.BcDirichlet");
   options.set_array("Regions", bc_regions, " ; ");
 
-  solver.as_type<RKRD>()->signal_create_boundary_term(frame);
+  solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   cf_assert( is_not_null(inletbc) );
@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE( create_domain_term , rotationadv2d_local_fixture )
   options.set_option<std::string>("Type","CF.RDM.CLDA<RotationAdv2D>");
   options.set_array("Regions", bc_regions, " ; ");
 
-  solver.as_type<RKRD>()->signal_create_domain_term(frame);
+  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 

@@ -212,11 +212,19 @@ public: // functions
 
   /// @returns this component converted to type T shared pointer
   template < typename T >
-    typename T::Ptr as_type();
+    typename T::Ptr as_ptr();
+
+  /// @returns this component converted to type T shared pointer
+  template < typename T >
+    typename T::Ptr as_ptr_checked();
 
   /// @returns this component converted to type T shared const pointer
   template < typename T >
-    typename T::ConstPtr as_type() const;
+    typename T::ConstPtr as_ptr() const;
+
+  /// @returns this component converted to type T shared const pointer
+  template < typename T >
+    typename T::ConstPtr as_ptr_checked() const;
 
   /// @return a ConstPtr
   ConstPtr as_const() const;
@@ -520,7 +528,7 @@ inline typename T::ConstPtr Component::get_child(const std::string& name) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::as_type()
+inline typename T::Ptr Component::as_ptr()
 {
   return boost::dynamic_pointer_cast<T>(follow());
 }
@@ -528,9 +536,31 @@ inline typename T::Ptr Component::as_type()
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::ConstPtr Component::as_type() const
+inline typename T::ConstPtr Component::as_ptr() const
 {
   return boost::dynamic_pointer_cast<T const>(follow());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline typename T::Ptr Component::as_ptr_checked()
+{
+  typename T::Ptr comp = boost::dynamic_pointer_cast<T>(follow());
+  if( is_null(comp) )
+    throw CastingFailed( FromHere(), "Cannot cast component " + full_path().string() + " to " + T::type_name() );
+  return comp;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline typename T::ConstPtr Component::as_ptr_checked() const
+{
+  typename T::ConstPtr comp = boost::dynamic_pointer_cast<T const>(follow());
+  if( is_null(comp) )
+    throw CastingFailed( FromHere(), "Cannot cast component " + full_path().string() + " to " + T::type_name() );
+  return comp;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -112,7 +112,7 @@ void CInitSolution::transform(const CMesh::Ptr& mesh)
     RealMatrix coordinates;
     boost_foreach( CElements& elements, find_components_recursively<CElements>(solution_field.topology()) )
     {
-      if (solution.set_elements(elements.as_type<CEntities>()))
+      if (solution.set_elements(elements.as_ptr<CEntities>()))
       {
         solution.allocate_coordinates(coordinates);
         RealVector centroid(coordinates.rows());

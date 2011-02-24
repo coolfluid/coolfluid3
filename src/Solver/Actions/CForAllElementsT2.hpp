@@ -105,13 +105,13 @@ public: // functions
   /// const access to the LoopOperation
   virtual const CLoopOperation& action(const std::string& name = ActionT::type_name()) const
   {
-    return *m_action->as_type<CLoopOperation>();
+    return *m_action->as_ptr<CLoopOperation>();
   }
 
   /// non-const access to the LoopOperation
   virtual CLoopOperation& action(const std::string& name = ActionT::type_name())
   {
-    return *m_action->as_type<CLoopOperation>();
+    return *m_action->as_ptr<CLoopOperation>();
   }
 
   /// Execute the loop for all elements

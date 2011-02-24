@@ -77,7 +77,7 @@ void LoadMesh::update_list_of_available_readers()
       comp = bdr.build(bdr.name());
 
     if( is_not_null(comp) ) // convert to reader
-      reader = comp->as_type<CMeshReader>();
+      reader = comp->as_ptr<CMeshReader>();
     else
       throw SetupError(FromHere(), "Builder \'" + bdr.name() + "\' failed to build the mesh reader" );
 

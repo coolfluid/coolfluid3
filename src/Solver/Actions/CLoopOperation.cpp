@@ -65,7 +65,7 @@ void CLoopOperation::set_elements(CEntities& elements)
   m_call_config_elements = false;
   
   // Set elements
-  m_elements = elements.as_type<CEntities>();
+  m_elements = elements.as_ptr<CEntities>();
 
   // Call triggers
   property("Elements").as_option().trigger();

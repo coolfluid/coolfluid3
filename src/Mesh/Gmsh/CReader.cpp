@@ -120,7 +120,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   // Create a region component inside the mesh with a generic mesh name
   // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
-  m_region = m_mesh->topology().create_region("main",!property("Serial Merge").value<bool>()).as_type<CRegion>();
+  m_region = m_mesh->topology().create_region("main",!property("Serial Merge").value<bool>()).as_ptr<CRegion>();
 
 
   find_ghost_nodes();
@@ -305,7 +305,7 @@ void CReader::read_coordinates()
   }
 
   // Create the coordinates array
-  m_nodes = m_region->create_nodes(m_mesh_dimension).as_type<CNodes>();
+  m_nodes = m_region->create_nodes(m_mesh_dimension).as_ptr<CNodes>();
 
 
   Uint nodes_start_idx = m_nodes->size();
@@ -409,7 +409,7 @@ void CReader::read_connectivity()
  for(Uint ir = 0; ir < m_nb_regions; ++ir)
  {
    // create new region
-   CRegion::Ptr new_region = m_region->create_region(m_region_list[ir].name).as_type<CRegion>();
+   CRegion::Ptr new_region = m_region->create_region(m_region_list[ir].name).as_ptr<CRegion>();
 
    // Take the gmsh element types present in this region and generate new names of elements which correspond
    // to coolfuid naming:
@@ -430,7 +430,7 @@ void CReader::read_connectivity()
       // Celements& elements = new_region->create_component<CElements>(cf_elem_name);
       // elements.initialize(cf_elem_name,*m_nodes);
 
-       CTable<Uint>& elem_table = elements->as_type<CElements>()->connectivity_table();
+       CTable<Uint>& elem_table = elements->as_ptr<CElements>()->connectivity_table();
        elem_table.set_row_size(Shared::m_nodes_in_gmsh_elem[etype]);
        elem_table.resize((m_nb_gmsh_elem_in_region[ir])[etype]);
 
@@ -505,7 +505,7 @@ void CReader::read_connectivity()
       }
       elem_table_iter = conn_table_idx[phys_tag-1].find(gmsh_element_type);
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
-      CTable<Uint>::Row element_nodes = (*(elem_table_iter->second)).as_type<CElements>()->connectivity_table()[row_idx];
+      CTable<Uint>::Row element_nodes = (*(elem_table_iter->second)).as_ptr<CElements>()->connectivity_table()[row_idx];
 
       for(Uint node = 0; node < nb_element_nodes; ++node)
       {

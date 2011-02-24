@@ -78,7 +78,7 @@ void WriteMesh::update_list_of_available_writers()
       comp = bdr.build(bdr.name());
 
     if( is_not_null(comp) ) // convert to writer
-      writer = comp->as_type<CMeshWriter>();
+      writer = comp->as_ptr<CMeshWriter>();
     else
       throw SetupError(FromHere(), "Builder \'" + bdr.name() + "\' failed to build the mesh writer" );
 
@@ -117,7 +117,7 @@ void WriteMesh::write_mesh( CMesh& mesh, const URI& file, const std::vector<URI>
 
   CMeshWriter::Ptr writer = m_extensions_to_writers[extension][0];
   writer->configure_property("Fields",fields);
-  return writer->write_from_to(mesh.as_type<CMesh>(),fpath);
+  return writer->write_from_to(mesh.as_ptr<CMesh>(),fpath);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

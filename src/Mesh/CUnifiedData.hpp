@@ -57,7 +57,7 @@ public:
     CList<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
     boost_foreach(Component::Ptr data_val, range)
     {
-      typename CUnifiedData<DATA>::data_type::Ptr linked = data_val->follow()->as_type<typename CUnifiedData<DATA>::data_type>(); // in case it is a link
+      typename CUnifiedData<DATA>::data_type::Ptr linked = data_val->follow()->as_ptr<typename CUnifiedData<DATA>::data_type>(); // in case it is a link
       m_data_links->create_component<Common::CLink>("data_component_"+ to_str(m_data_vector.size()))->link_to(linked);
       m_data_vector.push_back(linked);
       m_size += linked->size();
@@ -146,7 +146,7 @@ inline void CUnifiedData<DATA>::add_data(DataVectorPtr range)
   CList<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
   boost_foreach(typename Common::ComponentPtr<DATA>::type data_val, range)
   {
-    typename Common::ComponentPtr<DATA,DATA>::type linked = data_val->follow()->as_type<typename CUnifiedData<DATA>::data_type>(); // in case it is a link
+    typename Common::ComponentPtr<DATA,DATA>::type linked = data_val->follow()->as_ptr<typename CUnifiedData<DATA>::data_type>(); // in case it is a link
     m_data_links->create_component<Common::CLink>("data_component_"+Common::to_str(m_data_vector.size()))->link_to(*linked);
     m_data_vector.push_back(linked);
     m_size += linked->size();
@@ -185,7 +185,7 @@ inline typename CUnifiedData<DATA>::const_data_location_type CUnifiedData<DATA>:
   cf_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
   cf_assert(data_vector_idx<m_data_vector.size());
-  return boost::make_tuple(m_data_vector[data_vector_idx].as_const().as_type<CUnifiedData<DATA>::data_type>(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
+  return boost::make_tuple(m_data_vector[data_vector_idx].as_const().as_ptr<CUnifiedData<DATA>::data_type>(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

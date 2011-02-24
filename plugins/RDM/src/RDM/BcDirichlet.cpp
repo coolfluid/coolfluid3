@@ -80,12 +80,12 @@ void BcDirichlet::config_mesh()
   if( is_null(mesh_comp) )
     throw InvalidURI (FromHere(), "URI does not point to a component " + mesh_uri.string() );
 
-  m_mesh = mesh_comp->as_type<CMesh>();
+  m_mesh = mesh_comp->as_ptr<CMesh>();
   if ( is_null( m_mesh.lock() ) )
     throw CastingFailed (FromHere(), "Could not find a CMesh on path " + mesh_uri.string() );
 
   URI sol_uri  = property("Solution").value<URI>();
-  m_solution = look_component(sol_uri)->as_type<CField2>();
+  m_solution = look_component(sol_uri)->as_ptr<CField2>();
   if( is_null(m_solution.lock()) )
     m_solution = find_component_ptr_with_tag<CField2>( *(m_mesh.lock()) , "solution" );
 

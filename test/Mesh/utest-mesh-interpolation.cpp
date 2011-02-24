@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   RealMatrix coordinates;
   boost_foreach( CElements& elements, find_components_recursively<CElements>(s_elembased.topology()) )
   {
-    if (s_elembased_view.set_elements(elements.as_type<CEntities>()))
+    if (s_elembased_view.set_elements(elements.as_ptr<CEntities>()))
     {
       s_elembased_view.allocate_coordinates(coordinates);
       RealVector coords(coordinates.rows());
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   std::vector<CField2::Ptr> s_fields;
   boost_foreach(CField2& field, find_components_recursively<CField2>(*source))
-    s_fields.push_back(field.as_type<CField2>());
+    s_fields.push_back(field.as_ptr<CField2>());
 
   meshwriter->set_fields(s_fields);
 	meshwriter->write_from_to(source,fp_source_out);
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   std::vector<CField2::Ptr> t_fields;
   boost_foreach(CField2& field, find_components_recursively<CField2>(*target))
-    t_fields.push_back(field.as_type<CField2>());
+    t_fields.push_back(field.as_ptr<CField2>());
 
   meshwriter->set_fields(t_fields);
 	meshwriter->write_from_to(target,fp_interpolated);

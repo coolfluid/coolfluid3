@@ -77,14 +77,14 @@ const ElementType& CEntities::element_type() const
 
 CNodes& CEntities::nodes()
 {
-  return *m_nodes->follow()->as_type<CNodes>();
+  return *m_nodes->follow()->as_ptr<CNodes>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 const CNodes& CEntities::nodes() const
 {
-  return *m_nodes->follow()->as_type<CNodes>();
+  return *m_nodes->follow()->as_ptr<CNodes>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ CList<Uint>& CEntities::used_nodes(Component& parent)
     // Assemble all unique node numbers in a set
     std::set<Uint> node_set;
 
-    if ( CEntities::Ptr elements = parent.as_type<CEntities>() )
+    if ( CEntities::Ptr elements = parent.as_ptr<CEntities>() )
     {
       const Uint nb_elems = elements->size();
       for (Uint idx=0; idx<nb_elems; ++idx)

@@ -72,7 +72,7 @@ void CBuildVolume::transform(const CMesh::Ptr& mesh)
 
   boost_foreach( CCells& elements, find_components_recursively<CCells>(m_mesh->topology()) )
   {
-    volume.set_elements(elements.as_type<CEntities>());
+    volume.set_elements(elements.as_ptr<CEntities>());
     
     RealMatrix coordinates;  volume.allocate_coordinates(coordinates);
     

@@ -151,7 +151,7 @@ namespace Common {
     Ptr mark_basic ();
 
     template < typename Option_t>
-        boost::shared_ptr<Option_t> as_type()
+        boost::shared_ptr<Option_t> as_ptr()
     {
       return boost::dynamic_pointer_cast<Option_t>(shared_from_this());
     }

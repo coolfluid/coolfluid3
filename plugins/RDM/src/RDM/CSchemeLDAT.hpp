@@ -64,8 +64,8 @@ private: // helper functions
   { 
     /// @todo improve this (ugly)
 
-    connectivity_table = elements().as_type<Mesh::CElements>()->connectivity_table().self()->as_type< Mesh::CTable<Uint> >();
-    coordinates = elements().nodes().coordinates().self()->as_type< Mesh::CTable<Real> >();
+    connectivity_table = elements().as_ptr<Mesh::CElements>()->connectivity_table().self()->as_ptr< Mesh::CTable<Uint> >();
+    coordinates = elements().nodes().coordinates().self()->as_ptr< Mesh::CTable<Real> >();
 
     cf_assert( is_not_null(connectivity_table) );
 
@@ -151,7 +151,7 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  Mesh::fill(nodes, *coordinates, nodes_idx );
 
-//  elements().as_type<Mesh::CElements>()->put_coordinates( nodes, idx() );
+//  elements().as_ptr<Mesh::CElements>()->put_coordinates( nodes, idx() );
 
 //  std::cout << "field put_coordinates function" <<  std::endl;
 //  std::cout << "nodes: " << nodes << std::endl;

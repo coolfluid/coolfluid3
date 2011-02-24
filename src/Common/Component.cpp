@@ -601,7 +601,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
     this_node.set_attribute( "atype", type_name );
     this_node.set_attribute( "mode", has_tag("basic") ? "basic" : "adv");
 
-    CLink::Ptr lnk = boost::dynamic_pointer_cast<CLink>(shared_from_this());//this->as_type<CLink>();
+    CLink::Ptr lnk = boost::dynamic_pointer_cast<CLink>(shared_from_this());//this->as_ptr<CLink>();
 
     if( is_not_null(lnk.get()) ) // if it is a link, we put the target path as value
     {

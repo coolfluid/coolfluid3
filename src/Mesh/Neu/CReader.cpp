@@ -109,9 +109,9 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   // Create a region component inside the mesh with the name mesh_name
   //if (property("new_api").value<bool>())
-    m_region = m_mesh->topology().create_region(m_headerData.mesh_name).as_type<CRegion>();
+    m_region = m_mesh->topology().create_region(m_headerData.mesh_name).as_ptr<CRegion>();
   //else
-  //  m_region = m_mesh->create_region(m_headerData.mesh_name,!property("Serial Merge").value<bool>()).as_type<CRegion>();
+  //  m_region = m_mesh->create_region(m_headerData.mesh_name,!property("Serial Merge").value<bool>()).as_ptr<CRegion>();
 
   find_ghost_nodes();
   read_coordinates();
@@ -255,7 +255,7 @@ void CReader::read_coordinates()
   m_file.seekg(m_nodal_coordinates_position,std::ios::beg);
 
   // Create the nodes
-  m_nodes = m_region->create_nodes(m_headerData.NDFCD).as_type<CNodes>();
+  m_nodes = m_region->create_nodes(m_headerData.NDFCD).as_ptr<CNodes>();
 
   m_nodes->resize(m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
   std::string line;
@@ -314,7 +314,7 @@ void CReader::read_coordinates()
 
 void CReader::read_connectivity()
 {
-  m_tmp = m_region->create_region("main").as_type<CRegion>();
+  m_tmp = m_region->create_region("main").as_ptr<CRegion>();
 
   m_global_to_tmp.clear();
   m_file.seekg(m_elements_cells_position,std::ios::beg);

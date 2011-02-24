@@ -314,7 +314,7 @@ void CWriter::write_boundaries(std::fstream& file)
   std::set<CRegion::ConstPtr> bc_regions;
   boost_foreach(const CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
   {
-    bc_regions.insert(elementregion.parent()->as_type<CRegion const>());
+    bc_regions.insert(elementregion.parent()->as_ptr<CRegion const>());
     total_nbElements += elementregion.connectivity_table().size();
   }
   

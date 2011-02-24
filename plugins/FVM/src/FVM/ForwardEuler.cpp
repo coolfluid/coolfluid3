@@ -126,10 +126,10 @@ void ForwardEuler::solve()
 {
   if ( is_null(m_solution->follow()) )  throw SetupError (FromHere(), "solution is not linked to solution field");
     
-  CField2& solution     = *m_solution->follow()->as_type<CField2>();
-  CField2& residual     = *m_residual->follow()->as_type<CField2>();
-  CField2& wave_speed    = *m_wave_speed->follow()->as_type<CField2>();
-  CField2& update_coeff = *m_update_coeff->follow()->as_type<CField2>();
+  CField2& solution     = *m_solution->follow()->as_ptr<CField2>();
+  CField2& residual     = *m_residual->follow()->as_ptr<CField2>();
+  CField2& wave_speed    = *m_wave_speed->follow()->as_ptr<CField2>();
+  CField2& update_coeff = *m_update_coeff->follow()->as_ptr<CField2>();
 
   //CFinfo << "Starting Iterative loop" << CFendl;
   for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)

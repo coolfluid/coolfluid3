@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   compute_volume->execute();
   BOOST_CHECK(true);
   CScalarFieldView volume_view("volume_view");
-  volume_view.initialize(volumes,elems.as_type<CElements>());
+  volume_view.initialize(volumes,elems.as_ptr<CElements>());
   BOOST_CHECK_EQUAL( volume_view[12] , 0.0035918050864676932);
 
   CLoop::Ptr elem_loop = root->create_component< CForAllElements2 >("elem_loop");
@@ -289,9 +289,9 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
   
   std::vector<CField2::Ptr> fields;
-  fields.push_back(volumes.as_type<CField2>());
-  fields.push_back(field.as_type<CField2>());
-  fields.push_back(areas.as_type<CField2>());
+  fields.push_back(volumes.as_ptr<CField2>());
+  fields.push_back(field.as_ptr<CField2>());
+  fields.push_back(areas.as_ptr<CField2>());
   boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT2 )
   compute_all_cell_volumes->execute();
   
   std::vector<CField2::Ptr> fields;
-  fields.push_back(field.as_type<CField2>());
+  fields.push_back(field.as_ptr<CField2>());
   boost::filesystem::path fp_out ("test_utest-actions_CForAllElementsT2.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);

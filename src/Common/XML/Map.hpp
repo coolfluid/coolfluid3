@@ -189,7 +189,7 @@ namespace XML {
     /// or if the node is not valid or is neither a signle value nor an
     /// array value, returns @c false.
     template <typename TYPE>
-    static bool value_has_type ( const XmlNode& node );
+    static bool value_has_ptr ( const XmlNode& node );
 
   }; // Map
 

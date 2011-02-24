@@ -48,7 +48,7 @@ void CNodeElementConnectivity::set_nodes(CNodes& nodes)
 
 void CNodeElementConnectivity::build_connectivity()
 {
-  CNodes const& nodes = *m_nodes->follow()->as_type<CNodes>();
+  CNodes const& nodes = *m_nodes->follow()->as_ptr<CNodes>();
   
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());

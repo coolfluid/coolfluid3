@@ -189,7 +189,7 @@ void CWriter::write_zone(const CRegion& region)
   GroupsMapType grouped_elements_map;
   BOOST_FOREACH(const CElements& elements, find_components_recursively<CElements>(region))
   {
-    grouped_elements_map[elements.parent()->full_path().path()].push_back(elements.as_type<CElements const>());
+    grouped_elements_map[elements.parent()->full_path().path()].push_back(elements.as_ptr<CElements const>());
   }
 
   m_section.elemStartIdx = 0;
@@ -209,13 +209,13 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
   std::map<std::string,std::string> builder_name;
 	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
 	{
-		ElementType::Ptr sf = sf_builder.build("sf")->as_type<ElementType>();
+		ElementType::Ptr sf = sf_builder.build("sf")->as_ptr<ElementType>();
     builder_name[sf->element_type_name()] = sf_builder.name();
 	}
   
 
 
-  CRegion::ConstPtr section_region = grouped_elements[0]->parent()->as_type<CRegion const>();
+  CRegion::ConstPtr section_region = grouped_elements[0]->parent()->as_ptr<CRegion const>();
 
   m_section.name = section_region->name();
   m_section.type = grouped_elements.size() != 1 ? MIXED : m_elemtype_CF_to_CGNS[builder_name[grouped_elements[0]->element_type().element_type_name()]];

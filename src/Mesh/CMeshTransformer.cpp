@@ -70,9 +70,9 @@ void CMeshTransformer::execute()
   std::vector<std::string> args;
   if (is_null(m_mesh_link->follow()))
     throw BadPointer(FromHere(),"Mesh option is not set");
-  if (is_null(m_mesh_link->follow()->as_type<CMesh>()))
+  if (is_null(m_mesh_link->follow()->as_ptr<CMesh>()))
     throw CastingFailed (FromHere(), "Mesh must be of a CMesh type");
-  transform(m_mesh_link->follow()->as_type<CMesh>());
+  transform(m_mesh_link->follow()->as_ptr<CMesh>());
 }
 
 //////////////////////////////////////////////////////////////////////////////

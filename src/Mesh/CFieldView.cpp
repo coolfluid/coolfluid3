@@ -72,15 +72,15 @@ bool CFieldView::set_elements(const CEntities& elements)
 { 
   cf_assert_desc("Field must be set before elements", is_not_null(m_field.lock()) );
   const CField2& field = *m_field.lock();
-  m_elements = elements.as_const()->as_type<CEntities>();
+  m_elements = elements.as_const()->as_ptr<CEntities>();
   if (field.exists_for_entities(elements))
   {
-    m_space = elements.space(field.space_idx()).as_type<CSpace>();
+    m_space = elements.space(field.space_idx()).as_ptr<CSpace>();
     m_stride = m_space.lock()->nb_states(); // this is the number of states per element (high order methods)
     m_start_idx = field.elements_start_idx(elements);
     m_end_idx = m_start_idx + m_stride * elements.size();
     m_size = m_end_idx - m_start_idx;
-    m_coords_table = elements.nodes().coordinates().as_type<CTable<Real> >();
+    m_coords_table = elements.nodes().coordinates().as_ptr<CTable<Real> >();
     return true;
   }
   else
@@ -103,8 +103,8 @@ bool CFieldView::set_elements(CEntities::Ptr elements)
 
 void CFieldView::set_field(CField2& field) 
 { 
-  m_field = field.as_type<CField2>(); 
-  m_field_data = field.data().as_type<CTable<Real> >();
+  m_field = field.as_ptr<CField2>(); 
+  m_field_data = field.data().as_ptr<CTable<Real> >();
   cf_assert( is_not_null(m_field_data.lock()) );
 }
 
@@ -119,7 +119,7 @@ void CFieldView::set_field(CField2::Ptr field)
 
 void CFieldView::set_field(const CField2& field)
 { 
-  set_field(boost::const_pointer_cast<CField2>(field.as_type<CField2>())); 
+  set_field(boost::const_pointer_cast<CField2>(field.as_ptr<CField2>())); 
 }
 
 
@@ -222,7 +222,7 @@ void CConnectedFieldView::set_field(CField2::Ptr field) { return set_field(*fiel
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CConnectedFieldView::set_field(CField2& field) { m_field = field.as_type<CField2>(); }
+void CConnectedFieldView::set_field(CField2& field) { m_field = field.as_ptr<CField2>(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -239,7 +239,7 @@ bool CConnectedFieldView::set_elements(CEntities& elements)
   if (is_null(m_field.lock()))
     throw Common::SetupError(FromHere(),"set_field(field) must be called first");
 
-  m_elements = elements.as_type<CEntities>();
+  m_elements = elements.as_ptr<CEntities>();
   m_face2cells = find_component_ptr<CFaceCellConnectivity>(elements);
   m_views.resize(m_face2cells.lock()->cells_components().size());
   index_foreach(i,CCells::Ptr cells, m_face2cells.lock()->cells_components())

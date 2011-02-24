@@ -75,10 +75,10 @@ public:
   IsComponentType () {}
 
   bool operator()(Component::ConstPtr component) const
-  { return is_not_null( component->as_type<CType>() ); }
+  { return is_not_null( component->as_ptr<CType>() ); }
 
   bool operator()(const Component& component) const
-  { return is_not_null( component.as_type<CType>() ); }
+  { return is_not_null( component.as_ptr<CType>() ); }
 
 };
 
@@ -111,7 +111,7 @@ struct DerivedComponentIteratorRange : //public iterator_range<typename T::const
   {
     std::vector<boost::shared_ptr<T> > result (0);
     BOOST_FOREACH ( T& val, *this )
-      result.push_back(val.template as_type<T>());
+      result.push_back(val.template as_ptr<T>());
     return result;
   }
   
@@ -119,7 +119,7 @@ struct DerivedComponentIteratorRange : //public iterator_range<typename T::const
   {
     std::vector<boost::shared_ptr<T const> > result (0);
     BOOST_FOREACH ( const T& val, *this )
-      result.push_back(val.as_const()->template as_type<T>());
+      result.push_back(val.as_const()->template as_ptr<T>());
     return result;
   }
   
@@ -162,7 +162,7 @@ struct DerivedConstComponentIteratorRange : //public iterator_range<typename T::
   {
     std::vector<boost::shared_ptr<T> > result (0);
     BOOST_FOREACH ( const T& val, *this )
-      result.push_back(val.template as_type<T>());
+      result.push_back(val.template as_ptr<T>());
     return result;
   }
   
@@ -296,7 +296,7 @@ inline std::vector< boost::shared_ptr<T> > range_to_vector( boost::iterator_rang
 {
   std::vector<boost::shared_ptr<T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(val.template as_type<T>());
+    result.push_back(val.template as_ptr<T>());
   return result;
 }
 
@@ -305,7 +305,7 @@ inline std::vector< boost::shared_ptr<T> > range_to_vector( boost::iterator_rang
 {
   std::vector<boost::shared_ptr<T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(val.template as_type<T>());
+    result.push_back(val.template as_ptr<T>());
   return result;
 }
 
@@ -314,7 +314,7 @@ inline std::vector< boost::shared_ptr<const T> > range_to_const_vector( boost::i
 {
   std::vector<boost::shared_ptr<const T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(val.as_const()->template as_type<T>());
+    result.push_back(val.as_const()->template as_ptr<T>());
   return result;
 }
 
@@ -323,7 +323,7 @@ inline std::vector< boost::shared_ptr<const T> > range_to_const_vector( boost::i
 {
   std::vector<boost::shared_ptr<const T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(val.as_const()->template as_type<T>());
+    result.push_back(val.as_const()->template as_ptr<T>());
   return result;
 }
 
@@ -1092,7 +1092,7 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with
         throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
     }
   }
-  return  *parent->template as_type<ParentT>();
+  return  *parent->template as_ptr<ParentT>();
 }
 
 template <typename ParentT, typename ComponentT, typename Predicate>
@@ -1114,7 +1114,7 @@ typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr_with_f
         throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
     }
   } 
-  return  parent->template as_type<ParentT>();
+  return  parent->template as_ptr<ParentT>();
 }
 
 template <typename ComponentT, typename Predicate>

@@ -148,7 +148,7 @@ void RKRD::config_mesh()
   if ( is_null( m_solution.lock() ) )
   {
     CFinfo << " +++ creating solution field " << CFendl;
-    m_solution = mesh.create_field2("solution","PointBased","u[1]").as_type<CField2>();
+    m_solution = mesh.create_field2("solution","PointBased","u[1]").as_ptr<CField2>();
     m_solution.lock()->add_tag(solution_tag);
   }
 
@@ -161,7 +161,7 @@ void RKRD::config_mesh()
   if ( is_null( m_residual.lock() ) )
   {
     CFinfo << " +++ creating residual field " << CFendl;
-    m_residual = mesh.create_field2("residual",*m_solution.lock()).as_type<CField2>();
+    m_residual = mesh.create_field2("residual",*m_solution.lock()).as_ptr<CField2>();
     m_residual.lock()->add_tag(residual_tag);
   }
 
@@ -171,7 +171,7 @@ void RKRD::config_mesh()
   if ( is_null(m_wave_speed.lock()) )
   {
     CFinfo << " +++ creating wave_speed field " << CFendl;
-    m_wave_speed = mesh.create_scalar_field("wave_speed",*m_solution.lock()).as_type<CField2>();
+    m_wave_speed = mesh.create_scalar_field("wave_speed",*m_solution.lock()).as_ptr<CField2>();
     m_wave_speed.lock()->add_tag(wave_speed_tag);
   }
 }

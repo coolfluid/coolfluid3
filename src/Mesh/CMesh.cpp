@@ -192,7 +192,7 @@ CField2& CMesh::create_field2(const std::string& name, const CField2::Basis::Typ
 CNodes& CMesh::nodes() 
 { 
   cf_assert( is_not_null(m_nodes_link->follow()) );
-  return *m_nodes_link->follow()->as_type<CNodes>();
+  return *m_nodes_link->follow()->as_ptr<CNodes>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ CNodes& CMesh::nodes()
 const CNodes& CMesh::nodes() const
 {
   cf_assert( is_not_null(m_nodes_link->follow()) );
-  return *m_nodes_link->follow()->as_type<CNodes>();
+  return *m_nodes_link->follow()->as_ptr<CNodes>();
 }
 
 //////////////////////////////////////////////////////////////////////////////

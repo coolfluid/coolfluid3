@@ -532,7 +532,7 @@ void CWriter::write_element_data2(std::fstream& file)
           if (elementbased_field.exists_for_entities(field_elements))
           {
             CFieldView field_view("field_view");
-            field_view.initialize(elementbased_field,field_elements.as_type<CEntities>());
+            field_view.initialize(elementbased_field,field_elements.as_ptr<CEntities>());
             Uint elm_number = m_element_start_idx[&field_elements];
             Uint local_nb_elms = field_elements.size();
             for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)

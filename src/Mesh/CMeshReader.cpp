@@ -123,7 +123,7 @@ std::map<std::string,CElements::Ptr>
     {
       CCells& etype_cells = *parent_region.create_component<CCells>(element_type->shape_name());
       etype_cells.initialize(etype,nodes);
-      cells_map[etype] = etype_cells.as_type<CElements>();
+      cells_map[etype] = etype_cells.as_ptr<CElements>();
     }
   }
   return cells_map;
@@ -143,7 +143,7 @@ std::map<std::string,CElements::Ptr>
     {
       CFaces& etype_faces = *parent_region.create_component<CFaces>(element_type->shape_name());
       etype_faces.initialize(etype,nodes);
-      faces_map[etype] = etype_faces.as_type<CElements>();
+      faces_map[etype] = etype_faces.as_ptr<CElements>();
     }
   }
   return faces_map;

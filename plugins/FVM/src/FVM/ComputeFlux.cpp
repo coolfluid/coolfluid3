@@ -120,7 +120,7 @@ void ComputeFlux::config_normal()
 
 void ComputeFlux::trigger_elements()
 {
-  if (CCellFaces::Ptr faces = elements().as_type<CCellFaces>() )
+  if (CCellFaces::Ptr faces = elements().as_ptr<CCellFaces>() )
   {
     m_connected_solution.set_elements(faces);
     m_connected_residual.set_elements(faces);

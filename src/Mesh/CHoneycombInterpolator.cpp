@@ -68,9 +68,9 @@ CHoneycombInterpolator::CHoneycombInterpolator( const std::string& name )
 
 void CHoneycombInterpolator::construct_internal_storage(const CMesh& source)
 {
-  if (m_source_mesh != source.as_type<CMesh>())
+  if (m_source_mesh != source.as_ptr<CMesh>())
   {
-    m_source_mesh = source.as_type<CMesh>();
+    m_source_mesh = source.as_ptr<CMesh>();
     create_bounding_box();
     create_octtree();
   }

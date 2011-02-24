@@ -102,7 +102,7 @@ public:
      CFinfo << opt3->value_str() << CFendl;
      CFinfo << opt3->def_str() << CFendl;
     //   ->mark_basic()
-    //   ->as_type<OptionComponent<CConcrete1> >();
+    //   ->as_ptr<OptionComponent<CConcrete1> >();
     //
   };
 

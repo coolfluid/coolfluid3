@@ -21,7 +21,7 @@
 // makes explicit instantiation for all template functions with a same type
 #define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
   Common_TEMPLATE template void Map::split_string<T>(const std::string&, const std::string&, std::vector<T>&);\
-  Common_TEMPLATE template bool Map::value_has_type<T>(const XmlNode&);\
+  Common_TEMPLATE template bool Map::value_has_ptr<T>(const XmlNode&);\
   Common_TEMPLATE template XmlNode Map::set_value<T>(const std::string&, const T&, const std::string&);\
   Common_TEMPLATE template XmlNode Map::set_array<T>(const std::string&, const std::vector<T>&, const std::string&, const std::string&);\
   Common_TEMPLATE template T Map::get_value<T>(const std::string&) const;\
@@ -289,7 +289,7 @@ TYPE Map::get_value ( const std::string& value_key ) const
 
   found_node = seek_value( value_key, Protocol::Tags::node_value() );
 
-  if( !found_node.is_valid() || !value_has_type<TYPE>(found_node) )
+  if( !found_node.is_valid() || !value_has_ptr<TYPE>(found_node) )
     throw  XmlError( FromHere(), "Could not find single value of type [" +
                      std::string(type_name) + "] with \'key\' attribute  [" +
                      value_key + "]." );
@@ -317,7 +317,7 @@ std::vector<TYPE> Map::get_array ( const std::string& array_key ) const
   XmlNode found_node = seek_value( array_key, Protocol::Tags::node_array() );
 
   // check that node has been found and has the correct type
-  if( !found_node.is_valid() || !value_has_type<TYPE>(found_node) )
+  if( !found_node.is_valid() || !value_has_ptr<TYPE>(found_node) )
     throw  XmlError( FromHere(),"Could not find an array value of type [" +
                      std::string(type_name) + "] with \'key\' attribute  [" +
                      array_key + "]." );
@@ -362,7 +362,7 @@ std::vector<TYPE> Map::array_to_vector ( const XmlNode & array_node ) const
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<typename TYPE>
-bool Map::value_has_type ( const XmlNode &node )
+bool Map::value_has_ptr ( const XmlNode &node )
 {
   bool type_ok = false;
   const char * type_name = Protocol::Tags::type<TYPE>();

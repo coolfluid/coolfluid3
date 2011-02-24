@@ -236,7 +236,7 @@ void CField2::create_data_storage()
   
   
   // Check if there are coordinates in this field, and add to map
-  m_coords = find_parent_component<CMesh>(topology()).nodes().coordinates().as_type<CTable<Real> >();
+  m_coords = find_parent_component<CMesh>(topology()).nodes().coordinates().as_ptr<CTable<Real> >();
 
   Uint row_size(0);
   boost_foreach(const VarType var_size, m_var_types)
@@ -248,7 +248,7 @@ void CField2::create_data_storage()
   {
     case Basis::POINT_BASED:
     {
-      m_used_nodes = CElements::used_nodes(topology()).as_type<CList<Uint> >();
+      m_used_nodes = CElements::used_nodes(topology()).as_ptr<CList<Uint> >();
       m_data->resize(m_used_nodes->size());
       break;
     }
@@ -262,7 +262,7 @@ void CField2::create_data_storage()
         cf_assert( field_elements.exists_space(m_space_idx) );
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
-        data_size = field_view.initialize(*this,field_elements.as_type<CEntities>());
+        data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());
       }
       m_data->resize(data_size);
       break;
@@ -277,7 +277,7 @@ void CField2::create_data_storage()
         cf_assert( field_elements.exists_space(m_space_idx) );
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
-        data_size = field_view.initialize(*this,field_elements.as_type<CEntities>());
+        data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());
       }
       m_data->resize(data_size);
       break;
@@ -292,7 +292,7 @@ void CField2::create_data_storage()
         cf_assert( field_elements.exists_space(m_space_idx) );
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
-        data_size = field_view.initialize(*this,field_elements.as_type<CEntities>());
+        data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());
       }
       m_data->resize(data_size);
       break;
@@ -335,14 +335,14 @@ CField2::VarType CField2::var_type ( const std::string& vname ) const
 
 const CRegion& CField2::topology() const
 {
-  return *m_topology->follow()->as_type<CRegion>();
+  return *m_topology->follow()->as_ptr<CRegion>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CRegion& CField2::topology()
 {
-  return *m_topology->follow()->as_type<CRegion>();
+  return *m_topology->follow()->as_ptr<CRegion>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
