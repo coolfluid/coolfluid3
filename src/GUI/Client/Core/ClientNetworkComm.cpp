@@ -13,9 +13,11 @@
 
 #include "Common/CF.hpp"
 #include "Common/Core.hpp"
+#include "Common/Log.hpp"
 #include "Common/URI.hpp"
 #include "Common/BasicExceptions.hpp"
 
+#include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"
 
@@ -193,7 +195,8 @@ void ClientNetworkComm::newData()
 
     in >> frame;
 
-    //qDebug() << frame;
+    if(NTree::globalTree()->isDebugModeEnabled())
+      CFinfo << frame.toStdString() << CFendl;
 
     try
     {
