@@ -7,8 +7,11 @@ list( APPEND coolfluid_rdm_files
   CAction.cpp
   CLDA.hpp
   CLDA.cpp
+  CBlended.hpp
+  CBlended.cpp
   CSchemeLDAT.hpp
   CSchemeN.hpp
+  CSchemeB.hpp
   RKRD.cpp
   RKRD.hpp
   ScalarAdvection.hpp

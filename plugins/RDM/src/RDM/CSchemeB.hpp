@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CSchemeN_hpp
-#define CF_Solver_CSchemeN_hpp
+#ifndef CF_Solver_CSchemeB_hpp
+#define CF_Solver_CSchemeB_hpp
 
 #include <boost/assign.hpp>
 
@@ -35,24 +35,24 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-class RDM_API CSchemeN : public Solver::Actions::CLoopOperation
+class RDM_API CSchemeB : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< CSchemeN > Ptr;
-  typedef boost::shared_ptr< CSchemeN const> ConstPtr;
+  typedef boost::shared_ptr< CSchemeB > Ptr;
+  typedef boost::shared_ptr< CSchemeB const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  CSchemeN ( const std::string& name );
+  CSchemeB ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CSchemeN() {};
+  virtual ~CSchemeB() {};
 
   /// Get the class name
-  static std::string type_name () { return "CSchemeN<" + SHAPEFUNC::type_name() + ">"; }
+  static std::string type_name () { return "CSchemeB<" + SHAPEFUNC::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ();
@@ -122,12 +122,12 @@ private: // data
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-CSchemeN<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeN ( const std::string& name ) :
+CSchemeB<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeB ( const std::string& name ) :
   CLoopOperation(name)
 {
   regist_typeinfo(this);
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CSchemeN<SHAPEFUNC,QUADRATURE,PHYSICS>::trigger_elements,   this ) );
+  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CSchemeB<SHAPEFUNC,QUADRATURE,PHYSICS>::trigger_elements,   this ) );
 
   m_flux_oper_values.resize(QUADRATURE::nb_points);
   m_phi.resize(SHAPEFUNC::nb_nodes);
@@ -138,7 +138,7 @@ CSchemeN<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeN ( const std::string& name ) :
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
-void CSchemeN<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
+void CSchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 {
   // inside element with index m_idx
 
@@ -156,21 +156,20 @@ void CSchemeN<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
  m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values,m_wj);
 
- /// VERSION A: THE LOOP IMPLEMENTS THE INTEGRAL
+ /// THE LOOP IMPLEMENTS THE INTEGRAL
  /// phiN_i = phiLDA_i + integral[ kplus_i * frac{ sum( kplus_j(u_i - u_out) ) }{ sum(kplus_j) }    ] dX
- /// More computing is done than in version b, but the integral is split into LDA + dissipation
-
-/*
 
  for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
  {
    Real sumLplus = 0.0;
+   Real u_out = 0.0;
 
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
      sumLplus += std::max(0.0,m_sf_oper_values(q,n));
    }
 
+   /// phiLDA:
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
      m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q]*m_wj[q];
@@ -178,6 +177,7 @@ void CSchemeN<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
    Real sum_kdiff_u;
 
+   /// dissipative part:
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
 
@@ -191,40 +191,25 @@ void CSchemeN<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
    }
  }
 
-  for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    (*residual)[node_idx[n]][0] += m_phi[n] + m_diss[n];
-*/
+ Real sum_phi = 0.0;
+ Real sum_phi_N = 0.0;
 
- /// VERSION B: THE LOOP IMPLEMENTS THE INTEGRAL phi_i = integral{ kplus_i * (u_i - u_out) } dX
- /// No distinction between the 'LDA' and 'dissipative' components of the residual is made
- /// The variable 'm_diss' is not used
-
-
- for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
+ for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
  {
-   Real sumLplus = 0.0;
-
-   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-   {
-     sumLplus += std::max(0.0,m_sf_oper_values(q,n));
-   }
-
-   Real u_out = -m_flux_oper_values[q];
-
-   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-   {
-     u_out += std::max(0.0,m_sf_oper_values(q,n)) * m_solution_values[n];
-   }
-
-   u_out /= sumLplus;
-
-   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-   {
-     m_phi[n] += std::max(0.0,m_sf_oper_values(q,n)) * (m_solution_values[n] - u_out) *m_wj[q];
-   }
+   sum_phi += m_phi[n] + m_diss[n];
  }
+
+ for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+ {
+   sum_phi_N += std::abs(m_diss[n]);
+ }
+
+ const Real eps = 1.e-14;
+
+ const Real theta = sum_phi_N > eps ? std::abs(sum_phi)/sum_phi_N : 0.0;
+
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    (*residual)[node_idx[n]][0] += m_phi[n];
+    (*residual)[node_idx[n]][0] += m_phi[n] + theta * m_diss[n];
 
 
   // computing average advection speed on element
@@ -279,4 +264,4 @@ void CSchemeN<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_CSchemeN_hpp
+#endif // CF_RDM_CSchemeB_hpp
