@@ -249,9 +249,15 @@ void CSchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
+    Real k_plus_max = 0.0;
+
+    for (Uint q  = 0; q<QUADRATURE::nb_points; ++q)
+    {
+      k_plus_max = std::max(k_plus_max,m_sf_oper_values(q,n));
+    }
+
     (*wave_speed)[node_idx[n]][0] +=
-        std::sqrt( dx*dx+dy*dy) *
-        std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
+        std::sqrt( dx*dx+dy*dy) * k_plus_max;
   }
 
 
