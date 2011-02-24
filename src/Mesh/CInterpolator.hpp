@@ -9,7 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 #include "Common/Component.hpp"
 
 #include "Mesh/LibMesh.hpp"
@@ -49,14 +48,24 @@ public: // functions
 
   // --------- Signals ---------
 
-  void interpolate( Common::Signal::arg_t& node  );
-
+  void signal_interpolate( Common::Signal::arg_t& node  );
+  
   // --------- Direct access ---------
+
+  void interpolate();
 
   virtual void construct_internal_storage(const CMesh& source) = 0;
   
   virtual void interpolate_field_from_to(const CField2& source, CField2& target) = 0;
 
+private: // data
+  
+  // source field
+  boost::weak_ptr<CField2> m_source;
+  
+  // target field
+  boost::weak_ptr<CField2> m_target;
+  
 };
 
 ////////////////////////////////////////////////////////////////////////////////
