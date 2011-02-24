@@ -134,8 +134,6 @@ void SignalManager::actionHovered()
 
 void SignalManager::signalSignature(Signal::arg_t & args)
 {
-  NLog::globalLog()->addMessage("In SignalManager::signalSignature(Signal::arg_t & args)");
-
   if(m_waitingForSignature)
   {
     URI path = m_node->full_path();
