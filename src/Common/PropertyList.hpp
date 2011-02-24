@@ -68,8 +68,12 @@ namespace Common {
     /// get a property from the list
     const Property& property( const std::string& pname ) const;
 
+    Property& property( const std::string& pname );
+
     /// get an option from the list
     const Option& option( const std::string& pname ) const;
+
+    Option& option( const std::string& pname );
 
     Property& operator [] (const std::string & pname);
 		

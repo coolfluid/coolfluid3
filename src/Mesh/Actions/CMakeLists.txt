@@ -17,8 +17,10 @@ list( APPEND coolfluid_mesh_actions_files
   CBuildCoordinatesField.cpp
   CBuildVolume.hpp
   CBuildVolume.cpp
-  CInitSolution.hpp
-  CInitSolution.cpp
+  CInitFieldConstant.hpp
+  CInitFieldConstant.cpp
+  CInitFieldFunction.hpp
+  CInitFieldFunction.cpp
   CMatchNodes.hpp
   CMatchNodes.cpp
   LibActions.hpp

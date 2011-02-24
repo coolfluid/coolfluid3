@@ -44,7 +44,33 @@ const Property & PropertyList::property( const std::string& pname) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Property & PropertyList::property( const std::string& pname)
+{
+  PropertyStorage_t::iterator itr = store.find(pname);
+  if ( itr != store.end() )
+    return *itr->second.get();
+  else
+  {       
+    std::string msg;
+    msg += "Property with name ["+pname+"] not found. Available properties are:\n";
+    PropertyStorage_t::iterator it = store.begin();
+    for (; it!=store.end(); it++)
+      msg += "  - " + it->first + "\n";
+    throw ValueNotFound(FromHere(),msg);
+  }
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 const Option & PropertyList::option( const std::string& pname) const
+{
+  return property(pname).as_option();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Option & PropertyList::option( const std::string& pname)
 {
   return property(pname).as_option();
 }

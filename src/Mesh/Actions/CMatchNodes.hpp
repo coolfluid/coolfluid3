@@ -39,7 +39,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CMatchNodes"; }
 
-  virtual void transform(const CMesh::Ptr& mesh);
+  virtual void execute();
   
   /// brief description, typically one line
   virtual std::string brief_description() const;
@@ -51,10 +51,6 @@ private: // functions
   
   std::size_t hash_value(const RealVector3& coords);
 
-private: // data
-
-  CMesh::Ptr m_mesh;
-  
 }; // end CMatchNodes
 
 

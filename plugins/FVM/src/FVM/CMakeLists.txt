@@ -7,14 +7,16 @@ list( APPEND coolfluid_fvm_files
   ComputeFlux.cpp
   ComputeUpdateCoefficient.hpp
   ComputeUpdateCoefficient.cpp
-  FiniteVolume.hpp
-  FiniteVolume.cpp
-  ForwardEuler.hpp
-  ForwardEuler.cpp
+  FiniteVolumeSolver.hpp
+  FiniteVolumeSolver.cpp
+  OutputIterationInfo.hpp
+  OutputIterationInfo.cpp
   RoeFluxSplitter.hpp
   RoeFluxSplitter.cpp
   ShockTube.hpp
   ShockTube.cpp
+  UpdateSolution.hpp
+  UpdateSolution.cpp
 )
 
 list( APPEND coolfluid_fvm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_solver_actions coolfluid_solver coolfluid_mesh_actions coolfluid_mesh_generation )

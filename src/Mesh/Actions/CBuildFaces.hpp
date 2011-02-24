@@ -18,7 +18,7 @@
 namespace CF {
 namespace Mesh {
   
-  class CField;
+  class CRegion;
   class CFaceCellConnectivity;
 
 namespace Actions {
@@ -43,7 +43,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CBuildFaces"; }
 
-  virtual void transform(const CMesh::Ptr& mesh);
+  virtual void execute();
   
   /// brief description, typically one line
   virtual std::string brief_description() const;
@@ -62,10 +62,6 @@ private: // functions
     
   boost::shared_ptr<CFaceCellConnectivity> match_faces(CRegion& region1, CRegion& region2);
   void match_boundary(CRegion& bdry_region, CRegion& region2);
-
-private: // data
-
-  CMesh::Ptr m_mesh;
   
 }; // end CBuildFaces
 

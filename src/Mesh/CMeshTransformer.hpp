@@ -14,14 +14,11 @@
 #include "Common/CAction.hpp"
 
 #include "Mesh/LibMesh.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
 
 namespace CF {
 namespace Mesh {
 
   class CMesh;
-  class CRegion;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -51,9 +48,9 @@ public: // functions
 
   // --------- Direct access ---------
 
-  virtual void transform(const CMesh::Ptr& mesh)= 0;
+  virtual void transform(boost::shared_ptr<CMesh> mesh);
   
-  virtual void execute();
+  virtual void execute() = 0;
   
   /// brief description, typically one line
   virtual std::string brief_description() const = 0;
@@ -61,16 +58,11 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const = 0;
 
-  void set_mesh(CMesh::Ptr mesh);
+  void set_mesh(boost::shared_ptr<CMesh> mesh);
 
-private: // functions
+protected: // data
   
-  void config_mesh();
-  
-
-private: // data
-  
-  boost::shared_ptr<Common::CLink> m_mesh_link;
+  boost::weak_ptr<CMesh> m_mesh;
 
 };
 

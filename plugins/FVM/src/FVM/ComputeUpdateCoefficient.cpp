@@ -114,31 +114,31 @@ void ComputeUpdateCoefficient::execute()
     CTime& time = *m_time.lock();
     CTable<Real>& volume = m_volume.lock()->data();
 
-    // Set time step to user-specified timestep
-    // It is up to an external controller to set the internal value
-    // time.dt() to the default value.
-    Real dt = time.dt();
+    // compute which dt to take
+    Real tf = time.property("End Time").value<Real>();
+    Real dt = time.property("Time Step").value<Real>();
+    if( time.time() + dt > tf )
+      dt = tf - time.time();
     
     // Make time step stricter through the CFL number
     for (Uint i=0; i<wave_speed.size(); ++i)
-    {
       dt = std::min(dt, m_CFL*volume[i][0]/wave_speed[i][0] );
-    }
-    
-    // Update to more strict time step
-    time.dt() = dt;
 
     // Calculate the update_coefficient = dt/dx
-    update_coeff = time.dt();
-    update_coeff /= volume;
+    for (Uint i=0; i<update_coeff.size(); ++i)
+      update_coeff[i][0] = dt/volume[i][0];
+    
+    // Update the new time step
+    time.dt() = dt;
+    
   }
   else // local time stepping
   {
     if (!m_time.expired())  m_time.lock()->dt() = 0.;
 
     // Calculate the update_coefficient = CFL/wave_speed
-    update_coeff = m_CFL;
-    update_coeff /= wave_speed;
+    for (Uint i=0; i<update_coeff.size(); ++i)
+      update_coeff[i][0] = m_CFL/wave_speed[i][0];
   }
 }
 

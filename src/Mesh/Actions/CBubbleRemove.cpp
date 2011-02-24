@@ -17,6 +17,7 @@
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField2.hpp"
+#include "Mesh/CMesh.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 
 #include "Math/MathFunctions.hpp"
@@ -61,14 +62,14 @@ std::string CBubbleRemove::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CBubbleRemove::transform( const CMesh::Ptr& meshptr )
+void CBubbleRemove::execute()
 {
   CFinfo << "---------------------------------------------------" << CFendl;
   CFinfo << FromHere().str() << CFendl;
 
   /// @todo only supports simplexes
 
-  CMesh& mesh = *meshptr;
+  CMesh& mesh = *m_mesh.lock();
 
   boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
   {

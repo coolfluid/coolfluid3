@@ -1,6 +1,14 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_solver_actions_files
+  CAdvanceTime.hpp
+  CAdvanceTime.cpp
+  CCriterion.hpp
+  CCriterion.cpp
+  CCriterionTime.hpp
+  CCriterionTime.cpp
+  CIterate.hpp
+  CIterate.cpp
   CLoopOperation.hpp
   CLoopOperation.cpp
   CFieldAction.hpp

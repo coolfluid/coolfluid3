@@ -18,7 +18,7 @@
 #include "Mesh/Gmsh/CReader.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
 #include "Mesh/Actions/CBuildVolume.hpp"
-#include "Mesh/Actions/CInitSolution.hpp"
+#include "Mesh/Actions/CInitFieldFunction.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
@@ -34,7 +34,7 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "FVM/FiniteVolume.hpp"
+#include "FVM/FiniteVolumeSolver.hpp"
 #include "FVM/ShockTube.hpp"
 
 namespace CF {
@@ -107,15 +107,10 @@ void ShockTube::signal_create_model ( Signal::arg_t& args )
   pm->configure_property( "Dimensions", 1u );
 
   // setup iterative solver
-  CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.FVM.ForwardEuler", "IterativeSolver");
+  CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.FVM.FiniteVolumeSolver", "FiniteVolumeSolver");
   solver->mark_basic();
   model->add_component( solver );
 
-  // setup discretization method
-  CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.FVM.FiniteVolume", "Discretization");
-  cdm->mark_basic();
-  solver->add_component( cdm );
-  
   model->create_domain("domain");
   
   CGroup& tools = *model->create_component<CGroup>("tools");
@@ -150,8 +145,7 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   if (is_null(model))
     throw ValueNotFound (FromHere(), "invalid model");
 
-  CSolver& solver = find_component<CSolver>(*model);
-  FiniteVolume& finite_volume = find_component<FiniteVolume>(solver);
+  FiniteVolumeSolver& solver = find_component<FiniteVolumeSolver>(*model);
 
   ////////////////////////////////////////////////////////////////////////////////
   // Generate mesh
@@ -186,7 +180,8 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   // Initial condition
   ////////////////////////////////////////////////////////////////////////////////
   
-  CInitSolution::Ptr init_solution = model->get_child("tools")->create_component<CInitSolution>("init_solution");
+  CInitFieldFunction::Ptr init_solution = model->get_child("tools")->create_component<CInitFieldFunction>("init_solution");
+  init_solution->configure_property("Field",find_component_with_tag(*mesh,"solution").full_path());
   
   RealVector left(3);
   RealVector right(3);
@@ -213,14 +208,14 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   ////////////////////////////////////////////////////////////////////////////////
   
   CRegion& inlet = find_component_recursively_with_name<CRegion>(mesh->topology(),"xneg");
-  CAction& inlet_bc = finite_volume.create_bc("inlet",inlet,"CF.FVM.BCDirichlet");
+  CAction& inlet_bc = solver.create_bc("inlet",inlet,"CF.FVM.BCDirichlet");
   inlet_bc.configure_property("rho",r_L);
   inlet_bc.configure_property("u",u_L);
   inlet_bc.configure_property("p",p_L);
 
   
   CRegion& outlet = find_component_recursively_with_name<CRegion>(mesh->topology(),"xpos");
-  CAction& outlet_bc = finite_volume.create_bc("outlet",outlet,"CF.FVM.BCDirichlet");
+  CAction& outlet_bc = solver.create_bc("outlet",outlet,"CF.FVM.BCDirichlet");
   outlet_bc.configure_property("rho",r_R);
   outlet_bc.configure_property("u",u_R);
   outlet_bc.configure_property("p",p_R);  

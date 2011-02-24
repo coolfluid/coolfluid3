@@ -18,6 +18,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
+#include "Mesh/CMesh.hpp"
 
 #include "Math/MathFunctions.hpp"
 
@@ -66,10 +67,10 @@ std::string CBuildCoordinatesField::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CBuildCoordinatesField::transform(const CMesh::Ptr& meshptr)
+void CBuildCoordinatesField::execute()
 {
 
-  CMesh& mesh = *meshptr;
+  CMesh& mesh = *m_mesh.lock();
   
   std::vector<std::string> names(1);
   std::vector<Uint> sizes(1);

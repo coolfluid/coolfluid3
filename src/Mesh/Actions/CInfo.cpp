@@ -13,6 +13,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField2.hpp"
+#include "Mesh/CMesh.hpp"
 
 #include "Mesh/Actions/CInfo.hpp"
 
@@ -86,19 +87,19 @@ std::string CInfo::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CInfo::transform(const CMesh::Ptr& mesh)
+void CInfo::execute()
 {
 
-  m_mesh = mesh;
+  CMesh& mesh = *m_mesh.lock();
 
   CFinfo << "Element distribution:" << CFendl;
-  boost_foreach( const CRegion& region, find_components_with_filter<CRegion>(*m_mesh,IsComponentTrue()))
+  boost_foreach( const CRegion& region, find_components_with_filter<CRegion>(mesh,IsComponentTrue()))
   {
     CFinfo << print_region_tree(region) << CFflush;
   }  
 
   CFinfo << "Fields:" << CFendl;
-  boost_foreach( const CField2& field, find_components<CField2>(*m_mesh) )
+  boost_foreach( const CField2& field, find_components<CField2>(mesh) )
   {
     CFinfo << " - " << field.name() << "  (" << CField2::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
     for (Uint i=0; i<field.nb_vars(); ++i)

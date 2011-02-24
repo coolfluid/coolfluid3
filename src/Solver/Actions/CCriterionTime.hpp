@@ -1,0 +1,61 @@
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+#ifndef CF_Solver_CCriterionTime_hpp
+#define CF_Solver_CCriterionTime_hpp
+
+////////////////////////////////////////////////////////////////////////////////
+
+#include "Solver/Actions/LibActions.hpp"
+#include "Solver/Actions/CCriterion.hpp"
+
+namespace CF {
+namespace Solver {
+namespace Actions {
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// CCriterionTime models a Unsteady PDE problem
+/// @author Tiago Quintino
+class Solver_Actions_API CCriterionTime : public CCriterion {
+
+public: // typedefs
+
+  typedef boost::shared_ptr<CCriterionTime> Ptr;
+  typedef boost::shared_ptr<CCriterionTime const> ConstPtr;
+
+public: // functions
+
+  /// Contructor
+  /// @param name of the component
+  CCriterionTime ( const std::string& name );
+
+  /// Virtual destructor
+  virtual ~CCriterionTime();
+
+  /// Get the class name
+  static std::string type_name () { return "CCriterionTime"; }
+
+  /// Simulates this model
+  virtual bool operator()();
+  
+private:
+  
+  boost::weak_ptr<CTime> m_time;
+  
+  Real m_tolerance;
+
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // Actions
+} // Solver
+} // CF
+
+////////////////////////////////////////////////////////////////////////////////
+
+#endif // CF_Solver_CCriterionTime_hpp

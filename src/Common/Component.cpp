@@ -856,6 +856,13 @@ const Property& Component::property( const std::string& optname ) const
   return m_properties.property(optname);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+Property& Component::property( const std::string& optname )
+{
+  return m_properties.property(optname);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 void Component::rename_component ( Signal::arg_t& args )
@@ -936,9 +943,14 @@ void Component::raise_event ( const std::string & name )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::mark_basic()
+Component::Ptr Component::mark_basic()
 {
   add_tag("basic");
+  
+  Ptr this_component;
+  try { this_component = self(); }
+  catch (boost::bad_weak_ptr& e) { }
+  return this_component;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -969,6 +981,18 @@ void Component::move_component_signature( Signal::arg_t& args )
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
   p.set_option("Path", std::string(), "Path to the new component to which this one will move to.");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Component::Ptr Component::configure_property(const std::string& optname, const boost::any& val)
+{
+  m_properties.configure_property(optname,val);
+
+  Ptr this_component;
+  try { this_component = self(); }
+  catch (boost::bad_weak_ptr& e) { }
+  return this_component;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

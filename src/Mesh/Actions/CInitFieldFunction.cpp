@@ -10,8 +10,9 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/OptionComponent.hpp"
 
-#include "Mesh/Actions/CInitSolution.hpp"
+#include "Mesh/Actions/CInitFieldFunction.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CFieldView.hpp"
@@ -28,34 +29,37 @@ namespace Actions {
     
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CInitSolution, CMeshTransformer, LibActions> CInitSolution_Builder;
+Common::ComponentBuilder < CInitFieldFunction, CMeshTransformer, LibActions> CInitFieldFunction_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CInitSolution::CInitSolution( const std::string& name )
+CInitFieldFunction::CInitFieldFunction( const std::string& name )
 : CMeshTransformer(name)
 {
    
-  properties()["brief"] = std::string("Initialize a solution");
+  properties()["brief"] = std::string("Initialize a field");
   std::string desc;
   desc = 
-    "  Usage: CInitSolution vectorial function \n";
+    "  Usage: CInitFieldFunction vectorial function \n";
   properties()["description"] = desc;
+
+  m_properties.add_option(OptionComponent<CField2>::create("Field","Field to initialize",&m_field))
+    ->mark_basic();
   
   m_properties.add_option<
       OptionArrayT<std::string> > ("Functions",
-                                   "Math function applied as initial solution (vars x,y,z)",
+                                   "Math function applied as initial field (vars x,y,z)",
                                    std::vector<std::string>())
-      ->attach_trigger ( boost::bind ( &CInitSolution::config_function, this ) )
+      ->attach_trigger ( boost::bind ( &CInitFieldFunction::config_function, this ) )
       ->mark_basic();
-      
+
   m_function.variables("x,y,z");
 
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CInitSolution::brief_description() const
+std::string CInitFieldFunction::brief_description() const
 {
   return properties()["brief"].value<std::string>();
 }
@@ -63,14 +67,14 @@ std::string CInitSolution::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
   
-std::string CInitSolution::help() const
+std::string CInitFieldFunction::help() const
 {
   return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
 }  
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CInitSolution::config_function()
+void CInitFieldFunction::config_function()
 {
   m_function.functions( m_properties["Functions"].value<std::vector<std::string> >() );
   m_function.parse();
@@ -78,56 +82,56 @@ void CInitSolution::config_function()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CInitSolution::transform(const CMesh::Ptr& mesh)
+void CInitFieldFunction::execute()
 {
+  if (m_field.expired())
+    throw SetupError(FromHere(), "Field option in ["+full_path().path()+"] was not set");
 
-  m_mesh = mesh;
-
-  CField2& solution_field = find_component_with_tag<CField2>(*mesh,"solution");
+  CField2& field = *m_field.lock();
 
   std::vector<Real> vars(3,0.);
 
-  RealVector return_val(solution_field.data().row_size());
+  RealVector return_val(field.data().row_size());
 
-  if (solution_field.basis() == CField2::Basis::POINT_BASED)
+  if (field.basis() == CField2::Basis::POINT_BASED)
   {
-    const Uint nb_pts = solution_field.size();
+    const Uint nb_pts = field.size();
     for ( Uint idx=0; idx!=nb_pts; ++idx)
     {      
-      CTable<Real>::ConstRow coords = solution_field.coords(idx);
+      CTable<Real>::ConstRow coords = field.coords(idx);
       for (Uint i=0; i<coords.size(); ++i)
         vars[i] = coords[i];
       
       m_function.evaluate(vars,return_val);
       
-      CTable<Real>::Row data_row = solution_field[idx];
+      CTable<Real>::Row data_row = field[idx];
       for (Uint i=0; i<data_row.size(); ++i)
         data_row[i] = return_val[i];
     }
   }
   else 
   {
-    CFieldView solution("solution_view");
-    solution.set_field(solution_field);
+    CFieldView field_view("field_view");
+    field_view.set_field(field);
     RealMatrix coordinates;
-    boost_foreach( CElements& elements, find_components_recursively<CElements>(solution_field.topology()) )
+    boost_foreach( CElements& elements, find_components_recursively<CElements>(field.topology()) )
     {
-      if (solution.set_elements(elements.as_ptr<CEntities>()))
+      if (field_view.set_elements(elements))
       {
-        solution.allocate_coordinates(coordinates);
+        field_view.allocate_coordinates(coordinates);
         RealVector centroid(coordinates.rows());
         
         for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
         {
-          solution.put_coordinates( coordinates, elem_idx );
-          solution.space().shape_function().compute_centroid( coordinates , centroid );
+          field_view.put_coordinates( coordinates, elem_idx );
+          field_view.space().shape_function().compute_centroid( coordinates , centroid );
           
           for (Uint i=0; i<centroid.size(); ++i)
             vars[i] = centroid[i];
 
           m_function.evaluate(vars,return_val);
 
-          CTable<Real>::Row data_row = solution[elem_idx];
+          CTable<Real>::Row data_row = field_view[elem_idx];
           for (Uint i=0; i<data_row.size(); ++i)
             data_row[i] = return_val[i];
         }

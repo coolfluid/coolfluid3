@@ -9,13 +9,15 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionComponent.hpp"
 
-#include "Mesh/Actions/CBuildVolume.hpp"
-#include "Mesh/CCells.hpp"
+#include "Mesh/Actions/CInitFieldConstant.hpp"
+#include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CFieldView.hpp"
+#include "Mesh/CField2.hpp"
 #include "Mesh/CSpace.hpp"
-#include "Mesh/CMesh.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -27,26 +29,33 @@ namespace Actions {
     
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CBuildVolume, CMeshTransformer, LibActions> CBuildVolume_Builder;
+Common::ComponentBuilder < CInitFieldConstant, CMeshTransformer, LibActions> CInitFieldConstant_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CBuildVolume::CBuildVolume( const std::string& name )
-: CMeshTransformer(name)
+CInitFieldConstant::CInitFieldConstant( const std::string& name )
+: CMeshTransformer(name),
+  m_constant(0.)
 {
    
-  properties()["brief"] = std::string("Print information of the mesh");
+  properties()["brief"] = std::string("Initialize a field with a constant value");
   std::string desc;
   desc = 
-  "  Usage: Info \n\n"
-  "          Information given: internal mesh hierarchy,\n"
-  "      element distribution for each region, and element type"; 
+    "  Usage: CInitFieldConstant constant \n";
   properties()["description"] = desc;
+
+  m_properties.add_option(OptionComponent<CField2>::create("Field","Field to initialize",&m_field))
+    ->mark_basic();
+  
+  m_properties.add_option<
+      OptionT<Real> > ("Constant","Constant applied as initial field", m_constant)
+      ->link_to( &m_constant )
+      ->mark_basic();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CBuildVolume::brief_description() const
+std::string CInitFieldConstant::brief_description() const
 {
   return properties()["brief"].value<std::string>();
 }
@@ -54,35 +63,19 @@ std::string CBuildVolume::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
   
-std::string CBuildVolume::help() const
+std::string CInitFieldConstant::help() const
 {
   return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
 }  
-  
-/////////////////////////////////////////////////////////////////////////////
 
-void CBuildVolume::execute()
+////////////////////////////////////////////////////////////////////////////////
+
+void CInitFieldConstant::execute()
 {
-
-  CMesh& mesh = *m_mesh.lock();
-
-  CField2& volume_field = mesh.create_field2("volume","CellBased");
-  volume_field.add_tag("volume");
-  CScalarFieldView volume("volume_view");
-  volume.set_field(volume_field);
-
-  boost_foreach( CCells& elements, find_components_recursively<CCells>(mesh.topology()) )
-  {
-    volume.set_elements(elements.as_ptr<CEntities>());
+  if (m_field.expired())
+    throw SetupError(FromHere(), "Field option in ["+full_path().path()+"] was not set");
     
-    RealMatrix coordinates;  volume.allocate_coordinates(coordinates);
-    
-    for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
-    {
-      volume.put_coordinates( coordinates, cell_idx );
-      volume[cell_idx] = volume.space().shape_function().compute_volume( coordinates );
-    }
-  }
+  m_field.lock()->data() = m_constant;
 }
 
 //////////////////////////////////////////////////////////////////////////////

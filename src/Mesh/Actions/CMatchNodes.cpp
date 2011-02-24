@@ -26,6 +26,7 @@
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
+#include "Mesh/CMesh.hpp"
 #include "Math/MathFunctions.hpp"
 #include "Math/MathConsts.hpp"
 
@@ -76,19 +77,19 @@ std::string CMatchNodes::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CMatchNodes::transform(const CMesh::Ptr& mesh)
+void CMatchNodes::execute()
 {
-
-  m_mesh = mesh;
+  CMesh& mesh = *m_mesh.lock();
+  
   std::map<std::size_t,Uint> hash_to_node_idx;
 
-  CFinfo << mesh->tree() << CFendl;
-  const Uint m_dim = mesh->nodes().coordinates().row_size();
+  CFinfo << mesh.tree() << CFendl;
+  const Uint m_dim = mesh.nodes().coordinates().row_size();
 
   std::vector<URI> region_paths = property("Regions").value<std::vector<URI> >();
   
-  CRegion& region_1 = *m_mesh->look_component(region_paths[0])->as_ptr<CRegion>();
-  CRegion& region_2 = *m_mesh->look_component(region_paths[1])->as_ptr<CRegion>();
+  CRegion& region_1 = *mesh.look_component(region_paths[0])->as_ptr<CRegion>();
+  CRegion& region_2 = *mesh.look_component(region_paths[1])->as_ptr<CRegion>();
   CList<Uint>& used_nodes_region_1 = CEntities::used_nodes(region_1);
   CList<Uint>& used_nodes_region_2 = CEntities::used_nodes(region_2);
   
@@ -97,7 +98,7 @@ void CMatchNodes::transform(const CMesh::Ptr& mesh)
     throw SetupError(FromHere(), "Number of used nodes in ["+region_1.full_path().path()+"] and ["+region_2.full_path().path()+"] are different.\n"
       "Nodes cannot be matched." );
   
-  CTable<Real>& coordinates = m_mesh->nodes().coordinates();
+  CTable<Real>& coordinates = mesh.nodes().coordinates();
 
     
   // find bounding box coordinates for region 1 and region 2

@@ -17,6 +17,7 @@
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CMesh.hpp"
 
 #include "Mesh/Actions/CExtract.hpp"
 
@@ -91,10 +92,10 @@ std::string CExtract::help() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CExtract::transform(const CMesh::Ptr& mesh)
+void CExtract::execute()
 {
 
-  m_mesh = mesh;
+  CMesh& mesh = *m_mesh.lock();
 
 
   // Storage of regions to keep
@@ -107,14 +108,14 @@ void CExtract::transform(const CMesh::Ptr& mesh)
   {
     if (boost::regex_match(region_name,boost::regex("[Ss]urface(s)?")))   // Surface, Surfaces, surface, surfaces
     {
-      BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
+      BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(mesh,IsElementsSurface()))
       {
         keep_region_paths.push_back(elements.parent()->full_path().path());
       }
     }
     else if (boost::regex_match(region_name,boost::regex("[Vv]olume(s)?"))) // Volume, Volumes, volume, volumes
     {
-      BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsVolume()))
+      BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(mesh,IsElementsVolume()))
       {
         keep_region_paths.push_back(elements.parent()->full_path().path());
       }
@@ -122,7 +123,7 @@ void CExtract::transform(const CMesh::Ptr& mesh)
   }
 
   // For every region, see if its path matches the regex, and store it in a list
-  BOOST_FOREACH( CRegion& region, find_components_recursively<CRegion>(*m_mesh))
+  BOOST_FOREACH( CRegion& region, find_components_recursively<CRegion>(mesh))
   {
     // see if this region has to be deleted.
     bool found = false;
@@ -146,7 +147,7 @@ void CExtract::transform(const CMesh::Ptr& mesh)
   }
 
   // Remove regions whose name doesn't appear in the parsed list "keep_region"
-  BOOST_FOREACH( CRegion& region, find_components_recursively<CRegion>(*m_mesh))
+  BOOST_FOREACH( CRegion& region, find_components_recursively<CRegion>(mesh))
   {
     bool found = (std::find(keep_region.begin(),keep_region.end(),region.name()) != keep_region.end());
     if (!found)  region.parent()->remove_component(region.name());
@@ -154,7 +155,7 @@ void CExtract::transform(const CMesh::Ptr& mesh)
 
 
   // remove regions that have no elements
-  BOOST_FOREACH( CRegion& region, find_components_recursively<CRegion>(*m_mesh))
+  BOOST_FOREACH( CRegion& region, find_components_recursively<CRegion>(mesh))
   {
     if (region.recursive_elements_count() == 0)
     {

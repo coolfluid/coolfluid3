@@ -41,7 +41,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CExtract"; }
 
-  virtual void transform(const CMesh::Ptr& mesh);
+  virtual void execute();
   
   /// brief description, typically one line
   virtual std::string brief_description() const;
@@ -49,10 +49,6 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const;
 
-private: // data
-
-  CMesh::Ptr m_mesh;
-  
 }; // end CExtract
 
 

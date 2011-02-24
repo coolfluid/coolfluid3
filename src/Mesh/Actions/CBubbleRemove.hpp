@@ -17,9 +17,6 @@
 
 namespace CF {
 namespace Mesh {
-  
-  class CField;
-
 namespace Actions {
   
 //////////////////////////////////////////////////////////////////////////////
@@ -44,7 +41,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CBubbleRemove"; }
 
-  virtual void transform(const CMesh::Ptr& mesh);
+  virtual void execute();
   
   /// brief description, typically one line
   virtual std::string brief_description() const;

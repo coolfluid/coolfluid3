@@ -4,18 +4,22 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_Actions_CInfo_hpp
-#define CF_Mesh_Actions_CInfo_hpp
+#ifndef CF_Mesh_CInitFieldFunction_hpp
+#define CF_Mesh_CInitFieldFunction_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Math/VectorialFunction.hpp"
+
 #include "Mesh/CMeshTransformer.hpp"
+
 #include "Mesh/Actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh {
+namespace Mesh { 
+  class CField2;
 namespace Actions {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -23,22 +27,20 @@ namespace Actions {
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class Mesh_Actions_API CInfo : public CMeshTransformer
+class Mesh_Actions_API CInitFieldFunction : public CMeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CInfo> Ptr;
-    typedef boost::shared_ptr<CInfo const> ConstPtr;
+    typedef boost::shared_ptr<CInitFieldFunction> Ptr;
+    typedef boost::shared_ptr<CInitFieldFunction const> ConstPtr;
 
-private: // typedefs
-  
 public: // functions
   
   /// constructor
-  CInfo( const std::string& name );
+  CInitFieldFunction( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CInfo"; }
+  static std::string type_name() { return "CInitFieldFunction"; }
 
   virtual void execute();
   
@@ -49,11 +51,16 @@ public: // functions
   virtual std::string help() const;
   
 private: // functions
- 
-  std::string print_region_tree(const CRegion& region, Uint level=0);
-  std::string print_elements(const Component& region, Uint level=0);
+
+  void config_function();
+
+private: // data
   
-}; // end CInfo
+  Math::VectorialFunction  m_function;
+  
+  boost::weak_ptr<CField2> m_field;
+  
+}; // end CInitFieldFunction
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,4 +71,4 @@ private: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Actions_CInfo_hpp
+#endif // CF_Mesh_CInitFieldFunction_hpp

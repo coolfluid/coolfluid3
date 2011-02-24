@@ -61,6 +61,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   // 1) create model
   // ---------------
   s->signal_create_model(frame);
+
   CModelUnsteady::Ptr model = Core::instance().root()->get_child<CModelUnsteady>("shocktube");
 
   BOOST_CHECK(true);
@@ -89,7 +90,6 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // 4) Configure time
   // -----------------
-  model->get_child("IterativeSolver")->configure_property("OutputDiagnostics",false);
 
   //BOOST_CHECK_EQUAL( model->time().dt() , 1.);
 
@@ -109,9 +109,9 @@ BOOST_AUTO_TEST_CASE( constructor )
   CFinfo << "------"<<CFendl;
   CFinfo << model->tree() << CFendl;
   CFinfo << "---------------------------------------------------------------------------------" << CFendl;
-  CFinfo << "Iterative Solver:" << CFendl;
-  CFinfo << "-----------------" << CFendl;
-  CFinfo << model->get_child("IterativeSolver")->tree() << CFendl;
+  CFinfo << "Finite Volume Solver:" << CFendl;
+  CFinfo << "---------------------" << CFendl;
+  CFinfo << model->get_child("FiniteVolumeSolver")->tree() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

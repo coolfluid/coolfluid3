@@ -20,6 +20,7 @@
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
 #include "Mesh/CCells.hpp"
+#include "Mesh/CMesh.hpp"
 #include "Math/MathFunctions.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -67,15 +68,12 @@ std::string CBuildFaces::help() const
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaces::transform(const CMesh::Ptr& mesh)
-{
-
-  m_mesh = mesh;
-
+void CBuildFaces::execute()
+{  
   // traverse regions and make interface region between connected regions recursively
   //make_interfaces(m_mesh);
-  build_face_cell_connectivity_bottom_up(m_mesh);
-  build_faces_bottom_up(m_mesh);
+  build_face_cell_connectivity_bottom_up(m_mesh.lock()->self());
+  build_faces_bottom_up(m_mesh.lock()->self());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -241,7 +239,7 @@ void CBuildFaces::build_faces_bottom_up(Component::Ptr parent)
 
 void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& face_to_cell, bool is_inner)
 {  
-  
+  CMesh& mesh = *m_mesh.lock();
   std::set<std::string> face_types;
   std::map<std::string,CTable<Uint>::Buffer::Ptr > f2c_buffer_map;
   std::map<std::string,CList<Uint>::Buffer::Ptr  > fnb_buffer_map; 
@@ -262,7 +260,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   {
     const std::string shape_name = create_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CCellFaces& faces = *region.create_component<CCellFaces>(shape_name);
-    faces.initialize(face_type,m_mesh->nodes());
+    faces.initialize(face_type,mesh.nodes());
     if (is_inner)
       faces.add_tag("inner_faces");
     else
@@ -327,7 +325,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
 
 CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& region2)
 {
-  
+  CMesh& mesh = *m_mesh.lock(); 
   // interface connectivity
   CFaceCellConnectivity::Ptr interface = allocate_component<CFaceCellConnectivity>("interface_connectivity");
   CTable<Uint>::Buffer i2c = find_component<CTable<Uint> >(*interface).create_buffer();
@@ -374,7 +372,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
   CNodeFaceCellConnectivity::Ptr node2faces2_ptr = allocate_component<CNodeFaceCellConnectivity>("node2faces");
   CNodeFaceCellConnectivity& node2faces2 = *node2faces2_ptr;
   node2faces2.add_face_cell_connectivity(Ufaces2->data_components()); // it is assumed this is only face types
-  node2faces2.set_nodes(m_mesh->nodes());
+  node2faces2.set_nodes(mesh.nodes());
   node2faces2.build_connectivity();
     
   Uint f1(0);
@@ -455,7 +453,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
 
 void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
 {
-  
+  CMesh& mesh = *m_mesh.lock();
   // unified face-cell-connectivity
   CUnifiedData<CFaceCellConnectivity>::Ptr Ufaces2 = allocate_component<CUnifiedData<CFaceCellConnectivity> >("unified_faces2");
   Ufaces2->add_data(find_components_recursively_with_tag<CFaceCellConnectivity>(region2,"inner_faces").as_vector());
@@ -476,7 +474,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
   CNodeFaceCellConnectivity::Ptr node2faces2_ptr = allocate_component<CNodeFaceCellConnectivity>("node2faces");
   CNodeFaceCellConnectivity& node2faces2 = *node2faces2_ptr;
   node2faces2.add_face_cell_connectivity(Ufaces2->data_components()); // it is assumed this is only face types
-  node2faces2.set_nodes(m_mesh->nodes());
+  node2faces2.set_nodes(mesh.nodes());
   node2faces2.build_connectivity();
 
   Uint f1(0);

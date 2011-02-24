@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CInitSolution_hpp
-#define CF_Mesh_CInitSolution_hpp
+#ifndef CF_Mesh_CInitFieldConstant_hpp
+#define CF_Mesh_CInitFieldConstant_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,48 +18,45 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh {
+namespace Mesh { 
+  class CField2;
 namespace Actions {
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class Mesh_Actions_API CInitSolution : public CMeshTransformer
+class Mesh_Actions_API CInitFieldConstant : public CMeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CInitSolution> Ptr;
-    typedef boost::shared_ptr<CInitSolution const> ConstPtr;
+    typedef boost::shared_ptr<CInitFieldConstant> Ptr;
+    typedef boost::shared_ptr<CInitFieldConstant const> ConstPtr;
 
 public: // functions
   
   /// constructor
-  CInitSolution( const std::string& name );
+  CInitFieldConstant( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CInitSolution"; }
+  static std::string type_name() { return "CInitFieldConstant"; }
 
-  virtual void transform(const CMesh::Ptr& mesh);
+  virtual void execute();
   
   /// brief description, typically one line
   virtual std::string brief_description() const;
   
   /// extended help that user can query
   virtual std::string help() const;
-  
-private: // functions
-
-  void config_function();
 
 private: // data
 
-  CMesh::Ptr m_mesh;
+  Real m_constant;
+
+  boost::weak_ptr<CField2> m_field;
   
-  Math::VectorialFunction  m_function;
-  
-}; // end CInitSolution
+}; // end CInitFieldConstant
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,4 +67,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CInitSolution_hpp
+#endif // CF_Mesh_CInitFieldConstant_hpp
