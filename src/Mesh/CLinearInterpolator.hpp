@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CHoneycombInterpolator_hpp
-#define CF_Mesh_CHoneycombInterpolator_hpp
+#ifndef CF_Mesh_CLinearInterpolator_hpp
+#define CF_Mesh_CLinearInterpolator_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,12 +24,12 @@ namespace Mesh {
 
 /// This class defines Neutral mesh format reader
 /// @author Willem Deconinck
-class Mesh_API CHoneycombInterpolator : public CInterpolator
+class Mesh_API CLinearInterpolator : public CInterpolator
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<CHoneycombInterpolator> Ptr;
-  typedef boost::shared_ptr<CHoneycombInterpolator const> ConstPtr;
+  typedef boost::shared_ptr<CLinearInterpolator> Ptr;
+  typedef boost::shared_ptr<CLinearInterpolator const> ConstPtr;
 
 private: // typedefs
 
@@ -39,10 +39,10 @@ private: // typedefs
   
 public: // functions  
   /// constructor
-  CHoneycombInterpolator( const std::string& name );
+  CLinearInterpolator( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CHoneycombInterpolator"; }
+  static std::string type_name() { return "CLinearInterpolator"; }
   
 private: // functions
 
@@ -114,7 +114,7 @@ private: // data
   
   std::vector<Uint> m_element_cloud;
 
-}; // end CHoneycombInterpolator
+}; // end CLinearInterpolator
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -123,4 +123,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Neu_CHoneycombInterpolator_hpp
+#endif // CF_Mesh_Neu_CLinearInterpolator_hpp

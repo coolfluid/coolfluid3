@@ -18,7 +18,7 @@
 #include "Common/CLink.hpp"
 
 #include "Math/MathConsts.hpp"
-#include "Mesh/CHoneycombInterpolator.hpp"
+#include "Mesh/CLinearInterpolator.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
@@ -40,11 +40,11 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < CHoneycombInterpolator, CInterpolator, LibMesh > aHoneyCombInterpolator_Builder;
+CF::Common::ComponentBuilder < CLinearInterpolator, CInterpolator, LibMesh > aHoneyCombInterpolator_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CHoneycombInterpolator::CHoneycombInterpolator( const std::string& name )
+CLinearInterpolator::CLinearInterpolator( const std::string& name )
   : CInterpolator(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_comb_idx(3), m_sufficient_nb_points(0)
 {
    
@@ -66,7 +66,7 @@ CHoneycombInterpolator::CHoneycombInterpolator( const std::string& name )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CHoneycombInterpolator::construct_internal_storage(const CMesh& source)
+void CLinearInterpolator::construct_internal_storage(const CMesh& source)
 {
   if (m_source_mesh != source.as_ptr<CMesh>())
   {
@@ -78,7 +78,7 @@ void CHoneycombInterpolator::construct_internal_storage(const CMesh& source)
   
 //////////////////////////////////////////////////////////////////////
   
-void CHoneycombInterpolator::interpolate_field_from_to(const CField2& source, CField2& target)
+void CLinearInterpolator::interpolate_field_from_to(const CField2& source, CField2& target)
 {  
   const CTable<Real>& s_data = source.data();
   CTable<Real>& t_data = target.data();
@@ -259,7 +259,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField2& source, CF
 
 //////////////////////////////////////////////////////////////////////
 
-void CHoneycombInterpolator::create_bounding_box()
+void CLinearInterpolator::create_bounding_box()
 {
   m_dim=0;
 
@@ -284,7 +284,7 @@ void CHoneycombInterpolator::create_bounding_box()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CHoneycombInterpolator::create_octtree()
+void CLinearInterpolator::create_octtree()
 {
   std::vector<Real> L(3);
 
@@ -393,7 +393,7 @@ void CHoneycombInterpolator::create_octtree()
 
 //////////////////////////////////////////////////////////////////////////////
   
-bool CHoneycombInterpolator::find_comb_idx(const RealVector& coordinate)
+bool CLinearInterpolator::find_comb_idx(const RealVector& coordinate)
 {
   //CFinfo << "point " << coordinate << CFflush;
   cf_assert(coordinate.size() == static_cast<int>(m_dim));
@@ -415,7 +415,7 @@ bool CHoneycombInterpolator::find_comb_idx(const RealVector& coordinate)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CHoneycombInterpolator::find_pointcloud(Uint nb_points)
+void CLinearInterpolator::find_pointcloud(Uint nb_points)
 {
   m_element_cloud.resize(0);
   Uint r=1;
@@ -475,7 +475,7 @@ void CHoneycombInterpolator::find_pointcloud(Uint nb_points)
   
 //////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<CElements::ConstPtr,Uint> CHoneycombInterpolator::find_element(const RealVector& target_coord)
+boost::tuple<CElements::ConstPtr,Uint> CLinearInterpolator::find_element(const RealVector& target_coord)
 {
   if (find_comb_idx(target_coord))
   {
@@ -499,7 +499,7 @@ boost::tuple<CElements::ConstPtr,Uint> CHoneycombInterpolator::find_element(cons
   
 //////////////////////////////////////////////////////////////////////
   
-void CHoneycombInterpolator::pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& s_points, const RealVector& t_point, std::vector<Real>& weights)
+void CLinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& s_points, const RealVector& t_point, std::vector<Real>& weights)
 {  
   switch (m_dim)
   {

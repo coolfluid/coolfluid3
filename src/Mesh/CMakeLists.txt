@@ -23,10 +23,10 @@ list( APPEND coolfluid_mesh_files
   CFieldView.cpp
   CHash.hpp
   CHash.cpp
-  CHoneycombInterpolator.hpp
-  CHoneycombInterpolator.cpp
   CInterpolator.hpp
   CInterpolator.cpp
+  CLinearInterpolator.hpp
+  CLinearInterpolator.cpp
   CList.hpp
   CList.cpp
   CMesh.hpp
