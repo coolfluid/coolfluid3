@@ -16,6 +16,7 @@
 #include "Common/Log.hpp"
 
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CNodes.hpp"
 

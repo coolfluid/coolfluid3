@@ -283,7 +283,7 @@ struct ref_selector
 {
   typedef typename conditional<
     bool(traits<T>::Flags & NestByRefBit),
-    T const&,
+    T,
     T
   >::type type;
 };
