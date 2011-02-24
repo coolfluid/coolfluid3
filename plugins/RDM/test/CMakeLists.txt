@@ -38,11 +38,3 @@ add_custom_command(TARGET utest-rdm-rotationadv2d
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/square1x1-tg-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/square1x1-qd-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
-
-#########################################################################
-# tests the rdm component
-
-list( APPEND utest-rdm_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm  )
-list( APPEND utest-rdm_files  utest-rdm.cpp )
-
-coolfluid_add_unittest( utest-rdm )
