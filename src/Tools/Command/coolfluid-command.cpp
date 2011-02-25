@@ -70,7 +70,7 @@ int main(int argc, char * argv[])
       {
         CJournal::Ptr journal(new CJournal("Journal"));
 
-        Core::instance().root()->get_child("Tools")->add_component(journal);
+        Core::instance().root()->get_child_ptr("Tools")->add_component(journal);
 
         journal->execute_signals(journal_file);
 

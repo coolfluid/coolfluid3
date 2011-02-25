@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE( complete_path )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( look_component )
+BOOST_AUTO_TEST_CASE( access_component_ptr )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
@@ -202,12 +202,12 @@ BOOST_AUTO_TEST_CASE( look_component )
 
   // test relative & complete path
   URI p0 ( "cpath:../dir21" );
-  Component::Ptr cp0 = dir22->look_component( p0 );
+  Component::Ptr cp0 = dir22->access_component_ptr( p0 );
   BOOST_CHECK_EQUAL ( cp0->full_path().string(), "cpath://root/dir1/dir2/dir21" );
 
   // test relative & complete path
   URI p1 ( "cpath://root/dir1" );
-  Component::Ptr cp1 = dir22->look_component( p1 );
+  Component::Ptr cp1 = dir22->access_component_ptr( p1 );
   BOOST_CHECK_EQUAL ( cp1->full_path().string(), "cpath://root/dir1" );
 }
 
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( problem )
 {
   CRoot::Ptr root = CRoot::create ( "Simulator" );
 
-  Component::Ptr proot = root->look_component("cpath://Simulator");
+  Component::Ptr proot = root->access_component_ptr("cpath://Simulator");
 
   BOOST_CHECK_EQUAL ( proot->full_path().string(), "cpath://Simulator" );
 

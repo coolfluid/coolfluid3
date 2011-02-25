@@ -62,7 +62,7 @@ void CPlotter::signal_create_xyplot(Signal::arg_t &args)
     throw InvalidURI(FromHere(), "The parent scheme is not CPATH");
 
   // create and add the component
-  Component::Ptr parent_comp = Core::instance().root()->look_component(parent);
+  Component::Ptr parent_comp = Core::instance().root()->access_component_ptr(parent);
   CPlotXY::Ptr plot(new CPlotXY(name));
   parent_comp->add_component( plot );
   plot->mark_basic();

@@ -98,7 +98,7 @@ void CLink::change_link( Signal::arg_t & args )
   SignalFrame reply = args.create_reply();
 
   std::string path = options.get_option<std::string>("target_path");
-  Component::Ptr target = m_root.lock()->look_component(path);
+  Component::Ptr target = m_root.lock()->access_component_ptr(path);
 
   link_to (target);
 

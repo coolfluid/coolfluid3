@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 BOOST_AUTO_TEST_CASE( output )
 {
   CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
-  CMesh::Ptr mesh = domain.get_child<CMesh>("Mesh");
+  CMesh::Ptr mesh = domain.get_child_ptr<CMesh>("Mesh");
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   boost::filesystem::path file ("utest-loadmesh-result.msh");
   mesh_writer->write_from_to(mesh,file);

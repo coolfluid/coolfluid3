@@ -163,32 +163,43 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
+  /// @return reference to component
+  Component& access_component ( const URI& path );
+
+  /// Looks for a component via its path
+  /// @param path to the component
   /// @return constant Ptr to component
-  ConstPtr look_component ( const URI& path ) const;
+  /// @throws ValueNotFound in case a component is not found at that path
+  /// @post returns always valid pointer
+  ConstPtr access_component_ptr ( const URI& path ) const;
 
   /// Looks for a component via its path
   /// @param path to the component
   /// @return Ptr to component
-  Ptr look_component ( const URI& path );
+  /// @throws ValueNotFound in case a component is not found at that path
+  /// @post returns always valid pointer
+  Ptr access_component_ptr ( const URI& path );
 
   /// Looks for a component via its path
+  /// @deprecated this function will be removed soon, use access_component_ptr then as_ptr
   /// @param path to the component
   /// @throws ValueNotFound if the component is not found in the path
   /// @post returns empty shared pointer if failed to cast to requested type
   /// @return constant Ptr to component cast to specific type
   template < typename T >
-    typename T::ConstPtr look_component ( const URI& path ) const
+    typename T::ConstPtr access_component_ptr ( const URI& path ) const
   {
-    return boost::dynamic_pointer_cast<T const>(look_component(path));
+    return boost::dynamic_pointer_cast<T const>(access_component_ptr(path));
   }
 
   /// Looks for a component via its path
+  /// @deprecated this function will be removed soon, use access_component_ptr then as_ptr
   /// @param path to the component
   /// @return Ptr to component cast to specific type
   template < typename T >
-  typename T::Ptr look_component ( const URI& path )
+  typename T::Ptr access_component_ptr ( const URI& path )
   {
-    return boost::dynamic_pointer_cast<T>(look_component(path));
+    return boost::dynamic_pointer_cast<T>(access_component_ptr(path));
   }
 
   /// @returns the pointer to parent component
@@ -198,17 +209,34 @@ public: // functions
   /// @pre parent pointer is valid
   ConstPtr parent() const;
 
-  /// Get the named child from the direct subcomponents.
-  Ptr get_child(const std::string& name);
-  ConstPtr get_child(const std::string& name) const;
+  /// Gets the named child component from the list of direct subcomponents.
+  /// @return reference to the component
+  Component& get_child(const std::string& name);
+  /// Gets the named child component from the list of direct subcomponents.
+  /// @post pointer may be null
+  /// @return shared pointer to the component
+  Ptr get_child_ptr(const std::string& name);
+  /// Gets the named child component from the list of direct subcomponents.
+  /// @post pointer may be null
+  /// @return const shared pointer to the component
+  ConstPtr get_child_ptr(const std::string& name) const;
+  /// Gets the named child component from the list of direct subcomponents.
+  /// @throws ValueNotFound in case a component with given name is not found
+  /// @post pointer is never null
+  /// @return shared pointer to the component
+  Ptr get_child_ptr_checked(const std::string& name);
 
   /// @returns the named child from the direct subcomponents automatically cast to the specified type
   template < typename T >
-      typename T::Ptr get_child ( const std::string& name );
+      typename T::Ptr get_child_ptr ( const std::string& name );
 
   /// @returns the named child from the direct subcomponents automatically cast to the specified type
   template < typename T >
-      typename T::ConstPtr get_child ( const std::string& name ) const;
+      typename T::ConstPtr get_child_ptr ( const std::string& name ) const;
+
+  /// @returns this component converted to type T reference
+  template < typename T >
+    T& as_type();
 
   /// @returns this component converted to type T shared pointer
   template < typename T >
@@ -251,7 +279,7 @@ public: // functions
   std::string tree(Uint level=0) const;
 
   /// @return Returns the number of children this component has.
-  size_t get_child_count() const;
+  size_t count_children() const;
 
   /// @return Returns the type name of the subclass, according to
   /// @c CF::TypeInfo
@@ -505,7 +533,7 @@ inline typename T::Ptr Component::create_static_component ( const std::string& n
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::get_child(const std::string& name)
+inline typename T::Ptr Component::get_child_ptr(const std::string& name)
 {
   const CompStorage_t::iterator found = m_components.find(name);
   if(found != m_components.end())
@@ -516,12 +544,20 @@ inline typename T::Ptr Component::get_child(const std::string& name)
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::ConstPtr Component::get_child(const std::string& name) const
+inline typename T::ConstPtr Component::get_child_ptr(const std::string& name) const
 {
   const CompStorage_t::const_iterator found = m_components.find(name);
   if(found != m_components.end())
     return boost::dynamic_pointer_cast<T const>(found->second);
   return typename T::ConstPtr();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline T& Component::as_type()
+{
+  return * as_ptr_checked<T>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -60,7 +60,7 @@ void NTreeTest::test_setRoot()
   QCOMPARE(t.treeRoot(), newRoot);
 
   // the tree root should have 3 children now
-  QCOMPARE((int) t.treeRoot()->root()->get_child_count(), 2);
+  QCOMPARE((int) t.treeRoot()->root()->count_children(), 2);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -257,7 +257,7 @@ void NTreeTest::test_rowCount()
   NTree t;
 
   QCOMPARE(t.rowCount(), 1);
-  QCOMPARE(t.rowCount(t.index(0, 0)), (int) ClientRoot::instance().root()->root()->get_child_count());
+  QCOMPARE(t.rowCount(t.index(0, 0)), (int) ClientRoot::instance().root()->root()->count_children());
   QCOMPARE(t.rowCount(t.index(0, 1)), 0);
 }
 

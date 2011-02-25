@@ -76,7 +76,7 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
 void ComputeFlux::config_solution()
 {
   URI uri;  property("Solution").put_value(uri);
-  CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
+  CField2::Ptr comp = Core::instance().root()->access_component_ptr<CField2>(uri);
   m_connected_solution.set_field(comp);
 }
 
@@ -85,7 +85,7 @@ void ComputeFlux::config_solution()
 void ComputeFlux::config_residual()
 {
   URI uri;  property("Residual").put_value(uri);
-  CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
+  CField2::Ptr comp = Core::instance().root()->access_component_ptr<CField2>(uri);
   m_connected_residual.set_field(comp);
 }
 
@@ -94,7 +94,7 @@ void ComputeFlux::config_residual()
 void ComputeFlux::config_wave_speed()
 {
   URI uri;  property("WaveSpeed").put_value(uri);
-  CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
+  CField2::Ptr comp = Core::instance().root()->access_component_ptr<CField2>(uri);
   m_connected_wave_speed.set_field(comp);
 }
 
@@ -103,7 +103,7 @@ void ComputeFlux::config_wave_speed()
 void ComputeFlux::config_area()
 {
   URI uri;  property("Area").put_value(uri);
-  CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
+  CField2::Ptr comp = Core::instance().root()->access_component_ptr<CField2>(uri);
   m_face_area.set_field(comp);
 }
 
@@ -112,7 +112,7 @@ void ComputeFlux::config_area()
 void ComputeFlux::config_normal()
 {
   URI uri;  property("FaceNormal").put_value(uri);
-  CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
+  CField2::Ptr comp = Core::instance().root()->access_component_ptr<CField2>(uri);
   m_face_normal.set_field(comp);
 }
 

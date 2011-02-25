@@ -131,11 +131,11 @@ void FiniteVolumeSolver::trigger_Domain()
 {
   URI domain; property("Domain").put_value(domain);
 
-  CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>(*look_component(domain));
+  CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>(*access_component_ptr(domain));
   if (is_null(mesh))
     throw SetupError(FromHere(),"Domain has no mesh");
 
-  m_compute_rhs->get_child("2.3_for_all_inner_faces")
+  m_compute_rhs->get_child_ptr("2.3_for_all_inner_faces")
     ->configure_property("Regions",std::vector<URI>(1,mesh->topology().full_path()));
 
   if ( is_null(find_component_ptr_with_tag<CField2>(*mesh,"face_normal") ) )

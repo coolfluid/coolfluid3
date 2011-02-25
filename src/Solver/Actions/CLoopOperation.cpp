@@ -51,7 +51,7 @@ void CLoopOperation::config_elements()
   {
     URI uri;
     property("Elements").put_value(uri);
-    m_elements = look_component<CEntities>(uri);
+    m_elements = access_component_ptr<CEntities>(uri);
     if ( is_null(m_elements.lock()) )
       throw CastingFailed (FromHere(), "Elements must be of a CEntities or derived type");    
   }

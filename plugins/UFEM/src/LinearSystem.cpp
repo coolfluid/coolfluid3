@@ -120,9 +120,9 @@ void LinearSystem::on_run()
     throw ValueNotFound(FromHere(), "System builder action not found. Did you set a LSS?");
 
   // Region we loop over
-  CRegion::Ptr region = look_component<CRegion>( builder->property("Region").value_str() );
+  CRegion::Ptr region = access_component<CRegion>( builder->property("Region").value_str() );
   if(!region)
-    throw ValueNotFound(FromHere(), "Region at path " + get_child("HeatEquation")->property("ConductivityRegion").value_str() + " not found when looking for calculation Region.");
+    throw ValueNotFound(FromHere(), "Region at path " + get_child_ptr("HeatEquation")->property("ConductivityRegion").value_str() + " not found when looking for calculation Region.");
 
   CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(*region);
 
@@ -153,7 +153,7 @@ void LinearSystem::on_lss_set()
     remove_component( bc_action.name() );
   }
 
-  m_lss = look_component<CEigenLSS>( m_lss_path.lock()->value_str() );
+  m_lss = access_component<CEigenLSS>( m_lss_path.lock()->value_str() );
 
   // Build the action that will create the system matrix. This requires access to the LSS! This also automatically adds the CAction as a child.
   m_system_builder = build_equation();

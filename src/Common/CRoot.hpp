@@ -44,14 +44,14 @@ namespace Common {
     /// The path should be absolute
     /// @param path to the component
     /// @return pointer to Component
-    Component::Ptr access_component ( const URI& path );
+    Component::Ptr retrieve_component ( const URI& path );
 
     /// Access the component described by the path
     /// The path should be absolute
     /// @param path to the component
     /// @return pointer to Component cast to the sepcified TYPE
     template < typename TYPE >
-        typename TYPE::Ptr access_component ( const URI& path );
+        typename TYPE::Ptr retrieve_component ( const URI& path );
 
     /// define the component path
     /// @param path to the component
@@ -101,9 +101,9 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
   template < typename TYPE >
-  inline typename TYPE::Ptr CRoot::access_component ( const URI& path )
+  inline typename TYPE::Ptr CRoot::retrieve_component ( const URI& path )
   {
-    return boost::dynamic_pointer_cast<TYPE>( this->access_component (path) );
+    return boost::dynamic_pointer_cast<TYPE>( this->retrieve_component (path) );
   }
 
 ////////////////////////////////////////////////////////////////////////////////

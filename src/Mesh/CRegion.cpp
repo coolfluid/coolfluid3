@@ -52,7 +52,7 @@ CRegion& CRegion::create_region( const std::string& name, bool ensure_unique )
   }
   else
   {
-    CRegion::Ptr region = get_child<CRegion>(name);
+    CRegion::Ptr region = get_child_ptr<CRegion>(name);
     if (!region)
       region = create_component<CRegion>(name);
     
@@ -66,7 +66,7 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CNodes
 {
   std::string name = "elements_" + element_type_name;
   
-  CElements::Ptr elements = get_child<CElements>(name);
+  CElements::Ptr elements = get_child_ptr<CElements>(name);
   if (!elements)
   {
     elements = create_component<CElements>(name);

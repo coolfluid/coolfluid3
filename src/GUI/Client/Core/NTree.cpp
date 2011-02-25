@@ -232,9 +232,9 @@ CNode::Ptr NTree::nodeByPath(const URI & path) const
     for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
     {
       if(node->checkType(CNode::ROOT_NODE))
-        node = boost::dynamic_pointer_cast<CNode>(node->castTo<NRoot>()->root()->get_child(it->toStdString()));
+        node = boost::dynamic_pointer_cast<CNode>(node->castTo<NRoot>()->root()->get_child_ptr(it->toStdString()));
       else
-        node = boost::dynamic_pointer_cast<CNode>(node->get_child(it->toStdString()));
+        node = boost::dynamic_pointer_cast<CNode>(node->get_child_ptr(it->toStdString()));
     }
   }
 

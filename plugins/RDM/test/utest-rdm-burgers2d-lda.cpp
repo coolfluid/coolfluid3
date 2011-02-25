@@ -65,7 +65,7 @@ struct burgers2d_global_fixture
 struct burgers2d_local_fixture
 {
   burgers2d_local_fixture() :
-    model  ( * Core::instance().root()->get_child("mymodel")->as_ptr<CModel>() ),
+    model  ( * Core::instance().root()->get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
   {}
@@ -118,7 +118,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , burgers2d_local_fixture )
 
   domain.signal_load_mesh( frame );
 
-  BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
+  BOOST_CHECK_NE( domain.count_children(), (Uint) 0);
 
 #ifdef BUBBLE // enrich the mesh with bubble functions
   CMeshTransformer::Ptr enricher =
@@ -174,7 +174,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , burgers2d_local_fixture )
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   cf_assert( is_not_null(inletbc) );
 
-  inletbc->get_child("action")->configure_property("Function", std::string("1.5-2.0*x") );
+  inletbc->get_child_ptr("action")->configure_property("Function", std::string("1.5-2.0*x") );
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 

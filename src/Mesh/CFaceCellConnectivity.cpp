@@ -88,7 +88,7 @@ void CFaceCellConnectivity::build_connectivity()
   // ( = not the same as the mesh boundary)
   boost_foreach (CCells::Ptr elements, m_elements->data_components())
   {
-    CList<bool>::Ptr is_bdry_elem = elements->get_child<CList<bool> >("is_bdry");
+    CList<bool>::Ptr is_bdry_elem = elements->get_child_ptr<CList<bool> >("is_bdry");
     const Uint nb_elem = elements->size();
     if (is_null(is_bdry_elem))
     {
@@ -118,7 +118,7 @@ void CFaceCellConnectivity::build_connectivity()
   boost_foreach (CCells::Ptr& elements, m_elements->data_components() )
   {
     const Uint nb_faces_in_elem = elements->element_type().nb_faces();
-    CList<bool>& is_bdry_elem = *elements->get_child<CList<bool> >("is_bdry");
+    CList<bool>& is_bdry_elem = *elements->get_child_ptr<CList<bool> >("is_bdry");
 
     // loop over the elements of this type
     Uint loc_elem_idx=0;
@@ -242,7 +242,7 @@ void CFaceCellConnectivity::build_connectivity()
     boost_foreach (Uint elem, (*m_connectivity)[f])
     {
       boost::tie(elem_location_comp,elem_location_idx) = m_elements->data_location(elem);
-      CList<bool>& is_bdry_elem = *elem_location_comp->get_child<CList<bool> >("is_bdry");
+      CList<bool>& is_bdry_elem = *elem_location_comp->get_child_ptr<CList<bool> >("is_bdry");
       is_bdry_elem[elem_location_idx] = is_bdry_elem[elem_location_idx] || is_bdry_face.get_row(f) ;
     }
   }

@@ -72,7 +72,7 @@ void CSpace::initialize(const CElements& elements)
 {
   // Now the shape_function and connectivity_table are copies of the connectivity of the support
   CElements& support = find_parent_component<CElements>(*this);
-  m_shape_function = support.get_child<ElementType>(support.element_type().name());
+  m_shape_function = support.get_child_ptr<ElementType>(support.element_type().name());
   m_connectivity_table = support.connectivity_table().as_ptr<CTable<Uint> >();
 }
 

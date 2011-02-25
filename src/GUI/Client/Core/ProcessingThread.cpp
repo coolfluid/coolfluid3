@@ -65,7 +65,7 @@ void ProcessingThread::run()
       if(realRoot->full_path().path() == URI(receiver).path())
         root->call_signal(type, frame);
       else
-        realRoot->access_component(receiver)->call_signal(type, frame);
+        realRoot->retrieve_component(receiver)->call_signal(type, frame);
     }
     catch(CF::Common::Exception & cfe)
     {

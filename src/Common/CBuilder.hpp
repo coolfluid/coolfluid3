@@ -123,7 +123,7 @@ public:
 
     typename BASE::Ptr comp = this->build_component_typed ( params.get_option<std::string>("Component name") );
     URI parent_path ( params.get_option<URI>("Parent component") );
-    Component::Ptr parent = this->look_component( parent_path );
+    Component::Ptr parent = this->access_component_ptr( parent_path );
     parent->add_component( comp );
   }
 

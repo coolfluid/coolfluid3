@@ -76,7 +76,7 @@ void BcDirichlet::config_mesh()
 {
   URI mesh_uri = property("Mesh").value<URI>();
 
-  Component::Ptr mesh_comp = look_component(mesh_uri);
+  Component::Ptr mesh_comp = access_component_ptr(mesh_uri);
   if( is_null(mesh_comp) )
     throw InvalidURI (FromHere(), "URI does not point to a component " + mesh_uri.string() );
 
@@ -85,7 +85,7 @@ void BcDirichlet::config_mesh()
     throw CastingFailed (FromHere(), "Could not find a CMesh on path " + mesh_uri.string() );
 
   URI sol_uri  = property("Solution").value<URI>();
-  m_solution = look_component(sol_uri)->as_ptr<CField2>();
+  m_solution = access_component_ptr(sol_uri)->as_ptr<CField2>();
   if( is_null(m_solution.lock()) )
     m_solution = find_component_ptr_with_tag<CField2>( *(m_mesh.lock()) , "solution" );
 

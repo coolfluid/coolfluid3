@@ -388,7 +388,7 @@ CNode::Ptr CNode::child(CF::Uint index)
 
   ComponentIterator<CNode> it = compo->begin<CNode>();
 
-  cf_assert(index < compo->get_child_count());
+  cf_assert(index < compo->count_children());
 
   for(i = 0 ; i < index ; i++)
     it++;
@@ -428,7 +428,7 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
     it = root->begin<const CNode>();
     itEnd = root->end<const CNode>();
 
-    if(it->get_child_count() > 0)
+    if(it->count_children() > 0)
       list << QString(root->full_path().path().c_str()) /*+ '/'*/;
     else
       list << root->full_path().path().c_str();
@@ -438,7 +438,7 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
   {
     if(!it->isClientComponent() || clientNodes)
     {
-      if(it->get_child_count() > 0)
+      if(it->count_children() > 0)
         list << QString(it->full_path().path().c_str()) /*+ '/'*/;
       else
         list << it->full_path().path().c_str();

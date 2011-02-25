@@ -49,7 +49,7 @@ void CComputeVolume::config_field()
 {
   URI uri;
   property("Volume").put_value(uri);
-  CField2::Ptr comp = Core::instance().root()->look_component<CField2>(uri);
+  CField2::Ptr comp = Core::instance().root()->access_component_ptr<CField2>(uri);
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
   m_volume->set_field(comp);

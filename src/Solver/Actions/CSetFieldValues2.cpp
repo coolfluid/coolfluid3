@@ -40,7 +40,7 @@ void CSetFieldValues2::config_field()
 {
   URI uri;
   property("Field").put_value(uri);
-  m_field = Core::instance().root()->look_component<CField2>(uri);
+  m_field = Core::instance().root()->access_component_ptr<CField2>(uri);
   if ( is_null(m_field.lock()) )
     throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
 }

@@ -61,9 +61,7 @@ int main(int argc, char *argv[])
 
   try
   {
-
     Core& cf_env = Core::instance();  // build the environment
-    std::vector<std::string> moduleDirs;
 
     // get command line arguments
     program_options::variables_map vm;
@@ -80,10 +78,6 @@ int main(int argc, char *argv[])
     // setup COOLFluiD environment
     // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
     cf_env.initiate ( argc, argv );        // initiate the environemnt
-
-    // set dso directory as module directory
-    moduleDirs.push_back("../../../dso/");
-    DirPaths::instance().addModuleDirs(moduleDirs);
 
     // if COMM_WORLD has a parent, we are in a worker
    /* if(COMM_WORLD.Get_parent() != COMM_NULL)

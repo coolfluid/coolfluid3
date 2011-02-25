@@ -344,7 +344,12 @@ void Component::complete_path ( URI& path ) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::get_child(const std::string& name)
+Component& Component::get_child(const std::string& name)
+{
+  return * get_child_ptr_checked(name);
+}
+
+Component::Ptr Component::get_child_ptr(const std::string& name)
 {
   const CompStorage_t::iterator found = m_components.find(name);
   if(found != m_components.end())
@@ -352,12 +357,21 @@ Component::Ptr Component::get_child(const std::string& name)
   return Ptr();
 }
 
-Component::ConstPtr Component::get_child(const std::string& name) const
+Component::ConstPtr Component::get_child_ptr(const std::string& name) const
 {
   const CompStorage_t::const_iterator found = m_components.find(name);
   if(found != m_components.end())
     return found->second;
   return ConstPtr();
+}
+
+Component::Ptr Component::get_child_ptr_checked(const std::string& name)
+{
+  const CompStorage_t::iterator found = m_components.find(name);
+  if(found != m_components.end())
+    return found->second;
+  else
+    throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + full_path().string() );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -409,7 +423,16 @@ void Component::move_to ( Component::Ptr new_parent )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::ConstPtr Component::look_component ( const URI& path ) const
+Component& Component::access_component ( const URI& path )
+{
+  Component::Ptr comp = access_component_ptr(path);
+  cf_assert( is_not_null(comp) );
+  return *comp;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+Component::ConstPtr Component::access_component_ptr ( const URI& path ) const
 {
   if (!m_root.expired())  // root is available. This is a faster method.
   {
@@ -417,10 +440,10 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
 
     complete_path(lpath); // ensure the path is complete
 
-    // get the root
-   CRoot::Ptr root = m_root.lock();
-
-    return root->access_component(lpath);
+    // get the component from the root
+    Component::Ptr comp = m_root.lock()->access_component_ptr(lpath);
+    cf_assert( is_not_null(comp) );
+    return comp;
   }
   else // we are in the case with no root. Hence the path must be relative
   {
@@ -444,7 +467,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
       else
       {
         Component::ConstPtr parent = look_comp;
-        look_comp = look_comp->get_child(*el);
+        look_comp = look_comp->get_child_ptr(*el);
         if( is_null(look_comp) )
           throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().path());
       }
@@ -455,7 +478,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::look_component ( const URI& path )
+Component::Ptr Component::access_component_ptr ( const URI& path )
 {
   if (!m_root.expired())  // root is available. This is a faster method.
   {
@@ -463,10 +486,10 @@ Component::Ptr Component::look_component ( const URI& path )
 
     complete_path(lpath); // ensure the path is complete
 
-    // get the root
-   CRoot::Ptr root = m_root.lock();
-
-    return root->access_component(lpath);
+    // get the component from the root
+    Component::Ptr comp = m_root.lock()->access_component_ptr(lpath);
+    cf_assert( is_not_null(comp) );
+    return comp;
   }
   else // we are in the case with no root. Hence the path must be relative
   {
@@ -490,7 +513,7 @@ Component::Ptr Component::look_component ( const URI& path )
       else
       {
         Component::Ptr parent = look_comp;
-        look_comp = look_comp->get_child(*el);
+        look_comp = look_comp->get_child_ptr(*el);
         if( is_null(look_comp) )
           throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().path());
       }
@@ -511,11 +534,11 @@ void Component::signal_create_component ( Signal::arg_t& args  )
 
   bool basic = options.get_option<bool>("Basic mode");
 
-  CFactories::Ptr factories = Core::instance().root()->get_child< CFactories >("Factories");
-  CFactory::Ptr factory = factories->get_child< CFactory >( atype );
+  CFactories::Ptr factories = Core::instance().root()->get_child_ptr< CFactories >("Factories");
+  CFactory::Ptr factory = factories->get_child_ptr< CFactory >( atype );
   if (!factory)
     throw ValueNotFound(FromHere(), "Factory of generic type " + atype + " not found");
-  CBuilder::Ptr builder = factory->get_child< CBuilder >( ctype );
+  CBuilder::Ptr builder = factory->get_child_ptr< CBuilder >( ctype );
   if (!builder)
     throw ValueNotFound(FromHere(), "Builder of concrete type " + ctype + " not found in factory of generic type " + atype);
 
@@ -535,7 +558,7 @@ void Component::delete_component ( Signal::arg_t& args  )
 //  if( ! path.is_protocol("cpath") )
 //    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
-//  Component::Ptr comp = look_component( path.path() )->parent();
+//  Component::Ptr comp = access_component_ptr( path.path() )->parent();
 //  Component::Ptr parent = comp->parent();
 //  parent->remove_component( comp->name() );
 
@@ -557,7 +580,7 @@ void Component::move_component ( Signal::arg_t& args  )
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
-  Component::Ptr new_parent = look_component( path.path() );
+  Component::Ptr new_parent = access_component_ptr( path.path() );
 
   this->move_to( new_parent );
 }
@@ -659,7 +682,7 @@ std::string Component::tree(Uint level) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-size_t Component::get_child_count() const
+size_t Component::count_children() const
 {
   return m_components.size();
 }

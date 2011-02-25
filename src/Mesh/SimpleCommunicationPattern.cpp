@@ -117,7 +117,7 @@ void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_d
   {
     CTable<Real>& coords = celements.nodes().coordinates();
 		coords.resize(nb_nodes);
-		CList<Uint>::Ptr global_indices = coords.get_child<CList<Uint> >("global_indices");
+		CList<Uint>::Ptr global_indices = coords.get_child_ptr<CList<Uint> >("global_indices");
 		if (global_indices)
 			global_indices->resize(nb_nodes);
     CTable<Uint>::ArrayT& connectivity_table = celements.connectivity_table().array();

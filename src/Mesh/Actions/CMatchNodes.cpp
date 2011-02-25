@@ -88,8 +88,8 @@ void CMatchNodes::execute()
 
   std::vector<URI> region_paths = property("Regions").value<std::vector<URI> >();
   
-  CRegion& region_1 = *mesh.look_component(region_paths[0])->as_ptr<CRegion>();
-  CRegion& region_2 = *mesh.look_component(region_paths[1])->as_ptr<CRegion>();
+  CRegion& region_1 = *mesh.access_component_ptr(region_paths[0])->as_ptr<CRegion>();
+  CRegion& region_2 = *mesh.access_component_ptr(region_paths[1])->as_ptr<CRegion>();
   CList<Uint>& used_nodes_region_1 = CEntities::used_nodes(region_1);
   CList<Uint>& used_nodes_region_2 = CEntities::used_nodes(region_2);
   

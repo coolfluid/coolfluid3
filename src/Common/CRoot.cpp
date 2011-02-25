@@ -53,7 +53,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  boost::shared_ptr<Component> CRoot::access_component( const URI& path )
+  boost::shared_ptr<Component> CRoot::retrieve_component( const URI& path )
   {
     cf_assert ( path.is_complete() );
 

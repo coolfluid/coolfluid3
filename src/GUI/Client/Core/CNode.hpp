@@ -166,7 +166,7 @@ namespace ClientCore {
 
     /// Gives a child a a certain index.
     /// @param index Index of the wanted child. Should be between 0 (included)
-    /// and @c #get_child_count() (excluded).
+    /// and @c #count_children() (excluded).
     /// @return Returns the found child.
     CNode::Ptr child(Uint index);
 

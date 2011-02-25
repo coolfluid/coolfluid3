@@ -24,7 +24,7 @@ void LibRDM::initiate()
 {
   CGroup::Ptr rdm_group =
     Core::instance().root()
-      ->get_child("Tools")
+      ->get_child_ptr("Tools")
       ->create_component<CGroup>( "RDM" );
   rdm_group->mark_basic();
 
@@ -35,11 +35,11 @@ void LibRDM::initiate()
 void LibRDM::terminate()
 {
   Core::instance().root()
-      ->get_child("Tools")
-      ->get_child("RDM")
+      ->get_child_ptr("Tools")
+      ->get_child_ptr("RDM")
       ->remove_component( "SetupScalarSimulation" );
   Core::instance().root()
-      ->get_child("Tools")
+      ->get_child_ptr("Tools")
       ->remove_component("RDM");
 }
 

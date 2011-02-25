@@ -480,7 +480,7 @@ void CReader::read_section(CRegion& parent_region)
       this_region.create_elements(etype_CF,section_nodes); // no second argument defaults to the coordinates in this_region
     }
 
-    CElements& element_region= *this_region.get_child<CElements>("elements_"+etype_CF);
+    CElements& element_region= *this_region.get_child_ptr<CElements>("elements_"+etype_CF);
 
     // Create a buffer for this element component, to start filling in the elements we will read.
     CTable<Uint>::Buffer element_buffer = element_region.connectivity_table().create_buffer();
@@ -816,7 +816,7 @@ void CReader::read_boco_structured(CRegion& parent_region)
   }
 
   CElements& elements = this_region.create_elements(etypeBC_CF,nodes);
-  //CTable<Uint>& source_elements = parent_region.get_child("Inner")->get_child<CElements>("elements_"+etype_CF)->connectivity_table();
+  //CTable<Uint>& source_elements = parent_region.get_child_ptr("Inner")->get_child_ptr<CElements>("elements_"+etype_CF)->connectivity_table();
   CTable<Uint>::Buffer buffer = elements.connectivity_table().create_buffer();
 
 

@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 //  boost::filesystem::path file ("rectangle-tg-p1.msh");
 //  CMesh::Ptr mesh = meshreader->create_mesh_from(file);
 
-//  Core::instance().root()->get_child("Domain")->add_component(mesh);
+//  Core::instance().root()->get_child_ptr("Domain")->add_component(mesh);
 
 //	// Write the fields to file.
 //  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
@@ -100,12 +100,12 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   std::vector<URI> files;
   files.push_back( "file:rectangle-tg-p2.msh" );
 
-  options.set_option<URI>("Parent Component", URI( Core::instance().root()->get_child("Domain")->full_path().string()) );
+  options.set_option<URI>("Parent Component", URI( Core::instance().root()->get_child_ptr("Domain")->full_path().string()) );
   options.set_array("Files", files, " ; ");
 
   // get the generic mesh loader from the Tools
 
-  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child("Tools")->get_child<LoadMesh>("LoadMesh");
+  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child_ptr("Tools")->get_child_ptr<LoadMesh>("LoadMesh");
   cf_assert( is_not_null(load_mesh) );
 
   load_mesh->signal_load_mesh( frame );
@@ -116,11 +116,11 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 BOOST_AUTO_TEST_CASE( enricher )
 {
   CBubbleEnrich::Ptr enricher =
-      Core::instance().root()->get_child<CBubbleEnrich>("enricher");
+      Core::instance().root()->get_child_ptr<CBubbleEnrich>("enricher");
 
   cf_assert( is_not_null(enricher) );
 
-  Component::Ptr domain = Core::instance().root()->get_child("Domain");
+  Component::Ptr domain = Core::instance().root()->get_child_ptr("Domain");
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(*domain);
 
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( remover )
   CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
 
   CBubbleRemove::Ptr remover =
-      Core::instance().root()->get_child<CBubbleRemove>("remover");
+      Core::instance().root()->get_child_ptr<CBubbleRemove>("remover");
 
   cf_assert( is_not_null(remover) );
 

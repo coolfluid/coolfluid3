@@ -497,7 +497,7 @@ void CReader::read_groups()
 
       Uint idx = buffer[etype]->add_row(tmp_elems->connectivity_table().array()[local_element]);
       std::string new_elems_name = tmp_elems->name();
-      m_global_to_tmp[global_element] = std::make_pair(region.get_child<CElements>(new_elems_name),idx);
+      m_global_to_tmp[global_element] = std::make_pair(region.get_child_ptr<CElements>(new_elems_name),idx);
       Uint local_elm_idx = glb_elm_indices[etype]->add_row(global_element-1);
 
       if (local_elm_idx != idx)

@@ -53,7 +53,7 @@ void CDomain::signal_load_mesh ( Common::Signal::arg_t& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-  LoadMesh::Ptr mesh_loader = find_component_ptr<LoadMesh>( *Core::instance().root()->get_child("Tools") );
+  LoadMesh::Ptr mesh_loader = find_component_ptr<LoadMesh>( *Core::instance().root()->get_child_ptr("Tools") );
   CMesh::Ptr mesh = mesh_loader->load_mesh(options.get_option<URI>("File"));
   add_component(mesh);
 }

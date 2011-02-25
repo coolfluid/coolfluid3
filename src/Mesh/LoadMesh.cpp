@@ -72,7 +72,7 @@ void LoadMesh::update_list_of_available_readers()
   {
     CMeshReader::Ptr reader;
 
-    Component::Ptr comp = get_child(bdr.name());
+    Component::Ptr comp = get_child_ptr(bdr.name());
     if( is_null(comp) )
       comp = bdr.build(bdr.name());
 
@@ -138,7 +138,7 @@ void LoadMesh::signal_load_mesh ( Common::Signal::arg_t& node )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Parent Component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  Component::Ptr parent_component = look_component( path );
+  Component::Ptr parent_component = access_component_ptr( path );
 
   // std::vector<URI> files = property("Files").value<std::vector<URI> >();
   std::vector<URI> files = options.get_array<URI>("Files");

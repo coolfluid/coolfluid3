@@ -176,7 +176,7 @@ void CNodeTest::test_createFromXml()
  // GUI_CHECK_NO_THROW(doc = XmlOps::parse(boost::filesystem::path("./tree.xml")));
   GUI_CHECK_NO_THROW(root = makeTreeFromFile());
 
-//  GUI_CHECK_NO_THROW(node = boost::dynamic_pointer_cast<CNode>(root->root()->get_child("Tools")));
+//  GUI_CHECK_NO_THROW(node = boost::dynamic_pointer_cast<CNode>(root->root()->get_child_ptr("Tools")));
 //  GUI_CHECK_NO_THROW(group = node->castTo<NGeneric>());
 
 //  GUI_CHECK_NO_THROW(group->options(optList));

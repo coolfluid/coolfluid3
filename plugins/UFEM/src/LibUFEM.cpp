@@ -22,7 +22,7 @@ CF::Common::RegistLibrary<LibUFEM> libUFEM;
 void LibUFEM::initiate()
 {
   Core::instance().root()
-    ->get_child("Tools")
+    ->get_child_ptr("Tools")
     ->create_component<SetupLinearSystem>( "SetupHeatConduction" )
     ->mark_basic();
 }
@@ -30,7 +30,7 @@ void LibUFEM::initiate()
 void LibUFEM::terminate()
 {
   Core::instance().root()
-      ->get_child("Tools")
+      ->get_child_ptr("Tools")
       ->remove_component("SetupHeatConduction");
 }
 

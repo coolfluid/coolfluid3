@@ -139,7 +139,7 @@ void Core::set_profiler(const std::string & builder_name)
 
 boost::shared_ptr<CodeProfiler> Core::profiler() const
 {
-  return m_root->get_child<CodeProfiler>("Profiler");
+  return m_root->get_child_ptr<CodeProfiler>("Profiler");
 }
 ////////////////////////////////////////////////////////////////////////////////
 

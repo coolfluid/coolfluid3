@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( FieldOperators )
   std::vector<std::string> types;
 
 
-  CField2& solution = *mesh.get_child<CField2>("solution");
+  CField2& solution = *mesh.get_child_ptr<CField2>("solution");
   CField2& solution_copy = *mesh.create_component<CField2>("solution_copy");
   names = list_of("rho")("U")("p");
   types = list_of("scalar")("Vector2D")("scalar");

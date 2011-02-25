@@ -23,7 +23,7 @@ CF::Common::RegistLibrary<LibFVM> LibFVM;
 void LibFVM::initiate()
 {
   Core::instance().root()
-      ->get_child("Tools")
+      ->get_child_ptr("Tools")
       ->create_component<FVM::ShockTube>( "wizard_shocktube" )
       ->mark_basic();
 }
@@ -31,7 +31,7 @@ void LibFVM::initiate()
 void LibFVM::terminate()
 {
   Core::instance().root()
-      ->get_child("Tools")
+      ->get_child_ptr("Tools")
       ->remove_component("wizard_shocktube");
 }
 

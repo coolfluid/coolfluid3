@@ -82,7 +82,7 @@ CRoot::Ptr ServerRoot::root()
 
     created = true;
 
-    Component::Ptr tools = root->get_child("Tools");
+    Component::Ptr tools = root->get_child_ptr("Tools");
 
     tools->create_component<CJournal>("Journal")->mark_basic();
     CPlotter::Ptr plotter = tools->create_component<CPlotter>("Plotter");
@@ -130,7 +130,7 @@ void ServerRoot::processSignal(const string & target,
   if(m_mutex.tryLock())
   {
     m_doc.swap(signal.xml_doc);
-    Component::Ptr receivingCompo = root()->access_component(receiver);
+    Component::Ptr receivingCompo = root()->retrieve_component(receiver);
 
     m_thread = new ProcessingThread(signal, target, receivingCompo);
     QObject::connect(m_thread, SIGNAL(finished()), m_catcher, SLOT(finished()));
@@ -141,7 +141,7 @@ void ServerRoot::processSignal(const string & target,
   {
     try
     {
-      Component::Ptr comp = root()->access_component(receiver);
+      Component::Ptr comp = root()->retrieve_component(receiver);
 
       if( comp->signal(target).is_read_only )
       {
@@ -180,7 +180,7 @@ void ServerRoot::processSignal(const string & target,
 
 CCore::Ptr ServerRoot::core()
 {
-  return root()->access_component<CCore>(SERVER_CORE_PATH);
+  return root()->retrieve_component<CCore>(SERVER_CORE_PATH);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -188,7 +188,7 @@ CCore::Ptr ServerRoot::core()
 
 CJournal::Ptr ServerRoot::journal()
 {
-  return root()->access_component<CJournal>(SERVER_JOURNAL_PATH);
+  return root()->retrieve_component<CJournal>(SERVER_JOURNAL_PATH);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -8,7 +8,6 @@
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/DirPaths.hpp"
 
 #include "Tools/GooglePerf/LibGooglePerfTools.hpp"
 
@@ -25,9 +24,8 @@ ComponentBuilder < GooglePerfProfiling, CodeProfiler, LibGooglePerfTools > Googl
 
 GooglePerfProfiling::GooglePerfProfiling( const std::string& name) : CodeProfiler(name),
     m_profiling(false)
-{
-    
-  m_path = Common::DirPaths::instance().getResultsDir() / boost::filesystem::path("perftools-profile.pprof");
+{    
+  m_path = boost::filesystem::path("perftools-profile.pprof");
 }
 
 GooglePerfProfiling::~GooglePerfProfiling()

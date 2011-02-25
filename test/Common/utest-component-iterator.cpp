@@ -129,15 +129,15 @@ struct ComponentIterationFixture
   /// const root
   const Component& const_root() { return *m_root; }
 
-  CGroup& group1() { return *root().get_child<CGroup>("group1"); }
-  const CGroup& const_group1() { return *const_root().get_child<CGroup>("group1"); }
-  CGroup& group2() { return *root().get_child<CGroup>("group2"); }
-  const CGroup& const_group2() { return *const_root().get_child<CGroup>("group2"); }
-  CGroup& group3() { return *root().get_child<CGroup>("group3"); }
-  const CGroup& const_group3() { return *const_root().get_child<CGroup>("group3"); }
+  CGroup& group1() { return *root().get_child_ptr<CGroup>("group1"); }
+  const CGroup& const_group1() { return *const_root().get_child_ptr<CGroup>("group1"); }
+  CGroup& group2() { return *root().get_child_ptr<CGroup>("group2"); }
+  const CGroup& const_group2() { return *const_root().get_child_ptr<CGroup>("group2"); }
+  CGroup& group3() { return *root().get_child_ptr<CGroup>("group3"); }
+  const CGroup& const_group3() { return *const_root().get_child_ptr<CGroup>("group3"); }
 
-  CGroup& group2_1() { return *group2().get_child<CGroup>("group2_1"); }
-  const CGroup& const_group2_1() { return *const_group2().get_child<CGroup>("group2_1"); }
+  CGroup& group2_1() { return *group2().get_child_ptr<CGroup>("group2_1"); }
+  const CGroup& const_group2_1() { return *const_group2().get_child_ptr<CGroup>("group2_1"); }
 
   /// list of all component names on the first level
   std::vector<std::string> top_component_names;
@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE( GetByName )
   BOOST_CHECK_EQUAL(find_component_ptr_with_name<CGroup>(root(), "comp1"), CGroup::Ptr());
   BOOST_CHECK_EQUAL(find_component_ptr_with_name<CGroup>(root(), "group1")->name(), "group1");
   BOOST_CHECK_EQUAL(find_component_ptr_with_name(root(), "group1")->name(), "group1");
-  BOOST_CHECK_EQUAL(find_component_ptr_with_name(root(), "group1"), root().get_child("group1"));
+  BOOST_CHECK_EQUAL(find_component_ptr_with_name(root(), "group1"), root().get_child_ptr("group1"));
 }
 
 //////////////////////////////////////////////////////////////////////////////

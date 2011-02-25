@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   pecp.add_component( dir2 );
 
   // count all child
-  BOOST_CHECK_EQUAL( pecp.get_child_count() , 4u );
+  BOOST_CHECK_EQUAL( pecp.count_children() , 4u );
 
   // count recursively childs but only of type PEObjectWrapper
   //BOOST_CHECK_EQUAL( find_components_recursively<PEObjectWrapper>(pecp).size() , 2 );

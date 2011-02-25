@@ -63,7 +63,7 @@ void NLink::setTargetPath(const URI & path)
 {
   if(!path.empty())
   {
-    CNode::Ptr target = boost::dynamic_pointer_cast<CRoot>(m_root.lock())->access_component<CNode>(path);
+    CNode::Ptr target = boost::dynamic_pointer_cast<CRoot>(m_root.lock())->retrieve_component<CNode>(path);
     this->setTargetNode(target);
   }
 }

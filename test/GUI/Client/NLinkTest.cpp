@@ -79,7 +79,7 @@ void NLinkTest::test_goToTarget()
   NLink::Ptr link;
 
 //  th.addChildren(makeTreeFromFile());
-//  link = boost::dynamic_pointer_cast<NLink>(t->treeRoot()->root()->access_component("//Root/Tools/TheLink"));
+//  link = boost::dynamic_pointer_cast<NLink>(t->treeRoot()->root()->retrieve_component("//Root/Tools/TheLink"));
 
 //  QVERIFY(link.get() != nullptr);
 //  t->setCurrentIndex(t->index(0, 0));

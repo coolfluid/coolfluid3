@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( add_component )
   BOOST_CHECK_EQUAL ( HolderT<Part>::type_name() , "HolderT_Part" );
 
   /// @todo makes the utest crash (bat_weak_ptr)
-//  BOOST_CHECK_NO_THROW ( cp->get_child("subc").get() );
+//  BOOST_CHECK_NO_THROW ( cp->get_child_ptr("subc").get() );
 
   BOOST_CHECK_EQUAL ( cp->name(), std::string("myHolderT_Part"));
 

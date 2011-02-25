@@ -779,7 +779,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
       if(block_data.patch_types[patch] == "empty")
         continue;
       
-      const CElements& patch_celements = find_component<CElements>(*block_mesh_region.get_child(block_data.patch_names[patch]));
+      const CElements& patch_celements = find_component<CElements>(*block_mesh_region.get_child_ptr(block_data.patch_names[patch]));
       const CFaceConnectivity& patch_adjacency = find_component<CFaceConnectivity>(patch_celements);
       const CTable<Uint>::ArrayT& subpatches = patch_celements.connectivity_table().array();
       

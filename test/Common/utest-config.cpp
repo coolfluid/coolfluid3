@@ -267,11 +267,11 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
 
   // Check if everything worked OK.
   URI absolute_friend_path = component1->property("MyAbsoluteFriend").value<URI>();
-  CConcrete1::Ptr absolute_friend = component1->look_component<CConcrete1>(absolute_friend_path);
+  CConcrete1::Ptr absolute_friend = component1->access_component_ptr<CConcrete1>(absolute_friend_path);
   BOOST_CHECK_EQUAL(absolute_friend->name(),"component2");
 
   URI relative_friend_path = component1->property("MyRelativeFriend").value<URI>();
-  CConcrete1::Ptr relative_friend = component1->look_component<CConcrete1>(relative_friend_path);
+  CConcrete1::Ptr relative_friend = component1->access_component_ptr<CConcrete1>(relative_friend_path);
   BOOST_CHECK_EQUAL(relative_friend->name(),"component2");
 }
 
@@ -290,11 +290,11 @@ BOOST_AUTO_TEST_CASE( optionComponent )
   BOOST_CHECK( component1->comp() == component2 );
   // // Check if everything worked OK.
   // URI absolute_friend_path = component1->property("MyAbsoluteFriend").value<URI>();
-  // CConcrete1::Ptr absolute_friend = component1->look_component<CConcrete1>(absolute_friend_path);
+  // CConcrete1::Ptr absolute_friend = component1->access_component_ptr<CConcrete1>(absolute_friend_path);
   // BOOST_CHECK_EQUAL(absolute_friend->name(),"component2");
   //
   // URI relative_friend_path = component1->property("MyRelativeFriend").value<URI>();
-  // CConcrete1::Ptr relative_friend = component1->look_component<CConcrete1>(relative_friend_path);
+  // CConcrete1::Ptr relative_friend = component1->access_component_ptr<CConcrete1>(relative_friend_path);
   // BOOST_CHECK_EQUAL(relative_friend->name(),"component2");
 }
 

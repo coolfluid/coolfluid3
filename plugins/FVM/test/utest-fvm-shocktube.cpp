@@ -62,20 +62,20 @@ BOOST_AUTO_TEST_CASE( constructor )
   // ---------------
   s->signal_create_model(frame);
 
-  CModelUnsteady::Ptr model = Core::instance().root()->get_child<CModelUnsteady>("shocktube");
+  CModelUnsteady::Ptr model = Core::instance().root()->get_child_ptr<CModelUnsteady>("shocktube");
 
   BOOST_CHECK(true);
 
   // 2) Load the mesh in Domain
   // --------------------------
   // Uint nb_segments = 70;
-  // CDomain::Ptr domain = model->get_child<CDomain>("Domain");
+  // CDomain::Ptr domain = model->get_child_ptr<CDomain>("Domain");
   // CMesh::Ptr mesh = domain->create_component<CMesh>("line");
   // //create_line(*mesh, 10. , nb_segments );
   // path file_in("line.msh");
-  // model->look_component<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
+  // model->access_component_ptr<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
   //
-  // model->get_child("IterativeSolver")->properties()["dx"]=10./Real(nb_segments);
+  // model->get_child_ptr("IterativeSolver")->properties()["dx"]=10./Real(nb_segments);
 
   BOOST_CHECK(true);
 
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // 6) Write mesh
   // -------------
-  model->look_component<CMeshWriter>("cpath:./tools/gmsh_writer")->write();
+  model->access_component_ptr<CMeshWriter>("cpath:./tools/gmsh_writer")->write();
 
   CFinfo << "model:"<<CFendl;
   CFinfo << "------"<<CFendl;
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   CFinfo << "---------------------------------------------------------------------------------" << CFendl;
   CFinfo << "Finite Volume Solver:" << CFendl;
   CFinfo << "---------------------" << CFendl;
-  CFinfo << model->get_child("FiniteVolumeSolver")->tree() << CFendl;
+  CFinfo << model->get_child_ptr("FiniteVolumeSolver")->tree() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

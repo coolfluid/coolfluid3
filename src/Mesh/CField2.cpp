@@ -205,7 +205,7 @@ void CField2::config_tree()
 {
   URI topology_uri;
   property("Topology").put_value(topology_uri);
-  CRegion::Ptr topology = Core::instance().root()->look_component<CRegion>(topology_uri);
+  CRegion::Ptr topology = Core::instance().root()->access_component_ptr<CRegion>(topology_uri);
   if ( is_null(topology) )
     throw CastingFailed (FromHere(), "Topology must be of a CRegion or derived type");
   m_topology->link_to(topology);

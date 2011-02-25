@@ -119,7 +119,7 @@ void SelectPathDialog::pathChanged(const QString & path)
     CRoot::Ptr root = NTree::globalTree()->treeRoot()->root();
     try
     {
-      if(root->access_component<CNode>(path.toStdString()) != nullptr)
+      if(root->retrieve_component<CNode>(path.toStdString()) != nullptr)
         newPath = path;
       else
         newPath = path.left(lastSlash);
@@ -127,7 +127,7 @@ void SelectPathDialog::pathChanged(const QString & path)
       if(newPath == "/")
         newPath = root->full_path().path().c_str();
 
-      node = root->access_component<CNode>(newPath.toStdString());
+      node = root->retrieve_component<CNode>(newPath.toStdString());
 
       if(node.get() != nullptr)
       {

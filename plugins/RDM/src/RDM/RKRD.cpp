@@ -113,7 +113,7 @@ void RKRD::config_domain()
 {
   CFinfo << FromHere().short_str() << CFendl;
 
-  CDomain::Ptr domain = look_component<CDomain>( property("Domain").value<URI>() );
+  CDomain::Ptr domain = access_component_ptr<CDomain>( property("Domain").value<URI>() );
   if( is_null(domain) )
     throw InvalidURI( FromHere(), "Path does not point to Domain");
 
@@ -181,7 +181,7 @@ void RKRD::config_mesh()
 void RKRD::solve()
 {
   // ensure domain is sane
-  CDomain::Ptr domain = look_component<CDomain>( property("Domain").value<URI>() );
+  CDomain::Ptr domain = access_component_ptr<CDomain>( property("Domain").value<URI>() );
   if( is_null(domain) )
     throw InvalidURI( FromHere(), "Path does not poitn to Domain");
 

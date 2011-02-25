@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
   CFinfo << str << CFendl;
 
   BOOST_CHECK_THROW( reader->signal_read(frame), BadValue );
-  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
+  BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
 }
 
 BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
   options.set_option<URI>("Domain", URI("cpath://Root/MyDom"));
   options.set_array("Files", files, " ; ");
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
-  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
+  BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
 }
 
 BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
   options.set_option<URI>("Domain", URI("cpath://Root/MyDom"));
   options.set_array("Files", files, " ; ");
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
-  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
+  BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
 }
 
 BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
   options.set_option<URI>("Domain", URI("cpath://Root/MyDom"));
   options.set_array("Files", files, " ; ");
   BOOST_CHECK_NO_THROW( reader->signal_read(frame) );
-  BOOST_CHECK_NE( domain->get_child_count(), (Uint) 0);
+  BOOST_CHECK_NE( domain->count_children(), (Uint) 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

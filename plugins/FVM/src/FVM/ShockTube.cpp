@@ -141,7 +141,7 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
   std::string name  = p.get_option<std::string>("Model name");
 
-  CModelUnsteady::Ptr model = Core::instance().root()->get_child<CModelUnsteady>( name );
+  CModelUnsteady::Ptr model = Core::instance().root()->get_child_ptr<CModelUnsteady>( name );
   if (is_null(model))
     throw ValueNotFound (FromHere(), "invalid model");
 
@@ -154,10 +154,10 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   CMesh::Ptr mesh = model->domain()->create_component<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 10. , p.get_option<Uint>("Number of Cells"));
   // path file_in("line.msh");
-  //   model->look_component<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
+  //   model->access_component_ptr<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
 
-  model->look_component<CBuildFaces>("cpath:./tools/build_faces")->transform(mesh);
-  model->look_component<CBuildVolume>("cpath:./tools/build_volume")->transform(mesh);
+  model->access_component_ptr<CBuildFaces>("cpath:./tools/build_faces")->transform(mesh);
+  model->access_component_ptr<CBuildVolume>("cpath:./tools/build_volume")->transform(mesh);
   model->configure_option_recursively("volume",find_component_recursively_with_tag<CField2>(*model->domain(),"volume").full_path());
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -180,7 +180,7 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   // Initial condition
   ////////////////////////////////////////////////////////////////////////////////
   
-  CInitFieldFunction::Ptr init_solution = model->get_child("tools")->create_component<CInitFieldFunction>("init_solution");
+  CInitFieldFunction::Ptr init_solution = model->get_child_ptr("tools")->create_component<CInitFieldFunction>("init_solution");
   init_solution->configure_property("Field",find_component_with_tag(*mesh,"solution").full_path());
   
   RealVector left(3);
@@ -227,9 +227,9 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   std::vector<URI> fields;
   boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
     fields.push_back(field.full_path());
-  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
-  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("File",model->name()+".msh");
-  model->look_component<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Mesh",mesh->full_path());
+  model->access_component_ptr<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
+  model->access_component_ptr<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("File",model->name()+".msh");
+  model->access_component_ptr<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Mesh",mesh->full_path());
 
 }
 

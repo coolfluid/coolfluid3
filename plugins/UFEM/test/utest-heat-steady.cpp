@@ -63,19 +63,19 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
 
   setup_ufem->call_signal("create_model", create_model_frame);
 
-  Component::Ptr ufem_model = root->get_child("UFEMHeat");
+  Component::Ptr ufem_model = root->get_child_ptr("UFEMHeat");
   BOOST_CHECK(ufem_model);
 
-  CMeshReader::Ptr mesh_reader = ufem_model->get_child<CMeshReader>("NeutralReader");
+  CMeshReader::Ptr mesh_reader = ufem_model->get_child_ptr<CMeshReader>("NeutralReader");
   BOOST_CHECK(mesh_reader);
 
-  CMesh::Ptr mesh = ufem_model->get_child("Domain")->create_component<CMesh>("Mesh");
+  CMesh::Ptr mesh = ufem_model->get_child_ptr("Domain")->create_component<CMesh>("Mesh");
   mesh_reader->read_from_to(input_file, mesh);
 
-  Component::Ptr ufem_method = ufem_model->get_child("LinearModel");
+  Component::Ptr ufem_method = ufem_model->get_child_ptr("LinearModel");
   BOOST_CHECK(ufem_method);
 
-  Component::Ptr heat_eq = ufem_method->get_child("HeatEquation");
+  Component::Ptr heat_eq = ufem_method->get_child_ptr("HeatEquation");
   BOOST_CHECK(heat_eq);
 
   heat_eq->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads"));
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   init_p.set_option<std::string>("VariableName", "T");
 
   ufem_method->call_signal("add_initial_condition", init_frame);
-  Component::Ptr init = ufem_method->get_child("InitialTemperature");
+  Component::Ptr init = ufem_method->get_child_ptr("InitialTemperature");
   BOOST_CHECK(init);
   init->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology"));
   init->configure_property("InitialTemperature", 0.);
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   inside_bc_p.set_option<std::string>("VariableName", "T");
 
   ufem_method->call_signal("add_dirichlet_bc", inside_bc_frame);
-  Component::Ptr inside_bc = ufem_method->get_child("Inside");
+  Component::Ptr inside_bc = ufem_method->get_child_ptr("Inside");
   BOOST_CHECK(inside_bc);
   inside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/inner"));
   inside_bc->configure_property("Inside", 273.);
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   outside_bc_p.set_option<std::string>("VariableName", "T");
 
   ufem_method->call_signal("add_dirichlet_bc", outside_bc_frame);
-  Component::Ptr outside_bc = ufem_method->get_child("Outside");
+  Component::Ptr outside_bc = ufem_method->get_child_ptr("Outside");
   BOOST_CHECK(outside_bc);
   outside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/outer"));
   outside_bc->configure_property("Outside", 500.);

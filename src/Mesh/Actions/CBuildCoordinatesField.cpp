@@ -78,7 +78,7 @@ void CBuildCoordinatesField::execute()
   CField2& coordinates = *mesh.create_component<CField2>("coordinates");
   names[0] = "coordinates";
   sizes[0] = mesh.nodes().coordinates().row_size();
-  coordinates.get_child<CLink>("topology")->link_to(mesh.topology().self());
+  coordinates.get_child_ptr<CLink>("topology")->link_to(mesh.topology().self());
   coordinates.configure_property("VarNames",names);
   coordinates.configure_property("VarSizes",sizes);
   coordinates.configure_property("FieldType",std::string("NodeBased"));

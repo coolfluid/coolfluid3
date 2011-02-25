@@ -247,7 +247,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   CElements::Ptr elem_comp;
   Uint elem_idx;
   
-  CList<Uint>& face_number = *face_to_cell.get_child<CList<Uint> >("face_number");
+  CList<Uint>& face_number = *face_to_cell.get_child_ptr<CList<Uint> >("face_number");
   
   for (Uint f=0; f<face_to_cell.size(); ++f)
   {
@@ -267,11 +267,11 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
       faces.add_tag("outer_faces");
         
     CFaceCellConnectivity& f2c = faces.cell_connectivity();
-    CTable<Uint>& raw_table = *f2c.get_child<CTable<Uint> >(f2c.connectivity().name());
+    CTable<Uint>& raw_table = *f2c.get_child_ptr<CTable<Uint> >(f2c.connectivity().name());
     raw_table.set_row_size(is_inner?2:1);
-    f2c.add_elements(face_to_cell.get_child<CUnifiedData<CCells> >("elements"));
+    f2c.add_elements(face_to_cell.get_child_ptr<CUnifiedData<CCells> >("elements"));
     f2c_buffer_map[face_type] = raw_table.create_buffer_ptr();
-    fnb_buffer_map[face_type] = f2c.get_child<CList<Uint> > ("face_number")->create_buffer_ptr();
+    fnb_buffer_map[face_type] = f2c.get_child_ptr<CList<Uint> > ("face_number")->create_buffer_ptr();
   }
   
   for (Uint f=0; f<face_to_cell.size(); ++f)
@@ -307,10 +307,10 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     fnb_buffer_map[face_type]->flush();
     
     const std::string shape_name = create_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
-    CCellFaces& faces = *region.get_child<CCellFaces>(shape_name);
+    CCellFaces& faces = *region.get_child_ptr<CCellFaces>(shape_name);
     
     CFaceCellConnectivity&  f2c = faces.cell_connectivity();
-    CList<Uint>&            fnb = *f2c.get_child<CList<Uint> > ("face_number");
+    CList<Uint>&            fnb = *f2c.get_child_ptr<CList<Uint> > ("face_number");
     cf_assert(f2c.size() == fnb.size());
     cf_assert(fnb.size() == faces.size());
     

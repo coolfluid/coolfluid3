@@ -43,7 +43,7 @@ namespace Common {
     typename LIB::Ptr get_library ()
     {
       const std::string lname = LIB::library_namespace(); //instead of LIB::type_name();
-      typename LIB::Ptr lib = get_child<LIB>(lname);
+      typename LIB::Ptr lib = get_child_ptr<LIB>(lname);
       if ( lib == nullptr )
       {
         CF::TypeInfo::instance().regist< LIB >( lname );

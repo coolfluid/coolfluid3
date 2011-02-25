@@ -81,7 +81,7 @@ template<>
 struct NodeVarData< Field<Real> >
 {
   NodeVarData(const Field<Real>& placeholder, Mesh::CRegion& region) :
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child<Mesh::CField2>(placeholder.field_name) ),
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr<Mesh::CField2>(placeholder.field_name) ),
     m_data( m_field.data() )
   {
     m_var_begin = m_field.var_index(placeholder.var_name);
@@ -113,7 +113,7 @@ template<>
 struct NodeVarData< ConstField<Real> >
 {
   NodeVarData(const ConstField<Real>& placeholder, Mesh::CRegion& region) :
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child<Mesh::CField2>(placeholder.field_name) ),
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr<Mesh::CField2>(placeholder.field_name) ),
     m_data( m_field.data() )
   {
     m_var_begin = m_field.var_index(placeholder.var_name);
@@ -150,7 +150,7 @@ struct NodeVarData<VectorField, Dim>
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
   NodeVarData(const VectorField& placeholder, Mesh::CRegion& region) :
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child<Mesh::CField2>(placeholder.field_name) ),
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr<Mesh::CField2>(placeholder.field_name) ),
     m_data( m_field.data() )
   {
     m_var_begin = m_field.var_index(placeholder.var_name);

@@ -59,13 +59,13 @@ public:
   /// Returns a reference to the region that we want to run an expression for
   Mesh::CRegion& root_region()
   {
-    return *look_component<Mesh::CRegion>(m_region_path.lock()->value_str());
+    return *access_component<Mesh::CRegion>(m_region_path.lock()->value_str());
   }
   
   /// Returns a reference to the region that we want to run an expression for
   const Mesh::CRegion& root_region() const
   {
-    return *look_component<Mesh::CRegion>(m_region_path.lock()->value_str());
+    return *access_component<Mesh::CRegion>(m_region_path.lock()->value_str());
   }
   
   virtual StringsT variable_names() const
@@ -104,7 +104,7 @@ public:
     {
       if(unique_fields.insert(fd_name).second)
       {
-        const Uint nb_field_rows = mesh.get_child<Mesh::CField2>(fd_name)->data().size();
+        const Uint nb_field_rows = mesh.get_child_ptr<Mesh::CField2>(fd_name)->data().size();
         for(Uint i = 0; i != nb_vars; ++i)
         {
           if(fd_names[i] == fd_name)
@@ -143,7 +143,7 @@ public:
       std::vector<Mesh::CField2::VarType> fd_var_types;
       
       // Check if the field exists
-      Mesh::CField2::ConstPtr existing_field = mesh.get_child<Mesh::CField2>(fd_name);
+      Mesh::CField2::ConstPtr existing_field = mesh.get_child_ptr<Mesh::CField2>(fd_name);
       
       Uint var_idx = 0;
       for(Uint i = 0; i != nb_fd_vars; ++i)

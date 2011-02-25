@@ -65,7 +65,7 @@ struct rotationadv2d_global_fixture
 struct rotationadv2d_local_fixture
 {
   rotationadv2d_local_fixture() :
-    model  ( * Core::instance().root()->get_child("mymodel")->as_ptr<CModel>() ),
+    model  ( * Core::instance().root()->get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
   {}
@@ -117,7 +117,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 
   domain.signal_load_mesh( frame );
 
-  BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
+  BOOST_CHECK_NE( domain.count_children(), (Uint) 0);
 
 #ifdef BUBBLE // enrich the mesh with bubble functions
   CMeshTransformer::Ptr enricher =
@@ -167,7 +167,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   cf_assert( is_not_null(inletbc) );
 
-  inletbc->get_child("action")->
+  inletbc->get_child_ptr("action")->
       configure_property("Function", std::string("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)") );
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;

@@ -16,7 +16,7 @@ using namespace CF::Common;
 // 
 // OptionComponent::OptionComponent(const std::string & name, const std::string & desc,
 //                      const URI & def) :
-//   Option(name, desc, linked_type(Core::instance().root()->look_component(def)))
+//   Option(name, desc, linked_type(Core::instance().root()->access_component_ptr(def)))
 // {
 //   TypeInfo::instance().regist<linked_type>("value_type");
 //   
@@ -43,7 +43,7 @@ using namespace CF::Common;
 //   else
 //     throw XmlError(FromHere(), "Could not find a value for this option.");
 // 
-//   m_value = linked_type(Core::instance().root()->look_component(val));
+//   m_value = linked_type(Core::instance().root()->access_component_ptr(val));
 // }
 // 
 // //////////////////////////////////////////////////////////////////////////////
@@ -58,7 +58,7 @@ using namespace CF::Common;
 //     linked_type* cv = static_cast<linked_type*>(v);
 //     CF_DEBUG_POINT;
 //     
-//     *cv = linked_type(Core::instance().root()->look_component(boost::any_cast<URI>(val)));
+//     *cv = linked_type(Core::instance().root()->access_component_ptr(boost::any_cast<URI>(val)));
 //   }
 //   CF_DEBUG_POINT;
 //   

@@ -20,14 +20,9 @@
 #  * fields
 #     * base fields on other fields defined by analytical functions
 #     * update() function that can be used to trigger dependent fields for update
-#  * remove get_child<> function
-#  * add as_ptr_checked<>
-#  * ass as_type<> that returns ref
-#  * renamed look_component to look_component_ptr
-#  * add look_component_ptr_checked
-#  * remove look_component<> to look_component_ptr()->as_ptr<>
-#  * look_component returns ref
-#
+#  * component browsing
+#     * remove get_child_ptr<> function to get_child_ptr()->as_ptr<>
+#     * remove access_component<> to access_component_ptr()->as_ptr<>
 #
 ##############################################################################
 

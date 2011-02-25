@@ -73,7 +73,7 @@ void WriteMesh::update_list_of_available_writers()
   {
     CMeshWriter::Ptr writer;
 
-    Component::Ptr comp = get_child(bdr.name());
+    Component::Ptr comp = get_child_ptr(bdr.name());
     if( is_null(comp) )
       comp = bdr.build(bdr.name());
 
@@ -134,7 +134,7 @@ void WriteMesh::signal_write_mesh ( Common::Signal::arg_t& node )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Mesh, expecting a \'cpath\' but got \'" + mesh_uri.string() +"\'");
 
   // get the domain
-  CMesh::Ptr mesh = look_component<CMesh>( mesh_uri );
+  CMesh::Ptr mesh = access_component_ptr<CMesh>( mesh_uri );
 
   std::string file = options.get_option<std::string>("File");
 
