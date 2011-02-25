@@ -16,6 +16,7 @@
 #include <QHBoxLayout>
 
 #include "qwt/qwt_polygon.h"
+
 #include "GUI/Client/UI/GraphOption.hpp"
 
 class QLabel;
@@ -54,7 +55,7 @@ public: //function
   /// Erase existing data and put the new one on the current graph.
   /// @param fcts The new data in a 2d vector.
   /// @param fct_label Label of each data set.
-  void set_xy_data(std::vector< std::vector<double> > & fcts,
+  void set_xy_data(ClientCore::NPlotXY::PlotDataPtr & fcts,
                    std::vector<QString> & fct_label);
 
 private: //function

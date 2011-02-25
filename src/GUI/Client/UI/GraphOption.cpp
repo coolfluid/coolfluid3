@@ -24,6 +24,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+using namespace CF::GUI::ClientCore;
+
+////////////////////////////////////////////////////////////////////////////////
+
 namespace CF {
 namespace GUI {
 namespace ClientUI {
@@ -31,7 +35,7 @@ namespace ClientUI {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-  GraphOption::GraphOption(std::vector< std::vector<double> > & fcts,
+  GraphOption::GraphOption(NPlotXY::PlotDataPtr & fcts,
                            std::vector<QString> & fcts_label,
                            QwtPlot * ptr_plot,QWidget *parent) :
   //
@@ -142,6 +146,8 @@ namespace ClientUI {
 
     m_ptr_plot->clear(); //detache all curve and clear the legend
 
+    NPlotXY::PlotData& plot_data = *m_fcts;
+
     for(int i = 0; i < m_line_table->rowCount(); ++i ){
 
       if(((QCheckBox *)m_line_table->cellWidget(i,0))->isChecked()){
@@ -154,14 +160,31 @@ namespace ClientUI {
         new_curve->setStyle((QwtPlotCurve::CurveStyle)
                             (((QComboBox *)m_line_table->cellWidget(i,4))->
                              currentIndex()+1));
-        new_curve->setData(&m_fcts[((QComboBox *)m_line_table->cellWidget(i,1))->
-                                   currentIndex()][0],
-                           &m_fcts[((QComboBox *)m_line_table->cellWidget(i,2))->
-                                   currentIndex()][0],
-                           std::min(m_fcts[((QComboBox *)m_line_table->cellWidget(i,1))->
-                                           currentIndex()].size(),
-                                    m_fcts[((QComboBox *)m_line_table->cellWidget(i,2))->
-                                           currentIndex()].size()));
+
+        /// @warning not tested may crash
+
+        int curr_index1 =((QComboBox *)m_line_table->cellWidget(i,1))->currentIndex();
+        int curr_index2 =((QComboBox *)m_line_table->cellWidget(i,2))->currentIndex();
+        int nb_rows = 1000;
+        double * x = plot_data[curr_index1 * nb_rows].origin();
+//        double * y = plot_data[curr_index2 * nb_rows].origin();
+
+        qDebug()
+            << plot_data.shape()[0]
+            << plot_data.shape()[1]
+            << plot_data.shape()[2]
+            << plot_data.shape()[3]
+            << plot_data.shape()[4]
+            << plot_data.shape()[5]
+            << plot_data.shape()[6]
+            << plot_data.shape()[7];
+
+        /*new_curve->setData(x, y, nb_rows/*,
+                           std::min(plot_data.shape()[((QComboBox *)m_line_table->cellWidget(i,1))
+                                                      ->currentIndex()],
+                                    plot_data.shape()[((QComboBox *)m_line_table->cellWidget(i,2))
+                                                      ->currentIndex()])*);*/
+
         new_curve->attach(m_ptr_plot);
       }
 
@@ -183,7 +206,7 @@ namespace ClientUI {
 
   }
 
-  void GraphOption::set_data(std::vector< std::vector<double> > & fcts,std::vector<QString> & fcts_label){
+  void GraphOption::set_data(NPlotXY::PlotDataPtr & fcts,std::vector<QString> & fcts_label){
 
     //saving user's function
     std::vector<QString> user_fct_name;
@@ -237,14 +260,14 @@ namespace ClientUI {
       m_data_table->setCellWidget(m_data_table->rowCount()-1,0,new QLabel("#"));
       m_data_table->setCellWidget(m_data_table->rowCount()-1,1,new QLabel());
 
-      std::vector<double> vector_temp(fcts[0].size());
+//      std::vector<double> vector_temp(fcts[0].size());
 
-      for(int i=0;i<fcts[0].size();++i)
-      {
-        vector_temp[i] = i;
-      }
+//      for(int i=0;i<fcts[0].size();++i)
+//      {
+//        vector_temp[i] = i;
+//      }
 
-      m_fcts.push_back(vector_temp);
+//      m_fcts.push_back(vector_temp);
     }
 
 
@@ -277,6 +300,7 @@ namespace ClientUI {
   {
 
     //adding new function to the function set
+/*=========================================================
     m_fcts.push_back(fct);
 
     //adding one row
@@ -292,6 +316,7 @@ namespace ClientUI {
       ((QComboBox *)m_line_table->cellWidget(i,1))->addItem(function_name);
       ((QComboBox *)m_line_table->cellWidget(i,2))->addItem(function_name);
     }
+==========================================================*/
   }
 
   void  GraphOption::generate_function(){
@@ -310,8 +335,9 @@ namespace ClientUI {
       return;
     }
 
-    //check if the function name already exist
-    for(int i=0; i < m_fcts.size(); ++i){
+    //check if the function name already exists
+
+    for(int i=0; i < m_data_table->rowCount(); ++i){
       if((((QLabel *)m_data_table->cellWidget(i,0))->text()) == name){
         ClientCore::NLog::globalLog()->addError("The function name already exist.");
         button_generate_function->setEnabled(true);
@@ -323,7 +349,7 @@ namespace ClientUI {
 
     //get all fct name separated by ','
     QString variable = "";
-    for(int i=0; i < m_fcts.size(); ++i){
+    for(int i=0; i < m_data_table->rowCount(); ++i){
       if(!(((QLabel *)m_data_table->cellWidget(i,0))->text()).isEmpty()){
         if(!variable.isEmpty()){
           variable += ",";
@@ -343,30 +369,32 @@ namespace ClientUI {
     }
 
     //<to remove>
-    int max_it = 0;
-    if(m_fcts.size()>0)
-    {
-      max_it = m_fcts[0].size();
-      for(int i=1;i<m_fcts.size();++i)
-      {
-        max_it = std::min((int)max_it,(int)m_fcts[i].size());
-      }
-    }else{
-      ClientCore::NLog::globalLog()->addError("The function is not recognized.");
-      button_generate_function->setEnabled(true);
-      return;
-    }
+
+    int max_it = 1000;
+
+//    if(m_fcts.size()>0)
+//    {
+//      max_it = m_fcts[0].size();
+//      for(int i=1;i<m_fcts.size();++i)
+//      {
+//        max_it = std::min((int)max_it,(int)m_fcts[i].size());
+//      }
+//    }else{
+//      ClientCore::NLog::globalLog()->addError("The function is not recognized.");
+//      button_generate_function->setEnabled(true);
+//      return;
+//    }
     //</to remove>
 
     //generate the new function's data
     std::vector<double> vector_temp(max_it);
 
-    double vals[m_fcts.size()];
+    double vals[m_data_table->rowCount()];
     for(int i=0;i<max_it;++i)
     {
-      for(int j=0;j<m_fcts.size();++j)
+      for(int j=0;j<m_data_table->rowCount();++j)
       {
-        vals[j] = m_fcts[j][i];
+        vals[j] = (*m_fcts)[j][i];
       }
       vector_temp[i] = fparser.Eval(vals);
     }

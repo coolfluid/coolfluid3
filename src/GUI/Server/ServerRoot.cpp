@@ -91,10 +91,10 @@ CRoot::Ptr ServerRoot::root()
 
     CTable<Real>::Ptr table = tools->create_component< CTable<Real> >("MyTable");
     table->set_row_size(8); // reserve 8 columns
-    CTable<Real>::Buffer buffer = table->create_buffer();
+    CTable<Real>::Buffer buffer = table->create_buffer(8000);
 
     table->mark_basic();
-    plotter->add_data_set( table->full_path() );
+    plotter->set_data_set( table->full_path() );
 
     // fill the table
     std::vector<Real> row(8);
@@ -112,6 +112,8 @@ CRoot::Ptr ServerRoot::root()
 
       buffer.add_row( row );
     }
+
+    buffer.flush();
 
   }
 

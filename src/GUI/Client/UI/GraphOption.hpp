@@ -11,7 +11,9 @@
 #include <QTableWidget>
 #include <QPushButton>
 
-#include <qwt/qwt_plot.h>
+#include "qwt/qwt_plot.h"
+
+#include "GUI/Client/Core/NPlotXY.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +22,6 @@ namespace GUI {
 namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
-
 
 class GraphOption : public QWidget
 {
@@ -32,7 +33,7 @@ public: //functions
     /// @param fcts_label Name of functions.
     /// @param ptr_plot Pointer of the QwtPlot where we draw functions.
     /// @param parent The QWidget of this QWidget.
-    GraphOption(std::vector< std::vector<double> > & fcts,
+    GraphOption(ClientCore::NPlotXY::PlotDataPtr & fcts,
                 std::vector<QString> & fcts_label,
                 QwtPlot * ptr_plot,
                 QWidget *parent = 0);
@@ -40,7 +41,7 @@ public: //functions
     /// Set the data to show in the option tab.
     /// @param fcts Data of functions.
     /// @param fcts_label Name of functions.
-    void set_data(std::vector< std::vector<double> > & fcts,std::vector<QString> & fcts_label);
+    void set_data(ClientCore::NPlotXY::PlotDataPtr & fcts,std::vector<QString> & fcts_label);
 
     /// Add a function in the function set with it name and formula.
     /// @param fct Data of the function.
@@ -60,7 +61,7 @@ private: //datas
   QwtPlot * m_ptr_plot;
 
   /// The curves data.
-  std::vector< std::vector<double> > m_fcts;
+  ClientCore::NPlotXY::PlotDataPtr m_fcts;
 
   /// User function's formula  line input.
   QLineEdit * m_line_function;

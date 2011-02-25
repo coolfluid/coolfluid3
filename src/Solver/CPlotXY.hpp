@@ -9,7 +9,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
+#include "Mesh/CTable.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -43,9 +43,6 @@ public:
 
     void convergence_history( Common::Signal::arg_t & args );
 
-    /// @param points Number of points to compute.
-    void sine (int points);
-
   private: // data
 
     std::vector<Real> m_x_axis;
@@ -53,6 +50,8 @@ public:
     std::vector<Real> m_y_axis;
 
     int m_num_it;
+
+    Mesh::CTable<Real>::Ptr m_data;
 
 }; // CPlotXY
 

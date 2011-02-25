@@ -66,6 +66,7 @@ void CPlotter::signal_create_xyplot(Signal::arg_t &args)
   CPlotXY::Ptr plot(new CPlotXY(name));
   parent_comp->add_component( plot );
   plot->mark_basic();
+  plot->set_data(m_data);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,15 +81,12 @@ void CPlotter::signature_create_xyplot(Signal::arg_t &args)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CPlotter::add_data_set(const URI &uri)
+void CPlotter::set_data_set(const URI &uri)
 {
   cf_assert ( !uri.empty() );
   cf_assert ( uri.scheme() == URI::Scheme::CPATH );
 
-  if( std::find(m_data_sets.begin(), m_data_sets.end(), uri.path()) != m_data_sets.end() )
-    throw BadValue(FromHere(), uri.string() + ": is already known as a data set.");
-
-  m_data_sets.push_back(uri.path());
+  m_data = uri;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

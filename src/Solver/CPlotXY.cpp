@@ -59,36 +59,34 @@ CPlotXY::~CPlotXY()
 
 void CPlotXY::convergence_history( Signal::arg_t & args )
 {
-  SignalFrame reply = args.create_reply( full_path() );
-  SignalFrame& options = reply.map( Protocol::Tags::key_options() );
+  if( is_not_null(m_data.get()) )
+  {
+    SignalFrame reply = args.create_reply( full_path() );
+    SignalFrame& options = reply.map( Protocol::Tags::key_options() );
+    std::vector<Real> data(8000);
+    CTable<Real>& table = *m_data.get();
 
-  sine(m_num_it);
+    for(Uint row = 0 ; row < 1000 ; ++row)
+    {
+      for(Uint col = 0 ; col < 8 ; ++col)
+        data[ (row * 8) + col ] = table[row][col];
+    }
 
-  options.set_array("x_axis", m_x_axis, " ; ");
-  options.set_array("y_axis", m_y_axis, " ; ");
+    XmlNode node = options.set_array("Table", data, " ; ");
+
+    node.set_attribute("dimensions", "8");
+  }
+  else
+    CFwarn << "No convergence history found." << CFendl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CPlotXY::sine(int points)
-{
-  m_x_axis = std::vector<double>(points);
-  m_y_axis = std::vector<double>(points);
-
-  for (double x = 0; x < points; ++x)
-  {
-    m_x_axis[x] = x; // x between 0 and points
-    m_y_axis[x] = (std::sin(x/(points/10)) * 20); // y between 20 and -20
-  }
-
-  m_num_it += m_num_it;
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-
 void CPlotXY::set_data(const URI &uri)
 {
+  cf_assert( !m_root.expired() );
 
+  m_data = m_root.lock()->look_component< CTable<Real> >(uri);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

@@ -196,9 +196,9 @@ namespace ClientUI {
     layout_zoom->addLayout(layout_zoom_option);
     layout_zoom->addWidget(m_button_set_scale);
 
-    std::vector< std::vector<double> > vector_temp(0);
+    NPlotXY::PlotDataPtr plot_data( new NPlotXY::PlotData() );
     std::vector<QString> vector_temp2(0);
-    graph_option = new GraphOption(vector_temp,vector_temp2,m_plot);
+    graph_option = new GraphOption(plot_data,vector_temp2,m_plot);
 
     layout_option->addWidget(graph_option);
 
@@ -214,7 +214,7 @@ namespace ClientUI {
 
     ////Connection Boost
 
-    CHistoryNotifier::instance().notify_history.connect(
+    NPlotXYNotifier::instance().notify_history.connect(
         boost::bind(&Graph::set_xy_data, this, _1, _2) );
 
   }
@@ -345,7 +345,7 @@ namespace ClientUI {
     show_info();
   }
 
-  void Graph::set_xy_data(std::vector< std::vector<double> > & fcts,
+  void Graph::set_xy_data(NPlotXY::PlotDataPtr & fcts,
                           std::vector<QString> & fct_label){
 
     cf_assert( is_not_null(m_plot) );
