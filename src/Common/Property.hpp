@@ -76,17 +76,7 @@ namespace Common {
     virtual const char * tag() const;
 
     /// @returns the value as a sd::string
-    virtual std::string value_str () const
-    {
-      try
-      {
-        return boost::any_cast<std::string>(m_value);
-      }
-      catch(boost::bad_any_cast& e)
-      {
-        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+class_name<std::string>());
-      }
-    }
+    virtual std::string value_str () const;
 
     //@} END VIRTUAL FUNCTIONS
 

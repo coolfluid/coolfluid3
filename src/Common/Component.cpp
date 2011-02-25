@@ -717,11 +717,12 @@ template<typename TYPE>
 void add_prop_to_xml(Map & map, const std::string & name,
                      boost::shared_ptr<Property> prop)
 {
-  XmlNode value_node = map.set_value( name, prop->value<TYPE>() );
 
   if( prop->is_option() )
   {
     Option & opt = prop->as_option();
+    XmlNode value_node = map.set_value( name, opt.value<TYPE>() );
+    
     bool basic = opt.has_tag("basic");
     std::string desc = opt.description();
 
@@ -749,6 +750,10 @@ void add_prop_to_xml(Map & map, const std::string & name,
       for( ; it != prots.end() ; it++)
         value_node.set_attribute( Protocol::Tags::attr_uri_protocols(), URI::Scheme::Convert::instance().to_str(*it));
     }
+  }
+  else
+  {
+    map.set_value( name, prop->value<TYPE>() );
   }
 }
 
