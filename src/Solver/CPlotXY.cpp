@@ -86,7 +86,7 @@ void CPlotXY::set_data(const URI &uri)
 {
   cf_assert( !m_root.expired() );
 
-  m_data = m_root.lock()->look_component< CTable<Real> >(uri);
+  m_data = m_root.lock()->access_component(uri).as_ptr< CTable<Real> >();
 }
 
 /////////////////////////////////////////////////////////////////////////////////
