@@ -441,7 +441,7 @@ Component::ConstPtr Component::access_component_ptr ( const URI& path ) const
     complete_path(lpath); // ensure the path is complete
 
     // get the component from the root
-    Component::Ptr comp = m_root.lock()->access_component_ptr(lpath);
+    Component::Ptr comp = m_root.lock()->retrieve_component(lpath);
     cf_assert( is_not_null(comp) );
     return comp;
   }
@@ -487,7 +487,7 @@ Component::Ptr Component::access_component_ptr ( const URI& path )
     complete_path(lpath); // ensure the path is complete
 
     // get the component from the root
-    Component::Ptr comp = m_root.lock()->access_component_ptr(lpath);
+    Component::Ptr comp = m_root.lock()->retrieve_component(lpath);
     cf_assert( is_not_null(comp) );
     return comp;
   }

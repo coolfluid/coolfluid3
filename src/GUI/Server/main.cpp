@@ -23,7 +23,6 @@
 #include "GUI/Server/SimulationWorker.hpp"
 
 #include "Common/Core.hpp"
-#include "Common/DirPaths.hpp"
 
 #define CF_NO_TRACE
 
