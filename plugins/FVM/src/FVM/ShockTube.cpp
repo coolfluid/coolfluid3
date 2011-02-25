@@ -48,13 +48,14 @@ using namespace CF::Mesh::Actions;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 
-Common::ComponentBuilder < ShockTube, Component, LibFVM > ShockTube_Builder;
+Common::ComponentBuilder < ShockTube, CWizard, LibFVM > ShockTube_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 ShockTube::ShockTube ( const std::string& name  ) :
-  Component ( name )
+  CWizard ( name )
 {
+  add_tag(LibFVM::library_namespace());
   std::string brief;
   std::string description;
   brief       += "This wizard creates and sets up a finite volume 1D shocktube problem.\n";

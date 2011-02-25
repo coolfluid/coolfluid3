@@ -33,6 +33,7 @@ CIterate::CIterate( const std::string& name  ) :
   m_iter(0),
   m_max_iter(Uint_max())
 {
+  mark_basic();
   properties()["brief"] = std::string("Iterator object");
   std::string description =
   "This object handles iterations\n"

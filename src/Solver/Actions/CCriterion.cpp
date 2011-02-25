@@ -17,6 +17,7 @@ using namespace Common;
 CCriterion::CCriterion( const std::string& name  ) :
   Component ( name )
 {
+  mark_basic();
   properties()["brief"] = std::string("Criterion object");
   std::string description =
   "This object handles implements the round bracket operator and returns\n"

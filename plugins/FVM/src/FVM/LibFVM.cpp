@@ -24,8 +24,7 @@ void LibFVM::initiate()
 {
   Core::instance().root()
       ->get_child_ptr("Tools")
-      ->create_component<FVM::ShockTube>( "wizard_shocktube" )
-      ->mark_basic();
+      ->create_component<FVM::ShockTube>( "wizard_shocktube" );
 }
 
 void LibFVM::terminate()

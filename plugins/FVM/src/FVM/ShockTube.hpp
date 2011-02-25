@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
-
+#include "Solver/CWizard.hpp"
 #include "FVM/LibFVM.hpp"
 
 namespace CF {
@@ -20,7 +20,7 @@ namespace FVM {
 
 /// Wizard to setup a 1D Euler shocktube simulation
 /// @author Willem Deconinck
-class FVM_API ShockTube : public Common::Component {
+class FVM_API ShockTube : public Solver::CWizard {
 
 public: // typedefs
 
@@ -39,6 +39,8 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "ShockTube"; }
 
+  virtual std::string wizard_name() { return "shocktube_wizard"; }
+  
   // functions specific to the ShockTube component
 
   /// @name SIGNALS

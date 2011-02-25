@@ -41,8 +41,10 @@ public:
   typedef boost::shared_ptr<LibFVM const> ConstPtr;
 
   /// Constructor
-  LibFVM ( const std::string& name) : Common::CLibrary(name) {   }
+  LibFVM ( const std::string& name) : Common::CLibrary(name) { }
 
+  virtual ~LibFVM() { }
+  
 public: // functions
 
   /// @return string of the library namespace
@@ -59,7 +61,7 @@ public: // functions
 
   static std::string library_description()
   {
-    return "This library implements a Residual Distribution Solver.";
+    return "This library implements components to construct a Finite Volume Solver.";
   }
 
   /// Gets the Class name

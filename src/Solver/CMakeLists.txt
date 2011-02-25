@@ -23,6 +23,8 @@ list( APPEND coolfluid_solver_files
   CPlotter.hpp
   CPlotXY.cpp
   CPlotXY.hpp
+  CWizard.hpp
+  CWizard.cpp
   LibSolver.hpp
   LibSolver.cpp
 )
