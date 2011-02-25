@@ -10,6 +10,8 @@
 
 #include <QTableWidget>
 #include <QPushButton>
+#include <QComboBox>
+#include <QDebug>
 
 #include "qwt/qwt_plot.h"
 
@@ -23,11 +25,15 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief This class is used to set visuals options, generate functions and
+///  set the curve to draw.
+/// @author Wertz Gil
 class GraphOption : public QWidget
 {
     Q_OBJECT
 public: //functions
 
+    //!\ => multi Array
     /// constructor
     /// @param fcts Data of functions.
     /// @param fcts_label Name of functions.
@@ -38,11 +44,13 @@ public: //functions
                 QwtPlot * ptr_plot,
                 QWidget *parent = 0);
 
+    //!\ => multi Array
     /// Set the data to show in the option tab.
     /// @param fcts Data of functions.
     /// @param fcts_label Name of functions.
     void set_data(ClientCore::NPlotXY::PlotDataPtr & fcts,std::vector<QString> & fcts_label);
 
+    //!\ => multi Array
     /// Add a function in the function set with it name and formula.
     /// @param fct Data of the function.
     /// @param function_name Name of the function.
@@ -60,6 +68,7 @@ private: //datas
   /// QwtPlot pointer, refer to the plot where we draw cures.
   QwtPlot * m_ptr_plot;
 
+  //!\ => multi Array
   /// The curves data.
   ClientCore::NPlotXY::PlotDataPtr m_fcts;
 
@@ -81,6 +90,8 @@ private: //datas
   /// Draw line button.
   QPushButton * button_draw;
 
+  bool m_can_draw;
+
 private slots: //functions - slots
 
     /// Function that user inserted QString to make a function.
@@ -98,10 +109,12 @@ private slots: //functions - slots
 
     /// Set the color to each line selected and redraw curve(s).
     /// @param color The selected color.
-    void color_changed(QColor color);
+    /// @param raw The row where the widget is stored.
+    void color_changed(QColor color,int raw);
 
     /// Set the curve style to each line selected and redraw curve(s).
     /// @param current_index Index of the curve style.
+    /// @param raw The row where the widget is stored.
     void line_type_changed(int current_index);
 
     /// Draw curves according to the data and options, and set axis auto scale.

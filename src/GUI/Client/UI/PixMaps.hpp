@@ -4,9 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+
+
 #ifndef CF_GUI_Client_UI_PixMaps_hpp
 #define CF_GUI_Client_UI_PixMaps_hpp
 
+//represent print icone
 static const char *print_xpm[]={
 "32 32 12 1",
 "a c #ffffff",
@@ -55,6 +58,7 @@ static const char *print_xpm[]={
 "..................###..........."};
 
 
+//represent zoom icone
 static const char *zoom_xpm[]={
 "32 32 8 1",
 "# c #000000",

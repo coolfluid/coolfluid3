@@ -4,23 +4,25 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-
 #ifndef CF_GUI_Client_UI_Graph_hpp
 #define CF_GUI_Client_UI_Graph_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Qt header
 #include <QWidget>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
 
+// Qwt header
 #include "qwt/qwt_polygon.h"
 
+// header
 #include "GUI/Client/UI/GraphOption.hpp"
 
+// forward declaration to avoid incuding files
 class QLabel;
-
 class QwtPlotZoomer;
 class QwtPlotPicker;
 class QwtPlotPanner;
@@ -35,6 +37,8 @@ namespace ClientUI {
 
 class BodePlot;
 
+/// @brief This old the XY graph and the options graph.
+/// @author Wertz Gil
 class Graph: public QWidget
 {
   Q_OBJECT

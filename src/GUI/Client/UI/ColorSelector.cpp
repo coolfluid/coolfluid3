@@ -4,13 +4,24 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+// Qt header
 #include <QColorDialog>
 
+//header
 #include "ColorSelector.hpp"
 
-ColorSelector::ColorSelector(QWidget * parent )
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+////////////////////////////////////////////////////////////////////////////////
+
+ColorSelector::ColorSelector(int raw,QWidget * parent )
         :QLabel(parent)
 {
+    this->m_raw = raw;
     this->setText("color");
 }
 
@@ -34,7 +45,7 @@ void ColorSelector::set_color()
   labelTemp += ")";
   this->setText(labelTemp);
 
-  emit valueChanged(m_color);
+  emit valueChanged(m_color,m_raw);
 }
 
 
@@ -67,3 +78,9 @@ void ColorSelector::mousePressEvent ( QMouseEvent * event )
 QColor ColorSelector::get_color(){
     return m_color;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

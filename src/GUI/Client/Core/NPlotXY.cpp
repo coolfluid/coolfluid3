@@ -47,24 +47,42 @@ void NPlotXY::convergence_history ( Signal::arg_t& node )
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
-  typedef boost::multi_array<double, 2> m_array_t;
+
   int nbRows = 1000;
   int nbCols = 8;
+
+
+  std::vector<QString> fct_label(9);
+
+  fct_label[0] = "#";
+  fct_label[1] = "x";
+  fct_label[2] = "y";
+  fct_label[3] = "z";
+  fct_label[4] = "u";
+  fct_label[5] = "v";
+  fct_label[6] = "w";
+  fct_label[7] = "p";
+  fct_label[8] = "t";
 
   std::vector<Real> data = options.get_array<Real>("Table");
 
   // Store last dimension, then first, then middle
-  m_array_t::size_type ordering[] = {0,1};
+  PlotData::size_type ordering[] = {0,1};
   // Store the first dimension(dimension 0) in descending order
   bool ascending[] = {true,true};
 
-  m_array_t plot( boost::extents[nbRows][nbCols],
-                  boost::general_storage_order<2>(ordering, ascending) );
+  PlotDataPtr plot( new PlotData(boost::extents[nbRows][nbCols+1],
+                  boost::general_storage_order<2>(ordering, ascending)) );
+
+  for(PlotData::index row = 0;row<nbRows;++row)
+  {
+    (*plot)[row][0] = row;
+  }
 
   for(PlotData::index row = 0; row != nbRows; ++row)
   {
     for(PlotData::index col = 0; col != nbCols; ++col)
-      plot[row][col] = data[(row * nbCols) + col];
+      (*plot)[row][col+1] = data[(row * nbCols) + col];
   }
 
 //  for(int row = 0; row < nbRows; ++row)
@@ -81,7 +99,7 @@ void NPlotXY::convergence_history ( Signal::arg_t& node )
 //    plot[row][6] = 7000 + row ;
 //    plot[row][7] = 8000 + row ;
 //  }
-
+/*
   for (int x = 0; x < nbRows; ++x)
   {
     for (int y = 0; y < nbCols; ++y)
@@ -93,18 +111,18 @@ void NPlotXY::convergence_history ( Signal::arg_t& node )
   }
 
   std::cout << std::endl << std::endl;
-
+*/
   //+++++++++++++++++++++++++++++++++++++++++++++++
-
+/*
   std::cout << "Number of lines: " << plot.size() << std::endl;
 
   for (int x = 0; x < plot.size(); ++x)
   {
     std::cout << "Number of columns for array " << x << ": " << plot[x].size() << std::endl ;
   }
-
+*/
   //+++++++++++++++++++++++++++++++++++++++++++++++
-
+/*
   std::cout << std::endl << std::endl;
 
   double * x = &plot[0][0];
@@ -127,7 +145,7 @@ void NPlotXY::convergence_history ( Signal::arg_t& node )
 
   }
   std::cout << std::endl << std::endl;
-
+*/
 /***********
 
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
@@ -239,8 +257,9 @@ void NPlotXY::convergence_history ( Signal::arg_t& node )
 //  fcts[0] = table;
 //  fcts[1] = y_axis;
 
-  /*NPlotXYNotifier::instance().notify_history(plot ,fct_label);
+  NPlotXYNotifier::instance().notify_history(plot ,fct_label);
 
+  /*
   *
     for( int x = 0 ; x < x_axis.size() ; x++)
       NLog::globalLog()->addMessage("Avant parsing");

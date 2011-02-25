@@ -27,7 +27,6 @@
 //header
 #include "GUI/Client/Core/NPlotXY.hpp"
 #include "GUI/Client/Core/NLog.hpp"
-
 #include "GUI/Client/UI/PixMaps.hpp"
 #include "GUI/Client/UI/BodePlot.hpp"
 #include "GUI/Client/UI/Graph.hpp"
@@ -97,13 +96,13 @@ namespace ClientUI {
     QToolBar * tool_bar = new QToolBar(this);
 
     //cearte a zoom button
-
+    /*
     QToolButton * btn_zoom = new QToolButton(tool_bar);
     btn_zoom->setText("Zoom");
     btn_zoom->setIcon(QIcon(zoom_xpm));
     btn_zoom->setCheckable(true);
     btn_zoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-
+    */
 
 
     //create a SVG sae button
@@ -125,7 +124,6 @@ namespace ClientUI {
     m_line_max_y = new QLineEdit();
     m_line_max_y->setValidator(new QDoubleValidator(nullptr));
     m_button_set_scale = new QPushButton("Set scale");
-
 
     ////Placment and initialisation
 
@@ -166,7 +164,7 @@ namespace ClientUI {
     m_picker->setTrackerPen(QColor(Qt::black));
 
     //adding buttons to the toolbar
-    tool_bar->addWidget(btn_zoom);
+    //tool_bar->addWidget(btn_zoom);
     tool_bar->addWidget(btn_svg);
 
     //set the mouse to not be used for zoom
@@ -183,9 +181,9 @@ namespace ClientUI {
 
     layout_zoom_option_point->addWidget(new QLabel("x min"));
     layout_zoom_option_point->addWidget(m_line_min_x);
-    layout_zoom_option_point->addWidget(new QLabel("y min"));
+    layout_zoom_option_point->addWidget(new QLabel("x max"));
     layout_zoom_option_point->addWidget(m_line_max_x);
-    layout_zoom_option_size->addWidget(new QLabel("x max"));
+    layout_zoom_option_size->addWidget(new QLabel("y min"));
     layout_zoom_option_size->addWidget(m_line_min_y);
     layout_zoom_option_size->addWidget(new QLabel("y max"));
     layout_zoom_option_size->addWidget(m_line_max_y);
@@ -204,16 +202,20 @@ namespace ClientUI {
 
     ////Conncetion phase
     connect(btn_svg, SIGNAL(clicked()), SLOT(export_svg()));
-    connect(btn_zoom, SIGNAL(toggled(bool)), SLOT(enable_zoom_mode(bool)));
+    //connect(btn_zoom, SIGNAL(toggled(bool)), SLOT(enable_zoom_mode(bool)));
     connect(m_picker, SIGNAL(moved(const QPoint &)),
             SLOT(moved(const QPoint &)));
     connect(m_picker, SIGNAL(selected(const QwtPolygon &)),
             SLOT(selected(const QwtPolygon &)));
     connect(m_button_set_scale, SIGNAL(clicked()), SLOT(set_scale()));
+    connect(m_line_min_x, SIGNAL(editingFinished()), SLOT(set_scale()));
+    connect(m_line_max_x, SIGNAL(editingFinished()), SLOT(set_scale()));
+    connect(m_line_min_y, SIGNAL(editingFinished()), SLOT(set_scale()));
+    connect(m_line_max_y, SIGNAL(editingFinished()), SLOT(set_scale()));
+
 
 
     ////Connection Boost
-
     NPlotXYNotifier::instance().notify_history.connect(
         boost::bind(&Graph::set_xy_data, this, _1, _2) );
 
@@ -361,17 +363,45 @@ namespace ClientUI {
   void Graph::set_scale(){
 
     //this provide full support of double input and give coherant result
+    /*
     if(m_line_min_x->text().isEmpty() || m_line_max_x->text().isEmpty() ||
        m_line_min_y->text().isEmpty() || m_line_max_y->text().isEmpty())
     {
       ClientCore::NLog::globalLog()->addError("One or more Scale value are empty.");
       return;
     }
+    */
 
-    double x = m_line_min_x->text().toDouble();
-    double y = m_line_max_x->text().toDouble();
-    double weight = m_line_min_y->text().toDouble();
-    double height = m_line_max_y->text().toDouble();
+    double x,y,weight,height;
+
+    if(m_line_min_x->text().isEmpty())
+    {
+      x = m_plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound();
+    }else{
+      x = m_line_min_x->text().toDouble();
+    }
+
+    if(m_line_max_x->text().isEmpty())
+    {
+      weight = m_plot->axisScaleDiv(QwtPlot::xBottom)->upperBound();
+    }else{
+      weight = m_line_max_x->text().toDouble();
+    }
+
+
+    if(m_line_min_y->text().isEmpty())
+    {
+      y = m_plot->axisScaleDiv(QwtPlot::yLeft)->lowerBound();
+    }else{
+      y = m_line_min_y->text().toDouble();
+    }
+
+    if(m_line_max_y->text().isEmpty())
+    {
+      height = m_plot->axisScaleDiv(QwtPlot::yLeft)->upperBound();
+    }else{
+      height = m_line_max_y->text().toDouble();
+    }
 
     m_plot->setAxisScale(QwtPlot::xBottom,x,weight);
     m_plot->setAxisScale(QwtPlot::yLeft,y,height);

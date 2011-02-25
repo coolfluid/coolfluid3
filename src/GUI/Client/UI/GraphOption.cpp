@@ -6,7 +6,6 @@
 
 // Qt headers
 #include <QCheckBox>
-#include <QComboBox>
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QPushButton>
@@ -21,11 +20,10 @@
 #include "GUI/Client/UI/GraphOption.hpp"
 #include "GUI/Client/UI/ColorSelector.hpp"
 #include "fparser/fparser.hh"
+#include "GUI/Client/Core/NPlotXY.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
-
 using namespace CF::GUI::ClientCore;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -33,6 +31,9 @@ namespace GUI {
 namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
+//NPlotXY::PlotDataPtr & fcts
 
 
   GraphOption::GraphOption(NPlotXY::PlotDataPtr & fcts,
@@ -56,7 +57,7 @@ namespace ClientUI {
       m_line_table = new QTableWidget(0,5,this);
       //creating and initialising the data table with 2 columns
       m_data_table = new QTableWidget(0,2,this);
-      m_data_table->setFixedWidth(250);
+      m_data_table->setFixedWidth(270);
 
       //add line button
       QPushButton * button_add_line = new QPushButton("+");
@@ -89,12 +90,12 @@ namespace ClientUI {
       button_draw = new QPushButton("Draw function(s)");
 
       m_line_function_name = new QLineEdit();
-      m_line_function_name->setFixedWidth(180);
+      m_line_function_name->setFixedWidth(200);
       m_line_function = new QLineEdit();
-      m_line_function->setFixedWidth(180);
+      m_line_function->setFixedWidth(200);
 
       button_generate_function = new QPushButton("Generate Function");
-      button_generate_function->setFixedWidth(250);
+      button_generate_function->setFixedWidth(270);
 
       set_data(fcts,fcts_label);
 
@@ -142,50 +143,36 @@ namespace ClientUI {
 
   void GraphOption::draw_action(){
 
-    button_draw->setEnabled(false);
+    if(m_can_draw){
 
-    m_ptr_plot->clear(); //detache all curve and clear the legend
+      m_can_draw = false;
 
-    NPlotXY::PlotData& plot_data = *m_fcts;
+      button_draw->setEnabled(false);
 
-    for(int i = 0; i < m_line_table->rowCount(); ++i ){
+      m_ptr_plot->clear(); //detache all curve and clear the legend
 
-      if(((QCheckBox *)m_line_table->cellWidget(i,0))->isChecked()){
-        ////new curve
-        QwtPlotCurve * new_curve =
-            new QwtPlotCurve(((QComboBox *)m_line_table->cellWidget(i,2))->
-                             currentText());
-        new_curve->setPen(QPen(((ColorSelector *)m_line_table->cellWidget(i,3))->
-                               get_color()));
-        new_curve->setStyle((QwtPlotCurve::CurveStyle)
-                            (((QComboBox *)m_line_table->cellWidget(i,4))->
-                             currentIndex()+1));
+      for(int i = 0; i < m_line_table->rowCount(); ++i ){
 
-        /// @warning not tested may crash
+        if(((QCheckBox *)m_line_table->cellWidget(i,0))->isChecked()){
+          ////new curve
+          QwtPlotCurve * new_curve =
+              new QwtPlotCurve(((QComboBox *)m_line_table->cellWidget(i,2))->
+                               currentText());
 
-        int curr_index1 =((QComboBox *)m_line_table->cellWidget(i,1))->currentIndex();
-        int curr_index2 =((QComboBox *)m_line_table->cellWidget(i,2))->currentIndex();
-        int nb_rows = 1000;
-        double * x = plot_data[curr_index1 * nb_rows].origin();
-//        double * y = plot_data[curr_index2 * nb_rows].origin();
+          new_curve->setPen(QPen(((ColorSelector *)m_line_table->cellWidget(i,3))->
+                                 get_color()));
 
-        qDebug()
-            << plot_data.shape()[0]
-            << plot_data.shape()[1]
-            << plot_data.shape()[2]
-            << plot_data.shape()[3]
-            << plot_data.shape()[4]
-            << plot_data.shape()[5]
-            << plot_data.shape()[6]
-            << plot_data.shape()[7];
+          new_curve->setStyle((QwtPlotCurve::CurveStyle)
+                              (((QComboBox *)m_line_table->cellWidget(i,4))->
+                               currentIndex()+1));
 
-        /*new_curve->setData(x, y, nb_rows/*,
-                           std::min(plot_data.shape()[((QComboBox *)m_line_table->cellWidget(i,1))
-                                                      ->currentIndex()],
-                                    plot_data.shape()[((QComboBox *)m_line_table->cellWidget(i,2))
-                                                      ->currentIndex()])*);*/
+          new_curve->setData(&(*m_fcts)[0][((QComboBox *)m_line_table->cellWidget(i,1))->
+                                     currentIndex()],
+                             &(*m_fcts)[0][((QComboBox *)m_line_table->cellWidget(i,2))->
+                                     currentIndex()],
+                             m_fcts->size());
 
-        new_curve->attach(m_ptr_plot);
+          new_curve->attach(m_ptr_plot);
       }
 
     }
@@ -194,6 +181,9 @@ namespace ClientUI {
 
     button_draw->setEnabled(true);
 
+    m_can_draw = true;
+
+    }
   }
 
   void GraphOption::draw_and_resize(){
@@ -206,7 +196,10 @@ namespace ClientUI {
 
   }
 
-  void GraphOption::set_data(NPlotXY::PlotDataPtr & fcts,std::vector<QString> & fcts_label){
+  void GraphOption::set_data(ClientCore::NPlotXY::PlotDataPtr & fcts,
+                             std::vector<QString> & fcts_label){
+
+    m_can_draw = false;
 
     //saving user's function
     std::vector<QString> user_fct_name;
@@ -220,26 +213,41 @@ namespace ClientUI {
         user_fct_fct.push_back(((QLabel *)m_data_table->cellWidget(i,1))->text());
       }
     }
-    //
-/*
+
+    //clear functions
+    //m_fcts.clear();
+    m_fcts = fcts;
+
+    //add # function
+
+    m_data_table->setRowCount(fcts_label.size());
+
+    /*
     if(fcts_label.size()>0){
       m_data_table->setRowCount(fcts_label.size()+1);//because of the #
       m_data_table->setCellWidget(0,0,new QLabel("#"));
       m_data_table->setCellWidget(0,1,new QLabel());
-      m_fcts.clear();
-      generate_base_function(fcts[0].size());
-      m_fcts.push_back(m_base_function);
-      for(int i = 0; i < fcts_label.size(); ++i )
-      {
-        m_fcts.push_back(fcts[i-1]);
-      }
-    }else{
-    */
-      m_fcts = fcts;
 
-      //adding row for eatch data
-      m_data_table->setRowCount(fcts_label.size());
-    //}
+      std::vector<double> vector_temp(fcts[0].size());
+
+      for(int i=0;i<fcts[0].size();++i)
+      {
+        vector_temp[i] = i;
+      }
+
+      m_fcts.push_back(vector_temp);
+    }
+    */
+
+    //add recived functions
+    /*
+    for(int i=0;i<fcts.size();++i){
+      m_fcts.push_back(fcts[i]);
+    }
+    */
+
+    //adding row for eatch data
+    //m_data_table->setRowCount(m_data_table->rowCount() + fcts_label.size());
 
     for(int i = 0; i < m_data_table->rowCount(); ++i )
     {
@@ -254,22 +262,6 @@ namespace ClientUI {
     }
 
 
-    //add #
-    if(fcts_label.size()>0){
-      m_data_table->setRowCount(m_data_table->rowCount()+1);//because of the #
-      m_data_table->setCellWidget(m_data_table->rowCount()-1,0,new QLabel("#"));
-      m_data_table->setCellWidget(m_data_table->rowCount()-1,1,new QLabel());
-
-//      std::vector<double> vector_temp(fcts[0].size());
-
-//      for(int i=0;i<fcts[0].size();++i)
-//      {
-//        vector_temp[i] = i;
-//      }
-
-//      m_fcts.push_back(vector_temp);
-    }
-
 
     //refresh line_table function list
     QStringList function_list;
@@ -277,7 +269,9 @@ namespace ClientUI {
       function_list.append(((QLabel *)m_data_table->cellWidget(i,0))->text());
     }
 
-    int current_index;
+
+
+    int current_index = 0;
     for(int i=0;i<m_line_table->rowCount();++i){
       current_index = ((QComboBox *)m_line_table->cellWidget(i,1))->currentIndex();
       ((QComboBox *)m_line_table->cellWidget(i,1))->clear();
@@ -288,11 +282,15 @@ namespace ClientUI {
       ((QComboBox *)m_line_table->cellWidget(i,2))->clear();
       ((QComboBox *)m_line_table->cellWidget(i,2))->addItems(function_list);
       ((QComboBox *)m_line_table->cellWidget(i,2))->setCurrentIndex(current_index);
-    }
+  }
+
+    m_can_draw = true;
 
     //draw existing line with new data
     draw_action();
 
+    //inform user
+    ClientCore::NLog::globalLog()->addMessage("New data set recived.");
   }
 
 
@@ -300,8 +298,13 @@ namespace ClientUI {
   {
 
     //adding new function to the function set
-/*=========================================================
-    m_fcts.push_back(fct);
+    //m_fcts.push_back(fct);
+
+    //resize and add 1 column and add the function
+    m_fcts->resize(boost::extents[m_fcts->size()][(*m_fcts)[0].size()+1]);
+    for(int i=0;i<m_fcts->size();++i){
+      (*m_fcts)[i][(*m_fcts)[0].size()-1] = fct[i];
+    }
 
     //adding one row
     int old_row_count = m_data_table->rowCount();
@@ -316,7 +319,6 @@ namespace ClientUI {
       ((QComboBox *)m_line_table->cellWidget(i,1))->addItem(function_name);
       ((QComboBox *)m_line_table->cellWidget(i,2))->addItem(function_name);
     }
-==========================================================*/
   }
 
   void  GraphOption::generate_function(){
@@ -335,8 +337,7 @@ namespace ClientUI {
       return;
     }
 
-    //check if the function name already exists
-
+    //check if the function name already exist
     for(int i=0; i < m_data_table->rowCount(); ++i){
       if((((QLabel *)m_data_table->cellWidget(i,0))->text()) == name){
         ClientCore::NLog::globalLog()->addError("The function name already exist.");
@@ -349,7 +350,7 @@ namespace ClientUI {
 
     //get all fct name separated by ','
     QString variable = "";
-    for(int i=0; i < m_data_table->rowCount(); ++i){
+    for(int i=1; i < m_data_table->rowCount(); ++i){
       if(!(((QLabel *)m_data_table->cellWidget(i,0))->text()).isEmpty()){
         if(!variable.isEmpty()){
           variable += ",";
@@ -358,43 +359,39 @@ namespace ClientUI {
       }
     }
 
+    qDebug() << variable;
+
     //parsing function
     int res = fparser.Parse(formula.toStdString().c_str(),
                             variable.toStdString().c_str());
 
     if(res > 0){
-      ClientCore::NLog::globalLog()->addError("The function is not recognized.");
+      ClientCore::NLog::globalLog()->addError("The function is not recognized. res<0");
       button_generate_function->setEnabled(true);
       return;
     }
 
     //<to remove>
-
-    int max_it = 1000;
-
-//    if(m_fcts.size()>0)
-//    {
-//      max_it = m_fcts[0].size();
-//      for(int i=1;i<m_fcts.size();++i)
-//      {
-//        max_it = std::min((int)max_it,(int)m_fcts[i].size());
-//      }
-//    }else{
-//      ClientCore::NLog::globalLog()->addError("The function is not recognized.");
-//      button_generate_function->setEnabled(true);
-//      return;
-//    }
+    int max_it = 0;
+    if(m_data_table->rowCount()>0)
+    {
+      max_it = m_fcts->size();
+    }else{
+      ClientCore::NLog::globalLog()->addError("The function is not recognized. m_fcts.size()>0");
+      button_generate_function->setEnabled(true);
+      return;
+    }
     //</to remove>
 
     //generate the new function's data
     std::vector<double> vector_temp(max_it);
 
-    double vals[m_data_table->rowCount()];
+    double vals[m_data_table->rowCount()-1];
     for(int i=0;i<max_it;++i)
     {
-      for(int j=0;j<m_data_table->rowCount();++j)
+      for(int j=0;j<m_data_table->rowCount()-1;++j)
       {
-        vals[j] = (*m_fcts)[j][i];
+        vals[j] = (*m_fcts)[i][j+1];
       }
       vector_temp[i] = fparser.Eval(vals);
     }
@@ -436,7 +433,7 @@ namespace ClientUI {
       ((QComboBox *)m_line_table->cellWidget(old_row_count,2))->addItems(function_list);
 
 
-      m_line_table->setCellWidget(old_row_count,3,new ColorSelector());
+      m_line_table->setCellWidget(old_row_count,3,new ColorSelector(old_row_count));
 
 
       m_line_table->setCellWidget(old_row_count,4,new QComboBox());
@@ -447,30 +444,18 @@ namespace ClientUI {
       //((QComboBox *)tableau->cellWidget(old_row_count,4))->addItem("dotted line",5);
 
 
-      /*
-
-    connect(((QCheckBox *)m_line_table->cellWidget(old_row_count,0)),
-             SIGNAL(stateChanged(int)), this, SLOT (draw_action()));
-    connect(((QComboBox *)m_line_table->cellWidget(old_row_count,1)),
-             SIGNAL(currentIndexChanged(int)), this, SLOT (draw_action()));
-    connect(((QComboBox *)m_line_table->cellWidget(old_row_count,2)),
-             SIGNAL(currentIndexChanged(int)), this, SLOT (draw_action()));
-    connect(((ColorSelector *)m_line_table->cellWidget(old_row_count,3)),
-             SIGNAL(valueChanged()), this, SLOT (draw_action()));
-    connect(((QComboBox *)m_line_table->cellWidget(old_row_count,4)),
-             SIGNAL(currentIndexChanged(int)), this, SLOT (draw_action()));
-*/
-
       connect(((QComboBox *)m_line_table->cellWidget(old_row_count,1)),
-               SIGNAL(currentIndexChanged(int)), this, SLOT (draw_action()));
+               SIGNAL(currentIndexChanged(int)), this,
+               SLOT (draw_action()));
       connect(((QComboBox *)m_line_table->cellWidget(old_row_count,2)),
-               SIGNAL(currentIndexChanged(int)), this, SLOT (draw_action()));
+               SIGNAL(currentIndexChanged(int)), this,
+               SLOT (draw_action()));
       connect(((QCheckBox *)m_line_table->cellWidget(old_row_count,0)),
               SIGNAL(stateChanged(int)), this, SLOT (checked_changed(int)));
       connect(((ColorSelector *)m_line_table->cellWidget(old_row_count,3)),
-              SIGNAL(valueChanged(QColor)), this, SLOT (color_changed(QColor)));
+              SIGNAL(valueChanged(QColor,int)), this, SLOT (color_changed(QColor,int)));
       connect(((QComboBox *)m_line_table->cellWidget(old_row_count,4)),
-              SIGNAL(activated(int)), this, SLOT (line_type_changed(int)));
+              SIGNAL(currentIndexChanged(int)), this, SLOT (line_type_changed(int)));
   }
 
   void GraphOption::remove_line()
@@ -494,26 +479,55 @@ namespace ClientUI {
     draw_action();
   }
 
-  void GraphOption::color_changed(QColor color)
+  void GraphOption::color_changed(QColor color, int raw)
   {
+    bool redraw = false;
+
+    //if change but no selection done redraw anyway
+    if(m_line_table->selectionModel()->selectedRows().count() <= 0){
+      if(((QCheckBox *)m_line_table->cellWidget(raw,0))->isChecked()){
+        redraw = true;
+      }
+    }
+
     for(int i=0;i<m_line_table->selectionModel()->selectedRows().count();++i)
     {
       ((ColorSelector *)m_line_table->cellWidget(
           m_line_table->selectionModel()->selectedRows().at(i).row(),3))->
           set_color(color);
+
+      //if one of the changed line is checked, then redraw, otherwise not.
+      if(((QCheckBox *)m_line_table->cellWidget(
+          m_line_table->selectionModel()->selectedRows().at(i).row(),0))->isChecked()){
+        redraw = true;
+      }
     }
-    draw_action();
+    if(redraw)
+      draw_action();
   }
 
   void GraphOption::line_type_changed(int current_index)
   {
+    bool redraw = false;
+    //if change but no selection done redraw anyway
+    if(m_line_table->selectionModel()->selectedRows().count() <= 0){
+        redraw = true;
+    }
+
     for(int i=0;i<m_line_table->selectionModel()->selectedRows().count();++i)
     {
       ((QComboBox *)m_line_table->cellWidget(
           m_line_table->selectionModel()->selectedRows().at(i).row(),4))->
           setCurrentIndex(current_index);
+
+      //if one of the changed line is checked, then redraw, otherwise not.
+      if(((QCheckBox *)m_line_table->cellWidget(
+          m_line_table->selectionModel()->selectedRows().at(i).row(),0))->isChecked()){
+        redraw = true;
+      }
     }
-    draw_action();
+    if(redraw)
+      draw_action();
   }
 
   void GraphOption::clear_line_table_selection(){

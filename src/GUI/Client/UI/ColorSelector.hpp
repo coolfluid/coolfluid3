@@ -4,12 +4,24 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef COLORSELECTOR_HPP
-#define COLORSELECTOR_HPP
+#ifndef CF_GUI_Client_UI_COLORSELECTOR_HPP
+#define CF_GUI_Client_UI_COLORSELECTOR_HPP
 
+// Qt header
 #include <QLabel>
 #include <QMouseEvent>
 
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+/// @brief This is QLabel that display a color picker when clicked and can give this color back.
+/// @author Wertz Gil
 class ColorSelector : public QLabel
 {
     Q_OBJECT
@@ -17,7 +29,7 @@ class ColorSelector : public QLabel
 public: //function
     /// Constructor.
     /// @param parent Parent of this widget.
-    ColorSelector(QWidget * parent = 0);
+    ColorSelector(int raw,QWidget * parent = 0);
 
     /// Return the selected color
     QColor get_color();
@@ -38,12 +50,19 @@ protected: //function
 private: //data
     /// The selected color.
     QColor m_color;
+    int m_raw;
 
 signals: //signals
     /// Signal emited when the color value has changed.
     /// @param color The new color value.
-    void valueChanged(QColor color);
+    void valueChanged(QColor color,int raw);
 
 };
 
-#endif // COLORSELECTOR_HPP
+////////////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF
+
+#endif // CF_GUI_Client_UI_COLORSELECTOR_HPP

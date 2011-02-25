@@ -4,11 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+// Qwt header
 #include "qwt/qwt_legend.h"
 #include "qwt/qwt_plot_curve.h"
 #include "qwt/qwt_plot_grid.h"
 #include "qwt/qwt_scale_engine.h"
 
+// header
 #include "GUI/Client/UI/BodePlot.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -302,6 +304,8 @@ void BodePlot::logaritmic_scale_on_graph(bool logaritmic){
   }
   replot();
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // ClientUI
 } // GUI
