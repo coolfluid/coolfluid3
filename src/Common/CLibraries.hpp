@@ -53,16 +53,17 @@ namespace Common {
       return lib;
     }
 
+    void load_library( const URI& file );
+    
     /// @name SIGNALS
     //@{
 
     /// creates a component from this component
-    void load_library ( Signal::arg_t& args );
+    void signal_load_library ( Signal::arg_t& args );
 
-    void load_library_signature ( Signal::arg_t& args );
+    void signature_load_library ( Signal::arg_t& args );
 
     //@} END SIGNALS
-
 
 }; // CLibraries
 

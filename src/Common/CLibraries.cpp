@@ -26,14 +26,15 @@ CLibraries::CLibraries ( const std::string& name) : Component ( name )
   m_properties["description"] = std::string("Loads external libraries, and holds links to all builders each library offers");
 
   // signals
-  regist_signal ( "load_library" , "loads a library", "Load Library" )->connect ( boost::bind ( &CLibraries::load_library, this, _1 ) );
+  regist_signal ( "load_library" , "loads a library", "Load Library" )->connect ( boost::bind ( &CLibraries::signal_load_library, this, _1 ) );
 
   signal("create_component").is_hidden = true;
   signal("rename_component").is_hidden = true;
   signal("move_component").is_hidden = true;
   signal("delete_component").is_hidden = true;
 
-  signal("load_library").signature->connect( boost::bind(&CLibraries::load_library_signature, this, _1) );
+  signal("load_library").signature->connect( boost::bind(&CLibraries::signature_load_library, this, _1) );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,18 +43,27 @@ CLibraries::~CLibraries()
 {
 }
 
-void CLibraries::load_library ( Signal::arg_t& args )
+////////////////////////////////////////////////////////////////////////////////
+
+void CLibraries::load_library( const URI& file )
 {
-  SignalFrame p = args.map( Protocol::Tags::key_options() );
-
-  URI file = p.get_option<URI>("Lib");
-
   if( file.empty() || file.scheme() != URI::Scheme::FILE )
     throw InvalidURI( FromHere(), "Expected a file:// got \'" + file.string() + "\'" );
 
   boost::filesystem::path fpath( file.path() );
 
   OSystem::instance().lib_loader()->load_library( fpath.string() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CLibraries::signal_load_library ( Signal::arg_t& args )
+{
+  SignalFrame p = args.map( Protocol::Tags::key_options() );
+
+  URI file = p.get_option<URI>("Lib");
+
+  load_library(file);
 
 #if 0
   std::vector<URI> files = p.get_array<URI>("Libraries");
@@ -84,7 +94,7 @@ void CLibraries::load_library ( Signal::arg_t& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::load_library_signature ( Signal::arg_t& args )
+void CLibraries::signature_load_library ( Signal::arg_t& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 

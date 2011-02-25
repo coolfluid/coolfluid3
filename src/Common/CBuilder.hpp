@@ -149,7 +149,6 @@ struct ComponentBuilder
   /// @brief creates the CBuilder and places it into the correct factory
   ComponentBuilder( const std::string& name = std::string( LIB::library_namespace() + "." + CONCRETE::type_name()) )
   {
-
     // verify that LIB derives from CLibrary
     BOOST_STATIC_ASSERT( (boost::is_base_of<Common::CLibrary,LIB>::value) );
     // verify that BASE derives or is same type of Component
@@ -158,7 +157,7 @@ struct ComponentBuilder
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
 
     // give some info
-    // CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
+    //CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
 
     // regist the concrete type in TypeInfo
     CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );

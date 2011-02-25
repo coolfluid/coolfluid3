@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/tokenizer.hpp>
+
 #include "Common/MPI/PE.hpp"
 
 #include "Common/EventHandler.hpp"
@@ -15,6 +17,7 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/BuildInfo.hpp"
 #include "Common/CodeProfiler.hpp"
+#include "Common/LibLoader.hpp"
 #include "Common/Core.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,6 +81,17 @@ void Core::initiate ( int argc, char** argv )
   m_argv = argv;
   if ( !mpi::PE::instance().is_init() )
     mpi::PE::instance().init(argc,argv); // this might modify argc and argv
+    
+  char* env_var = std::getenv("COOLFLUID_PLUGINS");
+  if (env_var != NULL) {
+    std::string environment_variable_coolfluid_plugins = env_var;
+    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+    boost::char_separator<char> sep(":");
+    Tokenizer tokens(environment_variable_coolfluid_plugins, sep);
+
+    for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+        OSystem::instance().lib_loader()->load_library(*tok_iter);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
