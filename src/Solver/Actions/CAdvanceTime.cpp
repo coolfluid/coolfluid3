@@ -24,6 +24,8 @@ Common::ComponentBuilder < CAdvanceTime, CAction, LibActions > CAdvanceTime_Buil
 CAdvanceTime::CAdvanceTime( const std::string& name  ) :
   CAction ( name )
 {
+  mark_basic();
+  
   properties()["brief"] = std::string("Time advancing object");
   std::string description =
     "This object handles time advancing\n";
