@@ -43,9 +43,9 @@ CPlotXY::CPlotXY(const std::string& name) :
 
   // hide some signals from the GUI
   signal("create_component").is_hidden = true;
-  signal("delete_component").is_hidden = true;
-  signal("move_component").is_hidden = true;
-  signal("rename_component").is_hidden = true;
+//  signal("delete_component").is_hidden = true;
+//  signal("move_component").is_hidden = true;
+//  signal("rename_component").is_hidden = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
