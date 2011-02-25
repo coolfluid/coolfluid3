@@ -40,7 +40,7 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < CLinearInterpolator, CInterpolator, LibMesh > aHoneyCombInterpolator_Builder;
+CF::Common::ComponentBuilder < CLinearInterpolator, CInterpolator, LibMesh > CLinearInterpolator_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

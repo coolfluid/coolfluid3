@@ -69,7 +69,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshInterpolation_TestSuite, MeshInterpolation_Fixture
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("CF.Mesh.CHoneycombInterpolator","interpolator");
+  CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
   BOOST_CHECK_EQUAL(interpolator->name(),"interpolator");
 }
 
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
 
   // Create and configure interpolator.
-  CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("CF.Mesh.CHoneycombInterpolator","interpolator");
+  CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
   interpolator->configure_property("ApproximateNbElementsPerCell", (Uint) 1 );
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
