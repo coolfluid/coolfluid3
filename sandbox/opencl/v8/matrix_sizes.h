@@ -7,7 +7,7 @@
 #define HB WA     // Matrix B height
 #define WC WB     // Matrix C width
 #define HC HA     // Matrix C height
-#define N_BLOCKS 100   // Matrix C height
-#define VARIABLES 1 
+#define N_BLOCKS 10000   // Matrix C height
+#define VARIABLES 4
 
 #endif // MATRIX_SIZES_H

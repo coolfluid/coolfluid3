@@ -54,13 +54,13 @@ find_package(PythonInterp)    # Python interpreter
 find_package(Realtime)        # POSIX Realtime library
 find_package(SuperLU)         # SuperLU sparse sirect solver
 
-if( CF_ENAGLE_OPENCL AND CF_ENABLE_GPU )
+if( CF_ENABLE_OPENCL AND CF_ENABLE_GPU )
   find_package(OpenCL)          # opencl support
 endif()
 
 # using cmake find macros
 
-if( CF_ENAGLE_CUDA AND CF_ENABLE_GPU )
+if( CF_ENABLE_CUDA AND CF_ENABLE_GPU )
   find_package(CUDA)            # cuda support
   coolfluid_log( "CUDA_FOUND: [${CUDA_FOUND}]" )
 endif()
