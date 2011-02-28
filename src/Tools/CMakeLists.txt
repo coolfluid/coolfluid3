@@ -1,6 +1,9 @@
 coolfluid_find_orphan_files()
 
 # acommand-line tool to execute a batch of coolfluid commands
+add_subdirectory( CommandLineInterpreter )
+
+# acommand-line tool to execute a batch of coolfluid commands
 add_subdirectory( Command )
 
 # a library providing an interface to profiling with google perftools

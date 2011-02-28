@@ -20,27 +20,23 @@ namespace MeshTransformer {
 class Transformer
 {
 public:
+  typedef boost::program_options::options_description commands_description;
   
+private:
   typedef std::pair<std::string,std::vector<boost::shared_ptr<Mesh::CMeshReader> > > extensions_to_readers_pair_t;
 	typedef std::pair<std::string,std::vector<boost::shared_ptr<Mesh::CMeshWriter> > > extensions_to_writers_pair_t;
 	typedef std::pair<std::string,std::string> transformers_description_t;
-
 
 public:
   
   Transformer();
 
-  void command(boost::program_options::parsed_options& parsed);
+  static void help( const std::string& param);
+  static void input( const std::vector<std::string>& params );
+  static void output( const std::vector<std::string>& params );
+  static void transform( const std::vector<std::string>& params );
   
-private:
-  	
-	std::map<std::string,std::vector<boost::shared_ptr<Mesh::CMeshReader> > > extensions_to_readers;
-	std::map<std::string,std::vector<boost::shared_ptr<Mesh::CMeshWriter> > > extensions_to_writers;
-	std::vector<boost::shared_ptr<Mesh::CMeshReader> > readers;
-	std::vector<boost::shared_ptr<Mesh::CMeshWriter> > writers;
-	std::map<std::string,std::string> transformers_description;
-	std::map<std::string,boost::shared_ptr<Mesh::CMeshTransformer> > name_to_transformers;
-
+  static commands_description description();
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -11,8 +11,11 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Foreach.hpp"
+#include "Mesh/CMesh.hpp"
 
 #include "Tools/MeshTransformer/Transformer.hpp"
+#include "Tools/CommandLineInterpreter/CommandLineInterpreter.hpp"
+#include "Tools/CommandLineInterpreter/BasicCommands.hpp"
 
 using namespace boost;
 using namespace boost::program_options;
@@ -20,66 +23,84 @@ using namespace boost::program_options;
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Tools::CommandLineInterpreter;
 using namespace CF::Tools::MeshTransformer;
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::string pwd_prompt()
+{
+  return "["+BasicCommands::current_component->full_path().path()+"] ";
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 int main(int argc, char * argv[])
 {
   Core::instance().initiate(argc, argv);
-
-  ExceptionManager::instance().ExceptionDumps = true;
-	ExceptionManager::instance().ExceptionAborts = true;
-
+  
 	try
   {
+////////////////////////////////////////////////////////////////////////////////
+    ExceptionManager::instance().ExceptionDumps = false;
+  	ExceptionManager::instance().ExceptionAborts = false;
 
-    Transformer transformer;
+    // create mesh object
+    CRoot::Ptr root = Core::instance().root();
+    CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+
+
+    // Initialize empty commands
+    options_description desc;
     
-		options_description desc("General Options");
-		desc.add_options()
-		("help,h", value<std::string>()->implicit_value(std::string()) , "this help if no arg, or more detailed help of submodule")
-		("input,i" , value<std::vector<std::string> >()->multitoken(), "input file(s)")
-		("output,o", value<std::vector<std::string> >()->multitoken(), "output file(s)")
-		("transform,t", value<std::vector<std::string> >()->multitoken(), "transformations")
-		("dryrun,d", "dry run")
-		("version,v", "show version")
-		;
-		variables_map vm;
-		parsed_options parsed = parse_command_line(argc, argv, desc);
-		store(parsed, vm);
-		notify(vm);
+    // Add basic commands to program
+    desc.add(BasicCommands::description());
+    
+    // Add mesh transformer commands to program
+    desc.add(Transformer::description());
 
-    if (vm.size() == 0)
+    // Parse commands passed directly on the command line
+    parsed_options parsed = parse_command_line(argc, argv, desc);
+    if (parsed.options.size())
     {
-      // CFinfo << "Started in interactive mode. ( type \"quit\" to exit, \"help\" for available commands)" << CFendl;
-      // std::string command_line = std::string();
-      // std::string command_line_args = std::string();
-      // boost::regex quit  ("(q(uit)?)|exit" , boost::regex::perl|boost::regex::icase);
-      // 
-      // while ( boost::regex_match(command_line_args,quit) == false)
-      // {
-      //   CFinfo << " > " << CFflush;
-      //   getline(std::cin,command_line_args);
-      //   command_line = "coolfluid-mesh-transformer "+command_line_args;
-      //   std::vector<std::string> split = boost::program_options::split_unix(command_line);
-      //   int argc_inter = split.size();        
-      //   std::vector<char*> argv_inter;
-      // 
-      //   boost_foreach(std::string arg, split)
-      //   {
-      //     char p[256];
-      //     strcpy(p,arg.c_str());
-      //     argv_inter.push_back(p);
-      //     CFinfo << "arg = " << arg << CFendl;
-      //   }
-      //   parsed_options interactive_parsed = parse_command_line(argc_inter, &argv_inter[0], desc);
-      //   
-      //   transformer.command(interactive_parsed);
-      // }
+      typedef basic_option<char> Option;
+
+      // notify only 1 program_option at a time to conserve
+      // execution order
+      parsed_options one_parsed_option(parsed.description);
+      one_parsed_option.options.resize(1);
+      boost_foreach(Option option, parsed.options)
+      {
+        one_parsed_option.options[0]=option;
+        boost::program_options::variables_map vm;
+        boost::program_options::store(one_parsed_option,vm);
+        boost::program_options::notify(vm);
+      }
     }
-    else
-    {
-      transformer.command(parsed);
-    }
+    
+    // Start interactive shell
+    CFinfo << "\ncoolfluid shell - command 'exit' to quit - command 'help' for help" << CFendl;
+    CommandLineInterpreter cli(desc , &pwd_prompt);
+    cli.interpret(std::cin);
+
+////////////////////////////////////////////////////////////////////////////////
+  }
+  catch (boost::program_options::unknown_option &e) 
+  {
+    std::cerr << "error: " << e.what() << CFendl;
+  }
+  catch (boost::program_options::invalid_command_line_syntax &e)
+  {
+    std::cerr << "error: " << e.what() << CFendl;
+  }
+  catch (boost::program_options::validation_error &e)
+  {
+    std::cerr << "error: " << e.what() << CFendl;
+  }
+  catch(Exception & e)
+  {
+    std::cerr << e.what() << CFendl;
   }
   catch ( std::exception& ex )
   {
