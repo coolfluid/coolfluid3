@@ -59,13 +59,13 @@ public:
   /// Returns a reference to the region that we want to run an expression for
   Mesh::CRegion& root_region()
   {
-    return *access_component<Mesh::CRegion>(m_region_path.lock()->value_str());
+    return *access_component_ptr<Mesh::CRegion>(m_region_path.lock()->value_str());
   }
   
   /// Returns a reference to the region that we want to run an expression for
   const Mesh::CRegion& root_region() const
   {
-    return *access_component<Mesh::CRegion>(m_region_path.lock()->value_str());
+    return *access_component_ptr<Mesh::CRegion>(m_region_path.lock()->value_str());
   }
   
   virtual StringsT variable_names() const
