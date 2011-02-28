@@ -122,20 +122,36 @@ void CField2::config_var_types()
   
   m_var_types.resize(var_types.size());
   Uint iVar = 0;
-  boost_foreach (const std::string& var_type, var_types)
+  boost_foreach (std::string& var_type, var_types)
   {
     if (boost::regex_match(var_type,e_scalar))
+    {
+      var_type="scalar";
       m_var_types[iVar++]=SCALAR;
+    }
     else if (boost::regex_match(var_type,e_vector2d))
-      m_var_types[iVar++]=VECTOR_2D;
+    {
+      var_type="vector_2D";
+      m_var_types[iVar++]=VECTOR_2D;      
+    }
     else if (boost::regex_match(var_type,e_vector3d))
+    {
+      var_type="vector_3D";
       m_var_types[iVar++]=VECTOR_3D;
+    }
     else if (boost::regex_match(var_type,e_tensor2d))
+    {
+      var_type="tensor_2D";
       m_var_types[iVar++]=TENSOR_2D;
+    }
     else if (boost::regex_match(var_type,e_tensor3d))
-      m_var_types[iVar++]=TENSOR_3D;
+    {
+      var_type="tensor_3D";
+      m_var_types[iVar++]=TENSOR_3D;      
+    }
   }
-  
+  // give property a similar look, not all possible regex combinations
+  property("VarTypes").change_value(var_types);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

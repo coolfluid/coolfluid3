@@ -292,7 +292,7 @@ void NTreeTest::test_setDebugModeEnabled()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NTreeTest::test_list_tree()
+void NTreeTest::test_signal_list_tree()
 {
   //
 }

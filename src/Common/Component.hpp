@@ -306,6 +306,8 @@ public: // functions
 
   void configure_option_recursively(const std::string& tag, const boost::any& val);
 
+  std::string option_list();
+  
   /// Configures all the options on this class from a list of strings.
   /// Each string provides the configuration of one property following the
   /// format var_name:type=value var_name:array[type]=val1,val2
@@ -321,31 +323,31 @@ public: // functions
   void signal_create_component ( Signal::arg_t& xml );
 
   /// deletes a component from this component
-  void delete_component ( Signal::arg_t& args );
+  void signal_delete_component ( Signal::arg_t& args );
 
   /// moves a component from this component to another
-  void move_component ( Signal::arg_t& args );
+  void signal_move_component ( Signal::arg_t& args );
 
   /// lists the sub components and puts them on the xml_tree
-  void list_tree ( Signal::arg_t& args );
+  void signal_list_tree( Signal::arg_t& args );
 
   /// lists the properties of this component
-  void list_properties ( Signal::arg_t& args );
+  void signal_list_properties ( Signal::arg_t& args );
 
   /// lists the signals of this component
-  void list_signals ( Signal::arg_t& args );
+  void signal_list_signals ( Signal::arg_t& args );
 
   ///  gets info on this component
-  void print_info ( Signal::arg_t& args );
+  void signal_print_info ( Signal::arg_t& args );
 
   /// renames this component
-  void rename_component ( Signal::arg_t& args ) ;
+  void signal_rename_component ( Signal::arg_t& args ) ;
 
   /// dumps the tree to a file
-  void save_tree ( Signal::arg_t& args );
+  void signal_save_tree ( Signal::arg_t& args );
 
   /// gives information about this component such as options, signals, ...
-  void list_content( Signal::arg_t& args );
+  void signal_list_content( Signal::arg_t& args );
 
   /// Gives a signal signature, if any
   void signal_signature( Signal::arg_t & args );
@@ -357,15 +359,15 @@ public: // functions
 
   /// Defines the signature of "create_component" signal.
   /// @param node The frame under which signature is added.
-  void create_component_signature( Signal::arg_t& args );
+  void signature_create_component( Signal::arg_t& args );
 
   /// Defines the signature of "rename_component" signal.
   /// @param node The frame under which signature is added.
-  void rename_component_signature( Signal::arg_t& args );
+  void signature_rename_component( Signal::arg_t& args );
 
   /// Defines the signature of "move_component" signal.
   /// @param node The frame under which signature is added.
-  void move_component_signature( Signal::arg_t& args );
+  void signature_move_component( Signal::arg_t& args );
 
   //@} END SIGNAL SIGNATURES
 

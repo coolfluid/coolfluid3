@@ -168,7 +168,7 @@ namespace Server {
 
     CF::Common::Signal::return_t saveConfig(CF::Common::Signal::arg_t & node);
 
-    CF::Common::Signal::return_t list_tree(CF::Common::Signal::arg_t & node);
+    CF::Common::Signal::return_t signal_list_tree(CF::Common::Signal::arg_t & node);
   };
 
 ////////////////////////////////////////////////////////////////////////////

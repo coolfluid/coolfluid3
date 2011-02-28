@@ -89,7 +89,7 @@ BOOST_FIXTURE_TEST_CASE( check_tree , burgers2d_local_fixture )
 
   SignalFrame frame("", "", "");
 
-  Core::instance().root()->list_tree(frame);
+  Core::instance().root()->signal_list_tree(frame);
 
 //  CFinfo << model.tree() << CFendl;
 }

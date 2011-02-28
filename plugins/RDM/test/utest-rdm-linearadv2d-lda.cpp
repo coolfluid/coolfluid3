@@ -91,7 +91,7 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadv2d_local_fixture )
   SignalFrame frame("", "", "");
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  Core::instance().root()->list_tree(frame);
+  Core::instance().root()->signal_list_tree(frame);
 
 //  CFinfo << model.tree() << CFendl;
 }

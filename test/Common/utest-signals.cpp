@@ -61,7 +61,7 @@ public: // functions
     receiver.call_signal( "print_message", signal_frame );
   }
 
-  void trigger_signal_list_tree ( Component& receiver )
+  void trigger_signal_list_tree( Component& receiver )
   {
     SignalFrame signal_frame( "list_tree", full_path(), receiver.full_path());
 
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( simple_signal )
 
   small_1->trigger_signal_print_message ( *small_2.get() );
 
-  small_2->trigger_signal_list_tree ( *root.get() );
+  small_2->trigger_signal_list_tree( *root.get() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

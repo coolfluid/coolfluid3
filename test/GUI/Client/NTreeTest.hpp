@@ -57,7 +57,7 @@ namespace ClientTest {
 
     void test_setDebugModeEnabled();
 
-    void test_list_tree();
+    void test_signal_list_tree();
 
   }; // class NTreeTest
 

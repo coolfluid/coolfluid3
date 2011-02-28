@@ -47,25 +47,25 @@ Component::Component ( const std::string& name ) :
 
   regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::signal_create_component, this, _1 ) );
 
-  regist_signal( "list_tree" , "lists the component tree inside this component", "List tree" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
+  regist_signal( "list_tree" , "lists the component tree inside this component", "List tree" )->connect ( boost::bind ( &Component::signal_list_tree, this, _1 ) );
 
-  regist_signal( "list_properties" , "lists the options of this component", "List properties" )->connect ( boost::bind ( &Component::list_properties, this, _1 ) );
+  regist_signal( "list_properties" , "lists the options of this component", "List properties" )->connect ( boost::bind ( &Component::signal_list_properties, this, _1 ) );
 
-  regist_signal( "list_signals" , "lists the options of this component", "List signals" )->connect ( boost::bind ( &Component::list_signals, this, _1 ) );
+  regist_signal( "list_signals" , "lists the options of this component", "List signals" )->connect ( boost::bind ( &Component::signal_list_signals, this, _1 ) );
 
   regist_signal( "configure" , "configures this component", "Configure" )->connect ( boost::bind ( &Component::signal_configure, this, _1 ) );
 
-  regist_signal( "print_info" , "prints info on this component", "Info" )->connect ( boost::bind ( &Component::print_info, this, _1 ) );
+  regist_signal( "print_info" , "prints info on this component", "Info" )->connect ( boost::bind ( &Component::signal_print_info, this, _1 ) );
 
-  regist_signal( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
+  regist_signal( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::signal_rename_component, this, _1 ) );
 
-  regist_signal( "delete_component" , "Deletes a component", "Delete" )->connect ( boost::bind ( &Component::delete_component, this, _1 ) );
+  regist_signal( "delete_component" , "Deletes a component", "Delete" )->connect ( boost::bind ( &Component::signal_delete_component, this, _1 ) );
 
-  regist_signal( "move_component" , "Moves a component to another component", "Move" )->connect ( boost::bind ( &Component::move_component, this, _1 ) );
+  regist_signal( "move_component" , "Moves a component to another component", "Move" )->connect ( boost::bind ( &Component::signal_move_component, this, _1 ) );
 
-  regist_signal( "save_tree", "Saves the tree", "Save tree")->connect( boost::bind(&Component::save_tree, this, _1) );
+  regist_signal( "save_tree", "Saves the tree", "Save tree")->connect( boost::bind(&Component::signal_save_tree, this, _1) );
 
-  regist_signal( "list_content", "Lists component content", "List content")->connect(boost::bind(&Component::list_content, this, _1));
+  regist_signal( "list_content", "Lists component content", "List content")->connect(boost::bind(&Component::signal_list_content, this, _1));
 
   regist_signal( "signal_signature", "Gives signature of a signal", "")->connect( boost::bind(&Component::signal_signature, this, _1));
 
@@ -82,9 +82,9 @@ Component::Component ( const std::string& name ) :
   signal("list_tree").is_read_only = true;
 
   // signatures
-  signal("create_component").signature->connect( boost::bind(&Component::create_component_signature, this, _1) );
-  signal("rename_component").signature->connect( boost::bind(&Component::rename_component_signature, this, _1) );
-  signal("move_component").signature->connect( boost::bind(&Component::move_component_signature, this, _1) );
+  signal("create_component").signature->connect( boost::bind(&Component::signature_create_component, this, _1) );
+  signal("rename_component").signature->connect( boost::bind(&Component::signature_rename_component, this, _1) );
+  signal("move_component").signature->connect( boost::bind(&Component::signature_move_component, this, _1) );
 
   // properties
 
@@ -311,11 +311,16 @@ void Component::complete_path ( URI& path ) const
       std::string pfp = parent->full_path().path();
       boost::algorithm::replace_first(sp, "..", pfp);
     }
-    else // substitute leading "./" for full_path() of this component
-      if (starts_with(sp,"."))
-      {
-        boost::algorithm::replace_first(sp, ".", full_path().path());
-      }
+    // substitute leading "./" for full_path() of this component
+    else if (starts_with(sp,"."))
+    {
+      boost::algorithm::replace_first(sp, ".", full_path().path());
+    }
+    else
+    {
+      sp = full_path().path()+"/"+sp;
+    }
+    
   }
 
   cf_assert ( URI(sp).is_absolute() );
@@ -550,7 +555,7 @@ void Component::signal_create_component ( Signal::arg_t& args  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::delete_component ( Signal::arg_t& args  )
+void Component::signal_delete_component ( Signal::arg_t& args  )
 {
 //  XmlParams p ( node );
 
@@ -572,7 +577,7 @@ void Component::delete_component ( Signal::arg_t& args  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::move_component ( Signal::arg_t& args  )
+void Component::signal_move_component ( Signal::arg_t& args  )
 {
   SignalFrame options = args.map( Protocol::Tags::key_options() );
 
@@ -587,7 +592,7 @@ void Component::move_component ( Signal::arg_t& args  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::print_info ( Signal::arg_t& args  )
+void Component::signal_print_info ( Signal::arg_t& args  )
 {
   CFinfo << "Info on component \'" << full_path().path() << "\'" << CFendl;
 
@@ -639,7 +644,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
       {
         // add properties if needed
         SignalFrame sf(this_node);
-        list_properties( sf );
+        signal_list_properties( sf );
       }
 
       boost_foreach( CompStorage_t::value_type c, m_components )
@@ -652,7 +657,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_tree( Signal::arg_t& args )
+void Component::signal_list_tree( Signal::arg_t& args )
 {
   SignalFrame reply = args.create_reply( full_path() );
 
@@ -759,7 +764,7 @@ void add_prop_to_xml(Map & map, const std::string & name,
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_properties( SignalFrame& args )
+void Component::signal_list_properties( SignalFrame& args )
 {
   PropertyList::PropertyStorage_t::iterator it = m_properties.store.begin();
 
@@ -821,7 +826,7 @@ void Component::list_properties( SignalFrame& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_signals( Signal::arg_t& args )
+void Component::signal_list_signals( Signal::arg_t& args )
 {
   sigmap_t::iterator it = m_signals.begin();
 
@@ -893,7 +898,7 @@ Property& Component::property( const std::string& optname )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::rename_component ( Signal::arg_t& args )
+void Component::signal_rename_component ( Signal::arg_t& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
@@ -904,7 +909,7 @@ void Component::rename_component ( Signal::arg_t& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::save_tree ( Signal::arg_t& args )
+void Component::signal_save_tree ( Signal::arg_t& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
@@ -918,12 +923,12 @@ void Component::save_tree ( Signal::arg_t& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_content( Signal::arg_t& args )
+void Component::signal_list_content( Signal::arg_t& args )
 {
   SignalFrame reply = args.create_reply( full_path() );
 
-  list_properties(reply);
-  list_signals(reply);
+  signal_list_properties(reply);
+  signal_list_signals(reply);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -983,7 +988,7 @@ Component::Ptr Component::mark_basic()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::create_component_signature( Signal::arg_t& args )
+void Component::signature_create_component( Signal::arg_t& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
@@ -995,7 +1000,7 @@ void Component::create_component_signature( Signal::arg_t& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::rename_component_signature( Signal::arg_t& args )
+void Component::signature_rename_component( Signal::arg_t& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
@@ -1004,7 +1009,7 @@ void Component::rename_component_signature( Signal::arg_t& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::move_component_signature( Signal::arg_t& args )
+void Component::signature_move_component( Signal::arg_t& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
@@ -1071,9 +1076,34 @@ void Component::configure_option_recursively(const std::string& tag, const boost
 
 ////////////////////////////////////////////////////////////////////////////////
 
+std::string Component::option_list()
+{
+  std::string opt_list="";
+  foreach_container( (const std::string& name) (Property::Ptr property) , properties() )
+  {
+    if ( Option::Ptr option = boost::dynamic_pointer_cast<Option>(property) )
+    {
+      if (option->tag() ==  XML::Protocol::Tags::node_array())
+      {
+        OptionArray::Ptr array_option = boost::dynamic_pointer_cast<OptionArray>(option);
+        std::string values=array_option->value_str();
+        boost::algorithm::replace_all(values, "@@", ",");
+        opt_list = opt_list+name+":array["+array_option->elem_type()+"]="+values+"\n";
+      }
+      else
+      {
+        opt_list = opt_list+name+":"+option->type()+"="+option->value_str()+"\n";
+      }
+    }
+  }
+  return opt_list;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void Component::configure (const std::vector<std::string>& args)
 {
-  // extract:   variable_name:type=value
+  // extract:   variable_name:type=value   or   variable_name:array[type]=value1,value2
   boost::regex expression(  "([[:word:]]+)(\\:([[:word:]]+)(\\[([[:word:]]+)\\])?=(.*))?"  );
   boost::match_results<std::string::const_iterator> what;
 
@@ -1095,34 +1125,18 @@ void Component::configure (const std::vector<std::string>& args)
       if (properties().check(name) == false) // not found
         throw ValueNotFound(FromHere(), "Option with name ["+name+"] not found in "+ full_path().path());
 
-      if (type.empty())
-      {
-        CFinfo << "this must be a signal without signature" << CFendl;
-      }
-      else if (type == "bool")
-      {
+      if      (type == "bool")
         configure_property(name,from_str<bool>(value));
-      }
       else if (type == "unsigned")
-      {
         configure_property(name,from_str<Uint>(value));
-      }
       else if (type == "integer")
-      {
         configure_property(name,from_str<int>(value));
-      }
       else if (type == "real")
-      {
         configure_property(name,from_str<Real>(value));
-      }
       else if (type == "string")
-      {
         configure_property(name,value);
-      }
       else if (type == "uri")
-      {
         configure_property(name,from_str<URI>(value));
-      }
       else if (type == "array")
       {
         std::vector<std::string> array;
@@ -1176,12 +1190,18 @@ void Component::configure (const std::vector<std::string>& args)
         }
       }
       else
-      {
-        throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] for ["+ full_path().path() +"] is invalid");
-      }
+        throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] for ["+ full_path().path() +"] is invalid.\n"+
+          "Format should be:\n"
+          " -  for simple types:  variable_name:type=value\n"
+          " -  for array types:   variable_name:array[type]=value1,value2\n"
+          "  with possible type: [bool,unsigned,integer,real,string,uri]");
     }
     else
-      throw ParsingFailed(FromHere(), "Could not parse [" + arg + "] in ["+ full_path().path() +"]");
+      throw ParsingFailed(FromHere(), "Could not parse [" + arg + "] in ["+ full_path().path() +"].\n"+
+         "Format should be:\n"
+         " -  for simple types:  variable_name:type=value\n"
+         " -  for array types:   variable_name:array[type]=value1,value2\n"
+         "  with possible type: [bool,unsigned,integer,real,string,uri]");
   }
 }
 
