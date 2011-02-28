@@ -117,6 +117,9 @@ namespace Common {
     /// @return the base path
     URI base_path() const;
 
+    /// @return the the name of the object, without the path
+    std::string name() const;
+
     /// check that the passed string is a valid path element
     static bool is_valid_element ( const std::string& str);
 

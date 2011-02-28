@@ -172,8 +172,24 @@ URI URI::base_path () const
 {
   using namespace boost::algorithm;
   std::string rpath = string();
-  rpath.erase ( find_last(rpath,separator()).begin(), rpath.end() );
-  return rpath;
+  if (find_last(rpath,separator()).begin() == rpath.end())
+    return URI::Scheme::Convert::instance().to_str(m_scheme)+":./";
+  else
+  {
+    rpath.erase ( find_last(rpath,separator()).begin(), rpath.end() );
+    return rpath;    
+  }
+}
+
+std::string URI::name () const
+{
+  using namespace boost::algorithm;
+  std::string name = string();
+  if (find_last(name,separator()).begin() == name.end())
+    name.erase ( name.begin(), find_last(name,":").begin()+1 );
+  else
+    name.erase ( name.begin(), find_last(name,separator()).begin()+1 );
+  return name;
 }
 
 const std::string& URI::separator ()
