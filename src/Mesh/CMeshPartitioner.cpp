@@ -73,7 +73,7 @@ void CMeshPartitioner::load_balance( Signal::arg_t& node  )
 		throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
 	// get the domain
-	CMesh::Ptr mesh = access_component_ptr<CMesh>( path.path() );
+  CMesh::Ptr mesh = access_component_ptr( path.path() )->as_ptr<CMesh>();
 	if ( is_null(mesh) )
 		throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CMesh." );
 

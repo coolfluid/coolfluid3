@@ -54,7 +54,7 @@ void CMeshWriter::config_fields()
   m_fields.resize(0);
   boost_foreach ( const URI& uri, field_uris)
   {
-    m_fields.push_back(access_component_ptr<CField2>(uri));
+    m_fields.push_back(access_component_ptr(uri)->as_ptr<CField2>());
     if ( is_null(m_fields.back().lock()) )
       throw ValueNotFound(FromHere(),"Invalid URI ["+uri.string()+"]");
   }
@@ -87,7 +87,7 @@ void CMeshWriter::signal_write( Signal::arg_t& node  )
 void CMeshWriter::write()
 {
   // Get the mesh
-  CMesh::Ptr mesh = access_component_ptr<CMesh>(property("Mesh").value_str());
+  CMesh::Ptr mesh = access_component_ptr(property("Mesh").value_str())->as_ptr<CMesh>();
 
   // Get the file path
   boost::filesystem::path file (property("File").value_str());

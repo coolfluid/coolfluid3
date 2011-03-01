@@ -33,7 +33,7 @@ CMethod::~CMethod() {}
 
 CMethod& CMethod::operation(const std::string& name)
 {
-  return *get_child_ptr<CMethod>(name);
+  return *get_child_ptr(name)->as_ptr<CMethod>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

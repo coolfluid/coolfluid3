@@ -59,9 +59,12 @@ void CBlended<PHYS>::ElementLoop::operator() ( SF& T )
                 Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
   {
     // get the scheme
-    typename SchemeT::Ptr scheme = comp.get_child_ptr<SchemeT>( SchemeT::type_name() );
-    if( is_null(scheme) )
+    Component::Ptr cscheme = comp.get_child_ptr( SchemeT::type_name() );
+    typename SchemeT::Ptr scheme;
+    if( is_null( cscheme ) )
       scheme = comp.create_component< SchemeT >( SchemeT::type_name() );
+    else
+      scheme = cscheme->as_ptr_checked<SchemeT>();
 
     // loop on elements of that type
     scheme->set_elements(elements);

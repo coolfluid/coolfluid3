@@ -480,7 +480,7 @@ void CReader::read_section(CRegion& parent_region)
       this_region.create_elements(etype_CF,section_nodes); // no second argument defaults to the coordinates in this_region
     }
 
-    CElements& element_region= *this_region.get_child_ptr<CElements>("elements_"+etype_CF);
+    CElements& element_region= *this_region.get_child_ptr("elements_"+etype_CF)->as_ptr<CElements>();
 
     // Create a buffer for this element component, to start filling in the elements we will read.
     CTable<Uint>::Buffer element_buffer = element_region.connectivity_table().create_buffer();

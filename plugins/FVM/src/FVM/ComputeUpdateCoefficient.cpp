@@ -69,7 +69,7 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
 void ComputeUpdateCoefficient::config_update_coeff()
 {
   URI uri;  property("UpdateCoeff").put_value(uri);
-  m_update_coeff = Core::instance().root()->access_component_ptr<CField2>(uri);
+  m_update_coeff = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ void ComputeUpdateCoefficient::config_update_coeff()
 void ComputeUpdateCoefficient::config_volume()
 {
   URI uri;  property("Volume").put_value(uri);
-  m_volume = Core::instance().root()->access_component_ptr<CField2>(uri);
+  m_volume = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ void ComputeUpdateCoefficient::config_volume()
 void ComputeUpdateCoefficient::config_wave_speed()
 {
   URI uri;  property("WaveSpeed").put_value(uri);
-  m_wave_speed = Core::instance().root()->access_component_ptr<CField2>(uri);
+  m_wave_speed = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ void ComputeUpdateCoefficient::config_wave_speed()
 void ComputeUpdateCoefficient::config_time()
 {
   URI uri;  property("Time").put_value(uri);
-  m_time = Core::instance().root()->access_component_ptr<CTime>(uri);
+  m_time = Core::instance().root()->access_component_ptr(uri)->as_ptr<CTime>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

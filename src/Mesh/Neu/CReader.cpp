@@ -100,7 +100,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // Read mesh information
   read_headerData();
 
-	// Create a hash
+  // Create a hash
 	m_hash = create_component<CMixedHash>("hash");
 	std::vector<Uint> num_obj(2);
 	num_obj[0] = m_headerData.NUMNP;
@@ -497,7 +497,7 @@ void CReader::read_groups()
 
       Uint idx = buffer[etype]->add_row(tmp_elems->connectivity_table().array()[local_element]);
       std::string new_elems_name = tmp_elems->name();
-      m_global_to_tmp[global_element] = std::make_pair(region.get_child_ptr<CElements>(new_elems_name),idx);
+      m_global_to_tmp[global_element] = std::make_pair(region.get_child_ptr(new_elems_name)->as_ptr<CElements>(),idx);
       Uint local_elm_idx = glb_elm_indices[etype]->add_row(global_element-1);
 
       if (local_elm_idx != idx)

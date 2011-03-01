@@ -50,7 +50,7 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
 
   if ( ExceptionManager::instance().ExceptionDumps )
   {
-    std::string backtrace = OSystem::instance().system_layer()->back_trace();
+    std::string backtrace = OSystem::instance().layer()->back_trace();
     CFerror << "\n\n";
     CFerror << "+++ Exception backtrace on rank " << mpi::PE::instance().rank() << " ++++\n";
     CFerror << backtrace << "\n";

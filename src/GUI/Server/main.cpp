@@ -15,6 +15,7 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 
+#include "Common/NetworkInfo.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/CEnv.hpp"
 
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
   AssertionManager::instance().AssertionThrows = true;
 
   // tell the CF core the the server is running
-  Core::instance().network_info().start_server();
+  Core::instance().network_info()->start_server();
 
   try
   {
@@ -91,8 +92,8 @@ int main(int argc, char *argv[])
       errorString = "Port number must be an integer between 49153 and 65535\n";
     else
     {
-      Core::instance().network_info().set_hostname( QHostInfo::localHostName().toStdString() );
-      Core::instance().network_info().set_port( port );
+      Core::instance().network_info()->set_hostname( QHostInfo::localHostName().toStdString() );
+      Core::instance().network_info()->set_port( port );
 
 
 
@@ -146,7 +147,7 @@ int main(int argc, char *argv[])
   }
 
   // tell the CF core that the server is about to exit
-  Core::instance().network_info().stop_server();
+  Core::instance().network_info()->stop_server();
 
   return return_value;
 }

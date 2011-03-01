@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   Component::Ptr ufem_model = root->get_child_ptr("UFEMHeat");
   BOOST_CHECK(ufem_model);
 
-  CMeshReader::Ptr mesh_reader = ufem_model->get_child_ptr<CMeshReader>("NeutralReader");
+  CMeshReader::Ptr mesh_reader = ufem_model->get_child_ptr("NeutralReader")->as_ptr<CMeshReader>();
   BOOST_CHECK(mesh_reader);
 
   CMesh::Ptr mesh = ufem_model->get_child_ptr("Domain")->create_component<CMesh>("Mesh");

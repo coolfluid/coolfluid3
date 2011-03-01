@@ -36,6 +36,8 @@ BOOST_AUTO_TEST_SUITE( Component_TestSuite )
 
 BOOST_AUTO_TEST_CASE( constructors )
 {
+  std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+
   // constructor with passed path
   CRoot::Ptr root = CRoot::create ( "root" );
 
@@ -59,6 +61,9 @@ BOOST_AUTO_TEST_CASE( constructors )
   BOOST_CHECK_EQUAL ( lnk.name() , "lnk" );
   BOOST_CHECK_EQUAL ( lnk.path().string() , "" );
   BOOST_CHECK_EQUAL ( lnk.full_path().string() , "cpath:lnk" );
+
+  std::cout << __FILE__ << ":" << __LINE__ << std::endl;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

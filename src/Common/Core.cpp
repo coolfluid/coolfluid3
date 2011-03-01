@@ -8,6 +8,10 @@
 
 #include "Common/MPI/PE.hpp"
 
+#include "Common/Log.hpp"
+#include "Common/OSystem.hpp"
+#include "Common/OSystemLayer.hpp"
+#include "Common/NetworkInfo.hpp"
 #include "Common/EventHandler.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/CGroup.hpp"
@@ -35,37 +39,51 @@ Core& Core::instance()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRoot::Ptr Core::root()
+Core::Core()
 {
-  return m_root;
-}
+  // this is most likely the first part of the code to be executed
+  // due to library objects registration preceding all other execution.
+  // that registration will call Core::instance() to get access to libraries and factories
 
-////////////////////////////////////////////////////////////////////////////////
+  // here we ensure that all singletons get created and exist from now on
+  // to avoid cyclic creation dependencies
+  TypeInfo::instance();
+  Logger::instance();
+  AssertionManager::instance();
+  OSystem::instance().layer()->platform_name();
+  mpi::PE::instance();
 
-Core::Core() :
-  m_event_handler    ( new EventHandler() ),
-  m_build_info       ( new BuildInfo() ),
-  m_environment      ( new CEnv("Environment") ),
-  m_libraries        ( new CLibraries("Libraries") ),
-  m_factories        ( new CFactories("Factories") )
-{
+  // create singleton objects inside core
+  m_event_handler.reset ( new EventHandler() );
+  m_build_info.reset    ( new BuildInfo()    );
+  m_network_info.reset  ( new NetworkInfo()  );
+
+  // create singleton components inside core
+  // these are critical to library object registration
+
+  m_environment   = allocate_component<CEnv>( "Environment" );
+  m_libraries     = allocate_component<CLibraries>( "Libraries" );
+  m_factories     = allocate_component<CFactories>( "Factories" );
+
   // this types must be registered immedietly on creation,
   // registration could be defered to after the Core has been inialized.
   RegistTypeInfo<CEnv>();
   RegistTypeInfo<CLibraries>();
   RegistTypeInfo<CFactories>();
 
+  // create the root component ant its structure structure
   m_root = CRoot::create("Root");
   m_root->mark_basic();
 
+  // these components are placed on the root structure
+  // but ownership is shared with Core, so they get destroyed in ~Core()
   m_root->add_component( m_environment )->mark_basic();
-
   m_root->add_component( m_libraries )->mark_basic();
   m_root->add_component( m_factories )->mark_basic();
 
   CGroup::Ptr tools = m_root->create_component<CGroup>("Tools");
   tools->mark_basic();
-  tools->properties()["brief"] = std::string("General tools");
+  tools->properties()["brief"] = std::string("Generic tools");
   tools->properties()["description"] = std::string("");
 }
 
@@ -100,6 +118,14 @@ void Core::terminate()
 {
   if ( mpi::PE::instance().is_init() )
     mpi::PE::instance().finalize();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CRoot::Ptr Core::root() const
+{
+  cf_assert( is_not_null(m_root) );
+  return m_root;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,12 +179,13 @@ void Core::set_profiler(const std::string & builder_name)
 
 boost::shared_ptr<CodeProfiler> Core::profiler() const
 {
-  return m_root->get_child_ptr<CodeProfiler>("Profiler");
+  return m_root->get_child_ptr("Profiler")->as_ptr<CodeProfiler>();
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-NetworkInfo& Core::network_info ()
+boost::shared_ptr<NetworkInfo> Core::network_info () const
 {
+  cf_assert( is_not_null(m_network_info) );
   return m_network_info;
 }
 

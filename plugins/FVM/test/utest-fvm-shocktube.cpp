@@ -62,14 +62,14 @@ BOOST_AUTO_TEST_CASE( constructor )
   // ---------------
   s->signal_create_model(frame);
 
-  CModelUnsteady::Ptr model = Core::instance().root()->get_child_ptr<CModelUnsteady>("shocktube");
+  CModelUnsteady::Ptr model = Core::instance().root()->get_child_ptr("shocktube")->as_ptr<CModelUnsteady>();
 
   BOOST_CHECK(true);
 
   // 2) Load the mesh in Domain
   // --------------------------
   // Uint nb_segments = 70;
-  // CDomain::Ptr domain = model->get_child_ptr<CDomain>("Domain");
+  // CDomain::Ptr domain = model->get_child_ptr("Domain")->as_ptr<CDomain>();
   // CMesh::Ptr mesh = domain->create_component<CMesh>("line");
   // //create_line(*mesh, 10. , nb_segments );
   // path file_in("line.msh");
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // 6) Write mesh
   // -------------
-  model->access_component_ptr<CMeshWriter>("cpath:./tools/gmsh_writer")->write();
+  model->access_component_ptr("cpath:./tools/gmsh_writer")->as_ptr<CMeshWriter>()->write();
 
   CFinfo << "model:"<<CFendl;
   CFinfo << "------"<<CFendl;

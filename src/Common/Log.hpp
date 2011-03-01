@@ -15,7 +15,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
 namespace Common {
 
 class LogStream;
@@ -44,16 +43,12 @@ class Common_API Logger : public boost::noncopyable
   {
     /// @brief Stream for normal messages.
     INFO,
-
     /// @brief Stream for error messages.
     ERROR,
-
     /// @brief Stream for warning messages.
     WARN,
-
     /// @brief Stream for debug messages.
     DEBUG,
-
     /// @brief Stream for trace message.
     TRACE
   };
@@ -62,7 +57,10 @@ class Common_API Logger : public boost::noncopyable
 
   /// If no instance exists, a new one is created.
   /// @return Returns the current instance.
-  static Logger & instance();
+  static Logger& instance();
+
+  /// @returns the class name
+  static std::string type_name() { return  "Logger"; }
 
   /// @brief Gives the info stream.
 

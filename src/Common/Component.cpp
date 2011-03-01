@@ -539,11 +539,11 @@ void Component::signal_create_component ( Signal::arg_t& args  )
 
   bool basic = options.get_option<bool>("Basic mode");
 
-  CFactories::Ptr factories = Core::instance().root()->get_child_ptr< CFactories >("Factories");
-  CFactory::Ptr factory = factories->get_child_ptr< CFactory >( atype );
+  CFactories::Ptr factories = Core::instance().root()->get_child_ptr("Factories")->as_ptr< CFactories >();
+  CFactory::Ptr factory = factories->get_child_ptr( atype )->as_ptr< CFactory >();
   if (!factory)
     throw ValueNotFound(FromHere(), "Factory of generic type " + atype + " not found");
-  CBuilder::Ptr builder = factory->get_child_ptr< CBuilder >( ctype );
+  CBuilder::Ptr builder = factory->get_child_ptr( ctype )->as_ptr< CBuilder >();
   if (!builder)
     throw ValueNotFound(FromHere(), "Builder of concrete type " + ctype + " not found in factory of generic type " + atype);
 

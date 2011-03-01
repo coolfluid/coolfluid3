@@ -13,6 +13,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/Core.hpp"
+#include "Common/NetworkInfo.hpp"
 #include "Common/Log.hpp"
 #include "Common/URI.hpp"
 #include "Common/BasicExceptions.hpp"
@@ -143,7 +144,7 @@ bool ClientNetworkComm::send(Signal::arg_t & signal)
 
 void ClientNetworkComm::saveNetworkInfo () const
 {
-  NetworkInfo & info = Core::instance().network_info();
+  NetworkInfo & info = *Core::instance().network_info();
 
   info.set_hostname( QHostInfo::localHostName().toStdString() );
   info.set_port( m_socket->peerPort() );

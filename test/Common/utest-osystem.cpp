@@ -33,7 +33,7 @@ BOOST_FIXTURE_TEST_SUITE( OSystem_TestSuite, OSystemFixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( system_layer_ptr )
+BOOST_AUTO_TEST_CASE( layer_ptr )
 {
 }
 
@@ -46,23 +46,23 @@ BOOST_AUTO_TEST_CASE( execute_command )
 {
   /// @todo this test is not cross-platform
   // should exit normally
-  BOOST_CHECK_NO_THROW( OSystem::instance().execute_system_command("echo"));
+  BOOST_CHECK_NO_THROW( OSystem::instance().layer()->execute_command("echo"));
   // the command does *normally* not exist, should throw an exception
   /// @todo find a command that throws an exception
   //BOOST_CHECK_THROW( OSystem::instance().execute_command("cd /aDirThatDoesNotExist"), OSystemError);
 }
 
-BOOST_AUTO_TEST_CASE( system_layer )
+BOOST_AUTO_TEST_CASE( layer )
 {
-  BOOST_CHECK( OSystem::instance().system_layer() != nullptr );
+  BOOST_CHECK( OSystem::instance().layer() != nullptr );
 
-  BOOST_CHECK( OSystem::instance().system_layer()->platform_name() != std::string() );
+  BOOST_CHECK( OSystem::instance().layer()->platform_name() != std::string() );
 
-  BOOST_CHECK( OSystem::instance().system_layer()->back_trace() != std::string() );
+  BOOST_CHECK( OSystem::instance().layer()->back_trace() != std::string() );
 
-  BOOST_CHECK( OSystem::instance().system_layer()->process_id() > 0 );
+  BOOST_CHECK( OSystem::instance().layer()->process_id() > 0 );
 
-  BOOST_CHECK( OSystem::instance().system_layer()->memory_usage() > 0 );
+  BOOST_CHECK( OSystem::instance().layer()->memory_usage() > 0 );
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -46,18 +46,14 @@ CRegion::~CRegion()
 
 CRegion& CRegion::create_region( const std::string& name, bool ensure_unique )
 {
-  if (ensure_unique)
+  Component::Ptr region = get_child_ptr(name);
+
+  if ( ensure_unique || is_null(region) )
   {
     return *create_component<CRegion>(name);
   }
-  else
-  {
-    CRegion::Ptr region = get_child_ptr<CRegion>(name);
-    if (!region)
-      region = create_component<CRegion>(name);
-    
-    return *region;
-  }
+  else   
+    return region->as_type<CRegion>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,28 +62,30 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CNodes
 {
   std::string name = "elements_" + element_type_name;
   
-  CElements::Ptr elements = get_child_ptr<CElements>(name);
-  if (!elements)
+  Component::Ptr celems = get_child_ptr(name);
+  if ( is_null(celems) )
   {
-    elements = create_component<CElements>(name);
+    CElements::Ptr elements = create_component<CElements>(name);
     elements->add_tag("GeometryElements");
     elements->initialize(element_type_name,nodes);
+    return *elements;
   }
-  return *elements;
+  else
+    return celems->as_type<CElements>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 CNodes& CRegion::create_nodes(const Uint& dim)
 {  
-  ///@todo nodes have to be created in CMesh
+  /// @todo nodes have to be created in CMesh
   CNodes::Ptr nodes = find_component_ptr_with_tag<CNodes>(*this,"nodes");
   if ( is_null(nodes) )
   {
     nodes = create_component<CNodes>("nodes");
     nodes->coordinates().set_row_size(dim);
     
-    ///@todo when nodes in CMesh created, this can be linked inside CMesh
+    /// @todo when nodes in CMesh created, this can be linked inside CMesh
     find_component_with_name<CLink>(find_parent_component<CMesh>(*this),"nodes").link_to(nodes);
   }
   cf_assert(nodes->coordinates().row_size() == dim);

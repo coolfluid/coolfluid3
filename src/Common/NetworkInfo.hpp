@@ -7,6 +7,8 @@
 #ifndef CF_Common_NetworkInfo_hpp
 #define CF_Common_NetworkInfo_hpp
 
+#include "Common/CommonAPI.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -19,7 +21,7 @@ namespace Common {
   /// CF kernel or plugins without calling Qt libraries. Values are typically
   /// set by the GUI.
   /// @author Quentin Gasper.
-  class NetworkInfo
+  class Common_API NetworkInfo
   {
 
   public: // methods

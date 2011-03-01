@@ -9,24 +9,15 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "Common/Exception.hpp"
-#include "Common/CommonAPI.hpp"
+#include "Common/CF.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace Common {
+namespace Common {
 
   class OSystemLayer;
   class LibLoader;
-
-////////////////////////////////////////////////////////////////////////////////
-
-class Common_API OSystemError : public Common::Exception {
-public:
-  /// Constructor
-  OSystemError ( const Common::CodeLocation& where, const std::string& what);
-}; // end class OSystem
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,18 +27,14 @@ class Common_API OSystem : public boost::noncopyable {
 
 public: // methods
 
-  /// @return the single object that represents the operating system
-  static OSystem& instance();
-
   /// @return ProcessInfo object
-  boost::shared_ptr<Common::OSystemLayer> system_layer();
+  boost::shared_ptr<Common::OSystemLayer> layer();
 
   /// @return LibLoader object
   boost::shared_ptr<Common::LibLoader> lib_loader();
 
-  /// Executes the command passed in the string
-  /// @todo should return the output of the command but not yet implemented.
-  void execute_system_command (const std::string& call);
+  /// @return the single object that represents the operating system
+  static OSystem& instance();
 
 private: // functions
 
@@ -59,15 +46,15 @@ private: // functions
 private: // data
 
   /// memory usage object
-  boost::shared_ptr<Common::OSystemLayer> m_system_layer;
+  boost::shared_ptr<Common::OSystemLayer> m_layer;
   /// libloader object
   boost::shared_ptr<Common::LibLoader> m_lib_loader;
 
-}; // class FileHandlerOutput
+}; // class OSystem
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // Common
+} // Common
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -55,7 +55,7 @@ void Action::config_regions()
 
   boost_foreach(const URI region_path, vec)
   {
-    CRegion::Ptr comp = access_component_ptr<CRegion>(region_path);
+    CRegion::Ptr comp = access_component_ptr(region_path)->as_ptr<CRegion>();
     if ( is_null(comp) )
       throw ValueNotFound ( FromHere(), "Could not find region with path [" + region_path.path() +"]" );
 

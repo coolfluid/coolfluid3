@@ -12,8 +12,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Common/CF.hpp"
-#include "Common/CommonAPI.hpp"
-#include "Common/NetworkInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,6 +25,7 @@ namespace Common {
   class CEnv;
   class CLibraries;
   class CFactories;
+  class NetworkInfo;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +52,7 @@ public: // methods
 
   /// @brief Gives the root component.
   /// @return Returns the root component.
-  boost::shared_ptr<CRoot> root();
+  boost::shared_ptr<CRoot> root() const;
 
   /// Gets the EventHandler of the CF runtime environment
   /// @pre Core does not need to be initialized before
@@ -92,7 +91,7 @@ public: // methods
 
   /// Gets the network information.
   /// @return Returns the network information.
-  NetworkInfo& network_info ();
+  boost::shared_ptr<NetworkInfo> network_info() const;
   
   /// command-line arguments count
   /// @return count of arguments
@@ -113,28 +112,21 @@ private: // data
 
   /// the EventHandler unique object
   boost::shared_ptr< Common::EventHandler > m_event_handler;
-
   /// the BuildInfo unique object
-  boost::shared_ptr< Common::BuildInfo > m_build_info;
-
+  boost::shared_ptr< Common::BuildInfo >    m_build_info;
   /// the CEnv unique object
-  boost::shared_ptr< Common::CEnv > m_environment;
-
+  boost::shared_ptr< Common::CEnv >         m_environment;
   /// the CLibraries unique object
-  boost::shared_ptr< Common::CLibraries > m_libraries;
-
+  boost::shared_ptr< Common::CLibraries >   m_libraries;
   /// the CFactories unique object
-  boost::shared_ptr< Common::CFactories > m_factories;
-
+  boost::shared_ptr< Common::CFactories >   m_factories;
   /// @brief The component tree root
-  boost::shared_ptr< Common::CRoot > m_root;
-
-  /// The network information.
-  NetworkInfo m_network_info;
+  boost::shared_ptr< Common::CRoot >        m_root;
+  /// The network information
+  boost::shared_ptr< Common::NetworkInfo >   m_network_info;
 
   /// command-line arguments count
   int m_argc;
-  
   /// command-line arguments values
   char** m_argv;
 

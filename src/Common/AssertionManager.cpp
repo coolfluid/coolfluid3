@@ -58,7 +58,7 @@ void AssertionManager::do_assert ( bool condition,
     oss << "at " << code_position.str();
 
     if ( AssertionManager::instance().AssertionDumps )
-      oss << "\n" << OSystem::instance().system_layer()->back_trace();
+      oss << "\n" << OSystem::instance().layer()->back_trace();
 
     if ( AssertionManager::instance().AssertionThrows )
     {

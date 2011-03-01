@@ -142,7 +142,7 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
   std::string name  = p.get_option<std::string>("Model name");
 
-  CModelUnsteady::Ptr model = Core::instance().root()->get_child_ptr<CModelUnsteady>( name );
+  CModelUnsteady::Ptr model = Core::instance().root()->get_child_ptr( name )->as_ptr<CModelUnsteady>();
   if (is_null(model))
     throw ValueNotFound (FromHere(), "invalid model");
 
@@ -157,8 +157,8 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   // path file_in("line.msh");
   //   model->access_component_ptr<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
 
-  model->access_component_ptr<CBuildFaces>("cpath:./tools/build_faces")->transform(mesh);
-  model->access_component_ptr<CBuildVolume>("cpath:./tools/build_volume")->transform(mesh);
+  model->access_component_ptr("cpath:./tools/build_faces")->as_ptr<CBuildFaces>()->transform(mesh);
+  model->access_component_ptr("cpath:./tools/build_volume")->as_ptr<CBuildVolume>()->transform(mesh);
   model->configure_option_recursively("volume",find_component_recursively_with_tag<CField2>(*model->domain(),"volume").full_path());
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -228,9 +228,9 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   std::vector<URI> fields;
   boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
     fields.push_back(field.full_path());
-  model->access_component_ptr<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
-  model->access_component_ptr<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("File",model->name()+".msh");
-  model->access_component_ptr<Gmsh::CWriter>("cpath:./tools/gmsh_writer")->configure_property("Mesh",mesh->full_path());
+  model->access_component_ptr("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
+  model->access_component_ptr("cpath:./tools/gmsh_writer")->configure_property("File",model->name()+".msh");
+  model->access_component_ptr("cpath:./tools/gmsh_writer")->configure_property("Mesh",mesh->full_path());
 
 }
 

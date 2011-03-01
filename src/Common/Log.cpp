@@ -30,9 +30,9 @@ using namespace boost;
 Logger::Logger()
 {
   // streams initialization
-  m_streams[INFO] = new LogStream("Info");
+  m_streams[INFO]  = new LogStream("Info");
   m_streams[ERROR] = new LogStream("Error");
-  m_streams[WARN] = new LogStream("Warning");
+  m_streams[WARN]  = new LogStream("Warning");
   m_streams[DEBUG] = new LogStream("Debug");
   m_streams[TRACE] = new LogStream("Trace");
 }

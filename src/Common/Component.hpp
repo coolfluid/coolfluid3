@@ -149,7 +149,6 @@ public: // functions
 
   /// Access the path of the component
   const URI& path () const { return m_path; }
-
   /// Construct the full path
   URI full_path () const { return m_path / m_name; }
 
@@ -180,28 +179,6 @@ public: // functions
   /// @post returns always valid pointer
   Ptr access_component_ptr ( const URI& path );
 
-  /// Looks for a component via its path
-  /// @deprecated this function will be removed soon, use access_component_ptr then as_ptr
-  /// @param path to the component
-  /// @throws ValueNotFound if the component is not found in the path
-  /// @post returns empty shared pointer if failed to cast to requested type
-  /// @return constant Ptr to component cast to specific type
-  template < typename T >
-    typename T::ConstPtr access_component_ptr ( const URI& path ) const
-  {
-    return boost::dynamic_pointer_cast<T const>(access_component_ptr(path));
-  }
-
-  /// Looks for a component via its path
-  /// @deprecated this function will be removed soon, use access_component_ptr then as_ptr
-  /// @param path to the component
-  /// @return Ptr to component cast to specific type
-  template < typename T >
-  typename T::Ptr access_component_ptr ( const URI& path )
-  {
-    return boost::dynamic_pointer_cast<T>(access_component_ptr(path));
-  }
-
   /// @returns the pointer to parent component
   /// @pre parent pointer is valid
   Ptr parent();
@@ -226,44 +203,31 @@ public: // functions
   /// @return shared pointer to the component
   Ptr get_child_ptr_checked(const std::string& name);
 
-  /// @returns the named child from the direct subcomponents automatically cast to the specified type
-  template < typename T >
-      typename T::Ptr get_child_ptr ( const std::string& name );
-
-  /// @returns the named child from the direct subcomponents automatically cast to the specified type
-  template < typename T >
-      typename T::ConstPtr get_child_ptr ( const std::string& name ) const;
-
   /// @returns this component converted to type T reference
-  template < typename T >
-    T& as_type();
+  template < typename T > T& as_type();
 
   /// @returns this component converted to type T shared pointer
-  template < typename T >
-    typename T::Ptr as_ptr();
+  template < typename T > typename T::Ptr as_ptr();
 
   /// @returns this component converted to type T shared pointer
-  template < typename T >
-    typename T::Ptr as_ptr_checked();
+  template < typename T > typename T::Ptr as_ptr_checked();
 
   /// @returns this component converted to type T shared const pointer
-  template < typename T >
-    typename T::ConstPtr as_ptr() const;
+  template < typename T > typename T::ConstPtr as_ptr() const;
 
   /// @returns this component converted to type T shared const pointer
-  template < typename T >
-    typename T::ConstPtr as_ptr_checked() const;
+  template < typename T > typename T::ConstPtr as_ptr_checked() const;
 
   /// @return a ConstPtr
   ConstPtr as_const() const;
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
-      typename T::Ptr create_component ( const std::string& name );
+    typename T::Ptr create_component ( const std::string& name );
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
-      typename T::Ptr create_static_component ( const std::string& name );
+    typename T::Ptr create_static_component ( const std::string& name );
 
   /// Add a dynamic (sub)component of this component
   Ptr add_component ( Ptr subcomp );
@@ -530,28 +494,6 @@ inline typename T::Ptr Component::create_static_component ( const std::string& n
   typename T::Ptr comp = allocate_component<T>(name);
   add_static_component( comp );
   return comp ;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-template < typename T >
-inline typename T::Ptr Component::get_child_ptr(const std::string& name)
-{
-  const CompStorage_t::iterator found = m_components.find(name);
-  if(found != m_components.end())
-    return boost::dynamic_pointer_cast<T>(found->second);
-  return typename T::Ptr();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-template < typename T >
-inline typename T::ConstPtr Component::get_child_ptr(const std::string& name) const
-{
-  const CompStorage_t::const_iterator found = m_components.find(name);
-  if(found != m_components.end())
-    return boost::dynamic_pointer_cast<T const>(found->second);
-  return typename T::ConstPtr();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

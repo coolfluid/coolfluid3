@@ -66,7 +66,7 @@ BCDirichlet::BCDirichlet ( const std::string& name ) :
 void BCDirichlet::config_solution()
 {
   URI uri;  property("Solution").put_value(uri);
-  CField2::Ptr comp = Core::instance().root()->access_component_ptr<CField2>(uri);
+  CField2::Ptr comp = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
   if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
   m_connected_solution.set_field(comp);
 }

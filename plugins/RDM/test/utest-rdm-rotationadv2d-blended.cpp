@@ -138,7 +138,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("Number of Iterations", 1500u);
+  solver.configure_property("Number of Iterations", 250u);
 }
 
 //////////////////////////////////////////////////////////////////////////////

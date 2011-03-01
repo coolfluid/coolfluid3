@@ -134,7 +134,7 @@ void WriteMesh::signal_write_mesh ( Common::Signal::arg_t& node )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Mesh, expecting a \'cpath\' but got \'" + mesh_uri.string() +"\'");
 
   // get the domain
-  CMesh::Ptr mesh = access_component_ptr<CMesh>( mesh_uri );
+  CMesh::Ptr mesh = access_component_ptr( mesh_uri )->as_ptr<CMesh>();
 
   std::string file = options.get_option<std::string>("File");
 

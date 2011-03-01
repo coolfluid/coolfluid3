@@ -43,13 +43,27 @@ namespace Common {
     typename LIB::Ptr get_library ()
     {
       const std::string lname = LIB::library_namespace(); //instead of LIB::type_name();
-      typename LIB::Ptr lib = get_child_ptr<LIB>(lname);
-      if ( lib == nullptr )
+      Component::Ptr clib = get_child_ptr(lname);
+
+      typename LIB::Ptr lib;
+      if ( is_null(clib) ) // doesnt exist so build it
       {
         CF::TypeInfo::instance().regist< LIB >( lname );
         lib = create_component< LIB >(lname);
+        cf_assert( is_not_null(lib) );
+        return lib;
       }
-      cf_assert( lib != nullptr );
+
+      // try to convert existing ptr to LIB::Ptr and return it
+      lib = clib->as_ptr<LIB>();
+
+      if( is_null(lib) ) // conversion failed
+        throw CastingFailed( FromHere(),
+                            "Found component in CLibraries with name "
+                            + lname
+                            + " but is not the actual library "
+                            + LIB::type_name() );
+
       return lib;
     }
 

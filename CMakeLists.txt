@@ -11,7 +11,6 @@
 # TODO
 #
 #  * bring osystem to core - core::instance().opsystem()
-#  * remove DirPathss
 #  * try using precompiled headers and add a check to their support
 #  * mesh transformers
 #     * CScale, CRotate, CTranslate, 

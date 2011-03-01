@@ -57,7 +57,7 @@ public:
   template<typename TYPE>
   typename TYPE::Ptr rootChild(const std::string & name) const
   {
-    return m_root->root()->get_child_ptr<TYPE>(name);
+    return m_root->root()->get_child_ptr(name)->as_ptr<TYPE>();
   }
 
   NRoot::ConstPtr root() const { return m_root; }

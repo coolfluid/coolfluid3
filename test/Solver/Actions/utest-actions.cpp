@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
 
   CComputeVolume::Ptr compute_volume = root->create_component<CComputeVolume>("compute_volume");
-  CElements& elems = *root->access_component_ptr<CElements>(URI("cpath://Root/mesh/topology/default_id1084/fluid/Triag"));
+  CElements& elems = *root->access_component_ptr(URI("cpath://Root/mesh/topology/default_id1084/fluid/Triag"))->as_ptr<CElements>();
   compute_volume->configure_property("Volume",volumes.full_path());
   BOOST_CHECK(true);
   compute_volume->configure_property("Elements",elems.full_path());
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 BOOST_AUTO_TEST_CASE ( test_CForAllElementsT2 )
 {
   CRoot::Ptr root = Core::instance().root();//CRoot::create("Root");
-  CMesh::Ptr mesh = root->get_child_ptr<CMesh>("mesh");
+  CMesh::Ptr mesh = root->get_child_ptr("mesh")->as_ptr<CMesh>();
 
   BOOST_CHECK(true);
 

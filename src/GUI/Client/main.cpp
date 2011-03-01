@@ -10,6 +10,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/Core.hpp"
+#include "Common/NetworkInfo.hpp"
 #include "Common/Exception.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
   CF::AssertionManager::instance().AssertionDumps = true;
 
   // tell CF core that the client is running
-  Core::instance().network_info().start_client();
+  Core::instance().network_info()->start_client();
 
   try
   {
@@ -51,7 +52,7 @@ int main(int argc, char *argv[])
   }
 
   // tell CF core that the client is about to exit
-  Core::instance().network_info().stop_client();
+  Core::instance().network_info()->stop_client();
 
 
   return returnValue;

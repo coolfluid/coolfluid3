@@ -129,15 +129,15 @@ struct ComponentIterationFixture
   /// const root
   const Component& const_root() { return *m_root; }
 
-  CGroup& group1() { return *root().get_child_ptr<CGroup>("group1"); }
-  const CGroup& const_group1() { return *const_root().get_child_ptr<CGroup>("group1"); }
-  CGroup& group2() { return *root().get_child_ptr<CGroup>("group2"); }
-  const CGroup& const_group2() { return *const_root().get_child_ptr<CGroup>("group2"); }
-  CGroup& group3() { return *root().get_child_ptr<CGroup>("group3"); }
-  const CGroup& const_group3() { return *const_root().get_child_ptr<CGroup>("group3"); }
+  CGroup& group1() { return *root().get_child_ptr("group1")->as_ptr<CGroup>(); }
+  const CGroup& const_group1() { return *const_root().get_child_ptr("group1")->as_ptr<CGroup>(); }
+  CGroup& group2() { return *root().get_child_ptr("group2")->as_ptr<CGroup>(); }
+  const CGroup& const_group2() { return *const_root().get_child_ptr("group2")->as_ptr<CGroup>(); }
+  CGroup& group3() { return *root().get_child_ptr("group3")->as_ptr<CGroup>(); }
+  const CGroup& const_group3() { return *const_root().get_child_ptr("group3")->as_ptr<CGroup>(); }
 
-  CGroup& group2_1() { return *group2().get_child_ptr<CGroup>("group2_1"); }
-  const CGroup& const_group2_1() { return *const_group2().get_child_ptr<CGroup>("group2_1"); }
+  CGroup& group2_1() { return *group2().get_child_ptr("group2_1")->as_ptr<CGroup>(); }
+  const CGroup& const_group2_1() { return *const_group2().get_child_ptr("group2_1")->as_ptr<CGroup>(); }
 
   /// list of all component names on the first level
   std::vector<std::string> top_component_names;

@@ -113,11 +113,9 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   const Uint dim=2;
 
   // Create root and mesh component
-  CRoot::Ptr root = CRoot::create ( "root" );
+  CRoot::Ptr root = Core::instance().root();
 
-  CMesh::Ptr mesh = allocate_component<CMesh>  ( "mesh" ) ;
-
-  root->add_component( mesh );
+  CMesh::Ptr mesh = root->create_component<CMesh>( "mesh" ) ;
 
   // create regions
   CRegion& superRegion = mesh->topology().create_region("superRegion");
@@ -154,7 +152,6 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   coordinatesBuffer.add_row(create_coord( 2.0 , 1.0 ));  // 7
   coordinatesBuffer.add_row(create_coord( 2.0 , 0.0 ));  // 8
 
-
   // fill connectivity in the buffer
   qTableBuffer.add_row(create_quad( 0 , 1 , 2 , 3 ));
   qTableBuffer.add_row(create_quad( 3 , 2 , 4 , 5 ));
@@ -187,6 +184,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
     std::vector<Real> volumes(nbRows);
     const CTable<Real>& region_coordinates = region.nodes().coordinates();
     const CTable<Uint>& region_connTable = region.connectivity_table();
+
     // the loop
     ElementType::NodesT elementCoordinates(elementType.nb_nodes(), elementType.dimension());
     for (Uint iElem=0; iElem<nbRows; ++iElem)
@@ -215,7 +213,6 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	boost::filesystem::path fp_out("p1-mesh.msh");
 	meshwriter->write_from_to(mesh,fp_out);
-	
 
 }
 

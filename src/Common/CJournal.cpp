@@ -10,6 +10,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/Core.hpp"
+#include "Common/NetworkInfo.hpp"
 #include "Common/Log.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/OptionT.hpp"
@@ -58,8 +59,8 @@ CJournal::CJournal (const std::string & name)
 
   m_info_node.content.set_attribute( Protocol::Tags::attr_key(), "journalInfo");
 
-  m_info_node.set_value( "hostname", Core::instance().network_info().hostname() );
-  m_info_node.set_value( "port", (Uint)Core::instance().network_info().port());
+  m_info_node.set_value( "hostname", Core::instance().network_info()->hostname() );
+  m_info_node.set_value( "port", (Uint)Core::instance().network_info()->port());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

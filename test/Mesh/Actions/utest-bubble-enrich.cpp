@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
   // get the generic mesh loader from the Tools
 
-  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child_ptr("Tools")->get_child_ptr<LoadMesh>("LoadMesh");
+  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child_ptr("Tools")->get_child_ptr("LoadMesh")->as_ptr<LoadMesh>();
   cf_assert( is_not_null(load_mesh) );
 
   load_mesh->signal_load_mesh( frame );
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 BOOST_AUTO_TEST_CASE( enricher )
 {
   CBubbleEnrich::Ptr enricher =
-      Core::instance().root()->get_child_ptr<CBubbleEnrich>("enricher");
+      Core::instance().root()->get_child_ptr("enricher")->as_ptr<CBubbleEnrich>();
 
   cf_assert( is_not_null(enricher) );
 
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( remover )
   CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
 
   CBubbleRemove::Ptr remover =
-      Core::instance().root()->get_child_ptr<CBubbleRemove>("remover");
+      Core::instance().root()->get_child_ptr("remover")->as_ptr<CBubbleRemove>();
 
   cf_assert( is_not_null(remover) );
 

@@ -9,12 +9,20 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CF.hpp"
+#include "Common/Exception.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common {
+
+////////////////////////////////////////////////////////////////////////////////
+
+class Common_API OSystemError : public Common::Exception {
+public:
+  /// Constructor
+  OSystemError ( const Common::CodeLocation& where, const std::string& what);
+}; // end class OSystem
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +65,10 @@ public: // functions
   /// @post  no end of line added
   /// @param out the output stream
   std::string memory_usage_str () const;
+
+  /// Executes the command passed in the string
+  /// @todo should return the output of the command but not yet implemented.
+  void execute_command (const std::string& call);
 
   /// Gets the Class name
   static std::string type_name() { return "OSystemLayer"; }

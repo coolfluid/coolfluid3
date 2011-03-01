@@ -64,7 +64,7 @@ void CMeshReader::signal_read( Signal::arg_t& node  )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  CDomain::Ptr domain = access_component_ptr<CDomain>( path );
+  CDomain::Ptr domain = access_component_ptr( path )->as_ptr<CDomain>();
   if (!domain)
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
 

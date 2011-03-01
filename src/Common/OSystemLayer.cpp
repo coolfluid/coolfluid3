@@ -17,14 +17,30 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-OSystemLayer::OSystemLayer()
-{
-}
+OSystemError::OSystemError ( const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where, what, "OSystemError")
+{}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-OSystemLayer::~OSystemLayer()
+OSystemLayer::OSystemLayer() {}
+
+OSystemLayer::~OSystemLayer() {}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void OSystemLayer::execute_command(const std::string& call)
 {
+  int return_value = system ( call.c_str() );
+
+  if ( return_value == -1)
+  {
+    std::string msg;
+    msg += "Command \'";
+    msg += call;
+    msg += "\' return error code";
+    throw OSystemError ( FromHere(), msg );
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
