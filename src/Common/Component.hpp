@@ -162,28 +162,31 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
+  /// @throws InvalidURI in case a component is not found at that path
   /// @return reference to component
   Component& access_component ( const URI& path );
 
   /// Looks for a component via its path
   /// @param path to the component
   /// @return constant Ptr to component
-  /// @throws ValueNotFound in case a component is not found at that path
+  /// @throws InvalidURI in case a component is not found at that path
   /// @post returns always valid pointer
   ConstPtr access_component_ptr ( const URI& path ) const;
 
   /// Looks for a component via its path
   /// @param path to the component
   /// @return Ptr to component
-  /// @throws ValueNotFound in case a component is not found at that path
+  /// @throws InvalidURI in case a component is not found at that path
   /// @post returns always valid pointer
   Ptr access_component_ptr ( const URI& path );
 
   /// @returns the pointer to parent component
   /// @pre parent pointer is valid
+  /// @post returns always valid pointer
   Ptr parent();
   /// @returns the const pointer to parent component
   /// @pre parent pointer is valid
+  /// @post returns always valid pointer
   ConstPtr parent() const;
 
   /// Gets the named child component from the list of direct subcomponents.
@@ -247,10 +250,7 @@ public: // functions
 
   /// @return Returns the type name of the subclass, according to
   /// @c CF::TypeInfo
-  virtual std::string derived_type_name() const
-  {
-    return CF::TypeInfo::instance().portable_types[ typeid(*this).name() ];
-  }
+  virtual std::string derived_type_name() const;
 
   /// @return Returns a reference to the property list
   PropertyList& properties() { return m_properties; }

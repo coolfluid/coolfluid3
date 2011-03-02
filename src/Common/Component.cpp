@@ -109,6 +109,11 @@ Component::ConstPtr Component::follow() const
   return shared_from_this();
 }
 
+std::string Component::derived_type_name() const
+{
+  return CF::TypeInfo::instance().portable_types[ typeid(*this).name() ];
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 void Component::rename ( const std::string& name )
@@ -430,15 +435,14 @@ void Component::move_to ( Component::Ptr new_parent )
 
 Component& Component::access_component ( const URI& path )
 {
-  Component::Ptr comp = access_component_ptr(path);
-  cf_assert( is_not_null(comp) );
-  return *comp;
+  return *access_component_ptr(path); // pointer is garuanteed to be valid
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 Component::ConstPtr Component::access_component_ptr ( const URI& path ) const
 {
+  Component::ConstPtr comp;
   if (!m_root.expired())  // root is available. This is a faster method.
   {
     URI lpath = path;
@@ -446,13 +450,13 @@ Component::ConstPtr Component::access_component_ptr ( const URI& path ) const
     complete_path(lpath); // ensure the path is complete
 
     // get the component from the root
-    Component::Ptr comp = m_root.lock()->retrieve_component(lpath);
-    cf_assert( is_not_null(comp) );
-    return comp;
+    comp = m_root.lock()->retrieve_component(lpath);
   }
   else // we are in the case with no root. Hence the path must be relative
   {
     using namespace boost::algorithm;
+
+    cf_assert( path.is_relative() );
 
     std::string sp = path.path();
 
@@ -474,31 +478,34 @@ Component::ConstPtr Component::access_component_ptr ( const URI& path ) const
         Component::ConstPtr parent = look_comp;
         look_comp = look_comp->get_child_ptr(*el);
         if( is_null(look_comp) )
-          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().path());
+          throw InvalidURI (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().path());
       }
     }
-    return look_comp;
+    comp = look_comp;
   }
+  cf_assert( is_not_null(comp) );
+  return comp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 Component::Ptr Component::access_component_ptr ( const URI& path )
 {
+  Component::Ptr comp;
   if (!m_root.expired())  // root is available. This is a faster method.
   {
     URI lpath = path;
 
     complete_path(lpath); // ensure the path is complete
 
-    // get the component from the root
-    Component::Ptr comp = m_root.lock()->retrieve_component(lpath);
-    cf_assert( is_not_null(comp) );
-    return comp;
+    // get the component from the root, always returns valid pointer
+    comp = m_root.lock()->retrieve_component(lpath);
   }
   else // we are in the case with no root. Hence the path must be relative
   {
     using namespace boost::algorithm;
+
+    cf_assert( path.is_relative() );
 
     std::string sp = path.path();
 
@@ -520,11 +527,13 @@ Component::Ptr Component::access_component_ptr ( const URI& path )
         Component::Ptr parent = look_comp;
         look_comp = look_comp->get_child_ptr(*el);
         if( is_null(look_comp) )
-          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().path());
+          throw InvalidURI (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().path());
       }
     }
-    return look_comp;
+    comp = look_comp;
   }
+  cf_assert( is_not_null(comp) );
+  return comp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

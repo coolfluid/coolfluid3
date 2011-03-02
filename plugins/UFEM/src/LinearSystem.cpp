@@ -120,9 +120,9 @@ void LinearSystem::on_run()
     throw ValueNotFound(FromHere(), "System builder action not found. Did you set a LSS?");
 
   // Region we loop over
-  CRegion::Ptr region = access_component_ptr<CRegion>( builder->property("Region").value_str() );
+  CRegion::Ptr region = access_component_ptr( builder->property("Region").value_str() )->as_ptr<CRegion>();
   if(!region)
-    throw ValueNotFound(FromHere(), "Region at path " + get_child_ptr("HeatEquation")->property("ConductivityRegion").value_str() + " not found when looking for calculation Region.");
+    throw ValueNotFound(FromHere(), "Cannot Region at path " +  builder->property("Region").value_str() + " not found when looking for calculation Region.");
 
   CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(*region);
 

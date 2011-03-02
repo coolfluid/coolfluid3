@@ -42,16 +42,29 @@ namespace Common {
 
     /// Access the component described by the path
     /// The path should be absolute
+    /// @throws InvalidURI if no component can be found at the path
+    /// @post never returns nullptr
     /// @param path to the component
     /// @return pointer to Component
     Component::Ptr retrieve_component ( const URI& path );
 
     /// Access the component described by the path
     /// The path should be absolute
+    /// @throws InvalidURI if no component can be found at the path
     /// @param path to the component
+    /// @returns nullptr if cannot cast to TYPE::Ptr
     /// @return pointer to Component cast to the sepcified TYPE
     template < typename TYPE >
         typename TYPE::Ptr retrieve_component ( const URI& path );
+
+    /// Access the component described by the path
+    /// The path should be absolute
+    /// @throws InvalidURI if no component can be found at the path
+    /// @throws CastingFailed if a component is found but cannot be cast to type
+    /// @param path to the component
+    /// @return pointer to Component cast to the sepcified TYPE
+    template < typename TYPE >
+        typename TYPE::Ptr retrieve_component_checked ( const URI& path );
 
     /// define the component path
     /// @param path to the component
@@ -104,6 +117,17 @@ namespace Common {
   inline typename TYPE::Ptr CRoot::retrieve_component ( const URI& path )
   {
     return boost::dynamic_pointer_cast<TYPE>( this->retrieve_component (path) );
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template < typename TYPE >
+  inline typename TYPE::Ptr CRoot::retrieve_component_checked ( const URI& path )
+  {
+    typename TYPE::Ptr comp = boost::dynamic_pointer_cast<TYPE>( this->retrieve_component (path) );
+    if( is_null(comp) )
+      throw CastingFailed( FromHere(), "Retrieved component cannot be cast to type " + TYPE::type_name() );
+    return comp;
   }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -19,7 +19,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  boost::shared_ptr<CRoot> CRoot::create ( const std::string& name )
+  CRoot::Ptr CRoot::create ( const std::string& name )
   {
     CRoot* raw_root = new CRoot(name);
     boost::shared_ptr<CRoot> root ( raw_root );
@@ -53,13 +53,16 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  boost::shared_ptr<Component> CRoot::retrieve_component( const URI& path )
+  Component::Ptr CRoot::retrieve_component( const URI& path )
   {
     cf_assert ( path.is_complete() );
 
     CompStorage_t::iterator itr = m_toc.find(path.path());
     if ( itr != m_toc.end() )
+    {
+      cf_assert( is_not_null(itr->second) );
       return itr->second;
+    }
     else
       throw InvalidURI(FromHere(), "No component exists with path [" + path.path() + "]");
   }

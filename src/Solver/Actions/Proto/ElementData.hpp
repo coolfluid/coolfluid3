@@ -310,7 +310,7 @@ public:
     }
     else
     {
-      Mesh::CField2::ConstPtr field = Common::find_parent_component<Mesh::CMesh>(elements).get_child_ptr<Mesh::CField2>(placeholder.field_name);
+      Mesh::CField2::ConstPtr field = Common::find_parent_component<Mesh::CMesh>(elements).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField2>();
       cf_assert(field);
       
       m_data = &field->data();
@@ -409,7 +409,7 @@ public:
 
   VectorFieldData(const VectorField& placeholder, const Mesh::CElements& elements) : m_data(0), m_connectivity(0)
   {
-    Mesh::CField2::ConstPtr field = Common::find_parent_component<Mesh::CMesh>(elements).get_child_ptr<Mesh::CField2>(placeholder.field_name);
+    Mesh::CField2::ConstPtr field = Common::find_parent_component<Mesh::CMesh>(elements).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField2>();
     cf_assert(field);
     
     m_data = &field->data();
