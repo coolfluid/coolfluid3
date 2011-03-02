@@ -100,9 +100,17 @@ private: //data
   /// maximum y scale
   QLineEdit * m_line_max_y;
 
+  /// Line Edit labels
+  QLabel * m_label_min_x;
+  QLabel * m_label_max_x;
+  QLabel * m_label_min_y;
+  QLabel * m_label_max_y;
+
   /// Set scale button
   QPushButton * m_button_set_scale;
 
+  /// scale layout
+  QHBoxLayout * m_layout_zoom;
 
   //to do
   bool m_curently_zooming;
@@ -127,6 +135,12 @@ private slots: //slots
 
   /// Set the x,y scale of the graph.
   void set_scale();
+
+  /// show the graph's options
+  void show_graph_option(bool);
+
+  /// show the scale's options
+  void show_scale_option(bool);
 
 }; // Graph
 

@@ -14,6 +14,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QDoubleValidator>
+#include <QGroupBox>
 
 // Qwt headers
 #include "qwt/qwt_picker.h"
@@ -80,13 +81,20 @@ namespace ClientUI {
     QHBoxLayout * layout_h2 = new QHBoxLayout();
     QHBoxLayout * layout_h3 = new QHBoxLayout();
 
-    QHBoxLayout * layout_zoom = new QHBoxLayout();
+    m_layout_zoom = new QHBoxLayout();
     QHBoxLayout * layout_zoom_option_point = new QHBoxLayout();
     QHBoxLayout * layout_zoom_option_size = new QHBoxLayout();
 
     QVBoxLayout * layout_zoom_option = new QVBoxLayout();
 
     QHBoxLayout * layout_option = new QHBoxLayout();
+
+    //create group box
+    QGroupBox * m_scale_box = new QGroupBox("Scale");
+    m_scale_box->setCheckable(true);
+
+    QGroupBox * m_options_box = new QGroupBox("Options");
+    m_options_box->setCheckable(true);
 
     //creat the BodePlot
     m_plot = new BodePlot(this,true); //
@@ -134,9 +142,8 @@ namespace ClientUI {
     layout_grid->addLayout(layout_h,0,0,1,1);
     layout_grid->addLayout(layout_h2,1,0,1,1);
     layout_grid->addLayout(layout_h3,2,0,1,1);
-    layout_grid->addLayout(layout_zoom,3,0,1,1);
-    layout_grid->addLayout(layout_option,4,0,1,1);
-
+    layout_grid->addWidget(m_scale_box,3,0,1,1);
+    layout_grid->addWidget(m_options_box,4,0,1,1);
 
     setContextMenuPolicy(Qt::NoContextMenu);
 
@@ -179,26 +186,41 @@ namespace ClientUI {
     layout_h3->addWidget(m_label_bottom);
 
 
-    layout_zoom_option_point->addWidget(new QLabel("x min"));
+    m_label_min_x = new QLabel("x min");
+    m_label_max_x = new QLabel("x max");
+    m_label_min_y = new QLabel("y min");
+    m_label_max_y = new QLabel("y max");
+    layout_zoom_option_point->addWidget(m_label_min_x);
     layout_zoom_option_point->addWidget(m_line_min_x);
-    layout_zoom_option_point->addWidget(new QLabel("x max"));
+    layout_zoom_option_point->addWidget(m_label_max_x);
     layout_zoom_option_point->addWidget(m_line_max_x);
-    layout_zoom_option_size->addWidget(new QLabel("y min"));
+    layout_zoom_option_size->addWidget(m_label_min_y);
     layout_zoom_option_size->addWidget(m_line_min_y);
-    layout_zoom_option_size->addWidget(new QLabel("y max"));
+    layout_zoom_option_size->addWidget(m_label_max_y);
     layout_zoom_option_size->addWidget(m_line_max_y);
 
     layout_zoom_option->addLayout(layout_zoom_option_point);
     layout_zoom_option->addLayout(layout_zoom_option_size);
 
-    layout_zoom->addLayout(layout_zoom_option);
-    layout_zoom->addWidget(m_button_set_scale);
+    m_layout_zoom->addLayout(layout_zoom_option);
+    m_layout_zoom->addWidget(m_button_set_scale);
 
     NPlotXY::PlotDataPtr plot_data( new NPlotXY::PlotData() );
     std::vector<QString> vector_temp2(0);
     graph_option = new GraphOption(plot_data,vector_temp2,m_plot);
 
     layout_option->addWidget(graph_option);
+
+    m_scale_box->setLayout(m_layout_zoom);
+    m_options_box->setLayout(layout_option);
+
+
+
+    ////////////////////////test//////////////////////////////
+
+    //qDebug() << layout_zoom->itemAt(0);
+
+    //////////////////////////////////////////////////////////
 
     ////Conncetion phase
     connect(btn_svg, SIGNAL(clicked()), SLOT(export_svg()));
@@ -213,6 +235,8 @@ namespace ClientUI {
     connect(m_line_min_y, SIGNAL(editingFinished()), SLOT(set_scale()));
     connect(m_line_max_y, SIGNAL(editingFinished()), SLOT(set_scale()));
 
+    connect (m_options_box, SIGNAL(toggled(bool)), this, SLOT (show_graph_option(bool)));
+    connect (m_scale_box, SIGNAL(toggled(bool)), this, SLOT (show_scale_option(bool)));
 
 
     ////Connection Boost
@@ -409,6 +433,27 @@ namespace ClientUI {
     m_plot->replot();
 
      show_info();
+  }
+
+  void Graph::show_graph_option(bool visible)
+  {
+    graph_option->setVisible(visible);
+  }
+
+  void Graph::show_scale_option(bool visible)
+  {
+
+    m_label_min_x->setVisible(visible);
+    m_label_max_x->setVisible(visible);
+    m_label_min_y->setVisible(visible);
+    m_label_max_y->setVisible(visible);
+
+    m_line_min_x->setVisible(visible);
+    m_line_max_x->setVisible(visible);
+    m_line_min_y->setVisible(visible);
+    m_line_max_y->setVisible(visible);
+
+    m_button_set_scale->setVisible(visible);
   }
 
 
