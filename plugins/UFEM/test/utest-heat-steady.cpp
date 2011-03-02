@@ -129,18 +129,25 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   ufem_method->call_signal("add_dirichlet_bc", outside_bc_frame);
   Component::Ptr outside_bc = ufem_method->get_child_ptr("Outside");
   BOOST_CHECK(outside_bc);
+
+
   outside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/outer"));
+
   outside_bc->configure_property("Outside", 500.);
 
   SignalFrame run_frame("", URI(), URI());
 
   ufem_method->call_signal("initialize", run_frame);
+
   ufem_method->call_signal("run", run_frame);
 
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   ufem_model->add_component(writer);
+
   writer->configure_property( "Fields", std::vector<URI>(1, URI("cpath://Root/UFEMHeat/Domain/Mesh/Temperature") ) );
+
   writer->write_from_to(mesh, output_file);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

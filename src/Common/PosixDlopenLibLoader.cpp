@@ -93,7 +93,7 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
   // check for success
   if(hdl != NULL)
   {
-    CFinfo << "dlopen(): loaded library \'" << lib  << "\'" << CFendl;
+//    CFinfo << "dlopen(): loaded library \'" << lib  << "\'" << CFendl;
   }
   else
   {

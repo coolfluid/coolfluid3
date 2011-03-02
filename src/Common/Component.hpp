@@ -206,20 +206,20 @@ public: // functions
   /// @return shared pointer to the component
   Ptr get_child_ptr_checked(const std::string& name);
 
-  /// @returns this component converted to type T reference
-  template < typename T > T& as_type();
-
   /// @returns this component converted to type T shared pointer
   template < typename T > typename T::Ptr as_ptr();
-
-  /// @returns this component converted to type T shared pointer
-  template < typename T > typename T::Ptr as_ptr_checked();
-
   /// @returns this component converted to type T shared const pointer
   template < typename T > typename T::ConstPtr as_ptr() const;
 
+  /// @returns this component converted to type T shared pointer
+  template < typename T > typename T::Ptr as_ptr_checked();
   /// @returns this component converted to type T shared const pointer
   template < typename T > typename T::ConstPtr as_ptr_checked() const;
+
+  /// @returns this component converted to type T reference
+  template < typename T > T& as_type() { return * as_ptr_checked<T>(); }
+  /// @returns this component converted to type T reference
+  template < typename T > const T& as_type() const { return * as_ptr_checked<T>(); }
 
   /// @return a ConstPtr
   ConstPtr as_const() const;
@@ -494,14 +494,6 @@ inline typename T::Ptr Component::create_static_component ( const std::string& n
   typename T::Ptr comp = allocate_component<T>(name);
   add_static_component( comp );
   return comp ;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-template < typename T >
-inline T& Component::as_type()
-{
-  return * as_ptr_checked<T>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

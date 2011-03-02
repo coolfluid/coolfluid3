@@ -143,7 +143,7 @@ public:
       std::vector<Mesh::CField2::VarType> fd_var_types;
       
       // Check if the field exists
-      Mesh::CField2::ConstPtr existing_field = mesh.get_child_ptr(fd_name)->as_ptr<Mesh::CField2>();
+      Component::ConstPtr existing_field = mesh.get_child_ptr(fd_name);
       
       Uint var_idx = 0;
       for(Uint i = 0; i != nb_fd_vars; ++i)
@@ -156,9 +156,11 @@ public:
         
         if(existing_field)
         {
-          if(   existing_field->nb_vars() <= var_idx
-             || existing_field->var_name(var_idx) != var_names[i]
-             || existing_field->var_type(var_names[i]) != var_sizes[i])
+          const Mesh::CField2& efield = existing_field->as_type<Mesh::CField2>();
+
+          if(   efield.nb_vars() <= var_idx
+             || efield.var_name(var_idx) != var_names[i]
+             || efield.var_type(var_names[i]) != var_sizes[i])
             throw Common::ValueExists(FromHere(), "Field with name " + fd_name + " exists, but is incompatible with the requested solution.");
         }
         
