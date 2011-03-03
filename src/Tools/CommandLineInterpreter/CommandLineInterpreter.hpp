@@ -16,6 +16,7 @@
 #ifndef CF_Tools_CommandLineInterpreter_CommandLineInterpreter_hpp
 #define CF_Tools_CommandLineInterpreter_CommandLineInterpreter_hpp
 
+#include <deque>
 #include "Common/CF.hpp"
 #include <boost/program_options.hpp>
 
@@ -25,11 +26,8 @@ namespace CommandLineInterpreter {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline std::string default_prompt()
-{
-  return "> ";
-}
-
+std::string default_prompt();
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 class CommandLineInterpreter
@@ -37,23 +35,16 @@ class CommandLineInterpreter
 private:
   
   typedef std::string (*prompt_function_pointer_t)();
-  typedef char *(*readline_function_pointer_t)(const char *);
+  typedef std::string (*readline_function_pointer_t)(const std::string& line);
   typedef boost::program_options::options_description commands_description;
   
 public:
 
   /// Constructor, taking description of commands
-  CommandLineInterpreter(const commands_description& desc) :
-    m_prompt(default_prompt),
-    m_desc(&desc)
-  { }
+  CommandLineInterpreter(const commands_description& desc);
 
   /// Constructor taking description of commands and prompt function
-  CommandLineInterpreter(const commands_description& desc, 
-                           const prompt_function_pointer_t& prompt) :
-    m_prompt(prompt),
-    m_desc(&desc)
-  { }
+  CommandLineInterpreter(const commands_description& desc, const prompt_function_pointer_t& prompt);
 
   /// splits a command_line in words
   std::vector<std::string> split_command_line(const std::string& input);
@@ -68,13 +59,20 @@ public:
   /// before it gets handled.
   void interpret(std::istream &input_stream, readline_function_pointer_t f);
   
+  /// interpret command line style arguments
+  void interpret(int argc, char * argv[]);
+  
   /// Output the prompt
   void write_prompt();
-
+  
+  void set_description(const commands_description& desc);
+  
+  void notify(boost::program_options::variables_map& vm);
 private:
 
-  const commands_description* m_desc;    
+  commands_description m_desc;
   const prompt_function_pointer_t m_prompt;
+  std::deque<std::string> m_history;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

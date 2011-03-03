@@ -28,14 +28,6 @@ using namespace CF::Tools::MeshTransformer;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string pwd_prompt()
-{
-  return "["+BasicCommands::current_component->full_path().path()+"] ";
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-
 int main(int argc, char * argv[])
 {
   Core::instance().initiate(argc, argv);
@@ -44,12 +36,11 @@ int main(int argc, char * argv[])
   {
 ////////////////////////////////////////////////////////////////////////////////
     ExceptionManager::instance().ExceptionDumps = false;
-  	ExceptionManager::instance().ExceptionAborts = false;
+    ExceptionManager::instance().ExceptionAborts = false;
 
     // create mesh object
     CRoot::Ptr root = Core::instance().root();
     CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
-
 
     // Initialize empty commands
     options_description desc;
@@ -60,29 +51,9 @@ int main(int argc, char * argv[])
     // Add mesh transformer commands to program
     desc.add(Transformer::description());
 
-    // Parse commands passed directly on the command line
-    parsed_options parsed = parse_command_line(argc, argv, desc);
-    if (parsed.options.size())
-    {
-      typedef basic_option<char> Option;
-
-      // notify only 1 program_option at a time to conserve
-      // execution order
-      parsed_options one_parsed_option(parsed.description);
-      one_parsed_option.options.resize(1);
-      boost_foreach(Option option, parsed.options)
-      {
-        one_parsed_option.options[0]=option;
-        boost::program_options::variables_map vm;
-        boost::program_options::store(one_parsed_option,vm);
-        boost::program_options::notify(vm);
-      }
-    }
-    
-    // Start interactive shell
-    CFinfo << "\ncoolfluid shell - command 'exit' to quit - command 'help' for help" << CFendl;
-    CommandLineInterpreter cli(desc , &pwd_prompt);
-    cli.interpret(std::cin);
+    // Parse commands that are passed directly on the command line
+    CommandLineInterpreter cli(desc);
+    cli.interpret(argc,argv);
 
 ////////////////////////////////////////////////////////////////////////////////
   }

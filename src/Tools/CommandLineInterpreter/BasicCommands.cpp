@@ -19,6 +19,7 @@
 #include "Common/ComponentPredicates.hpp"
 
 #include "Tools/CommandLineInterpreter/BasicCommands.hpp"
+#include "Tools/CommandLineInterpreter/CommandLineInterpreter.hpp"
 
 namespace CF {
 namespace Tools {
@@ -47,7 +48,7 @@ BasicCommands::commands_description BasicCommands::description()
   ("exit,q",      value< std::vector<std::string> >()->zero_tokens()->notifier(boost::bind(&exit,_1)),          "exit program")
   ("pwd",         value< std::vector<std::string> >()->zero_tokens()->notifier(boost::bind(&pwd,_1)),           "print current component")
   ("configure",   value< std::vector<std::string> >()->notifier(&configure)->multitoken(),                      "configure options")
-  ("make",        value< std::vector<std::string> >()->notifier(boost::bind(&make,_1))->multitoken(),           "make component_name builder_name")
+  ("create",      value< std::vector<std::string> >()->notifier(boost::bind(&make,_1))->multitoken(),           "create component_name builder_name")
   ("ls",          value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&ls,_1)),         "list subcomponents")
   ("cd",          value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&cd,_1)),         "change current_component")
   ("rm",          value< std::string >()->notifier(boost::bind(&rm,_1)),                                        "remove component")
@@ -55,8 +56,23 @@ BasicCommands::commands_description BasicCommands::description()
   ("execute",     value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&execute,_1)),    "execute this component or given path")
   ("tree",        value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&tree,_1)),       "print tree")
   ("options",     value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&option_list,_1)),"list options")
+  ("call",        value< std::vector<std::string> >()->notifier(boost::bind(&call,_1)),                         "call signal options")
   ;
   return desc;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void BasicCommands::call(const std::vector<std::string>& params)
+{
+  if (params.size() == 0)
+    throw SetupError(FromHere(),"signal name needed + possible options");
+  
+  std::string name = params[0];
+  
+//  XmlNode node;
+//  current_component->call_signal(name,node)
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,7 +118,10 @@ void BasicCommands::rm(const std::string& cpath)
 
 void BasicCommands::cd(const std::string& cpath)
 {
-  current_component = current_component->access_component_ptr(URI(cpath));
+  if (cpath.empty())
+    current_component = Core::instance().root();
+  else
+    current_component = current_component->access_component_ptr(URI(cpath));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

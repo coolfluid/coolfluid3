@@ -47,6 +47,8 @@ public: // functions
 
   static void mv(const std::vector<std::string>& params);
 
+  static void call(const std::vector<std::string>& params);
+  
   static commands_description description();
 
 public: // data

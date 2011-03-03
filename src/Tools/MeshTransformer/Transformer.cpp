@@ -47,10 +47,10 @@ Transformer::commands_description Transformer::description()
 {
   commands_description desc("Mesh Transformer Commands");
   desc.add_options()
-  ("help,h",      value< std::string >()->implicit_value(std::string())->notifier(&help     ), "this help if no arg, or more detailed help of submodule")
-  ("input,i",     value< std::vector<std::string> >()->notifier(&input    )->multitoken(), "input file(s)")
-  ("output,o" ,   value< std::vector<std::string> >()->notifier(&output   )->multitoken(), "output file(s)")
-  ("transform,t", value< std::vector<std::string> >()->notifier(&transform)->multitoken(), "transformations")	  
+  //("help,h",      value< std::string >()->implicit_value(std::string())->notifier(&help     ), "this help if no arg, or more detailed help of submodule")
+  ("input",     value< std::vector<std::string> >()->notifier(&input    )->multitoken(), "input file(s)")
+  ("output" ,   value< std::vector<std::string> >()->notifier(&output   )->multitoken(), "output file(s)")
+  ("transform", value< std::vector<std::string> >()->notifier(&transform)->multitoken(), "transformations")	  
   ;
   return desc;
 }

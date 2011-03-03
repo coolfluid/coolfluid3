@@ -13,17 +13,75 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+#include <fstream>
+#include <boost/bind.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/find.hpp>
+#include <boost/algorithm/string/trim.hpp>
+
 #include "Common/Exception.hpp"
 #include "Common/Log.hpp"
+#include "Common/Component.hpp"
+#include "Common/Foreach.hpp"
 #include "Tools/CommandLineInterpreter/CommandLineInterpreter.hpp"
-#include <iostream>
-#include <boost/bind.hpp>
+#include "Tools/CommandLineInterpreter/BasicCommands.hpp"
 
 using namespace CF::Common;
+using namespace boost::program_options;
 
 namespace CF {
 namespace Tools { 
 namespace CommandLineInterpreter {
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::string default_prompt()
+{
+  return "["+BasicCommands::current_component->full_path().path()+"] ";
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::string print_line(const std::string& line)
+{
+  CFinfo << line << CFendl;
+  return line;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CommandLineInterpreter::CommandLineInterpreter(const commands_description& desc) :
+  m_prompt(default_prompt),
+  m_desc("Basic Commands")
+{ 
+  set_description(desc);
+}
+
+/// Constructor taking description of commands and prompt function
+CommandLineInterpreter::CommandLineInterpreter(const commands_description& desc, 
+                       const prompt_function_pointer_t& prompt) :
+  m_prompt(prompt),
+  m_desc("Basic Commands")
+{ 
+  set_description(desc);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CommandLineInterpreter::set_description(const commands_description& desc)
+{
+  m_desc.add_options()
+  ("help,h", "show help")
+  ("interactive,i", "start shell")
+  ("file,f", value< std::vector<std::string> >()->multitoken() , "execute coolfluid script file")
+  ("save,s", value< std::string >()->implicit_value(std::string()), "save history")
+  ("history", "show history")
+  ("reset,r", "reset history")
+  ;
+  
+  m_desc.add(desc);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -108,17 +166,17 @@ std::vector<std::string> CommandLineInterpreter::split_command_line(const std::s
 void CommandLineInterpreter::handle_read_line(std::string line)
 {
   std::vector<std::string> args;
-  
+
   // huu, ugly...
   args = split_command_line(std::string("--") + line); 
   
   try
   {
-    boost::program_options::variables_map vm;
-    boost::program_options::store(
-      boost::program_options::command_line_parser(args).options(*m_desc).run(), 
-      vm);
-    boost::program_options::notify(vm);
+    variables_map vm;
+    store( command_line_parser(args).options(m_desc).run(), vm);
+    notify(vm);
+    
+    m_history.push_back(line);
   }
   catch (boost::program_options::unknown_option &e) 
   {
@@ -149,6 +207,103 @@ void CommandLineInterpreter::handle_read_line(std::string line)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void CommandLineInterpreter::interpret(int argc, char * argv[])
+{
+  parsed_options parsed = parse_command_line(argc, argv, m_desc);
+  if (parsed.options.size())
+  {
+    typedef basic_option<char> Option;
+
+    // notify only 1 program_option at a time to conserve
+    // execution order
+    parsed_options one_parsed_option(&m_desc);
+    one_parsed_option.options.resize(1);
+    boost_foreach(Option option, parsed.options)
+    {
+      one_parsed_option.options[0]=option;
+      variables_map vm;
+      store(one_parsed_option,vm);
+      notify(vm);
+    }
+  }
+  else
+  {
+    CFinfo << "coolfluid shell - command 'exit' to quit - command 'help' for help" << CFendl;
+    interpret(std::cin);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CommandLineInterpreter::notify(variables_map& vm)
+{
+  boost::program_options::notify(vm);
+  
+  if (vm.count("help"))
+  {
+    CFinfo << m_desc << CFendl;
+  }
+
+  if (vm.count("file"))
+  {
+    std::vector<std::string> files = vm["file"].as<std::vector<std::string> >();
+    boost_foreach(std::string file_path, files)
+    {
+      std::ifstream myfile;          
+      myfile.open (file_path.c_str());
+      if (myfile.is_open()) 
+      {
+        interpret(myfile,print_line);
+        myfile.close();            
+      }
+      else
+      {
+        throw FileSystemError(FromHere(), "File "+file_path+" not opened");
+      }
+    }
+  }
+
+  if (vm.count("save"))
+  {
+    std::string file_path = vm["save"].as<std::string>();
+    if (file_path.empty())
+      file_path = "history.cfscript";
+
+    std::ofstream myfile;          
+    myfile.open (file_path.c_str());
+    if (myfile.is_open()) 
+    {
+      boost_foreach(const std::string& line, m_history)
+        myfile << line << std::endl;
+      myfile.close();            
+    }
+    else
+    {
+      throw FileSystemError(FromHere(), "File "+file_path+" not opened");
+    }
+  }
+
+  if (vm.count("history"))
+  {
+    boost_foreach(const std::string& line, m_history)
+      CFinfo << line << CFendl;
+  }
+  
+  if (vm.count("reset"))
+  {
+    m_history.clear();
+  }
+  
+  if (vm.count("interactive"))
+  {
+    CFinfo << "coolfluid shell - command 'exit' to quit - command 'help' for help" << CFendl;
+    interpret(std::cin);        
+  }
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void CommandLineInterpreter::interpret(std::istream &input_stream)
 {
   std::string command;
@@ -166,16 +321,17 @@ void CommandLineInterpreter::interpret(std::istream &input_stream)
 
 void CommandLineInterpreter::interpret(std::istream &input_stream, readline_function_pointer_t f)
 {
-  char *line = NULL;
+  std::string command;
 
-  while (line = boost::bind(f, m_prompt().c_str())())
+  while (std::getline(input_stream, command, '\n'))
   {
-    if (!line)
-      continue ;
-      
-    std::string command = line;
-    free(line);
-    handle_read_line(command);
+    command.erase(boost::algorithm::find_first(command,"#").begin(),command.end());
+    boost::algorithm::trim(command); // remove leading and trailing white spaces
+    if (!command.empty())
+    {
+      write_prompt();
+      handle_read_line(f(command));
+    }
   }
 }
 
