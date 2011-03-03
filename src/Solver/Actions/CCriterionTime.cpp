@@ -29,7 +29,7 @@ CCriterionTime::CCriterionTime( const std::string& name  ) :
     "Returns true if a time is reached\n";
   properties()["description"] = description;
   
-  properties().add_option(OptionComponent<CTime>::create("Time","Time tracking component",&m_time))
+  properties().add_option(OptionComponent<CTime>::create("time","Time","Time tracking component",&m_time))
     ->mark_basic()
     ->add_tag("time");
 }
@@ -47,7 +47,7 @@ bool CCriterionTime::operator()()
   if (m_time.expired()) throw SetupError(FromHere(),"Time option was not set in ["+full_path().path()+"]");
   CTime& t = *m_time.lock();
   
-  return ( t.time() + m_tolerance > t.property("End Time").value<Real>() );
+  return ( t.time() + m_tolerance > t.property("end_time").value<Real>() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

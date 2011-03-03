@@ -60,6 +60,8 @@ namespace Common {
 
     Option(const std::string & name, const std::string & desc, boost::any def);
 
+    Option(const std::string & name, const std::string& readable_name, const std::string & desc, boost::any def);
+
     virtual ~Option();
 
     template<typename TYPE>
@@ -183,6 +185,8 @@ namespace Common {
     boost::any m_default;
     /// option name
     std::string m_name;
+    /// option pretty name
+    std::string m_readable_name;
     /// option description
     std::string m_description;
     /// list of processors that will process the option

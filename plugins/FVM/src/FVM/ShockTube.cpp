@@ -96,7 +96,7 @@ void ShockTube::signal_create_model ( Signal::arg_t& args )
 
 // create the model
 
-  std::string name  = p.get_option<std::string>("Model name");
+  std::string name  = p.get_option<std::string>("model_name");
 
   CModel::Ptr model = Core::instance().root()->create_component<CModelUnsteady>( name );
 
@@ -130,7 +130,7 @@ void ShockTube::signature_create_model( Signal::arg_t& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
-  p.set_option<std::string>("Model name", std::string(), "Name for created model" );
+  p.set_option<std::string>("model_name", std::string(), "Name for created model" );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ void ShockTube::signature_create_model( Signal::arg_t& args )
 void ShockTube::signal_setup_model ( Signal::arg_t& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
-  std::string name  = p.get_option<std::string>("Model name");
+  std::string name  = p.get_option<std::string>("model_name");
 
   CModelUnsteady::Ptr model = Core::instance().root()->get_child_ptr( name )->as_ptr<CModelUnsteady>();
   if (is_null(model))
@@ -153,7 +153,7 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   ////////////////////////////////////////////////////////////////////////////////
   
   CMesh::Ptr mesh = model->domain()->create_component<CMesh>("line");
-  Tools::MeshGeneration::create_line(*mesh, 10. , p.get_option<Uint>("Number of Cells"));
+  Tools::MeshGeneration::create_line(*mesh, 10. , p.get_option<Uint>("nb_cells"));
   // path file_in("line.msh");
   //   model->access_component_ptr<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
 
@@ -164,11 +164,9 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
   ////////////////////////////////////////////////////////////////////////////////
   // Solver / Discretization configuration
   ////////////////////////////////////////////////////////////////////////////////
-
-  solver.configure_property("Number of Iterations", 1u);
   
-  model->time().configure_property("Time Step", p.get_option<Real>("Time Step"));
-  model->time().configure_property("End Time", p.get_option<Real>("End Time"));  
+  model->time().configure_property("time_step", p.get_option<Real>("time_step"));
+  model->time().configure_property("end_time", p.get_option<Real>("end_time"));  
   
   model->configure_option_recursively("time_accurate",true);
   model->configure_option_recursively("time",model->time().full_path());
@@ -242,10 +240,10 @@ void ShockTube::signature_setup_model( Signal::arg_t& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
-  p.set_option<std::string>("Model name", std::string(), "Name for created model" );
-  p.set_option<Uint>("Number of Cells", 100u , "Number of Cells to be generated");
-  p.set_option<Real>("End Time", 0.008, "Time to stop simulation");
-  p.set_option<Real>("Time Step", 0.0004, "Maximum allowed time step to take");
+  p.set_option<std::string>("model_name", std::string(), "Name for created model" );
+  p.set_option<Uint>("nb_cells", 100u , "Number of Cells to be generated");
+  p.set_option<Real>("end_time", 0.008, "Time to stop simulation");
+  p.set_option<Real>("time_step", 0.0004, "Maximum allowed time step to take");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -27,13 +27,11 @@ public: // functions
 
   static void pwd(const std::vector<std::string> &);
 
-  static void ls(const std::string& cpath);
+  static void ls(const std::vector<std::string>& params);
 
   static void rm(const std::string& cpath);
   
   static void cd(const std::string& cpath);
-
-  static void execute(const std::string& cpath);
   
   static void tree(const std::string& cpath);
 
@@ -43,11 +41,13 @@ public: // functions
 
   static void version(const std::vector<std::string>&);
 
-  static void make(const std::vector<std::string>& params);
+  static void create(const std::vector<std::string>& params);
 
   static void mv(const std::vector<std::string>& params);
 
   static void call(const std::vector<std::string>& params);
+  
+  static void unrecognized(std::vector<std::string>& unrecognized_options);
   
   static commands_description description();
 

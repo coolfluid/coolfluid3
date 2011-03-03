@@ -51,9 +51,6 @@ public: // functions
 
   /// the time component
   CTime::Ptr m_time;
-  
-  /// maximum number of iterations this simulation will do
-  Uint m_max_iter;
 
 };
 

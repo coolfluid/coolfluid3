@@ -44,12 +44,19 @@ Common::ComponentBuilder < RKRD, CSolver, LibRDM > RKRD_Builder;
 
 RKRD::RKRD ( const std::string& name  ) :
   CSolver ( name ),
-  m_cfl(1.0)
+  m_cfl(1.0),
+  m_nb_iter(0)
 {
   // options
 
   m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &RKRD::config_domain,   this ) );
 
+  m_properties.add_option<OptionT <Uint> >("Number of Iterations",
+                                           "Maximum number of iterations",
+                                            m_nb_iter)
+      ->mark_basic()
+      ->link_to( &m_nb_iter );
+  
   m_properties.add_option< OptionT<Real> > ("CFL", "Courant Number", m_cfl)
       ->mark_basic()
       ->link_to(&m_cfl)

@@ -64,9 +64,25 @@ namespace Common {
       return itr->second;
     }
     else
-      throw InvalidURI(FromHere(), "No component exists with path [" + path.path() + "]");
+      return Component::Ptr();
   }
 
+////////////////////////////////////////////////////////////////////////////////
+
+  Component::Ptr CRoot::retrieve_component_checked( const URI& path )
+  {
+    cf_assert ( path.is_complete() );
+
+    CompStorage_t::iterator itr = m_toc.find(path.path());
+    if ( itr != m_toc.end() )
+    {
+      cf_assert( is_not_null(itr->second) );
+      return itr->second;
+    }
+    else
+      throw InvalidURI(FromHere(), "No component exists with path [" + path.path() + "]");
+  }
+  
 ////////////////////////////////////////////////////////////////////////////////
 
   void CRoot::change_component_path( const URI& path , boost::shared_ptr<Component> comp )

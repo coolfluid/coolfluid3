@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string.hpp>
 #include "Common/BasicExceptions.hpp"
 
 #include "Common/PropertyList.hpp"
@@ -18,6 +19,12 @@ Property::Ptr PropertyList::add_property (const std::string& name,
 {
   cf_assert_desc ( "Class has already property with same name",
                    this->store.find(name) == store.end() );
+  // 
+  // cf_assert_desc("The name of property ["+name+"] does not comply with coolfluid standard. "
+  //                "It may not contain spaces.",
+  //   boost::algorithm::all(name,
+  //     boost::algorithm::is_alnum() || boost::algorithm::is_any_of("-_")) );
+
   Property::Ptr prop ( new Property(value) );
   store.insert( std::make_pair(name, prop ) );
   return prop;

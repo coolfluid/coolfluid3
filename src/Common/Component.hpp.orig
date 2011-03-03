@@ -183,24 +183,10 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
-  /// @return constant Ptr to component
-  /// @throws InvalidURI in case a component is not found at that path
-  /// @post returns always valid pointer
-  ConstPtr access_component_ptr_checked ( const URI& path ) const;
-
-  /// Looks for a component via its path
-  /// @param path to the component
   /// @return Ptr to component
   /// @throws InvalidURI in case a component is not found at that path
   /// @post returns always valid pointer
   Ptr access_component_ptr ( const URI& path );
-
-  /// Looks for a component via its path
-  /// @param path to the component
-  /// @return Ptr to component
-  /// @throws InvalidURI in case a component is not found at that path
-  /// @post returns always valid pointer
-  Ptr access_component_ptr_checked ( const URI& path );
 
   /// @returns the pointer to parent component
   /// @pre parent pointer is valid
@@ -228,6 +214,15 @@ public: // functions
   /// @return shared pointer to the component
   Ptr get_child_ptr_checked(const std::string& name);
 
+<<<<<<< HEAD:src/Common/Component.hpp
+=======
+  /// @returns this component converted to type T reference
+  template < typename T > T& as_type();
+
+  /// @returns this component converted to type T reference
+  template < typename T > T const& as_type() const;
+
+>>>>>>> [ENH] simulation can be setup/configured/run via command line:src/Common/Component.hpp
   /// @returns this component converted to type T shared pointer
   template < typename T > typename T::Ptr as_ptr();
   /// @returns this component converted to type T shared const pointer
@@ -521,6 +516,25 @@ inline typename T::Ptr Component::create_static_component ( const std::string& n
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
+<<<<<<< HEAD:src/Common/Component.hpp
+=======
+inline T& Component::as_type()
+{
+  return * as_ptr_checked<T>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline T const& Component::as_type() const
+{
+  return * as_ptr_checked<T>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+>>>>>>> [ENH] simulation can be setup/configured/run via command line:src/Common/Component.hpp
 inline typename T::Ptr Component::as_ptr()
 {
   return boost::dynamic_pointer_cast<T>(follow());

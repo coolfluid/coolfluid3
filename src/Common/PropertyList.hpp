@@ -36,12 +36,25 @@ namespace Common {
     /// adds an option to the list
     template < typename OPTION_TYPE >
     Option::Ptr add_option (const std::string& name,
-                              const std::string& description,
-                              const typename OPTION_TYPE::value_type& def )
+                            const std::string& description,
+                            const typename OPTION_TYPE::value_type& def )
     {
       cf_assert_desc ( "Class has already property with same name",
                        this->store.find(name) == store.end() );
       Option::Ptr opt ( new OPTION_TYPE(name, description, def) );
+      store.insert( std::make_pair(name, opt ) );
+      return opt;
+    }
+    
+    template < typename OPTION_TYPE >
+    Option::Ptr add_option (const std::string& name,
+                            const std::string& pretty_name,
+                            const std::string& description,
+                            const typename OPTION_TYPE::value_type& def )
+    {
+      cf_assert_desc ( "Class has already property with same name",
+                       this->store.find(name) == store.end() );
+      Option::Ptr opt ( new OPTION_TYPE(name, pretty_name, description, def) );
       store.insert( std::make_pair(name, opt ) );
       return opt;
     }

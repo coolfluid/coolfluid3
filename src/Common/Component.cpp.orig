@@ -444,65 +444,19 @@ void Component::move_to ( Component::Ptr new_parent )
 
 Component& Component::access_component ( const URI& path )
 {
-  return *access_component_ptr_checked(path); // pointer is garuanteed to be valid
+  return *access_component_ptr(path); // pointer is garuanteed to be valid
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const Component& Component::access_component ( const URI& path ) const
 {
-  Component::ConstPtr comp = access_component_ptr_checked(path);
+  Component::ConstPtr comp = access_component_ptr(path);
   cf_assert( is_not_null(comp) );
   return *comp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-
-Component::Ptr Component::access_component_ptr ( const URI& path )
-{
-  Component::Ptr comp;
-  if (!m_root.expired())  // root is available. This is a faster method.
-  {
-    URI lpath = path;
-
-    complete_path(lpath); // ensure the path is complete
-
-    // get the component from the root, always returns valid pointer
-    comp = m_root.lock()->retrieve_component(lpath);
-  }
-  else // we are in the case with no root. Hence the path must be relative
-  {
-    using namespace boost::algorithm;
-
-    cf_assert( path.is_relative() );
-
-    std::string sp = path.path();
-
-    // break path in tokens and loop on them, while concatenaitng to a new path
-    boost::char_separator<char> sep("/");
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-    tokenizer tok (sp,sep);
-
-    Component::Ptr look_comp = follow() ;
-    std::string last;
-    for(tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
-    {
-      if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
-
-      if ( equals (*el, "..") )              // substitute any "../" for base path
-        look_comp = look_comp->parent();
-      else
-      {
-        Component::Ptr parent = look_comp;
-        look_comp = look_comp->get_child_ptr(*el);
-      }
-      if (is_null(look_comp))
-        return Ptr();
-    }
-    comp = look_comp;
-  }
-  return comp;
-}
 
 Component::ConstPtr Component::access_component_ptr ( const URI& path ) const
 {
@@ -541,30 +495,69 @@ Component::ConstPtr Component::access_component_ptr ( const URI& path ) const
       {
         Component::ConstPtr parent = look_comp;
         look_comp = look_comp->get_child_ptr(*el);
+        if( is_null(look_comp) )
+          throw InvalidURI (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().path());
       }
-      if (is_null(look_comp))
-        return ConstPtr();
     }
     comp = look_comp;
   }
+  cf_assert( is_not_null(comp) );
   return comp;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::access_component_ptr_checked (const URI& path )
+Component::Ptr Component::access_component_ptr ( const URI& path )
 {
-  Component::Ptr comp = access_component_ptr(path);
-  if (is_null(comp))
-    throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + full_path().path());
-  return comp;
-}
+  Component::Ptr comp;
+  if (!m_root.expired())  // root is available. This is a faster method.
+  {
+    URI lpath = path;
 
-Component::ConstPtr Component::access_component_ptr_checked (const URI& path ) const
-{
-  Component::ConstPtr comp = access_component_ptr(path);
-  if (is_null(comp))
-    throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + full_path().path());
+    complete_path(lpath); // ensure the path is complete
+
+<<<<<<< HEAD:src/Common/Component.cpp
+    // get the component from the root, always returns valid pointer
+    comp = m_root.lock()->retrieve_component(lpath);
+=======
+    // get the component from the root
+    Component::Ptr comp = m_root.lock()->retrieve_component(lpath);
+    //cf_assert( is_not_null(comp) );
+    return comp;
+>>>>>>> [ENH] simulation can be setup/configured/run via command line:src/Common/Component.cpp
+  }
+  else // we are in the case with no root. Hence the path must be relative
+  {
+    using namespace boost::algorithm;
+
+    cf_assert( path.is_relative() );
+
+    std::string sp = path.path();
+
+    // break path in tokens and loop on them, while concatenaitng to a new path
+    boost::char_separator<char> sep("/");
+    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    tokenizer tok (sp,sep);
+
+    Component::Ptr look_comp = follow() ;
+    std::string last;
+    for(tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
+    {
+      if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
+
+      if ( equals (*el, "..") )              // substitute any "../" for base path
+        look_comp = look_comp->parent();
+      else
+      {
+        Component::Ptr parent = look_comp;
+        look_comp = look_comp->get_child_ptr(*el);
+        if( is_null(look_comp) )
+          throw InvalidURI (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().path());
+      }
+    }
+    comp = look_comp;
+  }
+  cf_assert( is_not_null(comp) );
   return comp;
 }
 

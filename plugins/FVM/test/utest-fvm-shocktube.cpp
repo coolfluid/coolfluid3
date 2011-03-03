@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   SignalFrame frame("", "", "");
   SignalFrame& p = frame.map( Protocol::Tags::key_options() );
 
-  p.set_option<std::string>("Model name","shocktube");
+  p.set_option<std::string>("model_name","shocktube");
 
   ShockTube::Ptr s = allocate_component<ShockTube>("shocktube_wizard");
 
@@ -81,9 +81,9 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // 3) Setup model and allocate data
   // --------------------------------
-  p.set_option<Uint>("Number of Cells", 100u );
-  p.set_option<Real>("End Time", 0.008);
-  p.set_option<Real>("Time Step", 0.0004);
+  p.set_option<Uint>("nb_cells", 100u );
+  p.set_option<Real>("end_time", 0.008);
+  p.set_option<Real>("time_step", 0.0004);
   s->signal_setup_model(frame);
 
   BOOST_CHECK(true);

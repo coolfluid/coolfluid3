@@ -17,23 +17,16 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CSolver::CSolver ( const std::string& name  ) :
-  CMethod ( name ),
-  m_nb_iter(0)
+  CMethod ( name )
 {
   mark_basic();
 
   // properties
 
-  properties()["brief"] = std::string("Residual Distribution Solver");
+  properties()["brief"] = std::string("Solver");
   properties()["description"] = std::string("");
 
   // options
-
-  m_properties.add_option<OptionT <Uint> >("Number of Iterations",
-                                           "Maximum number of iterations",
-                                           m_nb_iter)
-      ->mark_basic()
-      ->link_to( &m_nb_iter );
 
   m_properties.add_option< OptionURI > ("Domain",
                                         "Domain to solve",
@@ -42,7 +35,7 @@ CSolver::CSolver ( const std::string& name  ) :
   // signals
 
   regist_signal ("solve" ,
-                 "Solves by executing a number of iterations",
+                 "Solves",
                  "Solve" )
       ->connect ( boost::bind ( &CSolver::signal_solve, this, _1 ) );
 }

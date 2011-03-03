@@ -36,17 +36,17 @@ CTime::CTime ( const std::string& name  ) :
   m_properties["description"] = description;
   
   
-  m_properties.add_option< OptionT<Real> > ("Time","Current time of the simulation", m_time)->mark_basic();
+  m_properties.add_option< OptionT<Real> > ("time","Time","Current time of the simulation", m_time)->mark_basic();
   
-  m_properties.add_option< OptionT<Real> > ("Time Step",
+  m_properties.add_option< OptionT<Real> > ("time_step","Time Step",
                                             "Maximal Time Step the simulation will use.\n"
                                             "A CFL condition will be applied to make time step more strict if required.",
                                              m_dt)->mark_basic();
 
-  m_properties.add_option< OptionT<Real> > ("End Time", "Time at which to finish the simulation", m_time)->mark_basic();
+  m_properties.add_option< OptionT<Real> > ("end_time","End Time", "Time at which to finish the simulation", m_time)->mark_basic();
 
-  m_properties["Time"].as_option().link_to( &m_time );
-  m_properties["Time Step"].as_option().link_to( &m_dt );
+  m_properties["time"].as_option().link_to( &m_time );
+  m_properties["time_step"].as_option().link_to( &m_dt );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -39,6 +39,8 @@ namespace Common {
 
     OptionT ( const std::string& name, const std::string& desc, value_type def);
 
+    OptionT ( const std::string& name, const std::string& readable_name, const std::string& desc, value_type def);
+
     /// @name VIRTUAL FUNCTIONS
     //@{
 

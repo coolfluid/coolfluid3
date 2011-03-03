@@ -30,6 +30,12 @@ OptionArray::OptionArray(const std::string& name,
 {
 }
 
+OptionArray::OptionArray(const std::string& name,const std::string& readable_name,
+                        const std::string& desc, const boost::any def) :
+    Option(name, readable_name, desc, def)
+{
+}
+
 OptionArray::~OptionArray() {}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +56,28 @@ OptionArrayT<TYPE>::OptionArrayT ( const std::string& name, const std::string& d
   for( ; it != def.end() ; it++)
     restricted_list().push_back(*it);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename TYPE>
+OptionArrayT<TYPE>::OptionArrayT ( const std::string& name, const std::string& readable_name,
+                                   const std::string& desc, const value_type& def) :
+  OptionArray(name, readable_name, desc, def)
+{
+  //    CFinfo
+  //        << " creating OptionArray of " << elem_type() <<  "\'s [" << m_name << "]"
+  //        << " of type [" << m_type << "]"
+  //        << " w default [" << def_str() << "]"
+  //        << " w desc [" << m_description << "]\n"
+  //        << CFendl;
+
+  typename value_type::const_iterator it = def.begin();
+
+  for( ; it != def.end() ; it++)
+    restricted_list().push_back(*it);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 template < typename TYPE >
     void OptionArrayT<TYPE>::configure ( XmlNode& node )

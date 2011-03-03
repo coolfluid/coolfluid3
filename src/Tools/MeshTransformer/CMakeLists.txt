@@ -5,6 +5,7 @@ list( APPEND coolfluid-mesh-transformer_files
     )
 
 list( APPEND coolfluid-mesh-transformer_cflibs  coolfluid_cli coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh )
+list( APPEND coolfluid-mesh-transformer_cflibs ${CF_KERNEL_LIBS} )
 
 # add blockmesh reader if built
 if(coolfluid_mesh_cgns3_builds)

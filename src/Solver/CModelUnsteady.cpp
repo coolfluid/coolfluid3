@@ -31,8 +31,7 @@ Common::ComponentBuilder < CModelUnsteady, Component, LibSolver > CModelUnsteady
 
 CModelUnsteady::CModelUnsteady( const std::string& name  ) :
   CModel ( name ),
-  m_time(),
-  m_max_iter(10000)
+  m_time()
 {
   m_time = create_static_component<CTime>("Time");
 
@@ -48,10 +47,6 @@ CModelUnsteady::CModelUnsteady( const std::string& name  ) :
   " - \"iterative solver\" which will advance the solution in time\n"
   "   The iterative solver delegates space discretization to a \"discretization method\"";
   properties()["description"] = description;
-  
-  
-  properties().add_option< OptionT<Uint> >("Max Iterations","Maximal number of iterations",m_max_iter)
-    ->link_to(&m_max_iter);
 
 }
 
@@ -71,7 +66,7 @@ void CModelUnsteady::simulate ()
   boost_foreach(CSolver& is, find_components<CSolver>(*this))
     is.solve();
 
-  m_time->configure_property("Time",m_time->time());
+  m_time->configure_property("time",m_time->time());
   CFinfo << name() << ": end simulation\n" << CFendl;
 }
 

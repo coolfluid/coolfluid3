@@ -36,29 +36,29 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
 {
   mark_basic();
   // options
-  m_properties.add_option< OptionT<bool> > ("Time Accurate", "Time Accurate", m_time_accurate)
+  m_properties.add_option< OptionT<bool> > ("time_accurate","Time Accurate", "Time Accurate", m_time_accurate)
     ->mark_basic()
     ->link_to(&m_time_accurate)
     ->add_tag("time_accurate");
     
-  m_properties.add_option< OptionT<Real> > ("CFL", "Courant Number", m_CFL)
+  m_properties.add_option< OptionT<Real> > ("cfl","CFL", "Courant Number", m_CFL)
     ->mark_basic()
     ->link_to(&m_CFL)
     ->add_tag("cfl");
 
-  m_properties.add_option(OptionURI::create("UpdateCoeff","Update coefficient", URI("cpath:"), URI::Scheme::CPATH))
+  m_properties.add_option(OptionURI::create("update_coeff","Update Coefficient","Update coefficient to multiply with residual", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_update_coeff,   this ) )
     ->add_tag("update_coeff");
 
-  m_properties.add_option(OptionURI::create("WaveSpeed","WaveSpeed needed", URI("cpath:"), URI::Scheme::CPATH))
+  m_properties.add_option(OptionURI::create("wave_speed","Wave Speed","WaveSpeed needed", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_wave_speed,   this ) )
     ->add_tag("wave_speed");
 
-  m_properties.add_option(OptionURI::create("Volume","Volume needed for time accurate simulations", URI("cpath:"), URI::Scheme::CPATH))
+  m_properties.add_option(OptionURI::create("volume","Volume","Volume needed for time accurate simulations", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) )
     ->add_tag("volume");
 
-  m_properties.add_option(OptionURI::create("Time","Time", URI("cpath:"), URI::Scheme::CPATH))
+  m_properties.add_option(OptionURI::create("time","Time","Time Tracking component", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_time,   this ) )
     ->add_tag("time");
 
@@ -68,7 +68,7 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
 
 void ComputeUpdateCoefficient::config_update_coeff()
 {
-  URI uri;  property("UpdateCoeff").put_value(uri);
+  URI uri;  property("update_coeff").put_value(uri);
   m_update_coeff = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
 }
 
@@ -76,7 +76,7 @@ void ComputeUpdateCoefficient::config_update_coeff()
 
 void ComputeUpdateCoefficient::config_volume()
 {
-  URI uri;  property("Volume").put_value(uri);
+  URI uri;  property("volume").put_value(uri);
   m_volume = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
 }
 
@@ -84,7 +84,7 @@ void ComputeUpdateCoefficient::config_volume()
 
 void ComputeUpdateCoefficient::config_wave_speed()
 {
-  URI uri;  property("WaveSpeed").put_value(uri);
+  URI uri;  property("wave_speed").put_value(uri);
   m_wave_speed = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
 }
 
@@ -92,7 +92,7 @@ void ComputeUpdateCoefficient::config_wave_speed()
 
 void ComputeUpdateCoefficient::config_time()
 {
-  URI uri;  property("Time").put_value(uri);
+  URI uri;  property("time").put_value(uri);
   m_time = Core::instance().root()->access_component_ptr(uri)->as_ptr<CTime>();
 }
 
@@ -115,8 +115,8 @@ void ComputeUpdateCoefficient::execute()
     CTable<Real>& volume = m_volume.lock()->data();
 
     // compute which dt to take
-    Real tf = time.property("End Time").value<Real>();
-    Real dt = time.property("Time Step").value<Real>();
+    Real tf = time.property("end_time").value<Real>();
+    Real dt = time.property("time_step").value<Real>();
     if( time.time() + dt > tf )
       dt = tf - time.time();
     

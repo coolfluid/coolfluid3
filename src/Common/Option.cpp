@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/assign/std/vector.hpp>
-
+#include <boost/algorithm/string.hpp>
 #include "Common/Option.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Foreach.hpp"
@@ -18,9 +18,30 @@ Option::Option(const std::string & name, const std::string & desc, boost::any de
   : Property(def),
     m_default(def),
     m_name(name),
+    m_readable_name(name),
     m_description(desc)
 {
   m_is_option = true;
+  // cf_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
+  //                "It may not contain spaces.",
+  //   boost::algorithm::all(name,
+  //     boost::algorithm::is_alnum() || boost::algorithm::is_any_of("-_")) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Option::Option(const std::string& name, const std::string& readable_name, const std::string& desc, boost::any def)
+  : Property(def),
+    m_default(def),
+    m_name(name),
+    m_readable_name(readable_name),
+    m_description(desc)
+{
+  m_is_option = true;
+  // cf_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
+  //                "It may not contain spaces.",
+  //   boost::algorithm::all(name,
+  //     boost::algorithm::is_alnum() || boost::algorithm::is_any_of("-_")) );
 }
 
 ////////////////////////////////////////////////////////////////////////////

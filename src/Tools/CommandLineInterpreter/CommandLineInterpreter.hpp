@@ -36,7 +36,10 @@ private:
   
   typedef std::string (*prompt_function_pointer_t)();
   typedef std::string (*readline_function_pointer_t)(const std::string& line);
+//  typedef void (*unrecognized_commands_handler_t)(std::vector<std::string>& unrecognized_commands);
   typedef boost::program_options::options_description commands_description;
+  
+  typedef boost::function< void (std::vector<std::string>&) >  unrecognized_commands_handler_t;
   
 public:
 
@@ -68,11 +71,18 @@ public:
   void set_description(const commands_description& desc);
   
   void notify(boost::program_options::variables_map& vm);
+  
+  void alias(const std::string& arg);
+  
+  void interpret_alias(std::vector<std::string>& unrecognized_commands);
+  
 private:
 
   commands_description m_desc;
   const prompt_function_pointer_t m_prompt;
+  std::vector<unrecognized_commands_handler_t> m_handle_unrecognized_commands;
   std::deque<std::string> m_history;
+  std::map<std::string,std::string> m_alias;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

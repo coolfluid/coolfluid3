@@ -24,6 +24,13 @@ OptionURI::OptionURI(const std::string & name, const std::string & desc,
 
 }
 
+OptionURI::OptionURI(const std::string & name, const std::string& readable_name,
+                     const std::string & desc, const URI & def) :
+  Option(name, readable_name, desc, def)
+{
+
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 OptionURI::~OptionURI()

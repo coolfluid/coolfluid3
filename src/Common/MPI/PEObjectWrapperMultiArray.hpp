@@ -109,7 +109,7 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
     int size() const
-	{
+    {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       return m_data->num_elements();
     }

@@ -55,11 +55,6 @@ public: // functions
 
   //@} END SIGNALS
 
-protected: // data
-
-  /// Maximum number of iterations
-  Uint m_nb_iter;
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////

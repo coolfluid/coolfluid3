@@ -29,6 +29,9 @@ namespace Common {
 
     OptionArray(const std::string& name, const std::string& desc, boost::any def);
 
+    OptionArray(const std::string& name, const std::string& readable_name, 
+                const std::string& desc, boost::any def);
+
     virtual ~OptionArray();
 
     /// Returns a C-string representation of element type
@@ -60,6 +63,9 @@ namespace Common {
     virtual std::string data_type() const { return type(); }
 
     OptionArrayT( const std::string& name, const std::string& desc, const value_type& def);
+
+    OptionArrayT( const std::string& name, const std::string& readable_name, 
+                  const std::string& desc, const value_type& def);
 
     virtual ~OptionArrayT() {}
 

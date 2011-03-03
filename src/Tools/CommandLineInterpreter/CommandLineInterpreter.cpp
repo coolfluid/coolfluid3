@@ -19,6 +19,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/tokenizer.hpp>
 
 #include "Common/Exception.hpp"
 #include "Common/Log.hpp"
@@ -56,6 +57,9 @@ CommandLineInterpreter::CommandLineInterpreter(const commands_description& desc)
   m_desc("Basic Commands")
 { 
   set_description(desc);
+  
+  m_handle_unrecognized_commands.push_back(&BasicCommands::unrecognized);
+  m_handle_unrecognized_commands.push_back(boost::bind(&CommandLineInterpreter::interpret_alias,this,_1));
 }
 
 /// Constructor taking description of commands and prompt function
@@ -76,11 +80,47 @@ void CommandLineInterpreter::set_description(const commands_description& desc)
   ("interactive,i", "start shell")
   ("file,f", value< std::vector<std::string> >()->multitoken() , "execute coolfluid script file")
   ("save,s", value< std::string >()->implicit_value(std::string()), "save history")
+  ("alias", value<std::string>()->notifier(boost::bind(&CommandLineInterpreter::alias, this, _1)))
   ("history", "show history")
   ("reset,r", "reset history")
   ;
   
   m_desc.add(desc);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CommandLineInterpreter::interpret_alias(std::vector<std::string>& unrecognized_commands)
+{
+  Uint cnt(0);
+  boost_foreach(std::string& command, unrecognized_commands)
+  {
+    std::string alias_str = command;
+    std::string arg_str = "";
+    alias_str.erase( boost::algorithm::find_first(alias_str," ").begin(),alias_str.end());    
+    if (m_alias.find(alias_str) != m_alias.end())
+    {
+      if (alias_str != command)
+        arg_str = std::string( boost::algorithm::find_first(command," ").begin(),command.end());
+      CFLogVar(m_alias[alias_str]);
+      CFLogVar(arg_str);
+      CFLogVar(arg_str.size());
+      unrecognized_commands.erase(unrecognized_commands.begin()+cnt);
+      handle_read_line(m_alias[alias_str]+arg_str);
+    }
+    ++cnt;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CommandLineInterpreter::alias(const std::string& arg)
+{
+  std::string alias_str = arg;
+  std::string command_str = arg;
+  alias_str.erase( boost::algorithm::find_first(alias_str,"=").begin(),alias_str.end());
+  command_str.erase( command_str.begin(), boost::algorithm::find_first(command_str,"=").begin()+1);
+  m_alias[alias_str]=command_str;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -172,10 +212,29 @@ void CommandLineInterpreter::handle_read_line(std::string line)
   
   try
   {
+    parsed_options parsed = command_line_parser(args).options(m_desc).allow_unregistered().run();
     variables_map vm;
-    store( command_line_parser(args).options(m_desc).run(), vm);
+    store( parsed , vm);
     notify(vm);
-    
+    std::vector<std::string> unrecognized_commands_no_args = collect_unrecognized( parsed.options , include_positional);
+    std::vector<std::string> unrecognized_commands;
+    boost_foreach(std::string& command, unrecognized_commands_no_args)
+    {
+      if ( std::string(command.begin(),command.begin()+2) == "--")
+        unrecognized_commands.push_back(std::string(command.begin()+2,command.end()));
+      else
+        unrecognized_commands.back() = unrecognized_commands.back() + " " + command;
+      CFLogVar(unrecognized_commands.back());
+    }
+    boost_foreach(const unrecognized_commands_handler_t& handle, m_handle_unrecognized_commands )
+    {
+      if (unrecognized_commands.size())
+      {
+        handle(unrecognized_commands);
+      }
+    }
+    if (unrecognized_commands.size())
+      throw boost::program_options::unknown_option("");
     m_history.push_back(line);
   }
   catch (boost::program_options::unknown_option &e) 
@@ -209,7 +268,9 @@ void CommandLineInterpreter::handle_read_line(std::string line)
 
 void CommandLineInterpreter::interpret(int argc, char * argv[])
 {
-  parsed_options parsed = parse_command_line(argc, argv, m_desc);
+  // parsed_options parsed = parse_command_line(argc, argv, m_desc);
+  parsed_options parsed = command_line_parser(argc,argv).options(m_desc).allow_unregistered().run();
+  
   if (parsed.options.size())
   {
     typedef basic_option<char> Option;
@@ -217,6 +278,7 @@ void CommandLineInterpreter::interpret(int argc, char * argv[])
     // notify only 1 program_option at a time to conserve
     // execution order
     parsed_options one_parsed_option(&m_desc);
+    
     one_parsed_option.options.resize(1);
     boost_foreach(Option option, parsed.options)
     {
@@ -224,6 +286,22 @@ void CommandLineInterpreter::interpret(int argc, char * argv[])
       variables_map vm;
       store(one_parsed_option,vm);
       notify(vm);
+      std::vector<std::string> unrecognized_commands = collect_unrecognized( parsed.options , include_positional);
+      boost_foreach(std::string& command, unrecognized_commands)
+      {
+        // remove "--" from command
+        command.erase(command.begin(),command.begin()+2);
+      }
+      boost_foreach(const unrecognized_commands_handler_t& handle, m_handle_unrecognized_commands )
+      {
+        if (unrecognized_commands.size())
+        {
+          handle(unrecognized_commands);
+        }
+      }
+      if (unrecognized_commands.size())
+        throw boost::program_options::unknown_option("");
+    
     }
   }
   else

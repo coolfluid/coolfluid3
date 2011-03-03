@@ -92,6 +92,7 @@ private: // data
   /// action to compute the domain cell terms
   Common::CAction::Ptr m_compute_volume_cell_terms;
 
+  Uint m_nb_iter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
