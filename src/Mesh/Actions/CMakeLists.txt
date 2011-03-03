@@ -17,6 +17,10 @@ list( APPEND coolfluid_mesh_actions_files
   CBuildCoordinatesField.cpp
   CBuildVolume.hpp
   CBuildVolume.cpp
+  CGlobalNumbering.hpp
+  CGlobalNumbering.cpp
+  CGlobalConnectivity.hpp
+  CGlobalConnectivity.cpp
   CInitFieldConstant.hpp
   CInitFieldConstant.cpp
   CInitFieldFunction.hpp

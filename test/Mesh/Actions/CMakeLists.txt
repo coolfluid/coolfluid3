@@ -12,6 +12,18 @@ add_custom_command(TARGET utest-mesh-actions-facebuilder
 
 ################################################################################
 
+list( APPEND utest-mesh-actions-global-connectivity_cflibs coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh)
+list( APPEND utest-mesh-actions-global-connectivity_files  utest-mesh-actions-global-connectivity.cpp )
+
+coolfluid_add_mpi_unittest( utest-mesh-actions-global-connectivity 2 )
+
+add_custom_command(TARGET utest-mesh-actions-global-connectivity
+                 POST_BUILD
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                )
+
+################################################################################
+
 list( APPEND utest-bubble-enrich_cflibs coolfluid_mesh_actions coolfluid_mesh_sf coolfluid_mesh_gmsh)
 list( APPEND utest-bubble-enrich_files  utest-bubble-enrich.cpp )
 

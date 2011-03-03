@@ -17,6 +17,7 @@
 /// This macro creates a component class that wraps any given data type that has
 /// a default constructor.
 /// The data can be accessed directly through its memberfunction data()
+/// @note This cannot be placed inside a function
 /// @param data_type        The data type to wrap in the component class
 /// @param API              The API of the library this class is created in
 /// @param CName            The typename of the component class
