@@ -17,9 +17,6 @@
 
 namespace CF {
 
-  // Forwrad declarations
-  namespace Mesh { class CField; }
-
 namespace UFEM {
 
 /// A method that solves a linear system to obtain the problem solution. The system is set up based on a proto expression
