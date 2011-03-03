@@ -16,6 +16,7 @@
 #define boost_foreach BOOST_FOREACH 
 
 /// boost_foreach version that also increments an index
+/// careful, expects at least 1 loop
 #define index_foreach(index,a,b)                            \
     for(unsigned int index = static_cast<unsigned int>(-1); \
         index == static_cast<unsigned int>(-1);)            \
