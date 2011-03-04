@@ -20,6 +20,7 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 
 using namespace boost;
 using namespace CF;
@@ -69,7 +70,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 {
   CFinfo << "CMeshPartitioner_test" << CFendl;
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  meshreader->configure_property("Read Boundaries",false);
+  //meshreader->configure_property("Read Boundaries",false);
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
@@ -77,6 +78,11 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   // the mesh to store in
   CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
   CMesh& mesh = *mesh_ptr;
+  
+  CMeshTransformer::Ptr glb_numbering = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  glb_numbering->transform(mesh_ptr);
+  CMeshTransformer::Ptr glb_connectivity = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  glb_connectivity->transform(mesh_ptr);
 
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   boost::filesystem::path fp_out_1 ("quadtriag.msh");

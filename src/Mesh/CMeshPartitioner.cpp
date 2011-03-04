@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/mpi/collectives.hpp>
+
 #include "Common/Foreach.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/MPI/PE.hpp"
@@ -18,6 +20,7 @@
 #include "Mesh/CMeshPartitioner.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CRegion.hpp"
 
 #include "Common/XML/Protocol.hpp"
 
@@ -35,13 +38,10 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
     m_nb_parts(mpi::PE::instance().size()),
     m_map_built(false)
 {
-  m_properties.add_option<OptionT <Uint> >("Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
-
-  m_properties["Number of Partitions"].as_option().attach_trigger ( boost::bind ( &CMeshPartitioner::config_nb_parts,   this ) );
-
-  m_hash = allocate_component<CMixedHash>("hash");
-  add_static_component(m_hash);
-
+  m_properties.add_option<OptionT <Uint> >("nb_partitions","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts)
+    ->link_to(&m_nb_parts)
+    ->mark_basic();
+  
   m_global_to_local = allocate_component<CMap<Uint,Uint> >("global_to_local");
   add_static_component(m_global_to_local);
 
@@ -57,7 +57,7 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
 
 void CMeshPartitioner::config_nb_parts()
 {
-  property("Number of Partitions").put_value(m_nb_parts);
+  property("nb_partitions").put_value(m_nb_parts);
 //	m_hash->configure_property("Number of Partitions",m_nb_parts);
 }
 
@@ -97,11 +97,52 @@ void CMeshPartitioner::load_balance_signature ( Common::Signal::arg_t& node )
 
 void CMeshPartitioner::initialize(CMesh& mesh)
 {
+  m_mesh = mesh.as_ptr<CMesh>();
+  
+  CList<bool>& node_is_ghost = mesh.nodes().is_ghost();
+  Uint nb_ghost(0);
+  for (Uint i=0; i<node_is_ghost.size(); ++i)
+  {
+    if (node_is_ghost[i])
+      ++nb_ghost;
+  }  
+  
+  Uint tot_nb_owned_nodes=mesh.nodes().size()-nb_ghost;
+  Uint tot_nb_owned_elems=0;
+  boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
+  {
+    tot_nb_owned_elems += elements.size();
+  }
+  
+  std::vector<Uint> nb_nodes_per_proc(mpi::PE::instance().size());
+  std::vector<Uint> nb_elems_per_proc(mpi::PE::instance().size());
+  /// @todo replace boost::mpi::communicator by CF instructions
+  boost::mpi::communicator world;
+  boost::mpi::all_gather(world, tot_nb_owned_nodes, nb_nodes_per_proc);
+  boost::mpi::all_gather(world, tot_nb_owned_elems, nb_elems_per_proc);
+    
+  m_start_id_per_proc.resize(mpi::PE::instance().size());
+  m_start_node_per_proc.resize(mpi::PE::instance().size());
+  m_start_elem_per_proc.resize(mpi::PE::instance().size());
+  m_end_id_per_proc.resize(mpi::PE::instance().size());
+  m_end_node_per_proc.resize(mpi::PE::instance().size());
+  m_end_elem_per_proc.resize(mpi::PE::instance().size());
 
-  std::vector<Uint> num_obj(2);
-  num_obj[0] = mesh.property("nb_nodes").value<Uint>();
-  num_obj[1] = mesh.property("nb_cells").value<Uint>();
-  m_hash->configure_property("Number of Objects", num_obj);
+  Uint start_id=0;
+  for (Uint p=0; p<mpi::PE::instance().size(); ++p)
+  {
+    m_start_id_per_proc[p]   = start_id;
+    m_end_id_per_proc[p]     = start_id + nb_nodes_per_proc[p] + nb_elems_per_proc[p];
+    m_start_node_per_proc[p] = start_id;
+    m_end_node_per_proc[p]   = start_id + nb_nodes_per_proc[p];
+    m_start_elem_per_proc[p] = start_id + nb_nodes_per_proc[p];
+    m_end_elem_per_proc[p]   = start_id + nb_nodes_per_proc[p] + nb_elems_per_proc[p];
+
+    start_id += nb_nodes_per_proc[p]+nb_elems_per_proc[p];    
+  }  
+  
+  CF_DEBUG_POINT;
+  
   build_global_to_local_index(mesh);
   build_graph();
 }
@@ -113,74 +154,49 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   m_map_built = true;
   m_nb_owned_obj = 0;
   m_local_start_index.push_back(0);
-  boost_foreach ( CNodes& nodes, find_components_recursively<CNodes>(mesh) )
+  
+  CNodes& nodes = mesh.nodes();
+  CList<bool>& node_is_ghost = nodes.is_ghost();
+  CList<Uint>& node_glb_idx = nodes.glb_idx();
+  for (Uint i=0; i<nodes.size(); ++i)
   {
-//    const CList<bool>& is_ghost = find_component_with_tag<CList<bool> >(coordinates,"is_ghost");
-//    boost_foreach (bool is_ghost_entry, is_ghost.array())
-//      if (!is_ghost_entry)
-//        ++m_nb_owned_obj;
-
-    boost_foreach (Uint glb_idx, nodes.glb_idx().array())
+    if (!node_is_ghost[i])
     {
-      if (m_hash->owns(from_node_glb(glb_idx)))
-      {
-        //CFinfo << "owning node " << glb_idx << " --> " << from_node_glb(glb_idx) << CFendl;
-        ++m_nb_owned_obj;
-      }
+      //CFinfo << "owning node " << glb_idx << " --> " << from_node_glb(glb_idx) << CFendl;
+      ++m_nb_owned_obj;
     }
-    m_local_components.push_back(nodes.self());
-    m_local_start_index.push_back(nodes.size()+m_local_start_index.back());
   }
+  m_local_components.push_back(mesh.nodes().self());
+  m_local_start_index.push_back(mesh.nodes().size()+m_local_start_index.back());
 
-  boost_foreach ( CElements& elements, find_components_recursively<CElements>(mesh))
+  boost_foreach ( CEntities& elements, mesh.topology().elements_range() )
   {
     m_nb_owned_obj += elements.size();
-
-    // boost_foreach (Uint glb_idx, global_elem_indices.array())
-    // {
-    //   if (m_hash->subhash(ELEMS)->owns(glb_idx))
-    //   {
-    //     CFinfo << "owning elem " << glb_idx << " --> " << from_elem_glb(glb_idx) << CFendl;
-    //   }
-    //   else
-    //   {
-    //     CFinfo << "not owning elem " <<  glb_idx << " --> " << from_elem_glb(glb_idx) << CFendl;
-    //   }
-    // }
     m_local_components.push_back(elements.self());
     m_local_start_index.push_back(elements.size()+m_local_start_index.back());
-
   }
 
   Uint tot_nb_obj = m_local_start_index.back();
   m_global_to_local->reserve(tot_nb_obj);
   Uint loc_idx=0;
   //CFinfo << "adding nodes to map " << CFendl;
-  boost_foreach ( CNodes& nodes, find_components_recursively<CNodes>(mesh) )
+  boost_foreach (Uint glb_idx, node_glb_idx.array())
   {
-    boost_foreach (Uint glb_idx, nodes.glb_idx().array())
-    {
-      m_global_to_local->insert_blindly(from_node_glb(glb_idx),loc_idx++);
-      //CFinfo << "  adding node with glb " << from_node_glb(glb_idx) << CFendl;
-    }
+    m_global_to_local->insert_blindly(glb_idx,loc_idx++);
+    CFinfo << "  adding node with glb " << glb_idx << CFendl;
   }
+
   //CFinfo << "adding elements " << CFendl;
   boost_foreach ( CElements& elements, find_components_recursively<CElements>(mesh))
   {
     boost_foreach (Uint glb_idx, elements.glb_idx().array())
     {
-      m_global_to_local->insert_blindly(from_elem_glb(glb_idx),loc_idx++);
-      //CFinfo << "  adding element with glb " << from_elem_glb(glb_idx) << CFendl;
+      m_global_to_local->insert_blindly(glb_idx,loc_idx++);
+      CFinfo << "  adding element with glb " << glb_idx << CFendl;
     }
   }
 
   m_global_to_local->sort_keys();
-
-  // check validity
-  cf_assert(loc_idx == tot_nb_obj);
-  Uint glb_nb_owned_obj;
-  mpi::all_reduce(mpi::PE::instance(), mpi::plus(), &m_nb_owned_obj, 1, &glb_nb_owned_obj);
-  cf_assert(glb_nb_owned_obj == mesh.property("nb_nodes").value<Uint>() + mesh.property("nb_cells").value<Uint>());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -201,13 +217,13 @@ void CMeshPartitioner::show_changes()
 
         if (is_node(glb_obj))
         {
-          std::cout << "export node " << to_node_glb(glb_obj) << std::endl;
+          std::cout << "export node " << glb_obj << std::endl;
         }
         else
         {
-          std::cout << "export elem " << to_elem_glb(glb_obj) << std::endl;
+          std::cout << "export elem " << glb_obj << std::endl;
         }
-        std::cout << "  to proc " << m_hash->proc_of_part(part) << std::endl;
+        //std::cout << "  to proc " << m_hash->proc_of_part(part) << std::endl;
         std::cout << "  to part " << part << std::endl;
         std::cout << "  from " << component->full_path().path() << "["<<index<<"]" << std::endl;
       }

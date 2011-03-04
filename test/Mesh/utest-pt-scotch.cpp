@@ -22,6 +22,8 @@
 
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/tools.hpp"
+#include "Common/CreateComponent.hpp"
+#include "Common/Foreach.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -30,6 +32,11 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ConnectivityData.hpp"
+#include "Mesh/CMeshTransformer.hpp"
+#include "Mesh/CMeshPartitioner.hpp"
+#include "Mesh/CMeshWriter.hpp"
+
+
 
 using namespace boost;
 using namespace CF;
@@ -353,6 +360,48 @@ BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
   }
 
 }
+
+BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
+{
+  CFinfo << "CMeshPartitioner_test" << CFendl;
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  meshreader->configure_property("Read Boundaries",false);
+
+  // the file to read from
+  boost::filesystem::path fp_in ("quadtriag.neu");
+
+  // the mesh to store in
+  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
+  CMesh& mesh = *mesh_ptr;
+  
+  CMeshTransformer::Ptr glb_numbering = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  glb_numbering->transform(mesh_ptr);
+  CMeshTransformer::Ptr glb_connectivity = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  glb_connectivity->transform(mesh_ptr);
+
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  boost::filesystem::path fp_out_1 ("quadtriag.msh");
+  meshwriter->write_from_to(mesh_ptr,fp_out_1);
+
+  CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.PTScotch.CPartitioner","partitioner");
+
+  CMeshPartitioner& p = *partitioner_ptr;
+  BOOST_CHECK_EQUAL(p.name(),"partitioner");
+
+  //p.configure_property("nb_partitions", (Uint) 2);
+  BOOST_CHECK(true);
+  p.initialize(mesh);
+  BOOST_CHECK(true);
+  p.partition_graph();
+  BOOST_CHECK(true);
+  p.show_changes();
+  BOOST_CHECK(true);
+  p.migrate();
+  BOOST_CHECK(true);
+  boost::filesystem::path fp_out_2 ("quadtriag_repartitioned.msh");
+  //meshwriter->write_from_to(mesh_ptr,fp_out_2);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

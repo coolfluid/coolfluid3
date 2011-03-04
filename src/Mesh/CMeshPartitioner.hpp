@@ -15,6 +15,7 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CMap.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CHash.hpp"
@@ -24,7 +25,7 @@
 #include "Mesh/CList.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
-
+#include "Mesh/CMesh.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -97,56 +98,11 @@ public: // functions
   template <typename VectorT>
   void list_of_connected_procs(VectorT& proc_per_neighbor) const;
 
-  bool is_node(const Uint glb_obj) const { return m_hash->subhash_of_obj(glb_obj) == NODES; }
-
-
-	Uint from_node_glb(Uint glb) const
-	{
-		Uint part = m_hash->subhash(NODES)->part_of_obj(glb);
-		if (part == 0)
-			return glb;
-		else
-		{
-			Uint offset = glb - m_hash->subhash(NODES)->start_idx_in_part(part);
-			return m_hash->start_idx_in_part(part) + offset;
-		}
-	}
-
-	Uint from_elem_glb(Uint glb) const
-	{
-		Uint part = m_hash->subhash(ELEMS)->part_of_obj(glb);
-		if (part == 0)
-			return m_hash->subhash(NODES)->part_size()+glb;
-		else
-		{
-			Uint offset = glb - m_hash->subhash(ELEMS)->start_idx_in_part(part);
-			return m_hash->start_idx_in_part(part) + m_hash->subhash(NODES)->nb_objects_in_part(part) + offset;
-		}
-	}
-
-	Uint to_node_glb(Uint glb) const
-	{
-		Uint part = m_hash->part_of_obj(glb);
-		if (part == 0)
-			return glb;
-		else
-		{
-			Uint offset = glb - m_hash->start_idx_in_part(part);
-			return m_hash->subhash(NODES)->start_idx_in_part(part) + offset;
-		}
-	}
-
-	Uint to_elem_glb(Uint glb) const
-	{
-		Uint part = m_hash->part_of_obj(glb);
-		if (part == 0)
-			return glb - m_hash->subhash(NODES)->part_size();
-		else
-		{
-			Uint offset = glb - m_hash->start_idx_in_part(part) - m_hash->subhash(NODES)->nb_objects_in_part(part);;
-			return m_hash->subhash(ELEMS)->start_idx_in_part(part) + offset;
-		}
-	}
+  bool is_node(const Uint glb_obj) const 
+  {
+    Uint p = proc_of_obj(glb_obj);
+    return m_start_node_per_proc[p] <= glb_obj && glb_obj < m_end_node_per_proc[p];
+  }
 
 	Common::CMap<Uint,Uint>& changes() { return (*m_changes);	}
 
@@ -159,8 +115,18 @@ public: // functions
 
   void config_nb_parts();
 
-	Uint proc_of_obj(const Uint obj) {
-		return m_hash->proc_of_obj(obj);
+	Uint proc_of_obj(const Uint obj) const
+	{
+    for (Uint p=0; p<m_end_id_per_proc.size(); ++p)
+    {
+      if ( obj < m_end_id_per_proc[p])
+        return p;
+    }
+	}
+	
+	Uint owns_obj(const Uint obj) const
+	{
+    return proc_of_obj(obj) == mpi::PE::instance().rank();
 	}
 
 	std::vector<Common::Component::Ptr>& components_vector() { return m_local_components; }
@@ -186,9 +152,16 @@ private: // data
   std::vector<Uint> m_local_index;
 
   Common::CMap<Uint,Uint>::Ptr m_global_to_local;
-
-  CMixedHash::Ptr m_hash;
-  enum HashType {NODES=0, ELEMS=1};
+  
+  CMesh::Ptr m_mesh;
+  
+  std::vector<Uint> m_start_id_per_proc;
+  std::vector<Uint> m_end_id_per_proc;
+  std::vector<Uint> m_start_node_per_proc;
+  std::vector<Uint> m_end_node_per_proc;
+  std::vector<Uint> m_start_elem_per_proc;
+  std::vector<Uint> m_end_elem_per_proc;
+  
 
 };
 
@@ -205,11 +178,11 @@ inline Uint CMeshPartitioner::nb_owned_objects() const
 
 template <typename VectorT>
 void CMeshPartitioner::list_of_owned_objects(VectorT& obj_list) const
-{
+{  
   Uint idx=0;
   foreach_container((const Uint glb_obj),*m_global_to_local)
   {
-    if (m_hash->owns(glb_obj))
+    if (owns_obj(glb_obj))
       obj_list[idx++] = glb_obj;
   }
 }
@@ -226,17 +199,18 @@ Uint CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) con
   Uint idx = 0;
   foreach_container((const Uint glb_obj)(const Uint loc_obj),*m_global_to_local)
   {
-    if (m_hash->owns(glb_obj))
+    if (owns_obj(glb_obj))
     {
       boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
+      
       if (is_node(glb_obj))
       {
-        const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_ptr<CNodes>()->glb_elem_connectivity();
+        const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_type<CNodes>().glb_elem_connectivity();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
       }
       else
       {
-        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_ptr<CElements>()->connectivity_table();
+        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_type<CElements>().connectivity_table();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
       size += nb_connections_per_obj[idx];
@@ -251,7 +225,7 @@ Uint CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) con
 
 template <typename VectorT>
 void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) const
-{
+{  
   // declaration for boost::tie
   Uint component_idx;
   Uint loc_idx;
@@ -259,22 +233,22 @@ void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) con
   Uint idx = 0;
   foreach_container((const Uint glb_obj)(const Uint loc_obj),*m_global_to_local)
   {
-    if (m_hash->owns(glb_obj))
+    if (owns_obj(glb_obj))
     {
       boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
       if (is_node(glb_obj))
       {
-        const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_ptr<CNodes>()->glb_elem_connectivity();
+        const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_type<CNodes>().glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
-          connected_objects[idx++] = from_elem_glb(glb_elm);
+          connected_objects[idx++] = glb_elm;
       }
       else
       {
-        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_ptr<CElements>()->connectivity_table();
-        const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_ptr<CElements>()->nodes().glb_idx();
+        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_type<CElements>().connectivity_table();
+        const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_type<CElements>().nodes().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
-          connected_objects[idx++] = from_node_glb(glb_node_indices[ loc_node ]);
+          connected_objects[idx++] = glb_node_indices[ loc_node ];
       }
     }
   }
@@ -287,7 +261,7 @@ void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) con
 
 template <typename VectorT>
 void CMeshPartitioner::list_of_connected_procs(VectorT& connected_procs) const
-{
+{  
   // declaration for boost::tie
   Uint component_idx;
   Uint loc_idx;
@@ -295,21 +269,21 @@ void CMeshPartitioner::list_of_connected_procs(VectorT& connected_procs) const
   Uint idx = 0;
   foreach_container((const Uint glb_obj)(const Uint loc_obj),*m_global_to_local)
   {
-    if (m_hash->owns(glb_obj))
+    if (owns_obj(glb_obj))
     {
       boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
       if (is_node(glb_obj))
       {
         const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_ptr<CNodes>()->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
-          connected_procs[idx++] = m_hash->subhash(ELEMS)->proc_of_obj(glb_elm);
+          connected_procs[idx++] = proc_of_obj(glb_elm);
       }
       else
       {
         const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_ptr<CElements>()->connectivity_table();
         const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_ptr<CElements>()->nodes().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
-          connected_procs[idx++] = m_hash->subhash(NODES)->proc_of_obj( glb_node_indices[loc_node] );
+          connected_procs[idx++] = proc_of_obj( glb_node_indices[loc_node] );
       }
     }
   }
