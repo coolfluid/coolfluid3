@@ -16,7 +16,7 @@
 
 #include "Common/Component.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/Log.hpp"
+
 namespace CF {
 namespace Common {
 

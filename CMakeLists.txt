@@ -10,7 +10,6 @@
 #
 # TODO
 #
-#  * bring osystem to core - core::instance().opsystem()
 #  * try using precompiled headers and add a check to their support
 #  * mesh transformers
 #     * CScale, CRotate, CTranslate, 
@@ -19,9 +18,6 @@
 #  * fields
 #     * base fields on other fields defined by analytical functions
 #     * update() function that can be used to trigger dependent fields for update
-#  * component browsing
-#     * remove get_child_ptr<> function to get_child_ptr()->as_ptr<>
-#     * remove access_component<> to access_component_ptr()->as_ptr<>
 #
 ##############################################################################
 
