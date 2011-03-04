@@ -32,7 +32,9 @@ public: // functions
   static void rm(const std::string& cpath);
   
   static void cd(const std::string& cpath);
-  
+
+  static void find(const std::vector<std::string>& params);
+
   static void tree(const std::string& cpath);
 
   static void option_list(const std::string& cpath);

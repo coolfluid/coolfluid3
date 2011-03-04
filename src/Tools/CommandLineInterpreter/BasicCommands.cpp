@@ -53,6 +53,7 @@ BasicCommands::commands_description BasicCommands::description()
   ("create",      value< std::vector<std::string> >()->notifier(boost::bind(&create,_1))->multitoken(),           "create component_name builder_name")
   ("ls",          value< std::vector<std::string> >()->multitoken()->zero_tokens()->notifier(boost::bind(&ls,_1)),"list subcomponents")
   ("cd",          value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&cd,_1)),         "change current_component")
+  ("find",        value< std::vector<std::string> >()->multitoken()->zero_tokens()->notifier(boost::bind(&find,_1)),"find components recursevely in path")
   ("rm",          value< std::string >()->notifier(boost::bind(&rm,_1)),                                        "remove component")
   ("mv",          value< std::vector<std::string> >()->notifier(&mv)->multitoken(),                             "move/rename component")
   ("tree",        value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&tree,_1)),       "print tree")
@@ -306,6 +307,28 @@ void BasicCommands::cd(const std::string& cpath)
     current_component = Core::instance().root();
   else
     current_component = current_component->access_component_ptr_checked(cpath);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void BasicCommands::find(const std::vector<std::string>& params)
+{
+  if (params.size() != 2)
+    throw SetupError(FromHere(),"2 parameters needed for command : find [path] [regex]");
+
+  const std::string& path     = params[0];
+  const std::string& regexstr = params[1];
+
+  boost::regex expression ( regexstr );
+
+  Component& start_comp = current_component->access_component( URI(path) );
+
+
+  boost_foreach(Component& subcomp, find_components_recursively( start_comp ) )
+  {
+    if ( boost::regex_match(subcomp.name(),expression) )
+      CFinfo << subcomp.full_path().path() << CFendl;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
