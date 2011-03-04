@@ -107,7 +107,7 @@ void CGlobalConnectivity::execute()
 
 
   //1)
-  std::map<Uint,std::size_t> node_glb2loc;
+  std::map<std::size_t,Uint> node_glb2loc;
   
   std::vector<std::size_t>& glb_node_hash = mesh.nodes().get_child("glb_node_hash").as_type<CVector_size_t>().data();
   index_foreach(loc_node_idx, std::size_t glb_node_idx, glb_node_hash)
@@ -169,6 +169,9 @@ void CGlobalConnectivity::execute()
   }
 
   // 4)
+  CList<Uint>& nodes_glb_idx = mesh.nodes().glb_idx();
+  nodes_glb_idx.resize(mesh.nodes().size());
+  
   for (Uint root=0; root<mpi::PE::instance().size(); ++root)
   {
     std::vector<std::size_t> rcv_glb_node_idx = mpi::broadcast(ghostnode_glb_idx, root);
@@ -188,7 +191,6 @@ void CGlobalConnectivity::execute()
             if (node_glb2loc.find(glb_node) != node_glb2loc.end())
             {
               std::cout << "["<<mpi::PE::instance().rank() << "] owns ghostnode " << glb_node << " of [" << root << "]" << std::endl;
-              
               Uint loc_node_idx = node_glb2loc[glb_node];
               for(Uint l=rcv_glb_elem_connectivity_start[rcv_idx]; l<rcv_glb_elem_connectivity_start[rcv_idx+1]; ++l)
                 glb_elem_connectivity[loc_node_idx].push_back(rcv_glb_elem_connectivity[l]);
@@ -278,19 +280,22 @@ void CGlobalConnectivity::execute()
       std::map<std::size_t,Uint> change;
       for (Uint i=0; i<rcv_node_from.size(); ++i) 
         change[rcv_node_from[i]]=rcv_node_to[i];
-      if (mpi::PE::instance().rank() != root)
+      //if (mpi::PE::instance().rank() != root)
       {
         for (Uint p=0; p<mpi::PE::instance().size(); ++p)
         {
+          boost::this_thread::sleep(boost::posix_time::milliseconds(5));
+          mpi::PE::instance().barrier();
+          
           if (p == mpi::PE::instance().rank())
           {
-            boost::this_thread::sleep(boost::posix_time::milliseconds(5));
             Uint rcv_idx(0);
             boost_foreach(const std::size_t node_from_id, rcv_node_from)
             {
               if (node_glb2loc.find(node_from_id) != node_glb2loc.end())
               {
-                std::cout << "["<<mpi::PE::instance().rank() << "] will change node " << node_from_id << " to " << rcv_node_to[rcv_idx] << std::endl;
+                std::cout << "["<<mpi::PE::instance().rank() << "] will change node "<< node_glb2loc[node_from_id] << " (" << node_from_id << ") to " << rcv_node_to[rcv_idx] << std::endl;
+                nodes_glb_idx[node_glb2loc[node_from_id]]=rcv_node_to[rcv_idx];
               }
               ++rcv_idx;
             }
