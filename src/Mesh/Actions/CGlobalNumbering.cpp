@@ -7,6 +7,7 @@
 #include <boost/foreach.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/mpi/collectives.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
@@ -17,6 +18,7 @@
 #include "Common/StringConversion.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/CreateComponentDataType.hpp"
+#include "Common/MPI/broadcast.hpp"
 
 #include "Mesh/Actions/CGlobalNumbering.hpp"
 #include "Mesh/CCellFaces.hpp"
@@ -91,7 +93,7 @@ void CGlobalNumbering::execute()
   boost_foreach(CTable<Real>::ConstRow coords, coordinates.array() )
   {
     glb_node_hash.data()[i]=hash_value(to_vector(coords));
-    CFinfo << "glb_node_hash["<<i<<"] = " << glb_node_hash.data()[i] << CFendl;
+    //CFinfo << "glb_node_hash["<<i<<"] = " << glb_node_hash.data()[i] << CFendl;
     ++i;
   }
   
@@ -104,10 +106,110 @@ void CGlobalNumbering::execute()
     {
       elements.put_coordinates(element_coordinates,elem_idx);
       glb_elem_hash.data()[elem_idx]=hash_value(element_coordinates);
-      CFinfo << "glb_elem_hash["<<elem_idx<<"] = " <<  glb_elem_hash.data()[elem_idx] << CFendl;
+      //CFinfo << "glb_elem_hash["<<elem_idx<<"] = " <<  glb_elem_hash.data()[elem_idx] << CFendl;
+    }
+  }  
+  
+  // now renumber
+  
+  //------------------------------------------------------------------------------
+  // create node_glb2loc mapping
+  std::map<std::size_t,Uint> node_glb2loc;  
+  index_foreach(loc_node_idx, std::size_t hash, glb_node_hash.data())
+    node_glb2loc[hash]=loc_node_idx;
+  std::map<std::size_t,Uint>::iterator node_glb2loc_it;
+  std::map<std::size_t,Uint>::iterator hash_not_found = node_glb2loc.end();
+  
+  
+  //------------------------------------------------------------------------------
+  // get tot nb of owned indexes and communicate
+  
+  Uint nb_ghost(0);
+  CNodes& nodes = mesh.nodes();
+  CList<bool>& nodes_is_ghost = mesh.nodes().is_ghost();
+  for (Uint i=0; i<nodes.size(); ++i)
+    if (nodes_is_ghost[i])
+      ++nb_ghost;
+  Uint tot_nb_owned_ids=nodes.size()-nb_ghost;
+  boost_foreach( CEntities& elements, mesh.topology().elements_range() )
+    tot_nb_owned_ids += elements.size();
+    
+  std::vector<Uint> nb_ids_per_proc(mpi::PE::instance().size());
+  /// @todo replace boost::mpi::communicator by CF instructions
+  boost::mpi::communicator world;
+  boost::mpi::all_gather(world, tot_nb_owned_ids, nb_ids_per_proc);
+  std::vector<Uint> start_id_per_proc(mpi::PE::instance().size());
+  Uint start_id=0;
+  for (Uint p=0; p<nb_ids_per_proc.size(); ++p)
+  {
+    start_id_per_proc[p] = start_id;
+    start_id += nb_ids_per_proc[p];
+  }
+  
+  
+  //------------------------------------------------------------------------------
+  // add glb_idx to owned nodes, broadcast/receive glb_idx for ghost nodes
+  
+  std::vector<size_t> node_from(nodes.size()-nb_ghost);
+  std::vector<Uint>   node_to(nodes.size()-nb_ghost);
+  
+  CList<Uint>& nodes_glb_idx = mesh.nodes().glb_idx();
+  
+  Uint cnt=0;
+  Uint glb_id = start_id_per_proc[mpi::PE::instance().rank()];
+  for (Uint i=0; i<nodes.size(); ++i)
+  {
+    if ( ! nodes_is_ghost[i] )
+    {
+      nodes_glb_idx[i] = glb_id++;
+      node_from[cnt] = glb_node_hash.data()[i];
+      node_to[cnt]   = nodes_glb_idx[i];
+      ++cnt;
     }
   }
-  CFinfo << mesh.tree() << CFendl;
+  
+  for (Uint root=0; root<mpi::PE::instance().size(); ++root)
+  {
+    std::vector<std::size_t> rcv_node_from = mpi::broadcast(node_from, root);
+    std::vector<Uint>        rcv_node_to   = mpi::broadcast(node_to, root);
+    if (mpi::PE::instance().rank() != root)
+    {
+      for (Uint p=0; p<mpi::PE::instance().size(); ++p)
+      {
+        if (p == mpi::PE::instance().rank())
+        {
+          Uint rcv_idx(0);
+          boost_foreach(const std::size_t node_hash, rcv_node_from)
+          {
+            node_glb2loc_it = node_glb2loc.find(node_hash);
+            if ( node_glb2loc_it != hash_not_found )
+            {
+              //std::cout << "["<<mpi::PE::instance().rank() << "] will change node "<< node_glb2loc[node_from_id] << " (" << node_from_id << ") to " << rcv_node_to[rcv_idx] << std::endl;
+              nodes_glb_idx[node_glb2loc_it->second]=rcv_node_to[rcv_idx];
+            }
+            ++rcv_idx;
+          }
+        }
+      }
+    }
+  }
+  
+  
+  //------------------------------------------------------------------------------
+  // give glb idx to elements
+  
+  boost_foreach( CEntities& elements, mesh.topology().elements_range() )
+  {
+    CList<Uint>& elements_glb_idx = elements.glb_idx();
+    std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
+    Uint e(0);
+    boost_foreach( std::size_t hash, glb_elem_hash)
+    {
+      elements_glb_idx[e++] = glb_id;
+      ++glb_id;
+    }
+  }
+  
   CFinfo << "Global Numbering successful" << CFendl;
 }
 

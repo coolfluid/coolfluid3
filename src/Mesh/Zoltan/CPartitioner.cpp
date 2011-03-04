@@ -69,8 +69,6 @@ void CPartitioner::partition_graph()
 
   m_partitioned = true;
   set_partitioning_params();
-
-  CF_DEBUG_POINT;
   
   m_zz->LB_Partition(changes, numGidEntries, numLidEntries,
     numImport, importGlobalIds, importLocalIds, importProcs, importToPart,

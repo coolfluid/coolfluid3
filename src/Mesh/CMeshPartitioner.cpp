@@ -140,9 +140,7 @@ void CMeshPartitioner::initialize(CMesh& mesh)
 
     start_id += nb_nodes_per_proc[p]+nb_elems_per_proc[p];    
   }  
-  
-  CF_DEBUG_POINT;
-  
+
   build_global_to_local_index(mesh);
   build_graph();
 }
@@ -183,7 +181,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   boost_foreach (Uint glb_idx, node_glb_idx.array())
   {
     m_global_to_local->insert_blindly(glb_idx,loc_idx++);
-    CFinfo << "  adding node with glb " << glb_idx << CFendl;
+    //CFinfo << "  adding node with glb " << glb_idx << CFendl;
   }
 
   //CFinfo << "adding elements " << CFendl;
@@ -192,7 +190,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
     boost_foreach (Uint glb_idx, elements.glb_idx().array())
     {
       m_global_to_local->insert_blindly(glb_idx,loc_idx++);
-      CFinfo << "  adding element with glb " << glb_idx << CFendl;
+      //CFinfo << "  adding element with glb " << glb_idx << CFendl;
     }
   }
 

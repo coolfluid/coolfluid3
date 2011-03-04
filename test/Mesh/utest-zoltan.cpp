@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 {
   CFinfo << "CMeshPartitioner_test" << CFendl;
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  //meshreader->configure_property("Read Boundaries",false);
+  meshreader->configure_property("Read Boundaries",false);
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
