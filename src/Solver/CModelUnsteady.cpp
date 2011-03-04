@@ -6,6 +6,7 @@
 
 #include <iomanip>
 
+#include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
