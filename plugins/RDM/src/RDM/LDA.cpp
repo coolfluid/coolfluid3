@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "RDM/CLDA.hpp"
+#include "RDM/LDA.hpp"
 
 // supported physics
 
@@ -19,23 +19,23 @@ using namespace CF::Common;
 namespace CF {
 namespace RDM {
 
-Common::ComponentBuilder < CLDA<LinearAdv2D>,   CAction, LibRDM > CLDA_LinearAdv2D_Builder;
-Common::ComponentBuilder < CLDA<RotationAdv2D>, CAction, LibRDM > CLDA_RotationAdv2D_Builder;
-Common::ComponentBuilder < CLDA<Burgers2D>,     CAction, LibRDM > CLDA_Burgers2D_Builder;
+Common::ComponentBuilder < LDA<LinearAdv2D>,   CAction, LibRDM > LDA_LinearAdv2D_Builder;
+Common::ComponentBuilder < LDA<RotationAdv2D>, CAction, LibRDM > LDA_RotationAdv2D_Builder;
+Common::ComponentBuilder < LDA<Burgers2D>,     CAction, LibRDM > LDA_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename PHYS >
-CLDA<PHYS>::CLDA ( const std::string& name  ): RDM::Action(name)
+LDA<PHYS>::LDA ( const std::string& name  ): RDM::Action(name)
 {
   regist_typeinfo(this);
 }
 
 template < typename PHYS >
-CLDA<PHYS>::~CLDA() {}
+LDA<PHYS>::~LDA() {}
 
 template < typename PHYS >
-void CLDA<PHYS>::execute()
+void LDA<PHYS>::execute()
 {
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
@@ -50,7 +50,7 @@ void CLDA<PHYS>::execute()
 /// Operator needed for the loop over element types, identified by shape functions (SF)
 template < typename PHYS>
 template < typename SF >
-void CLDA<PHYS>::ElementLoop::operator() ( SF& T )
+void LDA<PHYS>::ElementLoop::operator() ( SF& T )
 {
   typedef typename RDM::DefaultQuadrature<SF>::type QD; // create a quadrature for this specific type
   typedef CSchemeLDAT< SF, QD, PHYS > SchemeT;          // create a scheme for this specific type

@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "RDM/CBlended.hpp"
+#include "RDM/Blended.hpp"
 
 // supported physics
 
@@ -19,23 +19,23 @@ using namespace CF::Common;
 namespace CF {
 namespace RDM {
 
-Common::ComponentBuilder < CBlended<LinearAdv2D>,   CAction, LibRDM > CBlended_LinearAdv2D_Builder;
-Common::ComponentBuilder < CBlended<RotationAdv2D>, CAction, LibRDM > CBlended_RotationAdv2D_Builder;
-Common::ComponentBuilder < CBlended<Burgers2D>,     CAction, LibRDM > CBlended_Burgers2D_Builder;
+Common::ComponentBuilder < Blended<LinearAdv2D>,   CAction, LibRDM > Blended_LinearAdv2D_Builder;
+Common::ComponentBuilder < Blended<RotationAdv2D>, CAction, LibRDM > Blended_RotationAdv2D_Builder;
+Common::ComponentBuilder < Blended<Burgers2D>,     CAction, LibRDM > Blended_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename PHYS >
-CBlended<PHYS>::CBlended ( const std::string& name  ): RDM::Action(name)
+Blended<PHYS>::Blended ( const std::string& name  ): RDM::Action(name)
 {
   regist_typeinfo(this);
 }
 
 template < typename PHYS >
-CBlended<PHYS>::~CBlended() {}
+Blended<PHYS>::~Blended() {}
 
 template < typename PHYS >
-void CBlended<PHYS>::execute()
+void Blended<PHYS>::execute()
 {
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
@@ -50,7 +50,7 @@ void CBlended<PHYS>::execute()
 /// Operator needed for the loop over element types, identified by shape functions (SF)
 template < typename PHYS>
 template < typename SF >
-void CBlended<PHYS>::ElementLoop::operator() ( SF& T )
+void Blended<PHYS>::ElementLoop::operator() ( SF& T )
 {
   typedef typename RDM::DefaultQuadrature<SF>::type QD; // create a quadrature for this specific type
   typedef CSchemeB< SF, QD, PHYS > SchemeT;          // create a scheme for this specific type

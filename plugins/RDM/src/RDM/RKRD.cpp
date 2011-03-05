@@ -27,7 +27,7 @@
 #include "Solver/Actions/CLoop.hpp"
 
 #include "RDM/RKRD.hpp"
-#include "RDM/CAction.hpp"
+#include "RDM/Action.hpp"
 
 namespace CF {
 namespace RDM {

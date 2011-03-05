@@ -15,7 +15,7 @@
 
 namespace CF {
 
-  namespace Mesh { class CRegion; class CMesh; }
+namespace Mesh { class CRegion; class CMesh; }
 
 namespace RDM {
 

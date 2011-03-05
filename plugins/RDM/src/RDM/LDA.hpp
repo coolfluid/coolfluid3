@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_CLDA_hpp
-#define CF_RDM_CLDA_hpp
+#ifndef CF_RDM_LDA_hpp
+#define CF_RDM_LDA_hpp
 
 #include <boost/mpl/for_each.hpp>
 
@@ -15,7 +15,7 @@
 #include "Mesh/CRegion.hpp"
 
 #include "RDM/LibRDM.hpp"
-#include "RDM/CAction.hpp"
+#include "RDM/Action.hpp"
 #include "RDM/SupportedTypes.hpp"
 
 #include "RDM/CSchemeLDAT.hpp"
@@ -29,7 +29,7 @@ namespace RDM {
 /////////////////////////////////////////////////////////////////////////////////////
 
 template < typename PHYS >
-class RDM_API CLDA : public RDM::Action
+class RDM_API LDA : public RDM::Action
 {
 
   /// Looper defines a functor taking the type that boost::mpl::for_each
@@ -39,12 +39,12 @@ class RDM_API CLDA : public RDM::Action
     /// region to loop on
     Mesh::CRegion& region;
     /// component containing the element loop
-    CLDA& comp;
+    LDA& comp;
 
     public: // functions
 
       /// Constructor
-      ElementLoop( CLDA& comp_in, Mesh::CRegion& region_in ) : comp(comp_in), region(region_in) {}
+      ElementLoop( LDA& comp_in, Mesh::CRegion& region_in ) : comp(comp_in), region(region_in) {}
 
       /// Operator needed for the loop over element types, identified by shape functions (SF)
       template < typename SF >
@@ -55,20 +55,20 @@ class RDM_API CLDA : public RDM::Action
 
 public: // typedefs
 
-  typedef boost::shared_ptr< CLDA > Ptr;
-  typedef boost::shared_ptr< CLDA const > ConstPtr;
+  typedef boost::shared_ptr< LDA > Ptr;
+  typedef boost::shared_ptr< LDA const > ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CLDA ( const std::string& name );
+  LDA ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CLDA();
+  virtual ~LDA();
 
   /// Get the class name
-  static std::string type_name () { return "CLDA<" + PHYS::type_name() + ">"; }
+  static std::string type_name () { return "LDA<" + PHYS::type_name() + ">"; }
 
   /// Execute the loop for all elements
   virtual void execute();
@@ -82,4 +82,4 @@ public: // functions
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CLDA_hpp
+#endif // CF_Mesh_LDA_hpp

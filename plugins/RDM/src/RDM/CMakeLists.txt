@@ -1,14 +1,14 @@
 list( APPEND coolfluid_rdm_files
   LibRDM.cpp
   LibRDM.hpp
+  Action.hpp
+  Action.cpp
   BcDirichlet.hpp
   BcDirichlet.cpp
-  CAction.hpp
-  CAction.cpp
-  CLDA.hpp
-  CLDA.cpp
-  CBlended.hpp
-  CBlended.cpp
+  LDA.hpp
+  LDA.cpp
+  Blended.hpp
+  Blended.cpp
   CSchemeLDAT.hpp
   CSchemeN.hpp
   CSchemeB.hpp

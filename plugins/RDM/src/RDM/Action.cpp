@@ -13,7 +13,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMesh.hpp"
 
-#include "RDM/CAction.hpp"
+#include "RDM/Action.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
