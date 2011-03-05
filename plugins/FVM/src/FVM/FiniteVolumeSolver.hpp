@@ -63,9 +63,13 @@ public: // functions
   
   virtual void solve();
   
+  /// @name SIGNALS
+  //@{
 
   /// creates a boundary condition
   void signal_create_bc( Common::Signal::arg_t& xml );
+
+  //@} END SIGNALS
 
 
   Common::CAction& create_bc(const std::string& name, const std::vector<boost::shared_ptr<Mesh::CRegion> >& regions, const std::string& bc_builder_name);
