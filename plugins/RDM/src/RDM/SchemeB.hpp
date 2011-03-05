@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CSchemeLDAT_hpp
-#define CF_Solver_CSchemeLDAT_hpp
+#ifndef CF_Solver_SchemeB_hpp
+#define CF_Solver_SchemeB_hpp
 
 #include <boost/assign.hpp>
 
@@ -34,38 +34,37 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template < typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS >
-class RDM_API CSchemeLDAT : public Solver::Actions::CLoopOperation
+template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
+class RDM_API SchemeB : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< CSchemeLDAT > Ptr;
-  typedef boost::shared_ptr< CSchemeLDAT const> ConstPtr;
+  typedef boost::shared_ptr< SchemeB > Ptr;
+  typedef boost::shared_ptr< SchemeB const> ConstPtr;
 
 public: // functions
-
   /// Contructor
   /// @param name of the component
-  CSchemeLDAT ( const std::string& name );
+  SchemeB ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CSchemeLDAT() {};
+  virtual ~SchemeB() {};
 
   /// Get the class name
-  static std::string type_name () { return "CSchemeLDAT<" + SHAPEFUNC::type_name() + ">"; }
-	
+  static std::string type_name () { return "SchemeB<" + SHAPEFUNC::type_name() + ">"; }
+
   /// execute the action
   virtual void execute ();
-
+    
 private: // helper functions
 
-  void change_elements()
-  { 
+  void trigger_elements()
+  {
     /// @todo improve this (ugly)
 
-    connectivity_table = elements().as_ptr<Mesh::CElements>()->connectivity_table().as_ptr< Mesh::CTable<Uint> >();
-    coordinates = elements().nodes().coordinates().as_ptr< Mesh::CTable<Real> >();
+    connectivity_table = elements().as_ptr<Mesh::CElements>()->connectivity_table().self()->as_ptr< Mesh::CTable<Uint> >();
+    coordinates = elements().nodes().coordinates().self()->as_ptr< Mesh::CTable<Real> >();
 
     cf_assert( is_not_null(connectivity_table) );
 
@@ -84,7 +83,6 @@ private: // helper functions
     wave_speed = cwave_speed->data_ptr();
   }
 
-
 private: // data
 
   Mesh::CTable<Uint>::Ptr connectivity_table;
@@ -99,110 +97,119 @@ private: // data
 
   DiscreteOpType m_oper;
 
-  // Values of the solution located in the dof of the element
-  // RealVector m_solution_values;
+  //Values of the solution located in the dof of the element
   typename DiscreteOpType::SolutionMatrixT m_solution_values;
 
-  // The operator L in the advection equation Lu = f
-  // Matrix m_sf_oper_values stores the value L(N_i) at each quadrature point for each shape function N_i
+  //The operator L in the advection equation Lu = f
+  //Matrix m_sf_oper_values stores the value L(N_i) at each quadrature point for each shape function N_i
   typename DiscreteOpType::SFMatrixT m_sf_oper_values;
 
-  // Values of the operator L(u) computed in quadrature points. These operator L returns these values
-  // multiplied by Jacobian and quadrature weight
+  //Values of the operator L(u) computed in quadrature points. These operator L returns these values
+  //multiplied by Jacobian and quadrature weight
+  
   RealVector m_flux_oper_values;
 
-  // Nodal residuals
+  //Nodal residuals
   RealVector m_phi;
+
+  //CrossWind Dissipation term for N scheme
+  RealVector m_diss;
 
   //Integration factor (jacobian multiplied by quadrature weight)
   Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> m_wj;
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeLDAT ( const std::string& name ) :
+SchemeB<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeB ( const std::string& name ) :
   CLoopOperation(name)
 {
   regist_typeinfo(this);
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CSchemeLDAT<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
+  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeB<SHAPEFUNC,QUADRATURE,PHYSICS>::trigger_elements,   this ) );
 
   m_flux_oper_values.resize(QUADRATURE::nb_points);
   m_phi.resize(SHAPEFUNC::nb_nodes);
+  m_diss.resize(SHAPEFUNC::nb_nodes);
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
-void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
+void SchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 {
+  // inside element with index m_idx
 
-//  CFinfo << "LDA ELEM [" << idx() << "]" << CFendl;
-
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = connectivity_table->array()[idx()];
-
-//  std::cout << "nodes_idx";
-//  for ( Uint i = 0; i < nodes_idx.size(); ++i)
-//     std::cout << " " << nodes_idx[i];
-
+  const Mesh::CTable<Uint>::ConstRow node_idx = connectivity_table->array()[idx()];
   typename SHAPEFUNC::NodeMatrixT nodes;
 
- Mesh::fill(nodes, *coordinates, nodes_idx );
-
-//  elements().as_ptr<Mesh::CElements>()->put_coordinates( nodes, idx() );
-
-//  std::cout << "field put_coordinates function" <<  std::endl;
-//  std::cout << "nodes: " << nodes << std::endl;
-
-
-//  std::cout << "mesh::fill function" <<  std::endl;
-//  std::cout << "nodes: " << nodes << std::endl;
-
+  Mesh::fill(nodes, *coordinates, node_idx);
 
   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    m_solution_values[n] = (*solution)[nodes_idx[n]][0];
+    m_solution_values[n] = (*solution)[node_idx[n]][0];
 
 
- m_phi.setZero();
+ m_phi.setZero(); 
+ m_diss.setZero();
 
  m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values,m_wj);
 
-// std::cout << "solution_values  [" << m_solution_values << "]" << std::endl;
-// std::cout << "sf_oper_values   [" << m_sf_oper_values << "]" << std::endl;
-// std::cout << std::endl;
-// std::cout << "flux_oper_values [" << m_flux_oper_values << "]" << std::endl;
-//// if (m_flux_oper_values.norm() > 0.0)
-////     std::cin.get();
-// std::cout << std::endl;
+ /// THE LOOP IMPLEMENTS THE INTEGRAL
+ /// phiN_i = phiLDA_i + integral[ kplus_i * frac{ sum( kplus_j(u_i - u_out) ) }{ sum(kplus_j) }    ] dX
 
  for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
  {
    Real sumLplus = 0.0;
+   Real u_out = 0.0;
+
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
      sumLplus += std::max(0.0,m_sf_oper_values(q,n));
    }
 
+   /// phiLDA:
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
-     m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q] * m_wj[q];
+     m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q]*m_wj[q];
+   }
+
+   Real sum_kdiff_u;
+
+   /// dissipative part:
+   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+   {
+
+    sum_kdiff_u = 0.0;
+
+    for(Uint l = 0; l < SHAPEFUNC::nb_nodes; ++l)
+    {
+      sum_kdiff_u += std::max(0.0,m_sf_oper_values(q,l)) * ( m_solution_values[n] - m_solution_values[l] );
+    }
+     m_diss[n] += 1./sumLplus * std::max(0.0,m_sf_oper_values(q,n)) * sum_kdiff_u * m_wj[q];
    }
  }
-  
-//   std::cout << "phi [";
-//   for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
-//      std::cout << m_phi[n] << " ";
-//   std::cout << "]" << std::endl;
+
+ Real sum_phi = 0.0;
+ Real sum_phi_N = 0.0;
+
+ for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+ {
+   sum_phi += m_phi[n] + m_diss[n];
+ }
+
+ for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+ {
+   sum_phi_N += std::abs(m_diss[n]);
+ }
+
+ const Real eps = 1.e-14;
+
+ const Real theta = sum_phi_N > eps ? std::abs(sum_phi)/sum_phi_N : 0.0;
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    (*residual)[nodes_idx[n]][0] += m_phi[n];
-
-//  std::cout << "residual [";
-//  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
-//     std::cout << (*residual)[nodes_idx[n]][0] << " ";
-//  std::cout << "]" << std::endl;
+    (*residual)[node_idx[n]][0] += m_phi[n] + theta * m_diss[n];
 
 
   // computing average advection speed on element
@@ -217,7 +224,6 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
     centroid[YY] += nodes(n, YY);
   }
   centroid /= SHAPEFUNC::nb_nodes;
-
 
   // compute a bounding box of the element:
 
@@ -240,19 +246,20 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   const Real dy = ymax - ymin;
 
   // The update coeff is updated by a product of bb radius and norm of advection velocity
+
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
-    (*wave_speed)[nodes_idx[n]][0] += std::sqrt( dx*dx+dy*dy);
-//       * std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
+    Real k_plus_max = 0.0;
+
+    for (Uint q  = 0; q<QUADRATURE::nb_points; ++q)
+    {
+      k_plus_max = std::max(k_plus_max,m_sf_oper_values(q,n));
+    }
+
+    (*wave_speed)[node_idx[n]][0] +=
+        std::sqrt( dx*dx+dy*dy) * k_plus_max;
   }
 
-
-//  std::cout << "wave_speed [";
-//  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
-//     std::cout << (*wave_speed)[nodes_idx[n]][0] << " ";
-//  std::cout << "]" << std::endl;
-
-//  std::cout << " --------------------------------------------------------------- " << std::endl;
 
 }
 
@@ -263,4 +270,4 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_CSchemeLDAT_hpp
+#endif // CF_RDM_SchemeB_hpp

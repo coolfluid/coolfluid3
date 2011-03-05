@@ -11,15 +11,15 @@
 #include "Common/Foreach.hpp"
 #include "Common/ComponentPredicates.hpp"
 
+#include "Mesh/CRegion.hpp"
+
 #include "RDM/LDA.hpp"
-
 #include "RDM/SupportedTypes.hpp"    // supported elements
-
 #include "RDM/LinearAdv2D.hpp"       // supported physics
 #include "RDM/RotationAdv2D.hpp"     // supported physics
 #include "RDM/Burgers2D.hpp"         // supported physics
 
-#include "RDM/CSchemeLDAT.hpp"
+#include "RDM/SchemeLDA.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -51,7 +51,7 @@ struct ElementLoop
     /// definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
     /// parametrization of the numerical scheme
-    typedef CSchemeLDAT< SF, QD, PHYS > SchemeT;
+    typedef SchemeLDA< SF, QD, PHYS > SchemeT;
 
     boost_foreach(Mesh::CElements& elements,
                   Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
@@ -89,9 +89,14 @@ LDA::~LDA() {}
 
 void LDA::execute()
 {
+  /// @todo physical model should be a configuration option of the solver
+  CPhysicalModel::Ptr pm = find_component_recursively<CPhysicalModel>( *Core::instance().root() );
+  if( is_null(pm) )
+    throw ValueNotFound(FromHere(), "could not found any physical model to use");
+
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
-    std::string physics;
+    std::string physics = pm->type();
 
     if ( physics == "LinearAdv2D" )
     {

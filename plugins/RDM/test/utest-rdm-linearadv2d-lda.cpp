@@ -198,7 +198,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_domain_term , linearadv2d_local_fixture )
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
   options.set_option<std::string>("Name","INTERNAL");
-  options.set_option<std::string>("Type","CF.RDM.LDA<LinearAdv2D>");
+  options.set_option<std::string>("Type","CF.RDM.LDA");
   options.set_array("Regions", bc_regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);

@@ -7,8 +7,6 @@
 #ifndef CF_RDM_LDA_hpp
 #define CF_RDM_LDA_hpp
 
-#include "Mesh/CRegion.hpp"
-
 #include "RDM/LibRDM.hpp"
 #include "RDM/Action.hpp"
 

@@ -9,9 +9,9 @@ list( APPEND coolfluid_rdm_files
   LDA.cpp
   Blended.hpp
   Blended.cpp
-  CSchemeLDAT.hpp
-  CSchemeN.hpp
-  CSchemeB.hpp
+  SchemeLDA.hpp
+  SchemeN.hpp
+  SchemeB.hpp
   RKRD.cpp
   RKRD.hpp
   ScalarAdvection.hpp

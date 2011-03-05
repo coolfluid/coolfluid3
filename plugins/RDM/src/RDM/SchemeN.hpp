@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CSchemeN_hpp
-#define CF_Solver_CSchemeN_hpp
+#ifndef CF_Solver_SchemeN_hpp
+#define CF_Solver_SchemeN_hpp
 
 #include <boost/assign.hpp>
 
@@ -35,24 +35,24 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-class RDM_API CSchemeN : public Solver::Actions::CLoopOperation
+class RDM_API SchemeN : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< CSchemeN > Ptr;
-  typedef boost::shared_ptr< CSchemeN const> ConstPtr;
+  typedef boost::shared_ptr< SchemeN > Ptr;
+  typedef boost::shared_ptr< SchemeN const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  CSchemeN ( const std::string& name );
+  SchemeN ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CSchemeN() {};
+  virtual ~SchemeN() {};
 
   /// Get the class name
-  static std::string type_name () { return "CSchemeN<" + SHAPEFUNC::type_name() + ">"; }
+  static std::string type_name () { return "SchemeN<" + SHAPEFUNC::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ();
@@ -122,12 +122,12 @@ private: // data
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-CSchemeN<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeN ( const std::string& name ) :
+SchemeN<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeN ( const std::string& name ) :
   CLoopOperation(name)
 {
   regist_typeinfo(this);
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CSchemeN<SHAPEFUNC,QUADRATURE,PHYSICS>::trigger_elements,   this ) );
+  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeN<SHAPEFUNC,QUADRATURE,PHYSICS>::trigger_elements,   this ) );
 
   m_flux_oper_values.resize(QUADRATURE::nb_points);
   m_phi.resize(SHAPEFUNC::nb_nodes);
@@ -138,7 +138,7 @@ CSchemeN<SHAPEFUNC,QUADRATURE,PHYSICS>::CSchemeN ( const std::string& name ) :
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
-void CSchemeN<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
+void SchemeN<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 {
   // inside element with index m_idx
 
@@ -279,4 +279,4 @@ void CSchemeN<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_CSchemeN_hpp
+#endif // CF_RDM_SchemeN_hpp
