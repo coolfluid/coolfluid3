@@ -4,18 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include <boost/program_options.hpp>
 #include <boost/regex.hpp>
-#include <iostream>
+
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Foreach.hpp"
+
 #include "Mesh/CMesh.hpp"
 
 #include "Tools/MeshTransformer/Transformer.hpp"
-#include "Tools/CommandLineInterpreter/CommandLineInterpreter.hpp"
-#include "Tools/CommandLineInterpreter/BasicCommands.hpp"
+#include "Tools/Shell/Interpreter.hpp"
+#include "Tools/Shell/BasicCommands.hpp"
 
 using namespace boost;
 using namespace boost::program_options;
@@ -23,7 +26,7 @@ using namespace boost::program_options;
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
-using namespace CF::Tools::CommandLineInterpreter;
+using namespace CF::Tools::Shell;
 using namespace CF::Tools::MeshTransformer;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +37,9 @@ int main(int argc, char * argv[])
   
 	try
   {
-////////////////////////////////////////////////////////////////////////////////
+
+    // --------------------------------------------------------
+
     ExceptionManager::instance().ExceptionDumps = false;
     ExceptionManager::instance().ExceptionAborts = false;
 
@@ -52,10 +57,11 @@ int main(int argc, char * argv[])
     desc.add(Transformer::description());
 
     // Parse commands that are passed directly on the command line
-    CommandLineInterpreter cli(desc);
+    Interpreter cli(desc);
     cli.interpret(argc,argv);
 
-////////////////////////////////////////////////////////////////////////////////
+    // --------------------------------------------------------
+
   }
   catch (boost::program_options::unknown_option &e) 
   {

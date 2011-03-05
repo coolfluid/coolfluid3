@@ -21,7 +21,7 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshTransformer.hpp"
 
-#include "Tools/CommandLineInterpreter/BasicCommands.hpp"
+#include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/MeshTransformer/Transformer.hpp"
 
 namespace CF {
@@ -101,7 +101,7 @@ void Transformer::help( const std::string& param )
   {
     // Default help
     CFinfo << CFendl << "Usage: coolfluid-mesh-transformer [options]" << CFendl << CFendl;
-    CFinfo << CommandLineInterpreter::BasicCommands::description() << CFendl;
+    CFinfo << Shell::BasicCommands::description() << CFendl;
     CFinfo << description() << CFendl;
     std::vector< std::string > vk, vt;
     vk.push_back("Input formats:");        vt.push_back("");

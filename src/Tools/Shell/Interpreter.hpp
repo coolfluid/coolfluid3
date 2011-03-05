@@ -13,16 +13,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_CommandLineInterpreter_CommandLineInterpreter_hpp
-#define CF_Tools_CommandLineInterpreter_CommandLineInterpreter_hpp
+#ifndef CF_Tools_Shell_Interpreter_hpp
+#define CF_Tools_Shell_Interpreter_hpp
 
 #include <deque>
-#include "Common/CF.hpp"
+
 #include <boost/program_options.hpp>
+
+#include "Common/CF.hpp"
 
 namespace CF {
 namespace Tools { 
-namespace CommandLineInterpreter {
+namespace Shell {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +32,7 @@ std::string default_prompt();
   
 ////////////////////////////////////////////////////////////////////////////////
 
-class CommandLineInterpreter
+class Interpreter
 {
 private:
   
@@ -44,10 +46,10 @@ private:
 public:
 
   /// Constructor, taking description of commands
-  CommandLineInterpreter(const commands_description& desc);
+  Interpreter(const commands_description& desc);
 
   /// Constructor taking description of commands and prompt function
-  CommandLineInterpreter(const commands_description& desc, const prompt_function_pointer_t& prompt);
+  Interpreter(const commands_description& desc, const prompt_function_pointer_t& prompt);
 
   /// splits a command_line in words
   std::vector<std::string> split_command_line(const std::string& input);
@@ -87,8 +89,8 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // CommandLineInterpreter
+} // Shell
 } // Tools
 } // CF
 
-#endif // CF_Tools_CommandLineInterpreter_CommandLineInterpreter_hpp
+#endif // CF_Tools_Shell_Interpreter_hpp

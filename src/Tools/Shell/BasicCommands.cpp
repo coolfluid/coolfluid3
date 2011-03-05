@@ -20,12 +20,12 @@
 #include "Common/CAction.hpp"
 #include "Common/ComponentPredicates.hpp"
 
-#include "Tools/CommandLineInterpreter/BasicCommands.hpp"
-#include "Tools/CommandLineInterpreter/CommandLineInterpreter.hpp"
+#include "Tools/Shell/BasicCommands.hpp"
+#include "Tools/Shell/Interpreter.hpp"
 
 namespace CF {
 namespace Tools {
-namespace CommandLineInterpreter {
+namespace Shell {
 
   using namespace boost;
   using namespace boost::program_options;
@@ -402,6 +402,6 @@ void BasicCommands::mv(const std::vector<std::string>& params)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // CommandLineInterpreter
+} // Shell
 } // Tools
 } // CF

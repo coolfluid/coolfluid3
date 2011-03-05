@@ -6,26 +6,26 @@
 
 #include "Common/RegistLibrary.hpp"
 
-#include "Tools/CommandLineInterpreter/LibCommandLineInterpreter.hpp"
+#include "Tools/Shell/LibShell.hpp"
 
 namespace CF {
 namespace Tools {
-namespace CommandLineInterpreter {
+namespace Shell {
 
-CF::Common::RegistLibrary<LibCommandLineInterpreter> libCommandLineInterpreter;
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LibCommandLineInterpreter::initiate()
-{
-}
-
-void LibCommandLineInterpreter::terminate()
-{
-}
+CF::Common::RegistLibrary<LibShell> libCommandLineInterpreter;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // CommandLineInterpreter
+void LibShell::initiate()
+{
+}
+
+void LibShell::terminate()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // Shell
 } // Tools
 } // CF

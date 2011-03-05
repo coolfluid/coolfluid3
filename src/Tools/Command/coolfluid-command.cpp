@@ -4,19 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include <boost/program_options.hpp>
+#include <boost/regex.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
-#include "Common/CreateComponent.hpp"
-#include "Common/BuildInfo.hpp"
-#include "Common/CJournal.hpp"
+#include "Common/CRoot.hpp"
+#include "Common/Foreach.hpp"
 
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/SF/Types.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CMesh.hpp"
+
+#include "Tools/Shell/Interpreter.hpp"
+#include "Tools/Shell/BasicCommands.hpp"
 
 using namespace boost;
 using namespace boost::program_options;
@@ -24,8 +25,9 @@ using namespace boost::program_options;
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Tools::Shell;
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char * argv[])
 {
@@ -33,57 +35,44 @@ int main(int argc, char * argv[])
 
   try
   {
-    std::string journal_file;
 
-    // parse command line options
+    // --------------------------------------------------------
 
-    options_description desc("General Options");
-    desc.add_options()
-    ("help,h",   value<std::string>()->implicit_value(std::string()), "show this help")
-    ("scase,s",  value<std::vector<std::string> >()->multitoken(),    "list of scripts to execute in order")
-    ("exec_journal", value<std::string>(&journal_file)->implicit_value(std::string()), "load and execute a journal")
-    ("version,v", "show version")
-    ;
-    variables_map vm;
-    parsed_options parsed = parse_command_line(argc, argv, desc);
-    store(parsed, vm);
-    notify(vm);
+    ExceptionManager::instance().ExceptionDumps = false;
+    ExceptionManager::instance().ExceptionAborts = false;
 
-    if (vm.count("version"))
-      CFinfo << Core::instance().build_info()->version_header() << CFendl;
+    // create mesh object
+    CRoot::Ptr root = Core::instance().root();
+    CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
 
-    // show help if asked or no args given
-    if (vm.count("help") || vm.size()==0)
-    {
-      // Default help
-      CFinfo << "CF3 batch command\n" << CFendl;
-      CFinfo << "Usage: " << argv[0] << " [options]\n" << CFendl;
-      CFinfo << desc << CFendl;
+    // Initialize empty commands
+    options_description desc;
 
-      Core::instance().terminate();
-      return 0;
-    }
+    // Add basic commands to program
+    desc.add(BasicCommands::description());
 
-    if(vm.count("exec_journal") == 1)
-    {
-      try
-      {
-        CJournal::Ptr journal(new CJournal("Journal"));
+    // Parse commands that are passed directly on the command line
+    Interpreter cli(desc);
+    cli.interpret(argc,argv);
 
-        Core::instance().root()->get_child_ptr("Tools")->add_component(journal);
+    // --------------------------------------------------------
 
-        journal->execute_signals(journal_file);
-
-        Core::instance().root()->save_tree_to("./my-tree.xml");
-
-        return 0;
-      }
-      catch(Exception & e)
-      {
-        CFerror << e.what() << CFendl;
-        return 1;
-      }
-    }
+  }
+  catch (boost::program_options::unknown_option &e)
+  {
+    std::cerr << "error: " << e.what() << CFendl;
+  }
+  catch (boost::program_options::invalid_command_line_syntax &e)
+  {
+    std::cerr << "error: " << e.what() << CFendl;
+  }
+  catch (boost::program_options::validation_error &e)
+  {
+    std::cerr << "error: " << e.what() << CFendl;
+  }
+  catch(Exception & e)
+  {
+    std::cerr << e.what() << CFendl;
   }
   catch ( std::exception& ex )
   {
@@ -98,8 +87,3 @@ int main(int argc, char * argv[])
 
   return 0;
 }
-
-
-///////////////////////////////////////////////////////////////////////////////
-
-

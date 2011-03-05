@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_CommandLineInterpreter_LibCommandLineInterpreter_hpp
-#define CF_Tools_CommandLineInterpreter_LibCommandLineInterpreter_hpp
+#ifndef CF_Tools_Shell_LibShell_hpp
+#define CF_Tools_Shell_LibShell_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,37 +13,36 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro CommandLineInterpreter_API
+/// Define the macro Shell_API
 /// @note build system defines COOLFLUID_MESHDIFF_EXPORTS when compiling
 /// CommandLineInterpreter files
 #ifdef COOLFLUID_MESHDIFF_EXPORTS
-#   define CommandLineInterpreter_API      CF_EXPORT_API
-#   define CommandLineInterpreter_TEMPLATE
+#   define Shell_API      CF_EXPORT_API
+#   define Shell_TEMPLATE
 #else
-#   define CommandLineInterpreter_API      CF_IMPORT_API
-#   define CommandLineInterpreter_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Shell_API      CF_IMPORT_API
+#   define Shell_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Tools {
-namespace CommandLineInterpreter {
+namespace Shell {
 
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Class defines the initialization and termination of the library CommandLineInterpreter
   /// @author Tiago Quintino
-  class CommandLineInterpreter_API LibCommandLineInterpreter :
-      public Common::CLibrary
+  class Shell_API LibShell : public Common::CLibrary
   {
   public:
 
-    typedef boost::shared_ptr<LibCommandLineInterpreter> Ptr;
-    typedef boost::shared_ptr<LibCommandLineInterpreter const> ConstPtr;
+    typedef boost::shared_ptr<LibShell> Ptr;
+    typedef boost::shared_ptr<LibShell const> ConstPtr;
 
     /// Constructor
-    LibCommandLineInterpreter ( const std::string& name) : Common::CLibrary(name) {   }
+    LibShell ( const std::string& name) : Common::CLibrary(name) {   }
 
   public: // functions
 
@@ -77,10 +76,10 @@ namespace CommandLineInterpreter {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // CommandLineInterpreter
+} // Shell
 } // Tools
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_CommandLineInterpreter_LibCommandLineInterpreter_hpp
+#endif // CF_Tools_Shell_LibShell_hpp

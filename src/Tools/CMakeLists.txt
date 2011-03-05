@@ -1,7 +1,7 @@
 coolfluid_find_orphan_files()
 
 # acommand-line tool to execute a batch of coolfluid commands
-add_subdirectory( CommandLineInterpreter )
+add_subdirectory( Shell )
 
 # acommand-line tool to execute a batch of coolfluid commands
 add_subdirectory( Command )
