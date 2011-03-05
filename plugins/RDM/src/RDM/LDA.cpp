@@ -13,6 +13,8 @@
 
 #include "Mesh/CRegion.hpp"
 
+#include "Solver/CPhysicalModel.hpp"
+
 #include "RDM/LDA.hpp"
 #include "RDM/SupportedTypes.hpp"    // supported elements
 #include "RDM/LinearAdv2D.hpp"       // supported physics
@@ -23,6 +25,7 @@
 
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Solver;
 
 namespace CF {
 namespace RDM {
@@ -90,7 +93,7 @@ LDA::~LDA() {}
 void LDA::execute()
 {
   /// @todo physical model should be a configuration option of the solver
-  CPhysicalModel::Ptr pm = find_component_recursively<CPhysicalModel>( *Core::instance().root() );
+  CPhysicalModel::Ptr pm = find_component_ptr_recursively<CPhysicalModel>( *Core::instance().root() );
   if( is_null(pm) )
     throw ValueNotFound(FromHere(), "could not found any physical model to use");
 

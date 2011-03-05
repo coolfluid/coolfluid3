@@ -93,7 +93,7 @@ Blended::~Blended() {}
 void Blended::execute()
 {
   /// @todo physical model should be a configuration option of the solver
-  CPhysicalModel::Ptr pm = find_component_recursively<CPhysicalModel>( *Core::instance().root() );
+  CPhysicalModel::Ptr pm = find_component_ptr_recursively<CPhysicalModel>( *Core::instance().root() );
   if( is_null(pm) )
     throw ValueNotFound(FromHere(), "could not found any physical model to use");
 

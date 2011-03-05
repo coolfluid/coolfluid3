@@ -118,13 +118,9 @@ RKRD::~RKRD() {}
 
 void RKRD::config_domain()
 {
-  CFinfo << FromHere().short_str() << CFendl;
-
   CDomain::Ptr domain = access_component_ptr( property("Domain").value<URI>() )->as_ptr<CDomain>();
   if( is_null(domain) )
     throw InvalidURI( FromHere(), "Path does not point to Domain");
-
-  CFinfo << FromHere().short_str() << CFendl;
 
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>( *domain );
 
@@ -140,12 +136,8 @@ void RKRD::config_domain()
 
 void RKRD::config_mesh()
 {
-  CFinfo << FromHere().short_str() << CFendl;
-
   if( is_null(m_mesh.lock()) )
       return;
-
-  CFinfo << FromHere().short_str() << CFendl;
 
   CMesh& mesh = *(m_mesh.lock());
 
