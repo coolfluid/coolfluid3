@@ -162,7 +162,6 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , burgers2d_local_fixture )
 
   BOOST_CHECK_EQUAL( bc_regions.size() , 3u);
 
-
   std::string name = "INLET";
 
   options.set_option<std::string>("Name",name);
@@ -174,7 +173,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , burgers2d_local_fixture )
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   cf_assert( is_not_null(inletbc) );
 
-  inletbc->get_child_ptr("action")->configure_property("Function", std::string("1.5-2.0*x") );
+  inletbc->configure_property("Function", std::string("1.5-2.0*x") );
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 

@@ -9,9 +9,7 @@
 
 #include "fparser/fparser.hh"
 
-#include "Solver/Actions/CLoopOperation.hpp"
-
-#include "RDM/LibRDM.hpp"
+#include "RDM/BoundaryTerm.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +21,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API BcDirichlet : public Solver::Actions::CLoopOperation
+class RDM_API BcDirichlet : public RDM::BoundaryTerm
 {
 public: // typedefs
 
@@ -52,8 +50,6 @@ private: // helper functions
 
 private: // data
 
-  /// access to the mesh
-  boost::weak_ptr<Mesh::CMesh>   m_mesh;
   /// access to the solution field on the mesh
   boost::weak_ptr<Mesh::CField2> m_solution;
   /// function parser for the math formula of the dirichlet condition

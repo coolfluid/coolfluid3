@@ -4,42 +4,31 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_LDA_hpp
-#define CF_RDM_LDA_hpp
-
 #include "RDM/DomainTerm.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
+
+using namespace CF::Common;
 
 namespace CF {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API LDA : public RDM::DomainTerm
+DomainTerm::DomainTerm ( const std::string& name ) :
+  RDM::Action(name)
 {
+  mark_basic();
 
-public: // typedefs
+  signal("create_component").is_hidden = true;
+  signal("rename_component").is_hidden = true;
+  signal("delete_component").is_hidden = true;
+  signal("move_component"  ).is_hidden = true;
+}
 
-  typedef boost::shared_ptr< LDA > Ptr;
-  typedef boost::shared_ptr< LDA const > ConstPtr;
-
-public: // functions
-
-  /// Contructor
-  /// @param name of the component
-  LDA ( const std::string& name );
-
-  /// Virtual destructor
-  virtual ~LDA();
-
-  /// Get the class name
-  static std::string type_name () { return "LDA"; }
-
-  /// Execute the loop for all elements
-  virtual void execute();
-
-};
+DomainTerm::~DomainTerm()
+{
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,5 +36,3 @@ public: // functions
 } // CF
 
 /////////////////////////////////////////////////////////////////////////////////////
-
-#endif // CF_Mesh_LDA_hpp

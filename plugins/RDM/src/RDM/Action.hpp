@@ -38,7 +38,7 @@ public: // functions
   void config_regions();
 
   /// Virtual destructor
-  virtual ~Action() {}
+  virtual ~Action();
 
   /// Get the class name
   static std::string type_name () { return "Action"; }
@@ -50,7 +50,6 @@ protected:
 
   /// mesh where this action data resides
   boost::weak_ptr< Mesh::CMesh > m_mesh;
-
   /// regions of the mesh to loop over
   std::vector< boost::shared_ptr< Mesh::CRegion > > m_loop_regions;
 

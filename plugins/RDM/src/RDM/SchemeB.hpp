@@ -156,8 +156,8 @@ void SchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
  m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values,m_wj);
 
- /// THE LOOP IMPLEMENTS THE INTEGRAL
- /// phiN_i = phiLDA_i + integral[ kplus_i * frac{ sum( kplus_j(u_i - u_out) ) }{ sum(kplus_j) }    ] dX
+ // THE LOOP IMPLEMENTS THE INTEGRAL
+ // phiN_i = phiLDA_i + integral[ kplus_i * frac{ sum( kplus_j(u_i - u_out) ) }{ sum(kplus_j) }    ] dX
 
  for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
  {
@@ -169,7 +169,7 @@ void SchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
      sumLplus += std::max(0.0,m_sf_oper_values(q,n));
    }
 
-   /// phiLDA:
+   // phiLDA:
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
      m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q]*m_wj[q];
@@ -177,7 +177,7 @@ void SchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
    Real sum_kdiff_u;
 
-   /// dissipative part:
+   // dissipative part:
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
 

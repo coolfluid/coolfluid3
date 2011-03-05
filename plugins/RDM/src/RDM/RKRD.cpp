@@ -27,7 +27,8 @@
 #include "Solver/Actions/CLoop.hpp"
 
 #include "RDM/RKRD.hpp"
-#include "RDM/Action.hpp"
+#include "RDM/DomainTerm.hpp"
+#include "RDM/BoundaryTerm.hpp"
 
 namespace CF {
 namespace RDM {
@@ -243,20 +244,11 @@ void RKRD::signal_create_boundary_term( Signal::arg_t& node )
 
   std::vector<URI> regions = options.get_array<URI>("Regions");
 
-// this will be for neunamm bcs
-//  CAction& face_loop =
-//      m_compute_boundary_face_terms->create_action("CF.Solver.Actions.CForAllFaces", name);
+  RDM::BoundaryTerm::Ptr bterm = create_component_abstract_type<RDM::BoundaryTerm>(type,name);
+  m_compute_boundary_face_terms->add_component(bterm);
 
-  Common::CAction::Ptr face_loop = create_component_abstract_type<CLoop>("CF.Solver.Actions.CForAllNodes2",name);
-  m_compute_boundary_face_terms->add_component(face_loop);
-
-  face_loop->configure_property("Regions" , regions);
-  face_loop->mark_basic();
-
-  CAction& face_action = face_loop->create_action( type , "action" );
-  face_action.mark_basic();
-
-  face_action.configure_property("Mesh", m_mesh.lock()->full_path());
+  bterm->configure_property("Regions" , regions);
+  bterm->configure_property("Mesh", m_mesh.lock()->full_path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,7 +262,7 @@ void RKRD::signature_signal_create_boundary_term( Signal::arg_t& node )
 
   // type
   std::vector< std::string > restricted;
-  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
+//  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
   XmlNode type_node = options.set_option<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary");
   Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
@@ -289,12 +281,12 @@ void RKRD::signal_create_domain_term( Signal::arg_t& node )
   std::string name = options.get_option<std::string>("Name");
   std::string type = options.get_option<std::string>("Type");
 
+  RDM::DomainTerm::Ptr dterm = create_component_abstract_type<RDM::DomainTerm>(type,name);
+  m_compute_boundary_face_terms->add_component(dterm);
+
   std::vector<URI> regions = options.get_array<URI>("Regions");
 
-  CAction& cell_loop = m_compute_volume_cell_terms->create_action(type, name);
-
-  cell_loop.configure_property("Regions" , regions);
-  cell_loop.mark_basic();
+  dterm->configure_property("Regions" , regions);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

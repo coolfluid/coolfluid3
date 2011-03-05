@@ -47,6 +47,8 @@ Action::Action ( const std::string& name ) :
 
 }
 
+Action::~Action() {}
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 void Action::config_regions()

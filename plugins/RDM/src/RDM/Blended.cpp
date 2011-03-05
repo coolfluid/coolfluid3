@@ -32,7 +32,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Blended, CAction, LibRDM > Blended_Builder;
+Common::ComponentBuilder < Blended, RDM::DomainTerm, LibRDM > Blended_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +83,7 @@ struct ElementLoop
 
 //////////////////////////////////////////////////////////////////////////////
 
-Blended::Blended ( const std::string& name  ): RDM::Action(name)
+Blended::Blended ( const std::string& name ) : RDM::DomainTerm(name)
 {
   regist_typeinfo(this);
 }

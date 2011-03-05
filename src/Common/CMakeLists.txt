@@ -83,7 +83,6 @@ list( APPEND coolfluid_common_files
     OptionURI.cpp
     OptionURI.hpp
     OptionComponent.hpp
-    OptionComponent.cpp
     Property.hpp
     Property.cpp
     PropertyList.hpp

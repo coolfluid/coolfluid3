@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_LDA_hpp
-#define CF_RDM_LDA_hpp
+#ifndef CF_RDM_DomainTerm_hpp
+#define CF_RDM_DomainTerm_hpp
 
-#include "RDM/DomainTerm.hpp"
+#include "RDM/Action.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,28 +16,25 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API LDA : public RDM::DomainTerm
-{
+class RDM_API DomainTerm : public RDM::Action {
 
 public: // typedefs
 
-  typedef boost::shared_ptr< LDA > Ptr;
-  typedef boost::shared_ptr< LDA const > ConstPtr;
+  /// provider
+  typedef boost::shared_ptr< DomainTerm > Ptr;
+  typedef boost::shared_ptr< DomainTerm const > ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  LDA ( const std::string& name );
+  DomainTerm ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~LDA();
+  virtual ~DomainTerm();
 
   /// Get the class name
-  static std::string type_name () { return "LDA"; }
-
-  /// Execute the loop for all elements
-  virtual void execute();
+  static std::string type_name () { return "DomainTerm"; }
 
 };
 
@@ -48,4 +45,4 @@ public: // functions
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_LDA_hpp
+#endif // CF_RDM_DomainTerm_hpp

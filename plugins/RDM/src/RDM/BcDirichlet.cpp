@@ -10,9 +10,11 @@
 #include "Common/Log.hpp"
 #include "Common/ComponentPredicates.hpp"
 
+#include "Mesh/CRegion.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CEntities.hpp"
+#include "Mesh/CElements.hpp"
+#include "Mesh/CList.hpp"
 
 #include "RDM/BcDirichlet.hpp"
 
@@ -26,12 +28,12 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BcDirichlet, CAction, LibRDM > BcDirichlet_Builder;
+Common::ComponentBuilder < BcDirichlet, RDM::BoundaryTerm, LibRDM > BcDirichlet_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
 BcDirichlet::BcDirichlet ( const std::string& name ) :
-  Solver::Actions::CLoopOperation(name)
+  RDM::BoundaryTerm(name)
 {
   // options
 
@@ -42,11 +44,7 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
        ->mark_basic()
        ->add_tag("solution");
 
-  m_properties.add_option< OptionURI > ("Mesh",
-                                        "Mesh where the boundary exists",
-                                        URI("cpath:"))
-      ->attach_trigger ( boost::bind ( &BcDirichlet::config_mesh,   this ) )
-      ->add_tag("mesh");
+  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_mesh, this ) );
 
   m_properties.add_option<
       OptionT<std::string> > ("Function",
@@ -74,15 +72,7 @@ void BcDirichlet::config_function()
 
 void BcDirichlet::config_mesh()
 {
-  URI mesh_uri = property("Mesh").value<URI>();
-
-  Component::Ptr mesh_comp = access_component_ptr(mesh_uri);
-  if( is_null(mesh_comp) )
-    throw InvalidURI (FromHere(), "URI does not point to a component " + mesh_uri.string() );
-
-  m_mesh = mesh_comp->as_ptr<CMesh>();
-  if ( is_null( m_mesh.lock() ) )
-    throw CastingFailed (FromHere(), "Could not find a CMesh on path " + mesh_uri.string() );
+  cf_assert( is_not_null( m_mesh.lock() ) );
 
   URI sol_uri  = property("Solution").value<URI>();
   m_solution = access_component_ptr(sol_uri)->as_ptr<CField2>();
@@ -90,7 +80,9 @@ void BcDirichlet::config_mesh()
     m_solution = find_component_ptr_with_tag<CField2>( *(m_mesh.lock()) , "solution" );
 
   if( is_null(m_solution.lock()) )
-    throw CastingFailed (FromHere(), "Could not find a solution field on mesh " + mesh_uri.string() );
+    throw CastingFailed (FromHere(),
+                         "Could not find a solution field on mesh "
+                         + m_mesh.lock()->full_path().string() );
 
 }
 
@@ -98,20 +90,24 @@ void BcDirichlet::config_mesh()
 
 void BcDirichlet::execute()
 {
-  // idx() is the node index
-
   CField2& field = *m_solution.lock();
-  CTable<Real>::Row data = field[idx()];
 
-  Real vars[2];
-  vars[XX] = field.coords(idx())[XX];
-  vars[YY] = field.coords(idx())[YY];
+  Real vars[DIM_2D];
 
-  const Uint row_size = data.size();
-
-  for (Uint i = 0; i != row_size; ++i)
+  boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {
-      data[i] = m_fparser.Eval(vars);
+    boost_foreach(const Uint node, CElements::used_nodes(*region).array())
+    {
+      CTable<Real>::Row data = field[node];
+
+      vars[XX] = field.coords(node)[XX];
+      vars[YY] = field.coords(node)[YY];
+
+      const Uint row_size = data.size();
+      for (Uint i = 0; i != row_size; ++i)
+        data[i] = m_fparser.Eval(vars);
+
+    }
   }
 }
 

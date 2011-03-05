@@ -7,8 +7,7 @@
 #ifndef CF_RDM_Blended_hpp
 #define CF_RDM_Blended_hpp
 
-#include "RDM/LibRDM.hpp"
-#include "RDM/Action.hpp"
+#include "RDM/DomainTerm.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +16,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API Blended : public RDM::Action
+class RDM_API Blended : public RDM::DomainTerm
 {
 
 public: // typedefs

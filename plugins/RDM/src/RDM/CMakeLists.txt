@@ -3,6 +3,10 @@ list( APPEND coolfluid_rdm_files
   LibRDM.hpp
   Action.hpp
   Action.cpp
+  BoundaryTerm.hpp
+  BoundaryTerm.cpp
+  DomainTerm.hpp
+  DomainTerm.cpp
   BcDirichlet.hpp
   BcDirichlet.cpp
   LDA.hpp

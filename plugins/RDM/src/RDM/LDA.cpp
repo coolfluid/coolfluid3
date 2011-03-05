@@ -32,7 +32,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LDA, CAction, LibRDM > LDA_Builder;
+Common::ComponentBuilder < LDA, RDM::DomainTerm, LibRDM > LDA_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +83,7 @@ struct ElementLoop
 
 //////////////////////////////////////////////////////////////////////////////
 
-LDA::LDA ( const std::string& name  ): RDM::Action(name)
+LDA::LDA ( const std::string& name ) : RDM::DomainTerm(name)
 {
   regist_typeinfo(this);
 }
