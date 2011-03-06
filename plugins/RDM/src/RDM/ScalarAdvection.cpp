@@ -58,8 +58,6 @@ void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-  CFinfo << "creating a scalar advection model" << CFendl;
-
   std::string name  = options.get_option<std::string>("ModelName");
 
   CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
@@ -76,15 +74,10 @@ void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
 
   model->create_domain( "Domain" );
 
-  CFinfo << " creating solver" << CFendl;
-
   // setup iterative solver
   CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.RDM.RKRD", "Solver");
   solver->mark_basic();
   model->add_component( solver );
-
-  CFinfo << "------------------------" << CFendl;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
