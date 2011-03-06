@@ -19,6 +19,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/tokenizer.hpp>
 
 #include "Common/Exception.hpp"
@@ -390,6 +391,16 @@ void Interpreter::interpret(std::istream &input_stream)
   
   while (std::getline(input_stream, command, '\n'))
   {
+    bool multi_line = boost::algorithm::iends_with(command, "\\");
+    while ( multi_line )
+    {
+      boost::algorithm::erase_last(command,"\\");
+      std::string more;
+      std::getline(input_stream, more, '\n');
+      command += more;
+      multi_line = boost::algorithm::iends_with(command, "\\");
+    }
+
     handle_read_line(command);
     write_prompt();
   }
@@ -403,6 +414,16 @@ void Interpreter::interpret(std::istream &input_stream, readline_function_pointe
 
   while (std::getline(input_stream, command, '\n'))
   {
+    bool multi_line = boost::algorithm::iends_with(command, "\\");
+    while ( multi_line )
+    {
+      boost::algorithm::erase_last(command,"\\");
+      std::string more;
+      std::getline(input_stream, more, '\n');
+      command += more;
+      multi_line = boost::algorithm::iends_with(command, "\\");
+    }
+
     command.erase(boost::algorithm::find_first(command,"#").begin(),command.end());
     boost::algorithm::trim(command); // remove leading and trailing white spaces
     if (!command.empty())
