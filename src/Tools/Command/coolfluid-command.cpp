@@ -41,10 +41,6 @@ int main(int argc, char * argv[])
     ExceptionManager::instance().ExceptionDumps = false;
     ExceptionManager::instance().ExceptionAborts = false;
 
-    // create mesh object
-    CRoot::Ptr root = Core::instance().root();
-    CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
-
     // Initialize empty commands
     options_description desc;
 
@@ -52,8 +48,8 @@ int main(int argc, char * argv[])
     desc.add(BasicCommands::description());
 
     // Parse commands that are passed directly on the command line
-    Interpreter cli(desc);
-    cli.interpret(argc,argv);
+    Interpreter shell(desc);
+    shell.interpret(argc,argv);
 
     // --------------------------------------------------------
 

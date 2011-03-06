@@ -57,8 +57,8 @@ int main(int argc, char * argv[])
     desc.add(Transformer::description());
 
     // Parse commands that are passed directly on the command line
-    Interpreter cli(desc);
-    cli.interpret(argc,argv);
+    Interpreter shell(desc);
+    shell.interpret(argc,argv);
 
     // --------------------------------------------------------
 
