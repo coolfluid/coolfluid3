@@ -83,12 +83,12 @@ RKRD::RKRD ( const std::string& name  ) :
 
   // signals
 
-  regist_signal ("signal_create_boundary_term" ,
+  regist_signal ("create_boundary_term" ,
                  "creates a boundary condition term",
                  "Create Boundary Condition" )
       ->connect ( boost::bind ( &RKRD::signal_create_boundary_term, this, _1 ) );
 
-  signal("signal_create_boundary_term").signature
+  signal("create_boundary_term").signature
       ->connect( boost::bind( &RKRD::signature_signal_create_boundary_term, this, _1));
 
   regist_signal ("create_domain_term",
