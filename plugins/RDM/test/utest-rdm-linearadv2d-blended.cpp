@@ -155,17 +155,17 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
   SignalFrame frame("", "", "");
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  std::vector<URI> bc_regions;
+  std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
-    bc_regions.push_back( region.full_path() );
+    regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   std::string name ("INLET");
 
   options.set_option<std::string>("Name",name);
   options.set_option<std::string>("Type","CF.RDM.BcDirichlet");
-  options.set_array("Regions", bc_regions, " ; ");
+  options.set_array("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -191,15 +191,15 @@ BOOST_FIXTURE_TEST_CASE( test_create_domain_term , linearadv2d_local_fixture )
   SignalFrame frame("", "", "");
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  std::vector<URI> bc_regions;
+  std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    bc_regions.push_back( region.full_path() );
+    regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   options.set_option<std::string>("Name","INTERNAL");
   options.set_option<std::string>("Type","CF.RDM.Blended");
-  options.set_array("Regions", bc_regions, " ; ");
+  options.set_array("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 
