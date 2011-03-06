@@ -125,7 +125,7 @@ void RKRD::config_domain()
 
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>( *domain );
 
-  CFinfo << "mesh " << mesh->full_path().string() << CFendl;
+//  CFinfo << "mesh " << mesh->full_path().string() << CFendl;
   if (is_not_null(mesh))
   {
     m_mesh = mesh;
