@@ -24,24 +24,27 @@ CMeshWriter::CMeshWriter ( const std::string& name  ) :
   mark_basic();
 
   std::vector<URI> fields;
-  m_properties.add_option< OptionArrayT<URI> > ("Fields","Fields to output",fields)->mark_basic();
-  m_properties["Fields"].as_option().attach_trigger( boost::bind( &CMeshWriter::config_fields,   this ) );
+  m_properties.add_option< OptionArrayT<URI> >("Fields","Fields to output",fields)
+      ->mark_basic()
+      ->attach_trigger( boost::bind( &CMeshWriter::config_fields, this ) );
 
   // m_properties.add_option< OptionT<std::string> >  ( "File",  "File to read" , "" );
   // m_properties.add_option< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
 
   // Path to the mesh to write
-  Common::OptionURI::Ptr mesh_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("Mesh", "Mesh to write", std::string()) );
+  Common::OptionURI::Ptr mesh_path =
+      boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("Mesh", "Mesh to write", std::string()) );
   mesh_path->supported_protocol(CF::Common::URI::Scheme::CPATH);
   mesh_path->mark_basic();
 
   // Output file path
-  Common::Option::Ptr file_path = properties().add_option< OptionT<std::string> >("File", "File to save to", std::string());
+  properties().add_option< OptionT<std::string> >("File", "File to save to", std::string())
+      ->mark_basic();
   //file_path->supported_protocol(CF::Common::URI::Scheme::FILE);
-  file_path->mark_basic();
 
   // Signal for writing the mesh
-  this->regist_signal("write_mesh" , "Write the mesh", "Write Mesh")->connect( boost::bind ( &CMeshWriter::signal_write, this, _1 ) );
+  this->regist_signal("write_mesh" , "Write the mesh", "Write Mesh")
+      ->connect( boost::bind ( &CMeshWriter::signal_write, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +103,9 @@ void CMeshWriter::write()
 
 void CMeshWriter::compute_mesh_specifics()
 {
+  if( is_null(m_mesh) )
+    throw SetupError( FromHere(), "Mesh has not been configured in writer");
+
   // - Assemble the map that gives a list of elementregions for each coordinate component
   // - Find maximal dimensionality of the whole mesh
   m_all_nodes.clear();
