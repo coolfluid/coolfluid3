@@ -1167,7 +1167,7 @@ void Component::configure (const std::vector<std::string>& args)
       type=what[3];
       subtype=what[5];
       value=what[6];
-      //CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("<"+subtype+">"))  << "=" << value << CFendl;
+      // CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
       if (properties().check(name) == false) // not found
         throw ValueNotFound(FromHere(), "Option with name ["+name+"] not found in "+ full_path().path());
 
