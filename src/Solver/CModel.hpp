@@ -20,7 +20,7 @@ namespace Solver {
 
 /// CModel is the top most component on a simulation structure
 /// CModel now stores:
-/// - Physical model
+/// - PhysicalModel
 /// - Iterative solver
 /// - Discretization
 /// @author Martin Vymazal

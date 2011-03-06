@@ -69,6 +69,7 @@ void BasicCommands::call(const std::vector<std::string>& params)
 {
   if (params.size() == 0)
     throw SetupError(FromHere(),"executable name needed + possible options");
+
   std::string executable_path = params[0];
   
   if ( Component::Ptr executable = current_component->access_component_ptr(executable_path) )

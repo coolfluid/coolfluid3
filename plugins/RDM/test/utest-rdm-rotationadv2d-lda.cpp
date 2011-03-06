@@ -52,8 +52,8 @@ struct rotationadv2d_global_fixture
     SignalFrame frame("", "", "");
     SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-    options.set_option<std::string>("Model name","mymodel");
-    options.set_option<std::string>("Physical model","RotationAdv2D");
+    options.set_option<std::string>("ModelName","mymodel");
+    options.set_option<std::string>("PhysicalModel","RotationAdv2D");
 
     rotationadv2d_wizard->signal_create_model(frame);
   }
@@ -138,7 +138,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("Number of Iterations", 250u);
+  solver.configure_property("MaxIter", 250u);
 }
 
 //////////////////////////////////////////////////////////////////////////////

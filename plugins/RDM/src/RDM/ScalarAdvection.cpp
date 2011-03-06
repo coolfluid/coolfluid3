@@ -60,7 +60,7 @@ void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
 
   CFinfo << "creating a scalar advection model" << CFendl;
 
-  std::string name  = options.get_option<std::string>("Model name");
+  std::string name  = options.get_option<std::string>("ModelName");
 
   CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
 
@@ -68,7 +68,7 @@ void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
   CPhysicalModel::Ptr pm = model->create_component<CPhysicalModel>("Physics");
   pm->mark_basic();
 
-  std::string phys  = options.get_option<std::string>("Physical model");
+  std::string phys  = options.get_option<std::string>("PhysicalModel");
 
   pm->configure_property( "Type", phys );
   pm->configure_property( "DOFs", 1u );
@@ -79,7 +79,7 @@ void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
   CFinfo << " creating solver" << CFendl;
 
   // setup iterative solver
-  CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.RDM.RKRD", "IterativeSolver");
+  CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.RDM.RKRD", "Solver");
   solver->mark_basic();
   model->add_component( solver );
 
@@ -93,7 +93,7 @@ void ScalarAdvection::signature_create_model( Signal::arg_t& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
-  options.set_option<std::string>("Model name", std::string(), "Name for created model" );
+  options.set_option<std::string>("ModelName", std::string(), "Name for created model" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

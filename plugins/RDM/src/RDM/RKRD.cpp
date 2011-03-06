@@ -52,7 +52,7 @@ RKRD::RKRD ( const std::string& name  ) :
 
   m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &RKRD::config_domain,   this ) );
 
-  m_properties.add_option<OptionT <Uint> >("Number of Iterations",
+  m_properties.add_option<OptionT <Uint> >("MaxIter",
                                            "Maximum number of iterations",
                                             m_nb_iter)
       ->mark_basic()
