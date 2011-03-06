@@ -282,7 +282,7 @@ void RKRD::signal_create_domain_term( Signal::arg_t& node )
   std::string type = options.get_option<std::string>("Type");
 
   RDM::DomainTerm::Ptr dterm = create_component_abstract_type<RDM::DomainTerm>(type,name);
-  m_compute_boundary_face_terms->add_component(dterm);
+  m_compute_volume_cell_terms->add_component(dterm);
 
   std::vector<URI> regions = options.get_array<URI>("Regions");
 
