@@ -52,13 +52,18 @@ public: // functions
   /// @name SIGNALS
   //@{
 
+  /// signature for @see signal_initialize_solution
+  void signature_signal_initialize_solution( Common::Signal::arg_t& node );
+  /// initializes the solution
+  void signal_initialize_solution( Common::Signal::arg_t& xml );
+
   /// signature for @see signal_create_boundary_term
   void signature_signal_create_boundary_term( Common::Signal::arg_t& node );
   /// creates a boundary term
   void signal_create_boundary_term( Common::Signal::arg_t& xml );
 
   /// signature for @see signal_create_boundary_term
-  void signature_create_domain_term( Common::Signal::arg_t& node );
+  void signature_signal_create_domain_term( Common::Signal::arg_t& node );
   /// creates a domain term
   void signal_create_domain_term( Common::Signal::arg_t& xml );
 
@@ -88,9 +93,9 @@ private: // data
   /// action to cleanup
   RDM::Action::Ptr m_cleanup;
   /// action to compute the boundary face terms
-  Common::CAction::Ptr m_compute_boundary_face_terms;
+  Common::CAction::Ptr m_compute_boundary_terms;
   /// action to compute the domain cell terms
-  Common::CAction::Ptr m_compute_volume_cell_terms;
+  Common::CAction::Ptr m_compute_domain_terms;
 
   Uint m_nb_iter;
 };

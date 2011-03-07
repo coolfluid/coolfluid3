@@ -6,7 +6,6 @@
 #
 # soon ...
 #
-# * residual n wave_speed cleanup is rdm::action with configurable fields
 # * solution initialization is an action
 # * obtain cfl from option and/or separate component
 # * P3 triangle

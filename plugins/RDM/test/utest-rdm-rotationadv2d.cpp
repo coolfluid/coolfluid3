@@ -31,6 +31,7 @@
 #include "Mesh/Actions/CBubbleRemove.hpp"
 
 #include "RDM/RKRD.hpp"
+#include "RDM/DomainTerm.hpp"
 #include "RDM/ScalarAdvection.hpp"
 
 using namespace CF;
@@ -43,28 +44,28 @@ using namespace CF::RDM;
 
 //#define BUBBLE
 
-struct linearadv2d_global_fixture
+struct rotationadv2d_global_fixture
 {
-  linearadv2d_global_fixture()
+  rotationadv2d_global_fixture()
   {
-    linearadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
+    rotationadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     SignalFrame frame("", "", "");
     SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
     options.set_option<std::string>("ModelName","mymodel");
-    options.set_option<std::string>("PhysicalModel","LinearAdv2D");
+    options.set_option<std::string>("PhysicalModel","RotationAdv2D");
 
-    linearadv2d_wizard->signal_create_model(frame);
+    rotationadv2d_wizard->signal_create_model(frame);
   }
 
-  ScalarAdvection::Ptr linearadv2d_wizard;
+  ScalarAdvection::Ptr rotationadv2d_wizard;
 
 };
 
-struct linearadv2d_local_fixture
+struct rotationadv2d_local_fixture
 {
-  linearadv2d_local_fixture() :
+  rotationadv2d_local_fixture() :
     model  ( * Core::instance().root()->get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
@@ -78,18 +79,17 @@ struct linearadv2d_local_fixture
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( linearadv2d_global_fixture )
+BOOST_GLOBAL_FIXTURE( rotationadv2d_global_fixture )
 
-BOOST_AUTO_TEST_SUITE( linearadv2d_test_suite )
+BOOST_AUTO_TEST_SUITE( rotationadv2d_test_suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( check_tree , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
   SignalFrame frame("", "", "");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   Core::instance().root()->signal_list_tree(frame);
 
@@ -98,7 +98,7 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -111,12 +111,8 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
 
   std::vector<URI> files;
 
-//  URI file( "file:square1x1-tg-p1.msh" );
-//  URI file( "file:rotation-tg-p1.neu" );
-//  URI file( "file:rotation-qd-p1.neu" );
-//  URI file( "file:advection-tg-p2.msh" );
-  URI file ( "file:advection-qd-p2.msh" );
-//  URI file( "file:rotation-tg-p3.msh" );
+  URI file ( "file:rotation-tg-p1.neu" );
+  //  URI file ( "file:rotation-qd-p1.neu" );
 
   options.set_option<URI>("File", file );
 
@@ -138,17 +134,17 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("MaxIter", 250u);
+  solver.configure_property("MaxIter", 100u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -182,9 +178,64 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_create_domain_term , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve_lda , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
+
+  CFinfo << "solving with LDA scheme" << CFendl;
+
+  // delete previous domain terms
+  Component& domain_terms = solver.get_child("compute_domain_terms");
+  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
+  {
+    const std::string name = term.name();
+    domain_terms.remove_component( name );
+  }
+
+  BOOST_CHECK( domain_terms.count_children() == 0 );
+
+  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+
+  SignalFrame frame("", "", "");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+
+  std::vector<URI> regions;
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+    regions.push_back( region.full_path() );
+
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
+
+  options.set_option<std::string>("Name","INTERNAL");
+  options.set_option<std::string>("Type","CF.RDM.LDA");
+  options.set_array("Regions", regions, " ; ");
+
+  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
+
+  BOOST_CHECK(true);
+
+  solver.solve();
+
+  BOOST_CHECK(true);
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( solve_blended , rotationadv2d_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  CFinfo << "solving with Blended scheme" << CFendl;
+
+  // delete previous domain terms
+  Component& domain_terms = solver.get_child("compute_domain_terms");
+  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
+  {
+    const std::string name = term.name();
+    domain_terms.remove_component( name );
+  }
+
+  BOOST_CHECK( domain_terms.count_children() == 0 );
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
@@ -203,25 +254,17 @@ BOOST_FIXTURE_TEST_CASE( test_create_domain_term , linearadv2d_local_fixture )
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 
-//  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
-
   BOOST_CHECK(true);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-BOOST_FIXTURE_TEST_CASE( test_solve , linearadv2d_local_fixture )
-{
-  BOOST_CHECK(true);
-
-//  CFinfo << model.tree() << CFendl;
 
   solver.solve();
+
+  BOOST_CHECK(true);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_output , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
