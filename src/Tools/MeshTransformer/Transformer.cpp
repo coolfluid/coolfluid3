@@ -91,7 +91,7 @@ void Transformer::help( const std::string& param )
   boost_foreach(CBuilder& bdt, find_components_recursively<CBuilder>( *meshtrans_fac ))
   {
     CMeshTransformer::Ptr transformer = bdt.build("transformer")->as_ptr<CMeshTransformer>();
-    transformers_description[bdt.builder_concrete_type_name()] = transformer->brief_description();
+    transformers_description[bdt.builder_concrete_type_name()] = transformer->property("brief").value<std::string>();
     name_to_transformers[bdt.builder_concrete_type_name()] = transformer;
   }
 
@@ -180,7 +180,6 @@ void Transformer::input( const std::vector<std::string>& params )
   
   boost_foreach(const std::string& value, params)
   {
-    CFLogVar(value);
     filesystem::path inputfile (value);
     const std::string ext = inputfile.extension();
     CMeshReader::Ptr reader;
@@ -292,12 +291,11 @@ void Transformer::transform( const std::vector<std::string>& params )
   boost_foreach(CBuilder& bdt, find_components_recursively<CBuilder>( *meshtrans_fac ))
   {
     CMeshTransformer::Ptr transformer = bdt.build("transformer")->as_ptr<CMeshTransformer>();
-    transformers_description[bdt.builder_concrete_type_name()] = transformer->brief_description();
+    transformers_description[bdt.builder_concrete_type_name()] = transformer->property("brief").value<std::string>();
     name_to_transformers[bdt.builder_concrete_type_name()] = transformer;
   }
   
   const std::string transformer_name = params[0];
-  CFLogVar(transformer_name);
   std::string transformer_args;
   std::vector<std::string> parsed_transformer_args;
   for (Uint i=1; i<params.size(); ++i)

@@ -29,6 +29,7 @@ namespace Zoltan {
 ////////////////////////////////////////////////////////////////////////////////
 
 CF::Common::ComponentBuilder < CPartitioner, CMeshPartitioner, LibZoltan > zoltan_partitioner_builder;
+CF::Common::ComponentBuilder < CPartitioner, CMeshTransformer, LibZoltan > zoltan_partitioner_transformer_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +44,7 @@ CPartitioner::CPartitioner ( const std::string& name ) :
 	float version;
 	int error_code = Zoltan_Initialize(Core::instance().argc(),Core::instance().argv(),&version);
 	cf_assert_desc("Could not initialize Zoltan",error_code == ZOLTAN_OK);
-	CFdebug << "Zoltan version = " << version << CFendl;
+	//CFdebug << "Zoltan version = " << version << CFendl;
 	m_zz = new ZoltanObject(PE::instance());
 	cf_assert (m_zz != NULL);
 }
@@ -74,8 +75,6 @@ void CPartitioner::partition_graph()
     numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
     numExport, exportGlobalIds, exportLocalIds, exportProcs, exportToPart);
 
-  CF_DEBUG_POINT;
-  
   m_changes->reserve(numExport);
   for (Uint i=0; i<(Uint)numExport; ++i)
   {

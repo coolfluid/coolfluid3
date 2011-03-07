@@ -27,6 +27,13 @@ CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
+std::string CMeshTransformer::help() const
+{
+  return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
+}  
+
+////////////////////////////////////////////////////////////////////////////////
+
 void CMeshTransformer::set_mesh(CMesh::Ptr mesh)
 {
   m_mesh=mesh;

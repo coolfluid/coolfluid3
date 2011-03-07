@@ -11,7 +11,6 @@
 
 #include <boost/tuple/tuple.hpp>
 
-#include "Common/Component.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CMap.hpp"
 #include "Common/Foreach.hpp"
@@ -26,6 +25,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -37,7 +37,7 @@ namespace Mesh {
 /// CMeshPartitioner component class
 /// This class serves as a component that that will partition the mesh
 /// @author Willem Deconinck
-class Mesh_API CMeshPartitioner : public Common::Component {
+class Mesh_API CMeshPartitioner : public CMeshTransformer {
 
 public: // typedefs
 
@@ -58,6 +58,8 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CMeshPartitioner"; }
 
+  virtual void execute();
+  
   void initialize(CMesh& mesh);
 
   /// Partitioning functions
@@ -113,8 +115,6 @@ public: // functions
 
   boost::tuple<Uint,Uint,bool> to_local_indices_from_glb_obj(const Uint glb_obj) const;
 
-  void config_nb_parts();
-
 	Uint proc_of_obj(const Uint obj) const
 	{
     for (Uint p=0; p<m_end_id_per_proc.size(); ++p)
@@ -152,9 +152,7 @@ private: // data
   std::vector<Uint> m_local_index;
 
   Common::CMap<Uint,Uint>::Ptr m_global_to_local;
-  
-  CMesh::Ptr m_mesh;
-  
+
   std::vector<Uint> m_start_id_per_proc;
   std::vector<Uint> m_end_id_per_proc;
   std::vector<Uint> m_start_node_per_proc;

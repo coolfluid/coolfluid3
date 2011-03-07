@@ -51,12 +51,9 @@ public: // functions
   virtual void transform(boost::shared_ptr<CMesh> mesh);
   
   virtual void execute() = 0;
-  
-  /// brief description, typically one line
-  virtual std::string brief_description() const = 0;
 
   /// extended help that user can query
-  virtual std::string help() const = 0;
+  virtual std::string help() const;
 
   void set_mesh(boost::shared_ptr<CMesh> mesh);
 

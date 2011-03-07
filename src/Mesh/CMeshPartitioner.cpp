@@ -33,7 +33,7 @@ namespace Mesh {
 //////////////////////////////////////////////////////////////////////////////
 
 CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
-    Component(name),
+    CMeshTransformer(name),
     m_base(0),
     m_nb_parts(mpi::PE::instance().size()),
     m_map_built(false)
@@ -55,10 +55,13 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::config_nb_parts()
+void CMeshPartitioner::execute()
 {
-  property("nb_partitions").put_value(m_nb_parts);
-//	m_hash->configure_property("Number of Partitions",m_nb_parts);
+  CMesh& mesh = *m_mesh.lock();
+  initialize(mesh);
+  partition_graph();
+  show_changes();
+  migrate();
 }
 
 //////////////////////////////////////////////////////////////////////////////
