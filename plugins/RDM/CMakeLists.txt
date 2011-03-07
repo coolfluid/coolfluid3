@@ -4,16 +4,23 @@
 
 # TODO
 #
+# now ...
+#
+# * make update solution an action
+# * make compute norm an action
+# * make outputting convergence info an action
+# * use the generic iterate with ordered actions
+# * port rkrd time stepping from CF2
+# * linearized euler equations
+#
 # soon ...
 #
-# * obtain cfl from option and/or separate component
 # * P3 triangle
 # * P3 quad
 # * reformulate the linear operator common functions within the scheme
 # * reformulate the interface to the physics
 # * supg scheme
 # * bubble scheme
-# * rk time stepping
 #
 # later ...
 #
@@ -22,7 +29,6 @@
 # * automatic bubble enrichment in rk case
 # * euler system
 # * neuman bc
-# * linearized euler equations
 
 cmake_minimum_required( VERSION 2.8 FATAL_ERROR )
 
