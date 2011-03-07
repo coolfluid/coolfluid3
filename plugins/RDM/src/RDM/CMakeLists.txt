@@ -5,6 +5,8 @@ list( APPEND coolfluid_rdm_files
   Action.cpp
   BoundaryTerm.hpp
   BoundaryTerm.cpp
+  Cleanup.hpp
+  Cleanup.cpp
   DomainTerm.hpp
   DomainTerm.cpp
   BcDirichlet.hpp

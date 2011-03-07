@@ -10,11 +10,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CLink.hpp"
-#include "Common/CAction.hpp"
 
 #include "Solver/CSolver.hpp"
 
-#include "RDM/LibRDM.hpp"
+#include "RDM/Action.hpp"
 
 namespace CF {
 
@@ -86,9 +85,10 @@ private: // data
   /// wave_speed field pointer
   boost::weak_ptr<Mesh::CField2> m_wave_speed;
 
+  /// action to cleanup
+  RDM::Action::Ptr m_cleanup;
   /// action to compute the boundary face terms
   Common::CAction::Ptr m_compute_boundary_face_terms;
-
   /// action to compute the domain cell terms
   Common::CAction::Ptr m_compute_volume_cell_terms;
 

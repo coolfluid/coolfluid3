@@ -41,9 +41,8 @@ Action::Action ( const std::string& name ) :
 //  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( & Action::config_mesh, this ) );
 
   std::vector< URI > dummy;
-  m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy);
-
-  m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
+  m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)
+      ->attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
 
 }
 

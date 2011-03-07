@@ -29,6 +29,7 @@
 #include "RDM/RKRD.hpp"
 #include "RDM/DomainTerm.hpp"
 #include "RDM/BoundaryTerm.hpp"
+#include "RDM/Cleanup.hpp"
 
 namespace CF {
 namespace RDM {
@@ -109,6 +110,9 @@ RKRD::RKRD ( const std::string& name  ) :
   m_compute_volume_cell_terms = create_static_component<CAction>("compute_volume_cells");
   m_compute_volume_cell_terms->mark_basic();
 
+  // create apply boundary conditions action
+  m_cleanup = create_static_component<Cleanup>("cleanup");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -174,6 +178,12 @@ void RKRD::config_mesh()
     m_wave_speed = mesh.create_scalar_field("wave_speed",*m_solution.lock()).as_ptr<CField2>();
     m_wave_speed.lock()->add_tag(wave_speed_tag);
   }
+
+  std::vector<URI> cleanup_fields;
+  cleanup_fields.push_back( m_residual.lock()->full_path() );
+  cleanup_fields.push_back( m_wave_speed.lock()->full_path() );
+  m_cleanup->configure_property("Fields", cleanup_fields);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -192,9 +202,9 @@ void RKRD::solve()
   // initialize to zero condition
 
   /// @todo should be moved out of here
-  Uint size = residual.size();
+  const Uint size = residual.size();
   for (Uint i=0; i<size; ++i)
-    solution[i][0]=0;
+    solution[i][0]=0.;
 
   CFinfo << " - starting iterative loop" << CFendl;
 
@@ -202,10 +212,8 @@ void RKRD::solve()
   {
     /// @todo move this into an action
 
-    // cleanup residual and wave_speed
-
-    residual = 0.;
-    wave_speed = 0.;
+    // cleanup needed fields (typically residual and wave_speed)
+    m_cleanup->execute();
 
     // compute RHS
 
