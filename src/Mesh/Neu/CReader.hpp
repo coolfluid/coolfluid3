@@ -88,13 +88,10 @@ private: // data
   CRegion::Ptr m_region;
   CNodes::Ptr m_nodes;
   CRegion::Ptr m_tmp;
-  std::string m_file_basename;
 	
 	std::set<Uint> m_ghost_nodes;
 	std::map<Uint,Uint> m_node_to_coord_idx;
-	
-  std::vector<std::set<Uint> > m_node_to_glb_elements;
-	
+		
 	Uint m_nodal_coordinates_position;
 	Uint m_elements_cells_position;
 	std::vector<Uint> m_element_group_positions;
@@ -110,7 +107,6 @@ private: // data
     // NDFVL    Number of velocity components (2 or 3)
     Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
 		std::string mesh_name;
-    void print();
   } m_headerData;
 
   struct GroupData
@@ -124,7 +120,6 @@ private: // data
     Uint NGP, NELGP, MTYP, NFLAGS;
     std::string ELMMAT;
     std::vector<Uint> ELEM;
-    void print ();
   };
 
   struct BCData
@@ -136,7 +131,6 @@ private: // data
     // IBCODE1  (Optional) Boundary condition code 1
     std::string NAME;
     Uint ITYPE, NENTRY, NVALUES, IBCODE1;
-    void print ();
   };
 
 }; // end CReader

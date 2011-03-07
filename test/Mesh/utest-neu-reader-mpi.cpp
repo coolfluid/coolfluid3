@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   
-  meshreader->configure_property("Unified Zones",false);
+  meshreader->configure_property("read_groups",true);
   
   // the file to read from
   //boost::filesystem::path fp_in ("hextet.neu");
@@ -100,29 +100,13 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   CNodes& nodes = find_component_recursively<CNodes>(*mesh);
   for (Uint n=0; n<nodes.size(); ++n)
   {
-    if (!nodes.is_ghost()[n])
+    if (nodes.is_ghost()[n])
     {
-      CFinfo << "node " << nodes.glb_idx()[n] << " connected to:" << CFflush;
-      boost_foreach (const Uint glb_elem, nodes.glb_elem_connectivity()[n])
-        CFinfo << " " << glb_elem << CFflush;
-      CFinfo << CFendl;
-    }
-    else
-    {
-      CFinfo << "node " << nodes.glb_idx()[n] << " is a ghost node" << CFendl;
-      nb_ghosts++;
+      CFinfo << "node " << n << " is a ghost node" << CFendl;
+      ++nb_ghosts;
     }
   }
   CFinfo << "ghost node count = " << nb_ghosts << CFendl;
-  
-  BOOST_FOREACH(const CList<Uint>& global_element_indices, find_components_recursively_with_name<CList<Uint> >(*mesh,"global_element_indices"))
-  {
-    Uint local_idx = 0;
-    BOOST_FOREACH(Uint glb_idx, global_element_indices.array())
-      CFinfo << global_element_indices.full_path().string()<<"["<<local_idx++ <<"] = " << glb_idx <<  CFendl;
-  }
-  
-
 } 
 
 ////////////////////////////////////////////////////////////////////////////////

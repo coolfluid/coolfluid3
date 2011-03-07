@@ -154,6 +154,7 @@ void CGlobalNumbering::execute()
   std::vector<Uint>   node_to(nodes.size()-nb_ghost);
   
   CList<Uint>& nodes_glb_idx = mesh.nodes().glb_idx();
+  nodes_glb_idx.resize(nodes.size());
   
   Uint cnt=0;
   Uint glb_id = start_id_per_proc[mpi::PE::instance().rank()];
@@ -189,6 +190,7 @@ void CGlobalNumbering::execute()
             }
             ++rcv_idx;
           }
+          break;
         }
       }
     }
@@ -201,6 +203,7 @@ void CGlobalNumbering::execute()
   boost_foreach( CEntities& elements, mesh.topology().elements_range() )
   {
     CList<Uint>& elements_glb_idx = elements.glb_idx();
+    elements_glb_idx.resize(elements.size());
     std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
     Uint e(0);
     boost_foreach( std::size_t hash, glb_elem_hash)

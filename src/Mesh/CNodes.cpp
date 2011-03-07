@@ -49,9 +49,7 @@ CNodes::~CNodes()
 void CNodes::resize(const Uint size)
 {
   coordinates().resize(size);
-  glb_elem_connectivity().resize(size);
   is_ghost().resize(size);
-  glb_idx().resize(size);
 }
 
 //////////////////////////////////////////////////////////////////////////////

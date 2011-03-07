@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 {
   CFinfo << "CMeshPartitioner_test" << CFendl;
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  meshreader->configure_property("Read Boundaries",false);
+  meshreader->configure_property("read_boundaries",false);
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
 
   //p.configure_property("Number of Partitions", (Uint) 4);
-  p.configure_property("Graph Package", std::string("PHG"));
-  p.configure_property("Debug Level", 2u);
+  p.configure_property("graph_package", std::string("PHG"));
+  p.configure_property("debug_level", 2u);
   BOOST_CHECK(true);
   p.initialize(mesh);
   BOOST_CHECK(true);

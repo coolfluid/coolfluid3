@@ -103,10 +103,10 @@ void CGlobalConnectivity::execute()
   //BOOST_STATIC_ASSERT(sizeof(std::size_t) == sizeof(Uint));
 
   // 1) make std::map<glb_node_idx,loc_node_idx>
-  // 2) Make loc_node -> glb_elems connectivity (does not contain elements from other partitions)
+  // 2) Make node2elem connectivity (does not contain elements from other partitions)
   // 3) foreach ghostnode, store connected owned elements
-  // 4) broadcast (3) to all, so they can complete their node-elem connectivity
-  // 5) possibly also communicate the location of the ghosts.
+  // 4) broadcast (3) to all, and store the map node to ghost elements
+  // 5) create the node to glb_elem_connectivity, as the combination of (2) and (4)
 
 
   //1)
@@ -166,7 +166,6 @@ void CGlobalConnectivity::execute()
       {
         if (p == mpi::PE::instance().rank())
         {
-          boost::this_thread::sleep(boost::posix_time::milliseconds(5));
           Uint rcv_idx(0);
           boost_foreach(const std::size_t glb_node, rcv_glb_node_idx)
           {
@@ -179,6 +178,7 @@ void CGlobalConnectivity::execute()
             }
             ++rcv_idx;
           }
+          break;
         }
       }
     }

@@ -37,8 +37,8 @@ CPartitioner::CPartitioner ( const std::string& name ) :
 	m_partitioned(false)
 {
 
-  m_properties.add_option<OptionT <std::string> >("Graph Package","External library zoltan will use for graph partitioning","PHG")->mark_basic();
-  m_properties.add_option<OptionT <Uint> >("Debug Level","Internal Zoltan debug level (0 to 10)",0);
+  m_properties.add_option<OptionT <std::string> >("graph_package","Graph Package","External library zoltan will use for graph partitioning","PHG")->mark_basic();
+  m_properties.add_option<OptionT <Uint> >("debug_level","Debug Level","Internal Zoltan debug level (0 to 10)",0);
 
 	float version;
 	int error_code = Zoltan_Initialize(Core::instance().argc(),Core::instance().argv(),&version);
@@ -95,7 +95,7 @@ void CPartitioner::set_partitioning_params()
 {
   /// Zoltan general parameters
 
-  m_zz->Set_Param( "DEBUG_LEVEL", to_str(property("Debug Level").value<Uint>()));
+  m_zz->Set_Param( "DEBUG_LEVEL", to_str(property("debug_level").value<Uint>()));
   //  0	Quiet mode; no output unless an error or warning is produced.
   //	1	Values of all parameters set by Zoltan_Set_Param and used by Zoltan.
   //	2	Timing information for Zoltan's main routines.
@@ -156,13 +156,13 @@ void CPartitioner::set_partitioning_params()
 
 	/// Zoltan graph parameters
 
-	m_zz->Set_Param( "GRAPH_PACKAGE",property("Graph Package").value<std::string>());
+	m_zz->Set_Param( "GRAPH_PACKAGE",property("graph_package").value<std::string>());
 	// The software package to use in partitioning the graph.
 	// PHG (default)     http://www.cs.sandia.gov/Zoltan/ug_html/ug_alg_phg.html
 	// ParMETIS          http://www.cs.sandia.gov/Zoltan/ug_html/ug_alg_parmetis.html
 	// Scotch/PT-Scotch  http://www.cs.sandia.gov/Zoltan/ug_html/ug_alg_ptscotch.html
 
-  m_zz->Set_Param( "CHECK_GRAPH", to_str(std::max(2u,property("Debug Level").value<Uint>())));
+  m_zz->Set_Param( "CHECK_GRAPH", to_str(std::max(2u,property("debug_level").value<Uint>())));
   // Level of error checking for graph input:
   // 0 = no checking,
   // 1 = on-processor checking,

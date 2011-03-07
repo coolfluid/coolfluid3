@@ -46,7 +46,6 @@ CPartitioner::~CPartitioner ( )
 
 void CPartitioner::build_graph()
 {
-  CF_DEBUG_POINT;
   // resize vertloctab to the number of owned objects
   // +1 because of compact form without holes in global numbering
   vertloctab.resize(nb_owned_objects()+1,0);
@@ -144,7 +143,6 @@ void CPartitioner::build_graph()
 
 void CPartitioner::partition_graph()
 {
-  CF_DEBUG_POINT;
   //PECheckPoint(1,"begin partition_graph()");  
   
   SCOTCH_Strat stradat;
