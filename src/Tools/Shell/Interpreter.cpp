@@ -77,13 +77,13 @@ Interpreter::Interpreter(const commands_description& desc,
 void Interpreter::set_description(const commands_description& desc)
 {
   m_desc.add_options()
-  ("help,h", "show help")
-  ("interactive,i", "start shell")
+  ("help,h", value< std::vector<std::string> >()->multitoken()->zero_tokens(), "show help")
+  ("interactive,i", value< std::vector<std::string> >()->multitoken()->zero_tokens(), "start shell")
   ("file,f", value< std::vector<std::string> >()->multitoken() , "execute coolfluid script file")
   ("save,s", value< std::string >()->implicit_value(std::string()), "save history")
   ("alias", value<std::string>()->notifier(boost::bind(&Interpreter::alias, this, _1)))
-  ("history", "show history")
-  ("reset,r", "reset history")
+  ("history", value< std::vector<std::string> >()->multitoken()->zero_tokens(), "show history")
+  ("reset,r", value< std::vector<std::string> >()->multitoken()->zero_tokens(), "reset history")
   ;
   
   m_desc.add(desc);
@@ -103,9 +103,6 @@ void Interpreter::interpret_alias(std::vector<std::string>& unrecognized_command
     {
       if (alias_str != command)
         arg_str = std::string( boost::algorithm::find_first(command," ").begin(),command.end());
-      CFLogVar(m_alias[alias_str]);
-      CFLogVar(arg_str);
-      CFLogVar(arg_str.size());
       unrecognized_commands.erase(unrecognized_commands.begin()+cnt);
       handle_read_line(m_alias[alias_str]+arg_str);
     }
@@ -223,9 +220,10 @@ void Interpreter::handle_read_line(std::string line)
     {
       if ( std::string(command.begin(),command.begin()+2) == "--")
         unrecognized_commands.push_back(std::string(command.begin()+2,command.end()));
+      else if ( std::string(command.begin(),command.begin()+1) == "-")
+        throw boost::program_options::unknown_option(" argument cannot start with '-'");
       else
         unrecognized_commands.back() = unrecognized_commands.back() + " " + command;
-      CFLogVar(unrecognized_commands.back());
     }
     boost_foreach(const unrecognized_commands_handler_t& handle, m_handle_unrecognized_commands )
     {
@@ -269,46 +267,73 @@ void Interpreter::handle_read_line(std::string line)
 
 void Interpreter::interpret(int argc, char * argv[])
 {
-  // parsed_options parsed = parse_command_line(argc, argv, m_desc);
-  parsed_options parsed = command_line_parser(argc,argv).options(m_desc).allow_unregistered().run();
-  
-  if (parsed.options.size())
+  try
   {
-    typedef basic_option<char> Option;
-
-    // notify only 1 program_option at a time to conserve
-    // execution order
-    parsed_options one_parsed_option(&m_desc);
-    
-    one_parsed_option.options.resize(1);
-    boost_foreach(Option option, parsed.options)
+    // parsed_options parsed = parse_command_line(argc, argv, m_desc);
+    parsed_options parsed = command_line_parser(argc,argv).options(m_desc).allow_unregistered().run();
+  
+    if (parsed.options.size())
     {
-      one_parsed_option.options[0]=option;
-      variables_map vm;
-      store(one_parsed_option,vm);
-      notify(vm);
-      std::vector<std::string> unrecognized_commands = collect_unrecognized( parsed.options , include_positional);
-      boost_foreach(std::string& command, unrecognized_commands)
-      {
-        // remove "--" from command
-        command.erase(command.begin(),command.begin()+2);
-      }
-      boost_foreach(const unrecognized_commands_handler_t& handle, m_handle_unrecognized_commands )
-      {
-        if (unrecognized_commands.size())
-        {
-          handle(unrecognized_commands);
-        }
-      }
-      if (unrecognized_commands.size())
-        throw boost::program_options::unknown_option("");
+      typedef basic_option<char> Option;
+
+      // notify only 1 program_option at a time to conserve
+      // execution order
+      parsed_options one_parsed_option(&m_desc);
     
+      one_parsed_option.options.resize(1);
+      boost_foreach(Option option, parsed.options)
+      {
+        one_parsed_option.options[0]=option;
+        variables_map vm;
+        store(one_parsed_option,vm);
+        notify(vm);
+        std::vector<std::string> unrecognized_commands = collect_unrecognized( parsed.options , include_positional);
+        boost_foreach(std::string& command, unrecognized_commands)
+        {
+          // remove "--" from command
+          command.erase(command.begin(),command.begin()+2);
+        }
+        boost_foreach(const unrecognized_commands_handler_t& handle, m_handle_unrecognized_commands )
+        {
+          if (unrecognized_commands.size())
+          {
+            handle(unrecognized_commands);
+          }
+        }
+        if (unrecognized_commands.size())
+          throw boost::program_options::unknown_option("");
+    
+      }
+    }
+    else
+    {
+      CFinfo << "coolfluid shell - command 'exit' to quit - command 'help' for help" << CFendl;
+      interpret(std::cin);
     }
   }
-  else
+  catch (boost::program_options::unknown_option &e) 
   {
-    CFinfo << "coolfluid shell - command 'exit' to quit - command 'help' for help" << CFendl;
-    interpret(std::cin);
+    CFerror << "error: " << e.what() << CFendl;
+  }
+  catch (boost::program_options::invalid_command_line_syntax &e)
+  {
+    CFerror << "error: " << e.what() << CFendl;
+  }
+  catch (boost::program_options::validation_error &e)
+  {
+    CFerror << "error: " << e.what() << CFendl;
+  }
+  catch(Exception & e)
+  {
+    CFerror << e.what() << CFendl;
+  }
+  catch ( std::exception& ex )
+  {
+    CFerror << "Unhandled exception: " << ex.what() << CFendl;
+  }
+  catch ( ... )
+  {
+    CFerror << "Detected unknown exception" << CFendl;
   }
 }
 
@@ -446,3 +471,8 @@ void Interpreter::write_prompt()
 } // Shell
 } // Tools
 } // CF
+
+
+
+
+

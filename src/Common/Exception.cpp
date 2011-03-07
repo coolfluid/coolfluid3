@@ -44,15 +44,15 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
 {
   m_what = full_description();
   if ( ExceptionManager::instance().ExceptionOutputs )
-  {
-    CFerror << m_what << CFendl;
+  {    
+    CFerror << "\n\n" << m_what << CFendl;
   }
 
   if ( ExceptionManager::instance().ExceptionDumps )
   {
     std::string backtrace = OSystem::instance().layer()->back_trace();
     CFerror << "\n\n";
-    CFerror << "+++ Exception backtrace on rank " << mpi::PE::instance().rank() << " ++++\n";
+    CFerror << "+++ Exception backtrace on rank " << mpi::PE::instance().rank() << " ++++++++++++++++++++++++++++++++++++++++++\n";
     CFerror << backtrace << "\n";
     CFerror << "++++++++++++++++++++++++++++++++++++++" << CFendl;
   }
@@ -97,8 +97,7 @@ const char* Exception::what() const throw()
 std::string Exception::full_description () const throw ()
 {
   std::string desc;
-  desc += "\n\n";
-  desc += "+++ Exception thrown on rank "+ to_str(mpi::PE::instance().rank()) + " ++++++++\n";
+  desc += "+++ Exception thrown on rank "+ to_str(mpi::PE::instance().rank()) + " ++++++++++++++++++++++++++++++++++++++++++++++\n";
   desc += "From : \'";
   desc += m_where.str();
   desc += "\'\n";
@@ -107,7 +106,7 @@ std::string Exception::full_description () const throw ()
   desc += "\'\n";
   desc += "Message :\n";
   desc += m_msg;
-  desc += "\n+++++++++++++++++++++++++++++++++++++\n";
+  desc += "\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
   return desc;
 }
 

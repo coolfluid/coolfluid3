@@ -38,6 +38,7 @@ int main(int argc, char * argv[])
 
     // --------------------------------------------------------
 
+    ExceptionManager::instance().ExceptionOutputs = false;
     ExceptionManager::instance().ExceptionDumps = false;
     ExceptionManager::instance().ExceptionAborts = false;
 
@@ -53,18 +54,6 @@ int main(int argc, char * argv[])
 
     // --------------------------------------------------------
 
-  }
-  catch (boost::program_options::unknown_option &e)
-  {
-    std::cerr << "error: " << e.what() << CFendl;
-  }
-  catch (boost::program_options::invalid_command_line_syntax &e)
-  {
-    std::cerr << "error: " << e.what() << CFendl;
-  }
-  catch (boost::program_options::validation_error &e)
-  {
-    std::cerr << "error: " << e.what() << CFendl;
   }
   catch(Exception & e)
   {
