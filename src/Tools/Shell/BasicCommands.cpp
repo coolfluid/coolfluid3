@@ -147,7 +147,6 @@ void BasicCommands::ls(const std::vector<std::string>& params)
   hidden_signals.insert("create_component");
   hidden_signals.insert("create_component");
   hidden_signals.insert("signal_signature");
-  
   if (params.size() == 0)
   {
     // ls this_component
@@ -158,7 +157,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
   }
   else if (params.size() == 1)
   {
-    // ls -x  or  ls path
+    // ls x  or  ls path
     std::string arg = params[0];
     if (arg == "l")
     {
@@ -289,7 +288,6 @@ void BasicCommands::ls(const std::vector<std::string>& params)
   }
   else 
     throw ParsingFailed (FromHere(), "More than 2 arguments for ls not supported");
-    
 }
 
 ////////////////////////////////////////////////////////////////////////////////

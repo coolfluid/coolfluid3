@@ -7,24 +7,18 @@
 #include <iostream>
 
 #include <boost/program_options.hpp>
-#include <boost/regex.hpp>
-
+#include "Common/CF.hpp"
+#include "Common/Exception.hpp"
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Foreach.hpp"
-
-#include "Mesh/CMesh.hpp"
 
 #include "Tools/Shell/Interpreter.hpp"
 #include "Tools/Shell/BasicCommands.hpp"
 
-using namespace boost;
 using namespace boost::program_options;
 
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Mesh;
 using namespace CF::Tools::Shell;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +35,7 @@ int main(int argc, char * argv[])
     ExceptionManager::instance().ExceptionOutputs = false;
     ExceptionManager::instance().ExceptionDumps = false;
     ExceptionManager::instance().ExceptionAborts = false;
+    AssertionManager::instance().AssertionThrows = true;
 
     // Initialize empty commands
     options_description desc;
@@ -57,7 +52,7 @@ int main(int argc, char * argv[])
   }
   catch(Exception & e)
   {
-    std::cerr << e.what() << CFendl;
+    CFerror << e.what() << CFendl;
   }
   catch ( std::exception& ex )
   {
