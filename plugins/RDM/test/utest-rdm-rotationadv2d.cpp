@@ -178,6 +178,22 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
 
 //////////////////////////////////////////////////////////////////////////////
 
+BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , rotationadv2d_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  SignalFrame frame("", "", "");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+
+  std::vector<std::string> functions(1);
+  functions[0] = "x*x+y*y";
+  options.set_array("Functions", functions, " ; ");
+
+  solver.as_type<RKRD>().signal_initialize_solution( frame );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 BOOST_FIXTURE_TEST_CASE( solve_lda , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
@@ -275,18 +291,10 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
       create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
 
   domain.add_component( remover );
-
-  std::vector<std::string> args;
   remover->transform( mesh );
 #endif
 
   BOOST_CHECK(true);
-
-//  CFinfo << model.tree() << CFendl;
-
-  ////////////////////////////////////////////////////////////////////////////////
-  // Writer
-  ////////////////////////////////////////////////////////////////////////////////
 
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(mesh_writer);

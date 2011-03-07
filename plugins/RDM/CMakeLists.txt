@@ -6,7 +6,6 @@
 #
 # soon ...
 #
-# * solution initialization is an action
 # * obtain cfl from option and/or separate component
 # * P3 triangle
 # * P3 quad

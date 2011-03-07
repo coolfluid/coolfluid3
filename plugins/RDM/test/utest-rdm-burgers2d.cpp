@@ -141,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , burgers2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("MaxIter", 100u);
+  solver.configure_property("MaxIter", 0u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -179,6 +179,22 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , burgers2d_local_fixture )
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
   BOOST_CHECK(true);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , burgers2d_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  SignalFrame frame("", "", "");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+
+  std::vector<std::string> functions(1);
+  functions[0] = "x*x+y*y";
+  options.set_array("Functions", functions, " ; ");
+
+  solver.as_type<RKRD>().signal_initialize_solution( frame );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -265,17 +281,6 @@ BOOST_FIXTURE_TEST_CASE( solve_blended , burgers2d_local_fixture )
 
   BOOST_CHECK(true);
 
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-BOOST_FIXTURE_TEST_CASE( solve , burgers2d_local_fixture )
-{
-  BOOST_CHECK(true);
-
-//  CFinfo << model.tree() << CFendl;
-
-  solver.solve();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

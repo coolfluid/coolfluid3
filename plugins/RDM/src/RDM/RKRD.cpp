@@ -319,6 +319,8 @@ void RKRD::signal_initialize_solution( Signal::arg_t& node )
   if( is_null(m_mesh.lock()) )
       throw SetupError( FromHere(), "Domain or Mesh has not been configured on solver " + full_path().string() );
 
+  cf_assert( is_not_null(m_solution.lock()) );
+
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
   std::vector< std::string > functions = options.get_array<std::string>("Functions");
@@ -330,6 +332,8 @@ void RKRD::signal_initialize_solution( Signal::arg_t& node )
     init_solution = get_child("init_solution").as_ptr_checked<CInitFieldFunction>();
 
   init_solution->configure_property( "Functions", functions );
+  init_solution->configure_property( "Field", m_solution.lock()->full_path() );
+
   init_solution->transform( m_mesh.lock() );
 }
 
