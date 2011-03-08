@@ -18,6 +18,7 @@
 // headers
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/UI/GraphOption.hpp"
+#include "GUI/Client/UI/Graph.hpp"
 #include "GUI/Client/UI/ColorSelector.hpp"
 #include "fparser/fparser.hh"
 #include "GUI/Client/Core/NPlotXY.hpp"
@@ -43,6 +44,7 @@ namespace ClientUI {
           QWidget(parent)
   {
       m_ptr_plot = ptr_plot;
+      m_graph_parent = (Graph *) parent;
 
       QVBoxLayout * vertical_graph_option_layout = new QVBoxLayout();
       this->setLayout(vertical_graph_option_layout);
@@ -182,6 +184,8 @@ namespace ClientUI {
     button_draw->setEnabled(true);
 
     m_can_draw = true;
+
+    m_graph_parent->reset_base_zoom();
 
     }
   }

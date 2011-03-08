@@ -25,6 +25,10 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+class Graph;
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// @brief This class is used to set visuals options, generate functions and
 ///  set the curve to draw.
 /// @author Wertz Gil
@@ -64,6 +68,9 @@ private: //functions
     void  generate_function(QString name,QString fct);
 
 private: //datas
+
+  /// Graph
+  Graph * m_graph_parent;
 
   /// QwtPlot pointer, refer to the plot where we draw cures.
   QwtPlot * m_ptr_plot;

@@ -104,13 +104,13 @@ namespace ClientUI {
     QToolBar * tool_bar = new QToolBar(this);
 
     //cearte a zoom button
-    /*
+
     QToolButton * btn_zoom = new QToolButton(tool_bar);
     btn_zoom->setText("Zoom");
     btn_zoom->setIcon(QIcon(zoom_xpm));
     btn_zoom->setCheckable(true);
     btn_zoom->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    */
+
 
 
     //create a SVG sae button
@@ -171,7 +171,7 @@ namespace ClientUI {
     m_picker->setTrackerPen(QColor(Qt::black));
 
     //adding buttons to the toolbar
-    //tool_bar->addWidget(btn_zoom);
+    tool_bar->addWidget(btn_zoom);
     tool_bar->addWidget(btn_svg);
 
     //set the mouse to not be used for zoom
@@ -207,24 +207,16 @@ namespace ClientUI {
 
     NPlotXY::PlotDataPtr plot_data( new NPlotXY::PlotData() );
     std::vector<QString> vector_temp2(0);
-    graph_option = new GraphOption(plot_data,vector_temp2,m_plot);
+    graph_option = new GraphOption(plot_data,vector_temp2,m_plot,this);
 
     layout_option->addWidget(graph_option);
 
     m_scale_box->setLayout(m_layout_zoom);
     m_options_box->setLayout(layout_option);
 
-
-
-    ////////////////////////test//////////////////////////////
-
-    //qDebug() << layout_zoom->itemAt(0);
-
-    //////////////////////////////////////////////////////////
-
     ////Conncetion phase
     connect(btn_svg, SIGNAL(clicked()), SLOT(export_svg()));
-    //connect(btn_zoom, SIGNAL(toggled(bool)), SLOT(enable_zoom_mode(bool)));
+    connect(btn_zoom, SIGNAL(toggled(bool)), SLOT(enable_zoom_mode(bool)));
     connect(m_picker, SIGNAL(moved(const QPoint &)),
             SLOT(moved(const QPoint &)));
     connect(m_picker, SIGNAL(selected(const QwtPolygon &)),
@@ -297,10 +289,10 @@ namespace ClientUI {
 
   void Graph::enable_zoom_mode(bool on)
   {
-    m_curently_zooming = on;
+    //m_curently_zooming = on;
 
     m_zoomer->setEnabled(on);
-    //m_zoomer[0]->zoom(0);
+    m_zoomer->zoom(0);
 
     m_picker->setEnabled(!on);
 
@@ -430,6 +422,9 @@ namespace ClientUI {
     m_plot->setAxisScale(QwtPlot::xBottom,x,weight);
     m_plot->setAxisScale(QwtPlot::yLeft,y,height);
 
+
+    m_zoomer->setZoomBase();
+
     m_plot->replot();
 
      show_info();
@@ -455,6 +450,13 @@ namespace ClientUI {
 
     m_button_set_scale->setVisible(visible);
   }
+
+  void  Graph::reset_base_zoom()
+  {
+      m_zoomer->setZoomBase();
+      m_plot->replot();
+  }
+
 
 
 

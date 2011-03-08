@@ -116,6 +116,11 @@ private: //data
   bool m_curently_zooming;
   QwtDoublePoint * m_zoom_point[2];
 
+public slots: //slots
+
+  /// Reset the base scale zoom.
+  void reset_base_zoom();
+
 private slots: //slots
 
   /// Called when moving while clicking.
@@ -133,14 +138,14 @@ private slots: //slots
   /// @param zoom_enable Enale zoom.
   void enable_zoom_mode(bool zoom_enable);
 
-  /// Set the x,y scale of the graph.
-  void set_scale();
-
   /// show the graph's options
   void show_graph_option(bool);
 
   /// show the scale's options
   void show_scale_option(bool);
+
+  /// Set the x,y scale of the graph.
+  void set_scale();
 
 }; // Graph
 
