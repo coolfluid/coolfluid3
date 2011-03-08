@@ -49,8 +49,8 @@ struct PEOperationsFixture
       /// Static const member variable describing if operation is commutative across processors or not (if not sure, use false).
       static const bool is_commutative=true;
 
-      /// Implementation of the operation. See MPI_Op_create in MPI standard documentation for details.
-      template<typename T> static void func(void* in, void* out, int* len, MPI_Datatype* type){
+      /// Implementation of the operation. See Operation_create in MPI standard documentation for details.
+      template<typename T> static void func(void* in, void* out, int* len, mpi::Datatype* type){
         int rank,i;
         T *in_=(T*)in;
         T *out_=(T*)out;
@@ -59,7 +59,7 @@ struct PEOperationsFixture
   };
 
   /// mimicer function for templatization (basically a substituter for all_reudce)
-  template<typename T, typename Op> MPI_Op mimic_usage( T& t, Op ) { return mpi::get_mpi_op<T, Op>::op(); };
+  template<typename T, typename Op> mpi::Operation mimic_usage( T& t, Op ) { return mpi::get_mpi_op<T, Op>::op(); };
 
   /// custom class for checking the non built-in way
   class optest {
@@ -99,12 +99,12 @@ struct PEOperationsFixture
 ////////////////////////////////////////////////////////////////////////////////
 
 /// data stays in scope for checking if registration is really static
-MPI_Op mpi_op_customplus_i=MPI_OP_NULL;
-MPI_Op mpi_op_customplus_d=MPI_OP_NULL;
-MPI_Op mpi_op_customplus_o=MPI_OP_NULL;
-MPI_Op mpi_op_custommult_i=MPI_OP_NULL;
-MPI_Op mpi_op_custommult_d=MPI_OP_NULL;
-MPI_Op mpi_op_custommult_o=MPI_OP_NULL;
+mpi::Operation mpi_op_customplus_i=(mpi::Operation)nullptr;
+mpi::Operation mpi_op_customplus_d=(mpi::Operation)nullptr;
+mpi::Operation mpi_op_customplus_o=(mpi::Operation)nullptr;
+mpi::Operation mpi_op_custommult_i=(mpi::Operation)nullptr;
+mpi::Operation mpi_op_custommult_d=(mpi::Operation)nullptr;
+mpi::Operation mpi_op_custommult_o=(mpi::Operation)nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -162,17 +162,17 @@ BOOST_AUTO_TEST_CASE( operations_registered_types )
 
   // check if registering goes fine
   mpi_op_customplus_i=mimic_usage(i,mpi::customplus());
-  BOOST_CHECK_NE(mpi_op_customplus_i,MPI_OP_NULL);
+  BOOST_CHECK_NE(mpi_op_customplus_i,(mpi::Operation)nullptr);
   mpi_op_customplus_d=mimic_usage(d,mpi::customplus());
-  BOOST_CHECK_NE(mpi_op_customplus_d,MPI_OP_NULL);
+  BOOST_CHECK_NE(mpi_op_customplus_d,(mpi::Operation)nullptr);
   mpi_op_customplus_o=mimic_usage(o,mpi::customplus());
-  BOOST_CHECK_NE(mpi_op_customplus_o,MPI_OP_NULL);
+  BOOST_CHECK_NE(mpi_op_customplus_o,(mpi::Operation)nullptr);
   mpi_op_custommult_i=mimic_usage(i,     custommult());
-  BOOST_CHECK_NE(mpi_op_custommult_i,MPI_OP_NULL);
+  BOOST_CHECK_NE(mpi_op_custommult_i,(mpi::Operation)nullptr);
   mpi_op_custommult_d=mimic_usage(d,     custommult());
-  BOOST_CHECK_NE(mpi_op_custommult_d,MPI_OP_NULL);
+  BOOST_CHECK_NE(mpi_op_custommult_d,(mpi::Operation)nullptr);
   mpi_op_custommult_o=mimic_usage(o,     custommult());
-  BOOST_CHECK_NE(mpi_op_custommult_o,MPI_OP_NULL);
+  BOOST_CHECK_NE(mpi_op_custommult_o,(mpi::Operation)nullptr);
 
   // check if no glitch and separate types go to separate static variables
   BOOST_CHECK_NE(mpi_op_customplus_i,mpi_op_customplus_d);
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE( operations_registered_types_are_really_static )
 BOOST_AUTO_TEST_CASE( built_in_operation_with_custom_datatype )
 {
   optest o;
-  // check if non built-in datatype does not fall back to built-in MPI_Op
+  // check if non built-in datatype does not fall back to built-in Operation
   BOOST_CHECK_NE( mimic_usage(o,mpi::max()),         MPI_MAX);
   BOOST_CHECK_NE( mimic_usage(o,mpi::min()),         MPI_MIN);
   BOOST_CHECK_NE( mimic_usage(o,mpi::plus()),        MPI_SUM);

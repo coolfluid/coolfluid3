@@ -14,8 +14,6 @@
 
 #include <boost/thread/thread.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/LogStream.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/CodeLocation.hpp"
 
@@ -59,29 +57,27 @@ namespace CF {
   @param expression stuff to execute
 **/
 #define PEProcessSortedExecute(pe,irank,expression) {                                                                           \
-  CFinfo.setFilterRankZero(false);                                                                                              \
   if (irank<0){                                                                                                                 \
     int _process_sorted_execute_i_;                                                                                             \
     int _process_sorted_execute_n_=(int)(pe.size());                                                                            \
     int _process_sorted_execute_r_=(int)(pe.rank());                                                                            \
     pe.barrier();                                                                                                               \
-    CFinfo << CFflush;                                                                                                          \
+    std::cout << std::flush;                                                                                                          \
     pe.barrier();                                                                                                               \
     for(_process_sorted_execute_i_=0; _process_sorted_execute_i_<_process_sorted_execute_n_; _process_sorted_execute_i_++){     \
       pe.barrier();                                                                                                             \
       if(_process_sorted_execute_i_ == _process_sorted_execute_r_){                                                             \
         expression;                                                                                                             \
-        CFinfo << CFflush;                                                                                                      \
+        std::cout << std::flush;                                                                                                      \
         pe.barrier();                                                                                                           \
       }                                                                                                                         \
     }                                                                                                                           \
     pe.barrier();                                                                                                               \
-    CFinfo << CFflush;                                                                                                          \
+    std::cout << std::flush;                                                                                                          \
     pe.barrier();                                                                                                               \
   } else if (irank==(int)(pe.rank())){                                                                                          \
     expression;                                                                                                                 \
   }                                                                                                                             \
-  CFinfo.setFilterRankZero(true);                                                                                               \
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -96,15 +92,16 @@ namespace CF {
 ::CF::Common::mpi::PE::instance().barrier();                                                                                                     \
 std::cout << std::flush;                                                                                                      \
 boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
-PE::instance().barrier();                                                                                                     \
-PEProcessSortedExecute(PE::instance(),-1,                                                                                                    \
+::CF::Common::mpi::PE::instance().barrier();                                                                                                     \
+PEProcessSortedExecute(::CF::Common::mpi::PE::instance(),-1,                                                                                                    \
 std::cout << std::flush;                                                                                                    \
-std::cout << "["<<PE::instance().rank() << "] " << msg << "\n";                                                                   \
+std::cout << "["<<::CF::Common::mpi::PE::instance().rank() << "] " << msg << "\n";                                                                   \
 std::cout << std::flush;                                                                                                    \
 );                                                                                                                            \
-PE::instance().barrier();                                                                                                     \
+::CF::Common::mpi::PE::instance().barrier();                                                                                                     \
 std::cout << std::flush;                                                                                                      \
 boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
+::CF::Common::mpi::PE::instance().barrier();                                                                                                     \
 }
 	
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,9 +121,9 @@ boost::this_thread::sleep(boost::posix_time::milliseconds(msec));               
  Macro for printing a vector
 **/
 #define PEDebugVector(v,size) { \
-  CFinfo << mpi::PE::instance().rank() << "/" << mpi::PE::instance().rank() << ": " << #v << " " << size <<CFendl; \
-  for(int _tmp_i_=0; _tmp_i_<(const int)(size); _tmp_i_++)  CFinfo << v[_tmp_i_] << " "; \
-  CFinfo << CFendl; \
+  std::cout << mpi::PE::instance().rank() << "/" << mpi::PE::instance().rank() << ": " << #v << " " << size << "\n" << std::flush; \
+  for(int _tmp_i_=0; _tmp_i_<(const int)(size); _tmp_i_++)  std::cout << v[_tmp_i_] << " "; \
+  std::cout << "\n" << std::flush; \
 }
 
 ////////////////////////////////////////////////////////////////////////////////

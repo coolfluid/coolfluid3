@@ -20,6 +20,8 @@ if( CF_MPI_COMPILER_AVAILABLE )
   find_package(MPI)
 
   coolfluid_log( "     MPI CXX COMPILER   : [${CMAKE_CXX_COMPILER}]")
+  coolfluid_log( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
+  coolfluid_log( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
   
 else()
 

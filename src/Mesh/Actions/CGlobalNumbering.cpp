@@ -7,7 +7,6 @@
 #include <boost/foreach.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/mpi/collectives.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
@@ -18,7 +17,7 @@
 #include "Common/StringConversion.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/CreateComponentDataType.hpp"
-#include "Common/MPI/broadcast.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/Actions/CGlobalNumbering.hpp"
 #include "Mesh/CCellFaces.hpp"
@@ -135,9 +134,9 @@ void CGlobalNumbering::execute()
     tot_nb_owned_ids += elements.size();
     
   std::vector<Uint> nb_ids_per_proc(mpi::PE::instance().size());
-  /// @todo replace boost::mpi::communicator by CF instructions
-  boost::mpi::communicator world;
-  boost::mpi::all_gather(world, tot_nb_owned_ids, nb_ids_per_proc);
+  //boost::mpi::communicator world;
+  //boost::mpi::all_gather(world, tot_nb_owned_ids, nb_ids_per_proc);
+  mpi::PE::instance().all_gather(&tot_nb_owned_ids, 1, (Uint*)(&nb_ids_per_proc[0]));
   std::vector<Uint> start_id_per_proc(mpi::PE::instance().size());
   Uint start_id=0;
   for (Uint p=0; p<nb_ids_per_proc.size(); ++p)
@@ -171,8 +170,12 @@ void CGlobalNumbering::execute()
   
   for (Uint root=0; root<mpi::PE::instance().size(); ++root)
   {
-    std::vector<std::size_t> rcv_node_from = mpi::broadcast(node_from, root);
-    std::vector<Uint>        rcv_node_to   = mpi::broadcast(node_to, root);
+    //std::vector<std::size_t> rcv_node_from = mpi::broadcast(node_from, root);
+    //std::vector<Uint>        rcv_node_to   = mpi::broadcast(node_to, root);
+    std::vector<std::size_t> rcv_node_from(node_from.size());
+    mpi::PE::instance().broadcast(node_from,rcv_node_from,root);
+    std::vector<Uint>        rcv_node_to(node_to.size());
+    mpi::PE::instance().broadcast(node_to,rcv_node_to,root);
     if (mpi::PE::instance().rank() != root)
     {
       for (Uint p=0; p<mpi::PE::instance().size(); ++p)

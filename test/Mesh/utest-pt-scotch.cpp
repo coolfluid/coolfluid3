@@ -11,7 +11,6 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
-#include <boost/mpi/collectives.hpp>
 
 #include <mpi.h>
 #include <ptscotch.h>
@@ -110,8 +109,9 @@ struct PTScotchTests_Fixture
     proccnttab.resize(Common::mpi::PE::instance().size());
     procvrttab.resize(Common::mpi::PE::instance().size()+1);
     
-    boost::mpi::communicator world;
-    boost::mpi::all_gather(world, vertlocnbr, proccnttab);
+    //boost::mpi::communicator world;
+    //boost::mpi::all_gather(world, vertlocnbr, proccnttab);
+    mpi::PE::instance().all_gather(&vertlocnbr, (SCOTCH_Num*)(&proccnttab[0]));
     Uint cnt=0;
     for (Uint p=0; p<proccnttab.size(); ++p)
     {

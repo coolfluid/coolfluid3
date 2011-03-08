@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <Common/MPI/PE.hpp>
+#include <Common/MPI/types.hpp>
 #include <Common/MPI/tools.hpp>
 #include <Common/MPI/datatype.hpp>
 #include "Common/Foreach.hpp"
@@ -55,14 +55,14 @@ namespace detail {
   **/
   template<typename T>
   inline void
-  broadcast_impl(const PE::Communicator& comm,  const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride)
+  broadcast_impl(const Communicator& comm,  const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride)
   {
     // get rank
     int irank;
     MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
     // get data type, op and some checkings
-    MPI_Datatype type = get_mpi_datatype(*in_values);
+    Datatype type = get_mpi_datatype(*in_values);
     BOOST_ASSERT( stride>0 );
 
     // there is in_map
@@ -77,7 +77,6 @@ namespace detail {
       memcpy(inout_buf,in_values,stride*in_n*sizeof(T));
     }
 
-    std::cout << "in_n*stride="<<in_n*stride<<std::endl;
     // do the communication
     MPI_CHECK_RESULT(MPI_Bcast, ( inout_buf, in_n*stride, type, root, comm ));
 
@@ -91,32 +90,6 @@ namespace detail {
     if (((in_map!=0)&&(irank==root))||(out_map!=0)) delete[] inout_buf;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-/**
-  Implementation to the broadcast interface.
-  Don't call this function directly, use mpi::broadcastvm instead.
-  In_values and out_values must be linear in memory and their sizes should be sum(in_n[i]) and sum(out_n[i]) i=0..#processes-1.
-  @param comm mpi::communicator
-  @param in_values pointer to the send buffer
-  @param in_n array holding send counts of size #processes
-  @param in_map array of size #processes holding the mapping. If zero pointer passed, no mapping on send side.
-  @param out_values pointer to the receive buffer
-  @param out_n array holding receive counts of size #processes. If zero pointer passed, no mapping on receive side.
-  @param out_map array of size #processes holding the mapping
-  @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
-**/
-template<typename T>
-inline void
-broadcast_impl(const PE::Communicator& comm, T* inout_buf, const int size, const int root)
-{
-  // get data type, op and some checkings
-  MPI_Datatype type = get_mpi_datatype(*inout_buf);
-
-  // do the communication
-  MPI_CHECK_RESULT(MPI_Bcast, ( inout_buf, size, type, root, comm ));
-}
-    
 ////////////////////////////////////////////////////////////////////////////////
 
 } // end namespace detail
@@ -134,7 +107,7 @@ broadcast_impl(const PE::Communicator& comm, T* inout_buf, const int size, const
 **/
 template<typename T>
 inline T*
-broadcast(const PE::Communicator& comm, const T* in_values, const int &in_n, T* out_values, const int root, const int stride=1)
+broadcast(const Communicator& comm, const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
 {
   // get rank
   int irank;
@@ -167,51 +140,24 @@ broadcast(const PE::Communicator& comm, const T* in_values, const int &in_n, T* 
 **/
 template<typename T>
 inline void
-broadcast(const PE::Communicator& comm, const std::vector<T>& in_values, std::vector<T>& out_values, const int root)
+broadcast(const Communicator& comm, const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
 {
   // get rank
   int irank;
   MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
-  Uint size(0);
-  if (irank==root)
-  {
-    size = in_values.size();
-    out_values=in_values;
+  // set out_values's sizes
+  BOOST_ASSERT( in_values.size() % stride == 0 );
+  out_values.resize(in_values.size());
+  out_values.reserve(in_values.size());
+
+  if (irank==root) {
+    detail::broadcast_impl(comm,(T*)(&in_values[0]),in_values.size()/stride,(int*)0,(T*)(&out_values[0]),(int*)0,root,stride);
+  } else {
+    detail::broadcast_impl(comm,(T*)0,in_values.size()/stride,(int*)0,(T*)(&out_values[0]),(int*)0,root,stride);
   }
-  detail::broadcast_impl(comm, &size , 1 , root);
-  if (irank!=root)
-    out_values.resize(size);
-  
-  detail::broadcast_impl(comm, (T*)(&out_values[0]), size, root);
 
 }
-
-template<typename T>
-inline void
-broadcast(const std::vector<T>& in_values, std::vector<T>& out_values, const int root)
-{
-  broadcast(PE::instance(),in_values,out_values,root);
-}
-
-template<typename T>
-inline std::vector<T> 
-broadcast(const PE::Communicator& comm, const std::vector<T>& in_values, const int root)
-{
-  std::vector<T> out_values(0);
-  broadcast(comm,in_values,out_values,root);
-  return out_values;
-}
-
-template<typename T>
-inline std::vector<T> 
-broadcast(const std::vector<T>& in_values, const int root)
-{
-  std::vector<T> out_values(0);
-  broadcast(in_values,out_values,root);
-  return out_values;
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -231,7 +177,7 @@ broadcast(const std::vector<T>& in_values, const int root)
 **/
 template<typename T>
 inline T*
-broadcast(const PE::Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride=1)
+broadcast(const Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride=1)
 {
   // get rank
   int irank;
@@ -277,7 +223,7 @@ broadcast(const PE::Communicator& comm, const T* in_values, const int in_n, cons
 **/
 template<typename T>
 inline void
-broadcast(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int root, const int stride=1)
+broadcast(const Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int root, const int stride=1)
 {
   // get rank
   int irank;

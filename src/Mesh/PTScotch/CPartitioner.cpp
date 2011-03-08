@@ -4,9 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-//boost mpi
-#include <boost/mpi/collectives.hpp>
-
 // coolfluid
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -108,9 +105,9 @@ void CPartitioner::build_graph()
     proccnttab.resize(PE::instance().size());
     procvrttab.resize(PE::instance().size()+1);
 
-    /// @todo replace boost::mpi::communicator by CF instructions
-    boost::mpi::communicator world;
-    boost::mpi::all_gather(world, vertlocnbr, proccnttab);
+    //boost::mpi::communicator world;
+    //boost::mpi::all_gather(world, vertlocnbr, proccnttab);
+    mpi::PE::instance().all_gather(vertlocnbr, proccnttab);
     Uint cnt=0;
     for (Uint p=0; p<proccnttab.size(); ++p)
     {

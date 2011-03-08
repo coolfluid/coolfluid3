@@ -6,8 +6,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "boost/mpi/collectives.hpp"
-
 #include "Common/LibCommon.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"

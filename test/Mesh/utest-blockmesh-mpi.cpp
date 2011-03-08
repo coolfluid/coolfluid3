@@ -11,11 +11,13 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
-#include <boost/mpi/collectives.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CRoot.hpp"
+
+#include "Common/MPI/PE.hpp"
+#include "Common/MPI/operations.hpp"
 
 #include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
@@ -194,21 +196,9 @@ BOOST_AUTO_TEST_CASE( ComputeVolume )
   CFinfo << "Number of elements for process " << rank << ": " << nb_elems << CFendl;
   CFinfo << "Volume for process " << rank << ": " << volume << CFendl;
   
-  if (PE::instance().rank() == 0)
-  {
-    Real total_volume;
-    ///@todo remove boost::mpi calls
-    boost::mpi::communicator world;
-    boost::mpi::reduce(world, volume, total_volume, std::plus<Real>(), 0);
-    BOOST_CHECK_CLOSE(total_volume, 78.9568, 0.5);
-  }
-  else
-  {
-    Real total_volume;
-    ///@todo remove boost::mpi calls
-    boost::mpi::communicator world;
-    boost::mpi::reduce(world, volume, std::plus<Real>(), 0);
-  }
+  Real total_volume;
+  mpi::PE::instance().reduce(mpi::plus(),  &volume, 1, &total_volume, 0);
+  BOOST_CHECK_CLOSE(total_volume, 78.9568, 0.5);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

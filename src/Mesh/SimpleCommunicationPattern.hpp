@@ -7,8 +7,6 @@
 #ifndef CF_Mesh_SimpleCommunicationPattern_hpp
 #define CF_Mesh_SimpleCommunicationPattern_hpp
 
-#include <boost/mpi.hpp>
-
 #include <boost/foreach.hpp>
 
 #include "Common/CF.hpp"
@@ -62,8 +60,7 @@ inline void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, Rang
 {
   //	 CFinfo << "applying pattern to CTable<Real>" << CFendl;
 
-  boost::mpi::communicator world;// = CF::Common::mpi::PE::instance();
-  const Uint nb_procs = world.size();
+  const Uint nb_procs = mpi::PE::instance().size();
   
   Uint total_width = 0;
   BOOST_FOREACH(CTable<Real>& array, range)
@@ -75,6 +72,8 @@ inline void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, Rang
   std::vector<Real> send_buffer;
   send_buffer.reserve(total_width * pattern.receive_list.size());
   
+/// @TODO transform this non-blocking to mpi collectives
+/*
   // track non-blocking requests
   std::vector<boost::mpi::request> reqs;
   reqs.reserve(nb_procs*2);
@@ -109,7 +108,7 @@ inline void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, Rang
   
   // Wait for the comms to be done
   boost::mpi::wait_all(reqs.begin(), reqs.end());
-  
+*/
   // Unpack the receive buffer
   Uint buffer_idx = 0;
   for(Uint proc = 0; proc != nb_procs; ++proc)
@@ -137,8 +136,7 @@ inline void apply_pattern_clist(const SimpleCommunicationPattern& pattern, Range
 {
 	typedef CList<ValueT> CListT;
 
-  boost::mpi::communicator world;// = CF::Common::mpi::PE::instance();
-  const Uint nb_procs = world.size();
+  const Uint nb_procs = mpi::PE::instance().size();
   
 	Uint total_width = 0;
   BOOST_FOREACH(CList<ValueT>& list, range)

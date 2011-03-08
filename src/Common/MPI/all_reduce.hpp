@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <Common/MPI/PE.hpp>
+#include <Common/MPI/types.hpp>
 #include <Common/MPI/tools.hpp>
 #include <Common/MPI/operations.hpp>
 #include <Common/MPI/datatype.hpp>
@@ -57,11 +57,11 @@ namespace detail {
 
   template<typename T, typename Op>
   inline void
-  all_reduce_impl(const PE::Communicator& comm,  Op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride)
+  all_reduce_impl(const Communicator& comm,  Op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride)
   { 
     // get data type, op and some checkings
-    MPI_Datatype type = get_mpi_datatype(*in_values);
-    MPI_Op op_= get_mpi_op<T,Op>::op();
+    Datatype type = get_mpi_datatype(*in_values);
+    Operation op_= get_mpi_op<T,Op>::op();
     BOOST_ASSERT( stride>0 );
 
     // there is in_map
@@ -112,7 +112,7 @@ namespace detail {
 **/
 template<typename T, typename Op>
 inline T*
-all_reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const int in_n, T* out_values, const int stride=1)
+all_reduce(const Communicator& comm, const Op& op, const T* in_values, const int in_n, T* out_values, const int stride=1)
 {
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
@@ -137,7 +137,7 @@ all_reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const
 **/
 template<typename T, typename Op>
 inline void
-all_reduce(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
+all_reduce(const Communicator& comm, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
 {
   // set out_values's sizes
   BOOST_ASSERT( in_values.size() % stride == 0 );
@@ -166,7 +166,7 @@ all_reduce(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_
 **/
 template<typename T, typename Op>
 inline T*
-all_reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride=1)
+all_reduce(const Communicator& comm, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride=1)
 {
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
@@ -204,7 +204,7 @@ all_reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const
 **/
 template<typename T, typename Op>
 inline void
-all_reduce(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
+all_reduce(const Communicator& comm, const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
 {
   // set out_values's sizes
   BOOST_ASSERT( in_values.size() % stride == 0 );

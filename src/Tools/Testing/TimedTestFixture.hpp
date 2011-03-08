@@ -7,15 +7,14 @@
 #ifndef CF_Tools_Tests_Timer_hpp
 #define CF_Tools_Tests_Timer_hpp
 
+#include <iostream>
+
 #include <boost/test/framework.hpp>
 #include <boost/test/test_observer.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/timer.hpp>
 
-#include <boost/mpi/timer.hpp>
-
 #include "Common/BasicExceptions.hpp"
-#include "Common/MPI/PE.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -93,20 +92,15 @@ public:
   void restart_timer()
   {
     m_timer.restart();
-    if(Common::mpi::PE::instance().is_init())
-      m_mpi_timer.restart();
   };
 
   /// Stop timing when a test ends
   void test_unit_finish( boost::unit_test::test_unit const& unit ) {
-    if(Common::mpi::PE::instance().rank() > 0)
-      return;
     // TODO: Provide more generic support for output in CDash format
-    std::cout << "<DartMeasurement name=\"" << unit.p_name.get() << " time\" type=\"numeric/double\">" << (Common::mpi::PE::instance().is_init() ? m_mpi_timer.elapsed() : m_timer.elapsed()) << "</DartMeasurement>" << std::endl;
+    std::cout << "<DartMeasurement name=\"" << unit.p_name.get() << " time\" type=\"numeric/double\">" << m_timer.elapsed() << "</DartMeasurement>" << std::endl;
   }
 private:
   Timer m_timer;
-  boost::mpi::timer m_mpi_timer;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

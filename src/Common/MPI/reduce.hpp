@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <Common/MPI/PE.hpp>
+#include "Common/MPI/types.hpp"
 #include <Common/MPI/tools.hpp>
 #include <Common/MPI/operations.hpp>
 #include <Common/MPI/datatype.hpp>
@@ -56,15 +56,15 @@ namespace detail {
   **/
   template<typename T, typename Op>
   inline void
-  reduce_impl(const PE::Communicator& comm,  Op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride)
+  reduce_impl(const Communicator& comm,  Op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride)
   {
     // get rank
     int irank;
     MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
     // get data type, op and some checkings
-    MPI_Datatype type = get_mpi_datatype(*in_values);
-    MPI_Op op_= get_mpi_op<T,Op>::op();
+    Datatype type = get_mpi_datatype(*in_values);
+    Operation op_= get_mpi_op<T,Op>::op();
     BOOST_ASSERT( stride>0 );
 
     // there is in_map
@@ -119,7 +119,7 @@ namespace detail {
 **/
 template<typename T, typename Op>
 inline T*
-reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
+reduce(const Communicator& comm, const Op& op, const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
 {
   // get rank
   int irank;
@@ -154,7 +154,7 @@ reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const int
 **/
 template<typename T, typename Op>
 inline void
-reduce(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
+reduce(const Communicator& comm, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
 {
   // get rank
   int irank;
@@ -193,7 +193,7 @@ reduce(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_valu
 **/
 template<typename T, typename Op>
 inline T*
-reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride=1)
+reduce(const Communicator& comm, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride=1)
 {
   // get rank
   int irank;
@@ -241,7 +241,7 @@ reduce(const PE::Communicator& comm, const Op& op, const T* in_values, const int
 **/
 template<typename T, typename Op>
 inline void
-reduce(const PE::Communicator& comm, const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int root, const int stride=1)
+reduce(const Communicator& comm, const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int root, const int stride=1)
 {
   // get rank
   int irank;

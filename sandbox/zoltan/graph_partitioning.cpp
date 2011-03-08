@@ -1,6 +1,5 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/filesystem/path.hpp>
-#include <boost/mpi/collectives.hpp>
 
 #include <mpi.h>
 #include <zoltan_cpp.h>
@@ -10,6 +9,7 @@
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/MPI/PE.hpp"
+#include "Common/MPI/operations.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -239,8 +239,8 @@ void showGraphPartitions(GRAPH_DATA& graph, std::vector<int>& parts)
     part_assign_on_this_proc[graph.globalID[i]-1] = parts[i];
   }
 
-  boost::mpi::reduce(PE::instance(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), boost::mpi::maximum<int>(),0);
-  
+  //boost::mpi::reduce(PE::instance(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), boost::mpi::maximum<int>(),0);
+  mpi::PE::instance().reduce(mpi::max(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), 0);
   
   for (Uint i=0; i < part_assign.size(); i++){
     CFinfo << i+1 << "  -->  " << part_assign[i] << CFendl;;

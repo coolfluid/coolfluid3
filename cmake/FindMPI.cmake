@@ -12,6 +12,7 @@ coolfluid_set_trial_library_path("") # clear library search path
 # try in user defined paths first
 coolfluid_add_trial_include_path( ${MPI_HOME}/include )
 coolfluid_add_trial_include_path( $ENV{MPI_HOME}/include )
+
 find_path(MPI_INCLUDE_PATH
           NAMES mpi.h
           PATH_SUFFIXES mpi mpi/include
@@ -32,6 +33,7 @@ find_path(MPI_INCLUDE_PATH
           "C:/Program Files/MPICH/SDK/Include"
           )
 
+# search for the mpi library
 coolfluid_add_trial_library_path( ${MPI_HOME}/lib )
 coolfluid_add_trial_library_path( $ENV{MPI_HOME}/lib )
 

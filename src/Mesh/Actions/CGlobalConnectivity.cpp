@@ -7,7 +7,6 @@
 #include <boost/foreach.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/mpi/collectives.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
@@ -20,7 +19,6 @@
 #include "Common/CreateComponentDataType.hpp"
 
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/broadcast.hpp"
 #include "Common/MPI/tools.hpp"
 
 #include "Mesh/Actions/CGlobalConnectivity.hpp"
@@ -156,10 +154,16 @@ void CGlobalConnectivity::execute()
   
   for (Uint root=0; root<mpi::PE::instance().size(); ++root)
   {
-    std::vector<Uint> rcv_glb_node_idx = mpi::broadcast(ghostnode_glb_idx, root);
-    std::vector<Uint> rcv_glb_elem_connectivity = mpi::broadcast(ghostnode_glb_elem_connectivity, root);
-    std::vector<Uint> rcv_glb_elem_connectivity_start = mpi::broadcast(ghostnode_glb_elem_connectivity_start, root);
-    
+    //std::vector<Uint> rcv_glb_node_idx = mpi::broadcast(ghostnode_glb_idx, root);
+    //std::vector<Uint> rcv_glb_elem_connectivity = mpi::broadcast(ghostnode_glb_elem_connectivity, root);
+    //std::vector<Uint> rcv_glb_elem_connectivity_start = mpi::broadcast(ghostnode_glb_elem_connectivity_start, root);
+    std::vector<Uint> rcv_glb_node_idx(ghostnode_glb_idx.size());
+    mpi::PE::instance().broadcast(ghostnode_glb_idx,rcv_glb_node_idx,root);
+    std::vector<Uint> rcv_glb_elem_connectivity(ghostnode_glb_elem_connectivity.size());
+    mpi::PE::instance().broadcast(ghostnode_glb_elem_connectivity,rcv_glb_elem_connectivity,root);
+    std::vector<Uint> rcv_glb_elem_connectivity_start(ghostnode_glb_elem_connectivity_start.size());
+    mpi::PE::instance().broadcast(ghostnode_glb_elem_connectivity_start,rcv_glb_elem_connectivity_start,root);
+
     if (mpi::PE::instance().rank() != root)
     {
       for (Uint p=0; p<mpi::PE::instance().size(); ++p)

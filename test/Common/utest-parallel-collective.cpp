@@ -68,6 +68,7 @@ BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 {
   mpi::PE::instance().init(m_argc,m_argv);
   BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , true );
+  CFinfo.setFilterRankZero(false);
   PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
 }
 
@@ -79,13 +80,14 @@ BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 #include "test/Common/utest-parallel-collective-scatter.hpp"
 #include "test/Common/utest-parallel-collective-broadcast.hpp"
 #include "test/Common/utest-parallel-collective-all_gather.hpp"
-//#include "test/Common/utest-parallel-collective-gather.hpp"
+#include "test/Common/utest-parallel-collective-gather.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_CASE( finalize, PECollectiveFixture )
 {
   PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " says good bye." << CFendl;);
+  CFinfo.setFilterRankZero(true);
   mpi::PE::instance().finalize();
   BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , false );
 }

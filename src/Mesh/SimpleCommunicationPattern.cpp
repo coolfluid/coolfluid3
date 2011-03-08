@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/mpi/collectives.hpp>
-
 #include "Common/MPI/PE.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Log.hpp"
@@ -29,7 +27,6 @@ SimpleCommunicationPattern::SimpleCommunicationPattern()  :
 
 void SimpleCommunicationPattern::update_send_lists()
 {
-  boost::mpi::communicator world;
   const Uint nb_procs = mpi::PE::instance().size();
   
   IndicesT receive_counts(nb_procs);
@@ -38,23 +35,23 @@ void SimpleCommunicationPattern::update_send_lists()
   for(Uint i = 0; i != nb_procs; ++i)
     receive_counts[i] = receive_dist[i+1] - receive_dist[i];
   
-  boost::mpi::all_to_all(world, receive_counts, send_counts);
+  //boost::mpi::all_to_all(world, receive_counts, send_counts);
+  mpi::PE::instance().all_to_all(receive_counts, send_counts);
   
   for(Uint i = 0; i != nb_procs; ++i)
     send_dist[i+1] = send_dist[i] + send_counts[i];
   
   send_list.resize(send_dist.back());
-  
-  
-  std::vector<boost::mpi::request> reqs;
-  reqs.reserve(nb_procs*2);
-  for(Uint i = 0; i != nb_procs; ++i)
-  {
-    reqs.push_back(world.isend(i, 0, &receive_list[receive_dist[i]], receive_dist[i+1]-receive_dist[i]));
-    reqs.push_back(world.irecv(i, 0, &send_list[send_dist[i]], send_dist[i+1]-send_dist[i]));
-  }
-  
-  boost::mpi::wait_all(reqs.begin(), reqs.end());
+
+/// @TODO: change the following code to blocking and with Common::mpi
+//  std::vector<boost::mpi::request> reqs;
+//  reqs.reserve(nb_procs*2);
+//  for(Uint i = 0; i != nb_procs; ++i)
+//  {
+//    reqs.push_back(world.isend(i, 0, &receive_list[receive_dist[i]], receive_dist[i+1]-receive_dist[i]));
+//    reqs.push_back(world.irecv(i, 0, &send_list[send_dist[i]], send_dist[i+1]-send_dist[i]));
+//  }
+//  boost::mpi::wait_all(reqs.begin(), reqs.end());
 }
 
 void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, CMesh& mesh, SimpleCommunicationPattern& comms_pattern)

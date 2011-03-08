@@ -12,8 +12,6 @@
 #include <QThread>
 #include <QHash>
 
-#include <boost/mpi.hpp>
-
 //#include "GUI/Server/MPIListener.hpp"
 
 class QString;

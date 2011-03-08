@@ -11,7 +11,6 @@
 
 #include <QObject>
 #include <QHash>
-#include <boost/mpi.hpp>
 
 #include "Common/MPI/PE.hpp"
 
