@@ -6,11 +6,10 @@
 #
 # now ...
 #
-# * make update solution an action
-# * make compute norm an action
+# * euler system - jets testcase
 # * make outputting convergence info an action
 # * stop condition based on norm and/or iterations
-# * use the generic iterate with ordered actions
+# * use the iterate action - forward euler , rungekutta
 # * port rkrd time stepping from CF2
 # * linearized euler equations
 #
@@ -25,10 +24,9 @@
 #
 # later ...
 #
-# * physical model user side configuration
+# * physical model abstract class w self-registered implementations
 # * configuration of linear adv speed
 # * automatic bubble enrichment in rk case
-# * euler system
 # * neuman bc
 
 cmake_minimum_required( VERSION 2.8 FATAL_ERROR )
