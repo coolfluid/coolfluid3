@@ -37,7 +37,7 @@ namespace ClientUI {
 
 class BodePlot;
 
-/// @brief This old the XY graph and the options graph.
+/// @brief This hold the XY graph and the options graph.
 /// @author Wertz Gil
 class Graph: public QWidget
 {
@@ -51,10 +51,6 @@ public: //function
 
   /// Graph's destructor
   ~Graph();
-
-  /// Add data to the current graph.
-  /// @param fcts The new data in a 2d vector.
-  void add_xy_data(std::vector< std::vector<double> > & fcts);
 
   /// Erase existing data and put the new one on the current graph.
   /// @param fcts The new data in a 2d vector.
@@ -111,10 +107,6 @@ private: //data
 
   /// scale layout
   QHBoxLayout * m_layout_zoom;
-
-  //to do
-  bool m_curently_zooming;
-  QwtDoublePoint * m_zoom_point[2];
 
 public slots: //slots
 

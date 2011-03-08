@@ -54,7 +54,6 @@ namespace ClientUI {
       setSelectionFlags(QwtPicker::DragSelection | QwtPicker::CornerToCorner);
       setTrackerMode(QwtPicker::AlwaysOff);
       setRubberBand(QwtPicker::NoRubberBand);
-      setMaxStackDepth(10); //max zoom
 
       // RightButton: zoom out by 1
       // Ctrl+RightButton: zoom out to full size
@@ -97,7 +96,7 @@ namespace ClientUI {
     m_options_box->setCheckable(true);
 
     //creat the BodePlot
-    m_plot = new BodePlot(this,true); //
+    m_plot = new BodePlot(this,true);
     m_plot->setMargin(5);
 
     //create the toolbar that contain the widget's button
@@ -238,33 +237,6 @@ namespace ClientUI {
   }
 
   Graph::~Graph(){
-    // just in case, but all Qt element will be destroyed proprely by the parent
-    /*
-    if(m_plot != 0){
-      delete m_plot;
-      m_plot = 0;
-    }
-
-    if(m_label_bottom != 0){
-      delete m_label_bottom;
-      m_label_bottom = 0;
-    }
-
-    if(m_zoomer != 0){
-      delete[] m_zoomer;
-      m_zoomer[0] = 0;
-      m_zoomer[1] = 0;
-    }
-
-    if(m_picker != 0){
-      delete m_picker;
-      m_picker = 0;
-    }
-    if(m_panner != 0){
-      delete m_panner;
-      m_panner = 0;
-    }
-    */
   }
 
   void Graph::export_svg()
@@ -289,10 +261,9 @@ namespace ClientUI {
 
   void Graph::enable_zoom_mode(bool on)
   {
-    //m_curently_zooming = on;
-
     m_zoomer->setEnabled(on);
-    m_zoomer->zoom(0);
+    //unComment to set the originale scale on enable or disable zoom
+    //m_zoomer->zoom(0);
 
     m_picker->setEnabled(!on);
 
@@ -311,22 +282,8 @@ namespace ClientUI {
       }
       else
       {
-        text = "Zoom: Press mouse button and drag";
-        text += " / Maximum zoom = ";
-        text.append(QString("%1").arg(m_zoomer->maxStackDepth()));
-        text += " / Current zoom = ";
-        text.append(QString("%1").arg(m_zoomer->zoomRectIndex()));
+        text = "Zoom: Press left mouse button and drag, unZoom: Press right  mouse button, fullunZoom: Press CTRL + right  mouse button";
       }
-
-      text += " / Current zoom x = ";
-      m_plot->updateAxes();
-      text.append(QString("%1").arg((m_plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound())));
-      text += " / ";
-      text.append(QString("%1").arg((m_plot->axisScaleDiv(QwtPlot::xBottom)->upperBound())));
-      text += " / y = ";
-      text.append(QString("%1").arg((m_plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound())));
-      text += " / ";
-      text.append(QString("%1").arg((m_plot->axisScaleDiv(QwtPlot::xBottom)->upperBound())));
     }
 
     m_label_bottom->setText(text);
@@ -335,21 +292,6 @@ namespace ClientUI {
 
   void Graph::moved(const QPoint &pos)
   {
-/*
-    if(m_curently_zooming)
-    {
-      if(m_zoom_point[0] == 0)
-      {
-        m_zoom_point[0] = new QwtDoublePoint(pos.x(),pos.y());
-      }
-      if(m_zoom_point[1] == 0)
-      {
-        m_plot->setAxisScale(QwtPlot::xBottom,m_zoom_point[0]->x(),pos.x());
-        m_plot->setAxisScale(QwtPlot::yLeft,m_zoom_point[0]->y(),pos.y());
-
-      }
-    }
-*/
     QString info;
     info.sprintf("X=%g, Y=%g",
         m_plot->invTransform(QwtPlot::xBottom, pos.x()),
@@ -372,21 +314,7 @@ namespace ClientUI {
     show_info();
   }
 
-  void Graph::add_xy_data(std::vector< std::vector<double> > & fcts){
-
-  }
-
   void Graph::set_scale(){
-
-    //this provide full support of double input and give coherant result
-    /*
-    if(m_line_min_x->text().isEmpty() || m_line_max_x->text().isEmpty() ||
-       m_line_min_y->text().isEmpty() || m_line_max_y->text().isEmpty())
-    {
-      ClientCore::NLog::globalLog()->addError("One or more Scale value are empty.");
-      return;
-    }
-    */
 
     double x,y,weight,height;
 

@@ -11,7 +11,6 @@
 #include <QTableWidget>
 #include <QPushButton>
 #include <QComboBox>
-#include <QDebug>
 
 #include "qwt/qwt_plot.h"
 
@@ -37,7 +36,6 @@ class GraphOption : public QWidget
     Q_OBJECT
 public: //functions
 
-    //!\ => multi Array
     /// constructor
     /// @param fcts Data of functions.
     /// @param fcts_label Name of functions.
@@ -48,16 +46,14 @@ public: //functions
                 QwtPlot * ptr_plot,
                 QWidget *parent = 0);
 
-    //!\ => multi Array
     /// Set the data to show in the option tab.
     /// @param fcts Data of functions.
     /// @param fcts_label Name of functions.
     void set_data(ClientCore::NPlotXY::PlotDataPtr & fcts,std::vector<QString> & fcts_label);
 
-    //!\ => multi Array
     /// Add a function in the function set with it name and formula.
     /// @param fct Data of the function.
-    /// @param function_name Name of the function.
+    /// @param fct_label Name of the function.
     /// @param formula Formula of the function.
     void add_data(std::vector<double> & fct, QString fct_label ,QString formula = "");
 
@@ -69,13 +65,12 @@ private: //functions
 
 private: //datas
 
-  /// Graph
+  /// The Parent Graph
   Graph * m_graph_parent;
 
   /// QwtPlot pointer, refer to the plot where we draw cures.
   QwtPlot * m_ptr_plot;
 
-  //!\ => multi Array
   /// The curves data.
   ClientCore::NPlotXY::PlotDataPtr m_fcts;
 
@@ -97,6 +92,7 @@ private: //datas
   /// Draw line button.
   QPushButton * button_draw;
 
+  /// Define if we can or not draw curves
   bool m_can_draw;
 
 private slots: //functions - slots
@@ -121,7 +117,6 @@ private slots: //functions - slots
 
     /// Set the curve style to each line selected and redraw curve(s).
     /// @param current_index Index of the curve style.
-    /// @param raw The row where the widget is stored.
     void line_type_changed(int current_index);
 
     /// Draw curves according to the data and options, and set axis auto scale.

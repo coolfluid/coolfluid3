@@ -10,7 +10,6 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLineEdit>
-#include <QDebug>
 
 // Qwt headers
 #include "qwt/qwt_plot_curve.h"
@@ -28,522 +27,530 @@ using namespace CF::GUI::ClientCore;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace GUI {
-namespace ClientUI {
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-//NPlotXY::PlotDataPtr & fcts
-
-
-  GraphOption::GraphOption(NPlotXY::PlotDataPtr & fcts,
-                           std::vector<QString> & fcts_label,
-                           QwtPlot * ptr_plot,QWidget *parent) :
-  //
-          QWidget(parent)
-  {
-      m_ptr_plot = ptr_plot;
-      m_graph_parent = (Graph *) parent;
-
-      QVBoxLayout * vertical_graph_option_layout = new QVBoxLayout();
-      this->setLayout(vertical_graph_option_layout);
-      QHBoxLayout * horisontal_table_layout = new QHBoxLayout();
-      QVBoxLayout * vertical_line_table_layout = new QVBoxLayout();
-      QVBoxLayout * vertical_data_table_layout = new QVBoxLayout();
-      QVBoxLayout * vertical_line_button_layout = new QVBoxLayout();
-      QHBoxLayout * horisontal_function_name_layout = new QHBoxLayout();
-      QHBoxLayout * horisontal_function_function_layout = new QHBoxLayout();
+    namespace GUI {
+        namespace ClientUI {
+
+            ////////////////////////////////////////////////////////////////////////////////
+
+            GraphOption::GraphOption(NPlotXY::PlotDataPtr & fcts,
+                                     std::vector<QString> & fcts_label,
+                                     QwtPlot * ptr_plot,QWidget *parent) :
+            QWidget(parent)
+            {
+                m_ptr_plot = ptr_plot;
+                m_graph_parent = (Graph *) parent;
+
+                QVBoxLayout * vertical_graph_option_layout = new QVBoxLayout();
+                this->setLayout(vertical_graph_option_layout);
+                QHBoxLayout * horisontal_table_layout = new QHBoxLayout();
+                QVBoxLayout * vertical_line_table_layout = new QVBoxLayout();
+                QVBoxLayout * vertical_data_table_layout = new QVBoxLayout();
+                QVBoxLayout * vertical_line_button_layout = new QVBoxLayout();
+                QHBoxLayout * horisontal_function_name_layout = new QHBoxLayout();
+                QHBoxLayout * horisontal_function_function_layout = new QHBoxLayout();
+
+                //creating and initialising the option table with 5 columns
+                m_line_table = new QTableWidget(0,5,this);
+                //creating and initialising the data table with 2 columns
+                m_data_table = new QTableWidget(0,2,this);
+                m_data_table->setFixedWidth(270);
+
+                //add line button
+                QPushButton * button_add_line = new QPushButton("Add");
+                QPushButton * button_select_all = new QPushButton("All");
+                QPushButton * button_clear_selection = new QPushButton("None");
+                QPushButton * button_remove_line = new QPushButton("Remove");
+
+                //labels of the line_table's columns
+                QStringList line_table_labels;
+                line_table_labels.push_back(QString(""));
+                line_table_labels.push_back(QString("x"));
+                line_table_labels.push_back(QString("y"));
+                line_table_labels.push_back(QString("Color"));
+                line_table_labels.push_back(QString("Line Type"));
+
+                //labels of the data_table's columns
+                QStringList data_table_labels;
+                data_table_labels.push_back(QString("name"));
+                data_table_labels.push_back(QString("function"));
+
+                //seting the columns labels to the table
+                m_line_table->setHorizontalHeaderLabels(line_table_labels);
+                m_data_table->setHorizontalHeaderLabels(data_table_labels);
 
-      //creating and initialising the option table with 5 columns
-      m_line_table = new QTableWidget(0,5,this);
-      //creating and initialising the data table with 2 columns
-      m_data_table = new QTableWidget(0,2,this);
-      m_data_table->setFixedWidth(270);
+                //selection type
+                m_line_table->setSelectionMode(QAbstractItemView::MultiSelection);
+                m_line_table->setSelectionBehavior(QAbstractItemView::SelectRows);
+                m_data_table->setSelectionMode(QAbstractItemView::NoSelection);
 
-      //add line button
-      QPushButton * button_add_line = new QPushButton("+");
-      QPushButton * button_select_all = new QPushButton("A");
-      QPushButton * button_clear_selection = new QPushButton("*");
-      QPushButton * button_remove_line = new QPushButton("-");
+                button_draw = new QPushButton("Draw function(s) and set AutoScale");
 
-      //labels of the line_table's columns
-      QStringList line_table_labels;
-      line_table_labels.push_back(QString(""));
-      line_table_labels.push_back(QString("x"));
-      line_table_labels.push_back(QString("y"));
-      line_table_labels.push_back(QString("Color"));
-      line_table_labels.push_back(QString("Line Type"));
+                m_line_function_name = new QLineEdit();
+                m_line_function_name->setFixedWidth(200);
+                m_line_function = new QLineEdit();
+                m_line_function->setFixedWidth(200);
 
-      //labels of the data_table's columns
-      QStringList data_table_labels;
-      data_table_labels.push_back(QString("name"));
-      data_table_labels.push_back(QString("function"));
+                button_generate_function = new QPushButton("Generate Function");
+                button_generate_function->setFixedWidth(270);
 
-      //seting the columns labels to the table
-      m_line_table->setHorizontalHeaderLabels(line_table_labels);
-      m_data_table->setHorizontalHeaderLabels(data_table_labels);
+                set_data(fcts,fcts_label);
 
-      //selection type
-      m_line_table->setSelectionMode(QAbstractItemView::MultiSelection);
-      m_line_table->setSelectionBehavior(QAbstractItemView::SelectRows);
-      m_data_table->setSelectionMode(QAbstractItemView::NoSelection);
+                //adding widget & layout to layout
+                vertical_line_table_layout->addWidget(m_line_table);
+                vertical_line_table_layout->addWidget(button_draw);
 
-      button_draw = new QPushButton("Draw function(s)");
+                vertical_data_table_layout->addWidget(m_data_table);
 
-      m_line_function_name = new QLineEdit();
-      m_line_function_name->setFixedWidth(200);
-      m_line_function = new QLineEdit();
-      m_line_function->setFixedWidth(200);
+                QLabel * name_fct = new QLabel("Name :");
+                name_fct->setFixedWidth(70);
+                horisontal_function_name_layout->addWidget(name_fct);
+                horisontal_function_name_layout->addWidget(m_line_function_name);
 
-      button_generate_function = new QPushButton("Generate Function");
-      button_generate_function->setFixedWidth(270);
+                QLabel * fct_fct = new QLabel("Function :");
+                fct_fct->setFixedWidth(70);
+                horisontal_function_function_layout->addWidget(fct_fct);
+                horisontal_function_function_layout->addWidget(m_line_function);
 
-      set_data(fcts,fcts_label);
+                vertical_data_table_layout->addLayout(horisontal_function_name_layout);
+                vertical_data_table_layout->addLayout(horisontal_function_function_layout);
 
-      //adding widget & layout to layout
-      vertical_line_table_layout->addWidget(m_line_table);
-      vertical_line_table_layout->addWidget(button_draw);
+                vertical_data_table_layout->addWidget(button_generate_function);
 
-      vertical_data_table_layout->addWidget(m_data_table);
+                vertical_line_button_layout->addWidget(button_add_line);
+                vertical_line_button_layout->addWidget(button_select_all);
+                vertical_line_button_layout->addWidget(button_clear_selection);
+                vertical_line_button_layout->addWidget(button_remove_line);
 
-      QLabel * name_fct = new QLabel("Name :");
-      name_fct->setFixedWidth(70);
-      horisontal_function_name_layout->addWidget(name_fct);
-      horisontal_function_name_layout->addWidget(m_line_function_name);
+                horisontal_table_layout->addLayout(vertical_data_table_layout);
+                horisontal_table_layout->addLayout(vertical_line_table_layout);
+                horisontal_table_layout->addLayout(vertical_line_button_layout);
+                vertical_graph_option_layout->addLayout(horisontal_table_layout);
 
-      QLabel * fct_fct = new QLabel("Function :");
-      fct_fct->setFixedWidth(70);
-      horisontal_function_function_layout->addWidget(fct_fct);
-      horisontal_function_function_layout->addWidget(m_line_function);
+                connect (button_draw, SIGNAL (clicked()), this, SLOT (draw_and_resize()));
+                connect (button_generate_function, SIGNAL (clicked()), this, SLOT (generate_function()));
+                connect (button_add_line, SIGNAL (clicked()), this, SLOT (add_line()));
+                connect (button_remove_line, SIGNAL (clicked()), this, SLOT (remove_line()));
+                connect (button_clear_selection, SIGNAL (clicked()), this, SLOT
+                         (clear_line_table_selection()));
+                connect (button_select_all, SIGNAL (clicked()), this, SLOT
+                         (select_all_line_table()));
+            }
 
-      vertical_data_table_layout->addLayout(horisontal_function_name_layout);
-      vertical_data_table_layout->addLayout(horisontal_function_function_layout);
 
-      vertical_data_table_layout->addWidget(button_generate_function);
+            void GraphOption::draw_action(){
 
-      vertical_line_button_layout->addWidget(button_add_line);
-      vertical_line_button_layout->addWidget(button_select_all);
-      vertical_line_button_layout->addWidget(button_clear_selection);
-      vertical_line_button_layout->addWidget(button_remove_line);
+                if(m_can_draw){
 
-      horisontal_table_layout->addLayout(vertical_data_table_layout);
-      horisontal_table_layout->addLayout(vertical_line_table_layout);
-      horisontal_table_layout->addLayout(vertical_line_button_layout);
-      vertical_graph_option_layout->addLayout(horisontal_table_layout);
+                    m_can_draw = false;
 
-      connect (button_draw, SIGNAL (clicked()), this, SLOT (draw_and_resize()));
-      connect (button_generate_function, SIGNAL (clicked()), this, SLOT (generate_function()));
-      connect (button_add_line, SIGNAL (clicked()), this, SLOT (add_line()));
-      connect (button_remove_line, SIGNAL (clicked()), this, SLOT (remove_line()));
-      connect (button_clear_selection, SIGNAL (clicked()), this, SLOT
-               (clear_line_table_selection()));
-      connect (button_select_all, SIGNAL (clicked()), this, SLOT
-               (select_all_line_table()));
-  }
+                    button_draw->setEnabled(false);
 
+                    m_ptr_plot->clear(); //detache all curve and clear the legend
 
-  void GraphOption::draw_action(){
+                    for(int i = 0; i < m_line_table->rowCount(); ++i ){
 
-    if(m_can_draw){
+                        if(((QCheckBox *)m_line_table->cellWidget(i,0))->isChecked()){
+                            ////new curve
+                            QwtPlotCurve * new_curve =
+                                    new QwtPlotCurve(((QComboBox *)m_line_table->cellWidget(i,2))->
+                                                     currentText());
 
-      m_can_draw = false;
+                            new_curve->setPen(QPen(((ColorSelector *)m_line_table->cellWidget(i,3))->
+                                                   get_color()));
 
-      button_draw->setEnabled(false);
+                            new_curve->setStyle((QwtPlotCurve::CurveStyle)
+                                                (((QComboBox *)m_line_table->cellWidget(i,4))->
+                                                 currentIndex()+1));
 
-      m_ptr_plot->clear(); //detache all curve and clear the legend
+                            new_curve->setData(&(*m_fcts)[0][((QComboBox *)m_line_table->cellWidget(i,1))->
+                                                             currentIndex()],
+                                               &(*m_fcts)[0][((QComboBox *)m_line_table->cellWidget(i,2))->
+                                                             currentIndex()],
+                                               m_fcts->size());
 
-      for(int i = 0; i < m_line_table->rowCount(); ++i ){
+                            new_curve->attach(m_ptr_plot);
+                        }
 
-        if(((QCheckBox *)m_line_table->cellWidget(i,0))->isChecked()){
-          ////new curve
-          QwtPlotCurve * new_curve =
-              new QwtPlotCurve(((QComboBox *)m_line_table->cellWidget(i,2))->
-                               currentText());
+                    }
 
-          new_curve->setPen(QPen(((ColorSelector *)m_line_table->cellWidget(i,3))->
-                                 get_color()));
+                    m_ptr_plot->replot();
 
-          new_curve->setStyle((QwtPlotCurve::CurveStyle)
-                              (((QComboBox *)m_line_table->cellWidget(i,4))->
-                               currentIndex()+1));
+                    button_draw->setEnabled(true);
 
-          new_curve->setData(&(*m_fcts)[0][((QComboBox *)m_line_table->cellWidget(i,1))->
-                                     currentIndex()],
-                             &(*m_fcts)[0][((QComboBox *)m_line_table->cellWidget(i,2))->
-                                     currentIndex()],
-                             m_fcts->size());
+                    m_can_draw = true;
 
-          new_curve->attach(m_ptr_plot);
-      }
+                    m_graph_parent->reset_base_zoom();
 
-    }
+                }
+            }
 
-    m_ptr_plot->replot();
+            void GraphOption::draw_and_resize()
+            {
 
-    button_draw->setEnabled(true);
+                //force draw autorisation
+                m_can_draw = true;
 
-    m_can_draw = true;
+                //draw
+                draw_action();
 
-    m_graph_parent->reset_base_zoom();
+                //reinitialise the axis
+                m_ptr_plot->setAxisAutoScale(QwtPlot::xBottom);
+                m_ptr_plot->setAxisAutoScale(QwtPlot::yLeft);
 
-    }
-  }
+            }
 
-  void GraphOption::draw_and_resize(){
+            void GraphOption::set_data(ClientCore::NPlotXY::PlotDataPtr & fcts,
+                                       std::vector<QString> & fcts_label){
 
-      draw_action();
+                m_can_draw = false;
 
-      //reinitialise the axis
-      m_ptr_plot->setAxisAutoScale(QwtPlot::xBottom);
-      m_ptr_plot->setAxisAutoScale(QwtPlot::yLeft);
+                //saving user's function
+                std::vector<QString> user_fct_name;
+                std::vector<QString> user_fct_fct;
 
-  }
+                for(int i=0;i<m_data_table->rowCount();++i)
+                {
+                    if(!(((QLabel *)m_data_table->cellWidget(i,1))->text()).isEmpty())
+                    {
+                        user_fct_name.push_back(((QLabel *)m_data_table->cellWidget(i,0))->text());
+                        user_fct_fct.push_back(((QLabel *)m_data_table->cellWidget(i,1))->text());
+                    }
+                }
 
-  void GraphOption::set_data(ClientCore::NPlotXY::PlotDataPtr & fcts,
-                             std::vector<QString> & fcts_label){
+                //clear functions
+                m_fcts = fcts;
 
-    m_can_draw = false;
+                //add # function
 
-    //saving user's function
-    std::vector<QString> user_fct_name;
-    std::vector<QString> user_fct_fct;
+                m_data_table->setRowCount(fcts_label.size());
 
-    for(int i=0;i<m_data_table->rowCount();++i)
-    {
-      if(!(((QLabel *)m_data_table->cellWidget(i,1))->text()).isEmpty())
-      {
-        user_fct_name.push_back(((QLabel *)m_data_table->cellWidget(i,0))->text());
-        user_fct_fct.push_back(((QLabel *)m_data_table->cellWidget(i,1))->text());
-      }
-    }
+                //adding row for eatch data
+                //m_data_table->setRowCount(m_data_table->rowCount() + fcts_label.size());
 
-    //clear functions
-    //m_fcts.clear();
-    m_fcts = fcts;
+                for(int i = 0; i < m_data_table->rowCount(); ++i )
+                {
+                    m_data_table->setCellWidget(i,0,new QLabel(fcts_label[i]));
+                    m_data_table->setCellWidget(i,1,new QLabel());
+                }
 
-    //add # function
+                //regenerate existing user function with new values
+                for(int i=0;i<user_fct_fct.size();++i)
+                {
+                    generate_function(user_fct_name[i],user_fct_fct[i]);
+                }
 
-    m_data_table->setRowCount(fcts_label.size());
 
-    /*
-    if(fcts_label.size()>0){
-      m_data_table->setRowCount(fcts_label.size()+1);//because of the #
-      m_data_table->setCellWidget(0,0,new QLabel("#"));
-      m_data_table->setCellWidget(0,1,new QLabel());
 
-      std::vector<double> vector_temp(fcts[0].size());
+                //refresh line_table function list
+                QStringList function_list;
+                for(int i=0;i<m_data_table->rowCount();++i){
+                    function_list.append(((QLabel *)m_data_table->cellWidget(i,0))->text());
+                }
 
-      for(int i=0;i<fcts[0].size();++i)
-      {
-        vector_temp[i] = i;
-      }
 
-      m_fcts.push_back(vector_temp);
-    }
-    */
 
-    //add recived functions
-    /*
-    for(int i=0;i<fcts.size();++i){
-      m_fcts.push_back(fcts[i]);
-    }
-    */
+                int current_index = 0;
+                for(int i=0;i<m_line_table->rowCount();++i){
+                    current_index = ((QComboBox *)m_line_table->cellWidget(i,1))->currentIndex();
+                    ((QComboBox *)m_line_table->cellWidget(i,1))->clear();
+                    ((QComboBox *)m_line_table->cellWidget(i,1))->addItems(function_list);
+                    ((QComboBox *)m_line_table->cellWidget(i,1))->setCurrentIndex(current_index);
 
-    //adding row for eatch data
-    //m_data_table->setRowCount(m_data_table->rowCount() + fcts_label.size());
+                    current_index = ((QComboBox *)m_line_table->cellWidget(i,2))->currentIndex();
+                    ((QComboBox *)m_line_table->cellWidget(i,2))->clear();
+                    ((QComboBox *)m_line_table->cellWidget(i,2))->addItems(function_list);
+                    ((QComboBox *)m_line_table->cellWidget(i,2))->setCurrentIndex(current_index);
+                }
 
-    for(int i = 0; i < m_data_table->rowCount(); ++i )
-    {
-      m_data_table->setCellWidget(i,0,new QLabel(fcts_label[i]));
-      m_data_table->setCellWidget(i,1,new QLabel());
-    }
+                m_can_draw = true;
 
-    //regenerate existing user function with new values
-    for(int i=0;i<user_fct_fct.size();++i)
-    {
-        generate_function(user_fct_name[i],user_fct_fct[i]);
-    }
+                //draw existing line with new data
+                draw_action();
 
+                //inform user
+                ClientCore::NLog::globalLog()->addMessage("New data set recived.");
+            }
 
 
-    //refresh line_table function list
-    QStringList function_list;
-    for(int i=0;i<m_data_table->rowCount();++i){
-      function_list.append(((QLabel *)m_data_table->cellWidget(i,0))->text());
-    }
+            void GraphOption::add_data(std::vector<double> & fct,QString function_name, QString formula)
+            {
 
+                //resize and add 1 column and add the function
+                m_fcts->resize(boost::extents[m_fcts->size()][(*m_fcts)[0].size()+1]);
+                for(int i=0;i<m_fcts->size();++i){
+                    (*m_fcts)[i][(*m_fcts)[0].size()-1] = fct[i];
+                }
 
+                //adding one row
+                int old_row_count = m_data_table->rowCount();
+                m_data_table->setRowCount(1 + old_row_count);
 
-    int current_index = 0;
-    for(int i=0;i<m_line_table->rowCount();++i){
-      current_index = ((QComboBox *)m_line_table->cellWidget(i,1))->currentIndex();
-      ((QComboBox *)m_line_table->cellWidget(i,1))->clear();
-      ((QComboBox *)m_line_table->cellWidget(i,1))->addItems(function_list);
-      ((QComboBox *)m_line_table->cellWidget(i,1))->setCurrentIndex(current_index);
+                m_data_table->setCellWidget(old_row_count,0,new QLabel(function_name));
+                m_data_table->setCellWidget(old_row_count,1,new QLabel(formula));
 
-      current_index = ((QComboBox *)m_line_table->cellWidget(i,2))->currentIndex();
-      ((QComboBox *)m_line_table->cellWidget(i,2))->clear();
-      ((QComboBox *)m_line_table->cellWidget(i,2))->addItems(function_list);
-      ((QComboBox *)m_line_table->cellWidget(i,2))->setCurrentIndex(current_index);
-  }
+                //adding the function to lines x,y lists
+                for(int i=0;i<m_line_table->rowCount();++i)
+                {
+                    ((QComboBox *)m_line_table->cellWidget(i,1))->addItem(function_name);
+                    ((QComboBox *)m_line_table->cellWidget(i,2))->addItem(function_name);
+                }
+            }
 
-    m_can_draw = true;
+            void  GraphOption::generate_function(){
+                generate_function(m_line_function_name->text(),m_line_function->text());
+            }
 
-    //draw existing line with new data
-    draw_action();
+            void  GraphOption::generate_function(QString name,QString formula){
 
-    //inform user
-    ClientCore::NLog::globalLog()->addMessage("New data set recived.");
-  }
+                button_generate_function->setEnabled(false);
 
 
-  void GraphOption::add_data(std::vector<double> & fct,QString function_name, QString formula)
-  {
+                //ferification of name and formula input
+                if(name.isEmpty() || formula.isEmpty()){
+                    ClientCore::NLog::globalLog()->addError("Please give function's name and formula.");
+                    button_generate_function->setEnabled(true);
+                    return;
+                }
 
-    //adding new function to the function set
-    //m_fcts.push_back(fct);
+                //check if the function name already exist
+                for(int i=0; i < m_data_table->rowCount(); ++i){
+                    if((((QLabel *)m_data_table->cellWidget(i,0))->text()) == name){
+                        ClientCore::NLog::globalLog()->addError("The function name already exist.");
+                        button_generate_function->setEnabled(true);
+                        return;
+                    }
+                }
 
-    //resize and add 1 column and add the function
-    m_fcts->resize(boost::extents[m_fcts->size()][(*m_fcts)[0].size()+1]);
-    for(int i=0;i<m_fcts->size();++i){
-      (*m_fcts)[i][(*m_fcts)[0].size()-1] = fct[i];
-    }
+                FunctionParser fparser;
 
-    //adding one row
-    int old_row_count = m_data_table->rowCount();
-    m_data_table->setRowCount(1 + old_row_count);
+                //get all fct name separated by ','
+                QString variable = "";
+                for(int i=1; i < m_data_table->rowCount(); ++i){
+                    if(!(((QLabel *)m_data_table->cellWidget(i,0))->text()).isEmpty()){
+                        if(!variable.isEmpty()){
+                            variable += ",";
+                        }
+                        variable.append(((QLabel *)m_data_table->cellWidget(i,0))->text());
+                    }
+                }
 
-    m_data_table->setCellWidget(old_row_count,0,new QLabel(function_name));
-    m_data_table->setCellWidget(old_row_count,1,new QLabel(formula));
+                //parsing function
+                int res = fparser.Parse(formula.toStdString().c_str(),
+                                        variable.toStdString().c_str());
 
-    //adding the function to lines x,y lists
-    for(int i=0;i<m_line_table->rowCount();++i)
-    {
-      ((QComboBox *)m_line_table->cellWidget(i,1))->addItem(function_name);
-      ((QComboBox *)m_line_table->cellWidget(i,2))->addItem(function_name);
-    }
-  }
+                if(res > 0){
+                    ClientCore::NLog::globalLog()->addError("The function is not recognized. res<0");
+                    button_generate_function->setEnabled(true);
+                    return;
+                }
 
-  void  GraphOption::generate_function(){
-    generate_function(m_line_function_name->text(),m_line_function->text());
-  }
+                //<to remove>
+                int max_it = 0;
+                if(m_data_table->rowCount()>0)
+                {
+                    max_it = m_fcts->size();
+                }else{
+                    ClientCore::NLog::globalLog()->addError("The function is not recognized. m_fcts.size()>0");
+                    button_generate_function->setEnabled(true);
+                    return;
+                }
+                //</to remove>
 
-  void  GraphOption::generate_function(QString name,QString formula){
+                //generate the new function's data
+                std::vector<double> vector_temp(max_it);
 
-    button_generate_function->setEnabled(false);
+                double vals[m_data_table->rowCount()-1];
+                for(int i=0;i<max_it;++i)
+                {
+                    for(int j=0;j<m_data_table->rowCount()-1;++j)
+                    {
+                        vals[j] = (*m_fcts)[i][j+1];
+                    }
+                    vector_temp[i] = fparser.Eval(vals);
+                }
 
+                //add the new function
+                this->add_data(vector_temp,name,formula);
 
-    //ferification of name and formula input
-    if(name.isEmpty() || formula.isEmpty()){
-      ClientCore::NLog::globalLog()->addError("Please give function's name and formula.");
-      button_generate_function->setEnabled(true);
-      return;
-    }
+                //get back the button and clear the name and function line
+                button_generate_function->setEnabled(true);
+                m_line_function->clear();
+                m_line_function_name->clear();
 
-    //check if the function name already exist
-    for(int i=0; i < m_data_table->rowCount(); ++i){
-      if((((QLabel *)m_data_table->cellWidget(i,0))->text()) == name){
-        ClientCore::NLog::globalLog()->addError("The function name already exist.");
-        button_generate_function->setEnabled(true);
-        return;
-      }
-    }
+            }
 
-    FunctionParser fparser;
+            void GraphOption::add_line(){
 
-    //get all fct name separated by ','
-    QString variable = "";
-    for(int i=1; i < m_data_table->rowCount(); ++i){
-      if(!(((QLabel *)m_data_table->cellWidget(i,0))->text()).isEmpty()){
-        if(!variable.isEmpty()){
-          variable += ",";
-        }
-        variable.append(((QLabel *)m_data_table->cellWidget(i,0))->text());
-      }
-    }
+                if(m_data_table->rowCount() <= 0){
+                    ClientCore::NLog::globalLog()->addError("There are no data to set, you cannot add line");
+                    return;
+                }
 
-    qDebug() << variable;
+                //adding row for eatch function
+                int old_row_count = m_line_table->rowCount();
+                m_line_table->setRowCount(1 + old_row_count);
 
-    //parsing function
-    int res = fparser.Parse(formula.toStdString().c_str(),
-                            variable.toStdString().c_str());
+                QStringList function_list;
+                for(int i=0;i<m_data_table->rowCount();++i){
+                    function_list.append(((QLabel *)m_data_table->cellWidget(i,0))->text());
+                }
 
-    if(res > 0){
-      ClientCore::NLog::globalLog()->addError("The function is not recognized. res<0");
-      button_generate_function->setEnabled(true);
-      return;
-    }
+                m_line_table->setCellWidget(old_row_count,0,new QCheckBox());
+                ((QCheckBox *)m_line_table->cellWidget(old_row_count,0))->setFixedWidth(20);
 
-    //<to remove>
-    int max_it = 0;
-    if(m_data_table->rowCount()>0)
-    {
-      max_it = m_fcts->size();
-    }else{
-      ClientCore::NLog::globalLog()->addError("The function is not recognized. m_fcts.size()>0");
-      button_generate_function->setEnabled(true);
-      return;
-    }
-    //</to remove>
+                m_line_table->setCellWidget(old_row_count,1,new QComboBox());
+                ((QComboBox *)m_line_table->cellWidget(old_row_count,1))->addItems(function_list);
 
-    //generate the new function's data
-    std::vector<double> vector_temp(max_it);
 
-    double vals[m_data_table->rowCount()-1];
-    for(int i=0;i<max_it;++i)
-    {
-      for(int j=0;j<m_data_table->rowCount()-1;++j)
-      {
-        vals[j] = (*m_fcts)[i][j+1];
-      }
-      vector_temp[i] = fparser.Eval(vals);
-    }
-
-    //add the new function
-    this->add_data(vector_temp,name,formula);
-
-    //get back the button and clear the name and function line
-    button_generate_function->setEnabled(true);
-    m_line_function->clear();
-    m_line_function_name->clear();
-
-  }
-
-  void GraphOption::add_line(){
-
-    if(m_data_table->rowCount() <= 0){
-      ClientCore::NLog::globalLog()->addError("There are no data to set, you cannot add line");
-      return;
-    }
-
-      //adding row for eatch function
-      int old_row_count = m_line_table->rowCount();
-      m_line_table->setRowCount(1 + old_row_count);
-
-      QStringList function_list;
-      for(int i=0;i<m_data_table->rowCount();++i){
-        function_list.append(((QLabel *)m_data_table->cellWidget(i,0))->text());
-      }
-
-      m_line_table->setCellWidget(old_row_count,0,new QCheckBox());
-      ((QCheckBox *)m_line_table->cellWidget(old_row_count,0))->setFixedWidth(20);
-
-      m_line_table->setCellWidget(old_row_count,1,new QComboBox());
-      ((QComboBox *)m_line_table->cellWidget(old_row_count,1))->addItems(function_list);
-
-
-      m_line_table->setCellWidget(old_row_count,2,new QComboBox());
-      ((QComboBox *)m_line_table->cellWidget(old_row_count,2))->addItems(function_list);
-
-
-      m_line_table->setCellWidget(old_row_count,3,new ColorSelector(old_row_count));
-
-
-      m_line_table->setCellWidget(old_row_count,4,new QComboBox());
-      ((QComboBox *)m_line_table->cellWidget(old_row_count,4))->addItem("Lines",1);
-      ((QComboBox *)m_line_table->cellWidget(old_row_count,4))->addItem("Sticks",2);
-      ((QComboBox *)m_line_table->cellWidget(old_row_count,4))->addItem("Steps",3);
-      ((QComboBox *)m_line_table->cellWidget(old_row_count,4))->addItem("Dots",4);
-      //((QComboBox *)tableau->cellWidget(old_row_count,4))->addItem("dotted line",5);
-
-
-      connect(((QComboBox *)m_line_table->cellWidget(old_row_count,1)),
-               SIGNAL(currentIndexChanged(int)), this,
-               SLOT (draw_action()));
-      connect(((QComboBox *)m_line_table->cellWidget(old_row_count,2)),
-               SIGNAL(currentIndexChanged(int)), this,
-               SLOT (draw_action()));
-      connect(((QCheckBox *)m_line_table->cellWidget(old_row_count,0)),
-              SIGNAL(stateChanged(int)), this, SLOT (checked_changed(int)));
-      connect(((ColorSelector *)m_line_table->cellWidget(old_row_count,3)),
-              SIGNAL(valueChanged(QColor,int)), this, SLOT (color_changed(QColor,int)));
-      connect(((QComboBox *)m_line_table->cellWidget(old_row_count,4)),
-              SIGNAL(currentIndexChanged(int)), this, SLOT (line_type_changed(int)));
-  }
-
-  void GraphOption::remove_line()
-  {
-    while( m_line_table->selectionModel()->selectedRows().count() > 0)
-    {
-      m_line_table->removeRow(m_line_table->selectionModel()->selectedRows().at(0).row());
-    }
-    draw_action();
-  }
-
-
-  void GraphOption::checked_changed(int check)
-  {
-    for(int i=0;i<m_line_table->selectionModel()->selectedRows().count();++i)
-    {
-      ((QCheckBox *)m_line_table->cellWidget(
-          m_line_table->selectionModel()->selectedRows().at(i).row(),0))->
-          setCheckState((Qt::CheckState)check);
-    }
-    draw_action();
-  }
-
-  void GraphOption::color_changed(QColor color, int raw)
-  {
-    bool redraw = false;
-
-    //if change but no selection done redraw anyway
-    if(m_line_table->selectionModel()->selectedRows().count() <= 0){
-      if(((QCheckBox *)m_line_table->cellWidget(raw,0))->isChecked()){
-        redraw = true;
-      }
-    }
-
-    for(int i=0;i<m_line_table->selectionModel()->selectedRows().count();++i)
-    {
-      ((ColorSelector *)m_line_table->cellWidget(
-          m_line_table->selectionModel()->selectedRows().at(i).row(),3))->
-          set_color(color);
-
-      //if one of the changed line is checked, then redraw, otherwise not.
-      if(((QCheckBox *)m_line_table->cellWidget(
-          m_line_table->selectionModel()->selectedRows().at(i).row(),0))->isChecked()){
-        redraw = true;
-      }
-    }
-    if(redraw)
-      draw_action();
-  }
-
-  void GraphOption::line_type_changed(int current_index)
-  {
-    bool redraw = false;
-    //if change but no selection done redraw anyway
-    if(m_line_table->selectionModel()->selectedRows().count() <= 0){
-        redraw = true;
-    }
-
-    for(int i=0;i<m_line_table->selectionModel()->selectedRows().count();++i)
-    {
-      ((QComboBox *)m_line_table->cellWidget(
-          m_line_table->selectionModel()->selectedRows().at(i).row(),4))->
-          setCurrentIndex(current_index);
-
-      //if one of the changed line is checked, then redraw, otherwise not.
-      if(((QCheckBox *)m_line_table->cellWidget(
-          m_line_table->selectionModel()->selectedRows().at(i).row(),0))->isChecked()){
-        redraw = true;
-      }
-    }
-    if(redraw)
-      draw_action();
-  }
-
-  void GraphOption::clear_line_table_selection(){
-    m_line_table->clearSelection();
-  }
-
-  void GraphOption::select_all_line_table(){
-    m_line_table->selectAll();
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-
-} // ClientUI
-} // GUI
+                m_line_table->setCellWidget(old_row_count,2,new QComboBox());
+                ((QComboBox *)m_line_table->cellWidget(old_row_count,2))->addItems(function_list);
+
+
+                m_line_table->setCellWidget(old_row_count,3,new ColorSelector(old_row_count));
+
+
+                m_line_table->setCellWidget(old_row_count,4,new QComboBox());
+                ((QComboBox *)m_line_table->cellWidget(old_row_count,4))->addItem("Lines",1);
+                ((QComboBox *)m_line_table->cellWidget(old_row_count,4))->addItem("Sticks",2);
+                ((QComboBox *)m_line_table->cellWidget(old_row_count,4))->addItem("Steps",3);
+                ((QComboBox *)m_line_table->cellWidget(old_row_count,4))->addItem("Dots",4);
+
+
+
+                connect(((QComboBox *)m_line_table->cellWidget(old_row_count,1)),
+                        SIGNAL(currentIndexChanged(int)), this,
+                        SLOT (draw_action()));
+                connect(((QComboBox *)m_line_table->cellWidget(old_row_count,2)),
+                        SIGNAL(currentIndexChanged(int)), this,
+                        SLOT (draw_action()));
+                connect(((QCheckBox *)m_line_table->cellWidget(old_row_count,0)),
+                        SIGNAL(stateChanged(int)), this, SLOT (checked_changed(int)));
+                connect(((ColorSelector *)m_line_table->cellWidget(old_row_count,3)),
+                        SIGNAL(valueChanged(QColor,int)), this, SLOT (color_changed(QColor,int)));
+                connect(((QComboBox *)m_line_table->cellWidget(old_row_count,4)),
+                        SIGNAL(currentIndexChanged(int)), this, SLOT (line_type_changed(int)));
+            }
+
+            void GraphOption::remove_line()
+            {
+                while( m_line_table->selectionModel()->selectedRows().count() > 0)
+                {
+                    m_line_table->removeRow(m_line_table->selectionModel()->selectedRows().at(0).row());
+                }
+                draw_action();
+            }
+
+
+            void GraphOption::checked_changed(int check)
+            {
+
+                for(int i=0;i<m_line_table->selectionModel()->selectedRows().count();++i)
+                {
+                    //disconect checkbox to avoid looping
+                    disconnect(((QCheckBox *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),0)),
+                               SIGNAL(stateChanged(int)), this, SLOT (checked_changed(int)));
+
+                    //change state
+                    ((QCheckBox *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),0))->
+                            setCheckState((Qt::CheckState)check);
+
+                    //re-connect after changing state
+                    connect(((QCheckBox *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),0)),
+                            SIGNAL(stateChanged(int)), this, SLOT (checked_changed(int)));
+                }
+
+                draw_action();
+            }
+
+            void GraphOption::color_changed(QColor color, int raw)
+            {
+                bool redraw = false;
+
+                //if change but no selection done redraw anyway
+                if(m_line_table->selectionModel()->selectedRows().count() <= 0){
+                    if(((QCheckBox *)m_line_table->cellWidget(raw,0))->isChecked()){
+                        redraw = true;
+                    }
+                }
+
+                for(int i=0;i<m_line_table->selectionModel()->selectedRows().count();++i)
+                {
+                    //disconect checkbox to avoid looping
+                    disconnect(((ColorSelector *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),3)),
+                               SIGNAL(valueChanged(QColor,int)), this, SLOT (color_changed(QColor,int)));
+
+                    //change state
+                    ((ColorSelector *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),3))->
+                            set_color(color);
+
+                    //re-connect after changing state
+                    connect(((ColorSelector *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),3)),
+                            SIGNAL(valueChanged(QColor,int)), this, SLOT (color_changed(QColor,int)));
+
+                    //if one of the changed line is checked, then redraw, otherwise not.
+                    if(((QCheckBox *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),0))->isChecked()){
+                        redraw = true;
+                    }
+                }
+
+                if(redraw)
+                    draw_action();
+            }
+
+            void GraphOption::line_type_changed(int current_index)
+            {
+                bool redraw = false;
+
+                //if change but no selection done redraw anyway
+                if(m_line_table->selectionModel()->selectedRows().count() <= 0){
+                    redraw = true;
+                }
+
+                for(int i=0;i<m_line_table->selectionModel()->selectedRows().count();++i)
+                {
+                    //disconect checkbox to avoid looping
+                    disconnect(((QComboBox *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),4)),
+                               SIGNAL(currentIndexChanged(int)), this, SLOT (line_type_changed(int)));
+
+                    //change state
+                    ((QComboBox *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),4))->
+                            setCurrentIndex(current_index);
+
+                    //re-connect after changing state
+                    connect(((QComboBox *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),4)),
+                            SIGNAL(currentIndexChanged(int)), this, SLOT (line_type_changed(int)));
+
+                    //if one of the changed line is checked, then redraw, otherwise not.
+                    if(((QCheckBox *)m_line_table->cellWidget(
+                            m_line_table->selectionModel()->selectedRows().at(i).row(),0))->isChecked()){
+                        redraw = true;
+                    }
+                }
+
+                if(redraw)
+                    draw_action();
+            }
+
+            void GraphOption::clear_line_table_selection(){
+                m_line_table->clearSelection();
+            }
+
+            void GraphOption::select_all_line_table(){
+                m_line_table->selectAll();
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////
+
+        } // ClientUI
+    } // GUI
 } // CF
