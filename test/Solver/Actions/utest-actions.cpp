@@ -26,8 +26,8 @@
 #include "Mesh/CFieldView.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
-#include "Solver/Actions/CForAllElements2.hpp"
-#include "Solver/Actions/CForAllElementsT2.hpp"
+#include "Solver/Actions/CForAllElements.hpp"
+#include "Solver/Actions/CForAllElementsT.hpp"
 #include "Solver/Actions/CForAllNodes2.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoopOperation.hpp"
@@ -131,8 +131,8 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 	CLoop::Ptr node_loop = root->create_component< CForAllNodes2 >("node_loop");
 	node_loop->configure_property("Regions",regions);
 
-  node_loop->create_action("CF.Solver.Actions.CSetFieldValues2");
-  node_loop->action("CF.Solver.Actions.CSetFieldValues2").configure_property("Field",field.full_path());
+  node_loop->create_action("CF.Solver.Actions.CSetFieldValues");
+  node_loop->action("CF.Solver.Actions.CSetFieldValues").configure_property("Field",field.full_path());
   node_loop->execute();
   
   BOOST_CHECK(true);
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   volume_view.initialize(volumes,elems.as_ptr<CElements>());
   BOOST_CHECK_EQUAL( volume_view[12] , 0.0035918050864676932);
 
-  CLoop::Ptr elem_loop = root->create_component< CForAllElements2 >("elem_loop");
+  CLoop::Ptr elem_loop = root->create_component< CForAllElements >("elem_loop");
   elem_loop->configure_property("Regions",regions);
   
   elem_loop->create_action("CF.Solver.Actions.CComputeVolume");
@@ -191,21 +191,21 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE ( test_CForAllElementsT2 )
+BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 {
   CRoot::Ptr root = Core::instance().root();//CRoot::create("Root");
   CMesh::Ptr mesh = root->get_child_ptr("mesh")->as_ptr<CMesh>();
 
   BOOST_CHECK(true);
 
-  CField2& field = mesh->create_field2("test_CForAllElementsT2","CellBased","var[1]");
+  CField2& field = mesh->create_field2("test_CForAllElementsT","CellBased","var[1]");
 
   BOOST_CHECK(true);
   
   std::vector<URI> topology = list_of(URI("cpath://Root/mesh/topology"));
     
-  CForAllElementsT2<CComputeVolume>::Ptr compute_all_cell_volumes =
-    root->create_component< CForAllElementsT2<CComputeVolume> > ("compute_all_cell_volumes");
+  CForAllElementsT<CComputeVolume>::Ptr compute_all_cell_volumes =
+    root->create_component< CForAllElementsT<CComputeVolume> > ("compute_all_cell_volumes");
   
   BOOST_CHECK(true);
   
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT2 )
   
   std::vector<CField2::Ptr> fields;
   fields.push_back(field.as_ptr<CField2>());
-  boost::filesystem::path fp_out ("test_utest-actions_CForAllElementsT2.msh");
+  boost::filesystem::path fp_out ("test_utest-actions_CForAllElementsT.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(mesh,fp_out);
