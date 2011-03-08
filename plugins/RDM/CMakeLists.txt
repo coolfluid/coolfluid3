@@ -9,6 +9,7 @@
 # * make update solution an action
 # * make compute norm an action
 # * make outputting convergence info an action
+# * stop condition based on norm and/or iterations
 # * use the generic iterate with ordered actions
 # * port rkrd time stepping from CF2
 # * linearized euler equations

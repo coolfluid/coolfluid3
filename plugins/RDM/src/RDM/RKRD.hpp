@@ -24,8 +24,12 @@ namespace RDM {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// RKRD solver
+///
 /// @author Tiago Quintino
+/// @author Martin Vymazal
+/// @author Mario Ricchiuto
 /// @author Willem Deconinck
+
 class RDM_API RKRD : public Solver::CSolver {
 
 public: // typedefs
@@ -47,6 +51,7 @@ public: // functions
 
   // functions specific to the RKRD component
   
+  /// solves the PDE's
   virtual void solve();
   
   /// @name SIGNALS
@@ -77,9 +82,6 @@ private: // functions
 
 private: // data
 
-  /// CFL number
-  CF::Real m_cfl;
-
   /// mesh which this solver operates
   boost::weak_ptr<Mesh::CMesh> m_mesh;
 
@@ -90,14 +92,21 @@ private: // data
   /// wave_speed field pointer
   boost::weak_ptr<Mesh::CField2> m_wave_speed;
 
-  /// action to cleanup
-  RDM::Action::Ptr m_cleanup;
   /// action to compute the boundary face terms
   Common::CAction::Ptr m_compute_boundary_terms;
   /// action to compute the domain cell terms
   Common::CAction::Ptr m_compute_domain_terms;
 
+  /// action to update the solution
+  RDM::Action::Ptr m_update_solution;
+  /// compute the L-norm for convergence
+  Common::CAction::Ptr m_compute_norm;
+  /// action to cleanup
+  RDM::Action::Ptr m_cleanup;
+
+  /// maximum iteration number
   Uint m_nb_iter;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

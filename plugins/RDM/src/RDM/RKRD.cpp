@@ -26,10 +26,13 @@
 
 #include "Mesh/Actions/CInitFieldFunction.hpp"
 
+#include "Solver/Actions/CComputeLNorm.hpp"
+
 #include "RDM/RKRD.hpp"
 #include "RDM/DomainTerm.hpp"
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/Cleanup.hpp"
+#include "RDM/UpdateSolution.hpp"
 
 namespace CF {
 namespace RDM {
@@ -39,6 +42,9 @@ using namespace Math::MathChecks;
 using namespace Mesh;
 using namespace Mesh::Actions;
 using namespace Solver;
+using namespace Solver::Actions;
+
+////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < RKRD, CSolver, LibRDM > RKRD_Builder;
 
@@ -46,7 +52,6 @@ Common::ComponentBuilder < RKRD, CSolver, LibRDM > RKRD_Builder;
 
 RKRD::RKRD ( const std::string& name  ) :
   CSolver ( name ),
-  m_cfl(1.0),
   m_nb_iter(0)
 {
   // options
@@ -59,11 +64,6 @@ RKRD::RKRD ( const std::string& name  ) :
       ->mark_basic()
       ->link_to( &m_nb_iter );
   
-  m_properties.add_option< OptionT<Real> > ("CFL", "Courant Number", m_cfl)
-      ->mark_basic()
-      ->link_to(&m_cfl)
-      ->add_tag("cfl");
-
   m_properties.add_option( OptionComponent<CField2>::create("Solution","Solution field",&m_solution) )
       ->add_tag("solution");
 
@@ -110,8 +110,12 @@ RKRD::RKRD ( const std::string& name  ) :
   m_compute_domain_terms = create_static_component<CAction>("compute_domain_terms");
   m_compute_domain_terms->mark_basic();
 
-  // create apply boundary conditions action
-  m_cleanup = create_static_component<Cleanup>("cleanup");
+  // additional actions
+
+  m_cleanup      = create_static_component<Cleanup>("cleanup");
+  m_compute_norm = create_static_component<Solver::Actions::CComputeLNorm>("compute_norm");
+
+  m_update_solution = create_static_component<UpdateSolution>("update_solution");
 
 }
 
@@ -186,6 +190,9 @@ void RKRD::config_mesh()
   cleanup_fields.push_back( m_wave_speed.lock()->full_path() );
   m_cleanup->configure_property("Fields", cleanup_fields);
 
+  configure_option_recursively("solution", m_solution.lock()->full_path() );
+  configure_option_recursively("residual", m_residual.lock()->full_path() );
+  configure_option_recursively("wave_speed", m_wave_speed.lock()->full_path() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -198,10 +205,6 @@ void RKRD::solve()
   if( is_null(domain) )
     throw InvalidURI( FromHere(), "Path does not poitn to Domain");
 
-  CTable<Real>& solution     = m_solution.lock()->data();
-  CTable<Real>& residual     = m_residual.lock()->data();
-  CTable<Real>& wave_speed = m_wave_speed.lock()->data();
-
   // iteration look
 
   for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
@@ -213,25 +216,24 @@ void RKRD::solve()
 
     m_compute_domain_terms->execute();
 
+    m_update_solution->execute();
 
-    /// @todo move this into an action
-    // explicit update
-    const Uint nbdofs = solution.size();
-    for (Uint i=0; i< nbdofs; ++i)
-      solution[i][0] += - ( m_cfl / wave_speed[i][0] ) * residual[i][0];
+    m_compute_norm->execute();
 
-    /// @todo move this into an action
-    //  computing the norm
-    Real rhs_L2 = 0.;
-    for (Uint i=0; i< nbdofs; ++i)
-      rhs_L2 += residual[i][0] * residual[i][0];
-    rhs_L2 = sqrt(rhs_L2)/nbdofs;
+//    /// @todo move this into an action
+//    //  computing the norm
+//    Real rhs_L2 = 0.;
+//    for (Uint i=0; i< nbdofs; ++i)
+//      rhs_L2 += residual[i][0] * residual[i][0];
+//    rhs_L2 = sqrt(rhs_L2)/nbdofs;
 
-    /// @todo move this into an action
-    // output convergence info
-    CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
-    if ( is_nan(rhs_L2) || is_inf(rhs_L2) )
-      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iter)+" iterations");
+//    m_output_convergence->execute();
+
+//    /// @todo move this into an action
+//    // output convergence info
+//    CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
+//    if ( is_nan(rhs_L2) || is_inf(rhs_L2) )
+//      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iter)+" iterations");
   }
 }
 
