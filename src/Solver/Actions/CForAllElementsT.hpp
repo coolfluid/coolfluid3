@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_CForAllElementsT2_hpp
-#define CF_Solver_Actions_CForAllElementsT2_hpp
+#ifndef CF_Solver_Actions_CForAllElementsT_hpp
+#define CF_Solver_Actions_CForAllElementsT_hpp
 
 #include <boost/mpl/for_each.hpp>
 
@@ -26,7 +26,7 @@ namespace Actions {
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ActionT>
-class Solver_Actions_API CForAllElementsT2 : public CLoop
+class Solver_Actions_API CForAllElementsT : public CLoop
 {
 
   /// Predicate class to test if the region contains a specific element type
@@ -81,14 +81,14 @@ class Solver_Actions_API CForAllElementsT2 : public CLoop
 
 public: // typedefs
 
-  typedef boost::shared_ptr< CForAllElementsT2 > Ptr;
-  typedef boost::shared_ptr< CForAllElementsT2 const > ConstPtr;
+  typedef boost::shared_ptr< CForAllElementsT > Ptr;
+  typedef boost::shared_ptr< CForAllElementsT const > ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CForAllElementsT2 ( const std::string& name ) :
+  CForAllElementsT ( const std::string& name ) :
     CLoop(name),
     m_action( Common::allocate_component<ActionT>(ActionT::type_name()) )
   {
@@ -97,10 +97,10 @@ public: // functions
   }
 
   /// Virtual destructor
-  virtual ~CForAllElementsT2() {}
+  virtual ~CForAllElementsT() {}
 
   /// Get the class name
-  static std::string type_name () { return "CForAllElementsT2<" + ActionT::type_name() + ">"; }
+  static std::string type_name () { return "CForAllElementsT<" + ActionT::type_name() + ">"; }
 
   /// const access to the LoopOperation
   virtual const CLoopOperation& action(const std::string& name = ActionT::type_name()) const
@@ -141,4 +141,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CForAllElementsT2_hpp
+#endif // CF_Mesh_CForAllElementsT_hpp

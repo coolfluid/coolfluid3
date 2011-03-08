@@ -9,7 +9,7 @@
 #include "Common/Log.hpp"
 #include "Mesh/CField2.hpp"
 
-#include "Solver/Actions/CSetFieldValues2.hpp"
+#include "Solver/Actions/CSetFieldValues.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,21 +22,21 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSetFieldValues2, CLoopOperation, LibActions > CSetFieldValues2_Builder;
+Common::ComponentBuilder < CSetFieldValues, CLoopOperation, LibActions > CSetFieldValues_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-CSetFieldValues2::CSetFieldValues2 ( const std::string& name ) : 
+CSetFieldValues::CSetFieldValues ( const std::string& name ) : 
   CLoopOperation(name)
 {
   // options
   m_properties.add_option< OptionURI > ("Field","Field to set", URI("cpath:"))->mark_basic();
-  m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CSetFieldValues2::config_field,   this ) );
+  m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CSetFieldValues::config_field,   this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CSetFieldValues2::config_field()
+void CSetFieldValues::config_field()
 {
   URI uri;
   property("Field").put_value(uri);
@@ -47,7 +47,7 @@ void CSetFieldValues2::config_field()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CSetFieldValues2::execute()
+void CSetFieldValues::execute()
 {
   CFinfo << "face [" << idx() << "]" << CFendl;
 

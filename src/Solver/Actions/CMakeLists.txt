@@ -12,21 +12,23 @@ list( APPEND coolfluid_solver_actions_files
   CLoopOperation.hpp
   CLoopOperation.cpp
   CFieldAction.hpp
-  CForAllElements2.hpp
-  CForAllElements2.cpp
-  CForAllElementsT2.hpp
+  CForAllElements.hpp
+  CForAllElements.cpp
+  CForAllElementsT.hpp
   CForAllNodes2.hpp
   CForAllNodes2.cpp
   CForAllFaces.hpp
   CForAllFaces.cpp
   CLoop.hpp
   CLoop.cpp
-  CSetFieldValues2.hpp
-  CSetFieldValues2.cpp
+  CSetFieldValues.hpp
+  CSetFieldValues.cpp
   CComputeArea.hpp
   CComputeArea.cpp
   CComputeVolume.hpp
   CComputeVolume.cpp
+  CComputeLNorm.hpp
+  CComputeLNorm.cpp
   LibActions.hpp
   LibActions.cpp
 )

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_CSetFieldValues2_hpp
-#define CF_Solver_Actions_CSetFieldValues2_hpp
+#ifndef CF_Solver_Actions_CSetFieldValues_hpp
+#define CF_Solver_Actions_CSetFieldValues_hpp
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
@@ -25,24 +25,24 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Solver_Actions_API CSetFieldValues2 : public CLoopOperation
+class Solver_Actions_API CSetFieldValues : public CLoopOperation
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CSetFieldValues2> Ptr;
-  typedef boost::shared_ptr<CSetFieldValues2 const> ConstPtr;
+  typedef boost::shared_ptr<CSetFieldValues> Ptr;
+  typedef boost::shared_ptr<CSetFieldValues const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  CSetFieldValues2 ( const std::string& name );
+  CSetFieldValues ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CSetFieldValues2() {};
+  virtual ~CSetFieldValues() {};
 
   /// Get the class name
-  static std::string type_name () { return "CSetFieldValues2"; }
+  static std::string type_name () { return "CSetFieldValues"; }
 
   /// execute the action
   virtual void execute ();
@@ -62,4 +62,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_Actions_CSetFieldValues2_hpp
+#endif // CF_Solver_Actions_CSetFieldValues_hpp

@@ -11,7 +11,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 
-#include "Solver/Actions/CForAllElements2.hpp"
+#include "Solver/Actions/CForAllElements.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,17 +22,17 @@ namespace CF {
 namespace Solver {
 namespace Actions {
 
-ComponentBuilder < CForAllElements2, CLoop, LibActions > CForAllElements2_builder;
+ComponentBuilder < CForAllElements, CLoop, LibActions > CForAllElements_builder;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CForAllElements2::CForAllElements2 ( const std::string& name ) :
+CForAllElements::CForAllElements ( const std::string& name ) :
   CLoop(name)
 {
    
 }
 
-void CForAllElements2::execute()
+void CForAllElements::execute()
 {
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
     boost_foreach(CElements& elements, find_components_recursively<CElements>(*region))

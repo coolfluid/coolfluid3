@@ -28,6 +28,7 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
   CAction(name)
 {
   mark_basic();
+
   // options
 
   m_properties.add_option(OptionComponent<CField2>::create("Solution","Solution to update", &m_solution))
