@@ -141,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , burgers2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.configure_property("MaxIter", 0u);
+  solver.configure_property("MaxIter", 100u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -191,7 +191,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , burgers2d_local_fixture )
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<std::string> functions(1);
-  functions[0] = "x*x+y*y";
+  functions[0] = "0.";
   options.set_array("Functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );

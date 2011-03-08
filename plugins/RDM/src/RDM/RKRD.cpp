@@ -193,6 +193,10 @@ void RKRD::config_mesh()
   configure_option_recursively("solution", m_solution.lock()->full_path() );
   configure_option_recursively("residual", m_residual.lock()->full_path() );
   configure_option_recursively("wave_speed", m_wave_speed.lock()->full_path() );
+
+  m_compute_norm->configure_property("Scale", true);
+  m_compute_norm->configure_property("Order", 2u);
+  m_compute_norm->configure_property("Field", m_residual.lock()->full_path());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -209,7 +213,6 @@ void RKRD::solve()
 
   for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
   {
-
     m_cleanup->execute(); // cleanup fields (typically residual and wave_speed)
 
     m_compute_boundary_terms->execute();
@@ -220,20 +223,14 @@ void RKRD::solve()
 
     m_compute_norm->execute();
 
-//    /// @todo move this into an action
-//    //  computing the norm
-//    Real rhs_L2 = 0.;
-//    for (Uint i=0; i< nbdofs; ++i)
-//      rhs_L2 += residual[i][0] * residual[i][0];
-//    rhs_L2 = sqrt(rhs_L2)/nbdofs;
+    /// @todo move this into an action
+    //    m_output_convergence->execute();
 
-//    m_output_convergence->execute();
-
-//    /// @todo move this into an action
-//    // output convergence info
-//    CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
-//    if ( is_nan(rhs_L2) || is_inf(rhs_L2) )
-//      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iter)+" iterations");
+    // output convergence info
+    Real rhs_norm = m_compute_norm->property("Norm").value<Real>();
+    CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_norm << "]" << CFendl;
+   if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
+      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iter)+" iterations");
   }
 }
 
