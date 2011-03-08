@@ -100,23 +100,32 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   std::vector<URI> files;
   files.push_back( "file:rectangle-tg-p2.msh" );
 
-  options.set_option<URI>("Parent Component", URI( Core::instance().root()->get_child_ptr("Domain")->full_path().string()) );
+  options.set_option<URI>("Parent Component", Core::instance().root()->get_child("Domain").full_path() );
   options.set_array("Files", files, " ; ");
 
   // get the generic mesh loader from the Tools
 
-  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child_ptr("Tools")->get_child_ptr("LoadMesh")->as_ptr<LoadMesh>();
+  BOOST_CHECK(true);
+
+  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child("Tools").get_child("LoadMesh").as_ptr_checked<LoadMesh>();
   cf_assert( is_not_null(load_mesh) );
 
+  BOOST_CHECK(true);
+
   load_mesh->signal_load_mesh( frame );
+  
+  BOOST_CHECK(true);
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( enricher )
 {
+  BOOST_CHECK(true);
+  
   CBubbleEnrich::Ptr enricher =
-      Core::instance().root()->get_child_ptr("enricher")->as_ptr<CBubbleEnrich>();
+      Core::instance().root()->get_child("enricher").as_ptr<CBubbleEnrich>();
 
   cf_assert( is_not_null(enricher) );
 
@@ -128,6 +137,7 @@ BOOST_AUTO_TEST_CASE( enricher )
 //  CFinfo << "---------------------------------------------------" << CFendl;
 //  CFinfo << Core::instance().root()->tree() << CFendl;
 //  CFinfo << "---------------------------------------------------" << CFendl;
+  BOOST_CHECK(true);
 
   enricher->transform( mesh );
 
@@ -148,6 +158,8 @@ BOOST_AUTO_TEST_CASE( enricher )
 //      CFinfo << CFendl;
 //    }
 //  }
+  BOOST_CHECK(true);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -180,8 +192,10 @@ BOOST_AUTO_TEST_CASE( remover )
 //  CFinfo << "---------------------------------------------------" << CFendl;
 //  CFinfo << Core::instance().root()->tree() << CFendl;
 //  CFinfo << "---------------------------------------------------" << CFendl;
+  BOOST_CHECK(true);
 
   remover->transform( mesh );
+  BOOST_CHECK(true);
 
 //  CFinfo << "---------------------------------------------------" << CFendl;
 //  CFinfo << Core::instance().root()->tree() << CFendl;

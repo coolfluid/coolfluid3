@@ -48,7 +48,7 @@ CReader::CReader( const std::string& name )
   Shared()
 {
   // options
-  m_properties.add_option<OptionT <bool> >("read_groups","Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
+  m_properties.add_option<OptionT <bool> >("read_groups","Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",true);
   m_properties.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().rank());
   m_properties.add_option<OptionT <Uint> >("nb_partitions","Total nb_partitions. (e.g. number of processors)",mpi::PE::instance().size());
   m_properties.add_option<OptionT <bool> >("read_boundaries","Read Boundaries","Read the surface elements for the boundary",true);

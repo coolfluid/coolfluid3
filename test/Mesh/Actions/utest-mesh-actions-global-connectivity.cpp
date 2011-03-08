@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( build )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   boost::filesystem::path fp_in("quadtriag.neu");
-  meshreader->configure_property("Read Boundaries",false);
+  meshreader->configure_property("read_boundaries",false);
   meshreader->read_from_to(fp_in,mesh);
   
   CGlobalNumbering::Ptr build_glb_numbering = allocate_component<CGlobalNumbering>("build_glb_numbering");

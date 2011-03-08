@@ -44,23 +44,17 @@ CF::Common::ComponentBuilder < Gmsh::CReader, CMeshReader, LibGmsh> aGmshReader_
 
 CReader::CReader( const std::string& name )
 : CMeshReader(name),
-  Shared(),
-  m_repartition(false)
+  Shared()
 {
 
   // options
 
-  m_properties.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
-  m_properties.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_init()?mpi::PE::instance().rank():0);
-  m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_init()?mpi::PE::instance().size():1);
+  m_properties.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_init()?mpi::PE::instance().rank():0);
+  m_properties.add_option<OptionT <Uint> >("nb_partitions","Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_init()?mpi::PE::instance().size():1);
 
-  m_properties.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
-  m_properties.add_option<OptionT <Uint> >("OutputRank","shows output for the specified rank",0);
 
 
   // properties
-
-  m_properties["Repartition"].as_option().attach_trigger ( boost::bind ( &CReader::config_repartition,   this ) );
 
   m_properties["brief"] = std::string("Gmsh file reader component");
 
@@ -71,11 +65,6 @@ CReader::CReader( const std::string& name )
   BOOST_FOREACH(const std::string& supported_type, m_supported_types)
   desc += "  - " + supported_type + "\n";
   m_properties["description"] = desc;
-}
-
-void CReader::config_repartition()
-{
-  property("Repartition").put_value(m_repartition);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -120,7 +109,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   // Create a region component inside the mesh with a generic mesh name
   // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
-  m_region = m_mesh->topology().create_region("main",!property("Serial Merge").value<bool>()).as_ptr<CRegion>();
+  m_region = m_mesh->topology().create_region("main").as_ptr<CRegion>();
 
 
   find_ghost_nodes();
@@ -243,7 +232,7 @@ void CReader::find_ghost_nodes()
   m_ghost_nodes.clear();
 
   // Only find ghost nodes if the domain is split up
-  if (property("Number of Parts").value<Uint>() > 1)
+  if (property("nb_partitions").value<Uint>() > 1)
   {
     m_file.seekg(m_elements_position,std::ios::beg);
     // skip next line
@@ -336,7 +325,6 @@ void CReader::read_coordinates()
 
     if (m_hash->subhash(NODES)->owns(node_idx-1))
     {
-      m_nodes->glb_idx()[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
       m_nodes->is_ghost()[coord_idx] = false;
       m_node_to_coord_idx[node_idx]=coord_idx;
       std::stringstream ss(line);
@@ -353,7 +341,6 @@ void CReader::read_coordinates()
       if (it != m_ghost_nodes.end())
       {
         // add global node index
-        m_nodes->glb_idx()[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
         m_nodes->is_ghost()[coord_idx] = true;
         m_node_to_coord_idx[node_idx]=coord_idx;
         std::stringstream ss(line);
@@ -497,11 +484,6 @@ void CReader::read_connectivity()
         m_file >> gmsh_node_number;
         cf_node_number = m_node_to_coord_idx[gmsh_node_number];
         cf_element[cf_idx] = cf_node_number;
-        if (!m_nodes->is_ghost()[cf_node_number])
-        {
-          //if (m_nodes_to_read.find(gmsh_node_number) != m_nodes_to_read.end() )
-            m_node_to_glb_elements[cf_node_number].insert(element_number-1);
-        }
       }
       elem_table_iter = conn_table_idx[phys_tag-1].find(gmsh_element_type);
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
@@ -524,11 +506,6 @@ void CReader::read_connectivity()
       for (Uint j=0; j<nb_element_nodes; ++j)
       {
         m_file >> gmsh_node_number;
-        if (m_hash->subhash(NODES)->owns(gmsh_node_number-1))
-        {
-          cf_node_number = m_node_to_coord_idx[gmsh_node_number];
-          m_node_to_glb_elements[cf_node_number].insert(element_number-1);
-        }
       }
     }
 
@@ -537,11 +514,8 @@ void CReader::read_connectivity()
   }
   getline(m_file,line);  // ENDOFSECTION
 
-  index_foreach( node_idx ,  std::set<Uint>& glb_elems , m_node_to_glb_elements)
-    m_nodes->glb_elem_connectivity().set_row(node_idx,glb_elems);
 
   m_node_to_coord_idx.clear();
-  m_node_to_glb_elements.clear();
 
 }
 

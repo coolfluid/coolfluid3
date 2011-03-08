@@ -61,8 +61,6 @@ public: // functions
 
 private: // functions
 	
-  void config_repartition();
-	
   void get_file_positions();
 
   void find_ghost_nodes();
@@ -107,7 +105,6 @@ private: // data
   //std::set<Uint> m_ghost_elems;
 	std::set<Uint> m_nodes_to_read;
   std::map<Uint,Uint> m_node_to_coord_idx;
-	bool m_repartition;
 	
   std::vector<std::set<Uint> > m_node_to_glb_elements;
 
