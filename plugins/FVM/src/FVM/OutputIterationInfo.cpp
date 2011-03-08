@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 #include <iomanip>
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/Foreach.hpp"
