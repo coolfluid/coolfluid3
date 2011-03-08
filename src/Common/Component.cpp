@@ -1017,14 +1017,10 @@ void Component::raise_event ( const std::string & name )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::mark_basic()
+Component& Component::mark_basic()
 {
   add_tag("basic");
-  
-  Ptr this_component;
-  try { this_component = self(); }
-  catch (boost::bad_weak_ptr& e) { }
-  return this_component;
+  return *this;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1059,14 +1055,10 @@ void Component::signature_move_component( Signal::arg_t& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::configure_property(const std::string& optname, const boost::any& val)
+Component& Component::configure_property(const std::string& optname, const boost::any& val)
 {
   m_properties.configure_property(optname,val);
-
-  Ptr this_component;
-  try { this_component = self(); }
-  catch (boost::bad_weak_ptr& e) { }
-  return this_component;
+  return *this;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

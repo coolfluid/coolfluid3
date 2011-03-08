@@ -288,7 +288,7 @@ public: // functions
   /// Configure one property, and trigger its actions
   /// @param [in] optname  The option name
   /// @param [in] val      The new value assigned to the option
-  Ptr configure_property(const std::string& optname, const boost::any& val);
+  Component& configure_property(const std::string& optname, const boost::any& val);
 
   void configure_option_recursively(const std::string& tag, const boost::any& val);
 
@@ -358,7 +358,7 @@ public: // functions
   //@} END SIGNAL SIGNATURES
 
   /// marks this component as basic.
-  Ptr mark_basic();
+  Component& mark_basic();
 
   void save_tree_to( const boost::filesystem::path & path );
 

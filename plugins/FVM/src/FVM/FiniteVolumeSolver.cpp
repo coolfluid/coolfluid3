@@ -99,17 +99,17 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
   // set the compute rhs action
   m_compute_rhs->create_static_component<CInitFieldConstant>("2.1_init_residual")
     ->configure_property("Constant",0.)
-    ->mark_basic()
-    ->property("Field").as_option().add_tag("residual");
+    .mark_basic()
+    .property("Field").as_option().add_tag("residual");
   
   m_compute_rhs->create_static_component<CInitFieldConstant>("2.2_init_wave_speed")
     ->configure_property("Constant",Math::MathConsts::eps())
-    ->mark_basic()
-    ->property("Field").as_option().add_tag("wave_speed");
+    .mark_basic()
+    .property("Field").as_option().add_tag("wave_speed");
   
   m_compute_rhs->create_static_component<CForAllFaces>("2.3_for_all_inner_faces")
     ->mark_basic()
-    ->create_static_component<ComputeFlux>("add_flux_to_rhs")
+    .create_static_component<ComputeFlux>("add_flux_to_rhs")
       ->mark_basic();
   
   m_compute_update_coefficient = m_iterate->create_static_component<ComputeUpdateCoefficient>("3_compute_update_coeff");
