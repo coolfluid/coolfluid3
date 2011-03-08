@@ -19,7 +19,6 @@
 
 #include "Common/CRoot.hpp"
 #include "Common/Core.hpp"
-#include "Common/Log.hpp"
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/CastingFunctions.hpp"
