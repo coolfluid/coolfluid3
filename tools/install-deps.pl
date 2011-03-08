@@ -48,7 +48,7 @@ my $opt_dwnldsrc      = "http://coolfluidsrv.vki.ac.be/webfiles/coolfluid/packag
 my $opt_wgetprog      = "wget -nc -nd";
 my $opt_curlprog      = "curl -O -nc -nv --progress-bar";
 my $opt_dwnldprog     = $opt_wgetprog;
-my $opt_makeopts      = "-j12";
+my $opt_makeopts      = "-j2";
 my @opt_install_list = ();
 
 # list of packages, and their associated values
