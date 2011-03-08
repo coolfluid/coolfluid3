@@ -64,14 +64,14 @@ RKRD::RKRD ( const std::string& name  ) :
       ->mark_basic()
       ->link_to( &m_nb_iter );
   
-  m_properties.add_option( OptionComponent<CField2>::create("Solution","Solution field",&m_solution) )
-      ->add_tag("solution");
+//  m_properties.add_option( OptionComponent<CField2>::create("Solution","Solution field",&m_solution) )
+//      ->add_tag("solution");
 
-  m_properties.add_option( OptionComponent<CField2>::create("Residual","Residual field",&m_residual) )
-      ->add_tag("residual");
+//  m_properties.add_option( OptionComponent<CField2>::create("Residual","Residual field",&m_residual) )
+//      ->add_tag("residual");
 
-  m_properties.add_option( OptionComponent<CField2>::create("Update Coeffs","Update coefficients field",&m_wave_speed) )
-      ->add_tag("wave_speed");
+//  m_properties.add_option( OptionComponent<CField2>::create("Update Coeffs","Update coefficients field",&m_wave_speed) )
+//      ->add_tag("wave_speed");
 
   m_properties.add_option(OptionComponent<CMesh>::create("Mesh","Mesh the Discretization Method will be applied to",&m_mesh))
     ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
