@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_CCriterionTime_hpp
-#define CF_Solver_Actions_CCriterionTime_hpp
+#ifndef CF_Solver_Actions_CCriterionMaxIterations_hpp
+#define CF_Solver_Actions_CCriterionMaxIterations_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,35 +18,34 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CCriterionTime models a Unsteady PDE problem
-/// @author Willem Deconinck
-class Solver_Actions_API CCriterionTime : public CCriterion {
+/// CCriterionMaxIterations models a Unsteady PDE problem
+/// @author Tiago Quintino
+class Solver_Actions_API CCriterionMaxIterations : public CCriterion {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CCriterionTime> Ptr;
-  typedef boost::shared_ptr<CCriterionTime const> ConstPtr;
+  typedef boost::shared_ptr<CCriterionMaxIterations> Ptr;
+  typedef boost::shared_ptr<CCriterionMaxIterations const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CCriterionTime ( const std::string& name );
+  CCriterionMaxIterations ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CCriterionTime();
+  virtual ~CCriterionMaxIterations();
 
   /// Get the class name
-  static std::string type_name () { return "CCriterionTime"; }
+  static std::string type_name () { return "CCriterionMaxIterations"; }
 
   /// Simulates this model
   virtual bool operator()();
   
 private:
   
-  boost::weak_ptr<CTime> m_time;
-  
-  Real m_tolerance;
+  /// component where to access the current iteration
+  boost::weak_ptr<Component> m_iter_comp;
 
 };
 
@@ -58,4 +57,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_Actions_CCriterionTime_hpp
+#endif // CF_Solver_Actions_CCriterionMaxIterations_hpp

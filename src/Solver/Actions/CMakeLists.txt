@@ -5,6 +5,10 @@ list( APPEND coolfluid_solver_actions_files
   CAdvanceTime.cpp
   CCriterion.hpp
   CCriterion.cpp
+  CCriterionAbsResidual.hpp
+  CCriterionAbsResidual.cpp
+  CCriterionMaxIterations.hpp
+  CCriterionMaxIterations.cpp
   CCriterionTime.hpp
   CCriterionTime.cpp
   CIterate.hpp
