@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_UpdateSolution_hpp
-#define CF_RDM_UpdateSolution_hpp
+#ifndef CF_RDM_ForwardEuler_hpp
+#define CF_RDM_ForwardEuler_hpp
 
 #include "RDM/Action.hpp"
 
@@ -15,29 +15,38 @@ namespace CF {
 namespace Mesh { class CField2; }
 namespace RDM {
 
-class RDM_API UpdateSolution : public RDM::Action
+class RDM_API ForwardEuler : public RDM::Action
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<UpdateSolution> Ptr;
-  typedef boost::shared_ptr<UpdateSolution const> ConstPtr;
+  typedef boost::shared_ptr<ForwardEuler> Ptr;
+  typedef boost::shared_ptr<ForwardEuler const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  UpdateSolution ( const std::string& name );
+  ForwardEuler ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~UpdateSolution() {};
+  virtual ~ForwardEuler() {};
 
   /// Get the class name
-  static std::string type_name () { return "UpdateSolution"; }
+  static std::string type_name () { return "ForwardEuler"; }
   
   /// execute the action
   virtual void execute ();
 
+protected: // helper functions
+
+  bool stop_conditions();
+
 private: // data
+
+  /// CFL number
+  CF::Real m_cfl;
+  /// maximum number of iterations
+  Uint m_max_iter;
 
   /// solution field pointer
   boost::weak_ptr<Mesh::CField2> m_solution;
@@ -55,4 +64,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_UpdateSolution_hpp
+#endif // CF_RDM_ForwardEuler_hpp

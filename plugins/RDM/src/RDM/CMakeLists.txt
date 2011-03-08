@@ -18,6 +18,9 @@ list( APPEND coolfluid_rdm_files
   BcDirichlet.cpp
   Cleanup.hpp
   Cleanup.cpp
+# time stepping
+  ForwardEuler.hpp
+  ForwardEuler.cpp
   UpdateSolution.hpp
   UpdateSolution.cpp
 # schemes

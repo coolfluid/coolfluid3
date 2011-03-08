@@ -29,17 +29,11 @@ Common::ComponentBuilder < UpdateSolution, CAction, LibRDM > UpdateSolution_Buil
 ///////////////////////////////////////////////////////////////////////////////////////
   
 UpdateSolution::UpdateSolution ( const std::string& name ) :
-  RDM::Action(name),
-  m_cfl(1.0)
+  RDM::Action(name)
 {
   mark_basic();
 
   // options
-
-  m_properties.add_option< OptionT<Real> > ("CFL", "Courant Number", m_cfl)
-      ->mark_basic()
-      ->link_to(&m_cfl)
-      ->add_tag("cfl");
 
   m_properties.add_option(OptionComponent<CField2>::create("Solution","Solution field", &m_solution))
     ->add_tag("solution");
@@ -63,11 +57,13 @@ void UpdateSolution::execute()
   CTable<Real>& wave_speed   = m_wave_speed.lock()->data();
   CTable<Real>& residual     = m_residual.lock()->data();
 
+  const Real CFL = parent()->property("CFL").value<Real>();
+
   const Uint nbdofs = solution.size();
   const Uint nbvars = solution.row_size();
   for ( Uint i=0; i< nbdofs; ++i )
     for ( Uint j=0; j< nbvars; ++j )
-      solution[i][j] += - (  m_cfl / wave_speed[i][j] ) * residual[i][j];
+      solution[i][j] += - (  CFL / wave_speed[i][j] ) * residual[i][j];
 
 }
 

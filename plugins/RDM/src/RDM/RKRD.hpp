@@ -103,9 +103,8 @@ private: // data
   Common::CAction::Ptr m_compute_norm;
   /// action to cleanup
   RDM::Action::Ptr m_cleanup;
-
-  /// maximum iteration number
-  Uint m_nb_iter;
+  /// action to iterate solution
+  RDM::Action::Ptr m_time_stepping;
 
 };
 

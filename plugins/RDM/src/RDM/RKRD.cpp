@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <iomanip>
-
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionComponent.hpp"
@@ -15,8 +13,6 @@
 #include "Common/Foreach.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/StringConversion.hpp"
-
-#include "Math/MathChecks.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
@@ -33,12 +29,12 @@
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/Cleanup.hpp"
 #include "RDM/UpdateSolution.hpp"
+#include "RDM/ForwardEuler.hpp"
 
 namespace CF {
 namespace RDM {
 
 using namespace Common;
-using namespace Math::MathChecks;
 using namespace Mesh;
 using namespace Mesh::Actions;
 using namespace Solver;
@@ -51,27 +47,11 @@ Common::ComponentBuilder < RKRD, CSolver, LibRDM > RKRD_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 RKRD::RKRD ( const std::string& name  ) :
-  CSolver ( name ),
-  m_nb_iter(0)
+  CSolver ( name )
 {
   // options
 
   m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &RKRD::config_domain,   this ) );
-
-  m_properties.add_option<OptionT <Uint> >("MaxIter",
-                                           "Maximum number of iterations",
-                                            m_nb_iter)
-      ->mark_basic()
-      ->link_to( &m_nb_iter );
-  
-//  m_properties.add_option( OptionComponent<CField2>::create("Solution","Solution field",&m_solution) )
-//      ->add_tag("solution");
-
-//  m_properties.add_option( OptionComponent<CField2>::create("Residual","Residual field",&m_residual) )
-//      ->add_tag("residual");
-
-//  m_properties.add_option( OptionComponent<CField2>::create("Update Coeffs","Update coefficients field",&m_wave_speed) )
-//      ->add_tag("wave_speed");
 
   m_properties.add_option(OptionComponent<CMesh>::create("Mesh","Mesh the Discretization Method will be applied to",&m_mesh))
     ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
@@ -115,7 +95,7 @@ RKRD::RKRD ( const std::string& name  ) :
   m_cleanup      = create_static_component<Cleanup>("cleanup");
   m_compute_norm = create_static_component<Solver::Actions::CComputeLNorm>("compute_norm");
 
-  m_update_solution = create_static_component<UpdateSolution>("update_solution");
+  m_time_stepping = create_static_component<ForwardEuler>("time_stepping");
 
 }
 
@@ -185,14 +165,14 @@ void RKRD::config_mesh()
 
   // configure field action
 
+  configure_option_recursively("solution", m_solution.lock()->full_path() );
+  configure_option_recursively("residual", m_residual.lock()->full_path() );
+  configure_option_recursively("wave_speed", m_wave_speed.lock()->full_path() );
+
   std::vector<URI> cleanup_fields;
   cleanup_fields.push_back( m_residual.lock()->full_path() );
   cleanup_fields.push_back( m_wave_speed.lock()->full_path() );
   m_cleanup->configure_property("Fields", cleanup_fields);
-
-  configure_option_recursively("solution", m_solution.lock()->full_path() );
-  configure_option_recursively("residual", m_residual.lock()->full_path() );
-  configure_option_recursively("wave_speed", m_wave_speed.lock()->full_path() );
 
   m_compute_norm->configure_property("Scale", true);
   m_compute_norm->configure_property("Order", 2u);
@@ -209,29 +189,8 @@ void RKRD::solve()
   if( is_null(domain) )
     throw InvalidURI( FromHere(), "Path does not poitn to Domain");
 
-  // iteration look
+  m_time_stepping->execute();
 
-  for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
-  {
-    m_cleanup->execute(); // cleanup fields (typically residual and wave_speed)
-
-    m_compute_boundary_terms->execute();
-
-    m_compute_domain_terms->execute();
-
-    m_update_solution->execute();
-
-    m_compute_norm->execute();
-
-    /// @todo move this into an action
-    //    m_output_convergence->execute();
-
-    // output convergence info
-    Real rhs_norm = m_compute_norm->property("Norm").value<Real>();
-    CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_norm << "]" << CFendl;
-   if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
-      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iter)+" iterations");
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
