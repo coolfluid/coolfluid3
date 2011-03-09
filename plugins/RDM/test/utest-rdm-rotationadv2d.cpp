@@ -139,8 +139,8 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 1.);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 100u);;
+  solver.get_child("time_stepping").configure_property("CFL", 1.);
+  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -278,6 +278,50 @@ BOOST_FIXTURE_TEST_CASE( solve_blended , rotationadv2d_local_fixture )
   BOOST_CHECK(true);
 
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( solve_SUPG , rotationadv2d_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  CFinfo << "solving with SUPG scheme" << CFendl;
+
+  // delete previous domain terms
+  Component& domain_terms = solver.get_child("compute_domain_terms");
+  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
+  {
+    const std::string name = term.name();
+    domain_terms.remove_component( name );
+  }
+
+  BOOST_CHECK( domain_terms.count_children() == 0 );
+
+  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+
+  SignalFrame frame("", "", "");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+
+  std::vector<URI> regions;
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+    regions.push_back( region.full_path() );
+
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
+
+  options.set_option<std::string>("Name","INTERNAL");
+  options.set_option<std::string>("Type","CF.RDM.SUPG");
+  options.set_array("Regions", regions, " ; ");
+
+  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
+
+  BOOST_CHECK(true);
+
+  solver.solve();
+
+  BOOST_CHECK(true);
+
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
