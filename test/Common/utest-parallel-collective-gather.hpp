@@ -148,7 +148,7 @@ BOOST_FIXTURE_TEST_SUITE( PEGatherSuite, PEGatherFixture )
 
 BOOST_AUTO_TEST_CASE( gather )
 {
-  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Testing gather " << irank << "/" << nproc << CFendl; );
+  PEProcessSortedExecute(-1,CFinfo << "Testing gather " << irank << "/" << nproc << CFendl; );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

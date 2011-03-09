@@ -124,7 +124,7 @@ BOOST_FIXTURE_TEST_SUITE( PEBroadcastSuite, PEBroadcastFixture )
 
 BOOST_AUTO_TEST_CASE( Broadcast )
 {
-  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Testing broadcast " << irank << "/" << nproc << CFendl; );
+  PEProcessSortedExecute(-1,CFinfo << "Testing broadcast " << irank << "/" << nproc << CFendl; );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( broadcast_vector_constant )
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[r*nproc+i] );
     BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , rcvcnt );
 
-    vec_tmprcv.assign(nproc*nproc,0.);
+    vec_tmprcv.assign(nproc,0.);
     mpi::PE::instance().broadcast(vec_snddat, vec_tmprcv, r);
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[r*nproc+i] );
 

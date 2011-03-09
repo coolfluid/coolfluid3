@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( init )
 {
   mpi::PE::instance().init(m_argc,m_argv);
   BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , true );
-  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
 }
 
 BOOST_AUTO_TEST_CASE( rank_and_size )
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( rank_and_size )
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " says good bye." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " says good bye." << CFendl;);
   mpi::PE::instance().finalize();
   BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , false );
 }

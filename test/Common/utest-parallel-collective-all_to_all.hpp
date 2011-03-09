@@ -150,7 +150,7 @@ BOOST_FIXTURE_TEST_SUITE( PEAllToAllSuite, PEAllToAllFixture )
 
 BOOST_AUTO_TEST_CASE( all_to_all )
 {
-  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Testing all_to_all " << irank << "/" << nproc << CFendl; );
+  PEProcessSortedExecute(-1,CFinfo << "Testing all_to_all " << irank << "/" << nproc << CFendl; );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

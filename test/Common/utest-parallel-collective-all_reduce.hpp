@@ -160,7 +160,7 @@ BOOST_FIXTURE_TEST_SUITE( PEAllReduceSuite, PEAllReduceFixture )
 
 BOOST_AUTO_TEST_CASE( all_reduce )
 {
-  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Testing all_reduce " << irank << "/" << nproc << CFendl; );
+  PEProcessSortedExecute(-1,CFinfo << "Testing all_reduce " << irank << "/" << nproc << CFendl; );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -204,7 +204,7 @@ void CMeshPartitioner::show_changes()
   {
     Component::Ptr component;
     Uint index;
-    PEProcessSortedExecute(mpi::PE::instance(),-1,
+    PEProcessSortedExecute(-1,
       std::cout << std::endl;
       std::cout << "proc #" << mpi::PE::instance().rank() << std::endl;
       std::cout << "-------" << std::endl;

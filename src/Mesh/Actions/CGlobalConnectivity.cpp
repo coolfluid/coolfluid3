@@ -154,14 +154,11 @@ void CGlobalConnectivity::execute()
   
   for (Uint root=0; root<mpi::PE::instance().size(); ++root)
   {
-    //std::vector<Uint> rcv_glb_node_idx = mpi::broadcast(ghostnode_glb_idx, root);
-    //std::vector<Uint> rcv_glb_elem_connectivity = mpi::broadcast(ghostnode_glb_elem_connectivity, root);
-    //std::vector<Uint> rcv_glb_elem_connectivity_start = mpi::broadcast(ghostnode_glb_elem_connectivity_start, root);
-    std::vector<Uint> rcv_glb_node_idx(ghostnode_glb_idx.size());
+    std::vector<Uint> rcv_glb_node_idx(0);//ghostnode_glb_idx.size());
     mpi::PE::instance().broadcast(ghostnode_glb_idx,rcv_glb_node_idx,root);
-    std::vector<Uint> rcv_glb_elem_connectivity(ghostnode_glb_elem_connectivity.size());
+    std::vector<Uint> rcv_glb_elem_connectivity(0);//ghostnode_glb_elem_connectivity.size());
     mpi::PE::instance().broadcast(ghostnode_glb_elem_connectivity,rcv_glb_elem_connectivity,root);
-    std::vector<Uint> rcv_glb_elem_connectivity_start(ghostnode_glb_elem_connectivity_start.size());
+    std::vector<Uint> rcv_glb_elem_connectivity_start(0);//ghostnode_glb_elem_connectivity_start.size());
     mpi::PE::instance().broadcast(ghostnode_glb_elem_connectivity_start,rcv_glb_elem_connectivity_start,root);
 
     if (mpi::PE::instance().rank() != root)

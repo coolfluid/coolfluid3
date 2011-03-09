@@ -56,26 +56,26 @@ namespace CF {
   @param irank rank of the process where the command is executed (-1 for all processes)
   @param expression stuff to execute
 **/
-#define PEProcessSortedExecute(pe,irank,expression) {                                                                           \
+#define PEProcessSortedExecute(irank,expression) {                                                                           \
   if (irank<0){                                                                                                                 \
     int _process_sorted_execute_i_;                                                                                             \
-    int _process_sorted_execute_n_=(int)(pe.size());                                                                            \
-    int _process_sorted_execute_r_=(int)(pe.rank());                                                                            \
-    pe.barrier();                                                                                                               \
+    int _process_sorted_execute_n_=(int)(::CF::Common::mpi::PE::instance().size());                                                                            \
+    int _process_sorted_execute_r_=(int)(::CF::Common::mpi::PE::instance().rank());                                                                            \
+    ::CF::Common::mpi::PE::instance().barrier();                                                                                                               \
     std::cout << std::flush;                                                                                                          \
-    pe.barrier();                                                                                                               \
+    ::CF::Common::mpi::PE::instance().barrier();                                                                                                               \
     for(_process_sorted_execute_i_=0; _process_sorted_execute_i_<_process_sorted_execute_n_; _process_sorted_execute_i_++){     \
-      pe.barrier();                                                                                                             \
+      ::CF::Common::mpi::PE::instance().barrier();                                                                                                             \
       if(_process_sorted_execute_i_ == _process_sorted_execute_r_){                                                             \
         expression;                                                                                                             \
         std::cout << std::flush;                                                                                                      \
-        pe.barrier();                                                                                                           \
+        ::CF::Common::mpi::PE::instance().barrier();                                                                                                           \
       }                                                                                                                         \
     }                                                                                                                           \
-    pe.barrier();                                                                                                               \
+    ::CF::Common::mpi::PE::instance().barrier();                                                                                                               \
     std::cout << std::flush;                                                                                                          \
-    pe.barrier();                                                                                                               \
-  } else if (irank==(int)(pe.rank())){                                                                                          \
+    ::CF::Common::mpi::PE::instance().barrier();                                                                                                               \
+  } else if (irank==(int)(::CF::Common::mpi::PE::instance().rank())){                                                                                          \
     expression;                                                                                                                 \
   }                                                                                                                             \
 }
@@ -93,10 +93,10 @@ namespace CF {
 std::cout << std::flush;                                                                                                      \
 boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
 ::CF::Common::mpi::PE::instance().barrier();                                                                                                     \
-PEProcessSortedExecute(::CF::Common::mpi::PE::instance(),-1,                                                                                                    \
-std::cout << std::flush;                                                                                                    \
-std::cout << "["<<::CF::Common::mpi::PE::instance().rank() << "] " << msg << "\n";                                                                   \
-std::cout << std::flush;                                                                                                    \
+PEProcessSortedExecute(-1,                                                                                                    \
+  std::cout << std::flush;                                                                                                    \
+  std::cout << "["<<::CF::Common::mpi::PE::instance().rank() << "] " << msg << "\n";                                                                   \
+  std::cout << std::flush;                                                                                                    \
 );                                                                                                                            \
 ::CF::Common::mpi::PE::instance().barrier();                                                                                                     \
 std::cout << std::flush;                                                                                                      \

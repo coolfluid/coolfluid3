@@ -250,7 +250,7 @@ void CPartitioner::query_list_of_connected_objects(void *data, int sizeGID, int 
   std::vector<Uint> glbID(nb_obj);
   p.list_of_owned_objects(glbID);
 
-  PEProcessSortedExecute(PE::instance(),-1,
+  PEProcessSortedExecute(-1,
   CFdebug << RANK << "conn_glbID =\n";
   Uint cnt = 0;
   index_foreach( e, const Uint nbEdge, numEdges)
@@ -435,7 +435,7 @@ void CPartitioner::migrate()
 
 	CFdebug.setFilterRankZero(false);
 
-  PEProcessSortedExecute(PE::instance(),-1,
+  PEProcessSortedExecute(-1,
                          CFdebug << CFendl;
                          CFdebug << "proc#" << PE::instance().rank() << CFendl;
                          CFdebug << "------"<<CFendl;

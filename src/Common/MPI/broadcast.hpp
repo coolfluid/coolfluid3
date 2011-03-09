@@ -115,16 +115,17 @@ broadcast(const Communicator& comm, const T* in_values, const int in_n, T* out_v
 
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
+  int size=in_n;
   if (out_values==0) {
-    const int size=stride*in_n>1?stride*in_n:1;
-    if ( (out_buf=new T[size]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+    detail::broadcast_impl(comm,&size,1,(int*)0,&size,(int*)0,root,stride);
+    if ( (out_buf=new T[stride*size>1?stride*size:1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call impl
   if (irank==root) {
-    detail::broadcast_impl(comm,in_values,in_n,(int*)0,out_buf,(int*)0,root,stride);
+    detail::broadcast_impl(comm,in_values,size,(int*)0,out_buf,(int*)0,root,stride);
   } else {
-    detail::broadcast_impl(comm,(T*)0,in_n,(int*)0,out_buf,(int*)0,root,stride);
+    detail::broadcast_impl(comm,(T*)0,size,(int*)0,out_buf,(int*)0,root,stride);
   }
   return out_buf;
 }
@@ -147,14 +148,19 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, std::vector
   MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
   // set out_values's sizes
+  int size=out_values.size();
+  if (out_values.size()==0){
+    if (irank==root) size=(int)in_values.size();
+    detail::broadcast_impl(comm,&size,1,(int*)0,&size,(int*)0,root,stride);
+  }
   BOOST_ASSERT( in_values.size() % stride == 0 );
-  out_values.resize(in_values.size());
-  out_values.reserve(in_values.size());
+  out_values.resize(size);
+  out_values.reserve(size);
 
   if (irank==root) {
-    detail::broadcast_impl(comm,(T*)(&in_values[0]),in_values.size()/stride,(int*)0,(T*)(&out_values[0]),(int*)0,root,stride);
+    detail::broadcast_impl(comm,(T*)(&in_values[0]),size/stride,(int*)0,(T*)(&out_values[0]),(int*)0,root,stride);
   } else {
-    detail::broadcast_impl(comm,(T*)0,in_values.size()/stride,(int*)0,(T*)(&out_values[0]),(int*)0,root,stride);
+    detail::broadcast_impl(comm,(T*)0,size/stride,(int*)0,(T*)(&out_values[0]),(int*)0,root,stride);
   }
 
 }

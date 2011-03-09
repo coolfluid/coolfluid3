@@ -155,7 +155,7 @@ BOOST_FIXTURE_TEST_SUITE( PEScatterSuite, PEScatterFixture )
 
 BOOST_AUTO_TEST_CASE( scatter )
 {
-  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Testing scatter " << irank << "/" << nproc << CFendl; );
+  PEProcessSortedExecute(-1,CFinfo << "Testing scatter " << irank << "/" << nproc << CFendl; );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
