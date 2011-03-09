@@ -122,7 +122,8 @@ public: // functions
       if ( obj < m_end_id_per_proc[p])
         return p;
     }
-#warning this function has an execution path without return
+    cf_assert_desc("Should not be here", false);
+    return 0;
   }
 	
 	Uint owns_obj(const Uint obj) const
