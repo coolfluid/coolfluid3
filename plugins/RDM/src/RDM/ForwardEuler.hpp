@@ -39,7 +39,7 @@ public: // functions
 
 protected: // helper functions
 
-  bool stop_conditions();
+  bool stop_condition();
 
 private: // data
 
