@@ -29,9 +29,12 @@ list( APPEND coolfluid_rdm_files
   LDA.cpp
   Blended.hpp
   Blended.cpp
+  SUPG.hpp
+  SUPG.cpp
   SchemeLDA.hpp
   SchemeN.hpp
   SchemeB.hpp
+  SchemeSUPG.hpp
 # physical models
   LinearAdv2D.hpp
   LinearAdv2D.cpp
