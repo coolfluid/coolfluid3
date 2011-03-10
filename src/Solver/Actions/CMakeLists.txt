@@ -89,6 +89,6 @@ endif()
 
 set( coolfluid_solver_actions_kernellib TRUE )
 
-list( APPEND coolfluid_solver_actions_cflibs coolfluid_solver coolfluid_mesh )
+list( APPEND coolfluid_solver_actions_cflibs coolfluid_solver )
 
 coolfluid_add_library( coolfluid_solver_actions )

@@ -13,7 +13,7 @@ list( APPEND coolfluid_ufem_files
   SetupLinearSystem.hpp
 )
 
-list( APPEND coolfluid_ufem_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_solver_actions coolfluid_solver)
+list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_sf coolfluid_solver_actions)
 
 set( coolfluid_ufem_condition ${CF_ENABLE_PROTO} )
 
