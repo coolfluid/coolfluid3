@@ -46,4 +46,4 @@ add_subdirectory( fexcept )
 ### test for XML layer
 add_subdirectory( xml-layer )
 
-
+add_subdirectory( boost-shared_ptr )
