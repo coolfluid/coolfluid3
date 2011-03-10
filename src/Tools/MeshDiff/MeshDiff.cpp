@@ -105,6 +105,8 @@ bool diff(const Mesh::CMesh& a, const Mesh::CMesh& b, const Uint max_ulps)
   // Compare connectivity
   compare_ranges(find_components_recursively<CElements>(a), find_components_recursively<CElements>(b), accumulator);
 
+  /// @todo change this to a comparison field per field
+
   return boost::accumulators::min(accumulator.exact) && (boost::accumulators::max(accumulator.ulps) < max_ulps);
 }
 
