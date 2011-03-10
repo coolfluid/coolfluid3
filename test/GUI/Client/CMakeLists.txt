@@ -38,7 +38,7 @@ list( APPEND utest-client_files
 
 list( APPEND utest-client_libs coolfluid_client_core ${QT_LIBRARIES})
 
-coolfluid_add_unittest( utest-client )
+coolfluid_add_unit_test( utest-client )
 
 add_custom_command(TARGET utest-client
                    POST_BUILD

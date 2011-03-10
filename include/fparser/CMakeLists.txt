@@ -43,10 +43,10 @@ coolfluid_add_library( coolfluid_fparser )
 # list( APPEND utest-fparser-1_files examples/example.cc )
 # list( APPEND utest-fparser-1_cflibs coolfluid_fparser )
 
-# coolfluid_add_unittest( utest-fparser-1 )
+# coolfluid_add_unit_test( utest-fparser-1 )
 
 # second example
 # list( APPEND utest-fparser-2_files examples/example2.cc )
 # list( APPEND utest-fparser-2_cflibs coolfluid_fparser )
 
-# coolfluid_add_unittest( utest-fparser-2 )
+# coolfluid_add_unit_test( utest-fparser-2 )

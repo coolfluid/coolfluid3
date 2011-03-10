@@ -3,7 +3,7 @@
 list( APPEND utest-mesh-actions-facebuilder_cflibs coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh)
 list( APPEND utest-mesh-actions-facebuilder_files  utest-mesh-actions-facebuilder.cpp )
 
-coolfluid_add_unittest( utest-mesh-actions-facebuilder )
+coolfluid_add_unit_test( utest-mesh-actions-facebuilder )
 
 add_custom_command(TARGET utest-mesh-actions-facebuilder
                    POST_BUILD
@@ -15,7 +15,9 @@ add_custom_command(TARGET utest-mesh-actions-facebuilder
 list( APPEND utest-mesh-actions-global-connectivity_cflibs coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh)
 list( APPEND utest-mesh-actions-global-connectivity_files  utest-mesh-actions-global-connectivity.cpp )
 
-coolfluid_add_mpi_unittest( utest-mesh-actions-global-connectivity 2 )
+set( utest-mesh-actions-global-connectivity_mpi_test TRUE )
+set( utest-mesh-actions-global-connectivity_mpi_nprocs 2)
+coolfluid_add_unit_test( utest-mesh-actions-global-connectivity )
 
 add_custom_command(TARGET utest-mesh-actions-global-connectivity
                  POST_BUILD
@@ -27,7 +29,7 @@ add_custom_command(TARGET utest-mesh-actions-global-connectivity
 list( APPEND utest-bubble-enrich_cflibs coolfluid_mesh_actions coolfluid_mesh_sf coolfluid_mesh_gmsh)
 list( APPEND utest-bubble-enrich_files  utest-bubble-enrich.cpp )
 
-coolfluid_add_unittest( utest-bubble-enrich )
+coolfluid_add_unit_test( utest-bubble-enrich )
 
 add_custom_command(TARGET utest-bubble-enrich
                    POST_BUILD

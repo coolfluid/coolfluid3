@@ -6,7 +6,7 @@ list( APPEND utest-tetra-sf_files  utest-tetra-sf.cpp )
 
 set( utest-tetra-sf_condition  ${coolfluid_cgal_builds} )
 
-coolfluid_add_unittest( utest-tetra-sf )
+coolfluid_add_unit_test( utest-tetra-sf )
 
 if( DEFINED coolfluid_cgal_COMPILE_FLAGS )
 

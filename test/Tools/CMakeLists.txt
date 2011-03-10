@@ -6,4 +6,4 @@ list( APPEND utest-mesh-generation_args ${CMAKE_CURRENT_SOURCE_DIR}/meshes )
 
 set( utest-mesh-generation_condition ${coolfluid_mesh_generation_builds} )
 
-coolfluid_add_unittest( utest-mesh-generation )
+coolfluid_add_unit_test( utest-mesh-generation )

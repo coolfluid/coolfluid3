@@ -2,18 +2,17 @@
 # macro for adding a testing application in the project
 ##############################################################################
 
-macro( coolfluid_prepare_unittest UTESTNAME )
+macro( coolfluid_prepare_test UTESTNAME )
 
   # option to build it or not (option is advanced and does not appear in the cmake gui)
   option( CF_BUILD_${UTESTNAME} "Build the ${UTESTNAME} testing application" ON )
   mark_as_advanced(CF_BUILD_${UTESTNAME})
 
-  #
-  #
-  #
-  #
-  #
-  #
+  if( DEFINED ${UTESTNAME}_performance_test )
+    set( ${UTESTNAME}_performance_test ${${UTESTNAME}_performance_test} CACHE INTERNAL "" )
+  else()
+    set( ${UTESTNAME}_performance_test FALSE CACHE INTERNAL "" )
+  endif()
   #
   #
   #
@@ -128,42 +127,56 @@ macro( coolfluid_prepare_unittest UTESTNAME )
   coolfluid_log_file("${UTESTNAME}_TYPE            : [${${UTESTNAME}_TYPE}]")
 
 
-endmacro( coolfluid_prepare_unittest )
+endmacro( coolfluid_prepare_test )
 
 ##############################################################################
 ##############################################################################
 
-macro( coolfluid_add_unittest UTESTNAME )
+macro( coolfluid_add_unit_test UTESTNAME )
 
-coolfluid_prepare_unittest(${UTESTNAME})
-if(${UTESTNAME}_builds)
-  # add to the test database
-  add_test( ${UTESTNAME} ${UTESTNAME} ${${UTESTNAME}_args})
-endif()
+coolfluid_prepare_test(${UTESTNAME})
 
-endmacro( coolfluid_add_unittest )
+if( ${${UTESTNAME}_builds} ) # dont add if it does not build
 
-##############################################################################
-##############################################################################
-
-macro( coolfluid_add_mpi_unittest UTESTNAME NUMBER_PROC)
-
-if(CF_MPI_TESTS_RUN)
-  coolfluid_prepare_unittest(${UTESTNAME})
-  if(${UTESTNAME}_builds)
-    # add to the test database
-    #${CF_MPI_TESTS_NB_PROCS}
-    add_test( ${UTESTNAME} ${CF_MPIRUN_PROGRAM} "-np" ${NUMBER_PROC} ${UTESTNAME} ${${UTESTNAME}_args})
-    if(CF_MPI_TESTS_RUN_SCALABILITY AND ${UTESTNAME}_scaling)
-      add_test("${UTESTNAME}-scaling" ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test-mpi-scalability.py ${CF_MPIRUN_PROGRAM} ${CMAKE_CURRENT_BINARY_DIR}/${UTESTNAME} ${CF_MPI_TESTS_MAX_NB_PROCS} ${${UTESTNAME}_args})
-    endif()
+  if( ${UTESTNAME}_performance_test AND NOT CF_ENABLE_PERFORMANCE_TESTS )
+    set( ${UTESTNAME}_performance_skip TRUE )
+  else()
+    set( ${UTESTNAME}_performance_skip FALSE )
   endif()
-else(CF_MPI_TESTS_RUN)
-  coolfluid_mark_not_orphan(${${UTESTNAME}_files})
-endif(CF_MPI_TESTS_RUN)
 
-endmacro( coolfluid_add_mpi_unittest )
+  if( ${UTESTNAME}_mpi_test AND NOT CF_MPI_TESTS_RUN )
+    set( ${UTESTNAME}_mpi_skip TRUE )
+  else()
+    set( ${UTESTNAME}_mpi_skip FALSE )
+  endif()
 
+  # add to the test database
+  if( NOT ${UTESTNAME}_performance_skip AND NOT ${UTESTNAME}_mpi_skip )
+
+    if( NOT ${UTESTNAME}_mpi_test )
+    # standard test
+
+      add_test( ${UTESTNAME} ${UTESTNAME} ${${UTESTNAME}_args})
+
+    else()
+    # mpi test
+
+      if( NOT DEFINED ${UTESTNAME}_mpi_nprocs )
+         set(${UTESTNAME}_mpi_nprocs ${CF_MPI_TESTS_NB_PROCS})
+      endif()
+
+      add_test( ${UTESTNAME} ${CF_MPIRUN_PROGRAM} "-np" ${${UTESTNAME}_mpi_nprocs} ${UTESTNAME} ${${UTESTNAME}_args})
+      if(CF_MPI_TESTS_RUN_SCALABILITY AND ${UTESTNAME}_scaling)
+        add_test("${UTESTNAME}-scaling" ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test-mpi-scalability.py ${CF_MPIRUN_PROGRAM} ${CMAKE_CURRENT_BINARY_DIR}/${UTESTNAME} ${CF_MPI_TESTS_MAX_NB_PROCS} ${${UTESTNAME}_args})
+      endif()
+
+    endif()
+
+  endif() # mpi and performance skip
+
+endif() # build guard
+
+endmacro( coolfluid_add_unit_test )
 
 ##############################################################################
 ##############################################################################

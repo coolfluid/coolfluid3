@@ -3,29 +3,31 @@
 list( APPEND utest-function-parser_cflibs coolfluid_math )
 list( APPEND utest-function-parser_files  utest-function-parser.cpp )
 
-coolfluid_add_unittest( utest-function-parser )
+coolfluid_add_unit_test( utest-function-parser )
 
 ################################################################################
 
 list( APPEND utest-vector-operations_cflibs coolfluid_math )
 list( APPEND utest-vector-operations_files  utest-vector-operations.cpp )
 
-coolfluid_add_unittest( utest-vector-operations )
+coolfluid_add_unit_test( utest-vector-operations )
 
 ################################################################################
 
 list( APPEND utest-matrix-inverter_cflibs coolfluid_math )
 list( APPEND utest-matrix-inverter_files  utest-matrix-inverter.cpp )
 
-coolfluid_add_unittest( utest-matrix-inverter )
+coolfluid_add_unit_test( utest-matrix-inverter )
 
 ################################################################################
 
 list( APPEND utest-eigen-vs-matrixt_cflibs coolfluid_math )
 list( APPEND utest-eigen-vs-matrixt_files  utest-eigen-vs-matrixt.cpp )
 
+set( utest-eigen-vs-matrixt_performance_test TRUE )
+
 add_definitions( -DNDEBUG -DEIGEN_NO_DEBUG )
-coolfluid_add_unittest( utest-eigen-vs-matrixt )
+coolfluid_add_unit_test( utest-eigen-vs-matrixt )
 
 
 #if( CMAKE_COMPILER_IS_GNUCC )

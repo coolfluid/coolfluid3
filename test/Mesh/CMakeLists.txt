@@ -3,63 +3,63 @@
 list( APPEND utest-mesh-hash_cflibs coolfluid_mesh )
 list( APPEND utest-mesh-hash_files  utest-mesh-hash.cpp )
 
-coolfluid_add_unittest( utest-mesh-hash )
+coolfluid_add_unit_test( utest-mesh-hash )
 
 ################################################################################
 
 list( APPEND utest-mesh-interpolation_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-interpolation_files  utest-mesh-interpolation.cpp )
 
-coolfluid_add_unittest( utest-mesh-interpolation )
+coolfluid_add_unit_test( utest-mesh-interpolation )
 
 ################################################################################
 
 list( APPEND utest-mesh-unified-data_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf )
 list( APPEND utest-mesh-unified-data_files  utest-mesh-unified-data.cpp )
 
-coolfluid_add_unittest( utest-mesh-unified-data )
+coolfluid_add_unit_test( utest-mesh-unified-data )
 
 ################################################################################
 
 list( APPEND utest-mesh-node-element-connectivity_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf )
 list( APPEND utest-mesh-node-element-connectivity_files  utest-mesh-node-element-connectivity.cpp )
 
-coolfluid_add_unittest( utest-mesh-node-element-connectivity )
+coolfluid_add_unit_test( utest-mesh-node-element-connectivity )
 
 ################################################################################
 
 list( APPEND utest-mesh-face-cell-connectivity_cflibs coolfluid_testing coolfluid_mesh_generation coolfluid_mesh_neutral coolfluid_mesh_sf )
 list( APPEND utest-mesh-face-cell-connectivity_files  utest-mesh-face-cell-connectivity.cpp )
 
-coolfluid_add_unittest( utest-mesh-face-cell-connectivity )
+coolfluid_add_unit_test( utest-mesh-face-cell-connectivity )
 
 ################################################################################
 
 list( APPEND utest-mesh-construction_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-construction_files  utest-mesh-construction.cpp )
 
-coolfluid_add_unittest( utest-mesh-construction )
+coolfluid_add_unit_test( utest-mesh-construction )
 
 ################################################################################
 
 list( APPEND utest-mesh-reading_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-reading_files  utest-mesh-reading.cpp )
 
-coolfluid_add_unittest( utest-mesh-reading )
+coolfluid_add_unit_test( utest-mesh-reading )
 
 ################################################################################
 
 list( APPEND utest-mesh-transformer_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf coolfluid_mesh_actions)
 list( APPEND utest-mesh-transformer_files  utest-mesh-transformer.cpp )
 
-coolfluid_add_unittest( utest-mesh-transformer )
+coolfluid_add_unit_test( utest-mesh-transformer )
 
 ################################################################################
 
 list( APPEND utest-mesh-components_cflibs coolfluid_mesh)
 list( APPEND utest-mesh-components_files  utest-mesh-components.cpp  )
 
-coolfluid_add_unittest( utest-mesh-components )
+coolfluid_add_unit_test( utest-mesh-components )
 
 ################################################################################
 
@@ -69,7 +69,7 @@ list( APPEND utest-mesh-cgns_includedirs ${CGNS_INCLUDE_DIR} )
 
 set( utest-mesh-cgns_condition ${coolfluid_mesh_cgns3_builds} )
 
-coolfluid_add_unittest( utest-mesh-cgns )
+coolfluid_add_unit_test( utest-mesh-cgns )
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -87,7 +87,10 @@ list( APPEND utest-neu-reader-mpi_cflibs coolfluid_mesh_neutral coolfluid_mesh_g
 list( APPEND utest-neu-reader-mpi_files  utest-neu-reader-mpi.cpp )
   
 # Add the target
-coolfluid_add_mpi_unittest( utest-neu-reader-mpi 3 )
+set( utest-neu-reader-mpi_mpi_test TRUE )
+set( utest-neu-reader-mpi_mpi_nprocs 3 )
+
+coolfluid_add_unit_test( utest-neu-reader-mpi 3 )
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -105,7 +108,7 @@ list( APPEND utest-gmsh-reader-mpi_cflibs coolfluid_mesh_gmsh coolfluid_mesh_sf 
 list( APPEND utest-gmsh-reader-mpi_files  utest-gmsh-reader-mpi.cpp )
 
 # Add the target
-coolfluid_add_unittest( utest-gmsh-reader-mpi )
+coolfluid_add_unit_test( utest-gmsh-reader-mpi )
 
 add_custom_command(TARGET utest-gmsh-reader-mpi
                    POST_BUILD
@@ -122,91 +125,91 @@ add_custom_command(TARGET utest-gmsh-reader-mpi
 list( APPEND utest-connectivity-data_cflibs coolfluid_mesh_neutral coolfluid_mesh_generation coolfluid_mesh_sf )
 list( APPEND utest-connectivity-data_files  utest-connectivity-data.cpp )
 
-coolfluid_add_unittest( utest-connectivity-data )
+coolfluid_add_unit_test( utest-connectivity-data )
 
 ################################################################################
 
 list( APPEND utest-hexa3d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-hexa3d-lagrange-p1_files utest-hexa3d-lagrange-p1.cpp )
 
-coolfluid_add_unittest( utest-hexa3d-lagrange-p1 )
+coolfluid_add_unit_test( utest-hexa3d-lagrange-p1 )
 
 ################################################################################
 
 list( APPEND utest-tetra3d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-tetra3d-lagrange-p1_files  utest-tetra3d-lagrange-p1.cpp )
 
-coolfluid_add_unittest( utest-tetra3d-lagrange-p1 )
+coolfluid_add_unit_test( utest-tetra3d-lagrange-p1 )
 
 ################################################################################
 
 list( APPEND utest-line1d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-line1d-lagrange-p1_files  utest-line1d-lagrange-p1.cpp )
 
-coolfluid_add_unittest( utest-line1d-lagrange-p1 )
+coolfluid_add_unit_test( utest-line1d-lagrange-p1 )
 
 ################################################################################
 
 list( APPEND utest-line2d-lagrange-p1_cflibs coolfluid_mesh_generation coolfluid_mesh_sf )
 list( APPEND utest-line2d-lagrange-p1_files  utest-line2d-lagrange-p1.cpp )
 
-coolfluid_add_unittest( utest-line2d-lagrange-p1 )
+coolfluid_add_unit_test( utest-line2d-lagrange-p1 )
 
 ################################################################################
 
 list( APPEND utest-line3d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-line3d-lagrange-p1_files  utest-line3d-lagrange-p1.cpp )
 
-coolfluid_add_unittest( utest-line3d-lagrange-p1 )
+coolfluid_add_unit_test( utest-line3d-lagrange-p1 )
 
 ################################################################################
 
 list( APPEND utest-triag2d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-triag2d-lagrange-p1_files  utest-triag2d-lagrange-p1.cpp )
 
-coolfluid_add_unittest( utest-triag2d-lagrange-p1 )
+coolfluid_add_unit_test( utest-triag2d-lagrange-p1 )
 
 ################################################################################
 
 list( APPEND utest-triag2d-lagrange-p2b_cflibs coolfluid_mesh_sf )
 list( APPEND utest-triag2d-lagrange-p2b_files utest-triag2d-lagrange-p2b.cpp )
 
-coolfluid_add_unittest( utest-triag2d-lagrange-p2b )
+coolfluid_add_unit_test( utest-triag2d-lagrange-p2b )
 
 ################################################################################
 
 list( APPEND utest-triag3d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-triag3d-lagrange-p1_files  utest-triag3d-lagrange-p1.cpp )
 
-coolfluid_add_unittest( utest-triag3d-lagrange-p1 )
+coolfluid_add_unit_test( utest-triag3d-lagrange-p1 )
 
 ################################################################################
 
 list( APPEND utest-quad2d-lagrange-p1_cflibs  coolfluid_mesh_sf )
 list( APPEND utest-quad2d-lagrange-p1_files   utest-quad2d-lagrange-p1.cpp )
 
-coolfluid_add_unittest( utest-quad2d-lagrange-p1 )
+coolfluid_add_unit_test( utest-quad2d-lagrange-p1 )
 
 ################################################################################
 
 list( APPEND utest-quad3d-lagrange-p1_cflibs  coolfluid_mesh_sf )
 list( APPEND utest-quad3d-lagrange-p1_files   utest-quad3d-lagrange-p1.cpp )
 
-coolfluid_add_unittest( utest-quad3d-lagrange-p1 )
+coolfluid_add_unit_test( utest-quad3d-lagrange-p1 )
 
 ################################################################################
 
 list( APPEND utest-matrix-interpolation_cflibs  coolfluid_mesh_sf )
 list( APPEND utest-matrix-interpolation_files   utest-matrix-interpolation.cpp )
 
-coolfluid_add_unittest( utest-matrix-interpolation )
+coolfluid_add_unit_test( utest-matrix-interpolation )
 
 ################################################################################
 
 list( APPEND utest-nodes_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf )
 list( APPEND utest-nodes_files  utest-nodes.cpp )
 
-coolfluid_add_unittest( utest-nodes )
+coolfluid_add_unit_test( utest-nodes )
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -222,14 +225,14 @@ add_custom_command(TARGET utest-nodes
 list( APPEND utest-mesh-fields_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
 list( APPEND utest-mesh-fields_files  utest-mesh-fields.cpp )
 
-coolfluid_add_unittest( utest-mesh-fields )
+coolfluid_add_unit_test( utest-mesh-fields )
 
 ################################################################################
 
 list( APPEND utest-volume-sf_cflibs coolfluid_mesh_sf coolfluid_mesh )
 list( APPEND utest-volume-sf_files  utest-volume-sf.cpp )
 
-coolfluid_add_unittest( utest-volume-sf )
+coolfluid_add_unit_test( utest-volume-sf )
 
 ################################################################################
 
@@ -237,10 +240,11 @@ list( APPEND utest-vector-benchmark_cflibs coolfluid_mesh_sf coolfluid_mesh_gene
 list( APPEND utest-vector-benchmark_files  utest-vector-benchmark.cpp )
 
 set( utest-vector-benchmark_profile ON )
+set( utest-vector-benchmark_performance_test TRUE )
 
 set( utest-vector-benchmark_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-coolfluid_add_unittest( utest-vector-benchmark )
+coolfluid_add_unit_test( utest-vector-benchmark )
 
 ################################################################################
 
@@ -251,8 +255,10 @@ list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )
 #list( APPEND utest-pt-scotch_includedirs ${PTSCOTCH_INCLUDE_DIR} )
 
 set( utest-pt-scotch_condition ${coolfluid_mesh_ptscotch_builds} )
+set( utest-pt-scotch_mpi_test TRUE )
+set( utest-pt-scotch_mpi_nprocs 3 )
 
-coolfluid_add_mpi_unittest( utest-pt-scotch 3)
+coolfluid_add_unit_test( utest-pt-scotch 3)
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -272,8 +278,10 @@ list( APPEND utest-zoltan_files  utest-zoltan.cpp )
 #list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
 
 set( utest-zoltan_condition ${coolfluid_mesh_zoltan_builds} )
+set( utest-zoltan_mpi_test TRUE )
+set( utest-zoltan_mpi_nprocs 2 )
 
-coolfluid_add_mpi_unittest( utest-zoltan 2)
+coolfluid_add_unit_test( utest-zoltan 2)
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -294,8 +302,10 @@ set( utest-blockmesh-mpi_args ${CF_MPI_TESTS_SIZE} )
 set( utest-blockmesh-mpi_scaling ON )
 
 set( utest-blockmesh-mpi_condition ${CF_TMP_HAVE_SIMPLECOMM})
+set( utest-blockmesh-mpi_mpi_test TRUE)
+set( utest-blockmesh-mpi_performance_test TRUE)
 
-coolfluid_add_mpi_unittest( utest-blockmesh-mpi ${CF_MPI_TESTS_NB_PROCS})
+coolfluid_add_unit_test( utest-blockmesh-mpi ${CF_MPI_TESTS_NB_PROCS})
 
 ################################################################################
 
@@ -307,15 +317,16 @@ set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
 set( utest-blockmesh-mpi-scale_scaling ON )
 
 set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
+set( utest-blockmesh-mpi-scale_mpi_test TRUE)
 
-coolfluid_add_mpi_unittest( utest-blockmesh-mpi-scale ${CF_MPI_TESTS_NB_PROCS} )
+coolfluid_add_unit_test( utest-blockmesh-mpi-scale )
 
 ##########################################################################
 # test load mesh wizard
 list( APPEND utest-loadmesh_cflibs coolfluid_solver )
 list( APPEND utest-loadmesh_files  utest-loadmesh.cpp )
 
-coolfluid_add_unittest( utest-loadmesh )
+coolfluid_add_unit_test( utest-loadmesh )
 
 add_custom_command(TARGET utest-loadmesh
                    POST_BUILD

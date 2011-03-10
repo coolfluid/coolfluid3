@@ -7,7 +7,7 @@ list( APPEND utest-actions_files
   CDummyLoopOperation.cpp
   utest-actions.cpp )
 
-coolfluid_add_unittest( utest-actions )
+coolfluid_add_unit_test( utest-actions )
 
 list( APPEND mesh_files  rotation-tg-p1.neu  rotation-qd-p1.neu  )
 foreach( mfile ${mesh_files} )
@@ -32,24 +32,24 @@ if(CF_ENABLE_PROTO)
 
   set( utest-proto-operators_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-  coolfluid_add_unittest( utest-proto-operators )
+  coolfluid_add_unit_test( utest-proto-operators )
 
   ################################################################################
 
   list( APPEND utest-proto-heat_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-heat_files
     utest-proto-heat.cpp )
-  coolfluid_add_unittest( utest-proto-heat )
+  coolfluid_add_unit_test( utest-proto-heat )
 
   list( APPEND utest-proto-unsteady_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-unsteady_files
     utest-proto-unsteady.cpp )
-  coolfluid_add_unittest( utest-proto-unsteady )
+  coolfluid_add_unit_test( utest-proto-unsteady )
 
   list( APPEND utest-proto-systems_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-systems_files
     utest-proto-systems.cpp )
-  coolfluid_add_unittest( utest-proto-systems )
+  coolfluid_add_unit_test( utest-proto-systems )
 
 else()
 

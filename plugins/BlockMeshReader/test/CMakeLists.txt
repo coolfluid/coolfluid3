@@ -7,7 +7,7 @@ list( APPEND utest-block-mesh-reader_args ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CF
 
 set( utest-block-mesh-reader_condition ${CF_TMP_HAVE_SIMPLECOMM} )
 
-coolfluid_add_unittest( utest-block-mesh-reader )
+coolfluid_add_unit_test( utest-block-mesh-reader )
 
 ################################################################################
 

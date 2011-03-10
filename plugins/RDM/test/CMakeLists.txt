@@ -3,7 +3,7 @@
 list( APPEND utest-rdm-linearadv2d_cflibs coolfluid_mesh_actions coolfluid_mesh_actions coolfluid_rdm  )
 list( APPEND utest-rdm-linearadv2d_files  utest-rdm-linearadv2d.cpp )
 
-coolfluid_add_unittest( utest-rdm-linearadv2d )
+coolfluid_add_unit_test( utest-rdm-linearadv2d )
 
 add_custom_command(TARGET utest-rdm-linearadv2d
                    POST_BUILD
@@ -16,7 +16,7 @@ add_custom_command(TARGET utest-rdm-linearadv2d
 list( APPEND utest-rdm-rotationadv2d_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm )
 list( APPEND utest-rdm-rotationadv2d_files  utest-rdm-rotationadv2d.cpp )
 
-coolfluid_add_unittest( utest-rdm-rotationadv2d )
+coolfluid_add_unit_test( utest-rdm-rotationadv2d )
 
 add_custom_command(TARGET utest-rdm-rotationadv2d
                  POST_BUILD
@@ -29,7 +29,7 @@ add_custom_command(TARGET utest-rdm-rotationadv2d
 list( APPEND utest-rdm-burgers2d_cflibs coolfluid_mesh_actions coolfluid_mesh_actions coolfluid_rdm  )
 list( APPEND utest-rdm-burgers2d_files  utest-rdm-burgers2d.cpp )
 
-coolfluid_add_unittest( utest-rdm-burgers2d )
+coolfluid_add_unit_test( utest-rdm-burgers2d )
 
 add_custom_command(TARGET utest-rdm-rotationadv2d
                  POST_BUILD
