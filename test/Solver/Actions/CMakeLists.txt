@@ -36,10 +36,14 @@ if(CF_ENABLE_PROTO)
 
   ################################################################################
 
+  set( utest-proto-heat_condition ${CF_HAVE_SUPERLU} )
+
   list( APPEND utest-proto-heat_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-heat_files
     utest-proto-heat.cpp )
   coolfluid_add_unit_test( utest-proto-heat )
+
+  set( utest-proto-unsteady_condition ${CF_HAVE_SUPERLU} )
 
   list( APPEND utest-proto-unsteady_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-unsteady_files
