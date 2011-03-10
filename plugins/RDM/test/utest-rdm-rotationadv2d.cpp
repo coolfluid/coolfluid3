@@ -140,7 +140,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_property("CFL", 1.);
-  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);
+  solver.get_child("time_stepping").configure_property("MaxIter", 100u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
