@@ -3,7 +3,7 @@
 
 #include "Sparse"
 
-#include "src/Core/util/DisableMSVCWarnings.h"
+#include "src/Core/util/DisableStupidWarnings.h"
 
 #include <vector>
 #include <map>
@@ -64,6 +64,6 @@ enum {
 
 } // namespace Eigen
 
-#include "src/Core/util/EnableMSVCWarnings.h"
+#include "src/Core/util/ReenableStupidWarnings.h"
 
 #endif // EIGEN_SPARSE_EXTRA_MODULE_H
