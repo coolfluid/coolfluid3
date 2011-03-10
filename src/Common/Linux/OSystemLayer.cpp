@@ -131,8 +131,11 @@ double OSystemLayer::memory_usage() const
         }
 #endif
 
-  return static_cast<double>(info.arena) +
-         static_cast<double>(info.hblkhd);
+  return
+      static_cast<double>(info.arena)    +
+      static_cast<double>(info.hblkhd)   +
+      static_cast<double>(info.uordblks) +
+      static_cast<double>(info.fordblks) ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
