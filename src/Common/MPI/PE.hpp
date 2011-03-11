@@ -156,6 +156,10 @@ public:
   {
            mpi::all_gather(m_comm, in_values, out_values, stride);
   }
+  template<typename T> inline void all_gather(const T& in_value, std::vector<T>& out_values)
+  {
+           mpi::all_gather(m_comm, in_value, out_values);           
+  }  
   template<typename T> inline T*   all_gather(const T* in_values, const int in_n, T* out_values, int *out_n, const int stride=1)
   {
     return mpi::all_gather(m_comm, in_values, in_n, out_values, out_n, stride);

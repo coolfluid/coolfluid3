@@ -138,12 +138,14 @@ void PropertyList::configure_property(const std::string& pname, const boost::any
   {
     std::string msg;
     msg += "Property with name ["+pname+"] not found. Available properties are:\n";
-    PropertyStorage_t::iterator it = store.begin();
-    for (; it!=store.end(); it++)
-      msg += "  - " + it->first + "\n";
+    if (store.size())
+    {
+      PropertyStorage_t::iterator it = store.begin();
+      for (; it!=store.end(); it++)
+        msg += "  - " + it->first + "\n";      
+    }
     throw ValueNotFound(FromHere(),msg);
   }
-  
   Property::Ptr prop = itr->second;
   
   // update the value and trigger its actions (if it is an option)

@@ -229,6 +229,31 @@ all_gather(const Communicator& comm, const std::vector<T>& in_values, std::vecto
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/**
+  Interface to the constant size all_gather communication with specialization to std::vector.
+  @param comm mpi::Communicator
+  @param in_values send buffer
+  @param out_values receive buffer
+  @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
+**/
+template<typename T>
+inline void
+all_gather(const Communicator& comm, const T& in_value, std::vector<T>& out_values)
+{
+  // get nproc, irank
+  int nproc;
+  MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
+
+  // set out_values's sizes
+  out_values.resize(nproc);
+  out_values.reserve(nproc);
+
+  // call c_impl
+  detail::all_gatherc_impl(comm, (T*)(&in_value), 1, (T*)(&out_values[0]), 1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 //needs a forward
 template<typename T>
 inline T*

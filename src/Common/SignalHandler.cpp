@@ -84,7 +84,7 @@ Signal::return_t SignalHandler::call_signal ( const Signal::id_t& sname, std::ve
       subtype=what[5];
       value=what[6];
 
-//      CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
+      //CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
 
       if      (type == "bool")
         options.set_option<bool>(name,from_str<bool>(value));
