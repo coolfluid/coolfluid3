@@ -102,4 +102,29 @@ static const char *zoom_xpm[]={
 "...#aaaaaaaaaaaaaaaaaaaaaa#.####",
 "...########################..##."};
 
+
+//represent data icone
+static const char * data_xpm[] = {
+"16 16 3 1",
+"       c None",
+".      c #000000000000",
+"X      c #FFFFFFFFFFFF",
+"                ",
+"   ......       ",
+"   .XXX.X.      ",
+"   .XXX.XX.     ",
+"   .XXX.XXX.    ",
+"   .XXX.....    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .XXXXXXX.    ",
+"   .........    ",
+"                ",
+"                "};
+
+
 #endif // CF_GUI_Client_UI_PixMaps_hpp

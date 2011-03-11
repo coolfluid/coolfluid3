@@ -57,11 +57,12 @@ public: //functions
     /// @param formula Formula of the function.
     void add_data(std::vector<double> & fct, QString fct_label ,QString formula = "");
 
-
 private: //functions
 
     /// Same that the slot.
     void  generate_function(QString name,QString fct);
+
+
 
 private: //datas
 
@@ -86,6 +87,9 @@ private: //datas
   /// Data table.
   QTableWidget * m_data_table;
 
+  /// choose fonction table
+  QTableWidget * m_choose_table;
+
   /// Generate function button.
   QPushButton * button_generate_function;
 
@@ -94,6 +98,11 @@ private: //datas
 
   /// Define if we can or not draw curves
   bool m_can_draw;
+
+public slots:  //functions - slots
+
+  /// Show popup to choose whitch function to save
+  void save_functions();
 
 private slots: //functions - slots
 
@@ -130,6 +139,9 @@ private slots: //functions - slots
 
     /// Select all raw of line table.
     void select_all_line_table();
+
+    /// Save choosed function into txt file
+    void save_functions_to_file();
 
 };
 

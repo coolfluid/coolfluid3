@@ -15,6 +15,7 @@
 #include <QPushButton>
 #include <QDoubleValidator>
 #include <QGroupBox>
+#include <QFileIconProvider>
 
 // Qwt headers
 #include "qwt/qwt_picker.h"
@@ -112,11 +113,20 @@ namespace ClientUI {
 
 
 
-    //create a SVG sae button
+    //create a SVG save button
     QToolButton * btn_svg = new QToolButton(tool_bar);
     btn_svg->setText("SVG");
     btn_svg->setIcon(QIcon(print_xpm));
     btn_svg->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+
+
+    //create a text save button
+    QToolButton * btn_txt = new QToolButton(tool_bar);
+    btn_txt->setText("TXT");
+    QFileIconProvider txt_icone;
+    btn_txt->setIcon(txt_icone.icon(QFileIconProvider::File));
+    btn_txt->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+
 
     //creating label to display information
     m_label_bottom = new QLabel(this);
@@ -172,6 +182,7 @@ namespace ClientUI {
     //adding buttons to the toolbar
     tool_bar->addWidget(btn_zoom);
     tool_bar->addWidget(btn_svg);
+    tool_bar->addWidget(btn_txt);
 
     //set the mouse to not be used for zoom
     enable_zoom_mode(false);
@@ -183,7 +194,6 @@ namespace ClientUI {
     layout_h->addWidget(tool_bar);
     layout_h2->addWidget(m_plot);
     layout_h3->addWidget(m_label_bottom);
-
 
     m_label_min_x = new QLabel("x min");
     m_label_max_x = new QLabel("x max");
@@ -215,6 +225,7 @@ namespace ClientUI {
 
     ////Conncetion phase
     connect(btn_svg, SIGNAL(clicked()), SLOT(export_svg()));
+    connect(btn_txt, SIGNAL(clicked()),graph_option, SLOT(save_functions()));
     connect(btn_zoom, SIGNAL(toggled(bool)), SLOT(enable_zoom_mode(bool)));
     connect(m_picker, SIGNAL(moved(const QPoint &)),
             SLOT(moved(const QPoint &)));
@@ -258,6 +269,7 @@ namespace ClientUI {
       m_plot->print(generator);
     }
   }
+
 
   void Graph::enable_zoom_mode(bool on)
   {

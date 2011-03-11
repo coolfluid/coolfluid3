@@ -6,10 +6,12 @@
 
 // Qt headers
 #include <QCheckBox>
-#include <QMessageBox>
-#include <QVBoxLayout>
+#include <QBoxLayout>
 #include <QPushButton>
 #include <QLineEdit>
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
 
 // Qwt headers
 #include "qwt/qwt_plot_curve.h"
@@ -83,7 +85,7 @@ namespace CF {
                 m_line_table->setSelectionBehavior(QAbstractItemView::SelectRows);
                 m_data_table->setSelectionMode(QAbstractItemView::NoSelection);
 
-                button_draw = new QPushButton("Draw function(s) and set AutoScale");
+                button_draw = new QPushButton("Set AutoScale");
 
                 m_line_function_name = new QLineEdit();
                 m_line_function_name->setFixedWidth(200);
@@ -190,12 +192,12 @@ namespace CF {
                 //force draw autorisation
                 m_can_draw = true;
 
-                //draw
-                draw_action();
-
                 //reinitialise the axis
                 m_ptr_plot->setAxisAutoScale(QwtPlot::xBottom);
                 m_ptr_plot->setAxisAutoScale(QwtPlot::yLeft);
+
+                //draw
+                draw_action();
 
             }
 
@@ -225,8 +227,6 @@ namespace CF {
                 m_data_table->setRowCount(fcts_label.size());
 
                 //adding row for eatch data
-                //m_data_table->setRowCount(m_data_table->rowCount() + fcts_label.size());
-
                 for(int i = 0; i < m_data_table->rowCount(); ++i )
                 {
                     m_data_table->setCellWidget(i,0,new QLabel(fcts_label[i]));
@@ -547,6 +547,115 @@ namespace CF {
 
             void GraphOption::select_all_line_table(){
                 m_line_table->selectAll();
+            }
+
+            void GraphOption::save_functions(){
+
+                //the popup dialog box
+                QDialog* popup1 = new QDialog(this);
+
+                //the table where we check desired function
+                m_choose_table = new QTableWidget(0,2,0);
+
+                //labels of the choose_table's columns
+                QStringList choose_table_labels;
+                choose_table_labels.push_back(QString(""));
+                choose_table_labels.push_back(QString("function name"));
+
+                //seting the columns labels to the table
+                m_choose_table->setHorizontalHeaderLabels(choose_table_labels);
+
+                //set numbrer of rows
+                m_choose_table->setRowCount(m_data_table->rowCount());
+
+                //adding row for eatch data
+                for(int i = 0; i < m_choose_table->rowCount(); ++i )
+                {
+                    m_choose_table->setCellWidget(i,0,new QCheckBox());
+                    m_choose_table->setCellWidget(i,1,new QLabel(((QLabel *)m_data_table->cellWidget(i,0))->text()));
+                }
+
+                //adding Done and Save button
+                QPushButton * btn_save = new QPushButton("SAVE", popup1);
+                QPushButton * btn_done = new QPushButton("DONE", popup1);
+
+                //connect them to their actions
+                connect(btn_done, SIGNAL(released()),popup1,SLOT(close()));
+                connect(btn_save, SIGNAL(released()),this,SLOT(save_functions_to_file()));
+
+                //the 2 layout of the popup for nice look & feel
+                QVBoxLayout * vertical_popup_layout = new QVBoxLayout();
+                QHBoxLayout * horisontal_popup_layout = new QHBoxLayout();
+                popup1->setLayout(vertical_popup_layout);
+                vertical_popup_layout->addWidget(m_choose_table);
+                vertical_popup_layout->addLayout(horisontal_popup_layout);
+                horisontal_popup_layout->addWidget(btn_save);
+                horisontal_popup_layout->addWidget(btn_done);
+
+                popup1->resize(260,220);
+                popup1->setModal(true);
+                popup1->show();
+
+                return;
+            }
+
+
+            void GraphOption::save_functions_to_file(){
+
+                //generate txt table to save in file
+                /***********************************************************/
+                QString output;
+
+                for(int i=0;i<m_data_table->rowCount();++i)
+                {
+                    if(((QCheckBox *)m_choose_table->cellWidget(i,0))->isChecked()){
+                        output += "\"";
+                        output += ((QLabel *)m_data_table->cellWidget(i,0))->text();
+                        output += "\" ";
+                    }
+                }
+
+                output += "\n";
+
+                for(int i=0;i<m_fcts->size();++i){
+                    for(int j=0;j<m_data_table->rowCount();++j){
+                        if(((QCheckBox *)m_choose_table->cellWidget(j,0))->isChecked()){
+                            output += "\"";
+                            output += QString::number((*m_fcts)[i][j]);
+                            output += "\" ";
+                        }
+                    }
+                    output += "\n";
+                }
+                /***********************************************************/
+
+                //Save into the file
+                /***********************************************************/
+                //default file name
+                QString file_name = "out.txt";
+
+                //getting the file name and path for saving file
+                file_name = QFileDialog::getSaveFileName(
+                    this, "Export File Name", QString(),
+                    "txt Documents (*.txt)");
+
+                if ( !file_name.isEmpty() )
+                {
+
+                QFile file(file_name);
+
+                if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    ClientCore::NLog::globalLog()->addError("Unable to open file.");
+                    return;
+                  }
+
+                QTextStream out(&file);
+                out << output;
+                file.close();
+
+                ClientCore::NLog::globalLog()->addMessage("Data saved ...");
+                /***********************************************************/
+              }
             }
 
             ////////////////////////////////////////////////////////////////////////////////
