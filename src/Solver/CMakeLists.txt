@@ -9,8 +9,6 @@ list( APPEND coolfluid_solver_files
   CModelUnsteady.cpp
   CPhysicalModel.cpp
   CPhysicalModel.hpp
-  CDiscretization.hpp
-  CDiscretization.cpp
   CEigenLSS.cpp
   CEigenLSS.hpp
   CSolver.hpp

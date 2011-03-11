@@ -27,7 +27,6 @@
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CSolver.hpp"
-#include "Solver/CDiscretization.hpp"
 #include "Solver/Actions/CForAllElements.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoop.hpp"

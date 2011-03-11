@@ -14,7 +14,6 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CDomain.hpp"
 
-#include "Solver/CDiscretization.hpp"
 #include "Solver/CEigenLSS.hpp"
 #include "Solver/CSolver.hpp"
 #include "Solver/CModelSteady.hpp"

@@ -16,7 +16,6 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "Solver/CDiscretization.hpp"
 #include "Solver/CSolver.hpp"
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"

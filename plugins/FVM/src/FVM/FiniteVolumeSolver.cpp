@@ -26,7 +26,6 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/Actions/CInitFieldConstant.hpp"
 
-#include "Solver/CDiscretization.hpp"
 #include "Solver/CSolver.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoop.hpp"
