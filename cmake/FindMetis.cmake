@@ -8,7 +8,6 @@
 #
 
 option( CF_SKIP_METIS "Skip search for Metis library" OFF )
-if( NOT CF_SKIP_METIS )
 
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path
@@ -25,28 +24,4 @@ if( NOT CF_SKIP_METIS )
   find_library(METIS_LIBRARIES metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(METIS_LIBRARIES metis )
 
-  if(METIS_INCLUDE_DIR AND METIS_LIBRARIES)
-    set(CF_HAVE_METIS 1 CACHE BOOL "Found metis library")
-  else()
-    set(CF_HAVE_METIS 0 CACHE BOOL "Not fount metis library")
-  endif()
-
-else()
-    set(CF_HAVE_METIS 0 CACHE BOOL "Skipped METIS library")
-endif()
-
-mark_as_advanced(
-  METIS_INCLUDE_DIR
-  METIS_LIBRARIES
-  CF_HAVE_METIS
-)
-
-if ( ${CF_HAVE_METIS} )
-    list( APPEND CF_DEPS_LIBRARIES ${METIS_LIBRARIES} )
-endif()
-
-coolfluid_log( "CF_HAVE_METIS: [${CF_HAVE_METIS}]" )
-if(CF_HAVE_METIS)
-  coolfluid_log_file( "  METIS_INCLUDE_DIR: [${METIS_INCLUDE_DIR}]" )
-  coolfluid_log_file( "  METIS_LIBRARIES: [${METIS_LIBRARIES}]" )
-endif()
+coolfluid_log_deps_result( METIS METIS_INCLUDE_DIR METIS_LIBRARIES )

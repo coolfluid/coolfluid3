@@ -5,8 +5,6 @@
 
 option( CF_SKIP_CURL "Skip search for Curl library" OFF )
 
-if( NOT CF_SKIP_CURL )
-
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path
 
@@ -21,22 +19,4 @@ if( NOT CF_SKIP_CURL )
   find_library(CURL_LIBRARIES curl ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(CURL_LIBRARIES curl )
 
-  if(CURL_INCLUDE_DIR AND CURL_LIBRARIES)
-    set(CF_HAVE_CURL 1 CACHE BOOL "Found curl library")
-    list( APPEND CF_DEPS_LIBRARIES ${CURL_LIBRARIES} )
-  else()
-    set(CF_HAVE_CURL 0 CACHE BOOL "Not fount curl library")
-  endif()
-
-  mark_as_advanced( CURL_INCLUDE_DIR CURL_LIBRARIES CF_HAVE_CURL )
-
-  coolfluid_log( "CF_HAVE_CURL: [${CF_HAVE_CURL}]" )
-  if(CF_HAVE_CURL)
-    coolfluid_log( "  CURL_INCLUDE_DIR:  [${CURL_INCLUDE_DIR}]" )
-    coolfluid_log( "  CURL_LIBRARIES:      [${CURL_LIBRARIES}]" )
-  endif(CF_HAVE_CURL)
-
-else()
-    coolfluid_log( "CF_HAVE_CURL: - searched skipped" )
-    set(CF_HAVE_CURL 0 CACHE BOOL "Skipped Curl library")
-endif()
+coolfluid_log_deps_result( CURL CURL_INCLUDE_DIR CURL_LIBRARIES )

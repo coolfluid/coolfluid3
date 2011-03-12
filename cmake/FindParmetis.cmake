@@ -9,9 +9,6 @@
 
 option( CF_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
 
-# dont search for parmetis without MPI
-if( NOT CF_SKIP_PARMETIS OR NOT CF_HAVE_MPI )
-
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path
 
@@ -30,32 +27,10 @@ if( NOT CF_SKIP_PARMETIS OR NOT CF_HAVE_MPI )
   find_library(PARMETIS_LIB_METIS metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(PARMETIS_LIB_METIS metis )
 
-  set( PARMETIS_LIBRARIES ${PARMETIS_LIB_PARMETIS} ${PARMETIS_LIB_METIS} )
-
-  if(PARMETIS_INCLUDE_DIR AND PARMETIS_LIBRARIES)
-    set(CF_HAVE_PARMETIS 1)
+  if( PARMETIS_LIB_PARMETIS AND PARMETIS_LIB_METIS )
+    set( PARMETIS_LIBRARIES ${PARMETIS_LIB_METIS} ${PARMETIS_LIB_PARMETIS} )
   else()
-    set(CF_HAVE_PARMETIS 0)
+    set( PARMETIS_LIBRARIES NOT-FOUND )
   endif()
 
-else()
-    set(CF_HAVE_PARMETIS 0)
-endif()
-
-mark_as_advanced(
-  PARMETIS_INCLUDE_DIR
-  PARMETIS_LIB_PARMETIS
-  PARMETIS_LIB_METIS
-  PARMETIS_LIBRARIES
-  CF_HAVE_PARMETIS
-)
-
-if ( ${CF_HAVE_PARMETIS} )
-    list( APPEND CF_DEPS_LIBRARIES ${PARMETIS_LIBRARIES} )
-endif()
-
-coolfluid_log( "CF_HAVE_PARMETIS: [${CF_HAVE_PARMETIS}]" )
-if(CF_HAVE_PARMETIS)
-  coolfluid_log( "  PARMETIS_INCLUDE_DIR: [${PARMETIS_INCLUDE_DIR}]" )
-  coolfluid_log( "  PARMETIS_LIBRARIES:   [${PARMETIS_LIBRARIES}]" )
-endif(CF_HAVE_PARMETIS)
+coolfluid_log_deps_result( PARMETIS PARMETIS_INCLUDE_DIR PARMETIS_LIBRARIES PARMETIS_LIB_METIS PARMETIS_LIB_PARMETIS )

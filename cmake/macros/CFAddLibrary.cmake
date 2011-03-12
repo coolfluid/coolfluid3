@@ -57,7 +57,7 @@ macro( coolfluid_add_library LIBNAME )
   # compile if selected and all required modules are present
   if( ${LIBNAME}_builds )
 
-    coolfluid_log( " +++ LIB   [${LIBNAME}]" )
+    coolfluid_log_file( " +++ LIB   [${LIBNAME}]" )
 
     # add include dirs if defined
     if( DEFINED ${LIBNAME}_includedirs )

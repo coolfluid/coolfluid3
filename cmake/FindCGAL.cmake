@@ -9,8 +9,6 @@
 
 option( CF_SKIP_CGAL "Skip search for CGAL library" OFF )
 
-if( NOT CF_SKIP_CGAL )
-
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path
 
@@ -26,28 +24,4 @@ if( NOT CF_SKIP_CGAL )
   find_library(CGAL_LIBRARIES CGAL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(CGAL_LIBRARIES CGAL )
 
-  if(CGAL_INCLUDE_DIR AND CGAL_LIBRARIES)
-    set(CF_HAVE_CGAL 1)
-  endif()
-
-endif()
-
-if( NOT DEFINED CF_HAVE_CGAL )
-    set(CF_HAVE_CGAL 0)
-endif()
-
-mark_as_advanced(
-  CGAL_INCLUDE_DIR
-  CGAL_LIBRARIES
-  CF_HAVE_CGAL
-)
-
-if ( ${CF_HAVE_CGAL} )
-    list( APPEND CF_DEPS_LIBRARIES ${CGAL_LIBRARIES} )
-endif()
-
-coolfluid_log( "CF_HAVE_CGAL: [${CF_HAVE_CGAL}]" )
-if(CF_HAVE_CGAL)
-  coolfluid_log( "  CGAL_INCLUDE_DIR: [${CGAL_INCLUDE_DIR}]" )
-  coolfluid_log( "  CGAL_LIBRARIES:   [${CGAL_LIBRARIES}]" )
-endif(CF_HAVE_CGAL)
+coolfluid_log_deps_result( CGAL CGAL_INCLUDE_DIR CGAL_LIBRARIES )

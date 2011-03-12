@@ -57,7 +57,7 @@ macro( coolfluid_add_application APPNAME )
   # compile if selected and all required modules are present
   if(${APPNAME}_builds )
 
-    coolfluid_log( " +++ APP   [${APPNAME}]" )
+    coolfluid_log_file( " +++ APP   [${APPNAME}]" )
 
     if( DEFINED ${APPNAME}_includedirs )
       include_directories(${${APPNAME}_includedirs})

@@ -56,7 +56,7 @@ macro( coolfluid_prepare_test UTESTNAME )
   # compile if selected and all required modules are present
   if( ${UTESTNAME}_builds )
 
-    coolfluid_log( " +++ UTEST [${UTESTNAME}]" )
+    coolfluid_log_file( " +++ UTEST [${UTESTNAME}]" )
 
     if( DEFINED ${UTESTNAME}_includedirs )
       include_directories(${${UTESTNAME}_includedirs})

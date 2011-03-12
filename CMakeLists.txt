@@ -103,11 +103,10 @@ include( DetectSoftware )         # find sofwtare dependencies
 
 include( CheckSourceRevision )        # check for subversion support
 
-coolfluid_log( "" )
 ##############################################################################
-coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-coolfluid_log( "Kernel Configuration ")
-coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log_file( "Kernel Configuration ")
+coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
 
 # dir includes
@@ -136,11 +135,10 @@ if( CF_ENABLE_SANDBOX )
   add_subdirectory( sandbox EXCLUDE_FROM_ALL )
 endif()
 
-coolfluid_log( "" )
 ##############################################################################
-coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-coolfluid_log( "Plugin's Configuration ")
-coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log_file( "Plugin's Configuration ")
+coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
 
 # add dir with kernel plugins
@@ -153,10 +151,9 @@ foreach( EXDIR ${CF_PLUGIN_DIRS} )
 
   include_directories( ${EXDIR} )
 
-  coolfluid_log( "" )
-  coolfluid_log( "---------------------------------------------------------" )
-  coolfluid_log( "PLUGINS DIR [${EXDIR}]")
-  coolfluid_log( "---------------------------------------------------------" )
+  coolfluid_log_file( "---------------------------------------------------------" )
+  coolfluid_log_file( "PLUGINS DIR [${EXDIR}]")
+  coolfluid_log_file( "---------------------------------------------------------" )
 
   # find modules in each search dir
   file( GLOB  FOUND_PLUGIN_DIRS "${EXDIR}/*/CMakeLists.txt")
@@ -238,9 +235,9 @@ if(CF_ENABLE_PROFILING)
 endif()
 coolfluid_log( " Explicit Templates    : [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]")
 coolfluid_log( "---------------------------------------------------------" )
-coolfluid_log( " Kernel libs           : [${CF_KERNEL_LIBS}]")
-coolfluid_log( " List Plugins          : [${CF_PLUGIN_LIST}]")
-# coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+#coolfluid_log( " Kernel libs           : [${CF_KERNEL_LIBS}]")
+#coolfluid_log( " List Plugins          : [${CF_PLUGIN_LIST}]")
+#coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 coolfluid_log( "")
 
 ##############################################################################

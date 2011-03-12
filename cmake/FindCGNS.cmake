@@ -11,8 +11,6 @@
 
 option( CF_SKIP_CGNS "Skip search for CGNS library" OFF )
 
-if( NOT CF_SKIP_CGNS )
-
     coolfluid_set_trial_include_path("") # clear include search path
     coolfluid_set_trial_library_path("") # clear library search path
 
@@ -35,32 +33,4 @@ if( NOT CF_SKIP_CGNS )
         set( CGNS_LIBRARIES ${CGNS_LIBRARIES} ${HDF5_LIBRARIES} )
     endif()
 
-    if(CGNS_INCLUDE_DIR AND CGNS_LIBRARIES)
-      set(CF_HAVE_CGNS 1)
-    else()
-      set(CF_HAVE_CGNS 0)
-    endif()
-
-else()
-    set(CF_HAVE_CGNS 0 CACHE BOOL "Skipped CGNS library")
-endif()
-
-mark_as_advanced(
-  CGNS_INCLUDE_DIR
-  CGNS_LIBRARIES
-  CF_HAVE_CGNS
-)
-
-if( ${CF_HAVE_CGNS} )
-    list( APPEND CF_DEPS_LIBRARIES ${CGNS_LIBRARIES} )
-endif()
-
-
-coolfluid_log( "CF_HAVE_CGNS: [${CF_HAVE_CGNS}]" )
-if(CF_HAVE_CGNS)
-   coolfluid_log( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
-   coolfluid_log( "  CGNS_LIBRARIES:     [${CGNS_LIBRARIES}]" )
-else()
-   coolfluid_log_file( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
-   coolfluid_log_file( "  CGNS_LIBRARIES:     [${CGNS_LIBRARIES}]" )
-endif()
+coolfluid_log_deps_result( CGNS CGNS_INCLUDE_DIR CGNS_LIBRARIES )
