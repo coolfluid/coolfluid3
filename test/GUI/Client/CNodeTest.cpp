@@ -7,7 +7,7 @@
 #include <QtCore>
 #include <QtTest>
 
-#include "rapidxml/rapidxml.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CNode.hpp"
