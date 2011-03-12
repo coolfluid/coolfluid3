@@ -16,6 +16,7 @@
 #include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/XmlDoc.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;

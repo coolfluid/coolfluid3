@@ -359,7 +359,7 @@ void ServerNetworkComm::newData()
 
       m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
 
-      XmlDoc::Ptr xmldoc = XmlDoc::parse_string( frame.toStdString() );
+      XmlDoc::Ptr xmldoc = XML::parse_string( frame.toStdString() );
 
       XmlNode nodedoc = Protocol::goto_doc_node(*xmldoc.get());
       SignalFrame * sig_frame = new SignalFrame( nodedoc.content->first_node() );

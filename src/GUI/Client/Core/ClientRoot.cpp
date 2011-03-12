@@ -8,6 +8,7 @@
 #include <string>
 #include <cstring>
 
+#include "Common/XML/FileOperations.hpp"
 
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NLog.hpp"
@@ -74,7 +75,7 @@ ClientRoot::ClientRoot() :
 
 void ClientRoot::processSignalString(const QString & signal)
 {
-  XmlDoc::Ptr xmldoc = XmlDoc::parse_string( signal.toStdString() );
+  XmlDoc::Ptr xmldoc = XML::parse_string( signal.toStdString() );
 
   ProcessingThread * pt = new ProcessingThread(xmldoc);
 

@@ -100,7 +100,7 @@ void CNodeTest::test_setOptions()
 {
   MyNode node("Node");
 
-  XmlDoc::Ptr wrongOpt = XmlDoc::parse_string("<node><map>"
+  XmlDoc::Ptr wrongOpt = XML::parse_string("<node><map>"
       "<value key=\"properties\">"
       " <map>"
       " 	<value key=\"pi\" descr=\"Pi value\" is_option=\"true\">"
@@ -113,7 +113,7 @@ void CNodeTest::test_setOptions()
       "</value>"
       "</map></node>");
 
-  XmlDoc::Ptr correctOpt = XmlDoc::parse_string("<node><map>"
+  XmlDoc::Ptr correctOpt = XML::parse_string("<node><map>"
       "<value key=\"properties\">"
       " <map>"
       " 	<value key=\"pi\" descr=\"Pi value\" is_option=\"true\">"
@@ -140,7 +140,7 @@ void CNodeTest::test_getOptions()
 
   QList<Option::ConstPtr> nodeOptList;
 
-  XmlDoc::Ptr options = XmlDoc::parse_string("<node><map>"
+  XmlDoc::Ptr options = XML::parse_string("<node><map>"
       "<value key=\"properties\">"
       " <map>"
       " 	<value key=\"pi\" descr=\"Pi value\" is_option=\"true\">"

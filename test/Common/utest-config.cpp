@@ -27,6 +27,7 @@
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/XmlDoc.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 #include "test/Common/DummyComponents.hpp"
 

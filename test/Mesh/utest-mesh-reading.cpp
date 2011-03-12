@@ -18,6 +18,7 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
