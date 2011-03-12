@@ -15,6 +15,8 @@
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/OSystem.hpp"
+#include "Common/OSystemLayer.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshReader.hpp"
@@ -92,6 +94,8 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
+
+  Common::OSystem::instance().layer()->regist_os_signal_handlers();
 
   //p.configure_property("Number of Partitions", (Uint) 4);
   p.configure_property("graph_package", std::string("PHG"));

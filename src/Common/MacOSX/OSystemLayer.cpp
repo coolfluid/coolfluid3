@@ -219,10 +219,8 @@ void OSystemLayer::regist_os_signal_handlers()
 
 int OSystemLayer::handleSIGFPE (int signal)
 {
-  printf("\nreceived signal SIGFPE [%d] - 'Floating Point Exception'\n",signal);
-  static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
-  printf( "%s\n", dump.c_str() );
   throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
+  return SIGFPE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +230,7 @@ int OSystemLayer::handleSIGSEGV(int signal)
   printf("\nreceived signal SIGSEGV [%d] - 'Segmentation violation'\n",signal);
   static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
   printf( "%s\n", dump.c_str() );
-  abort();
+  return SIGSEGV;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -240,9 +238,9 @@ int OSystemLayer::handleSIGSEGV(int signal)
 int OSystemLayer::handleSIGABRT(int signal)
 {
   printf("\nreceived signal SIGABRT [%d] - 'abort'\n",signal);
-  static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
-  printf( "%s\n", dump.c_str() );
-  abort();
+  //static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
+  //printf( "%s\n", dump.c_str() );
+  return SIGABRT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
