@@ -35,6 +35,9 @@ Logger::Logger()
   m_streams[WARN]  = new LogStream("Warning");
   m_streams[DEBUG] = new LogStream("Debug");
   m_streams[TRACE] = new LogStream("Trace");
+  
+  m_streams[ERROR]->setFilterRankZero(false);
+  
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
