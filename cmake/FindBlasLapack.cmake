@@ -34,8 +34,8 @@ if( NOT LAPACK_LIBRARIES )
 
   coolfluid_log( "CF_HAVE_BLAS: [${CF_HAVE_BLAS}]" )
   if(CF_HAVE_BLAS)
-     coolfluid_log( "  BLAS_LIBRARIES:     [${BLAS_LIBRARIES}]" )
-  endif(CF_HAVE_BLAS)
+     coolfluid_log_file( "  BLAS_LIBRARIES:     [${BLAS_LIBRARIES}]" )
+  endif()
 
 # LAPACK #########################
 
@@ -69,8 +69,8 @@ if( NOT LAPACK_LIBRARIES )
 
   coolfluid_log( "CF_HAVE_LAPACK: [${CF_HAVE_LAPACK}]" )
   if(CF_HAVE_LAPACK)
-    coolfluid_log( "  LAPACK_LIBRARIES:   [${LAPACK_LIBRARIES}]" )
-  endif(CF_HAVE_LAPACK)
+    coolfluid_log_file( "  LAPACK_LIBRARIES:   [${LAPACK_LIBRARIES}]" )
+  endif()
 
 # BOTH ###########################
 
@@ -101,7 +101,7 @@ else()
   mark_as_advanced( BLASLAPACK_LIBRARIES LAPACK_LIBRARIES )
 
   coolfluid_log( "CF_HAVE_BLASLAPACK: [${CF_HAVE_BLASLAPACK}]" )
-  coolfluid_log( "  BLASLAPACK_LIBRARIES: [${BLASLAPACK_LIBRARIES}]" )
+  coolfluid_log_file( "  BLASLAPACK_LIBRARIES: [${BLASLAPACK_LIBRARIES}]" )
 
 endif()
 
