@@ -159,7 +159,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   {
     if (!node_is_ghost[i])
     {
-      //CFinfo << "owning node " << glb_idx << " --> " << from_node_glb(glb_idx) << CFendl;
+      //std::cout << mpi::PE::instance().rank() << " --   owning node " << node_glb_idx[i] << std::endl;
       ++m_nb_owned_obj;
     }
   }

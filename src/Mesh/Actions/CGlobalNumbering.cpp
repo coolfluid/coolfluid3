@@ -91,9 +91,9 @@ void CGlobalNumbering::execute()
   glb_node_hash.data().resize(coordinates.size());
   Uint i(0);
   boost_foreach(CTable<Real>::ConstRow coords, coordinates.array() )
-  {
+  {    
     glb_node_hash.data()[i]=hash_value(to_vector(coords));
-    //CFinfo << "glb_node_hash["<<i<<"] = " << glb_node_hash.data()[i] << CFendl;
+    //std::cout << "["<<mpi::PE::instance().rank() << "]  hashing node ("<< to_vector(coords).transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
     ++i;
   }
   
@@ -188,11 +188,11 @@ void CGlobalNumbering::execute()
         {
           Uint rcv_idx(0);
           boost_foreach(const std::size_t node_hash, rcv_node_from)
-          {
+          {            
             node_glb2loc_it = node_glb2loc.find(node_hash);
             if ( node_glb2loc_it != hash_not_found )
             {
-              //std::cout << "["<<mpi::PE::instance().rank() << "] will change node "<< node_glb2loc[node_from_id] << " (" << node_from_id << ") to " << rcv_node_to[rcv_idx] << std::endl;
+              //std::cout << "["<<mpi::PE::instance().rank() << "] will change node "<< node_glb2loc_it->first << " (" << node_glb2loc_it->second << ") to " << rcv_node_to[rcv_idx] << std::endl;
               nodes_glb_idx[node_glb2loc_it->second]=rcv_node_to[rcv_idx];
             }
             ++rcv_idx;
@@ -228,9 +228,8 @@ void CGlobalNumbering::execute()
 std::size_t CGlobalNumbering::hash_value(const RealVector& coords)
 {
   std::size_t seed=0;
-  // cast to float to round off numerical error leading to different hash values
   for (Uint i=0; i<coords.size(); ++i)
-    boost::hash_combine(seed,static_cast<float>(coords[i]));
+    boost::hash_combine(seed,coords[i]);
   return seed;
 }
 
@@ -239,10 +238,9 @@ std::size_t CGlobalNumbering::hash_value(const RealVector& coords)
 std::size_t CGlobalNumbering::hash_value(const RealMatrix& coords)
 {
   std::size_t seed=0;
-  // cast to float to round off numerical error leading to different hash values
   for (Uint i=0; i<coords.rows(); ++i)
   for (Uint j=0; j<coords.cols(); ++j)
-    boost::hash_combine(seed,static_cast<float>(coords(i,j)));
+    boost::hash_combine(seed,coords(i,j));
   return seed;
 }
 
