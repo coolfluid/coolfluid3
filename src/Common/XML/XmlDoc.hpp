@@ -78,11 +78,6 @@ public:
   /// if no encoding was set.
   std::string encoding() const;
 
-  /// Parses a XML string
-  /// @param str String with the XML contents
-  /// @return Returns a shared pointer with the built XML document.
-  static Ptr parse_string ( const std::string& str );
-
 }; // XmlDoc
 
 ////////////////////////////////////////////////////////////////////////////
