@@ -16,34 +16,43 @@
 namespace CF {
 namespace Common {
 
+struct LibRegistInfo;
+
 /////////////////////////////////////////////////////////////////////////////////
 
-  /// @brief Component class for a library
-  /// @author Quentin Gasper
-  class Common_API CLibrary : public Component
-  {
-  public:
+/// @brief Component class for a library
+/// @author Quentin Gasper
+class Common_API CLibrary : public Component {
 
-    typedef boost::shared_ptr<CLibrary> Ptr;
-    typedef boost::shared_ptr<CLibrary const> ConstPtr;
+public:
 
-    /// Contructor
-    /// @param name of Library
-    CLibrary( const std::string& name);
+  typedef boost::shared_ptr<CLibrary> Ptr;
+  typedef boost::shared_ptr<CLibrary const> ConstPtr;
 
-    /// Virtual destructor.
-    virtual ~CLibrary();
+  /// Contructor
+  /// @param name of Library
+  CLibrary( const std::string& name);
 
-    /// Get the class name
-    static std::string type_name() { return "CLibrary"; }
+  /// Virtual destructor.
+  virtual ~CLibrary();
 
-    /// initiate library
-    virtual void initiate() = 0;
+  /// Get the class name
+  static std::string type_name() { return "CLibrary"; }
 
-    /// terminate library
-    virtual void terminate() = 0;
+  /// initiate library
+  virtual void initiate() = 0;
 
-  }; // CLibrary
+  /// terminate library
+  virtual void terminate() = 0;
+
+  /// @returns a string with the kernel version which compiled this library
+  std::string lib_kversion();
+
+  /// @returns a string with this library version
+  /// Equal to kernel version for liraries distributed with kernel
+  virtual std::string lib_version();
+
+}; // CLibrary
 
 /////////////////////////////////////////////////////////////////////////////////
 

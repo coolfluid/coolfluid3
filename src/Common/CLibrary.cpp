@@ -25,6 +25,16 @@ CLibrary::~CLibrary()
 {
 }
 
+std::string CLibrary::lib_kversion()
+{
+  return CF_KERNEL_VERSION_STR;
+}
+
+std::string CLibrary::lib_version()
+{
+  return CF_KERNEL_VERSION_STR; // by default return the kernel version
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Common
