@@ -25,7 +25,7 @@ public: // typedefs
 
   /// output matrix types
   typedef Eigen::Matrix<Real, QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> SFMatrixT;
-  typedef Eigen::Matrix<Real, SHAPEFUNC::nb_nodes, PHYSICS::nbeqs()> SolutionMatrixT;
+  typedef Eigen::Matrix<Real, SHAPEFUNC::nb_nodes, PHYSICS::nb_eqs> SolutionMatrixT;
 
 public: // functions
   /// Contructor
@@ -61,7 +61,7 @@ protected: // data
   typename SHAPEFUNC::ShapeFunctionsT m_sf_ref;   //Values of shape functions in reference space
 
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_qdpt_phys; //coordinates of quadrature points in physical space
-  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nbeqs() > m_u_phys; //solution at quadrature points in physical space
+  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs > m_u_phys; //solution at quadrature points in physical space
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_u_grad_phys; //derivatives of solution
 
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dx; //Stores dx/dksi and dx/deta at each quadrature point

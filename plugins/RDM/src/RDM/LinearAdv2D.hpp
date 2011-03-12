@@ -33,7 +33,10 @@ public: // functions
   static std::string type_name () { return "LinearAdv2D"; }
 
   /// Number of equations in this physical model
-  static Uint nbeqs() { return 1u; }
+  static const Uint nb_eqs = 1u;
+
+  /// @returns the number of equations
+  Uint nbeqs() const { return nb_eqs; }
 
   /// Function to compute the flux for linear advection
   static Real flux(const RealVector2 & coord, const Real & u, const RealVector2 & gradu);
