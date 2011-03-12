@@ -109,6 +109,8 @@ list( APPEND coolfluid_common_files
 
     XML/CastingFunctions.cpp
     XML/CastingFunctions.hpp
+    XML/FileOperations.cpp
+    XML/FileOperations.hpp
     XML/Map.cpp
     XML/Map.hpp
     XML/Protocol.cpp

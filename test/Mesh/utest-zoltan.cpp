@@ -9,7 +9,6 @@
 
 // boost
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem/path.hpp>
 
 // coolfluid
 #include "Common/Log.hpp"

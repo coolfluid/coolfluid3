@@ -11,7 +11,7 @@
 #  include <dlfcn.h>
 #endif // CF_HAVE_DLOPEN
 
-#include <boost/filesystem/path.hpp>
+#include "Common/BoostFilesystem.hpp"
 
 #include "Common/PosixDlopenLibLoader.hpp"
 #include "Common/CommonAPI.hpp"

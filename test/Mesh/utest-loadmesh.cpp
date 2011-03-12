@@ -8,7 +8,6 @@
 #define BOOST_TEST_MODULE "Test module for CF::Mesh::LoadMesh"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem/path.hpp>
 
 #include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"

@@ -16,6 +16,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/XmlDoc.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 #include "Common/CJournal.hpp"
 
@@ -89,14 +90,14 @@ void CJournal::load_journal_file ( const boost::filesystem::path & file_path )
   /// @todo handle m_info_node and m_signals_map
 
   m_signals.clear();
-  m_xmldoc = XmlDoc::parse_file(file_path);
+  m_xmldoc = XML::parse_file(file_path);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CJournal::dump_journal_to ( const boost::filesystem::path & file_path ) const
 {
-  m_xmldoc->to_file( file_path );
+  XML::to_file( *m_xmldoc, file_path );
 
   CFinfo << "Journal dumped to '" << file_path.string() << "'" << CFendl;
 }
@@ -126,7 +127,7 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
   if (m_root.expired())
     throw IllegalCall(FromHere(), "Component \'" + name() + "\' has no root");
 
-  boost::shared_ptr<XmlDoc> xmldoc = XmlDoc::parse_file(filename);
+  boost::shared_ptr<XmlDoc> xmldoc = XML::parse_file(filename);
   XmlNode doc_node = Protocol::goto_doc_node(*xmldoc.get());
 //  rapidxml::xml_node * signals_map = doc_node.content->first_node();
   bool found_map = false;
@@ -210,7 +211,7 @@ void CJournal::save_journal ( Signal::arg_t & args )
   URI file_path("./server-journal.xml", URI::Scheme::FILE);
   boost::filesystem::path path(file_path.path());
 
-  m_xmldoc->to_file(path);
+  XML::to_file( *m_xmldoc, file_path.path() );
 
   CFinfo << "Journal dumped to '" << path.canonize().string() << "'" << CFendl;
 }

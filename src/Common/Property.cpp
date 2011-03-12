@@ -5,7 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/foreach.hpp>
-#include <boost/filesystem/path.hpp>
+
+#include "Common/BoostFilesystem.hpp"
 
 #include "Common/Property.hpp"
 #include "Common/URI.hpp"

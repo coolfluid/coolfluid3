@@ -6,7 +6,6 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/compare.hpp>
-#include <boost/filesystem/path.hpp>
 
 #include "Common/URI.hpp"
 #include "Common/BasicExceptions.hpp"

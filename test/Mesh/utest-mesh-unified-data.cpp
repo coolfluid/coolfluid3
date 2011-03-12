@@ -8,7 +8,6 @@
 #define BOOST_TEST_MODULE "Tests CF::Mesh::CUnifiedData<T>"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem/path.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"

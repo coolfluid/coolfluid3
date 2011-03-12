@@ -8,7 +8,8 @@
 #define BOOST_TEST_MODULE "Test module for CF::RDM::ScalarAdvection"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem/path.hpp>
+
+#include "Common/BoostFilesystem.hpp"
 
 #include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"

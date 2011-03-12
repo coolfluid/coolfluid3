@@ -8,7 +8,6 @@
 #define BOOST_TEST_MODULE "Test module for CGNS"
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/regex.hpp>
 
 #include "rapidxml/rapidxml.hpp"

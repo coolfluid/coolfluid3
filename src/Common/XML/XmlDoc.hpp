@@ -83,12 +83,6 @@ public:
   /// @return Returns a shared pointer with the built XML document.
   static Ptr parse_string ( const std::string& str );
 
-  /// Parses a XML file
-  /// @param fpath Path to file with xml contents
-  /// @return Returns a shared pointer with the built XML document.
-  /// @throw FileSystemError If the file cannot be read.
-  static Ptr parse_file ( const boost::filesystem::path& path );
-
 }; // XmlDoc
 
 ////////////////////////////////////////////////////////////////////////////

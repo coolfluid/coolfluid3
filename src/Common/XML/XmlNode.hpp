@@ -9,8 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-#include <boost/filesystem/path.hpp> // includes std::string
-
 #include "Common/CF.hpp"
 #include "Common/CommonAPI.hpp"
 
@@ -89,16 +87,6 @@ public: // methods
   /// implementation is valid.
   /// @return Returns @c true if the node is valid, otherwise returns @c false.
   bool is_valid () const;
-
-  /// Writes the provided XML node to a file.
-  /// @param node The node to write.
-  /// @param fpath The file path to which the node has to be written.
-  void to_file ( const boost::filesystem::path& fpath) const;
-
-  /// Writes the provided XML node to a string.
-  /// @param str The string to which the node has to be written.
-  /// @param node The node to write.
-  void to_string ( std::string& str ) const;
 
   /// Prints the provided XML node to the logging facility.
   /// @param node The node to print.

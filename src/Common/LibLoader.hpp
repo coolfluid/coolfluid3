@@ -7,7 +7,7 @@
 #ifndef CF_Common_LibLoader_hpp
 #define CF_Common_LibLoader_hpp
 
-#include <boost/filesystem/path.hpp>
+#include "Common/BoostFilesystem.hpp"
 
 #include "Common/CommonAPI.hpp"
 #include "Common/Exception.hpp"

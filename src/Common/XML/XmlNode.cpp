@@ -4,9 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <fstream>
-
-#include "rapidxml/rapidxml_print.hpp" // includes rapidxml/rapidxml.hpp
+#include "rapidxml/rapidxml.hpp"
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
@@ -23,16 +21,9 @@ namespace XML {
 
 XmlNode::XmlNode () :
     content(nullptr)
-{
+{}
 
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-XmlNode::~XmlNode ()
-{
-
-}
+XmlNode::~XmlNode () {}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -143,26 +134,6 @@ void XmlNode::deep_copy_names_values ( const XmlNode& in, XmlNode& out ) const
 
     deep_copy_names_values( inode, onode );
   }
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-
-void XmlNode::to_file ( const boost::filesystem::path& fpath) const
-{
-  std::ofstream fout ( fpath.string().c_str() );
-
-  std::string xml_as_string;
-
-  to_string( xml_as_string );
-
-  fout << xml_as_string << std::endl;
-}
-
-/////////////////////////////////////////////////////////////////////////////////
-
-void XmlNode::to_string ( std::string& str ) const
-{
-  rapidxml::print(std::back_inserter(str), *content);
 }
 
 /////////////////////////////////////////////////////////////////////////////////

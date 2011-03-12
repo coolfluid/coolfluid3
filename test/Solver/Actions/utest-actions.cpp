@@ -12,7 +12,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <boost/assign/list_of.hpp>
-#include <boost/filesystem/path.hpp>
 
 #include "Common/LibCommon.hpp"
 #include "Common/CreateComponent.hpp"

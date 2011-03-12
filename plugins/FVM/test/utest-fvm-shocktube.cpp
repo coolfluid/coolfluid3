@@ -8,8 +8,9 @@
 #define BOOST_TEST_MODULE "Test module for CF::FVM"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/assign/list_of.hpp>
+
+#include "Common/BoostFilesystem.hpp"
 
 #include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"

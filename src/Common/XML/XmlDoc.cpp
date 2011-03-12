@@ -98,63 +98,6 @@ std::string XmlDoc::encoding() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-XmlDoc::Ptr XmlDoc::parse_string ( const std::string& str )
-{
-  using namespace rapidxml;
-
-  xml_document<>* xmldoc = new xml_document<>();
-
-  char* ctext = xmldoc->allocate_string(str.c_str());
-
-  // parser trims and merges whitespaces
-  xmldoc->parse< parse_no_data_nodes |
-                 parse_trim_whitespace /*|
-                 parse_normalize_whitespace*/ >(ctext);
-
-  return boost::shared_ptr<XmlDoc>( new XmlDoc(xmldoc) );
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-XmlDoc::Ptr XmlDoc::parse_file ( const boost::filesystem::path& path )
-{
-  using namespace rapidxml;
-
-  xml_document<>* xmldoc = new xml_document<>();
-
-  std::string filepath = path.string();
-  FILE *filep = fopen( filepath.c_str(), "rb" );
-
-  if (filep == NULL)
-    throw FileSystemError(FromHere(), "Unable to open file [" + filepath + "]" );
-
-  fseek(filep,0,SEEK_END);                  // go to end
-  Uint length = ftell(filep);               // get position at end (length)
-
-  if (!length)
-    throw FileSystemError(FromHere(), "File [" + filepath + "] is empty" );
-
-  fseek(filep, 0, SEEK_SET);                  // go to beginning
-
-  char* buffer = xmldoc->allocate_string( 0, length );  // allocate buffer directly inside the xmldoc
-
-  size_t rs = fread(buffer,length, 1, filep);           // read into buffer
-  if (!rs)
-    throw FileSystemError(FromHere(), "Error while reading file [" + filepath + "]" );
-
-  fclose(filep);                             // close file
-
-  // parser trims and merges whitespaces
-  xmldoc->parse< parse_no_data_nodes |
-                 parse_trim_whitespace /*|
-                 parse_normalize_whitespace*/ >(buffer);
-
-  return boost::shared_ptr<XmlDoc>( new XmlDoc(xmldoc) );
-}
-
-
-/////////////////////////////////////////////////////////////////////////////
-
 } // XML
 } // Common
 } // CF

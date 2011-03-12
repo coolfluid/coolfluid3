@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/filesystem/path.hpp>
+#include "Common/BoostFilesystem.hpp"
 
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"

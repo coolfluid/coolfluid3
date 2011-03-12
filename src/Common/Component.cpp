@@ -19,7 +19,9 @@
 #include "Common/OptionURI.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/ComponentPredicates.hpp"
+
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 using namespace CF::Common::XML;
 
@@ -954,12 +956,20 @@ void Component::signal_save_tree ( Signal::arg_t& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
-  URI filename = p.get_option<URI>("filename");
+  const URI filename = p.get_option<URI>("filename");
 
   if(filename.scheme() != URI::Scheme::FILE)
     throw InvalidURI(FromHere(), "A file was expected but got \'" + filename.string() + "\'");
 
-  save_tree_to( filename.path() );
+  XmlDoc::Ptr xmldoc = Protocol::create_doc();
+  XmlNode doc_node = Protocol::goto_doc_node(*xmldoc.get());
+
+  write_xml_tree(doc_node, true);
+
+  XML::to_file( doc_node, filename.path() );
+
+  CFinfo << "Tree saved to '" << filename.path() << "'" << CFendl;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -980,20 +990,6 @@ void Component::signal_signature( Signal::arg_t & args )
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
   ( *signal( p.get_option<std::string>("name") ).signature )(reply);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-void Component::save_tree_to( const boost::filesystem::path & path )
-{
-  XmlDoc::Ptr xmldoc = Protocol::create_doc();
-  XmlNode doc_node = Protocol::goto_doc_node(*xmldoc.get());
-
-  write_xml_tree(doc_node, true);
-
-  xmldoc->to_file(path);
-
-  CFinfo << "Tree saved to '" << path.string() << "'" << CFendl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

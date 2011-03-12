@@ -360,8 +360,6 @@ public: // functions
   /// marks this component as basic.
   Component& mark_basic();
 
-  void save_tree_to( const boost::filesystem::path & path );
-
 protected: // functions
 
   /// Add a static (sub)component of this component

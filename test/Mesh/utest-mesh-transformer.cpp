@@ -10,7 +10,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
-#include <boost/filesystem/path.hpp>
 #include <boost/regex.hpp>
 
 #include "Common/OptionT.hpp"

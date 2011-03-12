@@ -7,8 +7,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include <boost/filesystem/fstream.hpp>
-#include <boost/filesystem/convenience.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/progress.hpp>
 

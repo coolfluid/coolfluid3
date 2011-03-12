@@ -11,10 +11,6 @@
 #include <QVariant>
 #include <QDebug>
 
-#include <boost/filesystem/path.hpp>
-
-//#include <cstring>
-
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/CF.hpp"

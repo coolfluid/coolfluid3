@@ -9,8 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/filesystem/fstream.hpp>
-
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CNodes.hpp"

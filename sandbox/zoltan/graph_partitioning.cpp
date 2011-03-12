@@ -1,5 +1,6 @@
 #include <boost/assign/list_of.hpp>
-#include <boost/filesystem/path.hpp>
+
+#include "Common/BoostFilesystem.hpp"
 
 #include <mpi.h>
 #include <zoltan_cpp.h>

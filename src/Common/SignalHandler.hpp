@@ -12,8 +12,10 @@
 #include <map>
 #include <vector>
 #include <string>
+
 #include <boost/signals2/signal.hpp>
 #include <boost/shared_ptr.hpp>
+
 #include "Common/Exception.hpp"
 #include "Common/XML/SignalFrame.hpp"
 

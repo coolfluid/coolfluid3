@@ -7,9 +7,9 @@
 #include <QtXml>
 #include <QHostInfo>
 
-#include <boost/filesystem/path.hpp>
-
 #include "rapidxml/rapidxml.hpp"
+
+#include "Common/BoostFilesystem.hpp"
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/MPI/PE.hpp"

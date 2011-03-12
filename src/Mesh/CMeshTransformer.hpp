@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/filesystem/path.hpp>
+#include "Common/BoostFilesystem.hpp"
 
 #include "Common/CAction.hpp"
 
