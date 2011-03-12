@@ -17,6 +17,7 @@
 #include "Common/Log.hpp"
 #include "Common/URI.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/NLog.hpp"
@@ -131,7 +132,7 @@ bool ClientNetworkComm::send(Signal::arg_t & signal)
   {
     signal.node.set_attribute( "clientid", ClientRoot::instance().getUUID() );
 
-    signal.xml_doc->to_string(str);
+    XML::to_string(*signal.xml_doc, str);
 
     success = this->send(str.c_str()) > 0;
   }
