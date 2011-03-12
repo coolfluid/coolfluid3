@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 
 #include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 #include "GUI/Client/Core/SignalNode.hpp"
 
