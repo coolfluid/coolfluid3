@@ -6,6 +6,8 @@
 
 #include <QTest>
 
+#include "rapidxml/rapidxml.hpp"
+
 #include "Common/XML/FileOperations.hpp"
 
 #include "GUI/Client/Core/CNode.hpp"
