@@ -103,6 +103,9 @@ private: // data
   // RealVector m_solution_values;
   typename DiscreteOpType::SolutionMatrixT m_solution_values;
 
+  // node values
+  typename SHAPEFUNC::NodeMatrixT m_nodes;
+
   // The operator L in the advection equation Lu = f
   // Matrix m_sf_oper_values stores the value L(N_i) at each quadrature point for each shape function N_i
   typename DiscreteOpType::SFMatrixT m_sf_oper_values;
@@ -147,9 +150,8 @@ void SchemeLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 //  for ( Uint i = 0; i < nodes_idx.size(); ++i)
 //     std::cout << " " << nodes_idx[i];
 
-  typename SHAPEFUNC::NodeMatrixT nodes;
-
- Mesh::fill(nodes, *coordinates, nodes_idx );
+ // copy the coordinates from the large array to a small
+ Mesh::fill(m_nodes, *coordinates, nodes_idx );
 
 //  elements().as_ptr<Mesh::CElements>()->put_coordinates( nodes, idx() );
 
@@ -162,13 +164,14 @@ void SchemeLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
 
   // copy the solution from the large array to a small
-  for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    m_solution_values[n] = (*solution)[nodes_idx[n]][0];
+ for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+   for(Uint v = 0; v < PHYSICS::nbeqs(); ++v)
+      m_solution_values(n,v) = (*solution)[nodes_idx[n]][v];
 
 
  m_phi.setZero();
 
- m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values,m_wj);
+ m_oper.compute(m_nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values,m_wj);
 
 // std::cout << "solution_values  [" << m_solution_values << "]" << std::endl;
 // std::cout << "sf_oper_values   [" << m_sf_oper_values << "]" << std::endl;
@@ -178,19 +181,36 @@ void SchemeLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 ////     std::cin.get();
 // std::cout << std::endl;
 
- for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
- {
-   Real sumLplus = 0.0;
-   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-   {
-     sumLplus += std::max(0.0,m_sf_oper_values(q,n));
-   }
+for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
 
-   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-   {
-     m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q] * m_wj[q];
-   }
- }
+  PHYSICS::compute_param(pparams, xq, uq);
+
+  PHYSICS::LuPlus( pparams, xq, uq, grad_phi, Lup, evalues );
+// x - x[dim] coordinates @ q
+// u - u[eqs] solution    @ q
+// grad_phi - gphi[eqs,dim] gradient  @ q
+// Lup - Lu[i][eqs,eqs] projected jacobian over grad sf @ q (per i sf )
+// evalues - ev[eqs] eigen values of the jacobian
+
+PHYSICS::Lu( pparams, xq, uq, grad_u, Lu   );
+// x - x[dim] coordinates @ q
+// u - u[eqs] solution    @ q
+// grad_u - gradu[eqs,dim] gradient  @ q
+// Lu - Lu[eqs] residum @ q (summed over i sf)
+
+// for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
+// {
+//   Real sumLplus = 0.0;
+//   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+//   {
+//     sumLplus += std::max(0.0,m_sf_oper_values(q,n));
+//   }
+
+//   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+//   {
+//     m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q] * m_wj[q];
+//   }
+// }
   
 //   std::cout << "phi [";
 //   for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
@@ -214,26 +234,26 @@ void SchemeLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
-    centroid[XX] += nodes(n, XX);
-    centroid[YY] += nodes(n, YY);
+    centroid[XX] += m_nodes(n, XX);
+    centroid[YY] += m_nodes(n, YY);
   }
   centroid /= SHAPEFUNC::nb_nodes;
 
 
   // compute a bounding box of the element:
 
-  Real xmin = nodes(0, XX);
-  Real xmax = nodes(0, XX);
-  Real ymin = nodes(0, YY);
-  Real ymax = nodes(0, YY);
+  Real xmin = m_nodes(0, XX);
+  Real xmax = m_nodes(0, XX);
+  Real ymin = m_nodes(0, YY);
+  Real ymax = m_nodes(0, YY);
 
   for(Uint inode = 1; inode < SHAPEFUNC::nb_nodes; ++inode)
   {
-    xmin = std::min(xmin,nodes(inode, XX));
-    xmax = std::max(xmax,nodes(inode, XX));
+    xmin = std::min(xmin,m_nodes(inode, XX));
+    xmax = std::max(xmax,m_nodes(inode, XX));
 
-    ymin = std::min(ymin,nodes(inode, YY));
-    ymax = std::max(ymax,nodes(inode, YY));
+    ymin = std::min(ymin,m_nodes(inode, YY));
+    ymax = std::max(ymax,m_nodes(inode, YY));
 
   }
 

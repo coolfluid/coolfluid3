@@ -32,6 +32,7 @@ list( APPEND coolfluid_rdm_files
   SUPG.hpp
   SUPG.cpp
   SchemeLDA.hpp
+  SchemeSysLDA.hpp
   SchemeN.hpp
   SchemeB.hpp
   SchemeSUPG.hpp
