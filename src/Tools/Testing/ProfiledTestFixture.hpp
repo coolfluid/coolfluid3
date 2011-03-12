@@ -7,10 +7,12 @@
 #ifndef CF_GooglePerfTools_ProfiledTestFixture_hpp
 #define CF_GooglePerfTools_ProfiledTestFixture_hpp
 
-#include <boost/filesystem.hpp>
+
 #include <boost/test/test_observer.hpp>
 
-#include <coolfluid_profiling_config.h>
+#include "Common/BoostFilesystem.hpp"
+
+#include "coolfluid_profiling_config.h"
 
 #include "Common/CodeProfiler.hpp"
 #include "Tools/Testing/LibTesting.hpp"

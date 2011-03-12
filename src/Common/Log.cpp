@@ -13,7 +13,7 @@
 #include <boost/iostreams/stream_buffer.hpp>
 #include <boost/iostreams/device/file_descriptor.hpp>
 
-#include <boost/filesystem.hpp>
+#include "Common/BoostFilesystem.hpp"
 
 #include <iostream>
 #include <sstream>

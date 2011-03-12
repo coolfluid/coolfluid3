@@ -8,7 +8,8 @@
 
 #include <boost/foreach.hpp>
 #include <boost/regex.hpp>
-#include <boost/filesystem.hpp>
+
+#include "Common/BoostFilesystem.hpp"
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"

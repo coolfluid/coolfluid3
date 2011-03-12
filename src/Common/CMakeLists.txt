@@ -6,6 +6,7 @@ list( APPEND coolfluid_common_files
     BasicExceptions.cpp
     BasicExceptions.hpp
     BoostIostreams.hpp
+    BoostFilesystem.hpp
     BoostArray.hpp
     BoostAssert.hpp
     BuildInfo.hpp
