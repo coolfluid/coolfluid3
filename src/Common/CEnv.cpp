@@ -28,7 +28,7 @@ CEnv::CEnv ( const std::string& name) : Component ( name )
   // properties
   m_properties.add_option< OptionT<bool> >("OnlyCP0Writes", "If true, only processor P0 writes the log info to files. If false, all processors write.", true);
   m_properties.add_option< OptionT<bool> >("AssertionThrows", "If true, failed assertions throw exceptions instead of abording.", false); /// @todo is it ok ?
-  m_properties.add_option< OptionT<bool> >("RegistRignalHandlers", "If true, regist signal handlers", true);
+  m_properties.add_option< OptionT<bool> >("RegistSignalHandlers", "If true, regist signal handlers", true);
   m_properties.add_option< OptionT<bool> >("TraceActive", "If true, trace is active.", false);
   m_properties.add_option< OptionT<bool> >("TraceToStdOut", "If true, trace log is also written to the stdout.", false);
   m_properties.add_option< OptionT<bool> >("VerboseEvents", "If true, events are verbose output.", false);
@@ -38,7 +38,7 @@ CEnv::CEnv ( const std::string& name) : Component ( name )
 
   m_properties["OnlyCP0Writes"].as_option().mark_basic();
   m_properties["AssertionThrows"].as_option().mark_basic();
-  m_properties["RegistRignalHandlers"].as_option().mark_basic();
+  m_properties["RegistSignalHandlers"].as_option().mark_basic();
   m_properties["TraceActive"].as_option().mark_basic();
   m_properties["TraceToStdOut"].as_option().mark_basic();
   m_properties["VerboseEvents"].as_option().mark_basic();

@@ -97,11 +97,16 @@ void Core::initiate ( int argc, char** argv )
 {
   m_argc = argc;
   m_argv = argv;
+
+  if( environment()->property("RegistSignalHandlers").value<bool>() )
+    OSystem::instance().layer()->regist_os_signal_handlers();
+
   if ( !mpi::PE::instance().is_init() )
     mpi::PE::instance().init(argc,argv); // this might modify argc and argv
     
   char* env_var = std::getenv("COOLFLUID_PLUGINS");
-  if (env_var != NULL) {
+  if (env_var != NULL)
+  {
     std::string environment_variable_coolfluid_plugins = env_var;
     typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
     boost::char_separator<char> sep(":");
