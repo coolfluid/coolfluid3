@@ -89,7 +89,7 @@ mark_as_advanced(
 )
 
 if ( ${CF_HAVE_PTSCOTCH} )
-    list( APPEND CF_TP_LIBRARIES ${PTSCOTCH_LIBRARIES} )
+    list( APPEND CF_DEPS_LIBRARIES ${PTSCOTCH_LIBRARIES} )
 endif()
 
 coolfluid_log( "CF_HAVE_PTSCOTCH: [${CF_HAVE_PTSCOTCH}]" )

@@ -35,7 +35,7 @@ endif()
 mark_as_advanced( RT_LIBRARIES CF_HAVE_RT )
 
 if ( ${CF_HAVE_RT} )
-    list( APPEND CF_TP_LIBRARIES ${RT_LIBRARIES} )
+    list( APPEND CF_DEPS_LIBRARIES ${RT_LIBRARIES} )
 endif()
 
 coolfluid_log( "CF_HAVE_RT: [${CF_HAVE_RT}]" )

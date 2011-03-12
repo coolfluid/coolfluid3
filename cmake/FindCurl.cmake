@@ -23,25 +23,20 @@ if( NOT CF_SKIP_CURL )
 
   if(CURL_INCLUDE_DIR AND CURL_LIBRARIES)
     set(CF_HAVE_CURL 1 CACHE BOOL "Found curl library")
+    list( APPEND CF_DEPS_LIBRARIES ${CURL_LIBRARIES} )
   else()
     set(CF_HAVE_CURL 0 CACHE BOOL "Not fount curl library")
   endif()
 
-else()
-    set(CF_HAVE_CURL 0 CACHE BOOL "Skipped Curl library")
-endif()
+  mark_as_advanced( CURL_INCLUDE_DIR CURL_LIBRARIES CF_HAVE_CURL )
 
-  mark_as_advanced(
-    CURL_INCLUDE_DIR
-    CURL_LIBRARIES
-    CF_HAVE_CURL
-  )
-  
-  if ( ${CF_HAVE_CURL} )
-      list( APPEND CF_TP_LIBRARIES ${CURL_LIBRARIES} )
-  endif()
   coolfluid_log( "CF_HAVE_CURL: [${CF_HAVE_CURL}]" )
   if(CF_HAVE_CURL)
     coolfluid_log( "  CURL_INCLUDE_DIR:  [${CURL_INCLUDE_DIR}]" )
     coolfluid_log( "  CURL_LIBRARIES:      [${CURL_LIBRARIES}]" )
   endif(CF_HAVE_CURL)
+
+else()
+    coolfluid_log( "CF_HAVE_CURL: - searched skipped" )
+    set(CF_HAVE_CURL 0 CACHE BOOL "Skipped Curl library")
+endif()

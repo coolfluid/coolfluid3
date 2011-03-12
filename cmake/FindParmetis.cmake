@@ -51,7 +51,7 @@ mark_as_advanced(
 )
 
 if ( ${CF_HAVE_PARMETIS} )
-    list( APPEND CF_TP_LIBRARIES ${PARMETIS_LIBRARIES} )
+    list( APPEND CF_DEPS_LIBRARIES ${PARMETIS_LIBRARIES} )
 endif()
 
 coolfluid_log( "CF_HAVE_PARMETIS: [${CF_HAVE_PARMETIS}]" )

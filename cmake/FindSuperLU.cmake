@@ -37,7 +37,7 @@ mark_as_advanced(
 )
 
 if ( ${CF_HAVE_SUPERLU} )
-    list( APPEND CF_TP_LIBRARIES ${SUPERLU_LIBRARIES} )
+    list( APPEND CF_DEPS_LIBRARIES ${SUPERLU_LIBRARIES} )
 endif()
 
 coolfluid_log( "CF_HAVE_SUPERLU: [${CF_HAVE_SUPERLU}]" )

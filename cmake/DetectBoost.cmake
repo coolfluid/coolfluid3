@@ -28,7 +28,7 @@ endif()
 include_directories( ${Boost_INCLUDE_DIR} )
 
 # add boost libraries to list of third party libraries
-list( APPEND CF_TP_LIBRARIES ${Boost_LIBRARIES} )
+list( APPEND CF_DEPS_LIBRARIES ${Boost_LIBRARIES} )
 
 # filter out the unit test libs from the boost libraries
 # only unit testslink to this

@@ -76,6 +76,6 @@ mark_as_advanced( CF_HAVE_MPI )
 if( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
         include_directories( ${MPI_INCLUDE_PATH} )
         
-        list( APPEND CF_TP_LIBRARIES ${MPI_LIBRARIES} )
+        list( APPEND CF_DEPS_LIBRARIES ${MPI_LIBRARIES} )
         
 endif()

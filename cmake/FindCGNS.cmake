@@ -52,7 +52,7 @@ mark_as_advanced(
 )
 
 if ( ${CF_HAVE_CGNS} )
-    list( APPEND CF_TP_LIBRARIES ${CGNS_LIBRARIES} )
+    list( APPEND CF_DEPS_LIBRARIES ${CGNS_LIBRARIES} )
 endif()
 
 

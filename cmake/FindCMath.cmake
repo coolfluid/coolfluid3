@@ -28,7 +28,7 @@ endif()
 mark_as_advanced( CMATH_LIBRARIES CF_HAVE_CMATH )
 
 if ( ${CF_HAVE_CMATH} )
-    list( APPEND CF_TP_LIBRARIES ${CMATH_LIBRARIES} )
+    list( APPEND CF_DEPS_LIBRARIES ${CMATH_LIBRARIES} )
 endif()
 
 coolfluid_log( "CF_HAVE_CMATH: [${CF_HAVE_CMATH}]" )

@@ -43,7 +43,7 @@ mark_as_advanced(
 )
 
 if ( ${CF_HAVE_CGAL} )
-    list( APPEND CF_TP_LIBRARIES ${CGAL_LIBRARIES} )
+    list( APPEND CF_DEPS_LIBRARIES ${CGAL_LIBRARIES} )
 endif()
 
 coolfluid_log( "CF_HAVE_CGAL: [${CF_HAVE_CGAL}]" )

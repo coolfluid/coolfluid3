@@ -42,7 +42,7 @@ mark_as_advanced(
 )
 
 if ( ${CF_HAVE_METIS} )
-    list( APPEND CF_TP_LIBRARIES ${METIS_LIBRARIES} )
+    list( APPEND CF_DEPS_LIBRARIES ${METIS_LIBRARIES} )
 endif()
 
 coolfluid_log( "CF_HAVE_METIS: [${CF_HAVE_METIS}]" )
