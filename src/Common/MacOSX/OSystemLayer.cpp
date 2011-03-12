@@ -206,6 +206,7 @@ void OSystemLayer::regist_os_signal_handlers()
   // register handler functions for the signals
   signal(SIGFPE,    (sighandler_t) MacOSX::OSystemLayer::handleSIGFPE);
   signal(SIGSEGV,   (sighandler_t) MacOSX::OSystemLayer::handleSIGSEGV);
+  signal(SIGABRT,   (sighandler_t) MacOSX::OSystemLayer::handleSIGABRT);
 
   // enable the exceptions that will raise the SIGFPE signal
   feenableexcept ( FE_DIVBYZERO );
@@ -229,6 +230,16 @@ int OSystemLayer::handleSIGFPE (int signal)
 int OSystemLayer::handleSIGSEGV(int signal)
 {
   printf("\nreceived signal SIGSEGV [%d] - 'Segmentation violation'\n",signal);
+  static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
+  printf( "%s\n", dump.c_str() );
+  abort();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+int OSystemLayer::handleSIGABRT(int signal)
+{
+  printf("\nreceived signal SIGABRT [%d] - 'abort'\n",signal);
   static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
   printf( "%s\n", dump.c_str() );
   abort();

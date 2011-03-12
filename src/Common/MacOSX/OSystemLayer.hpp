@@ -61,6 +61,9 @@ protected:
   /// SIGSEGV signal handler
   static int handleSIGSEGV(int signal);
 
+  /// SIGSEGV signal handler
+  static int handleSIGABRT(int signal);
+
 }; // OSystemLayer
 
 ////////////////////////////////////////////////////////////////////////////////
