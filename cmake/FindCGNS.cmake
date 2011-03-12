@@ -51,7 +51,7 @@ mark_as_advanced(
   CF_HAVE_CGNS
 )
 
-if ( ${CF_HAVE_CGNS} )
+if( ${CF_HAVE_CGNS} )
     list( APPEND CF_DEPS_LIBRARIES ${CGNS_LIBRARIES} )
 endif()
 
