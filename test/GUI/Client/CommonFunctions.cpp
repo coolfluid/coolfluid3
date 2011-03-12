@@ -20,7 +20,7 @@ using namespace CF::GUI::ClientTest;
 
 NRoot::Ptr CF::GUI::ClientTest::makeTreeFromFile()
 {
-  static XmlDoc::Ptr doc = XmlDoc::parse_file(boost::filesystem::path("./tree.xml"));
+  static XmlDoc::Ptr doc = XML::parse_file(boost::filesystem::path("./tree.xml"));
 
   static NRoot::Ptr root = CNode::createFromXml(doc->content->first_node())->castTo<NRoot>();
   return root;

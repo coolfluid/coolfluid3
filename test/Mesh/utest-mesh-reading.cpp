@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
   options.set_array("Files", files, " ; ");
 
   std::string str;
-  frame.node.to_string(str);
+  XML::to_string(frame.node, str);
   CFinfo << str << CFendl;
 
   BOOST_CHECK_THROW( reader->signal_read(frame), BadValue );

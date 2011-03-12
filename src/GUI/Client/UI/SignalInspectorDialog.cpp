@@ -61,7 +61,7 @@ void SignalInspectorDialog::show(const ClientCore::SignalNode & node)
 {
   std::string str;
 
-  node.node()->node.to_string(str);
+  XML::to_string(node.node()->node, str);
 
   m_textArea->setText(QString(str.c_str()).replace('\t', "  "));
 
