@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
                                "  </map>"
                                "</frame>";
 
-  boost::shared_ptr<XmlDoc> second_doc = XmlDoc::parse_string(str_second_map);
+  boost::shared_ptr<XmlDoc> second_doc = XML::parse_string(str_second_map);
 
   // 1. the node does not contain any map
   SignalFrame first_frame ( first_doc );

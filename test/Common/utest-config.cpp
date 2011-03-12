@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( configure )
       "</cfxml>"
    );
 
-  boost::shared_ptr<XmlDoc> xml = XmlDoc::parse_string(text);
+  boost::shared_ptr<XmlDoc> xml = XML::parse_string(text);
 
   XmlNode doc = Protocol::goto_doc_node(*xml.get());
   SignalFrame frame( Protocol::first_frame_node( doc ) );
