@@ -10,7 +10,7 @@
 #include <boost/mpl/for_each.hpp>
 
 #include "Common/Foreach.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Mesh/SF/Types.hpp"
 #include "Mesh/CRegion.hpp"

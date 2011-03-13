@@ -9,7 +9,7 @@
 #include "Common/Core.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/XML/Protocol.hpp"
 
 #include "Solver/CModel.hpp"

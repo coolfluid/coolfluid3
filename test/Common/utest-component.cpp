@@ -14,7 +14,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/Component.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"

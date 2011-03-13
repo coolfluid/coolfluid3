@@ -14,7 +14,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CField2.hpp"

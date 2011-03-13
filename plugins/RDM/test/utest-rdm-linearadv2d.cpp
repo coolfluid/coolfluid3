@@ -12,7 +12,7 @@
 #include "Common/BoostFilesystem.hpp"
 
 #include "Common/CreateComponent.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"

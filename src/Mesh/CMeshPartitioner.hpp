@@ -11,7 +11,7 @@
 
 #include <boost/tuple/tuple.hpp>
 
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/CMap.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/MPI/PE.hpp"

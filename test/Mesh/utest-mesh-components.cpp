@@ -13,7 +13,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"

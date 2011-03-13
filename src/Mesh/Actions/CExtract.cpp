@@ -13,7 +13,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/OptionArray.hpp"
 
 #include "Mesh/CElements.hpp"

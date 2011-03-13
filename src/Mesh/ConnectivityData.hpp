@@ -56,7 +56,7 @@ public:
   
   /// Initialize the connectivity arrays, based on a range of CElements to consider
   /// Parameters use the convention from the low level interface
-  /// @note RangeT is a template argument to allow maximum flexibility with regard to the ranges defined in FindComponentss
+  /// @note RangeT is a template argument to allow maximum flexibility with regard to the ranges defined in FindComponents
   /// @see create_celements_vector
   /// @see create_node_element_connectivity
   template<typename RangeT>

@@ -9,7 +9,7 @@
 ///@todo remove
 #include "Common/Log.hpp"
 
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CTable.hpp"

@@ -10,7 +10,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/CLink.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
 
 #include "Mesh/LibMesh.hpp"

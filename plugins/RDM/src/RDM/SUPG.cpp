@@ -9,7 +9,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "Common/Foreach.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Mesh/CRegion.hpp"
 

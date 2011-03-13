@@ -10,7 +10,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/range_c.hpp>
 
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Mesh/CField2.hpp"
 #include "Mesh/CMesh.hpp"

@@ -13,7 +13,7 @@
 #include "Common/Component.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
 
 #include "Mesh/CList.hpp"

@@ -8,7 +8,7 @@
 #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
 
 #include "Mesh/Gmsh/CWriter.hpp"

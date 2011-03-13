@@ -9,7 +9,7 @@
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/CreateComponent.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StreamHelpers.hpp"
 

@@ -13,7 +13,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/CRoot.hpp"
 
 #include "Common/MPI/PE.hpp"

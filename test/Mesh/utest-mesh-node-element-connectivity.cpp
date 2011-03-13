@@ -11,7 +11,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"

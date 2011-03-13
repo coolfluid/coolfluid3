@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/FindComponentss.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
