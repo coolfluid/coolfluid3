@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <boost/assign/list_of.hpp>
 
+#include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/FindComponents.hpp"

@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Core.hpp"
+#include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/CFactory.hpp"
 #include "Common/OptionT.hpp"

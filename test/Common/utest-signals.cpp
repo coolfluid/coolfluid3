@@ -9,6 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "Common/Signal.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/CBuilder.hpp"

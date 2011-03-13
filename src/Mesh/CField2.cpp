@@ -8,6 +8,7 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/regex.hpp>
 
+#include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"

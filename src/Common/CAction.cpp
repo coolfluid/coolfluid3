@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Signal.hpp"
+
 #include "Common/CAction.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CreateComponent.hpp"

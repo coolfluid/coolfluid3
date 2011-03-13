@@ -20,17 +20,18 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Global Event Handler class
+/// @todo make this a component?
 /// @author Tiago Quintino
 class Common_API EventHandler :
     public Common::SignalHandler,
-    public boost::noncopyable
-{
+    public boost::noncopyable {
+
 public: // methods
 
-  /// Constructor private because is singleton
+  /// Constructor
   EventHandler();
 
-  /// Destructor private because is singleton
+  /// Destructor
   ~EventHandler();
 
   /// Regists a signal on this EventHandler

@@ -12,6 +12,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/Log.hpp"
+#include "Common/Signal.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/BasicExceptions.hpp"

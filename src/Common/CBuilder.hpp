@@ -13,7 +13,6 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
-#include "Common/Signal.hpp"
 #include "Common/CFactories.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
@@ -59,6 +58,16 @@ public:
   /// @return the name of the type of what concrete type it builds
   virtual Component::Ptr build ( const std::string& name ) const = 0;
 
+  /// @name SIGNALS
+  //@{
+
+  /// creates a component from this component
+  void signal_build_component ( SignalArgs& args );
+
+  void signature_signal_build_component ( SignalArgs& args );
+
+  //@} END SIGNALS
+
 }; // CBuilder
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -82,11 +91,6 @@ public:
     BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );
     // verify that CONCRETE derives from BASE
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
-
-    this->regist_signal ( "build_component" , "builds a component", "Build component" )->signal->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, this, _1 ) );
-
-    signal("build_component")->signature->connect(
-        boost::bind(&CBuilderT<BASE,CONCRETE>::build_component_signature, this, _1));
   }
 
   /// @brief Virtual destructor.
@@ -113,30 +117,6 @@ public:
   {
     return this->build_component_typed(name);
   }
-
-  /// @name SIGNALS
-  //@{
-
-  /// creates a component from this component
-  void build_component ( SignalArgs& args )
-  {
-    XML::SignalFrame params = args.map( XML::Protocol::Tags::key_options() );
-
-    typename BASE::Ptr comp = this->build_component_typed ( params.get_option<std::string>("Component name") );
-    URI parent_path ( params.get_option<URI>("Parent component") );
-    Component::Ptr parent = this->access_component_ptr( parent_path );
-    parent->add_component( comp );
-  }
-
-  void build_component_signature ( SignalArgs& args )
-  {
-    XML::SignalFrame p = args.map( XML::Protocol::Tags::key_options() );
-
-    p.set_option<std::string>("Component name", std::string(), "Name for created component" );
-    p.set_option<URI>("Parent component", URI(), "Path to component where place the newly built component");
-  }
-
-  //@} END SIGNALS
 
 }; // CBuilderT
 

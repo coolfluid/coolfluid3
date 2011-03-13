@@ -12,6 +12,7 @@
 #include "Common/CLink.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
+#include "Common/Signal.hpp"
 
 #include "Mesh/LibMesh.hpp"
 

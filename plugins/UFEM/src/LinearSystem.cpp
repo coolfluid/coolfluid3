@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Foreach.hpp"
+#include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 
 #include "Solver/Actions/Proto/CProtoElementsAction.hpp"

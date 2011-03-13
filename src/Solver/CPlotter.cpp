@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
+#include "Common/Signal.hpp"
 
 #include "Solver/CPlotXY.hpp"
 #include "Solver/LibSolver.hpp"

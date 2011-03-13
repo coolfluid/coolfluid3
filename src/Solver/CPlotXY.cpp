@@ -6,10 +6,8 @@
 
 #include <cmath>
 
-#include "Common/CreateComponent.hpp"
-#include "Common/FindComponents.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/Log.hpp"
+#include "Common/Signal.hpp"
 
 #include "Mesh/CTable.hpp"
 
@@ -77,7 +75,7 @@ void CPlotXY::convergence_history( SignalArgs & args )
     node.set_attribute("dimensions", "8");
   }
   else
-    CFwarn << "No convergence history found." << CFendl;
+    throw SetupError( FromHere(), "Data to plot not setup" );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

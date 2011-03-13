@@ -6,7 +6,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
-#include "Common/Log.hpp"
+#include "Common/Signal.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"

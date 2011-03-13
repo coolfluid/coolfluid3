@@ -6,6 +6,7 @@
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/CBuilder.hpp"
+#include "Common/Signal.hpp"
 #include "Common/LibCommon.hpp"
 
 #include "Common/XML/SignalFrame.hpp"
