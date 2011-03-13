@@ -9,6 +9,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/Signal.hpp"
+#include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/NotificationQueue.hpp"
