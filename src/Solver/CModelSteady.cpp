@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 
 #include "Solver/CModelSteady.hpp"
 #include "Solver/CSolver.hpp"

@@ -18,7 +18,7 @@
 #include <boost/weak_ptr.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 #include "Common/Component.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"

@@ -9,7 +9,7 @@
 #include "MeshDiff.hpp"
 
 #include "Common/Log.hpp"
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"

@@ -18,7 +18,7 @@
 #include "Common/Core.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/CFactories.hpp"
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 #include "Common/MPI/PE.hpp"
 
 #include "Tools/Testing/ProfiledTestFixture.hpp"

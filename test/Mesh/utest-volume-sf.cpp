@@ -20,7 +20,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 
 #include "Mesh/GeoShape.hpp"
 

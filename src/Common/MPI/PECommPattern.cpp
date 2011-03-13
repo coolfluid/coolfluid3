@@ -13,7 +13,7 @@
 #include "Common/MPI/PECommPattern.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 
 /*
 TODO:

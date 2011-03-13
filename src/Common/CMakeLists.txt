@@ -23,7 +23,7 @@ list( APPEND coolfluid_common_files
     CommonAPI.hpp
     Component.hpp
     Component.cpp
-    ComponentPredicates.hpp
+    FindComponentss.hpp
     CEnv.cpp
     CEnv.hpp
     CFactory.hpp

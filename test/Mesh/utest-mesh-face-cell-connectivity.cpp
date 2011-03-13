@@ -11,7 +11,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"

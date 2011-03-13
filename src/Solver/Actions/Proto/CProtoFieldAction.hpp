@@ -12,7 +12,7 @@
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CField2.hpp"

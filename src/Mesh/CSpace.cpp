@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CreateComponent.hpp"
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/CSpace.hpp"

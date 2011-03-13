@@ -13,7 +13,7 @@
 #include <boost/foreach.hpp>
 #include <boost/mpl/for_each.hpp>
 
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"
 

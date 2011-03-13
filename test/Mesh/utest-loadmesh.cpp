@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/CreateComponent.hpp"
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 #include "Common/Log.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"

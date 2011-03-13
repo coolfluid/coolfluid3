@@ -18,7 +18,7 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CAction.hpp"
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/Shell/Interpreter.hpp"

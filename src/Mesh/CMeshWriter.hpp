@@ -11,7 +11,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
-#include "Common/ComponentPredicates.hpp"
+#include "Common/FindComponentss.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
