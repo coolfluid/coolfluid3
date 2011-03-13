@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <list>
+
 #include "Common/BoostFilesystem.hpp"
 
 #include "Common/FindComponents.hpp"
@@ -51,7 +53,7 @@ public: // functions
 
   // --------- Signals ---------
 
-  void signal_write( Common::Signal::arg_t& node  );
+  void signal_write( Common::SignalArgs& node  );
 
   // --------- Direct access ---------
 

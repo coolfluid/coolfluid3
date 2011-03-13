@@ -31,20 +31,20 @@ LinearSystem::LinearSystem(const std::string& name) : CMethod (name)
   m_lss_path.lock()->mark_basic();
   m_lss_path.lock()->attach_trigger( boost::bind(&LinearSystem::on_lss_set, this) );
 
-  this->regist_signal("add_dirichlet_bc" , "Add a Dirichlet boundary condition", "Add Dirichlet BC")->connect( boost::bind ( &LinearSystem::add_dirichlet_bc, this, _1 ) );
-  signal("add_dirichlet_bc").signature->connect( boost::bind( &LinearSystem::dirichlet_bc_signature, this, _1) );
+  this->regist_signal("add_dirichlet_bc" , "Add a Dirichlet boundary condition", "Add Dirichlet BC")->signal->connect( boost::bind ( &LinearSystem::add_dirichlet_bc, this, _1 ) );
+  signal("add_dirichlet_bc")->signature->connect( boost::bind( &LinearSystem::dirichlet_bc_signature, this, _1) );
 
-  this->regist_signal("add_initial_condition" , "Add an initial condition for a field", "Add Initial Condition")->connect( boost::bind ( &LinearSystem::add_initial_condition, this, _1 ) );
-  signal("add_initial_condition").signature->connect( boost::bind( &LinearSystem::add_initial_condition_signature, this, _1) );
+  this->regist_signal("add_initial_condition" , "Add an initial condition for a field", "Add Initial Condition")->signal->connect( boost::bind ( &LinearSystem::add_initial_condition, this, _1 ) );
+  signal("add_initial_condition")->signature->connect( boost::bind( &LinearSystem::add_initial_condition_signature, this, _1) );
 
-  this->regist_signal("run" , "Run the method", "Run")->connect( boost::bind ( &LinearSystem::run, this, _1 ) );
-  this->regist_signal("initialize" , "Initialize the solution", "Initialize")->connect( boost::bind ( &LinearSystem::signal_initialize_fields, this, _1 ) );
+  this->regist_signal("run" , "Run the method", "Run")->signal->connect( boost::bind ( &LinearSystem::run, this, _1 ) );
+  this->regist_signal("initialize" , "Initialize the solution", "Initialize")->signal->connect( boost::bind ( &LinearSystem::signal_initialize_fields, this, _1 ) );
 
-  signal("create_component").is_hidden = true;
-  signal("rename_component").is_hidden = true;
-  signal("delete_component").is_hidden = true;
-  signal("move_component").is_hidden   = true;
-  signal("run_operation").is_hidden   = true;
+  signal("create_component")->is_hidden = true;
+  signal("rename_component")->is_hidden = true;
+  signal("delete_component")->is_hidden = true;
+  signal("move_component")->is_hidden   = true;
+  signal("run_operation")->is_hidden   = true;
 }
 
 CEigenLSS& LinearSystem::lss()
@@ -56,7 +56,7 @@ CEigenLSS& LinearSystem::lss()
   return *m_lss.lock();
 }
 
-void LinearSystem::dirichlet_bc_signature(Signal::arg_t& args)
+void LinearSystem::dirichlet_bc_signature(SignalArgs& args)
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -66,7 +66,7 @@ void LinearSystem::dirichlet_bc_signature(Signal::arg_t& args)
 }
 
 
-void LinearSystem::add_dirichlet_bc( Signal::arg_t& args )
+void LinearSystem::add_dirichlet_bc( SignalArgs& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -81,7 +81,7 @@ void LinearSystem::add_dirichlet_bc( Signal::arg_t& args )
   bc->add_tag("dirichlet_bc");
 }
 
-void LinearSystem::add_initial_condition_signature(Signal::arg_t& args)
+void LinearSystem::add_initial_condition_signature(SignalArgs& args)
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -91,7 +91,7 @@ void LinearSystem::add_initial_condition_signature(Signal::arg_t& args)
 }
 
 
-void LinearSystem::add_initial_condition( Signal::arg_t& args )
+void LinearSystem::add_initial_condition( SignalArgs& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -107,7 +107,7 @@ void LinearSystem::add_initial_condition( Signal::arg_t& args )
 }
 
 
-void LinearSystem::run(Signal::arg_t& node)
+void LinearSystem::run(SignalArgs& node)
 {
   on_run();
 }
@@ -160,7 +160,7 @@ void LinearSystem::on_lss_set()
   m_system_builder = build_equation();
 }
 
-void LinearSystem::signal_initialize_fields(Signal::arg_t& node)
+void LinearSystem::signal_initialize_fields(SignalArgs& node)
 {
   CFieldAction::Ptr builder = m_system_builder.lock();
   if(!builder)

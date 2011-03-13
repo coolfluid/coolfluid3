@@ -40,16 +40,16 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
 
   // signals
 
-  regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->connect ( boost::bind ( &WriteMesh::signal_write_mesh, this, _1 ) );
+  regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->signal->connect ( boost::bind ( &WriteMesh::signal_write_mesh, this, _1 ) );
 
-  signal("create_component").is_hidden = true;
-  signal("rename_component").is_hidden = true;
-  signal("delete_component").is_hidden = true;
-  signal("move_component").is_hidden   = true;
+  signal("create_component")->is_hidden = true;
+  signal("rename_component")->is_hidden = true;
+  signal("delete_component")->is_hidden = true;
+  signal("move_component")->is_hidden   = true;
 
   update_list_of_available_writers();
 
-  signal("write_mesh").signature->connect(boost::bind(&WriteMesh::signature_write_mesh, this, _1));
+  signal("write_mesh")->signature->connect(boost::bind(&WriteMesh::signature_write_mesh, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ void WriteMesh::write_mesh( CMesh& mesh, const URI& file, const std::vector<URI>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void WriteMesh::signal_write_mesh ( Common::Signal::arg_t& node )
+void WriteMesh::signal_write_mesh ( Common::SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -151,7 +151,7 @@ void WriteMesh::signal_write_mesh ( Common::Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void WriteMesh::signature_write_mesh ( Common::Signal::arg_t& node)
+void WriteMesh::signature_write_mesh ( Common::SignalArgs& node)
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 

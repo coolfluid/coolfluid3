@@ -29,22 +29,22 @@ CPlotter::CPlotter(const std::string & name) :
    Component(name)
 {
   // signals
-  regist_signal("create_xyplot", "Creates an XY-Plot", "New XY-Plot")
-      ->connect( boost::bind(&CPlotter::signal_create_xyplot, this, _1) );
+  regist_signal("create_xyplot", "Creates an XY-Plot", "New XY-Plot")->
+      signal->connect( boost::bind(&CPlotter::signal_create_xyplot, this, _1) );
 
   // hide some signals from the GUI
-  signal("create_component").is_hidden = true;
-  signal("delete_component").is_hidden = true;
-  signal("move_component").is_hidden = true;
-  signal("rename_component").is_hidden = true;
+  signal("create_component")->is_hidden = true;
+  signal("delete_component")->is_hidden = true;
+  signal("move_component")->is_hidden = true;
+  signal("rename_component")->is_hidden = true;
 
   // signatures
-  signal("create_xyplot").signature->connect( boost::bind(&CPlotter::signature_create_xyplot, this, _1) );
+  signal("create_xyplot")->signature->connect( boost::bind(&CPlotter::signature_create_xyplot, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CPlotter::signal_create_xyplot(Signal::arg_t &args)
+void CPlotter::signal_create_xyplot(SignalArgs &args)
 {
   SignalFrame& options = args.map( Protocol::Tags::key_options() );
 
@@ -71,7 +71,7 @@ void CPlotter::signal_create_xyplot(Signal::arg_t &args)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CPlotter::signature_create_xyplot(Signal::arg_t &args)
+void CPlotter::signature_create_xyplot(SignalArgs &args)
 {
   SignalFrame& options = args.map( Protocol::Tags::key_options() );
 

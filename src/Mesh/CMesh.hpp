@@ -87,9 +87,9 @@ public: // functions
   /// @return the nodes of the mesh , non-modifiable access
   const CNodes& nodes() const;
 
-  void signal_write_mesh ( Common::Signal::arg_t& node );
+  void signal_write_mesh ( Common::SignalArgs& node );
 
-  void signature_write_mesh ( Common::Signal::arg_t& node);
+  void signature_write_mesh ( Common::SignalArgs& node);
 
 private:
 

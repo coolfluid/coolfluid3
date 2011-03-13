@@ -39,16 +39,16 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
 
   // signals
 
-  regist_signal ( "load_mesh" , "Loads meshes, guessing automatically the format", "Load Mesh" )->connect ( boost::bind ( &LoadMesh::signal_load_mesh, this, _1 ) );
+  regist_signal ( "load_mesh" , "Loads meshes, guessing automatically the format", "Load Mesh" )->signal->connect ( boost::bind ( &LoadMesh::signal_load_mesh, this, _1 ) );
 
-  signal("create_component").is_hidden = true;
-  signal("rename_component").is_hidden = true;
-  signal("delete_component").is_hidden = true;
-  signal("move_component").is_hidden   = true;
+  signal("create_component")->is_hidden = true;
+  signal("rename_component")->is_hidden = true;
+  signal("delete_component")->is_hidden = true;
+  signal("move_component")->is_hidden   = true;
 
   update_list_of_available_readers();
 
-  signal("load_mesh").signature->connect(boost::bind(&LoadMesh::signature_load_mesh, this, _1));
+  signal("load_mesh")->signature->connect(boost::bind(&LoadMesh::signature_load_mesh, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ CMesh::Ptr LoadMesh::load_mesh(const URI& file)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LoadMesh::signal_load_mesh ( Common::Signal::arg_t& node )
+void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
 {
   update_list_of_available_readers();
 
@@ -195,7 +195,7 @@ void LoadMesh::signal_load_mesh ( Common::Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LoadMesh::signature_load_mesh ( Common::Signal::arg_t& node)
+void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 

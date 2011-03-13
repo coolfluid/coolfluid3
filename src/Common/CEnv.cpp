@@ -4,10 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Signal.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
-#include "Common/Log.hpp"
+#include "Common/LogLevel.hpp"
 
 #include "Common/CEnv.hpp"
 
@@ -16,7 +17,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CEnv, Component, LibCommon > aCEnv_Builder;
+Common::ComponentBuilder < CEnv, Component, LibCommon > CEnv_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,10 +48,10 @@ CEnv::CEnv ( const std::string& name) : Component ( name )
   m_properties["ExceptionLogLevel"].as_option().mark_basic();
 
   // signals
-  signal("create_component").is_hidden = true;
-  signal("rename_component").is_hidden = true;
-  signal("delete_component").is_hidden = true;
-  signal("move_component").is_hidden   = true;
+  signal("create_component")->is_hidden = true;
+  signal("rename_component")->is_hidden = true;
+  signal("delete_component")->is_hidden = true;
+  signal("move_component")->is_hidden   = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

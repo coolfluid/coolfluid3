@@ -51,7 +51,7 @@ public: // functions
   //@{
 
   /// Signal to start solving
-  void signal_solve ( Common::Signal::arg_t& node );
+  void signal_solve ( Common::SignalArgs& node );
 
   //@} END SIGNALS
 

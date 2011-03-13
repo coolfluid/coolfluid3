@@ -41,7 +41,7 @@ public:
   /// @name SIGNALS
   //@{
 
-  void list_journal(Common::Signal::arg_t & node);
+  void list_journal(Common::SignalArgs & node);
 
   //@} END SIGNALS
 

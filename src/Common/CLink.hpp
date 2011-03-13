@@ -51,7 +51,7 @@ public: // functions
   void link_to ( Component& lnkto );
   void link_to ( const Component& lnkto );
 
-  void change_link( Signal::arg_t & args );
+  void change_link( SignalArgs & args );
 
 private: // data
 

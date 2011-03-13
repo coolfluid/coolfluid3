@@ -10,6 +10,7 @@
 #include <QProcess>
 
 #include "Common/BasicExceptions.hpp"
+#include "Common/Signal.hpp"
 
 #include "GUI/Client/Core/ClientNetworkComm.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"
@@ -35,9 +36,9 @@ NCore::NCore()
   connect(m_networkComm, SIGNAL(connected()), this, SLOT(connected()));
   connect(m_networkComm, SIGNAL(disconnectedFromServer()), this, SLOT(disconnected()));
 
-  regist_signal("shutdown", "Server shutdown")->connect(boost::bind(&NCore::shutdown, this, _1));
-  regist_signal("client_registration", "Registration confirmation")->connect(boost::bind(&NCore::client_registration, this, _1));
-  regist_signal("frame_rejected", "Frame rejected by the server")->connect(boost::bind(&NCore::frame_rejected, this, _1));
+  regist_signal("shutdown", "Server shutdown")->signal->connect(boost::bind(&NCore::shutdown, this, _1));
+  regist_signal("client_registration", "Registration confirmation")->signal->connect(boost::bind(&NCore::client_registration, this, _1));
+  regist_signal("frame_rejected", "Frame rejected by the server")->signal->connect(boost::bind(&NCore::frame_rejected, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -51,7 +52,7 @@ NCore::~NCore()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NCore::sendSignal(Signal::arg_t & signal)
+void NCore::sendSignal(SignalArgs & signal)
 {
   m_networkComm->send(signal);
 }
@@ -139,7 +140,7 @@ void NCore::connected()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NCore::shutdown(Signal::arg_t & node)
+void NCore::shutdown(SignalArgs & node)
 {
   NLog::globalLog()->addMessage("The server is shutting down. Disconnecting...");
   this->disconnectFromServer(false);
@@ -148,7 +149,7 @@ void NCore::shutdown(Signal::arg_t & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NCore::client_registration(Signal::arg_t & node)
+void NCore::client_registration(SignalArgs & node)
 {
   if( node.map(Protocol::Tags::key_options()).get_option<bool>("accepted") )
   {
@@ -167,7 +168,7 @@ void NCore::client_registration(Signal::arg_t & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NCore::frame_rejected(Signal::arg_t & args)
+void NCore::frame_rejected(SignalArgs & args)
 {
   SignalFrame & options = args.map( Protocol::Tags::key_options() );
 

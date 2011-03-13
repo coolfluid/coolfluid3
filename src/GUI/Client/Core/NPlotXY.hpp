@@ -7,6 +7,7 @@
 #ifndef CF_GUI_Client_Core_NPlotXY_hpp
 #define CF_GUI_Client_Core_NPlotXY_hpp
 
+#include <boost/signals2/signal.hpp>
 #include <boost/multi_array.hpp>
 
 #include "GUI/Client/Core/CNode.hpp"
@@ -36,7 +37,7 @@ public:
 
   virtual QString toolTip() const;
 
-  void convergence_history ( Common::Signal::arg_t& node );
+  void convergence_history ( Common::SignalArgs& node );
 
 }; //  XYPlot
 

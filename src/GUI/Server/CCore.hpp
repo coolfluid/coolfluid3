@@ -160,15 +160,15 @@ namespace Server {
 
     void setStatus(CF::Common::WorkerStatus::Type status);
 
-    CF::Common::Signal::return_t read_dir(CF::Common::Signal::arg_t & node);
+    void read_dir(CF::Common::SignalArgs & node);
 
-    CF::Common::Signal::return_t createDir(CF::Common::Signal::arg_t & node);
+    void createDir(CF::Common::SignalArgs & node);
 
-    CF::Common::Signal::return_t shutdown(CF::Common::Signal::arg_t & node);
+    void shutdown(CF::Common::SignalArgs & node);
 
-    CF::Common::Signal::return_t saveConfig(CF::Common::Signal::arg_t & node);
+    void saveConfig(CF::Common::SignalArgs & node);
 
-    CF::Common::Signal::return_t signal_list_tree(CF::Common::Signal::arg_t & node);
+    void signal_list_tree(CF::Common::SignalArgs & node);
   };
 
 ////////////////////////////////////////////////////////////////////////////

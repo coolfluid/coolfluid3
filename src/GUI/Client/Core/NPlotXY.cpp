@@ -10,6 +10,8 @@
 
 #include <boost/multi_array/storage_order.hpp>
 
+#include "Common/Signal.hpp"
+
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NPlotXY.hpp"
@@ -31,7 +33,7 @@ NPlotXY::NPlotXY(const QString & name) :
     CNode( name, "NPlotXY", PLOTXY_NODE )
 {
   regist_signal("convergence_history", "Lists convergence history", "Get history")->
-      connect( boost::bind( &NPlotXY::convergence_history, this, _1));
+      signal->connect( boost::bind( &NPlotXY::convergence_history, this, _1));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -43,7 +45,7 @@ QString NPlotXY::toolTip() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NPlotXY::convergence_history ( Signal::arg_t& node )
+void NPlotXY::convergence_history ( SignalArgs& node )
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 

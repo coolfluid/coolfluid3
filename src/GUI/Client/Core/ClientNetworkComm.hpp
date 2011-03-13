@@ -82,7 +82,7 @@ namespace ClientCore {
     /// otherwise, returns @c false.
     bool isConnected() const;
 
-    bool send(Common::Signal::arg_t & signal);
+    bool send(Common::SignalArgs & signal);
 
     void saveNetworkInfo () const;
 

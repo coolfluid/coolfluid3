@@ -43,9 +43,9 @@ public: // functions
   // functions specific to the LoadMesh component
 
   /// Signal run_operation
-  void signal_load_mesh ( Common::Signal::arg_t& node );
+  void signal_load_mesh ( Common::SignalArgs& node );
 
-  void signature_load_mesh ( Common::Signal::arg_t& node);
+  void signature_load_mesh ( Common::SignalArgs& node);
 
   LoadMesh& operation(const std::string& name);
 

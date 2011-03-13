@@ -9,6 +9,7 @@
 
 #include <set>
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 
 #include "Common/BasicExceptions.hpp"

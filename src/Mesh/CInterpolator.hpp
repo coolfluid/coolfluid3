@@ -48,7 +48,7 @@ public: // functions
 
   // --------- Signals ---------
 
-  void signal_interpolate( Common::Signal::arg_t& node  );
+  void signal_interpolate( Common::SignalArgs& node  );
   
   // --------- Direct access ---------
 

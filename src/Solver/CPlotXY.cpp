@@ -39,13 +39,13 @@ CPlotXY::CPlotXY(const std::string& name) :
     m_num_it(10000)
 {
   regist_signal("convergence_history", "Lists convergence history", "Get history")->
-      connect( boost::bind( &CPlotXY::convergence_history, this, _1));
+      signal->connect( boost::bind( &CPlotXY::convergence_history, this, _1));
 
   // hide some signals from the GUI
-  signal("create_component").is_hidden = true;
-//  signal("delete_component").is_hidden = true;
-//  signal("move_component").is_hidden = true;
-//  signal("rename_component").is_hidden = true;
+  signal("create_component")->is_hidden = true;
+//  signal("delete_component")->is_hidden = true;
+//  signal("move_component")->is_hidden = true;
+//  signal("rename_component")->is_hidden = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ CPlotXY::~CPlotXY()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CPlotXY::convergence_history( Signal::arg_t & args )
+void CPlotXY::convergence_history( SignalArgs & args )
 {
   if( is_not_null(m_data.get()) )
   {

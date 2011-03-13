@@ -4,9 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Signal.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionT.hpp"
+
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CField2.hpp"
@@ -42,9 +44,9 @@ CMeshWriter::CMeshWriter ( const std::string& name  ) :
       ->mark_basic();
   //file_path->supported_protocol(CF::Common::URI::Scheme::FILE);
 
-  // Signal for writing the mesh
-  this->regist_signal("write_mesh" , "Write the mesh", "Write Mesh")
-      ->connect( boost::bind ( &CMeshWriter::signal_write, this, _1 ) );
+  // signal for writing the mesh
+  regist_signal("write_mesh" , "Write the mesh", "Write Mesh")->
+      signal->connect( boost::bind ( &CMeshWriter::signal_write, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +82,7 @@ CMeshWriter::~CMeshWriter()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshWriter::signal_write( Signal::arg_t& node  )
+void CMeshWriter::signal_write( SignalArgs& node  )
 {
   write();
 }

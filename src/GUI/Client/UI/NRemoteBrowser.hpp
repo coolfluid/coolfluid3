@@ -592,7 +592,7 @@ namespace ClientUI {
     /// @param path Directory path to open
     void openDir(const QString & path);
 
-    CF::Common::Signal::return_t read_dir(CF::Common::Signal::arg_t & node);
+    void read_dir(CF::Common::SignalArgs & node);
 
   }; // class NRemoteBrowser
 

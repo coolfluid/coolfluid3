@@ -41,7 +41,7 @@ public:
 
     void set_data (const Common::URI & uri);
 
-    void convergence_history( Common::Signal::arg_t & args );
+    void convergence_history( Common::SignalArgs & args );
 
   private: // data
 

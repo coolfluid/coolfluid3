@@ -11,8 +11,8 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
+#include "Common/Foreach.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/OptionArray.hpp"
@@ -47,46 +47,46 @@ Component::Component ( const std::string& name ) :
 
   // signals
 
-  regist_signal( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::signal_create_component, this, _1 ) );
+  regist_signal( "create_component" , "creates a component", "Create component" )->signal->connect ( boost::bind ( &Component::signal_create_component, this, _1 ) );
 
-  regist_signal( "list_tree" , "lists the component tree inside this component", "List tree" )->connect ( boost::bind ( &Component::signal_list_tree, this, _1 ) );
+  regist_signal( "list_tree" , "lists the component tree inside this component", "List tree" )->signal->connect ( boost::bind ( &Component::signal_list_tree, this, _1 ) );
 
-  regist_signal( "list_properties" , "lists the options of this component", "List properties" )->connect ( boost::bind ( &Component::signal_list_properties, this, _1 ) );
+  regist_signal( "list_properties" , "lists the options of this component", "List properties" )->signal->connect ( boost::bind ( &Component::signal_list_properties, this, _1 ) );
 
-  regist_signal( "list_signals" , "lists the options of this component", "List signals" )->connect ( boost::bind ( &Component::signal_list_signals, this, _1 ) );
+  regist_signal( "list_signals" , "lists the options of this component", "List signals" )->signal->connect ( boost::bind ( &Component::signal_list_signals, this, _1 ) );
 
-  regist_signal( "configure" , "configures this component", "Configure" )->connect ( boost::bind ( &Component::signal_configure, this, _1 ) );
+  regist_signal( "configure" , "configures this component", "Configure" )->signal->connect ( boost::bind ( &Component::signal_configure, this, _1 ) );
 
-  regist_signal( "print_info" , "prints info on this component", "Info" )->connect ( boost::bind ( &Component::signal_print_info, this, _1 ) );
+  regist_signal( "print_info" , "prints info on this component", "Info" )->signal->connect ( boost::bind ( &Component::signal_print_info, this, _1 ) );
 
-  regist_signal( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::signal_rename_component, this, _1 ) );
+  regist_signal( "rename_component" , "Renames this component", "Rename" )->signal->connect ( boost::bind ( &Component::signal_rename_component, this, _1 ) );
 
-  regist_signal( "delete_component" , "Deletes a component", "Delete" )->connect ( boost::bind ( &Component::signal_delete_component, this, _1 ) );
+  regist_signal( "delete_component" , "Deletes a component", "Delete" )->signal->connect ( boost::bind ( &Component::signal_delete_component, this, _1 ) );
 
-  regist_signal( "move_component" , "Moves a component to another component", "Move" )->connect ( boost::bind ( &Component::signal_move_component, this, _1 ) );
+  regist_signal( "move_component" , "Moves a component to another component", "Move" )->signal->connect ( boost::bind ( &Component::signal_move_component, this, _1 ) );
 
-  regist_signal( "save_tree", "Saves the tree", "Save tree")->connect( boost::bind(&Component::signal_save_tree, this, _1) );
+  regist_signal( "save_tree", "Saves the tree", "Save tree")->signal->connect( boost::bind(&Component::signal_save_tree, this, _1) );
 
-  regist_signal( "list_content", "Lists component content", "List content")->connect(boost::bind(&Component::signal_list_content, this, _1));
+  regist_signal( "list_content", "Lists component content", "List content")->signal->connect(boost::bind(&Component::signal_list_content, this, _1));
 
-  regist_signal( "signal_signature", "Gives signature of a signal", "")->connect( boost::bind(&Component::signal_signature, this, _1));
+  regist_signal( "signal_signature", "Gives signature of a signal", "")->signal->connect( boost::bind(&Component::signal_signature, this, _1));
 
   // these signals should not be seen from the GUI
-  signal("list_tree").is_hidden = true;
-  signal("list_properties").is_hidden = true;
-  signal("list_signals").is_hidden = true;
-  signal("configure").is_hidden = true;
-  signal("save_tree").is_hidden = true;
-  signal("list_content").is_hidden = true;
-  signal("signal_signature").is_hidden = true;
+  signal("list_tree")->is_hidden = true;
+  signal("list_properties")->is_hidden = true;
+  signal("list_signals")->is_hidden = true;
+  signal("configure")->is_hidden = true;
+  signal("save_tree")->is_hidden = true;
+  signal("list_content")->is_hidden = true;
+  signal("signal_signature")->is_hidden = true;
 
   // these signals are read-only
-  signal("list_tree").is_read_only = true;
+  signal("list_tree")->is_read_only = true;
 
   // signatures
-  signal("create_component").signature->connect( boost::bind(&Component::signature_create_component, this, _1) );
-  signal("rename_component").signature->connect( boost::bind(&Component::signature_rename_component, this, _1) );
-  signal("move_component").signature->connect( boost::bind(&Component::signature_move_component, this, _1) );
+  signal("create_component")->signature->connect( boost::bind(&Component::signature_create_component, this, _1) );
+  signal("rename_component")->signature->connect( boost::bind(&Component::signature_rename_component, this, _1) );
+  signal("move_component")->signature->connect( boost::bind(&Component::signature_move_component, this, _1) );
 
   // properties
 
@@ -96,7 +96,6 @@ Component::Component ( const std::string& name ) :
 
 Component::~Component()
 {
-//  CFinfo << "deleting component \'" << name() << "\'" << CFendl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -208,9 +207,9 @@ Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
   raise_path_changed();
 
   subcomp->change_parent( this );
-  subcomp->signal("rename_component").is_hidden = true;
-  subcomp->signal("delete_component").is_hidden = true;
-  subcomp->signal("move_component").is_hidden   = true;
+  subcomp->signal("rename_component")->is_hidden = true;
+  subcomp->signal("delete_component")->is_hidden = true;
+  subcomp->signal("move_component")->is_hidden   = true;
 
 
   return subcomp;
@@ -572,7 +571,7 @@ Component::ConstPtr Component::access_component_ptr_checked (const URI& path ) c
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_create_component ( Signal::arg_t& args  )
+void Component::signal_create_component ( SignalArgs& args  )
 {
   SignalFrame options = args.map( Protocol::Tags::key_options() );
 
@@ -598,7 +597,7 @@ void Component::signal_create_component ( Signal::arg_t& args  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_delete_component ( Signal::arg_t& args  )
+void Component::signal_delete_component ( SignalArgs& args  )
 {
 //  XmlParams p ( node );
 
@@ -620,7 +619,7 @@ void Component::signal_delete_component ( Signal::arg_t& args  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_move_component ( Signal::arg_t& args  )
+void Component::signal_move_component ( SignalArgs& args  )
 {
   SignalFrame options = args.map( Protocol::Tags::key_options() );
 
@@ -635,7 +634,7 @@ void Component::signal_move_component ( Signal::arg_t& args  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_print_info ( Signal::arg_t& args  )
+void Component::signal_print_info ( SignalArgs& args  )
 {
   CFinfo << "Info on component \'" << full_path().path() << "\'" << CFendl;
 
@@ -700,7 +699,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_list_tree( Signal::arg_t& args )
+void Component::signal_list_tree( SignalArgs& args )
 {
   SignalFrame reply = args.create_reply( full_path() );
 
@@ -869,7 +868,7 @@ void Component::signal_list_properties( SignalFrame& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_list_signals( Signal::arg_t& args )
+void Component::signal_list_signals( SignalArgs& args )
 {
   sigmap_t::iterator it = m_signals.begin();
 
@@ -882,15 +881,15 @@ void Component::signal_list_signals( Signal::arg_t& args )
     XmlNode signal_node = value_node.add_node( Protocol::Tags::node_map() );
 
     signal_node.set_attribute( Protocol::Tags::attr_key(), it->first );
-    signal_node.set_attribute( Protocol::Tags::attr_descr(), it->second.description );
-    signal_node.set_attribute( "name", it->second.readable_name );
-    signal_node.set_attribute( "hidden", to_str(it->second.is_hidden) );
+    signal_node.set_attribute( Protocol::Tags::attr_descr(), it->second->description );
+    signal_node.set_attribute( "name", it->second->readable_name );
+    signal_node.set_attribute( "hidden", to_str(it->second->is_hidden) );
   }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_configure ( Signal::arg_t& args )
+void Component::signal_configure ( SignalArgs& args )
 {
   using namespace rapidxml;
 
@@ -941,7 +940,7 @@ Property& Component::property( const std::string& optname )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_rename_component ( Signal::arg_t& args )
+void Component::signal_rename_component ( SignalArgs& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
@@ -952,7 +951,7 @@ void Component::signal_rename_component ( Signal::arg_t& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_save_tree ( Signal::arg_t& args )
+void Component::signal_save_tree ( SignalArgs& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
@@ -974,7 +973,7 @@ void Component::signal_save_tree ( Signal::arg_t& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_list_content( Signal::arg_t& args )
+void Component::signal_list_content( SignalArgs& args )
 {
   SignalFrame reply = args.create_reply( full_path() );
 
@@ -984,12 +983,12 @@ void Component::signal_list_content( Signal::arg_t& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_signature( Signal::arg_t & args )
+void Component::signal_signature( SignalArgs & args )
 {
   SignalFrame reply = args.create_reply( full_path() );
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
-  ( *signal( p.get_option<std::string>("name") ).signature )(reply);
+  ( *signal( p.get_option<std::string>("name") )->signature )(reply);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1021,7 +1020,7 @@ Component& Component::mark_basic()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signature_create_component( Signal::arg_t& args )
+void Component::signature_create_component( SignalArgs& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
@@ -1033,7 +1032,7 @@ void Component::signature_create_component( Signal::arg_t& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signature_rename_component( Signal::arg_t& args )
+void Component::signature_rename_component( SignalArgs& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
@@ -1042,7 +1041,7 @@ void Component::signature_rename_component( Signal::arg_t& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signature_move_component( Signal::arg_t& args )
+void Component::signature_move_component( SignalArgs& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 

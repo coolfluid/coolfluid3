@@ -28,14 +28,14 @@ namespace Server {
 
   public:
 
-    ProcessingThread(Common::Signal::arg_t & signal, const std::string & target,
+    ProcessingThread(Common::SignalArgs & signal, const std::string & target,
                      Common::Component::Ptr receiver);
 
     void run();
 
   private:
 
-    Common::Signal::arg_t m_signal;
+    Common::SignalArgs m_signal;
 
     std::string m_target;
 

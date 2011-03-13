@@ -46,7 +46,7 @@ namespace ClientUI {
 
     void actionHovered();
 
-    void signalSignature(Common::Signal::arg_t & node);
+    void signalSignature(Common::SignalArgs & node);
 
   private:
 

@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Signal.hpp"
 #include "Common/CLibraries.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/LibLoader.hpp"
@@ -26,14 +27,14 @@ CLibraries::CLibraries ( const std::string& name) : Component ( name )
   m_properties["description"] = std::string("Loads external libraries, and holds links to all builders each library offers");
 
   // signals
-  regist_signal ( "load_library" , "loads a library", "Load Library" )->connect ( boost::bind ( &CLibraries::signal_load_library, this, _1 ) );
+  regist_signal ( "load_library" , "loads a library", "Load Library" )->signal->connect ( boost::bind ( &CLibraries::signal_load_library, this, _1 ) );
 
-  signal("create_component").is_hidden = true;
-  signal("rename_component").is_hidden = true;
-  signal("move_component").is_hidden = true;
-  signal("delete_component").is_hidden = true;
+  signal("create_component")->is_hidden = true;
+  signal("rename_component")->is_hidden = true;
+  signal("move_component")->is_hidden = true;
+  signal("delete_component")->is_hidden = true;
 
-  signal("load_library").signature->connect( boost::bind(&CLibraries::signature_load_library, this, _1) );
+  signal("load_library")->signature->connect( boost::bind(&CLibraries::signature_load_library, this, _1) );
 
 }
 
@@ -57,7 +58,7 @@ void CLibraries::load_library( const URI& file )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::signal_load_library ( Signal::arg_t& args )
+void CLibraries::signal_load_library ( SignalArgs& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
@@ -94,7 +95,7 @@ void CLibraries::signal_load_library ( Signal::arg_t& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::signature_load_library ( Signal::arg_t& args )
+void CLibraries::signature_load_library ( SignalArgs& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 

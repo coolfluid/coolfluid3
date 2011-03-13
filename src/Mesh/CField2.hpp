@@ -71,7 +71,7 @@ public: // functions
   
   void create_data_storage();
   
-  void signal_create_data_storage( Common::Signal::arg_t& node ) { create_data_storage(); }
+  void signal_create_data_storage( Common::SignalArgs& node ) { create_data_storage(); }
     
   Basis::Type basis() const { return m_basis; }
   

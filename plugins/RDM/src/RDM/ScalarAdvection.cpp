@@ -36,14 +36,14 @@ ScalarAdvection::ScalarAdvection ( const std::string& name  ) :
 {
   // signals
 
-  this->regist_signal ( "create_model" , "Creates a scalar advection model", "Create Model" )->connect ( boost::bind ( &ScalarAdvection::signal_create_model, this, _1 ) );
+  this->regist_signal ( "create_model" , "Creates a scalar advection model", "Create Model" )->signal->connect ( boost::bind ( &ScalarAdvection::signal_create_model, this, _1 ) );
 
-  signal("create_component").is_hidden = true;
-  signal("rename_component").is_hidden = true;
-  signal("delete_component").is_hidden = true;
-  signal("move_component").is_hidden   = true;
+  signal("create_component")->is_hidden = true;
+  signal("rename_component")->is_hidden = true;
+  signal("delete_component")->is_hidden = true;
+  signal("move_component")->is_hidden   = true;
 
-  signal("create_model").signature->connect( boost::bind( &ScalarAdvection::signature_create_model, this, _1));
+  signal("create_model")->signature->connect( boost::bind( &ScalarAdvection::signature_create_model, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ ScalarAdvection::~ScalarAdvection()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
+void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -82,7 +82,7 @@ void ScalarAdvection::signal_create_model ( Common::Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::signature_create_model( Signal::arg_t& node )
+void ScalarAdvection::signature_create_model( SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 

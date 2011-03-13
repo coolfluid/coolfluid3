@@ -38,13 +38,13 @@ CJournal::CJournal (const std::string & name)
     m_xmldoc(Protocol::create_doc())
 {
   regist_signal("list_journal", "Lists all journal entries.", "List journal")->
-      connect( boost::bind( &CJournal::list_journal, this, _1) );
+      signal->connect( boost::bind( &CJournal::list_journal, this, _1) );
   regist_signal("load_journal", "Loads the journal entries from file.", "Load journal")->
-      connect( boost::bind( &CJournal::load_journal, this, _1) );
+      signal->connect( boost::bind( &CJournal::load_journal, this, _1) );
   regist_signal("save_journal", "Saves all journal entries.", "Save journal")->
-      connect( boost::bind( &CJournal::save_journal, this, _1) );
+      signal->connect( boost::bind( &CJournal::save_journal, this, _1) );
 
-  signal("list_journal").is_hidden = true;
+  signal("list_journal")->is_hidden = true;
 
   m_properties.add_option< OptionT<bool> >("RecordReplies", "If true, both signal and reply frames are recorded. If false, only signal frames are recorded.\nRecording replies will significantly increase the journal size and the memory used.", false);
 
@@ -104,7 +104,7 @@ void CJournal::dump_journal_to ( const boost::filesystem::path & file_path ) con
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::add_signal ( const Signal::arg_t & signal_node )
+void CJournal::add_signal ( const SignalArgs & signal_node )
 {
   rapidxml::xml_attribute<> * type_attr = signal_node.node.content->first_attribute("type");
 
@@ -190,7 +190,7 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::list_journal ( Signal::arg_t & args )
+void CJournal::list_journal ( SignalArgs & args )
 {
   SignalFrame reply = args.create_reply( full_path() );
 
@@ -199,14 +199,14 @@ void CJournal::list_journal ( Signal::arg_t & args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::load_journal ( Signal::arg_t & args )
+void CJournal::load_journal ( SignalArgs & args )
 {
   throw NotImplemented(FromHere(), "CJournal::load_journal()");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::save_journal ( Signal::arg_t & args )
+void CJournal::save_journal ( SignalArgs & args )
 {
   URI file_path("./server-journal.xml", URI::Scheme::FILE);
   boost::filesystem::path path(file_path.path());

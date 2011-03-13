@@ -16,7 +16,7 @@ using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::GUI::Server;
 
-ProcessingThread::ProcessingThread(Signal::arg_t & signal, const std::string & target,
+ProcessingThread::ProcessingThread(SignalArgs & signal, const std::string & target,
                                    Component::Ptr receiver)
   : m_signal(signal),
     m_target(target),

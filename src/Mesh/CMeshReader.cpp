@@ -38,12 +38,12 @@ CMeshReader::CMeshReader ( const std::string& name  ) :
   mark_basic();
 
   // signals
-  this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::signal_read, this, _1 ) );
+  this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->signal->connect ( boost::bind ( &CMeshReader::signal_read, this, _1 ) );
 
   /// @todo future way to handle signatures
   // signal("read").regist_signature( &CMeshReader::signature_read );
 
-  signal("read").signature->connect( boost::bind(&CMeshReader::read_signature, this, _1) );
+  signal("read")->signature->connect( boost::bind(&CMeshReader::read_signature, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ CMeshReader::~CMeshReader()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::signal_read( Signal::arg_t& node  )
+void CMeshReader::signal_read( SignalArgs& node  )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -198,7 +198,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::read_signature( Signal::arg_t& node )
+void CMeshReader::read_signature( SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 

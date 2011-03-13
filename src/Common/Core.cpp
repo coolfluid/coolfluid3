@@ -9,6 +9,7 @@
 #include "Common/MPI/PE.hpp"
 
 #include "Common/Log.hpp"
+#include "Common/Signal.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
 #include "Common/NetworkInfo.hpp"
@@ -71,7 +72,7 @@ Core::Core()
   RegistTypeInfo<CLibraries>();
   RegistTypeInfo<CFactories>();
 
-  // create the root component ant its structure structure
+  // create the root component and its structure structure
   m_root = CRoot::create("Root");
   m_root->mark_basic();
 

@@ -64,18 +64,18 @@ namespace Common {
 
     /// Adds a signal to the journal.
     /// @param signal_node Signal to add.
-    void add_signal ( const Signal::arg_t & signal_node );
+    void add_signal ( const SignalArgs & signal_node );
 
     void execute_signals (const boost::filesystem::path & filename);
 
     /// @name SIGNALS
     // @{
 
-    void list_journal ( Signal::arg_t & node );
+    void list_journal ( SignalArgs & node );
 
-    void load_journal ( Signal::arg_t & node );
+    void load_journal ( SignalArgs & node );
 
-    void save_journal ( Signal::arg_t & node );
+    void save_journal ( SignalArgs & node );
 
     // @} END SIGNALS
 

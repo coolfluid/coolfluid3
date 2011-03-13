@@ -14,6 +14,8 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include "Common/Signal.hpp"
+
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
@@ -42,8 +44,8 @@ NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
 {
   setRootNode(rootNode);
 
-  regist_signal("list_journal", "List journal", "List journal")
-  ->connect(boost::bind(&NJournalBrowser::list_journal, this, _1));
+  regist_signal("list_journal", "List journal", "List journal")->
+      signal->connect(boost::bind(&NJournalBrowser::list_journal, this, _1));
 
   m_columns << "Target" << "Sender" << "Receiver" << "Type" << "Direction" << "Time" /*<< "Status" << "Excecute"*/;
 }
@@ -232,7 +234,7 @@ void NJournalBrowser::requestJournal()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NJournalBrowser::list_journal(Signal::arg_t & args)
+void NJournalBrowser::list_journal(SignalArgs & args)
 {
   setRootNode(&args.node);
 }

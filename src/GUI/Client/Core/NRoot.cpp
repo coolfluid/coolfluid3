@@ -13,6 +13,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/URI.hpp"
+#include "Common/Signal.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -29,7 +30,7 @@ NRoot::NRoot(const QString & name)
   : CNode(name, "CRoot", ROOT_NODE)
 {
   m_uuid = boost::uuids::random_generator()();
-  regist_signal( "save_tree_local", "Saves the server component tree.", "Save server tree" )->connect( boost::bind(&NRoot::save_tree_local, this, _1));
+  regist_signal( "save_tree_local", "Saves the server component tree.", "Save server tree" )->signal->connect( boost::bind(&NRoot::save_tree_local, this, _1));
 
   m_localSignals << "save_tree_local";
 
@@ -82,7 +83,7 @@ std::string NRoot::uuid() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NRoot::save_tree_local ( Signal::arg_t & )
+void NRoot::save_tree_local ( SignalArgs & )
 {
   if( !NCore::globalCore()->isConnected() )
     NLog::globalLog()->addError("The client needs to be connected to a server to do that.");

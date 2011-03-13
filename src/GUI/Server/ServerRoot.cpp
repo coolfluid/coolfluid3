@@ -8,8 +8,8 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include "Common/Signal.hpp"
 #include "Common/Core.hpp"
-
 #include "Common/CRoot.hpp"
 #include "Common/NotificationQueue.hpp"
 #include "Common/XML/Protocol.hpp"
@@ -127,7 +127,7 @@ void ServerRoot::processSignal(const string & target,
                                const URI & receiver,
                                const string & clientid,
                                const string & frameid,
-                               Signal::arg_t & signal)
+                               SignalArgs & signal)
 {
   if(m_mutex.tryLock())
   {
@@ -145,7 +145,7 @@ void ServerRoot::processSignal(const string & target,
     {
       Component::Ptr comp = root()->retrieve_component(receiver);
 
-      if( comp->signal(target).is_read_only )
+      if( comp->signal(target)->is_read_only )
       {
         comp->call_signal(target, signal );
         journal()->add_signal(signal);

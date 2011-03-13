@@ -13,6 +13,7 @@
 #include <QDebug>
 
 #include "Common/URI.hpp"
+#include "Common/Signal.hpp"
 
 #include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/NLog.hpp"
@@ -68,10 +69,11 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
   m_node = node;
   m_currentAction = nullptr;
 
-  node->signal("signal_signature").signal_ptr->connect( boost::bind(&SignalManager::signalSignature, this, _1) );
+  node->signal("signal_signature")->signal
+      ->connect( boost::bind(&SignalManager::signalSignature, this, _1) );
 
-//  connect(node->notifier(), SIGNAL(signalSignature(CF::Common::Signal::arg_t*)),
-//          this, SLOT(signalSignature(CF::Common::Signal::arg_t*)));
+//  connect(node->notifier(), SIGNAL(signalSignature(CF::Common::SignalArgs*)),
+//          this, SLOT(signalSignature(CF::Common::SignalArgs*)));
 
   for( ; it!= sigs.end() ; it++)
   {
@@ -132,7 +134,7 @@ void SignalManager::actionHovered()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void SignalManager::signalSignature(Signal::arg_t & args)
+void SignalManager::signalSignature(SignalArgs & args)
 {
   if(m_waitingForSignature)
   {

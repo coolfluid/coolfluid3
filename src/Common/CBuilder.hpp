@@ -13,6 +13,7 @@
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
+#include "Common/Signal.hpp"
 #include "Common/CFactories.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
@@ -82,9 +83,9 @@ public:
     // verify that CONCRETE derives from BASE
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
 
-    this->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, this, _1 ) );
+    this->regist_signal ( "build_component" , "builds a component", "Build component" )->signal->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, this, _1 ) );
 
-    signal("build_component").signature->connect(
+    signal("build_component")->signature->connect(
         boost::bind(&CBuilderT<BASE,CONCRETE>::build_component_signature, this, _1));
   }
 
@@ -117,7 +118,7 @@ public:
   //@{
 
   /// creates a component from this component
-  void build_component ( Signal::arg_t& args )
+  void build_component ( SignalArgs& args )
   {
     XML::SignalFrame params = args.map( XML::Protocol::Tags::key_options() );
 
@@ -127,7 +128,7 @@ public:
     parent->add_component( comp );
   }
 
-  void build_component_signature ( Signal::arg_t& args )
+  void build_component_signature ( SignalArgs& args )
   {
     XML::SignalFrame p = args.map( XML::Protocol::Tags::key_options() );
 

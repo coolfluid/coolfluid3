@@ -61,7 +61,7 @@ namespace ClientCore {
     void notifyChildCountChanged();
 
     /// Emits @c #contentChanged() signal.
-    void notifySignalSignature(Common::Signal::arg_t * node);
+    void notifySignalSignature(Common::SignalArgs * node);
 
   signals:
 
@@ -69,7 +69,7 @@ namespace ClientCore {
     void childCountChanged();
 
     /// Signal emitted when a signal signature has been received.
-    void signalSignature(Common::Signal::arg_t * node);
+    void signalSignature(Common::SignalArgs * node);
 
   private:
 
@@ -200,14 +200,14 @@ namespace ClientCore {
 
     /// Sets node properties
     /// @param node Note containing the options
-    void setProperties(const Common::Signal::arg_t & node);
+    void setProperties(const Common::SignalArgs & node);
 
     /// Sets node signals
     /// Those are considered as non-local ones, meaning that asking the node
     /// to execute them will result to the sendng of a request to the remote
     /// component.
     /// @param node Node containing the signals
-    void setSignals(const Common::Signal::arg_t & node);
+    void setSignals(const Common::SignalArgs & node);
 
     /// Modifies options
 
@@ -323,23 +323,23 @@ namespace ClientCore {
     /// This methods calls @c NCore::update_tree() method to resquet an update
     /// of the tree.
     /// @param node Signal data. This parameter is not used.
-    Common::Signal::return_t update_tree( Common::Signal::arg_t & node);
+    void update_tree( Common::SignalArgs & node);
 
     /// Method called when receiving a reply to a previously sent
     /// "configure" signal.
     /// @param node An XML representation of the modified options.
-    void configure_reply(Common::Signal::arg_t & node);
+    void configure_reply(Common::SignalArgs & node);
 
     /// Method called when the server replies to a @c list_content request.
     /// @param node Signal data.
-    void list_content_reply( Common::Signal::arg_t & node );
+    void list_content_reply( Common::SignalArgs & node );
 
     /// Method called when the server replies to a @c
-    void signal_signature_reply( Common::Signal::arg_t & node );
+    void signal_signature_reply( Common::SignalArgs & node );
 
     //@} END Signals
 
-    void localSignature(const QString & name, Common::Signal::arg_t& node );
+    void localSignature(const QString & name, Common::SignalArgs& node );
 
   protected: // data
 

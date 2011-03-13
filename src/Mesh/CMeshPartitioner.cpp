@@ -5,11 +5,14 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Foreach.hpp"
+#include "Common/Log.hpp"
+#include "Common/Signal.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/tools.hpp"
-#include "Common/Log.hpp"
 #include "Common/StringConversion.hpp"
+
+#include "Common/XML/Protocol.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CList.hpp"
@@ -17,8 +20,6 @@
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
-
-#include "Common/XML/Protocol.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -44,9 +45,10 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
   m_changes = allocate_component<CMap<Uint,Uint> >("changes");
   add_static_component(m_changes);
 
-  this->regist_signal ( "load_balance" , "partitions and migrates elements between processors", "Load Balance" )->connect ( boost::bind ( &CMeshPartitioner::load_balance,this, _1 ) );
+  regist_signal ( "load_balance" , "partitions and migrates elements between processors", "Load Balance" )->
+      signal->connect ( boost::bind ( &CMeshPartitioner::load_balance,this, _1 ) );
 
-  signal("load_balance").signature->connect( boost::bind(&CMeshPartitioner::load_balance_signature, this, _1));
+  signal("load_balance")->signature->connect( boost::bind(&CMeshPartitioner::load_balance_signature, this, _1));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -62,7 +64,7 @@ void CMeshPartitioner::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::load_balance( Signal::arg_t& node  )
+void CMeshPartitioner::load_balance( SignalArgs& node  )
 {
 	SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -85,7 +87,7 @@ void CMeshPartitioner::load_balance( Signal::arg_t& node  )
 
 //////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::load_balance_signature ( Common::Signal::arg_t& node )
+void CMeshPartitioner::load_balance_signature ( Common::SignalArgs& node )
 {
 	SignalFrame & options = node.map( Protocol::Tags::key_options() );
 

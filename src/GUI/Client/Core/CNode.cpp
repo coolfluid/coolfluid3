@@ -14,6 +14,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/CF.hpp"
+#include "Common/Signal.hpp"
 #include "Common/Log.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/StringConversion.hpp"
@@ -73,7 +74,7 @@ void CNodeNotifier::notifyChildCountChanged()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNodeNotifier::notifySignalSignature(Signal::arg_t * node)
+void CNodeNotifier::notifySignalSignature(SignalArgs * node)
 {
   emit signalSignature(node);
 }
@@ -91,9 +92,9 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
 {
   m_mutex = new QMutex();
 
-  regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure_reply, this, _1));
-  regist_signal("tree_updated", "Event that notifies a path has changed")->connect(boost::bind(&CNode::update_tree, this, _1));
-  regist_signal("list_content", "Updates node contents")->connect(boost::bind(&CNode::list_content_reply, this, _1));
+  regist_signal("configure", "Update component options")->signal->connect(boost::bind(&CNode::configure_reply, this, _1));
+  regist_signal("tree_updated", "Event that notifies a path has changed")->signal->connect(boost::bind(&CNode::update_tree, this, _1));
+  regist_signal("list_content", "Updates node contents")->signal->connect(boost::bind(&CNode::list_content_reply, this, _1));
 
   m_signals.erase("signal_signature"); // unregister base class signal
 
@@ -121,7 +122,7 @@ CNode::Type CNode::type() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::setProperties(const Signal::arg_t & options)
+void CNode::setProperties(const SignalArgs & options)
 {
   QMutexLocker locker(m_mutex);
 
@@ -194,7 +195,7 @@ void CNode::setProperties(const Signal::arg_t & options)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::setSignals(const Signal::arg_t & args)
+void CNode::setSignals(const SignalArgs & args)
 {
   QMutexLocker locker(m_mutex);
 
@@ -345,9 +346,9 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::localSignature(const QString & name, Signal::arg_t& node )
+void CNode::localSignature(const QString & name, SignalArgs& node )
 {
-  ( *signal( name.toStdString() ).signature )(node);
+  ( *signal( name.toStdString() )->signature )(node);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -485,7 +486,7 @@ void CNode::removeNode(const QString & nodeName)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::configure_reply(Signal::arg_t & args)
+void CNode::configure_reply(SignalArgs & args)
 {
   NTree::globalTree()->optionsChanged(this->full_path());
   NLog::globalLog()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().path().c_str()));
@@ -494,7 +495,7 @@ void CNode::configure_reply(Signal::arg_t & args)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::list_content_reply( Signal::arg_t & node )
+void CNode::list_content_reply( SignalArgs & node )
 {
   setProperties(node);
   setSignals(node);
@@ -508,7 +509,7 @@ void CNode::list_content_reply( Signal::arg_t & node )
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::signal_signature_reply( Signal::arg_t & node )
+void CNode::signal_signature_reply( SignalArgs & node )
 {
   m_notifier->notifySignalSignature(&node);
 }
@@ -609,11 +610,11 @@ void CNode::actions(QList<ActionInfo> & actions)
       if(m_signals.find(it->toStdString()) != m_signals.end())
       {
         ActionInfo ai;
-        const Signal & sig = m_signals.find(it->toStdString())->second;
+        SignalPtr sig = m_signals.find(it->toStdString())->second;
 
         ai.name = it->toStdString().c_str();
-        ai.description = sig.description.c_str();
-        ai.readableName = sig.readable_name.c_str();
+        ai.description = sig->description.c_str();
+        ai.readableName = sig->readable_name.c_str();
 //        ai.m_signature = sig.signature;
         ai.isLocal = true;
 
@@ -821,7 +822,7 @@ void CNode::requestSignalSignature(const QString & name)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t CNode::update_tree(Signal::arg_t & node)
+void CNode::update_tree(SignalArgs & node)
 {
   NCore::globalCore()->updateTree();
 }

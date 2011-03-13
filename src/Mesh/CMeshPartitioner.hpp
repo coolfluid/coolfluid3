@@ -74,9 +74,9 @@ public: // functions
 	/// @todo this is now virtual because Zoltan is used.
 	virtual void migrate();
 
-	void load_balance ( Common::Signal::arg_t& xml );
+	void load_balance ( Common::SignalArgs& xml );
 
-	void load_balance_signature ( Common::Signal::arg_t& node );
+	void load_balance_signature ( Common::SignalArgs& node );
 
 	/// location finding functions
 

@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Signal.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 
@@ -37,7 +38,7 @@ CSolver::CSolver ( const std::string& name  ) :
   regist_signal ("solve" ,
                  "Solves",
                  "Solve" )
-      ->connect ( boost::bind ( &CSolver::signal_solve, this, _1 ) );
+      ->signal->connect ( boost::bind ( &CSolver::signal_solve, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +49,7 @@ CSolver::~CSolver()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CSolver::signal_solve ( Common::Signal::arg_t& node )
+void CSolver::signal_solve ( Common::SignalArgs& node )
 {
   this->solve(); // dispatch to the virtual function
 }

@@ -36,9 +36,9 @@ public:
   /// @name SIGNALS
   //@{
 
-  void signal_create_xyplot( Common::Signal::arg_t & args);
+  void signal_create_xyplot( Common::SignalArgs & args);
 
-  void signature_create_xyplot( Common::Signal::arg_t & args);
+  void signature_create_xyplot( Common::SignalArgs & args);
 
   //@} END SIGNALS
 

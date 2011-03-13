@@ -9,6 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/Signal.hpp"
 #include "Common/SignalHandler.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,9 +35,9 @@ public: // methods
 
   /// Regists a signal on this EventHandler
   template < typename PTYPE, typename FTYPE >
-  void addListener ( const std::string& sname, PTYPE* ptr, FTYPE pfunc, const std::string& desc = "" )
+  void regist_listener ( const std::string& sname, PTYPE* ptr, FTYPE pfunc, const std::string& desc = "" )
   {
-    regist_signal ( sname , desc )->connect ( boost::bind ( pfunc, ptr, _1 ) );
+    regist_signal ( sname , desc )->signal->connect ( boost::bind ( pfunc, ptr, _1 ) );
   }
 
 }; // class EventHandler

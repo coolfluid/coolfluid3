@@ -43,9 +43,9 @@ public: // functions
   // functions specific to the WriteMesh component
 
   /// Signal run_operation
-  void signal_write_mesh ( Common::Signal::arg_t& node );
+  void signal_write_mesh ( Common::SignalArgs& node );
 
-  void signature_write_mesh ( Common::Signal::arg_t& node);
+  void signature_write_mesh ( Common::SignalArgs& node);
 
   WriteMesh& operation(const std::string& name);
 

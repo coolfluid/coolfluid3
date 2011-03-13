@@ -14,6 +14,7 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/Log.hpp"
+#include "Common/Signal.hpp"
 
 #include "Common/XML/Protocol.hpp"
 
@@ -59,8 +60,10 @@ CCore::CCore()
 
   connect(rca, SIGNAL(newData(QString)), this, SLOT(message(QString)));
 
-  regist_signal("read_dir", "Read directory content")->connect(boost::bind(&CCore::read_dir, this, _1));
-  regist_signal("shutdown", "Shutdown the server")->connect(boost::bind(&CCore::shutdown, this, _1));
+  regist_signal("read_dir", "Read directory content")->
+      signal->connect(boost::bind(&CCore::read_dir, this, _1));
+  regist_signal("shutdown", "Shutdown the server")->
+      signal->connect(boost::bind(&CCore::shutdown, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.+++
@@ -201,7 +204,7 @@ bool CCore::getDirContent(const QString & directory,
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-Signal::return_t CCore::read_dir(Signal::arg_t & args)
+void CCore::read_dir(SignalArgs & args)
 {
   SignalFrame & options = args.map( Protocol::Tags::key_options() );
 
@@ -267,7 +270,7 @@ void CCore::newEvent(const std::string & name, const URI & path)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t CCore::createDir(Signal::arg_t & node)
+void CCore::createDir(SignalArgs & node)
 {
   m_commServer->sendMessageToClient("Cannot create a directory yet", LogMessage::ERROR);
 }
@@ -275,7 +278,7 @@ Signal::return_t CCore::createDir(Signal::arg_t & node)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t CCore::shutdown(Signal::arg_t & node)
+void CCore::shutdown(SignalArgs & node)
 {
   qApp->exit(0); // exit the Qt event loop
 }
@@ -283,7 +286,7 @@ Signal::return_t CCore::shutdown(Signal::arg_t & node)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t CCore::saveConfig(Signal::arg_t & node)
+void CCore::saveConfig(SignalArgs & node)
 {
   m_commServer->sendMessageToClient("Cannot save the configuration yet", LogMessage::ERROR);
 }

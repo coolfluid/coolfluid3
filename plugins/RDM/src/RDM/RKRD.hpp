@@ -58,19 +58,19 @@ public: // functions
   //@{
 
   /// signature for @see signal_initialize_solution
-  void signature_signal_initialize_solution( Common::Signal::arg_t& node );
+  void signature_signal_initialize_solution( Common::SignalArgs& node );
   /// initializes the solution
-  void signal_initialize_solution( Common::Signal::arg_t& xml );
+  void signal_initialize_solution( Common::SignalArgs& xml );
 
   /// signature for @see signal_create_boundary_term
-  void signature_signal_create_boundary_term( Common::Signal::arg_t& node );
+  void signature_signal_create_boundary_term( Common::SignalArgs& node );
   /// creates a boundary term
-  void signal_create_boundary_term( Common::Signal::arg_t& xml );
+  void signal_create_boundary_term( Common::SignalArgs& xml );
 
   /// signature for @see signal_create_boundary_term
-  void signature_signal_create_domain_term( Common::Signal::arg_t& node );
+  void signature_signal_create_domain_term( Common::SignalArgs& node );
   /// creates a domain term
-  void signal_create_domain_term( Common::Signal::arg_t& xml );
+  void signal_create_domain_term( Common::SignalArgs& xml );
 
   //@} END SIGNALS
 

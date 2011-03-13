@@ -45,8 +45,8 @@ CMesh::CMesh ( const std::string& name  ) :
   m_nodes_link = create_static_component<CLink>("nodes");
   m_topology = create_static_component<CRegion>("topology");
 
-  regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) );
-  signal("write_mesh").signature->connect(boost::bind(&CMesh::signature_write_mesh, this, _1));
+  regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->signal->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) );
+  signal("write_mesh")->signature->connect(boost::bind(&CMesh::signature_write_mesh, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -205,7 +205,7 @@ const CNodes& CMesh::nodes() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMesh::signature_write_mesh ( Signal::arg_t& node)
+void CMesh::signature_write_mesh ( SignalArgs& node)
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -219,7 +219,7 @@ void CMesh::signature_write_mesh ( Signal::arg_t& node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMesh::signal_write_mesh ( Signal::arg_t& node )
+void CMesh::signal_write_mesh ( SignalArgs& node )
 {
   WriteMesh::Ptr mesh_writer = create_component<WriteMesh>("writer");
 

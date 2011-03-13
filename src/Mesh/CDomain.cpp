@@ -33,11 +33,11 @@ CDomain::CDomain( const std::string& name  ) : Component ( name )
    "Offers signals to load or generate a mesh";
   m_properties["description"] = description;
 
-  regist_signal ( "load_mesh" , "Load a new mesh", "Load Mesh" )->connect ( boost::bind ( &CDomain::signal_load_mesh, this, _1 ) );
-  signal("load_mesh").signature->connect( boost::bind( &CDomain::signature_load_mesh, this, _1));
+  regist_signal ( "load_mesh" , "Load a new mesh", "Load Mesh" )->signal->connect ( boost::bind ( &CDomain::signal_load_mesh, this, _1 ) );
+  signal("load_mesh")->signature->connect( boost::bind( &CDomain::signature_load_mesh, this, _1));
 
-  regist_signal ( "generate_mesh" , "Generate a new mesh", "Generate Mesh" )->connect ( boost::bind ( &CDomain::signal_generate_mesh, this, _1 ) );
-  signal("generate_mesh").signature->connect( boost::bind( &CDomain::signature_generate_mesh, this, _1));
+  regist_signal ( "generate_mesh" , "Generate a new mesh", "Generate Mesh" )->signal->connect ( boost::bind ( &CDomain::signal_generate_mesh, this, _1 ) );
+  signal("generate_mesh")->signature->connect( boost::bind( &CDomain::signature_generate_mesh, this, _1));
 
 }
 
@@ -49,7 +49,7 @@ CDomain::~CDomain()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CDomain::signal_load_mesh ( Common::Signal::arg_t& node )
+void CDomain::signal_load_mesh ( Common::SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -60,7 +60,7 @@ void CDomain::signal_load_mesh ( Common::Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CDomain::signature_load_mesh ( Common::Signal::arg_t& node )
+void CDomain::signature_load_mesh ( Common::SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -70,14 +70,14 @@ void CDomain::signature_load_mesh ( Common::Signal::arg_t& node )
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void CDomain::signal_generate_mesh ( Common::Signal::arg_t& node )
+void CDomain::signal_generate_mesh ( Common::SignalArgs& node )
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CDomain::signature_generate_mesh ( Common::Signal::arg_t& node )
+void CDomain::signature_generate_mesh ( Common::SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 

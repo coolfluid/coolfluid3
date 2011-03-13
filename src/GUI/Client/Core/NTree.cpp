@@ -9,7 +9,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/CF.hpp"
+#include "Common/Signal.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CNode.hpp"
@@ -47,7 +47,8 @@ NTree::NTree(NRoot::Ptr rootNode)
 
   m_signals.erase("list_tree"); // unregister base class signal
 
-  regist_signal("list_tree", "New tree")->connect(boost::bind(&NTree::list_tree_reply, this, _1));
+  regist_signal("list_tree", "New tree")->
+      signal->connect(boost::bind(&NTree::list_tree_reply, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -502,7 +503,7 @@ QVariant NTree::headerData(int section, Qt::Orientation orientation,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NTree::list_tree_reply(Signal::arg_t & args)
+void NTree::list_tree_reply(SignalArgs & args)
 {
   try
   {

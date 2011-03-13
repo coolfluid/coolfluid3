@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Signal.hpp"
+
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
@@ -50,8 +52,8 @@ void JournalNotifier::regist(const NJournal * journal)
 NJournal::NJournal(const QString & name)
   : CNode(name, "CJournal", JOURNAL_NODE)
 {
-  regist_signal("list_journal", "List journal", "List journal")
-      ->connect(boost::bind(&NJournal::list_journal, this, _1));
+  regist_signal("list_journal", "List journal", "List journal")->
+      signal->connect(boost::bind(&NJournal::list_journal, this, _1));
 
   m_localSignals << "list_journal";
 
@@ -69,7 +71,7 @@ QString NJournal::toolTip() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NJournal::list_journal(Signal::arg_t &)
+void NJournal::list_journal(SignalArgs &)
 {
   emit journalRequest(false);
 }

@@ -177,11 +177,11 @@ void BasicCommands::ls(const std::vector<std::string>& params)
     }
     else if (arg == "s")
     {
-      foreach_container((const std::string& sig_name) (const Signal& sig), current_component->signals_map())
+      foreach_container((const std::string& sig_name) (SignalPtr sig), current_component->signals_map())
       {
         if (hidden_signals.find(sig_name)==hidden_signals.end())
         {
-          if ( sig.is_hidden == false)
+          if ( sig->is_hidden == false)
             CFinfo << sig_name << CFendl;
         }
       }
@@ -201,12 +201,17 @@ void BasicCommands::ls(const std::vector<std::string>& params)
           CFinfo << "x";
         CFinfo << "    " << sub_comp.name() << CFendl;
       }
-      foreach_container((const std::string& sig_name) (const Signal& sig), current_component->signals_map())
+      foreach_container((const std::string& sig_name) (SignalPtr sig), current_component->signals_map())
       {
         if (hidden_signals.find(sig_name)==hidden_signals.end())
         {
-          if ( sig.is_hidden == false)
-            CFinfo << "--s    " << sig_name << CFendl;
+          if ( ! sig->is_hidden )
+          {
+            if ( sig->is_read_only )
+              CFinfo << "r-s    " << sig_name << CFendl;
+            else
+              CFinfo << "rws    " << sig_name << CFendl;
+          }
         }
       }
     }
@@ -248,11 +253,11 @@ void BasicCommands::ls(const std::vector<std::string>& params)
     }
     else if (arg == "s")
     {
-      foreach_container((const std::string& sig_name) (const Signal& sig), parent.signals_map())
+      foreach_container((const std::string& sig_name) (SignalPtr sig), parent.signals_map())
       {
         if (hidden_signals.find(sig_name)==hidden_signals.end())
         {
-          if ( sig.is_hidden == false)
+          if ( sig->is_hidden == false)
             CFinfo << sig_name << CFendl;
         }
       }
@@ -272,12 +277,17 @@ void BasicCommands::ls(const std::vector<std::string>& params)
           CFinfo << "x";
         CFinfo << "    " << sub_comp.name() << CFendl;
       }
-      foreach_container((const std::string& sig_name) (const Signal& sig), parent.signals_map())
+      foreach_container((const std::string& sig_name) (SignalPtr sig), parent.signals_map())
       {
         if (hidden_signals.find(sig_name)==hidden_signals.end())
         {
-          if ( sig.is_hidden == false)
-            CFinfo << "--s    " << sig_name << CFendl;
+          if ( ! sig->is_hidden )
+          {
+            if ( sig->is_read_only )
+              CFinfo << "r-s    " << sig_name << CFendl;
+            else
+              CFinfo << "rws    " << sig_name << CFendl;
+          }
         }
       }
     }

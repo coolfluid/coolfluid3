@@ -66,19 +66,19 @@ RKRD::RKRD ( const std::string& name  ) :
 
   regist_signal ("create_boundary_term" ,
                  "creates a boundary condition term",
-                 "Create Boundary Condition" )
-      ->connect ( boost::bind ( &RKRD::signal_create_boundary_term, this, _1 ) );
+                 "Create Boundary Condition" )->
+      signal->connect ( boost::bind ( &RKRD::signal_create_boundary_term, this, _1 ) );
 
-  signal("create_boundary_term").signature
-      ->connect( boost::bind( &RKRD::signature_signal_create_boundary_term, this, _1));
+  signal("create_boundary_term")->
+      signature->connect( boost::bind( &RKRD::signature_signal_create_boundary_term, this, _1));
 
   regist_signal ("create_domain_term",
                  "creates a domain volume term",
-                 "Create Domain Term" )
-      ->connect ( boost::bind ( &RKRD::signal_create_domain_term, this, _1 ) );
+                 "Create Domain Term" )->
+      signal->connect ( boost::bind ( &RKRD::signal_create_domain_term, this, _1 ) );
 
-  signal("create_domain_term").signature
-      ->connect( boost::bind( &RKRD::signature_signal_create_domain_term, this, _1));
+  signal("create_domain_term")->
+      signature->connect( boost::bind( &RKRD::signature_signal_create_domain_term, this, _1));
 
   // setup of the static components
 
@@ -195,7 +195,7 @@ void RKRD::solve()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void RKRD::signal_create_boundary_term( Signal::arg_t& node )
+void RKRD::signal_create_boundary_term( SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -213,7 +213,7 @@ void RKRD::signal_create_boundary_term( Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RKRD::signature_signal_create_boundary_term( Signal::arg_t& node )
+void RKRD::signature_signal_create_boundary_term( SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -234,7 +234,7 @@ void RKRD::signature_signal_create_boundary_term( Signal::arg_t& node )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void RKRD::signal_create_domain_term( Signal::arg_t& node )
+void RKRD::signal_create_domain_term( SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -251,7 +251,7 @@ void RKRD::signal_create_domain_term( Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RKRD::signature_signal_create_domain_term( Signal::arg_t& node )
+void RKRD::signature_signal_create_domain_term( SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
@@ -272,7 +272,7 @@ void RKRD::signature_signal_create_domain_term( Signal::arg_t& node )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void RKRD::signal_initialize_solution( Signal::arg_t& node )
+void RKRD::signal_initialize_solution( SignalArgs& node )
 {
   if( is_null(m_mesh.lock()) )
       throw SetupError( FromHere(), "Domain or Mesh has not been configured on solver " + full_path().string() );
@@ -297,7 +297,7 @@ void RKRD::signal_initialize_solution( Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RKRD::signature_signal_initialize_solution( Signal::arg_t& node )
+void RKRD::signature_signal_initialize_solution( SignalArgs& node )
 {
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 

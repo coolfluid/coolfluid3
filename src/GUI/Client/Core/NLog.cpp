@@ -11,7 +11,7 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "Common/CF.hpp"
+#include "Common/Signal.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Network/ComponentNames.hpp"
@@ -35,7 +35,8 @@ NLog::NLog()
   m_typeNames[ LogMessage::ERROR ]     = "  Error  ";
   m_typeNames[ LogMessage::WARNING ]   = " Warning ";
 
-  regist_signal("message", "Log message")->connect(boost::bind(&NLog::message, this, _1));
+  regist_signal("message", "Log message")->
+      signal->connect(boost::bind(&NLog::message, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -111,7 +112,7 @@ void NLog::appendToLog(LogMessage::Type type, bool fromServer,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLog::message(Signal::arg_t & node)
+void NLog::message(SignalArgs & node)
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 

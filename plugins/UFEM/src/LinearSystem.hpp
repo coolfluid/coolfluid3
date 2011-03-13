@@ -43,22 +43,22 @@ public: // functions
   //@{
 
   /// Signal to run the model
-  void run(Common::Signal::arg_t& node);
+  void run(Common::SignalArgs& node);
 
   /// Signal to add Dirichlet boundary conditions
-  void add_dirichlet_bc( Common::Signal::arg_t& node );
+  void add_dirichlet_bc( Common::SignalArgs& node );
 
   /// Signature for the add_dirichlet_bc ssignal
-  void dirichlet_bc_signature( Common::Signal::arg_t& node);
+  void dirichlet_bc_signature( Common::SignalArgs& node);
 
   /// Signal to add an intial condition
-  void add_initial_condition( Common::Signal::arg_t& node );
+  void add_initial_condition( Common::SignalArgs& node );
 
   /// Signature for add_initial_condition
-  void add_initial_condition_signature(Common::Signal::arg_t& node);
+  void add_initial_condition_signature(Common::SignalArgs& node);
 
   /// Signal to run the intialization phase
-  void signal_initialize_fields(Common::Signal::arg_t& node);
+  void signal_initialize_fields(Common::SignalArgs& node);
 
   //@} END SIGNALS
 protected:

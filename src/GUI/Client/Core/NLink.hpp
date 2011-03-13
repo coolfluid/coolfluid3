@@ -61,7 +61,7 @@ namespace ClientCore {
     void setTargetNode(const CNode::Ptr & node);
 
     /// @brief Slot called when user wants to switch to the target
-    void goToTarget(Common::Signal::arg_t & node);
+    void goToTarget(Common::SignalArgs & node);
 
   private :
 
@@ -74,7 +74,7 @@ namespace ClientCore {
     /// @brief Method called when target path changes.
     /// @param node Signal parameters. Should contain a string value named
     /// "target_path" with the new target path.
-  void change_link(Common::Signal::arg_t & node);
+  void change_link(Common::SignalArgs & node);
 
     //@} END Signals
   }; // class NLink

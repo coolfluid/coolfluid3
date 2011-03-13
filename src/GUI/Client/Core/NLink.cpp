@@ -9,7 +9,7 @@
 #include <QMenu>
 #include <QModelIndex>
 
-#include "Common/CF.hpp"
+#include "Common/Signal.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/URI.hpp"
 #include "Common/BasicExceptions.hpp"
@@ -27,7 +27,8 @@ using namespace CF::GUI::ClientCore;
 NLink::NLink(const QString & name)
   : CNode(name, "CLink", LINK_NODE)
 {
-  regist_signal("goToTarget", "Switch to the target node", "Go to target node")->connect(boost::bind(&NLink::goToTarget, this, _1));
+  regist_signal("goToTarget", "Switch to the target node", "Go to target node")->
+      signal->connect(boost::bind(&NLink::goToTarget, this, _1));
 
   m_localSignals << "goToTarget";
 }
@@ -82,7 +83,7 @@ void NLink::setTargetNode(const CNode::Ptr & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLink::goToTarget(Signal::arg_t & )
+void NLink::goToTarget(SignalArgs & )
 {
 	if ( is_null(m_target) )
 		throw ValueNotFound (FromHere(), "Target of this link is not set or not valid");
@@ -99,7 +100,7 @@ void NLink::goToTarget(Signal::arg_t & )
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLink::change_link(Signal::arg_t & args)
+void NLink::change_link(SignalArgs & args)
 {
   SignalFrame & options = args.map( Protocol::Tags::key_options() );
 

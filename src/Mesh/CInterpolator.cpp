@@ -37,7 +37,7 @@ CInterpolator::~CInterpolator()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CInterpolator::signal_interpolate( Signal::arg_t& node  )
+void CInterpolator::signal_interpolate( SignalArgs& node  )
 {
   interpolate();
 }

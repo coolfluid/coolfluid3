@@ -47,14 +47,14 @@ public: // functions
   //@{
 
   /// Signal to create a model
-  void signal_create_model ( Common::Signal::arg_t& node );
+  void signal_create_model ( Common::SignalArgs& node );
 
-  void signature_create_model( Common::Signal::arg_t& node);
+  void signature_create_model( Common::SignalArgs& node);
 
   /// Signal to create a model
-  void signal_setup_model ( Common::Signal::arg_t& node );
+  void signal_setup_model ( Common::SignalArgs& node );
 
-  void signature_setup_model( Common::Signal::arg_t& node);
+  void signature_setup_model( Common::SignalArgs& node);
 
   //@} END SIGNALS
 

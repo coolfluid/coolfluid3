@@ -52,7 +52,7 @@ namespace Server {
                               const CF::Common::URI & receiver,
                               const std::string & clientid,
                               const std::string & frameid,
-                              Common::Signal::arg_t & node);
+                              Common::SignalArgs & node);
 
     static CCore::Ptr core();
 

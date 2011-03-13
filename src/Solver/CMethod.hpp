@@ -46,7 +46,7 @@ public: // functions
   // functions specific to the CMethod component
 
   // Signal run_operation
-  void run_operation( Common::Signal::arg_t& node ) {}
+  void run_operation( Common::SignalArgs& node ) {}
 
   CMethod& operation(const std::string& name);
 

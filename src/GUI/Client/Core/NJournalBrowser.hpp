@@ -113,7 +113,7 @@ public:
 
   void requestJournal();
 
-  void list_journal(Common::Signal::arg_t & node);
+  void list_journal(Common::SignalArgs & node);
 
   void sendExecSignal(const QModelIndex & index);
 

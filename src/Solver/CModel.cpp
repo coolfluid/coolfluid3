@@ -6,16 +6,16 @@
 
 #include "Common/BoostFilesystem.hpp"
 
+#include "Common/Signal.hpp"
 #include "Common/Core.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/XML/Protocol.hpp"
 
-#include "Solver/CModel.hpp"
-
 #include "Mesh/CDomain.hpp"
 
+#include "Solver/CModel.hpp"
 
 namespace CF {
 namespace Solver {
@@ -49,7 +49,7 @@ CModel::CModel( const std::string& name  ) :
    // signals
 
    regist_signal ( "simulate" , "Simulates this model", "Simulate" )
-       ->connect ( boost::bind ( &CModel::signal_simulate, this, _1 ) );
+       ->signal->connect ( boost::bind ( &CModel::signal_simulate, this, _1 ) );
 }
 
 CModel::~CModel() {}
@@ -72,7 +72,7 @@ CDomain::Ptr CModel::create_domain( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signature_create_domain ( Common::Signal::arg_t& node )
+void CModel::signature_create_domain ( Common::SignalArgs& node )
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
@@ -81,7 +81,7 @@ void CModel::signature_create_domain ( Common::Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signal_create_domain ( Common::Signal::arg_t& node )
+void CModel::signal_create_domain ( Common::SignalArgs& node )
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
@@ -94,7 +94,7 @@ void CModel::signal_create_domain ( Common::Signal::arg_t& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signal_simulate ( Common::Signal::arg_t& node )
+void CModel::signal_simulate ( Common::SignalArgs& node )
 {
   // XmlParams p ( node );
 

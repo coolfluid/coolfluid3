@@ -96,6 +96,8 @@ list( APPEND coolfluid_common_files
     StreamHelpers.hpp
     StringConversion.hpp
     StringConversion.cpp
+    Signal.hpp
+    Signal.cpp
     SignalHandler.hpp
     SignalHandler.cpp
     TaggedObject.hpp

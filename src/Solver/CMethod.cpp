@@ -22,7 +22,7 @@ CMethod::CMethod ( const std::string& name  ) :
   Component ( name )
 {
   // signals
-  regist_signal ( "run_operation" , "run an operation", "Run Operation" )->connect ( boost::bind ( &CMethod::run_operation, this, _1 ) );
+  regist_signal ( "run_operation" , "run an operation", "Run Operation" )->signal->connect ( boost::bind ( &CMethod::run_operation, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

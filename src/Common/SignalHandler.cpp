@@ -8,33 +8,28 @@
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
 
+#include "Common/Signal.hpp"
 #include "Common/SignalHandler.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/BasicExceptions.hpp"
 
-///@todo remove
-#include "Common/Log.hpp"
-
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common {
 
-  using namespace XML;
-  
-////////////////////////////////////////////////////////////////////////////////
+using namespace XML;
 
-SignalError::SignalError ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "SignalError")
-{}
+/// signal type
+typedef boost::signals2::signal< SignalRet ( SignalArgs& ) >  SignalType;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector < Signal > SignalHandler::list_signals () const
+std::vector < SignalPtr > SignalHandler::list_signals () const
 {
-  std::vector < Signal > result;
+  std::vector < SignalPtr > result;
   for ( sigmap_t::const_iterator itr = m_signals.begin() ; itr != m_signals.end() ; ++itr )
     result.push_back ( itr->second ); // add a copy of the signal to the vector
   return result;
@@ -49,14 +44,14 @@ const SignalHandler::sigmap_t& SignalHandler::signals_map () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal::return_t SignalHandler::call_signal ( const Signal::id_t& sname, Signal::arg_t& sinput )
+SignalRet SignalHandler::call_signal ( const SignalID& sname, SignalArgs& sinput )
 {
-  return ( *signal ( sname ).signal_ptr ) ( sinput );
+  return ( *signal ( sname )->signal ) ( sinput );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal::return_t SignalHandler::call_signal ( const Signal::id_t& sname, std::vector<std::string>& sinput )
+SignalRet SignalHandler::call_signal ( const SignalID& sname, std::vector<std::string>& sinput )
 {
   sigmap_t::iterator itr = m_signals.find(sname);
   if ( itr == m_signals.end() )
@@ -171,7 +166,7 @@ Signal::return_t SignalHandler::call_signal ( const Signal::id_t& sname, std::ve
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal& SignalHandler::signal ( const Signal::id_t& sname )
+SignalPtr SignalHandler::signal ( const SignalID& sname )
 {
   sigmap_t::iterator itr = m_signals.find(sname);
   if ( itr != m_signals.end() )
@@ -182,7 +177,7 @@ Signal& SignalHandler::signal ( const Signal::id_t& sname )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Signal& SignalHandler::signal ( const Signal::id_t& sname ) const
+SignalCPtr SignalHandler::signal ( const SignalID& sname ) const
 {
   sigmap_t::const_iterator itr = m_signals.find(sname);
   if ( itr != m_signals.end() )
@@ -193,14 +188,14 @@ const Signal& SignalHandler::signal ( const Signal::id_t& sname ) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool SignalHandler::check_signal ( const Signal::id_t& sname )
+bool SignalHandler::check_signal ( const SignalID& sname )
 {
   return ( m_signals.find(sname) != m_signals.end() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc, const Signal::readable_t& readable_name )
+SignalPtr SignalHandler::regist_signal ( const SignalID& sname,  const std::string& desc, const SignalName& readable_name )
 {
   // check sname complies with standard
   cf_assert( boost::algorithm::all(sname,
@@ -208,25 +203,27 @@ Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Sig
   
   std::string rname = readable_name;
   if (rname.empty())
-    rname=sname;
+    rname = sname;
 
   sigmap_t::iterator itr = m_signals.find (sname);
 
   if ( itr == m_signals.end() )
   {
-    Signal& sig = m_signals[sname];
+    SignalPtr psig ( new Signal() );
 
-    sig.signal_ptr = Signal::Ptr( new Signal::type() );
-    sig.signature = Signal::Ptr( new Signal::type() );
-    sig.description = desc;
-    sig.readable_name = rname;
-    sig.is_read_only = false;
-    sig.is_hidden = false;
+    m_signals.insert( make_pair(sname, psig) );
 
-    return sig.signal_ptr;
+    psig->signal = Signal::TypePtr( new SignalType() );
+    psig->signature = Signal::TypePtr( new SignalType() );
+    psig->description = desc;
+    psig->readable_name = rname;
+    psig->is_read_only = false;
+    psig->is_hidden = false;
+
+    return psig;
   }
   else
-    return itr->second.signal_ptr;
+    return itr->second;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -77,7 +77,7 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
 
   m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &FiniteVolumeSolver::trigger_Domain,   this ) );
 
-  this->regist_signal ( "solve" , "Solve", "Solve" )->connect ( boost::bind ( &FiniteVolumeSolver::solve, this ) );
+  this->regist_signal ( "solve" , "Solve", "Solve" )->signal->connect ( boost::bind ( &FiniteVolumeSolver::solve, this ) );
 
   m_solution = create_static_component<CLink>("solution");
   m_residual = create_static_component<CLink>("residual");

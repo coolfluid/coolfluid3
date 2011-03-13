@@ -24,6 +24,8 @@
 #include <stdexcept>
 #include <cstdlib>      // for abs()
 
+#include "Common/Signal.hpp"
+
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/NLog.hpp"
@@ -47,7 +49,8 @@ NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * pare
           CNode::BROWSER_NODE)
 {
 
-  regist_signal("read_dir", "Directory content")->connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
+  regist_signal("read_dir", "Directory content")->
+      signal->connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
 
   this->setWindowTitle("Open file");
 
@@ -769,7 +772,7 @@ void NRemoteBrowser::openDir(const QString & path)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t NRemoteBrowser::read_dir(Signal::arg_t & args)
+void NRemoteBrowser::read_dir(SignalArgs & args)
 {
   SignalFrame& options = args.map( Protocol::Tags::key_options() );
 

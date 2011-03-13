@@ -121,7 +121,7 @@ int ClientNetworkComm::send(const QString & frame) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ClientNetworkComm::send(Signal::arg_t & signal)
+bool ClientNetworkComm::send(SignalArgs & signal)
 {
   cf_assert ( signal.node.is_valid() );
   cf_assert ( is_not_null(signal.xml_doc.get()) );

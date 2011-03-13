@@ -56,12 +56,12 @@ public: // functions
   //@{
 
   /// Signature of create domain signal @see signal_create_domain
-  void signature_create_domain ( Common::Signal::arg_t& node );
+  void signature_create_domain ( Common::SignalArgs& node );
   /// Signal to create a domain and load a mesh into it
-  void signal_create_domain ( Common::Signal::arg_t& node );
+  void signal_create_domain ( Common::SignalArgs& node );
 
   /// Signal to start simulating
-  void signal_simulate ( Common::Signal::arg_t& node );
+  void signal_simulate ( Common::SignalArgs& node );
 
   //@} END SIGNALS
 

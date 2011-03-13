@@ -35,18 +35,18 @@ CF::Common::ComponentBuilder < UFEM::SetupLinearSystem, Component, LibUFEM > aSe
 
 SetupLinearSystem::SetupLinearSystem(const std::string& name) : Component ( name )
 {
-  this->regist_signal ( "create_model" , "Creates a linear, steady heat conduction model", "Create Model" )->connect( boost::bind ( &SetupLinearSystem::create_model, this, _1 ) );
+  this->regist_signal ( "create_model" , "Creates a linear, steady heat conduction model", "Create Model" )->signal->connect( boost::bind ( &SetupLinearSystem::create_model, this, _1 ) );
 
-  signal("create_component").is_hidden = true;
-  signal("rename_component").is_hidden = true;
-  signal("delete_component").is_hidden = true;
-  signal("move_component").is_hidden   = true;
+  signal("create_component")->is_hidden = true;
+  signal("rename_component")->is_hidden = true;
+  signal("delete_component")->is_hidden = true;
+  signal("move_component")->is_hidden   = true;
 
-  signal("create_model").signature->connect(
+  signal("create_model")->signature->connect(
       boost::bind( &SetupLinearSystem::create_model_signature, this, _1));
 }
 
-void SetupLinearSystem::create_model( Signal::arg_t& node)
+void SetupLinearSystem::create_model( SignalArgs& node)
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
@@ -79,7 +79,7 @@ void SetupLinearSystem::create_model( Signal::arg_t& node)
   model->add_component( mesh_reader );
 }
 
-void SetupLinearSystem::create_model_signature( Signal::arg_t& node )
+void SetupLinearSystem::create_model_signature( SignalArgs& node )
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 

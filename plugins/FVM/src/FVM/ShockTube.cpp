@@ -68,16 +68,16 @@ ShockTube::ShockTube ( const std::string& name  ) :
 
   // signals
 
-  signal("create_component").is_hidden = true;
-  signal("rename_component").is_hidden = true;
-  signal("delete_component").is_hidden = true;
-  signal("move_component").is_hidden   = true;
+  signal("create_component")->is_hidden = true;
+  signal("rename_component")->is_hidden = true;
+  signal("delete_component")->is_hidden = true;
+  signal("move_component")->is_hidden   = true;
 
-  regist_signal ( "create_model" , "Creates a shocktube model", "Create Model" )->connect ( boost::bind ( &ShockTube::signal_create_model, this, _1 ) );
-  signal("create_model").signature->connect( boost::bind( &ShockTube::signature_create_model, this, _1));
+  regist_signal ( "create_model" , "Creates a shocktube model", "Create Model" )->signal->connect ( boost::bind ( &ShockTube::signal_create_model, this, _1 ) );
+  signal("create_model")->signature->connect( boost::bind( &ShockTube::signature_create_model, this, _1));
 
-  regist_signal ( "setup_model" , "Setup the shocktube model after mesh has been loaded", "Setup Model" )->connect ( boost::bind ( &ShockTube::signal_setup_model, this, _1 ) );
-  signal("setup_model").signature->connect( boost::bind( &ShockTube::signature_setup_model, this, _1));
+  regist_signal ( "setup_model" , "Setup the shocktube model after mesh has been loaded", "Setup Model" )->signal->connect ( boost::bind ( &ShockTube::signal_setup_model, this, _1 ) );
+  signal("setup_model")->signature->connect( boost::bind( &ShockTube::signature_setup_model, this, _1));
 
 }
 
@@ -89,7 +89,7 @@ ShockTube::~ShockTube()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ShockTube::signal_create_model ( Signal::arg_t& args )
+void ShockTube::signal_create_model ( SignalArgs& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -125,7 +125,7 @@ void ShockTube::signal_create_model ( Signal::arg_t& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ShockTube::signature_create_model( Signal::arg_t& args )
+void ShockTube::signature_create_model( SignalArgs& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -136,7 +136,7 @@ void ShockTube::signature_create_model( Signal::arg_t& args )
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShockTube::signal_setup_model ( Signal::arg_t& args )
+void ShockTube::signal_setup_model ( SignalArgs& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
   std::string name  = p.get_option<std::string>("model_name");
@@ -235,7 +235,7 @@ void ShockTube::signal_setup_model ( Signal::arg_t& args )
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShockTube::signature_setup_model( Signal::arg_t& args )
+void ShockTube::signature_setup_model( SignalArgs& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
