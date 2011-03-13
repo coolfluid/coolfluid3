@@ -8,9 +8,15 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/BasicExceptions.hpp"
-#include "Common/XML/Protocol.hpp"
+#include <boost/tokenizer.hpp>
+#include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 
+#include "Common/BasicExceptions.hpp"
+#include "Common/Foreach.hpp"
+#include "Common/StringConversion.hpp"
+
+#include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalFrame.hpp"
 
 // makes explicit instantiation for all template functions with a same type
@@ -65,8 +71,9 @@ SignalFrame::SignalFrame ( XmlNode xml ) :
 
 ////////////////////////////////////////////////////////////////////////////
 
-SignalFrame::SignalFrame ( const std::string & target, const URI & sender,
-                           const URI & receiver )
+SignalFrame::SignalFrame ( const std::string& target,
+                           const URI& sender,
+                           const URI& receiver )
 {
   xml_doc = Protocol::create_doc();
   XmlNode doc_node = Protocol::goto_doc_node(*xml_doc.get());
@@ -208,6 +215,111 @@ SignalFrame SignalFrame::get_reply () const
   }
 
   return SignalFrame();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void SignalFrame::insert( std::vector<std::string>& input )
+{
+  // extract:   variable_name:type=value   or   variable_name:array[type]=value1,value2
+  boost::regex expression(  "([[:word:]]+)(\\:([[:word:]]+)(\\[([[:word:]]+)\\])?=(.*))?"  );
+  boost::match_results<std::string::const_iterator> what;
+
+  boost_foreach (const std::string& arg, input)
+  {
+
+    std::string name;
+    std::string type;
+    std::string subtype; // in case of array<type>
+    std::string value;
+
+    if (regex_search(arg,what,expression))
+    {
+      name=what[1];
+      type=what[3];
+      subtype=what[5];
+      value=what[6];
+
+      //CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
+
+      if      (type == "bool")
+        set_option<bool>(name,from_str<bool>(value));
+      else if (type == "unsigned")
+        set_option<Uint>(name,from_str<Uint>(value));
+      else if (type == "integer")
+        set_option<int>(name,from_str<int>(value));
+      else if (type == "real")
+        set_option<Real>(name,from_str<Real>(value));
+      else if (type == "string")
+        set_option<std::string>(name,value);
+      else if (type == "uri")
+        set_option<URI>(name,from_str<URI>(value));
+      else if (type == "array")
+      {
+        std::vector<std::string> array;
+        typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+        boost::char_separator<char> sep(",");
+        Tokenizer tokens(value, sep);
+
+        for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+        {
+          array.push_back(*tok_iter);
+          boost::algorithm::trim(array.back()); // remove leading and trailing spaces
+        }
+        if (subtype == "bool")
+        {
+          std::vector<bool> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<bool>(str_val));
+          set_array(name, vec, " ; ");
+        }
+        else if (subtype == "unsigned")
+        {
+          std::vector<Uint> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<Uint>(str_val));
+          set_array(name, vec, " ; ");
+        }
+        else if (subtype == "integer")
+        {
+          std::vector<int> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<int>(str_val));
+          set_array(name, vec, " ; ");
+        }
+        else if (subtype == "real")
+        {
+          std::vector<Real> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<Real>(str_val));
+          set_array(name, vec, " ; ");
+        }
+        else if (subtype == "string")
+        {
+          set_array(name, array, " ; ");
+        }
+        else if (subtype == "uri")
+        {
+          std::vector<URI> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<URI>(str_val));
+          set_array(name, vec, " ; ");
+        }
+      }
+      else
+        throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] is invalid.\n"+
+          "Format should be:\n"
+          " -  for simple types:  variable_name:type=value\n"
+          " -  for array types:   variable_name:array[type]=value1,value2\n"
+          "  with possible type: [bool,unsigned,integer,real,string,uri]");
+    }
+    else
+      throw ParsingFailed(FromHere(), "Could not parse [" + arg + "].\n"+
+         "Format should be:\n"
+         " -  for simple types:  variable_name:type=value\n"
+         " -  for array types:   variable_name:array[type]=value1,value2\n"
+         "  with possible type: [bool,unsigned,integer,real,string,uri]");
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////

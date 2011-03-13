@@ -15,7 +15,6 @@
 #include <vector>
 #include <string>
 
-#include "Common/Log.hpp"       // temporary
 #include "Common/Component.hpp"
 #include "Common/MPI/PE.hpp"
 

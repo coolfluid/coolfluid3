@@ -247,8 +247,9 @@ XmlNode Map::seek_value ( const std::string & value_key, const char * value_type
 
   XmlNode found_value;
 
-  if( is_null(value_type) || std::strcmp(value_type, Protocol::Tags::node_array()) == 0
-     || std::strcmp(value_type, Protocol::Tags::node_value()) == 0)
+  if( is_null(value_type) ||
+      std::strcmp(value_type, Protocol::Tags::node_array()) == 0 ||
+      std::strcmp(value_type, Protocol::Tags::node_value()) == 0 )
   {
 
 

@@ -109,6 +109,9 @@ public:
   /// of the reply returned is not valid.
   SignalFrame get_reply () const;
 
+  /// Inserts the options, translating them from strings
+  void insert( std::vector<std::string>& input );
+
 public: // data
 
   /// The frame node

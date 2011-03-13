@@ -5,15 +5,10 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/algorithm/string.hpp>
-#include <boost/tokenizer.hpp>
-#include <boost/regex.hpp>
 
 #include "Common/Signal.hpp"
 #include "Common/SignalHandler.hpp"
 #include "Common/XML/Protocol.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/StringConversion.hpp"
-#include "Common/BasicExceptions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -60,108 +55,9 @@ SignalRet SignalHandler::call_signal ( const SignalID& sname, std::vector<std::s
   SignalFrame frame("", "", "");
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  // extract:   variable_name:type=value   or   variable_name:array[type]=value1,value2
-  boost::regex expression(  "([[:word:]]+)(\\:([[:word:]]+)(\\[([[:word:]]+)\\])?=(.*))?"  );
-  boost::match_results<std::string::const_iterator> what;
-
-  boost_foreach (const std::string& arg, sinput)
-  {
-
-    std::string name;
-    std::string type;
-    std::string subtype; // in case of array<type>
-    std::string value;
-
-    if (regex_search(arg,what,expression))
-    {
-      name=what[1];
-      type=what[3];
-      subtype=what[5];
-      value=what[6];
-
-      //CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
-
-      if      (type == "bool")
-        options.set_option<bool>(name,from_str<bool>(value));
-      else if (type == "unsigned")
-        options.set_option<Uint>(name,from_str<Uint>(value));
-      else if (type == "integer")
-        options.set_option<int>(name,from_str<int>(value));
-      else if (type == "real")
-        options.set_option<Real>(name,from_str<Real>(value));
-      else if (type == "string")
-        options.set_option<std::string>(name,value);
-      else if (type == "uri")
-        options.set_option<URI>(name,from_str<URI>(value));
-      else if (type == "array")
-      {
-        std::vector<std::string> array;
-        typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-        boost::char_separator<char> sep(",");
-        Tokenizer tokens(value, sep);
-
-        for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
-        {
-          array.push_back(*tok_iter);
-          boost::algorithm::trim(array.back()); // remove leading and trailing spaces
-        }
-        if (subtype == "bool")
-        {
-          std::vector<bool> vec; vec.reserve(array.size());
-          boost_foreach(const std::string& str_val,array)
-            vec.push_back(from_str<bool>(str_val));
-          options.set_array(name, vec, " ; ");
-        }
-        else if (subtype == "unsigned")
-        {
-          std::vector<Uint> vec; vec.reserve(array.size());
-          boost_foreach(const std::string& str_val,array)
-            vec.push_back(from_str<Uint>(str_val));
-          options.set_array(name, vec, " ; ");
-        }
-        else if (subtype == "integer")
-        {
-          std::vector<int> vec; vec.reserve(array.size());
-          boost_foreach(const std::string& str_val,array)
-            vec.push_back(from_str<int>(str_val));
-          options.set_array(name, vec, " ; ");
-        }
-        else if (subtype == "real")
-        {
-          std::vector<Real> vec; vec.reserve(array.size());
-          boost_foreach(const std::string& str_val,array)
-            vec.push_back(from_str<Real>(str_val));
-          options.set_array(name, vec, " ; ");
-        }
-        else if (subtype == "string")
-        {
-          options.set_array(name, array, " ; ");
-        }
-        else if (subtype == "uri")
-        {
-          std::vector<URI> vec; vec.reserve(array.size());
-          boost_foreach(const std::string& str_val,array)
-            vec.push_back(from_str<URI>(str_val));
-          options.set_array(name, vec, " ; ");
-        }
-      }
-      else
-        throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] for signal ["+ sname +"] is invalid.\n"+
-          "Format should be:\n"
-          " -  for simple types:  variable_name:type=value\n"
-          " -  for array types:   variable_name:array[type]=value1,value2\n"
-          "  with possible type: [bool,unsigned,integer,real,string,uri]");
-    }
-    else
-      throw ParsingFailed(FromHere(), "Could not parse [" + arg + "] in signal ["+ sname +"].\n"+
-         "Format should be:\n"
-         " -  for simple types:  variable_name:type=value\n"
-         " -  for array types:   variable_name:array[type]=value1,value2\n"
-         "  with possible type: [bool,unsigned,integer,real,string,uri]");
-  }
+  options.insert( sinput );
 
   call_signal(sname,frame);
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -199,7 +95,8 @@ SignalPtr SignalHandler::regist_signal ( const SignalID& sname,  const std::stri
 {
   // check sname complies with standard
   cf_assert( boost::algorithm::all(sname,
-    boost::algorithm::is_alnum() || boost::algorithm::is_any_of("-_")) );
+                                   boost::algorithm::is_alnum() ||
+                                   boost::algorithm::is_any_of("-_")) );
   
   std::string rname = readable_name;
   if (rname.empty())
