@@ -15,6 +15,9 @@ endif()
 if( CF_HAVE_MATH_HYPOT )
   add_definitions( -DFP_SUPPORT_HYPOT )
 endif()
+if( APPLE ) # duplicate symbols , so no optimizer on APPLE
+  add_definitions( -DFP_NO_SUPPORT_OPTIMIZER )
+endif()
 
 list( APPEND coolfluid_fparser_files
   LibFParser.hpp
@@ -22,12 +25,12 @@ list( APPEND coolfluid_fparser_files
   fptypes.hh
   fparser.hh
   fparser.cc
-	fpaux.hh                 
-	fpoptimizer.cc
-	fp_opcode_add.inc        
-	fp_identifier_parser.inc
-#	fparser_mpfr.hh
-#	fparser_gmpint.hh
+  fpaux.hh
+  fpoptimizer.cc
+  fp_opcode_add.inc
+  fp_identifier_parser.inc
+#   fparser_mpfr.hh
+#   fparser_gmpint.hh
 # mpfr/GmpInt.hh
 # mpfr/GmpInt.cc
 # mpfr/MpfrFloat.hh
