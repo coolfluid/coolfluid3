@@ -111,7 +111,7 @@ struct PTScotchTests_Fixture
     
     //boost::mpi::communicator world;
     //boost::mpi::all_gather(world, vertlocnbr, proccnttab);
-    mpi::PE::instance().all_gather(&vertlocnbr, (SCOTCH_Num*)(&proccnttab[0]));
+    mpi::PE::instance().all_gather(vertlocnbr, proccnttab);
     Uint cnt=0;
     for (Uint p=0; p<proccnttab.size(); ++p)
     {
