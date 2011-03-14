@@ -163,7 +163,7 @@ XmlNode Map::set_array ( const std::string& value_key,
   else
   {
     rapidxml::xml_attribute<> * type_attr = nullptr;
-    rapidxml::xml_node<> * child_node = nullptr;
+    // rapidxml::xml_node<> * child_node = nullptr;
 
     type_attr = array_node.content->first_attribute( Protocol::Tags::attr_array_type());
 
@@ -308,7 +308,7 @@ std::vector<TYPE> Map::get_array ( const std::string& array_key ) const
   cf_assert ( content.is_valid() );
 
   const char * type_name = Protocol::Tags::type<TYPE>();
-  rapidxml::xml_attribute<> * delim_attr = nullptr;
+  // rapidxml::xml_attribute<> * delim_attr = nullptr;
 
   if(array_key.empty())
     throw BadValue(FromHere(), "The array key is empty.");

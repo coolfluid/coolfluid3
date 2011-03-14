@@ -91,17 +91,20 @@ struct DerivedComponentIteratorRange : //public iterator_range<typename T::const
                                        public boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T> > >
 {
   typedef boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T> > > Base;
-  typedef boost::filter_iterator< Predicate, ComponentIterator<T> > Filter;
+
+  typedef boost::filter_iterator< Predicate,  ComponentIterator<T> > iterator;
+  typedef boost::filter_iterator< Predicate,  ComponentIterator<T> > const_iterator;
+  
   typedef DerivedComponentIteratorRange type;
 
   DerivedComponentIteratorRange ( const ComponentIterator<T>& b, const ComponentIterator<T>& e )
-  : Base ( Filter( Predicate() , b , e ) ,
-           Filter( Predicate() , e , e ) )
+  : Base ( iterator( Predicate() , b , e ) ,
+           iterator( Predicate() , e , e ) )
   {}
 
   DerivedComponentIteratorRange ( const ComponentIterator<T>& b, const ComponentIterator<T>& e , const Predicate& pred )
-  : Base ( Filter( pred , b , e ) ,
-           Filter( pred , e , e ) )
+  : Base ( iterator( pred , b , e ) ,
+           iterator( pred , e , e ) )
   {}
   
   bool operator==( const DerivedComponentIteratorRange& rhs )  { return equal( rhs) ; }
@@ -126,8 +129,12 @@ struct DerivedComponentIteratorRange : //public iterator_range<typename T::const
   Uint size() const
   {
     Uint result = 0;
-    BOOST_FOREACH ( const T& val, *this )
+    const_iterator it = this->begin();
+    while ( it != this->end() )
+    {
       ++result;
+      ++it;
+    }
     return result;
   }
 };
@@ -138,17 +145,17 @@ struct DerivedConstComponentIteratorRange : //public iterator_range<typename T::
                                        public boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T const> > >
 {
   typedef boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T const> > > Base;
-  typedef boost::filter_iterator< Predicate, ComponentIterator<T const> > ConstFilter;
-  typedef boost::filter_iterator< Predicate, ComponentIterator<T> > Filter;
+  typedef boost::filter_iterator< Predicate, ComponentIterator<T const> > const_iterator;
+  typedef boost::filter_iterator< Predicate, ComponentIterator<T> >       iterator;
 
   DerivedConstComponentIteratorRange ( ComponentIterator<T const> b, ComponentIterator<T const> e )
-  : Base ( ConstFilter( Predicate() , b , e ) ,
-           ConstFilter( Predicate() , e , e ) )
+  : Base ( const_iterator( Predicate() , b , e ) ,
+           const_iterator( Predicate() , e , e ) )
   {}
 
   DerivedConstComponentIteratorRange ( ComponentIterator<T const> b, ComponentIterator<T const> e , const Predicate& pred )
-  : Base ( ConstFilter( pred , b , e ) ,
-           ConstFilter( pred , e , e ) )
+  : Base ( const_iterator( pred , b , e ) ,
+           const_iterator( pred , e , e ) )
   {}
   
   DerivedConstComponentIteratorRange( const DerivedComponentIteratorRange<T,Predicate>& rhs  )
@@ -174,8 +181,12 @@ struct DerivedConstComponentIteratorRange : //public iterator_range<typename T::
   Uint size() const
   {
     Uint result = 0;
-    BOOST_FOREACH ( const T& val, *this )
+    const_iterator it = this->begin();
+    while ( it != this->end() )
+    {
       ++result;
+      ++it;
+    }
     return result;
   }
 };

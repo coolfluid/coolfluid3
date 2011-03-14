@@ -131,7 +131,7 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
   boost::shared_ptr<XmlDoc> xmldoc = XML::parse_file(filename);
   XmlNode doc_node = Protocol::goto_doc_node(*xmldoc.get());
 //  rapidxml::xml_node * signals_map = doc_node.content->first_node();
-  bool found_map = false;
+//  bool found_map = false;
   rapidxml::xml_node<>* node = nullptr;
 //  rapidxml::xml_attribute<>* key_attr = nullptr;
   CRoot::Ptr root = Core::instance().root();
