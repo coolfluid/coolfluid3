@@ -10,7 +10,7 @@
 
 #include<iostream>
 
-#include <boost/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
@@ -27,28 +27,37 @@ namespace Solver {
 namespace Actions {
 namespace Proto {
 
+/// Using this on a type always gives a compile error showing the type of T
+template<typename T>
+void print_error()
+{
+  T::print_error();
+}
+  
 /// Creates a variable that has unique ID I
 template<typename I, typename T>
-struct Var : T
+struct Var : I
 {
   /// Type that is wrapped
   typedef T type;
-  Var() : T() {}
+  Var() {}
 
   /// Index of the var
   typedef I index_type;
 
   template<typename T1>
-  Var(const T1& par1) : T(par1) {}
+  Var(const T1& par1) : variable_value(par1) {}
 
   template<typename T1>
-  Var(T1& par1) : T(par1) {}
+  Var(T1& par1) : variable_value(par1) {}
 
   template<typename T1, typename T2>
-  Var(const T1& par1, const T2& par2) : T(par1, par2) {}
+  Var(const T1& par1, const T2& par2) : variable_value(par1, par2) {}
 
   template<typename T1, typename T2>
-  Var(T1& par1, T2& par2) : T(par1, par2) {}
+  Var(T1& par1, T2& par2) : variable_value(par1, par2) {}
+  
+  type variable_value;
 };
 
 /// Compute the return type of OptionVariable::add_option
@@ -178,67 +187,11 @@ private:
   boost::weak_ptr< Common::OptionT<std::string> > m_var_option;
 };
 
-/// Constant field data
-template<typename T>
-struct ConstField : FieldBase
+/// Field data for a scalar field
+struct ScalarField : FieldBase
 {
-  ConstField() : FieldBase(), is_const(false)
-  {
-  }
-  
-  ConstField(const std::string& name, const T& val) :
-    FieldBase(name, name),
-    is_const(true),
-    value(val)
-  {
-  }
-
-  ConstField(const std::string& field_nm, const std::string varname) :
-    FieldBase(field_nm, varname),
-    is_const(false)
-  {
-  }
-
-  bool is_const;
-  T value;
-
-protected:
-  virtual void add_options()
-  {
-    FieldBase::add_options();
-    m_is_const_option = add_option<bool>( m_name + std::string("IsConst"), "True if this field is just a constant value", boost::bind(&ConstField::on_is_const_changed, this) );
-    cf_assert(is_not_null(m_is_const_option.lock()));
-    m_value_option = add_option<T>( m_name + std::string("Value"), "Value to use if the field is to be treated as constant", boost::bind(&ConstField::on_value_changed, this) );
-    cf_assert(is_not_null(m_value_option.lock()));
-  }
-
-private:
-  /// Called when the IsConst option is changed
-  void on_is_const_changed()
-  {
-    is_const = m_is_const_option.lock()->template value<bool>();
-  }
-  
-  /// Called when the Value option is changed
-  void on_value_changed()
-  {
-    value = m_value_option.lock()->template value<T>();
-  }
-
-  /// Option to indicate the field really is a constant that has the same value everywhere
-  boost::weak_ptr< Common::OptionT<bool> > m_is_const_option;
-
-  /// Value to store
-  boost::weak_ptr< Common::OptionT<T> > m_value_option;
-};
-
-/// Mutable field data
-template<typename T>
-struct Field : ConstField<T>
-{
-  Field() : ConstField<T>() {}
-  Field(const std::string& field_nm, const std::string var_nm) : ConstField<T>(field_nm, var_nm) {}
-  Field(const std::string& name, const T& val) : ConstField<T>(name, val) {}
+  ScalarField() : FieldBase() {}
+  ScalarField(const std::string& field_nm, const std::string var_nm) : FieldBase(field_nm, var_nm) {}
 };
 
 /// Field data for a vector having the dimension of the problem
@@ -246,45 +199,6 @@ struct VectorField : FieldBase
 {
   VectorField() : FieldBase() {}
   VectorField(const std::string& field_nm, const std::string var_nm) : FieldBase(field_nm, var_nm) {}
-};
-
-/// Store a user-configurable constant value, used i.e. for constant boundary conditions or model constants
-template<typename T>
-struct ConfigurableConstant : OptionVariable
-{
-  ConfigurableConstant() : OptionVariable("aConfigurableConstant", "Configurable constant")
-  {
-  }
-
-  ConfigurableConstant(const std::string& name, const std::string& description, const T& value = T()) :
-    OptionVariable(name, description),
-    stored_value(value)
-  {
-  }
-
-  T stored_value;
-
-protected:
-  virtual void add_options()
-  {
-    m_value_option = add_option<T>( m_name, "Option to set constant", boost::bind(&ConfigurableConstant::on_value_changed, this) );
-  }
-
-private:
-  /// Called when the field name option is changed
-  void on_value_changed()
-  {
-    stored_value = m_value_option.lock()->template value<T>();
-  }
-
-  /// Option for the field name
-  boost::weak_ptr< Common::OptionT<T> > m_value_option;
-};
-
-/// Represents storage for an element matrix (i.e. of size nb_nodes x nb_nodes) corresponding to the variable with the index supplied in the template parameter
-template<Uint I>
-struct ElementMatrix
-{
 };
 
 /// Shorthand for terminals containing a numbered variable

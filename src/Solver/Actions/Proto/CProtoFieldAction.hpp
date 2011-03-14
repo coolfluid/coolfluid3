@@ -11,6 +11,7 @@
 
 #include <boost/scoped_ptr.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
+#include <boost/mpl/for_each.hpp>
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/FindComponents.hpp"
@@ -18,10 +19,10 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CField2.hpp"
 
+#include "Solver/CEigenLSS.hpp"
 #include "Solver/Actions/CFieldAction.hpp"
 
-#include "Terminals.hpp"
-#include "Transforms.hpp"
+#include "ElementMatrix.hpp"
 
 namespace CF {
 namespace Solver {
@@ -90,7 +91,7 @@ public:
     return result;
   }
   
-  virtual Real nb_dofs() const
+  virtual Uint nb_dofs() const
   {
     // Access the mesh
     const Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>( root_region() );
@@ -100,10 +101,14 @@ public:
     Uint result = 0;
     const Uint nb_vars = var_sizes.size();
     
+    std::vector<bool> equation_variables;
+    boost::mpl::for_each<EquationVariablesT>(GetEquationVariables(equation_variables));
+    
     std::set<std::string> unique_fields;
-    BOOST_FOREACH(const std::string& fd_name, fd_names)
+    for(Uint fd_idx = 0; fd_idx != fd_names.size(); ++fd_idx)
     {
-      if(unique_fields.insert(fd_name).second)
+      const std::string& fd_name = fd_names[fd_idx];
+      if(unique_fields.insert(fd_name).second && equation_variables[fd_idx])
       {
         const Uint nb_field_rows = mesh.get_child_ptr(fd_name)->as_ptr<Mesh::CField2>()->data().size();
         for(Uint i = 0; i != nb_vars; ++i)
@@ -135,8 +140,8 @@ public:
     const StringsT var_names = variable_names();
     const SizesT var_sizes = variable_sizes();
     
-    std::vector<bool> field_constness;
-    boost::fusion::for_each( m_variables, GetFieldConstness(field_constness) );
+    std::vector<bool> equation_variables;
+    boost::mpl::for_each<EquationVariablesT>(GetEquationVariables(equation_variables));
     
     BOOST_FOREACH(const std::string& fd_name, unique_fields)
     {
@@ -149,7 +154,7 @@ public:
       Uint var_idx = 0;
       for(Uint i = 0; i != nb_fd_vars; ++i)
       {
-        if(fd_names[i] != fd_name || field_constness[i])
+        if(fd_names[i] != fd_name || !equation_variables[i])
           continue;
         
         fd_var_names.push_back(var_names[i]);
@@ -172,17 +177,45 @@ public:
         mesh.create_field2(fd_name, Mesh::CField2::Basis::POINT_BASED, fd_var_names, fd_var_types);
     }
   }
+  
+  virtual void update_fields(const RealVector& solution, Mesh::CMesh& solution_mesh)
+  {
+    const StringsT fd_names = field_names();
+    const StringsT var_names = variable_names();
+    const SizesT var_sizes = variable_sizes();
+    
+    StringsT fd_names_filt, var_names_filt;
+    SizesT var_sizes_filt;
+    
+    std::vector<bool> equation_variables;
+    boost::mpl::for_each<EquationVariablesT>(GetEquationVariables(equation_variables));
+    
+    for(Uint i = 0; i != equation_variables.size(); ++i)
+    {
+      if(equation_variables[i])
+      {
+        fd_names_filt.push_back(fd_names[i]);
+        var_names_filt.push_back(var_names[i]);
+        var_sizes_filt.push_back(var_sizes[i]);
+      }
+    }
+    
+    Solver::increment_solution(solution, fd_names_filt, var_names_filt, var_sizes_filt, solution_mesh);
+  }
 
 protected:
   // Type of a fusion vector that can contain a copy of each variable that is used in the expression
   typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
+  
+  // True for the variables that are stored
+  typedef typename EquationVariables<ExprT, typename ExpressionProperties<ExprT>::NbVarsT>::type EquationVariablesT;
 
   // type of the copied expression
   typedef typename boost::proto::result_of::deep_copy<ExprT>::type CopiedExprT;
 
   /// Copy of each variable in the expression
   VariablesT m_variables;
-
+  
   /// Copy of the expression
   boost::scoped_ptr<CopiedExprT> m_expr;
 
@@ -193,21 +226,6 @@ private:
   /// Functor to get the variable names
   struct GetVariableNames
   {
-    template<typename T>
-    struct impl
-    {
-      void operator()(const T&, StringsT&) {}
-    };
-    
-    template<typename T>
-    struct impl< Field<T> >
-    {
-      void operator()(const Field<T>& var, StringsT& r)
-      {
-        r.push_back(var.var_name);
-      }
-    };
-    
     GetVariableNames(StringsT& s) : result(s)
     {
     }
@@ -215,7 +233,7 @@ private:
     template<typename T>
     void operator()(const T& var) const
     {
-      impl<T>()(var, result);
+      result.push_back(var.var_name);
     }
     
     StringsT& result;
@@ -223,22 +241,7 @@ private:
   
   /// Functor to get the field names
   struct GetFieldNames
-  {
-    template<typename T>
-    struct impl
-    {
-      void operator()(const T&, StringsT&) {}
-    };
-    
-    template<typename T>
-    struct impl< Field<T> >
-    {
-      void operator()(const Field<T>& var, StringsT& r)
-      {
-        r.push_back(var.field_name);
-      }
-    };
-    
+  { 
     GetFieldNames(StringsT& s) : result(s)
     {
     }
@@ -246,7 +249,7 @@ private:
     template<typename T>
     void operator()(const T& var) const
     {
-      impl<T>()(var, result);
+      result.push_back(var.field_name);;
     }
     
     StringsT& result;
@@ -255,21 +258,6 @@ private:
   /// Functor to get the variable sizes
   struct GetVariableSizes
   {
-    
-    template<typename T>
-    struct impl
-    {
-      void operator()(const T&, SizesT&) {}
-    };
-    
-    template<typename T>
-    struct impl< Field<T> >
-    {
-      void operator()(const Field<T>& var, SizesT& r)
-      {
-        r.push_back(1);
-      }
-    };
     GetVariableSizes(SizesT& s) : result(s)
     {
     }
@@ -277,38 +265,23 @@ private:
     template<typename T>
     void operator()(const T& var) const
     {
-      impl<T>()(var, result);
+      result.push_back(1);
     }
     
     SizesT& result;
   };
   
-  /// Functor to determine if fields are const
-  struct GetFieldConstness
+  /// Indicate if a variable is part of the equation
+  struct GetEquationVariables
   {
-    
-    template<typename T>
-    struct impl
-    {
-      void operator()(const T&, std::vector<bool>&) {}
-    };
-    
-    template<typename T>
-    struct impl< Field<T> >
-    {
-      void operator()(const Field<T>& var, std::vector<bool>& r)
-      {
-        r.push_back(var.is_const);
-      }
-    };
-    GetFieldConstness(std::vector<bool>& b) : result(b)
+    GetEquationVariables(std::vector<bool>& v) : result(v)
     {
     }
     
     template<typename T>
-    void operator()(const T& var) const
+    void operator()(const T&) const
     {
-      impl<T>()(var, result);
+      result.push_back(T::value);
     }
     
     std::vector<bool>& result;

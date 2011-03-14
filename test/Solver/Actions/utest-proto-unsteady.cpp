@@ -75,7 +75,7 @@ struct ProtoUnsteadyFixture
   /// Write the analytical solution, according to "A Heat transfer textbook", section 5.3
   void set_analytical_solution(CRegion& region, const std::string& field_name, const std::string& var_name)
   {
-    MeshTerm<0, Field<Real> > T(field_name, var_name);
+    MeshTerm<0, ScalarField > T(field_name, var_name);
     
     if(t == 0.)
     {
@@ -152,10 +152,8 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   CRegion& xneg = find_component_recursively_with_name<CRegion>(*mesh, "xneg");
   CRegion& xpos = find_component_recursively_with_name<CRegion>(*mesh, "xpos");
 
-  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
-  MeshTerm< 1, ElementMatrix<0> > A; // Spatial disctitization element matrix
-  MeshTerm< 2, ElementMatrix<0> > T; // Temporal disctitization element matrix
-  MeshTerm<4, Field<Real> > temperature_analytical("TemperatureAnalytical", "T");
+  MeshTerm<0, ScalarField> temperature("Temperature", "T");
+  MeshTerm<1, ScalarField> temperature_analytical("TemperatureAnalytical", "T");
   
   
   // Set initial condition.
@@ -180,10 +178,10 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
       mesh->topology(),
       group
       (
-        A = alpha * integral<1>(laplacian(temperature) * jacobian_determinant),
-        T = invdt * integral<1>(sf_outer_product(temperature) * jacobian_determinant),
-        system_matrix(lss, temperature) += T + 0.5 * A,
-        system_rhs(lss, temperature) -= A * temperature
+        _A(temperature) = alpha * integral<1>(laplacian_elm(temperature) * jacobian_determinant),
+        _T(temperature) = invdt * integral<1>(value_elm(temperature) * jacobian_determinant),
+        system_matrix(lss) += _T + 0.5 * _A,
+        system_rhs(lss) -= _A * temperature
       )
     );
     

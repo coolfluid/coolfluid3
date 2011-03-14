@@ -10,7 +10,7 @@
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/include/for_each.hpp>
 
-#include <boost/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 #include "Common/CF.hpp"
 

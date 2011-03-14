@@ -35,12 +35,11 @@ HeatConductionLinearUnsteady::HeatConductionLinearUnsteady(const std::string& na
 
 CFieldAction::Ptr HeatConductionLinearUnsteady::build_equation()
 {
-  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
-  MeshTerm<1, ConfigurableConstant<Real> > alpha("alpha", "Thermal diffusivity (m2/s)");
-  MeshTerm<2, ConfigurableConstant<Real> > k("k", "Thermal conductivity (W/(mK))");
-  MeshTerm<3, ConstField<Real> > heat("Heat", "q");
-  MeshTerm< 4, ElementMatrix<0> > A; // Spatial disctitization element matrix
-  MeshTerm< 5, ElementMatrix<0> > T; // Temporal disctitization element matrix
+  MeshTerm<0, ScalarField> temperature("Temperature", "T");
+  MeshTerm<1, ScalarField> heat("Heat", "q");
+  
+  StoredReference<Real> alpha = add_configurable_constant("alpha", "Thermal diffusivity (m2/s)", 1.);
+  StoredReference<Real> k = add_configurable_constant("k", "Thermal conductivity (W/(mK))", 1.);
   
   return build_elements_action
   (
@@ -48,10 +47,10 @@ CFieldAction::Ptr HeatConductionLinearUnsteady::build_equation()
     *this,
     group
     (
-      A = alpha * integral<1>(laplacian(temperature) * jacobian_determinant),
-      T = integral<1>(sf_outer_product(temperature) * jacobian_determinant), // note: we skip multiplying by invdt() so we can reuse this in the source terms
-      system_matrix(lss(), temperature) += invdt() * T + 0.5 * A,
-      system_rhs(lss(), temperature)    += (alpha / k) * T * heat - transpose(A * temperature)
+      _A(temperature) = alpha * integral<1>(laplacian_elm(temperature) * jacobian_determinant),
+      _T(temperature) = integral<1>(value_elm(temperature) * jacobian_determinant), // note: we skip multiplying by invdt() so we can reuse this in the source terms
+      system_matrix( lss() ) += invdt() * _T + 0.5 * _A,
+      system_rhs( lss() )    += (boost::proto::lit(alpha) / k) * _T * heat - _A * temperature
     )
   );
 }

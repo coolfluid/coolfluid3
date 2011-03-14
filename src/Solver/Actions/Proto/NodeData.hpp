@@ -7,6 +7,8 @@
 #ifndef CF_Solver_Actions_Proto_NodeData_hpp
 #define CF_Solver_Actions_Proto_NodeData_hpp
 
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
+
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/range_c.hpp>
 
@@ -19,7 +21,6 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 
-#include "Terminals.hpp"
 #include "Transforms.hpp"
 
 /// @file
@@ -78,9 +79,9 @@ private:
 };
 
 template<>
-struct NodeVarData< Field<Real> >
+struct NodeVarData< ScalarField >
 {
-  NodeVarData(const Field<Real>& placeholder, Mesh::CRegion& region) :
+  NodeVarData(const ScalarField& placeholder, Mesh::CRegion& region) :
     m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField2>() ),
     m_data( m_field.data() )
   {
@@ -90,38 +91,7 @@ struct NodeVarData< Field<Real> >
   
   void set_node(const Uint idx)
   {
-    m_value = &m_data[idx][m_var_begin];
-  }
-  
-  typedef Real ValueT;
-  typedef Real& ValueResultT;
-  
-  /// Value is intended to be mutable, so we return a reference
-  ValueResultT value() const
-  {
-    return *m_value;
-  }
-  
-private:
-  Mesh::CField2& m_field;
-  Uint m_var_begin;
-  Mesh::CTable<Real>& m_data;
-  Real* m_value;
-};
-
-template<>
-struct NodeVarData< ConstField<Real> >
-{
-  NodeVarData(const ConstField<Real>& placeholder, Mesh::CRegion& region) :
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField2>() ),
-    m_data( m_field.data() )
-  {
-    m_var_begin = m_field.var_index(placeholder.var_name);
-    cf_assert(m_field.var_type(placeholder.var_name) == 1);
-  }
-  
-  void set_node(const Uint idx)
-  {
+    m_idx = idx;
     m_value = m_data[idx][m_var_begin];
   }
   
@@ -134,10 +104,27 @@ struct NodeVarData< ConstField<Real> >
     return m_value;
   }
   
+  /// Sets value
+  void set_value(boost::proto::tag::assign, const Real v)
+  {
+    m_data[m_idx][m_var_begin] = v;
+  }
+  
+  void set_value(boost::proto::tag::plus_assign, const Real v)
+  {
+    m_data[m_idx][m_var_begin] += v;
+  }
+  
+  void set_value(boost::proto::tag::minus_assign, const Real v)
+  {
+    m_data[m_idx][m_var_begin] -= v;
+  }
+  
 private:
   Mesh::CField2& m_field;
   Uint m_var_begin;
   Mesh::CTable<Real>& m_data;
+  Uint m_idx;
   Real m_value;
 };
 
@@ -171,10 +158,24 @@ struct NodeVarData<VectorField, Dim>
   
   /// Sets values using a vector-like container
   template<typename VectorT>
-  void set_values(const VectorT& v)
+  void set_value(boost::proto::tag::assign, const VectorT& v)
   {
     for(Uint i = 0; i != Dim; ++i)
       m_data[m_idx][m_var_begin + i] = v[i];
+  }
+  
+  template<typename VectorT>
+  void set_value(boost::proto::tag::plus_assign, const VectorT& v)
+  {
+    for(Uint i = 0; i != Dim; ++i)
+      m_data[m_idx][m_var_begin + i] += v[i];
+  }
+  
+  template<typename VectorT>
+  void set_value(boost::proto::tag::minus_assign, const VectorT& v)
+  {
+    for(Uint i = 0; i != Dim; ++i)
+      m_data[m_idx][m_var_begin + i] -= v[i];
   }
   
 private:
@@ -183,30 +184,6 @@ private:
   Mesh::CTable<Real>& m_data;
   ValueT m_value;
   Uint m_idx;
-};
-
-template<typename T>
-struct NodeVarData< ConfigurableConstant<T> >
-{
-  NodeVarData(const ConfigurableConstant<T>& placeholder, Mesh::CRegion& region) :
-    m_value(placeholder.stored_value)
-  {
-  }
-  
-  void set_node(const Uint)
-  {
-  }
-  
-  typedef T ValueT;
-  typedef const T& ValueResultT;
-  
-  ValueResultT value() const
-  {
-    return m_value;
-  }
-  
-private:
-  ValueResultT m_value;
 };
 
 /// MPL transform operator to wrap a variable in its data type
@@ -246,7 +223,7 @@ public:
       <
         typename boost::fusion::result_of::at
         <
-          VariablesDataT, I
+          VariablesDataT, typename boost::remove_reference<I>::type
         >::type 
       >::type
     >::type type;
@@ -254,7 +231,7 @@ public:
   
   /// Return the data stored at index I
   template<typename I>
-  typename DataType<I>::type& var_data()
+  typename DataType<I>::type& var_data(const I&)
   {
     return *boost::fusion::at<I>(m_variables_data);
   }

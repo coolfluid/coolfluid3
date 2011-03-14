@@ -7,12 +7,12 @@
 #ifndef CF_Solver_Actions_Proto_ElementGrammar_hpp
 #define CF_Solver_Actions_Proto_ElementGrammar_hpp
 
-#include <boost/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 #include "BlockAccumulator.hpp"
 #include "ElementTransforms.hpp"
 #include "ExpressionGroup.hpp"
-#include "ForEachDimension.hpp"
+//#include "ForEachDimension.hpp" // candidate for removal
 
 /// @file 
 /// Grammars related to element-wise mesh operations
@@ -38,8 +38,8 @@ struct ElementGrammar :
   boost::proto::or_
   <
     SingleExprElementGrammar,
-    GroupGrammar<SingleExprElementGrammar>,
-    ForEachDimensionGrammar<ElementGrammar>
+    GroupGrammar<SingleExprElementGrammar>
+    //ForEachDimensionGrammar<ElementGrammar>
   >
 {
 };  

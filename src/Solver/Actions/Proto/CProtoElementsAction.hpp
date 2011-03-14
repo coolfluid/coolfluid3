@@ -23,6 +23,17 @@ template<typename ExprT>
 class CProtoElementsAction : public CProtoFieldAction<ExprT>
 {
   typedef CProtoFieldAction<ExprT> BaseT;
+  
+  /// Supported element types
+  typedef boost::mpl::vector5
+  <
+    Mesh::SF::Line1DLagrangeP1,
+    Mesh::SF::Triag2DLagrangeP1,
+    Mesh::SF::Quad2DLagrangeP1,
+    Mesh::SF::Hexa3DLagrangeP1,
+    Mesh::SF::Tetra3DLagrangeP1
+  > ElementTypes;
+  
 public:
   typedef boost::shared_ptr< CProtoElementsAction<ExprT> > Ptr;
   typedef boost::shared_ptr< CProtoElementsAction<ExprT> const> ConstPtr;
@@ -37,16 +48,10 @@ public:
   /// Run the expression, looping over all elements
   virtual void execute()
   { 
-    // IF COMPILATION FAILS HERE: the espression passed is invalid
-    BOOST_MPL_ASSERT_MSG(
-      (boost::proto::matches<ExprT, ElementGrammar>::value),
-      INVALID_ELEMENT_EXPRESSION,
-      (ElementGrammar));
-    
     // Traverse all CElements under the root and evaluate the expression
     BOOST_FOREACH(Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>( BaseT::root_region() ) )
     {
-      boost::mpl::for_each<Mesh::SF::CellTypes>( ElementLooper<Mesh::SF::CellTypes, typename BaseT::CopiedExprT>(elements, *BaseT::m_expr, BaseT::m_variables) );
+      boost::mpl::for_each<ElementTypes>( ElementLooper<ElementTypes, typename BaseT::CopiedExprT>(elements, *BaseT::m_expr, BaseT::m_variables) );
     }
   }
 };

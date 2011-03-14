@@ -83,6 +83,9 @@ public: // functions
   
   Uint nb_vars() const { return m_var_types.size(); }
   
+  /// True if the field contains a variable with the given name
+  bool has_variable(const std::string& vname) const;
+  
   /// Find the variable index of the given variable
   Uint var_number(const std::string& vname) const;
 

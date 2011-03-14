@@ -7,7 +7,7 @@
 #ifndef CF_Solver_Actions_Proto_NeumannBC_hpp
 #define CF_Solver_Actions_Proto_NeumannBC_hpp
 
-#include <boost/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 #include "Math/MatrixTypes.hpp"
 #include "Solver/CEigenLSS.hpp"
@@ -48,7 +48,7 @@ struct NeumannBCSetter :
     {
       Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>(expr) ).get();
       const std::vector<Uint>& offsets = data.variable_offsets();
-      const Uint sys_idx = data.node_idx*offsets.back() + offsets[VarNumber()( boost::proto::child_c<2>(expr) )];
+      const Uint sys_idx = data.node_idx*offsets.back() + offsets[boost::proto::value( boost::proto::child_c<2>(expr) )];
       lss.rhs()[sys_idx] = state;
     }
   };

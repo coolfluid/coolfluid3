@@ -7,109 +7,41 @@
 #ifndef CF_Solver_Actions_Proto_EigenTransforms_hpp
 #define CF_Solver_Actions_Proto_EigenTransforms_hpp
 
-#include <boost/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Transforms.hpp"
-
-struct C;
 /// @file Transforms related to Eigen matrix library functionality
-
-/// Required extension to eigen, in order to pass matrix product expressions by value
-namespace Eigen {
-
-template<typename Lhs, typename Rhs, int Mode> class NestByValue<GeneralProduct<Lhs,Rhs,Mode> >
-  : public ProductBase<NestByValue<GeneralProduct<Lhs,Rhs,Mode> >,
-                       typename GeneralProduct<Lhs,Rhs,Mode>::_LhsNested,
-                       typename GeneralProduct<Lhs,Rhs,Mode>::_RhsNested>
-{
-public:
-
-  typedef GeneralProduct<Lhs,Rhs,Mode> NestedProduct;
-  
-  typedef ProductBase<NestByValue,
-                      typename NestedProduct::_LhsNested,
-                      typename NestedProduct::_RhsNested> Base;
-  typedef typename Base::Scalar Scalar;
-  typedef typename Base::PlainObject PlainObject;
-
-  NestByValue(const NestedProduct& prod)
-    : Base(prod.lhs(),prod.rhs()), m_prod(prod) {}
-  
-  template<typename Dest>
-  inline void evalTo(Dest& dst) const { dst.setZero(); scaleAndAddTo(dst,Scalar(1)); }
-
-  template<typename Dest>
-  inline void addTo(Dest& dst) const { scaleAndAddTo(dst,Scalar(1)); }
-
-  template<typename Dest>
-  inline void subTo(Dest& dst) const { scaleAndAddTo(dst,-Scalar(1)); }
-
-  template<typename Dest>
-  inline void scaleAndAddTo(Dest& dst,Scalar alpha) const { m_prod.derived().scaleAndAddTo(dst,Scalar(1)); }
-
-  operator const NestedProduct&() const { return m_prod; }
-    
-protected:
-  const NestedProduct m_prod;
-};
-
-namespace internal {
-
-template<typename T>
-struct nested< NestByValue<T> >
-{
-  typedef NestByValue<T> const type;
-};
-
-} // namespace internal
-} // namespace Eigen
 
 namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
 
-/// Converts product type if necessary
-template<typename T>
-struct FilterProduct
-{
-  typedef T type;
-};
-
-/// Inner products become a 1x1 matrix, but ProductReturnType does not resolve that
-template<typename Lhs, typename Rhs>
-struct FilterProduct< Eigen::GeneralProduct<Lhs,Rhs,Eigen::InnerProduct> >
-{
-  typedef Eigen::Matrix<Real, 1, 1> type;
-};
-
-/// Object transform to create a product that can be nested by value, avoiding dangling references
+/// Generalization of Eigen::ProductReturnType that also works for scalars (see specializations below)
 template<typename LeftT, typename RightT>
-struct EigenProduct
+struct EigenProductType
 {
-  typedef typename Eigen::ProductReturnType<LeftT, RightT>::Type ProductT;
-  typedef Eigen::NestByValue<typename FilterProduct<ProductT>::type> type;
+  typedef typename Eigen::ProductReturnType<LeftT, RightT>::Type type;
 };
 
 /// Scalar on the left
 template<typename RightT>
-struct EigenProduct<Real, RightT>
+struct EigenProductType<Real, RightT>
 {
   typedef Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Real>, const RightT> type;
 };
 
 /// Scalar on the right
 template<typename LeftT>
-struct EigenProduct<LeftT, Real>
+struct EigenProductType<LeftT, Real>
 {
   typedef Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Real>, const LeftT> type;
 };
 
 /// Scalar - scalar
 template<>
-struct EigenProduct<Real, Real>
+struct EigenProductType<Real, Real>
 {
   typedef Real type;
 };
@@ -119,8 +51,6 @@ template<typename T>
 struct ValueType
 {
   typedef typename Eigen::MatrixBase<T>::PlainObject type;
-//   typedef Eigen::NestByValue<type> NestedT;
-  typedef type NestedT;
 };
 
 /// Specialize for Eigen matrices
@@ -128,8 +58,13 @@ template<int I, int J>
 struct ValueType< Eigen::Matrix<Real, I, J> >
 {
   typedef Eigen::Matrix<Real, I, J> type;
-  //typedef Eigen::NestByValue<type> NestedT;
-  typedef type NestedT;
+};
+
+/// Specialise for multiplication with a scalar
+template<typename MatrixT>
+struct ValueType< Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Real>, const MatrixT> >
+{
+  typedef typename ValueType<MatrixT>::type type;
 };
 
 /// Specialise for reals
@@ -137,7 +72,44 @@ template<>
 struct ValueType<Real>
 {
   typedef Real type;
-  typedef Real NestedT;
+};
+
+/// Evaluate the product LeftT * RightT
+template<typename GrammarT>
+struct EigenProductEval :
+  boost::proto::transform< EigenProductEval<GrammarT> >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::proto::result_of::left<ExprT>::type LeftExprT;
+    typedef typename boost::proto::result_of::right<ExprT>::type RightExprT;
+    
+    typedef typename boost::result_of<GrammarT(LeftExprT, StateT, DataT)>::type LeftT;
+    typedef typename boost::result_of<GrammarT(RightExprT, StateT, DataT)>::type RightT;
+    
+    typedef typename boost::remove_const<typename boost::remove_reference<LeftT>::type>::type UnRefLeftT;
+    typedef typename boost::remove_const<typename boost::remove_reference<RightT>::type>::type UnRefRightT;
+    
+    typedef const typename ValueType< typename EigenProductType<UnRefLeftT, UnRefRightT>::type >::type& result_type;
+    
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      expr.value = GrammarT()(boost::proto::left(expr), state, data) * GrammarT()(boost::proto::right(expr), state, data);
+      return expr.value;
+    }
+  };
+};
+
+/// Handle an expression that is filtered by Eigen
+template<typename GrammarT>
+struct EigenMultiplication :
+  boost::proto::when
+  <
+    boost::proto::multiplies<GrammarT, GrammarT>,
+    EigenProductEval<GrammarT>
+  >
+{
 };
 
 /// Terminal to indicate we want a transpose
@@ -248,22 +220,6 @@ struct MatrixColAccess :
   };
 };
 
-/// Handle multiplication cases
-template<typename GrammarT>
-struct EigenMultiplication :
-  boost::proto::when
-  <
-    boost::proto::multiplies<GrammarT, GrammarT>,
-    boost::proto::_default<GrammarT>
-//     EigenProduct
-//     <
-//       GrammarT(boost::proto::_left),
-//       GrammarT(boost::proto::_right)
-//     >(boost::proto::_default<GrammarT>)
-  >
-{
-};
-
 /// Placeholders to indicate if we should get a row or a column
 struct RowTag
 {
@@ -309,7 +265,8 @@ struct EigenMath :
     <
       boost::proto::function< boost::proto::terminal<TransposeFunction>, GrammarT >,
       TransposeTransform(boost::proto::_expr, GrammarT(boost::proto::_child1), boost::proto::_data)
-    >
+    >,
+    MathOpDefault<GrammarT>
   >
 {
 };

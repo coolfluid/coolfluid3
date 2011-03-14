@@ -50,8 +50,9 @@ if(CF_ENABLE_PROTO)
     Proto/ElementData.hpp
     Proto/ElementGrammar.hpp
     Proto/ElementLooper.hpp
+    Proto/ElementMatrix.hpp
+    Proto/ElementOperations.hpp
     Proto/ElementTransforms.hpp
-    Proto/ElementVariables.hpp
     Proto/ExpressionGroup.hpp
     Proto/ForEachDimension.hpp
     Proto/Functions.hpp
@@ -73,8 +74,9 @@ else()
     Proto/ElementData.hpp
     Proto/ElementGrammar.hpp
     Proto/ElementLooper.hpp
+    Proto/ElementMatrix.hpp
+    Proto/ElementOperations.hpp
     Proto/ElementTransforms.hpp
-    Proto/ElementVariables.hpp
     Proto/ExpressionGroup.hpp
     Proto/ForEachDimension.hpp
     Proto/Functions.hpp

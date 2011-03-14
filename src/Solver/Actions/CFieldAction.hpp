@@ -8,10 +8,12 @@
 #define CF_Solver_Actions_CFieldAction_hpp
 
 #include "Common/CAction.hpp"
+#include "Math/MatrixTypes.hpp"
 
 #include "LibActions.hpp"
 
 namespace CF {
+  namespace Mesh { class CMesh; }
 namespace Solver {
 namespace Actions {
 
@@ -40,10 +42,13 @@ struct Solver_Actions_API CFieldAction : public Common::CAction
   /// Number of Real numbers needed to store each variable
   virtual SizesT variable_sizes() const = 0;
   
-  virtual Real nb_dofs() const = 0;
+  virtual Uint nb_dofs() const = 0;
   
   /// Create the fields needed for the action to operate
   virtual void create_fields() = 0;
+  
+  /// Update the fields from a global solution vector
+  virtual void update_fields(const RealVector& solution, Mesh::CMesh& solution_mesh) = 0;
 };
 
 } // namespace Actions

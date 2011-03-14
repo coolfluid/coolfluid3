@@ -34,12 +34,14 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of
                                                            ("../src")
                                                            ("../../../src/Mesh/Neu")
-                                                           ("../../../src/Mesh/Gmsh");
+                                                           ("../../../src/Mesh/Gmsh")
+                                                           ("../../../src/Tools/FieldGeneration");
   loader.set_search_paths(lib_paths);
 
   loader.load_library("coolfluid_ufem");
   loader.load_library("coolfluid_mesh_neutral");
   loader.load_library("coolfluid_mesh_gmsh");
+  loader.load_library("coolfluid_field_generation");
 
   int    argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;
@@ -69,8 +71,19 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   CMeshReader::Ptr mesh_reader = ufem_model->get_child_ptr("NeutralReader")->as_ptr<CMeshReader>();
   BOOST_CHECK(mesh_reader);
 
+  // Read the mesh
   CMesh::Ptr mesh = ufem_model->get_child_ptr("Domain")->create_component<CMesh>("Mesh");
   mesh_reader->read_from_to(input_file, mesh);
+  
+  // Setup a constant field for the source term
+  Component::Ptr heat_generator = create_component_abstract_type<Component>("CF.Tools.FieldGeneration.FieldGenerator", "HeatFieldGenerator");
+  root->add_component(heat_generator);
+  heat_generator->configure_property("FieldName", std::string("Heat"));
+  heat_generator->configure_property("VariableName", std::string("q"));
+  heat_generator->configure_property("Value", 0.);
+  heat_generator->configure_property("Mesh", mesh->full_path());
+  SignalFrame update_heat_frame("", URI(), URI());
+  heat_generator->call_signal("update", update_heat_frame);
 
   Component::Ptr ufem_method = ufem_model->get_child_ptr("LinearModel");
   BOOST_CHECK(ufem_method);
@@ -86,11 +99,8 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
 
   heat_eq->configure_property("HeatFieldName", std::string("Heat"));
   heat_eq->configure_property("HeatVariableName", std::string("q"));
-  heat_eq->configure_property("HeatIsConst", true);
-  heat_eq->configure_property("HeatValue", 0.);
 
   heat_eq->configure_property("k", 0.1);
-
 
   // Set intial field to 0
   SignalFrame init_frame("", URI(), URI());
@@ -101,6 +111,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   init_p.set_option<std::string>("VariableName", "T");
 
   ufem_method->call_signal("add_initial_condition", init_frame);
+  
   Component::Ptr init = ufem_method->get_child_ptr("InitialTemperature");
   BOOST_CHECK(init);
   init->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology"));
@@ -144,7 +155,10 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   ufem_model->add_component(writer);
 
-  writer->configure_property( "Fields", std::vector<URI>(1, URI("cpath://Root/UFEMHeat/Domain/Mesh/Temperature") ) );
+  const std::vector<URI> field_uris = boost::assign::list_of
+    ( URI("cpath://Root/UFEMHeat/Domain/Mesh/Temperature") );
+    //( URI("cpath://Root/UFEMHeat/Domain/Mesh/Heat") );
+  writer->configure_property( "Fields", field_uris );
 
   writer->write_from_to(mesh, output_file);
 

@@ -53,18 +53,22 @@ typedef std::vector<Uint> SizesT;
 
 BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
 
+// Disabled for rewrite of system handling
 BOOST_AUTO_TEST_CASE( ProtoSystem )
 {
   const Real length = 5.;
   const RealVector2 outside_temp(1., 1.);
   const RealVector2 initial_temp(100., 200.);
   const Uint nb_segments = 10;
-  const RealVector2 alpha(1., 2.);
   const Real start_time = 0.;
   const Real end_time = 0.5;
   const Real dt = 0.5;
   Real t = start_time;
   const Uint write_interval = 5;
+  
+  RealMatrix alpha;
+  alpha.setIdentity(8,8);
+  alpha.block(4, 4, 4, 4) *= 2.;
   
   const Real invdt = 1. / dt;
 
@@ -101,9 +105,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   CRegion& top = find_component_recursively_with_name<CRegion>(*mesh, "top");
 
   // Expression variables
-  MeshTerm<0, VectorField > temperature("Temperature", "T");
-  MeshTerm< 1, ElementMatrix<0> > A; // Spatial disctitization element matrix
-  MeshTerm< 2, ElementMatrix<0> > T; // Temporal disctitization element matrix
+  MeshTerm<0, VectorField> temperature("Temperature", "T");
   
   // Set initial condition.
   for_each_node
@@ -119,15 +121,12 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
     for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
     (
       mesh->topology(),
-      for_each_dimension
+      group
       (
-        group
-        (
-          A = boost::proto::lit(alpha)[_dim] * integral<1>(laplacian(temperature) * jacobian_determinant),
-          T = invdt * integral<1>(sf_outer_product(temperature) * jacobian_determinant),
-          system_matrix(lss, temperature, _dim) += T + 0.5 * A,
-          system_rhs(lss, temperature, _dim) -= A * temperature(_col, _dim)
-        )
+        _A(temperature) = boost::proto::lit(alpha) * integral<1>(laplacian_elm(temperature) * jacobian_determinant),
+        _T(temperature) = invdt * integral<1>(value_elm(temperature) * jacobian_determinant),
+        system_matrix(lss) += _T + 0.5 * _A,
+        system_rhs(lss) -= _A * _b
       )
     );
     

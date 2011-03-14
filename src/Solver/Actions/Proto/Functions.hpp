@@ -7,7 +7,7 @@
 #ifndef CF_Solver_Actions_Proto_Functions_hpp
 #define CF_Solver_Actions_Proto_Functions_hpp
 
-#include <boost/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 #include "Common/CF.hpp"
 

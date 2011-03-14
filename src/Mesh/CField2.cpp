@@ -323,6 +323,13 @@ void CField2::create_data_storage()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool CField2::has_variable(const std::string& vname) const
+{
+  return std::find(m_var_names.begin(), m_var_names.end(), vname) != m_var_names.end();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Uint CField2::var_number ( const std::string& vname ) const
 {
   const std::vector<std::string>::const_iterator var_loc_it = std::find(m_var_names.begin(), m_var_names.end(), vname);

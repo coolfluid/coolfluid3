@@ -12,7 +12,7 @@
 #include "NeumannBC.hpp"
 #include "NodeData.hpp"
 #include "Transforms.hpp"
-#include "ElementVariables.hpp"
+#include "ElementOperations.hpp"
 
 /// @file
 /// Grammar for node-based expressions
@@ -45,7 +45,7 @@ struct GetCoordinates :
 
 /// Valid terminals that can represent the current node coordinates
 struct CoordsTerminals :
-  boost::proto::terminal< SFOp<CoordinatesOp> >
+  boost::proto::terminal<CoordinatesOp>
 {
 };
 
@@ -61,9 +61,9 @@ struct CoordinatesGrammar :
 {
 };
 
-/// Handle assignment to a VectorField
-struct VectorFieldAssign :
-  boost::proto::transform<VectorFieldAssign>
+/// Handle modification of a field
+struct NodeAssign :
+  boost::proto::transform<NodeAssign>
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
@@ -71,22 +71,34 @@ struct VectorFieldAssign :
     typedef void result_type;
   
     result_type operator ()(
-                typename impl::expr_param expr // The evaluated values
-              , typename impl::state_param state
-              , typename impl::data_param data // The data corresponding to the LHS
+                typename impl::expr_param expr // The expression
+              , typename impl::state_param state // The evaluated RHS
+              , typename impl::data_param data
     ) const
     {
-      data.set_values(expr);
+      data.var_data( boost::proto::value( boost::proto::left(expr) ) ).set_value( typename boost::proto::tag_of<ExprT>::type(), state );
     }
   };
 };
 
+
 template<typename GrammarT>
-struct VectorFieldAssignGrammar :
+struct NodeAssignmentCases
+{
+  template<typename Tag, int Dummy = 0> struct case_ : boost::proto::not_<boost::proto::_> {};
+  
+  template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign<FieldTypes, GrammarT> {};
+  template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<FieldTypes, GrammarT> {};
+  template<int Dummy> struct case_<boost::proto::tag::minus_assign, Dummy> : boost::proto::minus_assign<FieldTypes, GrammarT> {};
+};
+
+
+template<typename GrammarT>
+struct NodeAssignGrammar :
   boost::proto::when
   <
-    boost::proto::assign<boost::proto::terminal< Var<boost::proto::_, VectorField> >, GrammarT>,
-    VectorFieldAssign(GrammarT(boost::proto::_right), boost::proto::_state, NumberedData(boost::proto::_left))
+    boost::proto::switch_< NodeAssignmentCases<GrammarT> >,
+    NodeAssign(boost::proto::_expr, GrammarT(boost::proto::_right))
   >
 {
 };
@@ -100,9 +112,8 @@ struct NodeMath :
   <
     MathTerminals, // Scalars and matrices
     CoordinatesGrammar,
-    EigenMath<NodeMath>, // Special Eigen functions and Eigen multiplication (overrides default product)
-    VectorFieldAssignGrammar<NodeMath>,
-    MathOpDefault<NodeMath>
+    NodeAssignGrammar<NodeMath>,
+    EigenMath<NodeMath> // Special Eigen functions and Eigen multiplication (overrides default product)
   >
 {
 };

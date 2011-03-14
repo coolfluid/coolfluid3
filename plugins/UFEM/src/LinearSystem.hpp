@@ -12,6 +12,7 @@
 #include "Solver/CEigenLSS.hpp"
 #include "Solver/CMethod.hpp"
 #include "Solver/Actions/CFieldAction.hpp"
+#include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "LibUFEM.hpp"
 
@@ -67,6 +68,13 @@ protected:
 
   /// Overridable implementation that is called when the action is run
   virtual void on_run();
+  
+  /// Adds a configurable constant
+  Solver::Actions::Proto::StoredReference<Real> add_configurable_constant(const std::string& name, const std::string& description, const Real default_value);
+  
+  /// Temp storage for configurable constants that are added
+  typedef std::map<std::string, Common::Component::Ptr> ConstantsT;
+  ConstantsT m_configurable_constants;
 
   /// Called when the LSS is changed
   void on_lss_set();

@@ -25,25 +25,26 @@ if(CF_ENABLE_PROTO)
   ################################################################################
   # test Proto operations
 
-  list( APPEND utest-proto-operators_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_block coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
-  list( APPEND utest-proto-operators_files  utest-proto-operators.cpp )
+  list( APPEND utest-proto-benchmark_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_block coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-benchmark_files  utest-proto-benchmark.cpp )
 
-  set( utest-proto-operators_profile ON )
+  set( utest-proto-benchmark_profile ON )
 
-  set( utest-proto-operators_condition ${CF_TMP_HAVE_SIMPLECOMM})
+  set( utest-proto-benchmark_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-  coolfluid_add_unit_test( utest-proto-operators )
+  coolfluid_add_unit_test( utest-proto-benchmark )
 
   ################################################################################
 
-  set( utest-proto-heat_condition ${CF_HAVE_SUPERLU} )
+  list( APPEND utest-proto-operators_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-operators_files
+    utest-proto-operators.cpp )
+  coolfluid_add_unit_test( utest-proto-operators )
 
   list( APPEND utest-proto-heat_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-heat_files
     utest-proto-heat.cpp )
   coolfluid_add_unit_test( utest-proto-heat )
-
-  set( utest-proto-unsteady_condition ${CF_HAVE_SUPERLU} )
 
   list( APPEND utest-proto-unsteady_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-unsteady_files
@@ -57,6 +58,6 @@ if(CF_ENABLE_PROTO)
 
 else()
 
-  coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-operators.cpp utest-proto-systems.cpp utest-proto-unsteady.cpp)
+  coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-benchmark.cpp utest-proto-systems.cpp utest-proto-unsteady.cpp)
 
 endif()

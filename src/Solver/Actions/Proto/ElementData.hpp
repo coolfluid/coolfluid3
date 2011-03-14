@@ -7,18 +7,19 @@
 #ifndef CF_Solver_Actions_Proto_ElementData_hpp
 #define CF_Solver_Actions_Proto_ElementData_hpp
 
-#include <boost/fusion/algorithm.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
 #include <boost/fusion/mpl.hpp>
 #include <boost/fusion/container/vector/convert.hpp>
-#include <boost/fusion/sequence.hpp>
 #include <boost/fusion/container/vector.hpp>
 
-#include <boost/mpl/contains.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/vector_c.hpp>
+
+#include "Common/Component.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CField2.hpp"
@@ -26,78 +27,28 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
 
-#include "ElementVariables.hpp"
+#include "ElementMatrix.hpp"
+#include "ElementOperations.hpp"
 #include "Terminals.hpp"
-#include "Transforms.hpp"
 
 namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
-  
-/// Data to facilitate the evaluation of shape function member functions that are a function of mapped coordinates only
-template<typename SF>
-struct SFData
-{
-  /// Allocate aligned data for Eigen
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
-  typedef SF ShapeFunctionT;
-  
-  /// Type for mapped coordinates
-  typedef typename SF::MappedCoordsT MappedCoordsT;
-  
-  /// Type for the laplacian
-  typedef Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> LaplacianT;
-  
-  /// Shape function matrix
-  const typename SF::ShapeFunctionsT& shape_function(const MappedCoordsT& mapped_coords) const
-  {
-    SF::shape_function(mapped_coords, m_sf);
-    return m_sf;
-  }
-  
-  /// Mapped gradient computed by the shape function
-  const typename SF::MappedGradientT& mapped_gradient(const MappedCoordsT& mapped_coords) const
-  {
-    SF::mapped_gradient(mapped_coords, m_mapped_gradient_matrix);
-    return m_mapped_gradient_matrix;
-  }
-  
-  /// Outer product of the shape function with itself
-  const LaplacianT& sf_outer_product(const MappedCoordsT& mapped_coords) const
-  {
-    SF::shape_function(mapped_coords, m_sf);
-    m_sf_outer_product.noalias() = m_sf.transpose() * m_sf;
-    return m_sf_outer_product;
-  }
-  
-private:
-  mutable typename SF::ShapeFunctionsT m_sf;
-  mutable typename SF::MappedGradientT m_mapped_gradient_matrix;
-  mutable LaplacianT m_sf_outer_product;
-};
 
 /// Functions and operators associated with a geometric support
-template<typename SF>
+template<typename ShapeFunctionT>
 class GeometricSupport
-  : public SFData<SF>
 {
 public:
   /// The shape function type
-  typedef SF ShapeFunctionT;
+  typedef ShapeFunctionT SF ;
   
   /// The value type for all element nodes
   typedef typename SF::NodeMatrixT ValueT;
  
   /// Return type of the value() method
   typedef const ValueT& ValueResultT;
-  
-  /// Type for passing mapped coordinates
-  typedef typename SF::MappedCoordsT MappedCoordsT;
-  
-  /// Type of the real-world coordinates
-  typedef typename SF::CoordsT CoordsT;
   
   /// We store nodes as a fixed-size Eigen matrix, so we need to make sure alignment is respected
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -132,25 +83,26 @@ public:
     return SF::volume(m_nodes);
   }
   
-  const CoordsT& coordinates(const MappedCoordsT& mapped_coords)
+  const typename SF::CoordsT& coordinates(const typename SF::MappedCoordsT& mapped_coords)
   {
-    m_eval_result = SFData<SF>::shape_function(mapped_coords) * m_nodes;
+    SF::shape_function(mapped_coords, m_sf);
+    m_eval_result.noalias() = m_sf * m_nodes;
     return m_eval_result;
   }
   
   /// Jacobian matrix computed by the shape function
-  const typename SF::JacobianT& jacobian(const MappedCoordsT& mapped_coords)
+  const typename SF::JacobianT& jacobian(const typename SF::MappedCoordsT& mapped_coords)
   {
     SF::jacobian(mapped_coords, m_nodes, m_jacobian_matrix);
     return m_jacobian_matrix;
   }
   
-  Real jacobian_determinant(const MappedCoordsT& mapped_coords)
+  Real jacobian_determinant(const typename SF::MappedCoordsT& mapped_coords)
   {
     return SF::jacobian_determinant(mapped_coords, m_nodes);
   }
   
-  const typename SF::CoordsT& normal(const MappedCoordsT& mapped_coords)
+  const typename SF::CoordsT& normal(const typename SF::MappedCoordsT& mapped_coords)
   {
     SF::normal(mapped_coords, m_nodes, m_normal_vector);
     return m_normal_vector;
@@ -166,234 +118,26 @@ private:
   /// Connectivity table
   const Mesh::CTable<Uint>& m_connectivity;
   
+  /// Index for the current element
   Uint m_element_idx;
   
   /// Temp storage for non-scalar results
-  typename SF::CoordsT m_eval_result;
-  typename SF::JacobianT m_jacobian_matrix;
-  typename SF::CoordsT m_normal_vector;
-};
-
-  
-/// Storage for per-variable data
-template<typename T>
-struct VariableData
-{
-  /// Stored value type
-  typedef T ValueT;
- 
-  /// Return type of the value() method
-  typedef ValueT& ValueResultT;
-  
-  /// Constructor must take the associated type and CElements as arguments
-  VariableData(T& var, const Mesh::CElements&) : m_var(var)
-  {
-  }
-  
-  /// Set element method must be provided
-  void set_element(const Uint)
-  {
-  }
-  
-  /// By default, value just returns the supplied value
-  ValueResultT value()
-  {
-    return m_var;
-  }
-  
-private:
-  T& m_var;
-};
-
-/// Storage for per-variable data
-template<typename T>
-struct VariableData< ConfigurableConstant<T> >
-{
-  /// Stored value type
-  typedef T ValueT;
- 
-  /// Return type of the value() method
-  typedef const ValueT& ValueResultT;
-  
-  /// Constructor must take the associated type and CElements as arguments
-  VariableData(const ConfigurableConstant<T>& var, const Mesh::CElements&) : m_value(var.stored_value)
-  { 
-  }
-  
-  /// Set element method must be provided
-  void set_element(const Uint)
-  {
-  }
-  
-  /// By default, value just returns the supplied value
-  ValueResultT value()
-  {
-    return m_value;
-  }
-  
-private:
-  const T& m_value;
-};
-
-/// Data associated with fields
-template<typename FieldSF>
-struct FieldData : public SFData<FieldSF>
-{
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
-  typedef SFData<FieldSF> BaseT;
-  typedef typename FieldSF::MappedGradientT GradientT;
-  typedef typename SFData<FieldSF>::LaplacianT LaplacianT;
-  typedef typename FieldSF::MappedCoordsT MappedCoordsT;
-  
-  /// Return the gradient
-  template<typename SupportT>
-  const GradientT& gradient(const MappedCoordsT& mapped_coords, SupportT& support) const
-  {
-    m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * BaseT::mapped_gradient(mapped_coords);
-    return m_gradient;
-  }
-  
-  /// Return the laplacian
-  template<typename SupportT>
-  const LaplacianT& laplacian(const MappedCoordsT& mapped_coords, SupportT& support) const
-  {
-    // Calculate the gradient
-    gradient(mapped_coords, support);
-    m_laplacian.noalias() = m_gradient.transpose() * m_gradient;
-    return m_laplacian;
-  }
-  
-private:
-  mutable GradientT m_gradient;
-  mutable LaplacianT m_laplacian;
-};
-
-
-/// Storage for per-variable data for variables that depend on a shape function
-template<typename SF, typename T>
-struct SFVariableData;
-
-/// Data associated with ConstField<Real> variables
-template<typename SF>
-class RealFieldData
-  : public FieldData<SF>
-{
-public:
-  /// The shape function type
-  typedef SF ShapeFunctionT;
-  
-  /// Types of the base classes
-  typedef FieldData<SF> FieldDataT;
-  typedef SFData<SF> SFDataT;
-  
-  /// The value type for all element values
-  typedef Eigen::Matrix<Real, SF::nb_nodes, 1> ValueT;
- 
-  /// Return type of the value() method
-  typedef const ValueT& ValueResultT;
-  
-  /// Type for passing mapped coordinates
-  typedef typename SF::MappedCoordsT MappedCoordsT;
-  
-  /// The result type of an interpolation at given mapped coordinates
-  typedef Real EvalT;
-  
-  /// We store data as a fixed-size Eigen matrix, so we need to make sure alignment is respected
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-  RealFieldData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) : m_data(0), m_connectivity(0)
-  {
-    if(placeholder.is_const) // the field has a single constant value over the entire domain
-    {
-      m_element_values.setConstant(placeholder.value);
-    }
-    else
-    {
-      Mesh::CField2::ConstPtr field = Common::find_parent_component<Mesh::CMesh>(elements).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField2>();
-      cf_assert(field);
-      
-      m_data = &field->data();
-      
-      m_connectivity = &elements.connectivity_table();    
-      
-      var_begin = field->var_index(placeholder.var_name);
-      cf_assert(field->var_type(placeholder.var_name) == 1);
-    }
-  }
-
-  /// Update nodes for the current element
-  void set_element(const Uint element_idx)
-  {
-    if(!m_data)
-      return;
-    m_element_idx = element_idx;
-    Mesh::fill(m_element_values, *m_data, (*m_connectivity)[element_idx], var_begin);
-  }
-  
-  const Mesh::CTable<Uint>::ConstRow element_connectivity() const
-  {
-    return (*m_connectivity)[m_element_idx];
-  }
-  
-  /// Reference to the stored data
-  ValueResultT value() const
-  {
-    return m_element_values;
-  }
-  
-  EvalT eval(const MappedCoordsT& mapped_coords)
-  {
-    return SFData<SF>::shape_function(mapped_coords) * m_element_values;
-  }
-  
-private:
-  /// Value of the field in each element node
-  ValueT m_element_values;
-  
-  /// Coordinates table
-  Mesh::CTable<Real> const* m_data;
-  
-  /// Connectivity table
-  Mesh::CTable<Uint> const* m_connectivity;
-  
-  Uint m_element_idx;
-  
-  /// Index of where the variable we need is in the field data row
-  Uint var_begin;
-};
-
-template<typename SF>
-class SFVariableData<SF, ConstField<Real> > : public RealFieldData<SF>
-{
-  typedef RealFieldData<SF> BaseT;
-public:
-  SFVariableData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) : BaseT(placeholder, elements) {}
-};
-
-template<typename SF>
-class SFVariableData<SF, Field<Real> > : public RealFieldData<SF>
-{
-  typedef RealFieldData<SF> BaseT;
-public:
-  SFVariableData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) : BaseT(placeholder, elements) {}
+  mutable typename SF::ShapeFunctionsT m_sf;
+  mutable typename SF::CoordsT m_eval_result;
+  mutable typename SF::JacobianT m_jacobian_matrix;
+  mutable typename SF::CoordsT m_normal_vector;
 };
 
 /// Data associated with VectorField variables
-template<typename SF>
-class VectorFieldData
-  : public FieldData<SF>
+template<typename ShapeFunctionT, Uint Dim, Uint Offset, Uint MatrixSize, bool IsEquationVar>
+class SFVariableData
 {
 public:
   /// The shape function type
-  typedef SF ShapeFunctionT;
-  
-  /// Types of the base classes
-  typedef FieldData<SF> FieldDataT;
-  typedef SFData<SF> SFDataT;
+  typedef ShapeFunctionT SF;
   
   /// The value type for all element values
-  typedef Eigen::Matrix<Real, SF::nb_nodes, SF::dimension> ValueT;
+  typedef Eigen::Matrix<Real, SF::nb_nodes, Dim> ValueT;
  
   /// Return type of the value() method
   typedef const ValueT& ValueResultT;
@@ -402,14 +146,32 @@ public:
   typedef typename SF::MappedCoordsT MappedCoordsT;
   
   /// The result type of an interpolation at given mapped coordinates
-  typedef const typename SF::CoordsT& EvalT;
+  typedef typename InterpolationImpl<SF, Dim>::result_type EvalT;
+  
+  /// Type of the gradient
+  typedef typename SF::MappedGradientT GradientT;
+  
+  /// The dimension of the variable
+  static const Uint dimension = Dim;
+  
+  /// The offset of the variable in the element matrix
+  static const Uint offset = Offset;
+  
+  /// Size of the element matrix
+  static const Uint matrix_size = MatrixSize;
+  
+  /// True if this variable is an unknow in the system of equations
+  static const bool is_equation_variable = IsEquationVar;
   
   /// We store data as a fixed-size Eigen matrix, so we need to make sure alignment is respected
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  VectorFieldData(const VectorField& placeholder, const Mesh::CElements& elements) : m_data(0), m_connectivity(0)
+  template<typename VariableT>
+  SFVariableData(const VariableT& placeholder, const Mesh::CElements& elements) : m_data(0), m_connectivity(0)
   {
-    Mesh::CField2::ConstPtr field = Common::find_parent_component<Mesh::CMesh>(elements).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField2>();
+    const Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
+    Common::Component::ConstPtr field_comp = mesh.get_child_ptr(placeholder.field_name);
+    Mesh::CField2::ConstPtr field = field_comp->as_ptr<Mesh::CField2>();
     cf_assert(field);
     
     m_data = &field->data();
@@ -439,10 +201,34 @@ public:
     return m_element_values;
   }
   
+  /// Interpolation at givem mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords) const
   {
-    m_eval_result = SFData<SF>::shape_function(mapped_coords) * m_element_values;
-    return m_eval_result;
+    SF::shape_function(mapped_coords, m_sf);
+    return m_eval(m_sf, m_element_values);
+  }
+  
+  /// Return the gradient
+  template<typename SupportT>
+  const GradientT& gradient(const MappedCoordsT& mapped_coords, SupportT& support) const
+  {
+    SF::mapped_gradient(mapped_coords, m_mapped_gradient_matrix);
+    m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
+    return m_gradient;
+  }
+  
+  /// Return the laplacian (weak form element matrix)
+  template<typename SupportT>
+  typename LaplacianImpl<SF, Dim, Offset, MatrixSize>::result_type laplacian_elm(const MappedCoordsT& mapped_coords, SupportT& support) const
+  {
+    return m_laplacian_elm(gradient(mapped_coords, support));
+  }
+  
+  /// Interpolation (weak form element matrix)
+  typename ValueImpl<SF, Dim, Offset, MatrixSize>::result_type value_elm(const MappedCoordsT& mapped_coords) const
+  {
+    SF::shape_function(mapped_coords, m_sf);
+    return m_value_elm(m_sf);
   }
   
 private:
@@ -460,50 +246,51 @@ private:
   /// Index of where the variable we need is in the field data row
   Uint var_begin;
   
-  /// Last interpolated value
-  mutable typename SF::CoordsT m_eval_result;
+  /// Cached data
+  mutable typename SF::ShapeFunctionsT m_sf;
+  mutable typename SF::MappedGradientT m_mapped_gradient_matrix;
+  mutable GradientT m_gradient;
+  InterpolationImpl<SF, Dim> m_eval;
+  const LaplacianImpl<SF, Dim, Offset, MatrixSize> m_laplacian_elm;
+  const ValueImpl<SF, Dim, Offset, MatrixSize> m_value_elm;
 };
 
-template<typename SF>
-class SFVariableData<SF, VectorField > : public VectorFieldData<SF>
+/// Predicate to check if data belongs to an equation variable
+struct IsEquationData
 {
-  typedef VectorFieldData<SF> BaseT;
-public:
-  SFVariableData(const VectorField& placeholder, const Mesh::CElements& elements) : BaseT(placeholder, elements) {}
+  template<typename DataT, int Dummy = 0>
+  struct apply
+  {
+    typedef boost::mpl::bool_<boost::remove_pointer<DataT>::type::is_equation_variable> type;
+  };
+  
+  template<int Dummy>
+  struct apply<boost::mpl::void_, Dummy>
+  {
+    typedef boost::mpl::false_ type;
+  };
 };
 
-/// Stores an element matrix
-template<typename SF, Uint I>
-class SFVariableData< SF, ElementMatrix<I> >
+/// Metafunction class for creating an appropriate data type
+template<typename VariablesT, typename ShapeFunctionsT, typename EquationVariablesT, typename MatrixSizesT, typename EMatrixSizeT>
+struct MakeVarData
 {
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
-  /// The shape function type
-  typedef SF ShapeFunctionT;
-  
-  /// The value type for all element values
-  typedef Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> ValueT;
- 
-  /// Return type of the value() method
-  typedef ValueT& ValueResultT;
-  
-  SFVariableData(const ElementMatrix<I>&, const Mesh::CElements&)
+  template<typename I>
+  struct apply
   {
-  }
-  
-  void set_element(const Uint)
-  {
-  }
-  
-  /// Reference to the stored data
-  ValueResultT value()
-  {
-    return m_element_matrix;
-  }
-  
-private:
-  ValueT m_element_matrix;
+    typedef typename boost::mpl::at<VariablesT, I>::type VarT;
+    typedef typename boost::mpl::at<ShapeFunctionsT, I>::type SF;
+    typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
+    typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
+    typedef typename boost::mpl::eval_if< IsEquationVar, VarOffset<MatrixSizesT, EquationVariablesT, I>, boost::mpl::int_<0> >::type Offset;
+    
+    typedef typename boost::mpl::if_
+    <
+      boost::mpl::is_void_<VarT>,
+      boost::mpl::void_,
+      SFVariableData<SF, FieldWidth<VarT, SF>::value, Offset::value, MatSize::value, IsEquationVar::value>*
+    >::type type;
+  };
 };
 
 /// Stores data that is used when looping over elements to execute Proto expressions. "Data" is meant here in the boost::proto sense,
@@ -511,18 +298,46 @@ private:
 /// VariablesT is a fusion sequence containing each unique variable in the expression
 /// VariablesDataT is a fusion sequence of pointers to the data (also in proto sense) associated with each of the variables
 /// SupportSF is the shape function for the geometric support
-template<typename VariablesT, typename VariablesDataT, typename SupportSF>
+template<typename VariablesT, typename VariablesSFT, typename SupportSF, typename EquationVariablesT>
 class ElementData
 {
 public:
-  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   /// Number of variales that we have stored
   typedef typename boost::fusion::result_of::size<VariablesT>::type NbVarsT;
+  
+  /// Shape function for the support
+  typedef SupportSF SupportShapeFunction;
+  
+  /// Element matrix size per var
+  typedef typename MatrixSizePerVar<VariablesT, VariablesSFT>::type MatrixSizesT;
+  
+  /// Size for the element matrix
+  typedef typename ElementMatrixSize<MatrixSizesT, EquationVariablesT>::type EMatrixSizeT;
+  
+  /// Type for the element matrix (combined for all equations)
+  typedef Eigen::Matrix<Real, EMatrixSizeT::value, EMatrixSizeT::value> ElementMatrixT;
+  
+  /// Type for the element vector (combined for all equations)
+  typedef Eigen::Matrix<Real, EMatrixSizeT::value, 1> ElementVectorT;
+  
+  typedef typename boost::fusion::result_of::as_vector
+  <
+    typename boost::mpl::transform
+    <
+      typename boost::mpl::copy<boost::mpl::range_c<int,0,NbVarsT::value>, boost::mpl::back_inserter< boost::mpl::vector_c<Uint> > >::type, //range from 0 to NbVarsT
+      MakeVarData<VariablesT, VariablesSFT, EquationVariablesT, MatrixSizesT, EMatrixSizeT>
+    >::type
+  >::type VariablesDataT;
+  
+  /// A view of only the data used in the element matrix
+  typedef boost::fusion::filter_view< VariablesDataT, IsEquationData > EquationDataT;
   
   ElementData(VariablesT& variables, Mesh::CElements& elements) :
     m_variables(variables),
     m_elements(elements),
-    m_support(elements)
+    m_support(elements),
+    m_equation_data(m_variables_data)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data));
     boost::fusion::for_each( m_variables, CalculateOffsets(m_offsets, SupportSF::dimension) );
@@ -539,6 +354,7 @@ public:
     m_element_idx = element_idx;
     m_support.set_element(element_idx);
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(SetElement(m_variables_data, element_idx));
+    boost::fusion::for_each(m_equation_data, FillRhs(m_element_rhs));
   }
   
   /// Return the type of the data stored for variable I (I being an Integral Constant in the boost::mpl sense)
@@ -577,14 +393,14 @@ public:
   
   /// Return the data stored at index I
   template<typename I>
-  typename DataType<I>::type& var_data()
+  typename DataType<I>::type& var_data(const I&)
   {
     return *boost::fusion::at<I>(m_variables_data);
   }
   
   /// Return the variable stored at index I
   template<typename I>
-  const typename VariableType<I>::type& variable()
+  const typename VariableType<I>::type& variable(const I&)
   {
     return boost::fusion::at<I>(m_variables);
   }
@@ -595,10 +411,27 @@ public:
     return m_support;
   }
   
+  const SupportT& support() const
+  {
+    return m_support;
+  }
+  
   const std::vector<Uint>& variable_offsets() const
   {
     return m_offsets;
   }
+  
+  /// Retrieve the element matrix at index i
+  ElementMatrixT& element_matrix(const int i)
+  {
+    return m_element_matrices[i];
+  }
+  
+  /// Retrieve the element RHS
+  ElementVectorT& element_rhs()
+  {
+    return m_element_rhs;
+  };
   
 private:
   /// Variables used in the expression
@@ -617,6 +450,12 @@ private:
   
   std::vector<Uint> m_offsets;
   
+  ElementMatrixT m_element_matrices[CF_PROTO_MAX_ELEMENT_MATRICES];
+  ElementVectorT m_element_rhs;
+  
+  /// Filtered view of the data associated with equation variables
+  const EquationDataT m_equation_data;
+  
   ///////////// helper functions and structs /////////////
   
   /// Initializes the pointers in a VariablesDataT fusion sequence
@@ -632,8 +471,17 @@ private:
     template<typename I>
     void operator()(const I&)
     {
-      typedef typename DataType<I>::type VarDataT;
-      boost::fusion::at<I>(variables_data) = new VarDataT(boost::fusion::at<I>(variables), elements);
+      apply(boost::fusion::at<I>(variables), boost::fusion::at<I>(variables_data));
+    }
+    
+    void apply(const boost::mpl::void_&, const boost::mpl::void_&)
+    {
+    }
+    
+    template<typename VarT, typename VarDataT>
+    void apply(const VarT& v, VarDataT*& d)
+    {
+      d = new VarDataT(v, elements);
     }
     
     VariablesT& variables;
@@ -651,7 +499,17 @@ private:
     template<typename I>
     void operator()(const I&)
     {
-      delete boost::fusion::at<I>(variables_data);
+      apply(boost::fusion::at<I>(variables_data));
+    }
+    
+    void apply(const boost::mpl::void_&)
+    {
+    }
+    
+    template<typename T>
+    void apply(T*& d)
+    {
+      delete d;
     }
     
     VariablesDataT& variables_data;
@@ -669,11 +527,44 @@ private:
     template<typename I>
     void operator()(const I&)
     {
-      boost::fusion::at<I>(variables_data)->set_element(element_idx);
+      apply(boost::fusion::at<I>(variables_data));
+    }
+    
+    void apply(const boost::mpl::void_&)
+    {
+    }
+    
+    template<typename T>
+    void apply(T*& d)
+    {
+      d->set_element(element_idx);
     }
     
     VariablesDataT& variables_data;
     const Uint element_idx;
+  };
+  
+  /// Set the element on each stored data item
+  struct FillRhs
+  {
+    FillRhs(ElementVectorT& elm_v) :
+      element_vector(elm_v)
+    {
+    }
+    
+    template<typename DataT>
+    void operator()(const DataT* data) const
+    {
+      typename DataT::ValueResultT v = data->value();
+      static const Uint rows = DataT::ValueT::RowsAtCompileTime;
+      static const Uint cols = DataT::ValueT::ColsAtCompileTime;
+      for(Uint i = 0; i != cols; ++i)
+      {
+        element_vector.template segment<rows>(DataT::offset + i*rows) = v.col(i);
+      }
+    }
+    
+    ElementVectorT& element_vector;
   };
 };
 

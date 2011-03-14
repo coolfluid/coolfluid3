@@ -12,9 +12,14 @@
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/vector_c.hpp>
-#include <boost/proto/proto.hpp>
 
-#include "ForEachDimension.hpp"
+#include <boost/proto/core.hpp>
+#include <boost/proto/transform/arg.hpp>
+#include <boost/proto/transform/default.hpp>
+#include <boost/proto/transform/fold.hpp>
+#include <boost/proto/context/callable.hpp>
+#include <boost/proto/context/null.hpp>
+
 #include "Functions.hpp"
 #include "Terminals.hpp"
 
@@ -26,6 +31,13 @@ namespace Solver {
 namespace Actions {
 namespace Proto {
 
+/// Helper to get the data type for the given variable
+template<typename VarT, typename DataT>
+struct VarDataType
+{
+  typedef typename boost::remove_reference<DataT>::type::template DataType<typename boost::remove_reference<VarT>::type>::type type;
+};
+  
 template<typename T>
 struct VarArity
 {
@@ -33,19 +45,25 @@ struct VarArity
 };
 
 /// Gets the arity (max index) for the numbered variables
-struct ExprVarArity
-  : boost::proto::or_<
-        boost::proto::when< boost::proto::terminal< Var<boost::proto::_, boost::proto::_> >,
-          boost::mpl::next< VarArity<boost::proto::_value> >()
-        >
-      , boost::proto::when< boost::proto::terminal<boost::proto::_>,
-          boost::mpl::int_<0>()
-        >
-      , boost::proto::when<
-            boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >
-          , boost::proto::fold<boost::proto::_, boost::mpl::int_<0>(), boost::mpl::max<ExprVarArity, boost::proto::_state>()>
-        >
+struct ExprVarArity :
+  boost::proto::or_
+  <
+    boost::proto::when
+    <
+      boost::proto::terminal< Var<boost::proto::_, boost::proto::_> >,
+      boost::mpl::next< VarArity<boost::proto::_value> >()
+    >,
+    boost::proto::when
+    <
+      boost::proto::terminal< boost::proto::_ >,
+      boost::mpl::int_<0>()
+    >,
+    boost::proto::when
+    <
+      boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >,
+      boost::proto::fold<boost::proto::_, boost::mpl::int_<0>(), boost::mpl::max<ExprVarArity, boost::proto::_state>()>
     >
+  >
 {};
 
 /// Transform that extracts the type of variable I
@@ -110,9 +128,9 @@ struct CalculateOffsets
   };
   
   template<typename DummyT>
-  struct impl< Field<Real>, DummyT >
+  struct impl< ScalarField, DummyT >
   {
-    void operator()(const Field<Real>&, SizesT& r, const Uint) const
+    void operator()(const ScalarField&, SizesT& r, const Uint) const
     {
       r.push_back( 1 + r.back() );
     }
@@ -149,7 +167,7 @@ struct CopyNumberedVars
   template<typename I, typename T>
   void operator()(boost::proto::tag::terminal, const Var<I, T>& val)
   {
-    boost::fusion::at<I>(m_vars) = static_cast<T const&>(val);
+    boost::fusion::at<I>(m_vars) = val.variable_value;
   }
   
 private:
@@ -186,57 +204,6 @@ struct AddVariableOptions
   Common::Component::Ptr owner;
 };
 
-/// Returns the index of a numbered variable as a boost integral constant
-struct VarNumber :
-  boost::proto::transform< VarNumber >
-{
-  template<typename ExprT, typename StateT, typename DataT>
-  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
-  { 
-    typedef typename boost::remove_const
-    <
-      typename boost::remove_reference
-      <
-        typename boost::proto::result_of::value<ExprT>::type
-      >::type
-    >::type VarT;
-    
-    typedef typename VarT::index_type result_type;
-  
-    result_type operator ()(
-                typename impl::expr_param expr
-              , typename impl::state_param state
-              , typename impl::data_param data
-    ) const
-    {
-      return result_type();
-    }
-  };
-};
-
-/// Returns the data associated with the given numbered variable
-struct NumberedData :
-  boost::proto::transform< NumberedData >
-{
-  template<typename ExprT, typename StateT, typename DataT>
-  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
-  { 
-    typedef typename boost::result_of<VarNumber(ExprT)>::type I;
-    
-    typedef typename boost::remove_reference<DataT>::type::template DataType<I>::type VarDataT;
-    typedef VarDataT& result_type;
-  
-    result_type operator ()(
-                typename impl::expr_param expr
-              , typename impl::state_param state
-              , typename impl::data_param data
-    ) const
-    {
-      return data.template var_data<I>();
-    }
-  };
-};
-
 /// Returns the data value of a numbered variable
 struct VarValue :
   boost::proto::transform< VarValue >
@@ -245,7 +212,7 @@ struct VarValue :
   struct impl : boost::proto::transform_impl<VarT, StateT, DataT>
   { 
     
-    typedef typename boost::remove_reference<DataT>::type::ValueResultT result_type;
+    typedef typename VarDataType<VarT, DataT>::type::ValueResultT result_type;
   
     result_type operator ()(
                 typename impl::expr_param var
@@ -253,7 +220,7 @@ struct VarValue :
               , typename impl::data_param data
     ) const
     {
-      return data.value();
+      return data.var_data(var).value();
     }
   };
 };
@@ -281,14 +248,10 @@ struct UnwrapStoredReference :
 
 /// Matches integer terminals
 struct Integers :
-  boost::proto::or_
+  boost::proto::when
   <
-    boost::proto::when
-    <
-      boost::proto::or_< boost::proto::terminal<Uint>, boost::proto::terminal<int> >,
-      boost::proto::_value
-    >,
-    boost::proto::terminal<DimensionIdxTag>
+    boost::proto::or_< boost::proto::terminal<Uint>, boost::proto::terminal<int> >,
+    boost::proto::_value
   >
 {
 };
@@ -351,7 +314,7 @@ struct MathTerminals :
     boost::proto::when
     <
       boost::proto::terminal< Var< boost::proto::_, boost::proto::_ > >,
-      VarValue(boost::proto::_expr, boost::proto::_state, NumberedData)
+      VarValue(boost::proto::_value)
     >
   >
 {
@@ -401,7 +364,7 @@ struct MathOpDefaultCases
   template<int Dummy> struct case_<boost::proto::tag::post_dec, Dummy> : boost::proto::post_dec<GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::plus, Dummy> : boost::proto::plus<GrammarT, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::minus, Dummy> : boost::proto::minus<GrammarT, GrammarT> {};
-  template<int Dummy> struct case_<boost::proto::tag::multiplies, Dummy> : boost::proto::multiplies<GrammarT, GrammarT> {};
+  //template<int Dummy> struct case_<boost::proto::tag::multiplies, Dummy> : boost::proto::multiplies<GrammarT, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::divides, Dummy> : boost::proto::divides<GrammarT, Scalar> {};
   template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign<GrammarT, GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<GrammarT, GrammarT> {};
@@ -439,7 +402,7 @@ struct StreamOutput :
 struct FieldTypes :
   boost::proto::or_
   <
-    boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >,
+    boost::proto::terminal< Var< boost::proto::_, ScalarField > >,
     boost::proto::terminal< Var<boost::proto::_, VectorField> >
   >
 {

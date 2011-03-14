@@ -32,6 +32,7 @@ public: // functions
 
 protected: // Linear system interface implementation
   virtual Solver::Actions::CFieldAction::Ptr build_equation();
+  RealVector m_heat;
 };
 
 } // UFEM

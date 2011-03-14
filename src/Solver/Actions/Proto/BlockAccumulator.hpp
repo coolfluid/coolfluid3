@@ -8,16 +8,11 @@
 #ifndef CF_Solver_Actions_Proto_BlockAccumulator_hpp
 #define CF_Solver_Actions_Proto_BlockAccumulator_hpp
 
-#include<iostream>
-
-#include <boost/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 #include "Math/MatrixTypes.hpp"
 
 #include "Solver/CEigenLSS.hpp"
-
-#include "Terminals.hpp"
-#include "Transforms.hpp"
 
 /// @file
 /// System matrix block accumultation. Current prototype uses dense a dense Eigen matrix and is purely for proof-of-concept
@@ -33,19 +28,10 @@ struct SystemMatrixTag
 };
 
 /// Indicate that we want to operate on the system matrix of a linear system
-template<Uint I, typename T, typename IdxT>
-inline typename boost::proto::result_of::make_expr< boost::proto::tag::function, SystemMatrixTag, StoredReference<Solver::CEigenLSS>, MeshTerm<I, T> const &, IdxT >::type const
-system_matrix(Solver::CEigenLSS& lss, MeshTerm<I, T> const& var, IdxT local_idx)
+inline boost::proto::result_of::make_expr< boost::proto::tag::function, SystemMatrixTag, StoredReference<Solver::CEigenLSS> >::type const
+system_matrix(Solver::CEigenLSS& lss)
 {
-  return boost::proto::make_expr<boost::proto::tag::function>( SystemMatrixTag(), store(lss), boost::ref(var), local_idx );
-}
-
-/// Overload for scalars
-template<Uint I, typename T>
-inline typename boost::proto::result_of::make_expr< boost::proto::tag::function, SystemMatrixTag, StoredReference<Solver::CEigenLSS>, MeshTerm<I, T> const &, const Uint >::type const
-system_matrix(Solver::CEigenLSS& lss, MeshTerm<I, T> const& var)
-{
-  return boost::proto::make_expr<boost::proto::tag::function>( SystemMatrixTag(), store(lss), boost::ref(var), 0u );
+  return boost::proto::make_expr<boost::proto::tag::function>( SystemMatrixTag(), store(lss));
 }
   
 /// Tag for RHS
@@ -54,97 +40,89 @@ struct SystemRHSTag
 };
   
 /// Indicate that we want to operate on the RHS of a linear system
-template<Uint I, typename T, typename IdxT>
-inline typename boost::proto::result_of::make_expr< boost::proto::tag::function, SystemRHSTag, StoredReference<Solver::CEigenLSS>, MeshTerm<I, T> const &, IdxT >::type const
-system_rhs(Solver::CEigenLSS& lss, MeshTerm<I, T> const& var, IdxT local_idx)
+inline boost::proto::result_of::make_expr< boost::proto::tag::function, SystemRHSTag, StoredReference<Solver::CEigenLSS> >::type const
+system_rhs(Solver::CEigenLSS& lss)
 {
-  return boost::proto::make_expr<boost::proto::tag::function>( SystemRHSTag(), store(lss), boost::ref(var), local_idx );
+  return boost::proto::make_expr<boost::proto::tag::function>( SystemRHSTag(), store(lss) );
 }
 
-/// Overload for scalars
-template<Uint I, typename T>
-inline typename boost::proto::result_of::make_expr< boost::proto::tag::function, SystemRHSTag, StoredReference<Solver::CEigenLSS>, MeshTerm<I, T> const &, const Uint >::type const
-system_rhs(Solver::CEigenLSS& lss, MeshTerm<I, T> const& var)
+/// Grammar matching the LHS of an assignment op
+template<typename TagT>
+struct BlockLhsGrammar :
+  boost::proto::function< boost::proto::terminal<TagT>, boost::proto::terminal< StoredReference<Solver::CEigenLSS> > >
 {
-  return boost::proto::make_expr<boost::proto::tag::function>( SystemRHSTag(), store(lss), boost::ref(var), 0u );
-}
+};
+
+/// Allowed block assignment operations
+template<typename SystemTagT>
+struct MatrixAssignOpsCases
+{
+  template<typename Tag, int Dummy = 0> struct case_ : boost::proto::not_<boost::proto::_> {};
   
+  template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign<BlockLhsGrammar<SystemTagT> , boost::proto::_ > {};
+  template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<BlockLhsGrammar<SystemTagT> , boost::proto::_ > {};
+  template<int Dummy> struct case_<boost::proto::tag::minus_assign, Dummy> : boost::proto::minus_assign<BlockLhsGrammar<SystemTagT> , boost::proto::_ > {};
+};
+
+/// Translate tag to operator
+inline void do_assign_op(boost::proto::tag::assign, Real& lhs, const Real rhs)
+{
+  lhs = rhs;
+}
+
+/// Translate tag to operator
+inline void do_assign_op(boost::proto::tag::plus_assign, Real& lhs, const Real rhs)
+{
+  lhs += rhs;
+}
+
+/// Translate tag to operator
+inline void do_assign_op(boost::proto::tag::minus_assign, Real& lhs, const Real rhs)
+{
+  lhs -= rhs;
+}
+
 /// Helper struct for assignment to a matrix or RHS
 template<typename SystemTagT, typename OpTagT>
 struct BlockAssignmentOp;
 
-/// Macro to easily define =, +=, -=, ...
-#define MAKE_ASSIGN_OP_SYSTEM(__tagname, __op)    \
-template<> \
-struct BlockAssignmentOp<SystemMatrixTag, boost::proto::tag::__tagname> \
-{ \
-  template<typename ElementMatrixT, typename DataT> \
-  static void assign(Solver::CEigenLSS& lss, const ElementMatrixT& rhs, const DataT& data, const std::vector<Uint>& offsets, const Uint var_idx, const Uint local_idx) \
-  { \
-    const Mesh::CTable<Uint>::ConstRow connectivity = data.element_connectivity(); \
-    const Uint offset = offsets[var_idx]; \
-    const Uint total_width = offsets.back(); \
-    for(Uint i = 0; i != ElementMatrixT::RowsAtCompileTime; ++i) \
-    { \
-      const Uint i_idx = connectivity[i]*total_width + offset + local_idx; \
-      for(Uint j = 0; j != ElementMatrixT::ColsAtCompileTime; ++j) \
-        lss.at(i_idx, connectivity[j]*total_width + offset + local_idx) __op rhs(i, j); \
-    } \
-  } \
-}; \
-\
-template<> \
-struct MatrixAssignOpsCases::case_<boost::proto::tag::__tagname> : \
-  boost::proto::__tagname< boost::proto::function< boost::proto::terminal<SystemMatrixTag>, boost::proto::terminal< StoredReference<Solver::CEigenLSS> >, FieldTypes, Integers >, boost::proto::_ > \
-{};
-
-/// Allowed block assignment operations
-struct MatrixAssignOpsCases
+template<typename OpTagT>
+struct BlockAssignmentOp<SystemMatrixTag, OpTagT>
 {
-  template<typename TagT> struct case_  : boost::proto::not_<boost::proto::_> {};
+  template<typename RhsT, typename DataT>
+  void operator()(Solver::CEigenLSS& lss, const RhsT& rhs, const DataT& data) const
+  {
+    // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
+    static const Uint mat_size = DataT::EMatrixSizeT::value;
+    static const Uint nb_dofs = mat_size / DataT::SupportT::SF::nb_nodes;
+    const Mesh::CTable<Uint>::ConstRow connectivity = data.support().element_connectivity();
+    for(Uint row = 0; row != mat_size; ++row)
+    {
+      const Uint i_gid = connectivity[row % DataT::SupportT::SF::nb_nodes]*nb_dofs + row / DataT::SupportT::SF::nb_nodes;
+      for(Uint col = 0; col != mat_size; ++col)
+      {
+        do_assign_op(OpTagT(), lss.at(i_gid, connectivity[col % DataT::SupportT::SF::nb_nodes]*nb_dofs + col / DataT::SupportT::SF::nb_nodes), rhs(row, col));
+      }
+    }
+  }
 };
 
-MAKE_ASSIGN_OP_SYSTEM(assign, =)
-MAKE_ASSIGN_OP_SYSTEM(plus_assign, +=)
-MAKE_ASSIGN_OP_SYSTEM(minus_assign, -=)
-
-
-//#undef MAKE_ASSIGN_OP_SYSTEM
-
-/// Macro to easily define =, +=, -=, ...
-#define MAKE_ASSIGN_OP_RHS(__tagname, __op)    \
-template<> \
-struct BlockAssignmentOp<SystemRHSTag, boost::proto::tag::__tagname> \
-{ \
-  template<typename ElementVectorT, typename DataT> \
-  static void assign(Solver::CEigenLSS& lss, const ElementVectorT& elem_rhs_contrib, const DataT& data, const std::vector<Uint>& offsets, const Uint var_idx, const Uint local_idx) \
-  { \
-    static const Uint rhs_dim = ElementVectorT::RowsAtCompileTime == 1 ? ElementVectorT::ColsAtCompileTime : ElementVectorT::RowsAtCompileTime; \
-    const typename Eigen::internal::eval<ElementVectorT>::type r = elem_rhs_contrib.eval(); \
-    const Mesh::CTable<Uint>::ConstRow connectivity = data.element_connectivity(); \
-    const Uint offset = offsets[var_idx]; \
-    const Uint total_width = offsets.back(); \
-    for(Uint i = 0; i != rhs_dim; ++i) \
-      lss.rhs()[connectivity[i]*total_width + offset + local_idx] __op r[i]; \
-  } \
-}; \
-\
-template<> \
-struct RHSAssignOpsCases::case_<boost::proto::tag::__tagname> : \
-  boost::proto::__tagname< boost::proto::function< boost::proto::terminal< SystemRHSTag >, boost::proto::terminal< StoredReference<Solver::CEigenLSS> >, FieldTypes, Integers >, boost::proto::_ > \
-{};
-
-/// Allowed RHS assignment operations
-struct RHSAssignOpsCases
+template<typename OpTagT>
+struct BlockAssignmentOp<SystemRHSTag, OpTagT>
 {
-  template<typename TagT> struct case_  : boost::proto::not_<boost::proto::_> {};
+  template<typename RhsT, typename DataT>
+  void operator()(Solver::CEigenLSS& lss, const RhsT& rhs, const DataT& data) const
+  {
+    // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
+    static const Uint mat_size = DataT::EMatrixSizeT::value;
+    static const Uint nb_dofs = mat_size / DataT::SupportT::SF::nb_nodes;
+    const Mesh::CTable<Uint>::ConstRow connectivity = data.support().element_connectivity();
+    for(Uint i = 0; i != mat_size; ++i)
+    {
+      do_assign_op(OpTagT(), lss.rhs()[connectivity[i % DataT::SupportT::SF::nb_nodes]*nb_dofs + i / DataT::SupportT::SF::nb_nodes], rhs[i]);
+    }
+  }
 };
-
-MAKE_ASSIGN_OP_RHS(assign, =)
-MAKE_ASSIGN_OP_RHS(plus_assign, +=)
-MAKE_ASSIGN_OP_RHS(minus_assign, -=)
-
-#undef MAKE_ASSIGN_OP_RHS
 
 /// Primitive transform to handle assignment to an LSS matrix
 struct BlockAccumulator :
@@ -178,16 +156,7 @@ struct BlockAccumulator :
     ) const
     {
       Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>( boost::proto::left(expr) ) ).get();
-      const Uint local_idx = boost::proto::value( boost::proto::child_c<3>( boost::proto::left(expr) ) );
-      BlockAssignmentOp<SystemTagT, OpT>::assign
-      (
-        lss,
-        state,
-        NumberedData()(boost::proto::child_c<2>( boost::proto::left(expr) ), state, data),
-        data.variable_offsets(),
-        VarNumber()(boost::proto::child_c<2>( boost::proto::left(expr) ), state, data),
-        local_idx
-      );
+      BlockAssignmentOp<SystemTagT, OpT>()(lss, state, data);
     }
   };
 };
@@ -195,18 +164,10 @@ struct BlockAccumulator :
 /// Grammar matching block accumulation expressions
 template<typename GrammarT>
 struct BlockAccumulation : 
-  boost::proto::or_
+  boost::proto::when
   <
-    boost::proto::when
-    <
-      boost::proto::switch_<MatrixAssignOpsCases>,
-      BlockAccumulator( boost::proto::_expr, GrammarT(boost::proto::_right) )
-    >,
-    boost::proto::when
-    <
-      boost::proto::switch_<RHSAssignOpsCases>,
-      BlockAccumulator( boost::proto::_expr, GrammarT(boost::proto::_right) )
-    >
+    boost::proto::or_< boost::proto::switch_< MatrixAssignOpsCases<SystemMatrixTag> >, boost::proto::switch_< MatrixAssignOpsCases<SystemRHSTag> > >,
+    BlockAccumulator( boost::proto::_expr, GrammarT(boost::proto::_right) )
   >
 {
 };

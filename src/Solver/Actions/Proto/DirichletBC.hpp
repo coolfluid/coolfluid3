@@ -7,13 +7,11 @@
 #ifndef CF_Solver_Actions_Proto_DirichletBC_hpp
 #define CF_Solver_Actions_Proto_DirichletBC_hpp
 
-#include <boost/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 #include "Math/MatrixTypes.hpp"
 
 #include "Solver/CEigenLSS.hpp"
-
-#include "Transforms.hpp"
 
 namespace CF {
 namespace Solver {
@@ -60,9 +58,6 @@ struct DirichletBCSetter :
   {
     typedef void result_type;
     
-    /// Index for the variable
-    typedef typename boost::result_of<VarNumber( typename boost::proto::result_of::child_c<ExprT, 2>::type )>::type I;
-    
     result_type operator ()(
                 typename impl::expr_param expr
               , typename impl::state_param state
@@ -71,8 +66,8 @@ struct DirichletBCSetter :
     {
       Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>(expr) ).get();
       assign_dirichlet( lss, state, data.variable_offsets(), data.node_idx,
-                        I::value,
-                        data.template var_data<I>().value() );
+                        boost::proto::value(boost::proto::child_c<2>(expr)),
+                        data.var_data(boost::proto::value(boost::proto::child_c<2>(expr))).value() );
     }
   };
 };

@@ -25,6 +25,52 @@ using namespace Solver;
 using namespace Solver::Actions;
 using namespace Solver::Actions::Proto;
 
+/// (Internal) Wraps a constant that can be configured through an option
+class ConfigurableConstant : public Component
+{
+public:
+  typedef boost::shared_ptr<ConfigurableConstant> Ptr;
+  typedef boost::shared_ptr<ConfigurableConstant const> ConstPtr;
+  
+  ConfigurableConstant(const std::string& name) : Component(name)
+  {
+  }
+  
+  static std::string type_name () { return "ConfigurableConstant"; }
+
+  /// Setup a default value and property
+  void setup(const std::string& description, const Real default_value)
+  {
+    m_description = description;
+    m_value = default_value;
+  }
+  
+  /// Add the property to modify the value to the given component
+  void add_property(Component::Ptr parent)
+  {
+    parent->properties().add_option< OptionT<Real> >(name(), m_description, m_value)->mark_basic();
+    parent->properties()[name()].as_option().attach_trigger(boost::bind(&ConfigurableConstant::trigger_value, this));
+    m_parent = parent;
+    parent->add_component(shared_from_this());
+  }
+
+  /// Reference to the stored value
+  Real& value()
+  {
+    return m_value;
+  }
+
+  void trigger_value()
+  {
+    m_value = m_parent.lock()->property(name()).value<Real>();
+  }
+
+private:  
+  Real m_value;
+  std::string m_description;
+  boost::weak_ptr<Component> m_parent;
+};
+
 LinearSystem::LinearSystem(const std::string& name) : CMethod (name)
 {
   m_lss_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("LSS", "Linear system solver", std::string()) );
@@ -75,11 +121,16 @@ void LinearSystem::add_dirichlet_bc( SignalArgs& args )
   const std::string field_name = p.get_option<std::string>("FieldName");
   const std::string var_name = p.get_option<std::string>("VariableName");
 
-  MeshTerm<0, ConfigurableConstant<Real> > bc_value(bc_name, "Dirichlet boundary condition");
-  MeshTerm<1, Field<Real> > bc_var(field_name, var_name);
+  ConfigurableConstant::Ptr bc_value = allocate_component<ConfigurableConstant>(bc_name);
+  bc_value->setup("Dirichlet boundary condition value", 0.);
+  
+  MeshTerm<0, ScalarField> bc_var(field_name, var_name);
 
-  CAction::Ptr bc = build_nodes_action(bc_name, *this, dirichlet( lss(), bc_var ) = bc_value );
+  CAction::Ptr bc = build_nodes_action(bc_name, *this, dirichlet( lss(), bc_var ) = store(bc_value->value()) );
   bc->add_tag("dirichlet_bc");
+  
+  // Make sure the BC value can be configured from the BC action itself
+  bc_value->add_property(bc);
 }
 
 void LinearSystem::add_initial_condition_signature(SignalArgs& args)
@@ -100,11 +151,15 @@ void LinearSystem::add_initial_condition( SignalArgs& args )
   const std::string field_name = p.get_option<std::string>("FieldName");
   const std::string var_name = p.get_option<std::string>("VariableName");
 
-  MeshTerm<0, ConfigurableConstant<Real> > value(name, "Value for the initial value");
-  MeshTerm<1, Field<Real> > var(field_name, var_name);
+  ConfigurableConstant::Ptr value = allocate_component<ConfigurableConstant>(name);
+  value->setup("Initial condition value", 0.);
+  
+  MeshTerm<0, ScalarField> var(field_name, var_name);
 
-  CAction::Ptr bc = build_nodes_action(name, *this, var = value );
+  CAction::Ptr bc = build_nodes_action(name, *this, var = store(value->value()) );
   bc->add_tag("initial_condition");
+  
+  value->add_property(bc);
 }
 
 
@@ -139,7 +194,7 @@ void LinearSystem::on_run()
 
   // Solve the linear system
   lss().solve();
-  increment_solution(lss().solution(), builder->field_names(), builder->variable_names(), builder->variable_sizes(), mesh);
+  builder->update_fields(lss().solution(), mesh);
 }
 
 
@@ -159,6 +214,12 @@ void LinearSystem::on_lss_set()
 
   // Build the action that will create the system matrix. This requires access to the LSS! This also automatically adds the CAction as a child.
   m_system_builder = build_equation();
+  
+  // Move any configurable constants to the system builder component
+  for(ConstantsT::iterator it = m_configurable_constants.begin(); it != m_configurable_constants.end(); ++it)
+    boost::dynamic_pointer_cast<ConfigurableConstant>(it->second)->add_property(m_system_builder.lock());
+  
+  m_configurable_constants.clear();
 }
 
 void LinearSystem::signal_initialize_fields(SignalArgs& node)
@@ -177,6 +238,16 @@ void LinearSystem::signal_initialize_fields(SignalArgs& node)
     action.execute();
   }
 }
+
+StoredReference<Real> LinearSystem::add_configurable_constant(const std::string& name, const std::string& description, const Real default_value)
+{
+  boost::shared_ptr<ConfigurableConstant> c = allocate_component<ConfigurableConstant>(name);
+  c->setup(description, default_value);
+  m_configurable_constants[name] = c;
+  return store(c->value());
+}
+
+
 
 } // UFEM
 } // CF

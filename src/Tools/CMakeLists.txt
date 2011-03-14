@@ -6,6 +6,9 @@ add_subdirectory( Shell )
 # acommand-line tool to execute a batch of coolfluid commands
 add_subdirectory( Command )
 
+# a library providing generation of fields (i.e. constant value)
+add_subdirectory(FieldGeneration)
+
 # a library providing an interface to profiling with google perftools
 add_subdirectory( GooglePerf )
 

@@ -91,18 +91,22 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   // Create output field
   lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::Basis::POINT_BASED).data().size());
   
-  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField> temperature("Temperature", "T");
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    _cout << "elem result:\n" << integral<1>(laplacian(temperature) * jacobian_determinant) << "\n"
+    _cout << "elem result:\n" << integral<1>(laplacian_elm(temperature) * jacobian_determinant) << "\n"
   );
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    system_matrix(lss, temperature) +=integral<1>(transpose( gradient(temperature) ) * gradient(temperature) * jacobian_determinant)
+    group
+    (
+      _A(temperature) = integral<1>(transpose( gradient(temperature) ) * gradient(temperature) * jacobian_determinant),
+      system_matrix(lss) += _A
+    )
   );
   
   lss.print_matrix();
@@ -125,12 +129,16 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   // Create output field
   lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::Basis::POINT_BASED).data().size());
   
-  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField> temperature("Temperature", "T");
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    system_matrix(lss, temperature) += integral<1>( laplacian(temperature) * jacobian_determinant )
+    group
+    (
+      _A(temperature) = integral<1>( laplacian_elm(temperature) * jacobian_determinant ),
+      system_matrix(lss) += _A
+    )
   );
   
   // Left boundary at temp_start
@@ -181,12 +189,16 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
   // Create output field
   lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::Basis::POINT_BASED).data().size());
   
-  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField> temperature("Temperature", "T");
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    system_matrix(lss, temperature) += k * integral<1>( laplacian(temperature) * jacobian_determinant )
+    group
+    (
+      _A(temperature) = k * integral<1>( laplacian_elm(temperature) * jacobian_determinant ),
+      system_matrix(lss) += _A
+    )
   );
   
   // Right boundary at constant heat flux
@@ -234,12 +246,21 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   BOOST_CHECK(true);
   
   // Variable holding the field
-  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField> temperature("Temperature", "T");
   
   BOOST_CHECK(true);
 
   // Create a CAction executing the expression
-  CFieldAction::Ptr heat1d_action = build_elements_action( "Heat1D", *root, system_matrix(lss, temperature) += integral<1>(laplacian(temperature) * jacobian_determinant) );
+  CFieldAction::Ptr heat1d_action = build_elements_action
+  (
+    "Heat1D",
+    *root,
+    group
+    (
+      _A(temperature) = integral<1>(laplacian_elm(temperature) * jacobian_determinant),
+      system_matrix(lss) += _A
+    )
+  );
   
   BOOST_CHECK(true);
 
@@ -254,19 +275,15 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   BOOST_CHECK(true);
 
   // Left boundary condition
-  MeshTerm<1, ConfigurableConstant<Real> > xneg_temp("XnegTemp", "Temperature at the start of the domain");
-  CAction::Ptr xneg_action = build_nodes_action("xneg", *root, dirichlet(lss, temperature) = xneg_temp );  
+  CAction::Ptr xneg_action = build_nodes_action("xneg", *root, dirichlet(lss, temperature) = 10. );  
   xneg_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg").full_path());
-  xneg_action->configure_property("XnegTemp", 10.);
   xneg_action->execute();
   
   BOOST_CHECK(true);
 
   // Right boundary condition
-  MeshTerm<2, ConfigurableConstant<Real> > xpos_temp("XposTemp", "Temperature at the end of the domain");
-  CAction::Ptr xpos_action = build_nodes_action("xpos", *root, dirichlet(lss, temperature) = xpos_temp );  
+  CAction::Ptr xpos_action = build_nodes_action("xpos", *root, dirichlet(lss, temperature) = 35. );  
   xpos_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos").full_path());
-  xpos_action->configure_property("XposTemp", 35.);
   xpos_action->execute();
   
   // Solve system
@@ -300,20 +317,23 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::Basis::POINT_BASED).data().size());
   
   // Variable holding the field
-  MeshTerm<0, Field<Real> > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField> temperature("Temperature", "T");
   
+  MeshTerm<1, ScalarField> heat("heat", "q");
+  mesh->create_scalar_field("heat", "q", CField2::Basis::POINT_BASED);
+  for_each_node(mesh->topology(), heat = q);
+  
+  // Steady heat conduction with a source term
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    system_matrix(lss, temperature) += integral<1>( k * laplacian(temperature) * jacobian_determinant )
-  );
-  
-  MeshTerm<1, ConstField<Real> > heat("heat", q);
-  
-  for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
-  (
-    mesh->topology(),
-    system_rhs(lss, temperature) += integral<1>( jacobian_determinant * sf_outer_product(temperature) ) * heat
+    group
+    (
+      _A(temperature) = integral<1>( k * laplacian_elm(temperature) * jacobian_determinant ),
+      _T(temperature) = integral<1>( jacobian_determinant * value_elm(temperature) ),
+      system_matrix(lss) += _A,
+      system_rhs(lss) += _T * heat
+    )
   );
   
   // Left boundary at ambient temperature

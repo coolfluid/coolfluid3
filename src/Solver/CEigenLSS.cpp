@@ -14,9 +14,6 @@
 #ifdef CF_HAVE_SUPERLU
   #define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
   #include <Eigen/SuperLUSupport>
-#else
-  #define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
-  #include <Eigen/SparseExtra>
 #endif
 
 #include "Common/CBuilder.hpp"
@@ -57,17 +54,7 @@ Uint CEigenLSS::size() const
 
 Real& CEigenLSS::at(const CF::Uint row, const CF::Uint col)
 {
-#ifdef CF_HAVE_SUPERLU
   return m_system_matrix.coeffRef(row, col);
-#else
-  // Hack to make sure the system is symmetric in case SUperLU is not found.
-  // We must only store the lower triangular part and have a diagonal with only non-zeros in this case
-  static Real dummyval = 0.;
-  if(row >= col)
-    return m_system_matrix.coeffRef(row, col);
-  else
-    return dummyval;
-#endif
 }
 
 
@@ -116,16 +103,17 @@ const RealVector& CEigenLSS::solution()
 
 void CEigenLSS::solve()
 {
-  Eigen::SparseMatrix<Real> A(m_system_matrix);
 #ifdef CF_HAVE_SUPERLU
+  Eigen::SparseMatrix<Real> A(m_system_matrix);
   Eigen::SparseLU<Eigen::SparseMatrix<Real>,Eigen::SuperLU> lu_of_A(A);
   if(!lu_of_A.solve(rhs(), &m_solution))
     throw Common::FailedToConverge(FromHere(), "Solution failed.");
 #else
-  // WARNING: This only works for symmetric matrices
-  Eigen::SparseLLT< Eigen::SparseMatrix<Real> > llt(A);
-  m_solution = llt.solve(m_rhs);
+  RealMatrix A(m_system_matrix);
+  Eigen::FullPivLU<RealMatrix> lu_of_A(A);
+  m_solution = lu_of_A.solve(m_rhs);
 #endif
+
 }
 
 void CEigenLSS::print_matrix()

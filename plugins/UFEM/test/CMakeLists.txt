@@ -1,4 +1,4 @@
-list( APPEND utest-heat-steady_cflibs coolfluid_mesh )
+list( APPEND utest-heat-steady_cflibs coolfluid_mesh coolfluid_field_generation)
 list( APPEND utest-heat-steady_files
   utest-heat-steady.cpp )
 
