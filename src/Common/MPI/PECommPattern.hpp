@@ -24,7 +24,7 @@ namespace Common {
 /**
   @file PECommPattern.hpp
   @author Tamas Banyai
-  Parallel Communication Pattern.
+  @brief Parallel Communication Pattern.
   This class provides functionality to collect communication.
   For efficiency it works such a way that you submit your request via the constructor or the add/remove/move magic triangle and then call setup to modify the commpattern.
   The data needed to be kept synchronous can be registered via the insert function.
@@ -235,7 +235,6 @@ private:
   temp_buffer_array m_rem_buffer;
 
   //@} END BUFFERS HOLDING TEMPORARY DATA
-
 
   /// explicit shared_ptr to the gid wrapper
   PEObjectWrapper::Ptr m_gid;

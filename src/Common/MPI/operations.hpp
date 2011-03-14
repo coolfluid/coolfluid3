@@ -35,8 +35,6 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @{ ACCESS AND REGISTRATION MECHANISM
-
 namespace detail {
 
 /**
@@ -52,6 +50,8 @@ template<typename T, typename Op> Operation get_mpi_op_impl() {
 }
 
 } // namespace detail
+
+/// @{ ACCESS AND REGISTRATION MECHANISM
 
 /**
   Default class to obtain operation.

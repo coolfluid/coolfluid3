@@ -196,7 +196,10 @@ broadcast(const Communicator& comm, const T* in_values, const int in_n, const in
     if (out_map!=0){
       int out_sum_tmp=0;
       for (int i=0; i<out_sum; i++) out_sum_tmp=out_map[i]>out_sum_tmp?out_map[i]:out_sum_tmp;
-      out_sum=out_sum_tmp+1;
+      if (out_sum==0) out_sum=1;
+    } else {
+      detail::broadcast_impl(comm,&out_sum,1,(int*)0,&out_sum,(int*)0,root,stride);
+      if (out_sum==0) out_sum=1;
     }
     if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
@@ -243,6 +246,9 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, const std::
     int out_sum=in_map.size();
     if (out_map.size()!=0) {
       boost_foreach( int i, out_map ) out_sum=i>out_sum?i:out_sum;
+    } else {
+      detail::broadcast_impl(comm,&out_sum,1,(int*)0,&out_sum,(int*)0,root,stride);
+      if (out_sum==0) out_sum=1;
     }
     out_values.resize(stride*out_sum);
     out_values.reserve(stride*out_sum);

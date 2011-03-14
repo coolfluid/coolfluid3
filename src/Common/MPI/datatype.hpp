@@ -38,12 +38,12 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @{ ACCESS AND REGISTRATION MECHANISM
-
 /// Default of get_mpi_datatype_impl which returns nullptr.
 namespace detail {
 template <typename T> inline Datatype get_mpi_datatype_impl(const T& ) { return nullptr; };
 } // namespace detail
+
+/// @{ ACCESS AND REGISTRATION MECHANISM
 
 /// Function to obtain Datatype from type or if non-existent than commit one to MPI and store it.
 template <typename T> inline Datatype get_mpi_datatype(const T& ref_of_type)
