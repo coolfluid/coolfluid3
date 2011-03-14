@@ -81,6 +81,10 @@ list( APPEND coolfluid_mesh_files
   LoadMesh.cpp
   Point1D.hpp
   Point1D.cpp
+  Point2D.hpp
+  Point2D.cpp
+  Point3D.hpp
+  Point3D.cpp
   Quad2D.hpp
   Quad2D.cpp
   Quad3D.hpp

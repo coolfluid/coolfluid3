@@ -3,6 +3,8 @@ list( APPEND coolfluid_fvm_files
   LibFVM.hpp
   BCDirichlet.hpp
   BCDirichlet.cpp
+  BuildGhostStates.hpp
+  BuildGhostStates.cpp
   ComputeFlux.hpp
   ComputeFlux.cpp
   ComputeUpdateCoefficient.hpp

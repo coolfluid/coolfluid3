@@ -15,6 +15,8 @@ list( APPEND coolfluid_mesh_sf_files
   Line3DLagrangeP1.hpp
   Point1DLagrangeP1.cpp
   Point1DLagrangeP1.hpp
+  Point2DLagrangeP1.cpp
+  Point2DLagrangeP1.hpp
   Quad2DLagrangeP1.cpp
   Quad2DLagrangeP1.hpp
   Quad2DLagrangeP2.cpp

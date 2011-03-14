@@ -222,11 +222,8 @@ void CFaceCellConnectivity::build_connectivity()
       }
     }
   }
-  //CF_DEBUG_POINT;
   f2c.flush();
-  //CF_DEBUG_POINT;
   face_number.flush();
-  //CF_DEBUG_POINT;
   is_bdry_face.flush();
 
   //CFinfo << "Total nb faces [" << m_nb_faces << "]" << CFendl;
