@@ -33,9 +33,9 @@ int main(int argc, char * argv[])
     // --------------------------------------------------------
 
     ExceptionManager::instance().ExceptionOutputs = false;
-    ExceptionManager::instance().ExceptionDumps = false;
-    ExceptionManager::instance().ExceptionAborts = false;
-    AssertionManager::instance().AssertionThrows = true;
+    ExceptionManager::instance().ExceptionDumps   = false;
+    ExceptionManager::instance().ExceptionAborts  = false;
+    AssertionManager::instance().AssertionThrows  = true;
 
     // Initialize empty commands
     options_description desc;

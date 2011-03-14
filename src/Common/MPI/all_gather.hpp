@@ -74,7 +74,8 @@ namespace detail {
     }
 
     // do the communication
-    // BUG IN OPENMPI: MPI_CHECK_RESULT(MPI_Allgather, (const_cast<T*>(in_values), in_n*stride, type, out_buf, in_n*stride, type, comm));
+    /// @bug (in OpenMPI ) MPI_CHECK_RESULT(MPI_Allgather, (const_cast<T*>(in_values), in_n*stride, type, out_buf, in_n*stride, type, comm));
+    /// @todo check if in later versions it is fixed
     int *displs=new int[nproc];
     for (int i=0; i<nproc; i++) displs[i]=i*in_n*stride;
     int *counts=new int[nproc];
