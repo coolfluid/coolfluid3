@@ -180,6 +180,17 @@ set(utest-parallel-collective_mpi_test TRUE)
 coolfluid_add_unit_test( utest-parallel-collective )
 
 ################################################################################
+# Test PE - parallel collective example
+
+list( APPEND utest-parallel-collective-example_cflibs coolfluid_common )
+list( APPEND utest-parallel-collective-example_files
+  utest-parallel-collective-example.cpp
+)
+
+set( utest-parallel-collective-example_mpi_test TRUE)
+coolfluid_add_unit_test( utest-parallel-collective-example )
+
+################################################################################
 # Test PE - commpattern and objectwrapper
 
 list( APPEND utest-parallel-commpattern_cflibs coolfluid_common )
