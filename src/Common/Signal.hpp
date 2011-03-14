@@ -29,7 +29,10 @@ class Common_API SignalError : public Common::Exception {
 public:
 
   /// Constructor
-  SignalError (const Common::CodeLocation& where, const std::string& what);
+  SignalError (const Common::CodeLocation& where, const std::string& what)
+    : Common::Exception(where,what,"SignalError")
+  {}
+  virtual ~SignalError() throw() {}
 
 }; // SignalError
 
