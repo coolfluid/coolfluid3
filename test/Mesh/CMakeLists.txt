@@ -273,9 +273,9 @@ add_custom_command(TARGET utest-pt-scotch
 ################################################################################
 
 list( APPEND utest-zoltan_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_zoltan coolfluid_mesh_actions)
-#list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} )
+#list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} ${ZOLTAN_EXTRA_LIBRARIES} )
 list( APPEND utest-zoltan_files  utest-zoltan.cpp )
-#list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
+#list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} ${ZOLTAN_EXTRA_INCLUDE_DIR} )
 
 set( utest-zoltan_condition ${coolfluid_mesh_zoltan_builds} )
 set( utest-zoltan_mpi_test TRUE )

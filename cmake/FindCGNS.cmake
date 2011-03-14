@@ -29,7 +29,7 @@ option( CF_SKIP_CGNS "Skip search for CGNS library" OFF )
     find_library(HDF5_LIBRARIES hdf5  PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
     find_library(HDF5_LIBRARIES hdf5 )
 
-    if ( HDF5_LIBRARIES )
+    if( HDF5_LIBRARIES )
         set( CGNS_LIBRARIES ${CGNS_LIBRARIES} ${HDF5_LIBRARIES} )
     endif()
 

@@ -50,31 +50,37 @@ endmacro( coolfluid_set_trial_library_path )
 ##############################################################################
 macro( coolfluid_log_deps_result LIBNAME )
 
+mark_as_advanced( ${ARGN} ) # advanced marking
+
 if( NOT CF_SKIP_${LIBNAME} )
 
   set( CF_HAVE_${LIBNAME} 1 )
 
   # all vars must be defined and found
 
-  foreach( VAR ${ARGN} )
-    if(DEFINED ${VAR})
-      mark_as_advanced( ${ARGN} ) # advanced marking
+  foreach( LISTVAR ${ARGN} )
 
-      if( NOT ${VAR} ) # found ?
-        set( CF_HAVE_${LIBNAME} 0 )
-      endif()
+    if(DEFINED ${LISTVAR}) # ignore variables that are not even defined (not searched for)
 
-    else() # not defined
-      set( CF_HAVE_${LIBNAME} 0 )
+      foreach( VAR ${${LISTVAR}} )
+        if( NOT VAR ) # found ?
+          set( CF_HAVE_${LIBNAME} 0 )
+        endif()
+      endforeach() # var
+
     endif()
-  endforeach() # var
+
+  endforeach() # listvar
 
   # set CF_HAVE in cache
 
   if(CF_HAVE_${LIBNAME})
     set(CF_HAVE_${LIBNAME} 1 CACHE BOOL "Found dependency ${LIBNAME}")
-    if(DEFINED ${LIBNAME}_LIBRARIES})
-      list( APPEND CF_DEPS_LIBRARIES ${{LIBNAME}_LIBRARIES} )
+    if(DEFINED ${LIBNAME}_LIBRARIES)
+      list( APPEND CF_DEPS_LIBRARIES ${${LIBNAME}_LIBRARIES} )
+    endif()
+    if(DEFINED ${LIBNAME}_EXTRA_LIBRARIES)
+      list( APPEND CF_DEPS_LIBRARIES ${${LIBNAME}_EXTRA_LIBRARIES} )
     endif()
   else()
     set(CF_HAVE_${LIBNAME} 0 CACHE BOOL "Did not find dependency ${LIBNAME}")
@@ -84,8 +90,8 @@ if( NOT CF_SKIP_${LIBNAME} )
 
   coolfluid_log( "CF_HAVE_${LIBNAME}: [${CF_HAVE_${LIBNAME}}]" )
   if(CF_HAVE_${LIBNAME})
-    foreach( VAR ${ARGN} ) # log to file
-      coolfluid_log_file( "  ${VAR}:  [${${VAR}}]" )
+    foreach( LISTVAR ${ARGN} ) # log to file
+      coolfluid_log_file( "  ${LISTVAR}:  [${${LISTVAR}}]" )
     endforeach()
   endif()
 
