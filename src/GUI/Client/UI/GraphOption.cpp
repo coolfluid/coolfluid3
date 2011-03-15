@@ -551,8 +551,10 @@ namespace CF {
 
             void GraphOption::save_functions(){
 
+                if(m_data_table->rowCount() > 0){
+
                 //the popup dialog box
-                QDialog* popup1 = new QDialog(this);
+                QDialog* popup_save_to_text = new QDialog(this);
 
                 //the table where we check desired function
                 m_choose_table = new QTableWidget(0,2,0);
@@ -576,31 +578,36 @@ namespace CF {
                 }
 
                 //adding Done and Save button
-                QPushButton * btn_save = new QPushButton("SAVE", popup1);
-                QPushButton * btn_done = new QPushButton("DONE", popup1);
+                QPushButton * btn_save = new QPushButton("SAVE", popup_save_to_text);
+                QPushButton * btn_done = new QPushButton("DONE", popup_save_to_text);
 
                 //connect them to their actions
-                connect(btn_done, SIGNAL(released()),popup1,SLOT(close()));
-                connect(btn_save, SIGNAL(released()),this,SLOT(save_functions_to_file()));
+                connect(btn_done, SIGNAL(released()),popup_save_to_text,SLOT(close()));
+                //connect(btn_save, SIGNAL(released()),this,SLOT(save_functions_to_file()));
+                connect(btn_save, SIGNAL(released()),this,SLOT(save_functions_to_file_no_buffering()));
 
                 //the 2 layout of the popup for nice look & feel
                 QVBoxLayout * vertical_popup_layout = new QVBoxLayout();
                 QHBoxLayout * horisontal_popup_layout = new QHBoxLayout();
-                popup1->setLayout(vertical_popup_layout);
+                popup_save_to_text->setLayout(vertical_popup_layout);
                 vertical_popup_layout->addWidget(m_choose_table);
                 vertical_popup_layout->addLayout(horisontal_popup_layout);
                 horisontal_popup_layout->addWidget(btn_save);
                 horisontal_popup_layout->addWidget(btn_done);
 
-                popup1->resize(260,220);
-                popup1->setModal(true);
-                popup1->show();
-
-                return;
+                popup_save_to_text->resize(260,220);
+                popup_save_to_text->setModal(true);
+                popup_save_to_text->show();
+            }else{
+                ClientCore::NLog::globalLog()->addError("There are no data to save.");
+            }
+            return;
             }
 
 
             void GraphOption::save_functions_to_file(){
+
+                //
 
                 //generate txt table to save in file
                 /***********************************************************/
@@ -659,6 +666,61 @@ namespace CF {
             }
 
             ////////////////////////////////////////////////////////////////////////////////
+
+            void GraphOption::save_functions_to_file_no_buffering(){
+
+                //Save into the file
+                /***********************************************************/
+                //default file name
+                QString file_name = "out.txt";
+
+                //getting the file name and path for saving file
+                file_name = QFileDialog::getSaveFileName(
+                    this, "Export File Name", QString(),
+                    "txt Documents (*.txt)");
+
+                if ( !file_name.isEmpty() )
+                {
+
+                QFile file(file_name);
+
+                if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+                    ClientCore::NLog::globalLog()->addError("Unable to open file.");
+                    return;
+                  }
+
+                QTextStream out(&file);
+
+                /***********************************************************/;
+
+                for(int i=0;i<m_data_table->rowCount();++i)
+                {
+                    if(((QCheckBox *)m_choose_table->cellWidget(i,0))->isChecked()){
+                        out <<  "\"";
+                        out <<  ((QLabel *)m_data_table->cellWidget(i,0))->text();
+                        out <<  "\" ";
+                    }
+                }
+
+                out <<  "\n";
+
+                for(int i=0;i<m_fcts->size();++i){
+                    for(int j=0;j<m_data_table->rowCount();++j){
+                        if(((QCheckBox *)m_choose_table->cellWidget(j,0))->isChecked()){
+                            out <<  "\"";
+                            out <<  QString::number((*m_fcts)[i][j]);
+                            out <<  "\" ";
+                        }
+                    }
+                    out <<  "\n";
+                }
+                /***********************************************************/
+                file.close();
+
+                ClientCore::NLog::globalLog()->addMessage("Data saved ...");
+                /***********************************************************/
+              }
+            }
 
         } // ClientUI
     } // GUI

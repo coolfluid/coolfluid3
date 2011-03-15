@@ -143,6 +143,9 @@ private slots: //functions - slots
     /// Save choosed function into txt file
     void save_functions_to_file();
 
+    /// Save choosed function into txt file without temporary QString
+    void save_functions_to_file_no_buffering();
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
