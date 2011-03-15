@@ -117,7 +117,7 @@ broadcast(const Communicator& comm, const T* in_values, const int in_n, T* out_v
   T* out_buf=out_values;
   int size=in_n;
   if (out_values==0) {
-    detail::broadcast_impl(comm,&size,1,(int*)0,&size,(int*)0,root,stride);
+    detail::broadcast_impl(comm,&size,1,(int*)0,&size,(int*)0,root,1);
     if ( (out_buf=new T[stride*size>1?stride*size:1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
@@ -127,6 +127,7 @@ broadcast(const Communicator& comm, const T* in_values, const int in_n, T* out_v
   } else {
     detail::broadcast_impl(comm,(T*)0,size,(int*)0,out_buf,(int*)0,root,stride);
   }
+
   return out_buf;
 }
 
@@ -151,7 +152,7 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, std::vector
   int size=out_values.size();
   if (out_values.size()==0){
     if (irank==root) size=(int)in_values.size();
-    detail::broadcast_impl(comm,&size,1,(int*)0,&size,(int*)0,root,stride);
+    detail::broadcast_impl(comm,&size,1,(int*)0,&size,(int*)0,root,1);
   }
   BOOST_ASSERT( in_values.size() % stride == 0 );
   out_values.resize(size);
@@ -198,7 +199,7 @@ broadcast(const Communicator& comm, const T* in_values, const int in_n, const in
       for (int i=0; i<out_sum; i++) out_sum_tmp=out_map[i]>out_sum_tmp?out_map[i]:out_sum_tmp;
       if (out_sum==0) out_sum=1;
     } else {
-      detail::broadcast_impl(comm,&out_sum,1,(int*)0,&out_sum,(int*)0,root,stride);
+      detail::broadcast_impl(comm,&out_sum,1,(int*)0,&out_sum,(int*)0,root,1);
       if (out_sum==0) out_sum=1;
     }
     if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
@@ -247,7 +248,7 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, const std::
     if (out_map.size()!=0) {
       boost_foreach( int i, out_map ) out_sum=i>out_sum?i:out_sum;
     } else {
-      detail::broadcast_impl(comm,&out_sum,1,(int*)0,&out_sum,(int*)0,root,stride);
+      detail::broadcast_impl(comm,&out_sum,1,(int*)0,&out_sum,(int*)0,root,1);
       if (out_sum==0) out_sum=1;
     }
     out_values.resize(stride*out_sum);
