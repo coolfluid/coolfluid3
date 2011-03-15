@@ -178,22 +178,3 @@ endif() # build guard
 
 endmacro( coolfluid_add_unit_test )
 
-##############################################################################
-# macro for adding a acceptance tests
-##############################################################################
-
-macro( coolfluid_add_acceptance_test ATESTNAME )
-
-#  coolfluid_debug_var(CF_ENABLE_ACCEPTANCE_TESTS)
-#  coolfluid_debug_var(ATESTNAME)
-#  coolfluid_debug_var(coolfluid-command_builds)
-
-#if( CF_ENABLE_ACCEPTANCE_TESTS AND coolfluid-command_builds )
-
-# coolfluid_debug_var(ATESTNAME)
-
-#add_test( ${ATESTNAME} ${coolfluid-command_path} "-f" ${ARGN} )
-
-#endif()
-
-endmacro( coolfluid_add_acceptance_test )
