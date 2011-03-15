@@ -40,3 +40,12 @@ add_custom_command(TARGET utest-rdm-rotationadv2d
                 )
 
 ##########################################################################
+
+
+  add_test( atest-rdm-burgers2d ${coolfluid-command_path} "-f" ${CMAKE_CURRENT_SOURCE_DIR}/burgers2d.cfscript )
+
+  coolfluid_debug_var(coolfluid-command_builds)
+
+coolfluid_add_acceptance_test( atest-rdm-burgers2d burgers2d.cfscript )
+
+  coolfluid_debug_var(coolfluid-command_builds)

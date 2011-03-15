@@ -1,5 +1,5 @@
 ##############################################################################
-# macro for adding a testing application in the project
+# macro for adding a unit test
 ##############################################################################
 
 macro( coolfluid_prepare_test UTESTNAME )
@@ -165,7 +165,7 @@ if( ${${UTESTNAME}_builds} ) # dont add if it does not build
          set(${UTESTNAME}_mpi_nprocs ${CF_MPI_TESTS_NB_PROCS})
       endif()
 
-      add_test( ${UTESTNAME} ${CF_MPIRUN_PROGRAM} "-np" ${${UTESTNAME}_mpi_nprocs} ${UTESTNAME} ${${UTESTNAME}_args})
+      add_test( ${UTESTNAME} ${CF_MPIRUN_PROGRAM} "-np" ${${UTESTNAME}_mpi_nprocs} ${UTESTNAME} ${${UTESTNAME}_args} )
       if(CF_MPI_TESTS_RUN_SCALABILITY AND ${UTESTNAME}_scaling)
         add_test("${UTESTNAME}-scaling" ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test-mpi-scalability.py ${CF_MPIRUN_PROGRAM} ${CMAKE_CURRENT_BINARY_DIR}/${UTESTNAME} ${CF_MPI_TESTS_MAX_NB_PROCS} ${${UTESTNAME}_args})
       endif()
@@ -179,4 +179,21 @@ endif() # build guard
 endmacro( coolfluid_add_unit_test )
 
 ##############################################################################
+# macro for adding a acceptance tests
 ##############################################################################
+
+macro( coolfluid_add_acceptance_test ATESTNAME )
+
+#  coolfluid_debug_var(CF_ENABLE_ACCEPTANCE_TESTS)
+#  coolfluid_debug_var(ATESTNAME)
+#  coolfluid_debug_var(coolfluid-command_builds)
+
+#if( CF_ENABLE_ACCEPTANCE_TESTS AND coolfluid-command_builds )
+
+# coolfluid_debug_var(ATESTNAME)
+
+#add_test( ${ATESTNAME} ${coolfluid-command_path} "-f" ${ARGN} )
+
+#endif()
+
+endmacro( coolfluid_add_acceptance_test )

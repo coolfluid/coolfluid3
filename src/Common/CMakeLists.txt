@@ -215,7 +215,7 @@ if( CF_HAVE_RT )
 endif()
 
 # faster allocation and memory porfiling
-if( CF_USE_TCMALLOC )
+if( CF_ENABLE_TCMALLOC )
   list(APPEND coolfluid_common_libs ${GOOGLE_PERFTOOLS_TCMALLOC_LIBRARY} )
 endif()
 

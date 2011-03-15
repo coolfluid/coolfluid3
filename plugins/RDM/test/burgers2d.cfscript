@@ -1,0 +1,59 @@
+# load the rdm library
+call //Root/Libraries/load_library \
+     Lib:uri=file://Users/tlmq/Work/coolfluid3/dev/darwin.x86/builds/clang2.8-RelWithDebInfo/dso/libcoolfluid_rdm.dylib 
+
+# create a scalar advection model
+call //Root/Tools/RDM/SetupScalarSimulation/create_model \
+     ModelName:string=model \
+     PhysicalModel:string=Burgers2D
+
+# load the mesh
+call //Root/model/Domain/load_mesh \
+     File:uri=file:square1x1-tg-p2.msh
+
+# configure solver
+cd //Root/model/Solver
+
+configure Domain:uri=cpath:../Domain
+cd time_stepping
+configure CFL:real=1.0
+configure MaxIter:unsigned=1000
+cd ..
+
+# create boundary term
+
+call create_boundary_term Name:string=INLET \
+     Type:string=CF.RDM.BcDirichlet \
+     Regions:array[uri]=\
+//Root/model/Domain/mesh/topology/main/inlet,\
+//Root/model/Domain/mesh/topology/main/left,\
+//Root/model/Domain/mesh/topology/main/right
+
+cd compute_boundary_terms/INLET
+
+configure Function:string=1.5-2.0*x
+
+cd ../..
+
+# create domain term
+
+call create_domain_term Name:string=INTERNAL \
+     Type:string=CF.RDM.LDA \
+     Regions:array[uri]=//Root/model/Domain/mesh/topology
+
+
+# solve
+
+call solve
+cd ..
+
+# write solution
+
+create writer CF.Mesh.Gmsh.CWriter
+
+cd writer
+configure Fields:array[uri]=//Root/model/Domain/mesh/solution
+configure File:string=solution.msh
+configure Mesh:uri=//Root/model/Domain/mesh
+
+call write_mesh
