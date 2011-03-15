@@ -45,19 +45,13 @@ void PosixDlopenLibLoader::set_search_paths(const std::vector< boost::filesystem
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PosixDlopenLibLoader::load_library(const std::string& lib)
+void* PosixDlopenLibLoader::call_dlopen(const boost::filesystem::path& fpath)
 {
-  if (lib.empty()) return;
-
-  CFinfo << "dlopen() loading library \'" << lib << "\'" << CFendl;
-
   using namespace boost::filesystem;
 
-  // library path
-  boost::filesystem::path fpath ( lib );
-  // library handler
-  void* hdl = NULL;
+  void* hdl = nullptr;
 
+  CFinfo << "dlopen() loading library \'" << fpath.string() << "\'" << CFendl;
 
   // library name
   if ( fpath.is_complete() )
@@ -66,49 +60,81 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
   }
   else
   {
-    std::string libname = "lib" + lib;
-    // add library extention
-  #ifdef CF_OS_LINUX
-    libname += ".so";
-  #endif
-  #ifdef CF_OS_MACOSX
-    libname += ".dylib";
-  #endif
-  #ifdef CF_OS_WINDOWS
-    libname += ".dll";
-  #endif
-
-    // loop over the searhc paths and attempt to load the library
+    // loop over the search paths and attempt to load the library
     std::vector< path >::const_iterator itr = m_search_paths.begin();
     for (; itr != m_search_paths.end() ; ++itr)
     {
       //    CFout << "searching in [" << *itr << "]\n" << CFflush;
-      path fullqname = *itr / path(libname);
+      path fullqname = *itr / fpath;
       //    CFout << "fullqname [" << fullqname.string() << "]\n" << CFflush;
       hdl = dlopen (fullqname.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
-      if( hdl != NULL ) break;
+      if( hdl != nullptr ) break;
     }
   }
+  return hdl; // will return nullptr if failed
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PosixDlopenLibLoader::load_library(const std::string& lib)
+{
+  using namespace boost::filesystem;
+
+  if (lib.empty()) return;
+
+  boost::filesystem::path libpath( lib );
+
+  // library handler
+  void* hdl = nullptr;
+
+  // try to load as passed ( still searches in paths )
+  hdl = call_dlopen( libpath );
+  if( is_not_null(hdl) ) return;
+
+  // if failed, check if extension is correct then try again
+
+  std::string filename = libpath.filename();
+  std::string noext;
+  std::string filewext;
+
+  // get extension
+
+  std::string::size_type n = filename.rfind('.');
+  if (n != std::string::npos)
+    noext = filename.substr(0,n);
+  else
+    noext = filename;
+
+  // add library extention
+
+#ifdef CF_OS_LINUX
+  filewext = noext + ".so";
+#endif
+#ifdef CF_OS_MACOSX
+  filewext += noext + ".dylib";
+#endif
+#ifdef CF_OS_WINDOWS
+  filewext += noext + ".dll";
+#endif
+
+  CFinfo << "dlopen() loading library \'" << filewext << "\'" << CFendl;
+
+  hdl = call_dlopen( libpath );
 
   // check for success
-  if(hdl != NULL)
-  {
-//    CFinfo << "dlopen(): loaded library \'" << lib  << "\'" << CFendl;
-  }
+  if( is_not_null(hdl) ) return;
+
+  // react on failure
+
+  CFerror << "dlopen() failed to load library : \'" << lib << "\'" << CFendl;
+  const char * msg = dlerror();
+  if ( is_null(msg) )
+    CFerror << "dlerror() said nothing." << CFendl;
   else
-  {
-    CFinfo << "dlopen() failed to load library : \'" << lib << "\'" << CFendl;
-    const char * msg = dlerror();
-    if (msg != NULL)
-    {
-      CFinfo << "dlerror() says : " << msg  <<  CFendl;
-    }
-    else
-    {
-      CFinfo << "dlerror() said nothing." << CFendl;
-    }
-    throw LibLoadingError (FromHere(),"Library failed to load");
-  }
+    CFerror << "dlerror() says : " << msg  <<  CFendl;
+
+  throw LibLoadingError (FromHere(),"Library failed to load");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
