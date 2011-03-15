@@ -39,7 +39,7 @@ void create_constant_scalar_field(CMesh& mesh, const std::string& field_name, co
 {
   MeshTerm<1, ScalarField> heat(field_name, var_name);
   mesh.create_scalar_field(field_name, var_name, CField2::Basis::POINT_BASED);
-  //for_each_node(mesh.topology(), heat = value);
+  for_each_node(mesh.topology(), heat = value);
 }
 
 FieldGenerator::FieldGenerator(const std::string& name) : Component(name)
@@ -69,9 +69,6 @@ void FieldGenerator::signal_update(Common::SignalArgs& node)
   const std::string var_name = property("VariableName").value_str();
   const Real value = property("Value").value<Real>();
   
-  // Proto placeholder
-  MeshTerm<0, ScalarField> s(field_name, var_name);
-  
   // Get the field, if it exists
   CField2::Ptr field = boost::dynamic_pointer_cast<CField2>(mesh->get_child_ptr(field_name));
   
@@ -86,6 +83,9 @@ void FieldGenerator::signal_update(Common::SignalArgs& node)
   {
     mesh->create_scalar_field(field_name, var_name, CF::Mesh::CField2::Basis::POINT_BASED);
   }
+  
+  // Proto placeholder
+  MeshTerm<0, ScalarField> s(field_name, var_name);
   
   // Update the field value
   for_each_node(mesh->topology(), s = value);

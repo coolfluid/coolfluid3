@@ -64,6 +64,7 @@ struct DirichletBCSetter :
               , typename impl::data_param data
     ) const
     {
+      //std::cout << "setting dirichlet bc for var: " << boost::proto::value(boost::proto::child_c<2>(expr)).variable_value.var_name << std::endl;
       Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>(expr) ).get();
       assign_dirichlet( lss, state, data.variable_offsets(), data.node_idx,
                         boost::proto::value(boost::proto::child_c<2>(expr)),

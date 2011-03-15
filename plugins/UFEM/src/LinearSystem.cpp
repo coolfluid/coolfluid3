@@ -184,17 +184,24 @@ void LinearSystem::on_run()
   CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(*region);
 
   // Build the system
+  std::cout << "starting system build" << std::endl;
   builder->execute();
+  std::cout << "finished system build" << std::endl;
 
   // Set the boundary conditions
+  std::cout << "starting bc setting" << std::endl;
   boost_foreach(CAction& bc_action, find_components_with_tag<CAction>(*this, "dirichlet_bc"))
   {
     bc_action.execute();
   }
+  std::cout << "finished bc setting" << std::endl;
 
   // Solve the linear system
+  std::cout << "starting solve" << std::endl;
   lss().solve();
+  std::cout << "finished solve" << std::endl;
   builder->update_fields(lss().solution(), mesh);
+  std::cout << "finished solution update" << std::endl;
 }
 
 

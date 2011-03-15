@@ -340,7 +340,6 @@ public:
     m_equation_data(m_variables_data)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data));
-    boost::fusion::for_each( m_variables, CalculateOffsets(m_offsets, SupportSF::dimension) );
   }
   
   ~ElementData()
@@ -416,11 +415,6 @@ public:
     return m_support;
   }
   
-  const std::vector<Uint>& variable_offsets() const
-  {
-    return m_offsets;
-  }
-  
   /// Retrieve the element matrix at index i
   ElementMatrixT& element_matrix(const int i)
   {
@@ -447,8 +441,6 @@ private:
   VariablesDataT m_variables_data;
   
   Uint m_element_idx;
-  
-  std::vector<Uint> m_offsets;
   
   ElementMatrixT m_element_matrices[CF_PROTO_MAX_ELEMENT_MATRICES];
   ElementVectorT m_element_rhs;

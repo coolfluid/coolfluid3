@@ -1,4 +1,4 @@
-list( APPEND utest-heat-steady_cflibs coolfluid_mesh coolfluid_field_generation)
+list( APPEND utest-heat-steady_cflibs coolfluid_mesh)
 list( APPEND utest-heat-steady_files
   utest-heat-steady.cpp )
 
@@ -7,6 +7,16 @@ list( APPEND utest-heat-steady_args ${CMAKE_CURRENT_SOURCE_DIR}/meshes )
 set( utest-heat-steady_condition ${coolfluid_ufem_builds} )
 
 coolfluid_add_unit_test( utest-heat-steady )
+
+list( APPEND utest-heat-steady-tetra_cflibs coolfluid_mesh)
+list( APPEND utest-heat-steady-tetra_files
+  utest-heat-steady-tetra.cpp )
+
+list( APPEND utest-heat-steady-tetra_args ${CMAKE_CURRENT_SOURCE_DIR}/meshes )
+
+set( utest-heat-steady-tetra_condition ${coolfluid_ufem_builds} )
+
+coolfluid_add_unit_test( utest-heat-steady-tetra )
 
 list( APPEND utest-heat-unsteady_cflibs coolfluid_mesh )
 list( APPEND utest-heat-unsteady_files
