@@ -85,6 +85,7 @@ void BasicCommands::call(const std::vector<std::string>& params)
     Component::Ptr signaling_component = current_component->access_component_ptr(URI(executable_path).base_path());
     if ( is_null(signaling_component) )
       throw ValueNotFound(FromHere(), "component " + URI(executable_path).base_path().path() + " was not found in " + current_component->full_path().path());
+
     std::string name = URI(executable_path).name();
     std::vector<std::string> signal_options(params.size()-1);
     for (Uint i=0; i<signal_options.size(); ++i)
@@ -370,8 +371,24 @@ void BasicCommands::option_list(const std::string& cpath)
 
 void BasicCommands::configure(const std::vector<std::string>& params)
 {
-  current_component->configure(params);
+  if (params.size() == 0)
+    throw SetupError(FromHere(),"configure needs a component path as first parameter");
+
+  std::string path = params[0];
+
+  if ( Component::Ptr comp = current_component->access_component_ptr(path) )
+  {
+    std::vector<std::string> conf_options(params.size()-1);
+    for (Uint i=0; i<conf_options.size(); ++i)
+      conf_options[i] = params[i+1];
+
+
+    comp->configure( conf_options );
+  }
+  else
+    throw ValueNotFound(FromHere(), "No component found at " + path );
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
