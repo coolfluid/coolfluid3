@@ -1106,7 +1106,7 @@ void QwtPlotLayout::activate(const QwtPlot *plot,
     }
 
 #ifdef __GNUC__
-#warning Layout code needs to be reorganized
+//#warning Layout code needs to be reorganized
 #endif
     /*
      +---+-----------+---+

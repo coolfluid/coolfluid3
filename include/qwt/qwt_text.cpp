@@ -546,7 +546,7 @@ QSize QwtText::textSize(const QFont &defaultFont) const
         if ( !map.isIdentity() )
         {
 #ifdef __GNUC__
-#warning Too small text size, when printing in high resolution
+//#warning Too small text size, when printing in high resolution
 #endif
             /*
                 When printing in high resolution, the tick labels

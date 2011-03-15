@@ -32,7 +32,7 @@ public:
             // is slow, but there shouldn't be many plot items.
 
 #ifdef __GNUC__
-#warning binary search missing
+//#warning binary search missing
 #endif
 
 #if QT_VERSION < 0x040000

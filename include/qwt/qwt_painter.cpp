@@ -493,7 +493,7 @@ void QwtPainter::drawPolygon(QPainter *painter, const QwtPolygon &pa)
     if ( deviceClipping )
     {
 #ifdef __GNUC__
-#warning clipping ignores painter transformations
+//#warning clipping ignores painter transformations
 #endif
         cpa = QwtClipper::clipPolygon(clipRect, cpa);
     }
