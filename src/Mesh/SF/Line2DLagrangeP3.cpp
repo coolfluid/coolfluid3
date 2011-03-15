@@ -63,8 +63,8 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP3::face_connectivi
   if(connectivity.face_first_nodes.empty())
   {
     connectivity.face_first_nodes = boost::assign::list_of(0);
-    connectivity.face_node_counts.assign(1, 3); //1 row, 3 columns - indexes 0,1,2 of the nodes of the line
-    connectivity.face_nodes = boost::assign::list_of(0)(1)(2);
+    connectivity.face_node_counts.assign(1, 4); //1 row, 4 columns - indexes 0,1,2,3 of the nodes of the line
+    connectivity.face_nodes = boost::assign::list_of(0)(1)(2)(3);
   }
   return connectivity;
 }
@@ -81,22 +81,24 @@ const CF::Mesh::ElementType& Line2DLagrangeP3::face_type(const CF::Uint face) co
 
 void Line2DLagrangeP3::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  throw Common::NotImplemented( FromHere(), "" );
+  const Real onesixteenth = 1.0/16.0;
 
-  shapeFunc[0] = 0.5 * (mappedCoord[KSI]*mappedCoord[KSI] - mappedCoord[KSI]);
-  shapeFunc[1] = 0.5 * (mappedCoord[KSI]*mappedCoord[KSI] + mappedCoord[KSI]);
-  shapeFunc[2] = (1.0 - mappedCoord[KSI]*mappedCoord[KSI]);
+  shapeFunc[0] = -onesixteenth*(1.0 - mappedCoord[KSI])*(1.0 - 9.0*mappedCoord[KSI]*mappedCoord[KSI]);
+  shapeFunc[1] = -onesixteenth*(1.0 + mappedCoord[KSI])*(1.0 - 9.0*mappedCoord[KSI]*mappedCoord[KSI]);
+  shapeFunc[2] = -9.0*onesixteenth*(1.0 - mappedCoord[KSI]*mappedCoord[KSI])*(1.0 - 3.0*mappedCoord[KSI]);
+  shapeFunc[3] =  9.0*onesixteenth*(1.0 - mappedCoord[KSI]*mappedCoord[KSI])*(1.0 + 3.0*mappedCoord[KSI]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Line2DLagrangeP3::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  throw Common::NotImplemented( FromHere(), "" );
+  const Real onesixteenth = 1.0/16.0;
 
-  result(XX, 0) = mappedCoord[KSI]-0.5;
-  result(XX, 1) = mappedCoord[KSI]+0.5;
-  result(XX, 2) = -2.0*mappedCoord[KSI]; 
+  result(XX, 0) = -onesixteenth*( 27.0*mappedCoord[KSI]*mappedCoord[KSI] - 18.0*mappedCoord[KSI] - 1.0);
+  result(XX, 1) = -onesixteenth*(-27.0*mappedCoord[KSI]*mappedCoord[KSI] - 18.0*mappedCoord[KSI] + 1.0);
+  result(XX, 2) = 9.0*onesixteenth*( 9.0*mappedCoord[KSI]*mappedCoord[KSI] - 2.0*mappedCoord[KSI] - 3.0);
+  result(XX, 3) = 9.0*onesixteenth*(-9.0*mappedCoord[KSI]*mappedCoord[KSI] - 2.0*mappedCoord[KSI] + 3.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

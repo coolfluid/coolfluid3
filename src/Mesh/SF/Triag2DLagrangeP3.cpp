@@ -58,11 +58,11 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP3::faces()
 
   if(connectivity.face_first_nodes.empty())
   {
-    connectivity.face_first_nodes = boost::assign::list_of(0)(2)(4);
-    connectivity.face_node_counts.assign(nb_nodes, 2);
-    connectivity.face_nodes = boost::assign::list_of(0)(1)
-                                                    (1)(2)
-                                                    (2)(0);
+    connectivity.face_first_nodes = boost::assign::list_of(0)(4)(8);
+    connectivity.face_node_counts.assign(nb_nodes, 4);
+    connectivity.face_nodes = boost::assign::list_of(0)(1)(3)(4)
+                                                    (1)(2)(5)(6)
+                                                    (2)(0)(7)(8);
   }
   return connectivity;
 }
@@ -129,29 +129,38 @@ void Triag2DLagrangeP3::mapped_coordinates(const CoordsT& coord, const NodeMatri
 
 void Triag2DLagrangeP3::mapped_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
 {
-  throw Common::NotImplemented( FromHere(), "derive these gradients" );
-
   const Real L0 = 1.0 - map_coord[0] - map_coord[1];
   const Real L1 = map_coord[0];
   const Real L2 = map_coord[1];
 
-  result(XX, 0) = - (4*L0-1);
-  result(YY, 0) = - (4*L0-1);
+  const Real dL0dxi  = -1.0;
+  const Real dL0deta = -1.0;
+  const Real dL1dxi  =  1.0;
+  const Real dL1deta =  0.0;
+  const Real dL2dxi  =  0.0;
+  const Real dL2deta =  1.0;
 
-  result(XX, 1) =   (4*L1-1);
-  result(YY, 1) =   0.0;
+  result(XX,0) =  0.5 * dL0dxi  * ( 27.0*L0*L0 - 18.0*L0 + 2.0 );
+  result(XX,1) =  0.5 * dL1dxi  * ( 27.0*L1*L1 - 18.0*L1 + 2.0 );
+  result(XX,2) =  0.5 * dL2dxi  * ( 27.0*L2*L2 - 18.0*L2 + 2.0 );
+  result(XX,3) =  4.5 * ( dL0dxi*(6.0*L0*L1-L1) + dL1dxi*L0*(3.0*L0-1.0) );
+  result(XX,4) =  4.5 * ( dL1dxi*(6.0*L0*L1-L0) + dL0dxi*L1*(3.0*L1-1.0) );
+  result(XX,5) =  4.5 * ( dL1dxi*(6.0*L1*L2-L2) + dL2dxi*L1*(3.0*L1-1.0) );
+  result(XX,6) =  4.5 * ( dL2dxi*(6.0*L1*L2-L1) + dL1dxi*L2*(3.0*L2-1.0) );
+  result(XX,7) =  4.5 * ( dL2dxi*(6.0*L0*L2-L0) + dL0dxi*L2*(3.0*L2-1.0) );
+  result(XX,8) =  4.5 * ( dL0dxi*(6.0*L0*L2-L2) + dL2dxi*L0*(3.0*L0-1.0) );
+  result(XX,9) = 27.0 * ( dL0dxi*L1*L2 + L0*dL1dxi*L2 + L0*L1*dL2dxi );
 
-  result(XX, 2) =   0.0;
-  result(YY, 2) =   (4*L2-1);
-
-  result(XX, 3) =   4*(L0-L1);
-  result(YY, 3) = - 4*L1;
-
-  result(XX, 4) =   4*L2;
-  result(YY, 4) =   4*L1;
-
-  result(XX, 5) = - 4*L2;
-  result(YY, 5) =   4*(L0-L2);
+  result(YY,0) =  0.5 * dL0deta  * ( 27.0*L0*L0 - 18.0*L0 + 2.0 );
+  result(YY,1) =  0.5 * dL1deta  * ( 27.0*L1*L1 - 18.0*L1 + 2.0 );
+  result(YY,2) =  0.5 * dL2deta  * ( 27.0*L2*L2 - 18.0*L2 + 2.0 );
+  result(YY,3) =  4.5 * ( dL0deta*(6.0*L0*L1-L1) + dL1deta*L0*(3.0*L0-1.0) );
+  result(YY,4) =  4.5 * ( dL1deta*(6.0*L0*L1-L0) + dL0deta*L1*(3.0*L1-1.0) );
+  result(YY,5) =  4.5 * ( dL1deta*(6.0*L1*L2-L2) + dL2deta*L1*(3.0*L1-1.0) );
+  result(YY,6) =  4.5 * ( dL2deta*(6.0*L1*L2-L1) + dL1deta*L2*(3.0*L2-1.0) );
+  result(YY,7) =  4.5 * ( dL2deta*(6.0*L0*L2-L0) + dL0deta*L2*(3.0*L2-1.0) );
+  result(YY,8) =  4.5 * ( dL0deta*(6.0*L0*L2-L2) + dL2deta*L0*(3.0*L0-1.0) );
+  result(YY,9) = 27.0 * ( dL0deta*L1*L2 + L0*dL1deta*L2 + L0*L1*dL2deta );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

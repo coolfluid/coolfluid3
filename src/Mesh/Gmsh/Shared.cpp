@@ -54,22 +54,20 @@ Shared::Shared() :
   m_supported_types.reserve(10);
   m_supported_types.push_back("CF.Mesh.SF.Line1DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Line2DLagrangeP1");
+  m_supported_types.push_back("CF.Mesh.SF.Line2DLagrangeP2");
+  m_supported_types.push_back("CF.Mesh.SF.Line2DLagrangeP3");
   m_supported_types.push_back("CF.Mesh.SF.Line3DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Quad2DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Quad3DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Triag2DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Triag2DLagrangeP2");
+  m_supported_types.push_back("CF.Mesh.SF.Triag2DLagrangeP3");
   m_supported_types.push_back("CF.Mesh.SF.Triag3DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Hexa3DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Tetra3DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Point1DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Point2DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Point3DLagrangeP1");
-
-
-  enum GmshElement { P1LINE=1, P1TRIAG=2, P1QUAD=3,  P1TETRA=4,  P1HEXA=5,
-                     P2LINE=8, P2TRIAG=9, P2QUAD=10, P2TETRA=11, P2HEXA=12, 
-                     P1POINT=15 };
 
   m_CFelement_to_GmshElement[GeoShape::LINE ]=P1LINE;
   m_CFelement_to_GmshElement[GeoShape::TRIAG]=P1TRIAG;
@@ -286,9 +284,49 @@ Shared::Shared() :
   m_nodes_gmsh_to_cf[P2HEXA][24]=24;
   m_nodes_gmsh_to_cf[P2HEXA][25]=25;
   m_nodes_gmsh_to_cf[P2HEXA][26]=26;
-  
+
+  //Point
   m_nodes_gmsh_to_cf[P1POINT].resize(1);
   m_nodes_gmsh_to_cf[P1POINT][0]=0;
+
+  //P3 triag
+  m_nodes_cf_to_gmsh[P3TRIAG].resize(10);
+  m_nodes_cf_to_gmsh[P3TRIAG][0] = 0;
+  m_nodes_cf_to_gmsh[P3TRIAG][1] = 1;
+  m_nodes_cf_to_gmsh[P3TRIAG][2] = 2;
+  m_nodes_cf_to_gmsh[P3TRIAG][3] = 3;
+  m_nodes_cf_to_gmsh[P3TRIAG][4] = 4;
+  m_nodes_cf_to_gmsh[P3TRIAG][5] = 5;
+  m_nodes_cf_to_gmsh[P3TRIAG][6] = 6;
+  m_nodes_cf_to_gmsh[P3TRIAG][7] = 7;
+  m_nodes_cf_to_gmsh[P3TRIAG][8] = 8;
+  m_nodes_cf_to_gmsh[P3TRIAG][9] = 9;
+
+
+  m_nodes_gmsh_to_cf[P3TRIAG].resize(10);
+  m_nodes_gmsh_to_cf[P3TRIAG][0] = 0;
+  m_nodes_gmsh_to_cf[P3TRIAG][1] = 1;
+  m_nodes_gmsh_to_cf[P3TRIAG][2] = 2;
+  m_nodes_gmsh_to_cf[P3TRIAG][3] = 3;
+  m_nodes_gmsh_to_cf[P3TRIAG][4] = 4;
+  m_nodes_gmsh_to_cf[P3TRIAG][5] = 5;
+  m_nodes_gmsh_to_cf[P3TRIAG][6] = 6;
+  m_nodes_gmsh_to_cf[P3TRIAG][7] = 7;
+  m_nodes_gmsh_to_cf[P3TRIAG][8] = 8;
+  m_nodes_gmsh_to_cf[P3TRIAG][9] = 9;
+
+  //P3 line
+  m_nodes_cf_to_gmsh[P3LINE].resize(4);
+  m_nodes_cf_to_gmsh[P3LINE][0] = 0;
+  m_nodes_cf_to_gmsh[P3LINE][1] = 1;
+  m_nodes_cf_to_gmsh[P3LINE][2] = 2;
+  m_nodes_cf_to_gmsh[P3LINE][3] = 3;
+
+  m_nodes_gmsh_to_cf[P3LINE].resize(4);
+  m_nodes_gmsh_to_cf[P3LINE][0] = 0;
+  m_nodes_gmsh_to_cf[P3LINE][1] = 1;
+  m_nodes_gmsh_to_cf[P3LINE][2] = 2;
+  m_nodes_gmsh_to_cf[P3LINE][3] = 3;
 }
 
 

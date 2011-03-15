@@ -61,6 +61,13 @@ struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP2B, 2 >
   typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP2B::shape> type;
 };
 
+/// Partial specialization for P3 triangles
+template <>
+struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP3, 3 >
+{
+  typedef Mesh::Integrators::GaussMappedCoords< 5, Mesh::SF::Triag2DLagrangeP3::shape> type;
+};
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
