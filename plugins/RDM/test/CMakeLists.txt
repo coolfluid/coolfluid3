@@ -41,6 +41,10 @@ add_custom_command(TARGET utest-rdm-rotationadv2d
 
 ##########################################################################
 
+add_custom_command(TARGET utest-rdm-burgers2d
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/burgers2d.cfscript ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
 
   add_test( atest-rdm-burgers2d ${coolfluid-command_path} "-f" ${CMAKE_CURRENT_SOURCE_DIR}/burgers2d.cfscript )
 

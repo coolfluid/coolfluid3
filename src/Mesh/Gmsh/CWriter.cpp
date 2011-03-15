@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Foreach.hpp"
-#include "Common/Log.hpp"
+// #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
@@ -93,14 +93,13 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   {
     path = boost::filesystem::basename(path) + "_P" + to_str(mpi::PE::instance().rank()) + boost::filesystem::extension(path);
   }
-  CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
+//  CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
   file.open(path,std::ios_base::out);
   if (!file) // didn't open so throw exception
   {
      throw boost::filesystem::filesystem_error( path.string() + " failed to open",
                                                 boost::system::error_code() );
   }
-
 
   compute_mesh_specifics();
 
@@ -142,7 +141,7 @@ void CWriter::write_header(std::fstream& file)
   foreach_container((const std::string& g_name)(const Uint g_number), m_groupnumber)
   {
     /// @todo this should be the dimensionality of the physical group
-    CFinfo << m_coord_dim << " " << g_number << " \"" << g_name << "\"\n" << CFflush;
+//    CFinfo << m_coord_dim << " " << g_number << " \"" << g_name << "\"\n" << CFflush;
     file << m_coord_dim << " " << g_number << " \"" << g_name << "\"\n";
   }
   file << "$EndPhysicalNames\n";

@@ -1,6 +1,6 @@
 # load the rdm library
 call //Root/Libraries/load_library \
-     Lib:uri=file://Users/tlmq/Work/coolfluid3/dev/darwin.x86/builds/clang2.8-RelWithDebInfo/dso/libcoolfluid_rdm.dylib 
+     Lib:uri=file://../../../dso/libcoolfluid_rdm
 
 # create a scalar advection model
 call //Root/Tools/RDM/SetupScalarSimulation/create_model \
@@ -15,10 +15,9 @@ call //Root/model/Domain/load_mesh \
 cd //Root/model/Solver
 
 configure Domain:uri=cpath:../Domain
-cd time_stepping
-configure CFL:real=1.0
-configure MaxIter:unsigned=1000
-cd ..
+
+configure time_stepping CFL:real=1.0
+configure time_stepping MaxIter:unsigned=1000
 
 # create boundary term
 
@@ -29,11 +28,7 @@ call create_boundary_term Name:string=INLET \
 //Root/model/Domain/mesh/topology/main/left,\
 //Root/model/Domain/mesh/topology/main/right
 
-cd compute_boundary_terms/INLET
-
-configure Function:string=1.5-2.0*x
-
-cd ../..
+configure compute_boundary_terms/INLET Function:string=1.5-2.0*x
 
 # create domain term
 

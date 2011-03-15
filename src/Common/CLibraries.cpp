@@ -35,7 +35,6 @@ CLibraries::CLibraries ( const std::string& name) : Component ( name )
   signal("delete_component")->is_hidden = true;
 
   signal("load_library")->signature->connect( boost::bind(&CLibraries::signature_load_library, this, _1) );
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

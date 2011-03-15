@@ -51,7 +51,7 @@ void* PosixDlopenLibLoader::call_dlopen(const boost::filesystem::path& fpath)
 
   void* hdl = nullptr;
 
-  CFinfo << "dlopen() loading library \'" << fpath.string() << "\'" << CFendl;
+  CFinfo << "dlopen() loading library \'" << fpath.string() << "\'\n" << CFflush;
 
   // library name
   if ( fpath.is_complete() )
@@ -60,13 +60,16 @@ void* PosixDlopenLibLoader::call_dlopen(const boost::filesystem::path& fpath)
   }
   else
   {
+    // relative path from current directory
+    hdl = dlopen (fpath.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
+
     // loop over the search paths and attempt to load the library
     std::vector< path >::const_iterator itr = m_search_paths.begin();
     for (; itr != m_search_paths.end() ; ++itr)
     {
-      //    CFout << "searching in [" << *itr << "]\n" << CFflush;
+          CFinfo << "searching in [" << *itr << "]\n" << CFflush;
       path fullqname = *itr / fpath;
-      //    CFout << "fullqname [" << fullqname.string() << "]\n" << CFflush;
+          CFinfo << "fullqname [" << fullqname.string() << "]\n" << CFflush;
       hdl = dlopen (fullqname.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
       if( hdl != nullptr ) break;
     }
@@ -93,7 +96,9 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
 
   // if failed, check if extension is correct then try again
 
-  std::string filename = libpath.filename();
+  string filename = libpath.filename();
+  path basepath = libpath.parent_path();
+
   std::string noext;
   std::string filewext;
 
@@ -117,9 +122,7 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
   filewext += noext + ".dll";
 #endif
 
-  CFinfo << "dlopen() loading library \'" << filewext << "\'" << CFendl;
-
-  hdl = call_dlopen( libpath );
+  hdl = call_dlopen( basepath / path(filewext) );
 
   // check for success
   if( is_not_null(hdl) ) return;
@@ -132,6 +135,7 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
     CFerror << "dlerror() said nothing." << CFendl;
   else
     CFerror << "dlerror() says : " << msg  <<  CFendl;
+  CFerror.flush();
 
   throw LibLoadingError (FromHere(),"Library failed to load");
 
