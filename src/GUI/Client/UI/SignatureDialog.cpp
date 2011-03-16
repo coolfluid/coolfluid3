@@ -83,7 +83,10 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title, bool block)
    }
   }
   else
+  {
     m_okClicked = true;
+    emit finished(QDialog::Accepted);
+  }
 
   return m_okClicked;
 }
@@ -130,6 +133,7 @@ void SignatureDialog::btOkClicked()
     }
   }
 
+  emit finished(QDialog::Accepted);
   this->setVisible(false);
 }
 
@@ -139,5 +143,6 @@ void SignatureDialog::btOkClicked()
 void SignatureDialog::btCancelClicked()
 {
   m_okClicked = false;
+  emit finished(QDialog::Rejected);
   this->setVisible(false);
 }

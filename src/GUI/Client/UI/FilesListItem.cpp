@@ -18,7 +18,6 @@ FilesListItem::FilesListItem(const QIcon & icon, const QString & text,
     throw CF::Common::ValueNotFound(FromHere(), "Unknown item type");
 
   m_type = type;
-
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
