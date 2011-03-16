@@ -9,6 +9,7 @@
 #include <QDebug>
 
 #include "Common/Log.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -112,7 +113,7 @@ int NetworkThread::send(Common::Signal::arg_t& signal)
 
   signal.node.set_attribute( "clientid", ThreadManager::instance().tree().getUUID() );
 
-  signal.xml_doc->to_string(str);
+  to_string(*signal.xml_doc, str);
 
   out << (quint32)0;    // reserve 32 bits for the frame data size
   out << str.c_str();
@@ -162,7 +163,7 @@ void NetworkThread::newData()
     // parse the frame and call the boost signal
     try
     {
-      XmlDoc::Ptr doc = XmlDoc::parse_string(frame);
+      XmlDoc::Ptr doc = XML::parse_cstring(frame, m_blockSize);
       newSignal(doc);
     }
     catch(XmlError & e)

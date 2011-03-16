@@ -30,6 +30,13 @@ XmlDoc::Ptr parse_string ( const std::string& str );
 /// @throw FileSystemError If the file cannot be read.
 XmlDoc::Ptr parse_file ( const boost::filesystem::path& path );
 
+/// Parses a XML C-string
+/// @param str String with the XML contents, cannot be null.
+/// @param length The length of the string
+/// @return Returns a shared pointer with the built XML document.
+/// @throw XmlError If the string could not be parsed.
+XmlDoc::Ptr parse_cstring ( const char * str, std::size_t length = 0 );
+
 /// Writes the provided XML node to a file.
 /// @param node The node to write.
 /// @param fpath The file path to which the node has to be written.

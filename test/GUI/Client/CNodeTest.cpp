@@ -117,7 +117,7 @@ void CNodeTest::test_setProperties()
   MyNode node("Node");
 
   // an invalid tree (the type of fakePi option is unknown)
-  XmlDoc::Ptr wrongOpt = XmlDoc::parse_string(
+  XmlDoc::Ptr wrongOpt = XML::parse_cstring(
       "<node>"
       " <map>"
       "  <value key=\"properties\">"
@@ -137,7 +137,7 @@ void CNodeTest::test_setProperties()
   // (1) a string property (because "is_option" attribute is not defined)
   // (2) a bool property (because "is_option" attribute is set to false)
   // (3) a Real option
-  XmlDoc::Ptr correctOpt = XmlDoc::parse_string(
+  XmlDoc::Ptr correctOpt = XML::parse_cstring(
       "<node>"
       " <map>"
       "  <value key=\"properties\">"
@@ -210,7 +210,7 @@ void CNodeTest::test_setSignals()
   // my_signal3 : with readable name, description and missing hidden
   // my_signal4 : with readable name and missing description and hidden
   // my_signal5 : with nothing else but the mandatory key
-  XmlDoc::Ptr sigs = XmlDoc::parse_string(
+  XmlDoc::Ptr sigs = XML::parse_cstring(
       "<node>"
       " <map>"
       "  <value key=\"signals\">"
@@ -235,7 +235,7 @@ void CNodeTest::test_setSignals()
   QCOMPARE( list.size(), sigCount + 4 );
 
   // Below, the key is empty, we should have an assertion failure
-  sigs = XmlDoc::parse_string(
+  sigs = XML::parse_cstring(
       "<node>"
       " <map>"
       "  <value key=\"signals\">"
@@ -253,7 +253,7 @@ void CNodeTest::test_setSignals()
   QCOMPARE( list.size(), sigCount );
 
   // Below, the key is missing, we should have an assertion failure
-  sigs = XmlDoc::parse_string(
+  sigs = XML::parse_cstring(
       "<node>"
       " <map>"
       "  <value key=\"signals\">"
@@ -525,7 +525,7 @@ void CNodeTest::test_makeOption()
   //
   // 1. a Real option with a description
   //
-  xmldoc = XmlDoc::parse_string(
+  xmldoc = XML::parse_cstring(
       "<value key=\"theOption\" is_option=\"true\" descr=\"This is a description\">"
       "  <real>2.71</real>"
       "</value>");
@@ -543,7 +543,7 @@ void CNodeTest::test_makeOption()
   //
   // 2. an Uint option with a missing description
   //
-  xmldoc = XmlDoc::parse_string(
+  xmldoc = XML::parse_cstring(
       "<value key=\"theAnswer\" is_option=\"true\">"
       "  <integer>42</integer>"
       "</value>");
@@ -561,7 +561,7 @@ void CNodeTest::test_makeOption()
   //
   // 3. no key attribute
   //
-  xmldoc = XmlDoc::parse_string(
+  xmldoc = XML::parse_cstring(
       "<value is_option=\"true\">"
       "  <integer>42</integer>"
       "</value>");
@@ -776,8 +776,8 @@ void CNodeTest::test_makeOptionArrayTypes()
   //
   // 1. bool
   //
-  std::string str;
-  optBool.to_string(str);
+//  std::string str;
+//  optBool.to_string(str);
 //  qDebug() << "building phase" << str.c_str();
 //  GUI_CHECK_NO_THROW( option = MyNode::makeOption(optBool) );
 

@@ -24,18 +24,32 @@ namespace XML {
 
 XmlDoc::Ptr parse_string ( const std::string& str )
 {
+  return parse_cstring(str.c_str(), str.length());
+}
+
+XmlDoc::Ptr parse_cstring ( const char* str, std::size_t length )
+{
   using namespace rapidxml;
+
+  cf_assert( is_not_null(str) );
 
   xml_document<>* xmldoc = new xml_document<>();
 
-  char* ctext = xmldoc->allocate_string(str.c_str());
+  char* ctext = xmldoc->allocate_string(str, length);
 
-  // parser trims and merges whitespaces
-  xmldoc->parse< parse_no_data_nodes |
-                 parse_trim_whitespace /*|
-                 parse_normalize_whitespace*/ >(ctext);
+  try
+  {
+    // parser trims and merges whitespaces
+    xmldoc->parse< parse_no_data_nodes | parse_trim_whitespace >(ctext);
 
-  return boost::shared_ptr<XmlDoc>( new XmlDoc(xmldoc) );
+  }
+  catch(...)
+  {
+    throw XmlError(FromHere(), std::string("The string [") + str + "] could"
+                   "not be parsed.");
+  }
+
+  return XmlDoc::Ptr( new XmlDoc(xmldoc) );
 }
 
 

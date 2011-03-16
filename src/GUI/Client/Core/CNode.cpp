@@ -11,6 +11,9 @@
 #include <QVariant>
 #include <QDebug>
 
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/CF.hpp"
