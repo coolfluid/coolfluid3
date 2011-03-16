@@ -6,6 +6,8 @@
 
 #include <QTcpSocket>
 
+#include <QDebug>
+
 #include "Common/Log.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
@@ -31,24 +33,26 @@ namespace ClientCore {
 
 NetworkThread::NetworkThread(QObject *parent) :
     QThread(parent),
+    m_socket(nullptr),
     m_blockSize(0),
+    m_port(0),
     m_requestDisc(false)
 {
-  m_socket = new QTcpSocket(this);
-
-  connect(m_socket, SIGNAL(readyRead()), this, SLOT(newData()));
-  connect(m_socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-  connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
-          SLOT(socketError(QAbstractSocket::SocketError)));
-
-  connect(m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
+//  qDebug() << "ctrst" << this << this->thread() << m_socket->thread();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 NetworkThread::~NetworkThread()
 {
+  m_requestDisc = false;
+  m_socket->disconnectFromHost();
 
+  if(isRunning())
+  {
+    exit(0);
+    delete m_socket;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +61,9 @@ bool NetworkThread::connectToHost(const QString &hostAddress, quint16 port)
 {
   if(!isRunning())
   {
-    m_socket->connectToHost(hostAddress, port);
+    m_hostname = hostAddress;
+    m_port = port;
+//    m_socket->connectToHost(hostAddress, port);
     start();
     return true;
   }
@@ -178,6 +184,23 @@ void NetworkThread::newData()
 
 void NetworkThread::run()
 {
+  m_socket = new QTcpSocket();
+
+  connect(m_socket, SIGNAL(readyRead()), this, SLOT(newData()));
+  connect(m_socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+  connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
+          SLOT(socketError(QAbstractSocket::SocketError)));
+
+  connect(m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
+
+  m_socket->connectToHost(m_hostname, m_port);
+
+  if (!m_socket->waitForConnected())
+  {
+    socketError(m_socket->error());
+    return;
+  }
+
   // execute the event loop
   exec();
 }
@@ -213,6 +236,7 @@ void NetworkThread::socketError(QAbstractSocket::SocketError err)
   NLog::globalLog()->addError(QString("Network error: %1").arg(m_socket->errorString()));
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 } // ClientCore
 } // GUI

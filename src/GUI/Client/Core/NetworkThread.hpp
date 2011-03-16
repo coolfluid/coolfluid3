@@ -108,6 +108,10 @@ private: // data
 
   bool m_requestDisc;
 
+  QString m_hostname;
+
+  quint16 m_port;
+
 }; // NetworkThread
 
 ////////////////////////////////////////////////////////////////////////////////
