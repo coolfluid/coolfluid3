@@ -125,12 +125,12 @@ void GraphicalStringTest::test_signalEmmitting()
   // 2. by simulating keyboard events
   //
   value->show(); // make the value visible (it ignores keyboard events if not)
-  QTest::keyClicks(lineEdit, "Hello");
-  QTest::keyClicks(lineEdit, "World");
-  QTest::keyClicks(lineEdit, "And others ;)");
+  QTest::keyClicks(lineEdit, "Hello " );
+  QTest::keyClicks(lineEdit, "World " );
+  QTest::keyClicks(lineEdit, "And others ;)" );
 
-  // 23 signals should have been emitted (one per character)
-  QCOMPARE( spy.count(), 23 );
+  // 25 signals should have been emitted (one per character)
+  QCOMPARE( spy.count(), 25 );
 
   spy.clear();
   //

@@ -7,6 +7,7 @@ set(utest-client-ui_moc_classes
   GraphicalIntTest.hpp
   GraphicalStringTest.hpp
   GraphicalUintTest.hpp
+  GraphicalUriTest.hpp
   GraphicalValueTest.hpp
 )
 
@@ -25,6 +26,8 @@ list( APPEND utest-client-ui_files
   GraphicalStringTest.hpp
   GraphicalUintTest.cpp
   GraphicalUintTest.hpp
+  GraphicalUriTest.cpp
+  GraphicalUriTest.hpp
   GraphicalValueTest.cpp
   GraphicalValueTest.hpp
 )

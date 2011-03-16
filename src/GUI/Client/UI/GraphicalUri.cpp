@@ -21,7 +21,14 @@
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::ClientUI;
+
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+////////////////////////////////////////////////////////////////////////////
 
 GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent) :
     GraphicalValue(parent)
@@ -45,7 +52,7 @@ GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent)
   if(opt.get() != nullptr)
   {
     this->setValue(opt->value_str().c_str());
-    this->setProtocols(opt->supported_protocols());
+    this->setSchemes(opt->supported_protocols());
   }
 
   connect(m_btBrowse, SIGNAL(clicked()), this, SLOT(btBrowseClicked()));
@@ -56,8 +63,7 @@ GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent)
 
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 GraphicalUri::~GraphicalUri()
 {
@@ -66,26 +72,25 @@ GraphicalUri::~GraphicalUri()
   delete m_completer;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QVariant GraphicalUri::value() const
 {
   QString protocol = m_comboType->currentText();
   QString path = m_editPath->text();
+  QString currentScheme = path.left( path.indexOf(':') );
 
-  if(!path.isEmpty() && protocol == "cpath" && !path.startsWith("cpath"))
-    return QString("cpath:%1").arg(path);
-  else if(!path.isEmpty() && protocol == "file"  && !path.startsWith("file"))
-    return QString("file:%1").arg(path);
-  else
-    return path;
+  bool hasProtocol = m_comboType->findText(currentScheme) != -1;
+
+  if(!hasProtocol && !path.isEmpty())
+    return QString("%1:%2").arg(protocol).arg(path);
+
+  return path;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
-void GraphicalUri::setProtocols(const std::vector<URI::Scheme::Type> & list)
+void GraphicalUri::setSchemes(const std::vector<URI::Scheme::Type> & list)
 {
   m_comboType->clear();
 
@@ -99,14 +104,19 @@ void GraphicalUri::setProtocols(const std::vector<URI::Scheme::Type> & list)
   {
     std::vector<URI::Scheme::Type>::const_iterator it;
     for(it = list.begin() ; it != list.end() ; it++)
-      m_comboType->addItem(URI::Scheme::Convert::instance().to_str(*it).c_str());
+    {
+      QString scheme( URI::Scheme::Convert::instance().to_str(*it).c_str() );
+
+      if( m_comboType->findText(scheme) == -1 )
+        m_comboType->addItem(scheme);
+    }
+
   }
 
   changeType(m_comboType->currentText());
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 bool GraphicalUri::setValue(const QVariant & value)
 {
@@ -115,15 +125,14 @@ bool GraphicalUri::setValue(const QVariant & value)
     URI uriString(value.toString().toStdString());
 
     m_originalValue = uriString.string().c_str();
-    m_editPath->setText(uriString.path().c_str());
+    m_editPath->setText(uriString.string().c_str());
     return true;
   }
 
   return false;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void GraphicalUri::btBrowseClicked()
 {
@@ -150,16 +159,14 @@ void GraphicalUri::btBrowseClicked()
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void GraphicalUri::updateModel(const QString & path)
 {
   emit valueChanged();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void GraphicalUri::changeType(const QString & type)
 {
@@ -167,3 +174,9 @@ void GraphicalUri::changeType(const QString & type)
   m_editPath->setVisible(!type.isEmpty());
   m_editPath->setCompleter(type == "cpath" ? m_completer : nullptr);
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

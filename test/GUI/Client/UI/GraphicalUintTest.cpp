@@ -134,9 +134,9 @@ void GraphicalUintTest::test_signalEmmitting()
   //
   spinBox->clear();
   value->show(); // make the value visible (it ignores keyboard events if not)
-  QTest::keyClicks(spinBox, "+2014");
-  QTest::keyClicks(spinBox, "357");
-  QTest::keyClicks(spinBox, "aq45s2");
+  QTest::keyClicks(spinBox, "+2014" );
+  QTest::keyClicks(spinBox, "357" );
+  QTest::keyClicks(spinBox, "aq45s2" );
 
   // 10 signals should have been emitted (one per character)
   // (13 chars entered but '-', 'a', 'q' and 's' were ignored)
