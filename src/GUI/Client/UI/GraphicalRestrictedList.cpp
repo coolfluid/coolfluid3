@@ -38,15 +38,15 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
 
     if(type == "bool")              // bool option
       vectToStringList<bool>(vect, list);
-    else if(type == "Real")         // Real option
+    else if(type == "real")         // Real option
       vectToStringList<Real>(vect, list);
-    else if(type == "int")          // int option
+    else if(type == "integer")          // int option
       vectToStringList<int>(vect, list);
-    else if(type == "Uint")         // Uint option
+    else if(type == "unsigned")         // Uint option
       vectToStringList<Uint>(vect, list);
-    else if(type == "std::string")  // string option
+    else if(type == "string")  // string option
       vectToStringList<std::string>(vect, list);
-    else if(type == "URI")          // URI option
+    else if(type == "uri")          // URI option
       vectToStringList<URI>(vect, list);
     else
       throw CastingFailed(FromHere(), type + ": Unknown type");
