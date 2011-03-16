@@ -6,8 +6,6 @@
 
 #include <QTcpSocket>
 
-#include <QDebug>
-
 #include "Common/Log.hpp"
 #include "Common/XML/FileOperations.hpp"
 

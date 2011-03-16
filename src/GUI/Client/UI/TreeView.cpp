@@ -10,7 +10,6 @@
 #include <QMouseEvent>
 #include <QRegExp>
 #include <QSortFilterProxyModel>
-#include <QDebug>
 
 #include "Common/CF.hpp"
 

@@ -8,8 +8,6 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include <QDebug>
-
 #include "Common/URI.hpp"
 
 #include "GUI/Client/Core/NTree.hpp"

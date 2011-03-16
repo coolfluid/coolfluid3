@@ -11,8 +11,6 @@
 #include <QMenu>
 #include <QStatusBar>
 
-#include <QDebug>
-
 #include "Common/URI.hpp"
 #include "Common/Signal.hpp"
 

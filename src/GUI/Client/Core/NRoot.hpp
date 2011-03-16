@@ -84,7 +84,6 @@ namespace ClientCore {
     /// @brief The internal CRoot component
     CF::Common::CRoot::Ptr m_root;
 
-
     /// @brief Client UUID
     boost::uuids::uuid m_uuid;
 

@@ -9,7 +9,6 @@
 #include <QPoint>
 #include <QStringList>
 #include <QVariant>
-#include <QDebug>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -705,8 +704,6 @@ typename OptionArrayT<TYPE>::Ptr makeOptionArrayT(const std::string & name,
       option->restricted_list().push_back( *it );
   }
 
-  qDebug() << "before return" << option.get();
-
 
   return option;
 }
@@ -802,21 +799,10 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
     }
     else if( Map::is_array_value(node) )
     {
-      qDebug() << "here we have a" << type.c_str() << "option";
       if(type == Protocol::Tags::type<bool>() )
       {
         OptionArray::Ptr optArray;
         optArray = makeOptionArrayT<bool>(key_str, descr_str, node);
-        qDebug() << "returned" << optArray.get() <<
-            boost::dynamic_pointer_cast<OptionArray >(optArray).get() <<
-            boost::dynamic_pointer_cast<OptionArray >(optArray)->elem_type() <<
-            boost::dynamic_pointer_cast<OptionArrayT<bool> >(optArray).get() <<
-            boost::dynamic_pointer_cast<OptionArrayT<int> >(optArray).get() <<
-            boost::dynamic_pointer_cast<OptionArrayT<Uint> >(optArray).get() <<
-            boost::dynamic_pointer_cast<OptionArrayT<Real> >(optArray).get() <<
-            boost::dynamic_pointer_cast<OptionArrayT<std::string> >(optArray).get() <<
-            boost::dynamic_pointer_cast<OptionArrayT<URI> >(optArray).get();
-
       }
       else if(type == Protocol::Tags::type<int>() )
         option = makeOptionArrayT<int>(key_str, descr_str, node);

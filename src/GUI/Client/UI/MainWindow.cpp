@@ -18,8 +18,6 @@
 #include <QTabWidget>
 #include <QVBoxLayout>
 
-#include <QDebug>
-
 #include "Common/Exception.hpp"
 
 #include "GUI/Client/Core/TreeThread.hpp"

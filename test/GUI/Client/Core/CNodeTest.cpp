@@ -48,6 +48,29 @@ namespace ClientTest {
 
 //////////////////////////////////////////////////////////////////////////
 
+template<typename TYPE>
+bool compareVectors(const std::vector<TYPE> & left, const std::vector<TYPE> & right)
+{
+  bool equal = left.size() == right.size();
+
+  if(!equal)
+    qDebug() << "Sizes are different. Left has" << left.size() <<
+        "elements whereas right has"<< right.size() << "elements.";
+
+  for(unsigned int i = 0 ; i < left.size() && equal ; ++i)
+  {
+    equal = left[i] == right[i];
+
+    if(!equal)
+      qDebug() <<  "Item" << i << ": [" << Common::to_str(left[i]).c_str() <<
+          "] is different from [" << Common::to_str(right[i]).c_str() << "].";
+  }
+
+  return equal;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 void CNodeTest::test_getComponentType()
 {
   MyNode node("Node");

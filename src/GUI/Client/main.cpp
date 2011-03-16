@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
   QApplication app(argc, argv);
   int returnValue;
 
-//  JournalBrowserBuilder::instance();
+  JournalBrowserBuilder::instance();
 
   ThreadManager::instance().tree();
 

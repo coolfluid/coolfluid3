@@ -6,7 +6,6 @@
 
 #include <QDateTime>
 #include <QFileIconProvider>
-#include <QDebug>
 
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/list_of.hpp>

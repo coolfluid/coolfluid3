@@ -7,7 +7,6 @@
 #include <QDoubleSpinBox>
 #include <QVariant>
 #include <QVBoxLayout>
-#include <QDebug>
 
 #include "Math/MathConsts.hpp"
 

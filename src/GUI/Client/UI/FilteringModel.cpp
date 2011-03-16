@@ -6,7 +6,6 @@
 
 #include <QFileIconProvider>
 #include <QModelIndex>
-#include <QDebug>
 
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/UI/FilteringModel.hpp"

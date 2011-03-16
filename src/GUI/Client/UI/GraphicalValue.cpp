@@ -6,7 +6,6 @@
 
 #include <QHBoxLayout>
 #include <QRegExpValidator>
-#include <QDebug>
 
 #include "Math/MathConsts.hpp"
 
