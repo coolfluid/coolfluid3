@@ -131,7 +131,7 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
   out << (quint32)0;
   // if data is not converted to QString, the client receives q strqnge frame
   // composed of chinese/japanese chararcters
-  out << QString(signal_str.c_str());
+  out << signalStr.c_str();
   out.device()->seek(0); // go back to the beginning of the frame
   out << (quint32)(block.size() - sizeof(quint32)); // store the data size
 
@@ -331,9 +331,10 @@ void ServerNetworkComm::newData()
 
   try
   {
-    QString frame;
+    char * frame;
     QDataStream in(socket);
-    in.setVersion(QDataStream::Qt_4_6);
+
+    in.setVersion(QDataStream::Qt_4_6); // set stream version
 
     // if the client sends two messages very close in time, it is possible that
     // the server never gets the second one.
@@ -354,13 +355,18 @@ void ServerNetworkComm::newData()
       if (socket->bytesAvailable() < m_blockSize)
         return;
 
+
       in >> frame;
 
       qDebug() << frame;
 
       m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
 
-      XmlDoc::Ptr xmldoc = XML::parse_string( frame.toStdString() );
+      XmlDoc::Ptr xmldoc = XML::parse_string( frame );
+
+      // free the buffer
+      delete[] frame;
+      frame = nullptr;
 
       XmlNode nodedoc = Protocol::goto_doc_node(*xmldoc.get());
       SignalFrame * sig_frame = new SignalFrame( nodedoc.content->first_node() );
