@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include <QApplication>
 #include <QtTest>
 
@@ -23,7 +25,11 @@ using namespace CF::GUI::ClientTest;
 int main(int argc, char * argv[])
 {
 #ifdef Q_WS_X11
-  return 0;
+  if( getenv("DISPLAY") == 0 ) // if no graphical environment is found, we exit
+  {
+    std::cout << "No graphical enironment found, exiting..." << std::endl;
+    return 0;
+  }
 #endif
 
   QApplication app(argc, argv);
