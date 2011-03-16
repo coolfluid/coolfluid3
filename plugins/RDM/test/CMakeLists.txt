@@ -41,14 +41,6 @@ add_custom_command(TARGET utest-rdm-rotationadv2d
                 )
 
 ##########################################################################
-
-list( APPEND atest-rdm-burgers2d_reference ${CMAKE_CURRENT_SOURCE_DIR}/reference.msh )
-
-coolfluid_add_acceptance_test( atest-rdm-burgers2d burgers2d.cfscript )
-
-  coolfluid_debug_var(coolfluid-command_builds)
-  
-##########################################################################
   
 if( NOT CF_ENABLE_GPU OR NOT CF_ENABLE_OPENCL)
   set(utest-rdm-rotationadv2dgpu_condition FALSE)
@@ -65,3 +57,10 @@ endif()
                  #COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
   
+##########################################################################
+# acceptance tests
+
+list( APPEND atest-rdm-burgers2d_reference ${CMAKE_CURRENT_SOURCE_DIR}/reference.msh )
+
+coolfluid_add_acceptance_test( atest-rdm-burgers2d burgers2d.cfscript )
+

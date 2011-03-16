@@ -224,7 +224,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , rotationadv2d_local_fixture )
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   options.set_option<std::string>("Name","INTERNAL");
-  options.set_option<std::string>("Type","CF.RDM.SUPG");
+  options.set_option<std::string>("Type","CF.RDM.LDAGPU");
 
   options.set_array("Regions", regions, " ; ");
 

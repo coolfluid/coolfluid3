@@ -39,7 +39,7 @@ Common::ComponentBuilder < SUPG, RDM::DomainTerm, LibRDM > SUPG_Builder;
 /// Looper defines a functor taking the type that boost::mpl::for_each passes.
 /// It is the core of the looping mechanism.
 template < typename PHYS>
-struct ElementLoop
+struct SUPG::ElementLoop
 {
   /// region to loop on
   Mesh::CRegion& region;
@@ -51,6 +51,8 @@ struct ElementLoop
   template < typename SF >
   void operator() ( SF& T )
   {
+//    std::cout << "SUPG [" << SF::type_name() << "]" << std::endl;
+
     /// definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
     /// parametrization of the numerical scheme
@@ -103,19 +105,19 @@ void SUPG::execute()
 
     if ( physics == "LinearAdv2D" )
     {
-      ElementLoop<LinearAdv2D> loop( *this, *region );
+      SUPG::ElementLoop<LinearAdv2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 
     if ( physics == "RotationAdv2D" )
     {
-      ElementLoop<RotationAdv2D> loop( *this, *region );
+      SUPG::ElementLoop<RotationAdv2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 
     if ( physics == "Burgers2D" )
     {
-      ElementLoop<Burgers2D> loop( *this, *region );
+      SUPG::ElementLoop<Burgers2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
   }

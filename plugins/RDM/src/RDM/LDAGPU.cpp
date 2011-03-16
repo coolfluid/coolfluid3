@@ -41,7 +41,7 @@ Common::ComponentBuilder < LDAGPU, RDM::DomainTerm, LibRDM > LDAGPU_Builder;
 /// Looper defines a functor taking the type that boost::mpl::for_each passes.
 /// It is the core of the looping mechanism.
 template < typename PHYS>
-struct ElementLoop
+struct LDAGPU::ElementLoop
 {
   /// region to loop on
   Mesh::CRegion& region;
@@ -54,7 +54,7 @@ struct ElementLoop
   void operator() ( SF& T )
   {
   
-    std::cout << "LDA GPU ? " << std::endl;
+//    std::cout << "LDAGPU [" << SF::type_name() << "]" << std::endl;
     /// definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
     /// parametrization of the numerical scheme
@@ -109,19 +109,19 @@ void LDAGPU::execute()
 
     if ( physics == "LinearAdv2D" )
     {
-      ElementLoop<LinearAdv2D> loop( *this, *region );
+      LDAGPU::ElementLoop<LinearAdv2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 
     if ( physics == "RotationAdv2D" )
     {
-      ElementLoop<RotationAdv2D> loop( *this, *region );
+      LDAGPU::ElementLoop<RotationAdv2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 
     if ( physics == "Burgers2D" )
     {
-      ElementLoop<Burgers2D> loop( *this, *region );
+      LDAGPU::ElementLoop<Burgers2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
   }
