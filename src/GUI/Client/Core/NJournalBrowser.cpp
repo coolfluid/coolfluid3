@@ -203,10 +203,10 @@ void NJournalBrowser::setRootNode(const XmlNode * rootNode)
 
   m_rootNode = rootNode;
 
-  if(m_rootNode != nullptr)
-    m_doc = ClientRoot::instance().docFromPtr(new XmlDoc(m_rootNode->content->document()));
-  else
-    m_doc = boost::shared_ptr<XmlDoc>();
+//  if(m_rootNode != nullptr)
+//    m_doc = ClientRoot::instance().docFromPtr(new XmlDoc(m_rootNode->content->document()));
+//  else
+//    m_doc = boost::shared_ptr<XmlDoc>();
 
   m_children.clear();
 

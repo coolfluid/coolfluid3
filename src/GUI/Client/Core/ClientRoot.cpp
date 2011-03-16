@@ -6,7 +6,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/XML/FileOperations.hpp"
+#include "Common/Log.hpp"
 
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
@@ -14,8 +14,6 @@
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
-
-#include "GUI/Client/Core/ProcessingThread.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -66,51 +64,6 @@ ClientRoot::ClientRoot() :
   tree->setRoot(m_root);
 
   ThreadManager::instance().network().newSignal.connect( boost::bind(&ClientRoot::newSignal, this, _1));
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void ClientRoot::processSignalString(const QString & signal)
-{
-  XmlDoc::Ptr xmldoc = XML::parse_string( signal.toStdString() );
-
-  ProcessingThread * pt = new ProcessingThread(xmldoc);
-
-  m_threads[pt] = xmldoc;
-
-  m_currentDocs[xmldoc->content] = xmldoc;
-
-  connect(pt, SIGNAL(finished()), this, SLOT(processingFinished()));
-
-  pt->run();
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void ClientRoot::processingFinished()
-{
-  ProcessingThread * pt = static_cast<ProcessingThread*>(sender());
-
-  if(pt != nullptr && m_threads.contains(pt))
-  {
-    m_currentDocs.remove( m_threads[pt]->content );
-    m_threads.remove(pt);
-
-    delete pt;
-  }
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-boost::shared_ptr<XmlDoc> ClientRoot::docFromPtr(const XmlDoc *doc) const
-{
-  if(m_currentDocs.contains(doc->content))
-    return m_currentDocs[doc->content];
-
-  return boost::shared_ptr<XmlDoc>();
 }
 
 ////////////////////////////////////////////////////////////////////////////

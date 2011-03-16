@@ -7,7 +7,6 @@
 # List of classes to "moc"
 list( APPEND coolfluid_client_core_moc_classes
 CNode.hpp
-ClientRoot.hpp
 NetworkThread.hpp
 NJournalBrowser.hpp
 NJournal.hpp
@@ -15,7 +14,6 @@ NLog.hpp
 NRoot.hpp
 NTree.hpp
 NPlotXY.hpp
-ProcessingThread.hpp # moc'ed because the base class emits signals
 PropertyModel.hpp
 TreeNode.hpp
 )
@@ -55,8 +53,6 @@ NTree.cpp
 NTree.hpp
 NPlotXY.cpp
 NPlotXY.hpp
-ProcessingThread.cpp
-ProcessingThread.hpp
 PropertyModel.cpp
 PropertyModel.hpp
 SignalNode.cpp

@@ -9,7 +9,6 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include <QObject>
 #include <QMap>
 
 #include "GUI/Client/Core/NRoot.hpp"
@@ -34,25 +33,15 @@ class ProcessingThread;
 /// anytime.
 /// @author Quentin Gasper.
 
-class ClientCore_API ClientRoot : public QObject
+class ClientCore_API ClientRoot
 {
-  Q_OBJECT
-
 public:
 
   static ClientRoot & instance();
 
-  /// @brief Processes a signal from a string
-
-  /// The receiver is called on the desired signal.
-  /// @param signal Xml document with the signal description
-  void processSignalString(const QString & signal);
-
   /// @brief Gives the root UUID.
   /// @return Returns the root UUID.
   inline std::string getUUID() { return m_root->uuid(); }
-
-  Common::XML::XmlDoc::Ptr docFromPtr(const Common::XML::XmlDoc * doc) const;
 
   template<typename TYPE>
   typename TYPE::Ptr rootChild(const std::string & name) const
@@ -66,19 +55,11 @@ public:
 
   void newSignal(Common::XML::XmlDoc::Ptr doc);
 
-private slots:
-
-  void processingFinished();
-
 private:
 
   NRoot::Ptr m_root;
 
   ClientRoot();
-
-  QMap<ProcessingThread*, Common::XML::XmlDoc::Ptr > m_threads;
-
-  QMap<const rapidxml::xml_node<char> *, Common::XML::XmlDoc::Ptr > m_currentDocs;
 
 }; // ClientRoot
 
