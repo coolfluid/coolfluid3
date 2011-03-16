@@ -164,13 +164,6 @@ namespace XML {
     template<typename TYPE>
     std::vector<TYPE> array_to_vector ( const XmlNode & array_node ) const;
 
-  public: // data
-
-    /// The managed node.
-    XmlNode content;
-
-  private: // helper functions
-
     /// Splits a string and casts each resulting part to TYPE.
     /// @param str The string to split.
     /// @param delimiter The string that delimitates the parts. It will not
@@ -181,6 +174,13 @@ namespace XML {
     template <typename TYPE>
     static void split_string ( const std::string & str, const std::string & delimiter,
                                std::vector<TYPE> & result );
+
+  public: // data
+
+    /// The managed node.
+    XmlNode content;
+
+  private: // helper functions
 
     /// Checks whether the provided has the type TYPE.
     /// This function can be called for both single and array values.
