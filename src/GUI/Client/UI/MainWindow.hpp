@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_UI_MainWindow_h
-#define CF_GUI_Client_UI_MainWindow_h
+#ifndef CF_GUI_Client_UI_MainWindow_hpp
+#define CF_GUI_Client_UI_MainWindow_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -225,14 +225,6 @@ namespace ClientUI {
     /// @brief Creates actions and menus
     void buildMenus();
 
-    /// @brief Sets the client to a <i>simulation running</i> or a <i>simulation
-    /// not running</i> state by enabling or disabling certain m_options.
-
-    /// @param simRunning If @c true, the client is set to a <i>simulation
-    /// running</i> running state, otherwise it is set to a <i>simulation not
-    /// running</i> state.
-    void setSimRunning(bool simRunning);
-
     /// @brief Sets the client to a <i>file open</i> or a <i>file
     /// not open</i> state by enabling or disabling certain m_options.
 
@@ -248,55 +240,16 @@ namespace ClientUI {
     /// or @c SHUT_CANCEL if the user wants to cancel his action.
     int confirmClose();
 
-    /// @brief Saves a configuration tree from the current close confirmation
-    /// information.
-
-    /// @return Returns @c true if the tree was successfully saved; otherwise,
-    /// returns @c false.
-    bool saveFromInfos();
-
-    /// @brief Locally saves a configuration tree.
-
-    /// If the provided filename has "CFcase" extension, the tree will be saved
-    /// to CFCase format, otherwise it will be save to XCFcase format.
-    /// @param filename File name where the tree will be saved.
-    /// @return Returns @c true if the tree was successfully saved; otherwise,
-    /// returns @c false.
-    bool saveToFileLocally(const QString & filename);
-
-    /// @brief Remotely saves a configuration tree.
-
-    /// If the provided filename has "CFcase" extension, the tree will be saved
-    /// to CFCase format, otherwise it will be save to XCFcase format.
-    /// @param filename File name where the tree will be saved.
-    /// @return Returns @c true if the tree was successfully saved; otherwise,
-    /// returns @c false.
-    bool saveToFileRemotely(const QString & filename);
-
     /// @brief Shows an error message in a message box.
 
     /// @param errorMessage Error message to show.
     void showError(const QString & errorMessage);
 
-    /// @brief Shows an message in a message box.
-
-    /// @param message Message to show.
-    void showMessage(const QString & message);
-
-    /// @brief Shows an warning message in a message box.
-
-    /// @param message Warning message to show.
-    void showWarning(const QString & message);
-
-    /// @brief Saves commit information to a file if commit failed on
-    /// application exit.
-    void errorCommitOnExit();
-
     void setConnectedState(bool connected);
 
   }; // class MainWindow
 
-  //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 } // ClientUI
 } // GUI
@@ -304,4 +257,4 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_UI_MainWindow_h
+#endif // CF_GUI_Client_UI_MainWindow_hpp

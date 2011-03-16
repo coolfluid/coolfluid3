@@ -90,8 +90,6 @@ list( APPEND coolfluid_client_ui_files
   LoggingList.hpp
   MainWindow.cpp
   MainWindow.hpp
-  MenuActionInfo.cpp
-  MenuActionInfo.hpp
   OptionLayout.cpp
   OptionLayout.hpp
   NRemoteBrowser.cpp

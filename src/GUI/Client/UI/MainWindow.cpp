@@ -36,7 +36,6 @@
 
 #include "GUI/Client/UI/AboutCFDialog.hpp"
 #include "GUI/Client/UI/LoggingList.hpp"
-#include "GUI/Client/UI/MenuActionInfo.hpp"
 #include "GUI/Client/UI/CentralPanel.hpp"
 #include "GUI/Client/UI/Graph.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
@@ -55,11 +54,18 @@
 #define WORKSPACE_FILE QDir::homePath() + "/CF_workspace.xml"
 
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::ClientUI;
 using namespace CF::GUI::Network;
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
+
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+////////////////////////////////////////////////////////////////////////////
 
 MainWindow::MainWindow()
   : m_logFile(new QFile(QString("coolfluid_client-") +
@@ -137,9 +143,6 @@ MainWindow::MainWindow()
 
   connect(root, SIGNAL(connected()), this, SLOT(connectedToServer()));
 
-//  connect(root, SIGNAL(disconnectedFromServer()),
-//          this, SLOT(disconnectedFromServer()));
-
   connect(NTree::globalTree().get(),
           SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
           this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
@@ -151,8 +154,7 @@ MainWindow::MainWindow()
   NLog::globalLog()->addMessage("Client successfully launched.");
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+///////////////////////////////////////////////////////////////////////////
 
 MainWindow::~MainWindow()
 {
@@ -170,12 +172,14 @@ MainWindow::~MainWindow()
 //  m_logFile.close();
 }
 
- // PRIVATE METHODS
+
+//========================================================================
+//                                PRIVATE METHODS
+//========================================================================
 
 void MainWindow::buildMenus()
 {
-  MenuActionInfo actionInfo;
-  QAction * tmpAction;
+  QAction * action;
 
   m_mnuFile = new QMenu("&File", this);
   m_mnuOpenFile = new QMenu("&Open file", this);
@@ -183,79 +187,34 @@ void MainWindow::buildMenus()
   m_mnuView = new QMenu("&View", this);
   m_mnuHelp = new QMenu("&Help", this);
 
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuFile;
-  actionInfo.m_text = "&Connect to server";
-  actionInfo.m_shortcut = tr("ctrl+shift+C");
-  actionInfo.m_slot = SLOT(connectToServer());
 
-  m_actions[MainWindow::ACTION_CONNECT_TO_SERVER] = actionInfo.buildAction(this);
+  action = m_mnuFile->addAction("&Connect to server", this,
+                                SLOT(connectToServer()), tr("ctrl+shift+C"));
+  m_actions[ACTION_CONNECT_TO_SERVER] = action;
 
-  //-----------------------------------------------
+  action = m_mnuFile->addAction("&Disconnect from server", this,
+                                SLOT(disconnectFromServer()), tr("ctrl+shift+x"));
+  m_actions[ACTION_DISCONNECT_FROM_SERVER] = action;
 
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuFile;
-  actionInfo.m_text = "&Disconnect from server";
-  actionInfo.m_shortcut = tr("ctrl+shift+x");
-  actionInfo.m_slot = SLOT(disconnectFromServer());
-
-  m_actions[MainWindow::ACTION_DISCONNECT_FROM_SERVER] = actionInfo.buildAction(this);
-
-  //-----------------------------------------------
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuFile;
-  actionInfo.m_text = "&Shutdown the server";
-  actionInfo.m_shortcut = tr("ctrl+shift+K");
-  actionInfo.m_slot = SLOT(disconnectFromServer());
-
-  m_actions[MainWindow::ACTION_SHUTDOWN_SERVER] = actionInfo.buildAction(this);
-
-  //-----------------------------------------------
+  action = m_mnuFile->addAction("&Shutdown the server", this,
+                                SLOT(disconnectFromServer()), tr("ctrl+shift+K"));
+  m_actions[ACTION_SHUTDOWN_SERVER] = action;
 
   m_mnuFile->addSeparator();
 
   //-----------------------------------------------
 
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuOpenFile;
-  actionInfo.m_text = "&Locally";
-  actionInfo.m_shortcut = tr("ctrl+O");
-  actionInfo.m_slot = SLOT(openFileLocally());
+  action = m_mnuOpenFile->addAction("&Locally", this, SLOT(openFileLocally()), tr("ctrl+o"));
+  m_actions[ACTION_OPEN_LOCALLY] = action;
 
-  m_actions[MainWindow::ACTION_OPEN_LOCALLY] = actionInfo.buildAction(this);
+  action = m_mnuOpenFile->addAction("&Remotely", this, SLOT(openFileRemotely()), tr("ctrl+shift+o"));
+  m_actions[ACTION_OPEN_REMOTELY] = action;
 
-  //-----------------------------------------------
+  action = m_mnuOpenFile->addAction("&Locally", this, SLOT(saveFileLocally()), tr("ctrl+s"));
+  m_actions[ACTION_SAVE_LOCALLY] = action;
 
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuOpenFile;
-  actionInfo.m_text = "&Remotely";
-  actionInfo.m_shortcut = tr("ctrl+shift+O");
-  actionInfo.m_slot = SLOT(openFileRemotely());
-
-  m_actions[MainWindow::ACTION_OPEN_REMOTELY] = actionInfo.buildAction(this);
-
-  //-----------------------------------------------
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuSaveFile;
-  actionInfo.m_text = "&Locally";
-  actionInfo.m_shortcut = tr("ctrl+S");
-  actionInfo.m_slot = SLOT(saveFileLocally());
-
-  m_actions[MainWindow::ACTION_SAVE_LOCALLY] = actionInfo.buildAction(this);
-
-  //-----------------------------------------------
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuSaveFile;
-  actionInfo.m_text = "&Remotely";
-  actionInfo.m_shortcut = tr("ctrl+shift+S");
-  actionInfo.m_slot = SLOT(saveFileRemotely());
-
-  m_actions[MainWindow::ACTION_SAVE_REMOTELY] = actionInfo.buildAction(this);
-
-  //-----------------------------------------------
+  action = m_mnuOpenFile->addAction("&Remotely", this, SLOT(saveFileRemotely()), tr("ctrl+shift+s"));
+  m_actions[ACTION_SAVE_REMOTELY] = action;
 
   m_mnuFile->addMenu(m_mnuOpenFile);
   m_mnuFile->addMenu(m_mnuSaveFile);
@@ -263,155 +222,77 @@ void MainWindow::buildMenus()
 
   //-----------------------------------------------
 
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuFile;
-  actionInfo.m_text = "&Update tree";
-  actionInfo.m_shortcut = tr("ctrl+U");
-
-  tmpAction = actionInfo.buildAction(this);
-  connect(tmpAction, SIGNAL(triggered()), NTree::globalTree().get(), SLOT(updateTree()));
-  m_actions[MainWindow::ACTION_UPDATE_TREE] = tmpAction;
-
+  action = m_mnuFile->addAction("&Update tree", NTree::globalTree().get(),
+                                SLOT(updateTree()), tr("ctrl+u") );
+  m_actions[ACTION_UPDATE_TREE] = action;
 
   //-----------------------------------------------
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuView;
-  actionInfo.m_text = "&Clear log messages";
-
-  tmpAction = actionInfo.buildAction(this);
-
-  m_actions[MainWindow::ACTION_CLEAR_LOG] = tmpAction;
-  connect(tmpAction, SIGNAL(triggered()), this->m_logList , SLOT(clearLog()));
-
   //-----------------------------------------------
+
+  action = m_mnuView->addAction("&Clear log messages", this->m_logList , SLOT(clearLog()));
+  m_actions[ACTION_CLEAR_LOG] = action;
 
   m_mnuView->addSeparator();
 
   //-----------------------------------------------
 
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuView;
-  actionInfo.m_text = "&Find component";
-  actionInfo.m_shortcut = tr("ctrl+F");
+  m_mnuView->addAction("&Find component", m_treeBrowser, SLOT(focusFilter()), tr("ctrl+f") );
 
-  tmpAction = actionInfo.buildAction(this);
-
-  connect(tmpAction, SIGNAL(triggered()), m_treeBrowser, SLOT(focusFilter()));
-
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuView;
-  actionInfo.m_text = "&Toggle information pane";
-  actionInfo.m_shortcut = tr("ctrl+I");
-
-  tmpAction = actionInfo.buildAction(this);
-
-  tmpAction->setCheckable(true);
-
-  tmpAction->setChecked(true);
+  action = m_mnuView->addAction("&Toggle information pane");
+  action->setCheckable(true);
+  action->setChecked(true);
+  action->setShortcut( tr("ctrl+i") );
   m_tabWindow->setVisible(true);
-
-  m_actions[MainWindow::ACTION_TOGGLE_INFO_PANE] = tmpAction;
+  m_actions[ACTION_TOGGLE_INFO_PANE] = action;
 
   // QTabWidget overrides setVisible(bool) slot to hide/show the widget
   // contained in the tab. Since we want to hide/show the whole pane
   // (including tab bar), we need to cast the object to QWidget.
-  connect(tmpAction, SIGNAL(toggled(bool)), (QWidget*)this->m_tabWindow, SLOT(setVisible(bool)));
+  connect(action, SIGNAL(toggled(bool)), (QWidget*)this->m_tabWindow, SLOT(setVisible(bool)));
 
   //-----------------------------------------------
 
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuView;
-  actionInfo.m_text = "Toggle &advanced mode";
-  actionInfo.m_slot = SLOT(toggleAdvanced());
-  actionInfo.m_shortcut = tr("ctrl+X");
-  actionInfo.m_checkable = true;
+  action = m_mnuView->addAction("Toggle &advanced mode", this, SLOT(toggleAdvanced()), tr("ctrl+x"));
+  action->setCheckable(true);
+  m_actions[ACTION_TOGGLE_ADVANCED_MODE] = action;
 
-  m_actions[MainWindow::ACTION_TOGGLE_ADVANCED_MODE] = actionInfo.buildAction(this);
-
-  //-----------------------------------------------
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuView;
-  actionInfo.m_text = "Toggle &debug mode";
-  actionInfo.m_slot = SLOT(toggleDebugMode());
-  actionInfo.m_shortcut = tr("ctrl+D");
-  actionInfo.m_checkable = true;
-
-  m_actions[MainWindow::ACTION_TOGGLE_DEBUG_MODE] = actionInfo.buildAction(this);
+  action = m_mnuView->addAction("Toggle &debug mode", this, SLOT(toggleDebugMode()), tr("ctrl+d"));
+  action->setCheckable(true);
+  m_actions[ACTION_TOGGLE_DEBUG_MODE] = action;
 
   //-----------------------------------------------
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuHelp;
-  actionInfo.m_text = "&Help";
-  actionInfo.m_shortcut = tr("F1");
-  actionInfo.m_slot = SLOT(showHelp());
-
-  m_actions[MainWindow::ACTION_HELP] = actionInfo.buildAction(this);
-
   //-----------------------------------------------
+
+  action = m_mnuHelp->addAction("&Help", this, SLOT(showHelp()), tr("F1"));
+  m_actions[ACTION_HELP] = action;
 
   m_mnuView->addSeparator();
 
-  //-----------------------------------------------
+  action = m_mnuHelp->addAction("&About COOLFluiD", m_aboutCFDialog, SLOT(exec()));
+  m_actions[ACTION_ABOUT_COOLFLUID] = action;
 
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuHelp;
-  actionInfo.m_text = "&About CF";
-
-  tmpAction = actionInfo.buildAction(this);
-
-  m_actions[MainWindow::ACTION_ABOUT_COOLFLUID] = tmpAction;
-  connect(tmpAction, SIGNAL(triggered()), m_aboutCFDialog, SLOT(exec()));
-
-  //-----------------------------------------------
-
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuHelp;
-  actionInfo.m_text = "&About Qt";
-
-  tmpAction = actionInfo.buildAction(this);
-
-  m_actions[MainWindow::ACTION_ABOUT_COOLFLUID] = tmpAction;
-  connect(tmpAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+  action = m_mnuHelp->addAction("&About Qt", qApp, SLOT(aboutQt()));
+  m_actions[ACTION_ABOUT_QT] = action;
 
   //----------------------------------------------------
   //----------------------------------------------------
 
-//  m_treeView->addSimToMenuBar(this->menuBar());
   this->menuBar()->addMenu(m_mnuFile);
   this->menuBar()->addMenu(m_mnuView);
   this->menuBar()->addMenu(m_mnuHelp);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void MainWindow::setSimRunning(bool simRunning)
-{
-  //  this->optionPanel->setReadOnly(simRunning);
-  //  this->treeView->setReadOnly(simRunning);
-
-  m_mnuOpenFile->setEnabled(!simRunning);
-  m_mnuSaveFile->setEnabled(!simRunning);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::setFileOpen(bool fileOpen)
 {
   m_mnuSaveFile->setEnabled(fileOpen);
   m_centralPanel->setVisible(fileOpen);
 
-  m_treeView->setVisible(fileOpen);
+//  m_treeView->setVisible(fileOpen);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 int MainWindow::confirmClose()
 {
@@ -446,125 +327,11 @@ int MainWindow::confirmClose()
   return answer;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool MainWindow::saveFromInfos()
-{
-  bool ok = false;
-  // if the file has to be saved
-//  if(!m_infos.filename.isEmpty())
-//  {
-//    // if user wants to save it locally...
-//    if(m_infos.saveLocally)
-//    {
-//      if(!this->saveToFileLocally(m_infos.filename))
-//      {
-//        this->showError(QString("Configuration could not be saved to %1")
-//                        .arg(m_infos.filename));
-//      }
-
-//      else
-//        ok = true;
-//    }
-//    // ... or remotely
-//    else
-//      ok = this->saveToFileRemotely(m_infos.filename);
-//  } // for "if(!this->infos.filename.isEmpty())"
-
-  return ok;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool MainWindow::saveToFileLocally(const QString & filename)
-{
-  bool retValue = false;
-
-  if(filename.isEmpty())
-    return false;
-
-  try
-  {
-//    QFile file(filename);
-//    QTextStream out;
-//    QString tree = m_treeModel->getDocument().toString();
-//    XMLNode xmlNode = ConverterTools::xmlToXCFcase(tree.toStdString());
-
-//    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-//    {
-//      QString error = "Could not open file '%1' for write access: %2";
-//      TreeThread::getLog()->addError(error.arg(filename).arg(file.errorString()));
-//    }
-//    else
-//    {
-//      out.setDevice(&file);
-
-//      if(filename.endsWith(".CFcase"))
-//      {
-//        ConfigArgs args = ConverterTools::xCFcaseToConfigArgs(xmlNode);
-//        out << ConverterTools::configArgsToCFcase(args).c_str();
-//      }
-
-//      else
-//        out << xmlNode.createXMLString();
-
-//      file.close();
-
-//      TreeThread::getLog()->addMessage(QString("The configuration has been successfully "
-//                                 "written to '%1'.").arg(filename));
-//      retValue = true;
-//    }
-  }
-  catch(Exception & e)
-  {
-    NLog::globalLog()->addException(e.what());
-  }
-
-  return retValue;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool MainWindow::saveToFileRemotely(const QString & filename)
-{
-  if(!filename.isEmpty())
-  {
-//    QDomDocument doc = m_treeModel->getDocument();
-//    XMLNode node = ConverterTools::xmlToXCFcase(doc.toString().toStdString());
-//    doc.setContent(QString(node.createXMLString()));
-
-    return true;
-  }
-
-  else
-    return false;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::showError(const QString & errorMessage)
 {
   QMessageBox::critical(this, "Error", errorMessage);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void MainWindow::showMessage(const QString & message)
-{
-  QMessageBox::information(this, "Information", message);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void MainWindow::showWarning(const QString & message)
-{
-  QMessageBox::warning(this, "Warning", message);
 }
 
 /****************************************************************************
@@ -606,8 +373,7 @@ void MainWindow::quit()
   qApp->exit(0);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::toggleAdvanced()
 {
@@ -615,8 +381,7 @@ void MainWindow::toggleAdvanced()
   NTree::globalTree()->setAdvancedMode(advanced);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::toggleDebugMode()
 {
@@ -624,24 +389,21 @@ void MainWindow::toggleDebugMode()
   NTree::globalTree()->setDebugModeEnabled(debug);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::showHelp()
 {
   this->showError("There is no help for now!");
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::newException(const QString & msg)
 {
   this->showError(msg);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::connectToServer()
 {
@@ -663,24 +425,21 @@ void MainWindow::connectToServer()
   }
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::disconnectFromServer()
 {
   ThreadManager::instance().network().disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::connectedToServer()
 {
   this->setConnectedState(true);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::disconnectedFromServer()
 {
@@ -688,8 +447,7 @@ void MainWindow::disconnectedFromServer()
   NTree::globalTree()->clearTree();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::setConnectedState(bool connected)
 {
@@ -698,8 +456,7 @@ void MainWindow::setConnectedState(bool connected)
   m_actions[ACTION_SHUTDOWN_SERVER]->setEnabled(connected);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::saveFileLocally()
 {
@@ -709,8 +466,7 @@ void MainWindow::saveFileLocally()
   dlg.exec();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::saveFileRemotely()
 {
@@ -719,8 +475,7 @@ void MainWindow::saveFileRemotely()
 //  flg->show();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::openFileLocally()
 {
@@ -730,8 +485,7 @@ void MainWindow::openFileLocally()
   dlg.exec();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::openFileRemotely()
 {
@@ -739,16 +493,14 @@ void MainWindow::openFileRemotely()
   rop->show();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::newLogMessage(const QString & message, CF::GUI::Network::LogMessage::Type type)
 {
   m_logFile << message << '\n';
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::tabClicked(int num)
 {
@@ -756,8 +508,7 @@ void MainWindow::tabClicked(int num)
     m_propertyView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void MainWindow::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
@@ -769,3 +520,9 @@ void MainWindow::currentIndexChanged(const QModelIndex & newIndex, const QModelI
   text = text.arg(data["brief"]).arg(data["description"]);
   m_labDescription->setText(text.replace("\n","<br>"));
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF
