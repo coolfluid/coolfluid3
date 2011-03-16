@@ -40,6 +40,8 @@ public:
   /// @param parent The thread parent. May be null.
   NetworkThread(QObject *parent = 0);
 
+  ~NetworkThread();
+
   /// Attempts to connect to a remote host.
   /// @warning This is a non-blocking method. It does not wait the connection
   /// to be established. It sends a request to the system and returns directly
@@ -102,11 +104,7 @@ private: // data
 
   QTcpSocket * m_socket;
 
-  QString m_failureReason;
-
   quint32 m_blockSize;
-
-  bool m_success;
 
   bool m_requestDisc;
 

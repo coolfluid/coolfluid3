@@ -21,7 +21,9 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/SignalNode.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/NJournalBrowser.hpp"
 
@@ -228,7 +230,7 @@ void NJournalBrowser::requestJournal()
 {
   SignalFrame frame("list_journal", full_path(), SERVER_JOURNAL_PATH);
 
-  NCore::globalCore()->sendSignal(frame);
+  ThreadManager::instance().network().send(frame);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -269,7 +271,7 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
   ss << boost::uuids::random_generator()();
   frame.node.set_attribute( Protocol::Tags::attr_frameid(), ss.str());
 
-  NCore::globalCore()->sendSignal(frame);
+  ThreadManager::instance().network().send(frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////

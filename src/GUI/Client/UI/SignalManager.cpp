@@ -165,8 +165,8 @@ void SignalManager::signalSignature(SignalArgs & args)
             NLog::globalLog()->addException(ip.what());
           }
         }
-        else
-          NCore::globalCore()->sendSignal(frame);
+//        else
+//          NCore::globalCore()->sendSignal(frame);
       }
 
       delete sg;

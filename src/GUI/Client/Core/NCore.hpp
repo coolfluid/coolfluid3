@@ -30,7 +30,6 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class ClientNetworkComm;
   class StatusModel;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,59 +58,19 @@ namespace ClientCore {
     /// @brief Destructor
     ~NCore();
 
-    /// @brief Sends a signal to the network layer
-    /// @param signal The signal to send. Build the signal using @c #XmlOps and
-    /// @c #XmlParams classes.
-    void sendSignal(CF::Common::SignalArgs & signal);
-
-    /// @brief Attempts to connect to a server.
-    /// @param sshInfo Connection information
-    void connectToServer(const TSshInformation & sshInfo);
-
-    /// @brief Disconnects from the server
-    /// @param shutdown If @c true, a request to shutdwn the server application
-    /// is sent before the disconnection.
-    void disconnectFromServer(bool shutdown);
-
-    /// @brief Gives the text to put on a tool tip
-    /// @return The name of the class.
     virtual QString toolTip() const;
 
-    /// Indicates whether the client is connected to the server or not.
-
-    /// @return Returns @c true if the client is connected to a server;
-    /// otherwise returns @c false.
-    bool isConnected();
-
     static Ptr globalCore();
-
-  public slots:
-
-    /// @brief Sends a request to update de tree
-    void updateTree();
 
   private slots:
 
     /// @brief Slot called when the client is connected to the server.
-    void connected();
-
-    /// @brief Slot called when the client is disconnected from the server.
-    void disconnected();
-
-  signals:
-
-    /// @brief Signal emitted when a connection between the client and the server
-    /// has been established.
     void connectedToServer();
 
-    /// @brief Signal emitted when the connection between the client and the
-    /// server has been closed.
-    void disconnectedFromServer();
+    /// @brief Slot called when the client is disconnected from the server.
+//    void disconnected();
 
   private: // data
-
-    /// @brief The network layer
-    ClientNetworkComm * m_networkComm;
 
     /// @brief The current connection information.
     TSshInformation m_commSshInfo;

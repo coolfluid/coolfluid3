@@ -314,6 +314,9 @@ namespace ClientCore {
     /// Deletes all component that are not client component.
     void clearTree();
 
+    /// @brief Sends a request to update de tree
+    void updateTree() const;
+
   signals:
 
     /// @brief Signal emitted when the current index has changed.

@@ -85,15 +85,15 @@ std::string NRoot::uuid() const
 
 void NRoot::save_tree_local ( SignalArgs & )
 {
-  if( !NCore::globalCore()->isConnected() )
-    NLog::globalLog()->addError("The client needs to be connected to a server to do that.");
-  else
-  {
-    SignalFrame frame("save_tree", CLIENT_ROOT_PATH, SERVER_ROOT_PATH);
-    SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+//  if( !NCore::globalCore()->isConnected() )
+//    NLog::globalLog()->addError("The client needs to be connected to a server to do that.");
+//  else
+//  {
+//    SignalFrame frame("save_tree", CLIENT_ROOT_PATH, SERVER_ROOT_PATH);
+//    SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-    options.set_option("filename", URI("./server-tree.xml", URI::Scheme::FILE));
+//    options.set_option("filename", URI("./server-tree.xml", URI::Scheme::FILE));
 
-    NCore::globalCore()->sendSignal(frame);
-  }
+//    NCore::globalCore()->sendSignal(frame);
+//  }
 }

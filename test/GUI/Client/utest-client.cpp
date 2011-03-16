@@ -13,6 +13,7 @@
 #include "test/GUI/Client/NTreeTest.hpp"
 #include "test/GUI/Client/NLinkTest.hpp"
 
+using namespace CF::Common;
 using namespace CF::GUI::ClientTest;
 
 int main(int argc, char * argv[])

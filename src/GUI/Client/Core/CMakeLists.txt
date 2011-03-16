@@ -7,7 +7,6 @@
 # List of classes to "moc"
 list( APPEND coolfluid_client_core_moc_classes
 CNode.hpp
-ClientNetworkComm.hpp
 ClientRoot.hpp
 NetworkThread.hpp
 NJournalBrowser.hpp
@@ -28,8 +27,6 @@ QT4_WRAP_CPP(coolfluid_client_core_moc_files ${coolfluid_client_core_moc_classes
 list( APPEND coolfluid_client_core_files
 CNode.cpp
 CNode.hpp
-ClientNetworkComm.cpp
-ClientNetworkComm.hpp
 ClientRoot.cpp
 ClientRoot.hpp
 CommitDetails.cpp

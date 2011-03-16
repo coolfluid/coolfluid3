@@ -29,7 +29,6 @@
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/NLog.hpp"
-#include "GUI/Client/Core/ClientNetworkComm.hpp"
 #include "GUI/Client/UI/FilesListItem.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"
 
@@ -766,7 +765,7 @@ void NRemoteBrowser::openDir(const QString & path)
   options.set_option("includeNoExtensions", m_includeNoExtension);
   options.set_array("extensions", vect, " ; ");
 
-  m_clientCore->sendSignal(frame);
+//  m_clientCore->sendSignal(frame);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

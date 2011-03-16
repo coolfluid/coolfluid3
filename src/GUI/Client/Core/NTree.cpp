@@ -13,10 +13,12 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CNode.hpp"
+#include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
-#include "GUI/Client/Core/TreeNode.hpp"
 #include "GUI/Client/Core/NLink.hpp"
 #include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
+#include "GUI/Client/Core/TreeNode.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -621,6 +623,12 @@ void NTree::contentListed(Component::Ptr node)
   {
     emit currentIndexChanged(m_currentIndex, QModelIndex());
   }
+}
+
+void NTree::updateTree() const
+{
+  SignalFrame frame("list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
+  ThreadManager::instance().network().send(frame);
 }
 
 /*============================================================================

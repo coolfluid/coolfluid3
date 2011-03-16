@@ -23,13 +23,15 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"
-#include "GUI/Client/Core/NPlotXY.hpp"
 #include "GUI/Client/Core/NJournal.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NLink.hpp"
+#include "GUI/Client/Core/NPlotXY.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/CNode.hpp"
 
@@ -339,7 +341,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
     }
 
     if(valid)
-      NCore::globalCore()->sendSignal(frame);
+      ThreadManager::instance().network().send(frame);
   }
 }
 
@@ -816,7 +818,7 @@ void CNode::requestSignalSignature(const QString & name)
 
   frame.map( Protocol::Tags::key_options() ).set_option("name", name.toStdString());
 
-  NCore::globalCore()->sendSignal(frame);
+  ThreadManager::instance().network().send(frame);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -824,7 +826,7 @@ void CNode::requestSignalSignature(const QString & name)
 
 void CNode::update_tree(SignalArgs & node)
 {
-  NCore::globalCore()->updateTree();
+  NTree::globalTree()->updateTree();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -832,7 +834,8 @@ void CNode::update_tree(SignalArgs & node)
 
 void CNode::fetchContent()
 {
-  if(!m_contentListed && !m_listingContent && NCore::globalCore()->isConnected())
+  NetworkThread& network = ThreadManager::instance().network();
+  if(!m_contentListed && !m_listingContent && network.isConnected())
   {
     URI path;
 
@@ -843,7 +846,7 @@ void CNode::fetchContent()
 
     SignalFrame frame("list_content", path, path);
 
-    NCore::globalCore()->sendSignal(frame);
+    network.send(frame);
     m_listingContent = true;
   }
 }

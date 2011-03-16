@@ -12,10 +12,11 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/Signal.hpp"
 
-#include "GUI/Client/Core/ClientNetworkComm.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/ComponentNames.hpp"
@@ -31,10 +32,6 @@ using namespace CF::GUI::Network;
 NCore::NCore()
   : CNode(CLIENT_CORE, "NCore", CNode::CORE_NODE)
 {
-  m_networkComm = new ClientNetworkComm();
-
-  connect(m_networkComm, SIGNAL(connected()), this, SLOT(connected()));
-  connect(m_networkComm, SIGNAL(disconnectedFromServer()), this, SLOT(disconnected()));
 
   regist_signal("shutdown", "Server shutdown")->signal->connect(boost::bind(&NCore::shutdown, this, _1));
   regist_signal("client_registration", "Registration confirmation")->signal->connect(boost::bind(&NCore::client_registration, this, _1));
@@ -46,70 +43,15 @@ NCore::NCore()
 
 NCore::~NCore()
 {
-  delete m_networkComm;
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NCore::sendSignal(SignalArgs & signal)
-{
-  m_networkComm->send(signal);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NCore::connectToServer(const TSshInformation & sshInfo)
-{
-  m_networkComm->connectToServer(sshInfo.m_hostname, sshInfo.m_port, false);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NCore::disconnectFromServer(bool shutdown)
-{
-  m_networkComm->disconnectFromServer(shutdown);
-
-  disconnected();
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NCore::disconnected()
-{
-  NTree::globalTree()->setCurrentIndex(QModelIndex());
-
-  NLog::globalLog()->addMessage("Disconnected from the server.");
-
-  emit disconnectedFromServer();
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QString NCore::toolTip() const
 {
   return this->getComponentType();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NCore::updateTree()
-{
-  SignalFrame frame("list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
-  m_networkComm->send(frame);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool NCore::isConnected()
-{
-  return m_networkComm->isConnected();
 }
 
 /****************************************************************************
@@ -118,7 +60,7 @@ bool NCore::isConnected()
 
  ****************************************************************************/
 
-void NCore::connected()
+void NCore::connectedToServer()
 {
   // get some reference (for better readability)
   QString & host = m_commSshInfo.m_hostname;
@@ -134,7 +76,7 @@ void NCore::connected()
   // build and send signal
   SignalFrame frame("client_registration", CLIENT_CORE_PATH, SERVER_CORE_PATH);
 
-  m_networkComm->send(frame);
+  ThreadManager::instance().network().send(frame);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -143,7 +85,7 @@ void NCore::connected()
 void NCore::shutdown(SignalArgs & node)
 {
   NLog::globalLog()->addMessage("The server is shutting down. Disconnecting...");
-  this->disconnectFromServer(false);
+//  this->disconnectFromServer(false);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -154,14 +96,13 @@ void NCore::client_registration(SignalArgs & node)
   if( node.map(Protocol::Tags::key_options()).get_option<bool>("accepted") )
   {
     NLog::globalLog()->addMessage("Registration was successful.");
-    m_networkComm->saveNetworkInfo();
     emit connectedToServer();
-    this->updateTree();
+//    this->updateTree();
   }
   else
   {
     NLog::globalLog()->addError("Registration failed. Disconnecting...");
-    this->disconnectFromServer(false);
+//    this->disconnectFromServer(false);
   }
 }
 

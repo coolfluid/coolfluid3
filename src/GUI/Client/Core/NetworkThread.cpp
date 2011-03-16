@@ -30,14 +30,24 @@ namespace ClientCore {
 
 NetworkThread::NetworkThread(QObject *parent) :
     QThread(parent),
-    m_failureReason(),
     m_blockSize(0),
-    m_success(true),
     m_requestDisc(false)
 {
   m_socket = new QTcpSocket(this);
 
+  connect(m_socket, SIGNAL(readyRead()), this, SLOT(newData()));
+  connect(m_socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+  connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
+          SLOT(socketError(QAbstractSocket::SocketError)));
+
   connect(m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+NetworkThread::~NetworkThread()
+{
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

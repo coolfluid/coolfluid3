@@ -614,7 +614,7 @@ void MainWindow::closeEvent(QCloseEvent * event)
 
 void MainWindow::quit()
 {
-  NCore::globalCore()->disconnectFromServer(false);
+//  NCore::globalCore()->disconnectFromServer(false);
   qApp->exit(0);
 }
 
@@ -680,7 +680,7 @@ void MainWindow::connectToServer()
     sshInfo.m_hostname = frame.get_option<std::string>("Hostname").c_str();
     sshInfo.m_port = frame.get_option<CF::Uint>("Port number");
 
-    NCore::globalCore()->connectToServer(sshInfo);
+//    NCore::globalCore()->connectToServer(sshInfo);
   }
 }
 
@@ -689,7 +689,7 @@ void MainWindow::connectToServer()
 
 void MainWindow::disconnectFromServer()
 {
-  NCore::globalCore()->disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
+//  NCore::globalCore()->disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

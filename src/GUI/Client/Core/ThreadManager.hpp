@@ -27,6 +27,7 @@ class NetworkThread;
 /// @author Quentin Gasper.
 class ThreadManager
 {
+public:
 
   /// @return Returns the unique instance of this class.
   static ThreadManager & instance();
