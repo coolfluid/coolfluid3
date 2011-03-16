@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string.hpp>
+
 #include "Common/Log.hpp"
 
 // dlopen header
@@ -51,7 +53,7 @@ void* PosixDlopenLibLoader::call_dlopen(const boost::filesystem::path& fpath)
 
   void* hdl = nullptr;
 
-  CFinfo << "dlopen() loading library \'" << fpath.string() << "\'\n" << CFflush;
+//  CFinfo << "dlopen() loading library \'" << fpath.string() << "\'\n" << CFflush;
 
   // library name
   if ( fpath.is_complete() )
@@ -67,9 +69,9 @@ void* PosixDlopenLibLoader::call_dlopen(const boost::filesystem::path& fpath)
     std::vector< path >::const_iterator itr = m_search_paths.begin();
     for (; itr != m_search_paths.end() ; ++itr)
     {
-          CFinfo << "searching in [" << *itr << "]\n" << CFflush;
+//          CFinfo << "searching in [" << *itr << "]\n" << CFflush;
       path fullqname = *itr / fpath;
-          CFinfo << "fullqname [" << fullqname.string() << "]\n" << CFflush;
+//          CFinfo << "fullqname [" << fullqname.string() << "]\n" << CFflush;
       hdl = dlopen (fullqname.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
       if( hdl != nullptr ) break;
     }
@@ -82,6 +84,7 @@ void* PosixDlopenLibLoader::call_dlopen(const boost::filesystem::path& fpath)
 void PosixDlopenLibLoader::load_library(const std::string& lib)
 {
   using namespace boost::filesystem;
+  using namespace boost::algorithm;
 
   if (lib.empty()) return;
 
@@ -121,6 +124,10 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
 #ifdef CF_OS_WINDOWS
   filewext += noext + ".dll";
 #endif
+
+  // also check if name starts with 'lib'
+  if( !starts_with(filewext,"lib") )
+    filewext = "lib" + filewext;
 
   hdl = call_dlopen( basepath / path(filewext) );
 

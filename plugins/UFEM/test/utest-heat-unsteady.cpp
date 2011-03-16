@@ -32,6 +32,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   LibLoader& loader = *OSystem::instance().lib_loader();
 
   const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of
+                                                           ("../../../dso")
                                                            ("../src")
                                                            ("../../../src/Mesh/Neu")
                                                            ("../../../src/Mesh/Gmsh")
