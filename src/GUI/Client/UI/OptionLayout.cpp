@@ -9,7 +9,6 @@
 #include "Common/CF.hpp"
 
 #include "GUI/Client/Core/CommitDetails.hpp"
-#include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 #include "GUI/Client/UI/GraphicalValue.hpp"
 #include "GUI/Client/Core/TreeThread.hpp"

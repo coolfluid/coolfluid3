@@ -22,7 +22,6 @@
 #include "GUI/Client/Core/NTree.hpp"
 
 #include "GUI/Client/UI/FilteringModel.hpp"
-#include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 #include "GUI/Client/UI/CentralPanel.hpp"
 #include "GUI/Client/UI/SignalManager.hpp"

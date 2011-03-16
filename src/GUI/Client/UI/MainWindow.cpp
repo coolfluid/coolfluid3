@@ -43,9 +43,6 @@
 
 #include "GUI/Client/UI/MainWindow.hpp"
 
-#define connectSig(comm,slotSig) connect(comm, SIGNAL(slotSig), this, SLOT(slotSig));
-#define connectKernel(slotSig) connect(m_treeView, SIGNAL(slotSig), \
-&ClientCore::instance(), SLOT(slotSig));
 #define WORKSPACE_FILE QDir::homePath() + "/CF_workspace.xml"
 
 using namespace CF::GUI::ClientCore;

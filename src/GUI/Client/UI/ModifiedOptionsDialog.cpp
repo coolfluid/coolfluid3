@@ -11,12 +11,12 @@
 
 #include "GUI/Client/Core/CommitDetails.hpp"
 
-#include "GUI/Client/UI/CommitDetailsDialog.hpp"
+#include "GUI/Client/UI/ModifiedOptionsDialog.hpp"
 
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 
-CommitDetailsDialog::CommitDetailsDialog(QWidget * parent)
+ModifiedOptionsDialog::ModifiedOptionsDialog(QWidget * parent)
 : QDialog(parent)
 {
   //CommitDetails details;
@@ -37,7 +37,7 @@ CommitDetailsDialog::CommitDetailsDialog(QWidget * parent)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CommitDetailsDialog::~CommitDetailsDialog()
+ModifiedOptionsDialog::~ModifiedOptionsDialog()
 {
  delete m_mainLayout;
  delete m_buttonBox;
@@ -47,7 +47,7 @@ CommitDetailsDialog::~CommitDetailsDialog()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CommitDetailsDialog::show(CommitDetails & details)
+void ModifiedOptionsDialog::show(CommitDetails & details)
 {
   if (details.rowCount() > 0)
   {

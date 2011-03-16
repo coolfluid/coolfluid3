@@ -21,7 +21,7 @@
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 
-#include "GUI/Client/UI/CommitDetailsDialog.hpp"
+#include "GUI/Client/UI/ModifiedOptionsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 #include "GUI/Client/UI/GraphicalValue.hpp"
 #include "GUI/Client/UI/OptionLayout.hpp"
@@ -327,7 +327,7 @@ void CentralPanel::dataChanged(const QModelIndex & first, const QModelIndex & la
 void CentralPanel::btSeeChangesClicked()
 {
   CommitDetails details;
-  CommitDetailsDialog dialog;
+  ModifiedOptionsDialog dialog;
 
   this->modifiedOptions(details);
   dialog.show(details);
