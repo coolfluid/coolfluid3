@@ -2,8 +2,6 @@
 # Add the project files
 list( APPEND coolfluid_network_files
   ComponentNames.hpp
-  ComponentType.cpp
-  ComponentType.hpp
   LibNetwork.cpp
   LibNetwork.hpp
   LogMessage.cpp

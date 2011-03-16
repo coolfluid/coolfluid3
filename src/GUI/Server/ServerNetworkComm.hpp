@@ -14,7 +14,6 @@
 #include <QList>
 #include <QMutex>
 
-#include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/LogMessage.hpp"
 
 class QHostAdress;
@@ -26,15 +25,7 @@ class QString;
 
 
 namespace CF {
-
 namespace GUI {
-
-namespace Network
-{
-  class ComponentType;
-  struct FrameInfos;
-}
-
 namespace Server {
 
 /////////////////////////////////////////////////////////////////////////////
