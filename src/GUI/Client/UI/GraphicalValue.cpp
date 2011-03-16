@@ -33,7 +33,9 @@ GraphicalValue::GraphicalValue(QWidget *parent) :
     m_parent(parent),
     m_committing(false)
 {
-  this->m_layout = new QHBoxLayout(this);
+  m_layout = new QHBoxLayout(this);
+
+  m_layout->setMargin(0);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

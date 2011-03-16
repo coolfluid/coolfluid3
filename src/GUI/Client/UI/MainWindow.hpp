@@ -19,14 +19,12 @@
 
 #include "GUI/Client/UI/LibClientUI.hpp"
 
-class QGridLayout;
 class QLabel;
 class QModelIndex;
 class QScrollArea;
 class QSplitter;
 class QTabWidget;
 class QTextEdit;
-class QVBoxLayout;
 class QTableView;
 
 ////////////////////////////////////////////////////////////////////////////////

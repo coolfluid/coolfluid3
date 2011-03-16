@@ -38,6 +38,8 @@ TreeBrowser::TreeBrowser(TreeView * view, QWidget *parent) :
   m_buttonsLayout = new QGridLayout();
   m_mainLayout = new QVBoxLayout(this);
 
+  m_mainLayout->setMargin(0);
+
   m_btPrevious->setArrowType(Qt::LeftArrow);
   m_btNext->setArrowType(Qt::RightArrow);
 
