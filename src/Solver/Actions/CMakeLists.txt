@@ -37,56 +37,36 @@ list( APPEND coolfluid_solver_actions_files
   LibActions.cpp
 )
 
+list( APPEND coolfluid_solver_actions_proto_files
+    Proto/BlockAccumulator.hpp
+    Proto/CProtoElementsAction.hpp
+    Proto/CProtoFieldAction.hpp
+    Proto/CProtoNodesAction.hpp
+    Proto/DirichletBC.hpp
+    Proto/EigenTransforms.hpp
+    Proto/ElementData.hpp
+    Proto/ElementGrammar.hpp
+    Proto/ElementLooper.hpp
+    Proto/ElementMatrix.hpp
+    Proto/ElementOperations.hpp
+    Proto/ElementTransforms.hpp
+    Proto/ExpressionGroup.hpp
+    Proto/ForEachDimension.hpp
+    Proto/Functions.hpp
+    Proto/NeumannBC.hpp
+    Proto/NodeData.hpp
+    Proto/NodeGrammar.hpp
+    Proto/NodeLooper.hpp
+    Proto/Terminals.hpp
+    Proto/Transforms.hpp
+)
+
 option( CF_ENABLE_PROTO            "Build boost::proto related code for expressions"               ON )
 
-if(CF_ENABLE_PROTO)
-  list( APPEND coolfluid_solver_actions_files 
-    Proto/BlockAccumulator.hpp
-    Proto/CProtoElementsAction.hpp
-    Proto/CProtoFieldAction.hpp
-    Proto/CProtoNodesAction.hpp
-    Proto/DirichletBC.hpp
-    Proto/EigenTransforms.hpp
-    Proto/ElementData.hpp
-    Proto/ElementGrammar.hpp
-    Proto/ElementLooper.hpp
-    Proto/ElementMatrix.hpp
-    Proto/ElementOperations.hpp
-    Proto/ElementTransforms.hpp
-    Proto/ExpressionGroup.hpp
-    Proto/ForEachDimension.hpp
-    Proto/Functions.hpp
-    Proto/NeumannBC.hpp
-    Proto/NodeData.hpp
-    Proto/NodeGrammar.hpp
-    Proto/NodeLooper.hpp
-    Proto/Terminals.hpp
-    Proto/Transforms.hpp
-  )
+if( CF_ENABLE_PROTO )
+  list( APPEND coolfluid_solver_actions_files ${coolfluid_solver_actions_proto_files} )
 else()
-  coolfluid_mark_not_orphan(
-    Proto/BlockAccumulator.hpp
-    Proto/CProtoElementsAction.hpp
-    Proto/CProtoFieldAction.hpp
-    Proto/CProtoNodesAction.hpp
-    Proto/DirichletBC.hpp
-    Proto/EigenTransforms.hpp
-    Proto/ElementData.hpp
-    Proto/ElementGrammar.hpp
-    Proto/ElementLooper.hpp
-    Proto/ElementMatrix.hpp
-    Proto/ElementOperations.hpp
-    Proto/ElementTransforms.hpp
-    Proto/ExpressionGroup.hpp
-    Proto/ForEachDimension.hpp
-    Proto/Functions.hpp
-    Proto/NeumannBC.hpp
-    Proto/NodeData.hpp
-    Proto/NodeGrammar.hpp
-    Proto/NodeLooper.hpp
-    Proto/Terminals.hpp
-    Proto/Transforms.hpp
-  )
+  coolfluid_mark_not_orphan( ${coolfluid_solver_actions_proto_files} )
 endif()
 
 set( coolfluid_solver_actions_kernellib TRUE )
