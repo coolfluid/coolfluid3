@@ -119,13 +119,11 @@ void NRoot::save_tree_local ( SignalArgs & )
 void NRoot::connectedToServer()
 {
   // get some reference (for better readability)
-  QString & host = m_commSshInfo.m_hostname;
-  quint16 & port = m_commSshInfo.m_port;
 
   QString msg1 = "Now connected to server '%1' on port %2.";
   QString msg2 = "Attempting to register with UUID %1.";
 
-  NLog::globalLog()->addMessage(msg1.arg(host).arg(port));
+//  NLog::globalLog()->addMessage(msg1.arg(host).arg(port));
   NLog::globalLog()->addMessage(msg2.arg(uuid().c_str()));
 
   // build and send signal

@@ -15,8 +15,6 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
-#include "GUI/Client/Core/TSshInformation.hpp"
-
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -96,8 +94,6 @@ namespace ClientCore {
 
     /// @brief Client UUID
     boost::uuids::uuid m_uuid;
-
-    TSshInformation m_commSshInfo;
 
   private: // helper functions
     /// @name Signals

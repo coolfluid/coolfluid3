@@ -63,7 +63,6 @@ SignalNode.cpp
 SignalNode.hpp
 ThreadManager.cpp
 ThreadManager.hpp
-TSshInformation.hpp
 TreeNode.cpp
 TreeNode.hpp
 )

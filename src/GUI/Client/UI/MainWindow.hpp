@@ -15,8 +15,6 @@
 #include <QMenu>
 #include <QTextStream>
 
-#include "GUI/Client/Core/TSshInformation.hpp"
-
 #include "GUI/Network/LogMessage.hpp"
 
 #include "GUI/Client/UI/LibClientUI.hpp"

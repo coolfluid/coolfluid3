@@ -673,7 +673,6 @@ void MainWindow::connectToServer()
 {
   SignalFrame frame("connect", "", "");
   SignatureDialog dlg(this);
-  TSshInformation sshInfo;
 
   frame.set_option("Hostname", std::string("localhost"),
                    "Name of the computer that hosts the server.");
@@ -682,11 +681,11 @@ void MainWindow::connectToServer()
 
   if(dlg.show(frame.main_map.content, "Connect to server"))
   {
-    sshInfo.m_hostname = frame.get_option<std::string>("Hostname").c_str();
-    sshInfo.m_port = frame.get_option<CF::Uint>("Port number");
+    QString hostname = frame.get_option<std::string>("Hostname").c_str();
+    quint16 port = frame.get_option<CF::Uint>("Port number");
 
 
-    ThreadManager::instance().network().connectToHost(sshInfo.m_hostname, sshInfo.m_port);
+    ThreadManager::instance().network().connectToHost(hostname, port);
   }
 }
 

@@ -13,8 +13,6 @@
 
 #include "GUI/Network/ComponentType.hpp"
 
-#include "GUI/Client/Core/TSshInformation.hpp"
-
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 class QMainWindow;
