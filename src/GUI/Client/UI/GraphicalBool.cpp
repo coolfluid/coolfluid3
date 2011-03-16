@@ -7,59 +7,74 @@
 #include <QCheckBox>
 #include <QVBoxLayout>
 
+#include "Common/StringConversion.hpp"
+
 #include "GUI/Client/UI/GraphicalBool.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientUI;
 
-GraphicalBool::GraphicalBool(Option::ConstPtr opt, QWidget * parent)
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
+
+GraphicalBool::GraphicalBool(bool value, QWidget * parent)
   : GraphicalValue(parent)
 {
   m_checkBox = new QCheckBox(this);
 
   m_layout->addWidget(m_checkBox);
 
-  if(opt.get() != nullptr)
-    this->setValue(opt->value<bool>());
+  this->setValue(value);
 
   connect(m_checkBox, SIGNAL(stateChanged(int)), this, SLOT(stateChanged(int)));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 GraphicalBool::~GraphicalBool()
 {
   delete m_checkBox;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 bool GraphicalBool::setValue(const QVariant & value)
 {
+  bool valid = true;
+
   if(value.type() == QVariant::Bool)
     m_checkBox->setChecked(value.toBool());
+  else if(value.type() == QVariant::String)
+    m_checkBox->setChecked( from_str<bool>( value.toString().toStdString() ));
   else
-    m_checkBox->setChecked(value.toString() == "true" || value.toString() == "yes");
+    valid = false;
 
-  m_originalValue = value;
+  if(valid)
+    m_originalValue = value;
 
-  return true;
+  return valid;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 QVariant GraphicalBool::value() const
 {
   return m_checkBox->isChecked();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void GraphicalBool::stateChanged(int state)
 {
   emit valueChanged();
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

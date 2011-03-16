@@ -10,6 +10,7 @@
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
 
+#include "test/GUI/Client/UI/GraphicalBoolTest.hpp"
 #include "test/GUI/Client/UI/GraphicalValueTest.hpp"
 
 using namespace CF::GUI::ClientTest;
@@ -25,6 +26,7 @@ int main(int argc, char * argv[])
 
   CF::AssertionManager::instance().AssertionThrows = true;
 
+  passed += QTest::qExec(new GraphicalBoolTest(), argc, argv);
   passed += QTest::qExec(new GraphicalValueTest(), argc, argv);
 
   return passed;

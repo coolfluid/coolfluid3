@@ -413,7 +413,7 @@ void GraphicalValueTest::test_createFromOptionArrayRestrValues()
 
 //////////////////////////////////////////////////////////////////////////
 
-const QValidator * GraphicalValueTest::arrayValidator(GraphicalArray* array)
+const QValidator * GraphicalValueTest::arrayValidator(const GraphicalArray* array)
 {
   // /!\ WARNING /!\
   // THE FOLLOWING CODE IS EXTREMELY SENSITIVE TO ANY MODIFICATION

@@ -28,8 +28,15 @@
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::ClientUI;
 using namespace CF::Math;
+
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
 
 GraphicalValue::GraphicalValue(QWidget *parent) :
     QWidget(parent),
@@ -40,16 +47,14 @@ GraphicalValue::GraphicalValue(QWidget *parent) :
   m_layout->setMargin(0);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 GraphicalValue::~GraphicalValue()
 {
   delete m_layout;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
                                                   QWidget * parent)
@@ -70,7 +75,7 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
       std::string type(option->type());
 
       if(type == Protocol::Tags::type<bool>())               // bool option
-        value = new GraphicalBool(option, parent);
+        value = new GraphicalBool(option->value<bool>(), parent);
       else if(type == Protocol::Tags::type<Real>())          // Real option
         value = new GraphicalDouble(option, parent);
       else if(type == Protocol::Tags::type<int>())           // int option
@@ -127,8 +132,7 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
   return value;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 QString GraphicalValue::valueString() const
 {
@@ -140,16 +144,14 @@ QString GraphicalValue::valueString() const
   return value.toString();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 QVariant GraphicalValue::originalValue() const
 {
   return m_originalValue;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 QString GraphicalValue::originalValueString() const
 {
@@ -159,19 +161,23 @@ QString GraphicalValue::originalValueString() const
   return m_originalValue.toString();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 bool GraphicalValue::isModified() const
 {
   return originalValueString() != valueString();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void GraphicalValue::commit()
 {
   m_originalValue = value();
   emit valueChanged();
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

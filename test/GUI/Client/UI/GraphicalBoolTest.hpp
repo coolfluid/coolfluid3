@@ -4,43 +4,48 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_uTests_GraphicalValueTest_hpp
-#define CF_GUI_Client_uTests_GraphicalValueTest_hpp
+
+#ifndef CF_GUI_Client_uTests_GraphicalBoolTest_hpp
+#define CF_GUI_Client_uTests_GraphicalBoolTest_hpp
 
 #include <QObject>
 
-class QValidator;
+class QCheckBox;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace GUI {
 
-namespace ClientUI { class GraphicalArray; }
+namespace ClientUI { class GraphicalBool; }
 
 namespace ClientTest {
 
 //////////////////////////////////////////////////////////////////////////
 
-class GraphicalValueTest : public QObject
+class GraphicalBoolTest : public QObject
 {
   Q_OBJECT
 
 private slots:
 
-  void test_createFromOption();
+  void test_constructor();
 
-  void test_createFromOptionArray();
+  void test_setValue();
 
-  void test_createFromOptionRestrValues();
+  void test_value();
 
-  void test_createFromOptionArrayRestrValues();
+  void test_signalEmmitting();
+
+  void test_valueString();
+
+  void test_isModified();
 
 private:
 
-  const QValidator * arrayValidator(const ClientUI::GraphicalArray* array);
+  QCheckBox * findCheckBox(const ClientUI::GraphicalBool* value);
 
-}; // GraphicalValueTest
+};
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -50,4 +55,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_uTests_GraphicalValueTest_hpp
+#endif // CF_GUI_Client_uTests_GraphicalBoolTest_hpp

@@ -19,15 +19,14 @@ namespace CF {
 namespace GUI {
 namespace ClientUI {
 
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
   class ClientUI_API GraphicalBool : public GraphicalValue
   {
     Q_OBJECT
   public:
 
-    GraphicalBool(CF::Common::Option::ConstPtr opt = CF::Common::Option::ConstPtr(),
-                  QWidget * parent = 0);
+    GraphicalBool(bool value = false, QWidget * parent = 0);
 
     ~GraphicalBool();
 
@@ -47,7 +46,7 @@ namespace ClientUI {
 
   }; // class GraphicalBool
 
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 } // ClientUI
 } // GUI
