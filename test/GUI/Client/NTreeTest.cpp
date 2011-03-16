@@ -562,22 +562,22 @@ void NTreeTest::test_indexIsVisible()
   QModelIndex myNodeIndex = t.indexFromPath( myNode->full_path() );
 
   // 1. invalid index
-  QVERIFY( !t.indexIsVisible( QModelIndex() ) );
+  QVERIFY( !t.isIndexVisible( QModelIndex() ) );
 
   // 2. check with the root (should always be visible)
-  QVERIFY( t.indexIsVisible( t.index(0,0) ) );
+  QVERIFY( t.isIndexVisible( t.index(0,0) ) );
 
   //
   // 3. checks with a non-local but advanced component
   //
   // 3a. in basic mode (components are advanced by default)
-  QVERIFY( !t.indexIsVisible( nodeIndex ) );
+  QVERIFY( !t.isIndexVisible( nodeIndex ) );
   // 3b. in advanced mode
   t.setAdvancedMode(true);
-  QVERIFY( t.indexIsVisible( nodeIndex ) );
+  QVERIFY( t.isIndexVisible( nodeIndex ) );
   // 3c. in advanced mode with the component marked as basic
   node->mark_basic();
-  QVERIFY( t.indexIsVisible( nodeIndex ) );
+  QVERIFY( t.isIndexVisible( nodeIndex ) );
 
   t.setAdvancedMode(true);
 
@@ -585,16 +585,16 @@ void NTreeTest::test_indexIsVisible()
   // 4. checks with a non-local but advanced component
   //
   // 4a. in basic mode (components are advanced by default)
-  QVERIFY( !t.indexIsVisible( myNodeIndex ) );
+  QVERIFY( !t.isIndexVisible( myNodeIndex ) );
   // 4b. in advanced mode
   t.setAdvancedMode(true);
-  QVERIFY( !t.indexIsVisible( myNodeIndex ) );
+  QVERIFY( !t.isIndexVisible( myNodeIndex ) );
   // 4c. in advanced mode with the component marked as basic
   myNode->mark_basic();
-  QVERIFY( !t.indexIsVisible( myNodeIndex ) );
+  QVERIFY( !t.isIndexVisible( myNodeIndex ) );
   // 4d. in debug mode
   t.setDebugModeEnabled(true);
-  QVERIFY( t.indexIsVisible( myNodeIndex ) );
+  QVERIFY( t.isIndexVisible( myNodeIndex ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -277,7 +277,7 @@ namespace ClientCore {
     /// @param index Index of the node to check
     /// @return Returns @c true if the node is visible. Otherwise, returns
     /// @c false (i.e. the index is not valid).
-    bool indexIsVisible(const QModelIndex & index) const;
+    bool isIndexVisible(const QModelIndex & index) const;
 
     /// @brief Resolves the provided URI from the current index path.
 

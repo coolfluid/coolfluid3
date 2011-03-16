@@ -53,4 +53,6 @@ bool FilteringModel::filterAcceptsRow(int row, const QModelIndex & parent) const
     return sourceModel()->data(index).isValid() && tree->nodeMatches(index, filterRegExp());
   else
     return QSortFilterProxyModel::filterAcceptsRow(row, parent);
+
+  return true;
 }

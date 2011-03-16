@@ -329,7 +329,7 @@ bool NTree::nodeMatches(const QModelIndex & index, const QRegExp & regex) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool NTree::indexIsVisible(const QModelIndex & index) const
+bool NTree::isIndexVisible(const QModelIndex & index) const
 {
   bool visible = false;
 
@@ -337,11 +337,12 @@ bool NTree::indexIsVisible(const QModelIndex & index) const
   {
     CNode::Ptr node = this->indexToNode(index);
 
-    if(node.get() != nullptr)
+    if( is_not_null(node.get()) )
     {
       visible = node->has_tag("basic") || m_advancedMode;
       visible &= (!node->isLocalComponent() || m_debugModeEnabled);
     }
+
   }
 
   return visible;
@@ -366,7 +367,7 @@ QVariant NTree::data(const QModelIndex & index, int role) const
 {
   QVariant data;
 
-  if(indexIsVisible(index))
+  if(isIndexVisible(index))
   {
     CNode::Ptr node = this->indexToNode(index);
 
@@ -618,9 +619,8 @@ QString NTree::toolTip() const
 
 bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
 {
-  bool match = regex.exactMatch(node->name().c_str());
+  bool match = QString(node->name().c_str()).contains(regex);
   ComponentIterator<CNode> it = node->begin<CNode>();
-
 
   for( ; it != node->end<CNode>() ; it++)
     match |= (m_debugModeEnabled || !it->isLocalComponent()) && this->nodeMatchesRec(it.get(), regex);

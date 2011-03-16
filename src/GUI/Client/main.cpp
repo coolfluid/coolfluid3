@@ -13,6 +13,8 @@
 #include "Common/NetworkInfo.hpp"
 #include "Common/Exception.hpp"
 
+#include "GUI/Client/Core/ThreadManager.hpp"
+
 #include "GUI/Client/UI/MainWindow.hpp"
 #include "GUI/Client/UI/JournalBrowserDialog.hpp"
 
@@ -26,6 +28,8 @@ int main(int argc, char *argv[])
   int returnValue;
 
 //  JournalBrowserBuilder::instance();
+
+  ThreadManager::instance().tree();
 
   CF::AssertionManager::instance().AssertionThrows = true;
   CF::AssertionManager::instance().AssertionDumps = true;
