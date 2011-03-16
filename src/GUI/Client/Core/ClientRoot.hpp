@@ -23,8 +23,6 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////
 
-class ProcessingThread;
-
 /// @brief Manages the client root node
 
 /// This class ensures that the root node is available from anywhere, at
