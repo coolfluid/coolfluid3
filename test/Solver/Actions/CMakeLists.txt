@@ -58,6 +58,6 @@ if(CF_ENABLE_PROTO)
 
 else()
 
-  coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-benchmark.cpp utest-proto-systems.cpp utest-proto-unsteady.cpp)
+  coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-benchmark.cpp utest-proto-systems.cpp utest-proto-unsteady.cpp utest-proto-operators.cpp)
 
 endif()
