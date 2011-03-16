@@ -43,20 +43,18 @@ QWidget(parent)
   m_ptr_plot = ptr_plot;
   m_graph_parent = (Graph *) parent;
 
-  QVBoxLayout * vertical_graph_option_layout = new QVBoxLayout();
-  this->setLayout(vertical_graph_option_layout);
   QHBoxLayout * horisontal_table_layout = new QHBoxLayout();
   QVBoxLayout * vertical_line_table_layout = new QVBoxLayout();
-  QVBoxLayout * vertical_data_table_layout = new QVBoxLayout();
   QVBoxLayout * vertical_line_button_layout = new QVBoxLayout();
-  QHBoxLayout * horisontal_function_name_layout = new QHBoxLayout();
-  QHBoxLayout * horisontal_function_function_layout = new QHBoxLayout();
+
+  QGridLayout * grid_data_table_layout = new QGridLayout();
+
+  this->setLayout(horisontal_table_layout);
 
   //creating and initialising the option table with 5 columns
   m_line_table = new QTableWidget(0,5,this);
   //creating and initialising the data table with 2 columns
   m_data_table = new QTableWidget(0,2,this);
-  m_data_table->setFixedWidth(270);
 
   //add line button
   QPushButton * button_add_line = new QPushButton("Add");
@@ -89,12 +87,9 @@ QWidget(parent)
   button_draw = new QPushButton("Set AutoScale");
 
   m_line_function_name = new QLineEdit();
-  m_line_function_name->setFixedWidth(200);
   m_line_function = new QLineEdit();
-  m_line_function->setFixedWidth(200);
 
   button_generate_function = new QPushButton("Generate Function");
-  button_generate_function->setFixedWidth(270);
 
   set_data(fcts,fcts_label);
 
@@ -102,32 +97,27 @@ QWidget(parent)
   vertical_line_table_layout->addWidget(m_line_table);
   vertical_line_table_layout->addWidget(button_draw);
 
-  vertical_data_table_layout->addWidget(m_data_table);
-
   QLabel * name_fct = new QLabel("Name :");
-  name_fct->setFixedWidth(70);
-  horisontal_function_name_layout->addWidget(name_fct);
-  horisontal_function_name_layout->addWidget(m_line_function_name);
-
   QLabel * fct_fct = new QLabel("Function :");
-  fct_fct->setFixedWidth(70);
-  horisontal_function_function_layout->addWidget(fct_fct);
-  horisontal_function_function_layout->addWidget(m_line_function);
 
-  vertical_data_table_layout->addLayout(horisontal_function_name_layout);
-  vertical_data_table_layout->addLayout(horisontal_function_function_layout);
+  //data part
+  grid_data_table_layout->addWidget(m_data_table,0,0,1,2);
+  grid_data_table_layout->addWidget(name_fct,1,0,1,1);
+  grid_data_table_layout->addWidget(m_line_function_name,1,1,1,1);
+  grid_data_table_layout->addWidget(fct_fct,2,0,1,1);
+  grid_data_table_layout->addWidget(m_line_function,2,1,1,1);
+  grid_data_table_layout->addWidget(button_generate_function,3,0,1,2);
 
-  vertical_data_table_layout->addWidget(button_generate_function);
-
+  //button line part
   vertical_line_button_layout->addWidget(button_add_line);
   vertical_line_button_layout->addWidget(button_select_all);
   vertical_line_button_layout->addWidget(button_clear_selection);
   vertical_line_button_layout->addWidget(button_remove_line);
 
-  horisontal_table_layout->addLayout(vertical_data_table_layout);
+  //main option layout
+  horisontal_table_layout->addLayout(grid_data_table_layout);
   horisontal_table_layout->addLayout(vertical_line_table_layout);
   horisontal_table_layout->addLayout(vertical_line_button_layout);
-  vertical_graph_option_layout->addLayout(horisontal_table_layout);
 
   connect (button_draw, SIGNAL (clicked()), this, SLOT (draw_and_resize()));
   connect (button_generate_function, SIGNAL (clicked()), this, SLOT (generate_function()));
@@ -340,7 +330,7 @@ void  GraphOption::generate_function(QString name,QString formula){
                           variable.toStdString().c_str());
 
   if(res > 0){
-    ClientCore::NLog::globalLog()->addError("The function is not recognized. res<0");
+    ClientCore::NLog::globalLog()->addError("The function is not recognized.");
     button_generate_function->setEnabled(true);
     return;
   }
@@ -351,7 +341,7 @@ void  GraphOption::generate_function(QString name,QString formula){
   {
     max_it = m_fcts->size();
   }else{
-    ClientCore::NLog::globalLog()->addError("The function is not recognized. m_fcts.size()>0");
+    ClientCore::NLog::globalLog()->addError("The function is not recognized.");
     button_generate_function->setEnabled(true);
     return;
   }

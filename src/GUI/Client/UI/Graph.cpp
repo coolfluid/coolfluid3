@@ -73,27 +73,22 @@ namespace ClientUI {
 
     ////creation phase
 
-    //creat a grid layout
-    QGridLayout * layout_grid = new QGridLayout();
+    //creat main vertical layout
+    QVBoxLayout * layout_main_graph_v = new QVBoxLayout();
 
-    //creat layout
-    QHBoxLayout * layout_h = new QHBoxLayout();
-    QHBoxLayout * layout_h2 = new QHBoxLayout();
-    QHBoxLayout * layout_h3 = new QHBoxLayout();
+    //creat graph vertical layout
+    QVBoxLayout * layout_graph_v = new QVBoxLayout();
 
-    m_layout_zoom = new QHBoxLayout();
-    QHBoxLayout * layout_zoom_option_point = new QHBoxLayout();
-    QHBoxLayout * layout_zoom_option_size = new QHBoxLayout();
-
-    QVBoxLayout * layout_zoom_option = new QVBoxLayout();
+    //create scale grid layout
+    QGridLayout * layout_zoom_grid = new QGridLayout();
 
     QHBoxLayout * layout_option = new QHBoxLayout();
 
     //create group box
-    QGroupBox * m_scale_box = new QGroupBox("Scale");
+    QGroupBox * m_scale_box = new QGroupBox("Show Scale");
     m_scale_box->setCheckable(true);
 
-    QGroupBox * m_options_box = new QGroupBox("Options");
+    QGroupBox * m_options_box = new QGroupBox("Show Options");
     m_options_box->setCheckable(true);
 
     //creat the BodePlot
@@ -131,6 +126,12 @@ namespace ClientUI {
     //creating label to display information
     m_label_bottom = new QLabel(this);
 
+    //set scale labels
+    m_label_min_x = new QLabel("x min");
+    m_label_max_x = new QLabel("x max");
+    m_label_min_y = new QLabel("y min");
+    m_label_max_y = new QLabel("y max");
+
     //set scale inline system
     m_line_min_x = new QLineEdit();
     m_line_min_x->setValidator(new QDoubleValidator(nullptr));
@@ -145,14 +146,13 @@ namespace ClientUI {
     ////Placment and initialisation
 
     //assign the grid layout to this widget
-    this->setLayout(layout_grid);
+    this->setLayout(layout_main_graph_v);
 
-    //adding 3 horizontal layout to grid layout
-    layout_grid->addLayout(layout_h,0,0,1,1);
-    layout_grid->addLayout(layout_h2,1,0,1,1);
-    layout_grid->addLayout(layout_h3,2,0,1,1);
-    layout_grid->addWidget(m_scale_box,3,0,1,1);
-    layout_grid->addWidget(m_options_box,4,0,1,1);
+    //adding 3 elements
+    layout_main_graph_v->addLayout(layout_graph_v);
+    layout_main_graph_v->addWidget(m_scale_box);
+    layout_main_graph_v->addWidget(m_options_box);
+
 
     setContextMenuPolicy(Qt::NoContextMenu);
 
@@ -191,36 +191,29 @@ namespace ClientUI {
     show_info();
 
     //adding widget to layout to make the composant visible and well placed
-    layout_h->addWidget(tool_bar);
-    layout_h2->addWidget(m_plot);
-    layout_h3->addWidget(m_label_bottom);
 
-    m_label_min_x = new QLabel("x min");
-    m_label_max_x = new QLabel("x max");
-    m_label_min_y = new QLabel("y min");
-    m_label_max_y = new QLabel("y max");
-    layout_zoom_option_point->addWidget(m_label_min_x);
-    layout_zoom_option_point->addWidget(m_line_min_x);
-    layout_zoom_option_point->addWidget(m_label_max_x);
-    layout_zoom_option_point->addWidget(m_line_max_x);
-    layout_zoom_option_size->addWidget(m_label_min_y);
-    layout_zoom_option_size->addWidget(m_line_min_y);
-    layout_zoom_option_size->addWidget(m_label_max_y);
-    layout_zoom_option_size->addWidget(m_line_max_y);
+    layout_graph_v->addWidget(tool_bar);
+    layout_graph_v->addWidget(m_plot);
+    layout_graph_v->addWidget(m_label_bottom);
 
-    layout_zoom_option->addLayout(layout_zoom_option_point);
-    layout_zoom_option->addLayout(layout_zoom_option_size);
-
-    m_layout_zoom->addLayout(layout_zoom_option);
-    m_layout_zoom->addWidget(m_button_set_scale);
+    //the setscale box
+    layout_zoom_grid->addWidget(m_label_min_x,0,0,1,1);
+    layout_zoom_grid->addWidget(m_line_min_x,0,1,1,1);
+    layout_zoom_grid->addWidget(m_label_max_x,0,2,1,1);
+    layout_zoom_grid->addWidget(m_line_max_x,0,3,1,1);
+    layout_zoom_grid->addWidget(m_label_min_y,1,0,1,1);
+    layout_zoom_grid->addWidget(m_line_min_y,1,1,1,1);
+    layout_zoom_grid->addWidget(m_label_max_y,1,2,1,1);
+    layout_zoom_grid->addWidget(m_line_max_y,1,3,1,1);
+    layout_zoom_grid->addWidget(m_button_set_scale,0,4,2,1);
 
     NPlotXY::PlotDataPtr plot_data( new NPlotXY::PlotData() );
-    std::vector<QString> vector_temp2(0);
-    graph_option = new GraphOption(plot_data,vector_temp2,m_plot,this);
+    std::vector<QString> vector_temp(0);
+    graph_option = new GraphOption(plot_data,vector_temp,m_plot,this);
 
     layout_option->addWidget(graph_option);
 
-    m_scale_box->setLayout(m_layout_zoom);
+    m_scale_box->setLayout(layout_zoom_grid);
     m_options_box->setLayout(layout_option);
 
     ////Conncetion phase

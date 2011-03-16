@@ -105,9 +105,6 @@ private: //data
   /// Set scale button
   QPushButton * m_button_set_scale;
 
-  /// scale layout
-  QHBoxLayout * m_layout_zoom;
-
 public slots: //slots
 
   /// Reset the base scale zoom.
