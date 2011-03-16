@@ -10,7 +10,7 @@ char* opencl_errstring(cl_int err)
 {
     switch (err)
     {
-        case CL_SUCCESS:                          return strdup("Success!");
+       /* case CL_SUCCESS:                          return strdup("Success!");
         case CL_DEVICE_NOT_FOUND:                 return strdup("Device not found.");
         case CL_DEVICE_NOT_AVAILABLE:             return strdup("Device not available");
         case CL_COMPILER_NOT_AVAILABLE:           return strdup("Compiler not available");
@@ -56,7 +56,7 @@ char* opencl_errstring(cl_int err)
         case CL_INVALID_GL_OBJECT:                return strdup("Invalid OpenGL object");
         case CL_INVALID_BUFFER_SIZE:              return strdup("Invalid buffer size");
         case CL_INVALID_MIP_LEVEL:                return strdup("Invalid mip-map level");
-        default:                                  return strdup("Unknown");
+        default:                                  return strdup("Unknown");*/
     }
 }
 

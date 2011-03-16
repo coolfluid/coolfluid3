@@ -45,6 +45,20 @@ list( APPEND coolfluid_rdm_files
   Burgers2D.cpp
 )
 
+list( APPEND coolfluid_rdm_gpu_files 
+          LDAGPU.hpp
+          LDAGPU.cpp
+          LDAOpenCL.hpp
+          LDAOpenCL.cpp
+          SchemeLDAGPU.hpp          
+)
+   
+if(CF_ENABLE_GPU AND CF_ENABLE_OPENCL)
+  list( APPEND coolfluid_rdm_files ${coolfluid_rdm_gpu_files})
+else()
+  coolfluid_mark_not_orphan(${coolfluid_rdm_gpu_files})
+endif()
+
 list( APPEND coolfluid_rdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_solver_actions coolfluid_solver )
 
 coolfluid_add_library( coolfluid_rdm )
