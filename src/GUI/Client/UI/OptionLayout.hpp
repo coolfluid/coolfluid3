@@ -11,7 +11,7 @@
 
 #include <QLabel>
 #include <QLineEdit>
-#include <QList>
+#include <QMap>
 #include <QObject>
 #include <QFormLayout>
 
@@ -104,7 +104,7 @@ namespace ClientUI {
   private:
 
     /// @brief List containing basic m_options components.
-    QList<GraphicalValue *> m_options;
+    QMap<QString, GraphicalValue *> m_options;
 
      /// @brief Indicates if the panel is in advanced mode or not.
 

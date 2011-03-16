@@ -41,15 +41,14 @@ OptionLayout::~OptionLayout()
 
 void OptionLayout::options(QMap<QString, QString> & options, bool all) const
 {
-  QList<GraphicalValue *>::const_iterator it = m_options.begin();
+  QMap<QString, GraphicalValue *>::const_iterator it = m_options.begin();
 
   for( ; it != m_options.end() ; it++)
   {
-    GraphicalValue * value = *it;
-    QLabel * label = static_cast<QLabel*>(labelForField(*it));
+    GraphicalValue * value = it.value();
 
     if(all || value->isModified())
-      options[ label->text() ] = value->valueString();
+      options[ it.key() ] = value->valueString();
   }
 }
 
@@ -58,10 +57,10 @@ void OptionLayout::options(QMap<QString, QString> & options, bool all) const
 
 void OptionLayout::commitOpions()
 {
-  QList<GraphicalValue *>::const_iterator it = m_options.begin();
+  QMap<QString, GraphicalValue *>::const_iterator it = m_options.begin();
 
   for( ; it != m_options.end() ; it++)
-    (*it)->commit();
+    it.value()->commit();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -69,12 +68,11 @@ void OptionLayout::commitOpions()
 
 void OptionLayout::clearOptions()
 {
-  QList<GraphicalValue *>::iterator it = m_options.begin();
+  QMap<QString, GraphicalValue *>::const_iterator it = m_options.begin();
 
   while(it != m_options.end())
   {
-    delete labelForField(*it); // delete the associated label
-    delete *it;
+    delete it.value();
     it++;
   }
 
@@ -88,10 +86,10 @@ bool OptionLayout::isModified() const
 {
   bool modified = false;
 
-  QList<GraphicalValue *>::const_iterator it = m_options.begin();
+  QMap<QString, GraphicalValue *>::const_iterator it = m_options.begin();
 
   for( ; it != m_options.end() && !modified ; it++)
-    modified = (*it)->isModified();
+    modified = it.value()->isModified();
 
   return modified;
 }
@@ -101,19 +99,18 @@ bool OptionLayout::isModified() const
 
 void OptionLayout::modifiedOptions(CommitDetails & commitDetails) const
 {
-  QList<GraphicalValue *>::const_iterator it = m_options.begin();
+  QMap<QString, GraphicalValue *>::const_iterator it = m_options.begin();
 
   while(it != m_options.end())
   {
-    GraphicalValue * value = *it;
+    GraphicalValue * value = it.value();
 
     if(value->isModified())
     {
       QString oldValue = value->originalValueString();
       QString newValue = value->valueString();
-      QLabel * label = static_cast<QLabel*>(labelForField(*it));
 
-      commitDetails.setOption(label->text(), oldValue, newValue);
+      commitDetails.setOption(it.key(), oldValue, newValue);
     }
 
     it++;
@@ -126,12 +123,13 @@ void OptionLayout::modifiedOptions(CommitDetails & commitDetails) const
 void OptionLayout::addOption(CF::Common::Option::ConstPtr option)
 {
   GraphicalValue * value = GraphicalValue::createFromOption(option);
+  QString name(option->name().c_str());
 
-  m_options.append(value);
+  m_options[name] = value;
 
   value->setToolTip(option->description().c_str());
 
-  addRow(option->name().c_str(), value);
+  addRow(name + ':', value);
 
   // forward the signal
   connect(value, SIGNAL(valueChanged()), this, SIGNAL(valueChanged()));
