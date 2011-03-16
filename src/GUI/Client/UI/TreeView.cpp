@@ -134,7 +134,7 @@ QIcon TreeView::iconFromIndex(const QModelIndex & index)
 
 void TreeView::selectItem(const URI & path)
 {
-  QModelIndex index = NTree::globalTree()->indexByPath(path);
+  QModelIndex index = NTree::globalTree()->indexFromPath(path);
 
   if(index.isValid())
   {
