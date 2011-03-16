@@ -20,7 +20,14 @@
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::ClientUI;
+
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
 
 SelectPathDialog::SelectPathDialog(QWidget *parent) :
     QDialog(parent),
@@ -57,8 +64,7 @@ SelectPathDialog::SelectPathDialog(QWidget *parent) :
   connect(m_editPath, SIGNAL(textChanged(QString)), this, SLOT(pathChanged(QString)));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 URI SelectPathDialog::show(const URI & path)
 {
@@ -75,8 +81,7 @@ URI SelectPathDialog::show(const URI & path)
     return URI();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void SelectPathDialog::btOkClicked()
 {
@@ -84,8 +89,7 @@ void SelectPathDialog::btOkClicked()
   this->setVisible(false);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void SelectPathDialog::btCancelClicked()
 {
@@ -93,8 +97,7 @@ void SelectPathDialog::btCancelClicked()
   this->setVisible(false);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void SelectPathDialog::itemClicked(const QModelIndex & index)
 {
@@ -102,8 +105,7 @@ void SelectPathDialog::itemClicked(const QModelIndex & index)
   m_editPath->setText(m_treeView->selectedPath().path().c_str());
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void SelectPathDialog::pathChanged(const QString & path)
 {
@@ -143,3 +145,9 @@ void SelectPathDialog::pathChanged(const QString & path)
     catch(InvalidURI & ip) {}
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

@@ -14,7 +14,13 @@
 
 #include "GUI/Client/UI/AboutCFDialog.hpp"
 
-using namespace CF::GUI::ClientUI;
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
 
 AboutCFDialog::AboutCFDialog(QWidget * parent)
   : QDialog(parent)
@@ -43,8 +49,7 @@ AboutCFDialog::AboutCFDialog(QWidget * parent)
   connect(m_btOK, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 AboutCFDialog::~AboutCFDialog()
 {
@@ -54,8 +59,7 @@ AboutCFDialog::~AboutCFDialog()
   delete m_mainLayout;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 AboutCFDialog::CFInfo::CFInfo(const QString & name, const QString & value,
                               QFormLayout * parent)
@@ -66,11 +70,16 @@ AboutCFDialog::CFInfo::CFInfo(const QString & name, const QString & value,
   parent->addRow(this->labName, this->labValue);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 AboutCFDialog::CFInfo::~CFInfo()
 {
   delete this->labName;
   delete this->labValue;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

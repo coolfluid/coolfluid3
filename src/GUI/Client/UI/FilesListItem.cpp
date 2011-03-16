@@ -8,7 +8,13 @@
 
 #include "GUI/Client/UI/FilesListItem.hpp"
 
-using namespace CF::GUI::ClientUI;
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
 
 FilesListItem::FilesListItem(const QIcon & icon, const QString & text,
                              FilesListItemType type)
@@ -20,10 +26,15 @@ FilesListItem::FilesListItem(const QIcon & icon, const QString & text,
   m_type = type;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 FilesListItemType FilesListItem::getType() const
 {
   return m_type;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

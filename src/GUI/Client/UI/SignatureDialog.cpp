@@ -23,7 +23,14 @@
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::ClientUI;
+
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
 
 SignatureDialog::SignatureDialog(QWidget *parent) :
     QDialog(parent),
@@ -41,16 +48,14 @@ SignatureDialog::SignatureDialog(QWidget *parent) :
   connect(m_buttons, SIGNAL(rejected()), this, SLOT(btCancelClicked()));
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 SignatureDialog::~SignatureDialog()
 {
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 bool SignatureDialog::show(XmlNode & sig, const QString & title, bool block)
 {
@@ -97,8 +102,7 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title, bool block)
   return m_okClicked;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void SignatureDialog::btOkClicked()
 {
@@ -145,8 +149,7 @@ void SignatureDialog::btOkClicked()
     this->setVisible(false);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void SignatureDialog::btCancelClicked()
 {
@@ -155,3 +158,9 @@ void SignatureDialog::btCancelClicked()
 
   this->setVisible(false);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

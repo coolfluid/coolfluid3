@@ -11,7 +11,13 @@
 
 #include "GUI/Client/Core/NBrowser.hpp"
 
-using namespace CF::GUI::ClientCore;
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientCore {
+
+////////////////////////////////////////////////////////////////////////////
 
 NBrowser::NBrowser()
   : CNode(CLIENT_BROWSERS, "NBrowser", CNode::BROWSER_NODE),
@@ -19,21 +25,21 @@ NBrowser::NBrowser()
 {
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QString NBrowser::generateName()
 {
  return QString("Browser_%1").arg(m_counter++);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QString NBrowser::toolTip() const
 {
   return this->getComponentType();
 }
+
+////////////////////////////////////////////////////////////////////////////
 
 NBrowser::Ptr NBrowser::globalBrowser()
 {
@@ -41,3 +47,9 @@ NBrowser::Ptr NBrowser::globalBrowser()
   cf_assert( is_not_null(browser.get()) );
   return browser;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+} // ClientCore
+} // GUI
+} // CF

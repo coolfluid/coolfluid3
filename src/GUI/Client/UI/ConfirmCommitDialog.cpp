@@ -15,7 +15,14 @@
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::ClientUI;
+
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
 
 ConfirmCommitDialog::ConfirmCommitDialog(QWidget * parent)
 : QDialog(parent)
@@ -42,8 +49,7 @@ ConfirmCommitDialog::ConfirmCommitDialog(QWidget * parent)
   m_mainLayout->addWidget(m_buttonBox);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 ConfirmCommitDialog::~ConfirmCommitDialog()
 {
@@ -60,8 +66,7 @@ ConfirmCommitDialog::~ConfirmCommitDialog()
 //  delete m_mainLayout;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 ConfirmCommitDialog::CommitConfirmation ConfirmCommitDialog::show(CommitDetails & commitDetails)
 {
@@ -76,8 +81,7 @@ ConfirmCommitDialog::CommitConfirmation ConfirmCommitDialog::show(CommitDetails 
   return m_answer;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void ConfirmCommitDialog::buttonClicked()
 {
@@ -91,8 +95,7 @@ void ConfirmCommitDialog::buttonClicked()
   this->hide();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void ConfirmCommitDialog::createButton(const QString & text,
                                        CommitConfirmation commConf,
@@ -102,3 +105,9 @@ void ConfirmCommitDialog::createButton(const QString & text,
   connect(button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
   m_buttons[commConf] = button;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

@@ -12,7 +12,14 @@
 #include "GUI/Client/UI/FilteringModel.hpp"
 
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::ClientUI;
+
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
 
 FilteringModel::FilteringModel(QObject *parent) :
     QSortFilterProxyModel(parent)
@@ -56,3 +63,9 @@ bool FilteringModel::filterAcceptsRow(int row, const QModelIndex & parent) const
 
   return true;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

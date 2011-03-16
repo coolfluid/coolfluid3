@@ -26,9 +26,13 @@ using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 
+////////////////////////////////////////////////////////////////////////////
+
 namespace CF {
 namespace GUI {
 namespace ClientUI {
+
+////////////////////////////////////////////////////////////////////////////
 
 JournalBrowserBuilder & JournalBrowserBuilder::instance()
 {
@@ -36,16 +40,14 @@ JournalBrowserBuilder & JournalBrowserBuilder::instance()
   return jbb;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void JournalBrowserBuilder::journalRequest(bool local)
 {
   m_dialog->show(nullptr);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 JournalBrowserBuilder::JournalBrowserBuilder()
 {
@@ -92,8 +94,7 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
   connect(m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClicked(QModelIndex)));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 JournalBrowserDialog::~JournalBrowserDialog()
 {
@@ -103,8 +104,7 @@ JournalBrowserDialog::~JournalBrowserDialog()
   delete m_mainLayout;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void JournalBrowserDialog::show(const XmlNode * rootNode)
 {
@@ -116,8 +116,7 @@ void JournalBrowserDialog::show(const XmlNode * rootNode)
   this->setVisible(true);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void JournalBrowserDialog::doubleClicked(const QModelIndex & index)
 {
@@ -129,8 +128,7 @@ void JournalBrowserDialog::doubleClicked(const QModelIndex & index)
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void JournalBrowserDialog::btClicked(QAbstractButton *button)
 {

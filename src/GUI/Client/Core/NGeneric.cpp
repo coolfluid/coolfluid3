@@ -6,7 +6,13 @@
 
 #include "GUI/Client/Core/NGeneric.hpp"
 
-using namespace CF::GUI::ClientCore;
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientCore {
+
+////////////////////////////////////////////////////////////////////////////
 
 NGeneric::NGeneric(const QString & name, const QString & type) :
     CNode(name, type, GENERIC_NODE)
@@ -14,11 +20,15 @@ NGeneric::NGeneric(const QString & name, const QString & type) :
 
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QString NGeneric::toolTip() const
 {
   return this->getComponentType();
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+} // ClientCore
+} // GUI
+} // CF

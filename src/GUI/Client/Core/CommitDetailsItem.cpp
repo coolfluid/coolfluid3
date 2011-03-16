@@ -8,7 +8,13 @@
 
 #include "GUI/Client/Core/CommitDetailsItem.hpp"
 
-using namespace CF::GUI::ClientCore;
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientCore {
+
+////////////////////////////////////////////////////////////////////////////
 
 CommitDetailsItem::CommitDetailsItem(const QString & optionName,
                                      const QString & oldValue,
@@ -19,26 +25,29 @@ CommitDetailsItem::CommitDetailsItem(const QString & optionName,
   m_currentValue = currentValue;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QString CommitDetailsItem::currentValue() const
 {
   return m_currentValue;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QString CommitDetailsItem::oldValue() const
 {
   return m_oldValue;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QString CommitDetailsItem::optionName() const
 {
   return m_optionName;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+} // ClientCore
+} // GUI
+} // CF

@@ -60,7 +60,7 @@ namespace CF {
 namespace GUI {
 namespace ClientCore {
 
-/////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 CNodeNotifier::CNodeNotifier(CNode * parent)
   : m_parent(parent)
@@ -876,23 +876,6 @@ void CNode::fetchContent()
 }
 
 ////////////////////////////////////////////////////////////////////////////
-
-
-//#define TEMPLATE_EXPLICIT_INSTANTIATON(T) \
-//Common_TEMPLATE template typename OptionArray<T>::Ptr CNode::makeOptionArrayT<T>(const std::string&, const std::string&, const XmlNode&);\
-//Common_TEMPLATE template Option::Ptr CNode::makeOptionT<T>(const std::string &, const std::string &, XmlNode &)
-
-//TEMPLATE_EXPLICIT_INSTANTIATON( bool );
-//TEMPLATE_EXPLICIT_INSTANTIATON( int );
-//TEMPLATE_EXPLICIT_INSTANTIATON( Uint );
-//TEMPLATE_EXPLICIT_INSTANTIATON( Real );
-//TEMPLATE_EXPLICIT_INSTANTIATON( std::string );
-//Common_TEMPLATE template Option::Ptr CNode::makeOptionArrayT<URI>(
-//    const std::string&, const std::string&, const XmlNode&);
-
-//#undef TEMPLATE_EXPLICIT_INSTANTIATON
-
-//////////////////////////////////////////////////////////////////////////////
 
 } // ClientCore
 } // GUI

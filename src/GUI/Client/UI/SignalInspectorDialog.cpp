@@ -43,8 +43,7 @@ SignalInspectorDialog::SignalInspectorDialog(QWidget *parent) :
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(close()));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 SignalInspectorDialog::~SignalInspectorDialog()
 {
@@ -53,8 +52,7 @@ SignalInspectorDialog::~SignalInspectorDialog()
   delete m_mainLayout;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void SignalInspectorDialog::show(const Common::XML::SignalFrame & signal)
 {

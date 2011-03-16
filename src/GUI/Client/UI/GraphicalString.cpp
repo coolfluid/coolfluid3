@@ -9,7 +9,13 @@
 
 #include "GUI/Client/UI/GraphicalString.hpp"
 
-using namespace CF::GUI::ClientUI;
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
 
 GraphicalString::GraphicalString(const QString & value, QWidget * parent)
   : GraphicalValue(parent)
@@ -22,16 +28,14 @@ GraphicalString::GraphicalString(const QString & value, QWidget * parent)
 
   connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString))); }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 GraphicalString::~GraphicalString()
 {
   delete m_lineEdit;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 bool GraphicalString::setValue(const QVariant & value)
 {
@@ -40,18 +44,22 @@ bool GraphicalString::setValue(const QVariant & value)
   return true;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 QVariant GraphicalString::value() const
 {
   return m_lineEdit->text();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void GraphicalString::textUpdated(const QString & text)
 {
   emit valueChanged();
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

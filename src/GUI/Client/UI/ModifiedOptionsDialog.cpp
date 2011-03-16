@@ -14,7 +14,14 @@
 #include "GUI/Client/UI/ModifiedOptionsDialog.hpp"
 
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::ClientUI;
+
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+///////////////////////////////////////////////////////////////////////////
 
 ModifiedOptionsDialog::ModifiedOptionsDialog(QWidget * parent)
 : QDialog(parent)
@@ -34,8 +41,7 @@ ModifiedOptionsDialog::ModifiedOptionsDialog(QWidget * parent)
   connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(close()));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+///////////////////////////////////////////////////////////////////////////
 
 ModifiedOptionsDialog::~ModifiedOptionsDialog()
 {
@@ -44,8 +50,7 @@ ModifiedOptionsDialog::~ModifiedOptionsDialog()
  delete m_view;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+///////////////////////////////////////////////////////////////////////////
 
 void ModifiedOptionsDialog::show(CommitDetails & details)
 {
@@ -58,3 +63,9 @@ void ModifiedOptionsDialog::show(CommitDetails & details)
     this->exec();
   }
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

@@ -20,8 +20,14 @@
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::ClientUI;
 
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
 
 CentralPanel::CentralPanel(QWidget * parent)
   : QWidget(parent),
@@ -96,8 +102,7 @@ CentralPanel::CentralPanel(QWidget * parent)
           this, SLOT(advancedModeChanged(bool)));
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 CentralPanel::~CentralPanel()
 {
@@ -124,8 +129,7 @@ CentralPanel::~CentralPanel()
   delete m_splitter;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
 {
@@ -179,16 +183,14 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
 //  this->setEnabled(m_advancedOptionsNodes, m_advancedOptions);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 bool CentralPanel::isModified() const
 {
   return m_basicOptionLayout->isModified() || m_advancedOptionLayout->isModified();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void CentralPanel::modifiedOptions(CommitDetails & commitDetails) const
 {
@@ -199,8 +201,7 @@ void CentralPanel::modifiedOptions(CommitDetails & commitDetails) const
   m_advancedOptionLayout->modifiedOptions(commitDetails);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 QString CentralPanel::currentPath() const
 {
@@ -221,8 +222,7 @@ void CentralPanel::setButtonsVisible(bool visible)
   m_btForget->setVisible(visible);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void CentralPanel::setButtonsEnabled(bool enabled)
 {
@@ -263,8 +263,7 @@ void CentralPanel::btApplyClicked()
   }
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
@@ -274,8 +273,7 @@ void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QMode
   this->setOptions(options);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void CentralPanel::advancedModeChanged(bool advanced)
 {
@@ -300,8 +298,7 @@ void CentralPanel::advancedModeChanged(bool advanced)
   setButtonsVisible(m_scrollBasicOptions->isVisible());
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void CentralPanel::dataChanged(const QModelIndex & first, const QModelIndex & last)
 {
@@ -311,8 +308,7 @@ void CentralPanel::dataChanged(const QModelIndex & first, const QModelIndex & la
     this->currentIndexChanged(first, QModelIndex());
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void CentralPanel::btSeeChangesClicked()
 {
@@ -323,18 +319,22 @@ void CentralPanel::btSeeChangesClicked()
   dialog.show(details);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void CentralPanel::btForgetClicked()
 {
   this->currentIndexChanged(NTree::globalTree()->currentIndex(), QModelIndex());
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void CentralPanel::valueChanged()
 {
   this->setButtonsEnabled(this->isModified());
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF
