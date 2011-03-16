@@ -79,9 +79,9 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
       else if(type == Protocol::Tags::type<Real>())          // Real option
         value = new GraphicalDouble(option->value<Real>(), parent);
       else if(type == Protocol::Tags::type<int>())           // int option
-        value = new GraphicalInt(false, option, parent);
+        value = new GraphicalInt(false, option->value<int>(), parent);
       else if(type == Protocol::Tags::type<Uint>())          // Uint option
-        value = new GraphicalInt(true, option, parent);
+        value = new GraphicalInt(true, option->value<Uint>(), parent);
       else if(type == Protocol::Tags::type<std::string>())   // string option
         value = new GraphicalString(option->value<std::string>().c_str(), parent);
       else if(type == Protocol::Tags::type<URI>())           // URI option

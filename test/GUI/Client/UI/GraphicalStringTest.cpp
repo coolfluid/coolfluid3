@@ -31,7 +31,7 @@ void GraphicalStringTest::test_constructor()
   GraphicalString * value = new GraphicalString();
   QLineEdit * lineEdit = findLineEdit(value);
 
-  // 1. value is false, the checkbox should be unchecked
+  // 1. value is empty, the line edit should be empty as well
   QVERIFY( is_not_null(lineEdit) );
   QCOMPARE( lineEdit->text(), QString() );
 
@@ -39,7 +39,7 @@ void GraphicalStringTest::test_constructor()
   value = new GraphicalString("Hello, World!");
   lineEdit = findLineEdit(value);
 
-  // 2. value is true, the checkbox should be checked
+  // 2. value is not empty
   QVERIFY( is_not_null(lineEdit) );
   QCOMPARE( lineEdit->text(), QString("Hello, World!") );
 
@@ -56,7 +56,7 @@ void GraphicalStringTest::test_setValue()
   QVERIFY( is_not_null(lineEdit) );
 
   //
-  // 1. check with strings (those supported by CF::Common::from_str<bool>())
+  // 1. check with strings
   //
   QVERIFY( value->setValue("Hello") );
   QCOMPARE( lineEdit->text(), QString("Hello") );
@@ -65,7 +65,8 @@ void GraphicalStringTest::test_setValue()
   QCOMPARE( lineEdit->text(), QString("World") );
 
   //
-  // 2. check with other types
+  // 2. check with other types (this works since all primitive
+  // types can be implicitly converted to QString by Qt)
   //
   QVERIFY( value->setValue(12) );
   QCOMPARE( lineEdit->text(), QString("12") );
@@ -87,12 +88,12 @@ void GraphicalStringTest::test_value()
   QLineEdit * lineEdit = findLineEdit(value);
   QVariant theValue;
 
-  // get value when the check box is checked
+  // get value when the line edit is empty
   theValue = value->value();
   QVERIFY( theValue.type() == QVariant::String );
   QCOMPARE( theValue.toString(), QString() );
 
-  // get value when the check box is not checked
+  // get value when the line edit has a string
   lineEdit->setText("This is a sample text.");
   theValue = value->value();
   QVERIFY( theValue.type() == QVariant::String );
@@ -123,7 +124,7 @@ void GraphicalStringTest::test_signalEmmitting()
   //
   // 2. by simulating keyboard events
   //
-  value->show(); // make the value visible (it ignores mouse events if not)
+  value->show(); // make the value visible (it ignores keyboard events if not)
   QTest::keyClicks(lineEdit, "Hello");
   QTest::keyClicks(lineEdit, "World");
   QTest::keyClicks(lineEdit, "And others ;)");
@@ -172,12 +173,8 @@ void GraphicalStringTest::test_isModified()
   lineEdit->setText("This is a sample text.");
   QVERIFY( value->isModified() );
 
-  // 3. set the same value again
-  value->setValue("And here is another one.");
-  QVERIFY( !value->isModified() );
-
-  // 4. change the value and commit
-  lineEdit->setText("And even a thrid one!!!");
+  // 3. change the value and commit
+  lineEdit->setText("This is another one.");
   QVERIFY( value->isModified() );
   value->commit();
   QVERIFY( !value->isModified() );

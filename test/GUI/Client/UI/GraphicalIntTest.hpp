@@ -4,12 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_UI_GraphicalInt_hpp
-#define CF_GUI_Client_UI_GraphicalInt_hpp
+#ifndef CF_GUI_Client_uTests_GraphicalIntTest_hpp
+#define CF_GUI_Client_uTests_GraphicalIntTest_hpp
 
-////////////////////////////////////////////////////////////////////////////
-
-#include "GUI/Client/UI/GraphicalValue.hpp"
+#include <QObject>
 
 class QDoubleSpinBox;
 
@@ -17,42 +15,43 @@ class QDoubleSpinBox;
 
 namespace CF {
 namespace GUI {
-namespace ClientUI {
+
+namespace ClientUI { class GraphicalInt; }
+
+namespace ClientTest {
 
 //////////////////////////////////////////////////////////////////////////
 
-class ClientUI_API GraphicalInt : public GraphicalValue
+class GraphicalIntTest : public QObject
 {
   Q_OBJECT
 
-public:
-
-  GraphicalInt(bool isUint, QVariant value = 0, QWidget * parent = 0);
-
-  ~GraphicalInt();
-
-  virtual bool setValue(const QVariant & value);
-
-  virtual QVariant value() const;
-
 private slots:
 
-  void integerChanged(double value);
+  void test_constructor();
+
+  void test_setValue();
+
+  void test_value();
+
+  void test_signalEmmitting();
+
+  void test_valueString();
+
+  void test_isModified();
 
 private:
 
-  QDoubleSpinBox * m_spinBox;
+  QDoubleSpinBox * findSpinBox(const ClientUI::GraphicalInt* value);
 
-  bool m_isUint;
-
-}; // class GraphicalInt
+};
 
 //////////////////////////////////////////////////////////////////////////
 
-} // ClientUI
+} // ClientTest
 } // GUI
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_UI_GraphicalInt_hpp
+#endif // CF_GUI_Client_uTests_GraphicalIntTest_hpp

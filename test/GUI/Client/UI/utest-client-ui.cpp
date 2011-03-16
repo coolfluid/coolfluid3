@@ -11,7 +11,10 @@
 #include "Common/Exception.hpp"
 
 #include "test/GUI/Client/UI/GraphicalBoolTest.hpp"
+#include "test/GUI/Client/UI/GraphicalIntTest.hpp"
+#include "test/GUI/Client/UI/GraphicalDoubleTest.hpp"
 #include "test/GUI/Client/UI/GraphicalStringTest.hpp"
+#include "test/GUI/Client/UI/GraphicalUintTest.hpp"
 #include "test/GUI/Client/UI/GraphicalValueTest.hpp"
 
 using namespace CF::GUI::ClientTest;
@@ -28,7 +31,10 @@ int main(int argc, char * argv[])
   CF::AssertionManager::instance().AssertionThrows = true;
 
   passed += QTest::qExec(new GraphicalBoolTest(), argc, argv);
+  passed += QTest::qExec(new GraphicalDoubleTest(), argc, argv);
+  passed += QTest::qExec(new GraphicalIntTest(), argc, argv);
   passed += QTest::qExec(new GraphicalStringTest(), argc, argv);
+  passed += QTest::qExec(new GraphicalUintTest(), argc, argv);
   passed += QTest::qExec(new GraphicalValueTest(), argc, argv);
 
   return passed;
