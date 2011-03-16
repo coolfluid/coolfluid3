@@ -38,6 +38,8 @@ namespace ClientCore {
   {
     Q_OBJECT
 
+  public: // typedefs
+
   public:
 
     typedef boost::shared_ptr<NRoot> Ptr;
@@ -64,18 +66,9 @@ namespace ClientCore {
     /// valid.
     CNode::Ptr childFromRoot(CF::Uint number) const;
 
-    /// @brief Checks whether a path is valid.
-
-    /// The path is checked under the internal CRoot component.
-    /// @return Returns @c true is the path exists; otherwise, returns
-    /// @c false
-    bool pathExists() const;
-
     /// @brief Gives the client UUID
     /// @return Returns the Client UUID
     std::string uuid() const;
-
-    void save_tree_local ( Common::SignalArgs & node);
 
   signals:
 
@@ -96,6 +89,7 @@ namespace ClientCore {
     boost::uuids::uuid m_uuid;
 
   private: // helper functions
+
     /// @name Signals
     //@{
 

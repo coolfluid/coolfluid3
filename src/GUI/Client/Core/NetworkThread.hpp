@@ -53,7 +53,7 @@ public:
   /// @brief Disconnects from the server, then closes.
 
   /// @param shutServer If @c true, a request to shut down the server is sent.
-  void disconnect(bool shutServer);
+  void disconnectFromServer(bool shutServer);
 
   bool isConnected() const;
 

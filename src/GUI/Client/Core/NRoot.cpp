@@ -43,14 +43,12 @@ NRoot::NRoot(const QString & name)
 {
   m_uuid = boost::uuids::random_generator()();
 
-  regist_signal("shutdown", "Server shutdown")->signal->connect(boost::bind(&NRoot::shutdown, this, _1));
-  regist_signal("client_registration", "Registration confirmation")->signal->connect(boost::bind(&NRoot::client_registration, this, _1));
-  regist_signal("frame_rejected", "Frame rejected by the server")->signal->connect(boost::bind(&NRoot::frame_rejected, this, _1));
-
-
-  regist_signal( "save_tree_local", "Saves the server component tree.", "Save server tree" )->signal->connect( boost::bind(&NRoot::save_tree_local, this, _1));
-
-  m_localSignals << "save_tree_local";
+  regist_signal("shutdown", "Server shutdown")->signal->
+      connect(boost::bind(&NRoot::shutdown, this, _1));
+  regist_signal("client_registration", "Registration confirmation")->signal->
+      connect(boost::bind(&NRoot::client_registration, this, _1));
+  regist_signal("frame_rejected", "Frame rejected by the server")->signal->
+      connect(boost::bind(&NRoot::frame_rejected, this, _1));
 
   m_root = CRoot::create(name.toStdString());
 
@@ -83,35 +81,11 @@ CNode::Ptr NRoot::childFromRoot(CF::Uint number) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool NRoot::pathExists() const
-{
-  return false;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 std::string NRoot::uuid() const
 {
   std::ostringstream ss;
   ss << m_uuid;
   return ss.str();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void NRoot::save_tree_local ( SignalArgs & )
-{
-//  if( !NRoot::globalCore()->isConnected() )
-//    NLog::globalLog()->addError("The client needs to be connected to a server to do that.");
-//  else
-//  {
-//    SignalFrame frame("save_tree", CLIENT_ROOT_PATH, SERVER_ROOT_PATH);
-//    SignalFrame& options = frame.map( Protocol::Tags::key_options() );
-
-//    options.set_option("filename", URI("./server-tree.xml", URI::Scheme::FILE));
-
-//    NRoot::globalCore()->sendSignal(frame);
-//  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -137,7 +111,7 @@ void NRoot::connectedToServer()
 void NRoot::shutdown(Signal::arg_t & node)
 {
   NLog::globalLog()->addMessage("The server is shutting down. Disconnecting...");
-//  this->disconnectFromServer(false);
+  ThreadManager::instance().network().disconnectFromServer(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +127,7 @@ void NRoot::client_registration(Signal::arg_t & node)
   else
   {
     NLog::globalLog()->addError("Registration failed. Disconnecting...");
-//    this->disconnectFromServer(false);
+    ThreadManager::instance().network().disconnectFromServer(false);
   }
 }
 

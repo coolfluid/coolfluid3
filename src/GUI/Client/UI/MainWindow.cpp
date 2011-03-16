@@ -693,7 +693,7 @@ void MainWindow::connectToServer()
 
 void MainWindow::disconnectFromServer()
 {
-  ThreadManager::instance().network().disconnect(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
+  ThreadManager::instance().network().disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

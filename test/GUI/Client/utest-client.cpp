@@ -12,6 +12,7 @@
 #include "test/GUI/Client/CNodeTest.hpp"
 #include "test/GUI/Client/NBrowserTest.hpp"
 #include "test/GUI/Client/NLinkTest.hpp"
+#include "test/GUI/Client/NRootTest.hpp"
 #include "test/GUI/Client/NTreeTest.hpp"
 
 using namespace CF::Common;
@@ -32,10 +33,11 @@ int main(int argc, char * argv[])
   passed += QTest::qExec(new CommonFunctionsTest(), argc, argv);
 
   passed += QTest::qExec(new CommitDetailsTest(), argc, argv);
-//  passed += QTest::qExec(new CNodeTest(), argc, argv);
-//  passed += QTest::qExec(new NBrowserTest(), argc, argv);
-//  passed += QTest::qExec(new NTreeTest(), argc, argv);
-//  passed += QTest::qExec(new NLinkTest(), argc, argv);
+  passed += QTest::qExec(new CNodeTest(), argc, argv);
+  passed += QTest::qExec(new NBrowserTest(), argc, argv);
+  passed += QTest::qExec(new NTreeTest(), argc, argv);
+  passed += QTest::qExec(new NLinkTest(), argc, argv);
+  passed += QTest::qExec(new NRootTest(), argc, argv);
 
   return passed;
 }

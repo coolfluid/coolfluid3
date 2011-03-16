@@ -79,7 +79,7 @@ bool NetworkThread::isConnected() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NetworkThread::disconnect(bool shutServer)
+void NetworkThread::disconnectFromServer(bool shutServer)
 {
   if(shutServer)
   {

@@ -5,11 +5,12 @@ if( QT_QTTEST_FOUND AND CF_ENABLE_GUI)
 
 set(utest-client_moc_classes
   CommonFunctions.hpp
-  NTreeTest.hpp
+  CommitDetailsTest.hpp
+  CNodeTest.hpp
   NBrowserTest.hpp
   NLinkTest.hpp
-  CNodeTest.hpp
-  CommitDetailsTest.hpp
+  NRootTest.hpp
+  NTreeTest.hpp
 )
 
 QT4_WRAP_CPP(utest-client_moc_files ${utest-client_moc_classes})
@@ -33,6 +34,8 @@ list( APPEND utest-client_files
   NBrowserTest.hpp
   NLinkTest.cpp
   NLinkTest.hpp
+  NRootTest.cpp
+  NRootTest.hpp
   NTreeTest.hpp
   NTreeTest.cpp
   TreeHandler.cpp
@@ -64,6 +67,8 @@ else()
   NBrowserTest.hpp
   NLinkTest.cpp
   NLinkTest.hpp
+  NRootTest.cpp
+  NRootTest.hpp
   NTreeTest.hpp
   NTreeTest.cpp
   TreeHandler.cpp
