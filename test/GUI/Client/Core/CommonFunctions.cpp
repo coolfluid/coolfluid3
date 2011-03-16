@@ -12,8 +12,8 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
-#include "test/GUI/Client/ExceptionThrowHandler.hpp"
-#include "test/GUI/Client/CommonFunctions.hpp"
+#include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
+#include "test/GUI/Client/Core/CommonFunctions.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;

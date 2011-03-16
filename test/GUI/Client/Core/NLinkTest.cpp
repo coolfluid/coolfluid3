@@ -16,11 +16,11 @@
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 
-#include "test/GUI/Client/CommonFunctions.hpp"
-#include "test/GUI/Client/ExceptionThrowHandler.hpp"
-#include "test/GUI/Client/TreeHandler.hpp"
+#include "test/GUI/Client/Core/CommonFunctions.hpp"
+#include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
+#include "test/GUI/Client/Core/TreeHandler.hpp"
 
-#include "test/GUI/Client/NLinkTest.hpp"
+#include "test/GUI/Client/Core/NLinkTest.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;

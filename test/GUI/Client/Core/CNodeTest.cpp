@@ -27,12 +27,12 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "test/GUI/Client/CommonFunctions.hpp"
-#include "test/GUI/Client/ExceptionThrowHandler.hpp"
-#include "test/GUI/Client/MyNode.hpp"
-#include "test/GUI/Client/TreeHandler.hpp"
+#include "test/GUI/Client/Core/CommonFunctions.hpp"
+#include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
+#include "test/GUI/Client/Core/MyNode.hpp"
+#include "test/GUI/Client/Core/TreeHandler.hpp"
 
-#include "test/GUI/Client/CNodeTest.hpp"
+#include "test/GUI/Client/Core/CNodeTest.hpp"
 
 using namespace boost::assign;
 using namespace CF::Common;

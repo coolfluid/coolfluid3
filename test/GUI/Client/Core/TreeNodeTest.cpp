@@ -12,9 +12,9 @@
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/TreeNode.hpp"
 
-#include "test/GUI/Client/ExceptionThrowHandler.hpp"
+#include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 
-#include "test/GUI/Client/TreeNodeTest.hpp"
+#include "test/GUI/Client/Core/TreeNodeTest.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;

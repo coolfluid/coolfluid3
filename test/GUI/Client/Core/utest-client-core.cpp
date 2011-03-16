@@ -7,15 +7,15 @@
 #include <QCoreApplication>
 #include <QtTest>
 
-#include "test/GUI/Client/CommitDetailsTest.hpp"
-#include "test/GUI/Client/CommonFunctions.hpp"
-#include "test/GUI/Client/CNodeTest.hpp"
-#include "test/GUI/Client/NBrowserTest.hpp"
-#include "test/GUI/Client/NLinkTest.hpp"
-#include "test/GUI/Client/NRootTest.hpp"
-#include "test/GUI/Client/NTreeTest.hpp"
-#include "test/GUI/Client/PropertyModelTest.hpp"
-#include "test/GUI/Client/TreeNodeTest.hpp"
+#include "test/GUI/Client/Core/CommitDetailsTest.hpp"
+#include "test/GUI/Client/Core/CommonFunctions.hpp"
+#include "test/GUI/Client/Core/CNodeTest.hpp"
+#include "test/GUI/Client/Core/NBrowserTest.hpp"
+#include "test/GUI/Client/Core/NLinkTest.hpp"
+#include "test/GUI/Client/Core/NRootTest.hpp"
+#include "test/GUI/Client/Core/NTreeTest.hpp"
+#include "test/GUI/Client/Core/PropertyModelTest.hpp"
+#include "test/GUI/Client/Core/TreeNodeTest.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientTest;

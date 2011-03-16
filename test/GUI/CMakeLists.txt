@@ -10,10 +10,11 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   # Add useful macros and variables
   include(${QT_USE_FILE})
 
-endif()
-
 add_subdirectory( Client )
 # add_subdirectory( Network ) # no tests yet on network
 # add_subdirectory( Server )  # no tests yet on server
+
+endif()
+
 
 

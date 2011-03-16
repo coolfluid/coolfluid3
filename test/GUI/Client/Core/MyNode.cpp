@@ -7,7 +7,7 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "test/GUI/Client/MyNode.hpp"
+#include "test/GUI/Client/Core/MyNode.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;

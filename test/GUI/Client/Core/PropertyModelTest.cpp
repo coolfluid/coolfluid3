@@ -13,8 +13,8 @@
 #include "GUI/Client/Core/ThreadManager.hpp"
 #include "GUI/Client/Core/TreeThread.hpp"
 
-#include "test/GUI/Client/MyNode.hpp"
-#include "test/GUI/Client/PropertyModelTest.hpp"
+#include "test/GUI/Client/Core/MyNode.hpp"
+#include "test/GUI/Client/Core/PropertyModelTest.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;

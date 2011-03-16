@@ -9,7 +9,7 @@
 #include "GUI/Client/Core/CommitDetailsItem.hpp"
 #include "GUI/Client/Core/CommitDetails.hpp"
 
-#include "test/GUI/Client/CommitDetailsTest.hpp"
+#include "test/GUI/Client/Core/CommitDetailsTest.hpp"
 
 using namespace CF::GUI::ClientCore;
 

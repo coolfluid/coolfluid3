@@ -11,8 +11,8 @@
 #include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 
-#include "test/GUI/Client/ExceptionThrowHandler.hpp"
-#include "test/GUI/Client/NRootTest.hpp"
+#include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
+#include "test/GUI/Client/Core/NRootTest.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;

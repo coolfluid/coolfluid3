@@ -21,11 +21,11 @@
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
 
-#include "test/GUI/Client/CommonFunctions.hpp"
-#include "test/GUI/Client/ExceptionThrowHandler.hpp"
-#include "test/GUI/Client/MyNode.hpp"
+#include "test/GUI/Client/Core/CommonFunctions.hpp"
+#include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
+#include "test/GUI/Client/Core/MyNode.hpp"
 
-#include "test/GUI/Client/NTreeTest.hpp"
+#include "test/GUI/Client/Core/NTreeTest.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
