@@ -9,8 +9,6 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include <QMap>
-
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Network/ComponentNames.hpp"
 
