@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QtCore>
-#include <string>
-#include <cstring>
+#include "rapidxml/rapidxml.hpp"
 
 #include "Common/XML/FileOperations.hpp"
 
 #include "GUI/Client/Core/NBrowser.hpp"
+#include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/ProcessingThread.hpp"
 
@@ -68,6 +68,8 @@ ClientRoot::ClientRoot() :
 
   // set the root as model root
   tree->setRoot(m_root);
+
+  ThreadManager::instance().network().newSignal.connect( boost::bind(&ClientRoot::newSignal, this, _1));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -113,6 +115,53 @@ boost::shared_ptr<XmlDoc> ClientRoot::docFromPtr(const XmlDoc *doc) const
     return m_currentDocs[doc->content];
 
   return boost::shared_ptr<XmlDoc>();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void ClientRoot::newSignal(Common::XML::XmlDoc::Ptr doc)
+{
+  const char * tag = Protocol::Tags::node_frame();
+  XmlNode nodedoc = Protocol::goto_doc_node(*doc.get());
+  rapidxml::xml_node<char>* nodeToProcess = nodedoc.content->first_node(tag);
+
+  if(nodeToProcess != nullptr)
+  {
+    rapidxml::xml_node<>* tmpNode = nodeToProcess->next_sibling( tag );
+
+    // check this is a reply
+    if(tmpNode != nullptr && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
+      nodeToProcess = tmpNode;
+
+    std::string type = nodeToProcess->first_attribute("target")->value();
+    std::string receiver = nodeToProcess->first_attribute("receiver")->value();
+
+    try
+    {
+      CRoot::Ptr realRoot = root()->root();
+      SignalFrame frame(nodeToProcess);
+
+      if(realRoot->full_path().path() == URI(receiver).path())
+        root()->call_signal(type, frame);
+      else
+        realRoot->retrieve_component(receiver)->call_signal(type, frame);
+    }
+    catch(CF::Common::Exception & cfe)
+    {
+      NLog::globalLog()->addException(cfe.what());
+    }
+    catch(std::exception & stde)
+    {
+      NLog::globalLog()->addException(stde.what());
+    }
+    catch(...)
+    {
+      CFerror << "Unknown exception thrown during execution of action [" << type
+          << "] on component " << " [" << receiver << "]." << CFendl;
+    }
+
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -315,7 +315,7 @@ namespace ClientCore {
     void clearTree();
 
     /// @brief Sends a request to update de tree
-    void updateTree() const;
+    void updateTree();
 
   signals:
 

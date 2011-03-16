@@ -10,6 +10,7 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
+#include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 
@@ -52,11 +53,12 @@ NetworkThread::~NetworkThread()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool NetworkThread::connectToHost(const QHostAddress &hostAddress, quint16 port)
+bool NetworkThread::connectToHost(const QString &hostAddress, quint16 port)
 {
   if(!isRunning())
   {
     m_socket->connectToHost(hostAddress, port);
+    start();
     return true;
   }
 
@@ -98,10 +100,12 @@ int NetworkThread::send(Common::Signal::arg_t& signal)
   int charsWritten;
 
   QByteArray block;
-  QTextStream out(&block, QIODevice::WriteOnly);
+  QDataStream out(&block, QIODevice::WriteOnly);
   std::string str;
 
-  signal.node.set_attribute( "clientid", ""/*ClientRoot::instance().getUUID()*/ );
+  out.setVersion(QDataStream::Qt_4_6); // set stream version
+
+  signal.node.set_attribute( "clientid", ClientRoot::instance().getUUID() );
 
   signal.xml_doc->to_string(str);
 
@@ -121,7 +125,9 @@ int NetworkThread::send(Common::Signal::arg_t& signal)
 void NetworkThread::newData()
 {
   char * frame = nullptr;
-  QTextStream in(m_socket);
+  QDataStream in(m_socket);
+
+  in.setVersion(QDataStream::Qt_4_6); // set stream version
 
   // if the server sends two messages very close in time, it is possible that
   // the client never gets the second one.
@@ -142,8 +148,9 @@ void NetworkThread::newData()
     if (m_socket->bytesAvailable() < m_blockSize)
       return;
 
-    frame = new char[m_blockSize];
+//    frame = new char[m_blockSize];
     in >> frame;
+
 
     if(NTree::globalTree()->isDebugModeEnabled())
       CFinfo << frame << CFendl;
@@ -194,8 +201,6 @@ void NetworkThread::disconnected()
 
 void NetworkThread::socketError(QAbstractSocket::SocketError err)
 {
-  NLog::Ptr log = NLog::globalLog();
-
   if(m_requestDisc)
     return;
 
@@ -205,23 +210,7 @@ void NetworkThread::socketError(QAbstractSocket::SocketError err)
     m_socket->disconnectFromHost();
   }
 
-  switch (err)
-  {
-    case QAbstractSocket::RemoteHostClosedError:
-      log->addError("Remote connection closed");
-      break;
-
-    case QAbstractSocket::HostNotFoundError:
-      log->addError("Host was not found");
-      break;
-
-    case QAbstractSocket::ConnectionRefusedError:
-      log->addError("Connection refused. Please check if the server is running.");
-      break;
-
-    default:
-      log->addError(QString("The following error occurred: ") + m_socket->errorString());
-  }
+  NLog::globalLog()->addError(QString("Network error: %1").arg(m_socket->errorString()));
 }
 
 

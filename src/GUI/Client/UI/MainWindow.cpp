@@ -10,6 +10,8 @@
 #include <QDir>
 #include <QFile>
 #include <QHeaderView>
+#include <QHostAddress>
+#include <QHostInfo>
 #include <QListView>
 #include <QMessageBox>
 #include <QMenuBar>
@@ -25,8 +27,11 @@
 #include "Common/Exception.hpp"
 
 #include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Client/Core/PropertyModel.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 
 #include "GUI/Client/UI/AboutCFDialog.hpp"
@@ -42,7 +47,6 @@
 #include "GUI/Client/UI/StatusPanel.hpp"
 #include "GUI/Client/UI/TreeBrowser.hpp"
 #include "GUI/Client/UI/TreeView.hpp"
-#include "GUI/Client/Core/PropertyModel.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -680,7 +684,8 @@ void MainWindow::connectToServer()
     sshInfo.m_hostname = frame.get_option<std::string>("Hostname").c_str();
     sshInfo.m_port = frame.get_option<CF::Uint>("Port number");
 
-//    NCore::globalCore()->connectToServer(sshInfo);
+
+    ThreadManager::instance().network().connectToHost(sshInfo.m_hostname, sshInfo.m_port);
   }
 }
 
@@ -689,7 +694,7 @@ void MainWindow::connectToServer()
 
 void MainWindow::disconnectFromServer()
 {
-//  NCore::globalCore()->disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
+  ThreadManager::instance().network().disconnect(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

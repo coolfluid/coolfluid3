@@ -64,6 +64,8 @@ public:
 
   NRoot::Ptr root() { return m_root; }
 
+  void newSignal(Common::XML::XmlDoc::Ptr doc);
+
 private slots:
 
   void processingFinished();

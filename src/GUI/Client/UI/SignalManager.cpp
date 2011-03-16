@@ -16,7 +16,9 @@
 #include "Common/Signal.hpp"
 
 #include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/UI/SignatureDialog.hpp"
 

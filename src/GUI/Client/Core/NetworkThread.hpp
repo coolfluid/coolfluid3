@@ -48,7 +48,7 @@ public:
   /// after.
   /// @param hostAddress Address of the host to connect to.
   /// @param port The port number to use.
-  bool connectToHost(const QHostAddress& hostAddress, quint16 port);
+  bool connectToHost(const QString& hostAddress, quint16 port);
 
   /// @brief Disconnects from the server, then closes.
 

@@ -32,6 +32,8 @@ using namespace CF::GUI::Network;
 NCore::NCore()
   : CNode(CLIENT_CORE, "NCore", CNode::CORE_NODE)
 {
+  connect(&ThreadManager::instance().network(), SIGNAL(connected()),
+          this, SLOT(connectedToServer()));
 
   regist_signal("shutdown", "Server shutdown")->signal->connect(boost::bind(&NCore::shutdown, this, _1));
   regist_signal("client_registration", "Registration confirmation")->signal->connect(boost::bind(&NCore::client_registration, this, _1));
@@ -96,8 +98,8 @@ void NCore::client_registration(SignalArgs & node)
   if( node.map(Protocol::Tags::key_options()).get_option<bool>("accepted") )
   {
     NLog::globalLog()->addMessage("Registration was successful.");
-    emit connectedToServer();
-//    this->updateTree();
+//    emit connectedToServer();
+    NTree::globalTree()->updateTree();
   }
   else
   {

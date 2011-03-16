@@ -625,7 +625,10 @@ void NTree::contentListed(Component::Ptr node)
   }
 }
 
-void NTree::updateTree() const
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NTree::updateTree()
 {
   SignalFrame frame("list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
   ThreadManager::instance().network().send(frame);
