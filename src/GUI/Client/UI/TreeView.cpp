@@ -14,7 +14,6 @@
 
 #include "Common/CF.hpp"
 
-#include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/Core/CommitDetails.hpp"

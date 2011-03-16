@@ -11,8 +11,6 @@
 
 #include <QTreeView>
 
-#include "GUI/Network/ComponentType.hpp"
-
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 class QMainWindow;
