@@ -446,17 +446,20 @@ void NTreeTest::test_signal_list_tree()
   XmlDoc::Ptr doc;
   SignalFrame frame("", "", "");
   NRoot::Ptr root = t->treeRoot();
+  CRoot::Ptr newRoot = CRoot::create("Root");
 
-  // read the tree to set
-  GUI_CHECK_NO_THROW( doc = XmlDoc::parse_file("./tree.xml") );
+  newRoot->create_component<CLink>("Environment");
+  newRoot->create_component<CGroup>("Tools");
+
+  newRoot->signal_list_tree( frame );
+
+  SignalFrame replyFrame = frame.get_reply();
 
   // add a node
   root->addNode(node);
 
   // set the new tree
-  XmlNode xmlNode = frame.main_map.content.add_node("node");
-  XmlNode(doc->content->first_node()).deep_copy( xmlNode );
-  t->list_tree_reply( frame );
+  GUI_CHECK_NO_THROW ( t->list_tree_reply( replyFrame ) );
 
   // check that the previously added node has been removed
   GUI_CHECK_THROW( root->root()->get_child("ThisNodeShouldDisappear"),  ValueNotFound);
