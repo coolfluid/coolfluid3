@@ -7,7 +7,6 @@
 #include <QComboBox>
 #include <QGridLayout>
 #include <QGroupBox>
-#include <QKeyEvent>
 #include <QLineEdit>
 #include <QListView>
 #include <QPushButton>

@@ -16,6 +16,10 @@
 
 #include "Common/Log.hpp"
 
+#include "Common/OptionArray.hpp"
+
+#include "Common/XML/Protocol.hpp"
+
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"

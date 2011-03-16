@@ -9,12 +9,8 @@
 #include <QTableView>
 #include <QVBoxLayout>
 
-#include <QMessageBox>
-
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
-
-#include "Common/XML/FileOperations.hpp"
 
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NLog.hpp"

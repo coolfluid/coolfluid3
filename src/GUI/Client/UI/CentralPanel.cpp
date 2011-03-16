@@ -4,26 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QFormLayout>
 #include <QGroupBox>
-#include <QHBoxLayout>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSplitter>
 
-#include <qwidget.h>
-
-
-#include "Common/CF.hpp"
-
 #include "GUI/Client/Core/CommitDetails.hpp"
-#include "GUI/Client/Core/CNode.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 
 #include "GUI/Client/UI/ModifiedOptionsDialog.hpp"
-#include "GUI/Client/UI/ConfirmCommitDialog.hpp"
-#include "GUI/Client/UI/GraphicalValue.hpp"
 #include "GUI/Client/UI/OptionLayout.hpp"
 
 #include "GUI/Client/UI/CentralPanel.hpp"

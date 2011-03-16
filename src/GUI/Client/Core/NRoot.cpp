@@ -6,19 +6,16 @@
 
 #include <sstream>
 
-#include <QFileIconProvider>
-
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include "Common/CF.hpp"
-#include "Common/URI.hpp"
 #include "Common/Signal.hpp"
+
+#include "Common/XML/Protocol.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/Core/NetworkThread.hpp"
-#include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
@@ -27,7 +24,6 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -9,7 +9,6 @@
 
 #include "Common/StringConversion.hpp"
 #include "Common/URI.hpp"
-#include "Common/XML/Protocol.hpp"
 
 #include "GUI/Client/UI/GraphicalRestrictedList.hpp"
 
@@ -37,17 +36,17 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
   {
     std::string type = opt->type();
 
-    if(type == Protocol::Tags::type<bool>())              // bool option
+    if(type == "bool")              // bool option
       vectToStringList<bool>(vect, list);
-    else if(type == Protocol::Tags::type<Real>())         // Real option
+    else if(type == "Real")         // Real option
       vectToStringList<Real>(vect, list);
-    else if(type == Protocol::Tags::type<int>())          // int option
+    else if(type == "int")          // int option
       vectToStringList<int>(vect, list);
-    else if(type == Protocol::Tags::type<Uint>())         // Uint option
+    else if(type == "Uint")         // Uint option
       vectToStringList<Uint>(vect, list);
-    else if(type == Protocol::Tags::type<std::string>())  // string option
+    else if(type == "std::string")  // string option
       vectToStringList<std::string>(vect, list);
-    else if(type == Protocol::Tags::type<URI>())          // URI option
+    else if(type == "URI")          // URI option
       vectToStringList<URI>(vect, list);
     else
       throw CastingFailed(FromHere(), type + ": Unknown type");

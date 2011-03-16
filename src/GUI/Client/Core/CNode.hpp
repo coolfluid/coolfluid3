@@ -9,23 +9,17 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include <QMap>
-#include <QObject>
 #include <QStringList>
 
 #include "Common/Component.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
 
 #include "GUI/Client/Core/LibClientCore.hpp"
 
-class QString;
-class QAction;
-class QMenu;
 class QMutex;
-class QPoint;
+class QString;
 
 template<typename T> class QList;
+template<typename T, typename V> class QMap;
 
 //////////////////////////////////////////////////////////////////////////////
 

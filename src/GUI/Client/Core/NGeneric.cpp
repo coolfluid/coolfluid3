@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QFileIconProvider>
-
 #include "GUI/Client/Core/NGeneric.hpp"
 
 using namespace CF::GUI::ClientCore;
@@ -13,7 +11,7 @@ using namespace CF::GUI::ClientCore;
 NGeneric::NGeneric(const QString & name, const QString & type) :
     CNode(name, type, GENERIC_NODE)
 {
-   
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

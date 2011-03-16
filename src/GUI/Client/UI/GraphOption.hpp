@@ -4,9 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-
-#ifndef GRAPHOPTION_HPP
-#define GRAPHOPTION_HPP
+#ifndef CF_GUI_Client_UI_GraphOption_hpp
+#define CF_GUI_Client_UI_GraphOption_hpp
 
 #include <QTableWidget>
 #include <QPushButton>
@@ -154,4 +153,4 @@ private slots: //functions - slots
 } // GUI
 } // CF
 
-#endif // GRAPHOPTION_HPP
+#endif // CF_GUI_Client_UI_GraphOption_hpp

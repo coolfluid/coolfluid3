@@ -11,10 +11,9 @@
 
 #include <QAbstractItemModel>
 #include <QMap>
-#include <QStringList> /// @todo does not compile without that...but why ???
+#include <QStringList>
 
 #include "GUI/Client/Core/CNode.hpp"
-#include "GUI/Client/Core/TreeNode.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 
 class QRegExp;
@@ -346,20 +345,14 @@ namespace ClientCore {
     /// @param index Node index to convert
     /// @return Returns the tree node, or @c nullptr if the index could
     /// not be converted (i.e. index is invalid)
-    inline TreeNode * indexToTreeNode(const QModelIndex & index) const
-    {
-      return static_cast<TreeNode *>(index.internalPointer());
-    }
+    TreeNode * indexToTreeNode(const QModelIndex & index) const;
 
     /// @brief Converts an index to a node
 
     /// @param index Node index to convert
     /// @return Returns the node, or a null shared pointer if the index could
     /// not be converted (i.e. index is invalid)
-    inline CNode::Ptr indexToNode(const QModelIndex & index) const
-    {
-      return this->indexToTreeNode(index)->node();
-    }
+    CNode::Ptr indexToNode(const QModelIndex & index) const;
 
     /// @brief Retrieves a node path from its index.
 

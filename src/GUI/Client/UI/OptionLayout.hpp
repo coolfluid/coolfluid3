@@ -10,9 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QLabel>
-#include <QLineEdit>
 #include <QMap>
-#include <QObject>
 #include <QFormLayout>
 
 #include "Common/Option.hpp"

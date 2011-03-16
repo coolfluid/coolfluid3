@@ -26,7 +26,6 @@ namespace ClientCore {
 
   class ClientCore_API CommitDetailsItem
   {
-
   public:
 
     /// @brief Constructor

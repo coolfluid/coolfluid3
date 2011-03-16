@@ -11,7 +11,6 @@
 
 #include <QDialog>
 
-#include "GUI/Client/Core/NJournal.hpp"
 #include "GUI/Client/Core/NJournalBrowser.hpp"
 
 class QAbstractButton;

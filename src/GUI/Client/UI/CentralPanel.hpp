@@ -9,25 +9,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QLabel>
-#include <QLineEdit>
-#include <QList>
-#include <QObject>
 #include <QWidget>
 
 #include "Common/Option.hpp"
 
 #include "GUI/Client/UI/LibClientUI.hpp"
 
-class QFormLayout;
 class QGridLayout;
 class QGroupBox;
-class QHBoxLayout;
 class QModelIndex;
 class QPushButton;
 class QScrollArea;
 class QSplitter;
-class QVBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////////
 

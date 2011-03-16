@@ -11,9 +11,8 @@
 #include <QPushButton>
 #include <QStringListModel>
 
-#include "Common/URI.hpp"
-
 #include "GUI/Client/Core/NTree.hpp"
+
 #include "GUI/Client/UI/SelectPathDialog.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 

@@ -6,9 +6,6 @@
 
 #include <sstream>
 
-#include <QModelIndex>
-#include <QVariant>
-
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
@@ -18,11 +15,9 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "Common/XML/FileOperations.hpp"
+#include "Common/XML/Protocol.hpp"
 
-#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"
-#include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
 

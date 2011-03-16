@@ -11,7 +11,6 @@
 
 #include <QObject>
 
-#include "Common/CF.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 
 #include "GUI/Client/Core/LibClientCore.hpp"

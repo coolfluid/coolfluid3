@@ -4,15 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QAction>
-#include <QFileIconProvider>
-#include <QMenu>
 #include <QModelIndex>
 
-#include "Common/Signal.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/URI.hpp"
-#include "Common/BasicExceptions.hpp"
+#include "Common/Signal.hpp"
+
+#include "Common/XML/Protocol.hpp"
 
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"

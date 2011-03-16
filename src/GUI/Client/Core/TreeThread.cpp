@@ -10,12 +10,15 @@
 
 #include "Common/Log.hpp"
 
+#include "Common/XML/Protocol.hpp"
+
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
+
 
 #include "GUI/Network/ComponentNames.hpp"
 

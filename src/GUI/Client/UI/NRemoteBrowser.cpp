@@ -26,6 +26,8 @@
 
 #include "Common/Signal.hpp"
 
+#include "Common/XML/Protocol.hpp"
+
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"

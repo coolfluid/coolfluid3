@@ -13,8 +13,6 @@
 #include <QHash>
 #include <QDialogButtonBox>
 
-#include "Common/CF.hpp"
-
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 class QPushButton;

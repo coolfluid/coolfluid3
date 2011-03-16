@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QModelIndex>
-
 #include "GUI/Client/Core/NTree.hpp"
 
 #include "GUI/Client/Core/PropertyModel.hpp"

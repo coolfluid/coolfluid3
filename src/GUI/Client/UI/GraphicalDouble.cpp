@@ -9,8 +9,6 @@
 #include <QVariant>
 #include <QVBoxLayout>
 
-#include <QDebug>
-
 #include "GUI/Client/UI/GraphicalDouble.hpp"
 
 using namespace CF::Common;

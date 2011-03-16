@@ -7,6 +7,8 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "Common/OptionT.hpp"
+
 #include "test/GUI/Client/Core/MyNode.hpp"
 
 using namespace CF::Common;

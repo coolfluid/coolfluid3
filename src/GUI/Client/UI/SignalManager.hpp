@@ -9,15 +9,16 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QObject>
+#include <QMap>
 
 #include "GUI/Client/Core/CNode.hpp"
 
+class QAction;
 class QMenu;
 class QMainWindow;
+class QPoint;
 
 template<typename T> class QList;
-template<typename T, typename V> class QMap;
 
 ////////////////////////////////////////////////////////////////////////////////
 

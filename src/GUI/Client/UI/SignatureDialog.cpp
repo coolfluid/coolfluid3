@@ -10,6 +10,8 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include "Common/XML/Protocol.hpp"
+
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/TreeThread.hpp"
 

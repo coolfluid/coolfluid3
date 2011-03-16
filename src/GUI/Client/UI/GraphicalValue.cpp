@@ -9,6 +9,10 @@
 
 #include "Math/MathConsts.hpp"
 
+#include "Common/OptionArray.hpp"
+
+#include "Common/XML/Protocol.hpp"
+
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 
@@ -21,8 +25,6 @@
 #include "GUI/Client/UI/GraphicalString.hpp"
 #include "GUI/Client/UI/GraphicalUri.hpp"
 #include "GUI/Client/UI/GraphicalUriArray.hpp"
-
-#include "GUI/Client/UI/GraphicalValue.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;

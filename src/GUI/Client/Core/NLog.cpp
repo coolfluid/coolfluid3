@@ -5,12 +5,10 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QDateTime>
-#include <QFileIconProvider>
-
-#include <boost/assign/std/vector.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include "Common/Signal.hpp"
+
+#include "Common/XML/Protocol.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -18,8 +16,6 @@
 #include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/NLog.hpp"
-
-using namespace boost::assign; // for operator+=()
 
 using namespace CF::Common;
 using namespace CF::Common::XML;

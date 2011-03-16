@@ -12,7 +12,6 @@
 #include <QMainWindow>
 #include <QMap>
 #include <QList>
-#include <QMenu>
 #include <QTextStream>
 
 #include "GUI/Network/LogMessage.hpp"

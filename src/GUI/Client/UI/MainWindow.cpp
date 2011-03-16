@@ -9,16 +9,11 @@
 #include <QDateTime>
 #include <QFileDialog>
 #include <QHeaderView>
-#include <QListView>
+#include <QLabel>
 #include <QMessageBox>
 #include <QMenuBar>
-#include <QPushButton>
 #include <QScrollArea>
 #include <QSplitter>
-#include <QTabWidget>
-#include <QVBoxLayout>
-
-#include "Common/Exception.hpp"
 
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
@@ -26,7 +21,6 @@
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/PropertyModel.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
-
 
 #include "GUI/Client/UI/AboutCFDialog.hpp"
 #include "GUI/Client/UI/LoggingList.hpp"

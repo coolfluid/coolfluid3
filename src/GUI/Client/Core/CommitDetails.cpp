@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QModelIndex>
-#include <QString>
 #include <QVariant>
 
 #include "Common/CF.hpp"

@@ -7,12 +7,13 @@
 #include <QApplication>
 #include <QList>
 #include <QMainWindow>
-#include <QMap>
 #include <QMenu>
 #include <QStatusBar>
 
-#include "Common/URI.hpp"
 #include "Common/Signal.hpp"
+#include "Common/URI.hpp"
+
+#include "Common/XML/Protocol.hpp"
 
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"

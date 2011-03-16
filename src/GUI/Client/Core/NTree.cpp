@@ -4,19 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QFileIconProvider>
-#include <QMutableMapIterator>
-
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/Signal.hpp"
 
 #include "GUI/Client/Core/TreeThread.hpp"
-#include "GUI/Client/Core/CNode.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
-#include "GUI/Client/Core/NRoot.hpp"
-#include "GUI/Client/Core/NLink.hpp"
 #include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
 #include "GUI/Client/Core/TreeNode.hpp"
 
@@ -636,6 +631,20 @@ NTree::Ptr NTree::globalTree()
   cf_assert( tree.get() != nullptr );
 
   return tree;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+TreeNode * NTree::indexToTreeNode(const QModelIndex & index) const
+{
+  return static_cast<TreeNode *>(index.internalPointer());
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+CNode::Ptr NTree::indexToNode(const QModelIndex & index) const
+{
+  return this->indexToTreeNode(index)->node();
 }
 
 ////////////////////////////////////////////////////////////////////////////

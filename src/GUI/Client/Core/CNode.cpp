@@ -4,9 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QMenu>
 #include <QMutex>
-#include <QPoint>
+#include <QMap>
 #include <QStringList>
 #include <QVariant>
 
@@ -17,15 +16,16 @@
 
 #include "Common/CF.hpp"
 #include "Common/Signal.hpp"
-#include "Common/Log.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/StringConversion.hpp"
 
 #include "Common/XML/CastingFunctions.hpp"
+#include "Common/XML/Protocol.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NJournal.hpp"

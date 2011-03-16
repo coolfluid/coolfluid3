@@ -11,15 +11,17 @@
 
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
+#include "Common/OptionT.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
+#include "GUI/Client/Core/TreeNode.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 
 #include "test/GUI/Client/Core/CommonFunctions.hpp"
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
