@@ -362,7 +362,7 @@ void ServerNetworkComm::newData()
 
       m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
 
-      XmlDoc::Ptr xmldoc = XML::parse_string( frame );
+      XmlDoc::Ptr xmldoc = XML::parse_cstring( frame );
 
       // free the buffer
       delete[] frame;
