@@ -93,6 +93,8 @@ void GraphicalUriTest::test_setSchemes()
   QCOMPARE( comboBox->itemText(0), QString("cpath") );
   QCOMPARE( comboBox->itemText(1), QString("file") );
   QCOMPARE( comboBox->itemText(2), QString("http") );
+
+  delete value;
 }
 
 //////////////////////////////////////////////////////////////////////////
