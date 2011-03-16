@@ -6,6 +6,7 @@
 
 # List of classes to "moc"
 list( APPEND coolfluid_client_core_moc_classes
+ClientRoot.hpp
 CNode.hpp
 NetworkThread.hpp
 NJournalBrowser.hpp

@@ -9,6 +9,7 @@
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/NBrowser.hpp"
 
@@ -38,7 +39,7 @@ QString NBrowser::toolTip() const
 
 NBrowser::Ptr NBrowser::globalBrowser()
 {
-  static NBrowser::Ptr browser = ClientRoot::instance().rootChild<NBrowser>(CLIENT_BROWSERS);
+  static NBrowser::Ptr browser = ThreadManager::instance().tree().rootChild<NBrowser>(CLIENT_BROWSERS);
   cf_assert( is_not_null(browser.get()) );
   return browser;
 }

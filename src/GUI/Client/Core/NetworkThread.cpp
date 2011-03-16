@@ -15,6 +15,7 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/NetworkThread.hpp"
 
@@ -51,7 +52,7 @@ NetworkThread::~NetworkThread()
   if(isRunning())
   {
     exit(0);
-    delete m_socket;
+    wait();
   }
 }
 
@@ -111,7 +112,7 @@ int NetworkThread::send(Common::Signal::arg_t& signal)
 
   out.setVersion(QDataStream::Qt_4_6); // set stream version
 
-  signal.node.set_attribute( "clientid", ClientRoot::instance().getUUID() );
+  signal.node.set_attribute( "clientid", ThreadManager::instance().tree().getUUID() );
 
   signal.xml_doc->to_string(str);
 
@@ -203,6 +204,8 @@ void NetworkThread::run()
 
   // execute the event loop
   exec();
+
+  delete m_socket;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

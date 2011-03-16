@@ -130,7 +130,7 @@ MainWindow::MainWindow()
 
   this->buildMenus();
 
-  NRoot* root = ClientRoot::instance().root().get();
+  NRoot* root = ThreadManager::instance().tree().root().get();
 
   connect(NLog::globalLog().get(), SIGNAL(newException(QString)),
           this, SLOT(newException(QString)));

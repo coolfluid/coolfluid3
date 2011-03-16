@@ -41,7 +41,7 @@ NTree::NTree(NRoot::Ptr rootNode)
     m_debugModeEnabled(false)
 {
   if(rootNode.get() == nullptr)
-    m_rootNode = new TreeNode(ClientRoot::instance().root(), nullptr, 0);
+    m_rootNode = new TreeNode(ThreadManager::instance().tree().root(), nullptr, 0);
   else
     m_rootNode = new TreeNode(rootNode, nullptr, 0);
 
@@ -680,7 +680,7 @@ bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
 
 NTree::Ptr NTree::globalTree()
 {
-  static NTree::Ptr tree = ClientRoot::instance().rootChild<NTree>(CLIENT_TREE);
+  static NTree::Ptr tree = ThreadManager::instance().tree().rootChild<NTree>(CLIENT_TREE);
   cf_assert( tree.get() != nullptr );
 
   return tree;

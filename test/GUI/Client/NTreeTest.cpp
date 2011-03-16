@@ -15,6 +15,7 @@
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "test/GUI/Client/CommonFunctions.hpp"
 #include "test/GUI/Client/ExceptionThrowHandler.hpp"
@@ -36,7 +37,7 @@ void NTreeTest::test_constructor()
   NTree t2(makeTreeFromFile());
 
   // the root must be the same as the client root
-  QCOMPARE(t.treeRoot().get(), ClientRoot::instance().root().get());
+  QCOMPARE(t.treeRoot().get(), ThreadManager::instance().tree().root().get());
   QCOMPARE(makeTreeFromFile().get(), t2.treeRoot().get());
 
   // the root must be different from nullptr
@@ -257,7 +258,7 @@ void NTreeTest::test_rowCount()
   NTree t;
 
   QCOMPARE(t.rowCount(), 1);
-  QCOMPARE(t.rowCount(t.index(0, 0)), (int) ClientRoot::instance().root()->root()->count_children());
+  QCOMPARE(t.rowCount(t.index(0, 0)), (int) ThreadManager::instance().tree().root()->root()->count_children());
   QCOMPARE(t.rowCount(t.index(0, 1)), 0);
 }
 

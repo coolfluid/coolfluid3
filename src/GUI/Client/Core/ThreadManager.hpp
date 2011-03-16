@@ -15,6 +15,7 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+class ClientRoot;
 class NetworkThread;
 
 /// Class the manages the client threads.
@@ -35,6 +36,9 @@ public:
   /// @return Returns a reference to the network thread.
   NetworkThread & network();
 
+  /// @return Returns a reference to the tree thread.
+  ClientRoot & tree();
+
 private: // functions
 
   /// Constructor.
@@ -49,6 +53,8 @@ private: // data
 
   /// The network thread.
   NetworkThread * m_networkThread;
+
+  ClientRoot * m_treeThread;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

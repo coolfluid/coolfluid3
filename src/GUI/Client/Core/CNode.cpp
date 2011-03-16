@@ -21,6 +21,8 @@
 
 #include "Common/XML/CastingFunctions.hpp"
 
+#include "GUI/Network/ComponentNames.hpp"
+
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"

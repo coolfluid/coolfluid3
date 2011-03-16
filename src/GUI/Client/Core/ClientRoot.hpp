@@ -9,8 +9,9 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include <QThread>
+
 #include "GUI/Client/Core/NRoot.hpp"
-#include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/Core/LibClientCore.hpp"
 
@@ -29,11 +30,17 @@ namespace ClientCore {
 /// anytime.
 /// @author Quentin Gasper.
 
-class ClientCore_API ClientRoot
+class ClientCore_API ClientRoot : public QThread
 {
+  Q_OBJECT
+
 public:
 
-  static ClientRoot & instance();
+  ClientRoot(QObject * parent = nullptr);
+
+  ~ClientRoot();
+
+  void run();
 
   /// @brief Gives the root UUID.
   /// @return Returns the root UUID.
@@ -45,6 +52,8 @@ public:
     return m_root->root()->get_child_ptr(name)->as_ptr<TYPE>();
   }
 
+  void setMutex(QMutex * mutex);
+
   NRoot::ConstPtr root() const { return m_root; }
 
   NRoot::Ptr root() { return m_root; }
@@ -55,7 +64,7 @@ private:
 
   NRoot::Ptr m_root;
 
-  ClientRoot();
+  QMutex * m_mutex;
 
 }; // ClientRoot
 

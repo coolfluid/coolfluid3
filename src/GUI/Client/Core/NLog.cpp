@@ -13,8 +13,10 @@
 
 #include "Common/Signal.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Network/ComponentNames.hpp"
+
+#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/NLog.hpp"
 
@@ -138,7 +140,7 @@ QString NLog::toolTip() const
 
 NLog::Ptr NLog::globalLog()
 {
-  static NLog::Ptr log = ClientRoot::instance().rootChild<NLog>(CLIENT_LOG);
+  static NLog::Ptr log = ThreadManager::instance().tree().rootChild<NLog>(CLIENT_LOG);
   cf_assert( is_not_null(log.get()) );
   return log;
 }

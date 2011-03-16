@@ -9,6 +9,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include <QObject>
+
 #include "GUI/Client/Core/CNode.hpp"
 
 #include "GUI/Client/Core/LibClientCore.hpp"
@@ -27,7 +29,7 @@ namespace ClientCore {
   /// This class subclasses CNode class.
   /// @author Quentin Gasper.
 
-  class ClientCore_API NBrowser : public CNode
+  class ClientCore_API NBrowser : public CNode, public QObject
   {
   public:
 

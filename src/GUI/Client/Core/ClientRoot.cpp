@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <QMutex>
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/Log.hpp"
@@ -31,18 +33,35 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////
 
-ClientRoot & ClientRoot::instance()
+ClientRoot::ClientRoot(QObject * parent) :
+    QThread(parent)
 {
-  static ClientRoot cr;
-  return cr;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
-ClientRoot::ClientRoot() :
-    m_root(new NRoot(CLIENT_ROOT))
+ClientRoot::~ClientRoot()
 {
+  if(isRunning())
+  {
+    exit(0);
+    wait();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void ClientRoot::setMutex(QMutex * mutex)
+{
+  m_mutex = mutex;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void ClientRoot::run()
+{
+  m_root = NRoot::Ptr(new NRoot(CLIENT_ROOT));
+
   CRoot::Ptr realRoot = m_root->root();
 
   NLog::Ptr log(new NLog());
@@ -63,7 +82,14 @@ ClientRoot::ClientRoot() :
   // set the root as model root
   tree->setRoot(m_root);
 
-  ThreadManager::instance().network().newSignal.connect( boost::bind(&ClientRoot::newSignal, this, _1));
+  ThreadManager::instance().network().newSignal.connect(
+      boost::bind(&ClientRoot::newSignal, this, _1) );
+
+  m_mutex->unlock();
+//  m_waitCondition.wakeAll();
+
+  // execute the event loop
+  exec();
 }
 
 ////////////////////////////////////////////////////////////////////////////

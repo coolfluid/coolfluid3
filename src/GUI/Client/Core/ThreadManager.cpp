@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+
+#include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 
 #include "GUI/Client/Core/ThreadManager.hpp"
@@ -25,19 +27,17 @@ ThreadManager & ThreadManager::instance()
 ////////////////////////////////////////////////////////////////////////////////
 
 ThreadManager::ThreadManager() :
-    m_networkThread(new NetworkThread())
+    m_networkThread(new NetworkThread()),
+    m_treeThread(new ClientRoot())
 {
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 ThreadManager::~ThreadManager()
 {
-  if(m_networkThread->isRunning())
-    m_networkThread->exit(0);
-
   delete m_networkThread;
+  delete m_treeThread;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,6 +45,13 @@ ThreadManager::~ThreadManager()
 NetworkThread & ThreadManager::network()
 {
   return *m_networkThread;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+ClientRoot & ThreadManager::tree()
+{
+  return *m_treeThread;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
