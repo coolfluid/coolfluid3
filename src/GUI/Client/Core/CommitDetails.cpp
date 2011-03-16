@@ -13,7 +13,13 @@
 #include "GUI/Client/Core/CommitDetailsItem.hpp"
 #include "GUI/Client/Core/CommitDetails.hpp"
 
-using namespace CF::GUI::ClientCore;
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientCore {
+
+////////////////////////////////////////////////////////////////////////////////
 
 CommitDetails::CommitDetails(QObject * parent, const QString & nodePath)
 : QAbstractItemModel(parent)
@@ -21,15 +27,14 @@ CommitDetails::CommitDetails(QObject * parent, const QString & nodePath)
   m_nodePath = nodePath;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 QVariant CommitDetails::data(const QModelIndex &index, int role) const
 {
   QVariant returnValue;
 
 
-  if(role == Qt::DisplayRole)
+  if(role == Qt::DisplayRole && index.isValid())
   {
     int rowNumber = index.row();
     int colNumber = index.column();
@@ -69,8 +74,7 @@ QVariant CommitDetails::data(const QModelIndex &index, int role) const
 }
 
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 QVariant CommitDetails::headerData(int section, Qt::Orientation orientation,
                                    int role) const
@@ -92,7 +96,7 @@ QVariant CommitDetails::headerData(int section, Qt::Orientation orientation,
           break;
 
         case 2:
-          returnValue = "New value";
+          returnValue = "New Value";
           break;
       }
     }
@@ -104,8 +108,7 @@ QVariant CommitDetails::headerData(int section, Qt::Orientation orientation,
   return returnValue;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 QModelIndex CommitDetails::index(int row, int column,
                                  const QModelIndex & parent) const
@@ -125,40 +128,31 @@ QModelIndex CommitDetails::index(int row, int column,
   return index;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 QModelIndex CommitDetails::parent(const QModelIndex &index) const
 {
-  if(!index.isValid())
-    return QModelIndex();
-
-  CommitDetailsItem * item = static_cast<CommitDetailsItem *> (index.internalPointer());
-
-  if (item == nullptr)
-    return QModelIndex();
-
   return QModelIndex();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 int CommitDetails::rowCount(const QModelIndex &parent) const
 {
-  return m_items.size();
+  if( !parent.isValid() )
+    return m_items.size();
+
+  return 0;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 int CommitDetails::columnCount(const QModelIndex &parent) const
 {
   return 3;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 void CommitDetails::setOption(const QString & optionName,
                               const QString & oldValue,
@@ -167,16 +161,14 @@ void CommitDetails::setOption(const QString & optionName,
   m_items << new CommitDetailsItem(optionName, oldValue, currentValue);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 bool CommitDetails::hasOptions() const
 {
   return !m_items.isEmpty();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 void CommitDetails::clear()
 {
@@ -184,18 +176,22 @@ void CommitDetails::clear()
   m_nodePath.clear();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 QString CommitDetails::nodePath() const
 {
   return m_nodePath;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 void CommitDetails::setNodePath(const QString & nodePath)
 {
   m_nodePath = nodePath;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // ClientCore
+} // GUI
+} // CF

@@ -18,6 +18,8 @@
 class QStringList;
 class QString;
 
+////////////////////////////////////////////////////////////////////////////////
+
 namespace CF {
 namespace GUI {
 namespace ClientCore {
@@ -87,8 +89,10 @@ namespace ClientCore {
 
     /// @brief Implements QAbstractItemModel::parent()
 
-    /// Gives the parent index of a prvided index.
+    /// Gives the parent index of a provided index.
     /// @brief index Index from which we want to know the parent index.
+    /// @note Since this is not a tree-based model, this implementation
+    /// always returns a invalid index.
     /// @return Returns the parent index.
     QModelIndex parent(const QModelIndex &index) const;
 

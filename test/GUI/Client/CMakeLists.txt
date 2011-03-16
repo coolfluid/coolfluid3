@@ -9,6 +9,7 @@ set(utest-client_moc_classes
   NBrowserTest.hpp
   NLinkTest.hpp
   CNodeTest.hpp
+  CommitDetailsTest.hpp
 )
 
 QT4_WRAP_CPP(utest-client_moc_files ${utest-client_moc_classes})
@@ -20,18 +21,20 @@ list( APPEND utest-client_libs ${QT_LIBRARIES})
 list( APPEND utest-client_files
   utest-client.cpp
   ExceptionThrowHandler.hpp
-  NTreeTest.hpp
-  NTreeTest.cpp
-  CommonFunctions.cpp
-  CommonFunctions.hpp
   CNodeTest.hpp
   CNodeTest.cpp
+  CommitDetailsTest.cpp
+  CommitDetailsTest.hpp
+  CommonFunctions.cpp
+  CommonFunctions.hpp
   MyNode.cpp
   MyNode.hpp
   NBrowserTest.cpp
   NBrowserTest.hpp
   NLinkTest.cpp
   NLinkTest.hpp
+  NTreeTest.hpp
+  NTreeTest.cpp
   TreeHandler.cpp
   TreeHandler.hpp
 )
@@ -47,26 +50,23 @@ add_custom_command(TARGET utest-client
 
 else()
     coolfluid_mark_not_orphan(
-        CommonFunctions.hpp
-        NTreeTest.hpp
-        NBrowserTest.hpp
-        NLinkTest.hpp
-        CNodeTest.hpp
-        utest-client.cpp
-        ExceptionThrowHandler.hpp
-        NTreeTest.hpp
-        NTreeTest.cpp
-        CommonFunctions.cpp
-        CommonFunctions.hpp
-        CNodeTest.hpp
-        CNodeTest.cpp
-        MyNode.cpp
-        MyNode.hpp
-        NBrowserTest.cpp
-        NBrowserTest.hpp
-        NLinkTest.cpp
-        NLinkTest.hpp
-        TreeHandler.cpp
-        TreeHandler.hpp
+  utest-client.cpp
+  ExceptionThrowHandler.hpp
+  CNodeTest.hpp
+  CNodeTest.cpp
+  CommitDetailsTest.cpp
+  CommitDetailsTest.hpp
+  CommonFunctions.cpp
+  CommonFunctions.hpp
+  MyNode.cpp
+  MyNode.hpp
+  NBrowserTest.cpp
+  NBrowserTest.hpp
+  NLinkTest.cpp
+  NLinkTest.hpp
+  NTreeTest.hpp
+  NTreeTest.cpp
+  TreeHandler.cpp
+  TreeHandler.hpp
         )
 endif()
