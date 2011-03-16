@@ -377,6 +377,7 @@ void CNodeTest::test_removeNode()
   NRoot::Ptr root(new NRoot("Root"));
   NGeneric::Ptr node(new NGeneric("Node", "NGeneric"));
   NLog::Ptr log( new NLog() );
+  Component * nullComp = (Component*)nullptr;
 
   root->addNode(node);
   node->addNode(log);
@@ -385,13 +386,13 @@ void CNodeTest::test_removeNode()
   QSignalSpy nodeSpy(node->notifier(), SIGNAL(childCountChanged()));
 
   GUI_CHECK_NO_THROW( root->removeNode("Node"));
-  // the component should have been added to the REAL root (CRoot)
-  GUI_CHECK_THROW( root->root()->access_component_ptr("cpath://Root/Node")->as_ptr<NGeneric>(), InvalidURI );
+  // the component should have been removed from the REAL root (CRoot)
+  QCOMPARE( root->root()->access_component_ptr("cpath://Root/Node").get(), nullComp);
 
   QCOMPARE(rootSpy.count(), 1);
 
   GUI_CHECK_NO_THROW( node->removeNode( CLIENT_LOG ) );
-  GUI_CHECK_THROW( root->root()->access_component_ptr( "cpath://Root/Node/" CLIENT_LOG )->as_ptr<NLog>(), InvalidURI );
+  QCOMPARE( root->root()->access_component_ptr( "cpath://Root/Node/" CLIENT_LOG ).get(), nullComp );
 
   QCOMPARE(nodeSpy.count(), 1);
 }
