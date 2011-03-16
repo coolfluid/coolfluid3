@@ -320,7 +320,7 @@ namespace ClientCore {
     //@{
 
     /// Method called when a @e tree_update event occurs on the server.
-    /// This methods calls @c NCore::update_tree() method to resquet an update
+    /// This methods calls @c NTree::update_tree() method to resquet an update
     /// of the tree.
     /// @param node Signal data. This parameter is not used.
     void update_tree( Common::SignalArgs & node);

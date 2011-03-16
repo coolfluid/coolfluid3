@@ -26,7 +26,7 @@
 
 #include "Common/Exception.hpp"
 
-#include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"
@@ -130,6 +130,8 @@ MainWindow::MainWindow()
 
   this->buildMenus();
 
+  NRoot* root = ClientRoot::instance().root().get();
+
   connect(NLog::globalLog().get(), SIGNAL(newException(QString)),
           this, SLOT(newException(QString)));
 
@@ -137,11 +139,10 @@ MainWindow::MainWindow()
           SIGNAL(newMessage(QString, CF::GUI::Network::LogMessage::Type)),
           this, SLOT(newLogMessage(QString,CF::GUI::Network::LogMessage::Type)));
 
-  connect(NCore::globalCore().get(), SIGNAL(connectedToServer()),
-          this, SLOT(connectedToServer()));
+  connect(root, SIGNAL(connected()), this, SLOT(connectedToServer()));
 
-  connect(NCore::globalCore().get(), SIGNAL(disconnectedFromServer()),
-          this, SLOT(disconnectedFromServer()));
+//  connect(root, SIGNAL(disconnectedFromServer()),
+//          this, SLOT(disconnectedFromServer()));
 
   connect(NTree::globalTree().get(),
           SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
@@ -273,7 +274,7 @@ void MainWindow::buildMenus()
   actionInfo.m_shortcut = tr("ctrl+U");
 
   tmpAction = actionInfo.buildAction(this);
-  connect(tmpAction, SIGNAL(triggered()), NCore::globalCore().get(), SLOT(updateTree()));
+  connect(tmpAction, SIGNAL(triggered()), NTree::globalTree().get(), SLOT(updateTree()));
   m_actions[MainWindow::ACTION_UPDATE_TREE] = tmpAction;
 
 

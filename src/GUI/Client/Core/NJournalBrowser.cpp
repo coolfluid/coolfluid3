@@ -20,7 +20,6 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"
-#include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/SignalNode.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"

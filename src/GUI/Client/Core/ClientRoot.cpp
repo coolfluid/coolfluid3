@@ -13,7 +13,6 @@
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
-#include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/ProcessingThread.hpp"
@@ -51,17 +50,14 @@ ClientRoot::ClientRoot() :
   NLog::Ptr log(new NLog());
   NBrowser::Ptr browser(new NBrowser());
   NTree::Ptr tree(new NTree(m_root));
-  NCore::Ptr core(new NCore());
 
   // add components to the root
-  realRoot->add_component(core);
   realRoot->add_component(log);
   realRoot->add_component(browser);
   realRoot->add_component(tree);
 
   // mark all components as basic
   m_root->mark_basic();
-  core->mark_basic();
   log->mark_basic();
   browser->mark_basic();
   tree->mark_basic();

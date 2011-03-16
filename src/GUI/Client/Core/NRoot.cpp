@@ -17,36 +17,55 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/NetworkThread.hpp"
+#include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/NRoot.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::ClientCore;
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientCore {
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 NRoot::NRoot(const QString & name)
   : CNode(name, "CRoot", ROOT_NODE)
 {
   m_uuid = boost::uuids::random_generator()();
+
+  regist_signal("shutdown", "Server shutdown")->signal->connect(boost::bind(&NRoot::shutdown, this, _1));
+  regist_signal("client_registration", "Registration confirmation")->signal->connect(boost::bind(&NRoot::client_registration, this, _1));
+  regist_signal("frame_rejected", "Frame rejected by the server")->signal->connect(boost::bind(&NRoot::frame_rejected, this, _1));
+
+
   regist_signal( "save_tree_local", "Saves the server component tree.", "Save server tree" )->signal->connect( boost::bind(&NRoot::save_tree_local, this, _1));
 
   m_localSignals << "save_tree_local";
 
   m_root = CRoot::create(name.toStdString());
+
+  connect(&ThreadManager::instance().network(), SIGNAL(connected()),
+          this, SLOT(connectedToServer()));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 QString NRoot::toolTip() const
 {
   return this->getComponentType();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 CNode::Ptr NRoot::childFromRoot(CF::Uint number) const
 {
@@ -62,16 +81,14 @@ CNode::Ptr NRoot::childFromRoot(CF::Uint number) const
   return it.get();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 bool NRoot::pathExists() const
 {
   return false;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 std::string NRoot::uuid() const
 {
@@ -80,12 +97,11 @@ std::string NRoot::uuid() const
   return ss.str();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 void NRoot::save_tree_local ( SignalArgs & )
 {
-//  if( !NCore::globalCore()->isConnected() )
+//  if( !NRoot::globalCore()->isConnected() )
 //    NLog::globalLog()->addError("The client needs to be connected to a server to do that.");
 //  else
 //  {
@@ -94,6 +110,71 @@ void NRoot::save_tree_local ( SignalArgs & )
 
 //    options.set_option("filename", URI("./server-tree.xml", URI::Scheme::FILE));
 
-//    NCore::globalCore()->sendSignal(frame);
+//    NRoot::globalCore()->sendSignal(frame);
 //  }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void NRoot::connectedToServer()
+{
+  // get some reference (for better readability)
+  QString & host = m_commSshInfo.m_hostname;
+  quint16 & port = m_commSshInfo.m_port;
+
+  QString msg1 = "Now connected to server '%1' on port %2.";
+  QString msg2 = "Attempting to register with UUID %1.";
+
+  NLog::globalLog()->addMessage(msg1.arg(host).arg(port));
+  NLog::globalLog()->addMessage(msg2.arg(uuid().c_str()));
+
+  // build and send signal
+  SignalFrame frame("client_registration", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
+
+  ThreadManager::instance().network().send(frame);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void NRoot::shutdown(Signal::arg_t & node)
+{
+  NLog::globalLog()->addMessage("The server is shutting down. Disconnecting...");
+//  this->disconnectFromServer(false);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void NRoot::client_registration(Signal::arg_t & node)
+{
+  if( node.map(Protocol::Tags::key_options()).get_option<bool>("accepted") )
+  {
+    NLog::globalLog()->addMessage("Registration was successful.");
+    emit connected();
+    NTree::globalTree()->updateTree();
+  }
+  else
+  {
+    NLog::globalLog()->addError("Registration failed. Disconnecting...");
+//    this->disconnectFromServer(false);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void NRoot::frame_rejected(Signal::arg_t & args)
+{
+  SignalFrame & options = args.map( Protocol::Tags::key_options() );
+
+  std::string frameid = options.get_option<std::string>("frameid");
+  std::string reason = options.get_option<std::string>("reason");
+
+  QString msg("Action %1 has been rejected by the server: %2");
+
+  NLog::globalLog()->addError(msg.arg(frameid.c_str()).arg(reason.c_str()));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // ClientCore
+} // GUI
+} // CF

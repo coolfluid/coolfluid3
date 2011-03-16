@@ -10,9 +10,9 @@ CNode.hpp
 ClientRoot.hpp
 NetworkThread.hpp
 NJournalBrowser.hpp
-NCore.hpp
 NJournal.hpp
 NLog.hpp
+NRoot.hpp
 NTree.hpp
 NPlotXY.hpp
 ProcessingThread.hpp # moc'ed because the base class emits signals
@@ -39,8 +39,6 @@ LibClientCore.cpp
 LibClientCore.hpp
 NBrowser.cpp
 NBrowser.hpp
-NCore.cpp
-NCore.hpp
 NetworkThread.cpp
 NetworkThread.hpp
 NGeneric.hpp

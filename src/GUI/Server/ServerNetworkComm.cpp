@@ -207,7 +207,7 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
                                           const URI & sender,
                                           const QString & reason)
 {
-  SignalFrame frame("frame_rejected", sender, CLIENT_CORE_PATH);
+  SignalFrame frame("frame_rejected", sender, CLIENT_ROOT_PATH);
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   options.set_option("frameid", frameid);

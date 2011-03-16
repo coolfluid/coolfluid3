@@ -14,7 +14,6 @@
 #include "Common/Exception.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
-#include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/UI/MainWindow.hpp"
 #include "GUI/Client/UI/JournalBrowserDialog.hpp"
 
@@ -39,9 +38,6 @@ int main(int argc, char *argv[])
   {
    MainWindow window;
    window.showMaximized();
-//   TSshInformation info("localhost", 62784);
-
-//   NCore::globalCore()->connectToServer(info);
    returnValue = app.exec();
   }
   catch(Exception e)

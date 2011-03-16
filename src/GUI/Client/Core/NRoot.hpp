@@ -15,6 +15,8 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
+#include "GUI/Client/Core/TSshInformation.hpp"
+
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -34,8 +36,10 @@ namespace ClientCore {
   /// @author Quentin Gasper.
 
   class ClientCore_API NRoot :
-      public CNode
+      public QObject, public CNode
   {
+    Q_OBJECT
+
   public:
 
     typedef boost::shared_ptr<NRoot> Ptr;
@@ -75,6 +79,15 @@ namespace ClientCore {
 
     void save_tree_local ( Common::SignalArgs & node);
 
+  signals:
+
+    void connected();
+
+  private slots:
+
+    /// @brief Slot called when the client is connected to the server.
+    void connectedToServer();
+
   private :
 
     /// @brief The internal CRoot component
@@ -83,6 +96,34 @@ namespace ClientCore {
 
     /// @brief Client UUID
     boost::uuids::uuid m_uuid;
+
+    TSshInformation m_commSshInfo;
+
+  private: // helper functions
+    /// @name Signals
+    //@{
+
+    /// @brief Method called when the server sends a shutdown event.
+    /// @param node Signal parameters. This parameter is not used.
+    void shutdown(Common::Signal::arg_t & node);
+
+    /// @brief Method called when the server confirms/rejects the client
+    /// registration.
+    /// @param node Signal parameters. Should contain a boolean value named
+    /// "accepted". If this value is @c true, the server has accepted the
+    /// registration. Otherwise the server rejects the registration, in this
+    /// case, the method closes the network connection.
+    void client_registration(Common::Signal::arg_t & node);
+
+    /// @brief Method called when the server rejects a request.
+    /// @param node Signal parameters. Should contain two values:
+    /// @li a string named "uuid" that contains the rejected frame UUID
+    /// @li a string named "reason" that contains the reason of the reject
+    void frame_rejected(Common::Signal::arg_t & node);
+
+    //@} END Signals
+
+
 
   }; // class NRoot
 

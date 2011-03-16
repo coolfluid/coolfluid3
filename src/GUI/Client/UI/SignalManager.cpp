@@ -15,7 +15,6 @@
 #include "Common/URI.hpp"
 #include "Common/Signal.hpp"
 
-#include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"

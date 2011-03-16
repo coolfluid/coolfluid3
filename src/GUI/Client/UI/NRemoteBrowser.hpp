@@ -36,9 +36,6 @@ class QStringList;
 
 namespace CF {
 namespace GUI {
-
-namespace ClientCore { class NCore; }
-
 namespace ClientUI {
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -227,9 +224,6 @@ namespace ClientUI {
     virtual QString toolTip() const = 0;
 
   protected:
-
-    /// @brief Client kernel.
-    boost::shared_ptr<ClientCore::NCore> m_clientCore;
 
     QModelIndex index;
 

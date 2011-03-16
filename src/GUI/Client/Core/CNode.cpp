@@ -22,7 +22,6 @@
 #include "Common/XML/CastingFunctions.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
-#include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NJournal.hpp"

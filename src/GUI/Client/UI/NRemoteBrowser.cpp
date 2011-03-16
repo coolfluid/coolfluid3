@@ -27,7 +27,6 @@
 #include "Common/Signal.hpp"
 
 #include "GUI/Client/Core/NBrowser.hpp"
-#include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/UI/FilesListItem.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"
@@ -52,8 +51,6 @@ NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * pare
       signal->connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
 
   this->setWindowTitle("Open file");
-
-  m_clientCore = NCore::globalCore();
 
   // create the components
   m_labFilter = new QLabel("Filter (wildcards allowed) :", this);

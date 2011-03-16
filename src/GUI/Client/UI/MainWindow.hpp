@@ -37,7 +37,6 @@ namespace CF {
 namespace GUI {
 
 namespace ClientCore {
-  class NCore;
   class PropertyModel;
 }
 
