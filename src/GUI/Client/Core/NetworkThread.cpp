@@ -98,7 +98,7 @@ void NetworkThread::disconnectFromServer(bool shutServer)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int NetworkThread::send(Common::Signal::arg_t& signal)
+int NetworkThread::send(Common::SignalArgs& signal)
 {
   if(!isConnected())
     throw IllegalCall(FromHere(), "There is no active connection.");

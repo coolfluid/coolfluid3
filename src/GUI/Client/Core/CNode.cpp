@@ -105,7 +105,7 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
 
   regist_signal("signal_signature", "");
 
-  signal("signal_signature").is_hidden = true;
+  signal("signal_signature")->is_hidden = true;
 
   m_properties.add_property("originalComponentType", m_componentType.toStdString());
 }
@@ -545,8 +545,8 @@ void CNode::listSignals(QList<ActionInfo> & actions)
         SignalPtr sig = m_signals.find(it->toStdString())->second;
 
         ai.name = it->toStdString().c_str();
-        ai.description = sig.description.c_str();
-        ai.readableName = sig.readable_name.c_str();
+        ai.description = sig->description.c_str();
+        ai.readableName = sig->readable_name.c_str();
         ai.isLocal = true;
 
         actions.append(ai);

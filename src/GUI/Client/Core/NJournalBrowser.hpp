@@ -105,7 +105,7 @@ public:
 
   //@} END VIRTUAL FUNCTIONS
 
-  const Common::Signal::arg_t & signal(const QModelIndex & index) const;
+  const Common::SignalArgs & signal(const QModelIndex & index) const;
 
   void setRootNode(const Common::XML::XmlNode * rootNode);
 
@@ -125,7 +125,7 @@ private: // data
 
   const Common::XML::XmlNode * m_rootNode;
 
-  QList<Common::Signal::arg_t *> m_children;
+  QList<Common::SignalArgs *> m_children;
 
   Common::XML::XmlDoc::Ptr m_doc;
 
@@ -134,12 +134,12 @@ private: // data
   /// @param index Node index to convert
   /// @return Returns the tree node, or @c nullptr if the index could
   /// not be converted (i.e. index is invalid)
-  inline Common::Signal::arg_t * indexToXmlNode(const QModelIndex & index) const
+  inline Common::SignalArgs * indexToXmlNode(const QModelIndex & index) const
   {
-    return static_cast<Common::Signal::arg_t *>(index.internalPointer());
+    return static_cast<Common::SignalArgs *>(index.internalPointer());
   }
 
-  QString readAttribute( const Common::Signal::arg_t & sig, const char * name) const;
+  QString readAttribute( const Common::SignalArgs & sig, const char * name) const;
 
 }; // JournalBrowser
 

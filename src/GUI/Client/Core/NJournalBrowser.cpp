@@ -58,7 +58,7 @@ QVariant NJournalBrowser::data(const QModelIndex & index, int role) const
 
   if(index.isValid() && role == Qt::DisplayRole)
   {
-    Signal::arg_t & node = *this->indexToXmlNode(index);
+    SignalArgs & node = *this->indexToXmlNode(index);
 
     switch(index.column())
     {
@@ -96,7 +96,7 @@ QVariant NJournalBrowser::data(const QModelIndex & index, int role) const
 
 QModelIndex NJournalBrowser::index(int row, int column, const QModelIndex & parent) const
 {
-  Signal::arg_t * childNode = nullptr;
+  SignalArgs * childNode = nullptr;
   QModelIndex index;
 
   if(this->hasIndex(row, column, parent))
@@ -163,9 +163,9 @@ QString NJournalBrowser::toolTip() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-const Signal::arg_t & NJournalBrowser::signal(const QModelIndex & index) const
+const SignalArgs & NJournalBrowser::signal(const QModelIndex & index) const
 {
-  Signal::arg_t * signal = indexToXmlNode(index);
+  SignalArgs * signal = indexToXmlNode(index);
 
   cf_assert(signal != nullptr);
 
@@ -192,7 +192,7 @@ void NJournalBrowser::setRootNode(const XmlNode * rootNode)
     rapidxml::xml_node<> * currNode = m_rootNode->content->first_node("frame");
 
     for( ; currNode != nullptr ; currNode = currNode->next_sibling() )
-      m_children.append( new Signal::arg_t(currNode) );
+      m_children.append( new SignalArgs(currNode) );
   }
 
   // the underlying data changed, so we tell the view(s) to update
@@ -228,7 +228,7 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
   std::stringstream ss;
   SignalFrame frame("","","");
 
-  Signal::arg_t * signal_node = indexToXmlNode(index);
+  SignalArgs * signal_node = indexToXmlNode(index);
   signal_node->node.deep_copy(frame.node);
 
   rapidxml::xml_attribute<> * clientIdAttr;
@@ -249,7 +249,7 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NJournalBrowser::readAttribute(const Signal::arg_t &sig, const char *name) const
+QString NJournalBrowser::readAttribute(const SignalArgs &sig, const char *name) const
 {
   rapidxml::xml_attribute<>* attr = sig.node.content->first_attribute(name);
 

@@ -95,7 +95,7 @@ namespace ClientCore {
 
     /// @brief Method called when the server sends a shutdown event.
     /// @param node Signal parameters. This parameter is not used.
-    void shutdown(Common::Signal::arg_t & node);
+    void shutdown(Common::SignalArgs & node);
 
     /// @brief Method called when the server confirms/rejects the client
     /// registration.
@@ -103,13 +103,13 @@ namespace ClientCore {
     /// "accepted". If this value is @c true, the server has accepted the
     /// registration. Otherwise the server rejects the registration, in this
     /// case, the method closes the network connection.
-    void client_registration(Common::Signal::arg_t & node);
+    void client_registration(Common::SignalArgs & node);
 
     /// @brief Method called when the server rejects a request.
     /// @param node Signal parameters. Should contain two values:
     /// @li a string named "uuid" that contains the rejected frame UUID
     /// @li a string named "reason" that contains the reason of the reject
-    void frame_rejected(Common::Signal::arg_t & node);
+    void frame_rejected(Common::SignalArgs & node);
 
     //@} END Signals
 

@@ -12,7 +12,7 @@
 #include <QAbstractSocket>
 #include <QThread>
 
-#include "Common/SignalHandler.hpp"
+#include <boost/signals2/signal.hpp>
 
 #include "GUI/Client/Core/LibClientCore.hpp"
 
@@ -61,7 +61,7 @@ public:
   /// The client UUID is added to the frame.
   /// @param signal The signal to send.
   /// @return Returns the number of bytes written.
-  int send(Common::Signal::arg_t & signal);
+  int send(Common::SignalArgs & signal);
 
   /// Executes the thread event loop.
   void run();

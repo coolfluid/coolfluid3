@@ -108,7 +108,7 @@ void NRoot::connectedToServer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::shutdown(Signal::arg_t & node)
+void NRoot::shutdown(SignalArgs & node)
 {
   NLog::globalLog()->addMessage("The server is shutting down. Disconnecting...");
   ThreadManager::instance().network().disconnectFromServer(false);
@@ -116,7 +116,7 @@ void NRoot::shutdown(Signal::arg_t & node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::client_registration(Signal::arg_t & node)
+void NRoot::client_registration(SignalArgs & node)
 {
   if( node.map(Protocol::Tags::key_options()).get_option<bool>("accepted") )
   {
@@ -133,7 +133,7 @@ void NRoot::client_registration(Signal::arg_t & node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::frame_rejected(Signal::arg_t & args)
+void NRoot::frame_rejected(SignalArgs & args)
 {
   SignalFrame & options = args.map( Protocol::Tags::key_options() );
 
