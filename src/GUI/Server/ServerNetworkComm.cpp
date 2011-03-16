@@ -131,7 +131,7 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
   out << (quint32)0;
   // if data is not converted to QString, the client receives q strqnge frame
   // composed of chinese/japanese chararcters
-  out << signalStr.c_str();
+  out << signal_str.c_str();
   out.device()->seek(0); // go back to the beginning of the frame
   out << (quint32)(block.size() - sizeof(quint32)); // store the data size
 
