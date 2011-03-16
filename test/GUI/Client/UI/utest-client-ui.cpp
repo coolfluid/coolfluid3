@@ -7,16 +7,25 @@
 #include <QApplication>
 #include <QtTest>
 
+#include "Common/CF.hpp"
+#include "Common/Exception.hpp"
+
+#include "test/GUI/Client/UI/GraphicalValueTest.hpp"
+
+using namespace CF::GUI::ClientTest;
+
 int main(int argc, char * argv[])
 {
   QApplication app(argc, argv);
   int passed = 0;
 
-//  CF::Common::ExceptionManager::instance().ExceptionDumps = false;
-//  CF::Common::ExceptionManager::instance().ExceptionAborts = false;
-//  CF::Common::ExceptionManager::instance().ExceptionOutputs = false;
+  CF::Common::ExceptionManager::instance().ExceptionDumps = false;
+  CF::Common::ExceptionManager::instance().ExceptionAborts = false;
+  CF::Common::ExceptionManager::instance().ExceptionOutputs = false;
 
-//  CF::AssertionManager::instance().AssertionThrows = true;
+  CF::AssertionManager::instance().AssertionThrows = true;
+
+  passed += QTest::qExec(new GraphicalValueTest(), argc, argv);
 
   return passed;
 }

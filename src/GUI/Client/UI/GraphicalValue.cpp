@@ -8,6 +8,8 @@
 #include <QRegExpValidator>
 #include <QDebug>
 
+#include "Math/MathConsts.hpp"
+
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 
@@ -27,10 +29,10 @@ using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
+using namespace CF::Math;
 
 GraphicalValue::GraphicalValue(QWidget *parent) :
     QWidget(parent),
-    m_parent(parent),
     m_committing(false)
 {
   m_layout = new QHBoxLayout(this);
@@ -94,7 +96,10 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
       std::string type(array->elem_type());
 
       if(type == Protocol::Tags::type<bool>())                 // bool option
-        value = new GraphicalArray(new QRegExpValidator(QRegExp("(true)|(false)|(1)|(0)"), parent), parent);
+      {
+        QRegExp regex("(true)|(false)|(1)|(0)|(on)|(off)");
+        value = new GraphicalArray(new QRegExpValidator(regex, parent), parent);
+      }
       else if(type == Protocol::Tags::type<Real>())            // Real option
       {
         QDoubleValidator * val = new QDoubleValidator(nullptr);
@@ -104,7 +109,11 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
       else if(type == Protocol::Tags::type<int>())              // int option
         value = new GraphicalArray(new QIntValidator(), parent);
       else if(type == Protocol::Tags::type<Uint>())             // Uint option
-        value = new GraphicalArray(new QIntValidator(0, INT_MAX, parent), parent);
+      {
+        QIntValidator * val = new QIntValidator();
+        val->setBottom(0);
+        value = new GraphicalArray(val, parent);
+      }
       else if(type == Protocol::Tags::type<std::string>())      // string option
         value = new GraphicalArray(nullptr, parent);
       else if(type == Protocol::Tags::type<URI>())              // URI option

@@ -32,7 +32,7 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
 
     if(type == Protocol::Tags::type<bool>())              // bool option
       vectToStringList<bool>(vect, list);
-    else if(type == Protocol::Tags::type<Uint>())         // Real option
+    else if(type == Protocol::Tags::type<Real>())         // Real option
       vectToStringList<Real>(vect, list);
     else if(type == Protocol::Tags::type<int>())          // int option
       vectToStringList<int>(vect, list);
