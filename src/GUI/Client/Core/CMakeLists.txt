@@ -54,8 +54,6 @@ NPlotXY.cpp
 NPlotXY.hpp
 PropertyModel.cpp
 PropertyModel.hpp
-SignalNode.cpp
-SignalNode.hpp
 ThreadManager.cpp
 ThreadManager.hpp
 TreeNode.cpp

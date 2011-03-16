@@ -18,7 +18,6 @@
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NJournal.hpp"
 #include "GUI/Client/Core/NJournalBrowser.hpp"
-#include "GUI/Client/Core/SignalNode.hpp"
 
 #include "GUI/Client/UI/SignalInspectorDialog.hpp"
 

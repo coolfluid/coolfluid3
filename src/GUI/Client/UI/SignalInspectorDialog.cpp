@@ -11,8 +11,6 @@
 #include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/FileOperations.hpp"
 
-#include "GUI/Client/Core/SignalNode.hpp"
-
 #include "GUI/Client/UI/SignalInspectorDialog.hpp"
 
 using namespace CF::Common;
@@ -58,11 +56,11 @@ SignalInspectorDialog::~SignalInspectorDialog()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void SignalInspectorDialog::show(const ClientCore::SignalNode & node)
+void SignalInspectorDialog::show(const Common::XML::SignalFrame & signal)
 {
   std::string str;
 
-  XML::to_string(node.node()->node, str);
+  XML::to_string(signal.node, str);
 
   m_textArea->setText(QString(str.c_str()).replace('\t', "  "));
 

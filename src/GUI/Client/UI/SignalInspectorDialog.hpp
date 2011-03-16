@@ -11,6 +11,7 @@
 
 #include <QDialog>
 
+
 class QDialogButtonBox;
 class QTextEdit;
 class QVBoxLayout;
@@ -18,9 +19,13 @@ class QVBoxLayout;
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace GUI {
 
-namespace ClientCore { class SignalNode; }
+namespace Common
+{
+  namespace XML { class SignalFrame; }
+}
+
+namespace GUI {
 
 namespace ClientUI {
 
@@ -36,7 +41,7 @@ public:
 
   ~SignalInspectorDialog();
 
-  void show(const ClientCore::SignalNode & node);
+  void show(const Common::XML::SignalFrame & node);
 
 private:
 

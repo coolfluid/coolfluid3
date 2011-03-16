@@ -27,8 +27,6 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////
 
-class SignalNode;
-
 class NJournalBrowser :
     public QAbstractItemModel,
     public CNode
@@ -107,7 +105,7 @@ public:
 
   //@} END VIRTUAL FUNCTIONS
 
-  const SignalNode & signal(const QModelIndex & index) const;
+  const Common::Signal::arg_t & signal(const QModelIndex & index) const;
 
   void setRootNode(const Common::XML::XmlNode * rootNode);
 
@@ -127,7 +125,7 @@ private: // data
 
   const Common::XML::XmlNode * m_rootNode;
 
-  QList<SignalNode *> m_children;
+  QList<Common::Signal::arg_t *> m_children;
 
   Common::XML::XmlDoc::Ptr m_doc;
 
@@ -136,10 +134,12 @@ private: // data
   /// @param index Node index to convert
   /// @return Returns the tree node, or @c nullptr if the index could
   /// not be converted (i.e. index is invalid)
-  inline SignalNode * indexToSignalNode(const QModelIndex & index) const
+  inline Common::Signal::arg_t * indexToXmlNode(const QModelIndex & index) const
   {
-    return static_cast<SignalNode *>(index.internalPointer());
+    return static_cast<Common::Signal::arg_t *>(index.internalPointer());
   }
+
+  QString readAttribute( const Common::Signal::arg_t & sig, const char * name) const;
 
 }; // JournalBrowser
 

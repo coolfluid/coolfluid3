@@ -21,7 +21,6 @@
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
-#include "GUI/Client/Core/SignalNode.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/NJournalBrowser.hpp"
@@ -51,8 +50,7 @@ NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
   m_columns << "Target" << "Sender" << "Receiver" << "Type" << "Direction" << "Time" /*<< "Status" << "Excecute"*/;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QVariant NJournalBrowser::data(const QModelIndex & index, int role) const
 {
@@ -60,33 +58,33 @@ QVariant NJournalBrowser::data(const QModelIndex & index, int role) const
 
   if(index.isValid() && role == Qt::DisplayRole)
   {
-    SignalNode * node = this->indexToSignalNode(index);
+    Signal::arg_t & node = *this->indexToXmlNode(index);
 
     switch(index.column())
     {
     case 0: // target
-      data = QString(node->target());
+      data = readAttribute(node, "target");
       break;
     case 1: // sender
-      data = QString(node->sender());
+      data = readAttribute(node, "sender");
       break;
     case 2: // receiver
-      data = QString(node->receiver());
+      data = readAttribute(node, "receiver");
       break;
     case 3: // type
-      data = QString(node->type());
+      data = readAttribute(node, "type");
       break;
     case 4: // direction
-      data = QString(node->direction());
+      data = QString("???");
       break;
     case 5: // time
-      data = QString(node->time());
+      data = readAttribute(node, "time");
       break;
     case 6: // status (inspect ?)
       data = QString("Inspect");
       break;
     case 7: // execute (useful ?)
-      data = QString("Execute");
+      data = QString("Excecute");
       break;
     }
   }
@@ -94,12 +92,11 @@ QVariant NJournalBrowser::data(const QModelIndex & index, int role) const
   return data;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QModelIndex NJournalBrowser::index(int row, int column, const QModelIndex & parent) const
 {
-  SignalNode * childNode = nullptr;
+  Signal::arg_t * childNode = nullptr;
   QModelIndex index;
 
   if(this->hasIndex(row, column, parent))
@@ -116,49 +113,32 @@ QModelIndex NJournalBrowser::index(int row, int column, const QModelIndex & pare
   return index;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QModelIndex NJournalBrowser::parent(const QModelIndex &child) const
 {
-  QModelIndex index;
-
-//  if(child.isValid())
-//  {
-//    TreeNode * parentNode = this->indexToTreeNode(child)->parentNode();
-
-//    if (parentNode != nullptr)
-//      index = createIndex(parentNode->rowNumber(), 0, parentNode);
-//  }
-
-  return index;
+  return QModelIndex();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 int NJournalBrowser::rowCount(const QModelIndex & parent) const
 {
-//  if (parent.column() > 0)
-//    return 0;
-
   // if the parent is not valid, we have one child: the root
   if (!parent.isValid())
     return m_children.count();
 
-  return 0;//this->indexToTreeNode(parent)->childCount();
+  return 0;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 int NJournalBrowser::columnCount(const QModelIndex & parent) const
 {
   return m_columns.count();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QVariant NJournalBrowser::headerData(int section, Qt::Orientation orientation,
                            int role) const
@@ -174,28 +154,25 @@ QVariant NJournalBrowser::headerData(int section, Qt::Orientation orientation,
   return QVariant();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QString NJournalBrowser::toolTip() const
 {
   return getComponentType();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
-const SignalNode & NJournalBrowser::signal(const QModelIndex & index) const
+const Signal::arg_t & NJournalBrowser::signal(const QModelIndex & index) const
 {
-  SignalNode * signal = indexToSignalNode(index);
+  Signal::arg_t * signal = indexToXmlNode(index);
 
   cf_assert(signal != nullptr);
 
   return *signal;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NJournalBrowser::setRootNode(const XmlNode * rootNode)
 {
@@ -215,15 +192,14 @@ void NJournalBrowser::setRootNode(const XmlNode * rootNode)
     rapidxml::xml_node<> * currNode = m_rootNode->content->first_node("frame");
 
     for( ; currNode != nullptr ; currNode = currNode->next_sibling() )
-      m_children.append(new SignalNode(new SignalFrame(currNode)));
+      m_children.append( new Signal::arg_t(currNode) );
   }
 
   // the underlying data changed, so we tell the view(s) to update
   emit layoutChanged();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NJournalBrowser::requestJournal()
 {
@@ -232,16 +208,14 @@ void NJournalBrowser::requestJournal()
   ThreadManager::instance().network().send(frame);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NJournalBrowser::list_journal(SignalArgs & args)
 {
   setRootNode(&args.node);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NJournalBrowser::sendExecSignal(const QModelIndex & index)
 {
@@ -254,8 +228,8 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
   std::stringstream ss;
   SignalFrame frame("","","");
 
-  SignalNode * signal_node = indexToSignalNode(index);
-  signal_node->node()->node.deep_copy(frame.node);
+  Signal::arg_t * signal_node = indexToXmlNode(index);
+  signal_node->node.deep_copy(frame.node);
 
   rapidxml::xml_attribute<> * clientIdAttr;
 
@@ -271,6 +245,18 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
   frame.node.set_attribute( Protocol::Tags::attr_frameid(), ss.str());
 
   ThreadManager::instance().network().send(frame);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+QString NJournalBrowser::readAttribute(const Signal::arg_t &sig, const char *name) const
+{
+  rapidxml::xml_attribute<>* attr = sig.node.content->first_attribute(name);
+
+  if(attr != nullptr)
+    return attr->value();
+
+  return QString();
 }
 
 ////////////////////////////////////////////////////////////////////////////
