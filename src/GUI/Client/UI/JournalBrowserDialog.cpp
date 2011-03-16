@@ -14,10 +14,11 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include "Common/XML/FileOperations.hpp"
+
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NJournal.hpp"
-#include "GUI/Client/Core/NJournalBrowser.hpp"
 
 #include "GUI/Client/UI/SignalInspectorDialog.hpp"
 
@@ -67,9 +68,10 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
   m_view = new QTableView(this);
   m_buttons = new QDialogButtonBox(this);
 
+
   m_mainLayout = new QVBoxLayout(this);
 
-  NBrowser::globalBrowser()->add_component(m_model);
+  NBrowser::globalBrowser()->addNode(m_model);
 
   m_view->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   m_view->horizontalHeader()->setStretchLastSection(true);
@@ -87,7 +89,7 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
   m_view->updateGeometry();
   updateGeometry();
   adjustSize();
-  resize(childrenRect().size() * 1.33);
+  resize( childrenRect().size() );
 
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(close()));
   connect(m_buttons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(btClicked(QAbstractButton*)));
@@ -99,7 +101,7 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
 
 JournalBrowserDialog::~JournalBrowserDialog()
 {
-  NBrowser::globalBrowser()->remove_component(m_model->name());
+  NBrowser::globalBrowser()->removeNode(m_model->name().c_str());
   delete m_view;
   delete m_buttons;
   delete m_mainLayout;
@@ -113,8 +115,9 @@ void JournalBrowserDialog::show(const XmlNode * rootNode)
   m_model->setRootNode(rootNode);
   m_model->requestJournal();
 
-  this->exec();
-//  this->setVisible(true);
+//  this->exec();
+  this->setModal(true);
+  this->setVisible(true);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

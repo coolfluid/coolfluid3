@@ -18,8 +18,11 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
+#include "Common/XML/FileOperations.hpp"
+
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"
+#include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
 
@@ -178,18 +181,19 @@ void NJournalBrowser::setRootNode(const XmlNode * rootNode)
 {
   emit layoutAboutToBeChanged();
 
-  m_rootNode = rootNode;
+  m_currentDoc = XmlDoc::Ptr(new XmlDoc());
+  m_rootNode = m_currentDoc->add_node("tmp");
 
-//  if(m_rootNode != nullptr)
-//    m_doc = TreeThread::instance().docFromPtr(new XmlDoc(m_rootNode->content->document()));
-//  else
-//    m_doc = boost::shared_ptr<XmlDoc>();
+  if(is_not_null(rootNode))
+    rootNode->deep_copy(m_rootNode);
 
   m_children.clear();
 
-  if(m_rootNode != nullptr)
+
+  if(m_rootNode.is_valid())
   {
-    rapidxml::xml_node<> * currNode = m_rootNode->content->first_node("frame");
+
+    rapidxml::xml_node<> * currNode = m_rootNode.content->first_node("frame");
 
     for( ; currNode != nullptr ; currNode = currNode->next_sibling() )
       m_children.append( new SignalArgs(currNode) );
@@ -212,7 +216,10 @@ void NJournalBrowser::requestJournal()
 
 void NJournalBrowser::list_journal(SignalArgs & args)
 {
-  setRootNode(&args.node);
+//  if(args.has_map(Protocol::Tags::key_signals()))
+  //    setRootNode(&args.map(Protocol::Tags::key_signals()).node);
+  XmlNode node = args.main_map.seek_value(Protocol::Tags::key_signals());
+  setRootNode(&node);
 }
 
 ////////////////////////////////////////////////////////////////////////////

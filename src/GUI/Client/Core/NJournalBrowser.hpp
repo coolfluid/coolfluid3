@@ -123,7 +123,7 @@ private: // data
 
   QStringList m_columns;
 
-  const Common::XML::XmlNode * m_rootNode;
+  Common::XML::XmlNode m_rootNode;
 
   QList<Common::SignalArgs *> m_children;
 
@@ -140,6 +140,8 @@ private: // data
   }
 
   QString readAttribute( const Common::SignalArgs & sig, const char * name) const;
+
+  Common::XML::XmlDoc::Ptr m_currentDoc;
 
 }; // JournalBrowser
 
