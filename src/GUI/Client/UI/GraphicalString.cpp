@@ -11,18 +11,16 @@
 
 using namespace CF::GUI::ClientUI;
 
-GraphicalString::GraphicalString(CF::Common::Option::ConstPtr opt, QWidget * parent)
+GraphicalString::GraphicalString(const QString & value, QWidget * parent)
   : GraphicalValue(parent)
 {
   m_lineEdit = new QLineEdit(this);
 
   m_layout->addWidget(m_lineEdit);
 
-  if(opt.get() != nullptr)
-    this->setValue(opt->value<std::string>().c_str());
+  this->setValue(value);
 
-  connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString)));
-}
+  connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString))); }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

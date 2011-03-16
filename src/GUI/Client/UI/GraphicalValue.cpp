@@ -83,7 +83,7 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
       else if(type == Protocol::Tags::type<Uint>())          // Uint option
         value = new GraphicalInt(true, option, parent);
       else if(type == Protocol::Tags::type<std::string>())   // string option
-        value = new GraphicalString(option, parent);
+        value = new GraphicalString(option->value<std::string>().c_str(), parent);
       else if(type == Protocol::Tags::type<URI>())           // URI option
         value = new GraphicalUri(boost::dynamic_pointer_cast<OptionURI const>(option), parent);
       else

@@ -3,6 +3,7 @@
 
 set(utest-client-ui_moc_classes
   GraphicalBoolTest.hpp
+  GraphicalStringTest.hpp
   GraphicalValueTest.hpp
 )
 
@@ -13,6 +14,8 @@ list( APPEND utest-client-ui_files
   utest-client-ui.cpp
   GraphicalBoolTest.cpp
   GraphicalBoolTest.hpp
+  GraphicalStringTest.cpp
+  GraphicalStringTest.hpp
   GraphicalValueTest.cpp
   GraphicalValueTest.hpp
 )

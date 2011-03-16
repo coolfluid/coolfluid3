@@ -15,6 +15,3 @@ add_subdirectory( Client )
 # add_subdirectory( Server )  # no tests yet on server
 
 endif()
-
-
-
