@@ -5,9 +5,11 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QListView>
-#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QGroupBox>
 #include <QPushButton>
 #include <QStringListModel>
+#include <QVBoxLayout>
 
 #include "Common/OptionArray.hpp"
 #include "Common/StringConversion.hpp"
@@ -37,14 +39,16 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
   QStringList restrList;
   QStringList valList;
 
-  m_allowedListView = new QListView(parent);
-  m_allowedModel = new QStringListModel(parent);
-  m_selectedListView = new QListView(parent);
-  m_selectedModel = new QStringListModel(parent);
-  m_btAdd = new QPushButton("Add ->", parent);
-  m_btRemove = new QPushButton("<- Remove", parent);
+  m_groupBox = new QGroupBox(parent);
+  m_allowedListView = new QListView(m_groupBox);
+  m_allowedModel = new QStringListModel(m_groupBox);
+  m_selectedListView = new QListView(m_groupBox);
+  m_selectedModel = new QStringListModel(m_groupBox);
+  m_btAdd = new QPushButton("Add ->", m_groupBox);
+  m_btRemove = new QPushButton("<- Remove", m_groupBox);
 
-  m_buttonsLayout = new QVBoxLayout(parent);
+  m_buttonsLayout = new QVBoxLayout();
+  m_boxLayout = new QGridLayout(m_groupBox);
 
   m_allowedListView->setModel(m_allowedModel);
   m_selectedListView->setModel(m_selectedModel);
@@ -56,9 +60,12 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
   m_buttonsLayout->addWidget(m_btAdd);
   m_buttonsLayout->addWidget(m_btRemove);
 
-  m_layout->addWidget(m_allowedListView);
-  m_layout->addLayout(m_buttonsLayout);;
-  m_layout->addWidget(m_selectedListView);
+  m_boxLayout->addWidget(m_allowedListView, 0, 0);
+  m_boxLayout->addLayout(m_buttonsLayout, 0, 1);
+  m_boxLayout->addWidget(m_selectedListView, 0, 2);
+
+
+  m_layout->addWidget(m_groupBox);
 
   connect(m_btAdd, SIGNAL(clicked()), this, SLOT(btAddClicked()));
   connect(m_btRemove, SIGNAL(clicked()), this, SLOT(btRemoveClicked()));
@@ -130,7 +137,6 @@ GraphicalArrayRestrictedList::~GraphicalArrayRestrictedList()
   delete m_selectedListView;
   delete m_allowedModel;
   delete m_selectedModel;
-  delete m_buttonsLayout;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

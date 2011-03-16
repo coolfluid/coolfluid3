@@ -12,6 +12,8 @@
 #include "Common/Option.hpp"
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
+class QGridLayout;
+class QGroupBox;
 class QListView;
 class QPushButton;
 class QStringListModel;
@@ -57,6 +59,10 @@ namespace ClientUI {
     QStringListModel * m_allowedModel;
 
     QStringListModel * m_selectedModel;
+
+    QGroupBox * m_groupBox;
+
+    QGridLayout * m_boxLayout;
 
     QVBoxLayout * m_buttonsLayout;
 

@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QComboBox>
+#include <QGridLayout>
+#include <QGroupBox>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QListView>
@@ -28,35 +30,31 @@ using namespace CF::GUI::ClientUI;
 GraphicalUriArray::GraphicalUriArray(QWidget * parent)
   : GraphicalValue(parent)
 {
-  m_editAdd = new QLineEdit(this);
-  m_model = new QStringListModel(this);
-  m_listView = new QListView(this);
-  m_btAdd = new QPushButton("+", this);
-  m_btRemove = new QPushButton("-", this);
-  m_comboType = new QComboBox(this);
+  m_groupBox = new QGroupBox(parent);
+  m_editAdd = new QLineEdit(m_groupBox);
+  m_model = new QStringListModel(m_groupBox);
+  m_listView = new QListView(m_groupBox);
+  m_btAdd = new QPushButton("+", m_groupBox);
+  m_btRemove = new QPushButton("-", m_groupBox);
+  m_comboType = new QComboBox(m_groupBox);
 
   m_buttonsLayout = new QVBoxLayout();
   m_leftLayout = new QVBoxLayout();
   m_topLayout = new QHBoxLayout();
+  m_boxLayout = new QGridLayout(m_groupBox);
 
   m_listView->setModel(m_model);
   m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-//  m_btAdd->setFlat(true);
-//  m_btRemove->setFlat(true);
-
   setProtocols(std::vector<std::string>());
 
-  m_topLayout->addWidget(m_comboType);
-  m_topLayout->addWidget(m_editAdd);
-  m_topLayout->addWidget(m_btAdd);
-  m_topLayout->addWidget(m_btRemove);
+  m_boxLayout->addWidget(m_comboType, 0, 0);
+  m_boxLayout->addWidget(m_editAdd, 0, 1);
+  m_boxLayout->addWidget(m_btAdd, 0, 2);
+  m_boxLayout->addWidget(m_btRemove, 0, 3);
+  m_boxLayout->addWidget(m_listView, 1, 0, 4, 0);
 
-  m_leftLayout->addLayout(m_topLayout);
-  m_leftLayout->addWidget(m_listView);
-
-  m_layout->addLayout(m_leftLayout);
-  m_layout->addLayout(m_buttonsLayout);
+  m_layout->addWidget(m_groupBox);
 
   connect(m_btAdd, SIGNAL(clicked()), this, SLOT(btAddClicked()));
   connect(m_btRemove, SIGNAL(clicked()), this, SLOT(btRemoveClicked()));

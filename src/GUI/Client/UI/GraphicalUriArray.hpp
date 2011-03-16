@@ -13,6 +13,8 @@
 
 class QComboBox;
 class QKeyEvent;
+class QGridLayout;
+class QGroupBox;
 class QLineEdit;
 class QListView;
 class QPushButton;
@@ -74,6 +76,10 @@ namespace ClientUI {
     QComboBox * m_comboType;
 
     QHBoxLayout * m_topLayout;
+
+    QGridLayout * m_boxLayout;
+
+    QGroupBox * m_groupBox;
 
   }; // class GraphicalArray
 

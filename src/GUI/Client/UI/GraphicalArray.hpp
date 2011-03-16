@@ -11,6 +11,8 @@
 
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
+class QGroupBox;
+class QGridLayout;
 class QKeyEvent;
 class QLineEdit;
 class QListView;
@@ -62,9 +64,9 @@ namespace ClientUI {
 
     QPushButton * m_btRemove;
 
-    QVBoxLayout * m_buttonsLayout;
+    QGridLayout * m_boxLayout;
 
-    QVBoxLayout * m_leftLayout;
+    QGroupBox * m_groupBox;
 
   }; // class GraphicalArray
 

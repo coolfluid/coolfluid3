@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <QGroupBox>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QListView>
@@ -22,26 +23,24 @@ using namespace CF::GUI::ClientUI;
 GraphicalArray::GraphicalArray(QValidator * validator, QWidget * parent)
   : GraphicalValue(parent)
 {
+  m_groupBox = new QGroupBox(this);
   m_editAdd = new QLineEdit(this);
   m_model = new QStringListModel(this);
   m_listView = new QListView(this);
   m_btRemove = new QPushButton("Remove", this);
 
-  m_buttonsLayout = new QVBoxLayout();
-  m_leftLayout = new QVBoxLayout();
+  m_boxLayout = new QGridLayout(m_groupBox);
 
   m_editAdd->setValidator(validator);
 
   m_listView->setModel(m_model);
   m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-  m_buttonsLayout->addWidget(m_btRemove);
+  m_boxLayout->addWidget(m_editAdd, 0, 0);
+  m_boxLayout->addWidget(m_listView, 1, 0);
+  m_boxLayout->addWidget(m_btRemove, 1, 1);
 
-  m_leftLayout->addWidget(m_editAdd);
-  m_leftLayout->addWidget(m_listView);
-
-  m_layout->addLayout(m_leftLayout);
-  m_layout->addLayout(m_buttonsLayout);
+  m_layout->addWidget(m_groupBox);
 
   connect(m_btRemove, SIGNAL(clicked()), this, SLOT(btRemoveClicked()));
 }
@@ -55,8 +54,6 @@ GraphicalArray::~GraphicalArray()
   delete m_model;
   delete m_listView;
   delete m_btRemove;
-  delete m_buttonsLayout;
-  delete m_leftLayout;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -108,14 +105,18 @@ bool GraphicalArray::setValue(const QVariant & value)
     for( ; it != values.end() ; it++)
     {
       QString value = *it;
-      bool valid = validator == nullptr || validator->validate(value, pos) == QValidator::Acceptable;
 
-      if(!valid)
-        invalidValues << value;
-      else
-        list << value;
+        bool valid = validator == nullptr ||
+                     value.isEmpty() ||
+                     validator->validate(value, pos) == QValidator::Acceptable;
 
-      success &= valid;
+        if(!valid)
+          invalidValues << value;
+        else
+          list << value;
+
+        success &= valid;
+
     }
   }
 
