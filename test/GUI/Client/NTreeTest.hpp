@@ -19,49 +19,59 @@ namespace CF {
 namespace GUI {
 namespace ClientTest {
 
-  /////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
 
-  class NTreeTest : public QObject
-  {
-    Q_OBJECT
+class NTreeTest : public QObject
+{
+  Q_OBJECT
 
-  private slots:
+private slots:
 
-    void test_constructor();
+  void test_constructor();
 
-    void test_setRoot();
+  void test_setRoot();
 
-    void test_setCurrentIndex();
+  void test_setCurrentIndex();
 
-    void test_getNodeParams();
+  void test_currentPath();
 
-    void test_setAdvancedMode();
+  void test_nodePath();
 
-    void test_areFromSameNode();
+  void test_pathFromIndex();
 
-    void test_haveSameData();
+  void test_listNodeOptions();
 
-    void test_getNodeByPath();
+  void test_setAdvancedMode();
 
-    void test_getIndexByPath();
+  void test_areFromSameNode();
 
-    void test_data();
+  void test_nodeByPath();
 
-    void test_index();
+  void test_indexFromPath();
 
-    void test_parent();
+  void test_data();
 
-    void test_rowCount();
+  void test_index();
 
-    void test_headerData();
+  void test_parent();
 
-    void test_setDebugModeEnabled();
+  void test_rowCount();
 
-    void test_signal_list_tree();
+  void test_headerData();
 
-  }; // class NTreeTest
+  void test_setDebugModeEnabled();
 
-  /////////////////////////////////////////////////////////////////////////
+  void test_optionsChanged();
+
+  void test_nodeMatches();
+
+  void test_signal_list_tree();
+
+  void test_indexIsVisible();
+
+}; // class NTreeTest
+
+/////////////////////////////////////////////////////////////////////////
 
 } // ClientTest
 } // GUI

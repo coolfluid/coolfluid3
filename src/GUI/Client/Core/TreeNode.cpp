@@ -39,11 +39,11 @@ TreeNode * TreeNode::child(int rowNumber)
   TreeNode * child = nullptr;
   // if the TreeNode corresponding to this child has already been created,
   // it is returned...
-  if (rowNumber >= 0 && rowNumber < m_childNodes.size())
+  if (rowNumber >= 0 && rowNumber < childCount())
     child = m_childNodes.at(rowNumber);
 
   // ...otherwise, if the index is valid, it is created and returned...
-  if(child == nullptr && rowNumber>= 0 && rowNumber < m_childNodes.size())
+  if(child == nullptr && rowNumber>= 0 && rowNumber < childCount())
   {
     CNode::Ptr childNode;
 
@@ -101,7 +101,7 @@ TreeNode * TreeNode::childByName(const QString & name)
   bool found = false;
 
   /// @todo find a better algorithm !!!
-  for(int i = 0 ; i < m_childNodes.count() && !found ; i++)
+  for(int i = 0 ; i < childCount() && !found ; i++)
   {
     treeNode = this->child(i);
     found = treeNode->nodeName() == name;
@@ -118,15 +118,10 @@ TreeNode * TreeNode::childByName(const QString & name)
 
 void TreeNode::updateChildList()
 {
-  int childCount;
+  int childCount = this->childCount();
 
   while(!m_childNodes.isEmpty())
     delete m_childNodes.takeFirst();
-
-  if(m_node->checkType(CNode::ROOT_NODE))
-    childCount = m_node->castTo<NRoot>()->root()->count_children();
-  else
-    childCount = m_node->count_children();
 
   for(int i = 0 ; i < childCount ; i++)
     m_childNodes << nullptr;

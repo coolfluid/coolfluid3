@@ -53,8 +53,7 @@ NTree::NTree(NRoot::Ptr rootNode)
       signal->connect(boost::bind(&NTree::list_tree_reply, this, _1));
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::setRoot(NRoot::Ptr rootNode)
 {
@@ -70,16 +69,14 @@ void NTree::setRoot(NRoot::Ptr rootNode)
   emit layoutChanged();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 NRoot::Ptr NTree::treeRoot() const
 {
   return m_rootNode->node()->castTo<NRoot>();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::setCurrentIndex(const QModelIndex & newIndex)
 {
@@ -91,37 +88,21 @@ void NTree::setCurrentIndex(const QModelIndex & newIndex)
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QModelIndex NTree::currentIndex() const
 {
   return m_currentIndex;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 URI NTree::currentPath() const
 {
-  TreeNode * node = this->indexToTreeNode(m_currentIndex);
-  URI path;
-
-  if(node != nullptr)
-  {
-    CNode::Ptr cnode = node->node();
-
-    if(cnode->checkType(ROOT_NODE))
-      path = cnode->castTo<NRoot>()->root()->full_path();
-    else
-      path = cnode->full_path();
-  }
-
-  return path;
+  return pathFromIndex( m_currentIndex );
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::listNodeOptions(const QModelIndex & index,
                            QList<Option::ConstPtr> & options,
@@ -138,8 +119,7 @@ void NTree::listNodeOptions(const QModelIndex & index,
     node->node()->listOptions(options);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::listNodeProperties(const QModelIndex &index,
                               QMap<QString, QString> &props, bool *ok) const
@@ -155,8 +135,7 @@ void NTree::listNodeProperties(const QModelIndex &index,
     node->node()->listProperties(props);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::listNodeActions(const QModelIndex & index, QList<ActionInfo> & actions,
                            bool * ok) const
@@ -172,8 +151,7 @@ void NTree::listNodeActions(const QModelIndex & index, QList<ActionInfo> & actio
     node->node()->listSignals(actions);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QString NTree::nodePath(const QModelIndex & index) const
 {
@@ -184,8 +162,7 @@ QString NTree::nodePath(const QModelIndex & index) const
   return path;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::setAdvancedMode(bool advanceMode)
 {
@@ -199,24 +176,21 @@ void NTree::setAdvancedMode(bool advanceMode)
   }
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 bool NTree::isAdvancedMode() const
 {
   return m_advancedMode;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 bool NTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right) const
 {
   return left.isValid() && left.internalPointer() == right.internalPointer();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 CNode::Ptr NTree::nodeByPath(const URI & path) const
 {
@@ -244,10 +218,9 @@ CNode::Ptr NTree::nodeByPath(const URI & path) const
   return node;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
-QModelIndex NTree::indexByPath(const URI & path) const
+QModelIndex NTree::indexFromPath(const URI & path) const
 {
   QModelIndex index = this->index(0,0);
   QString pathStr = path.path().c_str();
@@ -255,7 +228,8 @@ QModelIndex NTree::indexByPath(const URI & path) const
   QStringList::iterator it;
   TreeNode * treeNode = m_rootNode;
 
-  cf_assert(treeNode != nullptr);
+  cf_assert( path.scheme() == URI::Scheme::CPATH );
+  cf_assert( treeNode != nullptr );
 
   if(path.is_absolute())
   {
@@ -271,18 +245,14 @@ QModelIndex NTree::indexByPath(const URI & path) const
       if(treeNode != nullptr)
         index = this->index(treeNode->rowNumber(), 0, index);
       else
-      {
         index = QModelIndex();
-        NLog::globalLog()->addError(QString("index not found for %1").arg(path.string().c_str()));
-      }
     }
   }
 
   return index;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 URI NTree::pathFromIndex(const QModelIndex & index) const
 {
@@ -301,8 +271,7 @@ URI NTree::pathFromIndex(const QModelIndex & index) const
   return path;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::setDebugModeEnabled(bool debugMode)
 {
@@ -314,16 +283,14 @@ void NTree::setDebugModeEnabled(bool debugMode)
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 bool NTree::isDebugModeEnabled() const
 {
   return m_debugModeEnabled;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::updateRootChildren()
 {
@@ -332,26 +299,23 @@ void NTree::updateRootChildren()
   emit layoutChanged();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::optionsChanged(const URI & path)
 {
-  QModelIndex index = this->indexByPath(path);
+  QModelIndex index = this->indexFromPath(path);
 
   if(index.isValid())
-  {
     emit dataChanged(index, index);
-  }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 bool NTree::nodeMatches(const QModelIndex & index, const QRegExp & regex) const
 {
   Component::Ptr node = m_rootNode->node()->castTo<NRoot>()->root();
 
+  // if the index is value, we get the right node
   if(index.isValid() && indexToTreeNode(index) != m_rootNode)
     node = indexToNode(index);
 
@@ -361,10 +325,9 @@ bool NTree::nodeMatches(const QModelIndex & index, const QRegExp & regex) const
     return false;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
-bool NTree::nodeIsVisible(const QModelIndex & index) const
+bool NTree::indexIsVisible(const QModelIndex & index) const
 {
   bool visible = false;
 
@@ -382,8 +345,7 @@ bool NTree::nodeIsVisible(const QModelIndex & index) const
   return visible;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::modifyOptions(const QModelIndex & index,
                           const QMap<QString, QString> & options)
@@ -396,14 +358,13 @@ void NTree::modifyOptions(const QModelIndex & index,
     NLog::globalLog()->addError("Could not modify options! Invalid node.");
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QVariant NTree::data(const QModelIndex & index, int role) const
 {
   QVariant data;
 
-  if(nodeIsVisible(index))
+  if(indexIsVisible(index))
   {
     CNode::Ptr node = this->indexToNode(index);
 
@@ -426,8 +387,7 @@ QVariant NTree::data(const QModelIndex & index, int role) const
   return data;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QModelIndex NTree::index(int row, int column, const QModelIndex & parent) const
 {
@@ -448,8 +408,7 @@ QModelIndex NTree::index(int row, int column, const QModelIndex & parent) const
   return index;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QModelIndex NTree::parent(const QModelIndex &child) const
 {
@@ -466,8 +425,7 @@ QModelIndex NTree::parent(const QModelIndex &child) const
   return index;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 int NTree::rowCount(const QModelIndex & parent) const
 {
@@ -481,16 +439,14 @@ int NTree::rowCount(const QModelIndex & parent) const
   return this->indexToTreeNode(parent)->childCount();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 int NTree::columnCount(const QModelIndex & parent) const
 {
   return m_columns.count();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QVariant NTree::headerData(int section, Qt::Orientation orientation,
                            int role) const
@@ -502,8 +458,7 @@ QVariant NTree::headerData(int section, Qt::Orientation orientation,
   return QVariant();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::list_tree_reply(SignalArgs & args)
 {
@@ -555,8 +510,9 @@ void NTree::list_tree_reply(SignalArgs & args)
     // child count may have changed, ask the root TreeNode to update its internal data
     m_rootNode->updateChildList();
 
+    // retrieve the previous index, if it still exists
     if(!currentIndexPath.path().empty())
-      m_currentIndex = this->indexByPath(currentIndexPath);
+      m_currentIndex = this->indexFromPath(currentIndexPath);
 
     // tell the view to update the whole thing
     emit endResetModel();
@@ -571,8 +527,7 @@ void NTree::list_tree_reply(SignalArgs & args)
   }
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::clearTree()
 {
@@ -600,8 +555,7 @@ void NTree::clearTree()
   }
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 URI NTree::completeRelativePath(const URI & uri) const
 {
@@ -614,8 +568,7 @@ URI NTree::completeRelativePath(const URI & uri) const
   return completedPath;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::contentListed(Component::Ptr node)
 {
@@ -625,8 +578,7 @@ void NTree::contentListed(Component::Ptr node)
   }
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void NTree::updateTree()
 {
@@ -649,25 +601,24 @@ void NTree::buildNodePathRec(const QModelIndex & index, QString & path) const
     path.prepend('/').prepend(node->nodeName());
     this->buildNodePathRec(index.parent(), path);
   }
-  else
-    path.prepend("//");
+//  else
+//    path.prepend("//");
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QString NTree::toolTip() const
 {
   return this->getComponentType();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
 {
-  bool match = QString(node->name().c_str()).contains(regex);
+  bool match = regex.exactMatch(node->name().c_str());
   ComponentIterator<CNode> it = node->begin<CNode>();
+
 
   for( ; it != node->end<CNode>() ; it++)
     match |= (m_debugModeEnabled || !it->isLocalComponent()) && this->nodeMatchesRec(it.get(), regex);
@@ -675,8 +626,7 @@ bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
   return match;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 NTree::Ptr NTree::globalTree()
 {
@@ -691,5 +641,3 @@ NTree::Ptr NTree::globalTree()
 } // ClientCore
 } // GUI
 } // CF
-
-//////////////////////////////////////////////////////////////////////////////

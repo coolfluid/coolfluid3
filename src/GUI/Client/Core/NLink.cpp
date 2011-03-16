@@ -88,13 +88,12 @@ void NLink::goToTarget(SignalArgs & )
 	if ( is_null(m_target) )
 		throw ValueNotFound (FromHere(), "Target of this link is not set or not valid");
 
-	QModelIndex index = NTree::globalTree()->indexByPath(m_target->full_path());
+	QModelIndex index = NTree::globalTree()->indexFromPath(m_target->full_path());
 
 	if(index.isValid())
 		NTree::globalTree()->setCurrentIndex(index);
 	else
-		NLog::globalLog()->addError(QString("%1: path does not exist")
-																.arg(m_target->full_path().path().c_str()));
+		throw ValueNotFound (FromHere(), m_target->full_path().string() + ": path does not exist");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

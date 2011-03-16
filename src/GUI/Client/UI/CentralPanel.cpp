@@ -293,7 +293,7 @@ void CentralPanel::advancedModeChanged(bool advanced)
 
   // if the node went to a hidden state, we clear everything
   /// @todo what if options are modified ???
-  if(!tree->nodeIsVisible(tree->currentIndex()))
+  if(!tree->indexIsVisible(tree->currentIndex()))
   {
     m_basicOptionLayout->clearOptions();
     m_advancedOptionLayout->clearOptions();

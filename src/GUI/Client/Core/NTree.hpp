@@ -158,20 +158,13 @@ namespace ClientCore {
     /// @param path The node index path
     /// @return Returns the found node index, or a invalid index if
     /// it does not exist.
-    QModelIndex indexByPath(const CF::Common::URI & path) const;
+    QModelIndex indexFromPath(const CF::Common::URI & path) const;
 
     /// @brief Gives the path of the provided index.
     /// @param index Index of which we want to know the path.
     /// @return Returns the index path, or an empty path if the index is not
     /// valid.
     CF::Common::URI pathFromIndex(const QModelIndex & index) const;
-
-    /// @brief Retrieves an index frome a node
-
-    /// @param node The node
-    /// @return Returns the found index, or a invalid index if
-    /// it does not exist.
-    QModelIndex nodeToIndex(const CNode::Ptr & node) const;
 
     /// @brief Modifies options of a node
 
@@ -265,7 +258,6 @@ namespace ClientCore {
     /// decrease the program performances.
     void updateRootChildren();
 
-    /// @todo Remove this method. CNode should emit a signal.
     void optionsChanged(const CF::Common::URI & path);
 
     /// @brief Checks whether a node name or one of its children matches a
@@ -285,7 +277,7 @@ namespace ClientCore {
     /// @param index Index of the node to check
     /// @return Returns @c true if the node is visible. Otherwise, returns
     /// @c false (i.e. the index is not valid).
-    bool nodeIsVisible(const QModelIndex & index) const;
+    bool indexIsVisible(const QModelIndex & index) const;
 
     /// @brief Resolves the provided URI from the current index path.
 

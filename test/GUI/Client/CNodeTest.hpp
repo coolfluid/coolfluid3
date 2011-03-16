@@ -66,14 +66,6 @@ private slots:
 
   void test_makeOptionArrayRestrictedLists();
 
-  // signals
-
-  void test_configure_reply();
-
-  void test_list_content_reply();
-
-  void test_signal_signature_reply();
-
 private:
 
   template<typename TYPE>

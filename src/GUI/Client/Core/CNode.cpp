@@ -373,7 +373,7 @@ CNode::Ptr CNode::child(CF::Uint index)
 
 void CNode::connectNotifier(QObject * reciever, const char * signal, const char * slot)
 {
-  QObject::connect(m_notifier, signal, reciever, slot);
+  QObject::connect(m_notifier, signal, reciever, slot, Qt::DirectConnection);
 }
 
 ////////////////////////////////////////////////////////////////////////////

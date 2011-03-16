@@ -9,10 +9,12 @@
 
 #include "Common/URI.hpp"
 
+#include "GUI/Client/Core/ThreadManager.hpp"
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NLink.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Client/Core/NLog.hpp"
 
 #include "test/GUI/Client/CommonFunctions.hpp"
 #include "test/GUI/Client/ExceptionThrowHandler.hpp"
@@ -21,6 +23,7 @@
 #include "test/GUI/Client/NLinkTest.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientTest;
 
@@ -71,25 +74,35 @@ void NLinkTest::test_goToTarget()
   // QModelIndex needs to be registered. See QSignalSpy class doc.
  qRegisterMetaType<QModelIndex>("QModelIndex");
 
-  TreeHandler th;
-//  NTree::Ptr t = NTree::globalTree();
-  QModelIndex index;
-//  QSignalSpy spy(t.get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
+ QModelIndex index;
+ SignalFrame frame("", "", "");
+ NRoot::Ptr root = ThreadManager::instance().tree().root();;
+ NGeneric::Ptr target(new NGeneric("Target", "MyType"));
+ NLog::Ptr wrongTarget(new NLog()); // not part of the tree
+ NTree::Ptr tree = NTree::globalTree();
+ NLink::Ptr link(new NLink("link"));
+ QSignalSpy spy(tree.get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
 
-  NLink::Ptr link;
+ root->addNode(target);
+ root->addNode(link);
 
-//  th.addChildren(makeTreeFromFile());
-//  link = boost::dynamic_pointer_cast<NLink>(t->treeRoot()->root()->retrieve_component("//Root/Tools/TheLink"));
+ tree->setCurrentIndex(tree->index(0, 0));
 
-//  QVERIFY(link.get() != nullptr);
-//  t->setCurrentIndex(t->index(0, 0));
+ // 1. The link has no target
+ GUI_CHECK_THROW( link->goToTarget(frame) , ValueNotFound );
 
-//  index = t->indexByPath("//Root/MG/Mesh1");
-//  link->goToTarget(*XmlOps::create_doc().get());
+ // 2. target does not belong to the tree
+ link->setTargetNode(wrongTarget);
+ GUI_CHECK_THROW( link->goToTarget(frame) , ValueNotFound );
 
-  // 2 signals should have been thrown, one by setCurrentIndex() and one by
-  // goToTarget()
-//  QCOMPARE(spy.count(), 2);
+ // 3. everything is OK
+ spy.clear();
+ link->setTargetNode(target);
+ index = tree->indexFromPath("//Root/Target");
+ GUI_CHECK_NO_THROW(link->goToTarget(frame));
 
-//  QCOMPARE(qvariant_cast<QModelIndex>(spy.at(1).at(0)), index);
+ QCOMPARE(spy.count(), 1);
+
+ // check that the correct index was selected
+ QCOMPARE(qvariant_cast<QModelIndex>(spy.at(0).at(0)), index);
 }
