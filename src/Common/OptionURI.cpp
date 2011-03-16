@@ -21,7 +21,7 @@ OptionURI::OptionURI(const std::string & name, const std::string & desc,
                      const URI & def) :
   Option(name, desc, def)
 {
-
+  m_restricted_list.push_back(def);
 }
 
 OptionURI::OptionURI(const std::string & name, const std::string& readable_name,
