@@ -60,7 +60,6 @@ GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent)
   connect(m_comboType, SIGNAL(activated(QString)), this, SLOT(changeType(QString)));
 
   this->updateModel("");
-
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -70,6 +69,7 @@ GraphicalUri::~GraphicalUri()
   delete m_btBrowse;
   delete m_editPath;
   delete m_completer;
+  delete m_comboType;
 }
 
 ////////////////////////////////////////////////////////////////////////////

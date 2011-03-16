@@ -15,7 +15,14 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::ClientUI;
+
+///////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+/////////////////////////////////////////////////////////////////////////////
 
 GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget * parent)
   : GraphicalValue(parent)
@@ -55,21 +62,20 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
   connect(m_comboChoices, SIGNAL(currentIndexChanged(int)), this, SLOT(currentIndexChanged(int)));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 GraphicalRestrictedList::~GraphicalRestrictedList()
 {
   delete m_comboChoices;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void GraphicalRestrictedList::setRestrictedList(const QStringList & list)
 {
   QStringList mList(list);
   mList.removeAll("");
+  mList.removeDuplicates();
 
   m_comboChoices->clear();
   m_comboChoices->addItems(mList);
@@ -78,8 +84,7 @@ void GraphicalRestrictedList::setRestrictedList(const QStringList & list)
     setValue(mList.front());
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 bool GraphicalRestrictedList::setValue(const QVariant & value)
 {
@@ -100,25 +105,21 @@ bool GraphicalRestrictedList::setValue(const QVariant & value)
   return valid;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 QVariant GraphicalRestrictedList::value() const
 {
   return m_comboChoices->currentText();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void GraphicalRestrictedList::currentIndexChanged(int)
 {
   emit valueChanged();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+/////////////////////////////////////////////////////////////////////////////
 
 template<typename TYPE>
 void GraphicalRestrictedList::vectToStringList(const std::vector<boost::any> & vect,
@@ -130,8 +131,7 @@ void GraphicalRestrictedList::vectToStringList(const std::vector<boost::any> & v
     list << to_str( boost::any_cast<TYPE>(*it) ).c_str();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 #define TEMPLATE_EXPLICIT_INSTANTIATON(T) \
 Common_TEMPLATE template void GraphicalRestrictedList::vectToStringList<T>(\
@@ -147,3 +147,8 @@ TEMPLATE_EXPLICIT_INSTANTIATON( URI );
 
 #undef TEMPLATE_EXPLICIT_INSTANTIATON
 
+/////////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF

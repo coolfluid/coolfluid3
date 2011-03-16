@@ -61,6 +61,8 @@ namespace ClientUI {
 
     bool m_okClicked;
 
+    bool m_isBlocking;
+
   }; // class SignatureDialog
 
 ////////////////////////////////////////////////////////////////////////////////

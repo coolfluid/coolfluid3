@@ -26,7 +26,8 @@ using namespace CF::GUI::ClientUI;
 
 SignatureDialog::SignatureDialog(QWidget *parent) :
     QDialog(parent),
-    m_okClicked(false)
+    m_okClicked(false),
+    m_isBlocking(false)
 {
   m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
   m_dataLayout = new OptionLayout();
@@ -75,9 +76,13 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title, bool block)
  if( m_dataLayout->hasOptions() )
   {
    if(block)
+   {
+     m_isBlocking = true;
      this->exec();
+   }
    else
    {
+     m_isBlocking = false;
      this->setModal(true);
      this->setVisible(true);
    }
@@ -134,7 +139,9 @@ void SignatureDialog::btOkClicked()
   }
 
   emit finished(QDialog::Accepted);
-  this->setVisible(false);
+
+  if(m_isBlocking)
+    this->setVisible(false);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -144,5 +151,6 @@ void SignatureDialog::btCancelClicked()
 {
   m_okClicked = false;
   emit finished(QDialog::Rejected);
+
   this->setVisible(false);
 }
