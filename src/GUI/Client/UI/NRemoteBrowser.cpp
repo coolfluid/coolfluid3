@@ -611,8 +611,8 @@ void NRemoteBrowser::keyPressEvent(QKeyEvent * event)
     return;
   }
 
-  // if user pressed Enter key, it similar to clicking on a button
-  // (if any has focus). Note: if none has the focus the default one ("Ok") is
+  // if user pressed Enter key, it is similar to clicking on a button
+  // (if any has the focus). Note: if none has the focus the default one ("Ok") is
   // taken (this is managed by QDialogButtonBox class)
   // Qt::Key_Enter : enter key located on the keypad
   // Qt::Key_Return : return key
@@ -697,8 +697,8 @@ void NRemoteBrowser::updateModel(QStandardItemModel * model,
                                   const std::vector<std::string> & files,
                                   QList<FilesListItem *> & modelItems)
 {
-//  QIcon dirIcon = QFileIconProvider().icon(QFileIconProvider::Folder);
-//  QIcon fileIcon = QFileIconProvider().icon(QFileIconProvider::File);
+  QIcon dirIcon = QFileIconProvider().icon(QFileIconProvider::Folder);
+  QIcon fileIcon = QFileIconProvider().icon(QFileIconProvider::File);
 
   std::vector<std::string>::const_iterator itDirs = dirs.begin();
   std::vector<std::string>::const_iterator itFiles = files.begin();
@@ -726,7 +726,7 @@ void NRemoteBrowser::updateModel(QStandardItemModel * model,
     if(!path.isEmpty() && name != "..")
       name.prepend(path + (path.endsWith(m_pathSep) ? "" : m_pathSep));
 
-    item = new FilesListItem(/*dirIcon, */name + m_pathSep, DIRECTORY);
+    item = new FilesListItem(dirIcon, name + m_pathSep, DIRECTORY);
     modelItems.append(item);
     model->appendRow(item);
     itDirs++;
@@ -735,7 +735,7 @@ void NRemoteBrowser::updateModel(QStandardItemModel * model,
   // add files to the list
   while(itFiles != files.end())
   {
-    item = new FilesListItem(/*fileIcon, */itFiles->c_str(), FILE);
+    item = new FilesListItem(fileIcon, itFiles->c_str(), FILE);
     modelItems.append(item);
     model->appendRow(item);
     itFiles++;

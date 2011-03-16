@@ -55,7 +55,7 @@ namespace ClientUI {
     /// @param text Item text.
     /// @param type Item type.
     /// @throw UnknownType If the type is unknown.
-    FilesListItem(/*const QIcon & icon, */const QString & text, FilesListItemType type);
+    FilesListItem(const QIcon & icon, const QString & text, FilesListItemType type);
 
     /// @brief Gives the type of this item.
 
