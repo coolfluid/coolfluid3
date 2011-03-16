@@ -9,6 +9,8 @@ list( APPEND coolfluid_fvm_files
   ComputeFlux.cpp
   ComputeUpdateCoefficient.hpp
   ComputeUpdateCoefficient.cpp
+  GhostCells.hpp
+  GhostCells.cpp
   FiniteVolumeSolver.hpp
   FiniteVolumeSolver.cpp
   OutputIterationInfo.hpp

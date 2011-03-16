@@ -23,7 +23,10 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CFaceCellConnectivity.hpp"
+#include "Mesh/CFaces.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
+
 
 #include "FVM/BuildGhostStates.hpp"
 
@@ -57,6 +60,25 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
   BuildGhostStates::Ptr build_gstates = allocate_component<BuildGhostStates>("build_gstates");
   build_gstates->transform(mesh);
   
+#if 0
+  boost_foreach(CRegion& boundary_faces, find_components_recursively_with_name<CRegion>(mesh->topology(),"boundary_faces"))
+  {
+    boost_foreach(CFaces& faces, find_components<CFaces>(boundary_faces))
+    {
+      CFaceCellConnectivity& face2cell = find_component<CFaceCellConnectivity>(faces);
+      for (Uint face=0; face<faces.size(); ++face)
+      {
+        CTable<Uint>::ConstRow elements = face2cell.elements(face);
+        CFinfo << "face " << face << " connected to : ";
+        boost_foreach (Uint elem, elements)
+        {
+          CFinfo << elem << "  " ;
+        }
+        CFinfo << CFendl;
+      }
+    }
+  }
+#endif  
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	boost::filesystem::path fp_out("line_ghosts.msh");
 	meshwriter->write_from_to(mesh,fp_out);

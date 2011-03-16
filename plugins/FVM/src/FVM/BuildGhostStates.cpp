@@ -24,6 +24,7 @@
 #include "Mesh/ElementType.hpp"
 
 #include "FVM/BuildGhostStates.hpp"
+#include "FVM/GhostCells.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,16 +76,25 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
     if ( find_components<CFaces>(region).size() != 0 )
     {
       // this region has faces to build ghost cells at
-      
+
       CRegion::Ptr boundary_faces = region.create_component<CRegion>("boundary_faces");
       boost_foreach(CFaces& faces, find_components<CFaces>(region) )
         faces.move_to(boundary_faces);
+
+      Uint nb_faces(0);
+      boost_foreach(CFaces& faces, find_components<CFaces>(*boundary_faces) )
+        nb_faces += faces.size();
         
       CRegion& ghost_states = *region.create_component<CRegion>("ghost_states");
-      CElements& ghosts = *ghost_states.create_component<CElements>("Point");
+      GhostCells& ghosts = *ghost_states.create_component<GhostCells>("Point");
       ghosts.initialize("CF.Mesh.SF.Point"+dim_str+"DLagrangeP1",mesh.nodes());
-      CTable<Uint>::Buffer ghost_elem_buffer = ghosts.connectivity_table().create_buffer();
+      CTable<Uint>& ghost_elem_connectivity = ghosts.connectivity_table();
+      ghost_elem_connectivity.resize(nb_faces);
+      ghost_elem_connectivity.set_row_size(1);
       CTable<Real>::Buffer nodes_buffer = mesh.nodes().coordinates().create_buffer();
+      
+      Uint conn_idx(0);
+      
       boost_foreach(CFaces& faces, find_components<CFaces>(*boundary_faces) )
       {
         CFinfo << faces.full_path().path() << CFendl;
@@ -92,7 +102,10 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
         if (is_not_null(face2cell_ptr))
         {
           CFaceCellConnectivity& face2cell = *face2cell_ptr;
-
+          Uint unified_ghost_idx(face2cell.size());
+          find_component<CUnifiedData<CCells> >(face2cell).add_data(find_components<CCells>(ghost_states).as_vector());
+          CTable<Uint>& f2c_connectivity = find_component<CTable<Uint> >(face2cell);
+          f2c_connectivity.set_row_size(2);
           std::vector<boost::shared_ptr<CCells> >& cells = face2cell.cells_components();
           Uint comp_idx(0);
           Uint cell_idx(0);
@@ -148,8 +161,8 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
             }
 
             dummy[0] = nodes_buffer.add_row(ghost_coord);
-            ghost_elem_buffer.add_row(dummy);
-            
+            ghost_elem_connectivity.set_row(conn_idx++,dummy);
+            f2c_connectivity[face][1]=unified_ghost_idx++;
           }
         }
       }      
