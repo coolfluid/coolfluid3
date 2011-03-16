@@ -39,7 +39,6 @@ NetworkThread::NetworkThread(QObject *parent) :
     m_port(0),
     m_requestDisc(false)
 {
-//  qDebug() << "ctrst" << this << this->thread() << m_socket->thread();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +63,6 @@ bool NetworkThread::connectToHost(const QString &hostAddress, quint16 port)
   {
     m_hostname = hostAddress;
     m_port = port;
-//    m_socket->connectToHost(hostAddress, port);
     start();
     return true;
   }
@@ -157,7 +155,6 @@ void NetworkThread::newData()
 
 //    frame = new char[m_blockSize];
     in >> frame;
-
 
     if(NTree::globalTree()->isDebugModeEnabled())
       CFinfo << frame << CFendl;

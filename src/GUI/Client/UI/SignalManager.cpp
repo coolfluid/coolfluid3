@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <QApplication>
 #include <QList>
 #include <QMainWindow>
 #include <QMap>
@@ -143,8 +144,8 @@ void SignalManager::signalSignature(SignalArgs & args)
     ActionInfo & info = m_signals[m_currentAction];
     const char * tag = Protocol::Tags::key_options();
 
-    SignalFrame frame(info.name.toStdString(), path, path);
-    SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+    m_frame = SignalFrame(info.name.toStdString(), path, path);
+    SignalFrame& options = m_frame.map( Protocol::Tags::key_options() );
 
     if( args.has_map(tag) )
       args.map(tag).main_map.content.deep_copy( options.main_map.content );
@@ -153,24 +154,9 @@ void SignalManager::signalSignature(SignalArgs & args)
     {
       SignatureDialog * sg = new SignatureDialog();
 
-      if(sg->show(options.main_map.content, m_currentAction->text()))
-      {
-        if(m_localStatus[m_currentAction])
-        {
-          try
-          {
-            m_node->call_signal(info.name.toStdString(), frame);
-          }
-          catch(InvalidURI ip)
-          {
-            NLog::globalLog()->addException(ip.what());
-          }
-        }
-        else
-          ThreadManager::instance().network().send(frame);
-      }
+      connect(sg, SIGNAL(finished(int)), this, SLOT(dialogFinished(int)));
 
-      delete sg;
+      sg->show(options.main_map.content, m_currentAction->text());
     }
     catch( Exception & e)
     {
@@ -182,6 +168,7 @@ void SignalManager::signalSignature(SignalArgs & args)
     }
 
 
+
     m_waitingForSignature = false;
   }
 
@@ -189,8 +176,36 @@ void SignalManager::signalSignature(SignalArgs & args)
 
 ////////////////////////////////////////////////////////////////////////////
 
+void SignalManager::dialogFinished(int result)
+{
+  if(result == QDialog::Accepted)
+  {
+    SignatureDialog * dlg = static_cast<SignatureDialog*>(sender());
+
+    if(dlg != nullptr)
+    {
+      if(m_localStatus[m_currentAction]) // if it is a local signal, call it...
+      {
+        try
+        {
+          m_node->call_signal(m_signals[m_currentAction].name.toStdString(), m_frame);
+        }
+        catch(InvalidURI ip)
+        {
+          NLog::globalLog()->addException(ip.what());
+        }
+      }
+      else // ...or send the request to the server
+        ThreadManager::instance().network().send(m_frame);
+
+    }
+
+    delete dlg;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 } // ClientUI
 } // GUI
 } // CF
-
-//////////////////////////////////////////////////////////////////////////////

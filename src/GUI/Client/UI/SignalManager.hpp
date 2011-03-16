@@ -48,6 +48,8 @@ namespace ClientUI {
 
     void signalSignature(Common::SignalArgs & node);
 
+    void dialogFinished(int result);
+
   private:
 
     QMenu * m_menu;
@@ -61,6 +63,8 @@ namespace ClientUI {
     QAction * m_currentAction;
 
     bool m_waitingForSignature;
+
+    Common::XML::SignalFrame m_frame;
 
   }; // class SignalManager
 

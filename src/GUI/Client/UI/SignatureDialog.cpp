@@ -11,6 +11,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/TreeThread.hpp"
 
 #include "GUI/Client/UI/GraphicalValue.hpp"
@@ -49,13 +50,12 @@ SignatureDialog::~SignatureDialog()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool SignatureDialog::show(XmlNode & sig, const QString & title)
+bool SignatureDialog::show(XmlNode & sig, const QString & title, bool block)
 {
   cf_assert( sig.is_valid() );
 
   XmlNode node = sig.content->first_node();
   QString name;
-  QMap<QString, XmlNode> nodes;
 
   m_okClicked = false;
 
@@ -69,55 +69,18 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title)
 
     name = node.content->first_attribute( Protocol::Tags::attr_key() )->value();
 
-    nodes[name] = node;
+    m_nodes[name] = node;
   }
 
-  if( m_dataLayout->hasOptions() )
+ if( m_dataLayout->hasOptions() )
   {
-    this->exec();
-
-    if(m_okClicked)
-    {
-      QMap<QString, QString> options;
-
-      m_dataLayout->options(options, true);
-
-      QMap<QString, XmlNode>::iterator it = nodes.begin();
-
-      for( ; it != nodes.end() ; it++)
-      {
-        XmlNode & optionNode = it.value();
-        if( Map::is_single_value(optionNode) )
-        {
-          XmlNode node( optionNode.content->first_node() );
-          const char * value = options[it.key()].toStdString().c_str();
-
-          node.content->value( node.content->document()->allocate_string(value) );
-        }
-        else
-        {
-          QStringList value = options[it.key()].split("@@");
-          QStringList::iterator itValue = value.begin();
-
-          std::string delim(optionNode.content->first_attribute( Protocol::Tags::attr_array_delimiter() )->value());
-          std::string val_str;
-
-
-//          optionNode.remove_all_nodes();
-
-          for( ; itValue != value.end() ; itValue++)
-          {
-            if(!val_str.empty())
-              val_str += delim;
-
-            val_str += itValue->toStdString();
-          }
-//            XmlOps::add_node_to(optionNode, "e", itValue->toStdString());
-
-        }
-      }
-    }
-
+   if(block)
+     this->exec();
+   else
+   {
+     this->setModal(true);
+     this->setVisible(true);
+   }
   }
   else
     m_okClicked = true;
@@ -131,6 +94,42 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title)
 void SignatureDialog::btOkClicked()
 {
   m_okClicked = true;
+
+  QMap<QString, QString> options;
+
+  m_dataLayout->options(options, true);
+
+  QMap<QString, XmlNode>::iterator it = m_nodes.begin();
+
+  for( ; it != m_nodes.end() ; it++)
+  {
+    XmlNode & optionNode = it.value();
+    if( Map::is_single_value(optionNode) )
+    {
+      XmlNode node( optionNode.content->first_node() );
+      const char * value = options[it.key()].toStdString().c_str();
+
+      node.content->value( node.content->document()->allocate_string(value) );
+    }
+    else
+    {
+      QStringList value = options[it.key()].split("@@");
+      QStringList::iterator itValue = value.begin();
+
+      std::string delim(optionNode.content->first_attribute( Protocol::Tags::attr_array_delimiter() )->value());
+      std::string val_str;
+
+      for( ; itValue != value.end() ; itValue++)
+      {
+        if(!val_str.empty())
+          val_str += delim;
+
+        val_str += itValue->toStdString();
+      }
+
+    }
+  }
+
   this->setVisible(false);
 }
 

@@ -679,7 +679,7 @@ void MainWindow::connectToServer()
   frame.set_option("Port number", CF::Uint(62784),
                    "The port number the server is listening to.");
 
-  if(dlg.show(frame.main_map.content, "Connect to server"))
+  if(dlg.show(frame.main_map.content, "Connect to server", true))
   {
     QString hostname = frame.get_option<std::string>("Hostname").c_str();
     quint16 port = frame.get_option<CF::Uint>("Port number");

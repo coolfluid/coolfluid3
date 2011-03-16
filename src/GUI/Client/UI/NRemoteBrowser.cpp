@@ -27,9 +27,11 @@
 #include "Common/Signal.hpp"
 
 #include "GUI/Client/Core/NBrowser.hpp"
+#include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/UI/FilesListItem.hpp"
 #include "GUI/Client/Core/TreeThread.hpp"
+#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -762,7 +764,7 @@ void NRemoteBrowser::openDir(const QString & path)
   options.set_option("includeNoExtensions", m_includeNoExtension);
   options.set_array("extensions", vect, " ; ");
 
-//  m_clientCore->sendSignal(frame);
+  ThreadManager::instance().network().send(frame);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

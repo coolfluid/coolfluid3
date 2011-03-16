@@ -41,7 +41,7 @@ namespace ClientUI {
 
     ~SignatureDialog();
 
-    bool show(Common::XML::XmlNode & sig, const QString & title);
+    bool show(Common::XML::XmlNode & sig, const QString & title, bool block = false);
 
   private slots:
 
@@ -56,6 +56,8 @@ namespace ClientUI {
     OptionLayout * m_dataLayout;
 
     QVBoxLayout * m_mainLayout;
+
+    QMap<QString, Common::XML::XmlNode> m_nodes;
 
     bool m_okClicked;
 
