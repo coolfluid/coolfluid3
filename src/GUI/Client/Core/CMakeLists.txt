@@ -9,6 +9,7 @@ list( APPEND coolfluid_client_core_moc_classes
 CNode.hpp
 ClientNetworkComm.hpp
 ClientRoot.hpp
+NetworkThread.hpp
 NJournalBrowser.hpp
 NCore.hpp
 NJournal.hpp
@@ -43,6 +44,8 @@ NBrowser.cpp
 NBrowser.hpp
 NCore.cpp
 NCore.hpp
+NetworkThread.cpp
+NetworkThread.hpp
 NGeneric.hpp
 NGeneric.cpp
 NJournal.cpp
@@ -68,7 +71,7 @@ TreeNode.cpp
 TreeNode.hpp
 )
 
-list( APPEND coolfluid_client_core_cflibs coolfluid_network coolfluid_mesh )
+list( APPEND coolfluid_client_core_cflibs coolfluid_network )
 
 # Use Qt Libraries
 list( APPEND coolfluid_client_core_libs ${QT_LIBRARIES})
