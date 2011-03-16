@@ -7,18 +7,14 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDateTime>
-#include <QDir>
-#include <QFile>
+#include <QFileDialog>
 #include <QHeaderView>
-#include <QHostAddress>
-#include <QHostInfo>
 #include <QListView>
 #include <QMessageBox>
 #include <QMenuBar>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSplitter>
-#include <QTableView>
 #include <QTabWidget>
 #include <QVBoxLayout>
 
@@ -39,7 +35,6 @@
 #include "GUI/Client/UI/CentralPanel.hpp"
 #include "GUI/Client/UI/Graph.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
-#include "GUI/Client/UI/SelectFileDialog.hpp"
 #include "GUI/Client/UI/SignatureDialog.hpp"
 #include "GUI/Client/UI/TreeBrowser.hpp"
 #include "GUI/Client/UI/TreeView.hpp"
