@@ -9,8 +9,6 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include <QObject>
-
 #include "GUI/Client/Core/CNode.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -22,7 +20,7 @@ namespace Common { class URI; }
 namespace GUI {
 namespace ClientCore {
 
-  ////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
   /// @brief Client corresponding component for @c CF::Common::CLink.
   /// @author Quentin Gasper.
@@ -74,9 +72,10 @@ namespace ClientCore {
     /// @brief Method called when target path changes.
     /// @param node Signal parameters. Should contain a string value named
     /// "target_path" with the new target path.
-  void change_link(Common::SignalArgs & node);
+    void change_link(Common::SignalArgs & node);
 
     //@} END Signals
+
   }; // class NLink
 
 //////////////////////////////////////////////////////////////////////////////

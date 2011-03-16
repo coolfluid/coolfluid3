@@ -32,7 +32,7 @@ int main(int argc, char * argv[])
   passed += QTest::qExec(new NTreeTest(), argc, argv);
   passed += QTest::qExec(new CNodeTest(), argc, argv);
   passed += QTest::qExec(new NBrowserTest(), argc, argv);
-//  passed += QTest::qExec(new NLinkTest(), argc, argv);
+  passed += QTest::qExec(new NLinkTest(), argc, argv);
 
   return passed;
 }

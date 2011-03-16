@@ -16,13 +16,20 @@
 
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"
-//#include "GUI/Client/Core/SelectPathDialog.hpp"
 
 #include "GUI/Client/Core/NLink.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientCore {
+
+////////////////////////////////////////////////////////////////////////////
 
 NLink::NLink(const QString & name)
   : CNode(name, "CLink", LINK_NODE)
@@ -33,8 +40,7 @@ NLink::NLink(const QString & name)
   m_localSignals << "goToTarget";
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////////
 
 QString NLink::toolTip() const
 {
@@ -46,8 +52,7 @@ QString NLink::toolTip() const
   return QString("Target: %1").arg(path);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////////
 
 URI NLink::targetPath() const
 {
@@ -57,31 +62,30 @@ URI NLink::targetPath() const
   return m_target->full_path();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////////
 
 void NLink::setTargetPath(const URI & path)
 {
+  cf_assert( !m_root.expired() );
+
   if(!path.empty())
   {
     CNode::Ptr target = boost::dynamic_pointer_cast<CRoot>(m_root.lock())->retrieve_component<CNode>(path);
+    cf_assert( is_not_null(target.get()) );
     this->setTargetNode(target);
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////////
 
 void NLink::setTargetNode(const CNode::Ptr & node)
 {
-  if(node.get() == nullptr)
-    NLog::globalLog()->addError("Target is null");
-  else
-    m_target = node;
+  cf_assert( is_not_null(node.get()) );
+
+  m_target = node;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////////
 
 void NLink::goToTarget(SignalArgs & )
 {
@@ -96,8 +100,7 @@ void NLink::goToTarget(SignalArgs & )
 		throw ValueNotFound (FromHere(), m_target->full_path().string() + ": path does not exist");
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////////
 
 void NLink::change_link(SignalArgs & args)
 {
@@ -118,3 +121,9 @@ void NLink::change_link(SignalArgs & args)
     NLog::globalLog()->addError(ip.msg().c_str());
   }
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+} // ClientCore
+} // GUI
+} // CF
