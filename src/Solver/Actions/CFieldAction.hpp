@@ -22,6 +22,7 @@ struct Solver_Actions_API CFieldAction : public Common::CAction
 {
   typedef std::vector<std::string> StringsT;
   typedef std::vector<Uint> SizesT;
+  typedef std::vector<bool> BoolsT;
   typedef boost::shared_ptr< CFieldAction > Ptr;
   typedef boost::shared_ptr< CFieldAction const> ConstPtr;
   
@@ -41,6 +42,9 @@ struct Solver_Actions_API CFieldAction : public Common::CAction
   
   /// Number of Real numbers needed to store each variable
   virtual SizesT variable_sizes() const = 0;
+  
+  /// True for each variable that is part of an equation system, i.e. that adds to the DOFs
+  virtual BoolsT equation_variables() const = 0;
   
   virtual Uint nb_dofs() const = 0;
   

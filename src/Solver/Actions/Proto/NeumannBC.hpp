@@ -47,8 +47,7 @@ struct NeumannBCSetter :
     ) const
     {
       Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>(expr) ).get();
-      const std::vector<Uint>& offsets = data.variable_offsets();
-      const Uint sys_idx = data.node_idx*offsets.back() + offsets[boost::proto::value( boost::proto::child_c<2>(expr) )];
+      const Uint sys_idx = data.node_idx*data.nb_dofs() + data.var_data(boost::proto::value(boost::proto::child_c<2>(expr))).offset;
       lss.rhs()[sys_idx] = state;
     }
   };

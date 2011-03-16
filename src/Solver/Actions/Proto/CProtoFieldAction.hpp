@@ -18,6 +18,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CField2.hpp"
+#include "Mesh/CNodes.hpp"
 
 #include "Solver/CEigenLSS.hpp"
 #include "Solver/Actions/CFieldAction.hpp"
@@ -87,7 +88,14 @@ public:
   virtual SizesT variable_sizes() const
   {
     SizesT result;
-    boost::fusion::for_each( m_variables, GetVariableSizes(result) );
+    boost::fusion::for_each( m_variables, GetVariableSizes(result, root_region().nodes().coordinates().row_size()) );
+    return result;
+  }
+  
+  virtual BoolsT equation_variables() const
+  {
+    BoolsT result;
+    boost::mpl::for_each<EquationVariablesT>(GetEquationVariables(result));
     return result;
   }
   
@@ -101,7 +109,7 @@ public:
     Uint result = 0;
     const Uint nb_vars = var_sizes.size();
     
-    std::vector<bool> equation_variables;
+    BoolsT equation_variables;
     boost::mpl::for_each<EquationVariablesT>(GetEquationVariables(equation_variables));
     
     std::set<std::string> unique_fields;
@@ -140,7 +148,7 @@ public:
     const StringsT var_names = variable_names();
     const SizesT var_sizes = variable_sizes();
     
-    std::vector<bool> equation_variables;
+    BoolsT equation_variables;
     boost::mpl::for_each<EquationVariablesT>(GetEquationVariables(equation_variables));
     
     BOOST_FOREACH(const std::string& fd_name, unique_fields)
@@ -187,7 +195,7 @@ public:
     StringsT fd_names_filt, var_names_filt;
     SizesT var_sizes_filt;
     
-    std::vector<bool> equation_variables;
+    BoolsT equation_variables;
     boost::mpl::for_each<EquationVariablesT>(GetEquationVariables(equation_variables));
     
     for(Uint i = 0; i != equation_variables.size(); ++i)
@@ -258,23 +266,33 @@ private:
   /// Functor to get the variable sizes
   struct GetVariableSizes
   {
-    GetVariableSizes(SizesT& s) : result(s)
+    GetVariableSizes(SizesT& s, const Uint d) : result(s), dim(d)
     {
     }
     
-    template<typename T>
-    void operator()(const T& var) const
+    void operator()(const ScalarField&) const
     {
       result.push_back(1);
     }
     
+    void operator()(const VectorField&) const
+    {
+      result.push_back(dim);
+    }
+    
+    void operator()(const boost::mpl::void_&) const
+    {
+      result.push_back(0);
+    }
+    
     SizesT& result;
+    const Uint dim;
   };
   
   /// Indicate if a variable is part of the equation
   struct GetEquationVariables
   {
-    GetEquationVariables(std::vector<bool>& v) : result(v)
+    GetEquationVariables(BoolsT& v) : result(v)
     {
     }
     
@@ -284,7 +302,7 @@ private:
       result.push_back(T::value);
     }
     
-    std::vector<bool>& result;
+    BoolsT& result;
   };
 };
 

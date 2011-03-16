@@ -126,7 +126,7 @@ void LinearSystem::add_dirichlet_bc( SignalArgs& args )
   
   MeshTerm<0, ScalarField> bc_var(field_name, var_name);
 
-  CAction::Ptr bc = build_nodes_action(bc_name, *this, dirichlet( lss(), bc_var ) = store(bc_value->value()) );
+  CAction::Ptr bc = build_nodes_action(bc_name, *this, m_physical_model, dirichlet( lss(), bc_var ) = store(bc_value->value()) );
   bc->add_tag("dirichlet_bc");
   
   // Make sure the BC value can be configured from the BC action itself
@@ -187,7 +187,21 @@ void LinearSystem::on_run()
   std::cout << "starting system build" << std::endl;
   builder->execute();
   std::cout << "finished system build" << std::endl;
-
+  
+  // Calculate the offsets of the variables (so the bcs know how the system matrix needs to be updated)
+  const CFieldAction::StringsT var_names = builder->variable_names();
+  const CFieldAction::BoolsT eq_vars = builder->equation_variables();
+  const CFieldAction::SizesT var_sizes = builder->variable_sizes();
+  m_physical_model.nb_dofs = 0;
+  for(Uint var_idx = 0; var_idx != var_names.size(); ++var_idx)
+  {
+    if(eq_vars[var_idx])
+    {
+      m_physical_model.variable_offsets[var_names[var_idx]] = m_physical_model.nb_dofs;
+      m_physical_model.nb_dofs += var_sizes[var_idx];
+    }
+  }
+  
   // Set the boundary conditions
   std::cout << "starting bc setting" << std::endl;
   boost_foreach(CAction& bc_action, find_components_with_tag<CAction>(*this, "dirichlet_bc"))

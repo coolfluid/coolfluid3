@@ -32,22 +32,22 @@ dirichlet(Solver::CEigenLSS& lss, MeshTerm<I, T> const & var)
 }
 
 /// Helper function for assignment
-inline void assign_dirichlet(CEigenLSS& lss, const Real value, const std::vector<Uint>& offsets, const Uint node_idx, const Uint var_idx, const Real old_value)
+inline void assign_dirichlet(CEigenLSS& lss, const Real new_value, const Real old_value, const Uint node_idx, const Uint offset, const Uint nb_dofs)
 {
   // Index in the global system
-  const Uint sys_idx = node_idx*offsets.back() + offsets[var_idx];
+  const Uint sys_idx = node_idx*nb_dofs + offset;
   
-  lss.set_dirichlet_bc(sys_idx, value - old_value);
+  lss.set_dirichlet_bc(sys_idx, new_value - old_value);
 }
 
 /// Overload for vector types
 template<typename NewT, typename OldT>
-inline void assign_dirichlet(CEigenLSS& lss, const NewT& value, const std::vector<Uint>& offsets, const Uint node_idx, const Uint var_idx, const OldT& old_value)
+inline void assign_dirichlet(CEigenLSS& lss, const NewT& new_value, const OldT& old_value, const Uint node_idx, const Uint offset, const Uint nb_dofs)
 {
   // Index in the global system
-  const Uint sys_idx = node_idx*offsets.back() + offsets[var_idx];
+  const Uint sys_idx = node_idx*nb_dofs + offset;
   for(Uint i = 0; i != OldT::RowsAtCompileTime; ++i)
-    lss.set_dirichlet_bc(sys_idx+i, value[i] - old_value[i]);
+    lss.set_dirichlet_bc(sys_idx+i, new_value[i] - old_value[i]);
 }
   
 struct DirichletBCSetter :
@@ -66,9 +66,14 @@ struct DirichletBCSetter :
     {
       //std::cout << "setting dirichlet bc for var: " << boost::proto::value(boost::proto::child_c<2>(expr)).variable_value.var_name << std::endl;
       Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>(expr) ).get();
-      assign_dirichlet( lss, state, data.variable_offsets(), data.node_idx,
-                        boost::proto::value(boost::proto::child_c<2>(expr)),
-                        data.var_data(boost::proto::value(boost::proto::child_c<2>(expr))).value() );
+      assign_dirichlet(
+        lss,
+        state,
+        data.var_data(boost::proto::value(boost::proto::child_c<2>(expr))).value(), // old value
+        data.node_idx,
+        data.var_data(boost::proto::value(boost::proto::child_c<2>(expr))).offset,
+        data.nb_dofs()                  
+      );
     }
   };
 };

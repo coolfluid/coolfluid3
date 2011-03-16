@@ -217,6 +217,22 @@ public:
     return m_gradient;
   }
   
+  /// Return the gradient (weak form element matrix)
+  template<typename SupportT>
+  typename GradientImpl<SF, Dim, Offset, MatrixSize>::result_type gradient_elm(const MappedCoordsT& mapped_coords, SupportT& support) const
+  {
+    SF::shape_function(mapped_coords, m_sf);
+    return m_gradient_elm(m_sf, gradient(mapped_coords, support));
+  }
+  
+  /// Return the gradient (weak form element matrix)
+  template<typename SupportT>
+  typename DivergenceImpl<SF, Dim, Offset, MatrixSize>::result_type divergence_elm(const MappedCoordsT& mapped_coords, SupportT& support) const
+  {
+    SF::shape_function(mapped_coords, m_sf);
+    return m_divergence_elm(m_sf, gradient(mapped_coords, support));
+  }
+  
   /// Return the laplacian (weak form element matrix)
   template<typename SupportT>
   typename LaplacianImpl<SF, Dim, Offset, MatrixSize>::result_type laplacian_elm(const MappedCoordsT& mapped_coords, SupportT& support) const
@@ -251,6 +267,8 @@ private:
   mutable typename SF::MappedGradientT m_mapped_gradient_matrix;
   mutable GradientT m_gradient;
   InterpolationImpl<SF, Dim> m_eval;
+  const GradientImpl<SF, Dim, Offset, MatrixSize> m_gradient_elm;
+  const DivergenceImpl<SF, Dim, Offset, MatrixSize> m_divergence_elm;
   const LaplacianImpl<SF, Dim, Offset, MatrixSize> m_laplacian_elm;
   const ValueImpl<SF, Dim, Offset, MatrixSize> m_value_elm;
 };

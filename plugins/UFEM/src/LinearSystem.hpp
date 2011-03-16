@@ -12,6 +12,7 @@
 #include "Solver/CEigenLSS.hpp"
 #include "Solver/CMethod.hpp"
 #include "Solver/Actions/CFieldAction.hpp"
+#include "Solver/Actions/Proto/PhysicalModel.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "LibUFEM.hpp"
@@ -87,6 +88,8 @@ protected:
 
   /// Action that will set up the linear system
   boost::weak_ptr<Solver::Actions::CFieldAction> m_system_builder;
+  
+  Solver::Actions::Proto::PhysicalModel m_physical_model;
 };
 
 } // UFEM

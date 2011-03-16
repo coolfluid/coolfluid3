@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   BOOST_CHECK_EQUAL(argc, 2);
 
   boost::filesystem::path input_file = boost::filesystem::path(argv[1]) / boost::filesystem::path("ring3d-tetras.neu");
-  boost::filesystem::path output_file("ring2d-steady.msh");
+  boost::filesystem::path output_file("ring3d-steady.msh");
 
   CRoot::Ptr root = Core::instance().root();
 

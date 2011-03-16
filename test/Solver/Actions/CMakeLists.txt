@@ -56,8 +56,13 @@ if(CF_ENABLE_PROTO)
     utest-proto-systems.cpp )
   coolfluid_add_unit_test( utest-proto-systems )
 
+  list( APPEND utest-proto-stokes-artifdiss_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-stokes-artifdiss_files
+    utest-proto-stokes-artifdiss.cpp )
+  coolfluid_add_unit_test( utest-proto-stokes-artifdiss )
+
 else()
 
-  coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-benchmark.cpp utest-proto-systems.cpp utest-proto-unsteady.cpp utest-proto-operators.cpp)
+  coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-benchmark.cpp utest-proto-operators.cpp  utest-proto-systems.cpp utest-proto-unsteady.cpp utest-proto-stokes-artifdiss.cpp)
 
 endif()

@@ -183,6 +183,46 @@ struct ValueElmOp : boost::proto::transform< ValueElmOp >
   };
 };
 
+// Forward declaration
+template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
+struct GradientImpl;
+
+/// Element gradient
+struct GradientElmOp : boost::proto::transform< GradientElmOp >
+{
+  template<typename VarT, typename MappedCoordsT, typename DataT>
+  struct impl : boost::proto::transform_impl<VarT, MappedCoordsT, DataT>
+  {
+    typedef typename VarDataType<VarT, DataT>::type VarDataT;
+    typedef typename GradientImpl<typename VarDataT::SF, VarDataT::dimension, VarDataT::offset, VarDataT::matrix_size>::result_type result_type;
+    
+    result_type operator()(typename impl::expr_param var, typename impl::state_param mapped_coords, typename impl::data_param data)
+    {
+      return data.var_data(var).gradient_elm(mapped_coords, data.support());
+    }
+  };
+};
+
+// Forward declaration
+template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
+struct DivergenceImpl;
+
+/// Element gradient
+struct DivergenceElmOp : boost::proto::transform< DivergenceElmOp >
+{
+  template<typename VarT, typename MappedCoordsT, typename DataT>
+  struct impl : boost::proto::transform_impl<VarT, MappedCoordsT, DataT>
+  {
+    typedef typename VarDataType<VarT, DataT>::type VarDataT;
+    typedef typename DivergenceImpl<typename VarDataT::SF, VarDataT::dimension, VarDataT::offset, VarDataT::matrix_size>::result_type result_type;
+    
+    result_type operator()(typename impl::expr_param var, typename impl::state_param mapped_coords, typename impl::data_param data)
+    {
+      return data.var_data(var).divergence_elm(mapped_coords, data.support());
+    }
+  };
+};
+
 /// Static terminals that can be used in proto expressions
 boost::proto::terminal<VolumeOp>::type const volume = {};
 
@@ -190,11 +230,13 @@ boost::proto::terminal<CoordinatesOp>::type const coordinates = {};
 boost::proto::terminal<JacobianOp>::type const jacobian = {};
 boost::proto::terminal<JacobianDeterminantOp>::type const jacobian_determinant = {};
 boost::proto::terminal<NormalOp>::type const normal = {};
-
 boost::proto::terminal<GradientOp>::type const gradient = {};
-boost::proto::terminal<LaplacianElmOp>::type const laplacian_elm = {};
 
 boost::proto::terminal<ShapeFunctionOp>::type const shape_function = {};
+
+boost::proto::terminal<GradientElmOp>::type const gradient_elm = {};
+boost::proto::terminal<DivergenceElmOp>::type const divergence_elm = {};
+boost::proto::terminal<LaplacianElmOp>::type const laplacian_elm = {};
 boost::proto::terminal<ValueElmOp>::type const value_elm = {};
 
 /// SF operations needing only a support
@@ -222,6 +264,8 @@ struct SFSupportFieldMappedOp :
     boost::proto::terminal<ShapeFunctionOp>,
     boost::proto::terminal<ValueElmOp>,
     boost::proto::terminal<GradientOp>,
+    boost::proto::terminal<GradientElmOp>,
+    boost::proto::terminal<DivergenceElmOp>,
     boost::proto::terminal<LaplacianElmOp>
   >
 {
@@ -371,6 +415,86 @@ struct InterpolationImpl<SF, 1>
   {
     return sf * values;
   }
+};
+
+/// Gradient
+template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
+struct GradientImpl
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  GradientImpl()
+  {
+    m_matrix.setZero();
+  }
+  
+  /// Type of the element matrix
+  typedef Eigen::Matrix<Real, SF::nb_nodes * SF::dimension, MatrixSize> MatrixT;
+  typedef const MatrixT& result_type;
+  
+  result_type operator()(const typename SF::ShapeFunctionsT& sf, const typename SF::MappedGradientT& gradient_matrix) const
+  {
+    for(Uint j = 0; j != Dim; ++j)
+      for(Uint i = 0; i != SF::dimension; ++i)
+        m_matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, Offset+j*SF::nb_nodes).noalias() = sf.transpose() * gradient_matrix.row(i);
+    
+    return m_matrix;
+  }
+  
+private:
+  mutable MatrixT m_matrix;
+};
+
+/// Specialization for scalars
+template<typename SF, Uint Offset, Uint MatrixSize>
+struct GradientImpl<SF, 1, Offset, MatrixSize>
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  GradientImpl()
+  {
+    m_matrix.setZero();
+  }
+  
+  /// Type of the element matrix
+  typedef Eigen::Matrix<Real, SF::nb_nodes * SF::dimension, MatrixSize> MatrixT;
+  typedef const MatrixT& result_type;
+  
+  result_type operator()(const typename SF::ShapeFunctionsT& sf, const typename SF::MappedGradientT& gradient_matrix) const
+  {
+    for(Uint i = 0; i != SF::dimension; ++i)
+      m_matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, Offset).noalias() = sf.transpose() * gradient_matrix.row(i);
+    return m_matrix;
+  }
+  
+private:
+  mutable MatrixT m_matrix;
+};
+
+/// Divergence
+template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
+struct DivergenceImpl
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  DivergenceImpl()
+  {
+    m_matrix.setZero();
+  }
+  
+  /// Type of the element matrix
+  typedef Eigen::Matrix<Real, SF::nb_nodes, MatrixSize> MatrixT;
+  typedef const MatrixT& result_type;
+  
+  result_type operator()(const typename SF::ShapeFunctionsT& sf, const typename SF::MappedGradientT& gradient_matrix) const
+  {
+    for(Uint i = 0; i != SF::dimension; ++i)
+      m_matrix.template block<SF::nb_nodes, SF::nb_nodes>(0, i*SF::nb_nodes).noalias() = sf.transpose() * gradient_matrix.row(i);
+    return m_matrix;
+  }
+  
+private:
+  mutable MatrixT m_matrix;
 };
 
 } // namespace Proto

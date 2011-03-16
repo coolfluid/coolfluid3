@@ -21,6 +21,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 
+#include "PhysicalModel.hpp"
 #include "Transforms.hpp"
 
 /// @file
@@ -74,6 +75,9 @@ struct NodeVarData
     return m_var;
   }
   
+  /// Sequence in the DOFs
+  Uint offset;
+  
 private:
   T& m_var;
 };
@@ -119,6 +123,9 @@ struct NodeVarData< ScalarField >
   {
     m_data[m_idx][m_var_begin] -= v;
   }
+  
+  /// Sequence in the DOFs
+  Uint offset;
   
 private:
   Mesh::CField2& m_field;
@@ -177,6 +184,9 @@ struct NodeVarData<VectorField, Dim>
     for(Uint i = 0; i != Dim; ++i)
       m_data[m_idx][m_var_begin + i] -= v[i];
   }
+  
+  /// Sequence in the DOFs
+  Uint offset;
   
 private:
   Mesh::CField2& m_field;
@@ -239,13 +249,14 @@ public:
   /// Type of the coordinates
   typedef Eigen::Matrix<Real, NbDims::value, 1> CoordsT;
   
-  NodeData(VariablesT& variables, Mesh::CRegion& region, const Mesh::CTable<Real>& coords) :
+  NodeData(VariablesT& variables, Mesh::CRegion& region, const Mesh::CTable<Real>& coords, const PhysicalModel& model) :
     m_variables(variables),
     m_region(region),
-    m_coordinates(coords)
+    m_coordinates(coords),
+    m_nb_dofs(model.nb_dofs ? model.nb_dofs : 1)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_region, m_variables_data));
-    boost::fusion::for_each( m_variables, CalculateOffsets(m_offsets, NbDims::value) );
+    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(AddVariableOffsets(m_variables, m_variables_data, model));
   }
   
   ~NodeData()
@@ -274,9 +285,9 @@ public:
     return m_position;
   }
   
-  const std::vector<Uint>& variable_offsets() const
+  Uint nb_dofs() const
   {
-    return m_offsets;
+    return m_nb_dofs;
   }
   
 private:
@@ -295,8 +306,7 @@ private:
   /// Current coordinates
   mutable CoordsT m_position;
   
-  /// Offsets for field variables (so they can be referenced in a linear system, if any)
-  std::vector<Uint> m_offsets;
+  const Uint m_nb_dofs;
   
   ///////////// helper functions and structs /////////////
 private:
@@ -320,6 +330,38 @@ private:
     VariablesT& variables;
     Mesh::CRegion& region;
     VariablesDataT& variables_data;
+  };
+  
+  /// Initializes the pointers in a VariablesDataT fusion sequence
+  struct AddVariableOffsets
+  {
+    AddVariableOffsets(VariablesT& vars, VariablesDataT& vars_data, const PhysicalModel& model) :
+      variables(vars),
+      variables_data(vars_data),
+      physical_model(model)
+    {
+    }
+    
+    template<typename I>
+    void operator()(const I&)
+    {
+      execute(boost::fusion::at<I>(variables), boost::fusion::at<I>(variables_data));
+    }
+    
+    template<typename VarT, typename DataT>
+    void execute(VarT& var, DataT* data)
+    {
+      typename std::map<std::string, Uint>::const_iterator it = physical_model.variable_offsets.find(var.var_name);
+      data->offset = it == physical_model.variable_offsets.end() ? 0 : it->second;
+    }
+    
+    void execute(boost::mpl::void_&, NodeVarData<boost::mpl::void_>*)
+    {
+    }
+    
+    VariablesT& variables;
+    VariablesDataT& variables_data;
+    const PhysicalModel physical_model;
   };
   
   /// Delete stored per-variable data

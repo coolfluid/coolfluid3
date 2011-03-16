@@ -108,53 +108,6 @@ struct ExpressionProperties
   >::type VariablesT;
 };
 
-/// Calculate the local offset for each Field<> variable
-struct CalculateOffsets
-{
-  typedef std::vector<Uint> SizesT;
-  
-  CalculateOffsets(SizesT& offsets, const Uint dimension) : m_offsets(offsets), m_dimension(dimension)
-  {
-    m_offsets.push_back(0);
-  }
-  
-  template<typename T, typename DummyT=boost::mpl::void_> // DummyT type to avoid error when explicitely specialising inline. *sigh*
-  struct impl
-  {
-    void operator()(const T&, SizesT& r, const Uint) const
-    {
-      r.push_back( r.back() );
-    }
-  };
-  
-  template<typename DummyT>
-  struct impl< ScalarField, DummyT >
-  {
-    void operator()(const ScalarField&, SizesT& r, const Uint) const
-    {
-      r.push_back( 1 + r.back() );
-    }
-  };
-  
-  template<typename DummyT>
-  struct impl< VectorField, DummyT >
-  {
-    void operator()(const VectorField&, SizesT& r, const Uint dimension) const
-    {
-      r.push_back( dimension + r.back() );
-    }
-  };
-  
-  template<typename T>
-  void operator()(const T& var) const
-  {
-    impl<T>()(var, m_offsets, m_dimension);
-  }
-  
-  SizesT& m_offsets;
-  const Uint m_dimension;
-};
-
 /// Copy the terminal values to a fusion list
 template<typename VarsT>
 struct CopyNumberedVars
