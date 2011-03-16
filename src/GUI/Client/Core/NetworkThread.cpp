@@ -33,7 +33,7 @@ namespace ClientCore {
 
 NetworkThread::NetworkThread(QObject *parent) :
     QThread(parent),
-    m_socket(nullptr),
+    m_socket(new QTcpSocket()),
     m_blockSize(0),
     m_port(0),
     m_requestDisc(false)
@@ -181,6 +181,7 @@ void NetworkThread::newData()
 
 void NetworkThread::run()
 {
+  delete m_socket;
   m_socket = new QTcpSocket();
 
   connect(m_socket, SIGNAL(readyRead()), this, SLOT(newData()));
