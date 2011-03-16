@@ -12,7 +12,7 @@
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 #include "GUI/Client/UI/GraphicalValue.hpp"
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 
 #include "GUI/Client/UI/OptionLayout.hpp"

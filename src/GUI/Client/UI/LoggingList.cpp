@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 
 #include "GUI/Network/LogMessage.hpp"

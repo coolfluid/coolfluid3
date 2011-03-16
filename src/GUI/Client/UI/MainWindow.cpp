@@ -26,7 +26,7 @@
 
 #include "Common/Exception.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NTree.hpp"
@@ -512,7 +512,7 @@ bool MainWindow::saveToFileLocally(const QString & filename)
 //    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
 //    {
 //      QString error = "Could not open file '%1' for write access: %2";
-//      ClientRoot::getLog()->addError(error.arg(filename).arg(file.errorString()));
+//      TreeThread::getLog()->addError(error.arg(filename).arg(file.errorString()));
 //    }
 //    else
 //    {
@@ -529,7 +529,7 @@ bool MainWindow::saveToFileLocally(const QString & filename)
 
 //      file.close();
 
-//      ClientRoot::getLog()->addMessage(QString("The configuration has been successfully "
+//      TreeThread::getLog()->addMessage(QString("The configuration has been successfully "
 //                                 "written to '%1'.").arg(filename));
 //      retValue = true;
 //    }

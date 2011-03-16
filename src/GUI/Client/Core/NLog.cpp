@@ -15,7 +15,7 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/Core/NLog.hpp"

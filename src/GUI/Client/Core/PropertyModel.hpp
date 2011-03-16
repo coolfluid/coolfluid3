@@ -39,7 +39,7 @@ namespace ClientCore {
 
 
   /// @brief Model that maintains properties for the node pointed
-  /// by the index returned by <code>ClientRoot::getTree()->getCurrentIndex()</code>.
+  /// by the index returned by <code>TreeThread::getTree()->getCurrentIndex()</code>.
   /// This class is a view for the tree model and is automatically
   /// updated whenever the current index is changed.
   /// @author Quentin Gasper.

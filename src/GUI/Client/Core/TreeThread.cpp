@@ -19,7 +19,7 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
@@ -33,14 +33,14 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////
 
-ClientRoot::ClientRoot(QObject * parent) :
+TreeThread::TreeThread(QObject * parent) :
     QThread(parent)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-ClientRoot::~ClientRoot()
+TreeThread::~TreeThread()
 {
   if(isRunning())
   {
@@ -51,14 +51,14 @@ ClientRoot::~ClientRoot()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void ClientRoot::setMutex(QMutex * mutex)
+void TreeThread::setMutex(QMutex * mutex)
 {
   m_mutex = mutex;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void ClientRoot::run()
+void TreeThread::run()
 {
   m_root = NRoot::Ptr(new NRoot(CLIENT_ROOT));
 
@@ -83,7 +83,7 @@ void ClientRoot::run()
   tree->setRoot(m_root);
 
   ThreadManager::instance().network().newSignal.connect(
-      boost::bind(&ClientRoot::newSignal, this, _1) );
+      boost::bind(&TreeThread::newSignal, this, _1) );
 
   m_mutex->unlock();
 //  m_waitCondition.wakeAll();
@@ -94,7 +94,7 @@ void ClientRoot::run()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void ClientRoot::newSignal(Common::XML::XmlDoc::Ptr doc)
+void TreeThread::newSignal(Common::XML::XmlDoc::Ptr doc)
 {
   const char * tag = Protocol::Tags::node_frame();
   XmlNode nodedoc = Protocol::goto_doc_node(*doc.get());

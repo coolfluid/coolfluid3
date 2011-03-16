@@ -8,7 +8,7 @@
 #include <QRegExpValidator>
 #include <QDebug>
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 
 #include "GUI/Client/UI/GraphicalArray.hpp"

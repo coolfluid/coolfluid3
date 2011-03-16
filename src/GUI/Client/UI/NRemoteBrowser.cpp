@@ -29,7 +29,7 @@
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/UI/FilesListItem.hpp"
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -830,7 +830,7 @@ QString NRemoteBrowser::selectedFile() const
 //      break;
 
 //    default:
-//      ClientRoot::getLog()->addMessage("Unexpected ACK recieved");
+//      TreeThread::getLog()->addMessage("Unexpected ACK recieved");
 //      break;
 //  }
 //}

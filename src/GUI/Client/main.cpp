@@ -14,7 +14,7 @@
 #include "Common/NetworkInfo.hpp"
 #include "Common/Exception.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/UI/MainWindow.hpp"

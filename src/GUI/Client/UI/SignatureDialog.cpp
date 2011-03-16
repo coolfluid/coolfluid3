@@ -11,7 +11,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 
 #include "GUI/Client/UI/GraphicalValue.hpp"
 #include "GUI/Client/UI/OptionLayout.hpp"

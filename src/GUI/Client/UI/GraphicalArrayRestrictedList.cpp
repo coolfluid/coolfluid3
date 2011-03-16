@@ -13,7 +13,7 @@
 #include "Common/StringConversion.hpp"
 #include "Common/URI.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 
 #include "GUI/Client/UI/GraphicalArrayRestrictedList.hpp"
 

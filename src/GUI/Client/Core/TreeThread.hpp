@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_Core_ClientRoot_hpp
-#define CF_GUI_Client_Core_ClientRoot_hpp
+#ifndef CF_GUI_Client_Core_TreeThread_hpp
+#define CF_GUI_Client_Core_TreeThread_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -30,15 +30,15 @@ namespace ClientCore {
 /// anytime.
 /// @author Quentin Gasper.
 
-class ClientCore_API ClientRoot : public QThread
+class ClientCore_API TreeThread : public QThread
 {
   Q_OBJECT
 
 public:
 
-  ClientRoot(QObject * parent = nullptr);
+  TreeThread(QObject * parent = nullptr);
 
-  ~ClientRoot();
+  ~TreeThread();
 
   void run();
 
@@ -66,7 +66,7 @@ private:
 
   QMutex * m_mutex;
 
-}; // ClientRoot
+}; // TreeThread
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -76,4 +76,4 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_Core_ClientRoot_hpp
+#endif // CF_GUI_Client_Core_TreeThread_hpp

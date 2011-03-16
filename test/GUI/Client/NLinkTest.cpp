@@ -9,7 +9,7 @@
 
 #include "Common/URI.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NLink.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NTree.hpp"

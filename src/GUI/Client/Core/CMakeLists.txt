@@ -6,7 +6,6 @@
 
 # List of classes to "moc"
 list( APPEND coolfluid_client_core_moc_classes
-ClientRoot.hpp
 CNode.hpp
 NetworkThread.hpp
 NJournalBrowser.hpp
@@ -17,6 +16,7 @@ NTree.hpp
 NPlotXY.hpp
 PropertyModel.hpp
 TreeNode.hpp
+TreeThread.hpp
 )
 
 # Create the moc files
@@ -26,8 +26,6 @@ QT4_WRAP_CPP(coolfluid_client_core_moc_files ${coolfluid_client_core_moc_classes
 list( APPEND coolfluid_client_core_files
 CNode.cpp
 CNode.hpp
-ClientRoot.cpp
-ClientRoot.hpp
 CommitDetails.cpp
 CommitDetails.hpp
 CommitDetailsItem.cpp
@@ -62,6 +60,8 @@ ThreadManager.cpp
 ThreadManager.hpp
 TreeNode.cpp
 TreeNode.hpp
+TreeThread.cpp
+TreeThread.hpp
 )
 
 list( APPEND coolfluid_client_core_cflibs coolfluid_network )

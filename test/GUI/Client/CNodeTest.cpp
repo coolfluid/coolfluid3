@@ -10,7 +10,7 @@
 #include "rapidxml/rapidxml.hpp"
 #include "Common/XML/FileOperations.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"

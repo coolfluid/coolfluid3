@@ -18,7 +18,7 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/SignalNode.hpp"
@@ -204,7 +204,7 @@ void NJournalBrowser::setRootNode(const XmlNode * rootNode)
   m_rootNode = rootNode;
 
 //  if(m_rootNode != nullptr)
-//    m_doc = ClientRoot::instance().docFromPtr(new XmlDoc(m_rootNode->content->document()));
+//    m_doc = TreeThread::instance().docFromPtr(new XmlDoc(m_rootNode->content->document()));
 //  else
 //    m_doc = boost::shared_ptr<XmlDoc>();
 
