@@ -28,7 +28,6 @@ list( APPEND coolfluid_client_ui_moc_classes
   LoggingList.hpp
   MainWindow.hpp
   NRemoteBrowser.hpp
-  NRemoteSave.hpp
   OptionLayout.hpp
   SelectFileDialog.hpp
   SignalManager.hpp
@@ -101,8 +100,6 @@ list( APPEND coolfluid_client_ui_files
   NRemoteBrowser.hpp
   NRemoteOpen.cpp
   NRemoteOpen.hpp
-  NRemoteSave.cpp
-  NRemoteSave.hpp
   PixMaps.hpp
   SelectFileDialog.cpp
   SelectFileDialog.hpp

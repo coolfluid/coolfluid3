@@ -39,7 +39,6 @@
 #include "GUI/Client/UI/MenuActionInfo.hpp"
 #include "GUI/Client/UI/CentralPanel.hpp"
 #include "GUI/Client/UI/Graph.hpp"
-#include "GUI/Client/UI/NRemoteSave.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 #include "GUI/Client/UI/SelectFileDialog.hpp"
 #include "GUI/Client/UI/SignatureDialog.hpp"
@@ -740,9 +739,9 @@ void MainWindow::saveFileLocally()
 
 void MainWindow::saveFileRemotely()
 {
-  NRemoteSave::Ptr flg;
+//  NRemoteSave::Ptr flg;
 
-  flg->show();
+//  flg->show();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
