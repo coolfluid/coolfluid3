@@ -20,36 +20,35 @@ namespace CF {
 namespace GUI {
 namespace ClientUI {
 
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
-  class ClientUI_API GraphicalDouble : public GraphicalValue
-  {
-    Q_OBJECT
+class ClientUI_API GraphicalDouble : public GraphicalValue
+{
+  Q_OBJECT
 
-  public:
+public:
 
-    GraphicalDouble(CF::Common::Option::ConstPtr opt = CF::Common::Option::ConstPtr(),
-                    QWidget * parent = 0);
+  GraphicalDouble(Real value = 0.0, QWidget * parent = 0);
 
-    ~GraphicalDouble();
+  ~GraphicalDouble();
 
-    virtual bool setValue(const QVariant & value);
+  virtual bool setValue(const QVariant & value);
 
-    virtual QVariant value() const;
+  virtual QVariant value() const;
 
-  private slots:
+private slots:
 
-    void textUpdated(const QString & text);
+  void textUpdated(const QString & text);
 
-  private:
+private:
 
-    QLineEdit * m_lineEdit;
+  QLineEdit * m_lineEdit;
 
-    QDoubleValidator * m_validator;
+  QDoubleValidator * m_validator;
 
-  }; // class GraphicalDouble
+}; // class GraphicalDouble
 
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 } // ClientUI
 } // GUI

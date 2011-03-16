@@ -77,7 +77,7 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
       if(type == Protocol::Tags::type<bool>())               // bool option
         value = new GraphicalBool(option->value<bool>(), parent);
       else if(type == Protocol::Tags::type<Real>())          // Real option
-        value = new GraphicalDouble(option, parent);
+        value = new GraphicalDouble(option->value<Real>(), parent);
       else if(type == Protocol::Tags::type<int>())           // int option
         value = new GraphicalInt(false, option, parent);
       else if(type == Protocol::Tags::type<Uint>())          // Uint option

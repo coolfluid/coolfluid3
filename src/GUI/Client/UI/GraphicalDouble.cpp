@@ -9,12 +9,21 @@
 #include <QVariant>
 #include <QVBoxLayout>
 
+#include <QDebug>
+
 #include "GUI/Client/UI/GraphicalDouble.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientUI;
 
-GraphicalDouble::GraphicalDouble(Option::ConstPtr opt, QWidget * parent)
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientUI {
+
+//////////////////////////////////////////////////////////////////////////
+
+GraphicalDouble::GraphicalDouble(Real value, QWidget * parent)
   : GraphicalValue(parent)
 {
   m_lineEdit = new QLineEdit(this);
@@ -25,14 +34,12 @@ GraphicalDouble::GraphicalDouble(Option::ConstPtr opt, QWidget * parent)
 
   m_layout->addWidget(m_lineEdit);
 
-  if(opt.get() != nullptr)
-    this->setValue(opt->value<CF::Real>());
+  this->setValue(value);
 
   connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString)));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 GraphicalDouble::~GraphicalDouble()
 {
@@ -40,8 +47,7 @@ GraphicalDouble::~GraphicalDouble()
   delete m_validator;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 bool GraphicalDouble::setValue(const QVariant & value)
 {
@@ -49,7 +55,7 @@ bool GraphicalDouble::setValue(const QVariant & value)
   int pos;
 
   // if it is a double or a string that represents a double value
-  if(value.canConvert(QVariant::Double) ||
+  if(value.canConvert(QVariant::Double) &&
      m_validator->validate(valueString, pos) == QValidator::Acceptable)
   {
     m_originalValue = value;
@@ -60,18 +66,22 @@ bool GraphicalDouble::setValue(const QVariant & value)
   return false;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 QVariant GraphicalDouble::value() const
 {
-  return m_lineEdit->text();
+  return m_lineEdit->text().toDouble();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//////////////////////////////////////////////////////////////////////////
 
 void GraphicalDouble::textUpdated(const QString & text)
 {
   emit valueChanged();
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+} // ClientUI
+} // GUI
+} // CF
