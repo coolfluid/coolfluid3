@@ -248,6 +248,8 @@ QModelIndex NTree::indexFromPath(const URI & path) const
         index = QModelIndex();
     }
   }
+  else
+    index = QModelIndex();
 
   return index;
 }

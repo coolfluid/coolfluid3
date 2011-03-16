@@ -326,7 +326,11 @@ void NTreeTest::test_indexFromPath()
   QModelIndex badIndex = t.indexFromPath("cpath://Unexisting/Path");
   QVERIFY( !badIndex.isValid() );
 
-  // 4. path is not a CPATH
+  // 4. unexisting path (bis, no path but just a name)
+  QModelIndex badIndexBis = t.indexFromPath("cpath:UnexistingPath");
+  QVERIFY( !badIndexBis.isValid() );
+
+  // 5. path is not a CPATH
   GUI_CHECK_THROW( t.indexFromPath("http://www.google.com"), FailedAssertion);
 }
 
