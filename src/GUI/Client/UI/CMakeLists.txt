@@ -36,8 +36,7 @@ list( APPEND coolfluid_client_ui_moc_classes
   StatusPanel.hpp
   SelectPathDialog.hpp
   TreeBrowser.hpp
-  TreeView.hpp
-  TypeAndNameDialog.hpp)
+  TreeView.hpp )
 
 # Create the moc files
 QT4_WRAP_CPP(coolfluid_client_ui_moc_files ${coolfluid_client_ui_moc_classes})
@@ -116,9 +115,7 @@ list( APPEND coolfluid_client_ui_files
   TreeBrowser.cpp
   TreeBrowser.hpp
   TreeView.cpp
-  TreeView.hpp
-  TypeAndNameDialog.cpp
-  TypeAndNameDialog.hpp )
+  TreeView.hpp )
 
 list( APPEND coolfluid_client_ui_cflibs coolfluid_client_core )
 
