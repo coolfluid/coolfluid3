@@ -43,7 +43,6 @@ namespace ClientUI {
   class Graph;
   class LoggingList;
   class CentralPanel;
-  class StatusPanel;
   class TreeView;
   class AboutCFDialog;
   class TreeBrowser;
@@ -78,8 +77,6 @@ namespace ClientUI {
       ACTION_TOGGLE_DEBUG_MODE,
 
       ACTION_TOGGLE_ADVANCED_MODE,
-
-      ACTION_SHOW_HIDE_STATUS_PANEL,
 
       ACTION_TOGGLE_INFO_PANE,
 
@@ -125,8 +122,6 @@ namespace ClientUI {
     void toggleAdvanced();
 
     void toggleDebugMode();
-
-    void showHideStatus();
 
     void showHelp();
 
@@ -174,8 +169,6 @@ namespace ClientUI {
 
     /// @brief The Client that displays the model.
     TreeView * m_treeView;
-
-    StatusPanel * m_statusPanel;
 
     AboutCFDialog * m_aboutCFDialog;
 

@@ -33,7 +33,6 @@ list( APPEND coolfluid_client_ui_moc_classes
   SignalManager.hpp
   SignalInspectorDialog.hpp
   SignatureDialog.hpp
-  StatusPanel.hpp
   SelectPathDialog.hpp
   TreeBrowser.hpp
   TreeView.hpp )
@@ -110,8 +109,6 @@ list( APPEND coolfluid_client_ui_files
   SignalManager.hpp
   SignatureDialog.cpp
   SignatureDialog.hpp
-  StatusPanel.cpp
-  StatusPanel.hpp
   TreeBrowser.cpp
   TreeBrowser.hpp
   TreeView.cpp

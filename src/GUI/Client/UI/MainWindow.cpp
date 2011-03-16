@@ -42,8 +42,6 @@
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 #include "GUI/Client/UI/SelectFileDialog.hpp"
 #include "GUI/Client/UI/SignatureDialog.hpp"
-//#include "GUI/Client/Core/StatusModel.hpp"
-#include "GUI/Client/UI/StatusPanel.hpp"
 #include "GUI/Client/UI/TreeBrowser.hpp"
 #include "GUI/Client/UI/TreeView.hpp"
 
@@ -76,7 +74,6 @@ MainWindow::MainWindow()
   // create the components
   m_centralPanel = new CentralPanel(this);
   m_treeView = new TreeView(m_centralPanel, this);
-  m_statusPanel = nullptr;//new StatusPanel(m_statusModel, this);
   m_splitter = new QSplitter(/*Qt::Horizontal, this*/);
   m_centralSplitter = new QSplitter(Qt::Vertical/*, this*/);
   m_tabWindow = new QTabWidget(m_centralPanel);
@@ -163,7 +160,6 @@ MainWindow::~MainWindow()
 
   delete m_treeView;
   delete m_centralPanel;
-  delete m_statusPanel;
 
   delete m_logList;
   delete m_mnuView;
@@ -346,18 +342,6 @@ void MainWindow::buildMenus()
   m_actions[MainWindow::ACTION_TOGGLE_DEBUG_MODE] = actionInfo.buildAction(this);
 
   //-----------------------------------------------
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuView;
-  actionInfo.m_text = "&Show/Hide status panel";
-  actionInfo.m_slot = SLOT(showHideStatus());
-  actionInfo.m_checkable = true;
-
-  m_actions[MainWindow::ACTION_SHOW_HIDE_STATUS_PANEL] = actionInfo.buildAction(this);
-  m_actions[MainWindow::ACTION_SHOW_HIDE_STATUS_PANEL]->setChecked(true);
-
-  //----------------------------------------------------
-  //----------------------------------------------------
 
   actionInfo.initDefaults();
   actionInfo.m_menu = m_mnuHelp;
@@ -638,15 +622,6 @@ void MainWindow::toggleDebugMode()
 {
   bool debug = m_actions[ ACTION_TOGGLE_DEBUG_MODE ]->isChecked();
   NTree::globalTree()->setDebugModeEnabled(debug);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void MainWindow::showHideStatus()
-{
-//  bool show = m_actions[ ACTION_SHOW_HIDE_STATUS_PANEL ]->isChecked();
-//  m_statusPanel->setVisible(show);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
