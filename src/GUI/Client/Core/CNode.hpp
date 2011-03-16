@@ -176,7 +176,7 @@ namespace ClientCore {
 
     /// Indicates whether this node is a client component or not.
     /// @return Returns @c true if this node is a client component.
-    bool isClientComponent() const
+    bool isLocalComponent() const
     {
       return (m_type == LOG_NODE) || (m_type == TREE_NODE) ||
           (m_type == CORE_NODE) || (m_type == BROWSER_NODE) ||
@@ -211,26 +211,28 @@ namespace ClientCore {
 
     /// Modifies options
 
-    /// If at least on option has been modified, a @c configure signal is sent
+    /// If at least one option has been modified, a @c configure signal is sent
     /// to the corresponding component on the server.
     /// @param options Map of options to modify. The key is the option name.
     /// The value is the new option value, in string format.
+    /// @throw BadValue If an option could not be found or could not be
+    /// converted to an option.
     void modifyOptions(const QMap<QString, QString> & options);
 
     /// Gives options
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
-    void options(QList<Common::Option::ConstPtr> & list);
+    void listOptions(QList<Common::Option::ConstPtr> & list);
 
     /// Gives properties
     /// @param props Reference to a map where properties will be put. The map
     /// is cleared before first use.
-    void properties(QMap<QString, QString> & props);
+    void listProperties(QMap<QString, QString> & props);
 
     /// Gives actions.
     /// @param acttions Reference to a list where actions will be put. The list
     /// is cleared before first use.
-    void actions(QList<ActionInfo> & actions);
+    void listSignals(QList<ActionInfo> & actions);
 
     /// Creates an object tree from a given node
 
@@ -339,6 +341,7 @@ namespace ClientCore {
 
     //@} END Signals
 
+    ///
     void localSignature(const QString & name, Common::SignalArgs& node );
 
   protected: // data
@@ -354,14 +357,6 @@ namespace ClientCore {
 
     QMutex * m_mutex;
 
-  private: // data
-
-    /// Component type name.
-    QString m_componentType;
-
-    /// List of signals that can be remotely executed
-    QList<ActionInfo> m_actionSigs;
-
     /// @c false until the node content has been retrieved from
     /// the server.
     bool m_contentListed;
@@ -372,29 +367,15 @@ namespace ClientCore {
     /// in case it is overloaded and takes some time to reply.
     bool m_listingContent;
 
+  private: // data
+
+    /// Component type name.
+    QString m_componentType;
+
+    /// List of signals that can be remotely executed
+    QList<ActionInfo> m_actionSigs;
+
   private: // helper functions
-
-    /// Creates an @c #OptionT option with a value of type TYPE.
-    /// @param name Option name
-    /// @param descr Option description
-    /// @param node The value node. If it has a sibling node, this node is taken
-    /// the restricted values list.
-    /// @return Returns the created option.
-    template<typename TYPE>
-    static Common::Option::Ptr makeOptionT(const std::string & name,
-                                           const std::string & descr,
-                                           Common::XML::XmlNode & node);
-
-    /// Creates an @c #OptionArrayT option with values of type TYPE.
-    /// @param name Option name
-    /// @param descr Option description
-    /// @param node The value node. If it has a sibling node, this node is taken
-    /// the restricted values list.
-    /// @return Returns the created option.
-    template<typename TYPE>
-    static Common::Option::Ptr makeOptionArrayT(const std::string & name,
-                                                const std::string & descr,
-                                                const Common::XML::XmlNode & node);
 
     /// Creates an object tree from a given node
 

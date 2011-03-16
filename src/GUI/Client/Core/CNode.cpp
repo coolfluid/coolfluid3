@@ -66,64 +66,62 @@ CNodeNotifier::CNodeNotifier(CNode * parent)
   //qRegisterMetaType<XmlNode>("CF::Common::XmlNode");
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNodeNotifier::notifyChildCountChanged()
 {
   emit childCountChanged();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNodeNotifier::notifySignalSignature(SignalArgs * node)
 {
   emit signalSignature(node);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 CNode::CNode(const QString & name, const QString & componentType, CNode::Type type)
   : Component(name.toStdString()),
     m_type(type),
     m_notifier(new CNodeNotifier(this)),
     m_componentType(componentType),
-    m_contentListed( isClientComponent() ),
+    m_contentListed( isLocalComponent() ),
     m_listingContent(false)
 {
   m_mutex = new QMutex();
+
+  // unregister some base class signals
+  m_signals.erase("signal_signature");
+  m_signals.erase("configure");
 
   regist_signal("configure", "Update component options")->signal->connect(boost::bind(&CNode::configure_reply, this, _1));
   regist_signal("tree_updated", "Event that notifies a path has changed")->signal->connect(boost::bind(&CNode::update_tree, this, _1));
   regist_signal("list_content", "Updates node contents")->signal->connect(boost::bind(&CNode::list_content_reply, this, _1));
 
-  m_signals.erase("signal_signature"); // unregister base class signal
+  regist_signal("signal_signature", "");
 
-  regist_signal("signal_signature", "");//->connect(boost::bind(&CNode::signal_signature_reply, this, _1));
+  signal("signal_signature").is_hidden = true;
 
   m_properties.add_property("originalComponentType", m_componentType.toStdString());
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QString CNode::getComponentType() const
 {
   return m_componentType;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 CNode::Type CNode::type() const
 {
   return m_type;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::setProperties(const SignalArgs & options)
 {
@@ -195,20 +193,15 @@ void CNode::setProperties(const SignalArgs & options)
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::setSignals(const SignalArgs & args)
 {
   QMutexLocker locker(m_mutex);
 
-//  throw NotImplemented(FromHere(), "Check what is returned by the server");
-
   if( args.has_map( Protocol::Tags::key_signals() ) )
   {
     Map sig_map = args.map( Protocol::Tags::key_signals() ).main_map;
-
-//    Map map = node.map(Protocol::Tags::key_signals());
 
     m_actionSigs.clear();
 
@@ -224,12 +217,11 @@ void CNode::setSignals(const SignalArgs & args)
       if(hidden_attr == nullptr || !from_str<bool>(hidden_attr->value()) )
       {
         cf_assert( key_attr != nullptr );
-        cf_assert( key_attr->value_size() > 0 );
+        cf_assert( key_attr->value()[0] != '\0');
 
         si.name = key_attr->value();
-        si.readableName = name_attr != nullptr ? name_attr->value() : "";
+        si.readableName = name_attr != nullptr ? name_attr->value() : si.name;
         si.description = desc_attr != nullptr ? desc_attr->value() : "";
-//        si.m_signature = XmlSignature(*map);
         si.isLocal = false;
 
         m_actionSigs.append(si);
@@ -242,120 +234,102 @@ void CNode::setSignals(const SignalArgs & args)
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
-void CNode::modifyOptions(const QMap<QString, QString> & options)
+template<typename TYPE>
+void addValueToXml(const std::string& name, const std::string& value, bool is_array,
+                   SignalFrame& options)
 {
-  QMutexLocker locker(m_mutex);
-
-  QMap<QString, QString>::const_iterator it = options.begin();
-
-  if(isClientComponent())
+  if( is_array )
   {
-    throw NotImplemented(FromHere(), "CNode::modifyOptions()");
-    for ( ; it != options.end() ; it++)
-    {
-//			if(m_options.contains(it.key()))
-//				m_options[it.key()].m_paramValue = it.value();
-    }
+    std::vector<TYPE> data;
+    Map::split_string(value, "@@", data);
+
+    options.set_array(name, data, " ; ");
   }
   else
   {
-    SignalFrame frame("configure", full_path(), full_path());
-    SignalFrame& p = frame.map( Protocol::Tags::key_options() );
-    bool valid = true;
-
-    for ( ; it != options.end() ; it++)
+    try
     {
-      Property * prop = &m_properties[it.key().toStdString()].as_option();
+      options.set_option(name, from_str<TYPE>(value));
+    }
+    catch( const boost::bad_lexical_cast & e)
+    {
+      throw CastingFailed(FromHere(), "Unable to cast [" + value + "] to " +
+                          Protocol::Tags::type<TYPE>() + ".");
+    }
+  }
+}
 
-      if( prop != nullptr && strcmp( prop->tag() , "array" ) )
-      {
-        std::string name = it.key().toStdString();
-        QString value = it.value();
+//////// ////////////////////////////////////////////////////////////////////
 
-        if(prop->type() == "bool")
-          p.set_option(name, QVariant(value).toBool());
-        else if(prop->type() == "integer")
-          p.set_option(name, value.toInt());
-        else if(prop->type() == "unsigned")
-          p.set_option(name, value.toUInt());
-        else if(prop->type() == "real")
-          p.set_option(name, value.toDouble());
-        else if(prop->type() == "string")
-          p.set_option(name, value.toStdString());
-        else if(prop->type() == "uri")
-          p.set_option(name, URI(value.toStdString()));
-        else
-          throw ValueNotFound(FromHere(), prop->type() + ": Unknown type for option " + name );
-      }
-      else if( prop != nullptr && !strcmp ( prop->tag() , "array" ))
-      {
-        OptionArray * optArray;
-        QStringList list = it.value().split("@@");
-        QStringList::iterator itList = list.begin();
+void CNode::modifyOptions(const QMap<QString, QString> & opts)
+{
+  QMutexLocker locker(m_mutex);
 
-        optArray = static_cast<OptionArray*>(prop);
+  QMap<QString, QString>::const_iterator it = opts.begin();
 
-        cf_assert(optArray != nullptr);
+  // for better readability of the code, a SignalFrame is built even when
+  // modifying local options. It's not the most efficient way to do, but local
+  // options are not meant to be modified 10 times each second so this should
+  // not affect the application performances.
+  SignalFrame frame("configure", full_path(), full_path());
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-        const char * elemType = optArray->elem_type();
+  for( ; it != opts.end() ; it++)
+  {
+    Option& option = m_properties.option( it.key().toStdString() );
+    std::string type( option.type() );
+    std::string name( it.key().toStdString() );
+    std::string value( it.value().toStdString() );
+    bool is_array = std::strcmp(option.tag(), "array") == 0;
 
-        if(std::strcmp(elemType, "bool") == 0)
-          ADD_ARRAY_TO_XML(bool)
-        else if(std::strcmp(elemType, "integer") == 0)
-          ADD_ARRAY_TO_XML(int)
-        else if(std::strcmp(elemType, "unsigned") == 0)
-          ADD_ARRAY_TO_XML(CF::Uint)
-        else if(std::strcmp(elemType, "real") == 0)
-          ADD_ARRAY_TO_XML(CF::Real)
-        else if(std::strcmp(elemType, "string") == 0)
-        {
-          std::vector<std::string> data;
-          boost::shared_ptr<OptionArrayT<std::string> > array;
+    // if it is an array, we need to get the element type
+    if(is_array)
+    {
+      OptionArray * optArray;
 
-          array = boost::dynamic_pointer_cast<OptionArrayT<std::string> >(array);
+      optArray = static_cast<OptionArray*>(&option);
 
-          for( ; itList != list.end() ; itList++)
-            data.push_back( itList->toStdString() );
+      cf_assert(optArray != nullptr);
 
-          p.set_array(it.key().toStdString(), data, " ; ");
-        }
-        else if(std::strcmp(elemType, "uri") == 0)
-        {
-          std::vector<URI> data;
-          boost::shared_ptr<OptionArrayT<URI> > array;
-
-          array = boost::dynamic_pointer_cast<OptionArrayT<URI> >(array);
-
-          for( ; itList != list.end() ; itList++)
-          {
-            data.push_back( URI(itList->toStdString()) );
-          }
-
-          p.set_array(it.key().toStdString(), data, " ; ");
-        }
-        else
-          throw ValueNotFound(FromHere(), std::string(elemType) + ": Unknown type for option array " + optArray->name());
-      }
+      type = optArray->elem_type();
     }
 
-    if(valid)
+    if(type == Protocol::Tags::type<bool>())              // bool
+      addValueToXml<bool>(name, value, is_array, options);
+    else if(type == Protocol::Tags::type<int>())          // int
+      addValueToXml<int>(name, value, is_array, options);
+    else if(type == Protocol::Tags::type<Uint>())         // Uint
+      addValueToXml<Uint>(name, value, is_array, options);
+    else if(type == Protocol::Tags::type<Real>())         // Real
+      addValueToXml<Real>(name, value, is_array, options);
+    else if(type == Protocol::Tags::type<std::string>())  // string
+      addValueToXml<std::string>(name, value, is_array, options);
+    else if(type == Protocol::Tags::type<URI>())          // URI
+      addValueToXml<URI>(name, value, is_array, options);
+    else
+      throw ValueNotFound(FromHere(), type + ": Unknown type for option [" + name + "]." );
+  }
+
+  // if there were options to modify
+  if(!opts.isEmpty())
+  {
+    if( isLocalComponent() )
+      signal_configure( frame );
+    else
       ThreadManager::instance().network().send(frame);
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::localSignature(const QString & name, SignalArgs& node )
 {
   ( *signal( name.toStdString() )->signature )(node);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 CNode::Ptr CNode::createFromXml(XmlNode args)
 {
@@ -373,8 +347,7 @@ CNode::Ptr CNode::createFromXml(XmlNode args)
   return rootNode;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 CNode::Ptr CNode::child(CF::Uint index)
 {
@@ -396,61 +369,55 @@ CNode::Ptr CNode::child(CF::Uint index)
   return it.get();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::connectNotifier(QObject * reciever, const char * signal, const char * slot)
 {
   QObject::connect(m_notifier, signal, reciever, slot);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 CNodeNotifier * CNode::notifier() const
 {
   return m_notifier;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes) const
 {
   QMutexLocker locker(m_mutex);
 
-  ComponentIterator<const CNode> it = this->begin<const CNode>();
+  ComponentIterator<const CNode> itBegin = this->begin<const CNode>();
   ComponentIterator<const CNode> itEnd = this->end<const CNode>();
 
+  // add the current path
   if(this->checkType(ROOT_NODE))
   {
     CRoot::ConstPtr root = this->castTo<const NRoot>()->root();
-    it = root->begin<const CNode>();
+    itBegin = root->begin<const CNode>();
     itEnd = root->end<const CNode>();
 
-    if(it->count_children() > 0)
-      list << QString(root->full_path().path().c_str()) /*+ '/'*/;
-    else
-      list << root->full_path().path().c_str();
+    list << root->full_path().path().c_str();
   }
+  else if(list.isEmpty())
+    list << this->full_path().path().c_str();
 
-  for( ; it != itEnd ; it++)
+  for( ; itBegin != itEnd ; itBegin++)
   {
-    if(!it->isClientComponent() || clientNodes)
+    if(!itBegin->isLocalComponent() || clientNodes)
     {
-      if(it->count_children() > 0)
-        list << QString(it->full_path().path().c_str()) /*+ '/'*/;
-      else
-        list << it->full_path().path().c_str();
+      list << itBegin->full_path().path().c_str();
+
+      if(recursive)
+        itBegin->listChildPaths(list, recursive, clientNodes);
     }
 
-    if(recursive)
-      it->listChildPaths(list, recursive, clientNodes);
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::addNode(CNode::Ptr node)
 {
@@ -464,39 +431,30 @@ void CNode::addNode(CNode::Ptr node)
   m_notifier->notifyChildCountChanged();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::removeNode(const QString & nodeName)
 {
   QMutexLocker locker(m_mutex);
 
-  try
-  {
-    if(checkType(ROOT_NODE))
-      ((NRoot *)this)->root()->remove_component(nodeName.toStdString());
-    else
-      this->remove_component(nodeName.toStdString());
+  if(checkType(ROOT_NODE))
+    ((NRoot *)this)->root()->remove_component(nodeName.toStdString());
+  else
+    this->remove_component(nodeName.toStdString());
 
-    m_notifier->notifyChildCountChanged();
-  }
-  catch(CF::Common::ValueNotFound & ve)
-  {
-    throw;
-  }
+  m_notifier->notifyChildCountChanged();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::configure_reply(SignalArgs & args)
 {
+  signal_configure(args);
   NTree::globalTree()->optionsChanged(this->full_path());
   NLog::globalLog()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().path().c_str()));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::list_content_reply( SignalArgs & node )
 {
@@ -509,18 +467,16 @@ void CNode::list_content_reply( SignalArgs & node )
   NTree::globalTree()->contentListed( boost::dynamic_pointer_cast<CNode>(self()) );
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::signal_signature_reply( SignalArgs & node )
 {
   m_notifier->notifySignalSignature(&node);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
-void CNode::options(QList<Option::ConstPtr> & list)
+void CNode::listOptions(QList<Option::ConstPtr> & list)
 {
   QMutexLocker locker(m_mutex);
 
@@ -542,10 +498,9 @@ void CNode::options(QList<Option::ConstPtr> & list)
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
-void CNode::properties(QMap<QString, QString> & props)
+void CNode::listProperties(QMap<QString, QString> & props)
 {
   QMutexLocker locker(m_mutex);
 
@@ -558,44 +513,14 @@ void CNode::properties(QMap<QString, QString> & props)
     props.clear();
 
     for( ; it != m_properties.store.end() ; it++)
-    {
-      Property::Ptr prop = it->second;
-      std::string valueStr;
-
-      if(prop->is_option())
-        valueStr = prop->value_str().c_str();
-      else
-      {
-//        std::string propType = prop->type();
-
-        valueStr = prop->value_str();
-
-//        if(propType.compare( XmlTag<bool>::type() ) == 0)              // bool prop
-//          valueStr = to_str(prop->value<bool>());
-//        else if(propType.compare( XmlTag<int>::type() ) == 0)          // int prop
-//          valueStr = to_str(prop->value<int>());
-//        else if(propType.compare( XmlTag<CF::Uint>::type() ) == 0)     // Uint prop
-//          valueStr = to_str(prop->value<CF::Uint>());
-//        else if(propType.compare( XmlTag<CF::Real>::type() ) == 0)     // Real prop
-//          valueStr = to_str(prop->value<CF::Real>());
-//        else if(propType.compare( XmlTag<std::string>::type() ) == 0)  // string prop
-//          valueStr = prop->value_str();
-//        else if(propType.compare( XmlTag<URI>::type() ) == 0)          // URI prop
-//          valueStr = to_str(prop->value<URI>());
-//        else
-//          throw CastingFailed(FromHere(), "Unable to convert " + propType + " to string.");
-      }
-
-      props[ it->first.c_str() ] = valueStr.c_str();
-    }
+      props[ it->first.c_str() ] = it->second->value_str().c_str();
   }
 
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
-void CNode::actions(QList<ActionInfo> & actions)
+void CNode::listSignals(QList<ActionInfo> & actions)
 {
   QMutexLocker locker(m_mutex);
 
@@ -603,10 +528,11 @@ void CNode::actions(QList<ActionInfo> & actions)
     fetchContent();
   else
   {
-    actions = m_actionSigs;
-
     QStringList::const_iterator it = m_localSignals.begin();
 
+    actions = m_actionSigs; // copy the "remote signals"
+
+    // put the local signals
     for( ; it != m_localSignals.end() ; it++)
     {
 
@@ -616,9 +542,8 @@ void CNode::actions(QList<ActionInfo> & actions)
         SignalPtr sig = m_signals.find(it->toStdString())->second;
 
         ai.name = it->toStdString().c_str();
-        ai.description = sig->description.c_str();
-        ai.readableName = sig->readable_name.c_str();
-//        ai.m_signature = sig.signature;
+        ai.description = sig.description.c_str();
+        ai.readableName = sig.readable_name.c_str();
         ai.isLocal = true;
 
         actions.append(ai);
@@ -629,8 +554,7 @@ void CNode::actions(QList<ActionInfo> & actions)
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkTargets)
 {
@@ -708,8 +632,83 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
   return rootNode;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
+
+/// Creates an @c #OptionT option with a value of type TYPE.
+/// @param name Option name
+/// @param descr Option description
+/// @param node The value node. If it has a sibling node, this node is taken
+/// the restricted values list.
+/// @return Returns the created option.
+
+template<typename TYPE>
+Option::Ptr makeOptionT(const std::string & name, const std::string & descr, XmlNode & node)
+{
+  TYPE value;
+  to_value(node, value);
+  XmlNode restr_node = Map(node.content->parent()).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
+
+  std::vector<TYPE> restr_list;
+
+  Option::Ptr option(new Common::OptionT<TYPE>(name, descr, value));
+
+
+  if(restr_node.is_valid())
+  {
+    restr_list = Map().array_to_vector<TYPE>( restr_node );
+
+    typename std::vector<TYPE>::iterator it;
+
+//    option->restricted_list().push_back( value );
+
+    for( it = restr_list.begin() ; it != restr_list.end() ; ++it)
+      option->restricted_list().push_back( *it );
+  }
+
+  return option;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+/// Creates an @c #OptionArrayT option with values of type TYPE.
+/// @param name Option name
+/// @param descr Option description
+/// @param node The value node. If it has a sibling node, this node is taken
+/// the restricted values list.
+/// @return Returns the created option.
+
+template<typename TYPE>
+typename OptionArrayT<TYPE>::Ptr makeOptionArrayT(const std::string & name,
+                                                         const std::string & descr,
+                                                         const XmlNode & node)
+{
+  std::vector<TYPE> value = Map().array_to_vector<TYPE>(node);
+
+  typename OptionArrayT<TYPE>::Ptr option(new OptionArrayT<TYPE>(name, descr, value));
+
+  XmlNode restr_node = Map(node.content->parent()).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
+
+  std::vector<TYPE> restr_list;
+
+  if(restr_node.is_valid())
+  {
+    restr_list = Map().array_to_vector<TYPE>( restr_node );
+
+    typename std::vector<TYPE>::iterator it;
+
+    option->restricted_list().push_back( value );
+
+    for( it = restr_list.begin() ; it != restr_list.end() ; ++it)
+      option->restricted_list().push_back( *it );
+  }
+
+  qDebug() << "before return" << option.get();
+
+
+  return option;
+}
+
+////////////////////////////////////////////////////////////////////////////
 
 Option::Ptr CNode::makeOption(const XmlNode & node)
 {
@@ -722,7 +721,7 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
   rapidxml::xml_attribute<>* descrAttr = node.content->first_attribute( Protocol::Tags::attr_descr() );
 
   rapidxml::xml_attribute<>* modeAttr = node.content->first_attribute( "mode" );
-  advanced = modeAttr != nullptr && std::strcmp(modeAttr->value(), "adv") == 0;
+  advanced = modeAttr == nullptr || std::strcmp(modeAttr->value(), "adv") == 0;
 
   std::string descr_str( (descrAttr != nullptr) ? descrAttr->value() : "");
 
@@ -747,12 +746,17 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
       else if(type == Protocol::Tags::type<URI>() )
       {
         URI value;
+        rapidxml::xml_attribute<>* protsAttr = nullptr;
+        std::vector<std::string> prots;
+        std::vector<std::string>::iterator it;
+        OptionURI::Ptr optURI;
+
         to_value(type_node, value);
         XmlNode restr_node = Map(node).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
         std::vector<URI> restr_list;
 
-        option = Option::Ptr (new Common::OptionURI(key_str, descr_str, value));
+        optURI = OptionURI::Ptr (new Common::OptionURI(key_str, descr_str, value));
 
         if(restr_node.is_valid())
 
@@ -767,8 +771,26 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
             option->restricted_list().push_back( *it );
         }
 
+        protsAttr = node.content->first_attribute( Protocol::Tags::attr_uri_protocols());
 
-        /// @todo manage protocols
+        if( is_not_null(protsAttr) && protsAttr->value_size() != 0 )
+        {
+          std::string prots_str(protsAttr->value());
+
+          boost::algorithm::split(prots, prots_str, boost::algorithm::is_any_of(","));
+
+          for(it = prots.begin() ; it != prots.end() ; it++)
+          {
+            URI::Scheme::Type scheme = URI::Scheme::Convert::instance().to_enum(*it);
+
+            if( scheme == URI::Scheme::INVALID )
+              throw CastingFailed(FromHere(), "[" + *it + "] is not a supported scheme.");
+
+            optURI->supported_protocol(scheme);
+          }
+        }
+
+        option = optURI;
 
       }
       else
@@ -777,8 +799,22 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
     }
     else if( Map::is_array_value(node) )
     {
+      qDebug() << "here we have a" << type.c_str() << "option";
       if(type == Protocol::Tags::type<bool>() )
-        option = makeOptionArrayT<bool>(key_str, descr_str, node);
+      {
+        OptionArray::Ptr optArray;
+        optArray = makeOptionArrayT<bool>(key_str, descr_str, node);
+        qDebug() << "returned" << optArray.get() <<
+            boost::dynamic_pointer_cast<OptionArray >(optArray).get() <<
+            boost::dynamic_pointer_cast<OptionArray >(optArray)->elem_type() <<
+            boost::dynamic_pointer_cast<OptionArrayT<bool> >(optArray).get() <<
+            boost::dynamic_pointer_cast<OptionArrayT<int> >(optArray).get() <<
+            boost::dynamic_pointer_cast<OptionArrayT<Uint> >(optArray).get() <<
+            boost::dynamic_pointer_cast<OptionArrayT<Real> >(optArray).get() <<
+            boost::dynamic_pointer_cast<OptionArrayT<std::string> >(optArray).get() <<
+            boost::dynamic_pointer_cast<OptionArrayT<URI> >(optArray).get();
+
+      }
       else if(type == Protocol::Tags::type<int>() )
         option = makeOptionArrayT<int>(key_str, descr_str, node);
       else if(type == Protocol::Tags::type<Uint>() )
@@ -791,6 +827,7 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
         option = makeOptionArrayT<URI>(key_str, descr_str, node);
       else
         throw ShouldNotBeHere(FromHere(), type + ": Unknown type");
+
     }
     else
       throw XmlError(FromHere(), "Node [" + std::string(node.content->name()) +"] could not be processed.");
@@ -802,8 +839,7 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
   return option;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::requestSignalSignature(const QString & name)
 {
@@ -822,16 +858,14 @@ void CNode::requestSignalSignature(const QString & name)
   ThreadManager::instance().network().send(frame);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::update_tree(SignalArgs & node)
 {
   NTree::globalTree()->updateTree();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::fetchContent()
 {
@@ -854,76 +888,20 @@ void CNode::fetchContent()
 
 ////////////////////////////////////////////////////////////////////////////
 
-template<typename TYPE>
-Option::Ptr CNode::makeOptionT(const std::string & name, const std::string & descr, XmlNode & node)
-{
-  TYPE value;
-  to_value(node, value);
-  XmlNode restr_node = Map(node.content->parent()).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
-  std::vector<TYPE> restr_list;
+//#define TEMPLATE_EXPLICIT_INSTANTIATON(T) \
+//Common_TEMPLATE template typename OptionArray<T>::Ptr CNode::makeOptionArrayT<T>(const std::string&, const std::string&, const XmlNode&);\
+//Common_TEMPLATE template Option::Ptr CNode::makeOptionT<T>(const std::string &, const std::string &, XmlNode &)
 
-  Option::Ptr option(new Common::OptionT<TYPE>(name, descr, value));
+//TEMPLATE_EXPLICIT_INSTANTIATON( bool );
+//TEMPLATE_EXPLICIT_INSTANTIATON( int );
+//TEMPLATE_EXPLICIT_INSTANTIATON( Uint );
+//TEMPLATE_EXPLICIT_INSTANTIATON( Real );
+//TEMPLATE_EXPLICIT_INSTANTIATON( std::string );
+//Common_TEMPLATE template Option::Ptr CNode::makeOptionArrayT<URI>(
+//    const std::string&, const std::string&, const XmlNode&);
 
-  if(restr_node.is_valid())
-  {
-    restr_list = Map().array_to_vector<TYPE>( restr_node );
-
-    typename std::vector<TYPE>::iterator it;
-
-    option->restricted_list().push_back( value );
-
-    for( it = restr_list.begin() ; it != restr_list.end() ; ++it)
-      option->restricted_list().push_back( *it );
-  }
-
-  return option;
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-template<typename TYPE>
-Option::Ptr CNode::makeOptionArrayT(const std::string & name, const std::string & descr,
-                             const XmlNode & node)
-{
-  std::vector<TYPE> value = Map().array_to_vector<TYPE>(node);
-
-  Option::Ptr option(new Common::OptionArrayT<TYPE>(name, descr, value));
-
-  XmlNode restr_node = Map(node.content->parent()).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
-
-  std::vector<TYPE> restr_list;
-
-  if(restr_node.is_valid())
-  {
-    restr_list = Map().array_to_vector<TYPE>( restr_node );
-
-    typename std::vector<TYPE>::iterator it;
-
-    option->restricted_list().push_back( value );
-
-    for( it = restr_list.begin() ; it != restr_list.end() ; ++it)
-      option->restricted_list().push_back( *it );
-  }
-
-  return option;
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-#define TEMPLATE_EXPLICIT_INSTANTIATON(T) \
-Common_TEMPLATE template Option::Ptr CNode::makeOptionArrayT<T>(const std::string&, const std::string&, const XmlNode&);\
-Common_TEMPLATE template Option::Ptr CNode::makeOptionT<T>(const std::string &, const std::string &, XmlNode &)
-
-TEMPLATE_EXPLICIT_INSTANTIATON( bool );
-TEMPLATE_EXPLICIT_INSTANTIATON( int );
-TEMPLATE_EXPLICIT_INSTANTIATON( Uint );
-TEMPLATE_EXPLICIT_INSTANTIATON( Real );
-TEMPLATE_EXPLICIT_INSTANTIATON( std::string );
-Common_TEMPLATE template Option::Ptr CNode::makeOptionArrayT<URI>(
-    const std::string&, const std::string&, const XmlNode&);
-
-#undef TEMPLATE_EXPLICIT_INSTANTIATON
+//#undef TEMPLATE_EXPLICIT_INSTANTIATON
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -21,12 +21,14 @@ int main(int argc, char * argv[])
   QCoreApplication app(argc, argv);
   int passed = 0;
 
+  CF::AssertionManager::instance().AssertionThrows = true;
+
   // CommonFunctionsTest must be the first to be run !!
   passed += QTest::qExec(new CommonFunctionsTest, argc, argv);
-  passed += QTest::qExec(new NTreeTest(), argc, argv);
+//  passed += QTest::qExec(new NTreeTest(), argc, argv);
   passed += QTest::qExec(new CNodeTest(), argc, argv);
-  passed += QTest::qExec(new NBrowserTest(), argc, argv);
-  passed += QTest::qExec(new NLinkTest(), argc, argv);
+//  passed += QTest::qExec(new NBrowserTest(), argc, argv);
+//  passed += QTest::qExec(new NLinkTest(), argc, argv);
 
   return passed;
 }

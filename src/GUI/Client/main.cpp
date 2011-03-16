@@ -7,15 +7,11 @@
 #include <iostream>
 
 #include <QApplication>
-#include <QMutex>
 
 #include "Common/CF.hpp"
 #include "Common/Core.hpp"
 #include "Common/NetworkInfo.hpp"
 #include "Common/Exception.hpp"
-
-#include "GUI/Client/Core/TreeThread.hpp"
-#include "GUI/Client/Core/ThreadManager.hpp"
 
 #include "GUI/Client/UI/MainWindow.hpp"
 #include "GUI/Client/UI/JournalBrowserDialog.hpp"
@@ -28,20 +24,6 @@ int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
   int returnValue;
-
-  ThreadManager & manager = ThreadManager::instance();
-  QMutex mutex;
-
-  mutex.lock();
-
-  if(!manager.tree().isRunning())
-  {
-    manager.tree().setMutex(&mutex);
-    manager.tree().start();
-
-    mutex.lock();
-  }
-
 
 //  JournalBrowserBuilder::instance();
 

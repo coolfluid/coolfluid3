@@ -135,7 +135,7 @@ void NTree::listNodeOptions(const QModelIndex & index,
   options.clear();
 
   if(node != nullptr && node->node().get() != nullptr)
-    node->node()->options(options);
+    node->node()->listOptions(options);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -152,7 +152,7 @@ void NTree::listNodeProperties(const QModelIndex &index,
   props.clear();
 
   if(node != nullptr && node->node().get() != nullptr)
-    node->node()->properties(props);
+    node->node()->listProperties(props);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -169,7 +169,7 @@ void NTree::listNodeActions(const QModelIndex & index, QList<ActionInfo> & actio
   actions.clear();
 
   if(node != nullptr && node->node().get() != nullptr)
-    node->node()->actions(actions);
+    node->node()->listSignals(actions);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -375,7 +375,7 @@ bool NTree::nodeIsVisible(const QModelIndex & index) const
     if(node.get() != nullptr)
     {
       visible = node->has_tag("basic") || m_advancedMode;
-      visible &= (!node->isClientComponent() || m_debugModeEnabled);
+      visible &= (!node->isLocalComponent() || m_debugModeEnabled);
     }
   }
 
@@ -536,7 +536,7 @@ void NTree::list_tree_reply(SignalArgs & args)
 
     for( ; itRem != treeRoot->root()->end<CNode>() ; itRem++)
     {
-      if(!itRem->isClientComponent())
+      if(!itRem->isLocalComponent())
         listToRemove << itRem->name();
     }
 
@@ -583,7 +583,7 @@ void NTree::clearTree()
 
   for(int i = 0 ; itRem != treeRoot->root()->end<CNode>() ; itRem++, i++)
   {
-    if(!itRem->isClientComponent())
+    if(!itRem->isLocalComponent())
       listToRemove[i] = itRem->name();
   }
 
@@ -670,7 +670,7 @@ bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
   ComponentIterator<CNode> it = node->begin<CNode>();
 
   for( ; it != node->end<CNode>() ; it++)
-    match |= (m_debugModeEnabled || !it->isClientComponent()) && this->nodeMatchesRec(it.get(), regex);
+    match |= (m_debugModeEnabled || !it->isLocalComponent()) && this->nodeMatchesRec(it.get(), regex);
 
   return match;
 }

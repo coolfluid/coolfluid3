@@ -9,21 +9,22 @@
 
 #include "test/GUI/Client/MyNode.hpp"
 
+using namespace CF::Common;
+using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientTest;
 
 MyNode::MyNode(const QString & name)
-  : CNode(name, "MyNode", CNode::GENERIC_NODE)
+  : CNode(name, "MyNode", CNode::LOG_NODE)
 {
-  m_properties.add_option< CF::Common::OptionT<int> >("theAnswer", "The answer to the ultimate "
+  m_properties.add_option< OptionT<int> >("theAnswer", "The answer to the ultimate "
                               "question of Life, the Universe, and Everything", 42);
-  m_properties.add_option< CF::Common::OptionT<bool> >("someBool", "The bool value", true);
-}
+  m_properties.add_option< OptionT<bool> >("someBool", "The bool value", true);
 
-////////////////////////////////////////////////////////////////////////////
+  m_properties.add_option< OptionT<std::string> >("myString", "A string", std::string("This is a string") );
 
-QIcon MyNode::getIcon() const
-{
-  return QFileIconProvider().icon(QFileIconProvider::File);
+  m_properties.add_property("someProp", Real(3.14));
+
+  m_contentListed = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////

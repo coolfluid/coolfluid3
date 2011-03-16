@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <QMutex>
 
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
@@ -51,6 +52,18 @@ NetworkThread & ThreadManager::network()
 
 TreeThread & ThreadManager::tree()
 {
+  if(!m_treeThread->isRunning())
+  {
+    QMutex mutex;
+
+    mutex.lock();
+
+    m_treeThread->setMutex(&mutex);
+    m_treeThread->start();
+
+    mutex.lock();
+  }
+
   return *m_treeThread;
 }
 
