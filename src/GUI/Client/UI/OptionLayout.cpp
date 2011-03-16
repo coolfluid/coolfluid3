@@ -72,6 +72,7 @@ void OptionLayout::clearOptions()
 
   while(it != m_options.end())
   {
+    delete labelForField(it.value()); // delete the associated label
     delete it.value();
     it++;
   }
