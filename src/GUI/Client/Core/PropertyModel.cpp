@@ -10,7 +10,13 @@
 
 #include "GUI/Client/Core/PropertyModel.hpp"
 
-using namespace CF::GUI::ClientCore;
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientCore {
+
+////////////////////////////////////////////////////////////////////////////
 
 PropertyModel::PropertyModel()
   : QAbstractItemModel()
@@ -23,16 +29,14 @@ PropertyModel::PropertyModel()
           this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 //PropertyModel::~PropertyModel()
 //{
 //  this->emptyList();
 //}
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QVariant  PropertyModel::data(const QModelIndex & index, int role) const
 {
@@ -56,8 +60,7 @@ QVariant  PropertyModel::data(const QModelIndex & index, int role) const
   return data;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QModelIndex PropertyModel::index(int row, int column, const QModelIndex & parent) const
 {
@@ -76,16 +79,14 @@ QModelIndex PropertyModel::index(int row, int column, const QModelIndex & parent
   return index;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QModelIndex PropertyModel::parent(const QModelIndex &child) const
 {
   return QModelIndex();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 int PropertyModel::rowCount(const QModelIndex & parent) const
 {
@@ -95,16 +96,14 @@ int PropertyModel::rowCount(const QModelIndex & parent) const
   return 0;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 int PropertyModel::columnCount(const QModelIndex & parent) const
 {
   return m_columns.count();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QVariant PropertyModel::headerData(int section, Qt::Orientation orientation,
                            int role) const
@@ -116,8 +115,7 @@ QVariant PropertyModel::headerData(int section, Qt::Orientation orientation,
   return QVariant();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void PropertyModel::currentIndexChanged(const QModelIndex & newIndex,
                                         const QModelIndex & oldIndex)
@@ -140,11 +138,16 @@ void PropertyModel::currentIndexChanged(const QModelIndex & newIndex,
   emit layoutChanged();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void PropertyModel::emptyList()
 {
   while(!m_data.isEmpty())
     delete m_data.takeFirst();
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+} // ClientCore
+} // GUI
+} // CF

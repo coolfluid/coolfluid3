@@ -21,9 +21,13 @@ class QString;
 
 template<class T> class QList;
 
+////////////////////////////////////////////////////////////////////////////
+
 namespace CF {
 namespace GUI {
 namespace ClientCore {
+
+////////////////////////////////////////////////////////////////////////////
 
   struct ClientCore_API PropertyItem
   {
@@ -35,11 +39,13 @@ namespace ClientCore {
 
     PropertyItem(const QString & name, const QString & value, unsigned int row)
       : m_name(name), m_value(value), m_row(row) {}
+
   }; // struct PropertyItem
 
+  ////////////////////////////////////////////////////////////////////////////
 
   /// @brief Model that maintains properties for the node pointed
-  /// by the index returned by <code>TreeThread::getTree()->getCurrentIndex()</code>.
+  /// by the index returned by <code>NTree::globalTree()->currentIndex()</code>.
   /// This class is a view for the tree model and is automatically
   /// updated whenever the current index is changed.
   /// @author Quentin Gasper.
@@ -51,7 +57,7 @@ namespace ClientCore {
   public:
 
     /// @brief Constructor
-    PropertyModel();// {}
+    PropertyModel();
 
     /// @brief Destructor.
 
@@ -132,8 +138,12 @@ namespace ClientCore {
 
   }; // class PropertyModel
 
+////////////////////////////////////////////////////////////////////////////
+
 } // ClientCore
 } // GUI
 } // CF
+
+////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_GUI_Client_Core_PropertyModel_hpp

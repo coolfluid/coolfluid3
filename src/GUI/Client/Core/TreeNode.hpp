@@ -43,6 +43,8 @@ namespace ClientCore {
     /// greater or equal to 0.
     TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber);
 
+    ~TreeNode();
+
     /// @brief Checks whether the node has a parent or not.
 
     /// A node has a parent if was constructed with a non-null pointer as
@@ -63,7 +65,11 @@ namespace ClientCore {
 
     /// @brief Gives the node handled by this object
     /// @returns Returns the node handled by this object.
-    CNode::Ptr node() const;
+    CNode::Ptr node();
+
+    /// @brief Gives the node handled by this object
+    /// @returns Returns the node handled by this object.
+    CNode::ConstPtr node() const;
 
     /// @brief Gives the parent.
     /// @return Returns the parent. May return a @c nullptr pointer if the
@@ -126,7 +132,7 @@ namespace ClientCore {
 
   }; // class MyTreeItem
 
-  ////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
 } // ClientCore
 } // GUI

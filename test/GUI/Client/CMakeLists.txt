@@ -11,6 +11,8 @@ set(utest-client_moc_classes
   NLinkTest.hpp
   NRootTest.hpp
   NTreeTest.hpp
+  PropertyModelTest.hpp
+  TreeNodeTest.hpp
 )
 
 QT4_WRAP_CPP(utest-client_moc_files ${utest-client_moc_classes})
@@ -38,8 +40,12 @@ list( APPEND utest-client_files
   NRootTest.hpp
   NTreeTest.hpp
   NTreeTest.cpp
+  PropertyModelTest.cpp
+  PropertyModelTest.hpp
   TreeHandler.cpp
   TreeHandler.hpp
+  TreeNodeTest.cpp
+  TreeNodeTest.hpp
 )
 
 list( APPEND utest-client_libs coolfluid_client_core ${QT_LIBRARIES})
@@ -71,7 +77,12 @@ else()
   NRootTest.hpp
   NTreeTest.hpp
   NTreeTest.cpp
+  PropertyModelTest.cpp
+  PropertyModelTest.hpp
   TreeHandler.cpp
   TreeHandler.hpp
+  TreeNodeTest.cpp
+  TreeNodeTest.hpp
+
         )
 endif()

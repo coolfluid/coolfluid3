@@ -14,6 +14,8 @@
 #include "test/GUI/Client/NLinkTest.hpp"
 #include "test/GUI/Client/NRootTest.hpp"
 #include "test/GUI/Client/NTreeTest.hpp"
+#include "test/GUI/Client/PropertyModelTest.hpp"
+#include "test/GUI/Client/TreeNodeTest.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientTest;
@@ -38,6 +40,8 @@ int main(int argc, char * argv[])
   passed += QTest::qExec(new NTreeTest(), argc, argv);
   passed += QTest::qExec(new NLinkTest(), argc, argv);
   passed += QTest::qExec(new NRootTest(), argc, argv);
+  passed += QTest::qExec(new PropertyModelTest(), argc, argv);
+  passed += QTest::qExec(new TreeNodeTest(), argc, argv);
 
   return passed;
 }
