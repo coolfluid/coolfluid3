@@ -46,10 +46,8 @@ if( NOT CF_ENABLE_GPU OR NOT CF_ENABLE_OPENCL)
   set(utest-rdm-rotationadv2dgpu_condition FALSE)
 endif()
   
-  list( APPEND utest-rdm-rotationadv2dgpu_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm ${OPENCL_LIBRARIES} )
+  list( APPEND utest-rdm-rotationadv2dgpu_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm )
   list( APPEND utest-rdm-rotationadv2dgpu_files  utest-rdm-rotationadv2d-gpu.cpp )
-  target_link_libraries(  -lOpenCL)
-
 
   coolfluid_add_unit_test( utest-rdm-rotationadv2dgpu )
 

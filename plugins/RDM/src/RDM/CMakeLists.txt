@@ -55,7 +55,8 @@ list( APPEND coolfluid_rdm_gpu_files
    
 if(CF_ENABLE_GPU AND CF_ENABLE_OPENCL)
   list( APPEND coolfluid_rdm_files ${coolfluid_rdm_gpu_files})
-  include_directories(  ${OPENCL_INCLUDE_DIR} )
+  list( APPEND coolfluid_rdm_includedirs ${OPENCL_INCLUDE_DIR} )
+  list( APPEND coolfluid_rdm_libs   ${OPENCL_LIBRARIES} )
 else()
   coolfluid_mark_not_orphan(${coolfluid_rdm_gpu_files})
 endif()
