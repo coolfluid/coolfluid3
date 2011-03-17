@@ -223,6 +223,46 @@ struct DivergenceElmOp : boost::proto::transform< DivergenceElmOp >
   };
 };
 
+// // Forward declaration
+// template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
+// struct InverseSFImpl;
+// 
+// /// Element gradient
+// struct InverseSFElmOp : boost::proto::transform< InverseSFElmOp >
+// {
+//   template<typename VarT, typename MappedCoordsT, typename DataT>
+//   struct impl : boost::proto::transform_impl<VarT, MappedCoordsT, DataT>
+//   {
+//     typedef typename VarDataType<VarT, DataT>::type VarDataT;
+//     typedef typename InverseSFImpl<typename VarDataT::SF, VarDataT::dimension, VarDataT::offset, VarDataT::matrix_size>::result_type result_type;
+//     
+//     result_type operator()(typename impl::expr_param var, typename impl::state_param mapped_coords, typename impl::data_param data)
+//     {
+//       return data.var_data(var).inverse_sf_elm(mapped_coords);
+//     }
+//   };
+// };
+
+// Forward declaration
+template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
+struct IdentityImpl;
+
+/// Gets a matrix that has the width of the element matrix, but with a unit matrix at the block corresponding to a variable
+struct IdentityElmOp : boost::proto::transform< IdentityElmOp >
+{
+  template<typename VarT, typename MappedCoordsT, typename DataT>
+  struct impl : boost::proto::transform_impl<VarT, MappedCoordsT, DataT>
+  {
+    typedef typename VarDataType<VarT, DataT>::type VarDataT;
+    typedef typename IdentityImpl<typename VarDataT::SF, VarDataT::dimension, VarDataT::offset, VarDataT::matrix_size>::result_type result_type;
+    
+    result_type operator()(typename impl::expr_param var, typename impl::state_param, typename impl::data_param data)
+    {
+      return data.var_data(var).identity_elm();
+    }
+  };
+};
+
 /// Static terminals that can be used in proto expressions
 boost::proto::terminal<VolumeOp>::type const volume = {};
 
@@ -238,10 +278,18 @@ boost::proto::terminal<GradientElmOp>::type const gradient_elm = {};
 boost::proto::terminal<DivergenceElmOp>::type const divergence_elm = {};
 boost::proto::terminal<LaplacianElmOp>::type const laplacian_elm = {};
 boost::proto::terminal<ValueElmOp>::type const value_elm = {};
+boost::proto::terminal<IdentityElmOp>::type const identity_elm = {};
+// boost::proto::terminal<InverseSFElmOp>::type const inverse_sf_elm = {};
 
 /// SF operations needing only a support
 struct SFSupportOp :
   boost::proto::terminal< VolumeOp >
+{
+};
+
+/// SF operations needing only a field
+struct SFFieldOp :
+  boost::proto::terminal< IdentityElmOp >
 {
 };
 
@@ -495,6 +543,60 @@ struct DivergenceImpl
   
 private:
   mutable MatrixT m_matrix;
+};
+
+// InverseSF
+// template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
+// struct InverseSFImpl
+// {
+//   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+//   
+//   InverseSFImpl()
+//   {
+//     m_matrix.setZero();
+//   }
+//   
+//   /// Type of the element matrix
+//   typedef Eigen::Matrix<Real, Dim, MatrixSize> MatrixT;
+//   typedef const MatrixT& result_type;
+//   
+//   result_type operator()(const typename SF::ShapeFunctionsT& sf) const
+//   {
+//     typename SF::ShapeFunctionsT inv_sf = SF::ShapeFunctionsT::Constant(1.).array() / sf.array();
+//     static const Uint dofs = MatrixSize / SF::nb_nodes;
+//     for(Uint i = 0; i != dofs; ++i)
+//       m_matrix.template block<1, SF::nb_nodes>(0, i*SF::nb_nodes).noalias() = inv_sf;
+//     for(Uint i = 1; i != Dim; ++i)
+//       m_matrix.row(i) = m_matrix.row(0);
+//     return m_matrix;
+//   }
+//   
+// private:
+//   mutable MatrixT m_matrix;
+// };
+
+/// Identity matrix at the block for a variable
+template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
+struct IdentityImpl
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  IdentityImpl()
+  {
+    m_matrix.template block<SF::nb_nodes*Dim, SF::nb_nodes*Dim>(0, Offset).setIdentity();
+  }
+  
+  /// Type of the element matrix
+  typedef Eigen::Matrix<Real, SF::nb_nodes*Dim, MatrixSize> MatrixT;
+  typedef const MatrixT& result_type;
+  
+  result_type operator()() const
+  {
+    return m_matrix;
+  }
+  
+private:
+  MatrixT m_matrix;
 };
 
 } // namespace Proto

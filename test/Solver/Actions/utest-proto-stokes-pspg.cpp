@@ -8,8 +8,8 @@
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 6
-#define BOOST_PROTO_MAX_ARITY 6
+#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 7
+#define BOOST_PROTO_MAX_ARITY 7
 
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
@@ -57,30 +57,37 @@ typedef std::vector<Uint> SizesT;
 
 BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
 
-// Solve the Stokes equations with artificial dissipation
-BOOST_AUTO_TEST_CASE( ProtoStokesArtificialDissipation )
+// Solve the Stokes equations with PSPG
+BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
 {
   const Real length = 5.;
   const Real height = 2.;
-  const Uint x_segments = 25;
-  const Uint y_segments = 10;
+  const Uint x_segments = 50;
+  const Uint y_segments = 20;
   
   const Real start_time = 0.;
-  const Real end_time = 1000.;
-  const Real dt = 10.;
+  const Real end_time = 10;
+  const Real dt = 0.5;
   Real t = start_time;
-  const Uint write_interval = 5000;
+  const Uint write_interval = 200;
   const Real invdt = 1. / dt;
   
-  const Real mu = 0.001;
+  const Real mu = 0.1;
   const Real rho = 100.;
-  const Real epsilon = 100.;//rho/mu;
   
   const RealVector2 u_direction(1., 0.);
   const RealVector2 u_wall(0., 0.);
-  const Real p0 = 10.;
+  const Real p0 = 5.;
   const Real p1 = 0.;
-  const Real c = 0.5*(p1 - p0) / (rho * mu * length);
+  const Real c = 0.5 * (p0 - p1) / (rho * mu * length);
+  
+  // c = umax if height = 2
+  const Real he = height / static_cast<Real>(y_segments);
+  const Real ree = 0.5 * he * c * rho / mu;
+  const Real xi = std::max(0.,std::min(ree/3.,1.));
+  const Real tau_ps = he*xi/(2.*c);
+  
+  std::cout << "tau_ps = " << tau_ps << std::endl;
   
   // Load the required libraries (we assume the working dir is the binary path)
   LibLoader& loader = *OSystem::instance().lib_loader();
@@ -129,7 +136,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesArtificialDissipation )
   
   // Set initial conditions
   for_each_node(mesh->topology(), p = 0.);
-  for_each_node(mesh->topology(), u = u_wall);//c * coordinates[1] * (coordinates[1] - height) * u_direction);
+  for_each_node(mesh->topology(), u = c * coordinates[1] * (height - coordinates[1]) * u_direction);
   
   while(t < end_time)
   {
@@ -140,10 +147,14 @@ BOOST_AUTO_TEST_CASE( ProtoStokesArtificialDissipation )
       mesh->topology(),
       group
       (
-        _A(p) = integral<1>(divergence_elm(u) * jacobian_determinant) + epsilon * integral<1>(laplacian_elm(p) * jacobian_determinant),
-        _A(u) = mu * integral<1>(laplacian_elm(u) * jacobian_determinant) + 1/rho * integral<1>(gradient_elm(p) * jacobian_determinant), 
-        _T(u) = invdt * integral<2>(value_elm(u) * jacobian_determinant),
-        system_matrix(lss) += _T + 0.5 * _A,
+        _A(p) = integral<1>((                                                                                           // Mass equation
+                  divergence_elm(u)                                                                                     // standard
+                + tau_ps * laplacian_elm(p)                                                                             // PSPG
+                ) * jacobian_determinant),
+        _A(u) = integral<1>( ( mu * laplacian_elm(u) + 1./rho * gradient_elm(p) ) * jacobian_determinant),              // Momentum
+        _T(p) = tau_ps * integral<1>(divergence_elm(u) * jacobian_determinant),                                         // Time, PSPG
+        _T(u) = integral<2>(value_elm(u) * jacobian_determinant),                                                       // Time, standard
+        system_matrix(lss) += invdt * _T + 0.5 * _A,
         system_rhs(lss) -= _A * _b
       )
     );
@@ -151,8 +162,8 @@ BOOST_AUTO_TEST_CASE( ProtoStokesArtificialDissipation )
     // Set boundary conditions
     for_each_node(left,   dirichlet(lss, p) = p0                                                           , physical_model);
     for_each_node(right,  dirichlet(lss, p) = p1                                                           , physical_model);
-    for_each_node(left,   dirichlet(lss, u) = c * coordinates[1] * (coordinates[1] - height) * u_direction , physical_model);
-    for_each_node(right,  dirichlet(lss, u) = c * coordinates[1] * (coordinates[1] - height) * u_direction , physical_model);
+    for_each_node(left,   dirichlet(lss, u) = c * coordinates[1] * (height - coordinates[1]) * u_direction , physical_model);
+    for_each_node(right,  dirichlet(lss, u) = c * coordinates[1] * (height - coordinates[1]) * u_direction , physical_model);
     for_each_node(top,    dirichlet(lss, u) = u_wall                                                       , physical_model);
     for_each_node(bottom, dirichlet(lss, u) = u_wall                                                       , physical_model);
     
@@ -168,7 +179,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesArtificialDissipation )
     // Output using Gmsh
     if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
     {
-      boost::filesystem::path output_file("stokes-artifdiss.msh");
+      boost::filesystem::path output_file("stokes-pspg-" + boost::lexical_cast<std::string>(static_cast<Uint>(t / dt)) + ".msh");
       writer->write_from_to(mesh, output_file);
     }
   }

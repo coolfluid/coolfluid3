@@ -247,6 +247,12 @@ public:
     return m_value_elm(m_sf);
   }
   
+  /// Identity matrix for a given variable
+  typename IdentityImpl<SF, Dim, Offset, MatrixSize>::result_type identity_elm() const
+  {
+    return m_identity_elm();
+  }
+  
 private:
   /// Value of the field in each element node
   ValueT m_element_values;
@@ -271,6 +277,7 @@ private:
   const DivergenceImpl<SF, Dim, Offset, MatrixSize> m_divergence_elm;
   const LaplacianImpl<SF, Dim, Offset, MatrixSize> m_laplacian_elm;
   const ValueImpl<SF, Dim, Offset, MatrixSize> m_value_elm;
+  const IdentityImpl<SF, Dim, Offset, MatrixSize> m_identity_elm;
 };
 
 /// Predicate to check if data belongs to an equation variable

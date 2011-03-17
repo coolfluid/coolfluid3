@@ -57,6 +57,11 @@ struct SFOpsExplicit :
       SFSupportOp,
       boost::proto::lazy<boost::proto::_value>
     >,
+    boost::proto::when // Functions depending on a variable
+    <
+      boost::proto::function<SFFieldOp, SFFieldVariables>,
+      boost::proto::lazy< boost::proto::call<boost::proto::_value(boost::proto::_child0)>(boost::proto::_value(boost::proto::_child1)) >
+    >,
     boost::proto::when // Functions depending only on geometry and mapped coords
     <
       boost::proto::function<SFSupportMappedOp, MappedCoordinate>,
@@ -84,6 +89,11 @@ struct SFOpsImplicit :
     <
       SFSupportOp,
       boost::proto::lazy<boost::proto::_value>
+    >,
+    boost::proto::when // Functions depending on a variable
+    <
+      boost::proto::function<SFFieldOp, SFFieldVariables>,
+      boost::proto::lazy< boost::proto::call<boost::proto::_value(boost::proto::_child0)>(boost::proto::_value(boost::proto::_child1)) >
     >,
     boost::proto::when // Functions depending only on geometry and mapped coords
     <
