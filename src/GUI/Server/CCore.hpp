@@ -59,7 +59,7 @@ namespace Server {
      /// @param hostame Host name
      /// @param portNumber Port number
      /// @throw NetworkException
-     bool listenToNetwork(const QString & hostname, quint16 portNumber);
+     bool listenToPort(quint16 portNumber);
 
      void sendSignal(const Common::XML::XmlDoc & signal);
 

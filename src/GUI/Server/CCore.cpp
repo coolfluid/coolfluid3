@@ -77,9 +77,9 @@ CCore::~CCore()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool CCore::listenToNetwork(const QString & hostname, quint16 portNumber)
+bool CCore::listenToPort(quint16 portNumber)
 {
-  return m_commServer->openPort(hostname, portNumber);
+  return m_commServer->openPort(portNumber);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -55,11 +55,11 @@ namespace Server {
 
     /// @brief Opens a port the server has to listen to.
 
+    /// All network interfaces (local loop, ethernet, wi-fi,...) are listened to.
     /// @param hostAddress Server address.
-    /// @param port Socket port.
     /// @throw NetworkException Throws a NetworkException if the server cannot
-    /// listen to the given address/port.
-    bool openPort(const QString & hostAddress = "127.0.0.1", quint16 port = 62784);
+    /// listen to the given port.
+    bool openPort(quint16 port = 62784);
 
     /// @brief Gives the number of bytes recieved.
 
@@ -126,11 +126,6 @@ namespace Server {
 
     /// Used to accept connections.
     QTcpServer * m_server;
-
-    /// @brief The server m_socket for the local loop.
-
-    /// Used to accept connections coming from "localhost" (local loop).
-    QTcpServer * m_localSocket;
 
     /// @brief Size of the frame that is being read.
 

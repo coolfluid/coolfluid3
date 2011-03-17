@@ -79,14 +79,6 @@ int main(int argc, char *argv[])
     // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
     cf_env.initiate ( argc, argv );        // initiate the environemnt
 
-    // if COMM_WORLD has a parent, we are in a worker
-   /* if(COMM_WORLD.Get_parent() != COMM_NULL)
-    {
-      SimulationWorker worker;
-      worker.listen();
-      return app.exec();
-    }*/
-
     // check if the port number is valid and launch the network connection if so
     if(port < 49153 || port > 65535)
       errorString = "Port number must be an integer between 49153 and 65535\n";
@@ -95,13 +87,11 @@ int main(int argc, char *argv[])
       Core::instance().network_info()->set_hostname( QHostInfo::localHostName().toStdString() );
       Core::instance().network_info()->set_port( port );
 
-
-
       QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
       CCore::Ptr sk = ServerRoot::core();
       QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
-      sk->listenToNetwork(hostInfo.addresses().last().toString(), port);
+      sk->listenToPort(port);
 
       message = message.arg(hostInfo.addresses().at(0).toString())
                 .arg(QHostInfo::localHostName())

@@ -33,7 +33,6 @@ using namespace CF::GUI::Server;
 
 ServerNetworkComm::ServerNetworkComm()
   : m_server(nullptr),
-  m_localSocket(nullptr),
   m_lastClientId(0)
 {
   m_blockSize = 0;
@@ -59,40 +58,23 @@ ServerNetworkComm::~ServerNetworkComm()
   m_server->close();
   delete m_server;
 
-  if(m_localSocket != nullptr)
-  {
-    m_localSocket->close();
-    delete m_localSocket;
-  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ServerNetworkComm::openPort(const QString & hostAddress, quint16 port)
+bool ServerNetworkComm::openPort(quint16 port)
 {
   bool success = false;
-  bool local = hostAddress == "127.0.0.1" || hostAddress == "localhost";
 
   if(m_server == nullptr)
   {
     m_server = new QTcpServer(this);
 
-    if(!local)
-      m_localSocket = new QTcpServer(this);
-
-    if(!m_server->listen(QHostAddress(hostAddress), port))
+    if(!m_server->listen(QHostAddress::Any, port))
     {
       QString message = QString("Cannot listen %1 on port %2 : %3")
-                        .arg(hostAddress)
-                        .arg(port)
-                        .arg(m_server->errorString());
-      throw NetworkException(FromHere(), message.toStdString());
-    }
-
-    if(!local && !m_localSocket->listen(QHostAddress("127.0.0.1"), port))
-    {
-      QString message = QString("Cannot listen 127.0.0.1 on port %2 : %3")
+                        .arg("")
                         .arg(port)
                         .arg(m_server->errorString());
       throw NetworkException(FromHere(), message.toStdString());
@@ -100,12 +82,6 @@ bool ServerNetworkComm::openPort(const QString & hostAddress, quint16 port)
 
     connect(m_server, SIGNAL(newConnection()), this, SLOT(newClient()));
     m_server->setMaxPendingConnections(1);
-
-    if(!local)
-    {
-      connect(m_localSocket, SIGNAL(newConnection()), this, SLOT(newClient()));
-      m_localSocket->setMaxPendingConnections(1);
-    }
 
     success = true;
   }
@@ -303,9 +279,6 @@ void ServerNetworkComm::newClient()
   QTcpSocket * socket;
 
   socket = m_server->nextPendingConnection();
-
-  if(socket == nullptr)
-    socket = m_localSocket->nextPendingConnection();
 
   // connect useful signals to slots
   connect(socket, SIGNAL(disconnected()), this, SLOT(clientDisconnected()));
