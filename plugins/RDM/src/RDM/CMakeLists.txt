@@ -48,13 +48,14 @@ list( APPEND coolfluid_rdm_files
 list( APPEND coolfluid_rdm_gpu_files 
           LDAGPU.hpp
           LDAGPU.cpp
-          LDAOpenCL.hpp
-          LDAOpenCL.cpp
-          SchemeLDAGPU.hpp          
+          SchemeLDAGPU.hpp
+          CLdeclaration.hpp
+          LDAGPUkernel.hpp         
 )
    
 if(CF_ENABLE_GPU AND CF_ENABLE_OPENCL)
   list( APPEND coolfluid_rdm_files ${coolfluid_rdm_gpu_files})
+  include_directories(  ${OPENCL_INCLUDE_DIR} )
 else()
   coolfluid_mark_not_orphan(${coolfluid_rdm_gpu_files})
 endif()

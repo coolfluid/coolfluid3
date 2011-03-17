@@ -23,8 +23,6 @@
 
 #include "RDM/SchemeLDAGPU.hpp"
 
-#include "RDM/LDAOpenCL.hpp"  // OpenCL function
-
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Solver;

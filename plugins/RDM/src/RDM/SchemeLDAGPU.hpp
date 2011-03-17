@@ -27,6 +27,8 @@
 #include "RDM/LibRDM.hpp"
 #include "RDM/FluxOp2D.hpp"
 
+#include "RDM/CLdeclaration.hpp"
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -139,8 +141,142 @@ template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
 void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 {
 
+
+#include "RDM/LDAGPUkernel.hpp"
+
  std::cout << "SchemeLDAGPU" << std::endl;
- Uint*  conn = connectivity_table->array().origin();
+ uint*  adress = connectivity_table->array().origin();
+ //float* coordinates_real = coordinates->array().origin();
+
+
+ CLEnv env;
+ GPGPU_setup(env);
+
+
+ // OpenCL kernel compilation
+
+  env.program = clCreateProgramWithSource(env.context, 1, (const char**)&GPUSource, NULL, &env.errcode);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+  env.errcode = clBuildProgram(env.program, 0,  NULL, "-cl-fast-relaxed-math", NULL, NULL);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+  env.kernel = clCreateKernel(env.program, "interpolation", &env.errcode);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+  clReleaseProgram(env.program);
+
+  //GPGPU mem reservation
+
+     cl_mem A_iGPGPU, A_kGPGPU, A_eGPGPU;
+     cl_mem X_rGPGPU, U_rGPGPU, phi_rGPGPU;
+     cl_mem adressGPGPU, atomicGPGPU;
+
+     // copy matrix to GPGPU memory
+     uint nodes, shape,quad, elements, dim;
+
+
+     /*
+     A_iGPGPU = clCreateBuffer(env.context, CL_MEM_READ_ONLY , shape * quad * sizeof(float), A_inter, &env.errcode);
+     A_kGPGPU = clCreateBuffer(env.context, CL_MEM_READ_ONLY , shape * quad * sizeof(float), A_ksi,   &env.errcode);
+     A_eGPGPU = clCreateBuffer(env.context, CL_MEM_READ_ONLY , shape * quad * sizeof(float), A_eta,   &env.errcode);
+     env.errcode  = clEnqueueWriteBuffer(env.command_queue, A_iGPGPU, CL_FALSE, 0, shape * quad * sizeof(float), A_inter,    0, NULL, NULL);
+     env.errcode |= clEnqueueWriteBuffer(env.command_queue, A_kGPGPU, CL_FALSE, 0, shape * quad * sizeof(float), A_ksi,      0, NULL, NULL);
+     env.errcode |= clEnqueueWriteBuffer(env.command_queue, A_eGPGPU, CL_FALSE, 0, shape * quad * sizeof(float), A_eta,      0, NULL, NULL);
+     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+     // copy vector to GPGPU memory
+
+     X_rGPGPU   =    clCreateBuffer(env.context, CL_MEM_READ_ONLY , nodes * dim * sizeof(float) ,    X_real, &env.errcode);
+     U_rGPGPU   =    clCreateBuffer(env.context, CL_MEM_READ_ONLY , nodes * sizeof(float)       ,    U_real, &env.errcode);
+     phi_rGPGPU =    clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, nodes * sizeof(float)       ,    phi,    &env.errcode);
+     adressGPGPU =   clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements * shape * sizeof(uint), adress, &env.errcode);
+     atomicGPGPU =   clCreateBuffer(env.context, CL_MEM_READ_WRITE, nodes * sizeof(uint),            atomic, &env.errcode);
+     env.errcode |= clEnqueueWriteBuffer(env.command_queue, X_rGPGPU,    CL_FALSE, 0, nodes * dim * sizeof(float),     X_real, 0, NULL, NULL);
+     env.errcode |= clEnqueueWriteBuffer(env.command_queue, U_rGPGPU,    CL_FALSE, 0, nodes * sizeof(float),           U_real, 0, NULL, NULL);
+     env.errcode |= clEnqueueWriteBuffer(env.command_queue, phi_rGPGPU,  CL_FALSE, 0, nodes * sizeof(float),           phi,    0, NULL, NULL);
+     env.errcode |= clEnqueueWriteBuffer(env.command_queue, adressGPGPU, CL_FALSE, 0, elements * shape * sizeof(uint), adress, 0, NULL, NULL);
+     env.errcode |= clEnqueueWriteBuffer(env.command_queue, atomicGPGPU, CL_FALSE, 0, nodes * sizeof(uint),            atomic, 0, NULL, NULL);
+     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+     // running GPGPU kernel
+
+     /*__kernel void interpolation(__global float* PHI,
+                             __global float* A, __global float* A_ksi, __global float* A_eta,
+                             __global float* X_real, __global float* U_real,
+                             __global uint* adress, __global uint* atomic,
+                             unsigned int shape, unsigned int quad, unsigned int dim, unsigned int elements,
+                             __local float* X_elem, __local float* U_elem,
+                             __local float* X_quad, __local float* X_ksi, __local float* X_eta,
+                             __local float* jacobi_quad, __local float* sum_phi_quad , __local float* LU_quad )*/
+
+
+
+     /*
+     int n = 0;
+     env.errcode  = clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&phi_rGPGPU);
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&A_iGPGPU);
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&A_kGPGPU);
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&A_eGPGPU);
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&X_rGPGPU);
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&U_rGPGPU);
+
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&adressGPGPU);
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&atomicGPGPU);
+
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&shape);
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&quad);
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&dim);
+     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&elements);
+
+     env.errcode |= clSetKernelArg(env.kernel, n++, shape * dim * sizeof(float), 0);
+     env.errcode |= clSetKernelArg(env.kernel, n++, shape * sizeof(float), 0);
+
+     env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim * sizeof(float), 0);
+     env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim * sizeof(float),       0);
+     env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim * sizeof(float),       0);
+
+     env.errcode |= clSetKernelArg(env.kernel, n++, quad * sizeof(float),       0);
+     env.errcode |= clSetKernelArg(env.kernel, n++, quad * sizeof(float),       0);
+     env.errcode |= clSetKernelArg(env.kernel, n++, quad * sizeof(float),       0);
+     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+     size_t localWorkSize[2], globalWorkSize[2];
+
+     localWorkSize[0] = 8;
+     localWorkSize[1] = 8;
+
+     globalWorkSize[0] = 4*env.num_compute_units;
+     globalWorkSize[1] = 4*env.num_compute_units;
+
+     env.errcode = clEnqueueNDRangeKernel(env.command_queue, env.kernel, 2, globalWorkSize, localWorkSize, NULL, 0, NULL, NULL);
+     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+     clFinish(env.command_queue);
+
+
+     // receive data from GPGPU memory
+
+     env.errcode = clEnqueueReadBuffer(env.command_queue,phi_rGPGPU, CL_TRUE, 0, shape * elements * sizeof(float), phi, 0, NULL, NULL);
+     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+     // release GPGPU memory for matrix
+
+     clReleaseMemObject( A_iGPGPU );
+     clReleaseMemObject( A_kGPGPU );
+     clReleaseMemObject( A_eGPGPU );
+
+     // release GPGPU memory for vectors
+
+     clReleaseMemObject( X_rGPGPU );
+     clReleaseMemObject( U_rGPGPU );
+     clReleaseMemObject( phi_rGPGPU );
+*/
+     // free GPU
+
+     clReleaseContext(env.context);
+     clReleaseKernel(env.kernel);
+     clReleaseCommandQueue(env.command_queue);
+
 
 
 

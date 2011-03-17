@@ -230,7 +230,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , rotationadv2d_local_fixture )
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 
-  std::cout << solver.tree() << std::endl;
+  //std::cout << solver.tree() << std::endl;
 
   BOOST_CHECK(true);
 
