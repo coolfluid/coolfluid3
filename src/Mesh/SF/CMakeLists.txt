@@ -21,6 +21,8 @@ list( APPEND coolfluid_mesh_sf_files
   Quad2DLagrangeP1.hpp
   Quad2DLagrangeP2.cpp
   Quad2DLagrangeP2.hpp
+  Quad2DLagrangeP3.cpp
+  Quad2DLagrangeP3.hpp
   Quad3DLagrangeP1.cpp
   Quad3DLagrangeP1.hpp
   Tetra3DLagrangeP1.cpp
