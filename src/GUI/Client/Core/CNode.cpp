@@ -532,7 +532,6 @@ void CNode::listSignals(QList<ActionInfo> & actions)
   {
     QStringList::const_iterator it = m_localSignals.begin();
 
-    actions = m_actionSigs; // copy the "remote signals"
 
     // put the local signals
     for( ; it != m_localSignals.end() ; it++)
@@ -552,7 +551,10 @@ void CNode::listSignals(QList<ActionInfo> & actions)
       }
       else
         NLog::globalLog()->addError(*it + ": local signal not found");
+
     }
+
+    actions.append(m_actionSigs); // copy the "remote signals"
   }
 }
 

@@ -60,6 +60,7 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
                              const QList<ActionInfo> & sigs)
 {
   QList<ActionInfo>::const_iterator it = sigs.begin();
+  bool isLocal = false;
 
   cf_assert( node.get() != nullptr );
 
@@ -78,6 +79,9 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
   {
     if(!it->readableName.isEmpty())
     {
+      if(isLocal != it->isLocal && it != sigs.begin())
+        m_menu->addSeparator();
+
       QAction * action = m_menu->addAction(it->readableName);
 
       action->setStatusTip(it->description);
@@ -88,6 +92,8 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
       m_signals[action] = *it;
       m_localStatus[action] = it->isLocal;
     }
+
+    isLocal = it->isLocal;
   }
 
   if(!m_menu->isEmpty())
