@@ -120,9 +120,9 @@ boost::this_thread::sleep(boost::posix_time::milliseconds(msec));               
 /**
  Macro for printing a vector
 **/
-#define PEDebugVector(v,size) { \
-  std::cout << mpi::PE::instance().rank() << "/" << mpi::PE::instance().rank() << ": " << #v << " " << size << "\n" << std::flush; \
-  for(int _tmp_i_=0; _tmp_i_<(const int)(size); _tmp_i_++)  std::cout << v[_tmp_i_] << " "; \
+#define PEDebugVector(v,length) { \
+  std::cout << ::CF::Common::mpi::PE::instance().rank() << "/" << ::CF::Common::mpi::PE::instance().size() << ": " << #v << " " << length << "\n" << std::flush; \
+  for(int _tmp_i_=0; _tmp_i_<(const int)(length); _tmp_i_++)  std::cout << v[_tmp_i_] << " "; \
   std::cout << "\n" << std::flush; \
 }
 

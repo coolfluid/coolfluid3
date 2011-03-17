@@ -67,6 +67,7 @@ BOOST_AUTO_TEST_CASE( init )
 {
   mpi::PE::instance().init(m_argc,m_argv);
   BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , true );
+  CFinfo.setFilterRankZero(false);
   PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
 }
 
@@ -74,8 +75,6 @@ BOOST_AUTO_TEST_CASE( init )
 
 BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 {
-  PEProcessSortedExecute(-1,CFinfo << FromHere() << " " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
-
   int i;
   double *d1=new double[32];
   double *d2=new double[24];
@@ -310,7 +309,7 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 
 BOOST_AUTO_TEST_CASE( data_registration_related )
 {
-  PECommPattern pecp("CommPattern2");
+  PECommPattern pecp("CommPattern");
   BOOST_CHECK_EQUAL( pecp.isUpToDate() , false );
 
   boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(32) );
@@ -346,52 +345,55 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
       BOOST_CHECK_EQUAL( pobj.stride() , 3 );
     }
   }
-
-const int nproc=mpi::PE::instance().size();
-const int irank=mpi::PE::instance().rank();
-PEProcessSortedExecute(-1,CFinfo << "const int " << nproc << "/" << irank <<CFendl;);
-int nproc_=mpi::PE::instance().size();
-int irank_=mpi::PE::instance().rank();
-PEProcessSortedExecute(-1,CFinfo << "      int " << nproc_ << "/" << irank_ <<CFendl;);
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( commpattern )
 {
+//PECheckPoint(100,"CP");
+
   // general conts in this routine
   const int nproc=mpi::PE::instance().size();
   const int irank=mpi::PE::instance().rank();
 
   // commpattern
-  PECommPattern pecp("CommPattern2");
+  PECommPattern pecp("CommPattern");
 
-  // stupid global-reverse global indices
-  std::vector<Uint> gid(nproc);
-  for (Uint i=0; i<gid.size(); i++) gid[i]=(nproc*nproc-1)-(irank*nproc+i);
-  pecp.insert("gid",gid,1,false);
+  // global indices reversed, just for not to have it aligned
+  std::vector<Uint> gid(6*nproc);
+  for (Uint i=0; i<gid.size(); i++) gid[i]=(6*nproc*nproc-1)-(6*irank*nproc+i);
+  pecp.insert("gid",gid);
 
 //PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
+//PECheckPoint(100,"CP");
 
+  // ranks, ordering: 0 1 2 ... 0 0 1 1 2 2 ... 0 0 0 1 1 1 2 2 2 ...
+  std::vector<Uint> rank(6*nproc);
+  for (Uint i=0; i<nproc; i++) { rank[0*nproc+1*i+0]=i; }
+  for (Uint i=0; i<nproc; i++) { rank[1*nproc+2*i+0]=i; rank[1*nproc+2*i+1]=i; }
+  for (Uint i=0; i<nproc; i++) { rank[3*nproc+3*i+0]=i; rank[3*nproc+3*i+1]=i; rank[3*nproc+3*i+2]=i; }
 
-//  // rank is built such that total scatter
-//  std::vector<int> rank(nproc);
-//  for (int i=0; i<gid.size(); i++) rank[i]=i;
-//
-//  // three additional arrays for testing
-//  std::vector<int> v1;
-//  for(int i=0;i<nproc;i++) v1.push_back(irank*10000+i+100);
-//  pecp.insert("v1",v1,1,true);
-//  std::vector<int> v2;
-//  for(int i=0;i<2*nproc;i++) v2.push_back(irank*10000+(i/2)*100+i%2);
-//  pecp.insert("v2",v2,2,true);
-//  std::vector<int> v3;
-//  for(int i=0;i<nproc;i++) v3.push_back(irank);
-//  pecp.insert("v3",v3,1,false);
+//PEProcessSortedExecute(-1,PEDebugVector(rank,rank.size()));
+//PECheckPoint(100,"CP");
+
+  // additional arrays for testing
+  std::vector<int> v1;
+  for(int i=0;i<6*nproc;i++) v1.push_back(-((irank+1)*1000+i+1));
+  pecp.insert("v1",v1,1,true);
+  std::vector<double> v2;
+  for(int i=0;i<12*nproc;i++) v2.push_back((double)((irank+1)*1000+i+1));
+  pecp.insert("v2",v2,2,true);
+
+//PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
+//PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
+//PECheckPoint(100,"CP");
+
+//PEObjectWrapper::Ptr globid=pecp.get_child_ptr("gid")->as_ptr<PEObjectWrapper>();
+//PECheckPoint(100, globid->name() << " " << globid->size() << " " << globid->size_of());
 
   // initial setup
-//  pecp.setup(,rank);
+  pecp.setup(pecp.get_child_ptr("gid")->as_ptr<PEObjectWrapper>(),rank);
 
 }
 
@@ -401,6 +403,7 @@ BOOST_AUTO_TEST_CASE( commpattern )
 BOOST_AUTO_TEST_CASE( finalize )
 {
   PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " says good bye." << CFendl;);
+  CFinfo.setFilterRankZero(true);
   mpi::PE::instance().finalize();
   BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , false );
 }

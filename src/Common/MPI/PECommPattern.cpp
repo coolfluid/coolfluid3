@@ -64,6 +64,9 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
   m_gid->add_tag("gid_of_"+this->name());
   add_component(gid);
 
+PEProcessSortedExecute(-1,CFinfo << this->tree() << CFendl; );
+
+/*
   // sizesof datas matching
   BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(*this) )
     if ((Uint) pobj.size()!=m_updatable.size()+gid->size())
@@ -81,6 +84,7 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
     delete[] igid;
     setup();
   }
+*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -96,7 +100,7 @@ void PECommPattern::setup()
   // ngid: number of updatable nodes of all ranks
   // gido: offset for easy navigation between processes in the global arrays
   // gidr: rank where node is updatable
-
+/*
   // general constants
   const int nproc=mpi::PE::instance().size();
   const int irank=mpi::PE::instance().rank();
@@ -110,7 +114,7 @@ void PECommPattern::setup()
   BOOST_FOREACH(int node,ngid) ntotalnodes+=node;
 //  std::vector<int> ngid(nproc,0);
 //  for(i=0;i<nproc;i++)
-
+*/
 
 
 
