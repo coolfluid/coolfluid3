@@ -8,6 +8,8 @@
 #include <QFormLayout>
 #include <QVBoxLayout>
 
+#include <QDebug>
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/XML/Protocol.hpp"
@@ -131,6 +133,7 @@ void SignatureDialog::btOkClicked()
 
       std::string delim(optionNode.content->first_attribute( Protocol::Tags::attr_array_delimiter() )->value());
       std::string val_str;
+      rapidxml::xml_node<char>* node = it.value().content;
 
       for( ; itValue != value.end() ; itValue++)
       {
@@ -140,6 +143,8 @@ void SignatureDialog::btOkClicked()
         val_str += itValue->toStdString();
       }
 
+      node->value( node->document()->allocate_string(val_str.c_str()) );
+      it.value().set_attribute(Protocol::Tags::attr_array_size(), QString(value.count()).toStdString());
     }
   }
 
