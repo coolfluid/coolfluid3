@@ -1,5 +1,3 @@
-if( QT4_FOUND AND CF_ENABLE_GUI )
-
   coolfluid_find_orphan_files()
 
   # deactivate some c++ warnings in Qt
@@ -13,5 +11,3 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
 add_subdirectory( Client )
 # add_subdirectory( Network ) # no tests yet on network
 # add_subdirectory( Server )  # no tests yet on server
-
-endif()
