@@ -122,7 +122,10 @@ int NetworkThread::send(Common::SignalArgs& signal)
   out.writeBytes(str.c_str(), str.length() + 1);
 
   charsWritten = m_socket->write(block);
-//  m_socket->flush();
+
+#ifdef Q_WS_MAC
+  m_socket->flush();
+#endif
 
   return charsWritten;
 }
