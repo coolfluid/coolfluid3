@@ -84,18 +84,22 @@ void NetworkThread::disconnectFromServer(bool shutServer)
 {
   QMutexLocker locker(&m_mutex);
 
-  if(shutServer)
+
+  if(isConnected())
   {
-    SignalFrame frame("shutdown", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
+    if(shutServer)
+    {
+      SignalFrame frame("shutdown", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
 
-    this->send(frame);
+      this->send(frame);
+    }
+
+    m_requestDisc = true;
+
+    // close the socket
+    m_socket->abort();
+    m_socket->close();
   }
-
-  m_requestDisc = true;
-
-  // close the socket
-  m_socket->abort();
-  m_socket->close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -194,6 +198,7 @@ void NetworkThread::run()
   exec();
 
   delete m_socket;
+  m_socket = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -201,9 +206,9 @@ void NetworkThread::run()
 void NetworkThread::disconnected()
 {
   if(!m_requestDisc)
-  {
     NLog::globalLog()->addError("The connection has been closed.");
-  }
+  else
+    NLog::globalLog()->addMessage("Disconnected from the server.");
 
   if(isRunning())
     exit( m_requestDisc ? 0 : 1 );

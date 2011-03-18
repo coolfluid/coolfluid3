@@ -129,6 +129,9 @@ MainWindow::MainWindow()
 
   connect(root, SIGNAL(connected()), this, SLOT(connectedToServer()));
 
+  connect(&ThreadManager::instance().network(), SIGNAL(disconnectedFromServer()),
+          this, SLOT(disconnectedFromServer()));
+
   connect(NTree::globalTree().get(),
           SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
           this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
