@@ -142,6 +142,7 @@ void CNode::setProperties(const SignalArgs & options)
       if( is_not_null(attr) && from_str<bool>(attr->value()) ) // if it is an option
       {
         Option::Ptr opt = makeOption(node);
+        cf_assert( opt.get() != nullptr );
         m_properties.store[ opt->name() ] = opt;
       }
       else // it is a property
@@ -152,47 +153,52 @@ void CNode::setProperties(const SignalArgs & options)
         {
           const char * keyVal = keyAttr->value();
           std::string typeVal = Map::get_value_type(curr_node); // type name
-          const char * value = curr_node.content->first_node()->value();
+          rapidxml::xml_node<>* firstNode = curr_node.content->first_node();
 
-          if(m_properties.check(keyVal))
+          if( is_not_null(firstNode) )
           {
-            if( typeVal == Protocol::Tags::type<bool>() )
-              configure_property(keyVal, from_str<bool>(value));
-            else if( typeVal == Protocol::Tags::type<int>() )
-              configure_property(keyVal, from_str<int>(value));
-            else if( typeVal == Protocol::Tags::type<CF::Uint>() )
-              configure_property(keyVal, from_str<CF::Uint>(value));
-            else if( typeVal == Protocol::Tags::type<CF::Real>() )
-              configure_property(keyVal, from_str<CF::Real>(value));
-            else if( typeVal == Protocol::Tags::type<std::string>() )
-              configure_property(keyVal, std::string(value));
-            else if( typeVal == Protocol::Tags::type<URI>() )
-              configure_property(keyVal, from_str<URI>(value));
-            else
-              throw ShouldNotBeHere(FromHere(), typeVal + ": Unknown type.");
-          }
-          else
-          {
+            const char * value = firstNode->value();
 
-            if( typeVal == Protocol::Tags::type<bool>() )
-              m_properties.add_property(keyVal, from_str<bool>(value));
-            else if( typeVal == Protocol::Tags::type<int>() )
-              m_properties.add_property(keyVal, from_str<int>(value));
-            else if( typeVal == Protocol::Tags::type<CF::Uint>() )
-              m_properties.add_property(keyVal, from_str<CF::Uint>(value));
-            else if( typeVal == Protocol::Tags::type<CF::Real>() )
-              m_properties.add_property(keyVal, from_str<CF::Real>(value));
-            else if( typeVal == Protocol::Tags::type<std::string>() )
-              m_properties.add_property(keyVal, std::string(value));
-            else if( typeVal == Protocol::Tags::type<URI>() )
-              m_properties.add_property(keyVal, from_str<URI>(value));
+            if(m_properties.check(keyVal))
+            {
+              if( typeVal == Protocol::Tags::type<bool>() )
+                configure_property(keyVal, from_str<bool>(value));
+              else if( typeVal == Protocol::Tags::type<int>() )
+                configure_property(keyVal, from_str<int>(value));
+              else if( typeVal == Protocol::Tags::type<CF::Uint>() )
+                configure_property(keyVal, from_str<CF::Uint>(value));
+              else if( typeVal == Protocol::Tags::type<CF::Real>() )
+                configure_property(keyVal, from_str<CF::Real>(value));
+              else if( typeVal == Protocol::Tags::type<std::string>() )
+                configure_property(keyVal, std::string(value));
+              else if( typeVal == Protocol::Tags::type<URI>() )
+                configure_property(keyVal, from_str<URI>(value));
+              else
+                throw ShouldNotBeHere(FromHere(), typeVal + ": Unknown type.");
+            }
             else
-              throw ShouldNotBeHere(FromHere(), typeVal + ": Unknown type.");
-          }
+            {
+
+              if( typeVal == Protocol::Tags::type<bool>() )
+                m_properties.add_property(keyVal, from_str<bool>(value));
+              else if( typeVal == Protocol::Tags::type<int>() )
+                m_properties.add_property(keyVal, from_str<int>(value));
+              else if( typeVal == Protocol::Tags::type<CF::Uint>() )
+                m_properties.add_property(keyVal, from_str<CF::Uint>(value));
+              else if( typeVal == Protocol::Tags::type<CF::Real>() )
+                m_properties.add_property(keyVal, from_str<CF::Real>(value));
+              else if( typeVal == Protocol::Tags::type<std::string>() )
+                m_properties.add_property(keyVal, std::string(value));
+              else if( typeVal == Protocol::Tags::type<URI>() )
+                m_properties.add_property(keyVal, from_str<URI>(value));
+              else
+                throw ShouldNotBeHere(FromHere(), typeVal + ": Unknown type.");
+            }
+          } // end of "it( is_not_null(firstNode) )"
         }
-      }
+      } // end of "else"
     }
-  }
+  } // end of "if( options.has_map() )"
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -802,10 +808,7 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
     else if( Map::is_array_value(node) )
     {
       if(type == Protocol::Tags::type<bool>() )
-      {
-        OptionArray::Ptr optArray;
-        optArray = makeOptionArrayT<bool>(key_str, descr_str, node);
-      }
+        option = makeOptionArrayT<bool>(key_str, descr_str, node);
       else if(type == Protocol::Tags::type<int>() )
         option = makeOptionArrayT<int>(key_str, descr_str, node);
       else if(type == Protocol::Tags::type<Uint>() )

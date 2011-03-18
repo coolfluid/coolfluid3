@@ -79,9 +79,6 @@ bool GraphicalArray::setValue(const QVariant & value)
   const QValidator * validator = m_editAdd->validator();
   int pos;
 
-  NLog::globalLog()->addMessage(" Adding " + value.toStringList().join(" "));
-
-
   if(value.type() == QVariant::String)
   {
     QString valueStr = value.toString();
