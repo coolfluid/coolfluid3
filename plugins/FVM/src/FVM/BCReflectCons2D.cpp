@@ -85,17 +85,19 @@ void BCReflectCons2D::execute()
   
   RealVector2 normal = to_vector(m_face_normal[idx()]);
   RealVector2 U;
-  U << m_connected_solution[idx()][FIRST][1]/m_connected_solution[idx()][FIRST][0],
-       m_connected_solution[idx()][FIRST][2]/m_connected_solution[idx()][FIRST][0];
+  U << m_connected_solution[idx()][INNER][1]/m_connected_solution[idx()][INNER][0],
+       m_connected_solution[idx()][INNER][2]/m_connected_solution[idx()][INNER][0];
   
   RealVector2 U_n = (U.dot(normal)) *normal;// normal velocity
   RealVector2 U_t = U - U_n;         // tangential velocity
 
   U = -U_n + U_t;  // switched sign of normal velocity
 
-  // Change value in field
-  m_connected_solution[idx()][FIRST][1] = U[XX]*m_connected_solution[idx()][FIRST][0];
-  m_connected_solution[idx()][FIRST][2] = U[YY]*m_connected_solution[idx()][FIRST][0];
+  // Change value in ghost cell
+  m_connected_solution[idx()][GHOST][0] = m_connected_solution[idx()][INNER][0];
+  m_connected_solution[idx()][GHOST][1] = U[XX]*m_connected_solution[idx()][INNER][0];
+  m_connected_solution[idx()][GHOST][2] = U[YY]*m_connected_solution[idx()][INNER][0];
+  m_connected_solution[idx()][GHOST][3] = m_connected_solution[idx()][INNER][3];
   
 }
 

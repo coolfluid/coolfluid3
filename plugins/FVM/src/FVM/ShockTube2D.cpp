@@ -12,6 +12,7 @@
 #include "Common/CGroup.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Signal.hpp"
+#include "Common/Log.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CField2.hpp"
@@ -35,6 +36,7 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 #include "FVM/FiniteVolumeSolver2D.hpp"
+#include "FVM/BuildGhostStates.hpp"
 #include "FVM/ShockTube2D.hpp"
 
 namespace CF {
@@ -118,9 +120,10 @@ void ShockTube2D::signal_create_model ( SignalArgs& args )
   tools.mark_basic();
   tools.create_component<CBuildFaces>("build_faces");
   tools.create_component<CBuildVolume>("build_volume");
+  tools.create_component<BuildGhostStates>("build_ghoststates");
 
-  create_component<Gmsh::CReader>("gmsh_reader");
-  create_component<Gmsh::CWriter>("gmsh_writer");
+  tools.create_component<Gmsh::CReader>("gmsh_reader");
+  tools.create_component<Gmsh::CWriter>("gmsh_writer");
 
 }
 
@@ -151,21 +154,20 @@ void ShockTube2D::signal_setup_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
   // Generate mesh
   ////////////////////////////////////////////////////////////////////////////////
-  
-  CMesh::Ptr mesh = model->domain()->create_component<CMesh>("line");
+  CMesh::Ptr mesh = model->domain()->create_component<CMesh>("square");
   Tools::MeshGeneration::create_rectangle(*mesh, 10., 10., p.get_option<Uint>("nb_cells"), p.get_option<Uint>("nb_cells"));
   
   // path file_in("line.msh");
   //   model->access_component_ptr<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
 
   model->access_component_ptr("cpath:./tools/build_faces")->as_ptr<CBuildFaces>()->transform(mesh);
+  model->access_component_ptr("cpath:./tools/build_ghoststates")->as_ptr<BuildGhostStates>()->transform(mesh);
   model->access_component_ptr("cpath:./tools/build_volume")->as_ptr<CBuildVolume>()->transform(mesh);
   model->configure_option_recursively("volume",find_component_recursively_with_tag<CField2>(*model->domain(),"volume").full_path());
 
   ////////////////////////////////////////////////////////////////////////////////
   // Solver / Discretization configuration
   ////////////////////////////////////////////////////////////////////////////////
-  
   model->time().configure_property("time_step", p.get_option<Real>("time_step"));
   model->time().configure_property("end_time", p.get_option<Real>("end_time"));  
   
@@ -179,7 +181,6 @@ void ShockTube2D::signal_setup_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
   // Initial condition
   ////////////////////////////////////////////////////////////////////////////////
-  
   CInitFieldFunction::Ptr init_solution = model->get_child_ptr("tools")->create_component<CInitFieldFunction>("init_solution");
   init_solution->configure_property("Field",find_component_with_tag(*mesh,"solution").full_path());
   
@@ -208,7 +209,6 @@ void ShockTube2D::signal_setup_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
   // Boundary conditions
   ////////////////////////////////////////////////////////////////////////////////
-  
   CRegion& left_reg = find_component_recursively_with_name<CRegion>(mesh->topology(),"left");
   solver.create_bc("left",left_reg,"CF.FVM.BCReflectCons2D");
 
@@ -226,14 +226,12 @@ void ShockTube2D::signal_setup_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
   // Writer
   ////////////////////////////////////////////////////////////////////////////////
-
   std::vector<URI> fields;
   boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
     fields.push_back(field.full_path());
-  model->access_component_ptr("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
-  model->access_component_ptr("cpath:./tools/gmsh_writer")->configure_property("File",model->name()+".msh");
-  model->access_component_ptr("cpath:./tools/gmsh_writer")->configure_property("Mesh",mesh->full_path());
-
+  model->access_component("cpath:./tools/gmsh_writer").configure_property("Fields",fields);
+  model->access_component("cpath:./tools/gmsh_writer").configure_property("File",model->name()+".msh");
+  model->access_component("cpath:./tools/gmsh_writer").configure_property("Mesh",mesh->full_path());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

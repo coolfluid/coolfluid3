@@ -122,11 +122,17 @@ void ComputeUpdateCoefficient::execute()
     
     // Make time step stricter through the CFL number
     for (Uint i=0; i<wave_speed.size(); ++i)
-      dt = std::min(dt, m_CFL*volume[i][0]/wave_speed[i][0] );
+    {
+      if (volume[i][0] > 0)
+        dt = std::min(dt, m_CFL*volume[i][0]/wave_speed[i][0] );
+    }
 
     // Calculate the update_coefficient = dt/dx
     for (Uint i=0; i<update_coeff.size(); ++i)
-      update_coeff[i][0] = dt/volume[i][0];
+    {
+      if (volume[i][0] > 0)
+        update_coeff[i][0] = dt/volume[i][0];
+    }
     
     // Update the new time step
     time.dt() = dt;

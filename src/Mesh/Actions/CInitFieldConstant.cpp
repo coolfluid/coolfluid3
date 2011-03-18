@@ -74,7 +74,6 @@ void CInitFieldConstant::execute()
 {
   if (m_field.expired())
     throw SetupError(FromHere(), "Field option in ["+full_path().path()+"] was not set");
-    
   m_field.lock()->data() = m_constant;
 }
 

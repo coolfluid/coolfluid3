@@ -106,7 +106,7 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
       {
         if ( find_components_with_filter<CElements>(*regions[i],IsElementsVolume()).size() !=0 )
         {
-          CFinfo << "matching boundary face to cell for " << regions[j]->name() << " to " << regions[i]->name() << CFendl;
+          //CFinfo << "matching boundary face to cell for " << regions[j]->name() << " to " << regions[i]->name() << CFendl;
           
           match_boundary(*regions[j],*regions[i]);
         }

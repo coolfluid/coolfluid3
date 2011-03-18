@@ -55,9 +55,6 @@ void BuildGhostStates::execute()
   
   recursive_build_ghost_states(mesh.topology());
   
-  
-  CFinfo << mesh.tree() << CFendl;
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,8 +99,10 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
         if (is_not_null(face2cell_ptr))
         {
           CFaceCellConnectivity& face2cell = *face2cell_ptr;
-          Uint unified_ghost_idx(face2cell.size());
+          Uint unified_ghost_idx(find_component<CUnifiedData<CCells> >(face2cell).size());
+          //CFinfo << "size before = " << find_component<CUnifiedData<CCells> >(face2cell).size() << CFendl;
           find_component<CUnifiedData<CCells> >(face2cell).add_data(find_components<CCells>(ghost_states).as_vector());
+          //CFinfo << "size after = " << find_component<CUnifiedData<CCells> >(face2cell).size() << CFendl;
           CTable<Uint>& f2c_connectivity = find_component<CTable<Uint> >(face2cell);
           f2c_connectivity.set_row_size(2);
           std::vector<boost::shared_ptr<CCells> >& cells = face2cell.cells_components();
@@ -116,6 +115,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
 
           for (Uint face=0; face<face2cell.size(); ++face)
           {
+            //CFinfo << "face " << faces.parent()->parent()->name() << "/" << faces.name() << "["<<face<<"]" << CFendl;
             Uint unified_elem_idx = face2cell.elements(face)[0]; // this is the inner cell of the boundary
             boost::tie(comp_idx,cell_idx) = face2cell.element_loc_idx(unified_elem_idx);
             std::string cell_type = cells[comp_idx]->element_type().element_type_name();
@@ -123,7 +123,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
             RealMatrix cell_coordinates = cells[comp_idx]->get_coordinates(cell_idx);
             RealVector centroid(cell_coordinates.cols());
             cells[comp_idx]->element_type().compute_centroid(cell_coordinates,centroid);
-            
+            //CFLogVar(centroid.transpose());
             if (cells[comp_idx]->element_type().dimensionality() == 0) // cannot compute normal from element_type
             {
               RealVector face_coord(dim); 
@@ -137,7 +137,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
             {
               RealMatrix face_coordinates = faces.get_coordinates(face);
               faces.element_type().compute_normal(face_coordinates,normal);
-              
+              //CFinfo << "face_coordinates = \n" << face_coordinates << CFendl;
               // The equation of the plane containing the boundary face
               // and the given node (xp, yp, zp) (first node of the face),
               // with normal (a,b,c) is
@@ -158,6 +158,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
                // given plane is given by
                // (xN, yN, zN) = (xM, yM, zM) - 2*t*(a,b,c)
               ghost_coord = centroid - 2.*t*normal;
+              //CFLogVar(ghost_coord.transpose());
             }
 
             dummy[0] = nodes_buffer.add_row(ghost_coord);

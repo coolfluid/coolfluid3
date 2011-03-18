@@ -84,10 +84,10 @@ void BCDirichletCons2D::trigger_elements()
 
 void BCDirichletCons2D::execute()
 {
-  m_connected_solution[idx()][FIRST][0] = m_rho;
-  m_connected_solution[idx()][FIRST][1] = m_rho*m_u;
-  m_connected_solution[idx()][FIRST][2] = m_rho*m_v;
-  m_connected_solution[idx()][FIRST][3] = m_p/m_gm1 + 0.5*m_rho*(m_u*m_u+m_v*m_v);
+  m_connected_solution[idx()][INNER][0] = m_rho;
+  m_connected_solution[idx()][INNER][1] = m_rho*m_u;
+  m_connected_solution[idx()][INNER][2] = m_rho*m_v;
+  m_connected_solution[idx()][INNER][3] = m_p/m_gm1 + 0.5*m_rho*(m_u*m_u+m_v*m_v);
   
 }
 

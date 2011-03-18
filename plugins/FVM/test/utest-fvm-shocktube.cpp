@@ -97,7 +97,8 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // 5) Simulate
   // -----------
-  model->simulate();
+  // model->simulate();
+  find_component_recursively_with_name<CAction>(*model,"1_apply_boundary_conditions").execute();
 
   BOOST_CHECK(true);
 

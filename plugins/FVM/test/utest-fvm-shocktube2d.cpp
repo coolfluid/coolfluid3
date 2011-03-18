@@ -16,7 +16,6 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "Solver/CDiscretization.hpp"
 #include "Solver/CSolver.hpp"
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
@@ -102,16 +101,16 @@ BOOST_AUTO_TEST_CASE( constructor )
   // 5) Simulate
   // -----------
   model->simulate();
-
+  find_component_recursively_with_name<CAction>(*model,"1_apply_boundary_conditions").execute();
   BOOST_CHECK(true);
 
   // 6) Write mesh
   // -------------
   model->access_component_ptr("cpath:./tools/gmsh_writer")->as_ptr<CMeshWriter>()->write();
 
-  CFinfo << "model:"<<CFendl;
-  CFinfo << "------"<<CFendl;
-  CFinfo << model->tree() << CFendl;
+  // CFinfo << "model:"<<CFendl;
+  // CFinfo << "------"<<CFendl;
+  // CFinfo << model->tree() << CFendl;
   CFinfo << "---------------------------------------------------------------------------------" << CFendl;
   CFinfo << "Finite Volume Solver:" << CFendl;
   CFinfo << "---------------------" << CFendl;

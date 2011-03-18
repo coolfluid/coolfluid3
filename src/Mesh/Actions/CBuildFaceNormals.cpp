@@ -24,6 +24,8 @@
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CFaces.hpp"
+#include "Mesh/CCellFaces.hpp"
 #include "Math/MathFunctions.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -92,7 +94,7 @@ void CBuildFaceNormals::execute()
     {
       CFaceCellConnectivity& face2cell = *face2cell_ptr;
       CList<Uint>& face_nb = face2cell.get_child("face_number").as_type<CList<Uint> >();
-      RealMatrix coordinates(faces.element_type().nb_nodes(),faces.element_type().dimension());
+      RealMatrix face_coordinates(faces.element_type().nb_nodes(),faces.element_type().dimension());
       RealVector normal(faces.element_type().dimension());
       for (Uint face=0; face<face2cell.size(); ++face)
       {
@@ -105,14 +107,27 @@ void CBuildFaceNormals::execute()
           Uint j(0);
           boost_foreach(const Real& coord, mesh.nodes().coordinates()[cell_nodes[node_id]])
           {
-            coordinates(i,j) = coord;
+            face_coordinates(i,j) = coord;
             ++j;
           } 
           ++i;
         }
-        face_normal.space().shape_function().compute_normal(coordinates,normal);
-        for (Uint i=0; i<normal.size(); ++i)
-          face_normal[face][i] = normal[i];
+        
+        if (faces.element_type().dimensionality() == 0) // cannot compute normal from element_type
+        {
+          RealVector cell_centroid(1);
+          cells->element_type().compute_centroid(cells->get_coordinates(cell_idx),cell_centroid);
+          RealVector normal(1);
+          normal = face_coordinates.row(0) - cell_centroid;
+          normal.normalize();
+          face_normal[face][XX]=normal[XX];
+        }
+        else
+        {
+          face_normal.space().shape_function().compute_normal(face_coordinates,normal);
+          for (Uint i=0; i<normal.size(); ++i)
+            face_normal[face][i] = normal[i];
+        }
       }
     }
   }

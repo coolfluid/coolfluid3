@@ -36,6 +36,7 @@
 
 #include "FVM/FiniteVolumeSolver.hpp"
 #include "FVM/ShockTube1D.hpp"
+#include "FVM/BuildGhostStates.hpp"
 
 namespace CF {
 namespace FVM {
@@ -121,6 +122,7 @@ void ShockTube1D::signal_create_model ( SignalArgs& args )
 
   tools.create_component<Gmsh::CReader>("gmsh_reader");
   tools.create_component<Gmsh::CWriter>("gmsh_writer");
+  tools.create_component<BuildGhostStates>("build_ghoststates");
 
 }
 
@@ -158,6 +160,7 @@ void ShockTube1D::signal_setup_model ( SignalArgs& args )
   //   model->access_component_ptr<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
 
   model->access_component_ptr("cpath:./tools/build_faces")->as_ptr<CBuildFaces>()->transform(mesh);
+  model->access_component_ptr("cpath:./tools/build_ghoststates")->as_ptr<BuildGhostStates>()->transform(mesh);
   model->access_component_ptr("cpath:./tools/build_volume")->as_ptr<CBuildVolume>()->transform(mesh);
   model->configure_option_recursively("volume",find_component_recursively_with_tag<CField2>(*model->domain(),"volume").full_path());
 
@@ -207,19 +210,21 @@ void ShockTube1D::signal_setup_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
   
   CRegion& inlet = find_component_recursively_with_name<CRegion>(mesh->topology(),"xneg");
-  CAction& inlet_bc = solver.create_bc("inlet",inlet,"CF.FVM.BCDirichletCons1D");
-  inlet_bc.configure_property("rho",r_L);
-  inlet_bc.configure_property("u",u_L);
-  inlet_bc.configure_property("p",p_L);
+  CAction& inlet_bc = solver.create_bc("inlet",inlet,"CF.FVM.BCReflectCons1D");
+  // CAction& inlet_bc = solver.create_bc("inlet",inlet,"CF.FVM.BCDirichletCons1D");
+  // inlet_bc.configure_property("rho",r_L);
+  // inlet_bc.configure_property("u",u_L);
+  // inlet_bc.configure_property("p",p_L);
  
   
   CRegion& outlet = find_component_recursively_with_name<CRegion>(mesh->topology(),"xpos");
-  CAction& outlet_bc = solver.create_bc("outlet",outlet,"CF.FVM.BCDirichletCons1D");
-  outlet_bc.configure_property("rho",r_R);
-  outlet_bc.configure_property("u",u_R);
-  outlet_bc.configure_property("p",p_R);  
+  CAction& outlet_bc = solver.create_bc("outlet",outlet,"CF.FVM.BCReflectCons1D");
+  // CAction& outlet_bc = solver.create_bc("outlet",outlet,"CF.FVM.BCDirichletCons1D");
+  // outlet_bc.configure_property("rho",r_R);
+  // outlet_bc.configure_property("u",u_R);
+  // outlet_bc.configure_property("p",p_R);  
   
-  //solver.configure_option_recursively("face_normal", find_component_with_tag<CField2>(*mesh,"face_normal").full_path() );
+  solver.configure_option_recursively("face_normal", find_component_with_tag<CField2>(*mesh,"face_normal").full_path() );
   
 
   ////////////////////////////////////////////////////////////////////////////////

@@ -107,7 +107,7 @@ FiniteVolumeSolver2D::FiniteVolumeSolver2D ( const std::string& name  ) : CSolve
     .mark_basic()
     .property("Field").as_option().add_tag("wave_speed");
   
-  m_compute_rhs->create_static_component<CForAllFaces>("2.3_for_all_inner_faces")
+  m_compute_rhs->create_static_component<CForAllFaces>("2.3_for_all_faces")
     ->mark_basic()
     .create_static_component<ComputeFluxCons2D>("add_flux_to_rhs")
       ->mark_basic();
@@ -135,7 +135,7 @@ void FiniteVolumeSolver2D::trigger_Domain()
   if (is_null(mesh))
     throw SetupError(FromHere(),"Domain has no mesh");
 
-  m_compute_rhs->get_child_ptr("2.3_for_all_inner_faces")
+  m_compute_rhs->get_child_ptr("2.3_for_all_faces")
     ->configure_property("Regions",std::vector<URI>(1,mesh->topology().full_path()));
 
   if ( is_null(find_component_ptr_with_tag<CField2>(*mesh,"face_normal") ) )

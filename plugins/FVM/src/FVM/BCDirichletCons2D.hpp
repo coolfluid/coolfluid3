@@ -50,7 +50,7 @@ private: // helper functions
   
 private: // data
   
-  enum {FIRST=0};
+  enum {INNER=0,GHOST=1};
   
   Mesh::CConnectedFieldView m_connected_solution;
   
