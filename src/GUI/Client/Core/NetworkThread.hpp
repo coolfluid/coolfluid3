@@ -11,6 +11,7 @@
 
 #include <QAbstractSocket>
 #include <QThread>
+#include <QMutex>
 
 #include <boost/signals2/signal.hpp>
 
@@ -111,6 +112,8 @@ private: // data
   QString m_hostname;
 
   quint16 m_port;
+
+  QMutex m_mutex;
 
 }; // NetworkThread
 

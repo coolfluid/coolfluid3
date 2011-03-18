@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <QMutexLocker>
 #include <QTcpSocket>
 
 #include "Common/Log.hpp"
@@ -38,6 +39,7 @@ NetworkThread::NetworkThread(QObject *parent) :
     m_port(0),
     m_requestDisc(false)
 {
+  qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,6 +82,8 @@ bool NetworkThread::isConnected() const
 
 void NetworkThread::disconnectFromServer(bool shutServer)
 {
+  QMutexLocker locker(&m_mutex);
+
   if(shutServer)
   {
     SignalFrame frame("shutdown", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
@@ -98,6 +102,8 @@ void NetworkThread::disconnectFromServer(bool shutServer)
 
 int NetworkThread::send(Common::SignalArgs& signal)
 {
+  QMutexLocker locker(&m_mutex);
+
   if(!isConnected())
     throw IllegalCall(FromHere(), "There is no active connection.");
 
@@ -113,13 +119,10 @@ int NetworkThread::send(Common::SignalArgs& signal)
 
   to_string(*signal.xml_doc, str);
 
-  out << (quint32)0;    // reserve 32 bits for the frame data size
-  out << str.c_str();
-  out.device()->seek(0);  // go back to the beginning of the frame
-  out << (quint32)(block.size() - sizeof(quint32)); // write the frame data size
+  out.writeBytes(str.c_str(), str.length() + 1);
 
   charsWritten = m_socket->write(block);
-  m_socket->flush();
+//  m_socket->flush();
 
   return charsWritten;
 }
@@ -138,22 +141,7 @@ void NetworkThread::newData()
   // So, it is useful to explicitly read the socket until the end is reached.
   while(!m_socket->atEnd())
   {
-    // if the data size is not known
-    if (m_blockSize == 0)
-    {
-      // if there are at least 4 bytes to read...
-      if (m_socket->bytesAvailable() < (quint64)sizeof(quint32))
-        return;
-
-      // ...we read them
-      in >> m_blockSize;
-    }
-
-    if (m_socket->bytesAvailable() < m_blockSize)
-      return;
-
-//    frame = new char[m_blockSize];
-    in >> frame;
+    in.readBytes(frame, m_blockSize);
 
     if(NTree::globalTree()->isDebugModeEnabled())
       CFinfo << frame << CFendl;
@@ -161,7 +149,7 @@ void NetworkThread::newData()
     // parse the frame and call the boost signal
     try
     {
-      XmlDoc::Ptr doc = XML::parse_cstring(frame, m_blockSize);
+      XmlDoc::Ptr doc = XML::parse_cstring(frame, m_blockSize - 1);
       newSignal(doc);
     }
     catch(XmlError & e)

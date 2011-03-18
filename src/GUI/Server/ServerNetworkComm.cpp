@@ -103,14 +103,8 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
   XML::to_string(signal, signal_str);
 
   out.setVersion(QDataStream::Qt_4_6);
-  // reserving 2 bytes to store the data size
-  // (frame size without these 2 bytes)
-  out << (quint32)0;
-  // if data is not converted to QString, the client receives q strqnge frame
-  // composed of chinese/japanese chararcters
-  out << signal_str.c_str();
-  out.device()->seek(0); // go back to the beginning of the frame
-  out << (quint32)(block.size() - sizeof(quint32)); // store the data size
+
+  out.writeBytes(signal_str.c_str(), signal_str.length() + 1);
 
   if(client == nullptr)
   {
@@ -315,28 +309,11 @@ void ServerNetworkComm::newData()
     // So, it is useful to explicitly read the socket until the end is reached.
     while(!socket->atEnd())
     {
-      // if the data size is not known
-      if (m_blockSize == 0)
-      {
-        // if there are at least 4 bytes to read...
-        if (socket->bytesAvailable() < (int)sizeof(quint32))
-          return;
-
-        // ...we read them
-        in >> m_blockSize;
-      }
-
-      if (socket->bytesAvailable() < m_blockSize)
-        return;
-
-
-      in >> frame;
-
-      qDebug() << frame;
+      in.readBytes(frame, m_blockSize);
 
       m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
 
-      XmlDoc::Ptr xmldoc = XML::parse_cstring( frame );
+      XmlDoc::Ptr xmldoc = XML::parse_cstring( frame, m_blockSize - 1 );
 
       // free the buffer
       delete[] frame;
