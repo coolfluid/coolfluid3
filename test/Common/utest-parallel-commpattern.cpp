@@ -348,6 +348,15 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
+BOOST_AUTO_TEST_CASE( commpattern_cast )
+{
+  PECommPattern pecp("CommPattern");
+  std::vector<Uint> gid(10);
+  pecp.insert("gid",gid);
+  PEObjectWrapper globid=pecp.get_child("gid").as_type<PECommPattern>();
+}
+*/
 
 BOOST_AUTO_TEST_CASE( commpattern )
 {

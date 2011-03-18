@@ -240,7 +240,7 @@ private:
   PEObjectWrapper::Ptr m_gid;
 
   /// array holding the updatable info
-  std::vector<bool> m_updatable;
+  std::vector<bool> m_isUpdatable;
 
 /*
   /// Storing updatable information.
