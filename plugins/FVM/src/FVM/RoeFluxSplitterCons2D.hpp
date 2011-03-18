@@ -48,7 +48,9 @@ public: // functions
   void compute_roe_average(const RealVector& left, const RealVector& right, RealVector& roe_avg) const;
   
   RealVector flux(const RealVector& state, const RealVector& normal) const;
-    
+  
+  RealVector abs_eigenvalues(const RealVector& eigenvalues) const;
+  
 private:
   
   /// gamma

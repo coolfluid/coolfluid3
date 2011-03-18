@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   // --------------------------------
   p.set_option<Uint>("nb_cells", 50u );
   p.set_option<Real>("end_time", 0.008);
-  p.set_option<Real>("time_step", 0.0004);
+  p.set_option<Real>("time_step", 1e-3);
   s->signal_setup_model(frame);
 
   BOOST_CHECK(true);
@@ -96,12 +96,15 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   BOOST_CHECK(true);
 
-  find_component_recursively<CIterate>(*model).configure_property("MaxIterations",2u);
+  //find_component_recursively<CIterate>(*model).configure_property("MaxIterations",2u);
 
   // 5) Simulate
   // -----------
   model->simulate();
-  find_component_recursively_with_name<CAction>(*model,"1_apply_boundary_conditions").execute();
+  // find_component_recursively_with_name<CAction>(*model,"1_apply_boundary_conditions").execute();
+  // find_component_recursively_with_name<CAction>(*model,"2_compute_rhs").execute();
+  // find_component_recursively_with_name<CAction>(*model,"3_compute_update_coeff").execute();
+  // find_component_recursively_with_name<CAction>(*model,"4_update_solution").execute();
   BOOST_CHECK(true);
 
   // 6) Write mesh

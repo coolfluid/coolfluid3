@@ -41,6 +41,8 @@ ComputeFluxCons1D::ComputeFluxCons1D ( const std::string& name ) :
   m_face_area("face_area_view"),  
   m_face_normal("face_normal_view"),
   m_flux(3),
+  m_wave_speed_left(0),
+  m_wave_speed_right(0),
   m_normal(1),
   m_state_L(3),
   m_state_R(3)
@@ -120,17 +122,12 @@ void ComputeFluxCons1D::config_normal()
 
 void ComputeFluxCons1D::trigger_elements()
 {
-  if (CCellFaces::Ptr faces = elements().as_ptr<CCellFaces>() )
-  {
-    m_connected_solution.set_elements(faces);
-    m_connected_residual.set_elements(faces);
-    m_connected_wave_speed.set_elements(faces);
-    m_face_normal.set_elements(faces);
-    m_face_area.set_elements(faces);
+    m_connected_solution.set_elements(elements());
+    m_connected_residual.set_elements(elements());
+    m_connected_wave_speed.set_elements(elements());
+    m_face_normal.set_elements(elements());
+    m_face_area.set_elements(elements());
     m_can_start_loop = true;
-  }
-  else
-    m_can_start_loop = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -147,7 +144,6 @@ void ComputeFluxCons1D::execute()
   // Copy the face normal to a RealVector
   m_normal[XX] = m_face_normal[idx()][XX];
 
-
   // Solve the riemann problem on this face.
   m_fluxsplitter->solve( 
                          // intput
@@ -156,18 +152,16 @@ void ComputeFluxCons1D::execute()
                          m_flux, m_wave_speed_left, m_wave_speed_right 
                         );
 
-
   // accumulate fluxes to the residual
   for (Uint i=0; i<m_flux.size(); ++i)
   {
-    m_connected_residual[idx()][LEFT ][i] -= m_flux[i]; // flux going OUT of left cell
-    m_connected_residual[idx()][RIGHT][i] += m_flux[i]; // flux going IN to right cell
+    m_connected_residual[idx()][LEFT ][i] -= m_flux[i] * m_face_area[idx()]; // flux going OUT of left cell
+    m_connected_residual[idx()][RIGHT][i] += m_flux[i] * m_face_area[idx()]; // flux going IN to right cell
   }
 
-  // accumulate most negative wave_speeds * area, for use in CFL condition
+  // accumulate wave_speeds * area, for use in CFL condition
   m_connected_wave_speed[idx()][LEFT ][0] += std::max(m_wave_speed_left ,0.) * m_face_area[idx()];
-  m_connected_wave_speed[idx()][RIGHT][0] += std::max(m_wave_speed_right,0.) * m_face_area[idx()];
-
+  m_connected_wave_speed[idx()][RIGHT][0] += std::max(m_wave_speed_right,0.) * m_face_area[idx()]; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////

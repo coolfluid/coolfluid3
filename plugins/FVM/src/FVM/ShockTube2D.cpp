@@ -198,10 +198,10 @@ void ShockTube2D::signal_setup_model ( SignalArgs& args )
   right << r_R, r_R*u_R, r_R*v_R, p_R/(g-1.) + 0.5*r_R*(u_R*u_R+v_R*v_R);
   
   std::vector<std::string> function(4);
-  function[0]="if( (x<=5)&(y<=5),"+to_str(left[0])+","+to_str(right[0])+")";
-  function[1]="if( (x<=5)&(y<=5),"+to_str(left[1])+","+to_str(right[1])+")";
-  function[2]="if( (x<=5)&(y<=5),"+to_str(left[2])+","+to_str(right[2])+")";
-  function[3]="if( (x<=5)&(y<=5),"+to_str(left[3])+","+to_str(right[3])+")";
+  function[0]="if( (x<=5 & y<=5),"+to_str(left[0])+","+to_str(right[0])+")";
+  function[1]="if( (x<=5 & y<=5),"+to_str(left[1])+","+to_str(right[1])+")";
+  function[2]="if( (x<=5 & y<=5),"+to_str(left[2])+","+to_str(right[2])+")";
+  function[3]="if( (x<=5 & y<=5),"+to_str(left[3])+","+to_str(right[3])+")";
   
   init_solution->configure_property("Functions",function);
   init_solution->transform(mesh);

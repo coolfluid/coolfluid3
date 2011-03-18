@@ -94,7 +94,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
       
       boost_foreach(CFaces& faces, find_components<CFaces>(*boundary_faces) )
       {
-        CFinfo << faces.full_path().path() << CFendl;
+        // CFinfo << faces.full_path().path() << CFendl;
         CFaceCellConnectivity::Ptr face2cell_ptr = find_component_ptr<CFaceCellConnectivity>(faces);
         if (is_not_null(face2cell_ptr))
         {
@@ -124,7 +124,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
             RealVector centroid(cell_coordinates.cols());
             cells[comp_idx]->element_type().compute_centroid(cell_coordinates,centroid);
             //CFLogVar(centroid.transpose());
-            if (cells[comp_idx]->element_type().dimensionality() == 0) // cannot compute normal from element_type
+            if (faces.element_type().dimensionality() == 0) // cannot compute normal from element_type
             {
               RealVector face_coord(dim); 
               for (Uint d=0; d<dim; ++d)
@@ -158,7 +158,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
                // given plane is given by
                // (xN, yN, zN) = (xM, yM, zM) - 2*t*(a,b,c)
               ghost_coord = centroid - 2.*t*normal;
-              //CFLogVar(ghost_coord.transpose());
+              // CFLogVar(ghost_coord.transpose());
             }
 
             dummy[0] = nodes_buffer.add_row(ghost_coord);

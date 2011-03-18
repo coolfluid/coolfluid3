@@ -28,6 +28,7 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
+#include "Solver/Actions/CIterate.hpp"
 
 #include "FVM/ShockTube1D.hpp"
 
@@ -39,6 +40,7 @@ using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Solver;
+using namespace CF::Solver::Actions;
 using namespace CF::FVM;
 using namespace CF::Tools::MeshGeneration;
 
@@ -83,7 +85,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   // --------------------------------
   p.set_option<Uint>("nb_cells", 100u );
   p.set_option<Real>("end_time", 0.008);
-  p.set_option<Real>("time_step", 0.0004);
+  p.set_option<Real>("time_step", 0.001);
   s->signal_setup_model(frame);
 
   BOOST_CHECK(true);
@@ -91,14 +93,13 @@ BOOST_AUTO_TEST_CASE( constructor )
   // 4) Configure time
   // -----------------
 
-  //BOOST_CHECK_EQUAL( model->time().dt() , 1.);
+  //find_component_recursively<CIterate>(*model).configure_property("MaxIterations",1u);
 
   BOOST_CHECK(true);
 
   // 5) Simulate
   // -----------
-  // model->simulate();
-  find_component_recursively_with_name<CAction>(*model,"1_apply_boundary_conditions").execute();
+  model->simulate();
 
   BOOST_CHECK(true);
 
@@ -106,9 +107,9 @@ BOOST_AUTO_TEST_CASE( constructor )
   // -------------
   model->access_component_ptr("cpath:./tools/gmsh_writer")->as_ptr<CMeshWriter>()->write();
 
-  CFinfo << "model:"<<CFendl;
-  CFinfo << "------"<<CFendl;
-  CFinfo << model->tree() << CFendl;
+  // CFinfo << "model:"<<CFendl;
+  // CFinfo << "------"<<CFendl;
+  // CFinfo << model->tree() << CFendl;
   CFinfo << "---------------------------------------------------------------------------------" << CFendl;
   CFinfo << "Finite Volume Solver:" << CFendl;
   CFinfo << "---------------------" << CFendl;

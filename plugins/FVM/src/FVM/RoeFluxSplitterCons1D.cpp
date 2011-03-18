@@ -66,6 +66,7 @@ void RoeFluxSplitterCons1D::solve(const RealVector& left, const RealVector& righ
   const Real a = sqrt(m_gm1*(h-u*u/2.));
 
   const Real nx = normal[XX];
+  Real un = u*nx;
   
   // right eigenvectors
   RealMatrix3 right_eigenvectors; right_eigenvectors << 
@@ -86,16 +87,16 @@ void RoeFluxSplitterCons1D::solve(const RealVector& left, const RealVector& righ
   // eigenvalues
   RealVector3 eigenvalues(3); eigenvalues <<    
   
-        u*nx,   u*nx+a,   u*nx-a;
+        un,   un+a,   un-a;
 
   // calculate absolute jacobian
   RealMatrix3 abs_jacobian = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
   
   // flux = central part + upwind part
-  interface_flux = 0.5*(flux(left)+flux(right)) - 0.5*abs_jacobian*(right-left);
+  interface_flux = 0.5*(flux(left,normal)+flux(right,normal)) - 0.5*abs_jacobian*(right-left);
   
-  left_wave_speed  = u*nx    + a; // most negative eigenvalue according to normal
-  right_wave_speed = u*(-nx) + a; // most negative eigenvalue against the normal
+  left_wave_speed  =  un+a;
+  right_wave_speed = -un+a;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,14 +128,16 @@ void RoeFluxSplitterCons1D::compute_roe_average(const RealVector& left, const Re
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealVector RoeFluxSplitterCons1D::flux(const RealVector& state) const
+RealVector RoeFluxSplitterCons1D::flux(const RealVector& state, const RealVector& normal) const
 {
   const Real r=state[0];
   const Real u=state[1]/r;
   const Real rE = state[2];
   const Real p = m_gm1*(rE-0.5*r*u*u);
+  const Real nx = normal[XX];
   RealVector F(3);
-  F <<     r*u,   r*u*u+p,   (rE+p)*u;
+  F <<     r*u*nx,   r*u*nx*u+p*nx,   (rE+p)*u*nx;
+  
   return F;
 }
 

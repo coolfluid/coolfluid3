@@ -76,23 +76,23 @@ void BCReflectCons1D::config_normal()
 void BCReflectCons1D::trigger_elements()
 {
   m_can_start_loop = m_connected_solution.set_elements(elements());
-  m_can_start_loop &=  m_face_normal.set_elements(elements());
+  //m_can_start_loop &=  m_face_normal.set_elements(elements());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 void BCReflectCons1D::execute()
 {
-  CFinfo << "executing " << full_path().path() << CFendl;
-  CFinfo << "        on face " << elements().full_path().path() << "["<<idx()<<"]" << CFendl;
-  CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(elements());
-  CTable<Uint>::ConstRow elems = f2c.elements(idx());
-  CCells::Ptr cells;
-  Uint cell_idx(0);
-  boost::tie(cells,cell_idx) = f2c.element_location(elems[INNER]);
-  CFinfo << "   inner: " << cells->full_path().path() << "["<<cell_idx<<"]" << CFendl;  
-  boost::tie(cells,cell_idx) = f2c.element_location(elems[GHOST]);
-  CFinfo << "   ghost: " << cells->full_path().path() << "["<<cell_idx<<"]" << CFendl;  
+  // CFinfo << "executing " << full_path().path() << CFendl;
+  // CFinfo << "        on face " << elements().full_path().path() << "["<<idx()<<"]" << CFendl;
+  // CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(elements());
+  // CTable<Uint>::ConstRow elems = f2c.elements(idx());
+  // CCells::Ptr cells;
+  // Uint cell_idx(0);
+  // boost::tie(cells,cell_idx) = f2c.element_location(elems[INNER]);
+  // CFinfo << "   inner: " << cells->full_path().path() << "["<<cell_idx<<"]" << CFendl;  
+  // boost::tie(cells,cell_idx) = f2c.element_location(elems[GHOST]);
+  // CFinfo << "   ghost: " << cells->full_path().path() << "["<<cell_idx<<"]" << CFendl;  
   
   // Change value in field
   // problem: GHOST does not exist yet.

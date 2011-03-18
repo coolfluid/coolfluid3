@@ -107,7 +107,7 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
     .mark_basic()
     .property("Field").as_option().add_tag("wave_speed");
   
-  m_compute_rhs->create_static_component<CForAllFaces>("2.3_for_all_inner_faces")
+  m_compute_rhs->create_static_component<CForAllFaces>("2.3_for_all_faces")
     ->mark_basic()
     .create_static_component<ComputeFluxCons1D>("add_flux_to_rhs")
       ->mark_basic();
@@ -135,7 +135,7 @@ void FiniteVolumeSolver::trigger_Domain()
   if (is_null(mesh))
     throw SetupError(FromHere(),"Domain has no mesh");
 
-  m_compute_rhs->get_child_ptr("2.3_for_all_inner_faces")
+  m_compute_rhs->get_child_ptr("2.3_for_all_faces")
     ->configure_property("Regions",std::vector<URI>(1,mesh->topology().full_path()));
 
   if ( is_null(find_component_ptr_with_tag<CField2>(*mesh,"face_normal") ) )
@@ -183,7 +183,7 @@ void FiniteVolumeSolver::trigger_Domain()
   Component::Ptr wave_speed_ptr = find_component_ptr_with_tag(*mesh,"wave_speed");
   if ( is_null(wave_speed_ptr) )
   {
-    wave_speed_ptr = mesh->create_scalar_field("wave_speed",solution).self();
+    wave_speed_ptr = mesh->create_field2("wave_speed",solution).self();
     wave_speed_ptr->add_tag("wave_speed");
   }
   m_wave_speed->link_to(wave_speed_ptr);
@@ -199,8 +199,7 @@ void FiniteVolumeSolver::trigger_Domain()
   configure_option_recursively("solution",solution.full_path());
   configure_option_recursively("wave_speed",wave_speed_ptr->full_path());
   configure_option_recursively("residual",residual_ptr->full_path());
-  configure_option_recursively("update_coeff",update_coeff_ptr->full_path());
-  
+  configure_option_recursively("update_coeff",update_coeff_ptr->full_path());  
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -41,6 +41,8 @@ ComputeFluxCons2D::ComputeFluxCons2D ( const std::string& name ) :
   m_face_area("face_area_view"),  
   m_face_normal("face_normal_view"),
   m_flux(4),
+  m_wave_speed_left(0),
+  m_wave_speed_right(0),
   m_normal(2),
   m_state_L(4),
   m_state_R(4)
@@ -142,7 +144,6 @@ void ComputeFluxCons2D::execute()
   // Copy the face normal to a RealVector
   m_normal = to_vector(m_face_normal[idx()]);
 
-
   // Solve the riemann problem on this face.
   m_fluxsplitter->solve( 
                          // intput
@@ -155,13 +156,13 @@ void ComputeFluxCons2D::execute()
   // accumulate fluxes to the residual
   for (Uint i=0; i<m_flux.size(); ++i)
   {
-    m_connected_residual[idx()][LEFT ][i] -= m_flux[i]; // flux going OUT of left cell
-    m_connected_residual[idx()][RIGHT][i] += m_flux[i]; // flux going IN to right cell
+    m_connected_residual[idx()][LEFT ][i] -= m_flux[i] * m_face_area[idx()]; // flux going OUT of left cell
+    m_connected_residual[idx()][RIGHT][i] += m_flux[i] * m_face_area[idx()]; // flux going IN to right cell
   }
 
-  // accumulate most negative wave_speeds * area, for use in CFL condition
+  // accumulate wave_speeds * area, for use in CFL condition
   m_connected_wave_speed[idx()][LEFT ][0] += std::max(m_wave_speed_left ,0.) * m_face_area[idx()];
-  m_connected_wave_speed[idx()][RIGHT][0] += std::max(m_wave_speed_right,0.) * m_face_area[idx()];
+  m_connected_wave_speed[idx()][RIGHT][0] += std::max(m_wave_speed_right,0.) * m_face_area[idx()]; 
 
 }
 

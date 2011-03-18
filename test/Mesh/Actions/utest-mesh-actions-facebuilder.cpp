@@ -20,10 +20,12 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CFaces.hpp"
+#include "Mesh/CCellFaces.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CField2.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CCells.hpp"
+#include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -113,6 +115,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
     }
     BOOST_CHECK(match_found);
   }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,6 +138,63 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
   boost::filesystem::path file ("facenormals.msh");
   mesh_writer->set_fields(std::vector<CField2::Ptr>(1,find_component_ptr<CField2>(*mesh)));
   mesh_writer->write_from_to(mesh,file);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( build_faces_rectangle )
+{
+  CMesh::Ptr rmesh = Core::instance().root()->create_component<CMesh>("rectangle_mesh");
+  Tools::MeshGeneration::create_rectangle(*rmesh, 10. , 10., 50 , 50 );
+  
+  CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
+  
+  facebuilder->set_mesh(rmesh);
+  facebuilder->execute();
+  
+  CRegion& inner_faces_region = find_component_recursively_with_name<CRegion>(rmesh->topology(),"inner_faces");
+  CCellFaces& inner_faces = find_component<CCellFaces>(inner_faces_region);
+  CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(inner_faces);
+  CCells::Ptr cells;
+  Uint cell_idx(0);
+  
+  CFinfo << "\n\nCHECKING"<<CFendl;
+  for (Uint face=0; face<f2c.size(); ++face)
+  {
+    CFinfo << inner_faces.parent()->name()<<"/"<<inner_faces.name() << "["<<face<<"] <--> ";
+    
+    boost::tie(cells,cell_idx) = f2c.element_location(f2c.elements(face)[0]);
+    CFinfo << cells->parent()->parent()->name()<<"/"<<cells->name() << "["<<cell_idx<<"]  <-->  ";
+    RealMatrix cell_coordinates = cells->get_coordinates(cell_idx);
+    RealVector face_coordinates = inner_faces.get_coordinates(face).row(0);
+    bool match_found = false;
+    for (Uint i=0; i<cell_coordinates.rows(); ++i)
+    {
+      if (cell_coordinates.row(i) == face_coordinates.transpose())
+      {
+        match_found = true;
+        break;
+      }
+    }
+    BOOST_CHECK(match_found);
+    
+    match_found = false;
+    boost::tie(cells,cell_idx) = f2c.element_location(f2c.elements(face)[1]);
+    CFinfo << cells->parent()->parent()->name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
+    cell_coordinates = cells->get_coordinates(cell_idx);
+    face_coordinates = inner_faces.get_coordinates(face).row(0);
+    for (Uint i=0; i<cell_coordinates.rows(); ++i)
+    {
+      if (cell_coordinates.row(i) == face_coordinates.transpose())
+      {
+        match_found = true;
+        break;
+      }
+    }
+    BOOST_CHECK(match_found);
+    
+  }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

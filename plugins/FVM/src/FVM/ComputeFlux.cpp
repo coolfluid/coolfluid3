@@ -120,17 +120,12 @@ void ComputeFlux::config_normal()
 
 void ComputeFlux::trigger_elements()
 {
-  if (CCellFaces::Ptr faces = elements().as_ptr<CCellFaces>() )
-  {
-    m_connected_solution.set_elements(faces);
-    m_connected_residual.set_elements(faces);
-    m_connected_wave_speed.set_elements(faces);
-    m_face_normal.set_elements(faces);
-    m_face_area.set_elements(faces);
+    m_connected_solution.set_elements(elements());
+    m_connected_residual.set_elements(elements());
+    m_connected_wave_speed.set_elements(elements());
+    m_face_normal.set_elements(elements());
+    m_face_area.set_elements(elements());
     m_can_start_loop = true;
-  }
-  else
-    m_can_start_loop = false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

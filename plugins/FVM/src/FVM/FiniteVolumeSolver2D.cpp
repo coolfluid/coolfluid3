@@ -183,7 +183,7 @@ void FiniteVolumeSolver2D::trigger_Domain()
   Component::Ptr wave_speed_ptr = find_component_ptr_with_tag(*mesh,"wave_speed");
   if ( is_null(wave_speed_ptr) )
   {
-    wave_speed_ptr = mesh->create_scalar_field("wave_speed",solution).self();
+    wave_speed_ptr = mesh->create_field2("wave_speed",solution).self();
     wave_speed_ptr->add_tag("wave_speed");
   }
   m_wave_speed->link_to(wave_speed_ptr);
