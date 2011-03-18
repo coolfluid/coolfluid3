@@ -114,6 +114,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 
   URI file ( "file:rotation-tg-p1.neu" );
   //  URI file ( "file:rotation-qd-p1.neu" );
+//    URI file ( "file:advection-qd-p3.msh" );
 
   options.set_option<URI>("File", file );
 
@@ -156,8 +157,10 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
     regions.push_back( region.full_path() );
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"wall"))
+    regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( regions.size() , 1u);
+  BOOST_CHECK_EQUAL( regions.size() , 2u);
 
   std::string name ("INLET");
 
@@ -171,7 +174,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   cf_assert( is_not_null(inletbc) );
 
   inletbc->
-      configure_property("Function", std::string("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)") );
+      configure_property("Function", std::string("if(y>0,0,if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.))") );
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
@@ -189,6 +192,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , rotationadv2d_local_fixtur
 
   std::vector<std::string> functions(1);
   functions[0] = "x*x+y*y";
+//  functions[0] = "0.0";
   options.set_array("Functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );

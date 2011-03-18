@@ -47,7 +47,7 @@ protected:
   /// (THE FIRST ELEMENT TYPE ON THE OFFICIAL GMSH LIST - P1 line - IS TAGGED AS '1')
 
 
-  static const Uint nb_gmsh_types = 32;
+  static const Uint nb_gmsh_types = 37;
 
   static const Uint m_nodes_in_gmsh_elem[nb_gmsh_types]; //For each element type, remember how many nodes it has
   static const Uint m_gmsh_elem_dim[nb_gmsh_types];      //Store what is the geometrical dimension of each gmsh elem
@@ -58,7 +58,7 @@ protected:
 
   enum GmshElement { P1LINE=1,   P1TRIAG=2,  P1QUAD=3,  P1TETRA=4,  P1HEXA=5,
                      P2LINE=8,   P2TRIAG=9,  P2QUAD=10, P2TETRA=11, P2HEXA=12,
-                     P1POINT=15, P3TRIAG=21, P3LINE=26 };
+                     P1POINT=15, P3TRIAG=21, P3LINE=26, P3QUAD = 36 };
   
   std::map<GeoShape::Type,Uint> m_CFelement_to_GmshElement;
   std::vector<std::string> m_supported_types;

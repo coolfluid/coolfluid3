@@ -68,6 +68,9 @@ CWriter::CWriter( const std::string& name )
   m_elementTypes["CF.Mesh.SF.Line3DLagrangeP3" ]=26;
   m_elementTypes["CF.Mesh.SF.Triag2DLagrangeP3"]=21;
   m_elementTypes["CF.Mesh.SF.Triag3DLagrangeP3"]=21;
+
+  m_elementTypes["CF.Mesh.SF.Quad2DLagrangeP3"] = 36;
+  m_elementTypes["CF.Mesh.SF.Quad3DLagrangeP3"] = 36;
 }
 
 /////////////////////////////////////////////////////////////////////////////

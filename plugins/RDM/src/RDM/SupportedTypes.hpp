@@ -18,6 +18,7 @@
 
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
 #include "Mesh/SF/Quad2DLagrangeP2.hpp"
+#include "Mesh/SF/Quad2DLagrangeP3.hpp"
 
 #include "Mesh/Integrators/GaussImplementation.hpp"
 
@@ -33,7 +34,8 @@ Mesh::SF::Triag2DLagrangeP2,
 Mesh::SF::Triag2DLagrangeP2B,
 Mesh::SF::Triag2DLagrangeP3,
 Mesh::SF::Quad2DLagrangeP1,
-Mesh::SF::Quad2DLagrangeP2
+Mesh::SF::Quad2DLagrangeP2,
+Mesh::SF::Quad2DLagrangeP3
 > CellTypes;
 
 /// Predicate class to test if the region contains a specific element type
@@ -66,6 +68,14 @@ template <>
 struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP3, 3 >
 {
   typedef Mesh::Integrators::GaussMappedCoords< 5, Mesh::SF::Triag2DLagrangeP3::shape> type;
+};
+
+
+/// Partial specialization for P3 quadrilaterals
+template <>
+struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP3, 3 >
+{
+  typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::SF::Quad2DLagrangeP3::shape> type;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
