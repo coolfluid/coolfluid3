@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "boost/assign/list_of.hpp"
+
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -16,6 +18,9 @@
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CSolver.hpp"
 
+#include "RDM/LinearAdv2D.hpp"
+#include "RDM/Burgers2D.hpp"
+#include "RDM/RotationAdv2D.hpp"
 
 #include "RDM/ScalarAdvection.hpp"
 
@@ -87,6 +92,15 @@ void ScalarAdvection::signature_create_model( SignalArgs& node )
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
   options.set_option<std::string>("ModelName", std::string(), "Name for created model" );
+  XmlNode phys_node = options.set_option<std::string>("PhysicalModel", std::string(), "Name of the Physical Model" );
+
+  std::vector<std::string> models = boost::assign::list_of
+      ( LinearAdv2D::type_name() )
+      ( RotationAdv2D::type_name() )
+      ( Burgers2D::type_name() ) ;
+
+  Map(phys_node).set_array( Protocol::Tags::key_restricted_values(), models, " ; ");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
