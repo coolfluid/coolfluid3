@@ -31,10 +31,10 @@ Common::ComponentBuilder < CMultiStateFieldView, CFieldView, LibMesh >  CMultiSt
 
 CFieldView::CFieldView ( const std::string& name ) : 
   Common::Component (name),
-    m_size(0),
     m_start_idx(0),
     m_end_idx(0),
-    m_stride(0)
+    m_stride(0),
+    m_size(0)
 {
 }
 
@@ -139,8 +139,8 @@ void CFieldView::put_coordinates(RealMatrix& coords, const Uint elem_idx) const
   CTable<Uint>::ConstRow elem_nodes = space().connectivity_table()[elem_idx];
   const CTable<Real>::ArrayT& coords_table = m_coords_table.lock()->array();
     
-  cf_assert(coords.rows() == elem_nodes.size());
-  cf_assert(coords.cols() == coords_table.shape()[1]);
+  cf_assert((Uint) coords.rows() == elem_nodes.size());
+  cf_assert((Uint) coords.cols() == coords_table.shape()[1]);
   for(Uint node = 0; node != coords.rows(); ++node)
     for (Uint d=0; d != coords.cols(); ++d)
       coords(node,d) = coords_table[elem_nodes[node]][d];

@@ -8,18 +8,19 @@
 #define BOOST_TEST_MODULE "Test module for CF::FVM"
 
 #include <boost/test/unit_test.hpp>
+#include <boost/filesystem/path.hpp>
 #include <boost/assign/list_of.hpp>
-
-#include "Common/BoostFilesystem.hpp"
 
 #include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
+#include "Solver/CDiscretization.hpp"
 #include "Solver/CSolver.hpp"
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
+#include "Solver/Actions/CIterate.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
@@ -29,7 +30,7 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
 
-#include "FVM/ShockTube1D.hpp"
+#include "FVM/ShockTube2D.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -39,6 +40,7 @@ using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Solver;
+using namespace CF::Solver::Actions;
 using namespace CF::FVM;
 using namespace CF::Tools::MeshGeneration;
 
@@ -56,7 +58,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   p.set_option<std::string>("model_name","shocktube");
 
-  ShockTube1D::Ptr s = allocate_component<ShockTube1D>("shocktube_wizard");
+  ShockTube2D::Ptr s = allocate_component<ShockTube2D>("shocktube_wizard");
 
   // 1) create model
   // ---------------
@@ -81,7 +83,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // 3) Setup model and allocate data
   // --------------------------------
-  p.set_option<Uint>("nb_cells", 100u );
+  p.set_option<Uint>("nb_cells", 50u );
   p.set_option<Real>("end_time", 0.008);
   p.set_option<Real>("time_step", 0.0004);
   s->signal_setup_model(frame);
@@ -94,6 +96,8 @@ BOOST_AUTO_TEST_CASE( constructor )
   //BOOST_CHECK_EQUAL( model->time().dt() , 1.);
 
   BOOST_CHECK(true);
+
+  find_component_recursively<CIterate>(*model).configure_property("MaxIterations",2u);
 
   // 5) Simulate
   // -----------
@@ -111,7 +115,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   CFinfo << "---------------------------------------------------------------------------------" << CFendl;
   CFinfo << "Finite Volume Solver:" << CFendl;
   CFinfo << "---------------------" << CFendl;
-  CFinfo << model->get_child_ptr("FiniteVolumeSolver")->tree() << CFendl;
+  CFinfo << model->get_child_ptr("FiniteVolumeSolver2D")->tree() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

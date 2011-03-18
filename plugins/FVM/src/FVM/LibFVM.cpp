@@ -9,7 +9,7 @@
 
 #include "FVM/LibFVM.hpp"
 
-#include "FVM/ShockTube.hpp"
+#include "FVM/ShockTube1D.hpp"
 
 namespace CF {
 namespace FVM {
@@ -24,7 +24,7 @@ void LibFVM::initiate()
 {
   Core::instance().root()
       ->get_child_ptr("Tools")
-      ->create_component<FVM::ShockTube>( "wizard_shocktube" );
+      ->create_component<FVM::ShockTube1D>( "wizard_shocktube" );
 }
 
 void LibFVM::terminate()

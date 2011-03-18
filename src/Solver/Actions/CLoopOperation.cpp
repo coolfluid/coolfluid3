@@ -28,9 +28,9 @@ namespace Actions {
 
 CLoopOperation::CLoopOperation ( const std::string& name ) : 
   Common::CAction(name),
+  m_can_start_loop(true),
   m_call_config_elements(true),
-  m_idx(0),
-  m_can_start_loop(true)
+  m_idx(0)
 {  
   // Following option is ignored if the loop is not about elements
   //m_properties.add_option(OptionComponent<Mesh::CEntities>::create("Elements","Elements that are being looped",&m_elements));

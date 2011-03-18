@@ -212,8 +212,8 @@ void CGlobalNumbering::execute()
     CList<Uint>& elements_glb_idx = elements.glb_idx();
     elements_glb_idx.resize(elements.size());
     std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
-    Uint e(0);
-    boost_foreach( std::size_t hash, glb_elem_hash)
+
+    for (Uint e=0; e<glb_elem_hash.size(); ++e)
     {
       elements_glb_idx[e++] = glb_id;
       ++glb_id;

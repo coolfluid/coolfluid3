@@ -84,7 +84,6 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
     is_not_null( parent->as_ptr<CMesh>() ) || is_not_null( parent->as_ptr<CRegion>() ) );
  
   CElements::Ptr comp;
-  Uint idx_in_comp;
   
   std::vector<CRegion::Ptr> regions = range_to_vector(find_components<CRegion>(*parent));
   const Uint n=regions.size();
@@ -136,7 +135,6 @@ void CBuildFaces::build_face_cell_connectivity_bottom_up(Component::Ptr parent)
     is_not_null( parent->as_ptr<CMesh>() ) || is_not_null( parent->as_ptr<CRegion>() ) );
   
   CCells::Ptr comp;
-  Uint idx_in_comp;
   
   boost_foreach( CRegion& region, find_components<CRegion>(*parent) )
   {
@@ -198,7 +196,6 @@ void CBuildFaces::build_faces_bottom_up(Component::Ptr parent)
     is_not_null( parent->as_ptr<CMesh>() ) || is_not_null( parent->as_ptr<CRegion>() ) );
   
   CElements::Ptr comp;
-  Uint idx_in_comp;
   
   boost_foreach( CRegion& region, find_components<CRegion>(*parent) )
   {
@@ -388,9 +385,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
     {
       face_nodes = faces1->nodes(f1);
       const Uint nb_nodes_per_face = face_nodes.size();
-      
-      Uint nb_matched_nodes = 0;
-  
+        
       std::map<Uint,Uint> found_faces;
       std::map<Uint,Uint>::iterator not_found = found_faces.end();
   
@@ -504,8 +499,6 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& region2)
     boost_foreach(CTable<Uint>::ConstRow face_nodes, faces1.connectivity_table().array())
     {
       const Uint nb_nodes_per_face = face_nodes.size();
-      
-      Uint nb_matched_nodes = 0;
   
       std::map<Uint,Uint> found_faces;
       std::map<Uint,Uint>::iterator not_found = found_faces.end();

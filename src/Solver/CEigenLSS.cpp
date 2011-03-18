@@ -36,7 +36,7 @@ CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 
 void CEigenLSS::resize ( Uint nb_dofs )
 {
-  if(nb_dofs == m_system_matrix.rows())
+  if(nb_dofs == (Uint) m_system_matrix.rows())
     return;
   
   m_system_matrix.resize(nb_dofs, nb_dofs);
@@ -70,15 +70,15 @@ void CEigenLSS::set_dirichlet_bc(const CF::Uint row, const CF::Real value, const
   {
     for(MatrixT::InnerIterator it(m_system_matrix, k); it; ++it)
     {
-      if(it.row() == row && it.col() != row)
+      if((Uint) it.row() == row && (Uint) it.col() != row)
       {
         it.valueRef() = 0.;
       }
-      else if(it.row() == row && it.col() == row)
+      else if((Uint) it.row() == row && (Uint) it.col() == row)
       {
         it.valueRef() = coeff;
       }
-      else if(it.row() != row && it.col() == row)
+      else if((Uint)it.row() != row && (Uint) it.col() == row)
       {
         m_rhs[it.row()] -= it.value() * value;
         it.valueRef() = 0.;
@@ -154,7 +154,7 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
           const Uint solution_end = solution_begin + var_sizes[i];
           Uint field_idx = field.var_index(var_names[i]);
           
-          cf_assert(field.var_type(var_names[i]) == var_sizes[i]);
+          cf_assert( (Uint) field.var_type(var_names[i]) == (Uint) var_sizes[i]);
           
           for(Uint sol_idx = solution_begin; sol_idx != solution_end; ++sol_idx)
           {

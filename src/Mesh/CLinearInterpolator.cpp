@@ -157,7 +157,6 @@ void CLinearInterpolator::interpolate_field_from_to(const CField2& source, CFiel
     RealVector t_centroid(m_dim);
     t_centroid.setZero();
     Uint s_elm_idx;
-    Uint t_elm_idx;
     RealMatrix elem_coordinates;
     
     boost_foreach( CElements& t_elements, find_components_recursively<CElements>(target.topology()) )
@@ -201,7 +200,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField2& source, CFiel
     RealVector t_centroid(m_dim);
     t_centroid.setZero();
     Uint s_elm_idx;
-    Uint t_elm_idx;
+    //Uint t_elm_idx;
     RealMatrix elem_coordinates;
     
     boost_foreach( CElements& t_elements, find_components_recursively<CElements>(target.topology()) )

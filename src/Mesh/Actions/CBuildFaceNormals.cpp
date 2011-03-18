@@ -94,7 +94,6 @@ void CBuildFaceNormals::execute()
       for (Uint face=0; face<face2cell.size(); ++face)
       {
         // The normal will be outward to the first connected element
-        Uint elem = face2cell.elements(face)[0];
         face_normal.put_coordinates(coordinates,face);
         face_normal.space().shape_function().compute_normal(coordinates,normal);
         for (Uint i=0; i<normal.size(); ++i)

@@ -109,7 +109,7 @@ void CBubbleRemove::execute()
     CTable<Real>& coords = elements.nodes().coordinates();
 
     const Uint nb_elem = elements.size();
-    const Uint dim = coords.row_size();
+    //const Uint dim = coords.row_size();
 
     // get a buffer to the coordinates
     CTable<Real>::Buffer buf = coords.create_buffer();

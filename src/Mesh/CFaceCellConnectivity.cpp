@@ -230,7 +230,7 @@ void CFaceCellConnectivity::build_connectivity()
   //CFinfo << "Inner nb faces [" << nb_inner_faces << "]" << CFendl;
 
   // total number of boundary + partition boundary faces
-  const Uint nb_bdry_plus_partition_faces = m_nb_faces - nb_inner_faces;
+  //const Uint nb_bdry_plus_partition_faces = m_nb_faces - nb_inner_faces;
   //CFinfo << "Boundary and Partition faces [" << nb_bdry_plus_partition_faces << "]" << CFendl;
 
   cf_assert(m_nb_faces <= max_nb_faces);

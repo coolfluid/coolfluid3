@@ -7,18 +7,18 @@
 #include <iomanip>
 #include <boost/assign/list_of.hpp>
 
-#include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
+#include "Common/Signal.hpp"
 
-#include "FVM/FiniteVolumeSolver.hpp"
+#include "FVM/FiniteVolumeSolver2D.hpp"
 #include "FVM/ComputeUpdateCoefficient.hpp"
 #include "FVM/UpdateSolution.hpp"
-#include "FVM/ComputeFluxCons1D.hpp"
+#include "FVM/ComputeFluxCons2D.hpp"
 #include "FVM/OutputIterationInfo.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -50,11 +50,11 @@ using namespace Mesh::Actions;
 using namespace Solver;
 using namespace Solver::Actions;
 
-Common::ComponentBuilder < FiniteVolumeSolver, CSolver, LibFVM > FiniteVolumeSolver_Builder;
+Common::ComponentBuilder < FiniteVolumeSolver2D, CSolver, LibFVM > FiniteVolumeSolver2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( name )
+FiniteVolumeSolver2D::FiniteVolumeSolver2D ( const std::string& name  ) : CSolver ( name )
 {
   properties()["brief"] = std::string("Forward Euler Time Stepper with Finite Volume Method");
   std::string description =
@@ -76,9 +76,9 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
     
   properties()["description"] = description;
 
-  m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &FiniteVolumeSolver::trigger_Domain,   this ) );
+  m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &FiniteVolumeSolver2D::trigger_Domain,   this ) );
 
-  this->regist_signal ( "solve" , "Solve", "Solve" )->signal->connect ( boost::bind ( &FiniteVolumeSolver::solve, this ) );
+  regist_signal ( "solve" , "Solve", "Solve" )->signal->connect ( boost::bind ( &FiniteVolumeSolver2D::solve, this ) );
 
   m_solution = create_static_component<CLink>("solution");
   m_residual = create_static_component<CLink>("residual");
@@ -109,7 +109,7 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
   
   m_compute_rhs->create_static_component<CForAllFaces>("2.3_for_all_inner_faces")
     ->mark_basic()
-    .create_static_component<ComputeFluxCons1D>("add_flux_to_rhs")
+    .create_static_component<ComputeFluxCons2D>("add_flux_to_rhs")
       ->mark_basic();
   
   m_compute_update_coefficient = m_iterate->create_static_component<ComputeUpdateCoefficient>("3_compute_update_coeff");
@@ -121,13 +121,13 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FiniteVolumeSolver::~FiniteVolumeSolver()
+FiniteVolumeSolver2D::~FiniteVolumeSolver2D()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FiniteVolumeSolver::trigger_Domain()
+void FiniteVolumeSolver2D::trigger_Domain()
 {
   URI domain; property("Domain").put_value(domain);
 
@@ -163,8 +163,8 @@ void FiniteVolumeSolver::trigger_Domain()
   if ( is_null(solution_ptr) )
   {
     ///@todo get variable names etc, from Physics
-    CFinfo << "++++ Creating cell based solution field with vars rho[1],rhoU[1],rhoE[1]" << CFendl;
-    CField2& solution = mesh->create_field2("solution","CellBased","rho[1],rhoU[1],rhoE[1]");
+    CFinfo << "++++ Creating cell based solution field with vars rho[1],rhoU[2],rhoE[1]" << CFendl;
+    CField2& solution = mesh->create_field2("solution","CellBased","rho[1],rhoU[2],rhoE[1]");
     solution.add_tag("solution"); 
   }
 
@@ -205,7 +205,7 @@ void FiniteVolumeSolver::trigger_Domain()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void FiniteVolumeSolver::solve()
+void FiniteVolumeSolver2D::solve()
 {
   if ( is_null(m_solution->follow()) )  throw SetupError (FromHere(), "solution is not linked to solution field");
   m_iterate->execute();
@@ -213,7 +213,7 @@ void FiniteVolumeSolver::solve()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CAction& FiniteVolumeSolver::create_bc(const std::string& name, const std::vector<CRegion::Ptr>& regions, const std::string& bc_builder_name)
+CAction& FiniteVolumeSolver2D::create_bc(const std::string& name, const std::vector<CRegion::Ptr>& regions, const std::string& bc_builder_name)
 {
   std::vector<URI> regions_uri; regions_uri.reserve(regions.size());
   boost_foreach(CRegion::Ptr region, regions)
@@ -228,7 +228,7 @@ CAction& FiniteVolumeSolver::create_bc(const std::string& name, const std::vecto
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CAction& FiniteVolumeSolver::create_bc(const std::string& name, const CRegion& region, const std::string& bc_builder_name)
+CAction& FiniteVolumeSolver2D::create_bc(const std::string& name, const CRegion& region, const std::string& bc_builder_name)
 {
   CAction::Ptr for_all_faces = m_apply_bcs->create_component<CForAllFaces>(name);
   for_all_faces->configure_property("Regions",std::vector<URI>(1,region.full_path()));

@@ -280,9 +280,6 @@ void CReader::find_ghost_nodes()
 
 void CReader::read_coordinates()
 {
-
-  Uint global_start_idx = m_mesh->properties()["nb_nodes"].value<Uint>();
-
   m_file.seekg(m_coordinates_position,std::ios::beg);
 
   // Find the region which has the highest dimensionality present in the mesh:
@@ -435,7 +432,6 @@ void CReader::read_connectivity()
    Uint gmsh_node_number, nb_tags, phys_tag, other_tag;
    Uint cf_node_number;
    Uint cf_idx;
-   Uint table_idx;
 
    m_node_to_glb_elements.resize(m_nodes->size());
    m_global_to_tmp.clear();

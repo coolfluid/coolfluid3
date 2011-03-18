@@ -61,8 +61,8 @@ CField2::Basis::Convert& CField2::Basis::Convert::instance()
 
 CField2::CField2 ( const std::string& name  ) :
   Component ( name ),
-  m_basis(Basis::POINT_BASED),
   m_registration_name ( name ),
+  m_basis(Basis::POINT_BASED),
   m_space_idx(0u)
 {
   mark_basic();
