@@ -7,7 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
-#include "Line2DLagrangeP1.hpp"
+#include "Line2DLagrangeP2.hpp"
 #include "Quad2DLagrangeP2.hpp"
 
 namespace CF {
@@ -51,10 +51,10 @@ bool Quad2DLagrangeP2::is_coord_in_element(const RealVector& coord, const NodesT
   // make sure it works in P2 case as well
   MappedCoordsT mapped_coord;
   mapped_coordinates(CoordsT(coord), nodes, mapped_coord);
-  if( (mapped_coord[KSI] >= -0.5) &&
-      (mapped_coord[ETA] >= -0.5) &&
-      (mapped_coord[KSI] <=  0.5) &&
-      (mapped_coord[ETA] <=  0.5))
+  if( (mapped_coord[KSI] >= -1.0) &&
+      (mapped_coord[ETA] >= -1.0) &&
+      (mapped_coord[KSI] <=  1.0) &&
+      (mapped_coord[ETA] <=  1.0))
   {
     return true;
   }
@@ -92,7 +92,7 @@ const CF::Mesh::ElementType::FaceConnectivity& Quad2DLagrangeP2::face_connectivi
 
 const CF::Mesh::ElementType& Quad2DLagrangeP2::face_type(const CF::Uint face) const
 {
-  const static Line2DLagrangeP1 facetype;
+  const static Line2DLagrangeP2 facetype;
   return facetype;
 }
 

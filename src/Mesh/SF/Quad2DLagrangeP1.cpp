@@ -54,10 +54,10 @@ bool Quad2DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT
 {
   MappedCoordsT mapped_coord;
   mapped_coordinates(CoordsT(coord), nodes, mapped_coord);
-  if( (mapped_coord[KSI] >= -0.5) &&
-      (mapped_coord[ETA] >= -0.5) &&
-      (mapped_coord[KSI] <=  0.5) &&
-      (mapped_coord[ETA] <=  0.5))
+  if( (mapped_coord[KSI] >= -1.0) &&
+      (mapped_coord[ETA] >= -1.0) &&
+      (mapped_coord[KSI] <=  1.0) &&
+      (mapped_coord[ETA] <=  1.0))
   {
     return true;
   }
