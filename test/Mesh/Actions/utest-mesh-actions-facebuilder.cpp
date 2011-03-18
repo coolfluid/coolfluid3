@@ -11,6 +11,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Mesh/Actions/CBuildFaces.hpp"
 #include "Mesh/Actions/CBuildFaceNormals.hpp"
@@ -18,8 +19,11 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CFaces.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CField2.hpp"
+#include "Mesh/CFaceCellConnectivity.hpp"
+#include "Mesh/CCells.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -78,10 +82,37 @@ BOOST_AUTO_TEST_CASE( build_faces )
   facebuilder->set_mesh(mesh);
   facebuilder->execute();
   
-  CFinfo << mesh->tree() << CFendl;
+  //CFinfo << mesh->tree() << CFendl;
   
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
-  info->transform(mesh);
+  //info->transform(mesh);
+  
+  CRegion& wall_region = find_component_recursively_with_name<CRegion>(mesh->topology(),"wall");
+  CFaces& wall_faces = find_component<CFaces>(wall_region);
+  CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(wall_faces);
+  CCells::Ptr cells;
+  Uint cell_idx(0);
+  
+  CFinfo << "\n\nCHECKING"<<CFendl;
+  for (Uint face=0; face<f2c.size(); ++face)
+  {
+    CFinfo << wall_faces.parent()->name()<<"/"<<wall_faces.name() << "["<<face<<"] <--> ";
+    
+    boost::tie(cells,cell_idx) = f2c.element_location(f2c.elements(face)[0]);
+    CFinfo << cells->parent()->parent()->name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
+    RealMatrix cell_coordinates = cells->get_coordinates(cell_idx);
+    RealVector face_coordinates = wall_faces.get_coordinates(face).row(0);
+    bool match_found = false;
+    for (Uint i=0; i<cell_coordinates.rows(); ++i)
+    {
+      if (cell_coordinates.row(i) == face_coordinates.transpose())
+      {
+        match_found = true;
+        break;
+      }
+    }
+    BOOST_CHECK(match_found);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -94,10 +125,10 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
   face_normal_builder->set_mesh(mesh);
   face_normal_builder->execute();
   
-  CFinfo << mesh->tree() << CFendl;
+  //CFinfo << mesh->tree() << CFendl;
   
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
-  info->transform(mesh);
+  //info->transform(mesh);
   
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","writer");
 

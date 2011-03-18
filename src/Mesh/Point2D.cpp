@@ -35,5 +35,19 @@ const Uint Point2D::dimension;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Point2D::compute_normal(const NodesT& coord, RealVector& normal) const
+{
+  throw ShouldNotBeHere(FromHere(),"Normal cannot be computed for zero dimensionality element");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Point2D::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  centroid = coord.row(0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF

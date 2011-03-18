@@ -81,6 +81,8 @@ void CBuildFaceNormals::execute()
   face_normal_field.add_tag("face_normal");
   CFieldView face_normal("face_normal_view");
   face_normal.set_field(face_normal_field);
+  CCells::Ptr cells;
+  Uint cell_idx(0);
   boost_foreach( CEntities& faces, find_components_recursively_with_tag<CEntities>(mesh.topology(),"face_entity") )
   {
     face_normal.set_elements(faces);
@@ -89,12 +91,25 @@ void CBuildFaceNormals::execute()
     if (is_not_null(face2cell_ptr))
     {
       CFaceCellConnectivity& face2cell = *face2cell_ptr;
+      CList<Uint>& face_nb = face2cell.get_child("face_number").as_type<CList<Uint> >();
       RealMatrix coordinates(faces.element_type().nb_nodes(),faces.element_type().dimension());
       RealVector normal(faces.element_type().dimension());
       for (Uint face=0; face<face2cell.size(); ++face)
       {
         // The normal will be outward to the first connected element
-        face_normal.put_coordinates(coordinates,face);
+        boost::tie(cells,cell_idx) = face2cell.element_location(face2cell.elements(face)[FIRST]);
+        CTable<Uint>::ConstRow cell_nodes = cells->connectivity_table()[cell_idx];
+        Uint i(0);
+        boost_foreach(Uint node_id, cells->element_type().face_connectivity().face_node_range(face_nb[face]) )
+        {
+          Uint j(0);
+          boost_foreach(const Real& coord, mesh.nodes().coordinates()[cell_nodes[node_id]])
+          {
+            coordinates(i,j) = coord;
+            ++j;
+          } 
+          ++i;
+        }
         face_normal.space().shape_function().compute_normal(coordinates,normal);
         for (Uint i=0; i<normal.size(); ++i)
           face_normal[face][i] = normal[i];

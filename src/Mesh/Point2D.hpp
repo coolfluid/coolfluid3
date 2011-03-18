@@ -48,8 +48,10 @@ struct Mesh_API Point2D : public ElementType
   
   virtual Real compute_area(const NodesT& coord) const { return 0.; }
   
-  virtual void compute_normal(const NodesT& coord, RealVector& normal) const {  }
+  virtual void compute_normal(const NodesT& coord, RealVector& normal) const;
 
+  virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const;
+  
 }; // end Point2D
   
 ////////////////////////////////////////////////////////////////////////////////

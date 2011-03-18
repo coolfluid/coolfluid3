@@ -40,7 +40,6 @@ void CForAllFaces::execute()
     boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(*region,"face_entity") )    
     {
       // setup all child operations
-
       boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
       {
         op.set_elements(elements);

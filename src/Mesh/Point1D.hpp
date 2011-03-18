@@ -50,6 +50,8 @@ struct Mesh_API Point1D : public ElementType
   
   virtual void compute_normal(const NodesT& coord, RealVector& normal) const { normal[XX] = 1.0; }
 
+  virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const;
+
 }; // end Point1D
   
 ////////////////////////////////////////////////////////////////////////////////

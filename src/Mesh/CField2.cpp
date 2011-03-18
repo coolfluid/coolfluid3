@@ -289,6 +289,7 @@ void CField2::create_data_storage()
       Uint data_size = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CCells>(topology()))
       {
+        //CFinfo << name() << ": creating cellbased field storage in " << field_elements.full_path().path() << CFendl;
         if (m_space_idx == 0 && ! field_elements.exists_space(m_space_idx) )
           field_elements.create_space0();
         cf_assert( field_elements.exists_space(m_space_idx) );

@@ -47,6 +47,7 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const;
   
+  enum {FIRST=0};
 }; // end CBuildFaceNormals
 
 
