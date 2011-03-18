@@ -82,7 +82,7 @@ bool NetworkThread::isConnected() const
 
 void NetworkThread::disconnectFromServer(bool shutServer)
 {
-  QMutexLocker locker(&m_mutex);
+//  QMutexLocker locker(&m_mutex);
 
 
   if(isConnected())
@@ -106,8 +106,6 @@ void NetworkThread::disconnectFromServer(bool shutServer)
 
 int NetworkThread::send(Common::SignalArgs& signal)
 {
-  QMutexLocker locker(&m_mutex);
-
   if(!isConnected())
     throw IllegalCall(FromHere(), "There is no active connection.");
 
