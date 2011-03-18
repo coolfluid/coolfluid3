@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QLabel>
@@ -14,6 +15,7 @@
 #include <QMenuBar>
 #include <QScrollArea>
 #include <QSplitter>
+#include <QUrl>
 
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NetworkThread.hpp"
@@ -250,6 +252,8 @@ void MainWindow::buildMenus()
   action = m_mnuHelp->addAction("&Help", this, SLOT(showHelp()), tr("F1"));
   m_actions[ACTION_HELP] = action;
 
+  m_mnuHelp->addAction("&COOLFluiD Official Wiki Page", this, SLOT(showWiki()));
+
   m_mnuView->addSeparator();
 
   action = m_mnuHelp->addAction("&About COOLFluiD", m_aboutCFDialog, SLOT(exec()));
@@ -378,6 +382,13 @@ void MainWindow::toggleDebugMode()
 void MainWindow::showHelp()
 {
   this->showError("There is no help for now!");
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::showWiki()
+{
+  QDesktopServices::openUrl(QUrl("https://coolfluidsrv.vki.ac.be/redmine/projects/coolfluid3/wiki"));
 }
 
 ////////////////////////////////////////////////////////////////////////////

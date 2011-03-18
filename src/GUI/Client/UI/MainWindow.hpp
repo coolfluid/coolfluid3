@@ -124,6 +124,8 @@ namespace ClientUI {
 
     void showHelp();
 
+    void showWiki();
+
     void newException(const QString &);
 
     void connectToServer();
@@ -147,6 +149,7 @@ namespace ClientUI {
     void tabClicked(int num);
 
     void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
+
 
   private:
 
