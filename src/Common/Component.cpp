@@ -336,7 +336,7 @@ void Component::complete_path ( URI& path ) const
     {
       sp = full_path().path()+"/"+sp;
     }
-    
+
   }
 
   cf_assert ( URI(sp).is_absolute() );
@@ -754,6 +754,7 @@ void add_array_to_xml(Map & map, const std::string & name,
 
   array_node.set_attribute( Protocol::Tags::attr_descr(), desc);
   array_node.set_attribute( "mode", (basic ? "basic" : "adv") );
+  array_node.set_attribute( "is_option", "true" );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -770,7 +771,7 @@ void add_prop_to_xml(Map & map, const std::string & name,
   {
     Option & opt = prop->as_option();
     XmlNode value_node = map.set_value( name, opt.value<TYPE>() );
-    
+
     bool basic = opt.has_tag("basic");
     std::string desc = opt.description();
 
@@ -1112,10 +1113,10 @@ std::string Component::option_list()
   foreach_container( (const std::string& name) (Property::Ptr property) , properties() )
   {
     if ( Option::Ptr option = boost::dynamic_pointer_cast<Option>(property) )
-    {  
+    {
       if (cnt > 0)
         opt_list=opt_list+"\n";
-      
+
       if (option->tag() ==  XML::Protocol::Tags::node_array())
       {
         OptionArray::Ptr array_option = boost::dynamic_pointer_cast<OptionArray>(option);
