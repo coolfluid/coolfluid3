@@ -53,7 +53,7 @@ list( APPEND coolfluid_rdm_gpu_files
           LDAGPUkernel.hpp         
 )
    
-if(CF_ENABLE_GPU AND CF_ENABLE_OPENCL)
+if(CF_ENABLE_GPU AND OPENCL_FOUND)
   list( APPEND coolfluid_rdm_files ${coolfluid_rdm_gpu_files})
   list( APPEND coolfluid_rdm_includedirs ${OPENCL_INCLUDE_DIR} )
   list( APPEND coolfluid_rdm_libs   ${OPENCL_LIBRARIES} )
