@@ -157,6 +157,21 @@ void TreeView::setFilter(const QString & pattern)
 
 //////////////////////////////////////////////////////////////////////////
 
+bool TreeView::tryToCommit()
+{
+  bool committed = true;
+  QModelIndex currentIndex = NTree::globalTree()->currentIndex();
+
+  if(currentIndex.isValid())
+  {
+    committed = confirmChangeOptions(currentIndex, true);
+  }
+
+  return committed;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void TreeView::mousePressEvent(QMouseEvent * event)
 {
   QTreeView::mousePressEvent(event);

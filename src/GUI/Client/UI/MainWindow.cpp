@@ -287,38 +287,41 @@ void MainWindow::setFileOpen(bool fileOpen)
 
 int MainWindow::confirmClose()
 {
-  int answer = CLOSE_SHUTDOWN;
+  int answer = CLOSE_DISC;
   QMessageBox discBox(this);
   QPushButton * btDisc = nullptr;
   QPushButton * btCancel = nullptr;
   QPushButton * btShutServer = nullptr;
 
-  NTree::globalTree()->setCurrentIndex(QModelIndex());
-
-  btDisc = discBox.addButton("Disconnect", QMessageBox::NoRole);
-  btCancel = discBox.addButton(QMessageBox::Cancel);
-  btShutServer = discBox.addButton("Shutdown server", QMessageBox::YesRole);
-
-  discBox.setWindowTitle("Confirmation");
-  discBox.setText("You are about to quit this application.");
-  discBox.setInformativeText("What do you want to do ?");
-
-  // show the message box
-  if(ThreadManager::instance().network().isConnected())
+  if(m_treeView->tryToCommit())
   {
-    discBox.exec();
+    btDisc = discBox.addButton("Disconnect", QMessageBox::NoRole);
+    btCancel = discBox.addButton(QMessageBox::Cancel);
+    btShutServer = discBox.addButton("Shutdown server", QMessageBox::YesRole);
 
-    if(discBox.clickedButton() == btDisc)
-      answer = CLOSE_DISC;
-    else if(discBox.clickedButton() == btShutServer)
-      answer = CLOSE_SHUTDOWN;
-    else
-      answer = CLOSE_CANCEL;
+    discBox.setWindowTitle("Confirmation");
+    discBox.setText("You are about to quit this application.");
+    discBox.setInformativeText("What do you want to do ?");
 
-    delete btDisc;
-    delete btCancel;
-    delete btShutServer;
+    // show the message box
+    if(ThreadManager::instance().network().isConnected())
+    {
+      discBox.exec();
+
+      if(discBox.clickedButton() == btDisc)
+        answer = CLOSE_DISC;
+      else if(discBox.clickedButton() == btShutServer)
+        answer = CLOSE_SHUTDOWN;
+      else
+        answer = CLOSE_CANCEL;
+
+      delete btDisc;
+      delete btCancel;
+      delete btShutServer;
+    }
   }
+  else
+    answer = CLOSE_CANCEL;
 
   return answer;
 }

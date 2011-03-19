@@ -84,6 +84,8 @@ namespace ClientUI {
 
     void setFilter(const QString & pattern);
 
+    bool tryToCommit();
+
   protected:
 
     /// @brief Method called when a mouse button is pressed in the Client.
