@@ -35,7 +35,12 @@ XmlDoc::Ptr parse_cstring ( const char* str, std::size_t length )
 
   xml_document<>* xmldoc = new xml_document<>();
 
-  char* ctext = xmldoc->allocate_string(str, length + 1 );
+  char* ctext;
+
+  if( length == 0 )
+    ctext = xmldoc->allocate_string(str);
+  else
+    ctext = xmldoc->allocate_string(str, length + 1 );
 
   try
   {
