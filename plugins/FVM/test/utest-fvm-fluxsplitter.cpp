@@ -14,8 +14,8 @@
 
 #include "Mesh/LibMesh.hpp"
 
-#include "FVM/RoeFluxSplitterCons1D.hpp"
-#include "FVM/RoeFluxSplitterCons2D.hpp"
+#include "FVM/RoeCons1D.hpp"
+#include "FVM/RoeCons2D.hpp"
 
 using namespace CF;
 using namespace CF::FVM;
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_SUITE( FVM_FluxSplitter_Suite )
 
 BOOST_AUTO_TEST_CASE( Roe1d )
 {
-  RoeFluxSplitterCons1D roe("roe");
+  RoeCons1D roe("roe");
   
   RealVector left(3);
   RealVector right(3);
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( Roe1d )
 
 BOOST_AUTO_TEST_CASE( Roe2d )
 {
-  RoeFluxSplitterCons2D roe("roe");
+  RoeCons2D roe("roe");
   
   RealVector left(4);
   RealVector right(4);

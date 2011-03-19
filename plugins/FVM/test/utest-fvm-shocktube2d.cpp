@@ -10,6 +10,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
+#include "Common/BoostFilesystem.hpp"
+
 #include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"
 
@@ -18,7 +20,6 @@
 #include "Solver/CSolver.hpp"
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
-#include "Solver/Actions/CIterate.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
@@ -27,8 +28,9 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
+#include "Solver/Actions/CIterate.hpp"
 
-#include "FVM/ShockTube2D.hpp"
+#include "FVM/ShockTube.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -56,67 +58,47 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   p.set_option<std::string>("model_name","shocktube");
 
-  ShockTube2D::Ptr s = allocate_component<ShockTube2D>("shocktube_wizard");
+  ShockTube::Ptr s = allocate_component<ShockTube>("shocktube_wizard");
 
   // 1) create model
   // ---------------
+  p.set_option<Uint>("nb_cells", 50u );
+  p.set_option<Uint>("dimension", 2u );
   s->signal_create_model(frame);
 
-  CModelUnsteady::Ptr model = Core::instance().root()->get_child_ptr("shocktube")->as_ptr<CModelUnsteady>();
-
   BOOST_CHECK(true);
 
-  // 2) Load the mesh in Domain
-  // --------------------------
-  // Uint nb_segments = 70;
-  // CDomain::Ptr domain = model->get_child_ptr("Domain")->as_ptr<CDomain>();
-  // CMesh::Ptr mesh = domain->create_component<CMesh>("line");
-  // //create_line(*mesh, 10. , nb_segments );
-  // path file_in("line.msh");
-  // model->access_component_ptr<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
-  //
-  // model->get_child_ptr("IterativeSolver")->properties()["dx"]=10./Real(nb_segments);
-
-  BOOST_CHECK(true);
-
-  // 3) Setup model and allocate data
-  // --------------------------------
-  p.set_option<Uint>("nb_cells", 50u );
-  p.set_option<Real>("end_time", 0.008);
-  p.set_option<Real>("time_step", 1e-3);
-  s->signal_setup_model(frame);
-
-  BOOST_CHECK(true);
+  CModelUnsteady& model = Core::instance().root()->get_child("shocktube").as_type<CModelUnsteady>();
 
   // 4) Configure time
   // -----------------
 
-  //BOOST_CHECK_EQUAL( model->time().dt() , 1.);
+  model.time().configure_property("end_time",  0.008);
+  model.time().configure_property("time_step", 0.008);
+  model.configure_option_recursively("cfl", 1.0);
+  //find_component_recursively<CIterate>(*model).configure_property("MaxIterations",1u);
 
   BOOST_CHECK(true);
 
-  //find_component_recursively<CIterate>(*model).configure_property("MaxIterations",2u);
-
   // 5) Simulate
   // -----------
-  model->simulate();
-  // find_component_recursively_with_name<CAction>(*model,"1_apply_boundary_conditions").execute();
-  // find_component_recursively_with_name<CAction>(*model,"2_compute_rhs").execute();
-  // find_component_recursively_with_name<CAction>(*model,"3_compute_update_coeff").execute();
-  // find_component_recursively_with_name<CAction>(*model,"4_update_solution").execute();
+  CFinfo << "---------------------------------------------------------------------------------" << CFendl;
+  CFinfo << "Finite Volume Solver:" << CFendl;
+  CFinfo << "---------------------" << CFendl;
+  CFinfo << model.get_child("FiniteVolumeSolver").tree() << CFendl;
+
+  model.simulate();
+
   BOOST_CHECK(true);
 
   // 6) Write mesh
   // -------------
-  model->access_component_ptr("cpath:./tools/gmsh_writer")->as_ptr<CMeshWriter>()->write();
+  
+  model.access_component("cpath:./tools/gmsh_writer").as_type<CMeshWriter>().write();
 
   // CFinfo << "model:"<<CFendl;
   // CFinfo << "------"<<CFendl;
   // CFinfo << model->tree() << CFendl;
-  CFinfo << "---------------------------------------------------------------------------------" << CFendl;
-  CFinfo << "Finite Volume Solver:" << CFendl;
-  CFinfo << "---------------------" << CFendl;
-  CFinfo << model->get_child_ptr("FiniteVolumeSolver2D")->tree() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

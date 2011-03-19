@@ -5,6 +5,9 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/OptionComponent.hpp"
+#include "Common/Foreach.hpp"
+#include "Common/FindComponents.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/CMesh.hpp"
@@ -13,6 +16,8 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+
+Common::ComponentBuilder < CMeshTransformer, CMeshTransformer, LibMesh> CMeshTransformer_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +41,14 @@ std::string CMeshTransformer::help() const
 
 void CMeshTransformer::set_mesh(CMesh::Ptr mesh)
 {
-  m_mesh=mesh;
+  set_mesh(*mesh);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMeshTransformer::set_mesh(CMesh& mesh)
+{
+  m_mesh=mesh.as_ptr<CMesh>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,8 +61,23 @@ CMeshTransformer::~CMeshTransformer()
 
 void CMeshTransformer::transform(CMesh::Ptr mesh)
 {
+  transform(*mesh);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMeshTransformer::transform(CMesh& mesh)
+{
   set_mesh(mesh);
   execute();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMeshTransformer::execute()
+{
+  boost_foreach(CMeshTransformer& meshtransformer, find_components<CMeshTransformer>(*this))
+    meshtransformer.transform(*m_mesh.lock());
 }
 
 //////////////////////////////////////////////////////////////////////////////

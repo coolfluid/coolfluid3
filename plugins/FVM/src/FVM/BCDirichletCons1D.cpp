@@ -38,7 +38,7 @@ BCDirichletCons1D::BCDirichletCons1D ( const std::string& name ) :
 {
   mark_basic();
   // options
-  m_properties.add_option(OptionURI::create("Solution","Cell based solution","cpath:/",URI::Scheme::CPATH))
+  m_properties.add_option(OptionURI::create("solution","Solution","Cell based solution","cpath:/",URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &BCDirichletCons1D::config_solution,   this ) )
     ->add_tag("solution");
 
@@ -64,7 +64,7 @@ BCDirichletCons1D::BCDirichletCons1D ( const std::string& name ) :
 
 void BCDirichletCons1D::config_solution()
 {
-  URI uri;  property("Solution").put_value(uri);
+  URI uri;  property("solution").put_value(uri);
   CField2::Ptr comp = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
   if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
   m_connected_solution.set_field(comp);

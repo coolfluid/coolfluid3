@@ -5,56 +5,34 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
-#include "Common/Log.hpp"
-#include "Common/Foreach.hpp"
-
-#include "Mesh/LibMesh.hpp"
-
-#include "FVM/RoeFluxSplitterCons1D.hpp"
+#include "FVM/RoeCons1D.hpp"
 
 namespace CF {
 namespace FVM {
 
 using namespace Common;
 
-Common::ComponentBuilder < RoeFluxSplitterCons1D, Component, LibFVM > RoeFluxSplitterCons1D_Builder;
+Common::ComponentBuilder < RoeCons1D, RiemannSolver, LibFVM > RoeCons1D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RoeFluxSplitterCons1D::RoeFluxSplitterCons1D ( const std::string& name  ) 
-: Component(name),
-  m_g(1.4),
-  m_gm1(m_g-1.),
+RoeCons1D::RoeCons1D ( const std::string& name  ) 
+: RiemannSolver(name),
   m_roe_avg(3)
 {
-  properties()["brief"] = std::string("Roe Flux Splitter");
+  properties()["brief"] = std::string("Approximate Riemann solver Roe");
   properties()["description"] = std::string("Solves the Riemann problem using the Roe scheme");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RoeFluxSplitterCons1D::~RoeFluxSplitterCons1D()
+RoeCons1D::~RoeCons1D()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealVector RoeFluxSplitterCons1D::interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal)
-{
-  RealVector interface_flux(3);
-  Real dummy; // not interested in wavespeeds
-  solve( 
-          //input
-          left,right,normal,
-          //output
-          interface_flux,dummy,dummy
-        );
-  return interface_flux;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void RoeFluxSplitterCons1D::solve(const RealVector& left, const RealVector& right, const RealVector& normal , 
+void RoeCons1D::solve(const RealVector& left, const RealVector& right, const RealVector& normal , 
                             RealVector& interface_flux, Real& left_wave_speed, Real& right_wave_speed)
 {
   // compute the roe average
@@ -65,7 +43,7 @@ void RoeFluxSplitterCons1D::solve(const RealVector& left, const RealVector& righ
   const Real h = m_g*m_roe_avg[2]/r - 0.5*m_gm1*u*u;
   const Real a = sqrt(m_gm1*(h-u*u/2.));
 
-  const Real nx = normal[XX];
+  const Real nx = normal[0];
   Real un = u*nx;
   
   // right eigenvectors
@@ -101,7 +79,7 @@ void RoeFluxSplitterCons1D::solve(const RealVector& left, const RealVector& righ
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RoeFluxSplitterCons1D::compute_roe_average(const RealVector& left, const RealVector& right, RealVector& roe_avg) const
+void RoeCons1D::compute_roe_average(const RealVector& left, const RealVector& right, RealVector& roe_avg) const
 {  
   const Real rho_L  = left[0];       const Real rho_R  = right[0];
   const Real rhou_L = left[1];       const Real rhou_R = right[1];
@@ -128,13 +106,13 @@ void RoeFluxSplitterCons1D::compute_roe_average(const RealVector& left, const Re
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealVector RoeFluxSplitterCons1D::flux(const RealVector& state, const RealVector& normal) const
+RealVector RoeCons1D::flux(const RealVector& state, const RealVector& normal) const
 {
   const Real r=state[0];
   const Real u=state[1]/r;
   const Real rE = state[2];
   const Real p = m_gm1*(rE-0.5*r*u*u);
-  const Real nx = normal[XX];
+  const Real nx = normal[0];
   RealVector F(3);
   F <<     r*u*nx,   r*u*nx*u+p*nx,   (rE+p)*u*nx;
   

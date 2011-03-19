@@ -44,10 +44,10 @@ public: // functions
   static std::string type_name () { return "CModel"; }
 
   /// creates a domain in this model
-  virtual boost::shared_ptr<Mesh::CDomain> create_domain( const std::string& name );
+  virtual Mesh::CDomain& create_domain( const std::string& name );
 
   /// gets the domain from this model
-  virtual boost::shared_ptr<Mesh::CDomain> domain();
+  virtual Mesh::CDomain& domain();
 
   /// Simulates this model
   virtual void simulate() = 0;

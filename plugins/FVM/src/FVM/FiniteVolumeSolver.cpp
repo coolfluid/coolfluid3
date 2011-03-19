@@ -10,15 +10,16 @@
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionComponent.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "FVM/FiniteVolumeSolver.hpp"
 #include "FVM/ComputeUpdateCoefficient.hpp"
 #include "FVM/UpdateSolution.hpp"
-#include "FVM/ComputeFluxCons1D.hpp"
 #include "FVM/OutputIterationInfo.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -28,6 +29,7 @@
 #include "Mesh/Actions/CInitFieldConstant.hpp"
 
 #include "Solver/CSolver.hpp"
+#include "Solver/CPhysicalModel.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoop.hpp"
 #include "Solver/Actions/CIterate.hpp"
@@ -77,6 +79,8 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
   properties()["description"] = description;
 
   m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &FiniteVolumeSolver::trigger_Domain,   this ) );
+  
+  properties().add_option(OptionComponent<CPhysicalModel>::create("physical_model","Physical Model",&m_physical_model));
 
   this->regist_signal ( "solve" , "Solve", "Solve" )->signal->connect ( boost::bind ( &FiniteVolumeSolver::solve, this ) );
 
@@ -108,9 +112,7 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
     .property("Field").as_option().add_tag("wave_speed");
   
   m_compute_rhs->create_static_component<CForAllFaces>("2.3_for_all_faces")
-    ->mark_basic()
-    .create_static_component<ComputeFluxCons1D>("add_flux_to_rhs")
-      ->mark_basic();
+    ->mark_basic();
   
   m_compute_update_coefficient = m_iterate->create_static_component<ComputeUpdateCoefficient>("3_compute_update_coeff");
   m_update_solution = m_iterate->create_static_component<UpdateSolution>("4_update_solution");
@@ -137,9 +139,13 @@ void FiniteVolumeSolver::trigger_Domain()
 
   m_compute_rhs->get_child_ptr("2.3_for_all_faces")
     ->configure_property("Regions",std::vector<URI>(1,mesh->topology().full_path()));
+  CLoopOperation::Ptr add_flux_to_rhs = create_component_abstract_type<CLoopOperation>("CF.FVM.ComputeFlux","add_flux_to_rhs");
+  add_flux_to_rhs->mark_basic();
+  m_compute_rhs->get_child("2.3_for_all_faces").add_component(add_flux_to_rhs);
 
   if ( is_null(find_component_ptr_with_tag<CField2>(*mesh,"face_normal") ) )
   {
+    CFinfo << "  Creating field \"face_normal\", facebased" << CFendl;
     CBuildFaceNormals::Ptr build_face_normals = create_component<CBuildFaceNormals>("build_face_normals");
     build_face_normals->transform(mesh);
     remove_component(build_face_normals->name());
@@ -148,6 +154,7 @@ void FiniteVolumeSolver::trigger_Domain()
 
   if ( is_null(find_component_ptr_with_tag<CField2>(*mesh,"area") ) )
   {
+    CFinfo << "  Creating field \"area\", facebased" << CFendl;
     CField2& area = mesh->create_field2("area","FaceBased");
     area.add_tag("area");
     CLoop::Ptr compute_area = create_component< CForAllFaces >("compute_area");
@@ -163,8 +170,8 @@ void FiniteVolumeSolver::trigger_Domain()
   if ( is_null(solution_ptr) )
   {
     ///@todo get variable names etc, from Physics
-    CFinfo << "++++ Creating cell based solution field with vars rho[1],rhoU[1],rhoE[1]" << CFendl;
-    CField2& solution = mesh->create_field2("solution","CellBased","rho[1],rhoU[1],rhoE[1]");
+    CFinfo <<  "  Creating field \"solution\", cellbased, with vars rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]" << CFendl;
+    CField2& solution = mesh->create_field2("solution","CellBased","rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]");
     solution.add_tag("solution"); 
   }
 
@@ -175,6 +182,7 @@ void FiniteVolumeSolver::trigger_Domain()
   Component::Ptr residual_ptr = find_component_ptr_with_tag(*mesh,"residual");
   if ( is_null(residual_ptr) )
   {
+    CFinfo << "  Creating field \"residual\", cellbased" << CFendl;
     residual_ptr = mesh->create_field2("residual",solution).self();
     residual_ptr->add_tag("residual");
   }
@@ -183,6 +191,7 @@ void FiniteVolumeSolver::trigger_Domain()
   Component::Ptr wave_speed_ptr = find_component_ptr_with_tag(*mesh,"wave_speed");
   if ( is_null(wave_speed_ptr) )
   {
+    CFinfo << "  Creating field \"wave_speed\", cellbased" << CFendl;
     wave_speed_ptr = mesh->create_field2("wave_speed",solution).self();
     wave_speed_ptr->add_tag("wave_speed");
   }
@@ -191,15 +200,13 @@ void FiniteVolumeSolver::trigger_Domain()
   Component::Ptr update_coeff_ptr = find_component_ptr_with_tag(*mesh,"update_coeff");
   if ( is_null(update_coeff_ptr) )
   {
+    CFinfo << "  Creating field \"update_coeff\", cellbased" << CFendl;
     update_coeff_ptr = mesh->create_scalar_field("update_coeff",solution).self();
     update_coeff_ptr->add_tag("update_coeff");
   }
   m_update_coeff->link_to(update_coeff_ptr);
 
-  configure_option_recursively("solution",solution.full_path());
-  configure_option_recursively("wave_speed",wave_speed_ptr->full_path());
-  configure_option_recursively("residual",residual_ptr->full_path());
-  configure_option_recursively("update_coeff",update_coeff_ptr->full_path());  
+  auto_config_fields(*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -221,7 +228,7 @@ CAction& FiniteVolumeSolver::create_bc(const std::string& name, const std::vecto
   CAction::Ptr for_all_faces = m_apply_bcs->create_component<CForAllFaces>(name);
   for_all_faces->configure_property("Regions",regions_uri);
   CAction& bc = for_all_faces->create_action(bc_builder_name,bc_builder_name);
-  configure_option_recursively("solution", m_solution->follow()->full_path());    
+  auto_config_fields(bc);
   return bc;
 }
 
@@ -232,8 +239,21 @@ CAction& FiniteVolumeSolver::create_bc(const std::string& name, const CRegion& r
   CAction::Ptr for_all_faces = m_apply_bcs->create_component<CForAllFaces>(name);
   for_all_faces->configure_property("Regions",std::vector<URI>(1,region.full_path()));
   CAction& bc = for_all_faces->create_action(bc_builder_name,bc_builder_name);
-  configure_option_recursively("solution", m_solution->follow()->full_path());    
+  auto_config_fields(bc);
   return bc;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void FiniteVolumeSolver::auto_config_fields(Component& parent)
+{
+  URI domain; property("Domain").put_value(domain);
+  CMesh& mesh = find_component_recursively<CMesh>(access_component(domain));
+
+  boost_foreach(CField2& field, find_components<CField2>(mesh) )
+  {
+    parent.configure_option_recursively(field.name(), field.full_path());    
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

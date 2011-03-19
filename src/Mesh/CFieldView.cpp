@@ -237,7 +237,7 @@ bool CConnectedFieldView::set_elements(boost::shared_ptr<CEntities> elements)
 bool CConnectedFieldView::set_elements(CEntities& elements)
 {
   if (is_null(m_field.lock()))
-    throw Common::SetupError(FromHere(),"set_field(field) must be called first");
+    throw Common::SetupError(FromHere(),"set_field(field) must be called first for CConnectedFieldView "+full_path().path());
 
   m_elements = elements.as_ptr<CEntities>();
   m_face2cells = find_component_ptr<CFaceCellConnectivity>(elements);
@@ -255,7 +255,7 @@ bool CConnectedFieldView::set_elements(CEntities& elements)
 
 std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_idx)
 {
-  cf_assert(m_views.size());
+  cf_assert_desc(full_path().path(),m_views.size());
   std::vector<CTable<Real>::Row> vec;
   boost_foreach(const Uint cell, m_face2cells.lock()->elements(elem_idx))
   {

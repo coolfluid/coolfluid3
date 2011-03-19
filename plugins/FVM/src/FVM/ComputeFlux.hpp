@@ -8,15 +8,7 @@
 #define CF_FVM_ComputeFlux_hpp
 
 #include "Solver/Actions/CLoopOperation.hpp"
-#include "FVM/LibFVM.hpp"
-#include "FVM/RoeFluxSplitter.hpp"
-
-#include "Mesh/CCellFaces.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
-#include "Mesh/CTable.hpp"
-#include "Common/Foreach.hpp"
+#include "FVM/RiemannSolver.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -78,7 +70,7 @@ private: // data
   
   enum {LEFT=0,RIGHT=1};
   
-  boost::shared_ptr<RoeFluxSplitter> m_fluxsplitter;
+  boost::shared_ptr<RiemannSolver> m_fluxsplitter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

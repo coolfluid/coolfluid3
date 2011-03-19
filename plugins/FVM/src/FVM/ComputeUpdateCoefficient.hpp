@@ -7,16 +7,8 @@
 #ifndef CF_FVM_ComputeUpdateCoefficient_hpp
 #define CF_FVM_ComputeUpdateCoefficient_hpp
 
-#include "Solver/Actions/CLoopOperation.hpp"
+#include "Common/CAction.hpp"
 #include "FVM/LibFVM.hpp"
-#include "FVM/RoeFluxSplitter.hpp"
-
-#include "Mesh/CCellFaces.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
-#include "Mesh/CTable.hpp"
-#include "Common/Foreach.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 

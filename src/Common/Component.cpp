@@ -1101,7 +1101,7 @@ void Component::configure_option_recursively(const std::string& tag, const boost
       }
     }
   }
-  cf_assert_desc("No options with tag ["+tag+"] were configured recursively in ["+full_path().path()+"]", nb_changes > 0);
+  //cf_assert_desc("No options with tag ["+tag+"] were configured recursively in ["+full_path().path()+"]", nb_changes > 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

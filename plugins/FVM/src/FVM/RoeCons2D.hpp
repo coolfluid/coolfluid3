@@ -4,14 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_FVM_RoeFluxSplitter_hpp
-#define CF_FVM_RoeFluxSplitter_hpp
+#ifndef CF_FVM_RoeCons2D_hpp
+#define CF_FVM_RoeCons2D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-#include "Math/MatrixTypes.hpp"
-#include "FVM/LibFVM.hpp"
+#include "FVM/RiemannSolver.hpp"
 
 namespace CF {
 namespace FVM {
@@ -20,42 +18,34 @@ namespace FVM {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Willem Deconinck
-class FVM_API RoeFluxSplitter : public Common::Component {
+class FVM_API RoeCons2D : public FVM::RiemannSolver {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<RoeFluxSplitter> Ptr;
-  typedef boost::shared_ptr<RoeFluxSplitter const> ConstPtr;
+  typedef boost::shared_ptr<RoeCons2D> Ptr;
+  typedef boost::shared_ptr<RoeCons2D const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  RoeFluxSplitter ( const std::string& name );
+  RoeCons2D ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~RoeFluxSplitter();
+  virtual ~RoeCons2D();
 
   /// Get the class name
-  static std::string type_name () { return "RoeFluxSplitter"; }
+  static std::string type_name () { return "RoeCons2D"; }
 
-  // functions specific to the RoeFluxSplitter component
-  RealVector interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal);
-
-  void solve(const RealVector& left, const RealVector& right, const RealVector& normal, 
+  // functions specific to the RoeCons2D component
+  virtual void solve(const RealVector& left, const RealVector& right, const RealVector& normal, 
              RealVector& flux, Real& left_wave_speed, Real& right_wave_speed);
+  
+  virtual RealVector flux(const RealVector& state, const RealVector& normal) const;
 
   void compute_roe_average(const RealVector& left, const RealVector& right, RealVector& roe_avg) const;
-  
-  RealVector flux(const RealVector& state) const;
     
 private:
-  
-  /// gamma
-  const Real m_g;
-  
-  /// gamma - 1 
-  const Real m_gm1;
   
   RealVector m_roe_avg;
 };
@@ -67,4 +57,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_FVM_RoeFluxSplitter_hpp
+#endif // CF_FVM_RoeCons2D_hpp

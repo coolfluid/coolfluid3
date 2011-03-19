@@ -1,8 +1,6 @@
 list( APPEND coolfluid_fvm_files
   LibFVM.cpp
   LibFVM.hpp
-  BCDirichlet.hpp
-  BCDirichlet.cpp
   BCReflectCons1D.hpp
   BCReflectCons1D.cpp
   BCReflectCons2D.hpp
@@ -15,32 +13,22 @@ list( APPEND coolfluid_fvm_files
   BuildGhostStates.cpp
   ComputeFlux.hpp
   ComputeFlux.cpp
-  ComputeFluxCons1D.hpp
-  ComputeFluxCons1D.cpp
-  ComputeFluxCons2D.hpp
-  ComputeFluxCons2D.cpp
   ComputeUpdateCoefficient.hpp
   ComputeUpdateCoefficient.cpp
   GhostCells.hpp
   GhostCells.cpp
   FiniteVolumeSolver.hpp
   FiniteVolumeSolver.cpp
-  FiniteVolumeSolver2D.hpp
-  FiniteVolumeSolver2D.cpp
   OutputIterationInfo.hpp
   OutputIterationInfo.cpp
-  RoeFluxSplitter.hpp
-  RoeFluxSplitter.cpp
-  RoeFluxSplitterCons1D.hpp
-  RoeFluxSplitterCons1D.cpp
-  RoeFluxSplitterCons2D.hpp
-  RoeFluxSplitterCons2D.cpp
+  RiemannSolver.hpp
+  RiemannSolver.cpp
+  RoeCons1D.hpp
+  RoeCons1D.cpp
+  RoeCons2D.hpp
+  RoeCons2D.cpp
   ShockTube.hpp
   ShockTube.cpp
-  ShockTube1D.hpp
-  ShockTube1D.cpp
-  ShockTube2D.hpp
-  ShockTube2D.cpp
   UpdateSolution.hpp
   UpdateSolution.cpp
 )

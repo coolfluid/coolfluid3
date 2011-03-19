@@ -18,7 +18,6 @@
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Solver;
-using namespace CF::Solver::Actions;
 
 namespace CF {
 namespace FVM {
@@ -113,6 +112,9 @@ void ComputeUpdateCoefficient::execute()
 
     CTime& time = *m_time.lock();
     CTable<Real>& volume = m_volume.lock()->data();
+
+    cf_assert_desc("Fields not compatible",volume.size() == wave_speed.size());
+    cf_assert_desc("Fields not compatible",update_coeff.size() == wave_speed.size());
 
     // compute which dt to take
     Real tf = time.property("end_time").value<Real>();

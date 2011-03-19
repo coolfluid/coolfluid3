@@ -49,13 +49,15 @@ public: // functions
   // --------- Direct access ---------
 
   virtual void transform(boost::shared_ptr<CMesh> mesh);
+  virtual void transform(CMesh& mesh);
   
-  virtual void execute() = 0;
+  virtual void execute();
 
   /// extended help that user can query
   virtual std::string help() const;
 
   void set_mesh(boost::shared_ptr<CMesh> mesh);
+  void set_mesh(CMesh& mesh);
 
 protected: // data
   

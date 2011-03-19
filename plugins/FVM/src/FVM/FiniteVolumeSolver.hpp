@@ -24,6 +24,7 @@ namespace Solver {
   namespace Actions { 
     class CIterate;     
   }
+  class CPhysicalModel;
 }
 
 namespace Mesh {
@@ -79,6 +80,8 @@ public: // functions
 private: // functions
 
   void trigger_Domain();
+  
+  void auto_config_fields(Component& parent);
 
 private: // data
   
@@ -93,6 +96,7 @@ private: // data
   boost::shared_ptr<ComputeUpdateCoefficient> m_compute_update_coefficient;
   boost::shared_ptr<UpdateSolution> m_update_solution;
 
+  boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

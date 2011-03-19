@@ -56,18 +56,16 @@ CModel::~CModel() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDomain::Ptr CModel::domain()
+CDomain& CModel::domain()
 {
-  CDomain::Ptr dom = find_component_ptr<CDomain>(*this);
-  cf_assert( is_not_null(dom) );
-  return dom;
+  return find_component<CDomain>(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDomain::Ptr CModel::create_domain( const std::string& name )
+CDomain& CModel::create_domain( const std::string& name )
 {
-  return this->create_component<CDomain>( name );
+  return *this->create_component<CDomain>( name );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,11 +83,11 @@ void CModel::signal_create_domain ( Common::SignalArgs& node )
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
-  CDomain::Ptr domain = this->create_domain("Domain"); // dispatch to virtual function
+  CDomain& domain = this->create_domain("Domain"); // dispatch to virtual function
 
   URI file = options.get_option<URI>("File");
   if (!file.empty())
-    domain->signal_load_mesh( node );
+    domain.signal_load_mesh( node );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

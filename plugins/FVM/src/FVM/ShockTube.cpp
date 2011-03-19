@@ -6,12 +6,13 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/Signal.hpp"
+#include "Common/Log.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CField2.hpp"
@@ -36,6 +37,7 @@
 
 #include "FVM/FiniteVolumeSolver.hpp"
 #include "FVM/ShockTube.hpp"
+#include "FVM/BuildGhostStates.hpp"
 
 namespace CF {
 namespace FVM {
@@ -58,12 +60,10 @@ ShockTube::ShockTube ( const std::string& name  ) :
   add_tag(LibFVM::library_namespace());
   std::string brief;
   std::string description;
-  brief       += "This wizard creates and sets up a finite volume 1D shocktube problem.\n";
+  brief       += "This wizard creates and sets up a finite volume shocktube problem.\n";
   description += "  1) Run signal \"Create Model\" to create the shocktube model\n";
-  description += "  2) Load a 1D mesh in the domain of the shocktube model";
-  description += "  3) Run signal \"Setup Model\" to configure and allocate datastorage\n";
-  description += "  4) Configure time step and end time in model/Time\n";
-  description += "  5) Run signal \"Simulate\" in the shocktube model\n";
+  description += "  2) Configure time step and end time in model/Time\n";
+  description += "  3) Run signal \"Simulate\" in the shocktube model\n";
   m_properties["brief"] = brief;
   m_properties["description"] = description;
 
@@ -76,9 +76,6 @@ ShockTube::ShockTube ( const std::string& name  ) :
 
   regist_signal ( "create_model" , "Creates a shocktube model", "Create Model" )->signal->connect ( boost::bind ( &ShockTube::signal_create_model, this, _1 ) );
   signal("create_model")->signature->connect( boost::bind( &ShockTube::signature_create_model, this, _1));
-
-  regist_signal ( "setup_model" , "Setup the shocktube model after mesh has been loaded", "Setup Model" )->signal->connect ( boost::bind ( &ShockTube::signal_setup_model, this, _1 ) );
-  signal("setup_model")->signature->connect( boost::bind( &ShockTube::signature_setup_model, this, _1));
 
 }
 
@@ -94,156 +91,137 @@ void ShockTube::signal_create_model ( SignalArgs& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
-// create the model
+  ////////////////////////////////////////////////////////////////////////////////
+  // Create Model
+  ////////////////////////////////////////////////////////////////////////////////
 
   std::string name  = p.get_option<std::string>("model_name");
+  CFinfo << "Creating model " << name << CFendl;
+  CModelUnsteady& model = *Core::instance().root()->create_component<CModelUnsteady>( name );
 
-  CModel::Ptr model = Core::instance().root()->create_component<CModelUnsteady>( name );
-
-  // create the Physical Model
-  CPhysicalModel::Ptr pm = model->create_component<CPhysicalModel>("Physics");
-  pm->mark_basic();
-
-  pm->configure_property( "DOFs", 1u );
-  pm->configure_property( "Dimensions", 1u );
-
-  // setup iterative solver
-  CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.FVM.FiniteVolumeSolver", "FiniteVolumeSolver");
-  solver->mark_basic();
-  model->add_component( solver );
-
-  model->create_domain("domain");
+  ////////////////////////////////////////////////////////////////////////////////
+  // Create Physics
+  ////////////////////////////////////////////////////////////////////////////////
   
-  CGroup& tools = *model->create_component<CGroup>("tools");
-  tools.mark_basic();
-  CBuildFaces& build_faces = *tools.create_component<CBuildFaces>("build_faces");
-  CBuildVolume& build_volume = *tools.create_component<CBuildVolume>("build_volume");
+  CFinfo << "Creating physics" << CFendl;
+  CPhysicalModel& physics = *model.create_component<CPhysicalModel>("Physics");
+  physics.mark_basic();
+  physics.configure_property( "Dimensions", p.get_option<Uint>("dimension") );
 
-  Gmsh::CReader& gmsh_reader = *tools.create_component<Gmsh::CReader>("gmsh_reader");
-  Gmsh::CWriter& gmsh_writer = *tools.create_component<Gmsh::CWriter>("gmsh_writer");
+  ////////////////////////////////////////////////////////////////////////////////
+  // Create tools
+  ////////////////////////////////////////////////////////////////////////////////
 
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void ShockTube::signature_create_model( SignalArgs& args )
-{
-  SignalFrame& p = args.map( Protocol::Tags::key_options() );
-
-  p.set_option<std::string>("model_name", std::string(), "Name for created model" );
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void ShockTube::signal_setup_model ( SignalArgs& args )
-{
-  SignalFrame& p = args.map( Protocol::Tags::key_options() );
-  std::string name  = p.get_option<std::string>("model_name");
-
-  CModelUnsteady::Ptr model = Core::instance().root()->get_child_ptr( name )->as_ptr<CModelUnsteady>();
-  if (is_null(model))
-    throw ValueNotFound (FromHere(), "invalid model");
-
-  FiniteVolumeSolver& solver = find_component<FiniteVolumeSolver>(*model);
-
+  CGroup& tools = *model.create_component<CGroup>("tools");
+  CMeshTransformer& finite_volume_transformer = *tools.create_component<CMeshTransformer>("FiniteVolumeTransformer");
+  finite_volume_transformer.create_component<CBuildFaces>("1_build_faces");
+  finite_volume_transformer.create_component<BuildGhostStates>("2_build_ghoststates");
+  finite_volume_transformer.create_component<CBuildVolume>("3_build_volume_field");
+  
   ////////////////////////////////////////////////////////////////////////////////
   // Generate mesh
   ////////////////////////////////////////////////////////////////////////////////
   
-  CMesh::Ptr mesh = model->domain()->create_component<CMesh>("line");
-  Tools::MeshGeneration::create_line(*mesh, 10. , p.get_option<Uint>("nb_cells"));
-  // path file_in("line.msh");
-  //   model->access_component_ptr<CMeshReader>("cpath:./tools/gmsh_reader")->read_from_to(file_in,mesh);
-
-  model->access_component_ptr("cpath:./tools/build_faces")->as_ptr<CBuildFaces>()->transform(mesh);
-  model->access_component_ptr("cpath:./tools/build_volume")->as_ptr<CBuildVolume>()->transform(mesh);
-  model->configure_option_recursively("volume",find_component_recursively_with_tag<CField2>(*model->domain(),"volume").full_path());
-
+  CFinfo << "Creating domain" << CFendl;
+  CDomain& domain = model.create_domain("domain");
+  CMesh::Ptr mesh_ptr;
+  CFinfo << "  Generating mesh with " << p.get_option<Uint>("nb_cells") << " cells per dimension" <<CFendl;
+  switch (p.get_option<Uint>("dimension"))
+  {
+    case 1:
+      mesh_ptr = domain.create_component<CMesh>("line");
+      Tools::MeshGeneration::create_line(*mesh_ptr, 10. , p.get_option<Uint>("nb_cells"));
+      break;
+    case 2:
+      mesh_ptr = domain.create_component<CMesh>("square");
+      Tools::MeshGeneration::create_rectangle(*mesh_ptr, 10. , 10. , p.get_option<Uint>("nb_cells"),  p.get_option<Uint>("nb_cells"));
+      break;
+    default:
+      throw SetupError(FromHere(),"Only 1D or 2D dimension supported");
+  }
+  CMesh& mesh = *mesh_ptr;
+  CFinfo << "  Transforming mesh for finite volume: " << finite_volume_transformer.tree();
+  finite_volume_transformer.transform(mesh);
+  
   ////////////////////////////////////////////////////////////////////////////////
-  // Solver / Discretization configuration
+  // Create Solver / Discretization
   ////////////////////////////////////////////////////////////////////////////////
   
-  model->time().configure_property("time_step", p.get_option<Real>("time_step"));
-  model->time().configure_property("end_time", p.get_option<Real>("end_time"));  
-  
-  model->configure_option_recursively("time_accurate",true);
-  model->configure_option_recursively("time",model->time().full_path());
-  model->configure_option_recursively("cfl",1.);
-
-  // This will trigger setup of everything correctly
-  solver.configure_property("Domain", find_component<CDomain>(*model).full_path() );
+  CFinfo << "Creating FiniteVolumeSolver" << CFendl;
+  FiniteVolumeSolver& solver = *model.create_component<FiniteVolumeSolver>("FiniteVolumeSolver");
+  solver.configure_property("physical_model",physics.full_path());
+  solver.configure_property("Domain",domain.full_path());
+  solver.configure_option_recursively("time",model.time().full_path());
+  solver.configure_option_recursively("time_accurate",true);
 
   ////////////////////////////////////////////////////////////////////////////////
   // Initial condition
   ////////////////////////////////////////////////////////////////////////////////
   
-  CInitFieldFunction::Ptr init_solution = model->get_child_ptr("tools")->create_component<CInitFieldFunction>("init_solution");
-  init_solution->configure_property("Field",find_component_with_tag(*mesh,"solution").full_path());
-  
-  RealVector left(3);
-  RealVector right(3);
+  CFinfo << "Setting initial condition" << CFendl;
+  CInitFieldFunction& init_solution = *tools.create_component<CInitFieldFunction>("init_solution");
+  init_solution.configure_property("Field",find_component_with_tag(mesh,"solution").full_path());
 
-  Real g=1.4;
-    
-  const Real r_L = 4.696;     const Real r_R = 1.408;
-  const Real u_L = 0.;        const Real u_R = 0.;
-  const Real p_L = 404400;    const Real p_R = 101100;
+  if (physics.dimensions() == 1)
+  {
+    std::vector<std::string> function(3);
+    function[0]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5,  r_L,     r_R)";
+    function[1]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5,  r_L*u_L, r_R*u_R)";
+    function[2]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5,  p_L/(g-1) + 0.5*r_L*u_L*u_L, p_R/(g-1) + 0.5*r_R*u_R*u_R)";
+    init_solution.configure_property("Functions",function);    
+  }
+  else if (physics.dimensions() == 2)
+  {
+    std::vector<std::string> function(4);
+    function[0]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   v_L:=0; v_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,  r_L,     r_R)";
+    function[1]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   v_L:=0; v_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,  r_L*u_L, r_R*u_R)";
+    function[2]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   v_L:=0; v_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,  r_L*v_L, r_R*v_R)";
+    function[3]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   v_L:=0; v_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,  p_L/(g-1) + 0.5*r_L*(u_L*u_L+v_L*v_L), p_R/(g-1) + 0.5*r_R*(u_R*u_R+v_R*v_R))";
+    init_solution.configure_property("Functions",function);    
+  }
   
-  left <<  r_L, r_L*u_L, p_L/(g-1.) + 0.5*r_L*u_L*u_L;
-  right << r_R, r_R*u_R, p_R/(g-1.) + 0.5*r_R*u_R*u_R;
-  
-  std::vector<std::string> function(3);
-  function[0]="if(x<=5,"+to_str(left[0])+","+to_str(right[0])+")";
-  function[1]="if(x<=5,"+to_str(left[1])+","+to_str(right[1])+")";
-  function[2]="if(x<=5,"+to_str(left[2])+","+to_str(right[2])+")";
-  
-  init_solution->configure_property("Functions",function);
-  init_solution->transform(mesh);
+  init_solution.transform(mesh);
   
   ////////////////////////////////////////////////////////////////////////////////
   // Boundary conditions
   ////////////////////////////////////////////////////////////////////////////////
-  
-  CRegion& inlet = find_component_recursively_with_name<CRegion>(mesh->topology(),"xneg");
-  CAction& inlet_bc = solver.create_bc("inlet",inlet,"CF.FVM.BCDirichlet");
-  inlet_bc.configure_property("rho",r_L);
-  inlet_bc.configure_property("u",u_L);
-  inlet_bc.configure_property("p",p_L);
 
+  CFinfo << "Setting Reflective Boundary conditions" << CFendl;  
+  if (physics.dimensions() == 1)
+  {
+    solver.create_bc("inlet",   find_component_recursively_with_name<CRegion>(mesh.topology(),"xneg"),   "CF.FVM.BCReflectCons1D");
+    solver.create_bc("outlet",   find_component_recursively_with_name<CRegion>(mesh.topology(),"xpos"),   "CF.FVM.BCReflectCons1D");
+  }
+  else if (physics.dimensions() == 2)
+  {
+    solver.create_bc("top",   find_component_recursively_with_name<CRegion>(mesh.topology(),"top"),   "CF.FVM.BCReflectCons2D");
+    solver.create_bc("bottom",find_component_recursively_with_name<CRegion>(mesh.topology(),"bottom"),"CF.FVM.BCReflectCons2D");
+    solver.create_bc("left",  find_component_recursively_with_name<CRegion>(mesh.topology(),"left"),  "CF.FVM.BCReflectCons2D");
+    solver.create_bc("right", find_component_recursively_with_name<CRegion>(mesh.topology(),"right"), "CF.FVM.BCReflectCons2D");
+  } 
   
-  CRegion& outlet = find_component_recursively_with_name<CRegion>(mesh->topology(),"xpos");
-  CAction& outlet_bc = solver.create_bc("outlet",outlet,"CF.FVM.BCDirichlet");
-  outlet_bc.configure_property("rho",r_R);
-  outlet_bc.configure_property("u",u_R);
-  outlet_bc.configure_property("p",p_R);  
-
   ////////////////////////////////////////////////////////////////////////////////
   // Writer
   ////////////////////////////////////////////////////////////////////////////////
-
-  std::vector<URI> fields;
-  boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
-    fields.push_back(field.full_path());
-  model->access_component_ptr("cpath:./tools/gmsh_writer")->configure_property("Fields",fields);
-  model->access_component_ptr("cpath:./tools/gmsh_writer")->configure_property("File",model->name()+".msh");
-  model->access_component_ptr("cpath:./tools/gmsh_writer")->configure_property("Mesh",mesh->full_path());
-
+  
+  Gmsh::CWriter& writer = *tools.create_component<Gmsh::CWriter>("gmsh_writer");
+  writer.configure_property("Fields",std::vector<URI>(1,find_component_with_tag(mesh,"solution").full_path()));
+  writer.configure_property("File",model.name()+".msh");
+  writer.configure_property("Mesh",mesh.full_path());
+  
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ShockTube::signature_setup_model( SignalArgs& args )
+void ShockTube::signature_create_model( SignalArgs& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
-  p.set_option<std::string>("model_name", std::string(), "Name for created model" );
-  p.set_option<Uint>("nb_cells", 100u , "Number of Cells to be generated");
-  p.set_option<Real>("end_time", 0.008, "Time to stop simulation");
-  p.set_option<Real>("time_step", 0.0004, "Maximum allowed time step to take");
+  p.set_option<std::string>("model_name", "shocktube" , "Name for created model" );
+  p.set_option<Uint>("nb_cells",  100u , "Number of Cells to be generated");
+  p.set_option<Uint>("dimension", 1u , "Dimension of the problem");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
