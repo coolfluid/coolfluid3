@@ -213,7 +213,7 @@ void OSystemLayer::regist_os_signal_handlers()
   feenableexcept ( FE_INVALID   );
   feenableexcept ( FE_OVERFLOW  );
   feenableexcept ( FE_UNDERFLOW );
-  feenableexcept ( FE_INEXACT   );
+  //feenableexcept ( FE_INEXACT   );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
