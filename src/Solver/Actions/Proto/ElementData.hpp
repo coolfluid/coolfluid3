@@ -201,11 +201,18 @@ public:
     return m_element_values;
   }
   
-  /// Interpolation at givem mapped coords
+  /// Interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords) const
   {
     SF::shape_function(mapped_coords, m_sf);
     return m_eval(m_sf, m_element_values);
+  }
+  
+  /// Interpolation at givem mapped coords
+  const typename SF::ShapeFunctionsT& shape_function(const MappedCoordsT& mapped_coords) const
+  {
+    SF::shape_function(mapped_coords, m_sf);
+    return m_sf;
   }
   
   /// Return the gradient
@@ -215,6 +222,15 @@ public:
     SF::mapped_gradient(mapped_coords, m_mapped_gradient_matrix);
     m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
     return m_gradient;
+  }
+  
+  /// Return the advection operator
+  template<typename SupportT>
+  const typename SF::ShapeFunctionsT& advection(const MappedCoordsT& mapped_coords, SupportT& support) const
+  {
+    SF::shape_function(mapped_coords, m_sf);
+    m_advection = m_sf * m_element_values * gradient(mapped_coords, support);
+    return m_advection;
   }
   
   /// Return the gradient (weak form element matrix)
@@ -247,10 +263,12 @@ public:
     return m_value_elm(m_sf);
   }
   
-  /// Identity matrix for a given variable
-  typename IdentityImpl<SF, Dim, Offset, MatrixSize>::result_type identity_elm() const
+  /// Return the laplacian (weak form element matrix)
+  template<typename SupportT>
+  typename AdvectionImpl<SF, Dim, Offset, MatrixSize>::result_type advection_elm(const MappedCoordsT& mapped_coords, SupportT& support) const
   {
-    return m_identity_elm();
+    SF::shape_function(mapped_coords, m_sf);
+    return m_advection_elm(m_element_values, m_sf, gradient(mapped_coords, support));
   }
   
 private:
@@ -272,12 +290,13 @@ private:
   mutable typename SF::ShapeFunctionsT m_sf;
   mutable typename SF::MappedGradientT m_mapped_gradient_matrix;
   mutable GradientT m_gradient;
+  mutable typename SF::ShapeFunctionsT m_advection;
   InterpolationImpl<SF, Dim> m_eval;
   const GradientImpl<SF, Dim, Offset, MatrixSize> m_gradient_elm;
   const DivergenceImpl<SF, Dim, Offset, MatrixSize> m_divergence_elm;
   const LaplacianImpl<SF, Dim, Offset, MatrixSize> m_laplacian_elm;
   const ValueImpl<SF, Dim, Offset, MatrixSize> m_value_elm;
-  const IdentityImpl<SF, Dim, Offset, MatrixSize> m_identity_elm;
+  const AdvectionImpl<SF, Dim, Offset, MatrixSize> m_advection_elm;
 };
 
 /// Predicate to check if data belongs to an equation variable

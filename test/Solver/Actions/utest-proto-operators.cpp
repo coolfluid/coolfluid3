@@ -215,8 +215,6 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   
   mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField2::Basis::POINT_BASED);
   
-  CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*mesh, "region");
-  
   MeshTerm<1, ScalarField > p("Pressure", "p"); // Pressure field
 
   typedef boost::mpl::vector1< SF::Line2DLagrangeP1> SurfaceTypes;
@@ -245,6 +243,26 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
     
   BOOST_CHECK_CLOSE(force[YY], rho*u*circulation, 0.001); // lift according to theory
   BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero
+}
+
+/// Test to transform a matrix that applies to a vector variable to one that applies to the linearized form
+BOOST_AUTO_TEST_CASE( Linearize )
+{
+  CMesh::Ptr mesh = Core::instance().root()->create_component<CMesh>("rectangle");
+  Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
+  
+  mesh->create_field2( "Velocity", CField2::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField2::VarType>(1, CField2::VECTOR_2D) );
+  
+  MeshTerm<0, VectorField> u("Velocity", "u");
+
+  typedef boost::mpl::vector1< SF::Quad2DLagrangeP1> ElTypes;
+  
+  const RealVector2 mc(0., 0.);
+  
+  const RealVector2 test_v(5., 0.);
+  for_each_node(mesh->topology(), u = test_v);
+  
+  for_each_element<ElTypes>(mesh->topology(), _cout << transpose(gradient(u, mc)) * linearize(advection(u, mc), u) << "\n-----------------\n");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

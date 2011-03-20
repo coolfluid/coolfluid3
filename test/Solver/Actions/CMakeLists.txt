@@ -66,8 +66,14 @@ if(CF_ENABLE_PROTO)
     utest-proto-stokes-pspg.cpp )
   coolfluid_add_unit_test( utest-proto-stokes-pspg )
 
+  list( APPEND utest-proto-navier-stokes-pspg_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_solver )
+  list( APPEND utest-proto-navier-stokes-pspg_files
+    utest-proto-navier-stokes-pspg.cpp )
+  list( APPEND utest-proto-navier-stokes-pspg_args ${CMAKE_CURRENT_SOURCE_DIR}/kvs.neu )
+  coolfluid_add_unit_test( utest-proto-navier-stokes-pspg )
+
 else()
 
-  coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-benchmark.cpp utest-proto-operators.cpp  utest-proto-systems.cpp utest-proto-unsteady.cpp utest-proto-stokes-artifdiss.cpp utest-proto-stokes-pspg.cpp)
+  coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-benchmark.cpp utest-proto-operators.cpp  utest-proto-systems.cpp utest-proto-unsteady.cpp utest-proto-stokes-artifdiss.cpp utest-proto-stokes-pspg.cpp utest-proto-navier-stokes-pspg.cpp)
 
 endif()

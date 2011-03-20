@@ -128,6 +128,21 @@ struct GradientOp : boost::proto::transform< GradientOp >
   };
 };
 
+/// Advection
+struct AdvectionOp : boost::proto::transform< AdvectionOp >
+{
+  template<typename VarT, typename MappedCoordsT, typename DataT>
+  struct impl : boost::proto::transform_impl<VarT, MappedCoordsT, DataT>
+  {
+    typedef const typename VarDataType<VarT, DataT>::type::SF::ShapeFunctionsT& result_type;
+    
+    result_type operator()(typename impl::expr_param var, typename impl::state_param mapped_coords, typename impl::data_param data)
+    {
+      return data.var_data(var).advection(mapped_coords, data.support());
+    }
+  };
+};
+
 // Forward declaration
 template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
 struct LaplacianImpl;
@@ -154,7 +169,7 @@ struct ShapeFunctionOp : boost::proto::transform< ShapeFunctionOp >
   template<typename VarT, typename MappedCoordsT, typename DataT>
   struct impl : boost::proto::transform_impl<VarT, MappedCoordsT, DataT>
   {
-    typedef const typename VarDataType<VarT, DataT>::type::ShapeFunctionT::ShapeFunctionsT& result_type;
+    typedef const typename VarDataType<VarT, DataT>::type::SF::ShapeFunctionsT& result_type;
     
     result_type operator()(typename impl::expr_param var, typename impl::state_param mapped_coords, typename impl::data_param data)
     {
@@ -223,42 +238,22 @@ struct DivergenceElmOp : boost::proto::transform< DivergenceElmOp >
   };
 };
 
-// // Forward declaration
-// template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-// struct InverseSFImpl;
-// 
-// /// Element gradient
-// struct InverseSFElmOp : boost::proto::transform< InverseSFElmOp >
-// {
-//   template<typename VarT, typename MappedCoordsT, typename DataT>
-//   struct impl : boost::proto::transform_impl<VarT, MappedCoordsT, DataT>
-//   {
-//     typedef typename VarDataType<VarT, DataT>::type VarDataT;
-//     typedef typename InverseSFImpl<typename VarDataT::SF, VarDataT::dimension, VarDataT::offset, VarDataT::matrix_size>::result_type result_type;
-//     
-//     result_type operator()(typename impl::expr_param var, typename impl::state_param mapped_coords, typename impl::data_param data)
-//     {
-//       return data.var_data(var).inverse_sf_elm(mapped_coords);
-//     }
-//   };
-// };
-
 // Forward declaration
 template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-struct IdentityImpl;
+struct AdvectionImpl;
 
-/// Gets a matrix that has the width of the element matrix, but with a unit matrix at the block corresponding to a variable
-struct IdentityElmOp : boost::proto::transform< IdentityElmOp >
+/// Element advection
+struct AdvectionElmOp : boost::proto::transform< AdvectionElmOp >
 {
   template<typename VarT, typename MappedCoordsT, typename DataT>
   struct impl : boost::proto::transform_impl<VarT, MappedCoordsT, DataT>
   {
     typedef typename VarDataType<VarT, DataT>::type VarDataT;
-    typedef typename IdentityImpl<typename VarDataT::SF, VarDataT::dimension, VarDataT::offset, VarDataT::matrix_size>::result_type result_type;
+    typedef typename AdvectionImpl<typename VarDataT::SF, VarDataT::dimension, VarDataT::offset, VarDataT::matrix_size>::result_type result_type;
     
-    result_type operator()(typename impl::expr_param var, typename impl::state_param, typename impl::data_param data)
+    result_type operator()(typename impl::expr_param var, typename impl::state_param mapped_coords, typename impl::data_param data)
     {
-      return data.var_data(var).identity_elm();
+      return data.var_data(var).advection_elm(mapped_coords, data.support());
     }
   };
 };
@@ -271,6 +266,7 @@ boost::proto::terminal<JacobianOp>::type const jacobian = {};
 boost::proto::terminal<JacobianDeterminantOp>::type const jacobian_determinant = {};
 boost::proto::terminal<NormalOp>::type const normal = {};
 boost::proto::terminal<GradientOp>::type const gradient = {};
+boost::proto::terminal<AdvectionOp>::type const advection = {};
 
 boost::proto::terminal<ShapeFunctionOp>::type const shape_function = {};
 
@@ -278,18 +274,18 @@ boost::proto::terminal<GradientElmOp>::type const gradient_elm = {};
 boost::proto::terminal<DivergenceElmOp>::type const divergence_elm = {};
 boost::proto::terminal<LaplacianElmOp>::type const laplacian_elm = {};
 boost::proto::terminal<ValueElmOp>::type const value_elm = {};
-boost::proto::terminal<IdentityElmOp>::type const identity_elm = {};
-// boost::proto::terminal<InverseSFElmOp>::type const inverse_sf_elm = {};
+boost::proto::terminal<AdvectionElmOp>::type const advection_elm = {};
+
+/// Placeholder for a linearize op
+struct LinearizeOp
+{
+};
+
+boost::proto::terminal<LinearizeOp>::type const linearize = {};
 
 /// SF operations needing only a support
 struct SFSupportOp :
   boost::proto::terminal< VolumeOp >
-{
-};
-
-/// SF operations needing only a field
-struct SFFieldOp :
-  boost::proto::terminal< IdentityElmOp >
 {
 };
 
@@ -312,8 +308,10 @@ struct SFSupportFieldMappedOp :
     boost::proto::terminal<ShapeFunctionOp>,
     boost::proto::terminal<ValueElmOp>,
     boost::proto::terminal<GradientOp>,
+    boost::proto::terminal<AdvectionOp>,
     boost::proto::terminal<GradientElmOp>,
     boost::proto::terminal<DivergenceElmOp>,
+    boost::proto::terminal<AdvectionElmOp>,
     boost::proto::terminal<LaplacianElmOp>
   >
 {
@@ -545,58 +543,32 @@ private:
   mutable MatrixT m_matrix;
 };
 
-// InverseSF
-// template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-// struct InverseSFImpl
-// {
-//   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-//   
-//   InverseSFImpl()
-//   {
-//     m_matrix.setZero();
-//   }
-//   
-//   /// Type of the element matrix
-//   typedef Eigen::Matrix<Real, Dim, MatrixSize> MatrixT;
-//   typedef const MatrixT& result_type;
-//   
-//   result_type operator()(const typename SF::ShapeFunctionsT& sf) const
-//   {
-//     typename SF::ShapeFunctionsT inv_sf = SF::ShapeFunctionsT::Constant(1.).array() / sf.array();
-//     static const Uint dofs = MatrixSize / SF::nb_nodes;
-//     for(Uint i = 0; i != dofs; ++i)
-//       m_matrix.template block<1, SF::nb_nodes>(0, i*SF::nb_nodes).noalias() = inv_sf;
-//     for(Uint i = 1; i != Dim; ++i)
-//       m_matrix.row(i) = m_matrix.row(0);
-//     return m_matrix;
-//   }
-//   
-// private:
-//   mutable MatrixT m_matrix;
-// };
-
-/// Identity matrix at the block for a variable
+/// Advection
 template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-struct IdentityImpl
+struct AdvectionImpl
 {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
-  IdentityImpl()
+  AdvectionImpl()
   {
-    m_matrix.template block<SF::nb_nodes*Dim, SF::nb_nodes*Dim>(0, Offset).setIdentity();
+    m_matrix.setZero();
   }
   
   /// Type of the element matrix
-  typedef Eigen::Matrix<Real, SF::nb_nodes*Dim, MatrixSize> MatrixT;
+  typedef Eigen::Matrix<Real, Dim*SF::nb_nodes, MatrixSize> MatrixT;
   typedef const MatrixT& result_type;
   
-  result_type operator()() const
+  result_type operator()(const typename SF::NodeMatrixT& advection_v, const typename SF::ShapeFunctionsT& sf, const typename SF::MappedGradientT& gradient_matrix) const
   {
+    // The advection operator, pre-multiplied with the weight functions (sf)
+    const Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> advection_op = sf.transpose() * (sf * advection_v * gradient_matrix);
+    for(Uint i = 0; i != SF::dimension; ++i)
+      m_matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, i*SF::nb_nodes).noalias() = advection_op;
     return m_matrix;
   }
   
 private:
-  MatrixT m_matrix;
+  mutable MatrixT m_matrix;
 };
 
 } // namespace Proto

@@ -104,7 +104,8 @@ struct WrappableElementExpressions :
   boost::proto::or_
   <
     boost::proto::multiplies<boost::proto::_, boost::proto::_>,
-    boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, boost::proto::_ >
+    boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, boost::proto::_ >,
+    boost::proto::function<boost::proto::terminal<LinearizeOp>, boost::proto::_, FieldTypes>
   >
 {
 };
@@ -200,6 +201,14 @@ struct ElementLooperImpl
         boost::proto::functional::make_expr<boost::proto::tag::function, ElementsDomain>
         (
           WrapExpression(boost::proto::_child0), WrapExpression(boost::proto::_child1)
+        )
+      >,
+      boost::proto::when
+      <
+        boost::proto::function<boost::proto::terminal<LinearizeOp>, boost::proto::_, FieldTypes>,
+        boost::proto::functional::make_expr<boost::proto::tag::function, ElementsDomain>
+        (
+          WrapExpression(boost::proto::_child0), WrapExpression(boost::proto::_child1), WrapExpression(boost::proto::_child2)
         )
       >,
       boost::proto::nary_expr< boost::proto::_, boost::proto::vararg<WrapExpression> >

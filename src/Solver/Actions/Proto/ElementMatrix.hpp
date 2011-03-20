@@ -209,8 +209,8 @@ struct ElementMatrixValue :
 };
 
 /// Only get the rows relevant for a given variable
-struct ElementMatrixBlockValue :
-  boost::proto::transform<ElementMatrixBlockValue>
+struct ElementMatrixRowsValue :
+  boost::proto::transform<ElementMatrixRowsValue>
 {
  
   template<typename ExprT, typename StateT, typename DataT>
@@ -227,6 +227,35 @@ struct ElementMatrixBlockValue :
     result_type operator ()(typename impl::expr_param, typename impl::state_param state, typename impl::data_param data) const
     {
       return data.element_matrix(state).template block<VarDataT::dimension * VarDataT::SF::nb_nodes, VarDataT::matrix_size>(VarDataT::offset, 0);
+    }
+  };
+};
+
+/// Only get a block containing the rows for the first var and the cols for the second
+struct ElementMatrixBlockValue :
+  boost::proto::transform<ElementMatrixBlockValue>
+{
+ 
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename VarDataType<typename boost::proto::result_of::value<typename boost::proto::result_of::child_c<ExprT, 1>::type>::type, DataT>::type RowVarDataT;
+    typedef typename VarDataType<typename boost::proto::result_of::value<typename boost::proto::result_of::child_c<ExprT, 2>::type>::type, DataT>::type ColVarDataT;
+    
+    typedef Eigen::Block
+    <
+      typename boost::remove_reference<DataT>::type::ElementMatrixT,
+      RowVarDataT::dimension * RowVarDataT::SF::nb_nodes,
+      ColVarDataT::dimension * ColVarDataT::SF::nb_nodes
+    > result_type;
+    
+    result_type operator ()(typename impl::expr_param, typename impl::state_param state, typename impl::data_param data) const
+    {
+      return data.element_matrix(state).template block
+      <
+        RowVarDataT::dimension * RowVarDataT::SF::nb_nodes,
+        ColVarDataT::dimension * ColVarDataT::SF::nb_nodes
+      >(RowVarDataT::offset, ColVarDataT::offset);
     }
   };
 };
@@ -259,7 +288,12 @@ struct ElementMatrixGrammar :
     boost::proto::when
     <
       boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, FieldTypes>,
-      ElementMatrixBlockValue(boost::proto::_value(boost::proto::_child1), boost::proto::_value(boost::proto::_child0))
+      ElementMatrixRowsValue(boost::proto::_value(boost::proto::_child1), boost::proto::_value(boost::proto::_child0))
+    >,
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, FieldTypes, FieldTypes>,
+      ElementMatrixBlockValue(boost::proto::_expr, boost::proto::_value(boost::proto::_child0))
     >,
     boost::proto::when
     <
