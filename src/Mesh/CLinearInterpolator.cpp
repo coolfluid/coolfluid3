@@ -23,7 +23,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ElementData.hpp"
@@ -78,7 +78,7 @@ void CLinearInterpolator::construct_internal_storage(const CMesh& source)
   
 //////////////////////////////////////////////////////////////////////
   
-void CLinearInterpolator::interpolate_field_from_to(const CField2& source, CField2& target)
+void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField& target)
 {  
   const CTable<Real>& s_data = source.data();
   CTable<Real>& t_data = target.data();
@@ -88,7 +88,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField2& source, CFiel
   Uint s_elm_idx;
   RealVector t_node(m_dim); t_node.setZero();
   
-  if (source.basis() == CField2::Basis::POINT_BASED && target.basis() == CField2::Basis::POINT_BASED)
+  if (source.basis() == CField::Basis::POINT_BASED && target.basis() == CField::Basis::POINT_BASED)
   {    
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
@@ -112,7 +112,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField2& source, CFiel
       }
     }
   }
-  else if (source.basis() == CField2::Basis::ELEMENT_BASED && target.basis() == CField2::Basis::POINT_BASED)
+  else if (source.basis() == CField::Basis::ELEMENT_BASED && target.basis() == CField::Basis::POINT_BASED)
   {
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
@@ -150,7 +150,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField2& source, CFiel
       }
     }
   }
-  else if (source.basis() == CField2::Basis::POINT_BASED && target.basis() == CField2::Basis::ELEMENT_BASED)
+  else if (source.basis() == CField::Basis::POINT_BASED && target.basis() == CField::Basis::ELEMENT_BASED)
   {
     CFieldView t_view("t_view");
     t_view.set_field(target);
@@ -190,7 +190,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField2& source, CFiel
       }
     }
   }
-  else if (source.basis() == CField2::Basis::ELEMENT_BASED && target.basis() == CField2::Basis::ELEMENT_BASED)
+  else if (source.basis() == CField::Basis::ELEMENT_BASED && target.basis() == CField::Basis::ELEMENT_BASED)
   {
 
 
@@ -252,7 +252,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField2& source, CFiel
   }
   else
   {
-    throw ShouldNotBeHere(FromHere(), "CField2::basis() should return NODE_BASED or ELEMENT_BASED");
+    throw ShouldNotBeHere(FromHere(), "CField::basis() should return NODE_BASED or ELEMENT_BASED");
   }
 }
 

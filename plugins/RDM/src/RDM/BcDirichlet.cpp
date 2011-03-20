@@ -11,7 +11,7 @@
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CList.hpp"
@@ -75,9 +75,9 @@ void BcDirichlet::config_mesh()
   cf_assert( is_not_null( m_mesh.lock() ) );
 
   URI sol_uri  = property("Solution").value<URI>();
-  m_solution = access_component_ptr(sol_uri)->as_ptr<CField2>();
+  m_solution = access_component_ptr(sol_uri)->as_ptr<CField>();
   if( is_null(m_solution.lock()) )
-    m_solution = find_component_ptr_with_tag<CField2>( *(m_mesh.lock()) , "solution" );
+    m_solution = find_component_ptr_with_tag<CField>( *(m_mesh.lock()) , "solution" );
 
   if( is_null(m_solution.lock()) )
     throw CastingFailed (FromHere(),
@@ -90,7 +90,7 @@ void BcDirichlet::config_mesh()
 
 void BcDirichlet::execute()
 {
-  CField2& field = *m_solution.lock();
+  CField& field = *m_solution.lock();
 
   Real vars[DIM_2D];
 

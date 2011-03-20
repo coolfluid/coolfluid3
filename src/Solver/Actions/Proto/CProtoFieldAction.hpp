@@ -17,7 +17,7 @@
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CNodes.hpp"
 
 #include "Solver/CEigenLSS.hpp"
@@ -118,7 +118,7 @@ public:
       const std::string& fd_name = fd_names[fd_idx];
       if(unique_fields.insert(fd_name).second && equation_variables[fd_idx])
       {
-        const Uint nb_field_rows = mesh.get_child_ptr(fd_name)->as_ptr<Mesh::CField2>()->data().size();
+        const Uint nb_field_rows = mesh.get_child_ptr(fd_name)->as_ptr<Mesh::CField>()->data().size();
         for(Uint i = 0; i != nb_vars; ++i)
         {
           if(fd_names[i] == fd_name)
@@ -154,7 +154,7 @@ public:
     BOOST_FOREACH(const std::string& fd_name, unique_fields)
     {
       StringsT fd_var_names;
-      std::vector<Mesh::CField2::VarType> fd_var_types;
+      std::vector<Mesh::CField::VarType> fd_var_types;
       
       // Check if the field exists
       Component::ConstPtr existing_field = mesh.get_child_ptr(fd_name);
@@ -166,11 +166,11 @@ public:
           continue;
         
         fd_var_names.push_back(var_names[i]);
-        fd_var_types.push_back( static_cast<Mesh::CField2::VarType>(var_sizes[i]) );
+        fd_var_types.push_back( static_cast<Mesh::CField::VarType>(var_sizes[i]) );
         
         if(existing_field)
         {
-          const Mesh::CField2& efield = existing_field->as_type<Mesh::CField2>();
+          const Mesh::CField& efield = existing_field->as_type<Mesh::CField>();
 
           if(   efield.nb_vars() <= var_idx
              || efield.var_name(var_idx) != var_names[i]
@@ -182,7 +182,7 @@ public:
       }
       
       if(!existing_field && fd_var_names.size())
-        mesh.create_field2(fd_name, Mesh::CField2::Basis::POINT_BASED, fd_var_names, fd_var_types);
+        mesh.create_field2(fd_name, Mesh::CField::Basis::POINT_BASED, fd_var_names, fd_var_types);
     }
   }
   

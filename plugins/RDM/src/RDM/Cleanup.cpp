@@ -8,7 +8,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/Foreach.hpp"
 
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "RDM/Cleanup.hpp"
@@ -46,9 +46,9 @@ void Cleanup::config_fields()
   {
     Component& comp = access_component(field_path);
 
-    if ( CField2::Ptr field = comp.as_ptr<CField2>() )
+    if ( CField::Ptr field = comp.as_ptr<CField>() )
     {
-      boost::weak_ptr<CField2> wptr = field;
+      boost::weak_ptr<CField> wptr = field;
       m_fields.push_back( wptr );
     }
     else
@@ -61,7 +61,7 @@ void Cleanup::config_fields()
 void Cleanup::execute()
 {
   // loop over fields to cleanup
-  boost_foreach(boost::weak_ptr<CField2> ptr, m_fields)
+  boost_foreach(boost::weak_ptr<CField> ptr, m_fields)
   {
     if( ptr.expired() ) continue; // skip if pointer invalid
 

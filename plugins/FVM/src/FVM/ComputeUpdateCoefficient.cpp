@@ -7,7 +7,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/OptionT.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Solver/CTime.hpp"
 #include "Solver/CModel.hpp"
@@ -68,7 +68,7 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
 void ComputeUpdateCoefficient::config_update_coeff()
 {
   URI uri;  property("update_coeff").put_value(uri);
-  m_update_coeff = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
+  m_update_coeff = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ void ComputeUpdateCoefficient::config_update_coeff()
 void ComputeUpdateCoefficient::config_volume()
 {
   URI uri;  property("volume").put_value(uri);
-  m_volume = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
+  m_volume = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ void ComputeUpdateCoefficient::config_volume()
 void ComputeUpdateCoefficient::config_wave_speed()
 {
   URI uri;  property("wave_speed").put_value(uri);
-  m_wave_speed = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
+  m_wave_speed = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

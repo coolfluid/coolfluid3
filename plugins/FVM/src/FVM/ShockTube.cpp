@@ -15,7 +15,7 @@
 #include "Common/Log.hpp"
 
 #include "Mesh/CDomain.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
 #include "Mesh/Actions/CBuildVolume.hpp"

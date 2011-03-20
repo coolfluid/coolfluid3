@@ -22,7 +22,7 @@
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
@@ -171,7 +171,7 @@ public:
   {
     const Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
     Common::Component::ConstPtr field_comp = mesh.get_child_ptr(placeholder.field_name);
-    Mesh::CField2::ConstPtr field = field_comp->as_ptr<Mesh::CField2>();
+    Mesh::CField::ConstPtr field = field_comp->as_ptr<Mesh::CField>();
     cf_assert(field);
     
     m_data = &field->data();

@@ -12,7 +12,7 @@
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "Mesh/Actions/CInfo.hpp"
@@ -99,9 +99,9 @@ void CInfo::execute()
   }  
 
   CFinfo << "Fields:" << CFendl;
-  boost_foreach( const CField2& field, find_components<CField2>(mesh) )
+  boost_foreach( const CField& field, find_components<CField>(mesh) )
   {
-    CFinfo << " - " << field.name() << "  (" << CField2::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
+    CFinfo << " - " << field.name() << "  (" << CField::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
       CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_type(i) << "]" << CFendl;

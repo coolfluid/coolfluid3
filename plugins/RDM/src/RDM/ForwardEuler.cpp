@@ -15,7 +15,7 @@
 
 #include "Math/MathChecks.hpp"
 
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
@@ -63,13 +63,13 @@ ForwardEuler::ForwardEuler ( const std::string& name ) :
       ->mark_basic()
       ->link_to( &m_max_iter );
 
-  m_properties.add_option(OptionComponent<CField2>::create("Solution","Solution field", &m_solution))
+  m_properties.add_option(OptionComponent<CField>::create("Solution","Solution field", &m_solution))
     ->add_tag("solution");
 
-  m_properties.add_option(OptionComponent<CField2>::create("WaveSpeed","Wave speed field", &m_wave_speed))
+  m_properties.add_option(OptionComponent<CField>::create("WaveSpeed","Wave speed field", &m_wave_speed))
     ->add_tag("wave_speed");
 
-  m_properties.add_option(OptionComponent<CField2>::create("Residual","Residual field", &m_residual))
+  m_properties.add_option(OptionComponent<CField>::create("Residual","Residual field", &m_residual))
     ->add_tag("residual");
 
   create_static_component<CCriterionMaxIterations>("max_iterations");

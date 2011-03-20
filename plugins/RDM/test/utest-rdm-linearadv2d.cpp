@@ -307,7 +307,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , linearadv2d_local_fixture )
   model.add_component(mesh_writer);
 
   std::vector<URI> fields;
-  boost_foreach(const CField2& field, find_components_recursively<CField2>(*mesh))
+  boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
   mesh_writer->configure_property("Fields",fields);

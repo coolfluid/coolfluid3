@@ -26,7 +26,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ElementData.hpp"
 
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  CField2& t_fld = mesh->create_field2( "Temperature", CField2::Basis::POINT_BASED, std::vector<std::string>(1, "T"), std::vector<CField2::VarType>(1, CField2::VECTOR_2D) );
+  CField& t_fld = mesh->create_field2( "Temperature", CField::Basis::POINT_BASED, std::vector<std::string>(1, "T"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
   lss.resize(t_fld.data().size() * 2);
   
   // Setup a mesh writer

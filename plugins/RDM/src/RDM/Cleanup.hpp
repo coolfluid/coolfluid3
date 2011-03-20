@@ -12,7 +12,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh { class CField2; }
+namespace Mesh { class CField; }
 namespace RDM {
 
 class RDM_API Cleanup : public RDM::Action
@@ -43,7 +43,7 @@ private: // helper functions
   
 private: // data
   
-  std::vector< boost::weak_ptr<Mesh::CField2> > m_fields;
+  std::vector< boost::weak_ptr<Mesh::CField> > m_fields;
 
 };
 

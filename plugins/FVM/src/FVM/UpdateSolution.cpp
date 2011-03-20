@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionComponent.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 #include "FVM/UpdateSolution.hpp"
 
@@ -31,13 +31,13 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
 
   // options
 
-  m_properties.add_option(OptionComponent<CField2>::create("Solution","Solution to update", &m_solution))
+  m_properties.add_option(OptionComponent<CField>::create("Solution","Solution to update", &m_solution))
     ->add_tag("solution");
 
-  m_properties.add_option(OptionComponent<CField2>::create("UpdateCoeff","Update coefficient", &m_update_coeff))
+  m_properties.add_option(OptionComponent<CField>::create("UpdateCoeff","Update coefficient", &m_update_coeff))
     ->add_tag("update_coeff");
 
-  m_properties.add_option(OptionComponent<CField2>::create("Residual","Residual", &m_residual))
+  m_properties.add_option(OptionComponent<CField>::create("Residual","Residual", &m_residual))
     ->add_tag("residual");
 }
 

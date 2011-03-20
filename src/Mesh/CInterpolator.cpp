@@ -8,7 +8,7 @@
 
 #include "Mesh/CInterpolator.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -21,10 +21,10 @@ using namespace Common::XML;
 CInterpolator::CInterpolator ( const std::string& name  ) :
   Component ( name )
 {
-  properties().add_option(OptionComponent<CField2>::create("SourceField","Field to interpolate from",&m_source))
+  properties().add_option(OptionComponent<CField>::create("SourceField","Field to interpolate from",&m_source))
     ->mark_basic();
     
-  properties().add_option(OptionComponent<CField2>::create("TargetField","Field to interpolate to",&m_target))
+  properties().add_option(OptionComponent<CField>::create("TargetField","Field to interpolate to",&m_target))
     ->mark_basic();
 
 }

@@ -14,7 +14,7 @@
 
 #include "Math/MathConsts.hpp"
 
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "Solver/CModelUnsteady.hpp"

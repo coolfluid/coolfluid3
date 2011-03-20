@@ -16,7 +16,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CMesh.hpp"
 
@@ -75,7 +75,7 @@ void CBuildCoordinatesField::execute()
   std::vector<std::string> names(1);
   std::vector<Uint> sizes(1);
 
-  CField2& coordinates = *mesh.create_component<CField2>("coordinates");
+  CField& coordinates = *mesh.create_component<CField>("coordinates");
   names[0] = "coordinates";
   sizes[0] = mesh.nodes().coordinates().row_size();
   coordinates.get_child_ptr("topology")->as_ptr<CLink>()->link_to(mesh.topology().self());

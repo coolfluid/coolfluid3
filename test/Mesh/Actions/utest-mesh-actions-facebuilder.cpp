@@ -22,7 +22,7 @@
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CCellFaces.hpp"
 #include "Mesh/CMeshReader.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CCells.hpp"
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","writer");
 
   boost::filesystem::path file ("facenormals.msh");
-  mesh_writer->set_fields(std::vector<CField2::Ptr>(1,find_component_ptr<CField2>(*mesh)));
+  mesh_writer->set_fields(std::vector<CField::Ptr>(1,find_component_ptr<CField>(*mesh)));
   mesh_writer->write_from_to(mesh,file);
 }
 

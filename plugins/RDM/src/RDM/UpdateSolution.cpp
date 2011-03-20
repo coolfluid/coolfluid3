@@ -9,7 +9,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/Foreach.hpp"
 
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "RDM/UpdateSolution.hpp"
@@ -35,13 +35,13 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
 
   // options
 
-  m_properties.add_option(OptionComponent<CField2>::create("Solution","Solution field", &m_solution))
+  m_properties.add_option(OptionComponent<CField>::create("Solution","Solution field", &m_solution))
     ->add_tag("solution");
 
-  m_properties.add_option(OptionComponent<CField2>::create("WaveSpeed","Wave speed field", &m_wave_speed))
+  m_properties.add_option(OptionComponent<CField>::create("WaveSpeed","Wave speed field", &m_wave_speed))
     ->add_tag("wave_speed");
 
-  m_properties.add_option(OptionComponent<CField2>::create("Residual","Residual field", &m_residual))
+  m_properties.add_option(OptionComponent<CField>::create("Residual","Residual field", &m_residual))
     ->add_tag("residual");
 }
 

@@ -14,7 +14,7 @@
 
 #include "Common/FindComponents.hpp"
 
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CNodes.hpp"
@@ -86,7 +86,7 @@ template<>
 struct NodeVarData< ScalarField >
 {
   NodeVarData(const ScalarField& placeholder, Mesh::CRegion& region) :
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField2>() ),
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField>() ),
     m_data( m_field.data() )
   {
     m_var_begin = m_field.var_index(placeholder.var_name);
@@ -128,7 +128,7 @@ struct NodeVarData< ScalarField >
   Uint offset;
   
 private:
-  Mesh::CField2& m_field;
+  Mesh::CField& m_field;
   Uint m_var_begin;
   Mesh::CTable<Real>& m_data;
   Uint m_idx;
@@ -144,7 +144,7 @@ struct NodeVarData<VectorField, Dim>
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
   NodeVarData(const VectorField& placeholder, Mesh::CRegion& region) :
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField2>() ),
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField>() ),
     m_data( m_field.data() )
   {
     m_var_begin = m_field.var_index(placeholder.var_name);
@@ -189,7 +189,7 @@ struct NodeVarData<VectorField, Dim>
   Uint offset;
   
 private:
-  Mesh::CField2& m_field;
+  Mesh::CField& m_field;
   Uint m_var_begin;
   Mesh::CTable<Real>& m_data;
   ValueT m_value;

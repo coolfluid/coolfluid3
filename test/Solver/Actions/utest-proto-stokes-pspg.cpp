@@ -30,7 +30,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ElementData.hpp"
 
@@ -107,8 +107,8 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output fields
-  CField2& u_fld = mesh->create_field2( "Velocity", CField2::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField2::VarType>(1, CField2::VECTOR_2D) );
-  CField2& p_fld = mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField2::Basis::POINT_BASED);
+  CField& u_fld = mesh->create_field2( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
+  CField& p_fld = mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField::Basis::POINT_BASED);
   
   lss.resize(u_fld.data().size() * 2 + p_fld.size());
   

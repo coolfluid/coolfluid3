@@ -267,9 +267,9 @@ void Transformer::output( const std::vector<std::string>& params )
     
     CFinfo << "\nWriting " << outputfile << " with " << writer->get_format() << CFendl;
     
-    std::vector<CField2::Ptr> fields;
-    boost_foreach ( CField2& field, find_components<CField2>(*mesh) )
-      fields.push_back(field.as_ptr<CField2>());
+    std::vector<CField::Ptr> fields;
+    boost_foreach ( CField& field, find_components<CField>(*mesh) )
+      fields.push_back(field.as_ptr<CField>());
     if (!dryrun) writer->set_fields(fields);
     if (!dryrun) writer->write_from_to(mesh,outputfile);
   }

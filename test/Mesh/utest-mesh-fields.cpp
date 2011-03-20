@@ -19,7 +19,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CNodes.hpp"
 
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   std::vector<std::string> names;
   std::vector<std::string> types;
 
-  CField2& coordinates = *mesh.create_component<CField2>("coordinates");
+  CField& coordinates = *mesh.create_component<CField>("coordinates");
   names = list_of("coordinates");
   types = list_of("Vector2D");
   coordinates.configure_property("Topology",mesh.topology().full_path());
@@ -89,14 +89,14 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   coordinates.configure_property("Space",0u);
   coordinates.create_data_storage();
 
-  BOOST_CHECK_EQUAL( coordinates.basis() , CField2::Basis::POINT_BASED );
+  BOOST_CHECK_EQUAL( coordinates.basis() , CField::Basis::POINT_BASED );
   BOOST_CHECK_EQUAL( coordinates.var_name() , std::string("coordinates") );
   BOOST_CHECK_EQUAL( coordinates.var_name(0) , std::string("coordinates") );
   BOOST_CHECK_EQUAL( coordinates.var_index("coordinates") , 0u );
   BOOST_CHECK_EQUAL( coordinates.var_number("coordinates") , 0u );
-  BOOST_CHECK_EQUAL( coordinates.var_type() , CField2::VECTOR_2D );
-  BOOST_CHECK_EQUAL( coordinates.var_type(0) , CField2::VECTOR_2D );
-  BOOST_CHECK_EQUAL( coordinates.var_type("coordinates") , CField2::VECTOR_2D );
+  BOOST_CHECK_EQUAL( coordinates.var_type() , CField::VECTOR_2D );
+  BOOST_CHECK_EQUAL( coordinates.var_type(0) , CField::VECTOR_2D );
+  BOOST_CHECK_EQUAL( coordinates.var_type("coordinates") , CField::VECTOR_2D );
   BOOST_CHECK_EQUAL( coordinates.topology().full_path().string() , mesh.topology().full_path().string() );
   BOOST_CHECK_EQUAL( coordinates.space_idx() , 0u );
   
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   std::vector<std::string> names;
   std::vector<std::string> types;
 
-  CField2& solution = *mesh.create_component<CField2>("solution");
+  CField& solution = *mesh.create_component<CField>("solution");
   names = list_of("rho")("U")("p");
   types = list_of("scalar")("Vector2D")("scalar");
   solution.configure_property("Topology",mesh.topology().full_path());
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   solution.create_data_storage();
   
   
-  BOOST_CHECK_EQUAL( solution.basis() , CField2::Basis::POINT_BASED );
+  BOOST_CHECK_EQUAL( solution.basis() , CField::Basis::POINT_BASED );
   BOOST_CHECK_EQUAL( solution.var_name() , std::string("rho") );
   BOOST_CHECK_EQUAL( solution.var_name(0) , std::string("rho") );
   BOOST_CHECK_EQUAL( solution.var_name(1) , std::string("U") );
@@ -138,13 +138,13 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   BOOST_CHECK_EQUAL( solution.var_index("rho") , 0u );
   BOOST_CHECK_EQUAL( solution.var_index("U") , 1u );
   BOOST_CHECK_EQUAL( solution.var_index("p") , 3u );
-  BOOST_CHECK_EQUAL( solution.var_type() , CField2::SCALAR );
-  BOOST_CHECK_EQUAL( solution.var_type(0) , CField2::SCALAR );
-  BOOST_CHECK_EQUAL( solution.var_type(1) , CField2::VECTOR_2D );
-  BOOST_CHECK_EQUAL( solution.var_type(2) , CField2::SCALAR );
-  BOOST_CHECK_EQUAL( solution.var_type("rho") , CField2::SCALAR );
-  BOOST_CHECK_EQUAL( solution.var_type("U") , CField2::VECTOR_2D );
-  BOOST_CHECK_EQUAL( solution.var_type("p") , CField2::SCALAR );
+  BOOST_CHECK_EQUAL( solution.var_type() , CField::SCALAR );
+  BOOST_CHECK_EQUAL( solution.var_type(0) , CField::SCALAR );
+  BOOST_CHECK_EQUAL( solution.var_type(1) , CField::VECTOR_2D );
+  BOOST_CHECK_EQUAL( solution.var_type(2) , CField::SCALAR );
+  BOOST_CHECK_EQUAL( solution.var_type("rho") , CField::SCALAR );
+  BOOST_CHECK_EQUAL( solution.var_type("U") , CField::VECTOR_2D );
+  BOOST_CHECK_EQUAL( solution.var_type("p") , CField::SCALAR );
   BOOST_CHECK_EQUAL( solution.topology().full_path().string() , mesh.topology().full_path().string() );
   BOOST_CHECK_EQUAL( solution.space_idx() , 0u );
   
@@ -160,8 +160,8 @@ BOOST_AUTO_TEST_CASE( FieldOperators )
   std::vector<std::string> types;
 
 
-  CField2& solution = *mesh.get_child_ptr("solution")->as_ptr<CField2>();
-  CField2& solution_copy = *mesh.create_component<CField2>("solution_copy");
+  CField& solution = *mesh.get_child_ptr("solution")->as_ptr<CField>();
+  CField& solution_copy = *mesh.create_component<CField>("solution_copy");
   names = list_of("rho")("U")("p");
   types = list_of("scalar")("Vector2D")("scalar");
   solution_copy.configure_property("Topology",mesh.topology().full_path());

@@ -19,7 +19,7 @@
 
 namespace CF {
 namespace Mesh { 
-  class CField2;
+  class CField;
 namespace Actions {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ private: // data
 
   Real m_constant;
 
-  boost::weak_ptr<CField2> m_field;
+  boost::weak_ptr<CField> m_field;
   
 }; // end CInitFieldConstant
 

@@ -122,16 +122,16 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 	
   // Create empty fields
-  CField2& s_nodebased = source->create_field2( "nodebased", "PointBased" , "rho_n[1] , V_n[3] , p_n[1]"    );
-	CField2& s_elembased = source->create_field2( "elementbased", "ElementBased" , "rho_e[1], V_e[3] , p_e[1]" );
+  CField& s_nodebased = source->create_field2( "nodebased", "PointBased" , "rho_n[1] , V_n[3] , p_n[1]"    );
+	CField& s_elembased = source->create_field2( "elementbased", "ElementBased" , "rho_e[1], V_e[3] , p_e[1]" );
 
-  CField2& t_nodebased   = target->create_field2( "nodebased",   "PointBased" , "rho_n[1] , V_n[3] , p_n[1]"  );
-  CField2& t_nodebased_2 = target->create_field2( "nodebased_2", "PointBased" , "rho_n_2[1] , V_n_2[3] , p_n_2[1]" );
-  CField2& t_elembased   = target->create_field2( "elementbased", "ElementBased" , "rho_e[1], V_e[3] , p_e[1]" );
+  CField& t_nodebased   = target->create_field2( "nodebased",   "PointBased" , "rho_n[1] , V_n[3] , p_n[1]"  );
+  CField& t_nodebased_2 = target->create_field2( "nodebased_2", "PointBased" , "rho_n_2[1] , V_n_2[3] , p_n_2[1]" );
+  CField& t_elembased   = target->create_field2( "elementbased", "ElementBased" , "rho_e[1], V_e[3] , p_e[1]" );
 	
-//	target->create_field2( "nodebased_2",    nvars_2, CField2::Basis::POINT_BASED    );
-//	target->create_field2( "elementbased",   evars,   CField2::Basis::ELEMENT_BASED );
-//	target->create_field2( "elementbased_2", evars_2, CField2::Basis::ELEMENT_BASED );
+//	target->create_field2( "nodebased_2",    nvars_2, CField::Basis::POINT_BASED    );
+//	target->create_field2( "elementbased",   evars,   CField::Basis::ELEMENT_BASED );
+//	target->create_field2( "elementbased_2", evars_2, CField::Basis::ELEMENT_BASED );
   
 	BOOST_CHECK(true);
   
@@ -198,18 +198,18 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   BOOST_CHECK(true);
 
-  std::vector<CField2::Ptr> s_fields;
-  boost_foreach(CField2& field, find_components_recursively<CField2>(*source))
-    s_fields.push_back(field.as_ptr<CField2>());
+  std::vector<CField::Ptr> s_fields;
+  boost_foreach(CField& field, find_components_recursively<CField>(*source))
+    s_fields.push_back(field.as_ptr<CField>());
 
   meshwriter->set_fields(s_fields);
 	meshwriter->write_from_to(source,fp_source_out);
 	BOOST_CHECK(true);
 
 
-  std::vector<CField2::Ptr> t_fields;
-  boost_foreach(CField2& field, find_components_recursively<CField2>(*target))
-    t_fields.push_back(field.as_ptr<CField2>());
+  std::vector<CField::Ptr> t_fields;
+  boost_foreach(CField& field, find_components_recursively<CField>(*target))
+    t_fields.push_back(field.as_ptr<CField>());
 
   meshwriter->set_fields(t_fields);
 	meshwriter->write_from_to(target,fp_interpolated);

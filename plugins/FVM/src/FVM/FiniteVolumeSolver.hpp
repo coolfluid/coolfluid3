@@ -28,7 +28,7 @@ namespace Solver {
 }
 
 namespace Mesh {
-  class CField2;
+  class CField;
   class CRegion;
 }
 

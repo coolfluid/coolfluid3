@@ -7,7 +7,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/Log.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 
 #include "Solver/Actions/CSetFieldValues.hpp"
 
@@ -40,9 +40,9 @@ void CSetFieldValues::config_field()
 {
   URI uri;
   property("Field").put_value(uri);
-  m_field = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
+  m_field = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(m_field.lock()) )
-    throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
+    throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ void CSetFieldValues::execute()
   CFinfo << "face [" << idx() << "]" << CFendl;
 
   // m_idx is the index that is set using the function set_loop_idx()
-  CField2& field = *m_field.lock();
+  CField& field = *m_field.lock();
   CTable<Real>::Row data = field[idx()];
   const Real x = field.coords(idx())[XX];
   //const CF::Real y =  field.coords(idx())[YY];

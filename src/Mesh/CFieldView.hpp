@@ -17,7 +17,7 @@ namespace Mesh {
 
   template <typename T> class CList;
   class CEntities;
-  class CField2;
+  class CField;
   class CSpace;
   class CFaceCellConnectivity;
   
@@ -50,15 +50,15 @@ public: // functions
   static std::string type_name () { return "CFieldView"; }
 
   /// @return end_idx
-  Uint initialize(CField2& field, boost::shared_ptr<CEntities> elements);
+  Uint initialize(CField& field, boost::shared_ptr<CEntities> elements);
   
   CTable<Real>::Row operator[](const Uint idx);
 
   CTable<Real>::ConstRow operator[](const Uint idx) const;
 
-  const CField2& field() const { return *m_field.lock(); }
+  const CField& field() const { return *m_field.lock(); }
 
-  CField2& field() { return *m_field.lock(); }
+  CField& field() { return *m_field.lock(); }
   
   const CEntities& elements() const { return *m_elements.lock(); }
   
@@ -80,10 +80,10 @@ public: // functions
   /// @return elements_exist_in_field
   bool set_elements(boost::shared_ptr<CEntities> elements);
 
-  void set_field(CField2& field);
-  void set_field(const CField2& field);
+  void set_field(CField& field);
+  void set_field(const CField& field);
   
-  void set_field(boost::shared_ptr<CField2> field);
+  void set_field(boost::shared_ptr<CField> field);
 
   void allocate_coordinates(RealMatrix& coords);
   
@@ -96,7 +96,7 @@ protected:
   Uint m_stride;
   Uint m_size;
 
-  boost::weak_ptr<CField2>            m_field;
+  boost::weak_ptr<CField>            m_field;
   boost::weak_ptr<CTable<Real> >      m_field_data;
   boost::weak_ptr<CEntities const>    m_elements;
   boost::weak_ptr<CTable<Real> const> m_coords_table;
@@ -178,11 +178,11 @@ public:
   /// Get the class name
   static std::string type_name () { return "CConnectedFieldView"; }
   
-  void initialize(boost::shared_ptr<CField2> field, boost::shared_ptr<CEntities> faces);
+  void initialize(boost::shared_ptr<CField> field, boost::shared_ptr<CEntities> faces);
   
-  void set_field(boost::shared_ptr<CField2> field);
+  void set_field(boost::shared_ptr<CField> field);
   
-  void set_field(CField2& field);
+  void set_field(CField& field);
 
   bool set_elements(boost::shared_ptr<CEntities> elements);
   
@@ -190,7 +190,7 @@ public:
 
   std::vector<CTable<Real>::Row> operator[](const Uint elem_idx);
   
-  Mesh::CField2& field();
+  Mesh::CField& field();
   
 private:
 
@@ -198,7 +198,7 @@ private:
   boost::weak_ptr<CFaceCellConnectivity> m_face2cells;
   std::vector<CFieldView::Ptr> m_views;
   
-  boost::weak_ptr<CField2> m_field;
+  boost::weak_ptr<CField> m_field;
 
   Uint cells_comp_idx;
   Uint cell_idx;

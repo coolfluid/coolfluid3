@@ -104,9 +104,9 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
 
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   
-  std::vector<CField2::Ptr> fields;
-  boost_foreach(CField2& field, find_components_recursively<CField2>(*mesh))
-    fields.push_back(field.as_ptr<CField2>());
+  std::vector<CField::Ptr> fields;
+  boost_foreach(CField& field, find_components_recursively<CField>(*mesh))
+    fields.push_back(field.as_ptr<CField>());
   meshwriter->set_fields(fields);
   
   

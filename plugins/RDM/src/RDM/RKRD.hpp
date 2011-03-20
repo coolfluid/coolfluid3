@@ -17,7 +17,7 @@
 
 namespace CF {
 
-namespace Mesh   { class CField2; class CMesh; }
+namespace Mesh   { class CField; class CMesh; }
 
 namespace RDM {
 
@@ -86,11 +86,11 @@ private: // data
   boost::weak_ptr<Mesh::CMesh> m_mesh;
 
   /// solution field pointer
-  boost::weak_ptr<Mesh::CField2> m_solution;
+  boost::weak_ptr<Mesh::CField> m_solution;
   /// residual field pointer
-  boost::weak_ptr<Mesh::CField2> m_residual;
+  boost::weak_ptr<Mesh::CField> m_residual;
   /// wave_speed field pointer
-  boost::weak_ptr<Mesh::CField2> m_wave_speed;
+  boost::weak_ptr<Mesh::CField> m_wave_speed;
 
   /// action to compute the boundary face terms
   Common::CAction::Ptr m_compute_boundary_terms;

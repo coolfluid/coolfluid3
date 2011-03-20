@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CField2_hpp
-#define CF_Mesh_CField2_hpp
+#ifndef CF_Mesh_CField_hpp
+#define CF_Mesh_CField_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,14 +28,14 @@ namespace Mesh {
 
 /// Field component class
 /// This class stores fields which can be applied 
-/// to fields (CField2)
+/// to fields (CField)
 /// @author Willem Deconinck, Tiago Quintino
-class Mesh_API CField2 : public Common::Component {
+class Mesh_API CField : public Common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CField2> Ptr;
-  typedef boost::shared_ptr<CField2 const> ConstPtr;
+  typedef boost::shared_ptr<CField> Ptr;
+  typedef boost::shared_ptr<CField const> ConstPtr;
   
   enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
 
@@ -61,13 +61,13 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CField2 ( const std::string& name );
+  CField ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CField2();
+  virtual ~CField();
 
   /// Get the class name
-  static std::string type_name () { return "CField2"; }
+  static std::string type_name () { return "CField"; }
   
   void create_data_storage();
   
@@ -178,11 +178,11 @@ protected:
 // public:
 //   IsField2NodeBased () {}
 //   
-//   bool operator()(const CField2::Ptr& component)
-//   { return component->basis() == CField2::POINT_BASED; }
+//   bool operator()(const CField::Ptr& component)
+//   { return component->basis() == CField::POINT_BASED; }
 //   
-//   bool operator()(const CField2& component)
-//   { return component.basis() == CField2::NODE_BASED; }
+//   bool operator()(const CField& component)
+//   { return component.basis() == CField::NODE_BASED; }
 // };
 // 
 // class IsField2ElementBased
@@ -190,11 +190,11 @@ protected:
 // public:
 //   IsField2ElementBased () {}
 //   
-//   bool operator()(const CField2::Ptr& component)
-//   { return component->basis() == CField2::ELEMENT_BASED; }
+//   bool operator()(const CField::Ptr& component)
+//   { return component->basis() == CField::ELEMENT_BASED; }
 //   
-//   bool operator()(const CField2& component)
-//   { return component.basis() == CField2::ELEMENT_BASED; }
+//   bool operator()(const CField& component)
+//   { return component.basis() == CField::ELEMENT_BASED; }
 // };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -204,4 +204,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CField2_hpp
+#endif // CF_Mesh_CField_hpp

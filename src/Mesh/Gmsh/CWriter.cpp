@@ -17,7 +17,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CFieldView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -375,26 +375,26 @@ void CWriter::write_nodal_data2(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
+  boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
   {
-    CField2& nodebased_field = *field_ptr.lock();
-    if (nodebased_field.basis() == CField2::Basis::POINT_BASED)
+    CField& nodebased_field = *field_ptr.lock();
+    if (nodebased_field.basis() == CField::Basis::POINT_BASED)
     {
       std::string field_name = nodebased_field.name();
       // data_header
       Uint row_idx=0;
       for (Uint iVar=0; iVar<nodebased_field.nb_vars(); ++iVar)
       {
-        CField2::VarType var_type = nodebased_field.var_type(iVar);
+        CField::VarType var_type = nodebased_field.var_type(iVar);
         std::string var_name = nodebased_field.var_name(iVar);
         Uint datasize(var_type);
         switch (var_type)
         {
-          case CField2::VECTOR_2D:
-            datasize=Uint(CField2::VECTOR_3D);
+          case CField::VECTOR_2D:
+            datasize=Uint(CField::VECTOR_3D);
             break;
-          case CField2::TENSOR_2D:
-            datasize=Uint(CField2::TENSOR_3D);
+          case CField::TENSOR_2D:
+            datasize=Uint(CField::TENSOR_3D);
             break;
           default:
             break;
@@ -418,7 +418,7 @@ void CWriter::write_nodal_data2(std::fstream& file)
         {
           file << ++local_node_idx << " ";
 
-          if (var_type==CField2::TENSOR_2D)
+          if (var_type==CField::TENSOR_2D)
           {
             data[0]=field_per_node[row_idx+0];
             data[1]=field_per_node[row_idx+1];
@@ -431,7 +431,7 @@ void CWriter::write_nodal_data2(std::fstream& file)
           {
             for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
               file << " " << field_per_node[idx];
-            if (var_type == CField2::VECTOR_2D)
+            if (var_type == CField::VECTOR_2D)
               file << " " << 0.0;
           }
           file << "\n";
@@ -484,12 +484,12 @@ void CWriter::write_element_data2(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
+  boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
   {
-    CField2& elementbased_field = *field_ptr.lock();
-    if (elementbased_field.basis() == CField2::Basis::ELEMENT_BASED ||
-        elementbased_field.basis() == CField2::Basis::CELL_BASED    ||
-        elementbased_field.basis() == CField2::Basis::FACE_BASED    )
+    CField& elementbased_field = *field_ptr.lock();
+    if (elementbased_field.basis() == CField::Basis::ELEMENT_BASED ||
+        elementbased_field.basis() == CField::Basis::CELL_BASED    ||
+        elementbased_field.basis() == CField::Basis::FACE_BASED    )
     {
       std::string field_name = elementbased_field.name();
       Uint nb_elements = 0;
@@ -505,17 +505,17 @@ void CWriter::write_element_data2(std::fstream& file)
       Uint row_idx=0;
       for (Uint iVar=0; iVar<elementbased_field.nb_vars(); ++iVar)
       {
-        CField2::VarType var_type = elementbased_field.var_type(iVar);
+        CField::VarType var_type = elementbased_field.var_type(iVar);
         std::string var_name = elementbased_field.var_name(iVar);
 
         Uint datasize(var_type);
         switch (var_type)
         {
-          case CField2::VECTOR_2D:
-            datasize=Uint(CField2::VECTOR_3D);
+          case CField::VECTOR_2D:
+            datasize=Uint(CField::VECTOR_3D);
             break;
-          case CField2::TENSOR_2D:
-            datasize=Uint(CField2::TENSOR_3D);
+          case CField::TENSOR_2D:
+            datasize=Uint(CField::TENSOR_3D);
             break;
           default:
             break;
@@ -539,7 +539,7 @@ void CWriter::write_element_data2(std::fstream& file)
             for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
             {
               file << ++elm_number << " " ;
-              if (var_type==CField2::TENSOR_2D)
+              if (var_type==CField::TENSOR_2D)
               {
                 data[0]=field_view[local_elm_idx][row_idx+0];
                 data[1]=field_view[local_elm_idx][row_idx+1];
@@ -552,7 +552,7 @@ void CWriter::write_element_data2(std::fstream& file)
               {
                 for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
                   file << " " << field_view[local_elm_idx][idx];
-                if (var_type == CField2::VECTOR_2D)
+                if (var_type == CField::VECTOR_2D)
                   file << " " << 0.0;
               }
               file << "\n";

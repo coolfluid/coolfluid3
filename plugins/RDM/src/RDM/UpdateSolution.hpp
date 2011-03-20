@@ -12,7 +12,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh { class CField2; }
+namespace Mesh { class CField; }
 namespace RDM {
 
 class RDM_API UpdateSolution : public RDM::Action
@@ -40,11 +40,11 @@ public: // functions
 private: // data
 
   /// solution field pointer
-  boost::weak_ptr<Mesh::CField2> m_solution;
+  boost::weak_ptr<Mesh::CField> m_solution;
   /// residual field pointer
-  boost::weak_ptr<Mesh::CField2> m_residual;
+  boost::weak_ptr<Mesh::CField> m_residual;
   /// wave_speed field pointer
-  boost::weak_ptr<Mesh::CField2> m_wave_speed;
+  boost::weak_ptr<Mesh::CField> m_wave_speed;
 
 };
 

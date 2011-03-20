@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::Basis::POINT_BASED).data().size());
+  lss.resize(mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED).data().size());
   
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::Basis::POINT_BASED).data().size());
+  lss.resize(mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED).data().size());
   
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::Basis::POINT_BASED).data().size());
+  lss.resize(mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED).data().size());
   
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   
@@ -314,13 +314,13 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
   
   // Create output field
-  lss.resize(mesh->create_scalar_field("Temperature", "T", CField2::Basis::POINT_BASED).data().size());
+  lss.resize(mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED).data().size());
   
   // Variable holding the field
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   
   MeshTerm<1, ScalarField> heat("heat", "q");
-  mesh->create_scalar_field("heat", "q", CField2::Basis::POINT_BASED);
+  mesh->create_scalar_field("heat", "q", CField::Basis::POINT_BASED);
   for_each_node(mesh->topology(), heat = q);
   
   // Steady heat conduction with a source term

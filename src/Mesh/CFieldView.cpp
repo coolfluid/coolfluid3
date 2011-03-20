@@ -8,7 +8,7 @@
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Mesh/CFieldView.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
@@ -40,7 +40,7 @@ CFieldView::CFieldView ( const std::string& name ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint CFieldView::initialize(CField2& field, CEntities::Ptr elements)
+Uint CFieldView::initialize(CField& field, CEntities::Ptr elements)
 {
   cf_assert(is_not_null(elements));
   set_field(field);  
@@ -71,7 +71,7 @@ CTable<Real>::ConstRow CFieldView::operator[](const Uint idx) const
 bool CFieldView::set_elements(const CEntities& elements) 
 { 
   cf_assert_desc("Field must be set before elements", is_not_null(m_field.lock()) );
-  const CField2& field = *m_field.lock();
+  const CField& field = *m_field.lock();
   m_elements = elements.as_const()->as_ptr<CEntities>();
   if (field.exists_for_entities(elements))
   {
@@ -101,25 +101,25 @@ bool CFieldView::set_elements(CEntities::Ptr elements)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldView::set_field(CField2& field) 
+void CFieldView::set_field(CField& field) 
 { 
-  m_field = field.as_ptr<CField2>(); 
+  m_field = field.as_ptr<CField>(); 
   m_field_data = field.data().as_ptr<CTable<Real> >();
   cf_assert( is_not_null(m_field_data.lock()) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldView::set_field(CField2::Ptr field) 
+void CFieldView::set_field(CField::Ptr field) 
 { 
   set_field(*field);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldView::set_field(const CField2& field)
+void CFieldView::set_field(const CField& field)
 { 
-  set_field(boost::const_pointer_cast<CField2>(field.as_ptr<CField2>())); 
+  set_field(boost::const_pointer_cast<CField>(field.as_ptr<CField>())); 
 }
 
 
@@ -210,7 +210,7 @@ const Real& CScalarFieldView::operator[](const Uint idx) const
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-void CConnectedFieldView::initialize(CField2::Ptr field, boost::shared_ptr<CEntities> faces)
+void CConnectedFieldView::initialize(CField::Ptr field, boost::shared_ptr<CEntities> faces)
 {
   set_field(field);
   set_elements(faces);
@@ -218,11 +218,11 @@ void CConnectedFieldView::initialize(CField2::Ptr field, boost::shared_ptr<CEnti
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CConnectedFieldView::set_field(CField2::Ptr field) { return set_field(*field); }
+void CConnectedFieldView::set_field(CField::Ptr field) { return set_field(*field); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CConnectedFieldView::set_field(CField2& field) { m_field = field.as_ptr<CField2>(); }
+void CConnectedFieldView::set_field(CField& field) { m_field = field.as_ptr<CField>(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -271,7 +271,7 @@ std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_i
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Mesh::CField2& CConnectedFieldView::field() { return *m_field.lock(); }
+Mesh::CField& CConnectedFieldView::field() { return *m_field.lock(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 

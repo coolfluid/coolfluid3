@@ -16,7 +16,7 @@
 #include "Mesh/CCells.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 

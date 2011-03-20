@@ -18,7 +18,7 @@
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/LibMesh.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CMesh.hpp"
@@ -33,33 +33,33 @@ namespace Mesh {
 using namespace Common;
 using namespace boost::assign;
 
-Common::ComponentBuilder < CField2, Component, LibMesh >  CField2_Builder;
+Common::ComponentBuilder < CField, Component, LibMesh >  CField_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField2::Basis::Convert::Convert()
+CField::Basis::Convert::Convert()
 {
   all_fwd = boost::assign::map_list_of
-      ( CField2::Basis::POINT_BASED, "PointBased" )
-      ( CField2::Basis::ELEMENT_BASED, "ElementBased" )
-      ( CField2::Basis::CELL_BASED, "CellBased" )
-      ( CField2::Basis::FACE_BASED, "FaceBased" );
+      ( CField::Basis::POINT_BASED, "PointBased" )
+      ( CField::Basis::ELEMENT_BASED, "ElementBased" )
+      ( CField::Basis::CELL_BASED, "CellBased" )
+      ( CField::Basis::FACE_BASED, "FaceBased" );
 
   all_rev = boost::assign::map_list_of
-      ("PointBased",    CField2::Basis::POINT_BASED )
-      ("ElementBased",  CField2::Basis::ELEMENT_BASED )
-      ("CellBased",     CField2::Basis::CELL_BASED )
-      ("FaceBased",     CField2::Basis::FACE_BASED );
+      ("PointBased",    CField::Basis::POINT_BASED )
+      ("ElementBased",  CField::Basis::ELEMENT_BASED )
+      ("CellBased",     CField::Basis::CELL_BASED )
+      ("FaceBased",     CField::Basis::FACE_BASED );
 }
 
-CField2::Basis::Convert& CField2::Basis::Convert::instance()
+CField::Basis::Convert& CField::Basis::Convert::instance()
 {
-  static CField2::Basis::Convert instance;
+  static CField::Basis::Convert instance;
   return instance;
 }
 
 
-CField2::CField2 ( const std::string& name  ) :
+CField::CField ( const std::string& name  ) :
   Component ( name ),
   m_registration_name ( name ),
   m_basis(Basis::POINT_BASED),
@@ -67,11 +67,11 @@ CField2::CField2 ( const std::string& name  ) :
 {
   mark_basic();
   
-  regist_signal ( "create_data_storage" , "Allocate the data", "Create Storage" )->signal->connect ( boost::bind ( &CField2::signal_create_data_storage, this, _1 ) );
+  regist_signal ( "create_data_storage" , "Allocate the data", "Create Storage" )->signal->connect ( boost::bind ( &CField::signal_create_data_storage, this, _1 ) );
   
   Option::Ptr uri_option;
   uri_option = m_properties.add_option<OptionURI>("Topology","The field tree this field will be registered in",URI("cpath:"));
-  uri_option->attach_trigger ( boost::bind ( &CField2::config_tree,   this ) );
+  uri_option->attach_trigger ( boost::bind ( &CField::config_tree,   this ) );
   uri_option->mark_basic();
   
   Option::Ptr option;
@@ -79,7 +79,7 @@ CField2::CField2 ( const std::string& name  ) :
   option->restricted_list() += std::string("ElementBased");  
   option->restricted_list() += std::string("CellBased");  
   option->restricted_list() += std::string("FaceBased");  
-  option->attach_trigger ( boost::bind ( &CField2::config_field_type,   this ) );
+  option->attach_trigger ( boost::bind ( &CField::config_field_type,   this ) );
   option->mark_basic();
   
   option = m_properties.add_option< OptionT<Uint> >("Space", "The type of the field", 0u);
@@ -89,7 +89,7 @@ CField2::CField2 ( const std::string& name  ) :
   std::vector<std::string> var_names;
   var_names.push_back(name);
   option = m_properties.add_option<OptionArrayT<std::string> >("VarNames","Names of the variables",var_names);
-  option->attach_trigger ( boost::bind ( &CField2::config_var_names,   this ) );
+  option->attach_trigger ( boost::bind ( &CField::config_var_names,   this ) );
   option->mark_basic();
   config_var_names();
   
@@ -101,7 +101,7 @@ CField2::CField2 ( const std::string& name  ) :
                                std::string("vector3D"),
                                std::string("tensor2D"),
                                std::string("tensor3D");
-  option->attach_trigger ( boost::bind ( &CField2::config_var_types,   this ) );
+  option->attach_trigger ( boost::bind ( &CField::config_var_types,   this ) );
   option->mark_basic();
   config_var_types();
 
@@ -111,7 +111,7 @@ CField2::CField2 ( const std::string& name  ) :
   
 ////////////////////////////////////////////////////////////////////////////////
 
-void CField2::config_var_types()
+void CField::config_var_types()
 {
   std::vector<std::string> var_types; property("VarTypes").put_value(var_types);
   
@@ -157,14 +157,14 @@ void CField2::config_var_types()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CField2::config_var_names()
+void CField::config_var_names()
 {
   property("VarNames").put_value(m_var_names);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CField2::config_field_type()
+void CField::config_field_type()
 {
   std::string field_type;
   property("FieldType").put_value(field_type);
@@ -173,7 +173,7 @@ void CField2::config_field_type()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CField2::var_name(Uint i) const
+std::string CField::var_name(Uint i) const
 {
   cf_assert(i<m_var_types.size());
   return m_var_names.size() ? m_var_names[i] : "var";
@@ -218,7 +218,7 @@ std::string CField2::var_name(Uint i) const
   
 ////////////////////////////////////////////////////////////////////////////////
 
-void CField2::config_tree()
+void CField::config_tree()
 {
   URI topology_uri;
   property("Topology").put_value(topology_uri);
@@ -230,7 +230,7 @@ void CField2::config_tree()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CField2::set_topology(CRegion& region)
+void CField::set_topology(CRegion& region)
 {
   m_topology->link_to(region.self());
   properties()["Topology"]=region.full_path();
@@ -238,14 +238,14 @@ void CField2::set_topology(CRegion& region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField2::~CField2()
+CField::~CField()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void CField2::create_data_storage()
+void CField::create_data_storage()
 {
 
   cf_assert( m_var_types.size()!=0 );
@@ -324,14 +324,14 @@ void CField2::create_data_storage()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool CField2::has_variable(const std::string& vname) const
+bool CField::has_variable(const std::string& vname) const
 {
   return std::find(m_var_names.begin(), m_var_names.end(), vname) != m_var_names.end();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint CField2::var_number ( const std::string& vname ) const
+Uint CField::var_number ( const std::string& vname ) const
 {
   const std::vector<std::string>::const_iterator var_loc_it = std::find(m_var_names.begin(), m_var_names.end(), vname);
   if(var_loc_it == m_var_names.end())
@@ -340,7 +340,7 @@ Uint CField2::var_number ( const std::string& vname ) const
 }
 //////////////////////////////////////////////////////////////////////////////
 
-Uint CField2::var_index ( const std::string& vname ) const
+Uint CField::var_index ( const std::string& vname ) const
 {
   const Uint var_nb = var_number(vname);
   Uint var_start = 0;
@@ -351,35 +351,35 @@ Uint CField2::var_index ( const std::string& vname ) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-CField2::VarType CField2::var_type ( const std::string& vname ) const
+CField::VarType CField::var_type ( const std::string& vname ) const
 {
   return var_type(var_number(vname));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CRegion& CField2::topology() const
+const CRegion& CField::topology() const
 {
   return *m_topology->follow()->as_ptr<CRegion>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& CField2::topology()
+CRegion& CField::topology()
 {
   return *m_topology->follow()->as_ptr<CRegion>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CList<Uint>& CField2::used_nodes() const
+const CList<Uint>& CField::used_nodes() const
 {
   return *m_used_nodes;
 }
 
 //////////////////////////////////////////////////////////////////////////////  
 
-CTable<Real>::ConstRow CField2::coords(const Uint idx) const
+CTable<Real>::ConstRow CField::coords(const Uint idx) const
 {
   return (*m_coords)[used_nodes()[idx]];
 }

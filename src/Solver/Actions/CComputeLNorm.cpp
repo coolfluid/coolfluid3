@@ -13,7 +13,7 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/Foreach.hpp"
 
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CTable.hpp"
 
 #include "Solver/Actions/CComputeLNorm.hpp"
@@ -46,7 +46,7 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
   m_properties.add_option< OptionT<bool> >("Scale", "Scales (divides) the norm by the number of entries (ignored if order zero)", true);
   m_properties.add_option< OptionT<Uint> >("Order", "Order of the p-norm, zero if L-inf", 2u);
 
-  m_properties.add_option(OptionComponent<CField2>::create("Field", "Field for which to compute the norm", &m_field));
+  m_properties.add_option(OptionComponent<CField>::create("Field", "Field for which to compute the norm", &m_field));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

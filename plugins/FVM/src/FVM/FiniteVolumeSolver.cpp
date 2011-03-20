@@ -23,7 +23,7 @@
 #include "FVM/OutputIterationInfo.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/Actions/CInitFieldConstant.hpp"
@@ -143,19 +143,19 @@ void FiniteVolumeSolver::trigger_Domain()
   add_flux_to_rhs->mark_basic();
   m_compute_rhs->get_child("2.3_for_all_faces").add_component(add_flux_to_rhs);
 
-  if ( is_null(find_component_ptr_with_tag<CField2>(*mesh,"face_normal") ) )
+  if ( is_null(find_component_ptr_with_tag<CField>(*mesh,"face_normal") ) )
   {
     CFinfo << "  Creating field \"face_normal\", facebased" << CFendl;
     CBuildFaceNormals::Ptr build_face_normals = create_component<CBuildFaceNormals>("build_face_normals");
     build_face_normals->transform(mesh);
     remove_component(build_face_normals->name());
-    configure_option_recursively("face_normal", find_component_with_tag<CField2>(*mesh,"face_normal").full_path());
+    configure_option_recursively("face_normal", find_component_with_tag<CField>(*mesh,"face_normal").full_path());
   }
 
-  if ( is_null(find_component_ptr_with_tag<CField2>(*mesh,"area") ) )
+  if ( is_null(find_component_ptr_with_tag<CField>(*mesh,"area") ) )
   {
     CFinfo << "  Creating field \"area\", facebased" << CFendl;
-    CField2& area = mesh->create_field2("area","FaceBased");
+    CField& area = mesh->create_field2("area","FaceBased");
     area.add_tag("area");
     CLoop::Ptr compute_area = create_component< CForAllFaces >("compute_area");
     compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().full_path()));
@@ -166,17 +166,17 @@ void FiniteVolumeSolver::trigger_Domain()
   }
   
   // create/initialize a solution if it is not available
-  CField2::Ptr solution_ptr = find_component_ptr_with_tag<CField2>(*mesh,"solution");
+  CField::Ptr solution_ptr = find_component_ptr_with_tag<CField>(*mesh,"solution");
   if ( is_null(solution_ptr) )
   {
     ///@todo get variable names etc, from Physics
     CFinfo <<  "  Creating field \"solution\", cellbased, with vars rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]" << CFendl;
-    CField2& solution = mesh->create_field2("solution","CellBased","rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]");
+    CField& solution = mesh->create_field2("solution","CellBased","rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]");
     solution.add_tag("solution"); 
   }
 
 
-  CField2& solution = find_component_with_tag<CField2>(*mesh,"solution");
+  CField& solution = find_component_with_tag<CField>(*mesh,"solution");
   m_solution->link_to(solution.self());    
 
   Component::Ptr residual_ptr = find_component_ptr_with_tag(*mesh,"residual");
@@ -250,7 +250,7 @@ void FiniteVolumeSolver::auto_config_fields(Component& parent)
   URI domain; property("Domain").put_value(domain);
   CMesh& mesh = find_component_recursively<CMesh>(access_component(domain));
 
-  boost_foreach(CField2& field, find_components<CField2>(mesh) )
+  boost_foreach(CField& field, find_components<CField>(mesh) )
   {
     parent.configure_option_recursively(field.name(), field.full_path());    
   }

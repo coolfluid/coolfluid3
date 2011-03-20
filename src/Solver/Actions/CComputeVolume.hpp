@@ -15,7 +15,7 @@ namespace CF {
 namespace Mesh {
   template <typename T> class CTable;
   class CElements;
-  class CField2;
+  class CField;
   class CScalarFieldView;
 }
 namespace Solver {

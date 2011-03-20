@@ -7,7 +7,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
 #include "Mesh/CFieldView.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CEntities.hpp"
@@ -49,9 +49,9 @@ void CComputeVolume::config_field()
 {
   URI uri;
   property("Volume").put_value(uri);
-  CField2::Ptr comp = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
+  CField::Ptr comp = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) )
-    throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
+    throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_volume->set_field(comp);
 }
 

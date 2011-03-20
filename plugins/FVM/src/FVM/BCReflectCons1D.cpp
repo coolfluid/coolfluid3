@@ -10,7 +10,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Mesh/CFieldView.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CEntities.hpp"
@@ -57,8 +57,8 @@ BCReflectCons1D::BCReflectCons1D ( const std::string& name ) :
 void BCReflectCons1D::config_solution()
 {
   URI uri;  property("Solution").put_value(uri);
-  CField2::Ptr comp = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField2>();
-  if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
+  CField::Ptr comp = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField>();
+  if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_connected_solution.set_field(comp);
 }
 
@@ -67,7 +67,7 @@ void BCReflectCons1D::config_solution()
 void BCReflectCons1D::config_normal()
 {
   URI uri;  property("FaceNormal").put_value(uri);
-  CField2& comp = Core::instance().root()->access_component(uri).as_type<CField2>();
+  CField& comp = Core::instance().root()->access_component(uri).as_type<CField>();
   m_face_normal.set_field(comp);
 }
 

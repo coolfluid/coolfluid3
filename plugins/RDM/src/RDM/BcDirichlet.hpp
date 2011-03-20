@@ -51,7 +51,7 @@ private: // helper functions
 private: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::CField2> m_solution;
+  boost::weak_ptr<Mesh::CField> m_solution;
   /// function parser for the math formula of the dirichlet condition
   FunctionParser  m_fparser;
 

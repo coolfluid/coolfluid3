@@ -16,7 +16,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CFieldView.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CSpace.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ CInitFieldFunction::CInitFieldFunction( const std::string& name )
     "  Usage: CInitFieldFunction vectorial function \n";
   properties()["description"] = desc;
 
-  m_properties.add_option(OptionComponent<CField2>::create("Field","Field to initialize",&m_field))
+  m_properties.add_option(OptionComponent<CField>::create("Field","Field to initialize",&m_field))
     ->mark_basic();
   
   m_properties.add_option<
@@ -87,13 +87,13 @@ void CInitFieldFunction::execute()
   if (m_field.expired())
     throw SetupError(FromHere(), "Field option in ["+full_path().path()+"] was not set");
 
-  CField2& field = *m_field.lock();
+  CField& field = *m_field.lock();
 
   std::vector<Real> vars(3,0.);
 
   RealVector return_val(field.data().row_size());
 
-  if (field.basis() == CField2::Basis::POINT_BASED)
+  if (field.basis() == CField::Basis::POINT_BASED)
   {
     const Uint nb_pts = field.size();
     for ( Uint idx=0; idx!=nb_pts; ++idx)

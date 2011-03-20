@@ -18,7 +18,7 @@ namespace CF {
 namespace Mesh {
 
   class CMesh;
-  class CField2;
+  class CField;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,15 +56,15 @@ public: // functions
 
   virtual void construct_internal_storage(const CMesh& source) = 0;
   
-  virtual void interpolate_field_from_to(const CField2& source, CField2& target) = 0;
+  virtual void interpolate_field_from_to(const CField& source, CField& target) = 0;
 
 private: // data
   
   // source field
-  boost::weak_ptr<CField2> m_source;
+  boost::weak_ptr<CField> m_source;
   
   // target field
-  boost::weak_ptr<CField2> m_target;
+  boost::weak_ptr<CField> m_target;
   
 };
 

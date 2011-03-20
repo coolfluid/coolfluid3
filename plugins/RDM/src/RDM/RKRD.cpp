@@ -17,7 +17,7 @@
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField2.hpp"
+#include "Mesh/CField.hpp"
 #include "Mesh/CTable.hpp"
 
 #include "Mesh/Actions/CInitFieldFunction.hpp"
@@ -133,10 +133,10 @@ void RKRD::config_mesh()
   // configure solution
 
   std::string solution_tag("solution");
-  m_solution = find_component_ptr_with_tag<CField2>( mesh, solution_tag );
+  m_solution = find_component_ptr_with_tag<CField>( mesh, solution_tag );
   if ( is_null( m_solution.lock() ) )
   {
-    m_solution = mesh.create_field2("solution","PointBased","u[1]").as_ptr<CField2>();
+    m_solution = mesh.create_field2("solution","PointBased","u[1]").as_ptr<CField>();
     m_solution.lock()->add_tag(solution_tag);
   }
 
@@ -146,20 +146,20 @@ void RKRD::config_mesh()
   // configure residual
 
   std::string residual_tag("residual");
-  m_residual = find_component_ptr_with_tag<CField2>( mesh, residual_tag);
+  m_residual = find_component_ptr_with_tag<CField>( mesh, residual_tag);
   if ( is_null( m_residual.lock() ) )
   {
-    m_residual = mesh.create_field2("residual",*m_solution.lock()).as_ptr<CField2>();
+    m_residual = mesh.create_field2("residual",*m_solution.lock()).as_ptr<CField>();
     m_residual.lock()->add_tag(residual_tag);
   }
 
   // configure wave_speed
 
   std::string wave_speed_tag("wave_speed");
-  m_wave_speed = find_component_ptr_with_tag<CField2>( mesh, wave_speed_tag);
+  m_wave_speed = find_component_ptr_with_tag<CField>( mesh, wave_speed_tag);
   if ( is_null(m_wave_speed.lock()) )
   {
-    m_wave_speed = mesh.create_scalar_field("wave_speed",*m_solution.lock()).as_ptr<CField2>();
+    m_wave_speed = mesh.create_scalar_field("wave_speed",*m_solution.lock()).as_ptr<CField>();
     m_wave_speed.lock()->add_tag(wave_speed_tag);
   }
 

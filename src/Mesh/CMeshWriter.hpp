@@ -23,7 +23,7 @@ namespace CF {
 namespace Mesh {
 
   class CNodes;
-  class CField2;
+  class CField;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +65,7 @@ public: // functions
 
   void write();
 
-  void set_fields(const std::vector<boost::shared_ptr<CField2> >& fields);
+  void set_fields(const std::vector<boost::shared_ptr<CField> >& fields);
 
 private: // functions
 
@@ -96,7 +96,7 @@ protected:
 
   void compute_mesh_specifics();
 
-  std::vector<boost::weak_ptr<CField2> > m_fields;
+  std::vector<boost::weak_ptr<CField> > m_fields;
 
 };
 
