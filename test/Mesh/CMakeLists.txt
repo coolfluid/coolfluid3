@@ -122,6 +122,25 @@ add_custom_command(TARGET utest-gmsh-reader-mpi
 
 ################################################################################
 
+list( APPEND utest-tecplot-writer_cflibs coolfluid_mesh_neutral coolfluid_mesh_tecplot coolfluid_mesh_sf )
+list( APPEND utest-tecplot-writer_files  utest-tecplot-writer.cpp )
+
+# Add the target
+
+coolfluid_add_unit_test( utest-tecplot-writer )
+
+# Custom post-build rule (must be defined after adding target):
+# Copy the file quadtriag.neu from source dir to binary dir.
+# this must happen after building, as some IDE like Xcode define their
+# build types internally, in which the binary dir exists
+add_custom_command(TARGET utest-tecplot-writer-mpi
+                  POST_BUILD
+                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 )
+
+################################################################################
+
 list( APPEND utest-connectivity-data_cflibs coolfluid_mesh_neutral coolfluid_mesh_generation coolfluid_mesh_sf )
 list( APPEND utest-connectivity-data_files  utest-connectivity-data.cpp )
 

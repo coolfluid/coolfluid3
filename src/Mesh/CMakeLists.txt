@@ -128,10 +128,15 @@ add_subdirectory( SF )            # Shape functions
 add_subdirectory( Neu )           # Neutral file IO
 
 add_subdirectory( Gmsh )          # Gmsh file IO
+
 add_subdirectory( BlockMesh )     # Structured mesh generation
+
 add_subdirectory( CGNS )          # CGNS file IO
 
+add_subdirectory( Tecplot )       # Tecplot file IO
+
 add_subdirectory( Zoltan )        # Zoltan mesh partitioning
+
 add_subdirectory( PTScotch )      # PTScotch mesh partitioning
 
 add_subdirectory( Actions )       # Actions that can be performed on the mesh
