@@ -117,11 +117,8 @@ void CMeshPartitioner::initialize(CMesh& mesh)
   
   std::vector<Uint> nb_nodes_per_proc(mpi::PE::instance().size());
   std::vector<Uint> nb_elems_per_proc(mpi::PE::instance().size());
-//  boost::mpi::all_gather(world, tot_nb_owned_nodes, nb_nodes_per_proc);
-//  boost::mpi::all_gather(world, tot_nb_owned_elems, nb_elems_per_proc);
-  mpi::PE::instance().all_gather(&tot_nb_owned_nodes,1,(Uint*)(&nb_nodes_per_proc[0]));
-  mpi::PE::instance().all_gather(&tot_nb_owned_elems,1,(Uint*)(&nb_elems_per_proc[0]));
-
+  mpi::PE::instance().all_gather(tot_nb_owned_nodes, nb_nodes_per_proc);
+  mpi::PE::instance().all_gather(tot_nb_owned_elems, nb_elems_per_proc);
   m_start_id_per_proc.resize(mpi::PE::instance().size());
   m_start_node_per_proc.resize(mpi::PE::instance().size());
   m_start_elem_per_proc.resize(mpi::PE::instance().size());
@@ -141,6 +138,16 @@ void CMeshPartitioner::initialize(CMesh& mesh)
 
     start_id += nb_nodes_per_proc[p]+nb_elems_per_proc[p];    
   }  
+
+  // CFLogVar(to_vector(nb_nodes_per_proc).transpose());
+  // CFLogVar(to_vector(nb_elems_per_proc).transpose());
+  // CFLogVar(to_vector(m_start_id_per_proc).transpose());
+  // CFLogVar(to_vector(m_end_id_per_proc).transpose());
+  // CFLogVar(to_vector(m_start_node_per_proc).transpose());
+  // CFLogVar(to_vector(m_end_node_per_proc).transpose());
+  // CFLogVar(to_vector(m_start_elem_per_proc).transpose());
+  // CFLogVar(to_vector(m_end_elem_per_proc).transpose());
+
 
   build_global_to_local_index(mesh);
   build_graph();

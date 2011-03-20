@@ -18,6 +18,7 @@
 #include "Common/OSystemLayer.hpp"
 
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
@@ -94,13 +95,52 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
 
-  Common::OSystem::instance().layer()->regist_os_signal_handlers();
+  Core::instance().initiate(m_argc,m_argv);
 
   //p.configure_property("Number of Partitions", (Uint) 4);
   p.configure_property("graph_package", std::string("PHG"));
   p.configure_property("debug_level", 2u);
   BOOST_CHECK(true);
   p.initialize(mesh);
+  
+  BOOST_CHECK_EQUAL(p.proc_of_obj(0), 0u);
+  BOOST_CHECK_EQUAL(p.proc_of_obj(7), 0u);
+  BOOST_CHECK_EQUAL(p.proc_of_obj(8), 0u);
+  BOOST_CHECK_EQUAL(p.proc_of_obj(15), 0u);
+  BOOST_CHECK_EQUAL(p.proc_of_obj(16), 1u);
+  BOOST_CHECK_EQUAL(p.proc_of_obj(23), 1u);
+  BOOST_CHECK_EQUAL(p.proc_of_obj(24), 1u);
+  BOOST_CHECK_EQUAL(p.proc_of_obj(31), 1u);
+  
+  BOOST_CHECK_EQUAL(p.is_node(0), true);
+  BOOST_CHECK_EQUAL(p.is_node(7), true);
+  BOOST_CHECK_EQUAL(p.is_node(8), false);
+  BOOST_CHECK_EQUAL(p.is_node(15), false);
+  BOOST_CHECK_EQUAL(p.is_node(16), true);
+  BOOST_CHECK_EQUAL(p.is_node(23), true);
+  BOOST_CHECK_EQUAL(p.is_node(24), false);
+  BOOST_CHECK_EQUAL(p.is_node(31), false);
+  
+  Uint comp_idx;
+  Component::Ptr comp;
+  Uint idx;
+  bool found;
+  if ( mpi::PE::instance().rank() == 0)
+  {
+    boost::tie(comp,idx) = p.to_local(0);
+    boost::tie(comp_idx,idx,found) = p.to_local_indices_from_glb_obj(0);
+    BOOST_CHECK( is_not_null(comp->as_ptr<CNodes>()) );
+    BOOST_CHECK_EQUAL(comp_idx, 0);
+    BOOST_CHECK_EQUAL(idx, 0);
+    BOOST_CHECK_EQUAL(found, true);
+
+    boost::tie(comp_idx,idx,found) = p.to_local_indices_from_glb_obj(7);
+    BOOST_CHECK_EQUAL(comp_idx, 0);
+    BOOST_CHECK_EQUAL(idx, 7);
+    BOOST_CHECK_EQUAL(found, true);
+    
+  }
+  
   BOOST_CHECK(true);
   p.partition_graph();
   BOOST_CHECK(true);

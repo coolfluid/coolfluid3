@@ -8,6 +8,7 @@
 #define BOOST_TEST_MODULE "Tests Mesh::Actions::CGlobalConnectivity"
 
 #include <boost/test/unit_test.hpp>
+#include <csignal>
 
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
@@ -72,8 +73,11 @@ BOOST_AUTO_TEST_CASE( build )
   meshreader->configure_property("read_boundaries",false);
   meshreader->read_from_to(fp_in,mesh);
   
+  Core::instance().initiate(m_argc,m_argv);
+
   CGlobalNumbering::Ptr build_glb_numbering = allocate_component<CGlobalNumbering>("build_glb_numbering");
   build_glb_numbering->set_mesh(mesh);
+  build_glb_numbering->configure_property("debug",true);
   build_glb_numbering->execute();
   
   CGlobalConnectivity::Ptr build_connectivity = allocate_component<CGlobalConnectivity>("build_glb_connectivity");

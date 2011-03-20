@@ -52,6 +52,7 @@ private: // functions
   std::size_t hash_value(const RealVector& coords);
   std::size_t hash_value(const RealMatrix& coords);
 
+  bool m_debug;
 }; // end CGlobalNumbering
 
 
