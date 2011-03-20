@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   const Real cell_size = 0.1;
   
   const Real start_time = 0.;
-  const Real end_time = 10;
-  const Real dt = 0.01;
+  const Real end_time = 500;
+  const Real dt = 0.5;
   Real t = start_time;
   const Uint write_interval = 1;
   const Real invdt = 1. / dt;
@@ -120,13 +120,16 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   // Create output fields
   CField2& u_fld = mesh->create_field2( "Velocity", CField2::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField2::VarType>(1, CField2::VECTOR_2D) );
   CField2& p_fld = mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField2::Basis::POINT_BASED);
+  CField2& u_mag_fld = mesh->create_scalar_field("VelMag", "u_mag", CF::Mesh::CField2::Basis::POINT_BASED);
+  CField2& u_x_fld = mesh->create_scalar_field("XVel", "u_x", CF::Mesh::CField2::Basis::POINT_BASED);
+  CField2& u_y_fld = mesh->create_scalar_field("YVel", "u_y", CF::Mesh::CField2::Basis::POINT_BASED);
   
   lss.resize(u_fld.data().size() * 2 + p_fld.size());
   
   // Setup a mesh writer
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   root->add_component(writer);
-  const std::vector<URI> out_fields = boost::assign::list_of(u_fld.full_path())(p_fld.full_path());
+  const std::vector<URI> out_fields = boost::assign::list_of(u_fld.full_path())(p_fld.full_path())(u_mag_fld.full_path())(u_x_fld.full_path())(u_y_fld.full_path());
   writer->configure_property( "Fields", out_fields );
   
   // Regions
@@ -138,6 +141,9 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", "u");
   MeshTerm<1, ScalarField> p("Pressure", "p");
+  MeshTerm<1, ScalarField> u_mag("VelMag", "u_mag");
+  MeshTerm<1, ScalarField> u_x("XVel", "u_x");
+  MeshTerm<1, ScalarField> u_y("YVel", "u_y");
   
   // Set up a physical model (normally handled automatically if using the Component wrappers)
   PhysicalModel physical_model;
@@ -191,6 +197,9 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
     // Output using Gmsh
     if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
     {
+      for_each_node(mesh->topology(), u_mag = _sqrt(u[0]*u[0] + u[1]*u[1]));
+      for_each_node(mesh->topology(), u_x = u[0]);
+      for_each_node(mesh->topology(), u_y = u[1]);
       boost::filesystem::path output_file("navier-stokes-pspg-" + boost::lexical_cast<std::string>(static_cast<Uint>(t / dt)) + ".msh");
       writer->write_from_to(mesh, output_file);
     }
