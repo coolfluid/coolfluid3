@@ -1,6 +1,5 @@
 // OpenCL Kernel
-char* GPUSource =
-{
+const char* GPUSource = std::string(
 "    #pragma OPENCL EXTENSION cl_khr_global_int32_base_atomics : enable \n"
 "    #pragma OPENCL EXTENSION cl_khr_global_int32_extended_atomics : enable\n"
 "    #pragma OPENCL EXTENSION cl_khr_int64_base_atomics : enable\n"
@@ -127,5 +126,5 @@ char* GPUSource =
 "                atom_xchg (&atomic[adr1], 0);\n"
 "          }\n"
 "    }\n"
-"    }\n"
-};
+"    }\n").c_str();
+

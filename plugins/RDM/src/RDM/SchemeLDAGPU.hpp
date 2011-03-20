@@ -145,7 +145,7 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 #include "RDM/LDAGPUkernel.hpp"
 
  std::cout << "SchemeLDAGPU" << std::endl;
- uint*  adress = connectivity_table->array().origin();
+ Uint*  adress = connectivity_table->array().origin();
  //float* coordinates_real = coordinates->array().origin();
 
 
@@ -173,7 +173,7 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
      cl_mem adressGPGPU, atomicGPGPU;
 
      // copy matrix to GPGPU memory
-     uint nodes, shape,quad, elements, dim;
+     Uint nodes, shape,quad, elements, dim;
 
 
      /*
