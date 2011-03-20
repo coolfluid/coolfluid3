@@ -5,7 +5,7 @@ coolfluid_add_unit_test( utest-fvm-shocktube1d )
 
 #########################################################################################
 
-list( APPEND utest-fvm-shocktube2d_cflibs coolfluid_fvm coolfluid_mesh_generation coolfluid_mesh_gmsh coolfluid_mesh_actions )
+list( APPEND utest-fvm-shocktube2d_cflibs coolfluid_fvm coolfluid_mesh_generation coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_mesh_actions )
 list( APPEND utest-fvm-shocktube2d_files  utest-fvm-shocktube2d.cpp )
 
 coolfluid_add_unit_test( utest-fvm-shocktube2d )

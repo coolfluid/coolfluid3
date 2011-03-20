@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "Common/Foreach.hpp"
-// #include "Common/Log.hpp"
+#include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
@@ -95,35 +95,54 @@ void CWriter::write_header(std::fstream& file)
     file << " \"x" << i << "\" ";
   }
   
-  // boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
-  // {
-  //   CField2& field = *field_ptr.lock();
-  //   for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
-  //   {
-  //     CField2::VarType var_type = field.var_type(iVar);
-  //     std::string var_name = field.var_name(iVar);
-  //     if ( static_cast<Uint>(var_type) > 1)
-  //     {
-  //       for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
-  //       {
-  //         file << " \"" << var_name << "["<<i<<"]\"";
-  //       }
-  //     }
-  //     else
-  //     {
-  //       file << " \"" << var_name <<"\"";
-  //     }
-  //   }
-  // }
-  
+  std::vector<Uint> cell_centered_var_ids;
+  Uint zone_var_id(dimension);
+  boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
+  {
+    CField2& field = *field_ptr.lock();
+    for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
+    {
+      CField2::VarType var_type = field.var_type(iVar);
+      std::string var_name = field.var_name(iVar);
+      if (field.basis() != CField2::Basis::POINT_BASED)
+      {
+        for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
+        {
+          cell_centered_var_ids.push_back(++zone_var_id);
+        }        
+      }
+
+      if ( static_cast<Uint>(var_type) > 1)
+      {
+        for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
+        {
+          file << " \"" << var_name << "["<<i<<"]\"";
+        }
+      }
+      else
+      {
+        file << " \"" << var_name <<"\"";
+      }
+    }
+  }
+  file << "\n";
   
   
   // loop over the element types
   // and create a zone in the tecplot file for each element type
-  Uint glb_elem_id(0);
+  std::map<Component::Ptr,Uint> zone_id;
+  Uint zone_idx=0;
   boost_foreach (CElements& elements, find_components_recursively<CElements>(m_mesh->topology()) )
   {
     const ElementType& etype = elements.element_type();
+    if (etype.shape() == GeoShape::POINT)
+      continue;
+    // Tecplot doesn't handle zones with 0 elements
+    // which can happen in parallel, so skip them
+    if (elements.size() == 0)
+      continue;
+      
+    zone_id[elements.self()] = zone_idx++;
 
     CList<Uint>& used_nodes = CEntities::used_nodes(elements);
     std::map<Uint,Uint> zone_node_idx;
@@ -132,10 +151,6 @@ void CWriter::write_header(std::fstream& file)
 
     const Uint nbCellsInType  = elements.size();
 
-    // Tecplot doesn't handle zones with 0 elements
-    // which can happen in parallel, so skip them
-    if (nbCellsInType == 0)
-      continue;
 
     // print zone header,
     // one zone per element type per cpu
@@ -145,8 +160,15 @@ void CWriter::write_header(std::fstream& file)
          << ", N=" << used_nodes.size()
          << ", E=" << elements.size()
          << ", DATAPACKING=BLOCK"
-         << ", ZONETYPE=" << zone_type(etype)
-         << "\n\n";
+         << ", ZONETYPE=" << zone_type(etype);
+    if (cell_centered_var_ids.size())
+    {
+      file << ",VARLOCATION=(["<<cell_centered_var_ids[0];
+      for (Uint i=1; i<cell_centered_var_ids.size(); ++i)
+        file << ","<<cell_centered_var_ids[i];
+      file << "]=CELLCENTERED)";
+    }
+    file << "\n\n";
 
 
          //    fout << ", VARLOCATION=( [" << init_id << "]=CELLCENTERED )" ;
@@ -171,23 +193,64 @@ void CWriter::write_header(std::fstream& file)
     }
     file << "\n";
 
-
+    
+    boost_foreach(boost::weak_ptr<CField2> field_ptr, m_fields)
+    {
+      CField2& field = *field_ptr.lock();
+      Uint var_idx(0);
+      for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
+      {
+        CField2::VarType var_type = field.var_type(iVar);
+        std::string var_name = field.var_name(iVar);
+        for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
+        {
+          if (field.basis() == CField2::Basis::POINT_BASED)
+          {
+            boost_foreach(Uint n, used_nodes.array())
+            {
+              file << field[n][var_idx] << " ";
+              CF_BREAK_LINE(file,n);
+            }
+            file << "\n";
+          }
+          else // element based
+          {
+            CFieldView field_view("field_view");
+            field_view.set_field(field);
+            if (field_view.set_elements(elements))
+            {
+              for (Uint e=0; e<elements.size(); ++e)
+              {
+                file << field_view[e][var_idx] << " ";
+                CF_BREAK_LINE(file,e);
+              }
+              file << "\n";
+            }
+            else
+            {
+              // field not defined for this zone, so write zeros
+              file << elements.size() << "*" << 0.;
+              file << "\n";
+            }
+          }
+          var_idx++;
+        }
+      }
+    }
+    
     file << "\n### connectivity\n\n";
     // write connectivity
-    for (Uint e=0; e<elements.size(); ++e)
+    boost_foreach( CTable<Uint>::ConstRow e_nodes, elements.connectivity_table().array() )
     {
-      boost_foreach( CTable<Uint>::ConstRow e_nodes, elements.connectivity_table().array() )
+      boost_foreach ( Uint n, e_nodes)
       {
-        boost_foreach ( Uint n, e_nodes)
-        {
-          file << zone_node_idx[n] << " ";
-        }
-        file << "\n";
-      }        
-    } // end write connectivity
+        file << zone_node_idx[n] << " ";
+      }
+      file << "\n";
+    }        
+    file << "\n\n";
 
-  } 
-  
+  }
 }
 
 

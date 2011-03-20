@@ -16,8 +16,7 @@
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CField2.hpp"
-#include "Mesh/Gmsh/CWriter.hpp"
-#include "Mesh/Gmsh/CReader.hpp"
+#include "Mesh/CMeshWriter.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
 #include "Mesh/Actions/CBuildVolume.hpp"
 #include "Mesh/Actions/CInitFieldFunction.hpp"
@@ -208,10 +207,11 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   // Writer
   ////////////////////////////////////////////////////////////////////////////////
   
-  Gmsh::CWriter& writer = *tools.create_component<Gmsh::CWriter>("gmsh_writer");
-  writer.configure_property("Fields",std::vector<URI>(1,find_component_with_tag(mesh,"solution").full_path()));
-  writer.configure_property("File",model.name()+".msh");
-  writer.configure_property("Mesh",mesh.full_path());
+  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","mesh_writer");
+  tools.add_component(writer);
+  writer->configure_property("Fields",std::vector<URI>(1,find_component_with_tag(mesh,"solution").full_path()));
+  writer->configure_property("File",model.name()+".msh");
+  writer->configure_property("Mesh",mesh.full_path());
   
 }
 

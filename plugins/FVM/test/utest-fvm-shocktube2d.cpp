@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   model.time().configure_property("end_time",  0.008);
   model.time().configure_property("time_step", 0.008);
   model.configure_option_recursively("cfl", 1.0);
-  //find_component_recursively<CIterate>(*model).configure_property("MaxIterations",1u);
+  //find_component_recursively<CIterate>(model).configure_property("MaxIterations",5u);
 
   BOOST_CHECK(true);
 
@@ -94,7 +94,16 @@ BOOST_AUTO_TEST_CASE( constructor )
   // 6) Write mesh
   // -------------
   
-  model.access_component("cpath:./tools/gmsh_writer").as_type<CMeshWriter>().write();
+  model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().write();
+
+
+  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tecplot_writer");
+  model.get_child("tools").add_component(writer);
+  writer->configure_property("Fields",std::vector<URI>(1,find_component_recursively_with_tag(model,"solution").full_path()));
+  writer->configure_property("File",model.name()+".plt");
+  writer->configure_property("Mesh",find_component_recursively<CMesh>(model).full_path());
+  writer->write();
+
 
   // CFinfo << "model:"<<CFendl;
   // CFinfo << "------"<<CFendl;
