@@ -137,7 +137,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
       Tools::MeshGeneration::create_rectangle(*mesh_ptr, 10. , 10. , p.get_option<Uint>("nb_cells"),  p.get_option<Uint>("nb_cells"));
       break;
     default:
-      throw SetupError(FromHere(),"Only 1D or 2D dimension supported");
+      throw NotSupported(FromHere(),"Only 1D or 2D dimension supported");
   }
   CMesh& mesh = *mesh_ptr;
   CFinfo << "  Transforming mesh for finite volume: " << finite_volume_transformer.tree();
@@ -179,6 +179,8 @@ void ShockTube::signal_create_model ( SignalArgs& args )
     function[3]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   v_L:=0; v_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,  p_L/(g-1) + 0.5*r_L*(u_L*u_L+v_L*v_L), p_R/(g-1) + 0.5*r_R*(u_R*u_R+v_R*v_R))";
     init_solution.configure_property("Functions",function);    
   }
+  else
+    throw NotSupported (FromHere(), "more than 2 dimensions not supported");
   
   init_solution.transform(mesh);
   
@@ -199,6 +201,8 @@ void ShockTube::signal_create_model ( SignalArgs& args )
     solver.create_bc("left",  find_component_recursively_with_name<CRegion>(mesh.topology(),"left"),  "CF.FVM.BCReflectCons2D");
     solver.create_bc("right", find_component_recursively_with_name<CRegion>(mesh.topology(),"right"), "CF.FVM.BCReflectCons2D");
   } 
+  else
+    throw NotSupported (FromHere(), "more than 2 dimensions not supported");
   
   ////////////////////////////////////////////////////////////////////////////////
   // Writer
