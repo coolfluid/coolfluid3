@@ -98,6 +98,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesArtificialDissipation )
   
   // Linear system
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
   
   // Create output fields
   CField& u_fld = mesh->create_field2( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );

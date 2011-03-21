@@ -62,6 +62,7 @@ struct ProtoHeatFixture
   ProtoHeatFixture() :
     root( Core::instance().root() )
   {
+    solver_config = boost::unit_test::framework::master_test_suite().argv[1];
   }
   
   ~ProtoHeatFixture()
@@ -71,6 +72,7 @@ struct ProtoHeatFixture
   }
   
   CRoot::Ptr root;
+  std::string solver_config;
   
 };
 
@@ -87,6 +89,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   
   // Linear system
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  lss.set_config_file(solver_config);
   
   // Create output field
   lss.resize(mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED).data().size());
@@ -125,6 +128,7 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   
   // Linear system
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  lss.set_config_file(solver_config);
   
   // Create output field
   lss.resize(mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED).data().size());
@@ -185,6 +189,7 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
   
   // Linear system
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  lss.set_config_file(solver_config);
   
   // Create output field
   lss.resize(mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED).data().size());
@@ -242,6 +247,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   
   // Linear system
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  lss.set_config_file(solver_config);
   
   BOOST_CHECK(true);
   
@@ -312,6 +318,7 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   
   // Linear system
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  lss.set_config_file(solver_config);
   
   // Create output field
   lss.resize(mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED).data().size());

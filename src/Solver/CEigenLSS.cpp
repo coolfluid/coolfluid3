@@ -35,10 +35,12 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/CField.hpp"
 
 #include "CEigenLSS.hpp"
+
 
 namespace CF {
 namespace Solver {
@@ -49,7 +51,20 @@ CF::Common::ComponentBuilder < CEigenLSS, Common::Component, LibSolver > aCeigen
 
 CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 {
+  Common::OptionURI::Ptr config_path =
+      boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("ConfigFile", "Solver config file", std::string()) );
+  config_path->supported_protocol(CF::Common::URI::Scheme::FILE);
+  config_path->mark_basic();
+  
+  if(!mpi::PE::instance().is_init())
+    mpi::PE::instance().init();
 }
+
+void CEigenLSS::set_config_file(const std::string& path)
+{
+  configure_property("ConfigFile", path);
+}
+
 
 void CEigenLSS::resize ( Uint nb_dofs )
 {
@@ -127,27 +142,27 @@ void CEigenLSS::solve()
   Epetra_SerialComm comm;
   Epetra_Map map(nb_rows, 0, comm);
 
-  Epetra_Vector ep_rhs(Copy, map, m_rhs.data());
-  Epetra_Vector ep_sol(map);
+  Epetra_Vector ep_rhs(View, map, m_rhs.data());
+  Epetra_Vector ep_sol(View, map, m_solution.data());
   
   // Count non-zeros
   std::vector<int> nnz(nb_rows, 0);
   for(int row=0; row < nb_rows; ++row)
   {
-    for(MatrixT::InnerIterator it(m_system_matrix, k); it; ++it)
+    for(MatrixT::InnerIterator it(m_system_matrix, row); it; ++it)
     {
       ++nnz[row];
     }
   }
   
-  Epetra_CrsMatrix ep_A(Copy, Map, &nnz[0]);
+  Epetra_CrsMatrix ep_A(Copy, map, &nnz[0]);
 
   // Fill the matrix
   for(int row=0; row < nb_rows; ++row)
   {
     std::vector<int> indices; indices.reserve(nnz[row]);
     std::vector<Real> values; values.reserve(nnz[row]);
-    for(MatrixT::InnerIterator it(m_system_matrix, k); it; ++it)
+    for(MatrixT::InnerIterator it(m_system_matrix, row); it; ++it)
     {
       indices.push_back(it.col());
       values.push_back(it.value());
@@ -166,15 +181,15 @@ void CEigenLSS::solve()
   Teuchos::RCP<Epetra_Vector>    epetra_x=Teuchos::rcpFromRef(ep_sol);
   Teuchos::RCP<Epetra_Vector>    epetra_b=Teuchos::rcpFromRef(ep_rhs);
 
-  Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(getMethodData().getOptionsXML()); // the most important in general setup
+  Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(property("ConfigFile").value<std::string>()); // the most important in general setup
 
   Teuchos::RCP<Teuchos::FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream(); // TODO: decouple from fancyostream to ostream or to C stdout when possible
   typedef Teuchos::ParameterList::PrintOptions PLPrintOptions;
   Teuchos::CommandLineProcessor  clp(false); // false: don't throw exceptions
 
-  RCP<const Thyra::LinearOpBase<double> > A = Thyra::epetraLinearOp( epetra_A );
-  RCP<Thyra::VectorBase<double> >         x = Thyra::create_Vector( epetra_x, A->domain() );
-  RCP<const Thyra::VectorBase<double> >   b = Thyra::create_Vector( epetra_b, A->range() );
+  Teuchos::RCP<const Thyra::LinearOpBase<double> > A = Thyra::epetraLinearOp( epetra_A );
+  Teuchos::RCP<Thyra::VectorBase<double> >         x = Thyra::create_Vector( epetra_x, A->domain() );
+  Teuchos::RCP<const Thyra::VectorBase<double> >   b = Thyra::create_Vector( epetra_b, A->range() );
 
   // r = b - A*x, initial L2 norm
   double nrm_r=0.;
@@ -191,8 +206,8 @@ void CEigenLSS::solve()
   // the command line.  This was setup by the command-line options
   // set by the setupCLP(...) function above.
   linearSolverBuilder.readParameters(0); // out.get() if want confirmation about the xml file within trilinos
-  RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = linearSolverBuilder.createLinearSolveStrategy(""); // create linear solver strategy
-  lowsFactory->setVerbLevel((Teuchos::EVerbosityLevel)(getMethodData().getOutputLevel())); // set verbosity
+  Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = linearSolverBuilder.createLinearSolveStrategy(""); // create linear solver strategy
+  lowsFactory->setVerbLevel(Teuchos::VERB_NONE); // set verbosity
 
 //  // print back default and current settings
 //  if (opts->trilinos.dumpDefault!=0) {
@@ -228,15 +243,6 @@ void CEigenLSS::solve()
     epetra_r.Norm2(&nrm_r);
     systemResidual*=nrm_r;
   }
-
-  // copying the solution into the data handle for the rhs: TODO make more efficient
-  rhs = 0.0;
-  for (int i=0; i<nrhs; i++) {
-    rhs[_lid[i]] = (*epetra_x)[i];
-  }
-
-  // print relative residual
-  CFinfo << "Rel. residual: " << systemResidual << CFendl;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //END//////////////////////////////////////////////////////////////////////////////////////////
@@ -282,7 +288,7 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
   {
     if(unique_field_names.insert(field_name).second)
     {
-      CField2& field = *solution_mesh.get_child_ptr(field_name)->as_ptr<CField2>();
+      CField& field = *solution_mesh.get_child_ptr(field_name)->as_ptr<CField>();
       CTable<Real>& field_table = field.data();
       const Uint field_size = field_table.size();
       for(Uint row_idx = 0; row_idx != field_size; ++row_idx)

@@ -44,6 +44,8 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CEigenLSS"; }    
   
+  void set_config_file(const std::string& path);
+  
   /// Set the number of equations
   void resize ( Uint nb_dofs );
   

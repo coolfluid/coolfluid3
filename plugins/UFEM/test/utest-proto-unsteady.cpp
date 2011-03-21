@@ -18,6 +18,7 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -141,6 +142,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   
   // Linear system
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
   
   // Create output field
   lss.resize(mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED).data().size());

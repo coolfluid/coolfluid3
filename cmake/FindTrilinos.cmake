@@ -22,8 +22,29 @@ find_path( TRILINOS_INCLUDE_DIR Epetra_SerialComm.h )
 coolfluid_add_trial_library_path(${TRILINOS_HOME}/lib )
 coolfluid_add_trial_library_path($ENV{TRILINOS_HOME}/lib)
 
-find_library(TRILINOS_LIBRARIES epetra  PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
-find_library(TRILINOS_LIBRARIES epetra )
+list( APPEND trilinos_req_libs
+  epetra
+  teuchos
+  stratimikosamesos
+  stratimikosaztecoo
+  stratimikosbelos
+  stratimikosifpack
+  stratimikosml
+  stratimikos
+  aztecoo
+  ml
+  belos
+  ifpack
+  thyra
+  thyraepetra
+)
+
+foreach (test_lib ${trilinos_req_libs})
+  find_library( ${test_lib}_lib ${test_lib} PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
+  find_library( ${test_lib}_lib ${test_lib})
+  list( APPEND TRILINOS_LIBRARIES ${${test_lib}_lib} )
+endforeach()
+
 
 if( ${CF_HAVE_PARMETIS} )
   list( APPEND TRILINOS_LIBRARIES ${PARMETIS_LIBRARIES} )
