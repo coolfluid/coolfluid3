@@ -85,6 +85,7 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
       QAction * action = m_menu->addAction(it->readableName);
 
       action->setStatusTip(it->description);
+      action->setEnabled(it->isEnabled);
 
       connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
       connect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));

@@ -92,6 +92,13 @@ namespace ClientCore {
     /// @param message Exception message
     void newException(const QString & message);
 
+  protected:
+
+    /// Disables the local signals that need to.
+    /// @param localSignals Map of local signals. All values are set to true
+    /// by default.
+    virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+
   private:
 
     /// @brief Hash map that associates a type message to its name in

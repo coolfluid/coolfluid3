@@ -75,6 +75,9 @@ bool NetworkThread::connectToHost(const QString &hostAddress, quint16 port)
 
 bool NetworkThread::isConnected() const
 {
+  if( is_null(m_socket) )
+    return false;
+
   return m_socket->state() == QAbstractSocket::ConnectedState;
 }
 

@@ -231,6 +231,7 @@ void CNode::setSignals(const SignalArgs & args)
         si.readableName = name_attr != nullptr ? name_attr->value() : si.name;
         si.description = desc_attr != nullptr ? desc_attr->value() : "";
         si.isLocal = false;
+        si.isEnabled = true;
 
         m_actionSigs.append(si);
 
@@ -532,36 +533,42 @@ void CNode::listSignals(QList<ActionInfo> & actions)
 {
   QMutexLocker locker(m_mutex);
 
+  QStringList::const_iterator it = m_localSignals.begin();
+  QMap<QString, bool> availableLocalSignals;
+
+  for( ; it != m_localSignals.end() ; it++)
+    availableLocalSignals[*it] = true;
+
+  this->disableLocalSignals(availableLocalSignals);
+
+  it = m_localSignals.begin();
+
+  // put the local signals
+  for( ; it != m_localSignals.end() ; it++)
+  {
+
+    if(m_signals.find(it->toStdString()) != m_signals.end())
+    {
+      ActionInfo ai;
+      SignalPtr sig = m_signals.find(it->toStdString())->second;
+
+      ai.name = it->toStdString().c_str();
+      ai.description = sig->description.c_str();
+      ai.readableName = sig->readable_name.c_str();
+      ai.isLocal = true;
+      ai.isEnabled = availableLocalSignals[*it];
+
+      actions.append(ai);
+    }
+    else
+      NLog::globalLog()->addError(*it + ": local signal not found");
+  }
+
+  // if content has not been listed yet, we fetch
   if(!m_contentListed)
     fetchContent();
   else
-  {
-    QStringList::const_iterator it = m_localSignals.begin();
-
-
-    // put the local signals
-    for( ; it != m_localSignals.end() ; it++)
-    {
-
-      if(m_signals.find(it->toStdString()) != m_signals.end())
-      {
-        ActionInfo ai;
-        SignalPtr sig = m_signals.find(it->toStdString())->second;
-
-        ai.name = it->toStdString().c_str();
-        ai.description = sig->description.c_str();
-        ai.readableName = sig->readable_name.c_str();
-        ai.isLocal = true;
-
-        actions.append(ai);
-      }
-      else
-        NLog::globalLog()->addError(*it + ": local signal not found");
-
-    }
-
     actions.append(m_actionSigs); // copy the "remote signals"
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////

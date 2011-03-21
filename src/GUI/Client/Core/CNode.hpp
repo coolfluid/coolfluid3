@@ -94,6 +94,9 @@ namespace ClientCore {
     /// local component. If @c false, the action has to be executed on the remote
     /// component (on COOLFluiD side)
     bool isLocal;
+
+    /// Indicates wheter the action is enable or not.
+    bool isEnabled;
   };
 
   ////////////////////////////////////////////////////////////////////////////
@@ -366,8 +369,16 @@ namespace ClientCore {
     /// Component type name.
     QString m_componentType;
 
+
+  protected:
+
     /// List of signals that can be remotely executed
     QList<ActionInfo> m_actionSigs;
+
+    /// Disables the local signals that need to.
+    /// @param localSignals Map of local signals. All values are set to true
+    /// by default.
+    virtual void disableLocalSignals( QMap<QString, bool> & localSignals) const = 0;
 
   private: // helper functions
 

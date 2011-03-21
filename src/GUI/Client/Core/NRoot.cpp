@@ -46,10 +46,23 @@ NRoot::NRoot(const QString & name)
   regist_signal("frame_rejected", "Frame rejected by the server")->signal->
       connect(boost::bind(&NRoot::frame_rejected, this, _1));
 
+  regist_signal("connect_server", "Connects to the server", "Connect to server")->signal
+      ->connect( boost::bind(&NRoot::signal_connect_server, this, _1));
+  regist_signal("disconnect_server", "Disconnects from the server", "Disconnect from server")->signal
+      ->connect( boost::bind(&NRoot::signal_disconnect_server, this, _1));
+
+  m_localSignals << "connect_server" << "disconnect_server";
+
+  // signatures
+  signal("connect_server")->signature->connect( boost::bind(&NRoot::signature_connect_server, this, _1) );
+  signal("disconnect_server")->signature->connect( boost::bind(&NRoot::signature_disconnect_server, this, _1) );
+
   m_root = CRoot::create(name.toStdString());
 
   connect(&ThreadManager::instance().network(), SIGNAL(connected()),
           this, SLOT(connectedToServer()));
+  connect(&ThreadManager::instance().network(), SIGNAL(disconnectedFromServer()),
+          this, SLOT(disconnected()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,6 +117,14 @@ void NRoot::connectedToServer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void NRoot::disconnected()
+{
+  m_contentListed = false;
+  m_actionSigs.clear();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void NRoot::shutdown(SignalArgs & node)
 {
   NLog::globalLog()->addMessage("The server is shutting down. Disconnecting...");
@@ -142,6 +163,56 @@ void NRoot::frame_rejected(SignalArgs & args)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void NRoot::disableLocalSignals(QMap<QString, bool> & localSignals) const
+{
+  bool connected = ThreadManager::instance().network().isConnected();
+
+  localSignals["connect_server"] = !connected;
+  localSignals["disconnect_server"] = connected;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void NRoot::signature_connect_server( SignalArgs & frame )
+{
+  SignalFrame p = frame.map( Protocol::Tags::key_options() );
+
+  p.set_option("Hostname", std::string("localhost"), "Name or IP address of the server.");
+  p.set_option("Port number", Uint(62784), "Port number the server is listening to.");
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void NRoot::signature_disconnect_server( SignalArgs & frame )
+{
+  SignalFrame p = frame.map( Protocol::Tags::key_options() );
+
+  p.set_option("Shutdown the server", false, "If checked, the server application will be closed.");
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void NRoot::signal_connect_server( SignalArgs & frame )
+{
+  SignalFrame p = frame.map( Protocol::Tags::key_options() );
+
+  std::string hostname = p.get_option<std::string>("Hostname");
+  Uint port = p.get_option<Uint>("Port number");
+
+  ThreadManager::instance().network().connectToHost(hostname.c_str(), port);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void NRoot::signal_disconnect_server( SignalArgs & frame )
+{
+  bool shutdown = frame.map( Protocol::Tags::key_options() ).get_option<bool>("Shutdown the server");
+
+  ThreadManager::instance().network().disconnectFromServer(shutdown);
+}
+
+////////////////////////////////////////////////////////////////////////////
 
 } // ClientCore
 } // GUI

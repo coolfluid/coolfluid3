@@ -70,9 +70,33 @@ namespace ClientCore {
     /// @return Returns the Client UUID
     std::string uuid() const;
 
+    /// @name SIGNALS
+    // @{
+
+    void signature_connect_server( Common::SignalArgs & frame );
+
+    void signature_disconnect_server( Common::SignalArgs & frame );
+
+    void signal_connect_server( Common::SignalArgs & frame );
+
+    void signal_disconnect_server( Common::SignalArgs & frame );
+
+    // }@
+
   signals:
 
     void connected();
+
+  private slots:
+
+    void disconnected();
+
+  protected:
+
+    /// Disables the local signals that need to.
+    /// @param localSignals Map of local signals. All values are set to true
+    /// by default.
+    virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const;
 
   private slots:
 
@@ -86,7 +110,6 @@ namespace ClientCore {
 
     /// @brief Client UUID
     boost::uuids::uuid m_uuid;
-
   private: // helper functions
 
     /// @name Signals

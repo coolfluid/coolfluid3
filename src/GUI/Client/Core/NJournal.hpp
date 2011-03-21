@@ -58,6 +58,13 @@ signals:
 
   void journalRequest(bool local);
 
+protected:
+
+  /// Disables the local signals that need to.
+  /// @param localSignals Map of local signals. All values are set to true
+  /// by default.
+  virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+
 }; // NJournal
 
 /////////////////////////////////////////////////////////////////////////////
