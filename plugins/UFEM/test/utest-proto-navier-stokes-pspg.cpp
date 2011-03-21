@@ -63,6 +63,15 @@ Real tau_pspg(const Real volume, const Real nu, const Real u_ref)
 
 static boost::proto::terminal< Real(*)(Real, Real, Real) >::type const _tau_pspg = {&tau_pspg};
 
+/// Probe based on a coordinate value
+void probe(const Real min, const Real max, const Real coord, const Real val, Real& result)
+{
+  if(coord > min && coord < max)
+    result = val;
+}
+
+static boost::proto::terminal< void(*)(Real, Real, Real, Real, Real&) >::type const _probe = {&probe};
+
 BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
 
 // Solve the Stokes equations with PSPG
@@ -78,9 +87,9 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   
   const Real start_time = 0.;
   const Real end_time = 500;
-  const Real dt = 0.5;
+  const Real dt = 0.25;
   Real t = start_time;
-  const Uint write_interval = 1;
+  const Uint write_interval = 10;
   const Real invdt = 1. / dt;
   
   const Real mu = 0.01;
@@ -91,6 +100,9 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   const Real p_out = 0.;
   
   Real tau_ps;
+  
+  std::vector<Real> times; times.reserve(static_cast<Uint>(end_time / dt));
+  std::vector<Real> values; values.reserve(static_cast<Uint>(end_time / dt));
   
   // Load the required libraries (we assume the working dir is the binary path)
   LibLoader& loader = *OSystem::instance().lib_loader();
@@ -111,8 +123,6 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   mesh_reader->read_from_to(input_file, mesh);
-  
-  std::cout << mesh->tree() << std::endl;
   
   // Linear system
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
@@ -165,14 +175,14 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
       mesh->topology(),
       group
       (
-        _A(p) = integral<1>((                                                                                           // Mass equation
-                  divergence_elm(u)                                                                                     // standard
-                + _tau_pspg(volume, mu/rho, u_inf[0]) * laplacian_elm(p)                                                                             // PSPG
+        _A(p) = 2.*integral<1>((                                                                                                                            // Mass equation
+                  divergence_elm(u)                                                                                                                         // standard
+                + _tau_pspg(volume, mu/rho, u_inf[0]) * laplacian_elm(p)                                                                                    // PSPG
                 ) * jacobian_determinant),
-        _A(p, u) += _tau_pspg(volume, mu/rho, u_inf[0]) * integral<1>( ( transpose(gradient(u)) * linearize(advection(u), u) ) * jacobian_determinant ),            // PSPG for advective term
-        _A(u) = integral<1>( (advection_elm(u) +  mu * laplacian_elm(u) + 1./rho * gradient_elm(p) ) * jacobian_determinant), // Momentum
-        _T(p) = _tau_pspg(volume, mu/rho, u_inf[0]) * integral<1>(divergence_elm(u) * jacobian_determinant),                                         // Time, PSPG
-        _T(u) = integral<2>(value_elm(u) * jacobian_determinant),                                                       // Time, standard
+        _A(p, u) += 2.*_tau_pspg(volume, mu/rho, u_inf[0]) * integral<1>( ( transpose(gradient(u)) * linearize(advection(u), u) ) * jacobian_determinant ), // PSPG for advective term
+        _A(u) = integral<1>( (advection_elm(u) +  mu * laplacian_elm(u) + 1./rho * gradient_elm(p) ) * jacobian_determinant),                               // Momentum
+        _T(p) = _tau_pspg(volume, mu/rho, u_inf[0]) * integral<1>(divergence_elm(u) * jacobian_determinant),                                                // Time, PSPG
+        _T(u) = integral<2>(value_elm(u) * jacobian_determinant),                                                                                           // Time, standard
         system_matrix(lss) += invdt * _T + 0.5 * _A,
         system_rhs(lss) -= _A * _b
       )
@@ -184,7 +194,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
     for_each_node(symm, dirichlet(lss, u) = u_inf , physical_model);
     for_each_node(wall, dirichlet(lss, u) = u_wall, physical_model);
     
-    std::cout << "running solve" << std::endl;
+    std::cout << "Solving for time " << t << std::endl;
     
     // Solve the system!
     lss.solve();
@@ -194,7 +204,13 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
     increment_solution(lss.solution(), fields, vars, dims, *mesh);
 
     t += dt;
-        
+ 
+    times.push_back(t);
+    Real probeval = 0;
+    for_each_node(out, _probe(-0.1, 0.1, coordinates[1], _sqrt(u[0]*u[0] + u[1]*u[1]), boost::proto::lit(probeval)));
+    
+    values.push_back(probeval);
+    
     // Output using Gmsh
     if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
     {
@@ -205,6 +221,21 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
       writer->write_from_to(mesh, output_file);
     }
   }
+  
+  std::cout << "PyVarT = [";
+  BOOST_FOREACH(const Real& v, times)
+  {
+    std::cout << v << ", ";
+  }
+  std::cout << "]\n";
+  
+  std::cout << "PyVarU = [";
+  BOOST_FOREACH(const Real& v, values)
+  {
+    std::cout << v << ", ";
+  }
+  std::cout << "]\n";
+  
 }
 
 BOOST_AUTO_TEST_SUITE_END()

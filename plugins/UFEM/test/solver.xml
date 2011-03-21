@@ -28,12 +28,12 @@
           <Parameter name="print unused" type="int" value="0"/>
           <Parameter name="Adaptive Block Size" type="bool" value="true"/>
           <Parameter name="Block Size" type="int" value="1"/>
-          <Parameter name="Convergence Tolerance" type="double" value="1e-5"/>
+          <Parameter name="Convergence Tolerance" type="double" value="1e-10"/>
           <Parameter name="Explicit Residual Scaling" type="string" value="Norm of Initial Residual"/>
           <Parameter name="Explicit Residual Test" type="bool" value="false"/>
           <Parameter name="Flexible Gmres" type="bool" value="true"/>
           <Parameter name="Implicit Residual Scaling" type="string" value="Norm of Preconditioned Initial Residual"/>
-          <Parameter name="Maximum Iterations" type="int" value="20"/>
+          <Parameter name="Maximum Iterations" type="int" value="100"/>
           <Parameter name="Maximum Restarts" type="int" value="20"/>
           <Parameter name="Num Blocks" type="int" value="20"/>
           <Parameter name="Orthogonalization" type="string" value="IMGS"/>
