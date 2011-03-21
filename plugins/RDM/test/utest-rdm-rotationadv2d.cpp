@@ -113,8 +113,8 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
   std::vector<URI> files;
 
   URI file ( "file:rotation-tg-p1.neu" );
-  //  URI file ( "file:rotation-qd-p1.neu" );
-//    URI file ( "file:advection-qd-p3.msh" );
+  // URI file ( "file:rotation-qd-p1.neu" );
+  // URI file ( "file:advection-qd-p3.msh" );
 
   options.set_option<URI>("File", file );
 
@@ -157,7 +157,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
     regions.push_back( region.full_path() );
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"wall"))
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"farfield"))
     regions.push_back( region.full_path() );
 
   BOOST_CHECK_EQUAL( regions.size() , 2u);
