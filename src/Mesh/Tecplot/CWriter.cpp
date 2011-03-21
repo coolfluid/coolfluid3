@@ -264,6 +264,8 @@ std::string CWriter::zone_type(const ElementType& etype) const
   if ( etype.shape() == GeoShape::PRISM)    return "FEBRICK";  // with coalesced nodes
   if ( etype.shape() == GeoShape::HEXA)     return "FEBRICK";   
   if ( etype.shape() == GeoShape::POINT)    return "FELINESEG"; // with coalesced nodes
+  cf_assert_desc("should not be here",false);
+  return "INVALID";
 }
 ////////////////////////////////////////////////////////////////////////////////
 

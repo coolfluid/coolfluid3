@@ -47,8 +47,6 @@ public: // functions
 
   void signature_load_mesh ( Common::SignalArgs& node);
 
-  LoadMesh& operation(const std::string& name);
-
   boost::shared_ptr<CMesh> load_mesh(const Common::URI& file);
 
 protected: // helper functions
