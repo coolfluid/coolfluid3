@@ -139,11 +139,16 @@ void ComputeFlux::trigger_elements()
 
 void ComputeFlux::execute()
 {
+  std::vector<CTable<Real>::Row> residual = m_connected_residual[idx()];
+  std::vector<CTable<Real>::Row> wave_speed = m_connected_wave_speed[idx()];
+  std::vector<CTable<Real>::Row> solution = m_connected_solution[idx()];
+  const Real area = m_face_area[idx()];
+  
   // Copy the left and right states to a RealVector
   for (Uint i=0; i<m_flux.size(); ++i)
   {
-    m_state_L[i]=m_connected_solution[idx()][LEFT ][i];
-    m_state_R[i]=m_connected_solution[idx()][RIGHT][i];
+    m_state_L[i]=solution[LEFT ][i];
+    m_state_R[i]=solution[RIGHT][i];
   }
   
   // Copy the face normal to a RealVector
@@ -161,13 +166,13 @@ void ComputeFlux::execute()
   // accumulate fluxes to the residual
   for (Uint i=0; i<m_flux.size(); ++i)
   {
-    m_connected_residual[idx()][LEFT ][i] -= m_flux[i] * m_face_area[idx()]; // flux going OUT of left cell
-    m_connected_residual[idx()][RIGHT][i] += m_flux[i] * m_face_area[idx()]; // flux going IN to right cell
+    residual[LEFT][i]  -= m_flux[i] * area; // flux going OUT of left cell
+    residual[RIGHT][i] += m_flux[i] * area; // flux going IN to right cell
   }
 
   // accumulate wave_speeds * area, for use in CFL condition
-  m_connected_wave_speed[idx()][LEFT ][0] += std::max(m_wave_speed_left ,0.) * m_face_area[idx()];
-  m_connected_wave_speed[idx()][RIGHT][0] += std::max(m_wave_speed_right,0.) * m_face_area[idx()]; 
+  wave_speed[LEFT ][0] += std::max(m_wave_speed_left ,0.) * area;
+  wave_speed[RIGHT][0] += std::max(m_wave_speed_right,0.) * area; 
 
 }
 

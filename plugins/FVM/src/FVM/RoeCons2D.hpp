@@ -42,12 +42,25 @@ public: // functions
              RealVector& flux, Real& left_wave_speed, Real& right_wave_speed);
   
   virtual RealVector flux(const RealVector& state, const RealVector& normal) const;
+  
+  void compute_flux(const RealVector& state, const RealVector& normal, RealVector4& flux) const;
 
   void compute_roe_average(const RealVector& left, const RealVector& right, RealVector& roe_avg) const;
     
 private:
   
   RealVector m_roe_avg;
+  
+  RealMatrix4 right_eigenvectors; 
+  
+  RealMatrix4 left_eigenvectors; 
+
+  RealVector4 eigenvalues; 
+
+  RealMatrix4 abs_jacobian;
+  
+  RealVector4 F_L;
+  RealVector4 F_R;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

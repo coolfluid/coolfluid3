@@ -49,7 +49,7 @@ void RoeCons2D::solve(const RealVector& left, const RealVector& right, const Rea
   const Real un = u*nx + v*ny; // normal roe-average speed 
   
   // right eigenvectors
-  RealMatrix4 right_eigenvectors; right_eigenvectors << 
+  right_eigenvectors << 
   
         1.,             0.,             0.5*r/a,             0.5*r/a,
         u,              r*ny,           0.5*r/a*(u+a*nx),    0.5*r/a*(u-a*nx),
@@ -58,7 +58,7 @@ void RoeCons2D::solve(const RealVector& left, const RealVector& right, const Rea
 
 
   // left eigenvectors = inverse(rc)
-  RealMatrix4 left_eigenvectors; left_eigenvectors << 
+  left_eigenvectors << 
   
         1.-0.5*m_gm1*(u*u+v*v)/(a*a),            m_gm1*u/(a*a),           m_gm1*v/(a*a),        -m_gm1/(a*a),
         1./r*(v*nx-u*ny),                        1./r*ny,                -1./r*nx,               0.,
@@ -67,16 +67,18 @@ void RoeCons2D::solve(const RealVector& left, const RealVector& right, const Rea
   
 
   // eigenvalues
-  RealVector4 eigenvalues; eigenvalues <<    
+  eigenvalues <<    
   
         un, un,  un+a,  un-a;
 
   
   // calculate absolute jacobian
-  RealMatrix4 abs_jacobian = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+  abs_jacobian = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
 
+  compute_flux(left,normal,F_L);
+  compute_flux(left,normal,F_R);
   // flux = central part + upwind part
-  interface_flux = 0.5*(flux(left,normal)+flux(right,normal)) - 0.5*abs_jacobian*(right-left);
+  interface_flux = 0.5*(F_L + F_R) - 0.5*abs_jacobian*(right-left);
 
   left_wave_speed  =  un+a;
   right_wave_speed = -un+a;
@@ -132,6 +134,21 @@ RealVector RoeCons2D::flux(const RealVector& state, const RealVector& normal) co
   return F;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void RoeCons2D::compute_flux(const RealVector& state, const RealVector& normal, RealVector4& flux) const
+{
+  const Real r=state[0];
+  const Real u=state[1]/r;
+  const Real v=state[2]/r;
+  const Real rE = state[3];
+  const Real p = m_gm1*(rE-0.5*r*(u*u+v*v));
+  const Real un = u*normal[0] + v*normal[1]; // normal speed
+  flux <<  r*un,   
+           r*u*un + p*normal[0],
+           r*v*un + p*normal[1],
+           (rE+p)*un;
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 } // FVM

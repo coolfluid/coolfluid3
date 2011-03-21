@@ -75,7 +75,7 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   }
 
 
-  write_header(file);
+  write_file(file);
 
 
   file.close();
@@ -83,7 +83,7 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
 }
 /////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_header(std::fstream& file)
+void CWriter::write_file(std::fstream& file)
 {
   file << "TITLE      = COOLFluiD Mesh Data" << "\n";
   file << "VARIABLES  = ";

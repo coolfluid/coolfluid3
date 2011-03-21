@@ -190,6 +190,8 @@ public:
 
   std::vector<CTable<Real>::Row> operator[](const Uint elem_idx);
   
+  CTable<Real>::Row operator()(const Uint elem_idx, const Uint connected_idx);
+  
   Mesh::CField& field();
   
 private:

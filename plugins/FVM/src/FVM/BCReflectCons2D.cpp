@@ -82,22 +82,22 @@ void BCReflectCons2D::trigger_elements()
 void BCReflectCons2D::execute()
 {
   cf_assert(m_face_normal.size());
+  std::vector<CTable<Real>::Row> solution = m_connected_solution[idx()];
+  normal = to_vector(m_face_normal[idx()]);
+
+  U << solution[INNER][1]/solution[INNER][0],
+       solution[INNER][2]/solution[INNER][0];
   
-  RealVector2 normal = to_vector(m_face_normal[idx()]);
-  RealVector2 U;
-  U << m_connected_solution[idx()][INNER][1]/m_connected_solution[idx()][INNER][0],
-       m_connected_solution[idx()][INNER][2]/m_connected_solution[idx()][INNER][0];
-  
-  RealVector2 U_n = (U.dot(normal)) *normal;// normal velocity
-  RealVector2 U_t = U - U_n;         // tangential velocity
+  U_n = (U.dot(normal)) *normal;// normal velocity
+  U_t = U - U_n;         // tangential velocity
 
   U = -U_n + U_t;  // switched sign of normal velocity
 
   // Change value in ghost cell
-  m_connected_solution[idx()][GHOST][0] = m_connected_solution[idx()][INNER][0];
-  m_connected_solution[idx()][GHOST][1] = U[XX]*m_connected_solution[idx()][INNER][0];
-  m_connected_solution[idx()][GHOST][2] = U[YY]*m_connected_solution[idx()][INNER][0];
-  m_connected_solution[idx()][GHOST][3] = m_connected_solution[idx()][INNER][3];
+  solution[GHOST][0] = solution[INNER][0];
+  solution[GHOST][1] = U[XX]*solution[INNER][0];
+  solution[GHOST][2] = U[YY]*solution[INNER][0];
+  solution[GHOST][3] = solution[INNER][3];
   
 }
 

@@ -53,8 +53,7 @@ Uint CFieldView::initialize(CField& field, CEntities::Ptr elements)
 CTable<Real>::Row CFieldView::operator[](const Uint idx)
 {
   cf_assert( idx < m_size );
-  Uint data_idx = m_start_idx+idx;
-  return m_field_data.lock()->array()[data_idx];
+  return m_field_data.lock()->array()[m_start_idx+idx];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,8 +61,7 @@ CTable<Real>::Row CFieldView::operator[](const Uint idx)
 CTable<Real>::ConstRow CFieldView::operator[](const Uint idx) const
 {
   cf_assert( idx < m_size );
-  Uint data_idx = m_start_idx+idx;
-  return m_field_data.lock()->array()[data_idx];
+  return m_field_data.lock()->array()[m_start_idx+idx];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,6 +265,18 @@ std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_i
   }
   return vec;
   
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CTable<Real>::Row CConnectedFieldView::operator()(const Uint elem_idx, const Uint connected_idx)
+{
+  cf_assert_desc(full_path().path(),m_views.size());
+  boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->element_loc_idx(m_face2cells.lock()->elements(elem_idx)[connected_idx]);
+  cf_assert(cells_comp_idx < m_views.size());
+  cf_assert( is_not_null(m_views[cells_comp_idx]) );
+  cf_assert(cell_idx < m_views[cells_comp_idx]->size());
+  return (*m_views[cells_comp_idx])[cell_idx];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

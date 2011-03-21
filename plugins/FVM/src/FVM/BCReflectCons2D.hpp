@@ -54,6 +54,11 @@ private: // data
   
   enum {INNER=0,GHOST=1};
   
+  RealVector2 normal;
+  RealVector2 U;
+  RealVector2 U_n;
+  RealVector2 U_t;
+  
   Mesh::CConnectedFieldView m_connected_solution;
   Mesh::CFieldView          m_face_normal;
 

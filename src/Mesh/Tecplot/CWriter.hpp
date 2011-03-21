@@ -48,7 +48,7 @@ public: // functions
 
 private: // functions
 
-  void write_header(std::fstream& file);
+  void write_file(std::fstream& file);
 
   std::string zone_type(const ElementType& etype) const;
 
