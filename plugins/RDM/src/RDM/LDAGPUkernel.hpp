@@ -106,7 +106,7 @@ const char* GPUSource = std::string(
 "                unsigned int adr1 = adress[tx*shape+j];\n"
 "                float value = 0;\n"
             
-"                for( int k = 0; k < quad; k++ )\n"
+"                for( int k = 0; k < quad; k++ ) \n"
 "                {\n"
 "                    unsigned int elemMatrix = k * shape + j;\n"
 "                    unsigned int elemA      = k * dim;\n"
