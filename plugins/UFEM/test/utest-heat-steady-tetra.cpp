@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
   // One argument needed, containing the path to the meshes dir
-  BOOST_CHECK_EQUAL(argc, 2);
+  BOOST_CHECK_EQUAL(argc, 3);
 
   boost::filesystem::path input_file = boost::filesystem::path(argv[1]) / boost::filesystem::path("ring3d-tetras.neu");
   boost::filesystem::path output_file("ring3d-steady.msh");
