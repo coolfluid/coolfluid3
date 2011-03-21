@@ -7,10 +7,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
-#define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 7
-#define BOOST_PROTO_MAX_ARITY 7
-
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
@@ -146,7 +142,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
     for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
     (
       mesh->topology(),
-      group
+      group <<
       (
         _A(p) = integral<1>((                                                                                           // Mass equation
                   divergence_elm(u)                                                                                     // standard

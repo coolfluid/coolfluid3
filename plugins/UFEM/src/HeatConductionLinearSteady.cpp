@@ -41,7 +41,7 @@ CFieldAction::Ptr HeatConductionLinearSteady::build_equation()
   (
     "HeatEquation",
     *this,
-    group
+    group <<
     (
       _A(temperature) = k * integral<1>( laplacian_elm(temperature) * jacobian_determinant ),
       _T(temperature) = integral<1>( value_elm(temperature) * jacobian_determinant ),

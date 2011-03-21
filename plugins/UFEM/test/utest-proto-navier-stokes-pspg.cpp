@@ -7,10 +7,6 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
-#define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
-#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 8
-#define BOOST_PROTO_MAX_ARITY 8
-
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
@@ -64,13 +60,13 @@ Real tau_pspg(const Real volume, const Real nu, const Real u_ref)
 static boost::proto::terminal< Real(*)(Real, Real, Real) >::type const _tau_pspg = {&tau_pspg};
 
 /// Probe based on a coordinate value
-void probe(const Real min, const Real max, const Real coord, const Real val, Real& result)
+void probe(const Real coord, const Real val, Real& result)
 {
-  if(coord > min && coord < max)
+  if(coord > -0.1 && coord < 0.1)
     result = val;
 }
 
-static boost::proto::terminal< void(*)(Real, Real, Real, Real, Real&) >::type const _probe = {&probe};
+static boost::proto::terminal< void(*)(Real, Real, Real&) >::type const _probe = {&probe};
 
 BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
 
@@ -80,14 +76,16 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   int    argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
+  std::ofstream outfile("navier-stokes-pspg-stats.txt");
+  
   // One argument needed, containing the path to the meshes dir
   BOOST_CHECK_EQUAL(argc, 3);
   
   const Real cell_size = 0.1;
   
   const Real start_time = 0.;
-  const Real end_time = 500;
-  const Real dt = 0.25;
+  const Real end_time = 750.;
+  const Real dt = 0.5;
   Real t = start_time;
   const Uint write_interval = 10;
   const Real invdt = 1. / dt;
@@ -99,7 +97,8 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   const RealVector2 u_wall(0., 0.);
   const Real p_out = 0.;
   
-  Real tau_ps;
+  Real tau_ps_val;
+  StoredReference<Real> tau_ps = store(tau_ps_val);
   
   std::vector<Real> times; times.reserve(static_cast<Uint>(end_time / dt));
   std::vector<Real> values; values.reserve(static_cast<Uint>(end_time / dt));
@@ -173,17 +172,18 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
     for_each_element< boost::mpl::vector1<SF::Triag2DLagrangeP1> >
     (
       mesh->topology(),
-      group
+      group <<
       (
-        _A(p) = 2.*integral<1>((                                                                                                                            // Mass equation
-                  divergence_elm(u)                                                                                                                         // standard
-                + _tau_pspg(volume, mu/rho, u_inf[0]) * laplacian_elm(p)                                                                                    // PSPG
+        boost::proto::lit(tau_ps) = _tau_pspg(volume, mu/rho, u_inf[0]),
+        _A(p) = /*2.*/integral<1>((                                     // Mass equation
+                  divergence_elm(u)                                          // standard
+                + tau_ps * laplacian_elm(p)                                  // PSPG
                 ) * jacobian_determinant),
-        _A(p, u) += 2.*_tau_pspg(volume, mu/rho, u_inf[0]) * integral<1>( ( transpose(gradient(u)) * linearize(advection(u), u) ) * jacobian_determinant ), // PSPG for advective term
-        _A(u) = integral<1>( (advection_elm(u) +  mu * laplacian_elm(u) + 1./rho * gradient_elm(p) ) * jacobian_determinant),                               // Momentum
-        _T(p) = _tau_pspg(volume, mu/rho, u_inf[0]) * integral<1>(divergence_elm(u) * jacobian_determinant),                                                // Time, PSPG
-        _T(u) = integral<2>(value_elm(u) * jacobian_determinant),                                                                                           // Time, standard
-        system_matrix(lss) += invdt * _T + 0.5 * _A,
+        _A(p, u) += /*2.*/tau_ps * integral<1>( ( transpose(gradient(u)) * linearize(advection(u), u) ) * jacobian_determinant ), // PSPG for advective term
+        _A(u) = integral<1>( (advection_elm(u) +  mu * laplacian_elm(u) + 1./rho * gradient_elm(p) ) * jacobian_determinant),     // Momentum
+        _T(p) = tau_ps * integral<1>(divergence_elm(u) * jacobian_determinant),                                                   // Time, PSPG
+        _T(u) = integral<2>(value_elm(u) * jacobian_determinant),                                                                 // Time, standard
+        system_matrix(lss) += invdt * _T + 1.0 * _A,
         system_rhs(lss) -= _A * _b
       )
     );
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
  
     times.push_back(t);
     Real probeval = 0;
-    for_each_node(out, _probe(-0.1, 0.1, coordinates[1], _sqrt(u[0]*u[0] + u[1]*u[1]), boost::proto::lit(probeval)));
+    for_each_node(out, _probe(coordinates[1], _sqrt(u[0]*u[0] + u[1]*u[1]), boost::proto::lit(probeval)));
     
     values.push_back(probeval);
     
@@ -222,20 +222,19 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
     }
   }
   
-  std::cout << "PyVarT = [";
+  outfile << "PyVarT = [";
   BOOST_FOREACH(const Real& v, times)
   {
-    std::cout << v << ", ";
+    outfile << v << ", ";
   }
-  std::cout << "]\n";
+  outfile << "]\n";
   
-  std::cout << "PyVarU = [";
+  outfile << "PyVarU = [";
   BOOST_FOREACH(const Real& v, values)
   {
-    std::cout << v << ", ";
+    outfile << v << ", ";
   }
-  std::cout << "]\n";
-  
+  outfile << "]\n";
 }
 
 BOOST_AUTO_TEST_SUITE_END()

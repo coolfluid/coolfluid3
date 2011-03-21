@@ -59,7 +59,7 @@ struct ExpressionGroup :
     {
       // Use the group(expr1, expr2, ... exprN) proto expression as a fusion sequence. pop_front removes the group node itself from the list of expressions,
       // so this calls evaluate_expr on expr1, expr2, ... exprN
-      boost::fusion::for_each( boost::fusion::pop_front(expr), evaluate_expr(state, data) );
+      boost::fusion::for_each(boost::proto::flatten(boost::proto::right(expr)), evaluate_expr(state, data) );
     }
   };
 };
@@ -76,7 +76,7 @@ template<typename GrammarT>
 struct GroupGrammar :
   boost::proto::when
   <
-    boost::proto::function< boost::proto::terminal<ExpressionGroupTag>, boost::proto::vararg<GrammarT> >,
+    boost::proto::shift_left< boost::proto::terminal<ExpressionGroupTag>, boost::proto::_ >,
     boost::proto::call< ExpressionGroup<GrammarT> >
   >
 {

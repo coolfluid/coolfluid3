@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    group
+    group <<
     (
       _A(temperature) = integral<1>(transpose( gradient(temperature) ) * gradient(temperature) * jacobian_determinant),
       system_matrix(lss) += _A
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    group
+    group <<
     (
       _A(temperature) = integral<1>( laplacian_elm(temperature) * jacobian_determinant ),
       system_matrix(lss) += _A
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    group
+    group <<
     (
       _A(temperature) = k * integral<1>( laplacian_elm(temperature) * jacobian_determinant ),
       system_matrix(lss) += _A
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   (
     "Heat1D",
     *root,
-    group
+    group <<
     (
       _A(temperature) = integral<1>(laplacian_elm(temperature) * jacobian_determinant),
       system_matrix(lss) += _A
@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    group
+    group <<
     (
       _A(temperature) = integral<1>( k * laplacian_elm(temperature) * jacobian_determinant ),
       _T(temperature) = integral<1>( jacobian_determinant * value_elm(temperature) ),

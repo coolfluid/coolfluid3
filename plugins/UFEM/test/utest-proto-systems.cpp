@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
     for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
     (
       mesh->topology(),
-      group
+      group <<
       (
         _A(temperature) = boost::proto::lit(alpha) * integral<1>(laplacian_elm(temperature) * jacobian_determinant),
         _T(temperature) = invdt * integral<1>(value_elm(temperature) * jacobian_determinant),
