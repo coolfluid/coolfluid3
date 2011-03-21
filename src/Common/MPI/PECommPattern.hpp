@@ -31,7 +31,6 @@ namespace Common {
   The word node here means any kind of "point of storage", in this context it is not directly related with the computational mesh.
 **/
 
-// TODO!!!
 /**
   @todo make possible to use compattern on non-registered data
   @todo when adding, how to give values to the newly createable elements?
@@ -58,15 +57,31 @@ public:
   /// typedef for the temporary buffer
   class temp_buffer_item{
     public:
-      temp_buffer_item(Uint _gid, Uint _rank, bool _option) { gid=(CPint)_gid; rank=(CPint)_rank; option=_option; }
-      CPint gid;
+      temp_buffer_item(Uint _gid, Uint _rank, bool _option)
+      {
+        gid=_gid;
+        rank=(CPint)_rank;
+        option=_option;
+      }
+      temp_buffer_item()
+      {
+        gid= std::numeric_limits<Uint>::max();
+        rank=std::numeric_limits<CPint>::max();
+        option=false;
+      }
+      Uint gid;
       CPint rank;
       bool option;
   };
   /// typedef for the temporary buffer array
   typedef std::vector<temp_buffer_item> temp_buffer_array;
+  /// helper struct for setup function
+  struct dist_struct {
+    CPint rank;   // rank where the item is
+    CPint lid;    // local id on that rank
+    void *data;   // packed data if it needs to be moved along procs, otherwise nullptr
+  };
 
-  /// typedef
 
   //@} TYPEDEFS
 
@@ -203,7 +218,7 @@ public:
   /// @return true or false, respectively
   bool isUpToDate() const { return m_isUpToDate; }
 
-  /// accessor to check if setup is needed to call or not
+  /// accessor to check if compattern is frozen or not
   /// @return true or false, respectively
   bool isFreeze() const { return m_isFreeze; }
 
@@ -242,30 +257,17 @@ private:
   /// array holding the updatable info
   std::vector<bool> m_isUpdatable;
 
-/*
-  /// Storing updatable information.
-  /// Note that this is not containing the full length of the array, only the part is involved in the communication.
-  std::vector<bool> m_updatable;
-
-  /// this is the global id
-  /// Note that this is not containing the full length of the array, only the part is involved in the communication.
-  std::vector< Uint > gid;
-
   /// this is the process-wise counter of sending communication pattern
-  std::vector< int > m_sendCount;
+  std::vector< CPint > m_sendCount;
 
   /// this is the map of sending communication pattern
-  std::vector< int > m_sendMap;
+  std::vector< CPint > m_sendMap;
 
   /// this is the process-wise counter of receiveing communication pattern
-  std::vector< int > m_receiveCount;
+  std::vector< CPint > m_recvCount;
 
   /// this is the map of receiveing communication pattern
-  std::vector< int > m_receiveMap;
-
-  /// flag telling if communication pattern is up-to-date (there are no items )
-  bool m_isCommPatternSetupNeeded;
-*/
+  std::vector< CPint > m_recvMap;
 
 }; // PECommPattern
 

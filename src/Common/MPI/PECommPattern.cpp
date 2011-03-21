@@ -36,7 +36,15 @@ Common::ComponentBuilder < PECommPattern, Component, LibCommon > PECommPattern_P
 // Constructor & destructor
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern::PECommPattern(const std::string& name): Component(name), m_gid(new PEObjectWrapperPtr<int>("dummy")), m_isUpdatable(0)
+PECommPattern::PECommPattern(const std::string& name): Component(name), m_gid(new PEObjectWrapperPtr<int>("dummy")),
+  m_isUpdatable(0),
+  m_add_buffer(0),
+  m_mov_buffer(0),
+  m_rem_buffer(0),
+  m_sendCount(mpi::PE::instance().size(),0),
+  m_sendMap(0),
+  m_recvCount(mpi::PE::instance().size(),0),
+  m_recvMap(0)
 {
   //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->signal->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
   m_isUpToDate=false;
@@ -47,7 +55,7 @@ PECommPattern::PECommPattern(const std::string& name): Component(name), m_gid(ne
 
 PECommPattern::~PECommPattern()
 {
-  m_gid->remove_tag("gid_of_"+this->name());
+  if (m_gid.get()!=nullptr) m_gid->remove_tag("gid_of_"+this->name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,16 +78,24 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
       throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
   // add to add buffer
+  // if performance issues, replace for(...) add(...) with direct push_back
   if (gid->size()!=0) {
     m_isUpToDate=false;
     std::vector<int> map(gid->size());
     for(int i=0; i<(int)map.size(); i++) map[i]=i;
     Uint *igid=(Uint*)gid->pack(map);
     std::vector<Uint>::iterator irank=rank.begin();
-//    for (;irank!=rank.end();irank++,igid++)
-//      add(*igid,*irank);
-//    delete[] igid;
-//    setup();
+    for (Uint* iigid=igid;irank!=rank.end();irank++,iigid++)
+      add(*iigid,*irank);
+    delete[] igid;
+/*
+PECheckPoint(100,"-- Setup comission: --");
+PEProcessSortedExecute(-1,
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) std::cout << "("<< i.gid << "|" << i.rank << "|" << i.option << ")";
+  std::cout << "\n" << std::flush;
+)
+*/
+    setup();
   }
 }
 
@@ -112,12 +128,99 @@ void PECommPattern::setup()
 //  for(i=0;i<nproc;i++)
 */
 
-
-
 //DEBUGVECTOR(ngid);
 //DEBUGVECTOR(gida);
 
+//--------------------------------------------------------------------
 
+  // experimental version, supports one single setup call and only add
+
+  // -- 1 -- data definition
+/*
+PECheckPoint(100,"-- step 1 --:");
+*/
+
+  // -- 2 -- get environment data
+  // get stuff from environment
+  const CPint irank=(CPint)mpi::PE::instance().rank();
+  const CPint nproc=(CPint)mpi::PE::instance().size();
+/*
+PECheckPoint(100,"-- step 2 --:");
+*/
+  // -- 3 -- build receive info
+  // build receive count and receive map, note that filtering out data from laying on current process
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) m_recvCount[i.rank]++;
+  m_recvCount[irank]=0;
+  int recvSum=0;
+  BOOST_FOREACH(CPint& i, m_recvCount) recvSum+=i;
+  m_recvMap.reserve(recvSum);
+  m_recvMap.assign(recvSum,std::numeric_limits<CPint>::max());
+  std::vector<CPint> recvcounter(nproc,0);
+  for (int i=1; i<nproc; i++) recvcounter[i]=m_recvCount[i-1]+recvcounter[i-1];
+  CPint recvidx=0;
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
+  {
+    if (i.rank!=irank)
+      m_recvMap[recvcounter[i.rank]++]=recvidx;
+    recvidx++;
+  }
+  BOOST_FOREACH(CPint& i, m_recvMap)
+    BOOST_ASSERT(i!=std::numeric_limits<CPint>::max());
+
+/*
+PECheckPoint(100,"-- step 3 --:");
+PEProcessSortedExecute(-1,PEDebugVector(m_recvMap,m_recvMap.size()));
+PEProcessSortedExecute(-1,PEDebugVector(m_recvCount,m_recvCount.size()));
+*/
+
+  // -- 4 -- building a distributed info for looking up communication
+  // setting up m_isUpdatable and its counts (distributed over processes)
+  // also computing displacements of counts
+  m_isUpdatable.resize(m_add_buffer.size(),false);
+  m_isUpdatable.reserve(m_add_buffer.size());
+  std::vector<int> dist_nupdatable(nproc,0);
+  for (int i=0; i<m_add_buffer.size(); i++)
+    if (irank==m_add_buffer[i].rank)
+    {
+      dist_nupdatable[irank]++;
+      m_isUpdatable[i]=true;
+    }
+  std::vector<int> dist_nupdatables(nproc);
+  mpi::PE::instance().all_reduce(mpi::plus(),dist_nupdatable,dist_nupdatable);
+  std::vector<int> dist_nupdatabledisp(nproc,0);
+  for (int i=1; i<nproc; i++) dist_nupdatabledisp[i]=dist_nupdatable[i-1]+dist_nupdatabledisp[i-1];
+
+PECheckPoint(100,"-- step 4 --:");
+PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatable,dist_nupdatable.size()));
+PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatabledisp,dist_nupdatabledisp.size()));
+
+  // building info and communicating dist
+  std::vector<dist_struct> dist(dist_nupdatable.size());
+  CPint ilid=0;
+  BOOST_FOREACH(dist_struct& i, dist)
+  {
+    i.rank=irank;
+    i.lid=ilid;
+    i.data=nullptr;
+  }
+/*
+  std::vector<int> dist_nsend(nproc,0);
+
+
+  CPint lid=0;
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
+  {
+    if (i.rank==irank)
+      dist_lidupdatable.push_back(lid);
+    lid++;
+  }
+  BOOST_ASSERT(dist_lidupdatable.size()==dist_nupdatable);
+*/
+/*
+PECheckPoint(100,"XXXXX Distributed data, step 1:");
+PEProcessSortedExecute(-1,PEDebugVector(dist_lidupdatable,dist_lidupdatable.size()));
+PEProcessSortedExecute(-1,PEDebugVector(dist_rankupdatable,dist_rankupdatable.size()));
+*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
