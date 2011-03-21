@@ -30,8 +30,7 @@ namespace Tools {
 namespace Testing {
 
 /// Compare 2D arrays
-template<typename ValueT, typename ArrayT>
-void array2d_test(const ArrayT a, const ArrayT b, Accumulator& result, const std::string& context)
+void array2d_test(const CTable<Real>::ArrayT& a, const CTable<Real>::ArrayT& b, Accumulator& result, const std::string& context)
 {
   const Uint size_a = a.size();
   const Uint size_b = b.size();
@@ -46,10 +45,10 @@ void array2d_test(const ArrayT a, const ArrayT b, Accumulator& result, const std
     if(!exact || ulps > acc.max_ulps)
     {
       CFerror << "In " << context << ", row " << i << ":\n";
-      BOOST_FOREACH(const ValueT& val, a[i])
+      BOOST_FOREACH(const Real& val, a[i])
         CFerror << "  " << val;
       CFerror << "\n    differs from\n";
-      BOOST_FOREACH(const ValueT& val, b[i])
+      BOOST_FOREACH(const Real& val, b[i])
         CFerror << "  " << val;
       CFerror << CFendl;
       if(exact)
@@ -65,13 +64,44 @@ void array2d_test(const ArrayT a, const ArrayT b, Accumulator& result, const std
     CFerror << "Size difference in " << context << ": " << size_a << " != " << size_b << CFendl;
 }
 
+/// Compare 2D arrays
+void array2d_test(const CTable<Uint>::ArrayT& a, const CTable<Uint>::ArrayT& b, Accumulator& result, const std::string& context)
+{
+  const Uint size_a = a.size();
+  const Uint size_b = b.size();
+
+  for(Uint i = 0, j = 0; i != size_a && j != size_b; ++i, ++j)
+  {
+    Accumulator acc;
+    vector_test(a[i], b[j], acc);
+    const bool exact = boost::accumulators::min(acc.exact);
+    if(!exact)
+    {
+      CFerror << "In " << context << ", row " << i << ":\n";
+      BOOST_FOREACH(const Uint& val, a[i])
+        CFerror << "  " << val;
+      CFerror << "\n    differs from\n";
+      BOOST_FOREACH(const Uint& val, b[i])
+        CFerror << "  " << val;
+      CFerror << CFendl;
+    }
+    result.exact(exact);
+    result.ulps(0.);
+  }
+
+  result.exact(size_a == size_b);
+
+  if(size_a != size_b)
+    CFerror << "Size difference in " << context << ": " << size_a << " != " << size_b << CFendl;
+}
+
 /// Compares CElements
 void test(const CElements& a, const CElements& b, Accumulator& result)
 {
   const CTable<Uint>::ArrayT& table_a = a.connectivity_table().array();
   const CTable<Uint>::ArrayT& table_b = b.connectivity_table().array();
 
-  array2d_test<Uint>(table_a, table_b, result, "comparing " + a.full_path().path() + " and " + b.full_path().path());
+  array2d_test(table_a, table_b, result, "comparing " + a.full_path().path() + " and " + b.full_path().path());
 }
 
 /// Compares Arrays
@@ -80,7 +110,7 @@ void test(const CTable<Real>& a, const CTable<Real>& b, Accumulator& result)
   const CTable<Real>::ArrayT& array_a = a.array();
   const CTable<Real>::ArrayT& array_b = b.array();
 
-  array2d_test<Real>(array_a, array_b, result, "comparing " + a.full_path().path() + " and " + b.full_path().path());
+  array2d_test(array_a, array_b, result, "comparing " + a.full_path().path() + " and " + b.full_path().path());
 }
 
 }
