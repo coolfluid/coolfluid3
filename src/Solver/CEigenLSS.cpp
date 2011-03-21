@@ -16,6 +16,16 @@
   #include <Epetra_Map.h>
   #include <Epetra_Vector.h>
   #include <Epetra_CrsMatrix.h>
+
+  #include "Stratimikos_DefaultLinearSolverBuilder.hpp"
+  #include "Thyra_LinearOpWithSolveFactoryHelpers.hpp"
+  #include "Thyra_EpetraThyraWrappers.hpp"
+  #include "Thyra_EpetraLinearOp.hpp"
+//  #include "Teuchos_GlobalMPISession.hpp"
+  #include "Teuchos_VerboseObject.hpp"
+  #include "Teuchos_XMLParameterListHelpers.hpp"
+  #include "Teuchos_CommandLineProcessor.hpp"
+
 #else 
   #ifdef CF_HAVE_SUPERLU
     #define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
@@ -131,7 +141,7 @@ void CEigenLSS::solve()
   }
   
   Epetra_CrsMatrix ep_A(Copy, Map, &nnz[0]);
-  
+
   // Fill the matrix
   for(int row=0; row < nb_rows; ++row)
   {
@@ -147,7 +157,90 @@ void CEigenLSS::solve()
   
   ep_A.FillComplete();
   
-  
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//BEGIN////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+  Teuchos::RCP<Epetra_CrsMatrix> epetra_A=Teuchos::rcpFromRef(ep_A);
+  Teuchos::RCP<Epetra_Vector>    epetra_x=Teuchos::rcpFromRef(ep_sol);
+  Teuchos::RCP<Epetra_Vector>    epetra_b=Teuchos::rcpFromRef(ep_rhs);
+
+  Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(getMethodData().getOptionsXML()); // the most important in general setup
+
+  Teuchos::RCP<Teuchos::FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream(); // TODO: decouple from fancyostream to ostream or to C stdout when possible
+  typedef Teuchos::ParameterList::PrintOptions PLPrintOptions;
+  Teuchos::CommandLineProcessor  clp(false); // false: don't throw exceptions
+
+  RCP<const Thyra::LinearOpBase<double> > A = Thyra::epetraLinearOp( epetra_A );
+  RCP<Thyra::VectorBase<double> >         x = Thyra::create_Vector( epetra_x, A->domain() );
+  RCP<const Thyra::VectorBase<double> >   b = Thyra::create_Vector( epetra_b, A->range() );
+
+  // r = b - A*x, initial L2 norm
+  double nrm_r=0.;
+  Real systemResidual=-1.;
+  {
+    Epetra_Vector epetra_r(*epetra_b);
+    Epetra_Vector epetra_A_x(epetra_A->OperatorRangeMap());
+    epetra_A->Apply(*epetra_x,epetra_A_x);
+    epetra_r.Update(-1.0,epetra_A_x,1.0);
+    epetra_r.Norm2(&nrm_r);
+  }
+
+  // Reading in the solver parameters from the parameters file and/or from
+  // the command line.  This was setup by the command-line options
+  // set by the setupCLP(...) function above.
+  linearSolverBuilder.readParameters(0); // out.get() if want confirmation about the xml file within trilinos
+  RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = linearSolverBuilder.createLinearSolveStrategy(""); // create linear solver strategy
+  lowsFactory->setVerbLevel((Teuchos::EVerbosityLevel)(getMethodData().getOutputLevel())); // set verbosity
+
+//  // print back default and current settings
+//  if (opts->trilinos.dumpDefault!=0) {
+//    fflush(stdout); cout << flush;
+//    _MMESSAGE_(0,1,"Dumping Trilinos/Stratimikos solver defaults to files: 'trilinos_default.txt' and 'trilinos_default.xml'...\n");
+//    fflush(stdout); cout << flush;
+//    std::ofstream ofs("./trilinos_default.txt");
+//    linearSolverBuilder.getValidParameters()->print(ofs,PLPrintOptions().indent(2).showTypes(true).showDoc(true)); // the last true-false is the deciding about whether printing documentation to option or not
+//    ofs.flush();ofs.close();
+//    ofs.open("./trilinos_default.xml");
+//    Teuchos::writeParameterListToXmlOStream(*linearSolverBuilder.getValidParameters(),ofs);
+//    ofs.flush();ofs.close();
+//  }
+//  if (opts->trilinos.dumpCurrXML!=0) {
+//    fflush(stdout); cout << flush;
+//    _MMESSAGE_(0,1,"Dumping Trilinos/Stratimikos current settings to file: 'trilinos_current.xml'...\n");
+//    fflush(stdout); cout << flush;
+//    linearSolverBuilder.writeParamsFile(*lowsFactory,"./trilinos_current.xml");
+//  }
+
+  // solve the matrix
+  Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > lows = Thyra::linearOpWithSolve(*lowsFactory, A); // create solver
+  Thyra::solve(*lows, Thyra::NOTRANS, *b, &*x); // solve
+
+  // r = b - A*x, final L2 norm
+  {
+    Epetra_Vector epetra_r(*epetra_b);
+    Epetra_Vector epetra_A_x(epetra_A->OperatorRangeMap());
+    epetra_A->Apply(*epetra_x,epetra_A_x);
+    epetra_r.Update(-1.0,epetra_A_x,1.0);
+    systemResidual=1./nrm_r;
+    nrm_r=0.;
+    epetra_r.Norm2(&nrm_r);
+    systemResidual*=nrm_r;
+  }
+
+  // copying the solution into the data handle for the rhs: TODO make more efficient
+  rhs = 0.0;
+  for (int i=0; i<nrhs; i++) {
+    rhs[_lid[i]] = (*epetra_x)[i];
+  }
+
+  // print relative residual
+  CFinfo << "Rel. residual: " << systemResidual << CFendl;
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+//END//////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////
   
 #else // no trilinos
 
