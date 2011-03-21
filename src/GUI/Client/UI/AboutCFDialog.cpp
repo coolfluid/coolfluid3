@@ -26,21 +26,27 @@ AboutCFDialog::AboutCFDialog(QWidget * parent)
   : QDialog(parent)
 {
   this->setWindowTitle("About CF");
+  QString os = QString("%1 [%2bits]").arg(CF_OS_LONGNAME).arg(CF_OS_BITS);
 
   m_mainLayout = new QVBoxLayout(this);
   m_infoLayout = new QFormLayout();
 
   m_btOK = new QPushButton("OK");
 
-  m_labQwt = new QLabel("COOLFluiD client is based in part on the \n"
-                        "work of the Qwt project (http://qwt.sf.net).", this);
+  m_labQwt = new QLabel("COOLFluiD client is based in part on the "
+                        "work of the Qwt project "
+                        "(<a href=\"http://qwt.sf.net\">http://qwt.sf.net</a>).", this);
 
-  m_infoList << new CFInfo("CF version:", CF_VERSION_STR, m_infoLayout);
-  m_infoList << new CFInfo("Kernel version:", CF_KERNEL_VERSION_STR, m_infoLayout);
-  m_infoList << new CFInfo("Build operating system:", QString("%1 [%2bits]").arg(CF_OS_LONGNAME).arg(CF_OS_BITS), m_infoLayout);
-  m_infoList << new CFInfo("Build processor:", CF_BUILD_PROCESSOR, m_infoLayout);
-  m_infoList << new CFInfo("Qt version:", QT_VERSION_STR, m_infoLayout);
+  m_labQwt->setTextFormat(Qt::RichText);
+  m_labQwt->setWordWrap(true);
+  m_labQwt->setOpenExternalLinks(true);
 
+  m_infoLayout->addRow( "CF version:", new QLabel(CF_VERSION_STR) );
+  m_infoLayout->addRow( "Kernel version:", new QLabel(CF_KERNEL_VERSION_STR) );
+  m_infoLayout->addRow( "Build operating system:", new QLabel(os) );
+  m_infoLayout->addRow( "Build processor:", new QLabel(CF_BUILD_PROCESSOR) );
+  m_infoLayout->addRow( "Qt version:", new QLabel(QT_VERSION_STR) );
+  m_infoLayout->addRow( "Build time:", new QLabel(__DATE__ " - " __TIME__) );
 
   m_mainLayout->addLayout(m_infoLayout);
   m_mainLayout->addWidget(m_labQwt);
@@ -57,25 +63,6 @@ AboutCFDialog::~AboutCFDialog()
   delete m_labQwt;
   delete m_infoLayout;
   delete m_mainLayout;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-AboutCFDialog::CFInfo::CFInfo(const QString & name, const QString & value,
-                              QFormLayout * parent)
-{
-  this->labName = new QLabel(name);
-  this->labValue = new QLabel(value);
-
-  parent->addRow(this->labName, this->labValue);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-AboutCFDialog::CFInfo::~CFInfo()
-{
-  delete this->labName;
-  delete this->labValue;
 }
 
 //////////////////////////////////////////////////////////////////////////

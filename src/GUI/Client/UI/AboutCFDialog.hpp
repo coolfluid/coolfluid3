@@ -28,37 +28,35 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  /// Builds and shows up the "About COOLFLuiD" dialog.
+  /// This dialog displays some information about COOLFluiD, such as the kernel
+  /// version, the operating system type,...
+  /// @todo should display the license, CF logo, icons credits...
   class ClientUI_API AboutCFDialog : public QDialog
   {
-    struct CFInfo
-    {
-      public:
-      QLabel * labName;
-      QLabel * labValue;
-
-      CFInfo(const QString & name, const QString & value, QFormLayout * parent);
-
-      ~CFInfo();
-    };
-
-
 
   public:
 
+    /// Constructor.
+    /// @param parent The parent widget.
     AboutCFDialog(QWidget * parent = nullptr);
 
+    /// Destructor.
+    /// Frees all allocated memory.
     ~AboutCFDialog();
 
   private: // data
 
+    /// Main layout
     QVBoxLayout * m_mainLayout;
 
+    /// "OK" button
     QPushButton * m_btOK;
 
+    /// Layout that contain the information.
     QFormLayout * m_infoLayout;
 
-    QList<CFInfo *> m_infoList;
-
+    /// Label for Qwt.
     QLabel * m_labQwt;
 
   }; // class AboutCFDialog
