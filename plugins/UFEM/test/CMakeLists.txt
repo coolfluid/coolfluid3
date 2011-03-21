@@ -68,6 +68,8 @@ list( APPEND utest-proto-stokes-pspg_cflibs coolfluid_mesh coolfluid_solver_acti
 list( APPEND utest-proto-stokes-pspg_files
   utest-proto-stokes-pspg.cpp )
 list( APPEND utest-proto-stokes-pspg_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
+set( utest-proto-stokes-pspg_mpi_test TRUE )
+set( utest-proto-stokes-pspg_mpi_nprocs 1 )
 coolfluid_add_unit_test( utest-proto-stokes-pspg )
 
 list( APPEND utest-proto-navier-stokes-pspg_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_solver )
