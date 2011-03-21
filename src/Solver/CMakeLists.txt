@@ -31,7 +31,10 @@ set( coolfluid_solver_kernellib TRUE )
 
 list(APPEND coolfluid_solver_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_gmsh coolfluid_mesh_neutral)
 
-if( CF_HAVE_SUPERLU )
+if( CF_HAVE_TRILINOS )
+  list(APPEND coolfluid_solver_cflibs ${TRILINOS_LIBRARIES})
+  list(APPEND coolfluid_solver_includedirs ${TRILINOS_INCLUDE_DIR})
+elseif( CF_HAVE_SUPERLU )
   list(APPEND coolfluid_solver_cflibs ${SUPERLU_LIBRARIES})
   list(APPEND coolfluid_solver_includedirs ${SUPERLU_INCLUDE_DIR})
 endif()

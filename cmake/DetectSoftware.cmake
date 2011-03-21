@@ -72,6 +72,7 @@ find_package(CGNS)            # CGNS library
 find_package(PythonInterp)    # Python interpreter
 find_package(Realtime)        # POSIX Realtime library
 find_package(SuperLU)         # SuperLU sparse sirect solver
+find_package(Trilinos)        # Trilinos sparse matrix library
 
 # gpu software
 

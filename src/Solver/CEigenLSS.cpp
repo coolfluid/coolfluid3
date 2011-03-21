@@ -11,9 +11,16 @@
 
 #include "coolfluid_config.h"
 
-#ifdef CF_HAVE_SUPERLU
-  #define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
-  #include <Eigen/SuperLUSupport>
+#ifdef CF_HAVE_TRILINOS
+  #include <Epetra_SerialComm.h>
+  #include <Epetra_Map.h>
+  #include <Epetra_Vector.h>
+  #include <Epetra_CrsMatrix.h>
+#else 
+  #ifdef CF_HAVE_SUPERLU
+    #define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
+    #include <Eigen/SuperLUSupport>
+  #endif
 #endif
 
 #include "Common/CBuilder.hpp"
@@ -103,16 +110,59 @@ const RealVector& CEigenLSS::solution()
 
 void CEigenLSS::solve()
 {
+#ifdef CF_HAVE_TRILINOS
+  const Uint nb_rows = size();
+  cf_assert(nb_rows == m_system_matrix.outerSize());
+  
+  Epetra_SerialComm comm;
+  Epetra_Map map(nb_rows, 0, comm);
+
+  Epetra_Vector ep_rhs(Copy, map, m_rhs.data());
+  Epetra_Vector ep_sol(map);
+  
+  // Count non-zeros
+  std::vector<int> nnz(nb_rows, 0);
+  for(int row=0; row < nb_rows; ++row)
+  {
+    for(MatrixT::InnerIterator it(m_system_matrix, k); it; ++it)
+    {
+      ++nnz[row];
+    }
+  }
+  
+  Epetra_CrsMatrix ep_A(Copy, Map, &nnz[0]);
+  
+  // Fill the matrix
+  for(int row=0; row < nb_rows; ++row)
+  {
+    std::vector<int> indices; indices.reserve(nnz[row]);
+    std::vector<Real> values; values.reserve(nnz[row]);
+    for(MatrixT::InnerIterator it(m_system_matrix, k); it; ++it)
+    {
+      indices.push_back(it.col());
+      values.push_back(it.value());
+    }
+    ep_A.InsertGlobalValues(row, nnz[row], &values[0], &indices[0]);
+  }
+  
+  ep_A.FillComplete();
+  
+  
+  
+#else // no trilinos
+
 #ifdef CF_HAVE_SUPERLU
   Eigen::SparseMatrix<Real> A(m_system_matrix);
   Eigen::SparseLU<Eigen::SparseMatrix<Real>,Eigen::SuperLU> lu_of_A(A);
   if(!lu_of_A.solve(rhs(), &m_solution))
     throw Common::FailedToConverge(FromHere(), "Solution failed.");
-#else
+#else // no trilinos and no superlu
   RealMatrix A(m_system_matrix);
   Eigen::FullPivLU<RealMatrix> lu_of_A(A);
   m_solution = lu_of_A.solve(m_rhs);
-#endif
+#endif // end ifdef superlu
+
+#endif // end ifdef trilinos
 
 }
 
@@ -139,7 +189,7 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
   {
     if(unique_field_names.insert(field_name).second)
     {
-      CField& field = *solution_mesh.get_child_ptr(field_name)->as_ptr<CField>();
+      CField2& field = *solution_mesh.get_child_ptr(field_name)->as_ptr<CField2>();
       CTable<Real>& field_table = field.data();
       const Uint field_size = field_table.size();
       for(Uint row_idx = 0; row_idx != field_size; ++row_idx)

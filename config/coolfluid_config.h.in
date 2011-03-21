@@ -73,6 +73,7 @@
 #cmakedefine CF_HAVE_GETTIMEOFDAY   // time header
 #cmakedefine CF_TIME_WITH_SYS_TIME  // time header setting
 #cmakedefine CF_HAVE_SUPERLU        // SuperLU sparse direct solver
+#cmakedefine CF_HAVE_TRILINOS       // Trilinos sparse lib
 
 // Package options
 #cmakedefine CF_HAVE_PARMETIS
