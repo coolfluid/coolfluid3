@@ -91,6 +91,8 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
 
   Component::Ptr heat_eq = ufem_method->get_child_ptr("HeatEquation");
   BOOST_CHECK(heat_eq);
+  
+  ufem_model->get_child("LSS").configure_property("ConfigFile", argv[1]);
 
   heat_eq->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring3d"));
   BOOST_CHECK(true);

@@ -34,7 +34,7 @@
 #endif
 
 #include "Common/CBuilder.hpp"
-#include "Common/OptionURI.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/MPI/PE.hpp"
 
 #include "Mesh/CField.hpp"
@@ -51,9 +51,8 @@ CF::Common::ComponentBuilder < CEigenLSS, Common::Component, LibSolver > aCeigen
 
 CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 {
-  Common::OptionURI::Ptr config_path =
-      boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("ConfigFile", "Solver config file", std::string()) );
-  config_path->supported_protocol(CF::Common::URI::Scheme::FILE);
+  Common::Option::Ptr config_path =
+      properties().add_option< Common::OptionT<std::string> >("ConfigFile", "Solver config file", std::string());
   config_path->mark_basic();
   
   if(!mpi::PE::instance().is_init())
