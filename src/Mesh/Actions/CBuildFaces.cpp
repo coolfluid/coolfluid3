@@ -509,6 +509,8 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
     boost_foreach(CTable<Uint>::ConstRow bdry_face_nodes, bdry_faces.connectivity_table().array())
     {
       const Uint nb_nodes_per_face = bdry_face_nodes.size();
+
+
   
       std::map<Uint,Uint> found_faces;
       std::map<Uint,Uint>::iterator not_found = found_faces.end();
