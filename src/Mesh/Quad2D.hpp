@@ -20,10 +20,9 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
   
-/// This class defines a 2D Triangle mesh element
+/// This class defines a 2D Quadrilateral mesh element
 /// @author Willem Deconinck
-struct Mesh_API Quad2D : public ElementType
-{
+struct Mesh_API Quad2D : public ElementType {
 
   /// constructor
   Quad2D(const std::string& name);
