@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   // One argument needed, containing the path to the meshes dir
   BOOST_CHECK_EQUAL(argc, 3);
 
-  boost::filesystem::path input_file = boost::filesystem::path(argv[1]) / boost::filesystem::path("ring3d-tetras.neu");
+  boost::filesystem::path input_file = boost::filesystem::path(argv[2]) / boost::filesystem::path("ring3d-tetras.neu");
   boost::filesystem::path output_file("ring3d-steady.msh");
 
   CRoot::Ptr root = Core::instance().root();
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   Component::Ptr heat_eq = ufem_method->get_child_ptr("HeatEquation");
   BOOST_CHECK(heat_eq);
   
-  ufem_model->get_child("LSS").configure_property("ConfigFile", argv[1]);
+  ufem_model->get_child("LSS").configure_property("ConfigFile", std::string(argv[1]));
 
   heat_eq->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring3d"));
   BOOST_CHECK(true);

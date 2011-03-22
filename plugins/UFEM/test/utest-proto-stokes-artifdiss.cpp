@@ -62,19 +62,19 @@ BOOST_AUTO_TEST_CASE( ProtoStokesArtificialDissipation )
   const Uint y_segments = 10;
   
   const Real start_time = 0.;
-  const Real end_time = 1000.;
-  const Real dt = 10.;
+  const Real end_time = 20.;
+  const Real dt = 0.5;
   Real t = start_time;
   const Uint write_interval = 5000;
   const Real invdt = 1. / dt;
   
-  const Real mu = 0.001;
+  const Real mu = 0.01;
   const Real rho = 100.;
-  const Real epsilon = 100.;//rho/mu;
+  const Real epsilon = rho/mu;
   
   const RealVector2 u_direction(1., 0.);
   const RealVector2 u_wall(0., 0.);
-  const Real p0 = 10.;
+  const Real p0 = 5.;
   const Real p1 = 0.;
   const Real c = 0.5*(p1 - p0) / (rho * mu * length);
   
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesArtificialDissipation )
   
   // Set initial conditions
   for_each_node(mesh->topology(), p = 0.);
-  for_each_node(mesh->topology(), u = u_wall);//c * coordinates[1] * (coordinates[1] - height) * u_direction);
+  for_each_node(mesh->topology(), u = c * coordinates[1] * (coordinates[1] - height) * u_direction);
   
   while(t < end_time)
   {

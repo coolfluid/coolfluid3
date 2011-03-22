@@ -74,8 +74,7 @@ void CEigenLSS::resize ( Uint nb_dofs )
   m_rhs.resize(nb_dofs);
   m_solution.resize(nb_dofs);
   
-  m_system_matrix.setZero();
-  m_rhs.setZero();
+  set_zero();
 }
 
 Uint CEigenLSS::size() const
@@ -93,6 +92,7 @@ void CEigenLSS::set_zero()
 {
   m_system_matrix.setZero();
   m_rhs.setZero();
+  m_solution.setZero();
 }
 
 void CEigenLSS::set_dirichlet_bc(const CF::Uint row, const CF::Real value, const CF::Real coeff)
@@ -180,7 +180,9 @@ void CEigenLSS::solve()
   Teuchos::RCP<Epetra_Vector>    epetra_x=Teuchos::rcpFromRef(ep_sol);
   Teuchos::RCP<Epetra_Vector>    epetra_b=Teuchos::rcpFromRef(ep_rhs);
 
-  Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(property("ConfigFile").value<std::string>()); // the most important in general setup
+  const std::string cfile = property("ConfigFile").value_str();
+  
+  Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(cfile); // the most important in general setup
 
   Teuchos::RCP<Teuchos::FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream(); // TODO: decouple from fancyostream to ostream or to C stdout when possible
   typedef Teuchos::ParameterList::PrintOptions PLPrintOptions;

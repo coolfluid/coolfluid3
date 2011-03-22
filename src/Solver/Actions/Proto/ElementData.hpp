@@ -384,6 +384,8 @@ public:
     m_equation_data(m_variables_data)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data));
+    for(Uint i = 0; i != CF_PROTO_MAX_ELEMENT_MATRICES; ++i)
+      m_element_matrices[i].setZero();
   }
   
   ~ElementData()
