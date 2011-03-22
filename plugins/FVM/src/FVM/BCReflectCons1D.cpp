@@ -96,9 +96,10 @@ void BCReflectCons1D::execute()
   
   // Change value in field
   // problem: GHOST does not exist yet.
-  m_connected_solution[idx()][GHOST][0] =  m_connected_solution[idx()][INNER][0];
-  m_connected_solution[idx()][GHOST][1] = -m_connected_solution[idx()][INNER][1];
-  m_connected_solution[idx()][GHOST][2] =  m_connected_solution[idx()][INNER][2];
+  std::vector<CTable<Real>::Row> solution = m_connected_solution[idx()];
+  solution[GHOST][0] =  solution[INNER][0];
+  solution[GHOST][1] = -solution[INNER][1];
+  solution[GHOST][2] =  solution[INNER][2];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

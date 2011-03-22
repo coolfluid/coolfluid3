@@ -81,9 +81,10 @@ void BCDirichletCons1D::trigger_elements()
 
 void BCDirichletCons1D::execute()
 {
-  m_connected_solution[idx()][FIRST][0] = m_rho;
-  m_connected_solution[idx()][FIRST][1] = m_rho*m_u;
-  m_connected_solution[idx()][FIRST][2] = m_p/m_gm1 + 0.5*m_rho*m_u*m_u;
+  std::vector<CTable<Real>::Row> solution = m_connected_solution[idx()];
+  solution[FIRST][0] = m_rho;
+  solution[FIRST][1] = m_rho*m_u;
+  solution[FIRST][2] = m_p/m_gm1 + 0.5*m_rho*m_u*m_u;
   
 }
 

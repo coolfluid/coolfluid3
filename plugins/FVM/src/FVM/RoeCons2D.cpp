@@ -76,7 +76,7 @@ void RoeCons2D::solve(const RealVector& left, const RealVector& right, const Rea
   abs_jacobian = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
 
   compute_flux(left,normal,F_L);
-  compute_flux(left,normal,F_R);
+  compute_flux(right,normal,F_R);
   // flux = central part + upwind part
   interface_flux = 0.5*(F_L + F_R) - 0.5*abs_jacobian*(right-left);
 
