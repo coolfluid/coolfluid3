@@ -148,18 +148,12 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 #include "RDM/LDAGPUkernel.hpp"
 
  std::cout << "SchemeLDAGPU" << std::endl;
- uint*  adr = connectivity_table->array().origin();
- double* coordinates_real = coordinates->array().origin();
- double* solution_real= solution->array().origin();
- double* residual_real = residual ->array().origin();
-
 
  uint dim     = 2;
  uint shape   = SHAPEFUNC::nb_nodes;
  uint quad    =  QUADRATURE::nb_points;
- uint nodes   = coordinates->array().size() / dim;
- uint elements = connectivity_table->array().size() / shape;
-
+ uint nodes   = (*coordinates).size() * dim;
+ uint elements = (*connectivity_table).size();
 
  typename SHAPEFUNC::MappedGradientT m_sf_grad_ref; //Gradient of the shape functions in reference space
  typename SHAPEFUNC::ShapeFunctionsT m_sf_ref;   //Values of shape functions in reference space
@@ -189,17 +183,21 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
      for(uint idy = 0; idy < shape; idy++)
      {
          uint pos = idx * shape + idy;
-         uint adress = adr[pos];
+         uint adress = (*connectivity_table)[idx][idy];
 
-         U_real[pos] = solution_real[adress];
+         U_real[pos] = 0;//(*solution)[adress][0];
+         (*residual)[adress][0] = 0;
          phi[pos]    = 0;
-         residual_real[adress] = 0;
+
+         //std::cout<<adress << " ";
 
          for( uint idz = 0; idz < dim; idz++ )
          {
-            X_real[ pos * dim + idz ] = coordinates_real[ adress * dim + idz ];
+            X_real[ pos * dim + idz ] = (*coordinates)[adress][idz];
+            //std::cout << X_real[ pos * dim + idz ] << " ";
          }
-     }
+
+     }//std::cout << std::endl;
  }
 
  CLEnv env;
@@ -239,7 +237,7 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  X_rGPGPU   =    clCreateBuffer(env.context, CL_MEM_READ_ONLY , elements * shape * dim * sizeof(float) ,    X_real, &env.errcode);
  U_rGPGPU   =    clCreateBuffer(env.context, CL_MEM_READ_ONLY , elements * shape * sizeof(float)       ,    U_real, &env.errcode);
- phi_rGPGPU =    clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements * shape * dim * sizeof(float)       ,    phi,    &env.errcode);
+ phi_rGPGPU =    clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements * shape * sizeof(float)       ,    phi,    &env.errcode);
 
  env.errcode |= clEnqueueWriteBuffer(env.command_queue, X_rGPGPU,    CL_FALSE, 0, elements * shape * dim * sizeof(float),     X_real, 0, NULL, NULL);
  env.errcode |= clEnqueueWriteBuffer(env.command_queue, U_rGPGPU,    CL_FALSE, 0, elements * shape * sizeof(float),           U_real, 0, NULL, NULL);
@@ -277,8 +275,8 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  size_t localWorkSize[2], globalWorkSize[2];
 
- localWorkSize[0] = 8;
- localWorkSize[1] = 8;
+ localWorkSize[0] = 1;
+ localWorkSize[1] = 1;
 
  globalWorkSize[0] = 4*env.num_compute_units;
  globalWorkSize[1] = 4*env.num_compute_units;
@@ -315,15 +313,15 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
      for(uint idy = 0; idy < shape; idy++)
      {
          uint pos = idx * shape + idy;
-         uint adress = adr[pos];
+         uint adress = (*connectivity_table)[idx][idy];
 
-         residual_real[adress] += phi[pos];
+         (*residual)[adress][0] += phi[pos];
      }
  }
 
- for(uint idx = 0; idx<elements*shape; idx++)
+ for(uint idx = 0; idx<(*coordinates).size(); idx++)
     {
-        std::cout<<residual_real[idx]<<std::endl;
+        std::cout<<(*residual)[idx][0]<<std::endl;
 
     }
 
