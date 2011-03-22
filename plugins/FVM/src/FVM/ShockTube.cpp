@@ -161,21 +161,30 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   CInitFieldFunction& init_solution = *tools.create_component<CInitFieldFunction>("init_solution");
   init_solution.configure_property("Field",find_component_with_tag(mesh,"solution").full_path());
 
+  const Real r_L = 4.696;             const Real r_R = 1.408;
+  const Real p_L = 404400;            const Real p_R = 101100;
+  const Real u_L = 0.;                const Real u_R = 0.;
+  const Real v_L = 0.;                const Real v_R = 0.;
+  const Real g=1.4;
+  
   if (physics.dimensions() == 1)
   {
+    RealVector3 left, right;
+    left  << r_L , r_L*u_L , p_L/(g-1) + 0.5*r_L*u_L*u_L;
+    right << r_R , r_R*u_R , p_R/(g-1) + 0.5*r_R*u_R*u_R;
     std::vector<std::string> function(3);
-    function[0]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5,  r_L,     r_R)";
-    function[1]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5,  r_L*u_L, r_R*u_R)";
-    function[2]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5,  p_L/(g-1) + 0.5*r_L*u_L*u_L, p_R/(g-1) + 0.5*r_R*u_R*u_R)";
+    for (Uint i=0; i<function.size(); ++i)
+      function[i]="if(x<=5,"+to_str(left[i])+","+to_str(right[i])+")";
     init_solution.configure_property("Functions",function);    
   }
   else if (physics.dimensions() == 2)
   {
+    RealVector4 left, right;
+    left  << r_L , r_L*u_L , r_L*v_L, p_L/(g-1) + 0.5*r_L*(u_L*u_L+v_L*v_L);
+    right << r_R , r_R*u_R , r_R*v_R, p_R/(g-1) + 0.5*r_R*(u_R*u_R+v_R*v_R);
     std::vector<std::string> function(4);
-    function[0]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   v_L:=0; v_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,  r_L,     r_R)";
-    function[1]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   v_L:=0; v_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,  r_L*u_L, r_R*u_R)";
-    function[2]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   v_L:=0; v_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,  r_L*v_L, r_R*v_R)";
-    function[3]="r_L:=4.696; r_R:=1.408;  u_L:=0; u_R:=0;   v_L:=0; v_R:=0;   p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,  p_L/(g-1) + 0.5*r_L*(u_L*u_L+v_L*v_L), p_R/(g-1) + 0.5*r_R*(u_R*u_R+v_R*v_R))";
+    for (Uint i=0; i<function.size(); ++i)
+      function[i]="if(x<=5&y<=5,"+to_str(left[i])+","+to_str(right[i])+")";
     init_solution.configure_property("Functions",function);    
   }
   else
