@@ -39,17 +39,14 @@ public: // functions
   /// constructor
   CInitFieldFunction( const std::string& name );
   
+  /// destructor
+  virtual ~CInitFieldFunction();
+  
   /// Gets the Class name
   static std::string type_name() { return "CInitFieldFunction"; }
 
   virtual void execute();
-  
-  /// brief description, typically one line
-  virtual std::string brief_description() const;
-  
-  /// extended help that user can query
-  virtual std::string help() const;
-  
+
 private: // functions
 
   void config_function();
