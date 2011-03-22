@@ -15,6 +15,8 @@
 
 #include "GUI/Client/Core/NPlotXY.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -30,7 +32,7 @@ class Graph;
 /// @brief This class is used to set visuals options, generate functions and
 ///  set the curve to draw.
 /// @author Wertz Gil
-class GraphOption : public QWidget
+class ClientUI_API GraphOption : public QWidget
 {
     Q_OBJECT
 public: //functions

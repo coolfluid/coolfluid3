@@ -39,7 +39,7 @@ class BodePlot;
 
 /// @brief This hold the XY graph and the options graph.
 /// @author Wertz Gil
-class Graph: public QWidget
+class ClientUI_API Graph: public QWidget
 {
   Q_OBJECT
 
