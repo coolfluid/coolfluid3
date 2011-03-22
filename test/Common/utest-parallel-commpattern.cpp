@@ -111,8 +111,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtest1[i] , 32+4+i ); dtest1[i]*=-1.; }
   for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtest2[i] , 64+6+i ); dtest2[i]*=-1.; }
 
-  w1->unpack(map,dtest1);
-  w2->unpack(map,dtest2);
+  w1->unpack(dtest1,map);
+  w2->unpack(dtest2,map);
 
   double *dtesttest1=(double*)w1->pack(map);
   double *dtesttest2=(double*)w2->pack(map);
@@ -169,8 +169,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtest1[i] , 32+4+i ); dtest1[i]*=-1.; }
   for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtest2[i] , 64+6+i ); dtest2[i]*=-1.; }
 
-  w1->unpack(map,dtest1);
-  w2->unpack(map,dtest2);
+  w1->unpack(dtest1,map);
+  w2->unpack(dtest2,map);
 
   double *dtesttest1=(double*)w1->pack(map);
   double *dtesttest2=(double*)w2->pack(map);
@@ -234,8 +234,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
   for(i=0; i<4*1; i++) { BOOST_CHECK_EQUAL( dtest1[i] , (Uint) 2*i ); dtest1[i]+=1; }
   for(i=0; i<4*4; i++) { BOOST_CHECK_EQUAL( dtest2[i] , (Uint) 2*(i/4) ); dtest2[i]+=1; }
 
-  w1->unpack(map,dtest1);
-  w2->unpack(map,dtest2);
+  w1->unpack(dtest1,map);
+  w2->unpack(dtest2,map);
 
   Uint *dtesttest1=(Uint*)w1->pack(map);
   Uint *dtesttest2=(Uint*)w2->pack(map);
@@ -290,8 +290,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
   for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtest1[i] , 32+4+i ); dtest1[i]*=-1.; }
   for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtest2[i] , 64+6+i ); dtest2[i]*=-1.; }
 
-  w1->unpack(map,dtest1);
-  w2->unpack(map,dtest2);
+  w1->unpack(dtest1,map);
+  w2->unpack(dtest2,map);
 
   double *dtesttest1=(double*)w1->pack(map);
   double *dtesttest2=(double*)w2->pack(map);

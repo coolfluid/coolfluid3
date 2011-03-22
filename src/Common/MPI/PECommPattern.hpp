@@ -77,6 +77,7 @@ public:
   typedef std::vector<temp_buffer_item> temp_buffer_array;
   /// helper struct for setup function
   struct dist_struct {
+    Uint  gid;    // global id of the item
     CPint rank;   // rank where the item is
     CPint lid;    // local id on that rank
     void *data;   // packed data if it needs to be moved along procs, otherwise nullptr

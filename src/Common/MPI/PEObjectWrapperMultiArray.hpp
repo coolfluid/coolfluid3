@@ -89,10 +89,23 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
       return (void*)tbuf;
     }
 
+    /// extraction of data from the wrapped object, returned memory is a copy, not a view
+    /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
+    virtual const void* pack() const
+    {
+      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* tbuf=new T[m_data->num_elements()*m_stride+1];
+      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* itbuf=tbuf;
+      for (int i=0; i<(const int)( m_data->num_elements()*m_stride); i++)
+        *itbuf++=(*m_data)[i];
+      return (void*)tbuf;
+    }
+
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(std::vector<int>& map, void* buf) const
+    virtual void unpack(void* buf, std::vector<int>& map) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* itbuf=(T*)buf;
@@ -100,6 +113,16 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
       {
         (*m_data)[local_idx] = *itbuf++;
       }
+    }
+
+    /// returning back values into the data wrapped by objectwrapper
+    /// @param pointer to the data to be committed back
+    virtual void unpack(void* buf) const
+    {
+      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* itbuf=(T*)buf;
+      for (int i=0; i<(const int)( m_data->num_elements()*m_stride); i++)
+        (*m_data)[i]=*itbuf++;
     }
 
     /// acts like a sizeof() operator
@@ -172,7 +195,6 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
       T* tbuf=new T[map.size()*m_stride+1];
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* itbuf=tbuf;
-
       boost_foreach( int local_idx, map)
       {
         boost_foreach( const T& val, (*m_data)[local_idx])
@@ -181,10 +203,24 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
       return (void*)tbuf;
     }
 
+    /// extraction of data from the wrapped object, returned memory is a copy, not a view
+    /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
+    virtual const void* pack() const
+    {
+      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* tbuf=new T[m_data->num_elements()*m_stride+1];
+      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* itbuf=tbuf;
+      for (int i=0; i<(const int)(m_data->num_elements()); i++)
+        for (int j=0; j<(const int)(m_stride); j++)
+          *itbuf++=(*m_data)[i][j];
+      return (void*)tbuf;
+    }
+
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(std::vector<int>& map, void* buf) const
+    virtual void unpack(void* buf, std::vector<int>& map) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* itbuf=(T*)buf;
@@ -193,6 +229,17 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
         for (int i=0; i<m_stride; ++i)
           (*m_data)[local_idx][i] = *itbuf++;
       }
+    }
+
+    /// returning back values into the data wrapped by objectwrapper
+    /// @param pointer to the data to be committed back
+    virtual void unpack(void* buf) const
+    {
+      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* itbuf=(T*)buf;
+      for (int i=0; i<(const int)(m_data->num_elements()); i++)
+        for (int j=0; j<(const int)(m_stride); j++)
+          *itbuf++=(*m_data)[i][j];
     }
 
     /// acts like a sizeof() operator

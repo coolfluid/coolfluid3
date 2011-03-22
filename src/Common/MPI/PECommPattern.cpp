@@ -65,7 +65,7 @@ PECommPattern::~PECommPattern()
 void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 {
   // basic check
-  BOOST_ASSERT( (Uint) gid->size()==rank.size() );
+  BOOST_ASSERT( (Uint)gid->size() == rank.size() );
   if (gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
   if (gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
   m_gid=gid;
@@ -140,10 +140,17 @@ void PECommPattern::setup()
 PECheckPoint(100,"-- step 1 --:");
 */
 
-  // -- 2 -- get environment data
+  // -- 2 -- get environment data and gid
   // get stuff from environment
   const CPint irank=(CPint)mpi::PE::instance().rank();
   const CPint nproc=(CPint)mpi::PE::instance().size();
+  // get gid and some tests
+  if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
+  if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
+  if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
+  Uint* gid=(Uint*)m_gid->pack();
+
+
 /*
 PECheckPoint(100,"-- step 2 --:");
 */

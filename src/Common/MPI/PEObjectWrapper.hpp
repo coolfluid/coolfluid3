@@ -36,8 +36,6 @@ namespace Common  {
   Note that interface complies to the following relation: size of the data in bytes equal to size_of()*stride()*size().
 **/
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Base wrapper class serving as interface.
@@ -62,10 +60,18 @@ class Common_API PEObjectWrapper : public Component {
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
     virtual const void* pack(std::vector<int>& map) const = 0;
 
+    /// extraction of data from the wrapped object, returned memory is a copy, not a view
+    /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
+    virtual const void* pack() const = 0;
+
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(std::vector<int>& map, void* buf) const = 0;
+    virtual void unpack(void* buf,std::vector<int>& map) const = 0;
+
+    /// returning back values into the data wrapped by objectwrapper
+    /// @param pointer to the data to be committed back
+    virtual void unpack(void* buf) const = 0;
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
@@ -172,10 +178,24 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
       return (void*)tbuf;
     }
 
+    /// extraction of data from the wrapped object, returned memory is a copy, not a view
+    /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
+    virtual const void* pack() const
+    {
+      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* tbuf=new T[m_size*m_stride+1];
+      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* data=&(*m_data)[0];
+      T* itbuf=tbuf;
+      for (int i=0; i<(const int)(m_size*m_stride); i++)
+        *itbuf++=*data++;
+      return (void*)tbuf;
+    }
+
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(std::vector<int>& map, void* buf) const
+    virtual void unpack(void* buf, std::vector<int>& map) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       std::vector<int>::iterator imap=map.begin();
@@ -183,6 +203,17 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
       for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
         for (int i=0; i<(int)m_stride; i++)
           data[*imap*m_stride + i]=*itbuf++;
+    }
+
+    /// returning back values into the data wrapped by objectwrapper
+    /// @param pointer to the data to be committed back
+    virtual void unpack(void* buf) const
+    {
+      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* data=&(*m_data)[0];
+      T* itbuf=(T*)buf;
+      for (int i=0; i<(const int)(m_size*m_stride); i++)
+        *data++=*itbuf++;
     }
 
     /// acts like a sizeof() operator
@@ -275,16 +306,41 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
       return (void*)tbuf;
     }
 
+    /// extraction of data from the wrapped object, returned memory is a copy, not a view
+    /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
+    virtual const void* pack() const
+    {
+      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* tbuf=new T[m_data->size()+1];
+      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* data=&(*m_data)[0];
+      T* itbuf=tbuf;
+      for (int i=0; i<(const int)(m_data->size()); i++)
+        *itbuf++=*data++;
+      return (void*)tbuf;
+    }
+
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(std::vector<int>& map, void* buf) const
+    virtual void unpack(void* buf, std::vector<int>& map) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       std::vector<int>::iterator imap=map.begin();
       for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
         for (int i=0; i<(int)m_stride; i++)
           (*m_data)[*imap*m_stride + i]=*itbuf++;
+    }
+
+    /// returning back values into the data wrapped by objectwrapper
+    /// @param pointer to the data to be committed back
+    virtual void unpack(void* buf) const
+    {
+      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* data=&(*m_data)[0];
+      T* itbuf=(T*)buf;
+      for (int i=0; i<(const int)(m_data->size()*m_stride); i++)
+        *data++=*itbuf++;
     }
 
     /// acts like a sizeof() operator
@@ -368,10 +424,25 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
       return (void*)tbuf;
     }
 
+    /// extraction of data from the wrapped object, returned memory is a copy, not a view
+    /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
+    virtual const void* pack() const
+    {
+      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
+      T* tbuf=new T[sp->size()+1];
+      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* data=&(*sp)[0];
+      T* itbuf=tbuf;
+      for (int i=0; i<(const int)(sp->size()); i++)
+        *itbuf++=*data++;
+      return (void*)tbuf;
+    }
+
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(std::vector<int>& map, void* buf) const
+    virtual void unpack(void* buf, std::vector<int>& map) const
     {
       if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
@@ -379,6 +450,18 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
       for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
         for (int i=0; i<(int)m_stride; i++)
           (*sp)[*imap*m_stride + i]=*itbuf++;
+    }
+
+    /// returning back values into the data wrapped by objectwrapper
+    /// @param pointer to the data to be committed back
+    virtual void unpack(void* buf) const
+    {
+      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
+      T* data=&(*sp)[0];
+      T* itbuf=(T*)buf;
+      for (int i=0; i<(const int)(sp->size()); i++)
+        *data++=*itbuf++;
     }
 
     /// acts like a sizeof() operator
