@@ -60,6 +60,7 @@ private:
   RealMatrix4 abs_jacobian;
   
   RealVector4 F_L;
+  
   RealVector4 F_R;
 };
 

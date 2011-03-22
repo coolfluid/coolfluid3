@@ -15,6 +15,7 @@
 #include "Mesh/ElementType.hpp"
 
 #include "Math/MathChecks.hpp"
+#include "Math/MathConsts.hpp"
 
 #include "FVM/ComputeFlux.hpp"
 #include "FVM/RiemannSolver.hpp"
@@ -24,7 +25,7 @@
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Solver::Actions;
-
+using namespace CF::Math::MathConsts;
 namespace CF {
 namespace FVM {
 
@@ -139,9 +140,9 @@ void ComputeFlux::trigger_elements()
 
 void ComputeFlux::execute()
 {
-  std::vector<CTable<Real>::Row> residual = m_connected_residual[idx()];
+  std::vector<CTable<Real>::Row> residual   = m_connected_residual[idx()];
   std::vector<CTable<Real>::Row> wave_speed = m_connected_wave_speed[idx()];
-  std::vector<CTable<Real>::Row> solution = m_connected_solution[idx()];
+  std::vector<CTable<Real>::Row> solution   = m_connected_solution[idx()];
   const Real area = m_face_area[idx()];
   
   // Copy the left and right states to a RealVector
@@ -149,7 +150,13 @@ void ComputeFlux::execute()
   {
     m_state_L[i]=solution[LEFT ][i];
     m_state_R[i]=solution[RIGHT][i];
+    
+    /// @todo investigate why Eigen chokes on values such as 1e-107 for a state
+    /// Eigen then raises a SIGFPE signal.
+    if (std::abs(m_state_L[i]) < eps() ) m_state_L[i] = 0.;
+    if (std::abs(m_state_R[i]) < eps() ) m_state_R[i] = 0.;
   }
+  
   
   // Copy the face normal to a RealVector
   m_normal = to_vector(m_face_normal[idx()]);

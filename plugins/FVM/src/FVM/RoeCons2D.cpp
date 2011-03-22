@@ -71,7 +71,7 @@ void RoeCons2D::solve(const RealVector& left, const RealVector& right, const Rea
   
         un, un,  un+a,  un-a;
 
-  
+
   // calculate absolute jacobian
   abs_jacobian = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
 
