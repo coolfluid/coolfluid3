@@ -144,7 +144,7 @@ coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" 
 
 # add dir with kernel plugins
 # these are independent source trees that happen to be distributed with the kernel for convinience
-#add_subdirectory( plugins )
+add_subdirectory( plugins )
 
 # find plugins
 # developer may set several base directories that host multiple plugins each
