@@ -103,10 +103,10 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   // Load the required libraries (we assume the working dir is the binary path)
   LibLoader& loader = *OSystem::instance().lib_loader();
   
-  const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../../dso")("../../../src/Mesh/Tecplot");
+  const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../../dso")("../../../src/Mesh/VTKLegacy");
   loader.set_search_paths(lib_paths);
   
-  loader.load_library("coolfluid_mesh_tecplot");
+  loader.load_library("coolfluid_mesh_vtklegacy");
   
   // Setup document structure and mesh
   CRoot::Ptr root = Core::instance().root();
@@ -126,16 +126,13 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   // Create output fields
   CField& u_fld = mesh->create_field2( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
   CField& p_fld = mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField::Basis::POINT_BASED);
-  CField& u_mag_fld = mesh->create_scalar_field("VelMag", "u_mag", CF::Mesh::CField::Basis::POINT_BASED);
-  CField& u_x_fld = mesh->create_scalar_field("XVel", "u_x", CF::Mesh::CField::Basis::POINT_BASED);
-  CField& u_y_fld = mesh->create_scalar_field("YVel", "u_y", CF::Mesh::CField::Basis::POINT_BASED);
   
   lss.resize(u_fld.data().size() * 2 + p_fld.size());
   
   // Setup a mesh writer
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","meshwriter");
+  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
   root->add_component(writer);
-  const std::vector<URI> out_fields = boost::assign::list_of(u_fld.full_path())(p_fld.full_path())(u_mag_fld.full_path())(u_x_fld.full_path())(u_y_fld.full_path());
+  const std::vector<URI> out_fields = boost::assign::list_of(u_fld.full_path())(p_fld.full_path());
   writer->configure_property( "Fields", out_fields );
   
   // Regions
@@ -147,9 +144,6 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", "u");
   MeshTerm<1, ScalarField> p("Pressure", "p");
-  MeshTerm<1, ScalarField> u_mag("VelMag", "u_mag");
-  MeshTerm<1, ScalarField> u_x("XVel", "u_x");
-  MeshTerm<1, ScalarField> u_y("YVel", "u_y");
   
   // Set up a physical model (normally handled automatically if using the Component wrappers)
   PhysicalModel physical_model;
@@ -209,13 +203,10 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
     // Output solution
     if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
     {
-      for_each_node(mesh->topology(), u_mag = _sqrt(u[0]*u[0] + u[1]*u[1]));
-      for_each_node(mesh->topology(), u_x = u[0]);
-      for_each_node(mesh->topology(), u_y = u[1]);
       std::stringstream outname;
       outname << "navier-stokes-pspg-";
       outname << std::setfill('0') << std::setw(5) << static_cast<Uint>(t / dt);
-      boost::filesystem::path output_file(outname.str() + ".tec");
+      boost::filesystem::path output_file(outname.str() + ".vtk");
       writer->write_from_to(mesh, output_file);
     }
   }

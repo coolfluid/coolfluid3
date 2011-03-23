@@ -141,3 +141,4 @@ add_subdirectory( PTScotch )      # PTScotch mesh partitioning
 
 add_subdirectory( Actions )       # Actions that can be performed on the mesh
 
+add_subdirectory(VTKLegacy)       # Writer for VTK legacy files

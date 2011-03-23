@@ -141,6 +141,15 @@ add_custom_command(TARGET utest-tecplot-writer-mpi
 
 ################################################################################
 
+list( APPEND utest-vtklegacy-writer_cflibs coolfluid_mesh_vtklegacy coolfluid_mesh_sf coolfluid_mesh_generation )
+list( APPEND utest-vtklegacy-writer_files  utest-vtklegacy-writer.cpp )
+
+# Add the target
+
+coolfluid_add_unit_test( utest-vtklegacy-writer )
+
+################################################################################
+
 list( APPEND utest-connectivity-data_cflibs coolfluid_mesh_neutral coolfluid_mesh_generation coolfluid_mesh_sf )
 list( APPEND utest-connectivity-data_files  utest-connectivity-data.cpp )
 
