@@ -10,11 +10,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <set>
+#include <boost/tuple/tuple.hpp>
 
 #include "Mesh/CMeshReader.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
-#include "Mesh/CRegion.hpp"
 
 #include "Mesh/Gmsh/LibGmsh.hpp"
 #include "Mesh/Gmsh/Shared.hpp"
@@ -27,6 +25,8 @@ namespace Mesh {
 class CElements;
 class CRegion;
 class CMixedHash;
+class CNodes;
+class CMesh;
 
 namespace Gmsh {
 
@@ -44,8 +44,6 @@ public: // typedefs
 
 private: // typedefs
 
-  typedef std::pair<boost::shared_ptr<CElements>,Uint> Region_TableIndex_pair;
-
 public: // functions
   /// constructor
   CReader( const std::string& name );
@@ -61,13 +59,17 @@ private: // functions
 	
   void get_file_positions();
 
-  CRegion::Ptr create_region(std::string const& relative_path);
+  boost::shared_ptr<CRegion> create_region(std::string const& relative_path);
 
   void find_ghost_nodes();
 	
   void read_coordinates();
 
   void read_connectivity();
+
+  void read_element_data();
+
+  void read_node_data();
 
   virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
 	
@@ -76,15 +78,16 @@ private: // data
   enum HashType { NODES=0, ELEMS=1 };
   boost::shared_ptr<CMixedHash> m_hash;
 
-  // map< global index , pair< temporary table, index in temporary table > >
-  std::map<Uint,Region_TableIndex_pair> m_global_to_tmp;
-
+  // map< gmsh index , pair< elements, index in elements > >
+  std::map<Uint, boost::tuple<boost::shared_ptr<CElements>,Uint> > m_elem_idx_gmsh_to_cf;
+  std::map<Uint, Uint> m_node_idx_gmsh_to_cf;
+  
   boost::filesystem::fstream m_file;
-  CMesh::Ptr m_mesh;
-  CRegion::Ptr m_region;
-  CRegion::Ptr m_tmp;
+  boost::shared_ptr<CMesh> m_mesh;
+  boost::shared_ptr<CRegion> m_region;
+  boost::shared_ptr<CRegion> m_tmp;
 
-  CNodes::Ptr m_nodes;
+  boost::shared_ptr<CNodes> m_nodes;
   std::string m_file_basename;
 
   struct RegionData 
@@ -92,7 +95,7 @@ private: // data
     Uint dim;
     Uint index;
     std::string name;
-    CRegion::Ptr region;
+    boost::shared_ptr<CRegion> region;
   };
 	
   Uint m_nb_regions; // This corresponds to the number of physical groups in
@@ -105,7 +108,6 @@ private: // data
 	std::set<Uint> m_ghost_nodes;
   //std::set<Uint> m_ghost_elems;
 	std::set<Uint> m_nodes_to_read;
-  std::map<Uint,Uint> m_node_to_coord_idx;
 	
   std::vector<std::set<Uint> > m_node_to_glb_elements;
 
@@ -113,11 +115,31 @@ private: // data
   Uint m_region_names_position;
   Uint m_coordinates_position;
   Uint m_elements_position;
+  std::vector<Uint> m_element_data_positions;
+  std::vector<Uint> m_node_data_positions;
+  std::vector<Uint> m_element_node_data_positions;
 
 
   std::vector<std::vector<Uint> > m_nb_gmsh_elem_in_region;
   Uint m_total_nb_elements;
   Uint m_total_nb_nodes;
+
+  struct Field
+  {
+    std::string name;
+    std::vector<std::string> var_names;
+    std::string topology;
+    std::string basis;
+    Real time;
+    Uint time_step;
+    std::vector<Uint> var_types;
+    Uint nb_entries;
+    std::vector<Uint> file_data_positions;
+  };
+
+  void read_variable_header(std::map<std::string,Field>& fields);
+
+  std::string var_type_gmsh_to_cf(const Uint& var_type_gmsh);
 
 }; // end CReader
 

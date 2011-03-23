@@ -112,8 +112,8 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   write_coordinates(file);
   write_connectivity(file);
   //write_elem_nodal_data2(file);
-  write_nodal_data2(file);
-  write_element_data2(file);
+  write_nodal_data(file);
+  write_element_data(file);
   file.close();
 
 }
@@ -250,7 +250,7 @@ void CWriter::write_connectivity(std::fstream& file)
 //////////////////////////////////////////////////////////////////////
 
 /*
-void CWriter::write_elem_nodal_data2(std::fstream& file)
+void CWriter::write_elem_nodal_data(std::fstream& file)
 {
 //  $ElementNodeData
 //  number-of-string-tags
@@ -347,7 +347,7 @@ void CWriter::write_elem_nodal_data2(std::fstream& file)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_nodal_data2(std::fstream& file)
+void CWriter::write_nodal_data(std::fstream& file)
 {
   //  $NodeData
   //  1              // 1 string tag:
@@ -387,9 +387,13 @@ void CWriter::write_nodal_data2(std::fstream& file)
   boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
   {
     CField& nodebased_field = *field_ptr.lock();
+    
     if (nodebased_field.basis() == CField::Basis::POINT_BASED)
     {
       std::string field_name = nodebased_field.name();
+      std::string field_topology = nodebased_field.topology().full_path().path();
+      boost::algorithm::replace_first(field_topology,m_mesh->topology().full_path().path(),"");
+      
       // data_header
       Uint row_idx=0;
       for (Uint iVar=0; iVar<nodebased_field.nb_vars(); ++iVar)
@@ -413,8 +417,10 @@ void CWriter::write_nodal_data2(std::fstream& file)
         Uint nb_nodes = nodebased_field.size();
 
         file << "$NodeData\n";
-        file << 1 << "\n";
+        file << 3 << "\n";
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+        file << "\"" << field_name << "\"\n";
+        file << "\"" << field_topology << "\"\n";
         file << 1 << "\n" << 0.0 << "\n";
         file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_nodes <<"\n";
 
@@ -456,9 +462,9 @@ void CWriter::write_nodal_data2(std::fstream& file)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_element_data2(std::fstream& file)
+void CWriter::write_element_data(std::fstream& file)
 {
-  //  $NodeData
+  //  $ElementData
   //  1              // 1 string tag:
   //  "a_string_tag" //   the name of the view
   //  1              // 1 real tag:
@@ -466,14 +472,14 @@ void CWriter::write_element_data2(std::fstream& file)
   //  3              // 3 integer tags:
   //  0              //  time step == 0 (time steps always start at 0)
   //  1              //  1-component field (scalar) (only 1,3,9 are valid)
-  //  6              //  6 values follow:
-  //  1 0.0          //  value associated with node 1 == 0.0
+  //  6              //  data size: 6 values follow:
+  //  1 0.0          //  value associated with element 1 == 0.0
   //  2 0.1          //  ...
   //  3 0.2
   //  4 0.0
   //  5 0.2
   //  6 0.4
-  //  $EndNodeData
+  //  $EndElementData
 
   //  $ElementNodeData
   //  number-of-string-tags
@@ -501,6 +507,9 @@ void CWriter::write_element_data2(std::fstream& file)
         elementbased_field.basis() == CField::Basis::FACE_BASED    )
     {
       std::string field_name = elementbased_field.name();
+      std::string field_topology = elementbased_field.topology().full_path().path();
+      std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());
+      boost::algorithm::replace_first(field_topology,m_mesh->topology().full_path().path(),"");
       Uint nb_elements = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(elementbased_field.topology()))
       {
@@ -533,8 +542,11 @@ void CWriter::write_element_data2(std::fstream& file)
         data.setZero();
 
         file << "$ElementData\n";
-        file << 1 << "\n";
+        file << 4 << "\n";
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+        file << "\"" << field_name << "\"\n";
+        file << "\"" << field_topology << "\"\n";
+        file << "\"" << field_basis << "\"\n";
         file << 1 << "\n" << 0.0 << "\n";
         file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
         boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(elementbased_field.topology()))

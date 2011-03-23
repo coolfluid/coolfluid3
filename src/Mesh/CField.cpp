@@ -61,7 +61,6 @@ CField::Basis::Convert& CField::Basis::Convert::instance()
 
 CField::CField ( const std::string& name  ) :
   Component ( name ),
-  m_registration_name ( name ),
   m_basis(Basis::POINT_BASED),
   m_space_idx(0u)
 {
@@ -343,6 +342,13 @@ Uint CField::var_number ( const std::string& vname ) const
 Uint CField::var_index ( const std::string& vname ) const
 {
   const Uint var_nb = var_number(vname);
+  return var_index(var_nb);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint CField::var_index ( const Uint var_nb ) const
+{
   Uint var_start = 0;
   for(Uint i = 0; i != var_nb; ++i)
     var_start += m_var_types[i];

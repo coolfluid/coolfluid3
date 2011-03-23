@@ -25,6 +25,8 @@
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CField.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
@@ -94,9 +96,17 @@ BOOST_AUTO_TEST_CASE( constructor )
   // 6) Write mesh
   // -------------
   
-  model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().write();
+  CMesh& mesh = find_component_recursively<CMesh>(model);
+  CField& points = mesh.create_field2( "points", "PointBased", "var1[1],var2[2]");
+  points.data() = 2.;
 
+  std::vector<CField::Ptr> fields;
+  fields.push_back(find_component_ptr_recursively_with_name<CField>(mesh,"solution"));
+  fields.push_back(find_component_ptr_recursively_with_name<CField>(mesh,"points"));
 
+  model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().set_fields(fields);  
+  model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().write();  
+  
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tecplot_writer");
   model.get_child("tools").add_component(writer);
   writer->configure_property("Fields",std::vector<URI>(1,find_component_recursively_with_tag(model,"solution").full_path()));

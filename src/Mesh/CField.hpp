@@ -78,9 +78,7 @@ public: // functions
   void set_basis(const Basis::Type basis) { m_basis = basis;}
     
   std::string var_name(Uint i=0) const;
-  
-  VarType var_type(Uint i=0) const { return m_var_types[i]; }
-  
+    
   Uint nb_vars() const { return m_var_types.size(); }
   
   /// True if the field contains a variable with the given name
@@ -91,9 +89,15 @@ public: // functions
 
   /// Return the start index of a given variable
   Uint var_index(const std::string& vname) const;
+
+  /// Return the start index of a given variable number
+  Uint var_index(const Uint var_nb) const;
   
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given name
   VarType var_type(const std::string& vname) const;
+
+  /// Return the length (in number of Real values occupied in the data row) of the variable of the given var number
+  VarType var_type(const Uint i=0) const { return m_var_types[i]; }
   
   /// Return the table that holds the data for this field
   CTable<Real>& data() { return *m_data; }
@@ -128,9 +132,7 @@ public: // functions
   CTable<Real>::ConstRow operator[](const Uint idx) const { return m_data->array()[idx]; }
   
   CTable<Real>::ConstRow coords(const Uint idx) const;
-  
-  const std::string& registration_name() const { return m_registration_name; }
-  
+
   Uint elements_start_idx(const CEntities& elements) const
   {
     return m_elements_start_idx.find(&elements)->second;
@@ -142,9 +144,7 @@ public: // functions
   }
   
 private:
-  
-  std::string m_registration_name;
-  
+
   Basis::Type m_basis;
   
   Uint m_space_idx;
