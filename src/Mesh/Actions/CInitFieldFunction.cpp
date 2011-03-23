@@ -110,7 +110,8 @@ void CInitFieldFunction::execute()
       if (field_view.set_elements(elements))
       {
         field_view.allocate_coordinates(coordinates);
-        RealVector centroid(coordinates.rows());
+        RealVector centroid(coordinates.cols());
+        cf_assert(centroid.size() < 4);
         
         for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
         {

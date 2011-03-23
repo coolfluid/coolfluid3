@@ -7,6 +7,8 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
+#include <iomanip>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
@@ -77,17 +79,15 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
   std::ofstream outfile("navier-stokes-pspg-stats.txt");
-  
-  // One argument needed, containing the path to the meshes dir
-  BOOST_CHECK_EQUAL(argc, 3);
+  outfile << "# Time(s) Velocity magnitude(m_s)" << std::endl;
   
   const Real cell_size = 0.1;
   
   const Real start_time = 0.;
-  const Real end_time = 750.;
-  const Real dt = 0.5;
+  const Real end_time = boost::lexical_cast<Real>(argv[1]);
+  const Real dt = boost::lexical_cast<Real>(argv[2]);
   Real t = start_time;
-  const Uint write_interval = 10;
+  const Uint write_interval = 5;
   const Real invdt = 1. / dt;
   
   const Real mu = 0.01;
@@ -100,22 +100,18 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   Real tau_ps_val;
   StoredReference<Real> tau_ps = store(tau_ps_val);
   
-  std::vector<Real> times; times.reserve(static_cast<Uint>(end_time / dt));
-  std::vector<Real> values; values.reserve(static_cast<Uint>(end_time / dt));
-  
   // Load the required libraries (we assume the working dir is the binary path)
   LibLoader& loader = *OSystem::instance().lib_loader();
   
-  const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../../dso")("../../../src/Mesh/Gmsh")("../../../src/Mesh/Neu");
+  const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../../dso")("../../../src/Mesh/Tecplot");
   loader.set_search_paths(lib_paths);
   
-  loader.load_library("coolfluid_mesh_gmsh");
-  loader.load_library("coolfluid_mesh_neutral");
+  loader.load_library("coolfluid_mesh_tecplot");
   
   // Setup document structure and mesh
   CRoot::Ptr root = Core::instance().root();
   
-  boost::filesystem::path input_file = boost::filesystem::path(argv[2]);
+  boost::filesystem::path input_file = boost::filesystem::path(argv[4]);
   
   CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
   root->add_component(mesh_reader);
@@ -125,7 +121,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   
   // Linear system
   CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
-  lss.set_config_file(argv[1]);
+  lss.set_config_file(argv[3]);
   
   // Create output fields
   CField& u_fld = mesh->create_field2( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
@@ -137,7 +133,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   lss.resize(u_fld.data().size() * 2 + p_fld.size());
   
   // Setup a mesh writer
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","meshwriter");
   root->add_component(writer);
   const std::vector<URI> out_fields = boost::assign::list_of(u_fld.full_path())(p_fld.full_path())(u_mag_fld.full_path())(u_x_fld.full_path())(u_y_fld.full_path());
   writer->configure_property( "Fields", out_fields );
@@ -204,37 +200,27 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
     increment_solution(lss.solution(), fields, vars, dims, *mesh);
 
     t += dt;
- 
-    times.push_back(t);
+    
     Real probeval = 0;
     for_each_node(out, _probe(coordinates[1], _sqrt(u[0]*u[0] + u[1]*u[1]), boost::proto::lit(probeval)));
     
-    values.push_back(probeval);
+    outfile << t << " " << probeval << std::endl;
     
-    // Output using Gmsh
+    // Output solution
     if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
     {
       for_each_node(mesh->topology(), u_mag = _sqrt(u[0]*u[0] + u[1]*u[1]));
       for_each_node(mesh->topology(), u_x = u[0]);
       for_each_node(mesh->topology(), u_y = u[1]);
-      boost::filesystem::path output_file("navier-stokes-pspg-" + boost::lexical_cast<std::string>(static_cast<Uint>(t / dt)) + ".msh");
+      std::stringstream outname;
+      outname << "navier-stokes-pspg-";
+      outname << std::setfill('0') << std::setw(5) << static_cast<Uint>(t / dt);
+      boost::filesystem::path output_file(outname.str() + ".tec");
       writer->write_from_to(mesh, output_file);
     }
   }
   
-  outfile << "PyVarT = [";
-  BOOST_FOREACH(const Real& v, times)
-  {
-    outfile << v << ", ";
-  }
-  outfile << "]\n";
   
-  outfile << "PyVarU = [";
-  BOOST_FOREACH(const Real& v, values)
-  {
-    outfile << v << ", ";
-  }
-  outfile << "]\n";
 }
 
 BOOST_AUTO_TEST_SUITE_END()

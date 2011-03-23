@@ -27,6 +27,8 @@ public: // typedefs
 
 public: // functions
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
   /// Contructor
   /// @param name of the component
   RoeCons2D ( const std::string& name );

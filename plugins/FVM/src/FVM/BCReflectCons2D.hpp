@@ -30,6 +30,9 @@ public: // typedefs
   typedef boost::shared_ptr<BCReflectCons2D const> ConstPtr;
 
 public: // functions
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
   /// Contructor
   /// @param name of the component
   BCReflectCons2D ( const std::string& name );

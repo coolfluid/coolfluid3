@@ -28,6 +28,9 @@ public: // typedefs
   typedef Eigen::Matrix<Real, SHAPEFUNC::nb_nodes, PHYSICS::nb_eqs> SolutionMatrixT;
 
 public: // functions
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
   /// Contructor
   /// @param name of the component
   FluxOp2D ( );

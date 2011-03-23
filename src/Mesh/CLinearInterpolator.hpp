@@ -101,7 +101,7 @@ private: // data
   
   Uint m_dim;
   enum {MIN=0,MAX=1};
-  std::vector<RealVector3> m_bounding;
+  std::vector< RealVector3, Eigen::aligned_allocator<RealVector3> > m_bounding;
   std::vector<Uint> m_N;
   std::vector<Real> m_D;
   std::vector<Uint> m_comb_idx;
