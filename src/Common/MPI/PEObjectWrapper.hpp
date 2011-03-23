@@ -339,7 +339,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* data=&(*m_data)[0];
       T* itbuf=(T*)buf;
-      for (int i=0; i<(const int)(m_data->size()*m_stride); i++)
+      for (int i=0; i<(const int)(m_data->size()); i++)
         *data++=*itbuf++;
     }
 

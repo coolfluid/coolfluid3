@@ -120,10 +120,29 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , -32-4-i ); }
   for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , -64-6-i ); }
 
+  double* dtesttesttest1=(double*)w1->pack();
+  double* dtesttesttest2=(double*)w2->pack();
+
+  for(i=0; i<8; i++) dtesttesttest1[4+i]*=-1.;
+  for(i=0; i<12; i++) dtesttesttest2[6+i]*=-1.;
+
+  w1->unpack(dtesttesttest1);
+  w2->unpack(dtesttesttest2);
+
+  double* dtesttesttesttest1=(double*)w1->pack();
+  double* dtesttesttesttest2=(double*)w2->pack();
+
+  for(i=0; i<32; i++) { BOOST_CHECK_EQUAL( dtesttesttesttest1[i] , 32+i ); }
+  for(i=0; i<24; i++) { BOOST_CHECK_EQUAL( dtesttesttesttest2[i] , 64+i ); }
+
   delete[] dtest1;
   delete[] dtest2;
   delete[] dtesttest1;
   delete[] dtesttest2;
+  delete[] dtesttesttest1;
+  delete[] dtesttesttest2;
+  delete[] dtesttesttesttest1;
+  delete[] dtesttesttesttest2;
   delete[] d1;
   delete[] d2;
 }
@@ -178,10 +197,29 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , -32-4-i ); }
   for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , -64-6-i ); }
 
+  double* dtesttesttest1=(double*)w1->pack();
+  double* dtesttesttest2=(double*)w2->pack();
+
+  for(i=0; i<8; i++) dtesttesttest1[4+i]*=-1.;
+  for(i=0; i<12; i++) dtesttesttest2[6+i]*=-1.;
+
+  w1->unpack(dtesttesttest1);
+  w2->unpack(dtesttesttest2);
+
+  double* dtesttesttesttest1=(double*)w1->pack();
+  double* dtesttesttesttest2=(double*)w2->pack();
+
+  for(i=0; i<32; i++) { BOOST_CHECK_EQUAL( dtesttesttesttest1[i] , 32+i ); }
+  for(i=0; i<24; i++) { BOOST_CHECK_EQUAL( dtesttesttesttest2[i] , 64+i ); }
+
   delete[] dtest1;
   delete[] dtest2;
   delete[] dtesttest1;
   delete[] dtesttest2;
+  delete[] dtesttesttest1;
+  delete[] dtesttesttest2;
+  delete[] dtesttesttesttest1;
+  delete[] dtesttesttesttest2;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -243,10 +281,33 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
   for(i=0; i<4*1; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , (Uint) 2*i+1 ); }
   for(i=0; i<4*4; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , (Uint) 2*(i/4)+1 ); }
 
+  Uint* dtesttesttest1=(Uint*)w1->pack();
+  Uint* dtesttesttest2=(Uint*)w2->pack();
+
+  for(i=0; i<32; i++) dtesttesttest1[i]=i+10;
+  for(i=0; i<24; i++)
+    for (j=0; j<4; j++)
+      dtesttesttest2[i*4+j]=i+10;
+
+  w1->unpack(dtesttesttest1);
+  w2->unpack(dtesttesttest2);
+
+  Uint* dtesttesttesttest1=(Uint*)w1->pack();
+  Uint* dtesttesttesttest2=(Uint*)w2->pack();
+
+  for(i=0; i<32; i++) { BOOST_CHECK_EQUAL( dtesttesttesttest1[i] , i+10 ); }
+  for(i=0; i<24; i++)
+    for (j=0; j<4; j++)
+      { BOOST_CHECK_EQUAL( dtesttesttesttest2[i*4+j] , i+10 ); }
+
   delete[] dtest1;
   delete[] dtest2;
   delete[] dtesttest1;
   delete[] dtesttest2;
+  delete[] dtesttesttest1;
+  delete[] dtesttesttest2;
+  delete[] dtesttesttesttest1;
+  delete[] dtesttesttesttest2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -299,10 +360,29 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
   for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , -32-4-i ); }
   for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , -64-6-i ); }
 
+  double* dtesttesttest1=(double*)w1->pack();
+  double* dtesttesttest2=(double*)w2->pack();
+
+  for(i=0; i<8; i++) dtesttesttest1[4+i]*=-1.;
+  for(i=0; i<12; i++) dtesttesttest2[6+i]*=-1.;
+
+  w1->unpack(dtesttesttest1);
+  w2->unpack(dtesttesttest2);
+
+  double* dtesttesttesttest1=(double*)w1->pack();
+  double* dtesttesttesttest2=(double*)w2->pack();
+
+  for(i=0; i<32; i++) { BOOST_CHECK_EQUAL( dtesttesttesttest1[i] , 32+i ); }
+  for(i=0; i<24; i++) { BOOST_CHECK_EQUAL( dtesttesttesttest2[i] , 64+i ); }
+
   delete[] dtest1;
   delete[] dtest2;
   delete[] dtesttest1;
   delete[] dtesttest2;
+  delete[] dtesttesttest1;
+  delete[] dtesttesttest2;
+  delete[] dtesttesttesttest1;
+  delete[] dtesttesttesttest2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
