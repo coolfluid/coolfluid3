@@ -61,6 +61,8 @@ private: // functions
 	
   void get_file_positions();
 
+  CRegion::Ptr create_region(std::string const& relative_path);
+
   void find_ghost_nodes();
 	
   void read_coordinates();
@@ -90,6 +92,7 @@ private: // data
     Uint dim;
     Uint index;
     std::string name;
+    CRegion::Ptr region;
   };
 	
   Uint m_nb_regions; // This corresponds to the number of physical groups in

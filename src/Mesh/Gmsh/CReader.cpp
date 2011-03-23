@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/foreach.hpp>
-#include <boost/algorithm/string/erase.hpp>
+#include <boost/tokenizer.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
@@ -51,8 +51,6 @@ CReader::CReader( const std::string& name )
   m_properties.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_init()?mpi::PE::instance().rank():0);
   m_properties.add_option<OptionT <Uint> >("nb_partitions","Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_init()?mpi::PE::instance().size():1);
 
-
-
   // properties
 
   m_properties["brief"] = std::string("Gmsh file reader component");
@@ -96,6 +94,10 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // set the internal mesh pointer
   m_mesh = mesh;
 
+  // Create a region component inside the mesh with a generic mesh name
+  // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
+  m_region = m_mesh->topology().as_ptr<CRegion>();//.create_region("main").as_ptr<CRegion>();
+
   // Read file once and store positions
   get_file_positions();
 
@@ -106,11 +108,6 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   num_obj[1] = m_total_nb_elements;
   m_hash->configure_property("Number of Objects",num_obj);
 
-  // Create a region component inside the mesh with a generic mesh name
-  // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
-  m_region = m_mesh->topology().create_region("main").as_ptr<CRegion>();
-
-
   find_ghost_nodes();
 
 //  CFinfo << m_mesh->tree() << CFendl;
@@ -120,10 +117,6 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   read_connectivity();
 
 //  // clean-up
-
-//  // update the number of cells and nodes in the mesh
-  m_mesh->properties()["nb_cells"] = m_mesh->property("nb_cells").value<Uint>() + m_total_nb_elements;
-  m_mesh->properties()["nb_nodes"] = m_mesh->property("nb_nodes").value<Uint>() + m_total_nb_nodes;
 
   // close the file
   m_file.close();
@@ -162,24 +155,25 @@ void CReader::get_file_positions()
       m_mesh_dimension = DIM_1D;
       for(Uint ir = 0; ir < m_nb_regions; ++ir)
       {
-          m_file >> m_region_list[ir].dim;
-          m_mesh_dimension = std::max(m_region_list[ir].dim,m_mesh_dimension);
-          m_file >> m_region_list[ir].index;
-          //The original name of the region in the mesh file has quotes, we want to strip them off
-          m_file >> tempstr;
-          m_region_list[ir].name = tempstr.substr(1,tempstr.length()-2);
+        m_file >> m_region_list[ir].dim;
+        m_mesh_dimension = std::max(m_region_list[ir].dim,m_mesh_dimension);
+        m_file >> m_region_list[ir].index;
+        //The original name of the region in the mesh file has quotes, we want to strip them off
+        m_file >> tempstr;
+        m_region_list[ir].name = tempstr.substr(1,tempstr.length()-2);
+        m_region_list[ir].region = create_region(m_region_list[ir].name);
       }
     }
     else if (line.find(nodes)!=std::string::npos) {
       m_coordinates_position=p;
       m_file >> m_total_nb_nodes;
-//      CFinfo << "The total number of nodes is " << m_total_nb_nodes << CFendl;
+      //CFinfo << "The total number of nodes is " << m_total_nb_nodes << CFendl;
     }
     else if (line.find(elements)!=std::string::npos)
     {
       m_elements_position = p;
       m_file >> m_total_nb_elements;
-//      CFinfo << "The total number of elements is " << m_total_nb_elements << CFendl;
+      //CFinfo << "The total number of elements is " << m_total_nb_elements << CFendl;
 
       Uint elem_idx, elem_type, nb_tags, phys_tag;
 
@@ -190,6 +184,7 @@ void CReader::get_file_positions()
           m_file >> elem_type;
           m_file >> nb_tags;
           m_file >> phys_tag;
+          cf_assert(phys_tag > 0);
           getline(m_file,line);
           (m_nb_gmsh_elem_in_region[phys_tag-1])[elem_type]++;
       }
@@ -222,6 +217,25 @@ void CReader::get_file_positions()
 //  }
 
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CRegion::Ptr CReader::create_region(std::string const& relative_path)
+{
+  typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+  boost::char_separator<char> sep("/");
+  Tokenizer tokens(relative_path, sep);
+
+  CRegion::Ptr region = m_region;
+  for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+  {
+    std::string name = *tok_iter;
+    Component::Ptr new_region = region->get_child_ptr(name);
+    if (is_null(new_region))  region->create_component<CRegion>(name);
+    region = region->get_child(name).as_ptr<CRegion>();
+  }
+  return region;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -392,7 +406,7 @@ void CReader::read_connectivity()
  for(Uint ir = 0; ir < m_nb_regions; ++ir)
  {
    // create new region
-   CRegion::Ptr new_region = m_region->create_region(m_region_list[ir].name).as_ptr<CRegion>();
+   CRegion::Ptr region = m_region_list[ir].region;
 
    // Take the gmsh element types present in this region and generate new names of elements which correspond
    // to coolfuid naming:
@@ -407,10 +421,10 @@ void CReader::read_connectivity()
          elements = create_component_abstract_type<CEntities>("CF.Mesh.CFaces",allocated_type->shape_name());
        else
          elements = create_component_abstract_type<CEntities>("CF.Mesh.CCells",allocated_type->shape_name());
-      new_region->add_component(elements);
+      region->add_component(elements);
       elements->initialize(cf_elem_name,*m_nodes);
 
-      // Celements& elements = new_region->create_component<CElements>(cf_elem_name);
+      // Celements& elements = region->create_component<CElements>(cf_elem_name);
       // elements.initialize(cf_elem_name,*m_nodes);
 
        CTable<Uint>& elem_table = elements->as_ptr<CElements>()->connectivity_table();

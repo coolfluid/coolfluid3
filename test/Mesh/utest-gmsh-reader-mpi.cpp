@@ -61,7 +61,7 @@ BOOST_FIXTURE_TEST_SUITE( GmshReaderMPITests_TestSuite, GmshReaderMPITests_Fixtu
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-	//PE::instance().init(m_argc,m_argv);
+  //Core::instance().initiate(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -247,10 +247,40 @@ mesh_writer->write_from_to(mesh,file);
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
+{
+  BOOST_CHECK(true);
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
+
+  // the file to read from
+  boost::filesystem::path fp_in ("rectangle-mix-p1-out.msh");
+
+  // the mesh to store in
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
+
+  // CFinfo.setFilterRankZero(false);
+  meshreader->read_from_to(fp_in,mesh);
+  // CFinfo.setFilterRankZero(true);
+  BOOST_CHECK(true);
+
+  // CFinfo << mesh->tree() << CFendl;
+
+CMeshWriter::Ptr mesh_writer =
+    create_component_abstract_type<CMeshWriter> ("CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+boost::filesystem::path file ("rectangle-mix-p1-out-out.msh");
+mesh_writer->write_from_to(mesh,file);
+BOOST_CHECK(true);
+
+  CFinfo << "elements count = " << find_component<CRegion>(*mesh).recursive_elements_count() << CFendl;
+  CFinfo << "nodes count    = " << find_component<CRegion>(*mesh).recursive_nodes_count() << CFendl;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
-{
-	//PE::instance().finalize();
+{ 
+  //Core::instance().terminate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

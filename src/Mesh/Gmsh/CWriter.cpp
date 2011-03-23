@@ -4,8 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string/replace.hpp>
+
 #include "Common/Foreach.hpp"
-// #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
@@ -135,17 +136,25 @@ void CWriter::write_header(std::fstream& file)
   Uint phys_name_counter(0);
   boost_foreach(const CRegion& groupRegion, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
-    std::string name = groupRegion.full_path().path();
-    m_groupnumber[name] = ++phys_name_counter;
+    ++phys_name_counter;
   }
-
+  
   file << "$PhysicalNames\n";
   file << phys_name_counter << "\n";
-  foreach_container((const std::string& g_name)(const Uint g_number), m_groupnumber)
+  
+  phys_name_counter=0;
+  boost_foreach(const CRegion& groupRegion, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
-    /// @todo this should be the dimensionality of the physical group
-//    CFinfo << m_coord_dim << " " << g_number << " \"" << g_name << "\"\n" << CFflush;
-    file << m_coord_dim << " " << g_number << " \"" << g_name << "\"\n";
+    std::string name = groupRegion.full_path().path();
+    boost::algorithm::replace_first(name,m_mesh->topology().full_path().path()+"/","");
+    m_groupnumber[groupRegion.full_path().path()] = ++phys_name_counter;
+    
+    Uint group_dimensionality(0);
+    boost_foreach(const CElements& elements, find_components<CElements>(groupRegion))
+      group_dimensionality = std::max(group_dimensionality, elements.element_type().dimensionality());
+    
+    file << group_dimensionality << " " << phys_name_counter << " \"" << name << "\"\n";
+    
   }
   file << "$EndPhysicalNames\n";
 }
