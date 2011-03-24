@@ -202,27 +202,19 @@ PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatable,dist_nupdatable.size()))
 PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatabledisp,dist_nupdatabledisp.size()));
 
   // building info and communicating dist
-  std::vector<dist_struct> dist(dist_nupdatable.size());
+  std::vector<dist_struct> dist(dist_nupdatable[irank]);
   CPint ilid=0;
   BOOST_FOREACH(dist_struct& i, dist)
   {
+    i.gid=gid[ilid];
     i.rank=irank;
-    i.lid=ilid;
+    i.lid=ilid++;
     i.data=nullptr;
   }
-/*
-  std::vector<int> dist_nsend(nproc,0);
+  delete[] gid;
 
+PEProcessSortedExecute(-1,BOOST_FOREACH(dist_struct& i, dist) std::cout << i.lid << " " << i.gid << " " << i.rank << " " << i.data << "\n" << std::flush; );
 
-  CPint lid=0;
-  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
-  {
-    if (i.rank==irank)
-      dist_lidupdatable.push_back(lid);
-    lid++;
-  }
-  BOOST_ASSERT(dist_lidupdatable.size()==dist_nupdatable);
-*/
 /*
 PECheckPoint(100,"XXXXX Distributed data, step 1:");
 PEProcessSortedExecute(-1,PEDebugVector(dist_lidupdatable,dist_lidupdatable.size()));

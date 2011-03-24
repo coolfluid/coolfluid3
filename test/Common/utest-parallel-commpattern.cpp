@@ -440,7 +440,7 @@ BOOST_AUTO_TEST_CASE( commpattern_cast )
 
 BOOST_AUTO_TEST_CASE( commpattern )
 {
-//PECheckPoint(100,"CP");
+PECheckPoint(100,"CP");
 
   // general conts in this routine
   const int nproc=mpi::PE::instance().size();
@@ -449,22 +449,37 @@ BOOST_AUTO_TEST_CASE( commpattern )
   // commpattern
   PECommPattern pecp("CommPattern");
 
-  // global indices reversed, just for not to have it aligned
+  // global indices and ranks, ordering: 0 1 2 ... 0 0 1 1 2 2 ... 0 0 0 1 1 1 2 2 2 ...
   std::vector<Uint> gid(6*nproc);
-  for (Uint i=0; i<gid.size(); i++) gid[i]=(6*nproc*nproc-1)-(6*irank*nproc+i);
   pecp.insert("gid",gid);
-
-//PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
-//PECheckPoint(100,"CP");
-
-  // ranks, ordering: 0 1 2 ... 0 0 1 1 2 2 ... 0 0 0 1 1 1 2 2 2 ...
   std::vector<Uint> rank(6*nproc);
-  for (Uint i=0; i<nproc; i++) { rank[0*nproc+1*i+0]=i; }
-  for (Uint i=0; i<nproc; i++) { rank[1*nproc+2*i+0]=i; rank[1*nproc+2*i+1]=i; }
-  for (Uint i=0; i<nproc; i++) { rank[3*nproc+3*i+0]=i; rank[3*nproc+3*i+1]=i; rank[3*nproc+3*i+2]=i; }
+  for (Uint i=0; i<nproc; i++)
+  {
+    rank[0*nproc+1*i+0]=i;
+    gid[ 0*nproc+1*i+0]=(6*nproc-1)-(6*i+0);
+  }
+  for (Uint i=0; i<nproc; i++)
+  {
+    rank[1*nproc+2*i+0]=i;
+    rank[1*nproc+2*i+1]=i;
+    gid[ 1*nproc+2*i+0]=(6*nproc-1)-(6*i+1);
+    gid[ 1*nproc+2*i+1]=(6*nproc-1)-(6*i+2);
+  }
+  for (Uint i=0; i<nproc; i++)
+  {
+    rank[3*nproc+3*i+0]=i;
+    rank[3*nproc+3*i+1]=i;
+    rank[3*nproc+3*i+2]=i;
+    gid[ 3*nproc+3*i+0]=(6*nproc-1)-(6*i+3);
+    gid[ 3*nproc+3*i+1]=(6*nproc-1)-(6*i+4);
+    gid[ 3*nproc+3*i+2]=(6*nproc-1)-(6*i+5);
+  }
 
-//PEProcessSortedExecute(-1,PEDebugVector(rank,rank.size()));
-//PECheckPoint(100,"CP");
+PEProcessSortedExecute(-1,PEDebugVector(rank,rank.size()));
+PECheckPoint(100,"CP");
+
+PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
+PECheckPoint(100,"CP");
 
   // additional arrays for testing
   std::vector<int> v1;
