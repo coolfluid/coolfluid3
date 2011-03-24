@@ -176,7 +176,7 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  }
 
- float X_real[elements*shape*dim], U_real[elements*shape],phi[elements*shape];
+ float X_real[elements*shape*dim], U_real[elements*shape],phi[elements*shape], waveSpeed[elements];
 
  for(uint idx = 0; idx < elements; idx++ )
  {
@@ -184,9 +184,12 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
      {
          uint pos = idx * shape + idy;
          uint adress = (*connectivity_table)[idx][idy];
+         if (adress > (*coordinates).size() )
+             std::cout<<"error" <<std::endl;
 
-         U_real[pos] = 0;//(*solution)[adress][0];
+         U_real[pos] = (*solution)[adress][0];
          (*residual)[adress][0] = 0;
+         (*wave_speed)[adress][0] = 0;
          phi[pos]    = 0;
 
          //std::cout<<adress << " ";
@@ -194,10 +197,18 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
          for( uint idz = 0; idz < dim; idz++ )
          {
             X_real[ pos * dim + idz ] = (*coordinates)[adress][idz];
-            //std::cout << X_real[ pos * dim + idz ] << " ";
          }
+     }
 
-     }//std::cout << std::endl;
+     waveSpeed[idx]=0;
+
+ }
+
+ float weights[quad];
+
+ for( int idx = 0; idx < quad; idx++ )
+ {
+     weights[idx] = 0.5;//m_wj[idx];
  }
 
  CLEnv env;
@@ -221,7 +232,7 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  cl_mem A_iGPGPU, A_kGPGPU, A_eGPGPU;
  cl_mem X_rGPGPU, U_rGPGPU, phi_rGPGPU;
-
+ cl_mem weightsGPGPU, waveSpeedGPGPU;
 // copy matrix to GPGPU memory
 
 
@@ -235,42 +246,47 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  // copy vector to GPGPU memory
 
- X_rGPGPU   =    clCreateBuffer(env.context, CL_MEM_READ_ONLY , elements * shape * dim * sizeof(float) ,    X_real, &env.errcode);
- U_rGPGPU   =    clCreateBuffer(env.context, CL_MEM_READ_ONLY , elements * shape * sizeof(float)       ,    U_real, &env.errcode);
- phi_rGPGPU =    clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements * shape * sizeof(float)       ,    phi,    &env.errcode);
+ X_rGPGPU         =   clCreateBuffer(env.context, CL_MEM_READ_ONLY , elements * shape * dim * sizeof(float) ,    X_real, &env.errcode);
+ U_rGPGPU         =   clCreateBuffer(env.context, CL_MEM_READ_ONLY , elements * shape * sizeof(float)       ,    U_real, &env.errcode);
+ weightsGPGPU     =   clCreateBuffer(env.context, CL_MEM_READ_ONLY,  quad * sizeof(float)                   ,    weights,    &env.errcode);
+ phi_rGPGPU       =   clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements * shape * sizeof(float)       ,    phi,    &env.errcode);
+ waveSpeedGPGPU   =   clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements * sizeof(float)               ,    waveSpeed,    &env.errcode);
 
- env.errcode |= clEnqueueWriteBuffer(env.command_queue, X_rGPGPU,    CL_FALSE, 0, elements * shape * dim * sizeof(float),     X_real, 0, NULL, NULL);
- env.errcode |= clEnqueueWriteBuffer(env.command_queue, U_rGPGPU,    CL_FALSE, 0, elements * shape * sizeof(float),           U_real, 0, NULL, NULL);
- env.errcode |= clEnqueueWriteBuffer(env.command_queue, phi_rGPGPU,  CL_FALSE, 0, elements * shape * sizeof(float),           phi,    0, NULL, NULL);
 
+ env.errcode |= clEnqueueWriteBuffer(env.command_queue, X_rGPGPU,    CL_FALSE, 0, elements * shape * dim * sizeof(float),     X_real,     0, NULL, NULL);
+ env.errcode |= clEnqueueWriteBuffer(env.command_queue, U_rGPGPU,    CL_FALSE, 0, elements * shape * sizeof(float),           U_real,     0, NULL, NULL);
+ env.errcode |= clEnqueueWriteBuffer(env.command_queue, phi_rGPGPU,  CL_FALSE, 0, elements * shape * sizeof(float),           phi,        0, NULL, NULL);
+ env.errcode |= clEnqueueWriteBuffer(env.command_queue, weightsGPGPU,  CL_FALSE, 0, quad * sizeof(float),                     weights,    0, NULL, NULL);
+ env.errcode |= clEnqueueWriteBuffer(env.command_queue, waveSpeedGPGPU,  CL_FALSE, 0, elements *  sizeof(float),              waveSpeed,  0, NULL, NULL);
  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
  // running GPGPU kernel
 
- /*  __kernel void interpolation(__global float* PHI,
-                                 __global float* A, __global float* A_ksi, __global float* A_eta,
-                                 __global float* X_real, __global float* U_real,
-                                 unsigned int shape, unsigned int quad, unsigned int dim, unsigned int elements,
-                                 __local float* X_quad, __local float* X_ksi, __local float* X_eta,
-                                 __local float* jacobi_quad, __local float* sum_phi_quad , __local float* LU_quad )*/
+ /* __kernel void interpolation(__global float* X_quad, __global float* X_ksi, __global float* X_eta,
+                                __global float* A, __global float* A_ksi, __global float* A_eta,
+                                __global float* X_shape,
+                                 int shape, int quad, int dim, int elem )                             */
 
  int n = 0;
  env.errcode  = clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&phi_rGPGPU);
+ env.errcode  = clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&waveSpeedGPGPU);
  env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&A_iGPGPU);
  env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&A_kGPGPU);
  env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&A_eGPGPU);
  env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&X_rGPGPU);
  env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&U_rGPGPU);
+ env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&weightsGPGPU);
  env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&shape);
  env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&quad);
  env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&dim);
  env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&elements);
- env.errcode |= clSetKernelArg(env.kernel, n++, shape * dim * sizeof(float), 0);
- env.errcode |= clSetKernelArg(env.kernel, n++, shape * dim * sizeof(float), 0);
- env.errcode |= clSetKernelArg(env.kernel, n++, shape * dim * sizeof(float), 0);
- env.errcode |= clSetKernelArg(env.kernel, n++, shape * sizeof(float),       0);
- env.errcode |= clSetKernelArg(env.kernel, n++, shape * sizeof(float),       0);
- env.errcode |= clSetKernelArg(env.kernel, n++, shape * sizeof(float),       0);
+ env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim * sizeof(float), 0);
+ env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim * sizeof(float), 0);
+ env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim * sizeof(float), 0);
+ env.errcode |= clSetKernelArg(env.kernel, n++, quad * sizeof(float), 0);
+ env.errcode |= clSetKernelArg(env.kernel, n++, quad * sizeof(float), 0);
+ env.errcode |= clSetKernelArg(env.kernel, n++, quad * sizeof(float), 0);
+
  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
  size_t localWorkSize[2], globalWorkSize[2];
@@ -278,8 +294,8 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
  localWorkSize[0] = 1;
  localWorkSize[1] = 1;
 
- globalWorkSize[0] = 4*env.num_compute_units;
- globalWorkSize[1] = 4*env.num_compute_units;
+ globalWorkSize[0] = env.num_compute_units;
+ globalWorkSize[1] = env.num_compute_units;
 
  env.errcode = clEnqueueNDRangeKernel(env.command_queue, env.kernel, 2, globalWorkSize, localWorkSize, NULL, 0, NULL, NULL);
  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
@@ -287,7 +303,9 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  // receive data from GPGPU memory
 
- env.errcode = clEnqueueReadBuffer(env.command_queue,phi_rGPGPU, CL_TRUE, 0, elements*shape * sizeof(float), phi, 0, NULL, NULL);
+ env.errcode  = clEnqueueReadBuffer(env.command_queue,phi_rGPGPU,     CL_TRUE, 0, elements*shape * sizeof(float), phi, 0, NULL, NULL);
+ env.errcode |= clEnqueueReadBuffer(env.command_queue,waveSpeedGPGPU, CL_TRUE, 0, elements * sizeof(float)      , waveSpeed, 0, NULL, NULL);
+
  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
  // release GPGPU memory for matrix
@@ -301,12 +319,16 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
  clReleaseMemObject( X_rGPGPU );
  clReleaseMemObject( U_rGPGPU );
  clReleaseMemObject( phi_rGPGPU );
+ clReleaseMemObject( weightsGPGPU );
+ clReleaseMemObject( waveSpeedGPGPU );
 
  // free GPU
 
  clReleaseContext(env.context);
  clReleaseKernel(env.kernel);
  clReleaseCommandQueue(env.command_queue);
+
+
 
  for(uint idx = 0; idx < elements; idx++ )
  {
@@ -316,138 +338,9 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
          uint adress = (*connectivity_table)[idx][idy];
 
          (*residual)[adress][0] += phi[pos];
+         (*wave_speed)[adress][0] += waveSpeed[idx];
      }
  }
-
- for(uint idx = 0; idx<(*coordinates).size(); idx++)
-    {
-        std::cout<<(*residual)[idx][0]<<std::endl;
-
-    }
-
-
-
-
-/*
-//  CFinfo << "LDA ELEM [" << idx() << "]" << CFendl;
-
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = connectivity_table->array()[idx()];
-
-//  std::cout << "nodes_idx";
-//  for ( Uint i = 0; i < nodes_idx.size(); ++i)
-//     std::cout << " " << nodes_idx[i];
-
-  typename SHAPEFUNC::NodeMatrixT nodes;
-
- Mesh::fill(nodes, *coordinates, nodes_idx );
-
-//  elements().as_ptr<Mesh::CElements>()->put_coordinates( nodes, idx() );
-
-//  std::cout << "field put_coordinates function" <<  std::endl;
-//  std::cout << "nodes: " << nodes << std::endl;
-
-
-//  std::cout << "mesh::fill function" <<  std::endl;
-//  std::cout << "nodes: " << nodes << std::endl;
-
-
-  // copy the solution from the large array to a small
-  for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    m_solution_values[n] = (*solution)[nodes_idx[n]][0];
-
-
- m_phi.setZero();
-
- m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values,m_wj);
-
-// std::cout << "solution_values  [" << m_solution_values << "]" << std::endl;
-// std::cout << "sf_oper_values   [" << m_sf_oper_values << "]" << std::endl;
-// std::cout << std::endl;
-// std::cout << "flux_oper_values [" << m_flux_oper_values << "]" << std::endl;
-//// if (m_flux_oper_values.norm() > 0.0)
-////     std::cin.get();
-// std::cout << std::endl;
-
- for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
- {
-   Real sumLplus = 0.0;
-   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-   {
-     sumLplus += std::max(0.0,m_sf_oper_values(q,n));
-   }
-
-   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-   {
-     m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q] * m_wj[q];
-   }
- }
-  
-//   std::cout << "phi [";
-//   for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
-//      std::cout << m_phi[n] << " ";
-//   std::cout << "]" << std::endl;
-
-  for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    (*residual)[nodes_idx[n]][0] += m_phi[n];
-
-//  std::cout << "residual [";
-//  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
-//     std::cout << (*residual)[nodes_idx[n]][0] << " ";
-//  std::cout << "]" << std::endl;
-
-
-  // computing average advection speed on element
-
-	typename SHAPEFUNC::CoordsT centroid;
-	
-	centroid.setZero();
-
-  for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-  {
-    centroid[XX] += nodes(n, XX);
-    centroid[YY] += nodes(n, YY);
-  }
-  centroid /= SHAPEFUNC::nb_nodes;
-
-
-  // compute a bounding box of the element:
-
-  Real xmin = nodes(0, XX);
-  Real xmax = nodes(0, XX);
-  Real ymin = nodes(0, YY);
-  Real ymax = nodes(0, YY);
-
-  for(Uint inode = 1; inode < SHAPEFUNC::nb_nodes; ++inode)
-  {
-    xmin = std::min(xmin,nodes(inode, XX));
-    xmax = std::max(xmax,nodes(inode, XX));
-
-    ymin = std::min(ymin,nodes(inode, YY));
-    ymax = std::max(ymax,nodes(inode, YY));
-
-  }
-
-  const Real dx = xmax - xmin;
-  const Real dy = ymax - ymin;
-
-  // The update coeff is updated by a product of bb radius and norm of advection velocity
-  for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-  {
-    (*wave_speed)[nodes_idx[n]][0] += std::sqrt( dx*dx+dy*dy);
-//       * std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
-  }
-
-
-//  std::cout << "wave_speed [";
-//  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
-//     std::cout << (*wave_speed)[nodes_idx[n]][0] << " ";
-//  std::cout << "]" << std::endl;
-
-//  std::cout << " --------------------------------------------------------------- " << std::endl;
-*/
-
-
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
