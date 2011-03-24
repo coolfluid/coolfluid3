@@ -82,7 +82,7 @@ my %packages = (  #  version   default install priority      function
     "boost"      => [ "1_46_1",   'on' ,   'off', $priority++,  \&install_boost ],
     "parmetis"   => [ "3.1.1",    'off',   'off', $priority++,  \&install_parmetis ],
     "hdf5"       => [ "1.8.6",    'off',   'off', $priority++,  \&install_hdf5 ],
-    "trilinos"   => [ "10.6.2",   'off',   'off', $priority++,  \&install_trilinos ],
+    "trilinos"   => [ "10.6.4",   'off',   'off', $priority++,  \&install_trilinos ],
     "petsc"      => [ "3.1-p7",   'off',   'off', $priority++,  \&install_petsc3 ],
     "cgns"       => [ "3.0.8",    'off',   'off', $priority++,  \&install_cgns ],
     "google-perftools" => [ "1.7",'off',   'off', $priority++,  \&install_google_perftools ],
@@ -1380,6 +1380,7 @@ sub set_install_recommended()
 {
   set_install_basic();
 
+  $packages{"trilinos"}[$ins] = 'on';
   $packages{"hdf5"}[$ins] = 'on';
   $packages{"cgns"}[$ins] = 'on';
   $packages{"parmetis"}[$ins] = 'on';
