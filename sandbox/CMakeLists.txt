@@ -49,3 +49,7 @@ add_subdirectory( xml-layer )
 ###############################################################################
 ### test for weird boost::share_ptr behavior
 add_subdirectory( boost-shared_ptr )
+
+###############################################################################
+### check that compiling with paraview works
+add_subdirectory( paraview-deps )
