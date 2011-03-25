@@ -79,8 +79,9 @@ my %packages = (  #  version   default install priority      function
     "mpich"      => [ "1.2.7p1",  'off',   'off', $priority++,  \&install_mpich ],
     "mpich2"     => [ "1.3.2p1",  'off',   'off', $priority++,  \&install_mpich2 ],
     "boost-jam"  => [ "3.1.18",   'off',   'off', $priority++,  \&install_boost_jam ],
-    "boost"      => [ "1_46_1",   'on' ,   'off', $priority++,  \&install_boost ],
+    "boost"      => [ "1_43_0",   'on' ,   'off', $priority++,  \&install_boost ],
     "parmetis"   => [ "3.1.1",    'off',   'off', $priority++,  \&install_parmetis ],
+    "paraview"   => [ "3.10.0",   'off',   'off', $priority++,  \&install_paraview ], # must be installed *BEFORE* hdf5
     "hdf5"       => [ "1.8.6",    'off',   'off', $priority++,  \&install_hdf5 ],
     "trilinos"   => [ "10.6.4",   'off',   'off', $priority++,  \&install_trilinos ],
     "petsc"      => [ "3.1-p7",   'off',   'off', $priority++,  \&install_petsc3 ],
@@ -1325,6 +1326,43 @@ sub install_superlu() {
     run_command_or_die("make install");
   }
 }
+
+#==========================================================================
+
+sub install_paraview() {
+  my $lib = "paraview";
+  my $version = $packages{$lib}[$vrs];
+
+  print my_colored("Installing ParaView-$version\n",$HIGHLIGHTCOLOR);
+
+  safe_chdir($opt_tmp_dir);
+  download_src("ParaView-$version");
+  unless ($opt_fetchonly)
+  {
+    rmtree "$opt_tmp_dir/ParaView-$version";
+    untar_src("ParaView-$version");
+    safe_chdir("$opt_tmp_dir/ParaView-$version/");
+   
+    mkpath("build",1);
+    safe_chdir("build");
+    run_command_or_die("cmake ../ -DCMAKE_INSTALL_PREFIX=$opt_install_dir \\
+         -DCMAKE_BUILD_TYPE=Release \\
+         -DBUILD_SHARED_LIBS:BOOL=ON \\
+         -DPARAVIEW_USE_MPI=ON \\
+         -DBUILD_TESTING:BOOL=OFF \\
+         -DBUILD_DOCUMENTATION=OFF \\
+         -DBUILD_EXAMPLE=OFF \\
+         -DPARAVIEW_BUILD_QT_GUI:BOOL=ON \\
+         -DPARAVIEW_DISABLE_VTK_TESTING=ON \\
+         -DPARAVIEW_ENABLE_PYTHON=OFF \\
+         -DPARAVIEW_INSTALL_DEVELOPMENT=ON \\
+         -DPARAVIEW_TESTING_WITH_PYTHON=OFF " );
+    run_command_or_die("> ParaViewLibraryDepends.cmake");
+    run_command_or_die("make $opt_makeopts");
+    run_command_or_die("make install");
+  }
+}
+
 
 #==========================================================================
 
