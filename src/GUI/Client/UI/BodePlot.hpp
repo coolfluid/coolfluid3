@@ -17,6 +17,7 @@
 
 // header
 #include "Common/CF.hpp"
+#include "GUI/Client/UI/LibClientUI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +30,7 @@ namespace ClientUI {
 
 /// @brief This is a QwtPlot with easiest way to acces the options and add curves.
 /// @author Wertz Gil
-class BodePlot: public QwtPlot
+class ClientUI_API BodePlot: public QwtPlot
 {
     Q_OBJECT
 

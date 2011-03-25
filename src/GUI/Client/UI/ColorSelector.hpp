@@ -11,6 +11,9 @@
 #include <QLabel>
 #include <QMouseEvent>
 
+// header
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -22,7 +25,7 @@ namespace ClientUI {
 
 /// @brief This is QLabel that display a color picker when clicked and can give this color back.
 /// @author Wertz Gil
-class ColorSelector : public QLabel
+class ClientUI_API ColorSelector : public QLabel
 {
     Q_OBJECT
 
