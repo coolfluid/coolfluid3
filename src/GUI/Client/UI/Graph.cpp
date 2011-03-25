@@ -16,6 +16,8 @@
 #include <QDoubleValidator>
 #include <QGroupBox>
 #include <QFileIconProvider>
+#include <QScopedPointer>
+#include <QDebug>
 
 // Qwt headers
 #include "qwt/qwt_picker.h"
@@ -53,6 +55,8 @@ namespace ClientUI {
       //if draged the mouse, get a canvas, if double clicking
       //use the whole curent view as canvas
       setSelectionFlags(QwtPicker::DragSelection | QwtPicker::CornerToCorner);
+      //setSelectionFlags(QwtPicker::RectSelection);
+      //setSelectionFlags(QwtPicker::PointSelection);
       setTrackerMode(QwtPicker::AlwaysOff);
       setRubberBand(QwtPicker::NoRubberBand);
 
@@ -63,6 +67,7 @@ namespace ClientUI {
 
       setMousePattern(QwtEventPattern::MouseSelect3,
                       Qt::RightButton);
+
     }
   };
 
@@ -74,21 +79,21 @@ namespace ClientUI {
     ////creation phase
 
     //creat main vertical layout
-    QVBoxLayout * layout_main_graph_v = new QVBoxLayout();
+    QPointer<QVBoxLayout> layout_main_graph_v = new QVBoxLayout();
 
     //creat graph vertical layout
-    QVBoxLayout * layout_graph_v = new QVBoxLayout();
+    QPointer<QVBoxLayout> layout_graph_v = new QVBoxLayout();
 
     //create scale grid layout
-    QGridLayout * layout_zoom_grid = new QGridLayout();
+    QPointer<QGridLayout> layout_zoom_grid = new QGridLayout();
 
-    QHBoxLayout * layout_option = new QHBoxLayout();
+    QPointer<QHBoxLayout> layout_option = new QHBoxLayout();
 
     //create group box
-    QGroupBox * m_scale_box = new QGroupBox("Show Scale");
+    QPointer<QGroupBox> m_scale_box = new QGroupBox("Show Scale");
     m_scale_box->setCheckable(true);
 
-    QGroupBox * m_options_box = new QGroupBox("Show Options");
+    QPointer<QGroupBox> m_options_box = new QGroupBox("Show Options");
     m_options_box->setCheckable(true);
 
     //creat the BodePlot
@@ -96,11 +101,10 @@ namespace ClientUI {
     m_plot->setMargin(5);
 
     //create the toolbar that contain the widget's button
-    QToolBar * tool_bar = new QToolBar(this);
+    QPointer<QToolBar> tool_bar = new QToolBar(this);
 
     //cearte a zoom button
-
-    QToolButton * btn_zoom = new QToolButton(tool_bar);
+    QPointer<QToolButton> btn_zoom = new QToolButton(tool_bar);
     btn_zoom->setText("Zoom");
     btn_zoom->setIcon(QIcon(zoom_xpm));
     btn_zoom->setCheckable(true);
@@ -109,14 +113,14 @@ namespace ClientUI {
 
 
     //create a SVG save button
-    QToolButton * btn_svg = new QToolButton(tool_bar);
+    QPointer<QToolButton> btn_svg = new QToolButton(tool_bar);
     btn_svg->setText("SVG");
     btn_svg->setIcon(QIcon(print_xpm));
     btn_svg->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
 
 
     //create a text save button
-    QToolButton * btn_txt = new QToolButton(tool_bar);
+    QPointer<QToolButton> btn_txt = new QToolButton(tool_bar);
     btn_txt->setText("TXT");
     QFileIconProvider txt_icone;
     btn_txt->setIcon(txt_icone.icon(QFileIconProvider::File));
@@ -126,13 +130,13 @@ namespace ClientUI {
     //creating label to display information
     m_label_bottom = new QLabel(this);
 
-    //set scale labels
+    //create scale labels
     m_label_min_x = new QLabel("x min");
     m_label_max_x = new QLabel("x max");
     m_label_min_y = new QLabel("y min");
     m_label_max_y = new QLabel("y max");
 
-    //set scale inline system
+    //create scale inline system
     m_line_min_x = new QLineEdit();
     m_line_min_x->setValidator(new QDoubleValidator(nullptr));
     m_line_max_x = new QLineEdit();
@@ -141,7 +145,10 @@ namespace ClientUI {
     m_line_min_y->setValidator(new QDoubleValidator(nullptr));
     m_line_max_y = new QLineEdit();
     m_line_max_y->setValidator(new QDoubleValidator(nullptr));
+
+    //create buton set scale
     m_button_set_scale = new QPushButton("Set scale");
+
 
     ////Placment and initialisation
 
@@ -207,18 +214,25 @@ namespace ClientUI {
     layout_zoom_grid->addWidget(m_line_max_y,1,3,1,1);
     layout_zoom_grid->addWidget(m_button_set_scale,0,4,2,1);
 
+    //data for ploting
     NPlotXY::PlotDataPtr plot_data( new NPlotXY::PlotData() );
+
+    //empty vector
     std::vector<QString> vector_temp(0);
-    graph_option = new GraphOption(plot_data,vector_temp,m_plot,this);
 
-    layout_option->addWidget(graph_option);
+    //create graphOptions
+    m_graph_option = new GraphOption(plot_data,vector_temp,m_plot,this);
 
+    //add graphOptions to his layout
+    layout_option->addWidget(m_graph_option);
+
+    //add both scall and option box to a vertical layout
     m_scale_box->setLayout(layout_zoom_grid);
     m_options_box->setLayout(layout_option);
 
     ////Conncetion phase
     connect(btn_svg, SIGNAL(clicked()), SLOT(export_svg()));
-    connect(btn_txt, SIGNAL(clicked()),graph_option, SLOT(save_functions()));
+    connect(btn_txt, SIGNAL(clicked()),m_graph_option, SLOT(save_functions()));
     connect(btn_zoom, SIGNAL(toggled(bool)), SLOT(enable_zoom_mode(bool)));
     connect(m_picker, SIGNAL(moved(const QPoint &)),
             SLOT(moved(const QPoint &)));
@@ -233,6 +247,8 @@ namespace ClientUI {
     connect (m_options_box, SIGNAL(toggled(bool)), this, SLOT (show_graph_option(bool)));
     connect (m_scale_box, SIGNAL(toggled(bool)), this, SLOT (show_scale_option(bool)));
 
+    connect ( m_plot->canvas(), SIGNAL(wheelEvent(QWheelEvent*)), this, SLOT (zoomWheel(QWheelEvent*)));
+
 
     ////Connection Boost
     NPlotXYNotifier::instance().notify_history.connect(
@@ -241,6 +257,36 @@ namespace ClientUI {
   }
 
   Graph::~Graph(){
+      if(m_plot)
+          delete(m_plot);
+      if(m_label_bottom)
+          delete(m_label_bottom);
+      if(m_graph_option)
+          delete(m_graph_option);
+      if(m_zoomer)
+          delete(m_zoomer);
+      if(m_picker)
+          delete(m_picker);
+      if(m_panner)
+          delete(m_panner);
+      if(m_line_min_x)
+          delete(m_line_min_x);
+      if(m_line_max_x)
+          delete(m_line_max_x);
+      if(m_line_min_y)
+          delete(m_line_min_y);
+      if(m_line_max_y)
+          delete(m_line_max_y);
+      if(m_label_min_x)
+          delete(m_label_min_x);
+      if(m_label_max_x)
+          delete(m_label_max_x);
+      if(m_label_min_y)
+          delete(m_label_min_y);
+      if(m_label_max_y)
+          delete(m_label_max_y);
+      if(m_button_set_scale)
+          delete(m_button_set_scale);
   }
 
   void Graph::export_svg()
@@ -314,7 +360,7 @@ namespace ClientUI {
                           std::vector<QString> & fct_label){
 
     cf_assert( is_not_null(m_plot) );
-    graph_option->set_data(fcts,fct_label);
+    m_graph_option->set_data(fcts,fct_label);
 
     show_info();
   }
@@ -365,7 +411,7 @@ namespace ClientUI {
 
   void Graph::show_graph_option(bool visible)
   {
-    graph_option->setVisible(visible);
+    m_graph_option->setVisible(visible);
   }
 
   void Graph::show_scale_option(bool visible)
@@ -390,7 +436,50 @@ namespace ClientUI {
       m_plot->replot();
   }
 
+  void Graph::zoomWheel(QWheelEvent* event){
 
+      //set scroll enable only while not in zoom mode
+      if(!m_zoomer->isEnabled()){
+
+        double x,y,x2,y2,weight,height,posx,posy,weightMaj,heightMaj;
+
+        posx = m_plot->invTransform(QwtPlot::xBottom, m_picker->trackerPosition().x());
+        posy = m_plot->invTransform(QwtPlot::yLeft, m_picker->trackerPosition().y());
+
+        x = m_plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound();
+        x2 = m_plot->axisScaleDiv(QwtPlot::xBottom)->upperBound();
+        y = m_plot->axisScaleDiv(QwtPlot::yLeft)->lowerBound();
+        y2 = m_plot->axisScaleDiv(QwtPlot::yLeft)->upperBound();
+
+        weight = (std::abs(x2-x) / 2);
+        height = (std::abs(y2-y) / 2);
+
+        weightMaj = weight + ((event->delta() / 120) * 0.02 * weight);
+        heightMaj = height + ((event->delta() / 120) * 0.02 * height);
+
+        x = posx - weightMaj;
+        x2 = posx + weightMaj;
+
+        y = posy - heightMaj;
+        y2 = posy + heightMaj;
+
+
+        m_plot->setAxisScale(QwtPlot::xBottom,x,x2);
+        m_plot->setAxisScale(QwtPlot::yLeft,y,y2);
+
+        m_plot->replot();
+
+        //put the mouse on the center of the widget to avoid wrong "destination"
+        QPoint posMouse( m_plot->canvas()->pos().x() + 8.999999 + (m_plot->canvas()->width()/2),
+                m_plot->canvas()->pos().y() + 69 + (m_plot->canvas()->height()/2));
+
+        QPoint posMouseGlobale = QWidget::mapToGlobal(posMouse);
+        QCursor::setPos(posMouseGlobale);
+
+    }else{
+        //zoom button triggered
+    }
+  }
 
 
 ////////////////////////////////////////////////////////////////////////////////

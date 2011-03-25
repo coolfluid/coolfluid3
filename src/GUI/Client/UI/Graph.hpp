@@ -14,6 +14,8 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
+#include <QPointer>
+#include <QWheelEvent>
 
 // Qwt header
 #include "qwt/qwt_polygon.h"
@@ -67,43 +69,43 @@ private: //function
 
 private: //data
   /// The BodePlot who is shown in the graph x,y axes area.
-  BodePlot * m_plot;
+  QPointer<BodePlot> m_plot;
 
   /// QLabel that stand on the bottom where we display informations
-  QLabel * m_label_bottom;
+  QPointer<QLabel> m_label_bottom;
 
   /// QLayout that contant the option menu
-  GraphOption * graph_option;
+  QPointer<GraphOption> m_graph_option;
 
   /// Zoomer ( rectangle zoom )
-  QwtPlotZoomer * m_zoomer;
+  QPointer<QwtPlotZoomer> m_zoomer;
 
   /// Represent the cursor when over the canvas
-  QwtPlotPicker * m_picker;
+  QPointer<QwtPlotPicker> m_picker;
 
   /// Panner that contain the canvas
-  QwtPlotPanner * m_panner;
+  QPointer<QwtPlotPanner> m_panner;
 
   /// minimum x scale
-  QLineEdit * m_line_min_x;
+  QPointer<QLineEdit> m_line_min_x;
 
   /// maximum x scale
-  QLineEdit * m_line_max_x;
+  QPointer<QLineEdit> m_line_max_x;
 
   /// minimum y scale
-  QLineEdit * m_line_min_y;
+  QPointer<QLineEdit> m_line_min_y;
 
   /// maximum y scale
-  QLineEdit * m_line_max_y;
+  QPointer<QLineEdit> m_line_max_y;
 
   /// Line Edit labels
-  QLabel * m_label_min_x;
-  QLabel * m_label_max_x;
-  QLabel * m_label_min_y;
-  QLabel * m_label_max_y;
+  QPointer<QLabel> m_label_min_x;
+  QPointer<QLabel> m_label_max_x;
+  QPointer<QLabel> m_label_min_y;
+  QPointer<QLabel> m_label_max_y;
 
   /// Set scale button
-  QPushButton * m_button_set_scale;
+  QPointer<QPushButton> m_button_set_scale;
 
 public slots: //slots
 
@@ -135,6 +137,10 @@ private slots: //slots
 
   /// Set the x,y scale of the graph.
   void set_scale();
+
+  /// Zoom on mouse scroll
+  /// @param event The event emited when scrolling
+  void zoomWheel(QWheelEvent* event);
 
 }; // Graph
 

@@ -7,14 +7,17 @@
 #ifndef CF_GUI_Client_UI_GraphOption_hpp
 #define CF_GUI_Client_UI_GraphOption_hpp
 
+// Qt headers
 #include <QTableWidget>
 #include <QPushButton>
 #include <QComboBox>
+#include <QPointer>
 
+// Qwt headers
 #include "qwt/qwt_plot.h"
 
+// headers
 #include "GUI/Client/Core/NPlotXY.hpp"
-
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,34 +71,34 @@ private: //functions
 private: //datas
 
   /// The Parent Graph
-  Graph * m_graph_parent;
+ QPointer<Graph> m_graph_parent;
 
   /// QwtPlot pointer, refer to the plot where we draw cures.
-  QwtPlot * m_ptr_plot;
+  QPointer<QwtPlot> m_ptr_plot;
 
   /// The curves data.
   ClientCore::NPlotXY::PlotDataPtr m_fcts;
 
   /// User function's formula  line input.
-  QLineEdit * m_line_function;
+  QPointer<QLineEdit> m_line_function;
 
   /// User function's name line input.
-  QLineEdit * m_line_function_name;
+  QPointer<QLineEdit> m_line_function_name;
 
   /// Line table.
-  QTableWidget * m_line_table;
+  QPointer<QTableWidget> m_line_table;
 
   /// Data table.
-  QTableWidget * m_data_table;
+  QPointer<QTableWidget> m_data_table;
 
   /// choose fonction table
-  QTableWidget * m_choose_table;
+  QPointer<QTableWidget> m_choose_table;
 
   /// Generate function button.
-  QPushButton * button_generate_function;
+  QPointer<QPushButton> m_button_generate_function;
 
   /// Draw line button.
-  QPushButton * button_draw;
+  QPointer<QPushButton> m_button_draw;
 
   /// Define if we can or not draw curves
   bool m_can_draw;

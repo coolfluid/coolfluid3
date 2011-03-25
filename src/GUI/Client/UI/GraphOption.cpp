@@ -15,13 +15,12 @@
 // Qwt headers
 #include "qwt/qwt_plot_curve.h"
 
-#include "fparser/fparser.hh"
-
 // headers
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/UI/GraphOption.hpp"
 #include "GUI/Client/UI/Graph.hpp"
 #include "GUI/Client/UI/ColorSelector.hpp"
+#include "fparser/fparser.hh"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,11 +42,11 @@ QWidget(parent)
   m_ptr_plot = ptr_plot;
   m_graph_parent = (Graph *) parent;
 
-  QHBoxLayout * horisontal_table_layout = new QHBoxLayout();
-  QVBoxLayout * vertical_line_table_layout = new QVBoxLayout();
-  QVBoxLayout * vertical_line_button_layout = new QVBoxLayout();
+  QPointer<QHBoxLayout> horisontal_table_layout = new QHBoxLayout();
+  QPointer<QVBoxLayout> vertical_line_table_layout = new QVBoxLayout();
+  QPointer<QVBoxLayout> vertical_line_button_layout = new QVBoxLayout();
 
-  QGridLayout * grid_data_table_layout = new QGridLayout();
+  QPointer<QGridLayout> grid_data_table_layout = new QGridLayout();
 
   this->setLayout(horisontal_table_layout);
 
@@ -57,10 +56,10 @@ QWidget(parent)
   m_data_table = new QTableWidget(0,2,this);
 
   //add line button
-  QPushButton * button_add_line = new QPushButton("Add");
-  QPushButton * button_select_all = new QPushButton("All");
-  QPushButton * button_clear_selection = new QPushButton("None");
-  QPushButton * button_remove_line = new QPushButton("Remove");
+  QPointer<QPushButton> button_add_line = new QPushButton("Add");
+  QPointer<QPushButton> button_select_all = new QPushButton("All");
+  QPointer<QPushButton> button_clear_selection = new QPushButton("None");
+  QPointer<QPushButton> button_remove_line = new QPushButton("Remove");
 
   //labels of the line_table's columns
   QStringList line_table_labels;
@@ -84,21 +83,21 @@ QWidget(parent)
   m_line_table->setSelectionBehavior(QAbstractItemView::SelectRows);
   m_data_table->setSelectionMode(QAbstractItemView::NoSelection);
 
-  button_draw = new QPushButton("Set AutoScale");
+  m_button_draw = new QPushButton("Set AutoScale");
 
   m_line_function_name = new QLineEdit();
   m_line_function = new QLineEdit();
 
-  button_generate_function = new QPushButton("Generate Function");
+  m_button_generate_function = new QPushButton("Generate Function");
 
   set_data(fcts,fcts_label);
 
   //adding widget & layout to layout
   vertical_line_table_layout->addWidget(m_line_table);
-  vertical_line_table_layout->addWidget(button_draw);
+  vertical_line_table_layout->addWidget(m_button_draw);
 
-  QLabel * name_fct = new QLabel("Name :");
-  QLabel * fct_fct = new QLabel("Function :");
+  QPointer<QLabel> name_fct = new QLabel("Name :");
+  QPointer<QLabel> fct_fct = new QLabel("Function :");
 
   //data part
   grid_data_table_layout->addWidget(m_data_table,0,0,1,2);
@@ -106,21 +105,37 @@ QWidget(parent)
   grid_data_table_layout->addWidget(m_line_function_name,1,1,1,1);
   grid_data_table_layout->addWidget(fct_fct,2,0,1,1);
   grid_data_table_layout->addWidget(m_line_function,2,1,1,1);
-  grid_data_table_layout->addWidget(button_generate_function,3,0,1,2);
+  grid_data_table_layout->addWidget(m_button_generate_function,3,0,1,2);
+
+  //set size inside the data layout to a small size
+  m_data_table->setMaximumWidth(250);
+  m_data_table->setColumnWidth(0,70);
+  m_data_table->setColumnWidth(1,100);
+  name_fct->setMaximumWidth(100);
+  m_line_function_name->setMaximumWidth(150);
+  fct_fct->setMaximumWidth(100);
+  m_line_function->setMaximumWidth(150);
+  m_button_generate_function->setMaximumWidth(250);
+
 
   //button line part
   vertical_line_button_layout->addWidget(button_add_line);
   vertical_line_button_layout->addWidget(button_select_all);
   vertical_line_button_layout->addWidget(button_clear_selection);
   vertical_line_button_layout->addWidget(button_remove_line);
+  m_line_table->setColumnWidth(0,20);
+  m_line_table->setColumnWidth(1,60);
+  m_line_table->setColumnWidth(2,60);
 
   //main option layout
   horisontal_table_layout->addLayout(grid_data_table_layout);
   horisontal_table_layout->addLayout(vertical_line_table_layout);
   horisontal_table_layout->addLayout(vertical_line_button_layout);
 
-  connect (button_draw, SIGNAL (clicked()), this, SLOT (draw_and_resize()));
-  connect (button_generate_function, SIGNAL (clicked()), this, SLOT (generate_function()));
+
+  //connections
+  connect (m_button_draw, SIGNAL (clicked()), this, SLOT (draw_and_resize()));
+  connect (m_button_generate_function, SIGNAL (clicked()), this, SLOT (generate_function()));
   connect (button_add_line, SIGNAL (clicked()), this, SLOT (add_line()));
   connect (button_remove_line, SIGNAL (clicked()), this, SLOT (remove_line()));
   connect (button_clear_selection, SIGNAL (clicked()), this, SLOT
@@ -136,7 +151,7 @@ void GraphOption::draw_action(){
 
     m_can_draw = false;
 
-    button_draw->setEnabled(false);
+    m_button_draw->setEnabled(false);
 
     m_ptr_plot->clear(); //detache all curve and clear the legend
 
@@ -168,7 +183,7 @@ void GraphOption::draw_action(){
 
     m_ptr_plot->replot();
 
-    button_draw->setEnabled(true);
+    m_button_draw->setEnabled(true);
 
     m_can_draw = true;
 
@@ -293,13 +308,13 @@ void  GraphOption::generate_function(){
 
 void  GraphOption::generate_function(QString name,QString formula){
 
-  button_generate_function->setEnabled(false);
+  m_button_generate_function->setEnabled(false);
 
 
   //ferification of name and formula input
   if(name.isEmpty() || formula.isEmpty()){
     ClientCore::NLog::globalLog()->addError("Please give function's name and formula.");
-    button_generate_function->setEnabled(true);
+    m_button_generate_function->setEnabled(true);
     return;
   }
 
@@ -307,7 +322,7 @@ void  GraphOption::generate_function(QString name,QString formula){
   for(int i=0; i < m_data_table->rowCount(); ++i){
     if((((QLabel *)m_data_table->cellWidget(i,0))->text()) == name){
       ClientCore::NLog::globalLog()->addError("The function name already exist.");
-      button_generate_function->setEnabled(true);
+      m_button_generate_function->setEnabled(true);
       return;
     }
   }
@@ -331,7 +346,7 @@ void  GraphOption::generate_function(QString name,QString formula){
 
   if(res > 0){
     ClientCore::NLog::globalLog()->addError("The function is not recognized.");
-    button_generate_function->setEnabled(true);
+    m_button_generate_function->setEnabled(true);
     return;
   }
 
@@ -342,7 +357,7 @@ void  GraphOption::generate_function(QString name,QString formula){
     max_it = m_fcts->size();
   }else{
     ClientCore::NLog::globalLog()->addError("The function is not recognized.");
-    button_generate_function->setEnabled(true);
+    m_button_generate_function->setEnabled(true);
     return;
   }
   //</to remove>
@@ -364,7 +379,7 @@ void  GraphOption::generate_function(QString name,QString formula){
   this->add_data(vector_temp,name,formula);
 
   //get back the button and clear the name and function line
-  button_generate_function->setEnabled(true);
+  m_button_generate_function->setEnabled(true);
   m_line_function->clear();
   m_line_function_name->clear();
 
@@ -545,7 +560,7 @@ void GraphOption::save_functions(){
   if(m_data_table->rowCount() > 0){
 
     //the popup dialog box
-    QDialog* popup_save_to_text = new QDialog(this);
+    QPointer<QDialog> popup_save_to_text = new QDialog(this);
 
     //the table where we check desired function
     m_choose_table = new QTableWidget(0,2,0);
@@ -569,8 +584,8 @@ void GraphOption::save_functions(){
     }
 
     //adding Done and Save button
-    QPushButton * btn_save = new QPushButton("SAVE", popup_save_to_text);
-    QPushButton * btn_done = new QPushButton("DONE", popup_save_to_text);
+    QPointer<QPushButton> btn_save = new QPushButton("SAVE", popup_save_to_text);
+    QPointer<QPushButton> btn_done = new QPushButton("DONE", popup_save_to_text);
 
     //connect them to their actions
     connect(btn_done, SIGNAL(released()),popup_save_to_text,SLOT(close()));
@@ -578,8 +593,8 @@ void GraphOption::save_functions(){
     connect(btn_save, SIGNAL(released()),this,SLOT(save_functions_to_file_no_buffering()));
 
     //the 2 layout of the popup for nice look & feel
-    QVBoxLayout * vertical_popup_layout = new QVBoxLayout();
-    QHBoxLayout * horisontal_popup_layout = new QHBoxLayout();
+    QPointer<QVBoxLayout> vertical_popup_layout = new QVBoxLayout();
+    QPointer<QHBoxLayout> horisontal_popup_layout = new QHBoxLayout();
     popup_save_to_text->setLayout(vertical_popup_layout);
     vertical_popup_layout->addWidget(m_choose_table);
     vertical_popup_layout->addLayout(horisontal_popup_layout);
