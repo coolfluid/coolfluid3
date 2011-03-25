@@ -23,7 +23,7 @@ if( QT_FOUND )
      math( EXPR ParaView_LIB_INDEX "${ParaView_LIB_COUNT} - 1" )
 
      # iterate over the found ParaView installations
-     while( (NOT ${ParaView_LIB_INDEX} LESS 0) AND "${ParaView_DIR}" STREQUAL "")
+     while( ${ParaView_LIB_INDEX} GREATER -1 AND "${ParaView_DIR}" STREQUAL "")
        list( GET ParaView_LIB_DIRS ${ParaView_LIB_INDEX} ParaView_TMP_DIR)
 
        # check that config version script exists
@@ -41,11 +41,18 @@ if( QT_FOUND )
    endif()
 
    if( NOT "${ParaView_DIR}" STREQUAL "" )
+     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${ParaView_DIR} )
      find_package(ParaView)
    endif()
 
    if( NOT ${ParaView_FOUND} )
      coolfluid_log("Warning: no compatible ParaView installation could be found under [${ParaView_ROOT}]. The minimum version supported is ${ParaView_MINIMUM_SUPPORTED_VERSION}.")
+   else()
+     if(APPLE)
+       file( GLOB ParaView_LIBRARIES "${ParaView_DIR}/*.dylib")
+     elseif(UNIX)
+       file( GLOB ParaView_LIBRARIES "${ParaView_DIR}/*.so")
+     endif()
    endif()
   endif()
 else()
