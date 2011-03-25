@@ -255,7 +255,13 @@ void MainWindow::buildMenus()
   action = m_mnuHelp->addAction("&Help", this, SLOT(showHelp()), tr("F1"));
   m_actions[ACTION_HELP] = action;
 
-  m_mnuHelp->addAction("&COOLFluiD Official Wiki Page", this, SLOT(showWiki()));
+  m_mnuView->addSeparator();
+
+  action = m_mnuHelp->addAction("&COOLFluiD Website", this, SLOT(goToWebSite()));
+  m_actions[ACTION_GOTO_WEBSITE] = action;
+
+  action = m_mnuHelp->addAction("&COOLFluiD Wiki Page", this, SLOT(goToWebSite()));
+  m_actions[ACTION_GOTO_WIKI] = action;
 
   m_mnuView->addSeparator();
 
@@ -407,9 +413,15 @@ void MainWindow::showHelp()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::showWiki()
+void MainWindow::goToWebSite()
 {
-  QDesktopServices::openUrl(QUrl("https://coolfluidsrv.vki.ac.be/redmine/projects/coolfluid3/wiki"));
+  QUrl url;
+  if(sender() == m_actions[ACTION_GOTO_WIKI])
+    url.setUrl("https://coolfluidsrv.vki.ac.be/redmine/projects/coolfluid3/wiki");
+  else
+    url.setUrl("http://coolfluidsrv.vki.ac.be/trac/coolfluid");
+
+  QDesktopServices::openUrl(url);
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -83,6 +83,10 @@ namespace ClientUI {
 
       ACTION_HELP,
 
+      ACTION_GOTO_WIKI,
+
+      ACTION_GOTO_WEBSITE,
+
       ACTION_ABOUT_COOLFLUID,
 
       ACTION_ABOUT_QT
@@ -124,7 +128,7 @@ namespace ClientUI {
 
     void showHelp();
 
-    void showWiki();
+    void goToWebSite();
 
     void newException(const QString &);
 
