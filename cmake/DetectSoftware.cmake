@@ -22,16 +22,21 @@ endif()
 
 find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest QtSvg )
 
-if(NOT DEFINED QT_FOUND)
-  set(QT_FOUND NO)
+if(NOT DEFINED QT4_FOUND)
+  set(QT4_FOUND NO)
 endif()
 
-coolfluid_log("QT_FOUND: [${QT_FOUND}]")
+coolfluid_log("QT_FOUND: [${QT4_FOUND}]")
 
-if(${QT_FOUND})
+if(${QT4_FOUND})
   coolfluid_log_file("Qt version: [${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}]")
   coolfluid_log_file("Qt libs: [${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTTEST_LIBRARY}]")
 endif()
+
+##############################################################################
+#  Find ParaView
+
+include( DetectParaView )
 
 ##############################################################################
 # find non essential packages
