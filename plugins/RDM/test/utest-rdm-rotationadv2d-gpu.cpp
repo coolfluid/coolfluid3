@@ -140,8 +140,8 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 1.);
-  solver.get_child("time_stepping").configure_property("MaxIter", 1u);
+  solver.get_child("time_stepping").configure_property("CFL", 0.1);
+  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -156,8 +156,13 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
     regions.push_back( region.full_path() );
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"farfield"))
+    regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( regions.size() , 1u);
+
+  //regions.push_back( regions.full_path() );
+
+  BOOST_CHECK_EQUAL( regions.size() , 2u);
 
   std::string name ("INLET");
 
@@ -171,7 +176,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   cf_assert( is_not_null(inletbc) );
 
   inletbc->
-      configure_property("Function", std::string("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)") );
+      configure_property("Function", std::string("if(y>0,0,if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.))") );
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
@@ -188,7 +193,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , rotationadv2d_local_fixtur
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<std::string> functions(1);
-  functions[0] = "x*x+y*y";
+  functions[0] = "0.0";
   options.set_array("Functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
