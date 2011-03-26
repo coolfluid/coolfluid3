@@ -39,8 +39,6 @@
 
 #include "Mesh/CField.hpp"
 
-#include "Tools/Testing/TimedTestFixture.hpp"
-
 #include "CEigenLSS.hpp"
 
 
@@ -48,7 +46,6 @@ namespace CF {
 namespace Solver {
 
 using namespace CF::Mesh;
-using namespace CF::Tools::Testing;
   
 CF::Common::ComponentBuilder < CEigenLSS, Common::Component, LibSolver > aCeigenLSS_Builder;
 
