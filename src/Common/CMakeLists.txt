@@ -102,6 +102,8 @@ list( APPEND coolfluid_common_files
     SignalHandler.cpp
     TaggedObject.hpp
     TaggedObject.cpp
+    Timer.cpp    
+    Timer.hpp
     TypeInfo.cpp
     TypeInfo.hpp
     URI.hpp

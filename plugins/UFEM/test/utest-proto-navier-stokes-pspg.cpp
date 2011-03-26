@@ -24,6 +24,7 @@
 #include "Common/Log.hpp"
 #include "Common/LibLoader.hpp"
 #include "Common/OSystem.hpp"
+#include "Common/Timer.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -38,7 +39,6 @@
 
 #include "Solver/CEigenLSS.hpp"
 
-#include "Tools/Testing/TimedTestFixture.hpp"
 
 using namespace CF;
 using namespace CF::Solver;
@@ -47,7 +47,6 @@ using namespace CF::Solver::Actions::Proto;
 using namespace CF::Common;
 using namespace CF::Math::MathConsts;
 using namespace CF::Mesh;
-using namespace CF::Tools::Testing;
 
 using namespace boost;
 

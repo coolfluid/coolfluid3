@@ -36,6 +36,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/MPI/PE.hpp"
+#include "Common/Timer.hpp"
 
 #include "Mesh/CField.hpp"
 
@@ -45,6 +46,7 @@
 namespace CF {
 namespace Solver {
 
+using namespace CF::Common;
 using namespace CF::Mesh;
   
 CF::Common::ComponentBuilder < CEigenLSS, Common::Component, LibSolver > aCeigenLSS_Builder;
