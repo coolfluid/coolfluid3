@@ -18,7 +18,7 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CSolver::CSolver ( const std::string& name  ) :
-  CMethod ( name )
+  Component ( name )
 {
   mark_basic();
 

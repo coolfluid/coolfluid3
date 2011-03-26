@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/CMethod.hpp"
+#include "Common/Component.hpp"
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
@@ -21,7 +21,7 @@ namespace Solver {
 /// Iterative solver component
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class Solver_API CSolver : public Solver::CMethod {
+class Solver_API CSolver : public Common::Component {
 
 public: // typedefs
 
