@@ -380,8 +380,7 @@ void BasicCommands::configure(const std::vector<std::string>& params)
   {
     std::vector<std::string> conf_options(params.size()-1);
     for (Uint i=0; i<conf_options.size(); ++i)
-      conf_options[i] = params[i+1];
-
+       conf_options[i] = params[i+1];
 
     comp->configure( conf_options );
   }
@@ -403,14 +402,20 @@ void BasicCommands::create(const std::vector<std::string>& params)
 {
   if (params.size() != 2)
     throw SetupError(FromHere(),"2 parameters needed for command [create name builder]");
-  const std::string& name = params[0];
+  const std::string& new_component_path = params[0];
+  
+  Component::Ptr parent_component = current_component->access_component_ptr(URI(new_component_path).base_path());
+  if ( is_null(parent_component) )
+    throw ValueNotFound(FromHere(), "component " + URI(new_component_path).base_path().path() + " was not found in " + current_component->full_path().path());
+
+  std::string name = URI(new_component_path).name();
   
   using namespace boost::algorithm;
   std::string builder = params[1];
   std::string builder_name_space (builder.begin(),find_last(builder,".").begin());
   
   Component::Ptr built_component = Core::instance().root()->access_component(URI("cpath://Root/Libraries/"+builder_name_space+"/"+builder)).follow()->as_type<CBuilder>().build(name);
-  current_component->add_component(built_component);
+  parent_component->add_component(built_component);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
