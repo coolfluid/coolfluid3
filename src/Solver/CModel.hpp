@@ -13,8 +13,11 @@
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
-namespace Mesh { class CDomain; }
+  namespace Mesh { class CDomain; }
 namespace Solver {
+
+  class CPhysicalModel;
+  class CSolver;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,8 +49,20 @@ public: // functions
   /// creates a domain in this model
   virtual Mesh::CDomain& create_domain( const std::string& name );
 
+  /// create physics
+  virtual CPhysicalModel& create_physics( const std::string& name );
+
+  /// create physics
+  virtual CSolver& create_solver( const std::string& name );
+
   /// gets the domain from this model
   virtual Mesh::CDomain& domain();
+
+  /// gets the physics from this model
+  virtual CPhysicalModel& physics();
+
+  /// gets the solver from this model
+  virtual CSolver& solver();
 
   /// Simulates this model
   virtual void simulate() = 0;
@@ -55,10 +70,20 @@ public: // functions
   /// @name SIGNALS
   //@{
 
+  /// Signature of create physics signal @see signal_create_domain
+  void signature_create_physics ( Common::SignalArgs& node );
+  /// Signal to create the physics
+  void signal_create_physics ( Common::SignalArgs& node );
+
   /// Signature of create domain signal @see signal_create_domain
   void signature_create_domain ( Common::SignalArgs& node );
   /// Signal to create a domain and load a mesh into it
   void signal_create_domain ( Common::SignalArgs& node );
+
+  /// Signature of create domain signal @see signal_create_domain
+  void signature_create_solver ( Common::SignalArgs& node );
+  /// Signal to create a domain and load a mesh into it
+  void signal_create_solver ( Common::SignalArgs& node );
 
   /// Signal to start simulating
   void signal_simulate ( Common::SignalArgs& node );
