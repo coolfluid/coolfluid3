@@ -37,6 +37,22 @@ struct VolumeOp : boost::proto::transform< VolumeOp >
   };
 };
 
+/// Element nodes
+struct NodesOp : boost::proto::transform< NodesOp >
+{
+  template<typename VarT, typename MappedCoordsT, typename DataT>
+  struct impl : boost::proto::transform_impl<VarT, MappedCoordsT, DataT>
+  {
+    typedef const typename boost::remove_reference<DataT>::type::SupportT::SF::NodeMatrixT& result_type;
+    
+    result_type operator()(typename impl::expr_param, typename impl::state_param, typename impl::data_param data)
+    {
+      return data.support().nodes();
+    }
+    
+  };
+};
+
 /// Interpolated real-world coordinates at mapped coordinates
 struct CoordinatesOp : boost::proto::transform< CoordinatesOp >
 {
@@ -260,6 +276,7 @@ struct AdvectionElmOp : boost::proto::transform< AdvectionElmOp >
 
 /// Static terminals that can be used in proto expressions
 boost::proto::terminal<VolumeOp>::type const volume = {};
+boost::proto::terminal<NodesOp>::type const nodes = {};
 
 boost::proto::terminal<CoordinatesOp>::type const coordinates = {};
 boost::proto::terminal<JacobianOp>::type const jacobian = {};
@@ -285,7 +302,11 @@ boost::proto::terminal<LinearizeOp>::type const linearize = {};
 
 /// SF operations needing only a support
 struct SFSupportOp :
-  boost::proto::terminal< VolumeOp >
+  boost::proto::or_
+  <
+    boost::proto::terminal< VolumeOp >,
+    boost::proto::terminal< NodesOp >
+  >
 {
 };
 

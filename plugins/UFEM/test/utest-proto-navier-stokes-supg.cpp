@@ -63,12 +63,13 @@ Real tau_pspg(const Real volume, const Real nu, const Real u_ref)
 
 static boost::proto::terminal< Real(*)(Real, Real, Real) >::type const _tau_pspg = {&tau_pspg};
 
-Real tau_supg(const Eigen::Matrix<Real, 1, 2>& c, const Eigen::Matrix<Real, 1, 2>& u, const Eigen::Matrix<Real, 1, 3>& sf)
+Real tau_supg(const Eigen::Matrix<Real, 3, 2>& el_nodes, const Eigen::Matrix<Real, 1, 2>& u, const Eigen::Matrix<Real, 1, 3>& sf)
 {
   const Real umag = u * u.transpose();
   if(umag > 1e-10)
   {
-    const Real h = 1. / (c * (u.transpose() / umag));
+    //const Real h = 1. / (c * (u.transpose() / umag));
+    const Real h = 2. * SF::Triag2DLagrangeP1::volume(el_nodes) / (el_nodes * (u.transpose() / umag)).array().abs().sum();
     Real ree=umag*h/(2.*0.01); // 0.01 = nu
     Real xi=std::max(0.,std::min(ree/3.,1.));
     return h*xi/(2.*umag);
@@ -77,7 +78,7 @@ Real tau_supg(const Eigen::Matrix<Real, 1, 2>& c, const Eigen::Matrix<Real, 1, 2
   return 0.;
 }
 
-static boost::proto::terminal< Real(*)(const Eigen::Matrix<Real, 1, 2>&, const Eigen::Matrix<Real, 1, 2>&, const Eigen::Matrix<Real, 1, 3>&) >::type const _tau_supg = {&tau_supg};
+static boost::proto::terminal< Real(*)(const Eigen::Matrix<Real, 3, 2>&, const Eigen::Matrix<Real, 1, 2>&, const Eigen::Matrix<Real, 1, 3>&) >::type const _tau_supg = {&tau_supg};
 
 /// Probe based on a coordinate value
 void probe(const Real coord, const Real val, Real& result)
@@ -96,7 +97,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   int    argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
-  std::ofstream outfile("navier-stokes-pspg-stats.txt");
+  std::ofstream outfile("navier-stokes-supg-stats.txt");
   outfile << "# Time(s) Velocity magnitude(m_s)" << std::endl;
   
   const Real cell_size = 0.1;
@@ -193,7 +194,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
       group <<
       (
         boost::proto::lit(tau_ps) = _tau_pspg(volume, mu/rho, u_inf[0]),
-        boost::proto::lit(tau_su) = _tau_supg(coordinates(centroid), u(centroid), shape_function(u, centroid)),
+        boost::proto::lit(tau_su) = _tau_supg(nodes, u(centroid), shape_function(u, centroid)),
         _A(p) = integral<1>((                                     // Mass equation
                   divergence_elm(u)                                          // standard
                 + tau_ps * laplacian_elm(p)                                  // PSPG
