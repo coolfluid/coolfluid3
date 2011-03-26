@@ -1175,79 +1175,64 @@ void Component::configure (const std::vector<std::string>& args)
       {
         std::vector<std::string> array;
         
-        if (subtype == "string")
+        // the strings could have comma's inside, brackets, etc...
+        Uint in_brackets(0);
+        std::string::iterator first = value.begin();
+        std::string::iterator it = first;
+        for ( ; it!=value.end(); ++it)
         {
-          // the strings could have comma's inside, brackets, etc...
-          Uint in_brackets(0);
-          std::string::iterator first = value.begin();
-          std::string::iterator it = first;
-          for ( ; it!=value.end(); ++it)
+          if (*it == '(') // opening bracket
+            ++in_brackets;
+          else if (*it == ')') // closing bracket
+            --in_brackets;
+          else if (*it == ',' && in_brackets == 0)
           {
-            if (*it == '(') // opening bracket
-              ++in_brackets;
-            else if (*it == ')') // closing bracket
-              --in_brackets;
-            else if (*it == ',' && in_brackets == 0)
-            {
-              array.push_back(std::string(first,it));
-              boost::algorithm::trim(array.back());
-              first = it+1;
-            }             
-          }
-          array.push_back(std::string(first,it));
-          boost::algorithm::trim(array.back());
+            array.push_back(std::string(first,it));
+            boost::algorithm::trim(array.back());
+            first = it+1;
+          }             
+        }
+        array.push_back(std::string(first,it));
+        boost::algorithm::trim(array.back());
+
+        if (subtype == "bool")
+        {
+          std::vector<bool> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<bool>(str_val));
+          configure_property(name,vec);
+        }
+        else if (subtype == "unsigned")
+        {
+          std::vector<Uint> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<Uint>(str_val));
+          configure_property(name,vec);
+        }
+        else if (subtype == "integer")
+        {
+          std::vector<int> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<int>(str_val));
+          configure_property(name,vec);
+        }
+        else if (subtype == "real")
+        {
+          std::vector<Real> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<Real>(str_val));
+          configure_property(name,vec);
+        }
+        else if (subtype == "string")
+        {
           configure_property(name,array);
         }
-        else
+        else if (subtype == "uri")
         {
-          typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-          boost::char_separator<char> sep(",");
-          Tokenizer tokens(value, sep);
-
-          for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
-          {
-            array.push_back(*tok_iter);
-            boost::algorithm::trim(array.back()); // remove leading and trailing spaces
-          }
-          if (subtype == "bool")
-          {
-            std::vector<bool> vec; vec.reserve(array.size());
-            boost_foreach(const std::string& str_val,array)
-              vec.push_back(from_str<bool>(str_val));
-            configure_property(name,vec);
-          }
-          else if (subtype == "unsigned")
-          {
-            std::vector<Uint> vec; vec.reserve(array.size());
-            boost_foreach(const std::string& str_val,array)
-              vec.push_back(from_str<Uint>(str_val));
-            configure_property(name,vec);
-          }
-          else if (subtype == "integer")
-          {
-            std::vector<int> vec; vec.reserve(array.size());
-            boost_foreach(const std::string& str_val,array)
-              vec.push_back(from_str<int>(str_val));
-            configure_property(name,vec);
-          }
-          else if (subtype == "real")
-          {
-            std::vector<Real> vec; vec.reserve(array.size());
-            boost_foreach(const std::string& str_val,array)
-              vec.push_back(from_str<Real>(str_val));
-            configure_property(name,vec);
-          }
-          else if (subtype == "string")
-          {
-            configure_property(name,array);
-          }
-          else if (subtype == "uri")
-          {
-            std::vector<URI> vec; vec.reserve(array.size());
-            boost_foreach(const std::string& str_val,array)
-              vec.push_back(from_str<URI>(str_val));
-            configure_property(name,vec);
-          }
+          std::vector<URI> vec; vec.reserve(array.size());
+          boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<URI>(str_val));
+          configure_property(name,vec);
         }
         
       }

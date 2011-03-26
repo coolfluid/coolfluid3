@@ -1,4 +1,6 @@
-# known to work with svn revision 2560
+# known to work with svn revision 2562
+# requires to load coolfluid_fvm library
+# in bash: export COOLFLUID_PLUGINS=path/to/libcoolfluid_fvm.dylib
 
 #############################################################################
 ### create model
@@ -18,7 +20,7 @@ configure Physics Dimensions:unsigned=2
 ### create domain
 call create_domain
 
-### Generate a mesh generator in tools
+### Create a mesh generator in tools
 create tools/generate_simple_mesh   CF.Mesh.CSimpleMeshGenerator
 configure tools/generate_simple_mesh\
   parent:uri=cpath://Root/shocktube/Domain\
@@ -42,11 +44,14 @@ tools/transform_mesh_for_FVM
 call create_solver builder:string=CF.FVM.FiniteVolumeSolver
 
 ### create boundary conditions
-call FiniteVolumeSolver/create_bc Name:string=top_bottom_left_right builder:string=CF.FVM.BCReflectCons2D Regions:array[uri]=\
-cpath://Root/shocktube/Domain/mesh/topology/top,\
-cpath://Root/shocktube/Domain/mesh/topology/bottom,\
-cpath://Root/shocktube/Domain/mesh/topology/left,\
-cpath://Root/shocktube/Domain/mesh/topology/right
+call FiniteVolumeSolver/create_bc \
+  Name:string=top_bottom_left_right \
+  builder:string=CF.FVM.BCReflectCons2D \
+  "Regions:array[uri]=\
+    cpath://Root/shocktube/Domain/mesh/topology/top, \
+    cpath://Root/shocktube/Domain/mesh/topology/bottom, \
+    cpath://Root/shocktube/Domain/mesh/topology/left, \
+    cpath://Root/shocktube/Domain/mesh/topology/right"
 
 ### initialize the solution
 create tools/initialize_solution     CF.Mesh.Actions.CInitFieldFunction
