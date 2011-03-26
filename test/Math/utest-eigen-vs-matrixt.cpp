@@ -11,6 +11,7 @@
 
 #include <Eigen/Dense>
 
+#include "Common/CF.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
 using namespace std;
