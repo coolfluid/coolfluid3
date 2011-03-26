@@ -21,15 +21,19 @@
 #include "FVM/ComputeUpdateCoefficient.hpp"
 #include "FVM/UpdateSolution.hpp"
 #include "FVM/OutputIterationInfo.hpp"
+#include "FVM/BC.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CDomain.hpp"
 #include "Mesh/Actions/CInitFieldConstant.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CPhysicalModel.hpp"
+#include "Solver/CTime.hpp"
+
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoop.hpp"
 #include "Solver/Actions/CIterate.hpp"
@@ -78,12 +82,21 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
     
   properties()["description"] = description;
 
-  m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &FiniteVolumeSolver::trigger_Domain,   this ) );
-  
-  properties().add_option(OptionComponent<CPhysicalModel>::create("physical_model","Physical Model",&m_physical_model));
 
-  this->regist_signal ( "solve" , "Solve", "Solve" )->signal->connect ( boost::bind ( &FiniteVolumeSolver::solve, this ) );
+  // Properties
+  property("Domain").as_option().attach_trigger ( boost::bind ( &FiniteVolumeSolver::trigger_domain,   this ) );
+    
+  properties().add_option(OptionURI::create("physical_model","Physical Model","cpath:../Physics",URI::Scheme::CPATH))
+    ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_physical_model, this ) );
+    
+  properties().add_option(OptionURI::create("time","Time","Time tracking component","cpath:../Time",URI::Scheme::CPATH))
+    ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_time, this ) );
 
+  // Signals
+  this->regist_signal ( "create_bc" , "Create Boundary Condition", "Create Boundary Condition" )->signal->connect ( boost::bind ( &FiniteVolumeSolver::signal_create_bc, this , _1) );
+
+
+  // initializations
   m_solution = create_static_component<CLink>("solution");
   m_residual = create_static_component<CLink>("residual");
   m_wave_speed = create_static_component<CLink>("wave_speed");
@@ -129,11 +142,14 @@ FiniteVolumeSolver::~FiniteVolumeSolver()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FiniteVolumeSolver::trigger_Domain()
+void FiniteVolumeSolver::trigger_domain()
 {
-  URI domain; property("Domain").put_value(domain);
+  if (m_physical_model.expired())
+    trigger_physical_model();
 
-  CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>(*access_component_ptr(domain));
+  URI domain; property("Domain").put_value(domain);
+  m_domain = access_component_ptr_checked(domain)->as_ptr_checked<CDomain>();
+  CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>(*m_domain.lock());
   if (is_null(mesh))
     throw SetupError(FromHere(),"Domain has no mesh");
 
@@ -143,7 +159,7 @@ void FiniteVolumeSolver::trigger_Domain()
   add_flux_to_rhs->mark_basic();
   m_compute_rhs->get_child("2.3_for_all_faces").add_component(add_flux_to_rhs);
 
-  if ( is_null(find_component_ptr_with_tag<CField>(*mesh,"face_normal") ) )
+  if ( is_null(find_component_ptr_with_name<CField>(*mesh,"face_normal") ) )
   {
     CFinfo << "  Creating field \"face_normal\", facebased" << CFendl;
     CBuildFaceNormals::Ptr build_face_normals = create_component<CBuildFaceNormals>("build_face_normals");
@@ -152,7 +168,7 @@ void FiniteVolumeSolver::trigger_Domain()
     configure_option_recursively("face_normal", find_component_with_tag<CField>(*mesh,"face_normal").full_path());
   }
 
-  if ( is_null(find_component_ptr_with_tag<CField>(*mesh,"area") ) )
+  if ( is_null(find_component_ptr_with_name<CField>(*mesh,"area") ) )
   {
     CFinfo << "  Creating field \"area\", facebased" << CFendl;
     CField& area = mesh->create_field2("area","FaceBased");
@@ -166,7 +182,7 @@ void FiniteVolumeSolver::trigger_Domain()
   }
   
   // create/initialize a solution if it is not available
-  CField::Ptr solution_ptr = find_component_ptr_with_tag<CField>(*mesh,"solution");
+  CField::Ptr solution_ptr = find_component_ptr_with_name<CField>(*mesh,"solution");
   if ( is_null(solution_ptr) )
   {
     ///@todo get variable names etc, from Physics
@@ -175,8 +191,7 @@ void FiniteVolumeSolver::trigger_Domain()
     solution.add_tag("solution"); 
   }
 
-
-  CField& solution = find_component_with_tag<CField>(*mesh,"solution");
+  CField& solution = find_component_with_name<CField>(*mesh,"solution");
   m_solution->link_to(solution.self());    
 
   Component::Ptr residual_ptr = find_component_ptr_with_tag(*mesh,"residual");
@@ -188,7 +203,7 @@ void FiniteVolumeSolver::trigger_Domain()
   }
   m_residual->link_to(residual_ptr);
 
-  Component::Ptr wave_speed_ptr = find_component_ptr_with_tag(*mesh,"wave_speed");
+  Component::Ptr wave_speed_ptr = find_component_ptr_with_name(*mesh,"wave_speed");
   if ( is_null(wave_speed_ptr) )
   {
     CFinfo << "  Creating field \"wave_speed\", cellbased" << CFendl;
@@ -197,7 +212,7 @@ void FiniteVolumeSolver::trigger_Domain()
   }
   m_wave_speed->link_to(wave_speed_ptr);
 
-  Component::Ptr update_coeff_ptr = find_component_ptr_with_tag(*mesh,"update_coeff");
+  Component::Ptr update_coeff_ptr = find_component_ptr_with_name(*mesh,"update_coeff");
   if ( is_null(update_coeff_ptr) )
   {
     CFinfo << "  Creating field \"update_coeff\", cellbased" << CFendl;
@@ -211,9 +226,51 @@ void FiniteVolumeSolver::trigger_Domain()
 
 //////////////////////////////////////////////////////////////////////////////
 
+void FiniteVolumeSolver::trigger_time()
+{
+  URI time_uri = property("time").value<URI>();
+  Component::Ptr time_ptr = access_component_ptr(time_uri);
+  if (is_null(time_ptr))
+  {
+    CFinfo << "No time component found at [" << time_uri.path() << "]. Performing steady state computations." << CFendl;
+  }
+  else
+  {
+    m_time = time_ptr->as_ptr_checked<CTime>();
+    configure_option_recursively("time",m_time.lock()->full_path());
+    configure_option_recursively("time_accurate",true);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void FiniteVolumeSolver::trigger_physical_model()
+{
+  URI uri = property("physical_model").value<URI>();
+  Component::Ptr ptr = access_component_ptr(uri);
+  if (is_null(ptr))
+  {
+    throw SetupError (FromHere(),"Physical Model not found in ["+uri.path()+"]");
+  }
+  else
+  {
+    m_physical_model = ptr->as_ptr_checked<CPhysicalModel>();
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 void FiniteVolumeSolver::solve()
 {
-  if ( is_null(m_solution->follow()) )  throw SetupError (FromHere(), "solution is not linked to solution field");
+  if ( m_physical_model.expired() == true )
+    trigger_physical_model();
+  
+  if ( m_domain.expired() == true )
+    trigger_domain();
+
+  if ( m_time.expired() == true )
+    trigger_time();
+    
   m_iterate->execute();
 }
 
@@ -247,13 +304,60 @@ CAction& FiniteVolumeSolver::create_bc(const std::string& name, const CRegion& r
 
 void FiniteVolumeSolver::auto_config_fields(Component& parent)
 {
-  URI domain; property("Domain").put_value(domain);
-  CMesh& mesh = find_component_recursively<CMesh>(access_component(domain));
+  if ( m_domain.expired() == true )
+    trigger_domain();
+  
+  CMesh& mesh = find_component_recursively<CMesh>(*m_domain.lock());
 
   boost_foreach(CField& field, find_components<CField>(mesh) )
   {
     parent.configure_option_recursively(field.name(), field.full_path());    
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void FiniteVolumeSolver::signal_create_bc( SignalArgs& node )
+{
+  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  
+  std::string name = options.get_option<std::string>("Name");
+  std::string builder = options.get_option<std::string>("builder");
+  std::vector<URI> regions_uri = options.get_array<URI>("Regions");
+  std::vector<CRegion::Ptr> regions(regions_uri.size());
+  for (Uint i=0; i<regions_uri.size(); ++i)
+  {
+    regions[i] = access_component(regions_uri[i]).as_ptr_checked<CRegion>();
+  }
+  create_bc(name,regions,builder);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void FiniteVolumeSolver::signature_create_bc( SignalArgs& node )
+{
+    SignalFrame & options = node.map( Protocol::Tags::key_options() );
+
+    // name
+    options.set_option<std::string>("Name", std::string(), "Name for created boundary term" );
+
+    // type
+    CFactory::Ptr bc_factory = Core::instance().factories()->get_factory<BC>();
+    std::vector<std::string> bcs;
+
+    // build the restricted list
+    boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *bc_factory ) )
+      bcs.push_back(bdr.name());
+
+    // create de value and add the restricted list
+    XmlNode bcs_node = options.set_option( "builder", std::string() , "Choose BC" );
+    Map(bcs_node).set_array( Protocol::Tags::key_restricted_values(), bcs, " ; ");  
+
+    // regions
+    std::vector<URI> dummy;
+    // create here the list of restricted surface regions
+    options.set_array<URI>("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -29,12 +29,13 @@ namespace FVM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BCReflectCons1D, CAction, LibFVM > BCReflectCons1D_Builder;
+Common::ComponentBuilder < BCReflectCons1D, BC, LibFVM > BCReflectCons1D_Builder;
+Common::ComponentBuilder < BCReflectCons1D, CAction, LibFVM > BCReflectCons1D_CAction_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
 BCReflectCons1D::BCReflectCons1D ( const std::string& name ) : 
-  CLoopOperation(name),
+  BC(name),
   m_connected_solution("solution_view"),
   m_face_normal("face_normal")
 {

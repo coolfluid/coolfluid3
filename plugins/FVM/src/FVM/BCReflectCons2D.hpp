@@ -7,8 +7,7 @@
 #ifndef CF_FVM_BCReflectCons2D_hpp
 #define CF_FVM_BCReflectCons2D_hpp
 
-#include "Solver/Actions/CLoopOperation.hpp"
-#include "FVM/LibFVM.hpp"
+#include "FVM/BC.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +20,7 @@ namespace FVM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class FVM_API BCReflectCons2D : public Solver::Actions::CLoopOperation
+class FVM_API BCReflectCons2D : public BC
 {
 public: // typedefs
 

@@ -25,11 +25,13 @@ namespace Solver {
     class CIterate;     
   }
   class CPhysicalModel;
+  class CTime;
 }
 
 namespace Mesh {
   class CField;
   class CRegion;
+  class CDomain;
 }
 
 namespace FVM {
@@ -69,6 +71,7 @@ public: // functions
 
   /// creates a boundary condition
   void signal_create_bc( Common::SignalArgs& xml );
+  void signature_create_bc( Common::SignalArgs& xml );
 
   //@} END SIGNALS
 
@@ -79,7 +82,11 @@ public: // functions
   
 private: // functions
 
-  void trigger_Domain();
+  void trigger_domain();
+
+  void trigger_time();
+
+  void trigger_physical_model();
   
   void auto_config_fields(Component& parent);
 
@@ -97,6 +104,8 @@ private: // data
   boost::shared_ptr<UpdateSolution> m_update_solution;
 
   boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
+  boost::weak_ptr<Solver::CTime>          m_time;
+  boost::weak_ptr<Mesh::CDomain>        m_domain;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

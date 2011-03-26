@@ -1,6 +1,7 @@
 list( APPEND coolfluid_fvm_files
   LibFVM.cpp
   LibFVM.hpp
+  BC.hpp
   BCReflectCons1D.hpp
   BCReflectCons1D.cpp
   BCReflectCons2D.hpp

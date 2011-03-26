@@ -6,9 +6,6 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/Log.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CSpace.hpp"
@@ -27,12 +24,13 @@ namespace FVM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BCReflectCons2D, CAction, LibFVM > BCReflectCons2D_Builder;
+Common::ComponentBuilder < BCReflectCons2D, BC, LibFVM > BCReflectCons2D_Builder;
+Common::ComponentBuilder < BCReflectCons2D, CAction, LibFVM > BCReflectCons2D_CAction_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
 BCReflectCons2D::BCReflectCons2D ( const std::string& name ) : 
-  CLoopOperation(name),
+  BC(name),
   m_connected_solution("solution_view"),
   m_face_normal("face_normal")
 {
@@ -74,7 +72,7 @@ void BCReflectCons2D::config_normal()
 void BCReflectCons2D::trigger_elements()
 {
   m_can_start_loop = m_connected_solution.set_elements(elements());
-  m_can_start_loop &=  m_face_normal.set_elements(elements());
+  m_can_start_loop &=  m_face_normal.set_elements(elements());  
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

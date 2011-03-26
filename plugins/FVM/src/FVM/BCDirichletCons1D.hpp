@@ -7,8 +7,7 @@
 #ifndef CF_FVM_BCDirichletCons1D_hpp
 #define CF_FVM_BCDirichletCons1D_hpp
 
-#include "Solver/Actions/CLoopOperation.hpp"
-#include "FVM/LibFVM.hpp"
+#include "FVM/BC.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +19,7 @@ namespace FVM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class FVM_API BCDirichletCons1D : public Solver::Actions::CLoopOperation
+class FVM_API BCDirichletCons1D : public BC
 {
 public: // typedefs
 

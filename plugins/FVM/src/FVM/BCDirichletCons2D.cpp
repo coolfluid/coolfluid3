@@ -28,12 +28,13 @@ namespace FVM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BCDirichletCons2D, CAction, LibFVM > BCDirichletCons2D_Builder;
+Common::ComponentBuilder < BCDirichletCons2D, BC, LibFVM > BCDirichletCons2D_Builder;
+Common::ComponentBuilder < BCDirichletCons2D, CAction, LibFVM > BCDirichletCons2D_CAction_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
 BCDirichletCons2D::BCDirichletCons2D ( const std::string& name ) : 
-  CLoopOperation(name),
+  BC(name),
   m_connected_solution("solution_view")
 {
   mark_basic();

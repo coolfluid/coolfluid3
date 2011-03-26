@@ -103,8 +103,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
   
   CFinfo << "Creating physics" << CFendl;
-  CPhysicalModel& physics = *model.create_component<CPhysicalModel>("Physics");
-  physics.mark_basic();
+  CPhysicalModel& physics = model.create_physics("physics");
   physics.configure_property( "Dimensions", p.get_option<Uint>("dimension") );
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -112,10 +111,11 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
 
   CGroup& tools = *model.create_component<CGroup>("tools");
+  tools.mark_basic();
   CMeshTransformer& finite_volume_transformer = *tools.create_component<CMeshTransformer>("FiniteVolumeTransformer");
-  finite_volume_transformer.create_component<CBuildFaces>("1_build_faces");
-  finite_volume_transformer.create_component<BuildGhostStates>("2_build_ghoststates");
-  finite_volume_transformer.create_component<CBuildVolume>("3_build_volume_field");
+  finite_volume_transformer.create_component<CBuildFaces>     ("1_build_faces")->mark_basic();
+  finite_volume_transformer.create_component<BuildGhostStates>("2_build_ghoststates")->mark_basic();
+  finite_volume_transformer.create_component<CBuildVolume>    ("3_build_volume_field")->mark_basic();
   
   ////////////////////////////////////////////////////////////////////////////////
   // Generate mesh
@@ -147,7 +147,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
   
   CFinfo << "Creating FiniteVolumeSolver" << CFendl;
-  FiniteVolumeSolver& solver = *model.create_component<FiniteVolumeSolver>("FiniteVolumeSolver");
+  FiniteVolumeSolver& solver = model.create_solver("CF.FVM.FiniteVolumeSolver").as_type<FiniteVolumeSolver>();
   solver.configure_property("physical_model",physics.full_path());
   solver.configure_property("Domain",domain.full_path());
   solver.configure_option_recursively("time",model.time().full_path());
