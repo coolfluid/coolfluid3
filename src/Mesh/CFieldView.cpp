@@ -237,8 +237,9 @@ bool CConnectedFieldView::set_elements(CEntities& elements)
   if (is_null(m_field.lock()))
     throw Common::SetupError(FromHere(),"set_field(field) must be called first for CConnectedFieldView "+full_path().path());
 
-  m_elements = elements.as_ptr<CEntities>();
+  m_elements = elements.as_ptr_checked<CEntities>();
   m_face2cells = find_component_ptr<CFaceCellConnectivity>(elements);
+  cf_assert_desc(elements.full_path().path()+" needs to have a FaceCellConnectivity." , m_face2cells.expired() == false);
   m_views.resize(m_face2cells.lock()->cells_components().size());
   index_foreach(i,CCells::Ptr cells, m_face2cells.lock()->cells_components())
   {
