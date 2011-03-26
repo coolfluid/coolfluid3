@@ -51,10 +51,10 @@ void CLoopOperation::config_elements()
   {
     URI uri;
     property("Elements").put_value(uri);
-    m_elements = access_component_ptr(uri)->as_ptr<CEntities>();
+    m_elements = access_component_ptr_checked(uri)->as_ptr_checked<CEntities>();
     if ( is_null(m_elements.lock()) )
       throw CastingFailed (FromHere(), "Elements must be of a CEntities or derived type");    
-  }
+  }  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ void CLoopOperation::set_elements(CEntities& elements)
   m_call_config_elements = false;
   
   // Set elements
-  m_elements = elements.as_ptr<CEntities>();
+  m_elements = elements.as_ptr_checked<CEntities>();
 
   // Call triggers
   property("Elements").as_option().trigger();

@@ -12,9 +12,6 @@
 
 #include "Solver/Actions/CForAllFaces.hpp"
 
-///@todo remove
-#include "Common/Log.hpp"
-
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
