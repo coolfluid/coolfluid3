@@ -39,8 +39,7 @@ namespace ClientUI {
 
   /// @brief Panel to view and modify options of an object.
 
-  /// This class allows user to display and modify options of an object or
-  /// add new options.
+  /// This class allows user to display and modify options of an object.
 
   /// @author Quentin Gasper.
 
@@ -49,9 +48,10 @@ namespace ClientUI {
     Q_OBJECT
 
   public:
+
     /// @brief Constructor.
 
-    /// Builds an @c CentralPanel with no m_options. The panel is neither in
+    /// Builds an @c CentralPanel with no options. The panel is neither in
     /// read-only mode nor advanced mode.
     /// @param parent The parent widget. Default value is @c nullptr
     CentralPanel(QWidget * parent = nullptr);
@@ -61,38 +61,19 @@ namespace ClientUI {
     /// Frees the allocated memory.  Parent is not destroyed.
     ~CentralPanel();
 
-    /// @brief Indicates wether at least on option has been modified.
+    /// @brief Indicates wether at least one option has been modified.
 
     /// @return Returns @c true if at least one option has been modified.
     bool isModified() const;
 
-    /// @brief Build containers with modified m_options.
+    /// @brief Build containers with modified options.
 
-    /// This method allows to get old and new values of each modified option
-    /// (this does not include new m_options). The old value is the original one,
-    /// that the option had on calling @c setOptions. The new value is the
-    /// current option value. All intermediate values (i.e. : if user modified
-    /// several times the same option) are ignored. These values are stored in
-    /// @c oldValues and @c newValues respectively. Each modified option name
-    /// is stored if the provides string list. Hash map keys have one of these
-    /// names. @n @n
-    /// The method garantees that:
-    /// @li string list and hash map will have exactly the same number of
-    /// elements
-    /// @li all hash map keys can be found in the string list
-    /// @li each string list item has a corresponding key in both hash maps.
-    /// New m_options values are not stored in any hash map.
-    ///
-    /// To ensure consistency of the data returned, these four containers are
-    /// cleared before first use.
-    /// @param m_options String list where modified option names will be stored.
-    /// @param newValues This hash map is used to store old value of an option.
-    /// The key is the option name as stored in @c m_options string list. The
-    /// value is the old value.
-    /// @param newValues This hash map is used to store new value of an option.
-    /// The key is the option name as stored in @c m_options string list. The
-    /// value is the new value.
-    /// @param m_newOptions String list where new option names will be stored.
+    /// This method allows to get old and new values of each modified option.
+    /// The old value is the original one, that the option had when it was
+    /// created. The new value is the current option value. All intermediate
+    /// values (i.e. : if user modified several times the same option) are
+    /// ignored.
+    /// @param commitDetails The object where values will be stored.
     void modifiedOptions(ClientCore::CommitDetails & commitDetails) const;
 
     /// @brief Gives the current path.
@@ -110,10 +91,26 @@ namespace ClientUI {
 
   private slots:
 
+    /// Slot called when the model current index changed.
+
+    /// Options are replaced by the new ones.
+    /// @param newIndex The new current index.
+    /// @param oldIndex The old current index. This parameter is not used.
     void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
+    /// Slot called when the model advanced status has changed.
+
+    /// If status is advanced, the basic options layout is always visible,
+    /// so that the user knows he is playing with advanced options. If
+    /// the current option has no advanced option, the advanced option
+    /// layout remains hidden.
+    /// @param advanced If @c true, advanced options are showed up.
     void advancedModeChanged(bool advanced);
 
+    /// Slot called when data changed in the underlying model.
+
+    ///
+    ///
     void dataChanged(const QModelIndex & first, const QModelIndex & last);
 
     void btSeeChangesClicked();
