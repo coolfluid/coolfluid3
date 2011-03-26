@@ -15,6 +15,7 @@
 namespace CF {
 namespace Mesh {
 
+  class CMesh;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CDomain component class
@@ -43,11 +44,6 @@ public: // functions
   void signal_load_mesh ( Common::SignalArgs& node );
 
   void signature_load_mesh ( Common::SignalArgs& node);
-
-  /// Signal to generate a mesh
-  void signal_generate_mesh ( Common::SignalArgs& node );
-
-  void signature_generate_mesh( Common::SignalArgs& node);
 
 };
 

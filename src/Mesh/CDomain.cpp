@@ -37,9 +37,6 @@ CDomain::CDomain( const std::string& name  ) : Component ( name )
   regist_signal ( "load_mesh" , "Load a new mesh", "Load Mesh" )->signal->connect ( boost::bind ( &CDomain::signal_load_mesh, this, _1 ) );
   signal("load_mesh")->signature->connect( boost::bind( &CDomain::signature_load_mesh, this, _1));
 
-  regist_signal ( "generate_mesh" , "Generate a new mesh", "Generate Mesh" )->signal->connect ( boost::bind ( &CDomain::signal_generate_mesh, this, _1 ) );
-  signal("generate_mesh")->signature->connect( boost::bind( &CDomain::signature_generate_mesh, this, _1));
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,6 +53,7 @@ void CDomain::signal_load_mesh ( Common::SignalArgs& node )
 
   LoadMesh::Ptr mesh_loader = find_component_ptr<LoadMesh>( *Core::instance().root()->get_child_ptr("Tools") );
   CMesh::Ptr mesh = mesh_loader->load_mesh(options.get_option<URI>("File"));
+  mesh->rename(options.get_option<std::string>("Name"));
   add_component(mesh);
 }
 
@@ -66,23 +64,8 @@ void CDomain::signature_load_mesh ( Common::SignalArgs& node )
   SignalFrame & options = node.map( Protocol::Tags::key_options() );
 
   options.set_option<URI>("File", URI(), "Location of the file holding the mesh" );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-void CDomain::signal_generate_mesh ( Common::SignalArgs& node )
-{
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CDomain::signature_generate_mesh ( Common::SignalArgs& node )
-{
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
-
-  options.set_option<std::string>("Sorry", std::string("Not implemented"), "Sorry again" );
+  options.set_option<std::string>("Name", std::string(), "Location of the file holding the mesh" );
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
