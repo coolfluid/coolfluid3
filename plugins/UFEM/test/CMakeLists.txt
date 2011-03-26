@@ -83,3 +83,15 @@ set( utest-proto-navier-stokes-pspg_mpi_test TRUE )
 set( utest-proto-navier-stokes-pspg_mpi_nprocs 1 )
 set( utest-proto-navier-stokes-pspg_condition ${CF_HAVE_TRILINOS} )
 coolfluid_add_unit_test( utest-proto-navier-stokes-pspg )
+
+list( APPEND utest-proto-navier-stokes-supg_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_solver )
+list( APPEND utest-proto-navier-stokes-supg_files
+  utest-proto-navier-stokes-supg.cpp )
+list( APPEND utest-proto-navier-stokes-supg_args 0.1 ) # end time
+list( APPEND utest-proto-navier-stokes-supg_args 0.1 ) # time step
+list( APPEND utest-proto-navier-stokes-supg_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
+list( APPEND utest-proto-navier-stokes-supg_args ${CMAKE_CURRENT_SOURCE_DIR}/kvs.neu )
+set( utest-proto-navier-stokes-supg_mpi_test TRUE )
+set( utest-proto-navier-stokes-supg_mpi_nprocs 1 )
+set( utest-proto-navier-stokes-supg_condition ${CF_HAVE_TRILINOS} )
+coolfluid_add_unit_test( utest-proto-navier-stokes-supg )
