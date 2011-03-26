@@ -29,6 +29,8 @@
 
 #include "RDM/CLdeclaration.hpp"
 
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -45,6 +47,8 @@ public: // typedefs
   typedef boost::shared_ptr< SchemeLDAGPU > Ptr;
   typedef boost::shared_ptr< SchemeLDAGPU const> ConstPtr;
 
+    CLEnv env;
+
 public: // functions
 
   /// Contructor
@@ -52,7 +56,9 @@ public: // functions
   SchemeLDAGPU ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~SchemeLDAGPU() {};
+  virtual ~SchemeLDAGPU() { clReleaseContext(env.context);
+                            clReleaseKernel(env.kernel);
+                            clReleaseCommandQueue(env.command_queue);};
 
   /// Get the class name
   static std::string type_name () { return "SchemeLDAGPU<" + SHAPEFUNC::type_name() + ">"; }
@@ -136,6 +142,39 @@ SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeLDAGPU ( const std::string& na
 
   m_flux_oper_values.resize(QUADRATURE::nb_points);
   m_phi.resize(SHAPEFUNC::nb_nodes);
+
+  clGetPlatformIDs(1, &env.cpPlatform, NULL);
+  clGetDeviceIDs(env.cpPlatform, CL_DEVICE_TYPE_GPU, 1, &env.cdDevice, NULL);
+  env.context = clCreateContext(0, 1, &env.cdDevice, NULL, NULL, &env.errcode);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+  // get the list of GPU devices associated with context
+  env.errcode = clGetContextInfo(env.context, CL_CONTEXT_DEVICES, 0, NULL,&env.device_size);
+  env.devices = (cl_device_id *) malloc(env.device_size);
+
+  env.errcode |= clGetContextInfo(env.context, CL_CONTEXT_DEVICES, env.device_size, env.devices, NULL);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+  //Create a command-queue
+  env.command_queue = clCreateCommandQueue(env.context, env.cdDevice, 0, &env.errcode);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+  clGetDeviceInfo(env.cdDevice, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(env.num_compute_units), &env.num_compute_units, NULL);
+
+  #include "RDM/LDAGPUkernel.hpp"
+
+  // OpenCL kernel compilation
+
+  env.program = clCreateProgramWithSource(env.context, 1, (const char**)&GPUSource, NULL, &env.errcode);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+  env.errcode = clBuildProgram(env.program, 0,  NULL, "-cl-fast-relaxed-math", NULL, NULL);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+  env.kernel = clCreateKernel(env.program, "interpolation", &env.errcode);
+  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+  clReleaseProgram(env.program);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -143,10 +182,6 @@ SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeLDAGPU ( const std::string& na
 template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
 void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 {
-
-
-#include "RDM/LDAGPUkernel.hpp"
-
  std::cout << "SchemeLDAGPU" << std::endl;
 
  uint dim     = 2;
@@ -211,22 +246,7 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
      weights[idx] = 0.5;//m_wj[idx];
  }
 
- CLEnv env;
- GPGPU_setup(env);
 
-
- // OpenCL kernel compilation
-
- env.program = clCreateProgramWithSource(env.context, 1, (const char**)&GPUSource, NULL, &env.errcode);
- opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
-
- env.errcode = clBuildProgram(env.program, 0,  NULL, "-cl-fast-relaxed-math", NULL, NULL);
- opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
-
- env.kernel = clCreateKernel(env.program, "interpolation", &env.errcode);
- opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
-
- clReleaseProgram(env.program);
 
  //GPGPU mem reservation
 
@@ -291,11 +311,11 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  size_t localWorkSize[2], globalWorkSize[2];
 
- localWorkSize[0] = 1;
- localWorkSize[1] = 1;
+ localWorkSize[0] = 8;
+ localWorkSize[1] = 8;
 
- globalWorkSize[0] = env.num_compute_units;
- globalWorkSize[1] = env.num_compute_units;
+ globalWorkSize[0] = 4*env.num_compute_units;
+ globalWorkSize[1] = 4*env.num_compute_units;
 
  env.errcode = clEnqueueNDRangeKernel(env.command_queue, env.kernel, 2, globalWorkSize, localWorkSize, NULL, 0, NULL, NULL);
  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
@@ -321,13 +341,6 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
  clReleaseMemObject( phi_rGPGPU );
  clReleaseMemObject( weightsGPGPU );
  clReleaseMemObject( waveSpeedGPGPU );
-
- // free GPU
-
- clReleaseContext(env.context);
- clReleaseKernel(env.kernel);
- clReleaseCommandQueue(env.command_queue);
-
 
 
  for(uint idx = 0; idx < elements; idx++ )

@@ -23,6 +23,7 @@
 
 #include "RDM/SchemeLDAGPU.hpp"
 
+
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Solver;
@@ -77,7 +78,7 @@ struct LDAGPU::ElementLoop
       // replace by GPU function
       
 
-      
+
       scheme->execute();
       
     }
@@ -92,7 +93,10 @@ LDAGPU::LDAGPU ( const std::string& name ) : RDM::DomainTerm(name)
   regist_typeinfo(this);
 }
 
-LDAGPU::~LDAGPU() {}
+LDAGPU::~LDAGPU()
+{
+
+}
 
 void LDAGPU::execute()
 {

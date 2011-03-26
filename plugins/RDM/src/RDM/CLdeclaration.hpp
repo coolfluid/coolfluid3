@@ -4,6 +4,8 @@
     #include <CL/opencl.h>
 #endif
 
+#ifndef CLEnv
+
 struct CLEnv
 {
      cl_context        context;
@@ -18,6 +20,7 @@ struct CLEnv
      cl_event 	       ceEvent;
      cl_uint           num_compute_units;
 };
+#endif
 
 void opencl_check_error(cl_int& error_code, cl_int accept_code, const char * file, int line)
 {
@@ -25,7 +28,7 @@ void opencl_check_error(cl_int& error_code, cl_int accept_code, const char * fil
         {
                 std::stringstream msg;
                 msg << "detected OpenCL error code [" << error_code << "]\n";
-                std::cout << "ERROR CODE " << error_code << " - file " << file<< " line " << line << std::endl;
+                msg << "ERROR CODE " << error_code << " - file " << file<< " line " << line << "\n";
                 throw std::string( msg.str() );
         }
 }

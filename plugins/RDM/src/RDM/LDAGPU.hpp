@@ -9,6 +9,8 @@
 
 #include "RDM/DomainTerm.hpp"
 
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -24,6 +26,7 @@ public: // typedefs
 
   typedef boost::shared_ptr< LDAGPU > Ptr;
   typedef boost::shared_ptr< LDAGPU const > ConstPtr;
+
 
 public: // functions
 
