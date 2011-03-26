@@ -9,6 +9,8 @@ list( APPEND coolfluid_mesh_actions_files
   CInfo.cpp
   CExtract.hpp
   CExtract.cpp
+  CBuildArea.hpp
+  CBuildArea.cpp
   CBuildFaces.hpp
   CBuildFaces.cpp
   CBuildFaceNormals.hpp
