@@ -31,6 +31,10 @@ list( APPEND coolfluid_mesh_files
   CList.cpp
   CMesh.hpp
   CMesh.cpp
+  CMeshGenerator.hpp
+  CMeshGenerator.cpp
+  CSimpleMeshGenerator.hpp
+  CSimpleMeshGenerator.cpp
   CMeshReader.hpp
   CMeshReader.cpp
   CMeshTransformer.hpp
