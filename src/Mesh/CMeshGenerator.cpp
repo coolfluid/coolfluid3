@@ -4,11 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Signal.hpp"
 #include "Common/OptionComponent.hpp"
-#include "Common/CreateComponent.hpp"
+#include "Common/OptionT.hpp"
 
-#include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshGenerator.hpp"
 
 namespace CF {
@@ -20,11 +18,16 @@ using namespace Common::XML;
 ////////////////////////////////////////////////////////////////////////////////
 
 CMeshGenerator::CMeshGenerator ( const std::string& name  ) :
-  CAction ( name )
+  CAction ( name ),
+  m_name("mesh")
 {
   mark_basic();
 
-  properties().add_option(OptionComponent<CMesh>::create("mesh","Mesh","The mesh to be generated",&m_mesh))
+  properties().add_option(OptionComponent<Component>::create("parent","Parent","Where the mesh will be generated into",&m_parent))
+    ->mark_basic();
+
+  properties().add_option<OptionT<std::string> >("name","Name","Name of the mesh that will be generated",m_name)
+    ->link_to(&m_name)
     ->mark_basic();
 
 }
@@ -33,23 +36,6 @@ CMeshGenerator::CMeshGenerator ( const std::string& name  ) :
 
 CMeshGenerator::~CMeshGenerator()
 {
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CMeshGenerator::set_mesh(CMesh& mesh)
-{
-  m_mesh = mesh.as_ptr<CMesh>();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CMesh::Ptr CMeshGenerator::generate()
-{
-  CMesh::Ptr mesh_ptr = allocate_component<CMesh>("mesh");
-  set_mesh(*mesh_ptr);
-  execute();
-  return mesh_ptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

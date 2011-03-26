@@ -49,18 +49,14 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CMeshGenerator"; }
 
-  /// Read a given file and create a mesh
-  /// @return mesh          the created mesh
-  CMesh::Ptr generate();
-
-  void set_mesh(CMesh& mesh);
-
   /// execute
-  virtual void execute()=0;
-  
+  virtual void execute() =0;
+
 protected: // data
 
-  boost::weak_ptr<CMesh> m_mesh;
+  boost::weak_ptr<Component> m_parent;
+  std::string m_name;
+  
   
 };
 

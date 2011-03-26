@@ -34,8 +34,6 @@ CSimpleMeshGenerator::CSimpleMeshGenerator ( const std::string& name  ) :
   CMeshGenerator ( name )
 {
   mark_basic();
-
-  properties().add_option(OptionURI::create("parent","Parent","Parent Component",URI()));
   
   properties().add_option<OptionArrayT<Uint> >("nb_cells","Number of Cells","Vector of number of cells in each direction",m_nb_cells)
     ->link_to(&m_nb_cells)
@@ -55,6 +53,11 @@ CSimpleMeshGenerator::~CSimpleMeshGenerator()
 
 void CSimpleMeshGenerator::execute()
 {
+  if ( m_parent.expired() )
+    throw SetupError(FromHere(), "Parent component not set");
+
+  m_mesh = m_parent.lock()->create_component<CMesh>(m_name);
+
   if (m_nb_cells.size() == 1 && m_lengths.size() == 1)
   {
     create_line(m_lengths[0],m_nb_cells[0]);
