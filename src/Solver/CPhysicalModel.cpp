@@ -27,6 +27,8 @@ CPhysicalModel::CPhysicalModel(const std::string& name) : Component(name),
 {
   // options
 
+  mark_basic();
+  
   /// @todo later this will be removed when the physical model stops beign so generic
 
   m_properties.add_option<OptionT <std::string> >("Type",
