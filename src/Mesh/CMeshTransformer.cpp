@@ -49,6 +49,9 @@ void CMeshTransformer::set_mesh(CMesh::Ptr mesh)
 void CMeshTransformer::set_mesh(CMesh& mesh)
 {
   m_mesh=mesh.as_ptr<CMesh>();
+  boost_foreach(CMeshTransformer& meshtransformer, find_components<CMeshTransformer>(*this))
+    meshtransformer.set_mesh(mesh);
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
