@@ -1359,7 +1359,33 @@ sub install_paraview() {
          -DPARAVIEW_TESTING_WITH_PYTHON=OFF " );
     run_command_or_die("> ParaViewLibraryDepends.cmake");
     run_command_or_die("make $opt_makeopts");
-    run_command_or_die("make install");
+
+    # Install ParaView.
+    print "Installing ParaView. This might take some minutes.";
+
+    # According to ParaView wiki, it's not safe to do 'make install' because
+    # it might raise some issues. They advice instead to generate a package and
+    # extract it to the installation directory. This operation asks about 1GB
+    # free disk space and takes some minutes. The archive contains a main 
+    # directory which contains the directories we want, so the process is a 
+    # bit trickier that juset "extracting".
+    run_command_or_die("cpack -G TGZ");
+    mkpath("extracting",1);
+    run_command("mv IceT-*.tar.gz extracting");
+    safe_chdir("extracting");
+    # extract the archive and delete it (to gain disk space)
+    run_command("tar zvxf IceT-*.tar.gz 2> /dev/null #; rm *.tar.gz");
+    # Qt libraries were copied inside the archive. We have our own Qt libraries, 
+    # so it's better to remove them in order to gain about 200MB of disk space and
+    # avoid potential "duplicate symbols" errors. Note that QtTesting is not
+    # removed since it's a ParaView library.
+    run_command("rm -f \$(ls IceT-*/lib/paraview-*/libQt* | grep -v 'libQtTesting')");
+    # finally, we move the remaining files to their destination.
+    run_command("cd IceT-*/ ; mv -f bin/* $opt_install_dir/bin");
+    run_command("cd IceT-*/ ; mv -f doc/* $opt_install_dir/doc");
+    run_command("cd IceT-*/ ; mv -f include/* $opt_install_dir/include");
+    run_command("cd IceT-*/ ; mv -f lib/paraview* $opt_install_dir/lib");
+    run_command("cd IceT-*/ ; mv -f share/man/man3* $opt_install_dir/man/man3/");
   }
 }
 
