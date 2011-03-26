@@ -39,6 +39,8 @@
 
 #include "Mesh/CField.hpp"
 
+#include "Tools/Testing/TimedTestFixture.hpp"
+
 #include "CEigenLSS.hpp"
 
 
@@ -46,6 +48,7 @@ namespace CF {
 namespace Solver {
 
 using namespace CF::Mesh;
+using namespace CF::Tools::Testing;
   
 CF::Common::ComponentBuilder < CEigenLSS, Common::Component, LibSolver > aCeigenLSS_Builder;
 
@@ -135,6 +138,7 @@ const RealVector& CEigenLSS::solution()
 void CEigenLSS::solve()
 {
 #ifdef CF_HAVE_TRILINOS
+  Timer timer;
   const Uint nb_rows = size();
   cf_assert(nb_rows == m_system_matrix.outerSize());
   
@@ -155,7 +159,8 @@ void CEigenLSS::solve()
   }
   
   Epetra_CrsMatrix ep_A(Copy, map, &nnz[0]);
-
+  time_matrix_construction = timer.elapsed(); timer.restart();
+  
   // Fill the matrix
   for(int row=0; row < nb_rows; ++row)
   {
@@ -171,6 +176,7 @@ void CEigenLSS::solve()
   
   ep_A.FillComplete();
   
+  time_matrix_fill = timer.elapsed(); timer.restart();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //BEGIN////////////////////////////////////////////////////////////////////////////////////////
@@ -229,10 +235,14 @@ void CEigenLSS::solve()
 //    linearSolverBuilder.writeParamsFile(*lowsFactory,"./trilinos_current.xml");
 //  }
 
+  time_solver_setup = timer.elapsed(); timer.restart();
+
   // solve the matrix
   Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > lows = Thyra::linearOpWithSolve(*lowsFactory, A); // create solver
   Thyra::solve(*lows, Thyra::NOTRANS, *b, &*x); // solve
 
+  time_solve = timer.elapsed(); timer.restart();
+  
   // r = b - A*x, final L2 norm
   {
     Epetra_Vector epetra_r(*epetra_b);
@@ -244,6 +254,8 @@ void CEigenLSS::solve()
     epetra_r.Norm2(&nrm_r);
     systemResidual*=nrm_r;
   }
+  
+  time_residual = timer.elapsed();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //END//////////////////////////////////////////////////////////////////////////////////////////

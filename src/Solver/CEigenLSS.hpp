@@ -72,6 +72,13 @@ public: // functions
   
   void print_matrix();
   
+  /// Timings
+  Real time_matrix_construction;
+  Real time_matrix_fill;
+  Real time_solver_setup;
+  Real time_solve;
+  Real time_residual;
+  
 private:
   /// System matrix
   typedef Eigen::DynamicSparseMatrix<Real, Eigen::RowMajor> MatrixT;

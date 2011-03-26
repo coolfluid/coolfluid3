@@ -38,6 +38,8 @@
 
 #include "Solver/CEigenLSS.hpp"
 
+#include "Tools/Testing/TimedTestFixture.hpp"
+
 using namespace CF;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
@@ -45,6 +47,7 @@ using namespace CF::Solver::Actions::Proto;
 using namespace CF::Common;
 using namespace CF::Math::MathConsts;
 using namespace CF::Mesh;
+using namespace CF::Tools::Testing;
 
 using namespace boost;
 
@@ -155,8 +158,12 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   for_each_node(mesh->topology(), p = 0.);
   for_each_node(mesh->topology(), u = u_wall);
   
+  // Timings
+  Real assemblytime, bctime, increment_time;
+  
   while(t < end_time)
   {
+    Timer timer;
     // Fill the system matrix
     lss.set_zero();
     for_each_element< boost::mpl::vector1<SF::Triag2DLagrangeP1> >
@@ -178,11 +185,15 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
       )
     );
     
+    assemblytime = timer.elapsed(); timer.restart();
+    
     // Set boundary conditions
     for_each_node(in,   dirichlet(lss, u) = u_inf , physical_model);
     for_each_node(out,  dirichlet(lss, p) = p_out , physical_model);
     for_each_node(symm, dirichlet(lss, u) = u_inf , physical_model);
     for_each_node(wall, dirichlet(lss, u) = u_wall, physical_model);
+    
+    bctime = timer.elapsed(); 
     
     std::cout << "Solving for time " << t << std::endl;
     
@@ -191,8 +202,22 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
     const StringsT fields = boost::assign::list_of("Velocity")("Pressure");
     const StringsT vars = boost::assign::list_of("u")("p");
     const SizesT dims = boost::assign::list_of(2)(1);
+    
+    timer.restart();
     increment_solution(lss.solution(), fields, vars, dims, *mesh);
-
+    increment_time = timer.elapsed();
+    
+    const Real total_time = assemblytime + bctime + increment_time + lss.time_matrix_construction + lss.time_matrix_fill + lss.time_residual + lss.time_solve + lss.time_solver_setup;
+    std::cout << "  assembly     : " << assemblytime << " (" << assemblytime/total_time*100. << "%)\n"
+              << "  bc           : " << bctime << " (" << bctime/total_time*100. << "%)\n"
+              << "  matrix build : " << lss.time_matrix_construction << " (" << lss.time_matrix_construction/total_time*100. << "%)\n"
+              << "  matrix fill  : " << lss.time_matrix_fill << " (" << lss.time_matrix_fill/total_time*100. << "%)\n"
+              << "  solver setup : " << lss.time_solver_setup << " (" << lss.time_solver_setup/total_time*100. << "%)\n"
+              << "  solve        : " << lss.time_solve << " (" << lss.time_solve/total_time*100. << "%)\n"
+              << "  residual     : " << lss.time_residual << " (" << lss.time_residual/total_time*100. << "%)\n"
+              << "  write field  : " << increment_time << " (" << increment_time/total_time*100. << "%)\n"
+              << "  total        : " << total_time << std::endl;
+    
     t += dt;
     
     Real probeval = 0;
