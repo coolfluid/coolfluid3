@@ -55,6 +55,13 @@ std::string demangle(const char* type)
     regist<bool>("bool");
     regist<CF::Real>("real");
     regist<Common::URI>("uri");
+    regist<std::vector<int> >("array[integer]");
+    regist<std::vector<Uint> >("array[unsigned]");
+    regist<std::vector<std::string> >("array[string]");
+    regist<std::vector<bool> >("array[bool]");
+    regist<std::vector<Real> >("array[real]");
+    regist<std::vector<Common::URI> >("array[uri]");
+    
   }
 
   TypeInfo& TypeInfo::instance()
