@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // 1) create model
   // ---------------
-  p.set_option<Uint>("nb_cells", 100u );
+  p.set_option<Uint>("nb_cells", 50u );
   p.set_option<Uint>("dimension", 1u );
   s->signal_create_model(frame);
 
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   model.time().configure_property("end_time",  0.008);
   model.time().configure_property("time_step", 0.008);
   model.configure_option_recursively("cfl", 1.0);
-  //find_component_recursively<CIterate>(*model).configure_property("MaxIterations",1u);
+  find_component_recursively<CIterate>(model).configure_property("MaxIterations",1u);
 
   BOOST_CHECK(true);
 

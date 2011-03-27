@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // 1) create model
   // ---------------
-  p.set_option<Uint>("nb_cells", 50u );
+  p.set_option<Uint>("nb_cells", 20u );
   p.set_option<Uint>("dimension", 2u );
   s->signal_create_model(frame);
 
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   model.time().configure_property("end_time",  0.008);
   model.time().configure_property("time_step", 0.008);
   // model.configure_option_recursively("cfl", 1.0);
-  //find_component_recursively<CIterate>(model).configure_property("MaxIterations",5u);
+  find_component_recursively<CIterate>(model).configure_property("MaxIterations",1u);
 
   BOOST_CHECK(true);
 
@@ -95,16 +95,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // 6) Write mesh
   // -------------
-  
-  CMesh& mesh = find_component_recursively<CMesh>(model);
-  CField& points = mesh.create_field2( "points", "PointBased", "var1[1],var2[2]");
-  points.data() = 2.;
 
-  std::vector<CField::Ptr> fields;
-  fields.push_back(find_component_ptr_recursively_with_name<CField>(mesh,"solution"));
-  // fields.push_back(find_component_ptr_recursively_with_name<CField>(mesh,"points"));
-
-  model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().set_fields(fields);  
   model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().write();  
   
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tecplot_writer");

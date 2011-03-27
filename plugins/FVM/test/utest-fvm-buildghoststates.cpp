@@ -61,16 +61,7 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
   
   //Tools::MeshGeneration::create_line(*mesh, 10. , 10);
   Tools::MeshGeneration::create_rectangle(*mesh, 10. , 10., 4 , 4 );
-  
-  CExtract::Ptr extract = allocate_component<CExtract>("extract");
-  std::vector<std::string> regions;
-  regions.push_back("wall");
-  regions.push_back("inlet");
-  //regions.push_back("outlet");
-  regions.push_back("gas");
-  extract->configure_property("Regions",regions);
-//  extract->transform(mesh);
-  
+    
   CBuildFaces::Ptr build_faces = allocate_component<CBuildFaces>("build_faces");
   build_faces->transform(mesh);
 
@@ -80,27 +71,6 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
   BuildGhostStates::Ptr build_gstates = allocate_component<BuildGhostStates>("build_gstates");
   build_gstates->transform(mesh);
   
-  CFinfo << mesh->tree() << CFendl;
-  // boost_foreach(CRegion& boundary_faces, find_components_recursively_with_name<CRegion>(mesh->topology(),"boundary_faces"))
-  // {
-  //   boost_foreach(CFaces& faces, find_components<CFaces>(boundary_faces))
-  //   {
-  //     CFinfo << faces.full_path().path() << CFendl;;
-  //     CFaceCellConnectivity& face2cell = find_component<CFaceCellConnectivity>(faces);
-  //     for (Uint face=0; face<faces.size(); ++face)
-  //     {
-  //       CTable<Uint>::ConstRow elements = face2cell.elements(face);
-  //       CFinfo << "  face " << face << " connected to : " << to_vector(elements).transpose() << CFendl;
-  //       CCells::Ptr cells;
-  //       Uint cell_idx(0);
-  //       boost_foreach (Uint elem, elements)
-  //       {  
-  //         boost::tie(cells,cell_idx) = face2cell.element_location(elem);
-  //         CFinfo << "     " << cells->full_path().path() << "["<<cell_idx<<"]" << CFendl ;
-  //       }
-  //     }
-  //   }
-  // }
 
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   
@@ -110,7 +80,7 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
   meshwriter->set_fields(fields);
   
   
-	boost::filesystem::path fp_out("line_ghosts.msh");
+	boost::filesystem::path fp_out("quadtriag_ghosts.msh");
 	meshwriter->write_from_to(mesh,fp_out);
   
 }
