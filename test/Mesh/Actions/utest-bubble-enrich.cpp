@@ -101,6 +101,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   files.push_back( "file:rectangle-tg-p2.msh" );
 
   options.set_option<URI>("Parent Component", Core::instance().root()->get_child("Domain").full_path() );
+  options.set_option<std::string>("Name", std::string("Mesh") );
   options.set_array("Files", files, " ; ");
 
   // get the generic mesh loader from the Tools

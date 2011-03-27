@@ -128,6 +128,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
   // URI file ( "file:advection-qd-p3.msh" );
 
   options.set_option<URI>("File", file );
+  options.set_option<std::string>("Name", std::string("Mesh") );
 
   domain.signal_load_mesh( frame );
 
