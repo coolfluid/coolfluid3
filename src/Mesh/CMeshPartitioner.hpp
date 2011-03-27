@@ -128,7 +128,7 @@ public: // functions
 	
 	Uint owns_obj(const Uint obj) const
 	{
-    return proc_of_obj(obj) == mpi::PE::instance().rank();
+    return proc_of_obj(obj) == Common::mpi::PE::instance().rank();
 	}
 
 	std::vector<Common::Component::Ptr>& components_vector() { return m_local_components; }

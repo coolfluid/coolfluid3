@@ -21,8 +21,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-
 namespace CF {
 namespace Mesh {
 
@@ -353,8 +351,8 @@ inline typename ArrayBufferT<T>::SubArray_t ArrayBufferT<T>::get_row(const Uint 
       cummulative_size += buffer.size();
     }
   }
-  std::string msg = "Trying to access index " + to_str(idx)
-  + " that is not allocated: size = " + to_str(cummulative_size);
+  std::string msg = "Trying to access index " + Common::to_str(idx)
+  + " that is not allocated: size = " + Common::to_str(cummulative_size);
   throw Common::BadValue(FromHere(),msg);
 }
 

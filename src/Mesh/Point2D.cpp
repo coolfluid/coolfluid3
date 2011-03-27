@@ -37,7 +37,7 @@ const Uint Point2D::dimension;
 
 void Point2D::compute_normal(const NodesT& coord, RealVector& normal) const
 {
-  throw ShouldNotBeHere(FromHere(),"Normal cannot be computed for zero dimensionality element");
+  throw Common::ShouldNotBeHere(FromHere(),"Normal cannot be computed for zero dimensionality element");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

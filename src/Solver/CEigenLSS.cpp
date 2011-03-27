@@ -33,6 +33,7 @@
   #endif
 #endif
 
+#include "Common/Foreach.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/MPI/PE.hpp"
@@ -296,7 +297,7 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
   
   // Copy the data to the fields, where each field value is incremented with the value from the solution vector 
   std::set<std::string> unique_field_names;
-  BOOST_FOREACH(const std::string& field_name, field_names)
+  boost_foreach(const std::string& field_name, field_names)
   {
     if(unique_field_names.insert(field_name).second)
     {
