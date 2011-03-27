@@ -154,7 +154,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = parent_component->create_component<CMesh>(options.get_option<std::string>("MeshName"));
+    CMesh::Ptr mesh = parent_component->create_component<CMesh>(options.get_option<std::string>("Name"));
 
     // Get the file paths
     boost_foreach(URI file, files)
@@ -211,7 +211,7 @@ void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
 
   options.set_option<URI>("Parent Component", URI(), "Path to the component to hold the mesh" );
 
-  options.set_option<std::string>("MeshName", std::string("mesh"), "Name of the mesh" );
+  options.set_option<std::string>("Name", std::string("mesh"), "Name of the mesh" );
 
   // create de value and add the restricted list
   XmlNode rdrs_node = options.set_option( "Readers", std::string() , "Available readers" );
