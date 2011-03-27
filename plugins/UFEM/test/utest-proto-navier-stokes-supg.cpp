@@ -100,8 +100,6 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   std::ofstream outfile("navier-stokes-supg-stats.txt");
   outfile << "# Time(s) Velocity magnitude(m_s)" << std::endl;
   
-  const Real cell_size = 0.1;
-  
   const Real start_time = 0.;
   const Real end_time = boost::lexical_cast<Real>(argv[1]);
   const Real dt = boost::lexical_cast<Real>(argv[2]);
@@ -112,7 +110,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   const Real mu = 0.01;
   const Real rho = 1.;
   
-  const RealVector2 u_inf(0.6, 0.);
+  const RealVector2 u_inf(16, 0.);
   const RealVector2 u_wall(0., 0.);
   const Real p_out = 0.;
   
