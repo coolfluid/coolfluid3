@@ -9,6 +9,7 @@ macro( coolfluid_add_acceptance_test ATESTNAME ATESTSCRIPT )
     # make a diretory to run the test case
 
     set( TESTDIR ${CMAKE_CURRENT_BINARY_DIR}/${ATESTNAME}.dir )
+    
     file( MAKE_DIRECTORY ${TESTDIR} )
 
     # put the coolfluid-shell script there
@@ -32,10 +33,10 @@ macro( coolfluid_add_acceptance_test ATESTNAME ATESTSCRIPT )
 #                        )
 #    endforeach()
 
+    # Apparently needs cmake 2.8.4 or greater
     add_test( NAME ${ATESTNAME}
               WORKING_DIRECTORY ${TESTDIR}
               COMMAND coolfluid-command -f ${ATESTSCRIPT} )
-
   endif()
 
 endmacro( coolfluid_add_acceptance_test )

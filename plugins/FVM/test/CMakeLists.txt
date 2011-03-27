@@ -24,5 +24,13 @@ list( APPEND utest-fvm-fluxsplitter_files  utest-fvm-fluxsplitter.cpp )
 
 coolfluid_add_unit_test( utest-fvm-fluxsplitter )
 
+##########################################################################
+# acceptance tests
+
+#list( APPEND atest-fvm-shocktube2d_reference ${CMAKE_CURRENT_SOURCE_DIR}/reference.msh )
+
+coolfluid_add_acceptance_test( atest-fvm-shocktube1d atest-fvm-shocktube1d.cfscript )
+
+coolfluid_add_acceptance_test( atest-fvm-shocktube2d atest-fvm-shocktube2d.cfscript )
 
 

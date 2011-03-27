@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   std::vector<CField::Ptr> fields;
   fields.push_back(find_component_ptr_recursively_with_name<CField>(mesh,"solution"));
-  fields.push_back(find_component_ptr_recursively_with_name<CField>(mesh,"points"));
+  // fields.push_back(find_component_ptr_recursively_with_name<CField>(mesh,"points"));
 
   model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().set_fields(fields);  
   model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().write();  
