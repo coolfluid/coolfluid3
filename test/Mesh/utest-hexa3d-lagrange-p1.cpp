@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( MappedCoordinates )
   test_nodes.push_back(bignodes);
   test_nodes.push_back(biginverted);
   test_nodes.push_back(parallelepiped);
-  const std::vector<Real> ulps_list = boost::assign::list_of(15)(max_ulps)(max_ulps)(15)(max_ulps)(20);
+  const std::vector<Real> ulps_list = boost::assign::list_of(15.)(max_ulps)(max_ulps)(15.)(max_ulps)(20.);
   Uint idx = 0;
   BOOST_FOREACH(const SFT::NodeMatrixT& nodes, test_nodes)
   {

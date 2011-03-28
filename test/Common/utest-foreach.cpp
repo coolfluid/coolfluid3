@@ -38,17 +38,17 @@ BOOST_FIXTURE_TEST_SUITE( ForeachTests, ForeachFixture )
 
 BOOST_AUTO_TEST_CASE ( test_boost_foreach )
 {
-  std::vector<int> vec(5,1.0);
+  std::vector<int> vec(5,1);
 
   boost_foreach(int value, vec)
-    BOOST_CHECK_EQUAL(value,1.0);
+    BOOST_CHECK_EQUAL(value,1);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE ( test_index_foreach )
 {
-  std::vector<int> vec(5,1.0);
+  std::vector<int> vec(5,1);
 
   index_foreach(i, int value, vec)
     BOOST_CHECK_EQUAL(value,vec[i]); 
