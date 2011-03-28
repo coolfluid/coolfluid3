@@ -10,17 +10,23 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   # Add useful macros and variables
   include(${QT_USE_FILE})
 
-  # coolfluid_log("  QT_INCLUDES  : ${QT_INCLUDES}")
-  # coolfluid_log("  QT_LIBRARIES : ${QT_LIBRARIES}")
 
-  # maybe we don't need
-  # include_directories( ${CMAKE_SOURCE_DIR} ${QT_INCLUDES} )
 
   add_subdirectory( Core  )
   add_subdirectory( Graphics  )
-  add_subdirectory( Client  )
+
   add_subdirectory( UICommon )
   add_subdirectory( Server  )
+
+  #####################################################################
+  # Graphical application
+
+  list( APPEND coolfluid-gui_files gui-main.cpp )
+  list( APPEND coolfluid-gui_cflibs coolfluid_ui_graphics)
+
+  list( APPEND coolfluid-gui_libs ${QT_LIBRARIES} )
+
+  coolfluid_add_application( coolfluid-gui )
 
 endif()
 

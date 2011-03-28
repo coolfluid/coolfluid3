@@ -5,9 +5,7 @@ list( APPEND coolfluid_ui_common_files
   LibUICommon.cpp
   LibUICommon.hpp
   LogMessage.cpp
-  LogMessage.hpp
-  NetworkException.cpp
-  NetworkException.hpp)
+  LogMessage.hpp )
 
 set( coolfluid_ui_common_kernellib TRUE )
 

@@ -18,9 +18,8 @@
 
 #include "GUI/UICommon/ComponentNames.hpp"
 #include "GUI/UICommon/LogMessage.hpp"
-#include "GUI/UICommon/NetworkException.hpp"
 
-#include "GUI/Server/UnknownClientIdException.hpp"
+#include "GUI/Server/ServerExceptions.hpp"
 #include "GUI/Server/ServerRoot.hpp"
 
 #include "GUI/Server/ServerNetworkComm.hpp"
@@ -77,7 +76,7 @@ bool ServerNetworkComm::openPort(quint16 port)
                         .arg("")
                         .arg(port)
                         .arg(m_server->errorString());
-      throw NetworkException(FromHere(), message.toStdString());
+      throw NetworkError(FromHere(), message.toStdString());
     }
 
     connect(m_server, SIGNAL(newConnection()), this, SLOT(newClient()));
@@ -234,7 +233,7 @@ QTcpSocket * ServerNetworkComm::getSocket(const string & uuid) const
     socket = m_clients.key(uuid, nullptr);
 
     if(socket == nullptr)
-      throw UnknownClientIdException(FromHere(), "Unknown client id: " + uuid);
+      throw UnknownClientId(FromHere(), "Unknown client id: " + uuid);
   }
 
   return socket;

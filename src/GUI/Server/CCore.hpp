@@ -16,9 +16,6 @@
 #include <string>
 
 #include "Common/Component.hpp"
-#include "Common/MPI/PE.hpp"
-
-#include "GUI/Server/SimulationManager.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +26,6 @@ namespace Server {
 ////////////////////////////////////////////////////////////////////////////
 
   class ServerNetworkComm;
-  class CSimulator;
 
   /// @brief Manages everything that is not related to the network layer
   /// or the simulation management.
@@ -131,9 +127,6 @@ namespace Server {
 
     bool m_active;
 
-    /// @brief Simulation manager
-    SimulationManager m_simulationManager;
-
     /// @brief Reads a directory contents.
 
     /// @param directory Directory to read.
@@ -156,8 +149,6 @@ namespace Server {
                        bool includeNoExtension,
                        std::vector<std::string> & dirsList,
                        std::vector<std::string> & filesList) const;
-
-    void setStatus(CF::Common::WorkerStatus::Type status);
 
     void read_dir(CF::Common::SignalArgs & node);
 

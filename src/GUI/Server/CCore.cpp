@@ -22,8 +22,6 @@
 
 #include "GUI/Server/RemoteClientAppender.hpp"
 #include "GUI/Server/ServerNetworkComm.hpp"
-#include "GUI/Server/SimulationManager.hpp"
-#include "GUI/Server/TypesNotFoundException.hpp"
 
 #include "GUI/Server/CCore.hpp"
 
@@ -116,15 +114,6 @@ PRIVATE METHODS
 
 ***************************************************************************/
 
-void CCore::setStatus(WorkerStatus::Type status)
-{
-  mpi::PE::instance().change_status(status);
-  //  this->commServer->sendStatus(-1, mpi::PE::getStatusString(status).c_str());
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 bool CCore::getDirContent(const QString & directory,
                           const std::vector<std::string> & extensions,
                           bool includeFiles,
@@ -149,8 +138,8 @@ bool CCore::getDirContent(const QString & directory,
     if(!extensions.empty())
     {
       /* build the regex pattern string.
-    For example, if the QStringList contains "xml" and "CFcase" extensions,
-    the resulting string will be : "^.+\\.((xml)|(CFcase))$" */
+        For example, if the QStringList contains "xml" and "CFcase" extensions,
+        the resulting string will be : "^.+\\.((xml)|(CFcase))$" */
 
       /// @todo try to use QString::resize() or QString::reserve()
       QString regexPattern;

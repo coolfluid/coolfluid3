@@ -19,9 +19,8 @@
 #include "Common/MPI/PE.hpp"
 #include "Common/CEnv.hpp"
 
-#include "GUI/UICommon/NetworkException.hpp"
+#include "GUI/Server/ServerExceptions.hpp"
 #include "GUI/Server/ServerRoot.hpp"
-#include "GUI/Server/SimulationWorker.hpp"
 
 #include "Common/Core.hpp"
 
@@ -29,7 +28,6 @@
 
 using namespace boost;
 using namespace MPI;
-using namespace CF::GUI::UICommon;
 using namespace CF::GUI::Server;
 
 using namespace CF;
@@ -110,7 +108,7 @@ int main(int argc, char *argv[])
   {
     errorString = error.what();
   }
-  catch(NetworkException ne)
+  catch(NetworkError ne)
   {
     errorString = ne.what();
   }
