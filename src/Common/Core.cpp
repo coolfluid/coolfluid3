@@ -116,12 +116,17 @@ void Core::initiate ( int argc, char** argv )
     for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
         OSystem::instance().lib_loader()->load_library(*tok_iter);
   }
+
+  ///  @todo loop all libraries and initiate them
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Core::terminate()
 {
+  /// @todo loop all libraries and terminate them
+
+
   if ( mpi::PE::instance().is_init() )
     mpi::PE::instance().finalize();
 }

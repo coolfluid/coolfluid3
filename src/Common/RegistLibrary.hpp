@@ -28,14 +28,19 @@ struct RegistLibrary
 //    CFinfo << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] loaded." << CFendl;
 
     Core::instance().libraries()->get_library<LIB>()->initiate();
+
+//    Core::instance().libraries()->register<LIB>();
+
   }
 
-  ~RegistLibrary()
-  {
-//    CFinfo << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] unloaded." << CFendl;
+//  ~RegistLibrary()
+//  {
+////    CFinfo << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] unloaded." << CFendl;
 
-    Core::instance().libraries()->get_library<LIB>()->terminate();
-  }
+//    // should not do anything
+//    Core::instance().libraries()->get_library<LIB>()->terminate();
+//  }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

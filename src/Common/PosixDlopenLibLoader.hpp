@@ -30,7 +30,7 @@ public: // functions
   /// and the library loading algorithm
   /// @throw LibLoadingError if loading fails for any reason
   ///
-  virtual void load_library(const std::string& lib);
+  virtual void system_load_library(const std::string& lib);
 
   /// class interface to add paths to search for libraries
   ///

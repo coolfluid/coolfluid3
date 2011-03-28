@@ -47,11 +47,18 @@ public: // methods
   /// virtual destructor
   virtual ~LibLoader();
 
+  /// Loads a library and initiates it
+  /// @throw LibLoadingError if loading fails for any reason
+  void load_library(const std::string& lib);
+
+  /// Unloads a library and initiates it
+  /// @throw LibLoadingError if loading fails for any reason
+  void unload_library( CLibrary::Ptr lib );
+
   /// class interface to load a library depending on the operating system
   /// and the library loading algorithm
   /// @throw LibLoadingError if loading fails for any reason
-  ///
-  virtual void load_library(const std::string& lib) = 0;
+  virtual void system_load_library(const std::string& lib) = 0;
 
   /// class interface to add paths to search for libraries
   ///

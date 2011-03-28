@@ -81,7 +81,7 @@ void* PosixDlopenLibLoader::call_dlopen(const boost::filesystem::path& fpath)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PosixDlopenLibLoader::load_library(const std::string& lib)
+void PosixDlopenLibLoader::system_load_library(const std::string& lib)
 {
   using namespace boost::filesystem;
   using namespace boost::algorithm;
