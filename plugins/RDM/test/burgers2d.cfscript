@@ -9,7 +9,8 @@ call //Root/Tools/RDM/SetupScalarSimulation/create_model \
 
 # load the mesh
 call //Root/model/Domain/load_mesh \
-     File:uri=file:@CF_RESOURCE_DIR@/square1x1-tg-p2.msh
+     File:uri=file:@CF_RESOURCE_DIR@/square1x1-tg-p2.msh \
+     Name:string=mesh
 
 # configure solver
 cd //Root/model/Solver
