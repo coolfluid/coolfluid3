@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibClientUI> libClientUI;
 
 void LibClientUI::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibClientUI::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

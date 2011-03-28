@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibClientCore> libClientCore;
 
 void LibClientCore::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibClientCore::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

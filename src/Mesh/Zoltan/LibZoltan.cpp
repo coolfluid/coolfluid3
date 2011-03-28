@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibZoltan> libZoltan;
 
 void LibZoltan::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibZoltan::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

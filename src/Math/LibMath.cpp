@@ -17,10 +17,13 @@ CF::Common::RegistLibrary<LibMath> libMath;
 
 void LibMath::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibMath::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

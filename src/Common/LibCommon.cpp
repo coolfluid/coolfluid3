@@ -17,10 +17,13 @@ CF::Common::RegistLibrary<LibCommon> libCommon;
 
 void LibCommon::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibCommon::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -22,15 +22,19 @@ CF::Common::RegistLibrary<LibMesh> libMesh;
 
 void LibMesh::initiate()
 {
+  cf_assert( !m_is_initiated );
+
   Core::instance().root()
       ->get_child_ptr("Tools")
       ->create_component<Mesh::LoadMesh>( "LoadMesh" )
       ->mark_basic();
-      
+
   Core::instance().root()
       ->get_child_ptr("Tools")
       ->create_component<Mesh::WriteMesh>( "WriteMesh" )
       ->mark_basic();
+
+  m_is_initiated = true;
 }
 
 void LibMesh::terminate()
@@ -42,6 +46,7 @@ void LibMesh::terminate()
       ->get_child_ptr("Tools")
       ->remove_component("WriteMesh");
 
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

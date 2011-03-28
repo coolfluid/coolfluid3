@@ -15,7 +15,8 @@ CF::RegistTypeInfo<CLibrary> CLibrary_TypeRegistration();
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CLibrary::CLibrary(const std::string & lib_name) : Component(lib_name)
+CLibrary::CLibrary(const std::string & lib_name) : Component(lib_name),
+  m_is_initiated(false)
 {
 }
 

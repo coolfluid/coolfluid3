@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibNetwork> libNetwork;
 
 void LibNetwork::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibNetwork::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibActions> libActions;
 
 void LibActions::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibActions::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

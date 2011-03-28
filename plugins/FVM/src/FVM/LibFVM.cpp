@@ -15,16 +15,20 @@ namespace CF {
 namespace FVM {
 
   using namespace Common;
-  
+
 CF::Common::RegistLibrary<LibFVM> LibFVM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void LibFVM::initiate()
 {
+  cf_assert( !m_is_initiated );
+
   Core::instance().root()
       ->get_child_ptr("Tools")
       ->create_component<FVM::ShockTube>( "wizard_shocktube" );
+
+  m_is_initiated = true;
 }
 
 void LibFVM::terminate()
@@ -32,6 +36,8 @@ void LibFVM::terminate()
   Core::instance().root()
       ->get_child_ptr("Tools")
       ->remove_component("wizard_shocktube");
+
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

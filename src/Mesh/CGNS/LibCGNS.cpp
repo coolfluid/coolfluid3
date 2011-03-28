@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibCGNS> libCGNS;
 
 void LibCGNS::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibCGNS::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

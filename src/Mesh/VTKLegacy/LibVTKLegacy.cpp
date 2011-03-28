@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibVTKLegacy> libVTKLegacy;
 
 void LibVTKLegacy::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibVTKLegacy::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

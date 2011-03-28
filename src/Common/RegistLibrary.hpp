@@ -27,9 +27,9 @@ struct RegistLibrary
   {
 //    CFinfo << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] loaded." << CFendl;
 
-    Core::instance().libraries()->get_library<LIB>()->initiate();
+//    Core::instance().libraries()->get_library<LIB>()->initiate();
 
-//    Core::instance().libraries()->register<LIB>();
+    Core::instance().libraries()->get_library<LIB>();
 
   }
 

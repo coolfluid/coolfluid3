@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibMeshGeneration> libMeshGeneration;
 
 void LibMeshGeneration::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibMeshGeneration::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

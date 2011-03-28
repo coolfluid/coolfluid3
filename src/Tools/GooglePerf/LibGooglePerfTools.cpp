@@ -17,10 +17,13 @@ CF::Common::RegistLibrary<LibGooglePerfTools> libGooglePerfTools;
 
 void LibGooglePerfTools::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibGooglePerfTools::terminate()
 {
+  m_is_initiated = false;
 }
 
 } // GooglePerf

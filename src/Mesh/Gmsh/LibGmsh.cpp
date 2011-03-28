@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibGmsh> libGmsh;
 
 void LibGmsh::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibGmsh::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

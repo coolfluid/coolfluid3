@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibShell> libCommandLineInterpreter;
 
 void LibShell::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibShell::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

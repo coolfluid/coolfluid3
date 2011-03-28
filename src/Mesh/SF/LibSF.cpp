@@ -18,10 +18,13 @@ CF::Common::RegistLibrary<LibSF> libSF;
 
 void LibSF::initiate()
 {
+  cf_assert( !m_is_initiated );
+  m_is_initiated = true;
 }
 
 void LibSF::terminate()
 {
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

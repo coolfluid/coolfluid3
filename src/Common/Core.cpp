@@ -104,7 +104,7 @@ void Core::initiate ( int argc, char** argv )
 
   if ( !mpi::PE::instance().is_init() )
     mpi::PE::instance().init(argc,argv); // this might modify argc and argv
-    
+
   char* env_var = std::getenv("COOLFLUID_PLUGINS");
   if (env_var != NULL)
   {
@@ -117,14 +117,22 @@ void Core::initiate ( int argc, char** argv )
         OSystem::instance().lib_loader()->load_library(*tok_iter);
   }
 
-  ///  @todo loop all libraries and initiate them
+  // loop all libraries and initiate them
+  ComponentIterator<CLibrary> it = m_libraries->begin<CLibrary>();
+
+  for( ; it != m_libraries->end<CLibrary>() ; ++it )
+    it.get()->initiate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Core::terminate()
 {
-  /// @todo loop all libraries and terminate them
+  // loop all libraries and terminate them
+  ComponentIterator<CLibrary> it = m_libraries->begin<CLibrary>();
+
+  for( ; it != m_libraries->end<CLibrary>() ; ++it )
+    it.get()->terminate();
 
 
   if ( mpi::PE::instance().is_init() )

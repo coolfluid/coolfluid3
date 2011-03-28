@@ -10,6 +10,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/Core.hpp"
+#include "Common/CEnv.hpp"
 #include "Common/NetworkInfo.hpp"
 #include "Common/Exception.hpp"
 
@@ -30,6 +31,10 @@ int main(int argc, char *argv[])
   JournalBrowserBuilder::instance();
 
   ThreadManager::instance().tree();
+
+  // initiate the core environment
+  Core::instance().environment()->configure_property("RegistSignalHandlers", false);
+  Core::instance().initiate(argc, argv);
 
   CF::AssertionManager::instance().AssertionThrows = true;
   CF::AssertionManager::instance().AssertionDumps = true;

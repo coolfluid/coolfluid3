@@ -39,6 +39,8 @@ public:
   /// Get the class name
   static std::string type_name() { return "CLibrary"; }
 
+  bool is_initiated() const { return m_is_initiated; }
+
   /// initiate library
   virtual void initiate() = 0;
 
@@ -51,6 +53,10 @@ public:
   /// @returns a string with this library version
   /// Equal to kernel version for liraries distributed with kernel
   virtual std::string lib_version();
+
+protected:
+
+  bool m_is_initiated;
 
 }; // CLibrary
 
