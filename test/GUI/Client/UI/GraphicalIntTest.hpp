@@ -16,7 +16,7 @@ class QDoubleSpinBox;
 namespace CF {
 namespace GUI {
 
-namespace ClientUI { class GraphicalInt; }
+namespace Graphics { class GraphicalInt; }
 
 namespace ClientTest {
 
@@ -42,7 +42,7 @@ private slots:
 
 private:
 
-  QDoubleSpinBox * findSpinBox(const ClientUI::GraphicalInt* value);
+  QDoubleSpinBox * findSpinBox(const Graphics::GraphicalInt* value);
 
 };
 

@@ -17,7 +17,7 @@ class QLineEdit;
 namespace CF {
 namespace GUI {
 
-namespace ClientUI { class GraphicalUri; }
+namespace Graphics { class GraphicalUri; }
 
 namespace ClientTest {
 
@@ -45,11 +45,11 @@ private slots:
 
 private:
 
-  QLineEdit * findLineEdit(const ClientUI::GraphicalUri* value);
+  QLineEdit * findLineEdit(const Graphics::GraphicalUri* value);
 
-  QComboBox * findComboBox(const ClientUI::GraphicalUri* value);
+  QComboBox * findComboBox(const Graphics::GraphicalUri* value);
 
-  QWidget * findWidget(const ClientUI::GraphicalUri* value, int index);
+  QWidget * findWidget(const Graphics::GraphicalUri* value, int index);
 
 };
 

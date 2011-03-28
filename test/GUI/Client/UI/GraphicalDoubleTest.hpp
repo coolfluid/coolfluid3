@@ -16,7 +16,7 @@ class QLineEdit;
 namespace CF {
 namespace GUI {
 
-namespace ClientUI { class GraphicalDouble; }
+namespace Graphics { class GraphicalDouble; }
 
 namespace ClientTest {
 
@@ -42,7 +42,7 @@ private slots:
 
 private:
 
-  QLineEdit * findLineEdit(const ClientUI::GraphicalDouble* value);
+  QLineEdit * findLineEdit(const Graphics::GraphicalDouble* value);
 
 };
 

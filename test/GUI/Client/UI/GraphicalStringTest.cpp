@@ -9,14 +9,14 @@
 
 #include <QtTest>
 
-#include "GUI/Client/UI/GraphicalString.hpp"
+#include "GUI/Graphics/GraphicalString.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 
 #include "test/GUI/Client/UI/GraphicalStringTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientUI;
+using namespace CF::GUI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 

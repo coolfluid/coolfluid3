@@ -16,7 +16,7 @@ class QValidator;
 namespace CF {
 namespace GUI {
 
-namespace ClientUI { class GraphicalArray; }
+namespace Graphics { class GraphicalArray; }
 
 namespace ClientTest {
 
@@ -38,7 +38,7 @@ private slots:
 
 private:
 
-  const QValidator * arrayValidator(const ClientUI::GraphicalArray* array);
+  const QValidator * arrayValidator(const Graphics::GraphicalArray* array);
 
 }; // GraphicalValueTest
 

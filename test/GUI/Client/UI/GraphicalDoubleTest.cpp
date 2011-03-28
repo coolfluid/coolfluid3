@@ -9,14 +9,14 @@
 
 #include <QtTest>
 
-#include "GUI/Client/UI/GraphicalDouble.hpp"
+#include "GUI/Graphics/GraphicalDouble.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 
 #include "test/GUI/Client/UI/GraphicalDoubleTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientUI;
+using namespace CF::GUI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 

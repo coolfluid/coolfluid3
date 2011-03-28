@@ -34,7 +34,7 @@ list( APPEND utest-client-ui_files
   GraphicalValueTest.hpp
 )
 
-list( APPEND utest-client-ui_libs coolfluid_client_ui ${QT_LIBRARIES})
+list( APPEND utest-client-ui_libs coolfluid_ui_graphics ${QT_LIBRARIES})
 
 coolfluid_add_unit_test( utest-client-ui )
 

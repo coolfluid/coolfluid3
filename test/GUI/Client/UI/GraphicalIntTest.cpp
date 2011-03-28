@@ -9,7 +9,7 @@
 
 #include <QtTest>
 
-#include "GUI/Client/UI/GraphicalInt.hpp"
+#include "GUI/Graphics/GraphicalInt.hpp"
 
 #include "Math/MathConsts.hpp"
 
@@ -18,7 +18,7 @@
 #include "test/GUI/Client/UI/GraphicalIntTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientUI;
+using namespace CF::GUI::Graphics;
 using namespace CF::Math;
 
 ////////////////////////////////////////////////////////////////////////////

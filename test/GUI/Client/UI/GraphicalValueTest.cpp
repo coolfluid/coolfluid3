@@ -16,24 +16,24 @@
 
 #include "Math/MathConsts.hpp"
 
-#include "GUI/Client/UI/GraphicalArray.hpp"
-#include "GUI/Client/UI/GraphicalArrayRestrictedList.hpp"
-#include "GUI/Client/UI/GraphicalBool.hpp"
-#include "GUI/Client/UI/GraphicalDouble.hpp"
-#include "GUI/Client/UI/GraphicalRestrictedList.hpp"
-#include "GUI/Client/UI/GraphicalString.hpp"
-#include "GUI/Client/UI/GraphicalInt.hpp"
-#include "GUI/Client/UI/GraphicalUri.hpp"
-#include "GUI/Client/UI/GraphicalUriArray.hpp"
+#include "GUI/Graphics/GraphicalArray.hpp"
+#include "GUI/Graphics/GraphicalArrayRestrictedList.hpp"
+#include "GUI/Graphics/GraphicalBool.hpp"
+#include "GUI/Graphics/GraphicalDouble.hpp"
+#include "GUI/Graphics/GraphicalRestrictedList.hpp"
+#include "GUI/Graphics/GraphicalString.hpp"
+#include "GUI/Graphics/GraphicalInt.hpp"
+#include "GUI/Graphics/GraphicalUri.hpp"
+#include "GUI/Graphics/GraphicalUriArray.hpp"
 
-#include "GUI/Client/UI/GraphicalValue.hpp"
+#include "GUI/Graphics/GraphicalValue.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 #include "test/GUI/Client/UI/GraphicalValueTest.hpp"
 
 using namespace boost::assign;
 using namespace CF::Common;
-using namespace CF::GUI::ClientUI;
+using namespace CF::GUI::Graphics;
 using namespace CF::Math;
 
 ////////////////////////////////////////////////////////////////////////////

@@ -16,12 +16,12 @@
 
 #include "GUI/Core/ThreadManager.hpp"
 
-#include "GUI/Client/UI/MainWindow.hpp"
-#include "GUI/Client/UI/JournalBrowserDialog.hpp"
+#include "GUI/Graphics/MainWindow.hpp"
+#include "GUI/Graphics/JournalBrowserDialog.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Core;
-using namespace CF::GUI::ClientUI;
+using namespace CF::GUI::Graphics;
 
 int main(int argc, char *argv[])
 {

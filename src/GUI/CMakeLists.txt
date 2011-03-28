@@ -17,6 +17,7 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   # include_directories( ${CMAKE_SOURCE_DIR} ${QT_INCLUDES} )
 
   add_subdirectory( Core  )
+  add_subdirectory( Graphics  )
   add_subdirectory( Client  )
   add_subdirectory( UICommon )
   add_subdirectory( Server  )

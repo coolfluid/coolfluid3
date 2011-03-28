@@ -16,7 +16,7 @@ class QLineEdit;
 namespace CF {
 namespace GUI {
 
-namespace ClientUI { class GraphicalString; }
+namespace Graphics { class GraphicalString; }
 
 namespace ClientTest {
 
@@ -42,7 +42,7 @@ private slots:
 
 private:
 
-  QLineEdit * findLineEdit(const ClientUI::GraphicalString* value);
+  QLineEdit * findLineEdit(const Graphics::GraphicalString* value);
 
 };
 

@@ -10,14 +10,14 @@
 
 #include <QtTest>
 
-#include "GUI/Client/UI/GraphicalUri.hpp"
+#include "GUI/Graphics/GraphicalUri.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 
 #include "test/GUI/Client/UI/GraphicalUriTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientUI;
+using namespace CF::GUI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 

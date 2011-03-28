@@ -17,7 +17,7 @@ class QCheckBox;
 namespace CF {
 namespace GUI {
 
-namespace ClientUI { class GraphicalBool; }
+namespace Graphics { class GraphicalBool; }
 
 namespace ClientTest {
 
@@ -43,7 +43,7 @@ private slots:
 
 private:
 
-  QCheckBox * findCheckBox(const ClientUI::GraphicalBool* value);
+  QCheckBox * findCheckBox(const Graphics::GraphicalBool* value);
 
 };
 

@@ -22,10 +22,7 @@ if( APPLE )
 
 endif()
 
-
-add_subdirectory( UI )
-
-list( APPEND coolfluid-client_cflibs coolfluid_client_ui)
+list( APPEND coolfluid-client_cflibs coolfluid_ui_graphics)
 
 # Use Qt Libraries
 list( APPEND coolfluid-client_libs ${QT_LIBRARIES} )
