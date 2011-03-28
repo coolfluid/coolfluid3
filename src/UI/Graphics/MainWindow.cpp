@@ -17,26 +17,26 @@
 #include <QSplitter>
 #include <QUrl>
 
-#include "GUI/Core/TreeThread.hpp"
-#include "GUI/Core/NetworkThread.hpp"
-#include "GUI/Core/NLog.hpp"
-#include "GUI/Core/NTree.hpp"
-#include "GUI/Core/PropertyModel.hpp"
-#include "GUI/Core/ThreadManager.hpp"
+#include "UI/Core/TreeThread.hpp"
+#include "UI/Core/NetworkThread.hpp"
+#include "UI/Core/NLog.hpp"
+#include "UI/Core/NTree.hpp"
+#include "UI/Core/PropertyModel.hpp"
+#include "UI/Core/ThreadManager.hpp"
 
-#include "GUI/Graphics/AboutCFDialog.hpp"
-#include "GUI/Graphics/LoggingList.hpp"
-#include "GUI/Graphics/CentralPanel.hpp"
-#include "GUI/Graphics/Graph.hpp"
-#include "GUI/Graphics/NRemoteOpen.hpp"
-#include "GUI/Graphics/SignatureDialog.hpp"
-#include "GUI/Graphics/TabBuilder.hpp"
-#include "GUI/Graphics/TreeBrowser.hpp"
-#include "GUI/Graphics/TreeView.hpp"
+#include "UI/Graphics/AboutCFDialog.hpp"
+#include "UI/Graphics/LoggingList.hpp"
+#include "UI/Graphics/CentralPanel.hpp"
+#include "UI/Graphics/Graph.hpp"
+#include "UI/Graphics/NRemoteOpen.hpp"
+#include "UI/Graphics/SignatureDialog.hpp"
+#include "UI/Graphics/TabBuilder.hpp"
+#include "UI/Graphics/TreeBrowser.hpp"
+#include "UI/Graphics/TreeView.hpp"
 
-#include "GUI/UICommon/ComponentNames.hpp"
+#include "UI/UICommon/ComponentNames.hpp"
 
-#include "GUI/Graphics/MainWindow.hpp"
+#include "UI/Graphics/MainWindow.hpp"
 
 #define WORKSPACE_FILE QDir::homePath() + "/CF_workspace.xml"
 

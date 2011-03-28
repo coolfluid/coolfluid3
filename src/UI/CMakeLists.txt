@@ -14,6 +14,7 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
 
   add_subdirectory( Core  )
   add_subdirectory( Graphics  )
+  add_subdirectory( ParaView )
 
   add_subdirectory( UICommon )
   add_subdirectory( Server  )
@@ -24,7 +25,11 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   list( APPEND coolfluid-gui_files gui-main.cpp )
   list( APPEND coolfluid-gui_cflibs coolfluid_ui_graphics)
 
-  list( APPEND coolfluid-gui_libs ${QT_LIBRARIES} )
+  if( ParaView_FOUND )
+    add_definitions( -DCF_HAVE_PARAVIEW )
+    include_directories( ${PARAVIEW_INCLUDE_DIRS} )
+    list( APPEND coolfluid-gui_libs ${QT_LIBRARIES} coolfluid_ui_paraview )
+  endif() 
 
   coolfluid_add_application( coolfluid-gui )
 
