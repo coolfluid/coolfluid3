@@ -17,6 +17,8 @@
 namespace CF {
 namespace Common {
 
+class CLibrary;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 class Common_API LibLoadingError : public Common::Exception {
@@ -53,7 +55,7 @@ public: // methods
 
   /// Unloads a library and initiates it
   /// @throw LibLoadingError if loading fails for any reason
-  void unload_library( CLibrary::Ptr lib );
+  void unload_library( boost::shared_ptr<CLibrary> lib );
 
   /// class interface to load a library depending on the operating system
   /// and the library loading algorithm
