@@ -31,6 +31,7 @@
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 #include "GUI/Client/UI/SignatureDialog.hpp"
 #include "GUI/Client/UI/TreeBrowser.hpp"
+#include "GUI/Client/UI/TabBuilder.hpp"
 #include "GUI/Client/UI/TreeView.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
@@ -69,7 +70,6 @@ MainWindow::MainWindow()
   m_splitter = new QSplitter(/*Qt::Horizontal, this*/);
   m_centralSplitter = new QSplitter(Qt::Vertical/*, this*/);
   m_tabWindow = new QTabWidget(m_centralPanel);
-  m_centralTab = new QTabWidget();
   m_logList = new LoggingList(m_tabWindow);
   m_propertyModel = new PropertyModel();
   m_propertyView = new QTableView(m_tabWindow);
@@ -98,15 +98,15 @@ MainWindow::MainWindow()
   m_tabWindow->addTab(m_propertyView, "Properties");
   m_tabWindow->addTab(m_scrollDescription, "Description");
 
-  m_centralTab->addTab(m_centralPanel, "Options");
-  m_centralTab->addTab(m_graphXYPlot, "XY-Plot");
+  TabBuilder::instance()->addTab(m_centralPanel, "Options");
+  TabBuilder::instance()->addTab(m_graphXYPlot, "XY-Plot");
 
   m_centralSplitter->setStretchFactor(0, 10);
 
   // add the components to the splitter
   m_splitter->addWidget(m_treeBrowser);
 
-  m_centralSplitter->addWidget(m_centralTab);
+  m_centralSplitter->addWidget(TabBuilder::instance());
   m_centralSplitter->addWidget(m_tabWindow);
   m_splitter->addWidget(m_centralSplitter);
 

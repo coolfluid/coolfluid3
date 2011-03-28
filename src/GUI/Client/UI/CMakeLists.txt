@@ -104,6 +104,8 @@ list( APPEND coolfluid_client_ui_files
   SignalManager.hpp
   SignatureDialog.cpp
   SignatureDialog.hpp
+  TabBuilder.cpp
+  TabBuilder.hpp
   TreeBrowser.cpp
   TreeBrowser.hpp
   TreeView.cpp
