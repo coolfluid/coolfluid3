@@ -18,7 +18,7 @@
 #include "test/GUI/Client/Core/TreeNodeTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientTest;
+using namespace CF::UI::ClientTest;
 
 int main(int argc, char * argv[])
 {

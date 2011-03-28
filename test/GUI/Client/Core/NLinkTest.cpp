@@ -9,12 +9,12 @@
 
 #include "Common/URI.hpp"
 
-#include "GUI/Core/ThreadManager.hpp"
-#include "GUI/Core/TreeThread.hpp"
-#include "GUI/Core/NLink.hpp"
-#include "GUI/Core/NGeneric.hpp"
-#include "GUI/Core/NTree.hpp"
-#include "GUI/Core/NLog.hpp"
+#include "UI/Core/ThreadManager.hpp"
+#include "UI/Core/TreeThread.hpp"
+#include "UI/Core/NLink.hpp"
+#include "UI/Core/NGeneric.hpp"
+#include "UI/Core/NTree.hpp"
+#include "UI/Core/NLog.hpp"
 
 #include "test/GUI/Client/Core/CommonFunctions.hpp"
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
@@ -24,8 +24,8 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::Core;
-using namespace CF::GUI::ClientTest;
+using namespace CF::UI::Core;
+using namespace CF::UI::ClientTest;
 
 Q_DECLARE_METATYPE(QModelIndex);
 

@@ -7,12 +7,12 @@
 #include <QString>
 #include <QtTest>
 
-#include "GUI/Core/NBrowser.hpp"
+#include "UI/Core/NBrowser.hpp"
 
 #include "test/GUI/Client/Core/NBrowserTest.hpp"
 
-using namespace CF::GUI::Core;
-using namespace CF::GUI::ClientTest;
+using namespace CF::UI::Core;
+using namespace CF::UI::ClientTest;
 
 void NBrowserTest::test_generateName()
 {

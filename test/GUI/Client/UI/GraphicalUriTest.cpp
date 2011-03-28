@@ -10,19 +10,19 @@
 
 #include <QtTest>
 
-#include "GUI/Graphics/GraphicalUri.hpp"
+#include "UI/Graphics/GraphicalUri.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 
 #include "test/GUI/Client/UI/GraphicalUriTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Graphics;
+using namespace CF::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace GUI {
+namespace UI {
 namespace ClientTest {
 
 //////////////////////////////////////////////////////////////////////////
@@ -317,5 +317,5 @@ QWidget * GraphicalUriTest::findWidget(const GraphicalUri* value, int index)
 //////////////////////////////////////////////////////////////////////////
 
 } // ClientTest
-} // GUI
+} // UI
 } // CF

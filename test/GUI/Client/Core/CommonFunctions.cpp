@@ -10,17 +10,17 @@
 
 #include "Common/XML/FileOperations.hpp"
 
-#include "GUI/Core/CNode.hpp"
+#include "UI/Core/CNode.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 #include "test/GUI/Client/Core/CommonFunctions.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::Core;
-using namespace CF::GUI::ClientTest;
+using namespace CF::UI::Core;
+using namespace CF::UI::ClientTest;
 
-NRoot::Ptr CF::GUI::ClientTest::makeTreeFromFile()
+NRoot::Ptr CF::UI::ClientTest::makeTreeFromFile()
 {
   static XmlDoc::Ptr doc = XML::parse_file(boost::filesystem::path("./tree.xml"));
 

@@ -6,12 +6,12 @@
 
 #include <QtTest>
 
-#include "GUI/Core/CommitDetailsItem.hpp"
-#include "GUI/Core/CommitDetails.hpp"
+#include "UI/Core/CommitDetailsItem.hpp"
+#include "UI/Core/CommitDetails.hpp"
 
 #include "test/GUI/Client/Core/CommitDetailsTest.hpp"
 
-using namespace CF::GUI::Core;
+using namespace CF::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

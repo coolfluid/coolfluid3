@@ -16,30 +16,30 @@
 
 #include "Math/MathConsts.hpp"
 
-#include "GUI/Graphics/GraphicalArray.hpp"
-#include "GUI/Graphics/GraphicalArrayRestrictedList.hpp"
-#include "GUI/Graphics/GraphicalBool.hpp"
-#include "GUI/Graphics/GraphicalDouble.hpp"
-#include "GUI/Graphics/GraphicalRestrictedList.hpp"
-#include "GUI/Graphics/GraphicalString.hpp"
-#include "GUI/Graphics/GraphicalInt.hpp"
-#include "GUI/Graphics/GraphicalUri.hpp"
-#include "GUI/Graphics/GraphicalUriArray.hpp"
+#include "UI/Graphics/GraphicalArray.hpp"
+#include "UI/Graphics/GraphicalArrayRestrictedList.hpp"
+#include "UI/Graphics/GraphicalBool.hpp"
+#include "UI/Graphics/GraphicalDouble.hpp"
+#include "UI/Graphics/GraphicalRestrictedList.hpp"
+#include "UI/Graphics/GraphicalString.hpp"
+#include "UI/Graphics/GraphicalInt.hpp"
+#include "UI/Graphics/GraphicalUri.hpp"
+#include "UI/Graphics/GraphicalUriArray.hpp"
 
-#include "GUI/Graphics/GraphicalValue.hpp"
+#include "UI/Graphics/GraphicalValue.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 #include "test/GUI/Client/UI/GraphicalValueTest.hpp"
 
 using namespace boost::assign;
 using namespace CF::Common;
-using namespace CF::GUI::Graphics;
+using namespace CF::UI::Graphics;
 using namespace CF::Math;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace GUI {
+namespace UI {
 namespace ClientTest {
 
 //////////////////////////////////////////////////////////////////////////
@@ -442,5 +442,5 @@ const QValidator * GraphicalValueTest::arrayValidator(const GraphicalArray* arra
 //////////////////////////////////////////////////////////////////////////
 
 } // ClientTest
-} // GUI
+} // UI
 } // CF

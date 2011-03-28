@@ -7,13 +7,13 @@
 #ifndef CF_GUI_Client_uTests_MyNode_hpp
 #define CF_GUI_Client_uTests_MyNode_hpp
 
-#include "GUI/Core/CNode.hpp"
+#include "UI/Core/CNode.hpp"
 
 namespace CF {
 namespace GUI {
 namespace ClientTest {
 
-  class MyNode : public CF::GUI::Core::CNode
+  class MyNode : public CF::UI::Core::CNode
   {
   public:
 

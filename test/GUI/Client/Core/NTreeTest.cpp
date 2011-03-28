@@ -13,15 +13,15 @@
 #include "Common/CLink.hpp"
 #include "Common/OptionT.hpp"
 
-#include "GUI/UICommon/ComponentNames.hpp"
+#include "UI/UICommon/ComponentNames.hpp"
 
-#include "GUI/Core/NGeneric.hpp"
-#include "GUI/Core/NLog.hpp"
-#include "GUI/Core/NRoot.hpp"
-#include "GUI/Core/NTree.hpp"
-#include "GUI/Core/ThreadManager.hpp"
-#include "GUI/Core/TreeNode.hpp"
-#include "GUI/Core/TreeThread.hpp"
+#include "UI/Core/NGeneric.hpp"
+#include "UI/Core/NLog.hpp"
+#include "UI/Core/NRoot.hpp"
+#include "UI/Core/NTree.hpp"
+#include "UI/Core/ThreadManager.hpp"
+#include "UI/Core/TreeNode.hpp"
+#include "UI/Core/TreeThread.hpp"
 
 #include "test/GUI/Client/Core/CommonFunctions.hpp"
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
@@ -31,8 +31,8 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::Core;
-using namespace CF::GUI::ClientTest;
+using namespace CF::UI::Core;
+using namespace CF::UI::ClientTest;
 
 Q_DECLARE_METATYPE(QModelIndex);
 

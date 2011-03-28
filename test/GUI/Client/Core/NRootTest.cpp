@@ -8,14 +8,14 @@
 
 #include "Common/BasicExceptions.hpp"
 
-#include "GUI/Core/NGeneric.hpp"
-#include "GUI/Core/NRoot.hpp"
+#include "UI/Core/NGeneric.hpp"
+#include "UI/Core/NRoot.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 #include "test/GUI/Client/Core/NRootTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Core;
+using namespace CF::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////////
 

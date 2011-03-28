@@ -9,19 +9,19 @@
 
 #include <QtTest>
 
-#include "GUI/Graphics/GraphicalString.hpp"
+#include "UI/Graphics/GraphicalString.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 
 #include "test/GUI/Client/UI/GraphicalStringTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Graphics;
+using namespace CF::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace GUI {
+namespace UI {
 namespace ClientTest {
 
 //////////////////////////////////////////////////////////////////////////
@@ -209,5 +209,5 @@ QLineEdit * GraphicalStringTest::findLineEdit(const GraphicalString* value)
 //////////////////////////////////////////////////////////////////////////
 
 } // ClientTest
-} // GUI
+} // UI
 } // CF

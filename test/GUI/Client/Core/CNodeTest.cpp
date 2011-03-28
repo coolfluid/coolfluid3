@@ -20,16 +20,16 @@
 
 #include "Common/XML/Protocol.hpp"
 
-#include "GUI/Core/TreeThread.hpp"
-#include "GUI/Core/CNode.hpp"
-#include "GUI/Core/NBrowser.hpp"
-#include "GUI/Core/NGeneric.hpp"
-#include "GUI/Core/NLog.hpp"
-#include "GUI/Core/NLink.hpp"
-#include "GUI/Core/NRoot.hpp"
-#include "GUI/Core/NTree.hpp"
+#include "UI/Core/TreeThread.hpp"
+#include "UI/Core/CNode.hpp"
+#include "UI/Core/NBrowser.hpp"
+#include "UI/Core/NGeneric.hpp"
+#include "UI/Core/NLog.hpp"
+#include "UI/Core/NLink.hpp"
+#include "UI/Core/NRoot.hpp"
+#include "UI/Core/NTree.hpp"
 
-#include "GUI/UICommon/ComponentNames.hpp"
+#include "UI/UICommon/ComponentNames.hpp"
 
 #include "test/GUI/Client/Core/CommonFunctions.hpp"
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
@@ -41,8 +41,8 @@
 using namespace boost::assign;
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::Core;
-using namespace CF::GUI::ClientTest;
+using namespace CF::UI::Core;
+using namespace CF::UI::ClientTest;
 
 ////////////////////////////////////////////////////////////////////////////
 

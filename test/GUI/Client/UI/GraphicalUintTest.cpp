@@ -9,7 +9,7 @@
 
 #include <QtTest>
 
-#include "GUI/Graphics/GraphicalInt.hpp"
+#include "UI/Graphics/GraphicalInt.hpp"
 
 #include "Math/MathConsts.hpp"
 
@@ -18,13 +18,13 @@
 #include "test/GUI/Client/UI/GraphicalUintTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Graphics;
+using namespace CF::UI::Graphics;
 using namespace CF::Math;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace GUI {
+namespace UI {
 namespace ClientTest {
 
 //////////////////////////////////////////////////////////////////////////
@@ -223,5 +223,5 @@ QDoubleSpinBox * GraphicalUintTest::findSpinBox(const GraphicalInt* value)
 //////////////////////////////////////////////////////////////////////////
 
 } // ClientTest
-} // GUI
+} // UI
 } // CF

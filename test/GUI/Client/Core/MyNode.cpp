@@ -12,8 +12,8 @@
 #include "test/GUI/Client/Core/MyNode.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Core;
-using namespace CF::GUI::ClientTest;
+using namespace CF::UI::Core;
+using namespace CF::UI::ClientTest;
 
 MyNode::MyNode(const QString & name)
   : CNode(name, "MyNode", CNode::LOG_NODE)

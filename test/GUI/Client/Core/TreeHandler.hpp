@@ -9,7 +9,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-#include "GUI/Core/CNode.hpp"
+#include "UI/Core/CNode.hpp"
 
 class QStringList;
 
@@ -27,9 +27,9 @@ namespace ClientTest {
 
     ~TreeHandler();
 
-    void add(CF::GUI::Core::CNode::Ptr node);
+    void add(CF::UI::Core::CNode::Ptr node);
 
-    void addChildren(CF::GUI::Core::CNode::Ptr node);
+    void addChildren(CF::UI::Core::CNode::Ptr node);
 
   private:
 

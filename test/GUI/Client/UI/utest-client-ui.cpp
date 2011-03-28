@@ -20,7 +20,7 @@
 #include "test/GUI/Client/UI/GraphicalUriTest.hpp"
 #include "test/GUI/Client/UI/GraphicalValueTest.hpp"
 
-using namespace CF::GUI::ClientTest;
+using namespace CF::UI::ClientTest;
 
 int main(int argc, char * argv[])
 {

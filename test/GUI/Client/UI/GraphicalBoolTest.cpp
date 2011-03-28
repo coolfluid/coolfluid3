@@ -9,19 +9,19 @@
 
 #include <QtTest>
 
-#include "GUI/Graphics/GraphicalBool.hpp"
+#include "UI/Graphics/GraphicalBool.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 
 #include "test/GUI/Client/UI/GraphicalBoolTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Graphics;
+using namespace CF::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace GUI {
+namespace UI {
 namespace ClientTest {
 
 //////////////////////////////////////////////////////////////////////////
@@ -238,5 +238,5 @@ QCheckBox * GraphicalBoolTest::findCheckBox(const GraphicalBool* value)
 //////////////////////////////////////////////////////////////////////////
 
 } // ClientTest
-} // GUI
+} // UI
 } // CF
