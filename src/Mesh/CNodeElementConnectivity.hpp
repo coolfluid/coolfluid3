@@ -70,6 +70,8 @@ public:
   /// @pre set_nodes() and set_elements() must have been called
   void build_connectivity();
 
+  CUnifiedData<CElements>& unified_elements() { return *m_elements; }
+
   /// Find the elements connected to a given node by its index
   /// The return type is CDynTable<Uint>::ConstRow which (or "std::vector<Uint> const&")
   /// @return continuous indices of the elments
@@ -84,7 +86,7 @@ public:
   CUnifiedData<CElements>::const_data_location_type element_location(const Uint unified_elem_idx) const;
   
   /// const access to the node to element connectivity table in unified indices
-  const CDynTable<Uint>& connectivity() const { return *m_connectivity; }
+  CDynTable<Uint>& connectivity() { return *m_connectivity; }
 
 private: //functions
 

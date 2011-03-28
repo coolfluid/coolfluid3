@@ -4,11 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CStencilComputerOcttree_hpp
-#define CF_Mesh_CStencilComputerOcttree_hpp
+#ifndef CF_Mesh_CStencilComputerRings_hpp
+#define CF_Mesh_CStencilComputerRings_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <set>
 #include "Mesh/CStencilComputer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,26 +17,25 @@
 namespace CF {
 namespace Mesh {
 
-  class CMesh;
-  class COcttree;
+  class CNodeElementConnectivity;
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines Neutral mesh format reader
 /// @author Willem Deconinck
-class Mesh_API CStencilComputerOcttree : public CStencilComputer
+class Mesh_API CStencilComputerRings : public CStencilComputer
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<CStencilComputerOcttree> Ptr;
-  typedef boost::shared_ptr<CStencilComputerOcttree const> ConstPtr;
+  typedef boost::shared_ptr<CStencilComputerRings> Ptr;
+  typedef boost::shared_ptr<CStencilComputerRings const> ConstPtr;
 
 public: // functions  
   /// constructor
-  CStencilComputerOcttree( const std::string& name );
+  CStencilComputerRings( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CStencilComputerOcttree"; }
+  static std::string type_name() { return "CStencilComputerRings"; }
 
   virtual void compute_stencil(const Uint unified_elem_idx, std::vector<Uint>& stencil);
 
@@ -43,14 +43,18 @@ private: // functions
 
   void configure_mesh();
   
+  CNodeElementConnectivity& node2cell() { return *m_node2cell.lock(); }
+
+  void compute_neighbors(std::set<Uint>& included, const Uint unified_elem_idx, const Uint level=0);
+
 private: // data
   
-  boost::shared_ptr<COcttree> m_octtree;
-  
-  Uint m_dim;
-  Uint m_nb_elems_in_mesh;
+  Uint m_nb_rings;
 
-}; // end CStencilComputerOcttree
+  boost::weak_ptr<CNodeElementConnectivity> m_node2cell;
+  
+  std::set<Uint> visited_nodes;
+}; // end CStencilComputerRings
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -59,4 +63,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Neu_CStencilComputerOcttree_hpp
+#endif // CF_Mesh_Neu_CStencilComputerRings_hpp

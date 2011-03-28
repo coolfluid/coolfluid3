@@ -33,7 +33,7 @@ CStencilComputer::CStencilComputer( const std::string& name )
     ->attach_trigger(boost::bind(&CStencilComputer::configure_mesh,this))
     ->mark_basic();
 
-  m_elements = create_component<CUnifiedData<CElements const> >("elements");
+  m_elements = create_component<CUnifiedData<CElements> >("elements");
   
   m_min_stencil_size=1;
   m_properties.add_option(OptionT<Uint>::create("stencil_size","Stencil Size","The minimum amount of cells in a stencil", m_min_stencil_size ))
@@ -48,8 +48,16 @@ void CStencilComputer::configure_mesh()
   if (m_mesh.expired())
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
   
-  std::vector<CElements::ConstPtr> elements_vector = find_components_recursively_with_filter<CElements>(*m_mesh.lock(),IsElementsVolume()).as_const_vector();
+  std::vector<CElements::Ptr> elements_vector = find_components_recursively_with_filter<CElements>(*m_mesh.lock(),IsElementsVolume()).as_vector();
   m_elements->add_data(elements_vector);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CStencilComputer::set_mesh(CMesh& mesh)
+{
+  m_mesh = mesh.as_ptr<CMesh>();
+  configure_mesh();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

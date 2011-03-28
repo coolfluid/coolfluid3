@@ -14,6 +14,13 @@ coolfluid_add_unit_test( utest-mesh-octtree )
 
 ################################################################################
 
+list( APPEND utest-mesh-stencilcomputerrings_cflibs coolfluid_mesh_sf )
+list( APPEND utest-mesh-stencilcomputerrings_files  utest-mesh-stencilcomputerrings.cpp )
+
+coolfluid_add_unit_test( utest-mesh-stencilcomputerrings )
+
+################################################################################
+
 list( APPEND utest-mesh-interpolation_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-interpolation_files  utest-mesh-interpolation.cpp )
 

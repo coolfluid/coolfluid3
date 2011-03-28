@@ -63,6 +63,8 @@ list( APPEND coolfluid_mesh_files
   CSpace.cpp
   CStencilComputer.hpp
   CStencilComputer.cpp
+  CStencilComputerRings.hpp
+  CStencilComputerRings.cpp
   CStencilComputerOcttree.hpp
   CStencilComputerOcttree.cpp
   CTable.hpp
