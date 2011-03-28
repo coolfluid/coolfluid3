@@ -338,11 +338,6 @@ public: // functions
   /// Gives a signal signature, if any
   void signal_signature( SignalArgs & args );
 
-  //@} END SIGNALS
-
-  /// @name SIGNAL SIGNATURES
-  //@{
-
   /// Defines the signature of "create_component" signal.
   /// @param node The frame under which signature is added.
   void signature_create_component( SignalArgs& args );
@@ -355,7 +350,7 @@ public: // functions
   /// @param node The frame under which signature is added.
   void signature_move_component( SignalArgs& args );
 
-  //@} END SIGNAL SIGNATURES
+  //@} END SIGNALS
 
   /// marks this component as basic.
   Component& mark_basic();
