@@ -42,13 +42,17 @@ public: // functions
 
   // functions specific to the WriteMesh component
 
-  /// Signal run_operation
-  void signal_write_mesh ( Common::SignalArgs& node );
+  /// @name SIGNALS
+  //@{
 
+  /// signal to write the mesh
+  void signal_write_mesh ( Common::SignalArgs& node );
+  /// signature of signal to write the mesh
   void signature_write_mesh ( Common::SignalArgs& node);
 
-  WriteMesh& operation(const std::string& name);
+  //@} END SIGNALS
 
+  /// function write the mesh
   void write_mesh( CMesh&, const Common::URI& file, const std::vector<Common::URI>& fields);
 
 protected: // helper functions

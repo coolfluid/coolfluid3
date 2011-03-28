@@ -42,11 +42,17 @@ public: // functions
 
   // functions specific to the LoadMesh component
 
-  /// Signal run_operation
-  void signal_load_mesh ( Common::SignalArgs& node );
+  /// @name SIGNALS
+  //@{
 
+  /// signal to load the mesh
+  void signal_load_mesh ( Common::SignalArgs& node );
+  /// signature of signal to load the mesh
   void signature_load_mesh ( Common::SignalArgs& node);
 
+  //@} END SIGNALS
+
+  /// function load the mesh
   boost::shared_ptr<CMesh> load_mesh(const Common::URI& file);
 
 protected: // helper functions
