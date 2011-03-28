@@ -19,6 +19,7 @@ namespace Mesh {
 
   class CMesh;
   class CField;
+  class CStencilComputer;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -58,14 +59,25 @@ public: // functions
   
   virtual void interpolate_field_from_to(const CField& source, CField& target) = 0;
 
+private: // functions
+
+  void configure_stencil_computer();
+  
+  void configure_interpolator_function();
+
 private: // data
   
-  // source field
+  /// source field
   boost::weak_ptr<CField> m_source;
   
-  // target field
+  /// target field
   boost::weak_ptr<CField> m_target;
   
+  /// The strategy to compute the stencil
+  boost::shared_ptr<CStencilComputer>       m_stencil_computer;
+  
+  /// The strategy to interpolate.
+  boost::shared_ptr<Component>       m_interpolator_function;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

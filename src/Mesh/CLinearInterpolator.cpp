@@ -45,7 +45,7 @@ CF::Common::ComponentBuilder < CLinearInterpolator, CInterpolator, LibMesh > CLi
 //////////////////////////////////////////////////////////////////////////////
 
 CLinearInterpolator::CLinearInterpolator( const std::string& name )
-  : CInterpolator(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_comb_idx(3), m_sufficient_nb_points(0)
+  : CInterpolator(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_point_idx(3), m_sufficient_nb_points(0)
 {
    
 
@@ -117,7 +117,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
       to_vector(t_node,target.coords(t_node_idx));
-      if (find_comb_idx(t_node))
+      if (find_point_in_octtree(t_node,m_point_idx))
       {
         find_pointcloud(m_sufficient_nb_points);
         std::vector<Uint> s_data_idx(m_element_cloud.size());
@@ -215,7 +215,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
           
 
 
-          if (find_comb_idx(t_centroid))
+          if (find_point_in_octtree(t_centroid,m_point_idx))
           {
             find_pointcloud(m_sufficient_nb_points);
             std::vector<Uint> s_data_idx(m_element_cloud.size());
@@ -342,8 +342,8 @@ void CLinearInterpolator::create_octtree()
       elements.put_coordinates(coordinates,elem_idx);
       elements.element_type().compute_centroid(coordinates,centroid);
       for (Uint d=0; d<m_dim; ++d)
-        m_comb_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
-      m_honeycomb[m_comb_idx[0]][m_comb_idx[1]][m_comb_idx[2]].push_back(glb_elem_idx);
+        m_point_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
+      m_honeycomb[m_point_idx[0]][m_point_idx[1]][m_point_idx[2]].push_back(glb_elem_idx);
       ++glb_elem_idx;
     }
   }
@@ -392,7 +392,7 @@ void CLinearInterpolator::create_octtree()
 
 //////////////////////////////////////////////////////////////////////////////
   
-bool CLinearInterpolator::find_comb_idx(const RealVector& coordinate)
+bool CLinearInterpolator::find_point_in_octtree(const RealVector& coordinate, std::vector<Uint>& point_idx)
 {
   //CFinfo << "point " << coordinate << CFflush;
   cf_assert(coordinate.size() == static_cast<int>(m_dim));
@@ -405,10 +405,10 @@ bool CLinearInterpolator::find_comb_idx(const RealVector& coordinate)
       //CFinfo << (coordinate[d] - m_ranges[d][0])/m_D[d] << " > " << m_N[d] << CFendl;
       return false; // no index found
     }
-    m_comb_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
+    point_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
   }
       
-  //CFinfo << " should be in box ("<<m_comb_idx[0]<<","<<m_comb_idx[1]<<","<<m_comb_idx[2]<<")" << CFendl;
+  //CFinfo << " should be in box ("<<m_point_idx[0]<<","<<m_point_idx[1]<<","<<m_point_idx[2]<<")" << CFendl;
   return true;
 }
 
@@ -422,7 +422,7 @@ void CLinearInterpolator::find_pointcloud(Uint nb_points)
   int imin, jmin, kmin;
   int imax, jmax, kmax;
   
-  if (m_honeycomb[m_comb_idx[0]][m_comb_idx[1]][m_comb_idx[2]].size() <= nb_points)
+  if (m_honeycomb[m_point_idx[0]][m_point_idx[1]][m_point_idx[2]].size() <= nb_points)
     r=0;
   
   while (m_element_cloud.size() < nb_points && m_element_cloud.size() < m_nb_elems)
@@ -433,9 +433,9 @@ void CLinearInterpolator::find_pointcloud(Uint nb_points)
     switch (m_dim)
     {
       case DIM_3D:
-        imin = std::max(int(m_comb_idx[0])-int(r), 0);  imax = std::min(int(m_comb_idx[0])+int(r),int(m_N[0])-1);
-        jmin = std::max(int(m_comb_idx[1])-int(r), 0);  jmax = std::min(int(m_comb_idx[1])+int(r),int(m_N[1])-1);
-        kmin = std::max(int(m_comb_idx[2])-int(r), 0);  kmax = std::min(int(m_comb_idx[2])+int(r),int(m_N[2])-1);
+        imin = std::max(int(m_point_idx[0])-int(r), 0);  imax = std::min(int(m_point_idx[0])+int(r),int(m_N[0])-1);
+        jmin = std::max(int(m_point_idx[1])-int(r), 0);  jmax = std::min(int(m_point_idx[1])+int(r),int(m_N[1])-1);
+        kmin = std::max(int(m_point_idx[2])-int(r), 0);  kmax = std::min(int(m_point_idx[2])+int(r),int(m_N[2])-1);
         for (i = imin; i <= imax; ++i)
           for (j = jmin; j <= jmax; ++j)
             for (k = kmin; k <= kmax; ++k)
@@ -446,8 +446,8 @@ void CLinearInterpolator::find_pointcloud(Uint nb_points)
             }
         break;
       case DIM_2D:
-        imin = std::max(int(m_comb_idx[0])-int(r), 0);  imax = std::min(int(m_comb_idx[0])+int(r),int(m_N[0])-1);
-        jmin = std::max(int(m_comb_idx[1])-int(r), 0);  jmax = std::min(int(m_comb_idx[1])+int(r),int(m_N[1])-1);
+        imin = std::max(int(m_point_idx[0])-int(r), 0);  imax = std::min(int(m_point_idx[0])+int(r),int(m_N[0])-1);
+        jmin = std::max(int(m_point_idx[1])-int(r), 0);  jmax = std::min(int(m_point_idx[1])+int(r),int(m_N[1])-1);
         for (i = imin; i <= imax; ++i)
           for (j = jmin; j <= jmax; ++j)
           {
@@ -457,7 +457,7 @@ void CLinearInterpolator::find_pointcloud(Uint nb_points)
           }
         break;
       case DIM_1D:
-        imin = std::max(int(m_comb_idx[0])-int(r), 0);  imax = std::min(int(m_comb_idx[0])+int(r),int(m_N[0])-1);
+        imin = std::max(int(m_point_idx[0])-int(r), 0);  imax = std::min(int(m_point_idx[0])+int(r),int(m_N[0])-1);
         for (i = imin; i <= imax; ++i)
         {
           boost_foreach(const Uint glb_elem_idx, m_honeycomb[i][j][k])
@@ -476,7 +476,7 @@ void CLinearInterpolator::find_pointcloud(Uint nb_points)
 
 boost::tuple<CElements::ConstPtr,Uint> CLinearInterpolator::find_element(const RealVector& target_coord)
 {
-  if (find_comb_idx(target_coord))
+  if (find_point_in_octtree(target_coord,m_point_idx))
   {
     find_pointcloud(1);
     

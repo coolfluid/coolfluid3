@@ -64,6 +64,7 @@ COcttree::COcttree( const std::string& name )
     dummy);
     
   m_elements = create_component<CUnifiedData<CElements const> >("elements");
+  
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -109,7 +110,6 @@ void COcttree::create_octtree()
   }
 
   const Uint nb_elems = m_mesh.lock()->topology().recursive_filtered_elements_count(IsElementsVolume());
-
 
   if (property("nb_cells").value<std::vector<Uint> >().size() > 0)
   {
@@ -231,6 +231,9 @@ void COcttree::gather_elements_around_idx(const std::vector<Uint>& octtree_idx, 
   int i(0), j(0), k(0);
   int imin, jmin, kmin;
   int imax, jmax, kmax;
+
+  int irmin, jrmin, krmin;
+  int irmax, jrmax, krmax;
   
   if (ring == 0)
   {
@@ -243,124 +246,67 @@ void COcttree::gather_elements_around_idx(const std::vector<Uint>& octtree_idx, 
     switch (m_dim)
     {
       case DIM_3D:
-        imin = std::max(int(octtree_idx[XX])-int(ring), 0);  imax = std::min(int(octtree_idx[XX])+int(ring),int(m_N[XX])-1);
-        jmin = std::max(int(octtree_idx[YY])-int(ring), 0);  jmax = std::min(int(octtree_idx[YY])+int(ring),int(m_N[YY])-1);
-        kmin = std::max(int(octtree_idx[ZZ])-int(ring), 0);  kmax = std::min(int(octtree_idx[ZZ])+int(ring),int(m_N[ZZ])-1);
+      irmin = int(octtree_idx[XX])-int(ring);  irmax = int(octtree_idx[XX])+int(ring);
+      jrmin = int(octtree_idx[YY])-int(ring);  jrmax = int(octtree_idx[YY])+int(ring);
+      krmin = int(octtree_idx[ZZ])-int(ring);  krmax = int(octtree_idx[ZZ])+int(ring);
+
+      imin = std::max(irmin, 0);  imax = std::min(irmax,int(m_N[XX])-1);
+      jmin = std::max(jrmin, 0);  jmax = std::min(jrmax,int(m_N[YY])-1);
+      kmin = std::max(krmin, 0);  kmax = std::min(krmax,int(m_N[ZZ])-1);
 
         // imin:
         i = imin;
-        for (j = jmin; j <= jmax; ++j)
-        {
-          for (k = kmin; k <= kmax; ++k)
-          {
-            boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
-              unified_elems.push_back(unif_elem_idx);
-          }
-        }
-
-        // imax:
-        i = imax;
-        for (j = jmin; j <= jmax; ++j)
-        {
-          for (k = kmin; k <= kmax; ++k)
-          {
-            boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
-              unified_elems.push_back(unif_elem_idx);
-          }
-        }
-
-        // jmin :
-        j = jmin;
-        for (i = imin; i <= imax; ++i)
-        {
-          for (k = kmin; k <= kmax; ++k)
-          {
-            boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
-              unified_elems.push_back(unif_elem_idx);
-          }
-        }
-
-        // jmax:
-        j = jmax;
-        for (i = imin; i <= imax; ++i)
-        {
-          for (k = kmin; k <= kmax; ++k)
-          {
-            boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
-              unified_elems.push_back(unif_elem_idx);
-          }
-        }
-
-        // kmin:
-        k = kmin;
         for (i = imin; i <= imax; ++i)
         {
           for (j = jmin; j <= jmax; ++j)
           {
-            boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
-              unified_elems.push_back(unif_elem_idx);
-          }
-        }
-
-        // kmax:
-        k = kmax;
-        for (i = imin; i <= imax; ++i)
-        {
-          for (j = jmin; j <= jmax; ++j)
-          {
-            boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
-              unified_elems.push_back(unif_elem_idx);
+            for (k = kmin; k <= kmax; ++k)
+            {
+              if ( i == irmin || i == irmax || j == jrmin || j == jrmax || k == krmin || k == krmax)
+              {              
+                boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
+                  unified_elems.push_back(unif_elem_idx);
+              }
+            }
           }
         }
 
         break;
       case DIM_2D:
-        imin = std::max(int(octtree_idx[XX])-int(ring), 0);  imax = std::min(int(octtree_idx[XX])+int(ring),int(m_N[XX])-1);
-        jmin = std::max(int(octtree_idx[YY])-int(ring), 0);  jmax = std::min(int(octtree_idx[YY])+int(ring),int(m_N[YY])-1);
+      
+        irmin = int(octtree_idx[XX])-int(ring);  irmax = int(octtree_idx[XX])+int(ring);
+        jrmin = int(octtree_idx[YY])-int(ring);  jrmax = int(octtree_idx[YY])+int(ring);
+
+        imin = std::max(irmin, 0);  imax = std::min(irmax,int(m_N[XX])-1);
+        jmin = std::max(jrmin, 0);  jmax = std::min(jrmax,int(m_N[YY])-1);
+
+        for (i = imin; i <= imax; ++i)
+        {
+          for (j = jmin; j <= jmax; ++j)
+          {
+            if ( i == irmin || i == irmax || j == jrmin || j == jrmax )
+            {
+              boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
+                unified_elems.push_back(unif_elem_idx);
+            }
+          }
+        }
         
-        // imin:
-        i = imin;
-        for (j = jmin; j <= jmax; ++j)
-        {
-          boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
-            unified_elems.push_back(unif_elem_idx);
-        }
-
-        // imax:
-        i = imax;
-        for (j = jmin; j <= jmax; ++j)
-        {
-          boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
-            unified_elems.push_back(unif_elem_idx);
-        }
-
-        // jmin :
-        j = jmin;
-        for (i = imin; i <= imax; ++i)
-        {
-          boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
-            unified_elems.push_back(unif_elem_idx);
-        }
-
-        // jmax:
-        j = jmax;
-        for (i = imin; i <= imax; ++i)
-        {
-          boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
-            unified_elems.push_back(unif_elem_idx);
-        }
         break;
         
       case DIM_1D:
+        irmin = int(octtree_idx[XX])-int(ring);  irmax = int(octtree_idx[XX])+int(ring);
         imin = std::max(int(octtree_idx[XX])-int(ring), 0);  imax = std::min(int(octtree_idx[XX])+int(ring),int(m_N[XX])-1);
 
-        // imin
-        boost_foreach(const Uint unif_elem_idx, m_octtree[imin][j][k])
-          unified_elems.push_back(unif_elem_idx);
-
-        // imax
-        boost_foreach(const Uint unif_elem_idx, m_octtree[imax][j][k])
-          unified_elems.push_back(unif_elem_idx);
+        for (i = imin; i <= imax; ++i)
+        {
+          if ( i == irmin || i == irmax)
+          {
+            boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
+              unified_elems.push_back(unif_elem_idx);
+          }
+        }
+        
 
         break;
     }
@@ -415,7 +361,7 @@ boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& 
   return boost::make_tuple(CElements::ConstPtr(), 0u);
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

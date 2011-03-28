@@ -53,13 +53,6 @@ public: // functions
   /// @return the elements region, and the local coefficient in this region
   boost::tuple<CElements::ConstPtr,Uint> find_element(const RealVector& target_coord);
   
-private: // functions
-
-
-  /// Create the octtree for fast searching in which element a coordinate can be found
-  void create_bounding_box();
-
-  
   /// Given a coordinate, find which box in the octtree it is located in
   /// @param coordinate [in] The coordinate to look for
   /// @return if the coordinate is found inside the honeycomb
@@ -70,6 +63,10 @@ private: // functions
   /// @param nb_points [in] the minimum number of points in the point cloud
   void gather_elements_around_idx(const std::vector<Uint>& octtree_idx, const Uint ring, std::vector<Uint>& unified_elems);
   
+private: //functions
+
+  /// Create the octtree for fast searching in which element a coordinate can be found
+  void create_bounding_box();
 
   /// Utility function to convert a vector-like type to a RealVector
   template<typename RowT>

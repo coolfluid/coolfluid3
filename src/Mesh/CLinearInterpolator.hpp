@@ -60,10 +60,10 @@ private: // functions
 	
   void create_octtree();
   
-	/// Given a coordinate, find which box in the honeycomb it is located in
+	/// Given a coordinate, find which box in the octtree it is located in
   /// @param coordinate [in] The coordinate to look for
 	/// @return if the coordinate is found inside the honeycomb
-	bool find_comb_idx(const RealVector& coordinate);
+	bool find_point_in_octtree(const RealVector& coordinate, std::vector<Uint>& point_idx);
 	
 	/// Find the pointcloud of minimum "nb_points" points
 	/// It is assumed that first "find_comb_idx(coordinate)" is called
@@ -104,7 +104,7 @@ private: // data
   std::vector< RealVector3, Eigen::aligned_allocator<RealVector3> > m_bounding;
   std::vector<Uint> m_N;
   std::vector<Real> m_D;
-  std::vector<Uint> m_comb_idx;
+  std::vector<Uint> m_point_idx;
 
   Uint m_nb_elems;
   

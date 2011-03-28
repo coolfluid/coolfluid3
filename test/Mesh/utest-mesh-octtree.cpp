@@ -25,6 +25,7 @@
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CMeshGenerator.hpp"
 #include "Mesh/COcttree.hpp"
+#include "Mesh/CStencilComputerOcttree.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -81,7 +82,7 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   octtree->configure_property("nb_elems_per_cell", (Uint) 1 );
   octtree->configure_property("mesh", find_component<CMesh>(*Core::instance().root()).full_path() );
   // Following configuration option has priority over the the previous one.
-  std::vector<Uint> nb_cells = boost::assign::list_of(2)(2);
+  std::vector<Uint> nb_cells = boost::assign::list_of(5)(5);
   octtree->configure_property("nb_cells", nb_cells );
   
 	BOOST_CHECK(true);
@@ -96,11 +97,7 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   boost::tie(elements,idx) = octtree->find_element(coord);
   BOOST_CHECK_EQUAL(idx,0u);
 
-  coord << 2. , 1. ; // actually in 2 elements ( 0 , 1 ), 0 is chosen
-  boost::tie(elements,idx) = octtree->find_element(coord);
-  BOOST_CHECK_EQUAL(idx,0u);
-
-  coord << 2.1 , 1. ;
+  coord << 3. , 1. ;
   boost::tie(elements,idx) = octtree->find_element(coord);
   BOOST_CHECK_EQUAL(idx,1u);
 
@@ -108,6 +105,29 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   boost::tie(elements,idx) = octtree->find_element(coord);
   BOOST_CHECK_EQUAL(idx,5u);
 
+
+
+  CStencilComputerOcttree::Ptr stencil_computer = Core::instance().root()->create_component<CStencilComputerOcttree>("stencilcomputer");
+  stencil_computer->configure_property("mesh", find_component<CMesh>(*Core::instance().root()).full_path() );
+
+  std::vector<Uint> stencil;
+  stencil_computer->configure_property("stencil_size", 1u );
+  stencil_computer->compute_stencil(*elements, 7, stencil);
+  BOOST_CHECK_EQUAL(stencil.size(), 1u);
+
+  stencil_computer->configure_property("stencil_size", 2u );
+  stencil_computer->compute_stencil(*elements, 7, stencil);
+  BOOST_CHECK_EQUAL(stencil.size(), 9u);
+
+  stencil_computer->configure_property("stencil_size", 10u );
+  stencil_computer->compute_stencil(*elements, 7, stencil);
+  BOOST_CHECK_EQUAL(stencil.size(), 20u);
+  
+  stencil_computer->configure_property("stencil_size", 21u );
+  stencil_computer->compute_stencil(*elements, 7, stencil);
+  BOOST_CHECK_EQUAL(stencil.size(), 25u); // mesh size
+  
+  CFinfo << stencil_computer->tree() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

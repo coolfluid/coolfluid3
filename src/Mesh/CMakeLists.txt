@@ -3,6 +3,8 @@ coolfluid_find_orphan_files()
 list( APPEND coolfluid_mesh_files
   ArrayBase.hpp
   ArrayBufferT.hpp
+  CCellFaces.hpp
+  CCellFaces.cpp
   CCells.hpp
   CCells.cpp
   CDomain.hpp
@@ -33,10 +35,8 @@ list( APPEND coolfluid_mesh_files
   CMesh.cpp
   CMeshGenerator.hpp
   CMeshGenerator.cpp
-  COcttree.hpp
-  COcttree.cpp
-  CSimpleMeshGenerator.hpp
-  CSimpleMeshGenerator.cpp
+  CMeshPartitioner.hpp
+  CMeshPartitioner.cpp
   CMeshReader.hpp
   CMeshReader.cpp
   CMeshTransformer.hpp
@@ -51,26 +51,30 @@ list( APPEND coolfluid_mesh_files
   CNodeElementConnectivity.cpp
   CNodeFaceCellConnectivity.hpp
   CNodeFaceCellConnectivity.cpp
-  CCellFaces.hpp
-  CCellFaces.cpp
+  COcttree.hpp
+  COcttree.cpp
   ConnectivityData.cpp
   ConnectivityData.hpp
-  CMeshPartitioner.hpp
-  CMeshPartitioner.cpp
   CRegion.hpp
   CRegion.cpp
+  CSimpleMeshGenerator.hpp
+  CSimpleMeshGenerator.cpp
   CSpace.hpp
   CSpace.cpp
+  CStencilComputer.hpp
+  CStencilComputer.cpp
+  CStencilComputerOcttree.hpp
+  CStencilComputerOcttree.cpp
   CTable.hpp
   CTable.cpp
   CUnifiedData.hpp
   ElementData.hpp
   ElementType.hpp
   ElementType.cpp
-  GeoShape.hpp
-  GeoShape.cpp
   ElementType.hpp
   ElementType.cpp
+  GeoShape.hpp
+  GeoShape.cpp
   Hexa3D.hpp
   Hexa3D.cpp
   LibMesh.hpp
