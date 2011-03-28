@@ -10,7 +10,6 @@
 #include "Common/OptionURI.hpp"
 
 #include "Solver/CEigenLSS.hpp"
-#include "Solver/CMethod.hpp"
 #include "Solver/Actions/CFieldAction.hpp"
 #include "Solver/Actions/Proto/PhysicalModel.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
@@ -22,7 +21,7 @@ namespace CF {
 namespace UFEM {
 
 /// A method that solves a linear system to obtain the problem solution. The system is set up based on a proto expression
-class UFEM_API LinearSystem : public Solver::CMethod
+class UFEM_API LinearSystem : public Common::Component
 {
 public: // typedefs
 

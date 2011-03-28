@@ -17,7 +17,6 @@
 
 #include "Mesh/CTable.hpp"
 
-#include "Solver/CMethod.hpp"
 #include "Solver/CPlotter.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"

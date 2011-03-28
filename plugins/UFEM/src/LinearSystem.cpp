@@ -71,7 +71,7 @@ private:
   boost::weak_ptr<Component> m_parent;
 };
 
-LinearSystem::LinearSystem(const std::string& name) : CMethod (name)
+LinearSystem::LinearSystem(const std::string& name) : Component (name)
 {
   m_lss_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("LSS", "Linear system solver", std::string()) );
   m_lss_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
@@ -91,7 +91,6 @@ LinearSystem::LinearSystem(const std::string& name) : CMethod (name)
   signal("rename_component")->is_hidden = true;
   signal("delete_component")->is_hidden = true;
   signal("move_component")->is_hidden   = true;
-  signal("run_operation")->is_hidden   = true;
 }
 
 CEigenLSS& LinearSystem::lss()
