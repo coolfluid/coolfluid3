@@ -14,7 +14,7 @@
 #include <QList>
 #include <QMutex>
 
-#include "GUI/Network/LogMessage.hpp"
+#include "GUI/UICommon/LogMessage.hpp"
 
 class QHostAdress;
 class QTcpServer;
@@ -77,7 +77,7 @@ namespace Server {
     /// @param uuid Client UUID, or an empty string to send to all clients.
     /// @throw UnknownClientIdException if Client UUID is unknown.
     void sendMessageToClient(const QString & message,
-                             Network::LogMessage::Type type,
+                             UICommon::LogMessage::Type type,
                              const std::string & uuid = std::string());
 
     void sendSignalToClient(const Common::XML::XmlDoc & signal,
@@ -154,7 +154,7 @@ namespace Server {
     /// @return Returns @c true if the frame was built and sent successfully;
     /// otherwise returns @c false.
     bool sendMessage(QTcpSocket * client, const QString & message,
-                     Network::LogMessage::Type type);
+                     UICommon::LogMessage::Type type);
 
     /// @brief Sends a message to a client.
 

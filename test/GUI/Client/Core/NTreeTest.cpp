@@ -13,7 +13,7 @@
 #include "Common/CLink.hpp"
 #include "Common/OptionT.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NLog.hpp"

@@ -18,7 +18,7 @@ QT4_WRAP_CPP(utest-client-core_moc_files ${utest-client-core_moc_classes})
 
 #configure_file( tree.xml  ${CMAKE_CURRENT_BINARY_DIR}/tree.xml  @ONLY )
 
-list( APPEND utest-client-core_cflibs coolfluid_network)
+list( APPEND utest-client-core_cflibs coolfluid_ui_common)
 list( APPEND utest-client-core_libs ${QT_LIBRARIES})
 list( APPEND utest-client-core_files
   utest-client-core.cpp

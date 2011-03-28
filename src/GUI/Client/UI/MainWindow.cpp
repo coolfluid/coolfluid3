@@ -34,14 +34,14 @@
 #include "GUI/Client/UI/TabBuilder.hpp"
 #include "GUI/Client/UI/TreeView.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Client/UI/MainWindow.hpp"
 
 #define WORKSPACE_FILE QDir::homePath() + "/CF_workspace.xml"
 
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::Network;
+using namespace CF::GUI::UICommon;
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
@@ -124,8 +124,8 @@ MainWindow::MainWindow()
           this, SLOT(newException(QString)));
 
   connect(NLog::globalLog().get(),
-          SIGNAL(newMessage(QString, CF::GUI::Network::LogMessage::Type)),
-          this, SLOT(newLogMessage(QString,CF::GUI::Network::LogMessage::Type)));
+          SIGNAL(newMessage(QString, CF::GUI::UICommon::LogMessage::Type)),
+          this, SLOT(newLogMessage(QString,CF::GUI::UICommon::LogMessage::Type)));
 
   connect(root, SIGNAL(connected()), this, SLOT(connectedToServer()));
 
@@ -523,7 +523,7 @@ void MainWindow::openFileRemotely()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::newLogMessage(const QString & message, CF::GUI::Network::LogMessage::Type type)
+void MainWindow::newLogMessage(const QString & message, CF::GUI::UICommon::LogMessage::Type type)
 {
   m_logFile << message << '\n';
 }

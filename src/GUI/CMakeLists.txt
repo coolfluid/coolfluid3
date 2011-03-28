@@ -17,7 +17,7 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   # include_directories( ${CMAKE_SOURCE_DIR} ${QT_INCLUDES} )
 
   add_subdirectory( Client  )
-  add_subdirectory( Network )
+  add_subdirectory( UICommon )
   add_subdirectory( Server  )
 
 endif()

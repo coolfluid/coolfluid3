@@ -18,7 +18,7 @@
 
 #include "Common/XML/Protocol.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Server/RemoteClientAppender.hpp"
 #include "GUI/Server/ServerNetworkComm.hpp"
@@ -29,7 +29,7 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::Network;
+using namespace CF::GUI::UICommon;
 using namespace CF::GUI::Server;
 
 CCore::CCore()

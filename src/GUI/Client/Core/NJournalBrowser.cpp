@@ -13,7 +13,7 @@
 
 #include "Common/Signal.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "Common/XML/Protocol.hpp"
 

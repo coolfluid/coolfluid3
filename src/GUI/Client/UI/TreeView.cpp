@@ -13,7 +13,7 @@
 
 #include "Common/CF.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Client/Core/CommitDetails.hpp"
 #include "GUI/Client/Core/NLog.hpp"
@@ -28,7 +28,7 @@
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::Network;
+using namespace CF::GUI::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 

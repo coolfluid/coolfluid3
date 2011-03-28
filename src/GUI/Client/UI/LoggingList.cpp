@@ -6,11 +6,11 @@
 
 #include "GUI/Client/Core/NLog.hpp"
 
-#include "GUI/Network/LogMessage.hpp"
+#include "GUI/UICommon/LogMessage.hpp"
 
 #include "GUI/Client/UI/LoggingList.hpp"
 
-using namespace CF::GUI::Network;
+using namespace CF::GUI::UICommon;
 using namespace CF::GUI::ClientCore;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -25,12 +25,12 @@ LoggingList::LoggingList(QWidget * parent, unsigned int maxLogLines)
   : QTextEdit(parent),
     m_maxLogLines(maxLogLines)
 {
-  qRegisterMetaType<CF::GUI::Network::LogMessage::Type>("CF::GUI::Network::LogMessage::Type");
+  qRegisterMetaType<CF::GUI::UICommon::LogMessage::Type>("CF::GUI::UICommon::LogMessage::Type");
   this->setWordWrapMode(QTextOption::NoWrap);
   this->setReadOnly(true);
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString,CF::GUI::Network::LogMessage::Type)),
-           this, SLOT(newMessage(QString,CF::GUI::Network::LogMessage::Type)));
+  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString,CF::GUI::UICommon::LogMessage::Type)),
+           this, SLOT(newMessage(QString,CF::GUI::UICommon::LogMessage::Type)));
 }
 
 //////////////////////////////////////////////////////////////////////////

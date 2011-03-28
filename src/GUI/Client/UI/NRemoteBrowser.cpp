@@ -35,14 +35,14 @@
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Client/UI/NRemoteBrowser.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::GUI::ClientCore;
-using namespace CF::GUI::Network;
+using namespace CF::GUI::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -196,8 +196,8 @@ QString NRemoteBrowser::show(const QString & startingDir, bool * canceled)
   m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
   m_listView->clearSelection();
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString,CF::GUI::Network::LogMessage::Type)),
-          this, SLOT(message(QString,CF::GUI::Network::LogMessage::Type)));
+  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString,CF::GUI::UICommon::LogMessage::Type)),
+          this, SLOT(message(QString,CF::GUI::UICommon::LogMessage::Type)));
 
   this->reinitValues();
 

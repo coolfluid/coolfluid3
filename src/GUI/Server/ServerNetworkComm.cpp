@@ -16,9 +16,9 @@
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/Protocol.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
-#include "GUI/Network/LogMessage.hpp"
-#include "GUI/Network/NetworkException.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
+#include "GUI/UICommon/LogMessage.hpp"
+#include "GUI/UICommon/NetworkException.hpp"
 
 #include "GUI/Server/UnknownClientIdException.hpp"
 #include "GUI/Server/ServerRoot.hpp"
@@ -28,7 +28,7 @@
 using namespace std;
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::Network;
+using namespace CF::GUI::UICommon;
 using namespace CF::GUI::Server;
 
 ServerNetworkComm::ServerNetworkComm()

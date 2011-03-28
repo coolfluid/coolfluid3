@@ -19,7 +19,7 @@
 #include "Common/MPI/PE.hpp"
 #include "Common/CEnv.hpp"
 
-#include "GUI/Network/NetworkException.hpp"
+#include "GUI/UICommon/NetworkException.hpp"
 #include "GUI/Server/ServerRoot.hpp"
 #include "GUI/Server/SimulationWorker.hpp"
 
@@ -29,7 +29,7 @@
 
 using namespace boost;
 using namespace MPI;
-using namespace CF::GUI::Network;
+using namespace CF::GUI::UICommon;
 using namespace CF::GUI::Server;
 
 using namespace CF;

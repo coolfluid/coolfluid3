@@ -4,23 +4,23 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Network_LogMessage_hpp
-#define CF_GUI_Network_LogMessage_hpp
+#ifndef CF_GUI_UICommon_LogMessage_hpp
+#define CF_GUI_UICommon_LogMessage_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/EnumT.hpp"
-#include "GUI/Network/LibNetwork.hpp"
+#include "GUI/UICommon/LibUICommon.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace GUI {
-namespace Network {
+namespace UICommon {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Network_API LogMessage
+class UICommon_API LogMessage
 {
   public:
 
@@ -46,8 +46,8 @@ class Network_API LogMessage
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Network_API std::ostream& operator<< ( std::ostream& os, const LogMessage::Type& in );
-Network_API std::istream& operator>> ( std::istream& is, LogMessage::Type& in );
+UICommon_API std::ostream& operator<< ( std::ostream& os, const LogMessage::Type& in );
+UICommon_API std::istream& operator>> ( std::istream& is, LogMessage::Type& in );
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,4 +57,4 @@ Network_API std::istream& operator>> ( std::istream& is, LogMessage::Type& in );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Network_LogMessage_hpp
+#endif // CF_GUI_UICommon_LogMessage_hpp

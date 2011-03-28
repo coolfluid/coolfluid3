@@ -6,23 +6,23 @@
 
 #include "Common/RegistLibrary.hpp"
 
-#include "GUI/Network/LibNetwork.hpp"
+#include "GUI/UICommon/LibUICommon.hpp"
 
 namespace CF {
 namespace GUI {
-namespace Network {
+namespace UICommon {
 
-CF::Common::RegistLibrary<LibNetwork> libNetwork;
+CF::Common::RegistLibrary<LibUICommon> LibUICommon;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibNetwork::initiate()
+void LibUICommon::initiate()
 {
   cf_assert( !m_is_initiated );
   m_is_initiated = true;
 }
 
-void LibNetwork::terminate()
+void LibUICommon::terminate()
 {
   m_is_initiated = false;
 }

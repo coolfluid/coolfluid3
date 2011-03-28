@@ -13,7 +13,7 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
-#include "GUI/Network/LogMessage.hpp"
+#include "GUI/UICommon/LogMessage.hpp"
 
 class QString;
 
@@ -86,7 +86,7 @@ namespace ClientCore {
     /// @param message Message text
     /// @param isError If @c true it is an error message; otherwise it is
     /// a "normal" message.
-    void newMessage(const QString & message, CF::GUI::Network::LogMessage::Type type);
+    void newMessage(const QString & message, CF::GUI::UICommon::LogMessage::Type type);
 
     /// @brief Signal emitted when an exception arrives
     /// @param message Exception message
@@ -105,7 +105,7 @@ namespace ClientCore {
     /// string format.
 
     /// The key is the type. The value is the name.
-    QHash<CF::GUI::Network::LogMessage::Type, QString> m_typeNames;
+    QHash<CF::GUI::UICommon::LogMessage::Type, QString> m_typeNames;
 
     /// @brief Boost slot called when a message comes from the server
     /// @param node Signal node
@@ -119,7 +119,7 @@ namespace ClientCore {
     /// @param fromServer If @c true, the message comes from the server;
     /// otherwise it comes from the client.
     /// @param message Message
-    void appendToLog(CF::GUI::Network::LogMessage::Type type, bool fromServer,
+    void appendToLog(CF::GUI::UICommon::LogMessage::Type type, bool fromServer,
                      const QString & message);
 
   }; // class NLog

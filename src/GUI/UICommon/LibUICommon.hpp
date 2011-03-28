@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Network_LibNetwork_hpp
-#define CF_GUI_Network_LibNetwork_hpp
+#ifndef CF_GUI_UICommon_LibUICommon_hpp
+#define CF_GUI_UICommon_LibUICommon_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,14 +13,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Network_API
-/// @note build system defines COOLFLUID_NETWORK_EXPORTS when compiling Network files
-#ifdef COOLFLUID_NETWORK_EXPORTS
-#   define Network_API CF_EXPORT_API
-#   define Network_TEMPLATE
+/// Define the macro UICommon_API
+/// @note build system defines COOLFLUID_UICommon_EXPORTS when compiling Network files
+#ifdef COOLFLUID_UICOMMONs_EXPORTS
+#   define UICommon_API CF_EXPORT_API
+#   define UICommon_TEMPLATE
 #else
-#   define Network_API CF_IMPORT_API
-#   define Network_TEMPLATE CF_TEMPLATE_EXTERN
+#   define UICommon_API CF_IMPORT_API
+#   define UICommon_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,32 +29,32 @@ namespace CF {
 namespace GUI {
 
 /// Common classes for the client and the server
-namespace Network {
+namespace UICommon {
 
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Class defines the initialization and termination of the library Network
   /// @author Tiago Quintino
-  class Network_API LibNetwork :
+  class UICommon_API LibUICommon :
       public Common::CLibrary
   {
   public:
 
-    typedef boost::shared_ptr<LibNetwork> Ptr;
-    typedef boost::shared_ptr<LibNetwork const> ConstPtr;
+    typedef boost::shared_ptr<LibUICommon> Ptr;
+    typedef boost::shared_ptr<LibUICommon const> ConstPtr;
 
     /// Constructor
-    LibNetwork ( const std::string& name) : Common::CLibrary(name) {   }
+    LibUICommon ( const std::string& name) : Common::CLibrary(name) {   }
 
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.GUI.Network"; }
+    static std::string library_namespace() { return "CF.GUI.UICommon"; }
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration
     /// @return name of the library
-    static std::string library_name() { return "Network"; }
+    static std::string library_name() { return "LibUICommon"; }
 
     /// Static function that returns the description of the module.
     /// Must be implemented for CLibrary registration
@@ -62,11 +62,11 @@ namespace Network {
 
     static std::string library_description()
     {
-      return "This library implements the Network manipulation API.";
+      return "This library provides some common code for UI libraries and applications.";
     }
 
     /// Gets the Class name
-    static std::string type_name() { return "LibNetwork"; }
+    static std::string type_name() { return "LibUIConmon"; }
 
     /// initiate library
     virtual void initiate();
@@ -74,7 +74,7 @@ namespace Network {
     /// terminate library
     virtual void terminate();
 
-  }; // end LibNetwork
+  }; // end LibUICommon
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -82,4 +82,4 @@ namespace Network {
 } // GUI
 } // CF
 
-#endif // CF_GUI_Network_LibNetwork_hpp
+#endif // CF_GUI_UICommon_LibUICommon_hpp

@@ -15,7 +15,7 @@
 #include "GUI/Client/Core/ThreadManager.hpp"
 #include "GUI/Client/Core/TreeNode.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Client/Core/NTree.hpp"
 

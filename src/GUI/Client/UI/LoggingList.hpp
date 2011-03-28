@@ -11,7 +11,7 @@
 
 #include <QTextEdit>
 
-#include "GUI/Network/LogMessage.hpp"
+#include "GUI/UICommon/LogMessage.hpp"
 
 #include "GUI/Client/UI/LibClientUI.hpp"
 
@@ -71,7 +71,7 @@ namespace ClientUI {
 
   private slots:
 
-    void newMessage(const QString & message, CF::GUI::Network::LogMessage::Type type);
+    void newMessage(const QString & message, CF::GUI::UICommon::LogMessage::Type type);
 
   private:
 

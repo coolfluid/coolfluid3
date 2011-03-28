@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Network_Network_h
-#define CF_GUI_Network_Network_h
+#ifndef CF_GUI_UICommon_Network_h
+#define CF_GUI_UICommon_Network_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 #include "Common/Exception.hpp"
 
-#include "GUI/Network/LibNetwork.hpp"
+#include "GUI/UICommon/LibUICommon.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ namespace CF {
 namespace Common { class CodeLocation; }
 
 namespace GUI {
-namespace Network {
+namespace UICommon {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,7 @@ namespace Network {
 
   /// @author Quentin Gasper.
 
-  class Network_API NetworkException : public CF::Common::Exception
+  class UICommon_API NetworkException : public CF::Common::Exception
   {
     public:
 
@@ -51,4 +51,4 @@ namespace Network {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_network_Network_h
+#endif // CF_UICommon_Network_h

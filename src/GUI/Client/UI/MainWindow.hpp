@@ -14,7 +14,7 @@
 #include <QList>
 #include <QTextStream>
 
-#include "GUI/Network/LogMessage.hpp"
+#include "GUI/UICommon/LogMessage.hpp"
 
 #include "GUI/Client/UI/LibClientUI.hpp"
 
@@ -148,7 +148,7 @@ namespace ClientUI {
 
     void openFileRemotely();
 
-    void newLogMessage(const QString & message, CF::GUI::Network::LogMessage::Type type);
+    void newLogMessage(const QString & message, CF::GUI::UICommon::LogMessage::Type type);
 
     void tabClicked(int num);
 

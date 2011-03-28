@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Network_ComponentNames_hpp
-#define CF_GUI_Network_ComponentNames_hpp
+#ifndef CF_GUI_UICommon_ComponentNames_hpp
+#define CF_GUI_UICommon_ComponentNames_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,4 +35,4 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Network_ComponentNames_hpp
+#endif // CF_GUI_UICommon_ComponentNames_hpp

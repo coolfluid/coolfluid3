@@ -10,7 +10,7 @@
 
 #include "Common/XML/Protocol.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/ThreadManager.hpp"
@@ -19,7 +19,7 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::Network;
+using namespace CF::GUI::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 

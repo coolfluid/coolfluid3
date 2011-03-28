@@ -29,7 +29,7 @@
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "test/GUI/Client/Core/CommonFunctions.hpp"
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"

@@ -15,7 +15,7 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
-#include "GUI/Network/LogMessage.hpp"
+#include "GUI/UICommon/LogMessage.hpp"
 
 #include "GUI/Client/UI/LibClientUI.hpp"
 
@@ -441,7 +441,7 @@ namespace ClientUI {
     /// @param error
     /// @param fromServer @c true if the error message comes from the server,
     /// otherwise @c false. This parameter is never used.
-    void message(const QString & error, CF::GUI::Network::LogMessage::Type type);
+    void message(const QString & error, CF::GUI::UICommon::LogMessage::Type type);
 
     /// @brief Slot called when the user double-click on an item in the
     /// list m_view.
@@ -461,7 +461,7 @@ namespace ClientUI {
 
     /// Only "create directory" ACK is taken in account. Others are ignored.
     /// @param type Type of the ACK
-//    void ack(CF::GUI::Network::NetworkFrameType type);
+//    void ack(CF::GUI::UICommon::NetworkFrameType type);
 
   private:
 

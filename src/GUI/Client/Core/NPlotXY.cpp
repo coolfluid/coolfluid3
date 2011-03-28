@@ -10,7 +10,7 @@
 
 #include "Common/XML/Protocol.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Client/Core/TreeThread.hpp"
 

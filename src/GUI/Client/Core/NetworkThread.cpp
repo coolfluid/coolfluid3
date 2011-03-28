@@ -10,7 +10,7 @@
 #include "Common/Log.hpp"
 #include "Common/XML/FileOperations.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Client/Core/TreeThread.hpp"
 #include "GUI/Client/Core/NLog.hpp"

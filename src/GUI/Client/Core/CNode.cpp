@@ -24,7 +24,7 @@
 #include "Common/XML/CastingFunctions.hpp"
 #include "Common/XML/Protocol.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Client/Core/NetworkThread.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"

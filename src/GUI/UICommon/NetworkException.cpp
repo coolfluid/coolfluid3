@@ -8,23 +8,35 @@
 
 #include "Common/CodeLocation.hpp"
 
-#include "GUI/Network/NetworkException.hpp"
+#include "GUI/UICommon/NetworkException.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Network;
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace UICommon {
+
+////////////////////////////////////////////////////////////////////////////////
 
 NetworkException::NetworkException(const CodeLocation& where,
                                    const std::string& what)
-: Exception(where, what, "Network")
+: Exception(where, what, "NetworkException")
 {
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////////
 
 NetworkException::NetworkException(const NetworkException& e) throw()
 : Exception(e)
 {
 
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+} // Network
+} // GUI
+} // CF

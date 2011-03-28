@@ -19,7 +19,7 @@
 
 #include "Solver/CPlotter.hpp"
 
-#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/UICommon/ComponentNames.hpp"
 
 #include "GUI/Server/Notifier.hpp"
 #include "GUI/Server/ProcessingThread.hpp"
