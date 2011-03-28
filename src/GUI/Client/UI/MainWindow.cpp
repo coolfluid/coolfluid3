@@ -17,12 +17,12 @@
 #include <QSplitter>
 #include <QUrl>
 
-#include "GUI/Client/Core/TreeThread.hpp"
-#include "GUI/Client/Core/NetworkThread.hpp"
-#include "GUI/Client/Core/NLog.hpp"
-#include "GUI/Client/Core/NTree.hpp"
-#include "GUI/Client/Core/PropertyModel.hpp"
-#include "GUI/Client/Core/ThreadManager.hpp"
+#include "GUI/Core/TreeThread.hpp"
+#include "GUI/Core/NetworkThread.hpp"
+#include "GUI/Core/NLog.hpp"
+#include "GUI/Core/NTree.hpp"
+#include "GUI/Core/PropertyModel.hpp"
+#include "GUI/Core/ThreadManager.hpp"
 
 #include "GUI/Client/UI/AboutCFDialog.hpp"
 #include "GUI/Client/UI/LoggingList.hpp"
@@ -40,7 +40,7 @@
 
 #define WORKSPACE_FILE QDir::homePath() + "/CF_workspace.xml"
 
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 using namespace CF::GUI::UICommon;
 
 using namespace CF::Common;

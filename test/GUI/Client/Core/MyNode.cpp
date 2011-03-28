@@ -12,7 +12,7 @@
 #include "test/GUI/Client/Core/MyNode.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 using namespace CF::GUI::ClientTest;
 
 MyNode::MyNode(const QString & name)

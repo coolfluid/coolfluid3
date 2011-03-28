@@ -25,7 +25,7 @@ class QVBoxLayout;
 namespace CF {
 namespace GUI {
 
-namespace ClientCore { class CommitDetails; }
+namespace Core { class CommitDetails; }
 
 namespace ClientUI {
 
@@ -48,7 +48,7 @@ public:
 
   /// @brief Shows the dialog with provided details.
   /// @param details Details to use
-  void show(ClientCore::CommitDetails & details);
+  void show(Core::CommitDetails & details);
 
 private:
 

@@ -9,16 +9,16 @@
 #include "Common/OptionURI.hpp"
 #include "Common/OptionT.hpp"
 
-#include "GUI/Client/Core/NTree.hpp"
-#include "GUI/Client/Core/PropertyModel.hpp"
-#include "GUI/Client/Core/ThreadManager.hpp"
-#include "GUI/Client/Core/TreeThread.hpp"
+#include "GUI/Core/NTree.hpp"
+#include "GUI/Core/PropertyModel.hpp"
+#include "GUI/Core/ThreadManager.hpp"
+#include "GUI/Core/TreeThread.hpp"
 
 #include "test/GUI/Client/Core/MyNode.hpp"
 #include "test/GUI/Client/Core/PropertyModelTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ///////////////////////////////////////////////////////////////////////////
 

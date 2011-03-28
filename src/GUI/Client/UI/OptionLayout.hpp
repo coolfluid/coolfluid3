@@ -31,7 +31,7 @@ class QVBoxLayout;
 namespace CF {
 namespace GUI {
 
-namespace ClientCore { class CommitDetails; }
+namespace Core { class CommitDetails; }
 
 namespace ClientUI {
 
@@ -75,7 +75,7 @@ namespace ClientUI {
 
     /// @param commitDetails Object where modified values will be stored. The
     /// object is not cleared.
-    void modifiedOptions(ClientCore::CommitDetails & commitDetails) const;
+    void modifiedOptions(Core::CommitDetails & commitDetails) const;
 
     void addOption(CF::Common::Option::ConstPtr option);
 

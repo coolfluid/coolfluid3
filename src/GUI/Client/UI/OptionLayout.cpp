@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "GUI/Client/Core/CommitDetails.hpp"
-#include "GUI/Client/Core/TreeThread.hpp"
+#include "GUI/Core/CommitDetails.hpp"
+#include "GUI/Core/TreeThread.hpp"
 
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 #include "GUI/Client/UI/GraphicalValue.hpp"
@@ -13,7 +13,7 @@
 #include "GUI/Client/UI/OptionLayout.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

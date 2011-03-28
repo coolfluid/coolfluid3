@@ -9,9 +9,9 @@
 #include <QScrollArea>
 #include <QSplitter>
 
-#include "GUI/Client/Core/CommitDetails.hpp"
-#include "GUI/Client/Core/NLog.hpp"
-#include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Core/CommitDetails.hpp"
+#include "GUI/Core/NLog.hpp"
+#include "GUI/Core/NTree.hpp"
 
 #include "GUI/Client/UI/ModifiedOptionsDialog.hpp"
 #include "GUI/Client/UI/OptionLayout.hpp"
@@ -19,7 +19,7 @@
 #include "GUI/Client/UI/CentralPanel.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

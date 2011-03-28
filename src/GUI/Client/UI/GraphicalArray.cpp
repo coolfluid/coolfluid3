@@ -13,11 +13,11 @@
 #include <QValidator>
 #include <QVBoxLayout>
 
-#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Core/NLog.hpp"
 
 #include "GUI/Client/UI/GraphicalArray.hpp"
 
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

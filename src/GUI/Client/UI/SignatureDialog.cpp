@@ -14,8 +14,8 @@
 
 #include "Common/XML/Protocol.hpp"
 
-#include "GUI/Client/Core/NLog.hpp"
-#include "GUI/Client/Core/TreeThread.hpp"
+#include "GUI/Core/NLog.hpp"
+#include "GUI/Core/TreeThread.hpp"
 
 #include "GUI/Client/UI/GraphicalValue.hpp"
 #include "GUI/Client/UI/OptionLayout.hpp"
@@ -24,7 +24,7 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

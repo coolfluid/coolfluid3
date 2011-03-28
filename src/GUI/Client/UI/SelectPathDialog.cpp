@@ -13,13 +13,13 @@
 
 #include "Common/URI.hpp"
 
-#include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Core/NTree.hpp"
 #include "GUI/Client/UI/TreeView.hpp"
 
 #include "GUI/Client/UI/SelectPathDialog.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

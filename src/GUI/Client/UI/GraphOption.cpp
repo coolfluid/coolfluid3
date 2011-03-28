@@ -16,7 +16,7 @@
 #include "qwt/qwt_plot_curve.h"
 
 // headers
-#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Core/NLog.hpp"
 #include "GUI/Client/UI/GraphOption.hpp"
 #include "GUI/Client/UI/Graph.hpp"
 #include "GUI/Client/UI/ColorSelector.hpp"
@@ -24,7 +24,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -207,7 +207,7 @@ void GraphOption::draw_and_resize()
 
 }
 
-void GraphOption::set_data(ClientCore::NPlotXY::PlotDataPtr & fcts,
+void GraphOption::set_data(Core::NPlotXY::PlotDataPtr & fcts,
                            std::vector<QString> & fcts_label){
 
   m_can_draw = false;
@@ -274,7 +274,7 @@ void GraphOption::set_data(ClientCore::NPlotXY::PlotDataPtr & fcts,
   draw_action();
 
   //inform user
-  ClientCore::NLog::globalLog()->addMessage("New data set recived.");
+  Core::NLog::globalLog()->addMessage("New data set recived.");
 }
 
 
@@ -313,7 +313,7 @@ void  GraphOption::generate_function(QString name,QString formula){
 
   //ferification of name and formula input
   if(name.isEmpty() || formula.isEmpty()){
-    ClientCore::NLog::globalLog()->addError("Please give function's name and formula.");
+    Core::NLog::globalLog()->addError("Please give function's name and formula.");
     m_button_generate_function->setEnabled(true);
     return;
   }
@@ -321,7 +321,7 @@ void  GraphOption::generate_function(QString name,QString formula){
   //check if the function name already exist
   for(int i=0; i < m_data_table->rowCount(); ++i){
     if((((QLabel *)m_data_table->cellWidget(i,0))->text()) == name){
-      ClientCore::NLog::globalLog()->addError("The function name already exist.");
+      Core::NLog::globalLog()->addError("The function name already exist.");
       m_button_generate_function->setEnabled(true);
       return;
     }
@@ -345,7 +345,7 @@ void  GraphOption::generate_function(QString name,QString formula){
                           variable.toStdString().c_str());
 
   if(res > 0){
-    ClientCore::NLog::globalLog()->addError("The function is not recognized.");
+    Core::NLog::globalLog()->addError("The function is not recognized.");
     m_button_generate_function->setEnabled(true);
     return;
   }
@@ -356,7 +356,7 @@ void  GraphOption::generate_function(QString name,QString formula){
   {
     max_it = m_fcts->size();
   }else{
-    ClientCore::NLog::globalLog()->addError("The function is not recognized.");
+    Core::NLog::globalLog()->addError("The function is not recognized.");
     m_button_generate_function->setEnabled(true);
     return;
   }
@@ -388,7 +388,7 @@ void  GraphOption::generate_function(QString name,QString formula){
 void GraphOption::add_line(){
 
   if(m_data_table->rowCount() <= 0){
-    ClientCore::NLog::globalLog()->addError("There are no data to set, you cannot add line");
+    Core::NLog::globalLog()->addError("There are no data to set, you cannot add line");
     return;
   }
 
@@ -605,7 +605,7 @@ void GraphOption::save_functions(){
     popup_save_to_text->setModal(true);
     popup_save_to_text->show();
   }else{
-    ClientCore::NLog::globalLog()->addError("There are no data to save.");
+    Core::NLog::globalLog()->addError("There are no data to save.");
   }
   return;
 }
@@ -658,7 +658,7 @@ void GraphOption::save_functions_to_file(){
     QFile file(file_name);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
-      ClientCore::NLog::globalLog()->addError("Unable to open file.");
+      Core::NLog::globalLog()->addError("Unable to open file.");
       return;
     }
 
@@ -666,7 +666,7 @@ void GraphOption::save_functions_to_file(){
     out << output;
     file.close();
 
-    ClientCore::NLog::globalLog()->addMessage("Data saved ...");
+    Core::NLog::globalLog()->addMessage("Data saved ...");
     /***********************************************************/
   }
 }
@@ -691,7 +691,7 @@ void GraphOption::save_functions_to_file_no_buffering(){
     QFile file(file_name);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
-      ClientCore::NLog::globalLog()->addError("Unable to open file.");
+      Core::NLog::globalLog()->addError("Unable to open file.");
       return;
     }
 
@@ -723,7 +723,7 @@ void GraphOption::save_functions_to_file_no_buffering(){
     /***********************************************************/
     file.close();
 
-    ClientCore::NLog::globalLog()->addMessage("Data saved ...");
+    Core::NLog::globalLog()->addMessage("Data saved ...");
     /***********************************************************/
   }
 }

@@ -8,12 +8,12 @@
 
 //#include "Common/Component"
 
-#include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Core/NTree.hpp"
 
 #include "test/GUI/Client/Core/TreeHandler.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 using namespace CF::GUI::ClientTest;
 
 TreeHandler::~TreeHandler()

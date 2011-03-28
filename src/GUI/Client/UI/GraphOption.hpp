@@ -17,7 +17,7 @@
 #include "qwt/qwt_plot.h"
 
 // headers
-#include "GUI/Client/Core/NPlotXY.hpp"
+#include "GUI/Core/NPlotXY.hpp"
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ public: //functions
     /// @param fcts_label Name of functions.
     /// @param ptr_plot Pointer of the QwtPlot where we draw functions.
     /// @param parent The QWidget of this QWidget.
-    GraphOption(ClientCore::NPlotXY::PlotDataPtr & fcts,
+    GraphOption(Core::NPlotXY::PlotDataPtr & fcts,
                 std::vector<QString> & fcts_label,
                 QwtPlot * ptr_plot,
                 QWidget *parent = 0);
@@ -53,7 +53,7 @@ public: //functions
     /// Set the data to show in the option tab.
     /// @param fcts Data of functions.
     /// @param fcts_label Name of functions.
-    void set_data(ClientCore::NPlotXY::PlotDataPtr & fcts,std::vector<QString> & fcts_label);
+    void set_data(Core::NPlotXY::PlotDataPtr & fcts,std::vector<QString> & fcts_label);
 
     /// Add a function in the function set with it name and formula.
     /// @param fct Data of the function.
@@ -77,7 +77,7 @@ private: //datas
   QPointer<QwtPlot> m_ptr_plot;
 
   /// The curves data.
-  ClientCore::NPlotXY::PlotDataPtr m_fcts;
+  Core::NPlotXY::PlotDataPtr m_fcts;
 
   /// User function's formula  line input.
   QPointer<QLineEdit> m_line_function;

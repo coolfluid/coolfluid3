@@ -22,7 +22,7 @@ if( APPLE )
 
 endif()
 
-add_subdirectory( Core )
+
 add_subdirectory( UI )
 
 list( APPEND coolfluid-client_cflibs coolfluid_client_ui)

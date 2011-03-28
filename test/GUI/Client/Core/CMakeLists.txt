@@ -47,7 +47,7 @@ list( APPEND utest-client-core_files
   TreeNodeTest.hpp
 )
 
-list( APPEND utest-client-core_libs coolfluid_client_core ${QT_LIBRARIES})
+list( APPEND utest-client-core_libs coolfluid_ui_core ${QT_LIBRARIES})
 
 coolfluid_add_unit_test( utest-client-core )
 

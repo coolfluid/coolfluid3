@@ -27,7 +27,7 @@ class QSplitter;
 namespace CF {
 namespace GUI {
 
-namespace ClientCore { class CommitDetails; }
+namespace Core { class CommitDetails; }
 
 namespace ClientUI {
 
@@ -74,7 +74,7 @@ namespace ClientUI {
     /// values (i.e. : if user modified several times the same option) are
     /// ignored.
     /// @param commitDetails The object where values will be stored.
-    void modifiedOptions(ClientCore::CommitDetails & commitDetails) const;
+    void modifiedOptions(Core::CommitDetails & commitDetails) const;
 
     /// @brief Gives the current path.
 

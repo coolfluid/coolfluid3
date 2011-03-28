@@ -27,7 +27,7 @@ namespace Common { class URI; }
 
 namespace GUI {
 
-namespace ClientCore { struct TSshInformation; }
+namespace Core { struct TSshInformation; }
 
 namespace ClientUI {
 

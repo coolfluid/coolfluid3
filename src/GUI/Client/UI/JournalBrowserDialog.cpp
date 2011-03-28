@@ -12,9 +12,9 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include "GUI/Client/Core/NBrowser.hpp"
-#include "GUI/Client/Core/NLog.hpp"
-#include "GUI/Client/Core/NJournal.hpp"
+#include "GUI/Core/NBrowser.hpp"
+#include "GUI/Core/NLog.hpp"
+#include "GUI/Core/NJournal.hpp"
 
 #include "GUI/Client/UI/SignalInspectorDialog.hpp"
 
@@ -24,7 +24,7 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -15,9 +15,9 @@
 
 #include "GUI/UICommon/ComponentNames.hpp"
 
-#include "GUI/Client/Core/CommitDetails.hpp"
-#include "GUI/Client/Core/NLog.hpp"
-#include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Core/CommitDetails.hpp"
+#include "GUI/Core/NLog.hpp"
+#include "GUI/Core/NTree.hpp"
 
 #include "GUI/Client/UI/FilteringModel.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
@@ -27,7 +27,7 @@
 #include "GUI/Client/UI/TreeView.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 using namespace CF::GUI::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////

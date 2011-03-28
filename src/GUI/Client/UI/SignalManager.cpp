@@ -15,9 +15,9 @@
 
 #include "Common/XML/Protocol.hpp"
 
-#include "GUI/Client/Core/NetworkThread.hpp"
-#include "GUI/Client/Core/NLog.hpp"
-#include "GUI/Client/Core/ThreadManager.hpp"
+#include "GUI/Core/NetworkThread.hpp"
+#include "GUI/Core/NLog.hpp"
+#include "GUI/Core/ThreadManager.hpp"
 
 #include "GUI/Client/UI/SignatureDialog.hpp"
 
@@ -27,7 +27,7 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 //////////////////////////////////////////////////////////////////////////////
 

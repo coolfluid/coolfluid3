@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_Core_FilteringModel_hpp
-#define CF_GUI_Client_Core_FilteringModel_hpp
+#ifndef CF_GUI_Core_FilteringModel_hpp
+#define CF_GUI_Core_FilteringModel_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,11 +43,11 @@ namespace ClientUI {
 
   //////////////////////////////////////////////////////////////////////////////
 
-} // ClientCore
+} // Core
 } // GUI
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#endif // CF_GUI_Client_Core_FilteringModel_hpp
+#endif // CF_GUI_Core_FilteringModel_hpp

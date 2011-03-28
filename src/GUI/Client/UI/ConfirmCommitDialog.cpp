@@ -10,11 +10,11 @@
 #include <QTableView>
 #include <QVBoxLayout>
 
-#include "GUI/Client/Core/CommitDetails.hpp"
+#include "GUI/Core/CommitDetails.hpp"
 
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -10,14 +10,14 @@
 
 #include "Common/XML/FileOperations.hpp"
 
-#include "GUI/Client/Core/CNode.hpp"
+#include "GUI/Core/CNode.hpp"
 
 #include "test/GUI/Client/Core/ExceptionThrowHandler.hpp"
 #include "test/GUI/Client/Core/CommonFunctions.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 using namespace CF::GUI::ClientTest;
 
 NRoot::Ptr CF::GUI::ClientTest::makeTreeFromFile()

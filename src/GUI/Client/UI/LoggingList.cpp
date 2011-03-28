@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Core/NLog.hpp"
 
 #include "GUI/UICommon/LogMessage.hpp"
 
 #include "GUI/Client/UI/LoggingList.hpp"
 
 using namespace CF::GUI::UICommon;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

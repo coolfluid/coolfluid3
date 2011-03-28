@@ -16,7 +16,7 @@
 namespace CF {
 namespace GUI {
 
-namespace ClientCore { class ClientNetworkComm; }
+namespace Core { class ClientNetworkComm; }
 
 namespace ClientUI {
 

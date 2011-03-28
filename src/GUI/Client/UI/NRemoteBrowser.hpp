@@ -13,7 +13,7 @@
 #include <QDialogButtonBox>
 #include <QModelIndex>
 
-#include "GUI/Client/Core/CNode.hpp"
+#include "GUI/Core/CNode.hpp"
 
 #include "GUI/UICommon/LogMessage.hpp"
 
@@ -113,7 +113,7 @@ namespace ClientUI {
 
   class ClientUI_API NRemoteBrowser :
       public QDialog,
-      public ClientCore::CNode
+      public Core::CNode
   {
     Q_OBJECT
 

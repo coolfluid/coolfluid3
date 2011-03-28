@@ -31,7 +31,7 @@ class QTableView;
 namespace CF {
 namespace GUI {
 
-namespace ClientCore {
+namespace Core {
   class PropertyModel;
 }
 
@@ -216,7 +216,7 @@ namespace ClientUI {
 
     QTableView * m_propertyView;
 
-    ClientCore::PropertyModel * m_propertyModel;
+    Core::PropertyModel * m_propertyModel;
 
     QLabel * m_labDescription;
 

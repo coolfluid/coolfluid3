@@ -7,11 +7,11 @@
 #include <QFileIconProvider>
 #include <QModelIndex>
 
-#include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Core/NTree.hpp"
 
 #include "GUI/Client/UI/FilteringModel.hpp"
 
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

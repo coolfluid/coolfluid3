@@ -111,7 +111,7 @@ list( APPEND coolfluid_client_ui_files
   TreeView.cpp
   TreeView.hpp )
 
-list( APPEND coolfluid_client_ui_cflibs coolfluid_client_core )
+list( APPEND coolfluid_client_ui_cflibs coolfluid_ui_core )
 
 # Use Qt Libraries
 list( APPEND coolfluid_client_ui_libs ${QT_LIBRARIES} coolfluid_qwt coolfluid_fparser)

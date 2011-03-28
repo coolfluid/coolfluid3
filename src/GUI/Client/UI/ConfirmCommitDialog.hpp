@@ -26,7 +26,7 @@ class QString;
 namespace CF {
 namespace GUI {
 
-namespace ClientCore { class CommitDetails; }
+namespace Core { class CommitDetails; }
 
 namespace ClientUI {
 
@@ -77,7 +77,7 @@ namespace ClientUI {
     /// @brief Shows the dialog
     /// @param commitDetails Commit details to show.
     /// @return Returns the user answer.
-    ConfirmCommitDialog::CommitConfirmation show(ClientCore::CommitDetails & commitDetails);
+    ConfirmCommitDialog::CommitConfirmation show(Core::CommitDetails & commitDetails);
 
   private slots:
 

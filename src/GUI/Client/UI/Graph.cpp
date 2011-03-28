@@ -29,13 +29,13 @@
 #include "qwt/qwt_polygon.h"
 
 //header
-#include "GUI/Client/Core/NPlotXY.hpp"
-#include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Core/NPlotXY.hpp"
+#include "GUI/Core/NLog.hpp"
 #include "GUI/Client/UI/PixMaps.hpp"
 #include "GUI/Client/UI/BodePlot.hpp"
 #include "GUI/Client/UI/Graph.hpp"
 
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////////
 

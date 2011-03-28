@@ -11,7 +11,7 @@
 
 #include <QMap>
 
-#include "GUI/Client/Core/CNode.hpp"
+#include "GUI/Core/CNode.hpp"
 
 class QAction;
 class QMenu;
@@ -38,8 +38,8 @@ namespace ClientUI {
 
     ~SignalManager();
 
-    void showMenu(const QPoint & pos, ClientCore::CNode::Ptr node,
-                  const QList<CF::GUI::ClientCore::ActionInfo> & sigs);
+    void showMenu(const QPoint & pos, Core::CNode::Ptr node,
+                  const QList<CF::GUI::Core::ActionInfo> & sigs);
 
   private slots:
 
@@ -55,9 +55,9 @@ namespace ClientUI {
 
     QMenu * m_menu;
 
-    ClientCore::CNode::Ptr m_node;
+    Core::CNode::Ptr m_node;
 
-    QMap<QAction *, ClientCore::ActionInfo> m_signals;
+    QMap<QAction *, Core::ActionInfo> m_signals;
 
     QMap<QAction *, bool> m_localStatus;
 

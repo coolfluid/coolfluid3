@@ -16,14 +16,14 @@
 
 #include "Common/URI.hpp"
 
-#include "GUI/Client/Core/TreeThread.hpp"
+#include "GUI/Core/TreeThread.hpp"
 
 #include "GUI/Client/UI/GraphicalUriArray.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 #include "GUI/Client/UI/SelectPathDialog.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

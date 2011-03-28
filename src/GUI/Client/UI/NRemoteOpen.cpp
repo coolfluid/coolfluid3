@@ -7,11 +7,11 @@
 #include <QFileIconProvider>
 #include <QStringList>
 
-#include "GUI/Client/Core/NBrowser.hpp"
+#include "GUI/Core/NBrowser.hpp"
 #include "GUI/Client/UI/FilesListItem.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 
-using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -11,7 +11,7 @@
 
 #include <QDialog>
 
-#include "GUI/Client/Core/NJournalBrowser.hpp"
+#include "GUI/Core/NJournalBrowser.hpp"
 
 class QAbstractButton;
 class QDialogButtonBox;
@@ -84,7 +84,7 @@ private:
 
   QPushButton * m_btExecute;
 
-  ClientCore::NJournalBrowser::Ptr m_model;
+  Core::NJournalBrowser::Ptr m_model;
 
 }; // JournalBrowserDialog
 
