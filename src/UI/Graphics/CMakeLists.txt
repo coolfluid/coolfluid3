@@ -109,7 +109,10 @@ list( APPEND coolfluid_ui_graphics_files
   TreeBrowser.cpp
   TreeBrowser.hpp
   TreeView.cpp
-  TreeView.hpp )
+  TreeView.hpp
+  TabBuilder.cpp
+  TabBuilder.hpp
+ )
 
 list( APPEND coolfluid_ui_graphics_cflibs coolfluid_ui_core )
 

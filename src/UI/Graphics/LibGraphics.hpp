@@ -49,7 +49,7 @@ namespace CF {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.GUI.Graphics"; }
+    static std::string library_namespace() { return "CF.UI.Graphics"; }
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration
@@ -73,6 +73,7 @@ namespace CF {
 
     /// terminate library
     virtual void terminate();
+
 
   }; // end LibGraphics
 
