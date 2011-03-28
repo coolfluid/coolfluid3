@@ -69,6 +69,13 @@ namespace Common {
 
     virtual ~OptionArrayT() {}
 
+
+    static Option::Ptr create(const std::string & name, const std::string& readable_name,
+                              const std::string & desc, const value_type& def)
+    {
+      return Option::Ptr ( new OptionArrayT(name,readable_name,desc,def) );
+    }
+
     /// @name VIRTUAL FUNCTIONS
     //@{
 

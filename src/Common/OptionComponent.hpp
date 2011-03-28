@@ -167,7 +167,7 @@ protected: // functions
   {
     try
     {
-      return data_t(Core::instance().root()->access_component_ptr(boost::any_cast<URI>(value))->as_ptr_checked<T>() );
+      return data_t(Core::instance().root()->access_component_ptr_checked(boost::any_cast<URI const>(value))->as_ptr_checked<T>() );
     }
     catch(boost::bad_any_cast& e)
     {

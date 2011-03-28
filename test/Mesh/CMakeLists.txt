@@ -7,6 +7,13 @@ coolfluid_add_unit_test( utest-mesh-hash )
 
 ################################################################################
 
+list( APPEND utest-mesh-octtree_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf )
+list( APPEND utest-mesh-octtree_files  utest-mesh-octtree.cpp )
+
+coolfluid_add_unit_test( utest-mesh-octtree )
+
+################################################################################
+
 list( APPEND utest-mesh-interpolation_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-interpolation_files  utest-mesh-interpolation.cpp )
 
