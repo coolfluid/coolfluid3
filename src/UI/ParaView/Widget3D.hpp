@@ -26,6 +26,7 @@
 #include "pqStandardViewModules.h"
 #include "pqRenderView.h"
 #include "pqOutputPort.h"
+#include "pqDisplayColorWidget.h"
 
 // header
 #include "UI/Graphics/LibGraphics.hpp"
@@ -134,6 +135,8 @@ private: //data
 
   /// Server File Path LineEdit
   QPointer<QLineEdit> m_Path_File_line;
+
+  pqDisplayColorWidget * m_color;
 
 };
 

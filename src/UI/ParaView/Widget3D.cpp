@@ -25,6 +25,7 @@
 #include "pqProgressManager.h"
 #include "pqTimeKeeper.h"
 
+
 // header
 #include "UI/ParaView/Widget3D.hpp"
 #include "UI/Core/NLog.hpp"
@@ -58,8 +59,8 @@ namespace ParaView {
 //        m_progress_manager->setEnableProgress(false);
 
 
-        pqServerManagerModel* sm = m_core->getServerManagerModel();
-
+        //pqServerManagerModel* sm = m_core->getServerManagerModel();
+        m_color = new pqDisplayColorWidget(this);
 
 
         m_layout_v = new QVBoxLayout();
@@ -101,11 +102,14 @@ namespace ParaView {
         this->m_load_file->setMaximumWidth(100);
         this->m_style->setMaximumWidth(150);
         this->m_set_rotation_center->setMaximumWidth(150);
+        this->m_color->setMaximumWidth(250);
 
         m_layout_option->addWidget(this->m_connect_to_server_button);
         m_layout_option->addWidget(this->m_load_file);
         m_layout_option->addWidget(this->m_style);
         m_layout_option->addWidget(this->m_set_rotation_center);
+        m_layout_option->addWidget(this->m_color);
+
 
         m_layout_v->addLayout(this->m_layout_option);
 
@@ -140,7 +144,6 @@ namespace ParaView {
                 disconnect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
                 connect(m_connect_to_server_button,SIGNAL(clicked()),this,SLOT(disconnectFromServer()));
                 createView();
-                qDebug() << m_server->getTimeKeeper()->getNumberOfTimeStepValues();
             }else{
                 NLog::globalLog()->addError("Error while connecting to paraview dserver");
                 m_server = m_object_builder->createServer(pqServerResource("builtin:"));
@@ -233,7 +236,11 @@ namespace ParaView {
 
             changeStyle();
 
+
+
             pqDataRepresentation* repr = m_input->getRepresentation(m_RenderView);
+
+            m_color->setRepresentation(repr);
 
             qDebug() << repr->getInputDataInformation()->GetNumberOfDataSets();
             qDebug() << repr->getInputDataInformation()->GetNumberOfPoints();
@@ -398,7 +405,7 @@ namespace ParaView {
         connect(btn_load, SIGNAL(released()),this,SLOT(openFile()));
         connect(btn_load, SIGNAL(released()),loadFileDialog,SLOT(close()));
 
-        loadFileDialog->resize(250,100);
+        loadFileDialog->resize(350,100);
         loadFileDialog->setModal(true);
         loadFileDialog->show();
     }
