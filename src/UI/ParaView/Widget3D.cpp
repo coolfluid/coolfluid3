@@ -22,6 +22,8 @@
 #include "vtkPolyData.h"
 #include "vtkSMDocumentation.h"
 #include "vtkPVDataInformation.h"
+#include "pqProgressManager.h"
+#include "pqTimeKeeper.h"
 
 // header
 #include "UI/ParaView/Widget3D.hpp"
@@ -46,22 +48,31 @@ namespace ParaView {
         m_object_builder = m_core->getObjectBuilder();
 
         // Register ParaView interfaces.
-        m_plugin_manager = pqApplicationCore::instance()->getPluginManager();
+        m_plugin_manager = m_core->getPluginManager();
 
         // adds support for standard paraview views.
         m_plugin_manager->addInterface(new pqStandardViewModules(m_plugin_manager));
 
         //define timeout of connection process
-        //pqApplicationCore::instance()->getProgressManager();
+//        pqProgressManager * m_progress_manager = m_core->getProgressManager();
+//        m_progress_manager->setEnableProgress(false);
+
+
+        pqServerManagerModel* sm = m_core->getServerManagerModel();
+
 
 
         m_layout_v = new QVBoxLayout();
+
+        m_layout_option = new QHBoxLayout();
 
         m_connect_to_server_button = new QPushButton("Connect",this);
 
         m_load_file = new QPushButton("Load File",this);
 
         m_load_file->setEnabled(false);
+
+        m_set_rotation_center = new QPushButton("Set Rotation Center",this);
 
         m_style = new QComboBox(this);
         m_style->addItem("Point",0);
@@ -84,10 +95,25 @@ namespace ParaView {
             NLog::globalLog()->addError("Error while creating widget3d");
         }
 
+
+        //disposition
+        this->m_connect_to_server_button->setMaximumWidth(100);
+        this->m_load_file->setMaximumWidth(100);
+        this->m_style->setMaximumWidth(150);
+        this->m_set_rotation_center->setMaximumWidth(150);
+
+        m_layout_option->addWidget(this->m_connect_to_server_button);
+        m_layout_option->addWidget(this->m_load_file);
+        m_layout_option->addWidget(this->m_style);
+        m_layout_option->addWidget(this->m_set_rotation_center);
+
+        m_layout_v->addLayout(this->m_layout_option);
+
+        //connect
         connect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
         connect(m_load_file,SIGNAL(released()),this,SLOT(showLoadFileDialog()));
         connect(m_style,SIGNAL(currentIndexChanged (int)),this,SLOT(changeStyle()));
-
+        connect(m_set_rotation_center,SIGNAL(released()),this,SLOT(set_rotation_center()));
 
     }
 
@@ -114,6 +140,7 @@ namespace ParaView {
                 disconnect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
                 connect(m_connect_to_server_button,SIGNAL(clicked()),this,SLOT(disconnectFromServer()));
                 createView();
+                qDebug() << m_server->getTimeKeeper()->getNumberOfTimeStepValues();
             }else{
                 NLog::globalLog()->addError("Error while connecting to paraview dserver");
                 m_server = m_object_builder->createServer(pqServerResource("builtin:"));
@@ -298,11 +325,7 @@ namespace ParaView {
           m_object_builder->createView(pqRenderView::renderViewType(), m_server));
 
         if(m_RenderView){
-            m_layout_v->addWidget(this->m_RenderView->getWidget());
-            m_layout_v->addWidget(this->m_connect_to_server_button);
-            m_layout_v->addWidget(this->m_load_file);
-            m_layout_v->addWidget(this->m_style);
-
+          m_layout_v->insertWidget(0,this->m_RenderView->getWidget());
         }else{
             NLog::globalLog()->addError("Problem when creating a RenderView.");
         }
@@ -438,8 +461,15 @@ namespace ParaView {
           {
           vtkSMPropertyHelper(repr->getProxy(), "Representation").Set(m_style->currentIndex());
           repr->getProxy()->UpdateVTKObjects();
+          m_RenderView->forceRender();
           }
     }
+
+    void Widget3D::set_rotation_center(){
+      m_RenderView->resetCenterOfRotation();
+      m_RenderView->forceRender();
+    }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

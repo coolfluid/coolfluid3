@@ -14,6 +14,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QComboBox>
+#include <QHBoxLayout>
 
 // ParaView header
 #include "vtkSMSourceProxy.h"
@@ -81,6 +82,9 @@ private slots: //slots
   /// Change Style
   void changeStyle();
 
+  /// Set the rotation center
+  void set_rotation_center();
+
 private: //data
 
   /// Initialising Application Core that manage all vtk and paraview Objects.
@@ -98,11 +102,17 @@ private: //data
   /// Layout of this widget
   QPointer<QVBoxLayout> m_layout_v;
 
+  /// Layout of this widget
+  QPointer<QHBoxLayout> m_layout_option;
+
   /// Button that show Server Connection dialog
   QPointer<QPushButton> m_connect_to_server_button;
 
   /// Button that show Server Load File dialog
   QPointer<QPushButton> m_load_file;
+
+  /// Button that reset center of rotation
+  QPointer<QPushButton> m_set_rotation_center;
 
   /// Button that show Server Load File dialog
   QPointer<QComboBox> m_style;
