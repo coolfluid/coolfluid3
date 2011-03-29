@@ -27,9 +27,6 @@
 #include "Common/MPI/tools.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CreateComponent.hpp"
-/*
-  TODO: move to allocate_component
-*/
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -440,7 +437,7 @@ BOOST_AUTO_TEST_CASE( commpattern_cast )
 
 BOOST_AUTO_TEST_CASE( commpattern )
 {
-PECheckPoint(100,"CP");
+//PECheckPoint(100,"CP");
 
   // general conts in this routine
   const int nproc=mpi::PE::instance().size();
@@ -451,7 +448,8 @@ PECheckPoint(100,"CP");
 
   // global indices and ranks, ordering: 0 1 2 ... 0 0 1 1 2 2 ... 0 0 0 1 1 1 2 2 2 ...
   std::vector<Uint> gid(6*nproc);
-  pecp.insert("gid",gid);
+//  pecp.insert("gid",gid);
+  pecp.insert("gid",gid,1,false);
   std::vector<Uint> rank(6*nproc);
   for (Uint i=0; i<nproc; i++)
   {
@@ -474,13 +472,13 @@ PECheckPoint(100,"CP");
     gid[ 3*nproc+3*i+1]=(6*nproc-1)-(6*i+4);
     gid[ 3*nproc+3*i+2]=(6*nproc-1)-(6*i+5);
   }
-
+/*
 PEProcessSortedExecute(-1,PEDebugVector(rank,rank.size()));
 PECheckPoint(100,"CP");
 
 PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
 PECheckPoint(100,"CP");
-
+*/
   // additional arrays for testing
   std::vector<int> v1;
   for(int i=0;i<6*nproc;i++) v1.push_back(-((irank+1)*1000+i+1));
@@ -498,6 +496,19 @@ PECheckPoint(100,"CP");
 
   // initial setup
   pecp.setup(pecp.get_child_ptr("gid")->as_ptr<PEObjectWrapper>(),rank);
+
+PECheckPoint(100,"Before");
+PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
+PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
+PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
+
+//  pecp.update();
+
+PECheckPoint(100,"After");
+PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
+PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
+PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
+
 
 }
 

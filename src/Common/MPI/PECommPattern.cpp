@@ -107,38 +107,82 @@ PEProcessSortedExecute(-1,
 
 void PECommPattern::setup()
 {
-  // data management internal to this function
-  // -----------------------------------------
-  // ngid: number of updatable nodes of all ranks
-  // gido: offset for easy navigation between processes in the global arrays
-  // gidr: rank where node is updatable
-/*
-  // general constants
-  const int nproc=mpi::PE::instance().size();
-  const int irank=mpi::PE::instance().rank();
 
-  // build ngid and gido
-  std::vector<int> ngid(nproc,0);
-  BOOST_FOREACH(bool is_updatable, m_updatable ) if (is_updatable) ngid[irank]++;
-  ngid[irank]+=m_add_buffer.size();
-//  boost::mpi::all_reduce(mpi::PE::instance(),&ngid[0],nproc,&ngid[0],boost::mpi::maximum<int>());
-  int ntotalnodes=0;
-  BOOST_FOREACH(int node,ngid) ntotalnodes+=node;
-//  std::vector<int> ngid(nproc,0);
-//  for(i=0;i<nproc;i++)
-*/
+  {  // begin fast
+  // get stuff
+  const CPint irank=(CPint)mpi::PE::instance().rank();
+  const CPint nproc=(CPint)mpi::PE::instance().size();
+  if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
+  if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
+  if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
+  Uint* gid=(Uint*)m_gid->pack();
 
-//DEBUGVECTOR(ngid);
-//DEBUGVECTOR(gida);
-
-//--------------------------------------------------------------------
-
-  // experimental version, supports one single setup call and only add
-
-  // -- 1 -- data definition
+  // get counts on receive side
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) m_recvCount[i.rank]++;
+  m_recvCount[irank]=0;
+  int recvSum=0;
+  BOOST_FOREACH(CPint& i, m_recvCount) recvSum+=i;
+  std::vector<CPint> recvcounter(nproc,0);
+  for (int i=1; i<nproc; i++) recvcounter[i]=m_recvCount[i-1]+recvcounter[i-1];
+  m_recvMap.reserve(recvSum);
+  m_recvMap.resize(recvSum);
 /*
 PECheckPoint(100,"-- step 1 --:");
+PEProcessSortedExecute(-1,PEDebugVector(m_recvCount,m_recvCount.size()));
+PEProcessSortedExecute(-1,PEDebugVector(recvcounter,recvcounter.size()));
 */
+  // fill receive data and inverse send
+  std::vector<CPint> receive_gids(recvSum);
+  int lid=0;
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
+  {
+    if (i.rank!=irank)
+    {
+      receive_gids[recvcounter[i.rank]]=i.gid;
+      m_recvMap[recvcounter[i.rank]]=lid;
+      recvcounter[i.rank]++;
+    }
+    lid++;
+  }
+/*
+PECheckPoint(100,"-- step 2 --:");
+PEProcessSortedExecute(-1,PEDebugVector(receive_gids,receive_gids.size()));
+PEProcessSortedExecute(-1,PEDebugVector(m_recvMap,m_recvMap.size()));
+*/
+  // communicate gids per receive side
+  m_sendMap.resize(0);
+  m_sendMap.reserve(0);
+  m_sendCount.assign(nproc,-1);
+  mpi::PE::instance().all_to_all(receive_gids,m_recvCount,m_sendMap,m_sendCount);
+/*
+PECheckPoint(100,"-- step 3 --:");
+PEProcessSortedExecute(-1,PEDebugVector(m_sendCount,m_sendCount.size()));
+PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
+*/
+  // look up the nodes to on send side (brute force searching for now)
+  BOOST_FOREACH(int& si, m_sendMap)
+  {
+    for (int i=0; i<m_gid->size(); i++)
+      if (gid[i]==si)
+      {
+        si=i;
+        break;
+      }
+  }
+/*
+PECheckPoint(100,"-- step 4 --:");
+PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
+*/
+  return;
+  } // end fast
+
+  ///////////////////////////////////////////////////////////////////////
+  // experimental version, supports one single setup call and only add //
+  ///////////////////////////////////////////////////////////////////////
+
+  // -- 1 -- data definition
+
+PECheckPoint(100,"-- step 1 --:");
 
   // -- 2 -- get environment data and gid
   // get stuff from environment
@@ -150,10 +194,8 @@ PECheckPoint(100,"-- step 1 --:");
   if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
   Uint* gid=(Uint*)m_gid->pack();
 
-
-/*
 PECheckPoint(100,"-- step 2 --:");
-*/
+
   // -- 3 -- build receive info
   // build receive count and receive map, note that filtering out data from laying on current process
   BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) m_recvCount[i.rank]++;
@@ -174,11 +216,9 @@ PECheckPoint(100,"-- step 2 --:");
   BOOST_FOREACH(CPint& i, m_recvMap)
     BOOST_ASSERT(i!=std::numeric_limits<CPint>::max());
 
-/*
 PECheckPoint(100,"-- step 3 --:");
 PEProcessSortedExecute(-1,PEDebugVector(m_recvMap,m_recvMap.size()));
 PEProcessSortedExecute(-1,PEDebugVector(m_recvCount,m_recvCount.size()));
-*/
 
   // -- 4 -- building a distributed info for looking up communication
   // setting up m_isUpdatable and its counts (distributed over processes)
@@ -211,6 +251,11 @@ PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatabledisp,dist_nupdatabledisp.
     i.lid=ilid++;
     i.data=nullptr;
   }
+
+PEProcessSortedExecute(-1, BOOST_FOREACH(dist_struct& i, dist) std::cout << i.lid << " " << i.gid << " " << i.rank << " " << i.data << "\n" << std::flush;);
+
+/*
+  std::vector<int> dist_nsend(nproc,0);
   delete[] gid;
 
 PEProcessSortedExecute(-1,BOOST_FOREACH(dist_struct& i, dist) std::cout << i.lid << " " << i.gid << " " << i.rank << " " << i.data << "\n" << std::flush; );
@@ -226,7 +271,15 @@ PEProcessSortedExecute(-1,PEDebugVector(dist_rankupdatable,dist_rankupdatable.si
 
 void PECommPattern::update()
 {
-
+  BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(*this) )
+  {
+//    PEProcessSortedExecute(-1,std::cout << pobj.name() << "\n" << std::flush; );
+//    if (pobj.needs_update()) PEProcessSortedExecute(-1,std::cout << pobj.name() << "\n" << std::flush; );
+    char* snd_data=(char*)pobj.pack(m_sendMap);
+PEProcessSortedExecute(-1,PEDebugVector(snd_data,m_sendMap.size()));
+    char* rcv_data=mpi::PE::instance().all_to_all(snd_data,&m_sendCount[0],&m_sendMap[0],(char*)0,&m_recvCount[0],0,pobj.size_of()*pobj.size());
+    pobj.unpack(rcv_data,m_recvMap);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
