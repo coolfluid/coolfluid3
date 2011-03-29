@@ -13,7 +13,7 @@
 
 #include "UI/Graphics/TabBuilder.hpp"
 
-//#include "UI/ParaView/Widget3D.hpp"
+#include "UI/ParaView/Widget3D.hpp"
 #include "UI/ParaView/LibParaView.hpp"
 
 using namespace CF::Common;
@@ -38,8 +38,8 @@ void LibParaView::initiate()
 
   m_appCore = new pqApplicationCore(m_argc, core.argv());
 
-  //  m_tabIndex = TabBuilder::instance()->addTab(new Widget3D(), "3D-View");
-  m_tabIndex = TabBuilder::instance()->addTab(new QWidget(), "3D-View");
+  m_tabIndex = TabBuilder::instance()->addTab(new Widget3D(), "3D-View");
+  //m_tabIndex = TabBuilder::instance()->addTab(new QWidget(), "3D-View");
 
   m_is_initiated = true;
 }

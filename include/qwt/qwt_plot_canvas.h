@@ -114,6 +114,10 @@ private:
 
     class PrivateData;
     PrivateData *d_data;
+
+
+signals:
+    void wheelEvent(QWheelEvent *);
 };
 
 #endif

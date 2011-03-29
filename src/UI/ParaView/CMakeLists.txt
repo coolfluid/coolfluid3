@@ -5,7 +5,7 @@ if( ParaView_FOUND )
 
   # List of classes to "moc"
   list( APPEND coolfluid_ui_paraview_moc_classes
-#      Widget3D.hpp
+      Widget3D.hpp
    )
 
   # Create the moc files
@@ -15,8 +15,8 @@ if( ParaView_FOUND )
   list( APPEND coolfluid_ui_paraview_files
     LibParaView.cpp
     LibParaView.hpp
-#    Widget3D.cpp
-#    Widget3D.hpp
+    Widget3D.cpp
+    Widget3D.hpp
   )
 
   include_directories(${PARAVIEW_INCLUDE_DIRS})
