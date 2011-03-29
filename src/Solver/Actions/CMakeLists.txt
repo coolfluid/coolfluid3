@@ -45,6 +45,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/DirichletBC.hpp
     Proto/EigenTransforms.hpp
     Proto/ElementData.hpp
+    Proto/ElementExpressionWrapper.hpp
     Proto/ElementGrammar.hpp
     Proto/ElementLooper.hpp
     Proto/ElementMatrix.hpp

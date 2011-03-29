@@ -45,7 +45,7 @@ struct GetCoordinates :
 
 /// Valid terminals that can represent the current node coordinates
 struct CoordsTerminals :
-  boost::proto::terminal<CoordinatesOp>
+  boost::proto::terminal< SFOp<CoordinatesOp> >
 {
 };
 

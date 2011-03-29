@@ -151,6 +151,9 @@ public:
   /// Type of the gradient
   typedef typename SF::MappedGradientT GradientT;
   
+  /// Type of the linearized form of the divergence
+  typedef Eigen::Matrix<Real, 1, Dim * SF::nb_nodes> DivergenceLinT;
+  
   /// The dimension of the variable
   static const Uint dimension = Dim;
   
@@ -233,6 +236,19 @@ public:
     return m_advection;
   }
   
+  /// Return the linearized divergence operator (can be applied to a state vector of the form (u1, u2, u3, v1, v2, v3)
+  template<typename SupportT>
+  const DivergenceLinT& divergence_lin(const MappedCoordsT& mapped_coords, SupportT& support) const
+  {
+    gradient(mapped_coords, support);
+    for(Uint i = 0; i != Dim; ++i)
+    {
+      m_div_lin.template block<1, SF::nb_nodes>(0, i*SF::nb_nodes) = m_gradient.row(i);
+    }
+    
+    return m_div_lin;
+  }
+  
   /// Return the gradient (weak form element matrix)
   template<typename SupportT>
   typename GradientImpl<SF, Dim, Offset, MatrixSize>::result_type gradient_elm(const MappedCoordsT& mapped_coords, SupportT& support) const
@@ -291,6 +307,7 @@ private:
   mutable typename SF::MappedGradientT m_mapped_gradient_matrix;
   mutable GradientT m_gradient;
   mutable typename SF::ShapeFunctionsT m_advection;
+  mutable DivergenceLinT m_div_lin;
   InterpolationImpl<SF, Dim> m_eval;
   const GradientImpl<SF, Dim, Offset, MatrixSize> m_gradient_elm;
   const DivergenceImpl<SF, Dim, Offset, MatrixSize> m_divergence_elm;
@@ -316,7 +333,7 @@ struct IsEquationData
 };
 
 /// Metafunction class for creating an appropriate data type
-template<typename VariablesT, typename ShapeFunctionsT, typename EquationVariablesT, typename MatrixSizesT, typename EMatrixSizeT>
+template<typename VariablesT, typename SupportSF, typename ShapeFunctionsT, typename EquationVariablesT, typename MatrixSizesT, typename EMatrixSizeT>
 struct MakeVarData
 {
   template<typename I>
@@ -324,6 +341,26 @@ struct MakeVarData
   {
     typedef typename boost::mpl::at<VariablesT, I>::type VarT;
     typedef typename boost::mpl::at<ShapeFunctionsT, I>::type SF;
+    typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
+    typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
+    typedef typename boost::mpl::eval_if< IsEquationVar, VarOffset<MatrixSizesT, EquationVariablesT, I>, boost::mpl::int_<0> >::type Offset;
+    
+    typedef typename boost::mpl::if_
+    <
+      boost::mpl::is_void_<VarT>,
+      boost::mpl::void_,
+      SFVariableData<SF, FieldWidth<VarT, SF>::value, Offset::value, MatSize::value, IsEquationVar::value>*
+    >::type type;
+  };
+};
+
+template<typename VariablesT, typename SF, typename EquationVariablesT, typename MatrixSizesT, typename EMatrixSizeT>
+struct MakeVarData<VariablesT, SF, SF, EquationVariablesT, MatrixSizesT, EMatrixSizeT>
+{
+  template<typename I>
+  struct apply
+  {
+    typedef typename boost::mpl::at<VariablesT, I>::type VarT;
     typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
     typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
     typedef typename boost::mpl::eval_if< IsEquationVar, VarOffset<MatrixSizesT, EquationVariablesT, I>, boost::mpl::int_<0> >::type Offset;
@@ -370,7 +407,7 @@ public:
     typename boost::mpl::transform
     <
       typename boost::mpl::copy<boost::mpl::range_c<int,0,NbVarsT::value>, boost::mpl::back_inserter< boost::mpl::vector_c<Uint> > >::type, //range from 0 to NbVarsT
-      MakeVarData<VariablesT, VariablesSFT, EquationVariablesT, MatrixSizesT, EMatrixSizeT>
+      MakeVarData<VariablesT, SupportSF, VariablesSFT, EquationVariablesT, MatrixSizesT, EMatrixSizeT>
     >::type
   >::type VariablesDataT;
   

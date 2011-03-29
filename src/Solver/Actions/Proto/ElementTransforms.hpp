@@ -58,66 +58,40 @@ struct LinearizeTransform : boost::proto::transform< LinearizeTransform >
   };
 };
 
-/// Ops that don't take mapped coords
+/// Primitive transform to extract the type of an SFOp
+struct ExtractOp : boost::proto::transform< ExtractOp >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::remove_reference<ExprT>::type::type result_type;
+    
+    result_type operator()(typename impl::expr_param, typename impl::state_param, typename impl::data_param)
+    {
+      return result_type();
+    }
+  };
+};
+
+/// Shape-function related operations
 template<typename GrammarT>
 struct SFOps :
   boost::proto::or_
   <
-    boost::proto::when // Functions depending only on geometry
+    boost::proto::when
     <
-      SFSupportOp,
-      boost::proto::lazy<boost::proto::_value>
+      boost::proto::function< boost::proto::terminal< SFOp<boost::proto::_> >, boost::proto::vararg<boost::proto::_> >,
+      boost::proto::lazy< boost::proto::call<ExtractOp(boost::proto::_value(boost::proto::_child0))> >
     >,
-    boost::proto::when // Functions depending only on geometry
+    boost::proto::when
+    <
+      boost::proto::terminal< SFOp<boost::proto::_> >,
+      boost::proto::lazy< boost::proto::call<ExtractOp(boost::proto::_value)> >
+    >,
+    boost::proto::when
     <
       boost::proto::function<boost::proto::terminal<LinearizeOp>, GrammarT, FieldTypes>,
       LinearizeTransform(boost::proto::_expr, GrammarT(boost::proto::_child1))
-    >
-  >
-{
-};
-
-/// Evaluates Shape Fuction operations with explicitely defined mapped coordinates
-struct SFOpsExplicit :
-  boost::proto::or_
-  <
-    boost::proto::when // Functions depending only on geometry and mapped coords
-    <
-      boost::proto::function<SFSupportMappedOp, MappedCoordinate>,
-      boost::proto::lazy< boost::proto::call<boost::proto::_value(boost::proto::_child0)>(boost::proto::_expr, boost::proto::_value(boost::proto::_child_c<1>)) >
-    >,
-    boost::proto::when // Functions depending on geometry and a field
-    <
-      boost::proto::function<SFSupportFieldMappedOp, FieldTypes, MappedCoordinate>,
-      boost::proto::lazy< boost::proto::call<boost::proto::_value(boost::proto::_child0)>(boost::proto::_value(boost::proto::_child_c<1>), boost::proto::_value(boost::proto::_child_c<2>)) >
-    >,
-    boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
-    <
-      boost::proto::function<FieldTypes, MappedCoordinate>,
-      InterpolationOp(boost::proto::_value(boost::proto::_child_c<0>), boost::proto::_value(boost::proto::_child_c<1>) )
-    >
-  >
-{
-};
-
-/// Evaluates Shape Fuction operations where the mapped coordinates are implicit (i.e. during integration)
-struct SFOpsImplicit :
-  boost::proto::or_
-  <
-    boost::proto::when // Functions depending only on geometry and mapped coords
-    <
-      SFSupportMappedOp,
-      boost::proto::lazy<boost::proto::_value>
-    >,
-    boost::proto::when // Functions depending on geometry and a field
-    <
-      boost::proto::function<SFSupportFieldMappedOp, FieldTypes>,
-      boost::proto::lazy< boost::proto::call<boost::proto::_value(boost::proto::_child0)>(boost::proto::_value(boost::proto::_child_c<1>)) >
-    >,
-    boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
-    <
-      FieldTypes,
-      InterpolationOp(boost::proto::_value)
     >
   >
 {
@@ -129,7 +103,11 @@ struct ElementMathImplicit :
   boost::proto::or_
   <
     SFOps<ElementMathImplicit>,
-    SFOpsImplicit,
+    boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
+    <
+      FieldTypes,
+      InterpolationOp(boost::proto::_value)
+    >,
     MathTerminals,
     EigenMath<ElementMathImplicit>
   >
@@ -245,7 +223,11 @@ struct ElementMath :
   boost::proto::or_
   <
     SFOps<ElementMath>,
-    SFOpsExplicit,
+    boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
+    <
+      boost::proto::function<FieldTypes, boost::proto::_>,
+      InterpolationOp(boost::proto::_value(boost::proto::_child_c<0>), boost::proto::_value(boost::proto::_child_c<1>) )
+    >,
     MathTerminals,
     ElementIntegration,
     ElementMatrixGrammar<ElementMath>,

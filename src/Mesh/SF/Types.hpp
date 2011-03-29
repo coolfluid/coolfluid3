@@ -82,11 +82,6 @@ struct IsCompatibleWith
       <
         boost::mpl::int_<ShapeFunctionT::shape>,
         boost::mpl::int_<OtherShapeFunctionT::shape>
-      >,
-      boost::mpl::equal_to
-      <
-        boost::mpl::int_<ShapeFunctionT::nb_nodes>,
-        boost::mpl::int_<OtherShapeFunctionT::nb_nodes>
       >
     >::type type;
   };

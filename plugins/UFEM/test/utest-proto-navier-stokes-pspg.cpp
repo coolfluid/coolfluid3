@@ -74,8 +74,8 @@ static boost::proto::terminal< void(*)(Real, Real, Real&) >::type const _probe =
 
 BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
 
-// Solve the Stokes equations with PSPG
-BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
+// Solve the Navier-Stokes equations with PSPG
+BOOST_AUTO_TEST_CASE( ProtoNavierStokesPSPG )
 {
   int    argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;

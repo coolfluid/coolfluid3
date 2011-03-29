@@ -16,6 +16,7 @@
 #include <boost/mpl/for_each.hpp>
 
 #include "ElementData.hpp"
+#include "ElementExpressionWrapper.hpp"
 #include "ElementGrammar.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -99,117 +100,38 @@ struct ExpressionRunner
   Mesh::CElements& elements;
 };
 
-/// Matches expressions that can be wrapped
-struct WrappableElementExpressions :
-  boost::proto::or_
-  <
-    boost::proto::multiplies<boost::proto::_, boost::proto::_>,
-    boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, boost::proto::_ >,
-    boost::proto::function<boost::proto::terminal<LinearizeOp>, boost::proto::_, FieldTypes>
-  >
-{
-};
 
-/// Less restricitve grammar to get the result of expressions that are in an integral as well
-struct LazyElementGrammar :
-  boost::proto::or_
-  <
-    ElementGrammar,
-    ElementMathImplicit // Normally this is only legal inside an integral
-  >
-{
-};
 
 /// Helper struct to launch execution once all shape functions have been determined
 template<typename DataT>
 struct ElementLooperImpl
-{
-  typedef typename DataT::SupportShapeFunction SupportSF; 
-  
-  struct ElementsDomain;
-  
-  /// Wraps a given expression, so the value that it represents can be stored inside the expression itself
-  template<typename ProtoExprT>
-  struct ElementsExpressionStored :
-    boost::proto::extends<ProtoExprT, ElementsExpressionStored<ProtoExprT>, ElementsDomain>
-  {
-    typedef boost::proto::extends<ProtoExprT, ElementsExpressionStored<ProtoExprT>, ElementsDomain> base_type;
-    
-    typedef typename boost::remove_const<typename boost::remove_reference
-    <
-      typename boost::result_of<LazyElementGrammar(const ProtoExprT&, const typename SupportSF::MappedCoordsT&, DataT&)>::type
-    >::type>::type ValueT;
-    
-    explicit ElementsExpressionStored(ProtoExprT const &expr = ProtoExprT())
-      : base_type(expr)
-    {
-    }
-    
-    /// Temporary storage for the result of the expression
-    mutable ValueT value;
-  };
-  
-  template<typename T>
-  struct ElementsExpression;
-  
-  template<bool B, typename ProtoExprT>
-  struct SelectWrapper;
-  
-  template<typename ProtoExprT>
-  struct SelectWrapper<false, ProtoExprT>
-  {
-    typedef boost::proto::extends<ProtoExprT, ElementsExpression<ProtoExprT>, ElementsDomain> type;
-  };
-  
-  template<typename ProtoExprT>
-  struct SelectWrapper<true, ProtoExprT>
-  {
-    typedef ElementsExpressionStored<ProtoExprT> type;
-  };
-  
-  template<typename ProtoExprT>
-  struct ElementsExpression :
-    SelectWrapper<boost::proto::matches<ProtoExprT, WrappableElementExpressions>::value, ProtoExprT>::type
-  {
-    typedef typename SelectWrapper<boost::proto::matches<ProtoExprT, WrappableElementExpressions>::value, ProtoExprT>::type base_type;
-    
-    explicit ElementsExpression(ProtoExprT const &expr = ProtoExprT())
-      : base_type(expr)
-    {
-    }
-  };
-  
-  struct ElementsDomain :
-    boost::proto::domain< boost::proto::generator<ElementsExpression> >
-  {
-  };
-  
+{ 
   struct WrapExpression :
     boost::proto::or_
     <
       boost::proto::when
       <
         boost::proto::multiplies<boost::proto::_, boost::proto::_>,
-        boost::proto::functional::make_expr<boost::proto::tag::multiplies, ElementsDomain>
+        WrapMatrixExpression(boost::proto::functional::make_multiplies
         (
           WrapExpression(boost::proto::_left), WrapExpression(boost::proto::_right)
-        )
+        ))
       >,
       boost::proto::when
       <
         boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, boost::proto::_ >,
-        boost::proto::functional::make_expr<boost::proto::tag::function, ElementsDomain>
+        WrapMatrixExpression(boost::proto::functional::make_function
         (
           WrapExpression(boost::proto::_child0), WrapExpression(boost::proto::_child1)
-        )
+        ))
       >,
       boost::proto::when
       <
         boost::proto::function<boost::proto::terminal<LinearizeOp>, boost::proto::_, FieldTypes>,
-        boost::proto::functional::make_expr<boost::proto::tag::function, ElementsDomain>
+        WrapMatrixExpression(boost::proto::functional::make_function
         (
           WrapExpression(boost::proto::_child0), WrapExpression(boost::proto::_child1), WrapExpression(boost::proto::_child2)
-        )
+        ))
       >,
       boost::proto::nary_expr< boost::proto::_, boost::proto::vararg<WrapExpression> >
     >
@@ -219,7 +141,8 @@ struct ElementLooperImpl
   template<typename ExprT>
   void operator()(const ExprT& expr, DataT& data, const Uint nb_elems) const
   {
-    run(WrapExpression()(expr, 0, data), data, nb_elems);
+    const typename DataT::SupportShapeFunction::MappedCoordsT mapped_coords; // needed to deduce proper return type when wrapping
+    run(WrapExpression()(expr, mapped_coords, data), data, nb_elems);
   }
   
 private:
@@ -282,11 +205,33 @@ struct ElementLooper
   
   
   template < typename SF >
-  void operator() ( SF& T ) const
+  void operator() (const SF& sf) const
   {
     if(!Mesh::IsElementType<SF>()(m_elements.element_type()))
       return;
     
+    dispatch(boost::mpl::int_<boost::mpl::size< boost::mpl::filter_view< ShapeFunctionsT, Mesh::SF::IsCompatibleWith<SF> > >::value>(), sf);
+  }
+  
+  /// Static dispatch in case everything has the same SF
+  template<typename SF>
+  void dispatch(const boost::mpl::int_<1>&, const SF& sf) const
+  {
+    typedef typename ExpressionProperties<ExprT>::NbVarsT NbVarsT;
+    typedef ElementData<VariablesT, SF, SF, typename EquationVariables<ExprT, NbVarsT>::type> DataT;
+    
+    // TODO: add static assert?
+    
+    DataT data(m_variables, m_elements);
+    
+    ElementLooperImpl<DataT>()(m_expr, data, m_elements.size());
+  }
+  
+  /// Static dispatch in case different SF are possible
+  template<typename T, typename SF>
+  void dispatch(const T&, const SF& sf) const
+  {
+    print_error<SF>(); // remove this if you really need multiple-sf support
     // Number of variables (integral constant)
     typedef typename ExpressionProperties<ExprT>::NbVarsT NbVarsT;
     

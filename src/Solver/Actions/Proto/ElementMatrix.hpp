@@ -144,11 +144,20 @@ struct NodesTimesDim<boost::mpl::void_, SF>
 template<typename VariablesT, typename VariablesSFT>
 struct MatrixSizePerVar
 {
-  typedef typename boost::mpl::transform
+  typedef typename boost::mpl::eval_if
   <
-    typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
-    VariablesSFT,
-    NodesTimesDim<boost::mpl::_1, boost::mpl::_2>
+    boost::mpl::is_sequence<VariablesSFT>,
+    boost::mpl::transform
+    <
+      typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
+      VariablesSFT,
+      NodesTimesDim<boost::mpl::_1, boost::mpl::_2>
+    >,
+    boost::mpl::transform
+    <
+      typename boost::mpl::copy<VariablesT, boost::mpl::back_inserter< boost::mpl::vector0<> > >::type,
+      NodesTimesDim<boost::mpl::_1, VariablesSFT>
+    >
   >::type type;
 };
 

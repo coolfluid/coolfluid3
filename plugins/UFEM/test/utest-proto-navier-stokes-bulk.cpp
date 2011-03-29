@@ -80,6 +80,16 @@ Real tau_supg(const Eigen::Matrix<Real, 3, 2>& el_nodes, const Eigen::Matrix<Rea
 
 static boost::proto::terminal< Real(*)(const Eigen::Matrix<Real, 3, 2>&, const Eigen::Matrix<Real, 1, 2>&, const Eigen::Matrix<Real, 1, 3>&) >::type const _tau_supg = {&tau_supg};
 
+Real tau_bulk(const Real volume, const Real nu, const Real u_ref)
+{
+  Real he=sqrt(4./3.141592654*volume);
+  Real ree=u_ref*he/(2.*nu);
+  Real xi=std::max(0.,std::min(ree/3.,1.));
+  return he*u_ref/xi;
+}
+
+static boost::proto::terminal< Real(*)(Real, Real, Real) >::type const _tau_bulk = {&tau_bulk};
+
 /// Probe based on a coordinate value
 void probe(const Real coord, const Real val, Real& result)
 {
@@ -91,13 +101,13 @@ static boost::proto::terminal< void(*)(Real, Real, Real&) >::type const _probe =
 
 BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
 
-// Solve the Navier-Stokes equations with SUPG
-BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
+// Solve the Navier-Stokes equations with SUPG and the bulk viscosity term
+BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
 {
   int    argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
-  std::ofstream outfile("navier-stokes-supg-stats.txt");
+  std::ofstream outfile("navier-stokes-bulk-stats.txt");
   outfile << "# Time(s) Velocity magnitude(m_s)" << std::endl;
   
   const Real start_time = 0.;
@@ -122,6 +132,9 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
   
   Real tau_su_val;
   StoredReference<Real> tau_su = store(tau_su_val);
+  
+  Real tau_bulk_val;
+  StoredReference<Real> tau_bulk = store(tau_bulk_val);
   
   // Load the required libraries (we assume the working dir is the binary path)
   LibLoader& loader = *OSystem::instance().lib_loader();
@@ -193,14 +206,16 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
       (
         boost::proto::lit(tau_ps) = _tau_pspg(volume, mu/rho, u_inf[0]),
         boost::proto::lit(tau_su) = _tau_supg(nodes, u(centroid), shape_function(u, centroid)),
-        _A(p) = integral<1>((                                     // Mass equation
-                  divergence_elm(u)                                          // standard
-                + tau_ps * laplacian_elm(p)                                  // PSPG
+        boost::proto::lit(tau_bulk) = _tau_bulk(volume, mu/rho, u_inf[0]),
+        _A(p) = integral<1>((                                                                                                                 // Mass equation
+                  divergence_elm(u)                                                                                                           // standard
+                + tau_ps * laplacian_elm(p)                                                                                                   // PSPG
                 ) * jacobian_determinant),
         _A(p, u) += tau_ps * integral<1>( ( transpose(gradient(u)) * linearize(advection(u), u) ) * jacobian_determinant ),                   // PSPG for advective term
         _A(u) = integral<1>( (advection_elm(u) +  mu * laplacian_elm(u) + 1./rho * gradient_elm(p) ) * jacobian_determinant),                 // Momentum, standard
         _A(u, u) += tau_su * integral<1>( transpose(linearize(advection(u), u)) * linearize(advection(u), u) * jacobian_determinant),         // SUPG of advection term
         _A(u, p) += tau_su * integral<1>( transpose(linearize(advection(u), u)) * gradient(p) * jacobian_determinant),                        // SUPG, pressure gradient
+        _A(u, u) += tau_bulk * integral<1>(transpose(divergence_lin(u)) * divergence_lin(u) * jacobian_determinant),                          // Bulk viscosity
         _T(p) = tau_ps * integral<1>(divergence_elm(u) * jacobian_determinant),                                                               // Time, PSPG
         _T(u) = integral<2>(value_elm(u) * jacobian_determinant),                                                                             // Time, standard
         _T(u, u) += tau_su * integral<1>( transpose(linearize(advection(u), u)) * linearize(shape_function(u), u) * jacobian_determinant ),   // Time, SUPG
@@ -253,7 +268,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
     if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
     {
       std::stringstream outname;
-      outname << "navier-stokes-supg-";
+      outname << "navier-stokes-bulk-";
       outname << std::setfill('0') << std::setw(5) << static_cast<Uint>(t / dt);
       boost::filesystem::path output_file(outname.str() + ".vtk");
       writer->write_from_to(mesh, output_file);
