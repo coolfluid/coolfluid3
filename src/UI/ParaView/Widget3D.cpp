@@ -236,86 +236,11 @@ namespace ParaView {
 
             changeStyle();
 
-
-
             pqDataRepresentation* repr = m_input->getRepresentation(m_RenderView);
 
             m_color->setRepresentation(repr);
 
-            qDebug() << repr->getInputDataInformation()->GetNumberOfDataSets();
-            qDebug() << repr->getInputDataInformation()->GetNumberOfPoints();
-            qDebug() << repr->getInputDataInformation()->GetDataSetTypeAsString();
-            qDebug() << repr->getInputDataInformation()->GetNumberOfCells();
-            qDebug() << repr->getInputDataInformation()->GetNumberOfRows();
-            qDebug() << repr->getInputDataInformation()->GetMemorySize();
-            qDebug() << repr->getInputDataInformation()->GetPolygonCount();
-
-            qDebug() << m_input->getNumberOfOutputPorts();
-            qDebug() << repr->getLookupTable ();
-
-
-            //LOOKUP_TABLE
-
-            /////////////////////////////////////////////////////////////////////////
-/*
-            vtkPolyData* outputPolyData;
-
-            double bounds[6];
-            outputPolyData->GetBounds(bounds);
-
-            // Find min and max z
-            double minz = bounds[4];
-            double maxz = bounds[5];
-
-            // Create the color map
-            vtkSmartPointer<vtkLookupTable> colorLookupTable =
-              vtkSmartPointer<vtkLookupTable>::New();
-            colorLookupTable->SetTableRange(minz, maxz);
-            colorLookupTable->Build();
-
-            // Generate the colors for each point based on the color map
-            vtkSmartPointer<vtkUnsignedCharArray> colors =
-              vtkSmartPointer<vtkUnsignedCharArray>::New();
-            colors->SetNumberOfComponents(3);
-            colors->SetName("Colors");
-
-            for(int i = 0; i < outputPolyData->GetNumberOfPoints(); i++)
-              {
-              double p[3];
-              outputPolyData->GetPoint(i,p);
-
-              double dcolor[3];
-              colorLookupTable->GetColor(p[2], dcolor);
-              unsigned char color[3];
-              for(unsigned int j = 0; j < 3; j++)
-                {
-                color[j] = static_cast<unsigned char>(255.0 * dcolor[j]);
-                }
-              colors->InsertNextTupleValue(color);
-              }
-
-            outputPolyData->GetPointData()->SetScalars(colors);
-*/
-
-            /////////////////////////////////////////////////////////////////////////
-
-            //repr->setProperty("Representation",0);
-/*
-            vtkSMPropertyHelper(repr->getProxy(),"Representation").Set(0);
-
-            vtkSMViewProxy::SafeDownCast(repr->getProxy())->UpdatePipeline();
-
-            m_RenderView->getRepresentation(0)->setProperty("Representation",0);
-*/
-
-            /*
-            // put the elevation in the window
-            QString numPort = "Number of source port : ";
-            numPort += QString::number(m_source->getNumberOfOutputPorts());
-            ClientNLog::globalLog()->addMessage(numPort);
-
-            m_object_builder->createDataRepresentation(m_source->getOutputPort(0), this->m_RenderView);
-*/            // zoom to object
+            // zoom to object
             this->m_RenderView->resetCamera();
             // make sure we update
             this->m_RenderView->render();
