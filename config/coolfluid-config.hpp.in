@@ -1,5 +1,5 @@
-#ifndef coolfluid_config_h
-#define coolfluid_config_h
+#ifndef coolfluid_config_hpp
+#define coolfluid_config_hpp
 
 #define CF_VERSION ${CF_VERSION}
 #define CF_VERSION_STR "${CF_VERSION}"
@@ -72,13 +72,6 @@
 #cmakedefine CF_HAVE_SYS_RESOURCE_H // time header
 #cmakedefine CF_HAVE_GETTIMEOFDAY   // time header
 #cmakedefine CF_TIME_WITH_SYS_TIME  // time header setting
-#cmakedefine CF_HAVE_SUPERLU        // SuperLU sparse direct solver
-#cmakedefine CF_HAVE_TRILINOS       // Trilinos sparse lib
-
-// Package options
-#cmakedefine CF_HAVE_PARMETIS
-#cmakedefine CF_HAVE_VALGRIND
-#cmakedefine CF_HAVE_EIGEN
 
 // User options
 #cmakedefine CF_ENABLE_STDASSERT
@@ -92,4 +85,4 @@
 #  define __FUNCTION__ ""
 #endif
 
-#endif // !coolfluid_config_h
+#endif // !coolfluid_config_hpp

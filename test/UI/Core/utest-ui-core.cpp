@@ -29,7 +29,7 @@ int main(int argc, char * argv[])
   CF::Common::ExceptionManager::instance().ExceptionAborts = false;
   CF::Common::ExceptionManager::instance().ExceptionOutputs = false;
 
-  CF::AssertionManager::instance().AssertionThrows = true;
+  CF::Common::AssertionManager::instance().AssertionThrows = true;
 
   // CommonFunctionsTest must be the first to be run !!
   passed += QTest::qExec(new CommonFunctionsTest(), argc, argv);

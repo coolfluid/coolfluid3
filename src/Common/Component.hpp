@@ -12,6 +12,8 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 
+#include "Common/Assertions.hpp"
+
 #include "Common/PropertyList.hpp"
 #include "Common/SignalHandler.hpp"
 #include "Common/TaggedObject.hpp"
@@ -271,7 +273,7 @@ public: // functions
   size_t count_children() const;
 
   /// @return Returns the type name of the subclass, according to
-  /// @c CF::TypeInfo
+  /// @c CF::Common::TypeInfo
   virtual std::string derived_type_name() const;
 
   /// @return Returns a reference to the property list

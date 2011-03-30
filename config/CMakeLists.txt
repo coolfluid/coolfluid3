@@ -5,18 +5,23 @@
 
 string( TOUPPER "${CMAKE_BUILD_TYPE}" CF_BUILD_TYPE )
 
-# coolfluid_config.h
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid_config.h.in ${coolfluid_BINARY_DIR}/coolfluid_config.h)
+# coolfluid generic settings
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-config.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-config.hpp)
+
+# coolfluid packages found
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-packages.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-packages.hpp)
 
 # create the header with the svn version
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid_svnversion.h.in ${coolfluid_BINARY_DIR}/coolfluid_svnversion.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-svnversion.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-svnversion.hpp)
 
-# coolfluid_profiling_config.h
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid_profiling_config.h.in ${coolfluid_BINARY_DIR}/coolfluid_profiling_config.h)
+# coolfluid profiling configs
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-profiling.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-profiling.hpp)
 
 # install global configuration headers
-install ( FILES ${coolfluid_BINARY_DIR}/coolfluid_config.h
-                ${coolfluid_BINARY_DIR}/coolfluid_svnversion.h
+install ( FILES ${coolfluid_BINARY_DIR}/coolfluid-config.hpp
+                ${coolfluid_BINARY_DIR}/coolfluid-svnversion.hpp
+                ${coolfluid_BINARY_DIR}/coolfluid-packages.hpp
+                ${coolfluid_BINARY_DIR}/coolfluid-profiling.hpp
           DESTINATION
                 ${CF_INSTALL_INCLUDE_DIR} )
 

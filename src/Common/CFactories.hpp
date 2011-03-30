@@ -48,7 +48,7 @@ namespace Common {
         return boost::dynamic_pointer_cast< CFactoryT<CBase> >(factory);
       else
       {
-        CF::TypeInfo::instance().regist< CFactoryT<CBase> >( CFactoryT<CBase>::type_name() );
+        CF::Common::TypeInfo::instance().regist< CFactoryT<CBase> >( CFactoryT<CBase>::type_name() );
         return create_component< CFactoryT<CBase> >(tname);
       }
     }

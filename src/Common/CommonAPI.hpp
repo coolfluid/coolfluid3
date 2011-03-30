@@ -9,24 +9,24 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ExportAPI.hpp"
+#include "Common/CF.hpp"
 
 namespace CF {
 
-  /// Common holds classes that abstract the Operating System and the Parallel environment
-  /// and provide common facilities (like logging) to all other libraries.
-  /// Common is the most basic of the Kernel libraries.
-  namespace Common {
+/// Common holds classes that abstract the Operating System and the Parallel environment
+/// and provide common facilities (like logging) to all other libraries.
+/// Common is the most basic of the Kernel libraries.
+namespace Common {
 
-  /// Define the macro Common_API
-  /// @note build system defines COOLFLUID_COMMON_EXPORTS when compiling Common files
-  #ifdef COOLFLUID_COMMON_EXPORTS
-  #   define Common_API CF_EXPORT_API
-  #   define Common_TEMPLATE
-  #else
-  #   define Common_API CF_IMPORT_API
-  #   define Common_TEMPLATE CF_TEMPLATE_EXTERN
-  #endif
+/// Define the macro Common_API
+/// @note build system defines COOLFLUID_COMMON_EXPORTS when compiling Common files
+#ifdef COOLFLUID_COMMON_EXPORTS
+#   define Common_API CF_EXPORT_API
+#   define Common_TEMPLATE
+#else
+#   define Common_API CF_IMPORT_API
+#   define Common_TEMPLATE CF_TEMPLATE_EXTERN
+#endif
 
 } // Common
 } // CF

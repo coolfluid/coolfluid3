@@ -7,7 +7,7 @@
 #ifndef CF_Common_LogStringForwarder_hpp
 #define CF_Common_LogStringForwarder_hpp
 
-#include "Common/CF.hpp"
+#include "Common/CommonAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

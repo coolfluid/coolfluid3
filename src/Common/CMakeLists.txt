@@ -1,14 +1,13 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_common_files
-    AssertionManager.cpp
-    AssertionManager.hpp
+    Assertions.cpp
+    Assertions.hpp
     BasicExceptions.cpp
     BasicExceptions.hpp
     BoostIostreams.hpp
     BoostFilesystem.hpp
     BoostArray.hpp
-    BoostAssert.hpp
     BuildInfo.hpp
     BuildInfo.cpp
     CF.hpp

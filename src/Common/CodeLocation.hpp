@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CF.hpp"
+#include "Common/CommonAPI.hpp"
 
 namespace CF {
 namespace Common {
@@ -18,8 +18,7 @@ namespace Common {
 
 /// This class stores the information about a location in the source code
 /// @author Tiago Quintino
-class Common_API CodeLocation
-{
+class Common_API CodeLocation {
 public:
 
   /// constructor of the code location

@@ -4,12 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CFASSERT_hpp
-#define CF_Common_CFASSERT_hpp
+#ifndef CF_Common_Assertions_hpp
+#define CF_Common_Assertions_hpp
 
-#ifndef CF_hpp
-#error The header AssertionManager.hpp shouldnt be included directly rather by including CF.hpp instead
+// disable boost assertions if compiled with -DNDEBUG
+#ifdef NDEBUG
+  #define BOOST_DISABLE_ASSERTS
 #endif
+
+#define BOOST_ENABLE_ASSERT_HANDLER
+#include <boost/assert.hpp>
+
+#include "Common/CommonAPI.hpp"
 
 #ifndef CF_ENABLE_STDASSERT
   #include <cassert>
@@ -18,8 +24,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-////////////////////////////////////////////////////////////////////////////////
+namespace Common {
 
 /// Manager of behavior of assertions
 class Common_API AssertionManager : public boost::noncopyable {
@@ -67,6 +72,8 @@ public:
 
 }; // class AssertionManager
 
+} // namespace Common
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef CF_ENABLE_STDASSERT
@@ -76,13 +83,13 @@ public:
 /// Assertion that always should be checked, even in optimized builds.
 /// Use this for testing in non-speed-critical code.
 #define cf_always_assert(a) \
-    if (a) {} else { ::CF::AssertionManager::do_assert((a), #a, __FILE__, __LINE__, __FUNCTION__); }
+    if (a) {} else { ::CF::Common::AssertionManager::do_assert((a), #a, __FILE__, __LINE__, __FUNCTION__); }
 
 /// Assertion that always should be checked, even in optimized builds.
 /// Use this for testing in non-speed-critical code.
 /// Adds a description of the assertion
 #define cf_always_assert_desc(msg,a) \
-    if (a) {} else { ::CF::AssertionManager::do_assert((a), #a, __FILE__, __LINE__, __FUNCTION__, msg); }
+    if (a) {} else { ::CF::Common::AssertionManager::do_assert((a), #a, __FILE__, __LINE__, __FUNCTION__, msg); }
 
 /// CF assertion
 /// Assertions are off if compiled with DNDEBUG
@@ -120,4 +127,18 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CFASSERT_hpp
+namespace boost {
+
+inline void assertion_failed(char const * expr,
+                             char const * function,
+                             char const * file,
+                             long line)
+{
+  CF::Common::AssertionManager::do_assert ( false, expr, file, line, function);
+}
+
+} // namespace boost
+
+////////////////////////////////////////////////////////////////////////////////
+
+#endif // CF_Common_Assertions_hpp

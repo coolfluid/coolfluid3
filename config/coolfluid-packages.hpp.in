@@ -1,0 +1,9 @@
+#ifndef coolfluid_packages_hpp
+#define coolfluid_packages_hpp
+
+#cmakedefine CF_HAVE_SUPERLU        // SuperLU sparse direct solver
+#cmakedefine CF_HAVE_TRILINOS       // Trilinos sparse lib
+#cmakedefine CF_HAVE_PARMETIS       // parmetis partitioner
+#cmakedefine CF_HAVE_VALGRIND       // valgrind memory check
+
+#endif // !coolfluid_packages_hpp

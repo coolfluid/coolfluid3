@@ -9,7 +9,7 @@
 #include <iostream>
 #include <set>
 
-#include "coolfluid_config.h"
+#include "coolfluid-packages.hpp"
 
 #ifdef CF_HAVE_TRILINOS
   #include <Epetra_SerialComm.h>

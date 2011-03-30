@@ -141,8 +141,8 @@ struct ComponentBuilder
     //CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
 
     // regist the concrete type in TypeInfo
-    CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
-    CF::TypeInfo::instance().regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
+    CF::Common::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
+    CF::Common::TypeInfo::instance().regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
 
     // get the factories
     Common::CFactories::Ptr factories = Common::Core::instance().factories();

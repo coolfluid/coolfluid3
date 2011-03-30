@@ -13,7 +13,7 @@
 #include <boost/any.hpp>
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/CF.hpp"
+#include "Common/TypeInfo.hpp"
 
 namespace CF {
 namespace Common {

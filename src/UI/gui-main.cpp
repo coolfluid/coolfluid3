@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
   Core::instance().environment()->configure_property("RegistSignalHandlers", false);
   Core::instance().initiate(argc, argv);
 
-  CF::AssertionManager::instance().AssertionThrows = true;
-  CF::AssertionManager::instance().AssertionDumps = true;
+  CF::Common::AssertionManager::instance().AssertionThrows = true;
+  CF::Common::AssertionManager::instance().AssertionDumps = true;
 
   // tell CF core that the client is running
   Core::instance().network_info()->start_client();

@@ -11,7 +11,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "Common/CF.hpp"
+#include "Common/CommonAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

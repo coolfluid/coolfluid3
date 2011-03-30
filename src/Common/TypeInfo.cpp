@@ -14,10 +14,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-  namespace Common {
-
-////////////////////////////////////////////////////////////////////////////////
+namespace Common {
 
 std::string demangle(const char* type)
 {
@@ -41,46 +38,42 @@ std::string demangle(const char* type)
   return ret_value;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // Common
+TypeInfo::TypeInfo()
+{
+  regist<int>("integer");
+  regist<CF::Uint>("unsigned");
+  regist<std::string>("string");
+  regist<bool>("bool");
+  regist<CF::Real>("real");
+  regist<Common::URI>("uri");
+  regist<std::vector<int> >("array[integer]");
+  regist<std::vector<Uint> >("array[unsigned]");
+  regist<std::vector<std::string> >("array[string]");
+  regist<std::vector<bool> >("array[bool]");
+  regist<std::vector<Real> >("array[real]");
+  regist<std::vector<Common::URI> >("array[uri]");
 
-  ////////////////////////////////////////////////////////////////////////////////
+}
 
-  TypeInfo::TypeInfo()
-  {
-    regist<int>("integer");
-    regist<CF::Uint>("unsigned");
-    regist<std::string>("string");
-    regist<bool>("bool");
-    regist<CF::Real>("real");
-    regist<Common::URI>("uri");
-    regist<std::vector<int> >("array[integer]");
-    regist<std::vector<Uint> >("array[unsigned]");
-    regist<std::vector<std::string> >("array[string]");
-    regist<std::vector<bool> >("array[bool]");
-    regist<std::vector<Real> >("array[real]");
-    regist<std::vector<Common::URI> >("array[uri]");
-    
-  }
+TypeInfo& TypeInfo::instance()
+{
+  static TypeInfo tregister;
+  return tregister;
+}
 
-  TypeInfo& TypeInfo::instance()
-  {
-    static TypeInfo tregister;
-    return tregister;
-  }
+std::string class_name_from_typeinfo (const std::type_info & info)
+{
+  TypeInfo& ti = TypeInfo::instance();
+  std::map<std::string, std::string>::const_iterator it =
+      ti.portable_types.find(info.name());
 
-  std::string class_name_from_typeinfo (const std::type_info & info)
-  {
-    TypeInfo& ti = TypeInfo::instance();
-    std::map<std::string, std::string>::const_iterator it =
-        ti.portable_types.find(info.name());
+  cf_assert_desc(Common::demangle(info.name()).c_str(), it != ti.portable_types.end() );
 
-    cf_assert_desc(Common::demangle(info.name()).c_str(), it != ti.portable_types.end() );
+  return it->second;
+}
 
-    return it->second;
-  }
-
-  ////////////////////////////////////////////////////////////////////////////////
-
+} // Common
 } // CF

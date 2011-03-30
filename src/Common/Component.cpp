@@ -113,7 +113,7 @@ Component::ConstPtr Component::follow() const
 
 std::string Component::derived_type_name() const
 {
-  return CF::TypeInfo::instance().portable_types[ typeid(*this).name() ];
+  return CF::Common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -662,7 +662,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
 //  CFinfo << "xml tree for " << name() << CFendl;
 
   if(type_name.empty())
-    CFerror << "Unknown derived name for " << DEMANGLED_TYPEID(*this)
+    CFerror << "Unknown derived name for " << CF_DEMANGLE_TYPEID(*this)
             << ". Was this class added to the component builder?" << CFendl;
   else
   {

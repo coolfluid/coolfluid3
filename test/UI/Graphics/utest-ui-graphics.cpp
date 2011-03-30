@@ -39,7 +39,7 @@ int main(int argc, char * argv[])
   CF::Common::ExceptionManager::instance().ExceptionAborts = false;
   CF::Common::ExceptionManager::instance().ExceptionOutputs = false;
 
-  CF::AssertionManager::instance().AssertionThrows = true;
+  CF::Common::AssertionManager::instance().AssertionThrows = true;
 
   passed += QTest::qExec(new GraphicalBoolTest(), argc, argv);
   passed += QTest::qExec(new GraphicalDoubleTest(), argc, argv);

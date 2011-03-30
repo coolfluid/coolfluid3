@@ -11,6 +11,7 @@
 
 #include <vector>
 
+#include "Common/Assertions.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/CodeLocation.hpp"

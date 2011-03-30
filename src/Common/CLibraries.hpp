@@ -48,7 +48,7 @@ namespace Common {
       typename LIB::Ptr lib;
       if ( is_null(clib) ) // doesnt exist so build it
       {
-        CF::TypeInfo::instance().regist< LIB >( lname );
+        CF::Common::TypeInfo::instance().regist< LIB >( lname );
         lib = create_component< LIB >(lname);
         cf_assert( is_not_null(lib) );
         return lib;

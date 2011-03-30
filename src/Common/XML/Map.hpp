@@ -12,8 +12,6 @@
 #include "Common/CF.hpp"
 #include "Common/XML/XmlNode.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 namespace Common {
 namespace XML {

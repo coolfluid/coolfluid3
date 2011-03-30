@@ -1,6 +1,0 @@
-#ifndef coolfluid_svnversion_h
-#define coolfluid_svnversion_h
-
-#define CF_SVNVERSION "${coolfluid_svnversion}"
- 
-#endif // !coolfluid_svnversion_h

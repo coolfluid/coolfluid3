@@ -7,52 +7,46 @@
 #ifndef CF_Common_TaggedObject_hpp
 #define CF_Common_TaggedObject_hpp
 
-////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CF.hpp"
-
-////////////////////////////////////////////////////////////////////////////
+#include "Common/CommonAPI.hpp"
 
 namespace CF {
 namespace Common {
 
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
-  /// Manages tags
-  class Common_API TaggedObject
-  {
-  public:
+/// Manages tags
+class Common_API TaggedObject {
+public:
 
-    /// Constructor
-    TaggedObject();
+  /// Constructor
+  TaggedObject();
 
-    /// Check if this component has a given tag assigned
-    /// @param tag to check
-    /// @return if has it or not
-    bool has_tag(const std::string& tag) const;
+  /// Check if this component has a given tag assigned
+  /// @param tag to check
+  /// @return if has it or not
+  bool has_tag(const std::string& tag) const;
 
-    /// add tag to this component
-    /// @param tag to add
-    void add_tag(const std::string& tag);
+  /// add tag to this component
+  /// @param tag to add
+  void add_tag(const std::string& tag);
 
-    /// @return tags in a vector
-    std::vector<std::string> get_tags();
+  /// @return tags in a vector
+  std::vector<std::string> get_tags();
 
-    /// removes tag
-    /// @param tag to remove
-    void remove_tag(const std::string& tag);
+  /// removes tag
+  /// @param tag to remove
+  void remove_tag(const std::string& tag);
 
-  private:
+private:
 
-    std::string m_tags;
+  std::string m_tags;
 
-  }; // class TaggedObject
+}; // class TaggedObject
 
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF
-
-////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_TaggedObject_hpp

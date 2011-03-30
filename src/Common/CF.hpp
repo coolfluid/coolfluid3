@@ -7,27 +7,54 @@
 #ifndef CF_hpp
 #define CF_hpp
 
+#include <string>
+#include <vector>
+#include <map>
+
+#include <boost/noncopyable.hpp>
+#include <boost/checked_delete.hpp>
+
+#include "coolfluid-config.hpp"  // coolfluid system configuration
+
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "coolfluid_config.h"
+/// Define the macros:
+///    CF_LOCAL_API
+///    CF_IMPORT_API
+///    CF_EXPORT_API
 
-////////////////////////////////////////////////////////////////////////////////
+// Define or not the extern keyword for templates
+#ifdef CF_HAVE_EXTERN_TEMPLATES
+#   define CF_TEMPLATE_EXTERN extern
+#else
+#   define CF_TEMPLATE_EXTERN
+#endif
 
-#include <memory>    // for std::auto_ptr
-#include <string>    // for std::string
-#include <vector>    // for std::vector
-#include <map>       // for std::map
-#include <algorithm> // all sorts of algorithms on stl containers
-#include <utility>   // for stl::pair
-#include <typeinfo>  // for typeid
+// Visual Studio :
+//    all symbols are local (invisible) by default
+#  if defined (_MSC_VER)
+#    define CF_LOCAL_API
+#    define CF_IMPORT_API    __declspec(dllimport)
+#    define CF_EXPORT_API    __declspec(dllexport)
+#  endif
 
-#include <boost/utility.hpp>           // for boost::noncopyable
-#include <boost/checked_delete.hpp>    // for boost::checked_delete
+// GNU Compiler :  all symbols are global (visible) by default
+#  if defined (__GNUC__) // && defined (__unix__)
+#    define CF_LOCAL_API    __attribute__ ((visibility("hidden")))
+#    define CF_EXPORT_API   __attribute__ ((visibility("default")))
+#    define CF_IMPORT_API   __attribute__ ((visibility("default")))
+#  endif
 
-#include "Common/CommonAPI.hpp"
-#include "Common/AssertionManager.hpp"
-#include "Common/BoostAssert.hpp"
-#include "Common/TypeInfo.hpp"
+// For unrecognized compilers
+#  ifndef CF_LOCAL_API
+#    if defined ( CF_ACCEPT_ANY_COMPILER )
+#      define CF_LOCAL_API
+#      define CF_EXPORT_API
+#      define CF_IMPORT_API
+#    else
+#      error "Unrecognised compiler and / or platform"
+#    endif
+#  endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,6 +74,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Top-level namespace for coolfluid
 namespace CF {
 
 /// typedef for unsigned int

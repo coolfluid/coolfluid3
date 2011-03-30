@@ -9,8 +9,6 @@
 
 #include <mpi.h>
 
-#include <boost/noncopyable.hpp>
-
 #include "Common/WorkerStatus.hpp"
 
 #include "Common/MPI/types.hpp"
