@@ -260,6 +260,7 @@ PEProcessSortedExecute(-1, BOOST_FOREACH(dist_struct& i, dist) std::cout << i.li
 
 PEProcessSortedExecute(-1,BOOST_FOREACH(dist_struct& i, dist) std::cout << i.lid << " " << i.gid << " " << i.rank << " " << i.data << "\n" << std::flush; );
 
+*/
 /*
 PECheckPoint(100,"XXXXX Distributed data, step 1:");
 PEProcessSortedExecute(-1,PEDebugVector(dist_lidupdatable,dist_lidupdatable.size()));

@@ -132,7 +132,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     PEObjectWrapperPtr(const std::string& name) : PEObjectWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapperPtr<"+class_name<T>()+">"; }
+    static std::string type_name () { return "PEObjectWrapperPtr<"+Common::class_name<T>()+">"; }
 
     /// setup of passing by reference
     /// @param data pointer to data
@@ -262,7 +262,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     PEObjectWrapperVector(const std::string& name) : PEObjectWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapperVector<"+class_name<T>()+">"; }
+    static std::string type_name () { return "PEObjectWrapperVector<"+Common::class_name<T>()+">"; }
 
     /// setup of passing by reference
     /// @param std::vector of data
@@ -390,7 +390,7 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     PEObjectWrapperVectorWeakPtr(const std::string& name) : PEObjectWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapperVectorWeakPtr<"+class_name<T>()+">"; }
+    static std::string type_name () { return "PEObjectWrapperVectorWeakPtr<"+Common::class_name<T>()+">"; }
 
     /// setup
     /// @param std::vector of data

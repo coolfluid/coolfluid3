@@ -7,6 +7,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/CommonAPI.hpp"
+#include "Common/Assertions.hpp"
 #include "Common/URI.hpp"
 #include "Common/StringConversion.hpp"
 

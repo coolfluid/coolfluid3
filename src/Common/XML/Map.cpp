@@ -10,12 +10,12 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/URI.hpp"
-
+#include "Common/Assertions.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/StringConversion.hpp"
+
 #include "Common/XML/CastingFunctions.hpp"
 #include "Common/XML/Protocol.hpp"
-
 #include "Common/XML/Map.hpp"
 
 // makes explicit instantiation for all template functions with a same type

@@ -6,6 +6,7 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include "Common/Assertions.hpp"
 #include "Common/Signal.hpp"
 #include "Common/SignalHandler.hpp"
 #include "Common/XML/Protocol.hpp"

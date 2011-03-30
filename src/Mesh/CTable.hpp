@@ -75,7 +75,7 @@ public: // functions
 
   /// Get the component type name
   /// @returns the component type name
-  static std::string type_name () { return "CTable<"+class_name<ValueT>()+">"; }
+  static std::string type_name () { return "CTable<"+Common::class_name<ValueT>()+">"; }
   
   /// Initialize the array with a fixed column size and remove all existing rows, if any.
   /// The number of rows can be changed dynamically.

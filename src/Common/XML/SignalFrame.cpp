@@ -12,6 +12,7 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "Common/Assertions.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StringConversion.hpp"

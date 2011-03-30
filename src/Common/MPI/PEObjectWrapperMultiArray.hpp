@@ -55,7 +55,7 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
     PEObjectWrapperMultiArray(const std::string& name) : PEObjectWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapperMultiArray<"+class_name<T>()+",1>"; }
+    static std::string type_name () { return "PEObjectWrapperMultiArray<"+Common::class_name<T>()+",1>"; }
 
 
     /// setup of passing by reference
@@ -170,7 +170,7 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
     PEObjectWrapperMultiArray(const std::string& name) : PEObjectWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapperMultiArray<"+class_name<T>()+",2>"; }
+    static std::string type_name () { return "PEObjectWrapperMultiArray<"+Common::class_name<T>()+",2>"; }
 
     /// setup of passing by reference
     /// @param std::vector of data

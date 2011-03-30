@@ -9,7 +9,7 @@
 
 #include "rapidxml/rapidxml_print.hpp" // includes rapidxml/rapidxml.hpp
 
-#include "Common/CodeLocation.hpp"
+#include "Common/Assertions.hpp"
 #include "Common/BasicExceptions.hpp"
 
 #include "Common/XML/FileOperations.hpp"

@@ -7,6 +7,8 @@
 #ifndef CF_Common_TypeInfo_hpp
 #define CF_Common_TypeInfo_hpp
 
+#include <typeinfo>
+
 #include "Common/Assertions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

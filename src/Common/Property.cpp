@@ -6,6 +6,7 @@
 
 #include <boost/foreach.hpp>
 
+#include "Common/TypeInfo.hpp"
 #include "Common/BoostFilesystem.hpp"
 
 #include "Common/Property.hpp"
@@ -82,7 +83,7 @@ const char * Property::tag() const
   if(is_option())
     return as_option().tag();
 
-  return CF::class_name_from_typeinfo(m_value.type()).c_str();
+  return class_name_from_typeinfo(m_value.type()).c_str();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +98,7 @@ Property & Property::operator = (const boost::any & value)
 
 std::string Property::type() const
 {
-  return CF::class_name_from_typeinfo(m_value.type());
+  return class_name_from_typeinfo(m_value.type());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

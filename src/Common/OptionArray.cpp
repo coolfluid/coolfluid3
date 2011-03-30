@@ -115,7 +115,7 @@ void OptionArrayT<TYPE>::copy_to_linked_params ( const boost::any& val )
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+class_name<value_type>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+Common::class_name<value_type>());
     }
   }
 }
@@ -150,7 +150,7 @@ std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
   }
   catch(boost::bad_any_cast& e)
   {
-    throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(c.type())+" to "+class_name<value_type>());
+    throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(c.type())+" to "+Common::class_name<value_type>());
   }
 
   return result;
@@ -165,7 +165,7 @@ std::vector<TYPE> OptionArrayT<TYPE>::value_vect() const
   }
   catch(boost::bad_any_cast& e)
   {
-    throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+class_name<value_type>());
+    throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<value_type>());
   }
 }
 

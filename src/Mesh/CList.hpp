@@ -70,7 +70,7 @@ public: // functions
 
   /// Get the component type name
   /// @returns the component type name
-  static std::string type_name () { return "CList<"+class_name<ValueT>()+">"; }
+  static std::string type_name () { return "CList<"+Common::class_name<ValueT>()+">"; }
 
   /// Resize the array to the given number of rows
   /// @param[in] new_size The size allocated after resizing

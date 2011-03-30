@@ -74,7 +74,7 @@ public: // functions
   virtual ~CMap() {}
 
   /// Get the class name
-  static std::string type_name () { return "CMap<"+class_name<KEY>()+","+class_name<DATA>()+">"; }
+  static std::string type_name () { return "CMap<"+Common::class_name<KEY>()+","+Common::class_name<DATA>()+">"; }
 
   /// Reserve memory
   /// @param[in] size of the map to be set before starting inserting pairs in the  map

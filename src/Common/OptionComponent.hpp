@@ -122,7 +122,7 @@ public:
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+class_name<data_t>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<data_t>());
     }
   }
 
@@ -138,7 +138,7 @@ public:
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_default.type())+" to "+class_name<data_t>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_default.type())+" to "+Common::class_name<data_t>());
     }
   }
 
@@ -171,7 +171,7 @@ protected: // functions
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(value.type())+" to "+class_name<URI>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(value.type())+" to "+Common::class_name<URI>());
     }
   }
 
@@ -187,7 +187,7 @@ protected: // functions
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data.type())+" to "+class_name<data_t>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data.type())+" to "+Common::class_name<data_t>());
     }
   }
 
@@ -203,7 +203,7 @@ protected: // functions
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data.type())+" to "+class_name<data_t>());
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data.type())+" to "+Common::class_name<data_t>());
       }
     }
   }

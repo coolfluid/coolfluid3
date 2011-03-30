@@ -79,7 +79,7 @@ void OptionT<TYPE>::copy_to_linked_params (const boost::any& val )
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+class_name<TYPE>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+Common::class_name<TYPE>());
     }
 
   }

@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CF.hpp"
+#include "Common/TypeInfo.hpp"
 #include "Common/URI.hpp"
 
 #ifdef CF_HAVE_CXXABI_H

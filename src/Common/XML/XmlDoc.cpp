@@ -8,6 +8,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include "Common/Assertions.hpp"
 #include "Common/BasicExceptions.hpp"
 
 #include "Common/XML/XmlDoc.hpp"
