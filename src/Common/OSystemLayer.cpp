@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <sstream>
+#include <cstdlib>
 
 #include "Common/OSystemLayer.hpp"
 
