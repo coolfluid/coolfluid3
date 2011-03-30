@@ -10,6 +10,7 @@
 #include <QtTest>
 
 #include "Common/CF.hpp"
+#include "Common/Assertions.hpp"
 #include "Common/Exception.hpp"
 
 #include "test/UI/Graphics/GraphicalBoolTest.hpp"
