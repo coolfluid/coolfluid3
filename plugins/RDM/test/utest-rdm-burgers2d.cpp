@@ -49,6 +49,9 @@ struct burgers2d_global_fixture
 {
   burgers2d_global_fixture()
   {
+    Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
+                              boost::unit_test::framework::master_test_suite().argv);
+
     burgers2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     SignalFrame frame("", "", "");
@@ -59,6 +62,8 @@ struct burgers2d_global_fixture
 
     burgers2d_wizard->signal_create_model(frame);
   }
+
+  ~burgers2d_global_fixture() { Core::instance().terminate(); }
 
   ScalarAdvection::Ptr burgers2d_wizard;
 

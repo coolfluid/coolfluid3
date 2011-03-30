@@ -52,6 +52,9 @@ struct rotationadv2d_global_fixture
 {
   rotationadv2d_global_fixture()
   {
+    Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
+                              boost::unit_test::framework::master_test_suite().argv);
+
     // Load the required libraries (we assume the working dir is the binary path)
     LibLoader& loader = *OSystem::instance().lib_loader();
     const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../../dso");
@@ -70,6 +73,8 @@ struct rotationadv2d_global_fixture
 
     rotationadv2d_wizard->signal_create_model(frame);
   }
+
+  ~rotationadv2d_global_fixture() { Core::instance().terminate(); }
 
   ScalarAdvection::Ptr rotationadv2d_wizard;
 

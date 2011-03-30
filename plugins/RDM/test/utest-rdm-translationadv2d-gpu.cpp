@@ -47,6 +47,9 @@ struct translationadv2d_global_fixture
 {
   translationadv2d_global_fixture()
   {
+    Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
+                              boost::unit_test::framework::master_test_suite().argv);
+
     translationadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     SignalFrame frame("", "", "");
@@ -57,6 +60,8 @@ struct translationadv2d_global_fixture
 
     translationadv2d_wizard->signal_create_model(frame);
   }
+
+  ~translationadv2d_global_fixture() { Core::instance().terminate(); }
 
   ScalarAdvection::Ptr translationadv2d_wizard;
 

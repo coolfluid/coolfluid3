@@ -49,6 +49,9 @@ struct linearadv2d_global_fixture
 {
   linearadv2d_global_fixture()
   {
+	  Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
+                              boost::unit_test::framework::master_test_suite().argv);
+
     linearadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     SignalFrame frame("", "", "");
@@ -59,6 +62,8 @@ struct linearadv2d_global_fixture
 
     linearadv2d_wizard->signal_create_model(frame);
   }
+
+  ~linearadv2d_global_fixture() { Core::instance().terminate(); }
 
   ScalarAdvection::Ptr linearadv2d_wizard;
 

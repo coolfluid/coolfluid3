@@ -47,6 +47,9 @@ struct rotationadv2d_global_fixture
 {
   rotationadv2d_global_fixture()
   {
+    Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
+                              boost::unit_test::framework::master_test_suite().argv);
+
     rotationadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     SignalFrame frame("", "", "");
@@ -57,6 +60,8 @@ struct rotationadv2d_global_fixture
 
     rotationadv2d_wizard->signal_create_model(frame);
   }
+
+  ~rotationadv2d_global_fixture() { Core::instance().terminate(); }
 
   ScalarAdvection::Ptr rotationadv2d_wizard;
 
