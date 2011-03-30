@@ -57,6 +57,21 @@ endif()
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                  #COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
+if( NOT CF_ENABLE_GPU OR NOT CF_ENABLE_OPENCL)
+  set(utest-rdm-translationadv2dgpu_condition FALSE)
+endif()
+  
+  list( APPEND utest-rdm-translationadv2dgpu_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm )
+  list( APPEND utest-rdm-translationadv2dgpu_files  utest-rdm-translationadv2d-gpu.cpp )
+
+  coolfluid_add_unit_test( utest-rdm-translationadv2dgpu )
+
+  add_custom_command(TARGET utest-rdm-rotationadv2d-gpu
+                 POST_BUILD
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 #COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                )
+
   
 ##########################################################################
 # acceptance tests

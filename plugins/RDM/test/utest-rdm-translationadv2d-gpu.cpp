@@ -43,28 +43,28 @@ using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::RDM;
 
-struct rotationadv2d_global_fixture
+struct translationadv2d_global_fixture
 {
-  rotationadv2d_global_fixture()
+  translationadv2d_global_fixture()
   {
-    rotationadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
+    translationadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     SignalFrame frame("", "", "");
     SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
     options.set_option<std::string>("ModelName","mymodel");
-    options.set_option<std::string>("PhysicalModel","RotationAdv2D");
+    options.set_option<std::string>("PhysicalModel","LinearAdv2D");
 
-    rotationadv2d_wizard->signal_create_model(frame);
+    translationadv2d_wizard->signal_create_model(frame);
   }
 
-  ScalarAdvection::Ptr rotationadv2d_wizard;
+  ScalarAdvection::Ptr translationadv2d_wizard;
 
 };
 
-struct rotationadv2d_local_fixture
+struct translationadv2d_local_fixture
 {
-  rotationadv2d_local_fixture() :
+  translationadv2d_local_fixture() :
     model  ( * Core::instance().root()->get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
@@ -78,13 +78,13 @@ struct rotationadv2d_local_fixture
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( rotationadv2d_global_fixture )
+BOOST_GLOBAL_FIXTURE( translationadv2d_global_fixture )
 
-BOOST_AUTO_TEST_SUITE( rotationadv2d_test_suite )
+BOOST_AUTO_TEST_SUITE( translationadv2d_test_suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( check_tree , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( check_tree , translationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -97,7 +97,7 @@ BOOST_FIXTURE_TEST_CASE( check_tree , rotationadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( read_mesh , translationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -123,7 +123,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , translationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -134,7 +134,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , translationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -164,14 +164,14 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   cf_assert( is_not_null(inletbc) );
 
   inletbc->
-      configure_property("Function", std::string("if(y>0,0,if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.))") );
+        configure_property("Function", std::string("-4*(y-0.5)*(y-0.5)+1") );
 
   BOOST_CHECK(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , translationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -187,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , rotationadv2d_local_fixtur
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_ldagpu , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve_ldagpu , translationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -233,7 +233,7 @@ BOOST_FIXTURE_TEST_CASE( solve_ldagpu , rotationadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( output , translationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
