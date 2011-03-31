@@ -29,27 +29,21 @@ CF::Common::RegistLibrary<LibParaView> libParaView;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibParaView::initiate()
+void LibParaView::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-
   Core & core = Core::instance();
   m_argc = core.argc();
 
   m_appCore = new pqApplicationCore(m_argc, core.argv());
 
   m_tabIndex = TabBuilder::instance()->addTab(new Widget3D(), "3D-View");
-  //m_tabIndex = TabBuilder::instance()->addTab(new QWidget(), "3D-View");
-
-  m_is_initiated = true;
 }
 
-void LibParaView::terminate()
+void LibParaView::terminate_impl()
 {
   TabBuilder::instance()->removeTab(m_tabIndex);
 
   delete m_appCore;
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

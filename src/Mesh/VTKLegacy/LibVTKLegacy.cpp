@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibVTKLegacy> libVTKLegacy;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibVTKLegacy::initiate()
+void LibVTKLegacy::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibVTKLegacy::terminate()
+void LibVTKLegacy::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

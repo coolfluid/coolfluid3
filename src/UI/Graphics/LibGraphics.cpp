@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibGraphics> libGraphics;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibGraphics::initiate()
+void LibGraphics::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibGraphics::terminate()
+void LibGraphics::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

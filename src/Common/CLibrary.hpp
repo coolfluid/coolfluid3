@@ -42,10 +42,10 @@ public:
   bool is_initiated() const { return m_is_initiated; }
 
   /// initiate library
-  virtual void initiate() = 0;
+  void initiate();
 
   /// terminate library
-  virtual void terminate() = 0;
+  void terminate();
 
   /// @returns a string with the kernel version which compiled this library
   std::string lib_kversion();
@@ -57,6 +57,12 @@ public:
 protected:
 
   bool m_is_initiated;
+
+  /// initiate library
+  virtual void initiate_impl() = 0;
+
+  /// terminate library
+  virtual void terminate_impl() = 0;
 
 }; // CLibrary
 

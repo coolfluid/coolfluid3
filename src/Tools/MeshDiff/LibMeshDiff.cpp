@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibMeshDiff> libMeshDiff;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibMeshDiff::initiate()
+void LibMeshDiff::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibMeshDiff::terminate()
+void LibMeshDiff::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

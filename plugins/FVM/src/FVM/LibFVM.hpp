@@ -44,7 +44,7 @@ public:
   LibFVM ( const std::string& name) : Common::CLibrary(name) { }
 
   virtual ~LibFVM() { }
-  
+
 public: // functions
 
   /// @return string of the library namespace
@@ -67,11 +67,13 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "LibFVM"; }
 
+protected:
+
   /// initiate library
-  virtual void initiate();
+  virtual void initiate_impl();
 
   /// terminate library
-  virtual void terminate();
+  virtual void terminate_impl();
 
 }; // end LibFVM
 

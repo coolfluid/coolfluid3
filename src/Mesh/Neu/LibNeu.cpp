@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibNeu> libNeu;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibNeu::initiate()
+void LibNeu::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibNeu::terminate()
+void LibNeu::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibTecplot> libTecplot;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibTecplot::initiate()
+void LibTecplot::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibTecplot::terminate()
+void LibTecplot::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

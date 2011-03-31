@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibMeshGeneration> libMeshGeneration;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibMeshGeneration::initiate()
+void LibMeshGeneration::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibMeshGeneration::terminate()
+void LibMeshGeneration::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

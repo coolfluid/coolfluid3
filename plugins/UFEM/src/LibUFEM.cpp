@@ -19,25 +19,21 @@ CF::Common::RegistLibrary<LibUFEM> libUFEM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibUFEM::initiate()
+void LibUFEM::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-
   Core::instance().root()
     ->get_child_ptr("Tools")
     ->create_component<SetupLinearSystem>( "SetupHeatConduction" )
     ->mark_basic();
 
-  m_is_initiated = true;
+
 }
 
-void LibUFEM::terminate()
+void LibUFEM::terminate_impl()
 {
   Core::instance().root()
       ->get_child_ptr("Tools")
       ->remove_component("SetupHeatConduction");
-
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

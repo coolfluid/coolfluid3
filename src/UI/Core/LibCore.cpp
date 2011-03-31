@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibCore> LibCore;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibCore::initiate()
+void LibCore::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibCore::terminate()
+void LibCore::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

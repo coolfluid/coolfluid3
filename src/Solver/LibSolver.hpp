@@ -68,11 +68,13 @@ namespace CF {
     /// Gets the Class name
     static std::string type_name() { return "LibSolver"; }
 
+  protected:
+
     /// initiate library
-    virtual void initiate();
+    virtual void initiate_impl();
 
     /// terminate library
-    virtual void terminate();
+    virtual void terminate_impl();
 
   }; // end LibSolver
 

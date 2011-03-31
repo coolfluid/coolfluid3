@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibUICommon> LibUICommon;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibUICommon::initiate()
+void LibUICommon::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibUICommon::terminate()
+void LibUICommon::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

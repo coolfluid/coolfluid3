@@ -20,10 +20,8 @@ CF::Common::RegistLibrary<LibRDM> libRDM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibRDM::initiate()
+void LibRDM::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-
   CGroup::Ptr rdm_group =
     Core::instance().root()
       ->get_child_ptr("Tools")
@@ -32,11 +30,9 @@ void LibRDM::initiate()
 
   rdm_group->create_component<RDM::ScalarAdvection>( "SetupScalarSimulation" )
       ->mark_basic();
-
-  m_is_initiated = true;
 }
 
-void LibRDM::terminate()
+void LibRDM::terminate_impl()
 {
   Core::instance().root()
       ->get_child_ptr("Tools")
@@ -45,8 +41,6 @@ void LibRDM::terminate()
   Core::instance().root()
       ->get_child_ptr("Tools")
       ->remove_component("RDM");
-
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

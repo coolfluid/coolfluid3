@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibFieldGeneration> libFieldGeneration;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibFieldGeneration::initiate()
+void LibFieldGeneration::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibFieldGeneration::terminate()
+void LibFieldGeneration::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

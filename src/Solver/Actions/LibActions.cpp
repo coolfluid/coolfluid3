@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibActions> libActions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibActions::initiate()
+void LibActions::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibActions::terminate()
+void LibActions::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

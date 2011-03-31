@@ -36,6 +36,24 @@ std::string CLibrary::lib_version()
   return CF_KERNEL_VERSION_STR; // by default return the kernel version
 }
 
+void  CLibrary::initiate()
+{
+  if(!m_is_initiated)
+  {
+    initiate_impl();
+    m_is_initiated = true;
+  }
+}
+
+void  CLibrary::terminate()
+{
+  if(m_is_initiated)
+  {
+    terminate_impl();
+    m_is_initiated = false;
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Common

@@ -15,15 +15,12 @@ CF::Common::RegistLibrary<LibSolver> libSolver;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibSolver::initiate()
+void LibSolver::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibSolver::terminate()
+void LibSolver::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

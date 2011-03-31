@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibSF> libSF;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibSF::initiate()
+void LibSF::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibSF::terminate()
+void LibSF::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -15,15 +15,12 @@ CF::Common::RegistLibrary<LibCommon> libCommon;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibCommon::initiate()
+void LibCommon::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibCommon::terminate()
+void LibCommon::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

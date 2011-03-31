@@ -15,15 +15,12 @@ CF::Common::RegistLibrary<LibMath> libMath;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibMath::initiate()
+void LibMath::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibMath::terminate()
+void LibMath::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

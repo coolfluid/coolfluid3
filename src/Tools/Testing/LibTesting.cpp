@@ -18,15 +18,12 @@ CF::Common::RegistLibrary<LibTesting> libTesting;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibTesting::initiate()
+void LibTesting::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibTesting::terminate()
+void LibTesting::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
