@@ -197,6 +197,15 @@ XmlNode Map::set_array ( const std::string& value_key,
 
 /////////////////////////////////////////////////////////////////////////////////
 
+bool Map::check_entry ( const std::string & entry_key ) const
+{
+  cf_assert( !entry_key.empty() );
+
+  return seek_value(entry_key).is_valid();
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+
 bool Map::is_single_value ( const XmlNode& node )
 {
   return node.is_valid() && std::strcmp(node.content->name(), Protocol::Tags::node_value()) == 0;

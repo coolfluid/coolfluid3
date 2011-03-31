@@ -107,6 +107,13 @@ namespace XML {
     XmlNode seek_value ( const std::string & value_key = std::string(),
                          const char * value_type = nullptr ) const;
 
+    /// Checks whether an entry exists or not.
+
+    /// An entry can be either a single value, or a map.
+    /// @param entry_key The entry name
+    /// @return Returns @c true if the entry was found.
+    bool check_entry ( const std::string & entry_key ) const;
+
     /// Checks whether the provided node represents a single value.
     /// @note This function does not check the validity of the XML
     /// representation (i.e. it doesn't check that the type exists or is
