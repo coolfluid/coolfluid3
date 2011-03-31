@@ -4,9 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "coolfluid_svnversion.h"
+#include "coolfluid-svnversion.hpp"
 
-#include<sstream>
+#include <sstream>
 
 #include "Common/BuildInfo.hpp"
 
