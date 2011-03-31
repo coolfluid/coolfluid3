@@ -12,7 +12,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
-#include "coolfluid_profiling_config.h"
+#include "coolfluid-profiling.hpp"
 
 #include "Common/CodeProfiler.hpp"
 #include "Tools/Testing/LibTesting.hpp"
