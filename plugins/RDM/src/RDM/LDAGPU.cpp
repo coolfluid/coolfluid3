@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/mpl/for_each.hpp>
+#include <boost/timer.hpp>
 
 #include "Common/CBuilder.hpp"
 

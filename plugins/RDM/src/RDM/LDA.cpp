@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/mpl/for_each.hpp>
+#include <boost/timer.hpp>
+
 
 #include "Common/CBuilder.hpp"
 
@@ -73,12 +75,13 @@ struct LDA::ElementLoop
       scheme->set_elements(elements);
 
       const Uint nb_elem = elements.size();
-
+      boost::timer ctimer;
       for ( Uint elem = 0; elem != nb_elem; ++elem )
       {
         scheme->select_loop_idx(elem);
         scheme->execute();
       }
+      std::cout<<ctimer.elapsed()<<std::endl;
     }
   }
 
