@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibCGAL> libCGAL;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibCGAL::initiate()
+void LibCGAL::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibCGAL::terminate()
+void LibCGAL::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

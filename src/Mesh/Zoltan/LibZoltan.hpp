@@ -70,11 +70,13 @@ public:
   /// Gets the Class name
   static std::string type_name() { return "LibZoltan"; }
 
+protected:
+
   /// initiate library
-  virtual void initiate();
+  virtual void initiate_impl();
 
   /// terminate library
-  virtual void terminate();
+  virtual void terminate_impl();
 
 }; // LibZoltan
 

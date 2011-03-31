@@ -16,15 +16,12 @@ CF::Common::RegistLibrary<LibZoltan> libZoltan;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibZoltan::initiate()
+void LibZoltan::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibZoltan::terminate()
+void LibZoltan::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

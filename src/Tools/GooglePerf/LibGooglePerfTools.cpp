@@ -15,15 +15,12 @@ namespace GooglePerf {
 
 CF::Common::RegistLibrary<LibGooglePerfTools> libGooglePerfTools;
 
-void LibGooglePerfTools::initiate()
+void LibGooglePerfTools::initiate_impl()
 {
-  cf_assert( !m_is_initiated );
-  m_is_initiated = true;
 }
 
-void LibGooglePerfTools::terminate()
+void LibGooglePerfTools::terminate_impl()
 {
-  m_is_initiated = false;
 }
 
 } // GooglePerf

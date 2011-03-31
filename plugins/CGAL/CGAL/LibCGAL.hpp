@@ -64,11 +64,13 @@ public: // functions
   /// Gets the Class name
   static std::string getClassName() { return "LibCGAL"; }
 
-  /// Start profiling
-  virtual void initiate();
+protected:
 
-  /// Stop profiling
-  virtual void terminate();
+  /// initiate library
+  virtual void initiate_impl();
+
+  /// terminate library
+  virtual void terminate_impl();
 
 }; // end CGALLib
 
