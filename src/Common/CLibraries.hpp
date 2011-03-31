@@ -66,7 +66,7 @@ namespace Common {
 
       // initiate the library if it not already done
       if( !lib->is_initiated() )
-        lib->is_initiated();
+        lib->initiate();
 
       return lib;
     }
