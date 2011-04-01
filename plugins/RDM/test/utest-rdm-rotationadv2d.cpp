@@ -159,7 +159,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_property("CFL", 1.);
-  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);
+  solver.get_child("time_stepping").configure_property("MaxIter", 500u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -260,46 +260,46 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , rotationadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_blended , rotationadv2d_local_fixture )
-{
-  BOOST_CHECK(true);
+//BOOST_FIXTURE_TEST_CASE( solve_blended , rotationadv2d_local_fixture )
+//{
+//  BOOST_CHECK(true);
 
-  CFinfo << "solving with Blended scheme" << CFendl;
+//  CFinfo << "solving with Blended scheme" << CFendl;
 
-  // delete previous domain terms
-  Component& domain_terms = solver.get_child("compute_domain_terms");
-  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
-  {
-    const std::string name = term.name();
-    domain_terms.remove_component( name );
-  }
+//  // delete previous domain terms
+//  Component& domain_terms = solver.get_child("compute_domain_terms");
+//  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
+//  {
+//    const std::string name = term.name();
+//    domain_terms.remove_component( name );
+//  }
 
-  BOOST_CHECK( domain_terms.count_children() == 0 );
+//  BOOST_CHECK( domain_terms.count_children() == 0 );
 
-  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+//  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  SignalFrame frame("", "", "");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+//  SignalFrame frame("", "", "");
+//  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  std::vector<URI> regions;
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    regions.push_back( region.full_path() );
+//  std::vector<URI> regions;
+//  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+//    regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( regions.size() , 1u);
+//  BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-  options.set_option<std::string>("Name","INTERNAL");
-  options.set_option<std::string>("Type","CF.RDM.Blended");
-  options.set_array("Regions", regions, " ; ");
+//  options.set_option<std::string>("Name","INTERNAL");
+//  options.set_option<std::string>("Type","CF.RDM.Blended");
+//  options.set_array("Regions", regions, " ; ");
 
-  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
+//  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 
-  BOOST_CHECK(true);
+//  BOOST_CHECK(true);
 
-  solver.solve();
+//  solver.solve();
 
-  BOOST_CHECK(true);
+//  BOOST_CHECK(true);
 
-}
+//}
 
 //////////////////////////////////////////////////////////////////////////////
 
