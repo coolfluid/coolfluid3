@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/BoostAssertions.hpp"
+#include "Common/Assertions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
