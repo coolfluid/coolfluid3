@@ -8,6 +8,7 @@ list( APPEND coolfluid_common_files
     BoostIostreams.hpp
     BoostFilesystem.hpp
     BoostAssertions.hpp
+    BoostAssertions.cpp
     BoostArray.hpp
     BuildInfo.hpp
     BuildInfo.cpp
