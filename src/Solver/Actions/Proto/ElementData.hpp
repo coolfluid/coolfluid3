@@ -83,7 +83,7 @@ public:
     return SF::volume(m_nodes);
   }
   
-  const typename SF::CoordsT& coordinates(const typename SF::MappedCoordsT& mapped_coords)
+  const typename SF::CoordsT& coordinates(const typename SF::MappedCoordsT& mapped_coords) const
   {
     SF::shape_function(mapped_coords, m_sf);
     m_eval_result.noalias() = m_sf * m_nodes;
@@ -91,18 +91,18 @@ public:
   }
   
   /// Jacobian matrix computed by the shape function
-  const typename SF::JacobianT& jacobian(const typename SF::MappedCoordsT& mapped_coords)
+  const typename SF::JacobianT& jacobian(const typename SF::MappedCoordsT& mapped_coords) const
   {
     SF::jacobian(mapped_coords, m_nodes, m_jacobian_matrix);
     return m_jacobian_matrix;
   }
   
-  Real jacobian_determinant(const typename SF::MappedCoordsT& mapped_coords)
+  Real jacobian_determinant(const typename SF::MappedCoordsT& mapped_coords) const
   {
     return SF::jacobian_determinant(mapped_coords, m_nodes);
   }
   
-  const typename SF::CoordsT& normal(const typename SF::MappedCoordsT& mapped_coords)
+  const typename SF::CoordsT& normal(const typename SF::MappedCoordsT& mapped_coords) const
   {
     SF::normal(mapped_coords, m_nodes, m_normal_vector);
     return m_normal_vector;
@@ -132,6 +132,10 @@ private:
 template<typename ShapeFunctionT, Uint Dim, Uint Offset, Uint MatrixSize, bool IsEquationVar>
 class SFVariableData
 {
+private:
+  // Forward declaration
+  template<Uint VarDim, int Dummy = 0>
+  struct InterpolationImpl;
 public:
   /// The shape function type
   typedef ShapeFunctionT SF;
@@ -146,7 +150,7 @@ public:
   typedef typename SF::MappedCoordsT MappedCoordsT;
   
   /// The result type of an interpolation at given mapped coordinates
-  typedef typename InterpolationImpl<SF, Dim>::result_type EvalT;
+  typedef typename InterpolationImpl<Dim>::result_type EvalT;
   
   /// Type of the gradient
   typedef typename SF::MappedGradientT GradientT;
@@ -220,7 +224,7 @@ public:
   
   /// Return the gradient
   template<typename SupportT>
-  const GradientT& gradient(const MappedCoordsT& mapped_coords, SupportT& support) const
+  const GradientT& gradient(const MappedCoordsT& mapped_coords, const SupportT& support) const
   {
     SF::mapped_gradient(mapped_coords, m_mapped_gradient_matrix);
     m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
@@ -229,62 +233,11 @@ public:
   
   /// Return the advection operator
   template<typename SupportT>
-  const typename SF::ShapeFunctionsT& advection(const MappedCoordsT& mapped_coords, SupportT& support) const
+  const typename SF::ShapeFunctionsT& advection(const MappedCoordsT& mapped_coords, const SupportT& support) const
   {
     SF::shape_function(mapped_coords, m_sf);
     m_advection = m_sf * m_element_values * gradient(mapped_coords, support);
     return m_advection;
-  }
-  
-  /// Return the linearized divergence operator (can be applied to a state vector of the form (u1, u2, u3, v1, v2, v3)
-  template<typename SupportT>
-  const DivergenceLinT& divergence_lin(const MappedCoordsT& mapped_coords, SupportT& support) const
-  {
-    gradient(mapped_coords, support);
-    for(Uint i = 0; i != Dim; ++i)
-    {
-      m_div_lin.template block<1, SF::nb_nodes>(0, i*SF::nb_nodes) = m_gradient.row(i);
-    }
-    
-    return m_div_lin;
-  }
-  
-  /// Return the gradient (weak form element matrix)
-  template<typename SupportT>
-  typename GradientImpl<SF, Dim, Offset, MatrixSize>::result_type gradient_elm(const MappedCoordsT& mapped_coords, SupportT& support) const
-  {
-    SF::shape_function(mapped_coords, m_sf);
-    return m_gradient_elm(m_sf, gradient(mapped_coords, support));
-  }
-  
-  /// Return the gradient (weak form element matrix)
-  template<typename SupportT>
-  typename DivergenceImpl<SF, Dim, Offset, MatrixSize>::result_type divergence_elm(const MappedCoordsT& mapped_coords, SupportT& support) const
-  {
-    SF::shape_function(mapped_coords, m_sf);
-    return m_divergence_elm(m_sf, gradient(mapped_coords, support));
-  }
-  
-  /// Return the laplacian (weak form element matrix)
-  template<typename SupportT>
-  typename LaplacianImpl<SF, Dim, Offset, MatrixSize>::result_type laplacian_elm(const MappedCoordsT& mapped_coords, SupportT& support) const
-  {
-    return m_laplacian_elm(gradient(mapped_coords, support));
-  }
-  
-  /// Interpolation (weak form element matrix)
-  typename ValueImpl<SF, Dim, Offset, MatrixSize>::result_type value_elm(const MappedCoordsT& mapped_coords) const
-  {
-    SF::shape_function(mapped_coords, m_sf);
-    return m_value_elm(m_sf);
-  }
-  
-  /// Return the laplacian (weak form element matrix)
-  template<typename SupportT>
-  typename AdvectionImpl<SF, Dim, Offset, MatrixSize>::result_type advection_elm(const MappedCoordsT& mapped_coords, SupportT& support) const
-  {
-    SF::shape_function(mapped_coords, m_sf);
-    return m_advection_elm(m_element_values, m_sf, gradient(mapped_coords, support));
   }
   
 private:
@@ -307,13 +260,41 @@ private:
   mutable typename SF::MappedGradientT m_mapped_gradient_matrix;
   mutable GradientT m_gradient;
   mutable typename SF::ShapeFunctionsT m_advection;
-  mutable DivergenceLinT m_div_lin;
-  InterpolationImpl<SF, Dim> m_eval;
-  const GradientImpl<SF, Dim, Offset, MatrixSize> m_gradient_elm;
-  const DivergenceImpl<SF, Dim, Offset, MatrixSize> m_divergence_elm;
-  const LaplacianImpl<SF, Dim, Offset, MatrixSize> m_laplacian_elm;
-  const ValueImpl<SF, Dim, Offset, MatrixSize> m_value_elm;
-  const AdvectionImpl<SF, Dim, Offset, MatrixSize> m_advection_elm;
+  
+  /// Interpolation of a field
+  template<Uint VarDim, int Dummy>
+  struct InterpolationImpl
+  { 
+    typedef Eigen::Matrix<Real, 1, VarDim> MatrixT;
+    typedef const MatrixT& result_type;
+    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
+    template<typename NodeValuesT>
+    result_type operator()(const typename SF::ShapeFunctionsT& sf, const NodeValuesT& values) const
+    {
+      m_result.noalias() = sf * values;
+      return m_result;
+    }
+    
+  private:
+    mutable MatrixT m_result;
+  };
+
+  /// Interpolation of a scalar field
+  template<int Dummy>
+  struct InterpolationImpl<1, Dummy>
+  {
+    typedef Real result_type;
+    
+    template<typename NodeValuesT>
+    result_type operator()(const typename SF::ShapeFunctionsT& sf, const NodeValuesT& values) const
+    {
+      return sf * values;
+    }
+  };
+  
+  InterpolationImpl<Dim> m_eval;
 };
 
 /// Predicate to check if data belongs to an equation variable

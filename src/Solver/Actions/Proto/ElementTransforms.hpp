@@ -25,18 +25,6 @@ namespace Solver {
 namespace Actions {
 namespace Proto {
 
-/// Matches possible storage for mapped coordinates
-struct MappedCoordinate :
-  boost::proto::or_
-  <
-    boost::proto::terminal< Eigen::Matrix<Real, 1, 1 > >,
-    boost::proto::terminal< Eigen::Matrix<Real, 2, 1 > >,
-    boost::proto::terminal< Eigen::Matrix<Real, 3, 1 > >,
-    boost::proto::terminal< Eigen::Matrix<Real, Eigen::Dynamic, 1 > >
-  >
-{
-};
-
 /// Primitive transform to execute the linearize op
 struct LinearizeTransform : boost::proto::transform< LinearizeTransform >
 {

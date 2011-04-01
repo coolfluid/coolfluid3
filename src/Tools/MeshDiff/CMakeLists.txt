@@ -24,7 +24,11 @@ list( APPEND coolfluid-meshdiff_files
  Commands.cpp
 )
 
-list( APPEND coolfluid-meshdiff_cflibs coolfluid_mesh coolfluid_meshdiff coolfluid_shell coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_cgns3 coolfluid_mesh_tecplot )
+list( APPEND coolfluid-meshdiff_cflibs coolfluid_mesh coolfluid_meshdiff coolfluid_shell coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_tecplot )
+
+if(CF_HAVE_CGNS)
+  list( APPEND coolfluid-meshdiff_cflibs coolfluid_mesh_cgns3 )
+endif(CF_HAVE_CGNS)
 
 coolfluid_add_application( coolfluid-meshdiff )
 

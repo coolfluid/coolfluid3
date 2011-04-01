@@ -64,7 +64,12 @@ struct IsEquationVariable :
   <
     boost::proto::when // scalar field used as equation in an element matrix
     <
-      boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
+      boost::proto::or_
+      <
+        boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
+        boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
+        boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, boost::proto::_, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >
+      >,
       boost::mpl::true_()
     >,
     boost::proto::when

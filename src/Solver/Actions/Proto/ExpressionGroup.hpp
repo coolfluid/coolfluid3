@@ -57,8 +57,6 @@ struct ExpressionGroup :
               , typename impl::data_param data
     ) const
     {
-      // Use the group(expr1, expr2, ... exprN) proto expression as a fusion sequence. pop_front removes the group node itself from the list of expressions,
-      // so this calls evaluate_expr on expr1, expr2, ... exprN
       boost::fusion::for_each(boost::proto::flatten(boost::proto::right(expr)), evaluate_expr(state, data) );
     }
   };
@@ -74,10 +72,18 @@ static boost::proto::terminal< ExpressionGroupTag >::type group = {};
 /// Matches and evaluates groups of expressions matching GrammarT
 template<typename GrammarT>
 struct GroupGrammar :
-  boost::proto::when
+  boost::proto::or_
   <
-    boost::proto::shift_left< boost::proto::terminal<ExpressionGroupTag>, boost::proto::_ >,
-    boost::proto::call< ExpressionGroup<GrammarT> >
+    boost::proto::when
+    <
+      boost::proto::shift_left< boost::proto::terminal<ExpressionGroupTag>, boost::proto::comma<boost::proto::_, boost::proto::_> >,
+      boost::proto::call< ExpressionGroup<GrammarT> >
+    >,
+    boost::proto::when // This variant allows passing a state as parameter
+    <
+      boost::proto::shift_left< boost::proto::function< boost::proto::terminal<ExpressionGroupTag>, boost::proto::terminal<boost::proto::_> >, boost::proto::comma<boost::proto::_, boost::proto::_> >,
+      boost::proto::call< ExpressionGroup<GrammarT> >(boost::proto::_expr, boost::proto::_value(boost::proto::_child1(boost::proto::_left)))
+    >
   >
 {
 };

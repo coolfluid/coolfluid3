@@ -20,7 +20,8 @@ struct WrappableElementExpressions :
   <
     boost::proto::multiplies<boost::proto::_, boost::proto::_>,
     boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, boost::proto::_ >,
-    boost::proto::function<boost::proto::terminal<LinearizeOp>, boost::proto::_, FieldTypes>
+    boost::proto::function<boost::proto::terminal<LinearizeOp>, boost::proto::_, FieldTypes>,
+    boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::_ >
   >
 {
 };
@@ -103,7 +104,43 @@ struct WrapMatrixExpression : boost::proto::transform< WrapMatrixExpression >
     }
   };
 };
-  
+
+/// Grammar to do the expression wrapping
+struct WrapExpression :
+  boost::proto::or_
+  <
+    boost::proto::when
+    <
+      boost::proto::multiplies<boost::proto::_, boost::proto::_>,
+      WrapMatrixExpression(boost::proto::functional::make_multiplies
+      (
+        WrapExpression(boost::proto::_left), WrapExpression(boost::proto::_right)
+      ))
+    >,
+    boost::proto::when
+    <
+      boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, boost::proto::_ >,
+      WrapMatrixExpression(boost::proto::functional::make_function
+      (
+        WrapExpression(boost::proto::_child0), WrapExpression(boost::proto::_child1)
+      ))
+    >,
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<LinearizeOp>, boost::proto::_, FieldTypes>,
+      WrapMatrixExpression(boost::proto::functional::make_function
+      (
+        WrapExpression(boost::proto::_child0), WrapExpression(boost::proto::_child1), WrapExpression(boost::proto::_child2)
+      ))
+    >,
+    boost::proto::when
+    <
+      boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::_ >,
+      WrapMatrixExpression
+    >,
+    boost::proto::nary_expr< boost::proto::_, boost::proto::vararg<WrapExpression> >
+  >
+{};
 
 } // namespace Proto
 } // namespace Actions

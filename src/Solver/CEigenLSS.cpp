@@ -100,28 +100,45 @@ void CEigenLSS::set_zero()
 
 void CEigenLSS::set_dirichlet_bc(const CF::Uint row, const CF::Real value, const CF::Real coeff)
 {
-  for(int k=0; k < m_system_matrix.outerSize(); ++k)
+  for(MatrixT::InnerIterator it(m_system_matrix, static_cast<int>(row)); it; ++it)
   {
-    for(MatrixT::InnerIterator it(m_system_matrix, k); it; ++it)
+    if(static_cast<Uint>(it.col()) != row)
     {
-      if((Uint) it.row() == row && (Uint) it.col() != row)
-      {
-        it.valueRef() = 0.;
-      }
-      else if((Uint) it.row() == row && (Uint) it.col() == row)
-      {
-        it.valueRef() = coeff;
-      }
-      else if((Uint)it.row() != row && (Uint) it.col() == row)
-      {
-        m_rhs[it.row()] -= it.value() * value;
-        it.valueRef() = 0.;
-      }
+      it.valueRef() = 0.;
     }
-  }
-  
+    else
+    {
+      it.valueRef() = coeff;
+    }
+  }  
   m_rhs[row] = coeff * value;
 }
+
+// This version kept symetry, but it is horribly inefficient because of the way we store the matrix
+// void CEigenLSS::set_dirichlet_bc(const CF::Uint row, const CF::Real value, const CF::Real coeff)
+// {
+//   for(int k=0; k < m_system_matrix.outerSize(); ++k)
+//   {
+//     for(MatrixT::InnerIterator it(m_system_matrix, k); it; ++it)
+//     {
+//       if((Uint) it.row() == row && (Uint) it.col() != row)
+//       {
+//         it.valueRef() = 0.;
+//       }
+//       else if((Uint) it.row() == row && (Uint) it.col() == row)
+//       {
+//         it.valueRef() = coeff;
+//       }
+//       else if((Uint)it.row() != row && (Uint) it.col() == row)
+//       {
+//         m_rhs[it.row()] -= it.value() * value;
+//         it.valueRef() = 0.;
+//       }
+//     }
+//   }
+//   
+//   m_rhs[row] = coeff * value;
+// }
 
 
 RealVector& CEigenLSS::rhs()
