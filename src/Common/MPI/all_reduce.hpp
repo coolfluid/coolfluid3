@@ -9,13 +9,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/Foreach.hpp"
+#include "Common/Assertions.hpp"
+#include "Common/BasicExceptions.hpp"
+
 #include <Common/MPI/types.hpp>
-#include <Common/MPI/tools.hpp>
 #include <Common/MPI/operations.hpp>
 #include <Common/MPI/datatype.hpp>
-#include "Common/Foreach.hpp"
-#include "Common/BasicExceptions.hpp"
-#include "Common/CodeLocation.hpp"
+
+// #include "Common/MPI/debug.hpp" // for debugging mpi
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +64,7 @@ namespace detail {
     // get data type, op and some checkings
     Datatype type = get_mpi_datatype(*in_values);
     Operation op_= get_mpi_op<T,Op>::op();
-    BOOST_ASSERT( stride>0 );
+    cf_assert( stride>0 );
 
     // there is in_map
     T *in_buf=(T*)in_values;
@@ -140,7 +142,7 @@ inline void
 all_reduce(const Communicator& comm, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
 {
   // set out_values's sizes
-  BOOST_ASSERT( in_values.size() % stride == 0 );
+  cf_assert( in_values.size() % stride == 0 );
   out_values.resize(in_values.size());
   out_values.reserve(in_values.size());
 
@@ -207,7 +209,7 @@ inline void
 all_reduce(const Communicator& comm, const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
 {
   // set out_values's sizes
-  BOOST_ASSERT( in_values.size() % stride == 0 );
+  cf_assert( in_values.size() % stride == 0 );
 
   // resize out_values if vector size is zero
   if (out_values.size() == 0 ){

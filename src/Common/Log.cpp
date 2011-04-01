@@ -17,15 +17,15 @@
 
 #include <iostream>
 #include <sstream>
-
-#include <stdio.h>
+#include <cstdio>
 
 #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
 
+using namespace boost;
+
 using namespace CF;
 using namespace CF::Common;
-using namespace boost;
 
 Logger::Logger()
 {

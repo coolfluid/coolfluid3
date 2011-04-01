@@ -28,6 +28,7 @@
 #define CF_BOOST_MINOR_VERSION    ${Boost_MINOR_VERSION}
 #define CF_BOOST_SUBMINOR_VERSION ${Boost_SUBMINOR_VERSION}
 #define CF_BOOST_LIB_VERSION      "${Boost_LIB_VERSION}"
+
 #cmakedefine CF_HAVE_BOOST_ERFC
 
 // Platform specific config

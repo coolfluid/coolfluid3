@@ -6,14 +6,17 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/BoostAssertions.hpp"
 #include "Common/LibCommon.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
+
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PECommPattern.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 
-#include "Common/FindComponents.hpp"
+#include "Common/MPI/debug.hpp"
 
 /*
 TODO:

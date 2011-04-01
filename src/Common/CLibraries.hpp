@@ -63,13 +63,12 @@ namespace Common {
                             + lname
                             + " but is not the actual library "
                             + LIB::type_name() );
-
-      // initiate the library if it not already done
-      if( !lib->is_initiated() )
-        lib->initiate();
-
       return lib;
     }
+
+    void initiate_all_libraries();
+
+    void terminate_all_libraries();
 
     void load_library( const URI& file );
 

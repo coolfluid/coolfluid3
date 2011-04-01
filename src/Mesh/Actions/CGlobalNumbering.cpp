@@ -20,7 +20,7 @@
 #include "Common/CreateComponentDataType.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/tools.hpp"
+#include "Common/MPI/debug.hpp"
 
 #include "Mesh/Actions/CGlobalNumbering.hpp"
 #include "Mesh/CCellFaces.hpp"

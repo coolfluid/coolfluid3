@@ -49,6 +49,7 @@ namespace Common {
 
   CRoot::~CRoot()
   {
+    std::cout << "goodbye " << FromHere().str() << std::endl;
   }
 
 ////////////////////////////////////////////////////////////////////////////////

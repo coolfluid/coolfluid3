@@ -9,8 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
-
 #include <boost/weak_ptr.hpp>
 #include <boost/type_traits/is_pod.hpp>
 #include <boost/type_traits/is_same.hpp>

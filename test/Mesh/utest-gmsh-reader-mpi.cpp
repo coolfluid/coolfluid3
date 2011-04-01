@@ -61,7 +61,7 @@ BOOST_FIXTURE_TEST_SUITE( GmshReaderMPITests_TestSuite, GmshReaderMPITests_Fixtu
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  //Core::instance().initiate(m_argc,m_argv);
+  Core::instance().initiate(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -280,7 +280,7 @@ BOOST_CHECK(true);
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 { 
-  //Core::instance().terminate();
+  Core::instance().terminate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,8 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <vector>
 #include "Common/Component.hpp"
+
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 

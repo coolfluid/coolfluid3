@@ -5,25 +5,24 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_Common_mpi_tools_HPP
-#define CF_Common_mpi_tools_HPP
+#ifndef CF_Common_mpi_debug_HPP
+#define CF_Common_mpi_debug_HPP
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <iostream>
+#include <iostream> // should be avoided but this is a debug header which usually is not included
 
 #include <boost/thread/thread.hpp>
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/CodeLocation.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file tools.hpp
+  @file debug.hpp
   @author Tamas Banyai
 
-  This header defines additional support functions/macros/classes.
+  This header defines additional debug support functions/macros/classes.
 **/
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,22 +30,6 @@
 namespace CF {
   namespace Common {
     namespace mpi {
-
-////////////////////////////////////////////////////////////////////////////////
-
-/**
-  Macro for checking return values of any mpi calls and throws exception on error.
-**/
-#define MPI_CHECK_RESULT( MPIFunc, Args )                                                                         \
- {                                                                                                                \
-   int _check_result = MPIFunc Args;                                                                              \
-   if (_check_result != MPI_SUCCESS)                                                                              \
-   {                                                                                                              \
-     std::stringstream errmsg;                                                                                    \
-     errmsg << "Function: " << #MPIFunc << " did not return MPI_SUCCESS (" << _check_result << ").";              \
-     throw Common::ParallelError(FromHere(),errmsg.str() );                                                       \
-   }                                                                                                              \
- }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -134,4 +117,4 @@ boost::this_thread::sleep(boost::posix_time::milliseconds(msec));               
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_mpi_tools_HPP
+#endif // CF_Common_mpi_debug_HPP

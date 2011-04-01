@@ -58,10 +58,10 @@ protected:
 
   bool m_is_initiated;
 
-  /// initiate library
+  /// initiate library implemntation
   virtual void initiate_impl() = 0;
 
-  /// terminate library
+  /// terminate library implemntation
   virtual void terminate_impl() = 0;
 
 }; // CLibrary

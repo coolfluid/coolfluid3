@@ -19,6 +19,8 @@
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/datatype.hpp"
 
+#include "Common/MPI/debug.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF;

@@ -5,9 +5,13 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Signal.hpp"
+#include "Common/CLibrary.hpp"
 #include "Common/CLibraries.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/LibLoader.hpp"
+#include "Common/Foreach.hpp"
+#include "Common/FindComponents.hpp"
+
 #include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/XmlNode.hpp"
@@ -53,6 +57,26 @@ void CLibraries::load_library( const URI& file )
   boost::filesystem::path fpath( file.path() );
 
   OSystem::instance().lib_loader()->load_library( fpath.string() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CLibraries::initiate_all_libraries()
+{
+  boost_foreach( CLibrary& lib, find_components<CLibrary>(*this) )
+  {
+    lib.initiate(); // will do nothing if already initiated
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CLibraries::terminate_all_libraries()
+{
+  boost_foreach( CLibrary& lib, find_components<CLibrary>(*this) )
+  {
+    lib.terminate(); // will do nothing if already terminated
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

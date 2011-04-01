@@ -4,9 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Log.hpp"
+
 #include "Common/BasicExceptions.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/tools.hpp"
+
+//#include "Common/MPI/debug.hpp"
 
 namespace CF {
 namespace Common {
@@ -16,6 +19,7 @@ namespace mpi {
 
 PE::PE(int argc, char** args)
 {
+  m_comm = nullptr;
   init(argc,args);
   m_current_status=WorkerStatus::NOT_RUNNING;
 }
@@ -45,51 +49,70 @@ PE& PE::instance()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PE::init(int argc, char** args) 
+bool PE::is_init() const
 {
-  if (m_comm!=nullptr) throw SetupError(FromHere(),"Trying to re-initialize PE (parallel environment) without calling finalize.");
-  MPI_CHECK_RESULT(MPI_Init,(&argc,&args));
-  m_comm=MPI_COMM_WORLD;
+  int is_init = 0;
+  MPI_CHECK_RESULT(MPI_Initialized,(&is_init));
+  return bool(is_init);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool PE::is_init() const
+std::string PE::version() const
 {
-  if ( m_comm == nullptr ) return false;
-  return true;
+  int version = 0;
+  int subversion = 0;
+  MPI_CHECK_RESULT(MPI_Get_version,(&version,&subversion));
+  return std::string( to_str(version) + "." + to_str(subversion) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PE::init(int argc, char** args) 
+{
+  if( !is_init() ) // already initialized?
+  {
+    MPI_CHECK_RESULT(MPI_Init,(&argc,&args));
+    //  CFinfo << "MPI (version " <<  version() << ") -- initiated" << CFendl;
+  }
+
+  m_comm = MPI_COMM_WORLD;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void PE::finalize()
 {
-  if ( is_init() )
+  if( is_init() ) // is initialized?
   {
-//    boost::this_thread::sleep(boost::posix_time::milliseconds(100));
     MPI_CHECK_RESULT(MPI_Finalize,());
-    m_comm=nullptr;
+    //  CFinfo << "MPI (version " <<  version() << ") -- finalized" << CFendl;
+  }
+
+  m_comm = nullptr;
+
+//    boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 //    int is_mpi_finalized;
 //    MPI_CHECK_RESULT(MPI_Finalized,(&is_mpi_finalized));
 //    while (is_mpi_finalized!=true){
 //      MPI_CHECK_RESULT(MPI_Finalized,(&is_mpi_finalized));
 //      boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 //    }
-  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void PE::barrier()
 {
-  if ( is_init() ) MPI_CHECK_RESULT(MPI_Barrier,(m_comm));
+  if ( is_valid() ) MPI_CHECK_RESULT(MPI_Barrier,(m_comm));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Uint PE::rank() const
 {
-  if ( !is_init() ) return 0;
+  if ( !is_valid() ) return 0;
   int irank;
   MPI_CHECK_RESULT(MPI_Comm_rank,(m_comm,&irank));
   return static_cast<Uint>(irank);
@@ -99,7 +122,7 @@ Uint PE::rank() const
 
 Uint PE::size() const
 {
-  if ( !is_init() ) return 1;
+  if ( !is_valid() ) return 1;
   int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(m_comm,&nproc));
   return static_cast<Uint>(nproc);
@@ -123,8 +146,8 @@ WorkerStatus::Type PE::status()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // namespace mpi
-  } // namespace Common
+} // namespace mpi
+} // namespace Common
 } // namespace CF
 
 

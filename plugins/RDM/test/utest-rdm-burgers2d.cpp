@@ -63,7 +63,7 @@ struct burgers2d_global_fixture
     burgers2d_wizard->signal_create_model(frame);
   }
 
-  ~burgers2d_global_fixture() { Core::instance().terminate(); }
+//  ~burgers2d_global_fixture() { Core::instance().terminate(); }
 
   ScalarAdvection::Ptr burgers2d_wizard;
 

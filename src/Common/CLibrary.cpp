@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/LibCommon.hpp"
-#include "Common/CBuilder.hpp"
 #include "Common/CLibrary.hpp"
 
 namespace CF {
@@ -24,6 +22,7 @@ CLibrary::CLibrary(const std::string & lib_name) : Component(lib_name),
 
 CLibrary::~CLibrary()
 {
+  terminate(); // insure cleanup
 }
 
 std::string CLibrary::lib_kversion()
@@ -40,6 +39,7 @@ void  CLibrary::initiate()
 {
   if(!m_is_initiated)
   {
+//    std::cout << "+ initiating library \'" << name() << "\'" << std::endl;
     initiate_impl();
     m_is_initiated = true;
   }
@@ -49,6 +49,7 @@ void  CLibrary::terminate()
 {
   if(m_is_initiated)
   {
+//    std::cout << "+ terminating library \'" << name() << "\'" << std::endl;
     terminate_impl();
     m_is_initiated = false;
   }

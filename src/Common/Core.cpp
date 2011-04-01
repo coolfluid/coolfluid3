@@ -88,8 +88,6 @@ Core::Core()
   tools->properties()["description"] = std::string("");
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 Core::~Core() {}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,8 +100,7 @@ void Core::initiate ( int argc, char** argv )
   if( environment()->property("RegistSignalHandlers").value<bool>() )
     OSystem::instance().layer()->regist_os_signal_handlers();
 
-  if ( !mpi::PE::instance().is_init() )
-    mpi::PE::instance().init(argc,argv); // this might modify argc and argv
+  // load libraries listed in the COOLFLUID_PLUGINS environment variable
 
   char* env_var = std::getenv("COOLFLUID_PLUGINS");
   if (env_var != NULL)
@@ -117,26 +114,19 @@ void Core::initiate ( int argc, char** argv )
         OSystem::instance().lib_loader()->load_library(*tok_iter);
   }
 
-  // loop all libraries and initiate them
-  ComponentIterator<CLibrary> it = m_libraries->begin<CLibrary>();
+  // initiate here all the libraries which the kernel was linked to
 
-  for( ; it != m_libraries->end<CLibrary>() ; ++it )
-    it.get()->initiate();
+  m_libraries->initiate_all_libraries();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Core::terminate()
 {
-  // loop all libraries and terminate them
-  ComponentIterator<CLibrary> it = m_libraries->begin<CLibrary>();
+  // terminate all
 
-  for( ; it != m_libraries->end<CLibrary>() ; ++it )
-    it.get()->terminate();
-
-
-  if ( mpi::PE::instance().is_init() )
-    mpi::PE::instance().finalize();
+  m_libraries->terminate_all_libraries();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

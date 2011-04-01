@@ -20,7 +20,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/tools.hpp"
+#include "Common/MPI/debug.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

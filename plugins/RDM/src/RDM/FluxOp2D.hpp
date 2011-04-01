@@ -8,8 +8,8 @@
 #define CF_Solver_FluxOp2D_hpp
 
 #include <Eigen/Dense>
+
 #include "Math/MatrixTypes.hpp"
-#include <iostream>
 
 /////////////////////////////////////////////////////////////////////////////////////
 

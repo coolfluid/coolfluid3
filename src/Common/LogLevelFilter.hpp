@@ -11,8 +11,6 @@
 
 #include "Common/BoostIostreams.hpp"
 
-#include <iostream>
-
 #include "Common/CommonAPI.hpp"
 #include "Common/LogLevel.hpp"
 

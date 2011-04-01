@@ -63,7 +63,12 @@ struct linearadv2d_global_fixture
     linearadv2d_wizard->signal_create_model(frame);
   }
 
-  ~linearadv2d_global_fixture() { Core::instance().terminate(); }
+  ~linearadv2d_global_fixture()
+  {
+    linearadv2d_wizard.reset();
+
+    Core::instance().terminate();
+  }
 
   ScalarAdvection::Ptr linearadv2d_wizard;
 
@@ -322,6 +327,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , linearadv2d_local_fixture )
 
   mesh_writer->write();
 
+  std::cout << "goodbye " << FromHere().str() << std::endl;
 }
 
 //////////////////////////////////////////////////////////////////////////////

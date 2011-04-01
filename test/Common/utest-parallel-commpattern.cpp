@@ -24,7 +24,7 @@
 #include "Common/MPI/PEObjectWrapper.hpp"
 #include "Common/MPI/PEObjectWrapperMultiArray.hpp"
 #include "Common/MPI/PECommPattern.hpp"
-#include "Common/MPI/tools.hpp"
+#include "Common/MPI/debug.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CreateComponent.hpp"
 

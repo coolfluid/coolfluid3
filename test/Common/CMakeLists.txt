@@ -49,6 +49,16 @@ list( APPEND utest-osystem_files
 coolfluid_add_unit_test( utest-osystem )
 
 ################################################################################
+# Test Core
+
+list( APPEND utest-core_cflibs coolfluid_common )
+list( APPEND utest-core_files
+  utest-core.cpp
+)
+
+coolfluid_add_unit_test( utest-core )
+
+################################################################################
 # Test Component
 
 list( APPEND utest-component_cflibs coolfluid_common )

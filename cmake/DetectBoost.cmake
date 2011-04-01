@@ -14,9 +14,11 @@ list( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_t
 
 find_package( Boost COMPONENTS ${CF_Boost_COMPONENTS} )
 
-coolfluid_log( "Boost include path [${Boost_INCLUDE_DIR}]" )
 coolfluid_log( "Boost lib version  [${Boost_LIB_VERSION}]" )
-coolfluid_log( "Boost libraries    [${Boost_LIBRARIES}]"   )
+coolfluid_log_file( "Boost include path [${Boost_INCLUDE_DIR}]" )
+coolfluid_log_file( "Boost libraries    [${Boost_LIBRARIES}]"   )
+
+add_definitions( -DBOOST_ENABLE_ASSERT_HANDLER )
 
 # if not found give more information
 if( NOT Boost_FOUND )

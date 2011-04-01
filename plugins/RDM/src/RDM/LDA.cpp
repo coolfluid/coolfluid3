@@ -75,13 +75,13 @@ struct LDA::ElementLoop
       scheme->set_elements(elements);
 
       const Uint nb_elem = elements.size();
-      boost::timer ctimer;
+//      boost::timer ctimer;
       for ( Uint elem = 0; elem != nb_elem; ++elem )
       {
         scheme->select_loop_idx(elem);
         scheme->execute();
       }
-      std::cout<<ctimer.elapsed()<<std::endl;
+//      std::cout<<ctimer.elapsed()<<std::endl;
     }
   }
 

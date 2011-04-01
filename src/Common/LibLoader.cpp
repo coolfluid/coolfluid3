@@ -6,6 +6,8 @@
 
 #include "Common/LibLoader.hpp"
 #include "Common/CLibrary.hpp"
+#include "Common/CLibraries.hpp"
+#include "Common/Core.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,13 +31,12 @@ void LibLoader::load_library(const std::string& lib)
 //  void* handle =
       system_load_library(lib);
 
-  // place the pointer in the registered library
-  // Core::instance().libraries()->get_library<LIB>()->initiate();
+  /// @todo find a cross-platform way of storing the pointer, maybe using void*
 
   // initiate all libraries not yet initiated
   // because loading one library might implicitly load many others
 
-  // Core::instance().libraries()->get_library<LIB>()->initiate();
+  Core::instance().libraries()->initiate_all_libraries();
 
 }
 
@@ -43,10 +44,9 @@ void LibLoader::load_library(const std::string& lib)
 
 void LibLoader::unload_library( CLibrary::Ptr lib )
 {
-  /// @todo terminate library to be unloaded
+  lib->terminate();
 
-  // Core::instance().libraries()->get_library<LIB>()->initiate();
-
+  /// @todo implement system_unload_library
   //  system_unload_library(lib);
 }
 

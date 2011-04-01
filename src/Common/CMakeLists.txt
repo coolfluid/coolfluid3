@@ -7,6 +7,7 @@ list( APPEND coolfluid_common_files
     BasicExceptions.hpp
     BoostIostreams.hpp
     BoostFilesystem.hpp
+    BoostAssertions.hpp
     BoostArray.hpp
     BuildInfo.hpp
     BuildInfo.cpp
@@ -140,7 +141,7 @@ list( APPEND coolfluid_common_files
       MPI/PECommPattern.cpp
       MPI/datatype.hpp
       MPI/operations.hpp
-      MPI/tools.hpp
+      MPI/debug.hpp
       MPI/scatter.hpp
       MPI/gather.hpp
       MPI/all_gather.hpp

@@ -7,9 +7,6 @@
 #ifndef CF_server_RemoteClientAppender_hpp
 #define CF_server_RemoteClientAppender_hpp
 
-#include <string>
-#include <iostream>
-
 #include "Common/LogStringForwarder.hpp"
 
 #include <QObject>

@@ -22,7 +22,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/tools.hpp"
+#include "Common/MPI/debug.hpp"
 #include "Common/MPI/datatype.hpp"
 #include "Common/MPI/operations.hpp"
 #include "Common/MPI/all_to_all.hpp"

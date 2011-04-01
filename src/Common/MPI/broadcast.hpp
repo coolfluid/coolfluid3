@@ -9,12 +9,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <Common/MPI/types.hpp>
-#include <Common/MPI/tools.hpp>
-#include <Common/MPI/datatype.hpp>
 #include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/CodeLocation.hpp"
+
+#include <Common/MPI/types.hpp>
+#include <Common/MPI/datatype.hpp>
+
+// #include "Common/MPI/debug.hpp" // for debugging mpi
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +64,7 @@ namespace detail {
 
     // get data type, op and some checkings
     Datatype type = get_mpi_datatype(*in_values);
-    BOOST_ASSERT( stride>0 );
+    cf_assert( stride>0 );
 
     // there is in_map
     T *inout_buf=(T*)out_values;
@@ -154,7 +155,7 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, std::vector
     if (irank==root) size=(int)in_values.size();
     detail::broadcast_impl(comm,&size,1,(int*)0,&size,(int*)0,root,1);
   }
-  BOOST_ASSERT( in_values.size() % stride == 0 );
+  cf_assert( in_values.size() % stride == 0 );
   out_values.resize(size);
   out_values.reserve(size);
 
@@ -240,7 +241,7 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, const std::
   MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
 
   // set out_values's sizes
-  BOOST_ASSERT( in_values.size() % stride == 0 );
+  cf_assert( in_values.size() % stride == 0 );
 
   // resize out_values if vector size is zero
   if (out_values.size() == 0 ){

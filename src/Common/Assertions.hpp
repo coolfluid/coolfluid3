@@ -7,14 +7,6 @@
 #ifndef CF_Common_Assertions_hpp
 #define CF_Common_Assertions_hpp
 
-// disable boost assertions if compiled with -DNDEBUG
-#ifdef NDEBUG
-  #define BOOST_DISABLE_ASSERTS
-#endif
-
-#define BOOST_ENABLE_ASSERT_HANDLER
-#include <boost/assert.hpp>
-
 #include "Common/CommonAPI.hpp"
 
 #ifndef CF_ENABLE_STDASSERT
@@ -124,21 +116,5 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////
-
-namespace boost {
-
-inline void assertion_failed(char const * expr,
-                             char const * function,
-                             char const * file,
-                             long line)
-{
-  CF::Common::AssertionManager::do_assert ( false, expr, file, line, function);
-}
-
-} // namespace boost
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_Assertions_hpp

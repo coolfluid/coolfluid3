@@ -9,6 +9,7 @@
 
 #include <mpi.h>
 
+#include "Common/StringConversion.hpp"
 #include "Common/WorkerStatus.hpp"
 
 #include "Common/MPI/types.hpp"
@@ -38,7 +39,6 @@ namespace Common {
 namespace mpi {
 
 ////////////////////////////////////////////////////////////////////////////////
-
 /**
  * Base class for the PE
  * Communication with MPI always occurs over a communicator,
@@ -48,9 +48,7 @@ namespace mpi {
  * and to give a unique number to each process, from zero to the size
  * of the communicator-1 (i.e., the "rank" of the process)
 **/
-class Common_API PE :
-    public boost::noncopyable
-{
+class Common_API PE : public boost::noncopyable {
 
 public:
 
@@ -64,15 +62,24 @@ public:
   static PE& instance();
 
   /// Operator to boost.mpi environment, environment is noncopyable
-  operator Communicator() { return m_comm; }
+  operator Communicator() { cf_assert( is_valid() ); return m_comm; }
 
   /// Initialise the PE
+  /// @post will have a valid state
   void init(int argc=0, char** args=0);
+
+  /// Returns the MPI version
+  std::string version() const;
 
   /// Checks if the PE is initialized
   bool is_init() const;
 
+  /// Checks if the PE is in valid state
+  /// should be initialized and Communicator pointer is set
+  bool is_valid() const { return is_init() && is_not_null(m_comm); }
+
   /// Free the PE, careful because some mpi-s fail upon re-init after a proper finalize
+  /// @post will have not a valid state
   void finalize();
   
   /// overload the barrier function
@@ -262,18 +269,16 @@ private:
 
   /// comm_world
   Communicator m_comm;
-
-  /// Current status.
+  /// Current status
   /// Default value is @c #NOT_RUNNING.
   WorkerStatus::Type m_current_status;
-
 
 }; // PE
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // namespace mpi
-  } // namespace Common
+} // namespace mpi
+} // namespace Common
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////

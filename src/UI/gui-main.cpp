@@ -9,6 +9,7 @@
 #include <QApplication>
 
 #include "Common/CF.hpp"
+#include "Common/MPI/PE.hpp"
 #include "Common/Core.hpp"
 #include "Common/CEnv.hpp"
 #include "Common/NetworkInfo.hpp"
@@ -35,6 +36,7 @@ int main(int argc, char *argv[])
   // initiate the core environment
   Core::instance().environment()->configure_property("RegistSignalHandlers", false);
   Core::instance().initiate(argc, argv);
+  mpi::PE::instance().init(argc,argv);   // this might modify argc and argv
 
   CF::Common::AssertionManager::instance().AssertionThrows = true;
   CF::Common::AssertionManager::instance().AssertionDumps = true;
@@ -58,6 +60,10 @@ int main(int argc, char *argv[])
   // tell CF core that the client is about to exit
   Core::instance().network_info()->stop_client();
 
+  // terminate the MPI environment
+
+  mpi::PE::instance().finalize();
+  Core::instance().terminate();
 
   return returnValue;
 }
