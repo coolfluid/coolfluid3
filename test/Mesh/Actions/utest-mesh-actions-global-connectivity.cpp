@@ -61,6 +61,7 @@ BOOST_FIXTURE_TEST_SUITE( TestCGlobalConnectivity_TestSuite, TestCGlobalConnecti
 BOOST_AUTO_TEST_CASE( Init )
 {
   Core::instance().initiate(m_argc,m_argv);  
+  mpi::PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,6 +91,7 @@ BOOST_AUTO_TEST_CASE( build )
 
 BOOST_AUTO_TEST_CASE( Terminate )
 {
+  mpi::PE::instance().finalize();
   Core::instance().terminate();
 }
 

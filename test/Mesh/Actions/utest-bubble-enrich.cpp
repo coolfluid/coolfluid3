@@ -47,6 +47,9 @@ BOOST_FIXTURE_TEST_SUITE( BubbleEnrich_TestSuite, BubbleEnrich_Fixture )
 
 BOOST_AUTO_TEST_CASE( constructors )
 {
+  Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
+                            boost::unit_test::framework::master_test_suite().argv);
+
   CMeshTransformer::Ptr enricher =
       create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
 
@@ -214,6 +217,8 @@ BOOST_AUTO_TEST_CASE( remover )
 //      CFinfo << CFendl;
 //    }
 //  }
+
+  Core::instance().terminate();
 
 }
 

@@ -64,6 +64,8 @@ BOOST_FIXTURE_TEST_SUITE( ZoltanTests_TestSuite, ZoltanTests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
+  mpi::PE::instance().init(m_argc,m_argv);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,6 +156,8 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
+  mpi::PE::instance().finalize();
+
   Core::instance().terminate();
 }
 
