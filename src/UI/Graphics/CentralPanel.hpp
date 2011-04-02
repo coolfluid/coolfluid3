@@ -49,24 +49,24 @@ namespace Graphics {
 
   public:
 
-    /// @brief Constructor.
+    /// Constructor.
 
     /// Builds an @c CentralPanel with no options. The panel is neither in
     /// read-only mode nor advanced mode.
     /// @param parent The parent widget. Default value is @c nullptr
     CentralPanel(QWidget * parent = nullptr);
 
-    /// @brief Destructor.
+    /// Destructor.
 
     /// Frees the allocated memory.  Parent is not destroyed.
     ~CentralPanel();
 
-    /// @brief Indicates wether at least one option has been modified.
+    /// Indicates wether at least one option has been modified.
 
     /// @return Returns @c true if at least one option has been modified.
     bool isModified() const;
 
-    /// @brief Build containers with modified options.
+    /// Build containers with modified options.
 
     /// This method allows to get old and new values of each modified option.
     /// The old value is the original one, that the option had when it was
@@ -76,14 +76,14 @@ namespace Graphics {
     /// @param commitDetails The object where values will be stored.
     void modifiedOptions(Core::CommitDetails & commitDetails) const;
 
-    /// @brief Gives the current path.
+    /// Gives the current path.
 
     /// @return Returns the current path.
     QString currentPath() const;
 
   public slots:
 
-    /// @brief Slot called when user clicks on "Commit changes" button.
+    /// Slot called when user clicks on "Commit changes" button.
 
     /// If at least one option has been modified, @c changesMade signal is
     /// emitted.
@@ -109,77 +109,92 @@ namespace Graphics {
 
     /// Slot called when data changed in the underlying model.
 
-    ///
-    ///
+    /// This slot considers that only one index has changed, instead of a range.
+    /// If the @c first, the @c last and the model current indexes are the
+    /// same and valid, the option layouts are updated with the new options.
+    /// @param first The first index of the range.
+    /// @param last The last index of the range.
     void dataChanged(const QModelIndex & first, const QModelIndex & last);
 
+    /// Slot called when user wants to see what options have been modified.
     void btSeeChangesClicked();
 
+    /// Slot called when user wants to clear all the changes.
     void btForgetClicked();
 
+    /// Slot called when an option value has been modified.
     void valueChanged();
 
   private:
 
-    /// @brief Scroll area for basic m_options
+    /// Scroll area for basic options
     QScrollArea * m_scrollBasicOptions;
 
-    /// @brief Scroll area for advanced m_options
+    /// Scroll area for advanced options
     QScrollArea * m_scrollAdvancedOptions;
 
-    /// @brief List containing basic m_options components.
+    /// List containing basic options components.
     OptionLayout * m_basicOptionLayout;
 
-    /// @brief List containing advanced m_options components.
+    /// List containing advanced options components.
     OptionLayout * m_advancedOptionLayout;
 
-    /// @brief Button used to commit changes made.
+    /// Button used to commit changes made.
     QPushButton * m_btApply;
 
+    /// Button used to reset changes.
     QPushButton * m_btForget;
 
+    /// Button used to see changes made.
     QPushButton * m_btSeeChanges;
 
-    QGridLayout * m_buttonsLayout;
-
-    /// @brief Main layout containing basic and advanced option panels.
+    /// Main layout containing basic and advanced option panels.
 
     /// This layout is composed of three lines and one column.
     QGridLayout * m_mainLayout;
 
-    QGridLayout * m_topLayout;
-
-    /// @brief Groupbox used to display basic m_options components
+    /// Groupbox used to display basic m_options components
     /// with a titled border.
 
-    ///  Its m_layout is @c #basicOptionsLayout.
+    ///  Its layout is @c #m_basicOptionsLayout.
     QGroupBox * m_gbBasicOptions;
 
-    /// @brief Groupbox used to display advanced m_options components
+    /// Groupbox used to display advanced m_options components
     /// with a titled border.
 
-    ///  Its m_layout is @c #advancedOptionsLayout.
+    ///  Its layout is @c #m_advancedOptionsLayout.
     QGroupBox * m_gbAdvancedOptions;
 
-     /// @brief Indicates if the panel is in advanced mode or not.
+    /// Indicates if the panel is in advanced mode or not.
 
     /// If @c true, the panel is in advanced mode. Advanced m_options (if any)
     /// are displayed. Otherwise, they are m_hidden.
     bool m_advancedMode;
 
+    /// The path of the component of which options are currently displayed.
     QString m_currentPath;
 
+    /// Splitter between basic and advanced options.
     QSplitter * m_splitter;
 
-    bool m_modelReset;
+    /// Sets new graphical options.
 
+    /// All existing options in the layouts are removed.
+    /// @param list The list of options to set. Can be empty.
+    /// @todo why don't we use PropertyList?
     void setOptions(const QList<CF::Common::Option::ConstPtr> & list);
 
+    /// Set the buttons to a visible/invisible state.
+
+    /// @param visible If @c true, buttons are set to visible.
     void setButtonsVisible(bool visible);
 
+    /// Set the buttons to a enabled/disabled state.
+
+    /// @param enabled If @c true, buttons are set to enabled.
     void setButtonsEnabled(bool enabled);
 
-  }; // class CentralPanel
+  }; // CentralPanel
 
   /////////////////////////////////////////////////////////////////////////////
 

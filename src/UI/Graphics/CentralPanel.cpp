@@ -30,8 +30,7 @@ namespace Graphics {
 //////////////////////////////////////////////////////////////////////////
 
 CentralPanel::CentralPanel(QWidget * parent)
-  : QWidget(parent),
-    m_modelReset(false)
+  : QWidget(parent)
 {
   NTree::Ptr tree = NTree::globalTree();
 
@@ -49,8 +48,6 @@ CentralPanel::CentralPanel(QWidget * parent)
   m_advancedOptionLayout = new OptionLayout(m_gbAdvancedOptions);
 
   m_mainLayout = new QGridLayout(this);
-  m_topLayout = new QGridLayout();
-  m_buttonsLayout = new QGridLayout();
 
   m_mainLayout->setContentsMargins(0, 11, 0, 0);
 
@@ -66,20 +63,16 @@ CentralPanel::CentralPanel(QWidget * parent)
   m_btForget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   m_btApply->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-  // add the components to the layout
+  // add the components to the splitter
   m_splitter->addWidget(m_scrollBasicOptions);
   m_splitter->addWidget(m_scrollAdvancedOptions);
 
-  m_topLayout->addWidget(new QWidget(this), 0, 0);
-  m_topLayout->addWidget(m_btSeeChanges, 0, 1);
+  m_mainLayout->addWidget(m_btSeeChanges, 0, 2);
+  m_mainLayout->addWidget(m_splitter, 1, 0, 1, 0);
+  m_mainLayout->addWidget(m_btForget, 2, 0);
+  m_mainLayout->addWidget(m_btApply, 2, 2, -1, -1, Qt::AlignRight);
 
-  m_buttonsLayout->addWidget(m_btForget, 0, 0);
-  m_buttonsLayout->addWidget(new QWidget(), 0, 1);
-  m_buttonsLayout->addWidget(m_btApply, 0, 2);
-
-  m_mainLayout->addLayout(m_topLayout, 0, 0);
-  m_mainLayout->addWidget(m_splitter, 1, 0);
-  m_mainLayout->addLayout(m_buttonsLayout, 2, 0);
+  m_mainLayout->setRowStretch(1, 10);
 
   advancedModeChanged(tree->isAdvancedMode());
 
@@ -112,8 +105,6 @@ CentralPanel::~CentralPanel()
   delete m_btSeeChanges;
 
   // layouts
-  delete m_buttonsLayout;
-  delete m_topLayout;
   delete m_basicOptionLayout;
   delete m_advancedOptionLayout;
 
@@ -214,7 +205,6 @@ QString CentralPanel::currentPath() const
 
  ****************************************************************************/
 
-
 void CentralPanel::setButtonsVisible(bool visible)
 {
   m_btApply->setVisible(visible);
@@ -293,7 +283,8 @@ void CentralPanel::advancedModeChanged(bool advanced)
   // least one option for the selected object, even if all options are advanced.
   // Doing so, we ensure that the advanced options panel is *never* the
   // top one (if visible).
-  m_scrollBasicOptions->setVisible(m_basicOptionLayout->hasOptions() || m_scrollAdvancedOptions->isVisible());
+  m_scrollBasicOptions->setVisible(m_basicOptionLayout->hasOptions() ||
+                                   m_scrollAdvancedOptions->isVisible());
 
   setButtonsVisible(m_scrollBasicOptions->isVisible());
 }

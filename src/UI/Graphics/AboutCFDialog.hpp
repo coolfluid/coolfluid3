@@ -32,6 +32,7 @@ namespace Graphics {
   /// This dialog displays some information about COOLFluiD, such as the kernel
   /// version, the operating system type,...
   /// @todo should display the license, CF logo, icons credits...
+  /// @author Quentin Gasper
   class Graphics_API AboutCFDialog : public QDialog
   {
 
