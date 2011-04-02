@@ -28,7 +28,7 @@ int main(int argc, char * argv[])
 #ifdef Q_WS_X11
   if( getenv("DISPLAY") == 0 ) // if no graphical environment is found, we exit
   {
-    std::cout << "No graphical enironment found, exiting..." << std::endl;
+    std::cout << "No graphical environment found, exiting..." << std::endl;
     return 0;
   }
 #endif
