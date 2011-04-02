@@ -41,8 +41,6 @@ void LibParaView::initiate_impl()
 
 void LibParaView::terminate_impl()
 {
-  TabBuilder::instance()->removeTab(m_tabIndex);
-
   delete m_appCore;
 }
 
