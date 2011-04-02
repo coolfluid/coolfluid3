@@ -51,8 +51,8 @@ CReader::CReader( const std::string& name )
 
   // options
 
-  m_properties.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_init()?mpi::PE::instance().rank():0);
-  m_properties.add_option<OptionT <Uint> >("nb_partitions","Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_init()?mpi::PE::instance().size():1);
+  m_properties.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_active()?mpi::PE::instance().rank():0);
+  m_properties.add_option<OptionT <Uint> >("nb_partitions","Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_active()?mpi::PE::instance().size():1);
   m_properties.add_option<OptionT <bool> >("read_fields","Read Fields","Read the data from the mesh",true)->mark_basic();
 
   // properties

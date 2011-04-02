@@ -58,7 +58,7 @@ CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
       properties().add_option< Common::OptionT<std::string> >("ConfigFile", "Solver config file", std::string());
   config_path->mark_basic();
   
-  if(!mpi::PE::instance().is_init())
+  if(!mpi::PE::instance().is_active())
     mpi::PE::instance().init();
 }
 

@@ -117,7 +117,7 @@ class Common_API LogStream
 						m_flushed = false;
 					}
 				}
-        else if (mpi::PE::instance().is_init())
+        else if (mpi::PE::instance().is_active())
 				{
           for( Uint i = 0 ; i < mpi::PE::instance().size(); ++i )
 					{

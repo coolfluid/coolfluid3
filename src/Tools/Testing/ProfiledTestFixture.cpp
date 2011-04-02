@@ -66,7 +66,7 @@ void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& un
 {
   std::stringstream job_suffix;
 
-  if(mpi::PE::instance().is_init())
+  if(mpi::PE::instance().is_active())
   {
     job_suffix << "-" << mpi::PE::instance().rank();
   }

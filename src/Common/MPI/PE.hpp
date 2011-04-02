@@ -62,25 +62,25 @@ public:
   static PE& instance();
 
   /// Operator to boost.mpi environment, environment is noncopyable
-  operator Communicator() { cf_assert( is_valid() ); return m_comm; }
-
-  /// Initialise the PE
-  /// @post will have a valid state
-  void init(int argc=0, char** args=0);
+  operator Communicator() { cf_assert( is_active() ); return m_comm; }
 
   /// Returns the MPI version
   std::string version() const;
 
-  /// Checks if the PE is initialized
-  bool is_init() const;
-
-  /// Checks if the PE is in valid state
-  /// should be initialized and Communicator pointer is set
-  bool is_valid() const { return is_init() && is_not_null(m_comm); }
-
+  /// Initialise the PE
+  /// @post will have a valid state
+  void init(int argc=0, char** args=0);
   /// Free the PE, careful because some mpi-s fail upon re-init after a proper finalize
   /// @post will have not a valid state
   void finalize();
+
+  /// Checks if the PE is initialized ( this is not the opposite of is_finalized )
+  bool is_initialized() const;
+  /// Checks if the PE is finalized ( this is not the opposite of is_init )
+  bool is_finalized() const;
+  /// Checks if the PE is in valid state
+  /// should be initialized and Communicator pointer is set
+  bool is_active() const { return is_initialized() && !is_finalized() && is_not_null(m_comm); }
   
   /// overload the barrier function
   void barrier();

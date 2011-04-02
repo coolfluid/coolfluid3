@@ -67,7 +67,7 @@ BOOST_FIXTURE_TEST_SUITE( PECollectiveSuite, PECollectiveFixture )
 BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 {
   mpi::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , true );
+  BOOST_CHECK_EQUAL( mpi::PE::instance().is_active() , true );
   CFinfo.setFilterRankZero(false);
   PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
 }
@@ -89,7 +89,7 @@ BOOST_FIXTURE_TEST_CASE( finalize, PECollectiveFixture )
   PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " says good bye." << CFendl;);
   CFinfo.setFilterRankZero(true);
   mpi::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , false );
+  BOOST_CHECK_EQUAL( mpi::PE::instance().is_active() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

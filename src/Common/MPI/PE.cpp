@@ -51,9 +51,18 @@ PE& PE::instance()
 
 bool PE::is_init() const
 {
-  int is_init = 0;
-  MPI_CHECK_RESULT(MPI_Initialized,(&is_init));
-  return bool(is_init);
+  int is_initialized = 0;
+  MPI_CHECK_RESULT(MPI_Initialized,(&is_initialized));
+  return bool(is_initialized);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool PE::is_finalized() const
+{
+  int is_finalized = 0;
+  MPI_CHECK_RESULT(MPI_Finalized,(&is_finalized));
+  return bool(is_finalized);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,9 +77,12 @@ std::string PE::version() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PE::init(int argc, char** args) 
+void PE::initialized(int argc, char** args)
 {
-  if( !is_init() ) // already initialized?
+  if ( is_finalized() )
+    throw SetupError( FromHere(), "Should not call PE::initialize() after PE::finalize()" );
+
+  if( !is_initialized() && !is_finalized() ) // then initialize
   {
     MPI_CHECK_RESULT(MPI_Init,(&argc,&args));
     //  CFinfo << "MPI (version " <<  version() << ") -- initiated" << CFendl;
@@ -83,7 +95,7 @@ void PE::init(int argc, char** args)
 
 void PE::finalize()
 {
-  if( is_init() ) // is initialized?
+  if( is_initialized() && !is_finalized() ) // then finalized
   {
     MPI_CHECK_RESULT(MPI_Finalize,());
     //  CFinfo << "MPI (version " <<  version() << ") -- finalized" << CFendl;
@@ -105,14 +117,14 @@ void PE::finalize()
 
 void PE::barrier()
 {
-  if ( is_valid() ) MPI_CHECK_RESULT(MPI_Barrier,(m_comm));
+  if ( is_active() ) MPI_CHECK_RESULT(MPI_Barrier,(m_comm));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Uint PE::rank() const
 {
-  if ( !is_valid() ) return 0;
+  if ( !is_active() ) return 0;
   int irank;
   MPI_CHECK_RESULT(MPI_Comm_rank,(m_comm,&irank));
   return static_cast<Uint>(irank);
@@ -122,7 +134,7 @@ Uint PE::rank() const
 
 Uint PE::size() const
 {
-  if ( !is_valid() ) return 1;
+  if ( !is_active() ) return 1;
   int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(m_comm,&nproc));
   return static_cast<Uint>(nproc);

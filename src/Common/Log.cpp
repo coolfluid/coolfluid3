@@ -113,7 +113,7 @@ LogStream & Logger::getStream(Logger::StreamType type)
 
 void Logger::openFiles()
 {
-  if(mpi::PE::instance().is_init())
+  if(mpi::PE::instance().is_active())
   {
     std::ostringstream logFile;
     std::ostringstream traceFile;
