@@ -49,7 +49,7 @@ PE& PE::instance()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool PE::is_init() const
+bool PE::is_initialized() const
 {
   int is_initialized = 0;
   MPI_CHECK_RESULT(MPI_Initialized,(&is_initialized));
@@ -77,7 +77,7 @@ std::string PE::version() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PE::initialized(int argc, char** args)
+void PE::init(int argc, char** args)
 {
   if ( is_finalized() )
     throw SetupError( FromHere(), "Should not call PE::initialize() after PE::finalize()" );
