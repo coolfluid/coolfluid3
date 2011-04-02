@@ -7,8 +7,11 @@
 #ifndef CF_Solver_SchemeLDAGPU_hpp
 #define CF_Solver_SchemeLDAGPU_hpp
 
+#include <iostream>
+
 #include <boost/assign.hpp>
 #include <boost/timer.hpp>
+
 #include <Eigen/Dense>
 
 #include "Common/Core.hpp"
