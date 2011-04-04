@@ -343,12 +343,10 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
     // compute the phi_i LDA intergral
 
-//#ifdef LDASCHEME
     LUwq = InvKi_n * LU * wj[q];
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
       Phi_n.row(n) +=  Ki_n[n] * LUwq;
-//#endif
 
     // compute the phi_i LDA intergral
 
@@ -379,25 +377,6 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
       (*wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * wj[q];
 
-#ifdef LFSCHEME
-    Real alpha = 0;
-    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-      alpha = std::max( alpha, DvPlus[n].array().abs().maxCoeff() );
-
-    const Real invdofs = 1./SHAPEFUNC::nb_nodes;
-
-    for(Uint i = 0; i < SHAPEFUNC::nb_nodes; ++i)
-    {
-      Phi_n.row(i) += invdofs * LU * wj[q];          // central part
-      for(Uint j=0; j < SHAPEFUNC::nb_nodes; ++j)    // plus dissipation
-      {
-        if (i == j) continue;
-        Phi_n.row(i) += invdofs * alpha * (U_n.row(i).transpose() - U_n.row(j).transpose()) * wj[q]; // dissipation
-      }
-
-      (*wave_speed)[nodes_idx[i]][0] += alpha * wj[q];
-    }
-#endif
 
   } // loop qd points
 
