@@ -60,6 +60,7 @@ if( CMAKE_COMPILER_IS_GNUCC )
 
       coolfluid_add_cxx_flags("-Wno-empty-body")    # Problem in boost
       coolfluid_add_cxx_flags("-Wno-uninitialized") # Problem with boost accumulators
+  endif()
 
 endif()
 
@@ -94,8 +95,6 @@ if(UNIX)
         set( LINK_FLAGS        "${LINK_FLAGS} -fprofile-arcs -ftest-coverage" )
       endif()
     endif()
-
-  endif()
 
 endif(UNIX)
 
