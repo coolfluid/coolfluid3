@@ -128,6 +128,8 @@ private: // data
   SolutionMT U_n;
   /// Values of the operator L(u) computed in quadrature points.
   PhysicsVT LU;
+  /// temporary hold of Values of the operator L(u) computed in quadrature points.
+  PhysicsVT LUwq;
   /// The operator L in the advection equation Lu = f
   /// Matrix Ki_qn stores the value L(N_i) at each quadrature point for each shape function N_i
   PhysicsMT Ki_n [SHAPEFUNC::nb_nodes];
@@ -135,15 +137,25 @@ private: // data
   PhysicsMT sumLplus;
   /// inverse Ki+ matix
   PhysicsMT InvKi_n;
+  /// flux jacobians
+  PhysicsMT dFdU[DIM_2D];
+  /// right eigen vector matrix
+  PhysicsMT Rv;
+  /// left eigen vector matrix
+  PhysicsMT Lv;
+  /// diagonal matrix with eigen values
+  PhysicsVT Dv;
   /// diagonal matrix with positive eigen values
-  PhysicsMT DvPlus [SHAPEFUNC::nb_nodes];
+  PhysicsVT DvPlus [SHAPEFUNC::nb_nodes];
+
+  /// gradient of shape function
+  RealVector2 dN;
 
   /// jacobian of transformation at each quadrature point
   WeightVT jacob;
   /// Integration factor (jacobian multiplied by quadrature weight)
   WeightVT wj;
-
-
+  /// element area
   Real elem_area;
 
   // -----------------------------------------------------
@@ -175,17 +187,6 @@ private: // data
   /// derivatives of shape functions on YY at all quadrature points in physical space
   SFMatrixT dNdy;
 
-  /// flux jacobians
-  PhysicsMT dFdU[DIM_2D];
-  /// right eigen vector matrix
-  PhysicsMT Rv;
-  /// left eigen vector matrix
-  PhysicsMT Lv;
-  /// diagonal matrix with eigen values
-  PhysicsMT Dv;
-  /// gradient of shape function
-  RealVector2 dN;
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -208,6 +209,9 @@ SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeCSysLDA ( const std::string& 
 
   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
     DvPlus[n].setZero();
+
+  dFdU[XX].setZero();
+  dFdU[YY].setZero();
 
   // Gradient of the shape functions in reference space
   typename SHAPEFUNC::MappedGradientT GradSF;
@@ -232,9 +236,6 @@ SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeCSysLDA ( const std::string& 
 template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
 void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 {
-
-//  std::cout << "ELEM [" << idx() << "]" << std::endl;
-
   Phi_n.setZero();     // zero element residuals
   elem_area = 0.;      // zero element area
 
@@ -330,9 +331,8 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
     // compute L(N)+
 
-    sumLplus.setZero();
-
-    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+    sumLplus = Ki_n[0];
+    for(Uint n = 1; n < SHAPEFUNC::nb_nodes; ++n)
       sumLplus += Ki_n[n];
 
     // invert the sum L plus
@@ -341,20 +341,19 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
     // compute the phi_i LDA intergral
 
+    LUwq = InvKi_n * LU * wj[q];
+
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-      Phi_n.row(n) +=  Ki_n[n] * InvKi_n * LU * wj[q];
+      Phi_n.row(n) +=  Ki_n[n] * LUwq;
 
     // compute the wave_speed for scaling the update
 
-    for(Uint q=0; q < QUADRATURE::nb_points; ++q)
-      for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-      {
-        Real max_eigen_value = 0;
-        for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
-          max_eigen_value = std::max( max_eigen_value, DvPlus[n](v,v) );
+    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+    {
+      const Real max_eigen_value = DvPlus[n].maxCoeff();
 
-        (*wave_speed)[nodes_idx[n]][0] += max_eigen_value * wj[q];
-      }
+      (*wave_speed)[nodes_idx[n]][0] += max_eigen_value * wj[q];
+    }
 
   } // loop qd points
 
@@ -363,6 +362,14 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
       (*residual)[nodes_idx[n]][v] += Phi_n(n,v);
+
+//  std::cout << "LDA ELEM [" << idx() << "]" << std::endl;
+//  std::cout << "  Operator:" << std::endl;
+//  std::cout << "               Sum of weights = " << m_quadrature.weights.sum() << std::endl;
+//  std::cout << "               Jacobians in physical space:" << std::endl;
+//  std::cout << jacob << std::endl;
+//  std::cout << "LDA: Area = " << wj.sum() << std::endl;
+
 
   //    std::cout << "X    [" << q << "] = " << X_q.row(q)    << std::endl;
   //    std::cout << "U    [" << q << "] = " << U_q.row(q)     << std::endl;
@@ -391,7 +398,7 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   //      std::cout << Phi_n(n,v) << " ";
   //  std::cout << "]" << std::endl;
 
-  //  if( idx() > 2 ) exit(0);
+//    if( idx() > 9 ) exit(0);
 
 }
 

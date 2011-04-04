@@ -77,13 +77,21 @@ struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP3, 3 >
   typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::SF::Quad2DLagrangeP3::shape> type;
 };
 
+
+/// Partial specialization for P2 triangles
+template <>
+struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP2, 2 >
+{
+  typedef Mesh::Integrators::GaussMappedCoords< 2, Mesh::SF::Triag2DLagrangeP2::shape> type;
+};
+
 //------------------ FOR TESTING ----------------------------------
 #if 0
 /// Partial specialization for P1 triangles
 template <>
 struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP1, 1 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 3, Mesh::SF::Triag2DLagrangeP1::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP1::shape> type;
 };
 
 /// Partial specialization for P1 quadrilaterals
@@ -100,12 +108,6 @@ struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP2, 2 >
   typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Quad2DLagrangeP3::shape> type;
 };
 
-/// Partial specialization for P2 triangles
-template <>
-struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP2, 2 >
-{
-  typedef Mesh::Integrators::GaussMappedCoords< 5, Mesh::SF::Triag2DLagrangeP2::shape> type;
-};
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////////////

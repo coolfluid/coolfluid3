@@ -38,14 +38,14 @@ public: // functions
   /// @returns the number of equations
   Uint nbeqs() const { return nb_eqs; }
 
-  template < typename CV, typename SV, typename GV, typename EM, typename KM >
+  template < typename CV, typename SV, typename GV, typename EM, typename EV, typename KM >
   static void jacobian_eigen_structure(const CV& coord,
                                        const SV& sol,
                                        const GV& gradN,
                                        EM& Rv,
                                        EM& Lv,
-                                       EM& Dv,
-                                       EM& DvPlus,
+                                       EV& Dv,
+                                       EV& DvPlus,
                                        KM& KiPlus)
   {
     const Real gamma = 1.4;                 // diatomic ideal gas
@@ -79,15 +79,19 @@ public: // functions
 //    const Real P = rho*R*T;
 //    const Real E = H - P/rho;
 
-    const Real a    = sqrt(a2);
+    const Real a      = sqrt(a2);
+    const Real inv_a  = 1./a;
+    const Real inv_a2 = inv_a*inv_a;
 
     const Real um = u*nx + v*ny;
-    const Real ra = 0.5*rho/a;
+    const Real ra = 0.5*rho*inv_a;
 
-    const Real coeffM2 = 0.5*gamma_minus_1*(u*u + v*v)/a2;
-    const Real uDivA = gamma_minus_1*u/a;
-    const Real vDivA = gamma_minus_1*v/a;
+    const Real coeffM2 = 0.5*gamma_minus_1*(u*u + v*v)*inv_a2;
+    const Real uDivA = gamma_minus_1*u*inv_a;
+    const Real vDivA = gamma_minus_1*v*inv_a;
     const Real rho_a = rho*a;
+
+    const Real gm1_ov_rhoa = gamma_minus_1/rho_a;
 
     // matrix of right eigen vectors R
 
@@ -111,43 +115,43 @@ public: // functions
     // matrix of left eigen vectors L = R.inverse();
 
     Lv(0,0) = 1.- coeffM2;
-    Lv(0,1) = uDivA/a;
-    Lv(0,2) = vDivA/a;
-    Lv(0,3) = -gamma_minus_1/a2;
+    Lv(0,1) = uDivA*inv_a;
+    Lv(0,2) = vDivA*inv_a;
+    Lv(0,3) = -gamma_minus_1*inv_a2;
     Lv(1,0) = inv_rho*(v*nx - u*ny);
     Lv(1,1) = inv_rho*ny;
     Lv(1,2) = -inv_rho*nx;
     Lv(1,3) = 0.0;
-    Lv(2,0) = a*inv_rho*(coeffM2 - um/a);
+    Lv(2,0) = a*inv_rho*(coeffM2 - um*inv_a);
     Lv(2,1) = inv_rho*(nx - uDivA);
     Lv(2,2) = inv_rho*(ny - vDivA);
-    Lv(2,3) = gamma_minus_1/rho_a;
-    Lv(3,0) = a*inv_rho*(coeffM2 + um/a);
+    Lv(2,3) = gm1_ov_rhoa;
+    Lv(3,0) = a*inv_rho*(coeffM2 + um*inv_a);
     Lv(3,1) = -inv_rho*(nx + uDivA);
     Lv(3,2) = -inv_rho*(ny + vDivA);
-    Lv(3,3) = gamma_minus_1/rho_a;
+    Lv(3,3) = gm1_ov_rhoa;
 
     // diagonal matrix of eigen values
 
-    Dv(0,0) = um;
-    Dv(1,1) = um;
-    Dv(2,2) = um + a;
-    Dv(3,3) = um - a;
+    Dv[0] = um;
+    Dv[1] = um;
+    Dv[2] = um + a;
+    Dv[3] = um - a;
 
 //    std::cout << "Dv\n" << Dv << std::endl;
 
     // diagonal matrix of positive eigen values
 
-    DvPlus(0,0) = std::max( 0., um );
-    DvPlus(1,1) = std::max( 0., um );
-    DvPlus(2,2) = std::max( 0., um + a );
-    DvPlus(3,3) = std::max( 0., um - a );
+    DvPlus[0] = std::max( 0., um );
+    DvPlus[1] = std::max( 0., um );
+    DvPlus[2] = std::max( 0., um + a );
+    DvPlus[3] = std::max( 0., um - a );
 
 //    std::cout << "DvPlus\n" << DvPlus << std::endl;
 
     // compute Ki+
 
-    KiPlus = Rv * DvPlus * Lv;
+    KiPlus = Rv * DvPlus.asDiagonal() * Lv;
 
   }
 
@@ -172,7 +176,7 @@ public: // functions
 
     const Real uuvv = u*u + v*v;
 
-    const Real H = gamma*rhoE/rho - 0.5*gamma_minus_1*uuvv;
+    const Real H = gamma*rhoE*inv_rho - 0.5*gamma_minus_1*uuvv;
 
     const Real uu = u*u;
     const Real uv = u*v;
@@ -182,7 +186,7 @@ public: // functions
 
     JM& A = flux_jacob[XX];
 
-    A.setZero();
+  //    A.setZero(); // assume are zeroed
 
     A(0,1) = 1.;
     A(1,0) = sum_v2 - uu;
@@ -199,7 +203,7 @@ public: // functions
 
     JM& B = flux_jacob[YY];
 
-    B.setZero();
+    //    B.setZero(); // assume are zeroed
 
     B(0,2) = 1.;
     B(1,0) = -uv;
