@@ -1,6 +1,20 @@
 // OpenCL Kernel
 char* GPUSource =
 {
+"#pragma OPENCL EXTENSION cl_khr_global_int32_base_atomics : enable \n"
+"#pragma OPENCL EXTENSION cl_khr_global_int32_extended_atomics : enable \n"
+"    void AtomicAdd(__global float *val, const float delta )                                                \n"
+"    {                                                                                                      \n"
+"        union { float f; unsigned int i; } oldVal;                                                         \n"
+"        union { float f; unsigned int i; } newVal;                                                         \n"
+"                                                                                                           \n"
+"        do                                                                                                 \n"
+"        {                                                                                                  \n"
+"            oldVal.f = *val;                                                                               \n"
+"            newVal.f = oldVal.f + delta;                                                                   \n"
+"        }                                                                                                  \n"
+"        while (atom_cmpxchg((__global unsigned int *)val, oldVal.i, newVal.i) != oldVal.i);                \n"
+"    }                                                                                                      \n"
 "    __kernel void interpolation(__global float* PHI, __global float* waveSpeed,                            \n"
 "                                __global float* A, __global float* A_ksi, __global float* A_eta,           \n"
 "                                __global float* weights,                                                   \n"
@@ -81,7 +95,7 @@ char* GPUSource =
 
 "         for(unsigned int j = get_local_id(0);j< shape;j+= get_local_size(0) )                             \n"
 "          {                                                                                                \n"
-"              unsigned int elemC = tx *  shape + j;                                                        \n"
+"              unsigned int elemC = connectTable[ tx * shape + j ];//tx *  shape + j;                                                        \n"
 "              float value = 0;                                                                             \n"
 "              float jacobi = 0;                                                                            \n"
 "                                                                                                           \n"
@@ -97,7 +111,7 @@ char* GPUSource =
 "                  value += max( ( X_quad[elemA+1] * phiX  - X_quad[elemA] * phiY ), 0.0 )  / sumLphi[k] * LU[k] * weights[k];                                                   \n"
 "                //  value += max( ( phiX   ), 0.0 )  / sumLphi[k] * LU[k] * weights[k];                                                   \n"
 "              }                                                                                            \n"
-"              PHI[elemC] = value;                                                                          \n"
+"              AtomicAdd( &PHI[elemC], value);//PHI[elemC] = value;                                                                          \n"
 "           }                                                                                               \n"
 
 "         float xmin = X_shape[0 ];                                                                         \n"
@@ -113,11 +127,29 @@ char* GPUSource =
 "         }                                                                                                 \n"
 "         float dx =xmax-xmin;                                                                              \n"
 "         float dy =ymax-ymin;                                                                              \n"
-"         waveSpeed[tx] = sqrt( dx*dx +dy*dy );                                                             \n"
-
-
+"         //waveSpeed[tx] = sqrt( dx*dx +dy*dy );                                                             \n"
+"         for(unsigned int j = get_local_id(0);j< shape;j+= get_local_size(0) )                             \n"
+"          {                                                                                                \n"
+"              unsigned int elemC = connectTable[ tx * shape + j ];                                         \n"
+"              AtomicAdd( &waveSpeed[elemC], sqrt( dx*dx +dy*dy ) );                                        \n"
+"          } \n"
 "      }                                                                                                    \n"
 "    }                                                                                                      \n"
 };
 
+/*
+void AtomicAdd(__global float *phiVal, __global float *waveVal, const float dPhi, const float dWave )
+{
+    union { float phi; float wave; unsigned int i; } oldVal;
+    union { float phi; float wave; unsigned int i; } newVal;
 
+    do
+    {
+        oldVal.phi = *phiVal;
+        newVal.phi = oldVal.phi + dPhi;
+        oldVal.wave = *waveVal;
+        newVal.wave = oldVal.wave + dWave;
+    }
+    while (atom_cmpxchg((__global unsigned int *)val, oldVal.i, newVal.i) != oldVal.i);
+}
+*/

@@ -7,11 +7,8 @@
 #ifndef CF_Solver_SchemeLDAGPU_hpp
 #define CF_Solver_SchemeLDAGPU_hpp
 
-#include <iostream>
-
 #include <boost/assign.hpp>
 #include <boost/timer.hpp>
-
 #include <Eigen/Dense>
 
 #include "Common/Core.hpp"
@@ -236,7 +233,8 @@ boost::timer ctimer;
  // ************************************************************************************************
 
 
- float X_node[nodes*dim], U_node[nodes],phi[elements*shape], waveSpeed[elements];
+ //float X_node[nodes*dim], U_node[nodes],phi[elements*shape], waveSpeed[elements];
+ float X_node[nodes*dim], U_node[nodes],phi[nodes], waveSpeed[nodes];
  uint connectTable[elements*shape];
 
  for(uint idx = 0; idx < elements; idx++ )
@@ -246,10 +244,10 @@ boost::timer ctimer;
          uint pos = idx * shape + idy;
          connectTable[pos] = (*connectivity_table)[idx][idy];
          //std::cout<< connectTable[pos] << " ";
-         phi[pos]    = 0;
+         //phi[pos]    = 0;
      }
      //std::cout<<std::endl;
-     waveSpeed[idx]=0;
+     //waveSpeed[idx]=0;
  }
 
  for(uint idx = 0; idx < nodes; idx++ )
@@ -262,8 +260,10 @@ boost::timer ctimer;
      }
      //std::cout<<std::endl;
      U_node[idx] = (*solution)[idx][0];
-     (*residual)[idx][0] = 0;
-     (*wave_speed)[idx][0] = 0;
+     //(*residual)[idx][0] = 0;
+     //(*wave_speed)[idx][0] = 0;
+     waveSpeed[idx]=0;
+     phi[idx]    = 0;
 
  }
 
@@ -276,13 +276,17 @@ boost::timer ctimer;
 
  X_rGPGPU          = clCreateBuffer(env.context, CL_MEM_READ_ONLY , nodes * dim * sizeof(float) ,     X_node,    &env.errcode);
  U_rGPGPU          = clCreateBuffer(env.context, CL_MEM_READ_ONLY , nodes * sizeof(float)       ,     U_node,    &env.errcode);
- phi_rGPGPU        = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements * shape * sizeof(float), phi,       &env.errcode);
- waveSpeedGPGPU    = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements * sizeof(float),         waveSpeed, &env.errcode);
+ //phi_rGPGPU        = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements * shape * sizeof(float), phi,       &env.errcode);
+ //waveSpeedGPGPU    = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements * sizeof(float),         waveSpeed, &env.errcode);
+ phi_rGPGPU        = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, nodes * sizeof(float), phi,       &env.errcode);
+ waveSpeedGPGPU    = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, nodes * sizeof(float),         waveSpeed, &env.errcode);
  connectTableGPGPU = clCreateBuffer(env.context, CL_MEM_READ_ONLY,  elements * shape * sizeof(uint),  connectTable, &env.errcode);
  env.errcode |= clEnqueueWriteBuffer(env.command_queue, X_rGPGPU,          CL_FALSE, 0, nodes * dim * sizeof(float),      X_node,        0, NULL, NULL);
  env.errcode |= clEnqueueWriteBuffer(env.command_queue, U_rGPGPU,          CL_FALSE, 0, nodes * sizeof(float),            U_node,        0, NULL, NULL);
- env.errcode |= clEnqueueWriteBuffer(env.command_queue, phi_rGPGPU,        CL_FALSE, 0, elements * shape * sizeof(float), phi,           0, NULL, NULL);
- env.errcode |= clEnqueueWriteBuffer(env.command_queue, waveSpeedGPGPU,    CL_FALSE, 0, elements *  sizeof(float),        waveSpeed,     0, NULL, NULL);
+ //env.errcode |= clEnqueueWriteBuffer(env.command_queue, phi_rGPGPU,        CL_FALSE, 0, elements * shape * sizeof(float), phi,           0, NULL, NULL);
+ //env.errcode |= clEnqueueWriteBuffer(env.command_queue, waveSpeedGPGPU,    CL_FALSE, 0, elements *  sizeof(float),        waveSpeed,     0, NULL, NULL);
+ env.errcode |= clEnqueueWriteBuffer(env.command_queue, phi_rGPGPU,        CL_FALSE, 0, nodes * sizeof(float), phi,           0, NULL, NULL);
+ env.errcode |= clEnqueueWriteBuffer(env.command_queue, waveSpeedGPGPU,    CL_FALSE, 0, nodes *  sizeof(float),        waveSpeed,     0, NULL, NULL);
  env.errcode |= clEnqueueWriteBuffer(env.command_queue, connectTableGPGPU, CL_FALSE, 0, elements * shape*  sizeof(uint),  connectTable,  0, NULL, NULL);
  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
@@ -322,8 +326,6 @@ boost::timer ctimer;
 
  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
-
-
  size_t localWorkSize[2], globalWorkSize[2];
 
  localWorkSize[0] = 8;
@@ -338,8 +340,10 @@ boost::timer ctimer;
 
  // receive data from GPGPU memory
 
- env.errcode  = clEnqueueReadBuffer(env.command_queue,phi_rGPGPU,     CL_TRUE, 0, elements*shape * sizeof(float), phi, 0, NULL, NULL);
- env.errcode |= clEnqueueReadBuffer(env.command_queue,waveSpeedGPGPU, CL_TRUE, 0, elements * sizeof(float)      , waveSpeed, 0, NULL, NULL);
+ //env.errcode  = clEnqueueReadBuffer(env.command_queue,phi_rGPGPU,     CL_TRUE, 0, elements*shape * sizeof(float), phi, 0, NULL, NULL);
+ //env.errcode |= clEnqueueReadBuffer(env.command_queue,waveSpeedGPGPU, CL_TRUE, 0, elements * sizeof(float)      , waveSpeed, 0, NULL, NULL);
+ env.errcode  = clEnqueueReadBuffer(env.command_queue,phi_rGPGPU,     CL_TRUE, 0, nodes * sizeof(float), phi, 0, NULL, NULL);
+ env.errcode |= clEnqueueReadBuffer(env.command_queue,waveSpeedGPGPU, CL_TRUE, 0, nodes * sizeof(float), waveSpeed, 0, NULL, NULL);
 
  opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
@@ -356,12 +360,11 @@ boost::timer ctimer;
 
  clReleaseMemObject( X_rGPGPU );
  clReleaseMemObject( U_rGPGPU );
- clReleaseMemObject( U_rGPGPU );
  clReleaseMemObject( phi_rGPGPU );
  clReleaseMemObject( waveSpeedGPGPU );
  clReleaseMemObject( connectTableGPGPU );
-std::cout<<"exho"<<std::endl;
- for(uint idx = 0; idx < elements; idx++ )
+/*std::cout<<"exho"<<std::endl;*/
+/* for(uint idx = 0; idx < elements; idx++ )
  {
      for(uint idy = 0; idy < shape; idy++)
      {
@@ -371,7 +374,13 @@ std::cout<<"exho"<<std::endl;
          (*residual)[adress][0] += phi[pos];
          (*wave_speed)[adress][0] += waveSpeed[idx];
      }
- }
+ }*/
+
+ for(uint idx = 0; idx < nodes; idx++ )
+  {
+      (*residual)[idx][0]   = phi[idx];
+      (*wave_speed)[idx][0] = waveSpeed[idx];
+  }
 
 
 std::cout<<ctimer.elapsed()<<std::endl;
