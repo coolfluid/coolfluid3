@@ -159,7 +159,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadvsys2d_local_fixtur
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<URI> regions;
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
     regions.push_back( region.full_path() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);

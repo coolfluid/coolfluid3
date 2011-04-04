@@ -128,6 +128,10 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
   std::vector<URI> files;
 
   URI file( "file:square1x1-tg-p1.msh" );
+//  URI file( "file:square1x1-tg-p2.msh" );
+//  URI file( "file:square1x1-qd-p1.msh" );
+//  URI file( "file:square1x1-qd-p2.msh" );
+//  URI file( "file:square1x1-tgqd-p1.msh" );
 
   options.set_option<URI>("File", file );
 
@@ -154,8 +158,8 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , euler2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 0.5);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);;
+  solver.get_child("time_stepping").configure_property("CFL", 0.1);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 1500u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -168,7 +172,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<URI> regions;
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
     regions.push_back( region.full_path() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
