@@ -133,11 +133,14 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 
   std::vector<URI> files;
 
-  URI file( "file:square1x1-tg-p1.msh" );
+  URI file( "file:square1x1-tg-p1.msh" );        // works
 //  URI file( "file:square1x1-tg-p2.msh" );
-//  URI file( "file:square1x1-qd-p1.msh" );
+//  URI file( "file:square1x1-qd-p1.msh" );        // works
 //  URI file( "file:square1x1-qd-p2.msh" );
-//  URI file( "file:square1x1-tgqd-p1.msh" );
+//  URI file( "file:square1x1-tgqd-p1.msh" );      // works
+//  URI file( "file:square1x1-tg-p1-7614.msh" );   // works
+//  URI file( "file:square1x1-tgqd-p1-298n.msh" ); // works
+
 
   options.set_option<URI>("File", file );
   options.set_option<std::string>("Name", std::string("Mesh") );
@@ -165,8 +168,8 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , euler2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 0.85);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 250u);;
+  solver.get_child("time_stepping").configure_property("CFL", 0.4);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 750u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////

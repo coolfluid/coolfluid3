@@ -1,0 +1,69 @@
+# load the rdm library
+call //Root/Libraries/load_library \
+     Lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm
+
+# create a scalar advection model
+call //Root/Tools/RDM/SetupScalarSimulation/create_model \
+     ModelName:string=model \
+     PhysicalModel:string=Euler2D
+
+# load the mesh
+call //Root/model/Domain/load_mesh \
+     File:uri=file:@CF_RESOURCE_DIR@/file:square1x1-qd-p1.msh \
+     Name:string=mesh
+
+# configure solver
+cd //Root/model/Solver
+
+configure ./ Domain:uri=cpath:../Domain
+
+configure time_stepping CFL:real=0.85
+configure time_stepping MaxIter:unsigned=200
+
+# create boundary term
+#
+#call create_boundary_term Name:string=INLET \
+#     Type:string=CF.RDM.BcDirichlet \
+#     Regions:array[uri]=\
+#//Root/model/Domain/mesh/topology/main/inlet,\
+#//Root/model/Domain/mesh/topology/main/left,\
+#//Root/model/Domain/mesh/topology/main/right
+#
+#configure compute_boundary_terms/INLET Functions:array[string]=if(x>0.5,0.5,1.),\
+
+# initialize solution
+call initialize_solution Functions:array[string]=0.5,0.0,1.67332,3.425\\
+
+# create domain term
+
+call create_domain_term Name:string=INTERNAL \
+     Type:string=CF.RDM.CSysLDA \
+     Regions:array[uri]=//Root/model/Domain/mesh/topology
+
+
+# solve
+
+call solve
+cd ..
+
+# write solution
+
+create gmsh_writer CF.Mesh.Gmsh.CWriter
+
+cd gmsh_writer
+configure ./ Fields:array[uri]=//Root/model/Domain/mesh/solution
+configure ./ File:string=solution.msh
+configure ./ Mesh:uri=//Root/model/Domain/mesh
+
+call write_mesh
+
+cd ..
+
+create tec_writer CF.Mesh.Tecplot.CWriter
+
+cd writer
+configure ./ Fields:array[uri]=//Root/model/Domain/mesh/solution
+configure ./ File:string=solution.plt
+configure ./ Mesh:uri=//Root/model/Domain/mesh
+
+call write_mesh

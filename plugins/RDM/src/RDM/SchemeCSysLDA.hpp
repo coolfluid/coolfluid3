@@ -264,17 +264,7 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
       (*wave_speed)[nodes_idx[n]][0] += max_eigen_value * m_wj[q];
     }
 
-//		elem_wave_speed += max_eigen_value * m_wj[q]; // integrated over the element ( includes x elem_area)
-
-//    std::cout << "DvPlus[" << q << "]\n" << DvPlus[q] << std::endl;
-
 	} // loop qd points
-
-	// The wave speed coeff is updated by a product of bb radius and max eigen value
-//	for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-//	{
-//    (*wave_speed)[nodes_idx[n]][0] += elem_wave_speed / elem_area;
-//	}
 
 //  std::cout << "phi [";
 //  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)

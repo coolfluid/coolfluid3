@@ -94,3 +94,4 @@ list( APPEND atest-rdm-burgers2d_reference ${CMAKE_CURRENT_SOURCE_DIR}/reference
 
 coolfluid_add_acceptance_test( atest-rdm-burgers2d burgers2d.cfscript )
 
+coolfluid_add_acceptance_test( atest-rdm-euler2d euler2d.cfscript )
