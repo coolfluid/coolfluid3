@@ -21,7 +21,6 @@ list( APPEND resources_files
   square1x1-qd-p1-256n.msh
   square1x1-qd-p1-1369.msh
   square1x1-qd-p2-289n.msh
-  square1x1-qd-p2-1681.msh
   square1x1-tgqd-p1-298n.msh
   # for Euler2D test case
   trapezium1x1-tg-p1-508.msh

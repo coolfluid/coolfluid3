@@ -114,17 +114,16 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , burgers2d_local_fixture )
 
   BOOST_CHECK(true);
 
-//  URI file ( "file:square1x1-tg-p1-303n.msh" );
-//  URI file ( "file:square1x1-tg-p1-7614.msh" );   // works
-//  URI file ( "file:square1x1-tg-p2-333n.msh" );
-  URI file ( "file:square1x1-tg-p2-2kn.msh"  );
+//  URI file ( "file:square1x1-tg-p1-303n.msh" );  // works
+//  URI file ( "file:square1x1-tg-p1-7614.msh" );  // works
+  URI file ( "file:square1x1-tg-p2-333n.msh" );    // works
+//  URI file ( "file:square1x1-tg-p2-2kn.msh"  );  // works
 
-//  URI file ( "file:square1x1-qd-p1-1369.msh" );
-//  URI file ( "file:square1x1-qd-p1-256n.msh" );
-//  URI file ( "file:square1x1-qd-p2-1681.msh" );
-//  URI file ( "file:square1x1-qd-p2-289n.msh" );
+//  URI file ( "file:square1x1-qd-p1-256n.msh" );  // works
+//  URI file ( "file:square1x1-qd-p1-1369.msh" );  // works
+//  URI file ( "file:square1x1-qd-p2-289n.msh" );  // works
 
-//  URI file ( "file:square1x1-tgqd-p1-298n.msh" );
+//  URI file ( "file:square1x1-tgqd-p1-298n.msh" ); // works
 
   options.set_option<URI>("File", file );
   options.set_option<std::string>("Name", std::string("Mesh") );
@@ -153,8 +152,8 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , burgers2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 1.);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 500u);;
+  solver.get_child("time_stepping").configure_property("CFL", 0.5);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 250u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////

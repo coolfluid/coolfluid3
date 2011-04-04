@@ -34,7 +34,7 @@ if( EXISTS ${coolfluid_SOURCE_DIR}/.svn )
     if(Subversion_SVNVERSION_EXECUTABLE)
         EXECUTE_PROCESS(COMMAND ${Subversion_SVNVERSION_EXECUTABLE} -n ${coolfluid_SOURCE_DIR}
             WORKING_DIRECTORY ${coolfluid_SOURCE_DIR}
-            OUTPUT_VARIABLE coolfluid_svnversion
+            OUTPUT_VARIABLE coolfluid_svn_revision
             OUTPUT_STRIP_TRAILING_WHITESPACE)
     endif()
 
@@ -64,7 +64,7 @@ if( COMMAND FindGit )
           # This means it is a git repository
           execute_process(COMMAND ${GIT_EXECUTABLE} svn find-rev HEAD^
               WORKING_DIRECTORY ${coolfluid_SOURCE_DIR}
-              OUTPUT_VARIABLE coolfluid_svnversion
+              OUTPUT_VARIABLE coolfluid_svn_revision
               OUTPUT_STRIP_TRAILING_WHITESPACE)
         endif()
 
@@ -77,7 +77,7 @@ endif() # FindGit
 #########################################################################################
 # finally set version
 
-if( NOT coolfluid_svnversion )
-  set(coolfluid_svnversion "CF-REVISION-NOTFOUND")
+if( NOT coolfluid_svn_revision )
+  set(coolfluid_svn_revision "CF-REVISION-NOTFOUND")
 endif()
 
