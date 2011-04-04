@@ -138,7 +138,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Parent Component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  Component::Ptr parent_component = access_component_ptr( path );
+  Component& parent_component = access_component( path );
 
   // std::vector<URI> files = property("Files").value<std::vector<URI> >();
   std::vector<URI> files = options.get_array<URI>("Files");
@@ -154,7 +154,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = parent_component->create_component<CMesh>(options.get_option<std::string>("Name"));
+    CMesh::Ptr mesh = parent_component.create_component<CMesh>(options.get_option<std::string>("Name"));
 
     // Get the file paths
     boost_foreach(URI file, files)
@@ -165,7 +165,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
       if ( m_extensions_to_readers.count(extension) == 0 )
       {
         throw ValueNotFound (FromHere(), "No meshreader exists for files with extension " + extension);
-        parent_component->remove_component(mesh->name());
+        parent_component.remove_component(mesh->name());
       }
       else
       {
@@ -177,7 +177,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
           boost_foreach(const CMeshReader::Ptr reader , m_extensions_to_readers[extension])
             msg += " - " + reader->name() + "\n";
           throw BadValue( FromHere(), msg);
-          parent_component->remove_component(mesh->name());
+          parent_component.remove_component(mesh->name());
         }
         else
         {
