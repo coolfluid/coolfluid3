@@ -12,14 +12,14 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-config.hpp.in ${coolfluid_B
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-packages.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-packages.hpp)
 
 # create the header with the svn version
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-svnversion.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-svnversion.hpp)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-svn-revision.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-svn-revision.hpp)
 
 # coolfluid profiling configs
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-profiling.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-profiling.hpp)
 
 # install global configuration headers
 install ( FILES ${coolfluid_BINARY_DIR}/coolfluid-config.hpp
-                ${coolfluid_BINARY_DIR}/coolfluid-svnversion.hpp
+                ${coolfluid_BINARY_DIR}/coolfluid-svn-revision.hpp
                 ${coolfluid_BINARY_DIR}/coolfluid-packages.hpp
                 ${coolfluid_BINARY_DIR}/coolfluid-profiling.hpp
           DESTINATION

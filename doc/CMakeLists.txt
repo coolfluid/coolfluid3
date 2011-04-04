@@ -2,7 +2,7 @@ if( CF_ENABLE_DOCS )
 
 find_package(Doxygen)
 
-if( DOXYGEN_FOUND )
+ if( DOXYGEN_FOUND )
 
   set( DOXYFILE doxygen.config CACHE INTERNAL "Doxygen filename" )
 
@@ -24,8 +24,8 @@ if( DOXYGEN_FOUND )
 
   add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${DOXY_CONFIG})
   
-  message(STATUS "Doxygen configuration ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}.in --> ${DOXY_CONFIG}")
+  # message(STATUS "Doxygen configuration ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}.in --> ${DOXY_CONFIG}")
 
-endif(DOXYGEN_FOUND)
+ endif()
 
-endif(CF_ENABLE_DOCS)
+endif()

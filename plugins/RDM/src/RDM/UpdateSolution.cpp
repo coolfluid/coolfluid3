@@ -79,7 +79,7 @@ void UpdateSolution::execute()
     for ( Uint j=0; j< nbvars; ++j )
       solution[i][j] += - update * residual[i][j];
   }
- }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

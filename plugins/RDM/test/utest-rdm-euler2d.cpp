@@ -132,32 +132,25 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 
   std::vector<URI> files;
 
-//  URI file( "file:square1x1-tg-p1.msh" );        // works
-//  URI file( "file:square1x1-tg-p1-303n.msh" );   // works
-//  URI file( "file:square1x1-tg-p1-7614.msh" );   // works
-//  URI file( "file:trapezium1x1-tg-p1-508.msh");
+//  URI file( "file:square1x1-tg-p1-303n.msh" );     // works
+//  URI file( "file:square1x1-tg-p1-7614.msh" );     // works
+  URI file( "file:trapezium1x1-tg-p1-508.msh");
 
-//  URI file( "file:square1x1-tg-p2.msh" );
 //  URI file( "file:square1x1-tg-p2-333n.msh");
-//  URI file( "file:square1x1-tg-p2-2kn.msh");     // works
-//  URI file( "file:square1x1-tg-p2-30kn.msh");
-  URI file( "file:trapezium1x1-tg-p2-1949.msh" );     // works
+//  URI file( "file:square1x1-tg-p2-2kn.msh");       // works
+//  URI file( "file:trapezium1x1-tg-p2-1949.msh" );  // works
 
-//  URI file( "file:square1x1-qd-p1.msh" );        // works
 //  URI file( "file:square1x1-qd-p1-6561n.msh" );
-//  URI file( "file:square1x1-qd-p1-1369.msh" );   // works
+//  URI file( "file:square1x1-qd-p1-1369.msh" );     // works
 //  URI file( "file:square1x1-qd-p1-256n.msh" );
 
-//  URI file( "file:square1x1-qd-p2.msh" );
 //  URI file( "file:square1x1-qd-p2-289n.msh" );     // works
 //  URI file( "file:square1x1-qd-p2-5329.msh" );     // works but oscillations grow
-//  URI file( "file:square1x1-qd-p2-26kn.msh" );
 //  URI file( "file:trapezium1x1-qd-p2-1681.msh" );
 
-//    URI file( "file:trapezium1x1-tg-p3-4306.msh");
+//  URI file( "file:trapezium1x1-tg-p3-4306.msh");
 
-//  URI file( "file:square1x1-tgqd-p1.msh" );      // works
-//  URI file( "file:square1x1-tgqd-p1-298n.msh" ); // works
+//  URI file( "file:square1x1-tgqd-p1-298n.msh" );   // works
 
 
   options.set_option<URI>("File", file );

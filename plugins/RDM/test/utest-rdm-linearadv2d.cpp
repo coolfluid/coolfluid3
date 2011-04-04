@@ -123,7 +123,6 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
 
   std::vector<URI> files;
 
-
   URI file( "file:rectangle2x1-tg-p1-953.msh");
 //  URI file( "file:rectangle2x1-tg-p2-3689.msh");
 
@@ -157,7 +156,7 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadv2d_local_fixture
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_property("CFL", 0.5);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 100u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////

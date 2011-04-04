@@ -78,6 +78,6 @@ endif() # FindGit
 # finally set version
 
 if( NOT coolfluid_svnversion )
-  set(coolfluid_svnversion "CF-VERSION-NOTFOUND")
+  set(coolfluid_svnversion "CF-REVISION-NOTFOUND")
 endif()
 

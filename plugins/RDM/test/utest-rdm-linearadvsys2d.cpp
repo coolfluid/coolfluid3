@@ -49,6 +49,10 @@ struct linearadvsys2d_global_fixture
 {
   linearadvsys2d_global_fixture()
   {
+	  Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
+                              boost::unit_test::framework::master_test_suite().argv);
+
+
     linearadvsys2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     SignalFrame frame("", "", "");
@@ -58,6 +62,13 @@ struct linearadvsys2d_global_fixture
     options.set_option<std::string>("PhysicalModel","LinearAdvSys2D");
 
     linearadvsys2d_wizard->signal_create_model(frame);
+  }
+
+  ~linearadvsys2d_global_fixture()
+  {
+    linearadvsys2d_wizard.reset();
+
+    Core::instance().terminate();
   }
 
   ScalarAdvection::Ptr linearadvsys2d_wizard;
@@ -120,6 +131,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadvsys2d_local_fixture )
 //  URI file( "file:rectangle2x1-qd-p2-3321.msh");
 
   options.set_option<URI>("File", file );
+  options.set_option<std::string>("Name", std::string("Mesh") );
 
   domain.signal_load_mesh( frame );
 
@@ -144,8 +156,8 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadvsys2d_local_fixt
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 1.);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 1500u);;
+  solver.get_child("time_stepping").configure_property("CFL", 0.5);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 500u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -177,8 +189,9 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadvsys2d_local_fixtur
   cf_assert( is_not_null(inletbc) );
 
   std::vector<std::string> fns;
-  fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
-  fns.push_back("if(x>=-1.4,if(x<=-0.6,1.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
+  fns.push_back("2.0*cos(2*3.141592*(x+y))");
+  fns.push_back("3.0*cos(2*3.141592*(x+y))");
+
   inletbc->configure_property("Functions", fns);
 
   BOOST_CHECK(true);
@@ -274,7 +287,6 @@ BOOST_FIXTURE_TEST_CASE( test_output , linearadvsys2d_local_fixture )
   mesh_writer->configure_property("Mesh",mesh->full_path());
 
   mesh_writer->write();
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
