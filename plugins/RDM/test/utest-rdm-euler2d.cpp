@@ -63,6 +63,7 @@ struct euler2d_global_fixture
     loader.load_library("coolfluid_mesh_neutral");
     loader.load_library("coolfluid_mesh_gmsh");
     loader.load_library("coolfluid_mesh_tecplot");
+    loader.load_library("coolfluid_mesh_vtklegacy");
 
     euler2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
@@ -131,7 +132,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 
   std::vector<URI> files;
 
-  URI file( "file:square1x1-tg-p1.msh" );        // works
+  URI file( "file:square1x1-tg-p1.msh" );          // works
 //  URI file( "file:square1x1-tg-p2.msh" );
 //  URI file( "file:square1x1-qd-p1.msh" );        // works
 //  URI file( "file:square1x1-qd-p2.msh" );
