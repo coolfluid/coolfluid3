@@ -18,7 +18,7 @@ namespace RDM {
 
 class RDM_API SUPG : public RDM::DomainTerm {
 
-  template < typename PHYS> struct ElementLoop;
+  template < typename PHYS > struct ElementLoop;
 
 public: // typedefs
 

@@ -62,9 +62,11 @@ void UpdateSolution::execute()
   const Uint nbdofs = solution.size();
   const Uint nbvars = solution.row_size();
   for ( Uint i=0; i< nbdofs; ++i )
+  {
+    const Real update = CFL / wave_speed[i][0] ;
     for ( Uint j=0; j< nbvars; ++j )
-      solution[i][j] += - (  CFL / wave_speed[i][j] ) * residual[i][j];
-
+      solution[i][j] += - update * residual[i][j];
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Mesh/Types.hpp"
 
 #include "RDM/Burgers2D.hpp"
 
@@ -14,32 +15,11 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Burgers2D::Burgers2D()
-{
-}
+Burgers2D::Burgers2D() {}
+
+Burgers2D::~Burgers2D() {}
 
 /////////////////////////////////////////////////////////////////////////////////////
-
-Burgers2D::~Burgers2D()
-{
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-Real Burgers2D::flux(const RealVector2 & coord, const Real & u, const RealVector2 & gradu)
-{
-   return u*gradu[XX] + gradu[YY];
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-Real Burgers2D::Lu(const RealVector2 & coord, const Real & u, const RealVector2 & gradN)
-{  
-   return u*gradN[XX] + gradN[YY];
-}
-
 
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////

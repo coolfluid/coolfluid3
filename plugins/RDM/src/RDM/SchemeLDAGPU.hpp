@@ -48,6 +48,9 @@ public: // typedefs
 
   CLEnv env;
 
+  /// type of the helper object to compute the physical operator Lu
+  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
+
 public: // functions
 
   /// Contructor
@@ -97,37 +100,27 @@ private: // helper functions
 
 private: // data
 
+  /// pointer to connectivity table, may reset when iterating over element types
   Mesh::CTable<Uint>::Ptr connectivity_table;
-
+  /// pointer to nodes coordinates, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr coordinates;
-
+  /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr solution;
+  /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr residual;
+  /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr wave_speed;
 
-  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
+  const QUADRATURE& m_quadrature;
 
-  
-  DiscreteOpType m_oper;
+  /// Values of the solution located in the dof of the element
+  typename DiscreteOpType::SolutionMatrixT m_solution_nd;
+  /// Values of the operator L(u) computed in quadrature points.
+  typename DiscreteOpType::ResidualMatrixT m_Lu_qd;
+  /// Nodal residuals
+  typename DiscreteOpType::SolutionMatrixT m_phi;
 
-const QUADRATURE& m_quadrature;
-
-  // Values of the solution located in the dof of the element
-  // RealVector m_solution_values;
-  typename DiscreteOpType::SolutionMatrixT m_solution_values;
-
-  // The operator L in the advection equation Lu = f
-  // Matrix m_sf_oper_values stores the value L(N_i) at each quadrature point for each shape function N_i
-  typename DiscreteOpType::SFMatrixT m_sf_oper_values;
-
-  // Values of the operator L(u) computed in quadrature points. These operator L returns these values
-  // multiplied by Jacobian and quadrature weight
-  RealVector m_flux_oper_values;
-
-  // Nodal residuals
-  RealVector m_phi;
-
-  //Integration factor (jacobian multiplied by quadrature weight)
+  /// Integration factor (jacobian multiplied by quadrature weight)
   Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> m_wj;
 
 };
@@ -143,7 +136,6 @@ SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeLDAGPU ( const std::string& na
 
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
 
-  m_flux_oper_values.resize(QUADRATURE::nb_points);
   m_phi.resize(SHAPEFUNC::nb_nodes);
 
   clGetPlatformIDs(1, &env.cpPlatform, NULL);
@@ -357,7 +349,11 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
    //std::cout<<ctimer.elapsed()<<std::endl;
 
+<<<<<<< HEAD
 
+=======
+	std::cout << ctimer.elapsed() << std::endl;
+>>>>>>> [ENH] RD with systems
 
 }
 

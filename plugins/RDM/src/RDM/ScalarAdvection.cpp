@@ -18,9 +18,11 @@
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CSolver.hpp"
 
-#include "RDM/LinearAdv2D.hpp"
-#include "RDM/Burgers2D.hpp"
-#include "RDM/RotationAdv2D.hpp"
+#include "RDM/LinearAdv2D.hpp"       // supported physics
+#include "RDM/RotationAdv2D.hpp"     // supported physics
+#include "RDM/Burgers2D.hpp"         // supported physics
+#include "RDM/LinearAdvSys2D.hpp"    // supported physics
+#include "RDM/Euler2D.hpp"           // supported physics
 
 #include "RDM/ScalarAdvection.hpp"
 
@@ -74,7 +76,19 @@ void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
   std::string phys  = options.get_option<std::string>("PhysicalModel");
 
   pm->configure_property( "Type", phys );
-  pm->configure_property( "DOFs", 1u );
+
+  Uint neqs = 0;
+  if( phys == "LinearAdv2D")    neqs = LinearAdv2D::nb_eqs;
+  if( phys == "Burgers2D")      neqs = Burgers2D::nb_eqs;
+  if( phys == "RotationAdv2D")  neqs = RotationAdv2D::nb_eqs;
+  if( phys == "LinearAdvSys2D") neqs = LinearAdvSys2D::nb_eqs;
+  if( phys == "Euler2D")        neqs = Euler2D::nb_eqs;
+
+  if (neqs == 0)
+    throw SetupError( FromHere(), "Unsupported physics type : " + phys );
+
+  pm->configure_property( "DOFs", neqs );
+
   pm->configure_property( "Dimensions", 2u );
 
   model->create_domain( "Domain" );

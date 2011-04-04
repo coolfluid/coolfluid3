@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Mesh/Types.hpp"
 
 #include "RDM/RotationAdv2D.hpp"
 
@@ -14,32 +15,11 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-RotationAdv2D::RotationAdv2D()
-{
-}
+RotationAdv2D::RotationAdv2D() {}
+
+RotationAdv2D::~RotationAdv2D() {}
 
 /////////////////////////////////////////////////////////////////////////////////////
-
-RotationAdv2D::~RotationAdv2D()
-{
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-Real RotationAdv2D::flux(const RealVector2& coord, const Real & u, const RealVector2& gradu)
-{
-   return coord[YY]*gradu[XX] - coord[XX]*gradu[YY];
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-Real RotationAdv2D::Lu(const RealVector2& coord, const Real & u, const RealVector2& gradN)
-{
-   return coord[YY]*gradN[XX] - coord[XX]*gradN[YY];
-}
-
 
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////

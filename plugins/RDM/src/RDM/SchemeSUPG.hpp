@@ -43,6 +43,9 @@ public: // typedefs
   typedef boost::shared_ptr< SchemeSUPG > Ptr;
   typedef boost::shared_ptr< SchemeSUPG const> ConstPtr;
 
+  /// type of the helper object to compute the physical operator Lu
+  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
+
 public: // functions
 
   /// Contructor
@@ -87,47 +90,44 @@ private: // helper functions
 
 private: // data
 
+  /// pointer to connectivity table, may reset when iterating over element types
   Mesh::CTable<Uint>::Ptr connectivity_table;
-
+  /// pointer to nodes coordinates, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr coordinates;
-
+  /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr solution;
+  /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr residual;
+  /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr wave_speed;
 
-
-  //Remark: numerical quadrature and shape function values have to be
-  //redefined in this class even though they were already computed in FluxOp2D
-  //Reason: FluxOp2D holds the values of all sf. at all quadrature points privately,
-  //and we need them here to define the values of SUPG test functions
-
-  const QUADRATURE& m_quadrature;
-
-  //Values of all shape functions at all quadrature points
-  Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_N;
-
-
-  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
-
+  /// helper object to compute the physical operator Lu
   DiscreteOpType m_oper;
 
-  // Values of the solution located in the dof of the element
-  // RealVector m_solution_values;
-  typename DiscreteOpType::SolutionMatrixT m_solution_values;
+  /// Values of the solution located in the dof of the element
+  typename DiscreteOpType::SolutionMatrixT m_solution_nd;
+  /// Values of the operator L(u) computed in quadrature points.
+  typename DiscreteOpType::ResidualMatrixT m_Lu_qd;
+  /// Nodal residuals
+  typename DiscreteOpType::SolutionMatrixT m_phi;
+  /// The operator L in the advection equation Lu = f
+  /// Matrix m_sf_qd stores the value L(N_i) at each quadrature point for each shape function N_i
+  typename DiscreteOpType::SFMatrixT m_sf_qd;
+  /// node values
+  typename SHAPEFUNC::NodeMatrixT m_nodes;
 
-  // The operator L in the advection equation Lu = f
-  // Matrix m_sf_oper_values stores the value L(N_i) at each quadrature point for each shape function N_i
-  typename DiscreteOpType::SFMatrixT m_sf_oper_values;
-
-  // Values of the operator L(u) computed in quadrature points. These operator L returns these values
-  // multiplied by Jacobian and quadrature weight
-  RealVector m_flux_oper_values;
-
-  // Nodal residuals
-  RealVector m_phi;
-
-  //Integration factor (jacobian multiplied by quadrature weight)
+  /// Integration factor (jacobian multiplied by quadrature weight)
   Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> m_wj;
+
+  /// Remark: numerical quadrature and shape function values have to be
+  /// redefined in this class even though they were already computed in FluxOp2D
+  /// Reason: FluxOp2D holds the values of all sf. at all quadrature points privately,
+  /// and we need them here to define the values of SUPG test functions
+
+  /// Values of all shape functions at all quadrature points
+  typename DiscreteOpType::SFMatrixT m_N;
+
+  const QUADRATURE& m_quadrature;
 
 };
 
@@ -141,10 +141,6 @@ SchemeSUPG<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeSUPG ( const std::string& name )
   regist_typeinfo(this);
 
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeSUPG<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
-
-  m_flux_oper_values.resize(QUADRATURE::nb_points);
-  m_phi.resize(SHAPEFUNC::nb_nodes);
-
 
   //Compute values of shape functions at quadrature points:
 
@@ -170,17 +166,15 @@ void SchemeSUPG<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  const Mesh::CTable<Uint>::ConstRow nodes_idx = connectivity_table->array()[idx()];
 
- typename SHAPEFUNC::NodeMatrixT nodes;
-
- Mesh::fill(nodes, *coordinates, nodes_idx );
+ Mesh::fill(m_nodes, *coordinates, nodes_idx );
 
  for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-   m_solution_values[n] = (*solution)[nodes_idx[n]][0];
+   m_solution_nd[n] = (*solution)[nodes_idx[n]][0];
 
 
  m_phi.setZero();
 
- m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values,m_wj);
+ m_oper.compute(m_nodes,m_solution_nd, m_sf_qd, m_Lu_qd,m_wj);
 
 
  // computing average advection speed on element
@@ -191,26 +185,26 @@ void SchemeSUPG<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
  for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
  {
-   centroid[XX] += nodes(n, XX);
-   centroid[YY] += nodes(n, YY);
+   centroid[XX] += m_nodes(n, XX);
+   centroid[YY] += m_nodes(n, YY);
  }
  centroid /= SHAPEFUNC::nb_nodes;
 
 
  // compute a bounding box of the element:
 
- Real xmin = nodes(0, XX);
- Real xmax = nodes(0, XX);
- Real ymin = nodes(0, YY);
- Real ymax = nodes(0, YY);
+ Real xmin = m_nodes(0, XX);
+ Real xmax = m_nodes(0, XX);
+ Real ymin = m_nodes(0, YY);
+ Real ymax = m_nodes(0, YY);
 
  for(Uint inode = 1; inode < SHAPEFUNC::nb_nodes; ++inode)
  {
-   xmin = std::min(xmin,nodes(inode, XX));
-   xmax = std::max(xmax,nodes(inode, XX));
+   xmin = std::min(xmin,m_nodes(inode, XX));
+   xmax = std::max(xmax,m_nodes(inode, XX));
 
-   ymin = std::min(ymin,nodes(inode, YY));
-   ymax = std::max(ymax,nodes(inode, YY));
+   ymin = std::min(ymin,m_nodes(inode, YY));
+   ymax = std::max(ymax,m_nodes(inode, YY));
 
  }
 
@@ -237,7 +231,7 @@ void SchemeSUPG<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
  {
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
-     m_phi[n] += ( m_N(q,n) + tau_stab * m_sf_oper_values(q,n) ) * m_flux_oper_values[q] * m_wj[q];
+     m_phi[n] += ( m_N(q,n) + tau_stab * m_sf_qd(q,n) ) * m_Lu_qd[q] * m_wj[q];
    }
  }
 

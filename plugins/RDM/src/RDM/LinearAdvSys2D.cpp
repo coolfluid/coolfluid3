@@ -4,9 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Mesh/Types.hpp"
-
-#include "RDM/LinearAdv2D.hpp"
+#include "RDM/LinearAdvSys2D.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -15,14 +13,9 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-LinearAdv2D::LinearAdv2D()
-{
-}
+LinearAdvSys2D::LinearAdvSys2D() {}
 
-LinearAdv2D::~LinearAdv2D()
-{
-}
-
+LinearAdvSys2D::~LinearAdvSys2D() {}
 
 /////////////////////////////////////////////////////////////////////////////////////
 

@@ -19,6 +19,7 @@
 
 #include "RDM/LDA.hpp"
 #include "RDM/SupportedTypes.hpp"    // supported elements
+
 #include "RDM/LinearAdv2D.hpp"       // supported physics
 #include "RDM/RotationAdv2D.hpp"     // supported physics
 #include "RDM/Burgers2D.hpp"         // supported physics
@@ -53,12 +54,10 @@ struct LDA::ElementLoop
   template < typename SF >
   void operator() ( SF& T )
   {
-//    std::cout << "LDA [" << SF::type_name() << "]" << std::endl;
-
     /// definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
     /// parametrization of the numerical scheme
-    typedef SchemeLDA< SF, QD, PHYS > SchemeT;
+     typedef SchemeLDA< SF, QD, PHYS > SchemeT;
 
     boost_foreach(Mesh::CElements& elements,
                   Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
@@ -109,7 +108,6 @@ void LDA::execute()
 
     if ( physics == "LinearAdv2D" )
     {
-
       LDA::ElementLoop<LinearAdv2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
@@ -125,6 +123,7 @@ void LDA::execute()
       LDA::ElementLoop<Burgers2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
+
   }
 }
 

@@ -16,6 +16,7 @@
 #include "Solver/CPhysicalModel.hpp"
 
 #include "RDM/SUPG.hpp"
+
 #include "RDM/SupportedTypes.hpp"    // supported elements
 #include "RDM/LinearAdv2D.hpp"       // supported physics
 #include "RDM/RotationAdv2D.hpp"     // supported physics
@@ -51,8 +52,6 @@ struct SUPG::ElementLoop
   template < typename SF >
   void operator() ( SF& T )
   {
-//    std::cout << "SUPG [" << SF::type_name() << "]" << std::endl;
-
     /// definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
     /// parametrization of the numerical scheme

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_FluxOp2D_hpp
-#define CF_Solver_FluxOp2D_hpp
+#ifndef CF_Solver_SysFluxOp2D_hpp
+#define CF_Solver_SysFluxOp2D_hpp
 
 #include <iostream>
 
@@ -21,7 +21,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-class RDM_API FluxOp2D
+class RDM_API SysFluxOp2D
 {
 public: // typedefs
 
@@ -35,23 +35,20 @@ public: // typedefs
 
 
 public: // functions
-  
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
   /// Contructor
   /// @param name of the component
-  FluxOp2D ( );
+  SysFluxOp2D ( );
 
   /// Virtual destructor
-  virtual ~FluxOp2D() {};
+  virtual ~SysFluxOp2D() {};
 
   /// Get the class name
-  static std::string type_name () { return "FluxOp2D<" + SHAPEFUNC::type_name() + "," + QUADRATURE::type_name() +  ">"; }
+  static std::string type_name () { return "SysFluxOp2D<" + SHAPEFUNC::type_name() + "," + QUADRATURE::type_name() +  ">"; }
 
   /// Compute the operator values at all quadrature nodes
   void compute(const typename SHAPEFUNC::NodeMatrixT& nodes,
                const SolutionMatrixT& solution,
-               SFMatrixT& sf_qd,
+               SolutionMatrixT   sf_qd[],
                ResidualMatrixT&  Lu_qd,
                Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> & wj);
     
@@ -90,7 +87,7 @@ protected: // data
 
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::FluxOp2D() : m_quadrature( QUADRATURE::instance() )
+SysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::SysFluxOp2D() : m_quadrature( QUADRATURE::instance() )
 {
    ///Set up the matrices to be used for interpolation
    for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
@@ -110,9 +107,9 @@ FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::FluxOp2D() : m_quadrature( QUADRATURE::i
 
 
 template < typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::NodeMatrixT& nodes,
+void SysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::NodeMatrixT& nodes,
                                                      const SolutionMatrixT& solution,
-                                                     SFMatrixT& sf_qd,
+                                                     SolutionMatrixT   sf_qd[],
                                                      ResidualMatrixT&  Lu_qd,
                                                      Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> & wj)
 {
@@ -146,7 +143,7 @@ void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::N
    m_gradu_y = m_dNdy * solution;
 
   RealVector2      dN;
-  SFVectorT        LUq;
+  SolutionVectorT  Lqn;
   SolutionVectorT  Fq;
 
   for(Uint q=0; q < QUADRATURE::nb_points; ++q)
@@ -156,17 +153,13 @@ void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::N
       dN[XX] = m_dNdx(q,n);
       dN[YY] = m_dNdy(q,n);
 
-//      LUq = sf_qd.row(q); // not needed
-
       PHYSICS::Lu(m_qdpos.row(q),
                   m_u_qd.row(q),
                   dN,
-                  LUq );
+                  Lqn );
 
-      sf_qd.row(q) = LUq;
+      sf_qd[q].row(n) = Lqn;
     }
-
-//    Fq = Lu_qd.row(q); // not needed
 
     PHYSICS::flux(m_qdpos.row(q),
                   m_u_qd.row(q),
@@ -196,4 +189,4 @@ void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::N
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_FluxOp2D_hpp
+#endif // CF_Solver_SysFluxOp2D_hpp

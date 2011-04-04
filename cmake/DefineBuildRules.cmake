@@ -2,41 +2,28 @@ set( CF_LIBRARY_LINK_FLAGS "" CACHE STRING "Extra link flags for libraries" FORC
 mark_as_advanced( CF_LIBRARY_LINK_FLAGS )
 
 ########################################################################################
-# UNIX
+# GCC Compiler
 ########################################################################################
 
-if( CMAKE_CXX_COMPILER_ID MATCHES "Intel" AND CF_CXX_COMPILER_VERSION MATCHES "12")
-
-  # suppress warning (remark) #279: controlling expression is constant
-  # because of boost use of BOOST_ASSERT( expr && "message")
-  coolfluid_add_cxx_flags("-wd279")
-
-  # suppress warning #2196: routine is both "inline" and "noinline" ("noinline" assumed)
-  # because of Eigen declarations such as "static EIGEN_DONT_INLINE void run()"
-  coolfluid_add_cxx_flags("-wd2196")
-endif()
-
-if(UNIX)
-  
-  # gnu specific warning flags
-  if( CMAKE_COMPILER_IS_GNUCC )
+# gnu specific warning flags
+if( CMAKE_COMPILER_IS_GNUCC )
 
     # use pipe for faster compilation
     coolfluid_add_c_flags("-pipe")
     coolfluid_add_cxx_flags("-pipe")
-    
+
     # respect c 89 standard (same as -std=c89)
     coolfluid_add_c_flags("-ansi")
     # respect c++ 98 standard
     coolfluid_add_cxx_flags("-std=c++98")
     # dont allow gnu extensions
     coolfluid_add_cxx_flags("-fno-gnu-keywords")
-    
+
     # dont define common variables
     coolfluid_add_c_flags("-fno-common")
     coolfluid_add_cxx_flags("-fno-common")
 
-    
+
     if( CF_ENABLE_WARNINGS )
       # use many warnings
       coolfluid_add_cxx_flags("-Wall")
@@ -74,8 +61,29 @@ if(UNIX)
       coolfluid_add_cxx_flags("-Wno-empty-body")    # Problem in boost
       coolfluid_add_cxx_flags("-Wno-uninitialized") # Problem with boost accumulators
 
-    endif()
+endif()
 
+########################################################################################
+# INTEL ICC
+########################################################################################
+
+if( CMAKE_CXX_COMPILER_ID MATCHES "Intel" AND CF_CXX_COMPILER_VERSION MATCHES "12")
+
+  # suppress warning (remark) #279: controlling expression is constant
+  # because of boost use of BOOST_ASSERT( expr && "message")
+  coolfluid_add_cxx_flags("-wd279")
+
+  # suppress warning #2196: routine is both "inline" and "noinline" ("noinline" assumed)
+  # because of Eigen declarations such as "static EIGEN_DONT_INLINE void run()"
+  coolfluid_add_cxx_flags("-wd2196")
+endif()
+
+########################################################################################
+# UNIX
+########################################################################################
+
+if(UNIX)
+  
     if( CF_ENABLE_CODECOVERAGE )
 
       find_program(CTEST_COVERAGE_COMMAND gcov)
@@ -151,6 +159,9 @@ if( APPLE )
   if( NOT CF_ENABLE_INTERNAL_DEPS )
     set( CF_ENABLE_INTERNAL_DEPS ON CACHE BOOL "Use of internal deps is forced" FORCE )
   endif()
+
+    if( CF_ENABLE_WARNINGS )
+    endif()
 
 endif(APPLE)
 

@@ -7,8 +7,6 @@
 #ifndef CF_Solver_LinearAdv2D_hpp
 #define CF_Solver_LinearAdv2D_hpp
 
-//#include <Eigen/Dense>
-#include "Mesh/LibMesh.hpp"
 #include "RDM/LibRDM.hpp"
 #include "Math/MatrixTypes.hpp"
 
@@ -39,10 +37,26 @@ public: // functions
   Uint nbeqs() const { return nb_eqs; }
 
   /// Function to compute the flux for linear advection
-  static Real flux(const RealVector2 & coord, const Real & u, const RealVector2 & gradu);
+  template < typename CV, typename SV, typename GXV, typename GYV, typename FV >
+  static void flux(const CV& coord,
+                   const SV& u,
+                   const GXV& dudx,
+                   const GYV& dudy,
+                   FV& flux )
+  {
+    flux[0] =  1.0 * dudx[0] + 1.0 * dudy[0];
+  }
 
-  /// Function to compute the operator L(u) for linear advection
-  static Real Lu(const RealVector2 & coord, const Real & u, const RealVector2 & gradN);
+  /// Function to compute the operator L(u)
+  template < typename CV, typename SV, typename GV, typename LUV >
+  static void Lu(const CV& coord,
+                 const SV& u,
+                 const GV& gradN,
+                 LUV& Lu )
+  {
+    Lu[0] =  1.0 * gradN[XX] + 1.0 * gradN[YY];
+  }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////////

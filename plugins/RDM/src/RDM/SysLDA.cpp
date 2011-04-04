@@ -15,14 +15,16 @@
 
 #include "Solver/CPhysicalModel.hpp"
 
-#include "RDM/Blended.hpp"
+#include "RDM/SysLDA.hpp"
 
 #include "RDM/SupportedTypes.hpp"    // supported elements
+
 #include "RDM/LinearAdv2D.hpp"       // supported physics
 #include "RDM/RotationAdv2D.hpp"     // supported physics
 #include "RDM/Burgers2D.hpp"         // supported physics
+#include "RDM/LinearAdvSys2D.hpp"    // supported physics
 
-#include "RDM/SchemeB.hpp"
+#include "RDM/SchemeSysLDA.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -33,31 +35,29 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Blended, RDM::DomainTerm, LibRDM > Blended_Builder;
+Common::ComponentBuilder < SysLDA, RDM::DomainTerm, LibRDM > SysLDA_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Looper defines a functor taking the type that boost::mpl::for_each passes.
 /// It is the core of the looping mechanism.
 template < typename PHYS>
-struct Blended::ElementLoop
+struct SysLDA::ElementLoop
 {
   /// region to loop on
   Mesh::CRegion& region;
   /// component containing the element loop
-  Blended& comp;
+  SysLDA& comp;
   /// Constructor
-  ElementLoop( Blended& comp_in, Mesh::CRegion& region_in ) : comp(comp_in), region(region_in) {}
+  ElementLoop( SysLDA& comp_in, Mesh::CRegion& region_in ) : comp(comp_in), region(region_in) {}
   /// operator needed for the loop over element types (SF)
   template < typename SF >
   void operator() ( SF& T )
   {
-//    std::cout << "Blended [" << SF::type_name() << "]" << std::endl;
-
     /// definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
     /// parametrization of the numerical scheme
-    typedef SchemeB< SF, QD, PHYS > SchemeT;
+     typedef SchemeSysLDA< SF, QD, PHYS > SchemeT;
 
     boost_foreach(Mesh::CElements& elements,
                   Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
@@ -86,14 +86,14 @@ struct Blended::ElementLoop
 
 //////////////////////////////////////////////////////////////////////////////
 
-Blended::Blended ( const std::string& name ) : RDM::DomainTerm(name)
+SysLDA::SysLDA ( const std::string& name ) : RDM::DomainTerm(name)
 {
   regist_typeinfo(this);
 }
 
-Blended::~Blended() {}
+SysLDA::~SysLDA() {}
 
-void Blended::execute()
+void SysLDA::execute()
 {
   /// @todo physical model should be a configuration option of the solver
   CPhysicalModel::Ptr pm = find_component_ptr_recursively<CPhysicalModel>( *Core::instance().root() );
@@ -106,19 +106,25 @@ void Blended::execute()
 
     if ( physics == "LinearAdv2D" )
     {
-      Blended::ElementLoop<LinearAdv2D> loop( *this, *region );
+      SysLDA::ElementLoop<LinearAdv2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 
     if ( physics == "RotationAdv2D" )
     {
-      Blended::ElementLoop<RotationAdv2D> loop( *this, *region );
+      SysLDA::ElementLoop<RotationAdv2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 
     if ( physics == "Burgers2D" )
     {
-      Blended::ElementLoop<Burgers2D> loop( *this, *region );
+      SysLDA::ElementLoop<Burgers2D> loop( *this, *region );
+      boost::mpl::for_each< RDM::CellTypes >( loop );
+    }
+
+    if ( physics == "LinearAdvSys2D" )
+    {
+      SysLDA::ElementLoop<LinearAdvSys2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
   }

@@ -53,8 +53,6 @@ struct LDAGPU::ElementLoop
   template < typename SF >
   void operator() ( SF& T )
   {
-//    std::cout << "LDAGPU [" << SF::type_name() << "]" << std::endl;
-
     /// definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
     /// parametrization of the numerical scheme

@@ -7,10 +7,9 @@
 #ifndef CF_Solver_Burgers2D_hpp
 #define CF_Solver_Burgers2D_hpp
 
-//#include <Eigen/Dense>
-#include "Mesh/LibMesh.hpp"
-#include "RDM/LibRDM.hpp"
 #include "Math/MatrixTypes.hpp"
+
+#include "RDM/LibRDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -19,8 +18,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API Burgers2D
-{
+class RDM_API Burgers2D {
 
 public: // functions
   /// Constructor
@@ -38,11 +36,28 @@ public: // functions
   /// @returns the number of equations
   Uint nbeqs() const { return nb_eqs; }
 
-  /// Function to compute the burgers flux
-  static Real flux(const RealVector2 & coord, const Real & u, const RealVector2 & gradu);
+  /// Function to compute the flux for linear advection
+  template < typename CV, typename SV, typename GXV, typename GYV, typename FV >
+  static void flux(const CV& coord,
+                   const SV& u,
+                   const GXV& dudx,
+                   const GYV& dudy,
+                   FV& flux )
+  {
 
-  /// Function to compute the operator L(N) for Burgers
-  static Real Lu(const RealVector2 & coord, const Real & u, const RealVector2 & gradN);
+    flux[0] = u[0]*dudx[0] + dudy[0];
+  }
+
+  /// Function to compute the operator L(u)
+  template < typename CV, typename SV, typename GV, typename LUV >
+  static void Lu(const CV& coord,
+                 const SV& u,
+                 const GV& gradN,
+                 LUV& Lu )
+  {
+    Lu[0] = u[0]*gradN[XX] + gradN[YY];
+  }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////////

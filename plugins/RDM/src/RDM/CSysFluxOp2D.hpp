@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_FluxOp2D_hpp
-#define CF_Solver_FluxOp2D_hpp
+#ifndef CF_Solver_CSysFluxOp2D_hpp
+#define CF_Solver_CSysFluxOp2D_hpp
 
 #include <iostream>
 
@@ -21,39 +21,42 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-class RDM_API FluxOp2D
+class RDM_API CSysFluxOp2D
 {
 public: // typedefs
 
   /// output matrix types
-  typedef Eigen::Matrix<Real, QUADRATURE::nb_points, PHYSICS::nb_eqs>     ResidualMatrixT;
-  typedef Eigen::Matrix<Real, SHAPEFUNC::nb_nodes,   PHYSICS::nb_eqs>     SolutionMatrixT;
+  typedef Eigen::Matrix<Real, QUADRATURE::nb_points, PHYSICS::nb_eqs>     ResidualMT;
+  typedef Eigen::Matrix<Real, SHAPEFUNC::nb_nodes,   PHYSICS::nb_eqs>     SolutionMT;
+  typedef Eigen::Matrix<Real, PHYSICS::nb_eqs, PHYSICS::nb_eqs>           PhysicsMT;
+  typedef Eigen::Matrix<Real, PHYSICS::nb_eqs, 1u>                        PhysicsVT;
   typedef Eigen::Matrix<Real, QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> SFMatrixT;
 
-  typedef Eigen::Matrix<Real, 1u, PHYSICS::nb_eqs >                       SolutionVectorT;
+  typedef Eigen::Matrix<Real, 1u, PHYSICS::nb_eqs >                       SolutionVT;
   typedef Eigen::Matrix<Real, 1u, SHAPEFUNC::nb_nodes >                   SFVectorT;
+
+  typedef Eigen::Matrix<Real, PHYSICS::nb_eqs, PHYSICS::nb_eqs >          EigenValueMT;
+
+  typedef typename SHAPEFUNC::NodeMatrixT                                 NodeMT;
 
 
 public: // functions
-  
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
   /// Contructor
   /// @param name of the component
-  FluxOp2D ( );
+  CSysFluxOp2D ( );
 
   /// Virtual destructor
-  virtual ~FluxOp2D() {};
+  virtual ~CSysFluxOp2D() {};
 
   /// Get the class name
-  static std::string type_name () { return "FluxOp2D<" + SHAPEFUNC::type_name() + "," + QUADRATURE::type_name() +  ">"; }
+  static std::string type_name () { return "CSysFluxOp2D<" + SHAPEFUNC::type_name() + "," + QUADRATURE::type_name() +  ">"; }
 
   /// Compute the operator values at all quadrature nodes
-  void compute(const typename SHAPEFUNC::NodeMatrixT& nodes,
-               const SolutionMatrixT& solution,
-               SFMatrixT& sf_qd,
-               ResidualMatrixT&  Lu_qd,
-               Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> & wj);
+  void compute(const NodeMT& nodes,
+               const SolutionMT& solution,
+               PhysicsMT    Kiq[],
+               PhysicsVT    LU[],
+               Eigen::Matrix<Real, QUADRATURE::nb_points, 1u>& wj);
     
 protected: // data
 
@@ -74,8 +77,8 @@ protected: // data
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_qdpos; //coordinates of quadrature points in physical space
   Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs > m_u_qd; //solution at quadrature points in physical space
 
-  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs> m_gradu_x; //derivatives of solution x
-  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs> m_gradu_y; //derivatives of solution y
+  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs> dUdx; //derivatives of solution x
+  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs> dUdy; //derivatives of solution y
 
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dx; // stores dx/dksi and dx/deta at each quadrature point
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dy; // stores dy/dksi and dy/deta at each quadrature point
@@ -86,11 +89,22 @@ protected: // data
                                                                         //at all quadrature points in phys. space
   Eigen::Matrix<Real,QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> m_dNdy;
 
+  /// flux jacobians
+  PhysicsMT dFdU[DIM_2D];
+  /// right eigen vector matrix
+  PhysicsMT Rv;
+  /// left eigen vector matrix
+  PhysicsMT Lv;
+  /// diagonal matrix with eigen values
+  PhysicsMT Dv;
+  /// diagonal matrix with positive eigen values
+  PhysicsMT DvPlus;
+
 };
 
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::FluxOp2D() : m_quadrature( QUADRATURE::instance() )
+CSysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::CSysFluxOp2D() : m_quadrature( QUADRATURE::instance() )
 {
    ///Set up the matrices to be used for interpolation
    for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
@@ -105,16 +119,19 @@ FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::FluxOp2D() : m_quadrature( QUADRATURE::i
         m_dNdeta(q,n) = m_sf_grad_ref(ETA,n);
      }
    }
+
+   Dv.setZero();
+   DvPlus.setZero();
 }
 
 
 
 template < typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::NodeMatrixT& nodes,
-                                                     const SolutionMatrixT& solution,
-                                                     SFMatrixT& sf_qd,
-                                                     ResidualMatrixT&  Lu_qd,
-                                                     Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> & wj)
+void CSysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const NodeMT& nodes,
+                                                         const SolutionMT& solution,
+                                                         PhysicsMT   Kiq[],
+                                                         PhysicsVT   LU[],
+                                                         Eigen::Matrix<Real, QUADRATURE::nb_points, 1u>& wj)
 {
    //Coordinates of quadrature points in physical space
    m_qdpos  = m_N * nodes;
@@ -142,12 +159,10 @@ void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::N
        m_dNdy(q,n) = 1.0/m_j[q] * ( -m_dNdksi(q,n)*m_dx(q,YY) + m_dNdeta(q,n) * m_dx(q,XX));
      }
 
-   m_gradu_x = m_dNdx * solution;
-   m_gradu_y = m_dNdy * solution;
+   dUdx = m_dNdx * solution;
+   dUdy = m_dNdy * solution;
 
   RealVector2      dN;
-  SFVectorT        LUq;
-  SolutionVectorT  Fq;
 
   for(Uint q=0; q < QUADRATURE::nb_points; ++q)
   {
@@ -156,36 +171,35 @@ void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::N
       dN[XX] = m_dNdx(q,n);
       dN[YY] = m_dNdy(q,n);
 
-//      LUq = sf_qd.row(q); // not needed
-
-      PHYSICS::Lu(m_qdpos.row(q),
-                  m_u_qd.row(q),
-                  dN,
-                  LUq );
-
-      sf_qd.row(q) = LUq;
+      PHYSICS::jacobian_eigen_structure(m_qdpos.row(q),
+                                        m_u_qd.row(q),
+                                        dN,
+                                        Rv,
+                                        Lv,
+                                        Dv,
+                                        DvPlus,
+                                        Kiq[ q * QUADRATURE::nb_points + n ] );
     }
 
-//    Fq = Lu_qd.row(q); // not needed
+    PHYSICS::Lu(m_qdpos.row(q),
+                m_u_qd.row(q),
+                dUdx.row(q).transpose(),
+                dUdy.row(q).transpose(),
+                dFdU,
+                LU[q]);
 
-    PHYSICS::flux(m_qdpos.row(q),
-                  m_u_qd.row(q),
-                  m_gradu_x.row(q),
-                  m_gradu_y.row(q),
-                  Fq);
+    wj[q] = m_j[q]*m_quadrature.weights[q];
 
-    Lu_qd.row(q) = Fq;
-
-//    std::cout << "X [" << q << "] = " << qd_pt << std::endl;
-//    std::cout << "dU[" << q << "] = " << du << std::endl;
-//    std::cout << "U [" << q << "] = " << m_qdsol_phys[q] << std::endl;
-//    std::cout << "J [" << q << "] = " << m_j[q] << std::endl;
-
-//       std::cout << du << std::endl;
-
-   wj[q] = m_j[q]*m_quadrature.weights[q];
+//    std::cout << "X    [" << q << "] = " << m_qdpos.row(q)    << std::endl;
+//    std::cout << "U    [" << q << "] = " << m_u_qd.row(q)     << std::endl;
+//    std::cout << "dUdx [" << q << "] = " << dUdx.row(q)       << std::endl;
+//    std::cout << "dUdy [" << q << "] = " << dUdy.row(q)       << std::endl;
+//    std::cout << "LU   [" << q << "] = " << LU[q].transpose() << std::endl;
+//    std::cout << "wj   [" << q << "] = " << wj[q]             << std::endl;
+//    std::cout << "--------------------------------------"     << std::endl;
 
   } // loop over quadrature points
+
 }
 
 
@@ -196,4 +210,4 @@ void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::N
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_FluxOp2D_hpp
+#endif // CF_Solver_CSysFluxOp2D_hpp

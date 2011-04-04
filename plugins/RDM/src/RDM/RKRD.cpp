@@ -23,6 +23,7 @@
 #include "Mesh/Actions/CInitFieldFunction.hpp"
 
 #include "Solver/Actions/CComputeLNorm.hpp"
+#include "Solver/CPhysicalModel.hpp"
 
 #include "RDM/RKRD.hpp"
 #include "RDM/DomainTerm.hpp"
@@ -130,13 +131,28 @@ void RKRD::config_mesh()
 
   CMesh& mesh = *(m_mesh.lock());
 
+  /// @todo physical model should be a configuration option of the solver
+  CPhysicalModel::Ptr pm = find_component_ptr_recursively<CPhysicalModel>( *Core::instance().root() );
+  if( is_null(pm) )
+    throw ValueNotFound(FromHere(), "could not found any physical model to use");
+
+
   // configure solution
 
   std::string solution_tag("solution");
   m_solution = find_component_ptr_with_tag<CField>( mesh, solution_tag );
   if ( is_null( m_solution.lock() ) )
   {
-    m_solution = mesh.create_field2("solution","PointBased","u[1]").as_ptr<CField>();
+    std::string vars;
+    for(Uint i = 0; i < pm->nb_dof(); ++i)
+    {
+     vars += "u" + to_str(i) + "[1]";
+     if( i != pm->nb_dof()-1 )
+       vars += ",";
+    }
+
+    m_solution = mesh.create_field2("solution","PointBased", vars).as_ptr<CField>();
+
     m_solution.lock()->add_tag(solution_tag);
   }
 

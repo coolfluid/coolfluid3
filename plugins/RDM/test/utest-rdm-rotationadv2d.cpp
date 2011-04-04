@@ -190,10 +190,9 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   cf_assert( is_not_null(inletbc) );
 
-  inletbc->
-      configure_property("Function", std::string("if(y>0,0,if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.))") );
-
-//  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
+  std::vector<std::string> fns;
+  fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
+  inletbc->configure_property("Functions", fns);
 
   BOOST_CHECK(true);
 }
@@ -303,46 +302,46 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , rotationadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_SUPG , rotationadv2d_local_fixture )
-{
-  BOOST_CHECK(true);
+//BOOST_FIXTURE_TEST_CASE( solve_SUPG , rotationadv2d_local_fixture )
+//{
+//  BOOST_CHECK(true);
 
-  CFinfo << "solving with SUPG scheme" << CFendl;
+//  CFinfo << "solving with SUPG scheme" << CFendl;
 
-  // delete previous domain terms
-  Component& domain_terms = solver.get_child("compute_domain_terms");
-  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
-  {
-    const std::string name = term.name();
-    domain_terms.remove_component( name );
-  }
+//  // delete previous domain terms
+//  Component& domain_terms = solver.get_child("compute_domain_terms");
+//  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
+//  {
+//    const std::string name = term.name();
+//    domain_terms.remove_component( name );
+//  }
 
-  BOOST_CHECK( domain_terms.count_children() == 0 );
+//  BOOST_CHECK( domain_terms.count_children() == 0 );
 
-  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+//  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  SignalFrame frame("", "", "");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+//  SignalFrame frame("", "", "");
+//  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  std::vector<URI> regions;
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    regions.push_back( region.full_path() );
+//  std::vector<URI> regions;
+//  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+//    regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( regions.size() , 1u);
+//  BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-  options.set_option<std::string>("Name","INTERNAL");
-  options.set_option<std::string>("Type","CF.RDM.SUPG");
-  options.set_array("Regions", regions, " ; ");
+//  options.set_option<std::string>("Name","INTERNAL");
+//  options.set_option<std::string>("Type","CF.RDM.SUPG");
+//  options.set_array("Regions", regions, " ; ");
 
-  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
+//  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 
-  BOOST_CHECK(true);
+//  BOOST_CHECK(true);
 
-  solver.solve();
+//  solver.solve();
 
-  BOOST_CHECK(true);
+//  BOOST_CHECK(true);
 
-}
+//}
 
 
 ////////////////////////////////////////////////////////////////////////////////

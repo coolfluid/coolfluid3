@@ -45,38 +45,28 @@ using namespace CF::RDM;
 
 //#define BUBBLE
 
-struct linearadv2d_global_fixture
+struct linearadvsys2d_global_fixture
 {
-  linearadv2d_global_fixture()
+  linearadvsys2d_global_fixture()
   {
-	  Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
-                              boost::unit_test::framework::master_test_suite().argv);
-
-    linearadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
+    linearadvsys2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     SignalFrame frame("", "", "");
     SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
     options.set_option<std::string>("ModelName","mymodel");
-    options.set_option<std::string>("PhysicalModel","LinearAdv2D");
+    options.set_option<std::string>("PhysicalModel","LinearAdvSys2D");
 
-    linearadv2d_wizard->signal_create_model(frame);
+    linearadvsys2d_wizard->signal_create_model(frame);
   }
 
-  ~linearadv2d_global_fixture()
-  {
-    linearadv2d_wizard.reset();
-
-    Core::instance().terminate();
-  }
-
-  ScalarAdvection::Ptr linearadv2d_wizard;
+  ScalarAdvection::Ptr linearadvsys2d_wizard;
 
 };
 
-struct linearadv2d_local_fixture
+struct linearadvsys2d_local_fixture
 {
-  linearadv2d_local_fixture() :
+  linearadvsys2d_local_fixture() :
     model  ( * Core::instance().root()->get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
@@ -90,13 +80,13 @@ struct linearadv2d_local_fixture
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( linearadv2d_global_fixture )
+BOOST_GLOBAL_FIXTURE( linearadvsys2d_global_fixture )
 
-BOOST_AUTO_TEST_SUITE( linearadv2d_test_suite )
+BOOST_AUTO_TEST_SUITE( linearadvsys2d_test_suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadvsys2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -110,7 +100,7 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadvsys2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -131,7 +121,6 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
 //  URI file( "file:rotation-tg-p3.msh" );
 
   options.set_option<URI>("File", file );
-  options.set_option<std::string>("Name", std::string("Mesh") );
 
   domain.signal_load_mesh( frame );
 
@@ -151,18 +140,18 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadvsys2d_local_fixture )
 {
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_property("CFL", 1.);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 100u);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 1500u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadvsys2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -188,6 +177,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
 
   std::vector<std::string> fns;
   fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
+  fns.push_back("if(x>=-1.4,if(x<=-0.6,1.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
   inletbc->configure_property("Functions", fns);
 
   BOOST_CHECK(true);
@@ -195,15 +185,16 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , linearadvsys2d_local_fixture )
 {
   BOOST_CHECK(true);
 
   SignalFrame frame("", "", "");
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  std::vector<std::string> functions(1);
+  std::vector<std::string> functions(4);
   functions[0] = "x*x+y*y";
+  functions[1] = "0.";
   options.set_array("Functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
@@ -211,7 +202,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , linearadv2d_local_fixture 
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_lda , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve_lda , linearadvsys2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -252,52 +243,9 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , linearadv2d_local_fixture )
 
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-//BOOST_FIXTURE_TEST_CASE( solve_blended , linearadv2d_local_fixture )
-//{
-//  BOOST_CHECK(true);
-
-//  CFinfo << "solving with Blended scheme" << CFendl;
-
-//  // delete previous domain terms
-//  Component& domain_terms = solver.get_child("compute_domain_terms");
-//  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
-//  {
-//    const std::string name = term.name();
-//    domain_terms.remove_component( name );
-//  }
-
-//  BOOST_CHECK( domain_terms.count_children() == 0 );
-
-//  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
-
-//  SignalFrame frame("", "", "");
-//  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
-
-//  std::vector<URI> regions;
-//  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-//    regions.push_back( region.full_path() );
-
-//  BOOST_CHECK_EQUAL( regions.size() , 1u);
-
-//  options.set_option<std::string>("Name","INTERNAL");
-//  options.set_option<std::string>("Type","CF.RDM.Blended");
-//  options.set_array("Regions", regions, " ; ");
-
-//  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
-
-//  BOOST_CHECK(true);
-
-//  solver.solve();
-
-//  BOOST_CHECK(true);
-
-//}
-
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_output , linearadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_output , linearadvsys2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -326,7 +274,6 @@ BOOST_FIXTURE_TEST_CASE( test_output , linearadv2d_local_fixture )
 
   mesh_writer->write();
 
-  std::cout << "goodbye " << FromHere().str() << std::endl;
 }
 
 //////////////////////////////////////////////////////////////////////////////

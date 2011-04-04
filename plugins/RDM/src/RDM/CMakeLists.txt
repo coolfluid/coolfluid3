@@ -25,25 +25,39 @@ list( APPEND coolfluid_rdm_files
   UpdateSolution.cpp
 # schemes
   FluxOp2D.hpp
+  SysFluxOp2D.hpp
+  CSysFluxOp2D.hpp
   LDA.hpp
   LDA.cpp
-  Blended.hpp
-  Blended.cpp
-  SUPG.hpp
-  SUPG.cpp
+  SysLDA.hpp
+  SysLDA.cpp
+  CSysLDA.hpp
+  CSysLDA.cpp
+ # Blended.hpp
+ # Blended.cpp
+ # SUPG.hpp
+ # SUPG.cpp
   SchemeLDA.hpp
   SchemeSysLDA.hpp
+  SchemeCSysLDA.hpp
   SchemeN.hpp
   SchemeB.hpp
   SchemeSUPG.hpp
 # physical models
+  Euler2D.hpp
+  Euler2D.cpp
   LinearAdv2D.hpp
   LinearAdv2D.cpp
+  LinearAdvSys2D.hpp
+  LinearAdvSys2D.cpp
   RotationAdv2D.hpp
   RotationAdv2D.cpp
   Burgers2D.hpp
   Burgers2D.cpp
 )
+
+  coolfluid_mark_not_orphan( Blended.hpp Blended.cpp SUPG.hpp SUPG.cpp)
+
 
 list( APPEND coolfluid_rdm_gpu_files 
           LDAGPU.hpp
@@ -54,9 +68,12 @@ list( APPEND coolfluid_rdm_gpu_files
 )
    
 if(CF_ENABLE_GPU AND OPENCL_FOUND)
-  list( APPEND coolfluid_rdm_files ${coolfluid_rdm_gpu_files})
-  list( APPEND coolfluid_rdm_includedirs ${OPENCL_INCLUDE_DIR} )
-  list( APPEND coolfluid_rdm_libs   ${OPENCL_LIBRARIES} )
+
+  coolfluid_mark_not_orphan(${coolfluid_rdm_gpu_files})
+
+#  list( APPEND coolfluid_rdm_files ${coolfluid_rdm_gpu_files})
+#  list( APPEND coolfluid_rdm_includedirs ${OPENCL_INCLUDE_DIR} )
+#  list( APPEND coolfluid_rdm_libs   ${OPENCL_LIBRARIES} )
 else()
   coolfluid_mark_not_orphan(${coolfluid_rdm_gpu_files})
 endif()

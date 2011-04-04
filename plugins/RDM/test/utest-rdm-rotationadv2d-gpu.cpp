@@ -176,12 +176,15 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   cf_assert( is_not_null(inletbc) );
 
-  inletbc->
-      configure_property("Function", std::string("if(y>0,0,if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.))") );
+  std::vector<std::string> fns;
+  fns.push_back("if(y>0,0,if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.))");
+  inletbc->configure_property("Functions", fns);
 
 //  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
 
   BOOST_CHECK(true);
+
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

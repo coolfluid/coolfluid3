@@ -4,10 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_RotationAdv2D_hpp
-#define CF_Solver_RotationAdv2D_hpp
+#ifndef CF_Solver_LinearAdvSys2D_hpp
+#define CF_Solver_LinearAdvSys2D_hpp
 
 #include "Math/MatrixTypes.hpp"
+#include "Mesh/Types.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -18,21 +19,20 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API RotationAdv2D {
+class RDM_API LinearAdvSys2D {
 
 public: // functions
 
   /// Constructor
-  RotationAdv2D ( );
-
+  LinearAdvSys2D ( );
   /// Destructor
-  ~RotationAdv2D();
+  ~LinearAdvSys2D();
 
   /// Get the class name
-  static std::string type_name () { return "RotationAdv2D"; }
+  static std::string type_name () { return "LinearAdvSys2D"; }
 
   /// Number of equations in this physical model
-  static const Uint nb_eqs = 1u;
+  static const Uint nb_eqs = 2u;
 
   /// @returns the number of equations
   Uint nbeqs() const { return nb_eqs; }
@@ -45,7 +45,9 @@ public: // functions
                    const GYV& dudy,
                    FV& flux )
   {
-    flux[0] = coord[YY]*dudx[0] - coord[XX]*dudy[0];
+
+    flux[0] =  1.0*dudx[0] + 1.0 * dudy[0];
+    flux[1] =  1.0*dudx[1] + 0.8 * dudy[1];
   }
 
   /// Function to compute the operator L(u)
@@ -55,7 +57,8 @@ public: // functions
                  const GV& gradN,
                  LUV& Lu )
   {
-    Lu[0] =  coord[YY]*gradN[XX] - coord[XX]*gradN[YY];
+    Lu[0] =  1.0*gradN[XX] + 1.0 * gradN[YY];
+    Lu[1] =  1.0*gradN[XX] + 0.8 * gradN[YY];
   }
 
 };
@@ -67,4 +70,4 @@ public: // functions
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_RotationAdv2D_hpp
+#endif // CF_Solver_LinearAdvSys2D_hpp

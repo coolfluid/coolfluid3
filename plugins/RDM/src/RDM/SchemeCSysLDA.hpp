@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_SchemeSysLDA_hpp
-#define CF_Solver_SchemeSysLDA_hpp
+#ifndef CF_Solver_SchemeCSysLDA_hpp
+#define CF_Solver_SchemeCSysLDA_hpp
 
 #include <boost/assign.hpp>
 
@@ -25,7 +25,7 @@
 #include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
-#include "RDM/SysFluxOp2D.hpp"
+#include "RDM/CSysFluxOp2D.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -35,28 +35,28 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS >
-class RDM_API SchemeSysLDA : public Solver::Actions::CLoopOperation
+class RDM_API SchemeCSysLDA : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< SchemeSysLDA > Ptr;
-  typedef boost::shared_ptr< SchemeSysLDA const> ConstPtr;
+  typedef boost::shared_ptr< SchemeCSysLDA > Ptr;
+  typedef boost::shared_ptr< SchemeCSysLDA const> ConstPtr;
 
   /// type of the helper object to compute the physical operator Lu
-  typedef SysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
+  typedef CSysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  SchemeSysLDA ( const std::string& name );
+  SchemeCSysLDA ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~SchemeSysLDA() {};
+  virtual ~SchemeCSysLDA() {};
 
   /// Get the class name
-  static std::string type_name () { return "SchemeSysLDA<" + SHAPEFUNC::type_name() + ">"; }
+  static std::string type_name () { return "SchemeCSysLDA<" + SHAPEFUNC::type_name() + ">"; }
 	
   /// execute the action
   virtual void execute ();
@@ -105,44 +105,48 @@ private: // data
   DiscreteOpType m_oper;
 
   /// Values of the solution located in the dof of the element
-  typename DiscreteOpType::SolutionMatrixT m_solution_nd;
+  typename DiscreteOpType::SolutionMT U_n;
   /// Values of the operator L(u) computed in quadrature points.
-  typename DiscreteOpType::ResidualMatrixT m_Lu_qd;
+  typename DiscreteOpType::PhysicsVT LU_q [QUADRATURE::nb_points];
   /// Nodal residuals
-  typename DiscreteOpType::SolutionMatrixT m_phi;
+  typename DiscreteOpType::SolutionMT Phi_n;
   /// The operator L in the advection equation Lu = f
-  /// Matrix m_sf_qd stores the value L(N_i) at each quadrature point for each shape function N_i
-  typename DiscreteOpType::SolutionMatrixT m_sf_qd [QUADRATURE::nb_points];
+  /// Matrix Ki_qn stores the value L(N_i) at each quadrature point for each shape function N_i
+  typename DiscreteOpType::PhysicsMT Ki_qn [QUADRATURE::nb_points*SHAPEFUNC::nb_nodes];
+  /// inverse Ki+ matix
+  typename DiscreteOpType::PhysicsMT InvKi_qn;
+  /// inflow vector for N dissipation
+  typename DiscreteOpType::PhysicsVT SumKu;
   /// node values
   typename SHAPEFUNC::NodeMatrixT m_nodes;
 
   /// Integration factor (jacobian multiplied by quadrature weight)
   Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> m_wj;
 
-  typename DiscreteOpType::SolutionVectorT sumLplus;
+  typename DiscreteOpType::PhysicsMT sumLplus;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-SchemeSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeSysLDA ( const std::string& name ) :
+SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeCSysLDA ( const std::string& name ) :
   CLoopOperation(name)
 {
   regist_typeinfo(this);
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
+  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
 
-  std::cout << "m_sf_qd[q]    is " << m_sf_qd[0].rows() << "x" << m_sf_qd[0].cols() << std::endl;
-  std::cout << "m_Lu_qd       is " << m_Lu_qd.rows() << "x" << m_Lu_qd.cols() << std::endl;
-  std::cout << "m_phi         is " << m_phi.rows()   << "x" << m_phi.cols() << std::endl;
-  std::cout << "m_solution_nd is " << m_solution_nd.rows() << "x" << m_solution_nd.cols() << std::endl;
+  std::cout << "Ki_qn   is " << Ki_qn[0].rows()<< "x" << Ki_qn[0].cols() << std::endl;
+  std::cout << "LU_q    is " << LU_q[0].rows() << "x" << LU_q[0].cols()  << std::endl;
+  std::cout << "Phi_n   is " << Phi_n.rows()   << "x" << Phi_n.cols()    << std::endl;
+  std::cout << "U_n     is " << U_n.rows()     << "x" << U_n.cols()      << std::endl;
 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
-void SchemeSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
+void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 {
 //  std::cout << "ELEM [" << idx() << "]" << std::endl;
 
@@ -163,24 +167,24 @@ void SchemeSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
     for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
-      m_solution_nd(n,v) = (*solution)[ nodes_idx[n] ][v];
+      U_n(n,v) = (*solution)[ nodes_idx[n] ][v];
 
-  m_phi.setZero(); // reset element residuals
+  Phi_n.setZero(); // reset element residuals
 
-//  std::cout << "solution: " << m_solution_nd << std::endl;
-//  std::cout << "phi: " << m_phi << std::endl;
+//  std::cout << "solution: " << U_n << std::endl;
+//  std::cout << "phi: " << Phi_n << std::endl;
 
   // compute L(u) and L(N) @ each quadrature point
 
-  m_oper.compute(m_nodes, m_solution_nd, m_sf_qd, m_Lu_qd, m_wj);
+  m_oper.compute(m_nodes, U_n, Ki_qn, LU_q, m_wj);
 
-//  std::cout << "solution_values  [" << m_solution_nd << "]" << std::endl;
+//  std::cout << "solution_values  [" << U_n << "]" << std::endl;
 //  std::cout << std::endl;
 //  std::cout << "sf_oper_values " << std::endl;
 //  for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
-//      std::cout << "[ " << m_sf_qd[q] << " ]" << std::endl;
+//      std::cout << "[ " << Ki_qn[q] << " ]" << std::endl;
 //  std::cout << std::endl;
-//  std::cout << "flux_oper_values " << m_Lu_qd.rows() << "x" << m_Lu_qd.cols()  << " [" << m_Lu_qd << "]" << std::endl;
+//  std::cout << "flux_oper_values " << LU_q.rows() << "x" << LU_q.cols()  << " [" << LU_q << "]" << std::endl;
 
   // compute L(N)+
 
@@ -189,25 +193,48 @@ void SchemeSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
     sumLplus.setZero();
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-      for (Uint v = 0; v < PHYSICS::nb_eqs; ++v)
-        sumLplus[v] += std::max(0.0, m_sf_qd[q](n,v)) ;
+      sumLplus += Ki_qn[q*QUADRATURE::nb_points + n];
+
+    // invert the sum L plus
+
+    InvKi_qn = sumLplus.inverse();
+
+    // compute the phi_i LDA intergral
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-      for (Uint v = 0; v < PHYSICS::nb_eqs; ++v)
-        m_phi(n,v) += std::max(0.0,m_sf_qd[q](n,v)) / sumLplus[v] * m_Lu_qd(q,v) * m_wj[q];
+    {
+      typename DiscreteOpType::PhysicsMT& KiPlus = Ki_qn[q*QUADRATURE::nb_points + n];
+
+      Phi_n.row(n) +=  KiPlus * InvKi_qn * LU_q[q] * m_wj[q];
+    }
+
+    // compute the phi_i N dissipation intergral
+
+//    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+//    {
+//      SumKu.setZero();
+//      for(Uint j = 0; j < SHAPEFUNC::nb_nodes; ++j)
+//        SumKu += Ki_qn[q*QUADRATURE::nb_points+n] * ( U_n.row(n).transpose() - U_n.row(j).transpose() );
+
+//      typename DiscreteOpType::PhysicsMT& KiPlus = Ki_qn[q*QUADRATURE::nb_points + n];
+
+//      Phi_n.row(n) += InvKi_qn * KiPlus * SumKu * m_wj[q];
+//    }
+
+
   }
 
 //  std::cout << "phi [";
 //  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
 //    for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
-//      std::cout << m_phi(n,v) << " ";
+//      std::cout << Phi_n(n,v) << " ";
 //  std::cout << "]" << std::endl;
 
   // update the residual
   
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
-      (*residual)[nodes_idx[n]][v] += m_phi(n,v);
+      (*residual)[nodes_idx[n]][v] += Phi_n(n,v);
 
   // computing average advection speed on element
 
@@ -258,4 +285,4 @@ void SchemeSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_SchemeSysLDA_hpp
+#endif // CF_RDM_SchemeCSysLDA_hpp

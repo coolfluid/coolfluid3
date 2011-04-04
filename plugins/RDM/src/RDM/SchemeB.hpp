@@ -43,6 +43,9 @@ public: // typedefs
   typedef boost::shared_ptr< SchemeB > Ptr;
   typedef boost::shared_ptr< SchemeB const> ConstPtr;
 
+  /// type of the helper object to compute the physical operator Lu
+  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
+
 public: // functions
   /// Contructor
   /// @param name of the component
@@ -85,38 +88,38 @@ private: // helper functions
 
 private: // data
 
+  /// pointer to connectivity table, may reset when iterating over element types
   Mesh::CTable<Uint>::Ptr connectivity_table;
-
+  /// pointer to nodes coordinates, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr coordinates;
-
+  /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr solution;
+  /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr residual;
+  /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr wave_speed;
 
-  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
-
+  /// helper object to compute the physical operator Lu
   DiscreteOpType m_oper;
 
-  //Values of the solution located in the dof of the element
-  typename DiscreteOpType::SolutionMatrixT m_solution_values;
+  /// Values of the solution located in the dof of the element
+  typename DiscreteOpType::SolutionMatrixT m_solution_nd;
+  /// Values of the operator L(u) computed in quadrature points.
+  typename DiscreteOpType::ResidualMatrixT m_Lu_qd;
+  /// Nodal residuals
+  typename DiscreteOpType::SolutionMatrixT m_phi;
+  /// The operator L in the advection equation Lu = f
+  /// Matrix m_sf_qd stores the value L(N_i) at each quadrature point for each shape function N_i
+  typename DiscreteOpType::SFMatrixT m_sf_qd;
+  /// node values
+  typename SHAPEFUNC::NodeMatrixT m_nodes;
 
-  //The operator L in the advection equation Lu = f
-  //Matrix m_sf_oper_values stores the value L(N_i) at each quadrature point for each shape function N_i
-  typename DiscreteOpType::SFMatrixT m_sf_oper_values;
+  /// Integration factor (jacobian multiplied by quadrature weight)
+  Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> m_wj;
 
-  //Values of the operator L(u) computed in quadrature points. These operator L returns these values
-  //multiplied by Jacobian and quadrature weight
-  
-  RealVector m_flux_oper_values;
-
-  //Nodal residuals
-  RealVector m_phi;
-
-  //CrossWind Dissipation term for N scheme
+  /// crossWind Dissipation term for N scheme
   RealVector m_diss;
 
-  //Integration factor (jacobian multiplied by quadrature weight)
-  Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> m_wj;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -129,8 +132,6 @@ SchemeB<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeB ( const std::string& name ) :
 
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeB<SHAPEFUNC,QUADRATURE,PHYSICS>::trigger_elements,   this ) );
 
-  m_flux_oper_values.resize(QUADRATURE::nb_points);
-  m_phi.resize(SHAPEFUNC::nb_nodes);
   m_diss.resize(SHAPEFUNC::nb_nodes);
 
 }
@@ -143,18 +144,17 @@ void SchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
   // inside element with index m_idx
 
   const Mesh::CTable<Uint>::ConstRow node_idx = connectivity_table->array()[idx()];
-  typename SHAPEFUNC::NodeMatrixT nodes;
 
-  Mesh::fill(nodes, *coordinates, node_idx);
+  Mesh::fill(m_nodes, *coordinates, node_idx);
 
   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    m_solution_values[n] = (*solution)[node_idx[n]][0];
+    m_solution_nd[n] = (*solution)[node_idx[n]][0];
 
 
  m_phi.setZero(); 
  m_diss.setZero();
 
- m_oper.compute(nodes,m_solution_values, m_sf_oper_values, m_flux_oper_values,m_wj);
+ m_oper.compute(m_nodes,m_solution_nd, m_sf_qd, m_Lu_qd,m_wj);
 
  // THE LOOP IMPLEMENTS THE INTEGRAL
  // phiN_i = phiLDA_i + integral[ kplus_i * frac{ sum( kplus_j(u_i - u_out) ) }{ sum(kplus_j) }    ] dX
@@ -166,13 +166,13 @@ void SchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
-     sumLplus += std::max(0.0,m_sf_oper_values(q,n));
+     sumLplus += std::max(0.0,m_sf_qd(q,n));
    }
 
    // phiLDA:
    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
    {
-     m_phi[n] += std::max(0.0,m_sf_oper_values(q,n))/sumLplus * m_flux_oper_values[q]*m_wj[q];
+     m_phi[n] += std::max(0.0,m_sf_qd(q,n))/sumLplus * m_Lu_qd[q]*m_wj[q];
    }
 
    Real sum_kdiff_u;
@@ -185,9 +185,9 @@ void SchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
     for(Uint l = 0; l < SHAPEFUNC::nb_nodes; ++l)
     {
-      sum_kdiff_u += std::max(0.0,m_sf_oper_values(q,l)) * ( m_solution_values[n] - m_solution_values[l] );
+      sum_kdiff_u += std::max(0.0,m_sf_qd(q,l)) * ( m_solution_nd[n] - m_solution_nd[l] );
     }
-     m_diss[n] += 1./sumLplus * std::max(0.0,m_sf_oper_values(q,n)) * sum_kdiff_u * m_wj[q];
+     m_diss[n] += 1./sumLplus * std::max(0.0,m_sf_qd(q,n)) * sum_kdiff_u * m_wj[q];
    }
  }
 
@@ -220,25 +220,25 @@ void SchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
-    centroid[XX] += nodes(n, XX);
-    centroid[YY] += nodes(n, YY);
+    centroid[XX] += m_nodes(n, XX);
+    centroid[YY] += m_nodes(n, YY);
   }
   centroid /= SHAPEFUNC::nb_nodes;
 
   // compute a bounding box of the element:
 
-  Real xmin = nodes(0, XX);
-  Real xmax = nodes(0, XX);
-  Real ymin = nodes(0, YY);
-  Real ymax = nodes(0, YY);
+  Real xmin = m_nodes(0, XX);
+  Real xmax = m_nodes(0, XX);
+  Real ymin = m_nodes(0, YY);
+  Real ymax = m_nodes(0, YY);
 
   for(Uint inode = 1; inode < SHAPEFUNC::nb_nodes; ++inode)
   {
-    xmin = std::min(xmin,nodes(inode, XX));
-    xmax = std::max(xmax,nodes(inode, XX));
+    xmin = std::min(xmin,m_nodes(inode, XX));
+    xmax = std::max(xmax,m_nodes(inode, XX));
 
-    ymin = std::min(ymin,nodes(inode, YY));
-    ymax = std::max(ymax,nodes(inode, YY));
+    ymin = std::min(ymin,m_nodes(inode, YY));
+    ymax = std::max(ymax,m_nodes(inode, YY));
 
   }
 
@@ -253,13 +253,12 @@ void SchemeB<SHAPEFUNC, QUADRATURE, PHYSICS>::execute()
 
     for (Uint q  = 0; q<QUADRATURE::nb_points; ++q)
     {
-      k_plus_max = std::max(k_plus_max,m_sf_oper_values(q,n));
+      k_plus_max = std::max(k_plus_max,m_sf_qd(q,n));
     }
 
     (*wave_speed)[node_idx[n]][0] +=
         std::sqrt( dx*dx+dy*dy) * k_plus_max;
   }
-
 
 }
 

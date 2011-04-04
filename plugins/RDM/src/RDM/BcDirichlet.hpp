@@ -7,7 +7,7 @@
 #ifndef CF_Solver_Actions_BcDirichlet_hpp
 #define CF_Solver_Actions_BcDirichlet_hpp
 
-#include "fparser/fparser.hh"
+#include "Math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 
@@ -15,7 +15,7 @@
 
 namespace CF {
 
-namespace Mesh { class CMesh; }
+namespace Mesh { class CMesh; class CField; }
 
 namespace RDM {
 
@@ -53,7 +53,7 @@ private: // data
   /// access to the solution field on the mesh
   boost::weak_ptr<Mesh::CField> m_solution;
   /// function parser for the math formula of the dirichlet condition
-  FunctionParser  m_fparser;
+  Math::VectorialFunction  m_function;
 
 };
 

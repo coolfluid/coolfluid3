@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/Log.hpp"
 #include "Common/FindComponents.hpp"
 
@@ -47,25 +47,21 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
   m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_mesh, this ) );
 
   m_properties.add_option<
-      OptionT<std::string> > ("Function",
-                              "Math function applied as Dirichlet boundary condition (vars x,y)",
-                              "0.")
+      OptionArrayT<std::string> > ("Functions",
+                                   "Math function applied as Dirichlet boundary condition (vars x,y)",
+                                   std::vector<std::string>())
       ->attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) )
       ->mark_basic();
+
+  m_function.variables("x,y,z");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void BcDirichlet::config_function()
 {
-  std::string func = m_properties["Function"].value<std::string>();
-  int res = m_fparser.Parse(func, "x,y");
-
-  if(res > 0)
-    throw ParsingFailed(FromHere(),
-                        "Parsing of math function failed with error \'"
-                        + std::string(m_fparser.ErrorMsg())
-                        + "\'" );
+  m_function.functions( m_properties["Functions"].value<std::vector<std::string> >() );
+  m_function.parse();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,23 +86,29 @@ void BcDirichlet::config_mesh()
 
 void BcDirichlet::execute()
 {
+  if (m_solution.expired())
+    throw SetupError(FromHere(), "Mesh option in ["+full_path().path()+"] was not set");
+
   CField& field = *m_solution.lock();
 
-  Real vars[DIM_2D];
+  std::vector<Real> vars( DIM_3D, 0.);
+
+  RealVector return_val( field.data().row_size() );
 
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {
     boost_foreach(const Uint node, CElements::used_nodes(*region).array())
     {
-      CTable<Real>::Row data = field[node];
+      CTable<Real>::ConstRow coords = field.coords(node);
 
-      vars[XX] = field.coords(node)[XX];
-      vars[YY] = field.coords(node)[YY];
+      for (Uint i=0; i<coords.size(); ++i)
+        vars[i] = coords[i];
 
-      const Uint row_size = data.size();
-      for (Uint i = 0; i != row_size; ++i)
-        data[i] = m_fparser.Eval(vars);
+      m_function.evaluate(vars,return_val);
 
+      CTable<Real>::Row data_row = field[node];
+      for (Uint i=0; i<data_row.size(); ++i)
+        data_row[i] = return_val[i];
     }
   }
 }

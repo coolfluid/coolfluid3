@@ -18,7 +18,7 @@ namespace RDM {
 
 class RDM_API LDAGPU : public RDM::DomainTerm {
 
-  template < typename PHYS> struct ElementLoop;
+  template < typename PHYS > struct ElementLoop;
 
 public: // typedefs
 
