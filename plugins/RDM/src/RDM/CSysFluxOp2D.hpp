@@ -136,7 +136,7 @@ void CSysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const NodeMT& nodes,
 {
    //Coordinates of quadrature points in physical space
    m_qdpos  = m_N * nodes;
-   //Solution at all quadrature points in physical space
+   //Solution atall quadrature points in physical space
    m_u_qd = m_N * solution;
 
    //Jacobian of transformation phys -> ref:
@@ -189,13 +189,13 @@ void CSysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const NodeMT& nodes,
 
     wj[q] = m_j[q]*m_quadrature.weights[q];
 
-    std::cout << "X    [" << q << "] = " << m_qdpos.row(q)    << std::endl;
-    std::cout << "U    [" << q << "] = " << m_u_qd.row(q)     << std::endl;
-    std::cout << "dUdx [" << q << "] = " << dUdx.row(q)       << std::endl;
-    std::cout << "dUdy [" << q << "] = " << dUdy.row(q)       << std::endl;
-    std::cout << "LU   [" << q << "] = " << LU[q].transpose() << std::endl;
-    std::cout << "wj   [" << q << "] = " << wj[q]             << std::endl;
-    std::cout << "--------------------------------------"     << std::endl;
+//    std::cout << "X    [" << q << "] = " << m_qdpos.row(q)    << std::endl;
+//    std::cout << "U    [" << q << "] = " << m_u_qd.row(q)     << std::endl;
+//    std::cout << "dUdx [" << q << "] = " << dUdx.row(q)       << std::endl;
+//    std::cout << "dUdy [" << q << "] = " << dUdy.row(q)       << std::endl;
+//    std::cout << "LU   [" << q << "] = " << LU[q].transpose() << std::endl;
+//    std::cout << "wj   [" << q << "] = " << wj[q]             << std::endl;
+//    std::cout << "--------------------------------------"     << std::endl;
 
   } // loop over quadrature points
 

@@ -46,8 +46,6 @@ using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::RDM;
 
-//#define BUBBLE
-
 struct euler2d_global_fixture
 {
   euler2d_global_fixture()
@@ -140,6 +138,8 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 //  URI file( "file:square1x1-tgqd-p1.msh" );      // works
 //  URI file( "file:square1x1-tg-p1-7614.msh" );   // works
 //  URI file( "file:square1x1-tgqd-p1-298n.msh" ); // works
+//  URI file( "file:square1x1-qd-p2-289n.msh" );
+//  URI file( "file:square1x1-qd-p2-26kn.msh" );
 
 
   options.set_option<URI>("File", file );
@@ -148,17 +148,6 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
   domain.signal_load_mesh( frame );
 
   BOOST_CHECK_NE( domain.count_children(), (Uint) 0);
-
-#ifdef BUBBLE // enrich the mesh with bubble functions
-  CMeshTransformer::Ptr enricher =
-      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
-
-  domain.add_component( enricher );
-
-  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
-
-  enricher->transform( mesh );
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -205,12 +194,6 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
   fns[2] = "if(x>0.5,1.67332,2.83972)";
   fns[3] = "if(x>0.5,3.425,6.532)";
 
-//  fns[0] = "1.0";
-//  fns[1] = "0.0";
-//  fns[2] = "1+cos(x)";
-//  fns[4] = "1.0";
-
-
   inletbc->configure_property("Functions", fns);
 
   BOOST_CHECK(true);
@@ -231,12 +214,6 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , euler2d_local_fixture )
   fns[1] = "0.0";
   fns[2] = "1.67332";
   fns[3] = "3.425";
-
-
-//  fns[0] = "1.0";
-//  fns[1] = "0.0";
-//  fns[2] = "1+cos(x)";
-//  fns[3] = "1.0";
 
   options.set_array("Functions", fns, " ; ");
 
@@ -317,16 +294,6 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
   BOOST_CHECK(true);
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
-
-#ifdef BUBBLE // remove the bubble functions from the mesh
-  CMeshTransformer::Ptr remover =
-      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
-
-  domain.add_component( remover );
-  remover->transform( mesh );
-#endif
-
-  BOOST_CHECK(true);
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
