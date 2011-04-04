@@ -9,6 +9,7 @@
 #include "Common/MPI/PE.hpp"
 
 #include "Common/Log.hpp"
+#include "Common/FindComponents.hpp"
 #include "Common/Signal.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
