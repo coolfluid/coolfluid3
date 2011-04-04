@@ -114,12 +114,17 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , burgers2d_local_fixture )
 
   BOOST_CHECK(true);
 
-  URI file ( "file:square1x1-tg-p2.msh" );
-//  URI file( "file:rotation-tg-p1.neu" );
-//  URI file( "file:rotation-qd-p1.neu" );
-//  URI file( "file:advection-tg-p2.msh" );
-//  URI file( "file:advection-qd-p2.msh" );
-//  URI file( "file:rotation-tg-p3.msh" );
+  URI file ( "file:square1x1-tg-p1-303n.msh" );
+//  URI file ( "file:square1x1-tg-p1-7614.msh" );
+//  URI file ( "file:square1x1-tg-p2-2kn.msh" );
+//  URI file ( "file:square1x1-tg-p2-333n.msh" );
+
+//  URI file ( "file:square1x1-qd-p1-1369.msh" );
+//  URI file ( "file:square1x1-qd-p1-256n.msh" );
+//  URI file ( "file:square1x1-qd-p2-1681.msh" );
+//  URI file ( "file:square1x1-qd-p2-289n.msh" );
+
+//  URI file ( "file:square1x1-tgqd-p1-298n.msh" );
 
   options.set_option<URI>("File", file );
   options.set_option<std::string>("Name", std::string("Mesh") );

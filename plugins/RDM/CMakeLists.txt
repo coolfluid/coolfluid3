@@ -37,8 +37,11 @@ coolfluid_find_orphan_files()
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
+set( RDM_RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/resources CACHE INTERNAL "Dir for resources" )
+set( RDM_TEST_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/test      CACHE INTERNAL "Dir for tests" )
+
 add_subdirectory( src )  # library sources
 
-add_subdirectory( test ) # testing tree
+add_subdirectory( test ) # unit and acceptance tests
 
-add_subdirectory( resources ) # testing tree
+add_subdirectory( resources ) # resources : test case meshes, etc

@@ -113,12 +113,11 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadvsys2d_local_fixture )
 
   std::vector<URI> files;
 
-//  URI file( "file:square1x1-tg-p1.msh" );
-//  URI file( "file:rotation-tg-p1.neu" );
-//  URI file( "file:rotation-qd-p1.neu" );
-//  URI file( "file:advection-tg-p2.msh" );
-  URI file ( "file:advection-qd-p2.msh" );
-//  URI file( "file:rotation-tg-p3.msh" );
+  URI file( "file:rectangle2x1-tg-p1-953.msh");
+//  URI file( "file:rectangle2x1-tg-p2-3689.msh");
+
+//  URI file( "file:rectangle2x1-qd-p1-861.msh");
+//  URI file( "file:rectangle2x1-qd-p2-3321.msh");
 
   options.set_option<URI>("File", file );
 
@@ -161,8 +160,10 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadvsys2d_local_fixtur
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
     regions.push_back( region.full_path() );
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
+    regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( regions.size() , 1u);
+  BOOST_CHECK_EQUAL( regions.size() , 2u);
 
   std::string name ("INLET");
 
