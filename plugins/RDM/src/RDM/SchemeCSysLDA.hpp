@@ -359,14 +359,14 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
       {
         if (i==j) continue;
         LUwq += Ki_n[j] * ( U_n.row(i).transpose() - U_n.row(j).transpose() );
-        std::cout << "Uj-Ui : " << U_n.row(j).transpose() - U_n.row(i).transpose() << std::endl;
+//        std::cout << "Uj-Ui : " << U_n.row(j).transpose() - U_n.row(i).transpose() << std::endl;
       }
 
-      std::cout << "LUwq : " << LUwq << std::endl;
+//      std::cout << "LUwq : " << LUwq << std::endl;
 
       Phi_n.row(i) +=  Ki_n[i] * InvKi_n * LUwq * wj[q];
 
-      std::cout << "Phi N = " << Ki_n[i] * InvKi_n * LUwq * wj[q] << std::endl;
+//      std::cout << "Phi N = " << Ki_n[i] * InvKi_n * LUwq * wj[q] << std::endl;
 
     }
 #endif
