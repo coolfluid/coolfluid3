@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/paraview_icons">
+        <file>pqCaptureScreenshot24.png</file>
+        <file>pqConnect24.png</file>
+        <file>pqDisconnect24.png</file>
+        <file>pqOpen24.png</file>
+        <file>pqResetCamera24.png</file>
+        <file>pqResetCenter24.png</file>
+        <file>pqScalarBar24.png</file>
+        <file>pqXMinus16.png</file>
+        <file>pqXPlus16.png</file>
+        <file>pqYMinus16.png</file>
+        <file>pqYPlus16.png</file>
+        <file>pqZMinus16.png</file>
+        <file>pqZPlus16.png</file>
+        <file>ShowCenterButton.png</file>
+    </qresource>
+</RCC>

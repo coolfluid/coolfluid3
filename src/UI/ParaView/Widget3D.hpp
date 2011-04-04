@@ -9,12 +9,12 @@
 
 // Qt headers
 #include <QVBoxLayout>
-#include <QMainWindow>
 #include <QPointer>
 #include <QPushButton>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QHBoxLayout>
+#include <QGroupBox>
 
 // ParaView header
 #include "vtkSMSourceProxy.h"
@@ -25,8 +25,10 @@
 #include "pqServer.h"
 #include "pqStandardViewModules.h"
 #include "pqRenderView.h"
-#include "pqOutputPort.h"
 #include "pqDisplayColorWidget.h"
+#include "pqColorScaleEditor.h"
+#include "pqPQLookupTableManager.h"
+#include "pqDisplayRepresentationWidget.h"
 
 // header
 #include "UI/Graphics/LibGraphics.hpp"
@@ -51,6 +53,15 @@ public: //function
   /// @param parent Parent QWdiget.
   Widget3D(QWidget *parent = 0);
 
+public slots://slots
+
+  /// Call openFile to reload existing path
+  void reload();
+
+  /// Ask the client to connect to paraview server and qsk to load a certain file
+  void connectToServer(QString host,QString port, QString path);
+
+
 private : //function
 
     /// Show the render of a file if the server connection is set and a the file exist
@@ -62,6 +73,12 @@ private : //function
     /// Add a filter
     void addFilter();
 
+    /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
+    void openFile(QString file_path);
+
+    /// Ask connection options and try to connect to a certain host & port
+    void connectToServer(QString host,QString port);
+
 
 private slots: //slots
 
@@ -71,8 +88,8 @@ private slots: //slots
   /// Ask connection options and try to connect to a certain host & port
   void disconnectFromServer();
 
-  /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
-  void openFile();
+  /// Call openFile with new entry path
+  void loadFile();
 
   /// Show a dialog window that ask for a path file
   void showLoadFileDialog();
@@ -80,11 +97,20 @@ private slots: //slots
   /// Show a dialog window that ask for an host and port
   void showConnectDialog();
 
-  /// Change Style
-  void changeStyle();
-
   /// Set the rotation center
   void set_rotation_center();
+
+  /// Set the current rotation
+  void set_rotation(int value);
+
+  /// Take a screen shot of the current view
+  void take_screen_shot();
+
+  /// reset the camera
+  void reset_camera();
+
+  /// Show the color editor
+  void show_color_editor();
 
 private: //data
 
@@ -101,10 +127,13 @@ private: //data
   QPointer<pqPluginManager> m_plugin_manager;
 
   /// Layout of this widget
+  QPointer<QHBoxLayout> m_layout_h;
+
+  /// Layout of this widget
   QPointer<QVBoxLayout> m_layout_v;
 
   /// Layout of this widget
-  QPointer<QHBoxLayout> m_layout_option;
+  QPointer<QVBoxLayout> m_layout_option;
 
   /// Button that show Server Connection dialog
   QPointer<QPushButton> m_connect_to_server_button;
@@ -115,8 +144,24 @@ private: //data
   /// Button that reset center of rotation
   QPointer<QPushButton> m_set_rotation_center;
 
-  /// Button that show Server Load File dialog
-  QPointer<QComboBox> m_style;
+  /// Button make a screen shot
+  QPointer<QPushButton> m_screen_shot;
+
+  /// Button make a screen shot
+  QPointer<QPushButton> m_reset_camera;
+
+  /// Button make a screen shot
+  QPointer<QPushButton> m_show_color_palet;
+
+  /// Button make a screen shot
+  QPointer<QPushButton> m_reload;
+
+  /// ComboBox of dataRepresentation style
+  //QPointer<QComboBox> m_style;
+  QPointer<pqDisplayRepresentationWidget> m_style;
+
+  /// Combobox of predefined rotation set
+  QPointer<QComboBox> m_preDefined_rotation;
 
   /// Source Pipeline is a flow from the source readed to show actor.
   QPointer<pqPipelineSource> m_source;
@@ -137,6 +182,24 @@ private: //data
   QPointer<QLineEdit> m_Path_File_line;
 
   pqDisplayColorWidget * m_color;
+
+  //pqDisplayProxyEditor * m_disp_pan;
+
+  //pqCameraDialog * camDia;
+
+  pqColorScaleEditor * scaleEdit;
+
+  pqLookupTableManager* lutManager;
+
+  QString m_file_path;
+
+  QGroupBox * server_options;
+  QGroupBox * camera_options;
+  QGroupBox * mesh_options;
+
+  QPointer<QVBoxLayout> m_layout_server_options;
+  QPointer<QVBoxLayout> m_layout_camera_options;
+  QPointer<QHBoxLayout> m_layout_mesh_options;
 
 };
 

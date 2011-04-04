@@ -23,8 +23,12 @@ if( ParaView_FOUND )
 
   list( APPEND coolfluid_ui_paraview_cflibs coolfluid_ui_graphics )
 
+
+
   # Use Qt Libraries
   list( APPEND coolfluid_ui_paraview_libs ${QT_LIBRARIES} ${ParaView_LIBRARIES})
+
+QT4_ADD_RESOURCES(coolfluid_ui_paraview_RCC Resources/paraview.qrc)
 
   coolfluid_add_library(coolfluid_ui_paraview)
 
