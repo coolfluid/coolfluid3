@@ -204,6 +204,7 @@ namespace Graphics {
     layout_graph_v->addWidget(m_label_bottom);
 
     //the setscale box
+    /*
     layout_zoom_grid->addWidget(m_label_min_x,0,0,1,1);
     layout_zoom_grid->addWidget(m_line_min_x,0,1,1,1);
     layout_zoom_grid->addWidget(m_label_max_x,0,2,1,1);
@@ -213,6 +214,16 @@ namespace Graphics {
     layout_zoom_grid->addWidget(m_label_max_y,1,2,1,1);
     layout_zoom_grid->addWidget(m_line_max_y,1,3,1,1);
     layout_zoom_grid->addWidget(m_button_set_scale,0,4,2,1);
+    */
+    layout_zoom_grid->addWidget(m_label_min_x,0,0,1,1);
+    layout_zoom_grid->addWidget(m_line_min_x,0,1,1,1);
+    layout_zoom_grid->addWidget(m_label_max_x,0,2,1,1);
+    layout_zoom_grid->addWidget(m_line_max_x,0,3,1,1);
+    layout_zoom_grid->addWidget(m_label_min_y,0,4,1,1);
+    layout_zoom_grid->addWidget(m_line_min_y,0,5,1,1);
+    layout_zoom_grid->addWidget(m_label_max_y,0,6,1,1);
+    layout_zoom_grid->addWidget(m_line_max_y,0,7,1,1);
+    layout_zoom_grid->addWidget(m_button_set_scale,0,8,1,1);
 
     //data for ploting
     NPlotXY::PlotDataPtr plot_data( new NPlotXY::PlotData() );
