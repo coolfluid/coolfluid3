@@ -1,10 +1,10 @@
 #ifndef coolfluid_config_hpp
 #define coolfluid_config_hpp
 
-#define CF_VERSION ${CF_VERSION}
-#define CF_VERSION_STR "${CF_VERSION}"
-#define CF_KERNEL_VERSION ${CF_KERNEL_VERSION}
-#define CF_KERNEL_VERSION_STR "${CF_KERNEL_VERSION}"
+#define CF_VERSION             ${CF_VERSION}
+#define CF_VERSION_STR         "${CF_VERSION}"
+#define CF_KERNEL_VERSION      ${CF_KERNEL_VERSION}
+#define CF_KERNEL_VERSION_STR  "${CF_KERNEL_VERSION}"
 
 #define CF_BUILD_TYPE       "${CF_BUILD_TYPE}"
 #define CF_CMAKE_VERSION    "${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}"
@@ -23,11 +23,12 @@
 // definitions from packages
 
 // boost
-#define CF_BOOST_VERSION          ${Boost_VERSION}
-#define CF_BOOST_MAJOR_VERSION    ${Boost_MAJOR_VERSION}
-#define CF_BOOST_MINOR_VERSION    ${Boost_MINOR_VERSION}
-#define CF_BOOST_SUBMINOR_VERSION ${Boost_SUBMINOR_VERSION}
-#define CF_BOOST_LIB_VERSION      "${Boost_LIB_VERSION}"
+
+#define CF_BOOST_VERSION           ${Boost_VERSION}
+#define CF_BOOST_MAJOR_VERSION     ${Boost_MAJOR_VERSION}
+#define CF_BOOST_MINOR_VERSION     ${Boost_MINOR_VERSION}
+#define CF_BOOST_SUBMINOR_VERSION  ${Boost_SUBMINOR_VERSION}
+#define CF_BOOST_LIB_VERSION       "${Boost_LIB_VERSION}"
 
 #cmakedefine CF_HAVE_BOOST_ERFC
 

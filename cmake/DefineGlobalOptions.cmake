@@ -55,12 +55,10 @@ option( CF_INSTALL_UNIT_TESTS       "Enable testing applications install"   OFF 
 option( CF_MPI_TESTS_RUN             "Run the MPI tests"               ON )
 option( CF_MPI_TESTS_RUN_SCALABILITY "Run the MPI scalability tests"   OFF )
 
-set( CF_MPI_TESTS_NB_PROCS "4" CACHE STRING "Number of processes for the regular MPI tests")
+set( CF_MPI_TESTS_NB_PROCS     "4" CACHE STRING "Number of processes for the regular MPI tests")
 set( CF_MPI_TESTS_MAX_NB_PROCS "4" CACHE STRING "Maximum number of processes for the MPI scalability tests")
-set( CF_MPI_TESTS_SIZE "4" CACHE STRING "Size description of the MPI tests. Interpretation is test-dependent, but higher numbers mean more RAM. 4 should be safe on a regular PC")
+set( CF_MPI_TESTS_SIZE         "4" CACHE STRING "Size description of the MPI tests. Interpretation is test-dependent, but higher numbers mean more RAM. 4 should be safe on a regular PC")
 
-#mark_as_advanced(CF_MPI_TESTS_RUN)
-#mark_as_advanced(CF_MPI_TESTS_RUN_SCALABILITY)
 mark_as_advanced(CF_MPI_TESTS_NB_PROCS)
 mark_as_advanced(CF_MPI_TESTS_MAX_NB_PROCS)
 mark_as_advanced(CF_MPI_TESTS_SIZE)
