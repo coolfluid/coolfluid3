@@ -128,9 +128,14 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 
   std::vector<URI> files;
 
-  URI file ( "file:rotation-tg-p1.neu" );
-  // URI file ( "file:rotation-qd-p1.neu" );
-  // URI file ( "file:advection-qd-p3.msh" );
+  URI file ( "file:rotation-tg-p1.msh" );
+//  URI file ( "file:rotation-tg-p2.msh" );
+//  URI file ( "file:rotation-tg-p3.msh" );
+//  URI file ( "file:rotation-tg-p4.msh" );
+//  URI file ( "file:rotation-qd-p1.msh" );
+//  URI file ( "file:rotation-qd-p2.msh" );
+//  URI file ( "file:rotation-qd-p3.msh" );
+//  URI file ( "file:rotation-qd-p4.msh" );
 
   options.set_option<URI>("File", file );
   options.set_option<std::string>("Name", std::string("Mesh") );
@@ -172,9 +177,9 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<URI> regions;
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
     regions.push_back( region.full_path() );
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"farfield"))
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"wall"))
     regions.push_back( region.full_path() );
 
   BOOST_CHECK_EQUAL( regions.size() , 2u);
@@ -191,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   cf_assert( is_not_null(inletbc) );
 
   std::vector<std::string> fns;
-  fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
+  fns.push_back("if(y>0,0,if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.))");
   inletbc->configure_property("Functions", fns);
 
   BOOST_CHECK(true);
@@ -244,7 +249,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , rotationadv2d_local_fixture )
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   options.set_option<std::string>("Name","INTERNAL");
-  options.set_option<std::string>("Type","CF.RDM.LDA");
+  options.set_option<std::string>("Type","CF.RDM.CSysLDA");
   options.set_array("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);

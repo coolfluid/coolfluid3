@@ -19,7 +19,11 @@
 
 #include "RDM/SupportedTypes.hpp"    // supported elements
 
-#include "RDM/Euler2D.hpp"       // supported physics
+#include "RDM/LinearAdv2D.hpp"       // supported physics
+#include "RDM/LinearAdvSys2D.hpp"    // supported physics
+#include "RDM/RotationAdv2D.hpp"     // supported physics
+#include "RDM/Burgers2D.hpp"         // supported physics
+#include "RDM/Euler2D.hpp"           // supported physics
 
 #include "RDM/SchemeCSysLDA.hpp"
 
@@ -104,6 +108,12 @@ void CSysLDA::execute()
     if ( physics == "LinearAdv2D" )
     {
       CSysLDA::ElementLoop<LinearAdv2D> loop( *this, *region );
+      boost::mpl::for_each< RDM::CellTypes >( loop );
+    }
+
+    if ( physics == "LinearAdvSys2D" )
+    {
+      CSysLDA::ElementLoop<LinearAdvSys2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 

@@ -40,3 +40,5 @@ include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 add_subdirectory( src )  # library sources
 
 add_subdirectory( test ) # testing tree
+
+add_subdirectory( resources ) # testing tree

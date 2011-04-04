@@ -149,7 +149,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , burgers2d_local_fixture )
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_property("CFL", 1.);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 100u);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -235,7 +235,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , burgers2d_local_fixture )
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   options.set_option<std::string>("Name","INTERNAL");
-  options.set_option<std::string>("Type","CF.RDM.LDA");
+  options.set_option<std::string>("Type","CF.RDM.CSysLDA");
   options.set_array("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);

@@ -1,3 +1,5 @@
+set( RDM_RESOURCES_DIR ${RDM_SOURCE_DIR}/resources )
+
 ##########################################################################
 
 list( APPEND utest-rdm-linearadv2d_cflibs coolfluid_rdm  )
@@ -7,10 +9,10 @@ coolfluid_add_unit_test( utest-rdm-linearadv2d )
 
 add_custom_command(TARGET utest-rdm-linearadv2d
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/advection-tg-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/advection-tg-p3.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/advection-qd-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/advection-qd-p3.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/advection-tg-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/advection-tg-p3.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/advection-qd-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/advection-qd-p3.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
 
 ##########################################################################
@@ -22,8 +24,14 @@ coolfluid_add_unit_test( utest-rdm-rotationadv2d )
 
 add_custom_command(TARGET utest-rdm-rotationadv2d
                  POST_BUILD
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-tg-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-tg-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-tg-p3.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-tg-p4.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-qd-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-qd-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-qd-p3.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-qd-p4.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
 
 ##########################################################################
@@ -35,10 +43,10 @@ coolfluid_add_unit_test( utest-rdm-burgers2d )
 
 add_custom_command(TARGET utest-rdm-burgers2d
                  POST_BUILD
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/square1x1-tg-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/square1x1-qd-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/square1x1-tg-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/square1x1-qd-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/square1x1-tg-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/square1x1-qd-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/square1x1-tg-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/square1x1-qd-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
 
 ##########################################################################
@@ -68,8 +76,8 @@ endif()
 
   add_custom_command(TARGET utest-rdm-rotationadv2d-gpu
                  POST_BUILD
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                 #COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 #COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
 if( NOT CF_ENABLE_GPU OR NOT CF_ENABLE_OPENCL)
   set(utest-rdm-translationadv2dgpu_condition FALSE)
@@ -82,8 +90,8 @@ endif()
 
   add_custom_command(TARGET utest-rdm-rotationadv2d-gpu
                  POST_BUILD
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                 #COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 #COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RDM_RESOURCES_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
 
   
