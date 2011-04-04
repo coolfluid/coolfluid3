@@ -4,10 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Foreach.hpp"
+
+#include "Math/MathChecks.hpp"
 
 #include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
@@ -18,6 +21,7 @@
 
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Math::MathChecks;
 
 namespace CF {
 namespace RDM {
@@ -63,11 +67,19 @@ void UpdateSolution::execute()
   const Uint nbvars = solution.row_size();
   for ( Uint i=0; i< nbdofs; ++i )
   {
+    if ( is_zero(wave_speed[i][0]) )
+    {
+      for ( Uint j=0; j< nbvars; ++j )
+        if( is_not_zero(residual[i][j]) )
+          CFwarn << "residual not null but wave_speed null at node [" << i << "] variable [" << j << "]" << CFendl;
+      continue;
+    }
+
     const Real update = CFL / wave_speed[i][0] ;
     for ( Uint j=0; j< nbvars; ++j )
       solution[i][j] += - update * residual[i][j];
   }
-}
+ }
 
 ////////////////////////////////////////////////////////////////////////////////
 

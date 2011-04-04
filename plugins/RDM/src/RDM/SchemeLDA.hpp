@@ -182,12 +182,6 @@ void SchemeLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   std::cout << std::endl;
   std::cout << "flux_oper_values " << m_Lu_qd.rows() << "x" << m_Lu_qd.cols()  << " [" << m_Lu_qd << "]" << std::endl;
 
-  exit(0);
-
-  //// if (m_Lu_qd.norm() > 0.0)
-  ////     std::cin.get();
-  // std::cout << std::endl;
-
   // compute L(N)+
 
 

@@ -68,6 +68,12 @@ public: // functions
 
     const Real a2 = gamma_minus_1*(H - 0.5*uuvv);
 
+    if( a2 <= 0 )
+      throw BadValue( FromHere(), "Speed of sound negative at coordinates ["
+                                   + to_str(coord[XX]) + ","
+                                   + to_str(coord[YY])
+                                   + "]");
+
 //    const Real T = a2 / ( gamma * R );
 //    const Real P = rho*R*T;
 //    const Real E = H - P/rho;
@@ -177,6 +183,7 @@ public: // functions
     A(1,0) = sum_v2 - uu;
     A(1,1) = -gamma_minus_3*u;
     A(1,2) = -gamma_minus_1*v;
+    A(1,3) = gamma_minus_1;
     A(2,0) = -uv;
     A(2,1) = v;
     A(2,2) = u;
@@ -196,6 +203,7 @@ public: // functions
     B(2,0) = sum_v2 - vv;
     B(2,1) = -gamma_minus_1*u;
     B(2,2) = -gamma_minus_3*v;
+    B(2,3) = gamma_minus_1;
     B(3,0) = sum_v2*v - v*H;
     B(3,1) = -gamma_minus_1*uv;
     B(3,2) = -gamma_minus_1*vv + H;

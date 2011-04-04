@@ -56,6 +56,7 @@ public: // functions
                const SolutionMT& solution,
                PhysicsMT    Kiq[],
                PhysicsVT    LU[],
+               PhysicsMT&  DvPlus,
                Eigen::Matrix<Real, QUADRATURE::nb_points, 1u>& wj);
     
 protected: // data
@@ -97,8 +98,8 @@ protected: // data
   PhysicsMT Lv;
   /// diagonal matrix with eigen values
   PhysicsMT Dv;
-  /// diagonal matrix with positive eigen values
-  PhysicsMT DvPlus;
+  /// gradient of shape function
+  RealVector2 dN;
 
 };
 
@@ -121,7 +122,6 @@ CSysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::CSysFluxOp2D() : m_quadrature( QUADR
    }
 
    Dv.setZero();
-   DvPlus.setZero();
 }
 
 
@@ -131,6 +131,7 @@ void CSysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const NodeMT& nodes,
                                                          const SolutionMT& solution,
                                                          PhysicsMT   Kiq[],
                                                          PhysicsVT   LU[],
+                                                         PhysicsMT&  DvPlus,
                                                          Eigen::Matrix<Real, QUADRATURE::nb_points, 1u>& wj)
 {
    //Coordinates of quadrature points in physical space
@@ -161,8 +162,6 @@ void CSysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const NodeMT& nodes,
 
    dUdx = m_dNdx * solution;
    dUdy = m_dNdy * solution;
-
-  RealVector2      dN;
 
   for(Uint q=0; q < QUADRATURE::nb_points; ++q)
   {

@@ -8,6 +8,7 @@
 #define BOOST_TEST_MODULE "Test module for CF::RDM::ScalarAdvection"
 
 #include <boost/test/unit_test.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include "Common/BoostFilesystem.hpp"
 
@@ -16,6 +17,8 @@
 #include "Common/Log.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/LibLoader.hpp"
+#include "Common/OSystem.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
@@ -49,6 +52,17 @@ struct euler2d_global_fixture
 {
   euler2d_global_fixture()
   {
+    // Load the required libraries (we assume the working dir is the binary path)
+    LibLoader& loader = *OSystem::instance().lib_loader();
+
+    const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of
+                                                             ("../../../dso");
+    loader.set_search_paths(lib_paths);
+
+    loader.load_library("coolfluid_mesh_neutral");
+    loader.load_library("coolfluid_mesh_gmsh");
+    loader.load_library("coolfluid_mesh_tecplot");
+
     euler2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     SignalFrame frame("", "", "");
@@ -140,8 +154,8 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , euler2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 0.05);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 400u);;
+  solver.get_child("time_stepping").configure_property("CFL", 0.5);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -170,17 +184,17 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   cf_assert( is_not_null(inletbc) );
 
-  std::vector<std::string> fns;
+  std::vector<std::string> fns(4);
 
-//  fns.push_back("if(x>0.5,0.5,1.)");
-//  fns.push_back("0.0");
-//  fns.push_back("if(x>0.5,1.67332,2.83972)");
-//  fns.push_back("if(x>0.5,3.425,6.532)");
+  fns[0] = "if(x>0.5,0.5,1.)";
+  fns[1] = "0.0";
+  fns[2] = "if(x>0.5,1.67332,2.83972)";
+  fns[3] = "if(x>0.5,3.425,6.532)";
 
-  fns.push_back("1.0");
-  fns.push_back("0.0");
-  fns.push_back("1+cos(x)");
-  fns.push_back("1.0");
+//  fns[0] = "1.0";
+//  fns[1] = "0.0";
+//  fns[2] = "1+cos(x)";
+//  fns[4] = "1.0";
 
 
   inletbc->configure_property("Functions", fns);
@@ -197,18 +211,18 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , euler2d_local_fixture )
   SignalFrame frame("", "", "");
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  std::vector<std::string> fns;
+  std::vector<std::string> fns(4);
 
-//  fns[0] = "0.5";
+  fns[0] = "0.5";
+  fns[1] = "0.0";
+  fns[2] = "1.67332";
+  fns[3] = "3.425";
+
+
+//  fns[0] = "1.0";
 //  fns[1] = "0.0";
-//  fns[2] = "1.67332";
-//  fns[3] = "3.425";
-
-
-  fns.push_back("1.0");
-  fns.push_back("0.0");
-  fns.push_back("1+cos(x)");
-  fns.push_back("1.0");
+//  fns[2] = "1+cos(x)";
+//  fns[3] = "1.0";
 
   options.set_array("Functions", fns, " ; ");
 
@@ -223,20 +237,22 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , euler2d_local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
-  model.add_component(mesh_writer);
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  model.add_component(gmsh_writer);
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
-  mesh_writer->configure_property("Fields",fields);
-  mesh_writer->configure_property("File",model.name()+"_init.msh");
-  mesh_writer->configure_property("Mesh",mesh->full_path());
+  gmsh_writer->configure_property("Fields",fields);
+  gmsh_writer->configure_property("File",model.name()+"_init.msh");
+  gmsh_writer->configure_property("Mesh",mesh->full_path());
 
-  mesh_writer->write();
+  gmsh_writer->write();
 
+  model.remove_component("GmshWriter");
 }
+
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_CASE( solve_lda , euler2d_local_fixture )
@@ -298,18 +314,31 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
 
   BOOST_CHECK(true);
 
-  CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
-  model.add_component(mesh_writer);
-
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
-  mesh_writer->configure_property("Fields",fields);
-  mesh_writer->configure_property("File",model.name()+".msh");
-  mesh_writer->configure_property("Mesh",mesh->full_path());
+  // gmsh writer
 
-  mesh_writer->write();
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  model.add_component(gmsh_writer);
+
+  gmsh_writer->configure_property("Fields",fields);
+  gmsh_writer->configure_property("File",model.name()+".msh");
+  gmsh_writer->configure_property("Mesh",mesh->full_path());
+
+  gmsh_writer->write();
+
+  // tecplot writer
+
+  CMeshWriter::Ptr tec_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
+  model.add_component(tec_writer);
+
+  tec_writer->configure_property("Fields",fields);
+  tec_writer->configure_property("File",model.name()+".plt");
+  tec_writer->configure_property("Mesh",mesh->full_path());
+
+  tec_writer->write();
 
 }
 
