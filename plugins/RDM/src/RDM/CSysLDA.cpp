@@ -101,6 +101,24 @@ void CSysLDA::execute()
   {
     std::string physics = pm->type();
 
+    if ( physics == "LinearAdv2D" )
+    {
+      CSysLDA::ElementLoop<LinearAdv2D> loop( *this, *region );
+      boost::mpl::for_each< RDM::CellTypes >( loop );
+    }
+
+    if ( physics == "RotationAdv2D" )
+    {
+      CSysLDA::ElementLoop<RotationAdv2D> loop( *this, *region );
+      boost::mpl::for_each< RDM::CellTypes >( loop );
+    }
+
+    if ( physics == "Burgers2D" )
+    {
+      CSysLDA::ElementLoop<Burgers2D> loop( *this, *region );
+      boost::mpl::for_each< RDM::CellTypes >( loop );
+    }
+
     if ( physics == "Euler2D" )
     {
       CSysLDA::ElementLoop<Euler2D> loop( *this, *region );

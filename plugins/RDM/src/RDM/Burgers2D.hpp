@@ -36,26 +36,36 @@ public: // functions
   /// @returns the number of equations
   Uint nbeqs() const { return nb_eqs; }
 
-  /// Function to compute the flux for linear advection
-  template < typename CV, typename SV, typename GXV, typename GYV, typename FV >
-  static void flux(const CV& coord,
-                   const SV& u,
-                   const GXV& dudx,
-                   const GYV& dudy,
-                   FV& flux )
+  /// decompose the eigen structure of the flux jacobians projected on the gradients
+  template < typename CV, typename SV, typename GV, typename EM, typename EV >
+  static void jacobian_eigen_structure(const CV& coord,
+                                       const SV& sol,
+                                       const GV& gradN,
+                                       EM& Rv,
+                                       EM& Lv,
+                                       EV& Dv)
   {
-
-    flux[0] = u[0]*dudx[0] + dudy[0];
+    Rv(0,0) = 1.;
+    Lv(0,0) = 1.;
+    Dv[0]   = sol[0] * gradN[XX] + gradN[YY];
   }
 
-  /// Function to compute the operator L(u)
-  template < typename CV, typename SV, typename GV, typename LUV >
-  static void Lu(const CV& coord,
-                 const SV& u,
-                 const GV& gradN,
-                 LUV& Lu )
+  /// compute the PDE residual
+  template < typename CV, typename SV, typename GXV, typename GYV, typename JM, typename LUV >
+  static void Lu(const CV&  coord,
+                 const SV&  sol,
+                 const GXV& dudx,
+                 const GYV& dudy,
+                 JM         flux_jacob[],
+                 LUV&       Lu)
   {
-    Lu[0] = u[0]*gradN[XX] + gradN[YY];
+    JM& A = flux_jacob[XX];
+    JM& B = flux_jacob[YY];
+
+    A(0,0) = sol[0];
+    B(0,0) = 1.0;
+
+    Lu = A * dudx + B * dudy;
   }
 
 };

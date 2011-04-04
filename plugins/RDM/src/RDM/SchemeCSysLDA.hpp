@@ -391,11 +391,7 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
     // compute the wave_speed for scaling the update
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    {
-      const Real max_eigen_value = DvPlus[n].maxCoeff();
-
-      (*wave_speed)[nodes_idx[n]][0] += max_eigen_value * wj[q];
-    }
+      (*wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * wj[q];
 
 #ifdef LFSCHEME
     Real alpha = 0;

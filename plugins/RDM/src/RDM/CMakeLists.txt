@@ -24,25 +24,25 @@ list( APPEND coolfluid_rdm_files
   UpdateSolution.hpp
   UpdateSolution.cpp
 # schemes
-  FluxOp2D.hpp
-  SysFluxOp2D.hpp
-  CSysFluxOp2D.hpp
-  LDA.hpp
-  LDA.cpp
-  SysLDA.hpp
-  SysLDA.cpp
+# --  FluxOp2D.hpp
+# --  SysFluxOp2D.hpp
+# --  CSysFluxOp2D.hpp
+# --  LDA.hpp
+# --  LDA.cpp
+# --  SysLDA.hpp
+# --  SysLDA.cpp
   CSysLDA.hpp
   CSysLDA.cpp
  # Blended.hpp
  # Blended.cpp
  # SUPG.hpp
  # SUPG.cpp
-  SchemeLDA.hpp
-  SchemeSysLDA.hpp
+# --  SchemeLDA.hpp
+# --  SchemeSysLDA.hpp
   SchemeCSysLDA.hpp
-  SchemeN.hpp
-  SchemeB.hpp
-  SchemeSUPG.hpp
+# --  SchemeN.hpp
+# --  SchemeB.hpp
+# --  SchemeSUPG.hpp
 # physical models
   Euler2D.hpp
   Euler2D.cpp
@@ -56,7 +56,24 @@ list( APPEND coolfluid_rdm_files
   Burgers2D.cpp
 )
 
-  coolfluid_mark_not_orphan( Blended.hpp Blended.cpp SUPG.hpp SUPG.cpp)
+coolfluid_mark_not_orphan(
+Blended.hpp
+Blended.cpp
+SUPG.hpp
+SUPG.cpp
+FluxOp2D.hpp
+SysFluxOp2D.hpp
+CSysFluxOp2D.hpp
+LDA.hpp
+LDA.cpp
+SysLDA.hpp
+SysLDA.cpp
+SchemeLDA.hpp
+SchemeSysLDA.hpp
+SchemeN.hpp
+SchemeB.hpp
+SchemeSUPG.hpp
+)
 
 
 list( APPEND coolfluid_rdm_gpu_files 

@@ -38,6 +38,7 @@ public: // functions
   /// @returns the number of equations
   Uint nbeqs() const { return nb_eqs; }
 
+  /// decompose the eigen structure of the flux jacobians projected on the gradients
   template < typename CV, typename SV, typename GV, typename EM, typename EV >
   static void jacobian_eigen_structure(const CV& coord,
                                        const SV& sol,
@@ -138,6 +139,7 @@ public: // functions
 
   }
 
+  /// compute the PDE residual
   template < typename CV, typename SV, typename GXV, typename GYV, typename JM, typename LUV >
   static void Lu(const CV&  coord,
                  const SV&  sol,

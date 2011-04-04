@@ -37,28 +37,48 @@ public: // functions
   /// @returns the number of equations
   Uint nbeqs() const { return nb_eqs; }
 
-  /// Function to compute the flux for linear advection
-  template < typename CV, typename SV, typename GXV, typename GYV, typename FV >
-  static void flux(const CV& coord,
-                   const SV& u,
-                   const GXV& dudx,
-                   const GYV& dudy,
-                   FV& flux )
+  /// decompose the eigen structure of the flux jacobians projected on the gradients
+  template < typename CV, typename SV, typename GV, typename EM, typename EV >
+  static void jacobian_eigen_structure(const CV& coord,
+                                       const SV& sol,
+                                       const GV& gradN,
+                                       EM& Rv,
+                                       EM& Lv,
+                                       EV& Dv)
   {
+    Rv(0,0) = 1.;
+    Rv(0,1) = 0.;
+    Rv(1,1) = 1.;
+    Rv(1,0) = 0.;
 
-    flux[0] =  1.0*dudx[0] + 1.0 * dudy[0];
-    flux[1] =  1.0*dudx[1] + 0.8 * dudy[1];
+    Lv(0,0) = 1.;
+    Lv(0,1) = 0.;
+    Lv(1,1) = 1.;
+    Lv(1,0) = 0.;
+
+    Dv[0]   = 1.0 * gradN[XX] + 1.0 * gradN[YY];
+    Dv[1]   = 1.0 * gradN[XX] + 0.8 * gradN[YY];
   }
 
-  /// Function to compute the operator L(u)
-  template < typename CV, typename SV, typename GV, typename LUV >
-  static void Lu(const CV& coord,
-                 const SV& u,
-                 const GV& gradN,
-                 LUV& Lu )
+  /// compute the PDE residual
+  template < typename CV, typename SV, typename GXV, typename GYV, typename JM, typename LUV >
+  static void Lu(const CV&  coord,
+                 const SV&  sol,
+                 const GXV& dudx,
+                 const GYV& dudy,
+                 JM         flux_jacob[],
+                 LUV&       Lu)
   {
-    Lu[0] =  1.0*gradN[XX] + 1.0 * gradN[YY];
-    Lu[1] =  1.0*gradN[XX] + 0.8 * gradN[YY];
+    JM& A = flux_jacob[XX];
+    JM& B = flux_jacob[YY];
+
+    A(0,0) = 1.0;
+    A(1,1) = 1.0;
+
+    B(0,0) = 1.0;
+    B(1,1) = 0.8;
+
+    Lu = A * dudx + B * dudy;
   }
 
 };
