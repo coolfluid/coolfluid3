@@ -256,6 +256,49 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
+BOOST_FIXTURE_TEST_CASE( solve_lf , linearadv2d_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  CFinfo << "solving with LF scheme" << CFendl;
+
+  // delete previous domain terms
+  Component& domain_terms = solver.get_child("compute_domain_terms");
+  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
+  {
+    const std::string name = term.name();
+    domain_terms.remove_component( name );
+  }
+
+  BOOST_CHECK( domain_terms.count_children() == 0 );
+
+  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+
+  SignalFrame frame("", "", "");
+  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+
+  std::vector<URI> regions;
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+    regions.push_back( region.full_path() );
+
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
+
+  options.set_option<std::string>("Name","INTERNAL");
+  options.set_option<std::string>("Type","CF.RDM.CSysLF");
+  options.set_array("Regions", regions, " ; ");
+
+  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
+
+  BOOST_CHECK(true);
+
+  solver.solve();
+
+  BOOST_CHECK(true);
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 //BOOST_FIXTURE_TEST_CASE( solve_blended , linearadv2d_local_fixture )
 //{
 //  BOOST_CHECK(true);

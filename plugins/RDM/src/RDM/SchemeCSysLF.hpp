@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_SchemeCSysLDA_hpp
-#define CF_Solver_SchemeCSysLDA_hpp
+#ifndef CF_Solver_SchemeCSysLF_hpp
+#define CF_Solver_SchemeCSysLF_hpp
 
 #include <functional>
 
@@ -38,25 +38,25 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS >
-class RDM_API SchemeCSysLDA : public Solver::Actions::CLoopOperation {
+class RDM_API SchemeCSysLF : public Solver::Actions::CLoopOperation {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr< SchemeCSysLDA > Ptr;
-  typedef boost::shared_ptr< SchemeCSysLDA const> ConstPtr;
+  typedef boost::shared_ptr< SchemeCSysLF > Ptr;
+  typedef boost::shared_ptr< SchemeCSysLF const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  SchemeCSysLDA ( const std::string& name );
+  SchemeCSysLF ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~SchemeCSysLDA() {};
+  virtual ~SchemeCSysLF() {};
 
   /// Get the class name
-  static std::string type_name () { return "SchemeCSysLDA<" + SHAPEFUNC::type_name() + ">"; }
+  static std::string type_name () { return "SchemeCSysLF<" + SHAPEFUNC::type_name() + ">"; }
 	
   /// execute the action
   virtual void execute ();
@@ -192,20 +192,13 @@ private: // data
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeCSysLDA ( const std::string& name ) :
+SchemeCSysLF<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeCSysLF ( const std::string& name ) :
   CLoopOperation(name),
   m_quadrature( QUADRATURE::instance() )
 {
   regist_typeinfo(this);
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
-
-//  std::cout << "QD points [" << QUADRATURE::nb_points << "]"  << std::endl;
-//  std::cout << "Ki_qn   is " << Ki_n[0].rows()<< "x" << Ki_n[0].cols() << std::endl;
-//  std::cout << "LU      is " << LU.rows() << "x" << LU.cols()  << std::endl;
-//  std::cout << "Phi_n   is " << Phi_n.rows()   << "x" << Phi_n.cols()    << std::endl;
-//  std::cout << "U_n     is " << U_n.rows()     << "x" << U_n.cols()      << std::endl;
-//  std::cout << "DvPlus  is " << DvPlus[0].rows()  << "x" << DvPlus[0].cols()   << std::endl;
+  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeCSysLF<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
 
   for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
     DvPlus[n].setZero();
@@ -234,7 +227,7 @@ SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeCSysLDA ( const std::string& 
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
-void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
+void SchemeCSysLF<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 {
   Phi_n.setZero();     // zero element residuals
 
@@ -319,7 +312,7 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
       DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
 
-      Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
+      // Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
     }
 
     // compute L(u)
@@ -331,55 +324,8 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
                 dFdU,
                 LU );
 
-    // compute L(N)+
+    // compute the phi_i LF intergral
 
-    sumLplus = Ki_n[0];
-    for(Uint n = 1; n < SHAPEFUNC::nb_nodes; ++n)
-      sumLplus += Ki_n[n];
-
-    // invert the sum L plus
-
-    InvKi_n = sumLplus.inverse();
-
-    // compute the phi_i LDA intergral
-
-//#ifdef LDASCHEME
-    LUwq = InvKi_n * LU * wj[q];
-
-    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-      Phi_n.row(n) +=  Ki_n[n] * LUwq;
-//#endif
-
-    // compute the phi_i LDA intergral
-
-#ifdef NSCHEME
-    // N dissipation
-    for(Uint i = 0; i < SHAPEFUNC::nb_nodes; ++i)
-    {
-      LUwq.setZero();
-      for(Uint j = 0; j < SHAPEFUNC::nb_nodes; ++j)
-      {
-        if (i==j) continue;
-        LUwq += Ki_n[j] * ( U_n.row(i).transpose() - U_n.row(j).transpose() );
-//        std::cout << "Uj-Ui : " << U_n.row(j).transpose() - U_n.row(i).transpose() << std::endl;
-      }
-
-//      std::cout << "LUwq : " << LUwq << std::endl;
-
-      Phi_n.row(i) +=  Ki_n[i] * InvKi_n * LUwq * wj[q];
-
-//      std::cout << "Phi N = " << Ki_n[i] * InvKi_n * LUwq * wj[q] << std::endl;
-
-    }
-#endif
-
-
-    // compute the wave_speed for scaling the update
-
-    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-      (*wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * wj[q];
-
-#ifdef LFSCHEME
     Real alpha = 0;
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
       alpha = std::max( alpha, DvPlus[n].array().abs().maxCoeff() );
@@ -395,9 +341,10 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
         Phi_n.row(i) += invdofs * alpha * (U_n.row(i).transpose() - U_n.row(j).transpose()) * wj[q]; // dissipation
       }
 
+      // compute the wave_speed for scaling the update
+
       (*wave_speed)[nodes_idx[i]][0] += alpha * wj[q];
     }
-#endif
 
   } // loop qd points
 
@@ -406,43 +353,6 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
       (*residual)[nodes_idx[n]][v] += Phi_n(n,v);
-
-//  std::cout << "LDA ELEM [" << idx() << "]" << std::endl;
-//  std::cout << "  Operator:" << std::endl;
-//  std::cout << "               Sum of weights = " << m_quadrature.weights.sum() << std::endl;
-//  std::cout << "               Jacobians in physical space:" << std::endl;
-//  std::cout << jacob << std::endl;
-//  std::cout << "LDA: Area = " << wj.sum() << std::endl;
-
-
-  //    std::cout << "X    [" << q << "] = " << X_q.row(q)    << std::endl;
-  //    std::cout << "U    [" << q << "] = " << U_q.row(q)     << std::endl;
-  //    std::cout << "dUdx [" << q << "] = " << dUdx.row(q)       << std::endl;
-  //    std::cout << "dUdy [" << q << "] = " << dUdy.row(q)       << std::endl;
-  //    std::cout << "LU   [" << q << "] = " << Lu.transpose() << std::endl;
-  //    std::cout << "wj   [" << q << "] = " << wj[q]             << std::endl;
-  //    std::cout << "--------------------------------------"     << std::endl;
-
-  //  std::cout << "nodes_idx";
-  //  for ( Uint i = 0; i < nodes_idx.size(); ++i)
-  //     std::cout << " " << nodes_idx[i];
-
-  //  std::cout << "mesh::fill function" <<  std::endl;
-  //  std::cout << "nodes: " << nodes << std::endl;
-
-  //  std::cout << "solution: " << U_n << std::endl;
-  //  std::cout << "phi: " << Phi_n << std::endl;
-
-  //  std::cout << " AREA : " << wj.sum() << std::endl;
-
-  //  std::cout << "phi [";
-
-  //  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
-  //    for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
-  //      std::cout << Phi_n(n,v) << " ";
-  //  std::cout << "]" << std::endl;
-
-//    if( idx() > 2 ) exit(0);
 
 }
 
@@ -453,23 +363,4 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#if 0
-/// inflow vector for N dissipation
-//  PhysicsVT SumKu;
-
-    // compute the phi_i N dissipation intergral
-
-    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    {
-      SumKu.setZero();
-      for(Uint j = 0; j < SHAPEFUNC::nb_nodes; ++j)
-        SumKu += Ki_qn[q*QUADRATURE::nb_points+n] * ( U_n.row(n).transpose() - U_n.row(j).transpose() );
-
-      typename PhysicsMT& KiPlus = Ki_qn[q*QUADRATURE::nb_points + n];
-
-      Phi_n.row(n) += KiPlus * InvKi_qn * SumKu * wj[q];
-    }
-#endif
-
-
-#endif // CF_RDM_SchemeCSysLDA_hpp
+#endif // CF_RDM_SchemeCSysLF_hpp

@@ -33,6 +33,8 @@ list( APPEND coolfluid_rdm_files
 # --  SysLDA.cpp
   CSysLDA.hpp
   CSysLDA.cpp
+  CSysLF.hpp
+  CSysLF.cpp
  # Blended.hpp
  # Blended.cpp
  # SUPG.hpp
@@ -40,6 +42,7 @@ list( APPEND coolfluid_rdm_files
 # --  SchemeLDA.hpp
 # --  SchemeSysLDA.hpp
   SchemeCSysLDA.hpp
+  SchemeCSysLF.hpp
 # --  SchemeN.hpp
 # --  SchemeB.hpp
 # --  SchemeSUPG.hpp

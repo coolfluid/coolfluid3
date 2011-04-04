@@ -33,8 +33,6 @@ coolfluid_mark_not_orphan( ${resources_files} )
 # copy files to test dir in build tree
 foreach( rfile ${resources_files} )
 
-message( "RDM resource file [${rfile}]" )
-
 add_custom_command( OUTPUT  ${rfile}
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/${rfile} ${RDM_TEST_RUN_DIR}
                    # COMMENT "Copying file ${rfile} to ${RDM_TEST_RUN_DIR}"
