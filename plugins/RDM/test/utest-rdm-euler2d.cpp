@@ -141,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 //  URI file( "file:square1x1-tg-p2-333n.msh");
 //  URI file( "file:square1x1-tg-p2-2kn.msh");     // works
 //  URI file( "file:square1x1-tg-p2-30kn.msh");
-//  URI file( "trapezium1x1-tg-p2-1949.msh" );     // works
+//  URI file( "file:trapezium1x1-tg-p2-1949.msh" );     // works
 
 //  URI file( "file:square1x1-qd-p1.msh" );        // works
 //  URI file( "file:square1x1-qd-p1-6561n.msh" );
@@ -149,9 +149,12 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 //  URI file( "file:square1x1-qd-p1-256n.msh" );
 
 //  URI file( "file:square1x1-qd-p2.msh" );
-//  URI file( "file:square1x1-qd-p2-289n.msh" );   // works
-  URI file( "file:square1x1-qd-p2-5329.msh" );     // works but oscillations grow
+//  URI file( "file:square1x1-qd-p2-289n.msh" );     // works
+//  URI file( "file:square1x1-qd-p2-5329.msh" );     // works but oscillations grow
 //  URI file( "file:square1x1-qd-p2-26kn.msh" );
+//  URI file( "file:trapezium1x1-qd-p2-1681.msh" );
+
+    URI file( "file:trapezium1x1-tg-p3-4306.msh");
 
 //  URI file( "file:square1x1-tgqd-p1.msh" );      // works
 //  URI file( "file:square1x1-tgqd-p1-298n.msh" ); // works
@@ -237,15 +240,15 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , euler2d_local_fixture )
   std::vector<std::string> fns(4);
 
 
-  fns[0] = "if(x>0.5,0.5,1.)";
-  fns[1] = "0.0";
-  fns[2] = "if(x>0.5,1.67332,2.83972)";
-  fns[3] = "if(x>0.5,3.425,6.532)";
-
-//  fns[0] = "0.5";
+//  fns[0] = "if(x>0.5,0.5,1.)";
 //  fns[1] = "0.0";
-//  fns[2] = "1.67332";
-//  fns[3] = "3.425";
+//  fns[2] = "if(x>0.5,1.67332,2.83972)";
+//  fns[3] = "if(x>0.5,3.425,6.532)";
+
+  fns[0] = "0.5";
+  fns[1] = "0.0";
+  fns[2] = "1.67332";
+  fns[3] = "3.425";
 
   options.set_array("Functions", fns, " ; ");
 

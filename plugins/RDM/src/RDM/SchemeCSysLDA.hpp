@@ -341,12 +341,16 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
     // compute the phi_i LDA intergral
 
+//#ifdef LDASCHEME
     LUwq = InvKi_n * LU * wj[q];
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
       Phi_n.row(n) +=  Ki_n[n] * LUwq;
+//#endif
 
-#if 0
+    // compute the phi_i LDA intergral
+
+#ifdef NSCHEME
     // N dissipation
     for(Uint i = 0; i < SHAPEFUNC::nb_nodes; ++i)
     {
@@ -354,7 +358,7 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
       for(Uint j = 0; j < SHAPEFUNC::nb_nodes; ++j)
       {
         if (i==j) continue;
-        LUwq += Ki_n[j] * ( U_n.row(j).transpose() - U_n.row(i).transpose() );
+        LUwq += Ki_n[j] * ( U_n.row(i).transpose() - U_n.row(j).transpose() );
         std::cout << "Uj-Ui : " << U_n.row(j).transpose() - U_n.row(i).transpose() << std::endl;
       }
 
@@ -367,6 +371,7 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
     }
 #endif
 
+
     // compute the wave_speed for scaling the update
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
@@ -375,6 +380,26 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
       (*wave_speed)[nodes_idx[n]][0] += max_eigen_value * wj[q];
     }
+
+#ifdef LFSCHEME
+    Real alpha = 0;
+    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+      alpha = std::max( alpha, DvPlus[n].array().abs().maxCoeff() );
+
+    const Real invdofs = 1./SHAPEFUNC::nb_nodes;
+
+    for(Uint i = 0; i < SHAPEFUNC::nb_nodes; ++i)
+    {
+      Phi_n.row(i) += invdofs * LU * wj[q];          // central part
+      for(Uint j=0; j < SHAPEFUNC::nb_nodes; ++j)    // plus dissipation
+      {
+        if (i == j) continue;
+        Phi_n.row(i) += invdofs * alpha * (U_n.row(i).transpose() - U_n.row(j).transpose()) * wj[q]; // dissipation
+      }
+
+      (*wave_speed)[nodes_idx[i]][0] += alpha * wj[q];
+    }
+#endif
 
   } // loop qd points
 
