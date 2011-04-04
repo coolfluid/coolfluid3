@@ -155,7 +155,7 @@ SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeCSysLDA ( const std::string& 
 template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
 void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 {
-//  std::cout << "ELEM [" << idx() << "]" << std::endl;
+  std::cout << "ELEM [" << idx() << "]" << std::endl;
 
   // copy the coordinates from the large array to a small
 
@@ -169,27 +169,6 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
 //  std::cout << "mesh::fill function" <<  std::endl;
 //  std::cout << "nodes: " << m_nodes << std::endl;
-
-  // compute a bounding box of the element:
-
-  Real xmin = m_nodes(0, XX);
-  Real xmax = m_nodes(0, XX);
-  Real ymin = m_nodes(0, YY);
-  Real ymax = m_nodes(0, YY);
-
-  for(Uint inode = 1; inode < SHAPEFUNC::nb_nodes; ++inode)
-  {
-    xmin = std::min(xmin,m_nodes(inode, XX));
-    xmax = std::max(xmax,m_nodes(inode, XX));
-
-    ymin = std::min(ymin,m_nodes(inode, YY));
-    ymax = std::max(ymax,m_nodes(inode, YY));
-
-  }
-
-  const Real dx = xmax - xmin;
-  const Real dy = ymax - ymin;
-	const Real bb_area = std::sqrt( dx*dx+dy*dy);
 
   // copy the solution from the large array to a small
 
@@ -215,7 +194,6 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 //  std::cout << "flux_oper_values " << LU_q.rows() << "x" << LU_q.cols()  << " [" << LU_q << "]" << std::endl;
 
   Real elem_area = 0;
-  Real elem_wave_speed = 0.; // elemement area times max eigen value
 
   // compute L(N)+]
 
@@ -266,17 +244,20 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
 	} // loop qd points
 
-//  std::cout << "phi [";
-//  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
-//    for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
-//      std::cout << Phi_n(n,v) << " ";
-//  std::cout << "]" << std::endl;
+  std::cout << "phi [";
+  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
+    for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
+      std::cout << Phi_n(n,v) << " ";
+  std::cout << "]" << std::endl;
 
   // update the residual
   
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
       (*residual)[nodes_idx[n]][v] += Phi_n(n,v);
+
+
+  if( idx() > 5 ) exit(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

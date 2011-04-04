@@ -83,7 +83,7 @@ struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP3, 3 >
 template <>
 struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP1, 1 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP1::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 2, Mesh::SF::Triag2DLagrangeP1::shape> type;
 };
 
 /// Partial specialization for P1 quadrilaterals
