@@ -120,59 +120,60 @@ private: // data
   /// helper object to compute the quadrature information
   const QUADRATURE& m_quadrature;
 
+  /// Nodal residuals
+  SolutionMT Phi_n;
+  /// node values
+  NodeMT X_n;
   /// Values of the solution located in the dof of the element
   SolutionMT U_n;
   /// Values of the operator L(u) computed in quadrature points.
-  PhysicsVT LU_q [QUADRATURE::nb_points];
-  /// Nodal residuals
-  SolutionMT Phi_n;
+  PhysicsVT LU;
   /// The operator L in the advection equation Lu = f
   /// Matrix Ki_qn stores the value L(N_i) at each quadrature point for each shape function N_i
-  PhysicsMT Ki_qn [QUADRATURE::nb_points*SHAPEFUNC::nb_nodes];
+  PhysicsMT Ki_n [SHAPEFUNC::nb_nodes];
+  /// sum of Lplus to be inverted
+  PhysicsMT sumLplus;
   /// inverse Ki+ matix
-  PhysicsMT InvKi_qn;
+  PhysicsMT InvKi_n;
   /// diagonal matrix with positive eigen values
-  PhysicsMT DvPlus [QUADRATURE::nb_points*SHAPEFUNC::nb_nodes];
-  /// inflow vector for N dissipation
-  PhysicsVT SumKu;
-  /// node values
-  NodeMT nodes;
+  PhysicsMT DvPlus [SHAPEFUNC::nb_nodes];
 
+  /// jacobian of transformation at each quadrature point
+  WeightVT jacob;
   /// Integration factor (jacobian multiplied by quadrature weight)
   WeightVT wj;
 
-  PhysicsMT sumLplus;
 
   Real elem_area;
 
   // -----------------------------------------------------
 
-  RealVector2 m_qd_pt; // quadrature point in physical space
-  RealVector2 m_dN;    // derivatives of shape functions in physical space
+  /// interporlation matrix - values of shapefunction at each quadrature point
+  SFMatrixT Ni;
+  /// derivative matrix - values of shapefunction derivative in Ksi at each quadrature point
+  SFMatrixT dNdKsi;
+  /// derivative matrix - values of shapefunction derivative in Eta at each quadrature point
+  SFMatrixT dNdEta;
 
-  Real m_u_q; //Solution value at quadrature point
+  /// coordinates of quadrature points in physical space
+  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D>           X_q;
+  /// solution at quadrature points in physical space
+  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs > U_q;
 
-  SFMatrixT m_N;
-  SFMatrixT m_dNdksi;
-  SFMatrixT m_dNdeta;
+  /// derivatives of solution x
+  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs> dUdx;
+  /// derivatives of solution y
+  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs> dUdy;
 
-  typename SHAPEFUNC::MappedGradientT m_sf_grad_ref; // Gradient of the shape functions in reference space
-  typename SHAPEFUNC::ShapeFunctionsT m_sf_ref;      // Values of shape functions in reference space
+  /// stores dx/dksi and dx/deta at each quadrature point
+  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> dX;
+  /// stores dy/dksi and dy/deta at each quadrature point
+  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> dY;
 
-  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_qdpos; //coordinates of quadrature points in physical space
-  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs > m_u_qd; //solution at quadrature points in physical space
-
-  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs> dUdx; //derivatives of solution x
-  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs> dUdy; //derivatives of solution y
-
-  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dx; // stores dx/dksi and dx/deta at each quadrature point
-  Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dy; // stores dy/dksi and dy/deta at each quadrature point
-
-  WeightVT jacob;      // jacobian of transformation phys->ref at each qd. pt
-
-  SFMatrixT m_dNdx; //Derivatives of shape functions
-                                                                        //at all quadrature points in phys. space
-  SFMatrixT m_dNdy;
+  /// derivatives of shape functions on XX at all quadrature points in physical space
+  SFMatrixT dNdx;
+  /// derivatives of shape functions on YY at all quadrature points in physical space
+  SFMatrixT dNdy;
 
   /// flux jacobians
   PhysicsMT dFdU[DIM_2D];
@@ -199,26 +200,30 @@ SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeCSysLDA ( const std::string& 
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
 
   std::cout << "QD points [" << QUADRATURE::nb_points << "]"  << std::endl;
-  std::cout << "Ki_qn   is " << Ki_qn[0].rows()<< "x" << Ki_qn[0].cols() << std::endl;
-  std::cout << "LU_q    is " << LU_q[0].rows() << "x" << LU_q[0].cols()  << std::endl;
+  std::cout << "Ki_qn   is " << Ki_n[0].rows()<< "x" << Ki_n[0].cols() << std::endl;
+  std::cout << "LU      is " << LU.rows() << "x" << LU.cols()  << std::endl;
   std::cout << "Phi_n   is " << Phi_n.rows()   << "x" << Phi_n.cols()    << std::endl;
   std::cout << "U_n     is " << U_n.rows()     << "x" << U_n.cols()      << std::endl;
   std::cout << "DvPlus  is " << DvPlus[0].rows()  << "x" << DvPlus[0].cols()   << std::endl;
 
-  for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
-    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-      DvPlus[q*QUADRATURE::nb_points + n].setZero();
+  for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+    DvPlus[n].setZero();
+
+  // Gradient of the shape functions in reference space
+  typename SHAPEFUNC::MappedGradientT GradSF;
+  // Values of shape functions in reference space
+  typename SHAPEFUNC::ShapeFunctionsT SF;
 
   // initialize the interpolation matrix
   for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
     {
-       SHAPEFUNC::mapped_gradient( m_quadrature.coords.col(q), m_sf_grad_ref );
-       SHAPEFUNC::shape_function ( m_quadrature.coords.col(q), m_sf_ref   );
+       SHAPEFUNC::mapped_gradient( m_quadrature.coords.col(q), GradSF );
+       SHAPEFUNC::shape_function ( m_quadrature.coords.col(q), SF     );
 
-       m_N(q,n) = m_sf_ref[n];
-       m_dNdksi(q,n) = m_sf_grad_ref(KSI,n);
-       m_dNdeta(q,n) = m_sf_grad_ref(ETA,n);
+       Ni(q,n) = SF[n];
+       dNdKsi(q,n) = GradSF(KSI,n);
+       dNdEta(q,n) = GradSF(ETA,n);
     }
 }
 
@@ -239,7 +244,7 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
   // copy the coordinates from the large array to a small
 
-  Mesh::fill(nodes, *coordinates, nodes_idx );
+  Mesh::fill(X_n, *coordinates, nodes_idx );
 
   // copy the solution from the large array to a small
 
@@ -247,101 +252,111 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
     for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
       U_n(n,v) = (*solution)[ nodes_idx[n] ][v];
 
-//  m_oper.compute(nodes, U_n, Ki_qn, LU_q, DvPlus, wj);
+  // coordinates of quadrature points in physical space
 
-  m_qdpos  = m_N * nodes; // coordinates of quadrature points in physical space
+  X_q  = Ni * X_n;
 
-  m_u_qd = m_N * U_n; // solution at all quadrature points in physical space
+  // solution at all quadrature points in physical space
 
-  //Jacobian of transformation phys -> ref:
+  U_q = Ni * U_n;
+
+  // Jacobian of transformation phys -> ref:
   //    |   dx/dksi    dx/deta    |
   //    |   dy/dksi    dy/deta    |
-  // m_dx.col(KSI) has the values of dx/dksi at all quadrature points
-  // m_dx.col(ETA) has the values of dx/deta at all quadrature points
-  m_dx.col(KSI) = m_dNdksi * nodes.col(XX);
-  m_dx.col(ETA) = m_dNdeta * nodes.col(XX);
-  m_dy.col(KSI) = m_dNdksi * nodes.col(YY);
-  m_dy.col(ETA) = m_dNdeta * nodes.col(YY);
 
-  // compute L(u) and L(N) @ each quadrature point
+  // dX.col(KSI) has the values of dx/dksi at all quadrature points
+  // dX.col(ETA) has the values of dx/deta at all quadrature points
+
+  dX.col(KSI) = dNdKsi * X_n.col(XX);
+  dX.col(ETA) = dNdEta * X_n.col(XX);
+  dY.col(KSI) = dNdKsi * X_n.col(YY);
+  dY.col(ETA) = dNdEta * X_n.col(YY);
+
+  // transformation jacobian at quadrature point
 
   for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
-      jacob[q] = m_dx(q,XX) * m_dy(q,YY) - m_dx(q,YY) * m_dy(q,XX);
+    jacob[q] = dX(q,XX) * dY(q,YY) - dX(q,YY) * dY(q,XX);
 
-  // Shape function derivatives in physical space at quadrature pts
-  for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
-    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    {
-      m_dNdx(q,n) = 1.0/jacob[q] * (  m_dNdksi(q,n)*m_dy(q,YY) - m_dNdeta(q,n) * m_dy(q,XX));
-      m_dNdy(q,n) = 1.0/jacob[q] * ( -m_dNdksi(q,n)*m_dx(q,YY) + m_dNdeta(q,n) * m_dx(q,XX));
-    }
-
-  dUdx = m_dNdx * U_n;
-  dUdy = m_dNdy * U_n;
-
- for(Uint q=0; q < QUADRATURE::nb_points; ++q)
- {
-   for(Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
-   {
-     dN[XX] = m_dNdx(q,n);
-     dN[YY] = m_dNdy(q,n);
-
-     PHYSICS::jacobian_eigen_structure(m_qdpos.row(q),
-                                       m_u_qd.row(q),
-                                       dN,
-                                       Rv,
-                                       Lv,
-                                       Dv,
-                                       DvPlus [ q * QUADRATURE::nb_points + n ],
-                                       Ki_qn    [ q * QUADRATURE::nb_points + n ] );
-   }
-
-   PHYSICS::Lu(m_qdpos.row(q),
-               m_u_qd.row(q),
-               dUdx.row(q).transpose(),
-               dUdy.row(q).transpose(),
-               dFdU,
-               LU_q[q]);
-
-   wj[q] = jacob[q]*m_quadrature.weights[q];
-
-
- } // loop over quadrature points
-
-  // compute L(N)+]
+  // compute transformed integration weights (sum is element area)
 
   for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
   {
+    wj[q] = jacob[q] * m_quadrature.weights[q];
     elem_area += wj[q];
+  }
+
+  // shape function derivatives in physical space at quadrature point
+
+  for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
+  {
+    const Real inv_jacob = 1.0 / jacob[q];
+    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+    {
+      dNdx(q,n) = inv_jacob * (  dNdKsi(q,n)*dY(q,YY) - dNdEta(q,n) * dY(q,XX));
+      dNdy(q,n) = inv_jacob * ( -dNdKsi(q,n)*dX(q,YY) + dNdEta(q,n) * dX(q,XX));
+    }
+  }
+
+  // solution derivatives in physical space at quadrature point
+
+  dUdx = dNdx * U_n;
+  dUdy = dNdy * U_n;
+
+  // compute L(u) and L(N) @ each quadrature point
+
+  for(Uint q=0; q < QUADRATURE::nb_points; ++q)
+  {
+    for(Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
+    {
+      dN[XX] = dNdx(q,n);
+      dN[YY] = dNdy(q,n);
+
+      PHYSICS::jacobian_eigen_structure(X_q.row(q),
+                                        U_q.row(q),
+                                        dN,
+                                        Rv,
+                                        Lv,
+                                        Dv,
+                                        DvPlus[n],
+                                        Ki_n  [n] );
+    }
+
+    PHYSICS::Lu(X_q.row(q),
+                U_q.row(q),
+                dUdx.row(q).transpose(),
+                dUdy.row(q).transpose(),
+                dFdU,
+                LU );
+
+    // compute L(N)+
 
     sumLplus.setZero();
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-      sumLplus += Ki_qn[q*QUADRATURE::nb_points + n];
+      sumLplus += Ki_n[n];
 
     // invert the sum L plus
 
-    InvKi_qn = sumLplus.inverse();
+    InvKi_n = sumLplus.inverse();
 
     // compute the phi_i LDA intergral
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    {
-      PhysicsMT& KiPlus = Ki_qn[q*QUADRATURE::nb_points + n];
+      Phi_n.row(n) +=  Ki_n[n] * InvKi_n * LU * wj[q];
 
-      Phi_n.row(n) +=  KiPlus * InvKi_qn * LU_q[q] * wj[q];
-    }
+    // compute the wave_speed for scaling the update
 
-    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-    {
-      Real max_eigen_value = 0;
-      for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
-        max_eigen_value = std::max( max_eigen_value, DvPlus[q*QUADRATURE::nb_points + n](v,v) );
+    for(Uint q=0; q < QUADRATURE::nb_points; ++q)
+      for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+      {
+        Real max_eigen_value = 0;
+        for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
+          max_eigen_value = std::max( max_eigen_value, DvPlus[n](v,v) );
 
-      (*wave_speed)[nodes_idx[n]][0] += max_eigen_value * wj[q];
-    }
+        (*wave_speed)[nodes_idx[n]][0] += max_eigen_value * wj[q];
+      }
 
-	} // loop qd points
+  } // loop qd points
 
   // update the residual
   
@@ -349,11 +364,11 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
     for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
       (*residual)[nodes_idx[n]][v] += Phi_n(n,v);
 
-  //    std::cout << "X    [" << q << "] = " << m_qdpos.row(q)    << std::endl;
-  //    std::cout << "U    [" << q << "] = " << m_u_qd.row(q)     << std::endl;
+  //    std::cout << "X    [" << q << "] = " << X_q.row(q)    << std::endl;
+  //    std::cout << "U    [" << q << "] = " << U_q.row(q)     << std::endl;
   //    std::cout << "dUdx [" << q << "] = " << dUdx.row(q)       << std::endl;
   //    std::cout << "dUdy [" << q << "] = " << dUdy.row(q)       << std::endl;
-  //    std::cout << "LU   [" << q << "] = " << Lu_q[q].transpose() << std::endl;
+  //    std::cout << "LU   [" << q << "] = " << Lu.transpose() << std::endl;
   //    std::cout << "wj   [" << q << "] = " << wj[q]             << std::endl;
   //    std::cout << "--------------------------------------"     << std::endl;
 
@@ -388,6 +403,9 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 /////////////////////////////////////////////////////////////////////////////////////
 
 #if 0
+/// inflow vector for N dissipation
+//  PhysicsVT SumKu;
+
     // compute the phi_i N dissipation intergral
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
