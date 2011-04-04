@@ -49,18 +49,20 @@ class Graphics_API Widget3D : public QWidget
 
 public: //function
 
-  /// Light Constructor
+  /// Constructor
   /// @param parent Parent QWdiget.
   Widget3D(QWidget *parent = 0);
 
 public slots://slots
 
-  /// Call openFile to reload existing path
+  /// Call openFile to reload last file path
   void reload();
 
-  /// Ask the client to connect to paraview server and qsk to load a certain file
+  /// Connect client to paraview server and load a certain file
+  /// @param host Ip or name of the paraview server.
+  /// @param port Port used.
+  /// @param path Path of the file in server side.
   void connectToServer(QString host,QString port, QString path);
-
 
 private : //function
 
@@ -74,39 +76,42 @@ private : //function
     void addFilter();
 
     /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
+    /// @param file_path Path of the file in server side.
     void openFile(QString file_path);
 
-    /// Ask connection options and try to connect to a certain host & port
+    /// Connect client to paraview server.
+    /// @param host Ip or name of the paraview server.
+    /// @param port Port used.
     void connectToServer(QString host,QString port);
-
 
 private slots: //slots
 
-  /// Ask connection options and try to connect to a certain host & port
+  /// Ask connection options to user and try to connect to server host with port.
   void connectToServer();
 
-  /// Ask connection options and try to connect to a certain host & port
+  /// Disconnect from current paraview server.
   void disconnectFromServer();
 
-  /// Call openFile with new entry path
+  /// Call openFile with new entry path.
   void loadFile();
 
-  /// Show a dialog window that ask for a path file
+  /// Show a dialog window that ask for a path file.
   void showLoadFileDialog();
 
-  /// Show a dialog window that ask for an host and port
+  /// Show a dialog window that ask for an host and port.
   void showConnectDialog();
 
-  /// Set the rotation center
+  /// Set the rotation center, in center of the screen.
   void set_rotation_center();
 
-  /// Set the current rotation
+  /// Set a selected rotation
+  /// @param value The value of the rotation set.
   void set_rotation(int value);
 
   /// Take a screen shot of the current view
   void take_screen_shot();
 
-  /// reset the camera
+  /// Reset camera
   void reset_camera();
 
   /// Show the color editor
@@ -126,14 +131,10 @@ private: //data
   /// Plugin manger that give acces to advenced object and view
   QPointer<pqPluginManager> m_plugin_manager;
 
-  /// Layout of this widget
-  QPointer<QHBoxLayout> m_layout_h;
-
-  /// Layout of this widget
+  /// Main layout of this widget
   QPointer<QVBoxLayout> m_layout_v;
-
-  /// Layout of this widget
   QPointer<QVBoxLayout> m_layout_option;
+  QPointer<QHBoxLayout> m_layout_h;
 
   /// Button that show Server Connection dialog
   QPointer<QPushButton> m_connect_to_server_button;
@@ -144,21 +145,20 @@ private: //data
   /// Button that reset center of rotation
   QPointer<QPushButton> m_set_rotation_center;
 
-  /// Button make a screen shot
+  /// Button take screen shot
   QPointer<QPushButton> m_screen_shot;
 
-  /// Button make a screen shot
+  /// Button reset rotation.
   QPointer<QPushButton> m_reset_camera;
 
-  /// Button make a screen shot
-  QPointer<QPushButton> m_show_color_palet;
+  /// Button that show color selector.
+  QPointer<QPushButton> m_show_color_palette;
 
-  /// Button make a screen shot
+  /// Button reload file.
   QPointer<QPushButton> m_reload;
 
   /// ComboBox of dataRepresentation style
-  //QPointer<QComboBox> m_style;
-  QPointer<pqDisplayRepresentationWidget> m_style;
+  QPointer<pqDisplayRepresentationWidget> m_mesh_style;
 
   /// Combobox of predefined rotation set
   QPointer<QComboBox> m_preDefined_rotation;
@@ -169,36 +169,43 @@ private: //data
   /// render window input Pipeline.
   QPointer<pqPipelineSource> m_input;
 
-  /// View where the render is shown
+  /// View where the render is shown.
   QPointer<pqRenderView> m_RenderView;
 
-  /// Server Port LineEdit
+  /// Server Port LineEdit.
   QPointer<QLineEdit> m_port_line;
 
-  /// Server Host LineEdit
+  /// Server Host LineEdit.
   QPointer<QLineEdit> m_host_line;
 
-  /// Server File Path LineEdit
+  /// Server File Path LineEdit.
   QPointer<QLineEdit> m_Path_File_line;
 
-  pqDisplayColorWidget * m_color;
+  /// Data set selector.
+  QPointer<pqDisplayColorWidget> m_dataSet_selector;
 
-  //pqDisplayProxyEditor * m_disp_pan;
+  /// Color scale selector.
+  QPointer<pqColorScaleEditor> m_scaleEdit;
 
-  //pqCameraDialog * camDia;
-
-  pqColorScaleEditor * scaleEdit;
-
-  pqLookupTableManager* lutManager;
-
+  /// Path of loaded file.
   QString m_file_path;
 
-  QGroupBox * server_options;
-  QGroupBox * camera_options;
-  QGroupBox * mesh_options;
+  /// Server group box options.
+  QPointer<QGroupBox> m_server_options;
 
+  /// Camera group box options.
+  QPointer<QGroupBox> m_camera_options;
+
+  /// Mesh group box options.
+  QPointer<QGroupBox> m_mesh_options;
+
+  /// Server group box options layout.
   QPointer<QVBoxLayout> m_layout_server_options;
+
+  /// Camera group box options layout.
   QPointer<QVBoxLayout> m_layout_camera_options;
+
+  /// Mesh group box options layout.
   QPointer<QHBoxLayout> m_layout_mesh_options;
 
 };
