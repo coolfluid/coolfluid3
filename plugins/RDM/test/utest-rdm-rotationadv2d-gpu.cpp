@@ -8,12 +8,15 @@
 #define BOOST_TEST_MODULE "Test module for CF::RDM::ScalarAdvection"
 
 #include <boost/test/unit_test.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include "Common/BoostFilesystem.hpp"
 
 #include "Common/CreateComponent.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
+#include "Common/LibLoader.hpp"
+#include "Common/OSystem.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
 
@@ -49,6 +52,14 @@ struct rotationadv2d_global_fixture
   {
     Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
+
+    // Load the required libraries (we assume the working dir is the binary path)
+    LibLoader& loader = *OSystem::instance().lib_loader();
+    const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../../dso");
+    loader.set_search_paths(lib_paths);
+
+    loader.load_library("coolfluid_mesh_tecplot");
+    loader.load_library("coolfluid_mesh_vtklegacy");
 
     rotationadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
@@ -115,10 +126,10 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 
   std::vector<URI> files;
 
-  URI file ( "file:translation-tg.msh" );
-  //  URI file ( "file:rotation-qd-p1.neu" );
+  URI file ( "file:rotation-tg.msh" );
 
   options.set_option<URI>("File", file );
+  options.set_option<std::string>("Name", std::string("Mesh") );
 
   domain.signal_load_mesh( frame );
 
@@ -133,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 1.);
+  solver.get_child("time_stepping").configure_property("CFL", 0.8);
   solver.get_child("time_stepping").configure_property("MaxIter", 1000u);
 }
 
@@ -152,9 +163,6 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"farfield"))
     regions.push_back( region.full_path() );
 
-
-  //regions.push_back( regions.full_path() );
-
   BOOST_CHECK_EQUAL( regions.size() , 2u);
 
   std::string name ("INLET");
@@ -171,6 +179,8 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   inletbc->
       configure_property("Function", std::string("if(y>0,0,if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.))") );
 
+//  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
+
   BOOST_CHECK(true);
 }
 
@@ -184,7 +194,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , rotationadv2d_local_fixtur
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<std::string> functions(1);
-  functions[0] = "0.0";
+  functions[0] = "0.";
   options.set_array("Functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
@@ -192,11 +202,11 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , rotationadv2d_local_fixtur
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_ldagpu , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve_lda_gpu , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  CFinfo << "solving with LDAGPU scheme" << CFendl;
+  CFinfo << "solving with LDA scheme" << CFendl;
 
   // delete previous domain terms
   Component& domain_terms = solver.get_child("compute_domain_terms");
@@ -221,12 +231,9 @@ BOOST_FIXTURE_TEST_CASE( solve_ldagpu , rotationadv2d_local_fixture )
 
   options.set_option<std::string>("Name","INTERNAL");
   options.set_option<std::string>("Type","CF.RDM.LDAGPU");
-
   options.set_array("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
-
-  //std::cout << solver.tree() << std::endl;
 
   BOOST_CHECK(true);
 
@@ -236,7 +243,9 @@ BOOST_FIXTURE_TEST_CASE( solve_ldagpu , rotationadv2d_local_fixture )
 
 }
 
-//////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 {
@@ -246,19 +255,36 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
   BOOST_CHECK(true);
 
-  CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
-  model.add_component(mesh_writer);
-
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
-  mesh_writer->configure_property("Fields",fields);
-  mesh_writer->configure_property("File",model.name()+".msh");
-  mesh_writer->configure_property("Mesh",mesh->full_path());
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  model.add_component(gmsh_writer);
 
-  mesh_writer->write();
+  gmsh_writer->configure_property("Fields",fields);
+  gmsh_writer->configure_property("File",model.name()+".msh");
+  gmsh_writer->configure_property("Mesh",mesh->full_path());
 
+  gmsh_writer->write();
+
+  CMeshWriter::Ptr vtk_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","VTKWriter");
+  model.add_component(vtk_writer);
+
+  vtk_writer->configure_property("Fields",fields);
+  vtk_writer->configure_property("File",model.name()+".vtk");
+  vtk_writer->configure_property("Mesh",mesh->full_path());
+
+  vtk_writer->write();
+
+  CMeshWriter::Ptr tec_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
+  model.add_component(tec_writer);
+
+  tec_writer->configure_property("Fields",fields);
+  tec_writer->configure_property("File",model.name()+".plt");
+  tec_writer->configure_property("Mesh",mesh->full_path());
+
+  tec_writer->write();
 }
 
 //////////////////////////////////////////////////////////////////////////////

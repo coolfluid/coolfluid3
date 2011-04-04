@@ -137,19 +137,3 @@ char* GPUSource =
 "    }                                                                                                      \n"
 };
 
-/*
-void AtomicAdd(__global float *phiVal, __global float *waveVal, const float dPhi, const float dWave )
-{
-    union { float phi; float wave; unsigned int i; } oldVal;
-    union { float phi; float wave; unsigned int i; } newVal;
-
-    do
-    {
-        oldVal.phi = *phiVal;
-        newVal.phi = oldVal.phi + dPhi;
-        oldVal.wave = *waveVal;
-        newVal.wave = oldVal.wave + dWave;
-    }
-    while (atom_cmpxchg((__global unsigned int *)val, oldVal.i, newVal.i) != oldVal.i);
-}
-*/

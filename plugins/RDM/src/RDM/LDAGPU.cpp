@@ -7,6 +7,7 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/timer.hpp>
 
+
 #include "Common/CBuilder.hpp"
 
 #include "Common/Foreach.hpp"
@@ -23,7 +24,6 @@
 #include "RDM/Burgers2D.hpp"         // supported physics
 
 #include "RDM/SchemeLDAGPU.hpp"
-
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -53,8 +53,8 @@ struct LDAGPU::ElementLoop
   template < typename SF >
   void operator() ( SF& T )
   {
-  
 //    std::cout << "LDAGPU [" << SF::type_name() << "]" << std::endl;
+
     /// definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
     /// parametrization of the numerical scheme
@@ -75,13 +75,9 @@ struct LDAGPU::ElementLoop
       scheme->set_elements(elements);
 
       const Uint nb_elem = elements.size();
-      
-      // replace by GPU function
-      
-
-
+//      boost::timer ctimer;
       scheme->execute();
-      
+//      std::cout<<ctimer.elapsed()<<std::endl;
     }
   }
 
@@ -94,10 +90,7 @@ LDAGPU::LDAGPU ( const std::string& name ) : RDM::DomainTerm(name)
   regist_typeinfo(this);
 }
 
-LDAGPU::~LDAGPU()
-{
-
-}
+LDAGPU::~LDAGPU() {}
 
 void LDAGPU::execute()
 {
@@ -112,6 +105,7 @@ void LDAGPU::execute()
 
     if ( physics == "LinearAdv2D" )
     {
+
       LDAGPU::ElementLoop<LinearAdv2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
