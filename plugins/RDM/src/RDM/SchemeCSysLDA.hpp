@@ -116,7 +116,7 @@ private: // data
   /// inverse Ki+ matix
   typename DiscreteOpType::PhysicsMT InvKi_qn;
   /// diagonal matrix with positive eigen values
-  typename DiscreteOpType::PhysicsMT DvPlus;
+  typename DiscreteOpType::PhysicsMT DvPlus [QUADRATURE::nb_points*SHAPEFUNC::nb_nodes];
   /// inflow vector for N dissipation
   typename DiscreteOpType::PhysicsVT SumKu;
   /// node values
@@ -143,9 +143,11 @@ SchemeCSysLDA<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeCSysLDA ( const std::string& 
   std::cout << "LU_q    is " << LU_q[0].rows() << "x" << LU_q[0].cols()  << std::endl;
   std::cout << "Phi_n   is " << Phi_n.rows()   << "x" << Phi_n.cols()    << std::endl;
   std::cout << "U_n     is " << U_n.rows()     << "x" << U_n.cols()      << std::endl;
-  std::cout << "DvPlus  is " << DvPlus.rows()  << "x" << DvPlus.cols()   << std::endl;
+  std::cout << "DvPlus  is " << DvPlus[0].rows()  << "x" << DvPlus[0].cols()   << std::endl;
 
-  DvPlus.setZero();
+  for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
+    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+    DvPlus[q*QUADRATURE::nb_points + n].setZero();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -167,6 +169,27 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
 //  std::cout << "mesh::fill function" <<  std::endl;
 //  std::cout << "nodes: " << m_nodes << std::endl;
+
+  // compute a bounding box of the element:
+
+  Real xmin = m_nodes(0, XX);
+  Real xmax = m_nodes(0, XX);
+  Real ymin = m_nodes(0, YY);
+  Real ymax = m_nodes(0, YY);
+
+  for(Uint inode = 1; inode < SHAPEFUNC::nb_nodes; ++inode)
+  {
+    xmin = std::min(xmin,m_nodes(inode, XX));
+    xmax = std::max(xmax,m_nodes(inode, XX));
+
+    ymin = std::min(ymin,m_nodes(inode, YY));
+    ymax = std::max(ymax,m_nodes(inode, YY));
+
+  }
+
+  const Real dx = xmax - xmin;
+  const Real dy = ymax - ymin;
+	const Real bb_area = std::sqrt( dx*dx+dy*dy);
 
   // copy the solution from the large array to a small
 
@@ -191,12 +214,15 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 //  std::cout << std::endl;
 //  std::cout << "flux_oper_values " << LU_q.rows() << "x" << LU_q.cols()  << " [" << LU_q << "]" << std::endl;
 
-  Real max_eigen_value = 0;
+  Real elem_area = 0;
+  Real elem_wave_speed = 0.; // elemement area times max eigen value
 
   // compute L(N)+]
 
   for(Uint q = 0; q < QUADRATURE::nb_points; ++q)
   {
+    elem_area += m_wj[q];
+
     sumLplus.setZero();
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
@@ -216,21 +242,39 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
     }
 
     // compute the phi_i N dissipation intergral
+#if 0
+    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+    {
+      SumKu.setZero();
+      for(Uint j = 0; j < SHAPEFUNC::nb_nodes; ++j)
+        SumKu += Ki_qn[q*QUADRATURE::nb_points+n] * ( U_n.row(n).transpose() - U_n.row(j).transpose() );
 
-//    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
-//    {
-//      SumKu.setZero();
-//      for(Uint j = 0; j < SHAPEFUNC::nb_nodes; ++j)
-//        SumKu += Ki_qn[q*QUADRATURE::nb_points+n] * ( U_n.row(n).transpose() - U_n.row(j).transpose() );
+      typename DiscreteOpType::PhysicsMT& KiPlus = Ki_qn[q*QUADRATURE::nb_points + n];
 
-//      typename DiscreteOpType::PhysicsMT& KiPlus = Ki_qn[q*QUADRATURE::nb_points + n];
+      Phi_n.row(n) += KiPlus * InvKi_qn * SumKu * m_wj[q];
+    }
+#endif
 
-//      Phi_n.row(n) += KiPlus * InvKi_qn * SumKu * m_wj[q];
-//    }
+    for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
+    {
+      Real max_eigen_value = 0;
+      for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
+        max_eigen_value = std::max( max_eigen_value, DvPlus[q*QUADRATURE::nb_points + n](v,v) );
 
-    for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
-      max_eigen_value = std::max( max_eigen_value, DvPlus(v,v) );
-  }
+      (*wave_speed)[nodes_idx[n]][0] += max_eigen_value * m_wj[q];
+    }
+
+//		elem_wave_speed += max_eigen_value * m_wj[q]; // integrated over the element ( includes x elem_area)
+
+//    std::cout << "DvPlus[" << q << "]\n" << DvPlus[q] << std::endl;
+
+	} // loop qd points
+
+	// The wave speed coeff is updated by a product of bb radius and max eigen value
+//	for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
+//	{
+//    (*wave_speed)[nodes_idx[n]][0] += elem_wave_speed / elem_area;
+//	}
 
 //  std::cout << "phi [";
 //  for (Uint n=0; n < SHAPEFUNC::nb_nodes; ++n)
@@ -243,46 +287,6 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     for (Uint v=0; v < PHYSICS::nb_eqs; ++v)
       (*residual)[nodes_idx[n]][v] += Phi_n(n,v);
-
-  // computing average advection speed on element
-
-	typename SHAPEFUNC::CoordsT centroid;
-	
-	centroid.setZero();
-
-  for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-  {
-    centroid[XX] += m_nodes(n, XX);
-    centroid[YY] += m_nodes(n, YY);
-  }
-  centroid /= SHAPEFUNC::nb_nodes;
-
-
-  // compute a bounding box of the element:
-
-  Real xmin = m_nodes(0, XX);
-  Real xmax = m_nodes(0, XX);
-  Real ymin = m_nodes(0, YY);
-  Real ymax = m_nodes(0, YY);
-
-  for(Uint inode = 1; inode < SHAPEFUNC::nb_nodes; ++inode)
-  {
-    xmin = std::min(xmin,m_nodes(inode, XX));
-    xmax = std::max(xmax,m_nodes(inode, XX));
-
-    ymin = std::min(ymin,m_nodes(inode, YY));
-    ymax = std::max(ymax,m_nodes(inode, YY));
-
-  }
-
-  const Real dx = xmax - xmin;
-  const Real dy = ymax - ymin;
-
-  // The update coeff is updated by a product of bb radius and max eigen value
-  for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-  {
-    (*wave_speed)[nodes_idx[n]][0] += std::sqrt( dx*dx+dy*dy); // * max_eigen_value;
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

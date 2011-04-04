@@ -52,6 +52,9 @@ struct euler2d_global_fixture
 {
   euler2d_global_fixture()
   {
+    Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
+                              boost::unit_test::framework::master_test_suite().argv);
+
     // Load the required libraries (we assume the working dir is the binary path)
     LibLoader& loader = *OSystem::instance().lib_loader();
 
@@ -73,6 +76,9 @@ struct euler2d_global_fixture
 
     euler2d_wizard->signal_create_model(frame);
   }
+
+//  ~euler2d_global_fixture() { Core::instance().terminate(); }
+
 
   ScalarAdvection::Ptr euler2d_wizard;
 
@@ -108,8 +114,6 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , euler2d_local_fixture )
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   Core::instance().root()->signal_list_tree(frame);
-
-//  CFinfo << model.tree() << CFendl;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -117,6 +121,8 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , euler2d_local_fixture )
 BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 {
   BOOST_CHECK(true);
+
+//  CFinfo << Core::instance().root()->tree() << CFendl;
 
   // create the xml parameters for the read mesh signal
 
@@ -134,6 +140,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 //  URI file( "file:square1x1-tgqd-p1.msh" );
 
   options.set_option<URI>("File", file );
+  options.set_option<std::string>("Name", std::string("Mesh") );
 
   domain.signal_load_mesh( frame );
 
@@ -158,8 +165,8 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , euler2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 0.1);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 1500u);;
+  solver.get_child("time_stepping").configure_property("CFL", 0.85);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 250u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////

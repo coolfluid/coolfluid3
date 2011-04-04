@@ -56,7 +56,7 @@ public: // functions
                const SolutionMT& solution,
                PhysicsMT    Kiq[],
                PhysicsVT    LU[],
-               PhysicsMT&  DvPlus,
+               PhysicsMT    DvPlus[],
                Eigen::Matrix<Real, QUADRATURE::nb_points, 1u>& wj);
     
 protected: // data
@@ -131,7 +131,7 @@ void CSysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const NodeMT& nodes,
                                                          const SolutionMT& solution,
                                                          PhysicsMT   Kiq[],
                                                          PhysicsVT   LU[],
-                                                         PhysicsMT&  DvPlus,
+                                                         PhysicsMT   DvPlus[],
                                                          Eigen::Matrix<Real, QUADRATURE::nb_points, 1u>& wj)
 {
    //Coordinates of quadrature points in physical space
@@ -176,8 +176,8 @@ void CSysFluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const NodeMT& nodes,
                                         Rv,
                                         Lv,
                                         Dv,
-                                        DvPlus,
-                                        Kiq[ q * QUADRATURE::nb_points + n ] );
+                                        DvPlus [ q * QUADRATURE::nb_points + n ],
+                                        Kiq    [ q * QUADRATURE::nb_points + n ] );
     }
 
     PHYSICS::Lu(m_qdpos.row(q),

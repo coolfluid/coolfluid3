@@ -7,6 +7,7 @@
 #ifndef CF_Solver_Euler2D_hpp
 #define CF_Solver_Euler2D_hpp
 
+#include "Common/StringConversion.hpp"
 #include "Math/MatrixTypes.hpp"
 #include "Mesh/Types.hpp"
 
@@ -69,9 +70,9 @@ public: // functions
     const Real a2 = gamma_minus_1*(H - 0.5*uuvv);
 
     if( a2 <= 0 )
-      throw BadValue( FromHere(), "Speed of sound negative at coordinates ["
-                                   + to_str(coord[XX]) + ","
-                                   + to_str(coord[YY])
+      throw Common::BadValue( FromHere(), "Speed of sound negative at coordinates ["
+                                   + Common::to_str(coord[XX]) + ","
+                                   + Common::to_str(coord[YY])
                                    + "]");
 
 //    const Real T = a2 / ( gamma * R );
@@ -133,12 +134,16 @@ public: // functions
     Dv(2,2) = um + a;
     Dv(3,3) = um - a;
 
+//    std::cout << "Dv\n" << Dv << std::endl;
+
     // diagonal matrix of positive eigen values
 
     DvPlus(0,0) = std::max( 0., um );
     DvPlus(1,1) = std::max( 0., um );
     DvPlus(2,2) = std::max( 0., um + a );
     DvPlus(3,3) = std::max( 0., um - a );
+
+//    std::cout << "DvPlus\n" << DvPlus << std::endl;
 
     // compute Ki+
 
