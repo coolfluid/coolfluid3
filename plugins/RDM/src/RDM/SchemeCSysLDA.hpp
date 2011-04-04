@@ -346,6 +346,27 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
       Phi_n.row(n) +=  Ki_n[n] * LUwq;
 
+#if 0
+    // N dissipation
+    for(Uint i = 0; i < SHAPEFUNC::nb_nodes; ++i)
+    {
+      LUwq.setZero();
+      for(Uint j = 0; j < SHAPEFUNC::nb_nodes; ++j)
+      {
+        if (i==j) continue;
+        LUwq += Ki_n[j] * ( U_n.row(j).transpose() - U_n.row(i).transpose() );
+        std::cout << "Uj-Ui : " << U_n.row(j).transpose() - U_n.row(i).transpose() << std::endl;
+      }
+
+      std::cout << "LUwq : " << LUwq << std::endl;
+
+      Phi_n.row(i) +=  Ki_n[i] * InvKi_n * LUwq * wj[q];
+
+      std::cout << "Phi N = " << Ki_n[i] * InvKi_n * LUwq * wj[q] << std::endl;
+
+    }
+#endif
+
     // compute the wave_speed for scaling the update
 
     for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
@@ -398,7 +419,7 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   //      std::cout << Phi_n(n,v) << " ";
   //  std::cout << "]" << std::endl;
 
-//    if( idx() > 9 ) exit(0);
+//    if( idx() > 2 ) exit(0);
 
 }
 

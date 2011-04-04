@@ -54,6 +54,8 @@ struct DefaultQuadrature
   typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> type;
 };
 
+//------------------------------------------------------------------------------------------
+
 /// Partial specialization for P2 with bubble.
 /// Standard second order integration uses only boundary quadrature points,
 /// where bubble function is zero, thus has uncoupled modes.
@@ -62,6 +64,8 @@ struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP2B, 2 >
 {
   typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP2B::shape> type;
 };
+
+//------------------------------------------------------------------------------------------
 
 /// Partial specialization for P3 triangles
 template <>
@@ -77,12 +81,34 @@ struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP3, 3 >
   typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::SF::Quad2DLagrangeP3::shape> type;
 };
 
+//------------------------------------------------------------------------------------------
+
+/// Partial specialization for P1 triangles
+template <>
+struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP1, 1 >
+{
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP2::shape> type;
+};
 
 /// Partial specialization for P2 triangles
 template <>
 struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP2, 2 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 2, Mesh::SF::Triag2DLagrangeP2::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP2::shape> type;
+};
+
+/// Partial specialization for P1 quadrilaterals
+template <>
+struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP1, 1 >
+{
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Quad2DLagrangeP1::shape> type;
+};
+
+/// Partial specialization for P2 quadrilaterals
+template <>
+struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP2, 2 >
+{
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Quad2DLagrangeP2::shape> type;
 };
 
 //------------------ FOR TESTING ----------------------------------
