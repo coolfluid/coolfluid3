@@ -38,15 +38,13 @@ public: // functions
   /// @returns the number of equations
   Uint nbeqs() const { return nb_eqs; }
 
-  template < typename CV, typename SV, typename GV, typename EM, typename EV, typename KM >
+  template < typename CV, typename SV, typename GV, typename EM, typename EV >
   static void jacobian_eigen_structure(const CV& coord,
                                        const SV& sol,
                                        const GV& gradN,
                                        EM& Rv,
                                        EM& Lv,
-                                       EV& Dv,
-                                       EV& DvPlus,
-                                       KM& KiPlus)
+                                       EV& Dv)
   {
     const Real gamma = 1.4;                 // diatomic ideal gas
     const Real gamma_minus_1 = gamma - 1.;
@@ -138,21 +136,6 @@ public: // functions
     Dv[2] = um + a;
     Dv[3] = um - a;
 
-//    std::cout << "Dv\n" << Dv << std::endl;
-
-    // diagonal matrix of positive eigen values
-
-    DvPlus[0] = std::max( 0., um );
-    DvPlus[1] = std::max( 0., um );
-    DvPlus[2] = std::max( 0., um + a );
-    DvPlus[3] = std::max( 0., um - a );
-
-//    std::cout << "DvPlus\n" << DvPlus << std::endl;
-
-    // compute Ki+
-
-    KiPlus = Rv * DvPlus.asDiagonal() * Lv;
-
   }
 
   template < typename CV, typename SV, typename GXV, typename GYV, typename JM, typename LUV >
@@ -221,7 +204,7 @@ public: // functions
     Lu = A * dudx + B * dudy;
   }
 
-};
+}; // Euler2D
 
 ////////////////////////////////////////////////////////////////////////////////////
 

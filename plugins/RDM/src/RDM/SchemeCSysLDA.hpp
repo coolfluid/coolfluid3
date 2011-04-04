@@ -7,6 +7,8 @@
 #ifndef CF_Solver_SchemeCSysLDA_hpp
 #define CF_Solver_SchemeCSysLDA_hpp
 
+#include <functional>
+
 #include <boost/assign.hpp>
 
 #include <Eigen/Dense>
@@ -32,6 +34,14 @@
 
 namespace CF {
 namespace RDM {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+/// function returning positive number
+Real plus ( Real x )
+{
+  return std::max( 0. , x );
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -303,7 +313,7 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
   dUdx = dNdx * U_n;
   dUdy = dNdy * U_n;
 
-  // compute L(u) and L(N) @ each quadrature point
+  // L(N)+ @ each quadrature point
 
   for(Uint q=0; q < QUADRATURE::nb_points; ++q)
   {
@@ -317,10 +327,16 @@ void SchemeCSysLDA<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
                                         dN,
                                         Rv,
                                         Lv,
-                                        Dv,
-                                        DvPlus[n],
-                                        Ki_n  [n] );
+                                        Dv );
+
+      // diagonal matrix of positive eigen values
+
+      DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
+
+      Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
     }
+
+    // compute L(u)
 
     PHYSICS::Lu(X_q.row(q),
                 U_q.row(q),
