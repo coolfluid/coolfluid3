@@ -24,6 +24,7 @@
 #include "Mesh/CMixedHash.hpp"
 #include "Mesh/CHash.hpp"
 #include "Mesh/CElements.hpp"
+#include "Mesh/CMeshElements.hpp"
 
 #include "Mesh/Neu/CReader.hpp"
 
@@ -130,6 +131,9 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   // close the file
   m_file.close();
+  
+  m_mesh->elements().update();
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

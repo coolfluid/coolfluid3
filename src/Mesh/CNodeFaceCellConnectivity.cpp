@@ -35,7 +35,8 @@ CNodeFaceCellConnectivity::CNodeFaceCellConnectivity ( const std::string& name )
 
 void CNodeFaceCellConnectivity::setup(CRegion& region)
 {
-  add_face_cell_connectivity(find_components_recursively<CFaceCellConnectivity>(region).as_vector());
+  boost_foreach(CFaceCellConnectivity& face2cells , find_components_recursively<CFaceCellConnectivity>(region))
+    face_cell_connectivity().add(face2cells);
   build_connectivity();
 }
 
@@ -90,34 +91,6 @@ void CNodeFaceCellConnectivity::build_connectivity()
     }
   }
   
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CDynTable<Uint>::ConstRow CNodeFaceCellConnectivity::faces(const Uint node_index) const
-{
-  return (*m_connectivity)[node_index];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CUnifiedData<CFaceCellConnectivity>::data_location_type CNodeFaceCellConnectivity::face_location(const Uint unified_face_idx)
-{
-  return m_face_cell_connectivity->data_location(unified_face_idx);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CUnifiedData<CFaceCellConnectivity>::const_data_location_type CNodeFaceCellConnectivity::face_location(const Uint unified_face_idx) const
-{
-  return m_face_cell_connectivity->data_location(unified_face_idx);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-boost::tuple<Uint,Uint> CNodeFaceCellConnectivity::face_local_idx(const Uint unified_face_idx) const
-{
-  return m_face_cell_connectivity->data_local_idx(unified_face_idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

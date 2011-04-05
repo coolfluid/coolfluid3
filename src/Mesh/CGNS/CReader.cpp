@@ -20,6 +20,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CMeshElements.hpp"
 #include "Mesh/CGNS/CReader.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -84,6 +85,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // close the CGNS file
   CALL_CGNS(cg_close(m_file.idx));
 
+  m_mesh->elements().update();
 }
 
 //////////////////////////////////////////////////////////////////////////////

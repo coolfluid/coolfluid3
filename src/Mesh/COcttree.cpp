@@ -140,15 +140,14 @@ void COcttree::create_octtree()
   // initialize the honeycomb
   m_octtree.resize(boost::extents[std::max(Uint(1),m_N[XX])][std::max(Uint(1),m_N[YY])][std::max(Uint(1),m_N[ZZ])]);
 
-  std::vector<CElements::ConstPtr> elements_vector = find_components_recursively_with_filter<CElements>(*m_mesh.lock(),IsElementsVolume()).as_const_vector();
-  m_elements->add_data(elements_vector);
+  boost_foreach (const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh.lock(),IsElementsVolume()))
+    m_elements->add(elements);
   
   Uint unif_elem_idx=0;
   RealVector centroid(m_dim);
   std::vector<Uint> octtree_idx(3);
-  boost_foreach(CElements::ConstPtr elements_ptr, elements_vector)
+  boost_foreach (const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh.lock(),IsElementsVolume()))
   {
-    const CElements& elements = *elements_ptr;
     Uint nb_nodes_per_element = elements.connectivity_table().row_size();
     RealMatrix coordinates(nb_nodes_per_element,m_dim);
     
@@ -332,7 +331,7 @@ boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& 
     
     boost_foreach(const Uint unif_elem_idx, unified_elements)
     {
-      boost::tie(elements,elem_idx)=m_elements->data_location(unif_elem_idx);
+      boost::tie(elements,elem_idx)=m_elements->location(unif_elem_idx);
       
       RealMatrix elem_coordinates = elements->get_coordinates(elem_idx);
       if (elements->element_type().is_coord_in_element(target_coord,elem_coordinates))
@@ -347,7 +346,7 @@ boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& 
     
     boost_foreach(const Uint unif_elem_idx, unified_elements)
     {
-      boost::tie(elements,elem_idx)=m_elements->data_location(unif_elem_idx);
+      boost::tie(elements,elem_idx)=m_elements->location(unif_elem_idx);
       
       RealMatrix elem_coordinates = elements->get_coordinates(elem_idx);
       if (elements->element_type().is_coord_in_element(target_coord,elem_coordinates))

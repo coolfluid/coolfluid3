@@ -58,8 +58,10 @@ public: // functions
   
   virtual void resize(const Uint size);
   
-  Uint size() const { return m_coordinates->size(); }
+  Uint size() const { return coordinates().size(); }
   
+  Uint dim() const { return coordinates().row_size(); }
+
 private: // data
 
   boost::shared_ptr<CTable<Real> > m_coordinates;

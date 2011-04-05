@@ -22,6 +22,8 @@ list( APPEND coolfluid_fvm_files
   FiniteVolumeSolver.cpp
   OutputIterationInfo.hpp
   OutputIterationInfo.cpp
+  PolynomialReconstructor.hpp
+  PolynomialReconstructor.cpp
   RiemannSolver.hpp
   RiemannSolver.cpp
   RoeCons1D.hpp

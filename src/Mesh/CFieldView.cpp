@@ -240,8 +240,8 @@ bool CConnectedFieldView::set_elements(CEntities& elements)
   m_elements = elements.as_ptr_checked<CEntities>();
   m_face2cells = find_component_ptr<CFaceCellConnectivity>(elements);
   cf_assert_desc(elements.full_path().path()+" needs to have a FaceCellConnectivity." , m_face2cells.expired() == false);
-  m_views.resize(m_face2cells.lock()->cells_components().size());
-  index_foreach(i,CCells::Ptr cells, m_face2cells.lock()->cells_components())
+  m_views.resize(m_face2cells.lock()->cells().size());
+  index_foreach(i,CCells::Ptr cells, m_face2cells.lock()->cells().data_components())
   {
     cf_assert(is_not_null(cells));
     m_views[i] = Common::allocate_component<CFieldView>("view");
@@ -256,9 +256,9 @@ std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_i
 {
   cf_assert_desc(full_path().path(),m_views.size());
   std::vector<CTable<Real>::Row> vec;
-  boost_foreach(const Uint cell, m_face2cells.lock()->elements(elem_idx))
+  boost_foreach(const Uint cell, m_face2cells.lock()->connectivity()[elem_idx])
   {
-    boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->element_loc_idx(cell);
+    boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->cells().location_idx(cell);
     cf_assert(cells_comp_idx < m_views.size());
     cf_assert( is_not_null(m_views[cells_comp_idx]) );
     cf_assert(cell_idx < m_views[cells_comp_idx]->size());
@@ -273,7 +273,7 @@ std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_i
 CTable<Real>::Row CConnectedFieldView::operator()(const Uint elem_idx, const Uint connected_idx)
 {
   cf_assert_desc(full_path().path(),m_views.size());
-  boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->element_loc_idx(m_face2cells.lock()->elements(elem_idx)[connected_idx]);
+  boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->cells().location_idx(m_face2cells.lock()->connectivity()[elem_idx][connected_idx]);
   cf_assert(cells_comp_idx < m_views.size());
   cf_assert( is_not_null(m_views[cells_comp_idx]) );
   cf_assert(cell_idx < m_views[cells_comp_idx]->size());

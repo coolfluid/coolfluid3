@@ -63,35 +63,28 @@ public:
   /// @pre set_nodes() and set_elements() must have been called
   
   void build_connectivity();
-
-  /// Find the elements connected to a given node by its index
-  /// The return type is CDynTable<Uint>::ConstRow which (or "std::vector<Uint> const&")
-  /// @return continuous indices of the elments
-  CTable<Uint>::ConstRow elements(const Uint unified_face_idx) const;
-
-  /// Find the element location given a unified element index
-  /// @return boost::tuple<CElements::Ptr,Uint>(elem_component,elem_idx)
-  CUnifiedData<CCells>::data_location_type element_location(const Uint unified_elem_idx);
-
-  /// Find the element location given a unified element index
-  /// @return boost::tuple<CElements::ConstPtr,Uint>(elem_component,elem_idx)  
-  CUnifiedData<CCells>::const_data_location_type element_location(const Uint unified_elem_idx) const;
   
   /// const access to the node to element connectivity table in unified indices
+  CTable<Uint>& connectivity() { return *m_connectivity; }
+
   const CTable<Uint>& connectivity() const { return *m_connectivity; }
 
   /// access to see if the face is a bdry face
+  CList<Uint>& is_bdry_face() { cf_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
+
   const CList<Uint>& is_bdry_face() const { cf_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
+  
+  CList<Uint>& face_number() { cf_assert( is_not_null(m_face_nb_in_first_elem) ); return *m_face_nb_in_first_elem; }
+
+  const CList<Uint>& face_number() const { cf_assert( is_not_null(m_face_nb_in_first_elem) ); return *m_face_nb_in_first_elem; }
   
   Uint size() const { return connectivity().size(); }
   
   std::vector<Uint> nodes(const Uint face) const;
-  
-  void add_elements(CUnifiedData<CCells>::Ptr elements);
 
-  std::vector<boost::shared_ptr<CCells> >& cells_components() { return m_elements->data_components(); } 
+  CUnifiedData<CCells>& cells() { return *m_elements; }
 
-  boost::tuple<Uint,Uint> element_loc_idx(const Uint unified_elem_idx);
+  const CUnifiedData<CCells>& cells() const { return *m_elements; }
 
 private: // data
 

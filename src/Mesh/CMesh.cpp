@@ -19,6 +19,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CMeshElements.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/WriteMesh.hpp"
@@ -44,6 +45,7 @@ CMesh::CMesh ( const std::string& name  ) :
   mark_basic(); // by default meshes are visible
 
   m_nodes_link = create_static_component<CLink>("nodes");
+  m_elements = create_static_component<CMeshElements>("elements");
   m_topology = create_static_component<CRegion>("topology");
 
   regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->signal->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) );
@@ -202,6 +204,20 @@ const CNodes& CMesh::nodes() const
 {
   cf_assert( is_not_null(m_nodes_link->follow()) );
   return *m_nodes_link->follow()->as_ptr<CNodes>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CMeshElements& CMesh::elements() 
+{ 
+  return *m_elements;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const CMeshElements& CMesh::elements() const
+{
+  return *m_elements;
 }
 
 //////////////////////////////////////////////////////////////////////////////

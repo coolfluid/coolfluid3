@@ -47,7 +47,9 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
 
 void CFaceCellConnectivity::setup(CRegion& region)
 {
-  m_elements->add_data(find_components_recursively<CCells>(region).as_vector());  
+  boost_foreach( CCells& cells,  find_components_recursively<CCells>(region) )
+    m_elements->add(cells);
+
   build_connectivity();
 }
 
@@ -241,7 +243,7 @@ void CFaceCellConnectivity::build_connectivity()
   {
     boost_foreach (Uint elem, (*m_connectivity)[f])
     {
-      boost::tie(elem_location_comp,elem_location_idx) = m_elements->data_location(elem);
+      boost::tie(elem_location_comp,elem_location_idx) = cells().location(elem);
       CList<bool>& is_bdry_elem = *elem_location_comp->get_child_ptr("is_bdry")->as_ptr< CList<bool> >();
       is_bdry_elem[elem_location_idx] = is_bdry_elem[elem_location_idx] || is_bdry_face.get_row(f) ;
     }
@@ -267,33 +269,12 @@ void CFaceCellConnectivity::build_connectivity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CTable<Uint>::ConstRow CFaceCellConnectivity::elements(const Uint unified_face_idx) const
-{
-  return (*m_connectivity)[unified_face_idx];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CUnifiedData<CCells>::data_location_type CFaceCellConnectivity::element_location(const Uint unified_elem_idx)
-{
-  return m_elements->data_location(unified_elem_idx);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CUnifiedData<CCells>::const_data_location_type CFaceCellConnectivity::element_location(const Uint unified_elem_idx) const
-{
-  return m_elements->data_location(unified_elem_idx);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 std::vector<Uint> CFaceCellConnectivity::nodes(const Uint face) const
 {
   Uint unified_elem_idx = (*m_connectivity)[face][0];
-  CCells::Ptr elem_comp;
+  CCells::ConstPtr elem_comp;
   Uint elem_idx;
-  boost::tie(elem_comp,elem_idx) = m_elements->data_location(unified_elem_idx);
+  boost::tie(elem_comp,elem_idx) = cells().location(unified_elem_idx);
   std::vector<Uint> nodes(elem_comp->element_type().face_type((*m_face_nb_in_first_elem)[face]).nb_nodes());
   index_foreach (i, Uint node_in_face, elem_comp->element_type().face_connectivity().face_node_range((*m_face_nb_in_first_elem)[face]))
   {
@@ -301,21 +282,6 @@ std::vector<Uint> CFaceCellConnectivity::nodes(const Uint face) const
   }
   return nodes;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CFaceCellConnectivity::add_elements( CUnifiedData<CCells>::Ptr elements )
-{
-  m_elements->add_data(find_components(elements->data_links()).as_vector());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-boost::tuple<Uint,Uint> CFaceCellConnectivity::element_loc_idx(const Uint unified_elem_idx)
-{
-  return m_elements->data_local_idx(unified_elem_idx);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

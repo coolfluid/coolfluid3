@@ -20,6 +20,7 @@
 #include "Mesh/CList.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CMeshElements.hpp"
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CMixedHash.hpp"
@@ -130,6 +131,8 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   m_node_idx_gmsh_to_cf.clear();
   m_elem_idx_gmsh_to_cf.clear();
   
+  m_mesh->elements().update();
+
 //  // clean-up
 
   // close the file

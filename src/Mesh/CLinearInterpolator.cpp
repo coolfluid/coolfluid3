@@ -125,7 +125,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
         Uint cnt(0);
         boost_foreach(const Uint glb_elem_idx, m_element_cloud)
         {
-          boost::tie(s_elements,s_elm_idx)=m_elements->data_location(glb_elem_idx);
+          boost::tie(s_elements,s_elm_idx)=m_elements->location(glb_elem_idx);
           CElements const& elements = *s_elements;
           
           RealMatrix elem_coords = elements.get_coordinates(s_elm_idx);
@@ -223,7 +223,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
             Uint cnt(0);
             boost_foreach(const Uint glb_elem_idx, m_element_cloud)
             {
-              boost::tie(s_elements,s_elm_idx)=m_elements->data_location(glb_elem_idx);
+              boost::tie(s_elements,s_elm_idx)=m_elements->location(glb_elem_idx);
               CElements const& elements = *s_elements;
 
               RealMatrix elem_coords = elements.get_coordinates(s_elm_idx);
@@ -326,14 +326,13 @@ void CLinearInterpolator::create_octtree()
   // initialize the honeycomb
   m_honeycomb.resize(boost::extents[std::max(Uint(1),m_N[0])][std::max(Uint(1),m_N[1])][std::max(Uint(1),m_N[2])]);
 
-  std::vector<CElements::ConstPtr> elements_vector = find_components_recursively_with_filter<CElements>(*m_source_mesh,IsElementsVolume()).as_const_vector();
-  m_elements->add_data(elements_vector);
+  boost_foreach(const CElements& elements, find_components_recursively_with_filter<CElements>(*m_source_mesh,IsElementsVolume()))
+    m_elements->add(elements);
   
   Uint glb_elem_idx=0;
   RealVector centroid(m_dim);
-  boost_foreach(CElements::ConstPtr elements_ptr, elements_vector)
+  boost_foreach(const CElements& elements, find_components_recursively_with_filter<CElements>(*m_source_mesh,IsElementsVolume()))
   {
-    const CElements& elements = *elements_ptr;
     Uint nb_nodes_per_element = elements.connectivity_table().row_size();
     RealMatrix coordinates(nb_nodes_per_element,m_dim);
     
@@ -484,7 +483,7 @@ boost::tuple<CElements::ConstPtr,Uint> CLinearInterpolator::find_element(const R
     Uint elem_idx;
     boost_foreach(const Uint glb_elem_idx, m_element_cloud)
     {
-      boost::tie(elements,elem_idx)=m_elements->data_location(glb_elem_idx);
+      boost::tie(elements,elem_idx)=m_elements->location(glb_elem_idx);
       
       RealMatrix elem_coordinates = elements->get_coordinates(elem_idx);
       if (elements->element_type().is_coord_in_element(target_coord,elem_coordinates))

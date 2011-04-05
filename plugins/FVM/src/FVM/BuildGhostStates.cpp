@@ -101,11 +101,12 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
           CFaceCellConnectivity& face2cell = *face2cell_ptr;
           Uint unified_ghost_idx(find_component<CUnifiedData<CCells> >(face2cell).size());
           //CFinfo << "size before = " << find_component<CUnifiedData<CCells> >(face2cell).size() << CFendl;
-          find_component<CUnifiedData<CCells> >(face2cell).add_data(find_components<CCells>(ghost_states).as_vector());
+          boost_foreach(CCells& cells, find_components<CCells>(ghost_states))
+            face2cell.cells().add(cells);
           //CFinfo << "size after = " << find_component<CUnifiedData<CCells> >(face2cell).size() << CFendl;
           CTable<Uint>& f2c_connectivity = find_component<CTable<Uint> >(face2cell);
           f2c_connectivity.set_row_size(2);
-          std::vector<boost::shared_ptr<CCells> >& cells = face2cell.cells_components();
+          std::vector<boost::shared_ptr<CCells> >& cells = face2cell.cells().data_components();
           Uint comp_idx(0);
           Uint cell_idx(0);
 
@@ -116,8 +117,8 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
           for (Uint face=0; face<face2cell.size(); ++face)
           {
             //CFinfo << "face " << faces.parent()->parent()->name() << "/" << faces.name() << "["<<face<<"]" << CFendl;
-            Uint unified_elem_idx = face2cell.elements(face)[0]; // this is the inner cell of the boundary
-            boost::tie(comp_idx,cell_idx) = face2cell.element_loc_idx(unified_elem_idx);
+            Uint unified_elem_idx = face2cell.connectivity()[face][0]; // this is the inner cell of the boundary
+            boost::tie(comp_idx,cell_idx) = face2cell.cells().location_idx(unified_elem_idx);
             std::string cell_type = cells[comp_idx]->element_type().element_type_name();
 
             RealMatrix cell_coordinates = cells[comp_idx]->get_coordinates(cell_idx);

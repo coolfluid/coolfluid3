@@ -32,7 +32,8 @@ CNodeElementConnectivity::CNodeElementConnectivity ( const std::string& name ) :
 
 void CNodeElementConnectivity::setup(CRegion& region)
 {
-  add_elements(find_components_recursively<CElements>(region).as_vector());
+  boost_foreach( CElements& elements_comp, find_components_recursively<CElements>(region))
+    elements().add(elements_comp);
   build_connectivity();
 }
 
@@ -48,6 +49,7 @@ void CNodeElementConnectivity::set_nodes(CNodes& nodes)
 
 void CNodeElementConnectivity::build_connectivity()
 {
+  set_nodes(elements().data_components()[0]->nodes());
   CNodes const& nodes = *m_nodes->follow()->as_ptr<CNodes>();
   
   // Reserve memory in m_connectivity->array()
@@ -80,27 +82,6 @@ void CNodeElementConnectivity::build_connectivity()
       ++glb_elem_idx;
     }
   }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CDynTable<Uint>::ConstRow CNodeElementConnectivity::elements(const Uint node_index) const
-{
-  return (*m_connectivity)[node_index];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CUnifiedData<CElements>::data_location_type CNodeElementConnectivity::element_location(const Uint unified_elem_idx)
-{
-  return m_elements->data_location(unified_elem_idx);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CUnifiedData<CElements>::const_data_location_type CNodeElementConnectivity::element_location(const Uint unified_elem_idx) const
-{
-  return m_elements->data_location(unified_elem_idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

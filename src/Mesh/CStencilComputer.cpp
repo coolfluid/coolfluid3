@@ -48,8 +48,8 @@ void CStencilComputer::configure_mesh()
   if (m_mesh.expired())
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
   
-  std::vector<CElements::Ptr> elements_vector = find_components_recursively_with_filter<CElements>(*m_mesh.lock(),IsElementsVolume()).as_vector();
-  m_elements->add_data(elements_vector);
+  boost_foreach (CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh.lock(),IsElementsVolume()))
+    m_elements->add(elements);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

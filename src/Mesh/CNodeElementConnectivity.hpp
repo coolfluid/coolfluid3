@@ -51,42 +51,19 @@ public:
   /// @post all access functions can be used after setup
   /// @param [in] regions in which the elements are connected to the nodes.
   void setup(CRegion& region);
-
-  /// set the element for the node to element connectivity
-  /// Elements have a continuous index spanning all element components
-  /// stored in a CUnifiedData<CElements> component
-  /// @param [in] elements_range the elements range to see if they are connected to the nodes.
-  ///                            Can be made using "find_components_recursively<CElements>()" function
-  template<typename ElementsRangeT>
-      void add_elements( const ElementsRangeT& range)
-  {
-    m_elements->add_data(range);
-    cf_assert(m_elements->size());
-    set_nodes(m_elements->data_components()[0]->nodes()); 
-  }
   
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
   void build_connectivity();
 
-  CUnifiedData<CElements>& unified_elements() { return *m_elements; }
+  CUnifiedData<CElements>& elements() { return *m_elements; }
+  const CUnifiedData<CElements>& elements() const { return *m_elements; }
 
-  /// Find the elements connected to a given node by its index
-  /// The return type is CDynTable<Uint>::ConstRow which (or "std::vector<Uint> const&")
-  /// @return continuous indices of the elments
-  CDynTable<Uint>::ConstRow elements(const Uint node_index) const;
-
-  /// Find the element location given a unified element index
-  /// @return boost::tuple<CElements::Ptr,Uint>(elem_component,elem_idx)
-  CUnifiedData<CElements>::data_location_type element_location(const Uint unified_elem_idx);
-
-  /// Find the element location given a unified element index
-  /// @return boost::tuple<CElements::ConstPtr,Uint>(elem_component,elem_idx)  
-  CUnifiedData<CElements>::const_data_location_type element_location(const Uint unified_elem_idx) const;
   
   /// const access to the node to element connectivity table in unified indices
   CDynTable<Uint>& connectivity() { return *m_connectivity; }
+  const CDynTable<Uint>& connectivity() const { return *m_connectivity; }
 
 private: //functions
 

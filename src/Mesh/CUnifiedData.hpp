@@ -52,7 +52,7 @@ public:
   /// Get the class name
   static std::string type_name () { return "CUnifiedData<"+data_type::type_name()+">"; }
   
-/*  void add_data(std::vector<boost::shared_ptr<DATA> >& range )
+/*  void add(std::vector<boost::shared_ptr<DATA> >& range )
   {
     CList<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
     boost_foreach(Component::Ptr data_val, range)
@@ -73,23 +73,24 @@ public:
   /// set the data given a range of components obtained for instance
   /// using the find_components_recursively<data_type>() function
   /// @param [in] range  The range of data components to be unified
-  template <typename DataVectorPtr>
-    void add_data(DataVectorPtr range );
+  void add(DATA& data);
 
+  void add(Common::CLink& data);
+  
 
   /// Get the component and local index in the component
   /// given a continuous index spanning multiple components
   /// @param [in] data_glb_idx continuous index covering multiple components
   /// @return boost::tuple<data_type::Ptr component, Uint idx_in_component>
-  data_location_type data_location(const Uint data_glb_idx);
+  data_location_type location(const Uint data_glb_idx);
 
   /// Get the const component and local index in the component
   /// given a continuous index spanning multiple components
   /// @param [in] data_glb_idx continuous index covering multiple components
   /// @return boost::tuple<data_type::ConstPtr component, Uint idx_in_component>
-  const_data_location_type data_location(const Uint data_glb_idx) const;
+  const_data_location_type location(const Uint data_glb_idx) const;
 
-  boost::tuple<Uint,Uint> data_local_idx(const Uint data_glb_idx) const;
+  boost::tuple<Uint,Uint> location_idx(const Uint data_glb_idx) const;
 
   /// Get the total number of data spanning multiple components
   /// @return the size
@@ -105,6 +106,26 @@ public:
 
   Common::CGroup& data_links() { return *m_data_links; }
 
+  Uint unified_idx(data_type& component, const Uint local_idx)
+  {
+    return m_start_idx[component.as_ptr<data_type>()]+local_idx;
+  }
+
+  Uint unified_idx(data_location_type& loc)
+  {
+    return m_start_idx[boost::get<0>(loc)] + boost::get<1>(loc);
+  }
+  
+  void reset()
+  {
+    m_data_vector.resize(0);
+    m_data_indices->resize(0);
+    boost_foreach(Component& link, find_components(*m_data_links))
+      m_data_links->remove_component(link.name());
+    m_size = 0;
+    m_start_idx.clear();
+  }
+
 private: // data
 
   /// vector of components to view as continuous
@@ -118,6 +139,9 @@ private: // data
 
   /// total number of indices spanning all components
   Uint m_size;
+  
+  /// map component to start index
+  std::map<boost::shared_ptr<data_type>,Uint> m_start_idx;
 
 }; // CUnifiedData
 
@@ -140,22 +164,39 @@ inline CUnifiedData<DATA>::CUnifiedData ( const std::string& name ) : Component(
 /// using the find_components_recursively<data_type>() function
 /// @param [in] range  The range of data components to be unified
 template <typename DATA>
-template <typename DataVectorPtr>
-inline void CUnifiedData<DATA>::add_data(DataVectorPtr range)
+inline void CUnifiedData<DATA>::add(DATA& data)
 {
-  CList<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
-  boost_foreach(typename Common::ComponentPtr<DATA>::type data_val, range)
+  boost::shared_ptr<DATA> actual_data = data.as_ptr<DATA>();
+  
+  // if it is not added yet, add
+  if (m_start_idx.find(actual_data) == m_start_idx.end())
   {
-    typename Common::ComponentPtr<DATA,DATA>::type linked = data_val->follow()->as_ptr<typename CUnifiedData<DATA>::data_type>(); // in case it is a link
-    m_data_links->create_component<Common::CLink>("data_component_"+Common::to_str(m_data_vector.size()))->link_to(*linked);
-    m_data_vector.push_back(linked);
-    m_size += linked->size();
+    m_start_idx[actual_data] = m_size;  
+
+    m_data_links->create_component<Common::CLink>("data_component_"+Common::to_str(m_data_vector.size()))->link_to(*actual_data);
+
+    m_start_idx[actual_data] = m_size;  
+    m_data_vector.push_back(actual_data);
+    m_size += actual_data->size();
+
+    CList<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
     data_start_indices.add_row(m_size);
+    data_start_indices.flush();
   }
-
-  data_start_indices.flush();
-
+  
   cf_assert(m_data_vector.size()==m_data_indices->size()-1);
+  cf_assert(m_start_idx.size() == m_data_vector.size());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// set the data given a range of components obtained for instance
+/// using the find_components_recursively<data_type>() function
+/// @param [in] range  The range of data components to be unified
+template <typename DATA>
+inline void CUnifiedData<DATA>::add(Common::CLink& link)
+{
+  add(link.follow()->as_type<DATA>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +206,7 @@ inline void CUnifiedData<DATA>::add_data(DataVectorPtr range)
 /// @param [in] data_glb_idx continuous index covering multiple components
 /// @return boost::tuple<data_type::Ptr component, Uint idx_in_component>
 template <typename DATA>
-inline typename CUnifiedData<DATA>::data_location_type CUnifiedData<DATA>::data_location(const Uint data_glb_idx)
+inline typename CUnifiedData<DATA>::data_location_type CUnifiedData<DATA>::location(const Uint data_glb_idx)
 {
   cf_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
@@ -180,12 +221,12 @@ inline typename CUnifiedData<DATA>::data_location_type CUnifiedData<DATA>::data_
 /// @param [in] data_glb_idx continuous index covering multiple components
 /// @return boost::tuple<data_type::ConstPtr component, Uint idx_in_component>
 template <typename DATA>
-inline typename CUnifiedData<DATA>::const_data_location_type CUnifiedData<DATA>::data_location(const Uint data_glb_idx) const
+inline typename CUnifiedData<DATA>::const_data_location_type CUnifiedData<DATA>::location(const Uint data_glb_idx) const
 {
   cf_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
   cf_assert(data_vector_idx<m_data_vector.size());
-  return boost::make_tuple(m_data_vector[data_vector_idx].as_const().as_ptr<CUnifiedData<DATA>::data_type>(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
+  return boost::make_tuple(m_data_vector[data_vector_idx]->as_const()->as_ptr<DATA>(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +236,7 @@ inline typename CUnifiedData<DATA>::const_data_location_type CUnifiedData<DATA>:
 /// @param [in] data_glb_idx continuous index covering multiple components
 /// @return boost::tuple<Uint component_idx, Uint idx_in_component>
 template <typename DATA>
-inline boost::tuple<Uint,Uint> CUnifiedData<DATA>::data_local_idx(const Uint data_glb_idx) const
+inline boost::tuple<Uint,Uint> CUnifiedData<DATA>::location_idx(const Uint data_glb_idx) const
 {
   cf_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();

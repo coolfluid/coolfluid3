@@ -136,10 +136,10 @@ void CGlobalConnectivity::execute()
     {
       ghostnode_glb_idx[cnt] = nodes_glb_idx[i];
       
-      CDynTable<Uint>::ConstRow elems = node2elem.elements(i);
+      CDynTable<Uint>::ConstRow elems = node2elem.connectivity()[i];
       boost_foreach(const Uint e, elems)
       {
-        boost::tie(elem_comp,elem_idx) = node2elem.element_location(e);
+        boost::tie(elem_comp,elem_idx) = node2elem.elements().location(e);
         ghostnode_glb_elem_connectivity.push_back(elem_comp->glb_idx()[elem_idx]);
       }
       ghostnode_glb_elem_connectivity_start[cnt+1] = ghostnode_glb_elem_connectivity_start[cnt] + elems.size();
@@ -190,12 +190,12 @@ void CGlobalConnectivity::execute()
   nodes_glb_elem_connectivity.resize(glb_elem_connectivity.size());
   for (Uint i=0; i<glb_elem_connectivity.size(); ++i)
   {
-    CDynTable<Uint>::ConstRow elems = node2elem.elements(i);
+    CDynTable<Uint>::ConstRow elems = node2elem.connectivity()[i];
     nodes_glb_elem_connectivity[i].resize(glb_elem_connectivity[i].size() + elems.size());
     cnt = 0;
     boost_foreach(const Uint e, elems)
     {
-      boost::tie(elem_comp,elem_idx) = node2elem.element_location(e);
+      boost::tie(elem_comp,elem_idx) = node2elem.elements().location(e);
       nodes_glb_elem_connectivity[i][cnt++] = elem_comp->glb_idx()[elem_idx];      
     }
     for (Uint j=0; j<glb_elem_connectivity[i].size(); ++j)

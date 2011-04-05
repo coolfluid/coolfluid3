@@ -14,6 +14,7 @@
 #include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CMeshElements.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CElements.hpp"
@@ -70,6 +71,8 @@ void CSimpleMeshGenerator::execute()
   {
     throw SetupError(FromHere(),"Invalid size of the vector number of cells. Only 1D and 2D supported now.");
   }
+  
+  m_mesh.lock()->elements().update();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

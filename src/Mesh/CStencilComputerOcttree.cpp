@@ -63,7 +63,7 @@ void CStencilComputerOcttree::compute_stencil(const Uint unified_elem_idx, std::
   RealVector centroid(m_dim);
   CElements::Ptr elements;
   Uint elem_idx;
-  boost::tie(elements,elem_idx) = unified_elements().data_location(unified_elem_idx);
+  boost::tie(elements,elem_idx) = unified_elements().location(unified_elem_idx);
   RealMatrix coordinates = elements->get_coordinates(elem_idx);
   elements->element_type().compute_centroid(coordinates,centroid);
   stencil.resize(0);

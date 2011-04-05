@@ -57,37 +57,16 @@ public:
   /// stored in a CUnifiedData<CElements> component
   /// @param [in] elements_range the elements range to see if they are connected to the nodes.
   ///                            Can be made using "find_components_recursively<CElements>()" function
-  template<typename FaceCellConnectivityRangeT>
-      void add_face_cell_connectivity( const FaceCellConnectivityRangeT& range)
-  {
-    m_face_cell_connectivity->add_data(range);
-    cf_assert(m_face_cell_connectivity->size());
-    //set_nodes(m_face_cell_connectivity->data_components()[0]->nodes()); 
-  }
+  CUnifiedData<CFaceCellConnectivity>& face_cell_connectivity() {  return *m_face_cell_connectivity; }
+  const CUnifiedData<CFaceCellConnectivity>& face_cell_connectivity() const {  return *m_face_cell_connectivity; }
   
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
   void build_connectivity();
-
-  /// Find the face_cell_connectivity connected to a given node by its index
-  /// The return type is CDynTable<Uint>::ConstRow which (or "std::vector<Uint> const&")
-  /// @return continuous indices of the elments
-  CDynTable<Uint>::ConstRow faces(const Uint node_index) const;
-
-  /// Find the element location given a unified element index
-  /// @return boost::tuple<CElements::Ptr,Uint>(elem_component,elem_idx)
-  CUnifiedData<CFaceCellConnectivity>::data_location_type face_location(const Uint unified_elem_idx);
-
-  /// Find the element location given a unified element index
-  /// @return boost::tuple<CElements::ConstPtr,Uint>(elem_component,elem_idx)  
-  CUnifiedData<CFaceCellConnectivity>::const_data_location_type face_location(const Uint unified_elem_idx) const;
-
-  /// Find the element location given a unified element index
-  /// @return boost::tuple<Uint,Uint>(elem_component_idx,elem_idx)  
-  boost::tuple<Uint,Uint> face_local_idx(const Uint unified_elem_idx) const;
   
   /// const access to the node to element connectivity table in unified indices
+  CDynTable<Uint>& connectivity() { return *m_connectivity; }
   const CDynTable<Uint>& connectivity() const { return *m_connectivity; }
 
   Uint size() const { return connectivity().size(); }
