@@ -437,9 +437,7 @@ BOOST_AUTO_TEST_CASE( commpattern_cast )
 
 BOOST_AUTO_TEST_CASE( commpattern )
 {
-//PECheckPoint(100,"CP");
-
-  // general conts in this routine
+  // general constants in this routine
   const int nproc=mpi::PE::instance().size();
   const int irank=mpi::PE::instance().rank();
 
@@ -448,7 +446,6 @@ BOOST_AUTO_TEST_CASE( commpattern )
 
   // global indices and ranks, ordering: 0 1 2 ... 0 0 1 1 2 2 ... 0 0 0 1 1 1 2 2 2 ...
   std::vector<Uint> gid(6*nproc);
-//  pecp.insert("gid",gid);
   pecp.insert("gid",gid,1,false);
   std::vector<Uint> rank(6*nproc);
   for (Uint i=0; i<nproc; i++)
@@ -472,13 +469,7 @@ BOOST_AUTO_TEST_CASE( commpattern )
     gid[ 3*nproc+3*i+1]=(6*nproc-1)-(6*i+4);
     gid[ 3*nproc+3*i+2]=(6*nproc-1)-(6*i+5);
   }
-/*
-PEProcessSortedExecute(-1,PEDebugVector(rank,rank.size()));
-PECheckPoint(100,"CP");
 
-PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
-PECheckPoint(100,"CP");
-*/
   // additional arrays for testing
   std::vector<int> v1;
   for(int i=0;i<6*nproc;i++) v1.push_back(-((irank+1)*1000+i+1));
@@ -487,28 +478,32 @@ PECheckPoint(100,"CP");
   for(int i=0;i<12*nproc;i++) v2.push_back((double)((irank+1)*1000+i+1));
   pecp.insert("v2",v2,2,true);
 
-//PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
-//PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
-//PECheckPoint(100,"CP");
-
-//PEObjectWrapper::Ptr globid=pecp.get_child_ptr("gid")->as_ptr<PEObjectWrapper>();
-//PECheckPoint(100, globid->name() << " " << globid->size() << " " << globid->size_of());
-
   // initial setup
   pecp.setup(pecp.get_child_ptr("gid")->as_ptr<PEObjectWrapper>(),rank);
 
-PECheckPoint(100,"Before");
-PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
-PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
-PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
+  PECheckPoint(100,"Before");
+  PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
 
-//  pecp.update();
+  // synchronize data
+  pecp.synchronize();
 
-PECheckPoint(100,"After");
-PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
-PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
-PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
+  PECheckPoint(100,"After");
+  PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
 
+  // check results
+  Uint idx=0;
+  Uint i;
+  for (i=0; i<  nproc; i++, idx++ ) BOOST_CHECK_EQUAL( v1[i], (int)(-((((i-0*nproc)/1)+1)*1000+idx+1)) );
+  for (   ; i<3*nproc; i++, idx++ ) BOOST_CHECK_EQUAL( v1[i], (int)(-((((i-1*nproc)/2)+1)*1000+idx+1)) );
+  for (   ; i<6*nproc; i++, idx++ ) BOOST_CHECK_EQUAL( v1[i], (int)(-((((i-3*nproc)/3)+1)*1000+idx+1)) );
+  idx=0;
+  for (i=0; i< 2*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-0*nproc)/2)+1)*1000+idx+1) );
+  for (   ; i< 6*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-2*nproc)/4)+1)*1000+idx+1) );
+  for (   ; i<12*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-6*nproc)/6)+1)*1000+idx+1) );
 
 }
 
