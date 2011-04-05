@@ -1,3 +1,9 @@
+if (${coolfluid_ufem_builds} AND ${CF_HAVE_TRILINOS} )
+    set ( ufem_tests_trilinos_condition TRUE)
+else()
+    set ( ufem_tests_trilinos_condition FALSE)
+endif()
+
 list( APPEND utest-heat-steady_cflibs coolfluid_mesh)
 list( APPEND utest-heat-steady_files
   utest-heat-steady.cpp )
@@ -16,7 +22,7 @@ set( utest-heat-steady-tetra_mpi_test TRUE )
 set( utest-heat-steady-tetra_mpi_nprocs 1 )
 list( APPEND utest-heat-steady-tetra_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml ${CMAKE_CURRENT_SOURCE_DIR}/meshes )
 
-set( utest-heat-steady-tetra_condition ${coolfluid_ufem_builds} AND ${CF_HAVE_TRILINOS} )
+set( utest-heat-steady-tetra_condition ${ufem_tests_trilinos_condition} )
 
 coolfluid_add_unit_test( utest-heat-steady-tetra )
 
@@ -38,6 +44,7 @@ list( APPEND utest-proto-heat_files
 list( APPEND utest-proto-heat_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 set( utest-proto-heat_mpi_test TRUE )
 set( utest-proto-heat_mpi_nprocs 1 )
+set( utest-proto-heat_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-heat )
 
 list( APPEND utest-proto-unsteady_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
@@ -46,6 +53,7 @@ list( APPEND utest-proto-unsteady_files
 list( APPEND utest-proto-unsteady_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 set( utest-proto-unsteady_mpi_test TRUE )
 set( utest-proto-unsteady_mpi_nprocs 1 )
+set( utest-proto-unsteady_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-unsteady )
 
 list( APPEND utest-proto-systems_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
@@ -54,6 +62,7 @@ list( APPEND utest-proto-systems_files
 list( APPEND utest-proto-systems_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 set( utest-proto-systems_mpi_test TRUE )
 set( utest-proto-systems_mpi_nprocs 1 )
+set( utest-proto-systems_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-systems )
 
 list( APPEND utest-proto-stokes-artifdiss_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
@@ -62,6 +71,7 @@ list( APPEND utest-proto-stokes-artifdiss_files
 list( APPEND utest-proto-stokes-artifdiss_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 set( utest-proto-stokes-artifdiss_mpi_test TRUE )
 set( utest-proto-stokes-artifdiss_mpi_nprocs 1 )
+set( utest-proto-stokes-artifdiss_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-stokes-artifdiss )
 
 list( APPEND utest-proto-stokes-pspg_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
@@ -70,6 +80,7 @@ list( APPEND utest-proto-stokes-pspg_files
 list( APPEND utest-proto-stokes-pspg_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 set( utest-proto-stokes-pspg_mpi_test TRUE )
 set( utest-proto-stokes-pspg_mpi_nprocs 1 )
+set( utest-proto-stokes-pspg_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-stokes-pspg )
 
 list( APPEND utest-proto-navier-stokes-pspg_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_solver )
@@ -81,7 +92,7 @@ list( APPEND utest-proto-navier-stokes-pspg_args ${CMAKE_CURRENT_SOURCE_DIR}/sol
 list( APPEND utest-proto-navier-stokes-pspg_args ${CMAKE_CURRENT_SOURCE_DIR}/kvs.neu )
 set( utest-proto-navier-stokes-pspg_mpi_test TRUE )
 set( utest-proto-navier-stokes-pspg_mpi_nprocs 1 )
-set( utest-proto-navier-stokes-pspg_condition ${CF_HAVE_TRILINOS} )
+set( utest-proto-navier-stokes-pspg_condition ${ufem_tests_trilinos_condition} )
 coolfluid_add_unit_test( utest-proto-navier-stokes-pspg )
 
 list( APPEND utest-proto-navier-stokes-supg_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
@@ -93,7 +104,7 @@ list( APPEND utest-proto-navier-stokes-supg_args ${CMAKE_CURRENT_SOURCE_DIR}/sol
 list( APPEND utest-proto-navier-stokes-supg_args ${CMAKE_CURRENT_SOURCE_DIR}/kvs.neu )
 set( utest-proto-navier-stokes-supg_mpi_test TRUE )
 set( utest-proto-navier-stokes-supg_mpi_nprocs 1 )
-set( utest-proto-navier-stokes-supg_condition ${CF_HAVE_TRILINOS} )
+set( utest-proto-navier-stokes-supg_condition ${ufem_tests_trilinos_condition} )
 coolfluid_add_unit_test( utest-proto-navier-stokes-supg )
 
 list( APPEND utest-proto-navier-stokes-bulk_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_solver )
@@ -105,7 +116,7 @@ list( APPEND utest-proto-navier-stokes-bulk_args ${CMAKE_CURRENT_SOURCE_DIR}/sol
 list( APPEND utest-proto-navier-stokes-bulk_args ${CMAKE_CURRENT_SOURCE_DIR}/kvs.neu )
 set( utest-proto-navier-stokes-bulk_mpi_test TRUE )
 set( utest-proto-navier-stokes-bulk_mpi_nprocs 1 )
-set( utest-proto-navier-stokes-bulk_condition ${CF_HAVE_TRILINOS} )
+set( utest-proto-navier-stokes-bulk_condition ${ufem_tests_trilinos_condition} )
 coolfluid_add_unit_test( utest-proto-navier-stokes-bulk )
 
 list( APPEND utest-proto-navier-stokes-linearized_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_solver )
