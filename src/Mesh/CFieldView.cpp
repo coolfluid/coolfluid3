@@ -151,7 +151,7 @@ void CFieldView::put_coordinates(RealMatrix& coords, const Uint elem_idx) const
 
 Uint CFieldView::mesh_elements_idx(const Uint idx) const
 {
-  m_mesh_elements.lock()->unified_idx(*m_elements.lock(),idx);
+  return m_mesh_elements.lock()->unified_idx(*m_elements.lock(),idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

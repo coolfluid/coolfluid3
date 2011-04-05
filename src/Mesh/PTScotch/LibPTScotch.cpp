@@ -16,11 +16,11 @@ CF::Common::RegistLibrary<LibPTScotch> libPTScotch;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibPTScotch::initiate()
+void LibPTScotch::initiate_impl()
 {
 }
 
-void LibPTScotch::terminate()
+void LibPTScotch::terminate_impl()
 {
 }
 

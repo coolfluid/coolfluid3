@@ -13,7 +13,6 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/FindComponents.hpp"
 
-#include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -21,6 +20,7 @@
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/ConnectivityData.hpp"
 
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( create_mesh )
  
   m_mesh = allocate_component<CMesh>("mesh");
   Uint scale = 2;
-  MeshGeneration::create_rectangle(*m_mesh, 4., 2., scale*2u, scale*2u);
+  CSimpleMeshGenerator::create_rectangle(*m_mesh, 4., 2., scale*2u, scale*2u);
   BOOST_CHECK(true);
 }
 ////////////////////////////////////////////////////////////////////////////////

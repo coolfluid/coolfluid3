@@ -68,10 +68,10 @@ public:
   static std::string type_name() { return "LibPTScotch"; }
 
   /// initiate library
-  virtual void initiate();
+  virtual void initiate_impl();
 
   /// terminate library
-  virtual void terminate();
+  virtual void terminate_impl();
 
 }; // LibPTScotch
 

@@ -113,7 +113,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
     }
   }
   else if (source.basis() == CField::Basis::ELEMENT_BASED && target.basis() == CField::Basis::POINT_BASED)
-  {
+  {    
     Component::ConstPtr component;
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
@@ -121,14 +121,14 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
       if (find_point_in_octtree(t_node,m_point_idx))
       {
         find_pointcloud(m_sufficient_nb_points);
+        
         std::vector<Uint> s_data_idx(m_element_cloud.size());
         std::vector<RealVector> s_centroids(m_element_cloud.size(),RealVector(m_dim));
         Uint cnt(0);
         boost_foreach(const Uint glb_elem_idx, m_element_cloud)
         {
           boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
-          CElements const& elements = s_elements->as_type<CElements const>();
-          
+          CElements const& elements = component->as_type<CElements const>();          
           RealMatrix elem_coords = elements.get_coordinates(s_elm_idx);
           elements.element_type().compute_centroid(elem_coords,s_centroids[cnt]);
           s_data_idx[cnt] = source.elements_start_idx(elements) + s_elm_idx;            
@@ -193,9 +193,6 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
   }
   else if (source.basis() == CField::Basis::ELEMENT_BASED && target.basis() == CField::Basis::ELEMENT_BASED)
   {
-
-
-
     CFieldView t_view("t_view");
     t_view.set_field(target);
     RealVector t_centroid(m_dim);

@@ -65,7 +65,9 @@ void CEntities::configure_element_type()
 {
   const std::string etype_name = property("element_type").value<std::string>();
   if (is_not_null(m_element_type))
+  {
     remove_component(m_element_type->name());
+  }
   m_element_type = create_component_abstract_type<ElementType>( etype_name, etype_name );
   m_element_type->rename(m_element_type->element_type_name());
   add_component( m_element_type );

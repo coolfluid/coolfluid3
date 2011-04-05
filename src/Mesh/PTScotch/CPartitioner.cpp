@@ -7,6 +7,7 @@
 // coolfluid
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Mesh/PTScotch/CPartitioner.hpp"
 
@@ -43,6 +44,8 @@ CPartitioner::~CPartitioner ( )
 
 void CPartitioner::build_graph()
 {
+  CF_DEBUG_POINT;
+  
   // resize vertloctab to the number of owned objects
   // +1 because of compact form without holes in global numbering
   vertloctab.resize(nb_owned_objects()+1,0);
@@ -105,9 +108,13 @@ void CPartitioner::build_graph()
     proccnttab.resize(PE::instance().size());
     procvrttab.resize(PE::instance().size()+1);
 
+    CF_DEBUG_POINT;
     //boost::mpi::communicator world;
     //boost::mpi::all_gather(world, vertlocnbr, proccnttab);
     mpi::PE::instance().all_gather(vertlocnbr, proccnttab);
+
+    CF_DEBUG_POINT;
+
     Uint cnt=0;
     for (Uint p=0; p<proccnttab.size(); ++p)
     {
@@ -141,12 +148,14 @@ void CPartitioner::build_graph()
 void CPartitioner::partition_graph()
 {
   //PECheckPoint(1,"begin partition_graph()");  
+  CF_DEBUG_POINT;
   
   SCOTCH_Strat stradat;
   if(SCOTCH_stratInit(&stradat))
     throw BadValue (FromHere(), "Could not initialze a PT-scotch strategy");
 
   partloctab.resize(vertlocmax);
+  CF_DEBUG_POINT;
 
   //PECheckPoint(1,"  begin SCOTCH_dgraphPart()");
   if (SCOTCH_dgraphPart(&graph,
@@ -156,6 +165,7 @@ void CPartitioner::partition_graph()
     throw BadValue (FromHere(), "Could not partition PT-scotch graph");
   //PECheckPoint(1,"  end SCOTCH_dgraphPart()");
   SCOTCH_stratExit(&stradat);
+  CF_DEBUG_POINT;
 
   std::vector<Uint> owned_objects(vertlocnbr);
   list_of_owned_objects(owned_objects);
@@ -179,6 +189,7 @@ void CPartitioner::partition_graph()
   }
   
   m_changes->sort_keys();
+  CF_DEBUG_POINT;
 
   // PECheckPoint(1,"end partition_graph()");
 }

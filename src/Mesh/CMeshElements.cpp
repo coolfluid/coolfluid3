@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/CBuilder.cpp"
+
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CEntities.hpp"
@@ -16,6 +18,8 @@ namespace Mesh {
 
   using namespace Common;
     
+ComponentBuilder<CMeshElements, Component, LibMesh> CMeshElements_Builder;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CMeshElements::CMeshElements(const std::string& name) :

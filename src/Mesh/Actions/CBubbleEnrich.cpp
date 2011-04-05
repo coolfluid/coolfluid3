@@ -162,11 +162,7 @@ void CBubbleEnrich::execute()
     // delete backup table
     this->remove_component("backup");
 
-    // remove the old shape function
-    const ElementType& etype = elements.element_type();
-    elements.remove_component(etype.name());
-
-    // add the new shape function
+    // change the shape function
     elements.configure_property("element_type", std::string("CF.Mesh.SF.Triag2DLagrangeP2B") );
 
   } // loop element types

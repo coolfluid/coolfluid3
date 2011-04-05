@@ -20,7 +20,7 @@
 #include "Common/StreamHelpers.hpp"
 
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/tools.hpp"
+#include "Common/MPI/debug.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/Foreach.hpp"
 
@@ -373,26 +373,36 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   // the mesh to store in
   CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
   CMesh& mesh = *mesh_ptr;
+  CF_DEBUG_POINT;
   
   CMeshTransformer::Ptr glb_numbering = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh_ptr);
+  CF_DEBUG_POINT;
+  
   CMeshTransformer::Ptr glb_connectivity = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
   glb_connectivity->transform(mesh_ptr);
+  CF_DEBUG_POINT;
 
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   boost::filesystem::path fp_out_1 ("quadtriag.msh");
   meshwriter->write_from_to(mesh_ptr,fp_out_1);
+  CF_DEBUG_POINT;
 
   CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.PTScotch.CPartitioner","partitioner");
 
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
+  CF_DEBUG_POINT;
 
   //p.configure_property("nb_partitions", (Uint) 2);
   BOOST_CHECK(true);
   p.initialize(mesh);
+  CF_DEBUG_POINT;
+
   BOOST_CHECK(true);
   p.partition_graph();
+  CF_DEBUG_POINT;
+
   BOOST_CHECK(true);
   p.show_changes();
   BOOST_CHECK(true);

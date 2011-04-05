@@ -206,13 +206,13 @@ void CGlobalNumbering::execute()
   {
     //std::vector<std::size_t> rcv_node_from = mpi::broadcast(node_from, root);
     //std::vector<Uint>        rcv_node_to   = mpi::broadcast(node_to, root);
-//PECheckPoint(100,"001");
-    std::vector<std::size_t> rcv_node_from(node_from.size());
+    // PECheckPoint(100,"001");
+    std::vector<std::size_t> rcv_node_from(0);//node_from.size());
     mpi::PE::instance().broadcast(node_from,rcv_node_from,root);
-//PECheckPoint(100,"002");
-    std::vector<Uint>        rcv_node_to(node_to.size());
+    //PECheckPoint(100,"002");
+    std::vector<Uint>        rcv_node_to(0);//node_to.size());
     mpi::PE::instance().broadcast(node_to,rcv_node_to,root);
-//PECheckPoint(100,"003");
+    //PECheckPoint(100,"003");
     if (mpi::PE::instance().rank() != root)
     {
       for (Uint p=0; p<mpi::PE::instance().size(); ++p)
