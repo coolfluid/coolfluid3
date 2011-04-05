@@ -210,7 +210,7 @@ Uint CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) con
       }
       else
       {
-        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_type<CElements>().connectivity_table();
+        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_type<CElements>().node_connectivity();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
       size += nb_connections_per_obj[idx];
@@ -244,7 +244,7 @@ void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) con
       }
       else
       {
-        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_type<CElements>().connectivity_table();
+        const CConnectivity& connectivity_table = m_local_components[component_idx]->as_type<CElements>().node_connectivity();
         const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_type<CElements>().nodes().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
@@ -280,7 +280,7 @@ void CMeshPartitioner::list_of_connected_procs(VectorT& connected_procs) const
       }
       else
       {
-        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_ptr<CElements>()->connectivity_table();
+        const CConnectivity& connectivity_table = m_local_components[component_idx]->as_ptr<CElements>()->node_connectivity();
         const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_ptr<CElements>()->nodes().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_procs[idx++] = proc_of_obj( glb_node_indices[loc_node] );

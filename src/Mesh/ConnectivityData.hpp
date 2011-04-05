@@ -176,7 +176,7 @@ void create_celements_vector(const RangeT& range, CFaceConnectivity::ElementsT& 
   BOOST_FOREACH(const CElements& elements, range)
   {
     celements_first_elements.push_back(sum);
-    sum += elements.connectivity_table().array().size();
+    sum += elements.node_connectivity().array().size();
   }
 }
 

@@ -86,7 +86,7 @@ struct LoopElems
     if( !IsElementType<EType>()(region.element_type()) )
       return;
 
-    typename CTable<Uint>::ArrayT const& conn_table = region.connectivity_table().array();
+    typename CTable<Uint>::ArrayT const& conn_table = region.node_connectivity().array();
     const CTable<Real>& coords = region.nodes().coordinates();
     // loop on elements
     BOOST_FOREACH(const CTable<Uint>::ConstRow& elem, conn_table)

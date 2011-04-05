@@ -55,7 +55,7 @@ public:
 
   GeometricSupport(const Mesh::CElements& elements) :
     m_coordinates(elements.nodes().coordinates()),
-    m_connectivity(elements.connectivity_table())
+    m_connectivity(elements.node_connectivity())
   {
   }
 
@@ -183,7 +183,7 @@ public:
     
     m_data = &field->data();
     
-    m_connectivity = &elements.connectivity_table();    
+    m_connectivity = &elements.node_connectivity();    
     
     var_begin = field->var_index(placeholder.var_name);
   }

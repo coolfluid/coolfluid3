@@ -363,7 +363,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
     
     for (Uint f1_idx = 0; f1_idx != faces1.size(); ++f1_idx)
     {
-      face_nodes = faces1.nodes(f1);
+      face_nodes = faces1.face_nodes(f1);
       const Uint nb_nodes_per_face = face_nodes.size();
         
       std::map<Uint,Uint> found_faces;
@@ -490,7 +490,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
     Uint nb_matches(0);
     
     Uint local_bdry_face_idx(0);
-    boost_foreach(CTable<Uint>::ConstRow bdry_face_nodes, bdry_faces.connectivity_table().array())
+    boost_foreach(CConnectivity::ConstRow bdry_face_nodes, bdry_faces.node_connectivity().array())
     {
       const Uint nb_nodes_per_face = bdry_face_nodes.size();
 

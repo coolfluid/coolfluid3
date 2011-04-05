@@ -158,7 +158,7 @@ std::map<std::string,CTable<Uint>::Buffer::Ptr>
   std::map<std::string,CTable<Uint>::Buffer::Ptr> buffermap;
   foreach_container((const std::string& etype)(CElements::Ptr elements), elems_map)
   {
-    buffermap[etype] = elements->connectivity_table().create_buffer_ptr();
+    buffermap[etype] = elements->node_connectivity().create_buffer_ptr();
   }
   return buffermap;
 }
@@ -170,7 +170,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
   boost_foreach(CElements& region, find_components_recursively<CElements>(parent_region))
   {
     // find the empty regions
-    Uint empty_on_this_rank = region.connectivity_table().array().empty();
+    Uint empty_on_this_rank = region.node_connectivity().array().empty();
     Uint empty_on_all_ranks = empty_on_this_rank;
 
     /// @todo boolean type had to be converted to Uint for it to work

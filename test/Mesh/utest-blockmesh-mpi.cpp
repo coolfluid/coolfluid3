@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( ComputeVolume )
   BOOST_FOREACH(const CElements& celements, find_components_recursively_with_filter<CElements>(partitioned_mesh, IsElementsVolume()))
   {
     const CTable<Real>& coords = celements.nodes().coordinates();
-    const CTable<Uint>::ArrayT& conn_table = celements.connectivity_table().array();
+    const CTable<Uint>::ArrayT& conn_table = celements.node_connectivity().array();
     BOOST_FOREACH(const CTable<Uint>::ConstRow row, conn_table)
     {
       fill(nodes, coords, row);

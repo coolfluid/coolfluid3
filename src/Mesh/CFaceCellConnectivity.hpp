@@ -81,7 +81,7 @@ public:
   
   Uint size() const { return connectivity().size(); }
   
-  std::vector<Uint> nodes(const Uint face) const;
+  std::vector<Uint> face_nodes(const Uint face) const;
 
   CMeshElements& lookup() { cf_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
 

@@ -78,32 +78,32 @@ void CBubbleRemove::execute()
     CFinfo << elements.full_path().string() << CFendl;
 
 //    CFinfo << "elems size " << elements.size() << CFendl;
-//    CFinfo << "conn size "  << elements.connectivity_table().size() << " x "
-//                            << elements.connectivity_table().row_size() << CFendl;
+//    CFinfo << "conn size "  << elements.node_connectivity().size() << " x "
+//                            << elements.node_connectivity().row_size() << CFendl;
 //    CFinfo << "coords size "<< elements.nodes().coordinates().size() << " x "
 //                            << elements.nodes().coordinates().row_size() << CFendl;
 
     // backup the connectivity table
     CTable<Uint>::Ptr backup = this->create_component< CTable<Uint> > ("backup");
 
-    backup->set_row_size(elements.connectivity_table().row_size()); // size appropriately
-    backup->resize(elements.connectivity_table().size());           // size appropriately
+    backup->set_row_size(elements.node_connectivity().row_size()); // size appropriately
+    backup->resize(elements.node_connectivity().size());           // size appropriately
 
-    *backup = elements.connectivity_table(); /* copy table */
+    *backup = elements.node_connectivity(); /* copy table */
     CTable<Uint>::ArrayT& backtable = backup->array();
 
     // compute new nb cols
-    const Uint currnodes = elements.connectivity_table().row_size();
+    const Uint currnodes = elements.node_connectivity().row_size();
     const Uint newnbcols = currnodes - 1;
     const Uint lastcol = currnodes - 1;
     // resize and keep same nb of rows (nb elements)
-    elements.connectivity_table().set_row_size(newnbcols);
+    elements.node_connectivity().set_row_size(newnbcols);
 
-//    CFinfo << "new conn size "  << elements.connectivity_table().size() << " x "
-//                                << elements.connectivity_table().row_size() << CFendl;
+//    CFinfo << "new conn size "  << elements.node_connectivity().size() << " x "
+//                                << elements.node_connectivity().row_size() << CFendl;
 
     // get connectivity table
-    CTable<Uint>::ArrayT& conntable = elements.connectivity_table().array();
+    CConnectivity::ArrayT& conntable = elements.node_connectivity().array();
 
     // get coordinates
     CTable<Real>& coords = elements.nodes().coordinates();
@@ -143,7 +143,7 @@ void CBubbleRemove::execute()
     elements.remove_component(etype.name());
 
     // add the new shape function
-    elements.set_element_type( "CF.Mesh.SF.Triag2DLagrangeP2" );
+    elements.configure_property("element_type" , std::string("CF.Mesh.SF.Triag2DLagrangeP2") );
 
   }
 

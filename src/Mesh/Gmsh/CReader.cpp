@@ -467,7 +467,7 @@ void CReader::read_connectivity()
       // Celements& elements = region->create_component<CElements>(cf_elem_name);
       // elements.initialize(cf_elem_name,*m_nodes);
 
-       CTable<Uint>& elem_table = elements->as_ptr<CElements>()->connectivity_table();
+       CConnectivity& elem_table = elements->as_ptr<CElements>()->node_connectivity();
        elem_table.set_row_size(Shared::m_nodes_in_gmsh_elem[etype]);
        elem_table.resize((m_nb_gmsh_elem_in_region[ir])[etype]);
 
@@ -533,7 +533,7 @@ void CReader::read_connectivity()
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
       
       CElements::Ptr elements_region = elem_table_iter->second->as_ptr<CElements>();
-      CTable<Uint>::Row element_nodes = elements_region->connectivity_table()[row_idx];
+      CConnectivity::Row element_nodes = elements_region->node_connectivity()[row_idx];
       
       m_elem_idx_gmsh_to_cf[element_number] = boost::make_tuple( elements_region , row_idx);
 

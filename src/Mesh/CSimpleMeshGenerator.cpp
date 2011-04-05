@@ -10,6 +10,7 @@
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CreateComponent.hpp"
+#include "Common/Log.hpp"
 
 #include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/CRegion.hpp"
@@ -89,7 +90,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   
   CCells::Ptr cells = region.create_component<CCells>("Line");
   cells->initialize("CF.Mesh.SF.Line1DLagrangeP1",nodes);
-  CTable<Uint>& connectivity = cells->connectivity_table();
+  CConnectivity& connectivity = cells->node_connectivity();
   connectivity.resize(x_segments);
   for(Uint i = 0; i < x_segments; ++i)
   {
@@ -101,14 +102,14 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   // Left boundary point
   CFaces::Ptr xneg = mesh.topology().create_region("xneg").create_component<CFaces>("Point");
   xneg->initialize("CF.Mesh.SF.Point1DLagrangeP1", nodes);
-  CTable<Uint>& xneg_connectivity = xneg->connectivity_table();
+  CConnectivity& xneg_connectivity = xneg->node_connectivity();
   xneg_connectivity.resize(1);
   xneg_connectivity[0][0] = 0;
   
   // right boundary point
   CFaces::Ptr xpos = mesh.topology().create_region("xpos").create_component<CFaces>("Point");
   xpos->initialize("CF.Mesh.SF.Point1DLagrangeP1", nodes);
-  CTable<Uint>& xpos_connectivity = xpos->connectivity_table();
+  CConnectivity& xpos_connectivity = xpos->node_connectivity();
   xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;
   
@@ -137,16 +138,19 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
       row[YY] = y;
     }
   }
-  
+
   CCells::Ptr cells = region.create_component<CCells>("Quad");
   cells->initialize("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
-  CTable<Uint>& connectivity = cells->connectivity_table();
+
+  CConnectivity& connectivity = cells->node_connectivity();
+  
   connectivity.resize((x_segments)*(y_segments));
+  
   for(Uint j = 0; j < y_segments; ++j)
   {
     for(Uint i = 0; i < x_segments; ++i)
     {
-      CTable<Uint>::Row nodes = connectivity[j*(x_segments)+i];
+      CConnectivity::Row nodes = connectivity[j*(x_segments)+i];
       nodes[0] = j * (x_segments+1) + i;
       nodes[1] = nodes[0] + 1;
       nodes[3] = (j+1) * (x_segments+1) + i;
@@ -156,7 +160,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   
   CFaces::Ptr left = mesh.topology().create_region("left").create_component<CFaces>("Line");
   left->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
-  CTable<Uint>& left_connectivity = left->connectivity_table();
+  CConnectivity& left_connectivity = left->node_connectivity();
   left_connectivity.resize(y_segments);
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -167,7 +171,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   
   CFaces::Ptr right = mesh.topology().create_region("right").create_component<CFaces>("Line");
   right->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
-  CTable<Uint>& right_connectivity = right->connectivity_table();
+  CConnectivity& right_connectivity = right->node_connectivity();
   right_connectivity.resize(y_segments);
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -178,7 +182,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   
   CFaces::Ptr bottom = mesh.topology().create_region("bottom").create_component<CFaces>("Line");
   bottom->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
-  CTable<Uint>& bottom_connectivity = bottom->connectivity_table();
+  CConnectivity& bottom_connectivity = bottom->node_connectivity();
   bottom_connectivity.resize(x_segments);
   for(Uint i = 0; i < x_segments; ++i)
   {
@@ -189,7 +193,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   
   CFaces::Ptr top = mesh.topology().create_region("top").create_component<CFaces>("Line");
   top->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
-  CTable<Uint>& top_connectivity = top->connectivity_table();
+  CConnectivity& top_connectivity = top->node_connectivity();
   top_connectivity.resize(x_segments);
   for(Uint i = 0; i < x_segments; ++i)
   {

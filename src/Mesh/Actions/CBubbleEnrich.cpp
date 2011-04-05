@@ -75,11 +75,11 @@ void CBubbleEnrich::execute()
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
-//    CFinfo << elements.connectivity_table().full_path().string()  << CFendl;    // loop on the elements
-//    for ( Uint elem = 0; elem != elements.connectivity_table().size(); ++elem )
+//    CFinfo << elements.node_connectivity().full_path().string()  << CFendl;    // loop on the elements
+//    for ( Uint elem = 0; elem != elements.node_connectivity().size(); ++elem )
 //    {
-//      for ( Uint n = 0; n != elements.connectivity_table().row_size(); ++n )
-//        CFinfo << " " << elements.connectivity_table().array()[elem][n];
+//      for ( Uint n = 0; n != elements.node_connectivity().row_size(); ++n )
+//        CFinfo << " " << elements.node_connectivity().array()[elem][n];
 //      CFinfo << CFendl;
 //    }
 //  }
@@ -93,31 +93,31 @@ void CBubbleEnrich::execute()
     CFinfo << elements.full_path().string() << CFendl;
 
 //    CFinfo << "elems size " << elements.size() << CFendl;
-//    CFinfo << "conn size "  << elements.connectivity_table().size() << " x "
-//                            << elements.connectivity_table().row_size() << CFendl;
+//    CFinfo << "conn size "  << elements.node_connectivity().size() << " x "
+//                            << elements.node_connectivity().row_size() << CFendl;
 //    CFinfo << "coords size "<< elements.nodes().coordinates().size() << " x "
 //                            << elements.nodes().coordinates().row_size() << CFendl;
 
     // backup the connectivity table
     CTable<Uint>::Ptr backup = this->create_component< CTable<Uint> > ("backup");
 
-    backup->set_row_size(elements.connectivity_table().row_size()); // size appropriately
-    backup->resize(elements.connectivity_table().size());           // size appropriately
+    backup->set_row_size(elements.node_connectivity().row_size()); // size appropriately
+    backup->resize(elements.node_connectivity().size());           // size appropriately
 
-    *backup = elements.connectivity_table(); /* copy table */
+    *backup = elements.node_connectivity(); /* copy table */
     CTable<Uint>::ArrayT& backtable = backup->array();
 
     // compute new nb cols
-    const Uint currnodes = elements.connectivity_table().row_size();
+    const Uint currnodes = elements.node_connectivity().row_size();
     const Uint newnbcols = currnodes + 1;
     // resize and keep same nb of rows (nb elements)
-    elements.connectivity_table().set_row_size(newnbcols);
+    elements.node_connectivity().set_row_size(newnbcols);
 
-//    CFinfo << "new conn size "  << elements.connectivity_table().size() << " x "
-//                                << elements.connectivity_table().row_size() << CFendl;
+//    CFinfo << "new conn size "  << elements.node_connectivity().size() << " x "
+//                                << elements.node_connectivity().row_size() << CFendl;
 
     // get connectivity table
-    CTable<Uint>::ArrayT& conntable = elements.connectivity_table().array();
+    CConnectivity::ArrayT& conntable = elements.node_connectivity().array();
 
     // get coordinates
     CTable<Real>& coords = elements.nodes().coordinates();
@@ -167,7 +167,7 @@ void CBubbleEnrich::execute()
     elements.remove_component(etype.name());
 
     // add the new shape function
-    elements.set_element_type( "CF.Mesh.SF.Triag2DLagrangeP2B" );
+    elements.configure_property("element_type", std::string("CF.Mesh.SF.Triag2DLagrangeP2B") );
 
   } // loop element types
 
@@ -175,11 +175,11 @@ void CBubbleEnrich::execute()
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
-//    CFinfo << elements.connectivity_table().full_path().string()  << CFendl;    // loop on the elements
-//    for ( Uint elem = 0; elem != elements.connectivity_table().size(); ++elem )
+//    CFinfo << elements.node_connectivity().full_path().string()  << CFendl;    // loop on the elements
+//    for ( Uint elem = 0; elem != elements.node_connectivity().size(); ++elem )
 //    {
-//      for ( Uint n = 0; n != elements.connectivity_table().row_size(); ++n )
-//        CFinfo << " " << elements.connectivity_table().array()[elem][n];
+//      for ( Uint n = 0; n != elements.node_connectivity().row_size(); ++n )
+//        CFinfo << " " << elements.node_connectivity().array()[elem][n];
 //      CFinfo << CFendl;
 //    }
 //  }

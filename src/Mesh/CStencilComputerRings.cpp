@@ -94,7 +94,7 @@ void CStencilComputerRings::compute_neighbors(std::set<Uint>& included, const Ui
     std::set<Uint>::iterator it;
     bool inserted;
     boost::tie(elements,elem_idx) = unified_elements().location(unified_elem_idx);
-    boost_foreach(Uint node_idx, elements->as_type<CElements>().connectivity_table()[elem_idx])
+    boost_foreach(Uint node_idx, elements->as_type<CElements>().node_connectivity()[elem_idx])
     {
       boost_foreach(Uint neighbor_elem, node2cell().connectivity()[node_idx])
       {

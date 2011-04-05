@@ -154,11 +154,11 @@ BOOST_AUTO_TEST_CASE( enricher )
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(*mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
-//    CFinfo << elements.connectivity_table().full_path().string()  << CFendl;    // loop on the elements
-//    for ( Uint elem = 0; elem != elements.connectivity_table().size(); ++elem )
+//    CFinfo << elements.node_connectivity().full_path().string()  << CFendl;    // loop on the elements
+//    for ( Uint elem = 0; elem != elements.node_connectivity().size(); ++elem )
 //    {
-//      for ( Uint n = 0; n != elements.connectivity_table().row_size(); ++n )
-//        CFinfo << " " << elements.connectivity_table().array()[elem][n];
+//      for ( Uint n = 0; n != elements.node_connectivity().row_size(); ++n )
+//        CFinfo << " " << elements.node_connectivity().array()[elem][n];
 //      CFinfo << CFendl;
 //    }
 //  }
@@ -184,11 +184,11 @@ BOOST_AUTO_TEST_CASE( remover )
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(*mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
-//    CFinfo << elements.connectivity_table().full_path().string()  << CFendl;    // loop on the elements
-//    for ( Uint elem = 0; elem != elements.connectivity_table().size(); ++elem )
+//    CFinfo << elements.node_connectivity().full_path().string()  << CFendl;    // loop on the elements
+//    for ( Uint elem = 0; elem != elements.node_connectivity().size(); ++elem )
 //    {
-//      for ( Uint n = 0; n != elements.connectivity_table().row_size(); ++n )
-//        CFinfo << " " << elements.connectivity_table().array()[elem][n];
+//      for ( Uint n = 0; n != elements.node_connectivity().row_size(); ++n )
+//        CFinfo << " " << elements.node_connectivity().array()[elem][n];
 //      CFinfo << CFendl;
 //    }
 //  }
@@ -209,11 +209,11 @@ BOOST_AUTO_TEST_CASE( remover )
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(*mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
-//    CFinfo << elements.connectivity_table().full_path().string()  << CFendl;    // loop on the elements
-//    for ( Uint elem = 0; elem != elements.connectivity_table().size(); ++elem )
+//    CFinfo << elements.node_connectivity().full_path().string()  << CFendl;    // loop on the elements
+//    for ( Uint elem = 0; elem != elements.node_connectivity().size(); ++elem )
 //    {
-//      for ( Uint n = 0; n != elements.connectivity_table().row_size(); ++n )
-//        CFinfo << " " << elements.connectivity_table().array()[elem][n];
+//      for ( Uint n = 0; n != elements.node_connectivity().row_size(); ++n )
+//        CFinfo << " " << elements.node_connectivity().array()[elem][n];
 //      CFinfo << CFendl;
 //    }
 //  }

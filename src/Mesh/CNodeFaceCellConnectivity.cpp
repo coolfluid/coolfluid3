@@ -63,7 +63,7 @@ void CNodeFaceCellConnectivity::build_connectivity()
     {
       if ( face_cell_connectivity.is_bdry_face()[f] )
       {
-        boost_foreach (const Uint node_idx, face_cell_connectivity.nodes(f))
+        boost_foreach (const Uint node_idx, face_cell_connectivity.face_nodes(f))
         {
           ++connectivity_sizes[node_idx];
         }
@@ -85,7 +85,7 @@ void CNodeFaceCellConnectivity::build_connectivity()
     {
       if ( face_cell_connectivity.is_bdry_face()[f] )
       {
-        boost_foreach (const Uint node_idx, face_cell_connectivity.nodes(f))
+        boost_foreach (const Uint node_idx, face_cell_connectivity.face_nodes(f))
         {
           m_connectivity->array()[node_idx].push_back(glb_face_idx);
         }

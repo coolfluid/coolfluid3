@@ -12,7 +12,7 @@
 #include "Common/Component.hpp"
 
 #include "Mesh/LibMesh.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CConnectivity.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -53,15 +53,15 @@ public: // functions
   const ElementType& shape_function() const { return *m_shape_function; }
 
   /// return the number of elements
-  Uint size() const { return m_connectivity_table->size(); }
+  Uint size() const { return m_node_connectivity->size(); }
   
-  CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) ;
+  CConnectivity::ConstRow get_nodes(const Uint elem_idx) ;
 
   /// Mutable access to the connectivity table
-  CTable<Uint>& connectivity_table() { return *m_connectivity_table; }
+  CConnectivity& node_connectivity() { return *m_node_connectivity; }
   
   /// Const access to the connectivity table
-  const CTable<Uint>& connectivity_table() const { return *m_connectivity_table; }
+  const CConnectivity& node_connectivity() const { return *m_node_connectivity; }
 
   Uint nb_states() const { return 1u; }
   
@@ -69,7 +69,7 @@ protected: // data
 
   boost::shared_ptr<ElementType> m_shape_function;
   
-  CTable<Uint>::Ptr m_connectivity_table;
+  CConnectivity::Ptr m_node_connectivity;
 
 };
 

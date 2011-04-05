@@ -98,31 +98,6 @@ BOOST_AUTO_TEST_CASE( node_elem_connectivity )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( test_CConnectivity )
-{
-  // create meshreader
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  boost::filesystem::path fp_source ("quadtriag.neu");
-  CMesh::Ptr mesh = meshreader->create_mesh_from(fp_source);
-
-  BOOST_CHECK( true );
-
-  // create and setup node to elements connectivity
-  CConnectivity::Ptr c = mesh->create_component<CConnectivity>("node_elem_connectivity");
-  
-  boost_foreach(CEntities& entities, find_components_recursively<CEntities>(mesh->topology()))
-    c->add(entities);
-  
-  BOOST_CHECK( true );
-
-  boost_foreach(CEntities::Ptr entities, c->connected<CEntities>())
-    CFinfo << entities->full_path().path() << CFendl;
-  
-  CFinfo << CFendl;  
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////

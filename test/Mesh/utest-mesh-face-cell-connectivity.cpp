@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( face_elem_connectivity )
   BOOST_CHECK_EQUAL(c->connectivity().size() , 40u);
   
   CFinfo << "nodes of face 0 : ";
-  boost_foreach(const Uint node, c->nodes(0) )
+  boost_foreach(const Uint node, c->face_nodes(0) )
     CFinfo << "  " << node;
   CFinfo << CFendl;
   // Output whole node to elements connectivity

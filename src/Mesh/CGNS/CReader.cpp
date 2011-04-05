@@ -486,7 +486,7 @@ void CReader::read_section(CRegion& parent_region)
     CElements& element_region= *this_region.get_child_ptr("elements_"+etype_CF)->as_ptr<CElements>();
 
     // Create a buffer for this element component, to start filling in the elements we will read.
-    CTable<Uint>::Buffer element_buffer = element_region.connectivity_table().create_buffer();
+    CConnectivity::Buffer element_buffer = element_region.node_connectivity().create_buffer();
     CTable<Real>::Buffer coord_buffer   = element_region.nodes().coordinates().create_buffer();
 
     // Create storage for element nodes
@@ -584,7 +584,7 @@ void CReader::create_structured_elements(CRegion& parent_region)
   CElements& element_region = this_region.create_elements(etype_CF,nodes);
 
   // Create a buffer for this element component, to start filling in the elements we will read.
-  CTable<Uint>::Buffer element_buffer = element_region.connectivity_table().create_buffer();
+  CConnectivity::Buffer element_buffer = element_region.node_connectivity().create_buffer();
 
   // --------------------------------------------- Fill connectivity table
   //std::vector<Uint> row(m_section.elemNodeCount);
@@ -706,7 +706,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct CElements component through its buffer
-        buffer[element_region->element_type().builder_name()]->add_row(element_region->connectivity_table()[local_element]);
+        buffer[element_region->element_type().builder_name()]->add_row(element_region->node_connectivity()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -756,7 +756,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct CElements component through its buffer
-        buffer[element_region->element_type().builder_name()]->add_row(element_region->connectivity_table()[local_element]);
+        buffer[element_region->element_type().builder_name()]->add_row(element_region->node_connectivity()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -819,8 +819,8 @@ void CReader::read_boco_structured(CRegion& parent_region)
   }
 
   CElements& elements = this_region.create_elements(etypeBC_CF,nodes);
-  //CTable<Uint>& source_elements = parent_region.get_child_ptr("Inner")->get_child_ptr<CElements>("elements_"+etype_CF)->connectivity_table();
-  CTable<Uint>::Buffer buffer = elements.connectivity_table().create_buffer();
+  //CTable<Uint>& source_elements = parent_region.get_child_ptr("Inner")->get_child_ptr<CElements>("elements_"+etype_CF)->node_connectivity();
+  CConnectivity::Buffer buffer = elements.node_connectivity().create_buffer();
 
 
 

@@ -12,7 +12,7 @@
 #include "Common/CreateComponent.hpp"
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CConnectivity.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CSpace.hpp"
@@ -35,15 +35,9 @@ CElements::CElements ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
   
-  m_connectivity_table = create_static_component<CTable<Uint> >("connectivity_table");
-  m_connectivity_table->add_tag("connectivity_table");
-  m_connectivity_table->properties()["brief"] = std::string("The connectivity table specifying for each element the nodes in the coordinates table");
-  
-  
-  
-  /// @todo remove
-  properties()["element_based"] = false;
-  properties()["node_based"] = false;
+  m_node_connectivity = create_static_component<CConnectivity>("connectivity_table");
+  m_node_connectivity->add_tag("connectivity_table");
+  m_node_connectivity->properties()["brief"] = std::string("The connectivity table specifying for each element the nodes in the coordinates table");
   
 }
 
@@ -58,22 +52,23 @@ CElements::~CElements()
 void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
 {
   CEntities::initialize(element_type_name,nodes);
-  connectivity_table().set_row_size(m_element_type->nb_nodes());
+  node_connectivity().set_row_size(m_element_type->nb_nodes());
+  node_connectivity().create_lookup().add(nodes);
   create_space0();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-CTable<Uint>& CElements::connectivity_table()
+CConnectivity& CElements::node_connectivity()
 {
-  return *m_connectivity_table;
+  return *m_node_connectivity;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CTable<Uint>& CElements::connectivity_table() const
+const CConnectivity& CElements::node_connectivity() const
 {
-  return *m_connectivity_table;
+  return *m_node_connectivity;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +76,7 @@ const CTable<Uint>& CElements::connectivity_table() const
 RealMatrix CElements::get_coordinates(const Uint elem_idx) const
 {
   const CTable<Real>& coords_table = nodes().coordinates();
-  CTable<Uint>::ConstRow elem_nodes = connectivity_table()[elem_idx];
+  CConnectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
   const Uint nb_nodes=elem_nodes.size();
   const Uint dim=coords_table.row_size();
@@ -99,7 +94,7 @@ RealMatrix CElements::get_coordinates(const Uint elem_idx) const
 void CElements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) const
 {
   const CTable<Real>& coords_table = nodes().coordinates();
-  CTable<Uint>::ConstRow elem_nodes = connectivity_table()[elem_idx];
+  CConnectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
   const Uint nb_nodes=elem_coords.rows();
   const Uint dim=elem_coords.cols();
@@ -114,7 +109,7 @@ void CElements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) co
 
 CTable<Uint>::ConstRow CElements::get_nodes(const Uint elem_idx)
 {
-  return connectivity_table()[elem_idx];
+  return node_connectivity()[elem_idx];
 //  CTable<Uint>::ConstRow elem_nodes = connectivity_table(space)[elem_idx];
 //  return std::vector<Uint> (elem_nodes.begin(),elem_nodes.end());
 }

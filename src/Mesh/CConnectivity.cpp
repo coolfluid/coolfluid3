@@ -28,33 +28,42 @@ Common::ComponentBuilder < CConnectivity , Component, LibMesh > CConnectivity_Bu
 CConnectivity::CConnectivity ( const std::string& name ) : 
   CTable<Uint>(name)
 {
-  m_connected = create_static_component<CGroup>("connected");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CConnectivity::add(Component& new_connected)
+CUnifiedData& CConnectivity::lookup()
 {
-  ComponentIterator<Component> it = m_connected->begin();
-  ComponentIterator<Component> it_end = m_connected->end();
-  bool found = false;
-  Uint count=0;
-  for (; it != it_end; ++it, ++count )
+  return *m_lookup;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CUnifiedData& CConnectivity::create_lookup()
+{
+  if (is_not_null(m_lookup))
   {
-    if (it->follow() == new_connected.follow())
+    if (is_not_null(get_child_ptr(m_lookup->name())))
     {
-      found = true;
-      break;
+      remove_component(m_lookup->name());
     }
   }
-  if (found == false)
-    m_connected->create_component<CLink>("link_"+Common::to_str(count))->link_to(new_connected);
+  return *create_component<CUnifiedData>("lookup");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
+void CConnectivity::set_lookup(CUnifiedData& lookup)
+{
+  if (is_not_null(m_lookup))
+  {
+    if (is_not_null(get_child_ptr(m_lookup->name())))
+    {
+      remove_component(m_lookup->name());
+    }
+  }
+  m_lookup = lookup.as_ptr<CUnifiedData>();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

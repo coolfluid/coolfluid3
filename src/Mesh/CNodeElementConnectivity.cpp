@@ -57,7 +57,7 @@ void CNodeElementConnectivity::build_connectivity()
   boost_foreach(Component::Ptr elements_comp, m_elements->components() )
   {
     CElements& elements = elements_comp->as_type<CElements>();
-    boost_foreach (CTable<Uint>::ConstRow nodes, elements.connectivity_table().array() )
+    boost_foreach (CConnectivity::ConstRow nodes, elements.node_connectivity().array() )
     {
       boost_foreach (const Uint node_idx, nodes)
       {
@@ -75,7 +75,7 @@ void CNodeElementConnectivity::build_connectivity()
   boost_foreach(Component::Ptr elements_comp, m_elements->components() )
   {
     CElements& elements = elements_comp->as_type<CElements>();
-    boost_foreach (CTable<Uint>::ConstRow nodes, elements.connectivity_table().array() )
+    boost_foreach (CConnectivity::ConstRow nodes, elements.node_connectivity().array() )
     {
       boost_foreach (const Uint node_idx, nodes)
       {

@@ -10,6 +10,7 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
+#include "Common/OptionT.hpp"
 
 #include "Mesh/CEntities.hpp"
 #include "Mesh/CList.hpp"
@@ -32,6 +33,8 @@ CEntities::CEntities ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 
+  properties().add_option(OptionT<std::string>::create("element_type","Element Type","Element type", std::string("")))
+    ->attach_trigger(boost::bind(&CEntities::configure_element_type, this));
 
   m_global_numbering = create_static_component<CList<Uint> >("global_element_indices");
   m_global_numbering->add_tag("global_element_indices");
@@ -52,14 +55,17 @@ CEntities::~CEntities()
 void CEntities::initialize(const std::string& element_type_name, CNodes& nodes)
 {
   m_nodes->link_to(nodes.follow());
-
-  set_element_type(element_type_name);
+  configure_property("element_type",element_type_name);
+  cf_assert(is_not_null(m_element_type));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CEntities::set_element_type(const std::string& etype_name)
+void CEntities::configure_element_type()
 {
+  const std::string etype_name = property("element_type").value<std::string>();
+  if (is_not_null(m_element_type))
+    remove_component(m_element_type->name());
   m_element_type = create_component_abstract_type<ElementType>( etype_name, etype_name );
   m_element_type->rename(m_element_type->element_type_name());
   add_component( m_element_type );
@@ -75,19 +81,19 @@ const ElementType& CEntities::element_type() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-CNodes& CEntities::nodes()
-{
-  return *m_nodes->follow()->as_ptr<CNodes>();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 const CNodes& CEntities::nodes() const
 {
-  return *m_nodes->follow()->as_ptr<CNodes>();
+  return m_nodes->follow()->as_type<CNodes>();
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+CNodes& CEntities::nodes()
+{
+  return m_nodes->follow()->as_type<CNodes>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 CList<Uint>& CEntities::used_nodes(Component& parent)
 {
@@ -166,7 +172,7 @@ CSpace& CEntities::create_space0()
   if (m_spaces.size() == 0)
   {
     CSpace& space = create_space(element_type().builder_name());
-    CTable<Uint>& table = space.connectivity_table();
+    CConnectivity& table = space.node_connectivity();
     table.set_row_size(space.shape_function().nb_nodes());
     table.resize(size());
     for (Uint i=0; i!=table.size(); ++i)

@@ -304,7 +304,7 @@ void CPartitioner::migrate()
 		{
 			const CList<Uint>& global_node_indices = elements->nodes().glb_idx();
 
-			boost_foreach ( CTable<Uint>::Row nodes, elements->connectivity_table().array() )
+			boost_foreach ( CTable<Uint>::Row nodes, elements->node_connectivity().array() )
 			{
 				boost_foreach ( Uint& node, nodes )
 				{
@@ -356,7 +356,7 @@ void CPartitioner::migrate()
     // give the element to node connectivity global indices
     if(CElements::Ptr elements = comp->as_ptr<CElements>())
     {
-      CTable<Uint>& conn_table = elements->connectivity_table();
+      CTable<Uint>& conn_table = elements->node_connectivity();
       boost_foreach ( CTable<Uint>::Row nodes, conn_table.array() )
       {
         boost_foreach ( Uint& node, nodes )
@@ -517,7 +517,7 @@ void CPartitioner::migrate()
     // give the element to node connectivity global indices
     if(CElements::Ptr elements = comp->as_ptr<CElements>())
     {
-      boost_foreach ( CTable<Uint>::Row nodes, elements->connectivity_table().array() )
+      boost_foreach ( CTable<Uint>::Row nodes, elements->node_connectivity().array() )
       {
         boost_foreach ( Uint& node, nodes )
         {
@@ -555,7 +555,7 @@ void CPartitioner::get_elems_sizes(void *data, int gidSize, int lidSize, int num
 			nb_elems++;
 			boost::tie(comp,idx) = p.to_local(glb_idx);
 			sizes[i] = sizeof(Uint) // component index
-							 + sizeof(Uint) * comp->as_ptr<CElements>()->connectivity_table().row_size(); // nodes
+							 + sizeof(Uint) * comp->as_ptr<CElements>()->node_connectivity().row_size(); // nodes
 		}
 		++i;
 	}
@@ -579,7 +579,7 @@ void CPartitioner::pack_elems_messages(void *data, int gidSize, int lidSize, int
 	boost_foreach (Component::Ptr comp, p.components_vector())
 	{
 		if(CElements::Ptr elements = comp->as_ptr<CElements>())
-			elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(elements->connectivity_table().create_buffer())));
+			elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(elements->node_connectivity().create_buffer())));
 		else
 			elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer>());
 	}
@@ -603,7 +603,7 @@ void CPartitioner::pack_elems_messages(void *data, int gidSize, int lidSize, int
 
 			CFdebug << RANK << "packed elem " << glb_idx << " : ";
 			nodes_buf = (Uint *)(comp_idx_buf);
-			boost_foreach (const Uint node, p.components_vector()[comp_idx]->as_ptr<CElements>()->connectivity_table()[array_idx])
+			boost_foreach (const Uint node, p.components_vector()[comp_idx]->as_ptr<CElements>()->node_connectivity()[array_idx])
 			{
 				CFdebug << " " << node;
 				*nodes_buf++ = node;
@@ -636,7 +636,7 @@ void CPartitioner::unpack_elems_messages(void *data, int gidSize, int num_ids,
 	{
 		if(CElements::Ptr elements = comp->as_ptr<CElements>())
 		{
-			elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(elements->connectivity_table().create_buffer())));
+			elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(elements->node_connectivity().create_buffer())));
 
 		}
 		else
@@ -656,7 +656,7 @@ void CPartitioner::unpack_elems_messages(void *data, int gidSize, int num_ids,
 			comp_idx_buf = (Uint *)(buf + idx[id]);
 			comp_idx = *comp_idx_buf;
 
-			Uint nb_nodes = p.components_vector()[comp_idx]->as_ptr<CElements>()->connectivity_table().row_size();
+			Uint nb_nodes = p.components_vector()[comp_idx]->as_ptr<CElements>()->node_connectivity().row_size();
 			std::vector<Uint> nodes(nb_nodes);
 
 			nodes_buf = (Uint *)(++comp_idx_buf);

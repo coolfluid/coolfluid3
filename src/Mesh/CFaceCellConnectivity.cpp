@@ -85,7 +85,7 @@ void CFaceCellConnectivity::add_used (const Component& used_comp)
   if (found == false)
     m_used_components->create_component<CLink>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
     
-  m_mesh_elements = find_parent_component<CMesh>(used_comp).elements().as_non_const()->as_ptr<CMeshElements>();  
+  m_mesh_elements = find_parent_component<CMesh>(used_comp).elements().as_non_const()->as_ptr<CMeshElements>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ void CFaceCellConnectivity::build_connectivity()
   CTable<Uint>::Buffer f2c = m_connectivity->create_buffer();
   CList<Uint>::Buffer face_number = m_face_nb_in_first_elem->create_buffer();
   CList<Uint>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
-  CNodes& nodes = used()[0]->as_type<CElements>().nodes(); 
+  CNodes& nodes = find_parent_component<CMesh>(*used()[0]).nodes();
   Uint tot_nb_nodes = nodes.size();
   std::vector < std::vector<Uint> > mapNodeFace(tot_nb_nodes);
   std::vector<Uint> face_nodes;  face_nodes.reserve(100);
@@ -173,7 +173,7 @@ void CFaceCellConnectivity::build_connectivity()
 
     // loop over the elements of this type
     Uint loc_elem_idx=0;
-    boost_foreach(CTable<Uint>::ConstRow elem, elements.connectivity_table().array() ) 
+    boost_foreach(CTable<Uint>::ConstRow elem, elements.node_connectivity().array() ) 
     {
       if ( is_bdry_elem[loc_elem_idx] )
       {
@@ -324,7 +324,7 @@ void CFaceCellConnectivity::build_connectivity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector<Uint> CFaceCellConnectivity::nodes(const Uint face) const
+std::vector<Uint> CFaceCellConnectivity::face_nodes(const Uint face) const
 {
   Uint unified_elem_idx = (*m_connectivity)[face][0];
   Component::ConstPtr elem_comp;
@@ -334,7 +334,7 @@ std::vector<Uint> CFaceCellConnectivity::nodes(const Uint face) const
   std::vector<Uint> nodes(elems.element_type().face_type((*m_face_nb_in_first_elem)[face]).nb_nodes());
   index_foreach (i, Uint node_in_face, elems.element_type().face_connectivity().face_node_range((*m_face_nb_in_first_elem)[face]))
   {
-    nodes[i] = elems.connectivity_table()[elem_idx][node_in_face];
+    nodes[i] = elems.node_connectivity()[elem_idx][node_in_face];
   }
   return nodes;
 }

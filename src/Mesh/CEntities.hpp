@@ -42,10 +42,7 @@ public: // functions
   CEntities ( const std::string& name );
   
   /// Initialize the CEntities using the given type
-  //void initialize(const std::string& element_type_name, CTable<Real>& coordinates);
-
-  /// Initialize the CEntities using the given type
-  virtual void initialize(const std::string& element_type_name, CNodes& nodes);
+  void initialize(const std::string& element_type_name, CNodes& nodes);
     
   /// Virtual destructor
   virtual ~CEntities();
@@ -54,7 +51,7 @@ public: // functions
   static std::string type_name () { return "CEntities"; }
 
   /// set the element type
-  void set_element_type(const std::string& etype_name);
+  void configure_element_type();
 
   /// return the elementType
   const ElementType& element_type() const;

@@ -98,8 +98,8 @@ void array2d_test(const CTable<Uint>::ArrayT& a, const CTable<Uint>::ArrayT& b, 
 /// Compares CElements
 void test(const CElements& a, const CElements& b, Accumulator& result)
 {
-  const CTable<Uint>::ArrayT& table_a = a.connectivity_table().array();
-  const CTable<Uint>::ArrayT& table_b = b.connectivity_table().array();
+  const CTable<Uint>::ArrayT& table_a = a.node_connectivity().array();
+  const CTable<Uint>::ArrayT& table_b = b.node_connectivity().array();
 
   array2d_test(table_a, table_b, result, "comparing " + a.full_path().path() + " and " + b.full_path().path());
 }

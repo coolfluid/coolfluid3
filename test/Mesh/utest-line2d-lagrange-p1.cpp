@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
   create_circle_2d(*mesh, 1., 100);
   CTable<Real>& coordinates = find_component_recursively<CNodes>(*mesh).coordinates();
-  CTable<Uint>& connectivity = find_component_recursively<CElements>(*mesh).connectivity_table();
+  CTable<Uint>& connectivity = find_component_recursively<CElements>(*mesh).node_connectivity();
   
 
   // Check the length, using the line integral of one times the norm of the tangent vector
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE( ArcIntegral )
   CMesh::Ptr mesh = allocate_component<CMesh>("mesh");  
   create_circle_2d(*mesh, 1., 100, 0., MathConsts::pi());
   CTable<Real>& arc_coordinates = find_component_recursively<CNodes>(*mesh).coordinates();
-  CTable<Uint>& arc_connectivity = find_component_recursively<CElements>(*mesh).connectivity_table();
+  CTable<Uint>& arc_connectivity = find_component_recursively<CElements>(*mesh).node_connectivity();
   Real arc_flux = 0.;
   const SFT::CoordsT y_vector(0., 1.);
   integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity);
@@ -303,7 +303,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
   create_circle_2d(*mesh, 1., segments);
   CTable<Real>& coordinates = find_component_recursively<CNodes>(*mesh).coordinates();
-  CTable<Uint>& connectivity = find_component_recursively<CElements>(*mesh).connectivity_table();
+  CTable<Uint>& connectivity = find_component_recursively<CElements>(*mesh).node_connectivity();
 
   // Rotating cylinder in uniform flow
   const Real u = 300.;

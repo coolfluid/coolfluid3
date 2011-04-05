@@ -409,7 +409,7 @@ inline void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>
   Uint nb_nodes = 0;
   BOOST_FOREACH(const Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region))
   {
-    const Mesh::CTable<Uint>& conn_tbl = elements.connectivity_table();
+    const Mesh::CTable<Uint>& conn_tbl = elements.node_connectivity();
     const Uint nb_elems = conn_tbl.size();
     const Uint nb_elem_nodes = conn_tbl.row_size();
     
@@ -436,7 +436,7 @@ inline void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>
   node_is_used.assign(coordinates.size(), false);
   BOOST_FOREACH(const Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region))
   {
-    const Mesh::CTable<Uint>& conn_tbl = elements.connectivity_table();
+    const Mesh::CTable<Uint>& conn_tbl = elements.node_connectivity();
     const Uint nb_elems = conn_tbl.size();
     const Uint nb_nodes = conn_tbl.row_size();
     

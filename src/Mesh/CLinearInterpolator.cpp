@@ -96,7 +96,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
       boost::tie(s_elements,s_elm_idx) = find_element(t_node);
       if (is_not_null(s_elements))
       {
-        CTable<Uint>::ConstRow s_elm = s_elements->space(source.space_idx()).connectivity_table()[s_elm_idx];
+        CConnectivity::ConstRow s_elm = s_elements->space(source.space_idx()).node_connectivity()[s_elm_idx];
         std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));
         fill( s_nodes , s_elements->nodes().coordinates() , s_elm );
         
@@ -173,7 +173,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
           boost::tie(s_elements,s_elm_idx) = find_element(t_centroid);
           if (is_not_null(s_elements))
           {
-            CTable<Uint>::ConstRow s_elm = s_elements->space(source.space_idx()).connectivity_table()[s_elm_idx];
+            CConnectivity::ConstRow s_elm = s_elements->space(source.space_idx()).node_connectivity()[s_elm_idx];
             std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));
             fill( s_nodes , s_elements->nodes().coordinates() , s_elm );
 
@@ -334,7 +334,7 @@ void CLinearInterpolator::create_octtree()
   RealVector centroid(m_dim);
   boost_foreach(const CElements& elements, find_components_recursively_with_filter<CElements>(*m_source_mesh,IsElementsVolume()))
   {
-    Uint nb_nodes_per_element = elements.connectivity_table().row_size();
+    Uint nb_nodes_per_element = elements.node_connectivity().row_size();
     RealMatrix coordinates(nb_nodes_per_element,m_dim);
     
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)

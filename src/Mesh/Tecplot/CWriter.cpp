@@ -240,7 +240,7 @@ void CWriter::write_file(std::fstream& file)
     
     file << "\n### connectivity\n\n";
     // write connectivity
-    boost_foreach( CTable<Uint>::ConstRow e_nodes, elements.connectivity_table().array() )
+    boost_foreach( CConnectivity::ConstRow e_nodes, elements.node_connectivity().array() )
     {
       boost_foreach ( Uint n, e_nodes)
       {

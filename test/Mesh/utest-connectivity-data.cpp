@@ -78,7 +78,7 @@ void print_connectivity(const Component& root, const bool print_empty = true)
   {
     CFinfo << "------------------------- Connectivity for " << face_connectivity.parent()->path().string() << "/" << face_connectivity.parent()->name() << " -------------------------" << CFendl;
     CElements::ConstPtr celements = boost::dynamic_pointer_cast<CElements const>(face_connectivity.parent());
-    const Uint nb_elements = celements->connectivity_table().array().size();
+    const Uint nb_elements = celements->node_connectivity().array().size();
     const Uint nb_faces = celements->element_type().nb_faces();
     for(Uint elem = 0; elem != nb_elements; ++elem)
     {
@@ -181,7 +181,7 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
 
   // Output data
   const CElements& elements = *celements_vector.back();
-  for(Uint element_idx = 0; element_idx != elements.connectivity_table().array().size(); ++element_idx)
+  for(Uint element_idx = 0; element_idx != elements.node_connectivity().array().size(); ++element_idx)
   {
     const Uint nb_faces = elements.element_type().nb_faces();
     for(Uint face_idx = 0; face_idx != nb_faces; ++face_idx)

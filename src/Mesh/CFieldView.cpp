@@ -136,8 +136,8 @@ void CFieldView::allocate_coordinates(RealMatrix& coords)
 
 void CFieldView::put_coordinates(RealMatrix& coords, const Uint elem_idx) const
 {
-  cf_assert(elem_idx < space().connectivity_table().size());
-  CTable<Uint>::ConstRow elem_nodes = space().connectivity_table()[elem_idx];
+  cf_assert(elem_idx < space().node_connectivity().size());
+  CConnectivity::ConstRow elem_nodes = space().node_connectivity()[elem_idx];
   const CTable<Real>::ArrayT& coords_table = m_coords_table.lock()->array();
     
   cf_assert((Uint) coords.rows() == elem_nodes.size());

@@ -46,25 +46,19 @@ public:
 
   /// Get the class name
   static std::string type_name () { return "CConnectivity"; }
-
-  void add(Component& new_connected);
-
-  template <typename T>
-  std::vector<boost::shared_ptr<T> > connected()
-  {
-    std::vector<boost::shared_ptr<T> > vec;
-    Common::ComponentIterator<Common::Component> it = m_connected->begin();
-    Common::ComponentIterator<Common::Component> it_end = m_connected->end();
-    for (; it != it_end; ++it )
-      vec.push_back(it->follow()->as_ptr_checked<T>());
-    return vec;
-  }
+  
+  CUnifiedData& lookup();
+  
+  const CUnifiedData& lookup() const { return *m_lookup; }
+  
+  CUnifiedData& create_lookup();
+  
+  void set_lookup(CUnifiedData& lookup);
 
 private: // data
 
-  boost::shared_ptr<Common::CGroup> m_connected;
-
   boost::shared_ptr<CUnifiedData> m_lookup;
+
 }; // CConnectivity
 
 ////////////////////////////////////////////////////////////////////////////////

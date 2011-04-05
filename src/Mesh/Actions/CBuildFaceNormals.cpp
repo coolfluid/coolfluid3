@@ -101,7 +101,7 @@ void CBuildFaceNormals::execute()
         // The normal will be outward to the first connected element
         boost::tie(component,cell_idx) = face2cell.lookup().location(face2cell.connectivity()[face][FIRST]);
         CCells& cells = component->as_type<CCells>();
-        CTable<Uint>::ConstRow cell_nodes = cells.connectivity_table()[cell_idx];
+        CConnectivity::ConstRow cell_nodes = cells.node_connectivity()[cell_idx];
         Uint i(0);
         boost_foreach(Uint node_id, cells.element_type().face_connectivity().face_node_range(face_nb[face]) )
         {

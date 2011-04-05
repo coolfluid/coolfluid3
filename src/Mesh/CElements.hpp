@@ -12,6 +12,7 @@
 
 #include "Mesh/CEntities.hpp"
 #include "Mesh/ElementType.hpp"
+#include "Mesh/CConnectivity.hpp"
 
 namespace CF {
   namespace Common
@@ -51,13 +52,13 @@ public: // functions
   static std::string type_name () { return "CElements"; }
 
   /// Mutable access to the connectivity table
-  CTable<Uint>& connectivity_table();
+  CConnectivity& node_connectivity();
   
   /// Const access to the connectivity table
-  const CTable<Uint>& connectivity_table() const;
+  const CConnectivity& node_connectivity() const;
 
   /// return the number of elements
-  virtual Uint size() const { return connectivity_table().size(); }
+  virtual Uint size() const { return node_connectivity().size(); }
 
   virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx);
   
@@ -69,7 +70,7 @@ public: // functions
 
 protected: // data
 
-  CTable<Uint>::Ptr m_connectivity_table;
+  CConnectivity::Ptr m_node_connectivity;
 
 };
 

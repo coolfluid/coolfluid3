@@ -148,7 +148,7 @@ void COcttree::create_octtree()
   std::vector<Uint> octtree_idx(3);
   boost_foreach (const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh.lock(),IsElementsVolume()))
   {
-    Uint nb_nodes_per_element = elements.connectivity_table().row_size();
+    Uint nb_nodes_per_element = elements.node_connectivity().row_size();
     RealMatrix coordinates(nb_nodes_per_element,m_dim);
     
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)

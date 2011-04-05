@@ -73,6 +73,10 @@ public:
   /// const access to the unified data components
   /// @return vector of data components
   const std::vector<Common::Component::Ptr>& components() const;
+  
+  Component& component(const Uint idx) { return *m_data_vector[idx]; }
+
+  const Component& component(const Uint idx) const { return *m_data_vector[idx]; }
 
   Uint unified_idx(const Common::Component& component, const Uint local_idx) const;
 

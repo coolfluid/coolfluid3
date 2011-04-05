@@ -120,7 +120,7 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
       const Uint n_elems = elements.size();
-      const CTable<Uint>& conn_table = elements.connectivity_table();
+      const CTable<Uint>& conn_table = elements.node_connectivity();
       const Uint n_el_nodes = elements.element_type().nb_nodes();
       for(Uint i = 0; i != n_elems; ++i)
       {

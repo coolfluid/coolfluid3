@@ -85,7 +85,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
       CRegion& ghost_states = *region.create_component<CRegion>("ghost_states");
       GhostCells& ghosts = *ghost_states.create_component<GhostCells>("Point");
       ghosts.initialize("CF.Mesh.SF.Point"+dim_str+"DLagrangeP1",mesh.nodes());
-      CTable<Uint>& ghost_elem_connectivity = ghosts.connectivity_table();
+      CTable<Uint>& ghost_elem_connectivity = ghosts.node_connectivity();
       ghost_elem_connectivity.resize(nb_faces);
       ghost_elem_connectivity.set_row_size(1);
       CTable<Real>::Buffer nodes_buffer = mesh.nodes().coordinates().create_buffer();
@@ -131,7 +131,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
             {
               RealVector face_coord(dim); 
               for (Uint d=0; d<dim; ++d)
-                face_coord[d] = mesh.nodes().coordinates()[faces.connectivity_table()[face][0]][d];
+                face_coord[d] = mesh.nodes().coordinates()[faces.node_connectivity()[face][0]][d];
               normal = face_coord - centroid;
               normal.normalize();
               ghost_coord =  centroid + 2.0*(face_coord-centroid);

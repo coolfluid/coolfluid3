@@ -64,7 +64,7 @@ void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_d
   // Find the nodes that are not stored locally
   BOOST_FOREACH(const CElements& celements, find_components_recursively<CElements>(mesh))
   {
-    const CTable<Uint>::ArrayT& connectivity_table = celements.connectivity_table().array();
+    const CTable<Uint>::ArrayT& connectivity_table = celements.node_connectivity().array();
     BOOST_FOREACH(const CTable<Uint>::ConstRow row, connectivity_table)
     {
       BOOST_FOREACH(const Uint node_idx, row)
@@ -121,7 +121,7 @@ void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_d
       global_indices = global_indices_comp->as_ptr<CList<Uint> >();
 		  global_indices->resize(nb_nodes);
 		}
-    CTable<Uint>::ArrayT& connectivity_table = celements.connectivity_table().array();
+    CTable<Uint>::ArrayT& connectivity_table = celements.node_connectivity().array();
     BOOST_FOREACH(CTable<Uint>::Row row, connectivity_table)
     {
       BOOST_FOREACH(Uint& node_idx, row)

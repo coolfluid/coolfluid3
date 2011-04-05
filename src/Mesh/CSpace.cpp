@@ -46,14 +46,14 @@ void CSpace::initialize(const std::string& shape_function_builder_name)
   m_shape_function->rename(m_shape_function->element_type_name());
   add_static_component( m_shape_function );
   
-  m_connectivity_table = create_static_component<CTable<Uint> >("connectivity_table");
-  m_connectivity_table->add_tag("connectivity_table");
-  m_connectivity_table->properties()["brief"] = std::string("The connectivity table specifying for each element the nodes in the coordinates table");
+  m_node_connectivity = create_static_component<CConnectivity>("connectivity_table");
+  m_node_connectivity->add_tag("connectivity_table");
+  m_node_connectivity->properties()["brief"] = std::string("The connectivity table specifying for each element the nodes in the coordinates table");
   
   /// @todo Now the connectivity table is being built from the nodes of the support
   /// without extra nodes... 
   CEntities& support = find_parent_component<CEntities>(*this);
-  CTable<Uint>& ctable = connectivity_table();
+  CConnectivity& ctable = node_connectivity();
   ctable.set_row_size( support.element_type().nb_nodes());
   Uint nb_elems = support.size();
   ctable.resize(nb_elems);
@@ -73,14 +73,14 @@ void CSpace::initialize(const CElements& elements)
   // Now the shape_function and connectivity_table are copies of the connectivity of the support
   CElements& support = find_parent_component<CElements>(*this);
   m_shape_function = support.get_child_ptr(support.element_type().name())->as_ptr<ElementType>();
-  m_connectivity_table = support.connectivity_table().as_ptr<CTable<Uint> >();
+  m_node_connectivity = support.node_connectivity().as_ptr<CConnectivity>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CTable<Uint>::ConstRow CSpace::get_nodes(const Uint elem_idx)
+CConnectivity::ConstRow CSpace::get_nodes(const Uint elem_idx)
 {
-  return connectivity_table()[elem_idx];
+  return node_connectivity()[elem_idx];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

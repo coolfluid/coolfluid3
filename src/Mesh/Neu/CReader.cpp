@@ -318,7 +318,7 @@ void CReader::read_connectivity()
   m_file.seekg(m_elements_cells_position,std::ios::beg);
 
   std::map<std::string,CElements::Ptr> elements = create_cells_in_region(*m_tmp,*m_nodes,m_supported_types);
-  std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+  std::map<std::string,CConnectivity::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
 
   // skip next line
   std::string line;
@@ -454,7 +454,7 @@ void CReader::read_groups()
     //CFinfo << "region " << region.full_path().string() << " created" << CFendl;
     // Create regions for each element type in each group-region
     std::map<std::string,CElements::Ptr> elements = create_cells_in_region(region,*m_nodes,m_supported_types);
-    std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+    std::map<std::string,CConnectivity::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
 
     // Copy elements from tmp_region in the correct region
     boost_foreach(Uint global_element, group.ELEM)
@@ -463,7 +463,7 @@ void CReader::read_groups()
       Uint local_element = m_global_to_tmp[global_element].second;
       std::string etype = tmp_elems->element_type().builder_name();
 
-      Uint idx = buffer[etype]->add_row(tmp_elems->connectivity_table().array()[local_element]);
+      Uint idx = buffer[etype]->add_row(tmp_elems->node_connectivity().array()[local_element]);
       std::string new_elems_name = tmp_elems->name();
       m_global_to_tmp[global_element] = std::make_pair(region.get_child_ptr(new_elems_name)->as_ptr<CElements>(),idx);
     }
@@ -504,7 +504,7 @@ void CReader::read_boundaries()
 
     // create all kind of element type regions
     std::map<std::string,CElements::Ptr> elements = create_faces_in_region (bc_region,*m_nodes,m_supported_types);
-    std::map<std::string,CTable<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap (elements);
+    std::map<std::string,CConnectivity::Buffer::Ptr> buffer = create_connectivity_buffermap (elements);
 
     // read boundary elements connectivity
     for (int i=0; i<NENTRY; ++i)
@@ -527,7 +527,7 @@ void CReader::read_boundaries()
         const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
 
         // make a row of nodes
-        const CTable<Uint>::Row& elem_nodes = tmp_elements->connectivity_table()[local_element];
+        const CConnectivity::Row& elem_nodes = tmp_elements->node_connectivity()[local_element];
         std::vector<Uint> row;
         row.reserve(face_connectivity.face_node_counts[faceIdx]);
         boost_foreach(const Uint& node, face_connectivity.face_node_range(faceIdx))

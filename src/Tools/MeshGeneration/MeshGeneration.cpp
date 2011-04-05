@@ -44,7 +44,7 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   
   CCells::Ptr cells = region.create_component<CCells>("Line");
   cells->initialize("CF.Mesh.SF.Line1DLagrangeP1",nodes);
-  CTable<Uint>& connectivity = cells->connectivity_table();
+  CTable<Uint>& connectivity = cells->node_connectivity();
   connectivity.resize(x_segments);
   for(Uint i = 0; i < x_segments; ++i)
   {
@@ -56,14 +56,14 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   // Left boundary point
   CFaces::Ptr xneg = mesh.topology().create_region("xneg").create_component<CFaces>("Point");
   xneg->initialize("CF.Mesh.SF.Point1DLagrangeP1", nodes);
-  CTable<Uint>& xneg_connectivity = xneg->connectivity_table();
+  CTable<Uint>& xneg_connectivity = xneg->node_connectivity();
   xneg_connectivity.resize(1);
   xneg_connectivity[0][0] = 0;
   
   // right boundary point
   CFaces::Ptr xpos = mesh.topology().create_region("xpos").create_component<CFaces>("Point");
   xpos->initialize("CF.Mesh.SF.Point1DLagrangeP1", nodes);
-  CTable<Uint>& xpos_connectivity = xpos->connectivity_table();
+  CTable<Uint>& xpos_connectivity = xpos->node_connectivity();
   xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;
 }
@@ -91,7 +91,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   
   CCells::Ptr cells = region.create_component<CCells>("Quad");
   cells->initialize("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
-  CTable<Uint>& connectivity = cells->connectivity_table();
+  CTable<Uint>& connectivity = cells->node_connectivity();
   connectivity.resize((x_segments)*(y_segments));
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -107,7 +107,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   
   CFaces::Ptr left = mesh.topology().create_region("left").create_component<CFaces>("Line");
   left->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
-  CTable<Uint>& left_connectivity = left->connectivity_table();
+  CTable<Uint>& left_connectivity = left->node_connectivity();
   left_connectivity.resize(y_segments);
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -118,7 +118,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   
   CFaces::Ptr right = mesh.topology().create_region("right").create_component<CFaces>("Line");
   right->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
-  CTable<Uint>& right_connectivity = right->connectivity_table();
+  CTable<Uint>& right_connectivity = right->node_connectivity();
   right_connectivity.resize(y_segments);
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -129,7 +129,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   
   CFaces::Ptr bottom = mesh.topology().create_region("bottom").create_component<CFaces>("Line");
   bottom->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
-  CTable<Uint>& bottom_connectivity = bottom->connectivity_table();
+  CTable<Uint>& bottom_connectivity = bottom->node_connectivity();
   bottom_connectivity.resize(x_segments);
   for(Uint i = 0; i < x_segments; ++i)
   {
@@ -140,7 +140,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   
   CFaces::Ptr top = mesh.topology().create_region("top").create_component<CFaces>("Line");
   top->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
-  CTable<Uint>& top_connectivity = top->connectivity_table();
+  CTable<Uint>& top_connectivity = top->node_connectivity();
   top_connectivity.resize(x_segments);
   for(Uint i = 0; i < x_segments; ++i)
   {
@@ -195,7 +195,7 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
 
   CFaces::Ptr cells = region.create_component<CFaces>("Faces");
   cells->initialize("CF.Mesh.SF.Line2DLagrangeP1",nodes);
-  CTable<Uint>& connectivity = cells->connectivity_table();
+  CTable<Uint>& connectivity = cells->node_connectivity();
   
   const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*pi()) < eps();
   

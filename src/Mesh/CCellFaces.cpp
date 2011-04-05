@@ -43,7 +43,7 @@ CTable<Uint>::ConstRow CCellFaces::get_nodes(const Uint face_idx)
 {
   m_proxy_nodes.resize(boost::extents[1][element_type().nb_nodes()]);
   
-  std::vector<Uint> face_nodes = m_cell_connectivity->nodes(face_idx);
+  std::vector<Uint> face_nodes = m_cell_connectivity->face_nodes(face_idx);
   for (Uint i=0; i<face_nodes.size(); ++i)
     m_proxy_nodes[0][i]=face_nodes[i];
   return m_proxy_nodes[0];
@@ -54,7 +54,7 @@ CTable<Uint>::ConstRow CCellFaces::get_nodes(const Uint face_idx)
 RealMatrix CCellFaces::get_coordinates(const Uint face_idx)
 {
   const CTable<Real>& coords_table = nodes().coordinates();
-  std::vector<Uint> face_nodes = m_cell_connectivity->nodes(face_idx);
+  std::vector<Uint> face_nodes = m_cell_connectivity->face_nodes(face_idx);
 
   const Uint nb_nodes=face_nodes.size();
   const Uint dim=coords_table.row_size();
@@ -68,10 +68,12 @@ RealMatrix CCellFaces::get_coordinates(const Uint face_idx)
   
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 void CCellFaces::put_coordinates(RealMatrix& elem_coords, const Uint face_idx) const
 {
   const CTable<Real>& coords_table = nodes().coordinates();
-  std::vector<Uint> face_nodes = m_cell_connectivity->nodes(face_idx);
+  std::vector<Uint> face_nodes = m_cell_connectivity->face_nodes(face_idx);
 
   const Uint nb_nodes=elem_coords.rows();
   const Uint dim=elem_coords.cols();

@@ -311,7 +311,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
         Uint nb_nodes_per_element = field_elements.element_type().nb_nodes();
 
         Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
-        boost_foreach(const CTable<Uint>::ConstRow& row, field_elements.connectivity_table().array())
+        boost_foreach(const CTable<Uint>::ConstRow& row, field_elements.node_connectivity().array())
         {
           file << ++elm_number << " " << nb_nodes_per_element << " ";
           boost_foreach(const Uint local_node_idx, row)
