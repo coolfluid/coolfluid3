@@ -99,14 +99,16 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
         if (is_not_null(face2cell_ptr))
         {
           CFaceCellConnectivity& face2cell = *face2cell_ptr;
-          Uint unified_ghost_idx(find_component<CUnifiedData<CCells> >(face2cell).size());
+          Uint unified_ghost_idx(find_component<CUnifiedData>(face2cell).size());
           //CFinfo << "size before = " << find_component<CUnifiedData<CCells> >(face2cell).size() << CFendl;
           boost_foreach(CCells& cells, find_components<CCells>(ghost_states))
             face2cell.cells().add(cells);
           //CFinfo << "size after = " << find_component<CUnifiedData<CCells> >(face2cell).size() << CFendl;
           CTable<Uint>& f2c_connectivity = find_component<CTable<Uint> >(face2cell);
           f2c_connectivity.set_row_size(2);
-          std::vector<boost::shared_ptr<CCells> >& cells = face2cell.cells().data_components();
+          std::vector<CCells::Ptr> cells;
+          boost_foreach(Component::Ptr comp, face2cell.cells().components())
+            cells.push_back(comp->as_ptr<CCells>());
           Uint comp_idx(0);
           Uint cell_idx(0);
 

@@ -63,7 +63,7 @@ COcttree::COcttree( const std::string& name )
     "The number of cells in each direction of the comb. Takes precedence over \"Number of Elements per Octtree Cell\". " ,
     dummy);
     
-  m_elements = create_component<CUnifiedData<CElements const> >("elements");
+  m_elements = create_component<CUnifiedData>("elements");
   
 }
 
@@ -324,19 +324,19 @@ boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& 
   {
     std::vector<Uint> unified_elements(0); unified_elements.reserve(16);
 
-    CElements::ConstPtr elements;
+    Component::ConstPtr component;
     Uint elem_idx;
     
     gather_elements_around_idx(m_octtree_idx,0,unified_elements);
     
     boost_foreach(const Uint unif_elem_idx, unified_elements)
     {
-      boost::tie(elements,elem_idx)=m_elements->location(unif_elem_idx);
-      
-      RealMatrix elem_coordinates = elements->get_coordinates(elem_idx);
-      if (elements->element_type().is_coord_in_element(target_coord,elem_coordinates))
+      boost::tie(component,elem_idx)=m_elements->location(unif_elem_idx);
+      const CElements& elements = component->as_type<CElements>();
+      const RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
+      if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        return boost::make_tuple(elements,elem_idx);
+        return boost::make_tuple(elements.as_ptr<CElements>(),elem_idx);
       }
     }
     
@@ -346,12 +346,12 @@ boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& 
     
     boost_foreach(const Uint unif_elem_idx, unified_elements)
     {
-      boost::tie(elements,elem_idx)=m_elements->location(unif_elem_idx);
-      
-      RealMatrix elem_coordinates = elements->get_coordinates(elem_idx);
-      if (elements->element_type().is_coord_in_element(target_coord,elem_coordinates))
+      boost::tie(component,elem_idx)=m_elements->location(unif_elem_idx);
+      const CElements& elements = component->as_type<CElements>();
+      const RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
+      if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        return boost::make_tuple(elements,elem_idx);
+        return boost::make_tuple(elements.as_ptr<CElements>(),elem_idx);
       }
     }
     

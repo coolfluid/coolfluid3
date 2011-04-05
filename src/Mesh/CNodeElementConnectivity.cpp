@@ -23,7 +23,7 @@ CNodeElementConnectivity::CNodeElementConnectivity ( const std::string& name ) :
   Component(name)
 {
   m_nodes = create_static_component<Common::CLink>("nodes");
-  m_elements = create_static_component<CUnifiedData<CElements> >("elements");
+  m_elements = create_static_component<CUnifiedData>("elements");
   m_connectivity = create_static_component<CDynTable<Uint> >("connectivity_table");
   mark_basic();
 }
@@ -49,14 +49,15 @@ void CNodeElementConnectivity::set_nodes(CNodes& nodes)
 
 void CNodeElementConnectivity::build_connectivity()
 {
-  set_nodes(elements().data_components()[0]->nodes());
+  set_nodes(elements().components()[0]->as_type<CElements>().nodes());
   CNodes const& nodes = *m_nodes->follow()->as_ptr<CNodes>();
   
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());
-  boost_foreach(CElements::ConstPtr elements, m_elements->data_components() )
+  boost_foreach(Component::Ptr elements_comp, m_elements->components() )
   {
-    boost_foreach (CTable<Uint>::ConstRow nodes, elements->connectivity_table().array() )
+    CElements& elements = elements_comp->as_type<CElements>();
+    boost_foreach (CTable<Uint>::ConstRow nodes, elements.connectivity_table().array() )
     {
       boost_foreach (const Uint node_idx, nodes)
       {
@@ -71,9 +72,10 @@ void CNodeElementConnectivity::build_connectivity()
   
   // fill m_connectivity->array()
   Uint glb_elem_idx = 0;  
-  boost_foreach(CElements::ConstPtr elements, m_elements->data_components() )
+  boost_foreach(Component::Ptr elements_comp, m_elements->components() )
   {
-    boost_foreach (CTable<Uint>::ConstRow nodes, elements->connectivity_table().array() )
+    CElements& elements = elements_comp->as_type<CElements>();
+    boost_foreach (CTable<Uint>::ConstRow nodes, elements.connectivity_table().array() )
     {
       boost_foreach (const Uint node_idx, nodes)
       {

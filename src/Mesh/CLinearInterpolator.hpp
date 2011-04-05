@@ -110,7 +110,7 @@ private: // data
   
   Uint m_sufficient_nb_points;
   
-  CUnifiedData<CElements const>::Ptr m_elements;
+  CUnifiedData::Ptr m_elements;
   
   std::vector<Uint> m_element_cloud;
 

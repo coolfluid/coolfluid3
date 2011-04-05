@@ -58,8 +58,8 @@ void CStencilComputerRings::configure_mesh()
   if (is_null(node2cell_ptr))
   {
     node2cell_ptr = mesh.create_component<CNodeElementConnectivity>("node_to_cell");
-    boost_foreach(CElements::Ptr elements, unified_elements().data_components())
-      node2cell_ptr->elements().add(*elements);
+    boost_foreach(Component::Ptr elements, unified_elements().components())
+      node2cell_ptr->elements().add(elements->as_type<CElements>());
     node2cell_ptr->build_connectivity();
   }
   m_node2cell = node2cell_ptr;
@@ -89,12 +89,12 @@ void CStencilComputerRings::compute_neighbors(std::set<Uint>& included, const Ui
   
   if (level < m_nb_rings)
   {
-    CElements::Ptr elements;
+    Component::Ptr elements;
     Uint elem_idx;
     std::set<Uint>::iterator it;
     bool inserted;
     boost::tie(elements,elem_idx) = unified_elements().location(unified_elem_idx);
-    boost_foreach(Uint node_idx, elements->connectivity_table()[elem_idx])
+    boost_foreach(Uint node_idx, elements->as_type<CElements>().connectivity_table()[elem_idx])
     {
       boost_foreach(Uint neighbor_elem, node2cell().connectivity()[node_idx])
       {

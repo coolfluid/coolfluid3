@@ -90,7 +90,7 @@ private: // data
   std::vector<Uint> m_N;
   std::vector<Real> m_D;
     
-  CUnifiedData<CElements const>::Ptr m_elements;
+  CUnifiedData::Ptr m_elements;
   
   std::vector<Uint> m_octtree_idx;
 

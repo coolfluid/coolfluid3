@@ -83,7 +83,7 @@ void CBuildFaceNormals::execute()
   face_normal_field.add_tag("face_normal");
   CFieldView face_normal("face_normal_view");
   face_normal.set_field(face_normal_field);
-  CCells::Ptr cells;
+  Component::Ptr component;
   Uint cell_idx(0);
   boost_foreach( CEntities& faces, find_components_recursively_with_tag<CEntities>(mesh.topology(),"face_entity") )
   {
@@ -99,10 +99,11 @@ void CBuildFaceNormals::execute()
       for (Uint face=0; face<face2cell.size(); ++face)
       {
         // The normal will be outward to the first connected element
-        boost::tie(cells,cell_idx) = face2cell.cells().location(face2cell.connectivity()[face][FIRST]);
-        CTable<Uint>::ConstRow cell_nodes = cells->connectivity_table()[cell_idx];
+        boost::tie(component,cell_idx) = face2cell.cells().location(face2cell.connectivity()[face][FIRST]);
+        CCells& cells = component->as_type<CCells>();
+        CTable<Uint>::ConstRow cell_nodes = cells.connectivity_table()[cell_idx];
         Uint i(0);
-        boost_foreach(Uint node_id, cells->element_type().face_connectivity().face_node_range(face_nb[face]) )
+        boost_foreach(Uint node_id, cells.element_type().face_connectivity().face_node_range(face_nb[face]) )
         {
           Uint j(0);
           boost_foreach(const Real& coord, mesh.nodes().coordinates()[cell_nodes[node_id]])
@@ -116,7 +117,7 @@ void CBuildFaceNormals::execute()
         if (faces.element_type().dimensionality() == 0) // cannot compute normal from element_type
         {
           RealVector cell_centroid(1);
-          cells->element_type().compute_centroid(cells->get_coordinates(cell_idx),cell_centroid);
+          cells.element_type().compute_centroid(cells.get_coordinates(cell_idx),cell_centroid);
           RealVector normal(1);
           normal = face_coordinates.row(0) - cell_centroid;
           normal.normalize();

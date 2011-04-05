@@ -7,6 +7,8 @@ list( APPEND coolfluid_mesh_files
   CCellFaces.cpp
   CCells.hpp
   CCells.cpp
+  CConnectivity.hpp
+  CConnectivity.cpp
   CDomain.hpp
   CDomain.cpp
   CDynTable.hpp
@@ -72,6 +74,7 @@ list( APPEND coolfluid_mesh_files
   CTable.hpp
   CTable.cpp
   CUnifiedData.hpp
+  CUnifiedData.cpp
   ElementData.hpp
   ElementType.hpp
   ElementType.cpp

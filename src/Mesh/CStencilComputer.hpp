@@ -40,7 +40,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CStencilComputer"; }
   
-  CUnifiedData<CElements>& unified_elements() { return *m_elements; }
+  CUnifiedData& unified_elements() { return *m_elements; }
 
   virtual void compute_stencil(const Uint unified_elem_idx, std::vector<Uint>& stencil) = 0;
 
@@ -54,7 +54,7 @@ protected: // data
   
   boost::weak_ptr<CMesh> m_mesh;
     
-  CUnifiedData<CElements>::Ptr m_elements;
+  CUnifiedData::Ptr m_elements;
   
   Uint m_min_stencil_size;
 

@@ -60,7 +60,7 @@ CLinearInterpolator::CLinearInterpolator( const std::string& name )
     "The number of divisions in each direction of the comb. Takes precedence over \"ApproximateNbElementsPerCell\". " ,
     dummy);
     
-  m_elements = create_component<CUnifiedData<CElements const> >("elements");
+  m_elements = create_component<CUnifiedData>("elements");
 
 }
 
@@ -114,6 +114,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
   }
   else if (source.basis() == CField::Basis::ELEMENT_BASED && target.basis() == CField::Basis::POINT_BASED)
   {
+    Component::ConstPtr component;
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
       to_vector(t_node,target.coords(t_node_idx));
@@ -125,8 +126,8 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
         Uint cnt(0);
         boost_foreach(const Uint glb_elem_idx, m_element_cloud)
         {
-          boost::tie(s_elements,s_elm_idx)=m_elements->location(glb_elem_idx);
-          CElements const& elements = *s_elements;
+          boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
+          CElements const& elements = s_elements->as_type<CElements const>();
           
           RealMatrix elem_coords = elements.get_coordinates(s_elm_idx);
           elements.element_type().compute_centroid(elem_coords,s_centroids[cnt]);
@@ -202,7 +203,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
     Uint s_elm_idx;
     //Uint t_elm_idx;
     RealMatrix elem_coordinates;
-    
+    Component::ConstPtr component;
     boost_foreach( CElements& t_elements, find_components_recursively<CElements>(target.topology()) )
     {
       if (t_view.set_elements(t_elements))
@@ -223,8 +224,8 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
             Uint cnt(0);
             boost_foreach(const Uint glb_elem_idx, m_element_cloud)
             {
-              boost::tie(s_elements,s_elm_idx)=m_elements->location(glb_elem_idx);
-              CElements const& elements = *s_elements;
+              boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
+              CElements const& elements = component->as_type<CElements>();
 
               RealMatrix elem_coords = elements.get_coordinates(s_elm_idx);
               elements.element_type().compute_centroid(elem_coords,s_centroids[cnt]);
@@ -479,16 +480,16 @@ boost::tuple<CElements::ConstPtr,Uint> CLinearInterpolator::find_element(const R
   {
     find_pointcloud(1);
     
-    CElements::ConstPtr elements;
+    Component::ConstPtr component;
     Uint elem_idx;
     boost_foreach(const Uint glb_elem_idx, m_element_cloud)
     {
-      boost::tie(elements,elem_idx)=m_elements->location(glb_elem_idx);
-      
-      RealMatrix elem_coordinates = elements->get_coordinates(elem_idx);
-      if (elements->element_type().is_coord_in_element(target_coord,elem_coordinates))
+      boost::tie(component,elem_idx)=m_elements->location(glb_elem_idx);
+      const CElements& elements = component->as_type<CElements>();
+      RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
+      if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        return boost::make_tuple(elements,elem_idx);
+        return boost::make_tuple(elements.as_ptr<CElements>(),elem_idx);
       }
     }
   }

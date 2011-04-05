@@ -38,7 +38,7 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
   m_nb_faces(0)
 {
 
-  m_elements = create_static_component<CUnifiedData<CCells> >("elements");
+  m_elements = create_static_component<CUnifiedData>("elements");
   m_connectivity = create_static_component<CTable<Uint> >("connectivity_table");
   m_face_nb_in_first_elem = create_static_component<CList<Uint> >("face_number");
   m_is_bdry_face = create_static_component<CList<Uint> >("is_bdry_face");
@@ -66,10 +66,10 @@ void CFaceCellConnectivity::build_connectivity()
     return;
   }
 
-  CMeshElements& mesh_elements = find_parent_component<CMesh>(*m_elements->data_components()[0]).elements();
+  CMeshElements& mesh_elements = find_parent_component<CMesh>(*m_elements->components()[0]).elements();
  
   // sanity check
-  boost_foreach(CCells::Ptr cells, m_elements->data_components())
+  boost_foreach(Component::Ptr cells, m_elements->components())
   {
     cf_assert_desc("Must call CMesh::elements().update() to add the elements ["+cells->full_path().path()+"] in the elements registry",
       mesh_elements.contains(*cells));
@@ -79,7 +79,7 @@ void CFaceCellConnectivity::build_connectivity()
   CTable<Uint>::Buffer f2c = m_connectivity->create_buffer();
   CList<Uint>::Buffer face_number = m_face_nb_in_first_elem->create_buffer();
   CList<Uint>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
-  CNodes& nodes = m_elements->data_components()[0]->nodes(); 
+  CNodes& nodes = m_elements->components()[0]->as_type<CElements>().nodes(); 
   Uint tot_nb_nodes = nodes.size();
   std::vector < std::vector<Uint> > mapNodeFace(tot_nb_nodes);
   std::vector<Uint> face_nodes;  face_nodes.reserve(100);
@@ -87,30 +87,32 @@ void CFaceCellConnectivity::build_connectivity()
   Uint max_nb_faces(0);
 
   // calculate max_nb_faces
-  boost_foreach ( CCells::Ptr elements, m_elements->data_components() )
+  boost_foreach ( Component::Ptr elements_comp, m_elements->components() )
   { 
-    if (elements->element_type().dimensionality() != elements->element_type().dimension() )
+    CElements& elements = elements_comp->as_type<CElements>();
+    if (elements.element_type().dimensionality() != elements.element_type().dimension() )
       continue;
-    const Uint nb_faces = elements->element_type().nb_faces();
-    max_nb_faces += nb_faces * elements->size() ;
+    const Uint nb_faces = elements.element_type().nb_faces();
+    max_nb_faces += nb_faces * elements.size() ;
   }
   
   // allocate storage if doesn't exist that says if the element is at the boundary of a region
   // ( = not the same as the mesh boundary)
-  boost_foreach (CCells::Ptr elements, m_elements->data_components())
+  boost_foreach (Component::Ptr elements_comp, m_elements->components())
   {
-    Component::Ptr comp = elements->get_child_ptr("is_bdry");
+    CElements& elements = elements_comp->as_type<CElements>();
+    Component::Ptr comp = elements.get_child_ptr("is_bdry");
     if ( is_null( comp ) || is_null(comp->as_ptr< CList<bool> >()) )
     {
-      CList<bool>& is_bdry_elem = * elements->create_component< CList<bool> >("is_bdry");
+      CList<bool>& is_bdry_elem = * elements.create_component< CList<bool> >("is_bdry");
 
-      const Uint nb_elem = elements->size();
+      const Uint nb_elem = elements.size();
       is_bdry_elem.resize(nb_elem);
 
       for (Uint e=0; e<nb_elem; ++e)
         is_bdry_elem[e] = true;
     }
-    cf_assert( elements->get_child_ptr("is_bdry")->as_ptr< CList<bool> >() );
+    cf_assert( elements.get_child_ptr("is_bdry")->as_ptr< CList<bool> >() );
   }
 
   // Declarations to save frequent allocations in the loop algorithm
@@ -124,19 +126,20 @@ void CFaceCellConnectivity::build_connectivity()
   Uint node;
   Uint nb_nodes;
   bool found_face = false;
-  CCells::Ptr elem_location_comp;
+  Component::Ptr elem_location_comp;
   Uint elem_location_idx;
 
   // loop over the element types
   m_nb_faces=0;
-  boost_foreach (CCells::Ptr& elements, m_elements->data_components() )
+  boost_foreach (Component::Ptr& elements_comp, m_elements->components() )
   {
-    const Uint nb_faces_in_elem = elements->element_type().nb_faces();
-    CList<bool>& is_bdry_elem = *elements->get_child_ptr("is_bdry")->as_ptr< CList<bool> >();
+    CElements& elements = elements_comp->as_type<CElements>();
+    const Uint nb_faces_in_elem = elements.element_type().nb_faces();
+    CList<bool>& is_bdry_elem = *elements.get_child_ptr("is_bdry")->as_ptr< CList<bool> >();
 
     // loop over the elements of this type
     Uint loc_elem_idx=0;
-    boost_foreach(CTable<Uint>::ConstRow elem, elements->connectivity_table().array() ) 
+    boost_foreach(CTable<Uint>::ConstRow elem, elements.connectivity_table().array() ) 
     {
       if ( is_bdry_elem[loc_elem_idx] )
       {
@@ -144,9 +147,9 @@ void CFaceCellConnectivity::build_connectivity()
         for (Uint face_idx = 0; face_idx != nb_faces_in_elem; ++face_idx)
         {
           // construct sets of nodes that make the corresponding face in this element
-          nb_nodes = elements->element_type().face_type(face_idx).nb_nodes();
+          nb_nodes = elements.element_type().face_type(face_idx).nb_nodes();
           face_nodes.resize(nb_nodes);
-          index_foreach(i,const Uint face_node_idx, elements->element_type().face_connectivity().face_node_range(face_idx))
+          index_foreach(i,const Uint face_node_idx, elements.element_type().face_connectivity().face_node_range(face_idx))
              face_nodes[i] = elem[face_node_idx];
 
 
@@ -253,7 +256,8 @@ void CFaceCellConnectivity::build_connectivity()
     boost_foreach (Uint elem, (*m_connectivity)[f])
     {
       boost::tie(elem_location_comp,elem_location_idx) = cells().location(elem);
-      CList<bool>& is_bdry_elem = *elem_location_comp->get_child_ptr("is_bdry")->as_ptr< CList<bool> >();
+      CElements& elems = elem_location_comp->as_type<CElements>();
+      CList<bool>& is_bdry_elem = *elems.get_child_ptr("is_bdry")->as_ptr< CList<bool> >();
       is_bdry_elem[elem_location_idx] = is_bdry_elem[elem_location_idx] || is_bdry_face.get_row(f) ;
     }
   }
@@ -281,13 +285,14 @@ void CFaceCellConnectivity::build_connectivity()
 std::vector<Uint> CFaceCellConnectivity::nodes(const Uint face) const
 {
   Uint unified_elem_idx = (*m_connectivity)[face][0];
-  CCells::ConstPtr elem_comp;
+  Component::ConstPtr elem_comp;
   Uint elem_idx;
   boost::tie(elem_comp,elem_idx) = cells().location(unified_elem_idx);
-  std::vector<Uint> nodes(elem_comp->element_type().face_type((*m_face_nb_in_first_elem)[face]).nb_nodes());
-  index_foreach (i, Uint node_in_face, elem_comp->element_type().face_connectivity().face_node_range((*m_face_nb_in_first_elem)[face]))
+  const CElements& elems = elem_comp->as_type<CElements>();
+  std::vector<Uint> nodes(elems.element_type().face_type((*m_face_nb_in_first_elem)[face]).nb_nodes());
+  index_foreach (i, Uint node_in_face, elems.element_type().face_connectivity().face_node_range((*m_face_nb_in_first_elem)[face]))
   {
-    nodes[i] = elem_comp->connectivity_table()[elem_idx][node_in_face];
+    nodes[i] = elems.connectivity_table()[elem_idx][node_in_face];
   }
   return nodes;
 }

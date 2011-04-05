@@ -26,7 +26,7 @@ CNodeFaceCellConnectivity::CNodeFaceCellConnectivity ( const std::string& name )
   Component(name)
 {
   m_nodes = create_static_component<Common::CLink>("nodes");
-  m_face_cell_connectivity = create_static_component<CUnifiedData<CFaceCellConnectivity> >("elements");
+  m_face_cell_connectivity = create_static_component<CUnifiedData>("elements");
   m_connectivity = create_static_component<CDynTable<Uint> >("connectivity_table");
   mark_basic();
 }
@@ -56,13 +56,14 @@ void CNodeFaceCellConnectivity::build_connectivity()
   
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());
-  boost_foreach(CFaceCellConnectivity::ConstPtr face_cell_connectivity, m_face_cell_connectivity->data_components() )
+  boost_foreach(Component::ConstPtr face_cell_connectivity_comp, m_face_cell_connectivity->components() )
   {
-    for (Uint f=0; f<face_cell_connectivity->size(); ++f)
+    const CFaceCellConnectivity& face_cell_connectivity = face_cell_connectivity_comp->as_type<CFaceCellConnectivity>();
+    for (Uint f=0; f<face_cell_connectivity.size(); ++f)
     {
-      if ( face_cell_connectivity->is_bdry_face()[f] )
+      if ( face_cell_connectivity.is_bdry_face()[f] )
       {
-        boost_foreach (const Uint node_idx, face_cell_connectivity->nodes(f))
+        boost_foreach (const Uint node_idx, face_cell_connectivity.nodes(f))
         {
           ++connectivity_sizes[node_idx];
         }
@@ -77,13 +78,14 @@ void CNodeFaceCellConnectivity::build_connectivity()
   // fill m_connectivity->array()
   
   Uint glb_face_idx(0);
-  boost_foreach(CFaceCellConnectivity::ConstPtr face_cell_connectivity, m_face_cell_connectivity->data_components() )
+  boost_foreach(Component::ConstPtr face_cell_connectivity_comp, m_face_cell_connectivity->components() )
   {
-    for (Uint f=0; f<face_cell_connectivity->size(); ++f, ++glb_face_idx)
+    const CFaceCellConnectivity& face_cell_connectivity = face_cell_connectivity_comp->as_type<CFaceCellConnectivity>();
+    for (Uint f=0; f<face_cell_connectivity.size(); ++f, ++glb_face_idx)
     {
-      if ( face_cell_connectivity->is_bdry_face()[f] )
+      if ( face_cell_connectivity.is_bdry_face()[f] )
       {
-        boost_foreach (const Uint node_idx, face_cell_connectivity->nodes(f))
+        boost_foreach (const Uint node_idx, face_cell_connectivity.nodes(f))
         {
           m_connectivity->array()[node_idx].push_back(glb_face_idx);
         }

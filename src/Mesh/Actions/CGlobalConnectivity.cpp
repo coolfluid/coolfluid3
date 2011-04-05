@@ -126,7 +126,7 @@ void CGlobalConnectivity::execute()
   std::vector<Uint> ghostnode_glb_elem_connectivity;
   std::vector<Uint> ghostnode_glb_elem_connectivity_start(nb_ghost+1);
   ghostnode_glb_elem_connectivity_start[0]=0;
-  CElements::Ptr elem_comp;
+  Component::Ptr elem_comp;
   Uint elem_idx;
   
   Uint cnt(0);
@@ -140,7 +140,7 @@ void CGlobalConnectivity::execute()
       boost_foreach(const Uint e, elems)
       {
         boost::tie(elem_comp,elem_idx) = node2elem.elements().location(e);
-        ghostnode_glb_elem_connectivity.push_back(elem_comp->glb_idx()[elem_idx]);
+        ghostnode_glb_elem_connectivity.push_back(elem_comp->as_type<CElements>().glb_idx()[elem_idx]);
       }
       ghostnode_glb_elem_connectivity_start[cnt+1] = ghostnode_glb_elem_connectivity_start[cnt] + elems.size();
             
@@ -196,7 +196,7 @@ void CGlobalConnectivity::execute()
     boost_foreach(const Uint e, elems)
     {
       boost::tie(elem_comp,elem_idx) = node2elem.elements().location(e);
-      nodes_glb_elem_connectivity[i][cnt++] = elem_comp->glb_idx()[elem_idx];      
+      nodes_glb_elem_connectivity[i][cnt++] = elem_comp->as_type<CElements>().glb_idx()[elem_idx];      
     }
     for (Uint j=0; j<glb_elem_connectivity[i].size(); ++j)
     {

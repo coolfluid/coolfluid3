@@ -1,6 +1,6 @@
 ################################################################################
 
-list( APPEND utest-mesh-actions-facebuilder_cflibs coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_generation)
+list( APPEND utest-mesh-actions-facebuilder_cflibs coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh)
 list( APPEND utest-mesh-actions-facebuilder_files  utest-mesh-actions-facebuilder.cpp )
 
 coolfluid_add_unit_test( utest-mesh-actions-facebuilder )

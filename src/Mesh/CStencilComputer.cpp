@@ -33,7 +33,7 @@ CStencilComputer::CStencilComputer( const std::string& name )
     ->attach_trigger(boost::bind(&CStencilComputer::configure_mesh,this))
     ->mark_basic();
 
-  m_elements = create_component<CUnifiedData<CElements> >("elements");
+  m_elements = create_component<CUnifiedData>("elements");
   
   m_min_stencil_size=1;
   m_properties.add_option(OptionT<Uint>::create("stencil_size","Stencil Size","The minimum amount of cells in a stencil", m_min_stencil_size ))

@@ -8,7 +8,6 @@
 #define CF_Mesh_CMeshElements_hpp
 
 #include "Mesh/CUnifiedData.hpp"
-#include "Mesh/CEntities.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +22,7 @@ namespace Mesh {
 /// with a continuous index
 /// @pre the data components must be of the same type and must have
 ///      a member function "Uint size() const" defined.
-class Mesh_API CMeshElements : public CUnifiedData<CEntities>
+class Mesh_API CMeshElements : public CUnifiedData
 {
 public: //typedefs
 

@@ -25,7 +25,7 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CCells.hpp"
-#include "Tools/MeshGeneration/MeshGeneration.hpp"
+#include "Mesh/CSimpleMeshGenerator.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
   CRegion& wall_region = find_component_recursively_with_name<CRegion>(mesh->topology(),"wall");
   CFaces& wall_faces = find_component<CFaces>(wall_region);
   CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(wall_faces);
-  CCells::Ptr cells;
+  Component::Ptr cells;
   Uint cell_idx(0);
   
   CFinfo << "\n\nCHECKING"<<CFendl;
@@ -100,9 +100,9 @@ BOOST_AUTO_TEST_CASE( build_faces )
   {
     CFinfo << wall_faces.parent()->name()<<"/"<<wall_faces.name() << "["<<face<<"] <--> ";
     
-    boost::tie(cells,cell_idx) = f2c.element_location(f2c.elements(face)[0]);
+    boost::tie(cells,cell_idx) = f2c.cells().location(f2c.connectivity()[face][0]);
     CFinfo << cells->parent()->parent()->name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
-    RealMatrix cell_coordinates = cells->get_coordinates(cell_idx);
+    RealMatrix cell_coordinates = cells->as_type<CElements>().get_coordinates(cell_idx);
     RealVector face_coordinates = wall_faces.get_coordinates(face).row(0);
     bool match_found = false;
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
 BOOST_AUTO_TEST_CASE( build_faces_rectangle )
 {
   CMesh::Ptr rmesh = Core::instance().root()->create_component<CMesh>("rectangle_mesh");
-  Tools::MeshGeneration::create_rectangle(*rmesh, 10. , 10., 50 , 50 );
+  CSimpleMeshGenerator::create_rectangle(*rmesh, 10. , 10., 50 , 50 );
   
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
   
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   CRegion& inner_faces_region = find_component_recursively_with_name<CRegion>(rmesh->topology(),"inner_faces");
   CCellFaces& inner_faces = find_component<CCellFaces>(inner_faces_region);
   CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(inner_faces);
-  CCells::Ptr cells;
+  Component::Ptr cells;
   Uint cell_idx(0);
   
   CFinfo << "\n\nCHECKING"<<CFendl;
@@ -163,9 +163,9 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   {
     CFinfo << inner_faces.parent()->name()<<"/"<<inner_faces.name() << "["<<face<<"] <--> ";
     
-    boost::tie(cells,cell_idx) = f2c.element_location(f2c.elements(face)[0]);
+    boost::tie(cells,cell_idx) = f2c.cells().location(f2c.connectivity()[face][0]);
     CFinfo << cells->parent()->parent()->name()<<"/"<<cells->name() << "["<<cell_idx<<"]  <-->  ";
-    RealMatrix cell_coordinates = cells->get_coordinates(cell_idx);
+    RealMatrix cell_coordinates = cells->as_type<CElements>().get_coordinates(cell_idx);
     RealVector face_coordinates = inner_faces.get_coordinates(face).row(0);
     bool match_found = false;
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
@@ -179,9 +179,9 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
     BOOST_CHECK(match_found);
     
     match_found = false;
-    boost::tie(cells,cell_idx) = f2c.element_location(f2c.elements(face)[1]);
+    boost::tie(cells,cell_idx) = f2c.cells().location(f2c.connectivity()[face][1]);
     CFinfo << cells->parent()->parent()->name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
-    cell_coordinates = cells->get_coordinates(cell_idx);
+    cell_coordinates = cells->as_type<CElements>().get_coordinates(cell_idx);
     face_coordinates = inner_faces.get_coordinates(face).row(0);
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {

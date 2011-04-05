@@ -248,6 +248,8 @@ public: // functions
   /// @return a ConstPtr
   ConstPtr as_const() const;
 
+  Ptr as_non_const() const;
+
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
     typename T::Ptr create_component ( const std::string& name );
@@ -555,7 +557,14 @@ inline typename T::ConstPtr Component::as_ptr_checked() const
 
 inline Component::ConstPtr Component::as_const() const
 {
-  return ConstPtr ( self() );
+  return boost::const_pointer_cast<Component const> ( self() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+inline Component::Ptr Component::as_non_const() const
+{
+  return boost::const_pointer_cast<Component> ( self() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

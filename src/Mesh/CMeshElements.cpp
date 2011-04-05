@@ -6,6 +6,7 @@
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CEntities.hpp"
 #include "Mesh/CMeshElements.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,7 +19,7 @@ namespace Mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 CMeshElements::CMeshElements(const std::string& name) :
-  CUnifiedData<CEntities>(name)
+  CUnifiedData(name)
 {
 }
 

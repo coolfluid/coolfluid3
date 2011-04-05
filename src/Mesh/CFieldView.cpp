@@ -241,11 +241,11 @@ bool CConnectedFieldView::set_elements(CEntities& elements)
   m_face2cells = find_component_ptr<CFaceCellConnectivity>(elements);
   cf_assert_desc(elements.full_path().path()+" needs to have a FaceCellConnectivity." , m_face2cells.expired() == false);
   m_views.resize(m_face2cells.lock()->cells().size());
-  index_foreach(i,CCells::Ptr cells, m_face2cells.lock()->cells().data_components())
+  index_foreach(i,Component::Ptr cells, m_face2cells.lock()->cells().components())
   {
     cf_assert(is_not_null(cells));
     m_views[i] = Common::allocate_component<CFieldView>("view");
-    m_views[i]->initialize(*m_field.lock(), cells);
+    m_views[i]->initialize(*m_field.lock(), cells->as_ptr<CElements>());
   }
   return true;
 }

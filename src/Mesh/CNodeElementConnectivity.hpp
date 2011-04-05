@@ -57,8 +57,8 @@ public:
   /// @pre set_nodes() and set_elements() must have been called
   void build_connectivity();
 
-  CUnifiedData<CElements>& elements() { return *m_elements; }
-  const CUnifiedData<CElements>& elements() const { return *m_elements; }
+  CUnifiedData& elements() { return *m_elements; }
+  const CUnifiedData& elements() const { return *m_elements; }
 
   
   /// const access to the node to element connectivity table in unified indices
@@ -77,7 +77,7 @@ private: // data
   boost::shared_ptr<Common::CLink> m_nodes;
 
   /// unified view of the elements
-  CUnifiedData<CElements>::Ptr m_elements;
+  CUnifiedData::Ptr m_elements;
 
   /// Actual connectivity table
   CDynTable<Uint>::Ptr m_connectivity;

@@ -71,13 +71,13 @@ void PolynomialReconstructor::set_cell(const Uint unified_elem_idx)
    // DzDz_ave = ZERO;
    // D = ZERO;
    
-   CElements::Ptr elements;
+   Component::Ptr elements;
    Uint elem_idx;
    
    boost::tie(elements,elem_idx) = m_stencil_computer->unified_elements().location(m_idx);
-   RealMatrix coordinates = elements->get_coordinates(elem_idx);
+   RealMatrix coordinates = elements->as_type<CElements>().get_coordinates(elem_idx);
    RealVector X0(coordinates.cols());
-   elements->element_type().compute_centroid(coordinates,X0);
+   elements->as_type<CElements>().element_type().compute_centroid(coordinates,X0);
 
    RealVector X(X0.size());
    RealVector dX(X0.size());
@@ -86,7 +86,7 @@ void PolynomialReconstructor::set_cell(const Uint unified_elem_idx)
      if (neighbor_idx != m_idx)
      {
        boost::tie(elements,elem_idx) = m_stencil_computer->unified_elements().location(neighbor_idx);
-       X = elements->get_coordinates(elem_idx);
+       X = elements->as_type<CElements>().get_coordinates(elem_idx);
        dX = X-X0;
      }
    }

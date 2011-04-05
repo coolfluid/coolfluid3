@@ -57,8 +57,8 @@ public:
   /// stored in a CUnifiedData<CElements> component
   /// @param [in] elements_range the elements range to see if they are connected to the nodes.
   ///                            Can be made using "find_components_recursively<CElements>()" function
-  CUnifiedData<CFaceCellConnectivity>& face_cell_connectivity() {  return *m_face_cell_connectivity; }
-  const CUnifiedData<CFaceCellConnectivity>& face_cell_connectivity() const {  return *m_face_cell_connectivity; }
+  CUnifiedData& face_cell_connectivity() {  return *m_face_cell_connectivity; }
+  const CUnifiedData& face_cell_connectivity() const {  return *m_face_cell_connectivity; }
   
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
@@ -82,7 +82,7 @@ private: // data
   boost::shared_ptr<Common::CLink> m_nodes;
 
   /// unified view of the elements
-  CUnifiedData<CFaceCellConnectivity>::Ptr m_face_cell_connectivity;
+  CUnifiedData::Ptr m_face_cell_connectivity;
 
   /// Actual connectivity table
   CDynTable<Uint>::Ptr m_connectivity;

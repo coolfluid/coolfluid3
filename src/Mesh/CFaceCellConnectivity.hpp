@@ -82,9 +82,9 @@ public:
   
   std::vector<Uint> nodes(const Uint face) const;
 
-  CUnifiedData<CCells>& cells() { return *m_elements; }
+  CUnifiedData& cells() { return *m_elements; }
 
-  const CUnifiedData<CCells>& cells() const { return *m_elements; }
+  const CUnifiedData& cells() const { return *m_elements; }
 
 private: // data
 
@@ -92,7 +92,7 @@ private: // data
   Uint m_nb_faces;
 
   /// unified view of the elements
-  CUnifiedData<CCells>::Ptr m_elements;
+  CUnifiedData::Ptr m_elements;
 
   /// Actual connectivity table
   CTable<Uint>::Ptr m_connectivity;

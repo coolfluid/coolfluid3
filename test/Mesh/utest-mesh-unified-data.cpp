@@ -57,10 +57,9 @@ BOOST_FIXTURE_TEST_SUITE( UnifiedData_TestSuite, UnifiedData_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CUnifiedData<CElements>::Ptr unified_elems = allocate_component<CUnifiedData<CElements> >("unified_elems");
+  CUnifiedData::Ptr unified_elems = allocate_component<CUnifiedData>("unified_elems");
   BOOST_CHECK_EQUAL(unified_elems->name(),"unified_elems");
-  BOOST_CHECK_EQUAL(CUnifiedData<CElements>::type_name(), "CUnifiedData<CElements>");
-  BOOST_CHECK_EQUAL(CUnifiedData<CNodes>::type_name(), "CUnifiedData<CNodes>");
+  BOOST_CHECK_EQUAL(CUnifiedData::type_name(), "CUnifiedData");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -77,33 +76,33 @@ BOOST_AUTO_TEST_CASE( data_location )
 
   BOOST_CHECK( true );
 
-  CUnifiedData<CElements>::Ptr unified_elems = allocate_component<CUnifiedData<CElements> >("unified_elems");
+  CUnifiedData::Ptr unified_elems = allocate_component<CUnifiedData>("unified_elems");
 
 
-
-  unified_elems->add_data(find_components_recursively<CElements>(*mesh).as_vector());
+  boost_foreach(CElements& elements, find_components_recursively<CElements>(*mesh))
+    unified_elems->add(elements);
   
 
 
 
 
-  CElements::Ptr elements;
-  CElements::ConstPtr const_elements;
+  Component::Ptr elements;
   Uint elem_idx;
   
   BOOST_CHECK_EQUAL( unified_elems->size() , 28u );
-  tie(elements,elem_idx) = unified_elems->data_location(25);
+  tie(elements,elem_idx) = unified_elems->location(25);
 
   for (Uint i=0; i<unified_elems->size(); ++i)
   {
-    tie(elements,elem_idx) = unified_elems->data_location(i);
+    tie(elements,elem_idx) = unified_elems->location(i);
     CFinfo << i << ": " << elements->full_path().path() << "    ["<<elem_idx<<"]" << CFendl;
   }
   
-  CUnifiedData<CNodes>::Ptr unified_nodes = allocate_component<CUnifiedData<CNodes> >("unified_nodes");
-  unified_nodes->add_data(find_components_recursively<CNodes>(*mesh).as_vector());
+  CUnifiedData::Ptr unified_nodes = allocate_component<CUnifiedData>("unified_nodes");
+  boost_foreach(CNodes& nodes, find_components_recursively<CNodes>(*mesh))
+    unified_nodes->add(nodes);
   
-  CNodes::Ptr nodes;
+  Component::Ptr nodes;
   Uint node_idx;
   
   BOOST_CHECK_EQUAL( unified_nodes->size() , 16u );
@@ -111,7 +110,7 @@ BOOST_AUTO_TEST_CASE( data_location )
   CFinfo << CFendl;
   for (Uint i=0; i<unified_nodes->size(); ++i)
   {
-    tie(nodes,node_idx) = unified_nodes->data_location(i);
+    tie(nodes,node_idx) = unified_nodes->location(i);
     CFinfo << i << ": " << nodes->full_path().path() << "    ["<<node_idx<<"]" << CFendl;
   }
 
