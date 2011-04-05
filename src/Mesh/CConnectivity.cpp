@@ -53,10 +53,6 @@ void CConnectivity::add(Component& new_connected)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CConnectivity::build_connectivity()
-{
-  
-}
 
 
 

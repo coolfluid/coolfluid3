@@ -105,6 +105,13 @@ boost::tuple<Uint,Uint> CUnifiedData::location_idx(const Uint data_glb_idx) cons
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Uint CUnifiedData::location_comp_idx(const Common::Component& data) const
+{
+  return location_idx(unified_idx(data,0)).get<0>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// Get the total number of data spanning multiple components
 /// @return the size
 Uint CUnifiedData::size() const

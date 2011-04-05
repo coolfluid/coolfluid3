@@ -60,6 +60,8 @@ public:
 
   boost::tuple<Uint,Uint> location_idx(const Uint data_glb_idx) const;
 
+  Uint location_comp_idx(const Component& data) const;
+
   /// Get the total number of data spanning multiple components
   /// @return the size
   Uint size() const;

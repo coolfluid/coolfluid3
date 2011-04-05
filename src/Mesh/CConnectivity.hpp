@@ -29,7 +29,6 @@ namespace Mesh {
 
 /// Stores connectivity data between faces and their adjacent elements
 /// and provides a convenient API to access the data
-/// @author Andrea Lani
 /// @author Willem Deconinck
 class Mesh_API CConnectivity : public Mesh::CTable<Uint>
 {
@@ -47,13 +46,6 @@ public:
 
   /// Get the class name
   static std::string type_name () { return "CConnectivity"; }
-  
-  /// Build the connectivity table
-  /// Build the connectivity table as a CDynTable<Uint>
-  /// @pre set_nodes() and set_elements() must have been called
-  
-  virtual void build_connectivity();
-
 
   void add(Component& new_connected);
 
@@ -72,6 +64,7 @@ private: // data
 
   boost::shared_ptr<Common::CGroup> m_connected;
 
+  boost::shared_ptr<CUnifiedData> m_lookup;
 }; // CConnectivity
 
 ////////////////////////////////////////////////////////////////////////////////

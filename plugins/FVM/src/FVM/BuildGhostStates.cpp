@@ -89,8 +89,9 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
       ghost_elem_connectivity.resize(nb_faces);
       ghost_elem_connectivity.set_row_size(1);
       CTable<Real>::Buffer nodes_buffer = mesh.nodes().coordinates().create_buffer();
-      
-      Uint conn_idx(0);
+
+      // update the mesh_elements so that the ghost elements now have a unified index
+      mesh.elements().update();
       
       boost_foreach(CFaces& faces, find_components<CFaces>(*boundary_faces) )
       {
@@ -99,34 +100,33 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
         if (is_not_null(face2cell_ptr))
         {
           CFaceCellConnectivity& face2cell = *face2cell_ptr;
-          Uint unified_ghost_idx(find_component<CUnifiedData>(face2cell).size());
+          Uint unified_ghost_idx = face2cell.lookup().unified_idx(ghosts,0);
+          
           //CFinfo << "size before = " << find_component<CUnifiedData<CCells> >(face2cell).size() << CFendl;
           boost_foreach(CCells& cells, find_components<CCells>(ghost_states))
-            face2cell.cells().add(cells);
+            face2cell.add_used(cells);
           //CFinfo << "size after = " << find_component<CUnifiedData<CCells> >(face2cell).size() << CFendl;
-          CTable<Uint>& f2c_connectivity = find_component<CTable<Uint> >(face2cell);
+          CTable<Uint>& f2c_connectivity = face2cell.connectivity();
           f2c_connectivity.set_row_size(2);
-          std::vector<CCells::Ptr> cells;
-          boost_foreach(Component::Ptr comp, face2cell.cells().components())
-            cells.push_back(comp->as_ptr<CCells>());
-          Uint comp_idx(0);
+
+          Component::Ptr component;
           Uint cell_idx(0);
 
           RealVector normal(dim);
-          RealVector ghost_coord(dim);
-          
+          RealVector ghost_coord(dim);          
 
           for (Uint face=0; face<face2cell.size(); ++face)
           {
-            //CFinfo << "face " << faces.parent()->parent()->name() << "/" << faces.name() << "["<<face<<"]" << CFendl;
+            // CFinfo << "face " << faces.parent()->parent()->name() << "/" << faces.name() << "["<<face<<"]" << CFendl;
             Uint unified_elem_idx = face2cell.connectivity()[face][0]; // this is the inner cell of the boundary
-            boost::tie(comp_idx,cell_idx) = face2cell.cells().location_idx(unified_elem_idx);
-            std::string cell_type = cells[comp_idx]->element_type().element_type_name();
+            boost::tie(component,cell_idx) = face2cell.lookup().location(unified_elem_idx);
+            CCells& cells = component->as_type<CCells>();
+            std::string cell_type = cells.element_type().element_type_name();
 
-            RealMatrix cell_coordinates = cells[comp_idx]->get_coordinates(cell_idx);
+            RealMatrix cell_coordinates = cells.get_coordinates(cell_idx);
             RealVector centroid(cell_coordinates.cols());
-            cells[comp_idx]->element_type().compute_centroid(cell_coordinates,centroid);
-            //CFLogVar(centroid.transpose());
+            cells.element_type().compute_centroid(cell_coordinates,centroid);
+                        
             if (faces.element_type().dimensionality() == 0) // cannot compute normal from element_type
             {
               RealVector face_coord(dim); 
@@ -165,13 +165,14 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
             }
 
             dummy[0] = nodes_buffer.add_row(ghost_coord);
-            ghost_elem_connectivity.set_row(conn_idx++,dummy);
+            ghost_elem_connectivity.set_row(face,dummy);
             f2c_connectivity[face][1]=unified_ghost_idx++;
           }
         }
       }      
     }
   }
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -10,6 +10,7 @@
 //#include "Mesh/CElements.hpp"
 #include "Mesh/CUnifiedData.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CMeshElements.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -82,9 +83,13 @@ public:
   
   std::vector<Uint> nodes(const Uint face) const;
 
-  CUnifiedData& cells() { return *m_elements; }
+  CMeshElements& lookup() { cf_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
 
-  const CUnifiedData& cells() const { return *m_elements; }
+  const CMeshElements& lookup() const { cf_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
+
+  std::vector<Component::Ptr> used();
+  
+  void add_used (const Component& used_comp);
 
 private: // data
 
@@ -92,7 +97,7 @@ private: // data
   Uint m_nb_faces;
 
   /// unified view of the elements
-  CUnifiedData::Ptr m_elements;
+  boost::shared_ptr<Common::CGroup> m_used_components;
 
   /// Actual connectivity table
   CTable<Uint>::Ptr m_connectivity;
@@ -101,6 +106,8 @@ private: // data
   
   // @todo make a CList<bool> (some bug prevents using CList<bool>::Buffer with CList<bool> )
   CList<Uint>::Ptr m_is_bdry_face;
+  
+  CMeshElements::Ptr m_mesh_elements;
 
 }; // CFaceCellConnectivity
 

@@ -17,6 +17,8 @@
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CCells.hpp"
+#include "Mesh/CMesh.hpp"
+#include "Mesh/CMeshElements.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -71,6 +73,7 @@ bool CFieldView::set_elements(const CEntities& elements)
   cf_assert_desc("Field must be set before elements", is_not_null(m_field.lock()) );
   const CField& field = *m_field.lock();
   m_elements = elements.as_const()->as_ptr<CEntities>();
+  m_mesh_elements = find_parent_component<CMesh>(elements).elements().as_ptr_checked<CMeshElements>();
   if (field.exists_for_entities(elements))
   {
     m_space = elements.space(field.space_idx()).as_ptr<CSpace>();
@@ -142,6 +145,13 @@ void CFieldView::put_coordinates(RealMatrix& coords, const Uint elem_idx) const
   for(Uint node = 0; node != coords.rows(); ++node)
     for (Uint d=0; d != coords.cols(); ++d)
       coords(node,d) = coords_table[elem_nodes[node]][d];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint CFieldView::mesh_elements_idx(const Uint idx) const
+{
+  m_mesh_elements.lock()->unified_idx(*m_elements.lock(),idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -240,9 +250,10 @@ bool CConnectedFieldView::set_elements(CEntities& elements)
   m_elements = elements.as_ptr_checked<CEntities>();
   m_face2cells = find_component_ptr<CFaceCellConnectivity>(elements);
   cf_assert_desc(elements.full_path().path()+" needs to have a FaceCellConnectivity." , m_face2cells.expired() == false);
-  m_views.resize(m_face2cells.lock()->cells().size());
-  index_foreach(i,Component::Ptr cells, m_face2cells.lock()->cells().components())
+  m_views.resize(m_face2cells.lock()->lookup().components().size());
+  boost_foreach(Component::Ptr cells, m_face2cells.lock()->used())
   {
+    const Uint i = m_face2cells.lock()->lookup().location_comp_idx(*cells);
     cf_assert(is_not_null(cells));
     m_views[i] = Common::allocate_component<CFieldView>("view");
     m_views[i]->initialize(*m_field.lock(), cells->as_ptr<CElements>());
@@ -258,7 +269,7 @@ std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_i
   std::vector<CTable<Real>::Row> vec;
   boost_foreach(const Uint cell, m_face2cells.lock()->connectivity()[elem_idx])
   {
-    boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->cells().location_idx(cell);
+    boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->lookup().location_idx(cell);
     cf_assert(cells_comp_idx < m_views.size());
     cf_assert( is_not_null(m_views[cells_comp_idx]) );
     cf_assert(cell_idx < m_views[cells_comp_idx]->size());
@@ -273,7 +284,7 @@ std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_i
 CTable<Real>::Row CConnectedFieldView::operator()(const Uint elem_idx, const Uint connected_idx)
 {
   cf_assert_desc(full_path().path(),m_views.size());
-  boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->cells().location_idx(m_face2cells.lock()->connectivity()[elem_idx][connected_idx]);
+  boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->lookup().location_idx(m_face2cells.lock()->connectivity()[elem_idx][connected_idx]);
   cf_assert(cells_comp_idx < m_views.size());
   cf_assert( is_not_null(m_views[cells_comp_idx]) );
   cf_assert(cell_idx < m_views[cells_comp_idx]->size());
@@ -283,6 +294,13 @@ CTable<Real>::Row CConnectedFieldView::operator()(const Uint elem_idx, const Uin
 ////////////////////////////////////////////////////////////////////////////////
 
 Mesh::CField& CConnectedFieldView::field() { return *m_field.lock(); }
+
+////////////////////////////////////////////////////////////////////////////////
+
+CTable<Uint>::ConstRow CConnectedFieldView::connected_idx(const Uint idx) const
+{
+  return m_face2cells.lock()->connectivity()[idx];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -20,6 +20,7 @@ namespace Mesh {
   class CField;
   class CSpace;
   class CFaceCellConnectivity;
+  class CMeshElements;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -89,6 +90,8 @@ public: // functions
   
   void put_coordinates(RealMatrix& coords, const Uint elem_idx) const;
   
+  Uint mesh_elements_idx(const Uint idx) const;
+  
 protected: 
 
   Uint m_start_idx;
@@ -96,11 +99,12 @@ protected:
   Uint m_stride;
   Uint m_size;
 
-  boost::weak_ptr<CField>            m_field;
-  boost::weak_ptr<CTable<Real> >      m_field_data;
-  boost::weak_ptr<CEntities const>    m_elements;
-  boost::weak_ptr<CTable<Real> const> m_coords_table;
-  boost::weak_ptr<CSpace const>       m_space;
+  boost::weak_ptr<CField>               m_field;
+  boost::weak_ptr<CTable<Real> >        m_field_data;
+  boost::weak_ptr<CEntities const>      m_elements;
+  boost::weak_ptr<CTable<Real> const>   m_coords_table;
+  boost::weak_ptr<CSpace const>         m_space;
+  boost::weak_ptr<CMeshElements const>  m_mesh_elements;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -193,6 +197,8 @@ public:
   CTable<Real>::Row operator()(const Uint elem_idx, const Uint connected_idx);
   
   Mesh::CField& field();
+  
+  CTable<Uint>::ConstRow connected_idx(const Uint idx) const;
   
 private:
 

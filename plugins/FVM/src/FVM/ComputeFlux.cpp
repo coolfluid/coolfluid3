@@ -140,6 +140,7 @@ void ComputeFlux::trigger_elements()
 
 void ComputeFlux::execute()
 {
+  //CFinfo << "connected = " << to_vector(m_connected_solution.connected_idx(idx())).transpose() << CFendl;
   std::vector<CTable<Real>::Row> residual   = m_connected_residual[idx()];
   std::vector<CTable<Real>::Row> wave_speed = m_connected_wave_speed[idx()];
   std::vector<CTable<Real>::Row> solution   = m_connected_solution[idx()];
