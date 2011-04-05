@@ -23,6 +23,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CFaces.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
@@ -60,7 +61,7 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
   //meshreader->read_from_to(fp_in,mesh);
   
   //Tools::MeshGeneration::create_line(*mesh, 10. , 10);
-  Tools::MeshGeneration::create_rectangle(*mesh, 10. , 10., 4 , 4 );
+  CSimpleMeshGenerator::create_rectangle(*mesh, 10. , 10., 4 , 4 );
     
   CBuildFaces::Ptr build_faces = allocate_component<CBuildFaces>("build_faces");
   build_faces->transform(mesh);

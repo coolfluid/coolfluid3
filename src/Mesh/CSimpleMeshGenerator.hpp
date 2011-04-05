@@ -43,13 +43,9 @@ public: // functions
 
   virtual void execute();
 
+  static void create_line(CMesh& mesh, const Real x_len, const Uint x_segments);
+  static void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
-protected: // functions
-
-  void create_line(const Real x_len, const Uint x_segments);
-
-  void create_rectangle(const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
-  
 protected: // data
 
   std::vector<Uint> m_nb_cells;

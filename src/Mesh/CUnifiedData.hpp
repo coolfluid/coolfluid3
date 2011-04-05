@@ -125,6 +125,11 @@ public:
     m_size = 0;
     m_start_idx.clear();
   }
+  
+  bool contains(data_type& data) const
+  {
+    return m_start_idx.find(data.as_ptr<data_type>()) != m_start_idx.end() ;
+  }
 
 private: // data
 

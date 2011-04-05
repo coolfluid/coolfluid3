@@ -61,25 +61,23 @@ void CSimpleMeshGenerator::execute()
 
   if (m_nb_cells.size() == 1 && m_lengths.size() == 1)
   {
-    create_line(m_lengths[0],m_nb_cells[0]);
+    create_line(*m_mesh.lock(), m_lengths[0],m_nb_cells[0]);
   }
   else if (m_nb_cells.size() == 2  && m_lengths.size() == 2)
   {
-    create_rectangle(m_lengths[0],m_lengths[1],m_nb_cells[0],m_nb_cells[1]);
+    create_rectangle(*m_mesh.lock(), m_lengths[0],m_lengths[1],m_nb_cells[0],m_nb_cells[1]);
   }
   else
   {
     throw SetupError(FromHere(),"Invalid size of the vector number of cells. Only 1D and 2D supported now.");
   }
   
-  m_mesh.lock()->elements().update();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CSimpleMeshGenerator::create_line(const Real x_len, const Uint x_segments)
+void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 {
-  CMesh& mesh = *m_mesh.lock();
   CRegion& region = mesh.topology().create_region("fluid");
   CNodes& nodes = mesh.topology().create_nodes(DIM_1D);
   nodes.resize(x_segments+1);
@@ -113,13 +111,15 @@ void CSimpleMeshGenerator::create_line(const Real x_len, const Uint x_segments)
   CTable<Uint>& xpos_connectivity = xpos->connectivity_table();
   xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;
+  
+  mesh.elements().update();
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CSimpleMeshGenerator::create_rectangle(const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
+void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
-  CMesh& mesh = *m_mesh.lock();
   CRegion& region = mesh.topology().create_region("region");
   CNodes& nodes = region.create_nodes(DIM_2D);
   nodes.resize((x_segments+1)*(y_segments+1));
@@ -197,6 +197,9 @@ void CSimpleMeshGenerator::create_rectangle(const Real x_len, const Real y_len, 
     nodes[1] = y_segments * (x_segments+1) + i;
     nodes[0] = nodes[1] + 1;
   }
+  
+  mesh.elements().update();
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

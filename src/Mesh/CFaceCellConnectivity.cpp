@@ -19,6 +19,8 @@
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CMesh.hpp"
+#include "Mesh/CMeshElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CCells.hpp"
 
@@ -64,7 +66,14 @@ void CFaceCellConnectivity::build_connectivity()
     return;
   }
 
-  m_connectivity->set_row_size(2);
+  CMeshElements& mesh_elements = find_parent_component<CMesh>(*m_elements->data_components()[0]).elements();
+ 
+  // sanity check
+  boost_foreach(CCells::Ptr cells, m_elements->data_components())
+  {
+    cf_assert_desc("Must call CMesh::elements().update() to add the elements ["+cells->full_path().path()+"] in the elements registry",
+      mesh_elements.contains(*cells));
+  }
 
   // declartions
   CTable<Uint>::Buffer f2c = m_connectivity->create_buffer();

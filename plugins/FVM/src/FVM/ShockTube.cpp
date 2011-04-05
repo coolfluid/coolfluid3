@@ -24,6 +24,7 @@
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CSimpleMeshGenerator.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CPhysicalModel.hpp"
@@ -31,8 +32,6 @@
 #include "Solver/Actions/CForAllElements.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoop.hpp"
-
-#include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 #include "FVM/FiniteVolumeSolver.hpp"
 #include "FVM/ShockTube.hpp"
@@ -129,11 +128,11 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   {
     case 1:
       mesh_ptr = domain.create_component<CMesh>("line");
-      Tools::MeshGeneration::create_line(*mesh_ptr, 10. , p.get_option<Uint>("nb_cells"));
+      CSimpleMeshGenerator::create_line(*mesh_ptr, 10. , p.get_option<Uint>("nb_cells"));
       break;
     case 2:
       mesh_ptr = domain.create_component<CMesh>("square");
-      Tools::MeshGeneration::create_rectangle(*mesh_ptr, 10. , 10. , p.get_option<Uint>("nb_cells"),  p.get_option<Uint>("nb_cells"));
+      CSimpleMeshGenerator::create_rectangle(*mesh_ptr, 10. , 10. , p.get_option<Uint>("nb_cells"),  p.get_option<Uint>("nb_cells"));
       break;
     default:
       throw NotSupported(FromHere(),"Only 1D or 2D dimension supported");
