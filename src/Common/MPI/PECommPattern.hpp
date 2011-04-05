@@ -184,7 +184,7 @@ public:
   void setup();
 
   /// synchronize items
-  void update();
+  void synchronize();
 
   /// add element to the commpattern
   /// when all changes done, all needs to be committed by calling setup

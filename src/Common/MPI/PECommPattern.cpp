@@ -273,16 +273,20 @@ PEProcessSortedExecute(-1,PEDebugVector(dist_rankupdatable,dist_rankupdatable.si
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::update()
+void PECommPattern::synchronize()
 {
   BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(*this) )
   {
-//    PEProcessSortedExecute(-1,std::cout << pobj.name() << "\n" << std::flush; );
-//    if (pobj.needs_update()) PEProcessSortedExecute(-1,std::cout << pobj.name() << "\n" << std::flush; );
-    char* snd_data=(char*)pobj.pack(m_sendMap);
-PEProcessSortedExecute(-1,PEDebugVector(snd_data,m_sendMap.size()));
-    char* rcv_data=mpi::PE::instance().all_to_all(snd_data,&m_sendCount[0],&m_sendMap[0],(char*)0,&m_recvCount[0],0,pobj.size_of()*pobj.size());
-    pobj.unpack(rcv_data,m_recvMap);
+    //PEProcessSortedExecute(-1,std::cout << pobj.name() << "\n" << std::flush; );
+    //if (pobj.needs_update()) PEProcessSortedExecute(-1,std::cout << pobj.name() << "\n" << std::flush; );
+    if (pobj.needs_update()) {
+      //PECheckPoint(100,pobj.name() << " " << pobj.needs_update() << " " << pobj.size() << " " << pobj.size_of() << " " << pobj.stride());
+      char* snd_data=(char*)pobj.pack(m_sendMap);
+      char* rcv_data=mpi::PE::instance().all_to_all(snd_data,&m_sendCount[0],(char*)0,&m_recvCount[0],pobj.size_of()*pobj.stride());
+      pobj.unpack(rcv_data,m_recvMap);
+      delete[] snd_data;
+      delete[] rcv_data;
+    }
   }
 }
 
