@@ -51,15 +51,24 @@ using namespace boost;
 typedef std::vector<std::string> StringsT;
 typedef std::vector<Uint> SizesT;
 
-BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
+BOOST_AUTO_TEST_SUITE( ProtoStokesPSPGSuite )
+
+/// Check close, for testing purposes
+inline void 
+check_close(const Real a, const Real b, const Real threshold)
+{
+  BOOST_CHECK_SMALL(a - b, threshold);
+}
+
+static boost::proto::terminal< void(*)(Real, Real, Real) >::type const _check_close = {&check_close};
 
 // Solve the Stokes equations with PSPG
 BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
 {
   const Real length = 5.;
   const Real height = 2.;
-  const Uint x_segments = 50;
-  const Uint y_segments = 20;
+  const Uint x_segments = 25;
+  const Uint y_segments = 10;
   
   const Real start_time = 0.;
   const Real end_time = 10;
@@ -180,6 +189,10 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
       writer->write_from_to(mesh, output_file);
     }
   }
+  // Check analytical solution
+  for_each_node(mesh->topology(), _check_close(p, p0 * (length - coordinates[0]) / length + p1 * coordinates[1] / length, 1e-3));
+  for_each_node(mesh->topology(), _check_close(u[0], c * coordinates[1] * (height - coordinates[1]), 1e-3));
+  for_each_node(mesh->topology(), _check_close(u[1], 0., 1e-3));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

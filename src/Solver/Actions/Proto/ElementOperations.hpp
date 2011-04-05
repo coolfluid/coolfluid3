@@ -284,6 +284,7 @@ struct ValueElmOp
   template<typename SupportT, typename VarDataT, typename StateT>
   result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
   {
+    matrix.setZero();
     const typename SF::ShapeFunctionsT& sf = data.shape_function(state);
     Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> m = sf.transpose() * sf;
     for(Uint d = 0; d != Dim; ++d)
@@ -305,6 +306,7 @@ struct ValueElmOp<SF, 1, Offset, MatrixSize>
   template<typename SupportT, typename VarDataT, typename StateT>
   result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
   {
+    matrix.setZero();
     const typename SF::ShapeFunctionsT& sf = data.shape_function(state);
     matrix.template block<SF::nb_nodes, SF::nb_nodes>(0, Offset).noalias() = sf.transpose() * sf;
     return matrix;
@@ -326,6 +328,7 @@ struct GradientElmOp<SF, 1, Offset, MatrixSize>
   template<typename SupportT, typename VarDataT, typename StateT>
   result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
   {
+    matrix.setZero();
     const typename SF::ShapeFunctionsT& sf = data.shape_function(state);
     const typename SF::MappedGradientT& gradient_matrix = data.gradient(state, support);
     for(Uint i = 0; i != SF::dimension; ++i)
@@ -348,6 +351,7 @@ struct DivergenceElmOp
   template<typename SupportT, typename VarDataT, typename StateT>
   result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
   {
+    matrix.setZero();
     const typename SF::ShapeFunctionsT& sf = data.shape_function(state);
     const typename SF::MappedGradientT& gradient_matrix = data.gradient(state, support);
     for(Uint i = 0; i != SF::dimension; ++i)
@@ -369,6 +373,7 @@ struct AdvectionElmOp
   template<typename SupportT, typename VarDataT, typename StateT>
   result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
   {
+    matrix.setZero();
     const typename SF::ShapeFunctionsT& sf = data.shape_function(state);
     const typename SF::MappedGradientT& gradient_matrix = data.gradient(state, support);
     // The advection operator, pre-multiplied with the weight functions (sf)

@@ -84,7 +84,7 @@ set( utest-proto-navier-stokes-pspg_mpi_nprocs 1 )
 set( utest-proto-navier-stokes-pspg_condition ${CF_HAVE_TRILINOS} )
 coolfluid_add_unit_test( utest-proto-navier-stokes-pspg )
 
-list( APPEND utest-proto-navier-stokes-supg_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_solver )
+list( APPEND utest-proto-navier-stokes-supg_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
 list( APPEND utest-proto-navier-stokes-supg_files
   utest-proto-navier-stokes-supg.cpp )
 list( APPEND utest-proto-navier-stokes-supg_args 0.01 ) # end time
@@ -107,3 +107,15 @@ set( utest-proto-navier-stokes-bulk_mpi_test TRUE )
 set( utest-proto-navier-stokes-bulk_mpi_nprocs 1 )
 set( utest-proto-navier-stokes-bulk_condition ${CF_HAVE_TRILINOS} )
 coolfluid_add_unit_test( utest-proto-navier-stokes-bulk )
+
+list( APPEND utest-proto-navier-stokes-linearized_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_solver )
+list( APPEND utest-proto-navier-stokes-linearized_files
+  utest-proto-navier-stokes-linearized.cpp )
+list( APPEND utest-proto-navier-stokes-linearized_args 0.01 ) # end time
+list( APPEND utest-proto-navier-stokes-linearized_args 0.01 ) # time step
+list( APPEND utest-proto-navier-stokes-linearized_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
+list( APPEND utest-proto-navier-stokes-linearized_args ${CMAKE_CURRENT_SOURCE_DIR}/kvs.neu )
+set( utest-proto-navier-stokes-linearized_mpi_test TRUE )
+set( utest-proto-navier-stokes-linearized_mpi_nprocs 1 )
+set( utest-proto-navier-stokes-linearized_condition ${CF_HAVE_TRILINOS} )
+coolfluid_add_unit_test( utest-proto-navier-stokes-linearized )

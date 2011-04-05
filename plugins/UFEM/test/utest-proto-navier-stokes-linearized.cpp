@@ -301,7 +301,7 @@ MakeSFOp<MomentumT>::type momentum_t = {};
 
 /// Stores the coefficients for the SUPG model and shares them inside a proto expression through the state
 struct SUPGState
-{
+{ 
   /// Reference velocity magnitude
   Real u_ref;
   
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   int    argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
-  std::ofstream outfile("navier-stokes-bulk-stats.txt");
+  std::ofstream outfile("navier-stokes-lin-stats.txt");
   outfile << "# Time(s) Velocity magnitude(m_s)" << std::endl;
   
   const Real start_time = 0.;
@@ -373,6 +373,11 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   CField& u_fld = mesh->create_field2( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
   CField& p_fld = mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField::Basis::POINT_BASED);
   
+  // Used in increment step
+  const StringsT fields = boost::assign::list_of("Velocity")("Pressure");
+  const StringsT vars = boost::assign::list_of("u")("p");
+  const SizesT dims = boost::assign::list_of(2)(1);
+  
   lss.resize(u_fld.data().size() * 2 + p_fld.size());
   
   // Setup a mesh writer
@@ -401,13 +406,34 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   for_each_node(mesh->topology(), p = 0.);
   for_each_node(mesh->topology(), u = u_wall);
   
-  
   // Timings
-  Real assemblytime, bctime, increment_time;
+  Real assemblytime, bctime, increment_time, advect_time, update_advect_time;
+  
+  // Set up fields for velocity extrapolation
+  const std::vector<std::string> advection_vars = boost::assign::list_of("u_adv")("u1")("u2")("u3");
+  CField& u_adv_fld = mesh->create_field2( "AdvectionVelocity", CField::Basis::POINT_BASED, advection_vars, std::vector<CField::VarType>(4, CField::VECTOR_2D) );
+  
+  // Variables associated with the advection velocity
+  MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "u_adv"); // The extrapolated advection velocity (n+1/2)
+  MeshTerm<3, VectorField> u1("AdvectionVelocity", "u1");  // Two timesteps ago (n-1)
+  MeshTerm<4, VectorField> u2("AdvectionVelocity", "u2"); // n-2
+  MeshTerm<5, VectorField> u3("AdvectionVelocity", "u3"); // n-3
+  
+  // initialize
+  for_each_node(mesh->topology(), u1 = u);
+  for_each_node(mesh->topology(), u2 = u);
+  for_each_node(mesh->topology(), u3 = u);
   
   while(t < end_time)
   {
     Timer timer;
+    
+    const Uint tstep = static_cast<Uint>(t / dt);
+    
+    // Extrapolate velocity
+    for_each_node(mesh->topology(), u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3);
+    
+    advect_time = timer.elapsed(); timer.restart();
     
     // Fill the system matrix
     lss.set_zero();
@@ -419,11 +445,11 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
       (
         set_tau(u),                               // Calculate the stabilization coefficients
         _A(p, p) = continuity_p_a(p),             // Continuity equation, p terms (PSPG)
-        _A(p, u) = continuity_u_a(u),             // Continuity equation, u terms (Standard + PSPG)
-        _A(u, p) = momentum_p_a(u),               // Momentum equation, p terms (Standard + SUPG)
-        _A(u, u) = momentum_u_a(u),               // Momentum equation, u terms (Standard + SUPG + bulk viscosity)
-        _T(p, u) = continuity_t(u),               // Time, PSPG
-        _T(u, u) = momentum_t(u),                 // Time, standard and SUPG
+        _A(p, u) = continuity_u_a(u_adv),             // Continuity equation, u terms (Standard + PSPG)
+        _A(u, p) = momentum_p_a(u_adv),               // Momentum equation, p terms (Standard + SUPG)
+        _A(u, u) = momentum_u_a(u_adv),               // Momentum equation, u terms (Standard + SUPG + bulk viscosity)
+        _T(p, u) = continuity_t(u_adv),               // Time, PSPG
+        _T(u, u) = momentum_t(u_adv),                 // Time, standard and SUPG
         system_matrix(lss) += invdt * _T + 1.0 * _A,
         system_rhs(lss) -= _A * _b
       )
@@ -443,15 +469,19 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
     
     // Solve the system!
     lss.solve();
-    const StringsT fields = boost::assign::list_of("Velocity")("Pressure");
-    const StringsT vars = boost::assign::list_of("u")("p");
-    const SizesT dims = boost::assign::list_of(2)(1);
     
     timer.restart();
+    
+    // Save previous velocities for exrapolation
+    for_each_node(mesh->topology(), u3 = u2);
+    for_each_node(mesh->topology(), u2 = u1);
+    for_each_node(mesh->topology(), u1 = u);
+    update_advect_time = timer.elapsed(); timer.restart();
+    
     increment_solution(lss.solution(), fields, vars, dims, *mesh);
     increment_time = timer.elapsed();
     
-    const Real total_time = assemblytime + bctime + increment_time + lss.time_matrix_construction + lss.time_matrix_fill + lss.time_residual + lss.time_solve + lss.time_solver_setup;
+    const Real total_time = assemblytime + bctime + increment_time + lss.time_matrix_construction + lss.time_matrix_fill + lss.time_residual + lss.time_solve + lss.time_solver_setup + advect_time + update_advect_time;
     std::cout << "  assembly     : " << assemblytime << " (" << assemblytime/total_time*100. << "%)\n"
               << "  bc           : " << bctime << " (" << bctime/total_time*100. << "%)\n"
               << "  matrix build : " << lss.time_matrix_construction << " (" << lss.time_matrix_construction/total_time*100. << "%)\n"
@@ -460,6 +490,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
               << "  solve        : " << lss.time_solve << " (" << lss.time_solve/total_time*100. << "%)\n"
               << "  residual     : " << lss.time_residual << " (" << lss.time_residual/total_time*100. << "%)\n"
               << "  write field  : " << increment_time << " (" << increment_time/total_time*100. << "%)\n"
+              << "  extrapolate  : " << advect_time << " (" << advect_time/total_time*100. << "%)\n"
+              << "  save tsteps  : " << update_advect_time << " (" << update_advect_time/total_time*100. << "%)\n"
               << "  total        : " << total_time << std::endl;
     
     t += dt;
@@ -470,10 +502,10 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
     outfile << t << " " << probeval << std::endl;
     
     // Output solution
-    if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
+    if(t > 0. && (tstep % write_interval == 0 || t >= end_time))
     {
       std::stringstream outname;
-      outname << "navier-stokes-bulk-";
+      outname << "navier-stokes-lin-";
       outname << std::setfill('0') << std::setw(5) << static_cast<Uint>(t / dt);
       boost::filesystem::path output_file(outname.str() + ".vtk");
       writer->write_from_to(mesh, output_file);
