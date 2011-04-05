@@ -135,6 +135,7 @@ public: // functions
 
   Uint elements_start_idx(const CEntities& elements) const
   {
+    cf_assert( exists_for_entities(elements) );
     return m_elements_start_idx.find(&elements)->second;
   }
   
