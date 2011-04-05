@@ -33,10 +33,14 @@ public: // functions
   static std::string type_name () { return "Euler2D"; }
 
   /// Number of equations in this physical model
-  static const Uint nb_eqs = 4u;
+  static const Uint neqs = 4u;
+  /// Number of dimensions of this physical model
+  static const Uint ndim = 2u;
 
   /// @returns the number of equations
-  Uint nbeqs() const { return nb_eqs; }
+  Uint nbeqs() const { return neqs; }
+  /// @returns the number of equations
+  Uint dim() const { return ndim; }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
   template < typename CV, typename SV, typename GV, typename EM, typename EV >

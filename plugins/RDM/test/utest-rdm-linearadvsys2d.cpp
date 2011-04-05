@@ -206,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , linearadvsys2d_local_fixtu
   SignalFrame frame("", "", "");
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
-  std::vector<std::string> functions(4);
+  std::vector<std::string> functions(2);
   functions[0] = "x*x+y*y";
   functions[1] = "0.";
   options.set_array("Functions", functions, " ; ");

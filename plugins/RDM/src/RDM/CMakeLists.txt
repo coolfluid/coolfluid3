@@ -41,6 +41,7 @@ list( APPEND coolfluid_rdm_files
  # SUPG.cpp
 # --  SchemeLDA.hpp
 # --  SchemeSysLDA.hpp
+  SchemeBase.hpp
   SchemeCSysLDA.hpp
   SchemeCSysLF.hpp
 # --  SchemeN.hpp

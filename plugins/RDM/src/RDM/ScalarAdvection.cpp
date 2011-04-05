@@ -78,11 +78,11 @@ void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
   pm->configure_property( "Type", phys );
 
   Uint neqs = 0;
-  if( phys == "LinearAdv2D")    neqs = LinearAdv2D::nb_eqs;
-  if( phys == "Burgers2D")      neqs = Burgers2D::nb_eqs;
-  if( phys == "RotationAdv2D")  neqs = RotationAdv2D::nb_eqs;
-  if( phys == "LinearAdvSys2D") neqs = LinearAdvSys2D::nb_eqs;
-  if( phys == "Euler2D")        neqs = Euler2D::nb_eqs;
+  if( phys == "LinearAdv2D")    neqs = LinearAdv2D::neqs;
+  if( phys == "Burgers2D")      neqs = Burgers2D::neqs;
+  if( phys == "RotationAdv2D")  neqs = RotationAdv2D::neqs;
+  if( phys == "LinearAdvSys2D") neqs = LinearAdvSys2D::neqs;
+  if( phys == "Euler2D")        neqs = Euler2D::neqs;
 
   if (neqs == 0)
     throw SetupError( FromHere(), "Unsupported physics type : " + phys );

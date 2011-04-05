@@ -31,11 +31,14 @@ public: // functions
   static std::string type_name () { return "LinearAdv2D"; }
 
   /// Number of equations in this physical model
-  static const Uint nb_eqs = 1u;
+  static const Uint neqs = 1u;
+  /// Number of dimensions of this physical model
+  static const Uint ndim = 2u;
 
   /// @returns the number of equations
-  Uint nbeqs() const { return nb_eqs; }
-
+  Uint nbeqs() const { return neqs; }
+  /// @returns the number of equations
+  Uint dim() const { return ndim; }
   /// decompose the eigen structure of the flux jacobians projected on the gradients
   template < typename CV, typename SV, typename GV, typename EM, typename EV >
   static void jacobian_eigen_structure(const CV& coord,
@@ -47,7 +50,7 @@ public: // functions
   {
     Rv(0,0) = 1.;
     Lv(0,0) = 1.;
-    Dv[0] =  1.0 * gradN[XX] + 1.0 * gradN[YY];
+    Dv[0]   =  1.0 * gradN[XX] + 1.0 * gradN[YY];
   }
 
   /// compute the PDE residual
