@@ -20,6 +20,12 @@ if( NOT DEFINED BOOST_ROOT )
   set( BOOST_ROOT  ${DEPS_ROOT} CACHE INTERNAL "" )
 endif()
 
+# finding ParaView with ParaView_ROOT avoids conflicts with the system libraries
+
+if( NOT DEFINED ParaView_ROOT )
+  set( ParaView_ROOT  ${DEPS_ROOT} CACHE INTERNAL "" )
+endif()
+
 # finding MPI with MPI_HOME or MPI_ROOT avoids conflicts with the system libraries
 
 if( NOT DEFINED MPI_ROOT )
