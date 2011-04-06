@@ -20,6 +20,8 @@
 #include "Common/LibLoader.hpp"
 #include "Common/OSystem.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
 #include "Solver/CPhysicalModel.hpp"
@@ -68,10 +70,10 @@ struct euler2d_global_fixture
     euler2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
     SignalFrame frame;
-    SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+    SignalOptions options( frame );
 
-    options.set_option<std::string>("ModelName","mymodel");
-    options.set_option<std::string>("PhysicalModel","Euler2D");
+    options.add<std::string>("ModelName","mymodel");
+    options.add<std::string>("PhysicalModel","Euler2D");
 
     euler2d_wizard->signal_create_model(frame);
   }
@@ -110,7 +112,7 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , euler2d_local_fixture )
   BOOST_CHECK(true);
 
   SignalFrame frame;
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   Core::instance().root()->signal_list_tree(frame);
 }
@@ -126,7 +128,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
   // create the xml parameters for the read mesh signal
 
   SignalFrame frame;
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   BOOST_CHECK(true);
 
@@ -152,9 +154,11 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 
 //  URI file( "file:square1x1-tgqd-p1-298n.msh" );   // works
 
+  std::vector<URI::Scheme::Type> schemes(1);
+  schemes[0] = URI::Scheme::FILE;
 
-  options.set_option<URI>("File", file );
-  options.set_option<std::string>("Name", std::string("Mesh") );
+  options.add("File", file );
+  options.add<std::string>("Name", std::string("Mesh") );
 
   std::cout << "opening file: " << file.string() << std::endl;
 
@@ -181,7 +185,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
   BOOST_CHECK(true);
 
   SignalFrame frame;
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
@@ -195,9 +199,9 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
 
   std::string name ("INLET");
 
-  options.set_option<std::string>("Name",name);
-  options.set_option<std::string>("Type","CF.RDM.BcDirichlet");
-  options.set_array("Regions", regions, " ; ");
+  options.add<std::string>("Name",name);
+  options.add<std::string>("Type","CF.RDM.BcDirichlet");
+  options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -228,7 +232,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , euler2d_local_fixture )
   BOOST_CHECK(true);
 
   SignalFrame frame;
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   std::vector<std::string> fns(4);
 
@@ -243,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , euler2d_local_fixture )
 //  fns[2] = "1.67332";
 //  fns[3] = "3.425";
 
-  options.set_array("Functions", fns, " ; ");
+  options.add("Functions", fns, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }
@@ -293,7 +297,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , euler2d_local_fixture )
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
   SignalFrame frame;
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
@@ -301,9 +305,9 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , euler2d_local_fixture )
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-  options.set_option<std::string>("Name","INTERNAL");
-  options.set_option<std::string>("Type","CF.RDM.CSysLDA");
-  options.set_array("Regions", regions, " ; ");
+  options.add<std::string>("Name","INTERNAL");
+  options.add<std::string>("Type","CF.RDM.CSysLDA");
+  options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 

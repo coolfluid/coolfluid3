@@ -17,6 +17,7 @@
 #include "Common/Signal.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 
@@ -195,7 +196,7 @@ bool CCore::getDirContent(const QString & directory,
 
 void CCore::read_dir(SignalArgs & args)
 {
-  SignalFrame & options = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
   std::vector<std::string> dirList;
   std::vector<std::string> fileList;
@@ -205,10 +206,10 @@ void CCore::read_dir(SignalArgs & args)
 
   try
   {
-    QString dirPath = options.get_option<std::string>("dirPath").c_str();
-    bool includeFiles = options.get_option<bool>("includeFiles");
-    bool includeNoExtension = options.get_option<bool>("includeNoExtensions");
-    std::vector<std::string> extensions = options.get_array<std::string>("extensions");
+    QString dirPath = options.option<std::string>("dirPath").c_str();
+    bool includeFiles = options.option<bool>("includeFiles");
+    bool includeNoExtension = options.option<bool>("includeNoExtensions");
+    std::vector<std::string> extensions = options.array<std::string>("extensions");
 
     if(dirPath.isEmpty())
       directory = this->DEFAULT_PATH;
@@ -232,11 +233,11 @@ void CCore::read_dir(SignalArgs & args)
     {
       // Build the reply
       SignalFrame reply = args.create_reply( full_path() );
-      SignalFrame& roptions = reply.map( Protocol::Tags::key_options() );
+      SignalOptions roptions( reply );
 
-      roptions.set_option("dirPath", directory.toStdString());
-      roptions.set_array("dirs", dirList, " ; ");
-      roptions.set_array("files", fileList, " ; ");
+      roptions.add("dirPath", directory.toStdString());
+      roptions.add("dirs", dirList, " ; ");
+      roptions.add("files", fileList, " ; ");
     }
   }
   catch(Exception e)

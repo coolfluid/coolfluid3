@@ -12,7 +12,7 @@
 #include "Mesh/LoadMesh.hpp"
 
 #include "Common/XML/Protocol.hpp"
-#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -49,11 +49,11 @@ CDomain::~CDomain()
 
 void CDomain::signal_load_mesh ( Common::SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   LoadMesh& mesh_loader = find_component<LoadMesh>( Core::instance().root()->get_child("Tools") );
-  CMesh::Ptr mesh = mesh_loader.load_mesh(options.get_option<URI>("File"));
-  mesh->rename(options.get_option<std::string>("Name"));
+  CMesh::Ptr mesh = mesh_loader.load_mesh(options.option<URI>("File"));
+  mesh->rename(options.option<std::string>("Name"));
   add_component(mesh);
 }
 
@@ -61,10 +61,13 @@ void CDomain::signal_load_mesh ( Common::SignalArgs& node )
 
 void CDomain::signature_load_mesh ( Common::SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-  options.set_option<URI>("File", URI(), "Location of the file holding the mesh" );
-  options.set_option<std::string>("Name", std::string(), "Location of the file holding the mesh" );
+  std::vector<URI::Scheme::Type> schemes(1);
+  schemes[0] = URI::Scheme::FILE;
+
+  options.add("File", URI(), "Location of the file holding the mesh", schemes );
+  options.add<std::string>("Name", std::string(), "Location of the file holding the mesh" );
   
 }
 

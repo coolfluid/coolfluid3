@@ -14,6 +14,8 @@
 #include "Common/StringConversion.hpp"
 #include "Common/Signal.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Mesh/LibMesh.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -224,13 +226,13 @@ const CMeshElements& CMesh::elements() const
 
 void CMesh::signature_write_mesh ( SignalArgs& node)
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-  options.set_option<std::string>("File" , name()+".msh" , "File to write" );
+  options.add<std::string>("File" , name()+".msh" , "File to write" );
 
   boost_foreach (CField& field, find_components<CField>(*this))
   {
-    options.set_option<bool>(field.name(), false, "Mark if field gets to be written");
+    options.add<bool>(field.name(), false, "Mark if field gets to be written");
   }
 }
 
@@ -240,10 +242,10 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
 {
   WriteMesh::Ptr mesh_writer = create_component<WriteMesh>("writer");
 
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
 
-  std::string file = options.get_option<std::string>("File");
+  std::string file = options.option<std::string>("File");
 
   // check protocol for file loading
   // if( file.scheme() != URI::Scheme::FILE )
@@ -257,7 +259,7 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
 
   boost_foreach( CField& field, find_components<CField>(*this))
   {
-    bool add_field = options.get_option<bool>(field.name());
+    bool add_field = options.option<bool>(field.name());
     if (add_field)
       fields.push_back(field.full_path());
   }

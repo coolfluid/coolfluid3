@@ -15,7 +15,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 using namespace std;
 using namespace boost;
@@ -55,9 +55,9 @@ public: // functions
   {
     SignalFrame signal_frame( "Target", "//Root", "//Root");
 
-    SignalFrame & options = signal_frame.map("options");
+    SignalOptions options( signal_frame );
 
-    options.set_option<int>( "Counter", 10 );
+    options.add<int>( "Counter", 10 );
 
     receiver.call_signal( "print_message", signal_frame );
   }

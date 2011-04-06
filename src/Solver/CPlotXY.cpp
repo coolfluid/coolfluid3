@@ -78,7 +78,7 @@ void CPlotXY::convergence_history( SignalArgs & args )
 //        data[ (row * 8) + col ] = table[row][col];
 //    }
 
-//    XmlNode node = options.set_array("Table", data, " ; ");
+//    XmlNode node = options.add("Table", data, " ; ");
 
 //    node.set_attribute("dimensions", "8");
   }

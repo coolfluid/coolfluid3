@@ -13,6 +13,7 @@
 #include "Common/StringConversion.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CList.hpp"
@@ -66,9 +67,9 @@ void CMeshPartitioner::execute()
 
 void CMeshPartitioner::load_balance( SignalArgs& node  )
 {
-	SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-	URI path = options.get_option<URI>("Mesh");
+  URI path = options.option<URI>("Mesh");
 
 	if( path.scheme() != URI::Scheme::CPATH )
 		throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
@@ -89,9 +90,9 @@ void CMeshPartitioner::load_balance( SignalArgs& node  )
 
 void CMeshPartitioner::load_balance_signature ( Common::SignalArgs& node )
 {
-	SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-	options.set_option<URI>("Mesh", URI(), "Mesh to load balance" );
+  options.add("Mesh", URI(), "Mesh to load balance" );
 }
 
 //////////////////////////////////////////////////////////////////////

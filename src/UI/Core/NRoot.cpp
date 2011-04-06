@@ -12,6 +12,7 @@
 #include "Common/Signal.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 
@@ -152,10 +153,10 @@ void NRoot::client_registration(SignalArgs & node)
 
 void NRoot::frame_rejected(SignalArgs & args)
 {
-  SignalFrame & options = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
-  std::string frameid = options.get_option<std::string>("frameid");
-  std::string reason = options.get_option<std::string>("reason");
+  std::string frameid = options.option<std::string>("frameid");
+  std::string reason = options.option<std::string>("reason");
 
   QString msg("Action %1 has been rejected by the server: %2");
 
@@ -176,29 +177,29 @@ void NRoot::disableLocalSignals(QMap<QString, bool> & localSignals) const
 
 void NRoot::signature_connect_server( SignalArgs & frame )
 {
-  SignalFrame p = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
-  p.set_option("Hostname", std::string("localhost"), "Name or IP address of the server.");
-  p.set_option("Port number", Uint(62784), "Port number the server is listening to.");
+  options.add("Hostname", std::string("localhost"), "Name or IP address of the server.");
+  options.add("Port number", Uint(62784), "Port number the server is listening to.");
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void NRoot::signature_disconnect_server( SignalArgs & frame )
 {
-  SignalFrame p = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
-  p.set_option("Shutdown the server", false, "If checked, the server application will be closed.");
+  options.add("Shutdown the server", false, "If checked, the server application will be closed.");
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void NRoot::signal_connect_server( SignalArgs & frame )
 {
-  SignalFrame p = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
-  std::string hostname = p.get_option<std::string>("Hostname");
-  Uint port = p.get_option<Uint>("Port number");
+  std::string hostname = options.option<std::string>("Hostname");
+  Uint port = options.option<Uint>("Port number");
 
   ThreadManager::instance().network().connectToHost(hostname.c_str(), port);
 }
@@ -207,7 +208,7 @@ void NRoot::signal_connect_server( SignalArgs & frame )
 
 void NRoot::signal_disconnect_server( SignalArgs & frame )
 {
-  bool shutdown = frame.map( Protocol::Tags::key_options() ).get_option<bool>("Shutdown the server");
+  bool shutdown = SignalOptions( frame ).option<bool>("Shutdown the server");
 
   ThreadManager::instance().network().disconnectFromServer(shutdown);
 }

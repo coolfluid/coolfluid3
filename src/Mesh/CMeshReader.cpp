@@ -17,6 +17,8 @@
 #include "Common/MPI/operations.hpp"
 #include "Common/CreateComponent.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CDomain.hpp"
@@ -56,9 +58,9 @@ CMeshReader::~CMeshReader()
 
 void CMeshReader::signal_read( SignalArgs& node  )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-  URI path = options.get_option<URI>("Domain");
+  URI path = options.option<URI>("Domain");
 
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
@@ -68,7 +70,7 @@ void CMeshReader::signal_read( SignalArgs& node  )
   if (!domain)
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
 
-  std::vector<URI> files = options.get_array<URI>("Files");
+  std::vector<URI> files = options.array<URI>("Files");
 
   // check protocol for file loading
   boost_foreach(URI file, files)
@@ -200,12 +202,15 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 
 void CMeshReader::read_signature( SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   std::vector<URI> dummy;
+  std::vector<URI::Scheme::Type> schemes(1);
 
-  options.set_option<URI>("Domain", URI(), "Domain to load mesh into" );
-  options.set_array<URI>("Files", dummy, " ; " , "Files to read");
+  schemes[0] = URI::Scheme::CPATH;
+  options.add("Domain", URI(), "Domain to load mesh into", schemes );
+  schemes[0] = URI::Scheme::FILE;
+  options.add("Files", dummy, " ; " , "Files to read", schemes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

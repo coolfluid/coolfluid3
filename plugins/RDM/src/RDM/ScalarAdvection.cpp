@@ -11,6 +11,8 @@
 #include "Common/OptionT.hpp"
 #include "Common/CreateComponent.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CDomain.hpp"
 
@@ -63,9 +65,9 @@ ScalarAdvection::~ScalarAdvection()
 
 void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-  std::string name  = options.get_option<std::string>("ModelName");
+  std::string name  = options.option<std::string>("ModelName");
 
   CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
 
@@ -73,7 +75,7 @@ void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
   CPhysicalModel::Ptr pm = model->create_component<CPhysicalModel>("Physics");
   pm->mark_basic();
 
-  std::string phys  = options.get_option<std::string>("PhysicalModel");
+  std::string phys  = options.option<std::string>("PhysicalModel");
 
   pm->configure_property( "Type", phys );
 
@@ -103,17 +105,16 @@ void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
 
 void ScalarAdvection::signature_create_model( SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-  options.set_option<std::string>("ModelName", std::string(), "Name for created model" );
-  XmlNode phys_node = options.set_option<std::string>("PhysicalModel", std::string(), "Name of the Physical Model" );
+  options.add<std::string>("ModelName", std::string(), "Name for created model" );
 
   std::vector<std::string> models = boost::assign::list_of
       ( LinearAdv2D::type_name() )
       ( RotationAdv2D::type_name() )
       ( Burgers2D::type_name() ) ;
 
-  Map(phys_node).set_array( Protocol::Tags::key_restricted_values(), models, " ; ");
+  options.add<std::string>("PhysicalModel", std::string(), "Name of the Physical Model", models, " ; ");
 
 }
 

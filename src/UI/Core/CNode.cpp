@@ -23,6 +23,7 @@
 
 #include "Common/XML/CastingFunctions.hpp"
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 
@@ -254,13 +255,13 @@ void addValueToXml(const std::string& name, const std::string& value, bool is_ar
     std::vector<TYPE> data;
     Map::split_string(value, "@@", data);
 
-    options.set_array(name, data, " ; ");
+    options.set_array<TYPE>(name, data, " ; ");
   }
   else
   {
     try
     {
-      options.set_option(name, from_str<TYPE>(value));
+      options.set_option<TYPE>(name, from_str<TYPE>(value));
     }
     catch( const boost::bad_lexical_cast & e)
     {

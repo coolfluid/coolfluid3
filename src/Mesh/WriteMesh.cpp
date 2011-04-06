@@ -12,6 +12,7 @@
 #include "Common/Foreach.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMesh.hpp"
@@ -124,11 +125,11 @@ void WriteMesh::write_mesh( CMesh& mesh, const URI& file, const std::vector<URI>
 
 void WriteMesh::signal_write_mesh ( Common::SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   update_list_of_available_writers();
 
-  URI mesh_uri = options.get_option<URI>("Mesh");
+  URI mesh_uri = options.option<URI>("Mesh");
 
   if( mesh_uri.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Mesh, expecting a \'cpath\' but got \'" + mesh_uri.string() +"\'");
@@ -136,7 +137,7 @@ void WriteMesh::signal_write_mesh ( Common::SignalArgs& node )
   // get the domain
   CMesh::Ptr mesh = access_component_ptr( mesh_uri )->as_ptr<CMesh>();
 
-  std::string file = options.get_option<std::string>("File");
+  std::string file = options.option<std::string>("File");
 
   // check protocol for file loading
   // if( file.scheme() != URI::Scheme::FILE )
@@ -153,10 +154,12 @@ void WriteMesh::signal_write_mesh ( Common::SignalArgs& node )
 
 void WriteMesh::signature_write_mesh ( Common::SignalArgs& node)
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   CFactory::Ptr meshwriter_factory = Core::instance().factories()->get_factory<CMeshWriter>();
   std::vector<std::string> writers;
+  std::vector<URI::Scheme::Type> schemes(1);
+  schemes[0] = URI::Scheme::CPATH;
 
   // build the restricted list
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshwriter_factory ) )
@@ -164,13 +167,12 @@ void WriteMesh::signature_write_mesh ( Common::SignalArgs& node)
     writers.push_back(bdr.name());
   }
 
-  options.set_option<URI>("Mesh", URI(), "Path to the mesh" );
+  options.add("Mesh", URI(), "Path to the mesh", schemes );
 
   // create the value and add the restricted list
-  XmlNode wrts_node = options.set_option( "Available writers", std::string() , "Available writers" );
-  Map(wrts_node).set_array( Protocol::Tags::key_restricted_values(), writers, " ; ");
+  options.add( "Available writers", std::string() , "Available writers", writers, " ; ");
 
-  options.set_option<std::string>("File", std::string() , "File to write" );
+  options.add<std::string>("File", std::string() , "File to write" );
 }
 
 } // Mesh

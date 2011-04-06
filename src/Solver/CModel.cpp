@@ -15,6 +15,7 @@
 #include "Common/CreateComponent.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CDomain.hpp"
 
@@ -149,7 +150,7 @@ void CModel::signal_create_domain ( Common::SignalArgs& node )
 
 void CModel::signature_create_solver ( Common::SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   CFactory::Ptr solver_factory = Core::instance().factories()->get_factory<CSolver>();
   std::vector<std::string> solvers;
@@ -161,16 +162,15 @@ void CModel::signature_create_solver ( Common::SignalArgs& node )
   }
 
   // create de value and add the restricted list
-  XmlNode solvers_node = options.set_option( "builder", std::string() , "Choose solver" );
-  Map(solvers_node).set_array( Protocol::Tags::key_restricted_values(), solvers, " ; ");  
+  options.add( "builder", std::string() , "Choose solver", solvers, " ; ");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CModel::signal_create_solver ( Common::SignalArgs& node )
 {
-  SignalFrame& options = node.map( Protocol::Tags::key_options() );
-  std::string builder_name = options.get_option<std::string>( "builder" );
+  SignalOptions options( node );
+  std::string builder_name = options.option<std::string>( "builder" );
   create_solver(builder_name);
 }
 

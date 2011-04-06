@@ -6,10 +6,13 @@
 
 #include <boost/algorithm/string.hpp>
 
+
 #include "Common/Assertions.hpp"
 #include "Common/Signal.hpp"
 #include "Common/SignalHandler.hpp"
+
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +61,7 @@ SignalRet SignalHandler::call_signal ( const SignalID& sname, std::vector<std::s
 
   options.insert( sinput );
 
-  call_signal(sname,frame);
+  call_signal(sname, frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

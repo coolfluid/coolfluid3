@@ -27,6 +27,7 @@
 #include "Common/Signal.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "UI/Core/NBrowser.hpp"
 #include "UI/Core/NetworkThread.hpp"
@@ -727,7 +728,7 @@ void NRemoteBrowser::updateModel(QStandardItemModel * model,
 void NRemoteBrowser::openDir(const QString & path)
 {
   SignalFrame frame("read_dir", full_path(), SERVER_CORE_PATH);
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   std::vector<std::string> vect;
   QStringList::iterator it = m_extensions.begin();
@@ -738,10 +739,10 @@ void NRemoteBrowser::openDir(const QString & path)
     it++;
   }
 
-  options.set_option("dirPath", path.toStdString());
-  options.set_option("includeFiles", m_includeFiles);
-  options.set_option("includeNoExtensions", m_includeNoExtension);
-  options.set_array("extensions", vect, " ; ");
+  options.add("dirPath", path.toStdString());
+  options.add("includeFiles", m_includeFiles);
+  options.add("includeNoExtensions", m_includeNoExtension);
+  options.add("extensions", vect, " ; ");
 
   ThreadManager::instance().network().send(frame);
 }
@@ -750,12 +751,12 @@ void NRemoteBrowser::openDir(const QString & path)
 
 void NRemoteBrowser::read_dir(SignalArgs & args)
 {
-  SignalFrame& options = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
   std::vector<std::string> dirs;
   std::vector<std::string> files;
 
-  m_currentPath = options.get_option<std::string>("dirPath").c_str();
+  m_currentPath = options.option<std::string>("dirPath").c_str();
 
   // add an ending '/' if the string does not have any
   if(!m_currentPath.endsWith(m_pathSep))
@@ -770,8 +771,8 @@ void NRemoteBrowser::read_dir(SignalArgs & args)
   else
     m_updatingCompleter = false;
 
-  dirs = options.get_array<std::string>("dirs");
-  files = options.get_array<std::string>("files");
+  dirs = options.array<std::string>("dirs");
+  files = options.array<std::string>("files");
 
   this->updateModel(m_viewModel, "", dirs, files, m_items);
   this->updateModel(m_completerModel, m_currentPath, dirs,

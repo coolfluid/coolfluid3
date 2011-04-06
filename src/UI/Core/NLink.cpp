@@ -10,6 +10,7 @@
 #include "Common/Signal.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "UI/Core/NLog.hpp"
 #include "UI/Core/NTree.hpp"
@@ -101,11 +102,11 @@ void NLink::goToTarget(SignalArgs & )
 
 void NLink::change_link(SignalArgs & args)
 {
-  SignalFrame & options = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
   try
   {
-    std::string path = options.get_option<std::string>("target_path");
+    std::string path = options.option<std::string>("target_path");
 
     this->setTargetPath(path);
 

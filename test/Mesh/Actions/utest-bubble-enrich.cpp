@@ -14,6 +14,8 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Mesh/LoadMesh.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CDomain.hpp"
@@ -96,16 +98,16 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
 
   SignalFrame frame("Target", "//Root", "//Root");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   BOOST_CHECK(true);
 
   std::vector<URI> files;
   files.push_back( "file:rectangle-tg-p2.msh" );
 
-  options.set_option<URI>("Parent Component", Core::instance().root()->get_child("Domain").full_path() );
-  options.set_option<std::string>("Name", std::string("Mesh") );
-  options.set_array("Files", files, " ; ");
+  options.add("Parent Component", Core::instance().root()->get_child("Domain").full_path() );
+  options.add<std::string>("Name", std::string("Mesh") );
+  options.add("Files", files, " ; ");
 
   // get the generic mesh loader from the Tools
 

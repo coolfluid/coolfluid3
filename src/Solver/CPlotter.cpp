@@ -7,6 +7,8 @@
 #include "Common/CBuilder.hpp"
 #include "Common/Signal.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Solver/CPlotXY.hpp"
 #include "Solver/LibSolver.hpp"
 
@@ -47,10 +49,10 @@ CPlotter::CPlotter(const std::string & name) :
 
 void CPlotter::signal_create_xyplot(SignalArgs &args)
 {
-  SignalFrame& options = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
-  std::string name = options.get_option<std::string>("Plot name");
-  URI parent = options.get_option<URI>("Parent");
+  std::string name = options.option<std::string>("Plot name");
+  URI parent = options.option<URI>("Parent");
 
   // some checks
   if(name.empty())
@@ -74,10 +76,13 @@ void CPlotter::signal_create_xyplot(SignalArgs &args)
 
 void CPlotter::signature_create_xyplot(SignalArgs &args)
 {
-  SignalFrame& options = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
+  std::vector<URI::Scheme::Type> schemes(1);
 
-  options.set_option("Plot name", std::string(), "Name for the new plot");
-  options.set_option("Parent", Core::instance().root()->full_path(), "Parent of the new component");
+  schemes[0] = URI::Scheme::CPATH;
+
+  options.add("Plot name", std::string(), "Name for the new plot");
+  options.add("Parent", Core::instance().root()->full_path(), "Parent of the new component", schemes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

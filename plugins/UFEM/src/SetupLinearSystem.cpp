@@ -11,6 +11,8 @@
 #include "Common/OptionT.hpp"
 #include "Common/CreateComponent.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CDomain.hpp"
@@ -49,11 +51,11 @@ SetupLinearSystem::SetupLinearSystem(const std::string& name) : Component ( name
 
 void SetupLinearSystem::create_model( SignalArgs& node)
 {
-  SignalFrame& options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   // create the model
-  const std::string solver_name = options.get_option<std::string>("Solver");
-  const std::string name  = options.get_option<std::string>("Model name");
+  const std::string solver_name = options.option<std::string>("Solver");
+  const std::string name  = options.option<std::string>("Model name");
 
   CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
 
@@ -82,7 +84,7 @@ void SetupLinearSystem::create_model( SignalArgs& node)
 
 void SetupLinearSystem::create_model_signature( SignalArgs& node )
 {
-  SignalFrame& options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   std::vector<URI> dummy;
   CFactory::Ptr linear_system_factory = Core::instance().factories()->get_factory<LinearSystem>();
@@ -95,10 +97,9 @@ void SetupLinearSystem::create_model_signature( SignalArgs& node )
   }
 
   // create de value and add the restricted list
-  XmlNode systems_node = options.set_option( "Solver", std::string() , "Available solvers" );
-  Map(systems_node).set_array( Protocol::Tags::key_restricted_values(), systems, " ; " );
+  options.add( "Solver", std::string() , "Available solvers", systems, " ; " );
 
-  options.set_option<std::string>("Model name", std::string(), "Name for created model" );
+  options.add<std::string>("Model name", std::string(), "Name for created model" );
 }
 
 } // UFEM

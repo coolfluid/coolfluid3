@@ -16,6 +16,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CreateComponent.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "FVM/FiniteVolumeSolver.hpp"
 #include "FVM/ComputeUpdateCoefficient.hpp"
@@ -319,11 +320,11 @@ void FiniteVolumeSolver::auto_config_fields(Component& parent)
 
 void FiniteVolumeSolver::signal_create_bc( SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
   
-  std::string name = options.get_option<std::string>("Name");
-  std::string builder = options.get_option<std::string>("builder");
-  std::vector<URI> regions_uri = options.get_array<URI>("Regions");
+  std::string name = options.option<std::string>("Name");
+  std::string builder = options.option<std::string>("builder");
+  std::vector<URI> regions_uri = options.array<URI>("Regions");
   std::vector<CRegion::Ptr> regions(regions_uri.size());
   for (Uint i=0; i<regions_uri.size(); ++i)
   {
@@ -336,27 +337,26 @@ void FiniteVolumeSolver::signal_create_bc( SignalArgs& node )
 
 void FiniteVolumeSolver::signature_create_bc( SignalArgs& node )
 {
-    SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-    // name
-    options.set_option<std::string>("Name", std::string(), "Name for created boundary term" );
+  // name
+  options.add<std::string>("Name", std::string(), "Name for created boundary term" );
 
-    // type
-    CFactory::Ptr bc_factory = Core::instance().factories()->get_factory<BC>();
-    std::vector<std::string> bcs;
+  // type
+  CFactory::Ptr bc_factory = Core::instance().factories()->get_factory<BC>();
+  std::vector<std::string> bcs;
 
-    // build the restricted list
-    boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *bc_factory ) )
+  // build the restricted list
+  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *bc_factory ) )
       bcs.push_back(bdr.name());
 
-    // create de value and add the restricted list
-    XmlNode bcs_node = options.set_option( "builder", std::string() , "Choose BC" );
-    Map(bcs_node).set_array( Protocol::Tags::key_restricted_values(), bcs, " ; ");  
+  // create de value and add the restricted list
+  options.add<std::string>( "builder", std::string() , "Choose BC", bcs, " ; ");
 
-    // regions
-    std::vector<URI> dummy;
-    // create here the list of restricted surface regions
-    options.set_array<URI>("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
+  // regions
+  std::vector<URI> dummy;
+  // create here the list of restricted surface regions
+  options.add("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
   
 }
 

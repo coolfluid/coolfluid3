@@ -9,6 +9,7 @@
 #include "Common/Signal.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 
@@ -32,8 +33,6 @@ namespace Core {
 NLog::NLog()
   : CNode(CLIENT_LOG, "NLog", CNode::LOG_NODE)
 {
-
-
   m_typeNames[ LogMessage::INFO ]      = "  Info   ";
   m_typeNames[ LogMessage::EXCEPTION ] = "Exception";
   m_typeNames[ LogMessage::ERROR ]     = "  Error  ";
@@ -111,10 +110,10 @@ void NLog::appendToLog(LogMessage::Type type, bool fromServer,
 
 void NLog::message(SignalArgs & node)
 {
-  SignalFrame& options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-  std::string typeStr = options.get_option<std::string>("type");
-  std::string message = options.get_option<std::string>("text");
+  std::string typeStr = options.option<std::string>("type");
+  std::string message = options.option<std::string>("text");
   LogMessage::Type type = LogMessage::Convert::instance().to_enum(typeStr);
 
   cf_assert(type != LogMessage::INVALID);

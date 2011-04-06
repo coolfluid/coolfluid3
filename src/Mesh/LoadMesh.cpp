@@ -12,11 +12,14 @@
 #include "Common/CRoot.hpp"
 #include "Common/Foreach.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CDomain.hpp"
 
 #include "Mesh/LoadMesh.hpp"
+
 
 namespace CF {
 namespace Mesh {
@@ -130,9 +133,9 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
 {
   update_list_of_available_readers();
 
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-  URI path = options.get_option<URI>("Parent Component");
+  URI path = options.option<URI>("Parent Component");
 
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Parent Component, expecting a \'cpath\' but got \'" + path.string() +"\'");
@@ -141,7 +144,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
   Component& parent_component = access_component( path );
 
   // std::vector<URI> files = property("Files").value<std::vector<URI> >();
-  std::vector<URI> files = options.get_array<URI>("Files");
+  std::vector<URI> files = options.array<URI>("Files");
 
   // check protocol for file loading
   boost_foreach(URI file, files)
@@ -154,7 +157,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = parent_component.create_component<CMesh>(options.get_option<std::string>("Name"));
+    CMesh::Ptr mesh = parent_component.create_component<CMesh>(options.option<std::string>("Name"));
 
     // Get the file paths
     boost_foreach(URI file, files)
@@ -197,7 +200,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
 
 void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   std::vector<URI> dummy;
   CFactory::Ptr meshreader_factory = Core::instance().factories()->get_factory<CMeshReader>();
@@ -209,15 +212,14 @@ void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
     readers.push_back(bdr.name());
   }
 
-  options.set_option<URI>("Parent Component", URI(), "Path to the component to hold the mesh" );
+  options.add("Parent Component", URI(), "Path to the component to hold the mesh" );
 
-  options.set_option<std::string>("Name", std::string("mesh"), "Name of the mesh" );
+  options.add<std::string>("Name", std::string("mesh"), "Name of the mesh" );
 
   // create de value and add the restricted list
-  XmlNode rdrs_node = options.set_option( "Readers", std::string() , "Available readers" );
-  Map(rdrs_node).set_array( Protocol::Tags::key_restricted_values(), readers, " ; ");
+  options.add( "Readers", std::string() , "Available readers", readers, " ; ");
 
-  options.set_array<URI>("Files", dummy , " ; ", "Files to read" );
+  options.add("Files", dummy , " ; ", "Files to read" );
 }
 
 } // Mesh

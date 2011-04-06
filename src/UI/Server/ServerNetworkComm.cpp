@@ -14,6 +14,7 @@
 
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 #include "UI/UICommon/LogMessage.hpp"
@@ -177,10 +178,10 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
                                           const QString & reason)
 {
   SignalFrame frame("frame_rejected", sender, CLIENT_ROOT_PATH);
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
-  options.set_option("frameid", frameid);
-  options.set_option("reason", reason.toStdString());
+  options.add("frameid", frameid);
+  options.add("reason", reason.toStdString());
 
   return this->send(clientId, *frame.xml_doc.get()) != 0;
 }
@@ -192,14 +193,14 @@ bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message
                                     LogMessage::Type type)
 {
   SignalFrame frame("message", SERVER_CORE_PATH, CLIENT_LOG_PATH);
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
 
   if(type == LogMessage::INVALID)
     type = LogMessage::INFO;
 
-  options.set_option("type", LogMessage::Convert::instance().to_str(type));
-  options.set_option("text", message.toStdString());
+  options.add("type", LogMessage::Convert::instance().to_str(type));
+  options.add("text", message.toStdString());
 
   return this->send(client, *frame.xml_doc.get()) != 0;
 }
@@ -339,9 +340,9 @@ void ServerNetworkComm::newData()
 
             // Build the reply
             SignalFrame reply = sig_frame->create_reply();
-            SignalFrame& roptions = reply.map( Protocol::Tags::key_options() );
+            SignalOptions roptions( reply );
 
-            roptions.set_option("accepted", true);
+            roptions.add<bool>("accepted", true);
 
             this->send(socket, *xmldoc.get());
 

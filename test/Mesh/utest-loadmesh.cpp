@@ -15,6 +15,8 @@
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMeshWriter.hpp"
 
@@ -44,14 +46,14 @@ BOOST_AUTO_TEST_CASE( constructor )
   BOOST_CHECK(true);
 
   SignalFrame frame("Target", "//Root", "//Root");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:rotation-tg-p1.neu" );
-  options.set_option<URI>("Parent Component", URI( domain->full_path().string()) );
-  options.set_option<std::string>("Name", std::string("Mesh") );
-  options.set_array("Files", files, " ; ");
+  options.add("Parent Component", URI( domain->full_path().string()) );
+  options.add<std::string>("Name", std::string("Mesh") );
+  options.add("Files", files, " ; ");
 
   load_mesh->signal_load_mesh(frame);
 }

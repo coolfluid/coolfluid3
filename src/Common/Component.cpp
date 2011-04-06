@@ -23,6 +23,7 @@
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/FileOperations.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 using namespace CF::Common::XML;
 
@@ -574,13 +575,13 @@ Component::ConstPtr Component::access_component_ptr_checked (const URI& path ) c
 
 void Component::signal_create_component ( SignalArgs& args  )
 {
-  SignalFrame options = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
-  std::string name  = options.get_option<std::string>("Component name");
-  std::string atype = options.get_option<std::string>("Generic type");
-  std::string ctype = options.get_option<std::string>("Concrete type");
+  std::string name  = options.option<std::string>("Component name");
+  std::string atype = options.option<std::string>("Generic type");
+  std::string ctype = options.option<std::string>("Concrete type");
 
-  bool basic = options.get_option<bool>("Basic mode");
+  bool basic = options.option<bool>("Basic mode");
 
   CFactories::Ptr factories = Core::instance().root()->get_child_ptr("Factories")->as_ptr< CFactories >();
   CFactory::Ptr factory = factories->get_child_ptr( atype )->as_ptr< CFactory >();
@@ -622,9 +623,9 @@ void Component::signal_delete_component ( SignalArgs& args  )
 
 void Component::signal_move_component ( SignalArgs& args  )
 {
-  SignalFrame options = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
-  URI path = options.get_option<URI>("Path");
+  URI path = options.option<URI>("Path");
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
@@ -944,9 +945,9 @@ Property& Component::property( const std::string& optname )
 
 void Component::signal_rename_component ( SignalArgs& args )
 {
-  SignalFrame p = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
-  std::string new_name = p.get_option<std::string>("New name");
+  std::string new_name = options.option<std::string>("New name");
 
   rename(new_name);
 }
@@ -955,9 +956,9 @@ void Component::signal_rename_component ( SignalArgs& args )
 
 void Component::signal_save_tree ( SignalArgs& args )
 {
-  SignalFrame p = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
-  const URI filename = p.get_option<URI>("filename");
+  const URI filename = options.option<URI>("filename");
 
   if(filename.scheme() != URI::Scheme::FILE)
     throw InvalidURI(FromHere(), "A file was expected but got \'" + filename.string() + "\'");
@@ -988,9 +989,9 @@ void Component::signal_list_content( SignalArgs& args )
 void Component::signal_signature( SignalArgs & args )
 {
   SignalFrame reply = args.create_reply( full_path() );
-  SignalFrame p = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
-  ( *signal( p.get_option<std::string>("name") )->signature )(reply);
+  ( *signal( options.option<std::string>("name") )->signature )(reply);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1024,30 +1025,30 @@ Component& Component::mark_basic()
 
 void Component::signature_create_component( SignalArgs& args )
 {
-  SignalFrame p = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
-  p.set_option("Component name", std::string(), "Name for created component.");
-  p.set_option("Generic name", std::string(), "Generic type of the component.");
-  p.set_option("Concrete type", std::string(), "Concrete type of the component.");
-  p.set_option("Basic mode", false, "Component will be visible in basic mode.");
+  options.add("Component name", std::string(), "Name for created component.");
+  options.add("Generic name", std::string(), "Generic type of the component.");
+  options.add("Concrete type", std::string(), "Concrete type of the component.");
+  options.add("Basic mode", false, "Component will be visible in basic mode.");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signature_rename_component( SignalArgs& args )
 {
-  SignalFrame p = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
-  p.set_option("New name", std::string(), "Component new name.");
+  options.add("New name", std::string(), "Component new name.");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signature_move_component( SignalArgs& args )
 {
-  SignalFrame p = args.map( Protocol::Tags::key_options() );
+  SignalOptions options( args );
 
-  p.set_option("Path", std::string(), "Path to the new component to which this one will move to.");
+  options.add("Path", std::string(), "Path to the new component to which this one will move to.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

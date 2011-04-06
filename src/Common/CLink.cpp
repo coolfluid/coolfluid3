@@ -9,7 +9,7 @@
 #include "Common/Signal.hpp"
 #include "Common/LibCommon.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Common/CLink.hpp"
 
@@ -95,10 +95,10 @@ void CLink::link_to ( Component const& lnkto )
 
 void CLink::change_link( SignalArgs & args )
 {
-  SignalFrame options = args.map("options");
+  SignalOptions options( args );
   SignalFrame reply = args.create_reply();
 
-  std::string path = options.get_option<std::string>("target_path");
+  std::string path = options.option<std::string>("target_path");
   Component::Ptr target = m_root.lock()->access_component_ptr(path);
 
   link_to (target);

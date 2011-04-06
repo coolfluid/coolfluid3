@@ -23,12 +23,12 @@ void test_signal( SignalFrame & frame )
 
   CFinfo << "/////////////// in test_signal() \\\\\\\\\\\\\\\\" << CFendl << CFendl;
 
-  CFinfo << "OptionOne value is " << foptions.get_option<int>("OptionOne") << CFendl;
-  CFinfo << "OptionTwo value is " << foptions.get_option<std::string>("OptionTwo") << CFendl;
-  CFinfo << "OptionThree value is " << foptions.get_option<CF::Real>("OptionThree") << CFendl;
+  CFinfo << "OptionOne value is " << foptions.option<int>("OptionOne") << CFendl;
+  CFinfo << "OptionTwo value is " << foptions.option<std::string>("OptionTwo") << CFendl;
+  CFinfo << "OptionThree value is " << foptions.option<CF::Real>("OptionThree") << CFendl;
 
-  roptions.set_array( "ArrayOne", vect, " ; ");
-  roptions.set_option( "OptionFour", CF::Real(3.1415));
+  roptions.add( "ArrayOne", vect, " ; ");
+  roptions.add( "OptionFour", CF::Real(3.1415));
 
   CFinfo << CFendl << "/////////////// leaving test_signal() \\\\\\\\\\\\\\\\" << CFendl << CFendl;
 }
@@ -43,9 +43,9 @@ int main ( int argc, char * argv[])
   SignalFrame signal_frame("MySignal",  sender, receiver);
   SignalFrame & foptions = signal_frame.map("options");
 
-  foptions.set_option( "OptionOne", int(212135));
-  foptions.set_option( "OptionTwo", std::string("Hello, World!"));
-  foptions.set_option( "OptionThree", CF::Real(2.71));
+  foptions.add( "OptionOne", int(212135));
+  foptions.add( "OptionTwo", std::string("Hello, World!"));
+  foptions.add( "OptionThree", CF::Real(2.71));
 
   // output the signal
   signal_frame.xml_doc->to_string(str);
@@ -61,12 +61,12 @@ int main ( int argc, char * argv[])
   SignalFrame reply_frame = signal_frame.get_reply();
   SignalFrame & roptions = reply_frame.map("options");
 
-  vect = roptions.get_array<int>("ArrayOne");
+  vect = roptions.array<int>("ArrayOne");
 
   for(int i = 0 ; i < vect.size() ; ++i)
     CFinfo << "ArrayOne[" << i << "] value is " << vect[i] << CFendl;
 
-  CFinfo << "OptionFour value is " << roptions.get_option<CF::Real>("OptionFour") << CFendl;
+  CFinfo << "OptionFour value is " << roptions.option<CF::Real>("OptionFour") << CFendl;
 
   return 0;
 }

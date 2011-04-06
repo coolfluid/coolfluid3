@@ -19,6 +19,7 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/FileOperations.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
@@ -221,30 +222,30 @@ BOOST_AUTO_TEST_CASE( read_multiple )
 BOOST_AUTO_TEST_CASE( read_mesh_signal_1 )
 {
   SignalFrame frame("Target", "//Root", "//Root");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   // with a wrong CPath for the CDomain
-  options.set_option<URI>("Domain", URI("//Root"));
+  options.add("Domain", URI("//Root"));
   BOOST_CHECK_THROW( reader->signal_read(frame), CastingFailed );
 }
 
 BOOST_AUTO_TEST_CASE( read_mesh_signal_2 )
 {
   SignalFrame frame("Target", "//Root", "//Root");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   // URI with a wrong protocol
-  options.set_option<URI>("Domain", URI("file://Root"));
+  options.add("Domain", URI("file://Root"));
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
 }
 
 BOOST_AUTO_TEST_CASE( read_mesh_signal_3 )
 {
   SignalFrame frame("Target", "//Root", "//Root");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   // CPath that does not point to a CDomain
-  options.set_option<URI>("Domain", URI("cpath://Root"));
+  options.add("Domain", URI("cpath://Root"));
   BOOST_CHECK_THROW( reader->signal_read(frame), CastingFailed );
 }
 
@@ -252,12 +253,12 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_3 )
 BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
 {
   SignalFrame frame("Target", "//Root", "//Root");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   // no file (no error and the domain should be still empty afterwards)
   std::vector<URI> files;
-  options.set_option<URI>("Domain", URI("cpath://Root/MyDom"));
-  options.set_array("Files", files, " ; ");
+  options.add("Domain", URI("cpath://Root/MyDom"));
+  options.add("Files", files, " ; ");
 
   std::string str;
   XML::to_string(frame.node, str);
@@ -270,14 +271,14 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
 BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
 {
   SignalFrame frame("Target", "//Root", "//Root");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   // first file is wrong (exception and the mesh should be empty afterwards)
   std::vector<URI> files;
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
-  options.set_option<URI>("Domain", URI("cpath://Root/MyDom"));
-  options.set_array("Files", files, " ; ");
+  options.add("Domain", URI("cpath://Root/MyDom"));
+  options.add("Files", files, " ; ");
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
   BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
 }
@@ -285,15 +286,15 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
 BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
 {
   SignalFrame frame("Target", "//Root", "//Root");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   // a file in the middle is wrong (exception and the mesh should be empty afterwards)
   std::vector<URI> files;
   files.push_back( "file:hextet.neu" );
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
-  options.set_option<URI>("Domain", URI("cpath://Root/MyDom"));
-  options.set_array("Files", files, " ; ");
+  options.add("Domain", URI("cpath://Root/MyDom"));
+  options.add("Files", files, " ; ");
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
   BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
 }
@@ -301,14 +302,14 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
 BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
 {
   SignalFrame frame("Target", "//Root", "//Root");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalOptions options( frame );
 
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:hextet.neu" );
   files.push_back( "file:quadtriag.neu" );
-  options.set_option<URI>("Domain", URI("cpath://Root/MyDom"));
-  options.set_array("Files", files, " ; ");
+  options.add("Domain", URI("cpath://Root/MyDom"));
+  options.add("Files", files, " ; ");
   BOOST_CHECK_NO_THROW( reader->signal_read(frame) );
   BOOST_CHECK_NE( domain->count_children(), (Uint) 0);
 }

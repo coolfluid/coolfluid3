@@ -14,6 +14,8 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/StringConversion.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -213,12 +215,12 @@ void RKRD::solve()
 
 void RKRD::signal_create_boundary_term( SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-  std::string name = options.get_option<std::string>("Name");
-  std::string type = options.get_option<std::string>("Type");
+  std::string name = options.option<std::string>("Name");
+  std::string type = options.option<std::string>("Type");
 
-  std::vector<URI> regions = options.get_array<URI>("Regions");
+  std::vector<URI> regions = options.array<URI>("Regions");
 
   RDM::BoundaryTerm::Ptr bterm = create_component_abstract_type<RDM::BoundaryTerm>(type,name);
   m_compute_boundary_terms->add_component(bterm);
@@ -231,36 +233,35 @@ void RKRD::signal_create_boundary_term( SignalArgs& node )
 
 void RKRD::signature_signal_create_boundary_term( SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   // name
-  options.set_option<std::string>("Name", std::string(), "Name for created boundary term" );
+  options.add<std::string>("Name", std::string(), "Name for created boundary term" );
 
   // type
   std::vector< std::string > restricted;
 //  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-  XmlNode type_node = options.set_option<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary");
-  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
+  options.add<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary", restricted, " ; " );
 
   // regions
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
-  options.set_array<URI>("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
+  options.add("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void RKRD::signal_create_domain_term( SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-  std::string name = options.get_option<std::string>("Name");
-  std::string type = options.get_option<std::string>("Type");
+  std::string name = options.option<std::string>("Name");
+  std::string type = options.option<std::string>("Type");
 
   RDM::DomainTerm::Ptr dterm = create_component_abstract_type<RDM::DomainTerm>(type,name);
   m_compute_domain_terms->add_component(dterm);
 
-  std::vector<URI> regions = options.get_array<URI>("Regions");
+  std::vector<URI> regions = options.array<URI>("Regions");
 
   dterm->configure_property("Regions" , regions);
 }
@@ -269,21 +270,21 @@ void RKRD::signal_create_domain_term( SignalArgs& node )
 
 void RKRD::signature_signal_create_domain_term( SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   // name
-  options.set_option<std::string>("Name", std::string(), "Name for created volume term" );
+  options.add<std::string>("Name", std::string(), "Name for created volume term" );
 
   // type
 //  std::vector< std::string > restricted;
 //  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-//  XmlNode type_node = options.set_option<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary");
+//  XmlNode type_node = options.add<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary");
 //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
-  options.set_array<URI>("Regions", dummy , "Regions where to apply the domain term", " ; " );
+  options.add("Regions", dummy , "Regions where to apply the domain term", " ; " );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -295,9 +296,9 @@ void RKRD::signal_initialize_solution( SignalArgs& node )
 
   cf_assert( is_not_null(m_solution.lock()) );
 
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
-  std::vector< std::string > functions = options.get_array<std::string>("Functions");
+  std::vector< std::string > functions = options.array<std::string>("Functions");
 
   CInitFieldFunction::Ptr init_solution;
   if( is_null(get_child_ptr("init_solution")) )
@@ -315,10 +316,10 @@ void RKRD::signal_initialize_solution( SignalArgs& node )
 
 void RKRD::signature_signal_initialize_solution( SignalArgs& node )
 {
-  SignalFrame & options = node.map( Protocol::Tags::key_options() );
+  SignalOptions options( node );
 
   std::vector<std::string> dummy;
-  options.set_array< std::string >("Functions", dummy , "Analytical function definitions for initial condition (one per DOF, variables are x,y,z)", " ; " );
+  options.add< std::string >("Functions", dummy , "Analytical function definitions for initial condition (one per DOF, variables are x,y,z)", " ; " );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
