@@ -1489,7 +1489,7 @@ sub install_packages()
         {
             $packages{$opt}[$ins] = 'on';
         }
-        elsif (!($opt eq 'all') and !($opt eq 'basic')) {
+        elsif (!($opt eq 'all') and !($opt eq 'basic') and !($opt eq 'recommended')) {
             print my_colored("Package does not exist: $opt\n",$ERRORCOLOR);
         }
     }
