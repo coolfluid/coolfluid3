@@ -9,6 +9,7 @@
 #include "Common/Signal.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/MultiArray.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 
@@ -49,29 +50,25 @@ void NPlotXY::convergence_history ( SignalArgs& node )
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
+  PlotDataPtr array( new PlotData() );
+  std::vector<std::string> labels;
 
-  int nbRows = 1000;
-  int nbCols = 8;
+  get_multi_array(options.main_map, "Table", *array, labels);
 
-
-  std::vector<QString> fct_label(9);
+  int nbRows = array->size();
+  int nbCols = (*array)[0].size();
+  std::vector<QString> fct_label(labels.size() + 1);
 
   fct_label[0] = "#";
-  fct_label[1] = "x";
-  fct_label[2] = "y";
-  fct_label[3] = "z";
-  fct_label[4] = "u";
-  fct_label[5] = "v";
-  fct_label[6] = "w";
-  fct_label[7] = "p";
-  fct_label[8] = "t";
 
-  std::vector<Real> data = options.get_array<Real>("Table");
+  for(int i = 0 ; i < labels.size() ; ++i)
+    fct_label[i+1] = labels[i].c_str();
+
 
   // Store last dimension, then first, then middle
-  PlotData::size_type ordering[] = {0,1};
+  PlotData::size_type ordering[] = {0, 1};
   // Store the first dimension(dimension 0) in descending order
-  bool ascending[] = {true,true};
+  bool ascending[] = {true, true};
 
   PlotDataPtr plot( new PlotData(boost::extents[nbRows][nbCols+1],
                   boost::general_storage_order<2>(ordering, ascending)) );
@@ -84,7 +81,7 @@ void NPlotXY::convergence_history ( SignalArgs& node )
   for(PlotData::index row = 0; row != nbRows; ++row)
   {
     for(PlotData::index col = 0; col != nbCols; ++col)
-      (*plot)[row][col+1] = data[(row * nbCols) + col];
+      (*plot)[row][col+1] = (*array)[row][col];
   }
 
   NPlotXYNotifier::instance().notify_history(plot ,fct_label);
