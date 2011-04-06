@@ -28,7 +28,7 @@ namespace XML {
 
 //////////////////////////////////////////////////////////////////////////////
 
-SignalOptions::SignalOptions( SignalFrame frame )
+SignalOptions::SignalOptions( SignalFrame & frame )
 {
   // note: no need to check if frame is valid, SignalFrame::map() does that
   // for us.

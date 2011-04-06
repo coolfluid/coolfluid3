@@ -43,7 +43,7 @@ public:
 
   /// Searches for an "option" map. If it does not exist, it is created.
   /// @param frame The signal frame to work with. May be modified. Must be valid.
-  SignalOptions( SignalFrame frame );
+  SignalOptions( SignalFrame & frame );
 
   /// Adds an option.
 
