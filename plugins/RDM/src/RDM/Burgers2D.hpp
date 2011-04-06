@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Burgers2D_hpp
-#define CF_Solver_Burgers2D_hpp
+#ifndef CF_RDM_Burgers2D_hpp
+#define CF_RDM_Burgers2D_hpp
 
 #include "Math/MatrixTypes.hpp"
 
@@ -80,4 +80,4 @@ public: // functions
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_RotationAdv2D_hpp
+#endif // CF_RDM_RotationAdv2D_hpp

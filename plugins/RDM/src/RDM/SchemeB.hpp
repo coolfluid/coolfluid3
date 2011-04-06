@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_SchemeB_hpp
-#define CF_Solver_SchemeB_hpp
+#ifndef CF_RDM_SchemeB_hpp
+#define CF_RDM_SchemeB_hpp
 
 #include <boost/assign.hpp>
 

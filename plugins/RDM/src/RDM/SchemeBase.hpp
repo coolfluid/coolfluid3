@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_SchemeBase_hpp
-#define CF_Solver_SchemeBase_hpp
+#ifndef CF_RDM_SchemeBase_hpp
+#define CF_RDM_SchemeBase_hpp
 
 #include <functional>
 
@@ -16,7 +16,6 @@
 #include "Common/Core.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/FindComponents.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -29,6 +28,7 @@
 #include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
+#include "RDM/ElementLoop.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 

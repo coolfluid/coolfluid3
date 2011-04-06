@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_BcDirichlet_hpp
-#define CF_Solver_Actions_BcDirichlet_hpp
+#ifndef CF_RDM_BcDirichlet_hpp
+#define CF_RDM_BcDirichlet_hpp
 
 #include "Math/VectorialFunction.hpp"
 
@@ -64,4 +64,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_Actions_BcDirichlet_hpp
+#endif // CF_RDM_BcDirichlet_hpp

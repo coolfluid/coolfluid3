@@ -18,9 +18,11 @@ namespace RDM {
 
 class RDM_API CSysLF : public RDM::DomainTerm {
 
-  template < typename PHYS > struct ElementLoop;
-
 public: // typedefs
+
+  /// the actual scheme implementation is a nested class
+  /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
+  template < typename SF, typename QD, typename PHYS > class Scheme;
 
   typedef boost::shared_ptr< CSysLF > Ptr;
   typedef boost::shared_ptr< CSysLF const > ConstPtr;

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_FluxOp2D_hpp
-#define CF_Solver_FluxOp2D_hpp
+#ifndef CF_RDM_FluxOp2D_hpp
+#define CF_RDM_FluxOp2D_hpp
 
 #include <iostream>
 
@@ -196,4 +196,4 @@ void FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::compute(const typename SHAPEFUNC::N
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_FluxOp2D_hpp
+#endif // CF_RDM_FluxOp2D_hpp

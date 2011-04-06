@@ -38,53 +38,6 @@ namespace RDM {
 
 Common::ComponentBuilder < CSysLF, RDM::DomainTerm, LibRDM > CSysLF_Builder;
 
-////////////////////////////////////////////////////////////////////////////////
-
-/// Looper defines a functor taking the type that boost::mpl::for_each passes.
-/// It is the core of the looping mechanism.
-template < typename PHYS>
-struct CSysLF::ElementLoop
-{
-  /// region to loop on
-  Mesh::CRegion& region;
-  /// component containing the element loop
-  CSysLF& comp;
-  /// Constructor
-  ElementLoop( CSysLF& comp_in, Mesh::CRegion& region_in ) : comp(comp_in), region(region_in) {}
-  /// operator needed for the loop over element types (SF)
-  template < typename SF >
-  void operator() ( SF& T )
-  {
-    /// definition of the quadrature type
-    typedef typename RDM::DefaultQuadrature<SF>::type QD;
-    /// parametrization of the numerical scheme
-     typedef SchemeCSysLF< SF, QD, PHYS > SchemeT;
-
-    boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
-    {
-      // get the scheme or create it if does not exist
-      Component::Ptr cscheme = comp.get_child_ptr( SchemeT::type_name() );
-      typename SchemeT::Ptr scheme;
-      if( is_null( cscheme ) )
-        scheme = comp.create_component< SchemeT >( SchemeT::type_name() );
-      else
-        scheme = cscheme->as_ptr_checked<SchemeT>();
-
-      // loop on elements of that type
-      scheme->set_elements(elements);
-
-      const Uint nb_elem = elements.size();
-      for ( Uint elem = 0; elem != nb_elem; ++elem )
-      {
-        scheme->select_loop_idx(elem);
-        scheme->execute();
-      }
-    }
-  }
-
-};
-
 //////////////////////////////////////////////////////////////////////////////
 
 CSysLF::CSysLF ( const std::string& name ) : RDM::DomainTerm(name)
@@ -107,31 +60,31 @@ void CSysLF::execute()
 
     if ( physics == "LinearAdv2D" )
     {
-      CSysLF::ElementLoop<LinearAdv2D> loop( *this, *region );
+      ElementLoop<CSysLF,LinearAdv2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 
     if ( physics == "LinearAdvSys2D" )
     {
-      CSysLF::ElementLoop<LinearAdvSys2D> loop( *this, *region );
+      ElementLoop<CSysLF,LinearAdvSys2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 
     if ( physics == "RotationAdv2D" )
     {
-      CSysLF::ElementLoop<RotationAdv2D> loop( *this, *region );
+      ElementLoop<CSysLF,RotationAdv2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 
     if ( physics == "Burgers2D" )
     {
-      CSysLF::ElementLoop<Burgers2D> loop( *this, *region );
+      ElementLoop<CSysLF,Burgers2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 
     if ( physics == "Euler2D" )
     {
-      CSysLF::ElementLoop<Euler2D> loop( *this, *region );
+      ElementLoop<CSysLF,Euler2D> loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes >( loop );
     }
 

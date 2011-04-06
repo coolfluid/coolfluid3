@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_SchemeCSysLF_hpp
-#define CF_Solver_SchemeCSysLF_hpp
+#ifndef CF_RDM_SchemeCSysLF_hpp
+#define CF_RDM_SchemeCSysLF_hpp
 
 #include "RDM/SchemeBase.hpp"
 
@@ -17,7 +17,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_API SchemeCSysLF : public SchemeBase<SF,QD,PHYS> {
+class RDM_API CSysLF::Scheme : public SchemeBase<SF,QD,PHYS> {
 
 public: // typedefs
 
@@ -25,20 +25,24 @@ public: // typedefs
   typedef SchemeBase<SF,QD,PHYS> B;
 
   /// pointers
-  typedef boost::shared_ptr< SchemeCSysLF > Ptr;
-  typedef boost::shared_ptr< SchemeCSysLF const> ConstPtr;
+  typedef boost::shared_ptr< Scheme > Ptr;
+  typedef boost::shared_ptr< Scheme const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  SchemeCSysLF ( const std::string& name );
+  Scheme ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name)
+  {
+    for(Uint n = 0; n < SF::nb_nodes; ++n)
+      DvPlus[n].setZero();
+  }
 
   /// Virtual destructor
-  virtual ~SchemeCSysLF() {};
+  virtual ~Scheme() {};
 
   /// Get the class name
-  static std::string type_name () { return "SchemeCSysLF<" + SF::type_name() + ">"; }
+  static std::string type_name () { return "CSysLF.Scheme<" + SF::type_name() + ">"; }
 	
   /// execute the action
   virtual void execute ();
@@ -58,20 +62,10 @@ private: // data
 
 };
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-template<typename SF, typename QD, typename PHYS>
-SchemeCSysLF<SF,QD,PHYS>::SchemeCSysLF ( const std::string& name ) :
-  SchemeBase<SF,QD,PHYS>(name)
-{
-  for(Uint n = 0; n < SF::nb_nodes; ++n)
-    DvPlus[n].setZero();
-}
-
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SF,typename QD, typename PHYS>
-void SchemeCSysLF<SF, QD,PHYS>::execute()
+void CSysLF::Scheme<SF, QD,PHYS>::execute()
 {
   // get element connectivity
 
