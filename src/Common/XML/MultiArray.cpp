@@ -104,7 +104,7 @@ void get_multi_array( const Map & map, const std::string & name,
   //
 
   // 1a. check the array exists
-  XmlNode array_node = map.seek_value(name, Protocol::Tags::node_array());
+  XmlNode array_node = map.find_value(name, Protocol::Tags::node_array());
 
   if(!array_node.is_valid())
     throw ValueNotFound(FromHere(), "Could not find a multi-array of name [" + name + "]." );
