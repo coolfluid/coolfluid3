@@ -42,7 +42,7 @@ namespace XML {
 
   const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"; }
 
-  const char * Protocol::Tags::attr_uri_protocols() { return "protocols"; }
+  const char * Protocol::Tags::attr_uri_schemes() { return "schemes"; }
 
   const char * Protocol::Tags::key_options() { return "options"; }
 

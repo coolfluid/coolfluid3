@@ -118,7 +118,7 @@ SignalOptions & SignalOptions::add ( const std::string & name, const URI & value
     schemes_str += URI::Scheme::Convert::instance().to_str(*it);
   }
 
-  node.set_attribute( Protocol::Tags::attr_uri_protocols(), schemes_str );
+  node.set_attribute( Protocol::Tags::attr_uri_schemes(), schemes_str );
 
   return *this;
 }
@@ -153,7 +153,7 @@ SignalOptions & SignalOptions::add ( const std::string & name,
     schemes_str += URI::Scheme::Convert::instance().to_str(*it);
   }
 
-  node.set_attribute( Protocol::Tags::attr_uri_protocols(), schemes_str );
+  node.set_attribute( Protocol::Tags::attr_uri_schemes(), schemes_str );
 
   return *this;
 }

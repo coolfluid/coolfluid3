@@ -787,7 +787,7 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
             option->restricted_list().push_back( *it );
         }
 
-        protsAttr = node.content->first_attribute( Protocol::Tags::attr_uri_protocols());
+        protsAttr = node.content->first_attribute( Protocol::Tags::attr_uri_schemes());
 
         if( is_not_null(protsAttr) && protsAttr->value_size() != 0 )
         {

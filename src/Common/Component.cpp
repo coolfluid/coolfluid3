@@ -798,7 +798,7 @@ void add_prop_to_xml(Map & map, const std::string & name,
       std::vector<URI::Scheme::Type>::iterator it = prots.begin();
 
       for( ; it != prots.end() ; it++)
-        value_node.set_attribute( Protocol::Tags::attr_uri_protocols(), URI::Scheme::Convert::instance().to_str(*it));
+        value_node.set_attribute( Protocol::Tags::attr_uri_schemes(), URI::Scheme::Convert::instance().to_str(*it));
     }
   }
   else

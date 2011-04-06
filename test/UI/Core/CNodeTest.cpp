@@ -675,7 +675,7 @@ void CNodeTest::test_makeOptionUriSchemes()
 {
   XmlDoc::Ptr xmldoc(new XmlDoc());
   Map map(xmldoc->add_node("map"));
-  const char * tag = Protocol::Tags::attr_uri_protocols();
+  const char * tag = Protocol::Tags::attr_uri_schemes();
 
   XmlNode opt1 = map.set_value("opt1", URI());
   XmlNode opt2 = map.set_value("opt2", URI());

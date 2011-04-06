@@ -60,7 +60,7 @@ namespace XML {
 
       /// @returns Returns the name for attribute that maintains protocols for
       /// URI options/arrays.
-      static const char * attr_uri_protocols ();
+      static const char * attr_uri_schemes ();
 
       /// @return Returns the key value for option maps.
       static const char * key_options ();
