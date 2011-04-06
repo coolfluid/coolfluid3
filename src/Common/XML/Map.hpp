@@ -89,7 +89,7 @@ namespace XML {
     template<typename TYPE>
     XmlNode set_array ( const std::string& val_key,
                         const std::vector<TYPE> & value,
-                        const std::string& delimiter,
+                        const std::string& delimiter = " ; ",
                         const std::string& descr = std::string() );
 
     /// Searches for a value in this map.
