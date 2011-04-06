@@ -116,7 +116,7 @@ void SignalManager::actionTriggered()
       m_node->requestSignalSignature( m_signals[action].name );
     else
     {
-      SignalFrame frame("","","");
+      SignalFrame frame;
       m_node->localSignature(m_signals[action].name, frame);
       signalSignature(frame);
     }

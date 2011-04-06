@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_SUITE( FVM_Suite )
 BOOST_AUTO_TEST_CASE( constructor )
 {
   // some verbose xml signature
-  SignalFrame frame("", "", "");
+  SignalFrame frame;
   SignalFrame& p = frame.map( Protocol::Tags::key_options() );
 
   p.set_option<std::string>("model_name","shocktube");

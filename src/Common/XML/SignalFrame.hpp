@@ -40,7 +40,7 @@ public:
   /// @param target The signal name.
   /// @param sender The sender CPATH.
   /// @param receiver The receiver CPATH
-  SignalFrame ( const std::string & target, const URI & sender, const URI & receiver );
+  SignalFrame ( const std::string & target, const URI & sender, const URI & receiver);
 
   /// Destructor.
   ~SignalFrame ();

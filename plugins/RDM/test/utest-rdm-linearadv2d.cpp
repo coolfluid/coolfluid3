@@ -54,7 +54,7 @@ struct linearadv2d_global_fixture
 
     linearadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
-    SignalFrame frame("", "", "");
+    SignalFrame frame;
     SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
     options.set_option<std::string>("ModelName","mymodel");
@@ -100,7 +100,7 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  SignalFrame frame("", "", "");
+  SignalFrame frame;
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   Core::instance().root()->signal_list_tree(frame);
@@ -116,7 +116,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
 
   // create the xml parameters for the read mesh signal
 
-  SignalFrame frame("", "", "");
+  SignalFrame frame;
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   BOOST_CHECK(true);
@@ -165,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  SignalFrame frame("", "", "");
+  SignalFrame frame;
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<URI> regions;
@@ -201,7 +201,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , linearadv2d_local_fixture 
 {
   BOOST_CHECK(true);
 
-  SignalFrame frame("", "", "");
+  SignalFrame frame;
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<std::string> functions(1);
@@ -231,7 +231,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , linearadv2d_local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  SignalFrame frame("", "", "");
+  SignalFrame frame;
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<URI> regions;
@@ -274,7 +274,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lf , linearadv2d_local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  SignalFrame frame("", "", "");
+  SignalFrame frame;
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   std::vector<URI> regions;
@@ -317,7 +317,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lf , linearadv2d_local_fixture )
 
 //  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-//  SignalFrame frame("", "", "");
+//  SignalFrame frame;
 //  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
 //  std::vector<URI> regions;

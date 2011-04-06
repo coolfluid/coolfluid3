@@ -67,6 +67,15 @@ SignalFrame::SignalFrame ( XmlNode xml ) :
       }
     }
   }
+  else
+  {
+    xml_doc = Protocol::create_doc();
+    XmlNode doc_node = Protocol::goto_doc_node(*xml_doc.get());
+
+    node = Protocol::add_signal_frame(doc_node, "", "", "", false);
+
+    main_map = node.add_node( Protocol::Tags::node_map() );
+  }
 
 }
 

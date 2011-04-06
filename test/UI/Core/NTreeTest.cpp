@@ -450,7 +450,7 @@ void NTreeTest::test_signal_list_tree()
   NTree::Ptr t = NTree::globalTree();
   NGeneric::Ptr node(new NGeneric("ThisNodeShouldDisappear", "MyType"));
   XmlDoc::Ptr doc;
-  SignalFrame frame("", "", "");
+  SignalFrame frame;
   NRoot::Ptr root = t->treeRoot();
   CRoot::Ptr newRoot = CRoot::create("Root");
 

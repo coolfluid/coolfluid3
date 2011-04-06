@@ -228,7 +228,7 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
     throw ValueNotFound(FromHere(), "Index is not part of this model");
 
   std::stringstream ss;
-  SignalFrame frame("","","");
+  SignalFrame frame;
 
   SignalArgs * signal_node = indexToXmlNode(index);
   signal_node->node.deep_copy(frame.node);

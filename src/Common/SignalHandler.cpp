@@ -53,7 +53,7 @@ SignalRet SignalHandler::call_signal ( const SignalID& sname, std::vector<std::s
   if ( itr == m_signals.end() )
     throw SignalError ( FromHere(), "Signal with name \'" + sname + "\' does not exist" );
   
-  SignalFrame frame("", "", "");
+  SignalFrame frame;
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   options.insert( sinput );
