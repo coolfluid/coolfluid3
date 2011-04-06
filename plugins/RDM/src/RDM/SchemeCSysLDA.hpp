@@ -80,20 +80,11 @@ SchemeCSysLDA<SF,QD,PHYS>::SchemeCSysLDA ( const std::string& name ) :
 template<typename SF,typename QD, typename PHYS>
 void SchemeCSysLDA<SF, QD,PHYS>::execute()
 {
-  B::interpolate();
-
-//  typename B::SFMatrixT*    dNdX = this->dNdX;
-//  typename B::QSolutionMT*  dUdX = this->dUdX;
-//  typename B::PhysicsMT*    dFdU = this->dFdU;
-
-//  typename B::DimVT&        dN     = this->dN;
-//  typename B::QCoordMT&     X_q    = this->X_q;
-//  typename B::QSolutionMT&  U_q    = this->U_q;
-//  typename B::PhysicsVT&    LU     = this->LU;
-//  typename B::WeightVT&     wj     = this->wj;
-//  typename B::SolutionMT&   Phi_n  = this->Phi_n;
+  // get element connectivity
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+
+  B::interpolate( nodes_idx );
 
   // L(N)+ @ each quadrature point
 

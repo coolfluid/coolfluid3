@@ -60,7 +60,7 @@ public: // functions
 	
   /// interpolates the shape functions and gradient values
   /// @post zeros the local residual matrix
-  void interpolate ();
+  void interpolate ( const Mesh::CTable<Uint>::ConstRow& nodes_idx );
 
 protected: // helper functions
 
@@ -213,15 +213,9 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SF,typename QD, typename PHYS>
-void SchemeBase<SF, QD,PHYS>::interpolate()
+void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& nodes_idx )
 {
   /// @todo must be upgraded to support 3D
-
-  Phi_n.setZero();     // zero element residuals
-
-  // get element connectivity
-
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = connectivity_table->array()[idx()];
 
   // copy the coordinates from the large array to a small
 
@@ -279,6 +273,10 @@ void SchemeBase<SF, QD,PHYS>::interpolate()
 
   dUdX[XX] = dNdX[XX] * U_n;
   dUdX[YY] = dNdX[YY] * U_n;
+
+  // zero element residuals
+
+  Phi_n.setZero();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

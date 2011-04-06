@@ -56,7 +56,6 @@ private: // data
   /// diagonal matrix with positive eigen values
   typename B::PhysicsVT DvPlus [SF::nb_nodes];
 
-
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -74,20 +73,11 @@ SchemeCSysLF<SF,QD,PHYS>::SchemeCSysLF ( const std::string& name ) :
 template<typename SF,typename QD, typename PHYS>
 void SchemeCSysLF<SF, QD,PHYS>::execute()
 {
-  B::interpolate();
-
-//  typename B::SFMatrixT*    dNdX = this->dNdX;
-//  typename B::QSolutionMT*  dUdX = this->dUdX;
-//  typename B::PhysicsMT*    dFdU = this->dFdU;
-
-//  typename B::DimVT&        dN     = this->dN;
-//  typename B::QCoordMT&     X_q    = this->X_q;
-//  typename B::QSolutionMT&  U_q    = this->U_q;
-//  typename B::PhysicsVT&    LU     = this->LU;
-//  typename B::WeightVT&     wj     = this->wj;
-//  typename B::SolutionMT&   Phi_n  = this->Phi_n;
+  // get element connectivity
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+
+  B::interpolate( nodes_idx );
 
   // L(N)+ @ each quadrature point
 
@@ -135,8 +125,8 @@ void SchemeCSysLF<SF, QD,PHYS>::execute()
 
     for(Uint i = 0; i < SF::nb_nodes; ++i)
     {
-      B::Phi_n.row(i) += invdofs * B::LU * B::wj[q];          // central part
-      for(Uint j=0; j < SF::nb_nodes; ++j)    // plus dissipation
+      B::Phi_n.row(i) += invdofs * B::LU * B::wj[q];  // central part
+      for(Uint j=0; j < SF::nb_nodes; ++j)            // plus dissipation
       {
         if (i == j) continue;
         B::Phi_n.row(i) += invdofs * alpha * (B::U_n.row(i).transpose() - B::U_n.row(j).transpose()) * B::wj[q]; // dissipation

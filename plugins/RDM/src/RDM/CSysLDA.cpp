@@ -58,7 +58,7 @@ struct CSysLDA::ElementLoop
     /// definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
     /// parametrization of the numerical scheme
-     typedef SchemeCSysLDA< SF, QD, PHYS > SchemeT;
+    typedef SchemeCSysLDA< SF, QD, PHYS > SchemeT;
 
     boost_foreach(Mesh::CElements& elements,
                   Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))

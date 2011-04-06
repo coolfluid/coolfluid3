@@ -19,7 +19,6 @@ namespace RDM {
 class RDM_API CSysLDA : public RDM::DomainTerm {
 
   template < typename PHYS > struct ElementLoop;
-  template < typename PHYS > struct ElementLoopSys;
 
 public: // typedefs
 
