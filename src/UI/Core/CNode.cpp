@@ -663,7 +663,7 @@ Option::Ptr makeOptionT(const std::string & name, const std::string & descr, Xml
 {
   TYPE value;
   to_value(node, value);
-  XmlNode restr_node = Map(node.content->parent()).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
+  XmlNode restr_node = Map(node.content->parent()).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
   std::vector<TYPE> restr_list;
 
@@ -703,7 +703,7 @@ typename OptionArrayT<TYPE>::Ptr makeOptionArrayT(const std::string & name,
 
   typename OptionArrayT<TYPE>::Ptr option(new OptionArrayT<TYPE>(name, descr, value));
 
-  XmlNode restr_node = Map(node.content->parent()).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
+  XmlNode restr_node = Map(node.content->parent()).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
   std::vector<TYPE> restr_list;
 
@@ -767,7 +767,7 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
         OptionURI::Ptr optURI;
 
         to_value(type_node, value);
-        XmlNode restr_node = Map(node).seek_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
+        XmlNode restr_node = Map(node).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
         std::vector<URI> restr_list;
 

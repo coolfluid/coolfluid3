@@ -137,7 +137,7 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
   CRoot::Ptr root = Core::instance().root();
   const char * frame_tag = Protocol::Tags::node_frame();
 
-  XmlNode signal_map = Map(doc_node).seek_value( Protocol::Tags::key_signals() );
+  XmlNode signal_map = Map(doc_node).find_value( Protocol::Tags::key_signals() );
 
 //  for( ; signals_map != nullptr ; signals_map = signals_map->next_sibling())
 //  {

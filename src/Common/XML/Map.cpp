@@ -81,7 +81,7 @@ XmlNode Map::set_value ( const std::string& value_key, const TYPE & value,
 
   std::string type_name = Protocol::Tags::type<TYPE>();
   std::string value_str = to_str(value); // convert value to string
-  XmlNode value_node = seek_value( value_key );
+  XmlNode value_node = find_value( value_key );
 
   if( !value_node.is_valid() ) // if the value was not found
   {
@@ -135,7 +135,7 @@ XmlNode Map::set_array ( const std::string& value_key,
 
   std::string type_name = Protocol::Tags::type<TYPE>();
   std::string value_str;
-  XmlNode array_node = seek_value( value_key );
+  XmlNode array_node = find_value( value_key );
 
   // build the value string
   typename std::vector<TYPE>::const_iterator it = value.begin();
@@ -201,7 +201,7 @@ bool Map::check_entry ( const std::string & entry_key ) const
 {
   cf_assert( !entry_key.empty() );
 
-  return seek_value(entry_key).is_valid();
+  return find_value(entry_key).is_valid();
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -250,7 +250,7 @@ const char * Map::get_value_type ( const XmlNode& node )
 
 /////////////////////////////////////////////////////////////////////////////////
 
-XmlNode Map::seek_value ( const std::string & value_key, const char * value_type) const
+XmlNode Map::find_value ( const std::string & value_key, const char * value_type) const
 {
   cf_assert ( content.is_valid() );
 
@@ -297,7 +297,7 @@ TYPE Map::get_value ( const std::string& value_key ) const
   XmlNode found_node;
   const char * type_name = Protocol::Tags::type<TYPE>();
 
-  found_node = seek_value( value_key, Protocol::Tags::node_value() );
+  found_node = find_value( value_key, Protocol::Tags::node_value() );
 
   if( !found_node.is_valid() || !value_has_ptr<TYPE>(found_node) )
     throw  XmlError( FromHere(), "Could not find single value of type [" +
@@ -324,7 +324,7 @@ std::vector<TYPE> Map::get_array ( const std::string& array_key ) const
 
   // search for the node
   // note: seek_value_in() throws an exception if map is not valid
-  XmlNode found_node = seek_value( array_key, Protocol::Tags::node_array() );
+  XmlNode found_node = find_value( array_key, Protocol::Tags::node_array() );
 
   // check that node has been found and has the correct type
   if( !found_node.is_valid() || !value_has_ptr<TYPE>(found_node) )

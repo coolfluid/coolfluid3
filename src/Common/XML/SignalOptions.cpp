@@ -70,7 +70,7 @@ SignalOptions & SignalOptions::remove ( const std::string & name )
 {
   if( !name.empty() )
   {
-    XmlNode value_node = map.seek_value( name );
+    XmlNode value_node = map.find_value( name );
 
     // if the node was found, we remove it
     if( value_node.is_valid() )

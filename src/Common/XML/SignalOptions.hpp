@@ -19,11 +19,13 @@ namespace XML {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Abstract the use of XML when adding options to a signal frame.
+/// Abstracts the use of XML when adding options to a signal frame.
+
 /// This class creates an "options" map (if it does not exist yet) to the
 /// signal frame given to the constructor and provides methods to manipulate
-/// this map. The frame might be modified by this class. @n
-/// Methods that modify the options return a reference to the object to
+/// this map. The frame may then be modified by this class.
+
+/// @note Methods that modify the options return a reference to the object to
 /// allow nested operations.
 
 /// @warning An instance of this class keeps a pointer to the signal frame
@@ -35,7 +37,7 @@ namespace XML {
 class Common_API SignalOptions
 {
 
-public: // functions
+public:
 
   /// Constructor.
 

@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE ( set_array )
 
 /////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE ( seek_value )
+BOOST_AUTO_TEST_CASE ( find_value )
 {
   XmlNode node(new rapidxml::xml_document<>());
   Map map(node);
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE ( seek_value )
   // 1. seeking a node with empty key should return FirstNode (the first node found)
   //
 
-  found_node = map.seek_value();
+  found_node = map.find_value();
 
   BOOST_CHECK ( found_node.is_valid() );
   BOOST_CHECK_EQUAL ( found_node.content, first_node.content );
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE ( seek_value )
   // 2. seeking a node with non-empty key should return the correct node
   //
 
-  found_node = map.seek_value( "SecondNode" );
+  found_node = map.find_value( "SecondNode" );
 
   BOOST_CHECK ( found_node.is_valid() );
   BOOST_CHECK_EQUAL ( found_node.content, second_node.content );
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE ( seek_value )
   // 3. if the node is not found, an invalid node should be returned
   //
 
-  found_node = map.seek_value( "MapThatDoesNotExist" );
+  found_node = map.find_value( "MapThatDoesNotExist" );
 
   BOOST_CHECK ( !found_node.is_valid() );
 

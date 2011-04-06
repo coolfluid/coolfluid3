@@ -104,7 +104,7 @@ namespace XML {
     /// If the key is empty, returns the first value found in the map. Otherwise,
     /// returns a null pointer. If @c value_type is not valid, a null pointer
     /// is returned as well.
-    XmlNode seek_value ( const std::string & value_key = std::string(),
+    XmlNode find_value ( const std::string & value_key = std::string(),
                          const char * value_type = nullptr ) const;
 
     /// Checks whether an entry exists or not.

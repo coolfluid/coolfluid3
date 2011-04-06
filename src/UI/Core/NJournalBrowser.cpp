@@ -213,7 +213,7 @@ void NJournalBrowser::list_journal(SignalArgs & args)
 {
 //  if(args.has_map(Protocol::Tags::key_signals()))
   //    setRootNode(&args.map(Protocol::Tags::key_signals()).node);
-  XmlNode node = args.main_map.seek_value(Protocol::Tags::key_signals());
+  XmlNode node = args.main_map.find_value(Protocol::Tags::key_signals());
   setRootNode(&node);
 }
 
