@@ -33,10 +33,7 @@ public: // functions
   /// Contructor
   /// @param name of the component
   Scheme ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name)
-  {
-    for(Uint n = 0; n < SF::nb_nodes; ++n)
-      DvPlus[n].setZero();
-  }
+  {}
 
   /// Virtual destructor
   virtual ~Scheme() {};
@@ -49,16 +46,8 @@ public: // functions
 
 private: // data
 
-  // not needed for LF
-
-  /// right eigen vector matrix
-  typename B::PhysicsMT Rv;
-  /// left eigen vector matrix
-  typename B::PhysicsMT Lv;
-  /// diagonal matrix with eigen values
-  typename B::PhysicsVT Dv;
   /// diagonal matrix with positive eigen values
-  typename B::PhysicsVT DvPlus [SF::nb_nodes];
+  typename B::PhysicsVT Dv [SF::nb_nodes];
 
 };
 
@@ -77,32 +66,28 @@ void CSysLF::Scheme<SF, QD,PHYS>::execute()
 
   for(Uint q=0; q < QD::nb_points; ++q)
   {
+    PHYS::compute_properties(B::X_q.row(q),
+                             B::U_q.row(q),
+                             B::dUdX[XX].row(q).transpose(),
+                             B::dUdX[YY].row(q).transpose(),
+                             B::phys_props);
+
     for(Uint n=0; n < SF::nb_nodes; ++n)
     {
       B::dN[XX] = B::dNdX[XX](q,n);
       B::dN[YY] = B::dNdX[YY](q,n);
 
-      /// @todo calling jacobian_eigen_structure() is suboptimal
-      ///       since we only need the max eigen value,
-      ///       so we need a max_eigen_value() function on the physics
-
-      PHYS::jacobian_eigen_structure(B::X_q.row(q),
-                                     B::U_q.row(q),
-                                     B::dN,
-                                     Rv,
-                                     Lv,
-                                     Dv );
-
-      // diagonal matrix of positive eigen values
-
-      DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
-
-      // Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
+      PHYS::jacobian_eigen_values(B::phys_props,
+                                  B::X_q.row(q),
+                                  B::U_q.row(q),
+                                  B::dN,
+                                  Dv[n] );
     }
 
     // compute L(u)
 
-    PHYS::Lu(B::X_q.row(q),
+    PHYS::Lu(B::phys_props,
+             B::X_q.row(q),
              B::U_q.row(q),
              B::dUdX[XX].row(q).transpose(),
              B::dUdX[YY].row(q).transpose(),
@@ -113,7 +98,7 @@ void CSysLF::Scheme<SF, QD,PHYS>::execute()
 
     Real alpha = 0;
     for(Uint n = 0; n < SF::nb_nodes; ++n)
-      alpha = std::max( alpha, DvPlus[n].array().abs().maxCoeff() );
+      alpha = std::max( alpha, Dv[n].array().abs().maxCoeff() );
 
     const Real invdofs = 1./SF::nb_nodes;
 

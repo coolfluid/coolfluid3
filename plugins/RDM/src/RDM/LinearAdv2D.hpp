@@ -39,9 +39,41 @@ public: // functions
   Uint nbeqs() const { return neqs; }
   /// @returns the number of equations
   Uint dim() const { return ndim; }
+
+  /// precomputed physical properties more less common to functions of this physical model
+  struct Properties
+  {
+    Properties() : Vx(1.0) , Vy(1.0) {}
+
+    const Real Vx;
+    const Real Vy;
+  };
+
+  /// compute physical properties
+  template < typename CV, typename SV, typename GXV, typename GYV >
+  static void compute_properties ( const CV&  coord,
+                                   const SV&  sol,
+                                   const GXV& dudx,
+                                   const GYV& dudy,
+                                   Properties& p )
+  {
+  }
+
+  /// compute the eigen values of the flux jacobians
+  template < typename CV, typename SV, typename GV, typename EV >
+  static void jacobian_eigen_values( const Properties& p,
+                                     const CV& coord,
+                                     const SV& sol,
+                                     const GV& gradN,
+                                     EV& Dv)
+  {
+    Dv[0]   = p.Vx * gradN[XX] + p.Vy * gradN[YY];
+  }
+
   /// decompose the eigen structure of the flux jacobians projected on the gradients
   template < typename CV, typename SV, typename GV, typename EM, typename EV >
-  static void jacobian_eigen_structure(const CV& coord,
+  static void jacobian_eigen_structure(const Properties& p,
+                                       const CV& coord,
                                        const SV& sol,
                                        const GV& gradN,
                                        EM& Rv,
@@ -50,12 +82,13 @@ public: // functions
   {
     Rv(0,0) = 1.;
     Lv(0,0) = 1.;
-    Dv[0]   =  1.0 * gradN[XX] + 1.0 * gradN[YY];
+    Dv[0]   = p.Vx * gradN[XX] + p.Vy * gradN[YY];
   }
 
   /// compute the PDE residual
   template < typename CV, typename SV, typename GXV, typename GYV, typename JM, typename LUV >
-  static void Lu(const CV&  coord,
+  static void Lu(const Properties& p,
+                 const CV&  coord,
                  const SV&  sol,
                  const GXV& dudx,
                  const GYV& dudy,
@@ -65,8 +98,8 @@ public: // functions
     JM& A = flux_jacob[XX];
     JM& B = flux_jacob[YY];
 
-    A(0,0) = 1.0;
-    B(0,0) = 1.0;
+    A(0,0) = p.Vx;
+    B(0,0) = p.Vy;
 
     Lu = A * dudx + B * dudy;
   }

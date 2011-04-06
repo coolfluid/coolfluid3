@@ -33,10 +33,7 @@ public: // functions
   /// Contructor
   /// @param name of the component
   Scheme ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name)
-  {
-    for(Uint n = 0; n < SF::nb_nodes; ++n)
-      DvPlus[n].setZero();
-  }
+  {}
 
   /// Virtual destructor
   virtual ~Scheme() {};
@@ -49,17 +46,17 @@ public: // functions
 
 private: // data
 
-  // not needed for SUPG
-
+  /// The operator L in the advection equation Lu = f
+  /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i
+  typename B::PhysicsMT Ki_n [SF::nb_nodes];
   /// right eigen vector matrix
   typename B::PhysicsMT Rv;
   /// left eigen vector matrix
   typename B::PhysicsMT Lv;
   /// diagonal matrix with eigen values
-  typename B::PhysicsVT Dv;
-  /// diagonal matrix with positive eigen values
-  typename B::PhysicsVT DvPlus [SF::nb_nodes];
-
+  typename B::PhysicsVT Dv [SF::nb_nodes];
+  /// vector of shaep functions
+  typename B::PhysicsVT Ni;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -69,9 +66,17 @@ void CSysSUPG::Scheme<SF, QD,PHYS>::execute()
 {
   // get element connectivity
 
+  /// @TODO NOT FINISHED!!!
+
   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
   B::interpolate( nodes_idx );
+
+  // element area
+
+  const Real elem_area = B::wj.sum();
+
+  const Real h = std::sqrt(elem_area); // characteristic length of element
 
   // L(N)+ @ each quadrature point
 
@@ -82,53 +87,44 @@ void CSysSUPG::Scheme<SF, QD,PHYS>::execute()
       B::dN[XX] = B::dNdX[XX](q,n);
       B::dN[YY] = B::dNdX[YY](q,n);
 
-      /// @todo calling jacobian_eigen_structure() is suboptimal
-      ///       since we only need the max eigen value,
-      ///       so we need a max_eigen_value() function on the physics
-
-      PHYS::jacobian_eigen_structure(B::X_q.row(q),
+      PHYS::jacobian_eigen_structure(B::phys_props,
+                                     B::X_q.row(q),
                                      B::U_q.row(q),
                                      B::dN,
                                      Rv,
                                      Lv,
-                                     Dv );
+                                     Dv[n] );
 
-      // diagonal matrix of positive eigen values
-
-      DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
-
-      // Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
+       Ki_n[n] = Rv * Dv[n].asDiagonal() * Lv;
     }
 
     // compute L(u)
 
-    PHYS::Lu(B::X_q.row(q),
+    PHYS::Lu(B::phys_props,
+             B::X_q.row(q),
              B::U_q.row(q),
              B::dUdX[XX].row(q).transpose(),
              B::dUdX[YY].row(q).transpose(),
              B::dFdU,
              B::LU );
 
-    // compute the phi_i SUPG intergral
+    // stabilization parameter (based on max characteristic speed)
+    /// @todo verify this
 
-    Real alpha = 0;
+    Real ref_speed = 0.;
     for(Uint n = 0; n < SF::nb_nodes; ++n)
-      alpha = std::max( alpha, DvPlus[n].array().abs().maxCoeff() );
+      ref_speed = std::max( ref_speed, Dv[n].array().abs().maxCoeff() );
 
-    const Real invdofs = 1./SF::nb_nodes;
+    const Real tau_stab = 0.5 * h / ref_speed;
 
-    for(Uint i = 0; i < SF::nb_nodes; ++i)
+    // nodal residual
+
+    for(Uint n = 0; n < SF::nb_nodes; ++n)
     {
-      B::Phi_n.row(i) += invdofs * B::LU * B::wj[q];  // central part
-      for(Uint j=0; j < SF::nb_nodes; ++j)            // plus dissipation
-      {
-        if (i == j) continue;
-        B::Phi_n.row(i) += invdofs * alpha * (B::U_n.row(i).transpose() - B::U_n.row(j).transpose()) * B::wj[q]; // dissipation
-      }
+      for (Uint v=0; v < PHYS::neqs; ++v)
+        Ni[v] = B::Ni(q,n);
 
-      // compute the wave_speed for scaling the update
-
-      (*B::wave_speed)[nodes_idx[i]][0] += alpha * B::wj[q];
+//      B::Phi_n.row(n) += (  tau_stab * Ki_n[n] + Ni.asDiagonal() ) * B::LU * B::wj[q];
     }
 
   } // loop qd points

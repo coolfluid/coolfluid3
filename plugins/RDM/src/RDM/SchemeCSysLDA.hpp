@@ -50,7 +50,7 @@ public: // functions
 protected: // data
 
   /// The operator L in the advection equation Lu = f
-  /// Matrix Ki_qn stores the value L(N_i) at each quadrature point for each shape function N_i
+  /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i
   typename B::PhysicsMT  Ki_n [SF::nb_nodes];
   /// sum of Lplus to be inverted
   typename B::PhysicsMT  sumLplus;
@@ -84,12 +84,20 @@ void CSysLDA::Scheme<SF, QD,PHYS>::execute()
 
   for(Uint q=0; q < QD::nb_points; ++q)
   {
+
+    PHYS::compute_properties(B::X_q.row(q),
+                             B::U_q.row(q),
+                             B::dUdX[XX].row(q).transpose(),
+                             B::dUdX[YY].row(q).transpose(),
+                             B::phys_props);
+
     for(Uint n=0; n < SF::nb_nodes; ++n)
     {
       B::dN[XX] = B::dNdX[XX](q,n);
       B::dN[YY] = B::dNdX[YY](q,n);
 
-      PHYS::jacobian_eigen_structure(B::X_q.row(q),
+      PHYS::jacobian_eigen_structure(B::phys_props,
+                                     B::X_q.row(q),
                                      B::U_q.row(q),
                                      B::dN,
                                      Rv,
@@ -105,7 +113,8 @@ void CSysLDA::Scheme<SF, QD,PHYS>::execute()
 
     // compute L(u)
 
-    PHYS::Lu(B::X_q.row(q),
+    PHYS::Lu(B::phys_props,
+             B::X_q.row(q),
              B::U_q.row(q),
              B::dUdX[XX].row(q).transpose(),
              B::dUdX[YY].row(q).transpose(),

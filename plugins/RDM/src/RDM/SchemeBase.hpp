@@ -164,6 +164,9 @@ protected: // data
   /// temporary local gradient of 1 shape function
   DimVT dN;
 
+  /// physical properties
+  typename PHYS::Properties phys_props;
+
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
