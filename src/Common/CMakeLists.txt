@@ -118,6 +118,8 @@ list( APPEND coolfluid_common_files
     XML/FileOperations.hpp
     XML/Map.cpp
     XML/Map.hpp
+    XML/MultiArray.cpp
+    XML/MultiArray.hpp
     XML/Protocol.cpp
     XML/Protocol.hpp
     XML/SignalFrame.cpp
