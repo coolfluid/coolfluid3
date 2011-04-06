@@ -124,6 +124,8 @@ list( APPEND coolfluid_common_files
     XML/Protocol.hpp
     XML/SignalFrame.cpp
     XML/SignalFrame.hpp
+    XML/SignalOptions.cpp
+    XML/SignalOptions.hpp
     XML/XmlDoc.cpp
     XML/XmlDoc.hpp
     XML/XmlNode.cpp

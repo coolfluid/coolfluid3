@@ -1,0 +1,101 @@
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+#ifndef CF_Common_XML_SignalOptions_hpp
+#define CF_Common_XML_SignalOptions_hpp
+
+//////////////////////////////////////////////////////////////////////////////
+
+#include "Common/XML/SignalFrame.hpp"
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace Common {
+namespace XML {
+
+//////////////////////////////////////////////////////////////////////////////
+
+/// Abstract the use of XML when adding options to a signal frame.
+/// This class creates an "options" map (if it does not exist yet) to the
+/// signal frame given to the constructor and provides methods to manipulate
+/// this map. The frame might be modified by this class. @n
+/// Methods that modify the options return a reference to the object to
+/// allow nested operations.
+
+/// @warning An instance of this class keeps a pointer to the signal frame
+/// it was built with. Be careful when deleting a frame that all signal
+/// options linked to it will not be used anymore.
+
+/// @author Quentin Gasper.
+
+class Common_API SignalOptions
+{
+
+public: // functions
+
+  /// Constructor.
+
+  /// Searches for an "option" map. If it does not exist, it is created.
+  /// @param frame The signal frame to work with. May be modified. Must be valid.
+  SignalOptions( SignalFrame frame );
+
+  /// Adds an option.
+
+  /// @param name The option name. Cannot be empty.
+  /// @param value The option value.
+  /// @param descr The option description. May be empty.
+  /// @return Returns a reference to this object to allow nested operations.
+  /// @throw BadValue if the name is empty.
+  /// @throw ValueExists if an option with this name already exixts.
+  template<typename TYPE>
+  SignalOptions & add ( const std::string & name, const TYPE & value,
+                        const std::string & descr = std::string() );
+
+  /// Adds an array.
+
+  /// @param name The array name. Cannot be empty.
+  /// @param value The array value.
+  /// @param delimiter The string used to delimit the values. Cannot be empty.
+  /// @param descr The option description. May be empty.
+  /// @return Returns a reference to this object to allow nested operations.
+  /// @throw BadValue if the name or the delimiter is empty.
+  /// @throw ValueExists if an option with this name already exixts.
+  template<typename TYPE>
+  SignalOptions & add ( const std::string & name,
+                       const std::vector<TYPE> & value,
+                       const std::string & delimiter = " ; ",
+                       const std::string & descr = std::string() );
+
+  /// Removes an option.
+
+  /// If the name is empty or the option does not exist, nothing is done.
+  /// @param name The name of the option to remove.
+  /// @return Returns a reference to this object to allow nested operations.
+  SignalOptions & remove ( const std::string & name );
+
+  /// Checks if an option exists.
+
+  /// @param name The option name.
+  /// @return Returns @c true if the option exists. Otherwise, returns @c false.
+  bool exists ( const std::string & name ) const;
+
+private: // data
+
+  /// The managed map.
+  Map map;
+
+}; // SignalOptions
+
+//////////////////////////////////////////////////////////////////////////////
+
+} // XML
+} // Common
+} // CF
+
+//////////////////////////////////////////////////////////////////////////////
+
+#endif // CF_Common_XML_SignalOptions_hpp
