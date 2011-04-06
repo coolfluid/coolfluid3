@@ -367,7 +367,7 @@ namespace Graphics {
     show_info();
   }
 
-  void Graph::set_xy_data(NPlotXY::PlotDataPtr & fcts,
+  void Graph::set_xy_data(NPlotXY::PlotDataPtr fcts,
                           std::vector<QString> & fct_label){
 
     cf_assert( is_not_null(m_plot) );
