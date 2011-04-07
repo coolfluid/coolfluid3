@@ -50,8 +50,12 @@ void SignalCatcher::finished()
 
   if( reply.node.is_valid() )
   {
-    ServerRoot::core()->sendSignal(*ServerRoot::m_doc.get());
-    ServerRoot::journal()->add_signal( reply );
+    rapidxml::xml_attribute<>* attr = reply.node.content->first_attribute("type");
+    if( is_not_null(attr) && std::strcmp(attr->value(), Protocol::Tags::node_type_reply()) == 0)
+    {
+      ServerRoot::core()->sendSignal(*ServerRoot::m_doc.get());
+      ServerRoot::journal()->add_signal( reply );
+    }
   }
 
 
