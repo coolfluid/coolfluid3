@@ -84,7 +84,7 @@ my %packages = (  #  version   default install priority      function
     "paraview"   => [ "3.10.0",   'off',   'off', $priority++,  \&install_paraview ], # must be installed *BEFORE* hdf5
     "hdf5"       => [ "1.8.6",    'off',   'off', $priority++,  \&install_hdf5 ],
     "trilinos"   => [ "10.6.4",   'off',   'off', $priority++,  \&install_trilinos ],
-    "petsc"      => [ "3.1-p7",   'off',   'off', $priority++,  \&install_petsc3 ],
+    "petsc"      => [ "3.1-p8",   'off',   'off', $priority++,  \&install_petsc3 ],
     "cgns"       => [ "3.0.8",    'off',   'off', $priority++,  \&install_cgns ],
     "google-perftools" => [ "1.7",'off',   'off', $priority++,  \&install_google_perftools ],
     "cgal"       => [ "3.7",      'off',   'off', $priority++,  \&install_cgal ],
@@ -925,16 +925,31 @@ sub install_petsc3 ()
     my $wdebug = "";
     if ($opt_debug) { $wdebug = "--with-debugging=1" };
 
+    # handle blas/lapack and fortran at the same time (depend on each other)
     my $wblaslib = "";
-    if (is_mac()) { 
+    my $fortran_opt = "";
+    if ($opt_no_fortran)
+    {
+       $fortran_opt = " --with-fc=0 ";
+       if ( not is_mac() ) # use the downloaded c blas sources
+       {
+          $wblaslib = "--download-c-blas-lapack=1";
+       }
+    }
+    else
+    {
+       if ( not is_mac() ) # use the downloaded fortran blas sources
+       {
+          $wblaslib = "--download-f-blas-lapack=\"$fblas_file\"";
+       }
+    }
+
+    if (is_mac()) {
       # use built-in optimized blas-lapack lib
       $wblaslib = "--with-blas-lapack-lib=\"-framework vecLib\"";
-    } else { 
-      # use the downloaded blas sources
-      $wblaslib = "--download-f-blas-lapack=\"$fblas_file\"";
     }
-      
-    run_command_or_die("./config/configure.py --prefix=$install_dir $wdebug COPTFLAGS='-O3' FOPTFLAGS='-O3' --with-mpi-dir=$opt_mpi_dir $wblaslib --with-shared=1 --with-dynamic=1 --with-c++-support --PETSC_ARCH=$petsc_arch");
+
+    run_command_or_die("./config/configure.py --prefix=$install_dir $wdebug COPTFLAGS='-O3' FOPTFLAGS='-O3' --with-mpi-dir=$opt_mpi_dir $fortran_opt $wblaslib --with-shared=1 --with-dynamic=1 --with-c++-support --PETSC_ARCH=$petsc_arch");
 
     run_command_or_die("make $opt_makeopts");
 
