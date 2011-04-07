@@ -186,6 +186,8 @@ SignalOptions & SignalOptions::remove ( const std::string & name )
     if( value_node.is_valid() )
       value_node.content->parent()->remove_node( value_node.content );
   }
+
+  return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
