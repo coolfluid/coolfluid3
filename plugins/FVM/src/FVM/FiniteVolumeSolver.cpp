@@ -166,14 +166,14 @@ void FiniteVolumeSolver::trigger_domain()
     CBuildFaceNormals::Ptr build_face_normals = create_component<CBuildFaceNormals>("build_face_normals");
     build_face_normals->transform(mesh);
     remove_component(build_face_normals->name());
-    configure_option_recursively("face_normal", find_component_with_tag<CField>(*mesh,"face_normal").full_path());
+    configure_option_recursively("face_normal", find_component_with_tag<CField>(*mesh,Mesh::Tags::normal()).full_path());
   }
 
   if ( is_null(find_component_ptr_with_name<CField>(*mesh,"area") ) )
   {
     CFinfo << "  Creating field \"area\", facebased" << CFendl;
     CField& area = mesh->create_field2("area","FaceBased");
-    area.add_tag("area");
+    area.add_tag(Mesh::Tags::area());
     CLoop::Ptr compute_area = create_component< CForAllFaces >("compute_area");
     compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().full_path()));
     compute_area->create_action("CF.Solver.Actions.CComputeArea");

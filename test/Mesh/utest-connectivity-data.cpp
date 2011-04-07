@@ -126,7 +126,7 @@ BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
   CFaceConnectivity::ElementsT celements_vector;
   CFaceConnectivity::IndicesT celements_first_elements;
   create_celements_vector(find_components_recursively_with_filter<CElements>(*mesh2d, IsElementsVolume()), celements_vector, celements_first_elements);
-  const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(*mesh2d, "coordinates");
+  const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(*mesh2d, Mesh::Tags::coordinates());
   CFaceConnectivity::IndicesT node_first_elements;
   CFaceConnectivity::CountsT node_element_counts;
   CFaceConnectivity::IndicesT node_elements;
@@ -162,7 +162,7 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
   create_celements_vector(find_components_recursively_with_filter<CElements>(*mesh2d, IsElementsVolume()), celements_vector, celements_first_elements);
 
   // Get the coordinates array
-  const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(*mesh2d, "coordinates");
+  const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(*mesh2d, Mesh::Tags::coordinates());
 
   // Link nodes to the elements
   CFaceConnectivity::IndicesT node_first_elements;
@@ -220,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
 //   create_celements_vector(find_components_recursively_with_filter<CElements>(grid2D, IsElementsVolume()), celements_vector, celements_first_elements);
 //
 //   // Get the coordinates array
-//   const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(grid2D, "coordinates");
+//   const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(grid2D, Mesh::Tags::coordinates());
 //
 //   // Link nodes to the elements
 //   CFaceConnectivity::IndicesT node_first_elements;

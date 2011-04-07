@@ -34,7 +34,7 @@ void CForAllFaces::execute()
 {
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {
-    boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(*region,"face_entity") )    
+    boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(*region, Mesh::Tags::face_entity() ) )
     {
       // setup all child operations
       boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))

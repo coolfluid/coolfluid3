@@ -46,7 +46,7 @@ CMesh::CMesh ( const std::string& name  ) :
 
   mark_basic(); // by default meshes are visible
 
-  m_nodes_link = create_static_component<CLink>("nodes");
+  m_nodes_link = create_static_component<CLink>(Mesh::Tags::nodes());
   m_elements = create_static_component<CMeshElements>("elements");
   m_topology = create_static_component<CRegion>("topology");
 

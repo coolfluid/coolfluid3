@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( LineIntegral )
   const Uint segments = 10000;
 
   // complete circle
-  CTable<Real> coordinates("coordinates");
+  CTable<Real> coordinates(Mesh::Tags::coordinates());
   CTable<Uint> connectivity("connectivity");
   create_helix(coordinates, connectivity, radius, height, tours, segments);
 

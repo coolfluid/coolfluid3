@@ -29,60 +29,60 @@
 
 namespace CF {
 
-  /// Basic Classes for Mesh applications used by CF
-  namespace Mesh {
+/// Basic Classes for Mesh applications used by CF
+namespace Mesh {
 
-////////////////////////////////////////////////////////////////////////////////
+/// Class defines the initialization and termination of the library Mesh
+/// @author Tiago Quintino
+class Mesh_API LibMesh :  public Common::CLibrary
+{
+public:
 
-  /// Class defines the initialization and termination of the library Mesh
-  /// @author Tiago Quintino
-  class Mesh_API LibMesh :  public Common::CLibrary
+  typedef boost::shared_ptr<LibMesh> Ptr;
+  typedef boost::shared_ptr<LibMesh const> ConstPtr;
+
+  /// Constructor
+  LibMesh ( const std::string& name) : Common::CLibrary(name) {   }
+
+public: // functions
+
+  /// @return string of the library namespace
+  static std::string library_namespace() { return "CF.Mesh"; }
+
+
+  /// Static function that returns the module name.
+  /// Must be implemented for CLibrary registration
+  /// @return name of the library
+  static std::string library_name() { return "Mesh"; }
+
+  /// Static function that returns the description of the module.
+  /// Must be implemented for CLibrary registration
+  /// @return description of the library
+
+  static std::string library_description()
   {
-  public:
+    return "This library implements the mesh manipulation API.";
+  }
 
-    typedef boost::shared_ptr<LibMesh> Ptr;
-    typedef boost::shared_ptr<LibMesh const> ConstPtr;
+  /// Gets the Class name
+  static std::string type_name() { return "LibMesh"; }
 
-    /// Constructor
-    LibMesh ( const std::string& name) : Common::CLibrary(name) {   }
+protected:
 
-  public: // functions
+  /// initiate library
+  virtual void initiate_impl();
 
-    /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Mesh"; }
+  /// terminate library
+  virtual void terminate_impl();
 
-
-    /// Static function that returns the module name.
-    /// Must be implemented for CLibrary registration
-    /// @return name of the library
-    static std::string library_name() { return "Mesh"; }
-
-    /// Static function that returns the description of the module.
-    /// Must be implemented for CLibrary registration
-    /// @return description of the library
-
-    static std::string library_description()
-    {
-      return "This library implements the mesh manipulation API.";
-    }
-
-    /// Gets the Class name
-    static std::string type_name() { return "LibMesh"; }
-
-  protected:
-
-    /// initiate library
-    virtual void initiate_impl();
-
-    /// terminate library
-    virtual void terminate_impl();
-
-  }; // end LibMesh
-
-////////////////////////////////////////////////////////////////////////////////
+}; // end LibMesh
 
 } // Mesh
 } // CF
+
+////////////////////////////////////////////////////////////////////////////////
+
+#include "Mesh/Tags.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

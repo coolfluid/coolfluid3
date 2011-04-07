@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   const Real height = 3.;
 
   // complete circle
-  CTable<Real> coordinates("coordinates");
+  CTable<Real> coordinates(Mesh::Tags::coordinates());
   CTable<Uint> connectivity("connectivity");
   create_cylinder(coordinates, connectivity, radius, u_segments, v_segments, height);
 
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
 BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half cylinder arc
-  CTable<Real> arc_coordinates("coordinates");
+  CTable<Real> arc_coordinates(Mesh::Tags::coordinates());
   CTable<Uint> arc_connectivity("connectivity");
   create_cylinder(arc_coordinates, arc_connectivity, 1., 100, 24, 3., 0., MathConsts::pi());
   Real arc_flux = 0.;
@@ -392,7 +392,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real height = 3.;
 
   // complete cylinder
-  CTable<Real> coordinates("coordinates");
+  CTable<Real> coordinates(Mesh::Tags::coordinates());
   CTable<Uint> connectivity("connectivity");
   create_cylinder(coordinates, connectivity, radius, u_segments, v_segments, height);
 

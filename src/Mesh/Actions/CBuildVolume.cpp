@@ -66,8 +66,8 @@ void CBuildVolume::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  CField& volume_field = mesh.create_field2("volume","CellBased");
-  volume_field.add_tag("volume");
+  CField& volume_field = mesh.create_field2(Mesh::Tags::volume(),"CellBased");
+  volume_field.add_tag(Mesh::Tags::volume());
   CScalarFieldView volume("volume_view");
   volume.set_field(volume_field);
 

@@ -119,7 +119,7 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
       else
       {
         CRegion& interface = *parent->create_component<CRegion>("interface_"+regions[i]->name()+"_to_"+regions[j]->name());
-        interface.add_tag("interface");
+        interface.add_tag( Mesh::Tags::interface() );
 
         //CFinfo << "creating face to cell for interfaces for " << regions[i]->name() << " to " << regions[j]->name() << CFendl;
         CFaceCellConnectivity::Ptr f2c = match_faces(*regions[i],*regions[j]);
@@ -148,7 +148,7 @@ void CBuildFaces::build_face_cell_connectivity_bottom_up(Component::Ptr parent)
     if ( count( find_components_with_filter<CElements>(region,IsElementsVolume()) ) != 0 )
     {
       CFaceCellConnectivity::Ptr face_to_cell = region.create_component<CFaceCellConnectivity>("face_to_cell");
-      face_to_cell->add_tag("inner_faces");
+      face_to_cell->add_tag(Mesh::Tags::inner_faces());
       face_to_cell->setup(region);
     }
     else
@@ -183,11 +183,11 @@ void CBuildFaces::build_faces_bottom_up(Component::Ptr parent)
         elements.move_to(cells);
 
       //CFinfo << "create inner faces" << CFendl;
-      CRegion& inner_faces = region.create_region("inner_faces");
+      CRegion& inner_faces = region.create_region(Mesh::Tags::inner_faces());
       build_face_elements(inner_faces,*face_to_cell, true);
       
       //CFinfo << "create outer faces" << CFendl;
-      CRegion& outer_faces = region.create_region("outer_faces");
+      CRegion& outer_faces = region.create_region(Mesh::Tags::outer_faces());
       build_face_elements(outer_faces,*face_to_cell, false);
       if (outer_faces.recursive_elements_count() == 0)
         region.remove_component(outer_faces.name());
@@ -230,9 +230,9 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     //CFinfo << "  creating " << faces.full_path().path() << CFendl;
     faces.initialize(face_type,mesh.nodes());
     if (is_inner)
-      faces.add_tag("inner_faces");
+      faces.add_tag(Mesh::Tags::inner_faces());
     else
-      faces.add_tag("outer_faces");
+      faces.add_tag(Mesh::Tags::outer_faces());
         
     CFaceCellConnectivity& f2c = faces.cell_connectivity();
     CTable<Uint>& raw_table = *f2c.get_child_ptr(f2c.connectivity().name())->as_ptr< CTable<Uint> >();
@@ -302,10 +302,10 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
   
   // unified face-cell-connectivity from left and right
   CUnifiedData::Ptr Ufaces1 = allocate_component<CUnifiedData>("unified_faces1");
-  boost_foreach(CFaceCellConnectivity& inner_f2c, find_components_recursively_with_tag<CFaceCellConnectivity>(region1,"inner_faces"))
+  boost_foreach(CFaceCellConnectivity& inner_f2c, find_components_recursively_with_tag<CFaceCellConnectivity>(region1,Mesh::Tags::inner_faces()))
     Ufaces1->add(inner_f2c);
   CUnifiedData::Ptr Ufaces2 = allocate_component<CUnifiedData>("unified_faces2");
-  boost_foreach(CFaceCellConnectivity& inner_f2c, find_components_recursively_with_tag<CFaceCellConnectivity>(region2,"inner_faces"))
+  boost_foreach(CFaceCellConnectivity& inner_f2c, find_components_recursively_with_tag<CFaceCellConnectivity>(region2,Mesh::Tags::inner_faces()))
     Ufaces2->add(inner_f2c);
   
   // create buffers for each sub-face_cell_connectivity
@@ -430,7 +430,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
   CMesh& mesh = *m_mesh.lock();
   // unified face-cell-connectivity
   CUnifiedData::Ptr unified_inner_faces_to_cells = allocate_component<CUnifiedData>("unified_inner_faces");
-  boost_foreach(CFaceCellConnectivity& f2c, find_components_recursively_with_tag<CFaceCellConnectivity>(inner_region,"inner_faces"))
+  boost_foreach(CFaceCellConnectivity& f2c, find_components_recursively_with_tag<CFaceCellConnectivity>(inner_region,Mesh::Tags::inner_faces()))
     unified_inner_faces_to_cells->add(f2c);
   
   // create buffers for each face_cell_connectivity of unified_inner_faces_to_cells

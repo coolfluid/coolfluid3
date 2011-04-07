@@ -67,11 +67,11 @@ void CBuildArea::execute()
   CMesh& mesh = *m_mesh.lock();
 
   CField& area_field = mesh.create_field2("area","FaceBased");
-  area_field.add_tag("area");
+  area_field.add_tag(Mesh::Tags::area());
   CScalarFieldView area("area_view");
   area.set_field(area_field);
 
-  boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(mesh.topology(),"face_entity") )    
+  boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(mesh.topology(),Mesh::Tags::face_entity()) )    
   {
     area.set_elements(elements.as_ptr<CEntities>());
     

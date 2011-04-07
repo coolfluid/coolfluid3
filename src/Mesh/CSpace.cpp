@@ -46,8 +46,8 @@ void CSpace::initialize(const std::string& shape_function_builder_name)
   m_shape_function->rename(m_shape_function->element_type_name());
   add_static_component( m_shape_function );
   
-  m_node_connectivity = create_static_component<CConnectivity>("connectivity_table");
-  m_node_connectivity->add_tag("connectivity_table");
+  m_node_connectivity = create_static_component<CConnectivity>(Mesh::Tags::connectivity_table());
+  m_node_connectivity->add_tag(Mesh::Tags::connectivity_table());
   m_node_connectivity->properties()["brief"] = std::string("The connectivity table specifying for each element the nodes in the coordinates table");
   
   /// @todo Now the connectivity table is being built from the nodes of the support

@@ -55,7 +55,7 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
 
   m_properties.add_option(OptionURI::create("volume","Volume","Volume needed for time accurate simulations", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) )
-    ->add_tag("volume");
+    ->add_tag(Mesh::Tags::volume());
 
   m_properties.add_option(OptionURI::create("time","Time","Time Tracking component", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_time,   this ) )

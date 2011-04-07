@@ -28,7 +28,7 @@ CCellFaces::CCellFaces ( const std::string& name ) :
   
   m_cell_connectivity = create_static_component<CFaceCellConnectivity>("cell_connectivity");
   
-  add_tag("face_entity");
+  add_tag(Mesh::Tags::face_entity());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

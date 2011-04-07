@@ -22,9 +22,9 @@ using namespace Common;
 CNodeElementConnectivity::CNodeElementConnectivity ( const std::string& name ) : 
   Component(name)
 {
-  m_nodes = create_static_component<Common::CLink>("nodes");
+  m_nodes = create_static_component<Common::CLink>(Mesh::Tags::nodes());
   m_elements = create_static_component<CUnifiedData>("elements");
-  m_connectivity = create_static_component<CDynTable<Uint> >("connectivity_table");
+  m_connectivity = create_static_component<CDynTable<Uint> >(Mesh::Tags::connectivity_table());
   mark_basic();
 }
 

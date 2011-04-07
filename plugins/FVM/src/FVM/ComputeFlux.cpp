@@ -60,11 +60,11 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
 
   m_properties.add_option(OptionURI::create("area","Area","Face area", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_area,   this ) )
-    ->add_tag("area");
+    ->add_tag(Mesh::Tags::area());
 
   m_properties.add_option(OptionURI::create("face_normal","FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_normal,   this ) )
-    ->add_tag("face_normal");
+    ->add_tag(Mesh::Tags::normal());
   
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &ComputeFlux::trigger_elements,   this ) );
 

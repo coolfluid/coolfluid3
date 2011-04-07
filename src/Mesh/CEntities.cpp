@@ -36,12 +36,12 @@ CEntities::CEntities ( const std::string& name ) :
   properties().add_option(OptionT<std::string>::create("element_type","Element Type","Element type", std::string("")))
     ->attach_trigger(boost::bind(&CEntities::configure_element_type, this));
 
-  m_global_numbering = create_static_component<CList<Uint> >("global_element_indices");
-  m_global_numbering->add_tag("global_element_indices");
+  m_global_numbering = create_static_component<CList<Uint> >(Mesh::Tags::global_elem_indices());
+  m_global_numbering->add_tag(Mesh::Tags::global_elem_indices());
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
 
-  m_nodes = create_static_component<CLink>("nodes");
-  m_nodes->add_tag("nodes");
+  m_nodes = create_static_component<CLink>(Mesh::Tags::nodes());
+  m_nodes->add_tag(Mesh::Tags::nodes());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,11 +99,11 @@ CNodes& CEntities::nodes()
 
 CList<Uint>& CEntities::used_nodes(Component& parent)
 {
-  CList<Uint>::Ptr used_nodes = find_component_ptr_with_tag<CList<Uint> >(parent,"used_nodes");
+  CList<Uint>::Ptr used_nodes = find_component_ptr_with_tag<CList<Uint> >(parent,Mesh::Tags::nodes_used());
   if (is_null(used_nodes))
   {
-    used_nodes = parent.create_component<CList<Uint> >("used_nodes");
-    used_nodes->add_tag("used_nodes");
+    used_nodes = parent.create_component<CList<Uint> >(Mesh::Tags::nodes_used());
+    used_nodes->add_tag(Mesh::Tags::nodes_used());
     used_nodes->properties()["brief"] = std::string("The local node indices used by the parent component");
 
     // Assemble all unique node numbers in a set

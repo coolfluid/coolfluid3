@@ -302,7 +302,7 @@ void CField::create_data_storage()
     case Basis::FACE_BASED:
     {
       Uint data_size = 0;
-      boost_foreach(CEntities& field_elements, find_components_recursively_with_tag<CEntities>(topology(),"face_entity"))
+      boost_foreach(CEntities& field_elements, find_components_recursively_with_tag<CEntities>(topology(),Mesh::Tags::face_entity()))
       {
         if (m_space_idx == 0 && ! field_elements.exists_space(m_space_idx) )
           field_elements.create_space0();

@@ -40,7 +40,7 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
 {
 
   m_used_components = create_static_component<CGroup>("used_components");
-  m_connectivity = create_static_component<CTable<Uint> >("connectivity_table");
+  m_connectivity = create_static_component<CTable<Uint> >(Mesh::Tags::connectivity_table());
   m_face_nb_in_first_elem = create_static_component<CList<Uint> >("face_number");
   m_is_bdry_face = create_static_component<CList<Uint> >("is_bdry_face");
   m_connectivity->set_row_size(2);

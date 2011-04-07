@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   facebuilder->execute();
   
   BOOST_CHECK(true);
-  CRegion& inner_faces_region = find_component_recursively_with_name<CRegion>(rmesh->topology(),"inner_faces");
+  CRegion& inner_faces_region = find_component_recursively_with_name<CRegion>(rmesh->topology(),Mesh::Tags::inner_faces());
   CCellFaces& inner_faces = find_component<CCellFaces>(inner_faces_region);
   CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(inner_faces);
   Component::Ptr cells;

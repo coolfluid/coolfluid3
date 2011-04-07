@@ -36,7 +36,7 @@ namespace Proto {
 inline const Mesh::CTable<Real>& extract_coordinates(const Mesh::CRegion& region)
 {
   const Mesh::CTable<Real>* coordinates = nullptr;
-  coordinates = Common::find_component_ptr_with_tag<Mesh::CTable<Real> >(region, "coordinates").get();
+  coordinates = Common::find_component_ptr_with_tag<Mesh::CTable<Real> >(region, Mesh::Tags::coordinates()).get();
   if(!coordinates)
   {
     BOOST_FOREACH(const Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region))

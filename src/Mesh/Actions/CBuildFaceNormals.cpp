@@ -80,12 +80,12 @@ void CBuildFaceNormals::execute()
   
   const Uint dimension = mesh.nodes().coordinates().row_size();
   CField& face_normal_field = mesh.create_field2("face_normal","FaceBased","face_normal["+to_str(dimension)+"]");
-  face_normal_field.add_tag("face_normal");
+  face_normal_field.add_tag(Mesh::Tags::normal());
   CFieldView face_normal("face_normal_view");
   face_normal.set_field(face_normal_field);
   Component::Ptr component;
   Uint cell_idx(0);
-  boost_foreach( CEntities& faces, find_components_recursively_with_tag<CEntities>(mesh.topology(),"face_entity") )
+  boost_foreach( CEntities& faces, find_components_recursively_with_tag<CEntities>(mesh.topology(),Mesh::Tags::face_entity()) )
   {
     face_normal.set_elements(faces);
 

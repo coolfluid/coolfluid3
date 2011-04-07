@@ -53,7 +53,6 @@ list( APPEND coolfluid_common_files
     EventHandler.cpp
     Exception.cpp
     Exception.hpp
-    ExportAPI.hpp
     Foreach.hpp
     LibCommon.cpp
     LibCommon.hpp

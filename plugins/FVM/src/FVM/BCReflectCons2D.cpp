@@ -42,7 +42,7 @@ BCReflectCons2D::BCReflectCons2D ( const std::string& name ) :
     
   m_properties.add_option(OptionURI::create("FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &BCReflectCons2D::config_normal,   this ) )
-    ->add_tag("face_normal");
+    ->add_tag(Mesh::Tags::normal());
 
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &BCReflectCons2D::trigger_elements,   this ) );
   
