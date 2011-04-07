@@ -742,7 +742,7 @@ void NRemoteBrowser::openDir(const QString & path)
   options.add("dirPath", path.toStdString());
   options.add("includeFiles", m_includeFiles);
   options.add("includeNoExtensions", m_includeNoExtension);
-  options.add("extensions", vect, " ; ");
+  options.add<std::string>("extensions", vect, " ; ");
 
   ThreadManager::instance().network().send(frame);
 }

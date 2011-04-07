@@ -236,8 +236,8 @@ void CCore::read_dir(SignalArgs & args)
       SignalOptions roptions( reply );
 
       roptions.add("dirPath", directory.toStdString());
-      roptions.add("dirs", dirList, " ; ");
-      roptions.add("files", fileList, " ; ");
+      roptions.add<std::string>("dirs", dirList, " ; ");
+      roptions.add<std::string>("files", fileList, " ; ");
     }
   }
   catch(Exception e)
