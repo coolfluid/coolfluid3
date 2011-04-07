@@ -247,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , euler2d_local_fixture )
 //  fns[2] = "1.67332";
 //  fns[3] = "3.425";
 
-  options.add("Functions", fns, " ; ");
+  options.add<std::string>("Functions", fns, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }

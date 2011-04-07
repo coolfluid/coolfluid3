@@ -210,7 +210,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , burgers2d_local_fixture )
 
   std::vector<std::string> functions(1);
   functions[0] = "0.";
-  options.add("Functions", functions, " ; ");
+  options.add<std::string>("Functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }

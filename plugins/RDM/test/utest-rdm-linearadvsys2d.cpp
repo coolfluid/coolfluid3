@@ -211,7 +211,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , linearadvsys2d_local_fixtu
   std::vector<std::string> functions(2);
   functions[0] = "x*x+y*y";
   functions[1] = "0.";
-  options.add("Functions", functions, " ; ");
+  options.add<std::string>("Functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }
