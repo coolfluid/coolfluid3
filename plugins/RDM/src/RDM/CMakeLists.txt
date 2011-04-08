@@ -86,8 +86,56 @@ SchemeB.hpp
 SchemeSUPG.hpp
 )
 
+list( APPEND coolfluid_rdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_solver_actions coolfluid_solver )
 
-list( APPEND coolfluid_rdm_gpu_files 
+coolfluid_add_library( coolfluid_rdm )
+
+########################################################################
+# coolfluid_rdm_scalarlinear
+
+list( APPEND coolfluid_rdm_scalarlinear_files
+ScalarLinearLDA.cpp
+ScalarLinearSUPG.cpp
+ScalarLinearLF.cpp
+ScalarLinearN.cpp
+)
+
+list( APPEND coolfluid_rdm_scalarlinear_cflibs coolfluid_rdm )
+
+coolfluid_add_library( coolfluid_rdm_scalarlinear )
+
+########################################################################
+# coolfluid_rdm_nonlinear_scalar
+
+list( APPEND coolfluid_rdm_scalarnonlinear_files
+ScalarNonLinearLDA.cpp
+ScalarNonLinearSUPG.cpp
+ScalarNonLinearLF.cpp
+ScalarNonLinearN.cpp
+)
+
+list( APPEND coolfluid_rdm_scalarnonlinear_cflibs coolfluid_rdm )
+
+coolfluid_add_library( coolfluid_rdm_scalarnonlinear )
+
+########################################################################
+# coolfluid_rdm_navierstokes
+
+list( APPEND coolfluid_rdm_navierstokes_files
+NavierStokesLDA.cpp
+NavierStokesSUPG.cpp
+NavierStokesLF.cpp
+NavierStokesN.cpp
+)
+
+list( APPEND coolfluid_rdm_navierstokes_cflibs coolfluid_rdm )
+
+coolfluid_add_library( coolfluid_rdm_navierstokes )
+
+########################################################################
+# coolfluid_rdm_gpu
+
+list( APPEND coolfluid_rdm_gpu_files
           LDAGPU.hpp
           LDAGPU.cpp
           SchemeLDAGPU.hpp
@@ -96,16 +144,15 @@ list( APPEND coolfluid_rdm_gpu_files
 )
    
 if(CF_ENABLE_GPU AND OPENCL_FOUND)
-
-  coolfluid_mark_not_orphan(${coolfluid_rdm_gpu_files})
-
-#  list( APPEND coolfluid_rdm_files ${coolfluid_rdm_gpu_files})
-#  list( APPEND coolfluid_rdm_includedirs ${OPENCL_INCLUDE_DIR} )
-#  list( APPEND coolfluid_rdm_libs   ${OPENCL_LIBRARIES} )
+  set( RDM_GPU 1 )
 else()
-  coolfluid_mark_not_orphan(${coolfluid_rdm_gpu_files})
+  set( RDM_GPU 0 )
 endif()
 
-list( APPEND coolfluid_rdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_solver_actions coolfluid_solver )
+list( APPEND coolfluid_rdm_gpu_condition ${RDM_GPU} )
+list( APPEND coolfluid_rdm_gpu_cflibs coolfluid_rdm )
+list( APPEND coolfluid_rdm_gpu_includedirs ${OPENCL_INCLUDE_DIR} )
+list( APPEND coolfluid_rdm_gpu_libs        ${OPENCL_LIBRARIES}   )
 
-coolfluid_add_library( coolfluid_rdm )
+coolfluid_add_library( coolfluid_rdm_gpu )
+

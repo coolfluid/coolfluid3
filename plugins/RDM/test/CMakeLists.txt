@@ -3,7 +3,7 @@ set( RDM_TEST_RUN_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTE
 
 ##########################################################################
 
-list( APPEND utest-rdm-linearadv2d_cflibs coolfluid_rdm  )
+list( APPEND utest-rdm-linearadv2d_cflibs coolfluid_rdm_scalarlinear   )
 list( APPEND utest-rdm-linearadv2d_files
   utest-rdm-linearadv2d.cpp )
 
@@ -11,28 +11,28 @@ coolfluid_add_unit_test( utest-rdm-linearadv2d )
 
 ##########################################################################
 
-list( APPEND utest-rdm-rotationadv2d_cflibs coolfluid_rdm )
+list( APPEND utest-rdm-rotationadv2d_cflibs coolfluid_rdm_scalarlinear  )
 list( APPEND utest-rdm-rotationadv2d_files  utest-rdm-rotationadv2d.cpp )
 
 coolfluid_add_unit_test( utest-rdm-rotationadv2d )
 
 ##########################################################################
 
-list( APPEND utest-rdm-burgers2d_cflibs coolfluid_rdm  )
+list( APPEND utest-rdm-burgers2d_cflibs coolfluid_rdm_scalarnonlinear  )
 list( APPEND utest-rdm-burgers2d_files  utest-rdm-burgers2d.cpp )
 
 coolfluid_add_unit_test( utest-rdm-burgers2d )
 
 ##########################################################################
 
-list( APPEND utest-rdm-linearadvsys2d_cflibs coolfluid_rdm  )
+list( APPEND utest-rdm-linearadvsys2d_cflibs coolfluid_rdm_scalarlinear   )
 list( APPEND utest-rdm-linearadvsys2d_files  utest-rdm-linearadvsys2d.cpp )
 
 coolfluid_add_unit_test( utest-rdm-linearadvsys2d )
 
 ##########################################################################
 
-list( APPEND utest-rdm-euler2d_cflibs  coolfluid_rdm  )
+list( APPEND utest-rdm-euler2d_cflibs  coolfluid_rdm_navierstokes  )
 list( APPEND utest-rdm-euler2d_files  utest-rdm-euler2d.cpp )
 
 coolfluid_add_unit_test( utest-rdm-euler2d )
@@ -43,7 +43,7 @@ if( NOT CF_ENABLE_GPU OR NOT CF_ENABLE_OPENCL)
   set(utest-rdm-rotationadv2dgpu_condition FALSE)
 endif()
   
-  list( APPEND utest-rdm-rotationadv2dgpu_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm )
+  list( APPEND utest-rdm-rotationadv2dgpu_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm_gpu )
   list( APPEND utest-rdm-rotationadv2dgpu_files  utest-rdm-rotationadv2d-gpu.cpp )
 
   coolfluid_add_unit_test( utest-rdm-rotationadv2dgpu )

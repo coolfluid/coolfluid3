@@ -43,9 +43,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Action"; }
 
-  /// Executes this action
-  virtual void execute() = 0;
-
 protected:
 
   /// mesh where this action data resides

@@ -4,28 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/mpl/for_each.hpp>
-
 #include "Common/CBuilder.hpp"
 
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CRegion.hpp"
 
 #include "Solver/CPhysicalModel.hpp"
 
+#include "RDM/ElementLoop.hpp"
 #include "RDM/CSysLF.hpp"
-
-#include "RDM/SupportedTypes.hpp"    // supported elements
-
-#include "RDM/LinearAdv2D.hpp"       // supported physics
-#include "RDM/LinearAdvSys2D.hpp"    // supported physics
-#include "RDM/RotationAdv2D.hpp"     // supported physics
-#include "RDM/Burgers2D.hpp"         // supported physics
-#include "RDM/Euler2D.hpp"           // supported physics
-
-#include "RDM/SchemeCSysLF.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -54,40 +44,28 @@ void CSysLF::execute()
   if( is_null(pm) )
     throw ValueNotFound(FromHere(), "could not found any physical model to use");
 
+  const std::string physics = pm->type();
+
+  // get the element loop or create it if does not exist
+  DomainLoop::Ptr loop;
+  Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
+  if( is_null( cloop ) )
+  {
+    loop = create_component_abstract_type< DomainLoop >( "CF.RDM.ElementLoop<" + type_name() + "," + physics + ">" , "LOOP");
+    add_component(loop);
+  }
+  else
+    loop = cloop->as_ptr_checked<DomainLoop>();
+
+  // loop on all regions configured by the user
+
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
-    std::string physics = pm->type();
+    loop->select_region( region );
 
-    if ( physics == "LinearAdv2D" )
-    {
-      ElementLoop<CSysLF,LinearAdv2D> loop( *this, *region );
-      boost::mpl::for_each< RDM::CellTypes >( loop );
-    }
+    // loop all elements of this region
 
-    if ( physics == "LinearAdvSys2D" )
-    {
-      ElementLoop<CSysLF,LinearAdvSys2D> loop( *this, *region );
-      boost::mpl::for_each< RDM::CellTypes >( loop );
-    }
-
-    if ( physics == "RotationAdv2D" )
-    {
-      ElementLoop<CSysLF,RotationAdv2D> loop( *this, *region );
-      boost::mpl::for_each< RDM::CellTypes >( loop );
-    }
-
-    if ( physics == "Burgers2D" )
-    {
-      ElementLoop<CSysLF,Burgers2D> loop( *this, *region );
-      boost::mpl::for_each< RDM::CellTypes >( loop );
-    }
-
-    if ( physics == "Euler2D" )
-    {
-      ElementLoop<CSysLF,Euler2D> loop( *this, *region );
-      boost::mpl::for_each< RDM::CellTypes >( loop );
-    }
-
+    loop->execute();
   }
 }
 
