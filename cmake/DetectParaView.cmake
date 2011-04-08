@@ -46,7 +46,7 @@ if( QT_FOUND )
    endif()
 
    if( NOT ${ParaView_FOUND} )
-     coolfluid_log("Warning: no compatible ParaView installation could be found under [${ParaView_ROOT}]. The minimum version supported is ${ParaView_MINIMUM_SUPPORTED_VERSION}.")
+     coolfluid_log_file("Warning: no compatible ParaView installation could be found under [${ParaView_ROOT}]. The minimum version supported is ${ParaView_MINIMUM_SUPPORTED_VERSION}.")
    else()
      if(APPLE)
        file( GLOB ParaView_LIBRARIES "${ParaView_DIR}/*.dylib")
