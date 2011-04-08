@@ -160,13 +160,13 @@ void FiniteVolumeSolver::trigger_domain()
   add_flux_to_rhs->mark_basic();
   m_compute_rhs->get_child("2.3_for_all_faces").add_component(add_flux_to_rhs);
 
-  if ( is_null(find_component_ptr_with_name<CField>(*mesh,"face_normal") ) )
+  if ( is_null(find_component_ptr_with_tag<CField>(*mesh,Mesh::Tags::normal()) ) )
   {
     CFinfo << "  Creating field \"face_normal\", facebased" << CFendl;
     CBuildFaceNormals::Ptr build_face_normals = create_component<CBuildFaceNormals>("build_face_normals");
     build_face_normals->transform(mesh);
     remove_component(build_face_normals->name());
-    configure_option_recursively("face_normal", find_component_with_tag<CField>(*mesh,Mesh::Tags::normal()).full_path());
+    configure_option_recursively(Mesh::Tags::normal(), find_component_with_tag<CField>(*mesh,Mesh::Tags::normal()).full_path());
   }
 
   if ( is_null(find_component_ptr_with_name<CField>(*mesh,"area") ) )
@@ -177,7 +177,7 @@ void FiniteVolumeSolver::trigger_domain()
     CLoop::Ptr compute_area = create_component< CForAllFaces >("compute_area");
     compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().full_path()));
     compute_area->create_action("CF.Solver.Actions.CComputeArea");
-    configure_option_recursively("area",area.full_path());
+    configure_option_recursively(Mesh::Tags::area(),area.full_path());
     compute_area->execute();
     remove_component(compute_area->name());
   }

@@ -40,7 +40,7 @@ BCReflectCons2D::BCReflectCons2D ( const std::string& name ) :
     ->attach_trigger ( boost::bind ( &BCReflectCons2D::config_solution,   this ) )
     ->add_tag("solution");
     
-  m_properties.add_option(OptionURI::create("FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
+  m_properties.add_option(OptionURI::create(Mesh::Tags::normal(),"FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &BCReflectCons2D::config_normal,   this ) )
     ->add_tag(Mesh::Tags::normal());
 
@@ -62,7 +62,7 @@ void BCReflectCons2D::config_solution()
 
 void BCReflectCons2D::config_normal()
 {
-  URI uri;  property("FaceNormal").put_value(uri);
+  URI uri;  property(Mesh::Tags::normal()).put_value(uri);
   CField& comp = Core::instance().root()->access_component(uri).as_type<CField>();
   m_face_normal.set_field(comp);
 }
