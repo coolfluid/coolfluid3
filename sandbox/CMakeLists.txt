@@ -3,6 +3,10 @@
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
 ###############################################################################
+### test for boost::mpl
+add_subdirectory( boost-mpl )
+
+###############################################################################
 ### test for boost::lambda
 add_subdirectory( boost-lambda )
 
