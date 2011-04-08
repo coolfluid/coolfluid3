@@ -78,10 +78,16 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-/// function returning positive number
+/// function returning positive number or zero
 inline Real plus ( Real x )
 {
   return std::max( 0. , x );
+}
+
+/// function returning negative number or zero
+inline Real minus ( Real x )
+{
+  return std::min( 0. , x );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
