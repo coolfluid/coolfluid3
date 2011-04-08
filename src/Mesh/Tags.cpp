@@ -15,7 +15,7 @@ const char * Tags::normal () { return "normal"; }
 const char * Tags::area ()   { return "area"; }
 const char * Tags::volume () { return "volume"; }
 
-const char * Tags::coordinates ()  { return Mesh::Tags::coordinates(); }
+const char * Tags::coordinates ()  { return "coordinates"; }
 const char * Tags::nodes ()        { return "nodes"; }
 const char * Tags::nodes_used ()   { return "nodes_used"; }
 
