@@ -23,7 +23,8 @@ Common::ComponentBuilder < CSpace, Component, LibMesh > CSpace_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 CSpace::CSpace ( const std::string& name ) :
-  Component ( name )
+  Component ( name ),
+  m_nb_states(1)
 {
   properties()["brief"] = std::string("Spaces are other views of CEntities, for instance a higher-order representation");
 //  properties()["description"] = std::string("");

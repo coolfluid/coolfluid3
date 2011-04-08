@@ -63,13 +63,15 @@ public: // functions
   /// Const access to the connectivity table
   const CConnectivity& node_connectivity() const { return *m_node_connectivity; }
 
-  Uint nb_states() const { return 1u; }
+  Uint nb_states() const { return m_nb_states; }
   
 protected: // data
 
   boost::shared_ptr<ElementType> m_shape_function;
   
   CConnectivity::Ptr m_node_connectivity;
+  
+  Uint m_nb_states;
 
 };
 
