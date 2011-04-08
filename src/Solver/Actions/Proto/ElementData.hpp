@@ -202,23 +202,47 @@ public:
     return (*m_connectivity)[m_element_idx];
   }
   
-  /// Reference to the stored data
+  /// Reference to the stored data, i.e. the matrix of nodal values
   ValueResultT value() const
   {
     return m_element_values;
   }
   
-  /// Interpolation at given mapped coords
+  /// Precompute all the cached values for the given geometric support and mapped coordinates.
+  template<typename SupportT>
+  void compute_values(const MappedCoordsT& mapped_coords, const SupportT& support) const
+  {
+    SF::shape_function(mapped_coords, m_sf);
+    SF::mapped_gradient(mapped_coords, m_mapped_gradient_matrix);
+    m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
+    m_eval(m_sf, m_element_values);
+    m_advection = m_eval.stored_result * m_gradient;
+  }
+  
+  /// Calculate and return the interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords) const
   {
     SF::shape_function(mapped_coords, m_sf);
     return m_eval(m_sf, m_element_values);
   }
   
-  /// Interpolation at givem mapped coords
+  /// Return previously computed evaluation
+  EvalT eval() const
+  {
+    return m_eval.stored_result;
+  }
+  
+  
+  /// Shape function matrix at mapped coordinates (calculates and returns)
   const typename SF::ShapeFunctionsT& shape_function(const MappedCoordsT& mapped_coords) const
   {
     SF::shape_function(mapped_coords, m_sf);
+    return m_sf;
+  }
+  
+  /// Previously calculated shape function matrix
+  const typename SF::ShapeFunctionsT& shape_function() const
+  {
     return m_sf;
   }
   
@@ -231,12 +255,24 @@ public:
     return m_gradient;
   }
   
+  /// Previously calculated gradient matrix
+  const GradientT& gradient() const
+  {
+    return m_gradient;
+  }
+  
   /// Return the advection operator
   template<typename SupportT>
   const typename SF::ShapeFunctionsT& advection(const MappedCoordsT& mapped_coords, const SupportT& support) const
   {
     SF::shape_function(mapped_coords, m_sf);
     m_advection = m_sf * m_element_values * gradient(mapped_coords, support);
+    return m_advection;
+  }
+  
+  /// Previously calculated advection operator
+  const typename SF::ShapeFunctionsT& advection() const
+  {
     return m_advection;
   }
   
@@ -273,12 +309,11 @@ private:
     template<typename NodeValuesT>
     result_type operator()(const typename SF::ShapeFunctionsT& sf, const NodeValuesT& values) const
     {
-      m_result.noalias() = sf * values;
-      return m_result;
+      stored_result.noalias() = sf * values;
+      return stored_result;
     }
     
-  private:
-    mutable MatrixT m_result;
+    mutable MatrixT stored_result;
   };
 
   /// Interpolation of a scalar field
@@ -290,8 +325,11 @@ private:
     template<typename NodeValuesT>
     result_type operator()(const typename SF::ShapeFunctionsT& sf, const NodeValuesT& values) const
     {
-      return sf * values;
+      stored_result = sf * values;
+      return stored_result;
     }
+    
+    mutable Real stored_result;
   };
   
   InterpolationImpl<Dim> m_eval;

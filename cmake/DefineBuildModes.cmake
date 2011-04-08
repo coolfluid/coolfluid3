@@ -15,14 +15,12 @@ if(CMAKE_BUILD_TYPE_CAPS MATCHES "DEBUG")
   set(CF_BUILD_TYPE_OK ON)
 
   if( CMAKE_COMPILER_IS_GNUCC AND CF_ENABLE_STDDEBUG )
-      list( APPEND CF_CXX_FLAGS_DEBUG   " -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC" )
-      mark_as_advanced( CF_CXX_FLAGS_DEBUG )
+      set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC" CACHE STRING "")
   endif()
 
   if( WIN32 )
-    list( APPEND CF_C_FLAGS_DEBUG       "/Zi" )
-    list( APPEND CF_CXX_FLAGS_DEBUG     "/Zi" )
-    mark_as_advanced( CF_C_FLAGS_DEBUG  CF_CXX_FLAGS_DEBUG )
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} /Zi" CACHE STRING "")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zi" CACHE STRING "")
   endif()
 
 
@@ -59,10 +57,9 @@ if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
   set(CF_BUILD_TYPE_OK ON)
 
   if(CMAKE_COMPILER_IS_GNUCC)
-    list( APPEND CF_C_FLAGS_RELEASE       "-O3 -fomit-frame-pointer" )
-    list( APPEND CF_CXX_FLAGS_RELEASE     "-O3 -fomit-frame-pointer" )
-    list( APPEND CF_Fortran_FLAGS_RELEASE "-O3 -fomit-frame-pointer" )
-    mark_as_advanced( CF_CMAKE_CXX_FLAGS_RELEASE  CF_CMAKE_C_FLAGS_RELEASE CF_CMAKE_Fortran_FLAGS_RELEASE )
+    set(CMAKE_C_FLAGS_RELEASE "-O3 -fomit-frame-pointer" CACHE STRING "" FORCE)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer" CACHE STRING "" FORCE)
+    set(CMAKE_Fortran_FLAGS_RELEASE "-O3 -fomit-frame-pointer" CACHE STRING "" FORCE)
   endif()
 
   coolfluid_set_if_not_defined( CF_ENABLE_ASSERTIONS   OFF  )
@@ -83,14 +80,4 @@ endif()
 
 #######################################################
 
-# apply additions to flags
-if( DEFINED CF_C_FLAGS_${CMAKE_BUILD_TYPE_CAPS} )
-  set( CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE_CAPS}  "${CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE_CAPS}} ${CF_C_FLAGS_${CMAKE_BUILD_TYPE_CAPS}}"  CACHE STRING "Flags used by the C compiler during ${CMAKE_BUILD_TYPE} builds." FORCE )
-endif()
-if( DEFINED CF_CXX_FLAGS_${CMAKE_BUILD_TYPE_CAPS} )
-  set( CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_CAPS}  "${CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE_CAPS}} ${CF_CXX_FLAGS_${CMAKE_BUILD_TYPE_CAPS}}"  CACHE STRING "Flags used by the C++ compiler during ${CMAKE_BUILD_TYPE} builds." FORCE )
-endif()
-if( DEFINED CF_Fortran_FLAGS_${CMAKE_BUILD_TYPE_CAPS} )
-  set( CMAKE_Fortran_FLAGS_${CMAKE_BUILD_TYPE_CAPS}  "${CF_Fortran_FLAGS_${CMAKE_BUILD_TYPE_CAPS}}"  CACHE STRING "Flags used by the C compiler during ${CMAKE_BUILD_TYPE} builds." FORCE )
-endif()
 

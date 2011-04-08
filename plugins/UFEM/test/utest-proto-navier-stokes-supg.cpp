@@ -75,7 +75,7 @@ static boost::proto::terminal< void(*)(Real, Real, Real) >::type const _check_cl
 
 BOOST_AUTO_TEST_SUITE( ProtoSUPGSuite )
 
-/// Operation to set the different coefficients for PSPG and SUPG
+/// Operation to set the different coefficients for PSPG, SUPG and bulk viscosity
 template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
 struct SetTau;
 
@@ -87,18 +87,19 @@ struct SetTau<SF, 2, Offset, MatrixSize>
   typedef int result_type;
   
   template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(const int, const SupportT& support, const VarDataT& u_data, StateT& state) const
+  result_type operator()(const int, const SupportT& support, const VarDataT& field, StateT& state) const
   {
     const Real he=sqrt(4./3.141592654*support.volume());
     const Real ree=state.u_ref*he/(2.*state.nu);
     const Real xi=std::max(0.,std::min(ree/3.,1.));
     state.tau_ps = he*xi/(2.*state.u_ref);
+    state.tau_bulk = he*state.u_ref/xi;
     
     // Average cell velocity
-    const RealVector2 u = u_data.value().colwise().mean();
+    const RealVector2 u = field.value().colwise().mean();
     const Real umag = u.norm();
     state.tau_su = 0.;
-    if(umag > 1e-6)
+    if(umag > 1e-10)
     {
       const Real h = 2. * support.volume() / (support.nodes() * (u / umag)).array().abs().sum();
       Real ree=umag*h/(2.*state.nu);
@@ -107,7 +108,11 @@ struct SetTau<SF, 2, Offset, MatrixSize>
     }
     
     // We need this one every time, so cache it
-    state.jacobian_determinant = support.jacobian_determinant(Integrators::GaussMappedCoords<1, SF::shape>::instance().coords.col(0));
+    state.integral_weight = Integrators::GaussMappedCoords<1, SF::shape>::instance().weights[0]
+                            * support.jacobian_determinant(Integrators::GaussMappedCoords<1, SF::shape>::instance().coords.col(0));
+    
+    // Cache the matrices used in the operators, calculated at the first gauss point
+    field.compute_values(Integrators::GaussMappedCoords<1, SF::shape>::instance().coords.col(0), support);
     
     return 0;
   }
@@ -119,26 +124,22 @@ MakeSFOp<SetTau>::type set_tau = {};
 /// Pressure contribution to the continuity equation (PSPG of pressure gradient) for matrix A
 template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
 struct ContinuityPressureA
-{
-  BOOST_MPL_ASSERT_RELATION(Dim, ==, 1); // Pressure is a scalar
-  
+{ 
   typedef Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> MatrixT;
   typedef const MatrixT& result_type;
   
   template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& u_data, StateT& state) const
+  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& field, StateT& state) const
   {
-    // Use first order integration
-    typedef Integrators::GaussMappedCoords<1, SF::shape> GaussT;
-    const typename SF::MappedGradientT& grad = u_data.gradient(GaussT::instance().coords.col(0), support);
-    matrix = state.tau_ps * GaussT::instance().weights[0] * grad.transpose() * grad * state.jacobian_determinant;
+    // PSPG of the pressure gradient becomes a pressure laplacian
+    matrix = state.tau_ps * field.gradient().transpose() * field.gradient() * state.integral_weight;
     return matrix;
   };
 };
 
 MakeSFOp<ContinuityPressureA>::type continuity_p_a = {};
 
-/// Velocity contribution to the continuity equation (divergence + PSPG of convective term) for matrix A
+/// Velocity contribution to the continuity equation (divergence + PSPG of advective term) for matrix A
 template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
 struct ContinuityVelocityA
 {
@@ -148,21 +149,17 @@ struct ContinuityVelocityA
   typedef const MatrixT& result_type;
   
   template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& u_data, StateT& state) const
+  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& field, StateT& state) const
   {
-    // Use first order integration
-    typedef Integrators::GaussMappedCoords<1, SF::shape> GaussT;
-    const typename SF::ShapeFunctionsT& sf = u_data.shape_function(GaussT::instance().coords.col(0));
-    const typename SF::MappedGradientT& gradient_matrix = u_data.gradient(GaussT::instance().coords.col(0), support);
-    
-    const typename SF::ShapeFunctionsT pspg_advection = state.tau_ps * sf * u_data.value() * gradient_matrix;
     for(Uint i = 0; i != SF::dimension; ++i)
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(0, i*SF::nb_nodes).noalias() =
-        sf.transpose() * gradient_matrix.row(i) // Divergence (standard)
-      + gradient_matrix.row(i).transpose() * pspg_advection; // PSPG
+    {
+      matrix.template block<SF::nb_nodes, SF::nb_nodes>(0, i*SF::nb_nodes).noalias()
+        = field.shape_function().transpose() * field.gradient().row(i) // Divergence (standard)
+        + state.tau_ps * field.gradient().row(i).transpose() * field.advection(); // PSPG for the advection term
+    }
     
     // Integration
-    matrix *= GaussT::instance().weights[0] * state.jacobian_determinant;
+    matrix *= state.integral_weight;
     
     return matrix;
   };
@@ -177,22 +174,14 @@ struct MomentumPressureA
   typedef Eigen::Matrix<Real, SF::dimension*SF::nb_nodes, SF::nb_nodes> MatrixT;
   typedef const MatrixT& result_type;
   
-  // We pass data for u here, to be able to calculate the SUPG terms
+  // We pass data for u here, to be able to calculate the SUPG terms. This implies the same shape function for pressure and velocity
   template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& u_data, StateT& state) const
+  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& field, StateT& state) const
   {
-    // Use first order integration
-    typedef Integrators::GaussMappedCoords<1, SF::shape> GaussT;
-    const typename SF::ShapeFunctionsT& sf = u_data.shape_function(GaussT::instance().coords.col(0));
-    const typename SF::MappedGradientT& gradient_matrix = u_data.gradient(GaussT::instance().coords.col(0), support);
-    
     // Standard + SUPG
-    const typename SF::ShapeFunctionsT supg_advection = state.tau_su * sf * u_data.value() * gradient_matrix;
     for(Uint i = 0; i != SF::dimension; ++i)
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, 0).noalias() = (sf/ state.rho + supg_advection).transpose() * gradient_matrix.row(i);
-    
-    // Integration
-    matrix *= GaussT::instance().weights[0] * state.jacobian_determinant;
+      matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, 0).noalias()
+        = state.integral_weight/state.rho * (field.shape_function() + state.tau_su * field.advection()).transpose() * field.gradient().row(i);
     
     return matrix;
   };
@@ -200,34 +189,26 @@ struct MomentumPressureA
 
 MakeSFOp<MomentumPressureA>::type momentum_p_a = {};
 
-/// Velocity contribution to the momentum equation (standard + SUPG) for matrix A
+/// Velocity contribution to the momentum equation (standard + SUPG + bulk viscosity) for matrix A
 template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
 struct MomentumVelocityA
 { 
   typedef Eigen::Matrix<Real, SF::dimension*SF::nb_nodes, SF::dimension*SF::nb_nodes> MatrixT;
   typedef const MatrixT& result_type;
   
-  // We pass data for u here, to be able to calculate the SUPG terms
   template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& u_data, StateT& state) const
+  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& field, StateT& state) const
   {
-    // Use first order integration
-    typedef Integrators::GaussMappedCoords<1, SF::shape> GaussT;
-    const typename SF::ShapeFunctionsT& sf = u_data.shape_function(GaussT::instance().coords.col(0));
-    const typename SF::MappedGradientT& gradient_matrix = u_data.gradient(GaussT::instance().coords.col(0), support);
-
     matrix.setZero();
-    
-    const typename SF::ShapeFunctionsT advection = sf * u_data.value() * gradient_matrix;
-    const Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> diffusion =  state.nu*state.rho * gradient_matrix.transpose() * gradient_matrix;
     for(Uint i = 0; i != SF::dimension; ++i)
-    {
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, i*SF::nb_nodes) += diffusion
-        + (sf.transpose() + state.tau_su * advection.transpose()) * advection; // Advection + SUPG
+    {      
+      matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, i*SF::nb_nodes)
+        = state.nu*state.rho * field.gradient().transpose() * field.gradient() // diffusion
+        + (field.shape_function() + state.tau_su * field.advection()).transpose() * field.advection(); // Advection + SUPG
     }
     
     // Integration
-    matrix *= GaussT::instance().weights[0] * state.jacobian_determinant;
+    matrix *= state.integral_weight;
     
     return matrix;
   };
@@ -244,17 +225,12 @@ struct ContinuityT
   
   // We pass data for u here, to be able to calculate the SUPG terms
   template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& u_data, StateT& state) const
+  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& field, StateT& state) const
   {
-    // Use first order integration
-    typedef Integrators::GaussMappedCoords<1, SF::shape> GaussT;
-    const typename SF::ShapeFunctionsT& sf = u_data.shape_function(GaussT::instance().coords.col(0));
-    const typename SF::MappedGradientT& gradient_matrix = u_data.gradient(GaussT::instance().coords.col(0), support);
-    
-    const Real f = GaussT::instance().weights[0] * state.jacobian_determinant * state.tau_ps;
     for(Uint i = 0; i != SF::dimension; ++i)
     {
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(0, i*SF::nb_nodes).noalias() = f * sf.transpose() * gradient_matrix.row(i);
+      matrix.template block<SF::nb_nodes, SF::nb_nodes>(0, i*SF::nb_nodes).noalias()
+        = state.integral_weight * state.tau_ps * field.gradient().row(i).transpose() * field.shape_function();
     }
     
     return matrix;
@@ -272,31 +248,26 @@ struct MomentumT
   
   // We pass data for u here, to be able to calculate the SUPG terms
   template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& u_data, StateT& state) const
+  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& field, StateT& state) const
   {
     matrix.setZero();
     
-    // Second order integration for the standard time
+    // SUPG
+    for(Uint i = 0; i != SF::dimension; ++i)
+    {
+      matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, i*SF::nb_nodes)
+        = state.integral_weight * state.tau_su * field.advection().transpose() * field.shape_function();
+    }
+    
+    // Second order integration for the standard time. WARNING: This must be the last op on the element, since it destroys
+    // the precomputed values for first-order integration
     typedef Integrators::GaussMappedCoords<2, SF::shape> GaussT2;
     for(Uint i = 0; i != GaussT2::nb_points; ++i)
     {
-      const typename SF::ShapeFunctionsT& sf = u_data.shape_function(GaussT2::instance().coords.col(i));
+      const typename SF::ShapeFunctionsT& sf = field.shape_function(GaussT2::instance().coords.col(i));
       Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> m = GaussT2::instance().weights[i] * support.jacobian_determinant(GaussT2::instance().coords.col(i)) * sf.transpose() * sf;
       for(Uint d = 0; d != Dim; ++d)
         matrix.template block<SF::nb_nodes, SF::nb_nodes>(SF::nb_nodes*d, SF::nb_nodes*d) += m;
-    }
-    
-    // Use first order integration for the rest
-    typedef Integrators::GaussMappedCoords<1, SF::shape> GaussT;
-    
-    const typename SF::ShapeFunctionsT& sf = u_data.shape_function(GaussT::instance().coords.col(0));
-    const typename SF::MappedGradientT& gradient_matrix = u_data.gradient(GaussT::instance().coords.col(0), support);
-    
-    // SUPG and integration
-    const typename SF::ShapeFunctionsT supg_advection = GaussT::instance().weights[0] * state.jacobian_determinant * state.tau_su * sf * u_data.value() * gradient_matrix;
-    for(Uint i = 0; i != SF::dimension; ++i)
-    {
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, i*SF::nb_nodes) += supg_advection.transpose() * sf;
     }
     
     return matrix;
@@ -307,7 +278,7 @@ MakeSFOp<MomentumT>::type momentum_t = {};
 
 /// Stores the coefficients for the SUPG model and shares them inside a proto expression through the state
 struct SUPGState
-{
+{ 
   /// Reference velocity magnitude
   Real u_ref;
   
@@ -318,10 +289,10 @@ struct SUPGState
   Real rho;
   
   /// Model coefficients
-  Real tau_ps, tau_su;
+  Real tau_ps, tau_su, tau_bulk;
   
-  /// Jacobian determinant at the first gauss point
-  Real jacobian_determinant;
+  /// Jacobian determinant at the first gauss point, multiplied with the first gauss weight
+  Real integral_weight;
 };
 
 // Solve the Navier-Stokes equations with SUPG
@@ -410,7 +381,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
   for_each_node(mesh->topology(), u = c * coordinates[1] * (height - coordinates[1]) * u_direction);
   
   while(t < end_time)
-  { 
+  {
+    std::cout << "Checking continuity" << std::endl;
     // Check the continuity equation
     for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
     (
@@ -418,7 +390,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
       group(state) <<                             // Note we pass the state here, to calculate and share tau_...
       (
         set_tau(u),                               // Calculate the stabilization coefficients
-        _A(p, p) = continuity_p_a(p),               // Momentum equation, p terms (Standard + SUPG)
+        _A(p, p) = continuity_p_a(u),               // Momentum equation, p terms (Standard + SUPG)
         _A(p, u) = continuity_u_a(u),               // Momentum equation, u terms (Standard + SUPG + bulk viscosity)
         _T(p) = integral<1>( (divergence_elm(u) + state.tau_ps * laplacian_elm(p) ) * jacobian_determinant),
         _T(p, u) += state.tau_ps * integral<1>( ( transpose(gradient(u)) * linearize(advection(u), u) ) * jacobian_determinant ),
@@ -426,6 +398,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
       )
     );
     
+    std::cout << "Checking momentum" << std::endl;
     // Check the momentum equation matrix
     for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
     (
@@ -437,11 +410,12 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
         _A(u, u) = momentum_u_a(u),               // Momentum equation, u terms (Standard + SUPG + bulk viscosity)
         _T(u) = integral<1>( (advection_elm(u) +  mu * laplacian_elm(u) + 1./rho * gradient_elm(p) ) * jacobian_determinant),                 // Momentum, standard
         _T(u, u) += state.tau_su * integral<1>( transpose(linearize(advection(u), u)) * linearize(advection(u), u) * jacobian_determinant),         // SUPG of advection term
-        _T(u, p) += state.tau_su * integral<1>( transpose(linearize(advection(u), u)) * gradient(p) * jacobian_determinant),                        // SUPG, pressure gradient
+        _T(u, p) += state.tau_su * integral<1>( transpose(linearize(advection(u), u)) * 1./rho * gradient(p) * jacobian_determinant),                        // SUPG, pressure gradient
         _check_close(_T, _A, 1e-10)
       )
     );
 
+    std::cout << "Checking time" << std::endl;
     // Check time matrix part
     for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
     (
@@ -467,7 +441,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
       group(state) <<                             // Note we pass the state here, to calculate and share tau_...
       (
         set_tau(u),                               // Calculate the stabilization coefficients
-        _A(p, p) = continuity_p_a(p),             // Continuity equation, p terms (PSPG)
+        _A(p, p) = continuity_p_a(u),             // Continuity equation, p terms (PSPG)
         _A(p, u) = continuity_u_a(u),             // Continuity equation, u terms (Standard + PSPG)
         _A(u, p) = momentum_p_a(u),               // Momentum equation, p terms (Standard + SUPG)
         _A(u, u) = momentum_u_a(u),               // Momentum equation, u terms (Standard + SUPG + bulk viscosity)
@@ -510,8 +484,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
   
   // Check analytical solution
   for_each_node(mesh->topology(), _check_close2(p, p0 * (length - coordinates[0]) / length + p1 * coordinates[1] / length, 0.1));
-  //for_each_node(mesh->topology(), _check_close2(u[0], c * coordinates[1] * (height - coordinates[1]), 1e-3));
-  //for_each_node(mesh->topology(), _check_close2(u[1], 0., 1e-3));
+  for_each_node(mesh->topology(), _check_close2(u[0], c * coordinates[1] * (height - coordinates[1]), 1e-3));
+  for_each_node(mesh->topology(), _check_close2(u[1], 0., 1e-3));
   
 }
 

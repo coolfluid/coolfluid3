@@ -9,6 +9,7 @@ list( APPEND coolfluid_ufem_files
   LinearSystem.hpp
   LinearSystemUnsteady.cpp
   LinearSystemUnsteady.hpp
+  NavierStokesOps.hpp
   SetupLinearSystem.cpp
   SetupLinearSystem.hpp
 )
