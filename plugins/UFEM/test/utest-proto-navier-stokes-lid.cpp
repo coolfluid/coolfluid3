@@ -73,22 +73,22 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   int    argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
-  const Real length = 5.;
-  const Real height = 5.;
-  const Uint x_segments = 25;
-  const Uint y_segments = 25;
+  const Real length = 1.;
+  const Real height = 1.;
+  const Uint x_segments = 32;
+  const Uint y_segments = 32;
   
   const Real start_time = 0.;
-  const Real end_time = 50.;
-  const Real dt = 5.;
+  const Real end_time = 10.;
+  const Real dt = 0.01;
   Real t = start_time;
-  const Uint write_interval = 200;
+  const Uint write_interval = 10;
   const Real invdt = 1. / dt;
   
-  const Real mu = 0.1;
-  const Real rho = 100.;
+  const Real mu = 1.;
+  const Real rho = 1.;
   
-  const RealVector2 u_lid(1., 0.);
+  const RealVector2 u_lid(100., 0.);
   const RealVector2 u_wall(0., 0.);
   
   SUPGState state;

@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
   ThreadManager::instance().tree();
 
   // initiate the core environment
-  Core::instance().environment()->configure_property("RegistSignalHandlers", false);
+  Core::instance().environment()->configure_property("regist_signal_handlers", false);
   Core::instance().initiate(argc, argv);
   mpi::PE::instance().init(argc,argv);   // this might modify argc and argv
 

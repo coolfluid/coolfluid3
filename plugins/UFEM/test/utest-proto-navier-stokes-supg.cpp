@@ -484,8 +484,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
   
   // Check analytical solution
   for_each_node(mesh->topology(), _check_close2(p, p0 * (length - coordinates[0]) / length + p1 * coordinates[1] / length, 0.1));
-  for_each_node(mesh->topology(), _check_close2(u[0], c * coordinates[1] * (height - coordinates[1]), 1e-3));
-  for_each_node(mesh->topology(), _check_close2(u[1], 0., 1e-3));
+  for_each_node(mesh->topology(), _check_close2(u[0], c * coordinates[1] * (height - coordinates[1]), 1e-2));
+  for_each_node(mesh->topology(), _check_close2(u[1], 0., 1e-2));
   
 }
 
