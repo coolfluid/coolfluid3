@@ -56,23 +56,23 @@ namespace ParaView {
         m_core = pqApplicationCore::instance();
         m_core->disableOutputWindow();
 
-
+/*
         pqSettings* settings = m_core->settings();
 
 
         settings->beginGroup("renderModule");
-        /*
-        settings->setValue("ImageReductionFactor", 2000); // reduction of pixels while manipulating  1 no reduction
-        settings->setValue("StillRenderImageReductionFactor", 1000);  // reduction of pixels after rendering  1 no reduction
-        */
+
+//        settings->setValue("ImageReductionFactor", 2000); // reduction of pixels while manipulating  1 no reduction
+//        settings->setValue("StillRenderImageReductionFactor", 1000);  // reduction of pixels after rendering  1 no reduction
+
         settings->setValue("CompressionEnabled",1);
         settings->setValue("CompressorType",1); //COMPRESSOR_SQUIRT
         vtkstd::ostringstream os;
         os << "vtkSquirtCompressor 0 "
            << 5;//16 : 16bit
         settings->setValue("CompressorConfig",os.str().c_str());
-        settings->endGroup();
-
+     settings->endGroup();
+   */
 
         m_object_builder = m_core->getObjectBuilder();
 
@@ -123,8 +123,8 @@ namespace ParaView {
 
         m_show_color_palette = new QPushButton(QIcon(":/paraview_icons/pqScalarBar24.png"),"Show Color Palette",this);
 
-        m_reload = new QPushButton(QIcon(":/paraview_icons/ShowCenterButton.png"),"Reload Mesh",this);
-        m_reload->setVisible(false);
+//        m_reload = new QPushButton(QIcon(":/paraview_icons/ShowCenterButton.png"),"Reload Mesh",this);
+//        m_reload->setVisible(false);
 
         //Combo box that handle styles
         m_mesh_style = new pqDisplayRepresentationWidget(this);
@@ -200,7 +200,7 @@ namespace ParaView {
         m_layout_camera_options->addWidget(this->m_screen_shot);
         m_layout_camera_options->addWidget(this->m_preDefined_rotation);
         m_layout_mesh_options->addWidget(this->m_show_color_palette);
-        m_layout_server_options->addWidget(this->m_reload);
+        //m_layout_server_options->addWidget(this->m_reload);
         m_layout_mesh_options->addWidget(this->m_mesh_solid_color_set);
         m_layout_mesh_options->addWidget(this->m_spin_opacity);
 
@@ -224,7 +224,7 @@ namespace ParaView {
         connect(m_screen_shot,SIGNAL(released()),this,SLOT(take_screen_shot()));
         connect(m_reset_camera,SIGNAL(released()),this,SLOT(reset_camera()));
         connect(m_show_color_palette,SIGNAL(released()),this,SLOT(show_color_editor()));
-        connect(m_reload,SIGNAL(released()),this,SLOT(reload()));
+        //connect(m_reload,SIGNAL(released()),this,SLOT(reload()));
         connect(m_actor_list,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(show_hide_actor(QListWidgetItem*)));
         connect(m_actor_list,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(actor_changed(QListWidgetItem*)));
         connect(m_mesh_solid_color_set,SIGNAL(released()),this,SLOT(setColor()));
@@ -280,8 +280,15 @@ namespace ParaView {
 
     }
 
-    void Widget3D::openFile(QString file_path)
+    void Widget3D::openFile(QString file_path,QString file_name)
     {
+      std::vector<QString> paths;
+      paths.push_back(file_path);
+      std::vector<QString> names;
+      names.push_back(file_name);
+
+      loadPaths(paths,names);
+/*
         //if source exist, delete it to free ressources
         if(m_source)
             m_object_builder->destroy(m_source);
@@ -330,6 +337,7 @@ namespace ParaView {
         m_regions_box->setVisible(false);
         NLog::globalLog()->addError("Cannot load a file if no paraview server connection is set.");
       }
+      */
     }
 
     void Widget3D::showRender()
@@ -418,10 +426,6 @@ namespace ParaView {
 
     void Widget3D::disconnectFromServer(){
 
-        //remove source if any
-        if(m_source)
-            m_object_builder->destroySources(m_server);
-
         //remove server if any (will remove all object on the server)
         if(m_server)
             m_object_builder->removeServer(m_server);
@@ -432,6 +436,14 @@ namespace ParaView {
 
         //create a builtin server to have axes shown
         m_server = m_object_builder->createServer(pqServerResource("builtin:"));
+
+        //empty Region list
+        if(m_actor_list)
+          m_actor_list->clear();
+
+        //empty Source list
+        if(!m_source_list.isEmpty())
+          m_source_list.clear();
 
         if(m_server){
             //create the builtin server view
@@ -453,7 +465,7 @@ namespace ParaView {
 
         //disconnected, cannot load or reload file while not connected
         m_load_file->setVisible(false);
-        m_reload->setVisible(false);
+        //m_reload->setVisible(false);
 
     }
 
@@ -466,15 +478,21 @@ namespace ParaView {
         QPointer<QPushButton> btn_exit = new QPushButton("Exit", loadFileDialog);
 
         // line edit
+        m_Name_line = new QLineEdit("skeleton",this);
         m_Path_File_line = new QLineEdit("/nobackup/st/wertz/frog/skeleton.vtk",this);
 
         // labels
         QPointer<QLabel> path_label = new QLabel("File Path");
+        QPointer<QLabel> name_label = new QLabel("Name");
 
         // popup layout
         QPointer<QVBoxLayout> vertical_popup_layout = new QVBoxLayout();
         QPointer<QHBoxLayout> horisontal_path_layout = new QHBoxLayout();
+        QPointer<QHBoxLayout> horisontal_name_layout = new QHBoxLayout();
         QPointer<QHBoxLayout> horisontal_button_layout = new QHBoxLayout();
+
+        horisontal_name_layout->addWidget(name_label);
+        horisontal_name_layout->addWidget(m_Name_line);
 
         horisontal_path_layout->addWidget(path_label);
         horisontal_path_layout->addWidget(m_Path_File_line);
@@ -482,6 +500,7 @@ namespace ParaView {
         horisontal_button_layout->addWidget(btn_load);
         horisontal_button_layout->addWidget(btn_exit);
 
+        vertical_popup_layout->addLayout(horisontal_name_layout);
         vertical_popup_layout->addLayout(horisontal_path_layout);
         vertical_popup_layout->addLayout(horisontal_button_layout);
 
@@ -643,20 +662,22 @@ namespace ParaView {
         }
       }
     }
-
+/*
     void Widget3D::reload(){
         NLog::globalLog()->addMessage("Reloading file");
         //reload the latest loaded file
         openFile(m_file_path);
         NLog::globalLog()->addMessage("File reloaded");
     }
-
+*/
     void Widget3D::loadFile(){
         NLog::globalLog()->addMessage("Loading file");
         //get file path from user input
         m_file_path = m_Path_File_line->text();
+        //get file name from user input
+        m_file_name = m_Name_line->text();
         //open this file
-        openFile(m_file_path);
+        openFile(m_file_path,m_file_name);
         NLog::globalLog()->addMessage("File loaded");
     }
 
@@ -668,6 +689,9 @@ namespace ParaView {
     }
 
     void Widget3D::loadPaths(std::vector<QString> paths,std::vector<QString> names){
+
+      int save_last_index = m_source_list.size();
+
       //create source for eatch path
       for(int i=0;i< paths.size();++i){
         create_source(paths.at(i));
@@ -680,7 +704,7 @@ namespace ParaView {
 
       //add each source to the render
       for(int i=0;i< paths.size();++i){
-        m_input = m_source_list.at(i);
+        m_input = m_source_list.at(i+save_last_index);
         //create a data representation in server side, for the render window with the input
         m_object_builder->createDataRepresentation(m_input->getOutputPort(0), this->m_RenderView);
         vtkSMSourceProxy::SafeDownCast(m_input->getProxy())->UpdatePipeline();

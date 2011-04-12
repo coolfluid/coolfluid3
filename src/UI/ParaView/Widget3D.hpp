@@ -42,8 +42,8 @@ namespace ParaView {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    /// @brief Show a mesh rendered on a server.
-    /// @author Wertz Gil
+/// @brief Show a mesh rendered on a ParaView server.
+/// @author Wertz Gil
 class ParaView_API Widget3D :
     public QWidget
 {
@@ -58,7 +58,7 @@ public: //function
 public slots://slots
 
   /// Call openFile to reload last file path
-  void reload();
+  //void reload();
 
   /// Connect client to paraview server.
   /// @param host Ip or name of the paraview server.
@@ -80,7 +80,7 @@ private : //function
 
     /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
     /// @param file_path Path of the file in server side.
-    void openFile(QString file_path);
+    void openFile(QString file_path,QString file_name);
 
     void create_source(QString path);
 
@@ -197,6 +197,9 @@ private: //data
   /// Server File Path LineEdit.
   QPointer<QLineEdit> m_Path_File_line;
 
+  /// Server File Name LineEdit.
+  QPointer<QLineEdit> m_Name_line;
+
   /// Data set selector.
   QPointer<pqDisplayColorWidget> m_dataSet_selector;
 
@@ -205,6 +208,9 @@ private: //data
 
   /// Path of loaded file.
   QString m_file_path;
+
+  /// Name of loaded file.
+  QString m_file_name;
 
   /// Server group box options.
   QPointer<QGroupBox> m_server_options;
