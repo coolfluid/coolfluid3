@@ -159,7 +159,7 @@ void CSysN::Scheme<SF, QD,PHYS>::execute()
       for(Uint j = 0; j < SF::nb_nodes; ++j)
       {
         if (i==j) continue;
-        B::Phi_n.row(i) -= Ki * KiM_n[j] * ( B::U_n.row(i).transpose() - B::U_n.row(j).transpose() );
+        B::Phi_n.row(i) -= Ki * KiM_n[j] * ( B::U_n.row(i).transpose() - B::U_n.row(j).transpose() ) * B::wj[q];
 
 //        std::cout << "Phi -= " << Ki * KiM_n[j] * ( B::U_n.row(i).transpose() - B::U_n.row(j).transpose() ) << std::endl;
 
