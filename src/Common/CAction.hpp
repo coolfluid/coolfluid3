@@ -16,8 +16,8 @@ namespace Common {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Common_API CAction : public Component
-{
+class Common_API CAction : public Component {
+
 public: // typedefs
 
   /// pointers
@@ -25,27 +25,25 @@ public: // typedefs
   typedef boost::shared_ptr<CAction const> ConstPtr;
 
 public: // functions
+
   /// Contructor
   /// @param name of the component
   CAction ( const std::string& name );
-
-  /// Virtual destructor
-  virtual ~CAction() {};
 
   /// Get the class name
   static std::string type_name () { return "CAction"; }
 
   /// execute the action
-  virtual void execute ();
-  
+  virtual void execute () = 0;
+
+  /// create an action inside this action
   virtual CAction& create_action(const std::string& action_provider, const std::string& name);
 
-  /// Templated version for high efficiency
-  template < typename T >
-  void executeT ()
-  {
-    execute();
-  }
+  /// @name SIGNALS
+  //@{
+  /// signal to execute this action
+  void signal_execute ( Common::SignalArgs& node );
+  //@} END SIGNALS
 
 };
 

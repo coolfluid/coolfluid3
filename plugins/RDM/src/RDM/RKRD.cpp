@@ -13,6 +13,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/StringConversion.hpp"
+#include "Common/CGroupActions.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -86,11 +87,11 @@ RKRD::RKRD ( const std::string& name  ) :
   // setup of the static components
 
   // create apply boundary conditions action
-  m_compute_boundary_terms = create_static_component<CAction>("compute_boundary_terms");
+  m_compute_boundary_terms = create_static_component<CGroupActions>("compute_boundary_terms");
   m_compute_boundary_terms->mark_basic();
 
   // create compute rhs action
-  m_compute_domain_terms = create_static_component<CAction>("compute_domain_terms");
+  m_compute_domain_terms = create_static_component<CGroupActions>("compute_domain_terms");
   m_compute_domain_terms->mark_basic();
 
   // additional actions

@@ -23,8 +23,8 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Solver_Actions_API CComputeVolume : public CLoopOperation
-{
+class Solver_Actions_API CComputeVolume : public CLoopOperation {
+
 public: // typedefs
 
   /// pointers

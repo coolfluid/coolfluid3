@@ -15,6 +15,7 @@
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
+#include "Common/CGroupActions.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
@@ -107,11 +108,11 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
   m_iterate = create_static_component<CIterate>("iterate");
 
   // create apply boundary conditions action
-  m_apply_bcs = m_iterate->create_static_component<CAction>("1_apply_boundary_conditions");
+  m_apply_bcs = m_iterate->create_static_component<CGroupActions>("1_apply_boundary_conditions");
   m_apply_bcs->mark_basic();
   
   // create compute rhs action
-  m_compute_rhs = m_iterate->create_static_component<CAction>("2_compute_rhs");
+  m_compute_rhs = m_iterate->create_static_component<CGroupActions>("2_compute_rhs");
   m_compute_rhs->mark_basic();
   
   // set the compute rhs action

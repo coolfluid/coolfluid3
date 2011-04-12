@@ -71,7 +71,7 @@ class Solver_Actions_API CForAllElementsT : public CLoop
             for ( Uint elem = 0; elem != nb_elem; ++elem )
             {
               op.select_loop_idx(elem);
-              op.template executeT<SFType>();
+              op.execute();
             }
           }
         }
