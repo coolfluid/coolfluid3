@@ -149,8 +149,8 @@ else()
   set( RDM_GPU 0 )
 endif()
 
-list( APPEND coolfluid_rdm_gpu_condition ${RDM_GPU} )
-list( APPEND coolfluid_rdm_gpu_cflibs coolfluid_rdm )
+list( APPEND coolfluid_rdm_gpu_cflibs      coolfluid_rdm )
+list( APPEND coolfluid_rdm_gpu_condition   ${RDM_GPU} )
 list( APPEND coolfluid_rdm_gpu_includedirs ${OPENCL_INCLUDE_DIR} )
 list( APPEND coolfluid_rdm_gpu_libs        ${OPENCL_LIBRARIES}   )
 

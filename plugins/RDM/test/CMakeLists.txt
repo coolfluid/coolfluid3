@@ -39,12 +39,16 @@ coolfluid_add_unit_test( utest-rdm-euler2d )
 
 ##########################################################################
   
-if( NOT CF_ENABLE_GPU OR NOT CF_ENABLE_OPENCL)
-  set(utest-rdm-rotationadv2dgpu_condition FALSE)
+if(CF_ENABLE_GPU AND OPENCL_FOUND)
+  set(utest-rdm-rotationadv2dgpu_condition     TRUE)
+  set(utest-rdm-translationadv2dgpu_condition  TRUE)
+else()
+  set(utest-rdm-rotationadv2dgpu_condition     FALSE)
+  set(utest-rdm-translationadv2dgpu_condition  FALSE)
 endif()
   
-  list( APPEND utest-rdm-rotationadv2dgpu_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm_gpu )
-  list( APPEND utest-rdm-rotationadv2dgpu_files  utest-rdm-rotationadv2d-gpu.cpp )
+  list( APPEND utest-rdm-rotationadv2dgpu_cflibs   coolfluid_rdm_gpu )
+  list( APPEND utest-rdm-rotationadv2dgpu_files    utest-rdm-rotationadv2d-gpu.cpp )
 
   coolfluid_add_unit_test( utest-rdm-rotationadv2dgpu )
 
@@ -54,12 +58,8 @@ endif()
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
 
-if( NOT CF_ENABLE_GPU OR NOT CF_ENABLE_OPENCL)
-  set(utest-rdm-translationadv2dgpu_condition FALSE)
-endif()
-  
-  list( APPEND utest-rdm-translationadv2dgpu_cflibs ${CF_KERNEL_LIBS} coolfluid_rdm )
-  list( APPEND utest-rdm-translationadv2dgpu_files  utest-rdm-translationadv2d-gpu.cpp )
+  list( APPEND utest-rdm-translationadv2dgpu_cflibs   coolfluid_rdm_gpu )
+  list( APPEND utest-rdm-translationadv2dgpu_files    utest-rdm-translationadv2d-gpu.cpp )
 
   coolfluid_add_unit_test( utest-rdm-translationadv2dgpu )
 
@@ -69,7 +69,6 @@ endif()
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
 
-  
 ##########################################################################
 # acceptance tests
 
