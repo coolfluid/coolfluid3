@@ -6,6 +6,7 @@ if( ParaView_FOUND )
   # List of classes to "moc"
   list( APPEND coolfluid_ui_paraview_moc_classes
       Widget3D.hpp
+      #N3DView.hpp
    )
 
   # Create the moc files
@@ -17,18 +18,22 @@ if( ParaView_FOUND )
     LibParaView.hpp
     Widget3D.cpp
     Widget3D.hpp
+    #N3DView.cpp
+    #N3DView.hpp
   )
 
   include_directories(${PARAVIEW_INCLUDE_DIRS})
 
-  list( APPEND coolfluid_ui_paraview_cflibs coolfluid_ui_graphics )
+  list( APPEND coolfluid_ui_paraview_cflibs
+    coolfluid_ui_graphics
+  )
 
 
 
   # Use Qt Libraries
   list( APPEND coolfluid_ui_paraview_libs ${QT_LIBRARIES} ${ParaView_LIBRARIES})
 
-QT4_ADD_RESOURCES(coolfluid_ui_paraview_RCC Resources/paraview.qrc)
+  QT4_ADD_RESOURCES(coolfluid_ui_paraview_RCC Resources/paraview.qrc)
 
   coolfluid_add_library(coolfluid_ui_paraview)
 
@@ -39,6 +44,8 @@ else()
     LibParaView.hpp
     Widget3D.cpp
     Widget3D.hpp
+    #N3DView.cpp
+    #N3DView.hpp
    )
 
 endif()

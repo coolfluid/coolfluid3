@@ -5,25 +5,35 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 // Qt headers
-#include <QHBoxLayout>
+//#include <QHBoxLayout>
 #include <QLabel>
 #include <QDialog>
 #include <QIntValidator>
-#include <QMap>
-#include <QList>
-#include <QDebug>
+//#include <QMap>
+//#include <QList>
 #include <QFileDialog>
-#include <QStringList>
+#include <QColorDialog>
+#include <QDebug>
 
 // ParaView header
-#include "vtkSMPropertyHelper.h"
 #include "pqDataRepresentation.h"
 #include "vtkSmartPointer.h"
 #include "vtkPolyData.h"
 #include "vtkPNGWriter.h"
 #include "vtkWindowToImageFilter.h"
+#include "pqSettings.h"
+#include <vtksys/ios/sstream>
+#include "pqStandardColorLinkAdaptor.h"
+#include "vtkSMPVRepresentationProxy.h"
+#include "pqSMAdaptor.h"
+#include "vtkSMProperty.h"
+#include "pqStandardViewModules.h"
+#include "pqPQLookupTableManager.h"
+#include "vtkSMPropertyHelper.h"
+#include "vtkGlyph3DRepresentation.h"
 
 // header
+#include "UI/Core/N3DView.hpp"
 #include "UI/ParaView/Widget3D.hpp"
 #include "UI/Core///NLog.hpp"
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +54,26 @@ namespace ParaView {
       //paraview instance and builder
         // automatically make a server connection
         m_core = pqApplicationCore::instance();
+        m_core->disableOutputWindow();
+
+
+        pqSettings* settings = m_core->settings();
+
+
+        settings->beginGroup("renderModule");
+        /*
+        settings->setValue("ImageReductionFactor", 2000); // reduction of pixels while manipulating  1 no reduction
+        settings->setValue("StillRenderImageReductionFactor", 1000);  // reduction of pixels after rendering  1 no reduction
+        */
+        settings->setValue("CompressionEnabled",1);
+        settings->setValue("CompressorType",1); //COMPRESSOR_SQUIRT
+        vtkstd::ostringstream os;
+        os << "vtkSquirtCompressor 0 "
+           << 5;//16 : 16bit
+        settings->setValue("CompressorConfig",os.str().c_str());
+        settings->endGroup();
+
+
         m_object_builder = m_core->getObjectBuilder();
 
         // Register ParaView interfaces.
@@ -62,6 +92,15 @@ namespace ParaView {
         //main layout
         m_layout_v = new QVBoxLayout();
         this->setLayout(m_layout_v);
+
+        //Server advanced options
+        //pqGlobalRenderViewOptions * opt = new pqGlobalRenderViewOptions(this);
+        //pqRenderViewOptions * opt = new pqRenderViewOptions(this);
+        //pqApplicationOptionsDialog * opt = new pqApplicationOptionsDialog(this);
+
+        //qDebug() << opt->getPageList();
+        //opt->setPage(opt->getPageList().at(3));
+        //m_layout_v->addWidget(opt);
 
         //horisontal layout view + server (remove from widget) and view options
         m_layout_h = new QHBoxLayout();
@@ -105,7 +144,7 @@ namespace ParaView {
 
         //create a builtin server to have axes shown
         m_server = m_object_builder->createServer(pqServerResource("builtin:"));
-        m_server->setHeartBeatTimeoutSetting(10);
+        //m_server->setHeartBeatTimeoutSetting(10);
 
         if(m_server){
             //create the builtin server view
@@ -114,6 +153,23 @@ namespace ParaView {
             NLog::globalLog()->addError("Error while creating widget3d");
         }
 
+        // Regions list
+        m_actor_list = new QListWidget(this);
+
+        // Set Solide Color button
+        m_mesh_solid_color_set = new QPushButton("Set Color ...");
+
+        //Opacity spinner
+          m_spin_opacity = new QDoubleSpinBox(this);
+          //m_spin_opacity->setObjectName("Opacity");
+          m_spin_opacity->setMaximum(1);
+          m_spin_opacity->setSingleStep(0.1);
+          m_spin_opacity->setMinimum(0);
+          m_spin_opacity->setEnabled(false);
+
+        // representation initialisation
+        representation = 0;
+
         //disposition
         m_server_options = new QGroupBox("Server Options",this);
         m_server_options->setMaximumWidth(200);
@@ -121,14 +177,19 @@ namespace ParaView {
         m_camera_options->setMaximumWidth(200);
         m_mesh_options = new QGroupBox("Mesh Options",this);
         m_mesh_options->setVisible(false);
+        m_regions_box = new QGroupBox("Regions",this);
+        m_regions_box->setMaximumWidth(200);
+        m_regions_box->setVisible(false);
 
         m_layout_server_options = new QVBoxLayout();
         m_layout_camera_options = new QVBoxLayout();
         m_layout_mesh_options = new QHBoxLayout();
+        m_layout_regions_box = new QVBoxLayout();
 
         m_server_options->setLayout(m_layout_server_options);
         m_camera_options->setLayout(m_layout_camera_options);
         m_mesh_options->setLayout(m_layout_mesh_options);
+        m_regions_box->setLayout(m_layout_regions_box);
 
         m_layout_server_options->addWidget(this->m_connect_to_server_button);
         m_layout_server_options->addWidget(this->m_load_file);
@@ -140,14 +201,20 @@ namespace ParaView {
         m_layout_camera_options->addWidget(this->m_preDefined_rotation);
         m_layout_mesh_options->addWidget(this->m_show_color_palette);
         m_layout_server_options->addWidget(this->m_reload);
+        m_layout_mesh_options->addWidget(this->m_mesh_solid_color_set);
+        m_layout_mesh_options->addWidget(this->m_spin_opacity);
+
 
         m_layout_option->addWidget(this->m_server_options);
         m_layout_option->addWidget(this->m_camera_options);
+        m_layout_option->addWidget(this->m_regions_box);
 
         m_layout_h->addLayout(this->m_layout_option);
 
         m_layout_v->addLayout(m_layout_h);
         m_layout_v->addWidget(this->m_mesh_options);
+
+        m_layout_regions_box->addWidget(this->m_actor_list);
 
         //connect
         connect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
@@ -158,6 +225,20 @@ namespace ParaView {
         connect(m_reset_camera,SIGNAL(released()),this,SLOT(reset_camera()));
         connect(m_show_color_palette,SIGNAL(released()),this,SLOT(show_color_editor()));
         connect(m_reload,SIGNAL(released()),this,SLOT(reload()));
+        connect(m_actor_list,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(show_hide_actor(QListWidgetItem*)));
+        connect(m_actor_list,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(actor_changed(QListWidgetItem*)));
+        connect(m_mesh_solid_color_set,SIGNAL(released()),this,SLOT(setColor()));
+        //connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
+        connect(m_dataSet_selector,SIGNAL(variableChanged(pqVariableType, const QString)),this,SLOT(update_solide_color_button_state(pqVariableType, const QString)));
+
+        ////Connection Boost
+        N3DViewNotifier::instance().notify_server_spec.connect(
+            boost::bind(&Widget3D::connectToServer, this, _1, _2) );
+
+        N3DViewNotifier::instance().notify_path_spec.connect(
+            boost::bind(&Widget3D::loadPaths, this, _1, _2) );
+
+
     }
 
     void Widget3D::connectToServer(QString given_host,QString port)
@@ -237,13 +318,16 @@ namespace ParaView {
                 showRender();
                 //show mesh options
                 m_mesh_options->setVisible(true);
+                m_regions_box->setVisible(true);
               }
           }else{
             m_mesh_options->setVisible(false);
+            m_regions_box->setVisible(false);
             NLog::globalLog()->addError("Source of this file path don't exist.");
           }
       }else{
         m_mesh_options->setVisible(false);
+        m_regions_box->setVisible(false);
         NLog::globalLog()->addError("Cannot load a file if no paraview server connection is set.");
       }
     }
@@ -292,6 +376,11 @@ namespace ParaView {
 
             //create a data representation in server side, for the render window with the input
             m_object_builder->createDataRepresentation(m_input->getOutputPort(0), this->m_RenderView);
+
+            //test multi
+            QPointer<pqPipelineSource> m_source2 = m_object_builder->createReader("sources", "LegacyVTKFileReader",QStringList("/nobackup/st/wertz/frog/stomach.vtk"), m_server);
+            vtkSMSourceProxy::SafeDownCast(m_source2->getProxy())->UpdatePipeline();
+            m_object_builder->createDataRepresentation(m_source2->getOutputPort(0), this->m_RenderView);
 
             //set the color selector representation (after it will directly apply changes to this representation)
             this->m_dataSet_selector->setRepresentation(m_input->getRepresentation(m_RenderView));
@@ -351,6 +440,7 @@ namespace ParaView {
 
         //hide mesh options
         m_mesh_options->setVisible(false);
+        m_regions_box->setVisible(false);
 
         //change disconnect button to connect button
         this->m_connect_to_server_button->setText("Connect");
@@ -525,6 +615,13 @@ namespace ParaView {
           writer->Write();
           //show user info
           NLog::globalLog()->addMessage("Screen shot saved.");
+
+          //or
+//          file_name = QFileDialog::getSaveFileName(
+//              this, "Export File Name", file_name,
+//              "png Images (*.png)");
+//          m_RenderView->saveImage(0,0,file_name);
+
         }
     }
 
@@ -536,9 +633,10 @@ namespace ParaView {
     void Widget3D::show_color_editor(){
       if(m_RenderView && m_input){
         //get the view representation
-        pqDataRepresentation* repr = m_input->getRepresentation(m_RenderView);
+        pqDataRepresentation* repr = m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView);
+        //pqDataRepresentation* repr = m_input->getRepresentation(m_RenderView);
         if(repr && m_RenderView->getWidget() && m_server && m_server->isRemote() && m_source){
-          //create a color selector depending of the representation
+          //create a scale color selector depending of the representation
           m_scaleEdit = new pqColorScaleEditor(m_RenderView->getWidget());
           m_scaleEdit->setRepresentation(repr);
           m_scaleEdit->show();
@@ -569,13 +667,175 @@ namespace ParaView {
       connectToServer(given_host,port);
     }
 
-    void Widget3D::connectToServer(QString host,QString port, QString path){
-      //connect to the server "host" with port "port"
-      connectToServer(host,port);
-      //open the file from "path"
-      openFile(path);
+    void Widget3D::loadPaths(std::vector<QString> paths,std::vector<QString> names){
+      //create source for eatch path
+      for(int i=0;i< paths.size();++i){
+        create_source(paths.at(i));
+        m_source_list.push_back(m_source);
+
+        QListWidgetItem * newItem = new QListWidgetItem(names.at(i));
+        newItem->setIcon(QIcon(":/paraview_icons/pqEyeball16.png"));
+        m_actor_list->addItem(newItem);
+      }
+
+      //add each source to the render
+      for(int i=0;i< paths.size();++i){
+        m_input = m_source_list.at(i);
+        //create a data representation in server side, for the render window with the input
+        m_object_builder->createDataRepresentation(m_input->getOutputPort(0), this->m_RenderView);
+        vtkSMSourceProxy::SafeDownCast(m_input->getProxy())->UpdatePipeline();
+      }
+
+      //zoom to object
+      this->m_RenderView->resetCamera();
+
+      //make sure we update the view
+      this->m_RenderView->render();
+
+      m_mesh_options->setVisible(true);
+      m_regions_box->setVisible(true);
     }
 
+    void Widget3D::create_source(QString path){
+      if(m_server && m_server->isRemote()){
+
+        //detecting extention and launching correct reader
+        QString extention = path.section('.',-1);
+
+        //create reader on server side depending on file type
+        if(!extention.compare("vtk")){ //vtk
+          m_source = m_object_builder->createReader("sources", "LegacyVTKFileReader",QStringList(path), m_server);
+        }
+        if(!extention.compare("ex2")){ //ex2
+          m_source = m_object_builder->createReader("sources", "ExodusIIReader",QStringList(path), m_server);
+        }
+
+        //if source has been created proprely
+        if(m_source){
+
+          //update the pipeline
+          vtkSMSourceProxy::SafeDownCast(m_source->getProxy())->UpdatePipeline();
+        }else{
+          m_mesh_options->setVisible(false);
+          m_regions_box->setVisible(false);
+          NLog::globalLog()->addError("Source of this file path don't exist.");
+        }
+      }else{
+        m_mesh_options->setVisible(false);
+        m_regions_box->setVisible(false);
+        NLog::globalLog()->addError("Cannot load a file if no paraview server connection is set.");
+      }
+    }
+
+    void Widget3D::show_hide_actor(QListWidgetItem * item){
+      if(m_RenderView->getRepresentation(m_actor_list->currentRow())->isVisible()){
+        item->setTextColor(Qt::gray);
+        item->setIcon(QIcon(":/paraview_icons/pqEyeballd16.png"));
+      }else{
+        item->setTextColor(Qt::black);
+        item->setIcon(QIcon(":/paraview_icons/pqEyeball16.png"));
+      }
+      m_RenderView->getRepresentation(m_actor_list->currentRow())->setVisible(
+      !m_RenderView->getRepresentation(m_actor_list->currentRow())->isVisible());
+      this->m_RenderView->render();
+
+    }
+
+    void Widget3D::actor_changed(QListWidgetItem * item){
+        //set the color selector representation (after it will directly apply changes to this representation)
+        this->m_dataSet_selector->setRepresentation(m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView));
+
+        //set the style selector representation (after it will directly apply changes to this representation)
+        this->m_mesh_style->setRepresentation(m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView));
+
+        representation = qobject_cast<pqPipelineRepresentation*>(m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView));
+
+        disconnect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
+        m_spin_opacity->setEnabled(true);
+        m_spin_opacity->setValue(representation->getOpacity());
+        connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
+
+        //m_mesh_solid_color_set->setEnabled(this->m_dataSet_selector->getCurrentText() == representation->solidColor());
+
+        this->m_RenderView->render();
+
+        //qDebug() << this->m_dataSet_selector->getCurrentText();
+        //m_mesh_solid_color_set->setEnabled(this->m_dataSet_selector->getCurrentText() == representation->solidColor());
+
+      }
+
+    void Widget3D::setColor(){
+
+      if(representation){
+
+      pqPipelineRepresentation* repr = qobject_cast<pqPipelineRepresentation*>(
+        m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView));
+      if (!repr)
+        {
+        qCritical() << "No active representation.";
+        return;
+        }
+
+      if (repr->getColorField() == pqPipelineRepresentation::solidColor())
+        {
+        // Get the color property.
+        vtkSMProxy *proxy = repr->getProxy();
+        vtkSMProperty *diffuse = proxy->GetProperty("DiffuseColor");
+        vtkSMProperty* ambient = proxy->GetProperty("AmbientColor");
+        int reprType = repr->getRepresentationType();
+        bool use_ambient = (reprType == vtkSMPVRepresentationProxy::WIREFRAME ||
+          reprType == vtkSMPVRepresentationProxy::POINTS ||
+          reprType == vtkSMPVRepresentationProxy::OUTLINE);
+        if (diffuse && ambient)
+          {
+          // Get the current color from the property.
+          QList<QVariant> rgb =
+            pqSMAdaptor::getMultipleElementProperty(diffuse);
+          QColor color(Qt::white);
+          if(rgb.size() >= 3)
+            {
+            color = QColor::fromRgbF(rgb[0].toDouble(), rgb[1].toDouble(),
+              rgb[2].toDouble());
+            }
+
+          // Let the user pick a new color.
+          color = QColorDialog::getColor(color, this);
+          if(color.isValid())
+            {
+            // Set the properties to the new color.
+            rgb.clear();
+            rgb.append(color.redF());
+            rgb.append(color.greenF());
+            rgb.append(color.blueF());
+            pqSMAdaptor::setMultipleElementProperty(
+              use_ambient? ambient : diffuse, rgb);
+            proxy->UpdateVTKObjects();
+            // need to break any global-property link that might have existed
+            // with this property.
+            pqStandardColorLinkAdaptor::breakLink(proxy,
+              use_ambient? "AmbientColor" : "DiffuseColor");
+            }
+          }
+      }
+    }
+      else{
+        //no Region selected
+      }
+    }
+
+    void Widget3D::opacityChange(double value){
+      disconnect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
+      if(representation){
+        vtkSMProxy *proxy = representation->getProxy();
+         vtkSMPropertyHelper(proxy, "Opacity").Set(value);
+        proxy->UpdateVTKObjects();
+      }
+      connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
+    }
+
+    void Widget3D::update_solide_color_button_state(pqVariableType type, const QString &name){
+      m_mesh_solid_color_set->setEnabled(name == "Solid Color");
+    }
 
 ////////////////////////////////////////////////////////////////////////////////
 

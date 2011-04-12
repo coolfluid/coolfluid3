@@ -37,6 +37,8 @@
 #include "UI/Core/NTree.hpp"
 #include "UI/Core/ThreadManager.hpp"
 
+#include "UI/Core/N3DView.hpp"
+
 #include "UI/Core/CNode.hpp"
 
 #define ADD_ARRAY_TO_XML(type) { \
@@ -54,6 +56,7 @@ for( ; itList != list.end() ; itList++)\
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
+//using namespace CF::UI::ParaView;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -609,6 +612,8 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
   else if( typeName == "CPlotXY" )
     rootNode = boost::shared_ptr<NPlotXY>(new NPlotXY(nodeName));
+  else if( typeName == "C3DView" )
+    rootNode = boost::shared_ptr<N3DView>(new N3DView(nodeName));
   else
     rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, typeName));
 

@@ -41,13 +41,9 @@ class Graphics_API GraphOption : public QWidget
 public: //functions
 
     /// constructor
-    /// @param fcts Data of functions.
-    /// @param fcts_label Name of functions.
     /// @param ptr_plot Pointer of the QwtPlot where we draw functions.
     /// @param parent The QWidget of this QWidget.
-    GraphOption(Core::NPlotXY::PlotDataPtr & fcts,
-                std::vector<QString> & fcts_label,
-                QwtPlot * ptr_plot,
+    GraphOption(QwtPlot * ptr_plot,
                 QWidget *parent = 0);
 
     /// Set the data to show in the option tab.

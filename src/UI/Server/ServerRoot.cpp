@@ -19,6 +19,9 @@
 
 #include "Solver/CPlotter.hpp"
 
+/*Gil change*/
+#include "UI/ServerParaView/C3DViewBuilder.hpp"
+
 #include "UI/UICommon/ComponentNames.hpp"
 
 #include "UI/Server/Notifier.hpp"
@@ -32,6 +35,9 @@ using namespace CF::Common::XML;
 using namespace CF::UI::Server;
 using namespace CF::Mesh;
 using namespace CF::Solver;
+
+/*Gil change*/
+using namespace CF::UI::ServerParaView;
 
 NotificationQueue * ServerRoot::m_queue;
 Notifier * ServerRoot::m_notifier;
@@ -89,9 +95,17 @@ CRoot::Ptr ServerRoot::root()
     Component::Ptr tools = root->get_child_ptr("Tools");
 
     tools->create_component<CJournal>("Journal")->mark_basic();
+
+
     CPlotter::Ptr plotter = tools->create_component<CPlotter>("Plotter");
 
+    /*Gil change*/
+    C3DViewBuilder::Ptr view3D = tools->create_component<C3DViewBuilder>("C3DViewBuilder");
+
     plotter->mark_basic();
+
+    /*Gil change*/
+    view3D->mark_basic();
 
     CTable<Real>::Ptr table = tools->create_component< CTable<Real> >("MyTable");
     table->set_row_size(8); // reserve 8 columns

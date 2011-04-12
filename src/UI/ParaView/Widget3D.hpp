@@ -15,23 +15,24 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QGroupBox>
+#include <QList>
+#include <QListWidgetItem>
+#include <QDoubleSpinBox>
 
 // ParaView header
-#include "vtkSMSourceProxy.h"
 #include "pqApplicationCore.h"
 #include "pqObjectBuilder.h"
 #include "pqPipelineSource.h"
 #include "pqPluginManager.h"
 #include "pqServer.h"
-#include "pqStandardViewModules.h"
 #include "pqRenderView.h"
 #include "pqDisplayColorWidget.h"
 #include "pqColorScaleEditor.h"
-#include "pqPQLookupTableManager.h"
 #include "pqDisplayRepresentationWidget.h"
+#include "pqPipelineRepresentation.h"
 
 // header
-#include "UI/Graphics/LibGraphics.hpp"
+#include "UI/ParaView/LibParaView.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +44,8 @@ namespace ParaView {
 
     /// @brief Show a mesh rendered on a server.
     /// @author Wertz Gil
-class Graphics_API Widget3D : public QWidget
+class ParaView_API Widget3D :
+    public QWidget
 {
   Q_OBJECT
 
@@ -58,11 +60,12 @@ public slots://slots
   /// Call openFile to reload last file path
   void reload();
 
-  /// Connect client to paraview server and load a certain file
+  /// Connect client to paraview server.
   /// @param host Ip or name of the paraview server.
   /// @param port Port used.
-  /// @param path Path of the file in server side.
-  void connectToServer(QString host,QString port, QString path);
+  void connectToServer(QString host,QString port);
+
+  void loadPaths(std::vector<QString> paths,std::vector<QString> names);
 
 private : //function
 
@@ -79,10 +82,7 @@ private : //function
     /// @param file_path Path of the file in server side.
     void openFile(QString file_path);
 
-    /// Connect client to paraview server.
-    /// @param host Ip or name of the paraview server.
-    /// @param port Port used.
-    void connectToServer(QString host,QString port);
+    void create_source(QString path);
 
 private slots: //slots
 
@@ -116,6 +116,16 @@ private slots: //slots
 
   /// Show the color editor
   void show_color_editor();
+
+  void show_hide_actor(QListWidgetItem * item);
+
+  void actor_changed(QListWidgetItem * item);
+
+  void setColor();
+
+  void opacityChange(double value);
+
+  void update_solide_color_button_state(pqVariableType type, const QString &name);
 
 private: //data
 
@@ -169,6 +179,12 @@ private: //data
   /// render window input Pipeline.
   QPointer<pqPipelineSource> m_input;
 
+  /// render window input Pipeline.
+  QList<QPointer<pqPipelineSource> > m_source_list;
+
+  /// render window input Pipeline.
+  std::vector<QString> m_path_list;
+
   /// View where the render is shown.
   QPointer<pqRenderView> m_RenderView;
 
@@ -199,6 +215,9 @@ private: //data
   /// Mesh group box options.
   QPointer<QGroupBox> m_mesh_options;
 
+  /// Mesh group box options.
+  QPointer<QGroupBox> m_regions_box;
+
   /// Server group box options layout.
   QPointer<QVBoxLayout> m_layout_server_options;
 
@@ -207,6 +226,25 @@ private: //data
 
   /// Mesh group box options layout.
   QPointer<QHBoxLayout> m_layout_mesh_options;
+
+  /// Regions group box layout.
+  QPointer<QVBoxLayout> m_layout_regions_box;
+
+  /// Regions list
+  QPointer<QListWidget> m_actor_list;
+
+  //QPointer<pqStandardColorButton> ColorActorColor;
+
+  //QPointer<pqDisplayProxyEditor> dispProxyEdit;
+
+  //QPointer<pqStandardColorLinkAdaptor> coloradapt;
+
+  QPointer<pqPipelineRepresentation> representation;
+
+  /// Button reload file.
+  QPointer<QPushButton> m_mesh_solid_color_set;
+
+  QPointer<QDoubleSpinBox> m_spin_opacity;
 
 };
 

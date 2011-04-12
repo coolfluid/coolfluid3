@@ -41,6 +41,10 @@ public: //function
     /// @param color The new color.
     void set_color(QColor color);
 
+    /// Set the row number of this colorSelector.
+    /// @param row The row number.
+    void set_row(int row);
+
 private: //function
     /// Set the color choosed as the m_color.
     void set_color();

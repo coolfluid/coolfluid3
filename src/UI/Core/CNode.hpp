@@ -144,7 +144,10 @@ namespace Core {
       GENERIC_NODE,
 
       /// XY-Plot node
-      PLOTXY_NODE
+      PLOTXY_NODE,
+
+      /// 3D node
+      VIEW3D_NODE
 
     }; // enum Type
 

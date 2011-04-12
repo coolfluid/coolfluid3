@@ -7,6 +7,7 @@
 # List of classes to "moc"
 list( APPEND coolfluid_ui_core_moc_classes
 CNode.hpp
+N3DView.hpp
 NetworkThread.hpp
 NJournalBrowser.hpp
 NJournal.hpp
@@ -34,6 +35,8 @@ NJournalBrowser.cpp
 NJournalBrowser.hpp
 LibCore.cpp
 LibCore.hpp
+N3DView.cpp
+N3DView.hpp
 NBrowser.cpp
 NBrowser.hpp
 NetworkThread.cpp
@@ -65,6 +68,6 @@ TreeThread.hpp
 list( APPEND coolfluid_ui_core_cflibs coolfluid_ui_common )
 
 # Use Qt Libraries
-list( APPEND coolfluid_ui_core_libs ${QT_LIBRARIES})
+list( APPEND coolfluid_ui_core_libs ${QT_LIBRARIES} )
 
 coolfluid_add_library(coolfluid_ui_core)

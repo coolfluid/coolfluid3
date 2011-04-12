@@ -79,6 +79,10 @@ QColor ColorSelector::get_color(){
     return m_color;
 }
 
+void ColorSelector::set_row(int row){
+  this->m_raw = row;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Graphics

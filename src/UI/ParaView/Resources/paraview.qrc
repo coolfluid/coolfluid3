@@ -14,5 +14,7 @@
         <file>pqZMinus16.png</file>
         <file>pqZPlus16.png</file>
         <file>ShowCenterButton.png</file>
+        <file>pqEyeball16.png</file>
+        <file>pqEyeballd16.png</file>
     </qresource>
 </RCC>

@@ -15,6 +15,7 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   add_subdirectory( Core  )
   add_subdirectory( Graphics  )
   add_subdirectory( ParaView )
+  add_subdirectory( ServerParaView )
 
   add_subdirectory( UICommon )
   add_subdirectory( Server  )

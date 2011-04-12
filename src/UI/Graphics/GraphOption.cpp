@@ -34,9 +34,8 @@ namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GraphOption::GraphOption(NPlotXY::PlotDataPtr & fcts,
-                         std::vector<QString> & fcts_label,
-                         QwtPlot * ptr_plot,QWidget *parent) :
+GraphOption::GraphOption(QwtPlot * ptr_plot,
+                         QWidget *parent) :
 QWidget(parent)
 {
   m_ptr_plot = ptr_plot;
@@ -90,7 +89,7 @@ QWidget(parent)
 
   m_button_generate_function = new QPushButton("Generate Function");
 
-  set_data(fcts,fcts_label);
+  //set_data(fcts,fcts_label);
 
   //adding widget & layout to layout
   vertical_line_table_layout->addWidget(m_line_table);
@@ -274,7 +273,7 @@ void GraphOption::set_data(Core::NPlotXY::PlotDataPtr & fcts,
   draw_action();
 
   //inform user
-  Core::NLog::globalLog()->addMessage("New data set recived.");
+  Core::NLog::globalLog()->addMessage("New data set received.");
 }
 
 
@@ -442,6 +441,9 @@ void GraphOption::remove_line()
   while( m_line_table->selectionModel()->selectedRows().count() > 0)
   {
     m_line_table->removeRow(m_line_table->selectionModel()->selectedRows().at(0).row());
+  }
+  for(int i=0; i < m_line_table->rowCount(); ++i){
+    ((ColorSelector *)m_line_table->cellWidget(i,3))->set_row(i);
   }
   draw_action();
 }
