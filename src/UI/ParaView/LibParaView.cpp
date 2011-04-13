@@ -11,12 +11,16 @@
 #include "Common/Core.hpp"
 #include "Common/RegistLibrary.hpp"
 
+#include "UI/Core/NPlugin.hpp"
+#include "UI/Core/NPlugins.hpp"
+
 #include "UI/Graphics/TabBuilder.hpp"
 
 #include "UI/ParaView/Widget3D.hpp"
 #include "UI/ParaView/LibParaView.hpp"
 
 using namespace CF::Common;
+using namespace CF::UI::Core;
 using namespace CF::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,12 +35,14 @@ CF::Common::RegistLibrary<LibParaView> libParaView;
 
 void LibParaView::initiate_impl()
 {
-  Core & core = Core::instance();
+  Common::Core & core = Common::Core::instance();
   m_argc = core.argc();
 
   m_appCore = new pqApplicationCore(m_argc, core.argv());
 
-  m_tabIndex = TabBuilder::instance()->addTab(new Widget3D(), "3D-View");
+  NPlugins::globalPlugins()->registerPlugin<LibParaView>();
+
+//  m_tabIndex = TabBuilder::instance()->addTab(new Widget3D(), "3D-View");
 }
 
 void LibParaView::terminate_impl()

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-#include "UI/Core/CNode.hpp"
+#include "UI/Core/NPlugin.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,30 @@ public:
 
   virtual ~NPlugins();
 
-  void registerPlugin( /* something */ );
+  template<typename LIB>
+  NPlugin::Ptr registerPlugin()
+  {
+    // a plugin cannot be registered twice
+    cf_assert( m_components.find(LIB::library_name()) == m_components.end() );
+
+    NPlugin::Ptr plugin = create_component<NPlugin>( LIB::library_name() );
+
+    plugin->mark_basic();
+
+    return plugin;
+  }
+
+  template<typename LIB>
+  bool isRegisteredPlugin()
+  {
+    return m_components.find(LIB::library_name()) != m_components.end();
+  }
+
+  template<typename LIB>
+  NPlugin::Ptr plugin()
+  {
+    return get_child_ptr_checked( LIB::library_name() )->as_ptr_checked<NPlugin>();
+  }
 
   virtual QString toolTip() const;
 

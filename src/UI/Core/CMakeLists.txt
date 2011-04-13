@@ -49,6 +49,8 @@ NLink.cpp
 NLink.hpp
 NLog.cpp
 NLog.hpp
+NPlugin.cpp
+NPlugin.hpp
 NPlugins.cpp
 NPlugins.hpp
 NRoot.cpp
