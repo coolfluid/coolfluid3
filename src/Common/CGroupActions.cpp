@@ -27,7 +27,7 @@ CGroupActions::CGroupActions ( const std::string& name ) :  CAction(name)
 
 void CGroupActions::execute()
 {
-  boost_foreach(CGroupActions& action, find_components<CGroupActions>(*this))
+  boost_foreach(CAction& action, find_components<CAction>(*this))
     action.execute();
 }
 

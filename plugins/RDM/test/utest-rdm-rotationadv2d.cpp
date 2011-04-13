@@ -171,7 +171,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -181,10 +181,8 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
     regions.push_back( region.full_path() );
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"farfield"))
-    regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( regions.size() , 2u);
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   std::string name ("INLET");
 
@@ -195,10 +193,43 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixtu
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
-  cf_assert( is_not_null(inletbc) );
+  BOOST_CHECK( is_not_null(inletbc) );
 
   std::vector<std::string> fns;
-  fns.push_back("if(y>0,0,if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.))");
+  fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
+  inletbc->configure_property("Functions", fns);
+
+  BOOST_CHECK(true);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_farfield , rotationadv2d_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  SignalFrame frame;
+  SignalOptions options( frame );
+
+  std::vector<URI> regions;
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"farfield"))
+    regions.push_back( region.full_path() );
+
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
+
+  std::string name ("FARFIELD");
+
+  options.add<std::string>("Name",name);
+  options.add<std::string>("Type","CF.RDM.BcDirichlet");
+  options.add("Regions", regions, " ; ");
+
+  solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
+
+  Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
+  BOOST_CHECK( is_not_null(inletbc) );
+
+  std::vector<std::string> fns;
+  fns.push_back("0.0");
   inletbc->configure_property("Functions", fns);
 
   BOOST_CHECK(true);
@@ -219,6 +250,30 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , rotationadv2d_local_fixtur
   options.add<std::string>("Functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( test_init_output , rotationadv2d_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  model.add_component(gmsh_writer);
+
+  std::vector<URI> fields;
+  boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
+    fields.push_back(field.full_path());
+
+  gmsh_writer->configure_property("Fields",fields);
+  gmsh_writer->configure_property("File",model.name()+"_init.msh");
+  gmsh_writer->configure_property("Mesh",mesh->full_path());
+
+  gmsh_writer->write();
+
+  model.remove_component("GmshWriter");
 }
 
 //////////////////////////////////////////////////////////////////////////////
