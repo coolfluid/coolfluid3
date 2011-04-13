@@ -31,7 +31,7 @@ namespace Core {
 
 
 N3DView::N3DView(const QString & name) :
-    CNode( name, "N3DView", VIEW3D_NODE )
+    CNode( name, "N3DView", CNode::STANDARD_NODE )
 {
   regist_signal("launch_pvserver", "Launch Paraview Server", "Launch Server")->
       signal->connect( boost::bind( &N3DView::launch_pvserver, this, _1));
@@ -46,7 +46,7 @@ void N3DView::reload_client_view(){
 
 QString N3DView::toolTip() const
 {
-  return getComponentType();
+  return componentType();
 }
 
 void N3DView::launch_pvserver( SignalArgs& node ){
