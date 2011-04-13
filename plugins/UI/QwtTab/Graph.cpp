@@ -29,11 +29,13 @@
 #include "qwt/qwt_polygon.h"
 
 //header
-#include "UI/Core/NPlotXY.hpp"
 #include "UI/Core/NLog.hpp"
-#include "UI/Graphics/PixMaps.hpp"
-#include "UI/Graphics/BodePlot.hpp"
-#include "UI/Graphics/Graph.hpp"
+
+#include "UI/QwtTab/BodePlot.hpp"
+
+#include "UI/QwtTab/NPlotXY.hpp"
+#include "UI/QwtTab/PixMaps.hpp"
+#include "UI/QwtTab/Graph.hpp"
 
 using namespace CF::UI::Core;
 
@@ -41,7 +43,7 @@ using namespace CF::UI::Core;
 
 namespace CF {
 namespace UI {
-namespace Graphics {
+namespace QwtTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -476,7 +478,7 @@ namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Graphics
+} // QwtTab
 } // UI
 } // CF
 

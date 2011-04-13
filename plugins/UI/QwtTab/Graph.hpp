@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_Graph_hpp
-#define CF_GUI_Graphics_Graph_hpp
+#ifndef CF_UI_QwtTab_Graph_hpp
+#define CF_UI_QwtTab_Graph_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@
 #include "qwt/qwt_polygon.h"
 
 // header
-#include "UI/Graphics/GraphOption.hpp"
+#include "UI/QwtTab/GraphOption.hpp"
 
 // forward declaration to avoid incuding files
 class QLabel;
@@ -33,7 +33,7 @@ class QwtPlotPanner;
 
 namespace CF {
 namespace UI {
-namespace Graphics {
+namespace QwtTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,8 +57,7 @@ public: //function
   /// Erase existing data and put the new one on the current graph.
   /// @param fcts The new data in a 2d vector.
   /// @param fct_label Label of each data set.
-  void set_xy_data(Core::NPlotXY::PlotDataPtr fcts,
-                   std::vector<QString> & fct_label);
+  void set_xy_data(NPlotXY::PlotDataPtr fcts, std::vector<QString> & fct_label);
 
 private: //function
 
@@ -152,4 +151,4 @@ private slots: //slots
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_Graph_hpp
+#endif // CF_UI_QwtTab_Graph_hpp

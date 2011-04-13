@@ -14,19 +14,21 @@
 
 #include "UI/Core/CNode.hpp"
 
+#include "UI/QwtTab/LibQwtTab.hpp"
+
 class QString;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace UI {
-namespace Core {
+namespace QwtTab {
 
 ////////////////////////////////////////////////////////////////////////////
 
-class Core_API NPlotXY :
+class QwtTab_API NPlotXY :
     public QObject,
-    public CNode
+    public Core::CNode
 {
   Q_OBJECT
 
@@ -52,10 +54,11 @@ protected:
   /// by default.
   virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
 
+
 }; //  XYPlot
 
 
-class Core_API NPlotXYNotifier{
+class QwtTab_API NPlotXYNotifier{
 public:
 
   /// signal for the set_xy_data of graph.
@@ -79,11 +82,12 @@ private:
 
   /// Destructor.
   ~NPlotXYNotifier(){}
+
 };
 
 ////////////////////////////////////////////////////////////////////////////
 
-} // Core
+} // QwtTab
 } // UI
 } // CF
 

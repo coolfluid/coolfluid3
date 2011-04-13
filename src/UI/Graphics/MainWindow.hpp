@@ -39,7 +39,6 @@ namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class Graph;
   class LoggingList;
   class CentralPanel;
   class TreeView;
@@ -223,8 +222,6 @@ namespace Graphics {
     QScrollArea * m_scrollDescription;
 
     TreeBrowser * m_treeBrowser;
-
-    Graph * m_graphXYPlot;
 
     /// @brief Creates actions and menus
     void buildMenus();

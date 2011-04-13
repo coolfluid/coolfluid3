@@ -6,19 +6,15 @@
 
 # List of classes to "moc"
 list( APPEND coolfluid_ui_graphics_moc_classes
-  BodePlot.hpp
   CentralPanel.hpp
-  ColorSelector.hpp
   ModifiedOptionsDialog.hpp
   ConfirmCommitDialog.hpp
   FilteringModel.hpp # needs to be added because base class emits signals
-  Graph.hpp
   GraphicalArray.hpp
   GraphicalArrayRestrictedList.hpp
   GraphicalBool.hpp
   GraphicalDouble.hpp
   GraphicalInt.hpp
-  GraphOption.hpp
   GraphicalRestrictedList.hpp
   GraphicalString.hpp
   GraphicalUri.hpp
@@ -43,20 +39,14 @@ QT4_WRAP_CPP(coolfluid_ui_graphics_moc_files ${coolfluid_ui_graphics_moc_classes
 list( APPEND coolfluid_ui_graphics_files
   AboutCFDialog.cpp
   AboutCFDialog.hpp
-  BodePlot.cpp
-  BodePlot.hpp
   CentralPanel.cpp
   CentralPanel.hpp
-  ColorSelector.cpp
-  ColorSelector.hpp
   ConfirmCommitDialog.cpp
   ConfirmCommitDialog.hpp
   FilesListItem.cpp
   FilesListItem.hpp
   FilteringModel.cpp
   FilteringModel.hpp
-  Graph.hpp
-  Graph.cpp
   GraphicalArray.hpp
   GraphicalArray.cpp
   GraphicalArrayRestrictedList.hpp
@@ -67,8 +57,6 @@ list( APPEND coolfluid_ui_graphics_files
   GraphicalDouble.cpp
   GraphicalInt.hpp
   GraphicalInt.cpp
-  GraphOption.cpp
-  GraphOption.hpp
   GraphicalRestrictedList.cpp
   GraphicalRestrictedList.hpp
   GraphicalString.hpp
@@ -95,7 +83,6 @@ list( APPEND coolfluid_ui_graphics_files
   NRemoteBrowser.hpp
   NRemoteOpen.cpp
   NRemoteOpen.hpp
-  PixMaps.hpp
   SelectPathDialog.cpp
   SelectPathDialog.hpp
   SignalInspectorDialog.cpp

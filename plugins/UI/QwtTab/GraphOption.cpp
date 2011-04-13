@@ -17,9 +17,9 @@
 
 // headers
 #include "UI/Core/NLog.hpp"
-#include "UI/Graphics/GraphOption.hpp"
-#include "UI/Graphics/Graph.hpp"
-#include "UI/Graphics/ColorSelector.hpp"
+#include "UI/QwtTab/GraphOption.hpp"
+#include "UI/QwtTab/Graph.hpp"
+#include "UI/QwtTab/ColorSelector.hpp"
 #include "fparser/fparser.hh"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ using namespace CF::UI::Core;
 
 namespace CF {
 namespace UI {
-namespace Graphics {
+namespace QwtTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -206,8 +206,9 @@ void GraphOption::draw_and_resize()
 
 }
 
-void GraphOption::set_data(Core::NPlotXY::PlotDataPtr & fcts,
-                           std::vector<QString> & fcts_label){
+void GraphOption::set_data(NPlotXY::PlotDataPtr & fcts,
+                           std::vector<QString> & fcts_label)
+{
 
   m_can_draw = false;
 

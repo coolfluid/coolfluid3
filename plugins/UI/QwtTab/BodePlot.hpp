@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_GUI_Graphics_BodePlot_hpp
-#define CF_GUI_Graphics_BodePlot_hpp
+#ifndef CF_UI_QwtTab_BodePlot_hpp
+#define CF_UI_QwtTab_BodePlot_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,19 +17,19 @@
 
 // header
 #include "Common/CF.hpp"
-#include "UI/Graphics/LibGraphics.hpp"
+#include "UI/QwtTab/LibQwtTab.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace UI {
-namespace Graphics {
+namespace QwtTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @brief This is a QwtPlot with easiest way to acces the options and add curves.
 /// @author Wertz Gil
-class Graphics_API BodePlot: public QwtPlot
+class QwtTab_API BodePlot: public QwtPlot
 {
     Q_OBJECT
 
@@ -164,4 +164,4 @@ private:
 } // UI
 } // CF
 
-#endif // CF_GUI_Graphics_BodePlot_hpp
+#endif // CF_UI_QwtTab_BodePlot_hpp

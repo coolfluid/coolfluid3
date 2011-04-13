@@ -15,7 +15,7 @@
 
 #include "UI/Core/TreeThread.hpp"
 
-#include "UI/Core/NPlotXY.hpp"
+#include "UI/QwtTab/NPlotXY.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@ using namespace CF::Common::XML;
 
 namespace CF {
 namespace UI {
-namespace Core {
+namespace QwtTab {
 
 //////////////////////////////////////////////////////////////////////////////
 

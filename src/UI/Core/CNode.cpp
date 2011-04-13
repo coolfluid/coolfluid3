@@ -33,7 +33,6 @@
 #include "UI/Core/NJournal.hpp"
 #include "UI/Core/NLog.hpp"
 #include "UI/Core/NLink.hpp"
-#include "UI/Core/NPlotXY.hpp"
 #include "UI/Core/NRoot.hpp"
 #include "UI/Core/NTree.hpp"
 #include "UI/Core/ThreadManager.hpp"
@@ -615,8 +614,6 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
     rootNode = boost::shared_ptr<NJournal>(new NJournal(nodeName));
   else if( typeName == "CRoot" )
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
-  else if( typeName == "CPlotXY" )
-    rootNode = boost::shared_ptr<NPlotXY>(new NPlotXY(nodeName));
   else if( typeName == "C3DView" )
     rootNode = boost::shared_ptr<N3DView>(new N3DView(nodeName));
   else

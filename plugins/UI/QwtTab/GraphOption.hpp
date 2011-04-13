@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_GraphOption_hpp
-#define CF_GUI_Graphics_GraphOption_hpp
+#ifndef CF_UI_QwtTab_GraphOption_hpp
+#define CF_UI_QwtTab_GraphOption_hpp
 
 // Qt headers
 #include <QTableWidget>
@@ -17,14 +17,14 @@
 #include "qwt/qwt_plot.h"
 
 // headers
-#include "UI/Core/NPlotXY.hpp"
+#include "UI/QwtTab/NPlotXY.hpp"
 #include "UI/Graphics/LibGraphics.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace UI {
-namespace Graphics {
+namespace QwtTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ class Graph;
 /// @brief This class is used to set visuals options, generate functions and
 ///  set the curve to draw.
 /// @author Wertz Gil
-class Graphics_API GraphOption : public QWidget
+class QwtTab_API GraphOption : public QWidget
 {
     Q_OBJECT
 public: //functions
@@ -49,7 +49,7 @@ public: //functions
     /// Set the data to show in the option tab.
     /// @param fcts Data of functions.
     /// @param fcts_label Name of functions.
-    void set_data(Core::NPlotXY::PlotDataPtr & fcts,std::vector<QString> & fcts_label);
+    void set_data(NPlotXY::PlotDataPtr & fcts,std::vector<QString> & fcts_label);
 
     /// Add a function in the function set with it name and formula.
     /// @param fct Data of the function.
@@ -73,7 +73,7 @@ private: //datas
   QPointer<QwtPlot> m_ptr_plot;
 
   /// The curves data.
-  Core::NPlotXY::PlotDataPtr m_fcts;
+  NPlotXY::PlotDataPtr m_fcts;
 
   /// User function's formula  line input.
   QPointer<QLineEdit> m_line_function;
@@ -154,4 +154,4 @@ private slots: //functions - slots
 } // UI
 } // CF
 
-#endif // CF_GUI_Graphics_GraphOption_hpp
+#endif // CF_UI_QwtTab_GraphOption_hpp

@@ -4,28 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_COLORSELECTOR_HPP
-#define CF_GUI_Graphics_COLORSELECTOR_HPP
+#ifndef CF_UI_QwtTab_ColorSelector_hpp
+#define CF_UI_QwtTab_ColorSelector_hpp
 
 // Qt header
 #include <QLabel>
 #include <QMouseEvent>
 
 // header
-#include "UI/Graphics/LibGraphics.hpp"
+#include "UI/QwtTab/LibQwtTab.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace UI {
-namespace Graphics {
+namespace QwtTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
 /// @brief This is QLabel that display a color picker when clicked and can give this color back.
 /// @author Wertz Gil
-class Graphics_API ColorSelector : public QLabel
+class QwtTab_API ColorSelector : public QLabel
 {
     Q_OBJECT
 
@@ -68,8 +68,8 @@ signals: //signals
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Graphics
+} // QwtTab
 } // UI
 } // CF
 
-#endif // CF_GUI_Graphics_COLORSELECTOR_HPP
+#endif // CF_UI_QwtTab_ColorSelector_hpp

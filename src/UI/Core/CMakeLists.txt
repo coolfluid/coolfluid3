@@ -14,7 +14,6 @@ NJournal.hpp
 NLog.hpp
 NRoot.hpp
 NTree.hpp
-NPlotXY.hpp
 PropertyModel.hpp
 TreeNode.hpp
 TreeThread.hpp
@@ -59,8 +58,6 @@ NRoot.cpp
 NRoot.hpp
 NTree.cpp
 NTree.hpp
-NPlotXY.cpp
-NPlotXY.hpp
 PropertyModel.cpp
 PropertyModel.hpp
 ThreadManager.cpp

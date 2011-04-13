@@ -13,8 +13,10 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QMenuBar>
+#include <QPushButton>
 #include <QScrollArea>
 #include <QSplitter>
+#include <QTableView>
 #include <QUrl>
 
 #include "UI/Core/TreeThread.hpp"
@@ -27,7 +29,6 @@
 #include "UI/Graphics/AboutCFDialog.hpp"
 #include "UI/Graphics/LoggingList.hpp"
 #include "UI/Graphics/CentralPanel.hpp"
-#include "UI/Graphics/Graph.hpp"
 #include "UI/Graphics/NRemoteOpen.hpp"
 #include "UI/Graphics/SignatureDialog.hpp"
 #include "UI/Graphics/TabBuilder.hpp"
@@ -76,7 +77,6 @@ MainWindow::MainWindow()
   m_labDescription = new QLabel(m_tabWindow);
   m_treeBrowser = new TreeBrowser(m_treeView, this);
   m_scrollDescription = new QScrollArea(this);
-  m_graphXYPlot = new Graph(this);
 
   m_aboutCFDialog = new AboutCFDialog(this);
 
@@ -99,7 +99,6 @@ MainWindow::MainWindow()
   m_tabWindow->addTab(m_scrollDescription, "Description");
 
   TabBuilder::instance()->addTab(m_centralPanel, "Options");
-  TabBuilder::instance()->addTab(m_graphXYPlot, "XY-Plot");
 
   m_centralSplitter->setStretchFactor(0, 10);
 

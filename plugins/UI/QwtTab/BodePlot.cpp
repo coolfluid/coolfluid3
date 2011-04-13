@@ -11,7 +11,7 @@
 #include "qwt/qwt_scale_engine.h"
 
 // header
-#include "UI/Graphics/BodePlot.hpp"
+#include "UI/QwtTab/BodePlot.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ using namespace std;
 
 namespace CF {
 namespace UI {
-namespace Graphics {
+namespace QwtTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
