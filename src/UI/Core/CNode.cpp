@@ -128,7 +128,7 @@ Component::Ptr CNode::realComponent()
   if( m_isRoot )
     return castTo<NRoot>()->root();
 
-  return shared_from_this();
+  return as_ptr<Component>();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -138,7 +138,7 @@ Component::ConstPtr CNode::realComponent() const
   if( m_isRoot )
     return castTo<const NRoot>()->root();
 
-  return shared_from_this();
+  return as_ptr<const Component>();
 }
 
 ////////////////////////////////////////////////////////////////////////////

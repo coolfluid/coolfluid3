@@ -225,7 +225,10 @@ CNode::Ptr NTree::nodeByPath(const URI & path)
       comps.removeFirst();
 
     for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
-      node = realComponent()->get_child_ptr(it->toStdString())->as_ptr_checked<CNode>();
+    {
+      node = node->realComponent()->
+          get_child_ptr(it->toStdString())->as_ptr_checked<CNode>();
+    }
   }
 
   return node;
