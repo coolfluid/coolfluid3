@@ -100,15 +100,16 @@ MainWindow::MainWindow()
 
   TabBuilder::instance()->addTab(m_centralPanel, "Options");
 
-  m_centralSplitter->setStretchFactor(0, 10);
 
   // add the components to the splitter
   m_splitter->addWidget(m_treeBrowser);
 
   m_centralSplitter->addWidget(TabBuilder::instance());
   m_centralSplitter->addWidget(m_tabWindow);
+
   m_splitter->addWidget(m_centralSplitter);
 
+  m_centralSplitter->setStretchFactor(0, 10);
   m_splitter->setStretchFactor(1, 10);
 
   m_splitter->setHandleWidth(0);
