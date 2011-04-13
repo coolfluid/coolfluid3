@@ -37,8 +37,6 @@
 #include "UI/Core/NTree.hpp"
 #include "UI/Core/ThreadManager.hpp"
 
-#include "UI/Core/N3DView.hpp"
-
 #include "UI/Core/CNode.hpp"
 
 #define ADD_ARRAY_TO_XML(type) { \
@@ -622,8 +620,6 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
     rootNode = boost::shared_ptr<NJournal>(new NJournal(nodeName));
   else if( typeName == "CRoot" )
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
-  else if( typeName == "C3DView" )
-    rootNode = boost::shared_ptr<N3DView>(new N3DView(nodeName));
   else
     rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, typeName));
 

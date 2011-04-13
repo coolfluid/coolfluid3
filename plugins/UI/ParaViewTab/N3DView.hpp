@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_ParaView_N3DVIEW_HPP
-#define CF_UI_ParaView_N3DVIEW_HPP
+#ifndef CF_UI_ParaViewTab_N3DVIEW_HPP
+#define CF_UI_ParaViewTab_N3DVIEW_HPP
 
 #include <QString>
 #include <QObject>
@@ -14,18 +14,18 @@
 
 #include <boost/signals2/signal.hpp>
 
-//#include "UI/ParaView/LibParaView.hpp"
+#include "UI/ParaViewTab/LibParaViewTab.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace UI {
-namespace Core {
+namespace ParaViewTab {
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Core_API N3DView :
+class ParaViewTab_API N3DView :
     public QObject,
     public UI::Core::CNode
 {
@@ -56,6 +56,8 @@ protected:
   /// @param localSignals Map of local signals. All values are set to true
   /// by default.
   virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+
+  virtual void setUpFinished();
 
 };
 
@@ -91,4 +93,4 @@ private:
 } // UI
 } // CF
 
-#endif // CF_UI_ParaView_N3DVIEW_HPP
+#endif // CF_UI_ParaViewTab_N3DVIEW_HPP

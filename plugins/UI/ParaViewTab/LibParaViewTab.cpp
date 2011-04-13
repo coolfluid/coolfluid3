@@ -16,8 +16,9 @@
 
 #include "UI/Graphics/TabBuilder.hpp"
 
-#include "UI/ParaView/Widget3D.hpp"
-#include "UI/ParaView/LibParaView.hpp"
+#include "UI/Core/CNodeBuilders.hpp"
+#include "UI/ParaViewTab/N3DView.hpp"
+#include "UI/ParaViewTab/LibParaViewTab.hpp"
 
 using namespace CF::Common;
 using namespace CF::UI::Core;
@@ -27,25 +28,26 @@ using namespace CF::UI::Graphics;
 
 namespace CF {
 namespace UI {
-namespace ParaView {
+namespace ParaViewTab {
 
-CF::Common::RegistLibrary<LibParaView> libParaView;
+CF::Common::RegistLibrary<LibParaViewTab> libParaViewTab;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibParaView::initiate_impl()
+void LibParaViewTab::initiate_impl()
 {
   Common::Core & core = Common::Core::instance();
   m_argc = core.argc();
 
   m_appCore = new pqApplicationCore(m_argc, core.argv());
 
-  NPlugins::globalPlugins()->registerPlugin<LibParaView>();
+  NPlugins::globalPlugins()->registerPlugin<LibParaViewTab>();
+  CNodeBuilders::instance().registerBuilder<N3DView>("C3DView");
 
 //  m_tabIndex = TabBuilder::instance()->addTab(new Widget3D(), "3D-View");
 }
 
-void LibParaView::terminate_impl()
+void LibParaViewTab::terminate_impl()
 {
   delete m_appCore;
 }

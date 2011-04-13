@@ -7,7 +7,6 @@
 # List of classes to "moc"
 list( APPEND coolfluid_ui_core_moc_classes
 CNode.hpp
-N3DView.hpp
 NetworkThread.hpp
 NJournalBrowser.hpp
 NJournal.hpp
@@ -36,8 +35,6 @@ NJournalBrowser.cpp
 NJournalBrowser.hpp
 LibCore.cpp
 LibCore.hpp
-N3DView.cpp
-N3DView.hpp
 NBrowser.cpp
 NBrowser.hpp
 NetworkThread.cpp

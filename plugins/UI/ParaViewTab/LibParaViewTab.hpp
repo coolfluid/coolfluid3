@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_ParaView_LibParaView_hpp
-#define CF_GUI_ParaView_LibParaView_hpp
+#ifndef CF_GUI_ParaViewTab_LibParaViewTab_hpp
+#define CF_GUI_ParaViewTab_LibParaViewTab_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,14 +13,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro ParaView_API
-/// @note build system defines COOLFLUID_UI_ParaView_EXPORTS when compiling ParaViewTools files
-#ifdef COOLFLUID_UI_PARAVIEW_EXPORTS
-#   define ParaView_API      CF_EXPORT_API
-#   define ParaView_TEMPLATE
+/// Define the macro ParaViewTab_API
+/// @note build system defines COOLFLUID_UI_PARAVIEWTAB_EXPORTS when compiling ParaViewTabTools files
+#ifdef COOLFLUID_UI_PARAVIEWTAB_EXPORTS
+#   define ParaViewTab_API      CF_EXPORT_API
+#   define ParaViewTab_TEMPLATE
 #else
-#   define ParaView_API      CF_IMPORT_API
-#   define ParaView_TEMPLATE CF_TEMPLATE_EXTERN
+#   define ParaViewTab_API      CF_IMPORT_API
+#   define ParaViewTab_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 class pqApplicationCore;
@@ -30,33 +30,33 @@ class pqApplicationCore;
 namespace CF {
 
 namespace UI {
-/// Basic Classes for ParaView applications used by CF
-namespace ParaView {
+/// Basic Classes for ParaViewTab applications used by CF
+namespace ParaViewTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the initialization and termination of the library ParaView
+/// Class defines the initialization and termination of the library ParaViewTab
 /// @author Tiago Quintino
-class ParaView_API LibParaView :
+class ParaViewTab_API LibParaViewTab :
         public Common::CLibrary
 {
 public:
 
-    typedef boost::shared_ptr<LibParaView> Ptr;
-    typedef boost::shared_ptr<LibParaView const> ConstPtr;
+    typedef boost::shared_ptr<LibParaViewTab> Ptr;
+    typedef boost::shared_ptr<LibParaViewTab const> ConstPtr;
 
     /// Constructor
-    LibParaView ( const std::string& name) : Common::CLibrary(name), m_appCore(nullptr) {   }
+    LibParaViewTab ( const std::string& name) : Common::CLibrary(name), m_appCore(nullptr) {   }
 
 public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.UI.ParaView"; }
+    static std::string library_namespace() { return "CF.UI.ParaViewTab"; }
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration
     /// @return name of the library
-    static std::string library_name() { return "ParaView"; }
+    static std::string library_name() { return "ParaViewTab"; }
 
     /// Static function that returns the description of the module.
     /// Must be implemented for CLibrary registration
@@ -64,11 +64,11 @@ public: // functions
 
     static std::string library_description()
     {
-        return "This library implements the Graphical Interface API.";
+        return "This library implements the 3D visualisation plugin.";
     }
 
     /// Gets the Class name
-    static std::string type_name() { return "LibParaView"; }
+    static std::string type_name() { return "LibParaViewTab"; }
 
 protected:
 
@@ -86,14 +86,14 @@ private:
 
     int m_tabIndex;
 
-}; // end LibParaView
+}; // end LibParaViewTab
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // ParaView
+} // ParaViewTab
 } // UI
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_ParaView_LibParaView_hpp
+#endif // CF_GUI_ParaViewTab_LibParaViewTab_hpp

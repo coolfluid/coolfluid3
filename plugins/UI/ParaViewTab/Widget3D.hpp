@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_ParaView_Widget3D_hpp
-#define CF_UI_ParaView_Widget3D_hpp
+#ifndef CF_UI_ParaViewTab_Widget3D_hpp
+#define CF_UI_ParaViewTab_Widget3D_hpp
 
 // Qt headers
 #include <QVBoxLayout>
@@ -19,7 +19,7 @@
 #include <QListWidgetItem>
 #include <QDoubleSpinBox>
 
-// ParaView header
+// ParaViewTab header
 #include "pqApplicationCore.h"
 #include "pqObjectBuilder.h"
 #include "pqPipelineSource.h"
@@ -32,19 +32,19 @@
 #include "pqPipelineRepresentation.h"
 
 // header
-#include "UI/ParaView/LibParaView.hpp"
+#include "UI/ParaViewTab/LibParaViewTab.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace UI {
-namespace ParaView {
+namespace ParaViewTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Show a mesh rendered on a ParaView server.
+/// @brief Show a mesh rendered on a ParaViewTab server.
 /// @author Wertz Gil
-class ParaView_API Widget3D :
+class ParaViewTab_API Widget3D :
     public QWidget
 {
   Q_OBJECT
@@ -60,8 +60,8 @@ public slots://slots
   /// Call openFile to reload last file path
   //void reload();
 
-  /// Connect client to paraview server.
-  /// @param host Ip or name of the paraview server.
+  /// Connect client to ParaViewTab server.
+  /// @param host Ip or name of the ParaViewTab server.
   /// @param port Port used.
   void connectToServer(QString host,QString port);
 
@@ -69,27 +69,27 @@ public slots://slots
 
 private : //function
 
-    /// Show the render of a file if the server connection is set and a the file exist
-    void showRender();
+  /// Show the render of a file if the server connection is set and a the file exist
+  void showRender();
 
-    /// Create a view from server
-    void createView();
+  /// Create a view from server
+  void createView();
 
-    /// Add a filter
-    void addFilter();
+  /// Add a filter
+  void addFilter();
 
-    /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
-    /// @param file_path Path of the file in server side.
-    void openFile(QString file_path,QString file_name);
+  /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
+  /// @param file_path Path of the file in server side.
+  void openFile(QString file_path,QString file_name);
 
-    void create_source(QString path);
+  void create_source(QString path);
 
 private slots: //slots
 
   /// Ask connection options to user and try to connect to server host with port.
   void connectToServer();
 
-  /// Disconnect from current paraview server.
+  /// Disconnect from current ParaViewTab server.
   void disconnectFromServer();
 
   /// Call openFile with new entry path.
@@ -129,7 +129,7 @@ private slots: //slots
 
 private: //data
 
-  /// Initialising Application Core that manage all vtk and paraview Objects.
+  /// Initialising Application Core that manage all vtk and ParaViewTab Objects.
   QPointer<pqApplicationCore> m_core;
 
   /// Object Builder create Object on server side and a ghost on client side.
@@ -257,11 +257,11 @@ private: //data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // ParaView
+} // ParaViewTab
 } // UI
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#endif // CF_UI_ParaView_Widget3D_hpp
+#endif // CF_UI_ParaViewTab_Widget3D_hpp

@@ -13,19 +13,23 @@
 #include "UI/UICommon/ComponentNames.hpp"
 
 #include "UI/Core/TreeThread.hpp"
+#include "UI/Graphics/TabBuilder.hpp"
 
-#include "UI/Core/N3DView.hpp"
+#include "UI/ParaViewTab/Widget3D.hpp"
+
+#include "UI/ParaViewTab/N3DView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
+using namespace CF::UI::Graphics;
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace UI {
-namespace Core {
+namespace ParaViewTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,9 +44,21 @@ N3DView::N3DView(const std::string & name) :
       signal->connect( boost::bind( &N3DView::send_server_info_to_client, this, _1));
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
 void N3DView::reload_client_view(){
 
 }
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void N3DView::setUpFinished()
+{
+  TabBuilder::instance()->getWidget<Widget3D>( as_ptr<CNode>() );
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 QString N3DView::toolTip() const
 {
@@ -62,9 +78,13 @@ void N3DView::launch_pvserver( SignalArgs& node ){
   qDebug() << QString(host.c_str());
   qDebug() << QString(port.c_str());
 
-  N3DViewNotifier::instance().notify_server_spec(QString(host.c_str()) ,QString(port.c_str()));
+  TabBuilder::instance()->getWidget<Widget3D>(as_ptr<CNode>())->connectToServer(host.c_str(), port.c_str());
+
+//  N3DViewNotifier::instance().notify_server_spec(QString(host.c_str()) ,QString(port.c_str()));
 
 }
+
+//////////////////////////////////////////////////////////////////////////////
 
 void N3DView::send_server_info_to_client( SignalArgs& node ){
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
@@ -91,7 +111,9 @@ void N3DView::send_server_info_to_client( SignalArgs& node ){
   name_list[0] = QString(name.c_str());
   name_list[1] = QString(name2.c_str());
 
-  N3DViewNotifier::instance().notify_path_spec(path_list,name_list);
+  TabBuilder::instance()->getWidget<Widget3D>(as_ptr<CNode>())->loadPaths(path_list, name_list);
+
+//  N3DViewNotifier::instance().notify_path_spec(path_list,name_list);
 
 }
 

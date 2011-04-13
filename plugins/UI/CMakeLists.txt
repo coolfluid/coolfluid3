@@ -10,7 +10,10 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   # Add useful macros and variables
   include(${QT_USE_FILE})
 
-  coolfluid_define_plugin( SFDM "${CMAKE_CURRENT_SOURCE_DIR}/SFDM" )
+  coolfluid_define_plugin( QwtTab "${CMAKE_CURRENT_SOURCE_DIR}/QwtTab" )
   add_subdirectory( QwtTab )
+
+  coolfluid_define_plugin( ParaViewTab "${CMAKE_CURRENT_SOURCE_DIR}/ParaViewTab" )
+  add_subdirectory( ParaViewTab )
 
 endif()
