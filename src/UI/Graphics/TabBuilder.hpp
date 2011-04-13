@@ -9,7 +9,10 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
+#include <QMap>
 #include <QTabWidget>
+
+#include "UI/Core/CNode.hpp"
 
 #include "UI/Graphics/LibGraphics.hpp"
 
@@ -21,18 +24,64 @@ namespace Graphics {
 
 ///////////////////////////////////////////////////////////////////////////
 
+struct TabInfo
+{
+  QWidget * widget;
+
+  int tabIndex;
+
+  bool isVisible;
+};
+
 class TabBuilder : public QTabWidget
 {
+  Q_OBJECT
+
 
 public:
 
   static TabBuilder * instance();
 
-private:
+  template<typename TYPE>
+  TYPE * getWidget( Core::CNode::ConstPtr node )
+  {
+    TYPE * widget = nullptr;
+    std::string key = node->full_path().path();
+
+    if( !m_tabs.contains(key) )
+    {
+      TabInfo info;
+
+      info.widget = new TYPE(/*this*/);
+      info.tabIndex = addTab(info.widget, node->full_path().path().c_str());
+      info.isVisible = true;
+      m_tabs[key] = info;
+    }
+    else
+      setTabText( m_tabs[key].tabIndex, node->full_path().path().c_str() );
+
+    widget = static_cast<TYPE*>(m_tabs[key].widget);
+
+    cf_assert ( is_not_null(widget) );
+    return widget;
+  }
+
+  void showTab( Core::CNode::ConstPtr node );
+
+private slots:
+
+  void tabClicked(int index);
+
+private: // functions
 
   TabBuilder(QWidget * parent = 0);
 
   ~TabBuilder();
+
+private : // data
+
+  QMap<std::string, TabInfo> m_tabs;
+
 
 }; // TabManager
 

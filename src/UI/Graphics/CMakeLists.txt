@@ -29,6 +29,7 @@ list( APPEND coolfluid_ui_graphics_moc_classes
   SignalInspectorDialog.hpp
   SignatureDialog.hpp
   SelectPathDialog.hpp
+  TabBuilder.hpp
   TreeBrowser.hpp
   TreeView.hpp )
 

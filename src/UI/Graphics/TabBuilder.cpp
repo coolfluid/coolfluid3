@@ -4,7 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "UI/Core/NTree.hpp"
+
 #include "UI/Graphics/TabBuilder.hpp"
+
+using namespace CF::Common;
+using namespace CF::UI::Core;
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -25,6 +30,7 @@ TabBuilder * TabBuilder::instance()
 TabBuilder::TabBuilder(QWidget * parent)
   : QTabWidget(parent)
 {
+  connect(this, SIGNAL(currentChanged(int)), this, SLOT(tabClicked(int)));
 
 }
 
@@ -33,6 +39,32 @@ TabBuilder::TabBuilder(QWidget * parent)
 TabBuilder::~TabBuilder()
 {
 
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+void TabBuilder::showTab( CNode::ConstPtr node )
+{
+  std::string key = node->full_path().path();
+
+  if( m_tabs.contains(key) )
+    setCurrentIndex( m_tabs[key].tabIndex );
+  else
+    throw ValueNotFound(FromHere(), "No tab for component [" +
+                        node->full_path().path() + "] was found.");
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+void TabBuilder::tabClicked(int index)
+{
+  if(index > 0)
+  {
+    QModelIndex newIndex = NTree::globalTree()->indexFromPath(tabText(index).toStdString());
+
+    if( newIndex.isValid() )
+      NTree::globalTree()->setCurrentIndex( newIndex );
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////

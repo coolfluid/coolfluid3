@@ -344,6 +344,8 @@ namespace Core {
     /// @param node node @c SignalFrame where the signature will be stored.
     void localSignature(const QString & name, Common::SignalArgs& node );
 
+    void finishSetUp();
+
   protected: // data
 
     /// This internal notifier.
@@ -385,6 +387,8 @@ namespace Core {
     /// before calling this function with all local signals and the value set
     /// to @c true.
     virtual void disableLocalSignals( QMap<QString, bool> & localSignals) const = 0;
+
+    virtual void setUpFinished() {}
 
   private: // helper functions
 

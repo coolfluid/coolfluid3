@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <QDebug>
+
 #include <boost/multi_array/storage_order.hpp>
 
 #include "Common/Signal.hpp"
@@ -14,6 +16,9 @@
 #include "UI/UICommon/ComponentNames.hpp"
 
 #include "UI/Core/TreeThread.hpp"
+#include "UI/Graphics/TabBuilder.hpp"
+
+#include "UI/QwtTab/Graph.hpp"
 
 #include "UI/QwtTab/NPlotXY.hpp"
 
@@ -21,6 +26,7 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
+using namespace CF::UI::Graphics;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,10 +37,22 @@ namespace QwtTab {
 //////////////////////////////////////////////////////////////////////////////
 
 NPlotXY::NPlotXY(const std::string & name) :
-    CNode( name, "NPlotXY", CNode::STANDARD_NODE )
+    CNode( name, "CPlotXY", CNode::STANDARD_NODE )
 {
+//  m_tabIndex = Graphics::TabBuilder::instance()->addTab(new Graph(), name.c_str());
+
+//  TabBuilder::instance()->getWidget<Graph>(as_const());
+
   regist_signal("convergence_history", "Lists convergence history", "Get history")->
       signal->connect( boost::bind( &NPlotXY::convergence_history, this, _1));
+
+  regist_signal("show_hide_plot", "Shows or hides the plot tab", "Show/Hide plot")
+      ->signal->connect( boost::bind( &NPlotXY::show_hide_plot, this, _1) );
+  regist_signal("go_to_tab", "Activates the tab", "Switch to tab")
+      ->signal->connect( boost::bind( &NPlotXY::go_to_plot, this, _1) );
+;
+
+  m_localSignals << "show_hide_plot" << "go_to_tab";
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -42,6 +60,39 @@ NPlotXY::NPlotXY(const std::string & name) :
 QString NPlotXY::toolTip() const
 {
   return componentType();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void NPlotXY::disableLocalSignals(QMap<QString, bool> & localSignals) const
+{
+  localSignals["show_hide_plot"] = false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void NPlotXY::show_hide_plot( Common::SignalArgs& node )
+{
+//  TabBuilder & builder = *TabBuilder::instance();
+
+//  if(builder.count() == 3)
+//    builder.removeTab(m_tabIndex);
+//  else
+//    builder.insertTab(m_tabIndex, new Graph(), name().c_str());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void NPlotXY::go_to_plot( Common::SignalArgs& node )
+{
+  TabBuilder::instance()->showTab( as_ptr<CNode>() );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void NPlotXY::setUpFinished()
+{
+  TabBuilder::instance()->getWidget<Graph>( as_ptr<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -84,8 +135,9 @@ void NPlotXY::convergence_history ( SignalArgs& node )
       (*plot)[row][col+1] = (*array)[row][col];
   }
 
-  NPlotXYNotifier::instance().notify_history(plot ,fct_label);
+  TabBuilder::instance()->getWidget<Graph>(as_ptr<CNode>())->set_xy_data(plot, fct_label);
 
+//  NPlotXYNotifier::instance().notify_history(plot ,fct_label);
 }
 
 //////////////////////////////////////////////////////////////////////////////

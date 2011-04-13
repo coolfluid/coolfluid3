@@ -97,8 +97,6 @@ void TreeThread::run()
   m_mutex->unlock();
 //  m_waitCondition.wakeAll();
 
-  CNodeBuilders::instance().registerBuilder<NPlugin>("CJournal");
-
   // execute the event loop
   exec();
 }

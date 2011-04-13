@@ -46,14 +46,23 @@ public:
   virtual QString toolTip() const;
 
   void convergence_history ( Common::SignalArgs& node );
+  void show_hide_plot( Common::SignalArgs& node );
+
+  void go_to_plot( Common::SignalArgs& node );
+
 
 protected:
 
   /// Disables the local signals that need to.
   /// @param localSignals Map of local signals. All values are set to true
   /// by default.
-  virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+  virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const;
 
+  virtual void setUpFinished();
+
+private:
+
+  int m_tabIndex;
 
 }; //  XYPlot
 

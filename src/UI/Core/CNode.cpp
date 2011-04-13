@@ -92,11 +92,11 @@ CNode::CNode(const std::string & name, const QString & componentType, Type type)
   : Component(name),
     m_notifier(new CNodeNotifier(this)),
     m_componentType(componentType),
-    m_contentListed( isLocalComponent() ),
-    m_listingContent(false),
     m_type(type),
+    m_listingContent(false),
     m_isRoot(false)
 {
+  m_contentListed = isLocalComponent();
   m_mutex = new QMutex();
 
   // unregister some base class signals
@@ -354,6 +354,14 @@ void CNode::modifyOptions(const QMap<QString, QString> & opts)
 void CNode::localSignature(const QString & name, SignalArgs& node )
 {
   ( *signal( name.toStdString() )->signature )(node);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void CNode::finishSetUp()
+{
+  SignalFrame frame;
+  call_signal("setUpFinished", frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -629,7 +637,10 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
       CNode::Ptr node = createFromXmlRec(child, linkTargets);
 
       if(node.get() != nullptr)
+      {
         rootNode->addNode(node);
+        node->setUpFinished();
+      }
     }
     catch (Exception & e)
     {
