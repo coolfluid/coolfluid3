@@ -47,7 +47,7 @@ namespace Core {
 
     /// @brief Constructor
     /// @param name Node name
-    NRoot(const QString & name);
+    NRoot(const std::string & name);
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.

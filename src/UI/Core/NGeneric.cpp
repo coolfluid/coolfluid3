@@ -14,7 +14,7 @@ namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////
 
-NGeneric::NGeneric(const QString & name, const QString & type, CNode::Type nodeType) :
+NGeneric::NGeneric(const std::string & name, const QString & type, CNode::Type nodeType) :
     CNode(name, type, nodeType)
 {
 

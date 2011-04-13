@@ -35,7 +35,7 @@ namespace Core {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-NRoot::NRoot(const QString & name)
+NRoot::NRoot(const std::string & name)
   : CNode(name, "CRoot", CNode::LOCAL_NODE)
 {
   m_isRoot = true;
@@ -59,7 +59,7 @@ NRoot::NRoot(const QString & name)
   signal("connect_server")->signature->connect( boost::bind(&NRoot::signature_connect_server, this, _1) );
   signal("disconnect_server")->signature->connect( boost::bind(&NRoot::signature_disconnect_server, this, _1) );
 
-  m_root = CRoot::create(name.toStdString());
+  m_root = CRoot::create(name);
 
   connect(&ThreadManager::instance().network(), SIGNAL(connected()),
           this, SLOT(connectedToServer()));

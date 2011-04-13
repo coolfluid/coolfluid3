@@ -15,7 +15,7 @@ using namespace CF::Common;
 using namespace CF::UI::Core;
 using namespace CF::UI::CoreTest;
 
-MyNode::MyNode(const QString & name)
+MyNode::MyNode(const std::string & name)
   : CNode(name, "MyNode", CNode::DEBUG_NODE)
 {
   m_properties.add_option< OptionT<int> >("theAnswer", "The answer to the ultimate "

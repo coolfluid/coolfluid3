@@ -7,6 +7,9 @@
 #include <QCoreApplication>
 #include <QtTest>
 
+#include "UI/Core/ThreadManager.hpp"
+#include "UI/Core/TreeThread.hpp"
+
 #include "test/UI/Core/CommitDetailsTest.hpp"
 #include "test/UI/Core/CommonFunctions.hpp"
 #include "test/UI/Core/CNodeTest.hpp"
@@ -18,12 +21,15 @@
 #include "test/UI/Core/TreeNodeTest.hpp"
 
 using namespace CF::Common;
+using namespace CF::UI::Core;
 using namespace CF::UI::CoreTest;
 
 int main(int argc, char * argv[])
 {
   QCoreApplication app(argc, argv);
   int passed = 0;
+
+  ThreadManager::instance().tree();
 
   CF::Common::ExceptionManager::instance().ExceptionDumps = false;
   CF::Common::ExceptionManager::instance().ExceptionAborts = false;

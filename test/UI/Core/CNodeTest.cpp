@@ -102,7 +102,7 @@ void CNodeTest::test_isClientComponent()
   QVERIFY( log.isLocalComponent()     );
   QVERIFY( !mesh.isLocalComponent()   );
   QVERIFY( !method.isLocalComponent() );
-  QVERIFY( !root.isLocalComponent()   );
+  QVERIFY( root.isLocalComponent()   );
   QVERIFY( node.isLocalComponent()    );
   QVERIFY( tree.isLocalComponent()    );
 }

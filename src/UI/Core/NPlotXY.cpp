@@ -30,7 +30,7 @@ namespace Core {
 
 //////////////////////////////////////////////////////////////////////////////
 
-NPlotXY::NPlotXY(const QString & name) :
+NPlotXY::NPlotXY(const std::string & name) :
     CNode( name, "NPlotXY", CNode::STANDARD_NODE )
 {
   regist_signal("convergence_history", "Lists convergence history", "Get history")->

@@ -19,7 +19,7 @@ namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////
 
-NPlugins::NPlugins(const QString & name)
+NPlugins::NPlugins(const std::string & name)
   : CNode(name, "NPlugins", CNode::LOCAL_NODE)
 {
   m_properties["brief"] = std::string("Manages the client plugins.");

@@ -132,8 +132,16 @@ namespace Core {
       /// Standard node.
       STANDARD_NODE = 0,
 
+<<<<<<< HEAD
+      /// XY-Plot node
+      PLOTXY_NODE,
+
+      /// 3D node
+      VIEW3D_NODE
+=======
       /// Local node.
       LOCAL_NODE = 1,
+>>>>>>> [ENH] some cleaning in CNode class to prepare the plugins management on the client side:
 
       /// Local and debug node.
       DEBUG_NODE = 2
@@ -146,7 +154,7 @@ namespace Core {
     /// @param componentType Corresponding component type name
     /// (on the simulator side)
     /// @param type Node type.
-    CNode(const std::string & name, const QString & componentType, Type type);
+    CNode(const QString & name, const QString & componentType, Type type);
 
     /// Gives the corresponding component type name
     /// @return Returns the corresponding component type name

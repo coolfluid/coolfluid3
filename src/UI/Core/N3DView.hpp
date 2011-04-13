@@ -38,7 +38,7 @@ public: //typedefs
   typedef boost::shared_ptr<N3DView const> ConstPtr;
 
 public:
-    N3DView(const QString & name);
+    N3DView(const std::string & name);
 
     void reload_client_view();
 

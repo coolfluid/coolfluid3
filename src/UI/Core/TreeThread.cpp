@@ -20,6 +20,8 @@
 #include "UI/Core/NTree.hpp"
 #include "UI/Core/ThreadManager.hpp"
 
+#include "UI/Core/NPlugin.hpp"
+#include "UI/Core/CNodeBuilders.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 
@@ -94,6 +96,8 @@ void TreeThread::run()
 
   m_mutex->unlock();
 //  m_waitCondition.wakeAll();
+
+  CNodeBuilders::instance().registerBuilder<NPlugin>("CJournal");
 
   // execute the event loop
   exec();

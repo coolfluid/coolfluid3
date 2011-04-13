@@ -27,6 +27,7 @@
 
 #include "UI/UICommon/ComponentNames.hpp"
 
+#include "UI/Core/CNodeBuilders.hpp"
 #include "UI/Core/NetworkThread.hpp"
 #include "UI/Core/NGeneric.hpp"
 #include "UI/Core/NJournal.hpp"
@@ -88,8 +89,8 @@ void CNodeNotifier::notifySignalSignature(SignalArgs * node)
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::CNode(const QString & name, const QString & componentType, Type type)
-  : Component(name.toStdString()),
+CNode::CNode(const std::string & name, const QString & componentType, Type type)
+  : Component(name),
     m_notifier(new CNodeNotifier(this)),
     m_componentType(componentType),
     m_contentListed( isLocalComponent() ),
@@ -418,7 +419,8 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
   ComponentIterator<const CNode> itEnd = comp->end<const CNode>();
 
   // add the current path
-  list << comp->full_path().path().c_str();
+  if(list.isEmpty())
+    list << comp->full_path().path().c_str();
 
   for( ; itBegin != itEnd ; itBegin++)
   {
@@ -607,6 +609,8 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
     rootNode = link;
     linkTargets[link] = node.content->value();
   }
+  else if( CNodeBuilders::instance().hasBuilder( typeName ) )
+    rootNode = CNodeBuilders::instance().buildCNode(typeName, nodeName);
   else if( typeName == "CJournal" )
     rootNode = boost::shared_ptr<NJournal>(new NJournal(nodeName));
   else if( typeName == "CRoot" )

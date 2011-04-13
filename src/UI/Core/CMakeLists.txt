@@ -27,6 +27,8 @@ QT4_WRAP_CPP(coolfluid_ui_core_moc_files ${coolfluid_ui_core_moc_classes})
 list( APPEND coolfluid_ui_core_files
 CNode.cpp
 CNode.hpp
+CNodeBuilders.cpp
+CNodeBuilders.hpp
 CommitDetails.cpp
 CommitDetails.hpp
 CommitDetailsItem.cpp

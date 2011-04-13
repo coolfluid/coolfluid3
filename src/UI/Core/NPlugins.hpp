@@ -32,7 +32,7 @@ public: // typedefs
 
 public:
 
-  NPlugins(const QString & name);
+  NPlugins(const std::string & name);
 
   virtual ~NPlugins();
 

@@ -39,7 +39,7 @@ public: //typedefs
 
 public:
 
-  NPlotXY(const QString & name);
+  NPlotXY(const std::string & name);
 
   virtual QString toolTip() const;
 

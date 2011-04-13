@@ -36,7 +36,7 @@ public: // typedefs
 
 public:
 
-  NJournal(const QString & name);
+  NJournal(const std::string & name);
 
   /// @name SIGNALS
   //@{

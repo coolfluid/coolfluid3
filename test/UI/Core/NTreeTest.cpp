@@ -291,7 +291,7 @@ void NTreeTest::test_areFromSameNode()
 void NTreeTest::test_nodeByPath()
 {
   NTree t;
-  CNode::Ptr logNode = t.nodeByPath("cpath://Path/That/Does/Not/Exist");
+  CNode::Ptr logNode = t.nodeByPath("cpath://Path/That/Does/Not/Exist") ;
 
   QVERIFY(logNode.get() == nullptr);
 

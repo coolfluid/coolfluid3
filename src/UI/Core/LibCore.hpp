@@ -17,10 +17,10 @@
 /// @note build system defines COOLFLUID_UI_CORE_EXPORTS when compiling ClientCoreTools files
 #ifdef COOLFLUID_UI_CORE_EXPORTS
 #   define Core_API      CF_EXPORT_API
-#   define UICore_TEMPLATE
+#   define Core_TEMPLATE
 #else
 #   define Core_API      CF_IMPORT_API
-#   define UICore_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Core_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

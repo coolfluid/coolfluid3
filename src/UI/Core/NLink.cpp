@@ -29,7 +29,7 @@ namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////
 
-NLink::NLink(const QString & name)
+NLink::NLink(const std::string & name)
   : CNode(name, "CLink", CNode::STANDARD_NODE)
 {
   regist_signal("goToTarget", "Switch to the target node", "Go to target node")->

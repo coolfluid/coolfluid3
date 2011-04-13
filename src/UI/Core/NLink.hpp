@@ -38,7 +38,7 @@ namespace Core {
     /// @brief Constructor
     /// @param name Link name
     /// @param targetPath Target path
-    NLink(const QString & name);
+    NLink(const std::string & name);
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.

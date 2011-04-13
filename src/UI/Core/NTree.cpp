@@ -202,7 +202,14 @@ CNode::ConstPtr NTree::nodeByPath(const URI & path) const
       comps.removeFirst();
 
     for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
-      node = realComponent()->get_child_ptr(it->toStdString())->as_ptr_checked<CNode>();
+    {
+      Component::ConstPtr comp = node->realComponent()->get_child_ptr(it->toStdString());
+
+      if( is_not_null(comp.get()) )
+        node = comp->as_ptr_checked<CNode>();
+      else
+        node = CNode::ConstPtr();
+    }
   }
 
   return node;
@@ -226,8 +233,12 @@ CNode::Ptr NTree::nodeByPath(const URI & path)
 
     for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
     {
-      node = node->realComponent()->
-          get_child_ptr(it->toStdString())->as_ptr_checked<CNode>();
+      Component::Ptr comp = node->realComponent()->get_child_ptr(it->toStdString());
+
+      if( is_not_null(comp.get()) )
+        node = comp->as_ptr_checked<CNode>();
+      else
+        node = CNode::Ptr();
     }
   }
 

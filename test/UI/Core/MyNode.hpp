@@ -19,7 +19,7 @@ namespace CoreTest {
 
     typedef boost::shared_ptr<CNode> Ptr;
 
-    MyNode(const QString & name);
+    MyNode(const std::string & name);
 
     QIcon getIcon() const;
 

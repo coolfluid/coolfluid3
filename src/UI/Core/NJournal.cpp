@@ -45,7 +45,7 @@ void JournalNotifier::regist(const NJournal * journal)
 
 /////////////////////////////////////////////////////////////////////////////
 
-NJournal::NJournal(const QString & name)
+NJournal::NJournal(const std::string & name)
   : CNode(name, "CJournal", CNode::STANDARD_NODE)
 {
   regist_signal("list_journal", "List journal", "List journal")->

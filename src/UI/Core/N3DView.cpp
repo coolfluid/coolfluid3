@@ -30,7 +30,7 @@ namespace Core {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-N3DView::N3DView(const QString & name) :
+N3DView::N3DView(const std::string & name) :
     CNode( name, "N3DView", CNode::STANDARD_NODE )
 {
   regist_signal("launch_pvserver", "Launch Paraview Server", "Launch Server")->
