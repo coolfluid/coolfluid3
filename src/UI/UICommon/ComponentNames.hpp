@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_UICommon_ComponentNames_hpp
-#define CF_GUI_UICommon_ComponentNames_hpp
+#ifndef CF_UI_UICommon_ComponentNames_hpp
+#define CF_UI_UICommon_ComponentNames_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -14,13 +14,15 @@
 #define CLIENT_TREE      "Tree"
 #define CLIENT_BROWSERS  "Browsers"
 #define CLIENT_JOURNAL   "Local Journal"
-#define CLIENT_HISTORY    "History"
+#define CLIENT_HISTORY   "History"
+#define CLIENT_PLUGINS   "Plugins"
 
 #define CLIENT_ROOT_PATH      "//" CLIENT_ROOT
 #define CLIENT_LOG_PATH       CLIENT_ROOT_PATH "/" CLIENT_LOG
 #define CLIENT_TREE_PATH      CLIENT_ROOT_PATH "/" CLIENT_TREE
 #define CLIENT_BROWSERS_PATH  CLIENT_ROOT_PATH "/" CLIENT_BROWSERS
 #define CLIENT_JOURNAL_PATH   CLIENT_ROOT_PATH "/" CLIENT_JOURNAL
+#define CLIENT_PLUGINS_PATH   CLIENT_ROOT_PATH "/" CLIENT_PLUGINS
 
 //===========================================================================
 
@@ -35,4 +37,4 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_UICommon_ComponentNames_hpp
+#endif // CF_UI_UICommon_ComponentNames_hpp

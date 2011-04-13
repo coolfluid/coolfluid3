@@ -15,6 +15,7 @@
 #include "UI/Core/NBrowser.hpp"
 #include "UI/Core/NetworkThread.hpp"
 #include "UI/Core/NLog.hpp"
+#include "UI/Core/NPlugins.hpp"
 #include "UI/Core/NRoot.hpp"
 #include "UI/Core/NTree.hpp"
 #include "UI/Core/ThreadManager.hpp"
@@ -70,17 +71,20 @@ void TreeThread::run()
   NLog::Ptr log(new NLog());
   NBrowser::Ptr browser(new NBrowser());
   NTree::Ptr tree(new NTree(m_root));
+  NPlugins::Ptr plugins(new NPlugins(CLIENT_PLUGINS));
 
   // add components to the root
   realRoot->add_component(log);
   realRoot->add_component(browser);
   realRoot->add_component(tree);
+  realRoot->add_component(plugins);
 
   // mark all components as basic
   m_root->mark_basic();
   log->mark_basic();
   browser->mark_basic();
   tree->mark_basic();
+  plugins->mark_basic();
 
   // set the root as model root
   tree->setRoot(m_root);

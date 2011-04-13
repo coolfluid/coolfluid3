@@ -33,6 +33,7 @@ FilteringModel::FilteringModel(QObject *parent) :
   m_icons["NLog"] = prov.icon(QFileIconProvider::Folder);
   m_icons["NBrowser"] = prov.icon(QFileIconProvider::Folder);
   m_icons["NTree"] = prov.icon(QFileIconProvider::Folder);
+  m_icons["NPlugins"] = prov.icon(QFileIconProvider::Folder);
 }
 
 //////////////////////////////////////////////////////////////////////////////////
