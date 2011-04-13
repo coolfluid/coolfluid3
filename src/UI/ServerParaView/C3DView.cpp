@@ -3,12 +3,9 @@
 
 #include <QHostInfo>
 
-#include "Mesh/CTable.hpp"
-
-#include "Solver/LibSolver.hpp"
-
 #include "UI/Server/ServerRoot.hpp"
 
+#include "UI/ServerParaView/LibServerParaView.hpp"
 #include "UI/ServerParaView/C3DView.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +22,7 @@ namespace ServerParaView {
 
   /////////////////////////////////////////////////////////////////////////////////
 
-  ComponentBuilder < C3DView, Component, Solver::LibSolver> C3DView_Builder;
+  ComponentBuilder < C3DView, Component, LibServerParaView> C3DView_Builder;
 
   /////////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +111,7 @@ void C3DView::launch_pvserver( SignalArgs & args ){
   portCommand += m_port;
 
   //Use custom server.
-  pvserver->start("/nobackup/st/wertz/./pvserver", QStringList() << portCommand);
+  pvserver->start("pvserver", QStringList() << portCommand);
 
   SignalFrame reply = args.create_reply( full_path() );
   SignalFrame& options = reply.map( Protocol::Tags::key_options() );
@@ -122,7 +119,7 @@ void C3DView::launch_pvserver( SignalArgs & args ){
   std::vector<std::string> data(2);
 
   data[0] = QHostInfo::localHostName().toStdString();//"127.0.0.1";
-  data[1] = "8080";
+  data[1] = m_port.toStdString();
 
   XmlNode node = options.set_array("infoServer", data, " ; ");
 
