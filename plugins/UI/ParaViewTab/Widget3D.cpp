@@ -234,14 +234,6 @@ Widget3D::Widget3D(QWidget *parent) :
   //connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
   connect(m_dataSet_selector,SIGNAL(variableChanged(pqVariableType, const QString)),this,SLOT(update_solide_color_button_state(pqVariableType, const QString)));
 
-  ////Connection Boost
-  N3DViewNotifier::instance().notify_server_spec.connect(
-        boost::bind(&Widget3D::connectToServer, this, _1, _2) );
-
-  N3DViewNotifier::instance().notify_path_spec.connect(
-        boost::bind(&Widget3D::loadPaths, this, _1, _2) );
-
-
 }
 
 void Widget3D::connectToServer(QString given_host,QString port)

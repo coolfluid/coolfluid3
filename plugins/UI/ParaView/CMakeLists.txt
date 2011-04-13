@@ -6,7 +6,6 @@ if( ParaView_FOUND )
   # List of classes to "moc"
   list( APPEND coolfluid_ui_paraview_moc_classes
     C3DView.hpp
-    C3DViewBuilder.hpp
    )
 
   # Create the moc files

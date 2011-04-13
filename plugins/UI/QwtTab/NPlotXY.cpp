@@ -136,8 +136,6 @@ void NPlotXY::convergence_history ( SignalArgs& node )
   }
 
   TabBuilder::instance()->getWidget<Graph>(as_ptr<CNode>())->set_xy_data(plot, fct_label);
-
-//  NPlotXYNotifier::instance().notify_history(plot ,fct_label);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -78,9 +78,8 @@ void N3DView::launch_pvserver( SignalArgs& node ){
   qDebug() << QString(host.c_str());
   qDebug() << QString(port.c_str());
 
-  TabBuilder::instance()->getWidget<Widget3D>(as_ptr<CNode>())->connectToServer(host.c_str(), port.c_str());
-
-//  N3DViewNotifier::instance().notify_server_spec(QString(host.c_str()) ,QString(port.c_str()));
+  TabBuilder::instance()->getWidget<Widget3D>(as_ptr<CNode>())
+      ->connectToServer(host.c_str(), port.c_str());
 
 }
 
@@ -111,9 +110,8 @@ void N3DView::send_server_info_to_client( SignalArgs& node ){
   name_list[0] = QString(name.c_str());
   name_list[1] = QString(name2.c_str());
 
-  TabBuilder::instance()->getWidget<Widget3D>(as_ptr<CNode>())->loadPaths(path_list, name_list);
-
-//  N3DViewNotifier::instance().notify_path_spec(path_list,name_list);
+  TabBuilder::instance()->getWidget<Widget3D>(as_ptr<CNode>())
+      ->loadPaths(path_list, name_list);
 
 }
 

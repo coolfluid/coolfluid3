@@ -12,8 +12,6 @@
 
 #include "UI/Core/CNode.hpp"
 
-#include <boost/signals2/signal.hpp>
-
 #include "UI/ParaViewTab/LibParaViewTab.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,31 +57,6 @@ protected:
 
   virtual void setUpFinished();
 
-};
-
-
-class Core_API N3DViewNotifier{
-public:
-
-  typedef boost::signals2::signal< void ( QString host, QString port) >  sig_type;
-  typedef boost::signals2::signal< void ( std::vector<QString>,  std::vector<QString>) >  sig_type2;
-
-
-  /// implementation of instance that return this ( staticly ).
-  static N3DViewNotifier & instance(){
-     static N3DViewNotifier inst; // create static instance
-     return inst; // return the static instance
-  }
-
-  sig_type notify_server_spec;
-  sig_type2 notify_path_spec;
-
-private:
-  /// Empty constructor.
-  N3DViewNotifier(){}
-
-  /// Destructor.
-  ~N3DViewNotifier(){}
 };
 
 ////////////////////////////////////////////////////////////////////////////////

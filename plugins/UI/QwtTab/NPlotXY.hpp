@@ -62,34 +62,6 @@ protected:
 
 }; //  XYPlot
 
-
-class QwtTab_API NPlotXYNotifier{
-public:
-
-  /// signal for the set_xy_data of graph.
-  /*
-  typedef boost::signals2::signal< void ( std::vector<double>&, std::vector<double>& ) >  sig_type;
-  */
-  typedef boost::signals2::signal< void ( NPlotXY::PlotDataPtr & fcts,
-                                          std::vector<QString> & fct_label) >  sig_type;
-
-  /// implementation of instance that return this ( staticly ).
-  static NPlotXYNotifier & instance(){
-     static NPlotXYNotifier inst; // create static instance
-     return inst; // return the static instance
-  }
-
-  sig_type notify_history;
-
-private:
-  /// Empty constructor.
-  NPlotXYNotifier(){}
-
-  /// Destructor.
-  ~NPlotXYNotifier(){}
-
-};
-
 ////////////////////////////////////////////////////////////////////////////
 
 } // QwtTab

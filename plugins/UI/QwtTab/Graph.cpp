@@ -242,12 +242,6 @@ namespace QwtTab {
     connect (m_scale_box, SIGNAL(toggled(bool)), this, SLOT (show_scale_option(bool)));
 
     connect ( m_plot->canvas(), SIGNAL(wheelEvent(QWheelEvent*)), this, SLOT (zoomWheel(QWheelEvent*)));
-
-
-    ////Connection Boost
-    NPlotXYNotifier::instance().notify_history.connect(
-        boost::bind(&Graph::set_xy_data, this, _1, _2) );
-
   }
 
   Graph::~Graph(){
