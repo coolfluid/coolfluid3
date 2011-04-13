@@ -1,5 +1,11 @@
-#ifndef LIBParaView_HPP
-#define LIBParaView_HPP
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+#ifndef CF_UI_ParaView_LIBParaView_HPP
+#define CF_UI_ParaView_LIBParaView_HPP
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +31,7 @@ namespace ParaView {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class LibParaView :
+class ParaView_API LibParaView :
     public Common::CLibrary
 {
 public:
@@ -75,4 +81,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // LIBParaView_HPP
+#endif // CF_UI_ParaView_LIBParaView_HPP

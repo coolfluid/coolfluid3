@@ -1,3 +1,9 @@
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
+
 #ifndef CF_UI_ParaView_C3DVIEWBUILDER_HPP
 #define CF_UI_ParaView_C3DVIEWBUILDER_HPP
 
@@ -5,7 +11,7 @@
 
 #include "UI/ParaView/C3DView.hpp"
 
-#include "Solver/LibSolver.hpp"
+#include "UI/ParaView/LibParaView.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +21,7 @@ namespace ParaView {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class /*ParaView_API*/ C3DViewBuilder :
+class ParaView_API C3DViewBuilder :
     public Common::Component
 {
 public: // typedefs
