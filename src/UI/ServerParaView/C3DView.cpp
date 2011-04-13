@@ -3,6 +3,8 @@
 
 #include <QHostInfo>
 
+#include "Common/Log.hpp"
+
 #include "UI/Server/ServerRoot.hpp"
 
 #include "UI/ServerParaView/LibServerParaView.hpp"
@@ -102,6 +104,11 @@ void C3DView::launch_pvserver( SignalArgs & args ){
 
   pvserver->setProcessChannelMode(QProcess::ForwardedChannels);
 
+  connect(pvserver, SIGNAL(readyReadStandardOutput()),
+          this, SLOT(readyReadStandardOutput()));
+  connect(pvserver, SIGNAL(readyReadStandardError()),
+          this, SLOT(readyReadStandardError()));
+
   if(m_port.isEmpty()){
     m_port = "11111"; //default paraview port
   }
@@ -156,6 +163,17 @@ void C3DView::send_server_info_to_client( SignalArgs & args ){
   XmlNode node = options.set_array("pathinfo", data, " ; ");
 
 }
+
+void C3DView::readyReadStandardOutput()
+{
+  CFinfo << pvserver->readAllStandardOutput().data() << CFfulsh;
+}
+
+void C3DView::readyReadStandardError()
+{
+  CFinfo << pvserver->readAllStandardError().data() << CFfulsh;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////
 

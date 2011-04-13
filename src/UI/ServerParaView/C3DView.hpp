@@ -4,7 +4,7 @@
 #include <QString>
 #include <QProcess>
 
-#include "Mesh/CTable.hpp"
+#include "UI/ServerParaView/LibServerParaView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -14,9 +14,12 @@ namespace ServerParaView {
 
 //////////////////////////////////////////////////////////////////////////////
 
-  class /*ServerParaView_API*/ C3DView :
-    public Common::Component
+  class ServerParaView_API C3DView :
+      public Common::Component,
+      public QObject
 {
+    Q_OBJECT
+
 public: // typedefs
 
   typedef boost::shared_ptr<C3DView> Ptr;
@@ -41,6 +44,12 @@ public:
     void send_server_info_to_client( Common::SignalArgs & args );
 
     //void file_dumped( Common::SignalArgs & args );
+
+  private slots:
+
+    void readyReadStandardOutput();
+
+    void readyReadStandardError();
 
   private : //data
         QProcess * pvserver;
