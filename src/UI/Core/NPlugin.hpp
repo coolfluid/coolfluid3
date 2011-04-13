@@ -38,11 +38,9 @@ public:
 
   virtual QString toolTip() const;
 
-  Common::Signal::TypePtr addSignal( const std::string& name,
-                                     const std::string& descr = std::string(),
-                                     const std::string& readable_name = std::string() );
-
-  void signatures( Common::SignalArgs & node );
+  Common::SignalPtr addSignal( const std::string& name,
+                               const std::string& descr = std::string(),
+                               const std::string& readable_name = std::string() );
 
 protected:
 

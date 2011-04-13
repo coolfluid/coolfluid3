@@ -23,3 +23,6 @@ add_subdirectory( RDM  )
 # Residual Distribution solver
 coolfluid_define_plugin( SFDM "${CMAKE_CURRENT_SOURCE_DIR}/SFDM" )
 add_subdirectory( SFDM  )
+
+# Plugins for the UI
+add_subdirectory( UI )
