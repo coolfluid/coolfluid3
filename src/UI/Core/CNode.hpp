@@ -102,6 +102,19 @@ namespace Core {
   ////////////////////////////////////////////////////////////////////////////
 
   /// Base component adapted to fit the client needs.
+
+  /// Every component class created in the client should derive from this
+  /// class.
+  /// Each CNode has a special type, that helps a potential model to
+  /// determine whether it should be showed or hidden, depending on
+  /// the current modes (debug and/or advanced). @n
+  /// The types are defined by the nested enum @c CNode::Type. Standard
+  /// nodes are typically those comming from the server, they are deleted
+  /// everytime the tree is updated. Local nodes are managed by the client
+  /// itself to handle some local information, they only exist on the client-side.
+  /// Debug nodes are local ones, except that they are only visible in
+  /// debug mode. Local and debug modes exist are not deleted on tree update.
+
   /// @author Quentin Gasper
   class Core_API CNode :
       public Common::Component
@@ -113,42 +126,17 @@ namespace Core {
     typedef boost::shared_ptr<CNode> Ptr;
     typedef boost::shared_ptr<CNode const> ConstPtr;
 
-    /// Available sub-node types
+    /// Defines the sub-node types
     enum Type
     {
-      /// Root node
-      ROOT_NODE,
+      /// Standard node.
+      STANDARD_NODE = 0,
 
-      /// Browser node
-      BROWSER_NODE,
+      /// Local node.
+      LOCAL_NODE = 1,
 
-      /// Link node
-      LINK_NODE,
-
-      /// Log node
-      LOG_NODE,
-
-      /// Tree node
-      TREE_NODE,
-
-      /// Core node
-      CORE_NODE,
-
-      /// Browser node
-      JOURNAL_NODE,
-
-      /// Journal browser node
-      JOURNAL_BROWSER_NODE,
-
-      /// Generic node
-      GENERIC_NODE,
-
-      /// XY-Plot node
-      PLOTXY_NODE,
-
-      /// 3D node
-      VIEW3D_NODE
-
+      /// Local and debug node.
+      DEBUG_NODE = 2 
     }; // enum Type
 
     ////////////////////////////////////////////
@@ -158,11 +146,11 @@ namespace Core {
     /// @param componentType Corresponding component type name
     /// (on the simulator side)
     /// @param type Node type.
-    CNode(const QString & name, const QString & componentType, CNode::Type type);
+    CNode(const QString & name, const QString & componentType, Type type);
 
     /// Gives the corresponding component type name
     /// @return Returns the corresponding component type name
-    QString getComponentType() const;
+    QString componentType() const;
 
     /// Gives a child a a certain index.
     /// @param index Index of the wanted child. Should be between 0 (included)
@@ -175,31 +163,40 @@ namespace Core {
     virtual QString toolTip() const = 0;
 
     /// Indicates whether this node is a client component or not.
+    /// A node is considered as a client one if its type is either
+    /// @c CNode::LOCAL_TYPE or @c CNode::DEBUB_NODE.
     /// @return Returns @c true if this node is a client component.
     bool isLocalComponent() const
     {
-      return (m_type == LOG_NODE) || (m_type == TREE_NODE) ||
-          (m_type == CORE_NODE) || (m_type == BROWSER_NODE) ||
-          (m_type == JOURNAL_BROWSER_NODE);
+      return m_type != STANDARD_NODE;
     }
 
-    /// Gives the node type
-    /// @return Returns the node type
-    CNode::Type type() const;
-
-    /// Checks whether this node is of the provided type.
-
-    /// Doing @code node->checkType(type) @endcode is equivalent to
-    /// @code node->getType() == type @endcode.
-    /// @param type The type to compare to.
-    /// @return Returns @c true is this node type is the same as @c type
-    inline bool checkType(CNode::Type type) const
+    /// Gives the node type.
+    /// @return Returns the type of this node.
+    Type type() const
     {
-      return m_type == type;
+      return m_type;
     }
+
+    /// Indicates whether this component is the root or not.
+    /// @return Returns @c true if this node is a NRoot component.
+    bool isRoot()
+    {
+      return m_isRoot;
+    }
+
+    /// Gives the real component.
+    /// @return Returns this component cast to Component, execpt if this node
+    /// is a NRoot, in which case the internal CRoot is returned.
+    Component::Ptr realComponent();
+
+    /// Gives the real component.
+    /// @return Returns this component cast to Component, execpt if this node
+    /// is a NRoot, in which case the internal CRoot is returned.
+    Component::ConstPtr realComponent() const;
 
     /// Sets node properties
-    /// @param node Note containing the options
+    /// @param node Node containing the options
     void setProperties(const Common::SignalArgs & node);
 
     /// Sets node signals
@@ -341,13 +338,13 @@ namespace Core {
 
     //@} END Signals
 
-    ///
+    /// Retrieves the signature of a local signal.
+
+    /// @param name The signal name.
+    /// @param node node @c SignalFrame where the signature will be stored.
     void localSignature(const QString & name, Common::SignalArgs& node );
 
   protected: // data
-
-    /// This node type.
-    CNode::Type m_type;
 
     /// This internal notifier.
     CNodeNotifier * m_notifier;
@@ -367,11 +364,16 @@ namespace Core {
     /// in case it is overloaded and takes some time to reply.
     bool m_listingContent;
 
+    /// Indicates whether this component is a NRoot.
+    /// If @c true, this component is a NRoot object.
+    bool m_isRoot;
+
   private: // data
 
     /// Component type name.
     QString m_componentType;
 
+    CNode::Type m_type;
 
   protected:
 
@@ -379,8 +381,9 @@ namespace Core {
     QList<ActionInfo> m_actionSigs;
 
     /// Disables the local signals that need to.
-    /// @param localSignals Map of local signals. All values are set to true
-    /// by default.
+    /// @param localSignals Map of local signals. The map is pre-initialiazed
+    /// before calling this function with all local signals and the value set
+    /// to @c true.
     virtual void disableLocalSignals( QMap<QString, bool> & localSignals) const = 0;
 
   private: // helper functions

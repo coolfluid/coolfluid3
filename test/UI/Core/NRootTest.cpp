@@ -41,15 +41,13 @@ void NRootTest::test_childFromRoot()
 
   // 2. get the first child (node1)
   GUI_CHECK_NO_THROW( node = root->childFromRoot(0) );
-  QVERIFY( node->checkType(CNode::GENERIC_NODE) );
   QCOMPARE( QString(node->name().c_str()), QString("Node1") );
-  QCOMPARE( node->getComponentType(), QString("MyFirstType") );
+  QCOMPARE( node->componentType(), QString("MyFirstType") );
 
   // 3. get the second child (node2)
   GUI_CHECK_NO_THROW( node = root->childFromRoot(1) );
-  QVERIFY( node->checkType(CNode::GENERIC_NODE) );
   QCOMPARE( QString(node->name().c_str()), QString("Node2") );
-  QCOMPARE( node->getComponentType(), QString("MySecondType") );
+  QCOMPARE( node->componentType(), QString("MySecondType") );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

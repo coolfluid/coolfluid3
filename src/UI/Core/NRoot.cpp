@@ -36,8 +36,9 @@ namespace Core {
 
 
 NRoot::NRoot(const QString & name)
-  : CNode(name, "CRoot", ROOT_NODE)
+  : CNode(name, "CRoot", CNode::LOCAL_NODE)
 {
+  m_isRoot = true;
   m_uuid = boost::uuids::random_generator()();
 
   regist_signal("shutdown", "Server shutdown")->signal->
@@ -70,7 +71,7 @@ NRoot::NRoot(const QString & name)
 
 QString NRoot::toolTip() const
 {
-  return this->getComponentType();
+  return this->componentType();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -31,7 +31,7 @@ namespace Core {
 ////////////////////////////////////////////////////////////////////////////
 
 NLog::NLog()
-  : CNode(CLIENT_LOG, "NLog", CNode::LOG_NODE)
+  : CNode(CLIENT_LOG, "NLog", CNode::DEBUG_NODE)
 {
   m_typeNames[ LogMessage::INFO ]      = "  Info   ";
   m_typeNames[ LogMessage::EXCEPTION ] = "Exception";
@@ -125,7 +125,7 @@ void NLog::message(SignalArgs & node)
 
 QString NLog::toolTip() const
 {
-  return this->getComponentType();
+  return this->componentType();
 }
 
 ////////////////////////////////////////////////////////////////////////////

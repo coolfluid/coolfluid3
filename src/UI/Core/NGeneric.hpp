@@ -38,7 +38,8 @@ namespace Core {
     /// @brief Constructor
     /// @param name Group name
     /// @param The component type
-    NGeneric(const QString & name, const QString & type);
+    NGeneric(const QString & name, const QString & type,
+             CNode::Type nodeType = CNode::STANDARD_NODE);
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.

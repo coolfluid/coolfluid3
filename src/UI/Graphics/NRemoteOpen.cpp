@@ -49,7 +49,7 @@ NRemoteOpen::Ptr NRemoteOpen::create(QMainWindow * parent)
 
 QString NRemoteOpen::toolTip() const
 {
-  return this->getComponentType();
+  return this->componentType();
 }
 
 //////////////////////////////////////////////////////////////////////////

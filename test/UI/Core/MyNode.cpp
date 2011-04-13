@@ -16,7 +16,7 @@ using namespace CF::UI::Core;
 using namespace CF::UI::CoreTest;
 
 MyNode::MyNode(const QString & name)
-  : CNode(name, "MyNode", CNode::LOG_NODE)
+  : CNode(name, "MyNode", CNode::DEBUG_NODE)
 {
   m_properties.add_option< OptionT<int> >("theAnswer", "The answer to the ultimate "
                               "question of Life, the Universe, and Everything", 42);
@@ -33,7 +33,7 @@ MyNode::MyNode(const QString & name)
 
 QString MyNode::toolTip() const
 {
-  return this->getComponentType();
+  return this->componentType();
 }
 
 ////////////////////////////////////////////////////////////////////////////

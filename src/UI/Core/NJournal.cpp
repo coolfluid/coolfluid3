@@ -46,7 +46,7 @@ void JournalNotifier::regist(const NJournal * journal)
 /////////////////////////////////////////////////////////////////////////////
 
 NJournal::NJournal(const QString & name)
-  : CNode(name, "CJournal", JOURNAL_NODE)
+  : CNode(name, "CJournal", CNode::STANDARD_NODE)
 {
   regist_signal("list_journal", "List journal", "List journal")->
       signal->connect(boost::bind(&NJournal::list_journal, this, _1));
@@ -61,7 +61,7 @@ NJournal::NJournal(const QString & name)
 
 QString NJournal::toolTip() const
 {
-  return getComponentType();
+  return componentType();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

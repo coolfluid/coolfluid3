@@ -32,14 +32,8 @@ void TreeHandler::add(CNode::Ptr node)
 
 void TreeHandler::addChildren(CNode::Ptr node)
 {
-  ComponentIterator<CNode> it = node->begin<CNode>();
-  ComponentIterator<CNode> itEnd = node->end<CNode>();
-
-  if(node->checkType(CNode::ROOT_NODE))
-  {
-    it = node->castTo<NRoot>()->root()->begin<CNode>();
-    itEnd = node->castTo<NRoot>()->root()->end<CNode>();
-  }
+  ComponentIterator<CNode> it = node->realComponent()->begin<CNode>();
+  ComponentIterator<CNode> itEnd = node->realComponent()->end<CNode>();
 
   for( ; it != itEnd ; it++)
     add(it.get());

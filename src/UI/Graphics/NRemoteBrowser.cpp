@@ -56,7 +56,7 @@ namespace Graphics {
 NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * parent)
   : QDialog(parent),
     CNode(NBrowser::globalBrowser()->generateName(), componentType,
-          CNode::BROWSER_NODE)
+          CNode::DEBUG_NODE)
 {
 
   regist_signal("read_dir", "Directory content")->

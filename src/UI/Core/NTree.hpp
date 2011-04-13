@@ -150,7 +150,14 @@ namespace Core {
     /// @param path The node path
     /// @return Returns the found node, or a null shared pointer if
     /// the node does not exist.
-    CNode::Ptr nodeByPath(const CF::Common::URI & path) const;
+    CNode::ConstPtr nodeByPath(const CF::Common::URI & path) const;
+
+    /// @brief Retrieves a node from its path.
+
+    /// @param path The node path
+    /// @return Returns the found node, or a null shared pointer if
+    /// the node does not exist.
+    CNode::Ptr nodeByPath(const CF::Common::URI & path);
 
     /// @brief Retrieves a node index from its path.
 

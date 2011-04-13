@@ -20,7 +20,7 @@ namespace Core {
 ////////////////////////////////////////////////////////////////////////////
 
 NBrowser::NBrowser()
-  : CNode(CLIENT_BROWSERS, "NBrowser", CNode::BROWSER_NODE),
+  : CNode(CLIENT_BROWSERS, "NBrowser", CNode::DEBUG_NODE),
     m_counter(0)
 {
 }
@@ -36,7 +36,7 @@ QString NBrowser::generateName()
 
 QString NBrowser::toolTip() const
 {
-  return this->getComponentType();
+  return this->componentType();
 }
 
 ////////////////////////////////////////////////////////////////////////////

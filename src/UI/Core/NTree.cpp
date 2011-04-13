@@ -31,7 +31,7 @@ namespace Core {
 /////////////////////////////////////////////////////////////////////////
 
 NTree::NTree(NRoot::Ptr rootNode)
-  : CNode(CLIENT_TREE, "NTree", CNode::TREE_NODE),
+  : CNode(CLIENT_TREE, "NTree", CNode::DEBUG_NODE),
     m_advancedMode(false),
     m_debugModeEnabled(false)
 {
@@ -187,7 +187,30 @@ bool NTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right)
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr NTree::nodeByPath(const URI & path) const
+CNode::ConstPtr NTree::nodeByPath(const URI & path) const
+{
+  QString pathStr = path.path().c_str();
+  QStringList comps;
+  QStringList::iterator it;
+  CNode::ConstPtr node = m_rootNode->node();
+
+  if(path.is_absolute())
+  {
+    comps = pathStr.split(URI::separator().c_str(), QString::SkipEmptyParts);
+
+    if(comps.first().toStdString() == node->name())
+      comps.removeFirst();
+
+    for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
+      node = realComponent()->get_child_ptr(it->toStdString())->as_ptr_checked<CNode>();
+  }
+
+  return node;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+CNode::Ptr NTree::nodeByPath(const URI & path)
 {
   QString pathStr = path.path().c_str();
   QStringList comps;
@@ -202,12 +225,7 @@ CNode::Ptr NTree::nodeByPath(const URI & path) const
       comps.removeFirst();
 
     for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
-    {
-      if(node->checkType(CNode::ROOT_NODE))
-        node = boost::dynamic_pointer_cast<CNode>(node->castTo<NRoot>()->root()->get_child_ptr(it->toStdString()));
-      else
-        node = boost::dynamic_pointer_cast<CNode>(node->get_child_ptr(it->toStdString()));
-    }
+      node = realComponent()->get_child_ptr(it->toStdString())->as_ptr_checked<CNode>();
   }
 
   return node;
@@ -257,14 +275,8 @@ URI NTree::pathFromIndex(const QModelIndex & index) const
   URI path;
 
   if(treeNode != nullptr)
-  {
-    CNode::Ptr node = treeNode->node();
+    path = treeNode->node()->realComponent()->full_path();
 
-    if(node->checkType(CNode::ROOT_NODE))
-      path = node->castTo<NRoot>()->root()->full_path();
-    else
-      path = treeNode->node()->full_path();
-  }
   return path;
 }
 
@@ -334,8 +346,10 @@ bool NTree::isIndexVisible(const QModelIndex & index) const
 
     if( is_not_null(node.get()) )
     {
+      // below, true if node is basic or if we are in advanced mode
       visible = node->has_tag("basic") || m_advancedMode;
-      visible &= (!node->isLocalComponent() || m_debugModeEnabled);
+      // below, true if node is not of debug type or if we are in debug mode
+      visible &= (node->type() != CNode::DEBUG_NODE) || m_debugModeEnabled;
     }
 
   }
@@ -374,7 +388,7 @@ QVariant NTree::data(const QModelIndex & index, int role) const
         data = QString(node->name().c_str());
         break;
       case 1:
-        data = QString(node->getComponentType());
+        data = QString(node->componentType());
         break;
       }
     }
@@ -607,7 +621,7 @@ void NTree::buildNodePathRec(const QModelIndex & index, QString & path) const
 
 QString NTree::toolTip() const
 {
-  return this->getComponentType();
+  return this->componentType();
 }
 
 ////////////////////////////////////////////////////////////////////////////

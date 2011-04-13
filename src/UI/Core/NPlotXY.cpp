@@ -31,7 +31,7 @@ namespace Core {
 //////////////////////////////////////////////////////////////////////////////
 
 NPlotXY::NPlotXY(const QString & name) :
-    CNode( name, "NPlotXY", PLOTXY_NODE )
+    CNode( name, "NPlotXY", CNode::STANDARD_NODE )
 {
   regist_signal("convergence_history", "Lists convergence history", "Get history")->
       signal->connect( boost::bind( &NPlotXY::convergence_history, this, _1));
@@ -41,7 +41,7 @@ NPlotXY::NPlotXY(const QString & name) :
 
 QString NPlotXY::toolTip() const
 {
-  return getComponentType();
+  return componentType();
 }
 
 //////////////////////////////////////////////////////////////////////////////

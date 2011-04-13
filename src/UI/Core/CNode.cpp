@@ -88,13 +88,14 @@ void CNodeNotifier::notifySignalSignature(SignalArgs * node)
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::CNode(const QString & name, const QString & componentType, CNode::Type type)
+CNode::CNode(const QString & name, const QString & componentType, Type type)
   : Component(name.toStdString()),
-    m_type(type),
     m_notifier(new CNodeNotifier(this)),
     m_componentType(componentType),
     m_contentListed( isLocalComponent() ),
-    m_listingContent(false)
+    m_listingContent(false),
+    m_type(type),
+    m_isRoot(false)
 {
   m_mutex = new QMutex();
 
@@ -115,16 +116,29 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString CNode::getComponentType() const
+QString CNode::componentType() const
 {
   return m_componentType;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Type CNode::type() const
+Component::Ptr CNode::realComponent()
 {
-  return m_type;
+  if( m_isRoot )
+    return castTo<NRoot>()->root();
+
+  return shared_from_this();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+Component::ConstPtr CNode::realComponent() const
+{
+  if( m_isRoot )
+    return castTo<const NRoot>()->root();
+
+  return shared_from_this();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -274,7 +288,7 @@ void addValueToXml(const std::string& name, const std::string& value, bool is_ar
   }
 }
 
-//////// ////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
 void CNode::modifyOptions(const QMap<QString, QString> & opts)
 {
@@ -366,11 +380,8 @@ CNode::Ptr CNode::child(CF::Uint index)
 {
   QMutexLocker locker(m_mutex);
 
-  Component::Ptr compo = shared_from_this();
+  Component::Ptr compo = realComponent();
   CF::Uint i;
-
-  if(checkType(CNode::ROOT_NODE))
-    compo = this->castTo<NRoot>()->root();
 
   ComponentIterator<CNode> it = compo->begin<CNode>();
 
@@ -401,21 +412,13 @@ CNodeNotifier * CNode::notifier() const
 void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes) const
 {
   QMutexLocker locker(m_mutex);
+  Component::ConstPtr comp = realComponent();
 
-  ComponentIterator<const CNode> itBegin = this->begin<const CNode>();
-  ComponentIterator<const CNode> itEnd = this->end<const CNode>();
+  ComponentIterator<const CNode> itBegin = comp->begin<const CNode>();
+  ComponentIterator<const CNode> itEnd = comp->end<const CNode>();
 
   // add the current path
-  if(this->checkType(ROOT_NODE))
-  {
-    CRoot::ConstPtr root = this->castTo<const NRoot>()->root();
-    itBegin = root->begin<const CNode>();
-    itEnd = root->end<const CNode>();
-
-    list << root->full_path().path().c_str();
-  }
-  else if(list.isEmpty())
-    list << this->full_path().path().c_str();
+  list << comp->full_path().path().c_str();
 
   for( ; itBegin != itEnd ; itBegin++)
   {
@@ -436,10 +439,7 @@ void CNode::addNode(CNode::Ptr node)
 {
   QMutexLocker locker(m_mutex);
 
-  if(checkType(ROOT_NODE))
-    ((NRoot *)this)->root()->add_component(node);
-  else
-    this->add_component(node);
+  realComponent()->add_component(node);
 
   m_notifier->notifyChildCountChanged();
 }
@@ -450,10 +450,7 @@ void CNode::removeNode(const QString & nodeName)
 {
   QMutexLocker locker(m_mutex);
 
-  if(checkType(ROOT_NODE))
-    ((NRoot *)this)->root()->remove_component(nodeName.toStdString());
-  else
-    this->remove_component(nodeName.toStdString());
+  realComponent()->remove_component( nodeName.toStdString() );
 
   m_notifier->notifyChildCountChanged();
 }
@@ -462,9 +459,13 @@ void CNode::removeNode(const QString & nodeName)
 
 void CNode::configure_reply(SignalArgs & args)
 {
+  URI path = full_path();
+  QString msg("Node \"%1\" options updated.");
+
   signal_configure(args);
-  NTree::globalTree()->optionsChanged(this->full_path());
-  NLog::globalLog()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().path().c_str()));
+
+  NTree::globalTree()->optionsChanged(path);
+  NLog::globalLog()->addMessage(msg.arg(path.string().c_str()));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -624,25 +625,10 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
   {
     try
     {
-      if(std::strcmp(child.content->name(), Protocol::Tags::node_map()) == 0)
-      {
-//        rootNode->setOptions(node);
-//        rootNode->setProperties(node);
-//        rootNode->setSignals(node);
-      }
-      else
-      {
-        CNode::Ptr node = createFromXmlRec(child, linkTargets);
+      CNode::Ptr node = createFromXmlRec(child, linkTargets);
 
-        if(node.get() != nullptr)
-        {
-          if(rootNode->checkType(ROOT_NODE))
-            rootNode->castTo<NRoot>()->root()->add_component(node);
-          else
-            rootNode->add_component(node);
-        }
-
-      }
+      if(node.get() != nullptr)
+        rootNode->addNode(node);
     }
     catch (Exception & e)
     {
@@ -850,13 +836,8 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
 
 void CNode::requestSignalSignature(const QString & name)
 {
-  URI path;
+  URI path = realComponent()->full_path();
   XmlNode * node;
-
-  if( m_type == ROOT_NODE )
-    path = URI(CLIENT_ROOT_PATH, URI::Scheme::CPATH);
-  else
-    path = full_path();
 
   SignalFrame frame("signal_signature", path, path);
 
@@ -879,12 +860,7 @@ void CNode::fetchContent()
   NetworkThread& network = ThreadManager::instance().network();
   if(!m_contentListed && !m_listingContent && network.isConnected())
   {
-    URI path;
-
-    if( m_type == ROOT_NODE )
-      path = URI(CLIENT_ROOT_PATH, URI::Scheme::CPATH);
-    else
-      path = full_path();
+    URI path = realComponent()->full_path();
 
     SignalFrame frame("list_content", path, path);
 

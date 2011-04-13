@@ -30,7 +30,7 @@ namespace Core {
 ////////////////////////////////////////////////////////////////////////////
 
 NLink::NLink(const QString & name)
-  : CNode(name, "CLink", LINK_NODE)
+  : CNode(name, "CLink", CNode::STANDARD_NODE)
 {
   regist_signal("goToTarget", "Switch to the target node", "Go to target node")->
       signal->connect(boost::bind(&NLink::goToTarget, this, _1));

@@ -101,10 +101,7 @@ int TreeNode::rowNumber() const
 
 int TreeNode::childCount() const
 {
-  if(m_node->checkType(CNode::ROOT_NODE))
-    return m_node->castTo<NRoot>()->root()->count_children();
-
-  return m_node->count_children();
+  return m_node->realComponent()->count_children();
 }
 
 ////////////////////////////////////////////////////////////////////////////

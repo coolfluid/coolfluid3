@@ -14,8 +14,8 @@ namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////
 
-NGeneric::NGeneric(const QString & name, const QString & type) :
-    CNode(name, type, GENERIC_NODE)
+NGeneric::NGeneric(const QString & name, const QString & type, CNode::Type nodeType) :
+    CNode(name, type, nodeType)
 {
 
 }
@@ -24,7 +24,7 @@ NGeneric::NGeneric(const QString & name, const QString & type) :
 
 QString NGeneric::toolTip() const
 {
-  return this->getComponentType();
+  return this->componentType();
 }
 
 //////////////////////////////////////////////////////////////////////////////

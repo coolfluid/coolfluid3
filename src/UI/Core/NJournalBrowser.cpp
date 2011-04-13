@@ -38,7 +38,7 @@ namespace Core {
 
 NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
     QAbstractItemModel(parent),
-    CNode(NBrowser::globalBrowser()->generateName(), "NJournalBrowser", CNode::JOURNAL_BROWSER_NODE)
+    CNode(NBrowser::globalBrowser()->generateName(), "NJournalBrowser", CNode::STANDARD_NODE)
 {
   setRootNode(rootNode);
 
@@ -156,7 +156,7 @@ QVariant NJournalBrowser::headerData(int section, Qt::Orientation orientation,
 
 QString NJournalBrowser::toolTip() const
 {
-  return getComponentType();
+  return componentType();
 }
 
 ////////////////////////////////////////////////////////////////////////////
