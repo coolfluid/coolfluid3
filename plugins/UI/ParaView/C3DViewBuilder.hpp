@@ -1,9 +1,9 @@
-#ifndef CF_UI_ServerParaView_C3DVIEWBUILDER_HPP
-#define CF_UI_ServerParaView_C3DVIEWBUILDER_HPP
+#ifndef CF_UI_ParaView_C3DVIEWBUILDER_HPP
+#define CF_UI_ParaView_C3DVIEWBUILDER_HPP
 
 #include "Common/Component.hpp"
 
-#include "UI/ServerParaView/C3DView.hpp"
+#include "UI/ParaView/C3DView.hpp"
 
 #include "Solver/LibSolver.hpp"
 
@@ -11,11 +11,11 @@
 
 namespace CF {
 namespace UI {
-namespace ServerParaView {
+namespace ParaView {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class /*ServerParaView_API*/ C3DViewBuilder :
+class /*ParaView_API*/ C3DViewBuilder :
     public Common::Component
 {
 public: // typedefs
@@ -49,10 +49,10 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // ServerParaView
+} // ParaView
 } // UI
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_ServerParaView_C3DVIEWBUILDER_HPP
+#endif // CF_UI_ParaView_C3DVIEWBUILDER_HPP

@@ -16,4 +16,7 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   coolfluid_define_plugin( ParaViewTab "${CMAKE_CURRENT_SOURCE_DIR}/ParaViewTab" )
   add_subdirectory( ParaViewTab )
 
+  coolfluid_define_plugin( ParaView "${CMAKE_CURRENT_SOURCE_DIR}/ParaView" )
+  add_subdirectory( ParaView )
+
 endif()

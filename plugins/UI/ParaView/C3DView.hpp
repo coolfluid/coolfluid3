@@ -1,22 +1,22 @@
-#ifndef CF_UI_ServerParaView_C3DVIEW_HPP
-#define CF_UI_ServerParaView_C3DVIEW_HPP
+#ifndef CF_UI_ParaView_C3DVIEW_HPP
+#define CF_UI_ParaView_C3DVIEW_HPP
 
 #include <QString>
 #include <QProcess>
 
-#include "UI/ServerParaView/LibServerParaView.hpp"
+#include "UI/ParaView/LibParaView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace UI {
-namespace ServerParaView {
+namespace ParaView {
 
 //////////////////////////////////////////////////////////////////////////////
 
-  class ServerParaView_API C3DView :
-      public Common::Component,
-      public QObject
+  class ParaView_API C3DView :
+      public QObject,
+      public Common::Component
 {
     Q_OBJECT
 
@@ -58,10 +58,10 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // ServerParaView
+} // ParaView
 } // UI
 } // CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_ServerParaView_C3DVIEW_HPP
+#endif // CF_UI_ParaView_C3DVIEW_HPP

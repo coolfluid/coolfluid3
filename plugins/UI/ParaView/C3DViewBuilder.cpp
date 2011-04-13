@@ -7,9 +7,9 @@
 #include "Common/XML/SignalOptions.hpp"
 
 //#include "Solver/LibSolver.hpp"
-#include "UI/ServerParaView/LibServerParaView.hpp"
+#include "UI/ParaView/LibParaView.hpp"
 
-#include "UI/ServerParaView/C3DViewBuilder.hpp"
+#include "UI/ParaView/C3DViewBuilder.hpp"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -21,11 +21,11 @@ using namespace CF::Common::XML;
 
 namespace CF {
 namespace UI {
-namespace ServerParaView {
+namespace ParaView {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder < C3DViewBuilder, Component, LibServerParaView > C3DViewBuilder_Builder;
+ComponentBuilder < C3DViewBuilder, Component, LibParaView > C3DViewBuilder_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +85,7 @@ void C3DViewBuilder::signature_create_3dview(SignalArgs &args)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // ServerParaView
+} // ParaView
 } // UI
 } // CF
 

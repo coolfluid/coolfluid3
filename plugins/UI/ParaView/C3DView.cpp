@@ -7,24 +7,23 @@
 
 #include "UI/Server/ServerRoot.hpp"
 
-#include "UI/ServerParaView/LibServerParaView.hpp"
-#include "UI/ServerParaView/C3DView.hpp"
+#include "UI/ParaView/LibParaView.hpp"
+#include "UI/ParaView/C3DView.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::Mesh;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace UI {
-namespace ServerParaView {
+namespace ParaView {
 
   /////////////////////////////////////////////////////////////////////////////////
 
-  ComponentBuilder < C3DView, Component, LibServerParaView> C3DView_Builder;
+  ComponentBuilder < C3DView, Component, LibParaView> C3DView_Builder;
 
   /////////////////////////////////////////////////////////////////////////////////
 
@@ -166,17 +165,17 @@ void C3DView::send_server_info_to_client( SignalArgs & args ){
 
 void C3DView::readyReadStandardOutput()
 {
-  CFinfo << pvserver->readAllStandardOutput().data() << CFfulsh;
+  CFinfo << pvserver->readAllStandardOutput().data() << CFflush;
 }
 
 void C3DView::readyReadStandardError()
 {
-  CFinfo << pvserver->readAllStandardError().data() << CFfulsh;
+  CFinfo << pvserver->readAllStandardError().data() << CFflush;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////////
 
-} // ServerParaView
+} // ParaView
 } // UI
 } // CF
