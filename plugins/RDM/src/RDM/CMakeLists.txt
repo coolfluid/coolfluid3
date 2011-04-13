@@ -38,6 +38,8 @@ list( APPEND coolfluid_rdm_files
   CSysLF.cpp
   CSysN.hpp
   CSysN.cpp
+  CSysB.hpp
+  CSysB.cpp
   CSysSUPG.hpp
   CSysSUPG.cpp
  # Blended.hpp
@@ -49,6 +51,7 @@ list( APPEND coolfluid_rdm_files
   SchemeBase.hpp
   SchemeCSysN.hpp
   SchemeCSysLDA.hpp
+  SchemeCSysB.hpp
   SchemeCSysLF.hpp
   SchemeCSysSUPG.hpp
 # --  SchemeN.hpp
@@ -98,6 +101,7 @@ ScalarLinearLDA.cpp
 ScalarLinearSUPG.cpp
 ScalarLinearLF.cpp
 ScalarLinearN.cpp
+ScalarLinearB.cpp
 )
 
 list( APPEND coolfluid_rdm_scalarlinear_cflibs coolfluid_rdm )
@@ -112,6 +116,7 @@ ScalarNonLinearLDA.cpp
 ScalarNonLinearSUPG.cpp
 ScalarNonLinearLF.cpp
 ScalarNonLinearN.cpp
+ScalarNonLinearB.cpp
 )
 
 list( APPEND coolfluid_rdm_scalarnonlinear_cflibs coolfluid_rdm )
@@ -126,6 +131,7 @@ NavierStokesLDA.cpp
 NavierStokesSUPG.cpp
 NavierStokesLF.cpp
 NavierStokesN.cpp
+NavierStokesB.cpp
 )
 
 list( APPEND coolfluid_rdm_navierstokes_cflibs coolfluid_rdm )
