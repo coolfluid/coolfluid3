@@ -33,12 +33,13 @@ if( ParaView_FOUND )
   coolfluid_add_library(coolfluid_ui_paraview)
 
 else()
-
-	 coolfluid_mark_not_orphan(
-	C3DView.cpp
-	C3DView.hpp
-	C3DViewBuilder.cpp
-	C3DViewBuilder.hpp
-	 )
+  coolfluid_mark_not_orphan(
+   C3DView.cpp
+   C3DView.hpp
+   C3DViewBuilder.cpp
+   C3DViewBuilder.hpp
+   LibParaView.cpp
+   LibParaView.hpp
+  )
 
 endif()
