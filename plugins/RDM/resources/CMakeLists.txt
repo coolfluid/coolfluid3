@@ -26,6 +26,9 @@ list( APPEND resources_files
   trapezium1x1-tg-p1-508.msh
   trapezium1x1-tg-p2-1949.msh
   trapezium1x1-tg-p3-4306.msh
+  trapezium1x1-qd-p1-441.msh
+  trapezium1x1-qd-p2-1681.msh
+  trapezium1x1-qd-p3-3721.msh
 )
 
 coolfluid_mark_not_orphan( ${resources_files} )

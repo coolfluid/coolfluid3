@@ -134,9 +134,9 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 
   std::vector<URI> files;
 
-//  URI file( "file:square1x1-tg-p1-303n.msh" );     // works
+  URI file( "file:square1x1-tg-p1-303n.msh" );     // works
 //  URI file( "file:square1x1-tg-p1-7614.msh" );     // works
-  URI file( "file:trapezium1x1-tg-p1-508.msh");
+//  URI file( "file:trapezium1x1-tg-p1-508.msh");    // works
 
 //  URI file( "file:square1x1-tg-p2-333n.msh");
 //  URI file( "file:square1x1-tg-p2-2kn.msh");       // works
@@ -145,10 +145,11 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 //  URI file( "file:square1x1-qd-p1-6561n.msh" );
 //  URI file( "file:square1x1-qd-p1-1369.msh" );     // works
 //  URI file( "file:square1x1-qd-p1-256n.msh" );
-
 //  URI file( "file:square1x1-qd-p2-289n.msh" );     // works
-//  URI file( "file:square1x1-qd-p2-5329.msh" );     // works but oscillations grow
-//  URI file( "file:trapezium1x1-qd-p2-1681.msh" );
+
+//URI file( "file:trapezium1x1-qd-p1-441.msh" );      // LDA works
+//URI file( "file:trapezium1x1-qd-p2-1681.msh" );     // B crashes but LDA works?
+//URI file( "file:trapezium1x1-qd-p3-3721.msh" );     // B crashes but LDA works?
 
 //  URI file( "file:trapezium1x1-tg-p3-4306.msh");
 
@@ -175,7 +176,7 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , euler2d_local_fixture )
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_property("CFL", 0.25);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 250u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -278,11 +279,11 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , euler2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_lda , euler2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve_b, euler2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  CFinfo << "solving with LDA scheme" << CFendl;
+  CFinfo << "solving with B scheme" << CFendl;
 
   // delete previous domain terms
   Component& domain_terms = solver.get_child("compute_domain_terms");
@@ -306,7 +307,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , euler2d_local_fixture )
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   options.add<std::string>("Name","INTERNAL");
-  options.add<std::string>("Type","CF.RDM.CSysLDA");
+  options.add<std::string>("Type","CF.RDM.CSysB");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
