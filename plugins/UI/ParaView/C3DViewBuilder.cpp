@@ -11,7 +11,6 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
-//#include "Solver/LibSolver.hpp"
 #include "UI/ParaView/LibParaView.hpp"
 
 #include "UI/ParaView/C3DViewBuilder.hpp"
