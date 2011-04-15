@@ -43,6 +43,8 @@
 #include "pqStatusBar.h"
 
 // header
+
+#include "UI/Graphics/NRemoteOpen.hpp"
 #include "UI/Core/NLog.hpp"
 
 #include "UI/ParaViewTab/N3DView.hpp"
@@ -52,6 +54,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::UI::Core;
+using namespace CF::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -525,6 +528,7 @@ namespace ParaViewTab {
   }
 
   void Widget3D::showLoadFileDialog(){
+    /*
       //the popup dialog box
       QPointer<QDialog> loadFileDialog = new QDialog(this);
 
@@ -534,7 +538,7 @@ namespace ParaViewTab {
 
       // line edit
       m_Name_line = new QLineEdit("skeleton",this);
-      m_Path_File_line = new QLineEdit("/nobackup/st/wertz/frog/skeleton.vtk",this);
+      m_Path_File_line = new QLineEdit(".",this);
 
       // labels
       QPointer<QLabel> path_label = new QLabel("File Path");
@@ -570,6 +574,19 @@ namespace ParaViewTab {
       loadFileDialog->resize(350,100);
       loadFileDialog->setModal(true);
       loadFileDialog->show();
+      */
+
+    NRemoteOpen::Ptr loadFileDialog = NRemoteOpen::create();
+
+    QString my_file = loadFileDialog->show();
+
+    m_Name_line = new QLineEdit(this);
+    m_Path_File_line = new QLineEdit(this);
+    m_Name_line->setText(my_file);
+    m_Path_File_line->setText(my_file);
+
+    loadFile();
+
   }
 
   void Widget3D::showConnectDialog(){
