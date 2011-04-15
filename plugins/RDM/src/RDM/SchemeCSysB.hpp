@@ -7,7 +7,7 @@
 #ifndef CF_RDM_SchemeCSysB_hpp
 #define CF_RDM_SchemeCSysB_hpp
 
-#include<iostream>
+#include "Math/MathChecks.hpp"
 
 #include "RDM/SchemeBase.hpp"
 
@@ -75,8 +75,6 @@ protected: // data
   /// helper variables to compute the blending parameter
   Real sum_phi;
   Real sum_phi_N;
-
-  static const Real eps = 1.e-14;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -180,20 +178,18 @@ void CSysB::Scheme<SF, QD,PHYS>::execute()
     sum_phi_N = 0.0;
     for (Uint n=0; n<SF::nb_nodes; ++n)
     {
-        sum_phi   += B::Phi_n(n,v);// + Phi_n_diss(n,v);
+        sum_phi   += B::Phi_n(n,v); // + Phi_n_diss(n,v);
         sum_phi_N += std::abs(B::Phi_n(n,v) + Phi_n_diss(n,v));
     }
 
-    theta = sum_phi_N > eps ? std::abs(sum_phi)/sum_phi_N : 0.0;
+    theta = Math::MathChecks::is_not_zero(sum_phi_N) ? std::abs(sum_phi)/sum_phi_N : 0.0;
 
     for (Uint n=0; n<SF::nb_nodes; ++n)
     {
       (*B::residual)[nodes_idx[n]][v] += B::Phi_n(n,v) + theta * Phi_n_diss(n,v);
     }
 
-  } // Loop over equations
-
-
+  } // loop over equations
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
