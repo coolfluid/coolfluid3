@@ -44,7 +44,6 @@ void LibParaViewTab::initiate_impl()
   NPlugins::globalPlugins()->registerPlugin<LibParaViewTab>();
   CNodeBuilders::instance().registerBuilder<N3DView>("C3DView");
 
-//  m_tabIndex = TabBuilder::instance()->addTab(new Widget3D(), "3D-View");
 }
 
 void LibParaViewTab::terminate_impl()
@@ -54,6 +53,6 @@ void LibParaViewTab::terminate_impl()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Client
+} // ParaViewTab
 } // UI
 } // CF
