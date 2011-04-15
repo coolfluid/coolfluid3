@@ -67,51 +67,15 @@ C3DView::~C3DView()
 
 }
 
-/*
-void C3DView::launch_pvserver(QString port,QString machinesFilePath,QString numberOfProcess){
-
-  pvserver = new QProcess();
-
-  pvserver->setProcessChannelMode(QProcess::ForwardedChannels);
-
-  QString portCommand = "-sp=";
-  portCommand += port;
-
-  //Use custom server.
-  pvserver->start("/nobackup/st/wertz/./pvserver", QStringList() << portCommand);
-
-  //If Paraview is well installed.
-  //pvserver->start("pvserver", QStringList() << portCommand);
-*/
-  /*
-   //launch server with mpi
-   QStringList args();
-   QString numProc = "-np ";
-   numProc += numberOfProcess;
-   QString machinePath = "-hostfile ";
-   machinePath += machinesFilePath;
-   QString process = "pvserver";
-   QString portArg = "-sp=";
-   portArg += port;
-   args << numProc;
-   args << machinePath;
-   args << process;
-   args << portArg;
-   //pvserver->start("mpirun", args);
-   */
-
-//}
-
-
 void C3DView::launch_pvserver( SignalArgs & args ){
 
-  pvserver = new QProcess();
+  m_pvserver = new QProcess();
 
-  pvserver->setProcessChannelMode(QProcess::ForwardedChannels);
+  m_pvserver->setProcessChannelMode(QProcess::ForwardedChannels);
 
-  connect(pvserver, SIGNAL(readyReadStandardOutput()),
+  connect(m_pvserver, SIGNAL(readyReadStandardOutput()),
           this, SLOT(readyReadStandardOutput()));
-  connect(pvserver, SIGNAL(readyReadStandardError()),
+  connect(m_pvserver, SIGNAL(readyReadStandardError()),
           this, SLOT(readyReadStandardError()));
 
   if(m_port.isEmpty()){
@@ -123,7 +87,8 @@ void C3DView::launch_pvserver( SignalArgs & args ){
   portCommand += m_port;
 
   //Use custom server.
-  pvserver->start("pvserver", QStringList() << portCommand);
+  m_pvserver->start("pvserver", QStringList() << portCommand);
+  //m_pvserver->start("/nobackup/st/wertz/./pvserver", QStringList() << portCommand);
 
   SignalFrame reply = args.create_reply( full_path() );
   SignalFrame& options = reply.map( Protocol::Tags::key_options() );
@@ -135,23 +100,10 @@ void C3DView::launch_pvserver( SignalArgs & args ){
 
   XmlNode node = options.set_array("infoServer", data, " ; ");
 
-  //send_server_info_to_client();
-
 }
 
 void C3DView::dump_file( SignalArgs & args ){
-/*
-  SignalFrame reply = args.create_reply( full_path() );
-  SignalFrame& options = reply.map( Protocol::Tags::key_options() );
 
-  std::vector<std::string> data(3);
-
-  data[0] = "127.0.0.1";
-  data[1] = "8080";
-  data[2] = "/nobackup/st/wertz/frog/skeleton.vtk";
-
-  XmlNode node = options.set_array("infoServer", data, " ; ");
-*/
 }
 
 void C3DView::send_server_info_to_client( SignalArgs & args ){
@@ -171,12 +123,12 @@ void C3DView::send_server_info_to_client( SignalArgs & args ){
 
 void C3DView::readyReadStandardOutput()
 {
-  CFinfo << pvserver->readAllStandardOutput().data() << CFflush;
+  CFinfo << m_pvserver->readAllStandardOutput().data() << CFflush;
 }
 
 void C3DView::readyReadStandardError()
 {
-  CFinfo << pvserver->readAllStandardError().data() << CFflush;
+  CFinfo << m_pvserver->readAllStandardError().data() << CFflush;
 }
 
 

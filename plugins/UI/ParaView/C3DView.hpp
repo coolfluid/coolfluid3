@@ -32,34 +32,47 @@ public: // typedefs
   typedef boost::shared_ptr<C3DView const> ConstPtr;
 
 public:
-    C3DView(const std::string& name);
 
-    void setPort(QString port);
+  /// Constructor
+  /// @param name Name of the node.
+  C3DView(const std::string& name);
 
-    virtual ~C3DView();
+  /// Port setter.
+  /// @param port The port on the paraview server must be launched.
+  void setPort(QString port);
 
-    /// Get the class name
-    static std::string type_name () { return "C3DView"; }
+  /// Destructor
+  virtual ~C3DView();
 
-    //void launch_pvserver(QString port,QString machinesFilePath,QString numberOfProcess);
+  /// Get the class name
+  static std::string type_name () { return "C3DView"; }
 
-    void launch_pvserver( Common::SignalArgs & args );
+  /// Launche a paraview server
+  /// @param args
+  void launch_pvserver( Common::SignalArgs & args );
 
-    void dump_file( Common::SignalArgs & args );
+  /// Dump a vtk or exodusII file.
+  /// @param args
+  void dump_file( Common::SignalArgs & args );
 
-    void send_server_info_to_client( Common::SignalArgs & args );
+  /// Send paths and names of dumped file to the client
+  /// @param args
+  void send_server_info_to_client( Common::SignalArgs & args );
 
-    //void file_dumped( Common::SignalArgs & args );
+private slots:
 
-  private slots:
-
+    /// send Paraview server output messages to client
     void readyReadStandardOutput();
 
+    /// send Paraview server output errors to client
     void readyReadStandardError();
 
-  private : //data
-        QProcess * pvserver;
-        QString m_port;
+private : //data
+    /// Process of the paraview server.
+    QProcess * m_pvserver;
+
+    /// Port on the paraview server must be launched.
+    QString m_port;
 };
 
 //////////////////////////////////////////////////////////////////////////////
