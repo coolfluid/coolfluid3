@@ -23,6 +23,9 @@ namespace ParaViewTab {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+
+  /// @brief Class used with C3DView to provide 3D mesh view.
+  /// @author Wertz Gil
 class ParaViewTab_API N3DView :
     public QObject,
     public UI::Core::CNode
@@ -35,17 +38,21 @@ public: //typedefs
   typedef boost::shared_ptr<N3DView> Ptr;
   typedef boost::shared_ptr<N3DView const> ConstPtr;
 
-public:
-    N3DView(const std::string & name);
+public: //function
 
-    void reload_client_view();
+    /// Constructor
+    /// @param name Name of the node.
+    N3DView(const std::string& name);
 
-    void pvserver_launched(QString host,QString port,QString path);
-
+    /// toolTip
     virtual QString toolTip() const;
 
+    /// This function send paraview server information to the 3D View.
+    /// @param node
     void launch_pvserver( Common::SignalArgs& node );
 
+    /// This function send server file information to the 3D View.
+    /// @param node
     void send_server_info_to_client( Common::SignalArgs& node );
 
 protected:
@@ -55,6 +62,8 @@ protected:
   /// by default.
   virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
 
+  void reload_client_view();
+
   virtual void setUpFinished();
 
 };
@@ -62,7 +71,7 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 
-} // Core
+} // ParaViewTab
 } // UI
 } // CF
 
