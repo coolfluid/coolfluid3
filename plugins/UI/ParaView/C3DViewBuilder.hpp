@@ -21,6 +21,8 @@ namespace ParaView {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  /// @brief C3DView class builder.
+  /// @author Wertz Gil
 class ParaView_API C3DViewBuilder :
     public Common::Component
 {
@@ -31,8 +33,11 @@ public: // typedefs
 
 public:
 
+  /// Constructor
+  /// @param name Name of the node.
   C3DViewBuilder(const std::string & name);
 
+  /// Get the class name
   static std::string type_name() { return "C3DViewBuilder"; }
 
   /// @name SIGNALS
