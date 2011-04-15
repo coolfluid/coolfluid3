@@ -29,7 +29,14 @@ list( APPEND coolfluid-server_files
   ServerRoot.hpp )
 
 # Use Qt Libraries
-list( APPEND coolfluid-server_libs ${QT_LIBRARIES} coolfluid_ui_paraview )
+#list( APPEND coolfluid-server_libs ${QT_LIBRARIES} )
+
+if( ParaView_FOUND )
+  add_definitions( -DCF_HAVE_PARAVIEW )
+  include_directories( ${PARAVIEW_INCLUDE_DIRS} )
+  list( APPEND coolfluid-server_libs coolfluid_ui_paraview  )
+endif()
+
 list( APPEND coolfluid-server_cflibs ${CF_KERNEL_LIBS} )
 
 coolfluid_add_application(coolfluid-server)
