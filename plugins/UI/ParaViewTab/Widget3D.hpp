@@ -18,8 +18,10 @@
 #include <QList>
 #include <QListWidgetItem>
 #include <QDoubleSpinBox>
+#include <QThread>
+#include <QCheckBox>
 
-// ParaViewTab header
+// ParaView header
 #include "pqApplicationCore.h"
 #include "pqObjectBuilder.h"
 #include "pqPipelineSource.h"
@@ -30,6 +32,9 @@
 #include "pqColorScaleEditor.h"
 #include "pqDisplayRepresentationWidget.h"
 #include "pqPipelineRepresentation.h"
+#include "vtkClientSocket.h"
+#include "pqDisplayProxyEditorWidget.h"
+#include "pqProgressManager.h"
 
 // header
 #include "UI/ParaViewTab/LibParaViewTab.hpp"
@@ -57,39 +62,43 @@ public: //function
 
 public slots://slots
 
-  /// Call openFile to reload last file path
-  //void reload();
-
-  /// Connect client to ParaViewTab server.
-  /// @param host Ip or name of the ParaViewTab server.
+  /// Connect client to paraview server.
+  /// @param host Ip or name of the paraview server.
   /// @param port Port used.
   void connectToServer(QString host,QString port);
 
+  /// Load Actor and set their names into Actor List.
+  /// @param paths Vector of server path.
+  /// @param names Vector of names corresponding to paths.
   void loadPaths(std::vector<QString> paths,std::vector<QString> names);
+
 
 private : //function
 
-  /// Show the render of a file if the server connection is set and a the file exist
-  void showRender();
+    /// Show the render of a file if the server connection is set and a the file exist
+    void showRender();
 
-  /// Create a view from server
-  void createView();
+    /// Create a view from server
+    void createView();
 
-  /// Add a filter
-  void addFilter();
+    /// Add a filter
+    void addFilter();
 
-  /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
-  /// @param file_path Path of the file in server side.
-  void openFile(QString file_path,QString file_name);
+    /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
+    /// @param file_path Path of files in server side.
+    /// @param file_name Name of file in server side.
+    void openFile(QString file_path,QString file_name);
 
-  void create_source(QString path);
+    /// Create a pqPipelineSource with the path.
+    /// @param path Path of files in server side.
+    void create_source(QString path);
 
 private slots: //slots
 
   /// Ask connection options to user and try to connect to server host with port.
   void connectToServer();
 
-  /// Disconnect from current ParaViewTab server.
+  /// Disconnect from current paraview server.
   void disconnectFromServer();
 
   /// Call openFile with new entry path.
@@ -117,19 +126,51 @@ private slots: //slots
   /// Show the color editor
   void show_color_editor();
 
+  /// Show or Hide the current Region/Actor
+  /// @param item Item corresponding to the Region/Actor.
   void show_hide_actor(QListWidgetItem * item);
 
+  /// Called when the current Region/Actor change.
+  /// @param item Item corresponding to the Region/Actor.
   void actor_changed(QListWidgetItem * item);
 
-  void setColor();
+  /// Color Picker that change current Region/Actor color.
+  void set_solid_color();
 
+  /// Change the current Region/Actor opacity.
+  /// @param value Value of opacity from 0 to 1.
   void opacityChange(double value);
 
-  void update_solide_color_button_state(pqVariableType type, const QString &name);
+  /// Change the current Region/Actor opacity.
+  /// @param type
+  /// @param name The current mash style name.
+  void enable_solide_color_button(pqVariableType type, const QString &name);
+
+  /// Display View Camera settings
+  void show_camera_settings();
+
+  /// Show Hide center axes
+  void setCenterAxesVisibility();
+
+  void showDialog(QWidget * widget);
+
+  void show_disp_adv_settings();
+
+  void show_gen_adv_settings();
+
+  void show_serv_adv_settings();
+
+  void forceRendering();
+
+  void enableRendering(bool enable);
+
+  void show_progress(QString name,int progress);
+
+  void show_progress();
 
 private: //data
 
-  /// Initialising Application Core that manage all vtk and ParaViewTab Objects.
+  /// Initialising Application Core that manage all vtk and paraview Objects.
   QPointer<pqApplicationCore> m_core;
 
   /// Object Builder create Object on server side and a ghost on client side.
@@ -239,19 +280,34 @@ private: //data
   /// Regions list
   QPointer<QListWidget> m_actor_list;
 
-  //QPointer<pqStandardColorButton> ColorActorColor;
+  /// Temporary Representation
+  QPointer<pqPipelineRepresentation> m_representation;
 
-  //QPointer<pqDisplayProxyEditor> dispProxyEdit;
-
-  //QPointer<pqStandardColorLinkAdaptor> coloradapt;
-
-  QPointer<pqPipelineRepresentation> representation;
-
-  /// Button reload file.
+  /// Solid Color Button.
   QPointer<QPushButton> m_mesh_solid_color_set;
 
+  /// Current Region/Actor opacity spin box.
   QPointer<QDoubleSpinBox> m_spin_opacity;
 
+  /// Show center axes button
+  QPointer<QPushButton> m_show_axes_button;
+
+  /// Show camera dialog button
+  QPointer<QPushButton> m_show_camera_settings_button;
+
+  /// Display Advanced Option
+  QPointer<QPushButton> m_disp_adv_opt_button;
+  /// General Advanced Option
+  QPointer<QPushButton> m_gen_adv_opt_button;
+  /// Server Advanced Option
+  QPointer<QPushButton> m_serv_adv_opt_button;
+
+
+  QPointer<QPushButton> m_force_rendering;
+
+  QPointer<QCheckBox> m_checkbox_enable_rendering;
+
+  pqProgressManager * progMgr;
 };
 
 
