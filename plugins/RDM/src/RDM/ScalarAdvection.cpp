@@ -99,6 +99,8 @@ void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
   CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.RDM.RKRD", "Solver");
   solver->mark_basic();
   model->add_component( solver );
+
+  solver->configure_property("Physics", pm->full_path() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -18,6 +18,7 @@
 namespace CF {
 
 namespace Mesh   { class CField; class CMesh; }
+namespace Solver { class CPhysicalModel; }
 
 namespace RDM {
 
@@ -84,6 +85,8 @@ private: // data
 
   /// mesh which this solver operates
   boost::weak_ptr<Mesh::CMesh> m_mesh;
+  /// mesh which this solver operates
+  boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
 
   /// solution field pointer
   boost::weak_ptr<Mesh::CField> m_solution;

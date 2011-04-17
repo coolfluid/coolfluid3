@@ -16,6 +16,7 @@
 namespace CF {
 
 namespace Mesh { class CRegion; class CMesh; }
+namespace Solver { class CPhysicalModel;}
 
 namespace RDM {
 
@@ -45,10 +46,17 @@ public: // functions
 
 protected:
 
+  boost::shared_ptr< Solver::CPhysicalModel > access_physical_model();
+
+protected:
+
   /// mesh where this action data resides
   boost::weak_ptr< Mesh::CMesh > m_mesh;
+  /// physical model used by this action
+  boost::weak_ptr< Solver::CPhysicalModel > m_physical_model;
   /// regions of the mesh to loop over
   std::vector< boost::shared_ptr< Mesh::CRegion > > m_loop_regions;
+
 
 };
 

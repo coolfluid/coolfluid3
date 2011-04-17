@@ -61,6 +61,12 @@ RKRD::RKRD ( const std::string& name  ) :
     ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
   properties()["Mesh"].as_option().add_tag("mesh");
 
+  m_properties.add_option( OptionComponent<CPhysicalModel>::create("Physics",
+                                                                   "Physical model to discretize",
+                                                                   &m_physical_model))
+    ->mark_basic()
+    ->add_tag("physics");
+
   // properties
 
   properties()["brief"] = std::string("Residual Distribution Solver");
@@ -134,11 +140,11 @@ void RKRD::config_mesh()
 
   CMesh& mesh = *(m_mesh.lock());
 
-  /// @todo physical model should be a configuration option of the solver
-  CPhysicalModel::Ptr pm = find_component_ptr_recursively<CPhysicalModel>( *Core::instance().root() );
-  if( is_null(pm) )
-    throw ValueNotFound(FromHere(), "could not found any physical model to use");
+  CPhysicalModel::Ptr physmodel = m_physical_model.lock();
+  if( is_null( physmodel ) )
+    throw SetupError(FromHere(), "Physical model not yet set for RKRD component " + full_path().string() );
 
+  const Uint nbdofs = physmodel->nb_dof();
 
   // configure solution
 
@@ -147,11 +153,10 @@ void RKRD::config_mesh()
   if ( is_null( m_solution.lock() ) )
   {
     std::string vars;
-    for(Uint i = 0; i < pm->nb_dof(); ++i)
+    for(Uint i = 0; i < nbdofs; ++i)
     {
      vars += "u" + to_str(i) + "[1]";
-     if( i != pm->nb_dof()-1 )
-       vars += ",";
+     if( i != nbdofs-1 ) vars += ",";
     }
 
     m_solution = mesh.create_field2("solution","PointBased", vars).as_ptr<CField>();
@@ -227,7 +232,10 @@ void RKRD::signal_create_boundary_term( SignalArgs& node )
   m_compute_boundary_terms->add_component(bterm);
 
   bterm->configure_property("Regions" , regions);
-  bterm->configure_property("Mesh", m_mesh.lock()->full_path());
+  if( m_mesh.lock() )
+    bterm->configure_property("Mesh", m_mesh.lock()->full_path());
+  if( m_physical_model.lock() )
+    bterm->configure_property("Physics" , m_physical_model.lock()->full_path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -265,6 +273,10 @@ void RKRD::signal_create_domain_term( SignalArgs& node )
   std::vector<URI> regions = options.array<URI>("Regions");
 
   dterm->configure_property("Regions" , regions);
+  if( m_mesh.lock() )
+    dterm->configure_property("Mesh", m_mesh.lock()->full_path());
+  if( m_physical_model.lock() )
+    dterm->configure_property("Physics" , m_physical_model.lock()->full_path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

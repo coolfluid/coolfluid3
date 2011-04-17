@@ -39,10 +39,7 @@ CSysB::~CSysB() {}
 
 void CSysB::execute()
 {
-  /// @todo physical model should be a configuration option of the solver
-  CPhysicalModel::Ptr pm = find_component_ptr_recursively<CPhysicalModel>( *Core::instance().root() );
-  if( is_null(pm) )
-    throw ValueNotFound(FromHere(), "could not found any physical model to use");
+  CPhysicalModel::Ptr pm = access_physical_model();
 
   const std::string physics = pm->type();
 

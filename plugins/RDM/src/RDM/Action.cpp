@@ -13,12 +13,15 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMesh.hpp"
 
+#include "Solver/CPhysicalModel.hpp"
+
 #include "RDM/Action.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Solver;
 
 namespace CF {
 namespace RDM {
@@ -38,6 +41,12 @@ Action::Action ( const std::string& name ) :
     ->mark_basic()
     ->add_tag("mesh");
 
+  m_properties.add_option( OptionComponent<CPhysicalModel>::create("Physics",
+                                                                   "Physical model",
+                                                                   &m_physical_model))
+    ->mark_basic()
+    ->add_tag("physics");
+
 //  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( & Action::config_mesh, this ) );
 
   std::vector< URI > dummy;
@@ -48,7 +57,19 @@ Action::Action ( const std::string& name ) :
 
 Action::~Action() {}
 
-/////////////////////////////////////////////////////////////////////////////////////
+//------------------------------------------------------------------------------------------
+
+CPhysicalModel::Ptr Action::access_physical_model()
+{
+  CPhysicalModel::Ptr model = m_physical_model.lock();
+
+  if( is_null(model) )
+    throw Common::SetupError( FromHere(), "Physical Model not yet set for component " + full_path().string() );
+
+
+}
+
+//------------------------------------------------------------------------------------------
 
 void Action::config_regions()
 {
