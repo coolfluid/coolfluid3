@@ -66,7 +66,7 @@ CPhysicalModel::Ptr Action::access_physical_model()
   if( is_null(model) )
     throw Common::SetupError( FromHere(), "Physical Model not yet set for component " + full_path().string() );
 
-
+  return model;
 }
 
 //------------------------------------------------------------------------------------------
