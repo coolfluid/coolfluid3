@@ -20,7 +20,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementLoop<CSysN,Euler2D> , RDM::DomainLoop, LibRDM > CSysN_Euler2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysN,Euler2D> , RDM::ElementLoop, LibRDM > CSysN_Euler2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -47,15 +47,15 @@ void CSysLF::execute()
   const std::string physics = pm->type();
 
   // get the element loop or create it if does not exist
-  DomainLoop::Ptr loop;
+  ElementLoop::Ptr loop;
   Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
-    loop = create_component_abstract_type< DomainLoop >( "CF.RDM.ElementLoop<" + type_name() + "," + physics + ">" , "LOOP");
+    loop = create_component_abstract_type< ElementLoop >( "CF.RDM.CellLoop<" + type_name() + "," + physics + ">" , "LOOP");
     add_component(loop);
   }
   else
-    loop = cloop->as_ptr_checked<DomainLoop>();
+    loop = cloop->as_ptr_checked<ElementLoop>();
 
   // loop on all regions configured by the user
 

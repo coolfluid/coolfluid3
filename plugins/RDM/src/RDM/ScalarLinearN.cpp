@@ -22,11 +22,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementLoop<CSysN,LinearAdv2D> , RDM::DomainLoop, LibRDM > CSysN_LinearAdv2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysN,LinearAdv2D> , RDM::ElementLoop, LibRDM > CSysN_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < ElementLoop<CSysN,LinearAdvSys2D> , RDM::DomainLoop, LibRDM > CSysN_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysN,LinearAdvSys2D> , RDM::ElementLoop, LibRDM > CSysN_LinearAdvSys2D_Builder;
 
-Common::ComponentBuilder < ElementLoop<CSysN,RotationAdv2D> , RDM::DomainLoop, LibRDM > CSysN_RotationAdv2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysN,RotationAdv2D> , RDM::ElementLoop, LibRDM > CSysN_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

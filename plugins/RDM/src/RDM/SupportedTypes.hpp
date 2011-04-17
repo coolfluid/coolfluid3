@@ -11,6 +11,12 @@
 
 #include "Mesh/CElements.hpp"
 
+// 2D
+
+#include "Mesh/SF/Line2DLagrangeP1.hpp"
+#include "Mesh/SF/Line2DLagrangeP2.hpp"
+#include "Mesh/SF/Line2DLagrangeP3.hpp"
+
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 #include "Mesh/SF/Triag2DLagrangeP2.hpp"
 #include "Mesh/SF/Triag2DLagrangeP2B.hpp"
@@ -20,23 +26,69 @@
 #include "Mesh/SF/Quad2DLagrangeP2.hpp"
 #include "Mesh/SF/Quad2DLagrangeP3.hpp"
 
+// 3D
+
+#include "Mesh/SF/Triag3DLagrangeP1.hpp"
+#include "Mesh/SF/Quad3DLagrangeP1.hpp"
+
+#include "Mesh/SF/Tetra3DLagrangeP1.hpp"
+#include "Mesh/SF/Hexa3DLagrangeP1.hpp"
+
+
 #include "Mesh/Integrators/GaussImplementation.hpp"
 
 namespace CF {
 namespace RDM {
 
-///////////////////////////////////////////////////////////////////////////////////////
+//------------------------------------------------------------------------------------------
 
-/// List of all supported shapefunctions
+/// List of supported 2d face shapefunctions
 typedef boost::mpl::vector<
-Mesh::SF::Triag2DLagrangeP1,
-Mesh::SF::Triag2DLagrangeP2,
-Mesh::SF::Triag2DLagrangeP2B,
-Mesh::SF::Triag2DLagrangeP3,
-Mesh::SF::Quad2DLagrangeP1,
-Mesh::SF::Quad2DLagrangeP2,
-Mesh::SF::Quad2DLagrangeP3
-> CellTypes;
+  Mesh::SF::Line2DLagrangeP1,
+  Mesh::SF::Line2DLagrangeP3,
+  Mesh::SF::Line2DLagrangeP3
+> FaceTypes2D;
+
+/// List of supported 2d cell shapefunctions
+typedef boost::mpl::vector<
+  Mesh::SF::Triag2DLagrangeP1,
+  Mesh::SF::Triag2DLagrangeP2,
+  Mesh::SF::Triag2DLagrangeP2B,
+  Mesh::SF::Triag2DLagrangeP3,
+  Mesh::SF::Quad2DLagrangeP1,
+  Mesh::SF::Quad2DLagrangeP2,
+  Mesh::SF::Quad2DLagrangeP3
+> CellTypes2D;
+
+/// List of supported 3d face shapefunctions
+typedef boost::mpl::vector<
+  Mesh::SF::Triag3DLagrangeP1,
+  Mesh::SF::Quad3DLagrangeP1
+> FaceTypes3D;
+
+/// List of supported 3d cell shapefunctions
+typedef boost::mpl::vector<
+  Mesh::SF::Tetra3DLagrangeP1,
+  Mesh::SF::Hexa3DLagrangeP1
+> CellTypes3D;
+
+template < int DIM > struct ElemTypes {};
+
+template<>
+struct ElemTypes<DIM_2D>
+{
+  typedef CellTypes2D Cells;
+  typedef FaceTypes2D Faces;
+};
+
+template<>
+struct ElemTypes<DIM_3D>
+{
+  typedef CellTypes3D Cells;
+  typedef FaceTypes3D Faces;
+};
+
+//------------------------------------------------------------------------------------------
 
 /// Predicate class to test if the region contains a specific element type
 template < typename TYPE >

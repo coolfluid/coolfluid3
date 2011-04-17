@@ -20,7 +20,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementLoop<CSysB,Burgers2D> , RDM::DomainLoop, LibRDM > CSysB_Burgers2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysB,Burgers2D> , RDM::ElementLoop, LibRDM > CSysB_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
