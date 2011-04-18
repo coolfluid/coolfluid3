@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_Common_LibCommon_hpp
-#define CF_SFDM_Common_LibCommon_hpp
+#ifndef CF_SFDM_Core_LibCore_hpp
+#define CF_SFDM_Core_LibCore_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,43 +13,43 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro SFDM_Common_API
+/// Define the macro SFDM_Core_API
 /// @note build system defines COOLFLUID_RDM_EXPORTS when compiling FVM files
-#ifdef COOLFLUID_SFDM_Common_EXPORTS
-#   define SFDM_Common_API      CF_EXPORT_API
-#   define SFDM_Common_TEMPLATE
+#ifdef COOLFLUID_SFDM_Core_EXPORTS
+#   define SFDM_Core_API      CF_EXPORT_API
+#   define SFDM_Core_TEMPLATE
 #else
-#   define SFDM_Common_API      CF_IMPORT_API
-#   define SFDM_Common_TEMPLATE CF_TEMPLATE_EXTERN
+#   define SFDM_Core_API      CF_IMPORT_API
+#   define SFDM_Core_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace SFDM {
-namespace Common {
+namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the Spectral Finite Difference Common library
+/// Class defines the Spectral Finite Difference Core library
 /// @author Willem Deconinck
-class SFDM_Common_API LibCommon :
+class SFDM_Core_API LibCore :
     public CF::Common::CLibrary
 {
 public:
 
-  typedef boost::shared_ptr<LibCommon> Ptr;
-  typedef boost::shared_ptr<LibCommon const> ConstPtr;
+  typedef boost::shared_ptr<LibCore> Ptr;
+  typedef boost::shared_ptr<LibCore const> ConstPtr;
 
   /// Constructor
-  LibCommon ( const std::string& name) : CF::Common::CLibrary(name) { }
+  LibCore ( const std::string& name) : CF::Common::CLibrary(name) { }
 
-  virtual ~LibCommon() { }
+  virtual ~LibCore() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.SFDM.Common"; }
+  static std::string library_namespace() { return "CF.SFDM.Core"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration
@@ -62,11 +62,11 @@ public: // functions
 
   static std::string library_description()
   {
-    return "This library implements Common components to construct a Spectral Finite Difference Solver.";
+    return "This library implements Core components to construct a Spectral Finite Difference Solver.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibCommon"; }
+  static std::string type_name() { return "LibCore"; }
 
 protected:
 
@@ -76,14 +76,14 @@ protected:
   /// terminate library
   virtual void terminate_impl();
 
-}; // end LibCommon
+}; // end LibCore
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
+} // Core
 } // SFDM
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_Common_LibCommon_hpp
+#endif // CF_SFDM_Core_LibCore_hpp
