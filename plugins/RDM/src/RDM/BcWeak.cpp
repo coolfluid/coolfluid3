@@ -6,22 +6,24 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/Log.hpp"
 #include "Common/FindComponents.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CList.hpp"
+
+#include "Solver/CPhysicalModel.hpp"
 
 #include "RDM/BcWeak.hpp"
+#include "RDM/ElementLoop.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Solver;
 
 namespace CF {
 namespace RDM {
