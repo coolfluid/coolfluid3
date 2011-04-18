@@ -16,6 +16,8 @@ list( APPEND coolfluid_rdm_files
   DomainTerm.cpp
   BcDirichlet.hpp
   BcDirichlet.cpp
+  BcWeak.cpp
+  BcWeak.hpp
   Cleanup.hpp
   Cleanup.cpp
 # time stepping
