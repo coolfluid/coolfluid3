@@ -109,6 +109,8 @@ protected: // typedefs
 
   typedef Eigen::Matrix<Real, PHYS::ndim, 1u>                  DimVT;
 
+  typedef Eigen::Matrix<Real, PHYS::ndim, PHYS::ndim>          JMT;
+
   typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim>       QCoordMT;
   typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       QSolutionMT;
 
@@ -155,17 +157,24 @@ protected: // data
   /// derivatives of shape functions on physical space at all quadrature points,
   /// one matrix per dimenison
   SFMatrixT  dNdX[PHYS::ndim];
-
   /// jacobian of transformation at each quadrature point
   WeightVT jacob;
   /// Integration factor (jacobian multiplied by quadrature weight)
   WeightVT wj;
-
   /// temporary local gradient of 1 shape function
   DimVT dN;
-
   /// physical properties
   typename PHYS::Properties phys_props;
+
+private:
+
+  /// temporary local gradient of 1 shape function in reference and physical space
+  DimVT dNphys;
+  DimVT dNref;
+  /// Jacobi matrix at each quadrature point
+  JMT JM;
+  /// Inverse of the Jacobi matrix at each quadrature point
+  JMT JMinv;
 
 };
 
@@ -245,32 +254,54 @@ void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& n
   // dX[XX].col(KSI) has the values of dx/dksi at all quadrature points
   // dX[XX].col(ETA) has the values of dx/deta at all quadrature points
 
-  dX[XX].col(KSI) = dNdKSI[KSI] * X_n.col(XX);
-  dX[XX].col(ETA) = dNdKSI[ETA] * X_n.col(XX);
-  dX[YY].col(KSI) = dNdKSI[KSI] * X_n.col(YY);
-  dX[YY].col(ETA) = dNdKSI[ETA] * X_n.col(YY);
+  for(Uint dimx = 0; dimx < PHYS::ndim; ++dimx)
+  {
+    for(Uint dimksi = 0; dimksi < PHYS::ndim; ++dimksi)
+    {
+      dX[dimx].col(dimksi) = dNdKSI[dimksi] * X_n.col(dimx);
+    }
+  }
 
-  // transformation jacobian at quadrature point
-
+  // Fill Jacobi matrix (matrix of transformation phys. space -> ref. space) at qd. point q
   for(Uint q = 0; q < QD::nb_points; ++q)
-    jacob[q] = dX[XX](q,XX) * dX[YY](q,YY) - dX[XX](q,YY) * dX[YY](q,XX);
+  {
+    for(Uint dimx = 0; dimx < PHYS::ndim; ++dimx)
+    {
+      for(Uint dimksi = 0; dimksi < PHYS::ndim; ++dimksi)
+      {
+       JM(dimksi,dimx) = dX[dimx](q,dimksi);
+      }
+    }
+
+   // Once the jacobi matrix at one quadrature point is assembled, let's re-use it
+   // to compute the gradients of of all shape functions in phys. space
+   jacob[q] = JM.determinant();
+   JMinv = JM.inverse();
+
+   for(Uint n = 0; n < SF::nb_nodes; ++n)
+   {
+     for(Uint dimksi = 0; dimksi < PHYS::ndim; ++ dimksi)
+     {
+       dNref[dimksi] = dNdKSI[dimksi](q,n);
+     }
+
+     dNphys = JMinv * dNref;
+
+     for(Uint dimx = 0; dimx < PHYS::ndim; ++ dimx)
+     {
+       dNdX[dimx](q,n) = dNphys[dimx];
+     }
+
+   }
+
+  } //Loop over quadrature points
+
 
   // compute transformed integration weights (sum is element area)
 
   for(Uint q = 0; q < QD::nb_points; ++q)
     wj[q] = jacob[q] * m_quadrature.weights[q];
 
-  // shape function derivatives in physical space at quadrature point
-
-  for(Uint q = 0; q < QD::nb_points; ++q)
-  {
-    const Real inv_jacob = 1.0 / jacob[q];
-    for(Uint n = 0; n < SF::nb_nodes; ++n)
-    {
-      dNdX[XX](q,n) = inv_jacob * (  dNdKSI[KSI](q,n)*dX[YY](q,YY) - dNdKSI[ETA](q,n) * dX[YY](q,XX));
-      dNdX[YY](q,n) = inv_jacob * ( -dNdKSI[KSI](q,n)*dX[XX](q,YY) + dNdKSI[ETA](q,n) * dX[XX](q,XX));
-    }
-  }
 
   // solution derivatives in physical space at quadrature point
 
