@@ -66,15 +66,11 @@ namespace ParaViewTab {
   Widget3D::Widget3D(QWidget *parent) :
           QWidget(parent)
   {
-    //paraview instance and builder
+    /** Creation Phase **/
+
       // automatically make a server connection
       m_core = pqApplicationCore::instance();
       m_core->disableOutputWindow();
-
-      //progMgr = m_core->getProgressManager();
-
-      //progMgr->setEnableProgress(true);
-
 
 
 /*
@@ -95,6 +91,7 @@ namespace ParaViewTab {
    settings->endGroup();
  */
 
+      //get the object builder
       m_object_builder = m_core->getObjectBuilder();
 
       // Register ParaView interfaces.
@@ -103,12 +100,26 @@ namespace ParaViewTab {
       // adds support for standard paraview views.
       m_plugin_manager->addInterface(new pqStandardViewModules(m_plugin_manager));
 
-      // set the lookuptable to be able using legend.
+      // set the lookuptable to be able to show legend.
       m_core->setLookupTableManager(new pqPQLookupTableManager(this));
 
+      /// Layout
       //main layout
       m_layout_v = new QVBoxLayout();
       this->setLayout(m_layout_v);
+
+      //other layout
+      //horisontal layout view + options
+      m_layout_h = new QHBoxLayout();
+
+      //vertical layout containing options
+      m_layout_option = new QVBoxLayout();
+
+      //GroupBox's layout
+      m_layout_server_options = new QVBoxLayout();
+      m_layout_camera_options = new QVBoxLayout();
+      m_layout_mesh_options = new QHBoxLayout();
+      m_layout_regions_box = new QVBoxLayout();
 
       //Server advanced options
 //      pqGlobalRenderViewOptions * opt = new pqGlobalRenderViewOptions(this);
@@ -119,151 +130,153 @@ namespace ParaViewTab {
 //      opt->setPage(opt->getPageList().at(3));
 //      m_layout_v->addWidget(opt);
 
-      pqStatusBar * status_bar = new pqStatusBar();
 
-       m_disp_adv_opt_button = new QPushButton("Disp. Adv.");
-       m_disp_adv_opt_button->setEnabled(false);
-       m_gen_adv_opt_button = new QPushButton("Gen. Adv.");
-       m_serv_adv_opt_button = new QPushButton("Serv. Adv.");
+      /// Options
+      //Server Options
+        m_connect_to_server_button = new QPushButton(QIcon(":/paraview_icons/pqConnect24.png"),"Connect",this);
 
-      m_force_rendering = new QPushButton("Render");
-
-      m_checkbox_enable_rendering = new QCheckBox("Auto Render");
+        m_load_file = new QPushButton(QIcon(":/paraview_icons/pqOpen24.png"),"Load File",this);
+        m_load_file->setVisible(false);
 
 
-      //horisontal layout view + server (remove from widget) and view options
-      m_layout_h = new QHBoxLayout();
+      //View Options
+        m_set_rotation_center = new QPushButton(QIcon(":/paraview_icons/pqResetCenter24.png"),"Fix Center Rotation",this);
 
-      //vertical layout containing server and view options
-      m_layout_option = new QVBoxLayout();
+        m_screen_shot = new QPushButton(QIcon(":/paraview_icons/pqCaptureScreenshot24.png"),"Screen Shot",this);
 
-      //Options buttons
-      m_connect_to_server_button = new QPushButton(QIcon(":/paraview_icons/pqConnect24.png"),"Connect",this);
+        m_reset_camera = new QPushButton(QIcon(":/paraview_icons/pqResetCamera24.png"),"Reset Camera",this);
 
-      m_load_file = new QPushButton(QIcon(":/paraview_icons/pqOpen24.png"),"Load File",this);
+        //Combo box of predefined camera orientation
+        m_preDefined_rotation = new QComboBox(this);
+        m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqXPlus16.png"),"+X",0);
+        m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqYPlus16.png"),"+Y",1);
+        m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqZPlus16.png"),"+Z",2);
+        m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqXMinus16.png"),"-X",3);
+        m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqYMinus16.png"),"-Y",4);
+        m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqZMinus16.png"),"-Z",5);
+        m_preDefined_rotation->setEditable(false);
 
-      m_load_file->setVisible(false);
+        m_show_axes_button = new QPushButton("Hide Axes");        // show axes button
 
-      m_set_rotation_center = new QPushButton(QIcon(":/paraview_icons/pqResetCenter24.png"),"Fix Center Rotation",this);
+        m_show_camera_settings_button =  new QPushButton("Show Camera settings");  // Show camera settings dialog button
 
-      m_screen_shot = new QPushButton(QIcon(":/paraview_icons/pqCaptureScreenshot24.png"),"Screen Shot",this);
+        // advanced paraview options (not used for now)
+        m_disp_adv_opt_button = new QPushButton("Disp. Adv.");
+        m_disp_adv_opt_button->setEnabled(false);
+        m_gen_adv_opt_button = new QPushButton("Gen. Adv.");
+        m_serv_adv_opt_button = new QPushButton("Serv. Adv.");
 
-      m_reset_camera = new QPushButton(QIcon(":/paraview_icons/pqResetCamera24.png"),"Reset Camera",this);
+      //Mesh Options
+        m_show_color_palette = new QPushButton(QIcon(":/paraview_icons/pqScalarBar24.png"),"Show Color Palette",this);
+        m_show_color_palette->setEnabled(false);
 
-      m_show_color_palette = new QPushButton(QIcon(":/paraview_icons/pqScalarBar24.png"),"Show Color Palette",this);
-      m_show_color_palette->setEnabled(false);
+        m_mesh_style = new pqDisplayRepresentationWidget(this); //Combo box that handle styles
 
-      //Combo box that handle styles
-      m_mesh_style = new pqDisplayRepresentationWidget(this);
+        m_dataSet_selector = new pqDisplayColorWidget(this); // the scale color selector and legend
 
-      //Combo box of predefined camera orientation
-      m_preDefined_rotation = new QComboBox(this);
-      m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqXPlus16.png"),"+X",0);
-      m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqYPlus16.png"),"+Y",1);
-      m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqZPlus16.png"),"+Z",2);
-      m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqXMinus16.png"),"-X",3);
-      m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqYMinus16.png"),"-Y",4);
-      m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqZMinus16.png"),"-Z",5);
-      m_preDefined_rotation->setEditable(false);
+        m_mesh_solid_color_set = new QPushButton("Set Color ..."); // Set Solide Color button
+        m_mesh_solid_color_set->setEnabled(false);
 
-      // the color selector and legend
-      m_dataSet_selector = new pqDisplayColorWidget(this);
-
-      //create a builtin server to have axes shown
-      m_server = m_object_builder->createServer(pqServerResource("builtin:"));
-      //m_server->setHeartBeatTimeoutSetting(10);
-
-      // Regions list
-      m_actor_list = new QListWidget(this);
-
-      // Set Solide Color button
-      m_mesh_solid_color_set = new QPushButton("Set Color ...");
-      m_mesh_solid_color_set->setEnabled(false);
-
-      // show axes button
-      m_show_axes_button = new QPushButton("Hide Axes");
-
-      // Show camera settings dialog button
-      m_show_camera_settings_button =  new QPushButton("Show Camera settings");
-
-      //Opacity spinner
+        //Opacity spinner
         m_spin_opacity = new QDoubleSpinBox(this);
-        //m_spin_opacity->setObjectName("Opacity");
         m_spin_opacity->setMaximum(1);
         m_spin_opacity->setSingleStep(0.1);
         m_spin_opacity->setMinimum(0);
         m_spin_opacity->setEnabled(false);
 
-      if(m_server){
-          //create the builtin server view
-          createView();
-          enableRendering(false);
-      }else{
-          NLog::globalLog()->addError("Error while creating widget3d");
-      }
+      //Regions list
+        m_actor_list = new QListWidget(this);
+
+      //Create "force render" button and "Auto Render" checkbox
+        m_force_rendering = new QPushButton("Render");
+        m_checkbox_enable_rendering = new QCheckBox("Auto Render");
+
+      /// Progress Bar
+      // The progress bar (not used for now)
+      pqStatusBar * status_bar = new pqStatusBar();
+
+      /// Server
+      //create a builtin server to have axes shown
+        m_server = m_object_builder->createServer(pqServerResource("builtin:"));
+
+        if(m_server){
+            //create the builtin server view
+            createView();
+            //disable instant rendering
+            enableRendering(false);
+        }else{
+            NLog::globalLog()->addError("Error while creating 'builtin server'");
+        }
+
+      //Group Box creation
+        m_server_options = new QGroupBox("Server Options",this);
+        m_server_options->setMaximumWidth(200);
+        m_camera_options = new QGroupBox("Camera Options",this);
+        m_camera_options->setMaximumWidth(200);
+        m_mesh_options = new QGroupBox("Mesh Options",this);
+        m_mesh_options->setVisible(false);
+        m_regions_box = new QGroupBox("Regions",this);
+        m_regions_box->setMaximumWidth(200);
+        m_regions_box->setVisible(false);
 
       // representation initialisation
-      m_representation = 0;
+        m_representation = 0;
 
-      //disposition
-      m_server_options = new QGroupBox("Server Options",this);
-      m_server_options->setMaximumWidth(200);
-      m_camera_options = new QGroupBox("Camera Options",this);
-      m_camera_options->setMaximumWidth(200);
-      m_mesh_options = new QGroupBox("Mesh Options",this);
-      m_mesh_options->setVisible(false);
-      m_regions_box = new QGroupBox("Regions",this);
-      m_regions_box->setMaximumWidth(200);
-      m_regions_box->setVisible(false);
+      /** Disposition Phase **/
+      //Set GroupBox layout
+        m_server_options->setLayout(m_layout_server_options);
+        m_camera_options->setLayout(m_layout_camera_options);
+        m_mesh_options->setLayout(m_layout_mesh_options);
+        m_regions_box->setLayout(m_layout_regions_box);
 
-      m_layout_server_options = new QVBoxLayout();
-      m_layout_camera_options = new QVBoxLayout();
-      m_layout_mesh_options = new QHBoxLayout();
-      m_layout_regions_box = new QVBoxLayout();
+      //Set GroupBox size
+        m_server_options->setMaximumHeight(100);
+        m_camera_options->setMaximumHeight(220);
+        m_mesh_options->setMaximumHeight(80);
+        m_regions_box->setMaximumHeight(100);
 
-      m_server_options->setLayout(m_layout_server_options);
-      m_camera_options->setLayout(m_layout_camera_options);
-      m_mesh_options->setLayout(m_layout_mesh_options);
-      m_regions_box->setLayout(m_layout_regions_box);
-
-      m_server_options->setMaximumHeight(100);
-      m_camera_options->setMaximumHeight(220);
-      m_mesh_options->setMaximumHeight(80);
-      m_regions_box->setMaximumHeight(100);
-
+      //Add widget to layouts
+      //Server layouts
       m_layout_server_options->addWidget(this->m_connect_to_server_button);
       m_layout_server_options->addWidget(this->m_load_file);
+
+      //Mesh layouts
       m_layout_mesh_options->addWidget(this->m_mesh_style);
-      m_layout_camera_options->addWidget(this->m_set_rotation_center);
       m_layout_mesh_options->addWidget(this->m_dataSet_selector);
-      m_layout_camera_options->addWidget(this->m_reset_camera);
-      m_layout_camera_options->addWidget(this->m_screen_shot);
-      m_layout_camera_options->addWidget(this->m_preDefined_rotation);
       m_layout_mesh_options->addWidget(this->m_show_color_palette);
       m_layout_mesh_options->addWidget(this->m_mesh_solid_color_set);
       m_layout_mesh_options->addWidget(this->m_spin_opacity);
+
+      //Camera layouts
+      m_layout_camera_options->addWidget(this->m_set_rotation_center);
+      m_layout_camera_options->addWidget(this->m_reset_camera);
+      m_layout_camera_options->addWidget(this->m_screen_shot);
+      m_layout_camera_options->addWidget(this->m_preDefined_rotation);
       m_layout_camera_options->addWidget(this->m_show_axes_button);
       m_layout_camera_options->addWidget(this->m_show_camera_settings_button);
 
+      //Option layouts
       m_layout_option->addWidget(this->m_server_options);
       m_layout_option->addWidget(this->m_camera_options);
       m_layout_option->addWidget(this->m_regions_box);
+      m_layout_option->addWidget(this->m_checkbox_enable_rendering);
+      m_layout_option->addWidget(this->m_force_rendering);
       //m_layout_option->addWidget(this->m_disp_adv_opt_button);
       //m_layout_option->addWidget(this->m_gen_adv_opt_button);
       //m_layout_option->addWidget(this->m_serv_adv_opt_button);
 
+      //Horizotal layouts
       m_layout_h->addLayout(this->m_layout_option);
 
-      m_layout_option->addWidget(this->m_checkbox_enable_rendering);
-      m_layout_option->addWidget(this->m_force_rendering);
-
-      //m_layout_v->addWidget(status_bar);
+      //Main layouts
       m_layout_v->addLayout(m_layout_h);
       m_layout_v->addWidget(this->m_mesh_options);
+      //m_layout_v->addWidget(status_bar);
 
+      //Actor layouts
       m_layout_regions_box->addWidget(this->m_actor_list);
 
-      //connect
+      /** Connection Phase **/
       connect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
       connect(m_load_file,SIGNAL(released()),this,SLOT(showLoadFileDialog()));
       connect(m_set_rotation_center,SIGNAL(released()),this,SLOT(set_rotation_center()));
@@ -288,49 +301,40 @@ namespace ParaViewTab {
   void Widget3D::connectToServer(QString given_host,QString port)
   {
 
+    //Be sure we are not connected yet and all widget are in a correct state
     disconnectFromServer();
 
-          //pqServerResource configuration
-          QString host = "cs://";//cs:// =>client-server    rc:// => remote server connection (not implemented yet by paraview)
-          host += given_host;
-          host += ":";
-          host += port;
+    //pqServerResource configuration
+    QString host = "cs://"; //cs:// =>client-server    rc:// => remote server connection (not implemented yet by paraview)
+    host += given_host;
+    host += ":";
+    host += port;
 
-          //create new remote server
-          m_server = m_object_builder->createServer(pqServerResource(host));
-/*
-          m_server = this->create_server(given_host.toStdString().c_str(),
-                                         port.toInt(),
-                                         20000);
-*/
-          //m_server = m_object_builder->createServer(pqServerResource("builtin:"));
-          //pqServer::setHeartBeatTimeoutSetting(20000);
-          //m_server->setResource(pqServerResource(host));
+    //create new remote server
+    m_server = m_object_builder->createServer(pqServerResource(host));
 
-//            TabThread * thread = new TabThread(host);
-//            m_server = 0;
+    //if the server is remote then :
+    if(m_server && m_server->isRemote()){
+        //show user info
+        NLog::globalLog()->addMessage("Connected to paraview server");
 
-          //if the server is remote then :
-          if(m_server && m_server->isRemote()){
-              //show user info
-              NLog::globalLog()->addMessage("Connected to paraview server");
+        //show the "load file" button
+        m_load_file->setVisible(true);
 
-              //show the "load file" button
-              m_load_file->setVisible(true);
+        //change connect button to disconnect button
+        this->m_connect_to_server_button->setText("Disconnect");
+        this->m_connect_to_server_button->setIcon(QIcon(":/paraview_icons/pqDisconnect24.png"));
+        disconnect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
+        connect(m_connect_to_server_button,SIGNAL(clicked()),this,SLOT(disconnectFromServer()));
 
-              //change connect button to disconnect button
-              this->m_connect_to_server_button->setText("Disconnect");
-              this->m_connect_to_server_button->setIcon(QIcon(":/paraview_icons/pqDisconnect24.png"));
-              disconnect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
-              connect(m_connect_to_server_button,SIGNAL(clicked()),this,SLOT(disconnectFromServer()));
-
-              //create server view
-              createView();
-          }else{
-              NLog::globalLog()->addError("Error while connecting to paraview server");
-              m_server = m_object_builder->createServer(pqServerResource("builtin:"));
-              createView();
-          }
+        //create server view
+        createView();
+    }else{
+        NLog::globalLog()->addError("Error while connecting to paraview server");
+        //Set Server to a stable state
+        m_server = m_object_builder->createServer(pqServerResource("builtin:"));
+        createView();
+    }
 
   }
 
@@ -342,97 +346,13 @@ namespace ParaViewTab {
     names.push_back(file_name);
 
     loadPaths(paths,names);
-/*
-      //if source exist, delete it to free ressources
-      if(m_source)
-          m_object_builder->destroy(m_source);
-
-      //we save the path
-      m_file_path = file_path;
-
-      //Now that we have loaded a file we can reload it without giving any path
-      m_reload->setVisible(true);
-
-      //check if there is a server and if it is a remote one
-      if(m_server && m_server->isRemote()){
-
-        //detecting extention and launching correct reader
-        QString extention = m_file_path.section('.',-1);
-
-        //create reader on server side depending on file type
-        if(!extention.compare("vtk")){ //vtk
-            m_source = m_object_builder->createReader("sources", "LegacyVTKFileReader",QStringList(m_file_path), m_server);
-        }
-        if(!extention.compare("ex2")){ //ex2
-            m_source = m_object_builder->createReader("sources", "ExodusIIReader",QStringList(m_file_path), m_server);
-        }
-
-        //if source has been created proprely
-        if(m_source){
-
-            //update the pipeline
-            vtkSMSourceProxy::SafeDownCast(m_source->getProxy())->UpdatePipeline();
-
-            //if source and server has been created proprely
-            if(m_source && m_server){
-              //show the render
-              showRender();
-              //show mesh options
-              m_mesh_options->setVisible(true);
-              m_regions_box->setVisible(true);
-            }
-        }else{
-          m_mesh_options->setVisible(false);
-          m_regions_box->setVisible(false);
-          NLog::globalLog()->addError("Source of this file path don't exist.");
-        }
-    }else{
-      m_mesh_options->setVisible(false);
-      m_regions_box->setVisible(false);
-      NLog::globalLog()->addError("Cannot load a file if no paraview server connection is set.");
-    }
-    */
   }
 
+  /* Not used any more */
   void Widget3D::showRender()
   {
       if(m_source){
-/*
-          //create the filter
-          //pqPipelineSource * m_filter = m_object_builder->createFilter("filters","DataSetTriangleFilter",m_source);
 
-          QMap<QString, QList<pqOutputPort*> > map;
-
-          map.insert("Input",m_source->getOutputPorts());
-
-          //pqPipelineSource * m_filter = m_object_builder->createFilter("filters","DataSetTriangleFilter",m_source);
-          //pqPipelineSource * m_filter = m_object_builder->createFilter("filters","DataSetTriangleFilter",map,m_server); // Any -> unstructured Grid
-          //pqPipelineSource * m_filter = m_object_builder->createFilter("filters","DataSetSurfaceFilter",map,m_server); // Any -> vtkPolyData
-          //pqPipelineSource * m_filter = m_object_builder->createFilter("filters","TriangleFilter",map,m_server); //need vtkPolyData
-          //pqPipelineSource * m_filter = m_object_builder->createFilter("filters","TessellatorFilter",map,m_server);
-          //pqPipelineSource * m_filter = m_object_builder->createFilter("filters","GeometryFilter",map,m_server); // vtkDataSet -> vtkPolyData
-
-          QString numPort = "Number of source port : ";
-          numPort += QString::number(m_source->getNumberOfOutputPorts());
-          ClientNLog::globalLog()->addMessage(numPort);
-
-          pqPipelineSource * m_filter = m_object_builder->createFilter("filters","DataSetSurfaceFilter",map,m_server);
-
-          numPort = "Number of filter 1 port : ";
-          numPort += QString::number(m_filter->getNumberOfOutputPorts());
-          ClientNLog::globalLog()->addMessage(numPort);
-
-          QMap<QString, QList<pqOutputPort*> > map2;
-
-          map2.insert("Input",m_filter->getOutputPorts());
-
-          pqPipelineSource * m_filter2 = m_object_builder->createFilter("filters","TriangleFilter",map2,m_server);
-
-          numPort = "Number of filter 2 port : ";
-          numPort += QString::number(m_filter2->getNumberOfOutputPorts());
-          ClientNLog::globalLog()->addMessage(numPort);
-
-*/
           //save the "final proxy" as m_input, then we can easly add filters without changing lots of code
           m_input = m_source;
 
@@ -470,10 +390,8 @@ namespace ParaViewTab {
       if(m_RenderView){
         //put the view in the 0 index so it is the first widget of the layout (avoid bugs)
         m_layout_h->insertWidget(0,this->m_RenderView->getWidget());
+        //Set a maximum size
         this->m_RenderView->getWidget()->setMaximumHeight(400);
-        //connect(this->progMgr,SIGNAL(progress(const QString, int)),this,SLOT(show_progress(QString,int)));
-        //connect(this->m_RenderView,SIGNAL(beginRender()),this,SLOT(show_progress()));
-        //connect(this->m_RenderView,SIGNAL(endRender()),this,SLOT(show_progress()));
       }else{
         NLog::globalLog()->addError("Problem when creating a RenderView.");
       }
@@ -508,7 +426,7 @@ namespace ParaViewTab {
           createView();
       }
 
-      //hide mesh options
+      //hide mesh and region options
       m_mesh_options->setVisible(false);
       m_regions_box->setVisible(false);
 
@@ -523,70 +441,28 @@ namespace ParaViewTab {
 
       //disconnected, cannot load or reload file while not connected
       m_load_file->setVisible(false);
-      //m_reload->setVisible(false);
 
   }
 
   void Widget3D::showLoadFileDialog(){
-    /*
-      //the popup dialog box
-      QPointer<QDialog> loadFileDialog = new QDialog(this);
 
-      //adding Exit and Connect button
-      QPointer<QPushButton> btn_load = new QPushButton("Load", loadFileDialog);
-      QPointer<QPushButton> btn_exit = new QPushButton("Exit", loadFileDialog);
-
-      // line edit
-      m_Name_line = new QLineEdit("skeleton",this);
-      m_Path_File_line = new QLineEdit(".",this);
-
-      // labels
-      QPointer<QLabel> path_label = new QLabel("File Path");
-      QPointer<QLabel> name_label = new QLabel("Name");
-
-      // popup layout
-      QPointer<QVBoxLayout> vertical_popup_layout = new QVBoxLayout();
-      QPointer<QHBoxLayout> horisontal_path_layout = new QHBoxLayout();
-      QPointer<QHBoxLayout> horisontal_name_layout = new QHBoxLayout();
-      QPointer<QHBoxLayout> horisontal_button_layout = new QHBoxLayout();
-
-      horisontal_name_layout->addWidget(name_label);
-      horisontal_name_layout->addWidget(m_Name_line);
-
-      horisontal_path_layout->addWidget(path_label);
-      horisontal_path_layout->addWidget(m_Path_File_line);
-
-      horisontal_button_layout->addWidget(btn_load);
-      horisontal_button_layout->addWidget(btn_exit);
-
-      vertical_popup_layout->addLayout(horisontal_name_layout);
-      vertical_popup_layout->addLayout(horisontal_path_layout);
-      vertical_popup_layout->addLayout(horisontal_button_layout);
-
-      loadFileDialog->setLayout(vertical_popup_layout);
-
-      //connect them to theirs actions
-      connect(btn_exit, SIGNAL(released()),loadFileDialog,SLOT(close()));
-      connect(btn_load, SIGNAL(released()),this,SLOT(loadFile()));
-      connect(btn_load, SIGNAL(released()),loadFileDialog,SLOT(close()));
-
-      //set popup visiblem modal and 350 * 100 tall
-      loadFileDialog->resize(350,100);
-      loadFileDialog->setModal(true);
-      loadFileDialog->show();
-      */
-
+    // Create a Server file browser Dialog
     NRemoteOpen::Ptr loadFileDialog = NRemoteOpen::create();
 
-    QString my_file = loadFileDialog->show();
+    // Show the file Dialog and load a file
+    QFileInfo * fileinfo = new QFileInfo(loadFileDialog->show());
 
-    m_Name_line = new QLineEdit(this);
-    m_Path_File_line = new QLineEdit(this);
-    m_Name_line->setText(my_file);
-    m_Path_File_line->setText(my_file);
-
-    loadFile();
-
+    if(!fileinfo->filePath().isEmpty())
+    {
+      NLog::globalLog()->addMessage("Loading file");
+      //open this file
+      openFile(fileinfo->filePath(),fileinfo->fileName().section('.',0,0));
+    }
+    else
+    {
+      //error
+      NLog::globalLog()->addError("Cannot Load file !");
+    }
   }
 
   void Widget3D::showConnectDialog(){
@@ -638,14 +514,10 @@ namespace ParaViewTab {
       connectFileDialog->show();
   }
 
-  void Widget3D::addFilter(){
-
-  }
-
   void Widget3D::set_rotation_center(){
     //set the rotation center in center of the mesh
     m_RenderView->resetCenterOfRotation();
-    //be sure the mesh well placed
+    //be sure the mesh updated
     m_RenderView->getWidget()->update();
   }
 
@@ -686,6 +558,7 @@ namespace ParaViewTab {
       //default file name
       QString file_name = "coolfluid3DScreenShot.png";
 
+      /*
       //getting the file name and path for saving file
       file_name = QFileDialog::getSaveFileName(
           this, "Export File Name", file_name,
@@ -706,14 +579,16 @@ namespace ParaViewTab {
         writer->Write();
         //show user info
         NLog::globalLog()->addMessage("Screen shot saved.");
-
+*/
         //or
-//          file_name = QFileDialog::getSaveFileName(
-//              this, "Export File Name", file_name,
-//              "png Images (*.png)");
-//          m_RenderView->saveImage(0,0,file_name);
+        //Get File name
+          file_name = QFileDialog::getSaveFileName(
+              this, "Export File Name", file_name,
+              "png Images (*.png)");
+          //Save the file
+          m_RenderView->saveImage(0,0,file_name);
 
-      }
+      //}
   }
 
   void Widget3D::reset_camera(){
@@ -725,31 +600,15 @@ namespace ParaViewTab {
     if(m_RenderView && m_input){
       //get the view representation
       pqDataRepresentation* repr = m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView);
-      //pqDataRepresentation* repr = m_input->getRepresentation(m_RenderView);
-      if(repr && m_RenderView->getWidget() && m_server && m_server->isRemote() && m_source){
+
+      if(repr && m_RenderView->getWidget() && m_server && m_server->isRemote() && m_source)
+      {
         //create a scale color selector depending of the representation
         m_scaleEdit = new pqColorScaleEditor(m_RenderView->getWidget());
         m_scaleEdit->setRepresentation(repr);
         m_scaleEdit->show();
       }
     }
-  }
-/*
-  void Widget3D::reload(){
-      NLog::globalLog()->addMessage("Reloading file");
-      //reload the latest loaded file
-      openFile(m_file_path);
-      NLog::globalLog()->addMessage("File reloaded");
-  }
-*/
-  void Widget3D::loadFile(){
-      NLog::globalLog()->addMessage("Loading file");
-      //get file path from user input
-      m_file_path = m_Path_File_line->text();
-      //get file name from user input
-      m_file_name = m_Name_line->text();
-      //open this file
-      openFile(m_file_path,m_file_name);
   }
 
   void Widget3D::connectToServer(){
@@ -832,16 +691,22 @@ namespace ParaViewTab {
   }
 
   void Widget3D::show_hide_actor(QListWidgetItem * item){
+    //if actor is visible
     if(m_RenderView->getRepresentation(m_actor_list->currentRow())->isVisible()){
+      //Hide actor/region : Change icon and text color
       item->setTextColor(Qt::gray);
       item->setIcon(QIcon(":/paraview_icons/pqEyeballd16.png"));
     }else{
+      //Show actor/region : Change icon and text color
       item->setTextColor(Qt::black);
       item->setIcon(QIcon(":/paraview_icons/pqEyeball16.png"));
     }
+
+    //Set actor/region visibility
     m_RenderView->getRepresentation(m_actor_list->currentRow())->setVisible(
     !m_RenderView->getRepresentation(m_actor_list->currentRow())->isVisible());
 
+    //be sure the mesh is updated
     m_RenderView->getWidget()->update();
 
   }
@@ -853,8 +718,12 @@ namespace ParaViewTab {
       //set the style selector representation (after it will directly apply changes to this representation)
       this->m_mesh_style->setRepresentation(m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView));
 
-      m_representation = qobject_cast<pqPipelineRepresentation*>(m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView));
+      //get the current actor/region representation
+      m_representation = qobject_cast<pqPipelineRepresentation*>
+                         (m_source_list.at(m_actor_list->currentRow())
+                          ->getRepresentation(m_RenderView));
 
+      //Set the opacity spin box
       disconnect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
       m_spin_opacity->setEnabled(true);
       m_spin_opacity->setValue(m_representation->getOpacity());
@@ -862,67 +731,64 @@ namespace ParaViewTab {
 
       //enable advenced Region options button
       m_disp_adv_opt_button->setEnabled(m_actor_list->selectedItems().size());
-
       m_show_color_palette->setEnabled(m_actor_list->selectedItems().size());
-
       m_mesh_solid_color_set->setEnabled(m_actor_list->selectedItems().size());
-
     }
 
   void Widget3D::set_solid_color(){
 
-    if(m_representation){
-
-    pqPipelineRepresentation* repr = qobject_cast<pqPipelineRepresentation*>(
-      m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView));
-    if (!repr)
+    if(m_representation){ // if actor/region selected
+      pqPipelineRepresentation* repr = qobject_cast<pqPipelineRepresentation*>
+                                       (m_source_list.at(m_actor_list->currentRow())
+                                        ->getRepresentation(m_RenderView));
+      if (!repr)
       {
-      qCritical() << "No active representation.";
-      return;
+        qCritical() << "No active representation.";
+        return;
       }
 
-    if (repr->getColorField() == pqPipelineRepresentation::solidColor())
+      if (repr->getColorField() == pqPipelineRepresentation::solidColor())
       {
-      // Get the color property.
-      vtkSMProxy *proxy = repr->getProxy();
-      vtkSMProperty *diffuse = proxy->GetProperty("DiffuseColor");
-      vtkSMProperty* ambient = proxy->GetProperty("AmbientColor");
-      int reprType = repr->getRepresentationType();
-      bool use_ambient = (reprType == vtkSMPVRepresentationProxy::WIREFRAME ||
-        reprType == vtkSMPVRepresentationProxy::POINTS ||
-        reprType == vtkSMPVRepresentationProxy::OUTLINE);
-      if (diffuse && ambient)
+        // Get the color property.
+        vtkSMProxy *proxy = repr->getProxy();
+        vtkSMProperty *diffuse = proxy->GetProperty("DiffuseColor");
+        vtkSMProperty* ambient = proxy->GetProperty("AmbientColor");
+        int reprType = repr->getRepresentationType();
+        bool use_ambient = (reprType == vtkSMPVRepresentationProxy::WIREFRAME ||
+                            reprType == vtkSMPVRepresentationProxy::POINTS ||
+                            reprType == vtkSMPVRepresentationProxy::OUTLINE);
+        if (diffuse && ambient)
         {
-        // Get the current color from the property.
-        QList<QVariant> rgb =
-          pqSMAdaptor::getMultipleElementProperty(diffuse);
-        QColor color(Qt::white);
-        if(rgb.size() >= 3)
+          // Get the current color from the property.
+          QList<QVariant> rgb =
+              pqSMAdaptor::getMultipleElementProperty(diffuse);
+          QColor color(Qt::white);
+          if(rgb.size() >= 3)
           {
-          color = QColor::fromRgbF(rgb[0].toDouble(), rgb[1].toDouble(),
-            rgb[2].toDouble());
+            color = QColor::fromRgbF(rgb[0].toDouble(), rgb[1].toDouble(),
+                                     rgb[2].toDouble());
           }
 
-        // Let the user pick a new color.
-        color = QColorDialog::getColor(color, this);
-        if(color.isValid())
+          // Let the user pick a new color.
+          color = QColorDialog::getColor(color, this);
+          if(color.isValid())
           {
-          // Set the properties to the new color.
-          rgb.clear();
-          rgb.append(color.redF());
-          rgb.append(color.greenF());
-          rgb.append(color.blueF());
-          pqSMAdaptor::setMultipleElementProperty(
-            use_ambient? ambient : diffuse, rgb);
-          proxy->UpdateVTKObjects();
-          // need to break any global-property link that might have existed
-          // with this property.
-          pqStandardColorLinkAdaptor::breakLink(proxy,
-            use_ambient? "AmbientColor" : "DiffuseColor");
+            // Set the properties to the new color.
+            rgb.clear();
+            rgb.append(color.redF());
+            rgb.append(color.greenF());
+            rgb.append(color.blueF());
+            pqSMAdaptor::setMultipleElementProperty(
+                use_ambient? ambient : diffuse, rgb);
+            proxy->UpdateVTKObjects();
+            // need to break any global-property link that might have existed
+            // with this property.
+            pqStandardColorLinkAdaptor::breakLink(proxy,
+                                                  use_ambient? "AmbientColor" : "DiffuseColor");
           }
         }
+      }
     }
-  }
     else{
       //no Region selected
     }
@@ -951,6 +817,7 @@ namespace ParaViewTab {
 
   void Widget3D::setCenterAxesVisibility(){
 
+    //Set the center axe visibility
     m_RenderView->setCenterAxesVisibility(!m_RenderView->getCenterAxesVisibility());
 
     //Change button name
@@ -959,67 +826,72 @@ namespace ParaViewTab {
     else
       m_show_axes_button->setText("Show Axes");
 
+    //make sure the view is updated
     m_RenderView->getWidget()->update();
   }
 
-
-  void Widget3D::showDialog(QWidget * widget){
-    QPointer<QDialog> connectFileDialog = new QDialog(this);
-
-    // popup layout
-    QPointer<QVBoxLayout> vertical_popup_layout = new QVBoxLayout();
-
-    connectFileDialog->setLayout(vertical_popup_layout);
-
-    vertical_popup_layout->addWidget(widget);
-
-    //set popup visiblem modal
-    connectFileDialog->resize(600,400);
-    connectFileDialog->setModal(true);
-    connectFileDialog->show();
-  }
-
   void Widget3D::show_disp_adv_settings(){
+
+    //create an object inspector
     pqDisplayProxyEditorWidget * obj_inspect;
     obj_inspect = new pqDisplayProxyEditorWidget();
 
-
-
+    //create and set a scroll area for the widget
     QScrollArea* scr = new QScrollArea;
-    scr->setWidgetResizable(true);
+    scr->setWidgetResizable(true); //if not set, nothing appear
     scr->setMaximumHeight(300);
     scr->setFrameShape(QFrame::NoFrame);
     scr->setWidget(obj_inspect);
 
-    obj_inspect->setRepresentation(m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView));
+    //set object inspector representation => set actor/region
+    obj_inspect->setRepresentation(m_source_list.at(m_actor_list->currentRow())
+                                   ->getRepresentation(m_RenderView));
 
-    showDialog(scr);
+    //Dialog widget
+    QPointer<QDialog> display_adv_setting_Dialog = new QDialog(this);
+
+    // popup layout
+    QPointer<QVBoxLayout> vertical_popup_layout = new QVBoxLayout();
+    display_adv_setting_Dialog->setLayout(vertical_popup_layout);
+
+    //add the scroll area to the dialog
+    vertical_popup_layout->addWidget(scr);
+
+    //set popup visible and modal
+    display_adv_setting_Dialog->resize(600,400);
+    display_adv_setting_Dialog->setModal(true);
+    display_adv_setting_Dialog->show();
   }
 
   void Widget3D::show_gen_adv_settings(){
 
+    //create a General Render View Option widget
     pqGlobalRenderViewOptions * obj_inspect;
     obj_inspect = new pqGlobalRenderViewOptions();
 
+    //create and set a scroll area for the widget
     QScrollArea* scr = new QScrollArea;
     scr->setWidgetResizable(true);
     scr->setMaximumHeight(300);
     scr->setFrameShape(QFrame::NoFrame);
     scr->setWidget(obj_inspect);
 
+    //Set one of the options page to general settings
     obj_inspect->setPage(obj_inspect->getPageList().at(3));
 
+    //Dialog widget
     QPointer<QDialog> OptionDialog = new QDialog(this);
 
+    //Apply change button
     QPushButton * valid = new QPushButton("Apply");
     connect(valid,SIGNAL(released()),obj_inspect,SLOT(applyChanges()));
     connect(valid,SIGNAL(released()),OptionDialog,SLOT(close()));
 
     // popup layout
     QPointer<QVBoxLayout> vertical_popup_layout = new QVBoxLayout();
-
     OptionDialog->setLayout(vertical_popup_layout);
 
+    //add the scroll area and the apply button to the dialog
     vertical_popup_layout->addWidget(scr);
     vertical_popup_layout->addWidget(valid);
 
@@ -1031,28 +903,33 @@ namespace ParaViewTab {
 
   void Widget3D::show_serv_adv_settings(){
 
+    //create a General Render View Option widget
     pqGlobalRenderViewOptions * obj_inspect;
     obj_inspect = new pqGlobalRenderViewOptions();
 
+    //create and set a scroll area for the widget
     QScrollArea* scr = new QScrollArea;
     scr->setWidgetResizable(true);
     scr->setMaximumHeight(300);
     scr->setFrameShape(QFrame::NoFrame);
     scr->setWidget(obj_inspect);
 
+    //Set one of the options page to server settings
     obj_inspect->setPage(obj_inspect->getPageList().at(1));
 
+    //Dialog widget
     QPointer<QDialog> OptionDialog = new QDialog(this);
 
+    //Apply change button
     QPushButton * valid = new QPushButton("Apply");
     connect(valid,SIGNAL(released()),obj_inspect,SLOT(applyChanges()));
     connect(valid,SIGNAL(released()),OptionDialog,SLOT(close()));
 
     // popup layout
     QPointer<QVBoxLayout> vertical_popup_layout = new QVBoxLayout();
-
     OptionDialog->setLayout(vertical_popup_layout);
 
+    //add the scroll area and the apply button to the dialog
     vertical_popup_layout->addWidget(scr);
     vertical_popup_layout->addWidget(valid);
 
@@ -1064,23 +941,29 @@ namespace ParaViewTab {
 
   void Widget3D::enableRendering(bool enable){
 
+    //disable auto rendering
     m_force_rendering->setEnabled(!enable);
 
+    //get pqApplicationCore settings
     pqSettings* settings = pqApplicationCore::instance()->settings();
 
+    //begin a setting group
     settings->beginGroup("renderModule");
     if(enable)
     {
+      //Set the waiting delay before rendering to 0
       settings->setValue("NonInteractiveRenderDelay",0);
 //      settings->setValue("ImageReductionFactor", 10000);
 //      settings->setValue("StillRenderImageReductionFactor", 10000);
     }
     else
     {
+      //Set the waiting delay before rendering to 1 houre
       settings->setValue("NonInteractiveRenderDelay",3600);
 //      settings->setValue("ImageReductionFactor", 10000);
 //      settings->setValue("StillRenderImageReductionFactor", 10000);
     }
+    //end the setting group
     settings->endGroup();
 
     // loop through render views and apply new settings
@@ -1094,27 +977,15 @@ namespace ParaViewTab {
       }
 
     if(enable)
+      //Force the mesh to render
       m_RenderView->forceRender();
 
   }
 
   void Widget3D::forceRendering(){
-
-    enableRendering(true);
-
     m_RenderView->forceRender();
-
-    enableRendering(false);
   }
 
-  void Widget3D::show_progress(QString name,int progress){
-    qDebug() << name;
-    qDebug() << progress;
-  }
-
-  void Widget3D::show_progress(){
-    qDebug() << "begin or end progress";
-  }
   //settings->setValue("ImageReductionFactor", 1);
   //settings->setValue("StillRenderImageReductionFactor", 1);
 

@@ -81,9 +81,6 @@ private : //function
     /// Create a view from server
     void createView();
 
-    /// Add a filter
-    void addFilter();
-
     /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
     /// @param file_path Path of files in server side.
     /// @param file_name Name of file in server side.
@@ -100,9 +97,6 @@ private slots: //slots
 
   /// Disconnect from current paraview server.
   void disconnectFromServer();
-
-  /// Call openFile with new entry path.
-  void loadFile();
 
   /// Show a dialog window that ask for a path file.
   void showLoadFileDialog();
@@ -146,27 +140,27 @@ private slots: //slots
   /// @param name The current mash style name.
   void enable_solide_color_button(pqVariableType type, const QString &name);
 
-  /// Display View Camera settings
+  /// Display View Camera settings.
   void show_camera_settings();
 
-  /// Show Hide center axes
+  /// Show Hide center axes.
   void setCenterAxesVisibility();
 
-  void showDialog(QWidget * widget);
-
+  /// Show advanced settings for the current display.
   void show_disp_adv_settings();
 
+  /// Show general settings.
   void show_gen_adv_settings();
 
+  /// Show server settings.
   void show_serv_adv_settings();
 
+  /// Force the mesh to render.
   void forceRendering();
 
+  /// Set auto render
+  /// @param enable Auto Render state.
   void enableRendering(bool enable);
-
-  void show_progress(QString name,int progress);
-
-  void show_progress();
 
 private: //data
 
@@ -289,25 +283,29 @@ private: //data
   /// Current Region/Actor opacity spin box.
   QPointer<QDoubleSpinBox> m_spin_opacity;
 
-  /// Show center axes button
+  /// Show center axes button.
   QPointer<QPushButton> m_show_axes_button;
 
-  /// Show camera dialog button
+  /// Show camera dialog button.
   QPointer<QPushButton> m_show_camera_settings_button;
 
-  /// Display Advanced Option
+  /// Display Advanced Option.
   QPointer<QPushButton> m_disp_adv_opt_button;
-  /// General Advanced Option
+
+  /// General Advanced Option.
   QPointer<QPushButton> m_gen_adv_opt_button;
-  /// Server Advanced Option
+
+  /// Server Advanced Option.
   QPointer<QPushButton> m_serv_adv_opt_button;
 
-
+  /// Force Rendering button.
   QPointer<QPushButton> m_force_rendering;
 
+  /// Auto Render checkbox
   QPointer<QCheckBox> m_checkbox_enable_rendering;
 
-  pqProgressManager * progMgr;
+  /// Progress Manager (not used)
+  QPointer<pqProgressManager> progMgr;
 };
 
 
