@@ -87,7 +87,7 @@ if( DEFINED MPI_EXTRA_LIBRARY_NAMES )
                   PATHS /usr/lib /usr/local/lib
                   "$ENV{ProgramFiles}/MPICH/SDK/Lib"
                   "$ENV{ProgramFiles}/MPICH2/Lib"
-                 "C:/Program Files/MPICH/SDK/Lib" )
+                  "C:/Program Files/MPICH/SDK/Lib" )
 
    mark_as_advanced( MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
 

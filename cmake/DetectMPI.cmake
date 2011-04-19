@@ -13,31 +13,40 @@ check_cxx_source_compiles(
    CF_MPI_COMPILER_AVAILABLE )
 
 if( CF_MPI_COMPILER_AVAILABLE )
-
-  coolfluid_log( "MPI: Already using MPI C++ compiler, no need to search for MPI libraries" )
-  set( CF_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
-
-  find_package(MPI)
-
-  coolfluid_log( "     MPI CXX COMPILER   : [${CMAKE_CXX_COMPILER}]")
-  coolfluid_log( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
-  coolfluid_log( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
-  
+  coolfluid_log_file( "[MPI] Already using MPI C++ compiler, no need of MPI libraries." )
+  coolfluid_log_file( "     MPI CXX COMPILER   : [${CMAKE_CXX_COMPILER}]")
 else()
-
-  coolfluid_log( "MPI: No MPI C++ compiler was set. Searching for MPI libraries..." )
-
-  find_package(MPI)
-
-  if( NOT CF_MPI_LIBS_FOUND )
-      message( FATAL_ERROR "MPI: No MPI compiler or libraries were found.\n     MPI is required to compile coolfluid." )
-  endif()
-
-  coolfluid_log( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
-  coolfluid_log( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
-
+  coolfluid_log_file( "[MPI] No MPI C++ compiler was set. Must find MPI libraries ..." )
 endif()
 
+find_package(MPI) # we always searhc for the libraries in case we need to pack them
+
+coolfluid_log_file( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
+coolfluid_log_file( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
+
+###############################################################################
+# check that MPI was found
+
+if(CF_MPI_COMPILER_AVAILABLE)
+  set( CF_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
+else()
+  if( CF_MPI_LIBS_FOUND )
+    set( CF_HAVE_MPI 1 CACHE BOOL "User enabled MPI [FOUND]" )
+  else()
+    message( FATAL_ERROR "[MPI] no MPI compiler or libraries were found.\n   MPI is required to compile coolfluid." )
+  endif()
+endif()
+
+coolfluid_log( "CF_HAVE_MPI [${CF_HAVE_MPI}]" )
+
+#######################################################################
+# add MPI include path
+
+# if mpi was found add it to the include path if needed
+if( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
+  include_directories( ${MPI_INCLUDE_PATH} )
+  list( APPEND CF_DEPS_LIBRARIES ${MPI_LIBRARIES} )
+endif()
 
 #######################################################################
 # find mpirun
@@ -56,26 +65,7 @@ find_program( CF_MPIRUN_PROGRAM mpirun
 #  set(CF_MPIRUN_PROGRAM mpirun CACHE STRING "mpirun program set by default")
 # endif()
 
-mark_as_advanced( CF_MPIRUN_PROGRAM )
-
 coolfluid_log_file( "     CF_MPIRUN_PROGRAM : [${CF_MPIRUN_PROGRAM}]" )
 
-###############################################################################
-if( CF_MPI_LIBS_FOUND )
-    set( CF_HAVE_MPI 1 CACHE BOOL "User enabled MPI [FOUND]" )
-else()
-    set( CF_HAVE_MPI 0 CACHE BOOL "User enabled MPI [NOT-FOUND]" )
-endif()
+mark_as_advanced( CF_HAVE_MPI CF_MPIRUN_PROGRAM )
 
-mark_as_advanced( CF_HAVE_MPI )
-
-#######################################################################
-# add MPI include path
-
-# if mpi was found add it to the include path if needed
-if( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
-        include_directories( ${MPI_INCLUDE_PATH} )
-        
-        list( APPEND CF_DEPS_LIBRARIES ${MPI_LIBRARIES} )
-        
-endif()

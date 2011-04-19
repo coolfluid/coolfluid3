@@ -14,7 +14,7 @@ list( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_t
 
 find_package( Boost COMPONENTS ${CF_Boost_COMPONENTS} )
 
-coolfluid_log( "Boost lib version  [${Boost_LIB_VERSION}]" )
+coolfluid_log( "Boost version  [${Boost_LIB_VERSION}]" )
 coolfluid_log_file( "Boost include path [${Boost_INCLUDE_DIR}]" )
 coolfluid_log_file( "Boost libraries    [${Boost_LIBRARIES}]"   )
 
@@ -42,14 +42,14 @@ foreach( blib ${Boost_LIBRARIES} )
 endforeach()
 
 #######################################################################################
-
-coolfluid_log( "+++++  Checking for boost erfc function" )
-set( CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR} )
-check_cxx_source_compiles (
-"#include <boost/math/special_functions/erf.hpp>
-int main(int argc, char* argv[])
-{
-  boost::math::erfc(0.);
-}"
-CF_HAVE_BOOST_ERFC )
+# assume boost minimum version has it
+#  coolfluid_log( "+++++  Checking for boost erfc function" )
+# set( CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR} )
+# check_cxx_source_compiles (
+# "#include <boost/math/special_functions/erf.hpp>
+# int main(int argc, char* argv[])
+# {
+#   boost::math::erfc(0.);
+# }"
+# CF_HAVE_BOOST_ERFC )
 

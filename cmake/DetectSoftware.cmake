@@ -1,13 +1,11 @@
 ##############################################################################
 # finding MPI (essential) must be after the GlobalOptions
 
-coolfluid_log( "\n +++ Searching for MPI ..." )
 include( DetectMPI )
 
 ##############################################################################
 # finding boost (essential)
 
-coolfluid_log( "\n +++ Searching for Boost ..." )
 include( DetectBoost )
 
 ##############################################################################
