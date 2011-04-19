@@ -6,6 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/CreateComponent.hpp"
 
