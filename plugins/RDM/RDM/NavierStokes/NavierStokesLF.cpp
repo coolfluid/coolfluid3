@@ -22,7 +22,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoop<CSysLF,Euler2D> , RDM::ElementLoop, LibNavierStokes > CSysLF_Euler2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysLF,Euler2D> , RDM::ElementLoop, LibCore > CSysLF_Euler2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

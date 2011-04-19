@@ -24,11 +24,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoop<CSysB,LinearAdv2D> , RDM::ElementLoop, LibScalar > CSysB_LinearAdv2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysB,LinearAdv2D> , RDM::ElementLoop, LibCore > CSysB_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < CellLoop<CSysB,LinearAdvSys2D> , RDM::ElementLoop, LibScalar > CSysB_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysB,LinearAdvSys2D> , RDM::ElementLoop, LibCore > CSysB_LinearAdvSys2D_Builder;
 
-Common::ComponentBuilder < CellLoop<CSysB,RotationAdv2D> , RDM::ElementLoop, LibScalar > CSysB_RotationAdv2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysB,RotationAdv2D> , RDM::ElementLoop, LibCore > CSysB_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

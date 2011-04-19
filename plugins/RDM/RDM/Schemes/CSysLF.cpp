@@ -48,7 +48,7 @@ void CSysLF::execute()
   Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
-    loop = create_component_abstract_type< ElementLoop >( "CF.RDM.CellLoop<" + type_name() + "," + physics + ">" , "LOOP");
+    loop = create_component_abstract_type< ElementLoop >( "CF.RDM.Core.CellLoop<" + type_name() + "," + physics + ">" , "LOOP");
     add_component(loop);
   }
   else
