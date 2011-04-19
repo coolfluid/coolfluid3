@@ -89,6 +89,8 @@ public: // functions
  virtual void execute ()
  {
 //   std::cout << "Face [" << B::idx() << "]" << std::endl;
+
+
  }
 
 }; // !WeakDirichlet::Term
