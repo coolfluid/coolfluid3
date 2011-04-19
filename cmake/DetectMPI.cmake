@@ -49,6 +49,30 @@ if( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
 endif()
 
 #######################################################################
+# check mpi version
+# we should add some check for minimum MPI version (2.0)
+#file( WRITE ${CMAKE_CURRENT_BINARY_DIR}/mpi_version.cpp
+#  "#include <mpi.h>
+#   #include <iostream>
+#   int main(int argc, char* argv[])
+#   {
+#     int version = 0;
+#     int subversion = 0;
+#     MPI_Get_version,(&version,&subversion);
+#     std::cout << version << \".\" << subversion << std::endl;
+#   }
+#   " )
+#add_executable( mpi_version ${CMAKE_CURRENT_BINARY_DIR}/mpi_version.cpp )
+#get_target_property(mpi_version_path mpi_version LOCATION)
+#execute_process(
+#      COMMAND ${mpi_version_path}
+#      OUTPUT_VARIABLE mpi_version_output
+#      ERROR_VARIABLE mpi_version_error
+#)
+#coolfluid_log( "mpi_version_output [${mpi_version_output}]" )
+#coolfluid_log( "mpi_version_error  [${mpi_version_error}]" )
+
+#######################################################################
 # find mpirun
 
 find_program( CF_MPIRUN_PROGRAM mpirun

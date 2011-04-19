@@ -10,7 +10,7 @@ if( EXISTS ${coolfluid_SOURCE_DIR}/.svn )
 
   if(Subversion_FOUND)
   
-    EXECUTE_PROCESS(COMMAND ${Subversion_SVN_EXECUTABLE} info ${coolfluid_SOURCE_DIR}
+    execute_process(COMMAND ${Subversion_SVN_EXECUTABLE} info ${coolfluid_SOURCE_DIR}
       OUTPUT_VARIABLE Subversion_WC_INFO
       ERROR_VARIABLE Subversion_svn_info_error
       RESULT_VARIABLE Subversion_svn_info_result
@@ -32,7 +32,7 @@ if( EXISTS ${coolfluid_SOURCE_DIR}/.svn )
     mark_as_advanced(Subversion_SVNVERSION_EXECUTABLE)
 
     if(Subversion_SVNVERSION_EXECUTABLE)
-        EXECUTE_PROCESS(COMMAND ${Subversion_SVNVERSION_EXECUTABLE} -n ${coolfluid_SOURCE_DIR}
+        execute_process(COMMAND ${Subversion_SVNVERSION_EXECUTABLE} -n ${coolfluid_SOURCE_DIR}
             WORKING_DIRECTORY ${coolfluid_SOURCE_DIR}
             OUTPUT_VARIABLE coolfluid_svn_revision
             OUTPUT_STRIP_TRAILING_WHITESPACE)
