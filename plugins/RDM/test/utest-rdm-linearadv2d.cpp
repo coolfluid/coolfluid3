@@ -199,6 +199,42 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
+BOOST_FIXTURE_TEST_CASE( test_create_boundary_weak_term , linearadv2d_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  SignalFrame frame;
+  SignalOptions options( frame );
+
+  std::vector<URI> regions;
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
+    regions.push_back( region.full_path() );
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
+    regions.push_back( region.full_path() );
+
+  BOOST_CHECK_EQUAL( regions.size() , 2u);
+
+  std::string name ("WEAK_INLET");
+
+  options.add<std::string>("Name",name);
+  options.add<std::string>("Type","CF.RDM.WeakDirichlet");
+  options.add("Regions", regions, " ; ");
+
+  solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
+
+  Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
+  cf_assert( is_not_null(inletbc) );
+
+  std::vector<std::string> fns;
+  fns.push_back("cos(2*3.141592*(x+y))");
+
+  inletbc->configure_property("Functions", fns);
+
+  BOOST_CHECK(true);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , linearadv2d_local_fixture )
 {
   BOOST_CHECK(true);

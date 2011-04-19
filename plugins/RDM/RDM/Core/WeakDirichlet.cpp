@@ -94,6 +94,9 @@ void WeakDirichlet::execute()
 
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
+
+//    std::cout << "REGION [" << region->full_path().string() << "]" << std::endl;
+
     loop->select_region( region );
 
     // loop all elements of this region

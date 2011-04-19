@@ -61,7 +61,7 @@ private: // data
   /// function parser for the math formula of the dirichlet condition
   Math::VectorialFunction  m_function;
 
-};
+}; // !WeakDirichlet
 
 //------------------------------------------------------------------------------------------
 
@@ -88,10 +88,10 @@ public: // functions
  /// execute the action
  virtual void execute ()
  {
-   std::cout << "Face [" << B::idx() << "]" << std::endl;
+//   std::cout << "Face [" << B::idx() << "]" << std::endl;
  }
 
-};
+}; // !WeakDirichlet::Term
 
 /////////////////////////////////////////////////////////////////////////////////////
 
