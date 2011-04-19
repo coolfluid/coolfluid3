@@ -24,7 +24,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API WeakDirichlet : public RDM::BoundaryTerm {
+class RDM_CORE_API WeakDirichlet : public RDM::BoundaryTerm {
 public: // typedefs
 
   /// the actual BC implementation is a nested class
@@ -66,7 +66,7 @@ private: // data
 //------------------------------------------------------------------------------------------
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_API WeakDirichlet::Term : public BcBase<SF,QD,PHYS> {
+class RDM_CORE_API WeakDirichlet::Term : public BcBase<SF,QD,PHYS> {
 
 public: // typedefs
 

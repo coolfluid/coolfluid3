@@ -15,7 +15,7 @@ namespace CF {
 namespace Mesh { class CField; }
 namespace RDM {
 
-class RDM_API ForwardEuler : public RDM::Action
+class RDM_CORE_API ForwardEuler : public RDM::Action
 {
 public: // typedefs
 

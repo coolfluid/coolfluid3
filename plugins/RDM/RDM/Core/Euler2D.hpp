@@ -11,7 +11,7 @@
 #include "Math/MatrixTypes.hpp"
 #include "Mesh/Types.hpp"
 
-#include "RDM/Core/LibRDM.hpp"
+#include "RDM/Core/LibCore.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +20,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API Euler2D {
+class RDM_CORE_API Euler2D {
 
 public: // functions
 

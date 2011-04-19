@@ -31,7 +31,7 @@ namespace RDM {
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_API RKRD : public Solver::CSolver {
+class RDM_CORE_API RKRD : public Solver::CSolver {
 
 public: // typedefs
 

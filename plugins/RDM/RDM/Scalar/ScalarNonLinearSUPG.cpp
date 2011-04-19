@@ -13,6 +13,8 @@
 
 #include "RDM/Core/Burgers2D.hpp"       // supported physics
 
+#include "RDM/Scalar/LibScalar.hpp"
+
 using namespace CF::Common;
 
 namespace CF {
@@ -20,7 +22,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoop<CSysSUPG,Burgers2D> , RDM::ElementLoop, LibRDM > CSysSUPG_Burgers2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysSUPG,Burgers2D> , RDM::ElementLoop, LibScalar > CSysSUPG_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

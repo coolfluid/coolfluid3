@@ -13,6 +13,8 @@
 
 #include "RDM/Core/Euler2D.hpp"       // supported physics
 
+#include "RDM/NavierStokes/LibNavierStokes.hpp"
+
 using namespace CF::Common;
 
 namespace CF {
@@ -20,7 +22,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoop<CSysN,Euler2D> , RDM::ElementLoop, LibRDM > CSysN_Euler2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysN,Euler2D> , RDM::ElementLoop, LibNavierStokes > CSysN_Euler2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

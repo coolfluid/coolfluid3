@@ -9,7 +9,7 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "RDM/Core/LibRDM.hpp"
+#include "RDM/Core/LibCore.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +18,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API Burgers2D {
+class RDM_CORE_API Burgers2D {
 
 public: // functions
   /// Constructor

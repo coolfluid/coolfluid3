@@ -9,6 +9,8 @@
 
 #include "RDM/Core/DomainTerm.hpp"
 
+#include "RDM/Schemes/LibSchemes.hpp"
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -16,7 +18,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API CSysSUPG : public RDM::DomainTerm {
+class RDM_SCHEMES_API CSysSUPG : public RDM::DomainTerm {
 
 public: // typedefs
 

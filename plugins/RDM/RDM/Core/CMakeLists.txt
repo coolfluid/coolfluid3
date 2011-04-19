@@ -1,6 +1,6 @@
 list( APPEND coolfluid_rdm_core_files
-  LibRDM.cpp
-  LibRDM.hpp
+  LibCore.cpp
+  LibCore.hpp
   RKRD.cpp
   RKRD.hpp
   SupportedTypes.hpp
@@ -18,6 +18,7 @@ list( APPEND coolfluid_rdm_core_files
   BcDirichlet.hpp
   BcDirichlet.cpp
   BcBase.hpp
+  SchemeBase.hpp
   WeakDirichlet.cpp
   WeakDirichlet.hpp
   Cleanup.hpp

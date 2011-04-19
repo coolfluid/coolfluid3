@@ -2,6 +2,8 @@
 # coolfluid_rdm_scalar
 
 list( APPEND coolfluid_rdm_scalar_files
+  LibScalar.cpp
+  LibScalar.hpp
 ScalarLinearLDA.cpp
 ScalarLinearSUPG.cpp
 ScalarLinearLF.cpp

@@ -2,6 +2,8 @@
 # coolfluid_rdm_navierstokes
 
 list( APPEND coolfluid_rdm_navierstokes_files
+  LibNavierStokes.cpp
+  LibNavierStokes.hpp
 NavierStokesLDA.cpp
 NavierStokesSUPG.cpp
 NavierStokesLF.cpp

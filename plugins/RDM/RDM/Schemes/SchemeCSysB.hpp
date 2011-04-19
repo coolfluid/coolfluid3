@@ -9,7 +9,7 @@
 
 #include "Math/MathChecks.hpp"
 
-#include "RDM/Schemes/SchemeBase.hpp"
+#include "RDM/Core/SchemeBase.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -19,7 +19,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_API CSysB::Term : public SchemeBase<SF,QD,PHYS> {
+class RDM_SCHEMES_API CSysB::Term : public SchemeBase<SF,QD,PHYS> {
 
 public: // typedefs
 

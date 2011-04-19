@@ -14,7 +14,7 @@
 #include "Mesh/CRegion.hpp"
 
 #include "RDM/Core/SupportedTypes.hpp"
-#include "RDM/Core/LibRDM.hpp"
+#include "RDM/Core/LibCore.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,7 @@ namespace RDM {
 //------------------------------------------------------------------------------------------
 
 /// Abstract RDM looping component
-class RDM_API ElementLoop : public Common::Component {
+class RDM_CORE_API ElementLoop : public Common::Component {
 
 public: // typedefs
 

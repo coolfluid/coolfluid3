@@ -27,7 +27,7 @@
 
 #include "Solver/Actions/CLoopOperation.hpp"
 
-#include "RDM/Core/LibRDM.hpp"
+#include "RDM/Core/LibCore.hpp"
 #include "RDM/Core/ElementLoop.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_API SchemeBase : public Solver::Actions::CLoopOperation {
+class RDM_CORE_API SchemeBase : public Solver::Actions::CLoopOperation {
 
 public: // typedefs
 

@@ -7,7 +7,7 @@
 #ifndef CF_RDM_LinearAdv2D_hpp
 #define CF_RDM_LinearAdv2D_hpp
 
-#include "RDM/Core/LibRDM.hpp"
+#include "RDM/Core/LibCore.hpp"
 #include "Math/MatrixTypes.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API LinearAdv2D
+class RDM_CORE_API LinearAdv2D
 {
 
 public: // functions

@@ -32,9 +32,9 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibRDM > WeakDirichlet_Builder;
+Common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibCore > WeakDirichlet_Builder;
 
-Common::ComponentBuilder < FaceLoop< WeakDirichlet, LinearAdv2D> , RDM::ElementLoop, LibRDM > WeakDirichlet_LinearAdv2D_Builder;
+Common::ComponentBuilder < FaceLoop< WeakDirichlet, LinearAdv2D> , RDM::ElementLoop, LibCore > WeakDirichlet_LinearAdv2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   

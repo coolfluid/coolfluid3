@@ -11,7 +11,7 @@
 
 #include "Common/Component.hpp"
 
-#include "RDM/Core/LibRDM.hpp"
+#include "RDM/Core/LibCore.hpp"
 
 namespace CF {
 namespace RDM {
@@ -20,7 +20,7 @@ namespace RDM {
 
 /// Wizard to setup a scalar advection simulation
 /// @author Tiago Quintino
-class RDM_API ScalarAdvection : public Common::Component {
+class RDM_CORE_API ScalarAdvection : public Common::Component {
 
 public: // typedefs
 

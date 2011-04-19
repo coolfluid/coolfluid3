@@ -21,7 +21,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API BcDirichlet : public RDM::BoundaryTerm
+class RDM_CORE_API BcDirichlet : public RDM::BoundaryTerm
 {
 public: // typedefs
 

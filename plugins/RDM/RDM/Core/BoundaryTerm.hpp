@@ -16,7 +16,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API BoundaryTerm : public RDM::Action {
+class RDM_CORE_API BoundaryTerm : public RDM::Action {
 
 public: // typedefs
 

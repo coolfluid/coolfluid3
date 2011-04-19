@@ -15,7 +15,7 @@ namespace CF {
 namespace Mesh { class CField; }
 namespace RDM {
 
-class RDM_API Cleanup : public RDM::Action
+class RDM_CORE_API Cleanup : public RDM::Action
 {
 public: // typedefs
 

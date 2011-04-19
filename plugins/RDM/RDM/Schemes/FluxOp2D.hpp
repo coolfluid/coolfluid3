@@ -21,7 +21,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-class RDM_API FluxOp2D
+class RDM_SCHEMES_API FluxOp2D
 {
 public: // typedefs
 

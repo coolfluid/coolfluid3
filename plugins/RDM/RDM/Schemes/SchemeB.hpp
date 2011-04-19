@@ -35,7 +35,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-class RDM_API SchemeB : public Solver::Actions::CLoopOperation
+class RDM_SCHEMES_API SchemeB : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
 

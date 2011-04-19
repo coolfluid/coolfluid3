@@ -15,6 +15,8 @@
 #include "RDM/Core/LinearAdvSys2D.hpp"    // supported physics
 #include "RDM/Core/RotationAdv2D.hpp"     // supported physics
 
+#include "RDM/Scalar/LibScalar.hpp"
+
 using namespace CF::Common;
 
 namespace CF {
@@ -22,11 +24,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoop<CSysN,LinearAdv2D> , RDM::ElementLoop, LibRDM > CSysN_LinearAdv2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysN,LinearAdv2D> , RDM::ElementLoop, LibScalar > CSysN_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < CellLoop<CSysN,LinearAdvSys2D> , RDM::ElementLoop, LibRDM > CSysN_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysN,LinearAdvSys2D> , RDM::ElementLoop, LibScalar > CSysN_LinearAdvSys2D_Builder;
 
-Common::ComponentBuilder < CellLoop<CSysN,RotationAdv2D> , RDM::ElementLoop, LibRDM > CSysN_RotationAdv2D_Builder;
+Common::ComponentBuilder < CellLoop<CSysN,RotationAdv2D> , RDM::ElementLoop, LibScalar > CSysN_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

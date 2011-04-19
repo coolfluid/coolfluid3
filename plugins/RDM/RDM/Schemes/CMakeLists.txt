@@ -1,4 +1,6 @@
 list( APPEND coolfluid_rdm_schemes_files
+  LibSchemes.cpp
+  LibSchemes.hpp
   CSysLDA.hpp
   CSysLDA.cpp
   CSysLF.hpp
@@ -9,7 +11,6 @@ list( APPEND coolfluid_rdm_schemes_files
   CSysB.cpp
   CSysSUPG.hpp
   CSysSUPG.cpp
-  SchemeBase.hpp
   SchemeCSysN.hpp
   SchemeCSysLDA.hpp
   SchemeCSysB.hpp

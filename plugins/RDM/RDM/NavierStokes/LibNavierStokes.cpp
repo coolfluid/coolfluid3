@@ -4,25 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-
-#include "RDM/Schemes/CSysLDA.hpp"
-#include "RDM/Schemes/SchemeCSysLDA.hpp"
-
-#include "RDM/Core/SupportedTypes.hpp"    // supported elements
-
-#include "RDM/Core/Euler2D.hpp"       // supported physics
+#include "Common/RegistLibrary.hpp"
+#include "Common/CRoot.hpp"
+#include "Common/CGroup.hpp"
 
 #include "RDM/NavierStokes/LibNavierStokes.hpp"
-
-using namespace CF::Common;
 
 namespace CF {
 namespace RDM {
 
+using namespace CF::Common;
+
+CF::Common::RegistLibrary<LibNavierStokes> LibNavierStokes;
+
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoop<CSysLDA,Euler2D> , RDM::ElementLoop, LibNavierStokes > CSysLDA_Euler2D_Builder;
+void LibNavierStokes::initiate_impl()
+{
+}
+
+void LibNavierStokes::terminate_impl()
+{
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

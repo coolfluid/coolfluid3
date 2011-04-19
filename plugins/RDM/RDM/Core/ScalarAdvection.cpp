@@ -36,7 +36,7 @@ using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Solver;
 
-Common::ComponentBuilder < ScalarAdvection, Component, LibRDM > ScalarAdvection_Builder;
+Common::ComponentBuilder < ScalarAdvection, Component, LibCore > ScalarAdvection_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

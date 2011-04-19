@@ -9,7 +9,7 @@
 
 #include "Common/CAction.hpp"
 
-#include "RDM/Core/LibRDM.hpp"
+#include "RDM/Core/LibCore.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API Action : public Common::CAction
+class RDM_CORE_API Action : public Common::CAction
 {
 public: // typedefs
 

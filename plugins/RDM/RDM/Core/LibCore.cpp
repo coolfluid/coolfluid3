@@ -8,7 +8,7 @@
 #include "Common/CRoot.hpp"
 #include "Common/CGroup.hpp"
 
-#include "RDM/Core/LibRDM.hpp"
+#include "RDM/Core/LibCore.hpp"
 #include "RDM/Core/ScalarAdvection.hpp"
 
 namespace CF {
@@ -16,11 +16,11 @@ namespace RDM {
 
 using namespace CF::Common;
 
-CF::Common::RegistLibrary<LibRDM> libRDM;
+CF::Common::RegistLibrary<LibCore> LibCore;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibRDM::initiate_impl()
+void LibCore::initiate_impl()
 {
   CGroup::Ptr rdm_group =
     Core::instance().root()
@@ -32,7 +32,7 @@ void LibRDM::initiate_impl()
       ->mark_basic();
 }
 
-void LibRDM::terminate_impl()
+void LibCore::terminate_impl()
 {
   Core::instance().root()
       ->get_child_ptr("Tools")

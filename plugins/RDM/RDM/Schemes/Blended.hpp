@@ -16,7 +16,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API Blended : public RDM::DomainTerm {
+class RDM_SCHEMES_API Blended : public RDM::DomainTerm {
 
   template < typename PHYS > struct ElementLoop;
 

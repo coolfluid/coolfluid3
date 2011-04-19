@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_LibRDM_hpp
-#define CF_RDM_LibRDM_hpp
+#ifndef CF_RDM_LibSchemes_hpp
+#define CF_RDM_LibSchemes_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,15 +13,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro RDM_API
-/// @note build system defines COOLFLUID_RDM_EXPORTS when compiling
-/// RDM files
-#ifdef COOLFLUID_RDM_EXPORTS
-#   define RDM_API      CF_EXPORT_API
+/// Define the macro RDM_SCHEMES_API
+#ifdef COOLFLUID_RDM_SCHEMES_EXPORTS
+#   define RDM_SCHEMES_API      CF_EXPORT_API
 #   define RDM_TEMPLATE
 #else
-#   define RDM_API      CF_IMPORT_API
-#   define RDM_TEMPLATE CF_TEMPLATE_EXTERN
+#   define RDM_SCHEMES_API      CF_IMPORT_API
+#   define RDM_SCHEMES_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,16 +31,15 @@ namespace RDM {
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_API LibRDM :
-    public Common::CLibrary
-{
+class RDM_SCHEMES_API LibSchemes : public Common::CLibrary {
+
 public:
 
-  typedef boost::shared_ptr<LibRDM> Ptr;
-  typedef boost::shared_ptr<LibRDM const> ConstPtr;
+  typedef boost::shared_ptr<LibSchemes> Ptr;
+  typedef boost::shared_ptr<LibSchemes const> ConstPtr;
 
   /// Constructor
-  LibRDM ( const std::string& name) : Common::CLibrary(name) {   }
+  LibSchemes ( const std::string& name) : Common::CLibrary(name) {   }
 
 public: // functions
 
@@ -52,7 +49,7 @@ public: // functions
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration
   /// @return name of the library
-  static std::string library_name() { return "RDM"; }
+  static std::string library_name() { return "Schemes"; }
 
   /// Static function that returns the description of the module.
   /// Must be implemented for CLibrary registration
@@ -60,11 +57,11 @@ public: // functions
 
   static std::string library_description()
   {
-    return "This library implements a Residual Distribution Solver.";
+    return "This library implements basic RDM schemes.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibRDM"; }
+  static std::string type_name() { return "LibSchemes"; }
 
 protected:
 
@@ -74,7 +71,7 @@ protected:
   /// terminate library
   virtual void terminate_impl();
 
-}; // end LibRDM
+}; // end LibSchemes
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -97,4 +94,4 @@ inline Real minus ( Real x )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_LibRDM_hpp
+#endif // CF_RDM_LibSchemes_hpp

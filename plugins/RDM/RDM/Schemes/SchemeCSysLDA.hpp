@@ -7,7 +7,7 @@
 #ifndef CF_RDM_SchemeCSysLDA_hpp
 #define CF_RDM_SchemeCSysLDA_hpp
 
-#include "RDM/Schemes/SchemeBase.hpp"
+#include "RDM/Core/SchemeBase.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_API CSysLDA::Term : public SchemeBase<SF,QD,PHYS> {
+class RDM_SCHEMES_API CSysLDA::Term : public SchemeBase<SF,QD,PHYS> {
 
 public: // typedefs
 
