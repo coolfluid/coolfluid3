@@ -17,7 +17,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_API CSysLF::Scheme : public SchemeBase<SF,QD,PHYS> {
+class RDM_API CSysLF::Term : public SchemeBase<SF,QD,PHYS> {
 
 public: // typedefs
 
@@ -25,18 +25,14 @@ public: // typedefs
   typedef SchemeBase<SF,QD,PHYS> B;
 
   /// pointers
-  typedef boost::shared_ptr< Scheme > Ptr;
-  typedef boost::shared_ptr< Scheme const> ConstPtr;
+  typedef boost::shared_ptr< Term > Ptr;
+  typedef boost::shared_ptr< Term const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  Scheme ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name)
-  {}
-
-  /// Virtual destructor
-  virtual ~Scheme() {};
+  Term ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name) {}
 
   /// Get the class name
   static std::string type_name () { return "CSysLF.Scheme<" + SF::type_name() + ">"; }
@@ -54,7 +50,7 @@ private: // data
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SF,typename QD, typename PHYS>
-void CSysLF::Scheme<SF, QD,PHYS>::execute()
+void CSysLF::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 

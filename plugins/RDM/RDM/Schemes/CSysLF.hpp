@@ -22,7 +22,7 @@ public: // typedefs
 
   /// the actual scheme implementation is a nested class
   /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
-  template < typename SF, typename QD, typename PHYS > class Scheme;
+  template < typename SF, typename QD, typename PHYS > class Term;
 
   typedef boost::shared_ptr< CSysLF > Ptr;
   typedef boost::shared_ptr< CSysLF const > ConstPtr;

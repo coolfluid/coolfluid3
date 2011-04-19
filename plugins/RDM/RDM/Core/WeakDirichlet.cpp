@@ -16,8 +16,10 @@
 
 #include "Solver/CPhysicalModel.hpp"
 
-#include "RDM/Core/BcWeak.hpp"
+#include "RDM/Core/WeakDirichlet.hpp"
 #include "RDM/Core/ElementLoop.hpp"
+
+#include "RDM/Core/LinearAdv2D.hpp" // to remove
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,11 +32,13 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BcWeak, RDM::BoundaryTerm, LibRDM > BcWeak_Builder;
+Common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibRDM > WeakDirichlet_Builder;
+
+Common::ComponentBuilder < FaceLoop< WeakDirichlet, LinearAdv2D> , RDM::ElementLoop, LibRDM > WeakDirichlet_LinearAdv2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-BcWeak::BcWeak ( const std::string& name ) :
+WeakDirichlet::WeakDirichlet ( const std::string& name ) :
   RDM::BoundaryTerm(name)
 {
   // options
@@ -42,16 +46,16 @@ BcWeak::BcWeak ( const std::string& name ) :
   m_properties.add_option< OptionURI > ("Solution",
                                         "Solution field where to apply the boundary condition",
                                         URI("cpath:"))
-       ->attach_trigger ( boost::bind ( &BcWeak::config_mesh,   this ) )
+       ->attach_trigger ( boost::bind ( &WeakDirichlet::config_mesh,   this ) )
        ->mark_basic()
        ->add_tag("solution");
 
-  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( &BcWeak::config_mesh, this ) );
+  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( &WeakDirichlet::config_mesh, this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void BcWeak::config_mesh()
+void WeakDirichlet::config_mesh()
 {
   cf_assert( is_not_null( m_mesh.lock() ) );
 
@@ -69,7 +73,7 @@ void BcWeak::config_mesh()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void BcWeak::execute()
+void WeakDirichlet::execute()
 {
   CPhysicalModel::Ptr pm = access_physical_model();
 
