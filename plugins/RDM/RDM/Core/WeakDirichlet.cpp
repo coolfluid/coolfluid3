@@ -102,7 +102,7 @@ void WeakDirichlet::execute()
   Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
-    loop = create_component_abstract_type< ElementLoop >( "CF.RDM.FaceLoop<" + type_name() + "," + physics + ">" , "LOOP");
+    loop = create_component_abstract_type< ElementLoop >( "CF.RDM.Core.FaceLoop<" + type_name() + "," + physics + ">" , "LOOP");
     add_component(loop);
   }
   else

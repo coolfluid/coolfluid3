@@ -96,7 +96,7 @@ void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
   model->create_domain( "Domain" );
 
   // setup iterative solver
-  CSolver::Ptr solver = create_component_abstract_type<CSolver>("CF.RDM.RKRD", "Solver");
+  CSolver::Ptr solver = create_component_abstract_type<CSolver>( LibCore::library_namespace() + ".RKRD", "Solver");
   solver->mark_basic();
   model->add_component( solver );
 
