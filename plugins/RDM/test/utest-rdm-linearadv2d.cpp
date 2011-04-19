@@ -181,7 +181,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadv2d_local_fixture )
   std::string name ("INLET");
 
   options.add<std::string>("Name",name);
-  options.add<std::string>("Type","CF.RDM.BcDirichlet");
+  options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
@@ -217,7 +217,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_weak_term , linearadv2d_local_fixt
   std::string name ("WEAK_INLET");
 
   options.add<std::string>("Name",name);
-  options.add<std::string>("Type","CF.RDM.WeakDirichlet");
+  options.add<std::string>("Type","CF.RDM.Core.WeakDirichlet");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
@@ -279,7 +279,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , linearadv2d_local_fixture )
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   options.add<std::string>("Name","INTERNAL");
-  options.add<std::string>("Type","CF.RDM.CSysLDA");
+  options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
@@ -322,7 +322,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lf , linearadv2d_local_fixture )
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   options.add<std::string>("Name","INTERNAL");
-  options.add<std::string>("Type","CF.RDM.CSysLF");
+  options.add<std::string>("Type","CF.RDM.Schemes.CSysLF");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);

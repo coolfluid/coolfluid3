@@ -184,7 +184,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , burgers2d_local_fixture )
   schemes[0] = URI::Scheme::CPATH;
 
   options.add<std::string>("Name", name);
-  options.add<std::string>("Type", "CF.RDM.BcDirichlet");
+  options.add<std::string>("Type", "CF.RDM.Core.BcDirichlet");
   options.add("Regions", regions, " ; ", "", schemes);
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
@@ -248,7 +248,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , burgers2d_local_fixture )
   schemes[0] = URI::Scheme::CPATH;
 
   options.add<std::string>("Name","INTERNAL");
-  options.add<std::string>("Type","CF.RDM.CSysLDA");
+  options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
   options.add("Regions", regions, " ; ", "", schemes);
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);

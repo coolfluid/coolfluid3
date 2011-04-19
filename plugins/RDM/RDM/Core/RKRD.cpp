@@ -249,8 +249,8 @@ void RKRD::signature_signal_create_boundary_term( SignalArgs& node )
 
   // type
   std::vector< std::string > restricted;
-//  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-  options.add<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary", restricted, " ; " );
+//  restricted.push_back( std::string("CF.RDM.Core.BcDirichlet") );
+  options.add<std::string>("Type", std::string("CF.RDM.Core.BcDirichlet"), "Type for created boundary", restricted, " ; " );
 
   // regions
   std::vector<URI> dummy;
@@ -290,8 +290,8 @@ void RKRD::signature_signal_create_domain_term( SignalArgs& node )
 
   // type
 //  std::vector< std::string > restricted;
-//  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-//  XmlNode type_node = options.add<std::string>("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary");
+//  restricted.push_back( std::string("CF.RDM.Core.BcDirichlet") );
+//  XmlNode type_node = options.add<std::string>("Type", std::string("CF.RDM.Core.BcDirichlet"), "Type for created boundary");
 //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions

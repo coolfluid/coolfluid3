@@ -187,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , rotationadv2d_local
   std::string name ("INLET");
 
   options.add<std::string>("Name",name);
-  options.add<std::string>("Type","CF.RDM.BcDirichlet");
+  options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
@@ -220,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_farfield , rotationadv2d_lo
   std::string name ("FARFIELD");
 
   options.add<std::string>("Name",name);
-  options.add<std::string>("Type","CF.RDM.BcDirichlet");
+  options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
@@ -306,7 +306,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , rotationadv2d_local_fixture )
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   options.add<std::string>("Name","INTERNAL");
-  options.add<std::string>("Type","CF.RDM.CSysLDA");
+  options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
