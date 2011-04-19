@@ -57,10 +57,18 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
       OptionArrayT<std::string> > ("Functions",
                                    "Math function applied as Dirichlet boundary condition (vars x,y)",
                                    std::vector<std::string>())
-      ->attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) )
+      ->attach_trigger ( boost::bind ( &WeakDirichlet::config_function, this ) )
       ->mark_basic();
 
   m_function.variables("x,y,z");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void BcDirichlet::config_function()
+{
+  m_function.functions( m_properties["Functions"].value<std::vector<std::string> >() );
+  m_function.parse();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
