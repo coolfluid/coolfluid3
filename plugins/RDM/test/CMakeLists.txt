@@ -3,7 +3,7 @@ set( RDM_TEST_RUN_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTE
 
 ##########################################################################
 
-list( APPEND utest-rdm-linearadv2d_cflibs coolfluid_rdm_scalarlinear   )
+list( APPEND utest-rdm-linearadv2d_cflibs coolfluid_rdm_scalar   )
 list( APPEND utest-rdm-linearadv2d_files
   utest-rdm-linearadv2d.cpp )
 
@@ -11,21 +11,21 @@ coolfluid_add_unit_test( utest-rdm-linearadv2d )
 
 ##########################################################################
 
-list( APPEND utest-rdm-rotationadv2d_cflibs coolfluid_rdm_scalarlinear  )
+list( APPEND utest-rdm-rotationadv2d_cflibs coolfluid_rdm_scalar  )
 list( APPEND utest-rdm-rotationadv2d_files  utest-rdm-rotationadv2d.cpp )
 
 coolfluid_add_unit_test( utest-rdm-rotationadv2d )
 
 ##########################################################################
 
-list( APPEND utest-rdm-burgers2d_cflibs coolfluid_rdm_scalarnonlinear  )
+list( APPEND utest-rdm-burgers2d_cflibs coolfluid_rdm_scalar )
 list( APPEND utest-rdm-burgers2d_files  utest-rdm-burgers2d.cpp )
 
 coolfluid_add_unit_test( utest-rdm-burgers2d )
 
 ##########################################################################
 
-list( APPEND utest-rdm-linearadvsys2d_cflibs coolfluid_rdm_scalarlinear   )
+list( APPEND utest-rdm-linearadvsys2d_cflibs coolfluid_rdm_scalar   )
 list( APPEND utest-rdm-linearadvsys2d_files  utest-rdm-linearadvsys2d.cpp )
 
 coolfluid_add_unit_test( utest-rdm-linearadvsys2d )
