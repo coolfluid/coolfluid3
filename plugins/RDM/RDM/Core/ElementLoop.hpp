@@ -168,7 +168,7 @@ struct FaceLoop : public ElementLoop
       for ( Uint elem = 0; elem != nb_elem; ++elem )
       {
         term.select_loop_idx(elem);
-        term.execute();
+        term.executeT();
       }
     }
   }

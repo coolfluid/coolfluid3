@@ -140,7 +140,7 @@ protected: // data
   /// derivatives of solution to X at each quadrature point, one matrix per dimension
   QSolutionMT dUdX[PHYS::ndim];
 
-  /// Nodal residuals
+  /// contribution to nodal residuals
   SolutionMT Phi_n;
   /// node values
   NodeMT     X_n;
@@ -227,7 +227,7 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 template<typename SF,typename QD, typename PHYS>
 void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& nodes_idx )
 {
-  /// @todo must be upgraded to support 3D
+  /// @todo must be tested for 3D
 
   // copy the coordinates from the large array to a small
 
@@ -294,14 +294,12 @@ void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& n
 
    }
 
-  } //Loop over quadrature points
-
+  } // loop over quadrature points
 
   // compute transformed integration weights (sum is element area)
 
   for(Uint q = 0; q < QD::nb_points; ++q)
     wj[q] = jacob[q] * m_quadrature.weights[q];
-
 
   // solution derivatives in physical space at quadrature point
 

@@ -60,15 +60,15 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
       ->attach_trigger ( boost::bind ( &WeakDirichlet::config_function, this ) )
       ->mark_basic();
 
-  m_function.variables("x,y,z");
+  function.variables("x,y,z");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void WeakDirichlet::config_function()
 {
-  m_function.functions( m_properties["Functions"].value<std::vector<std::string> >() );
-  m_function.parse();
+  function.functions( m_properties["Functions"].value<std::vector<std::string> >() );
+  function.parse();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,11 +78,11 @@ void WeakDirichlet::config_mesh()
   cf_assert( is_not_null( m_mesh.lock() ) );
 
   URI sol_uri  = property("Solution").value<URI>();
-  m_solution = access_component_ptr(sol_uri)->as_ptr<CField>();
-  if( is_null(m_solution.lock()) )
-    m_solution = find_component_ptr_with_tag<CField>( *(m_mesh.lock()) , "solution" );
+  solution = access_component_ptr(sol_uri)->as_ptr<CField>();
+  if( is_null(solution.lock()) )
+    solution = find_component_ptr_with_tag<CField>( *(m_mesh.lock()) , "solution" );
 
-  if( is_null(m_solution.lock()) )
+  if( is_null(solution.lock()) )
     throw CastingFailed (FromHere(),
                          "Could not find a solution field on mesh "
                          + m_mesh.lock()->full_path().string() );
