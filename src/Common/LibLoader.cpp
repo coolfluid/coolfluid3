@@ -36,7 +36,7 @@ void LibLoader::load_library(const std::string& lib)
   // initiate all libraries not yet initiated
   // because loading one library might implicitly load many others
 
-  Core::instance().libraries()->initiate_all_libraries();
+  Core::instance().libraries().initiate_all_libraries();
 
 }
 

@@ -64,13 +64,20 @@ std::string class_name ()
 
 std::string class_name_from_typeinfo (const std::type_info & info);
 
-/// @brief Helper class to force TypeInfo registration
-/// @author Tiago Quintino
-template< typename TYPE >
+// /// @brief Helper class to force TypeInfo registration
+// /// @author Tiago Quintino
+// template< typename TYPE >
+// struct RegistTypeInfo
+// {
+//   /// @brief Registers this type into the TypeInfo registry
+//   RegistTypeInfo( const std::string& name = TYPE::type_name() ) { TypeInfo::instance().regist<TYPE>(name); }
+// };
+
+template< typename TYPE, typename LIB>
 struct RegistTypeInfo
 {
   /// @brief Registers this type into the TypeInfo registry
-  RegistTypeInfo( const std::string& name = TYPE::type_name() ) { TypeInfo::instance().regist<TYPE>(name); }
+  RegistTypeInfo( const std::string& name = LIB::library_namespace()+"."+TYPE::type_name() ) { TypeInfo::instance().regist<TYPE>(name); }
 };
 
 /// @brief Helper function to regist a type in the TypeInfo registry

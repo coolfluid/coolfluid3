@@ -23,8 +23,8 @@ namespace Common {
 template < typename ATYPE >
     typename ATYPE::Ptr create_component_abstract_type ( const std::string& builder_name, const std::string& name )
 {
-  Component::Ptr factories = Core::instance().root()->get_child_ptr("Factories");
-  if ( is_null(factories) ) throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in " + Core::instance().root()->full_path().string() );
+  Component::Ptr factories = Core::instance().root().get_child_ptr("Factories");
+  if ( is_null(factories) ) throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in " + Core::instance().root().full_path().string() );
 
   Component::Ptr factory = factories->get_child_ptr( ATYPE::type_name() );
   if ( is_null(factory) ) throw ValueNotFound( FromHere(), "CFactory \'" + ATYPE::type_name() + "\' not found in " + factories->full_path().string() + ". Probably forgot to load a library." );

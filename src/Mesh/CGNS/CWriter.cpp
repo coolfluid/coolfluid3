@@ -204,7 +204,7 @@ void CWriter::write_zone(const CRegion& region)
 
 void CWriter::write_section(const GroupedElements& grouped_elements)
 {
-  CFactory& sf_factory = *Core::instance().factories()->get_factory<ElementType>();
+  CFactory& sf_factory = *Core::instance().factories().get_factory<ElementType>();
   std::map<std::string,std::string> builder_name;
 	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
 	{

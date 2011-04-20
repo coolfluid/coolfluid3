@@ -63,7 +63,7 @@ WriteMesh::~WriteMesh()
 
 void WriteMesh::update_list_of_available_writers()
 {
-  CFactory::Ptr meshwriter_factory = Core::instance().factories()->get_factory<CMeshWriter>();
+  CFactory::Ptr meshwriter_factory = Core::instance().factories().get_factory<CMeshWriter>();
 
   if ( is_null(meshwriter_factory) )
     throw ValueNotFound ( FromHere() , "Could not find factory for CMeshWriter" );
@@ -156,7 +156,7 @@ void WriteMesh::signature_write_mesh ( Common::SignalArgs& node)
 {
   SignalOptions options( node );
 
-  CFactory::Ptr meshwriter_factory = Core::instance().factories()->get_factory<CMeshWriter>();
+  CFactory::Ptr meshwriter_factory = Core::instance().factories().get_factory<CMeshWriter>();
   std::vector<std::string> writers;
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::CPATH;

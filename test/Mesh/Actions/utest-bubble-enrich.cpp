@@ -62,11 +62,11 @@ BOOST_AUTO_TEST_CASE( constructors )
 
   BOOST_CHECK_EQUAL(remover->name(),"remover");
 
-  Core::instance().root()->add_component(enricher);
-  Core::instance().root()->add_component(remover);
+  Core::instance().root().add_component(enricher);
+  Core::instance().root().add_component(remover);
 
   // create a domain
-  Core::instance().root()->create_component<CDomain>("Domain");
+  Core::instance().root().create_component<CDomain>("Domain");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 //  boost::filesystem::path file ("rectangle-tg-p1.msh");
 //  CMesh::Ptr mesh = meshreader->create_mesh_from(file);
 
-//  Core::instance().root()->get_child_ptr("Domain")->add_component(mesh);
+//  Core::instance().root().get_child_ptr("Domain")->add_component(mesh);
 
 //	// Write the fields to file.
 //  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   std::vector<URI> files;
   files.push_back( "file:rectangle-tg-p2.msh" );
 
-  options.add("Parent Component", Core::instance().root()->get_child("Domain").full_path() );
+  options.add("Parent Component", Core::instance().root().get_child("Domain").full_path() );
   options.add<std::string>("Name", std::string("Mesh") );
   options.add("Files", files, " ; ");
 
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
   BOOST_CHECK(true);
 
-  LoadMesh::Ptr load_mesh = Core::instance().root()->get_child("Tools").get_child("LoadMesh").as_ptr_checked<LoadMesh>();
+  LoadMesh::Ptr load_mesh = Core::instance().root().get_child("Tools").get_child("LoadMesh").as_ptr_checked<LoadMesh>();
   cf_assert( is_not_null(load_mesh) );
 
   BOOST_CHECK(true);
@@ -131,24 +131,24 @@ BOOST_AUTO_TEST_CASE( enricher )
   BOOST_CHECK(true);
   
   CBubbleEnrich::Ptr enricher =
-      Core::instance().root()->get_child("enricher").as_ptr<CBubbleEnrich>();
+      Core::instance().root().get_child("enricher").as_ptr<CBubbleEnrich>();
 
   cf_assert( is_not_null(enricher) );
 
-  Component::Ptr domain = Core::instance().root()->get_child_ptr("Domain");
+  Component::Ptr domain = Core::instance().root().get_child_ptr("Domain");
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(*domain);
 
 
 //  CFinfo << "---------------------------------------------------" << CFendl;
-//  CFinfo << Core::instance().root()->tree() << CFendl;
+//  CFinfo << Core::instance().root().tree() << CFendl;
 //  CFinfo << "---------------------------------------------------" << CFendl;
   BOOST_CHECK(true);
 
   enricher->transform( mesh );
 
 //  CFinfo << "---------------------------------------------------" << CFendl;
-//  CFinfo << Core::instance().root()->tree() << CFendl;
+//  CFinfo << Core::instance().root().tree() << CFendl;
 //  CFinfo << "---------------------------------------------------" << CFendl;
 
   // print connectivity
@@ -172,10 +172,10 @@ BOOST_AUTO_TEST_CASE( enricher )
 
 BOOST_AUTO_TEST_CASE( remover )
 {
-  CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
+  CDomain& domain = find_component_recursively<CDomain>(Core::instance().root());
 
   CBubbleRemove::Ptr remover =
-      Core::instance().root()->get_child_ptr("remover")->as_ptr<CBubbleRemove>();
+      Core::instance().root().get_child_ptr("remover")->as_ptr<CBubbleRemove>();
 
   cf_assert( is_not_null(remover) );
 
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( remover )
 //  }
 
 //  CFinfo << "---------------------------------------------------" << CFendl;
-//  CFinfo << Core::instance().root()->tree() << CFendl;
+//  CFinfo << Core::instance().root().tree() << CFendl;
 //  CFinfo << "---------------------------------------------------" << CFendl;
   BOOST_CHECK(true);
 
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( remover )
   BOOST_CHECK(true);
 
 //  CFinfo << "---------------------------------------------------" << CFendl;
-//  CFinfo << Core::instance().root()->tree() << CFendl;
+//  CFinfo << Core::instance().root().tree() << CFendl;
 //  CFinfo << "---------------------------------------------------" << CFendl;
 
 

@@ -57,7 +57,7 @@ void SetupLinearSystem::create_model( SignalArgs& node)
   const std::string solver_name = options.option<std::string>("Solver");
   const std::string name  = options.option<std::string>("Model name");
 
-  CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
+  CModel::Ptr model = Core::instance().root().create_component<CModelSteady>( name );
 
   // create the CDomain
   // CDomain::Ptr domain =
@@ -87,7 +87,7 @@ void SetupLinearSystem::create_model_signature( SignalArgs& node )
   SignalOptions options( node );
 
   std::vector<URI> dummy;
-  CFactory::Ptr linear_system_factory = Core::instance().factories()->get_factory<LinearSystem>();
+  CFactory::Ptr linear_system_factory = Core::instance().factories().get_factory<LinearSystem>();
   std::vector<std::string> systems;
 
   // build the restricted list

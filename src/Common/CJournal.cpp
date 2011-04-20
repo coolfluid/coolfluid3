@@ -61,8 +61,8 @@ CJournal::CJournal (const std::string & name)
 
   m_info_node.content.set_attribute( Protocol::Tags::attr_key(), "journalInfo");
 
-  m_info_node.set_value( "hostname", Core::instance().network_info()->hostname() );
-  m_info_node.set_value( "port", (Uint)Core::instance().network_info()->port());
+  m_info_node.set_value( "hostname", Core::instance().network_info().hostname() );
+  m_info_node.set_value( "port", (Uint)Core::instance().network_info().port());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
 //  bool found_map = false;
   rapidxml::xml_node<>* node = nullptr;
 //  rapidxml::xml_attribute<>* key_attr = nullptr;
-  CRoot::Ptr root = Core::instance().root();
+  CRoot& root = Core::instance().root();
   const char * frame_tag = Protocol::Tags::node_frame();
 
   XmlNode signal_map = Map(doc_node).find_value( Protocol::Tags::key_signals() );
@@ -177,7 +177,7 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
       try
       {
         SignalFrame sf(node);
-        root->retrieve_component(receiver)->call_signal(target, sf);
+        root.retrieve_component(receiver)->call_signal(target, sf);
       }
       catch(Exception & e)
       {

@@ -5,11 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CLibrary.hpp"
+#include "Common/LibCommon.hpp"
+
+///@todo remove
+#include "Common/Log.hpp"
 
 namespace CF {
 namespace Common {
 
-RegistTypeInfo<CLibrary> CLibrary_TypeRegistration();
+RegistTypeInfo<CLibrary,LibCommon> CLibrary_TypeRegistration();
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +43,7 @@ void  CLibrary::initiate()
 {
   if(!m_is_initiated)
   {
-//    std::cout << "+ initiating library \'" << name() << "\'" << std::endl;
+    CFinfo << "+ initiating library \'" << name() << "\'" << CFendl;
     initiate_impl();
     m_is_initiated = true;
   }
@@ -49,7 +53,7 @@ void  CLibrary::terminate()
 {
   if(m_is_initiated)
   {
-//    std::cout << "+ terminating library \'" << name() << "\'" << std::endl;
+    CFinfo << "+ terminating library \'" << name() << "\'" << CFendl;
     terminate_impl();
     m_is_initiated = false;
   }

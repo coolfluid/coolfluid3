@@ -95,7 +95,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
 
   std::string name  = p.get_option<std::string>("model_name");
   CFinfo << "Creating model " << name << CFendl;
-  CModelUnsteady& model = *Core::instance().root()->create_component<CModelUnsteady>( name );
+  CModelUnsteady& model = *Core::instance().root().create_component<CModelUnsteady>( name );
 
   ////////////////////////////////////////////////////////////////////////////////
   // Create Physics

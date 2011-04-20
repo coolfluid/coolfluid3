@@ -38,13 +38,13 @@ BOOST_AUTO_TEST_CASE( CreateGrid )
   loader.load_library("coolfluid_mesh_gmsh");
   
   // Setup document structure and mesh
-  CRoot::Ptr root = Core::instance().root();
+  CRoot& root = Core::instance().root();
   
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, 10., 5., 5, 5);
   
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  root->add_component(writer);
+  root.add_component(writer);
   boost::filesystem::path output_file("grid_2d.msh");
   writer->write_from_to(mesh, output_file);
 }

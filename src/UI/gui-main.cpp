@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
   ThreadManager::instance().tree();
 
   // initiate the core environment
-  Core::instance().environment()->configure_property("regist_signal_handlers", false);
+  Core::instance().environment().configure_property("regist_signal_handlers", false);
   Core::instance().initiate(argc, argv);
   mpi::PE::instance().init(argc,argv);   // this might modify argc and argv
 
@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
   CF::Common::AssertionManager::instance().AssertionDumps = true;
 
   // tell CF core that the client is running
-  Core::instance().network_info()->start_client();
+  Core::instance().network_info().start_client();
 
   try
   {
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
   }
 
   // tell CF core that the client is about to exit
-  Core::instance().network_info()->stop_client();
+  Core::instance().network_info().stop_client();
 
   // terminate the MPI environment
 

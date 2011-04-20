@@ -45,8 +45,8 @@ int main(int argc, char * argv[])
     ExceptionManager::instance().ExceptionAborts = false;
 
     // create mesh object
-    CRoot::Ptr root = Core::instance().root();
-    CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+    CRoot& root = Core::instance().root();
+    CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
 
     // Initialize empty commands
     options_description desc;

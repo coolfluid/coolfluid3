@@ -46,7 +46,7 @@ public:
   OptionComponent(const std::string & name, const std::string & desc, const URI & def)
     : OptionURI(name, desc, def)
   {
-    typename T::Ptr component = Core::instance().root()->access_component_ptr(def)->as_ptr<T>();
+    typename T::Ptr component = Core::instance().root().access_component_ptr(def)->as_ptr<T>();
     m_default = data_t(component);
     m_value = m_default;
     supported_protocol(URI::Scheme::CPATH);
@@ -68,7 +68,7 @@ public:
   OptionComponent(const std::string & name, const std::string& readable_name, const std::string & desc, const URI & def)
     : OptionURI(name, readable_name, desc, def)
   {
-    typename T::Ptr component = Core::instance().root()->access_component(def).as_ptr<T>();
+    typename T::Ptr component = Core::instance().root().access_component(def).as_ptr<T>();
     m_default = data_t(component);
     m_value = m_default;
     supported_protocol(URI::Scheme::CPATH);
@@ -167,7 +167,7 @@ protected: // functions
   {
     try
     {
-      return data_t(Core::instance().root()->access_component_ptr_checked(boost::any_cast<URI const>(value))->as_ptr_checked<T>() );
+      return data_t(Core::instance().root().access_component_ptr_checked(boost::any_cast<URI const>(value))->as_ptr_checked<T>() );
     }
     catch(boost::bad_any_cast& e)
     {

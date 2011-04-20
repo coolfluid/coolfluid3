@@ -70,7 +70,7 @@ coolfluid_add_unit_test( utest-mesh-transformer )
 
 ################################################################################
 
-list( APPEND utest-mesh-components_cflibs coolfluid_mesh)
+list( APPEND utest-mesh-components_cflibs coolfluid_mesh coolfluid_common)
 list( APPEND utest-mesh-components_files  utest-mesh-components.cpp  )
 
 coolfluid_add_unit_test( utest-mesh-components )

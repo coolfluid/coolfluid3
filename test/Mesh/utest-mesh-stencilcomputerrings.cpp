@@ -67,14 +67,14 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
 
   // create meshreader
   CMeshGenerator::Ptr mesh_generator = create_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
-  Core::instance().root()->add_component(mesh_generator);
-  mesh_generator->configure_property("parent",Core::instance().root()->full_path());
+  Core::instance().root().add_component(mesh_generator);
+  mesh_generator->configure_property("parent",Core::instance().root().full_path());
   mesh_generator->configure_property("lengths",std::vector<Real>(2,10.));
   mesh_generator->configure_property("nb_cells",std::vector<Uint>(2,5));
   mesh_generator->execute();
-  CMesh& mesh = find_component<CMesh>(*Core::instance().root()).as_type<CMesh>();
+  CMesh& mesh = find_component<CMesh>(Core::instance().root()).as_type<CMesh>();
 
-  CStencilComputerRings::Ptr stencil_computer = Core::instance().root()->create_component<CStencilComputerRings>("stencilcomputer");
+  CStencilComputerRings::Ptr stencil_computer = Core::instance().root().create_component<CStencilComputerRings>("stencilcomputer");
   stencil_computer->configure_property("mesh", mesh.full_path() );
 
   std::vector<Uint> stencil;

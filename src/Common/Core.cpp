@@ -7,7 +7,7 @@
 #include <boost/tokenizer.hpp>
 
 #include "Common/MPI/PE.hpp"
-
+#include "Common/LibCommon.hpp"
 #include "Common/Log.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Signal.hpp"
@@ -69,9 +69,9 @@ Core::Core()
 
   // this types must be registered immedietly on creation,
   // registration could be defered to after the Core has been inialized.
-  RegistTypeInfo<CEnv>();
-  RegistTypeInfo<CLibraries>();
-  RegistTypeInfo<CFactories>();
+  RegistTypeInfo<CEnv,LibCommon>();
+  RegistTypeInfo<CLibraries,LibCommon>();
+  RegistTypeInfo<CFactories,LibCommon>();
 
   // create the root component and its structure structure
   m_root = CRoot::create("Root");
@@ -98,7 +98,7 @@ void Core::initiate ( int argc, char** argv )
   m_argc = argc;
   m_argv = argv;
 
-  if( environment()->property("regist_signal_handlers").value<bool>() )
+  if( environment().property("regist_signal_handlers").value<bool>() )
     OSystem::instance().layer()->regist_os_signal_handlers();
 
   // load libraries listed in the COOLFLUID_PLUGINS environment variable
@@ -132,49 +132,49 @@ void Core::terminate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRoot::Ptr Core::root() const
+CRoot& Core::root() const
 {
   cf_assert( is_not_null(m_root) );
-  return m_root;
+  return *m_root;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< Common::EventHandler > Core::event_handler() const
+Common::EventHandler& Core::event_handler() const
 {
   cf_assert(m_event_handler != nullptr);
-  return m_event_handler;
+  return *m_event_handler;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< Common::BuildInfo > Core::build_info() const
+Common::BuildInfo& Core::build_info() const
 {
   cf_assert(m_build_info != nullptr);
-  return m_build_info;
+  return *m_build_info;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< Common::CEnv > Core::environment() const
+Common::CEnv& Core::environment() const
 {
   cf_assert(m_environment != nullptr);
-  return m_environment;
+  return *m_environment;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< Common::CLibraries>  Core::libraries() const
+Common::CLibraries&  Core::libraries() const
 {
   cf_assert(m_libraries != nullptr);
-  return m_libraries;
+  return *m_libraries;
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< Common::CFactories > Core::factories() const
+Common::CFactories& Core::factories() const
 {
   cf_assert(m_factories != nullptr);
-  return m_factories;
+  return *m_factories;
 }
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -193,10 +193,10 @@ boost::shared_ptr<CodeProfiler> Core::profiler() const
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr<NetworkInfo> Core::network_info () const
+NetworkInfo& Core::network_info () const
 {
   cf_assert( is_not_null(m_network_info) );
-  return m_network_info;
+  return *m_network_info;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

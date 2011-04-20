@@ -134,7 +134,7 @@ else()
   coolfluid_mark_not_orphan( ${simplecomm_files} )
 endif()
 
-list( APPEND coolfluid_mesh_cflibs coolfluid_math )  # Math includes coolfluid_common
+list( APPEND coolfluid_mesh_cflibs coolfluid_common coolfluid_math )
 
 set( coolfluid_mesh_kernellib TRUE )
 

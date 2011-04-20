@@ -15,7 +15,7 @@
 namespace CF {
 namespace Common {
 
-ComponentBuilder < CGroupActions, CGroupActions, LibCommon > CGroupActions_Builder;
+ComponentBuilder < CGroupActions, CAction, LibCommon > CGroupActions_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   

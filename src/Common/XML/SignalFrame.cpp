@@ -134,6 +134,15 @@ TYPE SignalFrame::get_option ( const std::string & name ) const
   return main_map.get_value<TYPE>(name);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+bool SignalFrame::has_entry ( const std::string & name ) const
+{
+  cf_assert ( node.is_valid() );
+
+  return main_map.check_entry(name);
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 template<typename TYPE>

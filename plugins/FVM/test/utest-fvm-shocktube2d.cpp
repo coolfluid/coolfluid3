@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   BOOST_CHECK(true);
 
-  CModelUnsteady& model = Core::instance().root()->get_child("shocktube").as_type<CModelUnsteady>();
+  CModelUnsteady& model = Core::instance().root().get_child("shocktube").as_type<CModelUnsteady>();
 
   // 4) Configure time
   // -----------------

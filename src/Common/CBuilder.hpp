@@ -21,6 +21,9 @@
 #include "Common/CLibraries.hpp"
 #include "Common/XML/Protocol.hpp"
 
+///@todo remove
+#include "Common/Log.hpp"
+
 /////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -80,8 +83,8 @@ class CBuilderT : public CBuilder
 {
 public:
 
-  typedef boost::shared_ptr< CBuilderT<BASE, CONCRETE> > Ptr;
-  typedef boost::shared_ptr< CBuilderT<BASE, CONCRETE> const> ConstPtr;
+  typedef boost::shared_ptr< CBuilderT<BASE,CONCRETE> > Ptr;
+  typedef boost::shared_ptr< CBuilderT<BASE,CONCRETE> const > ConstPtr;
 
   /// @brief Contructor
   /// @param name of component
@@ -91,13 +94,17 @@ public:
     BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );
     // verify that CONCRETE derives from BASE
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
+    
+    // verify inheritance
+    BOOST_STATIC_ASSERT( (boost::is_base_of<CBuilder,CBuilderT<BASE,CONCRETE> >::value) );
+    
   }
 
   /// @brief Virtual destructor.
   virtual ~CBuilderT() {}
 
   /// @returns the class name
-  static std::string type_name() { return "CBuilderT<" + CONCRETE::type_name() + ">"; }
+  static std::string type_name() { return "CBuilderT<" + BASE::type_name() + "," + CONCRETE::type_name() + ">"; }
 
   /// builds the component cast to the correct base
   typename BASE::Ptr build_component_typed ( const std::string& name ) const
@@ -138,30 +145,36 @@ struct ComponentBuilder
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
 
     // give some info
-    //CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
+    CFinfo << "lib [" << LIB::library_namespace() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
 
     // regist the concrete type in TypeInfo
-    CF::Common::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
+    RegistTypeInfo<CONCRETE,LIB>();
     CF::Common::TypeInfo::instance().regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
 
-    // get the factories
-    Common::CFactories::Ptr factories = Common::Core::instance().factories();
-
     // put builder in correct factory
-    Common::CFactory::Ptr   factory = factories->get_factory< BASE >();
-    cf_assert ( factory != nullptr );
+    Common::CFactory::Ptr   factory = Common::Core::instance().factories().get_factory< BASE >();
+    cf_assert ( is_not_null(factory) );
 
-    CBuilder::Ptr builder = factory->create_component< Common::CBuilderT<BASE,CONCRETE> >( name );
-    cf_assert ( builder != nullptr );
+    Common::CBuilderT<BASE,CONCRETE>& builder = *factory->create_component< CBuilderT<BASE,CONCRETE> >( name );
+    
+    // static assertion seems to pass
+    BOOST_STATIC_ASSERT( (boost::is_base_of<CBuilder,CBuilderT<BASE,CONCRETE> >::value) );
+
+    /// @todo why is this assertion failing??? CBuilderT is inheriting from CBuilder
+    cf_assert ( is_not_null(builder.template as_ptr<CBuilder>()) );
 
     // put a CLink to the builder in the respective CLibrary
-    CLibrary::Ptr lib = Core::instance().libraries()->get_library<LIB>();
+    CLibrary::Ptr lib = Core::instance().libraries().get_library<LIB>();
     cf_assert ( lib != nullptr );
 
-    CLink::Ptr liblink = lib->create_component<CLink>( name );
-    cf_assert ( liblink != nullptr );
+    CLink::Ptr builder_link = lib->create_component<CLink>( name );
+    cf_assert ( is_not_null(builder_link) );
+    
+    builder_link->link_to(builder);
+    cf_assert ( is_not_null(builder_link->follow()) );
+    cf_assert ( is_not_null(builder_link->follow()->as_ptr<CBuilderT<BASE,CONCRETE> >()) );
+    cf_assert ( is_not_null(builder_link->follow()->as_ptr<CBuilder>()) );
 
-    liblink->link_to( builder );
   }
 
 }; // ComponentBuilder

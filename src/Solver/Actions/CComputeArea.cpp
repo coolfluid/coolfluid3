@@ -49,7 +49,7 @@ void CComputeArea::config_field()
 {
   URI uri;
   property("Area").put_value(uri);
-  CField::Ptr comp = Core::instance().root()->access_component_ptr(uri)->as_ptr<CField>();
+  CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_area->set_field(comp);

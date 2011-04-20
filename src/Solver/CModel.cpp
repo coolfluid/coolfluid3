@@ -152,7 +152,7 @@ void CModel::signature_create_solver ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  CFactory::Ptr solver_factory = Core::instance().factories()->get_factory<CSolver>();
+  CFactory::Ptr solver_factory = Core::instance().factories().get_factory<CSolver>();
   std::vector<std::string> solvers;
 
   // build the restricted list

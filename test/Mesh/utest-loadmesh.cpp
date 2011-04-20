@@ -37,11 +37,11 @@ BOOST_AUTO_TEST_CASE( constructor )
 {
   BOOST_CHECK(true);
 
-  CDomain::Ptr domain = Core::instance().root()->create_component<CDomain>("Domain");
+  CDomain::Ptr domain = Core::instance().root().create_component<CDomain>("Domain");
 
   BOOST_CHECK(true);
 
-  LoadMesh::Ptr load_mesh = Core::instance().root()->create_component<LoadMesh>("load_mesh");
+  LoadMesh::Ptr load_mesh = Core::instance().root().create_component<LoadMesh>("load_mesh");
 
   BOOST_CHECK(true);
 
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
 BOOST_AUTO_TEST_CASE( output )
 {
-  CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
+  CDomain& domain = find_component_recursively<CDomain>(Core::instance().root());
   CMesh::Ptr mesh = domain.get_child_ptr_checked("Mesh")->as_ptr<CMesh>();
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   boost::filesystem::path file ("utest-loadmesh-result.msh");

@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
 {
   BOOST_CHECK(true);
   
-  CMesh::Ptr rmesh = Core::instance().root()->create_component<CMesh>("rectangle_mesh");
+  CMesh::Ptr rmesh = Core::instance().root().create_component<CMesh>("rectangle_mesh");
   CSimpleMeshGenerator::create_rectangle(*rmesh, 10. , 10., 5 , 5 );
 
   BOOST_CHECK(true);

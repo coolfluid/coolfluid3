@@ -51,7 +51,7 @@ void CDomain::signal_load_mesh ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  LoadMesh& mesh_loader = find_component<LoadMesh>( Core::instance().root()->get_child("Tools") );
+  LoadMesh& mesh_loader = find_component<LoadMesh>( Core::instance().root().get_child("Tools") );
   CMesh::Ptr mesh = mesh_loader.load_mesh(options.option<URI>("File"));
   mesh->rename(options.option<std::string>("Name"));
   add_component(mesh);

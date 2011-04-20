@@ -85,7 +85,7 @@ struct rotationadv2d_global_fixture
 struct rotationadv2d_local_fixture
 {
   rotationadv2d_local_fixture() :
-    model  ( * Core::instance().root()->get_child_ptr("mymodel")->as_ptr<CModel>() ),
+    model  ( * Core::instance().root().get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
   {}
@@ -110,7 +110,7 @@ BOOST_FIXTURE_TEST_CASE( check_tree , rotationadv2d_local_fixture )
 
   SignalFrame frame;
 
-  Core::instance().root()->signal_list_tree(frame);
+  Core::instance().root().signal_list_tree(frame);
 
 //  CFinfo << model.tree() << CFendl;
 }

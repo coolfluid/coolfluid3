@@ -80,7 +80,7 @@ struct linearadvsys2d_global_fixture
 struct linearadvsys2d_local_fixture
 {
   linearadvsys2d_local_fixture() :
-    model  ( * Core::instance().root()->get_child_ptr("mymodel")->as_ptr<CModel>() ),
+    model  ( * Core::instance().root().get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
   {}
@@ -106,7 +106,7 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadvsys2d_local_fixture )
   SignalFrame frame;
   SignalOptions options( frame );
 
-  Core::instance().root()->signal_list_tree(frame);
+  Core::instance().root().signal_list_tree(frame);
 
 //  CFinfo << model.tree() << CFendl;
 }

@@ -231,14 +231,14 @@ public: // functions
   Ptr get_child_ptr_checked(const std::string& name);
 
   /// @returns this component converted to type T shared pointer
-  template < typename T > typename T::Ptr as_ptr();
+  template < typename T > boost::shared_ptr<T> as_ptr();
   /// @returns this component converted to type T shared const pointer
-  template < typename T > typename T::ConstPtr as_ptr() const;
+  template < typename T > boost::shared_ptr<T const> as_ptr() const;
 
   /// @returns this component converted to type T shared pointer
-  template < typename T > typename T::Ptr as_ptr_checked();
+  template < typename T > boost::shared_ptr<T> as_ptr_checked();
   /// @returns this component converted to type T shared const pointer
-  template < typename T > typename T::ConstPtr as_ptr_checked() const;
+  template < typename T > typename boost::shared_ptr<T const> as_ptr_checked() const;
 
   /// @returns this component converted to type T reference
   template < typename T > T& as_type() { return * as_ptr_checked<T>(); }
@@ -518,38 +518,38 @@ inline typename T::Ptr Component::create_static_component ( const std::string& n
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::as_ptr()
+inline typename boost::shared_ptr<T> Component::as_ptr()
 {
-  return boost::dynamic_pointer_cast<T>(follow());
+  return boost::dynamic_pointer_cast<T>(self());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::ConstPtr Component::as_ptr() const
+inline typename boost::shared_ptr<T const> Component::as_ptr() const
 {
-  return boost::dynamic_pointer_cast<T const>(follow());
+  return boost::dynamic_pointer_cast<T const>(self());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::as_ptr_checked()
+inline typename boost::shared_ptr<T> Component::as_ptr_checked()
 {
-  typename T::Ptr comp = boost::dynamic_pointer_cast<T>(follow());
+  typename boost::shared_ptr<T> comp = as_ptr<T>();
   if( is_null(comp) )
-    throw CastingFailed( FromHere(), "Cannot cast component " + full_path().string() + " to " + T::type_name() );
+    throw CastingFailed( FromHere(), "Cannot cast component " + full_path().string() + " of type " + derived_type_name() + " to " + T::type_name() );
   return comp;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::ConstPtr Component::as_ptr_checked() const
+inline typename boost::shared_ptr<T const> Component::as_ptr_checked() const
 {
-  typename T::ConstPtr comp = boost::dynamic_pointer_cast<T const>(follow());
+  typename boost::shared_ptr<T const> comp = as_ptr<T>();
   if( is_null(comp) )
-    throw CastingFailed( FromHere(), "Cannot cast component " + full_path().string() + " to " + T::type_name() );
+    throw CastingFailed( FromHere(), "Cannot cast const component " + full_path().string() + " of type " + derived_type_name() + " to const " + T::type_name() );
   return comp;
 }
 

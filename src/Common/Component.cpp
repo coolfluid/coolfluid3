@@ -577,24 +577,36 @@ void Component::signal_create_component ( SignalArgs& args  )
 {
   SignalOptions options( args );
 
-  std::string name  = options.option<std::string>("Component name");
-  std::string atype = options.option<std::string>("Generic type");
-  std::string ctype = options.option<std::string>("Concrete type");
+  std::string name  = "untitled";
+  if (options.exists("name"))
+    name = options.option<std::string>("name");
+  
+  std::string ctype = options.option<std::string>("type");
+  
+  using namespace boost::algorithm;
+  std::string builder_name_space (ctype.begin(),find_last(ctype,".").begin());
+  const CBuilder& builder = Core::instance().root().access_component(URI("cpath://Root/Libraries/"+builder_name_space+"/"+ctype)).follow()->as_type<CBuilder const>();
 
-  bool basic = options.option<bool>("Basic mode");
 
-  CFactories::Ptr factories = Core::instance().root()->get_child_ptr("Factories")->as_ptr< CFactories >();
-  CFactory::Ptr factory = factories->get_child_ptr( atype )->as_ptr< CFactory >();
-  if (!factory)
-    throw ValueNotFound(FromHere(), "Factory of generic type " + atype + " not found");
-  CBuilder::Ptr builder = factory->get_child_ptr( ctype )->as_ptr< CBuilder >();
-  if (!builder)
-    throw ValueNotFound(FromHere(), "Builder of concrete type " + ctype + " not found in factory of generic type " + atype);
+  // CFactories::Ptr factories = Core::instance().root().get_child_ptr("Factories")->as_ptr< CFactories >();
+  // CFactory::Ptr factory = factories->get_child_ptr( atype )->as_ptr< CFactory >();
+  // if (!factory)
+  //   throw ValueNotFound(FromHere(), "Factory of generic type " + atype + " not found");
+  // CBuilder::Ptr builder = factory->get_child_ptr( ctype )->as_ptr< CBuilder >();
+  // if (!builder)
+  //   throw ValueNotFound(FromHere(), "Builder of concrete type " + ctype + " not found in factory of generic type " + atype);
 
-  Ptr comp = add_component( builder->build( name ) );
+  Ptr comp = add_component( builder.build( name ) );
 
-  if(basic)
+  if( options.exists("basic_mode") )
+  {
+    if (options.option<bool>("basic_mode"))
+      comp->mark_basic();
+  }
+  else
+  {
     comp->mark_basic();
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1027,10 +1039,9 @@ void Component::signature_create_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add("Component name", std::string(), "Name for created component.");
-  options.add("Generic name", std::string(), "Generic type of the component.");
-  options.add("Concrete type", std::string(), "Concrete type of the component.");
-  options.add("Basic mode", false, "Component will be visible in basic mode.");
+  options.add("name", std::string() , "Name for created component.");
+  options.add("type", std::string("CF."), "Concrete type of the component.");
+  options.add("basic_mode", false, "Component will be visible in basic mode.");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1039,7 +1050,7 @@ void Component::signature_rename_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add("New name", std::string(), "Component new name.");
+  options.add("name", std::string(), "Component new name.");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1048,7 +1059,7 @@ void Component::signature_move_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add("Path", std::string(), "Path to the new component to which this one will move to.");
+  options.add("path", std::string(), "Path to the new component to which this one will move to.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

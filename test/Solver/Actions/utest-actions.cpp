@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
 BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 {
-  CRoot::Ptr root = Core::instance().root();
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CRoot& root = Core::instance().root();
+  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
 	
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   //facebuilder->transform(mesh);
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-	CLoop::Ptr face_loop = root->create_component< CForAllFaces >("face_loop");
+	CLoop::Ptr face_loop = root.create_component< CForAllFaces >("face_loop");
   face_loop->create_action("CF.TestActions.CDummyLoopOperation");
 	face_loop->configure_property("Regions",regions);
 	CFinfo << "\n\n\nFace loop" << CFendl;
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
   info->transform(mesh);
   
-  root->remove_component(mesh->name());
+  root.remove_component(mesh->name());
 	
 }
 
@@ -110,8 +110,8 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 
 BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 {
-  CRoot::Ptr root = Core::instance().root();//CRoot::create("Root");
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CRoot& root = Core::instance().root();//CRoot::create("Root");
+  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
 	
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
   
-	CLoop::Ptr node_loop = root->create_component< CForAllNodes2 >("node_loop");
+	CLoop::Ptr node_loop = root.create_component< CForAllNodes2 >("node_loop");
 	node_loop->configure_property("Regions",regions);
 
   node_loop->create_action("CF.Solver.Actions.CSetFieldValues");
@@ -148,9 +148,9 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(true);
 
-  CComputeVolume::Ptr compute_volume = root->create_component<CComputeVolume>("compute_volume");
+  CComputeVolume::Ptr compute_volume = root.create_component<CComputeVolume>("compute_volume");
   BOOST_CHECK(true);
-  CElements& elems = root->access_component("//Root/mesh/topology/default_id1084/fluid/Triag").as_type<CElements>();
+  CElements& elems = root.access_component("//Root/mesh/topology/default_id1084/fluid/Triag").as_type<CElements>();
   BOOST_CHECK(true);
   compute_volume->configure_property("Volume",volumes.full_path());
   BOOST_CHECK(true);
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   volume_view.initialize(volumes,elems.as_ptr<CElements>());
   BOOST_CHECK_EQUAL( volume_view[12] , 0.0035918050864676932);
 
-  CLoop::Ptr elem_loop = root->create_component< CForAllElements >("elem_loop");
+  CLoop::Ptr elem_loop = root.create_component< CForAllElements >("elem_loop");
   elem_loop->configure_property("Regions",regions);
   
   elem_loop->create_action("CF.Solver.Actions.CComputeVolume");
@@ -192,8 +192,8 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
 BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 {
-  CRoot::Ptr root = Core::instance().root();//CRoot::create("Root");
-  CMesh::Ptr mesh = root->get_child_ptr("mesh")->as_ptr<CMesh>();
+  CRoot& root = Core::instance().root();//CRoot::create("Root");
+  CMesh::Ptr mesh = root.get_child_ptr("mesh")->as_ptr<CMesh>();
 
   BOOST_CHECK(true);
 
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
   std::vector<URI> topology = list_of(URI("cpath://Root/mesh/topology"));
     
   CForAllElementsT<CComputeVolume>::Ptr compute_all_cell_volumes =
-    root->create_component< CForAllElementsT<CComputeVolume> > ("compute_all_cell_volumes");
+    root.create_component< CForAllElementsT<CComputeVolume> > ("compute_all_cell_volumes");
   
   BOOST_CHECK(true);
   

@@ -93,9 +93,9 @@ public:
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
-    m_properties.add_option< OptionComponent<CConcrete1> >( "OptC", "component option", Core::instance().root()->full_path());
+    m_properties.add_option< OptionComponent<CConcrete1> >( "OptC", "component option", Core::instance().root().full_path());
     m_properties.link_to_parameter ( "OptC", &m_component );
-    Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2","component option",Core::instance().root()->full_path()));
+    Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2","component option",Core::instance().root().full_path()));
     m_properties.add_option(opt2)->link_to( &m_component )->mark_basic();
      Option::Ptr opt3 = m_properties.add_option
        (OptionComponent<CConcrete1>::create("OptC3","component option",&m_component));
@@ -281,9 +281,9 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
 BOOST_AUTO_TEST_CASE( optionComponent )
 {
   // Setup a little data-structure
-  CRoot::Ptr root = Core::instance().root();
-  MyC::Ptr component1 = root->create_component<MyC>("component1");
-  CConcrete1::Ptr component2 = root->create_component<CConcrete1>("component2");
+  CRoot& root = Core::instance().root();
+  MyC::Ptr component1 = root.create_component<MyC>("component1");
+  CConcrete1::Ptr component2 = root.create_component<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
   component1->configure_property("OptC",URI("cpath://Root/component2"));

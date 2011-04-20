@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
   AssertionManager::instance().AssertionThrows = true;
 
   // tell the CF core the the server is running
-  Core::instance().network_info()->start_server();
+  Core::instance().network_info().start_server();
 
   try
   {
@@ -82,8 +82,8 @@ int main(int argc, char *argv[])
       errorString = "Port number must be an integer between 49153 and 65535\n";
     else
     {
-      Core::instance().network_info()->set_hostname( QHostInfo::localHostName().toStdString() );
-      Core::instance().network_info()->set_port( port );
+      Core::instance().network_info().set_hostname( QHostInfo::localHostName().toStdString() );
+      Core::instance().network_info().set_port( port );
 
       QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
       CCore::Ptr sk = ServerRoot::core();
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
   }
 
   // tell the CF core that the server is about to exit
-  Core::instance().network_info()->stop_server();
+  Core::instance().network_info().stop_server();
 
   return return_value;
 }

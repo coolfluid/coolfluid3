@@ -82,6 +82,10 @@ public:
   /// @return Returns @c true if the frame exists, otherwise, returns @c false.
   bool has_map ( const std::string & name ) const;
 
+  /// Checks if an option or array exists with specified name
+  /// @param name the name of the option
+  bool has_entry ( const std::string& name ) const;
+  
   /// Returns a sub-frame with a specified name.
   /// If the frame does not exist yet, it is created.
   /// @param name The frame name.

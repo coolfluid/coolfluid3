@@ -88,7 +88,7 @@ struct euler2d_global_fixture
 struct euler2d_local_fixture
 {
   euler2d_local_fixture() :
-    model  ( * Core::instance().root()->get_child_ptr("mymodel")->as_ptr<CModel>() ),
+    model  ( * Core::instance().root().get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
   {}
@@ -114,7 +114,7 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , euler2d_local_fixture )
   SignalFrame frame;
   SignalOptions options( frame );
 
-  Core::instance().root()->signal_list_tree(frame);
+  Core::instance().root().signal_list_tree(frame);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -123,7 +123,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-//  CFinfo << Core::instance().root()->tree() << CFendl;
+//  CFinfo << Core::instance().root().tree() << CFendl;
 
   // create the xml parameters for the read mesh signal
 

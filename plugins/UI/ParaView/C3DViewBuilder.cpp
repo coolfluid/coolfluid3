@@ -70,7 +70,7 @@ void C3DViewBuilder::signal_create_3dview(SignalArgs &args)
     throw InvalidURI(FromHere(), "The parent scheme is not CPATH");
 
   // create and add the component
-  Component::Ptr parent_comp = Core::instance().root()->access_component_ptr(parent);
+  Component::Ptr parent_comp = Core::instance().root().access_component_ptr(parent);
   C3DView::Ptr view(new C3DView(name));
   view->setPort("8080");
   parent_comp->add_component( view );
@@ -84,7 +84,7 @@ void C3DViewBuilder::signature_create_3dview(SignalArgs &args)
   SignalFrame& options = args.map( Protocol::Tags::key_options() );
 
   options.set_option("3DView name", std::string(), "Name for the new 3DView");
-  options.set_option("Parent", Core::instance().root()->full_path(), "Parent of the new component");
+  options.set_option("Parent", Core::instance().root().full_path(), "Parent of the new component");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

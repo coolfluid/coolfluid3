@@ -41,7 +41,7 @@ BOOST_FIXTURE_TEST_SUITE( CFactoryTest, CFactoryFixture )
 
 BOOST_AUTO_TEST_CASE( get_factory )
 {
-  CFactories::Ptr factories = Core::instance().root()->get_child_ptr("Factories")->as_ptr< CFactories >();
+  CFactories::Ptr factories = Core::instance().root().get_child_ptr("Factories")->as_ptr< CFactories >();
 
   BOOST_CHECK( factories->get_factory< CAbstract >() != nullptr );
 
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( component_builder )
   ComponentBuilder< CConcrete1, CAbstract, LibCommon > cc1;
   ComponentBuilder< CConcrete2, CAbstract, LibCommon > cc2;
 
-  CFactories::Ptr factories = Core::instance().root()->get_child_ptr("Factories")->as_ptr< CFactories >();
+  CFactories::Ptr factories = Core::instance().root().get_child_ptr("Factories")->as_ptr< CFactories >();
 
   CFactoryT<CAbstract>::Ptr cabstract_factory = factories->get_factory< CAbstract >();
   BOOST_CHECK( cabstract_factory != nullptr );

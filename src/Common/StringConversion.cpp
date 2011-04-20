@@ -70,6 +70,97 @@ namespace Common {
     return v;
   }
 
+  template <>
+  Common_API std::string to_str<std::vector<bool> > (const std::vector<bool> & v)
+  {
+    std::string s = "";
+    if (v.size())
+    {
+      for (Uint i=0; i<v.size()-1; ++i)
+        s += to_str(v[i]) + " ";
+      s += to_str(v.back());
+    }
+    return s;
+  }
+
+  template <>
+  Common_API std::string to_str<std::vector<int> > (const std::vector<int> & v)
+  {
+    std::string s = "";
+    if (v.size())
+    {
+      for (Uint i=0; i<v.size()-1; ++i)
+        s += to_str(v[i]) + " ";
+      s += to_str(v.back());
+    }
+    return s;
+  }
+
+  template <>
+  Common_API std::string to_str<std::vector<unsigned long> > (const std::vector<unsigned long> & v)
+  {
+    std::string s = "";
+    if (v.size())
+    {
+      for (Uint i=0; i<v.size()-1; ++i)
+        s += to_str(v[i]) + " ";
+      s += to_str(v.back());
+    }
+    return s;
+  }
+
+  template <>
+  Common_API std::string to_str<std::vector<Uint> > (const std::vector<Uint> & v)
+  {
+    std::string s = "";
+    if (v.size())
+    {
+      for (Uint i=0; i<v.size()-1; ++i)
+        s += to_str(v[i]) + " ";
+      s += to_str(v.back());
+    }
+    return s;
+  }
+
+  template <>
+  Common_API std::string to_str<std::vector<Real> > (const std::vector<Real> & v)
+  {
+    std::string s = "";
+    if (v.size())
+    {
+      for (Uint i=0; i<v.size()-1; ++i)
+        s += to_str(v[i]) + " ";
+      s += to_str(v.back());
+    }
+    return s;
+  }
+
+  template <>
+  Common_API std::string to_str<std::vector<URI> > (const std::vector<URI> & v)
+  {
+    std::string s = "";
+    if (v.size())
+    {
+      for (Uint i=0; i<v.size()-1; ++i)
+        s += to_str(v[i]) + " ";
+      s += to_str(v.back());
+    }
+    return s;
+  }
+
+  template <>
+  Common_API std::string to_str<std::vector<std::string> > (const std::vector<std::string> & v)
+  {
+    std::string s = "";
+    if (v.size())
+    {
+      for (Uint i=0; i<v.size()-1; ++i)
+        s += v[i] + " ";
+      s += v.back();
+    }
+    return s;
+  }
+
   ////////////////////////////////////////////////////////////////////////////////
 
   /// Converts from std::string

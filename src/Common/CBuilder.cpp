@@ -7,11 +7,11 @@
 #include "Common/CBuilder.hpp"
 
 #include "Common/Signal.hpp"
-
+#include "Common/LibCommon.hpp"
 namespace CF {
 namespace Common {
 
-RegistTypeInfo<CBuilder> CBuilder_TypeRegistration();
+RegistTypeInfo<CBuilder,LibCommon> CBuilder_TypeRegistration();
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,9 +33,10 @@ void CBuilder::signal_build_component ( SignalArgs& args )
 {
   XML::SignalFrame params = args.map( XML::Protocol::Tags::key_options() );
 
-  Component::Ptr comp = build ( params.get_option<std::string>("Component name") );
-  URI parent_path ( params.get_option<URI>("Parent component") );
-  Component::Ptr parent = access_component_ptr_checked( parent_path );
+  URI path ( params.get_option<URI>("path") );
+
+  Component::Ptr comp = build ( path.name() );
+  Component::Ptr parent = access_component_ptr_checked( path.base_path() );
   parent->add_component( comp );
 }
 
@@ -45,8 +46,7 @@ void CBuilder::signature_signal_build_component ( SignalArgs& args )
 {
   XML::SignalFrame p = args.map( XML::Protocol::Tags::key_options() );
 
-  p.set_option<std::string>("Component name", std::string(), "Name for created component" );
-  p.set_option<URI>("Parent component", URI(), "Path to component where place the newly built component");
+  p.set_option<URI>("path", URI("cpath:"), "Full path for the created component" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

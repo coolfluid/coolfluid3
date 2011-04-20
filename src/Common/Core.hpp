@@ -52,32 +52,32 @@ public: // methods
 
   /// @brief Gives the root component.
   /// @return Returns the root component.
-  boost::shared_ptr<CRoot> root() const;
+  Common::CRoot& root() const;
 
   /// Gets the EventHandler of the CF runtime environment
   /// @pre Core does not need to be initialized before
   /// @post never nullptr
-  boost::shared_ptr<Common::EventHandler> event_handler() const;
+  Common::EventHandler& event_handler() const;
 
   /// Gets the BuildInfo
   /// @pre Core does not need to be initialized before
   /// @post never nullptr
-  boost::shared_ptr<Common::BuildInfo> build_info() const;
+  Common::BuildInfo& build_info() const;
 
   /// Gets the CEnv
   /// @pre Core does not need to be initialized before
   /// @post never nullptr
-  boost::shared_ptr<Common::CEnv> environment() const;
+  Common::CEnv& environment() const;
 
   /// Gets the CLibraries
   /// @pre Core does not need to be initialized before
   /// @post never nullptr
-  boost::shared_ptr<Common::CLibraries> libraries() const;
+  Common::CLibraries& libraries() const;
 
   /// Gets the CFactories
   /// @pre Core does not need to be initialized before
   /// @post never nullptr
-  boost::shared_ptr<Common::CFactories> factories() const;
+  Common::CFactories& factories() const;
 
   /// @brief Sets the profiler.
   /// @param profiler_name Profiler name
@@ -91,7 +91,7 @@ public: // methods
 
   /// Gets the network information.
   /// @return Returns the network information.
-  boost::shared_ptr<NetworkInfo> network_info() const;
+  NetworkInfo& network_info() const;
   
   /// command-line arguments count
   /// @return count of arguments

@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( MeshCreation )
   // the mesh to store in
   m_mesh = meshreader->create_mesh_from(fp_in);
   
-  Core::instance().root()->add_component(m_mesh);
+  Core::instance().root().add_component(m_mesh);
 
 }
 ////////////////////////////////////////////////////////////////////////////////

@@ -344,7 +344,7 @@ void FiniteVolumeSolver::signature_create_bc( SignalArgs& node )
   options.add<std::string>("Name", std::string(), "Name for created boundary term" );
 
   // type
-  CFactory::Ptr bc_factory = Core::instance().factories()->get_factory<BC>();
+  CFactory::Ptr bc_factory = Core::instance().factories().get_factory<BC>();
   std::vector<std::string> bcs;
 
   // build the restricted list

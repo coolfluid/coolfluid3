@@ -8,6 +8,7 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 #include <set>
+#include <iomanip>
 
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
@@ -20,6 +21,9 @@
 #include "Common/Foreach.hpp"
 #include "Common/CAction.hpp"
 #include "Common/FindComponents.hpp"
+
+#include "Common/CBuilder.hpp"
+#include "Solver/CTime.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/Shell/Interpreter.hpp"
@@ -41,7 +45,7 @@ BasicCommands::BasicCommands()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr BasicCommands::current_component = Core::instance().root();
+Component::Ptr BasicCommands::current_component = Core::instance().root().self();
 
 BasicCommands::commands_description BasicCommands::description()
 {
@@ -164,6 +168,10 @@ void BasicCommands::ls(const std::vector<std::string>& params)
     if (arg == "l")
     {
       // ls this_component
+      Uint max_size(0);
+      boost_foreach(Component& sub_comp, find_components(*current_component) )
+        max_size = std::max(Uint(max_size),Uint(sub_comp.derived_type_name().size()));
+      
       boost_foreach(Component& sub_comp, find_components(*current_component) )
       {
         if (current_component->is_child_static(sub_comp.name()))
@@ -174,7 +182,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
           CFinfo << "-";
         else
           CFinfo << "x";
-        CFinfo << "    " << sub_comp.name() << CFendl;
+        CFinfo << "    " << std::left << std::setw(max_size) << sub_comp.derived_type_name() <<  "    " << sub_comp.name() << CFendl;
       }
     }
     else if (arg == "s")
@@ -240,6 +248,10 @@ void BasicCommands::ls(const std::vector<std::string>& params)
     if (arg == "l")
     {
       // ls this_component
+      Uint max_size(0);
+      boost_foreach(Component& sub_comp, find_components(parent) )
+        max_size = std::max(Uint(max_size),Uint(sub_comp.derived_type_name().size()));
+      
       boost_foreach(Component& sub_comp, find_components(parent) )
       {
         if (parent.is_child_static(sub_comp.name()))
@@ -250,7 +262,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
           CFinfo << "-";
         else
           CFinfo << "x";
-        CFinfo << "    " << sub_comp.name() << CFendl;
+        CFinfo << "    " << std::left << std::setw(max_size) << sub_comp.derived_type_name() <<  "    " << sub_comp.name() << CFendl;
       }
     }
     else if (arg == "s")
@@ -315,7 +327,7 @@ void BasicCommands::rm(const std::string& cpath)
 void BasicCommands::cd(const std::string& cpath)
 {
   if (cpath.empty())
-    current_component = Core::instance().root();
+    current_component = Core::instance().root().self();
   else
     current_component = current_component->access_component_ptr_checked(cpath);
 }
@@ -393,7 +405,7 @@ void BasicCommands::configure(const std::vector<std::string>& params)
 
 void BasicCommands::version(const std::vector<std::string>&)
 {
-  CFinfo << Core::instance().build_info()->version_header() << CFendl;  
+  CFinfo << Core::instance().build_info().version_header() << CFendl;  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -407,15 +419,13 @@ void BasicCommands::create(const std::vector<std::string>& params)
   Component::Ptr parent_component = current_component->access_component_ptr(URI(new_component_path).base_path());
   if ( is_null(parent_component) )
     throw ValueNotFound(FromHere(), "component " + URI(new_component_path).base_path().path() + " was not found in " + current_component->full_path().path());
+    
+  std::vector<std::string> signal_options(2);
+  signal_options[0] = "name:string="+URI(new_component_path).name();;
+  signal_options[1] = "type:string="+params[1];
+  
+  parent_component->call_signal("create_component",signal_options);
 
-  std::string name = URI(new_component_path).name();
-  
-  using namespace boost::algorithm;
-  std::string builder = params[1];
-  std::string builder_name_space (builder.begin(),find_last(builder,".").begin());
-  
-  Component::Ptr built_component = Core::instance().root()->access_component(URI("cpath://Root/Libraries/"+builder_name_space+"/"+builder)).follow()->as_type<CBuilder>().build(name);
-  parent_component->add_component(built_component);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
