@@ -520,7 +520,9 @@ inline typename T::Ptr Component::create_static_component ( const std::string& n
 template < typename T >
 inline typename boost::shared_ptr<T> Component::as_ptr()
 {
-  return boost::dynamic_pointer_cast<T>(self());
+  Component::Ptr me = self();
+  cf_assert( is_not_null(me.get()) );
+  return boost::dynamic_pointer_cast<T>(me);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -44,7 +44,7 @@ namespace Common {
     {
       const std::string tname = CBase::type_name();
       Component::Ptr factory = get_child_ptr(tname);
-      if ( factory != nullptr )
+      if ( is_not_null(factory) )
         return boost::dynamic_pointer_cast< CFactoryT<CBase> >(factory);
       else
       {

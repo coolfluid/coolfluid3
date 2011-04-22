@@ -254,6 +254,16 @@ list( APPEND utest-cmap_files
 coolfluid_add_unit_test( utest-cmap )
 
 ################################################################################
+# Test cbuilder
+
+list( APPEND utest-cbuilder_cflibs coolfluid_common )
+list( APPEND utest-cbuilder_files
+  utest-cbuilder.cpp
+)
+
+coolfluid_add_unit_test( utest-cbuilder )
+
+################################################################################
 # Test DataComponentWrapper
 
 list( APPEND utest-create-component-datatype_cflibs coolfluid_common )

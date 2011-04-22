@@ -153,24 +153,27 @@ struct ComponentBuilder
 
     // put builder in correct factory
     Common::CFactory::Ptr   factory = Common::Core::instance().factories().get_factory< BASE >();
+
     cf_assert ( is_not_null(factory) );
 
-    Common::CBuilderT<BASE,CONCRETE>& builder = *factory->create_component< CBuilderT<BASE,CONCRETE> >( name );
+    boost::shared_ptr< Common::CBuilderT<BASE,CONCRETE> > builder =
+        factory->create_component< CBuilderT<BASE,CONCRETE> >( name );
     
     // static assertion seems to pass
     BOOST_STATIC_ASSERT( (boost::is_base_of<CBuilder,CBuilderT<BASE,CONCRETE> >::value) );
 
     /// @todo why is this assertion failing??? CBuilderT is inheriting from CBuilder
-    cf_assert ( is_not_null(builder.template as_ptr<CBuilder>()) );
+    cf_assert ( builder->template as_ptr<CBuilder>() );
 
     // put a CLink to the builder in the respective CLibrary
     CLibrary::Ptr lib = Core::instance().libraries().get_library<LIB>();
-    cf_assert ( lib != nullptr );
+    cf_assert ( is_not_null(lib) );
 
     CLink::Ptr builder_link = lib->create_component<CLink>( name );
     cf_assert ( is_not_null(builder_link) );
     
     builder_link->link_to(builder);
+
     cf_assert ( is_not_null(builder_link->follow()) );
     cf_assert ( is_not_null(builder_link->follow()->as_ptr<CBuilderT<BASE,CONCRETE> >()) );
     cf_assert ( is_not_null(builder_link->follow()->as_ptr<CBuilder>()) );
