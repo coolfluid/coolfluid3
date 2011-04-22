@@ -67,12 +67,6 @@ public: // functions
   
   Uint size() const { return m_size; }
   
-  template <typename T>
-  T& as() { return *as_ptr<T>(); }
-
-  template <typename T>
-  boost::shared_ptr<T> as_ptr() { return boost::static_pointer_cast<T>(self()); }
-
   /// @return elements_exist_in_field
   bool set_elements(const CEntities& elements);
 
