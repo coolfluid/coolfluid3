@@ -83,11 +83,11 @@ void CComputeVolume::execute()
   volume[idx()] = vol;
   
   // 2) as simple field --> extra index for multiple variables per field 
-  CFieldView& view = m_volume->as<CFieldView>();
+  CFieldView& view = m_volume->as_type<CFieldView>();
   view[idx()][var_idx] = vol;
 
   // 3) as complex field --> extra index for the case with multiple states per element
-  CMultiStateFieldView& multi_state_view = m_volume->as<CMultiStateFieldView>();
+  CMultiStateFieldView& multi_state_view = m_volume->as_type<CMultiStateFieldView>();
   multi_state_view[idx()][state_idx][var_idx] = vol;
 
 }

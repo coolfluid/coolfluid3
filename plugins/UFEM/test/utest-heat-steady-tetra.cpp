@@ -53,10 +53,10 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   boost::filesystem::path input_file = boost::filesystem::path(argv[2]) / boost::filesystem::path("ring3d-tetras.neu");
   boost::filesystem::path output_file("ring3d-steady.msh");
 
-  CRoot::Ptr root = Core::instance().root();
+  CRoot& root = Core::instance().root();
 
   Component::Ptr setup_ufem = create_component_abstract_type<Component>("CF.UFEM.SetupLinearSystem", "SetupUFEM");
-  root->add_component(setup_ufem);
+  root.add_component(setup_ufem);
 
   SignalFrame create_model_frame("", URI(), URI());
   SignalFrame& create_model_p = create_model_frame.map( Protocol::Tags::key_options() );
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
 
   setup_ufem->call_signal("create_model", create_model_frame);
 
-  Component::Ptr ufem_model = root->get_child_ptr("UFEMHeat");
+  Component::Ptr ufem_model = root.get_child_ptr("UFEMHeat");
   BOOST_CHECK(ufem_model);
 
   CMeshReader::Ptr mesh_reader = ufem_model->get_child_ptr("NeutralReader")->as_ptr<CMeshReader>();
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   
   // Setup a constant field for the source term
   Component::Ptr heat_generator = create_component_abstract_type<Component>("CF.Tools.FieldGeneration.FieldGenerator", "HeatFieldGenerator");
-  root->add_component(heat_generator);
+  root.add_component(heat_generator);
   heat_generator->configure_property("FieldName", std::string("Heat"));
   heat_generator->configure_property("VariableName", std::string("q"));
   heat_generator->configure_property("Value", 0.);

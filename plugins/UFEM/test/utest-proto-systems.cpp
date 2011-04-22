@@ -81,13 +81,13 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   loader.load_library("coolfluid_mesh_gmsh");
   
   // Setup document structure and mesh
-  CRoot::Ptr root = Core::instance().root();
+  CRoot& root = Core::instance().root();
   
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, length, 0.5*length, 2*nb_segments, nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
   
   // Create output field
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   
   // Setup a mesh writer
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  root->add_component(writer);
+  root.add_component(writer);
   writer->configure_property( "Fields", std::vector<URI>(1, t_fld.full_path() ) );
   
   // Regions

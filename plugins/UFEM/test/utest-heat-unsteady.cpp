@@ -53,11 +53,11 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   boost::filesystem::path input_file = boost::filesystem::path(argv[2]) / boost::filesystem::path("ring2d-quads.neu");
   boost::filesystem::path output_file("ring2d-unsteady.msh");
 
-  CRoot::Ptr root = Core::instance().root();
+  CRoot& root = Core::instance().root();
 
   // Create the wizard
   Component::Ptr setup_ufem = create_component_abstract_type<Component>("CF.UFEM.SetupLinearSystem", "SetupUFEM");
-  root->add_component(setup_ufem);
+  root.add_component(setup_ufem);
 
   // Build the model
   SignalFrame create_model_frame("", URI(), URI());
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
 
   setup_ufem->call_signal("create_model", create_model_frame);
 
-  Component::Ptr ufem_model = root->get_child_ptr("UFEMHeat");
+  Component::Ptr ufem_model = root.get_child_ptr("UFEMHeat");
   BOOST_CHECK(ufem_model);
 
   CMeshReader::Ptr mesh_reader = ufem_model->get_child_ptr("NeutralReader")->as_ptr<CMeshReader>();
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   
   // Setup a constant field for the source term
   Component::Ptr heat_generator = create_component_abstract_type<Component>("CF.Tools.FieldGeneration.FieldGenerator", "HeatFieldGenerator");
-  root->add_component(heat_generator);
+  root.add_component(heat_generator);
   heat_generator->configure_property("FieldName", std::string("Heat"));
   heat_generator->configure_property("VariableName", std::string("q"));
   heat_generator->configure_property("Value", 0.);

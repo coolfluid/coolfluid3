@@ -67,11 +67,11 @@ struct ProtoHeatFixture
   
   ~ProtoHeatFixture()
   {
-    root->remove_component("mesh");
-    root->remove_component("LSS");
+    root.remove_component("mesh");
+    root.remove_component("LSS");
   }
   
-  CRoot::Ptr root;
+  CRoot& root;
   std::string solver_config;
   
 };
@@ -84,11 +84,11 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
 {
   const Uint nb_segments = 5;
   
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, 5., nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
   // Create output field
@@ -123,11 +123,11 @@ BOOST_AUTO_TEST_CASE( Heat1D )
 
   const Uint nb_segments = 20;
   
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
   // Create output field
@@ -184,11 +184,11 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
 
   const Uint nb_segments = 5;
 
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
   // Create output field
@@ -242,11 +242,11 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   
   BOOST_CHECK(true);
 
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
   BOOST_CHECK(true);
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   CFieldAction::Ptr heat1d_action = build_elements_action
   (
     "Heat1D",
-    *root,
+    root,
     group <<
     (
       _A(temperature) = integral<1>(laplacian_elm(temperature) * jacobian_determinant),
@@ -281,14 +281,14 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   BOOST_CHECK(true);
 
   // Left boundary condition
-  CAction::Ptr xneg_action = build_nodes_action("xneg", *root, dirichlet(lss, temperature) = 10. );  
+  CAction::Ptr xneg_action = build_nodes_action("xneg", root, dirichlet(lss, temperature) = 10. );
   xneg_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg").full_path());
   xneg_action->execute();
   
   BOOST_CHECK(true);
 
   // Right boundary condition
-  CAction::Ptr xpos_action = build_nodes_action("xpos", *root, dirichlet(lss, temperature) = 35. );  
+  CAction::Ptr xpos_action = build_nodes_action("xpos", root, dirichlet(lss, temperature) = 35. );
   xpos_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos").full_path());
   xpos_action->execute();
   
@@ -313,11 +313,11 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   const Real k             = 100.; // thermal conductivity
   const Real q             = 100.; // Heat production per volume
 
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
   // Create output field

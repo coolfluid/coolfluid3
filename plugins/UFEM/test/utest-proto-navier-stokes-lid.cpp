@@ -105,13 +105,13 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   loader.load_library("coolfluid_mesh_vtklegacy");
   
   // Setup document structure and mesh
-  CRoot::Ptr root = Core::instance().root();
+  CRoot& root = Core::instance().root();
   
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, length, height, x_segments, y_segments);
   
   // Linear system
-  CEigenLSS& lss = *root->create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
   lss.set_config_file(argv[1]);
   
   // Create output fields
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   
   // Setup a mesh writer
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
-  root->add_component(writer);
+  root.add_component(writer);
   const std::vector<URI> out_fields = boost::assign::list_of(u_fld.full_path())(p_fld.full_path());
   writer->configure_property( "Fields", out_fields );
   
