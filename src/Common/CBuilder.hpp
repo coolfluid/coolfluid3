@@ -21,9 +21,6 @@
 #include "Common/CLibraries.hpp"
 #include "Common/XML/Protocol.hpp"
 
-///@todo remove
-#include "Common/Log.hpp"
-
 /////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -145,7 +142,7 @@ struct ComponentBuilder
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
 
     // give some info
-    CFinfo << "lib [" << LIB::library_namespace() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
+    //CFinfo << "lib [" << LIB::library_namespace() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
 
     // regist the concrete type in TypeInfo
     RegistTypeInfo<CONCRETE,LIB>();

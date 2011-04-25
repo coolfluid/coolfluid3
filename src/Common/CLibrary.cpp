@@ -7,9 +7,6 @@
 #include "Common/CLibrary.hpp"
 #include "Common/LibCommon.hpp"
 
-///@todo remove
-#include "Common/Log.hpp"
-
 namespace CF {
 namespace Common {
 
@@ -43,7 +40,7 @@ void  CLibrary::initiate()
 {
   if(!m_is_initiated)
   {
-    CFinfo << "+ initiating library \'" << name() << "\'" << CFendl;
+    //CFinfo << "+ initiating library \'" << name() << "\'" << CFendl;
     initiate_impl();
     m_is_initiated = true;
   }
@@ -53,7 +50,7 @@ void  CLibrary::terminate()
 {
   if(m_is_initiated)
   {
-    CFinfo << "+ terminating library \'" << name() << "\'" << CFendl;
+    //CFinfo << "+ terminating library \'" << name() << "\'" << CFendl;
     terminate_impl();
     m_is_initiated = false;
   }
