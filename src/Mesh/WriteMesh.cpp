@@ -48,8 +48,6 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
   signal("delete_component")->is_hidden = true;
   signal("move_component")->is_hidden   = true;
 
-  update_list_of_available_writers();
-
   signal("write_mesh")->signature->connect(boost::bind(&WriteMesh::signature_write_mesh, this, _1));
 }
 

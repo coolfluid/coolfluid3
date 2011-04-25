@@ -49,8 +49,6 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
   signal("delete_component")->is_hidden = true;
   signal("move_component")->is_hidden   = true;
 
-  update_list_of_available_readers();
-
   signal("load_mesh")->signature->connect(boost::bind(&LoadMesh::signature_load_mesh, this, _1));
 }
 
