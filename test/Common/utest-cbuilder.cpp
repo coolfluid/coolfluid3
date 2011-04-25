@@ -9,6 +9,8 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/CreateComponent.hpp"
@@ -73,6 +75,20 @@ BOOST_AUTO_TEST_CASE( registration )
   CAbstract::Ptr ptr = create_component_abstract_type< CAbstract >("CF.Common.CConcrete1","acomp");
 
   BOOST_CHECK( is_not_null(ptr) );
+
+  Core::root().add_component(ptr);
+
+  CConcrete1::Ptr ptr2 = Core::root().create_component<CConcrete1>("cconc");
+
+  BOOST_CHECK( ptr2 );
+
+  CAbstract::Ptr cabs = boost::dynamic_pointer_cast<CAbstract>(ptr2);
+
+  BOOST_CHECK( cabs );
+
+  CAbstract::Ptr cabs2 = ptr2->as_ptr<CAbstract>();
+
+  BOOST_CHECK( cabs2 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
