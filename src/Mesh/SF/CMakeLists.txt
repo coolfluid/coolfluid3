@@ -1,10 +1,15 @@
 list( APPEND coolfluid_mesh_sf_files
+  Line.hpp
+  ETLine1DLagrangeP1.hpp
+  ETLine1DLagrangeP1.cpp
   Hexa3DLagrangeP1.cpp
   Hexa3DLagrangeP1.hpp
   LibSF.cpp
   LibSF.hpp
   Line1DLagrangeP1.cpp
   Line1DLagrangeP1.hpp
+  SFLineLagrangeP1.cpp
+  SFLineLagrangeP1.hpp
   Line2DLagrangeP1.cpp
   Line2DLagrangeP1.hpp
   Line2DLagrangeP2.cpp

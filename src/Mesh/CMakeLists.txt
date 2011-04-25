@@ -78,8 +78,8 @@ list( APPEND coolfluid_mesh_files
   ElementData.hpp
   ElementType.hpp
   ElementType.cpp
-  ElementType.hpp
-  ElementType.cpp
+  ElementType2.hpp
+  ElementType2.cpp
   GeoShape.hpp
   GeoShape.cpp
   Hexa3D.hpp
@@ -106,6 +106,8 @@ list( APPEND coolfluid_mesh_files
   Quad2D.cpp
   Quad3D.hpp
   Quad3D.cpp
+  ShapeFunction.hpp
+  ShapeFunction.cpp
   Tetra3D.hpp
   Tetra3D.cpp
   Triag2D.hpp
