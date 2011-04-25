@@ -140,6 +140,8 @@ struct ComponentBuilder
     BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );
     // verify that CONCRETE derives from BASE
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
+    // verify that CBuilderT derives from CBuilder
+    BOOST_STATIC_ASSERT( (boost::is_base_of<CBuilder,CBuilderT<BASE,CONCRETE> >::value) );
 
     // give some info
     //CFinfo << "lib [" << LIB::library_namespace() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
@@ -156,10 +158,8 @@ struct ComponentBuilder
     boost::shared_ptr< Common::CBuilderT<BASE,CONCRETE> > builder =
         factory->create_component< CBuilderT<BASE,CONCRETE> >( name );
     
-    // static assertion seems to pass
-    BOOST_STATIC_ASSERT( (boost::is_base_of<CBuilder,CBuilderT<BASE,CONCRETE> >::value) );
-
-    /// @todo why is this assertion failing??? CBuilderT is inheriting from CBuilder
+    // check that CBuilderT can cast to CBuilder
+    /// @note sanity check after weird bug on MacOSX when including CBuilder.cpp instead of CBuilder.hpp
     cf_assert ( builder->template as_ptr<CBuilder>() );
 
     // put a CLink to the builder in the respective CLibrary
