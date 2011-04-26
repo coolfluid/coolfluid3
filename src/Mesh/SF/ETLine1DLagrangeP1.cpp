@@ -20,7 +20,7 @@ Common::ComponentBuilder < ETLine1DLagrangeP1,ElementType2, LibSF > ETLine1DLagr
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ETLine1DLagrangeP1::ETLine1DLagrangeP1(const std::string& name) : Line(name)
+ETLine1DLagrangeP1::ETLine1DLagrangeP1(const std::string& name) : Line<DIM_1D,SFLineLagrangeP1>(name)
 {
   m_nb_nodes = nb_nodes;
   m_order = order;
