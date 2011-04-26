@@ -45,7 +45,7 @@ namespace RDM {
 /// List of supported 2d face shapefunctions
 typedef boost::mpl::vector<
   Mesh::SF::Line2DLagrangeP1,
-  Mesh::SF::Line2DLagrangeP3,
+  Mesh::SF::Line2DLagrangeP2,
   Mesh::SF::Line2DLagrangeP3
 > FaceTypes2D;
 
