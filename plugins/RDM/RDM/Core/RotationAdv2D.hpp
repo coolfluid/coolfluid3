@@ -60,6 +60,17 @@ public: // functions
     p.Vy = - coord[XX];
   }
 
+  /// compute the physical flux
+  template < typename CV, typename SV, typename FM >
+  static void flux( const Properties& p,
+                    const CV& coord,
+                    const SV& sol,
+                    FM& flux)
+  {
+    flux(0,XX)   = p.Vx * sol[0];
+    flux(0,YY)   = p.Vy * sol[0];
+  }
+
   /// compute the eigen values of the flux jacobians
   template < typename CV, typename SV, typename GV, typename EV >
   static void jacobian_eigen_values( const Properties& p,

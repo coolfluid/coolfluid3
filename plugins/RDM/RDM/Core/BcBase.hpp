@@ -77,6 +77,30 @@ protected: // helper functions
     wave_speed = cwave_speed->data_ptr();
   }
 
+protected: // typedefs
+
+  typedef typename SF::NodeMatrixT                             NodeMT;
+
+  typedef Eigen::Matrix<Real, QD::nb_points, 1u>               WeightVT;
+
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       ResidualMT;
+
+  typedef Eigen::Matrix<Real, PHYS::neqs, PHYS::neqs >         EigenValueMT;
+
+  typedef Eigen::Matrix<Real, PHYS::neqs, PHYS::neqs>          PhysicsMT;
+  typedef Eigen::Matrix<Real, PHYS::neqs, 1u>                  PhysicsVT;
+
+  typedef Eigen::Matrix<Real, SF::nb_nodes,   PHYS::neqs>      SolutionMT;
+  typedef Eigen::Matrix<Real, 1u, PHYS::neqs >                 SolutionVT;
+
+  typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>     SFMatrixT;
+  typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >               SFVectorT;
+
+  typedef Eigen::Matrix<Real, PHYS::ndim, 1u>                  DimVT;
+
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim>       QCoordMT;
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       QSolutionMT;
+
 protected: // data
 
   /// pointer to connectivity table, may reset when iterating over element types
@@ -89,6 +113,9 @@ protected: // data
   Mesh::CTable<Real>::Ptr residual;
   /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr wave_speed;
+
+  /// physical properties
+  typename PHYS::Properties phys_props;
 
 };
 

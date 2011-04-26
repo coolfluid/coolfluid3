@@ -50,6 +50,8 @@ public: // functions
     Real R;
 
     Real rho;
+    Real rhou;
+    Real rhov;
     Real inv_rho;
     Real rhoE;
     Real u;
@@ -77,16 +79,18 @@ public: // functions
     p.R = 287.058;                 // air
 
     p.rho   = sol[0];
+    p.rhou  = sol[1];
+    p.rhov  = sol[2];
     p.rhoE  = sol[3];
 
     p.inv_rho = 1. / p.rho;
 
-    p.u   = sol[1] * p.inv_rho;
-    p.v   = sol[2] * p.inv_rho;
+    p.u   = p.rhou * p.inv_rho;
+    p.v   = p.rhov * p.inv_rho;
 
     p.uuvv = p.u*p.u + p.v*p.v;
 
-    p.H = p.gamma * p.rhoE / p.rho - 0.5 * p.gamma_minus_1 * p.uuvv;
+    p.H = p.gamma * p.rhoE * p.inv_rho - 0.5 * p.gamma_minus_1 * p.uuvv;
 
     p.a2 = p.gamma_minus_1 * ( p.H - 0.5 * p.uuvv);
 
@@ -98,13 +102,31 @@ public: // functions
 
     p.a = sqrt( p.a2 );
 
-//    p.T = p.a2 / ( p.gamma * p.R );
+    p.T = p.a2 / ( p.gamma * p.R );
 
     p.P = p.rho * p.R * p.T;
     p.E = p.H - p.P * p.inv_rho;
 
     p.half_gm1_v2 = 0.5 * p.gamma_minus_1 * p.uuvv;
 
+  }
+
+  /// compute the physical flux
+  template < typename CV, typename SV, typename FM >
+  static void flux( const Properties& p,
+                    const CV& coord,
+                    const SV& sol,
+                    FM& flux)
+  {
+    flux(0,XX) = p.rhou;              // rho.u
+    flux(1,XX) = p.rhou * p.u + p.P;  // rho.u^2 + P
+    flux(2,XX) = p.rhou * p.v;        // rho.u.v
+    flux(3,XX) = p.rhou * p.H;        // rho.u.H
+
+    flux(0,YY) = p.rhov;              // rho.v
+    flux(1,YY) = p.rhov * p.u;        // rho.v.u
+    flux(2,YY) = p.rhov * p.v + p.P;  // rho.v^2 + P
+    flux(3,YY) = p.rhov * p.H;        // rho.v.H
   }
 
   /// compute the eigen values of the flux jacobians

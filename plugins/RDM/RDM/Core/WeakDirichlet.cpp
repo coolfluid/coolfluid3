@@ -20,7 +20,11 @@
 #include "RDM/Core/WeakDirichlet.hpp"
 #include "RDM/Core/ElementLoop.hpp"
 
-#include "RDM/Core/LinearAdv2D.hpp" // to remove
+#include "RDM/Core/LinearAdv2D.hpp"    // to remove
+#include "RDM/Core/LinearAdvSys2D.hpp" // to remove
+#include "RDM/Core/RotationAdv2D.hpp"  // to remove
+#include "RDM/Core/Burgers2D.hpp"      // to remove
+#include "RDM/Core/Euler2D.hpp"        // to remove
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +39,11 @@ namespace RDM {
 
 Common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibCore > WeakDirichlet_Builder;
 
-Common::ComponentBuilder < FaceLoop< WeakDirichlet, LinearAdv2D> , RDM::ElementLoop, LibCore > WeakDirichlet_LinearAdv2D_Builder;
+Common::ComponentBuilder < FaceLoop< WeakDirichlet, LinearAdv2D>    , RDM::ElementLoop, LibCore > WeakDirichlet_LinearAdv2D_Builder;
+Common::ComponentBuilder < FaceLoop< WeakDirichlet, LinearAdvSys2D> , RDM::ElementLoop, LibCore > WeakDirichlet_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < FaceLoop< WeakDirichlet, RotationAdv2D>  , RDM::ElementLoop, LibCore > WeakDirichlet_RotationAdv2D_Builder;
+Common::ComponentBuilder < FaceLoop< WeakDirichlet, Burgers2D>      , RDM::ElementLoop, LibCore > WeakDirichlet_Burgers2D_Builder;
+Common::ComponentBuilder < FaceLoop< WeakDirichlet, Euler2D>        , RDM::ElementLoop, LibCore > WeakDirichlet_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   

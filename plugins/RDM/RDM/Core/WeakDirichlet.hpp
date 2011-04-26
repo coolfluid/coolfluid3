@@ -120,8 +120,7 @@ public: // functions
 
    vars.resize(DIM_3D);
 
-   /// @note hardocded for scalar
-   return_val.resize(1);
+   return_val.resize(PHYS::neqs );
  }
 
  /// Get the class name
@@ -141,10 +140,12 @@ protected: // data
 
  typedef typename SF::NodeMatrixT                             NodeMT;
 
- typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>     SFMatrixT;
- typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim>       QCoordMT;
- typedef Eigen::Matrix<Real, SF::nb_nodes,  PHYS::neqs>       SolutionMT;
- typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       QSolutionMT;
+ typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes >     SFMatrixT;
+ typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim   >     QCoordMT;
+ typedef Eigen::Matrix<Real, SF::nb_nodes,  PHYS::neqs   >     SolutionMT;
+ typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs   >     QSolutionMT;
+ typedef Eigen::Matrix<Real, PHYS::neqs,    PHYS::ndim   >     FluxMT;
+ typedef Eigen::Matrix<Real, PHYS::ndim,    1u           >     DimVT;
 
  /// derivative matrix - values of shapefunction derivative in Ksi at each quadrature point
  SFMatrixT  dNdKSI;
@@ -160,10 +161,25 @@ protected: // data
  SolutionMT U_n;
  /// solution at quadrature points in physical space
  QSolutionMT U_q;
+ /// derivatives of solution to X at each quadrature point, one matrix per dimension
+ QSolutionMT dUdX[PHYS::ndim];
  /// Integration factor (jacobian multiplied by quadrature weight)
  WeightVT wj;
  /// contribution to nodal residuals
  SolutionMT Phi_n;
+
+ /// flux computed with current solution
+ FluxMT Fu_h;
+ /// flux computed with boundary value
+ FluxMT Fu_g;
+
+ /// diagonal matrix with eigen values
+ typename B::PhysicsVT Dv;
+ /// diagonal matrix with positive eigen values
+ typename B::PhysicsVT DvPlus;
+
+ /// temporary normal on 1 quadrature point
+ DimVT dN;
 
 public: // functions
 
@@ -289,19 +305,27 @@ public: // functions
 
     wj[q] = jacob * m_quadrature.weights[q];
 
-    const Real nx =  -dX_q(q,YY)/jacob;
-    const Real ny =   dX_q(q,XX)/jacob;
+    // compute the normal at quadrature point
+
+    dN[XX] = -dX_q(q,YY)/jacob;
+    dN[YY] =  dX_q(q,XX)/jacob;
 
 //    std::cout << "n (generic) [" << nx << "," << ny << "]" << std::endl;
 
     // compute the flux F(u_h) and its correction F(u_g)
 
-    /// @note fixed for scalar inflow with adv. speed (
-    const Real Fu_h_x = 1.0 * U_q(q,0);
-    const Real Fu_h_y = 1.0 * U_q(q,0);
+    PHYS::compute_properties(X_q.row(q),
+                             U_q.row(q),
+                             dUdX[XX].row(q).transpose(),
+                             dUdX[YY].row(q).transpose(),
+                             B::phys_props);
+
+    PHYS::flux(B::phys_props,
+               X_q.row(q),
+               U_q.row(q),
+               Fu_h);
 
     // std::cout << "Fu_h [" << Fu_h_x << "," << Fu_h_y << "]" << std::endl;
-
 
     vars[XX] = X_q(q,XX);
     vars[YY] = X_q(q,YY);
@@ -309,26 +333,41 @@ public: // functions
 
     this->parent()->as_type<WeakDirichlet>().function.evaluate(vars,return_val);
 
-    const Real Fu_g_x = 1.0 * return_val[0];
-    const Real Fu_g_y = 1.0 * return_val[0];
+    PHYS::flux(B::phys_props,
+               X_q.row(q),
+               return_val,
+               Fu_g);
 
     // std::cout << "Fu_g [" << Fu_g_x << "," << Fu_g_y << "]" << std::endl;
 
     for(Uint n=0; n < SF::nb_nodes; ++n)
-    {
-      Phi_n.row(n)[0] -= ( ( Fu_g_x - Fu_h_x ) * nx + ( Fu_g_y - Fu_h_y ) * ny ) * Ni(q,n) * wj[q];
-    }
+      for(Uint v=0; v < PHYS::neqs; ++v)
+      {
+        Phi_n.row(n)[v] -= ( ( Fu_g(v,XX) - Fu_h(v,XX) ) * dN[XX] +
+                             ( Fu_g(v,YY) - Fu_h(v,YY) ) * dN[YY] )
+                           *   Ni(q,n) * wj[q];
+      }
 
 
     // compute the wave_speed for scaling the update
 
+    PHYS::jacobian_eigen_values(B::phys_props,
+                                X_q.row(q),
+                                U_q.row(q),
+                                dN,
+                                Dv );
+
+    DvPlus = Dv.unaryExpr(std::ptr_fun(plus));
+
     for(Uint n = 0; n < SF::nb_nodes; ++n)
-      (*B::wave_speed)[nodes_idx[n]][0] += 1.0 * wj[q];
+      (*B::wave_speed)[nodes_idx[n]][0] += DvPlus.array().maxCoeff() * wj[q];
 
 
    } //Loop over quadrature points
+
 //    std::cin.get();
-  #endif
+
+#endif
 
 
 //    std::cout << "Phi_n [" << Phi_n << "]" << std::endl;

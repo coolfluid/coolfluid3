@@ -176,7 +176,7 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , euler2d_local_fixture )
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_property("CFL", 0.25);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 250u);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -201,7 +201,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
   std::string name ("INLET");
 
   options.add<std::string>("Name",name);
-  options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
+  options.add<std::string>("Type","CF.RDM.Core.WeakDirichlet");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
