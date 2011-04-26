@@ -76,9 +76,9 @@ BOOST_AUTO_TEST_CASE( registration )
 
   BOOST_CHECK( is_not_null(ptr) );
 
-  Core::root().add_component(ptr);
+  Core::instance().root().add_component(ptr);
 
-  CConcrete1::Ptr ptr2 = Core::root().create_component<CConcrete1>("cconc");
+  CConcrete1::Ptr ptr2 = Core::instance().root().create_component<CConcrete1>("cconc");
 
   BOOST_CHECK( ptr2 );
 
