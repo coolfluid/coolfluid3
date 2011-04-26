@@ -39,6 +39,8 @@
 // header
 #include "UI/ParaViewTab/LibParaViewTab.hpp"
 
+class QAction;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -181,20 +183,28 @@ private: //data
   QPointer<QVBoxLayout> m_layout_option;
   QPointer<QHBoxLayout> m_layout_h;
 
+  /// Tool bar for server options
+
+
   /// Button that show Server Connection dialog
-  QPointer<QPushButton> m_connect_to_server_button;
+  QAction * m_action_connect;
 
-  /// Button that show Server Load File dialog
-  QPointer<QPushButton> m_load_file;
+  QAction * m_action_disconnect;
 
-  /// Button that reset center of rotation
-  QPointer<QPushButton> m_set_rotation_center;
+  QAction * m_action_load_file;
+//  QPointer<QToolButton> m_connect_to_server_button;
 
-  /// Button take screen shot
-  QPointer<QPushButton> m_screen_shot;
+//  /// Button that show Server Load File dialog
+//  QPointer<QPushButton> m_load_file;
 
-  /// Button reset rotation.
-  QPointer<QPushButton> m_reset_camera;
+//  /// Button that reset center of rotation
+//  QPointer<QPushButton> m_set_rotation_center;
+
+//  /// Button take screen shot
+//  QPointer<QPushButton> m_screen_shot;
+
+//  /// Button reset rotation.
+//  QPointer<QPushButton> m_reset_camera;
 
   /// Button that show color selector.
   QPointer<QPushButton> m_show_color_palette;
@@ -248,10 +258,10 @@ private: //data
   QString m_file_name;
 
   /// Server group box options.
-  QPointer<QGroupBox> m_server_options;
+//  QPointer<QGroupBox> m_server_options;
 
   /// Camera group box options.
-  QPointer<QGroupBox> m_camera_options;
+//  QPointer<QGroupBox> m_camera_options;
 
   /// Mesh group box options.
   QPointer<QGroupBox> m_mesh_options;
@@ -299,7 +309,8 @@ private: //data
   QPointer<QPushButton> m_serv_adv_opt_button;
 
   /// Force Rendering button.
-  QPointer<QPushButton> m_force_rendering;
+  QAction * m_action_force_rendering;
+  //QPointer<QPushButton> m_force_rendering;
 
   /// Auto Render checkbox
   QPointer<QCheckBox> m_checkbox_enable_rendering;

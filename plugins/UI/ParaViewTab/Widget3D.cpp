@@ -6,6 +6,7 @@
 
 // Qt headers
 //#include <QHBoxLayout>
+#include <QAction>
 #include <QLabel>
 #include <QDialog>
 #include <QIntValidator>
@@ -13,6 +14,8 @@
 #include <QColorDialog>
 #include <QDebug>
 #include <QScrollArea>
+#include <QToolBar>
+#include <QToolButton>
 
 // ParaView header
 #include "pqDataRepresentation.h"
@@ -66,12 +69,14 @@ namespace ParaViewTab {
   Widget3D::Widget3D(QWidget *parent) :
           QWidget(parent)
   {
+    QToolBar * tool_bar = new QToolBar(this);
+    tool_bar->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+
     /** Creation Phase **/
 
       // automatically make a server connection
       m_core = pqApplicationCore::instance();
       m_core->disableOutputWindow();
-
 
 /*
       pqSettings* settings = m_core->settings();
@@ -131,20 +136,40 @@ namespace ParaViewTab {
 //      m_layout_v->addWidget(opt);
 
 
+
+
       /// Options
       //Server Options
-        m_connect_to_server_button = new QPushButton(QIcon(":/paraview_icons/pqConnect24.png"),"Connect",this);
+      m_action_connect = tool_bar->addAction(QIcon(":/paraview_icons/pqConnect24.png"),
+                                             "Connect", this, SLOT(showConnectDialog()));
+      m_action_disconnect = tool_bar->addAction(QIcon(":/paraview_icons/pqDisconnect24.png"),
+                                                "Disconnect", this, SLOT(disconnectFromServer()));
 
-        m_load_file = new QPushButton(QIcon(":/paraview_icons/pqOpen24.png"),"Load File",this);
-        m_load_file->setVisible(false);
+      m_action_load_file = tool_bar->addAction(QIcon(":/paraview_icons/pqOpen24.png"),
+                                               "Load File", this, SLOT(showLoadFileDialog()));
+      m_action_disconnect->setEnabled( false );
+      m_action_load_file->setEnabled( false );
+
+//      m_connect_to_server_button = new QToolButton(tool_bar);
+//      m_connect_to_server_button->setIcon(QIcon(":/paraview_icons/pqConnect24.png"));
+//      m_connect_to_server_button->setText("Connect");
+
+
+//      m_load_file = new QPushButton(QIcon(":/paraview_icons/pqOpen24.png"),"Load File",this);
+//      m_load_file->setVisible(false);
 
 
       //View Options
-        m_set_rotation_center = new QPushButton(QIcon(":/paraview_icons/pqResetCenter24.png"),"Fix Center Rotation",this);
+      tool_bar->addAction(QIcon(":/paraview_icons/pqResetCenter24.png"), "Fix Center Rotation", this, SLOT(set_rotation_center()));
+      tool_bar->addAction(QIcon(":/paraview_icons/pqCaptureScreenshot24.png"), "Screen Shot", this, SLOT(take_screen_shot()));
+      tool_bar->addAction(QIcon(":/paraview_icons/pqResetCamera24.png"), "Reset Camera", this, SLOT(reset_camera()));
 
-        m_screen_shot = new QPushButton(QIcon(":/paraview_icons/pqCaptureScreenshot24.png"),"Screen Shot",this);
 
-        m_reset_camera = new QPushButton(QIcon(":/paraview_icons/pqResetCamera24.png"),"Reset Camera",this);
+//      m_set_rotation_center = new QPushButton(QIcon(":/paraview_icons/pqResetCenter24.png"),"Fix Center Rotation",this);
+
+//        m_screen_shot = new QPushButton(QIcon(":/paraview_icons/pqCaptureScreenshot24.png"),"Screen Shot",this);
+
+//        m_reset_camera = new QPushButton(QIcon(":/paraview_icons/pqResetCamera24.png"),"Reset Camera",this);
 
         //Combo box of predefined camera orientation
         m_preDefined_rotation = new QComboBox(this);
@@ -155,6 +180,8 @@ namespace ParaViewTab {
         m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqYMinus16.png"),"-Y",4);
         m_preDefined_rotation->addItem(QIcon(":/paraview_icons/pqZMinus16.png"),"-Z",5);
         m_preDefined_rotation->setEditable(false);
+
+        tool_bar->addWidget(m_preDefined_rotation);
 
         m_show_axes_button = new QPushButton("Hide Axes");        // show axes button
 
@@ -188,8 +215,12 @@ namespace ParaViewTab {
         m_actor_list = new QListWidget(this);
 
       //Create "force render" button and "Auto Render" checkbox
-        m_force_rendering = new QPushButton("Render");
+//        m_force_rendering = new QPushButton("Render");
         m_checkbox_enable_rendering = new QCheckBox("Auto Render");
+
+        m_action_force_rendering = tool_bar->addAction(QIcon(), "Render", this, SLOT(forceRendering()));
+        tool_bar->addWidget(m_checkbox_enable_rendering);
+
 
       /// Progress Bar
       // The progress bar (not used for now)
@@ -209,14 +240,14 @@ namespace ParaViewTab {
         }
 
       //Group Box creation
-        m_server_options = new QGroupBox("Server Options",this);
-        m_server_options->setMaximumWidth(200);
-        m_camera_options = new QGroupBox("Camera Options",this);
-        m_camera_options->setMaximumWidth(200);
+//        m_server_options = new QGroupBox("Server Options",this);
+//        m_server_options->setMaximumWidth(200);
+//        m_camera_options = new QGroupBox("Camera Options",this);
+//        m_camera_options->setMaximumWidth(200);
         m_mesh_options = new QGroupBox("Mesh Options",this);
         m_mesh_options->setVisible(false);
         m_regions_box = new QGroupBox("Regions",this);
-        m_regions_box->setMaximumWidth(200);
+//        m_regions_box->setMaximumWidth(200);
         m_regions_box->setVisible(false);
 
       // representation initialisation
@@ -224,21 +255,21 @@ namespace ParaViewTab {
 
       /** Disposition Phase **/
       //Set GroupBox layout
-        m_server_options->setLayout(m_layout_server_options);
-        m_camera_options->setLayout(m_layout_camera_options);
+//        m_server_options->setLayout(m_layout_server_options);
+//        m_camera_options->setLayout(m_layout_camera_options);
         m_mesh_options->setLayout(m_layout_mesh_options);
         m_regions_box->setLayout(m_layout_regions_box);
 
       //Set GroupBox size
-        m_server_options->setMaximumHeight(100);
-        m_camera_options->setMaximumHeight(220);
-        m_mesh_options->setMaximumHeight(80);
-        m_regions_box->setMaximumHeight(100);
+//        m_server_options->setMaximumHeight(100);
+//        m_camera_options->setMaximumHeight(220);
+//        m_mesh_options->setMaximumHeight(80);
+//        m_regions_box->setMaximumHeight(100);
 
       //Add widget to layouts
       //Server layouts
-      m_layout_server_options->addWidget(this->m_connect_to_server_button);
-      m_layout_server_options->addWidget(this->m_load_file);
+//      m_layout_server_options->addWidget(this->m_connect_to_server_button);
+//      m_layout_server_options->addWidget(this->m_load_file);
 
       //Mesh layouts
       m_layout_mesh_options->addWidget(this->m_mesh_style);
@@ -248,19 +279,19 @@ namespace ParaViewTab {
       m_layout_mesh_options->addWidget(this->m_spin_opacity);
 
       //Camera layouts
-      m_layout_camera_options->addWidget(this->m_set_rotation_center);
-      m_layout_camera_options->addWidget(this->m_reset_camera);
-      m_layout_camera_options->addWidget(this->m_screen_shot);
-      m_layout_camera_options->addWidget(this->m_preDefined_rotation);
-      m_layout_camera_options->addWidget(this->m_show_axes_button);
-      m_layout_camera_options->addWidget(this->m_show_camera_settings_button);
+//      m_layout_camera_options->addWidget(this->m_set_rotation_center);
+//      m_layout_camera_options->addWidget(this->m_reset_camera);
+//      m_layout_camera_options->addWidget(this->m_screen_shot);
+//      m_layout_camera_options->addWidget(this->m_preDefined_rotation);
+//      m_layout_camera_options->addWidget(this->m_show_axes_button);
+//      m_layout_camera_options->addWidget(this->m_show_camera_settings_button);
 
       //Option layouts
-      m_layout_option->addWidget(this->m_server_options);
-      m_layout_option->addWidget(this->m_camera_options);
+//      m_layout_option->addWidget(this->m_server_options);
+//      m_layout_option->addWidget(this->m_camera_options);
       m_layout_option->addWidget(this->m_regions_box);
-      m_layout_option->addWidget(this->m_checkbox_enable_rendering);
-      m_layout_option->addWidget(this->m_force_rendering);
+//      m_layout_option->addWidget(this->m_checkbox_enable_rendering);
+//      m_layout_option->addWidget(this->m_force_rendering);
       //m_layout_option->addWidget(this->m_disp_adv_opt_button);
       //m_layout_option->addWidget(this->m_gen_adv_opt_button);
       //m_layout_option->addWidget(this->m_serv_adv_opt_button);
@@ -268,33 +299,40 @@ namespace ParaViewTab {
       //Horizotal layouts
       m_layout_h->addLayout(this->m_layout_option);
 
+      m_layout_h->setStretchFactor(m_layout_option, 0);
+
       //Main layouts
+      m_layout_v->addWidget(tool_bar);
       m_layout_v->addLayout(m_layout_h);
       m_layout_v->addWidget(this->m_mesh_options);
       //m_layout_v->addWidget(status_bar);
+
+      m_layout_v->setStretchFactor(tool_bar, 0);
+      m_layout_v->setStretchFactor(m_layout_h, 10);
+      m_layout_v->setStretchFactor(m_mesh_options, 0);
 
       //Actor layouts
       m_layout_regions_box->addWidget(this->m_actor_list);
 
       /** Connection Phase **/
-      connect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
-      connect(m_load_file,SIGNAL(released()),this,SLOT(showLoadFileDialog()));
-      connect(m_set_rotation_center,SIGNAL(released()),this,SLOT(set_rotation_center()));
-      connect(m_preDefined_rotation,SIGNAL(activated(int)),this,SLOT(set_rotation(int)));
-      connect(m_screen_shot,SIGNAL(released()),this,SLOT(take_screen_shot()));
-      connect(m_reset_camera,SIGNAL(released()),this,SLOT(reset_camera()));
-      connect(m_show_color_palette,SIGNAL(released()),this,SLOT(show_color_editor()));
-      connect(m_actor_list,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(show_hide_actor(QListWidgetItem*)));
-      connect(m_actor_list,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(actor_changed(QListWidgetItem*)));
-      connect(m_mesh_solid_color_set,SIGNAL(released()),this,SLOT(set_solid_color()));
-      connect(m_dataSet_selector,SIGNAL(variableChanged(pqVariableType, const QString)),this,SLOT(enable_solide_color_button(pqVariableType, const QString)));
-      connect(m_show_axes_button,SIGNAL(released()),this,SLOT(setCenterAxesVisibility()));
-      connect(m_show_camera_settings_button,SIGNAL(released()),this,SLOT(show_camera_settings()));
-      connect(m_disp_adv_opt_button,SIGNAL(released()),this,SLOT(show_disp_adv_settings()));
-      connect(m_gen_adv_opt_button,SIGNAL(released()),this,SLOT(show_gen_adv_settings()));
-      connect(m_serv_adv_opt_button,SIGNAL(released()),this,SLOT(show_serv_adv_settings()));
+//      connect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
+//      connect(m_load_file,SIGNAL(released()),this,SLOT(showLoadFileDialog()));
+//      connect(m_set_rotation_center,SIGNAL(released()),this,SLOT(set_rotation_center()));
+//      connect(m_preDefined_rotation,SIGNAL(activated(int)),this,SLOT(set_rotation(int)));
+//      connect(m_screen_shot,SIGNAL(released()),this,SLOT(take_screen_shot()));
+//      connect(m_reset_camera,SIGNAL(released()),this,SLOT(reset_camera()));
+//      connect(m_show_color_palette,SIGNAL(released()),this,SLOT(show_color_editor()));
+//      connect(m_actor_list,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(show_hide_actor(QListWidgetItem*)));
+//      connect(m_actor_list,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(actor_changed(QListWidgetItem*)));
+//      connect(m_mesh_solid_color_set,SIGNAL(released()),this,SLOT(set_solid_color()));
+//      connect(m_dataSet_selector,SIGNAL(variableChanged(pqVariableType, const QString)),this,SLOT(enable_solide_color_button(pqVariableType, const QString)));
+//      connect(m_show_axes_button,SIGNAL(released()),this,SLOT(setCenterAxesVisibility()));
+//      connect(m_show_camera_settings_button,SIGNAL(released()),this,SLOT(show_camera_settings()));
+//      connect(m_disp_adv_opt_button,SIGNAL(released()),this,SLOT(show_disp_adv_settings()));
+//      connect(m_gen_adv_opt_button,SIGNAL(released()),this,SLOT(show_gen_adv_settings()));
+//      connect(m_serv_adv_opt_button,SIGNAL(released()),this,SLOT(show_serv_adv_settings()));
       connect(m_checkbox_enable_rendering,SIGNAL(toggled(bool)),this,SLOT(enableRendering(bool)));
-      connect(m_force_rendering,SIGNAL(released()),this,SLOT(forceRendering()));
+//      connect(m_force_rendering,SIGNAL(released()),this,SLOT(forceRendering()));
 
     }
 
@@ -319,13 +357,15 @@ namespace ParaViewTab {
         NLog::globalLog()->addMessage("Connected to paraview server");
 
         //show the "load file" button
-        m_load_file->setVisible(true);
+        m_action_load_file->setEnabled(true);
 
         //change connect button to disconnect button
-        this->m_connect_to_server_button->setText("Disconnect");
-        this->m_connect_to_server_button->setIcon(QIcon(":/paraview_icons/pqDisconnect24.png"));
-        disconnect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
-        connect(m_connect_to_server_button,SIGNAL(clicked()),this,SLOT(disconnectFromServer()));
+        m_action_connect->setEnabled(false);
+        m_action_disconnect->setEnabled(true);
+//        m_action_connect-> this->m_connect_to_server_button->setText("Disconnect");
+//        this->m_connect_to_server_button->setIcon(QIcon(":/paraview_icons/pqDisconnect24.png"));
+//        disconnect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
+//        connect(m_connect_to_server_button,SIGNAL(clicked()),this,SLOT(disconnectFromServer()));
 
         //create server view
         createView();
@@ -390,8 +430,9 @@ namespace ParaViewTab {
       if(m_RenderView){
         //put the view in the 0 index so it is the first widget of the layout (avoid bugs)
         m_layout_h->insertWidget(0,this->m_RenderView->getWidget());
+        m_layout_h->setStretchFactor(this->m_RenderView->getWidget(), 10);
         //Set a maximum size
-        this->m_RenderView->getWidget()->setMaximumHeight(400);
+//        this->m_RenderView->getWidget()->setMaximumHeight(400);
       }else{
         NLog::globalLog()->addError("Problem when creating a RenderView.");
       }
@@ -431,16 +472,19 @@ namespace ParaViewTab {
       m_regions_box->setVisible(false);
 
       //change disconnect button to connect button
-      this->m_connect_to_server_button->setText("Connect");
-      this->m_connect_to_server_button->setIcon(QIcon(":/paraview_icons/pqConnect24.png"));
-      disconnect(m_connect_to_server_button,SIGNAL(clicked()),this,SLOT(disconnectFromServer()));
-      connect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
+      m_action_connect->setEnabled(true);
+      m_action_disconnect->setEnabled(false);
+
+//      this->m_connect_to_server_button->setText("Connect");
+//      this->m_connect_to_server_button->setIcon(QIcon(":/paraview_icons/pqConnect24.png"));
+//      disconnect(m_connect_to_server_button,SIGNAL(clicked()),this,SLOT(disconnectFromServer()));
+//      connect(m_connect_to_server_button,SIGNAL(released()),this,SLOT(showConnectDialog()));
 
       //show user info
       NLog::globalLog()->addMessage("Disconnected from paraview server");
 
       //disconnected, cannot load or reload file while not connected
-      m_load_file->setVisible(false);
+      m_action_load_file->setEnabled(false);
 
   }
 
@@ -942,7 +986,8 @@ namespace ParaViewTab {
   void Widget3D::enableRendering(bool enable){
 
     //disable auto rendering
-    m_force_rendering->setEnabled(!enable);
+    m_action_force_rendering->setEnabled(!enable);
+//    m_force_rendering->setEnabled(!enable);
 
     //get pqApplicationCore settings
     pqSettings* settings = pqApplicationCore::instance()->settings();
