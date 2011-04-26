@@ -46,7 +46,7 @@ BodePlot::BodePlot(QWidget *parent):
 
   setAxisMaxMajor(QwtPlot::xBottom, 6); //?
   setAxisMaxMinor(QwtPlot::xBottom, 10); //?
-  setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine); //echelle lineaire ou log
+  setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine); // linear or log scale
 
   // curves
   /*
@@ -141,9 +141,9 @@ void BodePlot::draw_graph()
   setAxisMaxMajor(QwtPlot::xBottom, 6); //?
   setAxisMaxMinor(QwtPlot::xBottom, 10); //?
   if(m_logaritmic_scale){
-    setAxisScaleEngine(QwtPlot::xBottom,  new QwtLog10ScaleEngine); //echelle lineaire ou log
+    setAxisScaleEngine(QwtPlot::xBottom,  new QwtLog10ScaleEngine); // linear or log scale
   }else{
-    setAxisScaleEngine(QwtPlot::xBottom,  new QwtLinearScaleEngine); //echelle lineaire ou log
+    setAxisScaleEngine(QwtPlot::xBottom,  new QwtLinearScaleEngine); // linear or log scale
   }
 
 
@@ -298,9 +298,9 @@ void BodePlot::set_grid_color(QColor color){
 void BodePlot::logaritmic_scale_on_graph(bool logaritmic){
   m_logaritmic_scale = logaritmic;
   if(m_logaritmic_scale){
-    setAxisScaleEngine(QwtPlot::xBottom,  new QwtLog10ScaleEngine); //echelle lineaire ou log
+    setAxisScaleEngine(QwtPlot::xBottom,  new QwtLog10ScaleEngine); // linear or log scale
   }else{
-    setAxisScaleEngine(QwtPlot::xBottom,  new QwtLinearScaleEngine); //echelle lineaire ou log
+    setAxisScaleEngine(QwtPlot::xBottom,  new QwtLinearScaleEngine); // linear or log scale
   }
   replot();
 }
