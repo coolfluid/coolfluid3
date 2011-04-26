@@ -107,13 +107,13 @@ public: // functions
      {
        // std::cout << FromHere().str() << " " << q << " " << n << std::endl << std::flush;
 
-//         SF::mapped_gradient( m_quadrature.coords.col(q), GradSF  );
+        SF::mapped_gradient( m_quadrature.coords.col(q), GradSF  );
         SF::shape_function ( m_quadrature.coords.col(q), ValueSF );
 
-        Ni(q,n) = ValueSF[n];
+        Ni(q,n)     = ValueSF[n];
+        dNdKSI(q,n) = GradSF[n];
 
 //        for(Uint d = 0; d < PHYS::ndim; ++d)
-//          dNdKSI[d](q,n) = GradSF(d,n);
      }
 
    // std::cout << FromHere().str() << std::endl << std::flush;
@@ -147,13 +147,15 @@ protected: // data
  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       QSolutionMT;
 
  /// derivative matrix - values of shapefunction derivative in Ksi at each quadrature point
- SFMatrixT  dNdKSI[PHYS::ndim];
+ SFMatrixT  dNdKSI;
  /// interporlation matrix - values of shapefunction at each quadrature point
  SFMatrixT  Ni;
  /// node values
  NodeMT     X_n;
  /// coordinates of quadrature points in physical space
  QCoordMT   X_q;
+ /// derivatives of coordinate transformation physical->reference space
+ QCoordMT  dX_q;
  /// Values of the solution located in the dof of the element
  SolutionMT U_n;
  /// solution at quadrature points in physical space
@@ -198,6 +200,10 @@ public: // functions
 
    X_q  = Ni * X_n;
 
+   // derivatives of coordinate transf.
+
+   dX_q = dNdKSI * X_n;
+
    // solution at all quadrature points in physical space
 
    U_q = Ni * U_n;
@@ -206,6 +212,7 @@ public: // functions
 
    Phi_n.setZero();
 
+   #ifdef P1SPECIFIC
    // ------------------------------------------------------
    /// @note lagrange P1 line specifc
 
@@ -226,7 +233,7 @@ public: // functions
    const Real nx = -y1y0 / lenght;
    const Real ny =  x1x0 / lenght;
 
-   // std::cout << "n [" << nx << "," << ny << "]" << std::endl;
+//    std::cout << "n [" << nx << "," << ny << "]" << std::endl;
 
 
    for(Uint q=0; q < QD::nb_points; ++q)
@@ -256,14 +263,75 @@ public: // functions
        Phi_n.row(n)[0] -= ( ( Fu_g_x - Fu_h_x ) * nx + ( Fu_g_y - Fu_h_y ) * ny ) * Ni(q,n) * wj[q];
      }
 
+
      // compute the wave_speed for scaling the update
 
      for(Uint n = 0; n < SF::nb_nodes; ++n)
        (*B::wave_speed)[nodes_idx[n]][0] += 1.0 * wj[q];
 
    }
+   #endif
 
-   // std::cout << "Phi_n [" << Phi_n << "]" << std::endl;
+
+   #define GENERIC
+   #ifdef GENERIC
+   // ------------------------------------------------------
+   /// @note Generic version
+
+   for(Uint q=0; q < QD::nb_points; ++q)
+   {
+//    std::cout << "Gradient of face shape functions: " << std::endl;
+//    std::cout << dNdKSI << std::endl;
+//    std::cout << "nr. of rows = " << dNdKSI.rows() << std::endl;
+//    std::cout << "nr. of cols = " << dNdKSI.cols() << std::endl;
+
+    const Real jacob = std::sqrt( dX_q(q,XX)*dX_q(q,XX)+dX_q(q,YY)*dX_q(q,YY) );
+
+    wj[q] = jacob * m_quadrature.weights[q];
+
+    const Real nx =  -dX_q(q,YY)/jacob;
+    const Real ny =   dX_q(q,XX)/jacob;
+
+//    std::cout << "n (generic) [" << nx << "," << ny << "]" << std::endl;
+
+    // compute the flux F(u_h) and its correction F(u_g)
+
+    /// @note fixed for scalar inflow with adv. speed (
+    const Real Fu_h_x = 1.0 * U_q(q,0);
+    const Real Fu_h_y = 1.0 * U_q(q,0);
+
+    // std::cout << "Fu_h [" << Fu_h_x << "," << Fu_h_y << "]" << std::endl;
+
+
+    vars[XX] = X_q(q,XX);
+    vars[YY] = X_q(q,YY);
+    vars[ZZ] = 0.0;
+
+    this->parent()->as_type<WeakDirichlet>().function.evaluate(vars,return_val);
+
+    const Real Fu_g_x = 1.0 * return_val[0];
+    const Real Fu_g_y = 1.0 * return_val[0];
+
+    // std::cout << "Fu_g [" << Fu_g_x << "," << Fu_g_y << "]" << std::endl;
+
+    for(Uint n=0; n < SF::nb_nodes; ++n)
+    {
+      Phi_n.row(n)[0] -= ( ( Fu_g_x - Fu_h_x ) * nx + ( Fu_g_y - Fu_h_y ) * ny ) * Ni(q,n) * wj[q];
+    }
+
+
+    // compute the wave_speed for scaling the update
+
+    for(Uint n = 0; n < SF::nb_nodes; ++n)
+      (*B::wave_speed)[nodes_idx[n]][0] += 1.0 * wj[q];
+
+
+   } //Loop over quadrature points
+//    std::cin.get();
+  #endif
+
+
+//    std::cout << "Phi_n [" << Phi_n << "]" << std::endl;
 
 
    // ------------------------------------------------------
