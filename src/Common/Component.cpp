@@ -1039,9 +1039,9 @@ void Component::signature_create_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add("name", std::string() , "Name for created component.");
-  options.add("type", std::string("CF."), "Concrete type of the component.");
-  options.add("basic_mode", false, "Component will be visible in basic mode.");
+  options.add("name", std::string("untitled") , "Name for created component.");
+  options.add("type", std::string("CF.Common.CGroup"), "Concrete type of the component.");
+  options.add("basic_mode", true, "Component will be visible in basic mode.");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

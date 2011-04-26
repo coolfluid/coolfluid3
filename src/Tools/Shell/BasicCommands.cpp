@@ -151,7 +151,6 @@ void BasicCommands::ls(const std::vector<std::string>& params)
   hidden_signals.insert("save_tree");
   hidden_signals.insert("list_content");
   hidden_signals.insert("create_component");
-  hidden_signals.insert("create_component");
   hidden_signals.insert("signal_signature");
   if (params.size() == 0)
   {
