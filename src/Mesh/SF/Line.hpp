@@ -41,7 +41,7 @@ public:
     m_nb_nodes = SF::nb_nodes;
     m_dimensionality = SF::dimensionality;
     m_order = SF::order;
-    cf_assert(SF::shape == shape);
+    BOOST_STATIC_ASSERT(SF::shape == shape);
   }
 
   /// @return m_geoShape
