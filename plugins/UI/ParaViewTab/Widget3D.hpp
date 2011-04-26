@@ -186,25 +186,14 @@ private: //data
   /// Tool bar for server options
 
 
-  /// Button that show Server Connection dialog
+  /// Action to connect to the server
   QAction * m_action_connect;
 
+  /// Action to disconnect from the server
   QAction * m_action_disconnect;
 
+  /// Action to load a file
   QAction * m_action_load_file;
-//  QPointer<QToolButton> m_connect_to_server_button;
-
-//  /// Button that show Server Load File dialog
-//  QPointer<QPushButton> m_load_file;
-
-//  /// Button that reset center of rotation
-//  QPointer<QPushButton> m_set_rotation_center;
-
-//  /// Button take screen shot
-//  QPointer<QPushButton> m_screen_shot;
-
-//  /// Button reset rotation.
-//  QPointer<QPushButton> m_reset_camera;
 
   /// Button that show color selector.
   QPointer<QPushButton> m_show_color_palette;
@@ -257,12 +246,6 @@ private: //data
   /// Name of loaded file.
   QString m_file_name;
 
-  /// Server group box options.
-//  QPointer<QGroupBox> m_server_options;
-
-  /// Camera group box options.
-//  QPointer<QGroupBox> m_camera_options;
-
   /// Mesh group box options.
   QPointer<QGroupBox> m_mesh_options;
 
@@ -310,7 +293,6 @@ private: //data
 
   /// Force Rendering button.
   QAction * m_action_force_rendering;
-  //QPointer<QPushButton> m_force_rendering;
 
   /// Auto Render checkbox
   QPointer<QCheckBox> m_checkbox_enable_rendering;
