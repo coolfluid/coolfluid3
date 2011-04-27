@@ -12,7 +12,7 @@
 #include <QIntValidator>
 #include <QFileDialog>
 #include <QColorDialog>
-#include <QDebug>
+//#include <QDebug>
 #include <QScrollArea>
 #include <QToolBar>
 #include <QToolButton>
@@ -772,7 +772,6 @@ void Widget3D::actor_changed(QListWidgetItem * item){
       this->m_dataSet_selector->setEnabled(false);
       this->m_mesh_style->setRepresentation(0);
       this->m_mesh_style->setEnabled(false);
-      qDebug() << m_dataSet_selector->getCurrentText();
       m_disp_adv_opt_button->setEnabled(false);
       m_show_color_palette->setEnabled(false);
       m_mesh_solid_color_set->setEnabled(false);
@@ -791,7 +790,7 @@ void Widget3D::set_solid_color(){
          ->getRepresentation(m_RenderView));
     if (!repr)
     {
-      qCritical() << "No active representation.";
+//      qCritical() << "No active representation.";
       return;
     }
 
