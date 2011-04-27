@@ -164,6 +164,10 @@ private slots: //slots
   /// @param enable Auto Render state.
   void enableRendering(bool enable);
 
+  /// Set the Acor list selection mode.
+  /// @param mode The chosen mode.
+  void setActorListSelectionMode(int mode);
+
 private: //data
 
   /// Initialising Application Core that manage all vtk and paraview Objects.
@@ -195,17 +199,23 @@ private: //data
   /// Action to load a file
   QAction * m_action_load_file;
 
+  /// Force Rendering button.
+  QAction * m_action_force_rendering;
+
   /// Button that show color selector.
   QPointer<QPushButton> m_show_color_palette;
 
-  /// Button reload file.
-  QPointer<QPushButton> m_reload;
+//  /// Button reload file.
+//  QPointer<QPushButton> m_reload;
 
   /// ComboBox of dataRepresentation style
   QPointer<pqDisplayRepresentationWidget> m_mesh_style;
 
   /// Combobox of predefined rotation set
   QPointer<QComboBox> m_preDefined_rotation;
+
+  /// Combobox of region selection type
+  QPointer<QComboBox> m_list_selection;
 
   /// Source Pipeline is a flow from the source readed to show actor.
   QPointer<pqPipelineSource> m_source;
@@ -216,8 +226,8 @@ private: //data
   /// render window input Pipeline.
   QList<QPointer<pqPipelineSource> > m_source_list;
 
-  /// render window input Pipeline.
-  std::vector<QString> m_path_list;
+//  /// render window input Pipeline.
+//  std::vector<QString> m_path_list;
 
   /// View where the render is shown.
   QPointer<pqRenderView> m_RenderView;
@@ -228,11 +238,11 @@ private: //data
   /// Server Host LineEdit.
   QPointer<QLineEdit> m_host_line;
 
-  /// Server File Path LineEdit.
-  QPointer<QLineEdit> m_Path_File_line;
+//  /// Server File Path LineEdit.
+//  QPointer<QLineEdit> m_Path_File_line;
 
-  /// Server File Name LineEdit.
-  QPointer<QLineEdit> m_Name_line;
+//  /// Server File Name LineEdit.
+//  QPointer<QLineEdit> m_Name_line;
 
   /// Data set selector.
   QPointer<pqDisplayColorWidget> m_dataSet_selector;
@@ -240,25 +250,25 @@ private: //data
   /// Color scale selector.
   QPointer<pqColorScaleEditor> m_scaleEdit;
 
-  /// Path of loaded file.
-  QString m_file_path;
+//  /// Path of loaded file.
+//  QString m_file_path;
 
-  /// Name of loaded file.
-  QString m_file_name;
+//  /// Name of loaded file.
+//  QString m_file_name;
 
-  /// Mesh group box options.
+//  /// Mesh group box options.
   QPointer<QGroupBox> m_mesh_options;
 
   /// Mesh group box options.
   QPointer<QGroupBox> m_regions_box;
 
-  /// Server group box options layout.
-  QPointer<QVBoxLayout> m_layout_server_options;
+//  /// Server group box options layout.
+//  QPointer<QVBoxLayout> m_layout_server_options;
 
-  /// Camera group box options layout.
-  QPointer<QVBoxLayout> m_layout_camera_options;
+//  /// Camera group box options layout.
+//  QPointer<QVBoxLayout> m_layout_camera_options;
 
-  /// Mesh group box options layout.
+//  /// Mesh group box options layout.
   QPointer<QHBoxLayout> m_layout_mesh_options;
 
   /// Regions group box layout.
@@ -276,23 +286,20 @@ private: //data
   /// Current Region/Actor opacity spin box.
   QPointer<QDoubleSpinBox> m_spin_opacity;
 
-  /// Show center axes button.
-  QPointer<QPushButton> m_show_axes_button;
+//  /// Show center axes button.
+//  QPointer<QPushButton> m_show_axes_button;
 
-  /// Show camera dialog button.
-  QPointer<QPushButton> m_show_camera_settings_button;
+//  /// Show camera dialog button.
+//  QPointer<QPushButton> m_show_camera_settings_button;
 
-  /// Display Advanced Option.
+  /// Display Advanced Option. (do not remove!)
   QPointer<QPushButton> m_disp_adv_opt_button;
 
-  /// General Advanced Option.
+  /// General Advanced Option. (do not remove!)
   QPointer<QPushButton> m_gen_adv_opt_button;
 
-  /// Server Advanced Option.
+  /// Server Advanced Option. (do not remove!)
   QPointer<QPushButton> m_serv_adv_opt_button;
-
-  /// Force Rendering button.
-  QAction * m_action_force_rendering;
 
   /// Auto Render checkbox
   QPointer<QCheckBox> m_checkbox_enable_rendering;
