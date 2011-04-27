@@ -20,6 +20,8 @@ namespace ParaView {
 
 //////////////////////////////////////////////////////////////////////////////
 
+  /// @brief C3DView class.
+  /// @author Wertz Gil
   class ParaView_API C3DView :
       public QObject,
       public Common::Component
