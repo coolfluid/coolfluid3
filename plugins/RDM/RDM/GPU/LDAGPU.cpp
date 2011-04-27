@@ -17,13 +17,13 @@
 
 #include "Solver/CPhysicalModel.hpp"
 
-#include "RDM/LDAGPU.hpp"
-#include "RDM/SupportedTypes.hpp"    // supported elements
-#include "RDM/LinearAdv2D.hpp"       // supported physics
-#include "RDM/RotationAdv2D.hpp"     // supported physics
-#include "RDM/Burgers2D.hpp"         // supported physics
+#include "RDM/Core/SupportedTypes.hpp"    // supported elements
+#include "RDM/Core/LinearAdv2D.hpp"       // supported physics
+#include "RDM/Core/RotationAdv2D.hpp"     // supported physics
+#include "RDM/Core/Burgers2D.hpp"         // supported physics
 
-#include "RDM/SchemeLDAGPU.hpp"
+#include "RDM/GPU/LDAGPU.hpp"
+#include "RDM/GPU/SchemeLDAGPU.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -34,7 +34,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LDAGPU, RDM::DomainTerm, LibRDM > LDAGPU_Builder;
+Common::ComponentBuilder < LDAGPU, RDM::DomainTerm, LibGPU > LDAGPU_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -93,7 +93,7 @@ LDAGPU::~LDAGPU() {}
 void LDAGPU::execute()
 {
   /// @todo physical model should be a configuration option of the solver
-  CPhysicalModel::Ptr pm = find_component_ptr_recursively<CPhysicalModel>( *Core::instance().root() );
+  CPhysicalModel::Ptr pm = find_component_ptr_recursively<CPhysicalModel>( Core::instance().root() );
   if( is_null(pm) )
     throw ValueNotFound(FromHere(), "could not found any physical model to use");
 
@@ -105,19 +105,19 @@ void LDAGPU::execute()
     {
 
       LDAGPU::ElementLoop<LinearAdv2D> loop( *this, *region );
-      boost::mpl::for_each< RDM::CellTypes >( loop );
+      boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
 
     if ( physics == "RotationAdv2D" )
     {
       LDAGPU::ElementLoop<RotationAdv2D> loop( *this, *region );
-      boost::mpl::for_each< RDM::CellTypes >( loop );
+      boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
 
     if ( physics == "Burgers2D" )
     {
       LDAGPU::ElementLoop<Burgers2D> loop( *this, *region );
-      boost::mpl::for_each< RDM::CellTypes >( loop );
+      boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
   }
 }

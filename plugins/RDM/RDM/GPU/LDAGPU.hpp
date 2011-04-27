@@ -7,7 +7,8 @@
 #ifndef CF_RDM_LDAGPU_hpp
 #define CF_RDM_LDAGPU_hpp
 
-#include "RDM/DomainTerm.hpp"
+#include "RDM/Core/DomainTerm.hpp"
+#include "RDM/GPU/LibGPU.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +17,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API LDAGPU : public RDM::DomainTerm {
+class RDM_GPU_API LDAGPU : public RDM::DomainTerm {
 
   template < typename PHYS > struct ElementLoop;
 

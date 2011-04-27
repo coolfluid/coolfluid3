@@ -31,9 +31,9 @@
 #include "Mesh/Actions/CBubbleEnrich.hpp"
 #include "Mesh/Actions/CBubbleRemove.hpp"
 
-#include "RDM/RKRD.hpp"
-#include "RDM/DomainTerm.hpp"
-#include "RDM/ScalarAdvection.hpp"
+#include "RDM/Core/RKRD.hpp"
+#include "RDM/Core/DomainTerm.hpp"
+#include "RDM/Core/ScalarAdvection.hpp"
 
 using namespace CF;
 using namespace CF::Common;

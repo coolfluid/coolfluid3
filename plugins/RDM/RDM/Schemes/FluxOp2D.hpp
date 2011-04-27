@@ -12,6 +12,7 @@
 #include <Eigen/Dense>
 
 #include "Math/MatrixTypes.hpp"
+#include "RDM/Schemes/LibSchemes.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,11 +27,11 @@ class RDM_SCHEMES_API FluxOp2D
 public: // typedefs
 
   /// output matrix types
-  typedef Eigen::Matrix<Real, QUADRATURE::nb_points, PHYSICS::nb_eqs>     ResidualMatrixT;
-  typedef Eigen::Matrix<Real, SHAPEFUNC::nb_nodes,   PHYSICS::nb_eqs>     SolutionMatrixT;
+  typedef Eigen::Matrix<Real, QUADRATURE::nb_points, PHYSICS::neqs>     ResidualMatrixT;
+  typedef Eigen::Matrix<Real, SHAPEFUNC::nb_nodes,   PHYSICS::neqs>     SolutionMatrixT;
   typedef Eigen::Matrix<Real, QUADRATURE::nb_points, SHAPEFUNC::nb_nodes> SFMatrixT;
 
-  typedef Eigen::Matrix<Real, 1u, PHYSICS::nb_eqs >                       SolutionVectorT;
+  typedef Eigen::Matrix<Real, 1u, PHYSICS::neqs >                       SolutionVectorT;
   typedef Eigen::Matrix<Real, 1u, SHAPEFUNC::nb_nodes >                   SFVectorT;
 
 
@@ -72,10 +73,10 @@ protected: // data
   typename SHAPEFUNC::ShapeFunctionsT m_sf_ref;   //Values of shape functions in reference space
 
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_qdpos; //coordinates of quadrature points in physical space
-  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs > m_u_qd; //solution at quadrature points in physical space
+  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::neqs > m_u_qd; //solution at quadrature points in physical space
 
-  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs> m_gradu_x; //derivatives of solution x
-  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::nb_eqs> m_gradu_y; //derivatives of solution y
+  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::neqs> m_gradu_x; //derivatives of solution x
+  Eigen::Matrix<Real,QUADRATURE::nb_points, PHYSICS::neqs> m_gradu_y; //derivatives of solution y
 
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dx; // stores dx/dksi and dx/deta at each quadrature point
   Eigen::Matrix<Real,QUADRATURE::nb_points, DIM_2D> m_dy; // stores dy/dksi and dy/deta at each quadrature point

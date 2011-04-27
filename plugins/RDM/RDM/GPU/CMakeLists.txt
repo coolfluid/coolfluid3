@@ -2,6 +2,9 @@
 # coolfluid_rdm_gpu
 
 list( APPEND coolfluid_rdm_gpu_files
+  # library
+  LibGPU.cpp
+  LibGPU.hpp
           LDAGPU.hpp
           LDAGPU.cpp
           SchemeLDAGPU.hpp

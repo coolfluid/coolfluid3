@@ -25,10 +25,10 @@
 
 #include "Solver/Actions/CLoopOperation.hpp"
 
-#include "RDM/LibRDM.hpp"
-#include "RDM/FluxOp2D.hpp"
+#include "RDM/Schemes/FluxOp2D.hpp"
 
-#include "RDM/CLdeclaration.hpp"
+#include "RDM/GPU/CLdeclaration.hpp"
+#include "RDM/GPU/LibGPU.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS >
-class RDM_API SchemeLDAGPU : public Solver::Actions::CLoopOperation
+class RDM_GPU_API SchemeLDAGPU : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
 
@@ -84,15 +84,15 @@ private: // helper functions
 
     /// @todo modify these to option components configured from
 
-    Mesh::CField::Ptr csolution = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( *Common::Core::instance().root(), "solution" );
+    Mesh::CField::Ptr csolution = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "solution" );
     cf_assert( is_not_null( csolution ) );
     solution = csolution->data_ptr();
 
-    Mesh::CField::Ptr cresidual = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( *Common::Core::instance().root(), "residual" );
+    Mesh::CField::Ptr cresidual = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "residual" );
     cf_assert( is_not_null( cresidual ) );
     residual = cresidual->data_ptr();
 
-    Mesh::CField::Ptr cwave_speed = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( *Common::Core::instance().root(), "wave_speed" );
+    Mesh::CField::Ptr cwave_speed = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "wave_speed" );
     cf_assert( is_not_null( cwave_speed ) );
     wave_speed = cwave_speed->data_ptr();
   }
@@ -156,7 +156,7 @@ SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeLDAGPU ( const std::string& na
 
   clGetDeviceInfo(env.cdDevice, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(env.num_compute_units), &env.num_compute_units, NULL);
 
-  #include "RDM/LDAGPUkernel.hpp"
+  #include "RDM/GPU/LDAGPUkernel.hpp"
 
   // OpenCL kernel compilation
 
@@ -348,13 +348,6 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
 
    //std::cout<<ctimer.elapsed()<<std::endl;
-
-<<<<<<< HEAD
-
-=======
-	std::cout << ctimer.elapsed() << std::endl;
->>>>>>> [ENH] RD with systems
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
