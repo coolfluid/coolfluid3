@@ -11,6 +11,7 @@ list( APPEND resources_files
    rectangle-mix-p2.msh
    rotation-tg-p1.neu
    rotation-qd-p1.neu
+   sinusbump-tg-p1.msh
 )
 
 # add_custom_target( resources SOURCES ${resources_files} )

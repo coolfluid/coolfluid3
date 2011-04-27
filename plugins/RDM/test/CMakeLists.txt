@@ -38,6 +38,13 @@ list( APPEND utest-rdm-euler2d_files  utest-rdm-euler2d.cpp )
 coolfluid_add_unit_test( utest-rdm-euler2d )
 
 ##########################################################################
+
+list( APPEND utest-rdm-sinusbump_cflibs  coolfluid_rdm_navierstokes  )
+list( APPEND utest-rdm-sinusbump_files  utest-rdm-sinusbump.cpp )
+
+coolfluid_add_unit_test( utest-rdm-sinusbump )
+
+##########################################################################
   
 if(CF_ENABLE_GPU AND OPENCL_FOUND)
   set(utest-rdm-rotationadv2dgpu_condition     TRUE)
