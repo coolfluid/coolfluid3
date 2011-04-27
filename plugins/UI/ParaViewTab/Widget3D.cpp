@@ -174,17 +174,17 @@ Widget3D::Widget3D(QWidget *parent) :
   //Combo box of predefined camera orientation
   m_list_selection = new QComboBox(this);
   m_list_selection->addItem("Single Selection",1);
-  m_list_selection->addItem("Contiguous Selection",4);
-  m_list_selection->addItem("Extended Selection",3);
+//  m_list_selection->addItem("Contiguous Selection",4);
+//  m_list_selection->addItem("Extended Selection",3);
   m_list_selection->addItem("Multi Selection",2);
   m_list_selection->setEditable(false);
 
   tool_bar->addWidget(m_preDefined_rotation);
 
-  tool_bar->addAction(QIcon(), "Axes Visibility", this, SLOT(setCenterAxesVisibility()));
+  tool_bar->addAction(QIcon(":/paraview_icons/pqShowOrientationAxes32.png"), "Axes Visibility", this, SLOT(setCenterAxesVisibility()));
   //m_show_axes_button = new QPushButton("Hide Axes");        // show axes button
 
-  tool_bar->addAction(QIcon(), "Camera settings", this, SLOT(show_camera_settings()));
+  tool_bar->addAction(QIcon(":/paraview_icons/pqProbeLocation24.png"), "Camera settings", this, SLOT(show_camera_settings()));
   //m_show_camera_settings_button =  new QPushButton("Show Camera settings");  // Show camera settings dialog button
 
   // advanced paraview options (not used for now)
@@ -201,25 +201,31 @@ Widget3D::Widget3D(QWidget *parent) :
 
   m_dataSet_selector = new pqDisplayColorWidget(this); // the scale color selector and legend
 
-  m_mesh_solid_color_set = new QPushButton("Set Solid Color"); // Set Solide Color button
+  m_mesh_solid_color_set = new QPushButton(QIcon(":/paraview_icons/color.png"),"Set Solid Color"); // Set Solide Color button
   m_mesh_solid_color_set->setEnabled(false);
 
   //Opacity spinner
+  QLabel * opacity_label = new QLabel("Opacity:");
+  opacity_label->setAlignment(Qt::AlignHCenter);
   m_spin_opacity = new QDoubleSpinBox(this);
   m_spin_opacity->setMaximum(1);
   m_spin_opacity->setSingleStep(0.1);
   m_spin_opacity->setMinimum(0);
-  m_spin_opacity->setEnabled(false);
+  m_spin_opacity->setAlignment(Qt::AlignHCenter);
+  QVBoxLayout * opacityLayout = new QVBoxLayout();
+  opacityLayout->addWidget(opacity_label);
+  opacityLayout->addWidget(m_spin_opacity);
 
   //Regions list
   m_actor_list = new QListWidget(this);
 //  m_actor_list->setSelectionMode(QAbstractItemView::MultiSelection);
 
   //Create "force render" button and "Auto Render" checkbox
-  m_checkbox_enable_rendering = new QCheckBox("Auto Render");
+  m_action_force_rendering = tool_bar->addAction(QIcon(":/paraview_icons/render_region.png"), "Render", this, SLOT(forceRendering()));
 
-  m_action_force_rendering = tool_bar->addAction(QIcon(), "Render", this, SLOT(forceRendering()));
+  m_checkbox_enable_rendering = new QCheckBox("Auto Render"); //QIcon(":/paraview_icons/pqVcrLoop24.png")
   tool_bar->addWidget(m_checkbox_enable_rendering);
+//  m_action_auto_render = tool_bar->addAction(QIcon(":/paraview_icons/pqVcrLoop24.png"), "Auto Render", this, SLOT(forceRendering()));
 
 
   /// Progress Bar
@@ -243,6 +249,7 @@ Widget3D::Widget3D(QWidget *parent) :
   //Group Box creation
   m_mesh_options = new QGroupBox("Mesh Options",this);
   m_mesh_options->setVisible(false);
+  m_mesh_options->setEnabled(false);
   m_regions_box = new QGroupBox("Regions",this);
   m_regions_box->setVisible(false);
 
@@ -260,7 +267,7 @@ Widget3D::Widget3D(QWidget *parent) :
   m_layout_mesh_options->addWidget(this->m_dataSet_selector);
   m_layout_mesh_options->addWidget(this->m_show_color_palette);
   m_layout_mesh_options->addWidget(this->m_mesh_solid_color_set);
-  m_layout_mesh_options->addWidget(this->m_spin_opacity);
+  m_layout_mesh_options->addLayout(opacityLayout);
 
   //Option layouts
   m_layout_option->addWidget(this->m_regions_box);
@@ -732,13 +739,15 @@ void Widget3D::show_hide_actor(QListWidgetItem * itemDuble){
 
 void Widget3D::actor_changed(QListWidgetItem * item){
     if(m_actor_list->selectedItems().size() == 1){
+      m_mesh_options->setEnabled(true);
+
       //set the color selector representation (after it will directly apply changes to this representation)
-      this->m_dataSet_selector->setEnabled(true);
+//      this->m_dataSet_selector->setEnabled(true);
       this->m_dataSet_selector->setRepresentation(m_source_list.at(m_actor_list->row(m_actor_list->selectedItems().at(0)))->getRepresentation(m_RenderView));
       this->m_dataSet_selector->reloadGUI();
 
       //set the style selector representation (after it will directly apply changes to this representation)
-      this->m_mesh_style->setEnabled(true);
+//      this->m_mesh_style->setEnabled(true);
       this->m_mesh_style->setRepresentation(m_source_list.at(m_actor_list->row(m_actor_list->selectedItems().at(0)))->getRepresentation(m_RenderView));
 
       //get the current actor/region representation
@@ -748,12 +757,12 @@ void Widget3D::actor_changed(QListWidgetItem * item){
 
       //Set the opacity spin box
       disconnect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
-      m_spin_opacity->setEnabled(true);
+//      m_spin_opacity->setEnabled(true);
       m_spin_opacity->setValue(representation->getOpacity());
       connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
 
       //enable advenced Region options button
-      m_disp_adv_opt_button->setEnabled(m_actor_list->selectedItems().size());
+//      m_disp_adv_opt_button->setEnabled(m_actor_list->selectedItems().size());
 //      m_show_color_palette->setEnabled(m_actor_list->selectedItems().size());
 //      m_mesh_solid_color_set->setEnabled(m_actor_list->selectedItems().size());
 
@@ -768,14 +777,15 @@ void Widget3D::actor_changed(QListWidgetItem * item){
 //      }
 
     }else{
+      m_mesh_options->setEnabled(false);
       this->m_dataSet_selector->setRepresentation(0);
-      this->m_dataSet_selector->setEnabled(false);
+//      this->m_dataSet_selector->setEnabled(false);
       this->m_mesh_style->setRepresentation(0);
-      this->m_mesh_style->setEnabled(false);
-      m_disp_adv_opt_button->setEnabled(false);
-      m_show_color_palette->setEnabled(false);
-      m_mesh_solid_color_set->setEnabled(false);
-      m_spin_opacity->setEnabled(false);
+//      this->m_mesh_style->setEnabled(false);
+//      m_disp_adv_opt_button->setEnabled(false);
+//      m_show_color_palette->setEnabled(false);
+//      m_mesh_solid_color_set->setEnabled(false);
+//      m_spin_opacity->setEnabled(false);
       if(m_actor_list->selectedItems().size() > 1){
         //NLog::globalLog()->addError("One row selection maximum.");
       }

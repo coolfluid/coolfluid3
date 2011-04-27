@@ -16,5 +16,10 @@
         <file>ShowCenterButton.png</file>
         <file>pqEyeball16.png</file>
         <file>pqEyeballd16.png</file>
+        <file>pqShowOrientationAxes32.png</file>
+        <file>pqProbeLocation24.png</file>
+        <file>render_region.png</file>
+        <file>pqVcrLoop24.png</file>
+        <file>color.png</file>
     </qresource>
 </RCC>
