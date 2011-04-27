@@ -242,8 +242,8 @@ QStringList NRemoteBrowser::showMultipleSelect(const QString & startingDir)
   m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   m_listView->clearSelection();
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(const QString &, bool)),
-          this, SLOT(error(const QString &, bool)));
+  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString,CF::UI::UICommon::LogMessage::Type)),
+          this, SLOT(message(QString,CF::UI::UICommon::LogMessage::Type)));
 
   this->reinitValues();
 
