@@ -4,15 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+// header
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Signal.hpp"
-
-#include <QHostInfo>
-
-#include "Common/Log.hpp"
-
 #include "UI/Server/ServerRoot.hpp"
-
 #include "UI/ParaView/LibParaView.hpp"
 #include "UI/ParaView/C3DView.hpp"
 
@@ -88,7 +84,7 @@ void C3DView::launch_pvserver( SignalArgs & args ){
 
   //Use custom server.
   m_pvserver->start("pvserver", QStringList() << portCommand);
-  //m_pvserver->start("/nobackup/st/wertz/./pvserver", QStringList() << portCommand);
+//  m_pvserver->start("/nobackup/st/wertz/./pvserver", QStringList() << portCommand);
 
   SignalFrame reply = args.create_reply( full_path() );
   SignalFrame& options = reply.map( Protocol::Tags::key_options() );

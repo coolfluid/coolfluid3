@@ -7,9 +7,7 @@
 #ifndef CF_UI_ParaView_C3DVIEW_HPP
 #define CF_UI_ParaView_C3DVIEW_HPP
 
-#include <QString>
-#include <QProcess>
-
+// header
 #include "UI/ParaView/LibParaView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////

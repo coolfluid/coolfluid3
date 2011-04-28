@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+//header
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/RegistLibrary.hpp"
-
 #include "UI/ParaView/C3DViewBuilder.hpp"
 #include "UI/ParaView/LibParaView.hpp"
 

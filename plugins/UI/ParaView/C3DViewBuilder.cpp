@@ -4,15 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QString>
-
+// header
 #include "Common/CBuilder.hpp"
 #include "Common/Signal.hpp"
-
 #include "Common/XML/SignalOptions.hpp"
-
 #include "UI/ParaView/LibParaView.hpp"
-
 #include "UI/ParaView/C3DViewBuilder.hpp"
 
 
