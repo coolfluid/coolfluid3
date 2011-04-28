@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::RDM::ScalarAdvection"
+#define BOOST_TEST_MODULE "Test module for CF::RDM::Euler2D"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -178,14 +178,22 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , sinusbump_local_fix
   std::string name ("INLET");
 
   options.add<std::string>("Name",name);
-  //This should be the inlet Dirichlet BC
-  options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
+  options.add<std::string>("Type","CF.RDM.Core.WeakDirichlet");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   BOOST_CHECK( is_not_null(inletbc) );
+
+  std::vector<std::string> fns(4);
+
+  fns[0] = "0.0";
+  fns[1] = "0.0";
+  fns[2] = "0.0";
+  fns[3] = "0.0";
+
+  inletbc->configure_property("Functions", fns);
 
   BOOST_CHECK(true);
 }
