@@ -8,38 +8,45 @@
 #define CF_UI_ParaViewTab_Widget3D_hpp
 
 // Qt headers
-#include <QVBoxLayout>
+#include <QWidget>
 #include <QPointer>
-#include <QPushButton>
-#include <QLineEdit>
-#include <QComboBox>
-#include <QHBoxLayout>
-#include <QGroupBox>
-#include <QList>
-#include <QListWidgetItem>
-#include <QDoubleSpinBox>
-#include <QThread>
-#include <QCheckBox>
 
 // ParaView header
-#include "pqApplicationCore.h"
-#include "pqObjectBuilder.h"
-#include "pqPipelineSource.h"
-#include "pqPluginManager.h"
-#include "pqServer.h"
-#include "pqRenderView.h"
-#include "pqDisplayColorWidget.h"
-#include "pqColorScaleEditor.h"
-#include "pqDisplayRepresentationWidget.h"
-#include "pqPipelineRepresentation.h"
-#include "vtkClientSocket.h"
-#include "pqDisplayProxyEditorWidget.h"
-#include "pqProgressManager.h"
+#include "pqVariableType.h"
 
 // header
 #include "UI/ParaViewTab/LibParaViewTab.hpp"
 
+////////////////////////////////////////////////////////////////////////////////
+
+// forward declaration to avoid incuding files
+// Qt class
 class QAction;
+class QVBoxLayout;
+class QHBoxLayout;
+class QLineEdit;
+class QGroupBox;
+class QListWidget;
+class QListWidgetItem;
+class QDoubleSpinBox;
+class QCheckBox;
+class QPushButton;
+class QComboBox;
+class QString;
+
+// ParaView class
+class pqRenderView;
+class pqDisplayColorWidget;
+class pqColorScaleEditor;
+class pqDisplayRepresentationWidget;
+class pqApplicationCore;
+class pqObjectBuilder;
+class pqServer;
+class pqPluginManager;
+class pqPipelineSource;
+class pqPipelineRepresentation;
+class pqProgressManager;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -76,9 +83,6 @@ public slots://slots
 
 
 private : //function
-
-    /// Show the render of a file if the server connection is set and a the file exist
-    void showRender();
 
     /// Create a view from server
     void createView();
@@ -187,9 +191,6 @@ private: //data
   QPointer<QVBoxLayout> m_layout_option;
   QPointer<QHBoxLayout> m_layout_h;
 
-  /// Tool bar for server options
-
-
   /// Action to connect to the server
   QAction * m_action_connect;
 
@@ -204,9 +205,6 @@ private: //data
 
   /// Button that show color selector.
   QPointer<QPushButton> m_show_color_palette;
-
-//  /// Button reload file.
-//  QPointer<QPushButton> m_reload;
 
   /// ComboBox of dataRepresentation style
   QPointer<pqDisplayRepresentationWidget> m_mesh_style;
@@ -226,9 +224,6 @@ private: //data
   /// render window input Pipeline.
   QList<QPointer<pqPipelineSource> > m_source_list;
 
-//  /// render window input Pipeline.
-//  std::vector<QString> m_path_list;
-
   /// View where the render is shown.
   QPointer<pqRenderView> m_RenderView;
 
@@ -238,37 +233,19 @@ private: //data
   /// Server Host LineEdit.
   QPointer<QLineEdit> m_host_line;
 
-//  /// Server File Path LineEdit.
-//  QPointer<QLineEdit> m_Path_File_line;
-
-//  /// Server File Name LineEdit.
-//  QPointer<QLineEdit> m_Name_line;
-
   /// Data set selector.
   QPointer<pqDisplayColorWidget> m_dataSet_selector;
 
   /// Color scale selector.
   QPointer<pqColorScaleEditor> m_scaleEdit;
 
-//  /// Path of loaded file.
-//  QString m_file_path;
-
-//  /// Name of loaded file.
-//  QString m_file_name;
-
-//  /// Mesh group box options.
+  /// Mesh group box options.
   QPointer<QGroupBox> m_mesh_options;
 
   /// Mesh group box options.
   QPointer<QGroupBox> m_regions_box;
 
-//  /// Server group box options layout.
-//  QPointer<QVBoxLayout> m_layout_server_options;
-
-//  /// Camera group box options layout.
-//  QPointer<QVBoxLayout> m_layout_camera_options;
-
-//  /// Mesh group box options layout.
+  /// Mesh group box options layout.
   QPointer<QHBoxLayout> m_layout_mesh_options;
 
   /// Regions group box layout.
@@ -285,12 +262,6 @@ private: //data
 
   /// Current Region/Actor opacity spin box.
   QPointer<QDoubleSpinBox> m_spin_opacity;
-
-//  /// Show center axes button.
-//  QPointer<QPushButton> m_show_axes_button;
-
-//  /// Show camera dialog button.
-//  QPointer<QPushButton> m_show_camera_settings_button;
 
   /// Display Advanced Option. (do not remove!)
   QPointer<QPushButton> m_disp_adv_opt_button;

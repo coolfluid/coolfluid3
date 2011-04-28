@@ -10,13 +10,10 @@
 // CF headers
 #include "Common/Core.hpp"
 #include "Common/RegistLibrary.hpp"
-
 #include "UI/Core/NPlugin.hpp"
 #include "UI/Core/NPlugins.hpp"
 #include "UI/Core/NLog.hpp"
-
 #include "UI/Graphics/TabBuilder.hpp"
-
 #include "UI/Core/CNodeBuilders.hpp"
 #include "UI/ParaViewTab/N3DView.hpp"
 #include "UI/ParaViewTab/LibParaViewTab.hpp"

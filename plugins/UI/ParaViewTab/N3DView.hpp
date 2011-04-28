@@ -7,11 +7,8 @@
 #ifndef CF_UI_ParaViewTab_N3DVIEW_HPP
 #define CF_UI_ParaViewTab_N3DVIEW_HPP
 
-#include <QString>
-#include <QObject>
-
+// header
 #include "UI/Core/CNode.hpp"
-
 #include "UI/ParaViewTab/LibParaViewTab.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

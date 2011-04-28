@@ -5,57 +5,55 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 // Qt headers
-//#include <QHBoxLayout>
 #include <QAction>
 #include <QLabel>
-#include <QDialog>
-#include <QIntValidator>
 #include <QFileDialog>
 #include <QColorDialog>
-//#include <QDebug>
 #include <QScrollArea>
 #include <QToolBar>
-#include <QToolButton>
+#include <QPushButton>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QLineEdit>
+#include <QGroupBox>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QDoubleSpinBox>
+#include <QCheckBox>
 
 // ParaView header
 #include "pqDataRepresentation.h"
-#include "vtkSmartPointer.h"
-#include "vtkPolyData.h"
-#include "vtkPNGWriter.h"
-#include "vtkWindowToImageFilter.h"
 #include "pqSettings.h"
-#include <vtksys/ios/sstream>
 #include "pqStandardColorLinkAdaptor.h"
 #include "vtkSMPVRepresentationProxy.h"
 #include "pqSMAdaptor.h"
-#include "vtkSMProperty.h"
 #include "pqStandardViewModules.h"
 #include "pqPQLookupTableManager.h"
 #include "vtkSMPropertyHelper.h"
-#include "vtkGlyph3DRepresentation.h"
-#include "vtkProcessModuleConnectionManager.h"
-#include "vtksys/SystemTools.hxx"
-#include "vtkClientSocket.h"
-#include "vtkTimerLog.h"
 #include "pqServerManagerModel.h"
-#include "vtkServerConnection.h"
 #include "pqCameraDialog.h"
-#include "pqObjectInspectorWidget.h"
 #include "pqGlobalRenderViewOptions.h"
-#include "pqProgressManager.h"
 #include "pqStatusBar.h"
-
-#include "vtkTimerLog.h"
-#include "vtkClientSocket.h"
+#include "pqApplicationCore.h"
+#include "pqObjectBuilder.h"
+#include "pqPipelineSource.h"
+#include "pqPluginManager.h"
+#include "pqServer.h"
+#include "pqRenderView.h"
+#include "pqDisplayColorWidget.h"
+#include "pqColorScaleEditor.h"
+#include "pqDisplayRepresentationWidget.h"
+#include "pqPipelineRepresentation.h"
+#include "pqDisplayProxyEditorWidget.h"
+#include "pqServerResource.h"
+#include "vtkSMSourceProxy.h"
 
 
 // header
-
 #include "UI/Graphics/NRemoteOpen.hpp"
 #include "UI/Core/NLog.hpp"
-
 #include "UI/ParaViewTab/N3DView.hpp"
-
 #include "UI/ParaViewTab/Widget3D.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -126,8 +124,6 @@ Widget3D::Widget3D(QWidget *parent) :
   m_layout_option = new QVBoxLayout();
 
   //GroupBox's layout
-//  m_layout_server_options = new QVBoxLayout();
-//  m_layout_camera_options = new QVBoxLayout();
   m_layout_mesh_options = new QHBoxLayout();
   m_layout_regions_box = new QVBoxLayout();
 
@@ -181,11 +177,11 @@ Widget3D::Widget3D(QWidget *parent) :
 
   tool_bar->addWidget(m_preDefined_rotation);
 
+  // show axes button
   tool_bar->addAction(QIcon(":/paraview_icons/pqShowOrientationAxes32.png"), "Axes Visibility", this, SLOT(setCenterAxesVisibility()));
-  //m_show_axes_button = new QPushButton("Hide Axes");        // show axes button
 
-  tool_bar->addAction(QIcon(":/paraview_icons/pqProbeLocation24.png"), "Camera settings", this, SLOT(show_camera_settings()));
-  //m_show_camera_settings_button =  new QPushButton("Show Camera settings");  // Show camera settings dialog button
+  // Show camera settings dialog button
+  tool_bar->addAction(QIcon(":/paraview_icons/pqProbeLocation24.png"), "Camera settings", this, SLOT(show_camera_settings())); 
 
   // advanced paraview options (not used for now)
   m_disp_adv_opt_button = new QPushButton("Disp. Adv.");
@@ -218,15 +214,12 @@ Widget3D::Widget3D(QWidget *parent) :
 
   //Regions list
   m_actor_list = new QListWidget(this);
-//  m_actor_list->setSelectionMode(QAbstractItemView::MultiSelection);
 
   //Create "force render" button and "Auto Render" checkbox
   m_action_force_rendering = tool_bar->addAction(QIcon(":/paraview_icons/render_region.png"), "Render", this, SLOT(forceRendering()));
 
   m_checkbox_enable_rendering = new QCheckBox("Auto Render"); //QIcon(":/paraview_icons/pqVcrLoop24.png")
   tool_bar->addWidget(m_checkbox_enable_rendering);
-//  m_action_auto_render = tool_bar->addAction(QIcon(":/paraview_icons/pqVcrLoop24.png"), "Auto Render", this, SLOT(forceRendering()));
-
 
   /// Progress Bar
   // The progress bar (not used for now)
@@ -253,10 +246,6 @@ Widget3D::Widget3D(QWidget *parent) :
   m_regions_box = new QGroupBox("Regions",this);
   m_regions_box->setVisible(false);
 
-  // representation initialisation
-//  m_representation = 0;
-
-
   /** Disposition Phase **/
   //Set GroupBox layout
   m_mesh_options->setLayout(m_layout_mesh_options);
@@ -271,9 +260,6 @@ Widget3D::Widget3D(QWidget *parent) :
 
   //Option layouts
   m_layout_option->addWidget(this->m_regions_box);
-  //m_layout_option->addWidget(this->m_disp_adv_opt_button);
-  //m_layout_option->addWidget(this->m_gen_adv_opt_button);
-  //m_layout_option->addWidget(this->m_serv_adv_opt_button);
 
   //Horizotal layouts
   m_layout_h->addLayout(this->m_layout_option);
@@ -302,8 +288,6 @@ Widget3D::Widget3D(QWidget *parent) :
   connect(m_show_color_palette, SIGNAL(released()), this, SLOT(show_color_editor()));
   connect(m_mesh_solid_color_set,SIGNAL(released()),this,SLOT(set_solid_color()));
   connect(m_dataSet_selector,SIGNAL(variableChanged(pqVariableType, const QString)),this,SLOT(enable_solide_color_button(pqVariableType, const QString)));
-  //connect(m_show_axes_button,SIGNAL(released()),this,SLOT(setCenterAxesVisibility()));
-  //connect(m_show_camera_settings_button,SIGNAL(released()),this,SLOT(show_camera_settings()));
   connect(m_disp_adv_opt_button,SIGNAL(released()),this,SLOT(show_disp_adv_settings()));
   connect(m_gen_adv_opt_button,SIGNAL(released()),this,SLOT(show_gen_adv_settings()));
   connect(m_serv_adv_opt_button,SIGNAL(released()),this,SLOT(show_serv_adv_settings()));
@@ -359,39 +343,6 @@ void Widget3D::openFile(QString file_path,QString file_name)
   loadPaths(paths,names);
 }
 
-/* Not used any more */
-void Widget3D::showRender()
-{
-  if(m_source){
-
-    //save the "final proxy" as m_input, then we can easly add filters without changing lots of code
-    m_input = m_source;
-
-    //create a data representation in server side, for the render window with the input
-    m_object_builder->createDataRepresentation(m_input->getOutputPort(0), this->m_RenderView);
-
-    //test multi
-    QPointer<pqPipelineSource> m_source2 = m_object_builder->createReader("sources", "LegacyVTKFileReader",QStringList("/nobackup/st/wertz/frog/stomach.vtk"), m_server);
-    vtkSMSourceProxy::SafeDownCast(m_source2->getProxy())->UpdatePipeline();
-    m_object_builder->createDataRepresentation(m_source2->getOutputPort(0), this->m_RenderView);
-
-    //set the color selector representation (after it will directly apply changes to this representation)
-    this->m_dataSet_selector->setRepresentation(m_input->getRepresentation(m_RenderView));
-
-    //set the style selector representation (after it will directly apply changes to this representation)
-    this->m_mesh_style->setRepresentation(m_input->getRepresentation(m_RenderView));
-
-    //zoom to object
-    this->m_RenderView->resetCamera();
-
-    //make sure we update the view
-    this->m_RenderView->render();
-
-  }else{
-    NLog::globalLog()->addError("There is no file to render.");
-  }
-}
-
 void Widget3D::createView(){
   if(m_server){
     // create a graphics window and put it in our main window
@@ -402,8 +353,6 @@ void Widget3D::createView(){
       //put the view in the 0 index so it is the first widget of the layout (avoid bugs)
       m_layout_h->insertWidget(0,this->m_RenderView->getWidget());
       m_layout_h->setStretchFactor(this->m_RenderView->getWidget(), 10);
-      //Set a maximum size
-      //        this->m_RenderView->getWidget()->setMaximumHeight(400);
     }else{
       NLog::globalLog()->addError("Problem when creating a RenderView.");
     }
@@ -572,29 +521,6 @@ void Widget3D::take_screen_shot(){
   //default file name
   QString file_name = "coolfluid3DScreenShot.png";
 
-  /*
-      //getting the file name and path for saving file
-      file_name = QFileDialog::getSaveFileName(
-          this, "Export File Name", file_name,
-          "png Images (*.png)");
-
-      //if the file name is set
-      if ( !file_name.isEmpty() )
-      {
-        //create new PNG writer
-        vtkPNGWriter *writer = vtkPNGWriter::New();
-        //set rendered view as the input
-        writer->SetInput(m_RenderView->captureImage(0));
-        //set the file name
-        writer->SetFileName(file_name.toStdString().c_str());
-        //set dimention as 1-1 ratio
-        writer->SetFileDimensionality(3);
-        //write the file
-        writer->Write();
-        //show user info
-        NLog::globalLog()->addMessage("Screen shot saved.");
-*/
-  //or
   //Get File name
   file_name = QFileDialog::getSaveFileName(
         this, "Export File Name", file_name,
@@ -742,12 +668,10 @@ void Widget3D::actor_changed(QListWidgetItem * item){
       m_mesh_options->setEnabled(true);
 
       //set the color selector representation (after it will directly apply changes to this representation)
-//      this->m_dataSet_selector->setEnabled(true);
       this->m_dataSet_selector->setRepresentation(m_source_list.at(m_actor_list->row(m_actor_list->selectedItems().at(0)))->getRepresentation(m_RenderView));
       this->m_dataSet_selector->reloadGUI();
 
       //set the style selector representation (after it will directly apply changes to this representation)
-//      this->m_mesh_style->setEnabled(true);
       this->m_mesh_style->setRepresentation(m_source_list.at(m_actor_list->row(m_actor_list->selectedItems().at(0)))->getRepresentation(m_RenderView));
 
       //get the current actor/region representation
@@ -757,35 +681,16 @@ void Widget3D::actor_changed(QListWidgetItem * item){
 
       //Set the opacity spin box
       disconnect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
-//      m_spin_opacity->setEnabled(true);
       m_spin_opacity->setValue(representation->getOpacity());
       connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
-
-      //enable advenced Region options button
-//      m_disp_adv_opt_button->setEnabled(m_actor_list->selectedItems().size());
-//      m_show_color_palette->setEnabled(m_actor_list->selectedItems().size());
-//      m_mesh_solid_color_set->setEnabled(m_actor_list->selectedItems().size());
 
       this->m_mesh_solid_color_set->setEnabled(this->m_dataSet_selector->getCurrentText() == "Solid Color");
       this->m_show_color_palette->setEnabled(this->m_dataSet_selector->getCurrentText() != "Solid Color");
 
-//      m_mesh_solid_color_set->setEnabled(m_dataSet_selector->getCurrentText() == "Solid Color");
-//      if(m_dataSet_selector->getCurrentText() != "Solid Color"){
-//        this->m_dataSet_selector->setRepresentation(m_source_list.at(m_actor_list->row(m_actor_list->selectedItems().at(0)))->getRepresentation(m_RenderView));
-//      }else{
-//        this->m_dataSet_selector->setRepresentation(0);
-//      }
-
     }else{
       m_mesh_options->setEnabled(false);
       this->m_dataSet_selector->setRepresentation(0);
-//      this->m_dataSet_selector->setEnabled(false);
       this->m_mesh_style->setRepresentation(0);
-//      this->m_mesh_style->setEnabled(false);
-//      m_disp_adv_opt_button->setEnabled(false);
-//      m_show_color_palette->setEnabled(false);
-//      m_mesh_solid_color_set->setEnabled(false);
-//      m_spin_opacity->setEnabled(false);
       if(m_actor_list->selectedItems().size() > 1){
         //NLog::globalLog()->addError("One row selection maximum.");
       }
@@ -794,7 +699,6 @@ void Widget3D::actor_changed(QListWidgetItem * item){
 
 void Widget3D::set_solid_color(){
 
-//  if(m_representation){ // if actor/region selected
     pqPipelineRepresentation* repr = qobject_cast<pqPipelineRepresentation*>
         (m_source_list.at(m_actor_list->row(m_actor_list->selectedItems().at(0)))
          ->getRepresentation(m_RenderView));
@@ -845,12 +749,10 @@ void Widget3D::set_solid_color(){
         }
       }
     }
-//  }
 }
 
 void Widget3D::opacityChange(double value){
   disconnect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
-  //if(m_representation){
   QPointer<pqPipelineRepresentation> representation = qobject_cast<pqPipelineRepresentation*>
                      (m_source_list.at(m_actor_list->row(m_actor_list->selectedItems().at(0)))
                       ->getRepresentation(m_RenderView));
@@ -858,7 +760,6 @@ void Widget3D::opacityChange(double value){
     vtkSMProxy *proxy = representation->getProxy();
     vtkSMPropertyHelper(proxy, "Opacity").Set(value);
     proxy->UpdateVTKObjects();
-  //}
   connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
   m_RenderView->getWidget()->update();
 }
@@ -996,7 +897,6 @@ void Widget3D::enableRendering(bool enable){
 
   //disable auto rendering
   m_action_force_rendering->setEnabled(!enable);
-  //    m_force_rendering->setEnabled(!enable);
 
   //get pqApplicationCore settings
   pqSettings * settings = pqApplicationCore::instance()->settings();
@@ -1043,9 +943,6 @@ void Widget3D::forceRendering(){
 void Widget3D::setActorListSelectionMode(int mode){
   m_actor_list->setSelectionMode(QAbstractItemView::SelectionMode((m_list_selection->itemData(mode)).toInt()));
 }
-
-//settings->setValue("ImageReductionFactor", 1);
-//settings->setValue("StillRenderImageReductionFactor", 1);
 
 ////////////////////////////////////////////////////////////////////////////////
 

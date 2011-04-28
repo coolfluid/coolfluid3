@@ -4,19 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QDebug>
-
+// header
 #include "Common/Signal.hpp"
-
 #include "Common/XML/Protocol.hpp"
-
 #include "UI/UICommon/ComponentNames.hpp"
-
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Graphics/TabBuilder.hpp"
-
 #include "UI/ParaViewTab/Widget3D.hpp"
-
 #include "UI/ParaViewTab/N3DView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -73,11 +67,6 @@ void N3DView::launch_pvserver( SignalArgs& node ){
   std::string host = data[0];
   std::string port = data[1];
 
-  qDebug() << "Receiving server info";
-
-  qDebug() << QString(host.c_str());
-  qDebug() << QString(port.c_str());
-
   TabBuilder::instance()->getWidget<Widget3D>(as_ptr<CNode>())
       ->connectToServer(host.c_str(), port.c_str());
 
@@ -94,13 +83,6 @@ void N3DView::send_server_info_to_client( SignalArgs& node ){
   std::string path2 = data[1];
   std::string name = data[2];
   std::string name2 = data[3];
-
-  qDebug() << "Receiving Paths";
-
-  qDebug() << QString(name.c_str());
-  qDebug() << QString(name2.c_str());
-  qDebug() << QString(path.c_str());
-  qDebug() << QString(path2.c_str());
 
   std::vector<QString> path_list(2);
   path_list[0] = QString(path.c_str());
