@@ -7,10 +7,21 @@
 #ifndef CF_UI_ParaView_C3DVIEW_HPP
 #define CF_UI_ParaView_C3DVIEW_HPP
 
+// Qt header
+#include <QObject>
+
 // header
 #include "UI/ParaView/LibParaView.hpp"
 
+////////////////////////////////////////////////////////////////////////////////
+
+// forward declaration to avoid incuding files
+// Qt class
+class QProcess;
+
 //////////////////////////////////////////////////////////////////////////////
+
+
 
 namespace CF {
 namespace UI {
