@@ -12,12 +12,16 @@
 
 // Qwt header
 #include "qwt/qwt_plot.h"
-#include "qwt/qwt_plot_curve.h"
-#include "qwt/qwt_plot_grid.h"
 
 // header
 #include "Common/CF.hpp"
 #include "UI/QwtTab/LibQwtTab.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+
+// forward declaration to avoid incuding files
+class QwtPlotCurve;
+class QwtPlotGrid;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,8 +37,8 @@ class QwtTab_API BodePlot: public QwtPlot
 {
     Q_OBJECT
 
-public:
-    //constructor
+public: //Function
+
     /// Constructor minimum.
     /// @param parent Parent of this wtPlot.
     BodePlot(QWidget *parent);
@@ -44,12 +48,9 @@ public:
     /// @param test Variable test.
     BodePlot(QWidget *parent,bool test);
 
-    //destructor
     /// Destructor
     ~BodePlot();
 
-public:
-    //Function
     /// Add data to the current graph.
     /// @param xs The new xs to add to the graph.
     /// @param xy The new xy to add to the graph (corresponding with the xs).
@@ -109,14 +110,13 @@ public:
     void logaritmic_scale_on_graph(bool logaritmic);
 
 
-private:
-    //Function
+private: //Function
 
     /// draw the graph.
     void draw_graph();
 
-private:
-    //data
+private: //data
+
     /// The curve to draw.
     QwtPlotCurve * m_curve;
 
@@ -128,31 +128,46 @@ private:
 
     /// X axe label.
     QString m_label_x;
+
     /// Y axe label.
     QString m_label_y;
+
     /// Show axes label.
     bool m_show_xy_label;
+
     /// Background color
     QColor m_background_color;
+
     /// Function color.
     QColor m_fct_color;
+
     /// Function name.
     QString m_fct_name;
+
     /// Show Function name.
     bool m_show_fct_name;
+
+    /// title of the graph
     QString m_title;
+
     /// Show title.
     bool m_show_title;
+
     /// Show legend.
     bool m_show_legend;
+
     /// Grid color.
     QColor m_grid_color;
+
     /// Set logarit;ic or linear grid
     bool m_logaritmic_scale;
+
     /// grid of the graph
     QwtPlotGrid * m_grid;
+
     /// Set the antialiasing
     bool m_antialiasing;
+
     /// Legend
     QwtLegend * m_legend;
 

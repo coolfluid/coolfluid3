@@ -4,22 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+//header
 #include "Common/RegistLibrary.hpp"
-
 #include "Common/XML/SignalOptions.hpp"
-
 #include "UI/Core/CNodeBuilders.hpp"
 #include "UI/Core/NPlugin.hpp"
 #include "UI/Core/NPlugins.hpp"
-
 #include "UI/QwtTab/NPlotXY.hpp"
-
 #include "UI/QwtTab/LibQwtTab.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::UI::Core;
-//using namespace CF::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -9,6 +9,7 @@
 #include "qwt/qwt_plot_curve.h"
 #include "qwt/qwt_plot_grid.h"
 #include "qwt/qwt_scale_engine.h"
+#include "qwt/qwt_plot.h"
 
 // header
 #include "UI/QwtTab/BodePlot.hpp"

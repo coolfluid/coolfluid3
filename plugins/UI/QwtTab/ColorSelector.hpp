@@ -10,6 +10,7 @@
 // Qt header
 #include <QLabel>
 #include <QMouseEvent>
+#include <QColorDialog>
 
 // header
 #include "UI/QwtTab/LibQwtTab.hpp"

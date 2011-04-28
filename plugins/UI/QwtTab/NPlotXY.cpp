@@ -4,22 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QDebug>
-
+// header
 #include <boost/multi_array/storage_order.hpp>
-
 #include "Common/Signal.hpp"
-
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/MultiArray.hpp"
-
 #include "UI/UICommon/ComponentNames.hpp"
-
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Graphics/TabBuilder.hpp"
-
 #include "UI/QwtTab/Graph.hpp"
-
 #include "UI/QwtTab/NPlotXY.hpp"
 
 //////////////////////////////////////////////////////////////////////////////

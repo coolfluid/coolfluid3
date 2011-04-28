@@ -7,6 +7,7 @@
 #ifndef CF_UI_QwtTab_LibQwtTab_hpp
 #define CF_UI_QwtTab_LibQwtTab_hpp
 
+//header
 #include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////

@@ -17,7 +17,7 @@
 #include <QGroupBox>
 #include <QFileIconProvider>
 #include <QScopedPointer>
-#include <QDebug>
+#include <QWheelEvent>
 
 // Qwt headers
 #include "qwt/qwt_picker.h"
@@ -30,9 +30,7 @@
 
 //header
 #include "UI/Core/NLog.hpp"
-
 #include "UI/QwtTab/BodePlot.hpp"
-
 #include "UI/QwtTab/NPlotXY.hpp"
 #include "UI/QwtTab/PixMaps.hpp"
 #include "UI/QwtTab/Graph.hpp"

@@ -11,6 +11,8 @@
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QTextStream>
+#include <QTableWidget>
+#include <QComboBox>
 
 // Qwt headers
 #include "qwt/qwt_plot_curve.h"

@@ -8,9 +8,6 @@
 #define CF_UI_QwtTab_GraphOption_hpp
 
 // Qt headers
-#include <QTableWidget>
-#include <QPushButton>
-#include <QComboBox>
 #include <QPointer>
 
 // Qwt headers
@@ -19,6 +16,14 @@
 // headers
 #include "UI/QwtTab/NPlotXY.hpp"
 #include "UI/Graphics/LibGraphics.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+
+// forward declaration to avoid incuding files
+class QTableWidget;
+class QPushButton;
+class QComboBox;
+class QLineEdit;
 
 ////////////////////////////////////////////////////////////////////////////////
 

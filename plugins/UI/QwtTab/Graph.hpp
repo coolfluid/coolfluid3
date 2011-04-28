@@ -9,13 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Qt header
-#include <QWidget>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QHBoxLayout>
+// Qt
 #include <QPointer>
-#include <QWheelEvent>
 
 // Qwt header
 #include "qwt/qwt_polygon.h"
@@ -23,11 +18,20 @@
 // header
 #include "UI/QwtTab/GraphOption.hpp"
 
+////////////////////////////////////////////////////////////////////////////////
+
 // forward declaration to avoid incuding files
-class QLabel;
+// Qwt
 class QwtPlotZoomer;
 class QwtPlotPicker;
 class QwtPlotPanner;
+// Qt
+class QLabel;
+class QWidget;
+class QLineEdit;
+class QPushButton;
+class QHBoxLayout;
+class QWheelEvent;
 
 ////////////////////////////////////////////////////////////////////////////////
 
