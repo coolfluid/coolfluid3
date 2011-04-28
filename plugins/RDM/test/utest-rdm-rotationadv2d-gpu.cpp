@@ -20,6 +20,8 @@
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
 #include "Solver/CPhysicalModel.hpp"
@@ -144,50 +146,78 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 0.8);
-  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);
+  solver.get_child("time_stepping").configure_property("CFL", 1.6);
+  solver.get_child("time_stepping").configure_property("MaxIter", 150u);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , rotationadv2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  SignalFrame frame("", "", "");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalFrame frame;
+  SignalOptions options( frame );
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
     regions.push_back( region.full_path() );
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"farfield"))
-    regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( regions.size() , 2u);
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-  std::string name ("INLET");
+  std::string name ("inlet");
 
-  options.set_option<std::string>("Name",name);
-  options.set_option<std::string>("Type","CF.RDM.BcDirichlet");
-  options.set_array("Regions", regions, " ; ");
+  options.add<std::string>("Name",name);
+  options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
+  options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
-  cf_assert( is_not_null(inletbc) );
+  BOOST_CHECK( is_not_null(inletbc) );
 
   std::vector<std::string> fns;
-  fns.push_back("if(y>0,0,if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.))");
+  fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
   inletbc->configure_property("Functions", fns);
 
-//  CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
-
   BOOST_CHECK(true);
-
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_farfield , rotationadv2d_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  SignalFrame frame;
+  SignalOptions options( frame );
+
+  std::vector<URI> regions;
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"farfield"))
+    regions.push_back( region.full_path() );
+
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
+
+  std::string name ("farfield");
+
+  options.add<std::string>("Name",name);
+  options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
+  options.add("Regions", regions, " ; ");
+
+  solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
+
+  Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
+  BOOST_CHECK( is_not_null(inletbc) );
+
+  std::vector<std::string> fns;
+  fns.push_back("0.0");
+  inletbc->configure_property("Functions", fns);
+
+  BOOST_CHECK(true);
+}
+
+///////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , rotationadv2d_local_fixture )
 {
@@ -233,7 +263,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda_gpu , rotationadv2d_local_fixture )
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   options.set_option<std::string>("Name","INTERNAL");
-  options.set_option<std::string>("Type","CF.RDM.LDAGPU");
+  options.set_option<std::string>("Type","CF.RDM.GPU.LDAGPU");
   options.set_array("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
