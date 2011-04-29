@@ -68,6 +68,16 @@ macro( coolfluid_prepare_test UTESTNAME )
       add_executable( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers})
     endif()
 
+
+    if( DEFINED  ${UTESTNAME}_resources )
+      foreach( resource ${${UTESTNAME}_resources} )
+        add_custom_command(TARGET ${UTESTNAME}
+                           POST_BUILD
+                           COMMAND ${CMAKE_COMMAND} -E copy_if_different ${resource} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                          )
+      endforeach()
+    endif()
+
     if(CF_INSTALL_TESTS)  # add installation paths
       install( TARGETS ${UTESTNAME}
         RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
@@ -122,6 +132,7 @@ macro( coolfluid_prepare_test UTESTNAME )
   coolfluid_log_file("${UTESTNAME}_cflibs          : [${${UTESTNAME}_cflibs}]")
   coolfluid_log_file("${UTESTNAME}_has_all_plugins : [${${UTESTNAME}_has_all_plugins}]")
   coolfluid_log_file("${UTESTNAME}_requires_plugins: [${${UTESTNAME}_requires_plugins}]")
+  coolfluid_log_file("${UTESTNAME}_resources:        [${${UTESTNAME}_resources}]")
   coolfluid_log_file("${UTESTNAME}_P_SOURCES       : [${${UTESTNAME}_P_SOURCES}]")
   coolfluid_log_file("${UTESTNAME}_LINK_FLAGS      : [${${UTESTNAME}_LINK_FLAGS}]")
   coolfluid_log_file("${UTESTNAME}_TYPE            : [${${UTESTNAME}_TYPE}]")

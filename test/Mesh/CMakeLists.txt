@@ -80,85 +80,49 @@ coolfluid_add_unit_test( utest-mesh-components )
 list( APPEND utest-mesh-cgns_cflibs      coolfluid_mesh_actions coolfluid_mesh_cgns3 coolfluid_mesh_neutral coolfluid_mesh_gmsh )
 list( APPEND utest-mesh-cgns_files       utest-mesh-cgns.cpp )
 list( APPEND utest-mesh-cgns_includedirs ${CGNS_INCLUDE_DIR} )
-
+list( APPEND utest-mesh-cgns_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
 set( utest-mesh-cgns_condition ${coolfluid_mesh_cgns3_builds} )
 
 coolfluid_add_unit_test( utest-mesh-cgns )
-
-# Custom post-build rule (must be defined after adding target):
-# Copy the file quadtriag.neu from source dir to binary dir.
-# this must happen after building, as some IDE like Xcode define their
-# build types internally, in which the binary dir exists
-add_custom_command(TARGET utest-mesh-cgns
-                   POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                  )
 
 ################################################################################
 
 list( APPEND utest-neu-reader-mpi_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-neu-reader-mpi_files  utest-neu-reader-mpi.cpp )
-  
+list( APPEND utest-neu-reader_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
+
 # Add the target
 set( utest-neu-reader-mpi_mpi_test TRUE )
 set( utest-neu-reader-mpi_mpi_nprocs 3 )
 
 coolfluid_add_unit_test( utest-neu-reader-mpi 3 )
 
-# Custom post-build rule (must be defined after adding target):
-# Copy the file quadtriag.neu from source dir to binary dir.
-# this must happen after building, as some IDE like Xcode define their
-# build types internally, in which the binary dir exists
-add_custom_command(TARGET utest-neu-reader-mpi
-                   POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                  )
-
 ################################################################################
 
 list( APPEND utest-gmsh-reader-mpi_cflibs coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-gmsh-reader-mpi_files  utest-gmsh-reader-mpi.cpp )
-
+list( APPEND utest-gmsh-reader-mpi_resources
+  ${CF_RESOURCE_DIR}/rectangle-tg-p1.msh
+  ${CF_RESOURCE_DIR}/rectangle-tg-p2.msh
+  ${CF_RESOURCE_DIR}/rectangle-qd-p2.msh
+  ${CF_RESOURCE_DIR}/rectangle-mix-p1.msh
+  ${CF_RESOURCE_DIR}/rectangle-mix-p2.msh
+)
 # Add the target
 coolfluid_add_unit_test( utest-gmsh-reader-mpi )
-
-add_custom_command(TARGET utest-gmsh-reader-mpi
-                   POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-tg-p1.msh  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-tg-p2.msh  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-qd-p2.msh  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-qd-p2.msh  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-mix-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-mix-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   )
 
 ################################################################################
 
 list( APPEND utest-tecplot-writer_cflibs coolfluid_mesh_neutral coolfluid_mesh_tecplot coolfluid_mesh_sf )
 list( APPEND utest-tecplot-writer_files  utest-tecplot-writer.cpp )
-
-# Add the target
+list( APPEND utest-tecplot-writer_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
 
 coolfluid_add_unit_test( utest-tecplot-writer )
-
-# Custom post-build rule (must be defined after adding target):
-# Copy the file quadtriag.neu from source dir to binary dir.
-# this must happen after building, as some IDE like Xcode define their
-# build types internally, in which the binary dir exists
-add_custom_command(TARGET utest-tecplot-writer-mpi
-                  POST_BUILD
-                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                 )
 
 ################################################################################
 
 list( APPEND utest-vtklegacy-writer_cflibs coolfluid_mesh_vtklegacy coolfluid_mesh_sf coolfluid_mesh_generation )
 list( APPEND utest-vtklegacy-writer_files  utest-vtklegacy-writer.cpp )
-
-# Add the target
 
 coolfluid_add_unit_test( utest-vtklegacy-writer )
 
@@ -250,17 +214,8 @@ coolfluid_add_unit_test( utest-matrix-interpolation )
 
 list( APPEND utest-nodes_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf )
 list( APPEND utest-nodes_files  utest-nodes.cpp )
-
+list( APPEND utest-nodes_resources ${CF_RESOURCE_DIR}/quadtriag.neu )
 coolfluid_add_unit_test( utest-nodes )
-
-# Custom post-build rule (must be defined after adding target):
-# Copy the file quadtriag.neu from source dir to binary dir.
-# this must happen after building, as some IDE like Xcode define their
-# build types internally, in which the binary dir exists
-add_custom_command(TARGET utest-nodes
-                   POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                  )
 
 ################################################################################
 
@@ -296,21 +251,13 @@ list( APPEND utest-pt-scotch_cflibs coolfluid_mesh_ptscotch coolfluid_mesh_neutr
 list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )
 #list( APPEND utest-pt-scotch_includedirs ${PTSCOTCH_INCLUDE_DIR} )
 
+list( APPEND utest-pt-scotch_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
+
 set( utest-pt-scotch_condition ${coolfluid_mesh_ptscotch_builds} )
 set( utest-pt-scotch_mpi_test TRUE )
 set( utest-pt-scotch_mpi_nprocs 3 )
 
 coolfluid_add_unit_test( utest-pt-scotch 3)
-
-# Custom post-build rule (must be defined after adding target):
-# Copy the file quadtriag.neu from source dir to binary dir.
-# this must happen after building, as some IDE like Xcode define their
-# build types internally, in which the binary dir exists
-add_custom_command(TARGET utest-pt-scotch
-                   POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                  )
 
 ################################################################################
 
@@ -319,21 +266,13 @@ list( APPEND utest-zoltan_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh cool
 list( APPEND utest-zoltan_files  utest-zoltan.cpp )
 #list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} ${ZOLTAN_EXTRA_INCLUDE_DIR} )
 
+list( APPEND utest-zoltan_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
+
 set( utest-zoltan_condition ${coolfluid_mesh_zoltan_builds} )
 set( utest-zoltan_mpi_test TRUE )
 set( utest-zoltan_mpi_nprocs 2 )
 
 coolfluid_add_unit_test( utest-zoltan 2)
-
-# Custom post-build rule (must be defined after adding target):
-# Copy the file quadtriag.neu from source dir to binary dir.
-# this must happen after building, as some IDE like Xcode define their
-# build types internally, in which the binary dir exists
-add_custom_command(TARGET utest-zoltan
-                   POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                  )
 
 ################################################################################
 
@@ -367,14 +306,9 @@ coolfluid_add_unit_test( utest-blockmesh-mpi-scale )
 # test load mesh wizard
 list( APPEND utest-loadmesh_cflibs coolfluid_solver )
 list( APPEND utest-loadmesh_files  utest-loadmesh.cpp )
+list( APPEND utest-loadmesh_resources ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CF_RESOURCE_DIR}/rotation-qd-p1.neu)
 
 coolfluid_add_unit_test( utest-loadmesh )
-
-add_custom_command(TARGET utest-loadmesh
-                   POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                  )
 
 ##########################################################################
 # test Actions
