@@ -172,6 +172,10 @@ private slots: //slots
   /// @param mode The chosen mode.
   void setActorListSelectionMode(int mode);
 
+  /// Show advanced options on advanced mode.
+  /// @param showAdv Option visibility.
+  void showAdvOptions(bool showAdv);
+
 private: //data
 
   /// Initialising Application Core that manage all vtk and paraview Objects.

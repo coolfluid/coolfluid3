@@ -49,12 +49,12 @@
 #include "pqServerResource.h"
 #include "vtkSMSourceProxy.h"
 
-
 // header
 #include "UI/Graphics/NRemoteOpen.hpp"
 #include "UI/Core/NLog.hpp"
 #include "UI/ParaViewTab/N3DView.hpp"
 #include "UI/ParaViewTab/Widget3D.hpp"
+#include "UI/Core/NTree.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -170,9 +170,9 @@ Widget3D::Widget3D(QWidget *parent) :
   //Combo box of predefined camera orientation
   m_list_selection = new QComboBox(this);
   m_list_selection->addItem("Single Selection",1);
-//  m_list_selection->addItem("Contiguous Selection",4);
-//  m_list_selection->addItem("Extended Selection",3);
   m_list_selection->addItem("Multi Selection",2);
+  //  m_list_selection->addItem("Extended Selection",3);
+  //  m_list_selection->addItem("Contiguous Selection",4);
   m_list_selection->setEditable(false);
 
   tool_bar->addWidget(m_preDefined_rotation);
@@ -184,10 +184,12 @@ Widget3D::Widget3D(QWidget *parent) :
   tool_bar->addAction(QIcon(":/paraview_icons/pqProbeLocation24.png"), "Camera settings", this, SLOT(show_camera_settings())); 
 
   // advanced paraview options (not used for now)
-  m_disp_adv_opt_button = new QPushButton("Disp. Adv.");
-  m_disp_adv_opt_button->setEnabled(false);
-  m_gen_adv_opt_button = new QPushButton("Gen. Adv.");
-  m_serv_adv_opt_button = new QPushButton("Serv. Adv.");
+  this->m_disp_adv_opt_button = new QPushButton("Disp. Adv.");
+  this->m_disp_adv_opt_button->setEnabled(false);
+  this->m_gen_adv_opt_button = new QPushButton("Gen. Adv.");
+  this->m_serv_adv_opt_button = new QPushButton("Serv. Adv.");
+
+  showAdvOptions(NTree::globalTree().get()->isAdvancedMode());
 
   //Mesh Options
   m_show_color_palette = new QPushButton(QIcon(":/paraview_icons/pqScalarBar24.png"),"Show Color Palette",this);
@@ -260,6 +262,9 @@ Widget3D::Widget3D(QWidget *parent) :
 
   //Option layouts
   m_layout_option->addWidget(this->m_regions_box);
+  m_layout_option->addWidget(this->m_disp_adv_opt_button);
+  m_layout_option->addWidget(this->m_gen_adv_opt_button);
+  m_layout_option->addWidget(this->m_serv_adv_opt_button);
 
   //Horizotal layouts
   m_layout_h->addLayout(this->m_layout_option);
@@ -293,6 +298,8 @@ Widget3D::Widget3D(QWidget *parent) :
   connect(m_serv_adv_opt_button,SIGNAL(released()),this,SLOT(show_serv_adv_settings()));
   connect(m_checkbox_enable_rendering,SIGNAL(toggled(bool)),this,SLOT(enableRendering(bool)));
   connect(m_list_selection,SIGNAL(activated(int)),this,SLOT(setActorListSelectionMode(int)));
+  connect(NTree::globalTree().get(),SIGNAL(advancedModeChanged(bool)),this,SLOT(showAdvOptions(bool)));
+
 }
 
 void Widget3D::connectToServer(QString given_host,QString port)
@@ -666,6 +673,7 @@ void Widget3D::show_hide_actor(QListWidgetItem * itemDuble){
 void Widget3D::actor_changed(QListWidgetItem * item){
     if(m_actor_list->selectedItems().size() == 1){
       m_mesh_options->setEnabled(true);
+      m_disp_adv_opt_button->setEnabled(true);
 
       //set the color selector representation (after it will directly apply changes to this representation)
       this->m_dataSet_selector->setRepresentation(m_source_list.at(m_actor_list->row(m_actor_list->selectedItems().at(0)))->getRepresentation(m_RenderView));
@@ -689,6 +697,7 @@ void Widget3D::actor_changed(QListWidgetItem * item){
 
     }else{
       m_mesh_options->setEnabled(false);
+      m_disp_adv_opt_button->setEnabled(false);
       this->m_dataSet_selector->setRepresentation(0);
       this->m_mesh_style->setRepresentation(0);
       if(m_actor_list->selectedItems().size() > 1){
@@ -793,7 +802,8 @@ void Widget3D::show_disp_adv_settings(){
   //create and set a scroll area for the widget
   QScrollArea* scr = new QScrollArea;
   scr->setWidgetResizable(true); //if not set, nothing appear
-  scr->setMaximumHeight(300);
+  scr->setMaximumHeight(600);
+  scr->setMaximumWidth(420);
   scr->setFrameShape(QFrame::NoFrame);
   scr->setWidget(obj_inspect);
 
@@ -804,15 +814,21 @@ void Widget3D::show_disp_adv_settings(){
   //Dialog widget
   QPointer<QDialog> display_adv_setting_Dialog = new QDialog(this);
 
+  //Apply change button
+  QPushButton * valid = new QPushButton("Apply");
+  connect(valid,SIGNAL(released()),obj_inspect,SLOT(update()));
+  connect(valid,SIGNAL(released()),display_adv_setting_Dialog,SLOT(close()));
+
   // popup layout
   QPointer<QVBoxLayout> vertical_popup_layout = new QVBoxLayout();
   display_adv_setting_Dialog->setLayout(vertical_popup_layout);
 
   //add the scroll area to the dialog
   vertical_popup_layout->addWidget(scr);
+  vertical_popup_layout->addWidget(valid);
 
   //set popup visible and modal
-  display_adv_setting_Dialog->resize(600,400);
+  //display_adv_setting_Dialog->resize(600,400);
   display_adv_setting_Dialog->setModal(true);
   display_adv_setting_Dialog->show();
 }
@@ -822,13 +838,16 @@ void Widget3D::show_gen_adv_settings(){
   //create a General Render View Option widget
   pqGlobalRenderViewOptions * obj_inspect;
   obj_inspect = new pqGlobalRenderViewOptions();
+  obj_inspect->setMaximumHeight(400);
 
   //create and set a scroll area for the widget
+  /*
   QScrollArea* scr = new QScrollArea;
   scr->setWidgetResizable(true);
-  scr->setMaximumHeight(300);
+  scr->setMaximumHeight(700);
   scr->setFrameShape(QFrame::NoFrame);
   scr->setWidget(obj_inspect);
+  */
 
   //Set one of the options page to general settings
   obj_inspect->setPage(obj_inspect->getPageList().at(3));
@@ -846,11 +865,11 @@ void Widget3D::show_gen_adv_settings(){
   OptionDialog->setLayout(vertical_popup_layout);
 
   //add the scroll area and the apply button to the dialog
-  vertical_popup_layout->addWidget(scr);
+  vertical_popup_layout->addWidget(obj_inspect);
   vertical_popup_layout->addWidget(valid);
 
   //set popup visiblem modal
-  OptionDialog->resize(600,400);
+  //OptionDialog->resize(650,300);
   OptionDialog->setModal(true);
   OptionDialog->show();
 }
@@ -860,13 +879,16 @@ void Widget3D::show_serv_adv_settings(){
   //create a General Render View Option widget
   pqGlobalRenderViewOptions * obj_inspect;
   obj_inspect = new pqGlobalRenderViewOptions();
+  obj_inspect->setMaximumHeight(550);
 
   //create and set a scroll area for the widget
+  /*
   QScrollArea* scr = new QScrollArea;
   scr->setWidgetResizable(true);
   scr->setMaximumHeight(300);
   scr->setFrameShape(QFrame::NoFrame);
   scr->setWidget(obj_inspect);
+  */
 
   //Set one of the options page to server settings
   obj_inspect->setPage(obj_inspect->getPageList().at(1));
@@ -884,11 +906,11 @@ void Widget3D::show_serv_adv_settings(){
   OptionDialog->setLayout(vertical_popup_layout);
 
   //add the scroll area and the apply button to the dialog
-  vertical_popup_layout->addWidget(scr);
+  vertical_popup_layout->addWidget(obj_inspect);
   vertical_popup_layout->addWidget(valid);
 
   //set popup visiblem modal
-  OptionDialog->resize(600,400);
+  //OptionDialog->resize(600,400);
   OptionDialog->setModal(true);
   OptionDialog->show();
 }
@@ -942,6 +964,12 @@ void Widget3D::forceRendering(){
 
 void Widget3D::setActorListSelectionMode(int mode){
   m_actor_list->setSelectionMode(QAbstractItemView::SelectionMode((m_list_selection->itemData(mode)).toInt()));
+}
+
+void Widget3D::showAdvOptions(bool showAdv){
+  this->m_disp_adv_opt_button->setVisible(showAdv);
+  this->m_gen_adv_opt_button->setVisible(showAdv);
+  this->m_serv_adv_opt_button->setVisible(showAdv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
