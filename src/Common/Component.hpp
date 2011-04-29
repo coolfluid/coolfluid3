@@ -11,6 +11,7 @@
 
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+#include <boost/range.hpp>
 
 #include "Common/Assertions.hpp"
 
@@ -208,6 +209,7 @@ public: // functions
   /// @pre parent pointer is valid
   /// @post returns always valid pointer
   Ptr parent();
+
   /// @returns the const pointer to parent component
   /// @pre parent pointer is valid
   /// @post returns always valid pointer
@@ -216,19 +218,24 @@ public: // functions
   /// Gets the named child component from the list of direct subcomponents.
   /// @return reference to the component
   Component& get_child(const std::string& name);
+
   /// Gets the named child component from the list of direct subcomponents.
   /// @post pointer may be null
   /// @return shared pointer to the component
   Ptr get_child_ptr(const std::string& name);
+
   /// Gets the named child component from the list of direct subcomponents.
   /// @post pointer may be null
   /// @return const shared pointer to the component
   ConstPtr get_child_ptr(const std::string& name) const;
+
   /// Gets the named child component from the list of direct subcomponents.
   /// @throws ValueNotFound in case a component with given name is not found
   /// @post pointer is never null
   /// @return shared pointer to the component
   Ptr get_child_ptr_checked(const std::string& name);
+
+  boost::iterator_range<iterator> children();
 
   /// @returns this component converted to type T shared pointer
   template < typename T > boost::shared_ptr<T> as_ptr();

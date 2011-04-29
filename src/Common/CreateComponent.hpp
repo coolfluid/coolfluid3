@@ -11,6 +11,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/Foreach.hpp"
 
 namespace CF {
 namespace Common {
@@ -30,7 +31,15 @@ template < typename ATYPE >
   if ( is_null(factory) ) throw ValueNotFound( FromHere(), "CFactory \'" + ATYPE::type_name() + "\' not found in " + factories->full_path().string() + ". Probably forgot to load a library." );
 
   Component::Ptr builder = factory->get_child_ptr( builder_name );
-  if ( is_null(builder) ) throw ValueNotFound( FromHere(), "CBuilder \'" + builder_name + "\' not found in factory \'" + ATYPE::type_name() + "\'. Probably forgot to load a library." );
+  if ( is_null(builder) )
+  {
+    std::string msg = "CBuilder \'" + builder_name + "\' not found in factory \'" + ATYPE::type_name() + "\'. Probably forgot to load a library.\n"
+                      "Possible builders:";
+    boost_foreach(Component& comp, factory->children())
+        msg += "\n  -  "+comp.name();
+
+    throw ValueNotFound( FromHere(), msg );
+  }
 
   Component::Ptr comp = builder->as_type<CBuilder>().build ( name );
   if ( is_null(comp) ) throw NotEnoughMemory ( FromHere(), "CBuilder \'" + builder_name + "\' failed to allocate component with name \'" + name + "\'" );

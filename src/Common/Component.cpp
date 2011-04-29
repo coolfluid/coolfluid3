@@ -436,6 +436,13 @@ void Component::change_parent ( Component* new_parent )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+boost::iterator_range<Component::iterator> Component::children()
+{
+  return boost::make_iterator_range(begin(),end());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 void Component::move_to ( Component::Ptr new_parent )
 {
   Component::Ptr this_ptr = parent()->remove_component( this->name() );
