@@ -623,7 +623,7 @@ private:
     void operator()(const I&)
     {
       apply(boost::fusion::at<I>(variables_data));
-    }u
+    }
     
     void apply(const boost::mpl::void_&)
     {
