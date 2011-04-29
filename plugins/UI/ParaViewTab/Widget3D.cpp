@@ -169,8 +169,8 @@ Widget3D::Widget3D(QWidget *parent) :
 
   //Combo box of predefined camera orientation
   m_list_selection = new QComboBox(this);
-  m_list_selection->addItem("Single Selection",1);
-  m_list_selection->addItem("Multi Selection",2);
+  m_list_selection->addItem(QIcon(":/paraview_icons/SimpleSeletcion.png"),"Single Selection",1);
+  m_list_selection->addItem(QIcon(":/paraview_icons/multiSeletcions.png"),"Multi Selection",2);
   //  m_list_selection->addItem("Extended Selection",3);
   //  m_list_selection->addItem("Contiguous Selection",4);
   m_list_selection->setEditable(false);
@@ -184,10 +184,10 @@ Widget3D::Widget3D(QWidget *parent) :
   tool_bar->addAction(QIcon(":/paraview_icons/pqProbeLocation24.png"), "Camera settings", this, SLOT(show_camera_settings())); 
 
   // advanced paraview options (not used for now)
-  this->m_disp_adv_opt_button = new QPushButton("Disp. Adv.");
+  this->m_disp_adv_opt_button = new QPushButton("Region Adv. Settings");
   this->m_disp_adv_opt_button->setEnabled(false);
-  this->m_gen_adv_opt_button = new QPushButton("Gen. Adv.");
-  this->m_serv_adv_opt_button = new QPushButton("Serv. Adv.");
+  this->m_gen_adv_opt_button = new QPushButton("General Adv. Settings");
+  this->m_serv_adv_opt_button = new QPushButton("Server Adv. Settings");
 
   showAdvOptions(NTree::globalTree().get()->isAdvancedMode());
 
@@ -828,7 +828,6 @@ void Widget3D::show_disp_adv_settings(){
   vertical_popup_layout->addWidget(valid);
 
   //set popup visible and modal
-  //display_adv_setting_Dialog->resize(600,400);
   display_adv_setting_Dialog->setModal(true);
   display_adv_setting_Dialog->show();
 }
@@ -839,15 +838,6 @@ void Widget3D::show_gen_adv_settings(){
   pqGlobalRenderViewOptions * obj_inspect;
   obj_inspect = new pqGlobalRenderViewOptions();
   obj_inspect->setMaximumHeight(400);
-
-  //create and set a scroll area for the widget
-  /*
-  QScrollArea* scr = new QScrollArea;
-  scr->setWidgetResizable(true);
-  scr->setMaximumHeight(700);
-  scr->setFrameShape(QFrame::NoFrame);
-  scr->setWidget(obj_inspect);
-  */
 
   //Set one of the options page to general settings
   obj_inspect->setPage(obj_inspect->getPageList().at(3));
@@ -869,7 +859,6 @@ void Widget3D::show_gen_adv_settings(){
   vertical_popup_layout->addWidget(valid);
 
   //set popup visiblem modal
-  //OptionDialog->resize(650,300);
   OptionDialog->setModal(true);
   OptionDialog->show();
 }
@@ -880,15 +869,6 @@ void Widget3D::show_serv_adv_settings(){
   pqGlobalRenderViewOptions * obj_inspect;
   obj_inspect = new pqGlobalRenderViewOptions();
   obj_inspect->setMaximumHeight(550);
-
-  //create and set a scroll area for the widget
-  /*
-  QScrollArea* scr = new QScrollArea;
-  scr->setWidgetResizable(true);
-  scr->setMaximumHeight(300);
-  scr->setFrameShape(QFrame::NoFrame);
-  scr->setWidget(obj_inspect);
-  */
 
   //Set one of the options page to server settings
   obj_inspect->setPage(obj_inspect->getPageList().at(1));
@@ -910,7 +890,6 @@ void Widget3D::show_serv_adv_settings(){
   vertical_popup_layout->addWidget(valid);
 
   //set popup visiblem modal
-  //OptionDialog->resize(600,400);
   OptionDialog->setModal(true);
   OptionDialog->show();
 }
