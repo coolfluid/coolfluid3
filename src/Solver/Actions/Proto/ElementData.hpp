@@ -26,6 +26,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/ElementData.hpp"
 
 #include "ElementMatrix.hpp"
 #include "ElementOperations.hpp"
@@ -622,7 +623,7 @@ private:
     void operator()(const I&)
     {
       apply(boost::fusion::at<I>(variables_data));
-    }
+    }u
     
     void apply(const boost::mpl::void_&)
     {

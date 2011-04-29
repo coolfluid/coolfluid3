@@ -1,8 +1,10 @@
 ##############################################################################
-# macro for adding a acceptance tests
+# macro for adding resources
 ##############################################################################
 
 macro( coolfluid_add_resources RESOURCESNAME )
+
+set( ${RESOURCESNAME}_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTERNAL "build dir" )
 
 # copy files to test dir in build tree
 foreach( rfile ${${RESOURCESNAME}_files} )
