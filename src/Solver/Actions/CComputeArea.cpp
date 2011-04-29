@@ -61,7 +61,7 @@ void CComputeArea::trigger_elements()
 {
   m_can_start_loop = m_area->set_elements(elements());
   if (m_can_start_loop)
-    m_area->allocate_coordinates(m_coordinates);
+    elements().allocate_coordinates(m_coordinates);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

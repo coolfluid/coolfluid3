@@ -69,21 +69,16 @@ public: // functions
   
   /// @return elements_exist_in_field
   bool set_elements(const CEntities& elements);
-
-  const CSpace& space() const { return *m_space.lock(); }
   
   /// @return elements_exist_in_field
   bool set_elements(boost::shared_ptr<CEntities> elements);
 
   void set_field(CField& field);
-  void set_field(const CField& field);
-  
+  void set_field(const CField& field);  
   void set_field(boost::shared_ptr<CField> field);
 
-  void allocate_coordinates(RealMatrix& coords);
-  
-  void put_coordinates(RealMatrix& coords, const Uint elem_idx) const;
-  
+  const CSpace& space() const { return *m_space.lock(); }
+
   Uint mesh_elements_idx(const Uint idx) const;
   
 protected: 

@@ -75,11 +75,11 @@ void CBuildVolume::execute()
   {
     volume.set_elements(elements.as_ptr<CEntities>());
     
-    RealMatrix coordinates;  volume.allocate_coordinates(coordinates);
+    RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
     
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
-      volume.put_coordinates( coordinates, cell_idx );
+      elements.put_coordinates( coordinates, cell_idx );
       volume[cell_idx] = elements.element_type().compute_volume( coordinates );
     }
   }

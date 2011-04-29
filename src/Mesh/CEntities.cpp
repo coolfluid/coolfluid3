@@ -212,5 +212,12 @@ void CEntities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) co
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void CEntities::allocate_coordinates(RealMatrix& coords) const
+{
+  coords.resize(element_type().nb_nodes(),element_type().dimension());
+}
+
+////////////////////////////////////////////////////////////////////////////////
 } // Mesh
 } // CF

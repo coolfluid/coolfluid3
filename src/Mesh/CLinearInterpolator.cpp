@@ -168,11 +168,11 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
     {
       if (t_view.set_elements(t_elements))
       {
-        t_view.allocate_coordinates(elem_coordinates);
+        t_elements.allocate_coordinates(elem_coordinates);
         for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
         {
-          t_view.put_coordinates(elem_coordinates,t_elm_idx);
-          t_view.elements().element_type().compute_centroid(elem_coordinates,t_centroid);
+          t_elements.put_coordinates(elem_coordinates,t_elm_idx);
+          t_elements.element_type().compute_centroid(elem_coordinates,t_centroid);
           
           boost::tie(s_elements,s_elm_idx) = find_element(t_centroid);
           if (is_not_null(s_elements))
@@ -212,11 +212,11 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
     {
       if (t_view.set_elements(t_elements))
       {
-        t_view.allocate_coordinates(elem_coordinates);
+        t_elements.allocate_coordinates(elem_coordinates);
         for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
         {
-          t_view.put_coordinates(elem_coordinates,t_elm_idx);
-          t_view.elements().element_type().compute_centroid(elem_coordinates,t_centroid);
+          t_elements.put_coordinates(elem_coordinates,t_elm_idx);
+          t_elements.element_type().compute_centroid(elem_coordinates,t_centroid);
           
 
 

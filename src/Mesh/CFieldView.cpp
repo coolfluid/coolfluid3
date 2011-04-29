@@ -123,33 +123,6 @@ void CFieldView::set_field(const CField& field)
   set_field(boost::const_pointer_cast<CField>(field.as_ptr<CField>())); 
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CFieldView::allocate_coordinates(RealMatrix& coords)
-{
-  cf_assert( !m_space.expired() );
-  coords.resize(space().element_type().nb_nodes(),space().element_type().dimension());
-}
-  
-////////////////////////////////////////////////////////////////////////////////
-
-void CFieldView::put_coordinates(RealMatrix& coords, const Uint elem_idx) const
-{
-  if ( is_null(elements().as_ptr<CElements>() ) )
-    throw Common::IllegalCall(FromHere(),"No node_connectivity table is present, thus coordinates have to be obtained in different way");
-
-  cf_assert(elem_idx < elements().as_type<CElements>().node_connectivity().size());
-  CConnectivity::ConstRow elem_nodes = elements().as_type<CElements>().node_connectivity()[elem_idx];
-  const CTable<Real>::ArrayT& coords_table = m_coords_table.lock()->array();
-    
-  cf_assert((Uint) coords.rows() == elem_nodes.size());
-  cf_assert((Uint) coords.cols() == coords_table.shape()[1]);
-  for(Uint node = 0; node != coords.rows(); ++node)
-    for (Uint d=0; d != coords.cols(); ++d)
-      coords(node,d) = coords_table[elem_nodes[node]][d];
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 Uint CFieldView::mesh_elements_idx(const Uint idx) const

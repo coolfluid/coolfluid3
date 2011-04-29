@@ -75,12 +75,12 @@ void CBuildArea::execute()
   {
     area.set_elements(elements.as_ptr<CEntities>());
     
-    RealMatrix coordinates;  area.allocate_coordinates(coordinates);
+    RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
     
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
       elements.put_coordinates( coordinates, cell_idx );
-      area[cell_idx] = area.elements().element_type().compute_area( coordinates );
+      area[cell_idx] = elements.element_type().compute_area( coordinates );
     }
   }
 }

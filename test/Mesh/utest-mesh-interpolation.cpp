@@ -152,23 +152,23 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   CFieldView s_elembased_view("s_elembased_view");
   s_elembased_view.set_field(s_elembased);
   RealMatrix coordinates;
-  boost_foreach( CElements& elements, find_components_recursively<CElements>(s_elembased.topology()) )
+  boost_foreach( CElements& s_elements, find_components_recursively<CElements>(s_elembased.topology()) )
   {
-    if (s_elembased_view.set_elements(elements.as_ptr<CEntities>()))
+    if (s_elembased_view.set_elements(s_elements.as_ptr<CEntities>()))
     {
-      s_elembased_view.allocate_coordinates(coordinates);
+      s_elements.allocate_coordinates(coordinates);
       RealVector coords(coordinates.rows());
       
-      for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
+      for (Uint elem_idx = 0; elem_idx<s_elements.size(); ++elem_idx)
       {
-        s_elembased_view.put_coordinates( coordinates, elem_idx );
-        elements.element_type().compute_centroid( coordinates , coords );
+        s_elements.put_coordinates( coordinates, elem_idx );
+        s_elements.element_type().compute_centroid( coordinates , coords );
         
         s_elembased_view[elem_idx][0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
-    		s_elembased_view[elem_idx][1]=coords[XX];
-    		s_elembased_view[elem_idx][2]=coords[YY];
+        s_elembased_view[elem_idx][1]=coords[XX];
+        s_elembased_view[elem_idx][2]=coords[YY];
         s_elembased_view[elem_idx][3]=7.0;
-    		s_elembased_view[elem_idx][4]=coords[XX];
+        s_elembased_view[elem_idx][4]=coords[XX];
       }
 
     }

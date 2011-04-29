@@ -86,6 +86,8 @@ public: // functions
 
   virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
 
+  void allocate_coordinates(RealMatrix& coords) const;
+
 protected: // data
 
   boost::shared_ptr<ElementType> m_element_type;
