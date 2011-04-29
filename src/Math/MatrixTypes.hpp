@@ -30,12 +30,22 @@ typedef Eigen::Matrix<Real, 4, 4> RealMatrix4;
 
 /// Dynamic sized vector (colum)
 typedef Eigen::Matrix<Real, Eigen::Dynamic, 1> RealVector;
+typedef RealVector RealColumnVector;
+
+/// Dynamic sized vector (row)
+typedef Eigen::Matrix<Real, 1, Eigen::Dynamic> RealRowVector;
 
 /// Fixed size vectors for 1, 2, 3 and 4 elements
 typedef Eigen::Matrix<Real, 1, 1> RealVector1;
 typedef Eigen::Matrix<Real, 2, 1> RealVector2;
 typedef Eigen::Matrix<Real, 3, 1> RealVector3;
 typedef Eigen::Matrix<Real, 4, 1> RealVector4;
+
+/// Fixed size vectors for 1, 2, 3 and 4 elements
+typedef Eigen::Matrix<Real, 1, 1> RealRowVector1;
+typedef Eigen::Matrix<Real, 1, 2> RealRowVector2;
+typedef Eigen::Matrix<Real, 1, 3> RealRowVector3;
+typedef Eigen::Matrix<Real, 1, 4> RealRowVector4;
 
 ////////////////////////////////////////////////////////////////////////////////
 
