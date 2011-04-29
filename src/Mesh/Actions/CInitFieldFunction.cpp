@@ -116,7 +116,7 @@ void CInitFieldFunction::execute()
         for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
         {
           field_view.put_coordinates( coordinates, elem_idx );
-          field_view.space().shape_function().compute_centroid( coordinates , centroid );
+          elements.element_type().compute_centroid( coordinates , centroid );
           
           for (Uint i=0; i<centroid.size(); ++i)
             vars[i] = centroid[i];

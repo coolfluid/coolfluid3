@@ -60,13 +60,11 @@ public: // functions
   /// return the number of elements
   virtual Uint size() const { return node_connectivity().size(); }
 
-  virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx);
+  virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
   
-  RealMatrix get_coordinates(const Uint elem_idx) const;
+  virtual RealMatrix get_coordinates(const Uint elem_idx) const;
 
-  void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
-
-  virtual CSpace& create_space0();
+  virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
 
 protected: // data
 

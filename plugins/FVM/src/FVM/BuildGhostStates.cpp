@@ -84,7 +84,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
         
       CRegion& ghost_states = *region.create_component<CRegion>("ghost_states");
       GhostCells& ghosts = *ghost_states.create_component<GhostCells>("Point");
-      ghosts.initialize("CF.Mesh.SF.Point"+dim_str+"DLagrangeP1",mesh.nodes());
+      ghosts.initialize("CF.Mesh.SF.Point"+dim_str+"DLagrangeP0",mesh.nodes());
       CTable<Uint>& ghost_elem_connectivity = ghosts.node_connectivity();
       ghost_elem_connectivity.resize(nb_faces);
       ghost_elem_connectivity.set_row_size(1);

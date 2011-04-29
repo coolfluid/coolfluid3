@@ -4,11 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/assign/list_of.hpp>
+
 #include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
 #include "Line2DLagrangeP2.hpp"
-#include "Point1DLagrangeP1.hpp"
+#include "Point2DLagrangeP0.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -23,10 +25,8 @@ aLine2DLagrangeP2_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Line2DLagrangeP2::Line2DLagrangeP2(const std::string& name) : Line2D(name)
+Line2DLagrangeP2::Line2DLagrangeP2(const std::string& name) : Line<DIM_2D,SFLineLagrangeP2>(name)
 {
-  m_nb_nodes = nb_nodes;
-  m_order = order;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,9 +45,23 @@ Real Line2DLagrangeP2::compute_area(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool Line2DLagrangeP2::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
+void Line2DLagrangeP2::compute_normal(const NodesT& coord, RealVector& normal) const
 {
-	return false;
+  throw Common::NotImplemented( FromHere(), "" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool Line2DLagrangeP2::is_coord_in_element( const RealVector& coord, const NodesT& nodes) const
+{
+  throw Common::NotImplemented( FromHere(), "" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line2DLagrangeP2::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  throw Common::NotImplemented( FromHere(), "" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,42 +82,22 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP2::face_connectivi
 
 const CF::Mesh::ElementType& Line2DLagrangeP2::face_type(const CF::Uint face) const
 {
-  const static Point1DLagrangeP1 facetype;
+  const static Point2DLagrangeP0 facetype;
   return facetype;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Line2DLagrangeP2::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
-{
-  shapeFunc[0] = 0.5 * (mappedCoord[KSI]*mappedCoord[KSI] - mappedCoord[KSI]);
-  shapeFunc[1] = 0.5 * (mappedCoord[KSI]*mappedCoord[KSI] + mappedCoord[KSI]);
-  shapeFunc[2] = (1.0 - mappedCoord[KSI]*mappedCoord[KSI]);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Line2DLagrangeP2::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
-{
-  result(XX, 0) = mappedCoord[KSI]-0.5;
-  result(XX, 1) = mappedCoord[KSI]+0.5;
-  result(XX, 2) = -2.0*mappedCoord[KSI]; 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Line2DLagrangeP2::jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
 {
-  result(KSI,XX) = 0.5*(nodes(1, XX) - nodes(0, XX));
-  result(KSI,YY) = 0.5*(nodes(1, YY) - nodes(0, YY));
+  throw Common::NotImplemented( FromHere(), "" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Line2DLagrangeP2::normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result)
 {
-  result[XX] = 0.5*( nodes(1, YY) - nodes(0, YY));
-  result[YY] = 0.5*(-nodes(1, XX) + nodes(0, XX));
+  throw Common::NotImplemented( FromHere(), "" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

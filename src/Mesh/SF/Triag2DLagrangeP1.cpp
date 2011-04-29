@@ -9,6 +9,7 @@
 #include "LibSF.hpp"
 #include "Triag2DLagrangeP1.hpp"
 #include "Line2DLagrangeP1.hpp"
+#include "SFTriagLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -84,9 +85,7 @@ const CF::Mesh::ElementType& Triag2DLagrangeP1::face_type(const CF::Uint face) c
 
 void Triag2DLagrangeP1::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  shapeFunc[0] = 1.0 - mappedCoord[0] - mappedCoord[1];
-  shapeFunc[1] = mappedCoord[0];
-  shapeFunc[2] = mappedCoord[1];
+  SFTriagLagrangeP1::value(mappedCoord,shapeFunc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,12 +102,7 @@ void Triag2DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatri
 
 void Triag2DLagrangeP1::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  result(XX, 0) = -1.;
-  result(YY, 0) = -1.;
-  result(XX, 1) = 1.;
-  result(YY, 1) = 0.;
-  result(XX, 2) = 0.;
-  result(YY, 2) = 1.;
+  SFTriagLagrangeP1::gradient(mappedCoord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

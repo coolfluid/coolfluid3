@@ -109,12 +109,16 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 
   meshreader->read_from_to(fp_in,mesh);
 
+  BOOST_CHECK(true);
   boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
+  BOOST_CHECK(true);
+
   boost::filesystem::path fp_out_neu ("quadtriag_write.neu");
   CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
   neu_writer->write_from_to(mesh,fp_out_neu);
+  BOOST_CHECK(true);
 
   BOOST_CHECK_EQUAL(mesh->topology().recursive_nodes_count(), (Uint) 16);
   BOOST_CHECK_EQUAL(mesh->topology().recursive_elements_count(), (Uint) 28);

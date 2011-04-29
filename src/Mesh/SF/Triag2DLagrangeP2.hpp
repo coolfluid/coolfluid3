@@ -13,6 +13,7 @@
 #include "Mesh/Triag2D.hpp"
 
 #include "Mesh/SF/LibSF.hpp"
+#include "Mesh/SF/SFTriagLagrangeP2.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -49,6 +50,13 @@ struct MESH_SF_API Triag2DLagrangeP2  : public Triag2D
   typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
   typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
   typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
+
+  /// Shape function reference
+  virtual const ShapeFunction& shape_function() const
+  {
+    const static SFTriagLagrangeP2 shape_function_obj;
+    return shape_function_obj;
+  }
 
   /// Compute the shape functions corresponding to the given
   /// mapped coordinates

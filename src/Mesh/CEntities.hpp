@@ -9,8 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
-
+#include "Math/MatrixTypes.hpp"
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CTable.hpp"
 
@@ -73,7 +72,7 @@ public: // functions
 
   static CList<Uint>& used_nodes(Component& parent);
   
-  virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) ;
+  virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
   
   const CSpace& space (const Uint space_idx) const;
 
@@ -82,6 +81,10 @@ public: // functions
   virtual CSpace& create_space0();
   
   bool exists_space(const Uint space_idx) const;
+
+  virtual RealMatrix get_coordinates(const Uint elem_idx) const;
+
+  virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
 
 protected: // data
 

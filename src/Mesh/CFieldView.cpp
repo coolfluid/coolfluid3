@@ -129,15 +129,18 @@ void CFieldView::set_field(const CField& field)
 void CFieldView::allocate_coordinates(RealMatrix& coords)
 {
   cf_assert( !m_space.expired() );
-  coords.resize(space().shape_function().nb_nodes(),space().shape_function().dimension());
+  coords.resize(space().element_type().nb_nodes(),space().element_type().dimension());
 }
   
 ////////////////////////////////////////////////////////////////////////////////
 
 void CFieldView::put_coordinates(RealMatrix& coords, const Uint elem_idx) const
 {
-  cf_assert(elem_idx < space().node_connectivity().size());
-  CConnectivity::ConstRow elem_nodes = space().node_connectivity()[elem_idx];
+  if ( is_null(elements().as_ptr<CElements>() ) )
+    throw Common::IllegalCall(FromHere(),"No node_connectivity table is present, thus coordinates have to be obtained in different way");
+
+  cf_assert(elem_idx < elements().as_type<CElements>().node_connectivity().size());
+  CConnectivity::ConstRow elem_nodes = elements().as_type<CElements>().node_connectivity()[elem_idx];
   const CTable<Real>::ArrayT& coords_table = m_coords_table.lock()->array();
     
   cf_assert((Uint) coords.rows() == elem_nodes.size());

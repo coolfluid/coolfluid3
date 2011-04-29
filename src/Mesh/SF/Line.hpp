@@ -49,7 +49,7 @@ public:
   static const GeoShape::Type shape = GeoShape::LINE;
   
   /// @return number of faces
-  static const Uint nb_faces = 2;
+  static const Uint nb_faces = 3-DIM;
   
   /// @return number of edges
   static const Uint nb_edges = 2;
@@ -69,6 +69,13 @@ public:
   typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
 
   // Delegation of shape_function and shape_function_gradient to template parameter
+
+  /// Shape function reference
+  virtual const ShapeFunction& shape_function() const
+  {
+    const static SF shape_function_obj;
+    return shape_function_obj;
+  }
 
   /// Compute the shape functions corresponding to the given
   /// mapped coordinates

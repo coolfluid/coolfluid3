@@ -96,7 +96,11 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
       boost::tie(s_elements,s_elm_idx) = find_element(t_node);
       if (is_not_null(s_elements))
       {
-        CConnectivity::ConstRow s_elm = s_elements->space(source.space_idx()).node_connectivity()[s_elm_idx];
+        /// @todo assumes space0 fields for now
+        if (source.space_idx() != 0)
+          throw NotImplemented(FromHere(),"only fields with space 0 allowed for now");
+
+        CConnectivity::ConstRow s_elm = s_elements->node_connectivity()[s_elm_idx];
         std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));
         fill( s_nodes , s_elements->nodes().coordinates() , s_elm );
         
@@ -168,12 +172,15 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
         for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
         {
           t_view.put_coordinates(elem_coordinates,t_elm_idx);
-          t_view.space().shape_function().compute_centroid(elem_coordinates,t_centroid);
+          t_view.elements().element_type().compute_centroid(elem_coordinates,t_centroid);
           
           boost::tie(s_elements,s_elm_idx) = find_element(t_centroid);
           if (is_not_null(s_elements))
           {
-            CConnectivity::ConstRow s_elm = s_elements->space(source.space_idx()).node_connectivity()[s_elm_idx];
+            /// @todo assumes space0 fields for now
+            if (source.space_idx() != 0)
+              throw NotImplemented(FromHere(),"only fields with space 0 allowed for now");
+            CConnectivity::ConstRow s_elm = s_elements->node_connectivity()[s_elm_idx];
             std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));
             fill( s_nodes , s_elements->nodes().coordinates() , s_elm );
 
@@ -209,7 +216,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
         for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
         {
           t_view.put_coordinates(elem_coordinates,t_elm_idx);
-          t_view.space().shape_function().compute_centroid(elem_coordinates,t_centroid);
+          t_view.elements().element_type().compute_centroid(elem_coordinates,t_centroid);
           
 
 

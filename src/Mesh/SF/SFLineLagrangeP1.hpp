@@ -25,6 +25,8 @@ public:
 
 public:
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   /// Constructor
   SFLineLagrangeP1(const std::string& name = type_name());
 
@@ -53,10 +55,23 @@ public:
   /// Coordinates in mapped space of the nodes defining the shape function (nb_nodes x dimensionality)
   static const MappedNodesT& mapped_sf_nodes() { return s_mapped_sf_nodes; }
 
+  virtual void compute_value(const RealVector& local_coord, RealRowVector& result)
+  {
+    value(local_coord,m_tmp_v);
+    result = m_tmp_v;
+  }
+
+  virtual void compute_gradient(const RealVector& local_coord, RealMatrix& result)
+  {
+    gradient(local_coord,m_tmp_g);
+    result = m_tmp_g;
+  }
+
 private:
-  
+
   static MappedNodesT s_mapped_sf_nodes;
-  
+  ValueT    m_tmp_v;
+  GradientT m_tmp_g;
 };
 
 } // SF

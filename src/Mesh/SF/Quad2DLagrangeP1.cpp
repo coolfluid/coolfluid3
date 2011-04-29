@@ -96,13 +96,7 @@ const CF::Mesh::ElementType& Quad2DLagrangeP1::face_type(const CF::Uint face) co
 
 void Quad2DLagrangeP1::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  const Real xi  = mappedCoord[KSI];
-  const Real eta = mappedCoord[ETA];
-
-  shapeFunc[0] = 0.25 * (1.0 - xi) * (1.0 - eta);
-  shapeFunc[1] = 0.25 * (1.0 + xi) * (1.0 - eta);
-  shapeFunc[2] = 0.25 * (1.0 + xi) * (1.0 + eta);
-  shapeFunc[3] = 0.25 * (1.0 - xi) * (1.0 + eta);
+  SFQuadLagrangeP1::value(mappedCoord,shapeFunc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -137,17 +131,7 @@ void Quad2DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrix
 
 void Quad2DLagrangeP1::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  const Real ksi  = mappedCoord[0];
-  const Real eta = mappedCoord[1];
-
-  result(XX, 0) = 0.25 * (-1 + eta);
-  result(YY, 0) = 0.25 * (-1 + ksi);
-  result(XX, 1) = 0.25 * ( 1 - eta);
-  result(YY, 1) = 0.25 * (-1 - ksi);
-  result(XX, 2) = 0.25 * ( 1 + eta);
-  result(YY, 2) = 0.25 * ( 1 + ksi);
-  result(XX, 3) = 0.25 * (-1 - eta);
-  result(YY, 3) = 0.25 * ( 1 - ksi);
+  SFQuadLagrangeP1::gradient(mappedCoord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

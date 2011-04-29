@@ -80,7 +80,7 @@ void CBuildVolume::execute()
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
       volume.put_coordinates( coordinates, cell_idx );
-      volume[cell_idx] = volume.space().shape_function().compute_volume( coordinates );
+      volume[cell_idx] = elements.element_type().compute_volume( coordinates );
     }
   }
 }

@@ -8,6 +8,7 @@
 
 #include "LibSF.hpp"
 #include "Triag3DLagrangeP1.hpp"
+#include "SFTriagLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -82,14 +83,14 @@ const CF::Mesh::ElementType& Triag3DLagrangeP1::face_type(const CF::Uint face) c
 
 void Triag3DLagrangeP1::shape_function_value(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
 {
-  Triag2DLagrangeP1::shape_function_value(mapped_coord, shape_func);
+  SFTriagLagrangeP1::value(mapped_coord, shape_func);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Triag3DLagrangeP1::shape_function_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
 {
-  Triag2DLagrangeP1::shape_function_gradient(mapped_coord, result);
+  SFTriagLagrangeP1::gradient(mapped_coord, result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

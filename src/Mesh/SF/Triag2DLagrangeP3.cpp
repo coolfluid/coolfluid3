@@ -9,7 +9,8 @@
 
 #include "LibSF.hpp"
 #include "Triag2DLagrangeP3.hpp"
-//#include "Line2DLagrangeP2.hpp"  //@todo: create Line2DLagrangeP2.hpp
+#include "Line2DLagrangeP3.hpp"
+#include "SFTriagLagrangeP3.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -71,34 +72,15 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP3::face_connectiv
 
 const CF::Mesh::ElementType& Triag2DLagrangeP3::face_type(const CF::Uint face) const
 {
-  throw Common::NotImplemented( FromHere(), "" );
-
-  //static const Line2DLagrangeP3 facetype;
-  //return facetype;
+  static const Line2DLagrangeP3 facetype;
+  return facetype;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Triag2DLagrangeP3::shape_function_value(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
 {
-  const Real L0 = 1.0 - map_coord[0] - map_coord[1];
-  const Real L1 = map_coord[0];
-  const Real L2 = map_coord[1];
-
-  shapef[0] = 0.5*( 3*L0 - 1. )*( 3*L0 - 2.)*L0;
-  shapef[1] = 0.5*( 3*L1 - 1. )*( 3*L1 - 2.)*L1;
-  shapef[2] = 0.5*( 3*L2 - 1. )*( 3*L2 - 2.)*L2;
-
-  shapef[3] = 9./2. * L0*L1*( 3*L0 - 1. );
-  shapef[4] = 9./2. * L0*L1*( 3*L1 - 1. );
-
-  shapef[5] = 9./2. * L1*L2*( 3*L1 - 1. );
-  shapef[6] = 9./2. * L1*L2*( 3*L2 - 1. );
-
-  shapef[7] = 9./2. * L2*L0*( 3*L2 - 1. );
-  shapef[8] = 9./2. * L2*L0*( 3*L0 - 1. );
-
-  shapef[9] = 27.*L0*L1*L2;
+  SFTriagLagrangeP3::value(map_coord,shapef);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,38 +104,7 @@ void Triag2DLagrangeP3::mapped_coordinates(const CoordsT& coord, const NodeMatri
 
 void Triag2DLagrangeP3::shape_function_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
 {
-  const Real L0 = 1.0 - map_coord[0] - map_coord[1];
-  const Real L1 = map_coord[0];
-  const Real L2 = map_coord[1];
-
-  const Real dL0dxi  = -1.0;
-  const Real dL0deta = -1.0;
-  const Real dL1dxi  =  1.0;
-  const Real dL1deta =  0.0;
-  const Real dL2dxi  =  0.0;
-  const Real dL2deta =  1.0;
-
-  result(XX,0) =  0.5 * dL0dxi  * ( 27.0*L0*L0 - 18.0*L0 + 2.0 );
-  result(XX,1) =  0.5 * dL1dxi  * ( 27.0*L1*L1 - 18.0*L1 + 2.0 );
-  result(XX,2) =  0.5 * dL2dxi  * ( 27.0*L2*L2 - 18.0*L2 + 2.0 );
-  result(XX,3) =  4.5 * ( dL0dxi*(6.0*L0*L1-L1) + dL1dxi*L0*(3.0*L0-1.0) );
-  result(XX,4) =  4.5 * ( dL1dxi*(6.0*L0*L1-L0) + dL0dxi*L1*(3.0*L1-1.0) );
-  result(XX,5) =  4.5 * ( dL1dxi*(6.0*L1*L2-L2) + dL2dxi*L1*(3.0*L1-1.0) );
-  result(XX,6) =  4.5 * ( dL2dxi*(6.0*L1*L2-L1) + dL1dxi*L2*(3.0*L2-1.0) );
-  result(XX,7) =  4.5 * ( dL2dxi*(6.0*L0*L2-L0) + dL0dxi*L2*(3.0*L2-1.0) );
-  result(XX,8) =  4.5 * ( dL0dxi*(6.0*L0*L2-L2) + dL2dxi*L0*(3.0*L0-1.0) );
-  result(XX,9) = 27.0 * ( dL0dxi*L1*L2 + L0*dL1dxi*L2 + L0*L1*dL2dxi );
-
-  result(YY,0) =  0.5 * dL0deta  * ( 27.0*L0*L0 - 18.0*L0 + 2.0 );
-  result(YY,1) =  0.5 * dL1deta  * ( 27.0*L1*L1 - 18.0*L1 + 2.0 );
-  result(YY,2) =  0.5 * dL2deta  * ( 27.0*L2*L2 - 18.0*L2 + 2.0 );
-  result(YY,3) =  4.5 * ( dL0deta*(6.0*L0*L1-L1) + dL1deta*L0*(3.0*L0-1.0) );
-  result(YY,4) =  4.5 * ( dL1deta*(6.0*L0*L1-L0) + dL0deta*L1*(3.0*L1-1.0) );
-  result(YY,5) =  4.5 * ( dL1deta*(6.0*L1*L2-L2) + dL2deta*L1*(3.0*L1-1.0) );
-  result(YY,6) =  4.5 * ( dL2deta*(6.0*L1*L2-L1) + dL1deta*L2*(3.0*L2-1.0) );
-  result(YY,7) =  4.5 * ( dL2deta*(6.0*L0*L2-L0) + dL0deta*L2*(3.0*L2-1.0) );
-  result(YY,8) =  4.5 * ( dL0deta*(6.0*L0*L2-L2) + dL2deta*L0*(3.0*L0-1.0) );
-  result(YY,9) = 27.0 * ( dL0deta*L1*L2 + L0*dL1deta*L2 + L0*L1*dL2deta );
+  SFTriagLagrangeP3::gradient(map_coord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

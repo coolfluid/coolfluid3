@@ -12,12 +12,11 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/range.hpp>
 
-#include "Common/StringConversion.hpp"
 #include "Common/Component.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Mesh/ElementData.hpp"
+#include "Mesh/ShapeFunction.hpp"
 #include "Mesh/GeoShape.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,17 +106,19 @@ public: // functions
   /// @return m_dimension
   Uint dimension() const { return m_dimension; }
 
-  virtual std::string builder_name() const = 0;
+  std::string builder_name() const;
+
+  virtual const ShapeFunction& shape_function() const;
 
   /// compute volume given coordinates
   /// @note Only in elements of dimensionality == dimension will
   /// the volume be different from zero
-  virtual Real compute_volume(const NodesT& coord) const = 0;
+  virtual Real compute_volume(const NodesT& coord) const;
 
   /// compute area using given coordinates.
   /// @note Only in elements of dimensionality == dimensionality-1
   /// will the area be different from zero
-  virtual Real compute_area(const NodesT& coord) const = 0;
+  virtual Real compute_area(const NodesT& coord) const;
 
   /// compute the normal to the element. The direction will be taken according
   /// to the order of the coordinates
@@ -126,17 +127,18 @@ public: // functions
   /// compute centroid of element given coordinates
   virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const;
   
-  
   /// Return the face connectivity information
-  virtual const FaceConnectivity& face_connectivity() const = 0;
+  virtual const FaceConnectivity& face_connectivity() const;
   
   /// Return the face type for the given face
-  virtual const ElementType& face_type(const Uint face) const = 0;
+  virtual const ElementType& face_type(const Uint face) const;
 
   /// @return if the coordinate is in the element with given nodes
   /// @param [in] coord  the coordinates that will be checked
   /// @param [in] nodes  the nodes of the element
-  virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const = 0;
+  virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
+
+  std::string supported_functions_summary();
 
 protected: // data
 

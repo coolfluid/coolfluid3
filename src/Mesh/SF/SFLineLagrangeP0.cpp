@@ -7,7 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
-#include "SFPointLagrangeP1.hpp"
+#include "SFLineLagrangeP0.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -15,11 +15,11 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SFPointLagrangeP1, ShapeFunction, LibSF > SFPointLagrangeP1_Builder;
+Common::ComponentBuilder < SFLineLagrangeP0, ShapeFunction, LibSF > SFLineLagrangeP0_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFPointLagrangeP1::SFPointLagrangeP1(const std::string& name) : ShapeFunction(name)
+SFLineLagrangeP0::SFLineLagrangeP0(const std::string& name) : ShapeFunction(name)
 {
   m_dimensionality = dimensionality;
   m_nb_nodes = nb_nodes;
@@ -29,21 +29,21 @@ SFPointLagrangeP1::SFPointLagrangeP1(const std::string& name) : ShapeFunction(na
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFPointLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& shape_func)
+void SFLineLagrangeP0::value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
-  shape_func[0] = 1.;
+  result[0] = 1.0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFPointLagrangeP1::gradient(const MappedCoordsT& mappedCoord, GradientT& result)
+void SFLineLagrangeP0::gradient(const MappedCoordsT& mappedCoord, GradientT& result)
 {
   result(KSI, 0) = 0.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFPointLagrangeP1::MappedNodesT SFPointLagrangeP1::s_mapped_sf_nodes =  ( SFPointLagrangeP1::MappedNodesT() <<
+SFLineLagrangeP0::MappedNodesT SFLineLagrangeP0::s_mapped_sf_nodes =  ( SFLineLagrangeP0::MappedNodesT() <<
   0.
 ).finished();
 

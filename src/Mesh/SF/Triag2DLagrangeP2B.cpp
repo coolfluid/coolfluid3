@@ -9,6 +9,7 @@
 #include "LibSF.hpp"
 #include "Triag2DLagrangeP2B.hpp"
 #include "Line2DLagrangeP1.hpp"
+#include "SFTriagLagrangeP2B.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -68,20 +69,7 @@ const CF::Mesh::ElementType& Triag2DLagrangeP2B::face_type(const CF::Uint face) 
 
 void Triag2DLagrangeP2B::shape_function_value(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
 {
-  const Real L0 = 1.0 - map_coord[0] - map_coord[1];
-  const Real L1 = map_coord[0];
-  const Real L2 = map_coord[1];
-
-  const Real Phi6 = L0 * L1 * L2;
-
-  shapef[0] = ( 2*L0 - 1.0 ) * L0 + 3 * Phi6 ;
-  shapef[1] = ( 2*L1 - 1.0 ) * L1 + 3 * Phi6 ;
-  shapef[2] = ( 2*L2 - 1.0 ) * L2 + 3 * Phi6 ;
-  shapef[3] = 4*L0*L1 - 12. * Phi6 ;
-  shapef[4] = 4*L1*L2 - 12. * Phi6 ;
-  shapef[5] = 4*L2*L0 - 12. * Phi6 ;
-  shapef[6] = 27 * Phi6;
-
+  SFTriagLagrangeP2B::value(map_coord,shapef);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -105,38 +93,7 @@ void Triag2DLagrangeP2B::mapped_coordinates(const CoordsT& coord, const NodeMatr
 
 void Triag2DLagrangeP2B::shape_function_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
 {
-  const Real L0 = 1.0 - map_coord[0] - map_coord[1];
-  const Real L1 = map_coord[0];
-  const Real L2 = map_coord[1];
-
-  const Real DX_L0 = -1.;
-  const Real DY_L0 = -1.;
-  const Real DX_L1 =  1.;
-  const Real DY_L1 =  0.;
-  const Real DX_L2 =  0.;
-  const Real DY_L2 =  1.;
-
-  result(XX, 0) = (4.*L0-1.)*DX_L0  + 3.*L1*L2*DX_L0 + 3.*L0*L2*DX_L1 + 3.*L0*L1*DX_L2;
-  result(YY, 0) = (4.*L0-1.)*DY_L0  + 3.*L1*L2*DY_L0 + 3.*L0*L2*DY_L1 + 3.*L0*L1*DY_L2;
-
-  result(XX, 1) =  (4.*L1-1.)*DX_L1 + 3.*L1*L2*DX_L0 + 3.*L0*L2*DX_L1 + 3.*L0*L1*DX_L2;
-  result(YY, 1) =  (4.*L1-1.)*DY_L1 + 3.*L1*L2*DY_L0 + 3.*L0*L2*DY_L1 + 3.*L0*L1*DY_L2;
-
-  result(XX, 2) =  (4.*L2-1.)*DX_L2 + 3.*L1*L2*DX_L0 + 3.*L0*L2*DX_L1 + 3.*L0*L1*DX_L2;
-  result(YY, 2) =  (4.*L2-1.)*DY_L2 + 3.*L1*L2*DY_L0 + 3.*L0*L2*DY_L1 + 3.*L0*L1*DY_L2;
-
-  result(XX, 3) = 4.*L1*DX_L0 + 4.*L0*DX_L1 - 12.*L1*L2*DX_L0 - 12.*L0*L2*DX_L1 - 12.*L0*L1*DX_L2;
-  result(YY, 3) = 4.*L1*DY_L0 + 4.*L0*DY_L1 - 12.*L1*L2*DY_L0 - 12.*L0*L2*DY_L1 - 12.*L0*L1*DY_L2;
-
-  result(XX, 4) = 4.*L2*DX_L1 + 4.*L1*DX_L2 - 12.*L1*L2*DX_L0 - 12.*L0*L2*DX_L1 - 12.*L0*L1*DX_L2;
-  result(YY, 4) = 4.*L2*DY_L1 + 4.*L1*DY_L2 - 12.*L1*L2*DY_L0 - 12.*L0*L2*DY_L1 - 12.*L0*L1*DY_L2;
-
-  result(XX, 5) = 4.*L2*DX_L0 + 4.*L0*DX_L2 - 12.*L1*L2*DX_L0 - 12.*L0*L2*DX_L1 - 12.*L0*L1*DX_L2;
-  result(YY, 5) = 4.*L2*DY_L0 + 4.*L0*DY_L2 - 12.*L1*L2*DY_L0 - 12.*L0*L2*DY_L1 - 12.*L0*L1*DY_L2;
-
-  result(XX, 6) = 27.*L1*L2*DX_L0 + 27.*L0*L2*DX_L1 + 27.*L0*L1*DX_L2;
-  result(YY, 6) = 27.*L1*L2*DY_L0 + 27.*L0*L2*DY_L1 + 27.*L0*L1*DY_L2;
-
+  SFTriagLagrangeP2B::gradient(map_coord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

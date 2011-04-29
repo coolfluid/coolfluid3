@@ -12,6 +12,7 @@
 
 #include "Mesh/Quad2D.hpp"
 #include "Mesh/SF/LibSF.hpp"
+#include "Mesh/SF/SFQuadLagrangeP2.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -93,6 +94,12 @@ virtual Real compute_volume(const NodesT& coord) const;
 virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
 virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
 virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
+/// Shape function reference
+virtual const ShapeFunction& shape_function() const
+{
+  const static SFQuadLagrangeP2 shape_function_obj;
+  return shape_function_obj;
+}
 
 };
 

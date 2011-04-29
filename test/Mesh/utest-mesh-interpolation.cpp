@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
       for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
       {
         s_elembased_view.put_coordinates( coordinates, elem_idx );
-        s_elembased_view.space().shape_function().compute_centroid( coordinates , coords );
+        elements.element_type().compute_centroid( coordinates , coords );
         
         s_elembased_view[elem_idx][0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
     		s_elembased_view[elem_idx][1]=coords[XX];

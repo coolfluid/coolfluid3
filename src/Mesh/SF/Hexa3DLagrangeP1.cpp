@@ -11,7 +11,7 @@
 #include "LibSF.hpp"
 #include "Hexa3DLagrangeP1.hpp"
 #include "Quad3DLagrangeP1.hpp"
-
+#include "SFHexaLagrangeP1.hpp"
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -145,29 +145,7 @@ bool Hexa3DLagrangeP1::is_orientation_inside(const CoordsT& coord, const NodeMat
 
 void Hexa3DLagrangeP1::shape_function_value(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
 {
-  const Real xi   = mapped_coord[0];
-  const Real eta  = mapped_coord[1];
-  const Real zeta = mapped_coord[2];
-
-  const Real a1 = (1 + xi);
-  const Real a2 = (1 - xi);
-
-  const Real b1 = (1 + eta);
-  const Real b2 = (1 - eta);
-
-  const Real c1 = (1 + zeta);
-  const Real c2 = (1 - zeta);
-
-  shape_func[0] = a2*b2*c2;
-  shape_func[1] = a1*b2*c2;
-  shape_func[2] = a1*b1*c2;
-  shape_func[3] = a2*b1*c2;
-  shape_func[4] = a2*b2*c1;
-  shape_func[5] = a1*b2*c1;
-  shape_func[6] = a1*b1*c1;
-  shape_func[7] = a2*b1*c1;
-
-  shape_func *= 0.125;
+  SFHexaLagrangeP1::value(mapped_coord,shape_func);
 }
   
 ////////////////////////////////////////////////////////////////////////////////
@@ -249,50 +227,7 @@ void Hexa3DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrix
 
 void Hexa3DLagrangeP1::shape_function_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
 {
-  const Real xi   = mapped_coord[KSI];
-  const Real eta  = mapped_coord[ETA];
-  const Real zeta = mapped_coord[ZTA];
-
-  const Real a1 = (1 + xi);
-  const Real a2 = (1 - xi);
-
-  const Real b1 = (1 + eta);
-  const Real b2 = (1 - eta);
-
-  const Real c1 = (1 + zeta);
-  const Real c2 = (1 - zeta);
-
-  result(XX, 0) = -0.125 * b2*c2;
-  result(YY, 0) = -0.125 * a2*c2;
-  result(ZZ, 0) = -0.125 * a2*b2;
-
-  result(XX, 1) =  0.125 * b2*c2;
-  result(YY, 1) = -0.125 * a1*c2;
-  result(ZZ, 1) = -0.125 * a1*b2;
-
-  result(XX, 2) =  0.125 * b1*c2;
-  result(YY, 2) =  0.125 * a1*c2;
-  result(ZZ, 2) = -0.125 * a1*b1;
-
-  result(XX, 3) = -0.125 * b1*c2;
-  result(YY, 3) =  0.125 * a2*c2;
-  result(ZZ, 3) = -0.125 * a2*b1;
-
-  result(XX, 4) = -0.125 * b2*c1;
-  result(YY, 4) = -0.125 * a2*c1;
-  result(ZZ, 4) =  0.125 * a2*b2;
-
-  result(XX, 5) =  0.125 * b2*c1;
-  result(YY, 5) = -0.125 * a1*c1;
-  result(ZZ, 5) =  0.125 * a1*b2;
-
-  result(XX, 6) =  0.125 * b1*c1;
-  result(YY, 6) =  0.125 * a1*c1;
-  result(ZZ, 6) =  0.125 * a1*b1;
-
-  result(XX, 7) = -0.125 * b1*c1;
-  result(YY, 7) =  0.125 * a2*c1;
-  result(ZZ, 7) =  0.125 * a2*b1;
+  SFHexaLagrangeP1::gradient(mapped_coord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

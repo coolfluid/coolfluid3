@@ -101,14 +101,14 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   
   // Left boundary point
   CFaces::Ptr xneg = mesh.topology().create_region("xneg").create_component<CFaces>("Point");
-  xneg->initialize("CF.Mesh.SF.Point1DLagrangeP1", nodes);
+  xneg->initialize("CF.Mesh.SF.Point1DLagrangeP0", nodes);
   CConnectivity& xneg_connectivity = xneg->node_connectivity();
   xneg_connectivity.resize(1);
   xneg_connectivity[0][0] = 0;
   
   // right boundary point
   CFaces::Ptr xpos = mesh.topology().create_region("xpos").create_component<CFaces>("Point");
-  xpos->initialize("CF.Mesh.SF.Point1DLagrangeP1", nodes);
+  xpos->initialize("CF.Mesh.SF.Point1DLagrangeP0", nodes);
   CConnectivity& xpos_connectivity = xpos->node_connectivity();
   xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;

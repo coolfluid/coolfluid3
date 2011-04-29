@@ -107,7 +107,7 @@ void CElements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) co
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CTable<Uint>::ConstRow CElements::get_nodes(const Uint elem_idx)
+CTable<Uint>::ConstRow CElements::get_nodes(const Uint elem_idx) const
 {
   return node_connectivity()[elem_idx];
 //  CTable<Uint>::ConstRow elem_nodes = connectivity_table(space)[elem_idx];
@@ -115,15 +115,6 @@ CTable<Uint>::ConstRow CElements::get_nodes(const Uint elem_idx)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-CSpace& CElements::create_space0()
-{
-  cf_assert(m_spaces.size() == 0);
-  CSpace::Ptr space = create_component<CSpace>("space[0]");
-  space->initialize(*this);
-  m_spaces.push_back(space);
-  return *space;
-}
 
 } // Mesh
 } // CF

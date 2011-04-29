@@ -88,10 +88,7 @@ const CF::Mesh::ElementType& Tetra3DLagrangeP1::face_type(const CF::Uint face) c
 
 void Tetra3DLagrangeP1::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  shapeFunc[0] = 1.0 - mappedCoord[0] - mappedCoord[1] - mappedCoord[2];
-  shapeFunc[1] = mappedCoord[0];
-  shapeFunc[2] = mappedCoord[1];
-  shapeFunc[3] = mappedCoord[2];
+  SFTetraLagrangeP1::value(mappedCoord,shapeFunc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,18 +106,7 @@ void Tetra3DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatri
 ////////////////////////////////////////////////////////////////////////////////
 void Tetra3DLagrangeP1::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  result(XX, 0) = -1.;
-  result(YY, 0) = -1.;
-  result(ZZ, 0) = -1.;
-  result(XX, 1) = 1.;
-  result(YY, 1) = 0.;
-  result(ZZ, 1) = 0.;
-  result(XX, 2) = 0.;
-  result(YY, 2) = 1.;
-  result(ZZ, 2) = 0.;
-  result(XX, 3) = 0.;
-  result(YY, 3) = 0.;
-  result(ZZ, 3) = 1.;
+  SFTetraLagrangeP1::gradient(mappedCoord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

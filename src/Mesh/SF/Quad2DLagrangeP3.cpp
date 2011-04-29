@@ -77,9 +77,9 @@ const CF::Mesh::ElementType::FaceConnectivity& Quad2DLagrangeP3::faces()
 // Local connectivity:
 //             3---9---8---2
 //             |           |
-//						10  15   14  7
+//            10  15   14  7
 //             |           |
-//						11  12   13  6
+//	            11  12   13  6
 //             |           |
 //             0---4---5---1
 // Reference domain: <-1,1> x <-1,1>
@@ -103,37 +103,7 @@ const CF::Mesh::ElementType& Quad2DLagrangeP3::face_type(const CF::Uint face) co
 
 void Quad2DLagrangeP3::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  const Real xi  = mappedCoord[KSI];
-  const Real eta = mappedCoord[ETA];
-
-  const Real onethird = 1.0/3.0;
-
-  const Real L0xi  = - 9.0/16.0 * (xi+onethird) * (xi-onethird) * (xi-1.0);
-  const Real L1xi  =  27.0/16.0 *    (xi+1.0)   * (xi-onethird) * (xi-1.0);
-  const Real L2xi  = -27.0/16.0 *    (xi+1.0)   * (xi+onethird) * (xi-1.0);
-  const Real L3xi  =   9.0/16.0 *    (xi+1.0)   * (xi+onethird) * (xi-onethird);
-
-  const Real L0eta = - 9.0/16.0 * (eta+onethird) * (eta-onethird) * (eta-1.0);
-  const Real L1eta =  27.0/16.0 *    (eta+1.0)   * (eta-onethird) * (eta-1.0);
-  const Real L2eta = -27.0/16.0 *    (eta+1.0)   * (eta+onethird) * (eta-1.0);
-  const Real L3eta =   9.0/16.0 *    (eta+1.0)   * (eta+onethird) * (eta-onethird);
-
-  shapeFunc[0]  = L0xi * L0eta;
-  shapeFunc[1]  = L3xi * L0eta;
-  shapeFunc[2]  = L3xi * L3eta;
-  shapeFunc[3]  = L0xi * L3eta;
-  shapeFunc[4]  = L1xi * L0eta;
-  shapeFunc[5]  = L2xi * L0eta;
-  shapeFunc[6]  = L3xi * L1eta;
-  shapeFunc[7]  = L3xi * L2eta;
-  shapeFunc[8]  = L2xi * L3eta;
-  shapeFunc[9]  = L1xi * L3eta;
-  shapeFunc[10] = L0xi * L2eta;
-  shapeFunc[11] = L0xi * L1eta;
-  shapeFunc[12] = L1xi * L1eta;
-  shapeFunc[13] = L2xi * L1eta;
-  shapeFunc[14] = L2xi * L2eta;
-  shapeFunc[15] = L1xi * L2eta;
+  SFQuadLagrangeP3::value(mappedCoord,shapeFunc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -147,64 +117,7 @@ void Quad2DLagrangeP3::mapped_coordinates(const CoordsT& coord, const NodeMatrix
 
 void Quad2DLagrangeP3::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  const Real xi =  mappedCoord[KSI];
-  const Real eta = mappedCoord[ETA];
-
-  const Real onethird = 1.0/3.0;
-
-  const Real L0xi  = - 9.0/16.0 * (xi+onethird) * (xi-onethird) * (xi-1.0);
-  const Real L1xi  =  27.0/16.0 *    (xi+1.0)   * (xi-onethird) * (xi-1.0);
-  const Real L2xi  = -27.0/16.0 *    (xi+1.0)   * (xi+onethird) * (xi-1.0);
-  const Real L3xi  =   9.0/16.0 *    (xi+1.0)   * (xi+onethird) * (xi-onethird);
-
-  const Real L0eta = - 9.0/16.0 * (eta+onethird) * (eta-onethird) * (eta-1.0);
-  const Real L1eta =  27.0/16.0 *    (eta+1.0)   * (eta-onethird) * (eta-1.0);
-  const Real L2eta = -27.0/16.0 *    (eta+1.0)   * (eta+onethird) * (eta-1.0);
-  const Real L3eta =   9.0/16.0 *    (eta+1.0)   * (eta+onethird) * (eta-onethird);
-
-  const Real dL0dxi = - 9.0/16.0 * (   (xi-onethird)*(xi-1.0)    + (xi+onethird)*(xi-1.0) + (xi+onethird)*(xi-onethird) );
-  const Real dL1dxi =  27.0/16.0 * (   (xi-onethird)*(xi-1.0)    +    (xi+1.0)*(xi-1.0)   +   (xi+1.0)*(xi-onethird) );
-  const Real dL2dxi = -27.0/16.0 * (   (xi+onethird)*(xi-1.0)    +    (xi+1.0)*(xi-1.0)   +   (xi+1.0)*(xi+onethird) );
-  const Real dL3dxi =   9.0/16.0 * ( (xi+onethird)*(xi-onethird) + (xi+1.0)*(xi-onethird) +   (xi+1.0)*(xi+onethird) );
-
-  const Real dL0deta = - 9.0/16.0 * (   (eta-onethird)*(eta-1.0)    + (eta+onethird)*(eta-1.0) + (eta+onethird)*(eta-onethird) );
-  const Real dL1deta =  27.0/16.0 * (   (eta-onethird)*(eta-1.0)    +    (eta+1.0)*(eta-1.0)   +   (eta+1.0)*(eta-onethird) );
-  const Real dL2deta = -27.0/16.0 * (   (eta+onethird)*(eta-1.0)    +    (eta+1.0)*(eta-1.0)   +   (eta+1.0)*(eta+onethird) );
-  const Real dL3deta =   9.0/16.0 * ( (eta+onethird)*(eta-onethird) + (eta+1.0)*(eta-onethird) +   (eta+1.0)*(eta+onethird) );
-
-  result(KSI,0)  = dL0dxi * L0eta;
-  result(KSI,1)  = dL3dxi * L0eta;
-  result(KSI,2)  = dL3dxi * L3eta;
-  result(KSI,3)  = dL0dxi * L3eta;
-  result(KSI,4)  = dL1dxi * L0eta;
-  result(KSI,5)  = dL2dxi * L0eta;
-  result(KSI,6)  = dL3dxi * L1eta;
-  result(KSI,7)  = dL3dxi * L2eta;
-  result(KSI,8)  = dL2dxi * L3eta;
-  result(KSI,9)  = dL1dxi * L3eta;
-  result(KSI,10) = dL0dxi * L2eta;
-  result(KSI,11) = dL0dxi * L1eta;
-  result(KSI,12) = dL1dxi * L1eta;
-  result(KSI,13) = dL2dxi * L1eta;
-  result(KSI,14) = dL2dxi * L2eta;
-  result(KSI,15) = dL1dxi * L2eta;
-
-  result(ETA,0)  = L0xi * dL0deta;
-  result(ETA,1)  = L3xi * dL0deta;
-  result(ETA,2)  = L3xi * dL3deta;
-  result(ETA,3)  = L0xi * dL3deta;
-  result(ETA,4)  = L1xi * dL0deta;
-  result(ETA,5)  = L2xi * dL0deta;
-  result(ETA,6)  = L3xi * dL1deta;
-  result(ETA,7)  = L3xi * dL2deta;
-  result(ETA,8)  = L2xi * dL3deta;
-  result(ETA,9)  = L1xi * dL3deta;
-  result(ETA,10) = L0xi * dL2deta;
-  result(ETA,11) = L0xi * dL1deta;
-  result(ETA,12) = L1xi * dL1deta;
-  result(ETA,13) = L2xi * dL1deta;
-  result(ETA,14) = L2xi * dL2deta;
-  result(ETA,15) = L1xi * dL2deta;
+  SFQuadLagrangeP3::gradient(mappedCoord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

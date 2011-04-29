@@ -68,6 +68,13 @@ public:
   
   // Delegation of shape_function_value and shape_function_gradient to template parameter
 
+  /// Shape function reference
+  virtual const ShapeFunction& shape_function() const
+  {
+    const static SF shape_function_obj;
+    return shape_function_obj;
+  }
+
   /// Compute the shape functions corresponding to the given
   /// mapped coordinates
   /// @param mappedCoord The mapped coordinates

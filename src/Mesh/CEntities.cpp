@@ -12,7 +12,7 @@
 #include "Common/StringConversion.hpp"
 #include "Common/OptionT.hpp"
 
-#include "Mesh/CEntities.hpp"
+#include "Mesh/CConnectivity.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
@@ -151,7 +151,7 @@ Uint CEntities::size() const
   throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
 }
 
-CTable<Uint>::ConstRow CEntities::get_nodes(const Uint elem_idx)
+CTable<Uint>::ConstRow CEntities::get_nodes(const Uint elem_idx) const
 {
   throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
 }
@@ -171,20 +171,11 @@ CSpace& CEntities::create_space( const std::string& shape_function_builder_name 
 
 CSpace& CEntities::create_space0()
 {
-  if (m_spaces.size() == 0)
-  {
-    CSpace& space = create_space(element_type().builder_name());
-    CConnectivity& table = space.node_connectivity();
-    table.set_row_size(space.shape_function().nb_nodes());
-    table.resize(size());
-    for (Uint i=0; i!=table.size(); ++i)
-    {
-      CTable<Uint>::ConstRow nodes = get_nodes(i);
-      for (Uint j=0; j!=table.row_size(); ++j)
-        table[i][j] = nodes[j];
-    }
-  }
-  return *m_spaces[0];
+  cf_assert(m_spaces.size() == 0);
+  CSpace::Ptr space = create_component<CSpace>("space[0]");
+  space->initialize(element_type().shape_function().derived_type_name());
+  m_spaces.push_back(space);
+  return *space;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,6 +194,21 @@ bool CEntities::exists_space(const Uint space_idx) const
     if ( is_not_null (m_spaces[space_idx]) )
       exists = true;
   return exists;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+RealMatrix CEntities::get_coordinates(const Uint elem_idx) const
+{
+  throw Common::NotImplemented(FromHere(),"Should implement in derived class");
+  return RealMatrix(1,1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CEntities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
+{
+  throw Common::NotImplemented(FromHere(),"Should implement in derived class");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

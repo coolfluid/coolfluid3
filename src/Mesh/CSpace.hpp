@@ -9,10 +9,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
-
 #include "Mesh/LibMesh.hpp"
-#include "Mesh/CConnectivity.hpp"
+#include "Mesh/ShapeFunction.hpp"
+#include "Mesh/CEntities.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -47,31 +46,19 @@ public: // functions
   /// initialize
   void initialize(const std::string& shape_function_builder_name);
 
-  void initialize(const CElements& elements);
+  //void initialize(const CElements& elements);
 
   /// return the elementType
-  const ElementType& shape_function() const { return *m_shape_function; }
+  const ShapeFunction& shape_function() const { return *m_shape_function; }
 
-  /// return the number of elements
-  Uint size() const { return m_node_connectivity->size(); }
-  
-  CConnectivity::ConstRow get_nodes(const Uint elem_idx) ;
+  /// The geometric support of this space. This is equal to the element type defined in CEntities
+  const ElementType& element_type() const { return parent()->as_type<CEntities>().element_type(); }
 
-  /// Mutable access to the connectivity table
-  CConnectivity& node_connectivity() { return *m_node_connectivity; }
-  
-  /// Const access to the connectivity table
-  const CConnectivity& node_connectivity() const { return *m_node_connectivity; }
-
-  Uint nb_states() const { return m_nb_states; }
+  Uint nb_states() const { return 1.;}//return shape_function().nb_nodes(); }
   
 protected: // data
 
-  boost::shared_ptr<ElementType> m_shape_function;
-  
-  CConnectivity::Ptr m_node_connectivity;
-  
-  Uint m_nb_states;
+  boost::shared_ptr<ShapeFunction> m_shape_function;
 
 };
 

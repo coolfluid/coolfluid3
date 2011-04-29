@@ -14,6 +14,7 @@
 #include "Mesh/Tetra3D.hpp"
 
 #include "Mesh/SF/LibSF.hpp"
+#include "Mesh/SF/SFTetraLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -50,6 +51,13 @@ typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
 typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
 
   
+/// Shape function reference
+virtual const ShapeFunction& shape_function() const
+{
+  const static SFTetraLagrangeP1 shape_function_obj;
+  return shape_function_obj;
+}
+
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates

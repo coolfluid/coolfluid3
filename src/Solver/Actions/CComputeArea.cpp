@@ -70,8 +70,8 @@ void CComputeArea::execute()
 {
   CScalarFieldView& area = *m_area;
 
-  area.put_coordinates(m_coordinates,idx());
-  area[idx()] = area.space().shape_function().compute_area( m_coordinates );;
+  elements().put_coordinates(m_coordinates,idx());
+  area[idx()] = elements().element_type().compute_area( m_coordinates );;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -79,8 +79,8 @@ void CBuildArea::execute()
     
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
-      area.put_coordinates( coordinates, cell_idx );
-      area[cell_idx] = area.space().shape_function().compute_area( coordinates );
+      elements.put_coordinates( coordinates, cell_idx );
+      area[cell_idx] = area.elements().element_type().compute_area( coordinates );
     }
   }
 }

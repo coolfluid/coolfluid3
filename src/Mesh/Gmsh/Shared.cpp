@@ -69,16 +69,16 @@ Shared::Shared() :
   m_supported_types.push_back("CF.Mesh.SF.Triag3DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Hexa3DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Tetra3DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Point1DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Point2DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Point3DLagrangeP1");
+  m_supported_types.push_back("CF.Mesh.SF.Point1DLagrangeP0");
+  m_supported_types.push_back("CF.Mesh.SF.Point2DLagrangeP0");
+  m_supported_types.push_back("CF.Mesh.SF.Point3DLagrangeP0");
 
   m_CFelement_to_GmshElement[GeoShape::LINE ]=P1LINE;
   m_CFelement_to_GmshElement[GeoShape::TRIAG]=P1TRIAG;
   m_CFelement_to_GmshElement[GeoShape::QUAD ]=P1QUAD;
   m_CFelement_to_GmshElement[GeoShape::HEXA ]=P1HEXA;
   m_CFelement_to_GmshElement[GeoShape::TETRA]=P1TETRA;
-  m_CFelement_to_GmshElement[GeoShape::POINT]=P1POINT;
+  m_CFelement_to_GmshElement[GeoShape::POINT]=P0POINT;
 
   // --------------------------------------------------- NODES
 
@@ -290,8 +290,8 @@ Shared::Shared() :
   m_nodes_gmsh_to_cf[P2HEXA][26]=26;
 
   //Point
-  m_nodes_gmsh_to_cf[P1POINT].resize(1);
-  m_nodes_gmsh_to_cf[P1POINT][0]=0;
+  m_nodes_gmsh_to_cf[P0POINT].resize(1);
+  m_nodes_gmsh_to_cf[P0POINT][0]=0;
 
   //P3 triag
   m_nodes_cf_to_gmsh[P3TRIAG].resize(10);

@@ -93,22 +93,7 @@ const CF::Mesh::ElementType& Quad2DLagrangeP2::face_type(const CF::Uint face) co
 
 void Quad2DLagrangeP2::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  const Real xi  = mappedCoord[KSI];
-  const Real eta = mappedCoord[ETA];
-
-  const Real xi2 = xi*xi;
-  const Real eta2 = eta*eta;
-  const Real xiEta = xi*eta;
-
-  shapeFunc[0] = 0.25 * (1.0 - xi)  * (1.0 - eta) * xiEta;
-  shapeFunc[1] = -0.25 * (1.0 + xi)  * (1.0 - eta) * xiEta;
-  shapeFunc[2] = 0.25 * (1.0 + xi)  * (1.0 + eta) * xiEta;
-  shapeFunc[3] = -0.25 * (1.0 - xi)  * (1.0 + eta) * xiEta;
-  shapeFunc[4] = -0.5  * (1.0 - xi2) * (1.0 - eta) * eta;
-  shapeFunc[5] = 0.5  * (1.0 + xi)  * (1.0 - eta2) * xi;
-  shapeFunc[6] = 0.5  * (1.0 - xi2) * (1.0 + eta) * eta;
-  shapeFunc[7] = -0.5  * (1.0 - xi)  * (1.0 - eta2) * xi;
-  shapeFunc[8] =        (1.0 - xi2) * (1.0 - eta2);
+  SFQuadLagrangeP2::value(mappedCoord,shapeFunc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,33 +107,7 @@ void Quad2DLagrangeP2::mapped_coordinates(const CoordsT& coord, const NodeMatrix
 
 void Quad2DLagrangeP2::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  const Real xi =  mappedCoord[KSI];
-  const Real eta = mappedCoord[ETA];
-  const Real xi2 = xi*xi;
-  const Real eta2 = eta*eta;
-  const Real xiEta = xi*eta;
-  const Real xi2Eta = xi2*eta;
-  const Real xiEta2 = xi*eta2;
-
-  result(KSI,0) =  0.25 * (eta - 2.*xiEta - eta2 + 2.*xiEta2);
-  result(KSI,1) = -0.25 * (eta + 2.*xiEta - eta2 - 2.*xiEta2);
-  result(KSI,2) =  0.25 * (eta + 2.*xiEta + eta2 + 2.*xiEta2);
-  result(KSI,3) = -0.25 * (eta - 2.*xiEta + eta2 - 2.*xiEta2);
-  result(KSI,4) = -0.5  * (-2.*xiEta + 2.*xiEta2);
-  result(KSI,5) =  0.5  * (1. - eta2 + 2.*xi - 2.*xiEta2);
-  result(KSI,6) =  0.5  * (-2.*xiEta - 2.*xiEta2);
-  result(KSI,7) = -0.5  * (1. - eta2 - 2.*xi + 2.*xiEta2);
-  result(KSI,8) =  2.*xiEta2 - 2.*xi;
-
-  result(ETA,0) =  0.25 * (xi - xi2 - 2.*xiEta + 2.*xi2Eta);
-  result(ETA,1) = -0.25 * (xi + xi2 - 2.*xiEta - 2.*xi2Eta);
-  result(ETA,2) =  0.25 * (xi + xi2 + 2.*xiEta + 2.*xi2Eta);
-  result(ETA,3) = -0.25 * (xi - xi2 + 2.*xiEta - 2.*xi2Eta);
-  result(ETA,4) = -0.5 * (1. - xi2 - 2.*eta + 2.*xi2Eta);
-  result(ETA,5) =  0.5 * (-2.*xiEta - 2.*xi2Eta);
-  result(ETA,6) =  0.5 * (1. - xi2 + 2.*eta - 2.*xi2Eta);
-  result(ETA,7) = -0.5 * (-2.*xiEta + 2.*xi2Eta);
-  result(ETA,8) =  2.*xi2Eta - 2.*eta;
+  SFQuadLagrangeP2::gradient(mappedCoord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,7 +9,8 @@
 
 #include "LibSF.hpp"
 #include "Line2DLagrangeP3.hpp"
-#include "Point1DLagrangeP1.hpp"
+#include "Point2DLagrangeP0.hpp"
+#include "SFLineLagrangeP3.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -66,7 +67,7 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP3::face_connectivi
 
 const CF::Mesh::ElementType& Line2DLagrangeP3::face_type(const CF::Uint face) const
 {
-  const static Point1DLagrangeP1 facetype;
+  const static Point2DLagrangeP0 facetype;
   return facetype;
 }
 
@@ -74,24 +75,14 @@ const CF::Mesh::ElementType& Line2DLagrangeP3::face_type(const CF::Uint face) co
 
 void Line2DLagrangeP3::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  const Real onesixteenth = 1.0/16.0;
-
-  shapeFunc[0] = -onesixteenth*(1.0 - mappedCoord[KSI])*(1.0 - 9.0*mappedCoord[KSI]*mappedCoord[KSI]);
-  shapeFunc[1] = -onesixteenth*(1.0 + mappedCoord[KSI])*(1.0 - 9.0*mappedCoord[KSI]*mappedCoord[KSI]);
-  shapeFunc[2] = -9.0*onesixteenth*(1.0 - mappedCoord[KSI]*mappedCoord[KSI])*(1.0 - 3.0*mappedCoord[KSI]);
-  shapeFunc[3] =  9.0*onesixteenth*(1.0 - mappedCoord[KSI]*mappedCoord[KSI])*(1.0 + 3.0*mappedCoord[KSI]);
+  SFLineLagrangeP3::value(mappedCoord,shapeFunc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Line2DLagrangeP3::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  const Real onesixteenth = 1.0/16.0;
-
-  result(XX, 0) = -onesixteenth*( 27.0*mappedCoord[KSI]*mappedCoord[KSI] - 18.0*mappedCoord[KSI] - 1.0);
-  result(XX, 1) = -onesixteenth*(-27.0*mappedCoord[KSI]*mappedCoord[KSI] - 18.0*mappedCoord[KSI] + 1.0);
-  result(XX, 2) = 9.0*onesixteenth*( 9.0*mappedCoord[KSI]*mappedCoord[KSI] - 2.0*mappedCoord[KSI] - 3.0);
-  result(XX, 3) = 9.0*onesixteenth*(-9.0*mappedCoord[KSI]*mappedCoord[KSI] - 2.0*mappedCoord[KSI] + 3.0);
+  SFLineLagrangeP3::gradient(mappedCoord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

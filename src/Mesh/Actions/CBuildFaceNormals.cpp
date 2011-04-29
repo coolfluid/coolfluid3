@@ -125,7 +125,7 @@ void CBuildFaceNormals::execute()
         }
         else
         {
-          face_normal.space().shape_function().compute_normal(face_coordinates,normal);
+          face_normal.elements().element_type().compute_normal(face_coordinates,normal);
           for (Uint i=0; i<normal.size(); ++i)
             face_normal[face][i] = normal[i];
         }

@@ -9,7 +9,8 @@
 
 #include "LibSF.hpp"
 #include "Triag2DLagrangeP2.hpp"
-#include "Line2DLagrangeP1.hpp"  /// @todo: create Line2DLagrangeP2.hpp
+#include "Line2DLagrangeP2.hpp"
+#include "SFTriagLagrangeP2.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -69,9 +70,7 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP2::face_connectiv
 
 const CF::Mesh::ElementType& Triag2DLagrangeP2::face_type(const CF::Uint face) const
 {
-    throw Common::NotImplemented( FromHere(), "Line2DLagrangeP2 does not exist yet" );
-
-    static const Line2DLagrangeP1 facetype;
+    static const Line2DLagrangeP2 facetype;
     return facetype;
 }
 
@@ -79,16 +78,7 @@ const CF::Mesh::ElementType& Triag2DLagrangeP2::face_type(const CF::Uint face) c
 
 void Triag2DLagrangeP2::shape_function_value(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
 {
-  const Real L0 = 1.0 - map_coord[0] - map_coord[1];
-  const Real L1 = map_coord[0];
-  const Real L2 = map_coord[1];
-
-  shapef[0] = ( 2*L0 - 1.0 ) * L0;
-  shapef[1] = ( 2*L1 - 1.0 ) * L1;
-  shapef[2] = ( 2*L2 - 1.0 ) * L2;
-  shapef[3] = 4*L0*L1;
-  shapef[4] = 4*L1*L2;
-  shapef[5] = 4*L2*L0;
+  SFTriagLagrangeP2::value(map_coord,shapef);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,27 +102,7 @@ void Triag2DLagrangeP2::mapped_coordinates(const CoordsT& coord, const NodeMatri
 
 void Triag2DLagrangeP2::shape_function_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
 {
-  const Real L0 = 1.0 - map_coord[0] - map_coord[1];
-  const Real L1 = map_coord[0];
-  const Real L2 = map_coord[1];
-
-  result(XX, 0) = - (4*L0-1);
-  result(YY, 0) = - (4*L0-1);
-
-  result(XX, 1) =   (4*L1-1);
-  result(YY, 1) =   0.0;
-
-  result(XX, 2) =   0.0;
-  result(YY, 2) =   (4*L2-1);
-
-  result(XX, 3) =   4*(L0-L1);
-  result(YY, 3) = - 4*L1;
-
-  result(XX, 4) =   4*L2;
-  result(YY, 4) =   4*L1;
-
-  result(XX, 5) = - 4*L2;
-  result(YY, 5) =   4*(L0-L2);
+  SFTriagLagrangeP2::gradient(map_coord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

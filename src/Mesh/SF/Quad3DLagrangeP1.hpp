@@ -11,7 +11,7 @@
 #include "Mesh/Quad3D.hpp"
 
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
-
+#include "Mesh/SF/Quad2DLagrangeP1.hpp"
 #include "Mesh/SF/LibSF.hpp"
 
 namespace CF {
@@ -143,6 +143,12 @@ private:
       dz = 0.25*( z0 - z1 + z2 - z3);
     }
   };
+  /// Shape function reference
+  virtual const ShapeFunction& shape_function() const
+  {
+    const static SFQuadLagrangeP1 shape_function_obj;
+    return shape_function_obj;
+  }
 
 };
 

@@ -18,7 +18,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Triag3DLagrangeP1.hpp"
-
+#include "Mesh/ElementData.hpp"
 
 
 #include "Tools/Testing/Difference.hpp"

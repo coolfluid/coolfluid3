@@ -71,7 +71,7 @@ void CComputeVolume::execute()
   // idx() is the index that is set using the function set_loop_idx() or configuration LoopIndex
   
   m_volume->put_coordinates(m_coordinates,idx());
-  Real vol = m_volume->space().shape_function().compute_volume( m_coordinates );
+  Real vol = elements().element_type().compute_volume( m_coordinates );
 
   Uint state_idx = 0;
   Uint var_idx = 0;
