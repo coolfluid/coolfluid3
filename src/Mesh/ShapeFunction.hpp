@@ -33,10 +33,6 @@ public: // typedefs
 
 public: // functions
 
-  /// Type used to pass node coordinates of an element.
-  /// Each row of the matrix represents the coordinates of a node
-  typedef RealMatrix NodesT;
-  
   /// Default constructor without arguments
   ShapeFunction( const std::string& name = type_name() );
 

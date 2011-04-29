@@ -31,13 +31,6 @@ Line2DLagrangeP2::Line2DLagrangeP2(const std::string& name) : Line2D(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string Line2DLagrangeP2::element_type_name() const
-{
-  return type_name();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Real Line2DLagrangeP2::compute_volume(const NodesT& coord) const
 {
   return 0;
@@ -81,7 +74,7 @@ const CF::Mesh::ElementType& Line2DLagrangeP2::face_type(const CF::Uint face) co
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Line2DLagrangeP2::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
+void Line2DLagrangeP2::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
   shapeFunc[0] = 0.5 * (mappedCoord[KSI]*mappedCoord[KSI] - mappedCoord[KSI]);
   shapeFunc[1] = 0.5 * (mappedCoord[KSI]*mappedCoord[KSI] + mappedCoord[KSI]);
@@ -90,7 +83,7 @@ void Line2DLagrangeP2::shape_function(const MappedCoordsT& mappedCoord, ShapeFun
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Line2DLagrangeP2::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
+void Line2DLagrangeP2::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
   result(XX, 0) = mappedCoord[KSI]-0.5;
   result(XX, 1) = mappedCoord[KSI]+0.5;

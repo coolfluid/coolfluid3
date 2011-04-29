@@ -200,8 +200,8 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
        {
            uint elem = idx * shape + idy;
 
-           SHAPEFUNC::mapped_gradient( m_quadrature.coords.col(idx), m_sf_grad_ref );
-           SHAPEFUNC::shape_function ( m_quadrature.coords.col(idx), m_sf_ref   );
+           SHAPEFUNC::shape_function_gradient( m_quadrature.coords.col(idx), m_sf_grad_ref );
+           SHAPEFUNC::shape_function_value ( m_quadrature.coords.col(idx), m_sf_ref   );
 
            A_inter[elem] = m_sf_ref[idy];
            A_ksi[elem]   = m_sf_grad_ref(KSI,idy);

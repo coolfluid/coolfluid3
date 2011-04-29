@@ -31,13 +31,6 @@ Tetra3DLagrangeP1::Tetra3DLagrangeP1(const std::string& name) : Tetra3D(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string Tetra3DLagrangeP1::element_type_name() const
-{
-  return type_name();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Real Tetra3DLagrangeP1::compute_volume(const NodesT& coord) const
 {
   return volume(coord);
@@ -93,7 +86,7 @@ const CF::Mesh::ElementType& Tetra3DLagrangeP1::face_type(const CF::Uint face) c
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Tetra3DLagrangeP1::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
+void Tetra3DLagrangeP1::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
   shapeFunc[0] = 1.0 - mappedCoord[0] - mappedCoord[1] - mappedCoord[2];
   shapeFunc[1] = mappedCoord[0];
@@ -114,7 +107,7 @@ void Tetra3DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatri
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void Tetra3DLagrangeP1::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
+void Tetra3DLagrangeP1::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
   result(XX, 0) = -1.;
   result(YY, 0) = -1.;

@@ -31,13 +31,6 @@ Quad2DLagrangeP2::Quad2DLagrangeP2(const std::string& name) : Quad2D(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string Quad2DLagrangeP2::element_type_name() const
-{
-  return type_name();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Real Quad2DLagrangeP2::compute_volume(const NodesT& coord) const
 {
   return volume(coord);
@@ -98,7 +91,7 @@ const CF::Mesh::ElementType& Quad2DLagrangeP2::face_type(const CF::Uint face) co
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Quad2DLagrangeP2::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
+void Quad2DLagrangeP2::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
   const Real xi  = mappedCoord[KSI];
   const Real eta = mappedCoord[ETA];
@@ -127,7 +120,7 @@ void Quad2DLagrangeP2::mapped_coordinates(const CoordsT& coord, const NodeMatrix
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Quad2DLagrangeP2::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
+void Quad2DLagrangeP2::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
   const Real xi =  mappedCoord[KSI];
   const Real eta = mappedCoord[ETA];

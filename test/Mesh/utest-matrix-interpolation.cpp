@@ -68,10 +68,10 @@ struct MatrixInterpolationFixture
 	   ref_coord[XX] =  xi_q[iq];
            ref_coord[YY] = eta_q[iq];
 
-           ShapeFunc::shape_function(ref_coord,values);
+           ShapeFunc::shape_function_value(ref_coord,values);
            V->set_row<RealVector>(iq,values);
 
-	   ShapeFunc::mapped_gradient(ref_coord,gradients);
+	   ShapeFunc::shape_function_gradient(ref_coord,gradients);
 	   for(Uint i = 0; i<NDOF; ++i) {
 		dSFdxi[i]  = gradients(XX,i);
 		dSFdeta[i] = gradients(YY,i);

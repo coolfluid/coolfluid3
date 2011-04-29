@@ -26,11 +26,6 @@ Triag2DLagrangeP2B::Triag2DLagrangeP2B(const std::string& name) : Triag2D(name)
   m_order = order;
 }
 
-std::string Triag2DLagrangeP2B::element_type_name() const
-{
-  return type_name();
-}
-
 Real Triag2DLagrangeP2B::compute_volume(const NodesT& coord) const
 {
   return volume(coord);
@@ -71,7 +66,7 @@ const CF::Mesh::ElementType& Triag2DLagrangeP2B::face_type(const CF::Uint face) 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2DLagrangeP2B::shape_function(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
+void Triag2DLagrangeP2B::shape_function_value(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
 {
   const Real L0 = 1.0 - map_coord[0] - map_coord[1];
   const Real L1 = map_coord[0];
@@ -108,7 +103,7 @@ void Triag2DLagrangeP2B::mapped_coordinates(const CoordsT& coord, const NodeMatr
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2DLagrangeP2B::mapped_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
+void Triag2DLagrangeP2B::shape_function_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
 {
   const Real L0 = 1.0 - map_coord[0] - map_coord[1];
   const Real L1 = map_coord[0];

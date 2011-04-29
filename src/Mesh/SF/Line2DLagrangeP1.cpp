@@ -4,11 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/assign/list_of.hpp>
+
 #include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
 #include "Line2DLagrangeP1.hpp"
-#include "Point1DLagrangeP1.hpp"
+#include "Point2DLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -16,31 +18,19 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Line2DLagrangeP1,
-                         ElementType,
-                         LibSF >
-aLine2DLagrangeP1_Builder;
+Common::ComponentBuilder < Line2DLagrangeP1,ElementType, LibSF > Line2DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Line2DLagrangeP1::Line2DLagrangeP1(const std::string& name) : Line2D(name)
+Line2DLagrangeP1::Line2DLagrangeP1(const std::string& name) : Line<DIM_2D,SFLineLagrangeP1>(name)
 {
-  m_nb_nodes = nb_nodes;
-  m_order = order;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Line2DLagrangeP1::element_type_name() const
-{
-  return type_name();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Real Line2DLagrangeP1::compute_volume(const NodesT& coord) const
 {
-  return 0;
+  return 0.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,14 +38,6 @@ Real Line2DLagrangeP1::compute_volume(const NodesT& coord) const
 Real Line2DLagrangeP1::compute_area(const NodesT& coord) const
 {
   return area(coord);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Line2DLagrangeP1::compute_centroid(const NodesT& coord , RealVector& centroid) const
-{
-  centroid[XX] = 0.5*(coord(0,XX)+coord(1,XX));
-  centroid[YY] = 0.5*(coord(0,YY)+coord(1,YY));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,14 +51,47 @@ void Line2DLagrangeP1::compute_normal(const NodesT& coord, RealVector& normal) c
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool Line2DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
+void Line2DLagrangeP1::compute_centroid(const NodesT& coord , RealVector& centroid) const
 {
-  return false;
+  centroid[XX] = 0.5*(coord(0,XX)+coord(1,XX));
+  centroid[YY] = 0.5*(coord(0,YY)+coord(1,YY));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool Line2DLagrangeP1::is_coord_in_element( const RealVector& coord, const NodesT& nodes) const
+{
+  MappedCoordsT mapped_coord;
+  mapped_coordinates(CoordsT(coord), nodes, mapped_coord);
+  if( (mapped_coord[KSI] >= -0.5) &&
+      (mapped_coord[KSI] <= 0.5) )
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP1::face_connectivity() const
+{
+  return faces();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const CF::Mesh::ElementType& Line2DLagrangeP1::face_type(const CF::Uint face) const
+{
+  const static Point2DLagrangeP1 facetype;
+  return facetype;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP1::faces()
 {
   static FaceConnectivity connectivity;
   if(connectivity.face_first_nodes.empty())
@@ -90,26 +105,11 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP1::face_connectivi
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Line2DLagrangeP1::face_type(const CF::Uint face) const
+void Line2DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord)
 {
-  static const Point1DLagrangeP1 facetype;
-  return facetype;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Line2DLagrangeP1::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
-{
-  shapeFunc[0] = 0.5 * (1.0 - mappedCoord[KSI]);
-  shapeFunc[1] = 0.5 * (1.0 + mappedCoord[KSI]);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Line2DLagrangeP1::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
-{
-  result(XX, 0) = -0.5;
-  result(XX, 1) = 0.5;
+  const Real x0 = nodes(0, XX);
+  const Real x1 = nodes(1, XX);
+  mappedCoord[KSI] = (2*coord[0] - (x1 + x0)) / (x1 - x0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,14 +118,6 @@ void Line2DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMatr
 {
   result(KSI,XX) = 0.5*(nodes(1, XX) - nodes(0, XX));
   result(KSI,YY) = 0.5*(nodes(1, YY) - nodes(0, YY));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Line2DLagrangeP1::normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result)
-{
-  result[XX] = 0.5*( nodes(1, YY) - nodes(0, YY));
-  result[YY] = 0.5*(-nodes(1, XX) + nodes(0, XX));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,6 +132,14 @@ Real Line2DLagrangeP1::volume(const NodeMatrixT& nodes)
 Real Line2DLagrangeP1::area(const NodeMatrixT& nodes)
 {
   return (nodes.row(1)-nodes.row(0)).norm();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line2DLagrangeP1::normal(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes, CoordsT& result)
+{
+  result[XX] = 0.5*( nodes(1, YY) - nodes(0, YY));
+  result[YY] = 0.5*(-nodes(1, XX) + nodes(0, XX));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

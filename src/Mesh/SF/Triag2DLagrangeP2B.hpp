@@ -55,7 +55,7 @@ struct MESH_SF_API Triag2DLagrangeP2B  : public Triag2D
   /// mapped coordinates
   /// @param map_coord The mapped coordinates
   /// @param shapef Vector storing the result
-  static void shape_function(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef);
+  static void shape_function_value(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef);
 
   /// Compute Mapped Coordinates
   /// @param coord contains the coordinates to be mapped
@@ -68,7 +68,7 @@ struct MESH_SF_API Triag2DLagrangeP2B  : public Triag2D
   /// The result needs to be multiplied with the inverse jacobian to get the result in real coordinates.
   /// @param map_coord The mapped coordinates where the gradient should be calculated
   /// @param result Storage for the resulting gradient matrix
-  static void mapped_gradient(const MappedCoordsT& map_coord, MappedGradientT& result);
+  static void shape_function_gradient(const MappedCoordsT& map_coord, MappedGradientT& result);
 
   /// Compute the jacobian determinant at the given mapped coordinates
   static Real jacobian_determinant(const MappedCoordsT& map_coord, const NodeMatrixT& nodes);
@@ -90,7 +90,6 @@ struct MESH_SF_API Triag2DLagrangeP2B  : public Triag2D
 
   static const FaceConnectivity& faces();
 
-  virtual std::string element_type_name() const;
   virtual Real compute_volume(const NodesT& coord) const;
   virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
   virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;

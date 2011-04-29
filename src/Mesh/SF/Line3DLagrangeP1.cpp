@@ -8,6 +8,7 @@
 
 #include "LibSF.hpp"
 #include "Line3DLagrangeP1.hpp"
+#include "Point3DLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -19,17 +20,8 @@ Common::ComponentBuilder < Line3DLagrangeP1, ElementType, LibSF > aLine3DLagrang
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Line3DLagrangeP1::Line3DLagrangeP1(const std::string& name) : Line3D(name)
+Line3DLagrangeP1::Line3DLagrangeP1(const std::string& name) : Line<DIM_3D,SFLineLagrangeP1>(name)
 {
-  m_nb_nodes = nb_nodes;
-  m_order = order;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Line3DLagrangeP1::element_type_name() const
-{
-  return type_name();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,9 +33,40 @@ Real Line3DLagrangeP1::compute_volume(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Real Line3DLagrangeP1::compute_area(const NodesT& coord) const
+{
+  return 0;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line3DLagrangeP1::compute_normal(const NodesT& coord, RealVector& normal) const
+{
+  throw Common::IllegalCall(FromHere(),"Normal is not defined for a line in 3D");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool Line3DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
-  return false;
+  MappedCoordsT mapped_coord;
+  mapped_coordinates(CoordsT(coord), nodes, mapped_coord);
+  if( (mapped_coord[KSI] >= -0.5) &&
+      (mapped_coord[KSI] <= 0.5) )
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line3DLagrangeP1::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  centroid = 0.5*(coord.row(0)+coord.row(1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,24 +81,15 @@ const CF::Mesh::ElementType::FaceConnectivity& Line3DLagrangeP1::face_connectivi
 
 const CF::Mesh::ElementType& Line3DLagrangeP1::face_type(const CF::Uint face) const
 {
-  static const Line3DLagrangeP1 facetype;
+  static const Point3DLagrangeP1 facetype;
   return facetype;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Line3DLagrangeP1::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
+void Line3DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord)
 {
-  shapeFunc[0] = 0.5 * (1.0 - mappedCoord[KSI]);
-  shapeFunc[1] = 0.5 * (1.0 + mappedCoord[KSI]);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Line3DLagrangeP1::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
-{
-  result(XX, 0) = -0.5;
-  result(XX, 1) = 0.5;
+  throw Common::NotImplemented(FromHere(),"Mapped coordinates computation not implemented for Line3DLagrangeP1 yet. Feel free");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

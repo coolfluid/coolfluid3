@@ -605,7 +605,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
           mapped_coords[ZTA] = (w[0][ZTA]*zta[k][0] + w[1][ZTA]*zta[k][1] + w[2][ZTA]*zta[k][2] + w[3][ZTA]*zta[k][3]) / w_mag[ZTA];
           
           SF::ShapeFunctionsT sf;
-          SF::shape_function(mapped_coords, sf);
+          SF::shape_function_value(mapped_coords, sf);
           
           // Transform to real coordinates
           SF::CoordsT coords = sf * block_nodes;
@@ -1110,7 +1110,7 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
               block_nodes(0, XX) = block_coordinates[original_start_node_idx][direction];
               block_nodes(1, XX) = block_coordinates[original_end_node_idx][direction];
               Line1DLagrangeP1::ShapeFunctionsT sf_1d;
-              Line1DLagrangeP1::shape_function(mapped_coord, sf_1d);
+              Line1DLagrangeP1::shape_function_value(mapped_coord, sf_1d);
               const Line1DLagrangeP1::CoordsT node_1d = sf_1d * block_nodes;
               
               new_node[XX] = direction == XX ? node_1d[XX] : old_node[XX];

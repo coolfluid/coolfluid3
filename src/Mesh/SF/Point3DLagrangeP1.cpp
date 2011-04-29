@@ -9,7 +9,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
-#include "Point2DLagrangeP1.hpp"
+#include "Point3DLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -17,14 +17,14 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Point2DLagrangeP1,
+Common::ComponentBuilder < Point3DLagrangeP1,
                          ElementType,
                          LibSF >
-aPoint2DLagrangeP1_Builder;
+aPoint3DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Point2DLagrangeP1::Point2DLagrangeP1(const std::string& name) : Point<DIM_2D,SFPointLagrangeP1>(name)
+Point3DLagrangeP1::Point3DLagrangeP1(const std::string& name) : Point<DIM_3D,SFPointLagrangeP1>(name)
 {
   m_nb_nodes = nb_nodes;
   m_order = order;
@@ -32,28 +32,28 @@ Point2DLagrangeP1::Point2DLagrangeP1(const std::string& name) : Point<DIM_2D,SFP
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Point2DLagrangeP1::compute_volume(const NodesT& coord) const
+Real Point3DLagrangeP1::compute_volume(const NodesT& coord) const
 {
   return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Point2DLagrangeP1::compute_area(const NodesT& coord) const
+Real Point3DLagrangeP1::compute_area(const NodesT& coord) const
 {
   return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Point2DLagrangeP1::compute_normal(const NodesT& coord, RealVector& normal) const
+void Point3DLagrangeP1::compute_normal(const NodesT& coord, RealVector& normal) const
 {
-  throw Common::IllegalCall(FromHere(), "normal of a point in 2D is not defined");
+  throw Common::IllegalCall(FromHere(), "normal of a point in 3D is not defined");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType::FaceConnectivity& Point2DLagrangeP1::face_connectivity() const
+const CF::Mesh::ElementType::FaceConnectivity& Point3DLagrangeP1::face_connectivity() const
 {
   static FaceConnectivity connectivity;
   if(connectivity.face_first_nodes.empty())
@@ -67,61 +67,63 @@ const CF::Mesh::ElementType::FaceConnectivity& Point2DLagrangeP1::face_connectiv
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Point2DLagrangeP1::face_type(const CF::Uint face) const
+const CF::Mesh::ElementType& Point3DLagrangeP1::face_type(const CF::Uint face) const
 {
-  static const Point2DLagrangeP1 facetype;
+  static const Point3DLagrangeP1 facetype;
   return facetype;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Point2DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord)
+void Point3DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord)
 {
   mappedCoord[KSI] = 0.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Point2DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
+void Point3DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
 {
   result(KSI,XX) = 1.;
   result(KSI,YY) = 1.;
+  result(KSI,ZZ) = 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Point2DLagrangeP1::jacobian_determinant(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes)
+Real Point3DLagrangeP1::jacobian_determinant(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes)
 {
-  /// @todo Is this correct? Can the jacobian determinant be calculated from a 1x2 matrix
+  /// @todo Is this correct? Can the jacobian determinant be calculated from a 1x3 matrix
   return 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Point2DLagrangeP1::jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
+void Point3DLagrangeP1::jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
 {
-  /// @todo Is this correct? is the jacobian adjoint a 1x2 matrix?
+  /// @todo Is this correct? is the jacobian adjoint a 1x3 matrix?
   result(KSI,XX) = 1.;
   result(KSI,YY) = 1.;
+  result(KSI,ZZ) = 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Point2DLagrangeP1::normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result)
+void Point3DLagrangeP1::normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result)
 {
-  throw Common::IllegalCall(FromHere(), "normal of a point in 2D is not defined");
+  throw Common::IllegalCall(FromHere(), "normal of a point in 3D is not defined");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Point2DLagrangeP1::area(const NodeMatrixT& nodes)
+Real Point3DLagrangeP1::area(const NodeMatrixT& nodes)
 {
   return 0.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Point2DLagrangeP1::volume(const NodeMatrixT& nodes)
+Real Point3DLagrangeP1::volume(const NodeMatrixT& nodes)
 {
   return 0.;
 }

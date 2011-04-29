@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
   reference_result << 0.03375, 0.10125, 0.23625, 0.07875, 0.04125, 0.12375, 0.28875, 0.09625;
 
   SFT::ShapeFunctionsT result;
-  Hexa3DLagrangeP1::shape_function(mapped_coords, result);
+  Hexa3DLagrangeP1::shape_function_value(mapped_coords, result);
 
   Accumulator accumulator;
   vector_test(result, reference_result, accumulator);
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( MappedCoordinates )
   BOOST_FOREACH(const SFT::NodeMatrixT& nodes, test_nodes)
   {
     SFT::ShapeFunctionsT sf;
-    SFT::shape_function(mapped_coords, sf);
+    SFT::shape_function_value(mapped_coords, sf);
     const SFT::CoordsT coords = sf * nodes;
     std::cout << "Looking for coords " << coords << " in mapped coords " << mapped_coords << std::endl;
     
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( MappedGradient )
   expected(ZTA, 7) = 0.08750;
 
   SFT::MappedGradientT result;
-  Hexa3DLagrangeP1::mapped_gradient(mapped_coords, result);
+  Hexa3DLagrangeP1::shape_function_gradient(mapped_coords, result);
 
   Accumulator accumulator;
   vector_test(result, expected, accumulator);

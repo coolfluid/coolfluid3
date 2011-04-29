@@ -107,9 +107,6 @@ public: // functions
   /// @return m_dimension
   Uint dimension() const { return m_dimension; }
 
-  /// get a string with the element type name
-  virtual std::string element_type_name() const = 0;
-  
   virtual std::string builder_name() const = 0;
 
   /// compute volume given coordinates
@@ -175,7 +172,7 @@ struct IsElementType
 //          etype.dimension()      == ETYPE::dimension     &&
 //          etype.dimensionality() == ETYPE::dimensionality )
 //        &&
-        ( etype.element_type_name() == ETYPE::type_name() );
+        ( etype.derived_type_name() == ETYPE::type_name() );
   }
 };
 

@@ -78,30 +78,18 @@ list( APPEND coolfluid_mesh_files
   ElementData.hpp
   ElementType.hpp
   ElementType.cpp
-  ElementType2.hpp
-  ElementType2.cpp
   GeoShape.hpp
   GeoShape.cpp
   Hexa3D.hpp
   Hexa3D.cpp
   LibMesh.hpp
   LibMesh.cpp
-  Line1D.hpp
-  Line1D.cpp
   Line2D.hpp
   Line2D.cpp
-  Line3D.hpp
-  Line3D.cpp
   ListBufferT.hpp
   ListBufferIterator.hpp
   LoadMesh.hpp
   LoadMesh.cpp
-  Point1D.hpp
-  Point1D.cpp
-  Point2D.hpp
-  Point2D.cpp
-  Point3D.hpp
-  Point3D.cpp
   Quad2D.hpp
   Quad2D.cpp
   Quad3D.hpp

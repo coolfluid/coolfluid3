@@ -20,6 +20,8 @@
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/Core.hpp"
+#include "Common/CEnv.hpp"
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/GeoShape.hpp"
@@ -201,7 +203,7 @@ struct VolumeSFFixture
     {
       FunctorT functor;
       cf_assert(ShapeFunctionT::dimension == ShapeFunctionT::dimensionality);
-      CFinfo << "---------------------- Start " << T.element_type_name() << " test ----------------------" << CFendl;
+      CFinfo << "---------------------- Start " << T.derived_type_name() << " test ----------------------" << CFendl;
       const Uint segments = 5; // number of segments in each direction for the mapped coord calculation
       try
       {
@@ -209,7 +211,7 @@ struct VolumeSFFixture
       }
       catch(...)
       {
-        CFinfo << "  Unimplemented method for " << T.element_type_name() << CFendl;
+        CFinfo << "  Unimplemented method for " << T.derived_type_name() << CFendl;
       }
     }
 
@@ -227,7 +229,7 @@ typename ShapeFunctionT::CoordsT gradient(const NodesT& nodes, const MappedCoord
 {
   // Get the gradient in mapped coordinates
   typename ShapeFunctionT::MappedGradientT mapped_grad;
-  ShapeFunctionT::mapped_gradient(mapped_coordinates,mapped_grad);
+  ShapeFunctionT::shape_function_gradient(mapped_coordinates,mapped_grad);
 
   // The Jacobian adjugate
   typename ShapeFunctionT::JacobianT jacobian_adj;
@@ -305,6 +307,8 @@ BOOST_FIXTURE_TEST_SUITE( VolumeSFSuite, VolumeSFFixture )
 
 BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 {
+  Core::instance().environment().configure_property("exception_outputs",false);
+  Core::instance().environment().configure_property("exception_backtrace",false);
   VolumeMPLFunctor<CheckJacobianDeterminant> functor(nodes);
   boost::mpl::for_each<CellTypes>(functor);
 }

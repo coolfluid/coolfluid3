@@ -7,7 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
-#include "SFLineLagrangeP1.hpp"
+#include "SFPointLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -15,11 +15,11 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SFLineLagrangeP1, ShapeFunction, LibSF > SFLineLagrangeP1_Builder;
+Common::ComponentBuilder < SFPointLagrangeP1, ShapeFunction, LibSF > SFPointLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFLineLagrangeP1::SFLineLagrangeP1(const std::string& name) : ShapeFunction(name)
+SFPointLagrangeP1::SFPointLagrangeP1(const std::string& name) : ShapeFunction(name)
 {
   m_dimensionality = dimensionality;
   m_nb_nodes = nb_nodes;
@@ -29,25 +29,22 @@ SFLineLagrangeP1::SFLineLagrangeP1(const std::string& name) : ShapeFunction(name
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFLineLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void SFPointLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& shape_func)
 {
-  result[0] = 0.5 * (1.0 - mapped_coord[KSI]);
-  result[1] = 0.5 * (1.0 + mapped_coord[KSI]);
+  shape_func[0] = 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFLineLagrangeP1::gradient(const MappedCoordsT& mappedCoord, GradientT& result)
+void SFPointLagrangeP1::gradient(const MappedCoordsT& mappedCoord, GradientT& result)
 {
-  result(KSI, 0) = -0.5;
-  result(KSI, 1) =  0.5;
+  result(KSI, 0) = 0.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFLineLagrangeP1::MappedNodesT SFLineLagrangeP1::s_mapped_sf_nodes =  ( SFLineLagrangeP1::MappedNodesT() <<
-  -1.,
-   1.
+SFPointLagrangeP1::MappedNodesT SFPointLagrangeP1::s_mapped_sf_nodes =  ( SFPointLagrangeP1::MappedNodesT() <<
+  0.
 ).finished();
 
 ////////////////////////////////////////////////////////////////////////////////

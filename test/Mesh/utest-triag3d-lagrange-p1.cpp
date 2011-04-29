@@ -219,7 +219,7 @@ struct Triag3DLagrangeP1Fixture
 
       // Interpolate the pressure
       SFT::ShapeFunctionsT sf_mat;
-      SFT::shape_function(mapped_coords, sf_mat);
+      SFT::shape_function_value(mapped_coords, sf_mat);
 
       return normal * (sf_mat * nodal_p);
     }
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 {
   const SFT::ShapeFunctionsT reference_result(0.1, 0.1, 0.8);
   SFT::ShapeFunctionsT result;
-  Triag3DLagrangeP1::shape_function(mapped_coords, result);
+  Triag3DLagrangeP1::shape_function_value(mapped_coords, result);
   CF::Tools::Testing::Accumulator accumulator;
   CF::Tools::Testing::vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE( MappedGradient )
   expected(0,2) = 0.;
   expected(1,2) = 1.;
   SFT::MappedGradientT result;
-  Triag3DLagrangeP1::mapped_gradient(mapped_coords, result);
+  Triag3DLagrangeP1::shape_function_gradient(mapped_coords, result);
   CF::Tools::Testing::Accumulator accumulator;
   CF::Tools::Testing::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);

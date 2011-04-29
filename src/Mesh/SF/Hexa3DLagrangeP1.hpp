@@ -55,7 +55,7 @@ public:
   /// mapped coordinates
   /// @param mappedCoord The mapped coordinates
   /// @param shapeFunc Vector storing the result
-  static void shape_function(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func);
+  static void shape_function_value(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func);
   
   /// Compute Mapped Coordinates
   /// @param coord contains the coordinates to be mapped
@@ -68,7 +68,7 @@ public:
   /// coordinates.
   /// @param mapped_coord The mapped coordinates where the gradient should be calculated
   /// @param result Storage for the resulting gradient matrix
-  static void mapped_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result);
+  static void shape_function_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result);
 
   /// Compute the jacobian determinant at the given mapped coordinates
   static Real jacobian_determinant(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes);
@@ -93,7 +93,6 @@ public:
 
   static const FaceConnectivity& faces();
 
-  virtual std::string element_type_name() const;
   virtual Real compute_volume(const NodesT& coord) const;
   virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const;
   virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;

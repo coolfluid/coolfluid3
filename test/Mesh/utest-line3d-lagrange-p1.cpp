@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
   SFT::ShapeFunctionsT reference_result;
   reference_result << 0.4, 0.6;
   SFT::ShapeFunctionsT result;
-  Line3DLagrangeP1::shape_function(mapped_coords, result);
+  Line3DLagrangeP1::shape_function_value(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( MappedGradient )
 {
   SFT::MappedGradientT result;
   SFT::MappedGradientT expected(-0.5, 0.5);
-  Line3DLagrangeP1::mapped_gradient(mapped_coords, result);
+  Line3DLagrangeP1::shape_function_gradient(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);

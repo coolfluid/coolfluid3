@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/assign/list_of.hpp>
+
 #include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
@@ -15,14 +17,11 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Point1DLagrangeP1,
-                         ElementType,
-                         LibSF >
-aPoint1DLagrangeP1_Builder;
+Common::ComponentBuilder < Point1DLagrangeP1,ElementType, LibSF > Point1DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Point1DLagrangeP1::Point1DLagrangeP1(const std::string& name) : Point1D(name)
+Point1DLagrangeP1::Point1DLagrangeP1(const std::string& name) : Point<DIM_1D,SFPointLagrangeP1>(name)
 {
   m_nb_nodes = nb_nodes;
   m_order = order;
@@ -30,28 +29,44 @@ Point1DLagrangeP1::Point1DLagrangeP1(const std::string& name) : Point1D(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string Point1DLagrangeP1::element_type_name() const
-{
-  return type_name();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Real Point1DLagrangeP1::compute_volume(const NodesT& coord) const
 {
-  return 0;
+  return 0.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool Point1DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
+Real Point1DLagrangeP1::compute_area(const NodesT& coord) const
 {
-  return false;
+  return 1.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Point1DLagrangeP1::compute_normal(const NodesT& coord, RealVector& normal) const
+{
+  normal[XX] = 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const CF::Mesh::ElementType::FaceConnectivity& Point1DLagrangeP1::face_connectivity() const
+{
+  return faces();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const CF::Mesh::ElementType& Point1DLagrangeP1::face_type(const CF::Uint face) const
+{
+  throw Common::NotImplemented(FromHere(),"");
+  const static Point1DLagrangeP1 facetype;
+  return facetype;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const CF::Mesh::ElementType::FaceConnectivity& Point1DLagrangeP1::faces()
 {
   static FaceConnectivity connectivity;
   if(connectivity.face_first_nodes.empty())
@@ -65,31 +80,16 @@ const CF::Mesh::ElementType::FaceConnectivity& Point1DLagrangeP1::face_connectiv
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Point1DLagrangeP1::face_type(const CF::Uint face) const
-{
-  static const Point1DLagrangeP1 facetype;
-  return facetype;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Point1DLagrangeP1::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
-{
-  shapeFunc[0] = 1.;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void Point1DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord)
 {
-  mappedCoord[KSI] = 0.;
+  mappedCoord[KSI] = 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Point1DLagrangeP1::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
+Real Point1DLagrangeP1::jacobian_determinant(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes)
 {
-  result(XX, 0) = 0.;
+  return 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,9 +101,16 @@ void Point1DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMat
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Point1DLagrangeP1::normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result)
+void Point1DLagrangeP1::jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
 {
-  result[XX] = 1.;
+  result(KSI,XX) = 1.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Point1DLagrangeP1::volume(const NodeMatrixT& nodes)
+{
+  return 0.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,9 +122,9 @@ Real Point1DLagrangeP1::area(const NodeMatrixT& nodes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Point1DLagrangeP1::volume(const NodeMatrixT& nodes)
+void Point1DLagrangeP1::normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result)
 {
-  return 0.;
+  result[XX] = 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -7,92 +7,87 @@
 #ifndef CF_Mesh_SF_Point2DLagrangeP1_hpp
 #define CF_Mesh_SF_Point2DLagrangeP1_hpp
 
-#include "Math/MatrixTypes.hpp"
 
-#include "Mesh/Point2D.hpp"
-
+#include "Mesh/SF/Point.hpp"
+#include "Mesh/SF/SFPointLagrangeP1.hpp"
 #include "Mesh/SF/LibSF.hpp"
-#include "Mesh/ElementData.hpp"
 
 namespace CF {
 namespace Mesh {
 namespace SF {
 
+////////////////////////////////////////////////////////////////////////////////
+
 /// This class provides the lagrangian shape function describing the
-/// representation of the solution and/or the geometry in a P1 (linear)
-/// line element.
-/// @author Andrea Lani
-/// @author Geoffrey Deliege
+/// representation of the solution and/or the geometry in a P1 (Pointar)
+/// Point element.
+/// @author Willem Deconinck
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct MESH_SF_API Point2DLagrangeP1  : public Point2D {
-  
+struct MESH_SF_API Point2DLagrangeP1  : public Point<DIM_2D,SFPointLagrangeP1> {
+
+  /// Constructor
   Point2DLagrangeP1(const std::string& name = type_name());
 
+  /// The type name
   static std::string type_name() { return "Point2DLagrangeP1"; }
 
+  /// The name of the builder
   virtual std::string builder_name() const { return LibSF::library_namespace()+"."+type_name(); }
 
-/// Number of nodes
-static const Uint nb_nodes = 1;
+  /// Compute Mapped Coordinates
+  /// @param coord contains the coordinates to be mapped
+  /// @param nodes contains the nodes
+  /// @param mapped_coord Store the output mapped coordinates
+  static void mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mapped_coord);
 
-/// Order of the shape function
-static const Uint order = 1;
-  
-/// Types for the matrices used
-typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
-typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
-typedef Eigen::Matrix<Real, nb_nodes, dimension> NodeMatrixT;
-typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
-typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
-typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
+  /// Compute the jacobian determinant at the given mapped coordinates
+  static Real jacobian_determinant(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes);
 
-/// Compute the shape functions corresponding to the given
-/// mapped coordinates
-/// @param mappedCoord The mapped coordinates
-/// @param shapeFunc Vector storing the result
-static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc);
+  /// Compute the Jacobian matrix
+  /// @param mapped_coord The mapped coordinates where the Jacobian should be calculated
+  /// @param result Storage for the resulting Jacobian matrix
+  static void jacobian(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes, JacobianT& result);
 
-/// Compute Mapped Coordinates
-/// @param coord contains the coordinates to be mapped
-/// @param nodes contains the nodes
-/// @param mappedCoord Store the output mapped coordinates
-static void mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord);
+  /// Compute the adjoint of Jacobian matrix
+  /// @param mapped_coord The mapped coordinates where the Jacobian should be calculated
+  /// @param result Storage for the resulting adjoint
+  static void jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes, JacobianT& result);
 
-/// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
-/// mapped coordinates. The result needs to be multiplied with the inverse jacobian to get the result in real
-/// coordinates.
-/// @param mappedCoord The mapped coordinates where the gradient should be calculated
-/// @param result Storage for the resulting gradient matrix
-static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result);
+  /// Volume of the cell
+  static Real volume(const NodeMatrixT& nodes);
 
-/// Compute the Jacobian matrix
-/// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
-/// @param result Storage for the resulting Jacobian matrix
-static void jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result);
+  /// Area of the cell
+  static Real area(const NodeMatrixT& nodes);
 
-/// Normal vector to the surface. Length equals the jacobian norm.
-/// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
-/// @param result Storage for the resulting Jacobian matrix
-static void normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result);
+  /// Normal vector to the surface. Length equals the jacobian norm.
+  /// @param mapped_coord The mapped coordinates where the Jacobian should be calculated
+  /// @param result Storage for the resulting Jacobian matrix
+  static void normal(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes, CoordsT& result);
 
-/// The area of an element that represents a surface in the solution space, i.e.
-/// 1D elements in 2D space or 2D elements in 3D space
-static Real area(const NodeMatrixT& nodes);
+  /// compute volume using given coordinates.
+  /// @note volume for a point in 2D is defined as 0
+  virtual Real compute_volume(const NodesT& coord) const;
 
-/// Volume of the cell
-static Real volume(const NodeMatrixT& nodes);
+  /// compute area using given coordinates.
+  /// @note area for a point in 2D is defined as 0
+  virtual Real compute_area(const NodesT& coord) const;
 
-virtual std::string element_type_name() const;
-virtual Real compute_volume(const NodesT& coord) const;
-virtual bool is_coord_in_element( const RealVector& coord, const NodesT& nodes) const;
-virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
-virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
+  /// compute normal using given coordinates.
+  /// @note normal for a point in 2D is undefined
+  /// @throws Common::IllegalCall
+  virtual void compute_normal(const NodesT& coord, RealVector& normal) const;
+
+  static const CF::Mesh::ElementType::FaceConnectivity& faces();
+  virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
+  virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
 
 };
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // SF
 } // Mesh
 } // CF
 
-#endif /* CF_Mesh_SF_Point2DLagrangeP1 */
+#endif //CF_Mesh_SF_Point2DLagrangeP1

@@ -27,13 +27,6 @@ Quad3DLagrangeP1::Quad3DLagrangeP1(const std::string& name) : Quad3D(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string Quad3DLagrangeP1::element_type_name() const
-{
-  return type_name();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Real Quad3DLagrangeP1::compute_volume(const NodesT& coord) const
 {
   return 0;
@@ -85,16 +78,16 @@ const CF::Mesh::ElementType& Quad3DLagrangeP1::face_type(const CF::Uint face) co
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Quad3DLagrangeP1::shape_function(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
+void Quad3DLagrangeP1::shape_function_value(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
 {
-  Quad2DLagrangeP1::shape_function(mapped_coord, shape_func);
+  Quad2DLagrangeP1::shape_function_value(mapped_coord, shape_func);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Quad3DLagrangeP1::mapped_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
+void Quad3DLagrangeP1::shape_function_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
 {
-  Quad2DLagrangeP1::mapped_gradient(mapped_coord, result);
+  Quad2DLagrangeP1::shape_function_gradient(mapped_coord, result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

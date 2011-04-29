@@ -52,13 +52,13 @@ struct MESH_SF_API Quad3DLagrangeP1  : public Quad3D
   /// mapped coordinates
   /// @param mappedCoord The mapped coordinates
   /// @param shapeFunc Vector storing the result
-  static void shape_function(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func);
+  static void shape_function_value(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func);
 
   /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
   /// mapped coordinates.
   /// @param mappedCoord The mapped coordinates where the gradient should be calculated
   /// @param result Storage for the resulting gradient matrix
-  static void mapped_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result);
+  static void shape_function_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result);
 
   /// Compute the Jacobian matrix
   /// In the case of the Quad3D element, this is the vector corresponding to the line segment
@@ -91,8 +91,6 @@ struct MESH_SF_API Quad3DLagrangeP1  : public Quad3D
 // 
 //     interpolation = sf[0]*nodal_values[0] + sf[1]*nodal_values[1] + sf[2]*nodal_values[2] + sf[3]*nodal_values[3];
 //   }
-
-  virtual std::string element_type_name() const;
 
   /// The volume of an element with a dimensionality that is less than
   /// the dimension of the problem is 0.

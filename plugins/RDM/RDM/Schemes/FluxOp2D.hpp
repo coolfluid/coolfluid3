@@ -98,8 +98,8 @@ FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS>::FluxOp2D() : m_quadrature( QUADRATURE::i
    {
      for(Uint n = 0; n < SHAPEFUNC::nb_nodes; ++n)
      {
-        SHAPEFUNC::mapped_gradient( m_quadrature.coords.col(q), m_sf_grad_ref );
-        SHAPEFUNC::shape_function ( m_quadrature.coords.col(q), m_sf_ref   );
+        SHAPEFUNC::shape_function_gradient( m_quadrature.coords.col(q), m_sf_grad_ref );
+        SHAPEFUNC::shape_function_value ( m_quadrature.coords.col(q), m_sf_ref   );
 
         m_N(q,n) = m_sf_ref[n];
         m_dNdksi(q,n) = m_sf_grad_ref(KSI,n);

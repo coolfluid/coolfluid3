@@ -124,7 +124,7 @@ struct LagrangeSFLine2DLagrangeP1Fixture
 
       // Interpolate the pressure
       SFT::ShapeFunctionsT sf_mat;
-      SFT::shape_function(mapped_coords, sf_mat);
+      SFT::shape_function_value(mapped_coords, sf_mat);
 
       return normal * (sf_mat * nodal_p);
     }
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 {
   const SFT::ShapeFunctionsT reference_result(0.4, 0.6);
   SFT::ShapeFunctionsT result;
-  Line2DLagrangeP1::shape_function(mapped_coords, result);
+  Line2DLagrangeP1::shape_function_value(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( MappedGradient )
   SFT::MappedGradientT expected;
   expected(0,0) = -0.5;
   expected(0,1) = 0.5;
-  Line2DLagrangeP1::mapped_gradient(mapped_coords, result);
+  Line2DLagrangeP1::shape_function_gradient(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);

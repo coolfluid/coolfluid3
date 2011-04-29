@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( computeShapeFunction )
 {
   const SFT::ShapeFunctionsT reference_result(0.045, 0.055, 0.495, 0.405);
   SFT::ShapeFunctionsT result;
-  Quad2DLagrangeP1::shape_function(mapped_coords, result);
+  Quad2DLagrangeP1::shape_function_value(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( computeMappedGradient )
   expected(0,3) = 0.25 * (-1 - eta);
   expected(1,3) = 0.25 * ( 1 - ksi);
   SFT::MappedGradientT result;
-  Quad2DLagrangeP1::mapped_gradient(mapped_coords, result);
+  Quad2DLagrangeP1::shape_function_gradient(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);

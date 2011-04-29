@@ -202,8 +202,8 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
   for(Uint q = 0; q < QD::nb_points; ++q)
     for(Uint n = 0; n < SF::nb_nodes; ++n)
     {
-       SF::mapped_gradient( m_quadrature.coords.col(q), GradSF  );
-       SF::shape_function ( m_quadrature.coords.col(q), ValueSF );
+       SF::shape_function_gradient( m_quadrature.coords.col(q), GradSF  );
+       SF::shape_function_value ( m_quadrature.coords.col(q), ValueSF );
 
        Ni(q,n) = ValueSF[n];
 

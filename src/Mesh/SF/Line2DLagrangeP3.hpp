@@ -48,13 +48,13 @@ struct MESH_SF_API Line2DLagrangeP3  : public Line2D
   /// mapped coordinates
   /// @param mappedCoord The mapped coordinates
   /// @param shapeFunc Vector storing the result
-  static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc);
+  static void shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc);
 
   /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
   /// mapped coordinates.
   /// @param mappedCoord The mapped coordinates where the gradient should be calculated
   /// @param result Storage for the resulting gradient matrix
-  static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result);
+  static void shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result);
 
   /// Compute the Jacobian matrix
   /// In the case of the Line2D element, this is the vector corresponding to the line segment
@@ -84,8 +84,6 @@ struct MESH_SF_API Line2DLagrangeP3  : public Line2D
 //     const Real ksi = mapped_coord[KSI];
 //     interpolation = 0.5 * ((1. - ksi) * nodal_values[0] + (1. + ksi) * nodal_values[1]);
 //   }
-
-  virtual std::string element_type_name() const;
 
   /// The volume of an element with a dimensionality that is less than
   /// the dimension of the problem is 0.

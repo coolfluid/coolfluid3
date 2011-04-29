@@ -29,13 +29,6 @@ Triag2DLagrangeP2::Triag2DLagrangeP2(const std::string& name) : Triag2D(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string Triag2DLagrangeP2::element_type_name() const
-{
-  return type_name();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Real Triag2DLagrangeP2::compute_volume(const NodesT& coord) const
 {
   return volume(coord);
@@ -84,7 +77,7 @@ const CF::Mesh::ElementType& Triag2DLagrangeP2::face_type(const CF::Uint face) c
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2DLagrangeP2::shape_function(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
+void Triag2DLagrangeP2::shape_function_value(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
 {
   const Real L0 = 1.0 - map_coord[0] - map_coord[1];
   const Real L1 = map_coord[0];
@@ -117,7 +110,7 @@ void Triag2DLagrangeP2::mapped_coordinates(const CoordsT& coord, const NodeMatri
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2DLagrangeP2::mapped_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
+void Triag2DLagrangeP2::shape_function_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
 {
   const Real L0 = 1.0 - map_coord[0] - map_coord[1];
   const Real L1 = map_coord[0];

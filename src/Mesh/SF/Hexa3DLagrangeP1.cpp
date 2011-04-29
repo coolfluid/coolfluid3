@@ -33,13 +33,6 @@ Hexa3DLagrangeP1::Hexa3DLagrangeP1(const std::string& name) : Hexa3D(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string Hexa3DLagrangeP1::element_type_name() const
-{
-  return type_name();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Real Hexa3DLagrangeP1::compute_volume(const NodesT& coord) const
 {
   return volume(coord);
@@ -150,7 +143,7 @@ bool Hexa3DLagrangeP1::is_orientation_inside(const CoordsT& coord, const NodeMat
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Hexa3DLagrangeP1::shape_function(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
+void Hexa3DLagrangeP1::shape_function_value(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
 {
   const Real xi   = mapped_coord[0];
   const Real eta  = mapped_coord[1];
@@ -183,18 +176,18 @@ void Hexa3DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrix
 {  
   // Axes of the local coordinate system, centered around the centroid and going through the center of each face
   ShapeFunctionsT sf;
-  shape_function(CoordsT(1.,0.,0.), sf);
+  shape_function_value(CoordsT(1.,0.,0.), sf);
   CoordsT ux = (sf*nodes).transpose();
-  shape_function(CoordsT(0.,1.,0.), sf);
+  shape_function_value(CoordsT(0.,1.,0.), sf);
   CoordsT uy = (sf*nodes).transpose();
-  shape_function(CoordsT(0.,0.,1.), sf);
+  shape_function_value(CoordsT(0.,0.,1.), sf);
   CoordsT uz = (sf*nodes).transpose();
   
-  shape_function(CoordsT(-1.,0.,0.), sf);
+  shape_function_value(CoordsT(-1.,0.,0.), sf);
   CoordsT ux_neg = (sf*nodes).transpose();
-  shape_function(CoordsT(0.,-1.,0.), sf);
+  shape_function_value(CoordsT(0.,-1.,0.), sf);
   CoordsT uy_neg = (sf*nodes).transpose();
-  shape_function(CoordsT(0.,0.,-1.), sf);
+  shape_function_value(CoordsT(0.,0.,-1.), sf);
   CoordsT uz_neg = (sf*nodes).transpose();
   
   CoordsT centroid;
@@ -238,7 +231,7 @@ void Hexa3DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrix
   mapped_coord[ZTA] = diff.dot(nxy) * fz;
   while (nb_iters < 100 && diff.dot(diff) > threshold)
   {
-    shape_function(mapped_coord, sf);
+    shape_function_value(mapped_coord, sf);
     test = (sf*nodes).transpose();
     diff = coord - test;
     test[XX] = diff.dot(nyz) * fx;  // Transform difference to the relative coordinate system and
@@ -254,7 +247,7 @@ void Hexa3DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrix
   
 ////////////////////////////////////////////////////////////////////////////////
 
-void Hexa3DLagrangeP1::mapped_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
+void Hexa3DLagrangeP1::shape_function_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
 {
   const Real xi   = mapped_coord[KSI];
   const Real eta  = mapped_coord[ETA];

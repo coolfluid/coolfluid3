@@ -44,7 +44,7 @@ CSpace::~CSpace()
 void CSpace::initialize(const std::string& shape_function_builder_name)
 {
   m_shape_function = create_component_abstract_type<ElementType>( shape_function_builder_name, shape_function_builder_name );
-  m_shape_function->rename(m_shape_function->element_type_name());
+  m_shape_function->rename(m_shape_function->derived_type_name());
   add_static_component( m_shape_function );
   
   m_node_connectivity = create_static_component<CConnectivity>(Mesh::Tags::connectivity_table());

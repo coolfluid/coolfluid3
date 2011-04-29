@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
   SFT::ShapeFunctionsT reference_result;
   reference_result << 5./18., -1./18., -1./18., 2./9., -1./9., 2./9., 0.5;
   SFT::ShapeFunctionsT result;
-  Triag2DLagrangeP2B::shape_function(mapped_coords, result);
+  Triag2DLagrangeP2B::shape_function_value(mapped_coords, result);
 
   std::cout<< reference_result << std::endl;
   std::cout<< reference_result.sum() << std::endl;
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( Gradient )
 {
 //  const CF::RealVector reference_result = list_of(5./18.)(-1./18.)(-1./18.)(2./9.)(-1./9.)(2./9.)(0.5);
   SFT::MappedGradientT result;
-  Triag2DLagrangeP2B::mapped_gradient(mapped_coords, result);
+  Triag2DLagrangeP2B::shape_function_gradient(mapped_coords, result);
 
 //  std::cout<< reference_result << std::endl;
 //  std::cout<< reference_result.sum() << std::endl;
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( Gradient )
 
 
   const SFT::MappedCoordsT m1(1./6.,  5./6.);
-  Triag2DLagrangeP2B::mapped_gradient(m1, result);
+  Triag2DLagrangeP2B::shape_function_gradient(m1, result);
 
   std::cout<< result << std::endl;
 

@@ -27,13 +27,6 @@ Triag3DLagrangeP1::Triag3DLagrangeP1(const std::string& name) : Triag3D(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string Triag3DLagrangeP1::element_type_name() const
-{
-  return type_name();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Real Triag3DLagrangeP1::compute_volume(const NodesT& coord) const
 {
   return 0;
@@ -87,16 +80,16 @@ const CF::Mesh::ElementType& Triag3DLagrangeP1::face_type(const CF::Uint face) c
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag3DLagrangeP1::shape_function(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
+void Triag3DLagrangeP1::shape_function_value(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
 {
-  Triag2DLagrangeP1::shape_function(mapped_coord, shape_func);
+  Triag2DLagrangeP1::shape_function_value(mapped_coord, shape_func);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag3DLagrangeP1::mapped_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
+void Triag3DLagrangeP1::shape_function_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
 {
-  Triag2DLagrangeP1::mapped_gradient(mapped_coord, result);
+  Triag2DLagrangeP1::shape_function_gradient(mapped_coord, result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

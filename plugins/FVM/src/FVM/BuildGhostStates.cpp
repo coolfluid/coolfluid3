@@ -121,7 +121,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
             Uint unified_elem_idx = face2cell.connectivity()[face][0]; // this is the inner cell of the boundary
             boost::tie(component,cell_idx) = face2cell.lookup().location(unified_elem_idx);
             CCells& cells = component->as_type<CCells>();
-            std::string cell_type = cells.element_type().element_type_name();
+            std::string cell_type = cells.element_type().derived_type_name();
 
             RealMatrix cell_coordinates = cells.get_coordinates(cell_idx);
             RealVector centroid(cell_coordinates.cols());

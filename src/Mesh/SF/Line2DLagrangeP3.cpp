@@ -29,13 +29,6 @@ Line2DLagrangeP3::Line2DLagrangeP3(const std::string& name) : Line2D(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string Line2DLagrangeP3::element_type_name() const
-{
-  return type_name();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Real Line2DLagrangeP3::compute_volume(const NodesT& coord) const
 {
   return 0;
@@ -79,7 +72,7 @@ const CF::Mesh::ElementType& Line2DLagrangeP3::face_type(const CF::Uint face) co
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Line2DLagrangeP3::shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
+void Line2DLagrangeP3::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
   const Real onesixteenth = 1.0/16.0;
 
@@ -91,7 +84,7 @@ void Line2DLagrangeP3::shape_function(const MappedCoordsT& mappedCoord, ShapeFun
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Line2DLagrangeP3::mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
+void Line2DLagrangeP3::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
   const Real onesixteenth = 1.0/16.0;
 

@@ -54,7 +54,7 @@ typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates
 /// @param shapeFunc Vector storing the result
-static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc);
+static void shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc);
 
 /// Compute Mapped Coordinates
 /// @param coord contains the coordinates to be mapped
@@ -67,7 +67,7 @@ static void mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, M
 /// coordinates.
 /// @param mappedCoord The mapped coordinates where the gradient should be calculated
 /// @param result Storage for the resulting gradient matrix
-static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result);
+static void shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result);
 
 /// Compute the jacobian determinant at the given mapped coordinates
 static Real jacobian_determinant(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes);
@@ -89,7 +89,6 @@ static bool in_element(const CoordsT& coord, const NodeMatrixT& nodes);
 
 static const FaceConnectivity& faces();
 
-virtual std::string element_type_name() const;
 virtual Real compute_volume(const NodesT& coord) const;
 virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const;
 virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;

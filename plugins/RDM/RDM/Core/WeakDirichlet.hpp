@@ -107,8 +107,8 @@ public: // functions
      {
        // std::cout << FromHere().str() << " " << q << " " << n << std::endl << std::flush;
 
-        SF::mapped_gradient( m_quadrature.coords.col(q), GradSF  );
-        SF::shape_function ( m_quadrature.coords.col(q), ValueSF );
+        SF::shape_function_gradient( m_quadrature.coords.col(q), GradSF  );
+        SF::shape_function_value   ( m_quadrature.coords.col(q), ValueSF );
 
         Ni(q,n)     = ValueSF[n];
         dNdKSI(q,n) = GradSF[n];

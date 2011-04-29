@@ -26,14 +26,14 @@ ElementType::~ElementType()
 
 void ElementType::compute_normal(const NodesT& coord, RealVector& normal) const
 { 
-  throw Common::NotImplemented(FromHere(),"compute_normal not implemented for "+element_type_name()); 
+  throw Common::NotImplemented(FromHere(),"compute_normal not implemented for "+derived_type_name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void ElementType::compute_centroid(const NodesT& coord , RealVector& centroid) const
 { 
-  throw Common::NotImplemented(FromHere(),"compute_centroid not implemented for "+element_type_name()); 
+  throw Common::NotImplemented(FromHere(),"compute_centroid not implemented for "+derived_type_name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

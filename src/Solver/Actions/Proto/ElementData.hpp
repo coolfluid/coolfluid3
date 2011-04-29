@@ -85,7 +85,7 @@ public:
   
   const typename SF::CoordsT& coordinates(const typename SF::MappedCoordsT& mapped_coords) const
   {
-    SF::shape_function(mapped_coords, m_sf);
+    SF::shape_function_value(mapped_coords, m_sf);
     m_eval_result.noalias() = m_sf * m_nodes;
     return m_eval_result;
   }
@@ -212,8 +212,8 @@ public:
   template<typename SupportT>
   void compute_values(const MappedCoordsT& mapped_coords, const SupportT& support) const
   {
-    SF::shape_function(mapped_coords, m_sf);
-    SF::mapped_gradient(mapped_coords, m_mapped_gradient_matrix);
+    SF::shape_function_value(mapped_coords, m_sf);
+    SF::shape_function_gradient(mapped_coords, m_mapped_gradient_matrix);
     m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
     m_eval(m_sf, m_element_values);
     m_advection = m_eval.stored_result * m_gradient;
@@ -222,7 +222,7 @@ public:
   /// Calculate and return the interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords) const
   {
-    SF::shape_function(mapped_coords, m_sf);
+    SF::shape_function_value(mapped_coords, m_sf);
     return m_eval(m_sf, m_element_values);
   }
   
@@ -236,7 +236,7 @@ public:
   /// Shape function matrix at mapped coordinates (calculates and returns)
   const typename SF::ShapeFunctionsT& shape_function(const MappedCoordsT& mapped_coords) const
   {
-    SF::shape_function(mapped_coords, m_sf);
+    SF::shape_function_value(mapped_coords, m_sf);
     return m_sf;
   }
   
@@ -250,7 +250,7 @@ public:
   template<typename SupportT>
   const GradientT& gradient(const MappedCoordsT& mapped_coords, const SupportT& support) const
   {
-    SF::mapped_gradient(mapped_coords, m_mapped_gradient_matrix);
+    SF::shape_function_gradient(mapped_coords, m_mapped_gradient_matrix);
     m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
     return m_gradient;
   }
@@ -265,7 +265,7 @@ public:
   template<typename SupportT>
   const typename SF::ShapeFunctionsT& advection(const MappedCoordsT& mapped_coords, const SupportT& support) const
   {
-    SF::shape_function(mapped_coords, m_sf);
+    SF::shape_function_value(mapped_coords, m_sf);
     m_advection = m_sf * m_element_values * gradient(mapped_coords, support);
     return m_advection;
   }
