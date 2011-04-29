@@ -21,6 +21,7 @@
 #include <QListWidgetItem>
 #include <QDoubleSpinBox>
 #include <QCheckBox>
+#include <QDebug>
 
 // ParaView header
 #include "pqDataRepresentation.h"
@@ -48,6 +49,7 @@
 #include "pqDisplayProxyEditorWidget.h"
 #include "pqServerResource.h"
 #include "vtkSMSourceProxy.h"
+#include "pqProgressManager.h"
 
 // header
 #include "UI/Graphics/NRemoteOpen.hpp"
@@ -110,6 +112,9 @@ Widget3D::Widget3D(QWidget *parent) :
 
   // set the lookuptable to be able to show legend.
   m_core->setLookupTableManager(new pqPQLookupTableManager(this));
+
+  progMgr = m_core->getProgressManager();
+
 
   /// Layout
   //main layout
@@ -275,7 +280,7 @@ Widget3D::Widget3D(QWidget *parent) :
   m_layout_v->addWidget(tool_bar);
   m_layout_v->addLayout(m_layout_h);
   m_layout_v->addWidget(this->m_mesh_options);
-  //m_layout_v->addWidget(status_bar);
+//  m_layout_v->addWidget(status_bar);
 
   m_layout_v->setStretchFactor(tool_bar, 0);
   m_layout_v->setStretchFactor(m_layout_h, 10);
@@ -388,6 +393,12 @@ void Widget3D::disconnectFromServer(){
   //empty Source list
   if(!m_source_list.isEmpty())
     m_source_list.clear();
+
+  //disable mesh options
+  m_mesh_options->setEnabled(false);
+  m_disp_adv_opt_button->setEnabled(false);
+  this->m_dataSet_selector->setRepresentation(0);
+  this->m_mesh_style->setRepresentation(0);
 
   if(m_server){
     //create the builtin server view
@@ -938,7 +949,10 @@ void Widget3D::enableRendering(bool enable){
 }
 
 void Widget3D::forceRendering(){
-  m_RenderView->forceRender();
+//  m_RenderView->forceRender();
+  NLog::globalLog()->addMessage("Rendering in progress");
+  connect(m_RenderView,SIGNAL(endRender()),this,SLOT(renderingProgress()));
+  m_RenderView->render();
 }
 
 void Widget3D::setActorListSelectionMode(int mode){
@@ -949,6 +963,11 @@ void Widget3D::showAdvOptions(bool showAdv){
   this->m_disp_adv_opt_button->setVisible(showAdv);
   this->m_gen_adv_opt_button->setVisible(showAdv);
   this->m_serv_adv_opt_button->setVisible(showAdv);
+}
+
+void Widget3D::renderingProgress(){
+  NLog::globalLog()->addMessage("Rendering finished");
+  disconnect(m_RenderView,SIGNAL(endRender()),this,SLOT(renderingProgress()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

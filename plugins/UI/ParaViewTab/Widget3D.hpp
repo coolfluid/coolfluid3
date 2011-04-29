@@ -176,6 +176,8 @@ private slots: //slots
   /// @param showAdv Option visibility.
   void showAdvOptions(bool showAdv);
 
+  void renderingProgress();
+
 private: //data
 
   /// Initialising Application Core that manage all vtk and paraview Objects.
