@@ -1,4 +1,4 @@
-list( APPEND resources_files
+list( APPEND rdm_test_meshes_files
 	# for RotationAdv2D test cases
   rotation-qd-p1.msh 
   rotation-qd-p2.msh 
@@ -31,15 +31,4 @@ list( APPEND resources_files
   trapezium1x1-qd-p3-3721.msh
 )
 
-coolfluid_mark_not_orphan( ${resources_files} )
-
-# copy files to test dir in build tree
-foreach( rfile ${resources_files} )
-
-add_custom_command( OUTPUT  ${rfile}
-                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/${rfile} ${RDM_TEST_RUN_DIR}
-                   # COMMENT "Copying file ${rfile} to ${RDM_TEST_RUN_DIR}"
-)
-endforeach()
-
-add_custom_target( rdm_test_meshes ALL DEPENDS ${resources_files} )
+coolfluid_add_resources( rdm_test_meshes )
