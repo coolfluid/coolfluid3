@@ -170,15 +170,22 @@ namespace XML {
     std::vector<TYPE> array_to_vector ( const XmlNode & array_node ) const;
 
     /// Splits a string and casts each resulting part to TYPE.
+    /// This function can whether the number of elements to read is known or
+    /// or not. If the size is known the provided vector is cleared and
+    /// initialized to contain this number of items. This way is more efficient,
+    /// of course, because there is no reallocation needed.
+    /// If the size if not defined, elements are appended to the vector by
+    /// using @c push_back().
     /// @param str The string to split.
     /// @param delimiter The string that delimitates the parts. It will not
     /// appear in the @c result.
-    /// @param result The vector where cast parts are stored. The vector
-    /// is not cleared before first use.
-    /// @throw CastingFailed If a part cannot be cast to TYPE.
+    /// @param result The vector where cast parts are stored.
+    /// @param size If greater or equal to 0, gives the number of elements to
+    /// read. Otherwise, the vector is reallocated as the elements are added.
+    /// @throw CastingFailed If an item cannot be cast to TYPE.
     template <typename TYPE>
     static void split_string ( const std::string & str, const std::string & delimiter,
-                               std::vector<TYPE> & result );
+                               std::vector<TYPE> & result, int size = -1 );
 
   public: // data
 

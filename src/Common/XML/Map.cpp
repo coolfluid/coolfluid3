@@ -6,6 +6,8 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/range/as_literal.hpp>
+#include <boost/tokenizer.hpp>
 
 #include "rapidxml/rapidxml.hpp"
 
@@ -14,13 +16,15 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/StringConversion.hpp"
 
+#include "Common/Log.hpp"
+
 #include "Common/XML/CastingFunctions.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/Map.hpp"
 
 // makes explicit instantiation for all template functions with a same type
 #define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
-  Common_TEMPLATE template void Map::split_string<T>(const std::string&, const std::string&, std::vector<T>&);\
+  Common_TEMPLATE template void Map::split_string<T>(const std::string&, const std::string&, std::vector<T>&, int);\
   Common_TEMPLATE template bool Map::value_has_ptr<T>(const XmlNode&);\
   Common_TEMPLATE template XmlNode Map::set_value<T>(const std::string&, const T&, const std::string&);\
   Common_TEMPLATE template XmlNode Map::set_array<T>(const std::string&, const std::vector<T>&, const std::string&, const std::string&);\
@@ -38,25 +42,36 @@ namespace XML {
 
 template <typename TYPE>
 void Map::split_string ( const std::string & str, const std::string & delimiter,
-                         std::vector<TYPE> & result )
+                         std::vector<TYPE> & result, int size )
 {
-  using namespace boost::algorithm;
+  // make the code a bit more readable
+  using namespace boost;            // first_finder() and is_iequal()
+  using namespace boost::algorithm; // split_iterator and make_split_iterator()
+  typedef split_iterator<std::string::iterator> StringSplitIterator;
 
-  std::vector<std::string> split_string;
-  std::vector<std::string>::iterator it;
+  std::string value_str(str);
+  StringSplitIterator it = make_split_iterator(value_str, first_finder(delimiter, is_iequal()));
 
-  if(!str.empty())
-    split(split_string, str, is_any_of(delimiter), token_compress_on);
-
-  try
+  if(size >= 0)
   {
-    for( it = split_string.begin() ; it != split_string.end() ; ++it )
-      result.push_back( from_str<TYPE>(*it) );
+    result.clear();
+    result.resize(size);
   }
-  catch( const boost::bad_lexical_cast & e )
+
+  for (int item = 0 ; it != StringSplitIterator() && (size < 0 || item < size);  ++it, ++item)
   {
-    throw CastingFailed(FromHere(), "Unable to cast [" + *it + "] to " +
-                        Protocol::Tags::type<TYPE>() + ".");
+    try
+    {
+      if(size < 0)
+        result.push_back( from_str<TYPE>( boost::copy_range<std::string>(*it)) );
+      else
+        result[item] = from_str<TYPE>( boost::copy_range<std::string>(*it) );
+    }
+    catch(boost::bad_lexical_cast e)
+    {
+      throw CastingFailed(FromHere(), "Unable to cast [" + boost::copy_range<std::string>(*it) + "] to " +
+                          Protocol::Tags::type<TYPE>() + ".");
+    }
   }
 }
 
@@ -277,7 +292,8 @@ XmlNode Map::find_value ( const std::string & value_key, const char * value_type
           found_value.content = curr_child;
           break;
         }
-      } // END "for"
+      } // END "for"    Map::split_string(value, "@@", data);
+
     } // END "if( !value_key.empty() )"
   }
 
@@ -351,14 +367,15 @@ std::vector<TYPE> Map::array_to_vector ( const XmlNode & array_node ) const
   if(delim_attr == nullptr || delim_attr->value()[0] == '\0')
     throw XmlError(FromHere(), "No delimiter found.");
 
-  // convert xml value to TYPE
-  split_string(array_node.content->value(), delim_attr->value(), result);
 
-  rapidxml::xml_attribute<>* size_attr = array_node.content->first_attribute( "size" );
+  rapidxml::xml_attribute<>* size_attr = array_node.content->first_attribute( Protocol::Tags::attr_array_size() );
   if ( !size_attr )
     throw ParsingFailed (FromHere(), "Array does not have \'size\' attribute" );
 
   Uint expected_size = from_str<Uint>( size_attr->value() );
+
+  // convert xml value to TYPE
+  split_string(array_node.content->value(), delim_attr->value(), result, expected_size);
 
   if ( expected_size != result.size() )
     throw ParsingFailed (FromHere(), "Array \'size\' did not match number of entries "

@@ -17,6 +17,10 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/StringConversion.hpp"
 
+
+#include "Common/Log.hpp"
+#include "Common/XML/FileOperations.hpp"
+
 #include "Common/XML/Protocol.hpp"
 
 #include "Common/XML/Map.hpp"
@@ -385,6 +389,11 @@ BOOST_AUTO_TEST_CASE ( get_array )
   // 2. try to get a signal value (type is not important here)
   BOOST_CHECK_THROW ( map.get_array<int>( "Zero"), XmlError );
 
+
+  //std::string str;
+  to_string( node, str );
+  CFinfo << str << CFendl;
+
   // 3. get the value with the correct type
   BOOST_CHECK_NO_THROW ( int_read = map.get_array<int>( "SomeInts") );
 
@@ -392,6 +401,39 @@ BOOST_AUTO_TEST_CASE ( get_array )
 
   // check that items match
   for( it_read = int_read.begin() ; it_read != int_read.end() ; ++it_read, ++it_vals )
+    BOOST_CHECK_EQUAL ( *it_read, *it_vals);
+
+  // clear the memory pool
+  delete node.content->document();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE ( split_string )
+{
+  XmlNode node(new rapidxml::xml_document<>());
+  Map map(node);
+  XmlNode added_node;
+  std::vector<std::string> str_vals = list_of<std::string>("hello")("hello with some white spaces");
+  std::vector<std::string> str_read;
+  std::vector<std::string>::iterator it_vals = str_vals.begin();
+  std::vector<std::string>::iterator it_read;
+
+  map.set_array( "SomeStrings", str_vals, " ; " );
+
+  // get the value
+  BOOST_CHECK_NO_THROW ( str_read = map.get_array<std::string>( "SomeStrings") );
+
+  std::string str;
+  to_string( node, str );
+  CFinfo << str << str_read.size() << CFendl;
+
+
+
+  BOOST_CHECK_EQUAL ( str_read.size(), str_vals.size() );
+
+  // check that items match
+  for( it_read = str_read.begin() ; it_read != str_read.end() ; ++it_read, ++it_vals )
     BOOST_CHECK_EQUAL ( *it_read, *it_vals);
 
   // clear the memory pool

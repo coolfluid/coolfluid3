@@ -130,7 +130,7 @@ void get_multi_array( const Map & map, const std::string & name,
   if( is_null(attr) )
     throw XmlError(FromHere(), "Could not find the size of multi-array [" + name + "].");
 
-  Map::split_string( attr->value(), ":", sizes );
+  Map::split_string( attr->value(), ":", sizes, 2 );
 
   if( sizes.size() != 2 )
     throw XmlError(FromHere(), "The multi-array size ["+ std::string(attr->value()) +"] is not valid.");
