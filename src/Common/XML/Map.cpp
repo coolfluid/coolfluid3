@@ -16,8 +16,6 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/StringConversion.hpp"
 
-#include "Common/Log.hpp"
-
 #include "Common/XML/CastingFunctions.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/Map.hpp"

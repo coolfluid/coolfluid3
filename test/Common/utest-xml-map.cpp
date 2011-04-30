@@ -17,10 +17,6 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/StringConversion.hpp"
 
-
-#include "Common/Log.hpp"
-#include "Common/XML/FileOperations.hpp"
-
 #include "Common/XML/Protocol.hpp"
 
 #include "Common/XML/Map.hpp"
@@ -389,11 +385,6 @@ BOOST_AUTO_TEST_CASE ( get_array )
   // 2. try to get a signal value (type is not important here)
   BOOST_CHECK_THROW ( map.get_array<int>( "Zero"), XmlError );
 
-
-  //std::string str;
-  to_string( node, str );
-  CFinfo << str << CFendl;
-
   // 3. get the value with the correct type
   BOOST_CHECK_NO_THROW ( int_read = map.get_array<int>( "SomeInts") );
 
@@ -424,12 +415,7 @@ BOOST_AUTO_TEST_CASE ( split_string )
   // get the value
   BOOST_CHECK_NO_THROW ( str_read = map.get_array<std::string>( "SomeStrings") );
 
-  std::string str;
-  to_string( node, str );
-  CFinfo << str << str_read.size() << CFendl;
-
-
-
+  // check that sizes match
   BOOST_CHECK_EQUAL ( str_read.size(), str_vals.size() );
 
   // check that items match
