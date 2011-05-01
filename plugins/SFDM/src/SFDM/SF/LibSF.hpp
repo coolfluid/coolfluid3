@@ -49,7 +49,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.SFDM.Common"; }
+  static std::string library_namespace() { return "CF.SFDM.SF"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration

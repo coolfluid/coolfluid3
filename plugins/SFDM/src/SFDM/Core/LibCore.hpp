@@ -54,7 +54,7 @@ public: // functions
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration
   /// @return name of the library
-  static std::string library_name() { return "FVM"; }
+  static std::string library_name() { return "Core"; }
 
   /// Static function that returns the description of the module.
   /// Must be implemented for CLibrary registration

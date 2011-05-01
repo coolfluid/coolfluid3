@@ -4,23 +4,23 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_SF_LineSolutionP1_hpp
-#define CF_SFDM_SF_LineSolutionP1_hpp
+#ifndef CF_Mesh_SF_LineFluxP3_hpp
+#define CF_Mesh_SF_LineFluxP3_hpp
 
 #include "Mesh/ShapeFunction.hpp"
 #include "Mesh/GeoShape.hpp"
-#include "SFDM/src/SF/LibSF.hpp"
+#include "SFDM/SF/LibSF.hpp"
 
 namespace CF {
 namespace SFDM {
 namespace SF {
 
-class SFDM_SF_API LineSolutionP1  : public Mesh::ShapeFunction {
+class SFDM_SF_API LineFluxP3  : public Mesh::ShapeFunction {
 public:
 
   static const Uint dimensionality = 1;
-  static const Uint nb_nodes = 2;
-  static const Uint order = 1;
+  static const Uint nb_nodes = 4;
+  static const Uint order = 3;
   static const Mesh::GeoShape::Type shape = Mesh::GeoShape::LINE;
 
 public:
@@ -28,10 +28,10 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// Constructor
-  LineSolutionP1(const std::string& name = type_name());
+  LineFluxP3(const std::string& name = type_name());
 
   /// Type name
-  static std::string type_name() { return "LineSolutionP1"; }
+  static std::string type_name() { return "LineFluxP3"; }
 
   /// Types for the matrices used
   typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
@@ -79,4 +79,4 @@ private:
 } // SFDM
 } // CF
 
-#endif // CF_SFDM_SF_LineSolutionP1
+#endif // CF_Mesh_SF_LineFluxP3

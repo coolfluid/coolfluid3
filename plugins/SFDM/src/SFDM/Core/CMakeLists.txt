@@ -1,4 +1,6 @@
 list( APPEND coolfluid_sfdm_core_files
+  CreateSpace.hpp
+  CreateSpace.cpp
   LibCore.hpp
   LibCore.cpp
 )

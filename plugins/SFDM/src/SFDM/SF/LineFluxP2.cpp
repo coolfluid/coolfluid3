@@ -6,8 +6,8 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "LibSF.hpp"
-#include "LineFluxP2.hpp"
+#include "SFDM/SF/LibSF.hpp"
+#include "SFDM/SF/LineFluxP2.hpp"
 
 namespace CF {
 namespace SFDM {

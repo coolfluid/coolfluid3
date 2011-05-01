@@ -7,7 +7,7 @@
 #include "Common/RegistLibrary.hpp"
 #include "Common/CRoot.hpp"
 
-#include "SFDM/src/SF/LibSF.hpp"
+#include "SFDM/SF/LibSF.hpp"
 
 namespace CF {
 namespace SFDM {

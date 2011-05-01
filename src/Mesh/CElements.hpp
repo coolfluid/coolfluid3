@@ -71,32 +71,6 @@ protected: // data
   CConnectivity::Ptr m_node_connectivity;
 
 };
-
-////////////////////////////////////////////////////////////////////////////////
-
-class IsElementsVolume
-{
-public:
-  IsElementsVolume () {}
-  
-  bool operator()(const CEntities::Ptr& component)
-  { return component->element_type().dimension() == component->element_type().dimensionality(); }
-  
-  bool operator()(const CEntities& component)
-  { return component.element_type().dimension() == component.element_type().dimensionality(); }
-};
-
-class IsElementsSurface
-{
-public:
-  IsElementsSurface () {}
-  
-  bool operator()(const CEntities::Ptr& component)
-  { return component->element_type().dimension() == component->element_type().dimensionality() + 1; }
-  
-  bool operator()(const CEntities& component)
-  { return component.element_type().dimension() == component.element_type().dimensionality() + 1; }
-};
   
 ////////////////////////////////////////////////////////////////////////////////
 

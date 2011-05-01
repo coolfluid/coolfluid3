@@ -71,6 +71,11 @@ void CEntities::configure_element_type()
   m_element_type = create_component_abstract_type<ElementType>( etype_name, etype_name );
   m_element_type->rename(m_element_type->derived_type_name());
   add_component( m_element_type );
+
+  if (exists_space(0))
+    get_child("space[0]").configure_property("shape_function",m_element_type->shape_function().derived_type_name());
+  else
+    create_space(element_type().shape_function().derived_type_name());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -162,18 +167,7 @@ CSpace& CEntities::create_space( const std::string& shape_function_builder_name 
 {
   Uint nb_existing_spaces = m_spaces.size();
   CSpace::Ptr space = create_component<CSpace>("space["+to_str(nb_existing_spaces)+"]");
-  space->initialize(shape_function_builder_name);
-  m_spaces.push_back(space);
-  return *space;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CSpace& CEntities::create_space0()
-{
-  cf_assert(m_spaces.size() == 0);
-  CSpace::Ptr space = create_component<CSpace>("space[0]");
-  space->initialize(element_type().shape_function().derived_type_name());
+  space->configure_property("shape_function",shape_function_builder_name);
   m_spaces.push_back(space);
   return *space;
 }
@@ -216,6 +210,28 @@ void CEntities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) co
 void CEntities::allocate_coordinates(RealMatrix& coords) const
 {
   coords.resize(element_type().nb_nodes(),element_type().dimension());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool IsElementsVolume::operator()(const CEntities::Ptr& component)
+{
+  return component->element_type().dimension() == component->element_type().dimensionality();
+}
+
+bool IsElementsVolume::operator()(const CEntities& component)
+{
+  return component.element_type().dimension() == component.element_type().dimensionality();
+}
+
+bool IsElementsSurface::operator()(const CEntities::Ptr& component)
+{
+  return component->element_type().dimension() == component->element_type().dimensionality() + 1;
+}
+
+bool IsElementsSurface::operator()(const CEntities& component)
+{
+  return component.element_type().dimension() == component.element_type().dimensionality() + 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -43,20 +43,17 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CSpace"; }
 
-  /// initialize
-  void initialize(const std::string& shape_function_builder_name);
-
-  //void initialize(const CElements& elements);
-
   /// return the elementType
-  const ShapeFunction& shape_function() const { return *m_shape_function; }
+  const ShapeFunction& shape_function() const { cf_assert(is_not_null(m_shape_function)); return *m_shape_function; }
 
   /// The geometric support of this space. This is equal to the element type defined in CEntities
   const ElementType& element_type() const { return parent()->as_type<CEntities>().element_type(); }
 
-  Uint nb_states() const { return 1.;}//return shape_function().nb_nodes(); }
+  Uint nb_states() const { return shape_function().nb_nodes(); }
   
 protected: // data
+
+  void configure_shape_function();
 
   boost::shared_ptr<ShapeFunction> m_shape_function;
 

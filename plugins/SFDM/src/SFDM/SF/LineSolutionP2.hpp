@@ -9,7 +9,7 @@
 
 #include "Mesh/ShapeFunction.hpp"
 #include "Mesh/GeoShape.hpp"
-#include "SFDM/src/SF/LibSF.hpp"
+#include "SFDM/SF/LibSF.hpp"
 
 namespace CF {
 namespace SFDM {

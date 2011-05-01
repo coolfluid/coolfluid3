@@ -6,8 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "LibSF.hpp"
-#include "LineSolutionP2.hpp"
+#include "SFDM/SF/LineSolutionP1.hpp"
 
 namespace CF {
 namespace SFDM {
@@ -15,11 +14,11 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LineSolutionP2, Mesh::ShapeFunction, LibSF > LineSolutionP2_Builder;
+Common::ComponentBuilder < LineSolutionP1, Mesh::ShapeFunction, LibSF > LineSolutionP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LineSolutionP2::LineSolutionP2(const std::string& name) : Mesh::ShapeFunction(name)
+LineSolutionP1::LineSolutionP1(const std::string& name) : Mesh::ShapeFunction(name)
 {
   m_dimensionality = dimensionality;
   m_nb_nodes = nb_nodes;
@@ -29,28 +28,24 @@ LineSolutionP2::LineSolutionP2(const std::string& name) : Mesh::ShapeFunction(na
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LineSolutionP2::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void LineSolutionP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
-  const Real ksi2 = mapped_coord[KSI]*mapped_coord[KSI];
-  result[0] = 0.5 * (ksi2 - mapped_coord[KSI]);
-  result[1] = 0.5 * (ksi2 + mapped_coord[KSI]);
-  result[2] = (1. - ksi2);
+  result[0] = 0.5 * (1.0 - mapped_coord[KSI]);
+  result[1] = 0.5 * (1.0 + mapped_coord[KSI]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LineSolutionP2::gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void LineSolutionP1::gradient(const MappedCoordsT& mappedCoord, GradientT& result)
 {
-  result(KSI, 0) = mapped_coord[KSI]-0.5;
-  result(KSI, 1) = mapped_coord[KSI]+0.5;
-  result(KSI, 2) = -2.*mapped_coord[KSI];
+  result(KSI, 0) = -0.5;
+  result(KSI, 1) =  0.5;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LineSolutionP2::MappedNodesT LineSolutionP2::s_mapped_sf_nodes =  ( LineSolutionP2::MappedNodesT() <<
+LineSolutionP1::MappedNodesT LineSolutionP1::s_mapped_sf_nodes =  ( LineSolutionP1::MappedNodesT() <<
   -1.,
-   0.,
    1.
 ).finished();
 

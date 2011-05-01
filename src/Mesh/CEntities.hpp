@@ -77,8 +77,6 @@ public: // functions
   const CSpace& space (const Uint space_idx) const;
 
   CSpace& create_space( const std::string& shape_function_builder_name );
-
-  virtual CSpace& create_space0();
   
   bool exists_space(const Uint space_idx) const;
 
@@ -98,6 +96,26 @@ protected: // data
 
   std::vector<boost::shared_ptr<CSpace> > m_spaces;
 
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+class IsElementsVolume
+{
+public:
+  IsElementsVolume () {}
+
+  bool operator()(const CEntities::Ptr& component);
+  bool operator()(const CEntities& component);
+};
+
+class IsElementsSurface
+{
+public:
+  IsElementsSurface () {}
+
+  bool operator()(const CEntities::Ptr& component);
+  bool operator()(const CEntities& component);
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -273,9 +273,7 @@ void CField::create_data_storage()
       Uint data_size = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(topology()))
       {
-        if (m_space_idx == 0 && ! field_elements.exists_space(m_space_idx) )
-          field_elements.create_space0();
-        cf_assert( field_elements.exists_space(m_space_idx) );
+        cf_assert_desc("space["+to_str(m_space_idx)+"] does not exist in "+field_elements.full_path().path(), field_elements.exists_space(m_space_idx) );
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());
@@ -289,9 +287,7 @@ void CField::create_data_storage()
       boost_foreach(CEntities& field_elements, find_components_recursively<CCells>(topology()))
       {
         //CFinfo << name() << ": creating cellbased field storage in " << field_elements.full_path().path() << CFendl;
-        if (m_space_idx == 0 && ! field_elements.exists_space(m_space_idx) )
-          field_elements.create_space0();
-        cf_assert( field_elements.exists_space(m_space_idx) );
+        cf_assert_desc("space["+to_str(m_space_idx)+"] does not exist in "+field_elements.full_path().path(), field_elements.exists_space(m_space_idx) );
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());
@@ -304,9 +300,7 @@ void CField::create_data_storage()
       Uint data_size = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively_with_tag<CEntities>(topology(),Mesh::Tags::face_entity()))
       {
-        if (m_space_idx == 0 && ! field_elements.exists_space(m_space_idx) )
-          field_elements.create_space0();
-        cf_assert( field_elements.exists_space(m_space_idx) );
+        cf_assert_desc("space["+to_str(m_space_idx)+"] does not exist in "+field_elements.full_path().path(), field_elements.exists_space(m_space_idx) );
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());

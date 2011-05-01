@@ -54,7 +54,6 @@ void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
   CEntities::initialize(element_type_name,nodes);
   node_connectivity().set_row_size(m_element_type->nb_nodes());
   node_connectivity().create_lookup().add(nodes);
-  create_space0();
 }
 
 //////////////////////////////////////////////////////////////////////////////
