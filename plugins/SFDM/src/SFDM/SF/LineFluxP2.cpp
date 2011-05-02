@@ -48,7 +48,7 @@ void LineFluxP2::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LineFluxP2::MappedNodesT LineFluxP2::s_mapped_sf_nodes =  ( LineFluxP2::MappedNodesT() <<
+RealMatrix LineFluxP2::s_mapped_sf_nodes =  ( RealMatrix(3,1) <<
   -1.,
    0.,
    1.

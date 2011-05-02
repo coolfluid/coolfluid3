@@ -44,7 +44,7 @@ void LineSolutionP1::compute_gradient(const MappedCoordsT& mappedCoord, Gradient
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LineSolutionP1::MappedNodesT LineSolutionP1::s_mapped_sf_nodes =  ( LineSolutionP1::MappedNodesT() <<
+RealMatrix LineSolutionP1::s_mapped_sf_nodes =  ( RealMatrix(2,1) <<
   -1.,
    1.
 ).finished();

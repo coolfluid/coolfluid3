@@ -72,8 +72,6 @@ public:
 
   virtual const RealMatrix& local_coordinates() const
   {
-    //CFinfo << s_mapped_sf_nodes << CFendl;
-    //CF_DEBUG_POINT;
     return s_mapped_sf_nodes;
   }
 
