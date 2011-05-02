@@ -38,69 +38,48 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( LineP1 )
+BOOST_AUTO_TEST_CASE( LineP2 )
 {
   CMesh::Ptr mesh = Common::Core::instance().root().create_component<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(*mesh, 1., 20);
 
 
   /// This is the standard LagrangeP1 space[0], coming with the element type
-  CField::Ptr mesh_solution = mesh->create_component<CField>("mesh_solution");
-  mesh_solution->configure_property("Space",std::string("space[0]"));
-  mesh_solution->configure_property("Topology",mesh->topology().full_path());
-  mesh_solution->configure_property("FieldType",std::string("CellBased"));
-  mesh_solution->configure_property("VarNames",std::vector<std::string>(1,"solution"));
-  mesh_solution->configure_property("VarTypes",std::vector<std::string>(1,"scalar"));
-  mesh_solution->create_data_storage();
+  CField& mesh_solution = mesh->create_field("mesh_solution",CField::Basis::CELL_BASED,"space[0]","var[scalar]");
 
-
-  /// Create a space[1] for solution of order P2, and thus a space[2] for flux P3
+  /// Create a for SFDM solution of order P2, and for flux a space of order P3
   CreateSpace::Ptr space_creator = allocate_component<CreateSpace>("space_creator");
   space_creator->configure_property("P",2u);
   space_creator->transform(*mesh);
 
-
-  /// Create a space[1] for solution of order P2, and thus a space[2] for flux P3
-  Actions::CreateSpaceP0::Ptr spaceP0_creator = allocate_component<Actions::CreateSpaceP0>("spaceP0_creator");
-  spaceP0_creator->transform(*mesh);
-
   /// This is a field with space "solution"
-  CField::Ptr solution = mesh->create_component<CField>("solution");
-  solution->configure_property("Space",std::string("solution"));
-  solution->configure_property("Topology",mesh->topology().full_path());
-  solution->configure_property("FieldType",std::string("CellBased"));
-  solution->configure_property("VarNames",std::vector<std::string>(1,"solution"));
-  solution->configure_property("VarTypes",std::vector<std::string>(1,"scalar"));
-  solution->create_data_storage();
+  CField& solution = mesh->create_field("solution_field",CField::Basis::CELL_BASED,"solution","var[scalar]");
+
 
   /// This is a field with space "flux"
-  CField::Ptr flux = mesh->create_component<CField>("flux");
-  flux->configure_property("Space",std::string("flux"));
-  flux->configure_property("Topology",mesh->topology().full_path());
-  flux->configure_property("FieldType",std::string("CellBased"));
-  flux->configure_property("VarNames",std::vector<std::string>(1,"solution"));
-  flux->configure_property("VarTypes",std::vector<std::string>(1,"scalar"));
-  flux->create_data_storage();
+  CField& flux = mesh->create_field("flux_field",CField::Basis::CELL_BASED,"flux","var[scalar]");
 
 
   CFinfo << mesh->tree() << CFendl;
   CFinfo << "elements = " << mesh->topology().recursive_elements_count() << CFendl;
-  CFinfo << "mesh_solution_fieldsize = " << mesh_solution->size() << CFendl;
-  CFinfo << "solution_fieldsize = " << solution->size() << CFendl;
+  CFinfo << "mesh_solution_fieldsize = " << mesh_solution.size() << CFendl;
+  CFinfo << "solution_fieldsize = " << solution.size() << CFendl;
 
   /// Initialize solution field
   Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component<Actions::CInitFieldFunction>("init_field");
   init_field->configure_property("Functions",std::vector<std::string>(1,"sin(2*pi*x)"));
-  init_field->configure_property("Field",solution->full_path());
+  init_field->configure_property("Field",solution.full_path());
   init_field->transform(*mesh);
 
-  CFinfo << "solution data:\n" << solution->data() << CFendl;
+  CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
   boost::filesystem::path fp_out ("line.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution));
+  gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
   gmsh_writer->write_from_to(mesh,fp_out);
+
+  CFinfo << "Mesh \"line.msh\" written" << CFendl;
 
 }
 

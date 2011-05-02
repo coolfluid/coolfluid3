@@ -159,7 +159,7 @@ void RKRD::config_mesh()
      if( i != nbdofs-1 ) vars += ",";
     }
 
-    m_solution = mesh.create_field("solution","PointBased", vars).as_ptr<CField>();
+    m_solution = mesh.create_field("solution",CField::Basis::POINT_BASED,"space[0]",vars).as_ptr<CField>();
 
     m_solution.lock()->add_tag(solution_tag);
   }

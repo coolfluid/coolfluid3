@@ -13,6 +13,7 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/FindComponents.hpp"
 
+#include "Mesh/Actions/CreateSpaceP0.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
 #include "Mesh/Actions/CBuildFaceNormals.hpp"
 #include "Mesh/CMeshTransformer.hpp"
@@ -123,6 +124,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
 
 BOOST_AUTO_TEST_CASE( build_face_normals )
 {
+  allocate_component<CreateSpaceP0>("create_space_P0")->transform(mesh);
   BOOST_CHECK(true);
   CBuildFaceNormals::Ptr face_normal_builder = allocate_component<CBuildFaceNormals>("facenormalsbuilder");
   
