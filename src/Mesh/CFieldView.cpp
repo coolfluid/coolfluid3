@@ -144,7 +144,7 @@ CMultiStateFieldView::CMultiStateFieldView ( const std::string& name )
 CMultiStateFieldView::View CMultiStateFieldView::operator[](const Uint idx)
 {
   cf_assert( idx < m_size );    
-  Uint data_idx = m_start_idx+idx;
+  Uint data_idx = m_start_idx+m_stride*idx;
   Range range = Range().start(data_idx).finish(data_idx + m_stride);
   cf_assert( is_not_null(m_field_data.lock()) );
   return m_field_data.lock()->array()[ boost::indices[range][Range()] ];
@@ -155,7 +155,7 @@ CMultiStateFieldView::View CMultiStateFieldView::operator[](const Uint idx)
 CMultiStateFieldView::ConstView CMultiStateFieldView::operator[](const Uint idx) const
 {
   cf_assert( idx < m_size );    
-  Uint data_idx = m_start_idx+idx;
+  Uint data_idx = m_start_idx+m_stride*idx;
   Range range = Range().start(data_idx).finish(data_idx + m_stride);
   cf_assert( is_not_null(m_field_data.lock()) );
   return m_field_data.lock()->array()[ boost::indices[range][Range()] ];
