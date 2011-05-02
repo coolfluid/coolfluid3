@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
   
   // Create output field
-  CField& t_fld = mesh->create_field2( "Temperature", CField::Basis::POINT_BASED, std::vector<std::string>(1, "T"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
+  CField& t_fld = mesh->create_field( "Temperature", CField::Basis::POINT_BASED, std::vector<std::string>(1, "T"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
   lss.resize(t_fld.data().size() * 2);
   
   // Setup a mesh writer

@@ -62,7 +62,7 @@ CMesh::~CMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field2( const std::string& name , const std::string& base, const std::string& variables)
+CField& CMesh::create_field( const std::string& name , const std::string& base, const std::string& variables)
 {
   std::vector<std::string> tokenized_variables(0);
 
@@ -134,7 +134,7 @@ CField& CMesh::create_scalar_field( const std::string& name , CField& based_on_f
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field2( const std::string& name , CField& based_on_field)
+CField& CMesh::create_field( const std::string& name , CField& based_on_field)
 {
   CField& field = *create_component<CField>(name);
   field.set_topology(based_on_field.topology());
@@ -164,13 +164,13 @@ CField& CMesh::create_scalar_field(const std::string& field_name, const std::str
 {
   const std::vector<std::string> names(1, variable_name);
   const std::vector< CField::VarType > types(1, CField::SCALAR);
-  return create_field2(field_name, base, names, types);
+  return create_field(field_name, base, names, types);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field2(const std::string& name, const CField::Basis::Type base, const std::vector< std::string >& variable_names, const std::vector< CField::VarType > variable_types)
+CField& CMesh::create_field(const std::string& name, const CField::Basis::Type base, const std::vector< std::string >& variable_names, const std::vector< CField::VarType > variable_types)
 {
   cf_assert(variable_names.size() == variable_types.size());
 

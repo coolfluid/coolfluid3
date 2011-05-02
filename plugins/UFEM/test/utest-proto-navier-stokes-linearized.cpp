@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   lss.set_config_file(argv[3]);
   
   // Create output fields
-  CField& u_fld = mesh->create_field2( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
+  CField& u_fld = mesh->create_field( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
   CField& p_fld = mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField::Basis::POINT_BASED);
   
   // Used in increment step
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   
   // Set up fields for velocity extrapolation
   const std::vector<std::string> advection_vars = boost::assign::list_of("u_adv")("u1")("u2")("u3");
-  CField& u_adv_fld = mesh->create_field2( "AdvectionVelocity", CField::Basis::POINT_BASED, advection_vars, std::vector<CField::VarType>(4, CField::VECTOR_2D) );
+  CField& u_adv_fld = mesh->create_field( "AdvectionVelocity", CField::Basis::POINT_BASED, advection_vars, std::vector<CField::VarType>(4, CField::VECTOR_2D) );
   
   // Variables associated with the advection velocity
   MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "u_adv"); // The extrapolated advection velocity (n+1/2)

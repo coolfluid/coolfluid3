@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( Linearize )
   CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("rectangle");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
   
-  mesh->create_field2( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
+  mesh->create_field( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
   
   MeshTerm<0, VectorField> u("Velocity", "u");
 

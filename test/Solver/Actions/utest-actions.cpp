@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   BOOST_CHECK(true);
 
-  CField& field = mesh->create_field2("test_CForAllElementsT","CellBased","var[1]");
+  CField& field = mesh->create_field("test_CForAllElementsT","CellBased","var[1]");
 
   BOOST_CHECK(true);
   

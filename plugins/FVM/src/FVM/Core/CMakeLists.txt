@@ -16,6 +16,8 @@ list( APPEND coolfluid_fvm_core_files
   ComputeFlux.cpp
   ComputeUpdateCoefficient.hpp
   ComputeUpdateCoefficient.cpp
+  CreateSpace.hpp
+  CreateSpace.cpp
   GhostCells.hpp
   GhostCells.cpp
   FiniteVolumeSolver.hpp
@@ -36,7 +38,7 @@ list( APPEND coolfluid_fvm_core_files
   UpdateSolution.cpp
 )
 
-list( APPEND coolfluid_fvm_core_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_solver_actions coolfluid_solver coolfluid_mesh_actions )
+list( APPEND coolfluid_fvm_core_cflibs coolfluid_fvm_sf coolfluid_mesh coolfluid_mesh_sf coolfluid_solver_actions coolfluid_solver coolfluid_mesh_actions )
 
 coolfluid_add_library( coolfluid_fvm_core )
 

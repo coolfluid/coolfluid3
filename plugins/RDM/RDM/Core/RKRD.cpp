@@ -159,7 +159,7 @@ void RKRD::config_mesh()
      if( i != nbdofs-1 ) vars += ",";
     }
 
-    m_solution = mesh.create_field2("solution","PointBased", vars).as_ptr<CField>();
+    m_solution = mesh.create_field("solution","PointBased", vars).as_ptr<CField>();
 
     m_solution.lock()->add_tag(solution_tag);
   }
@@ -173,7 +173,7 @@ void RKRD::config_mesh()
   m_residual = find_component_ptr_with_tag<CField>( mesh, residual_tag);
   if ( is_null( m_residual.lock() ) )
   {
-    m_residual = mesh.create_field2("residual",*m_solution.lock()).as_ptr<CField>();
+    m_residual = mesh.create_field("residual",*m_solution.lock()).as_ptr<CField>();
     m_residual.lock()->add_tag(residual_tag);
   }
 

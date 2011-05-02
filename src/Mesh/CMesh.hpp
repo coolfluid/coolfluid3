@@ -61,19 +61,19 @@ public: // functions
   /// @param name Name for the field component
   /// @param base String representing the storage method. See CField::Basis for valid values
   /// @param variables Either a comma-separated string of the form variable_name[size], or "scalar_same_name" (the default), which indicates the field holds a single scalar
-  CField& create_field2( const std::string& name , const std::string& base, const std::string& variables = "scalar_same_name");
+  CField& create_field( const std::string& name , const std::string& base, const std::string& variables = "scalar_same_name");
 
   /// Create a field
   /// @param name Name for the field component
   /// @param base Storage method
   /// @param variable_names The names of the variables to add
   /// @param variable_types The types of the variables to add
-  CField& create_field2( const std::string& name,
+  CField& create_field( const std::string& name,
                           const CField::Basis::Type base,
                           const std::vector<std::string>& variable_names,
                           const std::vector<CField::VarType> variable_types);
 
-  CField& create_field2( const std::string& name , CField& based_on_field);
+  CField& create_field( const std::string& name , CField& based_on_field);
 
   /// Create a field containing a single scalar
   CField& create_scalar_field( const std::string& field_name, const std::string& variable_name, const CField::Basis::Type base);

@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesArtificialDissipation )
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
   
   // Create output fields
-  CField& u_fld = mesh->create_field2( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
+  CField& u_fld = mesh->create_field( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
   CField& p_fld = mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField::Basis::POINT_BASED);
   
   lss.resize(u_fld.data().size() * 2 + p_fld.size());

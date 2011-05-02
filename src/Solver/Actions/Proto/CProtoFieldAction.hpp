@@ -182,7 +182,7 @@ public:
       }
       
       if(!existing_field && fd_var_names.size())
-        mesh.create_field2(fd_name, Mesh::CField::Basis::POINT_BASED, fd_var_names, fd_var_types);
+        mesh.create_field(fd_name, Mesh::CField::Basis::POINT_BASED, fd_var_names, fd_var_types);
     }
   }
   

@@ -66,7 +66,7 @@ void CBuildArea::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  CField& area_field = mesh.create_field2("area","FaceBased");
+  CField& area_field = mesh.create_field("area","FaceBased");
   area_field.add_tag(Mesh::Tags::area());
   CScalarFieldView area("area_view");
   area.set_field(area_field);
