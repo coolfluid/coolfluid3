@@ -29,7 +29,7 @@ SFHexaLagrangeP1::SFHexaLagrangeP1(const std::string& name) : ShapeFunction(name
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFHexaLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void SFHexaLagrangeP1::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   const Real xi   = mapped_coord[KSI];
   const Real eta  = mapped_coord[ETA];
@@ -58,7 +58,7 @@ void SFHexaLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFHexaLagrangeP1::gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void SFHexaLagrangeP1::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
 
   const Real xi   = mapped_coord[KSI];

@@ -79,14 +79,14 @@ public:
   /// mapped coordinates
   /// @param mappedCoord The mapped coordinates
   /// @param shapeFunc Vector storing the result
-  static void shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc) { SF::value(mappedCoord,shapeFunc); }
+  static void shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc) { SF::compute_value(mappedCoord,shapeFunc); }
 
   /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
   /// mapped coordinates. The result needs to be multiplied with the inverse jacobian to get the result in real
   /// coordinates.
   /// @param mappedCoord The mapped coordinates where the gradient should be calculated
   /// @param result Storage for the resulting gradient matrix
-  static void shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result) { SF::gradient(mappedCoord,result); }
+  static void shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result) { SF::compute_gradient(mappedCoord,result); }
 
   /// Compute the centroid
   /// @note for a point, the centroid is the point itself

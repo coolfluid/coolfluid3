@@ -80,14 +80,14 @@ const CF::Mesh::ElementType& Quad3DLagrangeP1::face_type(const CF::Uint face) co
 
 void Quad3DLagrangeP1::shape_function_value(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
 {
-  SFQuadLagrangeP1::value(mapped_coord, shape_func);
+  SFQuadLagrangeP1::compute_value(mapped_coord, shape_func);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Quad3DLagrangeP1::shape_function_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
 {
-  SFQuadLagrangeP1::gradient(mapped_coord, result);
+  SFQuadLagrangeP1::compute_gradient(mapped_coord, result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

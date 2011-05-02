@@ -29,14 +29,14 @@ SFQuadLagrangeP0::SFQuadLagrangeP0(const std::string& name) : ShapeFunction(name
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFQuadLagrangeP0::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void SFQuadLagrangeP0::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   result[0] = 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFQuadLagrangeP0::gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void SFQuadLagrangeP0::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
   result(KSI,0) = 0.;
   result(ETA,0) = 0.;

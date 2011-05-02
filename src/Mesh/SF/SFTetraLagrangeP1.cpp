@@ -29,7 +29,7 @@ SFTetraLagrangeP1::SFTetraLagrangeP1(const std::string& name) : ShapeFunction(na
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFTetraLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void SFTetraLagrangeP1::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   result[0] = 1. - mapped_coord[KSI] - mapped_coord[ETA] - mapped_coord[ZTA];
   result[1] = mapped_coord[KSI];
@@ -39,7 +39,7 @@ void SFTetraLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFTetraLagrangeP1::gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void SFTetraLagrangeP1::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
   result(KSI, 0) = -1.;
   result(ETA, 0) = -1.;

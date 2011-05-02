@@ -29,7 +29,7 @@ SFTriagLagrangeP2B::SFTriagLagrangeP2B(const std::string& name) : ShapeFunction(
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFTriagLagrangeP2B::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void SFTriagLagrangeP2B::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   const Real L0 = 1.0 - mapped_coord[KSI] - mapped_coord[ETA];
   const Real L1 = mapped_coord[KSI];
@@ -48,7 +48,7 @@ void SFTriagLagrangeP2B::value(const MappedCoordsT& mapped_coord, ValueT& result
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFTriagLagrangeP2B::gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void SFTriagLagrangeP2B::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
   const Real L0 = 1.0 - mapped_coord[KSI] - mapped_coord[ETA];
   const Real L1 = mapped_coord[KSI];

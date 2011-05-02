@@ -145,7 +145,7 @@ bool Hexa3DLagrangeP1::is_orientation_inside(const CoordsT& coord, const NodeMat
 
 void Hexa3DLagrangeP1::shape_function_value(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
 {
-  SFHexaLagrangeP1::value(mapped_coord,shape_func);
+  SFHexaLagrangeP1::compute_value(mapped_coord,shape_func);
 }
   
 ////////////////////////////////////////////////////////////////////////////////
@@ -227,7 +227,7 @@ void Hexa3DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrix
 
 void Hexa3DLagrangeP1::shape_function_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
 {
-  SFHexaLagrangeP1::gradient(mapped_coord,result);
+  SFHexaLagrangeP1::compute_gradient(mapped_coord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

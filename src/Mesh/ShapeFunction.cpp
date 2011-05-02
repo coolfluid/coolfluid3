@@ -25,16 +25,25 @@ ShapeFunction::~ShapeFunction()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ShapeFunction::compute_value(const RealVector& local_coord, RealRowVector& result)
+RealRowVector ShapeFunction::value(const RealVector& local_coord) const
 {
   throw Common::NotImplemented(FromHere(),"shape function value not implemented for" + derived_type_name());
+  return RealRowVector(1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ShapeFunction::compute_gradient(const RealVector& local_coord, RealMatrix& result)
+RealMatrix ShapeFunction::gradient(const RealVector& local_coord) const
 {
   throw Common::NotImplemented(FromHere(),"shape function gradient not implemented for" + derived_type_name());
+  return RealRowVector(0,0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const RealMatrix& ShapeFunction::local_coordinates() const
+{
+  throw Common::NotImplemented(FromHere(),"local coordinates not implemented for" + derived_type_name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -29,7 +29,7 @@ SFTriagLagrangeP1::SFTriagLagrangeP1(const std::string& name) : ShapeFunction(na
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFTriagLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void SFTriagLagrangeP1::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   result[0] = 1. - mapped_coord[KSI] - mapped_coord[ETA];
   result[1] = mapped_coord[KSI];
@@ -38,7 +38,7 @@ void SFTriagLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFTriagLagrangeP1::gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void SFTriagLagrangeP1::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
   result(KSI, 0) = -1.;
   result(ETA, 0) = -1.;

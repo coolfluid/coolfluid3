@@ -10,7 +10,7 @@
 #include "Mesh/ShapeFunction.hpp"
 #include "Mesh/GeoShape.hpp"
 #include "SFDM/SF/LibSF.hpp"
-
+#include "Common/Log.hpp"
 namespace CF {
 namespace SFDM {
 namespace SF {
@@ -43,35 +43,44 @@ public:
   /// mapped coordinates
   /// @param mapped_coord The mapped coordinates
   /// @param result Vector storing the result
-  static void value(const MappedCoordsT& mapped_coord, ValueT& result);
+  static void compute_value(const MappedCoordsT& mapped_coord, ValueT& result);
 
   /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
   /// mapped coordinates. The result needs to be multiplied with the inverse jacobian to get the result in real
   /// coordinates.
   /// @param mapped_coord The mapped coordinates where the gradient should be calculated (dimensionality x nb_nodes)
   /// @param result Storage for the resulting gradient matrix
-  static void gradient(const MappedCoordsT& mapped_coord, GradientT& result);
+  static void compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result);
 
   /// Coordinates in mapped space of the nodes defining the shape function (nb_nodes x dimensionality)
   static const MappedNodesT& mapped_sf_nodes() { return s_mapped_sf_nodes; }
 
-  virtual void compute_value(const RealVector& local_coord, RealRowVector& result)
+  virtual RealRowVector value(const RealVector& local_coord) const
   {
-    value(local_coord,m_tmp_v);
-    result = m_tmp_v;
+    ValueT result;
+    compute_value(local_coord,result);
+    return result;
   }
 
-  virtual void compute_gradient(const RealVector& local_coord, RealMatrix& result)
+  virtual RealMatrix gradient(const RealVector& local_coord) const
   {
-    gradient(local_coord,m_tmp_g);
-    result = m_tmp_g;
+    GradientT result;
+    compute_gradient(local_coord,result);
+    return result;
+  }
+
+
+  virtual const RealMatrix& local_coordinates() const
+  {
+    //CFinfo << s_mapped_sf_nodes << CFendl;
+    //CF_DEBUG_POINT;
+    return s_mapped_sf_nodes;
   }
 
 private:
 
-  static MappedNodesT s_mapped_sf_nodes;
-  ValueT    m_tmp_v;
-  GradientT m_tmp_g;
+  static RealMatrix s_mapped_sf_nodes;
+
 
 };
 

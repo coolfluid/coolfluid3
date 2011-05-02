@@ -28,7 +28,7 @@ LineSolutionP1::LineSolutionP1(const std::string& name) : Mesh::ShapeFunction(na
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LineSolutionP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void LineSolutionP1::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   result[0] = 0.5 * (1.0 - mapped_coord[KSI]);
   result[1] = 0.5 * (1.0 + mapped_coord[KSI]);
@@ -36,7 +36,7 @@ void LineSolutionP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LineSolutionP1::gradient(const MappedCoordsT& mappedCoord, GradientT& result)
+void LineSolutionP1::compute_gradient(const MappedCoordsT& mappedCoord, GradientT& result)
 {
   result(KSI, 0) = -0.5;
   result(KSI, 1) =  0.5;

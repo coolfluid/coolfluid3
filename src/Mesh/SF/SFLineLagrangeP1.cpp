@@ -29,7 +29,7 @@ SFLineLagrangeP1::SFLineLagrangeP1(const std::string& name) : ShapeFunction(name
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFLineLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void SFLineLagrangeP1::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   result[0] = 0.5 * (1.0 - mapped_coord[KSI]);
   result[1] = 0.5 * (1.0 + mapped_coord[KSI]);
@@ -37,7 +37,7 @@ void SFLineLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFLineLagrangeP1::gradient(const MappedCoordsT& mappedCoord, GradientT& result)
+void SFLineLagrangeP1::compute_gradient(const MappedCoordsT& mappedCoord, GradientT& result)
 {
   result(KSI, 0) = -0.5;
   result(KSI, 1) =  0.5;

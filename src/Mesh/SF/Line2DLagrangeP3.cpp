@@ -75,14 +75,14 @@ const CF::Mesh::ElementType& Line2DLagrangeP3::face_type(const CF::Uint face) co
 
 void Line2DLagrangeP3::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  SFLineLagrangeP3::value(mappedCoord,shapeFunc);
+  SFLineLagrangeP3::compute_value(mappedCoord,shapeFunc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Line2DLagrangeP3::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  SFLineLagrangeP3::gradient(mappedCoord,result);
+  SFLineLagrangeP3::compute_gradient(mappedCoord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

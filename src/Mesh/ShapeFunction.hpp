@@ -57,9 +57,11 @@ public: // functions
   /// @return dimensionality (e.g. shell in 3D world: dimensionality = 2)
   Uint dimensionality() const { return m_dimensionality; }
 
-  virtual void compute_value(const RealVector& local_coord, RealRowVector& result);
+  virtual RealRowVector value(const RealVector& local_coord) const;
 
-  virtual void compute_gradient(const RealVector& local_coord, RealMatrix& result);
+  virtual RealMatrix gradient(const RealVector& local_coord) const;
+
+  virtual const RealMatrix& local_coordinates() const;
 
 protected: // data
 

@@ -28,7 +28,7 @@ LineSolutionP2::LineSolutionP2(const std::string& name) : Mesh::ShapeFunction(na
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LineSolutionP2::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void LineSolutionP2::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   const Real ksi2 = mapped_coord[KSI]*mapped_coord[KSI];
   result[0] = 0.5 * (ksi2 - mapped_coord[KSI]);
@@ -38,7 +38,7 @@ void LineSolutionP2::value(const MappedCoordsT& mapped_coord, ValueT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LineSolutionP2::gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void LineSolutionP2::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
   result(KSI, 0) = mapped_coord[KSI]-0.5;
   result(KSI, 1) = mapped_coord[KSI]+0.5;
@@ -47,7 +47,7 @@ void LineSolutionP2::gradient(const MappedCoordsT& mapped_coord, GradientT& resu
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LineSolutionP2::MappedNodesT LineSolutionP2::s_mapped_sf_nodes =  ( LineSolutionP2::MappedNodesT() <<
+RealMatrix LineSolutionP2::s_mapped_sf_nodes = ( RealMatrix(3,1) <<
   -1.,
    0.,
    1.

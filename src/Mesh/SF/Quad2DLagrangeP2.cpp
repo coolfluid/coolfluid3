@@ -93,7 +93,7 @@ const CF::Mesh::ElementType& Quad2DLagrangeP2::face_type(const CF::Uint face) co
 
 void Quad2DLagrangeP2::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  SFQuadLagrangeP2::value(mappedCoord,shapeFunc);
+  SFQuadLagrangeP2::compute_value(mappedCoord,shapeFunc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ void Quad2DLagrangeP2::mapped_coordinates(const CoordsT& coord, const NodeMatrix
 
 void Quad2DLagrangeP2::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  SFQuadLagrangeP2::gradient(mappedCoord,result);
+  SFQuadLagrangeP2::compute_gradient(mappedCoord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

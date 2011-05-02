@@ -29,7 +29,7 @@ SFLineLagrangeP3::SFLineLagrangeP3(const std::string& name) : ShapeFunction(name
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFLineLagrangeP3::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void SFLineLagrangeP3::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   const Real onesixteenth = 1.0/16.0;
 
@@ -41,7 +41,7 @@ void SFLineLagrangeP3::value(const MappedCoordsT& mapped_coord, ValueT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFLineLagrangeP3::gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void SFLineLagrangeP3::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
   const Real onesixteenth = 1.0/16.0;
 

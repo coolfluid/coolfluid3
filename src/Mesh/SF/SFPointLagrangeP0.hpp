@@ -41,22 +41,36 @@ public:
   /// mapped coordinates
   /// @param mapped_coord The mapped coordinates
   /// @param result Vector storing the result
-  static void value(const MappedCoordsT& mapped_coord, ValueT& result);
+  static void compute_value(const MappedCoordsT& mapped_coord, ValueT& result);
 
   /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
   /// mapped coordinates. The result needs to be multiplied with the inverse jacobian to get the result in real
   /// coordinates.
-  /// @param mappedCoord The mapped coordinates where the gradient should be calculated
-  /// @param result Storage for the resulting gradient matrix (dimensionality x nb_nodes)
-  static void gradient(const MappedCoordsT& mapped_coord, GradientT& result);
+  /// @param mapped_coord The mapped coordinates where the gradient should be calculated (dimensionality x nb_nodes)
+  /// @param result Storage for the resulting gradient matrix
+  static void compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result);
 
   /// Coordinates in mapped space of the nodes defining the shape function (nb_nodes x dimensionality)
   static const MappedNodesT& mapped_sf_nodes() { return s_mapped_sf_nodes; }
 
+  virtual RealRowVector value(const RealVector& local_coord) const
+  {
+    ValueT result;
+    compute_value(local_coord,result);
+    return result;
+  }
+
+  virtual RealMatrix gradient(const RealVector& local_coord) const
+  {
+    GradientT result;
+    compute_gradient(local_coord,result);
+    return result;
+  }
+
 private:
-  
+
   static MappedNodesT s_mapped_sf_nodes;
-  
+
 };
 
 } // SF

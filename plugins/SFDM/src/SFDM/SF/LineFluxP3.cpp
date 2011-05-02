@@ -28,7 +28,7 @@ LineFluxP3::LineFluxP3(const std::string& name) : Mesh::ShapeFunction(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LineFluxP3::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void LineFluxP3::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   const Real ksi = mapped_coord[KSI];
   const Real ksi2 = mapped_coord[KSI]*mapped_coord[KSI];
@@ -42,7 +42,7 @@ void LineFluxP3::value(const MappedCoordsT& mapped_coord, ValueT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LineFluxP3::gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void LineFluxP3::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
   const Real ksi = mapped_coord[KSI];
   const Real ksi2 = mapped_coord[KSI]*mapped_coord[KSI];

@@ -29,14 +29,14 @@ SFPointLagrangeP0::SFPointLagrangeP0(const std::string& name) : ShapeFunction(na
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFPointLagrangeP0::value(const MappedCoordsT& mapped_coord, ValueT& shape_func)
+void SFPointLagrangeP0::compute_value(const MappedCoordsT& mapped_coord, ValueT& shape_func)
 {
   shape_func[0] = 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFPointLagrangeP0::gradient(const MappedCoordsT& mappedCoord, GradientT& result)
+void SFPointLagrangeP0::compute_gradient(const MappedCoordsT& mappedCoord, GradientT& result)
 {
   result(KSI, 0) = 0.;
 }

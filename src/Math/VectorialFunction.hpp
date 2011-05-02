@@ -46,11 +46,22 @@ public: // functions
   /// @param value the placeholder vector for the result
   void evaluate (const VariablesT& var_values, RealVector& ret_value) const;
 
+  /// Evaluate the Vectorial Function given the values of the variables.
+  /// @param vars values of the variables to substitute in the function.
+  /// @param value the placeholder vector for the result
+  void evaluate (const RealVector& var_values, RealVector& ret_value) const;
+
   /// Evaluate the Vectorial Function given the values of the variables
   /// and return it in the stored result. This function allows this class to work
   /// as a functor.
   /// @param vars values of the variables to substitute in the function.
   RealVector& operator()(const VariablesT& var_values);
+
+  /// Evaluate the Vectorial Function given the values of the variables
+  /// and return it in the stored result. This function allows this class to work
+  /// as a functor.
+  /// @param vars values of the variables to substitute in the function.
+  RealVector& operator()(const RealVector& var_values);
 
   /// @return if the VectorialFunctionParser has been parsed yet.
   bool is_parsed() const { return m_is_parsed; }

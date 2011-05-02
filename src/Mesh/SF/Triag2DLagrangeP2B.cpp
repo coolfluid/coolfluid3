@@ -69,7 +69,7 @@ const CF::Mesh::ElementType& Triag2DLagrangeP2B::face_type(const CF::Uint face) 
 
 void Triag2DLagrangeP2B::shape_function_value(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
 {
-  SFTriagLagrangeP2B::value(map_coord,shapef);
+  SFTriagLagrangeP2B::compute_value(map_coord,shapef);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ void Triag2DLagrangeP2B::mapped_coordinates(const CoordsT& coord, const NodeMatr
 
 void Triag2DLagrangeP2B::shape_function_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
 {
-  SFTriagLagrangeP2B::gradient(map_coord,result);
+  SFTriagLagrangeP2B::compute_gradient(map_coord,result);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

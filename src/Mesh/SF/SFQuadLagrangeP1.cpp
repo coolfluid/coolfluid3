@@ -29,7 +29,7 @@ SFQuadLagrangeP1::SFQuadLagrangeP1(const std::string& name) : ShapeFunction(name
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFQuadLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
+void SFQuadLagrangeP1::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   const Real ksi  = mapped_coord[KSI];
   const Real eta = mapped_coord[ETA];
@@ -42,7 +42,7 @@ void SFQuadLagrangeP1::value(const MappedCoordsT& mapped_coord, ValueT& result)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFQuadLagrangeP1::gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void SFQuadLagrangeP1::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
   const Real ksi = mapped_coord[KSI];
   const Real eta = mapped_coord[ETA];

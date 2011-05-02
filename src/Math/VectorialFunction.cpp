@@ -156,6 +156,7 @@ void VectorialFunction::parse()
   for(Uint i = 0; i < m_functions.size(); ++i)
   {
     FunctionParser* ptr = new FunctionParser();
+    ptr->AddConstant("pi", 3.1415926535897932);
     m_parsers.push_back(ptr);
 
 //    CFinfo << "Parsing Function: \'" << m_functions[i] << "\' Vars: \'" << m_vars << "\'\n" << CFendl;
@@ -192,7 +193,39 @@ void VectorialFunction::evaluate( const VariablesT& var_values, RealVector& ret_
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void VectorialFunction::evaluate( const RealVector& var_values, RealVector& ret_value) const
+{
+  cf_assert(m_is_parsed);
+  cf_assert(var_values.size() == m_nbvars);
+
+  // evaluate and store the functions line by line in the vector
+  std::vector<FunctionParser*>::const_iterator parser = m_parsers.begin();
+  std::vector<FunctionParser*>::const_iterator end = m_parsers.end();
+  Uint i = 0;
+  for( ; parser != end ; ++parser, ++i )
+    ret_value[i] = (*parser)->Eval(&var_values[0]);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 RealVector& VectorialFunction::operator()( const VariablesT& var_values)
+{
+  cf_assert(m_is_parsed);
+  cf_assert(var_values.size() == m_nbvars);
+
+  // evaluate and store the functions line by line in the result vector
+  std::vector<FunctionParser*>::const_iterator parser = m_parsers.begin();
+  std::vector<FunctionParser*>::const_iterator end = m_parsers.end();
+  Uint i = 0;
+  for( ; parser != end ; ++parser, ++i )
+    m_result[i] = (*parser)->Eval(&var_values[0]);
+
+  return m_result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+RealVector& VectorialFunction::operator()( const RealVector& var_values)
 {
   cf_assert(m_is_parsed);
   cf_assert(var_values.size() == m_nbvars);

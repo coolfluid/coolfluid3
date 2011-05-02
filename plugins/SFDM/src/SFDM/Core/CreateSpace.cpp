@@ -14,6 +14,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
+#include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 
 #include "SFDM/Core/CreateSpace.hpp"
@@ -54,6 +55,7 @@ void CreateSpace::execute()
   {
     entities.create_space("CF.SFDM.SF."+entities.element_type().shape_name()+"SolutionP"+property("P").value_str());
     entities.create_space("CF.SFDM.SF."+entities.element_type().shape_name()+"FluxP"+to_str(property("P").value<Uint>()+1));
+    //CFinfo << "local coords ("<< entities.space(1).shape_function().local_coordinates().rows()<<"x"<< entities.space(1).shape_function().local_coordinates().cols()<< ") = " << entities.space(1).shape_function().local_coordinates() << CFendl;
   }
 }
 
