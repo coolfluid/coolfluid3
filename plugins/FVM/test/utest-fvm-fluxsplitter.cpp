@@ -14,11 +14,12 @@
 
 #include "Mesh/LibMesh.hpp"
 
-#include "FVM/RoeCons1D.hpp"
-#include "FVM/RoeCons2D.hpp"
+#include "FVM/Core/RoeCons1D.hpp"
+#include "FVM/Core/RoeCons2D.hpp"
 
 using namespace CF;
 using namespace CF::FVM;
+using namespace CF::FVM::Core;
 
 //////////////////////////////////////////////////////////////////////////////
 

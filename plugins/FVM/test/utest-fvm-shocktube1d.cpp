@@ -30,7 +30,7 @@
 #include "Mesh/Actions/CBuildFaces.hpp"
 #include "Solver/Actions/CIterate.hpp"
 
-#include "FVM/ShockTube.hpp"
+#include "FVM/Core/ShockTube.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -42,6 +42,7 @@ using namespace CF::Mesh;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::FVM;
+using namespace CF::FVM::Core;
 using namespace CF::Tools::MeshGeneration;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -68,7 +69,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   BOOST_CHECK(true);
 
-  CModelUnsteady& model = Core::instance().root().get_child("shocktube").as_type<CModelUnsteady>();
+  CModelUnsteady& model = Common::Core::instance().root().get_child("shocktube").as_type<CModelUnsteady>();
 
   // 4) Configure time
   // -----------------

@@ -32,7 +32,7 @@
 #include "Mesh/CCells.hpp"
 
 
-#include "FVM/BuildGhostStates.hpp"
+#include "FVM/Core/BuildGhostStates.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -43,6 +43,7 @@ using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
 using namespace CF::FVM;
+using namespace CF::FVM::Core;
 using namespace CF::Tools::MeshGeneration;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -53,7 +54,7 @@ BOOST_AUTO_TEST_SUITE( FVM_Suite )
 
 BOOST_AUTO_TEST_CASE( test_buildghoststates )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = Common::Core::instance().root().create_component<CMesh>("mesh");
   
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
