@@ -42,9 +42,9 @@ CWriter::CWriter( const std::string& name )
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
 
-  m_elementTypes["CF.Mesh.SF.Point1DLagrangeP1"]=15;
-  m_elementTypes["CF.Mesh.SF.Point2DLagrangeP1"]=15;
-  m_elementTypes["CF.Mesh.SF.Point3DLagrangeP1"]=15;
+  m_elementTypes["CF.Mesh.SF.Point1DLagrangeP0"]=15;
+  m_elementTypes["CF.Mesh.SF.Point2DLagrangeP0"]=15;
+  m_elementTypes["CF.Mesh.SF.Point3DLagrangeP0"]=15;
 
   m_elementTypes["CF.Mesh.SF.Line1DLagrangeP1" ]=1;
   m_elementTypes["CF.Mesh.SF.Line2DLagrangeP1" ]=1;
