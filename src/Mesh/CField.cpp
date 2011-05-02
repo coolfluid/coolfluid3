@@ -62,7 +62,7 @@ CField::Basis::Convert& CField::Basis::Convert::instance()
 CField::CField ( const std::string& name  ) :
   Component ( name ),
   m_basis(Basis::POINT_BASED),
-  m_space_idx(0u)
+  m_space_name("space[0]")
 {
   mark_basic();
   
@@ -81,8 +81,8 @@ CField::CField ( const std::string& name  ) :
   option->attach_trigger ( boost::bind ( &CField::config_field_type,   this ) );
   option->mark_basic();
   
-  option = m_properties.add_option< OptionT<Uint> >("Space", "The type of the field", 0u);
-  option->link_to(&m_space_idx);
+  option = m_properties.add_option< OptionT<std::string> >("Space", "The space of the field is based on", m_space_name);
+  option->link_to(&m_space_name);
   option->mark_basic();
   
   std::vector<std::string> var_names;
@@ -273,7 +273,9 @@ void CField::create_data_storage()
       Uint data_size = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(topology()))
       {
-        cf_assert_desc("space["+to_str(m_space_idx)+"] does not exist in "+field_elements.full_path().path(), field_elements.exists_space(m_space_idx) );
+        if (field_elements.exists_space(m_space_name) == false)
+          throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.full_path().path());
+
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());
@@ -287,7 +289,9 @@ void CField::create_data_storage()
       boost_foreach(CEntities& field_elements, find_components_recursively<CCells>(topology()))
       {
         //CFinfo << name() << ": creating cellbased field storage in " << field_elements.full_path().path() << CFendl;
-        cf_assert_desc("space["+to_str(m_space_idx)+"] does not exist in "+field_elements.full_path().path(), field_elements.exists_space(m_space_idx) );
+        if (field_elements.exists_space(m_space_name) == false)
+          throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.full_path().path());
+
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());
@@ -300,7 +304,9 @@ void CField::create_data_storage()
       Uint data_size = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively_with_tag<CEntities>(topology(),Mesh::Tags::face_entity()))
       {
-        cf_assert_desc("space["+to_str(m_space_idx)+"] does not exist in "+field_elements.full_path().path(), field_elements.exists_space(m_space_idx) );
+        if (field_elements.exists_space(m_space_name) == false)
+          throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.full_path().path());
+
         m_elements_start_idx[&field_elements] = data_size;
         CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());

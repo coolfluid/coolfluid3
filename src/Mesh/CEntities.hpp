@@ -14,7 +14,7 @@
 #include "Mesh/CTable.hpp"
 
 namespace CF {
-namespace Common { class CLink; }
+namespace Common { class CLink; class CGroup;}
 namespace Mesh {
 
   template <typename T> class CList;
@@ -76,15 +76,25 @@ public: // functions
   
   const CSpace& space (const Uint space_idx) const;
 
-  CSpace& create_space( const std::string& shape_function_builder_name );
+  const CSpace& space (const std::string& space_name) const;
+
+  CSpace& create_space(const std::string& space_name, const std::string& shape_function_builder_name );
   
   bool exists_space(const Uint space_idx) const;
+
+  bool exists_space(const std::string& space_name) const;
+
+  Uint space_idx(const std::string& space_name) const;
 
   virtual RealMatrix get_coordinates(const Uint elem_idx) const;
 
   virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
 
   void allocate_coordinates(RealMatrix& coords) const;
+
+  void signal_create_space ( Common::SignalArgs& node );
+
+  void signature_create_space ( Common::SignalArgs& node);
 
 protected: // data
 
@@ -96,6 +106,7 @@ protected: // data
 
   std::vector<boost::shared_ptr<CSpace> > m_spaces;
 
+  boost::shared_ptr<Common::CGroup> m_spaces_group;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

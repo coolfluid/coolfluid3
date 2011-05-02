@@ -11,6 +11,8 @@
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/Signal.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CConnectivity.hpp"
 #include "Mesh/CList.hpp"
@@ -40,8 +42,15 @@ CEntities::CEntities ( const std::string& name ) :
   m_global_numbering->add_tag(Mesh::Tags::global_elem_indices());
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
 
+  m_spaces_group = create_static_component<CGroup>("spaces");
+  m_spaces_group->mark_basic();
+
   m_nodes = create_static_component<CLink>(Mesh::Tags::nodes());
   m_nodes->add_tag(Mesh::Tags::nodes());
+
+  regist_signal ( "create_space" , "Create space for other interpretations of fields (e.g. high order)", "Create Space" )->signal->connect ( boost::bind ( &CEntities::signal_create_space, this, _1 ) );
+  signal("create_space")->signature->connect(boost::bind(&CEntities::signature_create_space, this, _1));
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,9 +82,12 @@ void CEntities::configure_element_type()
   add_component( m_element_type );
 
   if (exists_space(0))
-    get_child("space[0]").configure_property("shape_function",m_element_type->shape_function().derived_type_name());
+    find_component_recursively_with_tag(*this,"space0").configure_property("shape_function",m_element_type->shape_function().derived_type_name());
   else
-    create_space(element_type().shape_function().derived_type_name());
+  {
+    CSpace& space0 = create_space("space[0]",element_type().shape_function().derived_type_name());
+    space0.add_tag("space0");
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -163,10 +175,10 @@ CTable<Uint>::ConstRow CEntities::get_nodes(const Uint elem_idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CSpace& CEntities::create_space( const std::string& shape_function_builder_name )
+CSpace& CEntities::create_space( const std::string& name, const std::string& shape_function_builder_name )
 {
   Uint nb_existing_spaces = m_spaces.size();
-  CSpace::Ptr space = create_component<CSpace>("space["+to_str(nb_existing_spaces)+"]");
+  CSpace::Ptr space = m_spaces_group->create_component<CSpace>(name);
   space->configure_property("shape_function",shape_function_builder_name);
   m_spaces.push_back(space);
   return *space;
@@ -181,6 +193,13 @@ const CSpace& CEntities::space (const Uint space_idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const CSpace& CEntities::space (const std::string& space_name) const
+{
+  return m_spaces_group->get_child(space_name).as_type<CSpace>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool CEntities::exists_space(const Uint space_idx) const
 {
   bool exists = false;
@@ -188,6 +207,27 @@ bool CEntities::exists_space(const Uint space_idx) const
     if ( is_not_null (m_spaces[space_idx]) )
       exists = true;
   return exists;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool CEntities::exists_space(const std::string& name) const
+{
+  return is_not_null(m_spaces_group->get_child_ptr(name));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint CEntities::space_idx(const std::string& name) const
+{
+  for (Uint i=0; i<m_spaces.size(); ++i)
+  {
+    if ( is_not_null(m_spaces[i]) )
+      if (m_spaces[i]->name() == name)
+        return i;
+  }
+  throw ValueNotFound(FromHere(), "Space with name ["+name+"] not found for elements ["+full_path().path()+"]");
+  return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -210,6 +250,30 @@ void CEntities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) co
 void CEntities::allocate_coordinates(RealMatrix& coords) const
 {
   coords.resize(element_type().nb_nodes(),element_type().dimension());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CEntities::signature_create_space ( SignalArgs& node)
+{
+  XML::SignalOptions options( node );
+  options.add<std::string>("name" , std::string("space["+to_str(m_spaces.size())+"]") , "name to add to space" );
+  options.add<std::string>("shape_function" , std::string("CF.Mesh.SF.SFLineP0Lagrange") , "Shape Function to add as space" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CEntities::signal_create_space ( SignalArgs& node )
+{
+  XML::SignalOptions options( node );
+
+  std::string name = "space["+to_str(m_spaces.size())+"]";
+  if (options.exists("name"))
+    name = options.option<std::string>("name");
+
+  std::string shape_function_builder = options.option<std::string>("shape_function");
+
+  CSpace& space = create_space(name,shape_function_builder);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

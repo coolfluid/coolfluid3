@@ -17,46 +17,45 @@
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 
-#include "FVM/Core/CreateSpace.hpp"
+#include "Mesh/Actions/CreateSpaceP0.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace FVM {
-namespace Core {
-  
+namespace Mesh {
+namespace Actions {
+
   using namespace Common;
-  using namespace Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CreateSpace, CMeshTransformer, LibCore> CreateSpace_Builder;
+Common::ComponentBuilder < CreateSpaceP0, CMeshTransformer, LibActions> CreateSpaceP0_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CreateSpace::CreateSpace( const std::string& name )
+CreateSpaceP0::CreateSpaceP0( const std::string& name )
 : CMeshTransformer(name)
 {
-   
+
   properties()["brief"] = std::string("Create space for FVM shape function");
   properties()["description"] = std::string("The polynomial order \"P\" is configurable, default: P = 0");
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
 
-void CreateSpace::execute()
+void CreateSpaceP0::execute()
 {
 
   CMesh& mesh = *m_mesh.lock();
 
-  boost_foreach(CEntities& entities, find_components_recursively_with_filter<CEntities>(mesh,IsElementsVolume()))
+  boost_foreach(CEntities& entities, find_components_recursively<CEntities>(mesh))
   {
-    entities.create_space("P0","CF.Mesh.SF.SF"+entities.element_type().shape_name()+"Lagrange"+property("P0").value_str());
+    entities.create_space("P0","CF.Mesh.SF.SF"+entities.element_type().shape_name()+"LagrangeP0");
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Core
-} // FVM
+} // Actions
+} // Mesh
 } // CF

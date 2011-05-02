@@ -76,7 +76,7 @@ bool CFieldView::set_elements(const CEntities& elements)
   m_mesh_elements = find_parent_component<CMesh>(elements).elements().as_ptr_checked<CMeshElements>();
   if (field.exists_for_entities(elements))
   {
-    m_space = elements.space(field.space_idx()).as_ptr<CSpace>();
+    m_space = elements.space(field.space_name()).as_ptr<CSpace>();
     m_stride = m_space.lock()->nb_states(); // this is the number of states per element (high order methods)
     m_start_idx = field.elements_start_idx(elements);
     m_end_idx = m_start_idx + m_stride * elements.size();

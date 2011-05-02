@@ -22,6 +22,7 @@
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/Actions/CInitFieldFunction.hpp"
+#include "Mesh/Actions/CreateSpaceP0.hpp"
 #include "SFDM/Core/CreateSpace.hpp"
 
 
@@ -45,7 +46,7 @@ BOOST_AUTO_TEST_CASE( LineP1 )
 
   /// This is the standard LagrangeP1 space[0], coming with the element type
   CField::Ptr mesh_solution = mesh->create_component<CField>("mesh_solution");
-  mesh_solution->configure_property("Space",0u);
+  mesh_solution->configure_property("Space",std::string("space[0]"));
   mesh_solution->configure_property("Topology",mesh->topology().full_path());
   mesh_solution->configure_property("FieldType",std::string("CellBased"));
   mesh_solution->configure_property("VarNames",std::vector<std::string>(1,"solution"));
@@ -59,16 +60,30 @@ BOOST_AUTO_TEST_CASE( LineP1 )
   space_creator->transform(*mesh);
 
 
-  /// This is a field with space[1]
+  /// Create a space[1] for solution of order P2, and thus a space[2] for flux P3
+  Actions::CreateSpaceP0::Ptr spaceP0_creator = allocate_component<Actions::CreateSpaceP0>("spaceP0_creator");
+  spaceP0_creator->transform(*mesh);
+
+  /// This is a field with space "solution"
   CField::Ptr solution = mesh->create_component<CField>("solution");
-  solution->configure_property("Space",1u);
+  solution->configure_property("Space",std::string("solution"));
   solution->configure_property("Topology",mesh->topology().full_path());
   solution->configure_property("FieldType",std::string("CellBased"));
   solution->configure_property("VarNames",std::vector<std::string>(1,"solution"));
   solution->configure_property("VarTypes",std::vector<std::string>(1,"scalar"));
   solution->create_data_storage();
 
-  //CFinfo << mesh->tree() << CFendl;
+  /// This is a field with space "flux"
+  CField::Ptr flux = mesh->create_component<CField>("flux");
+  flux->configure_property("Space",std::string("flux"));
+  flux->configure_property("Topology",mesh->topology().full_path());
+  flux->configure_property("FieldType",std::string("CellBased"));
+  flux->configure_property("VarNames",std::vector<std::string>(1,"solution"));
+  flux->configure_property("VarTypes",std::vector<std::string>(1,"scalar"));
+  flux->create_data_storage();
+
+
+  CFinfo << mesh->tree() << CFendl;
   CFinfo << "elements = " << mesh->topology().recursive_elements_count() << CFendl;
   CFinfo << "mesh_solution_fieldsize = " << mesh_solution->size() << CFendl;
   CFinfo << "solution_fieldsize = " << solution->size() << CFendl;
@@ -86,7 +101,6 @@ BOOST_AUTO_TEST_CASE( LineP1 )
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution));
   gmsh_writer->write_from_to(mesh,fp_out);
-
 
 }
 

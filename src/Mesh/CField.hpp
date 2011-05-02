@@ -121,7 +121,7 @@ public: // functions
   
   const CList<Uint>& used_nodes() const;
   
-  Uint space_idx() const { return m_space_idx; }
+  const std::string& space_name() const { return m_space_name; }
   
   /// Operator to have modifiable access to a table-row
   /// @return A mutable row of the underlying array
@@ -148,7 +148,7 @@ private:
 
   Basis::Type m_basis;
   
-  Uint m_space_idx;
+  std::string m_space_name;
 
   void config_var_names();
   void config_var_types();

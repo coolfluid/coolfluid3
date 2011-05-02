@@ -122,12 +122,12 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 	
   // Create empty fields
-  CField& s_nodebased = source->create_field( "nodebased", "PointBased" , "rho_n[1] , V_n[3] , p_n[1]"    );
-	CField& s_elembased = source->create_field( "elementbased", "ElementBased" , "rho_e[1], V_e[3] , p_e[1]" );
+  CField& s_nodebased   = source->create_field( "nodebased",    CField::Basis::POINT_BASED ,   "rho_n[1],   V_n[3],   p_n[1]"    );
+  CField& s_elembased   = source->create_field( "elementbased", CField::Basis::ELEMENT_BASED,  "rho_e[1],   V_e[3],   p_e[1]" );
 
-  CField& t_nodebased   = target->create_field( "nodebased",   "PointBased" , "rho_n[1] , V_n[3] , p_n[1]"  );
-  CField& t_nodebased_2 = target->create_field( "nodebased_2", "PointBased" , "rho_n_2[1] , V_n_2[3] , p_n_2[1]" );
-  CField& t_elembased   = target->create_field( "elementbased", "ElementBased" , "rho_e[1], V_e[3] , p_e[1]" );
+  CField& t_nodebased   = target->create_field( "nodebased",    CField::Basis::POINT_BASED,    "rho_n[1],   V_n[3],   p_n[1]"  );
+  CField& t_nodebased_2 = target->create_field( "nodebased_2",  CField::Basis::POINT_BASED ,   "rho_n_2[1], V_n_2[3], p_n_2[1]" );
+  CField& t_elembased   = target->create_field( "elementbased", CField::Basis::ELEMENT_BASED , "rho_e[1],   V_e[3],   p_e[1]" );
 	
 //	target->create_field( "nodebased_2",    nvars_2, CField::Basis::POINT_BASED    );
 //	target->create_field( "elementbased",   evars,   CField::Basis::ELEMENT_BASED );

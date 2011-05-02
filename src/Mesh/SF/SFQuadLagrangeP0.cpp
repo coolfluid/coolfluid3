@@ -44,7 +44,7 @@ void SFQuadLagrangeP0::compute_gradient(const MappedCoordsT& mapped_coord, Gradi
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFQuadLagrangeP0::MappedNodesT SFQuadLagrangeP0::s_mapped_sf_nodes =  ( SFQuadLagrangeP0::MappedNodesT() <<
+RealMatrix SFQuadLagrangeP0::s_mapped_sf_nodes =  ( RealMatrix(1,2) <<
   0., 0.
 ).finished();
 

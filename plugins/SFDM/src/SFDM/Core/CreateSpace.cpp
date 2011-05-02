@@ -39,7 +39,7 @@ CreateSpace::CreateSpace( const std::string& name )
 {
    
   properties()["brief"] = std::string("Create space for SFDM shape function");
-  properties()["description"] = std::string("The polynomial order \"P\" is configurable, default: P = 0");
+  properties()["description"] = std::string("The polynomial order \"P\" of the solution is configurable, default: P = 0");
 
   properties().add_option( OptionT<Uint>::create("P","Polynomial Order","The order of the polynomial of the solution",0u) );
 }
@@ -51,10 +51,11 @@ void CreateSpace::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
+  Uint p = property("P").value<Uint>();
   boost_foreach(CEntities& entities, find_components_recursively_with_filter<CEntities>(mesh,IsElementsVolume()))
   {
-    entities.create_space("CF.SFDM.SF."+entities.element_type().shape_name()+"SolutionP"+property("P").value_str());
-    entities.create_space("CF.SFDM.SF."+entities.element_type().shape_name()+"FluxP"+to_str(property("P").value<Uint>()+1));
+    entities.create_space("solution","CF.SFDM.SF."+entities.element_type().shape_name()+"SolutionP"+to_str(p));
+    entities.create_space("flux",    "CF.SFDM.SF."+entities.element_type().shape_name()+"FluxP"    +to_str(p+1));
     //CFinfo << "local coords ("<< entities.space(1).shape_function().local_coordinates().rows()<<"x"<< entities.space(1).shape_function().local_coordinates().cols()<< ") = " << entities.space(1).shape_function().local_coordinates() << CFendl;
   }
 }

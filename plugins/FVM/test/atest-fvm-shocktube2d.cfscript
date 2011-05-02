@@ -1,7 +1,7 @@
 # requires to load coolfluid_fvm library
 
 call //Root/Libraries/load_library \
-     Lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_fvm
+     Lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_fvm_core
 
 # or in bash: export COOLFLUID_PLUGINS=path/to/libcoolfluid_fvm.dylib
 
@@ -41,10 +41,11 @@ tools/generate_simple_mesh
 create tools/transform_mesh_for_FVM                       CF.Mesh.CMeshTransformer
 create tools/transform_mesh_for_FVM/1_build_faces           CF.Mesh.Actions.CBuildFaces
 create tools/transform_mesh_for_FVM/2_build_ghoststates     CF.FVM.Core.BuildGhostStates
-create tools/transform_mesh_for_FVM/3_build_volume_field    CF.Mesh.Actions.CBuildVolume
-create tools/transform_mesh_for_FVM/4_build_area_field      CF.Mesh.Actions.CBuildArea
-create tools/transform_mesh_for_FVM/5_build_face_normals    CF.Mesh.Actions.CBuildFaceNormals
- 
+create tools/transform_mesh_for_FVM/3_create_space_P0       CF.Mesh.Actions.CreateSpaceP0
+create tools/transform_mesh_for_FVM/4_build_volume_field    CF.Mesh.Actions.CBuildVolume
+create tools/transform_mesh_for_FVM/5_build_area_field      CF.Mesh.Actions.CBuildArea
+create tools/transform_mesh_for_FVM/6_build_face_normals    CF.Mesh.Actions.CBuildFaceNormals
+
 configure tools/transform_mesh_for_FVM   Mesh:uri=cpath://Root/shocktube/Domain/mesh
 tools/transform_mesh_for_FVM
 

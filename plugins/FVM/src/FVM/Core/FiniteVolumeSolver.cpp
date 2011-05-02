@@ -174,7 +174,7 @@ void FiniteVolumeSolver::trigger_domain()
   if ( is_null(find_component_ptr_with_name<CField>(*mesh,"area") ) )
   {
     CFinfo << "  Creating field \"area\", facebased" << CFendl;
-    CField& area = mesh->create_field("area","FaceBased");
+    CField& area = mesh->create_field(Mesh::Tags::area(),CField::Basis::FACE_BASED,"P0");
     area.add_tag(Mesh::Tags::area());
     CLoop::Ptr compute_area = create_component< CForAllFaces >("compute_area");
     compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().full_path()));
@@ -190,7 +190,7 @@ void FiniteVolumeSolver::trigger_domain()
   {
     ///@todo get variable names etc, from Physics
     CFinfo <<  "  Creating field \"solution\", cellbased, with vars rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]" << CFendl;
-    CField& solution = mesh->create_field("solution","CellBased","rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]");
+    CField& solution = mesh->create_field("solution",CField::Basis::CELL_BASED,"P0","rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]");
     solution.add_tag("solution"); 
   }
 

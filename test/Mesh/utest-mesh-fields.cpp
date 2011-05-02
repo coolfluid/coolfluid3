@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   coordinates.configure_property("VarNames",names);
   coordinates.configure_property("VarTypes",types);
   coordinates.configure_property("FieldType",std::string("PointBased"));
-  coordinates.configure_property("Space",0u);
+  coordinates.configure_property("Space",std::string("space[0]"));
   coordinates.create_data_storage();
 
   BOOST_CHECK_EQUAL( coordinates.basis() , CField::Basis::POINT_BASED );
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   BOOST_CHECK_EQUAL( coordinates.var_type(0) , CField::VECTOR_2D );
   BOOST_CHECK_EQUAL( coordinates.var_type("coordinates") , CField::VECTOR_2D );
   BOOST_CHECK_EQUAL( coordinates.topology().full_path().string() , mesh.topology().full_path().string() );
-  BOOST_CHECK_EQUAL( coordinates.space_idx() , 0u );
+  BOOST_CHECK_EQUAL( coordinates.space_name() , std::string("space[0]") );
   
   
   CNodes& nodes = mesh.nodes();  
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   BOOST_CHECK_EQUAL( solution.var_type("U") , CField::VECTOR_2D );
   BOOST_CHECK_EQUAL( solution.var_type("p") , CField::SCALAR );
   BOOST_CHECK_EQUAL( solution.topology().full_path().string() , mesh.topology().full_path().string() );
-  BOOST_CHECK_EQUAL( solution.space_idx() , 0u );
+  BOOST_CHECK_EQUAL( solution.space_name() , "space[0]" );
   
 }
 

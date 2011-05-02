@@ -20,6 +20,7 @@
 #include "Mesh/Actions/CBuildFaces.hpp"
 #include "Mesh/Actions/CBuildVolume.hpp"
 #include "Mesh/Actions/CInitFieldFunction.hpp"
+#include "Mesh/Actions/CreateSpaceP0.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
@@ -115,7 +116,8 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   CMeshTransformer& finite_volume_transformer = *tools.create_component<CMeshTransformer>("FiniteVolumeTransformer");
   finite_volume_transformer.create_component<CBuildFaces>     ("1_build_faces")->mark_basic();
   finite_volume_transformer.create_component<BuildGhostStates>("2_build_ghoststates")->mark_basic();
-  finite_volume_transformer.create_component<CBuildVolume>    ("3_build_volume_field")->mark_basic();
+  finite_volume_transformer.create_component<CreateSpaceP0>   ("3_create_space_P0")->mark_basic();
+  finite_volume_transformer.create_component<CBuildVolume>    ("4_build_volume_field")->mark_basic();
   
   ////////////////////////////////////////////////////////////////////////////////
   // Generate mesh

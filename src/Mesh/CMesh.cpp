@@ -62,7 +62,10 @@ CMesh::~CMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const std::string& name , const std::string& base, const std::string& variables)
+CField& CMesh::create_field( const std::string& name ,
+                             const CField::Basis::Type base,
+                             const std::string& space,
+                             const std::string& variables)
 {
   std::vector<std::string> tokenized_variables(0);
 
@@ -99,9 +102,10 @@ CField& CMesh::create_field( const std::string& name , const std::string& base, 
 
   CField& field = *create_component<CField>(name);
   field.set_topology(topology());
+  field.configure_property("Space",space);
   field.configure_property("VarNames",names);
   field.configure_property("VarTypes",types);
-  field.configure_property("FieldType",base);
+  field.configure_property("FieldType",CField::Basis::Convert::instance().to_str(base));
   field.create_data_storage();
 
   return field;
@@ -123,7 +127,7 @@ CField& CMesh::create_scalar_field( const std::string& name , CField& based_on_f
   std::string base;   based_on_field.property("FieldType").put_value(base);
   field.configure_property("FieldType",base);
 
-  Uint space; based_on_field.property("Space").put_value(space);
+  std::string space; based_on_field.property("Space").put_value(space);
   field.configure_property("Space",space);
 
   field.create_data_storage();
@@ -151,7 +155,7 @@ CField& CMesh::create_field( const std::string& name , CField& based_on_field)
   std::string base;   based_on_field.property("FieldType").put_value(base);
   field.configure_property("FieldType",base);
 
-  Uint space; based_on_field.property("Space").put_value(space);
+  std::string space; based_on_field.property("Space").put_value(space);
   field.configure_property("Space",space);
 
   field.create_data_storage();

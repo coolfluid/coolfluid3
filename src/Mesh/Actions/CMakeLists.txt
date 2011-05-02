@@ -29,6 +29,8 @@ list( APPEND coolfluid_mesh_actions_files
   CInitFieldFunction.cpp
   CMatchNodes.hpp
   CMatchNodes.cpp
+  CreateSpaceP0.hpp
+  CreateSpaceP0.cpp
   LibActions.hpp
   LibActions.cpp
 )

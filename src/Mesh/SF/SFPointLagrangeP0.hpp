@@ -67,9 +67,14 @@ public:
     return result;
   }
 
+  virtual const RealMatrix& local_coordinates() const
+  {
+    return s_mapped_sf_nodes;
+  }
+
 private:
 
-  static MappedNodesT s_mapped_sf_nodes;
+  static RealMatrix s_mapped_sf_nodes;
 
 };
 

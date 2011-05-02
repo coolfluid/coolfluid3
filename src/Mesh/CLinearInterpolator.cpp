@@ -97,7 +97,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
       if (is_not_null(s_elements))
       {
         /// @todo assumes space0 fields for now
-        if (source.space_idx() != 0)
+        if (s_elements->space_idx(source.space_name()) != 0)
           throw NotImplemented(FromHere(),"only fields with space 0 allowed for now");
 
         CConnectivity::ConstRow s_elm = s_elements->node_connectivity()[s_elm_idx];
@@ -178,7 +178,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
           if (is_not_null(s_elements))
           {
             /// @todo assumes space0 fields for now
-            if (source.space_idx() != 0)
+            if (s_elements->space_idx(source.space_name()) != 0)
               throw NotImplemented(FromHere(),"only fields with space 0 allowed for now");
             CConnectivity::ConstRow s_elm = s_elements->node_connectivity()[s_elm_idx];
             std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));

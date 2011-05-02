@@ -43,8 +43,8 @@ void SFPointLagrangeP0::compute_gradient(const MappedCoordsT& mappedCoord, Gradi
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFPointLagrangeP0::MappedNodesT SFPointLagrangeP0::s_mapped_sf_nodes =  ( SFPointLagrangeP0::MappedNodesT() <<
-  0.
+RealMatrix SFPointLagrangeP0::s_mapped_sf_nodes =  ( RealMatrix(1,1) <<
+    0.
 ).finished();
 
 ////////////////////////////////////////////////////////////////////////////////
