@@ -40,32 +40,28 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 BOOST_AUTO_TEST_CASE( LineP2 )
 {
+  /// Create a mesh consisting of a line with length 1. and 20 divisions
   CMesh::Ptr mesh = Common::Core::instance().root().create_component<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(*mesh, 1., 20);
 
 
-  /// This is the standard LagrangeP1 space[0], coming with the element type
-  CField& mesh_solution = mesh->create_field("mesh_solution",CField::Basis::CELL_BASED,"space[0]","var[scalar]");
-
-  /// Create a for SFDM solution of order P2, and for flux a space of order P3
-  CreateSpace::Ptr space_creator = allocate_component<CreateSpace>("space_creator");
+  /// Create a "space" for SFDM solution of order P2, and for flux a space of order P3
+  SFDM::Core::CreateSpace::Ptr space_creator = allocate_component<SFDM::Core::CreateSpace>("space_creator");
   space_creator->configure_property("P",2u);
   space_creator->transform(*mesh);
 
-  /// This is a field with space "solution"
+  /// create the solution field with space "solution"
   CField& solution = mesh->create_field("solution_field",CField::Basis::CELL_BASED,"solution","var[scalar]");
 
-
-  /// This is a field with space "flux"
+  /// create the flux field (just for show) with space "flux"
   CField& flux = mesh->create_field("flux_field",CField::Basis::CELL_BASED,"flux","var[scalar]");
 
-
+  /// Output some stuff
   CFinfo << mesh->tree() << CFendl;
   CFinfo << "elements = " << mesh->topology().recursive_elements_count() << CFendl;
-  CFinfo << "mesh_solution_fieldsize = " << mesh_solution.size() << CFendl;
   CFinfo << "solution_fieldsize = " << solution.size() << CFendl;
 
-  /// Initialize solution field
+  /// Initialize solution field with the function sin(2*pi*x)
   Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component<Actions::CInitFieldFunction>("init_field");
   init_field->configure_property("Functions",std::vector<std::string>(1,"sin(2*pi*x)"));
   init_field->configure_property("Field",solution.full_path());
@@ -74,10 +70,10 @@ BOOST_AUTO_TEST_CASE( LineP2 )
   CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  boost::filesystem::path fp_out ("line.msh");
+  boost::filesystem::path filename ("line.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
-  gmsh_writer->write_from_to(mesh,fp_out);
+  gmsh_writer->write_from_to(mesh,filename);
 
   CFinfo << "Mesh \"line.msh\" written" << CFendl;
 
