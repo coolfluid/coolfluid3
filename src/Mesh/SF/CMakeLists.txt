@@ -31,6 +31,8 @@ list( APPEND coolfluid_mesh_sf_files
   Quad2DLagrangeP3.hpp
   Quad3DLagrangeP1.cpp
   Quad3DLagrangeP1.hpp
+  SFHexaLagrangeP0.hpp
+  SFHexaLagrangeP0.cpp
   SFHexaLagrangeP1.hpp
   SFHexaLagrangeP1.cpp
   SFLineLagrangeP0.cpp
@@ -51,8 +53,12 @@ list( APPEND coolfluid_mesh_sf_files
   SFQuadLagrangeP2.cpp
   SFQuadLagrangeP3.hpp
   SFQuadLagrangeP3.cpp
+  SFTetraLagrangeP0.hpp
+  SFTetraLagrangeP0.cpp
   SFTetraLagrangeP1.hpp
   SFTetraLagrangeP1.cpp
+  SFTriagLagrangeP0.hpp
+  SFTriagLagrangeP0.cpp
   SFTriagLagrangeP1.hpp
   SFTriagLagrangeP1.cpp
   SFTriagLagrangeP2.hpp

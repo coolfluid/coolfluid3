@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_SF_SFTetraLagrangeP1_hpp
-#define CF_Mesh_SF_SFTetraLagrangeP1_hpp
+#ifndef CF_Mesh_SF_SFTetraLagrangeP0_hpp
+#define CF_Mesh_SF_SFTetraLagrangeP0_hpp
 
 #include "Mesh/ShapeFunction.hpp"
 #include "Mesh/GeoShape.hpp"
@@ -15,24 +15,24 @@ namespace CF {
 namespace Mesh {
 namespace SF {
 
-/// @class SFTetraLagrangeP1
+/// @class SFTetraLagrangeP0
 /// @verbatim
 /// Local connectivity:
-///             2------3
+///             --------
 ///             | \   / \
 ///             |   \.  \
 ///             |   . \  \
-///             |  .    \ \
+///             |  . 0  \ \
 ///             | .       \\
-///             0-----------1
+///             -------------
 /// Reference domain: <0,1> x <0,1>
 /// @endverbatim
-class MESH_SF_API SFTetraLagrangeP1  : public ShapeFunction {
+class MESH_SF_API SFTetraLagrangeP0  : public ShapeFunction {
 public:
 
   static const Uint dimensionality = 3;
-  static const Uint nb_nodes = 4;
-  static const Uint order = 1;
+  static const Uint nb_nodes = 1;
+  static const Uint order = 0;
   static const GeoShape::Type shape = GeoShape::TETRA;
 
 public:
@@ -40,10 +40,10 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// Constructor
-  SFTetraLagrangeP1(const std::string& name = type_name());
+  SFTetraLagrangeP0(const std::string& name = type_name());
 
   /// Type name
-  static std::string type_name() { return "SFTetraLagrangeP1"; }
+  static std::string type_name() { return "SFTetraLagrangeP0"; }
 
   /// Types for the matrices used
   typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
@@ -96,4 +96,4 @@ private:
 } // Mesh
 } // CF
 
-#endif // CF_Mesh_SF_SFTetraLagrangeP1
+#endif // CF_Mesh_SF_SFTetraLagrangeP0

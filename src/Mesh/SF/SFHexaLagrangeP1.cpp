@@ -109,7 +109,7 @@ void SFHexaLagrangeP1::compute_gradient(const MappedCoordsT& mapped_coord, Gradi
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFHexaLagrangeP1::MappedNodesT SFHexaLagrangeP1::s_mapped_sf_nodes =  ( SFHexaLagrangeP1::MappedNodesT() <<
+RealMatrix SFHexaLagrangeP1::s_mapped_sf_nodes =  ( RealMatrix(8,3) <<
      -1., -1., -1.,
       1., -1., -1.,
       1.,  1., -1.,

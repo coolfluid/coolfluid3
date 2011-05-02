@@ -7,7 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
-#include "SFTriagLagrangeP1.hpp"
+#include "SFTriagLagrangeP0.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -15,11 +15,11 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SFTriagLagrangeP1, ShapeFunction, LibSF > SFTriagLagrangeP1_Builder;
+Common::ComponentBuilder < SFTriagLagrangeP0, ShapeFunction, LibSF > SFTriagLagrangeP0_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFTriagLagrangeP1::SFTriagLagrangeP1(const std::string& name) : ShapeFunction(name)
+SFTriagLagrangeP0::SFTriagLagrangeP0(const std::string& name) : ShapeFunction(name)
 {
   m_dimensionality = dimensionality;
   m_nb_nodes = nb_nodes;
@@ -29,31 +29,23 @@ SFTriagLagrangeP1::SFTriagLagrangeP1(const std::string& name) : ShapeFunction(na
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFTriagLagrangeP1::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
+void SFTriagLagrangeP0::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
-  result[0] = 1. - mapped_coord[KSI] - mapped_coord[ETA];
-  result[1] = mapped_coord[KSI];
-  result[2] = mapped_coord[ETA];
+  result[0] = 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void SFTriagLagrangeP1::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void SFTriagLagrangeP0::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
-  result(KSI, 0) = -1.;
-  result(ETA, 0) = -1.;
-  result(KSI, 1) =  1.;
-  result(ETA, 1) =  0.;
-  result(KSI, 2) =  0.;
-  result(ETA, 2) =  1.;
+  result(KSI,0) = 0.;
+  result(ETA,0) = 0.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealMatrix SFTriagLagrangeP1::s_mapped_sf_nodes =  ( RealMatrix(3,2) <<
-   0.,  0.,
-   1.,  0.,
-   0.,  1.
+RealMatrix SFTriagLagrangeP0::s_mapped_sf_nodes =  ( RealMatrix(1,2) <<
+   1./3., 1./3.
 ).finished();
 
 ////////////////////////////////////////////////////////////////////////////////

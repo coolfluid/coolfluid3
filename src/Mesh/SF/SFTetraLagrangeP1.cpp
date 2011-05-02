@@ -57,7 +57,7 @@ void SFTetraLagrangeP1::compute_gradient(const MappedCoordsT& mapped_coord, Grad
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFTetraLagrangeP1::MappedNodesT SFTetraLagrangeP1::s_mapped_sf_nodes =  ( SFTetraLagrangeP1::MappedNodesT() <<
+RealMatrix SFTetraLagrangeP1::s_mapped_sf_nodes =  ( RealMatrix(4,3) <<
    0.,  0.,  0.,
    1.,  0.,  0.,
    0.,  1.,  0.,
