@@ -12,6 +12,9 @@
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
 
+/// @todo remove
+#include "Common/Log.hpp"
+
 #include "Mesh/Gmsh/CWriter.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -19,6 +22,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CField.hpp"
+#include "Mesh/CSpace.hpp"
 #include "Mesh/CFieldView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -111,9 +115,9 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   write_header(file);
   write_coordinates(file);
   write_connectivity(file);
-  //write_elem_nodal_data2(file);
+  write_elem_nodal_data(file);
   write_nodal_data(file);
-  write_element_data(file);
+  //write_element_data(file);
   file.close();
 
 }
@@ -249,7 +253,7 @@ void CWriter::write_connectivity(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////
 
-/*
+
 void CWriter::write_elem_nodal_data(std::fstream& file)
 {
 //  $ElementNodeData
@@ -270,80 +274,123 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  boost_foreach(CField& nodebased_field, find_components_with_filter<CField>(*m_mesh,IsFieldNodeBased()))
+  boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
   {
-    std::string field_name = nodebased_field.field_name();
-    Uint nb_elements = nodebased_field.support().recursive_elements_count();
-
-
-    // data_header
-    Uint row_idx=0;
-    for (Uint iVar=0; iVar<nodebased_field.nb_vars(); ++iVar)
+    CField& elementbased_field = *field_ptr.lock();
+    if (elementbased_field.basis() == CField::Basis::ELEMENT_BASED ||
+        elementbased_field.basis() == CField::Basis::CELL_BASED    ||
+        elementbased_field.basis() == CField::Basis::FACE_BASED    )
     {
-      CField::VarType var_type = nodebased_field.var_type(iVar);
-      std::string var_name = nodebased_field.var_name(iVar);
-
-      Uint datasize(var_type);
-      switch (var_type)
+      std::string field_name = elementbased_field.name();
+      std::string field_topology = elementbased_field.topology().full_path().path();
+      std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());
+      boost::algorithm::replace_first(field_topology,m_mesh->topology().full_path().path(),"");
+      Uint nb_elements = 0;
+      boost_foreach(CEntities& elements, find_components_recursively<CEntities>(elementbased_field.topology()))
       {
-        case CField::VECTOR_2D:
-          datasize=Uint(CField::VECTOR_3D);
-          break;
-        case CField::TENSOR_2D:
-          datasize=Uint(CField::TENSOR_3D);
-          break;
-        default:
-          break;
-      }
-      RealVector data(datasize);
-      data.setZero();
-
-
-      file << "$ElementNodeData\n";
-      file << 1 << "\n";
-      file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
-      file << 1 << "\n" << 0.0 << "\n";
-      file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
-
-      boost_foreach(CElements& field_elements, find_components_recursively<CElements>(nodebased_field))
-      {
-        const CTable<Real>& field_data = field_elements.data();
-        Uint nb_nodes_per_element = field_elements.element_type().nb_nodes();
-
-        Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
-        boost_foreach(const CTable<Uint>::ConstRow& row, field_elements.node_connectivity().array())
+        if (elementbased_field.exists_for_entities(elements))
         {
-          file << ++elm_number << " " << nb_nodes_per_element << " ";
-          boost_foreach(const Uint local_node_idx, row)
-          {
-            if (var_type==CField::TENSOR_2D)
-            {
-              data[0]=field_data[local_node_idx][row_idx+0];
-              data[1]=field_data[local_node_idx][row_idx+1];
-              data[3]=field_data[local_node_idx][row_idx+2];
-              data[4]=field_data[local_node_idx][row_idx+3];
-              for (Uint idx=0; idx<datasize; ++idx)
-                file << " " << data[idx];
-            }
-            else
-            {
-              for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
-                file << " " << field_data[local_node_idx][idx];
-              if (var_type == CField::VECTOR_2D)
-                file << " " << 0.0;
-            }
-          }
-          file << "\n";
+          nb_elements += elements.size();
         }
       }
-      file << "$EndElementNodeData\n";
-      row_idx += Uint(var_type);
+
+      // data_header
+      Uint row_idx=0;
+      for (Uint iVar=0; iVar<elementbased_field.nb_vars(); ++iVar)
+      {
+        CField::VarType var_type = elementbased_field.var_type(iVar);
+        std::string var_name = elementbased_field.var_name(iVar);
+
+        Uint datasize(var_type);
+        switch (var_type)
+        {
+          case CField::VECTOR_2D:
+            datasize=Uint(CField::VECTOR_3D);
+            break;
+          case CField::TENSOR_2D:
+            datasize=Uint(CField::TENSOR_3D);
+            break;
+          default:
+            break;
+        }
+        RealVector data(datasize); data.setZero();
+
+        file << "$ElementNodeData\n";
+        file << 1 << "\n";
+        file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+        file << 1 << "\n" << 0.0 << "\n";
+        file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
+
+
+        boost_foreach(CEntities& elements, find_components_recursively<CEntities>(elementbased_field.topology()))
+        {
+          if (elementbased_field.exists_for_entities(elements))
+          {
+            CMultiStateFieldView field_view("field_view");
+            field_view.initialize(elementbased_field,elements.as_ptr<CEntities>());
+            Uint elm_number = m_element_start_idx[&elements];
+            Uint local_nb_elms = elements.size();
+
+            const Uint nb_states = field_view.space().nb_states();
+            RealMatrix field_data (field_view.space().nb_states(),var_type);
+
+            const Uint nb_nodes = elements.element_type().nb_nodes();
+
+            /// write element
+            for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
+            {
+              file << ++elm_number << " " << nb_nodes << " ";
+
+              /// set field data
+              CMultiStateFieldView::View data_view = field_view[local_elm_idx];
+
+              for (Uint iState=0; iState<nb_states; ++iState)
+              {
+                for (Uint j=0; j<var_type; ++j)
+                  field_data(iState,j) = data_view[iState][row_idx+j];
+              }
+
+              for (Uint iNode=0; iNode<nb_nodes; ++iNode)
+              {
+                /// get element_node local coordinates
+                RealVector local_coords = elements.element_type().shape_function().local_coordinates().row(iNode);
+
+                /// evaluate field shape function in element_node
+                RealVector node_data = field_view.space().shape_function().value(local_coords)*field_data;
+                cf_assert(node_data.size() == var_type);
+
+
+                if (var_type==CField::TENSOR_2D)
+                {
+                  data[0]=node_data[0];
+                  data[1]=node_data[1];
+                  data[3]=node_data[2];
+                  data[4]=node_data[3];
+                  for (Uint idx=0; idx<datasize; ++idx)
+                    file << " " << data[idx];
+                }
+                else
+                {
+                  for (Uint j=0; j<var_type; ++j)
+                    file << " " << node_data[j];
+                  if (var_type == CField::VECTOR_2D)
+                    file << " " << 0.0;
+                }
+              }
+              file << "\n";
+            }
+          }
+        }
+        file << "$EndElementNodeData\n";
+        row_idx += Uint(var_type);
+      }
     }
+
   }
   // restore precision
   file.precision(prec);
 }
-*/
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

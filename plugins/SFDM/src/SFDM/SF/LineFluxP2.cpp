@@ -33,8 +33,8 @@ void LineFluxP2::compute_value(const MappedCoordsT& mapped_coord, ValueT& result
 {
   const Real ksi2 = mapped_coord[KSI]*mapped_coord[KSI];
   result[0] = 0.5 * (ksi2 - mapped_coord[KSI]);
-  result[1] = 0.5 * (ksi2 + mapped_coord[KSI]);
-  result[2] = (1. - ksi2);
+  result[1] = (1. - ksi2);
+  result[2] = 0.5 * (ksi2 + mapped_coord[KSI]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,8 +42,9 @@ void LineFluxP2::compute_value(const MappedCoordsT& mapped_coord, ValueT& result
 void LineFluxP2::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
   result(KSI, 0) = mapped_coord[KSI]-0.5;
-  result(KSI, 1) = mapped_coord[KSI]+0.5;
-  result(KSI, 2) = -2.*mapped_coord[KSI];
+  result(KSI, 1) = -2.*mapped_coord[KSI];
+  result(KSI, 2) = mapped_coord[KSI]+0.5;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

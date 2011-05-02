@@ -53,12 +53,11 @@ void SFLineLagrangeP3::compute_gradient(const MappedCoordsT& mapped_coord, Gradi
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @todo Location of local nodes missing for SFLineLagrangeP3
-SFLineLagrangeP3::MappedNodesT SFLineLagrangeP3::s_mapped_sf_nodes =  ( SFLineLagrangeP3::MappedNodesT() <<
-  -1.,
-   0.,
-   0.,
-   1.
+RealMatrix SFLineLagrangeP3::s_mapped_sf_nodes =  ( RealMatrix(4,1) <<
+    -1.,
+     1.,
+    -1./3.,
+     1./3.
 ).finished();
 
 ////////////////////////////////////////////////////////////////////////////////

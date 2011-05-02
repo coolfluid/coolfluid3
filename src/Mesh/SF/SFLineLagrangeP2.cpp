@@ -49,8 +49,8 @@ void SFLineLagrangeP2::compute_gradient(const MappedCoordsT& mapped_coord, Gradi
 
 SFLineLagrangeP2::MappedNodesT SFLineLagrangeP2::s_mapped_sf_nodes =  ( SFLineLagrangeP2::MappedNodesT() <<
   -1.,
-   0.,
-   1.
+   1.,
+   0.
 ).finished();
 
 ////////////////////////////////////////////////////////////////////////////////

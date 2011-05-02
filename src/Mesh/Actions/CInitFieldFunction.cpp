@@ -119,18 +119,18 @@ void CInitFieldFunction::execute()
 
 
           CMultiStateFieldView::View data_rows = field_view[elem_idx];
-          // for each state of the field shape function
+          /// for each state of the field shape function
           for (Uint iState=0; iState<field_view.space().nb_states(); ++iState)
           {
-            //   get its local coordinates from the SPACE shape_function
+            /// get its local coordinates from the SPACE shape_function
             RealVector local_coords = field_view.space().shape_function().local_coordinates().row(iState);
-            //   get the physical coordinates through the GEOMETRIC shape function (from element_type)
+            /// get the physical coordinates through the GEOMETRIC shape function (from element_type)
             RealVector physical_coords = elements.element_type().shape_function().value(local_coords)*coordinates;
-            //   evaluate the function using the physical coordinates
+            /// evaluate the function using the physical coordinates
             for (Uint d=0; d<physical_coords.size(); ++d)
               vars[d] = physical_coords[d];
             m_function.evaluate(vars,return_val);
-            //   put the return values in the field
+            /// put the return values in the field
             for (Uint i=0; i<data_rows[iState].size(); ++i)
             {
               data_rows[iState][i] = return_val[i];

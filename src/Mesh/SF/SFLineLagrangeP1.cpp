@@ -45,7 +45,7 @@ void SFLineLagrangeP1::compute_gradient(const MappedCoordsT& mappedCoord, Gradie
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFLineLagrangeP1::MappedNodesT SFLineLagrangeP1::s_mapped_sf_nodes =  ( SFLineLagrangeP1::MappedNodesT() <<
+RealMatrix SFLineLagrangeP1::s_mapped_sf_nodes =  ( RealMatrix(2,1) <<
   -1.,
    1.
 ).finished();
