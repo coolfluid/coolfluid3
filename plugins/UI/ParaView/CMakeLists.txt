@@ -23,7 +23,7 @@ if( ParaView_FOUND )
 
   include_directories(${PARAVIEW_INCLUDE_DIRS})
 
-  list( APPEND coolfluid_ui_paraview_cflibs coolfluid_ui_graphics )
+  list( APPEND coolfluid_ui_paraview_cflibs coolfluid_common )
 
 
 
