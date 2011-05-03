@@ -60,7 +60,7 @@ void CSysLDAGPU::execute()
   {
     std::cout << "looping on region " << region->name() << std::endl;
 
-    loop->set_elements( region );
+    loop->select_region( region );
 
     // loop all elements of this region
 
