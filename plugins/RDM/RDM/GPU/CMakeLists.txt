@@ -9,7 +9,12 @@ list( APPEND coolfluid_rdm_gpu_files
           LDAGPU.cpp
           SchemeLDAGPU.hpp
           CLdeclaration.hpp
-          LDAGPUkernel.hpp         
+          LDAGPUkernel.hpp   
+          CSysLDAGPU.hpp
+          SchemeCSysLDAGPU.hpp
+          CSysLDAGPU.cpp
+          sysLDAGPUkernel.hpp
+                
 )
    
 if(CF_ENABLE_GPU AND OPENCL_FOUND)

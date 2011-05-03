@@ -346,6 +346,8 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
         (*wave_speed)[idx][0] = waveSpeed[idx];
    }
 
+   std::cout<<"ENd of LDAGPU"<<std::endl;
+
 
    //std::cout<<ctimer.elapsed()<<std::endl;
 }
