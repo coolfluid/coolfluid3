@@ -65,11 +65,11 @@ struct rotationadv2d_global_fixture
 
     rotationadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
-    SignalFrame frame("", "", "");
-    SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+    SignalFrame frame;
+    SignalOptions options( frame );
 
-    options.set_option<std::string>("ModelName","mymodel");
-    options.set_option<std::string>("PhysicalModel","RotationAdv2D");
+    options.add<std::string>("ModelName","mymodel");
+    options.add<std::string>("PhysicalModel","RotationAdv2D");
 
     rotationadv2d_wizard->signal_create_model(frame);
   }
@@ -106,7 +106,7 @@ BOOST_FIXTURE_TEST_CASE( check_tree , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  SignalFrame frame("", "", "");
+  SignalFrame frame;
 
   Core::instance().root().signal_list_tree(frame);
 
@@ -121,17 +121,24 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 
   // create the xml parameters for the read mesh signal
 
-  SignalFrame frame("", "", "");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalFrame frame;
+  SignalOptions options( frame );
 
   BOOST_CHECK(true);
 
   std::vector<URI> files;
 
+//  URI file ( "file:rotation-tg-p1.msh" );
+//  URI file ( "file:rotation-tg-p2.msh" );
   URI file ( "file:rotation-tg.msh" );
+//  URI file ( "file:rotation-tg-p4.msh" );
+//  URI file ( "file:rotation-qd-p1.msh" );
+//  URI file ( "file:rotation-qd-p2.msh" );
+//  URI file ( "file:rotation-qd-p3.msh" );
+//  URI file ( "file:rotation-qd-p4.msh" );
 
-  options.set_option<URI>("File", file );
-  options.set_option<std::string>("Name", std::string("Mesh") );
+  options.add("File", file );
+  options.add<std::string>("Name", std::string("Mesh") );
 
   domain.signal_load_mesh( frame );
 
@@ -146,9 +153,8 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 1.6);
-  solver.get_child("time_stepping").configure_property("MaxIter", 150u);
-
+  solver.get_child("time_stepping").configure_property("CFL", 1.);
+  solver.get_child("time_stepping").configure_property("MaxIter", 250u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -166,7 +172,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , rotationadv2d_local
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-  std::string name ("inlet");
+  std::string name ("INLET");
 
   options.add<std::string>("Name",name);
   options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
@@ -199,7 +205,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_farfield , rotationadv2d_lo
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-  std::string name ("farfield");
+  std::string name ("FARFIELD");
 
   options.add<std::string>("Name",name);
   options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
@@ -217,18 +223,19 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_farfield , rotationadv2d_lo
   BOOST_CHECK(true);
 }
 
-///////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  SignalFrame frame("", "", "");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalFrame frame;
+  SignalOptions options( frame );
 
   std::vector<std::string> functions(1);
-  functions[0] = "0.";
-  options.set_array("Functions", functions, " ; ");
+//  functions[0] = "x*x+y*y";
+  functions[0] = "0.0";
+  options.add<std::string>("Functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }
@@ -253,8 +260,8 @@ BOOST_FIXTURE_TEST_CASE( solve_lda_gpu , rotationadv2d_local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  SignalFrame frame("", "", "");
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  SignalFrame frame;
+  SignalOptions options( frame );
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
@@ -262,9 +269,9 @@ BOOST_FIXTURE_TEST_CASE( solve_lda_gpu , rotationadv2d_local_fixture )
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-  options.set_option<std::string>("Name","INTERNAL");
-  options.set_option<std::string>("Type","CF.RDM.GPU.LDAGPU");
-  options.set_array("Regions", regions, " ; ");
+  options.add<std::string>("Name","INTERNAL");
+  options.add<std::string>("Type","CF.RDM.GPU.LDAGPU");
+  options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 
