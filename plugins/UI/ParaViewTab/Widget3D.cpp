@@ -377,6 +377,10 @@ void Widget3D::disconnectFromServer(){
 
   //remove server if any (will remove all object on the server)
   if(m_server)
+    //show user info
+    if(m_server->isRemote()){
+      NLog::globalLog()->addMessage("Disconnected from paraview server");
+    }
     m_object_builder->removeServer(m_server);
 
   //remove view if any
@@ -413,10 +417,7 @@ void Widget3D::disconnectFromServer(){
   m_action_connect->setEnabled(true);
   m_action_disconnect->setEnabled(false);
 
-  //show user info
-  NLog::globalLog()->addMessage("Disconnected from paraview server");
-
-  //disconnected, cannot load or reload file while not connected
+  //disconnected, cannot load file while not connected
   m_action_load_file->setEnabled(false);
 
 }
