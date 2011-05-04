@@ -6,6 +6,7 @@
 
 #include <iomanip>
 
+#include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
@@ -39,6 +40,9 @@ CIterate::CIterate( const std::string& name  ) :
   "This object handles iterations\n"
   "It can have one or more stop criteria\n";
   properties()["description"] = description;
+
+  properties().add_option( OptionT<bool>::create("verbose","Verbose","Print iteration number",false))
+    ->link_to(&m_verbose);
   
   properties().add_option< OptionT<Uint> >("MaxIterations","Maximal number of iterations",m_max_iter)
     ->link_to(&m_max_iter);
@@ -68,7 +72,10 @@ void CIterate::execute ()
       }
     }
     if (exit_iterations)  break;
-    
+
+    if (m_verbose)
+      CFinfo << full_path().path() << "[" << m_iter << "]" << CFendl;
+
     // call all actions inside this component
     boost_foreach(CAction& action, find_components<CAction>(*this))
       action.execute();
