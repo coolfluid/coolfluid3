@@ -72,7 +72,7 @@ void SFTriagLagrangeP2::compute_gradient(const MappedCoordsT& mapped_coord, Grad
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealMatrix SFTriagLagrangeP2::s_mapped_sf_nodes =  ( RealMatrix() <<
+RealMatrix SFTriagLagrangeP2::s_mapped_sf_nodes =  ( RealMatrix(6,2) <<
    0.,  0.,
    1.,  0.,
    0.,  1.,
