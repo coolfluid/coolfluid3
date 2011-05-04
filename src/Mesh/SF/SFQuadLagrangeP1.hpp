@@ -53,7 +53,7 @@ public:
   static void compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result);
 
   /// Coordinates in mapped space of the nodes defining the shape function (nb_nodes x dimensionality)
-  static const MappedNodesT& mapped_sf_nodes() { return s_mapped_sf_nodes; }
+  static const RealMatrix& mapped_sf_nodes() { return s_mapped_sf_nodes; }
 
   virtual RealRowVector value(const RealVector& local_coord) const
   {

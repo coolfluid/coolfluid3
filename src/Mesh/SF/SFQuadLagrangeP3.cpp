@@ -130,7 +130,7 @@ void SFQuadLagrangeP3::compute_gradient(const MappedCoordsT& mapped_coord, Gradi
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFQuadLagrangeP3::MappedNodesT SFQuadLagrangeP3::s_mapped_sf_nodes =  ( SFQuadLagrangeP3::MappedNodesT() <<
+RealMatrix SFQuadLagrangeP3::s_mapped_sf_nodes =  ( RealMatrix(16,2) <<
   -1.,     -1.,
    1.,     -1.,
    1.,      1.,
