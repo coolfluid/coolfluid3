@@ -14,7 +14,8 @@ list( APPEND coolfluid_rdm_gpu_files
           SchemeCSysLDAGPU.hpp
           CSysLDAGPU.cpp
           sysLDAGPUkernel.hpp
-                
+          CellLoopGPU.cpp
+          CellLoopGPU.hpp
 )
    
 if(CF_ENABLE_GPU AND OPENCL_FOUND)
