@@ -97,7 +97,8 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
       T* tbuf=new T[m_data->num_elements()*m_stride+1];
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* itbuf=tbuf;
-      for (int i=0; i<(const int)( m_data->num_elements()*m_stride); i++)
+      const int data_size = m_data->num_elements()*m_stride;
+      for (int i=0; i<data_size; i++)
         *itbuf++=(*m_data)[i];
       return (void*)tbuf;
     }
@@ -121,7 +122,8 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* itbuf=(T*)buf;
-      for (int i=0; i<(const int)( m_data->num_elements()*m_stride); i++)
+      const int data_size = m_data->num_elements()*m_stride;
+      for (int i=0; i<data_size; i++)
         (*m_data)[i]=*itbuf++;
     }
 
@@ -211,8 +213,8 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
       T* tbuf=new T[m_data->num_elements()*m_stride+1];
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* itbuf=tbuf;
-      for (int i=0; i<(const int)(m_data->size()); i++)
-        for (int j=0; j<(const int)(m_stride); j++)
+      for (int i=0; i<m_data->size(); i++)
+        for (int j=0; j<m_stride; j++)
           *itbuf++=(*m_data)[i][j];
       return (void*)tbuf;
     }
@@ -237,8 +239,8 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* itbuf=(T*)buf;
-      for (int i=0; i<(const int)(m_data->size()); i++)
-        for (int j=0; j<(const int)(m_stride); j++)
+      for (int i=0; i<m_data->size(); i++)
+        for (int j=0; j<m_stride; j++)
           (*m_data)[i][j]=*itbuf++;
     }
 

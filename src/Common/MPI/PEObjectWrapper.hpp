@@ -185,7 +185,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* data=&(*m_data)[0];
       T* itbuf=tbuf;
-      for (int i=0; i<(const int)(m_size*m_stride); i++)
+      for (int i=0; i<(m_size*m_stride); i++)
         *itbuf++=*data++;
       return (void*)tbuf;
     }
@@ -210,7 +210,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* data=&(*m_data)[0];
       T* itbuf=(T*)buf;
-      for (int i=0; i<(const int)(m_size*m_stride); i++)
+      for (int i=0; i<(m_size*m_stride); i++)
         *data++=*itbuf++;
     }
 
@@ -313,7 +313,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* data=&(*m_data)[0];
       T* itbuf=tbuf;
-      for (int i=0; i<(const int)(m_data->size()); i++)
+      for (int i=0; i<(m_data->size()); i++)
         *itbuf++=*data++;
       return (void*)tbuf;
     }
@@ -337,7 +337,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* data=&(*m_data)[0];
       T* itbuf=(T*)buf;
-      for (int i=0; i<(const int)(m_data->size()); i++)
+      for (int i=0; i<m_data->size(); i++)
         *data++=*itbuf++;
     }
 
@@ -432,7 +432,7 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* data=&(*sp)[0];
       T* itbuf=tbuf;
-      for (int i=0; i<(const int)(sp->size()); i++)
+      for (int i=0; i<sp->size(); i++)
         *itbuf++=*data++;
       return (void*)tbuf;
     }
@@ -458,7 +458,7 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
       T* data=&(*sp)[0];
       T* itbuf=(T*)buf;
-      for (int i=0; i<(const int)(sp->size()); i++)
+      for (int i=0; i<sp->size(); i++)
         *data++=*itbuf++;
     }
 
