@@ -17,6 +17,8 @@ namespace CF {
   enum CoordXYZ             { XX, YY, ZZ };
   /// Enumeration of the reference coordinates indexes
   enum CoordRef             { KSI, ETA, ZTA };
+  /// Enumeration of sides
+  enum Side                 { LEFT, RIGHT };
 
 } // CF
 

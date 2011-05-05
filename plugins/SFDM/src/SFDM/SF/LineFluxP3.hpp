@@ -7,21 +7,24 @@
 #ifndef CF_Mesh_SF_LineFluxP3_hpp
 #define CF_Mesh_SF_LineFluxP3_hpp
 
-#include "Mesh/ShapeFunction.hpp"
-#include "Mesh/GeoShape.hpp"
+#include "SFDM/Core/ShapeFunction.hpp"
 #include "SFDM/SF/LibSF.hpp"
 
 namespace CF {
 namespace SFDM {
 namespace SF {
 
-class SFDM_SF_API LineFluxP3  : public Mesh::ShapeFunction {
+class SFDM_SF_API LineFluxP3  : public Core::ShapeFunction {
 public:
 
   static const Uint dimensionality = 1;
   static const Uint nb_nodes = 4;
   static const Uint order = 3;
   static const Mesh::GeoShape::Type shape = Mesh::GeoShape::LINE;
+
+  static const Uint nb_orientations = 1;
+  static const Uint nb_lines_per_orientation = 1;
+  static const Uint nb_nodes_per_line = 4;
 
 public:
 

@@ -18,12 +18,20 @@ Common::ComponentBuilder < LineSolutionP1, Mesh::ShapeFunction, LibSF > LineSolu
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LineSolutionP1::LineSolutionP1(const std::string& name) : Mesh::ShapeFunction(name)
+LineSolutionP1::LineSolutionP1(const std::string& name) : Core::ShapeFunction(name)
 {
   m_dimensionality = dimensionality;
   m_nb_nodes = nb_nodes;
   m_order = order;
   m_shape = shape;
+
+  m_points.resize(boost::extents[nb_orientations][nb_lines_per_orientation][nb_nodes_per_line]);
+  m_points[KSI][0][0] = 0;
+  m_points[KSI][0][1] = 1;
+
+  m_face_points.resize(boost::extents[nb_orientations][nb_lines_per_orientation][2]);
+  m_face_points[KSI][0][LEFT] = 0;
+  m_face_points[KSI][0][RIGHT] = 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

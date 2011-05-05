@@ -18,12 +18,23 @@ Common::ComponentBuilder < LineFluxP3, Mesh::ShapeFunction, LibSF > LineFluxP3_B
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LineFluxP3::LineFluxP3(const std::string& name) : Mesh::ShapeFunction(name)
+LineFluxP3::LineFluxP3(const std::string& name) : Core::ShapeFunction(name)
 {
   m_dimensionality = dimensionality;
   m_nb_nodes = nb_nodes;
   m_order = order;
   m_shape = shape;
+
+  m_points.resize(boost::extents[nb_orientations][nb_lines_per_orientation][nb_nodes_per_line]);
+  m_points[KSI][0][0] = 0;
+  m_points[KSI][0][1] = 1;
+  m_points[KSI][0][2] = 2;
+  m_points[KSI][0][3] = 3;
+
+  m_face_points.resize(boost::extents[nb_orientations][nb_lines_per_orientation][2]);
+  m_face_points[KSI][0][LEFT]  = 0;
+  m_face_points[KSI][0][RIGHT] = 3;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

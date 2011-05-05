@@ -24,7 +24,7 @@
 #include "Mesh/Actions/CInitFieldFunction.hpp"
 #include "Mesh/Actions/CreateSpaceP0.hpp"
 #include "SFDM/Core/CreateSpace.hpp"
-
+#include "SFDM/Core/ShapeFunction.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
@@ -37,6 +37,53 @@ using namespace CF::SFDM::Core;
 BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_SF )
+{
+  typedef SFDM::Core::ShapeFunction SFD_SF;
+  CRoot& root = Common::Core::instance().root();
+  SFD_SF& sol_line_p0 = root.build_component("sol_line_p0","CF.SFDM.SF.LineSolutionP0").as_type<SFD_SF>();
+  SFD_SF& sol_line_p1 = root.build_component("sol_line_p1","CF.SFDM.SF.LineSolutionP1").as_type<SFD_SF>();
+  SFD_SF& sol_line_p2 = root.build_component("sol_line_p2","CF.SFDM.SF.LineSolutionP2").as_type<SFD_SF>();
+
+  SFD_SF& flx_line_p1 = root.build_component("flx_line_p1","CF.SFDM.SF.LineFluxP1").as_type<SFD_SF>();
+  SFD_SF& flx_line_p2 = root.build_component("flx_line_p2","CF.SFDM.SF.LineFluxP2").as_type<SFD_SF>();
+  SFD_SF& flx_line_p3 = root.build_component("flx_line_p3","CF.SFDM.SF.LineFluxP3").as_type<SFD_SF>();
+
+  const Uint line0 = 0;
+
+  SFD_SF::Points     all_pts   = flx_line_p2.points();
+  SFD_SF::Lines      ksi_pts   = all_pts[KSI];
+  SFD_SF::LinePoints line0_pts = ksi_pts[line0];
+
+  BOOST_CHECK_EQUAL( all_pts.num_elements()   , 3u ); // 3 points total
+
+  BOOST_CHECK_EQUAL( all_pts.size()   , 1u ); // 1 orientation KSI
+  BOOST_CHECK_EQUAL( ksi_pts.size()   , 1u ); // 1 line in this orientation
+  BOOST_CHECK_EQUAL( line0_pts.size() , 3u ); // 3 points in this line
+
+  BOOST_CHECK_EQUAL( flx_line_p1.points()[KSI][line0][0] , 0u );
+  BOOST_CHECK_EQUAL( flx_line_p1.points()[KSI][line0][1] , 1u );
+
+  BOOST_CHECK_EQUAL( flx_line_p1.face_points()[KSI][line0][LEFT] , 0u );
+  BOOST_CHECK_EQUAL( flx_line_p1.face_points()[KSI][line0][RIGHT], 1u );
+
+  BOOST_CHECK_EQUAL( flx_line_p2.points()[KSI][line0][0] , 0u );
+  BOOST_CHECK_EQUAL( flx_line_p2.points()[KSI][line0][1] , 1u );
+  BOOST_CHECK_EQUAL( flx_line_p2.points()[KSI][line0][2] , 2u );
+
+  BOOST_CHECK_EQUAL( flx_line_p2.face_points()[KSI][line0][LEFT] , 0u );
+  BOOST_CHECK_EQUAL( flx_line_p2.face_points()[KSI][line0][RIGHT], 2u );
+
+  BOOST_CHECK_EQUAL( flx_line_p3.points()[KSI][line0][0] , 0u );
+  BOOST_CHECK_EQUAL( flx_line_p3.points()[KSI][line0][1] , 1u );
+  BOOST_CHECK_EQUAL( flx_line_p3.points()[KSI][line0][2] , 2u );
+  BOOST_CHECK_EQUAL( flx_line_p3.points()[KSI][line0][3] , 3u );
+
+  BOOST_CHECK_EQUAL( flx_line_p3.face_points()[KSI][line0][LEFT] , 0u);
+  BOOST_CHECK_EQUAL( flx_line_p3.face_points()[KSI][line0][RIGHT], 3u);
+
+}
 
 BOOST_AUTO_TEST_CASE( LineP2 )
 {

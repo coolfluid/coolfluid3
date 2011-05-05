@@ -103,33 +103,31 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
   m_iterate = create_static_component_ptr<CIterate>("iterate");
 
   // create apply boundary conditions action
-  m_apply_bcs = m_iterate->create_static_component_ptr<CGroupActions>("1_apply_boundary_conditions");
-  m_apply_bcs->mark_basic();
+  m_apply_bcs = m_iterate->create_static_component<CGroupActions>("1_apply_boundary_conditions").mark_basic().as_ptr<CGroupActions>();
   
   // create compute rhs action
-  m_compute_rhs = m_iterate->create_static_component_ptr<CGroupActions>("2_compute_rhs");
-  m_compute_rhs->mark_basic();
+  m_compute_rhs = m_iterate->create_static_component<CGroupActions>("2_compute_rhs").mark_basic().as_ptr<CGroupActions>();
   
   // set the compute rhs action
-  m_compute_rhs->create_static_component_ptr<CInitFieldConstant>("2.1_init_residual")
-    ->configure_property("Constant",0.)
+  m_compute_rhs->create_static_component<CInitFieldConstant>("2.1_init_residual")
+    .configure_property("Constant",0.)
     .mark_basic()
     .property("Field").as_option().add_tag("residual");
   
-  m_compute_rhs->create_static_component_ptr<CInitFieldConstant>("2.2_init_wave_speed")
-    ->configure_property("Constant",Math::MathConsts::eps())
+  m_compute_rhs->create_static_component<CInitFieldConstant>("2.2_init_wave_speed")
+    .configure_property("Constant",Math::MathConsts::eps())
     .mark_basic()
     .property("Field").as_option().add_tag("wave_speed");
   
   Component& for_all_cells =
-    m_compute_rhs->create_static_component_ptr<Component>("2.3_for_all_cells")->mark_basic();
-  for_all_cells.create_static_component_ptr<Component>(       "2.3.1_reconstruct_solution_in_flux_points")->mark_basic();
-  for_all_cells.create_static_component_ptr<Component>(       "2.3.2_compute_flux_in_flux_points")->mark_basic();
+    m_compute_rhs->create_static_component<Component>("2.3_for_all_cells").mark_basic();
+  for_all_cells.create_static_component<Component>(       "2.3.1_reconstruct_solution_in_flux_points").mark_basic();
+  for_all_cells.create_static_component<Component>(       "2.3.2_compute_flux_in_flux_points").mark_basic();
   Component& for_all_faces =
-      for_all_cells.create_static_component_ptr<Component>(   "2.3.3_for_all_faces_of_cell")->mark_basic();
-  for_all_faces.create_static_component_ptr<Component>(           "2.3.3.1_reconstruct_neighbor_flux")->mark_basic();
-  for_all_faces.create_static_component_ptr<Component>(           "2.3.3.2_solve_Riemann_problem_in_face_flux_points")->mark_basic();
-  for_all_cells.create_static_component_ptr<Component>(       "2.3.4_add_fluxgradient_to_rhs")->mark_basic();
+      for_all_cells.create_static_component<Component>(   "2.3.3_for_all_faces_of_cell").mark_basic();
+  for_all_faces.create_static_component<Component>(           "2.3.3.1_reconstruct_neighbor_flux").mark_basic();
+  for_all_faces.create_static_component<Component>(           "2.3.3.2_solve_Riemann_problem_in_face_flux_points").mark_basic();
+  for_all_cells.create_static_component<Component>(       "2.3.4_add_fluxgradient_to_rhs").mark_basic();
   
   m_compute_update_coefficient = m_iterate->create_static_component_ptr<CGroupActions/*ComputeUpdateCoefficient*/>("3_compute_update_coeff");
   m_update_solution = m_iterate->create_static_component_ptr<CGroupActions/*UpdateSolution*/>("4_update_solution");

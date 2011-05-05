@@ -3,6 +3,8 @@ list( APPEND coolfluid_sfdm_core_files
   CreateSpace.cpp
   LibCore.hpp
   LibCore.cpp
+  ShapeFunction.hpp
+  ShapeFunction.cpp
   SFDSolver.hpp
   SFDSolver.cpp
 )

@@ -14,7 +14,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro SFDM_SF_API
-/// @note build system defines COOLFLUID_RDM_EXPORTS when compiling FVM files
+/// @note build system defines COOLFLUID_SFDM_SF_EXPORTS when compiling SFDM files
 #ifdef COOLFLUID_SFDM_SF_EXPORTS
 #   define SFDM_SF_API      CF_EXPORT_API
 #   define SFDM_SF_TEMPLATE
