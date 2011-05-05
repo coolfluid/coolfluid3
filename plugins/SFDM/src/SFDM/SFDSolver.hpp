@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_Core_SFDSolver_hpp
-#define CF_SFDM_Core_SFDSolver_hpp
+#ifndef CF_SFDM_SFDSolver_hpp
+#define CF_SFDM_SFDSolver_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/CSolver.hpp"
 
-#include "SFDM/Core/LibCore.hpp"
+#include "SFDM/LibSFDM.hpp"
 
 namespace CF {
 
@@ -31,7 +31,6 @@ namespace Mesh {
 }
 
 namespace SFDM {
-namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +39,7 @@ namespace Core {
 /// combining a forward euler time marching scheme with
 /// a high-order spectral finite difference spatial scheme
 /// @author Willem Deconinck
-class SFDM_Core_API SFDSolver : public Solver::CSolver {
+class SFDM_API SFDSolver : public Solver::CSolver {
 
 public: // typedefs
 
@@ -107,10 +106,9 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
 } // SFDM
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_Core_SFDSolver_hpp
+#endif // CF_SFDM_SFDSolver_hpp

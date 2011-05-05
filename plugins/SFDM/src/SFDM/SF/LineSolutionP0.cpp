@@ -18,7 +18,7 @@ Common::ComponentBuilder < LineSolutionP0, Mesh::ShapeFunction, LibSF > LineSolu
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LineSolutionP0::LineSolutionP0(const std::string& name) : Core::ShapeFunction(name)
+LineSolutionP0::LineSolutionP0(const std::string& name) : ShapeFunction(name)
 {
   m_dimensionality = dimensionality;
   m_nb_nodes = nb_nodes;

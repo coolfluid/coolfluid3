@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_SF_LineFluxP2_hpp
-#define CF_Mesh_SF_LineFluxP2_hpp
+#ifndef CF_SFDM_SF_LineFluxP2_hpp
+#define CF_SFDM_SF_LineFluxP2_hpp
 
-#include "SFDM/Core/ShapeFunction.hpp"
+#include "SFDM/ShapeFunction.hpp"
 #include "SFDM/SF/LibSF.hpp"
 
 namespace CF {
 namespace SFDM {
 namespace SF {
 
-class SFDM_SF_API LineFluxP2  : public Core::ShapeFunction {
+class SFDM_SF_API LineFluxP2  : public ShapeFunction {
 public:
 
   static const Uint dimensionality = 1;

@@ -4,19 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_Core_CreateSpace_hpp
-#define CF_SFDM_Core_CreateSpace_hpp
+#ifndef CF_SFDM_CreateSpace_hpp
+#define CF_SFDM_CreateSpace_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Mesh/CMeshTransformer.hpp"
-#include "SFDM/Core/LibCore.hpp"
+#include "SFDM/LibSFDM.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace SFDM {
-namespace Core {
   
 //////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +24,7 @@ namespace Core {
 /// Default polynomial order = 0.
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class SFDM_Core_API CreateSpace : public Mesh::CMeshTransformer
+class SFDM_API CreateSpace : public Mesh::CMeshTransformer
 {
 public: // typedefs
 
@@ -47,10 +46,9 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
 } // SFDM
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_Core_CreateSpace_hpp
+#endif // CF_SFDM_CreateSpace_hpp

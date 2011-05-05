@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_Core_LibCore_hpp
-#define CF_SFDM_Core_LibCore_hpp
+#ifndef CF_SFDM_LibSFDM_hpp
+#define CF_SFDM_LibSFDM_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,38 +13,37 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro SFDM_Core_API
+/// Define the macro SFDM_API
 /// @note build system defines COOLFLUID_RDM_EXPORTS when compiling FVM files
-#ifdef COOLFLUID_SFDM_Core_EXPORTS
-#   define SFDM_Core_API      CF_EXPORT_API
-#   define SFDM_Core_TEMPLATE
+#ifdef COOLFLUID_SFDM_EXPORTS
+#   define SFDM_API      CF_EXPORT_API
+#   define SFDM_TEMPLATE
 #else
-#   define SFDM_Core_API      CF_IMPORT_API
-#   define SFDM_Core_TEMPLATE CF_TEMPLATE_EXTERN
+#   define SFDM_API      CF_IMPORT_API
+#   define SFDM_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace SFDM {
-namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the Spectral Finite Difference Core library
 /// @author Willem Deconinck
-class SFDM_Core_API LibCore :
+class SFDM_API LibSFDM :
     public CF::Common::CLibrary
 {
 public:
 
-  typedef boost::shared_ptr<LibCore> Ptr;
-  typedef boost::shared_ptr<LibCore const> ConstPtr;
+  typedef boost::shared_ptr<LibSFDM> Ptr;
+  typedef boost::shared_ptr<LibSFDM const> ConstPtr;
 
   /// Constructor
-  LibCore ( const std::string& name) : CF::Common::CLibrary(name) { }
+  LibSFDM ( const std::string& name) : CF::Common::CLibrary(name) { }
 
-  virtual ~LibCore() { }
+  virtual ~LibSFDM() { }
 
 public: // functions
 
@@ -66,7 +65,7 @@ public: // functions
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibCore"; }
+  static std::string type_name() { return "LibSFDM"; }
 
 protected:
 
@@ -76,14 +75,13 @@ protected:
   /// terminate library
   virtual void terminate_impl();
 
-}; // end LibCore
+}; // end LibSFDM
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
 } // SFDM
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_Core_LibCore_hpp
+#endif // CF_SFDM_LibSFDM_hpp

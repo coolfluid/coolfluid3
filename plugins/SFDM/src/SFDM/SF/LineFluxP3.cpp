@@ -18,7 +18,7 @@ Common::ComponentBuilder < LineFluxP3, Mesh::ShapeFunction, LibSF > LineFluxP3_B
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LineFluxP3::LineFluxP3(const std::string& name) : Core::ShapeFunction(name)
+LineFluxP3::LineFluxP3(const std::string& name) : ShapeFunction(name)
 {
   m_dimensionality = dimensionality;
   m_nb_nodes = nb_nodes;

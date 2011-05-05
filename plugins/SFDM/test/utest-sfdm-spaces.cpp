@@ -23,14 +23,13 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/Actions/CInitFieldFunction.hpp"
 #include "Mesh/Actions/CreateSpaceP0.hpp"
-#include "SFDM/Core/CreateSpace.hpp"
-#include "SFDM/Core/ShapeFunction.hpp"
+#include "SFDM/CreateSpace.hpp"
+#include "SFDM/ShapeFunction.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
 using namespace CF::SFDM;
-using namespace CF::SFDM::Core;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +39,7 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 BOOST_AUTO_TEST_CASE( test_SF )
 {
-  typedef SFDM::Core::ShapeFunction SFD_SF;
+  typedef SFDM::ShapeFunction SFD_SF;
   CRoot& root = Common::Core::instance().root();
   SFD_SF& sol_line_p0 = root.build_component("sol_line_p0","CF.SFDM.SF.LineSolutionP0").as_type<SFD_SF>();
   SFD_SF& sol_line_p1 = root.build_component("sol_line_p1","CF.SFDM.SF.LineSolutionP1").as_type<SFD_SF>();
@@ -93,7 +92,7 @@ BOOST_AUTO_TEST_CASE( LineP2 )
 
 
   /// Create a "space" for SFDM solution of order P2, and for flux a space of order P3
-  SFDM::Core::CreateSpace::Ptr space_creator = allocate_component<SFDM::Core::CreateSpace>("space_creator");
+  SFDM::CreateSpace::Ptr space_creator = allocate_component<SFDM::CreateSpace>("space_creator");
   space_creator->configure_property("P",2u);
   space_creator->transform(*mesh);
 

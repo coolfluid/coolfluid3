@@ -27,7 +27,7 @@
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CSolver.hpp"
 #include "Solver/CPhysicalModel.hpp"
-#include "SFDM/Core/CreateSpace.hpp"
+#include "SFDM/CreateSpace.hpp"
 
 
 using namespace CF;
@@ -37,7 +37,6 @@ using namespace CF::Mesh::Actions;
 using namespace CF::Solver;
 //using namespace CF::Solver::Actions;
 using namespace CF::SFDM;
-using namespace CF::SFDM::Core;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -50,13 +49,13 @@ BOOST_AUTO_TEST_CASE( Solver )
   CModelUnsteady& model = *Common::Core::instance().root().create_component_ptr<CModelUnsteady>("model");
   CPhysicalModel& physics = model.create_physics("Physics");
   CDomain&        domain  = model.create_domain("Domain");
-  CSolver&        solver  = model.create_solver("CF.SFDM.Core.SFDSolver");
+  CSolver&        solver  = model.create_solver("CF.SFDM.SFDSolver");
 
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   CMesh& mesh = *domain.create_component_ptr<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(mesh, 1., 20);
 
-  SFDM::Core::CreateSpace::Ptr sfdm_space_creator = allocate_component<SFDM::Core::CreateSpace>("sfdm_space_creator");
+  SFDM::CreateSpace::Ptr sfdm_space_creator = allocate_component<SFDM::CreateSpace>("sfdm_space_creator");
   sfdm_space_creator->configure_property("P",2u);
   sfdm_space_creator->transform(mesh);
 

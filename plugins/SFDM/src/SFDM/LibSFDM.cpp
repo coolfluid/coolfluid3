@@ -7,26 +7,24 @@
 #include "Common/RegistLibrary.hpp"
 #include "Common/CRoot.hpp"
 
-#include "SFDM/Core/LibCore.hpp"
+#include "SFDM/LibSFDM.hpp"
 
 namespace CF {
 namespace SFDM {
-namespace Core {
 
-CF::Common::RegistLibrary<LibCore> LibCore;
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LibCore::initiate_impl()
-{
-}
-
-void LibCore::terminate_impl()
-{
-}
+CF::Common::RegistLibrary<LibSFDM> LibSFDM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
+void LibSFDM::initiate_impl()
+{
+}
+
+void LibSFDM::terminate_impl()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // SFDM
 } // CF

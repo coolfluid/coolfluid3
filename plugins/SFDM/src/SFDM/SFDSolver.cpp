@@ -19,7 +19,7 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
-#include "SFDM/Core/SFDSolver.hpp"
+#include "SFDM/SFDSolver.hpp"
 //#include "SFDM/Core/ComputeUpdateCoefficient.hpp"
 //#include "SFDM/Core/UpdateSolution.hpp"
 //#include "SFDM/Core/OutputIterationInfo.hpp"
@@ -51,7 +51,6 @@
 
 namespace CF {
 namespace SFDM {
-namespace Core {
 
 using namespace boost::assign;
 using namespace Common;
@@ -60,7 +59,7 @@ using namespace Mesh::Actions;
 using namespace Solver;
 using namespace Solver::Actions;
 
-Common::ComponentBuilder < SFDSolver, CSolver, LibCore > SFDSolver_Builder;
+Common::ComponentBuilder < SFDSolver, CSolver, LibSFDM > SFDSolver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -363,6 +362,5 @@ void SFDSolver::signature_create_bc( SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
 } // SFDM
 } // CF

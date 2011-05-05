@@ -17,20 +17,19 @@
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 
-#include "SFDM/Core/CreateSpace.hpp"
+#include "SFDM/CreateSpace.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace SFDM {
-namespace Core {
   
   using namespace Common;
   using namespace Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CreateSpace, CMeshTransformer, LibCore> CreateSpace_Builder;
+Common::ComponentBuilder < CreateSpace, CMeshTransformer, LibSFDM> CreateSpace_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +61,5 @@ void CreateSpace::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Core
 } // SFDM
 } // CF

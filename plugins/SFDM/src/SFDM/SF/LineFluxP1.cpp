@@ -19,7 +19,7 @@ Common::ComponentBuilder < LineFluxP1, Mesh::ShapeFunction, LibSF > LineFluxP1_B
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LineFluxP1::LineFluxP1(const std::string& name) : Core::ShapeFunction(name)
+LineFluxP1::LineFluxP1(const std::string& name) : ShapeFunction(name)
 {
   m_dimensionality = dimensionality;
   m_nb_nodes = nb_nodes;

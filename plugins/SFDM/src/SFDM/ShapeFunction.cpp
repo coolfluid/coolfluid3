@@ -6,11 +6,10 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "SFDM/Core/ShapeFunction.hpp"
+#include "SFDM/ShapeFunction.hpp"
 
 namespace CF {
 namespace SFDM {
-namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,6 +19,5 @@ ShapeFunction::ShapeFunction(const std::string& name) : Mesh::ShapeFunction(name
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
 } // SFDM
 } // CF

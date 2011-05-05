@@ -7,14 +7,14 @@
 #ifndef CF_SFDM_SF_LineSolutionP0_hpp
 #define CF_SFDM_SF_LineSolutionP0_hpp
 
-#include "SFDM/Core/ShapeFunction.hpp"
+#include "SFDM/ShapeFunction.hpp"
 #include "SFDM/SF/LibSF.hpp"
 
 namespace CF {
 namespace SFDM {
 namespace SF {
 
-class SFDM_SF_API LineSolutionP0  : public Core::ShapeFunction {
+class SFDM_SF_API LineSolutionP0  : public ShapeFunction {
 public:
 
   static const Uint dimensionality = 1;
