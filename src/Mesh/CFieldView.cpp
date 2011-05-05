@@ -252,7 +252,6 @@ std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_i
     vec.push_back((*m_views[cells_comp_idx])[cell_idx]);
   }
   return vec;
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

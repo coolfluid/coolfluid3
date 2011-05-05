@@ -68,7 +68,7 @@ public: // functions
   Uint size() const { return m_size; }
   
   /// @return elements_exist_in_field
-  bool set_elements(const CEntities& elements);
+  virtual bool set_elements(const CEntities& elements);
   
   /// @return elements_exist_in_field
   bool set_elements(boost::shared_ptr<CEntities> elements);

@@ -37,6 +37,7 @@
 #include "Solver/CTime.hpp"
 
 #include "Solver/Actions/CForAllFaces.hpp"
+#include "Solver/Actions/CForAllElements.hpp"
 #include "Solver/Actions/CLoop.hpp"
 #include "Solver/Actions/CIterate.hpp"
 #include "Solver/Actions/CCriterionTime.hpp"
@@ -120,8 +121,15 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
     .mark_basic()
     .property("Field").as_option().add_tag("wave_speed");
   
-  m_compute_rhs->create_static_component<CForAllFaces>("2.3_for_all_faces")
-    ->mark_basic();
+  Component& for_all_cells =
+    m_compute_rhs->create_static_component<Component>("2.3_for_all_cells")->mark_basic();
+  for_all_cells.create_static_component<Component>(       "2.3.1_reconstruct_solution_in_flux_points")->mark_basic();
+  for_all_cells.create_static_component<Component>(       "2.3.2_compute_flux_in_flux_points")->mark_basic();
+  Component& for_all_faces =
+      for_all_cells.create_static_component<Component>(   "2.3.3_for_all_faces_of_cell")->mark_basic();
+  for_all_faces.create_static_component<Component>(           "2.3.3.1_reconstruct_neighbor_flux")->mark_basic();
+  for_all_faces.create_static_component<Component>(           "2.3.3.2_solve_Riemann_problem_in_face_flux_points")->mark_basic();
+  for_all_cells.create_static_component<Component>(       "2.3.4_add_fluxgradient_to_rhs")->mark_basic();
   
   m_compute_update_coefficient = m_iterate->create_static_component<CGroupActions/*ComputeUpdateCoefficient*/>("3_compute_update_coeff");
   m_update_solution = m_iterate->create_static_component<CGroupActions/*UpdateSolution*/>("4_update_solution");
@@ -149,8 +157,8 @@ void SFDSolver::trigger_domain()
   if (is_null(mesh))
     throw SetupError(FromHere(),"Domain has no mesh");
 
-  m_compute_rhs->get_child_ptr("2.3_for_all_faces")
-    ->configure_property("Regions",std::vector<URI>(1,mesh->topology().full_path()));
+//  m_compute_rhs->get_child_ptr("2.3_for_all_cells")
+//    ->configure_property("Regions",std::vector<URI>(1,mesh->topology().full_path()));
   //CLoopOperation::Ptr add_flux_to_rhs = create_component_abstract_type<CLoopOperation>("CF.SFDM.Core.ComputeFlux","add_flux_to_rhs");
   //add_flux_to_rhs->mark_basic();
   //m_compute_rhs->get_child("2.3_for_all_faces").add_component(add_flux_to_rhs);
