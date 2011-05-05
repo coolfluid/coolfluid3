@@ -107,7 +107,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   get_file_positions();
 
   //Create a hash
-  m_hash = create_component<CMixedHash>("hash");
+  m_hash = create_component_ptr<CMixedHash>("hash");
   std::vector<Uint> num_obj(2);
   num_obj[0] = m_total_nb_nodes;
   num_obj[1] = m_total_nb_elements;
@@ -271,7 +271,7 @@ CRegion::Ptr CReader::create_region(std::string const& relative_path)
   {
     std::string name = *tok_iter;
     Component::Ptr new_region = region->get_child_ptr(name);
-    if (is_null(new_region))  region->create_component<CRegion>(name);
+    if (is_null(new_region))  region->create_component_ptr<CRegion>(name);
     region = region->get_child(name).as_ptr<CRegion>();
   }
   return region;
@@ -464,7 +464,7 @@ void CReader::read_connectivity()
       region->add_component(elements);
       elements->initialize(cf_elem_name,*m_nodes);
 
-      // Celements& elements = region->create_component<CElements>(cf_elem_name);
+      // Celements& elements = region->create_component_ptr<CElements>(cf_elem_name);
       // elements.initialize(cf_elem_name,*m_nodes);
 
        CConnectivity& elem_table = elements->as_ptr<CElements>()->node_connectivity();
@@ -596,7 +596,7 @@ void CReader::read_element_data()
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
   
     if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
-    CField& field = *m_mesh->create_component<CField>(gmsh_field.name);
+    CField& field = *m_mesh->create_component_ptr<CField>(gmsh_field.name);
     field.set_topology(m_mesh->topology().access_component(gmsh_field.topology).as_type<CRegion>());
     field.configure_property("VarNames",gmsh_field.var_names);
     field.configure_property("VarTypes",var_types_str);
@@ -677,7 +677,7 @@ void CReader::read_node_data()
     boost_foreach(const Uint var_type, gmsh_field.var_types)
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
   
-    CField& field = *m_mesh->create_component<CField>(gmsh_field.name);
+    CField& field = *m_mesh->create_component_ptr<CField>(gmsh_field.name);
 
     field.set_topology(m_mesh->topology().access_component(gmsh_field.topology).as_type<CRegion>());
     field.configure_property("VarNames",gmsh_field.var_names);

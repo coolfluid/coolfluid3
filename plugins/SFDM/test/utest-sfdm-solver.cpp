@@ -47,13 +47,13 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 BOOST_AUTO_TEST_CASE( Solver )
 {
-  CModelUnsteady& model = *Common::Core::instance().root().create_component<CModelUnsteady>("model");
+  CModelUnsteady& model = *Common::Core::instance().root().create_component_ptr<CModelUnsteady>("model");
   CPhysicalModel& physics = model.create_physics("Physics");
   CDomain&        domain  = model.create_domain("Domain");
   CSolver&        solver  = model.create_solver("CF.SFDM.Core.SFDSolver");
 
   /// Create a mesh consisting of a line with length 1. and 20 divisions
-  CMesh& mesh = *domain.create_component<CMesh>("mesh");
+  CMesh& mesh = *domain.create_component_ptr<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(mesh, 1., 20);
 
   SFDM::Core::CreateSpace::Ptr sfdm_space_creator = allocate_component<SFDM::Core::CreateSpace>("sfdm_space_creator");

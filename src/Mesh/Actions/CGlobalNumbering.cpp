@@ -92,7 +92,7 @@ void CGlobalNumbering::execute()
   CMesh& mesh = *m_mesh.lock();
 
   CTable<Real>& coordinates = mesh.nodes().coordinates();
-  CVector_size_t& glb_node_hash = *mesh.nodes().create_component<CVector_size_t>("glb_node_hash");
+  CVector_size_t& glb_node_hash = *mesh.nodes().create_component_ptr<CVector_size_t>("glb_node_hash");
   glb_node_hash.data().resize(coordinates.size());
   Uint i(0);
   boost_foreach(CTable<Real>::ConstRow coords, coordinates.array() )
@@ -106,7 +106,7 @@ void CGlobalNumbering::execute()
   boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
   {
     RealMatrix element_coordinates(elements.element_type().nb_nodes(),coordinates.row_size());
-    CVector_size_t& glb_elem_hash = *elements.create_component<CVector_size_t>("glb_elem_hash");
+    CVector_size_t& glb_elem_hash = *elements.create_component_ptr<CVector_size_t>("glb_elem_hash");
     glb_elem_hash.data().resize(elements.size());
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
     {

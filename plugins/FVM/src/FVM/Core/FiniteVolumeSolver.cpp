@@ -100,41 +100,41 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
 
 
   // initializations
-  m_solution = create_static_component<CLink>("solution");
-  m_residual = create_static_component<CLink>("residual");
-  m_wave_speed = create_static_component<CLink>("wave_speed");
-  m_update_coeff = create_static_component<CLink>("update_coeff");
+  m_solution = create_static_component_ptr<CLink>("solution");
+  m_residual = create_static_component_ptr<CLink>("residual");
+  m_wave_speed = create_static_component_ptr<CLink>("wave_speed");
+  m_update_coeff = create_static_component_ptr<CLink>("update_coeff");
 
 
-  m_iterate = create_static_component<CIterate>("iterate");
+  m_iterate = create_static_component_ptr<CIterate>("iterate");
 
   // create apply boundary conditions action
-  m_apply_bcs = m_iterate->create_static_component<CGroupActions>("1_apply_boundary_conditions");
+  m_apply_bcs = m_iterate->create_static_component_ptr<CGroupActions>("1_apply_boundary_conditions");
   m_apply_bcs->mark_basic();
   
   // create compute rhs action
-  m_compute_rhs = m_iterate->create_static_component<CGroupActions>("2_compute_rhs");
+  m_compute_rhs = m_iterate->create_static_component_ptr<CGroupActions>("2_compute_rhs");
   m_compute_rhs->mark_basic();
   
   // set the compute rhs action
-  m_compute_rhs->create_static_component<CInitFieldConstant>("2.1_init_residual")
+  m_compute_rhs->create_static_component_ptr<CInitFieldConstant>("2.1_init_residual")
     ->configure_property("Constant",0.)
     .mark_basic()
     .property("Field").as_option().add_tag("residual");
   
-  m_compute_rhs->create_static_component<CInitFieldConstant>("2.2_init_wave_speed")
+  m_compute_rhs->create_static_component_ptr<CInitFieldConstant>("2.2_init_wave_speed")
     ->configure_property("Constant",Math::MathConsts::eps())
     .mark_basic()
     .property("Field").as_option().add_tag("wave_speed");
   
-  m_compute_rhs->create_static_component<CForAllFaces>("2.3_for_all_faces")
+  m_compute_rhs->create_static_component_ptr<CForAllFaces>("2.3_for_all_faces")
     ->mark_basic();
   
-  m_compute_update_coefficient = m_iterate->create_static_component<ComputeUpdateCoefficient>("3_compute_update_coeff");
-  m_update_solution = m_iterate->create_static_component<UpdateSolution>("4_update_solution");
-  m_iterate->create_static_component<CAdvanceTime>("5_advance_time");
-  m_iterate->create_static_component<OutputIterationInfo>("6_output_info");
-  m_iterate->create_static_component<CCriterionTime>("time_stop_criterion");
+  m_compute_update_coefficient = m_iterate->create_static_component_ptr<ComputeUpdateCoefficient>("3_compute_update_coeff");
+  m_update_solution = m_iterate->create_static_component_ptr<UpdateSolution>("4_update_solution");
+  m_iterate->create_static_component_ptr<CAdvanceTime>("5_advance_time");
+  m_iterate->create_static_component_ptr<OutputIterationInfo>("6_output_info");
+  m_iterate->create_static_component_ptr<CCriterionTime>("time_stop_criterion");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +165,7 @@ void FiniteVolumeSolver::trigger_domain()
   if ( is_null(find_component_ptr_with_tag<CField>(*mesh,Mesh::Tags::normal()) ) )
   {
     CFinfo << "  Creating field \"face_normal\", facebased" << CFendl;
-    CBuildFaceNormals::Ptr build_face_normals = create_component<CBuildFaceNormals>("build_face_normals");
+    CBuildFaceNormals::Ptr build_face_normals = create_component_ptr<CBuildFaceNormals>("build_face_normals");
     build_face_normals->transform(mesh);
     remove_component(build_face_normals->name());
     configure_option_recursively(Mesh::Tags::normal(), find_component_with_tag<CField>(*mesh,Mesh::Tags::normal()).full_path());
@@ -176,7 +176,7 @@ void FiniteVolumeSolver::trigger_domain()
     CFinfo << "  Creating field \"area\", facebased" << CFendl;
     CField& area = mesh->create_field(Mesh::Tags::area(),CField::Basis::FACE_BASED,"P0");
     area.add_tag(Mesh::Tags::area());
-    CLoop::Ptr compute_area = create_component< CForAllFaces >("compute_area");
+    CLoop::Ptr compute_area = create_component_ptr< CForAllFaces >("compute_area");
     compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().full_path()));
     compute_area->create_action("CF.Solver.Actions.CComputeArea");
     configure_option_recursively(Mesh::Tags::area(),area.full_path());
@@ -285,7 +285,7 @@ CAction& FiniteVolumeSolver::create_bc(const std::string& name, const std::vecto
   boost_foreach(CRegion::Ptr region, regions)
     regions_uri.push_back(region->full_path());
 
-  CAction::Ptr for_all_faces = m_apply_bcs->create_component<CForAllFaces>(name);
+  CAction::Ptr for_all_faces = m_apply_bcs->create_component_ptr<CForAllFaces>(name);
   for_all_faces->configure_property("Regions",regions_uri);
   CAction& bc = for_all_faces->create_action(bc_builder_name,bc_builder_name);
   auto_config_fields(bc);
@@ -296,7 +296,7 @@ CAction& FiniteVolumeSolver::create_bc(const std::string& name, const std::vecto
 
 CAction& FiniteVolumeSolver::create_bc(const std::string& name, const CRegion& region, const std::string& bc_builder_name)
 {
-  CAction::Ptr for_all_faces = m_apply_bcs->create_component<CForAllFaces>(name);
+  CAction::Ptr for_all_faces = m_apply_bcs->create_component_ptr<CForAllFaces>(name);
   for_all_faces->configure_property("Regions",std::vector<URI>(1,region.full_path()));
   CAction& bc = for_all_faces->create_action(bc_builder_name,bc_builder_name);
   auto_config_fields(bc);

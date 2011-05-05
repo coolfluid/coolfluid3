@@ -48,7 +48,7 @@ CUnifiedData& CConnectivity::create_lookup()
       remove_component(m_lookup->name());
     }
   }
-  return *create_component<CUnifiedData>("lookup");
+  return *create_component_ptr<CUnifiedData>("lookup");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

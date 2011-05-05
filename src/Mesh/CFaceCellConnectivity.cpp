@@ -39,10 +39,10 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
   m_nb_faces(0)
 {
 
-  m_used_components = create_static_component<CGroup>("used_components");
-  m_connectivity = create_static_component<CTable<Uint> >(Mesh::Tags::connectivity_table());
-  m_face_nb_in_first_elem = create_static_component<CList<Uint> >("face_number");
-  m_is_bdry_face = create_static_component<CList<Uint> >("is_bdry_face");
+  m_used_components = create_static_component_ptr<CGroup>("used_components");
+  m_connectivity = create_static_component_ptr<CTable<Uint> >(Mesh::Tags::connectivity_table());
+  m_face_nb_in_first_elem = create_static_component_ptr<CList<Uint> >("face_number");
+  m_is_bdry_face = create_static_component_ptr<CList<Uint> >("is_bdry_face");
   m_connectivity->set_row_size(2);
 }
 
@@ -83,7 +83,7 @@ void CFaceCellConnectivity::add_used (const Component& used_comp)
     }
   }
   if (found == false)
-    m_used_components->create_component<CLink>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
+    m_used_components->create_component_ptr<CLink>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
     
   m_mesh_elements = find_parent_component<CMesh>(used_comp).elements().as_non_const()->as_ptr<CMeshElements>();
 }
@@ -139,7 +139,7 @@ void CFaceCellConnectivity::build_connectivity()
     Component::Ptr comp = elements.get_child_ptr("is_bdry");
     if ( is_null( comp ) || is_null(comp->as_ptr< CList<bool> >()) )
     {
-      CList<bool>& is_bdry_elem = * elements.create_component< CList<bool> >("is_bdry");
+      CList<bool>& is_bdry_elem = * elements.create_component_ptr< CList<bool> >("is_bdry");
 
       const Uint nb_elem = elements.size();
       is_bdry_elem.resize(nb_elem);

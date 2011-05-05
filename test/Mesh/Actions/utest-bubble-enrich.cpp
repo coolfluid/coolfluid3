@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( constructors )
   Core::instance().root().add_component(remover);
 
   // create a domain
-  Core::instance().root().create_component<CDomain>("Domain");
+  Core::instance().root().create_component_ptr<CDomain>("Domain");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

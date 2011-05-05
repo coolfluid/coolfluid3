@@ -75,11 +75,8 @@ void CFaceConnectivity::initialize(const CElements& own_celements, const CNodeCo
 
 void CFaceConnectivity::initialize(const CNodeConnectivity& node_connectivity)
 {
-  Component::ConstPtr parent_component = parent();
-  CElements::ConstPtr parent_celements = boost::dynamic_pointer_cast<CElements const>(parent_component);
-  if(!parent_celements)
-    throw CastingFailed(FromHere(), "No parent or parent is not a CElements");
-  initialize(*parent_celements, node_connectivity);
+  const CElements& parent_celements = parent().as_type<CElements>();
+  initialize(parent_celements, node_connectivity);
 }
 
 

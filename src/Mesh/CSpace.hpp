@@ -47,7 +47,7 @@ public: // functions
   const ShapeFunction& shape_function() const { cf_assert(is_not_null(m_shape_function)); return *m_shape_function; }
 
   /// The geometric support of this space. This is equal to the element type defined in CEntities
-  const ElementType& element_type() const { return parent()->as_type<CEntities>().element_type(); }
+  const ElementType& element_type() const { return parent().as_type<CEntities>().element_type(); }
 
   Uint nb_states() const { return shape_function().nb_nodes(); }
   

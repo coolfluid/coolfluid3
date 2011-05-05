@@ -50,7 +50,7 @@ void CMixedHash::config_nb_obj ()
   m_subhash.resize(0);
   index_foreach(i, Uint nb_obj, m_nb_obj)
   {
-    CHash::Ptr hash = create_component<CHash>("hash_"+to_str(i));
+    CHash::Ptr hash = create_component_ptr<CHash>("hash_"+to_str(i));
     m_subhash.push_back(hash);
     hash->configure_property("Number of Objects", nb_obj);
     hash->configure_property("Number of Partitions", m_nb_parts);

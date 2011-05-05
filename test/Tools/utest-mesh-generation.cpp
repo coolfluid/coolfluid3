@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE( CreateGrid )
   // Setup document structure and mesh
   CRoot& root = Core::instance().root();
   
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, 10., 5., 5, 5);
   
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");

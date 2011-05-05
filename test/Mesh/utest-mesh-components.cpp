@@ -94,15 +94,15 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   BOOST_CHECK_EQUAL ( subregion.full_path().string() , "cpath://root/mesh/topology/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
-  subregion.create_component<CTable<Uint> >("connTable");
+  subregion.create_component_ptr<CTable<Uint> >("connTable");
   BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "connTable").full_path().string() , "cpath://root/mesh/topology/region2/subregion2/connTable" );
 
   // Create a elementsType component inside a subregion
-  subregion.create_component<CElements>("elementType");
+  subregion.create_component_ptr<CElements>("elementType");
   BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "elementType").full_path().string() , "cpath://root/mesh/topology/region2/subregion2/elementType" );
 
   // Create an array of coordinates inside mesh
-  p_mesh->create_component<CTable<Real> >("coordinates");
+  p_mesh->create_component_ptr<CTable<Real> >("coordinates");
   BOOST_CHECK_EQUAL ( find_component_with_name(*p_mesh, "coordinates").full_path().string() , "cpath://root/mesh/coordinates" );
 
   find_component_with_name<CRegion>(region2, "subregion1").create_region("subsubregion1");
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
   CRegion& region = mesh->topology().create_region("region");
 
   // Create connectivity table inside the region
-  CTable<Uint>& connTable = *region.create_component<CTable<Uint> >("connTable");
+  CTable<Uint>& connTable = *region.create_component_ptr<CTable<Uint> >("connTable");
 
   // check constructor
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
@@ -348,13 +348,13 @@ BOOST_AUTO_TEST_CASE( CTable_Real_Templates )
 BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root->create_component_ptr<CMesh>("mesh");
   CRegion& regions = mesh->topology().create_region("regions");
 
   CRegion& subregion1 = regions.create_region("subregion1");
   BOOST_CHECK_EQUAL(find_components<CRegion>(subregion1).empty(),true);
 
-  subregion1.create_component<CTable<Uint> >("table");
+  subregion1.create_component_ptr<CTable<Uint> >("table");
   BOOST_CHECK_EQUAL(find_components<CRegion>(subregion1).empty(),true);
 
   // create subregion2 in the wrong place

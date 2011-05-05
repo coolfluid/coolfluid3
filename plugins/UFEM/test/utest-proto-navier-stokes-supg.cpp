@@ -341,11 +341,11 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
   // Setup document structure and mesh
   CRoot& root = Core::instance().root();
   
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, length, height, x_segments, y_segments);
   
   // Linear system
-  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(argv[1]);
   
   // Create output fields

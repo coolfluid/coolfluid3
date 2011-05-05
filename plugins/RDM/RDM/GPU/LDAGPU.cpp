@@ -65,7 +65,7 @@ struct LDAGPU::ElementLoop
       Component::Ptr cscheme = comp.get_child_ptr( SchemeT::type_name() );
       typename SchemeT::Ptr scheme;
       if( is_null( cscheme ) )
-        scheme = comp.create_component< SchemeT >( SchemeT::type_name() );
+        scheme = comp.create_component_ptr< SchemeT >( SchemeT::type_name() );
       else
         scheme = cscheme->as_ptr_checked<SchemeT>();
 

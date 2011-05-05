@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   ufem_model->get_child("LSS").configure_property("ConfigFile", std::string(argv[1]));
   
   // Read the mesh
-  CMesh::Ptr mesh = ufem_model->get_child_ptr("Domain")->create_component<CMesh>("Mesh");
+  CMesh::Ptr mesh = ufem_model->get_child_ptr("Domain")->create_component_ptr<CMesh>("Mesh");
   mesh_reader->read_from_to(input_file, mesh);
   
   // Setup a constant field for the source term

@@ -118,7 +118,7 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
       }
       else
       {
-        CRegion& interface = *parent->create_component<CRegion>("interface_"+regions[i]->name()+"_to_"+regions[j]->name());
+        CRegion& interface = *parent->create_component_ptr<CRegion>("interface_"+regions[i]->name()+"_to_"+regions[j]->name());
         interface.add_tag( Mesh::Tags::interface() );
 
         //CFinfo << "creating face to cell for interfaces for " << regions[i]->name() << " to " << regions[j]->name() << CFendl;
@@ -147,7 +147,7 @@ void CBuildFaces::build_face_cell_connectivity_bottom_up(Component::Ptr parent)
     
     if ( count( find_components_with_filter<CElements>(region,IsElementsVolume()) ) != 0 )
     {
-      CFaceCellConnectivity::Ptr face_to_cell = region.create_component<CFaceCellConnectivity>("face_to_cell");
+      CFaceCellConnectivity::Ptr face_to_cell = region.create_component_ptr<CFaceCellConnectivity>("face_to_cell");
       face_to_cell->add_tag(Mesh::Tags::inner_faces());
       face_to_cell->setup(region);
     }
@@ -175,24 +175,24 @@ void CBuildFaces::build_faces_bottom_up(Component::Ptr parent)
     {
       // this region is the bottom region with volume elements
 
-      CFaceCellConnectivity::Ptr face_to_cell = find_component_ptr<CFaceCellConnectivity>(region);
+      CFaceCellConnectivity& face_to_cell = find_component<CFaceCellConnectivity>(region);
 
       //CFinfo << "create cells" << CFendl;
-      CRegion::Ptr cells = region.create_component<CRegion>("cells");
+      CRegion& cells = region.create_component<CRegion>("cells");
       boost_foreach(CElements& elements, find_components_with_filter<CElements>(region,IsElementsVolume()))
         elements.move_to(cells);
 
       //CFinfo << "create inner faces" << CFendl;
       CRegion& inner_faces = region.create_region(Mesh::Tags::inner_faces());
-      build_face_elements(inner_faces,*face_to_cell, true);
+      build_face_elements(inner_faces,face_to_cell, true);
       
       //CFinfo << "create outer faces" << CFendl;
       CRegion& outer_faces = region.create_region(Mesh::Tags::outer_faces());
-      build_face_elements(outer_faces,*face_to_cell, false);
+      build_face_elements(outer_faces,face_to_cell, false);
       if (outer_faces.recursive_elements_count() == 0)
         region.remove_component(outer_faces.name());
       
-      region.remove_component(face_to_cell->name());
+      region.remove_component(face_to_cell);
     }
     else
     { 
@@ -226,7 +226,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   boost_foreach( const std::string& face_type , face_types)
   {
     const std::string shape_name = create_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
-    CCellFaces& faces = *region.create_component<CCellFaces>(shape_name);
+    CCellFaces& faces = *region.create_component_ptr<CCellFaces>(shape_name);
     //CFinfo << "  creating " << faces.full_path().path() << CFendl;
     faces.initialize(face_type,mesh.nodes());
     if (is_inner)
@@ -457,7 +457,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
     CFaceCellConnectivity::Ptr bdry_face_to_cell = find_component_ptr<CFaceCellConnectivity>(bdry_faces);
     if (is_null(bdry_face_to_cell))
     {
-      bdry_face_to_cell = bdry_faces.create_component<CFaceCellConnectivity>("cell_connectivity");
+      bdry_face_to_cell = bdry_faces.create_component_ptr<CFaceCellConnectivity>("cell_connectivity");
     }
 
     CTable<Uint>& bdry_face_connectivity = bdry_face_to_cell->connectivity();
@@ -548,8 +548,8 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
               // Uint inner_cell_idx;
               // boost::tie(inner_cell_comp,inner_cell_idx) = inner_faces_to_cells->cells().location(inner_faces_to_cells->connectivity()[inner_face_idx][0]);
               
-              //CFinfo << "match found: " << bdry_faces.parent()->name() << "/" << bdry_faces.name() << "["<<local_bdry_face_idx<<"] <--> " 
-              //       << inner_cell_comp->parent()->name()<<"/"<<inner_cell_comp->name()<<"["<<inner_cell_idx<<"]" << CFendl;
+              //CFinfo << "match found: " << bdry_faces.parent().name() << "/" << bdry_faces.name() << "["<<local_bdry_face_idx<<"] <--> " 
+              //       << inner_cell_comp->parent().name()<<"/"<<inner_cell_comp->name()<<"["<<inner_cell_idx<<"]" << CFendl;
 
                // RealMatrix cell_coordinates = inner_cell_comp->as_type<CElements>().get_coordinates(inner_cell_idx);
                // RealVector face_coordinates = bdry_faces.get_coordinates(local_bdry_face_idx).row(0);

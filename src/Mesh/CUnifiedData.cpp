@@ -23,8 +23,8 @@ CF::Common::ComponentBuilder < CUnifiedData, CF::Common::Component, LibMesh > CU
 
 CUnifiedData::CUnifiedData ( const std::string& name ) : Common::Component(name)
 {
-  m_data_indices = create_static_component<CList<Uint> >  ("data_indices");
-  m_data_links   = create_static_component<Common::CGroup>("data_links");
+  m_data_indices = create_static_component_ptr<CList<Uint> >  ("data_indices");
+  m_data_links   = create_static_component_ptr<Common::CGroup>("data_links");
   m_data_indices->resize(1);
   m_data_indices->array()[0]=0;
   m_size=0;

@@ -57,14 +57,14 @@ void SetupLinearSystem::create_model( SignalArgs& node)
   const std::string solver_name = options.option<std::string>("Solver");
   const std::string name  = options.option<std::string>("Model name");
 
-  CModel::Ptr model = Core::instance().root().create_component<CModelSteady>( name );
+  CModel::Ptr model = Core::instance().root().create_component_ptr<CModelSteady>( name );
 
   // create the CDomain
   // CDomain::Ptr domain =
-  model->create_component<CDomain>("Domain");
+  model->create_component_ptr<CDomain>("Domain");
 
   // The linear system solver
-  CEigenLSS::Ptr lss = model->create_component<CEigenLSS>("LSS");
+  CEigenLSS::Ptr lss = model->create_component_ptr<CEigenLSS>("LSS");
   lss->mark_basic();
 
   // Setup method

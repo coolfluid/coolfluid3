@@ -61,7 +61,7 @@ void UpdateSolution::execute()
   CTable<Real>& wave_speed   = m_wave_speed.lock()->data();
   CTable<Real>& residual     = m_residual.lock()->data();
 
-  const Real CFL = parent()->property("CFL").value<Real>();
+  const Real CFL = parent().property("CFL").value<Real>();
 
   const Uint nbdofs = solution.size();
   const Uint nbvars = solution.row_size();

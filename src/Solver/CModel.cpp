@@ -96,14 +96,14 @@ CSolver& CModel::solver()
 
 CPhysicalModel& CModel::create_physics( const std::string& name )
 {
-  return *this->create_component<CPhysicalModel>( name );
+  return *this->create_component_ptr<CPhysicalModel>( name );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CDomain& CModel::create_domain( const std::string& name )
 {
-  return *this->create_component<CDomain>( name );
+  return *this->create_component_ptr<CDomain>( name );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

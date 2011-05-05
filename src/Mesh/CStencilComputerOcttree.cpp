@@ -37,7 +37,7 @@ CStencilComputerOcttree::CStencilComputerOcttree( const std::string& name )
 {  
   property("mesh").as_option().attach_trigger(boost::bind(&CStencilComputerOcttree::configure_mesh,this));
     
-  m_octtree = create_static_component<COcttree>("octtree");
+  m_octtree = create_static_component_ptr<COcttree>("octtree");
   m_octtree->mark_basic();
 }
 

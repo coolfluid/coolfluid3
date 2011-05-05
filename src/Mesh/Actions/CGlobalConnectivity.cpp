@@ -113,7 +113,7 @@ void CGlobalConnectivity::execute()
     node_glb2loc[glb_node_idx]=loc_node_idx;
   
   //2)
-  CNodeElementConnectivity& node2elem = *mesh.nodes().create_component<CNodeElementConnectivity>("node2elem");
+  CNodeElementConnectivity& node2elem = *mesh.nodes().create_component_ptr<CNodeElementConnectivity>("node2elem");
   node2elem.setup(mesh.topology());
   
   // 3)

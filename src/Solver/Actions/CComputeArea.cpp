@@ -40,7 +40,7 @@ CComputeArea::CComputeArea ( const std::string& name ) :
     
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
 
-  m_area = create_static_component<CScalarFieldView>("area_view");
+  m_area = create_static_component_ptr<CScalarFieldView>("area_view");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

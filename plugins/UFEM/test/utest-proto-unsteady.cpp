@@ -137,11 +137,11 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   // Setup document structure and mesh
   CRoot& root = Core::instance().root();
   
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
   
   // Create output field

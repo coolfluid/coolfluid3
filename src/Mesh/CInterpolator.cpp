@@ -79,7 +79,7 @@ void CInterpolator::interpolate()
     throw SetupError (FromHere(), "SourceField option was not set");
   if ( m_target.expired() )
     throw SetupError (FromHere(), "TargetField option was not set");
-  construct_internal_storage(*m_source.lock()->parent()->as_ptr<CMesh>());
+  construct_internal_storage(*m_source.lock()->parent().as_ptr<CMesh>());
   interpolate_field_from_to(*m_source.lock(),*m_target.lock());
 }
 

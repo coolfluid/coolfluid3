@@ -34,7 +34,7 @@ CModelUnsteady::CModelUnsteady( const std::string& name  ) :
   CModel ( name ),
   m_time()
 {
-  m_time = create_static_component<CTime>("Time");
+  m_time = create_static_component_ptr<CTime>("Time");
 
   properties()["steady"] = bool(false);
   

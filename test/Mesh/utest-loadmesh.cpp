@@ -37,11 +37,11 @@ BOOST_AUTO_TEST_CASE( constructor )
 {
   BOOST_CHECK(true);
 
-  CDomain::Ptr domain = Core::instance().root().create_component<CDomain>("Domain");
+  CDomain::Ptr domain = Core::instance().root().create_component_ptr<CDomain>("Domain");
 
   BOOST_CHECK(true);
 
-  LoadMesh::Ptr load_mesh = Core::instance().root().create_component<LoadMesh>("load_mesh");
+  LoadMesh::Ptr load_mesh = Core::instance().root().create_component_ptr<LoadMesh>("load_mesh");
 
   BOOST_CHECK(true);
 

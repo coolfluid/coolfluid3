@@ -23,7 +23,7 @@ void LibUFEM::initiate_impl()
 {
   Core::instance().root()
     .get_child_ptr("Tools")
-    ->create_component<SetupLinearSystem>( "SetupHeatConduction" )
+    ->create_component_ptr<SetupLinearSystem>( "SetupHeatConduction" )
     ->mark_basic();
 
 

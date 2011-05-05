@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_SUITE( TestActionsSuite )
 BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 {
   CRoot::Ptr root = CRoot::create("Root");
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root->create_component_ptr<CMesh>("mesh");
 	
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-	CLoop::Ptr node_loop2 = root->create_component< CForAllNodes2 >("node_loop");
+	CLoop::Ptr node_loop2 = root->create_component_ptr< CForAllNodes2 >("node_loop");
   node_loop2->create_action("CF.TestActions.CDummyLoopOperation");
 	node_loop2->configure_property("Regions",regions);
 	CFinfo << "\n\n\nNode loop 2 " << CFendl;
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 {
   CRoot& root = Core::instance().root();
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
 	
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   //facebuilder->transform(mesh);
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-	CLoop::Ptr face_loop = root.create_component< CForAllFaces >("face_loop");
+	CLoop::Ptr face_loop = root.create_component_ptr< CForAllFaces >("face_loop");
   face_loop->create_action("CF.TestActions.CDummyLoopOperation");
 	face_loop->configure_property("Regions",regions);
 	CFinfo << "\n\n\nFace loop" << CFendl;
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 {
   CRoot& root = Core::instance().root();//CRoot::create("Root");
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
 	
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
@@ -120,14 +120,14 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   
   BOOST_CHECK(true);
 
-  CField& field = *mesh->create_component<CField>("field");
+  CField& field = *mesh->create_component_ptr<CField>("field");
   field.configure_property("Topology",mesh->topology().full_path());
   field.configure_property("FieldType",std::string("PointBased"));
   field.create_data_storage();
   
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
   
-	CLoop::Ptr node_loop = root.create_component< CForAllNodes2 >("node_loop");
+	CLoop::Ptr node_loop = root.create_component_ptr< CForAllNodes2 >("node_loop");
 	node_loop->configure_property("Regions",regions);
 
   node_loop->create_action("CF.Solver.Actions.CSetFieldValues");
@@ -136,19 +136,19 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   
   BOOST_CHECK(true);
   
-  CField& volumes = *mesh->create_component<CField>("volumes");
+  CField& volumes = *mesh->create_component_ptr<CField>("volumes");
   volumes.configure_property("Topology",mesh->topology().full_path());
   volumes.configure_property("FieldType",std::string("ElementBased"));
   volumes.create_data_storage();
 
-  CField& areas = *mesh->create_component<CField>("areas");
+  CField& areas = *mesh->create_component_ptr<CField>("areas");
   areas.configure_property("Topology",mesh->topology().full_path());
   areas.configure_property("FieldType",std::string("ElementBased"));
   areas.create_data_storage();
 
   BOOST_CHECK(true);
 
-  CComputeVolume::Ptr compute_volume = root.create_component<CComputeVolume>("compute_volume");
+  CComputeVolume::Ptr compute_volume = root.create_component_ptr<CComputeVolume>("compute_volume");
   BOOST_CHECK(true);
   CElements& elems = root.access_component("//Root/mesh/topology/default_id1084/fluid/Triag").as_type<CElements>();
   BOOST_CHECK(true);
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   volume_view.initialize(volumes,elems.as_ptr<CElements>());
   BOOST_CHECK_EQUAL( volume_view[12] , 0.0035918050864676932);
 
-  CLoop::Ptr elem_loop = root.create_component< CForAllElements >("elem_loop");
+  CLoop::Ptr elem_loop = root.create_component_ptr< CForAllElements >("elem_loop");
   elem_loop->configure_property("Regions",regions);
   
   elem_loop->create_action("CF.Solver.Actions.CComputeVolume");
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
   std::vector<URI> topology = list_of(URI("cpath://Root/mesh/topology"));
     
   CForAllElementsT<CComputeVolume>::Ptr compute_all_cell_volumes =
-    root.create_component< CForAllElementsT<CComputeVolume> > ("compute_all_cell_volumes");
+    root.create_component_ptr< CForAllElementsT<CComputeVolume> > ("compute_all_cell_volumes");
   
   BOOST_CHECK(true);
   

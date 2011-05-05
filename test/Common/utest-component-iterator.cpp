@@ -34,65 +34,65 @@ struct ComponentIterationFixture
     ExceptionManager::instance().ExceptionAborts = false;
 
     m_root = CRoot::create ( "root" );
-    Component::Ptr comp1 = m_root->create_component<Component>("comp1");
+    Component::Ptr comp1 = m_root->create_component_ptr<Component>("comp1");
     top_component_names.push_back(comp1->name());
     component_names.push_back(comp1->name());
-    Component::Ptr comp1_1 = comp1->create_component<Component>("comp1_1");
+    Component::Ptr comp1_1 = comp1->create_component_ptr<Component>("comp1_1");
     component_names.push_back(comp1_1->name());
-    Component::Ptr comp1_2 = comp1->create_component<Component>("comp1_2");
+    Component::Ptr comp1_2 = comp1->create_component_ptr<Component>("comp1_2");
     component_names.push_back(comp1_2->name());
-    Component::Ptr comp2   = m_root->create_component<Component>("comp2");
+    Component::Ptr comp2   = m_root->create_component_ptr<Component>("comp2");
     top_component_names.push_back(comp2->name());
     component_names.push_back(comp2->name());
-    Component::Ptr comp2_1 = comp2->create_component<Component>("comp2_1");
+    Component::Ptr comp2_1 = comp2->create_component_ptr<Component>("comp2_1");
     component_names.push_back(comp2_1->name());
-    Component::Ptr comp2_2 = comp2->create_component<Component>("comp2_2");
+    Component::Ptr comp2_2 = comp2->create_component_ptr<Component>("comp2_2");
     component_names.push_back(comp2_2->name());
-    CGroup::Ptr group1 = m_root->create_component<CGroup>("group1");
+    CGroup::Ptr group1 = m_root->create_component_ptr<CGroup>("group1");
     top_component_names.push_back(group1->name());
     component_names.push_back(group1->name());
     top_group_names.push_back(group1->name());
     group_names.push_back(group1->name());
-    Component::Ptr comp3 = group1->create_component<Component>("comp3");
+    Component::Ptr comp3 = group1->create_component_ptr<Component>("comp3");
     comp3->add_tag("special");
     component_names.push_back(comp3->name());
     special_component_names.push_back(comp3->name());
     group1_component_names.push_back(comp3->name());
-    CGroup::Ptr group1_1 = group1->create_component<CGroup>("group1_1");
+    CGroup::Ptr group1_1 = group1->create_component_ptr<CGroup>("group1_1");
     component_names.push_back(group1_1->name());
     group_names.push_back(group1_1->name());
     group1_group_names.push_back(group1_1->name());
     group1_component_names.push_back(group1_1->name());
-    CGroup::Ptr group1_2 = group1->create_component<CGroup>("group1_2");
+    CGroup::Ptr group1_2 = group1->create_component_ptr<CGroup>("group1_2");
     group1_2->add_tag("special");
     component_names.push_back(group1_2->name());
     group_names.push_back(group1_2->name());
     group1_group_names.push_back(group1_2->name());
     group1_component_names.push_back(group1_2->name());
     special_component_names.push_back(group1_2->name());
-    CGroup::Ptr group2 = m_root->create_component<CGroup>("group2");
+    CGroup::Ptr group2 = m_root->create_component_ptr<CGroup>("group2");
     top_component_names.push_back(group2->name());
     component_names.push_back(group2->name());
     top_group_names.push_back(group2->name());
     group_names.push_back(group2->name());
-    CGroup::Ptr group2_1 = group2->create_component<CGroup>("group2_1");
+    CGroup::Ptr group2_1 = group2->create_component_ptr<CGroup>("group2_1");
     component_names.push_back(group2_1->name());
     group_names.push_back(group2_1->name());
-    CGroup::Ptr group2_1_1 = group2_1->create_component<CGroup>("group2_1_1");
+    CGroup::Ptr group2_1_1 = group2_1->create_component_ptr<CGroup>("group2_1_1");
     component_names.push_back(group2_1_1->name());
     group_names.push_back(group2_1_1->name());
     group2_1_1->add_tag("very_special");
-    CLink::Ptr link2 = group2->create_component<CLink>("link2");
+    CLink::Ptr link2 = group2->create_component_ptr<CLink>("link2");
     component_names.push_back(link2->name());
-    CGroup::Ptr group3 = m_root->create_component<CGroup>("group3");
+    CGroup::Ptr group3 = m_root->create_component_ptr<CGroup>("group3");
     top_component_names.push_back(group3->name());
     component_names.push_back(group3->name());
     top_group_names.push_back(group3->name());
     group_names.push_back(group3->name());
-    CGroup::Ptr group3_1 = group3->create_component<CGroup>("group3_1");
+    CGroup::Ptr group3_1 = group3->create_component_ptr<CGroup>("group3_1");
     component_names.push_back(group3_1->name());
     group_names.push_back(group3_1->name());
-    CLink::Ptr link1 = m_root->create_component<CLink>("link1");
+    CLink::Ptr link1 = m_root->create_component_ptr<CLink>("link1");
     component_names.push_back(link1->name());
     top_component_names.push_back(link1->name());
 
@@ -665,12 +665,12 @@ BOOST_AUTO_TEST_CASE( test_find_component_recursively_with_tag )
 
 BOOST_AUTO_TEST_CASE( speed_find_tag )
 {
-    CGroup::Ptr mg = root().create_component<CGroup>("ManyGroup2");
+    CGroup::Ptr mg = root().create_component_ptr<CGroup>("ManyGroup2");
 
   // allocate 5000 components
   for ( Uint i = 0; i < 250 ; ++i)
   {
-    mg->create_component<CGroup>( std::string("ggg") + to_str(i) )->add_tag("CGroup");
+    mg->create_component_ptr<CGroup>( std::string("ggg") + to_str(i) )->add_tag("CGroup");
   }
 
   boost::timer timer;
@@ -687,12 +687,12 @@ BOOST_AUTO_TEST_CASE( speed_find_tag )
 
 BOOST_AUTO_TEST_CASE( speed_find_type )
 {
-    CGroup::Ptr mg = root().create_component<CGroup>("ManyGroup1");
+    CGroup::Ptr mg = root().create_component_ptr<CGroup>("ManyGroup1");
 
   // allocate 5000 components
   for ( Uint i = 0; i < 250 ; ++i)
   {
-    mg->create_component<CGroup>( std::string("ggg") + to_str(i) );
+    mg->create_component_ptr<CGroup>( std::string("ggg") + to_str(i) );
   }
 
   boost::timer timer;
@@ -709,12 +709,12 @@ BOOST_AUTO_TEST_CASE( speed_find_type )
 
 BOOST_AUTO_TEST_CASE( test_range_to_vector )
 {
-    CGroup::Ptr mg = root().create_component<CGroup>("ManyGroup1");
+    CGroup::Ptr mg = root().create_component_ptr<CGroup>("ManyGroup1");
 
   // allocate 10 components
   for ( Uint i = 0; i < 10 ; ++i)
   {
-    mg->create_component<CGroup>( std::string("ggg") + to_str(i) );
+    mg->create_component_ptr<CGroup>( std::string("ggg") + to_str(i) );
   }
 
   std::vector<CGroup::Ptr> vector = range_to_vector(find_components_recursively<CGroup>(*mg));

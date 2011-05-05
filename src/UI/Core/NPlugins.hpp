@@ -42,7 +42,7 @@ public:
     // a plugin cannot be registered twice
     cf_assert( m_components.find(LIB::library_name()) == m_components.end() );
 
-    NPlugin::Ptr plugin = create_component<NPlugin>( LIB::library_name() );
+    NPlugin::Ptr plugin = create_component_ptr<NPlugin>( LIB::library_name() );
 
     plugin->mark_basic();
 

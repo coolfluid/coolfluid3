@@ -75,7 +75,7 @@ void CBuildCoordinatesField::execute()
   std::vector<std::string> names(1);
   std::vector<Uint> sizes(1);
 
-  CField& coordinates = *mesh.create_component<CField>("coordinates");
+  CField& coordinates = *mesh.create_component_ptr<CField>("coordinates");
   names[0] = "coordinates";
   sizes[0] = mesh.nodes().coordinates().row_size();
   coordinates.get_child_ptr("topology")->as_ptr<CLink>()->link_to(mesh.topology().self());

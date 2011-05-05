@@ -82,7 +82,7 @@ void CMeshReader::signal_read( SignalArgs& node  )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = domain->create_component<CMesh>("Mesh");
+    CMesh::Ptr mesh = domain->create_component_ptr<CMesh>("Mesh");
 
     // Get the file paths
     boost_foreach(URI file, files)
@@ -123,7 +123,7 @@ std::map<std::string,CElements::Ptr>
     ElementType::Ptr element_type = create_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension())
     {
-      CCells& etype_cells = *parent_region.create_component<CCells>(element_type->shape_name());
+      CCells& etype_cells = *parent_region.create_component_ptr<CCells>(element_type->shape_name());
       etype_cells.initialize(etype,nodes);
       cells_map[etype] = etype_cells.as_ptr<CElements>();
     }
@@ -143,7 +143,7 @@ std::map<std::string,CElements::Ptr>
     ElementType::Ptr element_type = create_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension() - 1)
     {
-      CFaces& etype_faces = *parent_region.create_component<CFaces>(element_type->shape_name());
+      CFaces& etype_faces = *parent_region.create_component_ptr<CFaces>(element_type->shape_name());
       etype_faces.initialize(etype,nodes);
       faces_map[etype] = etype_faces.as_ptr<CElements>();
     }
@@ -181,7 +181,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 
     if ( empty_on_all_ranks )
     {
-      CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.parent()->remove_component(region.name()));
+      CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.parent().remove_component(region.name()));
       removed.reset();
     }
   }
@@ -192,7 +192,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
     // find the empty regions
     if ( find_components<CRegion>(region).empty() && find_components<CElements>(region).empty() )
       {
-        CRegion::Ptr removed = boost::dynamic_pointer_cast<CRegion>(region.parent()->remove_component(region.name()));
+        CRegion::Ptr removed = boost::dynamic_pointer_cast<CRegion>(region.parent().remove_component(region.name()));
         removed.reset();
       }
   }

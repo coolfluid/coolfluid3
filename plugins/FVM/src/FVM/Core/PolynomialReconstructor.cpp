@@ -46,7 +46,7 @@ PolynomialReconstructor::PolynomialReconstructor ( const std::string& name ) :
   m_properties.add_option(OptionT<Uint>::create("order","Order","PolynomialReconstructor order",1));
   m_properties.add_option(OptionT<Uint>::create("dimension","Dimension","Dimension of PolynomialReconstructor",2));
   
-  m_stencil_computer = create_static_component<CStencilComputerRings>("stencil_computer");
+  m_stencil_computer = create_static_component_ptr<CStencilComputerRings>("stencil_computer");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

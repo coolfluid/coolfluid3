@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( add_component )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr cp = root->create_component< HolderT<Part> >( "myHolderT_Part" );
+  Component::Ptr cp = root->create_component_ptr< HolderT<Part> >( "myHolderT_Part" );
 
   BOOST_CHECK_EQUAL ( HolderT<Part>::type_name() , "HolderT_Part" );
 

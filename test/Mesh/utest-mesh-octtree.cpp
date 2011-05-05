@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
 
 
-  CStencilComputerOcttree::Ptr stencil_computer = Core::instance().root().create_component<CStencilComputerOcttree>("stencilcomputer");
+  CStencilComputerOcttree::Ptr stencil_computer = Core::instance().root().create_component_ptr<CStencilComputerOcttree>("stencilcomputer");
   stencil_computer->configure_property("mesh", find_component<CMesh>(Core::instance().root()).full_path() );
 
   std::vector<Uint> stencil;

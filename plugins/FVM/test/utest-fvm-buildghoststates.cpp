@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_SUITE( FVM_Suite )
 
 BOOST_AUTO_TEST_CASE( test_buildghoststates )
 {
-  CMesh::Ptr mesh = Common::Core::instance().root().create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = Common::Core::instance().root().create_component_ptr<CMesh>("mesh");
   
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 

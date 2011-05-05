@@ -99,7 +99,7 @@ void CBubbleEnrich::execute()
 //                            << elements.nodes().coordinates().row_size() << CFendl;
 
     // backup the connectivity table
-    CTable<Uint>::Ptr backup = this->create_component< CTable<Uint> > ("backup");
+    CTable<Uint>::Ptr backup = this->create_component_ptr< CTable<Uint> > ("backup");
 
     backup->set_row_size(elements.node_connectivity().row_size()); // size appropriately
     backup->resize(elements.node_connectivity().size());           // size appropriately

@@ -26,7 +26,7 @@ CCellFaces::CCellFaces ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, and global numbering unique over all processors");
   
-  m_cell_connectivity = create_static_component<CFaceCellConnectivity>("cell_connectivity");
+  m_cell_connectivity = create_static_component_ptr<CFaceCellConnectivity>("cell_connectivity");
   
   add_tag(Mesh::Tags::face_entity());
 }

@@ -58,7 +58,7 @@ void CSimpleMeshGenerator::execute()
   if ( m_parent.expired() )
     throw SetupError(FromHere(), "Parent component not set");
 
-  m_mesh = m_parent.lock()->create_component<CMesh>(m_name);
+  m_mesh = m_parent.lock()->create_component_ptr<CMesh>(m_name);
 
   if (m_nb_cells.size() == 1 && m_lengths.size() == 1)
   {
@@ -88,7 +88,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
     nodes.coordinates()[i][XX] = static_cast<Real>(i) * x_step;
   }
   
-  CCells::Ptr cells = region.create_component<CCells>("Line");
+  CCells::Ptr cells = region.create_component_ptr<CCells>("Line");
   cells->initialize("CF.Mesh.SF.Line1DLagrangeP1",nodes);
   CConnectivity& connectivity = cells->node_connectivity();
   connectivity.resize(x_segments);
@@ -100,14 +100,14 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   }
   
   // Left boundary point
-  CFaces::Ptr xneg = mesh.topology().create_region("xneg").create_component<CFaces>("Point");
+  CFaces::Ptr xneg = mesh.topology().create_region("xneg").create_component_ptr<CFaces>("Point");
   xneg->initialize("CF.Mesh.SF.Point1DLagrangeP0", nodes);
   CConnectivity& xneg_connectivity = xneg->node_connectivity();
   xneg_connectivity.resize(1);
   xneg_connectivity[0][0] = 0;
   
   // right boundary point
-  CFaces::Ptr xpos = mesh.topology().create_region("xpos").create_component<CFaces>("Point");
+  CFaces::Ptr xpos = mesh.topology().create_region("xpos").create_component_ptr<CFaces>("Point");
   xpos->initialize("CF.Mesh.SF.Point1DLagrangeP0", nodes);
   CConnectivity& xpos_connectivity = xpos->node_connectivity();
   xpos_connectivity.resize(1);
@@ -139,7 +139,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     }
   }
 
-  CCells::Ptr cells = region.create_component<CCells>("Quad");
+  CCells::Ptr cells = region.create_component_ptr<CCells>("Quad");
   cells->initialize("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
 
   CConnectivity& connectivity = cells->node_connectivity();
@@ -158,7 +158,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     }
   }
   
-  CFaces::Ptr left = mesh.topology().create_region("left").create_component<CFaces>("Line");
+  CFaces::Ptr left = mesh.topology().create_region("left").create_component_ptr<CFaces>("Line");
   left->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
   CConnectivity& left_connectivity = left->node_connectivity();
   left_connectivity.resize(y_segments);
@@ -169,7 +169,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     crow[1] = (j+1) * (x_segments+1);
   }
   
-  CFaces::Ptr right = mesh.topology().create_region("right").create_component<CFaces>("Line");
+  CFaces::Ptr right = mesh.topology().create_region("right").create_component_ptr<CFaces>("Line");
   right->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
   CConnectivity& right_connectivity = right->node_connectivity();
   right_connectivity.resize(y_segments);
@@ -180,7 +180,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     nodes[0] = (j+1) * (x_segments+1) + x_segments;
   }
   
-  CFaces::Ptr bottom = mesh.topology().create_region("bottom").create_component<CFaces>("Line");
+  CFaces::Ptr bottom = mesh.topology().create_region("bottom").create_component_ptr<CFaces>("Line");
   bottom->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
   CConnectivity& bottom_connectivity = bottom->node_connectivity();
   bottom_connectivity.resize(x_segments);
@@ -191,7 +191,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     nodes[1] = i+1;
   }
   
-  CFaces::Ptr top = mesh.topology().create_region("top").create_component<CFaces>("Line");
+  CFaces::Ptr top = mesh.topology().create_region("top").create_component_ptr<CFaces>("Line");
   top->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
   CConnectivity& top_connectivity = top->node_connectivity();
   top_connectivity.resize(x_segments);

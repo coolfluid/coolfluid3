@@ -65,11 +65,11 @@ void NTreeTest::test_setRoot()
   NRoot::Ptr newRoot(new NRoot("Root"));
   QSignalSpy spy(&t, SIGNAL(layoutChanged()));
 
-  newRoot->root()->create_component<CLink>("link");
-  newRoot->root()->create_component<CGroup>("Group1");
-  newRoot->root()->create_component<CGroup>("Group2");
-  newRoot->root()->create_component<CGroup>("Group3");
-  newRoot->root()->create_component<CGroup>("Group4");
+  newRoot->root()->create_component_ptr<CLink>("link");
+  newRoot->root()->create_component_ptr<CGroup>("Group1");
+  newRoot->root()->create_component_ptr<CGroup>("Group2");
+  newRoot->root()->create_component_ptr<CGroup>("Group3");
+  newRoot->root()->create_component_ptr<CGroup>("Group4");
 
   t.setRoot(newRoot);
 
@@ -454,8 +454,8 @@ void NTreeTest::test_signal_list_tree()
   NRoot::Ptr root = t->treeRoot();
   CRoot::Ptr newRoot = CRoot::create("Root");
 
-  newRoot->create_component<CLink>("Environment");
-  newRoot->create_component<CGroup>("Tools");
+  newRoot->create_component_ptr<CLink>("Environment");
+  newRoot->create_component_ptr<CGroup>("Tools");
 
   newRoot->signal_list_tree( frame );
 

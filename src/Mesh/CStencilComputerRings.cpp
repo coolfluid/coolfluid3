@@ -57,7 +57,7 @@ void CStencilComputerRings::configure_mesh()
   CNodeElementConnectivity::Ptr node2cell_ptr = find_component_ptr<CNodeElementConnectivity>(mesh);
   if (is_null(node2cell_ptr))
   {
-    node2cell_ptr = mesh.create_component<CNodeElementConnectivity>("node_to_cell");
+    node2cell_ptr = mesh.create_component_ptr<CNodeElementConnectivity>("node_to_cell");
     boost_foreach(Component::Ptr elements, unified_elements().components())
       node2cell_ptr->elements().add(elements->as_type<CElements>());
     node2cell_ptr->build_connectivity();

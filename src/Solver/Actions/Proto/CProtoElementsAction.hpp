@@ -60,7 +60,7 @@ public:
 template<typename ExprT>
 CFieldAction::Ptr build_elements_action(const std::string& name, Common::Component& parent, const ExprT& expr)
 {
-  boost::shared_ptr< CProtoElementsAction<ExprT> > result = parent.create_component< CProtoElementsAction<ExprT> >(name);
+  boost::shared_ptr< CProtoElementsAction<ExprT> > result = parent.create_component_ptr< CProtoElementsAction<ExprT> >(name);
   regist_typeinfo(result.get());
   result->set_expression(expr);
   return boost::static_pointer_cast<CFieldAction>(result);

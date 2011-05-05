@@ -59,12 +59,12 @@ void Commands::compare(const std::vector<std::string>& params)
 {
   Component::Ptr meshes_ptr = Core::instance().root().get_child_ptr("Meshes");
   if (is_null(meshes_ptr))
-    meshes_ptr = Core::instance().root().create_component<CGroup>("Meshes");
+    meshes_ptr = Core::instance().root().create_component_ptr<CGroup>("Meshes");
   CGroup& meshes = meshes_ptr->as_type<CGroup>();
 
   Component::Ptr mesh_loader_ptr = Core::instance().root().get_child_ptr("mesh_loader");
   if (is_null(mesh_loader_ptr))
-    mesh_loader_ptr = Core::instance().root().create_component<LoadMesh>("mesh_loader");
+    mesh_loader_ptr = Core::instance().root().create_component_ptr<LoadMesh>("mesh_loader");
   LoadMesh& mesh_loader = mesh_loader_ptr->as_type<LoadMesh>();
 
   std::vector<CMesh::Ptr> mesh_vector;

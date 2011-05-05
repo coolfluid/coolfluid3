@@ -46,9 +46,9 @@ CMesh::CMesh ( const std::string& name  ) :
 
   mark_basic(); // by default meshes are visible
 
-  m_nodes_link = create_static_component<CLink>(Mesh::Tags::nodes());
-  m_elements = create_static_component<CMeshElements>("elements");
-  m_topology = create_static_component<CRegion>("topology");
+  m_nodes_link = create_static_component_ptr<CLink>(Mesh::Tags::nodes());
+  m_elements = create_static_component_ptr<CMeshElements>("elements");
+  m_topology = create_static_component_ptr<CRegion>("topology");
 
   regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->signal->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) );
   signal("write_mesh")->signature->connect(boost::bind(&CMesh::signature_write_mesh, this, _1));
@@ -100,7 +100,7 @@ CField& CMesh::create_field( const std::string& name ,
       throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
   }
 
-  CField& field = *create_component<CField>(name);
+  CField& field = *create_component_ptr<CField>(name);
   field.set_topology(topology());
   field.configure_property("Space",space);
   field.configure_property("VarNames",names);
@@ -115,7 +115,7 @@ CField& CMesh::create_field( const std::string& name ,
 
 CField& CMesh::create_scalar_field( const std::string& name , CField& based_on_field)
 {
-  CField& field = *create_component<CField>(name);
+  CField& field = *create_component_ptr<CField>(name);
   field.set_topology(based_on_field.topology());
 
   std::vector<std::string> names(1,name);
@@ -140,7 +140,7 @@ CField& CMesh::create_scalar_field( const std::string& name , CField& based_on_f
 
 CField& CMesh::create_field( const std::string& name , CField& based_on_field)
 {
-  CField& field = *create_component<CField>(name);
+  CField& field = *create_component_ptr<CField>(name);
   field.set_topology(based_on_field.topology());
 
   std::vector<std::string> names; based_on_field.property("VarNames").put_value(names);
@@ -186,7 +186,7 @@ CField& CMesh::create_field(const std::string& name, const CField::Basis::Type b
     types_str.push_back( boost::lexical_cast<std::string>(var_type) );
   }
 
-  CField& field = *create_component<CField>(name);
+  CField& field = *create_component_ptr<CField>(name);
   field.set_topology(topology());
   field.configure_property("VarNames",variable_names);
   field.configure_property("VarTypes",types_str);
@@ -244,7 +244,7 @@ void CMesh::signature_write_mesh ( SignalArgs& node)
 
 void CMesh::signal_write_mesh ( SignalArgs& node )
 {
-  WriteMesh::Ptr mesh_writer = create_component<WriteMesh>("writer");
+  WriteMesh::Ptr mesh_writer = create_component_ptr<WriteMesh>("writer");
 
   SignalOptions options( node );
 

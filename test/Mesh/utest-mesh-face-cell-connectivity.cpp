@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( face_elem_connectivity )
 {
 
   // create and setup node to elements connectivity  
-  CFaceCellConnectivity::Ptr c = m_mesh->create_component<CFaceCellConnectivity>("face_cell_connectivity");
+  CFaceCellConnectivity::Ptr c = m_mesh->create_component_ptr<CFaceCellConnectivity>("face_cell_connectivity");
   c->setup( find_component<CRegion>(*m_mesh) );
 
   BOOST_CHECK_EQUAL(c->connectivity().size() , 40u);

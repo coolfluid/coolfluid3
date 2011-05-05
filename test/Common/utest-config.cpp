@@ -259,8 +259,8 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
 {
   // Setup a little data-structure
   CRoot::Ptr root = CRoot::create("root");
-  CConcrete1::Ptr component1 = root->create_component<CConcrete1>("component1");
-  CConcrete1::Ptr component2 = root->create_component<CConcrete1>("component2");
+  CConcrete1::Ptr component1 = root->create_component_ptr<CConcrete1>("component1");
+  CConcrete1::Ptr component2 = root->create_component_ptr<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
   component1->configure_property("MyRelativeFriend",URI("cpath:../component2"));
@@ -282,8 +282,8 @@ BOOST_AUTO_TEST_CASE( optionComponent )
 {
   // Setup a little data-structure
   CRoot& root = Core::instance().root();
-  MyC::Ptr component1 = root.create_component<MyC>("component1");
-  CConcrete1::Ptr component2 = root.create_component<CConcrete1>("component2");
+  MyC::Ptr component1 = root.create_component_ptr<MyC>("component1");
+  CConcrete1::Ptr component2 = root.create_component_ptr<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
   component1->configure_property("OptC",URI("cpath://Root/component2"));

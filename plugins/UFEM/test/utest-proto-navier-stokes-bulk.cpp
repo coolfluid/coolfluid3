@@ -362,11 +362,11 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
   root.add_component(mesh_reader);
   
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   mesh_reader->read_from_to(input_file, mesh);
   
   // Linear system
-  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(argv[3]);
   
   // Create output fields

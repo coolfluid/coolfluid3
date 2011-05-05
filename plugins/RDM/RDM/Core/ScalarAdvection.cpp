@@ -69,10 +69,10 @@ void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
 
   std::string name  = options.option<std::string>("ModelName");
 
-  CModel::Ptr model = Core::instance().root().create_component<CModelSteady>( name );
+  CModel::Ptr model = Core::instance().root().create_component_ptr<CModelSteady>( name );
 
   // create the Physical Model
-  CPhysicalModel::Ptr pm = model->create_component<CPhysicalModel>("Physics");
+  CPhysicalModel::Ptr pm = model->create_component_ptr<CPhysicalModel>("Physics");
   pm->mark_basic();
 
   std::string phys  = options.option<std::string>("PhysicalModel");

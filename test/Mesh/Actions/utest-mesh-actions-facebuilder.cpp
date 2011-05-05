@@ -99,10 +99,10 @@ BOOST_AUTO_TEST_CASE( build_faces )
   CFinfo << "\n\nCHECKING wall connectivity"<<CFendl;
   for (Uint face=0; face<f2c.size(); ++face)
   {
-    CFinfo << wall_faces.parent()->name()<<"/"<<wall_faces.name() << "["<<face<<"] <--> ";
+    CFinfo << wall_faces.parent().name()<<"/"<<wall_faces.name() << "["<<face<<"] <--> ";
     
     boost::tie(cells,cell_idx) = f2c.lookup().location(f2c.connectivity()[face][0]);
-    CFinfo << cells->parent()->parent()->name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
+    CFinfo << cells->parent().parent().name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
     RealMatrix cell_coordinates = cells->as_type<CElements>().get_coordinates(cell_idx);
     RealVector face_coordinates = wall_faces.get_coordinates(face).row(0);
     bool match_found = false;
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
 {
   BOOST_CHECK(true);
   
-  CMesh::Ptr rmesh = Core::instance().root().create_component<CMesh>("rectangle_mesh");
+  CMesh::Ptr rmesh = Core::instance().root().create_component_ptr<CMesh>("rectangle_mesh");
   CSimpleMeshGenerator::create_rectangle(*rmesh, 10. , 10., 5 , 5 );
 
   BOOST_CHECK(true);
@@ -174,10 +174,10 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   CFinfo << "\n\nCHECKING inner faces connectivity"<<CFendl;
   for (Uint face=0; face<f2c.size(); ++face)
   {
-    CFinfo << inner_faces.parent()->name()<<"/"<<inner_faces.name() << "["<<face<<"] <--> ";
+    CFinfo << inner_faces.parent().name()<<"/"<<inner_faces.name() << "["<<face<<"] <--> ";
     
     boost::tie(cells,cell_idx) = f2c.lookup().location(f2c.connectivity()[face][0]);
-    CFinfo << cells->parent()->parent()->name()<<"/"<<cells->name() << "["<<cell_idx<<"]  <-->  ";
+    CFinfo << cells->parent().parent().name()<<"/"<<cells->name() << "["<<cell_idx<<"]  <-->  ";
     RealMatrix cell_coordinates = cells->as_type<CElements>().get_coordinates(cell_idx);
     RealVector face_coordinates = inner_faces.get_coordinates(face).row(0);
     bool match_found = false;
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
     
     match_found = false;
     boost::tie(cells,cell_idx) = f2c.lookup().location(f2c.connectivity()[face][1]);
-    CFinfo << cells->parent()->parent()->name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
+    CFinfo << cells->parent().parent().name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
     cell_coordinates = cells->as_type<CElements>().get_coordinates(cell_idx);
     face_coordinates = inner_faces.get_coordinates(face).row(0);
     for (Uint i=0; i<cell_coordinates.rows(); ++i)

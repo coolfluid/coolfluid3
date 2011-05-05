@@ -161,27 +161,25 @@ void Component::rename ( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::parent()
+Component& Component::parent()
 {
   cf_assert( is_not_null(m_raw_parent) );
-  return m_raw_parent->self();
+  return *m_raw_parent;
 }
 
-Component::ConstPtr Component::parent() const
+Component const& Component::parent() const
 {
   cf_assert( is_not_null(m_raw_parent) );
-  return m_raw_parent->self();
+  return *m_raw_parent;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::add_component ( Component::Ptr subcomp )
+Component& Component::add_component ( Component::Ptr subcomp )
 {
-  cf_assert( subcomp != nullptr );
-
   const std::string name = subcomp->name();
 
-  const std::string unique_name = ensure_unique_name(subcomp);
+  const std::string unique_name = ensure_unique_name(*subcomp);
   if ( name != unique_name )
   {
     subcomp->m_name = unique_name; // change name to unique
@@ -195,14 +193,21 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp )
 
   raise_path_changed();
 
-  return subcomp;
+  return *subcomp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
+Component& Component::add_component ( Component& subcomp )
 {
-  std::string unique_name = ensure_unique_name(subcomp);
+  return add_component(subcomp.self());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+Component& Component::add_static_component ( Component::Ptr subcomp )
+{
+  std::string unique_name = ensure_unique_name(*subcomp);
   cf_always_assert_desc("static components must always have a unique name", unique_name == subcomp->name());
   m_components[unique_name] = subcomp;
 
@@ -213,8 +218,14 @@ Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
   subcomp->signal("delete_component")->is_hidden = true;
   subcomp->signal("move_component")->is_hidden   = true;
 
+  return *subcomp;
+}
 
-  return subcomp;
+/////////////////////////////////////////////////////////////////////////////////////
+
+Component& Component::add_static_component ( Component& subcomp )
+{
+  return add_static_component(subcomp.self());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -228,9 +239,9 @@ bool Component::is_child_static(const std::string& name) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-std::string Component::ensure_unique_name ( Component::Ptr subcomp )
+std::string Component::ensure_unique_name ( Component& subcomp )
 {
-  const std::string name = subcomp->name();
+  const std::string name = subcomp.name();
   std::string new_name = name;
   boost::regex e(name+"(_[0-9]+)?");
   BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
@@ -291,6 +302,13 @@ Component::Ptr Component::remove_component ( const std::string& name )
                         + this->name() + "' with path ["
                         + m_path.path() + "]");
   }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+Component::Ptr Component::remove_component ( Component& subcomp )
+{
+  return remove_component(subcomp.name());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -443,10 +461,10 @@ boost::iterator_range<Component::iterator> Component::children()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::move_to ( Component::Ptr new_parent )
+void Component::move_to ( Component& new_parent )
 {
-  Component::Ptr this_ptr = parent()->remove_component( this->name() );
-  new_parent->add_component( this_ptr );
+  Component::Ptr this_ptr = parent().remove_component( *this );
+  new_parent.add_component( this_ptr );
   raise_path_changed();
 }
 
@@ -500,10 +518,9 @@ Component::Ptr Component::access_component_ptr ( const URI& path )
       if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
 
       if ( equals (*el, "..") )              // substitute any "../" for base path
-        look_comp = look_comp->parent();
+        look_comp = look_comp->parent().self();
       else
       {
-        Component::Ptr parent = look_comp;
         look_comp = look_comp->get_child_ptr(*el);
       }
       if (is_null(look_comp))
@@ -546,10 +563,9 @@ Component::ConstPtr Component::access_component_ptr ( const URI& path ) const
       if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
 
       if ( equals (*el, "..") )              // substitute any "../" for base path
-        look_comp = look_comp->parent();
+        look_comp = look_comp->parent().self();
       else
       {
-        Component::ConstPtr parent = look_comp;
         look_comp = look_comp->get_child_ptr(*el);
       }
       if (is_null(look_comp))
@@ -580,6 +596,16 @@ Component::ConstPtr Component::access_component_ptr_checked (const URI& path ) c
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+Component& Component::build_component ( const std::string& name , const std::string& builder_name )
+{
+  using namespace boost::algorithm;
+  std::string builder_name_space (builder_name.begin(),find_last(builder_name,".").begin());
+  const CBuilder& builder = Core::instance().root().access_component(URI("cpath://Root/Libraries/"+builder_name_space+"/"+builder_name)).follow()->as_type<CBuilder const>();
+  return add_component( builder.build( name ) );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 void Component::signal_create_component ( SignalArgs& args  )
 {
   SignalOptions options( args );
@@ -588,31 +614,18 @@ void Component::signal_create_component ( SignalArgs& args  )
   if (options.exists("name"))
     name = options.option<std::string>("name");
   
-  std::string ctype = options.option<std::string>("type");
+  std::string builder_name = options.option<std::string>("type");
   
-  using namespace boost::algorithm;
-  std::string builder_name_space (ctype.begin(),find_last(ctype,".").begin());
-  const CBuilder& builder = Core::instance().root().access_component(URI("cpath://Root/Libraries/"+builder_name_space+"/"+ctype)).follow()->as_type<CBuilder const>();
-
-
-  // CFactories::Ptr factories = Core::instance().root().get_child_ptr("Factories")->as_ptr< CFactories >();
-  // CFactory::Ptr factory = factories->get_child_ptr( atype )->as_ptr< CFactory >();
-  // if (!factory)
-  //   throw ValueNotFound(FromHere(), "Factory of generic type " + atype + " not found");
-  // CBuilder::Ptr builder = factory->get_child_ptr( ctype )->as_ptr< CBuilder >();
-  // if (!builder)
-  //   throw ValueNotFound(FromHere(), "Builder of concrete type " + ctype + " not found in factory of generic type " + atype);
-
-  Ptr comp = add_component( builder.build( name ) );
+  Component& comp = build_component( name, builder_name );
 
   if( options.exists("basic_mode") )
   {
     if (options.option<bool>("basic_mode"))
-      comp->mark_basic();
+      comp.mark_basic();
   }
   else
   {
-    comp->mark_basic();
+    comp.mark_basic();
   }
 }
 
@@ -632,10 +645,8 @@ void Component::signal_delete_component ( SignalArgs& args  )
 
   // when goes out of scope it gets deleted
   // unless someone else shares it
-  Component::Ptr meself = self();
-  Component::Ptr parent = meself->parent();
 
-  parent->remove_component( meself->name() );
+  parent().remove_component( *this );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -648,9 +659,7 @@ void Component::signal_move_component ( SignalArgs& args  )
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
-  Component::Ptr new_parent = access_component_ptr( path.path() );
-
-  this->move_to( new_parent );
+  this->move_to( access_component( path.path() ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

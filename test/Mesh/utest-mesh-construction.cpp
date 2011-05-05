@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // Create root and mesh component
   CRoot& root = Core::instance().root();
 
-  CMesh::Ptr mesh = root.create_component<CMesh>( "mesh" ) ;
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>( "mesh" ) ;
 
   // create regions
   CRegion& superRegion = mesh->topology().create_region("superRegion");

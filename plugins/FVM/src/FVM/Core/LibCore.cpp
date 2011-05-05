@@ -25,7 +25,7 @@ void LibCore::initiate_impl()
 {
   Common::Core::instance().root()
       .get_child_ptr("Tools")
-      ->create_component<FVM::Core::ShockTube>( "wizard_shocktube" );
+      ->create_component_ptr<FVM::Core::ShockTube>( "wizard_shocktube" );
 }
 
 void LibCore::terminate_impl()

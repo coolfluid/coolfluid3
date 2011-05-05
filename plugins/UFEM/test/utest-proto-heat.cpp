@@ -84,11 +84,11 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
 {
   const Uint nb_segments = 5;
   
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, 5., nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
   // Create output field
@@ -123,11 +123,11 @@ BOOST_AUTO_TEST_CASE( Heat1D )
 
   const Uint nb_segments = 20;
   
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
   // Create output field
@@ -184,11 +184,11 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
 
   const Uint nb_segments = 5;
 
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
   // Create output field
@@ -242,11 +242,11 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   
   BOOST_CHECK(true);
 
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
   BOOST_CHECK(true);
@@ -313,11 +313,11 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   const Real k             = 100.; // thermal conductivity
   const Real q             = 100.; // Heat production per volume
 
-  CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Linear system
-  CEigenLSS& lss = *root.create_component<CEigenLSS>("LSS");
+  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
   // Create output field

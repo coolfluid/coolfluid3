@@ -93,19 +93,19 @@ RKRD::RKRD ( const std::string& name  ) :
   // setup of the static components
 
   // create apply boundary conditions action
-  m_compute_boundary_terms = create_static_component<CGroupActions>("compute_boundary_terms");
+  m_compute_boundary_terms = create_static_component_ptr<CGroupActions>("compute_boundary_terms");
   m_compute_boundary_terms->mark_basic();
 
   // create compute rhs action
-  m_compute_domain_terms = create_static_component<CGroupActions>("compute_domain_terms");
+  m_compute_domain_terms = create_static_component_ptr<CGroupActions>("compute_domain_terms");
   m_compute_domain_terms->mark_basic();
 
   // additional actions
 
-  m_cleanup      = create_static_component<Cleanup>("cleanup");
-  m_compute_norm = create_static_component<Solver::Actions::CComputeLNorm>("compute_norm");
+  m_cleanup      = create_static_component_ptr<Cleanup>("cleanup");
+  m_compute_norm = create_static_component_ptr<Solver::Actions::CComputeLNorm>("compute_norm");
 
-  m_time_stepping = create_static_component<ForwardEuler>("time_stepping");
+  m_time_stepping = create_static_component_ptr<ForwardEuler>("time_stepping");
 
 }
 
@@ -315,7 +315,7 @@ void RKRD::signal_initialize_solution( SignalArgs& node )
 
   CInitFieldFunction::Ptr init_solution;
   if( is_null(get_child_ptr("init_solution")) )
-    init_solution = create_component<CInitFieldFunction>("init_solution");
+    init_solution = create_component_ptr<CInitFieldFunction>("init_solution");
   else
     init_solution = get_child("init_solution").as_ptr_checked<CInitFieldFunction>();
 

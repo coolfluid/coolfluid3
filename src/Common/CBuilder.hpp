@@ -156,7 +156,7 @@ struct ComponentBuilder
     cf_assert ( is_not_null(factory) );
 
     boost::shared_ptr< Common::CBuilderT<BASE,CONCRETE> > builder =
-        factory->create_component< CBuilderT<BASE,CONCRETE> >( name );
+        factory->create_component_ptr< CBuilderT<BASE,CONCRETE> >( name );
     
     // check that CBuilderT can cast to CBuilder
     /// @note sanity check after weird bug on MacOSX when including CBuilder.cpp instead of CBuilder.hpp
@@ -166,7 +166,7 @@ struct ComponentBuilder
     CLibrary::Ptr lib = Core::instance().libraries().get_library<LIB>();
     cf_assert ( is_not_null(lib) );
 
-    CLink::Ptr builder_link = lib->create_component<CLink>( name );
+    CLink::Ptr builder_link = lib->create_component_ptr<CLink>( name );
     cf_assert ( is_not_null(builder_link) );
     
     builder_link->link_to(builder);

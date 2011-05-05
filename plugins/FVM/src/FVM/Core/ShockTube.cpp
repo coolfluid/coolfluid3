@@ -97,7 +97,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
 
   std::string name  = p.get_option<std::string>("model_name");
   CFinfo << "Creating model " << name << CFendl;
-  CModelUnsteady& model = *Common::Core::instance().root().create_component<CModelUnsteady>( name );
+  CModelUnsteady& model = *Common::Core::instance().root().create_component_ptr<CModelUnsteady>( name );
 
   ////////////////////////////////////////////////////////////////////////////////
   // Create Physics
@@ -111,13 +111,13 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   // Create tools
   ////////////////////////////////////////////////////////////////////////////////
 
-  CGroup& tools = *model.create_component<CGroup>("tools");
+  CGroup& tools = *model.create_component_ptr<CGroup>("tools");
   tools.mark_basic();
-  CMeshTransformer& finite_volume_transformer = *tools.create_component<CMeshTransformer>("FiniteVolumeTransformer");
-  finite_volume_transformer.create_component<CBuildFaces>     ("1_build_faces")->mark_basic();
-  finite_volume_transformer.create_component<BuildGhostStates>("2_build_ghoststates")->mark_basic();
-  finite_volume_transformer.create_component<CreateSpaceP0>   ("3_create_space_P0")->mark_basic();
-  finite_volume_transformer.create_component<CBuildVolume>    ("4_build_volume_field")->mark_basic();
+  CMeshTransformer& finite_volume_transformer = *tools.create_component_ptr<CMeshTransformer>("FiniteVolumeTransformer");
+  finite_volume_transformer.create_component_ptr<CBuildFaces>     ("1_build_faces")->mark_basic();
+  finite_volume_transformer.create_component_ptr<BuildGhostStates>("2_build_ghoststates")->mark_basic();
+  finite_volume_transformer.create_component_ptr<CreateSpaceP0>   ("3_create_space_P0")->mark_basic();
+  finite_volume_transformer.create_component_ptr<CBuildVolume>    ("4_build_volume_field")->mark_basic();
   
   ////////////////////////////////////////////////////////////////////////////////
   // Generate mesh
@@ -130,11 +130,11 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   switch (p.get_option<Uint>("dimension"))
   {
     case 1:
-      mesh_ptr = domain.create_component<CMesh>("line");
+      mesh_ptr = domain.create_component_ptr<CMesh>("line");
       CSimpleMeshGenerator::create_line(*mesh_ptr, 10. , p.get_option<Uint>("nb_cells"));
       break;
     case 2:
-      mesh_ptr = domain.create_component<CMesh>("square");
+      mesh_ptr = domain.create_component_ptr<CMesh>("square");
       CSimpleMeshGenerator::create_rectangle(*mesh_ptr, 10. , 10. , p.get_option<Uint>("nb_cells"),  p.get_option<Uint>("nb_cells"));
       break;
     default:
@@ -160,7 +160,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
   
   CFinfo << "Setting initial condition" << CFendl;
-  CInitFieldFunction& init_solution = *tools.create_component<CInitFieldFunction>("init_solution");
+  CInitFieldFunction& init_solution = *tools.create_component_ptr<CInitFieldFunction>("init_solution");
   init_solution.configure_property("Field",find_component_with_tag(mesh,"solution").full_path());
 
   const Real r_L = 4.696;             const Real r_R = 1.408;

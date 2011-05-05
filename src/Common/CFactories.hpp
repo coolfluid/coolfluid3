@@ -49,7 +49,7 @@ namespace Common {
       else
       {
         CF::Common::TypeInfo::instance().regist< CFactoryT<CBase> >( CFactoryT<CBase>::type_name() );
-        return create_component< CFactoryT<CBase> >(tname);
+        return create_component_ptr< CFactoryT<CBase> >(tname);
       }
     }
 

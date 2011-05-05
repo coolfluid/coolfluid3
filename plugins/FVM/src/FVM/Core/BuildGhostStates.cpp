@@ -75,16 +75,16 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
     {
       // this region has faces to build ghost cells at
 
-      CRegion::Ptr boundary_faces = region.create_component<CRegion>("boundary_faces");
+      CRegion& boundary_faces = region.create_component<CRegion>("boundary_faces");
       boost_foreach(CFaces& faces, find_components<CFaces>(region) )
         faces.move_to(boundary_faces);
 
       Uint nb_faces(0);
-      boost_foreach(CFaces& faces, find_components<CFaces>(*boundary_faces) )
+      boost_foreach(CFaces& faces, find_components<CFaces>(boundary_faces) )
         nb_faces += faces.size();
         
-      CRegion& ghost_states = *region.create_component<CRegion>("ghost_states");
-      GhostCells& ghosts = *ghost_states.create_component<GhostCells>("Point");
+      CRegion& ghost_states = *region.create_component_ptr<CRegion>("ghost_states");
+      GhostCells& ghosts = *ghost_states.create_component_ptr<GhostCells>("Point");
       ghosts.initialize("CF.Mesh.SF.Point"+dim_str+"DLagrangeP0",mesh.nodes());
       CTable<Uint>& ghost_elem_connectivity = ghosts.node_connectivity();
       ghost_elem_connectivity.resize(nb_faces);
@@ -94,7 +94,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
       // update the mesh_elements so that the ghost elements now have a unified index
       mesh.elements().update();
       
-      boost_foreach(CFaces& faces, find_components<CFaces>(*boundary_faces) )
+      boost_foreach(CFaces& faces, find_components<CFaces>(boundary_faces) )
       {
         // CFinfo << faces.full_path().path() << CFendl;
         CFaceCellConnectivity::Ptr face2cell_ptr = find_component_ptr<CFaceCellConnectivity>(faces);
@@ -118,7 +118,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
 
           for (Uint face=0; face<face2cell.size(); ++face)
           {
-            // CFinfo << "face " << faces.parent()->parent()->name() << "/" << faces.name() << "["<<face<<"]" << CFendl;
+            // CFinfo << "face " << faces.parent().parent().name() << "/" << faces.name() << "["<<face<<"]" << CFendl;
             Uint unified_elem_idx = face2cell.connectivity()[face][0]; // this is the inner cell of the boundary
             boost::tie(component,cell_idx) = face2cell.lookup().location(unified_elem_idx);
             CCells& cells = component->as_type<CCells>();

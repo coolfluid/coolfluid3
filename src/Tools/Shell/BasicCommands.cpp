@@ -318,7 +318,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
 void BasicCommands::rm(const std::string& cpath)
 {
   Component::Ptr to_delete = current_component->access_component_ptr_checked(cpath);
-  to_delete->parent()->remove_component(to_delete->name());
+  to_delete->parent().remove_component(to_delete->name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -437,7 +437,7 @@ void BasicCommands::mv(const std::vector<std::string>& params)
   const URI cpath2(params[1]);
   Component& component_1 = current_component->access_component(cpath1);
   Component& parent_2 = current_component->access_component(cpath2.base_path());
-  component_1.move_to(parent_2.self());
+  component_1.move_to(parent_2);
   component_1.rename(cpath2.name());
 }
 

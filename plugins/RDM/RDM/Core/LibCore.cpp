@@ -25,10 +25,10 @@ void LibCore::initiate_impl()
   CGroup::Ptr rdm_group =
     Core::instance().root()
       .get_child_ptr("Tools")
-      ->create_component<CGroup>( "RDM" );
+      ->create_component_ptr<CGroup>( "RDM" );
   rdm_group->mark_basic();
 
-  rdm_group->create_component<RDM::ScalarAdvection>( "SetupScalarSimulation" )
+  rdm_group->create_component_ptr<RDM::ScalarAdvection>( "SetupScalarSimulation" )
       ->mark_basic();
 }
 

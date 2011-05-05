@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   std::vector<std::string> names;
   std::vector<std::string> types;
 
-  CField& coordinates = *mesh.create_component<CField>("coordinates");
+  CField& coordinates = *mesh.create_component_ptr<CField>("coordinates");
   names = list_of("coordinates");
   types = list_of("Vector2D");
   coordinates.configure_property("Topology",mesh.topology().full_path());
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   std::vector<std::string> names;
   std::vector<std::string> types;
 
-  CField& solution = *mesh.create_component<CField>("solution");
+  CField& solution = *mesh.create_component_ptr<CField>("solution");
   names = list_of("rho")("U")("p");
   types = list_of("scalar")("Vector2D")("scalar");
   solution.configure_property("Topology",mesh.topology().full_path());
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( FieldOperators )
 
 
   CField& solution = *mesh.get_child_ptr("solution")->as_ptr<CField>();
-  CField& solution_copy = *mesh.create_component<CField>("solution_copy");
+  CField& solution_copy = *mesh.create_component_ptr<CField>("solution_copy");
   names = list_of("rho")("U")("p");
   types = list_of("scalar")("Vector2D")("scalar");
   solution_copy.configure_property("Topology",mesh.topology().full_path());

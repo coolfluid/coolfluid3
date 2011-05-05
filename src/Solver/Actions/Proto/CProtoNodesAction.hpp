@@ -60,7 +60,7 @@ private:
 template<typename ExprT>
 Common::CAction::Ptr build_nodes_action(const std::string& name, Common::Component& parent, const PhysicalModel& physical_model, const ExprT& expr)
 {
-  boost::shared_ptr< CProtoNodesAction<ExprT> > result = parent.create_component< CProtoNodesAction<ExprT> >(name);
+  boost::shared_ptr< CProtoNodesAction<ExprT> > result = parent.create_component_ptr< CProtoNodesAction<ExprT> >(name);
   result->set_physical_model(physical_model);
   regist_typeinfo(result.get());
   result->set_expression(expr);
@@ -71,7 +71,7 @@ Common::CAction::Ptr build_nodes_action(const std::string& name, Common::Compone
 template<typename ExprT>
 Common::CAction::Ptr build_nodes_action(const std::string& name, Common::Component& parent, const ExprT& expr)
 {
-  boost::shared_ptr< CProtoNodesAction<ExprT> > result = parent.create_component< CProtoNodesAction<ExprT> >(name);
+  boost::shared_ptr< CProtoNodesAction<ExprT> > result = parent.create_component_ptr< CProtoNodesAction<ExprT> >(name);
   regist_typeinfo(result.get());
   result->set_expression(expr);
   return boost::static_pointer_cast<Common::CAction>(result);

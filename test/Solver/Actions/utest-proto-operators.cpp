@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
 
 BOOST_AUTO_TEST_CASE( MatrixProducts )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("line");
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
   
   mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   const Real circulation = 975.;
   const Real rho = 1.225;
   
-  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("circle");
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
   
   mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField::Basis::POINT_BASED);
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
 /// Test to transform a matrix that applies to a vector variable to one that applies to the linearized form
 BOOST_AUTO_TEST_CASE( Linearize )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("rectangle");
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("rectangle");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
   
   mesh->create_field( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
@@ -282,7 +282,7 @@ MakeSFOp<CustomLaplacian>::type laplacian_cust = {};
 
 BOOST_AUTO_TEST_CASE( CustomOp )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("line");
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
   
   mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);
@@ -322,7 +322,7 @@ MakeSFOp<ModifyState>::type modify_state = {};
 // Check that the parameter passed to group can really be used as state
 BOOST_AUTO_TEST_CASE( GroupState )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("line");
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
   
   mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);

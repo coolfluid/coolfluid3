@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
 
     // create mesh object
     CRoot& root = Core::instance().root();
-    CMesh::Ptr mesh = root.create_component<CMesh>("mesh");
+    CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
 
     // Initialize empty commands
     options_description desc;

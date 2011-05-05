@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 BOOST_AUTO_TEST_CASE( LineP2 )
 {
   /// Create a mesh consisting of a line with length 1. and 20 divisions
-  CMesh::Ptr mesh = Common::Core::instance().root().create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = Common::Core::instance().root().create_component_ptr<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(*mesh, 1., 20);
 
 
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( LineP2 )
   CFinfo << "solution_fieldsize = " << solution.size() << CFendl;
 
   /// Initialize solution field with the function sin(2*pi*x)
-  Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component<Actions::CInitFieldFunction>("init_field");
+  Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
   init_field->configure_property("Functions",std::vector<std::string>(1,"sin(2*pi*x)"));
   init_field->configure_property("Field",solution.full_path());
   init_field->transform(*mesh);

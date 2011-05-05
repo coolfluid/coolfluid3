@@ -45,7 +45,7 @@ struct MeshTransformer_Fixture
 
     root = CRoot::create("Root");
     reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","MyReader");
-    domain = root->create_component<CDomain>("MyDom");
+    domain = root->create_component_ptr<CDomain>("MyDom");
 
     root->add_component( reader );
     

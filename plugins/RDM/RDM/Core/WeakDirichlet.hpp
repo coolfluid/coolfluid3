@@ -267,7 +267,7 @@ public: // functions
      vars[YY] = X_q(q,YY);
      vars[ZZ] = 0.0;
 
-     this->parent()->as_type<WeakDirichlet>().function.evaluate(vars,return_val);
+     this->parent().as_type<WeakDirichlet>().function.evaluate(vars,return_val);
 
      const Real Fu_g_x = 1.0 * return_val[0];
      const Real Fu_g_y = 1.0 * return_val[0];
@@ -331,7 +331,7 @@ public: // functions
     vars[YY] = X_q(q,YY);
     vars[ZZ] = 0.0;
 
-    this->parent()->as_type<WeakDirichlet>().function.evaluate(vars,return_val);
+    this->parent().as_type<WeakDirichlet>().function.evaluate(vars,return_val);
 
     PHYS::flux(B::phys_props,
                X_q.row(q),

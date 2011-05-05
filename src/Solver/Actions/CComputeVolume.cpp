@@ -40,7 +40,7 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
   
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
 
-  m_volume = create_static_component<CScalarFieldView>("volume_view");
+  m_volume = create_static_component_ptr<CScalarFieldView>("volume_view");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

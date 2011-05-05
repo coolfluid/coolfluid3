@@ -55,10 +55,10 @@ public: // functions
   /// @return reference to the term
   template < typename TermT > TermT& access_term()
   {
-    Common::Component::Ptr cterm = parent()->get_child_ptr( TermT::type_name() );
+    Common::Component::Ptr cterm = parent().get_child_ptr( TermT::type_name() );
     typename TermT::Ptr term;
     if( is_null( cterm ) )
-      term = parent()->template create_component< TermT >( TermT::type_name() );
+      term = parent().template create_component_ptr< TermT >( TermT::type_name() );
     else
       term = cterm->as_ptr_checked<TermT>();
     return *term;
@@ -94,7 +94,7 @@ struct CellLoop : public ElementLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent()->as_ptr<ACTION>()) )
+    if( is_null(parent().as_ptr<ACTION>()) )
       throw Common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     /// definition of the quadrature type
@@ -146,7 +146,7 @@ struct FaceLoop : public ElementLoop
   template < typename SF >
   void operator() ( SF& )
   {
-    if( is_null(parent()->as_ptr<ACTION>()) )
+    if( is_null(parent().as_ptr<ACTION>()) )
       throw Common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     /// definition of the quadrature type

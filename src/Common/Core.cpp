@@ -79,11 +79,11 @@ Core::Core()
 
   // these components are placed on the root structure
   // but ownership is shared with Core, so they get destroyed in ~Core()
-  m_root->add_component( m_environment )->mark_basic();
-  m_root->add_component( m_libraries )->mark_basic();
-  m_root->add_component( m_factories )->mark_basic();
+  m_root->add_component( m_environment ).mark_basic();
+  m_root->add_component( m_libraries ).mark_basic();
+  m_root->add_component( m_factories ).mark_basic();
 
-  CGroup::Ptr tools = m_root->create_component<CGroup>("Tools");
+  CGroup::Ptr tools = m_root->create_component_ptr<CGroup>("Tools");
   tools->mark_basic();
   tools->properties()["brief"] = std::string("Generic tools");
   tools->properties()["description"] = std::string("");

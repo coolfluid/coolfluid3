@@ -229,7 +229,7 @@ void CWriter::write_connectivity(std::fstream& file)
 
   boost_foreach(CEntities& elements, m_mesh->topology().elements_range())
   {
-    group_name = elements.parent()->full_path().path();
+    group_name = elements.parent().full_path().path();
     group_number = m_groupnumber[group_name];
 
     m_element_start_idx[&elements]=elm_number;

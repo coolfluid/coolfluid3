@@ -300,19 +300,19 @@ void CWriter::write_groups(std::fstream& file)
 void CWriter::write_boundaries(std::fstream& file)
 { 
   // Add node connectivity data at the mesh level
-  CNodeConnectivity::Ptr node_connectivity = m_mesh->create_component<CNodeConnectivity>("node_connectivity");
+  CNodeConnectivity::Ptr node_connectivity = m_mesh->create_component_ptr<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*m_mesh->as_const(), IsElementsVolume()));
 
   
   boost_foreach(CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
-    elementregion.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    elementregion.create_component_ptr<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
 
   // Find total number of boundary elements and store all bc groups
   Uint total_nbElements=0;
   std::set<CRegion::ConstPtr> bc_regions;
   boost_foreach(const CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
   {
-    bc_regions.insert(elementregion.parent()->as_ptr<CRegion const>());
+    bc_regions.insert(elementregion.parent().as_ptr<CRegion const>());
     total_nbElements += elementregion.node_connectivity().size();
   }
   

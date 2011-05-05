@@ -72,9 +72,9 @@ ForwardEuler::ForwardEuler ( const std::string& name ) :
   m_properties.add_option(OptionComponent<CField>::create("Residual","Residual field", &m_residual))
     ->add_tag("residual");
 
-  create_static_component<CCriterionMaxIterations>("max_iterations");
+  create_static_component_ptr<CCriterionMaxIterations>("max_iterations");
 
-  create_static_component<UpdateSolution>("update_solution");
+  create_static_component_ptr<UpdateSolution>("update_solution");
 
 }
 

@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
   mesh_generator->execute();
   CMesh& mesh = find_component<CMesh>(Core::instance().root()).as_type<CMesh>();
 
-  CStencilComputerRings::Ptr stencil_computer = Core::instance().root().create_component<CStencilComputerRings>("stencilcomputer");
+  CStencilComputerRings::Ptr stencil_computer = Core::instance().root().create_component_ptr<CStencilComputerRings>("stencilcomputer");
   stencil_computer->configure_property("mesh", mesh.full_path() );
 
   std::vector<Uint> stencil;

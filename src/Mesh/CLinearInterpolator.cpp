@@ -60,7 +60,7 @@ CLinearInterpolator::CLinearInterpolator( const std::string& name )
     "The number of divisions in each direction of the comb. Takes precedence over \"ApproximateNbElementsPerCell\". " ,
     dummy);
     
-  m_elements = create_component<CUnifiedData>("elements");
+  m_elements = create_component_ptr<CUnifiedData>("elements");
 
 }
 

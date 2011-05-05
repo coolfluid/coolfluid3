@@ -183,7 +183,7 @@ void CReader::read_zone(CRegion& parent_region)
 //      // Remove regions flagged as bc
 //      BOOST_FOREACH(CRegion& region, find_components_recursively_with_tag<CRegion>(this_region,"remove_this_tmp_component"))
 //      {
-//        region.parent()->remove_component(region.name());
+//        region.parent().remove_component(region.name());
 //      }
 //    }
 
@@ -676,9 +676,9 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       // First do some simple checks to see if an entire region can be taken as a BC.
       CElements::Ptr first_elements = m_global_to_region[boco_elems[0]-1].first;
       CElements::Ptr last_elements = m_global_to_region[boco_elems[1]-1].first;
-      if (first_elements->parent() == last_elements->parent())
+      if (&first_elements->parent() == &last_elements->parent())
       {
-        CRegion::Ptr group_region = first_elements->parent()->as_ptr<CRegion>();
+        CRegion::Ptr group_region = first_elements->parent().as_ptr<CRegion>();
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
@@ -725,9 +725,9 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       // First do some simple checks to see if an entire region can be taken as a BC.
       CElements::Ptr first_elements = m_global_to_region[boco_elems[0]-1].first;
       CElements::Ptr last_elements = m_global_to_region[boco_elems[m_boco.nBC_elem-1]-1].first;
-      if (first_elements->parent() == last_elements->parent())
+      if (&first_elements->parent() == &last_elements->parent())
       {
-        CRegion::Ptr group_region = first_elements->parent()->as_ptr<CRegion>();
+        CRegion::Ptr group_region = first_elements->parent().as_ptr<CRegion>();
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {

@@ -63,7 +63,7 @@ COcttree::COcttree( const std::string& name )
     "The number of cells in each direction of the comb. Takes precedence over \"Number of Elements per Octtree Cell\". " ,
     dummy);
     
-  m_elements = create_component<CUnifiedData>("elements");
+  m_elements = create_component_ptr<CUnifiedData>("elements");
   
 }
 

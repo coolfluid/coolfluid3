@@ -104,8 +104,8 @@ CField::CField ( const std::string& name  ) :
   option->mark_basic();
   config_var_types();
 
-  m_topology = create_static_component<CLink>("topology");
-  m_data = create_static_component<CTable<Real> >("data");
+  m_topology = create_static_component_ptr<CLink>("topology");
+  m_data = create_static_component_ptr<CTable<Real> >("data");
 }
   
 ////////////////////////////////////////////////////////////////////////////////

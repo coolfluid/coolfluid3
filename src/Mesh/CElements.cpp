@@ -35,7 +35,7 @@ CElements::CElements ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
   
-  m_node_connectivity = create_static_component<CConnectivity>(Mesh::Tags::connectivity_table());
+  m_node_connectivity = create_static_component_ptr<CConnectivity>(Mesh::Tags::connectivity_table());
   m_node_connectivity->add_tag(Mesh::Tags::connectivity_table());
   m_node_connectivity->properties()["brief"] = std::string("The connectivity table specifying for each element the nodes in the coordinates table");
   

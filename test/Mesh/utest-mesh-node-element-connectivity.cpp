@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( node_elem_connectivity )
   BOOST_CHECK( true );
 
   // create and setup node to elements connectivity
-  CNodeElementConnectivity::Ptr c = mesh->create_component<CNodeElementConnectivity>("node_elem_connectivity");
+  CNodeElementConnectivity::Ptr c = mesh->create_component_ptr<CNodeElementConnectivity>("node_elem_connectivity");
   c->setup( find_component<CRegion>(*mesh) );
   
   BOOST_CHECK( true );

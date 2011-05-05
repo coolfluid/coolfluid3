@@ -113,7 +113,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, T*& data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperPtr<T>::Ptr ow = create_component< PEObjectWrapperPtr<T> >(name);
+    typename PEObjectWrapperPtr<T>::Ptr ow = create_component_ptr< PEObjectWrapperPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -124,7 +124,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, T** data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperPtr<T>::Ptr ow = create_component< PEObjectWrapperPtr<T> >(name);
+    typename PEObjectWrapperPtr<T>::Ptr ow = create_component_ptr< PEObjectWrapperPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -134,7 +134,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, std::vector<T>& data, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperVector<T>::Ptr ow = create_component< PEObjectWrapperVector<T> >(name);
+    typename PEObjectWrapperVector<T>::Ptr ow = create_component_ptr< PEObjectWrapperVector<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -144,7 +144,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, std::vector<T>* data, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperVector<T>::Ptr ow = create_component< PEObjectWrapperVector<T> >(name);
+    typename PEObjectWrapperVector<T>::Ptr ow = create_component_ptr< PEObjectWrapperVector<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -154,7 +154,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperVectorWeakPtr<T>::Ptr ow = create_component< PEObjectWrapperVectorWeakPtr<T> >(name);
+    typename PEObjectWrapperVectorWeakPtr<T>::Ptr ow = create_component_ptr< PEObjectWrapperVectorWeakPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 

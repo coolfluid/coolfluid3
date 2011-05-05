@@ -38,14 +38,14 @@ CEntities::CEntities ( const std::string& name ) :
   properties().add_option(OptionT<std::string>::create("element_type","Element Type","Element type", std::string("")))
     ->attach_trigger(boost::bind(&CEntities::configure_element_type, this));
 
-  m_global_numbering = create_static_component<CList<Uint> >(Mesh::Tags::global_elem_indices());
+  m_global_numbering = create_static_component_ptr<CList<Uint> >(Mesh::Tags::global_elem_indices());
   m_global_numbering->add_tag(Mesh::Tags::global_elem_indices());
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
 
-  m_spaces_group = create_static_component<CGroup>("spaces");
+  m_spaces_group = create_static_component_ptr<CGroup>("spaces");
   m_spaces_group->mark_basic();
 
-  m_nodes = create_static_component<CLink>(Mesh::Tags::nodes());
+  m_nodes = create_static_component_ptr<CLink>(Mesh::Tags::nodes());
   m_nodes->add_tag(Mesh::Tags::nodes());
 
   regist_signal ( "create_space" , "Create space for other interpretations of fields (e.g. high order)", "Create Space" )->signal->connect ( boost::bind ( &CEntities::signal_create_space, this, _1 ) );
@@ -119,7 +119,7 @@ CList<Uint>& CEntities::used_nodes(Component& parent)
   CList<Uint>::Ptr used_nodes = find_component_ptr_with_tag<CList<Uint> >(parent,Mesh::Tags::nodes_used());
   if (is_null(used_nodes))
   {
-    used_nodes = parent.create_component<CList<Uint> >(Mesh::Tags::nodes_used());
+    used_nodes = parent.create_component_ptr<CList<Uint> >(Mesh::Tags::nodes_used());
     used_nodes->add_tag(Mesh::Tags::nodes_used());
     used_nodes->properties()["brief"] = std::string("The local node indices used by the parent component");
 
@@ -178,7 +178,7 @@ CTable<Uint>::ConstRow CEntities::get_nodes(const Uint elem_idx) const
 CSpace& CEntities::create_space( const std::string& name, const std::string& shape_function_builder_name )
 {
   Uint nb_existing_spaces = m_spaces.size();
-  CSpace::Ptr space = m_spaces_group->create_component<CSpace>(name);
+  CSpace::Ptr space = m_spaces_group->create_component_ptr<CSpace>(name);
   space->configure_property("shape_function",shape_function_builder_name);
   m_spaces.push_back(space);
   return *space;

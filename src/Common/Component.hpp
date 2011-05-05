@@ -208,12 +208,12 @@ public: // functions
   /// @returns the pointer to parent component
   /// @pre parent pointer is valid
   /// @post returns always valid pointer
-  Ptr parent();
+  Component& parent();
 
   /// @returns the const pointer to parent component
   /// @pre parent pointer is valid
   /// @post returns always valid pointer
-  ConstPtr parent() const;
+  Component const& parent() const;
 
   /// Gets the named child component from the list of direct subcomponents.
   /// @return reference to the component
@@ -259,21 +259,38 @@ public: // functions
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
-    typename T::Ptr create_component ( const std::string& name );
+    typename T::Ptr create_component_ptr ( const std::string& name );
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
-    typename T::Ptr create_static_component ( const std::string& name );
+    T& create_component ( const std::string& name );
+
+  /// Create a (sub)component of this component automatically cast to the specified type
+  template < typename T >
+    typename T::Ptr create_static_component_ptr ( const std::string& name );
+
+  /// Create a (sub)component of this component automatically cast to the specified type
+  template < typename T >
+    T& create_static_component ( const std::string& name );
+
+  /// Build a (sub)component of this component using the name of the builder
+  /// The builder is then automatically searched through the namespace which is linked
+  /// to the library
+  Component& build_component ( const std::string& name , const std::string& builder );
 
   /// Add a dynamic (sub)component of this component
-  Ptr add_component ( Ptr subcomp );
+  Component& add_component ( Ptr subcomp );
+
+  Component& add_component ( Component& subcomp );
 
   /// Remove a (sub)component of this component
   Ptr remove_component ( const std::string& name );
 
+  Ptr remove_component ( Component& subcomp );
+
   /// Move this component to within another one
   /// @param to_parent will be the new parent of this component
-  void move_to ( Ptr to_parent );
+  void move_to ( Component& to_parent );
 
   /// @returns a string representation of the tree below this component
   std::string tree(Uint level=0) const;
@@ -369,7 +386,10 @@ public: // functions
 protected: // functions
 
   /// Add a static (sub)component of this component
-  Ptr add_static_component ( Ptr subcomp );
+  Component& add_static_component ( Ptr subcomp );
+
+  /// Add a static (sub)component of this component
+  Component& add_static_component ( Component& subcomp );
 
 private: // helper functions
 
@@ -377,7 +397,7 @@ private: // helper functions
   void change_parent ( Component* to_parent );
 
   /// insures the sub component has a unique name within this component
-  std::string ensure_unique_name ( Ptr subcomp );
+  std::string ensure_unique_name ( Component& subcomp );
 
   /// writes the underlying component tree to the xml node
   /// @param put_all_content If @c false, options and properties are not put
@@ -505,7 +525,7 @@ boost::shared_ptr<T> allocate_component ( const std::string& name )
 //////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::create_component ( const std::string& name )
+inline typename T::Ptr Component::create_component_ptr ( const std::string& name )
 {
   typename T::Ptr comp = allocate_component<T>(name);
   add_component( comp );
@@ -515,11 +535,27 @@ inline typename T::Ptr Component::create_component ( const std::string& name )
 //////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::create_static_component ( const std::string& name )
+inline T& Component::create_component ( const std::string& name )
+{
+  return *create_component_ptr<T>(name);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline typename T::Ptr Component::create_static_component_ptr ( const std::string& name )
 {
   typename T::Ptr comp = allocate_component<T>(name);
   add_static_component( comp );
   return comp ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline T& Component::create_static_component ( const std::string& name )
+{
+  return *create_static_component_ptr<T>(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

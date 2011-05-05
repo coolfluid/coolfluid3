@@ -99,7 +99,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   read_headerData();
 
   // Create a hash
-	m_hash = create_component<CMixedHash>("hash");
+	m_hash = create_component_ptr<CMixedHash>("hash");
 	std::vector<Uint> num_obj(2);
 	num_obj[0] = m_headerData.NUMNP;
 	num_obj[1] = m_headerData.NELEM;

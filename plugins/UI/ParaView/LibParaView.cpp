@@ -27,7 +27,7 @@ namespace ParaView {
   {
     Component::Ptr tools = Core::instance().root().get_child_ptr("Tools");
 
-    tools->create_component<C3DViewBuilder>("C3DViewBuilder")->mark_basic();
+    tools->create_component_ptr<C3DViewBuilder>("C3DViewBuilder")->mark_basic();
   }
 
   void LibParaView::terminate_impl()

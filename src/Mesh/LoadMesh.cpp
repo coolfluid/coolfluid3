@@ -151,7 +151,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = parent_component.create_component<CMesh>(options.option<std::string>("Name"));
+    CMesh::Ptr mesh = parent_component.create_component_ptr<CMesh>(options.option<std::string>("Name"));
 
     // Get the file paths
     boost_foreach(URI file, files)

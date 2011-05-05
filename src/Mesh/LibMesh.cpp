@@ -24,12 +24,12 @@ void LibMesh::initiate_impl()
 {
   Core::instance().root()
       .get_child_ptr("Tools")
-      ->create_component<Mesh::LoadMesh>( "LoadMesh" )
+      ->create_component_ptr<Mesh::LoadMesh>( "LoadMesh" )
       ->mark_basic();
 
   Core::instance().root()
       .get_child_ptr("Tools")
-      ->create_component<Mesh::WriteMesh>( "WriteMesh" )
+      ->create_component_ptr<Mesh::WriteMesh>( "WriteMesh" )
       ->mark_basic();
 }
 

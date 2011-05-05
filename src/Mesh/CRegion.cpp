@@ -50,7 +50,7 @@ CRegion& CRegion::create_region( const std::string& name, bool ensure_unique )
 
   if ( ensure_unique || is_null(region) )
   {
-    return *create_component<CRegion>(name);
+    return *create_component_ptr<CRegion>(name);
   }
   else   
     return region->as_type<CRegion>();
@@ -65,7 +65,7 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CNodes
   Component::Ptr celems = get_child_ptr(name);
   if ( is_null(celems) )
   {
-    CElements::Ptr elements = create_component<CElements>(name);
+    CElements::Ptr elements = create_component_ptr<CElements>(name);
     elements->add_tag("GeometryElements");
     elements->initialize(element_type_name,nodes);
     return *elements;
@@ -82,7 +82,7 @@ CNodes& CRegion::create_nodes(const Uint& dim)
   CNodes::Ptr nodes = find_component_ptr_with_tag<CNodes>(*this,Mesh::Tags::nodes());
   if ( is_null(nodes) )
   {
-    nodes = create_component<CNodes>(Mesh::Tags::nodes());
+    nodes = create_component_ptr<CNodes>(Mesh::Tags::nodes());
     nodes->coordinates().set_row_size(dim);
     
     /// @todo when nodes in CMesh created, this can be linked inside CMesh
