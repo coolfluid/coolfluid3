@@ -419,11 +419,7 @@ void BasicCommands::create(const std::vector<std::string>& params)
   if ( is_null(parent_component) )
     throw ValueNotFound(FromHere(), "component " + URI(new_component_path).base_path().path() + " was not found in " + current_component->full_path().path());
     
-  std::vector<std::string> signal_options(2);
-  signal_options[0] = "name:string="+URI(new_component_path).name();;
-  signal_options[1] = "type:string="+params[1];
-  
-  parent_component->call_signal("create_component",signal_options);
+  parent_component->build_component(URI(new_component_path).name(), params[1]);
 
 }
 
