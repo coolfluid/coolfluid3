@@ -14,7 +14,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro SFDM_API
-/// @note build system defines COOLFLUID_RDM_EXPORTS when compiling FVM files
+/// @note build system defines COOLFLUID_SFDM_EXPORTS when compiling SFDM files
 #ifdef COOLFLUID_SFDM_EXPORTS
 #   define SFDM_API      CF_EXPORT_API
 #   define SFDM_TEMPLATE
@@ -48,12 +48,12 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.SFDM.Core"; }
+  static std::string library_namespace() { return "CF.SFDM"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration
   /// @return name of the library
-  static std::string library_name() { return "Core"; }
+  static std::string library_name() { return "SFDM"; }
 
   /// Static function that returns the description of the module.
   /// Must be implemented for CLibrary registration
