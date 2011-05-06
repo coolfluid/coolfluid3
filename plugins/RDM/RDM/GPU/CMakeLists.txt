@@ -9,7 +9,8 @@ list( APPEND coolfluid_rdm_gpu_files
           LDAGPU.cpp
           SchemeLDAGPU.hpp
           CLdeclaration.hpp
-          LDAGPUkernel.hpp   
+          CLdeclaration.cpp
+          LDAGPUkernel.hpp
           CSysLDAGPU.hpp
           SchemeCSysLDAGPU.hpp
           CSysLDAGPU.cpp
