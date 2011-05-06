@@ -73,7 +73,7 @@ public: // functions
     clReleaseProgram(env.program);
   }
 
- virtual ~SchemeLDAGPU()
+ virtual ~Term()
   {
     clReleaseContext(env.context);
     clReleaseKernel(env.kernel);
