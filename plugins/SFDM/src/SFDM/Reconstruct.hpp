@@ -41,9 +41,16 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "Reconstruct"; }
 
-  RealVector value(const RealVector& from_states) const;
+  /// Reconstructed values from the states from shapefunction "from"
+  /// to the locations from shapefunction "to"
+  /// @param from_states  States in locations from shapefunction "from". dimensions (nb_states x state_size)
+  RealMatrix value(const RealMatrix& from_states) const;
 
-  RealVector gradient(const RealVector& from_states, const CoordRef orientation) const;
+  /// Reconstructed gradient from the states from shapefunction "from"
+  /// to the locations from shapefunction "to"
+  /// @param from_states  States in locations from shapefunction "from". dimensions (nb_states x state_size)
+  /// @param orientation  Direction to which the derivative is taken (KSI / ETA / ZTA)
+  RealMatrix gradient(const RealMatrix& from_states, const CoordRef orientation) const;
 
 private:
 

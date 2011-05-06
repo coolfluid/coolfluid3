@@ -5,6 +5,8 @@ list( APPEND coolfluid_sfdm_files
   LibSFDM.cpp
   Reconstruct.hpp
   Reconstruct.cpp
+  Flux.hpp
+  Flux.cpp
   ShapeFunction.hpp
   ShapeFunction.cpp
   SFDSolver.hpp

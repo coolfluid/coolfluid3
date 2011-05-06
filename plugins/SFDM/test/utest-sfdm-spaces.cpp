@@ -26,6 +26,7 @@
 #include "SFDM/CreateSpace.hpp"
 #include "SFDM/ShapeFunction.hpp"
 #include "SFDM/Reconstruct.hpp"
+#include "SFDM/Flux.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
@@ -99,6 +100,16 @@ BOOST_AUTO_TEST_CASE( test_Reconstruction )
   RealVector rec_grad(3); rec_grad << 2. , 2. , 2.;
   BOOST_CHECK_EQUAL ( reconstruct.value(solution) ,        rec_sol  ) ;
   BOOST_CHECK_EQUAL ( reconstruct.gradient(solution,KSI) , rec_grad ) ;
+}
+
+BOOST_AUTO_TEST_CASE( test_Flux )
+{
+  CRoot& root = Common::Core::instance().root();
+  Flux& flux = root.build_component("flux","CF.SFDM.Flux").as_type<Flux>();
+
+  RealVector solution(2); solution << 0. , 4.;      // in cell <-1,1>
+
+  BOOST_CHECK_EQUAL ( flux(solution) , solution );
 }
 
 BOOST_AUTO_TEST_CASE( LineP2 )
