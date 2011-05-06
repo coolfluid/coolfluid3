@@ -25,6 +25,7 @@
 #include "Mesh/Actions/CreateSpaceP0.hpp"
 #include "SFDM/CreateSpace.hpp"
 #include "SFDM/ShapeFunction.hpp"
+#include "SFDM/Reconstruct.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
@@ -84,6 +85,22 @@ BOOST_AUTO_TEST_CASE( test_SF )
 
 }
 
+BOOST_AUTO_TEST_CASE( test_Reconstruction )
+{
+  CRoot& root = Common::Core::instance().root();
+  Reconstruct& reconstruct = root.build_component("reconstruct","CF.SFDM.Reconstruct").as_type<Reconstruct>();
+  std::vector<std::string> from_to(2);
+  from_to[0] = "CF.SFDM.SF.LineSolutionP1";
+  from_to[1] = "CF.SFDM.SF.LineFluxP2";
+  reconstruct.configure_property("from_to",from_to);
+
+  RealVector solution(2); solution << 0. , 4.;      // in cell <-1,1>
+  RealVector rec_sol(3);  rec_sol  << 0. , 2. , 4.;
+  RealVector rec_grad(3); rec_grad << 2. , 2. , 2.;
+  BOOST_CHECK_EQUAL ( reconstruct.value(solution) ,        rec_sol  ) ;
+  BOOST_CHECK_EQUAL ( reconstruct.gradient(solution,KSI) , rec_grad ) ;
+}
+
 BOOST_AUTO_TEST_CASE( LineP2 )
 {
   /// Create a mesh consisting of a line with length 1. and 20 divisions
@@ -103,7 +120,7 @@ BOOST_AUTO_TEST_CASE( LineP2 )
   CField& flux = mesh->create_field("flux_field",CField::Basis::CELL_BASED,"flux","var[scalar]");
 
   /// Output some stuff
-  CFinfo << mesh->tree() << CFendl;
+  //CFinfo << mesh->tree() << CFendl;
   CFinfo << "elements = " << mesh->topology().recursive_elements_count() << CFendl;
   CFinfo << "solution_fieldsize = " << solution.size() << CFendl;
 
@@ -113,7 +130,7 @@ BOOST_AUTO_TEST_CASE( LineP2 )
   init_field->configure_property("Field",solution.full_path());
   init_field->transform(*mesh);
 
-  CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
+  //CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
   boost::filesystem::path filename ("line.msh");

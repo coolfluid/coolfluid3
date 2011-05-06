@@ -55,10 +55,10 @@ public:
 
 protected:
 
-  /// lookup table for the function point
+  /// lookup table for the points
   boost::multi_array<Uint,3> m_points;
 
-  /// lookup table for the function face_point
+  /// lookup table for the face_points
   boost::multi_array<Uint,3> m_face_points;
 
 };
