@@ -48,7 +48,7 @@ void LineFluxP3::compute_value(const MappedCoordsT& mapped_coord, ValueT& result
   result[0] =  0.25 * ( 1. - ksi) * (-1. + 3*ksi2);
   result[1] =  0.75 * (-1. + sqrt3*ksi) * (-1. + ksi2);
   result[2] =  0.75 * (-1. - sqrt3*ksi) * (-1. + ksi2);
-  result[0] =  0.25 * ( 1. + ksi) * (-1. + 3*ksi2);
+  result[3] =  0.25 * ( 1. + ksi) * (-1. + 3*ksi2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ void LineFluxP3::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& 
   result(KSI, 0) =  0.25 * ( 1. + 6.*ksi - 9.*ksi2);
   result(KSI, 1) = -0.75 * ( sqrt3 + ksi*(2.-3.*sqrt3*ksi));
   result(KSI, 2) = -0.75 * (-sqrt3 + ksi*(2.+3.*sqrt3*ksi));
-  result(KSI, 0) =  0.25 * (-1. + 6.*ksi + 9.*ksi2);
+  result(KSI, 3) =  0.25 * (-1. + 6.*ksi + 9.*ksi2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
