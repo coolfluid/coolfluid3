@@ -16,6 +16,8 @@ list( APPEND coolfluid_solver_actions_files
   CLoopOperation.hpp
   CLoopOperation.cpp
   CFieldAction.hpp
+  CForAllCells.hpp
+  CForAllCells.cpp
   CForAllElements.hpp
   CForAllElements.cpp
   CForAllElementsT.hpp
