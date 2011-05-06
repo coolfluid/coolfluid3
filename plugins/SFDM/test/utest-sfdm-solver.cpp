@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE( Solver )
 
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   CMesh& mesh = *domain.create_component_ptr<CMesh>("mesh");
-  CSimpleMeshGenerator::create_line(mesh, 1., 20);
+  CSimpleMeshGenerator::create_line(mesh, 1., 3);
 
   SFDM::CreateSpace::Ptr sfdm_space_creator = allocate_component<SFDM::CreateSpace>("sfdm_space_creator");
   sfdm_space_creator->configure_property("P",2u);
@@ -65,12 +65,27 @@ BOOST_AUTO_TEST_CASE( Solver )
   solver.configure_option_recursively("time_accurate",true);
 
   model.time().configure_property("end_time",0.001);
-  model.time().configure_property("time_step",0.0001);
+  model.time().configure_property("time_step",0.001);
+
+
+  /// Initialize solution field with the function sin(2*pi*x)
+  Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
+  init_field->configure_property("Functions",std::vector<std::string>(1,"sin(2*pi*x)"));
+  init_field->configure_property("Field",find_component_with_tag<CField>(mesh,"solution").full_path());
+  init_field->transform(mesh);
+
 
   solver.get_child("iterate").configure_property("verbose",true);
   solver.solve();
 
   CFinfo << solver.tree() << CFendl;
+
+  /// write gmsh file. note that gmsh gets really confused because of the multistate view
+  boost::filesystem::path filename ("line.msh");
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  gmsh_writer->set_fields(std::vector<CField::Ptr>(1,find_component_with_tag<CField>(mesh,"solution").as_ptr<CField>()));
+  gmsh_writer->write_from_to(mesh.as_ptr<CMesh>(),filename);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

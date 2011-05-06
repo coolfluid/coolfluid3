@@ -35,14 +35,14 @@ using namespace CF::SFDM;
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
+BOOST_AUTO_TEST_SUITE( SFDM_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( test_SF )
 {
   typedef SFDM::ShapeFunction SFD_SF;
-  CRoot& root = Common::Core::instance().root();
+  CRoot& root = Core::instance().root();
   SFD_SF& sol_line_p0 = root.build_component("sol_line_p0","CF.SFDM.SF.LineSolutionP0").as_type<SFD_SF>();
   SFD_SF& sol_line_p1 = root.build_component("sol_line_p1","CF.SFDM.SF.LineSolutionP1").as_type<SFD_SF>();
   SFD_SF& sol_line_p2 = root.build_component("sol_line_p2","CF.SFDM.SF.LineSolutionP2").as_type<SFD_SF>();
@@ -86,6 +86,8 @@ BOOST_AUTO_TEST_CASE( test_SF )
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_CASE( test_Reconstruction )
 {
   CRoot& root = Common::Core::instance().root();
@@ -102,6 +104,8 @@ BOOST_AUTO_TEST_CASE( test_Reconstruction )
   BOOST_CHECK_EQUAL ( reconstruct.gradient(solution,KSI) , rec_grad ) ;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_CASE( test_Flux )
 {
   CRoot& root = Common::Core::instance().root();
@@ -112,7 +116,9 @@ BOOST_AUTO_TEST_CASE( test_Flux )
   BOOST_CHECK_EQUAL ( flux(solution) , solution );
 }
 
-BOOST_AUTO_TEST_CASE( LineP2 )
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_fields )
 {
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   CMesh::Ptr mesh = Common::Core::instance().root().create_component_ptr<CMesh>("mesh");

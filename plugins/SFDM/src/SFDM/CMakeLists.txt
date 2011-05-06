@@ -1,4 +1,6 @@
 list( APPEND coolfluid_sfdm_files
+  ComputeRhsInCell.hpp
+  ComputeRhsInCell.cpp
   CreateSpace.hpp
   CreateSpace.cpp
   LibSFDM.hpp

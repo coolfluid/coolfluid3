@@ -25,6 +25,7 @@ LineFluxP1::LineFluxP1(const std::string& name) : ShapeFunction(name)
   m_nb_nodes = nb_nodes;
   m_order = order;
   m_shape = shape;
+  m_nb_lines_per_orientation = nb_lines_per_orientation;
 
   m_points.resize(boost::extents[nb_orientations][nb_lines_per_orientation][nb_nodes_per_line]);
   m_points[KSI][0][0] = 0;

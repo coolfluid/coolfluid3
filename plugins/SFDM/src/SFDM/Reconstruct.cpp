@@ -60,12 +60,10 @@ void Reconstruct::configure_from_to()
     remove_component(*m_to);
   m_to   = build_component("to",from_to[1]).as_ptr<ShapeFunction>();
 
-  cf_assert_desc("hardcoded for line elements now... should subdivide quads and hexas in lines",m_from->shape()==Mesh::GeoShape::LINE);
-  cf_assert_desc("hardcoded for line elements now... should subdivide quads and hexas in lines",m_to->shape()==Mesh::GeoShape::LINE);
-  m_value_reconstruction_matrix.resize(m_to->nb_nodes(),m_from->nb_nodes());
+  m_value_reconstruction_matrix.resize(m_to->nb_nodes_per_line(),m_from->nb_nodes_per_line());
   m_gradient_reconstruction_matrix.resize(m_to->dimensionality());
   for (Uint d=0; d<m_gradient_reconstruction_matrix.size(); ++d)
-    m_gradient_reconstruction_matrix[d].resize(m_to->nb_nodes(),m_from->nb_nodes());
+    m_gradient_reconstruction_matrix[d].resize(m_to->nb_nodes_per_line(),m_from->nb_nodes_per_line());
   for (Uint to_node=0; to_node<m_to->nb_nodes(); ++to_node)
   {
     m_value_reconstruction_matrix.row(to_node) = m_from->value( m_to->local_coordinates().row(to_node) );

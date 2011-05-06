@@ -42,7 +42,7 @@ public:
   /// @param line_point_idx  index inside the line
   /// Lines      points()[orientation]           for a view of the orientation
   /// LinePoints points()[orientation][line_idx] for a view of one line
-  Points points() { return m_points; }
+  Points points() const { return m_points; }
 
   /// @brief Get the index corresponding to an orientation, a line, and a index on that line
   /// points()[orientation][line_idx][side]
@@ -51,7 +51,11 @@ public:
   /// @param side         left or right side of the line (LEFT / RIGHT)
   /// Lines      points()[orientation]           for a view of the orientation
   /// LinePoints points()[orientation][line_idx] for a view of one line
-  Points face_points() { return m_face_points; }
+  Points face_points() const { return m_face_points; }
+
+  Uint nb_lines_per_orientation() const { return m_nb_lines_per_orientation; }
+
+  Uint nb_nodes_per_line() const { return order()+1; }
 
 protected:
 
@@ -60,6 +64,8 @@ protected:
 
   /// lookup table for the face_points
   boost::multi_array<Uint,3> m_face_points;
+
+  Uint m_nb_lines_per_orientation;
 
 };
 
