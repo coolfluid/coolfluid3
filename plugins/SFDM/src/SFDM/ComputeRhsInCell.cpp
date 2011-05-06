@@ -128,7 +128,7 @@ void ComputeRhsInCell::execute()
   CMultiStateFieldView::View residual_data = (*m_residual)[idx()];
 
   /// For every orientation
-  for (CoordRef orientation = KSI; static_cast<Uint>(orientation)<dimensionality; ++orientation)
+  for (Uint orientation = KSI; orientation<dimensionality; ++orientation)
   {
     /// For every line in this orientation
     for (Uint line=0; line<solution_sf.nb_lines_per_orientation(); ++line)
@@ -153,7 +153,7 @@ void ComputeRhsInCell::execute()
       }
 
       /// Compute gradient of flux in solution points
-      flux_grad = reconstruct_flux_in_solution_points.gradient( flux , orientation );
+      flux_grad = reconstruct_flux_in_solution_points.gradient( flux , static_cast<CoordRef>(orientation) );
       CFinfo << "flux_grad = \n" << flux_grad << CFendl;
 
       /// Add the flux gradient to the RHS
