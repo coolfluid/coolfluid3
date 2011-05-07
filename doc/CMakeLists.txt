@@ -22,7 +22,28 @@ find_package(Doxygen)
 
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}.in   ${DOXY_CONFIG}  @ONLY )
 
-  add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${DOXY_CONFIG})
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/footer.html.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/footer.html
+  )
+  
+  
+  add_custom_target(
+    doc-cf-prerequisites
+    ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/html/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/coolfluid.png
+                                     ${CMAKE_CURRENT_BINARY_DIR}/html/
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  )
+  
+  
+  
+#  add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${DOXY_CONFIG})
+  add_custom_target(doc ALL
+    COMMAND doxygen ${DOXY_CONFIG}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  add_dependencies(doc doc-cf-prerequisites)
   
   # message(STATUS "Doxygen configuration ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}.in --> ${DOXY_CONFIG}")
 

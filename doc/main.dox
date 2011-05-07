@@ -1,10 +1,295 @@
+namespace CF {
+namespace Common {
 /**
- @mainpage
- 
- @section _usage Usage
- Take a look into the %COOLFluiD <a href="http://coolfluidsrv.vki.ac.be/coolfluid"> Wiki page</a>.
+ @mainpage COOLFluiD
 
- @section _license License
- This project is released under the LGPL v3 license.
+ @section _getting_started Getting started
+ This tutorial is divided in the following sections:
+ - \subpage introducing_components
+ - \subpage using_components
+ - \subpage coding_components
+ 
+ <hr>
+ 
+ @section _more_info More information
+ Take a look into the <a href="http://coolfluidsrv.vki.ac.be/trac/coolfluid">COOLFluiD homepage</a>, or the <a href="http://coolfluidsrv.vki.ac.be/redmine/projects/show/coolfluid3">RedMine project page</a>.
+ 
+ Follow the current developments on the <a href="https://coolfluidsrv.vki.ac.be/websvn">svn repository</a> and the
+ <a href="http://coolfluidsrv.vki.ac.be/cdash/index.php?project=coolfluid">dashboard</a>.
+
+ @subsection _license License
+ This project is released under the <a href="http://www.gnu.org/licenses/lgpl.txt">LGPL v3 license</a>.
+ 
  */
 
+ //-----------------------------------------------------------
+
+ /*! \page introducing_components Introducing the %Component class
+ @section _introduction Introduction
+ The component object concept is the key of understanding COOLFluiD 3.
+ A component is typically organized in a tree-like data structure similar to the file system on your computer.
+ A component can contain multiple other components and is uniquely defined by its name and path in the tree.
+ This concept is implemented in COOLFluiD 3 as a class Component in the CF::Common namespace.
+ One can derive new component types adding more specific functionality to the Component class.
+ A component can simply serve to store data, or group multiple components, or perform actions on other components, or combinations of these.
+ 
+ @section _characteristics_of_components Characteristics of Components
+ Components have so called tags assigned to them which are strings that further characterize the type or purpose of a component. This is similar to a file extension for files on your computer. Multiple tags can be assigned to one component. Tags are not modifiable or seen by end-users. They can only be changed by developers in the code.
+
+ Components have properties or meta-data, which store usually small informational data. This data can serve to describe the component (e.g. 'usage'='time iterator' ) or actually hold functional data used in some way by the code (e.g. 'iteration'=4 ). Properties are publicly accessible through their name and can be used for dynamic variables.
+ Properties can not be changed by the user, only by developers.
+
+ Components have configuration options which are implemented as a special case of user modifiable properties. These configuration options can be changed
+ by the user in an interactive environment or script, or hardcoded in COOLFluiD when another event is triggered. Configuration options are either basic or advanced, and have a name, a description and a default value.
+
+ Components can receive and send so called signals, using xml language. Signals are translated into actions which are implemented by the component. For instance, a mesh reading component can receive the signal to start reading from a file and build the mesh, where the path to the file is specified inside the signal.
+
+ The COOLFluID 3 Kernel is basically a collection of libraries of components that can be created on demand by users or developers, to build a whole data structure or application.
+
+ @section _whats_there What's there?
+ The CF::Common namespace contains apart from the Component base class, some specialized components:
+ CRoot: This component is the root of the component tree, similar to the "/" or root directory in a unix type file system. It also holds the CEnv or Environment component for interaction with the Operating System.
+ CLink: This component contains a reference to another component in the tree, and accessing it, accesses this reference. It serves as an analogy to the symbolic link on the computer file system.
+ CGroup: This component actually doesn't add more functionality, but serves as an analogy to the folder or directory on the computer file system.
+ The CF::Mesh namespace implements components that constitute to building, storing, and manipulating the mesh.
+ 
+ */
+
+ //-----------------------------------------------------------
+
+ /*! \page using_components Using Components
+ @section _when When to decide if your class should be a component?
+ When it is any or more of the following:
+ @li configurable
+ @li data you want stored and easily accessible from anywhere in the code
+ @li action
+ @section _how How to create a component
+
+ @subsection _add_using_code Using c++ code
+ Say you have a component "myComp" of type Component.
+ To create a subcomponent of type CGroup with name "group1" inside myComp , use @b Component::create_component<T>() function:
+ @code
+ Common::CGroup& myGroup = myComp->create_component<Common::CGroup>("group1");
+ @endcode
+
+ Say you want to create a component of the abstract type Mesh::CMeshReader, but with concrete implementation from a Gmsh reader,
+ use then the @b Component::build_component() function
+ @code
+ Mesh::CMeshReader& mesh_reader = 
+     myComp->build_component("meshreader","CF.Mesh.Gmsh.CReader").as_type<Mesh::CMeshReader>();
+ @endcode
+ Here @c "CF.Mesh.Gmsh.CReader" is the name of the concrete class CF::Mesh::Gmsh::CReader
+ The possibility of this last approach is that component creation can be configurable, as the concrete type can be passed as a string.
+ 
+ @section _configure How to configure a component
+
+ @subsection _config_using_code Using c++ code
+ Say the component "myComp" has a configuration option "My Integer Number" which is of the type "integer", then the value of option "My Integer Number" can be modified or configured using the code:
+
+ @code
+ myComp.configure_property( "my_integer_number" , int(2) ); 
+ @endcode
+ 
+ It is important to statically cast the value to the type int. Similarly for another option "My Real Number" with value of type "real" , the code would have to be:
+ @code
+ myComp.configure_property( "my_real_number" , Real(2) );
+ @endcode
+ 
+ Accessing these properties occurs using the function property().
+ @code
+ int  my_integer = myComp.property("my_integer_number").value<int>();
+ Real my_real    = myComp.property("my_real_number").value<Real>();
+ @endcode
+ Notice the @c value<int>() part in this code.
+ 
+ @section _access How to access a component?
+ IMPORTANT: When to access a component?
+ Accessing a component from the tree can be a costly operation and should be avoided in loops that need to be as efficient as possible.
+ It is therefore highly recommended to access the desired component before the loop, and create a reference to it. Several ways are widely used:
+ @code
+ Component&     myComp_1 =  <function that returns the type "Component"> ;
+ Component::Ptr myComp_2 =  <function that returns the type "Component">.self() ;
+ Component&     myComp_3 = *<function that returns the type "Component::Ptr"> ;
+ Component::Ptr myComp_4 =  <function that returns the type "Component::Ptr"> ;
+ Component*     myComp_5 =  <function that returns the type "Component::Ptr">.get() ;
+ for (int i=0; i<1000; ++i)
+ {
+   // make use of myComp_1, myComp_2, myComp_3, myComp_4, myComp_5
+   // without calling costly function that looks for a component
+ }
+ @endcode
+
+ Notice the "&" sign, indicating that the component will not be copied, but referenced, so that the original, residing in the tree will be accessed.
+ For myComp_2, a shared pointer of the Component type is created by calling the Component member function Component::self().
+ For myComp_3, a dereferenced version is obtained by using the asterisk to dereference the Component::Ptr. 
+ For myComp_5, a direct pointer is obtained from the shared_pointer by calling the boost::shared_ptr member function get().
+ Care must be taken for myComp_3 and myComp_5, if the shared_ptr is created inside the function that returns it, and if that function doesn't store the component in the component tree, as the shared_ptr will not stay alive. In that case, the component will be invalid.
+
+ @subsection _access_by_name Access through its name
+ When the name of the desired component is known, use the Component member function @b Component::get_child()
+
+ @code
+ Component& child_component = parent_component.get_child("my_component");
+ @endcode
+ When the component needs to be cast to a known derived type (e.g. CDerived), use the Component member function as_type<T>()
+ @code
+ CDerived& child_component = parent_component.get_child("my_component").as_type<CDerived>();
+ @endcode
+ 
+ @subsection _access_by_path Access through its path
+ When the path of the desired component is known, use the Component member function @b Component::access_component()
+ Paths can be relative to the component, or global.
+
+ @code
+ Component& relative_component = current_component.access_component("../../my_component");
+ Component& absolute_component = current_component.access_component("//root/my_component");
+ @endcode
+ 
+ When the component needs to be cast to a known derived type (e.g. CDerived), use the Component member function as_type<T>() again
+ @code
+ CDerived& relative_component = current_component.access_component("../../my_component").as_type<CDerived>();
+ @endcode
+ 
+ @subsection _access_by_search Access through a search
+ It is also possible to perform a search for components using predicates. What is returned from a search is a component iterator range. This is helpful as the iterator range can easily be used in a "boost_foreach" macro:
+ @code
+ boost_foreach (Component& component,  <search function returning iterator range>)
+ {
+   // do stuff with component
+ }
+ @endcode
+ 
+ A search function can look in a component going only one level down, or recursively traverse the whole tree of child components and its child components etc.
+ Say we have a component tree as follows with names:
+ @verbatim
+ root                      ( type = CRoot               ,  tags = )
+     component1            ( type = CGroup              ,  tags = )
+         subcomponent1     ( type = CMyType             ,  tags = )
+         subcomponent2     ( type = CMyType             ,  tags = )
+     component2            ( type = CGroup              ,  tags = special_tag )
+         subcomponent1     ( type = CMySpecializedType  ,  tags = )
+         subcomponent2     ( type = CMyType             ,  tags = special_tag )
+ @endverbatim
+ In the case we want to visit only the first level child components of root, use @b find_components() : 
+ @code
+ boost_foreach ( Component& component , find_components(root_component) )
+ {
+   // component will be in order:  component1, component2
+ }
+ @endcode
+ 
+ Note the & since component is non-copyable, and accessing it will access the one in the tree.
+ In the case we want to visit every component in the tree under root, use @b find_components_recursively() : 
+ @code
+ boost_foreach ( Component& component , find_components_recursively(root_component) )
+ {
+   // component will be in order:  component1, subcomponent1, subcomponent2, component2, subcomponent1, subcomponent2
+ }
+ @endcode
+ 
+ There are ways to filter this range, by appending "_with_filter" , such as find_components_recursively_with_filter().
+ The function then takes 2 arguments: first the component, and secondly a predicate.
+ A predicate is a mini class with the operator () defined and returning true or false. Developers can create their own
+ predicates to do advanced searches. Some built-in predicates exist such as "IsComponentName or IsComponentTag".
+
+ All components with name "subcomponent1" :
+ @code
+ boost_foreach ( Component& component , find_components_with_filter(root_component , IsComponentName("subcomponent1") )
+ {
+   // component will be in order:  //root/component1/subcomponent1 , //root/component2/subcomponent1
+ }
+ @endcode
+ 
+ All components with tag "special_tag" :
+ @code
+ boost_foreach ( Component& component , find_components_recursively_with_filter(root_component , IsComponentTag("special_tag") )
+ {
+   // component will be in order:  //root/component2 , //root/component2/subcomponent2
+ }
+ @endcode
+ 
+ All components with tag "CMyType" :
+ @code
+ boost_foreach ( Component& component , find_components_recursively_with_filter(root_component , IsComponentTag("CMyType") )
+ {
+   // component will be in order:  
+   //   component1/subcomponent1 , component1/subcomponent2 , component2/subcomponent1 , component2/subcomponent2
+ }
+ @endcode
+ 
+ This last search is interesting as it allows to search by the type of the component. We would then of course like to use specialized functionality of that component, and it would have to be cast to the type we look for.
+ To avoid this code, there is a templated-by-type version of every previously shown search function that automatically casts the component to the type. All you have to do is add <TYPE> after the find function, where
+ "TYPE" is the type of the component you look for.
+
+ The last example could be rewritten to give all components of type CMyType using @b find_components_recursively<CMyType>() :
+ @code
+ boost_foreach ( CMyType& component , find_components_recursively<CMyType>(root_component) )
+ {
+   // component is now of type CMyType and will be in order:  
+   //   component1/subcomponent1 , component1/subcomponent2 , component2/subcomponent1 , component2/subcomponent2
+ }
+ @endcode
+ Note that it is no longer necessary to use the "filtered" version, as this happens under the hood.
+ It is still possible to filter on tags or names or other predicates.
+
+ To get the components of type CMyType with extra tag "special_tag", use @b find_components_recursively_with_tag<CMyType>() :
+ @code
+ boost_foreach ( CMyType& component , 
+    find_components_recursively_with_tag<CMyType>( root_component , IsComponentTag("special_tag") ) )
+ {
+   // component is now of type CMyType , and will have the tag "special_tag", and will be in order:  
+   //   component2/subcomponent2     and NOT component2 as it is not of the type CMyType 
+   //   although it also meets the IsComponentTag("special_tag") predicate
+ }
+ @endcode
+ 
+*/
+
+//-----------------------------------------------------------
+
+/*! \page coding_components Coding your own Components
+
+A new component always has to inherit from a parent class which is also a component.
+A simple example is the class Common::CGroup, which adds actually no extra functionality.
+
+@code
+namespace CF {
+namespace Common {
+
+class Common_API CGroup : public Component 
+{
+
+public: // typedefs
+
+  /// pointer to this type
+  typedef boost::shared_ptr<CGroup> Ptr;
+  typedef boost::shared_ptr<CGroup const> ConstPtr;
+
+public: // functions
+
+  /// Contructor
+  /// @param name of the component
+  CGroup ( const std::string& name ) : Component(name) {}
+
+  /// Virtual destructor
+  virtual ~CGroup() {}
+
+  /// Get the class name
+  static std::string type_name () { return "CGroup"; }
+};
+
+} //namespace CF
+} //namespace Common
+@endcode
+
+Noteworthy here is:
+ - CGroup inherits from Component
+ - The constructor of a Component takes only 1 std::string, i.e. the name the component gets
+ - The component must have a @b static function CGroup::type_name() defined, returning the class name
+ - The component must have the Ptr and ConstPtr typedefs defined as boost::shared_ptr
+ - Following the class name is first the API macro related to this namespace (here Common_API). 
+   This macro is usually defined in the library of this namespace. (LibNamespace.hpp)
+
+*/
+}
+}
