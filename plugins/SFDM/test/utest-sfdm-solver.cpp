@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( Solver )
   solver.get_child("iterate").configure_property("verbose",true);
   solver.solve();
 
-  CFinfo << solver.tree() << CFendl;
+  CFinfo << model.tree() << CFendl;
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
   boost::filesystem::path filename ("line.msh");

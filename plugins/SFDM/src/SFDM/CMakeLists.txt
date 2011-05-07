@@ -1,4 +1,6 @@
 list( APPEND coolfluid_sfdm_files
+  ComputeJacobianDeterminant.hpp
+  ComputeJacobianDeterminant.cpp
   ComputeRhsInCell.hpp
   ComputeRhsInCell.cpp
   CreateSpace.hpp
