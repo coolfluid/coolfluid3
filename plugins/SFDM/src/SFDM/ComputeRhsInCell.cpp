@@ -8,7 +8,6 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
-#include "Mesh/CFieldView.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
@@ -119,13 +118,20 @@ void ComputeRhsInCell::execute()
   const SFDM::ShapeFunction& solution_sf = elements().space("solution").shape_function().as_type<SFDM::ShapeFunction>();
   const SFDM::ShapeFunction& flux_sf     = elements().space("flux")    .shape_function().as_type<SFDM::ShapeFunction>();
 
-
-  RealMatrix solution(solution_sf.nb_nodes_per_line(),m_solution->field().data().row_size());
-  RealMatrix flux(flux_sf.nb_nodes_per_line(),m_solution->field().data().row_size());
-  RealMatrix flux_grad(solution_sf.nb_nodes_per_line(),m_solution->field().data().row_size());
+  const Uint nb_vars = m_solution->field().data().row_size();
+  RealMatrix flux_in_line (flux_sf.nb_nodes_per_line() , nb_vars);
+  RealMatrix flux_grad_in_line (solution_sf.nb_nodes_per_line() , nb_vars);
 
   CMultiStateFieldView::View solution_data = (*m_solution)[idx()];
   CMultiStateFieldView::View residual_data = (*m_residual)[idx()];
+
+  /// Set solution states in a matrix (all states of the cell, every row is a state)
+  RealMatrix solution = to_matrix(solution_data);
+  CFinfo << "solution = \n" << solution << CFendl;
+
+  /// Compute analytical flux in all flux points (every row is a flux)
+  RealMatrix flux = compute_flux( reconstruct_solution_in_flux_points.value( solution ) );
+  CFinfo << "flux = \n" << flux << CFendl;
 
   /// For every orientation
   for (Uint orientation = KSI; orientation<dimensionality; ++orientation)
@@ -133,16 +139,6 @@ void ComputeRhsInCell::execute()
     /// For every line in this orientation
     for (Uint line=0; line<solution_sf.nb_lines_per_orientation(); ++line)
     {
-      /// Set solution states
-      for (Uint point=0; point<solution_sf.nb_nodes_per_line(); ++point)
-      {
-        solution.row(point) = to_row_vector( solution_data[ solution_sf.points()[orientation][line][point] ] );
-      }
-      CFinfo << "solution = \n" << solution << CFendl;
-
-      /// Compute flux in flux points
-      flux = compute_flux( reconstruct_solution_in_flux_points.value( solution ) );
-      CFinfo << "flux = \n" << flux << CFendl;
 
       /// Update face flux points with Riemann problem with neighbor
       for (Uint side=LEFT; side<=RIGHT; ++side)
@@ -153,14 +149,17 @@ void ComputeRhsInCell::execute()
       }
 
       /// Compute gradient of flux in solution points
-      flux_grad = reconstruct_flux_in_solution_points.gradient( flux , static_cast<CoordRef>(orientation) );
-      CFinfo << "flux_grad = \n" << flux_grad << CFendl;
+      for (Uint flux_pt=0; flux_pt<flux_in_line.rows(); ++flux_pt)
+        flux_in_line.row(flux_pt) = flux.row( flux_sf.points()[orientation][line][flux_pt] );
+
+      flux_grad_in_line = reconstruct_flux_in_solution_points.gradient( flux_in_line , static_cast<CoordRef>(orientation) );
+      CFinfo << "flux_grad_in_line = \n" << flux_grad_in_line << CFendl;
 
       /// Add the flux gradient to the RHS
       for (Uint point=0; point<solution_sf.nb_nodes_per_line(); ++point)
       {
-        for (Uint var=0; var<m_residual->field().data().row_size(); ++var)
-          residual_data[ solution_sf.points()[orientation][line][point] ][var] -= flux_grad(point,var);
+        for (Uint var=0; var<nb_vars; ++var)
+          residual_data[ solution_sf.points()[orientation][line][point] ][var] -= flux_grad_in_line(point,var);
       }
 
     }
@@ -183,6 +182,18 @@ RealRowVector ComputeRhsInCell::to_row_vector(Mesh::CTable<Real>::ConstRow row) 
   }
   return rowvec;
 }
+
+////////////////////////////////////////////////////////////////////////////////////
+
+RealMatrix ComputeRhsInCell::to_matrix(Mesh::CMultiStateFieldView::View data) const
+{
+  RealMatrix m (data.shape()[0] , data.shape()[1]);
+  for (Uint i=0; i<m.rows(); ++i)
+    for (Uint j=0; j<m.cols(); ++j)
+      m(i,j)=data[i][j];
+  return m;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////
 

@@ -11,19 +11,22 @@
 #include "SFDM/LibSFDM.hpp"
 #include "Mesh/CTable.hpp"
 #include "Math/MatrixTypes.hpp"
+#include "Mesh/CFieldView.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh {
-  class CMultiStateFieldView;
-}
 namespace SFDM {
 
   class Reconstruct;
   class Flux;
 
 ///////////////////////////////////////////////////////////////////////////////////////
+
+/// @class ComputeRhsInCell
+/// @brief Computes the RHS in one cell.
+///
+/// It is the workhorse of SFD Solver.
 
 class SFDM_API ComputeRhsInCell : public Solver::Actions::CLoopOperation {
 
@@ -55,6 +58,7 @@ private: // helper functions
   void trigger_elements();
   
   RealRowVector to_row_vector(Mesh::CTable<Real>::ConstRow row) const ;
+  RealMatrix    to_matrix(Mesh::CMultiStateFieldView::View data) const ;
 
 private: // data
   
