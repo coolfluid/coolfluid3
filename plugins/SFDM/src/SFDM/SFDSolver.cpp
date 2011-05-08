@@ -225,7 +225,7 @@ void SFDSolver::trigger_domain()
     jacobian_determinant.add_tag("jacobian_determinant");
     CLoop::Ptr compute_jacobian_determinant = create_component_ptr< CForAllCells >("compute_jacobian_determinant");
     compute_jacobian_determinant->configure_property("Regions", std::vector<URI>(1,solution.topology().full_path()));
-    compute_jacobian_determinant->create_action("CF.SFDM.ComputeJacobianDeterminant")
+    compute_jacobian_determinant->create_loop_operation("CF.SFDM.ComputeJacobianDeterminant")
                                                 .configure_property("jacobian_determinant",jacobian_determinant.full_path());
     compute_jacobian_determinant->execute();
     remove_component(compute_jacobian_determinant->name());
