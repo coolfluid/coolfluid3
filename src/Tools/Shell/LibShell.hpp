@@ -13,15 +13,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Shell_API
-/// @note build system defines COOLFLUID_MESHDIFF_EXPORTS when compiling
+/// Define the macro Tools_Shell_API
+/// @note build system defines COOLFLUID_TOOLS_SHELL_EXPORTS when compiling
 /// CommandLineInterpreter files
-#ifdef COOLFLUID_MESHDIFF_EXPORTS
-#   define Shell_API      CF_EXPORT_API
-#   define Shell_TEMPLATE
+#ifdef COOLFLUID_TOOLS_SHELL_EXPORTS
+#   define Tools_Shell_API      CF_EXPORT_API
+#   define Tools_Shell_TEMPLATE
 #else
-#   define Shell_API      CF_IMPORT_API
-#   define Shell_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Tools_Shell_API      CF_IMPORT_API
+#   define Tools_Shell_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ namespace Shell {
 
   /// Class defines the initialization and termination of the library CommandLineInterpreter
   /// @author Tiago Quintino
-  class Shell_API LibShell : public Common::CLibrary
+  class Tools_Shell_API LibShell : public Common::CLibrary
   {
   public:
 
@@ -47,12 +47,12 @@ namespace Shell {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Tools.CommandLineInterpreter"; }
+    static std::string library_namespace() { return "CF.Tools.Shell"; }
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration
     /// @return name of the library
-    static std::string library_name() { return "CommandLineInterpreter"; }
+    static std::string library_name() { return "Shell"; }
 
     /// Static function that returns the description of the module.
     /// Must be implemented for CLibrary registration
@@ -64,7 +64,7 @@ namespace Shell {
     }
 
     /// Gets the Class name
-    static std::string type_name() { return "LibCommandLineInterpreter"; }
+    static std::string type_name() { return "LibShell"; }
 
   protected:
 

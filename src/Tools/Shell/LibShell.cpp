@@ -12,7 +12,7 @@ namespace CF {
 namespace Tools {
 namespace Shell {
 
-CF::Common::RegistLibrary<LibShell> libCommandLineInterpreter;
+CF::Common::RegistLibrary<LibShell> libShell;
 
 ////////////////////////////////////////////////////////////////////////////////
 
