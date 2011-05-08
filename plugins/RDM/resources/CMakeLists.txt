@@ -29,6 +29,8 @@ list( APPEND rdm_test_meshes_files
   trapezium1x1-qd-p1-441.msh
   trapezium1x1-qd-p2-1681.msh
   trapezium1x1-qd-p3-3721.msh
+  # for sinus bump test case
+  sinusbump-tg-p1-90.msh
 )
 
 coolfluid_add_resources( rdm_test_meshes )
