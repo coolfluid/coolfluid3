@@ -26,7 +26,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+/// @brief Finite Volume Method namespace
+///
+/// The Finite Volume Method is a method
+/// for solving systems of partial differential equations.
+/// @author Willem Deconinck
 namespace FVM {
+
+/// @brief FVM Core namespace
+///
+/// Core functionality for the FVM is added in this library
+/// @author Willem Deconinck
 namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////////

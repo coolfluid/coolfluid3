@@ -12,7 +12,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @file types.hpp
+/// @file MPI/types.hpp
 /// @author Tamas Banyai
 /// This header defines typedefs over mpi native definitions.
 

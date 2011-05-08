@@ -16,27 +16,31 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Component class for tree root
-  /// @author Tiago Quintino
-  class Common_API CGroup : public Component {
+/// @brief Component for grouping other components
+///
+/// Component class adding no extra functionality. Its purpose is to indicate
+/// to the user this component only groups other components.
+/// A GUI could use this information to give this component a "folder" icon.
+/// @author Tiago Quintino
+class Common_API CGroup : public Component {
 
-  public: // typedefs
+public: // typedefs
 
-    /// pointer to this type
-    typedef boost::shared_ptr<CGroup> Ptr;
-    typedef boost::shared_ptr<CGroup const> ConstPtr;
+  /// pointer to this type
+  typedef boost::shared_ptr<CGroup> Ptr;
+  typedef boost::shared_ptr<CGroup const> ConstPtr;
 
-  public: // functions
+public: // functions
 
-    /// Contructor
-    /// @param name of the component
-    CGroup ( const std::string& name );
+  /// Contructor
+  /// @param name of the component
+  CGroup ( const std::string& name );
 
-    /// Virtual destructor
-    virtual ~CGroup();
+  /// Virtual destructor
+  virtual ~CGroup();
 
-    /// Get the class name
-    static std::string type_name () { return "CGroup"; }
+  /// Get the class name
+  static std::string type_name () { return "CGroup"; }
 
 }; // CGroup
 

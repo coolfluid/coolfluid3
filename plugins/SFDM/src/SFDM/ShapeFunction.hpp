@@ -17,7 +17,8 @@
 namespace CF {
 namespace SFDM {
 
-/// @class Spectral Finite Difference shape function base class
+/// @brief Spectral Finite Difference shape function base class
+///
 /// SFD shape functions are comprised of 1D shape functions, in every direction of the
 /// element dimensionality. The total shape function is then the tensorial product of these
 /// 1D shape functions.
@@ -25,8 +26,13 @@ namespace SFDM {
 class SFDM_API ShapeFunction  : public Mesh::ShapeFunction {
 public:
 
+  /// 3 dimensional array of Uint (orientation,line,points)
   typedef const boost::multi_array<Uint,3>& Points;
+
+  /// 2 dimensional array of Uint (line,points). view of Points
   typedef const boost::const_subarray_gen< boost::multi_array<Uint,3> ,2>::type Lines;
+
+  /// 1 dimensional array of Uint (points). view of Lines
   typedef const boost::const_subarray_gen< boost::multi_array<Uint,3> ,1>::type LinePoints;
 
   /// Constructor
@@ -53,8 +59,12 @@ public:
   /// LinePoints points()[orientation][line_idx] for a view of one line
   Points face_points() const { return m_face_points; }
 
+  /// Number of lines per orientation
+  /// @returns number of lines per orientation
   Uint nb_lines_per_orientation() const { return m_nb_lines_per_orientation; }
 
+  /// Number of nodes per line
+  /// @returns number of nodes per line
   Uint nb_nodes_per_line() const { return order()+1; }
 
 protected:
@@ -65,6 +75,7 @@ protected:
   /// lookup table for the face_points
   boost::multi_array<Uint,3> m_face_points;
 
+  /// storage for number of lines per orientation
   Uint m_nb_lines_per_orientation;
 
 };

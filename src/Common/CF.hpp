@@ -74,7 +74,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Top-level namespace for coolfluid
+/// @brief Top-level namespace for coolfluid
+///
+/// This namespace holds all coolfluid related namespaces,
+/// classes, functions.
 namespace CF {
 
 /// typedef for unsigned int
@@ -94,6 +97,7 @@ typedef long double Real;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Deletes a pointer and makes sure it is set to nullptr afterwards
+///
 /// It would not have to check for nullptr before deletion, as
 /// deleting a null is explicitely allowed by the standard.
 /// Nevertheless it does check, to avoid problems with not so compliant compilers.

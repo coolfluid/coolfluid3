@@ -24,7 +24,7 @@ namespace Common {
 
  //-----------------------------------------------------------
 
- /*! \page introducing_components Introducing the %Component class
+ /*! @page introducing_components Introducing the %Component class
  @section _introduction Introduction
  The component object concept is the key of understanding COOLFluiD 3.
  A component is typically organized in a tree-like data structure similar to the file system on your computer.
@@ -57,7 +57,7 @@ namespace Common {
 
  //-----------------------------------------------------------
 
- /*! \page using_components Using Components
+ /*! @page using_components Using Components
  @section _when When to decide if your class should be a component?
  When it is any or more of the following:
  @li configurable
@@ -71,7 +71,7 @@ namespace Common {
  @code
  Common::CGroup& myGroup = myComp->create_component<Common::CGroup>("group1");
  @endcode
-
+ @anchor using_build_component
  Say you want to create a component of the abstract type Mesh::CMeshReader, but with concrete implementation from a Gmsh reader,
  use then the @b Component::build_component() function
  @code

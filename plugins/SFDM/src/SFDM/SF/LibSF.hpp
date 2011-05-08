@@ -27,11 +27,16 @@
 
 namespace CF {
 namespace SFDM {
+
+/// @brief Shape Function namespace
+///
+/// This namespace separates all SFDM related shape functions separately
+/// @author Willem Deconinck
 namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the Spectral Finite Difference Common library
+/// @brief Defines the %SFDM Shape Function library
 /// @author Willem Deconinck
 class SFDM_SF_API LibSF :
     public CF::Common::CLibrary
@@ -62,7 +67,7 @@ public: // functions
 
   static std::string library_description()
   {
-    return "This library implements Common components to construct a Spectral Finite Difference Solver.";
+    return "This library implements ShapeFunction components to use in a Spectral Finite Difference Solver.";
   }
 
   /// Gets the Class name

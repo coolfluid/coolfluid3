@@ -35,6 +35,7 @@ namespace SFDM {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Spectral Finite Difference iterative solver
+///
 /// Spectral Finite Difference solver,
 /// combining a forward euler time marching scheme with
 /// a high-order spectral finite difference spatial scheme

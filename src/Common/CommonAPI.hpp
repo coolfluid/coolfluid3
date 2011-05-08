@@ -13,6 +13,8 @@
 
 namespace CF {
 
+/// @brief Most basic kernel library
+///
 /// Common holds classes that abstract the Operating System and the Parallel environment
 /// and provide common facilities (like logging) to all other libraries.
 /// Common is the most basic of the Kernel libraries.

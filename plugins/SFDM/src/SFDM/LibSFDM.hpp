@@ -26,11 +26,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+/// @brief Spectral Finite Difference Method namespace
+///
+/// The Spectral Finite Difference Method is a high-order method
+/// for solving systems of partial differential equations.
+/// @author Willem Deconinck
 namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the Spectral Finite Difference Core library
+/// @brief Defines the Spectral Finite Difference Core library
+///
+/// This library implements Core components to construct a Spectral Finite Difference Solver.";
 /// @author Willem Deconinck
 class SFDM_API LibSFDM :
     public CF::Common::CLibrary

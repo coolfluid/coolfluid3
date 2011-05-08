@@ -4,6 +4,10 @@
 // GNU Lesser General Public License version 3.
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @file Component.hpp
+/// @brief Holds the Component class, as well as the ComponentIterator class
+///        plus some functions related to component creation
+
 #ifndef CF_Common_Component_hpp
 #define CF_Common_Component_hpp
 
@@ -29,7 +33,22 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Base class for defining CF components
+/// @brief Base class for defining CF components
+///
+/// The Component class is the base principle of COOLFluiD.
+/// Components can hold other components, much like the filesystem of
+/// your OS. See @link introducing_components this page @endlink for
+/// a more complete understanding.
+///
+/// Components:
+///  - have dynamic variables (properties).
+///  - have configuration options. This are special properties that can
+///    trigger a function
+///  - have dynamic functions (signals). Signal arguments are in XML format,
+///    and thus almost limitless.
+///
+/// See @link using_components this page @endlink for a tutorial how to work
+/// with components.
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 class Common_API Component :
@@ -252,9 +271,12 @@ public: // functions
   /// @returns this component converted to type T reference
   template < typename T > const T& as_type() const { return * as_ptr_checked<T>(); }
 
+  /// Cast the component as a ConstPtr
   /// @return a ConstPtr
   ConstPtr as_const() const;
 
+  /// Cast a const object to a non-const Ptr (to be used with extreme care)
+  /// @return a Ptr
   Ptr as_non_const() const;
 
   /// Create a (sub)component of this component automatically cast to the specified type
@@ -273,19 +295,23 @@ public: // functions
   template < typename T >
     T& create_static_component ( const std::string& name );
 
-  /// Build a (sub)component of this component using the name of the builder
-  /// The builder is then automatically searched through the namespace which is linked
-  /// to the library
+  /// @brief Build a (sub)component of this component using the extended type_name of the component.
+  ///
+  /// The Library is extracted from the extended type_name, and inside is searched for the builder.
+  /// The builder creates the component. The component is then added as a subcomponent.
+  /// See @ref using_build_component "here" for a tutorial
   Component& build_component ( const std::string& name , const std::string& builder );
 
   /// Add a dynamic (sub)component of this component
   Component& add_component ( Ptr subcomp );
 
+  /// Add a dynamic (sub)component of this component
   Component& add_component ( Component& subcomp );
 
   /// Remove a (sub)component of this component
   Ptr remove_component ( const std::string& name );
 
+  /// Remove a (sub)component of this component
   Ptr remove_component ( Component& subcomp );
 
   /// Move this component to within another one
@@ -311,6 +337,7 @@ public: // functions
   /// access to the property
   const Property& property(const std::string& optname ) const;
 
+  /// access to the property
   Property& property(const std::string& optname );
 
   /// Configure one property, and trigger its actions
@@ -410,6 +437,9 @@ private: // helper functions
   template<typename ComponentT>
   void put_components(std::vector<typename ComponentT::Ptr>& vec, const bool recurse);
 
+  /// Put all subcomponents in a given vector, optionally recursive
+  /// @param [out] vec  A vector of all (recursive) subcomponents
+  /// @param [in] recurse If true, recurse through all subcomponents. If false, puts only direct children
   template<typename ComponentT>
   void put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec, const bool recurse) const;
 
@@ -419,6 +449,9 @@ private: // helper functions
   template<typename ComponentT>
   ComponentIterator<ComponentT> make_iterator(const bool begin, const bool recursive);
 
+  /// Returns an iterator
+  /// @param [in] begin If true, the begin iterator is returned, otherwise end
+  /// @param [out] recursive If true, the iterator recurses over all components below this
   template<typename ComponentT>
   ComponentIterator<ComponentT const> make_iterator(const bool begin, const bool recursive) const;
 
@@ -449,6 +482,15 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief %ComponentIterator class, can linearize a complete tree of components
+///
+/// The ComponentIterator class is the type for
+/// - Component::iterator
+/// - Component::const_iterator
+///
+/// - Using Component::begin() and Component::end() iterates on only 1 deeper level
+/// - Using Component::recursive_begin() and Component::recursive_end() iterates
+/// on all deeper levels recursively. Iterating will then linearize the tree.
 template<class T>
 class ComponentIterator
         : public boost::iterator_facade<ComponentIterator<T>,        // iterator
@@ -514,7 +556,12 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Stand-alone function to allocate components of a given type
+/// @brief Stand-alone function to allocate components of a given type
+///
+/// A shared pointer must be returned, as this creates the very first
+/// instance of the shared_pointer.
+/// @param [in] name The name to give to the component to allocate
+/// @return The component as a boost::shared_ptr
 template < typename T >
 boost::shared_ptr<T> allocate_component ( const std::string& name )
 {
