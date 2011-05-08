@@ -1,0 +1,81 @@
+all: dirs bin/gntp-send-static.exe bin/gntp-send-shared.exe bin/gntp-send-static++.exe bin/gntp-send-shared.exe
+
+
+
+bin/gntp-send-static.exe : objs/gntp-send-static.o lib/libgrowl-static.a
+	gcc $^ -o $@ -lws2_32
+
+bin/gntp-send-static++.exe : objs/gntp-send-static++.o lib/libgrowl-static++.a lib/libgrowl-static.a
+	g++ $^ -o $@ -lws2_32
+
+bin/gntp-send-shared.exe : objs/gntp-send-shared.o lib/libgrowl-shared.a
+	gcc $^ -o $@ -lws2_32
+
+bin/gntp-send-shared++.exe : objs/gntp-send-shared++.o lib/libgrowl-shared++.a lib/libgrowl-shared.a
+	g++ $^ -o $@ -lws2_32
+
+
+
+lib/libgrowl-static.a : objs/growl-static.o objs/tcp.o  objs/md5.o
+	ar rc $@ $^
+	ranlib $@	
+
+lib/libgrowl-static++.a : objs/growl-static++.o
+	ar rc $@ $^
+	ranlib $@
+
+lib/libgrowl-shared.a: objs/growl-shared.o objs/tcp.o  objs/md5.o
+	gcc -shared -o lib/libgrowl.dll $^ -Wl,--out-implib,$@ -l ws2_32
+
+lib/libgrowl-shared++.a: lib/libgrowl-shared.a objs/growl-shared++.o
+	g++ -shared -o lib/libgrowl++.dll objs/growl-shared++.o -Wl,--out-implib,$@ -l ws2_32 lib/libgrowl-shared.a
+
+
+
+objs/gntp-send-static.o : source/gntp-send.c
+	gcc -D GROWL_STATIC -I headers -Wall -c $< -o $@
+
+objs/gntp-send-static++.o : source/gntp-send++.cpp
+	g++ -D GROWL_STATIC -D GROWL_CPP_STATIC -I headers -Wall -c $< -o $@
+
+objs/growl-static.o : source/growl.c
+	gcc -D GROWL_STATIC -I headers -Wall -Wno-format-zero-length -c $< -o $@
+
+objs/growl-static++.o : source/growl++.cpp
+	g++ -D GROWL_STATIC -D GROWL_CPP_STATIC  -I headers -Wall -c $< -o $@
+
+
+
+objs/gntp-send-shared.o : source/gntp-send.c
+	gcc  -I headers -Wall -c $< -o $@
+
+objs/gntp-send-shared++.o : source/gntp-send++.cpp
+	g++ -I headers -Wall -c $< -o $@
+
+objs/growl-shared.o : source/growl.c
+	gcc -D GROWL_DLL -I headers -Wall -Wno-format-zero-length -c $< -o $@
+
+objs/growl-shared++.o : source/growl++.cpp
+	g++ -D GROWL_CPP_DLL -D GROWL_DLL -I headers -Wall -c $< -o $@
+
+
+
+
+objs/tcp.o : source/tcp.c
+	gcc -I headers -Wall -c $< -o $@
+
+objs/md5.o : source/md5.c
+	gcc -I headers -Wall -c $< -o $@
+
+
+
+clean : 
+	del /Q bin\* objs\* lib\*
+
+dirs : bin objs lib
+bin :
+	mkdir $@
+objs :
+	mkdir $@
+lib :
+	mkdir $@

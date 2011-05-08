@@ -9,6 +9,9 @@ add_subdirectory( GooglePerf )
 # a library to send notifications to the iPhone app Prowl
 add_subdirectory( Prowl )
 
+# a library to send notifications to Growl
+add_subdirectory( Growl )
+
 # a library to help testing differences in arrays
 add_subdirectory( Testing )
 

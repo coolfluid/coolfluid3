@@ -1,0 +1,73 @@
+all: dirs bin/gntp-send-static.exe bin/gntp-send-shared.exe bin/gntp-send-static++.exe bin/gntp-send-shared++.exe
+
+bin/gntp-send-static.exe : objs/gntp-send-static.obj lib/libgrowl-static.lib
+	link $** /out:$@ ws2_32.lib
+
+bin/gntp-send-static++.exe : objs/gntp-send-static++.obj lib/libgrowl-static++.lib lib/libgrowl-static.lib
+	link $** /out:$@ ws2_32.lib
+
+bin/gntp-send-shared.exe : objs/gntp-send-shared.obj lib/libgrowl-shared.lib
+	link $** /out:$@ ws2_32.lib
+
+bin/gntp-send-shared++.exe : objs/gntp-send-shared++.obj lib/libgrowl-shared++.lib lib/libgrowl-shared.lib
+	link $** /out:$@ ws2_32.lib
+
+
+lib/libgrowl-static.lib  : objs/growl-static.obj objs/tcp.obj  objs/md5.obj
+	lib /out:$@ $**
+
+lib/libgrowl-static++.lib  : objs/growl-static++.obj 
+	lib /out:$@ $**
+
+lib/libgrowl-shared.lib : objs/growl-shared.obj objs/tcp.obj objs/md5.obj
+	link /out:lib/growl.dll ws2_32.lib /implib:$@ /dll $**
+
+lib/libgrowl-shared++.lib : lib/libgrowl-shared.lib objs/growl-shared++.obj
+	link /out:lib/growl++.dll ws2_32.lib lib/libgrowl-shared.lib /implib:$@ /dll objs/growl-shared++.obj
+
+
+
+objs/gntp-send-static.obj : source/gntp-send.c
+	cl -D GROWL_STATIC -I headers -w -c $** -Fo$@
+
+objs/gntp-send-static++.obj : source/gntp-send++.cpp
+	cl -D GROWL_STATIC -D GROWL_CPP_STATIC -I headers -w -c $** -Fo$@
+
+objs/growl-static.obj : source/growl.c
+	cl -D GROWL_STATIC -I headers  -c $** -Fo$@
+
+objs/growl-static++.obj : source/growl++.cpp
+	cl -D GROWL_STATIC -D GROWL_CPP_STATIC  -I headers -w -c $** -Fo$@
+
+
+objs/gntp-send-shared.obj : source/gntp-send.c
+	cl  -I headers -w -c $** -Fo$@
+
+objs/gntp-send-shared++.obj : source/gntp-send++.cpp
+	cl -I headers -w -c $** -Fo$@
+
+objs/growl-shared.obj : source/growl.c
+	cl -D GROWL_DLL -I headers -w  -c $** -Fo$@
+
+objs/growl-shared++.obj : source/growl++.cpp
+	cl -D GROWL_CPP_DLL -D GROWL_DLL -I headers -w -c $** -Fo$@
+
+
+objs/tcp.obj : source/tcp.c
+	cl -I headers -w -c $** -Fo$@
+
+objs/md5.obj : source/md5.c
+	cl -I headers -w -c $** -Fo$@
+
+
+
+clean : 
+	del /Q bin objs lib
+
+dirs : bin objs lib
+bin :
+	mkdir $@
+objs :
+	mkdir $@
+lib :
+	mkdir $@
