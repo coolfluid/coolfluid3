@@ -24,7 +24,11 @@
 
 #include "Common/Core.hpp"
 
+
+/// @warning why is tracing deactivated for this file?
+#ifndef CF_NO_TRACE
 #define CF_NO_TRACE
+#endif
 
 using namespace boost;
 using namespace MPI;

@@ -51,7 +51,7 @@ public: // functions
 
   // functions specific to the CLoop component
 
-  CLoopOperation& create_action(const std::string action_provider);
+  CLoopOperation& create_loop_operation(const std::string action_provider);
 
   virtual const CLoopOperation& action(const std::string& name) const;
 

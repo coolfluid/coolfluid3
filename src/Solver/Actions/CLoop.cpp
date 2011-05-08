@@ -36,7 +36,7 @@ CLoop::CLoop ( const std::string& name ) :
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CLoopOperation& CLoop::create_action(const std::string action_provider)
+CLoopOperation& CLoop::create_loop_operation(const std::string action_provider)
 {
   // The execuation of operations must be in chronological order,
   // hence they get an alphabetical name

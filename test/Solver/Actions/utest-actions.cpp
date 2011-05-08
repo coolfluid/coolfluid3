@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
 	CLoop::Ptr node_loop2 = root->create_component_ptr< CForAllNodes2 >("node_loop");
-  node_loop2->create_action("CF.TestActions.CDummyLoopOperation");
+  node_loop2->create_loop_operation("CF.TestActions.CDummyLoopOperation");
 	node_loop2->configure_property("Regions",regions);
 	CFinfo << "\n\n\nNode loop 2 " << CFendl;
   node_loop2->execute();
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
 	CLoop::Ptr face_loop = root.create_component_ptr< CForAllFaces >("face_loop");
-  face_loop->create_action("CF.TestActions.CDummyLoopOperation");
+  face_loop->create_loop_operation("CF.TestActions.CDummyLoopOperation");
 	face_loop->configure_property("Regions",regions);
 	CFinfo << "\n\n\nFace loop" << CFendl;
   face_loop->execute();
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 	CLoop::Ptr node_loop = root.create_component_ptr< CForAllNodes2 >("node_loop");
 	node_loop->configure_property("Regions",regions);
 
-  node_loop->create_action("CF.Solver.Actions.CSetFieldValues");
+  node_loop->create_loop_operation("CF.Solver.Actions.CSetFieldValues");
   node_loop->action("CF.Solver.Actions.CSetFieldValues").configure_property("Field",field.full_path());
   node_loop->execute();
   
@@ -167,10 +167,10 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   CLoop::Ptr elem_loop = root.create_component_ptr< CForAllElements >("elem_loop");
   elem_loop->configure_property("Regions",regions);
   
-  elem_loop->create_action("CF.Solver.Actions.CComputeVolume");
+  elem_loop->create_loop_operation("CF.Solver.Actions.CComputeVolume");
   elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volume",volumes.full_path());
   
-  elem_loop->create_action("CF.Solver.Actions.CComputeArea");
+  elem_loop->create_loop_operation("CF.Solver.Actions.CComputeArea");
   elem_loop->action("CF.Solver.Actions.CComputeArea").configure_property("Area",areas.full_path());
   
   elem_loop->execute();

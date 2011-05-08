@@ -178,7 +178,7 @@ void FiniteVolumeSolver::trigger_domain()
     area.add_tag(Mesh::Tags::area());
     CLoop::Ptr compute_area = create_component_ptr< CForAllFaces >("compute_area");
     compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().full_path()));
-    compute_area->create_action("CF.Solver.Actions.CComputeArea");
+    compute_area->create_loop_operation("CF.Solver.Actions.CComputeArea");
     configure_option_recursively(Mesh::Tags::area(),area.full_path());
     compute_area->execute();
     remove_component(compute_area->name());
