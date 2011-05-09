@@ -12,10 +12,6 @@ if(CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS_RELWITHDEBUGINFO "-g -O2 ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS_DEBUG            "-g -ggdb -fno-reorder-blocks -fno-schedule-insns -fno-inline ${CMAKE_CXX_FLAGS}")
   set(CMAKE_CXX_FLAGS_DEBUGFULL        "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
-
-  #needed for h_addr in struct hostent
-  SET(CFLAGS "${CMAKE_C_FLAGS} -D_GNU_SOURCE")
-  SET(CFLAGS "${CMAKE_CXX_FLAGS} -D_GNU_SOURCE")
 endif(CMAKE_COMPILER_IS_GNUCXX)
 
 if( WIN32 )
