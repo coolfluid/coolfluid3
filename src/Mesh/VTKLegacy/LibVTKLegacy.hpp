@@ -29,6 +29,8 @@
 
 namespace CF {
 namespace Mesh {
+  
+/// @brief Library for I/O of the VTK legacy format
 namespace VTKLegacy {
 
 ////////////////////////////////////////////////////////////////////////////////

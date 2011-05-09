@@ -15,6 +15,8 @@
 
 namespace CF {
 namespace Common {
+  
+/// @brief Specialized classes for interacting with Win32 operating system
 namespace Win32 {
 
 ////////////////////////////////////////////////////////////////////////////////

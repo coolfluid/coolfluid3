@@ -92,8 +92,8 @@ void Notifier::notify(const std::string& event, const std::string& description)
   std::string mytitle = std::string(m_application_name)+"    "+event;
   title = string_to_utf8_alloc(mytitle.c_str());
   message = string_to_utf8_alloc(description.c_str());
-  //icon = string_to_utf8_alloc(argv[optind + 2]);
-  //url = string_to_utf8_alloc(argv[optind + 3]);
+  icon = string_to_utf8_alloc("http://coolfluidsrv.vki.ac.be/trac/coolfluid/attachment/wiki/ProjectLogo/coolfluid_simple_logo.png");
+  url = string_to_utf8_alloc("http://coolfluidsrv.vki.ac.be/");
 
   if (!server) server = string_to_utf8_alloc("localhost");
 

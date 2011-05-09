@@ -36,6 +36,8 @@
 
 namespace CF {
 namespace Common {
+
+/// @brief Classes offering a %MPI interface for %COOLFluiD
 namespace mpi {
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -20,7 +20,7 @@ namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Exception thrown when a certain value is not found in a storage or container.
+/// @brief Exception thrown when a certain value is not found in a storage or container.
 /// @author Willem Deconinck
 struct Math_API OutOfBounds : public Common::Exception {
 
@@ -33,7 +33,7 @@ struct Math_API OutOfBounds : public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Exception thrown when a Zero determinant matrix is found.
+/// @brief Exception thrown when a Zero determinant matrix is found.
 /// @author Willem Deconinck
 struct Math_API ZeroDeterminant  : public Common::Exception {
 

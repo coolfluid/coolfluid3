@@ -15,6 +15,8 @@
 
 namespace CF {
 namespace Common {
+
+/// @brief Specialized classes for interacting with Mac OSX operating system
 namespace MacOSX {
 
 ////////////////////////////////////////////////////////////////////////////////

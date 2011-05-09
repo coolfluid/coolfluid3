@@ -27,6 +27,8 @@
 
 namespace CF {
 namespace Mesh {
+  
+/// @brief Library for I/O of the OpenFOAM BlockMesh dict files
 namespace BlockMesh {
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -18,8 +18,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// @brief external boost library namespace
 namespace boost {
 
+/// @brief Callback function to provide our own boost_assertion handling
 void assertion_failed( char const * expr,
                        char const * function,
                        char const * file,

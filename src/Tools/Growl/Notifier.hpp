@@ -21,15 +21,20 @@ namespace Growl {
 ///
 /// This component can send notifications from Windows / Linux / Mac. Unixes
 /// in general should be supported but are untested.
-/// Notifications may be received by <a href="http://growl.info/">Growl</a> on Mac
-/// or <a href="http://www.growlforwindows.com">GrowlForWindows</a> on Windows.
+/// Notifications may be received by
+/// - <a href="http://growl.info/">Growl</a> on Mac
+/// - <a href="http://www.growlforwindows.com">GrowlForWindows</a> on Windows
+/// - <a href="https://github.com/mattn/growl-for-linux">growl-for-linux</a> on Linux
 ///
 /// To receive the notifications on %Growl on Mac, in the %Growl System Settings,
 /// in the Network tab the following checkboxes need to be checked ON:
 /// - Listen for incoming notifications
 /// - Allow remote application registration
 ///
-/// To receive the notifications on GrowForWindows, find out for yourself.
+/// No information is known to me how to configure GrowForWindows or growl-for-linux.
+/// (feel free to add)
+///
+/// This component wraps functions from the library <a href="https://github.com/mattn/gntp-send">gntp-send</a>
 ///
 /// @author Willem Deconinck
 class Tools_Growl_API Notifier: public Common::Component

@@ -29,7 +29,7 @@
 namespace CF {
 namespace Tools {
 
-/// @brief %Growl namespace for desktop notifications
+/// @brief Classes for %Growl desktop notifications using the GNTP protocol
 ///
 /// @see Growl::Notifier
 /// @author Willem Deconinck

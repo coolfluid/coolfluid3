@@ -29,7 +29,7 @@
 
 namespace CF {
 
-/// Basic Classes for Mesh applications used by CF
+/// Basic Classes for %Mesh applications used by %COOLFluiD
 namespace Mesh {
 
 /// Class defines the initialization and termination of the library Mesh

@@ -22,7 +22,7 @@ namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Provides an a set of static functions for mathematical constants
+/// @brief Static functions for mathematical constants
 /// @author Tiago Quintino, Willem Deconinck
 namespace MathConsts
 { 

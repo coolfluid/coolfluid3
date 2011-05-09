@@ -21,9 +21,8 @@ namespace Math {
 	
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Provides an a set of static functions for checking Real numbers.
-/// This class is not instantiable.
-/// @author Tiago Quintino
+/// @brief Static functions for checking Real numbers
+/// @author Tiago Quintino, Willem Deconinck
 namespace MathChecks
 {
   /// Function to check if two Real numbers are equal.

@@ -12,6 +12,7 @@
 #include "Common/CF.hpp"
 #include "Common/CommonAPI.hpp"
 
+/// @brief external library used for %XML parsing
 namespace rapidxml
 {
   template<class Ch> class xml_node;
@@ -21,6 +22,8 @@ namespace rapidxml
 
 namespace CF {
 namespace Common {
+
+/// @brief Classes that implement the %XML protocol for use in %COOLFluiD
 namespace XML {
 
 ////////////////////////////////////////////////////////////////////////////

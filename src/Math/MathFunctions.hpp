@@ -20,7 +20,7 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Provides an a set of static functions for various useful operations
+/// @brief Static functions for various useful operations
 /// @author Andrea Lani
 /// @author Tiago Quintino
 /// @author Mehmet Sarp Yalim

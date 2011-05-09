@@ -25,6 +25,8 @@
 
 namespace CF {
 namespace Mesh {
+  
+/// @brief Functions to provide integration over elements
 namespace Integrators {
 
 /// Integral of a functor over an element, using the template-supplied order and element shape

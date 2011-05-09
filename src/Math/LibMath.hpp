@@ -29,7 +29,7 @@
 
 namespace CF {
 
-  /// Basic Classes for Mathematical applications used by the CF
+  /// Basic Classes for Mathematical applications used by %COOLFluiD
   namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////

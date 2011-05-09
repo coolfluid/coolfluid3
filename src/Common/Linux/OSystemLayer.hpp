@@ -15,6 +15,8 @@
 
 namespace CF {
 namespace Common {
+
+/// @brief Specialized classes for interacting with Linux operating system
 namespace Linux {
 
 ////////////////////////////////////////////////////////////////////////////////

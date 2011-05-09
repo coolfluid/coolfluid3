@@ -27,6 +27,8 @@
 
 namespace CF {
 namespace Mesh {
+  
+/// @brief Classes for CGAL mesh format operations
 namespace CGAL {
 
 ////////////////////////////////////////////////////////////////////////////////

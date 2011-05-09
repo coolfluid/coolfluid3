@@ -31,6 +31,9 @@
 
 namespace CF {
 namespace Mesh {
+  
+/// @brief Library for PTScotch mesh partitioning and load balancing
+/// @author Willem Deconinck
 namespace PTScotch {
 
 ////////////////////////////////////////////////////////////////////////////////

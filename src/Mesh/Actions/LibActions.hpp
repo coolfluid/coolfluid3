@@ -27,6 +27,8 @@
 
 namespace CF {
 namespace Mesh{
+
+/// @brief CAction derived classes for mesh manipulations
 namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////

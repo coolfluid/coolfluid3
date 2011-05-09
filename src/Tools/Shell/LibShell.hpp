@@ -28,53 +28,59 @@
 
 namespace CF {
 namespace Tools {
+
+/// @brief Classes for command line interpreting %COOLFluiD
+///
+/// The command line interpreter works interactively, or in batch using file
+/// @see coolfluid-command.cpp for implementation
+/// @author Willem Deconinck
 namespace Shell {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Class defines the initialization and termination of the library CommandLineInterpreter
-  /// @author Tiago Quintino
-  class Tools_Shell_API LibShell : public Common::CLibrary
+/// Class defines the initialization and termination of the library CommandLineInterpreter
+/// @author Tiago Quintino
+class Tools_Shell_API LibShell : public Common::CLibrary
+{
+public:
+
+  typedef boost::shared_ptr<LibShell> Ptr;
+  typedef boost::shared_ptr<LibShell const> ConstPtr;
+
+  /// Constructor
+  LibShell ( const std::string& name) : Common::CLibrary(name) {   }
+
+public: // functions
+
+  /// @return string of the library namespace
+  static std::string library_namespace() { return "CF.Tools.Shell"; }
+
+  /// Static function that returns the module name.
+  /// Must be implemented for CLibrary registration
+  /// @return name of the library
+  static std::string library_name() { return "Shell"; }
+
+  /// Static function that returns the description of the module.
+  /// Must be implemented for CLibrary registration
+  /// @return description of the library
+
+  static std::string library_description()
   {
-  public:
+    return "This library implements the Command Line Interpreter API.";
+  }
 
-    typedef boost::shared_ptr<LibShell> Ptr;
-    typedef boost::shared_ptr<LibShell const> ConstPtr;
+  /// Gets the Class name
+  static std::string type_name() { return "LibShell"; }
 
-    /// Constructor
-    LibShell ( const std::string& name) : Common::CLibrary(name) {   }
+protected:
 
-  public: // functions
+  /// initiate library
+  virtual void initiate_impl();
 
-    /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Tools.Shell"; }
+  /// terminate library
+  virtual void terminate_impl();
 
-    /// Static function that returns the module name.
-    /// Must be implemented for CLibrary registration
-    /// @return name of the library
-    static std::string library_name() { return "Shell"; }
-
-    /// Static function that returns the description of the module.
-    /// Must be implemented for CLibrary registration
-    /// @return description of the library
-
-    static std::string library_description()
-    {
-      return "This library implements the Command Line Interpreter API.";
-    }
-
-    /// Gets the Class name
-    static std::string type_name() { return "LibShell"; }
-
-  protected:
-
-    /// initiate library
-    virtual void initiate_impl();
-
-    /// terminate library
-    virtual void terminate_impl();
-
-  }; // end LibCommandLineInterpreter
+}; // end LibCommandLineInterpreter
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -13,7 +13,7 @@
   #endif
 #else
   #define GROWL_EXPORT
-#endif //_WIN32
+#endif /* _WIN32 */
 
 #ifdef __cplusplus
 extern "C" {

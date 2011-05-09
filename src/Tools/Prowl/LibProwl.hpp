@@ -29,7 +29,7 @@
 namespace CF {
 namespace Tools {
 
-/// @brief %Prowl namespace for Apple iOS push notifications
+/// @brief Classes for %Prowl push notifications on Apple iOS devices
 ///
 /// %Prowl is an iOS app that can receive push notifications (http://www.prowlapp.com/),
 /// sent from different sources (most notably <a href="http://growl.info/">Growl</a>).

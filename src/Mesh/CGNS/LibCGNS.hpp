@@ -27,6 +27,8 @@
 
 namespace CF {
 namespace Mesh {
+  
+/// @brief Library for I/O of the CGNS format
 namespace CGNS {
 
 ////////////////////////////////////////////////////////////////////////////////

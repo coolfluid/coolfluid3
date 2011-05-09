@@ -27,6 +27,11 @@
 
 namespace CF {
 namespace Mesh {
+  
+/// @brief Library for element types and shape functions
+/// @note Of course other element types and shape functions can be added in other
+///       libraries as well.
+/// @author Willem Deconinck
 namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////

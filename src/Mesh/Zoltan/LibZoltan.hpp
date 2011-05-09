@@ -34,6 +34,9 @@ typedef Zoltan ZoltanObject;
 
 namespace CF {
 namespace Mesh {
+  
+/// @brief Library for Zoltan mesh partitioning and load balancing
+/// @author Willem Deconinck
 namespace Zoltan {
 
 ////////////////////////////////////////////////////////////////////////////////
