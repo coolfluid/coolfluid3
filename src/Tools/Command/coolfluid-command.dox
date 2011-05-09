@@ -1,0 +1,90 @@
+namespace CF{
+/**
+@page coolfluid-command coolfluid-command
+
+location: src/Tools/Command/coolfluid-command
+The coolfluid-command executable is an interactive command-line interpreter of CF.
+Since the component-architecture of %COOLFluiD is very similar to a file system, the syntax for coolfluid-command is based on the UNIX commands to manipulate and visualize files.
+
+@section _coolfluid-command_intaractive_mode Interactive mode
+
+By default when starting "coolfluid-command", the user seemingly enters another shell environment. where commands such as "ls", "pwd", "cd" , "exit" can be used to traverse the data structure.
+@verbatim
+$> coolfluid-command
+[//Root] ls
+Environment
+Factories
+Libraries
+Tools
+[//Root] cd Tools
+[//Root/Tools] pwd
+//Root/Tools
+[//Root/Tools] exit
+$>
+@endverbatim
+@c "ls l" shows detailed view, @c "ls s" shows signals only, @c "ls a" shows both Components and signals.
+
+@c "coolfluid-command --help" displays all available commands.
+
+<hr>
+@section _coolfluid-command_batch_mode Batch mode
+
+coolfluid-command can also be used in batch:
+
+Following will show exactly the same output as above, and exits the executable automatically
+@verbatim
+$> coolfluid-command --ls   --cd Tools  --pwd
+[//Root] ls
+Environment
+Factories
+Libraries
+Tools
+[//Root] cd Tools
+[//Root/Tools] pwd
+//Root/Tools
+$>
+@endverbatim
+
+The same commands as in interactive mode can be used, but have to be prepended with "--".
+When ending the line with "--interactive", the user enters the interactive shell to continue interactively.
+@verbatim
+$> coolfluid-command --ls   --cd Tools  --pwd --interactive
+[//Root] ls
+Environment
+Factories
+Libraries
+Tools
+[//Root] cd Tools
+[//Root/Tools] pwd
+//Root/Tools
+[//Root/Tools]
+@endverbatim
+
+<hr>
+@section _coolfluid-command_reading_from_a_script Reading from a script
+
+coolfluid-command can interprete a script.
+An example script "example.cfscript":
+@verbatim
+# This is a comment line
+ls
+cd Tools   # This is also comment
+
+pwd
+@endverbatim
+
+Interpreting the script:
+@verbatim
+$> coolfluid-command --file example.cfscript  --interactive
+[//Root] ls
+Environment
+Factories
+Libraries
+Tools
+[//Root] cd Tools
+[//Root/Tools] pwd
+//Root/Tools
+[//Root/Tools]
+@endverbatim
+*/
+} // namespace CF

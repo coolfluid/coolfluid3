@@ -1,5 +1,4 @@
 namespace CF {
-namespace Common {
 /**
  @mainpage COOLFluiD
 
@@ -9,6 +8,10 @@ namespace Common {
  - \subpage using_components
  - \subpage coding_components
  
+ @section _stand-alone_executables Stand-alone executables
+ %COOLFluiD contains multiple stand-alone executables:
+ - \subpage coolfluid-command for command-line interpretion and scripting
+
  <hr>
  
  @section _more_info More information
@@ -291,5 +294,4 @@ Noteworthy here is:
    This macro is usually defined in the library of this namespace. (LibNamespace.hpp)
 
 */
-}
 }
