@@ -1,0 +1,142 @@
+namespace CF{
+/**
+@page installation Installing a developer version
+
+@note This tutorial works only for Linux and Mac OS X command line <a href="http://en.wikipedia.org/wiki/Bash_(Unix_shell)">bash</a> environments.
+
+@section _installation_prepare_the_structure Prepare the structure
+
+You will get coolfluid sources and build the software that coolfluid depends on.
+You just need to do phase only once. 
+You may repeat this phase if you want to refresh the versions of the installed software.
+
+@subsection _installation_make_a_dir_structure Make a dir structure
+
+Create a directory to hold your sources and the build files:
+
+@verbatim
+$> mkdir coolfluid3
+$> cd coolfluid3
+@endverbatim
+
+Lets remember this directory to help the rest of the installation:
+
+@verbatim
+$> export COOLDIR=$PWD
+@endverbatim
+
+@subsection _installation_get_the_sources Get the sources
+
+Get the development version (named "trunk") into a "kernel" subdir. Give your developer login and password.
+
+@verbatim
+$> svn co https://coolfluidsrv.vki.ac.be/svn/coolfluid3/trunk   kernel
+@end_verbatim
+
+@subsection _installation_build_dependencies Build dependencies
+
+Then build/install the software dependencies:
+
+@verbatim
+$> cd kernel
+$> ./tools/install-deps.pl --install-dir=$COOLDIR/deps --install=recommended
+@endverbatim
+
+@subsection _installation_export_dependencies Export dependencies
+
+You might want to save this in your bash startup script (~/.bash_profile), where @c $COOLDIR has to be replaced by the path to the coolfluid3 dir.
+@verbatim
+$> export PATH=$COOLDIR/deps/bin:$PATH
+$> export LD_LIBRARY_PATH=$COOLDIR/deps/lib:$LD_LIBRARY_PATH
+$> export DYLD_LIBRARY_PATH=$COOLDIR/deps/lib:$DYLD_LIBRARY_PATH
+@endverbatim
+
+<hr>
+
+@section _installation_build_coolfluid Build COOLFluiD
+
+On this phase you will select your building options for CF.
+Repeat this phase as often as you need and whenever you want to refresh your build directory.
+
+@subsection _installation_create_a_build_directory_separate_from_the_sources Create a build directory separate from the sources
+
+@verbatim
+$> cd $COOLDIR
+$> mkdir build
+@endverbatim
+
+@subsection _installation_configure_the_build_with_your_options Configure the build with your options
+
+Unlike COOLFluiD 2, there is no prepare.pl script. The developer must now call CMake directly.
+CMake is a cross platform configuration/build system. The developer is advised to read the <a href="http://www.cmake.org/cmake/help/documentation.html">CMake documentation</a> for advanced configuration.
+@verbatim
+$> cd $COOLDIR/build
+$> cmake ../kernel -DDEPS_ROOT=$COOLDIR/deps
+@endverbatim
+
+@subsubsection _installation_build_type_options Build type options
+
+By default CF builds with some optimization and with debug symbols. 
+This is equivalent to passing the option "-DCMAKE_BUILD_TYPE=RelWithDebInfo".
+Available build types are:
+
+@verbatim
+-DCMAKE_BUILD_TYPE=RelWithDebInfo
+-DCMAKE_BUILD_TYPE=Release (no debug symbols)
+-DCMAKE_BUILD_TYPE=Debug (no optimization)
+@endverbatim
+
+@subsubsection _installation_some_more_configuration_options Some more configuration options
+
+@verbatim
+-DCF_CXX_FLAGS="-march=Core2"
+-DCF_SKIP_FORTRAN=ON 
+-DCF_ENABLE_WARNINGS=OFF
+-DCF_ENABLE_SANDBOX=ON
+-DCF_ENABLE_GUI=OFF
+@endverbatim
+
+@subsubsection _installation_customizing_configuration_further Customizing configuration further
+
+Calling the command
+@verbatim
+$> cd $COOLDIR/build
+$> ccmake ./
+@endverbatim
+This will show the interactive CMake configuration, where all available options are visible and can be changed. Press 'c' to configure, and afterwards 'g' to generate the build files.
+
+@subsection _installation_compiling_coolfluid Compiling COOLFluiD
+
+By default, the CMake configuration generates <a href="http://en.wikipedia.org/wiki/Make_(software)">makefiles</a> to compile %COOLFluiD. This is used by
+@verbatim
+$> cd $COOLDIR/build
+$> make -j2
+@endverbatim
+with the @c "-j2" assigning 2 processes to the compilation (e.g. for dual core)
+
+@subsection _installation_xcode_builds Xcode builds (MacOS X)
+
+Alternately the CMake argument @c -G"Xcode" can be used:
+@verbatim
+$> cd $COOLDIR/build
+$> cmake ../kernel -DDEPS_ROOT=$COOLDIR/deps -G"Xcode"
+@endverbatim 
+This will generate an <a href="http://developer.apple.com/xcode/">Xcode</a> project instead of  makefiles. Xcode comes with a debugger and other nice features to help developers.
+@note Xcode version 4 is found to be nearly unusable due to high memory requirements at the "indexing" stage, version 3 is recommended.
+
+<hr>
+
+@section _installation_running_coolfluid_tests Running COOLFluiD tests
+
+%CF has many unit tests and acceptance tests. Unit tests are small executables that run each a maximum of 1 to 2 seconds, and test various classes and functions of CF. They serve also as mini-manuals and examples of how to use CF.
+Acceptance tests are typically more full simulations that take a longer time to finish. They are typically made in the form of a script that gets executed by a %CF command-line interpreter @ref coolfluid-command.
+To compile the tests, the developer has to make sure that the flags @c "-DCF_ENABLE_UNIT_TESTS" and @c "-DCF_ENABLE_ACCEPTANCE_TESTS" are passed to the CMake configuration. (They are on by default, but can be changed using @c "ccmake")
+To run the tests:
+@verbatim
+$> cd $COOLDIR/build
+$> ctest
+@endverbatim 
+Individual tests can be selected. The developer is referred to the <a href="http://www.cmake.org/cmake/help/ctest-2-8-docs.html">CTest documentation</a>.
+
+*/
+}

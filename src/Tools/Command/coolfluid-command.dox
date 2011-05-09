@@ -2,7 +2,8 @@ namespace CF{
 /**
 @page coolfluid-command coolfluid-command
 
-location: src/Tools/Command/coolfluid-command
+@b location: @c src/Tools/Command/coolfluid-command
+
 The coolfluid-command executable is an interactive command-line interpreter of CF.
 Since the component-architecture of %COOLFluiD is very similar to a file system, the syntax for coolfluid-command is based on the UNIX commands to manipulate and visualize files.
 
@@ -27,6 +28,7 @@ $>
 @c "coolfluid-command --help" displays all available commands.
 
 <hr>
+
 @section _coolfluid-command_batch_mode Batch mode
 
 coolfluid-command can also be used in batch:
@@ -61,6 +63,7 @@ Tools
 @endverbatim
 
 <hr>
+
 @section _coolfluid-command_reading_from_a_script Reading from a script
 
 coolfluid-command can interprete a script.

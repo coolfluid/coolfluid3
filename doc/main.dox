@@ -2,6 +2,9 @@ namespace CF {
 /**
  @mainpage COOLFluiD
 
+ @section _main_installing_coolfluid Installing COOLFluiD
+ - \subpage installation
+ 
  @section _getting_started Getting started
  This tutorial is divided in the following sections:
  - \subpage introducing_components
@@ -56,6 +59,8 @@ namespace CF {
  CGroup: This component actually doesn't add more functionality, but serves as an analogy to the folder or directory on the computer file system.
  The CF::Mesh namespace implements components that constitute to building, storing, and manipulating the mesh.
  
+ <hr>
+ @li Next: \ref using_components
  */
 
  //-----------------------------------------------------------
@@ -246,6 +251,8 @@ namespace CF {
  }
  @endcode
  
+ <hr>
+ @li Next: \ref coding_components
 */
 
 //-----------------------------------------------------------
