@@ -93,7 +93,7 @@ void CBuildFaceNormals::execute()
     if (is_not_null(face2cell_ptr))
     {
       CFaceCellConnectivity& face2cell = *face2cell_ptr;
-      CList<Uint>& face_nb = face2cell.get_child("face_number").as_type<CList<Uint> >();
+      CTable<Uint>& face_nb = face2cell.get_child("face_number").as_type<CTable<Uint> >();
       RealMatrix face_coordinates(faces.element_type().nb_nodes(),faces.element_type().dimension());
       RealVector normal(faces.element_type().dimension());
       for (Uint face=0; face<face2cell.size(); ++face)
@@ -103,7 +103,7 @@ void CBuildFaceNormals::execute()
         CCells& cells = component->as_type<CCells>();
         CConnectivity::ConstRow cell_nodes = cells.node_connectivity()[cell_idx];
         Uint i(0);
-        boost_foreach(Uint node_id, cells.element_type().face_connectivity().face_node_range(face_nb[face]) )
+        boost_foreach(Uint node_id, cells.element_type().face_connectivity().face_node_range(face_nb[face][0]) )
         {
           Uint j(0);
           boost_foreach(const Real& coord, mesh.nodes().coordinates()[cell_nodes[node_id]])
