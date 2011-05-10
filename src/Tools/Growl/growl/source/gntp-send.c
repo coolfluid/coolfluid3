@@ -31,7 +31,7 @@ static char* string_to_utf8_alloc(const char* str) {
 	free(wcsdata);
 	return mbsdata;
 #else
-	return strdup(str);
+	return (char *)strdup(str);
 #endif
 }
 

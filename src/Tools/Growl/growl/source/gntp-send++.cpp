@@ -1,6 +1,6 @@
 #include <growl++.hpp>
 
-int main(int argc, char **argv)
+int main(void)
 {
 	const char *n[2] = { "alice" , "willem" };
 	//Growl *growl = new Growl(GROWL_UDP,NULL,"gntp_send++",(const char **const)n,2);

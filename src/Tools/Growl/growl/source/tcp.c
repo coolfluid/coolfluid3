@@ -104,7 +104,7 @@ void growl_tcp_close(int sock) {
 
 int growl_tcp_parse_hostname( const char *const server , int default_port , struct sockaddr_in *const sockaddr )
 {
-	char *hostname = strdup((const char*)server);
+	char *hostname = (char *)strdup((const char*)server);
 	char *port = strchr( hostname, ':' );
 	struct hostent* host_ent;
 	if( port != NULL )
