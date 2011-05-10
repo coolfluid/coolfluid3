@@ -31,6 +31,7 @@
 #include "Mesh/Actions/CreateSpaceP0.hpp"
 #include "SFDM/CreateSpace.hpp"
 
+#include <boost/tuple/tuple.hpp>
 
 using namespace CF;
 using namespace CF::Common;
@@ -46,13 +47,27 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
+boost::tuple<Component&,Uint> crazytest()
+{
+  return boost::tuple<Component&,Uint>(Core::instance().root(),5u);
+}
+
 BOOST_AUTO_TEST_CASE( Solver )
 {
+
+
   CModelUnsteady& model   = Core::instance().root().create_component<CModelUnsteady>("model");
   CPhysicalModel& physics = model.create_physics("Physics");
   CDomain&        domain  = model.create_domain("Domain");
   CSolver&        solver  = model.create_solver("CF.SFDM.SFDSolver");
 
+
+  Component& crazyroot = model;
+  Uint crazynumber=0;
+
+  boost::tuple<Component&,Uint> unified_cell = crazytest();
+  crazytest().get<0>();
+  crazytest().get<1>();
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   CMesh& mesh = domain.create_component<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(mesh, 1., 3);

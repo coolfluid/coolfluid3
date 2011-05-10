@@ -12,6 +12,7 @@
 #include "Mesh/CTable.hpp"
 #include "Math/MatrixTypes.hpp"
 #include "Mesh/CFieldView.hpp"
+#include "Mesh/CMeshElements.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -69,6 +70,8 @@ private: // data
   boost::shared_ptr<Reconstruct> m_reconstruct_flux;
 
   boost::shared_ptr<Flux> m_flux;
+
+  boost::weak_ptr<Mesh::CMeshElements> m_mesh_elements;
 
 };
 

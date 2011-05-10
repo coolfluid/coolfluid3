@@ -91,6 +91,26 @@ boost::tuple<Common::Component::ConstPtr,Uint> CUnifiedData::location(const Uint
 
 ////////////////////////////////////////////////////////////////////////////////
 
+boost::tuple<Common::Component&,Uint> CUnifiedData::location_v2(const Uint data_glb_idx)
+{
+  cf_assert(data_glb_idx<m_size);
+  const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
+  cf_assert(m_data_indices->array()[data_vector_idx] <= data_glb_idx );
+  return boost::tuple<Common::Component&,Uint>(*m_data_vector[data_vector_idx], data_glb_idx - m_data_indices->array()[data_vector_idx]);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+boost::tuple<const Common::Component&,Uint> CUnifiedData::location_v2(const Uint data_glb_idx) const
+{
+  cf_assert(data_glb_idx<m_size);
+  const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
+  cf_assert(m_data_indices->array()[data_vector_idx] <= data_glb_idx );
+  return boost::tuple<const Common::Component&,Uint>(*m_data_vector[data_vector_idx], data_glb_idx - m_data_indices->array()[data_vector_idx]);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// Get the const component and local index in the component
 /// given a continuous index spanning multiple components
 /// @param [in] data_glb_idx continuous index covering multiple components

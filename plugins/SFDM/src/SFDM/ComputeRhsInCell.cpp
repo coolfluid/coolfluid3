@@ -9,6 +9,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
 #include "Mesh/CField.hpp"
+#include "Mesh/CMesh.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CEntities.hpp"
@@ -70,6 +71,8 @@ void ComputeRhsInCell::config_solution()
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_solution->set_field(comp);
+
+  m_mesh_elements = m_solution->field().parent().as_type<CMesh>().elements().as_ptr<CMeshElements>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -159,6 +162,13 @@ void ComputeRhsInCell::execute()
   CMultiStateFieldView::View solution_data = (*m_solution)[idx()];
   CMultiStateFieldView::View residual_data = (*m_residual)[idx()];
 
+  CConnectivity& c2f = elements().get_child("face_connectivity").as_type<CConnectivity>();
+  Component::Ptr faces;
+  Uint face_idx;
+  Component::Ptr neighbor_cells;
+  Uint neighbor_cell_idx;
+  const Uint this_cell_idx = m_mesh_elements.lock()->unified_idx(elements(),idx());
+
   /// <li> Set all cell solution states in a matrix @f$ \mathbf{Q_s} @f$ (rows are states, columns are variables)
   RealMatrix solution = to_matrix(solution_data);
   CFinfo << "solution = \n" << solution << CFendl;
@@ -185,31 +195,28 @@ void ComputeRhsInCell::execute()
       /// <li> Update face flux points with Riemann problem with neighbor
       ///      At the flux point location of the face:
       ///      @f[ \tilde{F}_{face flxpt} = \mathrm{Riemann}(Q_{face flxpt,\mathrm{left}},Q_{face flxpt,\mathrm{right}}) @f]
-      for (Uint face=0; face<2; ++face) // a line connects 2 faces
+      for (Uint side=0; side<2; ++side) // a line connects 2 faces
       {
+        /// @todo it is now assumed that side == face number (only valid in 1D)
+        cf_assert_desc("only valid in 1D",dimensionality==1);
+
         // Find face
-        CConnectivity& c2f = elements().get_child("face_connectivity").as_type<CConnectivity>();
-        Component::Ptr neighbor_faces;
-        Uint neighbor_faces_idx;
-        boost::tie(neighbor_faces,neighbor_faces_idx) = c2f.lookup().location( c2f[idx()][face] );
+        boost::tie(faces,face_idx) = c2f.lookup().location( c2f[idx()][side] );
 
         // Find neighbor cell
-        CFaceCellConnectivity& f2c = neighbor_faces->get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
-        if (f2c.is_bdry_face()[neighbor_faces_idx])
+        CFaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
+        if (f2c.is_bdry_face()[face_idx])
         {
-          CFinfo << "cell["<<idx()<<"] must implement a boundary condition on face " << neighbor_faces->full_path().path() << "["<<neighbor_faces_idx<<"]" << CFendl;
+          CFinfo << "cell["<<idx()<<"] must implement a boundary condition on face " << faces->full_path().path() << "["<<face_idx<<"]" << CFendl;
           /// @todo implement boundary condition
         }
         else
         {
-          Component::Ptr neighbor_cells = elements().self();
-          Uint neighbor_cells_idx = idx();
-          Uint c=0;
-          while (neighbor_cells_idx == idx() && neighbor_cells == elements().self())
-          {
-            boost::tie(neighbor_cells,neighbor_cells_idx) = f2c.lookup().location( f2c.connectivity()[neighbor_faces_idx][c++] );
-          }
-          CFinfo << "cell["<<idx()<<"] must solve Riemann problem on face " << neighbor_faces->full_path().path() << "["<<neighbor_faces_idx<<"]  with cell["<<neighbor_cells_idx<<"]" << CFendl;
+          CTable<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
+          Uint unified_neighbor_cell_idx = connected_cells[LEFT] != this_cell_idx ? connected_cells[LEFT] : connected_cells[RIGHT];
+          boost::tie(neighbor_cells,neighbor_cell_idx) = f2c.lookup().location( unified_neighbor_cell_idx );
+
+          CFinfo << "cell["<<idx()<<"] must solve Riemann problem on face " << faces->full_path().path() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
           /// @todo reconstruct solution from neighbor cell and solve Riemann problem
         }
       }

@@ -58,6 +58,12 @@ public:
   
   boost::tuple<Common::Component::ConstPtr,Uint> location(const Uint data_glb_idx) const;
 
+
+  boost::tuple<Common::Component&,Uint> location_v2(const Uint data_glb_idx);
+
+  boost::tuple<const Common::Component&,Uint> location_v2(const Uint data_glb_idx) const;
+
+
   boost::tuple<Uint,Uint> location_idx(const Uint data_glb_idx) const;
 
   Uint location_comp_idx(const Component& data) const;
