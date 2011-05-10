@@ -226,7 +226,7 @@ namespace CF {
  @endcode
  
  This last search is interesting as it allows to search by the type of the component. We would then of course like to use specialized functionality of that component, and it would have to be cast to the type we look for.
- To avoid this code, there is a templated-by-type version of every previously shown search function that automatically casts the component to the type. All you have to do is add <TYPE> after the find function, where
+ To avoid this code, there is a templated-by-type version of every previously shown search function that automatically casts the component to the type. All you have to do is add @<TYPE@> after the find function, where
  "TYPE" is the type of the component you look for.
 
  The last example could be rewritten to give all components of type CMyType using @b find_components_recursively<CMyType>() :
