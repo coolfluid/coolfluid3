@@ -149,6 +149,13 @@ Real Line1DLagrangeP1::area(const NodeMatrixT& nodes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Real Line1DLagrangeP1::jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const
+{
+  return Line1DLagrangeP1::jacobian_determinant(static_cast<MappedCoordsT>(mapped_coord),static_cast<NodeMatrixT>(nodes));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // SF
 } // Mesh
 } // CF

@@ -38,6 +38,21 @@ LineFluxP1::LineFluxP1(const std::string& name) : ShapeFunction(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const ShapeFunction& LineFluxP1::line() const
+{
+  return line_type();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const LineFluxP1& LineFluxP1::line_type()
+{
+  static const LineFluxP1 sf;
+  return sf;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void LineFluxP1::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   result[0] = 0.5 * (1.0 - mapped_coord[KSI]);

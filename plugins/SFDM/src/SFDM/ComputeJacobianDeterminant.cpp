@@ -79,8 +79,7 @@ void ComputeJacobianDeterminant::execute()
   RealMatrix local_coords = shape_func.local_coordinates();
   for (Uint point=0; point<shape_func.nb_nodes(); ++point)
   {
-    /// @todo this function must be a virtual function from ElementType
-    //jacobian_determinant_data[point][0] = geometry.jacobian_determinant(local_coords,geometry_coords);
+    jacobian_determinant_data[point][0] = geometry.jacobian_determinant(local_coords.row(point),geometry_coords);
   }
 }
 

@@ -97,5 +97,13 @@ Real ElementType::compute_area(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Real ElementType::jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const
+{
+  throw Common::NotImplemented(FromHere(),"jacobian_determinant not implemented for "+derived_type_name());
+  return 0.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF

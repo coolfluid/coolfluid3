@@ -67,6 +67,8 @@ public:
   /// @returns number of nodes per line
   Uint nb_nodes_per_line() const { return order()+1; }
 
+  virtual const ShapeFunction& line() const;
+
 protected:
 
   /// lookup table for the points

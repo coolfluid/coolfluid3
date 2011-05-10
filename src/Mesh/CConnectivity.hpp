@@ -59,6 +59,8 @@ private: // data
 
   boost::shared_ptr<CUnifiedData> m_lookup;
 
+  boost::shared_ptr<Common::CLink> m_lookup_link;
+
 }; // CConnectivity
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -32,6 +32,21 @@ LineSolutionP0::LineSolutionP0(const std::string& name) : ShapeFunction(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const ShapeFunction& LineSolutionP0::line() const
+{
+  return line_type();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const LineSolutionP0& LineSolutionP0::line_type()
+{
+  static const LineSolutionP0 sf;
+  return sf;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void LineSolutionP0::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   result[0] = 1.;

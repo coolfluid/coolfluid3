@@ -42,6 +42,11 @@ public:
   typedef Eigen::Matrix<Real, dimensionality, nb_nodes> GradientT;
   typedef Eigen::Matrix<Real, nb_nodes, dimensionality> MappedNodesT;
 
+  /// The line type for 1D shape functions
+  static const LineSolutionP2& line_type();
+
+  virtual const ShapeFunction& line() const;
+
   /// Compute the shape functions corresponding to the given
   /// mapped coordinates
   /// @param mapped_coord The mapped coordinates

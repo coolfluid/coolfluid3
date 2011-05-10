@@ -106,6 +106,11 @@ public: // functions
   /// @return m_dimension
   Uint dimension() const { return m_dimension; }
 
+  /// Compute the determinant of the jacobian
+  /// @param mapped_coord [in] coordinates in mapped space (dimensionality x 1)
+  /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
+  virtual Real jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const;
+
   std::string builder_name() const;
 
   virtual const ShapeFunction& shape_function() const;

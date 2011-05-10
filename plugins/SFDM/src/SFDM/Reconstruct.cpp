@@ -55,10 +55,10 @@ void Reconstruct::configure_from_to()
 
   if (is_not_null(m_from))
     remove_component(*m_from);
-  m_from = build_component("from",from_to[0]).as_ptr<ShapeFunction>();
+  m_from = build_component("from_"+from_to[0],from_to[0]).as_ptr<ShapeFunction>();
   if (is_not_null(m_to))
     remove_component(*m_to);
-  m_to   = build_component("to",from_to[1]).as_ptr<ShapeFunction>();
+  m_to   = build_component("to_"+from_to[1],from_to[1]).as_ptr<ShapeFunction>();
 
   m_value_reconstruction_matrix.resize(m_to->nb_nodes(),m_from->nb_nodes());
   m_gradient_reconstruction_matrix.resize(m_to->dimensionality());

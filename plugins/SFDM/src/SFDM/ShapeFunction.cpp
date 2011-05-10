@@ -19,5 +19,14 @@ ShapeFunction::ShapeFunction(const std::string& name) : Mesh::ShapeFunction(name
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const ShapeFunction& ShapeFunction::line() const
+{
+  throw Common::NotImplemented(FromHere(),"line() not implemented for "+derived_type_name() );
+  static const ShapeFunction f;
+  return f;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // SFDM
 } // CF

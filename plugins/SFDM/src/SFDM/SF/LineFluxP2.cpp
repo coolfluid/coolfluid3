@@ -38,6 +38,21 @@ LineFluxP2::LineFluxP2(const std::string& name) : ShapeFunction(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const ShapeFunction& LineFluxP2::line() const
+{
+  return line_type();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const LineFluxP2& LineFluxP2::line_type()
+{
+  static const LineFluxP2 sf;
+  return sf;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void LineFluxP2::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   const Real ksi2 = mapped_coord[KSI]*mapped_coord[KSI];

@@ -53,16 +53,22 @@ public: // functions
   
 private: // functions
  
-  void make_interfaces(Component::Ptr parent);
+  void make_interfaces(Component& parent);
 
-  void build_face_cell_connectivity_bottom_up(Component::Ptr parent);
-  void build_faces_bottom_up(Component::Ptr parent);
+  void build_face_cell_connectivity_bottom_up(Component& parent);
+  void build_faces_bottom_up(Component& parent);
 
   void build_face_elements(CRegion& in_region, CFaceCellConnectivity& from_face_to_cell, const bool inner);
     
   boost::shared_ptr<CFaceCellConnectivity> match_faces(CRegion& region1, CRegion& region2);
   void match_boundary(CRegion& bdry_region, CRegion& region2);
-  
+
+  void build_cell_face_connectivity(Component& parent);
+
+private: // data
+
+  bool m_store_cell2face;
+
 }; // end CBuildFaces
 
 

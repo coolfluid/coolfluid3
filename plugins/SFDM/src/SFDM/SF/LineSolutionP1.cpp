@@ -37,6 +37,21 @@ LineSolutionP1::LineSolutionP1(const std::string& name) : ShapeFunction(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const ShapeFunction& LineSolutionP1::line() const
+{
+  return line_type();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const LineSolutionP1& LineSolutionP1::line_type()
+{
+  static const LineSolutionP1 sf;
+  return sf;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void LineSolutionP1::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   result[0] = 0.5 * (1.0 - mapped_coord[KSI]);

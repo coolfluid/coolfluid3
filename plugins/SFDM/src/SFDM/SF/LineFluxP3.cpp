@@ -40,6 +40,21 @@ LineFluxP3::LineFluxP3(const std::string& name) : ShapeFunction(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const ShapeFunction& LineFluxP3::line() const
+{
+  return line_type();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const LineFluxP3& LineFluxP3::line_type()
+{
+  static const LineFluxP3 sf;
+  return sf;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void LineFluxP3::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   const Real ksi = mapped_coord[KSI];

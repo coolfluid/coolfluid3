@@ -38,6 +38,21 @@ LineSolutionP2::LineSolutionP2(const std::string& name) : ShapeFunction(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const ShapeFunction& LineSolutionP2::line() const
+{
+  return line_type();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const LineSolutionP2& LineSolutionP2::line_type()
+{
+  static const LineSolutionP2 sf;
+  return sf;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void LineSolutionP2::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
   const Real ksi2 = mapped_coord[KSI]*mapped_coord[KSI];

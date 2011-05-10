@@ -27,6 +27,8 @@
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CSolver.hpp"
 #include "Solver/CPhysicalModel.hpp"
+#include "Mesh/Actions/CBuildFaces.hpp"
+#include "Mesh/Actions/CreateSpaceP0.hpp"
 #include "SFDM/CreateSpace.hpp"
 
 
@@ -46,18 +48,25 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 BOOST_AUTO_TEST_CASE( Solver )
 {
-  CModelUnsteady& model = *Common::Core::instance().root().create_component_ptr<CModelUnsteady>("model");
+  CModelUnsteady& model   = Core::instance().root().create_component<CModelUnsteady>("model");
   CPhysicalModel& physics = model.create_physics("Physics");
   CDomain&        domain  = model.create_domain("Domain");
   CSolver&        solver  = model.create_solver("CF.SFDM.SFDSolver");
 
   /// Create a mesh consisting of a line with length 1. and 20 divisions
-  CMesh& mesh = *domain.create_component_ptr<CMesh>("mesh");
+  CMesh& mesh = domain.create_component<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(mesh, 1., 3);
 
-  SFDM::CreateSpace::Ptr sfdm_space_creator = allocate_component<SFDM::CreateSpace>("sfdm_space_creator");
-  sfdm_space_creator->configure_property("P",2u);
-  sfdm_space_creator->transform(mesh);
+
+  CGroup& tools = model.create_component<CGroup>("tools");
+  tools.mark_basic();
+  CMeshTransformer& spectral_difference_transformer = tools.create_component<CMeshTransformer>("SpectralFiniteDifferenceTransformer").mark_basic().as_type<CMeshTransformer>();
+  spectral_difference_transformer.create_component<CBuildFaces>       ("1_build_faces").mark_basic().configure_property("store_cell2face",true);
+  spectral_difference_transformer.create_component<CreateSpaceP0>     ("2_create_space_P0").mark_basic();
+  spectral_difference_transformer.create_component<SFDM::CreateSpace> ("3_create_sfd_spaces").mark_basic().configure_property("P",2u);
+  // spectral_difference_transformer.create_component<CBuildVolume>    ("4_build_volume_field")->mark_basic();
+
+  spectral_difference_transformer.transform(mesh);
 
   solver.configure_property("physical_model",physics.full_path());
   solver.configure_property("Domain",domain.full_path());

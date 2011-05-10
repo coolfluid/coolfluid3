@@ -48,6 +48,14 @@ CUnifiedData& CConnectivity::create_lookup()
       remove_component(m_lookup->name());
     }
   }
+  if (is_not_null(m_lookup_link))
+  {
+    if (is_not_null(get_child_ptr(m_lookup_link->name())))
+    {
+      remove_component(*m_lookup_link);
+    }
+  }
+
   return *create_component_ptr<CUnifiedData>("lookup");
 }
 
@@ -59,10 +67,12 @@ void CConnectivity::set_lookup(CUnifiedData& lookup)
   {
     if (is_not_null(get_child_ptr(m_lookup->name())))
     {
-      remove_component(m_lookup->name());
+      remove_component(*m_lookup);
     }
   }
   m_lookup = lookup.as_ptr<CUnifiedData>();
+  m_lookup_link = create_component_ptr<CLink>("lookup");
+  m_lookup_link->link_to(lookup);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
