@@ -175,7 +175,7 @@ static SOCKET prowl_tcp_connect()
 	memset(&server, 0, sizeof(struct sockaddr_in));
 	server.sin_family = AF_INET;
 	server.sin_port = htons(SSL_PORT);
-	server.sin_addr = *(struct in_addr*)host->h_addr;
+	server.sin_addr = *(struct in_addr*)host->h_addr_list[0];
 	
 	if (connect(s, (struct sockaddr*)&server, sizeof(server)) == SOCKET_ERROR)
 	{
