@@ -31,7 +31,7 @@ Get the development version (named "trunk") into a "kernel" subdir. Give your de
 
 @verbatim
 $> svn co https://coolfluidsrv.vki.ac.be/svn/coolfluid3/trunk   kernel
-@end_verbatim
+@endverbatim
 
 @subsection _installation_build_dependencies Build dependencies
 

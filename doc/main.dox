@@ -1,6 +1,6 @@
 namespace CF {
 /**
- @mainpage COOLFluiD
+ @mainpage COOLFluiD Documentation
 
  @section _main_installing_coolfluid Installing COOLFluiD
  - \subpage installation
@@ -12,7 +12,7 @@ namespace CF {
  - \subpage coding_components
  
  @section _stand-alone_executables Stand-alone executables
- %COOLFluiD contains multiple stand-alone executables:
+ COOLFluiD contains multiple stand-alone executables:
  - \subpage coolfluid-command for command-line interpretion and scripting
 
  <hr>
