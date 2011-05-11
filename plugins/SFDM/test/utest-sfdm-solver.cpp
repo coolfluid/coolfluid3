@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( Solver )
   crazytest().get<1>();
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   CMesh& mesh = domain.create_component<CMesh>("mesh");
-  CSimpleMeshGenerator::create_line(mesh, 1., 3);
+  CSimpleMeshGenerator::create_line(mesh, 1., 4);
 
 
   CGroup& tools = model.create_component<CGroup>("tools");

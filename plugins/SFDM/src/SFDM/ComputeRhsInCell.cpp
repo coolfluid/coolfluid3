@@ -169,10 +169,11 @@ void ComputeRhsInCell::execute()
   Uint neighbor_cell_idx;
   const Uint this_cell_idx = m_mesh_elements.lock()->unified_idx(elements(),idx());
 
+  CFinfo << "\ncell " << idx() << CFendl;
+  CFinfo <<   "------"<<CFendl;
   /// <li> Set all cell solution states in a matrix @f$ \mathbf{Q_s} @f$ (rows are states, columns are variables)
-  RealMatrix solution = to_matrix(solution_data);
-  CFinfo << "solution = \n" << solution << CFendl;
-
+  RealMatrix solution = reconstruct_solution_in_flux_points.value( to_matrix(solution_data) );
+  CFinfo << "solution in flux points = " << solution.transpose() << CFendl;
   /// <li> Compute analytical flux in all flux points (every row is a flux)
   /// <ul>
   ///   <li> First the solution is reconstructed in the flux points.
@@ -182,8 +183,8 @@ void ComputeRhsInCell::execute()
   ///   <li> Then the analytical flux is calculated in these flux points.
   ///        @f[ \mathbf{\tilde{F}_f} = \mathrm{flux}(\mathbf{\tilde{Q}_f}) @f] (see SFDM::Flux)
   /// </ul>
-  RealMatrix flux = compute_flux( reconstruct_solution_in_flux_points.value( solution ) );
-  CFinfo << "flux = \n" << flux << CFendl;
+  RealMatrix flux = compute_flux( solution );
+  //CFinfo << "flux = \n" << flux << CFendl;
 
   /// <li> Compute flux gradients in the solution points, and add to the RHS
   // For every orientation
@@ -207,7 +208,7 @@ void ComputeRhsInCell::execute()
         CFaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
         if (f2c.is_bdry_face()[face_idx])
         {
-          CFinfo << "cell["<<idx()<<"] must implement a boundary condition on face " << faces->full_path().path() << "["<<face_idx<<"]" << CFendl;
+          CFinfo <</* "cell["<<idx()<<"] */"must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
           /// @todo implement boundary condition
         }
         else
@@ -216,8 +217,16 @@ void ComputeRhsInCell::execute()
           Uint unified_neighbor_cell_idx = connected_cells[LEFT] != this_cell_idx ? connected_cells[LEFT] : connected_cells[RIGHT];
           boost::tie(neighbor_cells,neighbor_cell_idx) = f2c.lookup().location( unified_neighbor_cell_idx );
 
-          CFinfo << "cell["<<idx()<<"] must solve Riemann problem on face " << faces->full_path().path() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
-          /// @todo reconstruct solution from neighbor cell and solve Riemann problem
+          CFinfo << /*"cell["<<idx()<<"] */"must solve Riemann problem on face " << faces->parent().name() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
+
+          /// @todo it is now assumed for reconstruction that neighbor_cells == elements(), so that the same field_view "m_solution" can be used.
+          cf_assert_desc("does not support multi_region yet",neighbor_cells == elements().self());
+          RealMatrix neighbor_solution = reconstruct_solution_in_flux_points.value( to_matrix( (*m_solution)[neighbor_cell_idx] ) );
+
+          RealRowVector left  = solution         .row ( flux_sf.face_points()[orientation][line][side] );
+          RealRowVector right = neighbor_solution.row ( flux_sf.face_points()[orientation][line][!side] ); // the other side
+          CFinfo << "   solve Riemann("<<left<<","<<right<<")" << CFendl;
+          /// @todo solve Riemann problem
         }
       }
 
@@ -231,7 +240,7 @@ void ComputeRhsInCell::execute()
      ///
      /// This is implemented using SFDM::Reconstruct::gradient()
      flux_grad_in_line = reconstruct_flux_in_solution_points.gradient( flux_in_line , static_cast<CoordRef>(orientation) );
-      CFinfo << "flux_grad_in_line = \n" << flux_grad_in_line << CFendl;
+     CFinfo << "flux_grad_in_line = " << flux_grad_in_line.transpose() << CFendl;
 
       /// <li> Add the flux gradient to the RHS
       for (Uint point=0; point<solution_sf.nb_nodes_per_line(); ++point)
@@ -242,10 +251,6 @@ void ComputeRhsInCell::execute()
     } /// </ul>
   } /// </ul>
   /// </ul>
-
-  /// For fun, copy residual into solution but scaled wrongly as there is no jacobian multiplication.
-  /// We should now have the gradient in the solution, since flux = solution (see SFDM::Flux)
-  solution_data = residual_data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
