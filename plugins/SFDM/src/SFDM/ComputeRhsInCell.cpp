@@ -198,7 +198,8 @@ void ComputeRhsInCell::execute()
       ///      @f[ \tilde{F}_{face flxpt} = \mathrm{Riemann}(Q_{face flxpt,\mathrm{left}},Q_{face flxpt,\mathrm{right}}) @f]
       for (Uint side=0; side<2; ++side) // a line connects 2 faces
       {
-        /// @todo it is now assumed that side == face number (only valid in 1D)
+        /// @todo 2D and 3D support
+        /// It is now assumed that side == face number (only valid in 1D)
         cf_assert_desc("only valid in 1D",dimensionality==1);
 
         // Find face
@@ -219,7 +220,8 @@ void ComputeRhsInCell::execute()
 
           CFinfo << /*"cell["<<idx()<<"] */"must solve Riemann problem on face " << faces->parent().name() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
 
-          /// @todo it is now assumed for reconstruction that neighbor_cells == elements(), so that the same field_view "m_solution" can be used.
+          /// @todo Multi-region support.
+          /// It is now assumed for reconstruction that neighbor_cells == elements(), so that the same field_view "m_solution" can be used.
           cf_assert_desc("does not support multi_region yet",neighbor_cells == elements().self());
           RealMatrix neighbor_solution = reconstruct_solution_in_flux_points.value( to_matrix( (*m_solution)[neighbor_cell_idx] ) );
 
@@ -251,6 +253,9 @@ void ComputeRhsInCell::execute()
     } /// </ul>
   } /// </ul>
   /// </ul>
+
+  /// @section _ideas_for_efficiency Ideas for efficiency
+  /// - store Riemann fluxes in face flux points
 }
 
 ////////////////////////////////////////////////////////////////////////////////

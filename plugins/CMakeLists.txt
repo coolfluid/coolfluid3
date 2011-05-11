@@ -8,6 +8,10 @@ add_subdirectory( BlockMeshReader )
 coolfluid_define_plugin( CGAL "${CMAKE_CURRENT_SOURCE_DIR}/CGAL" )
 add_subdirectory( CGAL )
 
+# Riemann Solvers
+coolfluid_define_plugin( RiemannSolvers "${CMAKE_CURRENT_SOURCE_DIR}/RiemannSolvers" )
+add_subdirectory( RiemannSolvers )
+
 # Finite Volume solver
 coolfluid_define_plugin( FVM "${CMAKE_CURRENT_SOURCE_DIR}/FVM" )
 add_subdirectory( FVM  )
