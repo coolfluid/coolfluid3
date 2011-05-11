@@ -76,6 +76,15 @@ private: // data
   /// the notification (default = COOLFluiD)
   std::string m_application_name;
 
+  std::string m_notification_type;
+  std::string m_server;
+  std::string m_password;
+  std::string m_icon;
+  std::string m_url;
+
+  Uint m_protocol;
+  enum Protocol {UDP=0 , TCP=1};
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

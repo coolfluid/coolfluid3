@@ -31,7 +31,7 @@ static char* string_to_utf8_alloc(const char* str) {
 	free(wcsdata);
 	return mbsdata;
 #else
-	return (char *)strdup(str);
+	return strdup(str);
 #endif
 }
 
@@ -113,10 +113,10 @@ int main(int argc, char* argv[]) {
 		exit(1);
 	}
 
-	title = string_to_utf8_alloc(argv[optind]);
-	message = string_to_utf8_alloc(argv[optind + 1]);
-	if ((argc - optind) >= 3) icon = string_to_utf8_alloc(argv[optind + 2]);
-	if ((argc - optind) == 4) url = string_to_utf8_alloc(argv[optind + 3]);
+	title = string_to_utf8_alloc((const char*)argv[optind]);
+	message = string_to_utf8_alloc((const char*)argv[optind + 1]);
+	if ((argc - optind) >= 3) icon = string_to_utf8_alloc((const char*)argv[optind + 2]);
+	if ((argc - optind) == 4) url = string_to_utf8_alloc((const char*)argv[optind + 3]);
 
 	if (!server) server = "127.0.0.1";
 

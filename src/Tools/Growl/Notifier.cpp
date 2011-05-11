@@ -58,14 +58,40 @@ ComponentBuilder < Notifier, Component, LibGrowl > Notifier_Builder;
 
 Notifier::Notifier ( const std::string& name ) :
   Common::Component(name),
-  m_application_name("COOLFluiD")
+  m_application_name("COOLFluiD"),
+  m_server("localhost"),
+  m_password(),
+  m_icon("http://coolfluidsrv.vki.ac.be/trac/coolfluid/attachment/wiki/ProjectLogo/coolfluid_simple_logo.png"),
+  m_url("http://coolfluidsrv.vki.ac.be"),
+  m_protocol(UDP)
 {
+
+  // Configuration options
 
   properties().add_option( OptionT<std::string>::create("application_name","Application Name","Name of the application",m_application_name) )
       ->link_to(&m_application_name);
 
+  properties().add_option( OptionT<std::string>::create("server","Server","Server to send notification to",m_server) )
+      ->link_to(&m_server);
+
+  properties().add_option( OptionT<std::string>::create("password","Password","Password for server access",m_password) )
+      ->link_to(&m_password);
+
+  properties().add_option( OptionT<std::string>::create("icon","Icon","URL to icon",m_icon) )
+      ->link_to(&m_icon);
+
+  properties().add_option( OptionT<std::string>::create("url","URL","URL that is followd upon clicking the notification",m_url) )
+      ->link_to(&m_url);
+
+  properties().add_option( OptionT<Uint>::create("protocol","Protocol","Protocol to use: [UDP=0, TCP=1]",m_protocol) )
+      ->link_to(&m_protocol);
+
+
+  // Signals
+
   regist_signal ( "notify" , "Notify iPhone Growl app", "Notify" )->signal->connect ( boost::bind ( &Notifier::signal_notify, this, _1 ) );
   signal("notify")->signature->connect(boost::bind(&Notifier::signature_notify, this, _1));
+
 
 }
 
@@ -79,39 +105,70 @@ Notifier::~Notifier()
 
 void Notifier::notify(const std::string& event, const std::string& description)
 {
-  int rc;
-  char* server = NULL;
-  char* password = NULL;
-  std::string notify = "coolfluid notify";
-  char* title = NULL;
-  char* message = NULL;
-  char* icon = NULL;
-  char* url = NULL;
-  int tcpsend = 0;
-
-  std::string mytitle = std::string(m_application_name)+"    "+event;
-  title = string_to_utf8_alloc(mytitle.c_str());
-  message = string_to_utf8_alloc(description.c_str());
-  icon = string_to_utf8_alloc("http://coolfluidsrv.vki.ac.be/trac/coolfluid/attachment/wiki/ProjectLogo/coolfluid_simple_logo.png");
-  url = string_to_utf8_alloc("http://coolfluidsrv.vki.ac.be/");
-
-  if (!server) server = string_to_utf8_alloc("localhost");
+  std::string title = m_application_name + "    " + event;
 
   growl_init();
-  if (tcpsend)
+  int rc;
+  switch (m_protocol)
   {
-    rc = growl(server,m_application_name.c_str(),notify.c_str(),title,message,icon,password,url);
-  }
-  else
-  {
-    rc = growl_udp(server,m_application_name.c_str(),notify.c_str(),title,message,icon,password,url);
+    case UDP:
+      rc = growl_udp(m_server.c_str(),
+                     m_application_name.c_str(),
+                     m_notification_type.c_str(),
+                     title.c_str(),
+                     description.c_str(),
+                     m_icon.c_str(),
+                     m_password.c_str(),
+                     m_url.c_str());
+      break;
+
+    case TCP:
+      rc = growl(m_server.c_str(),
+                 m_application_name.c_str(),
+                 m_notification_type.c_str(),
+                 title.c_str(),
+                 description.c_str(),
+                 m_icon.c_str(),
+                 m_password.c_str(),
+                 m_url.c_str());
+      break;
   }
   growl_shutdown();
 
-  if (title) free(title);
-  if (message) free(message);
-  if (icon) free(icon);
-  if (url) free(url);
+
+
+  //  This is how growl-send does it
+  //  char* server = NULL;
+  //  char* password = NULL;
+  //  std::string notify = "coolfluid notify";
+  //  char* title = NULL;
+  //  char* message = NULL;
+  //  char* icon = NULL;
+  //  char* url = NULL;
+  //  int tcpsend = 0;
+
+  //  std::string mytitle = std::string(m_application_name)+"    "+event;
+  //  title = string_to_utf8_alloc(mytitle.c_str());
+  //  message = string_to_utf8_alloc(description.c_str());
+  //  icon = string_to_utf8_alloc("http://coolfluidsrv.vki.ac.be/trac/coolfluid/attachment/wiki/ProjectLogo/coolfluid_simple_logo.png");
+  //  url = string_to_utf8_alloc("http://coolfluidsrv.vki.ac.be/");
+  //  if (!server) server = string_to_utf8_alloc("localhost");
+
+  //  growl_init();
+  //  if (tcpsend)
+  //  {
+  //    rc = growl(server,m_application_name.c_str(),notify.c_str(),title,message,icon,password,url);
+  //  }
+  //  else
+  //  {
+  //    rc = growl_udp(server,m_application_name.c_str(),notify.c_str(),title,message,icon,password,url);
+  //  }
+  //  growl_shutdown();
+
+  //  if (title) free(title);
+  //  if (message) free(message);
+  //  if (icon) free(icon);
+  //  if (url) free(url);
 }
 
 //////////////////////////////////////////////////////////////////////////////
