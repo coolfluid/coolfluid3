@@ -70,7 +70,7 @@ int growl_tcp_open(const char* server) {
 #endif
 	struct sockaddr_in serv_addr;
 
-	if( growl_tcp_parse_hostname( server , 23053 , &serv_addr ) == -1 )
+	if( growl_tcp_parse_hostname( (const char *const) server , 23053 , &serv_addr ) == -1 )
 	{
 		return -1;
 	}
@@ -104,7 +104,7 @@ void growl_tcp_close(int sock) {
 
 int growl_tcp_parse_hostname( const char *const server , int default_port , struct sockaddr_in *const sockaddr )
 {
-	char *hostname = (char *)strdup((const char*)server);
+	char *hostname = strdup((const char*)server);
 	char *port = strchr( hostname, ':' );
 	struct hostent* host_ent;
 	if( port != NULL )
