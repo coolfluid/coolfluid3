@@ -142,7 +142,7 @@ void PhysicalModel::create_fields(CMesh& mesh)
     }
     
     if(!existing_field)
-      mesh.create_field2(fd_name, CField::Basis::POINT_BASED, fd_var_names, fd_var_types);
+      mesh.create_field(fd_name, CField::Basis::POINT_BASED, fd_var_names, fd_var_types);
   }
 }
 

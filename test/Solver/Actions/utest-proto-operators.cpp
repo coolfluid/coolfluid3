@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE( VoidOp )
 
 BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("GaussQuadratureLine");
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
   
   mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 
 BOOST_AUTO_TEST_CASE(GroupArity)
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("GaussQuadratureLine");
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
   
   mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);
@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE(IntegralConstant)
 
 BOOST_AUTO_TEST_CASE(IndexLooper)
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("QuadGrid");
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("QuadGrid");
   Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
   
   const RealVector2 idx(1.,2.);
