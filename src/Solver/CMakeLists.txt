@@ -23,6 +23,7 @@ list( APPEND coolfluid_solver_files
   CWizard.cpp
   LibSolver.hpp
   LibSolver.cpp
+  Physics.hpp
 )
 
 set( coolfluid_solver_kernellib TRUE )
