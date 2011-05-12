@@ -21,7 +21,7 @@ coolfluid_add_unit_test( utest-mesh-stencilcomputerrings )
 
 ################################################################################
 
-list( APPEND utest-mesh-interpolation_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_sf )
+list( APPEND utest-mesh-interpolation_cflibs coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-interpolation_files  utest-mesh-interpolation.cpp )
 
 coolfluid_add_unit_test( utest-mesh-interpolation )
