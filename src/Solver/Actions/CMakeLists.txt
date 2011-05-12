@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_solver_actions_files
+  CActionDirector.cpp
+  CActionDirector.hpp
   CAdvanceTime.hpp
   CAdvanceTime.cpp
   CCriterion.hpp
@@ -15,7 +17,6 @@ list( APPEND coolfluid_solver_actions_files
   CIterate.cpp
   CLoopOperation.hpp
   CLoopOperation.cpp
-  CFieldAction.hpp
   CForAllCells.hpp
   CForAllCells.cpp
   CForAllElements.hpp
@@ -49,6 +50,7 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/ElementData.hpp
     Proto/ElementExpressionWrapper.hpp
     Proto/ElementGrammar.hpp
+    Proto/ElementIntegration.hpp
     Proto/ElementLooper.hpp
     Proto/ElementMatrix.hpp
     Proto/ElementOperations.hpp
@@ -56,11 +58,13 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/ExpressionGroup.hpp
     Proto/ForEachDimension.hpp
     Proto/Functions.hpp
+    Proto/IndexLooping.hpp
     Proto/NeumannBC.hpp
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp
     Proto/NodeLooper.hpp
     Proto/PhysicalModel.hpp
+    Proto/PhysicalModel.cpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp
 )

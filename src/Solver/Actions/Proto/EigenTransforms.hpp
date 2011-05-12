@@ -101,13 +101,51 @@ struct EigenProductEval :
   };
 };
 
+/// Evaluate A += B*C, which is a special case needed in Gauss integrator. If B or C is a scalar, it's also faster
+template<typename GrammarT>
+struct EigenPlusAssignProductEval :
+  boost::proto::transform< EigenPlusAssignProductEval<GrammarT> >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    
+    
+    typedef void result_type;
+    
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      GrammarT()(boost::proto::left(expr), state, data) += GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data);
+    }
+  };
+};
+
+/// Match matrix terms (only matrix products need special treatment)
+template<typename GrammarT>
+struct MatrixTerm :
+  boost::proto::and_
+  <
+    boost::proto::not_< boost::proto::terminal<Real> >,
+    GrammarT
+  >
+{
+};
+
 /// Handle an expression that is filtered by Eigen
 template<typename GrammarT>
 struct EigenMultiplication :
-  boost::proto::when
+  boost::proto::or_
   <
-    boost::proto::multiplies<GrammarT, GrammarT>,
-    EigenProductEval<GrammarT>
+    boost::proto::when
+    <
+      boost::proto::multiplies<GrammarT, GrammarT>,
+      EigenProductEval<GrammarT>
+    >,
+    boost::proto::when
+    <
+      boost::proto::plus_assign< GrammarT, boost::proto::multiplies<GrammarT, GrammarT> >,
+      EigenPlusAssignProductEval<GrammarT>
+    >
   >
 {
 };
@@ -165,7 +203,7 @@ struct MatrixSubscript :
   {
     typedef typename boost::remove_reference<ExprT>::type ExprValT;
     
-    typedef typename boost::mpl::if_c<ExprValT::ColsAtCompileTime == 1, Real, typename ExprValT::RowXpr>::type result_type;
+    typedef typename boost::mpl::if_c<ExprValT::ColsAtCompileTime == 1, Real, typename ExprValT::ConstRowXpr>::type result_type;
     
     /// Static dispatch through 2 versions of do_eval, in order to avoid compile errors
     inline Real do_eval(boost::mpl::true_, ExprT expr, StateT state) const
@@ -173,7 +211,7 @@ struct MatrixSubscript :
       return expr[state];
     }
     
-    inline typename ExprValT::RowXpr do_eval(boost::mpl::false_, ExprT expr, StateT state) const
+    inline typename ExprValT::ConstRowXpr do_eval(boost::mpl::false_, ExprT expr, StateT state) const
     {
       return expr.row(state);
     }
@@ -220,6 +258,21 @@ struct MatrixColAccess :
   };
 };
 
+struct SetZero :
+  boost::proto::transform< SetZero >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+    
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param, typename impl::data_param) const
+    {
+      expr.setZero();
+    }
+  };
+};
+
 /// Placeholders to indicate if we should get a row or a column
 struct RowTag
 {
@@ -232,39 +285,62 @@ struct ColTag
 static boost::proto::terminal<RowTag>::type _row = {};
 static boost::proto::terminal<ColTag>::type _col = {};
 
+struct ZeroTag
+{
+};
+
+/// Placeholder for the zero matrix
+static boost::proto::terminal<ZeroTag>::type _0 = {};
+
+/// Indexing into Eigen expressions
+template<typename GrammarT, typename IntegersT>
+struct EigenIndexing :
+  boost::proto::or_
+  <
+    boost::proto::when
+    <
+      boost::proto::function< GrammarT, IntegersT, IntegersT >,
+      MatrixElementAccess( boost::proto::_expr, GrammarT(boost::proto::_child0) )
+    >,
+    boost::proto::when
+    <
+      boost::proto::function< GrammarT, boost::proto::terminal<RowTag>, IntegersT >,
+      MatrixRowAccess( GrammarT(boost::proto::_child0), IntegersT(boost::proto::_child2) )
+    >,
+    boost::proto::when
+    <
+      boost::proto::function< GrammarT, boost::proto::terminal<ColTag>, IntegersT >,
+      MatrixColAccess( GrammarT(boost::proto::_child0), IntegersT(boost::proto::_child2) )
+    >,
+    // Subscripting
+    boost::proto::when
+    <
+      boost::proto::subscript< GrammarT, IntegersT >,
+      MatrixSubscript( GrammarT(boost::proto::_left), IntegersT(boost::proto::_right) )
+    >
+  >
+{
+};
+
 /// Grammar for valid Eigen expressions, composed of primitives matching GrammarT
-template<typename GrammarT>
+template<typename GrammarT, typename IntegersT>
 struct EigenMath :
   boost::proto::or_
   <
     EigenMultiplication<GrammarT>,
     // Indexing
-    boost::proto::when
-    <
-      boost::proto::function< GrammarT, Integers, Integers >,
-      MatrixElementAccess( boost::proto::_expr, GrammarT(boost::proto::_child0) )
-    >,
-    boost::proto::when
-    <
-      boost::proto::function< GrammarT, boost::proto::terminal<RowTag>, Integers >,
-      MatrixRowAccess( GrammarT(boost::proto::_child0), Integers(boost::proto::_child2) )
-    >,
-    boost::proto::when
-    <
-      boost::proto::function< GrammarT, boost::proto::terminal<ColTag>, Integers >,
-      MatrixColAccess( GrammarT(boost::proto::_child0), Integers(boost::proto::_child2) )
-    >,
-    // Subscripting
-    boost::proto::when
-    <
-      boost::proto::subscript< GrammarT, Integers >,
-      MatrixSubscript( GrammarT(boost::proto::_left), Integers(boost::proto::_right) )
-    >,
+    EigenIndexing<GrammarT, IntegersT>,
     // Transpose
     boost::proto::when
     <
       boost::proto::function< boost::proto::terminal<TransposeFunction>, GrammarT >,
       TransposeTransform(boost::proto::_expr, GrammarT(boost::proto::_child1), boost::proto::_data)
+    >,
+    // Setting to zero
+    boost::proto::when
+    <
+      boost::proto::assign<GrammarT, boost::proto::terminal<ZeroTag> >,
+      SetZero(GrammarT(boost::proto::_left))
     >,
     MathOpDefault<GrammarT>
   >

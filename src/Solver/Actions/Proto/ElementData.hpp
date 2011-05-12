@@ -36,7 +36,31 @@ namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
-
+  
+/// Grammar matching expressions if they have a terminal with the index given in the template parameter
+template<Uint I>
+struct UsesVar :
+  boost::proto::or_
+  <
+    boost::proto::when
+    <
+      boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >,
+      boost::mpl::true_()
+    >,
+    boost::proto::when
+    <
+      boost::proto::terminal< boost::proto::_ >,
+      boost::mpl::false_()
+    >,
+    boost::proto::when
+    <
+      boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >,
+      boost::proto::fold< boost::proto::_, boost::mpl::false_(), boost::mpl::max< boost::proto::_state, boost::proto::call< UsesVar<I> > >() >
+    >
+  >
+{
+};
+  
 /// Functions and operators associated with a geometric support
 template<typename ShapeFunctionT>
 class GeometricSupport
@@ -91,6 +115,12 @@ public:
     return m_eval_result;
   }
   
+  /// Precomputed coordinates
+  const typename SF::CoordsT& coordinates() const
+  {
+    return m_eval_result;
+  }
+  
   /// Jacobian matrix computed by the shape function
   const typename SF::JacobianT& jacobian(const typename SF::MappedCoordsT& mapped_coords) const
   {
@@ -98,9 +128,28 @@ public:
     return m_jacobian_matrix;
   }
   
+  /// Precomputed jacobian
+  const typename SF::JacobianT& jacobian() const
+  {
+    return m_jacobian_matrix;
+  }
+  
+  /// Precomputed jacobian inverse
+  const typename SF::JacobianT& jacobian_inverse() const
+  {
+    return m_jacobian_inverse;
+  }
+  
   Real jacobian_determinant(const typename SF::MappedCoordsT& mapped_coords) const
   {
-    return SF::jacobian_determinant(mapped_coords, m_nodes);
+    m_jacobian_determinant = SF::jacobian_determinant(mapped_coords, m_nodes);
+    return m_jacobian_determinant;
+  }
+  
+  /// Precomputed jacobian determinant
+  Real jacobian_determinant() const
+  {
+    return m_jacobian_determinant;
   }
   
   const typename SF::CoordsT& normal(const typename SF::MappedCoordsT& mapped_coords) const
@@ -108,8 +157,58 @@ public:
     SF::normal(mapped_coords, m_nodes, m_normal_vector);
     return m_normal_vector;
   }
-
+  
+  const typename SF::CoordsT& normal() const
+  {
+    return m_normal_vector;
+  }
+  
+  /// Precompute the shape function matrix
+  void compute_shape_functions(const typename SF::MappedCoordsT& mapped_coords) const
+  {
+    SF::shape_function_value(mapped_coords, m_sf);
+  }
+  
+  /// Precompute jacobian for the given mapped coordinates
+  void compute_jacobian(const typename SF::MappedCoordsT& mapped_coords) const
+  {
+    compute_jacobian_dispatch(boost::mpl::bool_<SF::dimension == SF::dimensionality>(), mapped_coords);
+  }
+  
+  /// Precompute the interpolated value (requires a computed SF)
+  void compute_coordinates() const
+  {
+    m_eval_result.noalias() = m_sf * m_nodes;
+  }
+  
+  /// Precompute normal (if we have a "face" type)
+  void compute_normal(const typename SF::MappedCoordsT& mapped_coords) const
+  {
+    compute_normal_dispatch(boost::mpl::bool_<SF::dimension - SF::dimensionality == 1>(), mapped_coords);
+  }
+  
 private:
+  void compute_normal_dispatch(boost::mpl::false_, const typename SF::MappedCoordsT&) const
+  {
+  }
+  
+  void compute_normal_dispatch(boost::mpl::true_, const typename SF::MappedCoordsT& mapped_coords) const
+  {
+    SF::normal(mapped_coords, m_nodes, m_normal_vector);
+  }
+  
+  void compute_jacobian_dispatch(boost::mpl::false_, const typename SF::MappedCoordsT&) const
+  {
+  }
+  
+  void compute_jacobian_dispatch(boost::mpl::true_, const typename SF::MappedCoordsT& mapped_coords) const
+  {
+    SF::jacobian(mapped_coords, m_nodes, m_jacobian_matrix);
+    bool is_invertible;
+    m_jacobian_matrix.computeInverseAndDetWithCheck(m_jacobian_inverse, m_jacobian_determinant, is_invertible);
+    cf_assert(is_invertible);
+  }
+  
   /// Stored node data
   ValueT m_nodes;
   
@@ -126,11 +225,13 @@ private:
   mutable typename SF::ShapeFunctionsT m_sf;
   mutable typename SF::CoordsT m_eval_result;
   mutable typename SF::JacobianT m_jacobian_matrix;
+  mutable typename SF::JacobianT m_jacobian_inverse;
+  mutable Real m_jacobian_determinant;
   mutable typename SF::CoordsT m_normal_vector;
 };
 
 /// Data associated with VectorField variables
-template<typename ShapeFunctionT, Uint Dim, Uint Offset, Uint MatrixSize, bool IsEquationVar>
+template<typename ShapeFunctionT, typename SupportSF, Uint Dim, Uint Offset, Uint MatrixSize, bool IsEquationVar>
 class SFVariableData
 {
 private:
@@ -140,6 +241,8 @@ private:
 public:
   /// The shape function type
   typedef ShapeFunctionT SF;
+  
+  typedef GeometricSupport<SupportSF> SupportT;
   
   /// The value type for all element values
   typedef Eigen::Matrix<Real, SF::nb_nodes, Dim> ValueT;
@@ -175,7 +278,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   template<typename VariableT>
-  SFVariableData(const VariableT& placeholder, const Mesh::CElements& elements) : m_data(0), m_connectivity(0)
+  SFVariableData(const VariableT& placeholder, const Mesh::CElements& elements, const SupportT& support) : m_data(0), m_connectivity(0), m_support(support)
   {
     const Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
     Common::Component::ConstPtr field_comp = mesh.get_child_ptr(placeholder.field_name);
@@ -202,7 +305,13 @@ public:
   {
     return (*m_connectivity)[m_element_idx];
   }
-  
+
+  /// Reference to the geometric support
+  const SupportT& support() const
+  {
+    return m_support;
+  }
+
   /// Reference to the stored data, i.e. the matrix of nodal values
   ValueResultT value() const
   {
@@ -210,14 +319,9 @@ public:
   }
   
   /// Precompute all the cached values for the given geometric support and mapped coordinates.
-  template<typename SupportT>
-  void compute_values(const MappedCoordsT& mapped_coords, const SupportT& support) const
+  void compute_values(const MappedCoordsT& mapped_coords) const
   {
-    SF::shape_function_value(mapped_coords, m_sf);
-    SF::shape_function_gradient(mapped_coords, m_mapped_gradient_matrix);
-    m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
-    m_eval(m_sf, m_element_values);
-    m_advection = m_eval.stored_result * m_gradient;
+    compute_values_dispatch(boost::mpl::bool_<SF::dimension == SF::dimensionality>(), mapped_coords);
   }
   
   /// Calculate and return the interpolation at given mapped coords
@@ -247,27 +351,25 @@ public:
     return m_sf;
   }
   
-  /// Return the gradient
-  template<typename SupportT>
-  const GradientT& gradient(const MappedCoordsT& mapped_coords, const SupportT& support) const
+  /// Return the gradient matrix
+  const GradientT& nabla(const MappedCoordsT& mapped_coords) const
   {
     SF::shape_function_gradient(mapped_coords, m_mapped_gradient_matrix);
-    m_gradient.noalias() = support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
+    m_gradient.noalias() = m_support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
     return m_gradient;
   }
   
   /// Previously calculated gradient matrix
-  const GradientT& gradient() const
+  const GradientT& nabla() const
   {
     return m_gradient;
   }
   
   /// Return the advection operator
-  template<typename SupportT>
-  const typename SF::ShapeFunctionsT& advection(const MappedCoordsT& mapped_coords, const SupportT& support) const
+  const typename SF::ShapeFunctionsT& advection(const MappedCoordsT& mapped_coords) const
   {
     SF::shape_function_value(mapped_coords, m_sf);
-    m_advection = m_sf * m_element_values * gradient(mapped_coords, support);
+    m_advection = m_sf * m_element_values * gradient(mapped_coords, m_support);
     return m_advection;
   }
   
@@ -278,6 +380,31 @@ public:
   }
   
 private:
+  /// Precompute for non-volume SF
+  void compute_values_dispatch(boost::mpl::false_, const MappedCoordsT& mapped_coords) const
+  {
+    SF::shape_function_value(mapped_coords, m_sf);
+    m_eval(m_sf, m_element_values);
+  }
+  
+  /// Precompute for volume SF
+  void compute_values_dispatch(boost::mpl::true_, const MappedCoordsT& mapped_coords) const
+  {
+    compute_values_dispatch(boost::mpl::false_(), mapped_coords);
+    SF::shape_function_gradient(mapped_coords, m_mapped_gradient_matrix);
+    m_gradient.noalias() = m_support.jacobian_inverse() * m_mapped_gradient_matrix;
+    compute_advection(boost::mpl::bool_<Dim == SF::dimension>());
+  }
+  
+  void compute_advection(boost::mpl::true_) const
+  {
+    m_advection = m_eval.stored_result * m_gradient;
+  }
+  
+  void compute_advection(boost::mpl::false_) const
+  {
+  }
+  
   /// Value of the field in each element node
   ValueT m_element_values;
   
@@ -286,6 +413,9 @@ private:
   
   /// Connectivity table
   Mesh::CTable<Uint> const* m_connectivity;
+  
+  /// Gemetric support
+  const SupportT& m_support;
   
   Uint m_element_idx;
   
@@ -369,7 +499,7 @@ struct MakeVarData
     <
       boost::mpl::is_void_<VarT>,
       boost::mpl::void_,
-      SFVariableData<SF, FieldWidth<VarT, SF>::value, Offset::value, MatSize::value, IsEquationVar::value>*
+      SFVariableData<SF, SupportSF, FieldWidth<VarT, SF>::value, Offset::value, MatSize::value, IsEquationVar::value>*
     >::type type;
   };
 };
@@ -389,7 +519,7 @@ struct MakeVarData<VariablesT, SF, SF, EquationVariablesT, MatrixSizesT, EMatrix
     <
       boost::mpl::is_void_<VarT>,
       boost::mpl::void_,
-      SFVariableData<SF, FieldWidth<VarT, SF>::value, Offset::value, MatSize::value, IsEquationVar::value>*
+      SFVariableData<SF, SF, FieldWidth<VarT, SF>::value, Offset::value, MatSize::value, IsEquationVar::value>*
     >::type type;
   };
 };
@@ -440,7 +570,7 @@ public:
     m_support(elements),
     m_equation_data(m_variables_data)
   {
-    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data));
+    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data, m_support));
     for(Uint i = 0; i != CF_PROTO_MAX_ELEMENT_MATRICES; ++i)
       m_element_matrices[i].setZero();
   }
@@ -457,6 +587,18 @@ public:
     m_support.set_element(element_idx);
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(SetElement(m_variables_data, element_idx));
     boost::fusion::for_each(m_equation_data, FillRhs(m_element_rhs));
+  }
+  
+  /// Precompute element matrices, for the variables found in expr
+  template<typename ExprT>
+  void precompute_element_matrices(const typename SupportSF::MappedCoordsT& mapped_coords, const ExprT& e)
+  {
+    // TODO: Add some granularity in here
+    m_support.compute_shape_functions(mapped_coords);
+    m_support.compute_coordinates();
+    m_support.compute_jacobian(mapped_coords);
+    m_support.compute_normal(mapped_coords);
+    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(PrecomputeData<ExprT>(m_variables_data, mapped_coords));
   }
   
   /// Return the type of the data stored for variable I (I being an Integral Constant in the boost::mpl sense)
@@ -556,17 +698,18 @@ private:
   /// Initializes the pointers in a VariablesDataT fusion sequence
   struct InitVariablesData
   {
-    InitVariablesData(VariablesT& vars, Mesh::CElements& elems, VariablesDataT& vars_data) :
-      variables(vars),
-      elements(elems),
-      variables_data(vars_data)
+    InitVariablesData(VariablesT& vars, Mesh::CElements& elems, VariablesDataT& vars_data, const SupportT& sup) :
+      m_variables(vars),
+      m_elements(elems),
+      m_variables_data(vars_data),
+      m_support(sup)
     {
     }
     
     template<typename I>
     void operator()(const I&)
     {
-      apply(boost::fusion::at<I>(variables), boost::fusion::at<I>(variables_data));
+      apply(boost::fusion::at<I>(m_variables), boost::fusion::at<I>(m_variables_data));
     }
     
     void apply(const boost::mpl::void_&, const boost::mpl::void_&)
@@ -576,12 +719,13 @@ private:
     template<typename VarT, typename VarDataT>
     void apply(const VarT& v, VarDataT*& d)
     {
-      d = new VarDataT(v, elements);
+      d = new VarDataT(v, m_elements, m_support);
     }
     
-    VariablesT& variables;
-    Mesh::CElements& elements;
-    VariablesDataT& variables_data;
+    VariablesT& m_variables;
+    Mesh::CElements& m_elements;
+    VariablesDataT& m_variables_data;
+    const SupportT& m_support;
   };
   
   /// Delete stored per-variable data
@@ -637,6 +781,43 @@ private:
     
     VariablesDataT& variables_data;
     const Uint element_idx;
+  };
+  
+  /// Precompute variables data
+  template<typename ExprT>
+  struct PrecomputeData
+  {
+    PrecomputeData(VariablesDataT& vars_data, const typename SupportSF::MappedCoordsT& mapped_coords) :
+      m_variables_data(vars_data),
+      m_mapped_coords(mapped_coords)
+    {
+    }
+    
+    template<typename I>
+    void operator()(const I&)
+    {
+      apply(typename boost::result_of<UsesVar<I::value>(ExprT)>::type(), boost::fusion::at<I>(m_variables_data));
+    }
+    
+    void apply(boost::mpl::false_, const boost::mpl::void_&)
+    {
+    }
+    
+    template<typename T>
+    void apply(boost::mpl::true_, T*& d)
+    {
+      d->compute_values(m_mapped_coords);
+    }
+    
+    // Variable is not used - do nothing
+    template<typename T>
+    void apply(boost::mpl::false_, T*& d)
+    {
+    }
+    
+  private:
+    VariablesDataT& m_variables_data;
+    const typename SupportSF::MappedCoordsT& m_mapped_coords;
   };
   
   /// Set the element on each stored data item

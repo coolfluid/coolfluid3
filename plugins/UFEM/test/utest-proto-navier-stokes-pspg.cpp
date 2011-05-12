@@ -53,15 +53,23 @@ using namespace boost;
 typedef std::vector<std::string> StringsT;
 typedef std::vector<Uint> SizesT;
 
-Real tau_pspg(const Real volume, const Real nu, const Real u_ref)
-{
-  Real he=sqrt(4./3.141592654*volume);
-  Real ree=u_ref*he/(2.*nu);
-  Real xi=std::max(0.,std::min(ree/3.,1.));
-  return he*xi/(2.*u_ref);
-}
+struct ComputeTau
+{ 
+  /// Dummy result
+  typedef void result_type;
+  
+  template<typename UT>
+  void operator()(const UT& u, const Real u_ref, const Real nu, Real& tau_ps) const
+  {
+    const Real he=sqrt(4./3.141592654*u.support().volume());
+    const Real ree=u_ref*he/(2.*nu);
+    const Real xi=std::max(0.,std::min(ree/3.,1.));
+    tau_ps = he*xi/(2.*u_ref);
+  }
+};
 
-static boost::proto::terminal< Real(*)(Real, Real, Real) >::type const _tau_pspg = {&tau_pspg};
+/// Placeholder for the compute_tau operation
+static MakeSFOp<ComputeTau>::type const compute_tau = {};
 
 /// Probe based on a coordinate value
 void probe(const Real coord, const Real val, Real& result)
@@ -94,13 +102,14 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesPSPG )
   
   const Real mu = 0.01;
   const Real rho = 1.;
+  const Real nu = mu/rho;
   
   const RealVector2 u_inf(0.6, 0.);
   const RealVector2 u_wall(0., 0.);
   const Real p_out = 0.;
+  const Real u_ref = u_inf[XX];
   
-  Real tau_ps_val;
-  StoredReference<Real> tau_ps = store(tau_ps_val);
+  boost::proto::literal<Real> tau_ps;
   
   // Load the required libraries (we assume the working dir is the binary path)
   LibLoader& loader = *OSystem::instance().lib_loader();
@@ -124,19 +133,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesPSPG )
   // Linear system
   CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(argv[3]);
-  
-  // Create output fields
-  CField& u_fld = mesh->create_field( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
-  CField& p_fld = mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField::Basis::POINT_BASED);
-  
-  lss.resize(u_fld.data().size() * 2 + p_fld.size());
-  
-  // Setup a mesh writer
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
-  root.add_component(writer);
-  const std::vector<URI> out_fields = boost::assign::list_of(u_fld.full_path())(p_fld.full_path());
-  writer->configure_property( "Fields", out_fields );
-  
+
   // Regions
   CRegion& in = find_component_recursively_with_name<CRegion>(*mesh, "in");
   CRegion& out = find_component_recursively_with_name<CRegion>(*mesh, "out");
@@ -149,9 +146,16 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesPSPG )
   
   // Set up a physical model (normally handled automatically if using the Component wrappers)
   PhysicalModel physical_model;
-  physical_model.nb_dofs = 3;
-  physical_model.variable_offsets["u"] = 0;
-  physical_model.variable_offsets["p"] = 2;
+  physical_model.register_variable(u, true);
+  physical_model.register_variable(p, true);
+  physical_model.create_fields(*mesh);
+  lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
+  
+  // Setup a mesh writer
+  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  root.add_component(writer);
+  const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").full_path())(mesh->get_child("Pressure").full_path());
+  writer->configure_property( "Fields", out_fields );
   
   // Set initial conditions
   for_each_node(mesh->topology(), p = 0.);
@@ -165,20 +169,23 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesPSPG )
     Timer timer;
     // Fill the system matrix
     lss.set_zero();
+    
     for_each_element< boost::mpl::vector1<SF::Triag2DLagrangeP1> >
     (
       mesh->topology(),
       group <<
       (
-        boost::proto::lit(tau_ps) = _tau_pspg(volume, mu/rho, u_inf[0]),
-        _A(p) = /*2.*/integral<1>((                                     // Mass equation
-                  divergence_elm(u)                                          // standard
-                + tau_ps * laplacian_elm(p)                                  // PSPG
-                ) * jacobian_determinant),
-        _A(p, u) += /*2.*/tau_ps * integral<1>( ( transpose(gradient(u)) * linearize(advection(u), u) ) * jacobian_determinant ), // PSPG for advective term
-        _A(u) = integral<1>( (advection_elm(u) +  mu * laplacian_elm(u) + 1./rho * gradient_elm(p) ) * jacobian_determinant),     // Momentum
-        _T(p) = tau_ps * integral<1>(divergence_elm(u) * jacobian_determinant),                                                   // Time, PSPG
-        _T(u) = integral<2>(value_elm(u) * jacobian_determinant),                                                                 // Time, standard
+        _A = _0, _T = _0,
+        compute_tau(u, u_ref, nu, tau_ps),
+        element_quadrature <<
+        (
+          _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * advection(u), // Standard continuity + PSPG for advection
+          _A(p    , p)     += tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
+          _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u)) * advection(u),     // Diffusion + advection
+          _A(u[_i], p)     += 1./rho * transpose(N(u))         * nabla(p)[_i], // Pressure gradient
+          _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
+          _T(u[_i], u[_i]) += transpose(N(u))         * N(u)          // Time, standard
+        ),
         system_matrix(lss) += invdt * _T + 1.0 * _A,
         system_rhs(lss) -= _A * _b
       )
@@ -203,7 +210,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesPSPG )
     const SizesT dims = boost::assign::list_of(2)(1);
     
     timer.restart();
-    increment_solution(lss.solution(), fields, vars, dims, *mesh);
+    physical_model.update_fields(*mesh, lss.solution());
     increment_time = timer.elapsed();
     
     const Real total_time = assemblytime + bctime + increment_time + lss.time_matrix_construction + lss.time_matrix_fill + lss.time_residual + lss.time_solve + lss.time_solver_setup;

@@ -253,7 +253,7 @@ public:
     m_variables(variables),
     m_region(region),
     m_coordinates(coords),
-    m_nb_dofs(model.nb_dofs ? model.nb_dofs : 1)
+    m_nb_dofs(model.nb_dofs() ? model.nb_dofs() : 1)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_region, m_variables_data));
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(AddVariableOffsets(m_variables, m_variables_data, model));
@@ -285,6 +285,7 @@ public:
     return m_position;
   }
   
+  /// Number of degrees of freedom, i.e. the number of nodes times the number of scalars needed at each node to represent the solution
   Uint nb_dofs() const
   {
     return m_nb_dofs;
@@ -351,8 +352,7 @@ private:
     template<typename VarT, typename DataT>
     void execute(VarT& var, DataT* data)
     {
-      typename std::map<std::string, Uint>::const_iterator it = physical_model.variable_offsets.find(var.var_name);
-      data->offset = it == physical_model.variable_offsets.end() ? 0 : it->second;
+      data->offset = physical_model.is_equation_variable(var.internal_name()) ? physical_model.offset(var.internal_name()) : 0;
     }
     
     void execute(boost::mpl::void_&, NodeVarData<boost::mpl::void_>*)

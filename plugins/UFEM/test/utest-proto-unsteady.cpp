@@ -144,9 +144,6 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
   
-  // Create output field
-  lss.resize(mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED).data().size());
-  
   // Create a field for the analytical solution
   mesh->create_scalar_field("TemperatureAnalytical", "T", CField::Basis::POINT_BASED);
   
@@ -157,6 +154,11 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   MeshTerm<1, ScalarField> temperature_analytical("TemperatureAnalytical", "T");
   
+    // Set up a physical model (normally handled automatically if using the Component wrappers)
+  PhysicalModel physical_model;
+  physical_model.register_variable(temperature, true);
+  physical_model.create_fields(*mesh);
+  lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
   
   // Set initial condition.
   set_analytical_solution(mesh->topology(), "Temperature", "T");
@@ -180,8 +182,12 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
       mesh->topology(),
       group <<
       (
-        _A(temperature) = alpha * integral<1>(laplacian_elm(temperature) * jacobian_determinant),
-        _T(temperature) = invdt * integral<1>(value_elm(temperature) * jacobian_determinant),
+        _A = _0, _T = _0,
+        element_quadrature <<
+        (
+          _A(temperature) += alpha * transpose(nabla(temperature))*nabla(temperature),
+          _T(temperature) += invdt * transpose(N(temperature))*N(temperature)
+        ),
         system_matrix(lss) += _T + 0.5 * _A,
         system_rhs(lss) -= _A * temperature
       )
@@ -191,19 +197,21 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     for_each_node
     (
       xneg,
-      dirichlet(lss, temperature) = ambient_temp
+      dirichlet(lss, temperature) = ambient_temp,
+      physical_model
     );
     
     // Right boundary at ambient temperature
     for_each_node
     (
       xpos,
-      dirichlet(lss, temperature) = ambient_temp
+      dirichlet(lss, temperature) = ambient_temp,
+      physical_model
     );
     
     // Solve the system!
     lss.solve();
-    increment_solution(lss.solution(), StringsT(1, "Temperature"), StringsT(1, "T"), SizesT(1, 1), *mesh);
+    physical_model.update_fields(*mesh, lss.solution());
     
     t += dt;
         

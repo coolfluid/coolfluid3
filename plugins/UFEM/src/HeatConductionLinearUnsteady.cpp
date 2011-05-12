@@ -29,7 +29,7 @@ HeatConductionLinearUnsteady::HeatConductionLinearUnsteady(const std::string& na
 {
 }
 
-CFieldAction::Ptr HeatConductionLinearUnsteady::build_equation()
+void HeatConductionLinearUnsteady::add_actions()
 {
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   MeshTerm<1, ScalarField> heat("Heat", "q");
@@ -37,10 +37,10 @@ CFieldAction::Ptr HeatConductionLinearUnsteady::build_equation()
   StoredReference<Real> alpha = add_configurable_constant("alpha", "Thermal diffusivity (m2/s)", 1.);
   StoredReference<Real> k = add_configurable_constant("k", "Thermal conductivity (W/(mK))", 1.);
   
-  return build_elements_action
+  append_elements_action
   (
     "HeatEquation",
-    *this,
+    ASSEMBLY,
     group <<
     (
       _A(temperature) = alpha * integral<1>(laplacian_elm(temperature) * jacobian_determinant),

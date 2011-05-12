@@ -7,7 +7,7 @@ coolfluid_add_unit_test( utest-mesh-hash )
 
 ################################################################################
 
-list( APPEND utest-mesh-octtree_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf )
+list( APPEND utest-mesh-octtree_cflibs coolfluid_mesh_neu coolfluid_mesh_sf )
 list( APPEND utest-mesh-octtree_files  utest-mesh-octtree.cpp )
 
 coolfluid_add_unit_test( utest-mesh-octtree )
@@ -21,49 +21,49 @@ coolfluid_add_unit_test( utest-mesh-stencilcomputerrings )
 
 ################################################################################
 
-list( APPEND utest-mesh-interpolation_cflibs coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
+list( APPEND utest-mesh-interpolation_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-interpolation_files  utest-mesh-interpolation.cpp )
 
 coolfluid_add_unit_test( utest-mesh-interpolation )
 
 ################################################################################
 
-list( APPEND utest-mesh-unified-data_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf )
+list( APPEND utest-mesh-unified-data_cflibs coolfluid_mesh_neu coolfluid_mesh_sf )
 list( APPEND utest-mesh-unified-data_files  utest-mesh-unified-data.cpp )
 
 coolfluid_add_unit_test( utest-mesh-unified-data )
 
 ################################################################################
 
-list( APPEND utest-mesh-node-element-connectivity_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf )
+list( APPEND utest-mesh-node-element-connectivity_cflibs coolfluid_mesh_neu coolfluid_mesh_sf )
 list( APPEND utest-mesh-node-element-connectivity_files  utest-mesh-node-element-connectivity.cpp )
 
 coolfluid_add_unit_test( utest-mesh-node-element-connectivity )
 
 ################################################################################
 
-list( APPEND utest-mesh-face-cell-connectivity_cflibs coolfluid_testing coolfluid_mesh_generation coolfluid_mesh_neutral coolfluid_mesh_sf )
+list( APPEND utest-mesh-face-cell-connectivity_cflibs coolfluid_testing coolfluid_mesh_generation coolfluid_mesh_neu coolfluid_mesh_sf )
 list( APPEND utest-mesh-face-cell-connectivity_files  utest-mesh-face-cell-connectivity.cpp )
 
 coolfluid_add_unit_test( utest-mesh-face-cell-connectivity )
 
 ################################################################################
 
-list( APPEND utest-mesh-construction_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
+list( APPEND utest-mesh-construction_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-construction_files  utest-mesh-construction.cpp )
 
 coolfluid_add_unit_test( utest-mesh-construction )
 
 ################################################################################
 
-list( APPEND utest-mesh-reading_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
+list( APPEND utest-mesh-reading_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-reading_files  utest-mesh-reading.cpp )
 
 coolfluid_add_unit_test( utest-mesh-reading )
 
 ################################################################################
 
-list( APPEND utest-mesh-transformer_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf coolfluid_mesh_actions)
+list( APPEND utest-mesh-transformer_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_sf coolfluid_mesh_actions)
 list( APPEND utest-mesh-transformer_files  utest-mesh-transformer.cpp )
 
 coolfluid_add_unit_test( utest-mesh-transformer )
@@ -77,7 +77,7 @@ coolfluid_add_unit_test( utest-mesh-components )
 
 ################################################################################
 
-list( APPEND utest-mesh-cgns_cflibs      coolfluid_mesh_actions coolfluid_mesh_cgns3 coolfluid_mesh_neutral coolfluid_mesh_gmsh )
+list( APPEND utest-mesh-cgns_cflibs      coolfluid_mesh_actions coolfluid_mesh_cgns3 coolfluid_mesh_neu coolfluid_mesh_gmsh )
 list( APPEND utest-mesh-cgns_files       utest-mesh-cgns.cpp )
 list( APPEND utest-mesh-cgns_includedirs ${CGNS_INCLUDE_DIR} )
 list( APPEND utest-mesh-cgns_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
@@ -87,7 +87,7 @@ coolfluid_add_unit_test( utest-mesh-cgns )
 
 ################################################################################
 
-list( APPEND utest-neu-reader-mpi_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
+list( APPEND utest-neu-reader-mpi_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-neu-reader-mpi_files  utest-neu-reader-mpi.cpp )
 list( APPEND utest-neu-reader_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
 
@@ -113,7 +113,7 @@ coolfluid_add_unit_test( utest-gmsh-reader-mpi )
 
 ################################################################################
 
-list( APPEND utest-tecplot-writer_cflibs coolfluid_mesh_neutral coolfluid_mesh_tecplot coolfluid_mesh_sf )
+list( APPEND utest-tecplot-writer_cflibs coolfluid_mesh_neu coolfluid_mesh_tecplot coolfluid_mesh_sf )
 list( APPEND utest-tecplot-writer_files  utest-tecplot-writer.cpp )
 list( APPEND utest-tecplot-writer_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
 
@@ -128,7 +128,7 @@ coolfluid_add_unit_test( utest-vtklegacy-writer )
 
 ################################################################################
 
-list( APPEND utest-connectivity-data_cflibs coolfluid_mesh_neutral coolfluid_mesh_generation coolfluid_mesh_sf )
+list( APPEND utest-connectivity-data_cflibs coolfluid_mesh_neu coolfluid_mesh_generation coolfluid_mesh_sf )
 list( APPEND utest-connectivity-data_files  utest-connectivity-data.cpp )
 
 coolfluid_add_unit_test( utest-connectivity-data )
@@ -212,14 +212,14 @@ coolfluid_add_unit_test( utest-matrix-interpolation )
 
 ################################################################################
 
-list( APPEND utest-nodes_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf )
+list( APPEND utest-nodes_cflibs coolfluid_mesh_neu coolfluid_mesh_sf )
 list( APPEND utest-nodes_files  utest-nodes.cpp )
 list( APPEND utest-nodes_resources ${CF_RESOURCE_DIR}/quadtriag.neu )
 coolfluid_add_unit_test( utest-nodes )
 
 ################################################################################
 
-list( APPEND utest-mesh-fields_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
+list( APPEND utest-mesh-fields_cflibs coolfluid_mesh_neu coolfluid_mesh_sf coolfluid_mesh_gmsh )
 list( APPEND utest-mesh-fields_files  utest-mesh-fields.cpp )
 
 coolfluid_add_unit_test( utest-mesh-fields )
@@ -245,7 +245,7 @@ coolfluid_add_unit_test( utest-vector-benchmark )
 
 ################################################################################
 
-list( APPEND utest-pt-scotch_cflibs coolfluid_mesh_ptscotch coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh coolfluid_mesh_actions)
+list( APPEND utest-pt-scotch_cflibs coolfluid_mesh_ptscotch coolfluid_mesh_neu coolfluid_mesh_sf coolfluid_mesh_gmsh coolfluid_mesh_actions)
 #list( APPEND utest-pt-scotch_libs ${PTSCOTCH_LIBRARIES} )
 
 list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )
@@ -261,7 +261,7 @@ coolfluid_add_unit_test( utest-pt-scotch 3)
 
 ################################################################################
 
-list( APPEND utest-zoltan_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_zoltan coolfluid_mesh_actions)
+list( APPEND utest-zoltan_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_zoltan coolfluid_mesh_actions)
 #list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} ${ZOLTAN_EXTRA_LIBRARIES} )
 list( APPEND utest-zoltan_files  utest-zoltan.cpp )
 #list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} ${ZOLTAN_EXTRA_INCLUDE_DIR} )

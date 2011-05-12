@@ -118,7 +118,6 @@ private:
   void run(const FilteredExprT& expr, DataT& data, const Uint nb_elems) const
   {
     ElementGrammar grammar;
-    
     for(Uint elem = 0; elem != nb_elems; ++elem)
     {
       // Update the data for the element

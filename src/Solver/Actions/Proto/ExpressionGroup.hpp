@@ -14,6 +14,7 @@
 
 /// @file
 /// Grammar and transform to make grouping expressions possible
+/// @author Bart Janssens
 
 namespace CF {
 namespace Solver {
@@ -62,11 +63,11 @@ struct ExpressionGroup :
   };
 };
 
-/// Tags a terminal that indicates that each of its function arguments should be treated as an expression to be evaluated,
-/// i.e. allow specifying a group of expressions
+/// Tags a terminal that triggers expression grouping
 struct ExpressionGroupTag {};
 
-/// Use group(expr1, expr2, ..., exprN) to evaluate a group of expressions
+/// Use group << (expr1, expr2, ..., exprN) to evaluate a group of expressions.
+/// State can also be set for the expressions, using group(state) << (expr1, expr2, ..., exprN)
 static boost::proto::terminal< ExpressionGroupTag >::type group = {};
 
 /// Matches and evaluates groups of expressions matching GrammarT

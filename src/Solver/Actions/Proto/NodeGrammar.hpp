@@ -113,7 +113,7 @@ struct NodeMath :
     MathTerminals, // Scalars and matrices
     CoordinatesGrammar,
     NodeAssignGrammar<NodeMath>,
-    EigenMath<NodeMath> // Special Eigen functions and Eigen multiplication (overrides default product)
+    EigenMath<NodeMath, Integers> // Special Eigen functions and Eigen multiplication (overrides default product)
   >
 {
 };

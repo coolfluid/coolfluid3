@@ -17,6 +17,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-svn-revision.hpp.in ${coolf
 # coolfluid profiling configs
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-profiling.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-profiling.hpp)
 
+# Some hard-coded paths
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-paths.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-paths.hpp)
+
 # install global configuration headers
 install ( FILES ${coolfluid_BINARY_DIR}/coolfluid-config.hpp
                 ${coolfluid_BINARY_DIR}/coolfluid-svn-revision.hpp

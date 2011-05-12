@@ -1,6 +1,6 @@
 ################################################################################
 
-list( APPEND utest-mesh-actions-facebuilder_cflibs coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh)
+list( APPEND utest-mesh-actions-facebuilder_cflibs coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh)
 list( APPEND utest-mesh-actions-facebuilder_files  utest-mesh-actions-facebuilder.cpp )
 
 coolfluid_add_unit_test( utest-mesh-actions-facebuilder )
@@ -12,7 +12,7 @@ add_custom_command(TARGET utest-mesh-actions-facebuilder
 
 ################################################################################
 
-list( APPEND utest-mesh-actions-global-connectivity_cflibs coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh)
+list( APPEND utest-mesh-actions-global-connectivity_cflibs coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh)
 list( APPEND utest-mesh-actions-global-connectivity_files  utest-mesh-actions-global-connectivity.cpp )
 
 set( utest-mesh-actions-global-connectivity_mpi_test TRUE )

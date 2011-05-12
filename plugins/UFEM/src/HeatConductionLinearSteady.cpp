@@ -27,26 +27,26 @@ CF::Common::ComponentBuilder < UFEM::HeatConductionLinearSteady, LinearSystem, L
 
 HeatConductionLinearSteady::HeatConductionLinearSteady(const std::string& name) : LinearSystem(name)
 {
-  m_heat.setZero(4);
 }
 
-CFieldAction::Ptr HeatConductionLinearSteady::build_equation()
+void HeatConductionLinearSteady::add_actions()
 {
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   MeshTerm<1, ScalarField> heat("Heat", "q");
   
   StoredReference<Real> k = add_configurable_constant("k", "Thermal conductivity (J/(mK))", 1.);
 
-  return build_elements_action
+  append_elements_action
   (
     "HeatEquation",
-    *this,
+    ASSEMBLY,
     group <<
     (
-      _A(temperature) = k * integral<1>( laplacian_elm(temperature) * jacobian_determinant ),
-      _T(temperature) = integral<1>( value_elm(temperature) * jacobian_determinant ),
-      system_matrix( lss() ) +=  _A,
-      system_rhs( lss() ) += _T * heat
+      _A(temperature), _T(temperature),
+      //_A(temperature) = k * integral<1>( laplacian_elm(temperature) * jacobian_determinant ),
+      _T(temperature) = integral<1>( value_elm(temperature) * jacobian_determinant )
+      //system_matrix( lss() ) +=  _A
+      //system_rhs( lss() ) += _T * heat
     )
   );
 }

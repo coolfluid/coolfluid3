@@ -40,7 +40,7 @@ public: // functions
   }
   
 protected:
-  virtual void on_run();  
+  virtual void on_solve();  
   
 private:
   

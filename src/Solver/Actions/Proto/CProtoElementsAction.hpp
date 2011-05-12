@@ -58,12 +58,12 @@ public:
 
 /// Returns a configurable CAction object that will execute the supplied expression for all elements
 template<typename ExprT>
-CFieldAction::Ptr build_elements_action(const std::string& name, Common::Component& parent, const ExprT& expr)
+Common::CAction& build_elements_action(const std::string& name, Common::Component& parent, Common::Component& option_owner, PhysicalModel& physical_model, const ExprT& expr, Common::OptionURI::Ptr region_option = Common::OptionURI::Ptr())
 {
   boost::shared_ptr< CProtoElementsAction<ExprT> > result = parent.create_component_ptr< CProtoElementsAction<ExprT> >(name);
   regist_typeinfo(result.get());
-  result->set_expression(expr);
-  return boost::static_pointer_cast<CFieldAction>(result);
+  result->set_expression(expr, option_owner, physical_model, region_option);
+  return *result;
 }
 
 } // namespace Proto

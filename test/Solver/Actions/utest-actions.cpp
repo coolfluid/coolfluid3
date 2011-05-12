@@ -25,6 +25,7 @@
 #include "Mesh/CFieldView.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
+#include "Solver/Actions/CActionDirector.hpp"
 #include "Solver/Actions/CForAllElements.hpp"
 #include "Solver/Actions/CForAllElementsT.hpp"
 #include "Solver/Actions/CForAllNodes2.hpp"
@@ -223,6 +224,33 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(mesh,fp_out);
   
+}
+
+/// Action that sets an integer, for testing purposes
+struct SetIntegerAction : CAction
+{
+  typedef boost::shared_ptr<SetIntegerAction> Ptr;
+  typedef boost::shared_ptr<SetIntegerAction const> ConstPtr;
+  SetIntegerAction(const std::string& name) : CAction(name), value(0) {}
+  static std::string type_name () { return "SetIntegerAction"; }
+  virtual void execute()
+  {
+    value = 1;
+  }
+  
+  Uint value;
+};
+
+BOOST_AUTO_TEST_CASE(TestActionDirector)
+{
+  CRoot& root = Core::instance().root();
+  SetIntegerAction::Ptr test_action = root.create_component<SetIntegerAction>("testaction");
+  CActionDirector::Ptr director = root.create_component<CActionDirector>("director");
+  const std::vector<URI> action_vector(1, test_action->full_path());
+  director->configure_property("ActionList", action_vector);
+  BOOST_CHECK_EQUAL(test_action->value, 0);
+  director->execute();
+  BOOST_CHECK_EQUAL(test_action->value, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

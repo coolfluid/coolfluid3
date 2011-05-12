@@ -20,19 +20,13 @@ struct WrappableElementExpressions :
   <
     boost::proto::multiplies<boost::proto::_, boost::proto::_>,
     boost::proto::function< boost::proto::terminal< IntegralTag<boost::proto::_> >, boost::proto::_ >,
-    boost::proto::function<boost::proto::terminal<LinearizeOp>, boost::proto::_, FieldTypes>,
-    boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::_ >
+    boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >
   >
 {
 };
 
 /// Less restricitve grammar to get the result of expressions that are in an integral as well
-struct LazyElementGrammar :
-  boost::proto::or_
-  <
-    ElementGrammar,
-    ElementMathImplicit // Normally this is only legal inside an integral
-  >
+struct LazyElementGrammar : ElementMathIndexed< boost::mpl::int_<0>, boost::mpl::int_<0> >
 {
 };
 
@@ -62,12 +56,8 @@ struct WrapMatrixExpression : boost::proto::transform< WrapMatrixExpression >
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     /// Helper to select if the expression is to be wrapped
-    template<bool, int Dummy = 0>
-    struct WrapperSelector;
-    
-    /// Expression must not be wrapped
-    template<int Dummy>
-    struct WrapperSelector<false, Dummy>
+    template<typename T, bool>
+    struct WrapperSelector
     {
       typedef typename impl::expr_param result_type;
       
@@ -78,14 +68,11 @@ struct WrapMatrixExpression : boost::proto::transform< WrapMatrixExpression >
     };
     
     /// Expression is to be wrapped
-    template<int Dummy>
-    struct WrapperSelector<true, Dummy>
+    template<typename T>
+    struct WrapperSelector<T&, true>
     {
       /// Calculate the type to store
-      typedef typename boost::remove_const<typename boost::remove_reference
-      <
-        typename boost::result_of<LazyElementGrammar(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type
-      >::type>::type ValueT;
+      typedef typename boost::remove_const<T>::type ValueT;
       
       typedef StoredMatrixExpression<typename boost::remove_const<typename boost::remove_reference<ExprT>::type>::type, ValueT> result_type;
       
@@ -95,7 +82,12 @@ struct WrapMatrixExpression : boost::proto::transform< WrapMatrixExpression >
       }
     };
     
-    typedef WrapperSelector< boost::proto::matches<ExprT, WrappableElementExpressions>::value > ResultSelectorT;
+    typedef WrapperSelector
+    <
+      typename boost::result_of<LazyElementGrammar(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type,
+      boost::proto::matches<ExprT, WrappableElementExpressions>::value
+    > ResultSelectorT;
+    
     typedef typename ResultSelectorT::result_type result_type;
     
     result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data)
@@ -127,15 +119,7 @@ struct WrapExpression :
     >,
     boost::proto::when
     <
-      boost::proto::function<boost::proto::terminal<LinearizeOp>, boost::proto::_, FieldTypes>,
-      WrapMatrixExpression(boost::proto::functional::make_function
-      (
-        WrapExpression(boost::proto::_child0), WrapExpression(boost::proto::_child1), WrapExpression(boost::proto::_child2)
-      ))
-    >,
-    boost::proto::when
-    <
-      boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::_ >,
+      boost::proto::function< boost::proto::terminal< SFOp< CustomSFOp<boost::proto::_> > >, boost::proto::vararg<boost::proto::_> >,
       WrapMatrixExpression
     >,
     boost::proto::nary_expr< boost::proto::_, boost::proto::vararg<WrapExpression> >

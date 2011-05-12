@@ -58,23 +58,12 @@ private:
 
 /// Returns a configurable CAction object that will execute the supplied expression for all elements
 template<typename ExprT>
-Common::CAction::Ptr build_nodes_action(const std::string& name, Common::Component& parent, const PhysicalModel& physical_model, const ExprT& expr)
-{
-  boost::shared_ptr< CProtoNodesAction<ExprT> > result = parent.create_component_ptr< CProtoNodesAction<ExprT> >(name);
-  result->set_physical_model(physical_model);
-  regist_typeinfo(result.get());
-  result->set_expression(expr);
-  return boost::static_pointer_cast<Common::CAction>(result);
-}
-
-/// Returns a configurable CAction object that will execute the supplied expression for all elements
-template<typename ExprT>
-Common::CAction::Ptr build_nodes_action(const std::string& name, Common::Component& parent, const ExprT& expr)
+Common::CAction& build_nodes_action(const std::string& name, Common::Component& parent, Common::Component& option_owner, PhysicalModel& physical_model, const ExprT& expr, Common::OptionURI::Ptr region_option = Common::OptionURI::Ptr())
 {
   boost::shared_ptr< CProtoNodesAction<ExprT> > result = parent.create_component_ptr< CProtoNodesAction<ExprT> >(name);
   regist_typeinfo(result.get());
-  result->set_expression(expr);
-  return boost::static_pointer_cast<Common::CAction>(result);
+  result->set_expression(expr, option_owner, physical_model, region_option);
+  return *result;
 }
 
 

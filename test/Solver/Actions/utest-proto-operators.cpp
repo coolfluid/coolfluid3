@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    boost::proto::lit(result) = 0.5 * integral<1>(laplacian_elm(temperature)) * integral<1>(laplacian_elm(temperature)) * transpose(gradient(temperature, mapped_coords)) * gradient(temperature, mapped_coords)
+    boost::proto::lit(result) = 0.5 * integral<1>(transpose(nabla(temperature))*nabla(temperature)) * integral<1>(transpose(nabla(temperature))*nabla(temperature)) * transpose(nabla(temperature, mapped_coords)) * nabla(temperature, mapped_coords)
   );
   
   check_close(result, 8*exact, 1e-10);
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    boost::proto::lit(result) = integral<1>(laplacian_elm(temperature)) * 0.5
+    boost::proto::lit(result) = integral<1>(transpose(nabla(temperature))*nabla(temperature)) * 0.5
   );
   
   check_close(result, exact, 1e-10);
@@ -237,44 +237,28 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero
 }
 
-/// Test to transform a matrix that applies to a vector variable to one that applies to the linearized form
-BOOST_AUTO_TEST_CASE( Linearize )
-{
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("rectangle");
-  Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
-  
-  mesh->create_field( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
-  
-  MeshTerm<0, VectorField> u("Velocity", "u");
-
-  typedef boost::mpl::vector1< SF::Quad2DLagrangeP1> ElTypes;
-  
-  const RealVector2 mc(0., 0.);
-  
-  const RealVector2 test_v(5., 0.);
-  for_each_node(mesh->topology(), u = test_v);
-  
-  for_each_element<ElTypes>(mesh->topology(), _cout << transpose(gradient(u, mc)) * linearize(advection(u, mc), u) << "\n-----------------\n");
-}
-
-
-template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
 struct CustomLaplacian
-{ 
-  /// Type of the element matrix
-  typedef Eigen::Matrix<Real, Dim*SF::nb_nodes, MatrixSize> MatrixT;
-  typedef const MatrixT& result_type;
-  
-  template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
+{
+  /// Custom ops must implement the  TR1 result_of protocol
+  template<typename Signature>
+  struct result;
+
+  template<typename This, typename FieldDataT>
+  struct result<This(FieldDataT)>
   {
-    const typename SF::MappedGradientT& grad = data.gradient(state, support);
-    const Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> m = grad.transpose() * grad;
-    for(Uint d = 0; d != Dim; ++d)
+    typedef const Eigen::Matrix<Real, FieldDataT::dimension*FieldDataT::SF::nb_nodes, FieldDataT::dimension*FieldDataT::SF::nb_nodes>& type;
+  };
+  
+  template<typename StorageT, typename FieldDataT>
+  const StorageT& operator()(StorageT& result, const FieldDataT& field) const
+  {
+    typedef typename FieldDataT::SF SF;
+    const Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> m = field.nabla().transpose() * field.nabla();
+    for(Uint d = 0; d != FieldDataT::dimension; ++d)
     {
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(SF::nb_nodes*d, Offset+SF::nb_nodes*d).noalias() = m;
+      result.template block<SF::nb_nodes, SF::nb_nodes>(SF::nb_nodes*d, SF::nb_nodes*d).noalias() = m;
     }
-    return matrix;
+    return result;
   }
 };
 
@@ -302,27 +286,40 @@ BOOST_AUTO_TEST_CASE( CustomOp )
   
 }
 
-/// Custom op that just modifies the state
-template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-struct ModifyState
+/// Custom op that just modifies its argument
+struct Counter
 { 
   /// Dummy result
-  typedef int result_type;
+  typedef void result_type;
   
-  template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(const int, const SupportT&, const VarDataT&, StateT& state) const
+  result_type operator()(int& arg) const
   {
-    state = 1;
-    return 0;
+    ++arg;
   }
 };
 
-MakeSFOp<ModifyState>::type modify_state = {};
+MakeSFOp<Counter>::type counter = {};
 
-// Check that the parameter passed to group can really be used as state
-BOOST_AUTO_TEST_CASE( GroupState )
+/// Test a custom operator that modifies its arguments
+BOOST_AUTO_TEST_CASE( VoidOp )
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
+  Tools::MeshGeneration::create_line(*mesh, 1., 10);
+  
+  // Check if the counter really counts
+  int count = 0;
+  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
+  (
+    mesh->topology(),
+    counter(count)
+  );
+  
+  BOOST_CHECK_EQUAL(count, 10);
+}
+
+BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
+{
+  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
   
   mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);
@@ -334,26 +331,105 @@ BOOST_AUTO_TEST_CASE( GroupState )
   
   RealMatrix2 exact; exact << 1., -1., -1., 1;
   RealMatrix2 result;
+  RealMatrix2 zero;  zero.setZero();
   
-  // Check if mapped coords are passed
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    group(mapped_coords) << (boost::proto::lit(result) = laplacian_elm(temperature), _cout << result << "\n")
+    group <<
+    (
+      boost::proto::lit(result) = zero,
+      element_quadrature( boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature) )
+    )
   );
   
   check_close(result, exact, 1e-10);
   
-  // Check if the state is modified
-  int int_state = 0;
-  int int_result = 10;
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    group(int_state) << (boost::proto::lit(int_result) = modify_state(temperature), _cout << int_result << "\n")
+    group <<
+    (
+      boost::proto::lit(result) = zero,
+      element_quadrature << 
+      (
+        boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature),
+        boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature)
+      )
+    )
   );
   
-  BOOST_CHECK_EQUAL(int_state, 1);
+  check_close(result, 2.*exact, 1e-10);
+}
+
+
+BOOST_AUTO_TEST_CASE(GroupArity)
+{
+  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("GaussQuadratureLine");
+  Tools::MeshGeneration::create_line(*mesh, 1., 1);
+  
+  mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);
+
+  Real total = 0;
+  
+  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
+  (
+    mesh->topology(),
+    group <<
+    (
+      boost::proto::lit(total) += volume,
+      boost::proto::lit(total) += volume
+    )
+  );
+  
+  BOOST_CHECK_CLOSE(total, 2., 1e-10);
+}
+
+struct IntegralConstantTag {};
+
+template<int I>
+struct IntegralConstantGrammar :
+  boost::proto::when
+  <
+    boost::proto::terminal<IntegralConstantTag>,
+    boost::proto::_make_terminal(boost::mpl::int_<I>())
+  >
+{
+};
+
+/// Test if we can replace an expression with a tag using integral constants
+BOOST_AUTO_TEST_CASE(IntegralConstant)
+{
+  boost::proto::terminal<IntegralConstantTag>::type integral_const;
+  BOOST_CHECK_EQUAL(boost::proto::value(IntegralConstantGrammar<3>()(integral_const)), 3);
+}
+
+BOOST_AUTO_TEST_CASE(IndexLooper)
+{
+  CMesh::Ptr mesh = Core::instance().root().create_component<CMesh>("QuadGrid");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+  
+  const RealVector2 idx(1.,2.);
+  
+  int result_i = 0;
+  int result_j = 0;
+  int result_ij = 0;
+  
+  for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
+  (
+    mesh->topology(),
+    group <<
+    (
+      _cout << "i: " << _i << ", j: " << _j << "\n",
+      boost::proto::lit(result_i) += boost::proto::lit(idx)[_i], // Loop with _i in (0, 1)
+      boost::proto::lit(result_j) += boost::proto::lit(idx)[_j], // Loop with _j in (0, 1)
+      boost::proto::lit(result_ij) += boost::proto::lit(idx)[_i] + boost::proto::lit(idx)[_j] // Nested loop forall(_i): forall(_j)
+    )
+  );
+  
+  BOOST_CHECK_EQUAL(result_i, 3);
+  BOOST_CHECK_EQUAL(result_j, 3);
+  BOOST_CHECK_EQUAL(result_ij, 12);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

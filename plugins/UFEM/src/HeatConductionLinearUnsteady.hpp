@@ -31,7 +31,7 @@ public: // functions
   static std::string type_name () { return "HeatConductionLinearUnsteady"; }
 
 protected: // Linear system interface implementation
-  virtual Solver::Actions::CFieldAction::Ptr build_equation();
+  virtual void add_actions();
 };
 
 } // UFEM

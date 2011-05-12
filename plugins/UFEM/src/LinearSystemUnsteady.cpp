@@ -32,7 +32,7 @@ LinearSystemUnsteady::LinearSystemUnsteady(const std::string& name) : LinearSyst
   stop_prop->mark_basic();
 }
 
-void LinearSystemUnsteady::on_run()
+void LinearSystemUnsteady::on_solve()
 {
   const Real start_time = property("CurrentTime").value<Real>();
   const Real stop_time = property("StopTime").value<Real>();
@@ -41,7 +41,7 @@ void LinearSystemUnsteady::on_run()
   Real current_time = start_time;
   while(current_time < stop_time)
   {
-    CF::UFEM::LinearSystem::on_run();
+    CF::UFEM::LinearSystem::on_solve();
     current_time += dt;
   }
 

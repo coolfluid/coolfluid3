@@ -38,7 +38,7 @@ CF::Common::ComponentBuilder < UFEM::SetupLinearSystem, Component, LibUFEM > aSe
 
 SetupLinearSystem::SetupLinearSystem(const std::string& name) : Component ( name )
 {
-  this->regist_signal ( "create_model" , "Creates a linear, steady heat conduction model", "Create Model" )->signal->connect( boost::bind ( &SetupLinearSystem::create_model, this, _1 ) );
+  this->regist_signal ( "create_model" , "Creates a linear, steady heat conduction model", "Create Model" )->signal->connect( boost::bind ( &SetupLinearSystem::signal_create_model, this, _1 ) );
 
   signal("create_component")->is_hidden = true;
   signal("rename_component")->is_hidden = true;
@@ -46,10 +46,10 @@ SetupLinearSystem::SetupLinearSystem(const std::string& name) : Component ( name
   signal("move_component")->is_hidden   = true;
 
   signal("create_model")->signature->connect(
-      boost::bind( &SetupLinearSystem::create_model_signature, this, _1));
+      boost::bind( &SetupLinearSystem::signature_create_model, this, _1));
 }
 
-void SetupLinearSystem::create_model( SignalArgs& node)
+void SetupLinearSystem::signal_create_model( SignalArgs& node)
 {
   SignalOptions options( node );
 
@@ -67,22 +67,19 @@ void SetupLinearSystem::create_model( SignalArgs& node)
   CEigenLSS::Ptr lss = model->create_component_ptr<CEigenLSS>("LSS");
   lss->mark_basic();
 
-  // Setup method
-  LinearSystem::Ptr hc = create_component_abstract_type<LinearSystem>(solver_name, "LinearModel");
-  model->add_component(hc);
-  hc->mark_basic();
-  hc->configure_property( "LSS", URI(lss->full_path().string()) );
+  // Setup solver
+  CSolver::Ptr solver = create_component_abstract_type<CSolver>(solver_name, "LinearModel");
+  model->add_component(solver);
+  solver->mark_basic();
+  solver->configure_property( "LSS", URI(lss->full_path().string()) );
 
-  CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter>( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  // Add a VTK legacy writer by default
+  CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter>( "CF.Mesh.VTKLegacy.CWriter", "VTKLegacyWriter" );
   mesh_writer->mark_basic();
   model->add_component( mesh_writer );
-  
-  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
-  mesh_reader->mark_basic();
-  model->add_component( mesh_reader );
 }
 
-void SetupLinearSystem::create_model_signature( SignalArgs& node )
+void SetupLinearSystem::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 

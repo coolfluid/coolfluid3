@@ -29,6 +29,8 @@
 
 #include "Common/OSystem.hpp"
 
+#include "coolfluid-paths.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
@@ -66,6 +68,9 @@ OSystem::OSystem() :
 
     cf_assert ( is_not_null( m_layer ) );
     cf_assert ( is_not_null( m_lib_loader   ) );
+  
+  std::vector< boost::filesystem::path > default_paths(1, boost::filesystem::path(CF_BUILD_DIR) / boost::filesystem::path("dso"));
+  m_lib_loader->set_search_paths(default_paths);
 }
 
 OSystem::~OSystem()

@@ -9,13 +9,22 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CBuilder.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/CBuilder.hpp"
+#include "Common/Core.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/LibLoader.hpp"
+#include "Common/Log.hpp"
+#include "Common/OSystem.hpp"
 
 namespace CF {
 namespace Common {
 
+/////////////////////////////////////////////////////////////////////////////////
+  
+/// Extract the library name from the given builder name
+std::string library_name(const std::string& builder_name);
+  
 /////////////////////////////////////////////////////////////////////////////////
 
 /// Create a (sub)component of a given abstract type specified type
@@ -28,7 +37,23 @@ template < typename ATYPE >
   if ( is_null(factories) ) throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in " + Core::instance().root().full_path().string() );
 
   Component::Ptr factory = factories->get_child_ptr( ATYPE::type_name() );
-  if ( is_null(factory) ) throw ValueNotFound( FromHere(), "CFactory \'" + ATYPE::type_name() + "\' not found in " + factories->full_path().string() + ". Probably forgot to load a library." );
+  if ( is_null(factory) )
+  {
+    const std::string lib_name = library_name(builder_name);
+    try
+    {
+      CFinfo << "Auto-loading plugin " << lib_name << CFendl;
+      OSystem::instance().lib_loader()->load_library(lib_name);
+      factory = factories->get_child_ptr( ATYPE::type_name() );
+    }
+    catch(const std::exception& e)
+    {
+      throw ValueNotFound(FromHere(), "Failed to auto-load plugin " + lib_name + ": " + e.what());
+    }
+  }
+  
+  if ( is_null(factory) )
+    throw ValueNotFound( FromHere(), "CFactory \'" + ATYPE::type_name() + "\' not found in " + factories->full_path().string() + "." );
 
   Component::Ptr builder = factory->get_child_ptr( builder_name );
   if ( is_null(builder) )

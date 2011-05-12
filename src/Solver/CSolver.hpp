@@ -18,7 +18,7 @@ namespace Solver {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Solver component class
-/// Iterative solver component
+/// Abstract base class for solvers, requiring the implementation of the solve() function
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 class Solver_API CSolver : public Common::Component {
@@ -44,7 +44,7 @@ public: // functions
 
   // functions specific to the CSolver component
 
-  /// Solves a non-linear problem by converging its solution
+  /// Calls the concrete implementation of the solver
   virtual void solve() = 0;
 
   /// @name SIGNALS

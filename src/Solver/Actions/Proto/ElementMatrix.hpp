@@ -28,6 +28,7 @@
 
 #include "Math/MatrixTypes.hpp"
 
+#include "IndexLooping.hpp"
 #include "Terminals.hpp"
 #include "Transforms.hpp"
 
@@ -57,6 +58,46 @@ struct ElementRHS
 /// Terminal for the element RHS vector ("b")
 static boost::proto::terminal<ElementRHS>::type const _b = {};
 
+/// Match element matrix terminals
+struct ElementMatrixTerm :
+  boost::proto::terminal< ElementMatrix<boost::proto::_> >
+{
+};
+
+/// Match subrows
+struct IsSubRows :
+  boost::proto::function<ElementMatrixTerm, boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<boost::proto::_> > >, FieldTypes>
+{
+};
+
+/// Match subrows
+struct IsSubCols :
+  boost::proto::function<ElementMatrixTerm, FieldTypes, boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<boost::proto::_> > > >
+{
+};
+
+/// Match submatrices
+struct IsSubMatrix :
+  boost::proto::function
+  <
+    ElementMatrixTerm,
+    boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<boost::proto::_> > >,
+    boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<boost::proto::_> > >
+  >
+{
+};
+
+/// Match but don't evaluate subblock-expressions
+struct ElementMatrixSubBlocks :
+  boost::proto::or_
+  <
+    IsSubRows,
+    IsSubCols,
+    IsSubMatrix
+  >
+{
+};
+
 /// Transform to set a range with true indicating a variable that has an equation, and false for no equation
 template<int I>
 struct IsEquationVariable :
@@ -66,9 +107,10 @@ struct IsEquationVariable :
     <
       boost::proto::or_
       <
-        boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
-        boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
-        boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, boost::proto::_, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >
+        boost::proto::function<ElementMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
+        boost::proto::function<ElementMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
+        boost::proto::function<ElementMatrixTerm, boost::proto::_, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
+        ElementMatrixSubBlocks
       >,
       boost::mpl::true_()
     >,
@@ -247,15 +289,19 @@ struct ElementMatrixRowsValue :
 
 /// Only get a block containing the rows for the first var and the cols for the second
 struct ElementMatrixBlockValue :
-  boost::proto::transform<ElementMatrixBlockValue>
+  boost::proto::transform< ElementMatrixBlockValue >
 {
  
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    typedef typename VarDataType<typename boost::proto::result_of::value<typename boost::proto::result_of::child_c<ExprT, 1>::type>::type, DataT>::type RowVarDataT;
-    typedef typename VarDataType<typename boost::proto::result_of::value<typename boost::proto::result_of::child_c<ExprT, 2>::type>::type, DataT>::type ColVarDataT;
-    
+    typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
+    typedef typename boost::proto::result_of::child_c<ExprT, 2>::type Child2T;
+    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
+    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
+    typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
+    typedef typename VarDataType<ColVarIdxT, DataT>::type ColVarDataT;
+
     typedef Eigen::Block
     <
       typename boost::remove_reference<DataT>::type::ElementMatrixT,
@@ -263,9 +309,9 @@ struct ElementMatrixBlockValue :
       ColVarDataT::dimension * ColVarDataT::SF::nb_nodes
     > result_type;
     
-    result_type operator ()(typename impl::expr_param, typename impl::state_param state, typename impl::data_param data) const
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param, typename impl::data_param data) const
     {
-      return data.element_matrix(state).template block
+      return data.element_matrix(boost::proto::value(boost::proto::child_c<0>(expr))).template block
       <
         RowVarDataT::dimension * RowVarDataT::SF::nb_nodes,
         ColVarDataT::dimension * ColVarDataT::SF::nb_nodes
@@ -290,29 +336,148 @@ struct ElementRHSValue :
   };
 };
 
-template<typename GrammarT>
+/// A subblock of rows
+template<typename I, typename J>
+struct SubRows : boost::proto::transform< SubRows<I, J> >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
+    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
+    typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
+    
+    typedef typename boost::remove_reference<StateT>::type MatrixT;
+    
+    typedef Eigen::Block
+    <
+      MatrixT,
+      RowVarDataT::SF::nb_nodes,
+      MatrixT::ColsAtCompileTime
+    > result_type;
+
+    result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param) const
+    {
+      return matrix.template block<RowVarDataT::SF::nb_nodes, MatrixT::ColsAtCompileTime>
+      (
+        RowVarDataT::SF::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<1>(expr))),
+        0
+      );
+    }
+  };
+};
+
+/// A subblock of columns
+template<typename I, typename J>
+struct SubCols : boost::proto::transform< SubCols<I, J> >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::proto::result_of::child_c<ExprT, 2>::type Child2T;
+    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
+    typedef typename VarDataType<ColVarIdxT, DataT>::type ColVarDataT;
+    
+    typedef typename boost::remove_reference<StateT>::type MatrixT;
+    
+    typedef Eigen::Block
+    <
+      MatrixT,
+      MatrixT::RowsAtCompileTime,
+      ColVarDataT::SF::nb_nodes
+    > result_type;
+
+    result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param) const
+    {
+      return matrix.template block<MatrixT::RowsAtCompileTime, ColVarDataT::SF::nb_nodes>
+      (
+        0,
+        ColVarDataT::SF::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<2>(expr)))
+      );
+    }
+  };
+};
+
+/// A submatrix
+template<typename I, typename J>
+struct SubMatrix : boost::proto::transform< SubMatrix<I, J> >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
+    typedef typename boost::proto::result_of::child_c<ExprT, 2>::type Child2T;
+    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
+    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
+    typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
+    typedef typename VarDataType<ColVarIdxT, DataT>::type ColVarDataT;
+    
+    typedef typename boost::remove_reference<StateT>::type MatrixT;
+    
+    typedef Eigen::Block
+    <
+      MatrixT,
+      RowVarDataT::SF::nb_nodes,
+      ColVarDataT::SF::nb_nodes
+    > result_type;
+
+    result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param) const
+    {
+      return matrix.template block<RowVarDataT::SF::nb_nodes, ColVarDataT::SF::nb_nodes>
+      (
+        RowVarDataT::SF::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<1>(expr))),
+        ColVarDataT::SF::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<2>(expr)))
+      );
+    }
+  };
+};
+
 struct ElementMatrixGrammar :
   boost::proto::or_
   <
     boost::proto::when
     <
-      boost::proto::terminal< ElementMatrix<boost::proto::_> >,
+      ElementMatrixTerm,
       ElementMatrixValue(boost::proto::_expr, boost::proto::_value)
     >,
     boost::proto::when
     <
-      boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, FieldTypes>,
+      boost::proto::function<ElementMatrixTerm, FieldTypes>,
       ElementMatrixRowsValue(boost::proto::_value(boost::proto::_child1), boost::proto::_value(boost::proto::_child0))
     >,
     boost::proto::when
     <
-      boost::proto::function<boost::proto::terminal< ElementMatrix<boost::proto::_> >, FieldTypes, FieldTypes>,
-      ElementMatrixBlockValue(boost::proto::_expr, boost::proto::_value(boost::proto::_child0))
+      boost::proto::function<ElementMatrixTerm, FieldTypes, FieldTypes>,
+      ElementMatrixBlockValue
     >,
     boost::proto::when
     <
       boost::proto::terminal<ElementRHS>,
       ElementRHSValue
+    >
+  >
+{
+};
+
+/// Gets submatrices of vector variables
+template<typename I, typename J>
+struct ElementMatrixGrammarIndexed :
+  boost::proto::or_
+  <
+    boost::proto::when
+    <
+      IsSubRows,
+      boost::proto::call< SubRows<I, J> >(boost::proto::_expr, ElementMatrixBlockValue)
+    >,
+    boost::proto::when
+    <
+      IsSubCols,
+      boost::proto::call< SubCols<I, J> >(boost::proto::_expr, ElementMatrixBlockValue)
+    >,
+    boost::proto::when
+    <
+      IsSubMatrix,
+      boost::proto::call< SubMatrix<I, J> >(boost::proto::_expr, ElementMatrixBlockValue)
     >
   >
 {

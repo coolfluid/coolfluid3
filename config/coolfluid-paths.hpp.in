@@ -1,0 +1,6 @@
+#ifndef coolfluid_paths_config_hpp
+#define coolfluid_paths_config_hpp
+
+#define CF_BUILD_DIR "${coolfluid_BINARY_DIR}"
+
+#endif // !coolfluid_paths_config_hpp

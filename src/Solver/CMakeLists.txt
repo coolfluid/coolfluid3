@@ -27,7 +27,7 @@ list( APPEND coolfluid_solver_files
 
 set( coolfluid_solver_kernellib TRUE )
 
-list(APPEND coolfluid_solver_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_gmsh coolfluid_mesh_neutral)
+list(APPEND coolfluid_solver_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_gmsh coolfluid_mesh_neu)
 
 if( CF_HAVE_TRILINOS )
   list(APPEND coolfluid_solver_cflibs ${TRILINOS_LIBRARIES})

@@ -127,36 +127,6 @@ private:
   VarsT& m_vars;  
 };
 
-/// Function object to add options, based on the type of variable
-struct AddVariableOptions
-{
-  AddVariableOptions(Common::Component::Ptr an_owner) :
-    owner(an_owner)
-  {
-  }
-  
-  template<typename T>
-  inline void operator()(T& t) const
-  {
-    apply(typename boost::is_base_of<OptionVariable, T>::type(), t);
-  }
-  
-  /// Chosen when T derives from OptionVariable
-  template<typename T>
-  inline void apply(boost::true_type, T& t) const
-  {
-    t.set_owner(owner);
-  }
-  
-  /// Chose in other cases (do nothing)
-  template<typename T>
-  inline void apply(boost::false_type, T& t) const
-  {
-  }
-
-  Common::Component::Ptr owner;
-};
-
 /// Returns the data value of a numbered variable
 struct VarValue :
   boost::proto::transform< VarValue >

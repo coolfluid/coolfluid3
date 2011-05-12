@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
-    _cout << "elem result:\n" << integral<1>(laplacian_elm(temperature) * jacobian_determinant) << "\n"
+    _cout << "elem result:\n" << integral<1>(transpose(nabla(temperature)) * nabla(temperature) * jacobian_determinant) << "\n"
   );
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
     mesh->topology(),
     group <<
     (
-      _A(temperature) = integral<1>(transpose( gradient(temperature) ) * gradient(temperature) * jacobian_determinant),
+      _A(temperature) = integral<1>(transpose(nabla(temperature)) * nabla(temperature) * jacobian_determinant),
       system_matrix(lss) += _A
     )
   );
@@ -140,7 +140,8 @@ BOOST_AUTO_TEST_CASE( Heat1D )
     mesh->topology(),
     group <<
     (
-      _A(temperature) = integral<1>( laplacian_elm(temperature) * jacobian_determinant ),
+      _A = _0,
+      element_quadrature( _A(temperature[_i], temperature[_j]) += transpose(nabla(temperature)) * nabla(temperature) ),
       system_matrix(lss) += _A
     )
   );
@@ -201,7 +202,7 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
     mesh->topology(),
     group <<
     (
-      _A(temperature) = k * integral<1>( laplacian_elm(temperature) * jacobian_determinant ),
+      _A(temperature) = k * integral<1>( transpose(nabla(temperature)) * nabla(temperature) * jacobian_determinant ),
       system_matrix(lss) += _A
     )
   );
@@ -249,6 +250,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
   
+  PhysicalModel physical_model;
+  
   BOOST_CHECK(true);
   
   // Variable holding the field
@@ -257,13 +260,15 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   BOOST_CHECK(true);
 
   // Create a CAction executing the expression
-  CFieldAction::Ptr heat1d_action = build_elements_action
+  CAction& heat1d_action = build_elements_action
   (
     "Heat1D",
     root,
+    root,
+    physical_model,
     group <<
     (
-      _A(temperature) = integral<1>(laplacian_elm(temperature) * jacobian_determinant),
+      _A(temperature) = integral<1>(transpose(nabla(temperature)) * nabla(temperature) * jacobian_determinant),
       system_matrix(lss) += _A
     )
   );
@@ -271,30 +276,32 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   BOOST_CHECK(true);
 
   // Configure the CAction
-  heat1d_action->configure_property("Region", mesh->topology().full_path());
-  heat1d_action->create_fields();
-  lss.resize( heat1d_action->nb_dofs() );
+  heat1d_action.configure_property("Region", mesh->topology().full_path());
+  
+  // Create the fields
+  physical_model.create_fields(*mesh, root.properties());
+  lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
   
   // Run the expression
-  heat1d_action->execute();
+  heat1d_action.execute();
   
   BOOST_CHECK(true);
 
   // Left boundary condition
-  CAction::Ptr xneg_action = build_nodes_action("xneg", root, dirichlet(lss, temperature) = 10. );
-  xneg_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg").full_path());
-  xneg_action->execute();
+  CAction& xneg_action = build_nodes_action("xneg", root, root, physical_model, dirichlet(lss, temperature) = 10. );  
+  xneg_action.configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg").full_path());
+  xneg_action.execute();
   
   BOOST_CHECK(true);
 
   // Right boundary condition
-  CAction::Ptr xpos_action = build_nodes_action("xpos", root, dirichlet(lss, temperature) = 35. );
-  xpos_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos").full_path());
-  xpos_action->execute();
+  CAction& xpos_action = build_nodes_action("xpos", root, root, physical_model, dirichlet(lss, temperature) = 35. );  
+  xpos_action.configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos").full_path());
+  xpos_action.execute();
   
   // Solve system
   lss.solve();
-  increment_solution(lss.solution(), heat1d_action->field_names(), heat1d_action->variable_names(), heat1d_action->variable_sizes(), *mesh);
+  physical_model.update_fields(*mesh, lss.solution());
   
   // Print solution field
   for_each_node
@@ -336,8 +343,8 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
     mesh->topology(),
     group <<
     (
-      _A(temperature) = integral<1>( k * laplacian_elm(temperature) * jacobian_determinant ),
-      _T(temperature) = integral<1>( jacobian_determinant * value_elm(temperature) ),
+      _A(temperature) = integral<1>( k * transpose(nabla(temperature)) * nabla(temperature) * jacobian_determinant ),
+      _T(temperature) = integral<1>( jacobian_determinant * transpose(N(temperature))*N(temperature) ),
       system_matrix(lss) += _A,
       system_rhs(lss) += _T * heat
     )

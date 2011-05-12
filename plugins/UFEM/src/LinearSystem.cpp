@@ -46,12 +46,12 @@ public:
   }
   
   /// Add the property to modify the value to the given component
-  void add_property(Component::Ptr parent)
+  void add_property(Component& parent)
   {
-    parent->properties().add_option< OptionT<Real> >(name(), m_description, m_value)->mark_basic();
-    parent->properties()[name()].as_option().attach_trigger(boost::bind(&ConfigurableConstant::trigger_value, this));
-    m_parent = parent;
-    parent->add_component(shared_from_this());
+    parent.properties().add_option< OptionT<Real> >(name(), m_description, m_value)->mark_basic();
+    parent.properties()[name()].as_option().attach_trigger(boost::bind(&ConfigurableConstant::trigger_value, this));
+    m_parent = parent.follow();
+    parent.add_component(shared_from_this());
   }
 
   /// Reference to the stored value
@@ -71,22 +71,31 @@ private:
   boost::weak_ptr<Component> m_parent;
 };
 
-LinearSystem::LinearSystem(const std::string& name) : Component (name)
+LinearSystem::LinearSystem(const std::string& name) : CSolver(name)
 {
   m_lss_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("LSS", "Linear system solver", std::string()) );
   m_lss_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
   m_lss_path.lock()->mark_basic();
-  m_lss_path.lock()->attach_trigger( boost::bind(&LinearSystem::on_lss_set, this) );
+  m_lss_path.lock()->attach_trigger( boost::bind(&LinearSystem::trigger_lss_set, this) );
+  
+  m_region_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("Region", "Region over which the problem is solved", std::string()) );
+  m_region_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
+  m_region_path.lock()->mark_basic();
 
-  this->regist_signal("add_dirichlet_bc" , "Add a Dirichlet boundary condition", "Add Dirichlet BC")->signal->connect( boost::bind ( &LinearSystem::add_dirichlet_bc, this, _1 ) );
-  signal("add_dirichlet_bc")->signature->connect( boost::bind( &LinearSystem::dirichlet_bc_signature, this, _1) );
+  this->regist_signal("add_dirichlet_bc" , "Add a Dirichlet boundary condition", "Add Dirichlet BC")->signal->connect( boost::bind ( &LinearSystem::signal_add_dirichlet_bc, this, _1 ) );
+  signal("add_dirichlet_bc")->signature->connect( boost::bind( &LinearSystem::signature_add_dirichlet_bc, this, _1) );
 
-  this->regist_signal("add_initial_condition" , "Add an initial condition for a field", "Add Initial Condition")->signal->connect( boost::bind ( &LinearSystem::add_initial_condition, this, _1 ) );
-  signal("add_initial_condition")->signature->connect( boost::bind( &LinearSystem::add_initial_condition_signature, this, _1) );
+  this->regist_signal("add_initial_condition" , "Add an initial condition for a field", "Add Initial Condition")->signal->connect( boost::bind ( &LinearSystem::signal_add_initial_condition, this, _1 ) );
+  signal("add_initial_condition")->signature->connect( boost::bind( &LinearSystem::signature_add_initial_condition, this, _1) );
 
-  this->regist_signal("run" , "Run the method", "Run")->signal->connect( boost::bind ( &LinearSystem::run, this, _1 ) );
   this->regist_signal("initialize" , "Initialize the solution", "Initialize")->signal->connect( boost::bind ( &LinearSystem::signal_initialize_fields, this, _1 ) );
 
+  // Add the directors for the different phases
+  m_phases[POST_INIT] = this->create_component<CActionDirector>("PhasePostInit");
+  m_phases[ASSEMBLY] = this->create_component<CActionDirector>("PhaseAssembly");
+  m_phases[POST_SOLVE] = this->create_component<CActionDirector>("PhasePostSolve");
+  m_phases[POST_INCREMENT] = this->create_component<CActionDirector>("PhasePostIncrement");
+  
   signal("create_component")->is_hidden = true;
   signal("rename_component")->is_hidden = true;
   signal("delete_component")->is_hidden = true;
@@ -102,7 +111,7 @@ CEigenLSS& LinearSystem::lss()
   return *m_lss.lock();
 }
 
-void LinearSystem::dirichlet_bc_signature(SignalArgs& args)
+void LinearSystem::signature_add_dirichlet_bc(SignalArgs& args)
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -112,7 +121,7 @@ void LinearSystem::dirichlet_bc_signature(SignalArgs& args)
 }
 
 
-void LinearSystem::add_dirichlet_bc( SignalArgs& args )
+void LinearSystem::signal_add_dirichlet_bc( SignalArgs& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -125,14 +134,14 @@ void LinearSystem::add_dirichlet_bc( SignalArgs& args )
   
   MeshTerm<0, ScalarField> bc_var(field_name, var_name);
 
-  CAction::Ptr bc = build_nodes_action(bc_name, *this, m_physical_model, dirichlet( lss(), bc_var ) = store(bc_value->value()) );
-  bc->add_tag("dirichlet_bc");
+  CAction& bc = build_nodes_action(bc_name, *this, *this, m_physical_model, dirichlet( lss(), bc_var ) = store(bc_value->value()) );
+  bc.add_tag("dirichlet_bc");
   
   // Make sure the BC value can be configured from the BC action itself
   bc_value->add_property(bc);
 }
 
-void LinearSystem::add_initial_condition_signature(SignalArgs& args)
+void LinearSystem::signature_add_initial_condition(SignalArgs& args)
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -142,7 +151,7 @@ void LinearSystem::add_initial_condition_signature(SignalArgs& args)
 }
 
 
-void LinearSystem::add_initial_condition( SignalArgs& args )
+void LinearSystem::signal_add_initial_condition( SignalArgs& args )
 {
   SignalFrame& p = args.map( Protocol::Tags::key_options() );
 
@@ -155,75 +164,85 @@ void LinearSystem::add_initial_condition( SignalArgs& args )
   
   MeshTerm<0, ScalarField> var(field_name, var_name);
 
-  CAction::Ptr bc = build_nodes_action(name, *this, var = store(value->value()) );
-  bc->add_tag("initial_condition");
+  CAction& ic = build_nodes_action(name, *this, *this, m_physical_model, var = store(value->value()), m_region_path.lock() );
+  ic.add_tag("initial_condition");
   
-  value->add_property(bc);
+  value->add_property(ic);
 }
 
-
-void LinearSystem::run(SignalArgs& node)
+void LinearSystem::solve()
 {
-  on_run();
+  on_solve();
 }
 
-void LinearSystem::on_run()
+void LinearSystem::signal_initialize_fields(SignalArgs& node)
 {
-  // Action component that will build the linear system
-  CFieldAction::Ptr builder = m_system_builder.lock();
-  if(!builder)
-    throw ValueNotFound(FromHere(), "System builder action not found. Did you set a LSS?");
+  if(!m_lss.lock())
+    throw ValueNotFound(FromHere(), "Linear system solver not set, can't initialize!");
+
+  CRegion::Ptr region = access_component_ptr( m_region_path.lock()->value_str() )->as_ptr<CRegion>();
+  if(!region)
+    throw ValueNotFound(FromHere(), "Region at path " +  m_region_path.lock()->value_str() + " not found when looking for calculation Region.");
+
+  CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(*region);
+  
+  // Create the fields and adjust the LSS size
+  m_physical_model.create_fields(mesh, properties());
+  lss().resize( m_physical_model.nb_dofs() * mesh.nodes().size() );
+
+  // Set the initial values
+  boost_foreach(CAction& action, find_components_with_tag<CAction>(*this, "initial_condition"))
+  {
+    action.execute();
+  }
+  
+  // Post-init phase
+  m_phases[POST_INIT].lock()->execute();
+}
+
+void LinearSystem::on_solve()
+{
+  if(!m_lss.lock())
+    throw ValueNotFound(FromHere(), "Linear system solver not set, can't solve!");
 
   // Region we loop over
-  CRegion::Ptr region = access_component_ptr( builder->property("Region").value_str() )->as_ptr<CRegion>();
+  CRegion::Ptr region = access_component_ptr( m_region_path.lock()->value_str() )->as_ptr<CRegion>();
   if(!region)
-    throw ValueNotFound(FromHere(), "Cannot Region at path " +  builder->property("Region").value_str() + " not found when looking for calculation Region.");
-
+    throw ValueNotFound(FromHere(), "Region at path " +  m_region_path.lock()->value_str() + " not found when looking for calculation Region.");
 
   CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(*region);
 
   // Build the system
-  std::cout << "starting system build" << std::endl;
-  builder->execute();
-  std::cout << "finished system build" << std::endl;
-  
-  // Calculate the offsets of the variables (so the bcs know how the system matrix needs to be updated)
-  const CFieldAction::StringsT var_names = builder->variable_names();
-  const CFieldAction::BoolsT eq_vars = builder->equation_variables();
-  const CFieldAction::SizesT var_sizes = builder->variable_sizes();
-  m_physical_model.nb_dofs = 0;
-  for(Uint var_idx = 0; var_idx != var_names.size(); ++var_idx)
-  {
-    if(eq_vars[var_idx])
-    {
-      m_physical_model.variable_offsets[var_names[var_idx]] = m_physical_model.nb_dofs;
-      m_physical_model.nb_dofs += var_sizes[var_idx];
-    }
-  }
+  m_phases[ASSEMBLY].lock()->execute();
   
   // Set the boundary conditions
-  std::cout << "starting bc setting" << std::endl;
   boost_foreach(CAction& bc_action, find_components_with_tag<CAction>(*this, "dirichlet_bc"))
   {
     bc_action.execute();
   }
-  std::cout << "finished bc setting" << std::endl;
 
   // Solve the linear system
-  std::cout << "starting solve" << std::endl;
   lss().solve();
-  std::cout << "finished solve" << std::endl;
-  builder->update_fields(lss().solution(), mesh);
-  std::cout << "finished solution update" << std::endl;
+  
+  // Post-solve phase
+  m_phases[POST_SOLVE].lock()->execute();
+  
+  // Increment solution
+  m_physical_model.update_fields(mesh, lss().solution());
+  
+  // Post increment phase
+  m_phases[POST_INCREMENT].lock()->execute();
 }
 
 
-void LinearSystem::on_lss_set()
+void LinearSystem::trigger_lss_set()
 {
-  // Remove the old system builder, if needed
-  if(m_system_builder.lock())
-    remove_component( m_system_builder.lock()->name() );
-
+  // Remove actions from the directors
+  m_phases[POST_INIT].lock()->property("ActionList").change_value(std::vector<URI>());
+  m_phases[ASSEMBLY].lock()->property("ActionList").change_value(std::vector<URI>());
+  m_phases[POST_SOLVE].lock()->property("ActionList").change_value(std::vector<URI>());
+  m_phases[POST_INCREMENT].lock()->property("ActionList").change_value(std::vector<URI>());
+  
   // Any boundary conditions are invalidated by setting the LSS
   boost_foreach(CAction& bc_action, find_components_with_tag<CAction>(*this, "dirichlet_bc"))
   {
@@ -232,31 +251,13 @@ void LinearSystem::on_lss_set()
 
   m_lss = access_component_ptr( m_lss_path.lock()->value_str() )->as_ptr<CEigenLSS>();
 
-  // Build the action that will create the system matrix. This requires access to the LSS! This also automatically adds the CAction as a child.
-  m_system_builder = build_equation();
+  add_actions();
   
   // Move any configurable constants to the system builder component
   for(ConstantsT::iterator it = m_configurable_constants.begin(); it != m_configurable_constants.end(); ++it)
-    boost::dynamic_pointer_cast<ConfigurableConstant>(it->second)->add_property(m_system_builder.lock());
+    boost::dynamic_pointer_cast<ConfigurableConstant>(it->second)->add_property(*this);
   
   m_configurable_constants.clear();
-}
-
-void LinearSystem::signal_initialize_fields(SignalArgs& node)
-{
-  CFieldAction::Ptr builder = m_system_builder.lock();
-  if(!builder)
-    throw ValueNotFound(FromHere(), "System builder action not found. Did you set a LSS?");
-
-  // Create the fields and adjust the LSS size
-  builder->create_fields();
-  lss().resize( builder->nb_dofs() );
-
-  // Set the initial values
-  boost_foreach(CAction& action, find_components_with_tag<CAction>(*this, "initial_condition"))
-  {
-    action.execute();
-  }
 }
 
 StoredReference<Real> LinearSystem::add_configurable_constant(const std::string& name, const std::string& description, const Real default_value)
@@ -267,6 +268,14 @@ StoredReference<Real> LinearSystem::add_configurable_constant(const std::string&
   return store(c->value());
 }
 
+void LinearSystem::append_action(CAction& action, const LinearSystem::PhasesT phase)
+{
+  Property& actions_prop = m_phases[phase].lock()->property("ActionList");
+  std::vector<URI> actions; actions_prop.put_value(actions);
+  
+  actions.push_back(action.full_path());
+  actions_prop.change_value(actions);
+}
 
 
 } // UFEM

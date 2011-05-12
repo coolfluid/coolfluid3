@@ -14,48 +14,47 @@
 namespace CF {
 namespace UFEM {
 
-/// Operation to set the different coefficients for PSPG, SUPG and bulk viscosity
-template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-struct SetTau;
+/// Stores the coefficients for the SUPG model and shares them inside a proto expression through the state
+struct SUPGCoeffs
+{ 
+  /// Reference velocity magnitude
+  Real u_ref;
+  
+  /// Kinematic viscosity
+  Real nu;
+  
+  /// Density
+  Real rho;
+  
+  /// Model coefficients
+  Real ps, su, bulk;
+};
 
-/// 2D specialization
-template<typename SF, Uint Offset, Uint MatrixSize>
-struct SetTau<SF, 2, Offset, MatrixSize>
+struct ComputeTau
 { 
   /// Dummy result
-  typedef int result_type;
+  typedef void result_type;
   
-  template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(const int, const SupportT& support, const VarDataT& field, StateT& state) const
+  template<typename UT>
+  void operator()(const UT& u, SUPGCoeffs& coeffs) const
   {
-    const Real he=sqrt(4./3.141592654*support.volume());
-    const Real ree=state.u_ref*he/(2.*state.nu);
+    const Real he=sqrt(4./3.141592654*u.support().volume());
+    const Real ree=coeffs.u_ref*he/(2.*coeffs.nu);
     const Real xi=std::max(0.,std::min(ree/3.,1.));
-    state.tau_ps = he*xi/(2.*state.u_ref);
-    state.tau_bulk = he*state.u_ref/xi;
+    coeffs.ps = he*xi/(2.*coeffs.u_ref);
+    coeffs.bulk = he*coeffs.u_ref/xi;
     
     // Average cell velocity
-    const RealVector2 u = field.value().colwise().mean();
-    const Real umag = u.norm();
-    state.tau_su = 0.;
+    const RealVector2 u_avg = u.value().colwise().mean();
+    const Real umag = u_avg.norm();
+    coeffs.su = 0.;
     if(umag > 1e-10)
     {
-      const Real h = 2. * support.volume() / (support.nodes() * (u / umag)).array().abs().sum();
-      Real ree=umag*h/(2.*state.nu);
+      const Real h = 2. * u.support().volume() / (u.support().nodes() * (u_avg / umag)).array().abs().sum();
+      Real ree=umag*h/(2.*coeffs.nu);
       Real xi=std::max(0.,std::min(ree/3.,1.));
-      state.tau_su = h*xi/(2.*umag);
+      coeffs.su = h*xi/(2.*umag);
     }
-    
-    //std::cout << "tau_ps: " << state.tau_ps << ", tau_su: " << state.tau_su << std::endl;
-    
-    // We need this one every time, so cache it
-    state.integral_weight = Mesh::Integrators::GaussMappedCoords<1, SF::shape>::instance().weights[0]
-                            * support.jacobian_determinant(Mesh::Integrators::GaussMappedCoords<1, SF::shape>::instance().coords.col(0));
-    
-    // Cache the matrices used in the operators, calculated at the first gauss point
-    field.compute_values(Mesh::Integrators::GaussMappedCoords<1, SF::shape>::instance().coords.col(0), support);
-    
-    return 0;
   }
 };
 
@@ -228,13 +227,9 @@ struct SUPGState
   Real integral_weight;
 };
 
-Solver::Actions::Proto::MakeSFOp<SetTau>::type set_tau = {};
-Solver::Actions::Proto::MakeSFOp<ContinuityPressureA>::type continuity_p_a = {};
-Solver::Actions::Proto::MakeSFOp<ContinuityVelocityA>::type continuity_u_a = {};
-Solver::Actions::Proto::MakeSFOp<MomentumPressureA>::type momentum_p_a = {};
-Solver::Actions::Proto::MakeSFOp<MomentumVelocityA>::type momentum_u_a = {};
-Solver::Actions::Proto::MakeSFOp<ContinuityT>::type continuity_t = {};
-Solver::Actions::Proto::MakeSFOp<MomentumT>::type momentum_t = {};
+/// Placeholder for the compute_tau operation
+static Solver::Actions::Proto::MakeSFOp<ComputeTau>::type const compute_tau = {};
+
 
 } // UFEM
 } // CF

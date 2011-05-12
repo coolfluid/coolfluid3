@@ -1,4 +1,4 @@
-list( APPEND coolfluid_mesh_neutral_files
+list( APPEND coolfluid_mesh_neu_files
   CReader.hpp
   CReader.cpp
   CWriter.hpp
@@ -9,8 +9,8 @@ list( APPEND coolfluid_mesh_neutral_files
   Shared.cpp
 )
 
-list( APPEND coolfluid_mesh_neutral_cflibs coolfluid_mesh_sf)
+list( APPEND coolfluid_mesh_neu_cflibs coolfluid_mesh_sf)
 
-set( coolfluid_mesh_neutral_kernellib TRUE )
+set( coolfluid_mesh_neu_kernellib TRUE )
 
-coolfluid_add_library( coolfluid_mesh_neutral )
+coolfluid_add_library( coolfluid_mesh_neu )

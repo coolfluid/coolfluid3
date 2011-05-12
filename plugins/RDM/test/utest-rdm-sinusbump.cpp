@@ -62,7 +62,7 @@ struct sinusbump_global_fixture
                                                              ("../../../dso");
     loader.set_search_paths(lib_paths);
 
-    loader.load_library("coolfluid_mesh_neutral");
+    loader.load_library("coolfluid_mesh_neu");
     loader.load_library("coolfluid_mesh_gmsh");
     loader.load_library("coolfluid_mesh_tecplot");
     loader.load_library("coolfluid_mesh_vtklegacy");

@@ -31,8 +31,7 @@ public: // functions
   static std::string type_name () { return "HeatConductionLinearSteady"; }
 
 protected: // Linear system interface implementation
-  virtual Solver::Actions::CFieldAction::Ptr build_equation();
-  RealVector m_heat;
+  virtual void add_actions();
 };
 
 } // UFEM

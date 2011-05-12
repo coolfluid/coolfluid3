@@ -56,16 +56,14 @@ using namespace boost;
 typedef std::vector<std::string> StringsT;
 typedef std::vector<Uint> SizesT;
 
-/// Probe based on a coordinate value
-void probe(const Real coord, const Real val, Real& result)
+BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
+
+Real max(const Real a, const Real b)
 {
-  if(coord > -0.1 && coord < 0.1)
-    result = val;
+  return a > b ? a : b;
 }
 
-static boost::proto::terminal< void(*)(Real, Real, Real&) >::type const _probe = {&probe};
-
-BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
+static boost::proto::terminal< Real(*)(const Real, const Real) >::type const _max = {&max};
 
 // Solve the Navier-Stokes equations with SUPG and the bulk viscosity term
 BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
@@ -75,15 +73,15 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
 
   const Real length = 1.;
   const Real height = 1.;
-  const Uint x_segments = 32;
-  const Uint y_segments = 32;
+  const Uint x_segments = 64;
+  const Uint y_segments = 64;
   
-  const Real start_time = 0.;
-  const Real end_time = 10.;
-  const Real dt = 0.01;
-  Real t = start_time;
-  const Uint write_interval = 10;
-  const Real invdt = 1. / dt;
+//   const Real start_time = 0.;
+//   const Real end_time = 10.;
+//   const Real dt = 0.01;
+//   Real t = start_time;
+//   const Uint write_interval = 10;
+//   const Real invdt = 1. / dt;
   
   const Real mu = 1.;
   const Real rho = 1.;
@@ -91,18 +89,10 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   const RealVector2 u_lid(100., 0.);
   const RealVector2 u_wall(0., 0.);
   
-  SUPGState state;
-  state.u_ref = u_lid[XX];
-  state.nu = mu / rho;
-  state.rho = rho;
-  
-  // Load the required libraries (we assume the working dir is the binary path)
-  LibLoader& loader = *OSystem::instance().lib_loader();
-  
-  const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../../dso")("../../../src/Mesh/VTKLegacy");
-  loader.set_search_paths(lib_paths);
-  
-  loader.load_library("coolfluid_mesh_vtklegacy");
+  SUPGCoeffs tau;
+  tau.u_ref = u_lid[XX];
+  tau.nu = mu / rho;
+  tau.rho = rho;
   
   // Setup document structure and mesh
   CRoot& root = Core::instance().root();
@@ -113,24 +103,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   // Linear system
   CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
   lss.set_config_file(argv[1]);
-  
-  // Create output fields
-  CField& u_fld = mesh->create_field( "Velocity", CField::Basis::POINT_BASED, std::vector<std::string>(1, "u"), std::vector<CField::VarType>(1, CField::VECTOR_2D) );
-  CField& p_fld = mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField::Basis::POINT_BASED);
-  
-  // Used in increment step
-  const StringsT fields = boost::assign::list_of("Velocity")("Pressure");
-  const StringsT vars = boost::assign::list_of("u")("p");
-  const SizesT dims = boost::assign::list_of(2)(1);
-  
-  lss.resize(u_fld.data().size() * 2 + p_fld.size());
-  
-  // Setup a mesh writer
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
-  root.add_component(writer);
-  const std::vector<URI> out_fields = boost::assign::list_of(u_fld.full_path())(p_fld.full_path());
-  writer->configure_property( "Fields", out_fields );
-  
+
   // Regions
   CRegion& left = find_component_recursively_with_name<CRegion>(*mesh, "left");
   CRegion& right = find_component_recursively_with_name<CRegion>(*mesh, "right");
@@ -140,12 +113,19 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", "u");
   MeshTerm<1, ScalarField> p("Pressure", "p");
-  
+ 
   // Set up a physical model (normally handled automatically if using the Component wrappers)
   PhysicalModel physical_model;
-  physical_model.nb_dofs = 3;
-  physical_model.variable_offsets["u"] = 0;
-  physical_model.variable_offsets["p"] = 2;
+  physical_model.register_variable(u, true);
+  physical_model.register_variable(p, true);
+  physical_model.create_fields(*mesh);
+  lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
+  
+  // Setup a mesh writer
+  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  root.add_component(writer);
+  const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").full_path())(mesh->get_child("Pressure").full_path());
+  writer->configure_property( "Fields", out_fields );
   
   // Set initial conditions
   for_each_node(mesh->topology(), p = 0.);
@@ -169,11 +149,11 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   for_each_node(mesh->topology(), u2 = u);
   for_each_node(mesh->topology(), u3 = u);
   
-  while(t < end_time)
+  for(Uint iter = 0; iter != 1000; ++iter)
   {
     Timer timer;
     
-    const Uint tstep = static_cast<Uint>(t / dt);
+//    const Uint  = static_cast<Uint>(t / dt);
     
     // Extrapolate velocity
     for_each_node(mesh->topology(), u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3);
@@ -186,17 +166,21 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
     for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
     (
       mesh->topology(),
-      group(state) <<                             // Note we pass the state here, to calculate and share tau_...
+      group <<                             // Note we pass the state here, to calculate and share tau_...
       (
-        set_tau(u_adv),                               // Calculate the stabilization coefficients
-        _A(p, p) = continuity_p_a(u_adv),             // Continuity equation, p terms (PSPG)
-        _A(p, u) = continuity_u_a(u_adv),             // Continuity equation, u terms (Standard + PSPG)
-        _A(u, p) = momentum_p_a(u_adv),               // Momentum equation, p terms (Standard + SUPG)
-        _A(u, u) = momentum_u_a(u_adv),               // Momentum equation, u terms (Standard + SUPG + bulk viscosity)
-        //_cout << "momentum, no skew:\n" << momentum_u_a(u_adv) << "\nmomentum skew:\n" << momentum_u_a_skew(u_adv) << "\ndiff:\n" << momentum_u_a(u_adv) - momentum_u_a_skew(u_adv) << "\n",
-        _T(p, u) = continuity_t(u_adv),               // Time, PSPG
-        _T(u, u) = momentum_t(u_adv),                 // Time, standard and SUPG
-        system_matrix(lss) += invdt * _T + 1.0 * _A,
+        _A = _0, _T = _0,
+        compute_tau(u, tau),
+        element_quadrature <<
+        (
+          _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau.ps * transpose(nabla(p)[_i]) * advection(u_adv), // Standard continuity + PSPG for advection
+          _A(p    , p)     += tau.ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
+          _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u) + tau.su*advection(u_adv)) * advection(u_adv),     // Diffusion + advection
+          _A(u[_i], p)     += 1./rho * transpose(N(u) + tau.su*advection(u_adv)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
+          _A(u[_i], u[_j]) += tau.bulk * transpose(nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity
+          _T(p    , u[_i]) += tau.ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
+          _T(u[_i], u[_i]) += transpose(N(u) + tau.su*advection(u_adv))         * N(u)          // Time, standard
+        ),
+        system_matrix(lss) += 100. * _T + 1.0 * _A,
         system_rhs(lss) -= _A * _b
       )
     );
@@ -211,7 +195,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
     
     bctime = timer.elapsed(); 
     
-    std::cout << "Solving for time " << t << std::endl;
+//    std::cout << "Solving for time " << t << std::endl;
     
     // Solve the system!
     lss.solve();
@@ -224,7 +208,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
     for_each_node(mesh->topology(), u1 = u);
     update_advect_time = timer.elapsed(); timer.restart();
     
-    increment_solution(lss.solution(), fields, vars, dims, *mesh);
+    physical_model.update_fields(*mesh, lss.solution());
     increment_time = timer.elapsed();
     
     const Real total_time = assemblytime + bctime + increment_time + lss.time_matrix_construction + lss.time_matrix_fill + lss.time_residual + lss.time_solve + lss.time_solver_setup + advect_time + update_advect_time;
@@ -240,20 +224,27 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
               << "  save tsteps  : " << update_advect_time << " (" << update_advect_time/total_time*100. << "%)\n"
               << "  total        : " << total_time << std::endl;
     
-    t += dt;
-        
-    // Output solution
-    if(t > 0. && (tstep % write_interval == 0 || t >= end_time))
+//    t += dt;
+    
+    // Get the maximum difference between two subsequent solutions
+    Real maxdiff = 0.;
+    for_each_node(mesh->topology(), boost::proto::lit(maxdiff) = _max(maxdiff, (transpose(u - u1) * (u - u1))[0]));
+    
+    std::cout << "square of maximum update: " << maxdiff << std::endl;
+    
+    if(maxdiff < 1e-16)
     {
-      std::stringstream outname;
-      outname << "navier-stokes-lid-";
-      outname << std::setfill('0') << std::setw(5) << static_cast<Uint>(t / dt);
-      boost::filesystem::path output_file(outname.str() + ".vtk");
-      writer->write_from_to(mesh, output_file);
+      std::cout << "Convergence after " << iter << " iterations" << std::endl;
+      break;
     }
   }
   
-  
+  // Output solution
+  std::stringstream outname;
+  outname << "navier-stokes-lid-";
+  outname << x_segments << "x" << y_segments;
+  boost::filesystem::path output_file(outname.str() + ".vtk");
+  writer->write_from_to(mesh, output_file);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

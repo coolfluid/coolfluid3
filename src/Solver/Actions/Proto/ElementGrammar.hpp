@@ -10,9 +10,11 @@
 #include <boost/proto/core.hpp>
 
 #include "BlockAccumulator.hpp"
+#include "ElementIntegration.hpp"
+#include "ElementMatrix.hpp"
 #include "ElementTransforms.hpp"
 #include "ExpressionGroup.hpp"
-//#include "ForEachDimension.hpp" // candidate for removal
+#include "IndexLooping.hpp"
 
 /// @file 
 /// Grammars related to element-wise mesh operations
@@ -21,14 +23,65 @@ namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
+
+struct ElementMathBase :
+  boost::proto::or_
+  <
+    SFOps,
+    boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
+    <
+      boost::proto::function<FieldTypes, boost::proto::_>,
+      InterpolationOp(boost::proto::_value(boost::proto::_child_c<0>), boost::proto::_value(boost::proto::_child_c<1>) )
+    >,
+    MathTerminals,
+    ElementIntegration,
+    ElementMatrixGrammar
+  >
+{
+};
+
+struct ElementMath :
+  boost::proto::or_
+  <
+    ElementMathBase,
+    ElementMatrixSubBlocks,
+    EigenMath<ElementMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >
+  >
+{
+};
+
+template<typename I, typename J>
+struct ElementMathIndexed :
+  boost::proto::or_
+  <
+    IndexValues<I, J>,
+    ElementMathBase,
+    ElementMatrixGrammarIndexed<I, J>,
+    EigenMath<boost::proto::call< ElementMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >
+  >
+{
+};
+
+template<typename I, typename J>
+struct StreamOutputIndexed : StreamOutput< ElementMathIndexed<I, J> >
+{
+};
   
 struct SingleExprElementGrammar :
   boost::proto::or_
   <
     // Assignment to system matrix
     BlockAccumulation<ElementMath>,
-    ElementMath, // Math expressions
-    StreamOutput<SingleExprElementGrammar> // Stream output
+    boost::proto::when
+    <
+      ElementMath,
+      IndexLooper<ElementMathIndexed>
+    >,
+    boost::proto::when
+    <
+      StreamOutput<ElementMath>,
+      IndexLooper<StreamOutputIndexed>
+    >
   >
 {
 };
@@ -38,8 +91,7 @@ struct ElementGrammar :
   boost::proto::or_
   <
     SingleExprElementGrammar,
-    GroupGrammar<SingleExprElementGrammar>
-    //ForEachDimensionGrammar<ElementGrammar>
+    GroupGrammar< SingleExprElementGrammar >
   >
 {
 };  

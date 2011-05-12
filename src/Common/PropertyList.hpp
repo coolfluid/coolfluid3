@@ -37,7 +37,7 @@ namespace Common {
     template < typename OPTION_TYPE >
     Option::Ptr add_option (const std::string& name,
                             const std::string& description,
-                            const typename OPTION_TYPE::value_type& def )
+                            const typename OPTION_TYPE::value_type& def=typename OPTION_TYPE::value_type() )
     {
       cf_assert_desc ( "Class has already property with same name",
                        this->store.find(name) == store.end() );
@@ -50,7 +50,7 @@ namespace Common {
     Option::Ptr add_option (const std::string& name,
                             const std::string& pretty_name,
                             const std::string& description,
-                            const typename OPTION_TYPE::value_type& def )
+                            const typename OPTION_TYPE::value_type& def)
     {
       cf_assert_desc ( "Class has already property with same name",
                        this->store.find(name) == store.end() );
