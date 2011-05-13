@@ -43,8 +43,11 @@ void HeatConductionLinearUnsteady::add_actions()
     ASSEMBLY,
     group <<
     (
-      _A(temperature) = alpha * integral<1>(laplacian_elm(temperature) * jacobian_determinant),
-      _T(temperature) = integral<1>(value_elm(temperature) * jacobian_determinant), // note: we skip multiplying by invdt() so we can reuse this in the source terms
+      element_quadrature <<
+      (
+        _A(temperature) += alpha * transpose(nabla(temperature)) * nabla(temperature),
+        _T(temperature) += transpose(N(temperature))*N(temperature)
+      ),
       system_matrix( lss() ) += invdt() * _T + 0.5 * _A,
       system_rhs( lss() )    += (boost::proto::lit(alpha) / k) * _T * heat - _A * temperature
     )

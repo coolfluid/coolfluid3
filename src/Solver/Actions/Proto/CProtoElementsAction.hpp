@@ -25,13 +25,12 @@ class CProtoElementsAction : public CProtoFieldAction<ExprT>
   typedef CProtoFieldAction<ExprT> BaseT;
   
   /// Supported element types
-  typedef boost::mpl::vector5
+  typedef boost::mpl::vector4
   <
     Mesh::SF::Line1DLagrangeP1,
     Mesh::SF::Triag2DLagrangeP1,
     Mesh::SF::Quad2DLagrangeP1,
-    Mesh::SF::Hexa3DLagrangeP1,
-    Mesh::SF::Tetra3DLagrangeP1
+    Mesh::SF::Hexa3DLagrangeP1
   > ElementTypes;
   
 public:

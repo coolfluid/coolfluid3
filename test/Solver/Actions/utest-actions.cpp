@@ -244,8 +244,8 @@ struct SetIntegerAction : CAction
 BOOST_AUTO_TEST_CASE(TestActionDirector)
 {
   CRoot& root = Core::instance().root();
-  SetIntegerAction::Ptr test_action = root.create_component<SetIntegerAction>("testaction");
-  CActionDirector::Ptr director = root.create_component<CActionDirector>("director");
+  SetIntegerAction::Ptr test_action = root.create_component_ptr<SetIntegerAction>("testaction");
+  CActionDirector::Ptr director = root.create_component_ptr<CActionDirector>("director");
   const std::vector<URI> action_vector(1, test_action->full_path());
   director->configure_property("ActionList", action_vector);
   BOOST_CHECK_EQUAL(test_action->value, 0);

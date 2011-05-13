@@ -91,10 +91,10 @@ LinearSystem::LinearSystem(const std::string& name) : CSolver(name)
   this->regist_signal("initialize" , "Initialize the solution", "Initialize")->signal->connect( boost::bind ( &LinearSystem::signal_initialize_fields, this, _1 ) );
 
   // Add the directors for the different phases
-  m_phases[POST_INIT] = this->create_component<CActionDirector>("PhasePostInit");
-  m_phases[ASSEMBLY] = this->create_component<CActionDirector>("PhaseAssembly");
-  m_phases[POST_SOLVE] = this->create_component<CActionDirector>("PhasePostSolve");
-  m_phases[POST_INCREMENT] = this->create_component<CActionDirector>("PhasePostIncrement");
+  m_phases[POST_INIT] = this->create_component_ptr<CActionDirector>("PhasePostInit");
+  m_phases[ASSEMBLY] = this->create_component_ptr<CActionDirector>("PhaseAssembly");
+  m_phases[POST_SOLVE] = this->create_component_ptr<CActionDirector>("PhasePostSolve");
+  m_phases[POST_INCREMENT] = this->create_component_ptr<CActionDirector>("PhasePostIncrement");
   
   signal("create_component")->is_hidden = true;
   signal("rename_component")->is_hidden = true;

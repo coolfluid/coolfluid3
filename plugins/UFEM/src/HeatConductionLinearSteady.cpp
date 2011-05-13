@@ -42,11 +42,15 @@ void HeatConductionLinearSteady::add_actions()
     ASSEMBLY,
     group <<
     (
-      _A(temperature), _T(temperature),
-      //_A(temperature) = k * integral<1>( laplacian_elm(temperature) * jacobian_determinant ),
-      _T(temperature) = integral<1>( value_elm(temperature) * jacobian_determinant )
-      //system_matrix( lss() ) +=  _A
-      //system_rhs( lss() ) += _T * heat
+      
+      _A = _0, _T = _0,
+      element_quadrature <<
+      (
+        _A(temperature) += k * transpose(nabla(temperature)) * nabla(temperature),
+        _T(temperature) += transpose(N(temperature))*N(temperature)
+      ),
+      system_matrix( lss() ) +=  _A,
+      system_rhs( lss() ) += _T * heat
     )
   );
 }
