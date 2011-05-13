@@ -44,7 +44,7 @@ struct ElementMath :
   boost::proto::or_
   <
     ElementMathBase,
-    ElementMatrixSubBlocks,
+    ElementMatrixSubBlocks<boost::proto::_>,
     EigenMath<ElementMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >
   >
 {

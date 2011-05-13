@@ -65,35 +65,39 @@ struct ElementMatrixTerm :
 };
 
 /// Match subrows
+template<typename IdxT>
 struct IsSubRows :
-  boost::proto::function<ElementMatrixTerm, boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<boost::proto::_> > >, FieldTypes>
+  boost::proto::function<ElementMatrixTerm, boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<IdxT> > >, FieldTypes>
 {
 };
 
 /// Match subrows
+template<typename IdxT>
 struct IsSubCols :
-  boost::proto::function<ElementMatrixTerm, FieldTypes, boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<boost::proto::_> > > >
+  boost::proto::function<ElementMatrixTerm, FieldTypes, boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<IdxT> > > >
 {
 };
 
 /// Match submatrices
+template<typename IdxT>
 struct IsSubMatrix :
   boost::proto::function
   <
     ElementMatrixTerm,
-    boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<boost::proto::_> > >,
-    boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<boost::proto::_> > >
+    boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<IdxT> > >,
+    boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<IdxT> > >
   >
 {
 };
 
 /// Match but don't evaluate subblock-expressions
+template<typename IdxT>
 struct ElementMatrixSubBlocks :
   boost::proto::or_
   <
-    IsSubRows,
-    IsSubCols,
-    IsSubMatrix
+    IsSubRows<IdxT>,
+    IsSubCols<IdxT>,
+    IsSubMatrix<IdxT>
   >
 {
 };
@@ -110,7 +114,7 @@ struct IsEquationVariable :
         boost::proto::function<ElementMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
         boost::proto::function<ElementMatrixTerm, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
         boost::proto::function<ElementMatrixTerm, boost::proto::_, boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> > >,
-        ElementMatrixSubBlocks
+        ElementMatrixSubBlocks< boost::mpl::int_<I> >
       >,
       boost::mpl::true_()
     >,
@@ -466,17 +470,17 @@ struct ElementMatrixGrammarIndexed :
   <
     boost::proto::when
     <
-      IsSubRows,
+      IsSubRows<boost::proto::_>,
       boost::proto::call< SubRows<I, J> >(boost::proto::_expr, ElementMatrixBlockValue)
     >,
     boost::proto::when
     <
-      IsSubCols,
+      IsSubCols<boost::proto::_>,
       boost::proto::call< SubCols<I, J> >(boost::proto::_expr, ElementMatrixBlockValue)
     >,
     boost::proto::when
     <
-      IsSubMatrix,
+      IsSubMatrix<boost::proto::_>,
       boost::proto::call< SubMatrix<I, J> >(boost::proto::_expr, ElementMatrixBlockValue)
     >
   >
