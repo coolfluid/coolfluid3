@@ -58,6 +58,21 @@ template < typename ATYPE >
   Component::Ptr builder = factory->get_child_ptr( builder_name );
   if ( is_null(builder) )
   {
+    const std::string lib_name = library_name(builder_name);
+    try
+    {
+      CFinfo << "Auto-loading plugin " << lib_name << CFendl;
+      OSystem::instance().lib_loader()->load_library(lib_name);
+      builder = factory->get_child_ptr( builder_name );
+    }
+    catch(const std::exception& e)
+    {
+      throw ValueNotFound(FromHere(), "Failed to auto-load plugin " + lib_name + ": " + e.what());
+    }
+  }
+  
+  if ( is_null(builder) )
+  {
     std::string msg = "CBuilder \'" + builder_name + "\' not found in factory \'" + ATYPE::type_name() + "\'. Probably forgot to load a library.\n"
                       "Possible builders:";
     boost_foreach(Component& comp, factory->children())

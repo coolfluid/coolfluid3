@@ -65,16 +65,16 @@ Real max(const Real a, const Real b)
 
 static boost::proto::terminal< Real(*)(const Real, const Real) >::type const _max = {&max};
 
-// Solve the Navier-Stokes equations with SUPG and the bulk viscosity term
-BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
+// Solve the Navier-Stokes equations for lid driven cavity flow
+BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
 {
   int    argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
   const Real length = 1.;
   const Real height = 1.;
-  const Uint x_segments = 64;
-  const Uint y_segments = 64;
+  const Uint x_segments = 32;
+  const Uint y_segments = 32;
   
 //   const Real start_time = 0.;
 //   const Real end_time = 10.;
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
   
   // Setup a mesh writer
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
   root.add_component(writer);
   const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").full_path())(mesh->get_child("Pressure").full_path());
   writer->configure_property( "Fields", out_fields );
