@@ -67,14 +67,14 @@ struct ElementMatrixTerm :
 /// Match subrows
 template<typename IdxT>
 struct IsSubRows :
-  boost::proto::function<ElementMatrixTerm, boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<IdxT> > >, FieldTypes>
+  boost::proto::function<ElementMatrixTerm, boost::proto::subscript< boost::proto::terminal< Var<IdxT, boost::proto::_> >, boost::proto::terminal< boost::proto::_ > >, boost::proto::terminal< Var<IdxT, boost::proto::_> > >
 {
 };
 
 /// Match subrows
 template<typename IdxT>
 struct IsSubCols :
-  boost::proto::function<ElementMatrixTerm, FieldTypes, boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<IdxT> > > >
+  boost::proto::function<ElementMatrixTerm, boost::proto::terminal< Var<IdxT, boost::proto::_> >, boost::proto::subscript< boost::proto::terminal< Var<IdxT, boost::proto::_> >, boost::proto::terminal< boost::proto::_ > > >
 {
 };
 
@@ -84,8 +84,8 @@ struct IsSubMatrix :
   boost::proto::function
   <
     ElementMatrixTerm,
-    boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<IdxT> > >,
-    boost::proto::subscript< FieldTypes, boost::proto::terminal< IndexTag<IdxT> > >
+    boost::proto::subscript< boost::proto::terminal< Var<IdxT, boost::proto::_> >, boost::proto::terminal< boost::proto::_ > >,
+    boost::proto::subscript< boost::proto::terminal< Var<IdxT, boost::proto::_> >, boost::proto::terminal< boost::proto::_ > >
   >
 {
 };
