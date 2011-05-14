@@ -211,7 +211,7 @@ void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
   options.add<std::string>("Name", std::string("mesh"), "Name of the mesh" );
 
   // create de value and add the restricted list
-  options.add( "Readers", std::string() , "Available readers", readers, " ; ");
+  options.add( "Readers", readers[0] , "Available readers", readers, " ; ");
 
   options.add("Files", dummy , " ; ", "Files to read" );
 }
