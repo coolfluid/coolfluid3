@@ -19,6 +19,7 @@
 #include "Common/MPI/ListeningThread.hpp"
 
 #include "Common/MPI/CPEManager.hpp"
+#include "Common/MPI/CWorkerGroup.hpp"
 
 #include "Common/Log.hpp"
 
@@ -141,12 +142,17 @@ void CPEManager::spawn_group(const std::string & name, Uint nb_workers,
   m_groups[name] = comm;
   m_listener->add_communicator( comm );
 
+  CWorkerGroup & wg = create_component<CWorkerGroup>(name);
+  wg.set_communicator(comm);
+  wg.mark_basic();
+
   PE::instance().barrier();
   MPI_Barrier( comm );
 
   // if it is the first group, we start listening
   if( m_groups.size() == 1 )
     m_listener->start_listening();
+
 
   delete forw_cstr;
 }

@@ -10,6 +10,7 @@
 #include <boost/thread/thread.hpp>
 
 #include "Common/MPI/types.hpp"
+#include "Common/MPI/CWorkerGroup.hpp"
 
 #include "Common/Component.hpp"
 
@@ -95,6 +96,8 @@ private:
   std::map<std::string, Communicator> m_groups;
 
   ListeningThread * m_listener;
+
+
 
 }; // CPEManager
 
