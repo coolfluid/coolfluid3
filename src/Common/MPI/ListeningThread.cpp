@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <unistd.h>
+
 #include <boost/date_time.hpp>
 #include <boost/thread.hpp>
 
@@ -13,10 +15,11 @@
 
 #include "Common/XML/FileOperations.hpp"
 
+#include "Common/MPI/ListeningInfo.hpp"
+
 #include "Common/MPI/ListeningThread.hpp"
 
 using namespace boost;
-using namespace MPI;
 using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -29,21 +32,21 @@ namespace mpi {
 
 ListeningThread::ListeningThread(unsigned int waitingTime)
   : m_sleep_duration(waitingTime),
-    m_listening(false),
-    m_receivingAcksComm(COMM_NULL)
+    m_listening(false)
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void ListeningThread::add_communicator(const Intercomm & comm)
+void ListeningThread::add_communicator( Communicator comm )
 {
   m_mutex.lock();
 
+  cf_assert( comm != MPI_COMM_NULL );
   cf_assert( m_comms.find(comm) == m_comms.end() );
 
-  m_comms[comm] = ListeningInfo();
+  m_comms[comm] = new ListeningInfo();
 
   m_mutex.unlock();
 }
@@ -56,6 +59,8 @@ void ListeningThread::stop_listening()
 
   m_listening = false;
 
+  m_thread.join();
+
   m_mutex.unlock();
 }
 
@@ -63,18 +68,11 @@ void ListeningThread::stop_listening()
 
 void ListeningThread::start_listening()
 {
-  std::map<Intercomm, ListeningInfo>::iterator it;
-
-  if( !m_comms.empty() )
+  if( !m_listening && !m_comms.empty() )
   {
     m_listening = true;
 
-    while( m_listening )
-    {
-      this->init(); // initialize the listening process for comms that need it
-      this_thread::sleep( posix_time::milliseconds(m_sleep_duration) );
-      this->check_for_data();
-    }
+    m_thread = boost::thread(&ListeningThread::run, this);
   }
 }
 
@@ -94,22 +92,47 @@ Uint ListeningThread::sleep_duration() const
 
 ////////////////////////////////////////////////////////////////////////////
 
+boost::thread & ListeningThread::thread()
+{
+  return m_thread;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void ListeningThread::init()
 {
+  static int count = 0;
   m_mutex.lock();
 
-  std::map<Intercomm, ListeningInfo>::iterator it = m_comms.begin();
+  std::map<Communicator, ListeningInfo*>::iterator it = m_comms.begin();
 
   // non-blocking receive on all communicators
   for( ; it != m_comms.end() && m_listening ; ++it )
   {
-    ListeningInfo & info = it->second;
+    ListeningInfo * info = it->second;
 
-    if( info.ready )
+    if( info->ready )
     {
-      info.request = it->first.Irecv(info.data, ListeningInfo::buffer_size(),
-                                     CHAR, ANY_SOURCE, 0);
-      info.ready = false;
+//      info.request =
+
+//      std::cout << "PID[" << getpid() << "] -> Times executed before: " << count++ << std::endl;
+
+      MPI_Request request;
+      info->request = request;
+
+      cf_assert( info->comm != MPI_COMM_NULL );
+//      cf_assert( request == MPI_REQUEST_NULL );
+
+      MPI_Irecv(info->data, ListeningInfo::buffer_size(), MPI_CHAR,
+                    MPI_ANY_SOURCE, 0, it->first, &info->request);
+
+
+//      cf_assert( request != MPI_REQUEST_NULL );
+//        MPI_Start( &info.request );
+
+          //it->first.Irecv(info.data, ListeningInfo::buffer_size(),
+                    //                 MPI_CHAR, MPI_ANY_SOURCE, 0);
+      info->ready = false;
     }
   }
 
@@ -118,36 +141,53 @@ void ListeningThread::init()
 
 ////////////////////////////////////////////////////////////////////////////
 
+void ListeningThread::run()
+{
+  while( m_listening )
+  {
+    this->init(); // initialize the listening process for comms that need it
+    this_thread::sleep( posix_time::milliseconds(m_sleep_duration) );
+    this->check_for_data(); // check if data arrived
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void ListeningThread::check_for_data()
 {
   m_mutex.lock();
 
-  std::map<Intercomm, ListeningInfo>::iterator it = m_comms.begin();
+  ExceptionManager::instance().ExceptionDumps = false;
+
+  std::map<Communicator, ListeningInfo*>::iterator it = m_comms.begin();
 
   for( ; it != m_comms.end() && m_listening ; ++it )
   {
-    ListeningInfo & info = it->second;
+    ListeningInfo * info = it->second;
 
-    // if data arrived
-    if( !info.ready && info.request.Test() )
+    // if the communicator is waiting for data
+    if( !info->ready )
     {
-      try
-      {
-        XmlDoc::Ptr doc = XML::parse_cstring( info.data );
+      int flag;
 
-        if( doc->is_valid() )
-          new_signal( it->first, doc );
-        else
+      MPI_Test(&info->request, &flag, MPI_STATUS_IGNORE);
+
+      // if data arrived, flag is not zero
+      if( flag != 0 )
+      {
+        try
         {
-          throw XmlError(FromHere(), std::string("The string [") + info.data +
-                         "] could not be parsed.");
-        }
+          XmlDoc::Ptr doc = XML::parse_cstring( info->data );
 
-        info.ready = true; // ready to do another non-blocking receive
-      }
-      catch(XmlError & e)
-      {
-        CFerror << e.what() << CFendl;
+          new_signal( it->first, doc );
+
+          info->ready = true; // ready to do another non-blocking receive
+        }
+        catch(XmlError & e)
+        {
+          CFerror << e.what() << CFendl;
+          m_listening = false;
+        }
       }
     }
   }

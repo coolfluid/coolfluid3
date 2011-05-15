@@ -9,8 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <mpi.h>
-
 // boost headers
 #include <boost/asio/deadline_timer.hpp>
 #include <boost/signals2/signal.hpp>
@@ -18,7 +16,6 @@
 #include <boost/thread/mutex.hpp>
 
 // CF headers
-#include "Common/MPI/ListeningInfo.hpp"
 #include "Common/XML/XmlDoc.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -28,6 +25,8 @@ namespace Common {
 namespace mpi {
 
 ////////////////////////////////////////////////////////////////////////////
+
+  class ListeningInfo;
 
   /// @brief Listener for MPI messages.
 
@@ -49,7 +48,11 @@ namespace mpi {
   /// The fact that the thread sleeps is for performance reasons: it is to
   /// avoid the code to run useless instruction and use not needed CPU time
   /// while waiting. It is to the user to determine the best "sleeping time".
-  /// The default is 100 milliseconds. @n
+  /// The default is 10 milliseconds. @n
+
+  /// However, be careful when defining this sleeping time. The biggest it is,
+  /// the longuest is the response time for requests. If the sleeping time is too
+  /// small, the CPU usage might be too high if no data arrives during a long time. @n
 
   /// New intercommunicators can be added on the run as well as the sleeping
   /// time can be modified. Thoes changes will be taken into account
@@ -61,33 +64,18 @@ namespace mpi {
   {
   public: // data
 
-    boost::signals2::signal< void(const MPI::Intercomm &, XML::XmlDoc::Ptr) > new_signal;
+    boost::signals2::signal< void(const Communicator &, XML::XmlDoc::Ptr) > new_signal;
 
   public: // functions
 
-//    enum WaitingAckResult
-//    {
-//      SUCCESS,
-
-//      FAILURE_ON_NACK,
-
-//      FAILURE_ON_TIMEOUT,
-
-//      FAILURE_ALREADY_WAITING,
-
-//      FAILURE_UNKNOWN_COMM,
-
-//      FAILURE_NULL_COMM
-//    };
-
     /// @brief Constructor.
-    ListeningThread(Uint waitingTime = 100);
+    ListeningThread(Uint waitingTime = 10);
 
     /// @brief Adds a communicator to listen to.
 
     /// This method can be called during the listening.
     /// @param comm Communicator to add.
-    void add_communicator(const MPI::Intercomm & comm);
+    void add_communicator(Communicator comm);
 
     /// @brief Stops the listening.
 
@@ -112,7 +100,11 @@ namespace mpi {
 
     Uint sleep_duration() const;
 
+    boost::thread & thread();
+
   private: // function
+
+    void run();
 
     void check_for_data();
 
@@ -124,7 +116,7 @@ namespace mpi {
 
     /// The key is the communicator. The value holds information relative to
     /// the communicator.
-    std::map<MPI::Intercomm, ListeningInfo> m_comms;
+    std::map<Communicator, ListeningInfo*> m_comms;
 
     /// @brief Indicates whether the thread is listening.
 
@@ -133,9 +125,11 @@ namespace mpi {
 
     Uint m_sleep_duration;
 
-    MPI::Intercomm m_receivingAcksComm;
+    Communicator m_receivingAcksComm;
 
     boost::mutex m_mutex;
+
+    boost::thread m_thread;
 
   }; // class MPIReceiver
 
