@@ -50,7 +50,7 @@ XmlDoc::Ptr parse_cstring ( const char* str, std::size_t length )
   }
   catch(...)
   {
-    throw XmlError(FromHere(), std::string("The string [") + str + "] could"
+    throw XmlError(FromHere(), std::string("The string [") + str + "] could "
                    "not be parsed.");
   }
 
