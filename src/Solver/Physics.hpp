@@ -7,6 +7,7 @@
 #ifndef CF_Solver_Physics_hpp
 #define CF_Solver_Physics_hpp
 
+#include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Solver/LibSolver.hpp"
 
@@ -23,6 +24,7 @@ class Solver_API Physics {
 
 public: // functions
 
+  /// Typedef for the callback functions, used to compute variables
   typedef boost::function<Real (void)> ComputeFunction;
 
   /// Contructor
@@ -41,14 +43,14 @@ public: // functions
   /// Mark all the variables as not computed, e.g. when a new state is set
   void init()
   {
-    m_variables_availability.assign(m_variables_id.size(),false);
+    m_variables_availability.assign(m_variables.size(),false);
   }
 
   /// Set a certain variable to a given value
   /// Typically this can be the state in primitive variables: rho, u, v, p
   void set_var(const Uint variable_id, const Real& value)
   {
-    cf_assert(variable_id<m_variables_id.size());
+    cf_assert(variable_id<m_variables.size());
     m_variables[variable_id] = value;
     m_variables_availability[variable_id]=true;
   }
@@ -56,17 +58,18 @@ public: // functions
   /// Fast access to the value of a variable
   const Real& var(const Uint variable_id) const
   {
-    cf_assert(variable_id<m_variables_id.size());
+    cf_assert(variable_id<m_variables.size());
     cf_assert(m_variables_availability[variable_id]);
     return m_variables[variable_id];
   }
   
   /// This is the trick. Compute variables only if needed,
   /// And compute all dependent variables that are needed.
-  /// computation happens using a callback function
+  /// computation happens using a callback function, which can
+  /// be set with set_compute_function()
   const Real& compute_var(const Uint variable_id)
   {
-    cf_assert(variable_id<m_variables_id.size());
+    cf_assert(variable_id<m_variables.size());
     if (must_compute(variable_id))
     {
       compute_dependent_vars(variable_id);
@@ -94,11 +97,8 @@ public: // functions
   void resize(const Uint size)
   {
       m_variables.resize(size);
-      m_variables_id.resize(m_variables.size());
       m_variables_availability.resize(m_variables.size(),false);
       m_variables_dependency.resize(m_variables.size());
-      for (Uint i=0; i<m_variables.size(); ++i)
-          m_variables_id[i]=i;
       m_compute_functions.assign(m_variables.size(), boost::bind( &Physics::not_implemented , this) );
   }
 
@@ -122,7 +122,7 @@ private: // functions
   /// Check if a variable is already available
   bool must_compute(const Uint variable_id) const
   {
-    cf_assert(variable_id<m_variables_id.size());
+    cf_assert(variable_id<m_variables.size());
     return ( m_variables_availability[variable_id] == false );
   }
   
@@ -133,9 +133,7 @@ private: // data
   std::vector<bool>                 m_variables_availability;
 
 
-  // Constant variables, don't change per physics, should move to other class
-  // maybe a parent class
-  std::vector<Uint>                      m_variables_id;
+  // Constant variables, don't change per physics
   std::vector<std::vector<Uint> >        m_variables_dependency;
   std::vector<ComputeFunction>           m_compute_functions;
   
@@ -148,4 +146,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CPhysicalModel_hpp
+#endif // CF_Solver_Physics_hpp

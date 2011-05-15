@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
-
+#include "Solver/State.hpp"
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
@@ -54,6 +54,12 @@ public: // functions
   /// @todo make this a pure virtual function
   std::string type() const { return m_type; }
 
+  const State& solution_state() const { return *m_solution_state; }
+
+private: // functions
+
+  void build_solution_state();
+
 private: // data
 
   /// type of the physcial model
@@ -64,6 +70,8 @@ private: // data
 
   /// number of degrees of freedom
   Uint m_nbdofs;
+
+  State::Ptr m_solution_state;
 
 }; // CPhysicalModel
 

@@ -24,6 +24,9 @@ list( APPEND coolfluid_solver_files
   LibSolver.hpp
   LibSolver.cpp
   Physics.hpp
+  Physics.cpp
+  State.hpp
+  State.cpp
 )
 
 set( coolfluid_solver_kernellib TRUE )

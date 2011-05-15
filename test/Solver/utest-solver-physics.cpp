@@ -62,14 +62,16 @@ public:
 
   Gravity() : Physics()
   {
+    using namespace boost;
+    using namespace boost::assign;
+
     resize(5);
 
-    set_compute_function(FORCE, boost::bind( &Gravity::force , this ) );
+    set_compute_function(FORCE, bind( &Gravity::force , this ) );
+    var_deps(FORCE) = list_of(MASS)(GRAV);
 
-    var_deps(FORCE) = boost::assign::list_of(MASS)(GRAV);
-
-    set_compute_function(MOMENT, boost::bind( &Gravity::moment , this ) );
-    var_deps(MOMENT) = boost::assign::list_of(FORCE)(LENGTH);
+    set_compute_function(MOMENT, bind( &Gravity::moment , this ) );
+    var_deps(MOMENT) = list_of(FORCE)(LENGTH);
 
     set_var(GRAV , 9.81);
   }

@@ -48,10 +48,25 @@ CPhysicalModel::CPhysicalModel(const std::string& name) : Component(name),
                                            0u)
       ->mark_basic()
       ->link_to(&m_nbdofs);
+
+  m_properties.add_option(OptionT<std::string>::create("solution_state","Solution State","Component describing the solution state",std::string("")))
+      ->mark_basic()
+      ->attach_trigger( boost::bind(&CPhysicalModel::build_solution_state, this) );
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 CPhysicalModel::~CPhysicalModel()
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CPhysicalModel::build_solution_state()
+{
+  if (is_not_null(m_solution_state))
+    remove_component(*m_solution_state);
+  m_solution_state = build_component( "solution_state" , property("solution_state").value_str() ).as_ptr<State>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
