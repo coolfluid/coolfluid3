@@ -122,6 +122,16 @@ void PE::barrier()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void PE::barrier( Communicator comm )
+{
+  cf_assert( comm != MPI_COMM_NULL );
+
+  if ( is_active() ) MPI_CHECK_RESULT(MPI_Barrier,(comm));
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Uint PE::rank() const
 {
   if ( !is_active() ) return 0;

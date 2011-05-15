@@ -69,6 +69,8 @@ namespace Server {
      void sendException(const char * what,
                         const std::string & clientid = std::string());
 
+     void forward_signal( Common::SignalArgs & args );
+
   private slots:
 
     /// @brief Slot called when a new client connects

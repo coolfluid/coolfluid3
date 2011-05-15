@@ -87,6 +87,10 @@ public:
   /// overload the barrier function
   void barrier();
 
+  /// Sets a barrier on a custom communicator.
+  /// @param comm The communicator to set the barrier on.
+  void barrier( Communicator comm );
+
   /// Return rank, additionally, if is_init==0.
   Uint rank() const;
 

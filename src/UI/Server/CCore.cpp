@@ -109,6 +109,14 @@ void CCore::sendException(const char * what,
   m_commServer->sendMessageToClient(what, LogMessage::EXCEPTION, clientid);
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CCore::forward_signal( SignalArgs & args )
+{
+  sendSignal( *args.xml_doc );
+}
+
 /***************************************************************************
 
 PRIVATE METHODS

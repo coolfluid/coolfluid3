@@ -146,8 +146,7 @@ void CPEManager::spawn_group(const std::string & name, Uint nb_workers,
   wg.set_communicator(comm);
   wg.mark_basic();
 
-  PE::instance().barrier();
-  MPI_Barrier( comm );
+  PE::instance().barrier( comm );
 
   // if it is the first group, we start listening
   if( m_groups.size() == 1 )
@@ -170,8 +169,7 @@ void CPEManager::kill_group( const std::string & name )
   send_to( it->second, frame );
 
   // workers have a barrier on their parent comm just before calling MPI_Finalize
-  MPI_Barrier( it->second );
-
+  PE::instance().barrier( it->second );
   m_listener->remove_comunicator( it->second );
 
   m_groups.erase(it);
@@ -179,6 +177,8 @@ void CPEManager::kill_group( const std::string & name )
   // if there are no groups anymore, we stop the listening
   if( m_groups.empty() )
     m_listener->stop_listening();
+
+  remove_component(it->first);
 
   CFinfo << "Group " << name << " was killed." << CFendl;
 }
