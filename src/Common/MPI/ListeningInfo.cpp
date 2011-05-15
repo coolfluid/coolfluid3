@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <cstdio>
+#include <cstdlib>
+
 #include "Common/MPI/ListeningInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -17,7 +20,14 @@ namespace mpi {
 ListeningInfo::ListeningInfo()
   : ready(true)
 {
+  data = (char *) std::malloc( buffer_size() );
+}
 
+////////////////////////////////////////////////////////////////////////////
+
+ListeningInfo::~ListeningInfo()
+{
+  std::free(data);
 }
 
 ////////////////////////////////////////////////////////////////////////////

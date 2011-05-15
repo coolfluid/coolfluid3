@@ -9,9 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <mpi.h>
-
-#include "Common/CommonAPI.hpp"
+#include "Common/MPI/PE.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -29,17 +27,17 @@ namespace mpi {
   {
   public:
 
-    /// @returns buffer size
-    static Uint buffer_size() { return 65536; }
+    /// @returns buffer size (256 KB)
+    static Uint buffer_size() { return 262144; }
 
     /// @brief Received MPI frame
     char * data;
 
     /// @brief Communicator to listen to
-    MPI::Intercomm comm;
+    Communicator comm;
 
     /// @brief Request for non-blocking listening
-    MPI::Request request;
+    MPI_Request request;
 
     /// @brief Indicates whether the communicator is ready to do another
     /// non-blocking receive.
@@ -49,6 +47,8 @@ namespace mpi {
 
     /// @brief Constructor
     ListeningInfo();
+
+    ~ListeningInfo();
 
   }; // struct MPIListeningInfo
 
