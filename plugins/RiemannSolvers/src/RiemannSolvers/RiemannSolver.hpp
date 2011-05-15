@@ -11,9 +11,13 @@
 
 
 #include "Math/MatrixTypes.hpp"
-#include "RiemannSolvers/LibRiemannSolvers.hpp"
+#include "RiemannSolvers/src/RiemannSolvers/LibRiemannSolvers.hpp"
 
 namespace CF {
+namespace Solver {
+  class State;
+  class Physics;
+}
 namespace RiemannSolvers {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,15 +48,9 @@ public: // functions
   virtual void solve(const RealVector& left, const RealVector& right, const RealVector& normal, 
              RealVector& flux, Real& left_wave_speed, Real& right_wave_speed) = 0;
   
-  virtual RealVector flux(const RealVector& state, const RealVector& normal) const = 0;
-    
 protected:
-  
-  /// gamma
-  const Real m_g;
-  
-  /// gamma - 1 
-  const Real m_gm1;
+
+  boost::weak_ptr<Solver::State> m_sol_state;
   
 };
 

@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "RiemannSolvers/RiemannSolver.hpp"
+#include "Common/OptionComponent.hpp"
+#include "Solver/State.hpp"
 
 namespace CF {
 namespace RiemannSolvers {
@@ -14,12 +16,13 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 RiemannSolver::RiemannSolver ( const std::string& name  ) 
-: Component(name),
-  m_g(1.4),
-  m_gm1(m_g-1.)
+: Component(name)
 {
   properties()["brief"] = std::string("Riemann Solver");
   properties()["description"] = std::string("Solves the Riemann problem");
+  
+  m_properties.add_option( OptionComponent<Solver::State>::create("solution_state","Solution State","The component describing the solution state",&m_sol_state) )
+      ->add_tag("solution_state");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

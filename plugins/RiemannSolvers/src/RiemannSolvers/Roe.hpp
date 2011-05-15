@@ -4,12 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RiemannSolvers_RoeCons1D_hpp
-#define CF_RiemannSolvers_RoeCons1D_hpp
+#ifndef CF_RiemannSolvers_Roe_hpp
+#define CF_RiemannSolvers_Roe_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "RiemannSolvers/RiemannSolver.hpp"
+#include "Solver/Physics.hpp"
 
 namespace CF {
 namespace RiemannSolvers {
@@ -17,35 +18,50 @@ namespace RiemannSolvers {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Willem Deconinck
-class RiemannSolvers_API RoeCons1D : public RiemannSolver {
+class RiemannSolvers_API Roe : public RiemannSolver {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<RoeCons1D> Ptr;
-  typedef boost::shared_ptr<RoeCons1D const> ConstPtr;
+  typedef boost::shared_ptr<Roe> Ptr;
+  typedef boost::shared_ptr<Roe const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  RoeCons1D ( const std::string& name );
+  Roe ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~RoeCons1D();
+  virtual ~Roe();
 
   /// Get the class name
-  static std::string type_name () { return "RoeCons1D"; }
+  static std::string type_name () { return "Roe"; }
 
   virtual void solve(const RealVector& left, const RealVector& right, const RealVector& normal, 
              RealVector& flux, Real& left_wave_speed, Real& right_wave_speed);
   
-  virtual RealVector flux(const RealVector& state, const RealVector& normal) const;
+  void setup();
 
-  void compute_roe_average(const RealVector& left, const RealVector& right, RealVector& roe_avg) const;
-    
 private:
+
+  void build_roe_state();
   
-  RealVector m_roe_avg;
+  boost::shared_ptr<Solver::State> m_roe_state;
+
+  Solver::Physics m_roe_avg_vars;
+  std::vector<Solver::Physics> m_phys_vars;
+
+  RealMatrix right_eigenvectors;
+
+  RealMatrix left_eigenvectors;
+
+  RealVector eigenvalues;
+
+  RealMatrix abs_jacobian;
+
+  RealVector F_L;
+
+  RealVector F_R;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,4 +71,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RiemannSolvers_RoeCons1D_hpp
+#endif // CF_RiemannSolvers_Roe_hpp
