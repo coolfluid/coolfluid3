@@ -267,7 +267,7 @@ void CPEManager::signal_message ( SignalArgs & args )
 
  std::string msg = options.option<std::string>("message");
 
- std::cout << "(Manager) " << msg << std::endl;
+ CFinfo << msg << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////
