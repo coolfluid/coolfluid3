@@ -331,7 +331,7 @@ void CPEManager::signature_spawn_group ( SignalArgs & args )
   forwards[2] = "All ranks";
 
   options.add("Name", std::string(), "Name of the new group.");
-  options.add("Workers Count", Uint(0), "Number of workers to spawn.");
+  options.add("Workers Count", Uint(1), "Number of workers to spawn.");
   options.add("Log Forwarding", std::string("None"), "Defines the way the log is forwarded from the workers.",
               forwards, ";");
 }

@@ -164,6 +164,9 @@ mpi::Communicator PE::spawn( int count, const char * command, char ** args,
   MPI::Info info = MPI::Info::Create();
   mpi::Communicator comm;
 
+  if(count < 1)
+    throw BadValue(FromHere(), "Cannot spawn less than 1 process.");
+
   char * cmd_non_const = new char[strlen(command) + 1];
   std::strcpy(cmd_non_const, command);
   int error_codes[count];
