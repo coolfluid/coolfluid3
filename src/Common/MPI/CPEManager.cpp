@@ -7,6 +7,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/BasicExceptions.hpp"
+#include "Common/BoostFilesystem.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/Signal.hpp"
@@ -121,7 +122,10 @@ void CPEManager::spawn_group(const std::string & name, Uint nb_workers,
   if( m_groups.find(name) != m_groups.end())
     throw ValueExists(FromHere(), "A group of name " + name + " already exists.");
 
+  boost::filesystem::path path;
   std::string forw = "--forward=" + forward;
+
+  path = boost::filesystem::system_complete( command );
 
   // MPI wants the arguments to be 'char *' and not 'const char *'
   // thus, we need to make a copy since std::string::c_str() returns a const.
@@ -228,7 +232,7 @@ boost::thread & CPEManager::listening_thread()
 void CPEManager::signal_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
-  const char * cmd = "/Users/qt/workspace/coolfluid3/Builds/Dev/src/Tools/Solver/coolfluid-solver";
+  const char * cmd = "../../Tools/Solver/coolfluid-solver";
 
   Uint nb_workers = options.option<Uint>("Workers Count");
   std::string name = options.option<std::string>("Name");
