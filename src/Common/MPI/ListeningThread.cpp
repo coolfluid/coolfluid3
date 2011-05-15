@@ -53,15 +53,32 @@ void ListeningThread::add_communicator( Communicator comm )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void ListeningThread::stop_listening()
+void ListeningThread::remove_comunicator( Communicator comm )
 {
   m_mutex.lock();
 
-  m_listening = false;
+  cf_assert( comm!= MPI_COMM_NULL );
 
-  m_thread.join();
+  std::map<Communicator, ListeningInfo*>::iterator it = m_comms.find(comm);
+
+  cf_assert( it != m_comms.end() );
+
+  m_comms.erase(it);
 
   m_mutex.unlock();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void ListeningThread::stop_listening()
+{
+//  m_mutex.lock();
+
+  m_listening = false;
+
+//  m_thread.join();
+
+//  m_mutex.unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -113,25 +130,12 @@ void ListeningThread::init()
 
     if( info->ready )
     {
-//      info.request =
-
-//      std::cout << "PID[" << getpid() << "] -> Times executed before: " << count++ << std::endl;
-
       MPI_Request request;
       info->request = request;
-
-      cf_assert( info->comm != MPI_COMM_NULL );
-//      cf_assert( request == MPI_REQUEST_NULL );
 
       MPI_Irecv(info->data, ListeningInfo::buffer_size(), MPI_CHAR,
                     MPI_ANY_SOURCE, 0, it->first, &info->request);
 
-
-//      cf_assert( request != MPI_REQUEST_NULL );
-//        MPI_Start( &info.request );
-
-          //it->first.Irecv(info.data, ListeningInfo::buffer_size(),
-                    //                 MPI_CHAR, MPI_ANY_SOURCE, 0);
       info->ready = false;
     }
   }

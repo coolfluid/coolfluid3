@@ -86,6 +86,9 @@ int main(int argc, char ** argv)
 
   CFinfo << "Worker[" << rank << "] -> " << "C U..." << CFendl;
 
+  // synchronize with the parent before we finalize the MPI environment
+  MPI_Barrier( parent_comm );
+
   // terminate the CF core and MPI environment
   PE::instance().finalize();
   Core::instance().terminate();

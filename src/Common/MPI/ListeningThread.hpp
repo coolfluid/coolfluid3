@@ -77,6 +77,8 @@ namespace mpi {
     /// @param comm Communicator to add.
     void add_communicator(Communicator comm);
 
+    void remove_comunicator(Communicator comm);
+
     /// @brief Stops the listening.
 
     /// Calling this method will exit the thread execution if it is running.
@@ -86,7 +88,7 @@ namespace mpi {
 
     /// If there is at least one communicator to listen to, the process has three
     /// main steps:
-    /// @li call IRecv (non-blocking receive) on ready communicators (new ones
+    /// @li call Irecv (non-blocking receive) on ready communicators (new ones
     /// and those that just received data)
     /// @li wait @c #m_waitingTime ms
     /// @li call check all communicators for new data

@@ -45,7 +45,7 @@ CPEManager::CPEManager( const std::string & name )
   {
     m_groups["MPI_Parent"] = PE::instance().get_parent();
     m_listener->add_communicator( PE::instance().get_parent() );
-//    m_listener->start_listening();
+    m_listener->start_listening();
   }
 
   regist_signal("spawn_group", "Creates a new group of workers.", "Spawn new group")
@@ -54,6 +54,8 @@ CPEManager::CPEManager( const std::string & name )
       ->signal->connect( boost::bind(&CPEManager::signal_kill_group, this, _1) );
   regist_signal("kill_all", "Kills all groups of workers.", "Kill all groups")
       ->signal->connect( boost::bind(&CPEManager::signal_kill_all, this, _1) );
+  regist_signal("exit", "Stops the listening thread", "")
+      ->signal->connect( boost::bind(&CPEManager::signal_exit, this, _1) );
 
   regist_signal("forward_signal", "Called when there is a signal to forward,")->is_hidden = true;
 
@@ -70,7 +72,7 @@ CPEManager::CPEManager( const std::string & name )
   signal("message")->is_hidden = true;
 
   // temporary hide
-  signal("kill_group")->is_hidden = true;
+  signal("exit")->is_hidden = true;
   signal("kill_all")->is_hidden = true;
 
   m_listener->new_signal.connect( boost::bind(&CPEManager::new_signal, this, _1, _2) );
@@ -152,9 +154,26 @@ void CPEManager::spawn_group(const std::string & name, Uint nb_workers,
 
 void CPEManager::kill_group( const std::string & name )
 {
-  // remove the group from the thread first
-  // remove the comm from the vector; if empty, stop the listening
-  /// @todo implement
+  SignalFrame frame("exit", full_path(), full_path());
+  std::map<std::string, Communicator>::iterator it = m_groups.find(name);
+
+  if( it == m_groups.end() )
+    throw ValueNotFound(FromHere(), "Group [" + name + "] does not exist.");
+
+  send_to( it->second, frame );
+
+  // workers have a barrier on their parent comm just before calling MPI_Finalize
+  MPI_Barrier( it->second );
+
+  m_listener->remove_comunicator( it->second );
+
+  m_groups.erase(it);
+
+  // if there are no groups anymore, we stop the listening
+  if( m_groups.empty() )
+    m_listener->stop_listening();
+
+  CFinfo << "Group " << name << " was killed." << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -207,15 +226,19 @@ void CPEManager::send_to(Communicator comm, const SignalArgs &args)
 {
   std::string str;
   char * buffer;
+  int remote_size;
 
   to_string( *args.xml_doc, str);
 
   buffer = new char[ str.length() + 1 ];
   std::strcpy( buffer, str.c_str() );
 
+  MPI_Comm_remote_size(comm, &remote_size);
+
 //  std::cout << "Worker[" << PE::instance().rank() << "]" << " -> Sending " << buffer << std::endl;
 
-  MPI_Bsend( buffer, str.length() + 1, MPI_CHAR, 0, 0, comm );
+  for(int i = 0 ; i < remote_size ; ++i)
+    MPI_Send( buffer, str.length() + 1, MPI_CHAR, i, 0, comm );
 
   delete [] buffer;
 }
@@ -254,6 +277,10 @@ void CPEManager::signal_spawn_group ( SignalArgs & args )
 
 void CPEManager::signal_kill_group ( SignalArgs & args )
 {
+  SignalOptions options(args);
+  std::string group_name = options.option<std::string>("Group to kill");
+
+  kill_group( group_name );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -267,11 +294,11 @@ void CPEManager::signal_kill_all ( SignalArgs & args )
 
 void CPEManager::signal_message ( SignalArgs & args )
 {
- SignalOptions options(args);
+  SignalOptions options(args);
 
- std::string msg = options.option<std::string>("message");
+  std::string msg = options.option<std::string>("message");
 
- CFinfo << msg << CFendl;
+  CFinfo << msg << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -283,8 +310,13 @@ void CPEManager::mpi_forward ( SignalArgs & args )
   XmlNode sig_node = node.add_node( "tmp" );
 
   node.deep_copy( sig_node );
+}
 
+////////////////////////////////////////////////////////////////////////////
 
+void CPEManager::signal_exit( SignalArgs & args )
+{
+  m_listener->stop_listening();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -308,7 +340,18 @@ void CPEManager::signature_spawn_group ( SignalArgs & args )
 
 void CPEManager::signature_kill_group ( SignalArgs & args )
 {
+  SignalOptions options( args );
+  std::vector<std::string> groups( m_groups.size() );
+  std::map<std::string, Communicator>::iterator it = m_groups.begin();
 
+  if(m_groups.empty())
+    throw IllegalCall(FromHere(), "There are no groups to kill.");
+
+  for(int i = 0 ; it != m_groups.end() ; ++it, ++i )
+    groups[i] = it->first;
+
+  options.add<std::string>("Group to kill", groups[0],
+                           "Processes belonging to the selected group will be exited.", groups, ";");
 }
 
 ////////////////////////////////////////////////////////////////////////////
