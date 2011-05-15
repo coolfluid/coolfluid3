@@ -21,7 +21,7 @@ namespace Mesh {
   class CSpace;
   class CFaceCellConnectivity;
   class CMeshElements;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 class Mesh_API CFieldView : public Common::Component
@@ -33,7 +33,7 @@ public: // typedefs
 
   typedef CTable<Real>::Row View;
   typedef CTable<Real>::ConstRow ConstView;
-  
+
 protected: // typedefs
 
   typedef boost::multi_array_types::index_range Range;
@@ -52,7 +52,7 @@ public: // functions
 
   /// @return end_idx
   Uint initialize(CField& field, boost::shared_ptr<CEntities> elements);
-  
+
   CTable<Real>::Row operator[](const Uint idx);
 
   CTable<Real>::ConstRow operator[](const Uint idx) const;
@@ -60,28 +60,28 @@ public: // functions
   const CField& field() const { return *m_field.lock(); }
 
   CField& field() { return *m_field.lock(); }
-  
+
   const CEntities& elements() const { return *m_elements.lock(); }
-  
+
   Uint stride() const { return m_stride; }
-  
+
   Uint size() const { return m_size; }
-  
+
   /// @return elements_exist_in_field
   virtual bool set_elements(const CEntities& elements);
-  
+
   /// @return elements_exist_in_field
   bool set_elements(boost::shared_ptr<CEntities> elements);
 
   void set_field(CField& field);
-  void set_field(const CField& field);  
+  void set_field(const CField& field);
   void set_field(boost::shared_ptr<CField> field);
 
-  const CSpace& space() const { return *m_space.lock(); }
+  const CSpace& space() const { cf_assert(m_space.expired()==false); return *m_space.lock(); }
 
   Uint mesh_elements_idx(const Uint idx) const;
-  
-protected: 
+
+protected:
 
   Uint m_start_idx;
   Uint m_end_idx;
@@ -119,11 +119,11 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CMultiStateFieldView"; }
-  
+
   View operator[](const Uint idx);
 
   ConstView operator[](const Uint idx) const;
-  
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,31 +170,31 @@ public:
 
   /// Get the class name
   static std::string type_name () { return "CConnectedFieldView"; }
-  
+
   void initialize(boost::shared_ptr<CField> field, boost::shared_ptr<CEntities> faces);
-  
+
   void set_field(boost::shared_ptr<CField> field);
-  
+
   void set_field(CField& field);
 
   bool set_elements(boost::shared_ptr<CEntities> elements);
-  
+
   bool set_elements(CEntities& elements);
 
   std::vector<CTable<Real>::Row> operator[](const Uint elem_idx);
-  
+
   CTable<Real>::Row operator()(const Uint elem_idx, const Uint connected_idx);
-  
+
   Mesh::CField& field();
-  
+
   CTable<Uint>::ConstRow connected_idx(const Uint idx) const;
-  
+
 private:
 
   boost::weak_ptr<CEntities> m_elements;
   boost::weak_ptr<CFaceCellConnectivity> m_face2cells;
   std::vector<CFieldView::Ptr> m_views;
-  
+
   boost::weak_ptr<CField> m_field;
 
   Uint cells_comp_idx;

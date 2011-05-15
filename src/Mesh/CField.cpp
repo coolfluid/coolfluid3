@@ -65,33 +65,33 @@ CField::CField ( const std::string& name  ) :
   m_space_name("space[0]")
 {
   mark_basic();
-  
+
   regist_signal ( "create_data_storage" , "Allocate the data", "Create Storage" )->signal->connect ( boost::bind ( &CField::signal_create_data_storage, this, _1 ) );
-  
+
   Option::Ptr uri_option;
   uri_option = m_properties.add_option<OptionURI>("Topology","The field tree this field will be registered in",URI("cpath:"));
   uri_option->attach_trigger ( boost::bind ( &CField::config_tree,   this ) );
   uri_option->mark_basic();
-  
+
   Option::Ptr option;
   option = m_properties.add_option< OptionT<std::string> >("FieldType", "The type of the field", std::string("PointBased"));
-  option->restricted_list() += std::string("ElementBased");  
-  option->restricted_list() += std::string("CellBased");  
-  option->restricted_list() += std::string("FaceBased");  
+  option->restricted_list() += std::string("ElementBased");
+  option->restricted_list() += std::string("CellBased");
+  option->restricted_list() += std::string("FaceBased");
   option->attach_trigger ( boost::bind ( &CField::config_field_type,   this ) );
   option->mark_basic();
-  
+
   option = m_properties.add_option< OptionT<std::string> >("Space", "The space of the field is based on", m_space_name);
   option->link_to(&m_space_name);
   option->mark_basic();
-  
+
   std::vector<std::string> var_names;
   var_names.push_back(name);
   option = m_properties.add_option<OptionArrayT<std::string> >("VarNames","Names of the variables",var_names);
   option->attach_trigger ( boost::bind ( &CField::config_var_names,   this ) );
   option->mark_basic();
   config_var_names();
-  
+
   std::vector<std::string> var_types;
   var_types.push_back("scalar");
   option = m_properties.add_option<OptionArrayT<std::string> >("VarTypes","Types of the variables",var_types);
@@ -107,19 +107,19 @@ CField::CField ( const std::string& name  ) :
   m_topology = create_static_component_ptr<CLink>("topology");
   m_data = create_static_component_ptr<CTable<Real> >("data");
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void CField::config_var_types()
 {
   std::vector<std::string> var_types; property("VarTypes").put_value(var_types);
-  
+
   boost::regex e_scalar  ("(s(cal(ar)?)?)|1"     ,boost::regex::perl|boost::regex::icase);
   boost::regex e_vector2d("(v(ec(tor)?)?.?2d?)|2",boost::regex::perl|boost::regex::icase);
   boost::regex e_vector3d("(v(ec(tor)?)?.?3d?)|3",boost::regex::perl|boost::regex::icase);
   boost::regex e_tensor2d("(t(ens(or)?)?.?2d?)|4",boost::regex::perl|boost::regex::icase);
   boost::regex e_tensor3d("(t(ens(or)?)?.?3d?)|9",boost::regex::perl|boost::regex::icase);
-  
+
   m_var_types.resize(var_types.size());
   Uint iVar = 0;
   boost_foreach (std::string& var_type, var_types)
@@ -132,7 +132,7 @@ void CField::config_var_types()
     else if (boost::regex_match(var_type,e_vector2d))
     {
       var_type="vector_2D";
-      m_var_types[iVar++]=VECTOR_2D;      
+      m_var_types[iVar++]=VECTOR_2D;
     }
     else if (boost::regex_match(var_type,e_vector3d))
     {
@@ -147,7 +147,7 @@ void CField::config_var_types()
     else if (boost::regex_match(var_type,e_tensor3d))
     {
       var_type="tensor_3D";
-      m_var_types[iVar++]=TENSOR_3D;      
+      m_var_types[iVar++]=TENSOR_3D;
     }
   }
   // give property a similar look, not all possible regex combinations
@@ -176,7 +176,7 @@ std::string CField::var_name(Uint i) const
 {
   cf_assert(i<m_var_types.size());
   return m_var_names.size() ? m_var_names[i] : "var";
-  
+
   //  std::vector<std::string> names;
   //  switch (m_var_types[i])
   //  {
@@ -214,7 +214,7 @@ std::string CField::var_name(Uint i) const
   //  }
   //  return names;
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void CField::config_tree()
@@ -249,17 +249,17 @@ void CField::create_data_storage()
 
   cf_assert( m_var_types.size()!=0 );
   cf_assert( is_not_null(m_topology->follow()) );
-  
-  
+
+
   // Check if there are coordinates in this field, and add to map
   m_coords = find_parent_component<CMesh>(topology()).nodes().coordinates().as_ptr<CTable<Real> >();
 
   Uint row_size(0);
   boost_foreach(const VarType var_size, m_var_types)
     row_size += Uint(var_size);
-  
+
   m_data->set_row_size(row_size);
-  
+
   switch (m_basis)
   {
     case Basis::POINT_BASED:
@@ -276,7 +276,7 @@ void CField::create_data_storage()
         if (field_elements.exists_space(m_space_name) == false)
           throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.full_path().path());
 
-        m_elements_start_idx[&field_elements] = data_size;
+        m_elements_start_idx[field_elements.as_ptr<CEntities>()] = data_size;
         CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());
       }
@@ -292,7 +292,7 @@ void CField::create_data_storage()
         if (field_elements.exists_space(m_space_name) == false)
           throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.full_path().path());
 
-        m_elements_start_idx[&field_elements] = data_size;
+        m_elements_start_idx[field_elements.as_ptr<CEntities>()] = data_size;
         CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());
       }
@@ -307,7 +307,7 @@ void CField::create_data_storage()
         if (field_elements.exists_space(m_space_name) == false)
           throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.full_path().path());
 
-        m_elements_start_idx[&field_elements] = data_size;
+        m_elements_start_idx[field_elements.as_ptr<CEntities>()] = data_size;
         CFieldView field_view("tmp_field_view");
         data_size = field_view.initialize(*this,field_elements.as_ptr<CEntities>());
       }
@@ -383,7 +383,7 @@ const CList<Uint>& CField::used_nodes() const
   return *m_used_nodes;
 }
 
-//////////////////////////////////////////////////////////////////////////////  
+//////////////////////////////////////////////////////////////////////////////
 
 CTable<Real>::ConstRow CField::coords(const Uint idx) const
 {
@@ -392,5 +392,21 @@ CTable<Real>::ConstRow CField::coords(const Uint idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+boost::iterator_range< Common::ComponentIterator<CEntities const> > CField::field_elements() const
+{
+  std::vector<CEntities::ConstPtr> elements_vec;
+
+  std::map<CEntities::ConstPtr,Uint>::const_iterator map_it = m_elements_start_idx.begin();
+  std::map<CEntities::ConstPtr,Uint>::const_iterator map_end = m_elements_start_idx.end();
+  for( ; map_it!=map_end; ++map_it)
+  {
+    elements_vec.push_back(map_it->first);
+  }
+  ComponentIterator<CEntities const> begin_iter(elements_vec,0);
+  ComponentIterator<CEntities const> end_iter(elements_vec,elements_vec.size());
+  return boost::make_iterator_range(begin_iter,end_iter);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 } // Mesh
 } // CF

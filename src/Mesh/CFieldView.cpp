@@ -22,7 +22,7 @@
 
 namespace CF {
 namespace Mesh {
-  
+
   using namespace CF::Common;
 
 Common::ComponentBuilder < CFieldView, CFieldView, LibMesh >  CFieldView_Builder;
@@ -31,7 +31,7 @@ Common::ComponentBuilder < CMultiStateFieldView, CFieldView, LibMesh >  CMultiSt
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFieldView::CFieldView ( const std::string& name ) : 
+CFieldView::CFieldView ( const std::string& name ) :
   Common::Component (name),
     m_start_idx(0),
     m_end_idx(0),
@@ -45,7 +45,7 @@ CFieldView::CFieldView ( const std::string& name ) :
 Uint CFieldView::initialize(CField& field, CEntities::Ptr elements)
 {
   cf_assert(is_not_null(elements));
-  set_field(field);  
+  set_field(field);
   set_elements(elements);
   return m_end_idx;
 }
@@ -54,6 +54,7 @@ Uint CFieldView::initialize(CField& field, CEntities::Ptr elements)
 
 CTable<Real>::Row CFieldView::operator[](const Uint idx)
 {
+  cf_assert_desc("Elements were not set in " + full_path().path(), m_elements.expired() == false );
   cf_assert( idx < m_size );
   return m_field_data.lock()->array()[m_start_idx+idx];
 }
@@ -62,14 +63,15 @@ CTable<Real>::Row CFieldView::operator[](const Uint idx)
 
 CTable<Real>::ConstRow CFieldView::operator[](const Uint idx) const
 {
+  cf_assert_desc("Elements were not set in " + full_path().path(), m_elements.expired() == false );
   cf_assert( idx < m_size );
   return m_field_data.lock()->array()[m_start_idx+idx];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool CFieldView::set_elements(const CEntities& elements) 
-{ 
+bool CFieldView::set_elements(const CEntities& elements)
+{
   cf_assert_desc("Field must be set before elements", is_not_null(m_field.lock()) );
   const CField& field = *m_field.lock();
   m_elements = elements.as_const()->as_ptr<CEntities>();
@@ -102,31 +104,32 @@ bool CFieldView::set_elements(CEntities::Ptr elements)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldView::set_field(CField& field) 
-{ 
-  m_field = field.as_ptr<CField>(); 
+void CFieldView::set_field(CField& field)
+{
+  m_field = field.as_ptr<CField>();
   m_field_data = field.data().as_ptr<CTable<Real> >();
   cf_assert( is_not_null(m_field_data.lock()) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldView::set_field(CField::Ptr field) 
-{ 
+void CFieldView::set_field(CField::Ptr field)
+{
   set_field(*field);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CFieldView::set_field(const CField& field)
-{ 
-  set_field(boost::const_pointer_cast<CField>(field.as_ptr<CField>())); 
+{
+  set_field(boost::const_pointer_cast<CField>(field.as_ptr<CField>()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Uint CFieldView::mesh_elements_idx(const Uint idx) const
 {
+  cf_assert_desc("Elements were not set in " + full_path().path(), m_elements.expired() == false );
   return m_mesh_elements.lock()->unified_idx(*m_elements.lock(),idx);
 }
 
@@ -134,16 +137,17 @@ Uint CFieldView::mesh_elements_idx(const Uint idx) const
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-CMultiStateFieldView::CMultiStateFieldView ( const std::string& name ) 
-  : CFieldView (name) 
+CMultiStateFieldView::CMultiStateFieldView ( const std::string& name )
+  : CFieldView (name)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-  
+
 CMultiStateFieldView::View CMultiStateFieldView::operator[](const Uint idx)
 {
-  cf_assert( idx < m_size );    
+  cf_assert_desc("Elements were not set in " + full_path().path(), m_elements.expired() == false );
+  cf_assert( idx < m_size );
   Uint data_idx = m_start_idx+m_stride*idx;
   Range range = Range().start(data_idx).finish(data_idx + m_stride);
   cf_assert( is_not_null(m_field_data.lock()) );
@@ -154,7 +158,8 @@ CMultiStateFieldView::View CMultiStateFieldView::operator[](const Uint idx)
 
 CMultiStateFieldView::ConstView CMultiStateFieldView::operator[](const Uint idx) const
 {
-  cf_assert( idx < m_size );    
+  cf_assert_desc("Elements were not set in " + full_path().path(), m_elements.expired() == false );
+  cf_assert( idx < m_size );
   Uint data_idx = m_start_idx+m_stride*idx;
   Range range = Range().start(data_idx).finish(data_idx + m_stride);
   cf_assert( is_not_null(m_field_data.lock()) );
@@ -166,7 +171,7 @@ CMultiStateFieldView::ConstView CMultiStateFieldView::operator[](const Uint idx)
 ////////////////////////////////////////////////////////////////////////////////
 
 CScalarFieldView::CScalarFieldView ( const std::string& name )
-  : CFieldView (name) 
+  : CFieldView (name)
 {
 }
 
@@ -174,7 +179,8 @@ CScalarFieldView::CScalarFieldView ( const std::string& name )
 
 Real& CScalarFieldView::operator[](const Uint idx)
 {
-  cf_assert( idx < m_size );    
+  cf_assert_desc("Elements were not set in " + full_path().path(), m_elements.expired() == false );
+  cf_assert( idx < m_size );
   Uint data_idx = m_start_idx+idx;
   cf_assert( is_not_null(m_field_data.lock()) );
   return m_field_data.lock()->array()[data_idx][0];
@@ -184,7 +190,8 @@ Real& CScalarFieldView::operator[](const Uint idx)
 
 const Real& CScalarFieldView::operator[](const Uint idx) const
 {
-  cf_assert( idx < m_size );    
+  cf_assert_desc("Elements were not set", m_elements.expired() == false );
+  cf_assert( idx < m_size );
   Uint data_idx = m_start_idx+idx;
   cf_assert( is_not_null(m_field_data.lock()) );
   return m_field_data.lock()->array()[data_idx][0];
@@ -214,6 +221,7 @@ bool CConnectedFieldView::set_elements(boost::shared_ptr<CEntities> elements)
 {
   cf_assert(is_not_null(elements));
   return set_elements(*elements);
+  cf_assert( m_elements.expired() == false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -234,6 +242,7 @@ bool CConnectedFieldView::set_elements(CEntities& elements)
     m_views[i] = Common::allocate_component<CFieldView>("view");
     m_views[i]->initialize(*m_field.lock(), cells->as_ptr<CElements>());
   }
+  cf_assert(m_elements.expired() == false)
   return true;
 }
 
@@ -241,6 +250,7 @@ bool CConnectedFieldView::set_elements(CEntities& elements)
 
 std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_idx)
 {
+  cf_assert_desc("Elements were not set", m_elements.expired() == false );
   cf_assert_desc(full_path().path(),m_views.size());
   std::vector<CTable<Real>::Row> vec;
   boost_foreach(const Uint cell, m_face2cells.lock()->connectivity()[elem_idx])
@@ -258,6 +268,7 @@ std::vector<CTable<Real>::Row> CConnectedFieldView::operator[](const Uint elem_i
 
 CTable<Real>::Row CConnectedFieldView::operator()(const Uint elem_idx, const Uint connected_idx)
 {
+  cf_assert_desc("Elements were not set", m_elements.expired() == false );
   cf_assert_desc(full_path().path(),m_views.size());
   boost::tie(cells_comp_idx,cell_idx) = m_face2cells.lock()->lookup().location_idx(m_face2cells.lock()->connectivity()[elem_idx][connected_idx]);
   cf_assert(cells_comp_idx < m_views.size());

@@ -22,9 +22,9 @@
 namespace CF {
 namespace Mesh {
 namespace Actions {
-  
+
   using namespace Common;
-    
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CBuildVolume, CMeshTransformer, LibActions> CBuildVolume_Builder;
@@ -34,13 +34,13 @@ Common::ComponentBuilder < CBuildVolume, CMeshTransformer, LibActions> CBuildVol
 CBuildVolume::CBuildVolume( const std::string& name )
 : CMeshTransformer(name)
 {
-   
+
   properties()["brief"] = std::string("Print information of the mesh");
   std::string desc;
-  desc = 
+  desc =
   "  Usage: Info \n\n"
   "          Information given: internal mesh hierarchy,\n"
-  "      element distribution for each region, and element type"; 
+  "      element distribution for each region, and element type";
   properties()["description"] = desc;
 }
 
@@ -53,12 +53,12 @@ std::string CBuildVolume::brief_description() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-  
+
 std::string CBuildVolume::help() const
 {
   return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
-}  
-  
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CBuildVolume::execute()
@@ -66,7 +66,7 @@ void CBuildVolume::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  CField& volume_field = mesh.create_field(Mesh::Tags::volume(),CField::Basis::CELL_BASED,"P0");
+  CField& volume_field = mesh.create_field(Mesh::Tags::volume(),CField::Basis::CELL_BASED,"P0","volume[1]");
   volume_field.add_tag(Mesh::Tags::volume());
   CScalarFieldView volume("volume_view");
   volume.set_field(volume_field);
@@ -74,9 +74,9 @@ void CBuildVolume::execute()
   boost_foreach( CCells& elements, find_components_recursively<CCells>(mesh.topology()) )
   {
     volume.set_elements(elements.as_ptr<CEntities>());
-    
+
     RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
-    
+
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
       elements.put_coordinates( coordinates, cell_idx );
