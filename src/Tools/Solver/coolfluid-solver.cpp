@@ -17,6 +17,7 @@
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/ListeningThread.hpp"
 
+#include "Tools/Solver/CWorker.hpp"
 #include "Tools/Solver/LogForwarder.hpp"
 
 using namespace boost;
@@ -63,6 +64,8 @@ int main(int argc, char ** argv)
   // create the PE manager
   CPEManager::Ptr mgr = Core::instance().root().get_child_ptr("Tools")->
       create_component_ptr<CPEManager>("PEManager");
+
+  Core::instance().root().create_component_ptr<CWorker>("Worker");
 
   mgr->mark_basic();
 

@@ -45,6 +45,13 @@ public:
 
   int nbworkers () const;
 
+  /// @name SIGNALS
+  //@{
+
+  void signal_solve( Common::SignalArgs & args);
+
+  //@} END SIGNALS
+
 private:
 
   Communicator m_comm;

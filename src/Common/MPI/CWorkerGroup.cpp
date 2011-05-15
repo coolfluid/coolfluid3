@@ -6,8 +6,14 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
+#include "Common/Signal.hpp"
+
+#include "Common/XML/FileOperations.hpp"
 
 #include "Common/MPI/CWorkerGroup.hpp"
+
+using namespace CF::Common;
+using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +31,8 @@ CWorkerGroup::CWorkerGroup( const std::string & name )
   : Component(name),
     m_comm(MPI_COMM_NULL)
 {
-
+  regist_signal("solve", "Runs a fake simulation.", "Solve")
+      ->signal->connect( boost::bind(&CWorkerGroup::signal_solve, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +58,26 @@ Communicator CWorkerGroup::communicator() const
   cf_assert( m_comm != MPI_COMM_NULL );
 
   return m_comm;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CWorkerGroup::signal_solve( Common::SignalArgs & args)
+{
+  std::string str;
+  char * buffer;
+  int remote_size;
+  SignalFrame frame("solve", full_path(), "//Root/Worker");
+
+  to_string( *frame.xml_doc, str);
+
+  buffer = new char[ str.length() + 1 ];
+  std::strcpy( buffer, str.c_str() );
+
+  MPI_Comm_remote_size(m_comm, &remote_size);
+
+  for(int i = 0 ; i < remote_size ; ++i)
+    MPI_Send( buffer, str.length() + 1, MPI_CHAR, i, 0, m_comm );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
