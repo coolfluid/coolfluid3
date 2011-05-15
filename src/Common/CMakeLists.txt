@@ -138,6 +138,8 @@ list( APPEND coolfluid_common_files
 # MPI Files
 if(CF_HAVE_MPI)
 list( APPEND coolfluid_common_files
+      MPI/CPEManager.cpp
+      MPI/CPEManager.hpp
       MPI/ListeningInfo.cpp
       MPI/ListeningInfo.hpp
       MPI/ListeningThread.cpp
