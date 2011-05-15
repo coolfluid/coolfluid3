@@ -613,9 +613,9 @@ void Component::signal_create_component ( SignalArgs& args  )
   std::string name  = "untitled";
   if (options.exists("name"))
     name = options.option<std::string>("name");
-  
+
   std::string builder_name = options.option<std::string>("type");
-  
+
   Component& comp = build_component( name, builder_name );
 
   if( options.exists("basic_mode") )
@@ -1019,7 +1019,16 @@ void Component::signal_signature( SignalArgs & args )
   SignalFrame reply = args.create_reply( full_path() );
   SignalOptions options( args );
 
-  ( *signal( options.option<std::string>("name") )->signature )(reply);
+  try
+  {
+    ( *signal( options.option<std::string>("name") )->signature )(reply);
+  }
+  catch(Exception & e)
+  {
+    reply.node.content->parent()->remove_node(reply.node.content);
+    throw;
+  }
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -1202,7 +1211,7 @@ void Component::configure (const std::vector<std::string>& args)
       else if (type == "array")
       {
         std::vector<std::string> array;
-        
+
         // the strings could have comma's inside, brackets, etc...
         Uint in_brackets(0);
         std::string::iterator first = value.begin();
@@ -1218,7 +1227,7 @@ void Component::configure (const std::vector<std::string>& args)
             array.push_back(std::string(first,it));
             boost::algorithm::trim(array.back());
             first = it+1;
-          }             
+          }
         }
         array.push_back(std::string(first,it));
         boost::algorithm::trim(array.back());
@@ -1262,7 +1271,7 @@ void Component::configure (const std::vector<std::string>& args)
             vec.push_back(from_str<URI>(str_val));
           configure_property(name,vec);
         }
-        
+
       }
       else
         throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] for ["+ full_path().path() +"] is invalid.\n"+
