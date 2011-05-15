@@ -137,11 +137,12 @@ void CPEManager::spawn_group(const std::string & name, Uint nb_workers,
 
   char * args[] = { forw_cstr, nullptr };
 
-  m_groups[name] = PE::instance().spawn(nb_workers, command, args, hosts);
-  m_listener->add_communicator( m_groups[name] );
+  Communicator comm = PE::instance().spawn(nb_workers, command, args, hosts);
+  m_groups[name] = comm;
+  m_listener->add_communicator( comm );
 
   PE::instance().barrier();
-  MPI_Barrier( m_groups[name] );
+  MPI_Barrier( comm );
 
   // if it is the first group, we start listening
   if( m_groups.size() == 1 )
