@@ -157,8 +157,11 @@ void NetworkThread::newData()
     // parse the frame and call the boost signal
     try
     {
-      XmlDoc::Ptr doc = XML::parse_cstring(frame, m_blockSize - 1);
-      newSignal(doc);
+      if( m_blockSize > 0 )
+      {
+        XmlDoc::Ptr doc = XML::parse_cstring(frame, m_blockSize - 1);
+        newSignal(doc);
+      }
     }
     catch(XmlError & e)
     {
