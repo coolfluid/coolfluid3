@@ -105,12 +105,15 @@ public:
   /// Spawns new processes by running a specific command.
   /// @param count Number of processes to spawn.
   /// @param command The command to run.
+  /// @param args Array of arguments for the command. Can be null.
   /// @param hosts List of target hosts, in comma-separated format. They
   /// need to be referenced in the host file given by the
   /// @c OMPI_MCA_orte_default_hostfile environment variable. If null or
   /// empty, processes are spawned on localhost.
-  /// @return Returns
-  mpi::Communicator spawn(int count, const char * command, const char * hosts = 0);
+  /// @return Returns an intercommunicator between this universe and
+  /// the one newly created.
+  mpi::Communicator spawn(int count, const char * command, char ** args = nullptr,
+                          const char * hosts = nullptr);
 
   /// Gets the parent COMM_WORLD of the process
   Communicator get_parent() const;

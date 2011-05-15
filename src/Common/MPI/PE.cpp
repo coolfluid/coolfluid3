@@ -158,7 +158,8 @@ WorkerStatus::Type PE::status()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-mpi::Communicator PE::spawn( int count, const char * command, const char * hosts )
+mpi::Communicator PE::spawn( int count, const char * command, char ** args,
+                            const char * hosts )
 {
   MPI::Info info = MPI::Info::Create();
   mpi::Communicator comm;
@@ -169,25 +170,27 @@ mpi::Communicator PE::spawn( int count, const char * command, const char * hosts
 
   info.Set("host", "localhost");
 
-  CFinfo << "Spawning " << count << " workers on localhost and running " << cmd_non_const << ". I'm rank " << rank() << CFendl;
+  CFinfo << "Spawning " << count << " workers on localhost." << CFendl;
 
   MPI_Comm_spawn(cmd_non_const,   // command to run
-                 MPI_ARGV_NULL,   // arguments to the command
+                 args,            // arguments to the command
                  count,           // number of processes
                  info,            // infos
-                 0,          // manager (root) rank
+                 0,               // manager (root) rank
                  m_comm,
                  &comm,
                  error_codes);
 
- }
+  return comm;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Communicator PE::get_parent() const
 {
   mpi::Communicator comm;
-  MPI_Comm_get_parent(&comm);
+  MPI_CHECK_RESULT(MPI_Comm_get_parent,(&comm));
+//  MPI_Comm_get_parent(&comm);
   return comm;
 }
 
