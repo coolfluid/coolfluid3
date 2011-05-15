@@ -13,6 +13,7 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/NotificationQueue.hpp"
+#include "Common/MPI/CPEManager.hpp"
 #include "Common/XML/Protocol.hpp"
 
 #include "Mesh/CTable.hpp"
@@ -89,7 +90,7 @@ CRoot::Ptr ServerRoot::root()
     Component::Ptr tools = root->get_child_ptr("Tools");
 
     tools->create_component_ptr<CJournal>("Journal")->mark_basic();
-
+    tools->create_component_ptr<mpi::CPEManager>("PEManager")->mark_basic();
 
     CPlotter::Ptr plotter = tools->create_component_ptr<CPlotter>("Plotter");
 
