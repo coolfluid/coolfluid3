@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
   QString errorString;
   int return_value = 0;
   int port = 62784;
+  Uint nb_workers = 0;
   std::string hostfile("./machine.txt");
 
   boost::program_options::options_description desc("Allowed options");
@@ -51,6 +52,8 @@ int main(int argc, char *argv[])
       ("help", "Prints this help message and exits")
       ("port", program_options::value<int>(&port)->default_value(port),
            "Port to use for network communications.")
+      ("np", program_options::value<Uint>(&nb_workers)->default_value(nb_workers),
+           "Number of MPI workers to spawn.")
       ("hostfile", program_options::value<std::string>(&hostfile)->default_value(hostfile),
            "MPI hostfile.");
 
@@ -72,7 +75,8 @@ int main(int argc, char *argv[])
 
     if (vm.count("help") > 0)
     {
-      std::cout << "Usage: " << argv[0] << " [--port <port-number>] [--hostfile <hostfile>]" << std::endl;
+      std::cout << "Usage: " << argv[0] << " [--port <port-number>] "
+                   "[--np <workers-count>] [--hostfile <hostfile>]" << std::endl;
       std::cout << desc << std::endl;
       return 0;
     }
@@ -80,6 +84,11 @@ int main(int argc, char *argv[])
     // setup COOLFluiD environment
     // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
     cf_env.initiate ( argc, argv );        // initiate the environemnt
+    mpi::PE::instance().init( argc, argv );
+
+    if( nb_workers != 0 )
+      mpi::PE::instance().spawn(nb_workers,
+                                "/Users/qt/workspace/coolfluid3/Builds/Dev/src/Tools/Solver/coolfluid-solver");
 
     // check if the port number is valid and launch the network connection if so
     if(port < 49153 || port > 65535)
@@ -104,6 +113,7 @@ int main(int argc, char *argv[])
       return_value = app.exec();
     }
 
+    mpi::PE::instance().finalize();
     // terminate the runtime environment
     cf_env.terminate();
 

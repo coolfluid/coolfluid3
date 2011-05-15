@@ -83,13 +83,13 @@ public:
   /// Checks if the PE is in valid state
   /// should be initialized and Communicator pointer is set
   bool is_active() const { return is_initialized() && !is_finalized() && is_not_null(m_comm); }
-  
+
   /// overload the barrier function
   void barrier();
 
   /// Return rank, additionally, if is_init==0.
   Uint rank() const;
-  
+
   /// Return the number of processes, or 1 if is_init==0.
   Uint size() const;
 
@@ -101,6 +101,19 @@ public:
   /// Gives the current process status.
   /// @return Returns the current process status
   WorkerStatus::Type status();
+
+  /// Spawns new processes by running a specific command.
+  /// @param count Number of processes to spawn.
+  /// @param command The command to run.
+  /// @param hosts List of target hosts, in comma-separated format. They
+  /// need to be referenced in the host file given by the
+  /// @c OMPI_MCA_orte_default_hostfile environment variable. If null or
+  /// empty, processes are spawned on localhost.
+  /// @return Returns
+  mpi::Communicator spawn(int count, const char * command, const char * hosts = 0);
+
+  /// Gets the parent COMM_WORLD of the process
+  Communicator get_parent() const;
 
   /// Collective operations - all_to_all
   template<typename T> inline T*   all_to_all(const T* in_values, const int in_n, T* out_values, const int stride=1)
@@ -165,8 +178,8 @@ public:
   }
   template<typename T> inline void all_gather(const T& in_value, std::vector<T>& out_values)
   {
-           mpi::all_gather(m_comm, in_value, out_values);           
-  }  
+           mpi::all_gather(m_comm, in_value, out_values);
+  }
   template<typename T> inline T*   all_gather(const T* in_values, const int in_n, T* out_values, int *out_n, const int stride=1)
   {
     return mpi::all_gather(m_comm, in_values, in_n, out_values, out_n, stride);

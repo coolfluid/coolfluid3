@@ -41,7 +41,7 @@ PE::~PE()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PE& PE::instance() 
+PE& PE::instance()
 {
   static PE pe_instance;
   return pe_instance;
@@ -143,7 +143,7 @@ Uint PE::size() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PE::change_status(WorkerStatus::Type status) 
+void PE::change_status(WorkerStatus::Type status)
 {
   cf_assert ( WorkerStatus::Convert::instance().is_valid(status) );
   m_current_status = status;
@@ -151,9 +151,44 @@ void PE::change_status(WorkerStatus::Type status)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-WorkerStatus::Type PE::status() 
+WorkerStatus::Type PE::status()
 {
   return m_current_status;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+mpi::Communicator PE::spawn( int count, const char * command, const char * hosts )
+{
+  MPI::Info info = MPI::Info::Create();
+  mpi::Communicator comm;
+
+  char * cmd_non_const = new char[strlen(command) + 1];
+  std::strcpy(cmd_non_const, command);
+  int error_codes[count];
+
+  info.Set("host", "localhost");
+
+  CFinfo << "Spawning " << count << " workers on localhost and running " << cmd_non_const << ". I'm rank " << rank() << CFendl;
+
+  MPI_Comm_spawn(cmd_non_const,   // command to run
+                 MPI_ARGV_NULL,   // arguments to the command
+                 count,           // number of processes
+                 info,            // infos
+                 0,          // manager (root) rank
+                 m_comm,
+                 &comm,
+                 error_codes);
+
+ }
+
+////////////////////////////////////////////////////////////////////////////////
+
+Communicator PE::get_parent() const
+{
+  mpi::Communicator comm;
+  MPI_Comm_get_parent(&comm);
+  return comm;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
