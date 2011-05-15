@@ -36,7 +36,7 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "ComputeUpdateCoefficient"; }
-  
+
   /// execute the action
   virtual void execute ();
 
@@ -46,14 +46,14 @@ private: // helper functions
   void config_wave_speed();
   void config_volume();
   void config_time();
-  
+
 private: // data
-  
+
   boost::weak_ptr<Mesh::CField> m_update_coeff;
   boost::weak_ptr<Mesh::CField> m_wave_speed;
   boost::weak_ptr<Mesh::CField> m_volume;
   boost::weak_ptr<Solver::CTime> m_time;
-  
+
   bool m_time_accurate;
   Real m_CFL;
 };

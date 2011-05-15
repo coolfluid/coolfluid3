@@ -28,8 +28,8 @@ namespace Core {
 Common::ComponentBuilder < ComputeUpdateCoefficient, CAction, LibCore > ComputeUpdateCoefficient_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) : 
+
+ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
   CAction(name),
   m_time_accurate(false),
   m_CFL(1.)
@@ -40,7 +40,7 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
     ->mark_basic()
     ->link_to(&m_time_accurate)
     ->add_tag("time_accurate");
-    
+
   m_properties.add_option< OptionT<Real> > ("cfl","CFL", "Courant Number", m_CFL)
     ->mark_basic()
     ->link_to(&m_CFL)
@@ -102,7 +102,7 @@ void ComputeUpdateCoefficient::execute()
 {
   if (m_wave_speed.expired())    throw SetupError(FromHere(), "WaveSpeed field was not set");
   if (m_update_coeff.expired()) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
-  
+
   CTable<Real>& wave_speed = m_wave_speed.lock()->data();
   CTable<Real>& update_coeff = m_update_coeff.lock()->data();
 
@@ -122,7 +122,7 @@ void ComputeUpdateCoefficient::execute()
     Real dt = time.property("time_step").value<Real>();
     if( time.time() + dt > tf )
       dt = tf - time.time();
-    
+
     // Make time step stricter through the CFL number
     for (Uint i=0; i<wave_speed.size(); ++i)
     {
@@ -136,10 +136,10 @@ void ComputeUpdateCoefficient::execute()
       if (volume[i][0] > 0)
         update_coeff[i][0] = dt/volume[i][0];
     }
-    
+
     // Update the new time step
     time.dt() = dt;
-    
+
   }
   else // local time stepping
   {
