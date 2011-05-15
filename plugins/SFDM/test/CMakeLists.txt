@@ -5,7 +5,7 @@ coolfluid_add_unit_test( utest-sfdm-aspects )
 
 
 
-list( APPEND utest-sfdm-solver_cflibs coolfluid_sfdm coolfluid_sfdm_sf coolfluid_mesh_actions coolfluid_mesh_gmsh)
+list( APPEND utest-sfdm-solver_cflibs coolfluid_sfdm coolfluid_sfdm_sf coolfluid_mesh_actions coolfluid_mesh_gmsh coolfluid_advectiondiffusion)
 list( APPEND utest-sfdm-solver_files  utest-sfdm-solver.cpp )
 
 coolfluid_add_unit_test( utest-sfdm-solver )

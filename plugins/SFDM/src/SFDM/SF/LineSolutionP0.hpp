@@ -19,7 +19,7 @@ public:
 
   static const Uint dimensionality = 1;
   static const Uint nb_nodes = 1;
-  static const Uint order = 1;
+  static const Uint order = 0;
 
   static const Uint nb_orientations = 1;
   static const Uint nb_lines_per_orientation = 1;

@@ -3,6 +3,8 @@ list( APPEND coolfluid_sfdm_files
   ComputeJacobianDeterminant.cpp
   ComputeRhsInCell.hpp
   ComputeRhsInCell.cpp
+  ComputeUpdateCoefficient.hpp
+  ComputeUpdateCoefficient.cpp
   CreateSpace.hpp
   CreateSpace.cpp
   LibSFDM.hpp
@@ -15,6 +17,8 @@ list( APPEND coolfluid_sfdm_files
   ShapeFunction.cpp
   SFDSolver.hpp
   SFDSolver.cpp
+  UpdateSolution.hpp
+  UpdateSolution.cpp
 )
 
 list( APPEND coolfluid_sfdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_solver coolfluid_solver_actions coolfluid_riemannsolvers)

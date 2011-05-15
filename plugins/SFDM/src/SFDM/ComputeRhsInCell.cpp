@@ -8,6 +8,9 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionComponent.hpp"
+
 #include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CSpace.hpp"
@@ -15,6 +18,10 @@
 #include "Mesh/CEntities.hpp"
 #include "Mesh/CConnectivity.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
+
+#include "Solver/State.hpp"
+
+#include "RiemannSolvers/src/RiemannSolvers/RiemannSolver.hpp"
 
 #include "SFDM/ComputeRhsInCell.hpp"
 #include "SFDM/Reconstruct.hpp"
@@ -25,6 +32,7 @@
 
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::RiemannSolvers;
 
 namespace CF {
 namespace SFDM {
@@ -34,7 +42,7 @@ namespace SFDM {
 Common::ComponentBuilder < ComputeRhsInCell, Solver::Actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
+
 ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
   Solver::Actions::CLoopOperation(name)
 {
@@ -43,21 +51,35 @@ ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_solution,   this ) )
     ->add_tag("solution");
-  
+
   m_properties.add_option(OptionURI::create("residual","Residual","Residual to be calculated", URI("cpath:"),URI::Scheme::CPATH))
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_residual,   this ) )
     ->add_tag("residual");
 
+  m_properties.add_option(OptionURI::create("wave_speed","Wave Speed","Wave speed to be calculated. Used for stability condition.", URI("cpath:"),URI::Scheme::CPATH))
+    ->mark_basic()
+    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_wavespeed,   this ) )
+    ->add_tag("wave_speed");
+
+
+  properties().add_option( OptionT<std::string>::create("riemann_solver","Riemann Solver","The component to solve the Rieman Problem on cell-faces","CF.RiemannSolvers.Roe") )
+      ->mark_basic()
+      ->attach_trigger ( boost::bind ( &ComputeRhsInCell::build_riemann_solver, this) )
+      ->add_tag("riemann_solver");
+
+  m_properties.add_option( OptionComponent<Solver::State>::create("solution_state","Solution State","The component describing the solution state",&m_sol_state) )
+      ->add_tag("solution_state");
+
+
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &ComputeRhsInCell::trigger_elements,   this ) );
 
-  m_solution = create_static_component_ptr<CMultiStateFieldView>("solution_view");
-  m_residual = create_static_component_ptr<CMultiStateFieldView>("residual_view");
+  m_solution   = create_static_component_ptr<CMultiStateFieldView>("solution_view");
+  m_residual   = create_static_component_ptr<CMultiStateFieldView>("residual_view");
+  m_wave_speed = create_static_component_ptr<CScalarFieldView>    ("wave_speed_view");
 
   m_reconstruct_solution = create_static_component_ptr<Reconstruct>("solution_reconstruction_helper");
   m_reconstruct_flux     = create_static_component_ptr<Reconstruct>("flux_reconstruction_helper");
-
-  m_flux = create_static_component_ptr<Flux>("flux_helper");
 
 }
 
@@ -89,10 +111,24 @@ void ComputeRhsInCell::config_residual()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void ComputeRhsInCell::config_wavespeed()
+{
+  URI uri;
+  property("wave_speed").put_value(uri);
+  CField::Ptr comp = Core::instance().root().access_component_ptr_checked(uri)->as_ptr_checked<CField>();
+  if ( is_null(comp) )
+    throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
+
+  m_wave_speed->set_field(comp);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void ComputeRhsInCell::trigger_elements()
 {
   m_can_start_loop = m_solution->set_elements(elements());
   m_can_start_loop = m_residual->set_elements(elements());
+  m_can_start_loop = m_wave_speed->set_elements(elements());
 
   if (m_can_start_loop)
   {
@@ -106,6 +142,15 @@ void ComputeRhsInCell::trigger_elements()
     flux_from_to[1] = elements().space("solution").shape_function().as_type<SFDM::ShapeFunction>().line().derived_type_name();
     m_reconstruct_flux->configure_property("from_to",flux_from_to);
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void ComputeRhsInCell::build_riemann_solver()
+{
+  if (is_not_null(m_riemann_solver))
+    remove_component(*m_riemann_solver);
+  m_riemann_solver = build_component("riemann_solver",property("riemann_solver").value<std::string>()).as_ptr<RiemannSolver>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -149,7 +194,10 @@ void ComputeRhsInCell::execute()
   Reconstruct& reconstruct_solution_in_flux_points = *m_reconstruct_solution;
   Reconstruct& reconstruct_flux_in_solution_points = *m_reconstruct_flux;
 
-  Flux& compute_flux = *m_flux;
+  Solver::State& sol_state = *m_sol_state.lock();
+  Solver::Physics sol_vars = sol_state.create_physics();
+  /// @todo give normal a correct value
+  RealVector normal(1); normal << 1.;
 
   const Uint dimensionality = elements().element_type().dimensionality();
   const SFDM::ShapeFunction& solution_sf = elements().space("solution").shape_function().as_type<SFDM::ShapeFunction>();
@@ -161,6 +209,7 @@ void ComputeRhsInCell::execute()
 
   CMultiStateFieldView::View solution_data = (*m_solution)[idx()];
   CMultiStateFieldView::View residual_data = (*m_residual)[idx()];
+  Real& wave_speed = (*m_wave_speed)[idx()];
 
   CConnectivity& c2f = elements().get_child("face_connectivity").as_type<CConnectivity>();
   Component::Ptr faces;
@@ -169,11 +218,11 @@ void ComputeRhsInCell::execute()
   Uint neighbor_cell_idx;
   const Uint this_cell_idx = m_mesh_elements.lock()->unified_idx(elements(),idx());
 
-  CFinfo << "\ncell " << idx() << CFendl;
-  CFinfo <<   "------"<<CFendl;
+  //CFinfo << "\ncell " << idx() << CFendl;
+  //CFinfo <<   "------"<<CFendl;
   /// <li> Set all cell solution states in a matrix @f$ \mathbf{Q_s} @f$ (rows are states, columns are variables)
   RealMatrix solution = reconstruct_solution_in_flux_points.value( to_matrix(solution_data) );
-  CFinfo << "solution in flux points = " << solution.transpose() << CFendl;
+  //CFinfo << "solution in flux points = " << solution.transpose() << CFendl;
   /// <li> Compute analytical flux in all flux points (every row is a flux)
   /// <ul>
   ///   <li> First the solution is reconstructed in the flux points.
@@ -183,8 +232,7 @@ void ComputeRhsInCell::execute()
   ///   <li> Then the analytical flux is calculated in these flux points.
   ///        @f[ \mathbf{\tilde{F}_f} = \mathrm{flux}(\mathbf{\tilde{Q}_f}) @f] (see SFDM::Flux)
   /// </ul>
-  RealMatrix flux = compute_flux( solution );
-  //CFinfo << "flux = \n" << flux << CFendl;
+  RealVector flux(nb_vars);
 
   /// <li> Compute flux gradients in the solution points, and add to the RHS
   // For every orientation
@@ -193,6 +241,15 @@ void ComputeRhsInCell::execute()
     /// <li> For every 1D line of every orientation
     for (Uint line=0; line<solution_sf.nb_lines_per_orientation(); ++line)
     { /// <ul>
+
+      /// <li> Compute flux in line, excluding begin and end point
+      for (Uint flux_pt=1; flux_pt<flux_in_line.rows()-1; ++flux_pt)
+      {
+        sol_state.set_state(solution.row(flux_sf.points()[orientation][line][flux_pt]),sol_vars);
+        sol_state.compute_flux(sol_vars,normal,flux);
+        flux_in_line.row(flux_pt) = flux;
+      }
+
       /// <li> Update face flux points with Riemann problem with neighbor
       ///      At the flux point location of the face:
       ///      @f[ \tilde{F}_{face flxpt} = \mathrm{Riemann}(Q_{face flxpt,\mathrm{left}},Q_{face flxpt,\mathrm{right}}) @f]
@@ -209,7 +266,7 @@ void ComputeRhsInCell::execute()
         CFaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
         if (f2c.is_bdry_face()[face_idx])
         {
-          CFinfo <</* "cell["<<idx()<<"] */"must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
+          //CFinfo <</* "cell["<<idx()<<"] */"must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
           /// @todo implement boundary condition
         }
         else
@@ -218,7 +275,7 @@ void ComputeRhsInCell::execute()
           Uint unified_neighbor_cell_idx = connected_cells[LEFT] != this_cell_idx ? connected_cells[LEFT] : connected_cells[RIGHT];
           boost::tie(neighbor_cells,neighbor_cell_idx) = f2c.lookup().location( unified_neighbor_cell_idx );
 
-          CFinfo << /*"cell["<<idx()<<"] */"must solve Riemann problem on face " << faces->parent().name() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
+          //CFinfo << /*"cell["<<idx()<<"] */"must solve Riemann problem on face " << faces->parent().name() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
 
           /// @todo Multi-region support.
           /// It is now assumed for reconstruction that neighbor_cells == elements(), so that the same field_view "m_solution" can be used.
@@ -227,22 +284,44 @@ void ComputeRhsInCell::execute()
 
           RealRowVector left  = solution         .row ( flux_sf.face_points()[orientation][line][side] );
           RealRowVector right = neighbor_solution.row ( flux_sf.face_points()[orientation][line][!side] ); // the other side
-          CFinfo << "   solve Riemann("<<left<<","<<right<<")" << CFendl;
-          /// @todo solve Riemann problem
+
+          RealVector normal(1); normal << 1.;
+          Real left_wave_speed;
+          Real right_wave_speed;
+          RealVector H(1);
+          if (side == 0)
+          {
+            riemann_solver().solve(left,right, -normal,   H,left_wave_speed,right_wave_speed);
+            flux_in_line.topRows<1>() = -H;
+          }
+          else
+          {
+            riemann_solver().solve(left,right,  normal,   H,left_wave_speed,right_wave_speed);
+            flux_in_line.bottomRows<1>() = H;
+          }
+          //CFinfo << "   solve Riemann("<<left<<","<<right<<") = " << H << CFendl;
+
+          /// @todo wave speeds storage
+          const Real area = 1.;
+          const Real wave_speed_contribution = - std::min(left_wave_speed ,0.) * area;
+          //CFinfo << "wave_speed_contribution["<<side<<"] = " << wave_speed_contribution << CFendl;
+
+          wave_speed += wave_speed_contribution;
+          // Kris:
+          //jacobXIntCoef*
+          //          m_updateVarSet->getMaxAbsEigenValue(m_pData,m_unitNormalFlxPnts[iFlx]);
+
         }
       }
 
       /// <li> Compute gradient of flux in solution points in this line
       ///
-      for (Uint flux_pt=0; flux_pt<flux_in_line.rows(); ++flux_pt)
-        flux_in_line.row(flux_pt) = flux.row( flux_sf.points()[orientation][line][flux_pt] );
-
-     /// @f[\left.\frac{\partial \tilde{F}}{\partial \xi}\right|_{line,solpt}  = \sum_{fluxpt=1}^{N_f} \tilde{F}_{line,flxpt} \ l'_{flxpt}(\xi_{solpt}) @f]
-     /// with @f$ N_f @f$ the number of flux points in the flux 1D shape function.
-     ///
-     /// This is implemented using SFDM::Reconstruct::gradient()
-     flux_grad_in_line = reconstruct_flux_in_solution_points.gradient( flux_in_line , static_cast<CoordRef>(orientation) );
-     CFinfo << "flux_grad_in_line = " << flux_grad_in_line.transpose() << CFendl;
+      /// @f[\left.\frac{\partial \tilde{F}}{\partial \xi}\right|_{line,solpt}  = \sum_{fluxpt=1}^{N_f} \tilde{F}_{line,flxpt} \ l'_{flxpt}(\xi_{solpt}) @f]
+      /// with @f$ N_f @f$ the number of flux points in the flux 1D shape function.
+      ///
+      /// This is implemented using SFDM::Reconstruct::gradient()
+      flux_grad_in_line = reconstruct_flux_in_solution_points.gradient( flux_in_line , static_cast<CoordRef>(orientation) );
+      //CFinfo << "flux_grad_in_line = " << flux_grad_in_line.transpose() << CFendl;
 
       /// <li> Add the flux gradient to the RHS
       for (Uint point=0; point<solution_sf.nb_nodes_per_line(); ++point)
@@ -254,6 +333,7 @@ void ComputeRhsInCell::execute()
   } /// </ul>
   /// </ul>
 
+  //CFinfo << "wave_speed = " << wave_speed << CFendl;
   /// @section _ideas_for_efficiency Ideas for efficiency
   /// - store Riemann fluxes in face flux points
 }

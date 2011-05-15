@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+namespace Solver { class State; }
+namespace RiemannSolvers { class RiemannSolver; }
 namespace SFDM {
 
   class Reconstruct;
@@ -51,28 +53,35 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
+  RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver; }
+
 private: // helper functions
 
   void config_solution();
   void config_residual();
+  void config_wavespeed();
 
   void trigger_elements();
-  
+
+  void build_riemann_solver();
+
   RealRowVector to_row_vector(Mesh::CTable<Real>::ConstRow row) const ;
   RealMatrix    to_matrix(Mesh::CMultiStateFieldView::View data) const ;
 
 private: // data
-  
+
   boost::shared_ptr<Mesh::CMultiStateFieldView> m_solution;
   boost::shared_ptr<Mesh::CMultiStateFieldView> m_residual;
+
+  boost::shared_ptr<Mesh::CScalarFieldView> m_wave_speed;
 
   boost::shared_ptr<Reconstruct> m_reconstruct_solution;
   boost::shared_ptr<Reconstruct> m_reconstruct_flux;
 
-  boost::shared_ptr<Flux> m_flux;
-
   boost::weak_ptr<Mesh::CMeshElements> m_mesh_elements;
 
+  boost::shared_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver;
+  boost::weak_ptr<Solver::State> m_sol_state;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

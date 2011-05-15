@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
 #include "Mesh/CField.hpp"
@@ -29,7 +27,7 @@ namespace SFDM {
 Common::ComponentBuilder < ComputeJacobianDeterminant, Solver::Actions::CLoopOperation, LibSFDM > ComputeJacobianDeterminant_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
+
 ComputeJacobianDeterminant::ComputeJacobianDeterminant ( const std::string& name ) :
   Solver::Actions::CLoopOperation(name)
 {

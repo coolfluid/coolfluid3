@@ -51,6 +51,9 @@
 #include "Mesh/Actions/CInitFieldConstant.hpp"
 //#include "Mesh/Actions/CBuildFaceNormals.hpp"
 
+#include "SFDM/ComputeUpdateCoefficient.hpp"
+#include "SFDM/UpdateSolution.hpp"
+
 namespace CF {
 namespace SFDM {
 
@@ -77,16 +80,16 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
     "\n"
     "Spectral Finite Difference Method:\n"
     "";
-    
+
   properties()["description"] = description;
 
 
   // Properties
   property("Domain").as_option().attach_trigger ( boost::bind ( &SFDSolver::trigger_domain,   this ) );
-    
+
   properties().add_option(OptionURI::create("physical_model","Physical Model","cpath:../Physics",URI::Scheme::CPATH))
     ->attach_trigger( boost::bind ( &SFDSolver::trigger_physical_model, this ) );
-    
+
   properties().add_option(OptionURI::create("time","Time","Time tracking component","cpath:../Time",URI::Scheme::CPATH))
     ->attach_trigger( boost::bind ( &SFDSolver::trigger_time, this ) );
 
@@ -105,27 +108,27 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
 
   // create apply boundary conditions action
   m_apply_bcs = m_iterate->create_static_component<CGroupActions>("1_apply_boundary_conditions").mark_basic().as_ptr<CGroupActions>();
-  
+
   // create compute rhs action
   m_compute_rhs = m_iterate->create_static_component<CGroupActions>("2_compute_rhs").mark_basic().as_ptr<CGroupActions>();
-  
+
   // set the compute rhs action
   m_compute_rhs->create_static_component<CInitFieldConstant>("2.1_init_residual")
     .configure_property("Constant",0.)
     .mark_basic()
     .property("Field").as_option().add_tag("residual");
-  
+
   m_compute_rhs->create_static_component<CInitFieldConstant>("2.2_init_wave_speed")
     .configure_property("Constant",Math::MathConsts::eps())
     .mark_basic()
     .property("Field").as_option().add_tag("wave_speed");
-  
+
   Component& for_all_cells =
     m_compute_rhs->create_static_component<CForAllCells>("2.3_for_all_cells").mark_basic();
   Component& compute_rhs_in_cell = for_all_cells.create_static_component<ComputeRhsInCell>("2.3.1_compute_rhs_in_cell").mark_basic();
-  
-  m_compute_update_coefficient = m_iterate->create_static_component_ptr<CGroupActions/*ComputeUpdateCoefficient*/>("3_compute_update_coeff");
-  m_update_solution = m_iterate->create_static_component_ptr<CGroupActions/*UpdateSolution*/>("4_update_solution");
+
+  m_compute_update_coefficient = m_iterate->create_static_component_ptr<ComputeUpdateCoefficient>("3_compute_update_coeff");
+  m_update_solution = m_iterate->create_static_component_ptr<UpdateSolution>("4_update_solution");
   m_iterate->create_static_component_ptr<CAdvanceTime>("5_advance_time");
   m_iterate->create_static_component_ptr<CGroupActions/*OutputIterationInfo*/>("6_output_info");
   m_iterate->create_static_component_ptr<CCriterionTime>("time_stop_criterion");
@@ -177,7 +180,7 @@ void SFDSolver::trigger_domain()
 //    compute_area->execute();
 //    remove_component(compute_area->name());
 //  }
-  
+
   // create/initialize a solution if it is not available
   CField::Ptr solution_ptr = find_component_ptr_with_name<CField>(*mesh,"solution");
   if ( is_null(solution_ptr) )
@@ -185,11 +188,11 @@ void SFDSolver::trigger_domain()
     ///@todo get variable names etc, from Physics
     CFinfo <<  "  Creating field \"solution\", cellbased, with vars Q[1]" << CFendl;
     CField& solution = mesh->create_field("solution",CField::Basis::CELL_BASED,"solution","Q[1]");
-    solution.add_tag("solution"); 
+    solution.add_tag("solution");
   }
 
   CField& solution = find_component_with_name<CField>(*mesh,"solution");
-  m_solution->link_to(solution.self());    
+  m_solution->link_to(solution.self());
 
   Component::Ptr residual_ptr = find_component_ptr_with_tag(*mesh,"residual");
   if ( is_null(residual_ptr) )
@@ -204,8 +207,9 @@ void SFDSolver::trigger_domain()
   if ( is_null(wave_speed_ptr) )
   {
     CFinfo << "  Creating field \"wave_speed\", cellbased" << CFendl;
-    wave_speed_ptr = mesh->create_scalar_field("wave_speed",solution).self();
-    wave_speed_ptr->add_tag("wave_speed");
+    CField& wave_speed = mesh->create_field("wave_speed",CField::Basis::CELL_BASED,"P0","wave_speed[1]");
+    wave_speed.add_tag("wave_speed");
+    wave_speed_ptr = wave_speed.self();
   }
   m_wave_speed->link_to(wave_speed_ptr);
 
@@ -213,8 +217,9 @@ void SFDSolver::trigger_domain()
   if ( is_null(update_coeff_ptr) )
   {
     CFinfo << "  Creating field \"update_coeff\", cellbased" << CFendl;
-    update_coeff_ptr = mesh->create_scalar_field("update_coeff",solution).self();
-    update_coeff_ptr->add_tag("update_coeff");
+    CField& update_coeff = mesh->create_field("update_coeff",CField::Basis::CELL_BASED,"P0","update_coeff[1]");
+    update_coeff.add_tag("update_coeff");
+    update_coeff_ptr = update_coeff.self();
   }
   m_update_coeff->link_to(update_coeff_ptr);
 
@@ -274,13 +279,13 @@ void SFDSolver::solve()
 {
   if ( m_physical_model.expired() == true )
     trigger_physical_model();
-  
+
   if ( m_domain.expired() == true )
     trigger_domain();
 
   if ( m_time.expired() == true )
     trigger_time();
-    
+
   m_iterate->execute();
 }
 
@@ -316,12 +321,12 @@ void SFDSolver::auto_config_fields(Component& parent)
 {
   if ( m_domain.expired() == true )
     trigger_domain();
-  
+
   CMesh& mesh = find_component_recursively<CMesh>(*m_domain.lock());
 
   boost_foreach(CField& field, find_components<CField>(mesh) )
   {
-    parent.configure_option_recursively(field.name(), field.full_path());    
+    parent.configure_option_recursively(field.name(), field.full_path());
   }
 }
 
@@ -330,7 +335,7 @@ void SFDSolver::auto_config_fields(Component& parent)
 void SFDSolver::signal_create_bc( SignalArgs& node )
 {
   SignalOptions options( node );
-  
+
   std::string name = options.option<std::string>("Name");
   std::string builder = options.option<std::string>("builder");
   std::vector<URI> regions_uri = options.array<URI>("Regions");
@@ -366,7 +371,7 @@ void SFDSolver::signature_create_bc( SignalArgs& node )
 //  std::vector<URI> dummy;
 //  // create here the list of restricted surface regions
 //  options.add("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
