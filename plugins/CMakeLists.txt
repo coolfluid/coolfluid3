@@ -28,5 +28,9 @@ add_subdirectory( RDM  )
 coolfluid_define_plugin( SFDM "${CMAKE_CURRENT_SOURCE_DIR}/SFDM" )
 add_subdirectory( SFDM  )
 
+# Physics
+coolfluid_define_plugin( Physics "${CMAKE_CURRENT_SOURCE_DIR}/Physics" )
+add_subdirectory( Physics  )
+
 # Plugins for the UI
 add_subdirectory( UI )
