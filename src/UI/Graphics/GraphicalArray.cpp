@@ -91,8 +91,7 @@ bool GraphicalArray::setValue(const QVariant & value)
     {
       list = value.toString().split("@@");
       list.removeAll(QString());
-      m_originalValue = list;
-      m_model->setStringList(list);
+//      m_model->setStringList(list);
     }
 
   }
@@ -124,6 +123,7 @@ bool GraphicalArray::setValue(const QVariant & value)
   success = invalidValues.empty();
 
   list.removeDuplicates();
+  m_originalValue = list;
   m_model->setStringList(list);
 
   if(!success)
