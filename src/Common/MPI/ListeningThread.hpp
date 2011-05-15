@@ -57,7 +57,7 @@ namespace mpi {
 
   /// @author Quentin Gasper
 
-  class ListeningThread
+  class Common_API ListeningThread
   {
   public: // data
 

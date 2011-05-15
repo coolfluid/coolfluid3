@@ -11,7 +11,7 @@
 
 #include <mpi.h>
 
-#include "Common/CF.hpp"
+#include "Common/CommonAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@ namespace mpi {
 
   /// @author Quentin Gasper
 
-  struct ListeningInfo
+  struct Common_API ListeningInfo
   {
   public:
 
