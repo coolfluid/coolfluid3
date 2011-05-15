@@ -208,12 +208,12 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
         compute_tau(u, tau),
         element_quadrature <<
         (
-          _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau.ps * transpose(nabla(p)[_i]) * advection(u), // Standard continuity + PSPG for advection
+          _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau.ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
           _A(p    , p)     += tau.ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
-          _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u) + tau.su*advection(u)) * advection(u),     // Diffusion + advection
-          _A(u[_i], p)     += 1./rho * transpose(N(u) + tau.su*advection(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
+          _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u) + tau.su*u*nabla(u)) * u*nabla(u),     // Diffusion + advection
+          _A(u[_i], p)     += 1./rho * transpose(N(u) + tau.su*u*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
           _T(p    , u[_i]) += tau.ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
-          _T(u[_i], u[_i]) += invdt  * transpose(N(u) + tau.su*advection(u))         * N(u)          // Time, standard
+          _T(u[_i], u[_i]) += invdt  * transpose(N(u) + tau.su*u*nabla(u))         * N(u)          // Time, standard
         ),
         system_matrix(lss) += invdt * _T + 1.0 * _A,
         system_rhs(lss) -= _A * _b

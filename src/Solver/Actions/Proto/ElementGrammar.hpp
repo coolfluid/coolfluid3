@@ -28,6 +28,7 @@ struct ElementMathBase :
   boost::proto::or_
   <
     SFOps,
+    NodalValues,
     boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
     <
       boost::proto::function<FieldTypes, boost::proto::_>,

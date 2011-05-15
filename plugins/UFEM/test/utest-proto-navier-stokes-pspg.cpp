@@ -179,9 +179,9 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesPSPG )
         compute_tau(u, u_ref, nu, tau_ps),
         element_quadrature <<
         (
-          _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * advection(u), // Standard continuity + PSPG for advection
+          _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
           _A(p    , p)     += tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
-          _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u)) * advection(u),     // Diffusion + advection
+          _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u)) * u*nabla(u),     // Diffusion + advection
           _A(u[_i], p)     += 1./rho * transpose(N(u))         * nabla(p)[_i], // Pressure gradient
           _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
           _T(u[_i], u[_i]) += transpose(N(u))         * N(u)          // Time, standard

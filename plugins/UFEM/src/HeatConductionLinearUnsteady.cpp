@@ -49,7 +49,7 @@ void HeatConductionLinearUnsteady::add_actions()
         _T(temperature) += transpose(N(temperature))*N(temperature)
       ),
       system_matrix( lss() ) += invdt() * _T + 0.5 * _A,
-      system_rhs( lss() )    += (boost::proto::lit(alpha) / k) * _T * heat - _A * temperature
+      system_rhs( lss() )    += (boost::proto::lit(alpha) / k) * _T * nodal_values(heat) - _A * nodal_values(temperature)
     )
   );
 }

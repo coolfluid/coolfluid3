@@ -25,8 +25,21 @@ struct WrappableElementExpressions :
 {
 };
 
+template<typename I, typename J>
+struct LazyIndexedGrammar :
+  boost::proto::or_
+  <
+    IndexValues<I, J>,
+    FieldInterpolation,
+    ElementMathBase,
+    ElementMatrixGrammarIndexed<I, J>,
+    EigenMath<boost::proto::call< LazyIndexedGrammar<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >
+  >
+{
+};
+
 /// Less restricitve grammar to get the result of expressions that are in an integral as well
-struct LazyElementGrammar : ElementMathIndexed< boost::mpl::int_<0>, boost::mpl::int_<0> >
+struct LazyElementGrammar : LazyIndexedGrammar< boost::mpl::int_<0>, boost::mpl::int_<0> >
 {
 };
 

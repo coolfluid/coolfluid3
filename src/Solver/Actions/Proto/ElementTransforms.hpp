@@ -56,6 +56,22 @@ struct SFOps :
 {
 };
 
+struct NodalValuesTag
+{
+};
+
+static boost::proto::terminal<NodalValuesTag>::type const nodal_values = {};
+
+/// Get nodal values
+struct NodalValues :
+  boost::proto::when
+  <
+    boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,
+    VarValue(boost::proto::_value(boost::proto::_child1))
+  >
+{
+};
+
 /// Interpolate a field at the current gauss point
 struct FieldInterpolation :
   boost::proto::when

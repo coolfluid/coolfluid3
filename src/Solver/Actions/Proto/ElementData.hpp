@@ -365,20 +365,6 @@ public:
     return m_gradient;
   }
   
-  /// Return the advection operator
-  const typename SF::ShapeFunctionsT& advection(const MappedCoordsT& mapped_coords) const
-  {
-    SF::shape_function_value(mapped_coords, m_sf);
-    m_advection = m_sf * m_element_values * gradient(mapped_coords, m_support);
-    return m_advection;
-  }
-  
-  /// Previously calculated advection operator
-  const typename SF::ShapeFunctionsT& advection() const
-  {
-    return m_advection;
-  }
-  
 private:
   /// Precompute for non-volume SF
   void compute_values_dispatch(boost::mpl::false_, const MappedCoordsT& mapped_coords) const
@@ -393,16 +379,6 @@ private:
     compute_values_dispatch(boost::mpl::false_(), mapped_coords);
     SF::shape_function_gradient(mapped_coords, m_mapped_gradient_matrix);
     m_gradient.noalias() = m_support.jacobian_inverse() * m_mapped_gradient_matrix;
-    compute_advection(boost::mpl::bool_<Dim == SF::dimension>());
-  }
-  
-  void compute_advection(boost::mpl::true_) const
-  {
-    m_advection = m_eval.stored_result * m_gradient;
-  }
-  
-  void compute_advection(boost::mpl::false_) const
-  {
   }
   
   /// Value of the field in each element node
@@ -426,7 +402,6 @@ private:
   mutable typename SF::ShapeFunctionsT m_sf;
   mutable typename SF::MappedGradientT m_mapped_gradient_matrix;
   mutable GradientT m_gradient;
-  mutable typename SF::ShapeFunctionsT m_advection;
   
   /// Interpolation of a field
   template<Uint VarDim, int Dummy>

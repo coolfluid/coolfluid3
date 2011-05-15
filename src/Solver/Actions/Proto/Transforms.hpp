@@ -232,12 +232,6 @@ struct MathTerminals :
     <
       MatVec,
       boost::proto::_value
-    >,
-    // Value of numbered variables
-    boost::proto::when
-    <
-      boost::proto::terminal< Var< boost::proto::_, boost::proto::_ > >,
-      VarValue(boost::proto::_value)
     >
   >
 {

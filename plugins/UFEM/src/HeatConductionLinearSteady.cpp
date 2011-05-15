@@ -50,7 +50,7 @@ void HeatConductionLinearSteady::add_actions()
         _T(temperature) += transpose(N(temperature))*N(temperature)
       ),
       system_matrix( lss() ) +=  _A,
-      system_rhs( lss() ) += _T * heat
+      system_rhs( lss() ) += _T * nodal_values(heat)
     )
   );
 }

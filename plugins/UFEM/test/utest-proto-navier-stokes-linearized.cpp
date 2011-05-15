@@ -184,13 +184,13 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLinearized )
         compute_tau(u, tau),
         element_quadrature <<
         (
-          _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau.ps * transpose(nabla(p)[_i]) * advection(u_adv), // Standard continuity + PSPG for advection
+          _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau.ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
           _A(p    , p)     += tau.ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
-          _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u) + tau.su*advection(u_adv)) * advection(u_adv),     // Diffusion + advection
-          _A(u[_i], p)     += 1./rho * transpose(N(u) + tau.su*advection(u_adv)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
+          _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u) + tau.su*u_adv*nabla(u)) * u_adv*nabla(u),     // Diffusion + advection
+          _A(u[_i], p)     += 1./rho * transpose(N(u) + tau.su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
           _A(u[_i], u[_j]) += tau.bulk * transpose(nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity
           _T(p    , u[_i]) += tau.ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
-          _T(u[_i], u[_i]) += transpose(N(u) + tau.su*advection(u_adv))         * N(u)          // Time, standard
+          _T(u[_i], u[_i]) += transpose(N(u) + tau.su*u_adv*nabla(u))         * N(u)          // Time, standard
         ),
         system_matrix(lss) += invdt * _T + 1.0 * _A,
         system_rhs(lss) -= _A * _b

@@ -432,6 +432,34 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   BOOST_CHECK_EQUAL(result_ij, 12);
 }
 
+BOOST_AUTO_TEST_CASE( VectorMultiplication )
+{
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("QuadGrid2");
+  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
+  
+  MeshTerm<0, VectorField> u("Velocity", "u");
+  
+  PhysicalModel physical_model;
+  physical_model.register_variable(u, true);
+  physical_model.create_fields(*mesh);
+  
+  for_each_node
+  (
+    mesh->topology(),
+    u = coordinates
+  );
+  
+  RealVector4 result;
+  
+  for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
+  (
+    mesh->topology(),
+    element_quadrature(boost::proto::lit(result) += u*nabla(u))
+  );
+  
+  std::cout << result << std::endl;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

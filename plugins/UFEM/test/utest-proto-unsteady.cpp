@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
           _T(temperature) += invdt * transpose(N(temperature))*N(temperature)
         ),
         system_matrix(lss) += _T + 0.5 * _A,
-        system_rhs(lss) -= _A * temperature
+        system_rhs(lss) -= _A * nodal_values(temperature)
       )
     );
     

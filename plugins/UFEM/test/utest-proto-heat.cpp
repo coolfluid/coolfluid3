@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
       _A(temperature) = integral<1>( k * transpose(nabla(temperature)) * nabla(temperature) * jacobian_determinant ),
       _T(temperature) = integral<1>( jacobian_determinant * transpose(N(temperature))*N(temperature) ),
       system_matrix(lss) += _A,
-      system_rhs(lss) += _T * heat
+      system_rhs(lss) += _T * nodal_values(heat)
     )
   );
   

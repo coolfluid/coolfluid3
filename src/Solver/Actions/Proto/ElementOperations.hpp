@@ -278,30 +278,6 @@ struct NablaOp : boost::proto::transform< NablaOp >
   };
 };
 
-/// Advection
-struct AdvectionOp : boost::proto::transform< AdvectionOp >
-{
-  template<typename VarDataT>
-  struct ResultType
-  {
-    typedef const typename VarDataT::SF::ShapeFunctionsT& type;
-  };
-  
-  template<typename ExprT, typename StateT, typename DataT>
-  struct impl : MappedVarOpBase<ExprT, StateT, DataT, impl<ExprT, StateT, DataT>, ResultType>
-  {
-    static typename impl::result_type apply(const typename impl::SupportT& support, const typename impl::VarDataT& data)
-    {
-      return data.advection();
-    }
-    
-    static typename impl::result_type apply(const typename impl::SupportT& support, const typename impl::VarDataT& data, const typename impl::MappedCoordsT& mapped_coords)
-    {
-      return data.advection(mapped_coords);
-    }
-  };
-};
-
 /// Shape functions
 struct ShapeFunctionOp : boost::proto::transform< ShapeFunctionOp >
 {
@@ -324,156 +300,6 @@ struct ShapeFunctionOp : boost::proto::transform< ShapeFunctionOp >
       return data.shape_function(mapped_coords);
     }
   };
-};
-
-template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-struct LaplacianElmOp
-{ 
-  /// Type of the element matrix
-  typedef Eigen::Matrix<Real, Dim*SF::nb_nodes, MatrixSize> MatrixT;
-  typedef const MatrixT& result_type;
-  
-  template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
-  {
-    matrix.setZero();
-    const typename SF::MappedGradientT& grad = data.nabla();
-    const Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> m = grad.transpose() * grad;
-    for(Uint d = 0; d != Dim; ++d)
-    {
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(SF::nb_nodes*d, Offset+SF::nb_nodes*d).noalias() = m;
-    }
-    return matrix;
-  }
-};
-
-/// Specialization for scalars
-template<typename SF, Uint Offset, Uint MatrixSize>
-struct LaplacianElmOp<SF, 1, Offset, MatrixSize>
-{ 
-  /// Type of the element matrix
-  typedef Eigen::Matrix<Real, SF::nb_nodes, MatrixSize> MatrixT;
-  typedef const MatrixT& result_type;
-  
-  template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
-  {
-    matrix.setZero();
-    const typename SF::MappedGradientT& grad = data.nabla();
-    matrix.template block<SF::nb_nodes, SF::nb_nodes>(0, Offset).noalias() = grad.transpose() * grad;
-    return matrix;
-  }
-};
-
-/// Element matrix when the variable value is integrated, i.e. the outer product of the SF with itself
-template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-struct ValueElmOp
-{
-  /// Type of the element matrix
-  typedef Eigen::Matrix<Real, Dim*SF::nb_nodes, MatrixSize> MatrixT;
-  typedef const MatrixT& result_type;
-  
-  template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
-  {
-    matrix.setZero();
-    const typename SF::ShapeFunctionsT& sf = data.shape_function();
-    Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> m = sf.transpose() * sf;
-    for(Uint d = 0; d != Dim; ++d)
-    {
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(SF::nb_nodes*d, Offset+SF::nb_nodes*d).noalias() = m;
-    }
-    return matrix;
-  }
-};
-
-/// Specialization for scalars
-template<typename SF, Uint Offset, Uint MatrixSize>
-struct ValueElmOp<SF, 1, Offset, MatrixSize>
-{
-  /// Type of the element matrix
-  typedef Eigen::Matrix<Real, SF::nb_nodes, MatrixSize> MatrixT;
-  typedef const MatrixT& result_type;
-  
-  template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
-  {
-    matrix.setZero();
-    const typename SF::ShapeFunctionsT& sf = data.shape_function();
-    matrix.template block<SF::nb_nodes, SF::nb_nodes>(0, Offset).noalias() = sf.transpose() * sf;
-    return matrix;
-  }
-};
-
-/// Gradient (scalars only)
-template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-struct GradientElmOp;
-
-/// Specialization for scalars
-template<typename SF, Uint Offset, Uint MatrixSize>
-struct GradientElmOp<SF, 1, Offset, MatrixSize>
-{
-  /// Type of the element matrix
-  typedef Eigen::Matrix<Real, SF::nb_nodes * SF::dimension, MatrixSize> MatrixT;
-  typedef const MatrixT& result_type;
-  
-  template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
-  {
-    matrix.setZero();
-    const typename SF::ShapeFunctionsT& sf = data.shape_function();
-    const typename SF::MappedGradientT& gradient_matrix = data.nabla();
-    for(Uint i = 0; i != SF::dimension; ++i)
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, Offset).noalias() = sf.transpose() * gradient_matrix.row(i);
-    return matrix;
-  }
-};
-
-/// Divergence
-template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-struct DivergenceElmOp
-{
-  // Divergence only makes sense for vectors with the dimension of the problem
-  BOOST_MPL_ASSERT_RELATION( SF::dimension, ==, Dim );
-  
-  /// Type of the element matrix
-  typedef Eigen::Matrix<Real, SF::nb_nodes, MatrixSize> MatrixT;
-  typedef const MatrixT& result_type;
-  
-  template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
-  {
-    matrix.setZero();
-    const typename SF::ShapeFunctionsT& sf = data.shape_function();
-    const typename SF::MappedGradientT& gradient_matrix = data.nabla();
-    for(Uint i = 0; i != SF::dimension; ++i)
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(0, i*SF::nb_nodes).noalias() = sf.transpose() * gradient_matrix.row(i);
-    return matrix;
-  }
-};
-
-/// Advection
-template<typename SF, Uint Dim, Uint Offset, Uint MatrixSize>
-struct AdvectionElmOp
-{
-  BOOST_MPL_ASSERT_RELATION( SF::dimension, ==, Dim );
-  
-  /// Type of the element matrix
-  typedef Eigen::Matrix<Real, Dim*SF::nb_nodes, MatrixSize> MatrixT;
-  typedef const MatrixT& result_type;
-  
-  template<typename SupportT, typename VarDataT, typename StateT>
-  result_type operator()(MatrixT& matrix, const SupportT& support, const VarDataT& data, const StateT& state) const
-  {
-    matrix.setZero();
-    const typename SF::ShapeFunctionsT& sf = data.shape_function();
-    const typename SF::MappedGradientT& gradient_matrix = data.nabla();
-    // The advection operator, pre-multiplied with the weight functions (sf)
-    const Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> advection_op = sf.transpose() * (sf * data.value() * gradient_matrix);
-    for(Uint i = 0; i != SF::dimension; ++i)
-      matrix.template block<SF::nb_nodes, SF::nb_nodes>(i*SF::nb_nodes, i*SF::nb_nodes).noalias() = advection_op;
-    return matrix;
-  }
 };
 
 /// Operation with a custom implementation
@@ -656,15 +482,8 @@ boost::proto::terminal< SFOp<JacobianOp> >::type const jacobian = {};
 boost::proto::terminal< SFOp<JacobianDeterminantOp> >::type const jacobian_determinant = {};
 boost::proto::terminal< SFOp<NormalOp> >::type const normal = {};
 boost::proto::terminal< SFOp<NablaOp> >::type const nabla = {};
-boost::proto::terminal< SFOp<AdvectionOp> >::type const advection = {};
 
 boost::proto::terminal< SFOp<ShapeFunctionOp> >::type const N = {};
-
-// MakeSFOp<GradientElmOp>::type gradient_elm = {};
-// MakeSFOp<DivergenceElmOp>::type divergence_elm = {};
-// MakeSFOp<LaplacianElmOp>::type laplacian_elm = {};
-// MakeSFOp<ValueElmOp>::type value_elm = {};
-// MakeSFOp<AdvectionElmOp>::type advection_elm = {};
 
 } // namespace Proto
 } // namespace Actions
