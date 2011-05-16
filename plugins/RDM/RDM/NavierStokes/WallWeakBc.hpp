@@ -171,7 +171,7 @@ public: // functions
  /// execute the action
  void executeT ()
  {
-   // std::cout << "Face [" << B::idx() << "]" << std::endl;
+//    std::cout << "Face [" << B::idx() << "]" << std::endl;
 
    // get face connectivity
 
@@ -207,11 +207,6 @@ public: // functions
 
    for(Uint q=0; q < QD::nb_points; ++q)
    {
-//    std::cout << "Gradient of face shape functions: " << std::endl;
-//    std::cout << dNdKSI << std::endl;
-//    std::cout << "nr. of rows = " << dNdKSI.rows() << std::endl;
-//    std::cout << "nr. of cols = " << dNdKSI.cols() << std::endl;
-
     const Real jacob = std::sqrt( dX_q(q,XX)*dX_q(q,XX)+dX_q(q,YY)*dX_q(q,YY) );
 
     wj[q] = jacob * m_quadrature.weights[q];
@@ -220,8 +215,6 @@ public: // functions
 
     dN[XX] = -dX_q(q,YY)/jacob;
     dN[YY] =  dX_q(q,XX)/jacob;
-
-//    std::cout << "n (generic) [" << nx << "," << ny << "]" << std::endl;
 
     // compute the flux F(u_h) and its correction F(u_g)
 
@@ -236,27 +229,40 @@ public: // functions
                U_q.row(q),
                Fu_h);
 
-    // std::cout << "Fu_h [" << Fu_h_x << "," << Fu_h_y << "]" << std::endl;
-
     // compute the reflection matrix
 
-    RM(1,1) = 1. - 2*dN[XX]*dN[XX];
-    RM(1,2) =    - 2*dN[XX]*dN[YY];
-    RM(2,1) =    - 2*dN[YY]*dN[XX];
-    RM(2,2) = 1. - 2*dN[YY]*dN[YY];
+//    RM(1,1) = 1. - 2*dN[XX]*dN[XX];
+//    RM(1,2) =    - 2*dN[XX]*dN[YY];
+//    RM(2,1) =    - 2*dN[YY]*dN[XX];
+//    RM(2,2) = 1. - 2*dN[YY]*dN[YY];
+
+//    RM(1,1) = dN[YY]*dN[YY] - dN[XX]*dN[XX];
+//    RM(1,2) = -2.*dN[XX]*dN[YY];
+//    RM(2,1) = -2.*dN[XX]*dN[YY];
+//    RM(2,2) = dN[XX]*dN[XX] - dN[YY]*dN[YY];
+
+    RM(1,1) =  dN[YY]*dN[YY];
+    RM(1,2) = -dN[XX]*dN[YY];
+    RM(2,1) = -dN[XX]*dN[YY];
+    RM(2,2) =  dN[XX]*dN[XX];
 
     // reflect the current solution on the wall to get the ghost solution
+
 
     u_g = RM * U_q.row(q).transpose();
 
     // compute the flux according to the ghost solution u_g
 
+    PHYS::compute_properties(X_q.row(q),
+                             u_g,
+                             dUdX[XX].row(q).transpose(),
+                             dUdX[YY].row(q).transpose(),
+                             B::phys_props);
+
     PHYS::flux(B::phys_props,
                X_q.row(q),
                u_g,
                Fu_g);
-
-    // std::cout << "Fu_g [" << Fu_g_x << "," << Fu_g_y << "]" << std::endl;
 
     for(Uint n=0; n < SF::nb_nodes; ++n)
       for(Uint v=0; v < PHYS::neqs; ++v)

@@ -53,7 +53,23 @@ SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
        ->add_tag("solution");
 
   m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_mesh, this ) );
+
+  m_properties.add_option< OptionT<std::string> > ("p_out", "Outlet pressure (vars x,y)", std::string() )
+      ->attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_pressure_function, this ) )
+      ->mark_basic();
+
+  pressure_function.variables("x,y,z");
+
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void SubsonicOutFlowWeakBc::config_pressure_function()
+{
+  pressure_function.functions( m_properties["p_out"].value< std::string >() );
+  pressure_function.parse();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

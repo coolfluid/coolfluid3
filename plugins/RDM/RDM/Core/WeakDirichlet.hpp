@@ -189,7 +189,7 @@ public: // functions
  /// execute the action
  void executeT ()
  {
-   // std::cout << "Face [" << B::idx() << "]" << std::endl;
+//    std::cout << "Face [" << B::idx() << "]" << std::endl;
 
    // get face connectivity
 
@@ -325,7 +325,11 @@ public: // functions
                U_q.row(q),
                Fu_h);
 
-    // std::cout << "Fu_h [" << Fu_h_x << "," << Fu_h_y << "]" << std::endl;
+//     std::cout << "U_q =\n " << U_q.row(q) << std::endl;
+//     std::cout << "Fu_h[XX] =" << std::endl;
+//     std::cout <<  Fu_h.col(XX) << std::endl;
+//     std::cout << "Fu_h[YY] =" << std::endl;
+//     std::cout <<  Fu_h.col(XX) << std::endl;
 
     vars[XX] = X_q(q,XX);
     vars[YY] = X_q(q,YY);
@@ -333,12 +337,23 @@ public: // functions
 
     this->parent().as_type<WeakDirichlet>().function.evaluate(vars,return_val);
 
+    PHYS::compute_properties(X_q.row(q),
+                             return_val,
+                             dUdX[XX].row(q).transpose(),
+                             dUdX[YY].row(q).transpose(),
+                             B::phys_props);
+
     PHYS::flux(B::phys_props,
                X_q.row(q),
                return_val,
                Fu_g);
 
-    // std::cout << "Fu_g [" << Fu_g_x << "," << Fu_g_y << "]" << std::endl;
+//     std::cout << "Prescribed value =\n " << return_val << std::endl;
+//     std::cout << "Fu_g[XX] =" << std::endl;
+//     std::cout <<  Fu_g.col(XX) << std::endl;
+//     std::cout << "Fu_g[YY] =" << std::endl;
+//     std::cout <<  Fu_g.col(XX) << std::endl;
+//     std::cin.get();
 
     for(Uint n=0; n < SF::nb_nodes; ++n)
       for(Uint v=0; v < PHYS::neqs; ++v)

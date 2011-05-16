@@ -9,6 +9,8 @@
 
 #include <iostream> // to remove
 
+#include "Math/VectorialFunction.hpp"
+
 #include "RDM/Core/BoundaryTerm.hpp"
 #include "RDM/Core/BcBase.hpp"
 
@@ -50,11 +52,15 @@ public: // functions
 private: // helper functions
 
   void config_mesh();
+  void config_pressure_function();
 
 public: // data
 
   /// access to the solution field on the mesh
   boost::weak_ptr<Mesh::CField> solution;
+
+  /// function parser to set the value of pressure
+  Math::VectorialFunction  pressure_function;
 
 }; // !SubsonicOutFlowWeakBc
 
@@ -99,12 +105,21 @@ public: // functions
         dNdKSI(q,n) = GradSF[n];
      }
 
+   vars.resize(DIM_3D);
+   p_out.resize(1);
+
  }
 
  /// Get the class name
  static std::string type_name () { return "SubsonicOutFlowWeakBc.BC<" + SF::type_name() + ">"; }
 
 protected: // data
+
+ /// variables to pass to vectorial function
+ std::vector<Real> vars;
+
+ /// Values used to compute ghost state
+ RealVector p_out;
 
  /// helper object to compute the quadrature information
  const QD& m_quadrature;
@@ -224,24 +239,31 @@ public: // functions
                U_q.row(q),
                Fu_h);
 
-    // std::cout << "Fu_h [" << Fu_h_x << "," << Fu_h_y << "]" << std::endl;
+    vars[XX] = X_q(q,XX);
+    vars[YY] = X_q(q,YY);
+    vars[ZZ] = 0.0;
 
+    this->parent().as_type<SubsonicOutFlowWeakBc>().pressure_function.evaluate(vars,p_out);
 
-    // compute the flux according to the ghost solution u_g
+//    std::cout << "The value of boundary pressure = " << p_out[0] << std::endl;
+//    std::cin.get();
 
-   const Real p_out = 1000.;
+    u_g[0] = U_q(q,0);
+    u_g[1] = U_q(q,1);
+    u_g[2] = U_q(q,2);
+    u_g[3] = p_out[0]/(B::phys_props.gamma-1.) + 0.5/U_q(q,0)*( U_q(q,1)*U_q(q,1)+U_q(q,2)*U_q(q,2) );
 
-   u_g[0] = U_q(q,0);
-   u_g[1] = U_q(q,1);
-   u_g[2] = U_q(q,2);
-   u_g[3] = p_out/(B::phys_props.gamma-1.) + 0.5/U_q(q,0)*( U_q(q,1)*U_q(q,1)+U_q(q,2)*U_q(q,2) );
+    PHYS::compute_properties(X_q.row(q),
+                             u_g,
+                             dUdX[XX].row(q).transpose(),
+                             dUdX[YY].row(q).transpose(),
+                             B::phys_props);
+
 
     PHYS::flux(B::phys_props,
                X_q.row(q),
                u_g,
                Fu_g);
-
-    // std::cout << "Fu_g [" << Fu_g_x << "," << Fu_g_y << "]" << std::endl;
 
     for(Uint n=0; n < SF::nb_nodes; ++n)
       for(Uint v=0; v < PHYS::neqs; ++v)

@@ -9,6 +9,8 @@
 
 #include <iostream> // to remove
 
+#include "Math/VectorialFunction.hpp"
+
 #include "RDM/Core/BoundaryTerm.hpp"
 #include "RDM/Core/BcBase.hpp"
 
@@ -50,11 +52,17 @@ public: // functions
 private: // helper functions
 
   void config_mesh();
+  void config_density_function();
+  void config_velocity_function();
 
 public: // data
 
   /// access to the solution field on the mesh
   boost::weak_ptr<Mesh::CField> solution;
+
+  /// function parser to set the value of density and velocity
+  Math::VectorialFunction  density_function;
+  Math::VectorialFunction  velocity_function;
 
 }; // !SubsonicInFlowWeakBc
 
@@ -99,12 +107,26 @@ public: // functions
         dNdKSI(q,n) = GradSF[n];
      }
 
+     vars.resize(DIM_3D);
+     rho_in.resize(1);
+     vel_in.resize(DIM_3D);
  }
 
  /// Get the class name
  static std::string type_name () { return "SubsonicInFlowWeakBc.BC<" + SF::type_name() + ">"; }
 
 protected: // data
+
+ /// variables to pass to vectorial function
+ std::vector<Real> vars;
+
+ /// Values used to compute ghost state
+ /// @remark rho_in is a RealVector because
+ /// that's required by VectorialFunction density_function
+ /// Is there a ScalarFunction as well??? Didn't find it.
+ /// Same problem for p_out in SubsonicOutFlowWeakBc. Martin
+ RealVector rho_in;
+ RealVector vel_in;
 
  /// helper object to compute the quadrature information
  const QD& m_quadrature;
@@ -224,28 +246,35 @@ public: // functions
                U_q.row(q),
                Fu_h);
 
-    // std::cout << "Fu_h [" << Fu_h_x << "," << Fu_h_y << "]" << std::endl;
-
-
     // compute the flux according to the ghost solution u_g
 
-   const Real rho_inf = 1.;
-   const Real u_inf   = 100.;
-   const Real v_inf   = 0.;
-   const Real p = (B::phys_props.gamma-1.)*( U_q(q,3) - 0.5/U_q(q,0)*( U_q(q,1)*U_q(q,1)+U_q(q,2)*U_q(q,2) ) );
+    vars[XX] = X_q(q,XX);
+    vars[YY] = X_q(q,YY);
+    vars[ZZ] = 0.0;
 
-   u_g[0] = rho_inf;
-   u_g[1] = rho_inf*u_inf;
-   u_g[2] = rho_inf*v_inf;
-   u_g[3] = p/(B::phys_props.gamma-1.)*( 0.5*rho_inf*(u_inf*u_inf+v_inf*v_inf) );
+    this->parent().as_type<SubsonicInFlowWeakBc>().density_function.evaluate(vars,rho_in);
+    this->parent().as_type<SubsonicInFlowWeakBc>().velocity_function.evaluate(vars,vel_in);
 
+//    std::cout << "The value rho_in = " << rho_in[0] << std::endl;
+//    std::cout << "The value vel_in = " << vel_in[XX] << "," << vel_in[YY] << std::endl;
+//    std::cin.get();
+
+    u_g[0] = rho_in[0];
+    u_g[1] = rho_in[0]*vel_in[XX];
+    u_g[2] = rho_in[0]*vel_in[YY];
+    u_g[3] = B::phys_props.P/(B::phys_props.gamma-1.)
+                   + 0.5*rho_in[0]*(vel_in[XX]*vel_in[XX]+vel_in[YY]*vel_in[YY]);
+
+    PHYS::compute_properties(X_q.row(q),
+                             u_g,
+                             dUdX[XX].row(q).transpose(),
+                             dUdX[YY].row(q).transpose(),
+                             B::phys_props);
 
     PHYS::flux(B::phys_props,
                X_q.row(q),
                u_g,
                Fu_g);
-
-    // std::cout << "Fu_g [" << Fu_g_x << "," << Fu_g_y << "]" << std::endl;
 
     for(Uint n=0; n < SF::nb_nodes; ++n)
       for(Uint v=0; v < PHYS::neqs; ++v)

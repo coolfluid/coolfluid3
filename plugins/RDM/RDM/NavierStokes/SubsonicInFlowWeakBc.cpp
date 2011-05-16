@@ -53,6 +53,34 @@ SubsonicInFlowWeakBc::SubsonicInFlowWeakBc ( const std::string& name ) :
        ->add_tag("solution");
 
   m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_mesh, this ) );
+
+  m_properties.add_option< OptionT<std::string> > ("rho_in", "Inlet density (vars x,y)", std::string() )
+      ->attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_density_function, this ) )
+      ->mark_basic();
+
+  density_function.variables("x,y,z");
+
+  m_properties.add_option< OptionArrayT<std::string> > ("vel_in", "Inlet velocity (vars x,y)", std::vector<std::string>())
+      ->attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_velocity_function, this ) )
+      ->mark_basic();
+
+  velocity_function.variables("x,y,z");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void SubsonicInFlowWeakBc::config_density_function()
+{
+  density_function.functions( m_properties["rho_in"].value< std::string >() );
+  density_function.parse();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void SubsonicInFlowWeakBc::config_velocity_function()
+{
+  velocity_function.functions( m_properties["vel_in"].value< std::vector<std::string> >() );
+  velocity_function.parse();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

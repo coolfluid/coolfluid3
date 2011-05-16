@@ -62,7 +62,7 @@ struct sinusbump_global_fixture
                                                              ("../../../dso");
     loader.set_search_paths(lib_paths);
 
-    loader.load_library("coolfluid_mesh_neu");
+    loader.load_library("coolfluid_mesh_neutral");
     loader.load_library("coolfluid_mesh_gmsh");
     loader.load_library("coolfluid_mesh_tecplot");
     loader.load_library("coolfluid_mesh_vtklegacy");
@@ -134,7 +134,8 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , sinusbump_local_fixture )
 
   std::vector<URI> files;
 
-  URI file( "file:sinusbump-tg-p1-90.msh" );
+  //URI file( "file:sinusbump-tg-p1.msh" );
+  URI file( "file:bump_test.msh" );
 
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::FILE;
@@ -156,8 +157,8 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , sinusbump_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 0.25);
-  solver.get_child("time_stepping").configure_property("MaxIter", 10u);
+  solver.get_child("time_stepping").configure_property("CFL", 0.1);
+  solver.get_child("time_stepping").configure_property("MaxIter", 50u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -178,7 +179,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , sinusbump_local_fix
   std::string name ("INLET");
 
   options.add<std::string>("Name",name);
-  options.add<std::string>("Type","CF.RDM.Core.WeakDirichlet");
+  options.add<std::string>("Type","CF.RDM.Core.SubsonicInFlowWeakBc");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
@@ -186,14 +187,77 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , sinusbump_local_fix
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   BOOST_CHECK( is_not_null(inletbc) );
 
-  std::vector<std::string> fns(4);
+  std::string bc_density = "1.0";
+//  std::string bc_density = "1.20399";
+  inletbc->configure_property("rho_in", bc_density);
 
-  fns[0] = "0.0";
-  fns[1] = "0.0";
-  fns[2] = "0.0";
-  fns[3] = "0.0";
+  std::vector<std::string> bc_velocity(2);
+  bc_velocity[XX] = "100.0";
+//  bc_velocity[XX] = "172.0197011603";
+  bc_velocity[YY] = "0.0";
+  inletbc->configure_property("vel_in", bc_velocity);
 
-  inletbc->configure_property("Functions", fns);
+  BOOST_CHECK(true);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , sinusbump_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  SignalFrame frame;
+  SignalOptions options( frame );
+
+  std::vector<URI> regions;
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"outlet"))
+    regions.push_back( region.full_path() );
+
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
+
+  std::string name ("OUTLET");
+
+  options.add<std::string>("Name",name);
+  options.add<std::string>("Type","CF.RDM.Core.SubsonicOutFlowWeakBc");
+  options.add("Regions", regions, " ; ");
+
+  solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
+
+  Component::Ptr outletbc = find_component_ptr_recursively_with_name( solver, name );
+  BOOST_CHECK( is_not_null(outletbc) );
+
+  std::string bc_pressure = "1000.0";
+//  std::string bc_pressure = "101325.216916";
+  outletbc->configure_property("p_out", bc_pressure);
+
+  BOOST_CHECK(true);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_wall , sinusbump_local_fixture )
+{
+  BOOST_CHECK(true);
+
+  SignalFrame frame;
+  SignalOptions options( frame );
+
+  std::vector<URI> regions;
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"wall"))
+    regions.push_back( region.full_path() );
+
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
+
+  std::string name ("WALL");
+
+  options.add<std::string>("Name",name);
+  options.add<std::string>("Type","CF.RDM.Core.WallWeakBc");
+  options.add("Regions", regions, " ; ");
+
+  solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
+
+  Component::Ptr wallbc = find_component_ptr_recursively_with_name( solver, name );
+  BOOST_CHECK( is_not_null(wallbc) );
 
   BOOST_CHECK(true);
 }
@@ -209,10 +273,15 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , sinusbump_local_fixture )
 
   std::vector<std::string> fns(4);
 
-  fns[0] = "1.0";
-  fns[1] = "1.0";
+  fns[0] = "1.5";
+  fns[1] = "100.0";
   fns[2] = "0.0";
-  fns[3] = "1.0";
+  fns[3] = "7500.0";
+
+//  fns[0] = "1.20399";
+//  fns[1] = "172.0197011603";
+//  fns[2] = "0.0";
+//  fns[3] = "265601.6732534";
 
   options.add<std::string>("Functions", fns, " ; ");
 
