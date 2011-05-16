@@ -134,8 +134,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , sinusbump_local_fixture )
 
   std::vector<URI> files;
 
-  //URI file( "file:sinusbump-tg-p1.msh" );
-  URI file( "file:bump_test.msh" );
+  URI file( "file:sinusbump-tg-p1.msh" );
 
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::FILE;
