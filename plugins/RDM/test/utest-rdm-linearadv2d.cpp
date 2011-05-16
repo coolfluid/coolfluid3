@@ -51,7 +51,7 @@ struct linearadv2d_global_fixture
 {
   linearadv2d_global_fixture()
   {
-	  Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
+    Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
 
     linearadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
@@ -131,8 +131,8 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadv2d_local_fixture )
 //  URI file( "file:rectangle2x1-qd-p1-861.msh");
 //  URI file( "file:rectangle2x1-qd-p2-3321.msh");
 
-  options.add("File", file );
-  options.add<std::string>("Name", std::string("Mesh") );
+  options.add("file", file );
+  options.add<std::string>("name", std::string("Mesh") );
 
   domain.signal_load_mesh( frame );
 
@@ -403,9 +403,9 @@ BOOST_FIXTURE_TEST_CASE( test_output , linearadv2d_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
-  mesh_writer->configure_property("Fields",fields);
-  mesh_writer->configure_property("File",model.name()+".msh");
-  mesh_writer->configure_property("Mesh",mesh->full_path());
+  mesh_writer->configure_property("fields",fields);
+  mesh_writer->configure_property("file",URI(model.name()+".msh"));
+  mesh_writer->configure_property("mesh",mesh->full_path());
 
   mesh_writer->write();
 }

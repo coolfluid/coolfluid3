@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+#include "Common/BoostFilesystem.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
@@ -55,13 +56,14 @@ std::vector<std::string> CWriter::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path)
+void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 {
 
-  m_mesh = mesh;
+  m_mesh = mesh.as_ptr<CMesh>();
 
   // if the file is present open it
   boost::filesystem::fstream file;
+  boost::filesystem::path path(file_path.path());
   if (mpi::PE::instance().size() > 1)
   {
     path = boost::filesystem::basename(path) + "_P" + to_str(mpi::PE::instance().rank()) + boost::filesystem::extension(path);
@@ -94,7 +96,7 @@ void CWriter::write_file(std::fstream& file)
   {
     file << " \"x" << i << "\" ";
   }
-  
+
   std::vector<Uint> cell_centered_var_ids;
   Uint zone_var_id(dimension);
   boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
@@ -109,7 +111,7 @@ void CWriter::write_file(std::fstream& file)
         for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
         {
           cell_centered_var_ids.push_back(++zone_var_id);
-        }        
+        }
       }
 
       if ( static_cast<Uint>(var_type) > 1)
@@ -126,13 +128,13 @@ void CWriter::write_file(std::fstream& file)
     }
   }
   file << "\n";
-  
-  
+
+
   // loop over the element types
   // and create a zone in the tecplot file for each element type
-  std::map<Component::Ptr,Uint> zone_id;
+  std::map<Component::ConstPtr,Uint> zone_id;
   Uint zone_idx=0;
-  boost_foreach (CElements& elements, find_components_recursively<CElements>(m_mesh->topology()) )
+  boost_foreach (const CElements& elements, find_components_recursively<CElements>(m_mesh->topology()) )
   {
     const ElementType& etype = elements.element_type();
     if (etype.shape() == GeoShape::POINT)
@@ -141,10 +143,10 @@ void CWriter::write_file(std::fstream& file)
     // which can happen in parallel, so skip them
     if (elements.size() == 0)
       continue;
-      
+
     zone_id[elements.self()] = zone_idx++;
 
-    CList<Uint>& used_nodes = CEntities::used_nodes(elements);
+    CList<Uint>& used_nodes = CEntities::used_nodes(*elements.as_non_const()); // VERY DIRTY HACK to remove constness!!!
     std::map<Uint,Uint> zone_node_idx;
     for (Uint n=0; n<used_nodes.size(); ++n)
       zone_node_idx[ used_nodes[n] ] = n+1;
@@ -180,7 +182,7 @@ void CWriter::write_file(std::fstream& file)
     file.precision(12);
 
     // loop over coordinates
-    CTable<Real>& coordinates = m_mesh->nodes().coordinates();
+    const CTable<Real>& coordinates = m_mesh->nodes().coordinates();
     for (Uint d = 0; d < dimension; ++d)
     {
       file << "\n### variable x" << d << "\n\n"; // var name in comment
@@ -193,7 +195,7 @@ void CWriter::write_file(std::fstream& file)
     }
     file << "\n";
 
-    
+
     boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
     {
       CField& field = *field_ptr.lock();
@@ -237,7 +239,7 @@ void CWriter::write_file(std::fstream& file)
         }
       }
     }
-    
+
     file << "\n### connectivity\n\n";
     // write connectivity
     boost_foreach( CConnectivity::ConstRow e_nodes, elements.node_connectivity().array() )
@@ -247,7 +249,7 @@ void CWriter::write_file(std::fstream& file)
         file << zone_node_idx[n] << " ";
       }
       file << "\n";
-    }        
+    }
     file << "\n\n";
 
   }
@@ -262,7 +264,7 @@ std::string CWriter::zone_type(const ElementType& etype) const
   if ( etype.shape() == GeoShape::TETRA)    return "FETETRAHEDRON";
   if ( etype.shape() == GeoShape::PYRAM)    return "FEBRICK";  // with coalesced nodes
   if ( etype.shape() == GeoShape::PRISM)    return "FEBRICK";  // with coalesced nodes
-  if ( etype.shape() == GeoShape::HEXA)     return "FEBRICK";   
+  if ( etype.shape() == GeoShape::HEXA)     return "FEBRICK";
   if ( etype.shape() == GeoShape::POINT)    return "FELINESEG"; // with coalesced nodes
   cf_assert_desc("should not be here",false);
   return "INVALID";

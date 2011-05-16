@@ -105,9 +105,9 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   std::vector<URI> files;
   files.push_back( "file:rectangle-tg-p2.msh" );
 
-  options.add("Parent Component", Core::instance().root().get_child("Domain").full_path() );
-  options.add<std::string>("Name", std::string("Mesh") );
-  options.add("Files", files, " ; ");
+  options.add("location", Core::instance().root().get_child("Domain").full_path() );
+  options.add<std::string>("name", std::string("Mesh") );
+  options.add("files", files, " ; ");
 
   // get the generic mesh loader from the Tools
 
@@ -119,9 +119,9 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   BOOST_CHECK(true);
 
   load_mesh->signal_load_mesh( frame );
-  
+
   BOOST_CHECK(true);
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 BOOST_AUTO_TEST_CASE( enricher )
 {
   BOOST_CHECK(true);
-  
+
   CBubbleEnrich::Ptr enricher =
       Core::instance().root().get_child("enricher").as_ptr<CBubbleEnrich>();
 

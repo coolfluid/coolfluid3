@@ -64,13 +64,13 @@ std::vector<std::string> CReader::get_extensions()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
+void CReader::read_from_to(const URI& file, CMesh& mesh)
 {
   // Set the internal mesh pointer
-  m_mesh = mesh;
+  m_mesh = mesh.as_ptr<CMesh>();
 
   // open file in read mode
-  CALL_CGNS(cg_open(fp.string().c_str(),CG_MODE_READ,&m_file.idx));
+  CALL_CGNS(cg_open(file.path().c_str(),CG_MODE_READ,&m_file.idx));
 
   // check how many bases we have
   CALL_CGNS(cg_nbases(m_file.idx,&m_file.nbBases));

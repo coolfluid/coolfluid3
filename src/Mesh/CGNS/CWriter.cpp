@@ -49,20 +49,20 @@ std::vector<std::string> CWriter::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path)
+void CWriter::write_from_to(const CMesh& mesh, const URI& path)
 {
-  m_mesh = mesh;
+  m_mesh = mesh.as_ptr_checked<CMesh>();
 
-  m_fileBasename = boost::filesystem::basename(path);
+  m_fileBasename = path.base_name(); // filename without extension
 
   compute_mesh_specifics();
 
-  CFdebug << "Opening file " << path.string() << CFendl;
-  CALL_CGNS(cg_open(path.string().c_str(),CG_MODE_WRITE,&m_file.idx));
+  CFdebug << "Opening file " << path.path() << CFendl;
+  CALL_CGNS(cg_open(path.path().c_str(),CG_MODE_WRITE,&m_file.idx));
 
   write_base();
 
-  CFdebug << "Closing file " << path.string() << CFendl;
+  CFdebug << "Closing file " << path.path() << CFendl;
   CALL_CGNS(cg_close(m_file.idx));
 
 }
@@ -71,14 +71,14 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
 
 void CWriter::write_base()
 {
-  CRegion& base_region = m_mesh->topology();
+  const CRegion& base_region = m_mesh->topology();
   m_base.name = base_region.name();
   m_base.cell_dim = m_max_dimensionality;
   m_base.phys_dim = m_coord_dim;
   CFdebug << "Writing base " << m_base.name << CFendl;
   CALL_CGNS(cg_base_write(m_file.idx,m_base.name.c_str(),m_base.cell_dim,m_base.phys_dim,&m_base.idx));
 
-  BOOST_FOREACH(CRegion& zone_region, find_components<CRegion>(base_region))
+  BOOST_FOREACH(const CRegion& zone_region, find_components<CRegion>(base_region))
   {
     write_zone(zone_region);
   }
@@ -206,12 +206,12 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
 {
   CFactory& sf_factory = *Core::instance().factories().get_factory<ElementType>();
   std::map<std::string,std::string> builder_name;
-	boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
-	{
-		ElementType::Ptr sf = sf_builder.build("sf")->as_ptr<ElementType>();
-		builder_name[sf->derived_type_name()] = sf_builder.name();
-	}
-  
+  boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
+  {
+    ElementType::Ptr sf = sf_builder.build("sf")->as_ptr<ElementType>();
+    builder_name[sf->derived_type_name()] = sf_builder.name();
+  }
+
 
 
   CRegion::ConstPtr section_region = grouped_elements[0]->parent().as_ptr<CRegion const>();

@@ -51,9 +51,9 @@ BOOST_AUTO_TEST_CASE( constructor )
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:rotation-tg-p1.neu" );
-  options.add("Parent Component", URI( domain->full_path().string()) );
-  options.add<std::string>("Name", std::string("Mesh") );
-  options.add("Files", files, " ; ");
+  options.add("location", URI( domain->full_path().string()) );
+  options.add<std::string>("name", std::string("Mesh") );
+  options.add("files", files, " ; ");
 
   load_mesh->signal_load_mesh(frame);
 }
@@ -65,8 +65,7 @@ BOOST_AUTO_TEST_CASE( output )
   CDomain& domain = find_component_recursively<CDomain>(Core::instance().root());
   CMesh::Ptr mesh = domain.get_child_ptr_checked("Mesh")->as_ptr<CMesh>();
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
-  boost::filesystem::path file ("utest-loadmesh-result.msh");
-  mesh_writer->write_from_to(mesh,file);
+  mesh_writer->write_from_to(*mesh,"utest-loadmesh-result.msh");
 }
 
 //////////////////////////////////////////////////////////////////////////////

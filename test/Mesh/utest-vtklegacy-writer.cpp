@@ -33,16 +33,15 @@ BOOST_AUTO_TEST_SUITE( VTKLegacySuite )
 BOOST_AUTO_TEST_CASE( WriteGrid )
 {
   CRoot& root = Core::instance().root();
-  
+
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
-  
-  boost::filesystem::path fp_out ("grid.vtk");
+
   CMeshWriter::Ptr vtk_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
-  vtk_writer->write_from_to(mesh,fp_out);
-  
+  vtk_writer->write_from_to(*mesh,"grid.vtk");
+
   BOOST_CHECK(true);
-} 
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

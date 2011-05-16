@@ -205,8 +205,8 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
     // Output using Gmsh
     if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
     {
-      boost::filesystem::path output_file("stokes-pspg-" + boost::lexical_cast<std::string>(static_cast<Uint>(t / dt)) + ".msh");
-      writer->write_from_to(mesh, output_file);
+      URI output_file("stokes-pspg-" + boost::lexical_cast<std::string>(static_cast<Uint>(t / dt)) + ".msh");
+      writer->write_from_to(*mesh, output_file);
     }
   }
   // Check analytical solution

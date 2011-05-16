@@ -129,8 +129,8 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , burgers2d_local_fixture )
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::FILE;
 
-  options.add("File", file, "", schemes );
-  options.add<std::string>("Name", std::string("Mesh") );
+  options.add("file", file, "", schemes );
+  options.add<std::string>("name", std::string("Mesh") );
 
   domain.signal_load_mesh( frame );
 
@@ -329,9 +329,9 @@ BOOST_FIXTURE_TEST_CASE( output , burgers2d_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
-  mesh_writer->configure_property("Fields",fields);
-  mesh_writer->configure_property("File",model.name()+".msh");
-  mesh_writer->configure_property("Mesh",mesh->full_path());
+  mesh_writer->configure_property("fields",fields);
+  mesh_writer->configure_property("file",URI(model.name()+".msh"));
+  mesh_writer->configure_property("mesh",mesh->full_path());
 
   mesh_writer->write();
 

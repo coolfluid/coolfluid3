@@ -75,12 +75,12 @@ public: // functions
   /// Read a given file to a given mesh
   /// @param [in]     path  the file to read in
   /// @param [in,out] mesh  the mesh to write to
-  virtual void read_from_to(boost::filesystem::path& path, const CMesh::Ptr& mesh) = 0;
+  virtual void read_from_to(const Common::URI& path, CMesh& mesh) = 0;
 
   /// Read a given file and create a mesh
   /// @param [in]   path    the file to read in
   /// @return mesh          the created mesh
-  CMesh::Ptr create_mesh_from(boost::filesystem::path& path);
+  CMesh::Ptr create_mesh_from(const Common::URI& path);
 
 protected: // functions
 

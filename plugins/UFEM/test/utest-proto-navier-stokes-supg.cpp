@@ -245,8 +245,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesSUPG )
       std::stringstream outname;
       outname << "navier-stokes-supg-";
       outname << std::setfill('0') << std::setw(5) << static_cast<Uint>(t / dt);
-      boost::filesystem::path output_file(outname.str() + ".vtk");
-      writer->write_from_to(mesh, output_file);
+      URI output_file(outname.str() + ".vtk");
+      writer->write_from_to(*mesh, output_file);
     }
   }
   

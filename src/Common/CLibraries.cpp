@@ -12,6 +12,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
 #include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/XmlNode.hpp"
@@ -85,7 +86,7 @@ void CLibraries::signal_load_library ( SignalArgs& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
-  URI file = p.get_option<URI>("Lib");
+  URI file = p.get_option<URI>("lib");
 
   load_library(file);
 
@@ -122,7 +123,13 @@ void CLibraries::signature_load_library ( SignalArgs& args )
 {
   SignalFrame p = args.map( Protocol::Tags::key_options() );
 
-  p.set_option<URI>("Lib", URI()).set_attribute(Protocol::Tags::attr_descr(), "Library to load" );
+  SignalOptions options( args );
+
+  std::vector<URI::Scheme::Type> schemes(1);
+
+  schemes[0] = URI::Scheme::FILE;
+  options.add("lib", URI(), "Library to load", schemes );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

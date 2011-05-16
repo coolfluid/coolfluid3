@@ -71,8 +71,7 @@ BOOST_AUTO_TEST_CASE( data_location )
 
   BOOST_CHECK( true );
 
-  boost::filesystem::path fp_source ("quadtriag.neu");
-  CMesh::Ptr mesh = meshreader->create_mesh_from(fp_source);
+  CMesh::Ptr mesh = meshreader->create_mesh_from("quadtriag.neu");
 
   BOOST_CHECK( true );
 
@@ -81,14 +80,14 @@ BOOST_AUTO_TEST_CASE( data_location )
 
   boost_foreach(CElements& elements, find_components_recursively<CElements>(*mesh))
     unified_elems->add(elements);
-  
+
 
 
 
 
   Component::Ptr elements;
   Uint elem_idx;
-  
+
   BOOST_CHECK_EQUAL( unified_elems->size() , 28u );
   tie(elements,elem_idx) = unified_elems->location(25);
 
@@ -97,14 +96,14 @@ BOOST_AUTO_TEST_CASE( data_location )
     tie(elements,elem_idx) = unified_elems->location(i);
     CFinfo << i << ": " << elements->full_path().path() << "    ["<<elem_idx<<"]" << CFendl;
   }
-  
+
   CUnifiedData::Ptr unified_nodes = allocate_component<CUnifiedData>("unified_nodes");
   boost_foreach(CNodes& nodes, find_components_recursively<CNodes>(*mesh))
     unified_nodes->add(nodes);
-  
+
   Component::Ptr nodes;
   Uint node_idx;
-  
+
   BOOST_CHECK_EQUAL( unified_nodes->size() , 16u );
 
   CFinfo << CFendl;

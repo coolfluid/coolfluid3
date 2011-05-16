@@ -150,10 +150,9 @@ BOOST_AUTO_TEST_CASE( test_fields )
   //CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  boost::filesystem::path filename ("line.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
-  gmsh_writer->write_from_to(mesh,filename);
+  gmsh_writer->write_from_to(*mesh,URI("line.msh"));
 
   CFinfo << "Mesh \"line.msh\" written" << CFendl;
 

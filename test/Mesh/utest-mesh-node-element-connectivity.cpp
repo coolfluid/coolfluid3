@@ -69,31 +69,30 @@ BOOST_AUTO_TEST_CASE( node_elem_connectivity )
 {
   // create meshreader
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  boost::filesystem::path fp_source ("quadtriag.neu");
-  CMesh::Ptr mesh = meshreader->create_mesh_from(fp_source);
+  CMesh::Ptr mesh = meshreader->create_mesh_from("quadtriag.neu");
 
   BOOST_CHECK( true );
 
   // create and setup node to elements connectivity
   CNodeElementConnectivity::Ptr c = mesh->create_component_ptr<CNodeElementConnectivity>("node_elem_connectivity");
   c->setup( find_component<CRegion>(*mesh) );
-  
+
   BOOST_CHECK( true );
-  
+
   // Output whole node to elements connectivity
   CFinfo << c->connectivity() << CFendl;
-  
+
   // Output connectivity of node 10
   CDynTable<Uint>::ConstRow elements = c->connectivity()[10];
-  CFinfo << CFendl << "node 10 is connected to elements: \n";  
+  CFinfo << CFendl << "node 10 is connected to elements: \n";
   boost_foreach(const Uint elem, elements)
   {
-    Component::Ptr connected_comp; 
+    Component::Ptr connected_comp;
     Uint connected_idx;
     tie(connected_comp,connected_idx) = c->elements().location(elem);
     CFinfo << "   " << connected_comp->full_path().path() << "  [" <<connected_idx <<  "] " << CFendl;
   }
-  CFinfo << CFendl;  
+  CFinfo << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

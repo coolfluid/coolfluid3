@@ -10,6 +10,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/progress.hpp>
 
+#include "Common/BoostFilesystem.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
@@ -32,7 +33,7 @@ using namespace CF::Mesh;
 namespace CF {
 namespace Mesh {
 namespace Neu {
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < Mesh::Neu::CWriter,
@@ -46,7 +47,7 @@ CWriter::CWriter( const std::string& name )
 : CMeshWriter(name),
   Shared()
 {
-   
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -60,12 +61,13 @@ std::vector<std::string> CWriter::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path)
+void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 {
-  m_mesh = mesh;
+  m_mesh = mesh.as_ptr<CMesh>();
 
   // if the file is present open it
   boost::filesystem::fstream file;
+  boost::filesystem::path path(file_path.path());
   CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
   file.open(path,std::ios_base::out);
   if (!file) // didn't open so throw exception
@@ -76,7 +78,7 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   m_fileBasename = boost::filesystem::basename(path);
 
   compute_mesh_specifics();
-  
+
   // must be in correct order!
   write_headerData(file);
   write_coordinates(file);
@@ -100,13 +102,8 @@ void CWriter::write_headerData(std::fstream& file)
   Uint element_counter(0);
   Uint bc_counter(0);
 
-  Uint node_counter(0);
-    
-  
-  
-  boost_foreach(const NodesElementsMap::value_type& coord_array, m_all_nodes)
-    node_counter += coord_array.first->size();
-  
+  const Uint node_counter = m_mesh->nodes().size();
+
 
   boost_foreach(const CRegion& group, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
@@ -157,21 +154,18 @@ void CWriter::write_coordinates(std::fstream& file)
   // set precision for Real
   Uint prec = file.precision();
   file.precision(11);
-  
+
 
   file << "   NODAL COORDINATES 2.3.16" << std::endl;
   file.setf(std::ios::fixed);
   Uint node_number = 0;
-  boost_foreach(const NodesElementsMap::value_type& nodes_array, m_all_nodes)
+  boost_foreach(CTable<Real>::ConstRow row, m_mesh->nodes().coordinates().array())
   {
-      boost_foreach(CTable<Real>::ConstRow row, nodes_array.first->coordinates().array())
-      {
-        ++node_number;
-        file << std::setw(10) << node_number;
-        for (Uint d=0; d<m_coord_dim; ++d)
-          file << std::setw(20) << std::scientific << row[d];
-        file << std::endl;
-      }
+    ++node_number;
+    file << std::setw(10) << node_number;
+    for (Uint d=0; d<m_coord_dim; ++d)
+      file << std::setw(20) << std::scientific << row[d];
+    file << std::endl;
   }
   file << "ENDOFSECTION" << std::endl;
   // restore precision
@@ -189,58 +183,54 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint elm_number=0;
 
   // loop over all element regions
-  Uint global_node_idx=0;
-  boost_foreach(const NodesElementsMap::value_type& nodes_array, m_all_nodes)
+  Uint node_idx=0;
+  boost_foreach(const CElements& elementregion, find_components_recursively<CElements>(m_mesh->topology()))
   {
-    boost_foreach(const CElements* elementregion, nodes_array.second)
+    bool isBC = false;
+    Uint dimensionality = elementregion.element_type().dimensionality();
+    if (dimensionality < m_max_dimensionality) // is bc
     {
-      bool isBC = false;
-      Uint dimensionality = elementregion->element_type().dimensionality();
-      if (dimensionality < m_max_dimensionality) // is bc
-      {
-        isBC = true;
-      }
-      if (!isBC)
-      {
-        //CFinfo << "elements from region: " << elementregion->full_path().string() << CFendl;
-        // information of this region with one unique element type
-        Uint elm_type;
-        Uint nb_nodes;
-        elm_type = m_CFelement_to_NeuElement[elementregion->element_type().shape()];
-        nb_nodes = elementregion->element_type().nb_nodes();
-        m_global_start_idx[elementregion]=elm_number;
+      isBC = true;
+    }
+    if (!isBC)
+    {
+      //CFinfo << "elements from region: " << elementregion->full_path().string() << CFendl;
+      // information of this region with one unique element type
+      Uint elm_type;
+      Uint nb_nodes;
+      elm_type = m_CFelement_to_NeuElement[elementregion.element_type().shape()];
+      nb_nodes = elementregion.element_type().nb_nodes();
+      m_global_start_idx[elementregion.as_ptr<CElements>()]=elm_number;
 
-        // write the nodes for each element of this region
-        boost_foreach(const CConnectivity::ConstRow& cf_element , elementregion->node_connectivity().array())
+      // write the nodes for each element of this region
+      boost_foreach(const CConnectivity::ConstRow& cf_element , elementregion.node_connectivity().array())
+      {
+        file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes << " ";
+        std::vector<Uint> neu_element(nb_nodes);
+
+        // fill the neu_element (connectivity)
+        for (Uint j=0; j<nb_nodes; ++j)
         {
-          file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes << " ";
-          std::vector<Uint> neu_element(nb_nodes);
-          
-          // fill the neu_element (connectivity)
-          for (Uint j=0; j<nb_nodes; ++j)
-          {
-            // index within a neu element (because of different node numbering)
-            Uint neu_idx = m_nodes_cf_to_neu[elm_type][j];
-            // put the global element number inside the row
-            neu_element[neu_idx] = global_node_idx+cf_element[j]+1;
-          }
-          
-          Uint eol_counter=0;
-          boost_foreach(Uint neu_node, neu_element)
-          {
-            if (eol_counter == 7)
-            {
-              file << std::endl << std::setw(15) << " ";
-              eol_counter = 0;
-            }
-            file << std::setw(8) << neu_node;
-            ++eol_counter;
-          }
-          file << std::endl;
+          // index within a neu element (because of different node numbering)
+          Uint neu_idx = m_nodes_cf_to_neu[elm_type][j];
+          // put the global element number inside the row
+          neu_element[neu_idx] = node_idx+cf_element[j]+1;
         }
+
+        Uint eol_counter=0;
+        boost_foreach(Uint neu_node, neu_element)
+        {
+          if (eol_counter == 7)
+          {
+            file << std::endl << std::setw(15) << " ";
+            eol_counter = 0;
+          }
+          file << std::setw(8) << neu_node;
+          ++eol_counter;
+        }
+        file << std::endl;
       }
     }
-    global_node_idx += nodes_array.first->size();
   }
   file << "ENDOFSECTION" << std::endl;
 }
@@ -250,7 +240,7 @@ void CWriter::write_connectivity(std::fstream& file)
 void CWriter::write_groups(std::fstream& file)
 {
   Uint group_counter(0);
-  
+
   boost_foreach(const CRegion& group, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
     bool isBC(false);
@@ -275,7 +265,7 @@ void CWriter::write_groups(std::fstream& file)
       Uint line_counter=0;
       boost_foreach(const CElements& elementregion, find_components_recursively <CElements>(group))
       {
-        Uint elm_global_start_idx = m_global_start_idx[&elementregion]+1;
+        Uint elm_global_start_idx = m_global_start_idx[elementregion.as_ptr<CElements>()]+1;
         Uint elm_global_end_idx = elementregion.node_connectivity().size() + elm_global_start_idx;
 
         for (Uint elm=elm_global_start_idx; elm<elm_global_end_idx; elm++, line_counter++)
@@ -298,14 +288,17 @@ void CWriter::write_groups(std::fstream& file)
 //////////////////////////////////////////////////////////////////////////////
 
 void CWriter::write_boundaries(std::fstream& file)
-{ 
+{
   // Add node connectivity data at the mesh level
-  CNodeConnectivity::Ptr node_connectivity = m_mesh->create_component_ptr<CNodeConnectivity>("node_connectivity");
+  CNodeConnectivity::Ptr node_connectivity = create_component_ptr<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*m_mesh->as_const(), IsElementsVolume()));
 
-  
-  boost_foreach(CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
-    elementregion.create_component_ptr<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+  std::map<CElements::ConstPtr,CFaceConnectivity::Ptr> element_2_face_connecitivity;
+  boost_foreach(const CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
+  {
+    element_2_face_connecitivity[elementregion.as_ptr<CElements>()] = allocate_component<CFaceConnectivity>("face_connectivity");
+    element_2_face_connecitivity[elementregion.as_ptr<CElements>()]->initialize(elementregion,*node_connectivity);
+  }
 
   // Find total number of boundary elements and store all bc groups
   Uint total_nbElements=0;
@@ -315,22 +308,22 @@ void CWriter::write_boundaries(std::fstream& file)
     bc_regions.insert(elementregion.parent().as_ptr<CRegion const>());
     total_nbElements += elementregion.node_connectivity().size();
   }
-  
+
   if (total_nbElements > 0)
   {
     /// @todo pass a CFLogStream to progress_display instead of std::cout
     boost::progress_display progress(total_nbElements,std::cout,"writing boundary conditions\n");
-    
+
     boost_foreach(CRegion::ConstPtr group, bc_regions) // For each boundary condition
     {
       file << " BOUNDARY CONDITIONS 2.3.16\n";
       file << std::setw(32) << group->name() << std::setw(8) << 1 << std::setw(8) << group->recursive_elements_count() << std::setw(8) << 0 << std::setw(8) << 6 << std::endl;
-      
+
       boost_foreach(const CElements& elementregion, find_components_recursively<CElements>(*group))  // for each element type in this BC
       {
         const CConnectivity& table = elementregion.node_connectivity();
-        const CFaceConnectivity& face_connectivity = find_component<CFaceConnectivity>(elementregion);
-        
+        const CFaceConnectivity& face_connectivity = *element_2_face_connecitivity[elementregion.as_ptr<CElements>()];
+
         const Uint nb_elems = table.size();
         const Uint nb_faces = elementregion.element_type().nb_faces();
         for(Uint elem = 0; elem != nb_elems; ++elem)
@@ -340,28 +333,28 @@ void CWriter::write_boundaries(std::fstream& file)
             if(face_connectivity.has_adjacent_element(elem, face))
             {
               CFaceConnectivity::ElementReferenceT connected = face_connectivity.adjacent_element(elem, face);
-              
-              const CElements* connected_region = connected.first;
+
+              CElements::ConstPtr connected_region = connected.first->as_ptr<CElements>();
               Uint connected_region_start_idx = m_global_start_idx[connected_region];
-              
+
               Uint elm_local_idx = connected.second;
               Uint elm_global_idx = connected_region_start_idx + elm_local_idx;
               Uint neu_elm_type = m_CFelement_to_NeuElement[connected_region->element_type().shape()];
               Uint neu_elm_face_idx = m_faces_cf_to_neu[neu_elm_type][face_connectivity.adjacent_face(elem, face)];
-              
+
               file << std::setw(10) << elm_global_idx+1 << std::setw(5) << neu_elm_type << std::setw(5) << neu_elm_face_idx << std::endl;
               ++progress;
             }
             else
             {
               std::string error_msg = "Face " + to_str(face) + " of element " + to_str(elem)
-                                     + " of " + elementregion.full_path().string() + " has no neighbour."; 
+                                     + " of " + elementregion.full_path().string() + " has no neighbour.";
               throw ValueNotFound (FromHere(), error_msg);
             }
           }
         }
-      } 
-      
+      }
+
       file << "ENDOFSECTION" << std::endl;
     }
   }

@@ -40,7 +40,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }
 
-  virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path);
+  virtual void write_from_to(const CMesh& mesh, const Common::URI& path);
 
   virtual std::string get_format() { return "Tecplot"; }
 

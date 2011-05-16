@@ -54,25 +54,24 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 {
   CRoot::Ptr root = CRoot::create("Root");
   CMesh::Ptr mesh = root->create_component_ptr<CMesh>("mesh");
-	
+
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  boost::filesystem::path fp_in("rotation-tg-p1.neu");
-  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to("rotation-tg-p1.neu",*mesh);
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology/default_id1084/inlet"))
                                     (URI("cpath://Root/mesh/topology/default_id1084/outlet"));
 
-  
-  // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
+
+	// Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
 	CLoop::Ptr node_loop2 = root->create_component_ptr< CForAllNodes2 >("node_loop");
-  node_loop2->create_loop_operation("CF.TestActions.CDummyLoopOperation");
+	node_loop2->create_loop_operation("CF.TestActions.CDummyLoopOperation");
 	node_loop2->configure_property("Regions",regions);
 	CFinfo << "\n\n\nNode loop 2 " << CFendl;
-  node_loop2->execute();
+	node_loop2->execute();
 
 	BOOST_CHECK(true);
-	
-}	
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -80,31 +79,30 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 {
   CRoot& root = Core::instance().root();
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
-	
+
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  boost::filesystem::path fp_in("rotation-tg-p1.neu");
-  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to("rotation-tg-p1.neu",*mesh);
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
 
   // Create inner_faces
   CMeshTransformer::Ptr facebuilder = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
   //facebuilder->transform(mesh);
-  
-  // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
+
+	// Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
 	CLoop::Ptr face_loop = root.create_component_ptr< CForAllFaces >("face_loop");
-  face_loop->create_loop_operation("CF.TestActions.CDummyLoopOperation");
+	face_loop->create_loop_operation("CF.TestActions.CDummyLoopOperation");
 	face_loop->configure_property("Regions",regions);
 	CFinfo << "\n\n\nFace loop" << CFendl;
-  face_loop->execute();
+	face_loop->execute();
 
-  BOOST_CHECK(true);
+	BOOST_CHECK(true);
 
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
   info->transform(mesh);
-  
+
   root.remove_component(mesh->name());
-	
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,30 +111,29 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 {
   CRoot& root = Core::instance().root();//CRoot::create("Root");
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
-	
+
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  boost::filesystem::path fp_in("rotation-tg-p1.neu");
-  meshreader->read_from_to(fp_in,mesh);
-  
+  meshreader->read_from_to("rotation-tg-p1.neu",*mesh);
+
   BOOST_CHECK(true);
 
   CField& field = *mesh->create_component_ptr<CField>("field");
   field.configure_property("Topology",mesh->topology().full_path());
   field.configure_property("FieldType",std::string("PointBased"));
   field.create_data_storage();
-  
+
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
-  
+
 	CLoop::Ptr node_loop = root.create_component_ptr< CForAllNodes2 >("node_loop");
 	node_loop->configure_property("Regions",regions);
 
   node_loop->create_loop_operation("CF.Solver.Actions.CSetFieldValues");
   node_loop->action("CF.Solver.Actions.CSetFieldValues").configure_property("Field",field.full_path());
   node_loop->execute();
-  
+
   BOOST_CHECK(true);
-  
+
   CField& volumes = *mesh->create_component_ptr<CField>("volumes");
   volumes.configure_property("Topology",mesh->topology().full_path());
   volumes.configure_property("FieldType",std::string("ElementBased"));
@@ -167,25 +164,24 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   CLoop::Ptr elem_loop = root.create_component_ptr< CForAllElements >("elem_loop");
   elem_loop->configure_property("Regions",regions);
-  
+
   elem_loop->create_loop_operation("CF.Solver.Actions.CComputeVolume");
   elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volume",volumes.full_path());
-  
+
   elem_loop->create_loop_operation("CF.Solver.Actions.CComputeArea");
   elem_loop->action("CF.Solver.Actions.CComputeArea").configure_property("Area",areas.full_path());
-  
+
   elem_loop->execute();
 
   BOOST_CHECK(true);
-  
+
   std::vector<CField::Ptr> fields;
   fields.push_back(volumes.as_ptr<CField>());
   fields.push_back(field.as_ptr<CField>());
   fields.push_back(areas.as_ptr<CField>());
-  boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
-  gmsh_writer->write_from_to(mesh,fp_out);
+  gmsh_writer->write_from_to(*mesh,"quadtriag.msh");
 
 }
 
@@ -201,29 +197,28 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
   CField& field = mesh->create_field("test_CForAllElementsT",CField::Basis::CELL_BASED,"space[0]","var[1]");
 
   BOOST_CHECK(true);
-  
+
   std::vector<URI> topology = list_of(URI("cpath://Root/mesh/topology"));
-    
+
   CForAllElementsT<CComputeVolume>::Ptr compute_all_cell_volumes =
     root.create_component_ptr< CForAllElementsT<CComputeVolume> > ("compute_all_cell_volumes");
-  
+
   BOOST_CHECK(true);
-  
+
   compute_all_cell_volumes->configure_property("Regions",topology);
   BOOST_CHECK(true);
-  
+
   compute_all_cell_volumes->action().configure_property("Volume",field.full_path());
   BOOST_CHECK(true);
-  
+
   compute_all_cell_volumes->execute();
-  
+
   std::vector<CField::Ptr> fields;
   fields.push_back(field.as_ptr<CField>());
-  boost::filesystem::path fp_out ("test_utest-actions_CForAllElementsT.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
-  gmsh_writer->write_from_to(mesh,fp_out);
-  
+  gmsh_writer->write_from_to(*mesh,"test_utest-actions_CForAllElementsT.msh");
+
 }
 
 /// Action that sets an integer, for testing purposes
@@ -237,7 +232,7 @@ struct SetIntegerAction : CAction
   {
     value = 1;
   }
-  
+
   Uint value;
 };
 

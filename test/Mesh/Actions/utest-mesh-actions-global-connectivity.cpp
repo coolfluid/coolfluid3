@@ -60,7 +60,7 @@ BOOST_FIXTURE_TEST_SUITE( TestCGlobalConnectivity_TestSuite, TestCGlobalConnecti
 
 BOOST_AUTO_TEST_CASE( Init )
 {
-  Core::instance().initiate(m_argc,m_argv);  
+  Core::instance().initiate(m_argc,m_argv);
   mpi::PE::instance().init(m_argc,m_argv);
 }
 
@@ -68,23 +68,22 @@ BOOST_AUTO_TEST_CASE( Init )
 
 BOOST_AUTO_TEST_CASE( build )
 {
-  Core::instance().initiate(m_argc,m_argv);  
-    
+  Core::instance().initiate(m_argc,m_argv);
+
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  boost::filesystem::path fp_in("quadtriag.neu");
   meshreader->configure_property("read_boundaries",false);
-  meshreader->read_from_to(fp_in,mesh);
-  
-  
+  meshreader->read_from_to("quadtriag.neu",*mesh);
+
+
   CGlobalNumbering::Ptr build_glb_numbering = allocate_component<CGlobalNumbering>("build_glb_numbering");
   build_glb_numbering->set_mesh(mesh);
   build_glb_numbering->configure_property("debug",true);
   build_glb_numbering->execute();
-  
+
   CGlobalConnectivity::Ptr build_connectivity = allocate_component<CGlobalConnectivity>("build_glb_connectivity");
   build_connectivity->set_mesh(mesh);
   build_connectivity->execute();
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

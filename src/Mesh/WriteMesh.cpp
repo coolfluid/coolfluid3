@@ -94,12 +94,11 @@ void WriteMesh::update_list_of_available_writers()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void WriteMesh::write_mesh( CMesh& mesh, const URI& file, const std::vector<URI>& fields)
+void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vector<URI>& fields)
 {
   update_list_of_available_writers();
 
-  boost::filesystem::path fpath( file.path() );
-  const std::string extension = fpath.extension();
+  const std::string extension = file.extension();
 
   if ( m_extensions_to_writers.count(extension) == 0 )
     throw FileFormatError (FromHere(), "No meshwriter exists for files with extension " + extension);
@@ -115,8 +114,8 @@ void WriteMesh::write_mesh( CMesh& mesh, const URI& file, const std::vector<URI>
    }
 
   CMeshWriter::Ptr writer = m_extensions_to_writers[extension][0];
-  writer->configure_property("Fields",fields);
-  return writer->write_from_to(mesh.as_ptr<CMesh>(),fpath);
+  writer->configure_property("fields",fields);
+  return writer->write_from_to(mesh,file);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -127,25 +126,16 @@ void WriteMesh::signal_write_mesh ( Common::SignalArgs& node )
 
   update_list_of_available_writers();
 
-  URI mesh_uri = options.option<URI>("Mesh");
+  URI mesh_uri = options.option<URI>("mesh");
 
-  if( mesh_uri.scheme() != URI::Scheme::CPATH )
-    throw ProtocolError( FromHere(), "Wrong protocol to access the Mesh, expecting a \'cpath\' but got \'" + mesh_uri.string() +"\'");
+  // get the mesh
+  const CMesh& mesh = access_component( mesh_uri ).as_type<CMesh>();
 
-  // get the domain
-  CMesh::Ptr mesh = access_component_ptr( mesh_uri )->as_ptr<CMesh>();
+  const URI file = options.option<URI>("file");
 
-  std::string file = options.option<std::string>("File");
+  const std::vector<URI> fields;
 
-  // check protocol for file loading
-  // if( file.scheme() != URI::Scheme::FILE )
-  //   throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
-
-  URI fpath( file );
-//  if( fpath.scheme() != URI::Scheme::FILE )
-//    throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + fpath.string() + "\'" );
-
-  write_mesh(*mesh,fpath,std::vector<URI>());
+  write_mesh(mesh,file,fields);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,12 +155,12 @@ void WriteMesh::signature_write_mesh ( Common::SignalArgs& node)
     writers.push_back(bdr.name());
   }
 
-  options.add("Mesh", URI(), "Path to the mesh", schemes );
+  options.add("mesh", URI(), "Path to the mesh", schemes );
 
   // create the value and add the restricted list
   options.add( "Available writers", std::string() , "Available writers", writers, " ; ");
 
-  options.add<std::string>("File", std::string() , "File to write" );
+  options.add<std::string>("file", std::string() , "File to write" );
 }
 
 } // Mesh

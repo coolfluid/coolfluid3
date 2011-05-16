@@ -198,8 +198,8 @@ CField& CMesh::create_field(const std::string& name, const CField::Basis::Type b
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodes& CMesh::nodes() 
-{ 
+CNodes& CMesh::nodes()
+{
   cf_assert( is_not_null(m_nodes_link->follow()) );
   return *m_nodes_link->follow()->as_ptr<CNodes>();
 }
@@ -214,8 +214,8 @@ const CNodes& CMesh::nodes() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshElements& CMesh::elements() 
-{ 
+CMeshElements& CMesh::elements()
+{
   return *m_elements;
 }
 
@@ -263,9 +263,12 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
 
   boost_foreach( CField& field, find_components<CField>(*this))
   {
-    bool add_field = options.option<bool>(field.name());
-    if (add_field)
-      fields.push_back(field.full_path());
+    if (options.exists(field.name()))
+    {
+      bool add_field = options.option<bool>(field.name());
+      if (add_field)
+        fields.push_back(field.full_path());
+    }
   }
   mesh_writer->write_mesh(*this,fpath,fields);
   remove_component(mesh_writer->name());

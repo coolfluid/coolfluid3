@@ -22,7 +22,7 @@ namespace CF {
 namespace Mesh {
   class CElements;
   class CRegion;
-	class CMixedHash;
+  class CMixedHash;
 namespace Neu {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -52,44 +52,44 @@ public: // functions
   virtual std::vector<std::string> get_extensions();
 
 private: // functions
-	
-	void config_repartition();
 
-  void read_headerData();
-	
+  void config_repartition();
+
+	void read_headerData();
+
 	void find_ghost_nodes();
-	
-  void read_coordinates();
 
-  void read_connectivity();
+	void read_coordinates();
 
-  void read_groups();
+	void read_connectivity();
 
-  void read_boundaries();
-	
+	void read_groups();
+
+	void read_boundaries();
+
 	void get_file_positions();
 
-  virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
-	
+	virtual void read_from_to(const Common::URI& fp, CMesh& mesh);
+
 	std::string element_type(const Uint neu_type, const Uint nb_nodes);
 
 private: // data
 
-  enum HashType { NODES=0, ELEMS=1 };  
+  enum HashType { NODES=0, ELEMS=1 };
   boost::shared_ptr<CMixedHash> m_hash;
-	
+
   // map< global index , pair< temporary table, index in temporary table > >
   std::map<Uint,Region_TableIndex_pair> m_global_to_tmp;
 
-	boost::filesystem::fstream m_file;
+  boost::filesystem::fstream m_file;
   CMesh::Ptr m_mesh;
   CRegion::Ptr m_region;
   CNodes::Ptr m_nodes;
   CRegion::Ptr m_tmp;
-	
+
 	std::set<Uint> m_ghost_nodes;
 	std::map<Uint,Uint> m_node_to_coord_idx;
-		
+
 	Uint m_nodal_coordinates_position;
 	Uint m_elements_cells_position;
 	std::vector<Uint> m_element_group_positions;
@@ -104,7 +104,7 @@ private: // data
     // NDFCD    Number of coordinate directions (2 or 3)
     // NDFVL    Number of velocity components (2 or 3)
     Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
-		std::string mesh_name;
+    std::string mesh_name;
   } m_headerData;
 
   struct GroupData

@@ -101,23 +101,18 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
-  // the file to read from
-  boost::filesystem::path fp_in ("quadtriag.neu");
-
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
-  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to("quadtriag.neu",*mesh);
 
   BOOST_CHECK(true);
-  boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  gmsh_writer->write_from_to(mesh,fp_out);
+  gmsh_writer->write_from_to(*mesh,"quadtriag.msh");
   BOOST_CHECK(true);
 
-  boost::filesystem::path fp_out_neu ("quadtriag_write.neu");
   CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
-  neu_writer->write_from_to(mesh,fp_out_neu);
+  neu_writer->write_from_to(*mesh,"quadtriag_write.neu");
   BOOST_CHECK(true);
 
   BOOST_CHECK_EQUAL(mesh->topology().recursive_nodes_count(), (Uint) 16);
@@ -131,18 +126,14 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
-  // the file to read from and to
-  boost::filesystem::path fp_in ("quadtriag_write.neu");
-  boost::filesystem::path fp_out("quadtriag_write.msh");
-
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   //CFinfo << "ready to read" << CFendl;
-  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to("quadtriag_write.neu",*mesh);
 
   //CFinfo << "ready to write" << CFendl;
-  meshwriter->write_from_to(mesh,fp_out);
+  meshwriter->write_from_to(*mesh,"quadtriag_write.msh");
   BOOST_CHECK_EQUAL(mesh->topology().recursive_nodes_count(), (Uint) 16);
   BOOST_CHECK_EQUAL(mesh->topology().recursive_elements_count(), (Uint) 28);
 
@@ -156,20 +147,15 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
-  // the file to read from
-  boost::filesystem::path fp_in ("hextet.neu");
-
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
-  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to("hextet.neu",*mesh);
 
-  boost::filesystem::path fp_out ("hextet.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  gmsh_writer->write_from_to(mesh,fp_out);
-  boost::filesystem::path fp_out_neu ("hextet_write.neu");
+  gmsh_writer->write_from_to(*mesh,"hextet.msh");
   CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
-  neu_writer->write_from_to(mesh,fp_out_neu);
+  neu_writer->write_from_to(*mesh,"hextet_write.neu");
   BOOST_CHECK_EQUAL(mesh->topology().recursive_nodes_count(), (Uint) 35);
   BOOST_CHECK_EQUAL(mesh->topology().recursive_elements_count(), (Uint) 44);
 }
@@ -181,18 +167,14 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
-  // the file to read from and to
-  boost::filesystem::path fp_in ("hextet_write.neu");
-  boost::filesystem::path fp_out("hextet_write.msh");
-
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   //CFinfo << "ready to read" << CFendl;
-  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to("hextet_write.neu",*mesh);
 
   //CFinfo << "ready to write" << CFendl;
-  meshwriter->write_from_to(mesh,fp_out);
+  meshwriter->write_from_to(*mesh,"hextet_write.msh");
   BOOST_CHECK_EQUAL(mesh->topology().recursive_nodes_count(), (Uint) 35);
   BOOST_CHECK_EQUAL(mesh->topology().recursive_elements_count(), (Uint) 44);
 
@@ -223,34 +205,14 @@ BOOST_AUTO_TEST_CASE( read_multiple )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( read_mesh_signal_1 )
-{
-  SignalFrame frame("Target", "//Root", "//Root");
-  SignalOptions options( frame );
-
-  // with a wrong CPath for the CDomain
-  options.add("Domain", URI("//Root"));
-  BOOST_CHECK_THROW( reader->signal_read(frame), CastingFailed );
-}
-
 BOOST_AUTO_TEST_CASE( read_mesh_signal_2 )
 {
   SignalFrame frame("Target", "//Root", "//Root");
   SignalOptions options( frame );
 
   // URI with a wrong protocol
-  options.add("Domain", URI("file://Root"));
+  options.add("location", URI("file://Root"));
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
-}
-
-BOOST_AUTO_TEST_CASE( read_mesh_signal_3 )
-{
-  SignalFrame frame("Target", "//Root", "//Root");
-  SignalOptions options( frame );
-
-  // CPath that does not point to a CDomain
-  options.add("Domain", URI("cpath://Root"));
-  BOOST_CHECK_THROW( reader->signal_read(frame), CastingFailed );
 }
 
 
@@ -261,8 +223,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
 
   // no file (no error and the domain should be still empty afterwards)
   std::vector<URI> files;
-  options.add("Domain", URI("cpath://Root/MyDom"));
-  options.add("Files", files, " ; ");
+  options.add("location", URI("cpath://Root/MyDom"));
+  options.add("files", files, " ; ");
 
   std::string str;
   XML::to_string(frame.node, str);
@@ -281,8 +243,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
   std::vector<URI> files;
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
-  options.add("Domain", URI("cpath://Root/MyDom"));
-  options.add("Files", files, " ; ");
+  options.add("location", URI("cpath://Root/MyDom"));
+  options.add("files", files, " ; ");
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
   BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
 }
@@ -297,8 +259,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
   files.push_back( "file:hextet.neu" );
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
-  options.add("Domain", URI("cpath://Root/MyDom"));
-  options.add("Files", files, " ; ");
+  options.add("location", URI("cpath://Root/MyDom"));
+  options.add("files", files, " ; ");
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
   BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
 }
@@ -312,8 +274,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
   std::vector<URI> files;
   files.push_back( "file:hextet.neu" );
   files.push_back( "file:quadtriag.neu" );
-  options.add("Domain", URI("cpath://Root/MyDom"));
-  options.add("Files", files, " ; ");
+  options.add("location", URI("cpath://Root/MyDom"));
+  options.add("files", files, " ; ");
   BOOST_CHECK_NO_THROW( reader->signal_read(frame) );
   BOOST_CHECK_NE( domain->count_children(), (Uint) 0);
 }

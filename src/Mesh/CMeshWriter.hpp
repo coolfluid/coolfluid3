@@ -11,15 +11,15 @@
 
 #include <list>
 
-#include "Common/BoostFilesystem.hpp"
-
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
+#include "Mesh/CNodes.hpp"
 
 namespace CF {
+namespace Common {  class URI;  }
 namespace Mesh {
 
   class CNodes;
@@ -61,7 +61,7 @@ public: // functions
 
   virtual std::vector<std::string> get_extensions() = 0;
 
-  virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path) = 0;
+  virtual void write_from_to(const CMesh& mesh, const Common::URI& filepath) = 0;
 
   void write();
 
@@ -87,10 +87,8 @@ protected: // classes
 
 protected:
 
-  CMesh::Ptr m_mesh;
+  CMesh::ConstPtr m_mesh;
 
-  typedef std::map<CNodes*,std::list<CElements*> > NodesElementsMap;
-  NodesElementsMap m_all_nodes;
   Uint m_coord_dim;
   Uint m_max_dimensionality;
 

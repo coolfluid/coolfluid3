@@ -7,7 +7,13 @@ configure //Root/Environment \
 
 # load the rdm library
 call //Root/Libraries/load_library \
-     Lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm
+     lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_core
+call //Root/Libraries/load_library \
+    lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_schemes
+call //Root/Libraries/load_library \
+    lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_scalar
+call //Root/Libraries/load_library \
+    lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_navierstokes
 
 # create a scalar advection model
 call //Root/Tools/RDM/SetupScalarSimulation/create_model \
@@ -16,8 +22,8 @@ call //Root/Tools/RDM/SetupScalarSimulation/create_model \
 
 # load the mesh
 call //Root/model/Domain/load_mesh \
-     File:uri=file:@CF_RESOURCE_DIR@/file:square1x1-qd-p1.msh \
-     Name:string=mesh
+     file:uri=file:@CF_RESOURCE_DIR@/square1x1-qd-p1.msh \
+     name:string=mesh
 
 # configure solver
 cd //Root/model/Solver

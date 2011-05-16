@@ -22,7 +22,7 @@ namespace Mesh {
   class CElements;
 
 namespace Neu {
-  
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,26 +35,26 @@ public: // typedefs
 
   typedef boost::shared_ptr<CWriter> Ptr;
   typedef boost::shared_ptr<CWriter const> ConstPtr;
-  
+
 private : // typedefs
-  
+
 
 public: // functions
-  
+
   /// constructor
   CWriter( const std::string& name );
-  
+
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }
 
-  virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path);
+  virtual void write_from_to(const CMesh& mesh, const Common::URI& path);
 
   virtual std::string get_format() { return "Neu"; }
 
   virtual std::vector<std::string> get_extensions();
 
 private: // functions
-  
+
   void write_headerData(std::fstream& file);
 
   void write_coordinates(std::fstream& file);
@@ -68,12 +68,12 @@ private: // functions
   void create_nodes_to_element_connectivity();
 
 private: // data
-  
+
   /// implementation detail, raw pointers are safe as keys
-  std::map<CElements const*,Uint> m_global_start_idx;
+  std::map<CElements::ConstPtr,Uint> m_global_start_idx;
 
   std::string m_fileBasename;
-    
+
 }; // end CWriter
 
 

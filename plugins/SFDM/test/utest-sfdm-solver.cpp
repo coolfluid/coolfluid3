@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE( Solver )
 
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   CMesh& mesh = domain.create_component<CMesh>("mesh");
-  const Real length=200.;
-  const Uint divisions=static_cast<Uint>(length);
+  const Uint divisions=200;
+  const Real length=2.*divisions;
   CSimpleMeshGenerator::create_line(mesh, length, divisions);
 
 
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( Solver )
   solver.configure_option_recursively("time",model.time().full_path());
   solver.configure_option_recursively("time_accurate",true);
 
-  model.time().configure_property("end_time",length/3.);
+  model.time().configure_property("end_time",length/2.);
   model.time().configure_property("time_step",length);
 
   /// Initialize solution field with the function sin(2*pi*x)
@@ -105,6 +105,18 @@ BOOST_AUTO_TEST_CASE( Solver )
   init_field->transform(mesh);
 
 
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  std::vector<CField::Ptr> fields;
+  fields.push_back(find_component_with_tag<CField>(mesh,"solution").as_ptr<CField>());
+  gmsh_writer->set_fields(fields);
+  boost::filesystem::path filename;
+
+
+  gmsh_writer->write_from_to(mesh,URI("line_"+to_str(model.time().time())+".msh"));
+
+
+
+
   solver.get_child("iterate").configure_property("verbose",true);
   //solver.get_child("iterate").configure_property("MaxIterations",1u);
   solver.solve();
@@ -113,17 +125,9 @@ BOOST_AUTO_TEST_CASE( Solver )
 
   CFinfo << "time = " << model.time().time();
 
+  filename = ("line_"+to_str(model.time().time())+".msh");
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  boost::filesystem::path filename ("line.msh");
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  std::vector<CField::Ptr> fields;
-  fields.push_back(find_component_with_tag<CField>(mesh,"solution").as_ptr<CField>());
-  fields.push_back(find_component_with_tag<CField>(mesh,"residual").as_ptr<CField>());
-  fields.push_back(find_component_with_tag<CField>(mesh,"volume").as_ptr<CField>());
-  fields.push_back(find_component_with_tag<CField>(mesh,"wave_speed").as_ptr<CField>());
-  fields.push_back(find_component_with_tag<CField>(mesh,"update_coeff").as_ptr<CField>());
-  gmsh_writer->set_fields(fields);
-  gmsh_writer->write_from_to(mesh.as_ptr<CMesh>(),filename);
+  gmsh_writer->write_from_to(mesh,"line_"+to_str(model.time().time())+".msh");
 
 }
 

@@ -50,8 +50,8 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   // One argument needed, containing the path to the meshes dir
   BOOST_CHECK_EQUAL(argc, 3);
 
-  boost::filesystem::path input_file = boost::filesystem::path(argv[2]) / boost::filesystem::path("ring2d-quads.neu");
-  boost::filesystem::path output_file("ring2d-unsteady.msh");
+  URI input_file = URI(argv[2]) / URI("ring2d-quads.neu");
+  URI output_file("ring2d-unsteady.msh");
 
   CRoot& root = Core::instance().root();
 
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   BOOST_CHECK(mesh_reader);
 
   CMesh::Ptr mesh = ufem_model->get_child_ptr("Domain")->create_component_ptr<CMesh>("Mesh");
-  mesh_reader->read_from_to(input_file, mesh);
+  mesh_reader->read_from_to(input_file, *mesh);
 
   Component::Ptr ufem_method = ufem_model->get_child_ptr("LinearModel");
   BOOST_CHECK(ufem_method);
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   ufem_model->add_component(writer);
   writer->configure_property( "Fields", std::vector<URI>(1, URI("cpath://Root/UFEMHeat/Domain/Mesh/Temperature") ) );
-  writer->write_from_to(mesh, output_file);
+  writer->write_from_to(*mesh, output_file);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

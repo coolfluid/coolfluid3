@@ -139,8 +139,8 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , sinusbump_local_fixture )
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::FILE;
 
-  options.add("File", file );
-  options.add<std::string>("Name", std::string("Mesh") );
+  options.add("file", file );
+  options.add<std::string>("name", std::string("Mesh") );
 
   std::cout << "opening file: " << file.string() << std::endl;
 
@@ -302,9 +302,9 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , sinusbump_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
-  gmsh_writer->configure_property("Fields",fields);
-  gmsh_writer->configure_property("File",model.name()+"_init.msh");
-  gmsh_writer->configure_property("Mesh",mesh->full_path());
+  gmsh_writer->configure_property("fields",fields);
+  gmsh_writer->configure_property("file",URI(model.name()+"_init.msh"));
+  gmsh_writer->configure_property("mesh",mesh->full_path());
 
   gmsh_writer->write();
 
@@ -371,9 +371,9 @@ BOOST_FIXTURE_TEST_CASE( test_output , sinusbump_local_fixture )
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
-  gmsh_writer->configure_property("Fields",fields);
-  gmsh_writer->configure_property("File",model.name()+".msh");
-  gmsh_writer->configure_property("Mesh",mesh->full_path());
+  gmsh_writer->configure_property("fields",fields);
+  gmsh_writer->configure_property("file",URI(model.name()+".msh"));
+  gmsh_writer->configure_property("mesh",mesh->full_path());
 
   gmsh_writer->write();
 
@@ -382,9 +382,9 @@ BOOST_FIXTURE_TEST_CASE( test_output , sinusbump_local_fixture )
   CMeshWriter::Ptr tec_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
   model.add_component(tec_writer);
 
-  tec_writer->configure_property("Fields",fields);
-  tec_writer->configure_property("File",model.name()+".plt");
-  tec_writer->configure_property("Mesh",mesh->full_path());
+  tec_writer->configure_property("fields",fields);
+  tec_writer->configure_property("file",URI(model.name()+".plt"));
+  tec_writer->configure_property("mesh",mesh->full_path());
 
   tec_writer->write();
 

@@ -152,6 +152,9 @@ private:
 
   std::string m_space_name;
 
+  Uint m_iter_stamp;
+  Real m_time_stamp;
+
   void config_var_names();
   void config_var_types();
   void config_tree();

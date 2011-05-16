@@ -10,6 +10,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
 
+#include "Common/BoostFilesystem.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/URI.hpp"
 #include "Common/Log.hpp"
@@ -177,7 +178,7 @@ URI URI::base_path () const
   else
   {
     rpath.erase ( find_last(rpath,separator()).begin(), rpath.end() );
-    return rpath;    
+    return rpath;
   }
 }
 
@@ -242,6 +243,18 @@ void URI::split_path(const std::string & path, URI::Scheme::Type & protocol,
       throw ProtocolError(FromHere(), "\'" + protocol_str + "\' is not a supported protocol");
   }
 
+}
+
+std::string URI::extension() const
+{
+  const boost::filesystem::path p(path());
+  return p.extension();
+}
+
+std::string URI::base_name() const
+{
+  const boost::filesystem::path p(path());
+  return boost::filesystem::basename(p);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

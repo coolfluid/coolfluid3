@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( test_Roe )
 
   Component& state = Core::instance().root().build_component("solution-state","CF.AdvectionDiffusion.State");
   riemannsolver.configure_property("solution_state",state.full_path());
-  riemannsolver.configure_property("roe_state",state.full_path());
+  riemannsolver.configure_property("roe_state",std::string("CF.AdvectionDiffusion.State"));
 
   RealVector left(1);   left   << 1.;
   RealVector right(1);  right  << 2.;

@@ -50,8 +50,8 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   // One argument needed, containing the path to the meshes dir
   BOOST_CHECK_EQUAL(argc, 3);
 
-  boost::filesystem::path input_file = boost::filesystem::path(argv[2]) / boost::filesystem::path("ring2d-quads.neu");
-  boost::filesystem::path output_file("ring2d-steady.msh");
+  URI input_file = URI(argv[2]) / URI("ring2d-quads.neu");
+  URI output_file("ring2d-steady.msh");
 
   CRoot& root = Core::instance().root();
 
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   
   // Read the mesh
   CMesh::Ptr mesh = ufem_model->get_child_ptr("Domain")->create_component_ptr<CMesh>("Mesh");
-  mesh_reader->read_from_to(input_file, mesh);
+  mesh_reader->read_from_to(input_file, *mesh);
   
   // Setup a constant field for the source term
   Component::Ptr heat_generator = create_component_abstract_type<Component>("CF.Tools.FieldGeneration.FieldGenerator", "HeatFieldGenerator");
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
     //( URI("cpath://Root/UFEMHeat/Domain/Mesh/Heat") );
   writer->configure_property( "Fields", field_uris );
 
-  writer->write_from_to(mesh, output_file);
+  writer->write_from_to(*mesh, output_file);
 
 }
 

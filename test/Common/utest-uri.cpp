@@ -98,10 +98,14 @@ BOOST_AUTO_TEST_CASE( protocol_management )
   BOOST_CHECK_EQUAL( uri2.path(), std::string("//Root/Component") );
 
   // URI with a file
-  URI uri3("file:///etc/fstab");
+  URI uri3("file:///etc/fstab.txt");
   BOOST_CHECK_EQUAL( uri3.scheme(), URI::Scheme::FILE );
-  BOOST_CHECK_EQUAL( uri3.string(), std::string("file:///etc/fstab") );
-  BOOST_CHECK_EQUAL( uri3.path(), std::string("///etc/fstab") );
+  BOOST_CHECK_EQUAL( uri3.string(), std::string("file:///etc/fstab.txt") );
+  BOOST_CHECK_EQUAL( uri3.path(), std::string("///etc/fstab.txt") );
+  BOOST_CHECK_EQUAL( uri3.base_path().string(), std::string("file:///etc") );
+  BOOST_CHECK_EQUAL( uri3.extension(), std::string(".txt") );
+  BOOST_CHECK_EQUAL( uri3.base_name(), std::string("fstab") );
+
 
   // URI with an http address
   URI uri4("http://coolfluidsrv.vki.ac.be");

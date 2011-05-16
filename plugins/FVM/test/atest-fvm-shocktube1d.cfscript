@@ -45,7 +45,7 @@ create tools/transform_mesh_for_FVM/3_create_space_P0       CF.Mesh.Actions.Crea
 create tools/transform_mesh_for_FVM/4_build_volume_field    CF.Mesh.Actions.CBuildVolume
 create tools/transform_mesh_for_FVM/5_build_area_field      CF.Mesh.Actions.CBuildArea
 create tools/transform_mesh_for_FVM/6_build_face_normals    CF.Mesh.Actions.CBuildFaceNormals
- 
+
 configure tools/transform_mesh_for_FVM   Mesh:uri=cpath://Root/shocktube/Domain/mesh
 tools/transform_mesh_for_FVM
 
@@ -85,7 +85,7 @@ call simulate
 ### Write Mesh
 create tools/mesh_writer    CF.Mesh.Gmsh.CWriter
 configure tools/mesh_writer\
-  Mesh:uri=//Root/shocktube/Domain/mesh \
-  Fields:array[uri]=//Root/shocktube/Domain/mesh/solution \
-  File:string=shocktube.msh
+  mesh:uri=//Root/shocktube/Domain/mesh \
+  fields:array[uri]=//Root/shocktube/Domain/mesh/solution \
+  file:uri=shocktube.msh
 call tools/mesh_writer/write_mesh

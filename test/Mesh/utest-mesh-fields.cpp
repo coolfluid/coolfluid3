@@ -62,11 +62,9 @@ BOOST_AUTO_TEST_CASE( MeshCreation )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
-  // the file to read from
-  boost::filesystem::path fp_in ("quadtriag.neu");
   // the mesh to store in
-  m_mesh = meshreader->create_mesh_from(fp_in);
-  
+  m_mesh = meshreader->create_mesh_from("quadtriag.neu");
+
   Core::instance().root().add_component(m_mesh);
 
 }
@@ -74,7 +72,7 @@ BOOST_AUTO_TEST_CASE( MeshCreation )
 
 BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
 {
-	CMesh& mesh = *m_mesh;
+  CMesh& mesh = *m_mesh;
 
   std::vector<std::string> names;
   std::vector<std::string> types;
@@ -99,12 +97,12 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   BOOST_CHECK_EQUAL( coordinates.var_type("coordinates") , CField::VECTOR_2D );
   BOOST_CHECK_EQUAL( coordinates.topology().full_path().string() , mesh.topology().full_path().string() );
   BOOST_CHECK_EQUAL( coordinates.space_name() , std::string("space[0]") );
-  
-  
-  CNodes& nodes = mesh.nodes();  
+
+
+  CNodes& nodes = mesh.nodes();
   index_foreach(data_idx, const Uint node_idx, coordinates.used_nodes().array())
     coordinates[data_idx] = nodes.coordinates()[node_idx];
-  
+
   BOOST_CHECK( coordinates.data().array() == nodes.coordinates().array() );
 }
 
@@ -112,7 +110,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
 
 BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
 {
-	CMesh& mesh = *m_mesh;
+  CMesh& mesh = *m_mesh;
 
   std::vector<std::string> names;
   std::vector<std::string> types;
@@ -125,8 +123,8 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   solution.configure_property("VarTypes",types);
   solution.configure_property("FieldType",std::string("PointBased"));
   solution.create_data_storage();
-  
-  
+
+
   BOOST_CHECK_EQUAL( solution.basis() , CField::Basis::POINT_BASED );
   BOOST_CHECK_EQUAL( solution.var_name() , std::string("rho") );
   BOOST_CHECK_EQUAL( solution.var_name(0) , std::string("rho") );
@@ -147,7 +145,7 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   BOOST_CHECK_EQUAL( solution.var_type("p") , CField::SCALAR );
   BOOST_CHECK_EQUAL( solution.topology().full_path().string() , mesh.topology().full_path().string() );
   BOOST_CHECK_EQUAL( solution.space_name() , "space[0]" );
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

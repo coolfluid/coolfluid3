@@ -96,13 +96,13 @@ BOOST_AUTO_TEST_CASE( constructor )
   // 6) Write mesh
   // -------------
 
-  model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().write();  
-  
+  model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().write();
+
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tecplot_writer");
   model.get_child("tools").add_component(writer);
-  writer->configure_property("Fields",std::vector<URI>(1,find_component_recursively_with_tag(model,"solution").full_path()));
-  writer->configure_property("File",model.name()+".plt");
-  writer->configure_property("Mesh",find_component_recursively<CMesh>(model).full_path());
+  writer->configure_property("fields",std::vector<URI>(1,find_component_recursively_with_tag(model,"solution").full_path()));
+  writer->configure_property("file",URI(model.name()+".plt"));
+  writer->configure_property("mesh",find_component_recursively<CMesh>(model).full_path());
   writer->write();
 
 

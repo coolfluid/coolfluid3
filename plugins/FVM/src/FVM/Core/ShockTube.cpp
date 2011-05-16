@@ -102,7 +102,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
   // Create Physics
   ////////////////////////////////////////////////////////////////////////////////
-  
+
   CFinfo << "Creating physics" << CFendl;
   CPhysicalModel& physics = model.create_physics("physics");
   physics.configure_property( "Dimensions", p.get_option<Uint>("dimension") );
@@ -118,11 +118,11 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   finite_volume_transformer.create_component_ptr<BuildGhostStates>("2_build_ghoststates")->mark_basic();
   finite_volume_transformer.create_component_ptr<CreateSpaceP0>   ("3_create_space_P0")->mark_basic();
   finite_volume_transformer.create_component_ptr<CBuildVolume>    ("4_build_volume_field")->mark_basic();
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   // Generate mesh
   ////////////////////////////////////////////////////////////////////////////////
-  
+
   CFinfo << "Creating domain" << CFendl;
   CDomain& domain = model.create_domain("domain");
   CMesh::Ptr mesh_ptr;
@@ -143,11 +143,11 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   CMesh& mesh = *mesh_ptr;
   CFinfo << "  Transforming mesh for finite volume: " << finite_volume_transformer.tree();
   finite_volume_transformer.transform(mesh);
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   // Create Solver / Discretization
   ////////////////////////////////////////////////////////////////////////////////
-  
+
   CFinfo << "Creating FiniteVolumeSolver" << CFendl;
   FiniteVolumeSolver& solver = model.create_solver("CF.FVM.Core.FiniteVolumeSolver").as_type<FiniteVolumeSolver>();
   solver.configure_property("physical_model",physics.full_path());
@@ -158,7 +158,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
   // Initial condition
   ////////////////////////////////////////////////////////////////////////////////
-  
+
   CFinfo << "Setting initial condition" << CFendl;
   CInitFieldFunction& init_solution = *tools.create_component_ptr<CInitFieldFunction>("init_solution");
   init_solution.configure_property("Field",find_component_with_tag(mesh,"solution").full_path());
@@ -168,7 +168,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   const Real u_L = 0.;                const Real u_R = 0.;
   const Real v_L = 0.;                const Real v_R = 0.;
   const Real g=1.4;
-  
+
   if (physics.dimensions() == 1)
   {
     RealVector3 left, right;
@@ -177,7 +177,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
     std::vector<std::string> function(3);
     for (Uint i=0; i<function.size(); ++i)
       function[i]="if(x<=5,"+to_str(left[i])+","+to_str(right[i])+")";
-    init_solution.configure_property("Functions",function);    
+    init_solution.configure_property("Functions",function);
   }
   else if (physics.dimensions() == 2)
   {
@@ -187,18 +187,18 @@ void ShockTube::signal_create_model ( SignalArgs& args )
     std::vector<std::string> function(4);
     for (Uint i=0; i<function.size(); ++i)
       function[i]="if(x<=5&y<=5,"+to_str(left[i])+","+to_str(right[i])+")";
-    init_solution.configure_property("Functions",function);    
+    init_solution.configure_property("Functions",function);
   }
   else
     throw NotSupported (FromHere(), "more than 2 dimensions not supported");
-  
+
   init_solution.transform(mesh);
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   // Boundary conditions
   ////////////////////////////////////////////////////////////////////////////////
 
-  CFinfo << "Setting Reflective Boundary conditions" << CFendl;  
+  CFinfo << "Setting Reflective Boundary conditions" << CFendl;
   if (physics.dimensions() == 1)
   {
     solver.create_bc("inlet",   find_component_recursively_with_name<CRegion>(mesh.topology(),"xneg"),   "CF.FVM.Core.BCReflectCons1D");
@@ -210,20 +210,20 @@ void ShockTube::signal_create_model ( SignalArgs& args )
     solver.create_bc("bottom",find_component_recursively_with_name<CRegion>(mesh.topology(),"bottom"),"CF.FVM.Core.BCReflectCons2D");
     solver.create_bc("left",  find_component_recursively_with_name<CRegion>(mesh.topology(),"left"),  "CF.FVM.Core.BCReflectCons2D");
     solver.create_bc("right", find_component_recursively_with_name<CRegion>(mesh.topology(),"right"), "CF.FVM.Core.BCReflectCons2D");
-  } 
+  }
   else
     throw NotSupported (FromHere(), "more than 2 dimensions not supported");
-  
+
   ////////////////////////////////////////////////////////////////////////////////
   // Writer
   ////////////////////////////////////////////////////////////////////////////////
-  
+
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","mesh_writer");
   tools.add_component(writer);
-  writer->configure_property("Fields",std::vector<URI>(1,find_component_with_tag(mesh,"solution").full_path()));
-  writer->configure_property("File",model.name()+".msh");
-  writer->configure_property("Mesh",mesh.full_path());
-  
+  writer->configure_property("fields",std::vector<URI>(1,find_component_with_tag(mesh,"solution").full_path()));
+  writer->configure_property("file",URI(model.name()+".msh"));
+  writer->configure_property("mesh",mesh.full_path());
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////

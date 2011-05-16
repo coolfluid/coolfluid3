@@ -60,17 +60,15 @@ void CMeshReader::signal_read( SignalArgs& node  )
 {
   SignalOptions options( node );
 
-  URI path = options.option<URI>("Domain");
+  URI path = options.option<URI>("location");
 
   if( path.scheme() != URI::Scheme::CPATH )
-    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
+    throw ProtocolError( FromHere(), "Wrong protocol to access the location component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  CDomain::Ptr domain = access_component_ptr( path )->as_ptr<CDomain>();
-  if (!domain)
-    throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
+  Component::Ptr location = access_component_ptr_checked( path );
 
-  std::vector<URI> files = options.array<URI>("Files");
+  std::vector<URI> files = options.array<URI>("files");
 
   // check protocol for file loading
   boost_foreach(URI file, files)
@@ -82,13 +80,12 @@ void CMeshReader::signal_read( SignalArgs& node  )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = domain->create_component_ptr<CMesh>("Mesh");
+    CMesh& mesh = location->create_component<CMesh>("Mesh");
 
     // Get the file paths
-    boost_foreach(URI file, files)
+    boost_foreach(const URI& file, files)
     {
-      boost::filesystem::path fpath( file.path() );
-      read_from_to(fpath, mesh);
+      read_from_to(file, mesh);
     }
   }
   else
@@ -99,13 +96,13 @@ void CMeshReader::signal_read( SignalArgs& node  )
 
 //////////////////////////////////////////////////////////////////////////////
 
-CMesh::Ptr CMeshReader::create_mesh_from(boost::filesystem::path& file)
+CMesh::Ptr CMeshReader::create_mesh_from(const URI& file)
 {
   // Create the mesh
   CMesh::Ptr mesh ( allocate_component<CMesh>("mesh") );
 
   // Call implementation
-  read_from_to(file,mesh);
+  read_from_to(file,*mesh);
 
   // return the mesh
   return mesh;
@@ -208,9 +205,9 @@ void CMeshReader::read_signature( SignalArgs& node )
   std::vector<URI::Scheme::Type> schemes(1);
 
   schemes[0] = URI::Scheme::CPATH;
-  options.add("Domain", URI(), "Domain to load mesh into", schemes );
+  options.add("location", URI(), "Component to load mesh into", schemes );
   schemes[0] = URI::Scheme::FILE;
-  options.add("Files", dummy, " ; " , "Files to read", schemes);
+  options.add("files", dummy, " ; " , "Files to read", schemes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

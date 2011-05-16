@@ -39,7 +39,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }
 
-  virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path);
+  virtual void write_from_to(const CMesh& mesh, const Common::URI& file);
 
   virtual std::string get_format() { return "Gmsh"; }
 
@@ -65,8 +65,7 @@ private: // data
 
   std::map<std::string,Uint> m_elementTypes;
 
-  std::map<CEntities*,Uint> m_node_start_idx;
-  std::map<CEntities*,Uint> m_element_start_idx;
+  std::map<CEntities const*,Uint> m_element_start_idx;
 
 }; // end CWriter
 

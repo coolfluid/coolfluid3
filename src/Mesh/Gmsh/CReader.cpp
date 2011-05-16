@@ -80,10 +80,11 @@ std::vector<std::string> CReader::get_extensions()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
+void CReader::read_from_to(const URI& file, CMesh& mesh)
 {
 
   // if the file is present open it
+  boost::filesystem::path fp (file.path());
   if( boost::filesystem::exists(fp) )
   {
     CFLog(VERBOSE, "Opening file " <<  fp.string() << "\n");
@@ -97,7 +98,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   m_file_basename = boost::filesystem::basename(fp);
 
   // set the internal mesh pointer
-  m_mesh = mesh;
+  m_mesh = mesh.as_ptr<CMesh>();
 
   // Create a region component inside the mesh with a generic mesh name
   // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
@@ -125,12 +126,12 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   {
     read_element_data();
 
-    read_node_data();    
+    read_node_data();
   }
 
   m_node_idx_gmsh_to_cf.clear();
   m_elem_idx_gmsh_to_cf.clear();
-  
+
   m_mesh->elements().update();
 
 //  // clean-up
@@ -151,11 +152,11 @@ void CReader::get_file_positions()
   std::string element_data("$ElementData");
   std::string node_data("$NodeData");
   std::string element_node_data("$ElementNodeData");
-  
+
   m_element_data_positions.clear();
   m_node_data_positions.clear();
   m_element_node_data_positions.clear();
-  
+
   int p;
   std::string line;
   while (!m_file.eof())
@@ -231,7 +232,7 @@ void CReader::get_file_positions()
 
   if (m_element_node_data_positions.size())
     CFwarn << "ElementNodeData record(s) found. The Gmsh reader has not implemented reading this record yet. They will be ignored" << CFendl;
-  
+
 //  CFinfo << "Mesh dimension: " << m_mesh_dimension << CFendl;
 //  CFinfo << "The number of regions is: " << m_nb_regions << CFendl;
 //  CFinfo << "Region list" << CFendl;
@@ -531,10 +532,10 @@ void CReader::read_connectivity()
       }
       elem_table_iter = conn_table_idx[phys_tag-1].find(gmsh_element_type);
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
-      
+
       CElements::Ptr elements_region = elem_table_iter->second->as_ptr<CElements>();
       CConnectivity::Row element_nodes = elements_region->node_connectivity()[row_idx];
-      
+
       m_elem_idx_gmsh_to_cf[element_number] = boost::make_tuple( elements_region , row_idx);
 
       for(Uint node = 0; node < nb_element_nodes; ++node)
@@ -580,21 +581,21 @@ void CReader::read_element_data()
   //  5 0.2
   //  6 0.4
   //  $EndElementData
-  
+
   std::map<std::string,Field> fields;
-  
+
   boost_foreach(Uint element_data_position, m_element_data_positions)
   {
     m_file.seekg(element_data_position,std::ios::beg);
     read_variable_header(fields);
   }
-  
+
   foreach_container((const std::string& name) (Field& gmsh_field) , fields)
   {
     std::vector<std::string> var_types_str;
     boost_foreach(const Uint var_type, gmsh_field.var_types)
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
-  
+
     if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
     CField& field = *m_mesh->create_component_ptr<CField>(gmsh_field.name);
     field.set_topology(m_mesh->topology().access_component(gmsh_field.topology).as_type<CRegion>());
@@ -602,7 +603,7 @@ void CReader::read_element_data()
     field.configure_property("VarTypes",var_types_str);
     field.configure_property("FieldType",gmsh_field.basis);
     field.create_data_storage();
-    
+
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
       CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_type(i))<<"]" << CFendl;
@@ -613,13 +614,13 @@ void CReader::read_element_data()
 
       CFieldView field_view("field_view");
       field_view.set_field(field);
-      
+
       Uint gmsh_elem_idx;
       Uint cf_idx;
       CElements::Ptr elements;
       Uint d;
       std::vector<Real> data(gmsh_field.var_types[i]);
-      
+
       for (Uint e=0; e<gmsh_field.nb_entries; ++e)
       {
         m_file >> gmsh_elem_idx;
@@ -662,21 +663,21 @@ void CReader::read_node_data()
   //  5 0.2
   //  6 0.4
   //  $EndNodeData
-  
+
   std::map<std::string,Field> fields;
-  
+
   boost_foreach(Uint node_data_position, m_node_data_positions)
   {
     m_file.seekg(node_data_position,std::ios::beg);
     read_variable_header(fields);
   }
-  
+
   foreach_container((const std::string& name) (Field& gmsh_field) , fields)
   {
     std::vector<std::string> var_types_str;
     boost_foreach(const Uint var_type, gmsh_field.var_types)
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
-  
+
     CField& field = *m_mesh->create_component_ptr<CField>(gmsh_field.name);
 
     field.set_topology(m_mesh->topology().access_component(gmsh_field.topology).as_type<CRegion>());
@@ -684,7 +685,7 @@ void CReader::read_node_data()
     field.configure_property("VarTypes",var_types_str);
     field.configure_property("FieldType",std::string("PointBased"));
     field.create_data_storage();
-    
+
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
       CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_type(i))<<"]" << CFendl;
@@ -695,12 +696,12 @@ void CReader::read_node_data()
 
       CFieldView field_view("field_view");
       field_view.set_field(field);
-      
+
       Uint gmsh_node_idx;
       Uint cf_idx;
       Uint d;
       std::vector<Real> data(gmsh_field.var_types[i]);
-      
+
       for (Uint e=0; e<gmsh_field.nb_entries; ++e)
       {
         m_file >> gmsh_node_idx;
@@ -729,8 +730,8 @@ void CReader::read_variable_header(std::map<std::string,Field>& fields)
 {
   std::string line;
   std::string dummy;
-  
-  
+
+
   Uint nb_string_tags(0);
   std::string var_name("var");
   std::string field_name("field");
@@ -741,18 +742,18 @@ void CReader::read_variable_header(std::map<std::string,Field>& fields)
   Uint nb_integer_tags(0);
   Uint field_time_step(0);
   Uint var_type(0);
-  Uint nb_entries(0);    
+  Uint nb_entries(0);
 
   //Re-read the line that contains the keyword '$Elements':
   getline(m_file,line);
-  
+
   // string tags
   m_file >> nb_string_tags;
   if (nb_string_tags > 0)
   {
     m_file >> var_name;
     var_name = var_name.substr(1,var_name.length()-2);
-    
+
     field_name = var_name;
     if (nb_string_tags > 1)
     {
@@ -774,7 +775,7 @@ void CReader::read_variable_header(std::map<std::string,Field>& fields)
       for (Uint i=1; i<nb_string_tags; ++i)
         m_file >> dummy;
     }
-    
+
   }
 
   // real tags
@@ -783,10 +784,10 @@ void CReader::read_variable_header(std::map<std::string,Field>& fields)
   {
     if (nb_real_tags != 1)
       throw ParsingFailed(FromHere(),"Data cannot have more than 1 real tag (time)");
-  
+
     m_file >> field_time;
   }
-  
+
   // integer tags
   m_file >> nb_integer_tags;
   if (nb_integer_tags > 0)
@@ -799,7 +800,7 @@ void CReader::read_variable_header(std::map<std::string,Field>& fields)
       throw ParsingFailed(FromHere(),"Data must have 3 integer tags (time_step, field_type, nb_entries)");
   }
   getline(m_file,line); // finish line
-  
+
   Field& field = fields[field_name];
   field.name=field_name;
   field.var_names.push_back(var_name);

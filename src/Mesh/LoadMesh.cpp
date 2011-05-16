@@ -95,8 +95,7 @@ CMesh::Ptr LoadMesh::load_mesh(const URI& file)
 {
   update_list_of_available_readers();
 
-  boost::filesystem::path fpath( file.path() );
-  const std::string extension = fpath.extension();
+  const std::string extension = file.extension();
 
   if ( m_extensions_to_readers.count(extension) == 0 )
   {
@@ -116,7 +115,7 @@ CMesh::Ptr LoadMesh::load_mesh(const URI& file)
     else
     {
       CMeshReader::Ptr meshreader = m_extensions_to_readers[extension][0];
-      return meshreader->create_mesh_from(fpath);
+      return meshreader->create_mesh_from(file);
     }
   }
 }
@@ -129,7 +128,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
 
   SignalOptions options( node );
 
-  URI path = options.option<URI>("Parent Component");
+  URI path = options.option<URI>("location");
 
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Parent Component, expecting a \'cpath\' but got \'" + path.string() +"\'");
@@ -138,7 +137,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
   Component& parent_component = access_component( path );
 
   // std::vector<URI> files = property("Files").value<std::vector<URI> >();
-  std::vector<URI> files = options.array<URI>("Files");
+  std::vector<URI> files = options.array<URI>("files");
 
   // check protocol for file loading
   boost_foreach(URI file, files)
@@ -151,13 +150,12 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = parent_component.create_component_ptr<CMesh>(options.option<std::string>("Name"));
+    CMesh::Ptr mesh = parent_component.create_component_ptr<CMesh>(options.option<std::string>("name"));
 
     // Get the file paths
     boost_foreach(URI file, files)
     {
-      boost::filesystem::path fpath( file.path() );
-      const std::string extension = fpath.extension();
+      const std::string extension = file.extension();
 
       if ( m_extensions_to_readers.count(extension) == 0 )
       {
@@ -179,7 +177,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
         else
         {
           CMeshReader::Ptr meshreader = m_extensions_to_readers[extension][0];
-          meshreader->read_from_to(fpath, mesh);
+          meshreader->read_from_to(file, *mesh);
         }
       }
     }
@@ -206,14 +204,14 @@ void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
     readers.push_back(bdr.name());
   }
 
-  options.add("Parent Component", URI(), "Path to the component to hold the mesh" );
+  options.add("location", URI(), "Path to the component to hold the mesh" );
 
-  options.add<std::string>("Name", std::string("mesh"), "Name of the mesh" );
+  options.add<std::string>("name", std::string("mesh"), "Name of the mesh" );
 
   // create de value and add the restricted list
-  options.add( "Readers", readers[0] , "Available readers", readers, " ; ");
+  options.add( "readers", readers[0] , "Available readers", readers, " ; ");
 
-  options.add("Files", dummy , " ; ", "Files to read" );
+  options.add("files", dummy , " ; ", "Files to read" );
 }
 
 } // Mesh

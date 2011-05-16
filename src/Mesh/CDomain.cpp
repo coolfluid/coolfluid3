@@ -52,8 +52,8 @@ void CDomain::signal_load_mesh ( Common::SignalArgs& node )
   SignalOptions options( node );
 
   LoadMesh& mesh_loader = find_component<LoadMesh>( Core::instance().root().get_child("Tools") );
-  CMesh::Ptr mesh = mesh_loader.load_mesh(options.option<URI>("File"));
-  mesh->rename(options.option<std::string>("Name"));
+  CMesh::Ptr mesh = mesh_loader.load_mesh(options.option<URI>("file"));
+  mesh->rename(options.option<std::string>("name"));
   add_component(mesh);
 }
 
@@ -66,9 +66,9 @@ void CDomain::signature_load_mesh ( Common::SignalArgs& node )
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::FILE;
 
-  options.add("File", URI(), "Location of the file holding the mesh", schemes );
-  options.add<std::string>("Name", std::string(), "Location of the file holding the mesh" );
-  
+  options.add("file", URI(), "Location of the file holding the mesh", schemes );
+  options.add<std::string>("name", std::string(), "Location of the file holding the mesh" );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

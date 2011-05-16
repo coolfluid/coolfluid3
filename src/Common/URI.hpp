@@ -157,6 +157,12 @@ namespace Common {
     static void split_path(const std::string & path, URI::Scheme::Type & protocol,
                       std::string & real_path);
 
+    /// Extension of a filename
+    std::string extension() const;
+
+    /// Filename without extension
+    std::string base_name() const;
+
   private:
 
     /// path string

@@ -56,13 +56,13 @@ public: // functions
   virtual std::vector<std::string> get_extensions();
 
 private: // functions
-	
+
   void get_file_positions();
 
   boost::shared_ptr<CRegion> create_region(std::string const& relative_path);
 
   void find_ghost_nodes();
-	
+
   void read_coordinates();
 
   void read_connectivity();
@@ -71,8 +71,8 @@ private: // functions
 
   void read_node_data();
 
-  virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
-	
+  virtual void read_from_to(const Common::URI& fp, CMesh& mesh);
+
 private: // data
 
   enum HashType { NODES=0, ELEMS=1 };
@@ -81,7 +81,7 @@ private: // data
   // map< gmsh index , pair< elements, index in elements > >
   std::map<Uint, boost::tuple<boost::shared_ptr<CElements>,Uint> > m_elem_idx_gmsh_to_cf;
   std::map<Uint, Uint> m_node_idx_gmsh_to_cf;
-  
+
   boost::filesystem::fstream m_file;
   boost::shared_ptr<CMesh> m_mesh;
   boost::shared_ptr<CRegion> m_region;
@@ -90,14 +90,14 @@ private: // data
   boost::shared_ptr<CNodes> m_nodes;
   std::string m_file_basename;
 
-  struct RegionData 
+  struct RegionData
   {
     Uint dim;
     Uint index;
     std::string name;
     boost::shared_ptr<CRegion> region;
   };
-	
+
   Uint m_nb_regions; // This corresponds to the number of physical groups in
                      // Gmsh terminology
   Uint m_mesh_dimension;
@@ -105,10 +105,10 @@ private: // data
 
   std::vector<RegionData> m_region_list;
 
-	std::set<Uint> m_ghost_nodes;
+  std::set<Uint> m_ghost_nodes;
   //std::set<Uint> m_ghost_elems;
-	std::set<Uint> m_nodes_to_read;
-	
+  std::set<Uint> m_nodes_to_read;
+
   std::vector<std::set<Uint> > m_node_to_glb_elements;
 
   //Markers for important places in the file to be read

@@ -6,6 +6,7 @@
 
 #include <boost/algorithm/string/replace.hpp>
 
+#include "Common/BoostFilesystem.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/CBuilder.hpp"
@@ -90,13 +91,14 @@ std::vector<std::string> CWriter::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path)
+void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 {
 
-  m_mesh = mesh;
+  m_mesh = mesh.as_ptr<CMesh>();
 
   // if the file is present open it
   boost::filesystem::fstream file;
+  boost::filesystem::path path (file_path.path());
   if (mpi::PE::instance().size() > 1)
   {
     path = boost::filesystem::basename(path) + "_P" + to_str(mpi::PE::instance().rank()) + boost::filesystem::extension(path);
@@ -142,23 +144,23 @@ void CWriter::write_header(std::fstream& file)
   {
     ++phys_name_counter;
   }
-  
+
   file << "$PhysicalNames\n";
   file << phys_name_counter << "\n";
-  
+
   phys_name_counter=0;
   boost_foreach(const CRegion& groupRegion, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
     std::string name = groupRegion.full_path().path();
     boost::algorithm::replace_first(name,m_mesh->topology().full_path().path()+"/","");
     m_groupnumber[groupRegion.full_path().path()] = ++phys_name_counter;
-    
+
     Uint group_dimensionality(0);
     boost_foreach(const CElements& elements, find_components<CElements>(groupRegion))
       group_dimensionality = std::max(group_dimensionality, elements.element_type().dimensionality());
-    
+
     file << group_dimensionality << " " << phys_name_counter << " \"" << name << "\"\n";
-    
+
   }
   file << "$EndPhysicalNames\n";
 }
@@ -171,35 +173,23 @@ void CWriter::write_coordinates(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  Uint nb_nodes(0);
-  foreach_container( (const CNodes* nodes) , m_all_nodes)
-  {
-    nb_nodes += nodes->size();
-  }
-
+  const Uint nb_nodes = m_mesh->nodes().size();
 
   file << "$Nodes\n";
   file << nb_nodes << "\n";
 
-  Uint node_number = 0;
-
-  foreach_container( (const CNodes* nodes) (std::list<CElements*> elements_list) , m_all_nodes)
+  Uint node_number=0;
+  boost_foreach(CTable<Real>::ConstRow row, m_mesh->nodes().coordinates().array())
   {
-    boost_foreach(CElements* elements, elements_list)
-      m_node_start_idx[elements] = node_number;
-
-    boost_foreach(CTable<Real>::ConstRow row, nodes->coordinates().array())
+    file << ++node_number << " ";
+    for (Uint d=0; d<3; d++)
     {
-      file << ++node_number << " ";
-      for (Uint d=0; d<3; d++)
-      {
-        if (d<m_coord_dim)
-          file << row[d] << " ";
-        else
-          file << 0 << " ";
-      }
-      file << "\n";
+      if (d<m_coord_dim)
+        file << row[d] << " ";
+      else
+        file << 0 << " ";
     }
+    file << "\n";
   }
 
   file << "$EndNodes\n";
@@ -227,7 +217,7 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint elm_number=0;
   Uint partition_number = mpi::PE::instance().rank();
 
-  boost_foreach(CEntities& elements, m_mesh->topology().elements_range())
+  boost_foreach(const CEntities& elements, m_mesh->topology().elements_range())
   {
     group_name = elements.parent().full_path().path();
     group_number = m_groupnumber[group_name];
@@ -236,14 +226,13 @@ void CWriter::write_connectivity(std::fstream& file)
 
     //file << "// Region " << elements.full_path().string() << "\n";
     elm_type = m_elementTypes[elements.element_type().builder_name()];
-    Uint node_start_idx = m_node_start_idx[&elements];
     const Uint nb_elem = elements.size();
     for (Uint e=0; e<nb_elem; ++e, ++elm_number)
     {
       file << elm_number+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << 0 << " " << partition_number;
-      boost_foreach(const Uint local_node_idx, elements.get_nodes(e))
+      boost_foreach(const Uint node_idx, elements.get_nodes(e))
       {
-        file << " " << node_start_idx+local_node_idx+1;
+        file << " " << node_idx+1;
       }
       file << "\n";
     }
@@ -281,9 +270,11 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
         elementbased_field.basis() == CField::Basis::CELL_BASED    ||
         elementbased_field.basis() == CField::Basis::FACE_BASED    )
     {
-      std::string field_name = elementbased_field.name();
+      const Real field_time = elementbased_field.property("time").value<Real>();
+      const Uint field_iter = elementbased_field.property("iteration").value<Uint>();
+      const std::string field_name = elementbased_field.name();
       std::string field_topology = elementbased_field.topology().full_path().path();
-      std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());
+      const std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());
       boost::algorithm::replace_first(field_topology,m_mesh->topology().full_path().path(),"");
       Uint nb_elements = 0;
       boost_foreach(CEntities& elements, find_components_recursively<CEntities>(elementbased_field.topology()))
@@ -316,10 +307,13 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
         RealVector data(datasize); data.setZero();
 
         file << "$ElementNodeData\n";
-        file << 1 << "\n";
+        file << 4 << "\n";
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
-        file << 1 << "\n" << 0.0 << "\n";
-        file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
+        file << "\"" << field_name << "\"\n";
+        file << "\"" << field_topology << "\"\n";
+        file << "\"" << field_basis << "\"\n";
+        file << 1 << "\n" << field_time << "\n";
+        file << 3 << "\n" << field_iter << "\n" << datasize << "\n" << nb_elements <<"\n";
 
 
         boost_foreach(CEntities& elements, find_components_recursively<CEntities>(elementbased_field.topology()))
@@ -434,13 +428,14 @@ void CWriter::write_nodal_data(std::fstream& file)
   boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
   {
     CField& nodebased_field = *field_ptr.lock();
-    
+
     if (nodebased_field.basis() == CField::Basis::POINT_BASED)
     {
-      std::string field_name = nodebased_field.name();
+      const std::string field_name = nodebased_field.name();
       std::string field_topology = nodebased_field.topology().full_path().path();
       boost::algorithm::replace_first(field_topology,m_mesh->topology().full_path().path(),"");
-      
+      const Real field_time = nodebased_field.property("time").value<Real>();
+      const Uint field_iter = nodebased_field.property("iteration").value<Uint>();
       // data_header
       Uint row_idx=0;
       for (Uint iVar=0; iVar<nodebased_field.nb_vars(); ++iVar)
@@ -468,8 +463,8 @@ void CWriter::write_nodal_data(std::fstream& file)
         file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
         file << "\"" << field_name << "\"\n";
         file << "\"" << field_topology << "\"\n";
-        file << 1 << "\n" << 0.0 << "\n";
-        file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_nodes <<"\n";
+        file << 1 << "\n" << field_time << "\n";
+        file << 3 << "\n" << field_iter << "\n" << datasize << "\n" << nb_nodes <<"\n";
 
 
         Uint local_node_idx=0;
@@ -553,9 +548,11 @@ void CWriter::write_element_data(std::fstream& file)
         elementbased_field.basis() == CField::Basis::CELL_BASED    ||
         elementbased_field.basis() == CField::Basis::FACE_BASED    )
     {
-      std::string field_name = elementbased_field.name();
+      const Real field_time = elementbased_field.property("time").value<Real>();
+      const Uint field_iter = elementbased_field.property("iteration").value<Uint>();
+      const std::string field_name = elementbased_field.name();
       std::string field_topology = elementbased_field.topology().full_path().path();
-      std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());
+      const std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());
       boost::algorithm::replace_first(field_topology,m_mesh->topology().full_path().path(),"");
       Uint nb_elements = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(elementbased_field.topology()))
@@ -594,8 +591,8 @@ void CWriter::write_element_data(std::fstream& file)
         file << "\"" << field_name << "\"\n";
         file << "\"" << field_topology << "\"\n";
         file << "\"" << field_basis << "\"\n";
-        file << 1 << "\n" << 0.0 << "\n";
-        file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
+        file << 1 << "\n" << field_time << "\n";
+        file << 3 << "\n" << field_iter << "\n" << datasize << "\n" << nb_elements <<"\n";
         boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(elementbased_field.topology()))
         {
           if (elementbased_field.exists_for_entities(field_elements))

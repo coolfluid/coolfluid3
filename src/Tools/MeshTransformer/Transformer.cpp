@@ -50,7 +50,7 @@ Transformer::commands_description Transformer::description()
   //("help,h",      value< std::string >()->implicit_value(std::string())->notifier(&help     ), "this help if no arg, or more detailed help of submodule")
   ("input",     value< std::vector<std::string> >()->notifier(&input    )->multitoken(), "input file(s)")
   ("output" ,   value< std::vector<std::string> >()->notifier(&output   )->multitoken(), "output file(s)")
-  ("transform", value< std::vector<std::string> >()->notifier(&transform)->multitoken(), "transformations")	  
+  ("transform", value< std::vector<std::string> >()->notifier(&transform)->multitoken(), "transformations")
   ;
   return desc;
 }
@@ -64,8 +64,8 @@ void Transformer::help( const std::string& param )
   std::vector<boost::shared_ptr<Mesh::CMeshWriter> > writers;
   std::map<std::string,std::string> transformers_description;
   std::map<std::string,boost::shared_ptr<Mesh::CMeshTransformer> > name_to_transformers;
-  
-  
+
+
   CFactory::Ptr meshreader_fac = Core::instance().factories().get_factory<CMeshReader>();
 
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_fac ) )
@@ -85,7 +85,7 @@ void Transformer::help( const std::string& param )
     boost_foreach(const std::string& extension, writer->get_extensions())
       extensions_to_writers[extension].push_back(writer);
   }
-  
+
   CFactory::Ptr meshtrans_fac = Core::instance().factories().get_factory<CMeshTransformer>();
 
   boost_foreach(CBuilder& bdt, find_components_recursively<CBuilder>( *meshtrans_fac ))
@@ -122,7 +122,7 @@ void Transformer::help( const std::string& param )
       boost_foreach(const std::string& ext, writer->get_extensions())
       extensions += ext + " ";
       vt.push_back(extensions);
-    }     
+    }
     vk.push_back("");                      vt.push_back("");
     vk.push_back("Transformations:");      vt.push_back("(use --help 'transformation' for more info)");
     boost_foreach(transformers_description_t transformer, transformers_description)
@@ -130,7 +130,7 @@ void Transformer::help( const std::string& param )
       vk.push_back("  " + transformer.first);     vt.push_back(transformer.second);
     }
     vk.push_back("");                      vt.push_back("");
-    
+
     // output with keys strings adjusted to the same length
     unsigned l = 0;
     for (unsigned i=0; i<vk.size(); ++i)
@@ -138,7 +138,7 @@ void Transformer::help( const std::string& param )
     l+=2;
     for (unsigned i=0; i<vk.size(); ++i)
       vk[i].insert(vk[i].end(),l-vk[i].length(),' ');
-    
+
     for (unsigned i=0; i<vk.size(); ++i)
       CFinfo << vk[i] << vt[i] << CFendl;
   }
@@ -155,7 +155,7 @@ void Transformer::help( const std::string& param )
       CFinfo << submodule << " does not exist" << CFendl;
     }
 
-  }  
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -163,12 +163,12 @@ void Transformer::help( const std::string& param )
 void Transformer::input( const std::vector<std::string>& params )
 {
   bool dryrun = false;
-  
+
   CMesh::Ptr mesh = Core::instance().root().get_child("mesh").as_ptr<CMesh>();
-  
+
   std::map<std::string,std::vector<boost::shared_ptr<Mesh::CMeshReader> > > extensions_to_readers;
   std::vector<boost::shared_ptr<Mesh::CMeshReader> > readers;
-  
+
   CFactory::Ptr meshreader_fac = Core::instance().factories().get_factory<CMeshReader>();
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_fac ) )
   {
@@ -177,16 +177,16 @@ void Transformer::input( const std::vector<std::string>& params )
     boost_foreach(const std::string& extension, reader->get_extensions())
       extensions_to_readers[extension].push_back(reader);
   }
-  
+
   boost_foreach(const std::string& value, params)
   {
-    filesystem::path inputfile (value);
+    URI inputfile (value);
     const std::string ext = inputfile.extension();
     CMeshReader::Ptr reader;
     if (!extensions_to_readers.count(ext))
     {
       Uint selection = 0;
-      CFinfo << inputfile << " has ambiguous extension " << ext << CFendl;
+      CFinfo << inputfile.path() << " has ambiguous extension " << ext << CFendl;
       boost_foreach(const CMeshReader::Ptr selectreader , readers)
       CFinfo << "  [" << selection++ +1 << "]  " << selectreader->get_format() << CFendl;
       CFinfo << "Select the correct reader: " << CFflush;
@@ -198,7 +198,7 @@ void Transformer::input( const std::vector<std::string>& params )
       Uint selection = 0;
       if (extensions_to_readers[ext].size()>1)
       {
-        CFinfo << inputfile << " with extension " << ext << " has multiple readers: " << CFendl;
+        CFinfo << inputfile.path() << " with extension " << ext << " has multiple readers: " << CFendl;
         boost_foreach(const CMeshReader::Ptr selectreader , extensions_to_readers[ext])
         CFinfo << "  [" << selection++ +1 << "]  " << selectreader->get_format() << CFendl;
         CFinfo << "Select the correct reader: " << CFflush;
@@ -207,9 +207,9 @@ void Transformer::input( const std::vector<std::string>& params )
       }
       reader = extensions_to_readers[ext][selection];
     }
-    
-    CFinfo << "\nReading " << inputfile << " with " << reader->get_format() << CFendl;
-    if (!dryrun) reader->read_from_to(inputfile,mesh);
+
+    CFinfo << "\nReading " << inputfile.path() << " with " << reader->get_format() << CFendl;
+    if (!dryrun) reader->read_from_to(inputfile,*mesh);
   }
 }
 
@@ -218,12 +218,12 @@ void Transformer::input( const std::vector<std::string>& params )
 void Transformer::output( const std::vector<std::string>& params )
 {
   bool dryrun = false;
-  
+
   CMesh::Ptr mesh = Core::instance().root().get_child("mesh").as_ptr<CMesh>();
-  
+
   std::map<std::string,std::vector<boost::shared_ptr<Mesh::CMeshWriter> > > extensions_to_writers;
   std::vector<boost::shared_ptr<Mesh::CMeshWriter> > writers;
-  
+
   CFactory::Ptr meshwriter_fac = Core::instance().factories().get_factory<CMeshWriter>();
 
   boost_foreach(CBuilder& bdw, find_components_recursively<CBuilder>( *meshwriter_fac ) )
@@ -233,17 +233,17 @@ void Transformer::output( const std::vector<std::string>& params )
     boost_foreach(const std::string& extension, writer->get_extensions())
       extensions_to_writers[extension].push_back(writer);
   }
-  
+
   boost_foreach(const std::string& value, params)
   {
-    filesystem::path outputfile (value);
+    URI outputfile (value);
     const std::string ext = outputfile.extension();
-    
+
     CMeshWriter::Ptr writer;
     if (!extensions_to_writers.count(ext))
     {
       Uint selection = 0;
-      CFinfo << outputfile << " has ambiguous extension " << ext << CFendl;
+      CFinfo << outputfile.path() << " has ambiguous extension " << ext << CFendl;
       boost_foreach(const CMeshWriter::Ptr selectwriter , writers)
       CFinfo << "  [" << selection++ +1 << "]  " << selectwriter->get_format() << CFendl;
       CFinfo << "Select the correct writer: " << CFflush;
@@ -255,7 +255,7 @@ void Transformer::output( const std::vector<std::string>& params )
       Uint selection = 0;
       if (extensions_to_writers[ext].size()>1)
       {
-        CFinfo << outputfile << " with extension " << ext << " has multiple writers: " << CFendl;
+        CFinfo << outputfile.path() << " with extension " << ext << " has multiple writers: " << CFendl;
         boost_foreach(const CMeshWriter::Ptr selectwriter , extensions_to_writers[ext])
         CFinfo << "  [" << selection++ +1 << "]  " << selectwriter->get_format() << CFendl;
         CFinfo << "Select the correct writer: " << CFflush;
@@ -264,14 +264,14 @@ void Transformer::output( const std::vector<std::string>& params )
       }
       writer = extensions_to_writers[ext][selection];
     }
-    
-    CFinfo << "\nWriting " << outputfile << " with " << writer->get_format() << CFendl;
-    
+
+    CFinfo << "\nWriting " << outputfile.path() << " with " << writer->get_format() << CFendl;
+
     std::vector<CField::Ptr> fields;
     boost_foreach ( CField& field, find_components<CField>(*mesh) )
       fields.push_back(field.as_ptr<CField>());
     if (!dryrun) writer->set_fields(fields);
-    if (!dryrun) writer->write_from_to(mesh,outputfile);
+    if (!dryrun) writer->write_from_to(*mesh,outputfile);
   }
 }
 
@@ -280,12 +280,12 @@ void Transformer::output( const std::vector<std::string>& params )
 void Transformer::transform( const std::vector<std::string>& params )
 {
   bool dryrun = false;
-  
+
   CMesh::Ptr mesh = Core::instance().root().get_child("mesh").as_ptr<CMesh>();
-  
+
   std::map<std::string,std::string> transformers_description;
   std::map<std::string,boost::shared_ptr<Mesh::CMeshTransformer> > name_to_transformers;
-  
+
   CFactory::Ptr meshtrans_fac = Core::instance().factories().get_factory<CMeshTransformer>();
 
   boost_foreach(CBuilder& bdt, find_components_recursively<CBuilder>( *meshtrans_fac ))
@@ -294,12 +294,12 @@ void Transformer::transform( const std::vector<std::string>& params )
     transformers_description[bdt.builder_concrete_type_name()] = transformer->property("brief").value<std::string>();
     name_to_transformers[bdt.builder_concrete_type_name()] = transformer;
   }
-  
+
   const std::string transformer_name = params[0];
   std::string transformer_args;
   std::vector<std::string> parsed_transformer_args;
   for (Uint i=1; i<params.size(); ++i)
-  { 
+  {
     transformer_args += params[i];
     parsed_transformer_args.push_back(params[i]);
     if (i<params.size()-1)

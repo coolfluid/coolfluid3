@@ -138,8 +138,8 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 //  URI file ( "file:rotation-qd-p3.msh" );
 //  URI file ( "file:rotation-qd-p4.msh" );
 
-  options.add("File", file );
-  options.add<std::string>("Name", std::string("Mesh") );
+  options.add("file", file );
+  options.add<std::string>("name", std::string("Mesh") );
 
   domain.signal_load_mesh( frame );
 
@@ -266,9 +266,9 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , rotationadv2d_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
-  gmsh_writer->configure_property("Fields",fields);
-  gmsh_writer->configure_property("File",model.name()+"_init.msh");
-  gmsh_writer->configure_property("Mesh",mesh->full_path());
+  gmsh_writer->configure_property("fields",fields);
+  gmsh_writer->configure_property("file",URI(model.name()+"_init.msh"));
+  gmsh_writer->configure_property("mesh",mesh->full_path());
 
   gmsh_writer->write();
 
@@ -430,27 +430,27 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
-  gmsh_writer->configure_property("Fields",fields);
-  gmsh_writer->configure_property("File",model.name()+".msh");
-  gmsh_writer->configure_property("Mesh",mesh->full_path());
+  gmsh_writer->configure_property("fields",fields);
+  gmsh_writer->configure_property("file",URI(model.name()+".msh"));
+  gmsh_writer->configure_property("mesh",mesh->full_path());
 
   gmsh_writer->write();
 
  /* CMeshWriter::Ptr vtk_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","VTKWriter");
   model.add_component(vtk_writer);
 
-  vtk_writer->configure_property("Fields",fields);
-  vtk_writer->configure_property("File",model.name()+".vtk");
-  vtk_writer->configure_property("Mesh",mesh->full_path());
+  vtk_writer->configure_property("fields",fields);
+  vtk_writer->configure_property("file",URI(model.name()+".vtk"));
+  vtk_writer->configure_property("mesh",mesh->full_path());
 
   vtk_writer->write();*/
 
  /* CMeshWriter::Ptr tec_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
   model.add_component(tec_writer);
 
-  tec_writer->configure_property("Fields",fields);
-  tec_writer->configure_property("File",model.name()+".plt");
-  tec_writer->configure_property("Mesh",mesh->full_path());
+  tec_writer->configure_property("fields",fields);
+  tec_writer->configure_property("file",URI(model.name()+".plt"));
+  tec_writer->configure_property("mesh",mesh->full_path());
 
   tec_writer->write();*/
 }

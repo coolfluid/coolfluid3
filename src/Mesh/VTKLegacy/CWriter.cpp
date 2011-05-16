@@ -8,6 +8,7 @@
 
 #include <boost/assign/list_of.hpp>
 
+#include "Common/BoostFilesystem.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
@@ -55,12 +56,13 @@ std::vector<std::string> CWriter::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path)
+void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 {
-  m_mesh = mesh;
+  m_mesh = mesh.as_ptr<CMesh>();
 
   // if the file is present open it
   boost::filesystem::fstream file;
+  boost::filesystem::path path(file_path.path());
   if (mpi::PE::instance().size() > 1)
   {
     path = boost::filesystem::basename(path) + "_P" + to_str(mpi::PE::instance().rank()) + boost::filesystem::extension(path);
@@ -72,17 +74,17 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
      throw boost::filesystem::filesystem_error( path.string() + " failed to open",
                                                 boost::system::error_code() );
   }
-  
+
   file
     << "# vtk DataFile Version 2.0\n"
     << "Exported by COOLFLuiD\n"
     << "ASCII\n"
     << "DATASET UNSTRUCTURED_GRID\n";
-    
-  const CTable<Real>& coords = mesh->topology().nodes().coordinates();
+
+  const CTable<Real>& coords = mesh.topology().nodes().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
-  
+
   // Output point coordinates
   file << "POINTS " << npoints << " double\n";
   for(Uint i = 0; i != npoints; ++i)
@@ -93,14 +95,14 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
     if(dim == 2) file << " " << 0.;
     file << "\n";
   }
-  
+
   // map for element types
   std::map<GeoShape::Type,int> etype_map = boost::assign::map_list_of
     (GeoShape::TRIAG,5)
     (GeoShape::QUAD, 9)
     (GeoShape::TETRA, 10)
     (GeoShape::HEXA, 12);
-  
+
   // Count number of elements, and the total number of connectivity nodes
   Uint nb_elems = 0;
   Uint nb_nodes = 0;
@@ -112,7 +114,7 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
       nb_nodes += elements.size() + elements.size() * elements.element_type().nb_nodes();
     }
   }
-  
+
   // Output connectivity data
   file << "\nCELLS " << nb_elems << " " << nb_nodes << "\n";
   boost_foreach(const CElements& elements, find_components_recursively<CElements>(m_mesh->topology()) )
@@ -132,7 +134,7 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
       }
     }
   }
-    
+
   // Output element types
   file << "\nCELL_TYPES " << nb_elems << "\n";
   boost_foreach(const CElements& elements, find_components_recursively<CElements>(m_mesh->topology()) )
@@ -145,25 +147,25 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
         file << " " << vtk_e_type << "\n";
     }
   }
-  
+
   // Output point fields TODO: support cell-centered data
   if(!m_fields.empty())
     file << "\nPOINT_DATA " << npoints << "\n";
-  
+
   boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
   {
     const CField& field = *field_ptr.lock();
-    
+
     // must be point based
     if(field.basis() != CField::Basis::POINT_BASED)
       continue;
-    
+
     // size must be correct
     if(field.data().size() != npoints)
       continue;
-    
+
     const CTable<Real>& data = field.data();
-    
+
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
       const std::string var_name = field.var_name(var_idx);

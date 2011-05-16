@@ -47,11 +47,8 @@ struct Nodes_Fixture
     // Read the a .neu mesh as 2D mixed mesh
     CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
-    // the file to read from
-    boost::filesystem::path fp_in ("quadtriag.neu");
-
     // Read the mesh
-    meshreader->read_from_to(fp_in,mesh2d);
+    meshreader->read_from_to("quadtriag.neu",*mesh2d);
   }
 
   /// common tear-down for each test case
@@ -87,7 +84,7 @@ BOOST_AUTO_TEST_CASE( FillVector )
   std::vector<RealVector> node_vector(conn.row_size(), RealVector(coords.row_size()));
   for(Uint element = 0; element != element_count; ++element)
   {
-    fill(node_vector, coords, conn[element]); 
+    fill(node_vector, coords, conn[element]);
     for(Uint node_idx = 0; node_idx != conn.row_size(); ++node_idx)
     {
       for(Uint xyz = 0; xyz != coords.row_size(); ++xyz)
@@ -107,7 +104,7 @@ BOOST_AUTO_TEST_CASE( FillMatrix )
   RealMatrix node_matrix(conn.row_size(), coords.row_size());
   for(Uint element = 0; element != element_count; ++element)
   {
-    fill(node_matrix, coords, conn[element]); 
+    fill(node_matrix, coords, conn[element]);
     for(Uint node_idx = 0; node_idx != conn.row_size(); ++node_idx)
     {
       for(Uint xyz = 0; xyz != coords.row_size(); ++xyz)
@@ -124,14 +121,14 @@ BOOST_AUTO_TEST_CASE( Construct_CNodes )
 {
   CNodes::Ptr nodes = allocate_component<CNodes>("nodes");
   BOOST_CHECK( is_not_null(nodes) );
-  
+
   nodes->resize(10);
   BOOST_CHECK_EQUAL(nodes->coordinates().size() , 10u);
   BOOST_CHECK_EQUAL(nodes->is_ghost().size() , 10u);
   BOOST_CHECK_EQUAL(nodes->glb_elem_connectivity().size() , 0u);
   BOOST_CHECK_EQUAL(nodes->glb_idx().size() , 0u);
-  
-  
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -243,8 +243,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
   std::stringstream outname;
   outname << "navier-stokes-lid-";
   outname << x_segments << "x" << y_segments;
-  boost::filesystem::path output_file(outname.str() + ".vtk");
-  writer->write_from_to(mesh, output_file);
+  URI output_file(outname.str() + ".vtk");
+  writer->write_from_to(*mesh, output_file);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

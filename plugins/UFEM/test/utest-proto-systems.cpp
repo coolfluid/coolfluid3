@@ -161,8 +161,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
     
     t += dt;
   }
-  boost::filesystem::path output_file("systems.msh");
-  writer->write_from_to(mesh, output_file);
+  URI output_file("systems.msh");
+  writer->write_from_to(*mesh, output_file);
 }
 
 // Expected matrices:

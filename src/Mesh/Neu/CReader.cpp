@@ -75,10 +75,11 @@ std::vector<std::string> CReader::get_extensions()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
+void CReader::read_from_to(const URI& file, CMesh& mesh)
 {
 
   // if the file is present open it
+  boost::filesystem::path fp (file.path());
   if( boost::filesystem::exists(fp) )
   {
     CFLog(VERBOSE, "Opening file " <<  fp.string() << "\n");
@@ -90,7 +91,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   }
 
   // set the internal mesh pointer
-  m_mesh = mesh;
+  m_mesh = mesh.as_ptr<CMesh>();
 
   // Read file once and store positions
   get_file_positions();
@@ -98,7 +99,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // Read mesh information
   read_headerData();
 
-  // Create a hash
+	// Create a hash
 	m_hash = create_component_ptr<CMixedHash>("hash");
 	std::vector<Uint> num_obj(2);
 	num_obj[0] = m_headerData.NUMNP;
@@ -131,7 +132,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   // close the file
   m_file.close();
-  
+
   m_mesh->elements().update();
 
 }

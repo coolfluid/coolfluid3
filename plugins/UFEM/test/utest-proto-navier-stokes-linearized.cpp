@@ -104,13 +104,13 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLinearized )
   // Setup document structure and mesh
   CRoot& root = Core::instance().root();
   
-  boost::filesystem::path input_file = boost::filesystem::path(argv[4]);
+  URI input_file = URI(argv[4]);
   
   CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
   root.add_component(mesh_reader);
   
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
-  mesh_reader->read_from_to(input_file, mesh);
+  mesh_reader->read_from_to(input_file, *mesh);
   
   // Linear system
   CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
@@ -249,8 +249,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLinearized )
       std::stringstream outname;
       outname << "navier-stokes-lin-";
       outname << std::setfill('0') << std::setw(5) << static_cast<Uint>(t / dt);
-      boost::filesystem::path output_file(outname.str() + ".vtk");
-      writer->write_from_to(mesh, output_file);
+      URI output_file(outname.str() + ".vtk");
+      writer->write_from_to(*mesh, output_file);
     }
   }
   

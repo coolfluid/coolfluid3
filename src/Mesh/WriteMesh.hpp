@@ -53,7 +53,7 @@ public: // functions
   //@} END SIGNALS
 
   /// function write the mesh
-  void write_mesh( CMesh&, const Common::URI& file, const std::vector<Common::URI>& fields);
+  void write_mesh( const CMesh&, const Common::URI& file, const std::vector<Common::URI>& fields);
 
 protected: // helper functions
 

@@ -62,7 +62,9 @@ CField::Basis::Convert& CField::Basis::Convert::instance()
 CField::CField ( const std::string& name  ) :
   Component ( name ),
   m_basis(Basis::POINT_BASED),
-  m_space_name("space[0]")
+  m_space_name("space[0]"),
+  m_iter_stamp(0),
+  m_time_stamp(0.)
 {
   mark_basic();
 
@@ -103,6 +105,12 @@ CField::CField ( const std::string& name  ) :
   option->attach_trigger ( boost::bind ( &CField::config_var_types,   this ) );
   option->mark_basic();
   config_var_types();
+
+  properties().add_option(OptionT<Uint>::create("iteration","Iteration","Iteration stamp of the field",m_iter_stamp) )
+      ->link_to(&m_iter_stamp);
+
+  properties().add_option(OptionT<Real>::create("time","Time","Time stamp of the field",m_time_stamp) )
+      ->link_to(&m_time_stamp);
 
   m_topology = create_static_component_ptr<CLink>("topology");
   m_data = create_static_component_ptr<CTable<Real> >("data");
