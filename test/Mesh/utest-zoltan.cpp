@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   meshreader->configure_property("read_boundaries",false);
 
   // the file to read from
-  boost::filesystem::path fp_in ("quadtriag.neu");
+  URI fp_in ("quadtriag.neu");
 
   // the mesh to store in
   CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   glb_connectivity->transform(mesh_ptr);
 
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  boost::filesystem::path fp_out_1 ("quadtriag.msh");
-  meshwriter->write_from_to(mesh_ptr,fp_out_1);
+  URI fp_out_1 ("quadtriag.msh");
+  meshwriter->write_from_to(*mesh_ptr,fp_out_1);
 
   CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
 
@@ -150,8 +150,8 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   BOOST_CHECK(true);
   p.migrate();
   BOOST_CHECK(true);
-  boost::filesystem::path fp_out_2 ("quadtriag_repartitioned.msh");
-  meshwriter->write_from_to(mesh_ptr,fp_out_2);
+  URI fp_out_2 ("quadtriag_repartitioned.msh");
+  meshwriter->write_from_to(*mesh_ptr,fp_out_2);
 }
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )

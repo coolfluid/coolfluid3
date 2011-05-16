@@ -65,8 +65,8 @@ Real max(const Real a, const Real b)
 
 static boost::proto::terminal< Real(*)(const Real, const Real) >::type const _max = {&max};
 
-// Solve the Navier-Stokes equations for lid driven cavity flow
-BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
+// Solve the Navier-Stokes equations for lid driven cavity flow, triangular grid
+BOOST_AUTO_TEST_CASE( ProtoNavierStokesLidTris )
 {
   int    argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;
@@ -75,13 +75,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
   const Real height = 1.;
   const Uint x_segments = 32;
   const Uint y_segments = 32;
-  
-//   const Real start_time = 0.;
-//   const Real end_time = 10.;
-//   const Real dt = 0.01;
-//   Real t = start_time;
-//   const Uint write_interval = 10;
-//   const Real invdt = 1. / dt;
   
   const Real mu = 1.;
   const Real rho = 1.;
@@ -98,7 +91,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
   CRoot& root = Core::instance().root();
   
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
-  Tools::MeshGeneration::create_rectangle(*mesh, length, height, x_segments, y_segments);
+  Tools::MeshGeneration::create_rectangle_tris(*mesh, length, height, x_segments, y_segments);
   
   // Linear system
   CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
@@ -153,8 +146,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
   {
     Timer timer;
     
-//    const Uint  = static_cast<Uint>(t / dt);
-    
     // Extrapolate velocity
     for_each_node(mesh->topology(), u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3);
     
@@ -163,7 +154,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
     // Fill the system matrix
     lss.set_zero();
     
-    for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
+    for_each_element< boost::mpl::vector1<SF::Triag2DLagrangeP1> >
     (
       mesh->topology(),
       group <<                             // Note we pass the state here, to calculate and share tau_...
@@ -193,9 +184,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
     for_each_node(top,    dirichlet(lss, u) = u_lid,  physical_model);
     for_each_node(bottom, dirichlet(lss, u) = u_wall, physical_model);
     
-    bctime = timer.elapsed(); 
-    
-//    std::cout << "Solving for time " << t << std::endl;
+    bctime = timer.elapsed();
     
     // Solve the system!
     lss.solve();
@@ -224,8 +213,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
               << "  save tsteps  : " << update_advect_time << " (" << update_advect_time/total_time*100. << "%)\n"
               << "  total        : " << total_time << std::endl;
     
-//    t += dt;
-    
     // Get the maximum difference between two subsequent solutions
     Real maxdiff = 0.;
     for_each_node(mesh->topology(), boost::proto::lit(maxdiff) = _max(maxdiff, (transpose(u - u1) * (u - u1))[0]));
@@ -241,10 +228,10 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
   
   // Output solution
   std::stringstream outname;
-  outname << "navier-stokes-lid-";
+  outname << "navier-stokes-lid-tris-";
   outname << x_segments << "x" << y_segments;
   URI output_file(outname.str() + ".vtk");
-  writer->write_from_to(*mesh, output_file);
+  writer->write_from_to(mesh, output_file);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

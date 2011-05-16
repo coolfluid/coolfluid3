@@ -13,6 +13,7 @@
 #include <boost/fusion/container/vector/convert.hpp>
 #include <boost/fusion/container/vector.hpp>
 
+#include <boost/mpl/assert.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/transform.hpp>
@@ -255,6 +256,9 @@ public:
   
   /// The result type of an interpolation at given mapped coordinates
   typedef typename InterpolationImpl<Dim>::result_type EvalT;
+  
+  // Specialization of InterpolationImpl should ensure that 1x1 matrices are replaced by Reals
+  BOOST_MPL_ASSERT_NOT(( boost::is_same<EvalT, const Eigen::Matrix<Real, 1, 1>&> ));
   
   /// Type of the gradient
   typedef typename SF::MappedGradientT GradientT;

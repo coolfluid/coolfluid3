@@ -150,6 +150,99 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   }
 }
 
+void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
+{
+  CRegion& region = mesh.topology().create_region("region");
+  CNodes& nodes = region.create_nodes(DIM_2D);
+  nodes.resize((x_segments+1)*(y_segments+1));
+  
+  const Real x_step = x_len / static_cast<Real>(x_segments);
+  const Real y_step = y_len / static_cast<Real>(y_segments);
+  Real y;
+  for(Uint j = 0; j <= y_segments; ++j)
+  {
+    y = static_cast<Real>(j) * y_step;
+    for(Uint i = 0; i <= x_segments; ++i)
+    {
+      CTable<Real>::Row row = nodes.coordinates()[j*(x_segments+1)+i];
+      row[XX] = static_cast<Real>(i) * x_step;
+      row[YY] = y;
+    }
+  }
+  
+  CCells::Ptr cells = region.create_component_ptr<CCells>("Triag");
+  cells->initialize("CF.Mesh.SF.Triag2DLagrangeP1",nodes);
+  CTable<Uint>& connectivity = cells->node_connectivity();
+  connectivity.resize(2*(x_segments)*(y_segments));
+  for(Uint j = 0; j < y_segments; ++j)
+  {
+    for(Uint i = 0; i < x_segments; ++i)
+    {
+      const Uint node0 = j * (x_segments+1) + i;
+      const Uint node1 = node0 + 1;
+      const Uint node3 = (j+1) * (x_segments+1) + i;
+      const Uint node2 = node3 + 1;
+      
+      // Upper triangle nodes
+      CTable<Uint>::Row nodes_u = connectivity[2*(j*(x_segments)+i)];
+      nodes_u[0] = node0;
+      nodes_u[1] = node2;
+      nodes_u[2] = node3;
+      
+      // Lower triangle nodes
+      CTable<Uint>::Row nodes_l = connectivity[2*(j*(x_segments)+i)+1];
+      nodes_l[0] = node0;
+      nodes_l[1] = node1;
+      nodes_l[2] = node2;
+    }
+  }
+  
+  CFaces::Ptr left = mesh.topology().create_region("left").create_component_ptr<CFaces>("Line");
+  left->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+  CTable<Uint>& left_connectivity = left->node_connectivity();
+  left_connectivity.resize(y_segments);
+  for(Uint j = 0; j < y_segments; ++j)
+  {
+    CTable<Uint>::Row crow = left_connectivity[j];
+    crow[0] = j * (x_segments+1);
+    crow[1] = (j+1) * (x_segments+1);
+  }
+  
+  CFaces::Ptr right = mesh.topology().create_region("right").create_component_ptr<CFaces>("Line");
+  right->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+  CTable<Uint>& right_connectivity = right->node_connectivity();
+  right_connectivity.resize(y_segments);
+  for(Uint j = 0; j < y_segments; ++j)
+  {
+    CTable<Uint>::Row nodes = right_connectivity[j];
+    nodes[1] = j * (x_segments+1) + x_segments;
+    nodes[0] = (j+1) * (x_segments+1) + x_segments;
+  }
+  
+  CFaces::Ptr bottom = mesh.topology().create_region("bottom").create_component_ptr<CFaces>("Line");
+  bottom->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+  CTable<Uint>& bottom_connectivity = bottom->node_connectivity();
+  bottom_connectivity.resize(x_segments);
+  for(Uint i = 0; i < x_segments; ++i)
+  {
+    CTable<Uint>::Row nodes = bottom_connectivity[i];
+    nodes[0] = i;
+    nodes[1] = i+1;
+  }
+  
+  CFaces::Ptr top = mesh.topology().create_region("top").create_component_ptr<CFaces>("Line");
+  top->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+  CTable<Uint>& top_connectivity = top->node_connectivity();
+  top_connectivity.resize(x_segments);
+  for(Uint i = 0; i < x_segments; ++i)
+  {
+    CTable<Uint>::Row nodes = top_connectivity[i];
+    nodes[1] = y_segments * (x_segments+1) + i;
+    nodes[0] = nodes[1] + 1;
+  }
+}
+
+
 /*
 void create_circle_2d(CTable<Real>& coordinates, CTable<Uint>& connectivity, const Real radius, const Uint segments, const Real start_angle, const Real end_angle)
 {

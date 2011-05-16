@@ -27,6 +27,9 @@ void MeshGeneration_API create_line(Mesh::CMesh& mesh, const Real x_len, const U
 /// Create a rectangular, 2D, quad-only mesh. No buffer for creation
 void MeshGeneration_API create_rectangle(Mesh::CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
+/// Create a triangulated version of a 2D rectangular grid.
+void MeshGeneration_API create_rectangle_tris(Mesh::CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
+
 /// Creates a 2D circular arc
 void MeshGeneration_API create_circle_2d(Mesh::CMesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*Math::MathConsts::pi());
 
