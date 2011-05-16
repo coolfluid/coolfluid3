@@ -342,7 +342,12 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
 
    for(uint idx = 0; idx < nodes; idx++ )
    {
-        (*residual)[idx][0]   = phi[idx];
+       double a= phi[idx];
+       if(a< 1e-10 && a >= 0 )
+           a = 1e-10;
+       if(a> -1e-10 && a < 0 )
+           a = -1e-10;
+       (*residual)[idx][0]   = a;
         (*wave_speed)[idx][0] = waveSpeed[idx];
    }
 

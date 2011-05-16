@@ -56,12 +56,12 @@ struct rotationadv2d_global_fixture
                               boost::unit_test::framework::master_test_suite().argv);
 
     // Load the required libraries (we assume the working dir is the binary path)
-    LibLoader& loader = *OSystem::instance().lib_loader();
+    //LibLoader& loader = *OSystem::instance().lib_loader();
     const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../../dso");
-    loader.set_search_paths(lib_paths);
+    //loader.set_search_paths(lib_paths);
 
-    loader.load_library("coolfluid_mesh_tecplot");
-    loader.load_library("coolfluid_mesh_vtklegacy");
+    //loader.load_library("coolfluid_mesh_tecplot");
+    //loader.load_library("coolfluid_mesh_vtklegacy");
 
     rotationadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
 
@@ -308,7 +308,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
   gmsh_writer->write();
 
-  CMeshWriter::Ptr vtk_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","VTKWriter");
+ /* CMeshWriter::Ptr vtk_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","VTKWriter");
   model.add_component(vtk_writer);
 
   vtk_writer->configure_property("Fields",fields);
@@ -316,7 +316,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
   vtk_writer->configure_property("Mesh",mesh->full_path());
 
   vtk_writer->write();
-
+/*
   CMeshWriter::Ptr tec_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
   model.add_component(tec_writer);
 
@@ -324,7 +324,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
   tec_writer->configure_property("File",model.name()+".plt");
   tec_writer->configure_property("Mesh",mesh->full_path());
 
-  tec_writer->write();
+  tec_writer->write();*/
 }
 
 //////////////////////////////////////////////////////////////////////////////
