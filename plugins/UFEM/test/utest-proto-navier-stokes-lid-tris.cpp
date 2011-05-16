@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLidTris )
   outname << "navier-stokes-lid-tris-";
   outname << x_segments << "x" << y_segments;
   URI output_file(outname.str() + ".vtk");
-  writer->write_from_to(mesh, output_file);
+  writer->write_from_to(*mesh, output_file);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

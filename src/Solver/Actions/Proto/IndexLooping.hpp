@@ -108,16 +108,6 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
     typedef typename boost::mpl::if_< HasJT, DimensionT, boost::mpl::int_<1> >::type IterationsJT;
     
     template<Uint NI, Uint NJ, Uint Dummy = 0>
-    struct OuterLoop;
-    
-    typedef typename OuterLoop<IterationsIT::value, IterationsJT::value>::result_type result_type;
-    
-    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
-    {
-      return OuterLoop<IterationsIT::value, IterationsJT::value>()(expr, state, data);
-    }
-  
-    template<Uint NI, Uint NJ, Uint Dummy>
     struct OuterLoop
     {
       typedef void result_type;
@@ -142,6 +132,13 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
         return ConcreteGrammarT()(expr, state, data);
       }
     };
+    
+    typedef typename OuterLoop<IterationsIT::value, IterationsJT::value>::result_type result_type;
+    
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      return OuterLoop<IterationsIT::value, IterationsJT::value>()(expr, state, data);
+    }
     
     template<Uint NJ>
     struct InnerLoop

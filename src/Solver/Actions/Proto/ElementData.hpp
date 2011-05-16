@@ -235,13 +235,47 @@ private:
 template<typename ShapeFunctionT, typename SupportSF, Uint Dim, Uint Offset, Uint MatrixSize, bool IsEquationVar>
 class SFVariableData
 {
-private:
-  // Forward declaration
-  template<Uint VarDim, int Dummy = 0>
-  struct InterpolationImpl;
 public:
   /// The shape function type
   typedef ShapeFunctionT SF;
+  
+private:
+  /// Interpolation of a field
+  template<Uint VarDim, int Dummy=0>
+  struct InterpolationImpl
+  { 
+    typedef Eigen::Matrix<Real, 1, VarDim> MatrixT;
+    typedef const MatrixT& result_type;
+    
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
+    template<typename NodeValuesT>
+    result_type operator()(const typename SF::ShapeFunctionsT& sf, const NodeValuesT& values) const
+    {
+      stored_result.noalias() = sf * values;
+      return stored_result;
+    }
+    
+    mutable MatrixT stored_result;
+  };
+
+  /// Interpolation of a scalar field
+  template<int Dummy>
+  struct InterpolationImpl<1, Dummy>
+  {
+    typedef Real result_type;
+    
+    template<typename NodeValuesT>
+    result_type operator()(const typename SF::ShapeFunctionsT& sf, const NodeValuesT& values) const
+    {
+      stored_result = sf * values;
+      return stored_result;
+    }
+    
+    mutable Real stored_result;
+  };
+  
+public:
   
   typedef GeometricSupport<SupportSF> SupportT;
   
@@ -406,41 +440,6 @@ private:
   mutable typename SF::ShapeFunctionsT m_sf;
   mutable typename SF::MappedGradientT m_mapped_gradient_matrix;
   mutable GradientT m_gradient;
-  
-  /// Interpolation of a field
-  template<Uint VarDim, int Dummy>
-  struct InterpolationImpl
-  { 
-    typedef Eigen::Matrix<Real, 1, VarDim> MatrixT;
-    typedef const MatrixT& result_type;
-    
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    
-    template<typename NodeValuesT>
-    result_type operator()(const typename SF::ShapeFunctionsT& sf, const NodeValuesT& values) const
-    {
-      stored_result.noalias() = sf * values;
-      return stored_result;
-    }
-    
-    mutable MatrixT stored_result;
-  };
-
-  /// Interpolation of a scalar field
-  template<int Dummy>
-  struct InterpolationImpl<1, Dummy>
-  {
-    typedef Real result_type;
-    
-    template<typename NodeValuesT>
-    result_type operator()(const typename SF::ShapeFunctionsT& sf, const NodeValuesT& values) const
-    {
-      stored_result = sf * values;
-      return stored_result;
-    }
-    
-    mutable Real stored_result;
-  };
   
   InterpolationImpl<Dim> m_eval;
 };
