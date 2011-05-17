@@ -14,6 +14,7 @@
 
 #include "UI/Core/NBrowser.hpp"
 #include "UI/Core/NetworkThread.hpp"
+#include "UI/Core/NGeneric.hpp"
 #include "UI/Core/NLog.hpp"
 #include "UI/Core/NPlugins.hpp"
 #include "UI/Core/NRoot.hpp"
@@ -74,15 +75,19 @@ void TreeThread::run()
   NBrowser::Ptr browser(new NBrowser());
   NTree::Ptr tree(new NTree(m_root));
   NPlugins::Ptr plugins(new NPlugins(CLIENT_PLUGINS));
+  NGeneric::Ptr uidir( new NGeneric("UI", "CF.Common.CGroup", CNode::LOCAL_NODE ) );
 
   // add components to the root
-  realRoot->add_component(log);
-  realRoot->add_component(browser);
-  realRoot->add_component(tree);
-  realRoot->add_component(plugins);
+  uidir->add_component(log);
+  uidir->add_component(browser);
+  uidir->add_component(tree);
+  uidir->add_component(plugins);
+
+  realRoot->add_component(uidir);
 
   // mark all components as basic
   m_root->mark_basic();
+  uidir->mark_basic();
   log->mark_basic();
   browser->mark_basic();
   tree->mark_basic();
