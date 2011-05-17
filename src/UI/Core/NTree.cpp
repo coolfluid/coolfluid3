@@ -517,7 +517,7 @@ void NTree::list_tree_reply(SignalArgs & args)
 
     for( ; itRem != treeRoot->root()->end<CNode>() ; itRem++)
     {
-      if(!itRem->isLocalComponent())
+      if(!itRem->isLocalComponent() && !itRem->isRoot() )
         listToRemove << itRem->name();
     }
 

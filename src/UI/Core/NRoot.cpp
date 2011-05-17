@@ -36,7 +36,7 @@ namespace Core {
 
 
 NRoot::NRoot(const std::string & name)
-  : CNode(name, "CRoot", CNode::LOCAL_NODE)
+  : CNode(name, "CRoot", CNode::STANDARD_NODE)
 {
   m_isRoot = true;
   m_uuid = boost::uuids::random_generator()();
@@ -103,8 +103,6 @@ std::string NRoot::uuid() const
 
 void NRoot::connectedToServer()
 {
-  // get some reference (for better readability)
-
   QString msg1 = "Now connected to server '%1' on port %2.";
   QString msg2 = "Attempting to register with UUID %1.";
 
