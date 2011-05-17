@@ -154,8 +154,6 @@ void GraphicalArrayTest::test_value()
 
   stringList << "hello" << "world" << "!";
 
-//  value->show();
-
   theValue = value->value();
   QVERIFY( theValue.type() == QVariant::StringList );
   QCOMPARE( theValue.toStringList(), QStringList() );
@@ -210,6 +208,7 @@ void GraphicalArrayTest::test_signalEmmitting()
   QCOMPARE( spy.count(), 2 );
 
   QCOMPARE( model->stringList(), QStringList() << "123" << "156456");
+  QCOMPARE( lineEdit->text(), QString() );
 
   spy.clear();
   //
@@ -261,6 +260,36 @@ void GraphicalArrayTest::test_isModified()
   // 4. set the same value
   model->setStringList( QStringList() << "Hello" << "World" << "and" << "Happy" << "New" << "Year!" );
   QVERIFY( !value->isModified() );
+
+  delete value;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void GraphicalArrayTest::test_removeItems()
+{
+  GraphicalArray * value = new GraphicalArray();
+  QPushButton * button = findRemoveButton(value);
+  QStringListModel * model = findModel(value);
+  QListView * view = findListView(value);
+  QItemSelectionModel::SelectionFlags flag = QItemSelectionModel::Select;
+
+  model->setStringList( QStringList() << "Hello" << "World" << "and" << "Happy" << "New" << "Year!" );
+  value->show();
+
+  view->selectionModel()->select( model->index(0), flag ); // select "Hello"
+  view->selectionModel()->select( model->index(1), flag ); // select "World"
+  view->selectionModel()->select( model->index(3), flag ); // select "Happy"
+  view->selectionModel()->select( model->index(5), flag ); // select "Year"
+
+  // simulate a click on the 'Remove' button
+  QTest::mouseClick( button, Qt::LeftButton );
+
+  QStringList values = model->stringList();
+
+  QCOMPARE( values.count(), 2 );
+  QCOMPARE( values.at(0), QString("and") );
+  QCOMPARE( values.at(1), QString("New") );
 
   delete value;
 }

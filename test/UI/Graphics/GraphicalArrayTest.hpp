@@ -47,6 +47,8 @@ private slots:
 
   void test_isModified();
 
+  void test_removeItems();
+
 private:
 
   QLineEdit * findLineEdit(const Graphics::GraphicalArray* value);
