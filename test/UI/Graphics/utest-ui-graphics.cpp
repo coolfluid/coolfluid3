@@ -13,6 +13,7 @@
 #include "Common/Assertions.hpp"
 #include "Common/Exception.hpp"
 
+#include "test/UI/Graphics/GraphicalArrayTest.hpp"
 #include "test/UI/Graphics/GraphicalBoolTest.hpp"
 #include "test/UI/Graphics/GraphicalIntTest.hpp"
 #include "test/UI/Graphics/GraphicalDoubleTest.hpp"
@@ -42,6 +43,7 @@ int main(int argc, char * argv[])
 
   CF::Common::AssertionManager::instance().AssertionThrows = true;
 
+  passed += QTest::qExec(new GraphicalArrayTest(), argc, argv);
   passed += QTest::qExec(new GraphicalBoolTest(), argc, argv);
   passed += QTest::qExec(new GraphicalDoubleTest(), argc, argv);
   passed += QTest::qExec(new GraphicalIntTest(), argc, argv);

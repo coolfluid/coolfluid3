@@ -13,6 +13,8 @@
 #include <QValidator>
 #include <QVBoxLayout>
 
+#include <QDebug>
+
 #include "UI/Core/NLog.hpp"
 
 #include "UI/Graphics/GraphicalArray.hpp"
@@ -74,33 +76,22 @@ void GraphicalArray::setValidator(QValidator * validator)
 bool GraphicalArray::setValue(const QVariant & value)
 {
   QStringList invalidValues;
+  QStringList values;
   QStringList list;
-  bool success;
+  bool success = true;
   const QValidator * validator = m_editAdd->validator();
   int pos;
 
   if(value.type() == QVariant::String)
-  {
-    QString valueStr = value.toString();
-
-    bool valid = validator == nullptr || validator->validate(valueStr, pos) == QValidator::Acceptable;
-
-    if(!valid)
-      invalidValues << valueStr;
-    else
-    {
-      list = value.toString().split("@@");
-      list.removeAll(QString());
-//      m_model->setStringList(list);
-    }
-
-  }
+    values = value.toString().split("@@");
   else if(value.type() == QVariant::StringList)
-  {
-    QStringList values = value.toStringList();
-    QStringList::iterator it = values.begin();
+    values = value.toStringList();
+  else
+    success = false;
 
-    success = true;
+  if( success )
+  {
+    QStringList::iterator it = values.begin();
 
     for( ; it != values.end() ; it++)
     {
@@ -116,15 +107,10 @@ bool GraphicalArray::setValue(const QVariant & value)
           list << value;
 
         success &= valid;
-
     }
+
+    success = invalidValues.empty();
   }
-
-  success = invalidValues.empty();
-
-  list.removeDuplicates();
-  m_originalValue = list;
-  m_model->setStringList(list);
 
   if(!success)
   {
@@ -138,6 +124,12 @@ bool GraphicalArray::setValue(const QVariant & value)
     msg = msg.arg(invalidValues.join("\"\n   \"").prepend("\n   \"").append("\""));
 
     NLog::globalLog()->addMessage(msg);
+  }
+  else
+  {
+    m_originalValue = list;
+    m_model->setStringList(list);
+    emit valueChanged();
   }
 
   return success;
