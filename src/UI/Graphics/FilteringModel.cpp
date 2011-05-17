@@ -26,10 +26,10 @@ FilteringModel::FilteringModel(QObject *parent) :
 {
   QFileIconProvider prov;
   m_icons["CRoot"] = prov.icon(QFileIconProvider::Computer);
-  m_icons["CGroup"] = prov.icon(QFileIconProvider::Folder);
-  m_icons["CMesh"] = prov.icon(QFileIconProvider::Drive);
-  m_icons["CMeshReader"] = prov.icon(QFileIconProvider::Trashcan);
-  m_icons["CLink"] = prov.icon(QFileIconProvider::Network);
+  m_icons["CF.Common.CGroup"] = prov.icon(QFileIconProvider::Folder);
+  m_icons["CF.Mesh.CMesh"] = prov.icon(QFileIconProvider::Drive);
+  m_icons["CF.Mesh.CMeshReader"] = prov.icon(QFileIconProvider::Trashcan);
+  m_icons["CF.Common.CLink"] = prov.icon(QFileIconProvider::Network);
   m_icons["NLog"] = prov.icon(QFileIconProvider::Folder);
   m_icons["NBrowser"] = prov.icon(QFileIconProvider::Folder);
   m_icons["NTree"] = prov.icon(QFileIconProvider::Folder);
