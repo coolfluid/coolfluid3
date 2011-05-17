@@ -17,6 +17,7 @@
 #include "test/UI/Graphics/GraphicalBoolTest.hpp"
 #include "test/UI/Graphics/GraphicalIntTest.hpp"
 #include "test/UI/Graphics/GraphicalDoubleTest.hpp"
+#include "test/UI/Graphics/GraphicalRestrictedListTest.hpp"
 #include "test/UI/Graphics/GraphicalStringTest.hpp"
 #include "test/UI/Graphics/GraphicalUintTest.hpp"
 #include "test/UI/Graphics/GraphicalUriTest.hpp"
@@ -47,6 +48,7 @@ int main(int argc, char * argv[])
   passed += QTest::qExec(new GraphicalBoolTest(), argc, argv);
   passed += QTest::qExec(new GraphicalDoubleTest(), argc, argv);
   passed += QTest::qExec(new GraphicalIntTest(), argc, argv);
+  passed += QTest::qExec(new GraphicalRestrictedListTest(), argc, argv);
   passed += QTest::qExec(new GraphicalStringTest(), argc, argv);
   passed += QTest::qExec(new GraphicalUintTest(), argc, argv);
   passed += QTest::qExec(new GraphicalUriTest(), argc, argv);

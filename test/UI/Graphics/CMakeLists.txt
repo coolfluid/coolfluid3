@@ -9,6 +9,7 @@ set(utest-ui-graphics_moc_classes
   GraphicalDoubleTest.hpp
   GraphicalIntTest.hpp
   GraphicalStringTest.hpp
+  GraphicalRestrictedListTest.hpp
   GraphicalUintTest.hpp
   GraphicalUriTest.hpp
   GraphicalValueTest.hpp
@@ -27,6 +28,8 @@ list( APPEND utest-ui-graphics_files
   GraphicalDoubleTest.hpp
   GraphicalIntTest.cpp
   GraphicalIntTest.hpp
+  GraphicalRestrictedListTest.cpp
+  GraphicalRestrictedListTest.hpp
   GraphicalStringTest.cpp
   GraphicalStringTest.hpp
   GraphicalUintTest.cpp
@@ -53,6 +56,8 @@ coolfluid_mark_not_orphan(
   GraphicalDoubleTest.hpp
   GraphicalIntTest.cpp
   GraphicalIntTest.hpp
+  GraphicalRestrictedListTest.cpp
+  GraphicalRestrictedListTest.hpp
   GraphicalStringTest.cpp
   GraphicalStringTest.hpp
   GraphicalUintTest.cpp

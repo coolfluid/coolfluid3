@@ -26,15 +26,13 @@ namespace Graphics {
 GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget * parent)
   : GraphicalValue(parent)
 {
-  const std::vector<boost::any> & vect = opt->restricted_list();
-
-  QStringList list;
-
   m_comboChoices = new QComboBox(this);
 
   if(opt.get() != nullptr && opt->has_restricted_list())
   {
+    QStringList list;
     std::string type = opt->type();
+    const std::vector<boost::any> & vect = opt->restricted_list();
 
     if(type == "bool")              // bool option
       vectToStringList<bool>(vect, list);
@@ -96,7 +94,7 @@ bool GraphicalRestrictedList::setValue(const QVariant & value)
     if(index > -1)
     {
       m_originalValue = value;
-      m_comboChoices->setCurrentIndex(index);
+      m_comboChoices->setCurrentIndex(index); // emits currentIndexChanged() signal
       valid = true;
     }
   }
