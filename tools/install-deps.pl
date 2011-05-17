@@ -1383,7 +1383,7 @@ sub install_paraview() {
     # extract it to the installation directory. This operation asks about 1GB
     # free disk space and takes some minutes. The archive contains a main 
     # directory which contains the directories we want, so the process is a 
-    # bit trickier that juset "extracting".
+    # bit trickier that just "extracting".
     run_command_or_die("cpack -G TGZ");
     mkpath("extracting",1);
     run_command("mv IceT-*.tar.gz extracting");
@@ -1395,6 +1395,8 @@ sub install_paraview() {
     # avoid potential "duplicate symbols" errors. Note that QtTesting is not
     # removed since it's a ParaView library.
     run_command("rm -f \$(ls IceT-*/lib/paraview-*/libQt* | grep -v 'libQtTesting')");
+    # remove copied MPI libraries as well
+    run_command("rm -f \$(ls IceT-*/lib/paraview-*/libmpi*");
     # finally, we move the remaining files to their destination.
     run_command("cd IceT-*/ ; mv -f bin/* $opt_install_dir/bin");
     run_command("cd IceT-*/ ; mv -f doc/* $opt_install_dir/doc");
