@@ -147,9 +147,9 @@ void NTreeTest::test_currentPath()
   t.setCurrentIndex( rootIndex );
   QCOMPARE( QString( t.currentPath().string().c_str()), QString("cpath://Root") );
 
-  // 3. when the current index is not the root (i.e the browsers)
+  // 3. when the current index is not the root (i.e the UI group)
   t.setCurrentIndex( t.index(0, 0, rootIndex) );
-  QCOMPARE( QString( t.currentPath().string().c_str()), QString("cpath://Root/Browsers") );
+  QCOMPARE( QString( t.currentPath().string().c_str()), QString("cpath://Root/UI") );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -165,8 +165,8 @@ void NTreeTest::test_nodePath()
   // 2. when the index is the root
   QCOMPARE( t.nodePath( rootIndex ), QString("Root/") );
 
-  // 3. when the index is not the root (i.e the browsers)
-  QCOMPARE( t.nodePath( t.index(0, 0, rootIndex) ), QString("Root/Browsers/") );
+  // 3. when the index is not the root (i.e the UI group)
+  QCOMPARE( t.nodePath( t.index(0, 0, rootIndex) ), QString("Root/UI/") );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -182,8 +182,8 @@ void NTreeTest::test_pathFromIndex()
   // 2. when the current index is the root
   QCOMPARE( QString( t.pathFromIndex( rootIndex ).string().c_str()), QString("cpath://Root") );
 
-  // 3. when the current index is not the root (i.e the browsers)
-  QCOMPARE( QString( t.pathFromIndex( t.index(0, 0, rootIndex) ).string().c_str()), QString("cpath://Root/Browsers") );
+  // 3. when the current index is not the root (i.e the UI group)
+  QCOMPARE( QString( t.pathFromIndex( t.index(0, 0, rootIndex) ).string().c_str()), QString("cpath://Root/UI") );
 
 }
 
@@ -310,14 +310,15 @@ void NTreeTest::test_indexFromPath()
 {
   NTree t;
   QModelIndex rootIndex = t.index(0, 0);
-  QModelIndex index = t.index(1, 0, rootIndex);
+  QModelIndex index = t.index(0, 0, rootIndex);
 
   CNode::Ptr node = static_cast<TreeNode*>(index.internalPointer())->node();
+
 
   // 1. get the root
   QModelIndex foundRootIndex = t.indexFromPath("cpath://Root");
   QVERIFY( foundRootIndex.isValid() );
-  QCOMPARE( foundRootIndex, t.index(0, 0) );
+  QCOMPARE( foundRootIndex, rootIndex );
 
   // 2. get another node
   QModelIndex foundIndex = t.indexFromPath(node->full_path());
@@ -387,7 +388,10 @@ void NTreeTest::test_index()
   // 2. get the first item (the root), 2nd column. Should be valid.
   QVERIFY( t.index(0, 1).isValid() );
 
-  // 3. get the 12th child under the root. Should *not* be valid.
+  // 3. get the 1st child under the root. *Should* be valid.
+  QVERIFY( t.index(0, 0, index).isValid() );
+
+  // 4. get the 12th child under the root. Should *not* be valid.
   QVERIFY( !t.index(12, 0, index).isValid() );
 }
 
@@ -397,7 +401,7 @@ void NTreeTest::test_parent()
 {
   NTree t;
   QModelIndex rootIndex = t.index(0, 0);
-  QModelIndex childIndex = t.index(1, 0, rootIndex);
+  QModelIndex childIndex = t.index(0, 0, rootIndex);
 
   QVERIFY( !t.parent(rootIndex).isValid() );
   QCOMPARE( t.parent(childIndex), rootIndex );
@@ -475,10 +479,13 @@ void NTreeTest::test_signal_list_tree()
   GUI_CHECK_NO_THROW( root->root()->get_child("Tools") );
 
   // check that the local components are still there
-  GUI_CHECK_NO_THROW( root->root()->get_child("Log") );
-  GUI_CHECK_NO_THROW( root->root()->get_child("Tree") );
-  GUI_CHECK_NO_THROW( root->root()->get_child("Browsers") );
-  GUI_CHECK_NO_THROW( root->root()->get_child("Tools") );
+  Component::Ptr uidir;
+
+  GUI_CHECK_NO_THROW( uidir = root->root()->get_child_ptr("UI") );
+  GUI_CHECK_NO_THROW( uidir->get_child("Browsers") );
+  GUI_CHECK_NO_THROW( uidir->get_child("Log") );
+  GUI_CHECK_NO_THROW( uidir->get_child("Plugins") );
+  GUI_CHECK_NO_THROW( uidir->get_child("Tree") );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -512,7 +519,7 @@ void NTreeTest::test_nodeMatches()
   QModelIndex treeIndex = t.indexFromPath( CLIENT_TREE_PATH );
   QModelIndex logIndex = t.indexFromPath( CLIENT_LOG_PATH );
 
-  t.treeRoot()->root()->get_child_ptr("Log")->as_ptr<NLog>()->addNode( node );
+  t.treeRoot()->root()->get_child("UI").get_child("Log").as_type<NLog>().addNode( node );
 
   QModelIndex nodeIndex = t.indexFromPath( CLIENT_TREE_PATH "/MyNode" );
 

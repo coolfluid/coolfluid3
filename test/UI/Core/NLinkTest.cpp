@@ -139,8 +139,8 @@ void NLinkTest::test_setTargetPath()
   GUI_CHECK_THROW( link->setTargetPath("cpath://Root/Unexisting/Component"), FailedAssertion );
 
   // 3. everything is ok
-  GUI_CHECK_NO_THROW( link->setTargetPath("cpath://Root/Log") );
-  QCOMPARE( QString(link->targetPath().string().c_str()), QString("cpath://Root/Log") );
+  GUI_CHECK_NO_THROW( link->setTargetPath("cpath://Root/UI/Log") );
+  QCOMPARE( QString(link->targetPath().string().c_str()), QString("cpath://Root/UI/Log") );
 
   tree->treeRoot()->removeNode("link");
 }
