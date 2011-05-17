@@ -65,4 +65,7 @@ if( ParaView_FOUND )
   coolfluid_log_file("ParaView version: [${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}.${PARAVIEW_VERSION_PATCH}]")
   coolfluid_log_file("ParaView library dir: ${PARAVIEW_LIBRARY_DIRS}" )
   coolfluid_log_file("ParaView libraries: ${ParaView_LIBRARIES}" )
+
+  # add paraview libraries to list of third party libraries
+  list( APPEND CF_DEPS_LIBRARIES ${ParaView_LIBRARIES} )
 endif()
