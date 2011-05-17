@@ -84,7 +84,7 @@ void GraphicalArrayTest::test_setValidator()
   QCOMPARE( lineEdit->validator(), (QValidator*) nullptr );
 
   delete validator;
-  validator = new QDoubleValidator();
+  validator = new QDoubleValidator(nullptr);
 
   // 3. set a new validator
   value->setValidator(validator);
