@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   // Write the solution
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   ufem_model->add_component(writer);
-  writer->configure_property( "Fields", std::vector<URI>(1, URI("cpath://Root/UFEMHeat/Domain/Mesh/Temperature") ) );
+  writer->configure_property( "fields", std::vector<URI>(1, URI("cpath://Root/UFEMHeat/Domain/Mesh/Temperature") ) );
   writer->write_from_to(*mesh, output_file);
 }
 

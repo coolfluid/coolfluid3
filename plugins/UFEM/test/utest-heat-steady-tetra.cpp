@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   const std::vector<URI> field_uris = boost::assign::list_of
     ( URI("cpath://Root/UFEMHeat/Domain/Mesh/Temperature") );
     //( URI("cpath://Root/UFEMHeat/Domain/Mesh/Heat") );
-  writer->configure_property( "Fields", field_uris );
+  writer->configure_property( "fields", field_uris );
 
   writer->write_from_to(*mesh, output_file);
 

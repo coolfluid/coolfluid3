@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLinearized )
   CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   root.add_component(writer);
   const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").full_path())(mesh->get_child("Pressure").full_path());
-  writer->configure_property( "Fields", out_fields );
+  writer->configure_property( "fields", out_fields );
   
   // Set initial conditions
   for_each_node(mesh->topology(), p = 0.);

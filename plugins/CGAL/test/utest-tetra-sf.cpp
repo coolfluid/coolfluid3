@@ -46,8 +46,8 @@ struct GlobalFixture {
       MeshParameters params;
       create_mesh(SphereFunction(1.), *sphere, params);
       CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-      boost::filesystem::path file_out("sphere.msh");
-      meshwriter->write_from_to(sphere,file_out);
+      URI file_out("sphere.msh");
+      meshwriter->write_from_to(*sphere,file_out);
     }
   }
 
