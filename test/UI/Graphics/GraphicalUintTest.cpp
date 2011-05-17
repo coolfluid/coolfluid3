@@ -29,6 +29,16 @@ namespace GraphicsTest {
 
 //////////////////////////////////////////////////////////////////////////
 
+void GraphicalUintTest::initTestCase()
+{
+  GraphicalInt * value = new GraphicalInt(false);
+
+  QVERIFY( is_not_null( findSpinBox(value) ) );
+  delete value;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void GraphicalUintTest::test_constructor()
 {
   GraphicalInt * value = new GraphicalInt(true);

@@ -29,6 +29,8 @@ class GraphicalBoolTest : public QObject
 
 private slots:
 
+  void initTestCase();
+
   void test_constructor();
 
   void test_setValue();

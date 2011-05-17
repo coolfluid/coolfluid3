@@ -24,6 +24,18 @@ namespace CF {
 namespace UI {
 namespace GraphicsTest {
 
+
+//////////////////////////////////////////////////////////////////////////
+
+void GraphicalDoubleTest::initTestCase()
+{
+  GraphicalDouble * value = new GraphicalDouble();
+
+  QVERIFY( is_not_null( findLineEdit(value) ) );
+
+  delete value;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void GraphicalDoubleTest::test_constructor()

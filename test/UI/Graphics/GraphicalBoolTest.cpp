@@ -24,6 +24,17 @@ namespace CF {
 namespace UI {
 namespace GraphicsTest {
 
+///////////////////////////////////////////////////////////////////////////
+
+void GraphicalBoolTest::initTestCase()
+{
+  GraphicalBool * value = new GraphicalBool();
+
+  QVERIFY( is_not_null(  findCheckBox(value) ) );
+
+  delete value;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 void GraphicalBoolTest::test_constructor()

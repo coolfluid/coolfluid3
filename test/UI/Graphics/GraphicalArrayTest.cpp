@@ -29,6 +29,20 @@ namespace GraphicsTest {
 
 //////////////////////////////////////////////////////////////////////////
 
+void GraphicalArrayTest::initTestCase()
+{
+  GraphicalArray * value = new GraphicalArray();
+
+  QVERIFY( is_not_null( findLineEdit(value) ) );
+  QVERIFY( is_not_null( findRemoveButton(value) ) );
+  QVERIFY( is_not_null( findListView(value) ) );
+  QVERIFY( is_not_null( findModel(value) ) );
+
+  delete value;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void GraphicalArrayTest::test_constructor()
 {
   GraphicalArray * value = new GraphicalArray();

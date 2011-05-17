@@ -26,6 +26,17 @@ namespace GraphicsTest {
 
 //////////////////////////////////////////////////////////////////////////
 
+void GraphicalStringTest::initTestCase()
+{
+  GraphicalString * value = new GraphicalString();
+
+  QVERIFY( is_not_null( findLineEdit(value) ) );
+
+  delete value;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void GraphicalStringTest::test_constructor()
 {
   GraphicalString * value = new GraphicalString();

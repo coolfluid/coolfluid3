@@ -27,6 +27,18 @@ namespace GraphicsTest {
 
 //////////////////////////////////////////////////////////////////////////
 
+void GraphicalUriTest::initTestCase()
+{
+  GraphicalUri * value = new GraphicalUri();
+
+  QVERIFY( is_not_null( findLineEdit(value) ) );
+  QVERIFY( is_not_null( findComboBox(value) ) );
+
+  delete value;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 void GraphicalUriTest::test_constructor()
 {
   GraphicalUri * value = new GraphicalUri();
