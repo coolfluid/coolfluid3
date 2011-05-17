@@ -27,7 +27,6 @@ namespace Proto {
 struct ElementMathBase :
   boost::proto::or_
   <
-    SFOps,
     NodalValues,
     boost::proto::when // As a special case, fields can be used as a functor taking mapped coordinates. In this case, the interpolated value is returned
     <
@@ -44,6 +43,7 @@ struct ElementMathBase :
 struct ElementMath :
   boost::proto::or_
   <
+    SFOps< boost::proto::terminal<boost::proto::_> >,
     ElementMathBase,
     ElementMatrixSubBlocks<boost::proto::_>,
     EigenMath<ElementMath, boost::proto::or_<Integers, boost::proto::terminal< IndexTag<boost::proto::_> > > >
@@ -56,6 +56,7 @@ struct ElementMathIndexed :
   boost::proto::or_
   <
     IndexValues<I, J>,
+    SFOps< boost::proto::call< ElementMathIndexed<I, J> > >,
     ElementMathBase,
     ElementMatrixGrammarIndexed<I, J>,
     EigenMath<boost::proto::call< ElementMathIndexed<I,J> >, boost::proto::or_<Integers, IndexValues<I, J> > >

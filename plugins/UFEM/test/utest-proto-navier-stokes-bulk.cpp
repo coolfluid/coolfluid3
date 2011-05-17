@@ -22,7 +22,6 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
-#include "Common/LibLoader.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/Timer.hpp"
 
@@ -139,14 +138,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   tau.nu = mu / rho;
   tau.rho = rho;
   
-  // Load the required libraries (we assume the working dir is the binary path)
-  LibLoader& loader = *OSystem::instance().lib_loader();
-  
-  const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../../dso")("../../../src/Mesh/VTKLegacy");
-  loader.set_search_paths(lib_paths);
-  
-  loader.load_library("coolfluid_mesh_vtklegacy");
-  
   // Setup document structure and mesh
   CRoot& root = Core::instance().root();
   
@@ -180,7 +171,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
   
   // Setup a mesh writer
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
   root.add_component(writer);
   const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").full_path())(mesh->get_child("Pressure").full_path());
   writer->configure_property( "fields", out_fields );

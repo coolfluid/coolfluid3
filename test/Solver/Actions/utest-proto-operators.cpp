@@ -303,7 +303,7 @@ MakeSFOp<Counter>::type counter = {};
 /// Test a custom operator that modifies its arguments
 BOOST_AUTO_TEST_CASE( VoidOp )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line2");
   Tools::MeshGeneration::create_line(*mesh, 1., 10);
   
   // Check if the counter really counts
@@ -404,6 +404,21 @@ BOOST_AUTO_TEST_CASE(IntegralConstant)
   BOOST_CHECK_EQUAL(boost::proto::value(IntegralConstantGrammar<3>()(integral_const)), 3);
 }
 
+
+/// Custom op taking indices as argument
+struct IndexPrinter
+{
+  typedef void result_type;
+  
+  template<typename I, typename J>
+  void operator()(const I, const J)
+  {
+    std::cout << "I is " << I::value << ", J is " << J::value << std::endl;
+  }
+};
+
+static MakeSFOp<IndexPrinter>::type const print_indices = {};
+
 BOOST_AUTO_TEST_CASE(IndexLooper)
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("QuadGrid");
@@ -421,6 +436,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
     group <<
     (
       _cout << "i: " << _i << ", j: " << _j << "\n",
+      print_indices(_i, _j),
       boost::proto::lit(result_i) += boost::proto::lit(idx)[_i], // Loop with _i in (0, 1)
       boost::proto::lit(result_j) += boost::proto::lit(idx)[_j], // Loop with _j in (0, 1)
       boost::proto::lit(result_ij) += boost::proto::lit(idx)[_i] + boost::proto::lit(idx)[_j] // Nested loop forall(_i): forall(_j)

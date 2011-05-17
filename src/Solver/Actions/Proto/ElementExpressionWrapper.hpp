@@ -30,6 +30,7 @@ struct LazyIndexedGrammar :
   boost::proto::or_
   <
     IndexValues<I, J>,
+    SFOps< boost::proto::call< LazyIndexedGrammar<I, J> > >,
     FieldInterpolation,
     ElementMathBase,
     ElementMatrixGrammarIndexed<I, J>,

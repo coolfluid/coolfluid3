@@ -18,6 +18,7 @@
 /// @file
 /// Operations used in element-wise expressions
 
+struct C;
 namespace CF {
 namespace Solver {
 namespace Actions {
@@ -303,12 +304,38 @@ struct ShapeFunctionOp : boost::proto::transform< ShapeFunctionOp >
 };
 
 /// Operation with a custom implementation
-template<typename OpImpl>
-struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl> >
+template<typename OpImpl, typename GrammarT>
+struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl, GrammarT> >
 {
+  /// Catch field terminals first
+  struct ChildGrammar :
+    boost::proto::or_
+    <
+      boost::proto::when<FieldTypes, boost::proto::_value>,
+      GrammarT
+    >
+  {
+  };
+  
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
+    /// Helper to get the variable type at a child of an expression
+    template<int Idx>
+    struct EvaluatedChild
+    {
+      typedef typename boost::remove_const
+      <
+        typename boost::remove_reference
+        <
+          typename boost::result_of
+          <
+            ChildGrammar(typename boost::proto::result_of::child_c<ExprT, Idx>::type, StateT, DataT)
+          >::type
+        >::type
+      >::type type;
+    };
+    
     /// Get the type for the child at index I
     /// Terminal values are left unchanged, numbered variables are replaced by their context data
     template<Uint I>
@@ -328,7 +355,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
         typedef typename VarDataType<VarI, DataT>::type type;
       };
       
-      typedef typename DataType<typename VarChild<ExprT, I>::type>::type type;
+      typedef typename DataType<typename EvaluatedChild<I>::type>::type type;
     };
     
     /// Helper to get the actual value of a child.
@@ -399,7 +426,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(GetChild<typename VarChild<ExprT, 1>::type>()(boost::proto::value(boost::proto::child_c<1>(expr)), data));
+        return OpImpl()(GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data));
       }
       
       result_type operator()(boost::proto::tag::function,
@@ -410,8 +437,8 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
       {
         return OpImpl()
         (
-          GetChild<typename VarChild<ExprT, 1>::type>()(boost::proto::value(boost::proto::child_c<1>(expr)), data),
-          GetChild<typename VarChild<ExprT, 2>::type>()(boost::proto::value(boost::proto::child_c<2>(expr)), data)
+          GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data)
         );
       }
       
@@ -423,10 +450,10 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
       {
         return OpImpl()
         (
-          GetChild<typename VarChild<ExprT, 1>::type>()(boost::proto::value(boost::proto::child_c<1>(expr)), data),
-          GetChild<typename VarChild<ExprT, 2>::type>()(boost::proto::value(boost::proto::child_c<2>(expr)), data),
-          GetChild<typename VarChild<ExprT, 3>::type>()(boost::proto::value(boost::proto::child_c<3>(expr)), data),
-          GetChild<typename VarChild<ExprT, 4>::type>()(boost::proto::value(boost::proto::child_c<4>(expr)), data)
+          GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<3>::type>()(ChildGrammar()(boost::proto::child_c<3>(expr), state, data), data),
+          GetChild<typename EvaluatedChild<4>::type>()(ChildGrammar()(boost::proto::child_c<4>(expr), state, data), data)
         );
       }
     };
@@ -441,7 +468,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
                              typename impl::state_param state,
                              typename impl::data_param data) const
       {
-        return OpImpl()(expr.value, GetChild<typename VarChild<ExprT, 1>::type>()(boost::proto::value(boost::proto::child_c<1>(expr)), data));
+        return OpImpl()(expr.value, GetChild<typename EvaluatedChild<1>::type>()(boost::proto::value(boost::proto::child_c<1>(expr)), data));
       }
     };
     
@@ -452,7 +479,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
 template<typename OpT>
 struct SFOp
 {
-  typedef OpT type;
+  typedef OpT result_type;
 };
 
 template<typename CustomT>
@@ -463,14 +490,21 @@ struct CustomSFOp
 template<typename OpT>
 struct SFOp< CustomSFOp<OpT> >
 {
-  typedef OpT type;
+  template<typename Signature>
+  struct result;
+
+  template<typename This, typename GrammarT>
+  struct result<This(GrammarT)>
+  {
+    typedef CustomSFOpTransform<OpT, GrammarT> type;
+  };
 };
 
 /// Helper struct to declare custom types
 template<typename OpT>
 struct MakeSFOp
 {
-  typedef typename boost::proto::terminal< SFOp< CustomSFOp< CustomSFOpTransform<OpT> > > >::type const type;
+  typedef typename boost::proto::terminal< SFOp< CustomSFOp< OpT > > >::type const type;
 };
 
 /// Static terminals that can be used in proto expressions

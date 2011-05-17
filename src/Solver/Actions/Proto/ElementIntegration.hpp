@@ -216,7 +216,7 @@ template<typename I, typename J>
 struct ElementMathImplicitIndexed :
   boost::proto::or_
   <
-    SFOps,
+    SFOps< boost::proto::call< ElementMathImplicitIndexed<I, J> > >,
     FieldInterpolation,
     MathTerminals,
     ElementMatrixGrammar,

@@ -23,34 +23,57 @@ namespace Solver {
 namespace Actions {
 namespace Proto {
 
-/// Primitive transform to extract the type of an SFOp
-struct ExtractOp : boost::proto::transform< ExtractOp >
+/// Runs a shape function operation that is used as a terminal
+template<typename GrammarT>
+struct RunTerminalOp : boost::proto::transform< RunTerminalOp<GrammarT> >
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    typedef typename boost::remove_reference<ExprT>::type::type result_type;
+    typedef typename boost::remove_reference<typename boost::proto::result_of::value<ExprT>::type>::type ValueT;
+    typedef typename boost::result_of<ValueT(GrammarT)>::type OpT;
+    typedef typename boost::result_of<OpT(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type result_type;
     
-    result_type operator()(typename impl::expr_param, typename impl::state_param, typename impl::data_param)
+    result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data)
     {
-      return result_type();
+      return OpT()(expr, state, data);
+    }
+  };
+};
+  
+/// Runs a shape function operation that is used as a function call
+template<typename GrammarT>
+struct RunFunctionOp : boost::proto::transform< RunFunctionOp<GrammarT> >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef typename boost::proto::result_of::child_c<ExprT, 0>::type Child0;
+    typedef typename boost::remove_reference<typename boost::proto::result_of::value<Child0>::type>::type ValueT;
+    typedef typename boost::result_of<ValueT(GrammarT)>::type OpT;
+    typedef typename boost::result_of<OpT(typename impl::expr_param, typename impl::state_param, typename impl::data_param)>::type result_type;
+    
+    result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data)
+    {
+      return OpT()(expr, state, data);
     }
   };
 };
 
 /// Shape-function related operations
+template<typename GrammarT>
 struct SFOps :
   boost::proto::or_
   <
     boost::proto::when
     <
       boost::proto::function< boost::proto::terminal< SFOp<boost::proto::_> >, boost::proto::vararg<boost::proto::_> >,
-      boost::proto::lazy< boost::proto::call<ExtractOp(boost::proto::_value(boost::proto::_child0))> >
+      RunFunctionOp<GrammarT>
     >,
     boost::proto::when
     <
       boost::proto::terminal< SFOp<boost::proto::_> >,
-      boost::proto::lazy< boost::proto::call<ExtractOp(boost::proto::_value)> >
+      RunTerminalOp<GrammarT>
     >
   >
 {
@@ -87,7 +110,7 @@ struct FieldInterpolation :
 struct ElementMathImplicit :
   boost::proto::or_
   <
-    SFOps,
+    SFOps< boost::proto::terminal<boost::proto::_> >,
     FieldInterpolation,
     MathTerminals,
     EigenMath<ElementMathImplicit, Integers>

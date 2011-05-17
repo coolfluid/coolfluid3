@@ -22,7 +22,6 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
-#include "Common/LibLoader.hpp"
 #include "Common/OSystem.hpp"
 
 #include "Mesh/CMesh.hpp"
