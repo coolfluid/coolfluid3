@@ -32,8 +32,9 @@ public: // functions
   State( const std::string& name = type_name() ) : Solver::State(name)
   {
     m_var_names.resize(1,"Q");
+    m_advection_speed = 1.;
   }
-  
+
   /// Virtual destructor
   virtual ~State() {}
 
@@ -51,7 +52,7 @@ public: // functions
   virtual void set_state( const RealVector& state, Solver::Physics& p)
   {
     p.init();
-    p.set_var(AdvectionDiffusion::Physics::Vx, 1.);
+    p.set_var(AdvectionDiffusion::Physics::Vx, m_advection_speed);
     p.set_var(AdvectionDiffusion::Physics::S , state[0]);
   }
 
@@ -102,10 +103,12 @@ public: // functions
     S /= static_cast<Real>(states.size());
 
     p.init();
-    p.set_var(AdvectionDiffusion::Physics::Vx, 1.);
+    p.set_var(AdvectionDiffusion::Physics::Vx, m_advection_speed);
     p.set_var(AdvectionDiffusion::Physics::S,  S );
   }
 
+private:
+  Real m_advection_speed;
 }; // State
 
 ////////////////////////////////////////////////////////////////////////////////

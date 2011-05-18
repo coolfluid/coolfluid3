@@ -41,17 +41,19 @@ public: // functions
 
   /// Simulates this model
   virtual void execute();
-  
+
   Uint iter() { return m_iter; }
 
 protected: // data
-  
+
   /// maximum number of iterations this simulation will do
   Uint m_iter;
 
   Uint m_max_iter;
 
   bool m_verbose;
+
+  bool m_export;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

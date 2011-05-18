@@ -27,12 +27,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-
 namespace CF {
 namespace Mesh {
 namespace Neu {
+
+using namespace CF::Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +67,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path(file_path.path());
-  CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
+  CFinfo <<  "Opening file " <<  path.string() << CFendl;
   file.open(path,std::ios_base::out);
   if (!file) // didn't open so throw exception
   {
@@ -177,7 +176,6 @@ void CWriter::write_coordinates(std::fstream& file)
 void CWriter::write_connectivity(std::fstream& file)
 {
   file << "      ELEMENTS/CELLS 2.3.16" << std::endl;
-  /// @todo //////////////////////////
 
   // global element number
   Uint elm_number=0;
@@ -283,7 +281,6 @@ void CWriter::write_groups(std::fstream& file)
     }
   }
 }
-
 
 //////////////////////////////////////////////////////////////////////////////
 

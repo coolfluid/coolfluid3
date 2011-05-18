@@ -270,8 +270,8 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
         elementbased_field.basis() == CField::Basis::CELL_BASED    ||
         elementbased_field.basis() == CField::Basis::FACE_BASED    )
     {
-      const Real field_time = elementbased_field.property("time").value<Real>();
-      const Uint field_iter = elementbased_field.property("iteration").value<Uint>();
+      const Real field_time = 0;//elementbased_field.property("time").value<Real>();
+      const Uint field_iter = 0;//elementbased_field.property("iteration").value<Uint>();
       const std::string field_name = elementbased_field.name();
       std::string field_topology = elementbased_field.topology().full_path().path();
       const std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());

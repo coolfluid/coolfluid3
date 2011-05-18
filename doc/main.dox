@@ -288,8 +288,8 @@ public: // functions
   static std::string type_name () { return "CGroup"; }
 };
 
-} //namespace CF
 } //namespace Common
+} //namespace CF
 @endcode
 
 Noteworthy here is:

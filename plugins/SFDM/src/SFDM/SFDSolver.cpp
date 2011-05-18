@@ -22,9 +22,9 @@
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/ComputeRhsInCell.hpp"
 
-//#include "SFDM/Core/ComputeUpdateCoefficient.hpp"
-//#include "SFDM/Core/UpdateSolution.hpp"
-//#include "SFDM/Core/OutputIterationInfo.hpp"
+#include "SFDM/ComputeUpdateCoefficient.hpp"
+#include "SFDM/UpdateSolution.hpp"
+#include "SFDM/OutputIterationInfo.hpp"
 //#include "SFDM/Core/BC.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -51,8 +51,6 @@
 #include "Mesh/Actions/CInitFieldConstant.hpp"
 //#include "Mesh/Actions/CBuildFaceNormals.hpp"
 
-#include "SFDM/ComputeUpdateCoefficient.hpp"
-#include "SFDM/UpdateSolution.hpp"
 
 namespace CF {
 namespace SFDM {
@@ -113,7 +111,7 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
   m_compute_rhs = m_iterate->create_static_component<CGroupActions>("2_compute_rhs").mark_basic().as_ptr<CGroupActions>();
 
   // set the compute rhs action
-  m_compute_rhs->create_static_component<CInitFieldConstant>("2.1_init_residual")
+  m_compute_rhs->create_static_component <CInitFieldConstant>("2.1_init_residual")
     .configure_property("Constant",0.)
     .mark_basic()
     .property("Field").as_option().add_tag("residual");
@@ -130,7 +128,7 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
   m_compute_update_coefficient = m_iterate->create_static_component_ptr<ComputeUpdateCoefficient>("3_compute_update_coeff");
   m_update_solution = m_iterate->create_static_component_ptr<UpdateSolution>("4_update_solution");
   m_iterate->create_static_component_ptr<CAdvanceTime>("5_advance_time");
-  m_iterate->create_static_component_ptr<CGroupActions/*OutputIterationInfo*/>("6_output_info");
+  m_iterate->create_static_component_ptr<OutputIterationInfo>("6_output_info");
   m_iterate->create_static_component_ptr<CCriterionTime>("time_stop_criterion");
 }
 

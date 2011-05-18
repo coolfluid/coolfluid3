@@ -50,7 +50,7 @@ protected: // data
 
   std::vector<Uint> m_nb_cells;
   std::vector<Real> m_lengths;
-  
+
   boost::weak_ptr<CMesh> m_mesh;
 
 };

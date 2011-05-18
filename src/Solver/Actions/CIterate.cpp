@@ -12,6 +12,8 @@
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/FindComponents.hpp"
+#include "Common/Core.hpp"
+#include "Common/CEnv.hpp"
 
 #include "Math/MathConsts.hpp"
 
@@ -32,6 +34,8 @@ Common::ComponentBuilder < CIterate, CAction, LibActions > CIterate_Builder;
 CIterate::CIterate( const std::string& name  ) :
   CAction ( name ),
   m_iter(0),
+  m_verbose(false),
+  m_export(true),
   m_max_iter(Uint_max())
 {
   mark_basic();
@@ -41,9 +45,12 @@ CIterate::CIterate( const std::string& name  ) :
   "It can have one or more stop criteria\n";
   properties()["description"] = description;
 
-  properties().add_option( OptionT<bool>::create("verbose","Verbose","Print iteration number",false))
+  properties().add_option( OptionT<bool>::create("verbose","Verbose","Print iteration number",m_verbose))
     ->link_to(&m_verbose);
-  
+
+  properties().add_option( OptionT<bool>::create("export","Export","Export the variable ${iter} to Core::environment()",m_export))
+    ->link_to(&m_export);
+
   properties().add_option< OptionT<Uint> >("MaxIterations","Maximal number of iterations",m_max_iter)
     ->link_to(&m_max_iter);
 }
@@ -75,6 +82,9 @@ void CIterate::execute ()
 
     if (m_verbose)
       CFinfo << full_path().path() << "[" << m_iter << "]" << CFendl;
+
+    if (m_export)
+      Core::instance().environment().properties()["iter"] = m_iter;
 
     // call all actions inside this component
     boost_foreach(CAction& action, find_components<CAction>(*this))

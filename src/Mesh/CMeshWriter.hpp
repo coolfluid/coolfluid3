@@ -9,9 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <list>
-
 #include "Common/FindComponents.hpp"
+#include "Common/CAction.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
@@ -31,7 +30,7 @@ namespace Mesh {
 /// This class serves as a component that that will write
 /// the mesh to a file
 /// @author Willem Deconinck
-class Mesh_API CMeshWriter : public Common::Component {
+class Mesh_API CMeshWriter : public Common::CAction {
 
 public: // typedefs
 
@@ -63,7 +62,7 @@ public: // functions
 
   virtual void write_from_to(const CMesh& mesh, const Common::URI& filepath) = 0;
 
-  void write();
+  void execute();
 
   void set_fields(const std::vector<boost::shared_ptr<CField> >& fields);
 

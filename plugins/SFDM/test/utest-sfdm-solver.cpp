@@ -8,11 +8,13 @@
 #define BOOST_TEST_MODULE "Test module for CF::SFDM"
 
 #include <boost/test/unit_test.hpp>
-
+#include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 #include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/CEnv.hpp"
 #include "Common/FindComponents.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -48,6 +50,8 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 BOOST_AUTO_TEST_CASE( Solver )
 {
+  Core::instance().environment().configure_property("log_level", (Uint)INFO);
+
   CModelUnsteady& model   = Core::instance().root().create_component<CModelUnsteady>("model");
   CPhysicalModel& physics = model.create_physics("Physics");
   CDomain&        domain  = model.create_domain("Domain");
@@ -64,8 +68,8 @@ BOOST_AUTO_TEST_CASE( Solver )
 
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   CMesh& mesh = domain.create_component<CMesh>("mesh");
-  const Uint divisions=200;
-  const Real length=2.*divisions;
+  const Uint divisions=100;
+  const Real length=10.;
   CSimpleMeshGenerator::create_line(mesh, length, divisions);
 
 
@@ -91,43 +95,44 @@ BOOST_AUTO_TEST_CASE( Solver )
 
   solver.configure_option_recursively("time",model.time().full_path());
   solver.configure_option_recursively("time_accurate",true);
+  solver.configure_option_recursively("cfl",1.);
 
-  model.time().configure_property("end_time",length/2.);
-  model.time().configure_property("time_step",length);
+  model.time().configure_property("end_time",2.5);
+  model.time().configure_property("time_step",5.);
 
   /// Initialize solution field with the function sin(2*pi*x)
   Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
   //init_field->configure_property("Functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
 
-  std::string gaussian="sigma:="+to_str(length/7.)+"; mu:="+to_str(length/2)+"; 1/sqrt(2*pi*sigma)*exp(-(x-mu)^2/(2*sigma))";
+  std::string gaussian="sigma:="+to_str(1.)+"; mu:="+to_str(5.)+"; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";
   init_field->configure_property("Functions",std::vector<std::string>(1,gaussian));
   init_field->configure_property("Field",find_component_with_tag<CField>(mesh,"solution").full_path());
   init_field->transform(mesh);
 
 
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   std::vector<CField::Ptr> fields;
   fields.push_back(find_component_with_tag<CField>(mesh,"solution").as_ptr<CField>());
-  gmsh_writer->set_fields(fields);
-  boost::filesystem::path filename;
+  fields.push_back(find_component_with_tag<CField>(mesh,"jacobian_determinant").as_ptr<CField>());
+  fields.push_back(find_component_with_tag<CField>(mesh,"residual").as_ptr<CField>());
+  fields.push_back(find_component_with_tag<CField>(mesh,"wave_speed").as_ptr<CField>());
 
+  CMeshWriter& gmsh_writer = solver.get_child("iterate").build_component("7_gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  gmsh_writer.configure_property("mesh",mesh.full_path());
+  gmsh_writer.configure_property("file",URI("line_${iter}.msh"));
+  gmsh_writer.set_fields(fields);
 
-  gmsh_writer->write_from_to(mesh,URI("line_"+to_str(model.time().time())+".msh"));
-
-
-
-
-  solver.get_child("iterate").configure_property("verbose",true);
-  //solver.get_child("iterate").configure_property("MaxIterations",1u);
-  solver.solve();
+  gmsh_writer.execute();
 
   CFinfo << model.tree() << CFendl;
 
-  CFinfo << "time = " << model.time().time();
+  //solver.get_child("iterate").configure_property("MaxIterations",1u);
+  solver.solve();
 
-  filename = ("line_"+to_str(model.time().time())+".msh");
+  gmsh_writer.configure_property("file",URI("final.msh"));
+  gmsh_writer.execute();
+
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  gmsh_writer->write_from_to(mesh,"line_"+to_str(model.time().time())+".msh");
+//  gmsh_writer->write_from_to(mesh,"line_"+to_str(model.time().time())+".msh");
 
 }
 
@@ -136,4 +141,3 @@ BOOST_AUTO_TEST_CASE( Solver )
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
-

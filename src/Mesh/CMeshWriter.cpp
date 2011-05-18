@@ -4,10 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/regex.hpp>
+#include <boost/algorithm/string/replace.hpp>
+
 #include "Common/Signal.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/CEnv.hpp"
+#include "Common/Core.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CNodes.hpp"
@@ -21,7 +26,7 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CMeshWriter::CMeshWriter ( const std::string& name  ) :
-  Component ( name ), m_coord_dim(0), m_max_dimensionality(0)
+  CAction ( name ), m_coord_dim(0), m_max_dimensionality(0)
 {
   mark_basic();
 
@@ -78,18 +83,29 @@ CMeshWriter::~CMeshWriter()
 
 void CMeshWriter::signal_write( SignalArgs& node  )
 {
-  write();
+  execute();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshWriter::write()
+void CMeshWriter::execute()
 {
   // Get the mesh
   const CMesh& mesh = access_component(property("mesh").value<URI>()).as_type<CMesh>();
 
   // Get the file path
-  URI file = property("file").value<URI>();
+  std::string file = property("file").value<URI>().string();
+
+  // Check for environment variables
+  CEnv& environment = Core::instance().environment();
+  boost::regex re("\\$\\{(\\w+)\\}");
+  boost::sregex_iterator i(file.begin(), file.end(), re);
+  boost::sregex_iterator j;
+  for(; i!=j; ++i)
+  {
+    if (environment.properties().check((*i)[1]) )
+      boost::algorithm::replace_all(file,std::string((*i)[0]),environment.property((*i)[1]).value_str());
+  }
 
   // Call implementation
   write_from_to(mesh,file);

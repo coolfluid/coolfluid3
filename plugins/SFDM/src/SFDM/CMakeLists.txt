@@ -9,10 +9,10 @@ list( APPEND coolfluid_sfdm_files
   CreateSpace.cpp
   LibSFDM.hpp
   LibSFDM.cpp
+  OutputIterationInfo.hpp
+  OutputIterationInfo.cpp
   Reconstruct.hpp
   Reconstruct.cpp
-  Flux.hpp
-  Flux.cpp
   ShapeFunction.hpp
   ShapeFunction.cpp
   SFDSolver.hpp

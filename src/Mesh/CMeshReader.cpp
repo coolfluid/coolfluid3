@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Foreach.hpp"
 #include "Common/BoostFilesystem.hpp"
-
 #include "Common/Signal.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
-#include "Common/Foreach.hpp"
+#include "Common/CreateComponent.hpp"
+
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/all_reduce.hpp"
 #include "Common/MPI/operations.hpp"
-#include "Common/CreateComponent.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -41,10 +41,6 @@ CMeshReader::CMeshReader ( const std::string& name  ) :
 
   // signals
   this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->signal->connect ( boost::bind ( &CMeshReader::signal_read, this, _1 ) );
-
-  /// @todo future way to handle signatures
-  // signal("read").regist_signature( &CMeshReader::signature_read );
-
   signal("read")->signature->connect( boost::bind(&CMeshReader::read_signature, this, _1) );
 }
 

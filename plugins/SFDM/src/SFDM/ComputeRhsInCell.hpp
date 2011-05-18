@@ -59,19 +59,21 @@ private: // helper functions
 
   void config_solution();
   void config_residual();
+  void config_jacobian_determinant();
   void config_wavespeed();
 
   void trigger_elements();
 
   void build_riemann_solver();
 
-  RealRowVector to_row_vector(Mesh::CTable<Real>::ConstRow row) const ;
-  RealMatrix    to_matrix(Mesh::CMultiStateFieldView::View data) const ;
+  RealRowVector    to_row_vector(Mesh::CTable<Real>::ConstRow row) const ;
+  RealMatrix       to_matrix(Mesh::CMultiStateFieldView::View data) const ;
 
 private: // data
 
   boost::shared_ptr<Mesh::CMultiStateFieldView> m_solution;
   boost::shared_ptr<Mesh::CMultiStateFieldView> m_residual;
+  boost::shared_ptr<Mesh::CMultiStateFieldView> m_jacobian_determinant;
 
   boost::shared_ptr<Mesh::CScalarFieldView> m_wave_speed;
 
