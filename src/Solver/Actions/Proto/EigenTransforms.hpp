@@ -267,7 +267,18 @@ struct SetZero :
     typedef void result_type;
     
     template<typename MatrixT>
-    result_type operator ()(MatrixT expr, typename impl::state_param, typename impl::data_param) const
+    result_type operator ()(MatrixT& expr, typename impl::state_param, typename impl::data_param) const
+    {
+      expr.setZero();
+    }
+  };
+  
+  template<typename MatT, int R, int C, typename StateT, typename DataT>
+  struct impl<Eigen::Block<MatT, R, C>, StateT, DataT> : boost::proto::transform_impl<Eigen::Block<MatT, R, C>, StateT, DataT>
+  {
+    typedef void result_type;
+    
+    result_type operator ()(Eigen::Block<MatT, R, C> expr, typename impl::state_param, typename impl::data_param) const
     {
       expr.setZero();
     }
