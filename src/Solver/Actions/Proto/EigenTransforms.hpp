@@ -201,7 +201,7 @@ struct MatrixSubscript :
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    typedef typename boost::remove_reference<ExprT>::type ExprValT;
+    typedef typename boost::remove_const<typename boost::remove_reference<ExprT>::type>::type ExprValT;
     
     typedef typename boost::mpl::if_c<ExprValT::ColsAtCompileTime == 1, Real, typename ExprValT::ConstRowXpr>::type result_type;
     
@@ -266,7 +266,8 @@ struct SetZero :
   {
     typedef void result_type;
     
-    result_type operator ()(typename impl::expr_param expr, typename impl::state_param, typename impl::data_param) const
+    template<typename MatrixT>
+    result_type operator ()(MatrixT expr, typename impl::state_param, typename impl::data_param) const
     {
       expr.setZero();
     }
