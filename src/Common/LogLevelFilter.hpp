@@ -23,16 +23,21 @@ namespace Common {
 
 /// This class is written to act as a Boost.Iostreams filter. It defines
 /// @c char_type and @c category types and a @c #write method for that purpose.@n
-/// The class manages two levels: current level and default level. The current
-/// level is the one of the current message. It is compared against the default
-/// level to determine whether the current message has to be forwarded:
+/// The class is constructed with a filter value.
+/// An additional level can be set that gets compared to the filter. If the level
+/// is higher or equal to the filter, the message gets forwarded. @n
+/// A temporary override of the level is possible, using set_tmp_log_level(), which
+/// gets restored by calling resetToDefaultLevel()
 ///
-/// @li if the default level is @c #SILENT, nothing is forwarded
-/// @li if the default level is @c #NORMAL, only @c #NORMAL messages are forwarded
-/// @li if the default level is @c #SILENT, @c #NORMAL and @c #VERBOSE messages
-/// are forwarded.@n
+/// Example:@n
+/// If the filter is set to only pass messages of @c #WARNING, and the level is set to:
+/// - @c #DEBUG,   then it is blocked
+/// - @c #INFO,    then it is blocked
+/// - @c #WARNING, then it is forwarded
+/// - @c #ERROR,   then it is forwarded
 ///
 /// @author Quentin Gasper
+/// @author Willem Deconinck
 
 class Common_API LogLevelFilter
 {
@@ -49,22 +54,25 @@ class Common_API LogLevelFilter
   /// @brief Sets the default log level.
 
   /// @param level The new default level.
-  void setLogLevel(LogLevel level);
+  void set_filter(LogLevel level);
 
   /// @brief Gives the default log level.
 
   /// @return Returns the default log level.
-  LogLevel getLogLevel() const;
+  LogLevel get_filter() const;
+
+
+  void set_tmp_log_level(const Uint level);
 
   /// @brief Sets the current log level.
 
   /// @param level The current log level.
-  void setCurrentLogLevel(LogLevel level);
+  void set_log_level(const Uint level);
 
   /// @brief Gives the current log level.
 
   /// @return Returns the current log level.
-  LogLevel getCurrentLogLevel() const;
+  Uint get_log_level() const;
 
   /// @brief Resets the current log level to the default level.
 
@@ -74,9 +82,12 @@ class Common_API LogLevelFilter
 
   /// @brief Forwards a message.
 
-  /// @li If the default level is @c #SILENT, nothing is forwarded
-  /// @li If the default level is @c #NORMAL, only @c #NORMAL messages are forwarded
-  /// @li If the default level is @c #SILENT, @c #NORMAL and @c #VERBOSE messages
+  /// Example:@n
+  /// If the filter is set to only pass messages of @c #WARNING, and the level is set to:
+  /// - @c #DEBUG,   then it is blocked
+  /// - @c #INFO,    then it is blocked
+  /// - @c #WARNING, then it is forwarded
+  /// - @c #ERROR,   then it is forwarded
   /// @param sink The sink to which the message has to be written.
   /// @param data Message data.
   /// @param size Message data size.
@@ -85,7 +96,7 @@ class Common_API LogLevelFilter
   template<typename Sink>
     std::streamsize write(Sink& sink, const char_type * data, std::streamsize size)
   {
-    bool ok = m_currentLogLevel != SILENT && m_currentLogLevel >= m_logLevel;
+    bool ok = m_tmp_log_level >= static_cast<Uint>(m_filter);
 
     for(int counter = 0 ; counter < size && ok ; counter++)
     ok = boost::iostreams::put(sink, *data++);
@@ -95,11 +106,14 @@ class Common_API LogLevelFilter
 
   private:
 
-  /// @brief The default log level.
-  LogLevel m_logLevel;
+  /// @brief The filtering value for the log level
+  LogLevel m_filter;
 
-  /// @brief The current log level.
-  LogLevel m_currentLogLevel;
+  /// @brief The default log level
+  Uint m_log_level;
+
+  /// @brief A temporary override of the log level
+  Uint m_tmp_log_level;
 
   }; // struct LogLevelFilter
 

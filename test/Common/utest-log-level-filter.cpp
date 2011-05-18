@@ -27,7 +27,7 @@ struct LogLevelFilterFixture
   m_buffer(),
   m_sink(iostreams::back_inserter(m_buffer))
   {
-    m_filter = new LogLevelFilter(NORMAL);
+    m_filter = new LogLevelFilter(INFO);
   }
 
   /// common tear-down for each test case
@@ -56,9 +56,9 @@ BOOST_AUTO_TEST_CASE( setLogLevel )
 {
   LogLevelFilterFixture f;
 
-  f.m_filter->setLogLevel(SILENT);
+  f.m_filter->set_filter(SILENT);
 
-  BOOST_CHECK_EQUAL( (int)f.m_filter->getLogLevel(), (int)SILENT);
+  BOOST_CHECK_EQUAL( (int)f.m_filter->get_filter(), (int)SILENT);
 
 }
 
@@ -71,16 +71,36 @@ BOOST_AUTO_TEST_CASE( write )
   LogLevelFilterFixture f;
   string str = "Hello world!";
 
-  f.m_filter->setLogLevel(SILENT);
+  f.m_filter->set_filter(INFO);
+
+  f.m_filter->set_log_level(SILENT);
   f.m_filter->write(f.m_sink, str.c_str(), str.length());
   BOOST_CHECK_EQUAL(f.m_buffer, std::string(""));
 
-  f.m_filter->setLogLevel(NORMAL);
+  f.m_filter->set_log_level(ERROR);
+  f.m_filter->write(f.m_sink, str.c_str(), str.length());
+  BOOST_CHECK_EQUAL(f.m_buffer, std::string(""));
+
+  f.m_filter->set_log_level(WARNING);
+  f.m_filter->write(f.m_sink, str.c_str(), str.length());
+  BOOST_CHECK_EQUAL(f.m_buffer, std::string(""));
+
+  f.m_filter->set_log_level(INFO);
   f.m_buffer.clear();
   f.m_filter->write(f.m_sink, str.c_str(), str.length());
   BOOST_CHECK_EQUAL(str, f.m_buffer);
 
-  f.m_filter->setLogLevel(VERBOSE);
+  f.m_filter->set_log_level(DEBUG);
+  f.m_buffer.clear();
+  f.m_filter->write(f.m_sink, str.c_str(), str.length());
+  BOOST_CHECK_EQUAL(str, f.m_buffer);
+
+  f.m_filter->set_log_level(TRACE);
+  f.m_buffer.clear();
+  f.m_filter->write(f.m_sink, str.c_str(), str.length());
+  BOOST_CHECK_EQUAL(str, f.m_buffer);
+
+  f.m_filter->set_log_level(VERBOSE);
   f.m_buffer.clear();
   f.m_filter->write(f.m_sink, str.c_str(), str.length());
   BOOST_CHECK_EQUAL(str, f.m_buffer);

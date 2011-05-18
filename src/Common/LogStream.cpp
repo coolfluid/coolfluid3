@@ -22,7 +22,7 @@ using namespace boost;
 LogStream::LogStream(const std::string & streamName, LogLevel level)
 : m_buffer(),
 m_streamName(streamName),
-m_level(level),
+m_filter_level(level),
 m_flushed(true)
 {
   iostreams::filtering_ostream * stream;
@@ -59,11 +59,12 @@ m_flushed(true)
   m_usedDests[STRING] = true;
   m_usedDests[SYNC_SCREEN] = false;
 
-	// by default, only the first processor outputs
+  // by default, only the first processor outputs
   m_filterRankZero[SCREEN] = true;
   m_filterRankZero[FILE] = true;
   m_filterRankZero[STRING] = true;
   m_filterRankZero[SYNC_SCREEN] = true;
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -83,15 +84,15 @@ LogStream::~LogStream()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogStream & LogStream::operator << (LogLevel level)
+LogStream & LogStream::operator << (LogLevel tmp_log_level)
 {
-  this->getLevelFilter(SCREEN).setCurrentLogLevel(level);
+  this->getLevelFilter(SCREEN).set_tmp_log_level(tmp_log_level);
 
   if(this->isFileOpen())
-    this->getLevelFilter(FILE).setCurrentLogLevel(level);
+    this->getLevelFilter(FILE).set_tmp_log_level(tmp_log_level);
 
-  this->getLevelFilter(STRING).setCurrentLogLevel(level);
-  this->getLevelFilter(SYNC_SCREEN).setCurrentLogLevel(level);
+  this->getLevelFilter(STRING).set_tmp_log_level(tmp_log_level);
+  this->getLevelFilter(SYNC_SCREEN).set_tmp_log_level(tmp_log_level);
 
   return *this;
 }
@@ -173,33 +174,54 @@ void LogStream::flush()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void LogStream::setLogLevel(LogLevel level)
+void LogStream::set_log_level(const Uint level)
 {
-  m_level = level;
-  this->getLevelFilter(SCREEN).setLogLevel(level);
+  this->getLevelFilter(SCREEN).set_log_level(level);
 
   if(this->isFileOpen())
-    this->getLevelFilter(FILE).setLogLevel(level);
+    this->getLevelFilter(FILE).set_log_level(level);
 
-  this->getLevelFilter(STRING).setLogLevel(level);
-  this->getLevelFilter(SYNC_SCREEN).setLogLevel(level);
+  this->getLevelFilter(STRING).set_log_level(level);
+  this->getLevelFilter(SYNC_SCREEN).set_log_level(level);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void LogStream::setLogLevel(LogDestination destination, LogLevel level)
+void LogStream::set_log_level(LogDestination destination, const Uint level)
 {
-  this->getLevelFilter(destination).setLogLevel(level);
+  this->getLevelFilter(destination).set_log_level(level);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogLevel LogStream::getLogLevel(LogDestination destination) const
+void LogStream::set_filter(LogLevel level)
 {
+  m_filter_level = level;
+  this->getLevelFilter(SCREEN).set_filter(level);
 
-  return this->getLevelFilter(destination).getLogLevel();
+  if(this->isFileOpen())
+    this->getLevelFilter(FILE).set_filter(level);
+
+  this->getLevelFilter(STRING).set_filter(level);
+  this->getLevelFilter(SYNC_SCREEN).set_filter(level);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void LogStream::set_filter(LogDestination destination, LogLevel level)
+{
+  this->getLevelFilter(destination).set_filter(level);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+LogLevel LogStream::get_filter(LogDestination destination) const
+{
+  return this->getLevelFilter(destination).get_filter();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -291,7 +313,7 @@ void LogStream::setFile(const iostreams::file_descriptor_sink & fileDescr)
   {
     iostreams::filtering_ostream * stream = new iostreams::filtering_ostream();
 
-    stream->push(LogLevelFilter(m_level));
+    stream->push(LogLevelFilter(m_filter_level));
     stream->push(LogStampFilter(m_streamName));
     stream->push(fileDescr);
 

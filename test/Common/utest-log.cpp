@@ -36,19 +36,19 @@ BOOST_AUTO_TEST_CASE( openFiles )
   // files are not created if PE is not initializaed
   if(mpi::PE::instance().is_active())
   {
-    BOOST_CHECK(Logger::instance().getStream(Logger::INFO).isFileOpen());
-    BOOST_CHECK(Logger::instance().getStream(Logger::ERROR).isFileOpen());
-    BOOST_CHECK(Logger::instance().getStream(Logger::WARN).isFileOpen());
-    BOOST_CHECK(Logger::instance().getStream(Logger::DEBUG).isFileOpen());
-    BOOST_CHECK(Logger::instance().getStream(Logger::TRACE).isFileOpen());
+    BOOST_CHECK(Logger::instance().getStream(INFO).isFileOpen());
+    BOOST_CHECK(Logger::instance().getStream(ERROR).isFileOpen());
+    BOOST_CHECK(Logger::instance().getStream(WARNING).isFileOpen());
+    BOOST_CHECK(Logger::instance().getStream(DEBUG).isFileOpen());
+    BOOST_CHECK(Logger::instance().getStream(TRACE).isFileOpen());
   }
   else
   {
-    BOOST_CHECK(!Logger::instance().getStream(Logger::INFO).isFileOpen());
-    BOOST_CHECK(!Logger::instance().getStream(Logger::ERROR).isFileOpen());
-    BOOST_CHECK(!Logger::instance().getStream(Logger::WARN).isFileOpen());
-    BOOST_CHECK(!Logger::instance().getStream(Logger::DEBUG).isFileOpen());
-    BOOST_CHECK(!Logger::instance().getStream(Logger::TRACE).isFileOpen());
+    BOOST_CHECK(!Logger::instance().getStream(INFO).isFileOpen());
+    BOOST_CHECK(!Logger::instance().getStream(ERROR).isFileOpen());
+    BOOST_CHECK(!Logger::instance().getStream(WARNING).isFileOpen());
+    BOOST_CHECK(!Logger::instance().getStream(DEBUG).isFileOpen());
+    BOOST_CHECK(!Logger::instance().getStream(TRACE).isFileOpen());
   }
 }
 

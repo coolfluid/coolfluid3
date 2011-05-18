@@ -15,12 +15,20 @@ namespace CF {
 
 /// Output levels for the Log facility
 /// @author Quentin Gasper
+/// @author Willem Deconinck
+
 enum LogLevel
 {
-  SILENT = 100,
-  NORMAL = 50,
-  VERBOSE = 0
-}; // !LogLevel
+  SILENT   = 0, // output empty
+  ERROR    = 1, // output errors
+  WARNING  = 2, // output errors and warnings
+  INFO     = 3, // output errors and warnings and info
+  DEBUG    = 4, // output errors and warnings and info and debug
+  TRACE    = 5, // output errors and warnings and info and debug and trace
+  VERBOSE  = 10 // output everything
+}; // LogLevel
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

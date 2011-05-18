@@ -30,14 +30,14 @@ using namespace CF::Common;
 Logger::Logger()
 {
   // streams initialization
-  m_streams[INFO]  = new LogStream("Info");
-  m_streams[ERROR] = new LogStream("Error");
-  m_streams[WARN]  = new LogStream("Warning");
-  m_streams[DEBUG] = new LogStream("Debug");
-  m_streams[TRACE] = new LogStream("Trace");
-  
+  m_streams[ERROR]   = new LogStream("Error",   ERROR);
+  m_streams[WARNING] = new LogStream("Warning", WARNING);
+  m_streams[INFO]    = new LogStream("Info",    INFO);
+  m_streams[DEBUG]   = new LogStream("Debug",   DEBUG);
+  m_streams[TRACE]   = new LogStream("Trace",   TRACE);
+
   m_streams[ERROR]->setFilterRankZero(false);
-  
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -45,7 +45,7 @@ Logger::Logger()
 
 Logger::~Logger()
 {
-  std::map<StreamType, LogStream *>::iterator it;
+  std::map<LogLevel, LogStream *>::iterator it;
 
   for(it = m_streams.begin() ; it != m_streams.end() ; it++)
     delete it->second;
@@ -81,7 +81,7 @@ LogStream & Logger::Error(const CodeLocation & place)
 
 LogStream & Logger::Warn(const CodeLocation & place)
 {
-  return *(m_streams[WARN]) << place;
+  return *(m_streams[WARNING]) << place;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -103,7 +103,7 @@ LogStream & Logger::Trace(const CodeLocation & place)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogStream & Logger::getStream(Logger::StreamType type)
+LogStream & Logger::getStream(LogLevel type)
 {
   return *(m_streams[type]);
 }
@@ -135,8 +135,20 @@ fdTraceFile = iostreams::file_descriptor_sink(traceFile.str());
     // setFiles
     m_streams[INFO]->setFile(fdLogFile);
     m_streams[ERROR]->setFile(fdLogFile);
-    m_streams[WARN]->setFile(fdLogFile);
+    m_streams[WARNING]->setFile(fdLogFile);
     m_streams[DEBUG]->setFile(fdLogFile);
     m_streams[TRACE]->setFile(fdTraceFile);
   }
 }
+
+void Logger::set_log_level(const Uint log_level)
+{
+  std::map<LogLevel, LogStream *>::iterator it;
+
+  for(it = m_streams.begin() ; it != m_streams.end() ; it++)
+  {
+    it->second->set_log_level(log_level);
+  }
+}
+
+

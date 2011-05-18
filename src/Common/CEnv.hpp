@@ -40,18 +40,22 @@ public: // functions
 private: // functions
 
   void trigger_only_cpu0_writes();
-  
+
   void trigger_assertion_throws();
 
   void trigger_assertion_backtrace();
 
   void trigger_disable_assertions();
-  
+
   void trigger_exception_outputs();
-  
+
   void trigger_exception_backtrace();
-  
+
   void trigger_exception_aborts();
+
+  void trigger_log_level();
+
+  void trigger_trace_active();
 
 }; // CEnv
 

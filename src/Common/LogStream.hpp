@@ -55,17 +55,17 @@ class Common_API LogStream
     /// @brief A string buffer
     STRING = 4,
 
-    /// @brief Standard output (with MPI synchronization)
-		/// @note If one processor will output more than another, that processor will 
+		/// @brief Standard output (with MPI synchronization)
+		/// @note If one processor will output more than another, that processor will
 		/// wait FOREVER for synchronization. Use with care!
-    SYNC_SCREEN = 8
-  };
+		SYNC_SCREEN = 8
+	};
 
 
   /// @brief Constructor
 
   /// @param fileStream The file stream.
-  LogStream(const std::string & streamName, LogLevel level = NORMAL);
+  LogStream(const std::string & streamName, LogLevel level = INFO);
 
   /// @brief Destructor.
 
@@ -107,32 +107,32 @@ class Common_API LogStream
 
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
-			if (this->isDestinationUsed(it->first))
-			{
-				if (it->first != SYNC_SCREEN)
-				{
+      if (this->isDestinationUsed(it->first))
+      {
+        if (it->first != SYNC_SCREEN)
+        {
           if ((mpi::PE::instance().rank() == 0 || !this->getFilterRankZero(it->first)))
-					{
-						*(it->second) << t;
-						m_flushed = false;
-					}
-				}
+          {
+            *(it->second) << t;
+            m_flushed = false;
+          }
+        }
         else if (mpi::PE::instance().is_active())
-				{
+        {
           for( Uint i = 0 ; i < mpi::PE::instance().size(); ++i )
-					{
-						if (!this->getFilterRankZero(it->first))
-						{
+          {
+            if (!this->getFilterRankZero(it->first))
+            {
                       mpi::PE::instance().barrier();
-            			}
+                  }
             if (i == mpi::PE::instance().rank())
-						{
-							*(it->second) << t;
-							m_flushed = false;
-						}
-					}
-				}
-			}
+            {
+              *(it->second) << t;
+              m_flushed = false;
+            }
+          }
+        }
+      }
     }
 
     return *this;
@@ -143,7 +143,7 @@ class Common_API LogStream
   /// @c level is set as default log level to all destinations.
   /// @param level The new default level.
   /// @see LogLevelFilter
-  void setLogLevel(LogLevel level);
+  void set_log_level(const Uint level);
 
   /// @brief Sets new default level to the specified destination.
 
@@ -152,14 +152,30 @@ class Common_API LogStream
   /// @param destination The destination.
   /// @param level The new default level.
   /// @see LogLevelFilter
-  void setLogLevel(LogDestination destination, LogLevel level);
+  void set_log_level(LogDestination destination, const Uint level);
+
+  /// @brief Sets new default level
+
+  /// @c level is set as default log level to all destinations.
+  /// @param level The new default level.
+  /// @see LogLevelFilter
+  void set_filter(LogLevel level);
+
+  /// @brief Sets new default level to the specified destination.
+
+  /// If @c destination is @c #FILE but @c #isFileOpen() returns @c false,
+  /// nothing is done.
+  /// @param destination The destination.
+  /// @param level The new default level.
+  /// @see LogLevelFilter
+  void set_filter(LogDestination destination, LogLevel level);
 
   /// @brief Gives the default log level of a specified destination.
 
   /// @param destination The destination.
   /// @return Returns the default log level of the specified destination.
   /// @see LogLevelFilter
-  LogLevel getLogLevel(LogDestination destination) const;
+  LogLevel get_filter(LogDestination destination) const;
 
   /// @brief Modifies the use policy of a destination
 
@@ -295,7 +311,7 @@ class Common_API LogStream
 
   /// This attribute is used on @c #FILE stream creation. Its value is modified
   /// by @c #setLogLevel(LogLevel).
-  LogLevel m_level;
+  LogLevel m_filter_level;
 
   /// @brief Flush status
 

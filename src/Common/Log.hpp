@@ -38,20 +38,20 @@ class Common_API Logger : public boost::noncopyable
 
   public:
 
-  /// @brief Stream types
-  enum StreamType
-  {
-    /// @brief Stream for normal messages.
-    INFO,
-    /// @brief Stream for error messages.
-    ERROR,
-    /// @brief Stream for warning messages.
-    WARN,
-    /// @brief Stream for debug messages.
-    DEBUG,
-    /// @brief Stream for trace message.
-    TRACE
-  };
+//  /// @brief Stream types
+//  enum StreamType
+//  {
+//    /// @brief Stream for error messages.
+//    ERROR=1,
+//    /// @brief Stream for warning messages.
+//    WARNING=2,
+//    /// @brief Stream for normal messages.
+//    INFO=3,
+//    /// @brief Stream for debug messages.
+//    DEBUG=4,
+//    /// @brief Stream for trace message.
+//    TRACE=5
+//  };
 
   /// @brief Gives the current @c #Logger instance.
 
@@ -92,17 +92,19 @@ class Common_API Logger : public boost::noncopyable
   /// @return Returns a reference to the trace stream.
   LogStream & Trace (const CodeLocation & place);
 
-  LogStream & getStream(StreamType type);
+  LogStream & getStream(LogLevel type);
 
   /// @brief Creates file descriptors and gives them to streams.
   void openFiles();
+
+  void set_log_level(const Uint log_level);
 
   private :
 
   /// @brief Managed streams.
 
   /// The key is the stream type. The value is a pointer to the stream.
-  std::map<StreamType, LogStream *> m_streams;
+  std::map<LogLevel, LogStream *> m_streams;
 
   /// @brief Constructor
   Logger();

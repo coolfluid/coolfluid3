@@ -82,7 +82,7 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
   boost::filesystem::path fp (file.path());
   if( boost::filesystem::exists(fp) )
   {
-    CFLog(VERBOSE, "Opening file " <<  fp.string() << "\n");
+    CFinfo << "Opening file " <<  fp.string() << CFendl;
     m_file.open(fp,std::ios_base::in); // exists so open it
   }
   else // doesnt exist so throw exception

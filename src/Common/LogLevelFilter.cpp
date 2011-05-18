@@ -10,8 +10,9 @@ using namespace CF;
 using namespace CF::Common;
 
 LogLevelFilter::LogLevelFilter(LogLevel level)
-: m_logLevel(level),
-m_currentLogLevel(level)
+: m_filter(level),
+  m_log_level(level),
+  m_tmp_log_level(level)
 {
 
 }
@@ -19,33 +20,34 @@ m_currentLogLevel(level)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void LogLevelFilter::setLogLevel(LogLevel level)
+void LogLevelFilter::set_filter(LogLevel level)
 {
-  m_logLevel = level;
+  m_filter = level;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogLevel LogLevelFilter::getLogLevel() const
+LogLevel LogLevelFilter::get_filter() const
 {
-  return m_logLevel;
+  return m_filter;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void LogLevelFilter::setCurrentLogLevel(LogLevel level)
+void LogLevelFilter::set_log_level(const Uint level)
 {
-  m_currentLogLevel = level;
+  m_log_level = level;
+  m_tmp_log_level = m_log_level;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogLevel LogLevelFilter::getCurrentLogLevel() const
+Uint LogLevelFilter::get_log_level() const
 {
-  return m_currentLogLevel;
+  return m_log_level;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -53,5 +55,13 @@ LogLevel LogLevelFilter::getCurrentLogLevel() const
 
 void LogLevelFilter::resetToDefaultLevel()
 {
-  m_currentLogLevel = m_logLevel;
+  m_tmp_log_level = m_log_level;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void LogLevelFilter::set_tmp_log_level(const Uint level)
+{
+  m_tmp_log_level = level;
 }
