@@ -288,7 +288,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , linearadvsys2d_local_fixture )
   mesh_writer->configure_property("file",URI(model.name()+".msh"));
   mesh_writer->configure_property("mesh",mesh->full_path());
 
-  mesh_writer->write();
+  mesh_writer->execute();
 }
 
 //////////////////////////////////////////////////////////////////////////////

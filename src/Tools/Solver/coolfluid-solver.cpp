@@ -73,10 +73,10 @@ int main(int argc, char ** argv)
 //  if( forward == "all" || (forward == "rank0" && PE::instance().rank() == 0) )
   {
     forwarder = new LogForwarder();
-    Logger::instance().getStream(Logger::INFO).addStringForwarder(forwarder);
+    Logger::instance().getStream(INFO).addStringForwarder(forwarder);
   }
 
-  Logger::instance().getStream( Logger::INFO ).setFilterRankZero(false);
+  Logger::instance().getStream( INFO ).setFilterRankZero(false);
   CFinfo << "Worker[" << rank << "] -> " << "Syncing with the parent..." << CFendl;
 //  PE::instance().get_parent()->barrier();
   PE::instance().barrier();

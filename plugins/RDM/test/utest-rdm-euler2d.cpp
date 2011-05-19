@@ -272,7 +272,7 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , euler2d_local_fixture )
   gmsh_writer->configure_property("file",URI(model.name()+"_init.msh"));
   gmsh_writer->configure_property("mesh",mesh->full_path());
 
-  gmsh_writer->write();
+  gmsh_writer->execute();
 
   model.remove_component("GmshWriter");
 }
@@ -341,7 +341,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
   gmsh_writer->configure_property("file",URI(model.name()+".msh"));
   gmsh_writer->configure_property("mesh",mesh->full_path());
 
-  gmsh_writer->write();
+  gmsh_writer->execute();
 
   // tecplot writer
 
@@ -352,7 +352,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
   tec_writer->configure_property("file",URI(model.name()+".plt"));
   tec_writer->configure_property("mesh",mesh->full_path());
 
-  tec_writer->write();
+  tec_writer->execute();
 
 }
 

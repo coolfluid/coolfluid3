@@ -49,13 +49,13 @@ CCore::CCore()
 
   RemoteClientAppender * rca = new RemoteClientAppender();
 
-  Logger::instance().getStream(Logger::WARN).addStringForwarder(rca);
-  Logger::instance().getStream(Logger::ERROR).addStringForwarder(rca);
-  Logger::instance().getStream(Logger::INFO).addStringForwarder(rca);
+  Logger::instance().getStream(WARNING).addStringForwarder(rca);
+  Logger::instance().getStream(ERROR).addStringForwarder(rca);
+  Logger::instance().getStream(INFO).addStringForwarder(rca);
 
-  Logger::instance().getStream(Logger::INFO).setStamp(LogStream::STRING, "%type% ");
-  Logger::instance().getStream(Logger::ERROR).setStamp(LogStream::STRING, "%type% ");
-  Logger::instance().getStream(Logger::WARN).setStamp(LogStream::STRING, "%type% ");
+  Logger::instance().getStream(INFO).setStamp(LogStream::STRING, "%type% ");
+  Logger::instance().getStream(ERROR).setStamp(LogStream::STRING, "%type% ");
+  Logger::instance().getStream(WARNING).setStamp(LogStream::STRING, "%type% ");
 
   connect(rca, SIGNAL(newData(QString)), this, SLOT(message(QString)));
 

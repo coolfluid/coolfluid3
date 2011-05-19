@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // 6) Write mesh
   // -------------
-  
-  model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().write();
+
+  model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().execute();
 
   // CFinfo << "model:"<<CFendl;
   // CFinfo << "------"<<CFendl;
