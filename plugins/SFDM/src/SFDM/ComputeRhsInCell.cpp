@@ -263,7 +263,7 @@ void ComputeRhsInCell::execute()
     { /// <ul>
 
       /// <li> Compute analytical flux in the flux points of the line, excluding begin and end point
-      ///      @f[ \mathbf{\tilde{F}_{f,line}} = \mathrm{flux}(\mathbf{\tilde{Q}}_{f, line}) @f] (see Solver::State::compute_flux())
+      ///      @f[ \mathbf{\tilde{F}}_{f,line} = \mathrm{flux}(\mathbf{\tilde{Q}}_{f, line}) @f] (see Solver::State::compute_flux())
 
       for (Uint flux_pt=1; flux_pt<flux_in_line.rows()-1; ++flux_pt)
       {
@@ -274,7 +274,7 @@ void ComputeRhsInCell::execute()
 
       /// <li> Update face flux points with Riemann problem with neighbor
       ///      At the flux point location of the face:
-      ///      @f[ \tilde{F}_{\mathrm{facepoint}} = \mathrm{Riemann}(Q_{\mathrm{facepoint},\mathrm{left}},Q_{\mathrm{facepoint},\mathrm{right}}) @f]
+      ///      @f[ \tilde{F}_{\mathrm{facepoint}} = \mathrm{Riemann}(\tilde{Q}_{\mathrm{facepoint},\mathrm{left}},\tilde{Q}_{\mathrm{facepoint},\mathrm{right}}) @f]
       for (Uint side=0; side<2; ++side) // a line connects 2 faces
       {
         /// @todo 2D and 3D support

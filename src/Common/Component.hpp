@@ -82,7 +82,6 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  /// @param parent path where this component will be placed
   Component ( const std::string& name );
 
   /// Virtual destructor
@@ -165,7 +164,7 @@ public: // functions
 
   /// checks if the child component with name is static
   bool is_child_static ( const std::string& name ) const;
-  
+
   /// Access the name of the component
   std::string name () const { return m_name.path(); }
 
@@ -348,7 +347,7 @@ public: // functions
   void configure_option_recursively(const std::string& tag, const boost::any& val);
 
   std::string option_list();
-  
+
   /// Configures all the options on this class from a list of strings.
   /// Each string provides the configuration of one property following the
   /// format var_name:type=value var_name:array[type]=val1,val2
@@ -394,15 +393,15 @@ public: // functions
   void signal_signature( SignalArgs & args );
 
   /// Defines the signature of "create_component" signal.
-  /// @param node The frame under which signature is added.
+  /// @param args The frame under which signature is added.
   void signature_create_component( SignalArgs& args );
 
   /// Defines the signature of "rename_component" signal.
-  /// @param node The frame under which signature is added.
+  /// @param args The frame under which signature is added.
   void signature_rename_component( SignalArgs& args );
 
   /// Defines the signature of "move_component" signal.
-  /// @param node The frame under which signature is added.
+  /// @param args The frame under which signature is added.
   void signature_move_component( SignalArgs& args );
 
   //@} END SIGNALS
@@ -427,6 +426,7 @@ private: // helper functions
   std::string ensure_unique_name ( Component& subcomp );
 
   /// writes the underlying component tree to the xml node
+  /// @param node            xml node to write
   /// @param put_all_content If @c false, options and properties are not put
   /// in the node.
   void write_xml_tree( XML::XmlNode& node, bool put_all_content );

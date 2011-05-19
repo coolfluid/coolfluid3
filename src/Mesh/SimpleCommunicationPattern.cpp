@@ -43,7 +43,7 @@ void SimpleCommunicationPattern::update_send_lists()
   
   send_list.resize(send_dist.back());
 
-/// @TODO: change the following code to blocking and with Common::mpi
+/// @todo: change the following code to blocking and with Common::mpi
 //  std::vector<boost::mpi::request> reqs;
 //  reqs.reserve(nb_procs*2);
 //  for(Uint i = 0; i != nb_procs; ++i)

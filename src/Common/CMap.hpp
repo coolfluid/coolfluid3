@@ -20,7 +20,7 @@ namespace Common {
 /// memory requirements) map with SINGLE key  that gives the same
 /// performance in searching of a std::map (the number
 /// of comparisons is <= 2*log(size)+1. Since the high memory storage is
-/// an issue with the standard <map>, this class offer a valid efficient
+/// an issue with the standard std::map, this class offer a valid efficient
 /// alternative to it.
 /// Consider that once that you allocate a map, you can't get rid of the
 /// allocated memory till the end of your run! This doesn't apply to the current
@@ -45,16 +45,16 @@ class CMap : public Component {
 
 public: // typedefs
 
-  /// @typedef Associative Container	 The map's key type, Key.
+  /// @brief Associative Container -- The map's key type, Key.
   typedef KEY key_type;
-  /// @typedef Pair Associative Container	 The type of object associated with the keys.
+  /// @brief Pair Associative Container -- The type of object associated with the keys.
   typedef DATA data_type;
-  /// @typedef The type of object, pair<const key_type, data_type>, stored in the map.
+  /// @brief The type of object, pair<const key_type, data_type>, stored in the map.
   typedef std::pair<key_type, data_type> value_type;
   
-  /// @typedef iterator definition for use in stl algorithms
+  /// @brief iterator definition for use in stl algorithms
   typedef typename std::vector<value_type>::iterator         iterator;
-  /// @typedef const_iterator definition for use in stl algorithms
+  /// @brief const_iterator definition for use in stl algorithms
   typedef typename std::vector<value_type>::const_iterator   const_iterator;
 
   /// shared pointer to this type
@@ -77,7 +77,7 @@ public: // functions
   static std::string type_name () { return "CMap<"+Common::class_name<KEY>()+","+Common::class_name<DATA>()+">"; }
 
   /// Reserve memory
-  /// @param[in] size of the map to be set before starting inserting pairs in the  map
+  /// @param[in] max_size of the map to be set before starting inserting pairs in the  map
   /// @post  the memory corresponding to the given size will be reserved for
   ///        the future insertions
   void reserve (size_t max_size);
@@ -139,7 +139,7 @@ public: // functions
   /// Erase the entry wit given key from the map
   /// @note WARNING: This operation will call the costly sort_keys() function
   ///                if it the internal structure is not sorted.
-  /// @param[in] itr The iterator to delete
+  /// @param[in] key The iterator to delete
   /// @returns true if element is erased, false if no element was erased
   bool erase (const key_type& key)
   {

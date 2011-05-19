@@ -11,7 +11,8 @@
 
 #include "Math/MatrixTypes.hpp"
 
-/// @file Transforms related to Eigen matrix library functionality
+/// @file EigenTransforms.hpp 
+/// @brief Transforms related to Eigen matrix library functionality
 
 namespace CF {
 namespace Solver {

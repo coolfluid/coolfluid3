@@ -18,7 +18,7 @@
 
 namespace CF {
 
-  namespace Math { 
+  namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@ public: // functions
 
   /// Variable storage
   typedef std::vector<Real> VariablesT;
-  
+
   /// Empty constructor
   VectorialFunction();
 
@@ -43,24 +43,24 @@ public: // functions
 
   /// Evaluate the Vectorial Function given the values of the variables.
   /// @param vars values of the variables to substitute in the function.
-  /// @param value the placeholder vector for the result
+  /// @param ret_value the placeholder vector for the result
   void evaluate (const VariablesT& var_values, RealVector& ret_value) const;
 
   /// Evaluate the Vectorial Function given the values of the variables.
   /// @param vars values of the variables to substitute in the function.
-  /// @param value the placeholder vector for the result
+  /// @param ret_value the placeholder vector for the result
   void evaluate (const RealVector& var_values, RealVector& ret_value) const;
 
   /// Evaluate the Vectorial Function given the values of the variables
   /// and return it in the stored result. This function allows this class to work
   /// as a functor.
-  /// @param vars values of the variables to substitute in the function.
+  /// @param var_values values of the variables to substitute in the function.
   RealVector& operator()(const VariablesT& var_values);
 
   /// Evaluate the Vectorial Function given the values of the variables
   /// and return it in the stored result. This function allows this class to work
   /// as a functor.
-  /// @param vars values of the variables to substitute in the function.
+  /// @param var_values values of the variables to substitute in the function.
   RealVector& operator()(const RealVector& var_values);
 
   /// @return if the VectorialFunctionParser has been parsed yet.
@@ -79,8 +79,6 @@ public: // functions
   void variables( const std::string& vars );
 
   /// Parse the strings to extract the functions for each line of the vector.
-  /// @param functions vector of string describing the functions for each line.
-  /// @param vars the variables to be taken into account.
   /// @throw ParsingFailed if there is an error while parsing
   void parse ();
 

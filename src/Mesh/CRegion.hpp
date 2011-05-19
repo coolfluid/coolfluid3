@@ -17,11 +17,11 @@
 
 namespace CF {
 namespace Mesh {
-  
+
   template <typename T> class CTable;
   class CNodes;
   class CElements;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Region component class
@@ -55,17 +55,17 @@ public: // functions
 
   /// create a CRegion component
   /// @param name of the region
-  CRegion& create_region ( const std::string& name, bool ensure_unique = false );
-  
+  CRegion& create_region ( const std::string& name );
+
   /// create a CElements component, initialized to take connectivity data for the given type
-  /// @param name of the region
   /// @param element_type_name type of the elements
+  /// @param nodes  location of the nodes the elements are linked with
   CElements& create_elements (const std::string& element_type_name, CNodes& nodes);
-  
+
   /// create a nodes component, initialized with the coordinate dimension
   /// @param dim dimension of the node coordinates
   CNodes& create_nodes(const Uint& dim);
-  
+
   /// @return the number of elements stored in this region, including any subregions
   Uint recursive_elements_count() const;
 
@@ -77,30 +77,30 @@ public: // functions
 
   /// @return the subregion with given name
   const CRegion& subregion(const std::string& name) const;
-  
+
   /// @return the subregion with given name
   CRegion& subregion(const std::string& name);
-  
+
   /// @return the elements with given name
   const CElements& elements (const std::string& element_type_name) const;
-  
+
   /// @return the elements with given name
   CElements& elements (const std::string& element_type_name);
 
   /// @return nodes of the mesh
   CNodes& nodes();
-  
+
   /// @return nodes of the mesh
   const CNodes& nodes() const;
-  
+
   /// @return non-modifiable range of elements that are searched for recursively
   /// for use with boost_foreach(const CElements& elements, region.elements_range() )
   ConstElementsRange elements_range() const;
 
   /// @return modifiable range of elements that are searched for recursively
-  /// for use with boost_foreach(CElements& elements, region.elements_range() )  
+  /// for use with boost_foreach(CElements& elements, region.elements_range() )
   ElementsRange elements_range();
-  
+
 private: // data
 
 }; // CRegion

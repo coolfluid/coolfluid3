@@ -19,7 +19,7 @@ namespace Common {
   class CLink;
 }
 namespace Mesh {
-  
+
   class CNodes;
   class CRegion;
   class CCells;
@@ -48,23 +48,21 @@ public:
   static std::string type_name () { return "CFaceCellConnectivity"; }
 
   /// setup the node to element connectivity
-  /// This function calls 
+  /// This function calls
   /// - set_nodes(nodes)
   /// - set_elements(elements_range)
   /// - build_connectivity
   /// They could be called seperately if wanted
   /// @post all access functions can be used after setup
-  /// @param [in] nodes the nodes component to find connected elements of
-  /// @param [in] elements_range the elements range to see if they are connected to the nodes.
-  ///                            Can be made using "find_components_recursively<CElements>()" function
+  /// @param [in] region The region a face cell connectivity will be built from
   void setup(CRegion& region);
-  
+
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
-  
+
   void build_connectivity();
-  
+
   /// const access to the node to element connectivity table in unified indices
   CTable<Uint>& connectivity() { return *m_connectivity; }
 
@@ -74,13 +72,13 @@ public:
   CList<Uint>& is_bdry_face() { cf_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
 
   const CList<Uint>& is_bdry_face() const { cf_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
-  
+
   CTable<Uint>& face_number() { cf_assert( is_not_null(m_face_nb_in_elem) ); return *m_face_nb_in_elem; }
 
   const CTable<Uint>& face_number() const { cf_assert( is_not_null(m_face_nb_in_elem) ); return *m_face_nb_in_elem; }
-  
+
   Uint size() const { return connectivity().size(); }
-  
+
   std::vector<Uint> face_nodes(const Uint face) const;
 
   CMeshElements& lookup() { cf_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
@@ -88,7 +86,7 @@ public:
   const CMeshElements& lookup() const { cf_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
 
   std::vector<Component::Ptr> used();
-  
+
   void add_used (const Component& used_comp);
 
 private: // data
@@ -101,12 +99,12 @@ private: // data
 
   /// Actual connectivity table
   CTable<Uint>::Ptr m_connectivity;
-  
+
   CTable<Uint>::Ptr m_face_nb_in_elem;
-  
+
   // @todo make a CList<bool> (some bug prevents using CList<bool>::Buffer with CList<bool> )
   CList<Uint>::Ptr m_is_bdry_face;
-  
+
   CMeshElements::Ptr m_mesh_elements;
 
 }; // CFaceCellConnectivity

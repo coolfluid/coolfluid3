@@ -24,8 +24,10 @@ class LogStream;
 /// This class manages all streams used for logs. This class is a singleton. @n
 /// @c Logger manages 5 streams: @e info, @e error, @e warning, @e debug and
 /// @e trace. These streams differ on the type of messages they forward. By
-/// default, streams default level is @c #NORMAL and no file is open. Once an
-/// MPI environment has been initialized, @c #openFiles() can be called.
+/// default, only streams @c #ERROR, @c #WARNING, @c #INFO will be outputted.
+/// This can be changed using Logger::set_log_level().
+/// By default no file is open.
+/// Once an MPI environment has been initialized, @c #openFiles() can be called.
 /// Two files descriptors are created: one for a @e log file and another one
 /// for a @e trace file; respectively <code>output-p<i>i</i>.log</code> and
 /// <code>output-p<i>i</i>.trace</code>, where <code><i>i</i></code> if the
@@ -120,13 +122,25 @@ class Common_API Logger : public boost::noncopyable
 
 /// these are always defined
 
-#define CFinfo   CF::Common::Logger::instance().Info (FromHere())
-#define CFerror  CF::Common::Logger::instance().Error(FromHere())
-#define CFwarn   CF::Common::Logger::instance().Warn (FromHere())
-#define CFdebug  CF::Common::Logger::instance().Debug(FromHere())
-#define CFtrace  CF::Common::Logger::instance().Trace(FromHere())
-#define CFflush  CF::Common::LogStream::ENDLINE
-#define CFendl   '\n' << CFflush
+#define CFinfo      CF::Common::Logger::instance().Info (FromHere())
+#define CFerror     CF::Common::Logger::instance().Error(FromHere())
+#define CFwarn      CF::Common::Logger::instance().Warn (FromHere())
+#define CFdebug_always  CF::Common::Logger::instance().Debug(FromHere())
+#define CFtrace_always  CF::Common::Logger::instance().Trace(FromHere())
+#define CFflush     CF::Common::LogStream::ENDLINE
+#define CFendl  '\n' << CFflush
+
+#ifdef CF_NO_DEBUG_LOG
+  #define CFdebug if(0) CFdebug_always
+#else
+  #define CFdebug CFdebug_always
+#endif
+#ifdef CF_NO_TRACE
+  #define CFtrace if(0) CFtrace_always
+#else
+  #define CFtrace CFtrace_always
+#endif
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -151,6 +165,9 @@ class Common_API Logger : public boost::noncopyable
 #define CFLogDebugVerbose(x)
 
 #endif // CF_NO_DEBUG_LOG
+
+
+
 
 #define CFLogInfo(x)   CFinfo  << x << CFflush;
 #define CFLogWarn(x)   CFwarn  << x << CFflush;

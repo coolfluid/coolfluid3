@@ -43,19 +43,19 @@ public:
 
   /// Get the class name
   static std::string type_name () { return "CUnifiedData"; }
-    
-  /// set the data given a range of components obtained for instance
-  /// using the find_components_recursively<data_type>() function
-  /// @param [in] range  The range of data components to be unified
+
+  /// @brief add a data component to the unified data table
+  /// @param [in] data component
+  /// @note The data component must have a "size()" member function defined
   template <typename T>
       void add(T& data);
-  
+
   /// Get the component and local index in the component
   /// given a continuous index spanning multiple components
   /// @param [in] data_glb_idx continuous index covering multiple components
   /// @return boost::tuple<data_type::Ptr component, Uint idx_in_component>
   boost::tuple<Common::Component::Ptr,Uint> location(const Uint data_glb_idx);
-  
+
   boost::tuple<Common::Component::ConstPtr,Uint> location(const Uint data_glb_idx) const;
 
 
@@ -79,7 +79,7 @@ public:
   /// const access to the unified data components
   /// @return vector of data components
   const std::vector<Common::Component::Ptr>& components() const;
-  
+
   Component& component(const Uint idx) { return *m_data_vector[idx]; }
 
   const Component& component(const Uint idx) const { return *m_data_vector[idx]; }
@@ -89,7 +89,7 @@ public:
   Uint unified_idx(const boost::tuple<Common::Component::Ptr,Uint>& loc) const;
 
   void reset();
-  
+
   bool contains(const Common::Component& data) const;
 
 private: // data
@@ -105,7 +105,7 @@ private: // data
 
   /// total number of indices spanning all components
   Uint m_size;
-  
+
   /// map component to start index
   std::map<Common::Component::Ptr,Uint> m_start_idx;
 
@@ -113,18 +113,15 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// set the data given a range of components obtained for instance
-/// using the find_components_recursively<data_type>() function
-/// @param [in] range  The range of data components to be unified
 template <typename DATA>
 inline void CUnifiedData::add(DATA& data)
 {
   boost::shared_ptr<DATA> actual_data = data.as_ptr<DATA>();
-  
+
   // if it is not added yet, add
   if (m_start_idx.find(actual_data->as_non_const()) == m_start_idx.end())
   {
-    m_start_idx[actual_data->as_non_const()] = m_size;  
+    m_start_idx[actual_data->as_non_const()] = m_size;
 
     m_data_links->create_component_ptr<Common::CLink>("data_component_"+Common::to_str(m_data_vector.size()))->link_to(*actual_data);
 
@@ -135,7 +132,7 @@ inline void CUnifiedData::add(DATA& data)
     data_start_indices.add_row(m_size);
     data_start_indices.flush();
   }
-  
+
   cf_assert(m_data_vector.size()==m_data_indices->size()-1);
   cf_assert(m_start_idx.size() == m_data_vector.size());
 }

@@ -18,22 +18,24 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Conversions from and to std::string
+/// @file StringConversion.hpp
+/// @brief Conversions from and to std::string
 
-  /// Converts to std::string
+  /// @brief Converts to std::string
+  ///
   /// Don't use this to convert to a char, use c_str for that.
-  /// Typical use is to convert to numbers.
-  /// @param str string to convert from
+  /// Typical use is to convert numbers to a string.
+  /// @param v value to convert to string
   /// @return converter type
   template < typename T>
   Common_API std::string to_str (const T & v);
 
 
-  /// Converts from std::string
-  /// Don't use this to convert to a char, use c_str for that.
-  /// Typical use is to convert to numbers.
+  /// @brief Converts from std::string
+  ///
+  /// Typical use is to convert a string to numbers.
   /// @param str string to convert from
-  /// @return converter type
+  /// @return string
   template < typename T>
   Common_API T from_str (const std::string& str);
 

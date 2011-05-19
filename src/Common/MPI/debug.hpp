@@ -35,7 +35,6 @@ namespace CF {
 
 /**
   Macro for executing something ensured that the execution order is 0..nproc-1.
-  @param comm communicator of the mpi environment
   @param irank rank of the process where the command is executed (-1 for all processes)
   @param expression stuff to execute
 **/
@@ -86,7 +85,7 @@ std::cout << std::flush;                                                        
 boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
 ::CF::Common::mpi::PE::instance().barrier();                                                                                                     \
 }
-	
+
 ////////////////////////////////////////////////////////////////////////////////
 
 #define  PECheckArrivePoint(msec,msg) {                                                                                               \
@@ -97,7 +96,7 @@ std::cout << std::flush;                                                        
 boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
 }
 
-	
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /**

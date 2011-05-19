@@ -18,7 +18,7 @@ namespace Common {
   class CLink;
 }
 namespace Mesh {
-  
+
   class CRegion;
   class CNodes;
 
@@ -44,27 +44,23 @@ public:
   static std::string type_name () { return "CNodeFaceCellConnectivity"; }
 
   /// setup the node to element connectivity
-  /// This function calls 
+  /// This function calls
   /// - set_elements(elements_range)
   /// - build_connectivity
   /// They could be called seperately if wanted
   /// @post all access functions can be used after setup
-  /// @param [in] regions in which the elements are connected to the nodes.
+  /// @param [in] region in which the elements are connected to the nodes.
   void setup(CRegion& region);
 
-  /// set the element for the node to element connectivity
-  /// Elements have a continuous index spanning all element components
-  /// stored in a CUnifiedData<CElements> component
-  /// @param [in] elements_range the elements range to see if they are connected to the nodes.
-  ///                            Can be made using "find_components_recursively<CElements>()" function
+  /// @return lookup table for node to face_cell_connectivity
   CUnifiedData& face_cell_connectivity() {  return *m_face_cell_connectivity; }
   const CUnifiedData& face_cell_connectivity() const {  return *m_face_cell_connectivity; }
-  
+
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
   void build_connectivity();
-  
+
   /// const access to the node to element connectivity table in unified indices
   CDynTable<Uint>& connectivity() { return *m_connectivity; }
   const CDynTable<Uint>& connectivity() const { return *m_connectivity; }
@@ -86,7 +82,7 @@ private: // data
 
   /// Actual connectivity table
   CDynTable<Uint>::Ptr m_connectivity;
-  
+
 }; // CNodeFaceCellConnectivity
 
 ////////////////////////////////////////////////////////////////////////////////

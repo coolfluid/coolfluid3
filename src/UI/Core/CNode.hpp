@@ -32,7 +32,7 @@ namespace Core {
 
   /////////////////////////////////////////////////////////////////////////
 
-  /// Handles signal emitting for @c #CNode class.
+  /// @brief Handles signal emitting for @c CNode class.
 
   /// @c #CNode class cannot derive from @c QObject (thus, cannot emit or catch
   /// Qt signals) because one of its subclasses (@c #NTree) also derives from
@@ -51,9 +51,10 @@ namespace Core {
     /// @param parent The parent @c CNode. May be null.
     CNodeNotifier(CNode * parent = nullptr);
 
-    /// Emits @c #childCountChanged() signal.
+    /// Emits childCountChanged() signal.
     void notifyChildCountChanged();
 
+    /// @warning fix this link "contentChanged()" [wdeconinck]
     /// Emits @c #contentChanged() signal.
     void notifySignalSignature(Common::SignalArgs * node);
 
@@ -333,7 +334,7 @@ namespace Core {
     /// @param node Signal data.
     void list_content_reply( Common::SignalArgs & node );
 
-    /// Method called when the server replies to a @c
+    /// Method called when the server replies to a signal
     void signal_signature_reply( Common::SignalArgs & node );
 
     //@} END Signals

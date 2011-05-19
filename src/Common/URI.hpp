@@ -72,6 +72,7 @@ namespace Common {
     /// Constructor from string object and separate protocol
     /// @pre assumes that string does not have a protocol, just the path
     /// @param s string with path
+    /// @param p scheme type e.g. (HTTP,CPATH,FILE)
     URI ( const std::string& s, URI::Scheme::Type p );
 
     // operators

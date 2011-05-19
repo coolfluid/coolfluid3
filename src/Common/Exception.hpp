@@ -65,7 +65,7 @@ public: // functions
   const char* what () const throw ();
 
   /// Append the message to the what() description
-  /// @param msg the std::string to be appended
+  /// @param add the std::string to be appended
   void append (const std::string& add) throw ();
 
   /// @returns the Exception name
@@ -76,7 +76,9 @@ public: // functions
 protected: // functions
 
   /// The constructor is protected to force the developers to create subclasses.
-  /// @param msg  A message describing the circumstances of this exception occurence which might be the empty string.
+  /// @param where  The location in the code from where the exception is raised. Typically received using FromHere()
+  /// @param msg    A message describing the circumstances of this exception occurence which might be the empty string.
+  /// @param className  classname of derived Exception type, giving first indication of the kind of exception.
   /// @pre   msg should not contain EOL's
   /// @post  new.what() == what;
   Exception (CodeLocation where, std::string msg, std::string className) throw ();

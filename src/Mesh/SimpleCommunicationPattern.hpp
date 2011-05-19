@@ -72,7 +72,7 @@ inline void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, Rang
   std::vector<Real> send_buffer;
   send_buffer.reserve(total_width * pattern.receive_list.size());
   
-/// @TODO transform this non-blocking to mpi collectives
+/// @todo transform this non-blocking to mpi collectives
 /*
   // track non-blocking requests
   std::vector<boost::mpi::request> reqs;

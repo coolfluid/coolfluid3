@@ -27,7 +27,7 @@ namespace Mesh {
 /// so storage is contingent in memory for reducing cache missing
 //
 /// The table can be filled through a buffer. The buffer avoids
-/// the typical reallocation in a std::vector. Flushing the buffer 
+/// the typical reallocation in a std::vector. Flushing the buffer
 /// will resize the table and copy itself into the table.
 /// This happens automatically when the buffer is destroyed, or can
 /// also be done manually. @see class ArrayBufferT
@@ -43,25 +43,25 @@ class CTable : public Common::Component
 {
 public: // typedefs
 
-  /// @typedef the value type stored in each entry of the 2-dimensional table
+  /// @brief the value type stored in each entry of the 2-dimensional table
   typedef ValueT value_type;
-  
-  ///@typedef the type of the internal structure of the table
+
+  /// @brief the type of the internal structure of the table
   typedef boost::multi_array<ValueT,2> ArrayT;
-  
-  /// @typedef the type of a row in the internal structure of the table
+
+  /// @brief the type of a row in the internal structure of the table
   typedef typename boost::subarray_gen<ArrayT,1>::type Row;
-  
-  /// @typedef the const type of a row in the internal structure of the table
+
+  /// @brief the const type of a row in the internal structure of the table
   typedef const typename boost::const_subarray_gen<ArrayT,1>::type ConstRow;
-  
-  /// @typedef the type of the buffer used to interact with the table
+
+  /// @brief the type of the buffer used to interact with the table
   typedef ArrayBufferT<ValueT> Buffer;
 
-  /// @typedef boost::shared_ptr shortcut of this component 
+  /// @brief boost::shared_ptr shortcut of this component
   typedef boost::shared_ptr<CTable> Ptr;
-  
-  /// @typedef boost::shared_ptr shortcut of this component const version
+
+  /// @brief boost::shared_ptr shortcut of this component const version
   typedef boost::shared_ptr<CTable const> ConstPtr;
 
 public: // functions
@@ -70,19 +70,19 @@ public: // functions
   /// @param name of the component
   CTable ( const std::string& name )  : Component ( name )
   {
-     
+
   }
 
   /// Get the component type name
   /// @returns the component type name
   static std::string type_name () { return "CTable<"+Common::class_name<ValueT>()+">"; }
-  
+
   /// Initialize the array with a fixed column size and remove all existing rows, if any.
   /// The number of rows can be changed dynamically.
   /// @param[in] nb_cols number of columns in the table.
   void set_row_size(const Uint nb_cols)
   {
-    m_array.resize(boost::extents[size()][nb_cols]); 
+    m_array.resize(boost::extents[size()][nb_cols]);
   }
 
   /// Resize the array to the given number of rows
@@ -108,16 +108,16 @@ public: // functions
   {
     // make sure the array has its columnsize defined
     cf_assert(row_size() > 0);
-    return Buffer(m_array,buffersize); 
+    return Buffer(m_array,buffersize);
   }
-  
+
   typename Buffer::Ptr create_buffer_ptr(const size_t buffersize=16384)
   {
     // make sure the array has its columnsize defined
     cf_assert(row_size() > 0);
     return typename Buffer::Ptr ( new Buffer (m_array,buffersize) );
   }
-  
+
 
   /// Operator to have modifiable access to a table-row
   /// @return A mutable row of the underlying array
@@ -131,11 +131,11 @@ public: // functions
   /// @return The number of local rows in the array
   Uint size() const { return m_array.size(); }
 
-  /// Number of columns , or number of elements of one table-row
+	/// Number of columns , or number of elements of one table-row
 	/// @return The number of elements in each row, i.e. the number of columns of the array
 	/// @note All row_sizes are the same, so an index is not required, but
 	/// could be passed to be consistent with CDynTable with variable row_sizes
-  Uint row_size(Uint i=0) const { return m_array.shape()[1]; }
+	Uint row_size(Uint i=0) const { return m_array.shape()[1]; }
 
   /// copy a given row into the array, The row type must have the size() function declared
   /// @param[in] array_idx the index of the row that will be set
@@ -150,16 +150,16 @@ public: // functions
     for(Uint j=0; j<row.size(); ++j)
       row_to_set[j] = row[j];
   }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
-  // Index operator. 
+  // Index operator.
   // --------------
   ///  c = U[i]
-  // Real& operator[](int index);   
+  // Real& operator[](int index);
   // const Real& operator[](int index) const;
 
-  // // Binary arithmetic operators. 
+  // // Binary arithmetic operators.
   // // ----------------------------
   // /// U = U + U
   // friend CTable operator +(const CTable& U1, const CTable& U2);
@@ -175,7 +175,7 @@ public: // functions
   // friend CTable operator /(const CTable& U, const Real& a);
   // /// U = U / U (row-wise)
   // friend CTable operator /(const CTable& U1, const CTable& U2);
-  // 
+  //
   // // Unary arithmetic operators.
   // // ---------------------------
   // /// U = -U
@@ -186,23 +186,23 @@ public: // functions
   // ------------------------------
   /// U = U
   CTable& operator =(const CTable& U)
-  { 
-    cf_assert(size() == U.size()); 
+  {
+    cf_assert(size() == U.size());
     array() = U.array();
     return *this;
   }
-  
+
   CTable& operator =(const value_type& c)
-  { 
+  {
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] = c;
     return *this;
   }
-  
+
   /// U += U
-  CTable& operator +=(const CTable& U) 
-  { 
+  CTable& operator +=(const CTable& U)
+  {
     cf_assert(size() == U.size());
     cf_assert(row_size() == U.row_size());
     for (Uint i=0; i<size(); ++i)
@@ -210,10 +210,10 @@ public: // functions
         array()[i][j] += U.array()[i][j];
     return *this;
   }
-  
+
   /// U -= U
-  CTable& operator -=(const CTable& U) 
-  { 
+  CTable& operator -=(const CTable& U)
+  {
     cf_assert(size() == U.size());
     cf_assert(row_size() == U.row_size());
     for (Uint i=0; i<size(); ++i)
@@ -221,19 +221,19 @@ public: // functions
         array()[i][j] -= U.array()[i][j];
     return *this;
   }
-  
+
   /// U *= c
   CTable& operator *=(const value_type& c)
-  { 
+  {
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] *= c;
     return *this;
   }
-  
+
   /// U *= U
-  CTable& operator *=(const CTable& U) 
-  { 
+  CTable& operator *=(const CTable& U)
+  {
     cf_assert(size() == U.size());
     if (U.row_size() == 1) // U is a scalar field
     {
@@ -253,7 +253,7 @@ public: // functions
 
   /// U /= a
   CTable& operator /=(const value_type& c)
-  { 
+  {
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] /= c;
@@ -261,8 +261,8 @@ public: // functions
   }
 
   /// U /= U
-  CTable& operator /=(const CTable& U) 
-  { 
+  CTable& operator /=(const CTable& U)
+  {
     cf_assert(size() == U.size());
     if (U.row_size() == 1) // U is a scalar field
     {
@@ -279,7 +279,7 @@ public: // functions
     }
     return *this;
   }
-  
+
 
   // // Relational operators.
   // // ---------------------
@@ -295,7 +295,7 @@ public: // functions
   // // friend bool operator <(const CTable& U1, const CTable& U2);
   // // /// U > U
   // // friend bool operator >(const CTable& U1, const CTable& U2);
-  // 
+  //
   // // Input-output operators.
   // // ----------------------
   // /// ostream << U
@@ -323,7 +323,7 @@ std::ostream& operator<<(std::ostream& os, const CTable<Uint>& table);
 std::ostream& operator<<(std::ostream& os, const CTable<int>& table);
 std::ostream& operator<<(std::ostream& os, const CTable<Real>& table);
 std::ostream& operator<<(std::ostream& os, const CTable<std::string>& table);
-	
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

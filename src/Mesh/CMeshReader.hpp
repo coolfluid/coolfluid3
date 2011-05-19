@@ -89,6 +89,7 @@ protected: // functions
 
   /// Create element regions for each given type inside a given region
   /// @param [in] parent_region   Region in which the elementregions will be made
+  /// @param [in] nodes           Nodes location to use for storing the cell nodes
   /// @param [in] etypes          List of element type names that will be used
   /// @return a BufferMap with key an etype name and value a buffer for the region
   ///         with name of the etype

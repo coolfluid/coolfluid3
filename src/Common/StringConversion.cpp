@@ -18,14 +18,6 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Operations on std::string
-
-  /// Converts to std::string
-  /// Don't use this to convert to a char, use c_str for that.
-  /// Typical use is to convert to numbers.
-  /// @param str string to convert from
-  /// @return converter type
-
   template <>
   Common_API std::string to_str<bool> (const bool & v)
   {

@@ -44,16 +44,9 @@ CRegion::~CRegion()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& CRegion::create_region( const std::string& name, bool ensure_unique )
+CRegion& CRegion::create_region( const std::string& name )
 {
-  Component::Ptr region = get_child_ptr(name);
-
-  if ( ensure_unique || is_null(region) )
-  {
-    return *create_component_ptr<CRegion>(name);
-  }
-  else   
-    return region->as_type<CRegion>();
+  return create_component<CRegion>(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +54,7 @@ CRegion& CRegion::create_region( const std::string& name, bool ensure_unique )
 CElements& CRegion::create_elements(const std::string& element_type_name, CNodes& nodes)
 {
   std::string name = "elements_" + element_type_name;
-  
+
   Component::Ptr celems = get_child_ptr(name);
   if ( is_null(celems) )
   {
@@ -77,14 +70,14 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CNodes
 //////////////////////////////////////////////////////////////////////////////
 
 CNodes& CRegion::create_nodes(const Uint& dim)
-{  
+{
   /// @todo nodes have to be created in CMesh
   CNodes::Ptr nodes = find_component_ptr_with_tag<CNodes>(*this,Mesh::Tags::nodes());
   if ( is_null(nodes) )
   {
     nodes = create_component_ptr<CNodes>(Mesh::Tags::nodes());
     nodes->coordinates().set_row_size(dim);
-    
+
     /// @todo when nodes in CMesh created, this can be linked inside CMesh
     find_component_with_name<CLink>(find_parent_component<CMesh>(*this),Mesh::Tags::nodes()).link_to(nodes);
   }
@@ -102,7 +95,7 @@ Uint CRegion::recursive_elements_count() const
     elem_count += elements.size();
   return elem_count;
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 Uint CRegion::recursive_nodes_count()
@@ -155,15 +148,15 @@ CNodes& CRegion::nodes()
 ////////////////////////////////////////////////////////////////////////////////
 
 CRegion::ConstElementsRange CRegion::elements_range() const
-{ 
-  return find_components_recursively<CEntities>(*this); 
+{
+  return find_components_recursively<CEntities>(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CRegion::ElementsRange CRegion::elements_range()
-{ 
-  return find_components_recursively<CEntities>(*this); 
+{
+  return find_components_recursively<CEntities>(*this);
 }
 
 //////////////////////////////////////////////////////////////////////////////

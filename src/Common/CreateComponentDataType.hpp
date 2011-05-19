@@ -13,7 +13,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @define create_component_data_type
+/// @def create_component_data_type
+/// @brief macro to create data wrapping component type
 /// This macro creates a component class that wraps any given data type that has
 /// a default constructor.
 /// The data can be accessed directly through its memberfunction data()
@@ -21,7 +22,7 @@
 /// @param data_type        The data type to wrap in the component class
 /// @param API              The API of the library this class is created in
 /// @param CName            The typename of the component class
-/// @param CName_type_name  The name of the class as a std::string
+/// @param Cname_type_name  The name of the class as a std::string
 #define create_component_data_type( data_type , API , CName , Cname_type_name) \
 class API CName : public Common::Component                                     \
 {                                                                              \

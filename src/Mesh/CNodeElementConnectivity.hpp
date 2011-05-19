@@ -18,7 +18,7 @@ namespace Common {
   class CLink;
 }
 namespace Mesh {
-  
+
   class CRegion;
   class CNodes;
 
@@ -44,14 +44,14 @@ public:
   static std::string type_name () { return "CNodeElementConnectivity"; }
 
   /// setup the node to element connectivity
-  /// This function calls 
+  /// This function calls
   /// - set_elements(elements_range)
   /// - build_connectivity
   /// They could be called seperately if wanted
   /// @post all access functions can be used after setup
-  /// @param [in] regions in which the elements are connected to the nodes.
+  /// @param [in] region in which the elements are connected to the nodes.
   void setup(CRegion& region);
-  
+
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
@@ -60,7 +60,7 @@ public:
   CUnifiedData& elements() { return *m_elements; }
   const CUnifiedData& elements() const { return *m_elements; }
 
-  
+
   /// const access to the node to element connectivity table in unified indices
   CDynTable<Uint>& connectivity() { return *m_connectivity; }
   const CDynTable<Uint>& connectivity() const { return *m_connectivity; }
@@ -81,7 +81,7 @@ private: // data
 
   /// Actual connectivity table
   CDynTable<Uint>::Ptr m_connectivity;
-  
+
 }; // CNodeElementConnectivity
 
 ////////////////////////////////////////////////////////////////////////////////

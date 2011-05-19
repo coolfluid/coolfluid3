@@ -41,22 +41,28 @@ public:
   /// Type name
   static std::string type_name() { return "ShapeFunction"; }
 
-  /// @brief Get the index corresponding to an orientation, a line, and a index on that line
+  /// @brief Table to get point indexes given an orientation, a line, a point on the line
+  ///
+  /// Get the index corresponding to an orientation, a line, and a index on that line
   /// points()[orientation][line_idx][line_point_idx]
-  /// @param orientation     orientation of the line (KSI / ETA / ZTA)
-  /// @param line_idx        index of the line following the given orientation
-  /// @param line_point_idx  index inside the line
+  /// - orientation     orientation of the line (KSI / ETA / ZTA)
+  /// - line_idx        index of the line following the given orientation
+  /// - line_point_idx  index inside the line
+  ///
   /// Lines      points()[orientation]           for a view of the orientation
   /// LinePoints points()[orientation][line_idx] for a view of one line
   Points points() const { return m_points; }
 
-  /// @brief Get the index corresponding to an orientation, a line, and a index on that line
+  /// @brief Table to get face point indexes given an orientation, a line, a side
+  ///
+  /// Get the index corresponding to an orientation, a line, and a index on that line
   /// points()[orientation][line_idx][side]
-  /// @param orientation  orientation of the line (KSI / ETA / ZTA)
-  /// @param line_idx     index of the line following the given orientation
-  /// @param side         left or right side of the line (LEFT / RIGHT)
-  /// Lines      points()[orientation]           for a view of the orientation
-  /// LinePoints points()[orientation][line_idx] for a view of one line
+  /// - orientation  orientation of the line (KSI / ETA / ZTA)
+  /// - line_idx     index of the line following the given orientation
+  /// - side         left or right side of the line (LEFT / RIGHT)
+  ///
+  /// Lines      face_points()[orientation]           for a view of the orientation
+  /// LinePoints face_points()[orientation][line_idx] for a view of one line
   Points face_points() const { return m_face_points; }
 
   /// Number of lines per orientation

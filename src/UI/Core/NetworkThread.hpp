@@ -79,7 +79,7 @@ private slots :
 
   /// @brief Slot called when the connection has been broken or closed.
   /// If the thread is running, it is exited with error code 0 if
-  /// @c #disconnect() was called or 1 if the disconnection is due to an
+  /// @c #disconnected() was called, or 1 if the disconnection is due to an
   /// error code.
   void disconnected();
 

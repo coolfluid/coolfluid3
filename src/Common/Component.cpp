@@ -767,7 +767,8 @@ size_t Component::count_children() const
 /////////////////////////////////////////////////////////////////////////////////////
 
 /// Adds an array to XML tree
-/// @param params XmlParams object that manages the tree
+/// @param map   Where to add the array
+/// @param name  Name to give to the array
 /// @param array Array to add. It must be an OptionArrayT<TYPE>
 template<typename TYPE>
 void add_array_to_xml(Map & map, const std::string & name,
@@ -788,8 +789,9 @@ void add_array_to_xml(Map & map, const std::string & name,
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-/// Adds an array to XML tree
-/// @param params XmlParams object that manages the tree
+/// Adds a property to XML tree
+/// @param map   Where to add the property
+/// @param name  Name to give to the property
 /// @param prop Property to add
 template<typename TYPE>
 void add_prop_to_xml(Map & map, const std::string & name,
