@@ -26,7 +26,7 @@
 #include "RDM/Core/LinearAdvSys2D.hpp"    // supported physics
 #include "RDM/Core/Euler2D.hpp"           // supported physics
 
-#include "RDM/Core/ScalarAdvection.hpp"
+#include "RDM/Core/Steady.hpp"
 
 namespace CF {
 namespace RDM {
@@ -36,34 +36,34 @@ using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Solver;
 
-Common::ComponentBuilder < ScalarAdvection, Component, LibCore > ScalarAdvection_Builder;
+Common::ComponentBuilder < Steady, Solver::CWizard, LibCore > Steady_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ScalarAdvection::ScalarAdvection ( const std::string& name  ) :
-  Component ( name )
+Steady::Steady ( const std::string& name  ) :
+  Solver::CWizard ( name )
 {
   // signals
 
-  this->regist_signal ( "create_model" , "Creates a scalar advection model", "Create Model" )->signal->connect ( boost::bind ( &ScalarAdvection::signal_create_model, this, _1 ) );
+  this->regist_signal ( "create_model" , "Creates a scalar advection model", "Create Model" )->signal->connect ( boost::bind ( &Steady::signal_create_model, this, _1 ) );
 
   signal("create_component")->is_hidden = true;
   signal("rename_component")->is_hidden = true;
   signal("delete_component")->is_hidden = true;
   signal("move_component")->is_hidden   = true;
 
-  signal("create_model")->signature->connect( boost::bind( &ScalarAdvection::signature_create_model, this, _1));
+  signal("create_model")->signature->connect( boost::bind( &Steady::signature_create_model, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ScalarAdvection::~ScalarAdvection()
+Steady::~Steady()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
+void Steady::signal_create_model ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -105,7 +105,7 @@ void ScalarAdvection::signal_create_model ( Common::SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::signature_create_model( SignalArgs& node )
+void Steady::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 

@@ -5,8 +5,8 @@ list( APPEND coolfluid_rdm_core_files
   RKRD.hpp
   SupportedTypes.hpp
 # wizards
-  ScalarAdvection.hpp
-  ScalarAdvection.cpp
+  Steady.hpp
+  Steady.cpp
 # actions
   ElementLoop.hpp
   BoundaryTerm.hpp

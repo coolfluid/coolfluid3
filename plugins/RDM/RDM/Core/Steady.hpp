@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_ScalarAdvection_hpp
-#define CF_RDM_ScalarAdvection_hpp
+#ifndef CF_RDM_Steady_hpp
+#define CF_RDM_Steady_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
+#include "Solver/CWizard.hpp"
 
 #include "RDM/Core/LibCore.hpp"
 
@@ -20,26 +20,26 @@ namespace RDM {
 
 /// Wizard to setup a scalar advection simulation
 /// @author Tiago Quintino
-class RDM_CORE_API ScalarAdvection : public Common::Component {
+class RDM_CORE_API Steady : public Solver::CWizard {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<ScalarAdvection> Ptr;
-  typedef boost::shared_ptr<ScalarAdvection const> ConstPtr;
+  typedef boost::shared_ptr<Steady> Ptr;
+  typedef boost::shared_ptr<Steady const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  ScalarAdvection ( const std::string& name );
+  Steady ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~ScalarAdvection();
+  virtual ~Steady();
 
   /// Get the class name
-  static std::string type_name () { return "ScalarAdvection"; }
+  static std::string type_name () { return "Steady"; }
 
-  // functions specific to the ScalarAdvection component
+  // functions specific to the Steady component
 
   /// @name SIGNALS
   //@{
@@ -60,4 +60,4 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_ScalarAdvection_hpp
+#endif // CF_RDM_Steady_hpp
