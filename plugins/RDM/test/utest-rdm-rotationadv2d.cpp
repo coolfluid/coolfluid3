@@ -130,7 +130,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 
   std::vector<URI> files;
 
-  URI file ( "file:rotation-tg.msh" );
+  URI file ( "file:rotation-tg-p1.msh" );
 //  URI file ( "file:rotation-tg-p2.msh" );
 //  URI file ( "file:rotation-tg-p4.msh" );
 //  URI file ( "file:rotation-qd-p1.msh" );
