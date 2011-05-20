@@ -39,8 +39,6 @@ include( DetectParaView )
 ##############################################################################
 # find non essential packages
 
-coolfluid_log( "" )
-
 # using cmake find macros
 
 find_package(ZLIB)            # file compression support
@@ -77,7 +75,7 @@ find_package(Realtime)        # POSIX Realtime library
 find_package(POSIXThread)     # POSIX Threads library
 find_package(SuperLU)         # SuperLU sparse sirect solver
 find_package(Trilinos)        # Trilinos sparse matrix library
-find_package(OpenSSL)         # OpenSSL library
+find_package(OpenSSL QUIET)   # OpenSSL library
 
 # gpu software
 

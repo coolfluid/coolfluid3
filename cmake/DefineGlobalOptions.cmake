@@ -16,6 +16,7 @@ option( CF_ENABLE_SANDBOX            "Enable build of sandbox projects"         
 option( CF_ENABLE_VECTORIZATION      "Enable floating point vectorization"            ON  )
 
 option( CF_ENABLE_GPU                "Enable GPU computing  (if available)"           OFF )
+add_feature_info(GPU CF_ENABLE_GPU   "GPU provides accelerated computations using graphics processing units")
 option( CF_ENABLE_CUDA               "Enable CUDA for GPGPU (if available)"           ON  )
 option( CF_ENABLE_OPENCL             "Enable OpenCL for GPGPU (if available)"         ON  )
 
