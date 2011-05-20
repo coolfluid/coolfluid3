@@ -18,7 +18,7 @@ namespace RDM {
 /////////////////////////////////////////////////////////////////////////////////////
 
 DomainTerm::DomainTerm ( const std::string& name ) :
-  RDM::Action(name)
+  Solver::Action(name)
 {
   mark_basic();
 

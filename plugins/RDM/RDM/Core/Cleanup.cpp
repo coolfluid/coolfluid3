@@ -27,7 +27,7 @@ Common::ComponentBuilder < Cleanup, CAction, LibCore > Cleanup_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-Cleanup::Cleanup ( const std::string& name ) : RDM::Action(name)
+Cleanup::Cleanup ( const std::string& name ) : Solver::Action(name)
 {
   mark_basic();
 

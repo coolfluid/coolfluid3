@@ -7,7 +7,9 @@
 #ifndef CF_RDM_BoundaryTerm_hpp
 #define CF_RDM_BoundaryTerm_hpp
 
-#include "RDM/Core/Action.hpp"
+#include "Solver/Action.hpp"
+
+#include "RDM/Core/LibCore.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +18,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_CORE_API BoundaryTerm : public RDM::Action {
+class RDM_CORE_API BoundaryTerm : public Solver::Action {
 
 public: // typedefs
 

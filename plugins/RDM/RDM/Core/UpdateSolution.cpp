@@ -33,7 +33,7 @@ Common::ComponentBuilder < UpdateSolution, CAction, LibCore > UpdateSolution_Bui
 ///////////////////////////////////////////////////////////////////////////////////////
   
 UpdateSolution::UpdateSolution ( const std::string& name ) :
-  RDM::Action(name)
+  Solver::Action(name)
 {
   mark_basic();
 

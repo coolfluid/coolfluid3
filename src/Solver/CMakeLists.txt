@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_solver_files
+  Action.hpp
+  Action.cpp
   CModel.hpp
   CModel.cpp
   CModelSteady.hpp

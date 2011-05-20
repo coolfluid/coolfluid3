@@ -40,7 +40,7 @@ Common::ComponentBuilder < ForwardEuler, CAction, LibCore > ForwardEuler_Builder
 ///////////////////////////////////////////////////////////////////////////////////////
   
 ForwardEuler::ForwardEuler ( const std::string& name ) :
-  RDM::Action(name),
+  Solver::Action(name),
   m_cfl(1.0),
   m_max_iter(0)
 {

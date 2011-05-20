@@ -114,6 +114,8 @@ void ScalarAdvection::signature_create_model( SignalArgs& node )
   std::vector<std::string> models = boost::assign::list_of
       ( LinearAdv2D::type_name() )
       ( RotationAdv2D::type_name() )
+      ( Euler2D::type_name() )
+      ( LinearAdvSys2D::type_name() )
       ( Burgers2D::type_name() ) ;
 
   options.add<std::string>("PhysicalModel", std::string(), "Name of the Physical Model", models, " ; ");

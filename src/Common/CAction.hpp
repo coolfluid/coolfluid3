@@ -37,6 +37,7 @@ public: // functions
   virtual void execute () = 0;
 
   /// create an action inside this action
+  /// @deprecated should use build_component()
   virtual CAction& create_action(const std::string& action_provider, const std::string& name);
 
   /// @name SIGNALS

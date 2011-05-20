@@ -600,7 +600,7 @@ Component& Component::build_component ( const std::string& name , const std::str
 {
   using namespace boost::algorithm;
   std::string builder_name_space (builder_name.begin(),find_last(builder_name,".").begin());
-  const CBuilder& builder = Core::instance().root().access_component(URI("cpath://Root/Libraries/"+builder_name_space+"/"+builder_name)).follow()->as_type<CBuilder const>();
+  const CBuilder& builder = Core::instance().root().access_component( Core::instance().libraries().full_path() / URI(builder_name_space) / URI(builder_name) ).follow()->as_type<CBuilder const>();
   return add_component( builder.build( name ) );
 }
 

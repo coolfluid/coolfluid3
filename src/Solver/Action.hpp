@@ -4,25 +4,25 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Action_hpp
-#define CF_RDM_Action_hpp
+#ifndef CF_Solver_Action_hpp
+#define CF_Solver_Action_hpp
 
 #include "Common/CAction.hpp"
 
-#include "RDM/Core/LibCore.hpp"
+#include "Solver/LibSolver.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 
 namespace Mesh { class CRegion; class CMesh; }
-namespace Solver { class CPhysicalModel;}
+namespace Solver {
 
-namespace RDM {
+  class CPhysicalModel;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_CORE_API Action : public Common::CAction
+class Solver_API Action : public Common::CAction
 {
 public: // typedefs
 
@@ -57,14 +57,13 @@ protected:
   /// regions of the mesh to loop over
   std::vector< boost::shared_ptr< Mesh::CRegion > > m_loop_regions;
 
-
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // RDM
+} // Solver
 } // CF
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_Action_hpp
+#endif // CF_Solver_Action_hpp

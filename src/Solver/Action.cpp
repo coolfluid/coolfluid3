@@ -14,19 +14,17 @@
 #include "Mesh/CMesh.hpp"
 
 #include "Solver/CPhysicalModel.hpp"
+#include "Solver/Action.hpp"
 
-#include "RDM/Core/Action.hpp"
-
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
-using namespace CF::Solver;
 
 namespace CF {
-namespace RDM {
+namespace Solver {
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Action::Action ( const std::string& name ) :
   Common::CAction(name)
@@ -38,16 +36,12 @@ Action::Action ( const std::string& name ) :
   m_properties.add_option( OptionComponent<CMesh>::create("Mesh",
                                                           "Mesh the Discretization Method will be applied to",
                                                           &m_mesh))
-    ->mark_basic()
-    ->add_tag("mesh");
+    ->mark_basic();
 
   m_properties.add_option( OptionComponent<CPhysicalModel>::create("Physics",
                                                                    "Physical model",
                                                                    &m_physical_model))
-    ->mark_basic()
-    ->add_tag("physics");
-
-//  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( & Action::config_mesh, this ) );
+    ->mark_basic();
 
   std::vector< URI > dummy;
   m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)
@@ -57,19 +51,21 @@ Action::Action ( const std::string& name ) :
 
 Action::~Action() {}
 
-//------------------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////////////////
 
 CPhysicalModel::Ptr Action::access_physical_model()
 {
   CPhysicalModel::Ptr model = m_physical_model.lock();
 
   if( is_null(model) )
-    throw Common::SetupError( FromHere(), "Physical Model not yet set for component " + full_path().string() );
+    throw Common::SetupError( FromHere(),
+                             "Physical Model not yet set for component "
+                             + full_path().string() );
 
   return model;
 }
 
-//------------------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Action::config_regions()
 {
@@ -82,13 +78,14 @@ void Action::config_regions()
     if ( CRegion::Ptr region = comp.as_ptr<CRegion>() )
       m_loop_regions.push_back( region );
     else
-      throw ValueNotFound ( FromHere(), "Could not find region with path [" + region_path.path() +"]" );
+      throw ValueNotFound ( FromHere(),
+                           "Could not find region with path [" + region_path.path() +"]" );
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
-} // RDM
+} // Solver
 } // CF
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////

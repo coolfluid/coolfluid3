@@ -12,8 +12,7 @@
 #include "Common/CLink.hpp"
 
 #include "Solver/CSolver.hpp"
-
-#include "RDM/Core/Action.hpp"
+#include "Solver/Action.hpp"
 
 namespace CF {
 
@@ -83,10 +82,11 @@ private: // functions
 
 private: // data
 
+  /// physical model discretized by this solver
+  boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
+
   /// mesh which this solver operates
   boost::weak_ptr<Mesh::CMesh> m_mesh;
-  /// mesh which this solver operates
-  boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
 
   /// solution field pointer
   boost::weak_ptr<Mesh::CField> m_solution;
@@ -101,13 +101,13 @@ private: // data
   Common::CAction::Ptr m_compute_domain_terms;
 
   /// action to update the solution
-  RDM::Action::Ptr m_update_solution;
+  Solver::Action::Ptr m_update_solution;
   /// compute the L-norm for convergence
   Common::CAction::Ptr m_compute_norm;
   /// action to cleanup
-  RDM::Action::Ptr m_cleanup;
+  Solver::Action::Ptr m_cleanup;
   /// action to iterate solution
-  RDM::Action::Ptr m_time_stepping;
+  Solver::Action::Ptr m_time_stepping;
 
 };
 
