@@ -7,7 +7,9 @@
 #ifndef CF_RDM_Cleanup_hpp
 #define CF_RDM_Cleanup_hpp
 
-#include "RDM/Core/Action.hpp"
+#include "Solver/Action.hpp"
+
+#include "RDM/Core/LibCore.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 

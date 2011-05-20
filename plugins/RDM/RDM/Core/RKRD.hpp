@@ -14,6 +14,8 @@
 #include "Solver/CSolver.hpp"
 #include "Solver/Action.hpp"
 
+#include "RDM/Core/LibCore.hpp"
+
 namespace CF {
 
 namespace Mesh   { class CField; class CMesh; }
