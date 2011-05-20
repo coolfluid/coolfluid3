@@ -9,8 +9,6 @@ list( APPEND coolfluid_rdm_core_files
   ScalarAdvection.cpp
 # actions
   ElementLoop.hpp
-  Action.hpp
-  Action.cpp
   BoundaryTerm.hpp
   BoundaryTerm.cpp
   DomainTerm.hpp
