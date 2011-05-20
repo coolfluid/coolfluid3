@@ -131,8 +131,7 @@ private slots: //slots
   void show_hide_actor(QListWidgetItem * item);
 
   /// Called when the current Region/Actor change.
-  /// @param item Item corresponding to the Region/Actor.
-  void actor_changed(QListWidgetItem * item);
+  void actor_changed();
 
   /// Color Picker that change current Region/Actor color.
   void set_solid_color();

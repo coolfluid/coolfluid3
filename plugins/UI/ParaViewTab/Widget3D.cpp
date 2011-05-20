@@ -293,7 +293,7 @@ Widget3D::Widget3D(QWidget *parent) :
 
   /** Connection Phase **/
   connect(m_actor_list,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(show_hide_actor(QListWidgetItem*)));
-  connect(m_actor_list,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(actor_changed(QListWidgetItem*)));
+  connect(m_actor_list,SIGNAL(itemSelectionChanged()),this,SLOT(actor_changed()));
   connect(m_preDefined_rotation,SIGNAL(activated(int)),this,SLOT(set_rotation(int)));
   connect(m_show_color_palette, SIGNAL(released()), this, SLOT(show_color_editor()));
   connect(m_mesh_solid_color_set,SIGNAL(released()),this,SLOT(set_solid_color()));
@@ -360,6 +360,7 @@ void Widget3D::createView(){
     // create a graphics window and put it in our main window
     this->m_RenderView = qobject_cast<pqRenderView*>(
           m_object_builder->createView(pqRenderView::renderViewType(), m_server));
+
 
     if(m_RenderView){
       //put the view in the 0 index so it is the first widget of the layout (avoid bugs)
@@ -682,7 +683,7 @@ void Widget3D::show_hide_actor(QListWidgetItem * itemDuble){
 
 }
 
-void Widget3D::actor_changed(QListWidgetItem * item){
+void Widget3D::actor_changed(){
     if(m_actor_list->selectedItems().size() == 1){
       m_mesh_options->setEnabled(true);
       m_disp_adv_opt_button->setEnabled(true);
