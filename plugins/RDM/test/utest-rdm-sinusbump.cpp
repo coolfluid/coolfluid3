@@ -62,7 +62,7 @@ struct sinusbump_global_fixture
                                                              ("../../../dso");
     loader.set_search_paths(lib_paths);
 
-    loader.load_library("coolfluid_mesh_neutral");
+    loader.load_library("coolfluid_mesh_neu");
     loader.load_library("coolfluid_mesh_gmsh");
     loader.load_library("coolfluid_mesh_tecplot");
     loader.load_library("coolfluid_mesh_vtklegacy");
@@ -134,7 +134,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , sinusbump_local_fixture )
 
   std::vector<URI> files;
 
-  URI file( "file:sinusbump-tg-p1.msh" );
+  URI file( "file:sinusbump-tg-p1-90.msh" );
 
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::FILE;
