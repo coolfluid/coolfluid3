@@ -148,6 +148,12 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
     nodes[1] = y_segments * (x_segments+1) + i;
     nodes[0] = nodes[1] + 1;
   }
+  
+  CElements::Ptr corner = mesh.topology().create_region("corner").create_component_ptr<CElements>("Point");
+  corner->initialize("CF.Mesh.SF.Point2DLagrangeP0",nodes);
+  CTable<Uint>& corner_connectivity = corner->node_connectivity();
+  corner_connectivity.resize(1);
+  corner_connectivity[0][0] = 0;
 }
 
 void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
@@ -240,6 +246,29 @@ void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, cons
     nodes[1] = y_segments * (x_segments+1) + i;
     nodes[0] = nodes[1] + 1;
   }
+  
+  CFaces::Ptr center = mesh.topology().create_region("center_line").create_component_ptr<CFaces>("Line");
+  center->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+  CTable<Uint>& center_connectivity = center->node_connectivity();
+  center_connectivity.resize(y_segments);
+  for(Uint j = 0; j < y_segments; ++j)
+  {
+    CTable<Uint>::Row crow = center_connectivity[j];
+    crow[0] = j * (x_segments+1) + x_segments/2;
+    crow[1] = (j+1) * (x_segments+1) + x_segments/2;
+  }
+  
+  CElements::Ptr corner = mesh.topology().create_region("corner").create_component_ptr<CElements>("Point");
+  corner->initialize("CF.Mesh.SF.Point2DLagrangeP0",nodes);
+  CTable<Uint>& corner_connectivity = corner->node_connectivity();
+  corner_connectivity.resize(1);
+  corner_connectivity[0][0] = 0;
+  
+  CElements::Ptr center_point = mesh.topology().create_region("center_point").create_component_ptr<CElements>("Point");
+  center_point->initialize("CF.Mesh.SF.Point2DLagrangeP0",nodes);
+  CTable<Uint>& center_point_connectivity = center_point->node_connectivity();
+  center_point_connectivity.resize(1);
+  center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
 }
 
 

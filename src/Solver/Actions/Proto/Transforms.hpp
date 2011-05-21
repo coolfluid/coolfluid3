@@ -307,7 +307,7 @@ struct StreamOutput :
   <
     boost::proto::or_
     <
-      boost::proto::shift_left< boost::proto::terminal< std::ostream & >, boost::proto::or_< GrammarT, boost::proto::terminal<const char*> > >,
+      boost::proto::shift_left< boost::proto::or_< boost::proto::terminal<std::ostream&>, boost::proto::terminal<std::ofstream&> >, boost::proto::or_< GrammarT, boost::proto::terminal<const char*> > >,
       boost::proto::shift_left< StreamOutput<GrammarT>, boost::proto::or_< GrammarT, boost::proto::terminal<const char*> > >
     >,
     boost::proto::_default<GrammarT>

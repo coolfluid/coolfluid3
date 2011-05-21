@@ -108,6 +108,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
   CRegion& right = find_component_recursively_with_name<CRegion>(*mesh, "right");
   CRegion& bottom = find_component_recursively_with_name<CRegion>(*mesh, "bottom");
   CRegion& top = find_component_recursively_with_name<CRegion>(*mesh, "top");
+  CRegion& corner = find_component_recursively_with_name<CRegion>(*mesh, "corner");
 
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", "u");
@@ -191,6 +192,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
     for_each_node(right,  dirichlet(lss, u) = u_wall, physical_model);
     for_each_node(top,    dirichlet(lss, u) = u_lid,  physical_model);
     for_each_node(bottom, dirichlet(lss, u) = u_wall, physical_model);
+    for_each_node(corner, dirichlet(lss, p) = 0., physical_model);
     
     bctime = timer.elapsed(); 
     
