@@ -31,20 +31,19 @@ namespace RDM {
 Common::ComponentBuilder < BcDirichlet, RDM::BoundaryTerm, LibCore > BcDirichlet_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
+
 BcDirichlet::BcDirichlet ( const std::string& name ) :
   RDM::BoundaryTerm(name)
 {
   // options
 
-  m_properties.add_option< OptionURI > ("Solution",
+  m_properties.add_option< OptionURI > ("solution","Solution",
                                         "Solution field where to apply the boundary condition",
                                         URI("cpath:"))
        ->attach_trigger ( boost::bind ( &BcDirichlet::config_mesh,   this ) )
-       ->mark_basic()
-       ->add_tag("solution");
+       ->mark_basic();
 
-  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_mesh, this ) );
+  m_properties["mesh"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_mesh, this ) );
 
   m_properties.add_option<
       OptionArrayT<std::string> > ("Functions",
@@ -70,7 +69,7 @@ void BcDirichlet::config_mesh()
 {
   cf_assert( is_not_null( m_mesh.lock() ) );
 
-  URI sol_uri  = property("Solution").value<URI>();
+  URI sol_uri  = property("solution").value<URI>();
   m_solution = access_component_ptr(sol_uri)->as_ptr<CField>();
   if( is_null(m_solution.lock()) )
     m_solution = find_component_ptr_with_tag<CField>( *(m_mesh.lock()) , "solution" );

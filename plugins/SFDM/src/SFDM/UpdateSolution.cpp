@@ -32,14 +32,11 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
 
   // options
 
-  m_properties.add_option(OptionComponent<CField>::create("Solution","Solution to update", &m_solution))
-    ->add_tag("solution");
+  m_properties.add_option(OptionComponent<CField>::create("solution","Solution","Solution to update", &m_solution));
 
-  m_properties.add_option(OptionComponent<CField>::create("UpdateCoeff","Update coefficient", &m_update_coeff))
-    ->add_tag("update_coeff");
+  m_properties.add_option(OptionComponent<CField>::create("update_coeff","Update Coefficient","Update coefficient", &m_update_coeff));
 
-  m_properties.add_option(OptionComponent<CField>::create("Residual","Residual", &m_residual))
-    ->add_tag("residual");
+  m_properties.add_option(OptionComponent<CField>::create("residual","Residual","Residual", &m_residual));
 
   m_solution_view = create_static_component_ptr<CMultiStateFieldView>("solution_view");
   m_residual_view = create_static_component_ptr<CMultiStateFieldView>("residual_view");

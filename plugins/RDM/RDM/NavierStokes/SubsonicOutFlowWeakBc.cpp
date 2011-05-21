@@ -39,20 +39,19 @@ Common::ComponentBuilder < SubsonicOutFlowWeakBc, RDM::BoundaryTerm, LibCore > S
 Common::ComponentBuilder < FaceLoop< SubsonicOutFlowWeakBc, Euler2D>, RDM::ElementLoop, LibCore > SubsonicOutFlowWeakBc_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
+
 SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
   RDM::BoundaryTerm(name)
 {
   // options
 
-  m_properties.add_option< OptionURI > ("Solution",
+  m_properties.add_option< OptionURI > ("solution","Solution",
                                         "Solution field where to apply the boundary condition",
                                         URI("cpath:"))
        ->attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_mesh,   this ) )
-       ->mark_basic()
-       ->add_tag("solution");
+       ->mark_basic();
 
-  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_mesh, this ) );
+  m_properties["mesh"].as_option().attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_mesh, this ) );
 
   m_properties.add_option< OptionT<std::string> > ("p_out", "Outlet pressure (vars x,y)", std::string() )
       ->attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_pressure_function, this ) )
@@ -77,7 +76,7 @@ void SubsonicOutFlowWeakBc::config_mesh()
 {
   cf_assert( is_not_null( m_mesh.lock() ) );
 
-  URI sol_uri  = property("Solution").value<URI>();
+  URI sol_uri  = property("solution").value<URI>();
   solution = access_component_ptr(sol_uri)->as_ptr<CField>();
   if( is_null(solution.lock()) )
     solution = find_component_ptr_with_tag<CField>( *(m_mesh.lock()) , "solution" );

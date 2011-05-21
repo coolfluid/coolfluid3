@@ -33,16 +33,15 @@ Common::ComponentBuilder < BCDirichletCons1D, BC, LibCore > BCDirichletCons1D_Bu
 Common::ComponentBuilder < BCDirichletCons1D, CAction, LibCore > BCDirichletCons1D_CAction_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-BCDirichletCons1D::BCDirichletCons1D ( const std::string& name ) : 
+
+BCDirichletCons1D::BCDirichletCons1D ( const std::string& name ) :
   BC(name),
   m_connected_solution("solution_view")
 {
   mark_basic();
   // options
   m_properties.add_option(OptionURI::create("solution","Solution","Cell based solution","cpath:/",URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &BCDirichletCons1D::config_solution,   this ) )
-    ->add_tag("solution");
+    ->attach_trigger ( boost::bind ( &BCDirichletCons1D::config_solution,   this ) );
 
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &BCDirichletCons1D::trigger_elements,   this ) );
 
@@ -50,16 +49,16 @@ BCDirichletCons1D::BCDirichletCons1D ( const std::string& name ) :
   m_u=0.;
   m_p=101300;
   m_gm1 = 0.4;
-  
+
   m_properties.add_option< OptionT<Real> >("rho","density",m_rho)->mark_basic();
   m_properties.add_option< OptionT<Real> >("u","velocity",m_u)->mark_basic();
   m_properties.add_option< OptionT<Real> >("p","pressure",m_p)->mark_basic();
-  
+
   m_properties["rho"].as_option().link_to(&m_rho);
   m_properties["u"].as_option().link_to(&m_u);
   m_properties["p"].as_option().link_to(&m_p);
-  
-  
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +86,7 @@ void BCDirichletCons1D::execute()
   solution[FIRST][0] = m_rho;
   solution[FIRST][1] = m_rho*m_u;
   solution[FIRST][2] = m_p/m_gm1 + 0.5*m_rho*m_u*m_u;
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

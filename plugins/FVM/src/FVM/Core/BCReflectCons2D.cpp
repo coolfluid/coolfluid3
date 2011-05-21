@@ -29,31 +29,29 @@ Common::ComponentBuilder < BCReflectCons2D, BC, LibCore > BCReflectCons2D_Builde
 Common::ComponentBuilder < BCReflectCons2D, CAction, LibCore > BCReflectCons2D_CAction_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-BCReflectCons2D::BCReflectCons2D ( const std::string& name ) : 
+
+BCReflectCons2D::BCReflectCons2D ( const std::string& name ) :
   BC(name),
   m_connected_solution("solution_view"),
   m_face_normal("face_normal")
 {
   mark_basic();
   // options
-  m_properties.add_option(OptionURI::create("Solution","Cell based solution","cpath:/",URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &BCReflectCons2D::config_solution,   this ) )
-    ->add_tag("solution");
-    
-  m_properties.add_option(OptionURI::create(Mesh::Tags::normal(),"FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &BCReflectCons2D::config_normal,   this ) )
-    ->add_tag(Mesh::Tags::normal());
+  m_properties.add_option(OptionURI::create("solution","Solution","Cell based solution","cpath:/",URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &BCReflectCons2D::config_solution,   this ) );
+
+  m_properties.add_option(OptionURI::create(Mesh::Tags::normal(),"Face Normal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &BCReflectCons2D::config_normal,   this ) );
 
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &BCReflectCons2D::trigger_elements,   this ) );
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void BCReflectCons2D::config_solution()
 {
-  URI uri;  property("Solution").put_value(uri);
+  URI uri;  property("solution").put_value(uri);
   CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_connected_solution.set_field(comp);
@@ -73,7 +71,7 @@ void BCReflectCons2D::config_normal()
 void BCReflectCons2D::trigger_elements()
 {
   m_can_start_loop = m_connected_solution.set_elements(elements());
-  m_can_start_loop &=  m_face_normal.set_elements(elements());  
+  m_can_start_loop &=  m_face_normal.set_elements(elements());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -86,7 +84,7 @@ void BCReflectCons2D::execute()
 
   U << solution[INNER][1]/solution[INNER][0],
        solution[INNER][2]/solution[INNER][0];
-  
+
   U_n = (U.dot(normal)) *normal;// normal velocity
   U_t = U - U_n;         // tangential velocity
 
@@ -97,7 +95,7 @@ void BCReflectCons2D::execute()
   solution[GHOST][1] = U[XX]*solution[INNER][0];
   solution[GHOST][2] = U[YY]*solution[INNER][0];
   solution[GHOST][3] = solution[INNER][3];
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

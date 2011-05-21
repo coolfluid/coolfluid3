@@ -33,12 +33,12 @@ Action::Action ( const std::string& name ) :
 
   // options
 
-  m_properties.add_option( OptionComponent<CMesh>::create("Mesh",
+  m_properties.add_option( OptionComponent<CMesh>::create("mesh","Mesh",
                                                           "Mesh the Discretization Method will be applied to",
                                                           &m_mesh))
     ->mark_basic();
 
-  m_properties.add_option( OptionComponent<CPhysicalModel>::create("Physics",
+  m_properties.add_option( OptionComponent<CPhysicalModel>::create("physics",
                                                                    "Physical model",
                                                                    &m_physical_model))
     ->mark_basic();

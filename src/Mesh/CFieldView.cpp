@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Log.hpp"
+
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
@@ -72,7 +74,7 @@ CTable<Real>::ConstRow CFieldView::operator[](const Uint idx) const
 
 bool CFieldView::set_elements(const CEntities& elements)
 {
-  cf_assert_desc("Field must be set before elements", is_not_null(m_field.lock()) );
+  cf_assert_desc("Field must be set before elements in "+full_path().path(), m_field.expired() == false );
   const CField& field = *m_field.lock();
   m_elements = elements.as_const()->as_ptr<CEntities>();
   m_mesh_elements = find_parent_component<CMesh>(elements).elements().as_ptr_checked<CMeshElements>();

@@ -1099,48 +1099,21 @@ Component& Component::configure_property(const std::string& optname, const boost
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Component::configure_option_recursively(const std::string& tag, const boost::any& val)
+void Component::configure_option_recursively(const std::string& optname, const boost::any& val)
 {
-  Uint nb_changes(0);
-  // configure this component's options
-  foreach_container( (const std::string& name) (Property::Ptr property) , properties() )
+  if (properties().check(optname))
   {
-    if ( Option::Ptr option = boost::dynamic_pointer_cast<Option>(property) )
-    {
-      if (option->has_tag(tag))
-      {
-        if (option->data_type() != class_name_from_typeinfo(val.type()) )
-          throw SetupError(FromHere(),
-            "Option [" + name + "] of component [" + full_path().path() +"] "
-            "with tag ["+tag+"] has a data_type that does not match with passed data");
-
-        option->change_value(val);
-        ++nb_changes;
-      }
-    }
+    configure_property(optname,val);
   }
 
   // configure all child's options recursively
   boost_foreach( Component& component, find_components_recursively(*this) )
   {
-    foreach_container( (const std::string& name) (Property::Ptr property) , component.properties() )
+    if (component.properties().check(optname))
     {
-      if ( Option::Ptr option = boost::dynamic_pointer_cast<Option>(property) )
-      {
-        if (option->has_tag(tag))
-        {
-          if (option->type() != class_name_from_typeinfo(val.type()) )
-            throw SetupError(FromHere(),
-              "Option [" + name + "] of component [" + component.full_path().path() +"] "
-              "with tag ["+tag+"] has a data_type that does not match with passed data");
-
-          option->change_value(val);
-          ++nb_changes;
-        }
-      }
+      component.configure_property(optname,val);
     }
   }
-  //cf_assert_desc("No options with tag ["+tag+"] were configured recursively in ["+full_path().path()+"]", nb_changes > 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -57,15 +57,14 @@ RKRD::RKRD ( const std::string& name  ) :
 
   m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &RKRD::config_domain,   this ) );
 
-  m_properties.add_option(OptionComponent<CMesh>::create("Mesh","Mesh the Discretization Method will be applied to",&m_mesh))
+  m_properties.add_option(OptionComponent<CMesh>::create("mesh","Mesh","Mesh the Discretization Method will be applied to",&m_mesh))
     ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
-  properties()["Mesh"].as_option().add_tag("mesh");
 
-  m_properties.add_option( OptionComponent<CPhysicalModel>::create("Physics",
+
+  m_properties.add_option( OptionComponent<CPhysicalModel>::create("physics","Physics",
                                                                    "Physical model to discretize",
                                                                    &m_physical_model))
-    ->mark_basic()
-    ->add_tag("physics");
+    ->mark_basic();
 
   // properties
 
@@ -233,9 +232,9 @@ void RKRD::signal_create_boundary_term( SignalArgs& node )
 
   bterm->configure_property("Regions" , regions);
   if( m_mesh.lock() )
-    bterm->configure_property("Mesh", m_mesh.lock()->full_path());
+    bterm->configure_property("mesh", m_mesh.lock()->full_path());
   if( m_physical_model.lock() )
-    bterm->configure_property("Physics" , m_physical_model.lock()->full_path());
+    bterm->configure_property("physics" , m_physical_model.lock()->full_path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -274,9 +273,9 @@ void RKRD::signal_create_domain_term( SignalArgs& node )
 
   dterm->configure_property("Regions" , regions);
   if( m_mesh.lock() )
-    dterm->configure_property("Mesh", m_mesh.lock()->full_path());
+    dterm->configure_property("mesh", m_mesh.lock()->full_path());
   if( m_physical_model.lock() )
-    dterm->configure_property("Physics" , m_physical_model.lock()->full_path());
+    dterm->configure_property("physics" , m_physical_model.lock()->full_path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

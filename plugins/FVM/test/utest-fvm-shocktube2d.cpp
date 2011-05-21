@@ -14,6 +14,7 @@
 
 #include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"
+#include "Common/CEnv.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -54,6 +55,9 @@ BOOST_AUTO_TEST_SUITE( FVM_Suite )
 
 BOOST_AUTO_TEST_CASE( constructor )
 {
+
+  Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
+
   // some verbose xml signature
   SignalFrame frame;
   SignalFrame& p = frame.map( Protocol::Tags::key_options() );

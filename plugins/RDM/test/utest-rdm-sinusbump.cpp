@@ -156,7 +156,7 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , sinusbump_local_fixture )
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 0.1);
+  solver.get_child("time_stepping").configure_property("cfl", 0.1);
   solver.get_child("time_stepping").configure_property("MaxIter", 50u);
 }
 

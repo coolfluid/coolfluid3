@@ -36,38 +36,33 @@ namespace Core {
 Common::ComponentBuilder < ComputeFlux, CLoopOperation, LibCore > ComputeFlux_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-ComputeFlux::ComputeFlux ( const std::string& name ) : 
+
+ComputeFlux::ComputeFlux ( const std::string& name ) :
   CLoopOperation(name),
   m_connected_residual("residual_view"),
   m_connected_solution("solution_view"),
   m_connected_wave_speed("wave_speed_view"),
-  m_face_area("face_area_view"),  
+  m_face_area("face_area_view"),
   m_face_normal("face_normal_view"),
   m_wave_speed_left(0),
   m_wave_speed_right(0)
 {
   // options
   m_properties.add_option(OptionURI::create("solution","Solution","Cell based solution", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeFlux::config_solution,   this ) )
-    ->add_tag("solution");
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_solution,   this ) );
 
   m_properties.add_option(OptionURI::create("residual","Residual","Residual to compute", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeFlux::config_residual,   this ) )
-    ->add_tag("residual");
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_residual,   this ) );
 
   m_properties.add_option(OptionURI::create("wave_speed","Wave Speed","Wave Speed to compute", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeFlux::config_wave_speed,   this ) )
-    ->add_tag("wave_speed");
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_wave_speed,   this ) );
 
-  m_properties.add_option(OptionURI::create("area","Area","Face area", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeFlux::config_area,   this ) )
-    ->add_tag(Mesh::Tags::area());
+  m_properties.add_option(OptionURI::create(Tags::area(),"Area","Face area", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_area,   this ) );
 
-  m_properties.add_option(OptionURI::create("face_normal","FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeFlux::config_normal,   this ) )
-    ->add_tag(Mesh::Tags::normal());
-  
+  m_properties.add_option(OptionURI::create(Tags::normal(),"FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeFlux::config_normal,   this ) );
+
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &ComputeFlux::trigger_elements,   this ) );
 
 }
@@ -83,7 +78,7 @@ void ComputeFlux::config_solution()
   m_normal.resize(m_flux.size()-2);
   m_state_L.resize(m_flux.size());
   m_state_R.resize(m_flux.size());
-  
+
   if (is_null(m_fluxsplitter))
   {
     m_fluxsplitter = create_component_abstract_type<RiemannSolver>("CF.FVM.Core.RoeCons"+to_str(Uint(m_normal.size()))+"D","Roe_fluxsplitter");
@@ -112,7 +107,7 @@ void ComputeFlux::config_wave_speed()
 
 void ComputeFlux::config_area()
 {
-  URI uri;  property("area").put_value(uri);
+  URI uri;  property(Tags::area()).put_value(uri);
   CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   m_face_area.set_field(comp);
 }
@@ -121,7 +116,7 @@ void ComputeFlux::config_area()
 
 void ComputeFlux::config_normal()
 {
-  URI uri;  property("face_normal").put_value(uri);
+  URI uri;  property(Tags::normal()).put_value(uri);
   CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   m_face_normal.set_field(comp);
 }
@@ -147,29 +142,29 @@ void ComputeFlux::execute()
   std::vector<CTable<Real>::Row> wave_speed = m_connected_wave_speed[idx()];
   std::vector<CTable<Real>::Row> solution   = m_connected_solution[idx()];
   const Real area = m_face_area[idx()];
-  
+
   // Copy the left and right states to a RealVector
   for (Uint i=0; i<m_flux.size(); ++i)
   {
     m_state_L[i]=solution[LEFT ][i];
     m_state_R[i]=solution[RIGHT][i];
-    
+
     /// @todo investigate why Eigen chokes on values such as 1e-107 for a state
     /// Eigen then raises a SIGFPE signal.
     if (std::abs(m_state_L[i]) < eps() ) m_state_L[i] = 0.;
     if (std::abs(m_state_R[i]) < eps() ) m_state_R[i] = 0.;
   }
-  
-  
+
+
   // Copy the face normal to a RealVector
   m_normal = to_vector(m_face_normal[idx()]);
 
   // Solve the riemann problem on this face.
-  m_fluxsplitter->solve( 
+  m_fluxsplitter->solve(
                          // intput
                          m_state_L,m_state_R,m_normal,
                          // output
-                         m_flux, m_wave_speed_left, m_wave_speed_right 
+                         m_flux, m_wave_speed_left, m_wave_speed_right
                         );
 
 
@@ -182,7 +177,7 @@ void ComputeFlux::execute()
 
   // accumulate wave_speeds * area, for use in CFL condition
   wave_speed[LEFT ][0] += std::max(m_wave_speed_left ,0.) * area;
-  wave_speed[RIGHT][0] += std::max(m_wave_speed_right,0.) * area; 
+  wave_speed[RIGHT][0] += std::max(m_wave_speed_right,0.) * area;
 
 }
 

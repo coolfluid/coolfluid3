@@ -38,7 +38,7 @@ namespace RDM {
 Common::ComponentBuilder < ForwardEuler, CAction, LibCore > ForwardEuler_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
+
 ForwardEuler::ForwardEuler ( const std::string& name ) :
   Solver::Action(name),
   m_cfl(1.0),
@@ -52,10 +52,9 @@ ForwardEuler::ForwardEuler ( const std::string& name ) :
 
   // options
 
-  m_properties.add_option< OptionT<Real> > ("CFL", "Courant Number", m_cfl)
+  m_properties.add_option< OptionT<Real> > ("cfl","CFL", "Courant Number", m_cfl)
       ->mark_basic()
-      ->link_to(&m_cfl)
-      ->add_tag("cfl");
+      ->link_to(&m_cfl);
 
   m_properties.add_option<OptionT <Uint> >("MaxIter",
                                            "Maximum number of iterations",
@@ -63,14 +62,11 @@ ForwardEuler::ForwardEuler ( const std::string& name ) :
       ->mark_basic()
       ->link_to( &m_max_iter );
 
-  m_properties.add_option(OptionComponent<CField>::create("Solution","Solution field", &m_solution))
-    ->add_tag("solution");
+  m_properties.add_option(OptionComponent<CField>::create("solution","Solution","Solution field", &m_solution));
 
-  m_properties.add_option(OptionComponent<CField>::create("WaveSpeed","Wave speed field", &m_wave_speed))
-    ->add_tag("wave_speed");
+  m_properties.add_option(OptionComponent<CField>::create("wave_speed","WaveSpeed","Wave speed field", &m_wave_speed));
 
-  m_properties.add_option(OptionComponent<CField>::create("Residual","Residual field", &m_residual))
-    ->add_tag("residual");
+  m_properties.add_option(OptionComponent<CField>::create("residual","Residual field", &m_residual));
 
   create_static_component_ptr<CCriterionMaxIterations>("max_iterations");
 

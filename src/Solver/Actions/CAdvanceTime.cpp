@@ -34,9 +34,8 @@ CAdvanceTime::CAdvanceTime( const std::string& name  ) :
     "This object handles time advancing\n";
   properties()["description"] = description;
 
-  properties().add_option(OptionComponent<CTime>::create("Time","Time tracking component",&m_time))
-    ->mark_basic()
-    ->add_tag("time");
+  properties().add_option(OptionComponent<CTime>::create("time","Time","Time tracking component",&m_time))
+    ->mark_basic();
 
 }
 

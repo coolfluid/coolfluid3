@@ -113,13 +113,11 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
   // set the compute rhs action
   m_compute_rhs->create_static_component <CInitFieldConstant>("2.1_init_residual")
     .configure_property("Constant",0.)
-    .mark_basic()
-    .property("Field").as_option().add_tag("residual");
+    .mark_basic();
 
   m_compute_rhs->create_static_component<CInitFieldConstant>("2.2_init_wave_speed")
     .configure_property("Constant",Math::MathConsts::eps())
-    .mark_basic()
-    .property("Field").as_option().add_tag("wave_speed");
+    .mark_basic();
 
   Component& for_all_cells =
     m_compute_rhs->create_static_component<CForAllCells>("2.3_for_all_cells").mark_basic();
@@ -235,6 +233,10 @@ void SFDSolver::trigger_domain()
   }
 
   auto_config_fields(*this);
+
+  access_component("iterate/2_compute_rhs/2.1_init_residual")  .configure_property("Field",residual_ptr->full_path());
+  access_component("iterate/2_compute_rhs/2.2_init_wave_speed").configure_property("Field",wave_speed_ptr->full_path());
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

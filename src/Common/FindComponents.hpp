@@ -94,7 +94,7 @@ struct DerivedComponentIteratorRange : //public iterator_range<typename T::const
 
   typedef boost::filter_iterator< Predicate,  ComponentIterator<T> > iterator;
 
-  
+
   typedef DerivedComponentIteratorRange type;
 
   DerivedComponentIteratorRange ( const ComponentIterator<T>& b, const ComponentIterator<T>& e )
@@ -106,7 +106,7 @@ struct DerivedComponentIteratorRange : //public iterator_range<typename T::const
   : Base ( iterator( pred , b , e ) ,
            iterator( pred , e , e ) )
   {}
-  
+
   bool operator==( const DerivedComponentIteratorRange& rhs )  { return equal( rhs) ; }
   bool operator!=( const DerivedComponentIteratorRange& rhs )  { return !equal( rhs) ; }
 
@@ -117,7 +117,7 @@ struct DerivedComponentIteratorRange : //public iterator_range<typename T::const
       result.push_back(val.template as_ptr<T>());
     return result;
   }
-  
+
   std::vector<boost::shared_ptr<T const> > as_const_vector()
   {
     std::vector<boost::shared_ptr<T const> > result (0);
@@ -125,7 +125,7 @@ struct DerivedComponentIteratorRange : //public iterator_range<typename T::const
       result.push_back(val.as_const()->template as_ptr<T>());
     return result;
   }
-  
+
   Uint size() const
   {
     Uint result = 0;
@@ -157,11 +157,11 @@ struct DerivedConstComponentIteratorRange : //public iterator_range<typename T::
   : Base ( ConstFilter( pred , b , e ) ,
            ConstFilter( pred , e , e ) )
   {}
-  
+
   DerivedConstComponentIteratorRange( const DerivedComponentIteratorRange<T,Predicate>& rhs  )
   : Base ( rhs.begin(), rhs.end() )
   {}
-  
+
   bool operator==( const DerivedConstComponentIteratorRange& rhs )  { return equal( rhs) ; }
   bool operator!=( const DerivedConstComponentIteratorRange& rhs )  { return !equal( rhs) ; }
 
@@ -172,12 +172,12 @@ struct DerivedConstComponentIteratorRange : //public iterator_range<typename T::
       result.push_back(val.template as_ptr<T>());
     return result;
   }
-  
+
   std::vector<boost::shared_ptr<T const> > as_const_vector()
   {
     return as_vector();
   }
-  
+
   Uint size() const
   {
     Uint result = 0;
@@ -208,31 +208,31 @@ make_new_range(ComponentIterator<T> from, ComponentIterator<T> to , const Predic
 // //  typedef ComponentIterator<T> iterator;
 // //  typedef ComponentIterator<T const> const_iterator;
 //   typedef boost::iterator_range< boost::filter_iterator< Predicate,  ComponentIterator<T const> > > Base;
-//   
+//
 //   template <typename T2>
 //   DerivedConstComponentIteratorRange ( const T2& c )
 //   : Base ( c.template begin<T>(), c.template end<T>() )
 //   {}
-// 
+//
 //   DerivedConstComponentIteratorRange (  ComponentIterator<T> b, ComponentIterator<T> e )
 //   : Base ( b, e )
 //   {}
-// 
+//
 //   DerivedConstComponentIteratorRange ( ComponentIterator<T const> b, ComponentIterator<T const> e )
 //   : Base ( b, e )
 //   {}
-// 
+//
 //   DerivedConstComponentIteratorRange( const DerivedComponentIteratorRange<T>& rhs  )
 //   : Base ( rhs.begin(), rhs.end() )
 //   {}
-// 
+//
 //   // DerivedConstComponentIteratorRange( const DerivedConstComponentIteratorRange<T>& rhs  )
 //   // : Base ( rhs.begin(), rhs.end() )
 //   // {}
-// 
+//
 //   bool operator==( const DerivedConstComponentIteratorRange& rhs )  { return equal( rhs) ; }
 //   bool operator!=( const DerivedConstComponentIteratorRange& rhs )  { return !equal( rhs) ; }
-// 
+//
 // };
 
 /// Shorthand for a range of two filtered iterators
@@ -368,7 +368,7 @@ make_filtered_range(const ComponentIterator<T>& from, const ComponentIterator<T>
 // make_filtered_range(const IteratorT& from, const IteratorT& to , const Predicate& pred)
 // {
 //   return FilteredIteratorRange<IteratorT, Predicate>::make_range(from, to, pred);
-//   
+//
 // }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -500,11 +500,18 @@ find_components_recursively_with_filter(const Component& parent, const Predicate
   return make_filtered_range(parent.recursive_begin(),parent.recursive_end(),pred);
 }
 
-template <typename ComponentT, typename ParentT, typename Predicate>
-inline typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type
-find_components_recursively_with_filter(ParentT& parent, const Predicate& pred)
+template <typename ComponentT, typename Predicate>
+inline typename ComponentIteratorRange<Component, ComponentT, Predicate>::type
+find_components_recursively_with_filter(Component& parent, const Predicate& pred)
 {
-  return make_filtered_range(parent.template recursive_begin<ComponentT>(),parent.template recursive_end<ComponentT>(),pred);
+  return make_filtered_range(parent.recursive_begin<ComponentT>(),parent.recursive_end<ComponentT>(),pred);
+}
+
+template <typename ComponentT, typename Predicate>
+inline typename ComponentIteratorRange<Component const, ComponentT, Predicate>::type
+find_components_recursively_with_filter(const Component& parent, const Predicate& pred)
+{
+  return make_filtered_range(parent.recursive_begin<ComponentT>(),parent.recursive_end<ComponentT>(),pred);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -521,9 +528,16 @@ find_components_recursively_with_name(const Component& parent, const std::string
   return find_components_recursively_with_filter(parent,IsComponentName(name));
 }
 
-template <typename ComponentT, typename ParentT>
-inline typename ComponentIteratorRange<ParentT, ComponentT, IsComponentName>::type
-find_components_recursively_with_name(ParentT& parent, const std::string& name)
+template <typename ComponentT>
+inline typename ComponentIteratorRange<Component, ComponentT, IsComponentName>::type
+find_components_recursively_with_name(Component& parent, const std::string& name)
+{
+  return find_components_recursively_with_filter<ComponentT>(parent,IsComponentName(name));
+}
+
+template <typename ComponentT>
+inline typename ComponentIteratorRange<Component const, ComponentT, IsComponentName>::type
+find_components_recursively_with_name(const Component& parent, const std::string& name)
 {
   return find_components_recursively_with_filter<ComponentT>(parent,IsComponentName(name));
 }
@@ -542,9 +556,16 @@ find_components_recursively_with_tag(const Component& parent, const std::string&
   return find_components_recursively_with_filter(parent,IsComponentTag(tag));
 }
 
-template <typename ComponentT, typename ParentT>
-inline typename ComponentIteratorRange<ParentT, ComponentT, IsComponentTag>::type
-find_components_recursively_with_tag(ParentT& parent, const std::string& tag)
+template <typename ComponentT>
+inline typename ComponentIteratorRange<Component, ComponentT, IsComponentTag>::type
+find_components_recursively_with_tag(Component& parent, const std::string& tag)
+{
+  return find_components_recursively_with_filter<ComponentT>(parent,IsComponentTag(tag));
+}
+
+template <typename ComponentT>
+inline typename ComponentIteratorRange<Component const, ComponentT, IsComponentTag>::type
+find_components_recursively_with_tag(const Component& parent, const std::string& tag)
 {
   return find_components_recursively_with_filter<ComponentT>(parent,IsComponentTag(tag));
 }
@@ -1124,7 +1145,7 @@ typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr_with_f
       if ( is_null(parent) )
         throw ValueNotFound (FromHere(), "Parent of component ["+comp.full_path().path()+"] with filter is not found recursively");
     }
-  } 
+  }
   return  parent->template as_ptr<ParentT>();
 }
 

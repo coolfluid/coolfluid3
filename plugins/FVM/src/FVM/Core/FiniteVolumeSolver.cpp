@@ -82,16 +82,16 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
     " - The wave_speed being the wave speed \"a\" in the Courant number defined as:\n"
     "        CFL = a * dt / V ,\n"
     "   with V the volume of a cell (notice not length) and dt the timestep to take.";
-    
+
   properties()["description"] = description;
 
 
   // Properties
   property("Domain").as_option().attach_trigger ( boost::bind ( &FiniteVolumeSolver::trigger_domain,   this ) );
-    
+
   properties().add_option(OptionURI::create("physical_model","Physical Model","cpath:../Physics",URI::Scheme::CPATH))
     ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_physical_model, this ) );
-    
+
   properties().add_option(OptionURI::create("time","Time","Time tracking component","cpath:../Time",URI::Scheme::CPATH))
     ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_time, this ) );
 
@@ -111,25 +111,25 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
   // create apply boundary conditions action
   m_apply_bcs = m_iterate->create_static_component_ptr<CGroupActions>("1_apply_boundary_conditions");
   m_apply_bcs->mark_basic();
-  
+
   // create compute rhs action
   m_compute_rhs = m_iterate->create_static_component_ptr<CGroupActions>("2_compute_rhs");
   m_compute_rhs->mark_basic();
-  
+
   // set the compute rhs action
   m_compute_rhs->create_static_component_ptr<CInitFieldConstant>("2.1_init_residual")
     ->configure_property("Constant",0.)
     .mark_basic()
     .property("Field").as_option().add_tag("residual");
-  
+
   m_compute_rhs->create_static_component_ptr<CInitFieldConstant>("2.2_init_wave_speed")
     ->configure_property("Constant",Math::MathConsts::eps())
     .mark_basic()
     .property("Field").as_option().add_tag("wave_speed");
-  
+
   m_compute_rhs->create_static_component_ptr<CForAllFaces>("2.3_for_all_faces")
     ->mark_basic();
-  
+
   m_compute_update_coefficient = m_iterate->create_static_component_ptr<ComputeUpdateCoefficient>("3_compute_update_coeff");
   m_update_solution = m_iterate->create_static_component_ptr<UpdateSolution>("4_update_solution");
   m_iterate->create_static_component_ptr<CAdvanceTime>("5_advance_time");
@@ -183,7 +183,7 @@ void FiniteVolumeSolver::trigger_domain()
     compute_area->execute();
     remove_component(compute_area->name());
   }
-  
+
   // create/initialize a solution if it is not available
   CField::Ptr solution_ptr = find_component_ptr_with_name<CField>(*mesh,"solution");
   if ( is_null(solution_ptr) )
@@ -191,11 +191,11 @@ void FiniteVolumeSolver::trigger_domain()
     ///@todo get variable names etc, from Physics
     CFinfo <<  "  Creating field \"solution\", cellbased, with vars rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]" << CFendl;
     CField& solution = mesh->create_field("solution",CField::Basis::CELL_BASED,"P0","rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]");
-    solution.add_tag("solution"); 
+    solution.add_tag("solution");
   }
 
   CField& solution = find_component_with_name<CField>(*mesh,"solution");
-  m_solution->link_to(solution.self());    
+  m_solution->link_to(solution.self());
 
   Component::Ptr residual_ptr = find_component_ptr_with_tag(*mesh,"residual");
   if ( is_null(residual_ptr) )
@@ -225,12 +225,16 @@ void FiniteVolumeSolver::trigger_domain()
   m_update_coeff->link_to(update_coeff_ptr);
 
   auto_config_fields(*this);
+
+  access_component("iterate/2_compute_rhs/2.1_init_residual").configure_property("Field",residual_ptr->full_path());
+  access_component("iterate/2_compute_rhs/2.2_init_wave_speed").configure_property("Field",wave_speed_ptr->full_path());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void FiniteVolumeSolver::trigger_time()
 {
+
   URI time_uri = property("time").value<URI>();
   Component::Ptr time_ptr = access_component_ptr(time_uri);
   if (is_null(time_ptr))
@@ -240,15 +244,17 @@ void FiniteVolumeSolver::trigger_time()
   else
   {
     m_time = time_ptr->as_ptr_checked<CTime>();
-    configure_option_recursively("time",m_time.lock()->full_path());
-    configure_option_recursively("time_accurate",true);
+    m_iterate->configure_option_recursively("time",m_time.lock()->full_path());
+    m_iterate->configure_option_recursively("time_accurate",true);
   }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void FiniteVolumeSolver::trigger_physical_model()
 {
+
   URI uri = property("physical_model").value<URI>();
   Component::Ptr ptr = access_component_ptr(uri);
   if (is_null(ptr))
@@ -259,6 +265,7 @@ void FiniteVolumeSolver::trigger_physical_model()
   {
     m_physical_model = ptr->as_ptr_checked<CPhysicalModel>();
   }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -267,13 +274,13 @@ void FiniteVolumeSolver::solve()
 {
   if ( m_physical_model.expired() == true )
     trigger_physical_model();
-  
+
   if ( m_domain.expired() == true )
     trigger_domain();
 
   if ( m_time.expired() == true )
     trigger_time();
-    
+
   m_iterate->execute();
 }
 
@@ -309,12 +316,12 @@ void FiniteVolumeSolver::auto_config_fields(Component& parent)
 {
   if ( m_domain.expired() == true )
     trigger_domain();
-  
+
   CMesh& mesh = find_component_recursively<CMesh>(*m_domain.lock());
 
   boost_foreach(CField& field, find_components<CField>(mesh) )
   {
-    parent.configure_option_recursively(field.name(), field.full_path());    
+    parent.configure_option_recursively(field.name(), field.full_path());
   }
 }
 
@@ -323,7 +330,7 @@ void FiniteVolumeSolver::auto_config_fields(Component& parent)
 void FiniteVolumeSolver::signal_create_bc( SignalArgs& node )
 {
   SignalOptions options( node );
-  
+
   std::string name = options.option<std::string>("Name");
   std::string builder = options.option<std::string>("builder");
   std::vector<URI> regions_uri = options.array<URI>("Regions");
@@ -359,7 +366,7 @@ void FiniteVolumeSolver::signature_create_bc( SignalArgs& node )
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
   options.add("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -28,16 +28,16 @@ namespace Actions {
 Common::ComponentBuilder < CComputeArea, CLoopOperation, LibActions > CComputeArea_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-CComputeArea::CComputeArea ( const std::string& name ) : 
+
+CComputeArea::CComputeArea ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
-  m_properties.add_option(OptionURI::create("Area","Field to set", URI("cpath:"), URI::Scheme::CPATH) )
+  m_properties.add_option(OptionURI::create(Mesh::Tags::area(),"Area","Field to set", URI("cpath:"), URI::Scheme::CPATH) )
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &CComputeArea::config_field,   this ) )
     ->add_tag(Mesh::Tags::area());
-    
+
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
 
   m_area = create_static_component_ptr<CScalarFieldView>("area_view");
@@ -48,7 +48,7 @@ CComputeArea::CComputeArea ( const std::string& name ) :
 void CComputeArea::config_field()
 {
   URI uri;
-  property("Area").put_value(uri);
+  property(Mesh::Tags::area()).put_value(uri);
   CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");

@@ -158,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadvsys2d_local_fixt
   BOOST_CHECK(true);
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 0.5);;
+  solver.get_child("time_stepping").configure_property("cfl", 0.5);;
   solver.get_child("time_stepping").configure_property("MaxIter", 500u);;
 }
 

@@ -24,22 +24,19 @@ namespace Core {
 Common::ComponentBuilder < UpdateSolution, CAction, LibCore > UpdateSolution_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-UpdateSolution::UpdateSolution ( const std::string& name ) : 
+
+UpdateSolution::UpdateSolution ( const std::string& name ) :
   CAction(name)
 {
   mark_basic();
 
   // options
 
-  m_properties.add_option(OptionComponent<CField>::create("Solution","Solution to update", &m_solution))
-    ->add_tag("solution");
+  m_properties.add_option(OptionComponent<CField>::create("solution","Solution","Solution to update", &m_solution));
 
-  m_properties.add_option(OptionComponent<CField>::create("UpdateCoeff","Update coefficient", &m_update_coeff))
-    ->add_tag("update_coeff");
+  m_properties.add_option(OptionComponent<CField>::create("update_coeff","Update Coeffient","Update coefficient", &m_update_coeff));
 
-  m_properties.add_option(OptionComponent<CField>::create("Residual","Residual", &m_residual))
-    ->add_tag("residual");
+  m_properties.add_option(OptionComponent<CField>::create("residual","Residual","Residual", &m_residual));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,11 +46,11 @@ void UpdateSolution::execute()
   if (m_solution.expired())     throw SetupError(FromHere(), "Solution field was not set");
   if (m_residual.expired())     throw SetupError(FromHere(), "Residual field was not set");
   if (m_update_coeff.expired()) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
-  
+
   CTable<Real>& solution = m_solution.lock()->data();
   CTable<Real>& residual = m_residual.lock()->data();
   CTable<Real>& update_coeff = m_update_coeff.lock()->data();
-  
+
   for (Uint i=0; i<solution.size(); ++i)
   {
     for (Uint j=0; j<solution.row_size(); ++j)

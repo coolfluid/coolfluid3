@@ -28,24 +28,22 @@ using namespace CF::Solver::Actions;
 namespace CF {
 namespace FVM {
 namespace Core {
-  
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < OutputIterationInfo, CAction, LibCore > OutputIterationInfo_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-OutputIterationInfo::OutputIterationInfo ( const std::string& name ) : 
+
+OutputIterationInfo::OutputIterationInfo ( const std::string& name ) :
   CAction(name)
 {
   mark_basic();
   // options
 
-  m_properties.add_option(OptionComponent<CTime>::create("Time","Time tracking component", &m_time))
-    ->add_tag("time");
+  m_properties.add_option(OptionComponent<CTime>::create("time","Time","Time tracking component", &m_time));
 
-  m_properties.add_option(OptionComponent<CField>::create("Residual","Residual", &m_residual))
-    ->add_tag("residual");
+  m_properties.add_option(OptionComponent<CField>::create("residual","Residual","Residual", &m_residual));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,7 +52,7 @@ void OutputIterationInfo::execute()
 {
   if (m_residual.expired())     throw SetupError(FromHere(), "Residual field was not set");
   if (m_time.expired())         throw SetupError(FromHere(), "Time component was not set");
-  
+
   // compute norm
   Real rhs_L2=0;
   boost_foreach(CTable<Real>::ConstRow rhs , m_residual.lock()->data().array())

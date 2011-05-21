@@ -39,13 +39,13 @@ Common::ComponentBuilder < WallWeakBc, RDM::BoundaryTerm, LibCore > WallWeakBc_B
 Common::ComponentBuilder < FaceLoop< WallWeakBc, Euler2D>, RDM::ElementLoop, LibCore > WallWeakBc_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
+
 WallWeakBc::WallWeakBc ( const std::string& name ) :
   RDM::BoundaryTerm(name)
 {
   // options
 
-  m_properties.add_option< OptionURI > ("Solution",
+  m_properties.add_option< OptionURI > ("solution","Solution",
                                         "Solution field where to apply the boundary condition",
                                         URI("cpath:"))
        ->attach_trigger ( boost::bind ( &WallWeakBc::config_mesh,   this ) )
@@ -61,7 +61,7 @@ void WallWeakBc::config_mesh()
 {
   cf_assert( is_not_null( m_mesh.lock() ) );
 
-  URI sol_uri  = property("Solution").value<URI>();
+  URI sol_uri  = property("solution").value<URI>();
   solution = access_component_ptr(sol_uri)->as_ptr<CField>();
   if( is_null(solution.lock()) )
     solution = find_component_ptr_with_tag<CField>( *(m_mesh.lock()) , "solution" );
