@@ -38,7 +38,7 @@
 
 #include "RDM/Core/RKRD.hpp"
 #include "RDM/Core/DomainTerm.hpp"
-#include "RDM/Core/ScalarAdvection.hpp"
+#include "RDM/Core/SteadyExplicit.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -67,7 +67,7 @@ struct sinusbump_global_fixture
     loader.load_library("coolfluid_mesh_tecplot");
     loader.load_library("coolfluid_mesh_vtklegacy");
 
-    sinusbump_wizard = allocate_component<ScalarAdvection>("mymodel");
+    sinusbump_wizard = allocate_component<SteadyExplicit>("mymodel");
 
     SignalFrame frame;
     SignalOptions options( frame );
@@ -81,7 +81,7 @@ struct sinusbump_global_fixture
 //  ~sinusbump_global_fixture() { Core::instance().terminate(); }
 
 
-  ScalarAdvection::Ptr sinusbump_wizard;
+  SteadyExplicit::Ptr sinusbump_wizard;
 
 };
 

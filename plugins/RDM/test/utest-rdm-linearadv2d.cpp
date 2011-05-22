@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::RDM::ScalarAdvection"
+#define BOOST_TEST_MODULE "Test module for CF::RDM::LinearAdv2D"
 
 #include <boost/test/unit_test.hpp>
 
@@ -35,7 +35,7 @@
 
 #include "RDM/Core/RKRD.hpp"
 #include "RDM/Core/DomainTerm.hpp"
-#include "RDM/Core/ScalarAdvection.hpp"
+#include "RDM/Core/SteadyExplicit.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -54,7 +54,7 @@ struct linearadv2d_global_fixture
     Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
 
-    linearadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
+    linearadv2d_wizard = allocate_component<SteadyExplicit>("mymodel");
 
     SignalFrame frame;
     SignalOptions options( frame );
@@ -72,7 +72,7 @@ struct linearadv2d_global_fixture
     Core::instance().terminate();
   }
 
-  ScalarAdvection::Ptr linearadv2d_wizard;
+  SteadyExplicit::Ptr linearadv2d_wizard;
 
 };
 
