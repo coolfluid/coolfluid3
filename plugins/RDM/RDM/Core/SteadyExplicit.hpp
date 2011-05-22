@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Steady_hpp
-#define CF_RDM_Steady_hpp
+#ifndef CF_RDM_SteadyExplicit_hpp
+#define CF_RDM_SteadyExplicit_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,26 +20,26 @@ namespace RDM {
 
 /// Wizard to setup a scalar advection simulation
 /// @author Tiago Quintino
-class RDM_CORE_API Steady : public Solver::CWizard {
+class RDM_CORE_API SteadyExplicit : public Solver::CWizard {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Steady> Ptr;
-  typedef boost::shared_ptr<Steady const> ConstPtr;
+  typedef boost::shared_ptr<SteadyExplicit> Ptr;
+  typedef boost::shared_ptr<SteadyExplicit const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  Steady ( const std::string& name );
+  SteadyExplicit ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~Steady();
+  virtual ~SteadyExplicit();
 
   /// Get the class name
-  static std::string type_name () { return "Steady"; }
+  static std::string type_name () { return "SteadyExplicit"; }
 
-  // functions specific to the Steady component
+  // functions specific to the SteadyExplicit component
 
   /// @name SIGNALS
   //@{
@@ -60,4 +60,4 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_Steady_hpp
+#endif // CF_RDM_SteadyExplicit_hpp

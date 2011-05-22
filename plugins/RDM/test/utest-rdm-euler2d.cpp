@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::RDM::ScalarAdvection"
+#define BOOST_TEST_MODULE "Test module for CF::RDM::Euler2D"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -38,7 +38,7 @@
 
 #include "RDM/Core/RKRD.hpp"
 #include "RDM/Core/DomainTerm.hpp"
-#include "RDM/Core/ScalarAdvection.hpp"
+#include "RDM/Core/SteadyExplicit.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -67,7 +67,7 @@ struct euler2d_global_fixture
     loader.load_library("coolfluid_mesh_tecplot");
     loader.load_library("coolfluid_mesh_vtklegacy");
 
-    euler2d_wizard = allocate_component<ScalarAdvection>("mymodel");
+    euler2d_wizard = allocate_component<SteadyExplicit>("mymodel");
 
     SignalFrame frame;
     SignalOptions options( frame );
@@ -81,7 +81,7 @@ struct euler2d_global_fixture
 //  ~euler2d_global_fixture() { Core::instance().terminate(); }
 
 
-  ScalarAdvection::Ptr euler2d_wizard;
+  SteadyExplicit::Ptr euler2d_wizard;
 
 };
 

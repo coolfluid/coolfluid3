@@ -9,7 +9,7 @@
 #include "Common/CGroup.hpp"
 
 #include "RDM/Core/LibCore.hpp"
-#include "RDM/Core/ScalarAdvection.hpp"
+#include "RDM/Core/SteadyExplicit.hpp"
 
 namespace CF {
 namespace RDM {
@@ -28,7 +28,7 @@ void LibCore::initiate_impl()
       ->create_component_ptr<CGroup>( "RDM" );
   rdm_group->mark_basic();
 
-  rdm_group->create_component_ptr<RDM::ScalarAdvection>( "SetupScalarSimulation" )
+  rdm_group->create_component_ptr<RDM::SteadyExplicit>( "Setup_RD_Steady_Explicit" )
       ->mark_basic();
 }
 
@@ -37,7 +37,7 @@ void LibCore::terminate_impl()
   Core::instance().root()
       .get_child_ptr("Tools")
       ->get_child_ptr("RDM")
-      ->remove_component( "SetupScalarSimulation" );
+      ->remove_component( "Setup_RD_Steady_Explicit" );
   Core::instance().root()
       .get_child_ptr("Tools")
       ->remove_component("RDM");
