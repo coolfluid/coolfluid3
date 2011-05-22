@@ -144,3 +144,12 @@ set( utest-proto-navier-stokes-lid-tris_mpi_test TRUE )
 set( utest-proto-navier-stokes-lid-tris_mpi_nprocs 1 )
 set( utest-proto-navier-stokes-lid-tris_condition ${ufem_tests_trilinos_condition} )
 coolfluid_add_unit_test( utest-proto-navier-stokes-lid-tris )
+
+list( APPEND utest-proto-navier-stokes-lid-tris-generic_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
+list( APPEND utest-proto-navier-stokes-lid-tris-generic_files
+  utest-proto-navier-stokes-lid-tris-generic.cpp )
+list( APPEND utest-proto-navier-stokes-lid-tris-generic_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
+set( utest-proto-navier-stokes-lid-tris-generic_mpi_test TRUE )
+set( utest-proto-navier-stokes-lid-tris-generic_mpi_nprocs 1 )
+set( utest-proto-navier-stokes-lid-tris-generic_condition ${ufem_tests_trilinos_condition} )
+coolfluid_add_unit_test( utest-proto-navier-stokes-lid-tris-generic )
