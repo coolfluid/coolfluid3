@@ -170,7 +170,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , sinusbump_local_fix
   SignalOptions options( frame );
 
   std::vector<URI> regions;
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"SubInlet"))
     regions.push_back( region.full_path() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
@@ -209,7 +209,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , sinusbump_local_fi
   SignalOptions options( frame );
 
   std::vector<URI> regions;
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"outlet"))
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"SubOutlet"))
     regions.push_back( region.full_path() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
@@ -242,10 +242,12 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_wall , sinusbump_local_fixt
   SignalOptions options( frame );
 
   std::vector<URI> regions;
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"wall"))
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"LowerWall"))
+    regions.push_back( region.full_path() );
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"UpperWall"))
     regions.push_back( region.full_path() );
 
-  BOOST_CHECK_EQUAL( regions.size() , 1u);
+  BOOST_CHECK_EQUAL( regions.size() , 2u);
 
   std::string name ("WALL");
 

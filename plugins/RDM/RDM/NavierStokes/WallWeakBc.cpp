@@ -52,7 +52,7 @@ WallWeakBc::WallWeakBc ( const std::string& name ) :
        ->mark_basic()
        ->add_tag("solution");
 
-  m_properties["Mesh"].as_option().attach_trigger ( boost::bind ( &WallWeakBc::config_mesh, this ) );
+  m_properties["mesh"].as_option().attach_trigger ( boost::bind ( &WallWeakBc::config_mesh, this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
