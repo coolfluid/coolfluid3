@@ -88,7 +88,7 @@ public: // functions
   };
 
   /// Get the class name
-  static std::string type_name () { return "sysLDAGPU.Scheme<" + SF::type_name() + ">"; }
+  static std::string type_name () { return "CSysLDAGPU.Scheme<" + SF::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ();
@@ -241,28 +241,28 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&dim);
     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&elements);
     env.errcode |= clSetKernelArg(env.kernel, n++, sizeof(int),    (void *)&nEq);
-    env.errcode |= clSetKernelArg(env.kernel, n++, shape * dim *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim  *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim  *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim  *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad *                     sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq * shape * sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq  *             sizeof(float), 0);
-    env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq  *             sizeof(float), 0);
+    env.errcode |= clSetKernelArg(env.kernel, n++, shape * dim *              sizeof(float), 0); // X_shape
+    env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq *              sizeof(float), 0); // U_shape
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim  *              sizeof(float), 0); // X_quad
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim  *              sizeof(float), 0); // X_ksi
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim  *              sizeof(float), 0); // X_eta
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // U_quad
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad *                     sizeof(float), 0); // jacobi
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq * shape * sizeof(float), 0); // Rv
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq * shape * sizeof(float), 0); // Lv
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq *       shape * sizeof(float), 0); // Dv
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0); // Af
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0); // Bf
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq * shape * sizeof(float), 0); // Ki
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0); // invKi
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0); // sumLplus
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // dudx
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // dudy
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // LU
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // LUwq
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // help
+    env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq  *             sizeof(float), 0); // PhiH
+    env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq  *             sizeof(float), 0); // phiHN
 
     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
