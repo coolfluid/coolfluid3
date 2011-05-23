@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volume",volumes.full_path());
 
   elem_loop->create_loop_operation("CF.Solver.Actions.CComputeArea");
-  elem_loop->action("CF.Solver.Actions.CComputeArea").configure_property("Area",areas.full_path());
+  elem_loop->action("CF.Solver.Actions.CComputeArea").configure_property("area",areas.full_path());
 
   elem_loop->execute();
 

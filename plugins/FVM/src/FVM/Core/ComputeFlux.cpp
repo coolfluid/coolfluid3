@@ -57,7 +57,7 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
   m_properties.add_option(OptionURI::create("wave_speed","Wave Speed","Wave Speed to compute", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_wave_speed,   this ) );
 
-  m_properties.add_option(OptionURI::create(Tags::area(),"Area","Face area", URI("cpath:"), URI::Scheme::CPATH))
+  m_properties.add_option(OptionURI::create(Tags::area(),"area","Face area", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_area,   this ) );
 
   m_properties.add_option(OptionURI::create(Tags::normal(),"FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
