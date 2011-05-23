@@ -1238,8 +1238,8 @@ void Component::configure (const std::vector<std::string>& args)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr build_component(const std::string& name,
-                               const std::string& builder_name,
+Component::Ptr build_component(const std::string& builder_name,
+                               const std::string& name,
                                const std::string& factory_type_name )
 {
   // get the factories

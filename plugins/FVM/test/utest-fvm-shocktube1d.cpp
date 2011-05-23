@@ -14,6 +14,9 @@
 
  
 #include "Common/Log.hpp"
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
+#include "Common/XML/Protocol.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 

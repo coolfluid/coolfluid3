@@ -12,8 +12,9 @@
 
 #include "Common/BoostFilesystem.hpp"
 
- 
 #include "Common/Log.hpp"
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/CEnv.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
