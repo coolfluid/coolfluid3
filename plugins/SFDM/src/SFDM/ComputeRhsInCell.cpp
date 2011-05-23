@@ -11,6 +11,8 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionComponent.hpp"
 
+#include "Math/MathConsts.hpp"
+
 #include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CSpace.hpp"
@@ -32,6 +34,7 @@
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::RiemannSolvers;
+using namespace CF::Math::MathConsts;
 
 namespace CF {
 namespace SFDM {
@@ -223,7 +226,7 @@ void ComputeRhsInCell::execute()
 
   const Uint nb_vars = m_solution->field().data().row_size();
   RealMatrix flux_in_line (flux_sf.nb_nodes_per_line() , nb_vars);
-  RealMatrix flux_grad_in_line (solution_sf.nb_nodes_per_line() , nb_vars);
+  RealMatrix flux_grad_in_line;// (solution_sf.nb_nodes_per_line() , nb_vars);
 
   CMultiStateFieldView::View solution_data = (*m_solution)[idx()];
   CMultiStateFieldView::View residual_data = (*m_residual)[idx()];
@@ -289,7 +292,19 @@ void ComputeRhsInCell::execute()
         if (f2c.is_bdry_face()[face_idx])
         {
           CFdebug << "must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
-          /// @todo implement boundary condition
+          /// @todo implement real boundary condition
+          if (side == 0)
+          {
+            sol_state.set_state(solution.row(flux_sf.points()[orientation][line][0]),sol_vars);
+            sol_state.compute_flux(sol_vars,-normal,flux);
+            flux_in_line.topRows<1>() = flux;
+          }
+          else
+          {
+            sol_state.set_state(solution.row(flux_sf.points()[orientation][line][flux_in_line.rows()-1]),sol_vars);
+            sol_state.compute_flux(sol_vars,normal,flux);
+            flux_in_line.bottomRows<1>() = flux;
+          }
         }
         else
         {

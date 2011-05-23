@@ -34,10 +34,10 @@ public: // typedefs
     typedef boost::shared_ptr<Reconstruct const> ConstPtr;
 
 public: // functions
-  
+
   /// constructor
   Reconstruct( const std::string& name );
-  
+
   /// Gets the Class name
   static std::string type_name() { return "Reconstruct"; }
 
