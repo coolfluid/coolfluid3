@@ -11,9 +11,10 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 
+#include "Common/Core.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/FindComponents.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CRoot.hpp"
@@ -66,7 +67,7 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
 {
 
   // create meshreader
-  CMeshGenerator::Ptr mesh_generator = create_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
+  CMeshGenerator::Ptr mesh_generator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
   mesh_generator->configure_property("parent",Core::instance().root().full_path());
   mesh_generator->configure_property("lengths",std::vector<Real>(2,10.));

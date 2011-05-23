@@ -20,6 +20,9 @@
 #include "Common/OptionURI.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/FindComponents.hpp"
+#include "Common/Core.hpp"
+#include "Common/OSystem.hpp"
+#include "Common/LibLoader.hpp"
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/FileOperations.hpp"
@@ -30,7 +33,7 @@ using namespace CF::Common::XML;
 namespace CF {
 namespace Common {
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component::Component ( const std::string& name ) :
     m_name (),
@@ -100,7 +103,7 @@ Component::~Component()
 {
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component::Ptr Component::follow()
 {
@@ -117,7 +120,7 @@ std::string Component::derived_type_name() const
   return CF::Common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::rename ( const std::string& name )
 {
@@ -159,7 +162,7 @@ void Component::rename ( const std::string& name )
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component& Component::parent()
 {
@@ -173,7 +176,7 @@ Component const& Component::parent() const
   return *m_raw_parent;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component& Component::add_component ( Component::Ptr subcomp )
 {
@@ -196,14 +199,14 @@ Component& Component::add_component ( Component::Ptr subcomp )
   return *subcomp;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component& Component::add_component ( Component& subcomp )
 {
   return add_component(subcomp.self());
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component& Component::add_static_component ( Component::Ptr subcomp )
 {
@@ -221,7 +224,7 @@ Component& Component::add_static_component ( Component::Ptr subcomp )
   return *subcomp;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component& Component::add_static_component ( Component& subcomp )
 {
@@ -237,7 +240,7 @@ bool Component::is_child_static(const std::string& name) const
   return false;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 std::string Component::ensure_unique_name ( Component& subcomp )
 {
@@ -267,7 +270,7 @@ std::string Component::ensure_unique_name ( Component& subcomp )
   return new_name;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 
 Component::Ptr Component::remove_component ( const std::string& name )
@@ -382,7 +385,7 @@ void Component::complete_path ( URI& path ) const
   cf_assert ( path.is_complete() );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component& Component::get_child(const std::string& name)
 {
@@ -414,7 +417,7 @@ Component::Ptr Component::get_child_ptr_checked(const std::string& name)
     throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + full_path().string() );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::change_parent ( Component* new_parent )
 {
@@ -452,14 +455,14 @@ void Component::change_parent ( Component* new_parent )
   // raise_path_changed() event is raised for each child
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 boost::iterator_range<Component::iterator> Component::children()
 {
   return boost::make_iterator_range(begin(),end());
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::move_to ( Component& new_parent )
 {
@@ -468,7 +471,7 @@ void Component::move_to ( Component& new_parent )
   raise_path_changed();
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component& Component::access_component ( const URI& path )
 {
@@ -484,7 +487,7 @@ const Component& Component::access_component ( const URI& path ) const
   return *comp;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component::Ptr Component::access_component_ptr ( const URI& path )
 {
@@ -594,17 +597,16 @@ Component::ConstPtr Component::access_component_ptr_checked (const URI& path ) c
   return comp;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
-Component& Component::build_component ( const std::string& name , const std::string& builder_name )
+Component& Component::create_component (const std::string& name ,
+                                        const std::string& builder_name )
 {
-  using namespace boost::algorithm;
-  std::string builder_name_space (builder_name.begin(),find_last(builder_name,".").begin());
-  const CBuilder& builder = Core::instance().root().access_component( Core::instance().libraries().full_path() / URI(builder_name_space) / URI(builder_name) ).follow()->as_type<CBuilder const>();
-  return add_component( builder.build( name ) );
+  Component::Ptr comp = build_component(builder_name, name);
+  return add_component( comp );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_create_component ( SignalArgs& args  )
 {
@@ -616,7 +618,7 @@ void Component::signal_create_component ( SignalArgs& args  )
 
   std::string builder_name = options.option<std::string>("type");
 
-  Component& comp = build_component( name, builder_name );
+  Component& comp = create_component( name, builder_name );
 
   if( options.exists("basic_mode") )
   {
@@ -629,7 +631,7 @@ void Component::signal_create_component ( SignalArgs& args  )
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_delete_component ( SignalArgs& args  )
 {
@@ -649,7 +651,7 @@ void Component::signal_delete_component ( SignalArgs& args  )
   parent().remove_component( *this );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_move_component ( SignalArgs& args  )
 {
@@ -662,7 +664,7 @@ void Component::signal_move_component ( SignalArgs& args  )
   this->move_to( access_component( path.path() ) );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_print_info ( SignalArgs& args  )
 {
@@ -680,7 +682,7 @@ void Component::signal_print_info ( SignalArgs& args  )
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::write_xml_tree( XmlNode& node, bool put_all_content )
 {
@@ -727,7 +729,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_list_tree( SignalArgs& args )
 {
@@ -736,7 +738,7 @@ void Component::signal_list_tree( SignalArgs& args )
   write_xml_tree(reply.main_map.content, false);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 std::string Component::tree(Uint level) const
 {
@@ -757,14 +759,14 @@ std::string Component::tree(Uint level) const
   return tree;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t Component::count_children() const
 {
   return m_components.size();
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Adds an array to XML tree
 /// @param map   Where to add the array
@@ -787,7 +789,7 @@ void add_array_to_xml(Map & map, const std::string & name,
   array_node.set_attribute( "is_option", "true" );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Adds a property to XML tree
 /// @param map   Where to add the property
@@ -837,7 +839,7 @@ void add_prop_to_xml(Map & map, const std::string & name,
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_list_properties( SignalFrame& args )
 {
@@ -899,7 +901,7 @@ void Component::signal_list_properties( SignalFrame& args )
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_list_signals( SignalArgs& args )
 {
@@ -920,7 +922,7 @@ void Component::signal_list_signals( SignalArgs& args )
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_configure ( SignalArgs& args )
 {
@@ -957,7 +959,7 @@ void Component::signal_configure ( SignalArgs& args )
   opt_map.deep_copy( map_node.content );
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 const Property& Component::property( const std::string& optname ) const
 {
@@ -971,7 +973,7 @@ Property& Component::property( const std::string& optname )
   return m_properties.property(optname);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_rename_component ( SignalArgs& args )
 {
@@ -982,7 +984,7 @@ void Component::signal_rename_component ( SignalArgs& args )
   rename(new_name);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_save_tree ( SignalArgs& args )
 {
@@ -1004,7 +1006,7 @@ void Component::signal_save_tree ( SignalArgs& args )
 
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_list_content( SignalArgs& args )
 {
@@ -1014,7 +1016,7 @@ void Component::signal_list_content( SignalArgs& args )
   signal_list_signals(reply);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signal_signature( SignalArgs & args )
 {
@@ -1033,14 +1035,14 @@ void Component::signal_signature( SignalArgs & args )
 
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::raise_path_changed ()
 {
   raise_event("tree_updated");
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::raise_event ( const std::string & name )
 {
@@ -1052,7 +1054,7 @@ void Component::raise_event ( const std::string & name )
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Component& Component::mark_basic()
 {
@@ -1060,7 +1062,7 @@ Component& Component::mark_basic()
   return *this;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signature_create_component( SignalArgs& args )
 {
@@ -1071,7 +1073,7 @@ void Component::signature_create_component( SignalArgs& args )
   options.add("basic_mode", true, "Component will be visible in basic mode.");
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signature_rename_component( SignalArgs& args )
 {
@@ -1080,7 +1082,7 @@ void Component::signature_rename_component( SignalArgs& args )
   options.add("name", std::string(), "Component new name.");
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::signature_move_component( SignalArgs& args )
 {
@@ -1114,36 +1116,6 @@ void Component::configure_option_recursively(const std::string& optname, const b
       component.configure_property(optname,val);
     }
   }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Component::option_list()
-{
-  std::string opt_list="";
-  Uint cnt(0);
-  foreach_container( (const std::string& name) (Property::Ptr property) , properties() )
-  {
-    if ( Option::Ptr option = boost::dynamic_pointer_cast<Option>(property) )
-    {
-      if (cnt > 0)
-        opt_list=opt_list+"\n";
-
-      if (option->tag() ==  XML::Protocol::Tags::node_array())
-      {
-        OptionArray::Ptr array_option = boost::dynamic_pointer_cast<OptionArray>(option);
-        std::string values=array_option->value_str();
-        boost::algorithm::replace_all(values, "@@", ",");
-        opt_list = opt_list+name+":array["+array_option->elem_type()+"]="+values;
-      }
-      else
-      {
-        opt_list = opt_list+name+":"+option->type()+"="+option->value_str();
-      }
-      ++cnt;
-    }
-  }
-  return opt_list;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1264,7 +1236,106 @@ void Component::configure (const std::vector<std::string>& args)
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::Ptr build_component(const std::string& name,
+                               const std::string& builder_name,
+                               const std::string& factory_type_name )
+{
+  // get the factories
+
+  Component::Ptr factories = Core::instance().root().get_child_ptr("Factories");
+  if ( is_null(factories) )
+    throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in "
+                        + Core::instance().root().full_path().string() );
+
+  // get the factory holding the builder
+
+  Component::Ptr factory = factories->get_child_ptr( factory_type_name );
+  if ( is_null(factory) )
+  {
+    const std::string lib_name = CBuilder::extract_library_name(builder_name);
+    try // to auto-load in case factory not there
+    {
+      CFinfo << "Auto-loading plugin " << lib_name << CFendl;
+      OSystem::instance().lib_loader()->load_library(lib_name);
+      factory = factories->get_child_ptr( factory_type_name );
+    }
+    catch(const std::exception& e)
+    {
+      throw ValueNotFound(FromHere(),
+                          "Failed to auto-load plugin " + lib_name + ": " + e.what());
+    }
+  }
+
+  if ( is_null(factory) )
+    throw ValueNotFound( FromHere(),
+                        "CFactory \'" + factory_type_name
+                        + "\' not found in " + factories->full_path().string() + "." );
+
+  // get the builder
+
+  Component::Ptr builder = factory->get_child_ptr( builder_name );
+  if ( is_null(builder) )
+  {
+    const std::string lib_name = CBuilder::extract_library_name(builder_name);
+    try // to auto-load in case builder not there
+    {
+      CFinfo << "Auto-loading plugin " << lib_name << CFendl;
+      OSystem::instance().lib_loader()->load_library(lib_name);
+      builder = factory->get_child_ptr( builder_name );
+    }
+    catch(const std::exception& e)
+    {
+      throw ValueNotFound(FromHere(),
+                          "Failed to auto-load plugin " + lib_name + ": " + e.what());
+    }
+  }
+
+  if ( is_null(builder) )
+  {
+    std::string msg = "CBuilder \'" + builder_name + "\' not found in factory \'"
+        + factory_type_name + "\'. Probably forgot to load a library.\n"
+        + "Possible builders:";
+    boost_foreach(Component& comp, factory->children())
+        msg += "\n  -  "+comp.name();
+
+    throw ValueNotFound( FromHere(), msg );
+  }
+
+  // build the component
+
+  Component::Ptr comp = builder->as_type<CBuilder>().build ( name );
+  if ( is_null(comp) )
+    throw NotEnoughMemory ( FromHere(),
+                           "CBuilder \'" + builder_name
+                           + "\' failed to allocate component with name \'" + name + "\'" );
+
+
+  return comp;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::Ptr build_component(const std::string& builder_name,
+                               const std::string& name )
+{
+  std::string builder_namespace = CBuilder::extract_namespace(builder_name);
+
+  URI builder_path = Core::instance().libraries().full_path()
+                   / URI(builder_namespace)
+                   / URI(builder_name);
+
+  const CBuilder& builder =
+      Core::instance().root().access_component( builder_path ).follow()
+      ->as_type<CBuilder const>();
+
+  Component::Ptr comp = builder.build( name );
+
+  return comp;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF

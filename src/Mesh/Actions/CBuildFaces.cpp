@@ -8,7 +8,7 @@
 #include <boost/foreach.hpp>
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StreamHelpers.hpp"
@@ -249,7 +249,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   
   boost_foreach( const std::string& face_type , face_types)
   {
-    const std::string shape_name = create_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
+    const std::string shape_name = build_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CCellFaces& faces = *region.create_component_ptr<CCellFaces>(shape_name);
     //CFinfo << "  creating " << faces.full_path().path() << CFendl;
     faces.initialize(face_type,mesh.nodes());
@@ -304,7 +304,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     fnb_buffer_map[face_type]->flush();
     bdry_buffer_map[face_type]->flush();
     
-    const std::string shape_name = create_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
+    const std::string shape_name = build_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CCellFaces& faces = *region.get_child_ptr(shape_name)->as_ptr<CCellFaces>();
     
     CFaceCellConnectivity&  f2c  = faces.cell_connectivity();

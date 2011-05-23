@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( Solver )
   fields.push_back(find_component_with_tag<CField>(mesh,"residual").as_ptr<CField>());
   fields.push_back(find_component_with_tag<CField>(mesh,"wave_speed").as_ptr<CField>());
 
-  CMeshWriter& gmsh_writer = solver.get_child("iterate").build_component("7_gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  CMeshWriter& gmsh_writer = solver.get_child("iterate").create_component("7_gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
   gmsh_writer.configure_property("mesh",mesh.full_path());
   gmsh_writer.configure_property("file",URI("line_${iter}.msh"));
   gmsh_writer.set_fields(fields);

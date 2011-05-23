@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -42,13 +42,13 @@ BOOST_AUTO_TEST_CASE( test_SF )
 {
   typedef SFDM::ShapeFunction SFD_SF;
   CRoot& root = Core::instance().root();
-  SFD_SF& sol_line_p0 = root.build_component("sol_line_p0","CF.SFDM.SF.LineSolutionP0").as_type<SFD_SF>();
-  SFD_SF& sol_line_p1 = root.build_component("sol_line_p1","CF.SFDM.SF.LineSolutionP1").as_type<SFD_SF>();
-  SFD_SF& sol_line_p2 = root.build_component("sol_line_p2","CF.SFDM.SF.LineSolutionP2").as_type<SFD_SF>();
+  SFD_SF& sol_line_p0 = root.create_component("sol_line_p0","CF.SFDM.SF.LineSolutionP0").as_type<SFD_SF>();
+  SFD_SF& sol_line_p1 = root.create_component("sol_line_p1","CF.SFDM.SF.LineSolutionP1").as_type<SFD_SF>();
+  SFD_SF& sol_line_p2 = root.create_component("sol_line_p2","CF.SFDM.SF.LineSolutionP2").as_type<SFD_SF>();
 
-  SFD_SF& flx_line_p1 = root.build_component("flx_line_p1","CF.SFDM.SF.LineFluxP1").as_type<SFD_SF>();
-  SFD_SF& flx_line_p2 = root.build_component("flx_line_p2","CF.SFDM.SF.LineFluxP2").as_type<SFD_SF>();
-  SFD_SF& flx_line_p3 = root.build_component("flx_line_p3","CF.SFDM.SF.LineFluxP3").as_type<SFD_SF>();
+  SFD_SF& flx_line_p1 = root.create_component("flx_line_p1","CF.SFDM.SF.LineFluxP1").as_type<SFD_SF>();
+  SFD_SF& flx_line_p2 = root.create_component("flx_line_p2","CF.SFDM.SF.LineFluxP2").as_type<SFD_SF>();
+  SFD_SF& flx_line_p3 = root.create_component("flx_line_p3","CF.SFDM.SF.LineFluxP3").as_type<SFD_SF>();
 
   const Uint line0 = 0;
 
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( test_SF )
 BOOST_AUTO_TEST_CASE( test_Reconstruction )
 {
   CRoot& root = Common::Core::instance().root();
-  Reconstruct& reconstruct = root.build_component("reconstruct","CF.SFDM.Reconstruct").as_type<Reconstruct>();
+  Reconstruct& reconstruct = root.create_component("reconstruct","CF.SFDM.Reconstruct").as_type<Reconstruct>();
   std::vector<std::string> from_to(2);
   from_to[0] = "CF.SFDM.SF.LineSolutionP1";
   from_to[1] = "CF.SFDM.SF.LineFluxP2";
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( test_fields )
   //CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
   gmsh_writer->write_from_to(*mesh,URI("line.msh"));
 

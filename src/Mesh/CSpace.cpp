@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/FindComponents.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -51,7 +51,7 @@ void CSpace::configure_shape_function()
   {
     remove_component(m_shape_function->name());
   }
-  m_shape_function = create_component_abstract_type<ShapeFunction>( sf_name, sf_name );
+  m_shape_function = build_component_abstract_type<ShapeFunction>( sf_name, sf_name );
   m_shape_function->rename(m_shape_function->derived_type_name());
   add_component( m_shape_function );
 }

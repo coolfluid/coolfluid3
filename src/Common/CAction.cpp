@@ -8,7 +8,7 @@
 
 #include "Common/CAction.hpp"
 #include "Common/FindComponents.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/LibCommon.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ CAction::CAction ( const std::string& name ) : Component(name)
 CAction& CAction::create_action(const std::string& action_provider,
                                       const std::string& name)
 {
-  CAction::Ptr sub_action = create_component_abstract_type<CAction>(action_provider,name);
+  CAction::Ptr sub_action = build_component_abstract_type<CAction>(action_provider,name);
   add_component(sub_action);
   return *sub_action;
 }

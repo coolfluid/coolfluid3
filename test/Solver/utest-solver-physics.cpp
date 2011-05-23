@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "Common/CreateComponent.hpp"
+ 
 #include "Solver/Physics.hpp"
 
 using namespace CF;

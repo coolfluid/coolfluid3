@@ -9,7 +9,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/CFactory.hpp"
 #include "Common/OptionT.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -68,13 +68,13 @@ void SetupLinearSystem::signal_create_model( SignalArgs& node)
   lss->mark_basic();
 
   // Setup solver
-  CSolver::Ptr solver = create_component_abstract_type<CSolver>(solver_name, "LinearModel");
+  CSolver::Ptr solver = build_component_abstract_type<CSolver>(solver_name, "LinearModel");
   model->add_component(solver);
   solver->mark_basic();
   solver->configure_property( "LSS", URI(lss->full_path().string()) );
 
   // Add a VTK legacy writer by default
-  CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter>( "CF.Mesh.VTKLegacy.CWriter", "VTKLegacyWriter" );
+  CMeshWriter::Ptr mesh_writer = build_component_abstract_type<CMeshWriter>( "CF.Mesh.VTKLegacy.CWriter", "VTKLegacyWriter" );
   mesh_writer->mark_basic();
   model->add_component( mesh_writer );
 }

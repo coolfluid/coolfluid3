@@ -16,7 +16,7 @@
 #include "Common/BuildInfo.hpp"
 #include "Common/CFactory.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/Foreach.hpp"
 #include "Common/CAction.hpp"
 #include "Common/FindComponents.hpp"

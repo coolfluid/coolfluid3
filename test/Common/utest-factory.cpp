@@ -16,7 +16,7 @@
 
 #include "Common/CFactories.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/CreateComponent.hpp"
+
 
 using namespace std;
 using namespace boost;
@@ -71,10 +71,10 @@ BOOST_AUTO_TEST_CASE( component_builder )
 BOOST_AUTO_TEST_CASE( LibraryName )
 {
   const std::string builder_name1 = "CF.Mesh.Neu.CReader";
-  BOOST_CHECK_EQUAL(library_name(builder_name1), "coolfluid_mesh_neu");
+  BOOST_CHECK_EQUAL(CBuilder::extract_library_name(builder_name1), "coolfluid_mesh_neu");
   
   const std::string builder_name2 = "CF.UFEM.Test";
-  BOOST_CHECK_EQUAL(library_name(builder_name2), "coolfluid_ufem");
+  BOOST_CHECK_EQUAL(CBuilder::extract_library_name(builder_name2), "coolfluid_ufem");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

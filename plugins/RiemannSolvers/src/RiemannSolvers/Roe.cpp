@@ -40,7 +40,7 @@ void Roe::build_roe_state()
 {
   if (is_not_null(m_roe_state))
     remove_component(*m_roe_state);
-  m_roe_state = build_component( "roe_state" , property("roe_state").value_str() ).as_ptr<State>();
+  m_roe_state = create_component( "roe_state" , property("roe_state").value_str() ).as_ptr<State>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@
 
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Mesh/CRegion.hpp"
 
@@ -48,7 +48,7 @@ void CSysN::execute()
   Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
-    loop = create_component_abstract_type< ElementLoop >( "CF.RDM.Core.CellLoop<" + type_name() + "," + physics + ">" , "LOOP");
+    loop = build_component_abstract_type< ElementLoop >( "CF.RDM.Core.CellLoop<" + type_name() + "," + physics + ">" , "LOOP");
     add_component(loop);
   }
   else

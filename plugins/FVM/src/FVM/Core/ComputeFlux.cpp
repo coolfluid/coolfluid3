@@ -8,7 +8,7 @@
 #include "Common/OptionURI.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CSpace.hpp"
@@ -81,7 +81,7 @@ void ComputeFlux::config_solution()
 
   if (is_null(m_fluxsplitter))
   {
-    m_fluxsplitter = create_component_abstract_type<RiemannSolver>("CF.FVM.Core.RoeCons"+to_str(Uint(m_normal.size()))+"D","Roe_fluxsplitter");
+    m_fluxsplitter = build_component_abstract_type<RiemannSolver>("CF.FVM.Core.RoeCons"+to_str(Uint(m_normal.size()))+"D","Roe_fluxsplitter");
   }
 }
 

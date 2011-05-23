@@ -12,7 +12,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/Log.hpp"
 #include "Common/CEnv.hpp"
 
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   model.access_component("cpath:./tools/mesh_writer").as_type<CMeshWriter>().execute();
 
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tecplot_writer");
+  CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tecplot_writer");
   model.get_child("tools").add_component(writer);
   writer->configure_property("fields",std::vector<URI>(1,find_component_recursively_with_tag(model,"solution").full_path()));
   writer->configure_property("file",URI(model.name()+".plt"));

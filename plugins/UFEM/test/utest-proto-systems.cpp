@@ -17,7 +17,7 @@
 #include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Common/Core.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
 #include "Common/LibLoader.hpp"
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
   
   // Setup a mesh writer
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   root.add_component(writer);
   writer->configure_property( "fields", std::vector<URI>(1, mesh->get_child("VectorVariable").full_path() ) );
   

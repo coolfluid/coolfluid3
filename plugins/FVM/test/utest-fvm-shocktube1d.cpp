@@ -12,7 +12,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/Log.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"

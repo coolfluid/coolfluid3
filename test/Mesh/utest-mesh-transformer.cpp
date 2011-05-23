@@ -14,9 +14,10 @@
 
 #include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+#include "Common/CRoot.hpp"
+
 #include "Common/FindComponents.hpp"
-#include "Common/CreateComponent.hpp"
+
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
@@ -44,7 +45,7 @@ struct MeshTransformer_Fixture
     m_argv = boost::unit_test::framework::master_test_suite().argv;
 
     root = CRoot::create("Root");
-    reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","MyReader");
+    reader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","MyReader");
     domain = root->create_component_ptr<CDomain>("MyDom");
 
     root->add_component( reader );
@@ -80,7 +81,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshTransformer_TestSuite, MeshTransformer_Fixture )
 
 BOOST_AUTO_TEST_CASE( read_mesh )
 {
-  // CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  // CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   // 
   // // the file to read from
   // boost::filesystem::path fp_in ("quadtriag.neu");
@@ -95,7 +96,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
 BOOST_AUTO_TEST_CASE( test_arguments )
 {
-  CMeshTransformer::Ptr transformer = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  CMeshTransformer::Ptr transformer = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
   
   std::vector<std::string> args;
   args.push_back("variable:bool=true");

@@ -48,8 +48,6 @@ list( APPEND coolfluid_common_files
     CMap.hpp
     Core.hpp
     Core.cpp
-    CreateComponent.hpp
-    CreateComponent.cpp
     CreateComponentDataType.hpp
     EnumT.hpp
     EventHandler.hpp

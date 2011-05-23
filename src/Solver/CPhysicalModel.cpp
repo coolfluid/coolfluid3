@@ -66,7 +66,7 @@ void CPhysicalModel::build_solution_state()
 {
   if (is_not_null(m_solution_state))
     remove_component(*m_solution_state);
-  m_solution_state = build_component( "solution_state" , property("solution_state").value_str() ).as_ptr<State>();
+  m_solution_state = create_component( "solution_state" , property("solution_state").value_str() ).as_ptr<State>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

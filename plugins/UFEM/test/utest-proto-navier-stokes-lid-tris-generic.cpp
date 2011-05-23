@@ -19,7 +19,7 @@
 #include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Common/Core.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
 #include "Common/OSystem.hpp"
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLid )
     MeshTerm<5, VectorField> u3("AdvectionVelocity", "u3"); // n-3
     
     // Setup a mesh writer
-    CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
+    CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
     root.add_component(writer);
     const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").full_path())(mesh->get_child("Pressure").full_path());
     writer->configure_property( "fields", out_fields );

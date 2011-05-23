@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "Common/CreateComponent.hpp"
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -18,8 +18,10 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/CGroupActions.hpp"
+
 #include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/CMesh.hpp"
+
 #include "Solver/FlowSolver.hpp"
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CTime.hpp"
@@ -210,7 +212,7 @@ BOOST_AUTO_TEST_CASE( test_solver_setup3 )
   BOOST_CHECK_NO_THROW(solver.create_inner_action("compute_diffusive_terms","CF.Solver.Echo",root.get_child("mesh").as_type<CMesh>().topology()));
 
   CFinfo << solver.tree() << CFendl;
-  CFinfo << solver.option_list() << CFendl;
+  CFinfo << solver.properties().list_options() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

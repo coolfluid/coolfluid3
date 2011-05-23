@@ -11,7 +11,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/all_reduce.hpp"
@@ -113,7 +113,7 @@ std::map<std::string,CElements::Ptr>
   std::map<std::string,CElements::Ptr> cells_map;
   boost_foreach(const std::string& etype, etypes)
   {
-    ElementType::Ptr element_type = create_component_abstract_type<ElementType>(etype,etype);
+    ElementType::Ptr element_type = build_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension())
     {
       CCells& etype_cells = *parent_region.create_component_ptr<CCells>(element_type->shape_name());
@@ -133,7 +133,7 @@ std::map<std::string,CElements::Ptr>
   std::map<std::string,CElements::Ptr> faces_map;
   boost_foreach(const std::string& etype, etypes)
   {
-    ElementType::Ptr element_type = create_component_abstract_type<ElementType>(etype,etype);
+    ElementType::Ptr element_type = build_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension() - 1)
     {
       CFaces& etype_faces = *parent_region.create_component_ptr<CFaces>(element_type->shape_name());

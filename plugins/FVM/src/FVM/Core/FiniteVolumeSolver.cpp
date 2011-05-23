@@ -16,7 +16,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroupActions.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/XML/SignalOptions.hpp"
 
 #include "FVM/Core/FiniteVolumeSolver.hpp"
@@ -158,7 +158,7 @@ void FiniteVolumeSolver::trigger_domain()
 
   m_compute_rhs->get_child_ptr("2.3_for_all_faces")
     ->configure_property("Regions",std::vector<URI>(1,mesh->topology().full_path()));
-  CLoopOperation::Ptr add_flux_to_rhs = create_component_abstract_type<CLoopOperation>("CF.FVM.Core.ComputeFlux","add_flux_to_rhs");
+  CLoopOperation::Ptr add_flux_to_rhs = build_component_abstract_type<CLoopOperation>("CF.FVM.Core.ComputeFlux","add_flux_to_rhs");
   add_flux_to_rhs->mark_basic();
   m_compute_rhs->get_child("2.3_for_all_faces").add_component(add_flux_to_rhs);
 

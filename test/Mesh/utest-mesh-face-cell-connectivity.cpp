@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/FindComponents.hpp"
 
 #include "Tools/Testing/TimedTestFixture.hpp"
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( create_mesh )
 {
      
  // create meshreader
- // CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+ // CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
  // boost::filesystem::path fp_source ("quadtriag.neu");
  // m_mesh = meshreader->create_mesh_from(fp_source);
  

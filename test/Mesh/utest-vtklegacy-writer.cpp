@@ -10,7 +10,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
 
@@ -37,7 +38,7 @@ BOOST_AUTO_TEST_CASE( WriteGrid )
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
 
-  CMeshWriter::Ptr vtk_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
+  CMeshWriter::Ptr vtk_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
   vtk_writer->write_from_to(*mesh,"grid.vtk");
 
   BOOST_CHECK(true);

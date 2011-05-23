@@ -9,7 +9,7 @@
 #include "Common/Log.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
-#include "Common/CreateComponent.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CConnectivity.hpp"

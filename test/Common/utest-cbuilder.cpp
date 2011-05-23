@@ -13,7 +13,7 @@
 #include "Common/CRoot.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 using namespace std;
 using namespace boost;
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( registration )
 {
   Common::ComponentBuilder < CConcrete1 , CAbstract, Common::LibCommon > aBuilder;
 
-  CAbstract::Ptr ptr = create_component_abstract_type< CAbstract >("CF.Common.CConcrete1","acomp");
+  CAbstract::Ptr ptr = build_component_abstract_type< CAbstract >("CF.Common.CConcrete1","acomp");
 
   BOOST_CHECK( is_not_null(ptr) );
 

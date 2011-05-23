@@ -30,8 +30,8 @@ namespace Common {
 
 /// @brief Component that builds other components
 /// @author Tiago Quintino
-class Common_API CBuilder : public Component
-{
+class Common_API CBuilder : public Component {
+
 public:
 
   typedef boost::shared_ptr< CBuilder > Ptr;
@@ -62,11 +62,17 @@ public:
   //@{
 
   /// creates a component from this component
-  void signal_build_component ( SignalArgs& args );
+  void signal_create_component ( SignalArgs& args );
 
-  void signature_signal_build_component ( SignalArgs& args );
+  void signature_signal_create_component ( SignalArgs& args );
 
   //@} END SIGNALS
+
+  /// Extract the builder's namespace from the given builder name
+  static std::string extract_namespace (const std::string& builder_name);
+
+  /// Extract the library name from the given builder name
+  static std::string extract_library_name (const std::string& builder_name);
 
 }; // CBuilder
 
@@ -76,8 +82,8 @@ public:
 /// This is the actual builder for one concrete type.
 /// @author Tiago Quintino
 template < typename BASE, typename CONCRETE >
-class CBuilderT : public CBuilder
-{
+class CBuilderT : public CBuilder {
+
 public:
 
   typedef boost::shared_ptr< CBuilderT<BASE,CONCRETE> > Ptr;
@@ -104,7 +110,7 @@ public:
   static std::string type_name() { return "CBuilderT<" + BASE::type_name() + "," + CONCRETE::type_name() + ">"; }
 
   /// builds the component cast to the correct base
-  typename BASE::Ptr build_component_typed ( const std::string& name ) const
+  typename BASE::Ptr create_component_typed ( const std::string& name ) const
   {
     return typename BASE::Ptr ( new CONCRETE(name), Deleter<BASE>() );
   }
@@ -119,7 +125,7 @@ public:
 
   virtual Component::Ptr build ( const std::string& name ) const
   {
-    return this->build_component_typed(name);
+    return this->create_component_typed(name);
   }
 
 }; // CBuilderT
@@ -132,7 +138,8 @@ template <class CONCRETE, class BASE, class LIB >
 struct ComponentBuilder
 {
   /// @brief creates the CBuilder and places it into the correct factory
-  ComponentBuilder( const std::string& name = std::string( LIB::library_namespace() + "." + CONCRETE::type_name()) )
+  ComponentBuilder(const std::string& name =
+                   std::string( LIB::library_namespace() + "." + CONCRETE::type_name()) )
   {
     // verify that LIB derives from CLibrary
     BOOST_STATIC_ASSERT( (boost::is_base_of<Common::CLibrary,LIB>::value) );
@@ -148,10 +155,12 @@ struct ComponentBuilder
 
     // regist the concrete type in TypeInfo
     RegistTypeInfo<CONCRETE,LIB>();
-    CF::Common::TypeInfo::instance().regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
+    CF::Common::TypeInfo::instance().
+        regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
 
     // put builder in correct factory
-    Common::CFactory::Ptr   factory = Common::Core::instance().factories().get_factory< BASE >();
+    Common::CFactory::Ptr factory =
+        Common::Core::instance().factories().get_factory< BASE >();
 
     cf_assert ( is_not_null(factory) );
 
@@ -159,7 +168,8 @@ struct ComponentBuilder
         factory->create_component_ptr< CBuilderT<BASE,CONCRETE> >( name );
     
     // check that CBuilderT can cast to CBuilder
-    /// @note sanity check after weird bug on MacOSX when including CBuilder.cpp instead of CBuilder.hpp
+    /// @note sanity check after weird bug on MacOSX
+    ///       when including CBuilder.cpp instead of CBuilder.hpp
     cf_assert ( builder->template as_ptr<CBuilder>() );
 
     // put a CLink to the builder in the respective CLibrary

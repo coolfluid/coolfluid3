@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/URI.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Common/OptionArray.hpp"
 #include "Common/OptionComponent.hpp"

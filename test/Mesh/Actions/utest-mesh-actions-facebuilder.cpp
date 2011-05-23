@@ -10,7 +10,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
+
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/Actions/CreateSpaceP0.hpp"
@@ -76,7 +78,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 
 BOOST_AUTO_TEST_CASE( build_faces )
 {
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->read_from_to("quadtriag.neu",*mesh);
 
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
@@ -86,7 +88,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
 
   //CFinfo << mesh->tree() << CFendl;
 
-  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
   //info->transform(mesh);
 
   CRegion& wall_region = find_component_recursively_with_name<CRegion>(mesh->topology(),"wall");
@@ -132,10 +134,10 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
 
   //CFinfo << mesh->tree() << CFendl;
 
-  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
   //info->transform(mesh);
 
-  CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","writer");
+  CMeshWriter::Ptr mesh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","writer");
 
   mesh_writer->set_fields(std::vector<CField::Ptr>(1,find_component_ptr<CField>(*mesh)));
   mesh_writer->write_from_to(*mesh,"facenormals.msh");

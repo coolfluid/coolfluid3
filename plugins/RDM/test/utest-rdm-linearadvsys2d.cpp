@@ -11,7 +11,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
 #include "Common/CLink.hpp"
@@ -141,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadvsys2d_local_fixture )
 
 #ifdef BUBBLE // enrich the mesh with bubble functions
   CMeshTransformer::Ptr enricher =
-      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
+      build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
 
   domain.add_component( enricher );
 
@@ -269,7 +269,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , linearadvsys2d_local_fixture )
 
 #ifdef BUBBLE // remove the bubble functions from the mesh
   CMeshTransformer::Ptr remover =
-      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
+      build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
 
   domain.add_component( remover );
   remover->transform( mesh );
@@ -277,7 +277,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , linearadvsys2d_local_fixture )
 
   BOOST_CHECK(true);
 
-  CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  CMeshWriter::Ptr mesh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(mesh_writer);
 
   std::vector<URI> fields;

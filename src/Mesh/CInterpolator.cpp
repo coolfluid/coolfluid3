@@ -6,7 +6,7 @@
 
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Mesh/CInterpolator.hpp"
 #include "Mesh/CMesh.hpp"
@@ -54,7 +54,7 @@ void CInterpolator::configure_stencil_computer()
 {
   if (is_not_null(m_stencil_computer))
     remove_component(m_stencil_computer->name());
-  m_stencil_computer = create_component_abstract_type<CStencilComputer>(property("stencil_computer").value<std::string>(),"stencil_computer");
+  m_stencil_computer = build_component_abstract_type<CStencilComputer>(property("stencil_computer").value<std::string>(),"stencil_computer");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

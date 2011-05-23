@@ -12,7 +12,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/Log.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
 {
   CMesh::Ptr mesh = Common::Core::instance().root().create_component_ptr<CMesh>("mesh");
 
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   boost::filesystem::path fp_in("quadtriag.neu");
   //meshreader->read_from_to(fp_in,mesh);
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
   CBuildFaces::Ptr build_faces = allocate_component<CBuildFaces>("build_faces");
   build_faces->transform(mesh);
 
-  create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_spaceP0")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_spaceP0")->transform(mesh);
 
   CBuildFaceNormals::Ptr build_facenormals = allocate_component<CBuildFaceNormals>("build_facenormals");
   build_facenormals->transform(mesh);
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
   build_gstates->transform(mesh);
 
 
-  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
   std::vector<CField::Ptr> fields;
   boost_foreach(CField& field, find_components_recursively<CField>(*mesh))

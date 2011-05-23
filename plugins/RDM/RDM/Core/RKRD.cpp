@@ -11,7 +11,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/StringConversion.hpp"
 #include "Common/CGroupActions.hpp"
 
@@ -227,7 +227,7 @@ void RKRD::signal_create_boundary_term( SignalArgs& node )
 
   std::vector<URI> regions = options.array<URI>("Regions");
 
-  RDM::BoundaryTerm::Ptr bterm = create_component_abstract_type<RDM::BoundaryTerm>(type,name);
+  RDM::BoundaryTerm::Ptr bterm = build_component_abstract_type<RDM::BoundaryTerm>(type,name);
   m_compute_boundary_terms->add_component(bterm);
 
   bterm->configure_property("Regions" , regions);
@@ -266,7 +266,7 @@ void RKRD::signal_create_domain_term( SignalArgs& node )
   std::string name = options.option<std::string>("Name");
   std::string type = options.option<std::string>("Type");
 
-  RDM::DomainTerm::Ptr dterm = create_component_abstract_type<RDM::DomainTerm>(type,name);
+  RDM::DomainTerm::Ptr dterm = build_component_abstract_type<RDM::DomainTerm>(type,name);
   m_compute_domain_terms->add_component(dterm);
 
   std::vector<URI> regions = options.array<URI>("Regions");

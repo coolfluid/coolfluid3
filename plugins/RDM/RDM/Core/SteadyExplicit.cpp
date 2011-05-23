@@ -9,7 +9,7 @@
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -96,7 +96,7 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
   model->create_domain( "Domain" );
 
   // setup iterative solver
-  CSolver::Ptr solver = create_component_abstract_type<CSolver>( LibCore::library_namespace() + ".RKRD", "Solver");
+  CSolver::Ptr solver = build_component_abstract_type<CSolver>( LibCore::library_namespace() + ".RKRD", "Solver");
   solver->mark_basic();
   model->add_component( solver );
 

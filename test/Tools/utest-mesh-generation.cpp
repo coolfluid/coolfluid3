@@ -11,7 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Core.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/CRoot.hpp"
 #include "Common/LibLoader.hpp"
 #include "Common/OSystem.hpp"
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( CreateGrid )
   CMesh& mesh = root.create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_rectangle(mesh, 10., 5., 5, 5);
 
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   root.add_component(writer);
   writer->write_from_to(mesh, "grid_2d.msh");
 }

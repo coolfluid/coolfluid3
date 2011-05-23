@@ -16,7 +16,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroupActions.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Solver/FlowSolver.hpp"
@@ -171,7 +171,7 @@ void FlowSolver::solve()
 
 CAction& FlowSolver::create_solve(const std::string& name, const std::string& solve_builder_name)
 {
-  configure_property("solve",build_component(name,solve_builder_name).full_path());
+  configure_property("solve",create_component(name,solve_builder_name).full_path());
   m_solve.lock()->mark_basic();
   return *m_solve.lock();
 }
@@ -180,7 +180,7 @@ CAction& FlowSolver::create_solve(const std::string& name, const std::string& so
 
 CAction& FlowSolver::create_setup(const std::string& name, const std::string& setup_builder_name)
 {
-  configure_property("setup",build_component(name,setup_builder_name).full_path());
+  configure_property("setup",create_component(name,setup_builder_name).full_path());
   return *m_setup.lock();
 }
 
@@ -195,7 +195,7 @@ CAction& FlowSolver::create_bc_action(const std::string& name, const std::string
   boost_foreach(CRegion::ConstPtr region, regions)
     regions_uri.push_back(region->full_path());
 
-  CAction& bc_action = m_bc.lock()->build_component(name,builder_name).as_type<CAction>();
+  CAction& bc_action = m_bc.lock()->create_component(name,builder_name).as_type<CAction>();
   bc_action.configure_property("regions",regions_uri);
   auto_config(bc_action);
   return bc_action;
@@ -221,7 +221,7 @@ CAction& FlowSolver::create_inner_action(const std::string& name, const std::str
   boost_foreach(CRegion::ConstPtr region, regions)
     regions_uri.push_back(region->full_path());
 
-  CAction& inner_action = m_inner.lock()->build_component(name,builder_name).as_type<CAction>();
+  CAction& inner_action = m_inner.lock()->create_component(name,builder_name).as_type<CAction>();
   inner_action.configure_property("regions",regions_uri);
   auto_config(inner_action);
   return inner_action;

@@ -10,7 +10,9 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/CreateComponent.hpp"
+ 
+#include "Common/Core.hpp"
+#include "Common/XML/Protocol.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/LibLoader.hpp"
 #include "Common/Log.hpp"
@@ -55,7 +57,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
 
   CRoot& root = Core::instance().root();
 
-  Component::Ptr setup_ufem = create_component_abstract_type<Component>("CF.UFEM.SetupLinearSystem", "SetupUFEM");
+  Component::Ptr setup_ufem = build_component_abstract_type<Component>("CF.UFEM.SetupLinearSystem", "SetupUFEM");
   root.add_component(setup_ufem);
 
   SignalFrame create_model_frame("", URI(), URI());
@@ -79,7 +81,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   mesh_reader->read_from_to(input_file, *mesh);
   
   // Setup a constant field for the source term
-  Component::Ptr heat_generator = create_component_abstract_type<Component>("CF.Tools.FieldGeneration.FieldGenerator", "HeatFieldGenerator");
+  Component::Ptr heat_generator = build_component_abstract_type<Component>("CF.Tools.FieldGeneration.FieldGenerator", "HeatFieldGenerator");
   root.add_component(heat_generator);
   heat_generator->configure_property("FieldName", std::string("Heat"));
   heat_generator->configure_property("VariableName", std::string("q"));
@@ -155,7 +157,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
 
   ufem_method->call_signal("run", run_frame);
 
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   ufem_model->add_component(writer);
 
   const std::vector<URI> field_uris = boost::assign::list_of

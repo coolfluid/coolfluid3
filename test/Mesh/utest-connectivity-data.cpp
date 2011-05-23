@@ -13,7 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -46,7 +46,7 @@ struct NeuFixture
   NeuFixture() : mesh2d(allocate_component<CMesh>  ( "mesh2d" )), mesh3d(allocate_component<CMesh>  ( "mesh3d" ))
   {
     // Read the a .neu mesh as 2D mixed mesh
-    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+    CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
     // Read the mesh
     meshreader->read_from_to("quadtriag.neu",*mesh2d);

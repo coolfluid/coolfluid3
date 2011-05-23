@@ -78,19 +78,20 @@ namespace Common {
       store[pname]->as_option().link_to(par);
     }
 
-    /// get a property from the list
+    /// get a const property from the list
     const Property& property( const std::string& pname ) const;
-
+    /// get a property from the list
     Property& property( const std::string& pname );
 
-    /// get an option from the list
+    /// get a constant option from the list
     const Option& option( const std::string& pname ) const;
-
+    /// get an option from the list
     Option& option( const std::string& pname );
 
-    Property& operator [] (const std::string & pname);
-		
+    /// contant access operator to properties
     const Property& operator [] (const std::string & pname) const;
+    /// access operator to properties
+    Property& operator [] (const std::string & pname);
 
     /// Configure one option, and trigger its actions
     /// @param [in] optname  The option name
@@ -115,6 +116,9 @@ namespace Common {
     const_iterator begin() const { return store.begin(); }
     
     const_iterator end() const  { return store.end(); }
+
+    /// list the options as a string
+    std::string list_options();
 
   public:
 

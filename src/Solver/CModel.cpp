@@ -7,12 +7,14 @@
 
 #include "Common/BoostFilesystem.hpp"
 
+#include "Common/CFactory.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/Signal.hpp"
 #include "Common/Core.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"
@@ -113,7 +115,7 @@ CSolver& CModel::create_solver( const std::string& builder_name)
   std::string solver_name = builder_name;
   solver_name.erase(solver_name.begin(),boost::algorithm::find_last(solver_name,".").begin()+1);
   
-  CSolver::Ptr solver = create_component_abstract_type<CSolver>(builder_name,solver_name);
+  CSolver::Ptr solver = build_component_abstract_type<CSolver>(builder_name,solver_name);
   add_component(solver);
   return *solver;
 }

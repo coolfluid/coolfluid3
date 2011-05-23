@@ -7,12 +7,11 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for Zoltan load balancing library"
 
-// boost
 #include <boost/test/unit_test.hpp>
 
-// coolfluid
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+#include "Common/Core.hpp"
+
 #include "Common/Foreach.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
@@ -73,7 +72,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 {
   CFinfo << "CMeshPartitioner_test" << CFendl;
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->configure_property("read_boundaries",false);
 
   // the file to read from
@@ -83,16 +82,16 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
   CMesh& mesh = *mesh_ptr;
   
-  CMeshTransformer::Ptr glb_numbering = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh_ptr);
-  CMeshTransformer::Ptr glb_connectivity = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  CMeshTransformer::Ptr glb_connectivity = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
   glb_connectivity->transform(mesh_ptr);
 
-  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   URI fp_out_1 ("quadtriag.msh");
   meshwriter->write_from_to(*mesh_ptr,fp_out_1);
 
-  CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
 
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");

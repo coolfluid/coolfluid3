@@ -12,7 +12,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
-#include "Common/CreateComponent.hpp"
+
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
 #include "Common/LibLoader.hpp"
@@ -147,7 +147,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 
 #ifdef BUBBLE // enrich the mesh with bubble functions
   CMeshTransformer::Ptr enricher =
-      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
+      build_component_abstract_typesh.Actions.CBubbleEnrich","enricher");
 
   domain.add_component( enricher );
 
@@ -259,7 +259,7 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , rotationadv2d_local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
   std::vector<URI> fields;
@@ -415,7 +415,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
 #ifdef BUBBLE // remove the bubble functions from the mesh
   CMeshTransformer::Ptr remover =
-      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
+      build_component_abstract_typesh.Actions.CBubbleRemove","remover");
 
   domain.add_component( remover );
   remover->transform( mesh );
@@ -427,7 +427,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
   gmsh_writer->configure_property("fields",fields);
@@ -436,7 +436,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
   gmsh_writer->execute();
 
- /* CMeshWriter::Ptr vtk_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","VTKWriter");
+ /* CMeshWriter::Ptr vtk_writer = build_component_abstract_typeKLegacy.CWriter","VTKWriter");
   model.add_component(vtk_writer);
 
   vtk_writer->configure_property("fields",fields);
@@ -445,7 +445,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
   vtk_writer->execute();*/
 
- /* CMeshWriter::Ptr tec_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
+ /* CMeshWriter::Ptr tec_writer = build_component_abstract_typecplot.CWriter","TecWriter");
   model.add_component(tec_writer);
 
   tec_writer->configure_property("fields",fields);

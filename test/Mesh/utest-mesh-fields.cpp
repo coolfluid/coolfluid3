@@ -12,7 +12,8 @@
 #include <boost/foreach.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -60,7 +61,7 @@ BOOST_FIXTURE_TEST_SUITE( FieldTests_TestSuite, FieldTests_Fixture )
 
 BOOST_AUTO_TEST_CASE( MeshCreation )
 {
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   // the mesh to store in
   m_mesh = meshreader->create_mesh_from("quadtriag.neu");

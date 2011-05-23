@@ -18,9 +18,10 @@
 #include "Common/OSystem.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CLibraries.hpp"
+#include "Common/CFactories.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CEnv.hpp"
-#include "Common/CreateComponent.hpp"
+
 #include "Common/BuildInfo.hpp"
 #include "Common/CodeProfiler.hpp"
 #include "Common/LibLoader.hpp"
@@ -181,7 +182,7 @@ Common::CFactories& Core::factories() const
 void Core::set_profiler(const std::string & builder_name)
 {
   CodeProfiler::Ptr profiler =
-    create_component_abstract_type<CodeProfiler>(builder_name, "Profiler");
+    build_component_abstract_type<CodeProfiler>(builder_name, "Profiler");
   m_root->add_component( profiler );
 }
 

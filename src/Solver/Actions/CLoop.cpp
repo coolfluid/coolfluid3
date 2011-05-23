@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/URI.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Common/OptionArray.hpp"
 
@@ -42,7 +42,7 @@ CLoopOperation& CLoop::create_loop_operation(const std::string action_provider)
   // hence they get an alphabetical name
   std::string name = action_provider;
   CLoopOperation::Ptr sub_operation =
-    (create_component_abstract_type<CLoopOperation>(action_provider,name));
+    (build_component_abstract_type<CLoopOperation>(action_provider,name));
   add_component(sub_operation);
   return *sub_operation;
 }

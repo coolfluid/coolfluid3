@@ -6,7 +6,7 @@
 
 #include <cstdlib>  // provides system call
 
-#include "Common/CreateComponent.hpp"
+#include "Common/Assertions.hpp"
 #include "Common/OSystemLayer.hpp"
 #include "Common/StringConversion.hpp"
 

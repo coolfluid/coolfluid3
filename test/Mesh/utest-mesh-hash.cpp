@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Mesh/CHash.hpp"
 #include "Mesh/CMixedHash.hpp"

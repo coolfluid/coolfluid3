@@ -19,7 +19,7 @@
 #include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Common/Core.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
 #include "Common/OSystem.hpp"
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   
   URI input_file = URI(argv[4]);
   
-  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
+  CMeshReader::Ptr mesh_reader = build_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
   root.add_component(mesh_reader);
   
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
   
   // Setup a mesh writer
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
+  CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
   root.add_component(writer);
   const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").full_path())(mesh->get_child("Pressure").full_path());
   writer->configure_property( "fields", out_fields );

@@ -13,8 +13,9 @@
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/Core.hpp"
 #include "Common/FindComponents.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -210,7 +211,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 //    CFinfo << "\n" << CFflush;
 //  }
 
-	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+	CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	meshwriter->write_from_to(*mesh,"p1-mesh.msh");
 
 }
@@ -356,7 +357,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 //	//  }
 
 
-	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+	CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	meshwriter->write_from_to(*p_mesh,"p2-mesh.msh");
 
 }

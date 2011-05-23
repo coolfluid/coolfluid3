@@ -243,7 +243,7 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , euler2d_local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
   std::vector<URI> fields;
@@ -316,7 +316,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
 
   // gmsh writer
 
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
   gmsh_writer->configure_property("fields",fields);

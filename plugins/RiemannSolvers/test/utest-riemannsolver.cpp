@@ -9,9 +9,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 
 #include "RiemannSolvers/RiemannSolver.hpp"
 #include "Mesh/Types.hpp"
@@ -29,9 +30,9 @@ BOOST_AUTO_TEST_SUITE( RiemannSolvers_Suite )
 
 BOOST_AUTO_TEST_CASE( test_Roe )
 {
-  RiemannSolver& riemannsolver = Core::instance().root().build_component("Roe-solver","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
+  RiemannSolver& riemannsolver = Core::instance().root().create_component("Roe-solver","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
 
-  Component& state = Core::instance().root().build_component("solution-state","CF.AdvectionDiffusion.State");
+  Component& state = Core::instance().root().create_component("solution-state","CF.AdvectionDiffusion.State");
   riemannsolver.configure_property("solution_state",state.full_path());
   riemannsolver.configure_property("roe_state",std::string("CF.AdvectionDiffusion.State"));
 

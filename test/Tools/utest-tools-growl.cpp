@@ -11,7 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Core.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/CRoot.hpp"
 #include "Common/LibLoader.hpp"
 #include "Common/OSystem.hpp"

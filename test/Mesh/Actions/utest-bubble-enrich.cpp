@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/FindComponents.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 
@@ -53,12 +53,12 @@ BOOST_AUTO_TEST_CASE( constructors )
                             boost::unit_test::framework::master_test_suite().argv);
 
   CMeshTransformer::Ptr enricher =
-      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
+      build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
 
   BOOST_CHECK_EQUAL(enricher->name(),"enricher");
 
   CMeshTransformer::Ptr remover =
-      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
+      build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
 
   BOOST_CHECK_EQUAL(remover->name(),"remover");
 
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( constructors )
 BOOST_AUTO_TEST_CASE( read_mesh )
 {
 //  // create meshreader
-//  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
+//  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
 
 //  BOOST_CHECK( true );
 
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 //  Core::instance().root().get_child_ptr("Domain")->add_component(mesh);
 
 //	// Write the fields to file.
-//  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+//  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 //	boost::filesystem::path fp_source_out("source.msh");
 //	boost::filesystem::path fp_interpolated("interpolated.msh");
 

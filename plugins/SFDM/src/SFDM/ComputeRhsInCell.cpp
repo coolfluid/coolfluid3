@@ -167,7 +167,7 @@ void ComputeRhsInCell::build_riemann_solver()
 {
   if (is_not_null(m_riemann_solver))
     remove_component(*m_riemann_solver);
-  m_riemann_solver = build_component("riemann_solver",property("riemann_solver").value<std::string>()).as_ptr<RiemannSolver>();
+  m_riemann_solver = create_component("riemann_solver",property("riemann_solver").value<std::string>()).as_ptr<RiemannSolver>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

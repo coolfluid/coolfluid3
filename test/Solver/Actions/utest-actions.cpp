@@ -14,8 +14,10 @@
 #include <boost/assign/list_of.hpp>
 
 #include "Common/LibCommon.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/Log.hpp"
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshWriter.hpp"
@@ -56,7 +58,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   CMesh::Ptr mesh = root->create_component_ptr<CMesh>("mesh");
 
   // Read mesh from file
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->read_from_to("rotation-tg-p1.neu",*mesh);
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology/default_id1084/inlet"))
                                     (URI("cpath://Root/mesh/topology/default_id1084/outlet"));
@@ -81,12 +83,12 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
 
   // Read mesh from file
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->read_from_to("rotation-tg-p1.neu",*mesh);
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
 
   // Create inner_faces
-  CMeshTransformer::Ptr facebuilder = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
+  CMeshTransformer::Ptr facebuilder = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
   //facebuilder->transform(mesh);
 
 	// Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
@@ -98,7 +100,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 
 	BOOST_CHECK(true);
 
-  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
   info->transform(mesh);
 
   root.remove_component(mesh->name());
@@ -113,7 +115,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
 
   // Read mesh from file
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->read_from_to("rotation-tg-p1.neu",*mesh);
 
   BOOST_CHECK(true);
@@ -179,7 +181,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   fields.push_back(volumes.as_ptr<CField>());
   fields.push_back(field.as_ptr<CField>());
   fields.push_back(areas.as_ptr<CField>());
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(*mesh,"quadtriag.msh");
 
@@ -215,7 +217,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   std::vector<CField::Ptr> fields;
   fields.push_back(field.as_ptr<CField>());
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(*mesh,"test_utest-actions_CForAllElementsT.msh");
 

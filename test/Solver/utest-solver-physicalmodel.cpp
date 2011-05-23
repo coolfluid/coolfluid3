@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/CreateComponent.hpp"
+ 
 #include "Solver/CPhysicalModel.hpp"
 
 using namespace CF;
@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_SUITE( CPhysicalModelSuite )
 
 BOOST_AUTO_TEST_CASE( constructor )
 {
-  Component::Ptr comp = create_component_abstract_type<Component>("CF.Solver.CPhysicalModel", "CPhysicalModel");
+  Component::Ptr comp = build_component_abstract_type<Component>("CF.Solver.CPhysicalModel", "CPhysicalModel");
   CPhysicalModel::Ptr model = boost::dynamic_pointer_cast<CPhysicalModel>(comp);
   BOOST_CHECK_EQUAL(model->dimensions(), 0u);
   BOOST_CHECK_EQUAL(model->nb_dof(), 0u);

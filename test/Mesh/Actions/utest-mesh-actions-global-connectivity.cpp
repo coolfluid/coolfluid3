@@ -10,7 +10,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+#include "Common/Core.hpp"
+
 
 #include "Mesh/Actions/CGlobalConnectivity.hpp"
 #include "Mesh/Actions/CGlobalNumbering.hpp"
@@ -70,7 +71,7 @@ BOOST_AUTO_TEST_CASE( build )
 {
   Core::instance().initiate(m_argc,m_argv);
 
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->configure_property("read_boundaries",false);
   meshreader->read_from_to("quadtriag.neu",*mesh);
 

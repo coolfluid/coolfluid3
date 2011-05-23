@@ -9,7 +9,7 @@
 #include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/Log.hpp"
 
 #include "Mesh/CSimpleMeshGenerator.hpp"

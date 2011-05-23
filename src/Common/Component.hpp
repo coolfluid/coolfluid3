@@ -11,7 +11,7 @@
 #ifndef CF_Common_Component_hpp
 #define CF_Common_Component_hpp
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/iterator/iterator_facade.hpp>
@@ -31,7 +31,22 @@ namespace Common {
 
   template<class T> class ComponentIterator;
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+  /// @brief Stand-alone function to allocate components of a given type
+  ///
+  /// A shared pointer must be returned, as this creates the very first
+  /// instance of the shared_pointer.
+  /// @param [in] name The name to give to the component to allocate
+  /// @return The component as a boost::shared_ptr
+  template < typename T >
+  boost::shared_ptr<T> allocate_component ( const std::string& name )
+  {
+    typename boost::shared_ptr<T> comp ( new T(name), Deleter<T>() );
+    return comp ;
+  }
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Base class for defining CF components
 ///
@@ -89,7 +104,7 @@ public: // functions
 
   /// Get the component through the links to the actual components
   virtual Component::Ptr  follow();
-
+  /// Get the component through the links to the actual components
   virtual Component::ConstPtr  follow() const;
 
   /// @return a shared pointer to self
@@ -253,6 +268,7 @@ public: // functions
   /// @return shared pointer to the component
   Ptr get_child_ptr_checked(const std::string& name);
 
+  /// returns an iterator range with the children of this component
   boost::iterator_range<iterator> children();
 
   /// @returns this component converted to type T shared pointer
@@ -278,6 +294,13 @@ public: // functions
   /// @return a Ptr
   Ptr as_non_const() const;
 
+  /// @brief Build a (sub)component of this component using the extended type_name of the component.
+  ///
+  /// The Library is extracted from the extended type_name, and inside is searched for the builder.
+  /// The builder creates the component. The component is then added as a subcomponent.
+  /// See @ref using_create_component "here" for a tutorial
+  Component& create_component ( const std::string& name , const std::string& builder );
+
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
     typename T::Ptr create_component_ptr ( const std::string& name );
@@ -293,13 +316,6 @@ public: // functions
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
     T& create_static_component ( const std::string& name );
-
-  /// @brief Build a (sub)component of this component using the extended type_name of the component.
-  ///
-  /// The Library is extracted from the extended type_name, and inside is searched for the builder.
-  /// The builder creates the component. The component is then added as a subcomponent.
-  /// See @ref using_build_component "here" for a tutorial
-  Component& build_component ( const std::string& name , const std::string& builder );
 
   /// Add a dynamic (sub)component of this component
   Component& add_component ( Ptr subcomp );
@@ -343,10 +359,11 @@ public: // functions
   /// @param [in] optname  The option name
   /// @param [in] val      The new value assigned to the option
   Component& configure_property(const std::string& optname, const boost::any& val);
-
-  void configure_option_recursively(const std::string& tag, const boost::any& val);
-
-  std::string option_list();
+  /// Configures one property recursevely through this component children,
+  /// triggering its actions
+  /// @param [in] optname  The option name
+  /// @param [in] val      The new value assigned to the option
+  void configure_option_recursively(const std::string& optname, const boost::any& val);
 
   /// Configures all the options on this class from a list of strings.
   /// Each string provides the configuration of one property following the
@@ -433,13 +450,15 @@ private: // helper functions
 
   /// Put all subcomponents in a given vector, optionally recursive
   /// @param [out] vec  A vector of all (recursive) subcomponents
-  /// @param [in] recurse If true, recurse through all subcomponents. If false, puts only direct children
+  /// @param [in] recurse If true, recurse through all subcomponents.
+  ///             If false, puts only direct children
   template<typename ComponentT>
   void put_components(std::vector<typename ComponentT::Ptr>& vec, const bool recurse);
 
   /// Put all subcomponents in a given vector, optionally recursive
   /// @param [out] vec  A vector of all (recursive) subcomponents
-  /// @param [in] recurse If true, recurse through all subcomponents. If false, puts only direct children
+  /// @param [in] recurse If true, recurse through all subcomponents.
+  ///             If false, puts only direct children
   template<typename ComponentT>
   void put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec, const bool recurse) const;
 
@@ -474,13 +493,16 @@ protected: // data
   /// is this a link component
   bool m_is_link;
 
-  void raise_path_changed();
+protected: // functions
 
+  /// raise event that the path has changed
+  void raise_path_changed();
+  /// raise event an event with a given name
   void raise_event(const std::string & name );
 
 }; // Component
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// @brief %ComponentIterator class, can linearize a complete tree of components
 ///
@@ -491,25 +513,29 @@ protected: // data
 /// - Using Component::begin() and Component::end() iterates on only 1 deeper level
 /// - Using Component::recursive_begin() and Component::recursive_end() iterates
 /// on all deeper levels recursively. Iterating will then linearize the tree.
+
 template<class T>
-class ComponentIterator
-        : public boost::iterator_facade<ComponentIterator<T>,        // iterator
-                                        T,                            // Value
-                                        boost::bidirectional_traversal_tag, // search direction
-                                        T&                            // return type of dereference is a reference
-                                       >
+class ComponentIterator :
+    public boost::iterator_facade<ComponentIterator<T>,  // iterator
+                                  T,                     // Value
+                                  boost::bidirectional_traversal_tag, // search direction
+                                  T&                     // return type of dereference
+                                 >
 {
-  typedef boost::iterator_facade<ComponentIterator<T>, T, boost::random_access_traversal_tag, T&> BaseT;
+  typedef boost::iterator_facade<ComponentIterator<T>,
+                                 T,
+                                 boost::random_access_traversal_tag,
+                                 T&> BaseT;
 public:
 
   typedef typename BaseT::difference_type difference_type;
 
-  /// Construct an iterator over the given set of components. If endIterator is true, the iterator is intialized
+  /// Construct an iterator over the given set of components.
+  /// If endIterator is true, the iterator is intialized
   /// at the end of the range, otherwise at the beginning.
-  explicit ComponentIterator(std::vector<boost::shared_ptr<T> > vec, const Uint startPosition)
-          : m_vec(vec), m_position(startPosition)
-  {
-  }
+  explicit ComponentIterator(std::vector<boost::shared_ptr<T> > vec,
+                             const Uint startPosition)
+          : m_vec(vec), m_position(startPosition) {}
 
 private:
   friend class boost::iterator_core_access;
@@ -539,14 +565,15 @@ private:
   }
 
 public:
-  T& dereference() const { return *m_vec[m_position]; }
 
+  /// dereferencing
+  T& dereference() const { return *m_vec[m_position]; }
   /// Get a shared pointer to the referenced object
   boost::shared_ptr<T> get() const { return m_vec[m_position]; }
-
-  /// Compatibility with boost filtered_iterator interface, so base() can be used transparently on all ranges
+  /// Compatibility with boost filtered_iterator interface,
+  /// so base() can be used transparently on all ranges
   ComponentIterator<T>& base() { return *this; }
-
+  /// Compatibility with boost filtered_iterator interface
   const ComponentIterator<T>& base() const { return *this; }
 
 private:
@@ -554,22 +581,7 @@ private:
   Uint m_position;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
-/// @brief Stand-alone function to allocate components of a given type
-///
-/// A shared pointer must be returned, as this creates the very first
-/// instance of the shared_pointer.
-/// @param [in] name The name to give to the component to allocate
-/// @return The component as a boost::shared_ptr
-template < typename T >
-boost::shared_ptr<T> allocate_component ( const std::string& name )
-{
-  typename boost::shared_ptr<T> comp ( new T(name), Deleter<T>() );
-  return comp ;
-}
-
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
 inline typename T::Ptr Component::create_component_ptr ( const std::string& name )
@@ -579,7 +591,7 @@ inline typename T::Ptr Component::create_component_ptr ( const std::string& name
   return comp ;
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
 inline T& Component::create_component ( const std::string& name )
@@ -587,7 +599,7 @@ inline T& Component::create_component ( const std::string& name )
   return *create_component_ptr<T>(name);
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
 inline typename T::Ptr Component::create_static_component_ptr ( const std::string& name )
@@ -597,7 +609,7 @@ inline typename T::Ptr Component::create_static_component_ptr ( const std::strin
   return comp ;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
 inline T& Component::create_static_component ( const std::string& name )
@@ -605,7 +617,7 @@ inline T& Component::create_static_component ( const std::string& name )
   return *create_static_component_ptr<T>(name);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
 inline typename boost::shared_ptr<T> Component::as_ptr()
@@ -615,7 +627,7 @@ inline typename boost::shared_ptr<T> Component::as_ptr()
   return boost::dynamic_pointer_cast<T>(me);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
 inline typename boost::shared_ptr<T const> Component::as_ptr() const
@@ -623,7 +635,7 @@ inline typename boost::shared_ptr<T const> Component::as_ptr() const
   return boost::dynamic_pointer_cast<T const>(self());
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
 inline typename boost::shared_ptr<T> Component::as_ptr_checked()
@@ -634,7 +646,7 @@ inline typename boost::shared_ptr<T> Component::as_ptr_checked()
   return comp;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
 inline typename boost::shared_ptr<T const> Component::as_ptr_checked() const
@@ -645,21 +657,21 @@ inline typename boost::shared_ptr<T const> Component::as_ptr_checked() const
   return comp;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 inline Component::ConstPtr Component::as_const() const
 {
   return boost::const_pointer_cast<Component const> ( self() );
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 inline Component::Ptr Component::as_non_const() const
 {
   return boost::const_pointer_cast<Component> ( self() );
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline void Component::put_components(std::vector<typename ComponentT::Ptr >& vec, const bool recurse)
@@ -675,7 +687,7 @@ inline void Component::put_components(std::vector<typename ComponentT::Ptr >& ve
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 void Component::put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec, const bool recurse) const
@@ -691,7 +703,7 @@ void Component::put_components(std::vector<boost::shared_ptr<ComponentT const> >
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 // specialization avoiding the dynamic cast
 template<>
@@ -716,7 +728,7 @@ inline void Component::put_components<Component>(std::vector<boost::shared_ptr<C
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline ComponentIterator<ComponentT> Component::make_iterator(const bool begin, const bool recursive)
@@ -734,7 +746,7 @@ inline ComponentIterator<ComponentT const> Component::make_iterator(const bool b
   return ComponentIterator<ComponentT const>(vec, begin ? 0 : vec.size());
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline ComponentIterator<ComponentT> Component::begin()
@@ -747,7 +759,7 @@ inline Component::iterator Component::begin()
   return begin<Component>();
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline ComponentIterator<ComponentT> Component::end()
@@ -760,7 +772,7 @@ inline Component::iterator Component::end()
   return end<Component>();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline ComponentIterator<ComponentT const> Component::begin() const
@@ -773,7 +785,7 @@ inline Component::const_iterator Component::begin() const
   return begin<Component>();
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline ComponentIterator<ComponentT const> Component::end() const
@@ -786,7 +798,7 @@ inline Component::const_iterator Component::end() const
   return end<Component>();
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline ComponentIterator<ComponentT> Component::recursive_begin()
@@ -799,7 +811,7 @@ inline Component::iterator Component::recursive_begin()
   return recursive_begin<Component>();
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline ComponentIterator<ComponentT> Component::recursive_end()
@@ -812,7 +824,7 @@ inline Component::iterator Component::recursive_end()
   return recursive_end<Component>();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline ComponentIterator<ComponentT const> Component::recursive_begin() const
@@ -825,7 +837,7 @@ inline Component::const_iterator Component::recursive_begin() const
   return recursive_begin<Component>();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline ComponentIterator<ComponentT const> Component::recursive_end() const
@@ -838,7 +850,52 @@ inline Component::const_iterator Component::recursive_end() const
   return recursive_end<Component>();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+/// Create a component by providing the name of its builder
+/// No factory name is needed, so no factories are used (also no auto-loading of factory).
+/// Component is built directly from the builder.
+/// If builder does not exist, tries to auto-load based on the builder name.
+/// @param provider_name the registry string of the provider
+/// @name name to give to the created omponent
+Component::Ptr build_component(const std::string& builder_name,
+                               const std::string& name);
+
+
+/// Create a component by providing the name of its builder.
+/// If factory does not exist, tries to auto-load based on the factory name.
+/// If builder does not exist, tries to auto-load based on the builder name.
+/// @pre Factory must be contain the builder defined by the name
+/// @param [in] provider_name the registry string of the provider
+/// @param [in] name name to give to the created omponent
+/// @param [in] factory_type_name name of the factory
+Component::Ptr build_component(const std::string& builder_name,
+                               const std::string& name,
+                               const std::string& factory_type_name);
+
+/// Create a component of a given abstract type
+/// @param provider_name the registry string of the provider of the concrete type
+/// @name name to give to the created omponent
+template < typename ATYPE >
+typename ATYPE::Ptr build_component_abstract_type(const std::string& builder_name,
+                                                  const std::string& name )
+{
+  // create the component
+
+  Component::Ptr comp = build_component(builder_name, name, ATYPE::type_name());
+
+  // cast the component
+
+  typename ATYPE::Ptr ccomp = comp->as_ptr<ATYPE>();
+  if ( is_null(ccomp) )
+    throw CastingFailed(FromHere(),
+                        "Pointer created by CBuilder \'" + builder_name + "\'"
+                        +" could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
+
+  return ccomp;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF

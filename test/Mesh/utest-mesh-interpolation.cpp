@@ -14,7 +14,8 @@
 #include "Common/OptionArray.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+#include "Common/Core.hpp"
+
 #include "Common/FindComponents.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CRoot.hpp"
@@ -71,7 +72,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshInterpolation_TestSuite, MeshInterpolation_Fixture
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
+  CInterpolator::Ptr interpolator = build_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
   BOOST_CHECK_EQUAL(interpolator->name(),"interpolator");
 }
 
@@ -82,7 +83,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK( true );
 
   // create meshreader
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   BOOST_CHECK( true );
 
@@ -101,12 +102,12 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK( true );
 
   //  boost::filesystem::path fp_target ("grid_c.cgns");
-//	CMeshReader::Ptr cgns_meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","cgns_meshreader");
+//	CMeshReader::Ptr cgns_meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","cgns_meshreader");
 //  CMesh::Ptr target = cgns_meshreader->create_mesh_from(fp_target);
 
 
   // Create and configure interpolator.
-  CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
+  CInterpolator::Ptr interpolator = build_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
   interpolator->configure_property("ApproximateNbElementsPerCell", (Uint) 1 );
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
@@ -197,7 +198,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK(true);
 
   // Write the fields to file.
-  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
   BOOST_CHECK(true);
 

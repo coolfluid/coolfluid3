@@ -8,7 +8,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
-#include "Common/CreateComponent.hpp"
+ 
 #include "Common/CGroup.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Signal.hpp"
@@ -218,7 +218,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   // Writer
   ////////////////////////////////////////////////////////////////////////////////
 
-  CMeshWriter::Ptr writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","mesh_writer");
+  CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","mesh_writer");
   tools.add_component(writer);
   writer->configure_property("fields",std::vector<URI>(1,find_component_with_tag(mesh,"solution").full_path()));
   writer->configure_property("file",URI(model.name()+".msh"));

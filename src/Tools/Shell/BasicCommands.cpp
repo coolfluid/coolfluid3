@@ -17,7 +17,7 @@
 #include "Common/BuildInfo.hpp"
 #include "Common/CFactory.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/CreateComponent.hpp"
+
 #include "Common/Foreach.hpp"
 #include "Common/CAction.hpp"
 #include "Common/FindComponents.hpp"
@@ -369,9 +369,10 @@ void BasicCommands::option_list(const std::string& cpath)
 {
   std::string option_list;
   if (!cpath.empty())
-    option_list = current_component->access_component(URI(cpath)).option_list();
+    option_list =
+        current_component->access_component(URI(cpath)).properties().list_options();
   else
-    option_list = current_component->option_list();
+    option_list = current_component->properties().list_options();
   if (!option_list.empty())
   {
     CFinfo << option_list << CFendl;
@@ -419,7 +420,7 @@ void BasicCommands::create(const std::vector<std::string>& params)
   if ( is_null(parent_component) )
     throw ValueNotFound(FromHere(), "component " + URI(new_component_path).base_path().path() + " was not found in " + current_component->full_path().path());
     
-  parent_component->build_component(URI(new_component_path).name(), params[1]);
+  parent_component->create_component(URI(new_component_path).name(), params[1]);
 
 }
 
