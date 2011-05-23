@@ -8,7 +8,7 @@
 #define CF_Solver_Action_hpp
 
 #include "Common/CAction.hpp"
-
+#include "Common/FindComponents.hpp"
 #include "Solver/LibSolver.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,7 @@ namespace Mesh { class CRegion; class CMesh; }
 namespace Solver {
 
   class CPhysicalModel;
+  class CTime;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,9 +45,12 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Action"; }
 
-protected:
+ public:
 
-  boost::shared_ptr< Solver::CPhysicalModel > access_physical_model();
+  Solver::CPhysicalModel& physical_model();
+  Solver::CTime&          time();
+  Mesh::CMesh&            mesh();
+  Common::ComponentIteratorRange<Mesh::CRegion> regions();
 
 protected:
 
@@ -54,6 +58,8 @@ protected:
   boost::weak_ptr< Mesh::CMesh > m_mesh;
   /// physical model used by this action
   boost::weak_ptr< Solver::CPhysicalModel > m_physical_model;
+  /// time used by this action
+  boost::weak_ptr< Solver::CTime > m_time;
   /// regions of the mesh to loop over
   std::vector< boost::shared_ptr< Mesh::CRegion > > m_loop_regions;
 

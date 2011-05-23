@@ -11,7 +11,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
@@ -158,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadv2d_local_fixture
 {
   BOOST_CHECK(true);
 
-  solver.configure_property("Domain",URI("cpath:../Domain"));
+  solver.configure_property("domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_property("cfl", 0.5);;
   solver.get_child("time_stepping").configure_property("MaxIter", 250u);;
 }

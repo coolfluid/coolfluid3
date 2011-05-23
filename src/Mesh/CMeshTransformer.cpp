@@ -26,7 +26,7 @@ CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
 {
   mark_basic();
 
-  properties().add_option(OptionComponent<CMesh>::create("Mesh","The mesh to be transformed",&m_mesh))
+  properties().add_option(OptionComponent<CMesh>::create("mesh","Mesh","The mesh to be transformed",&m_mesh))
     ->mark_basic();
 }
 
@@ -35,7 +35,7 @@ CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
 std::string CMeshTransformer::help() const
 {
   return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
-}  
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +51,7 @@ void CMeshTransformer::set_mesh(CMesh& mesh)
   m_mesh=mesh.as_ptr<CMesh>();
   boost_foreach(CMeshTransformer& meshtransformer, find_components<CMeshTransformer>(*this))
     meshtransformer.set_mesh(mesh);
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

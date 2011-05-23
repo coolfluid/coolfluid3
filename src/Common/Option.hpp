@@ -13,7 +13,6 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
-#include "Common/TaggedObject.hpp"
 #include "Common/Property.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/SignalHandler.hpp"
@@ -47,8 +46,7 @@ namespace Common {
   /// @author Tiago Quintino
   /// @author Quentin Gasper
   class Common_API Option : public boost::enable_shared_from_this<Option>,
-      public Property,
-      public TaggedObject
+      public Property
   {
 
   public:

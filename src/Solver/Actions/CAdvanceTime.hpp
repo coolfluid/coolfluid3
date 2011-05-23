@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/Actions/LibActions.hpp"
-#include "Common/CAction.hpp"
+#include "Solver/Action.hpp"
 
 namespace CF {
 namespace Solver {
@@ -21,7 +21,7 @@ namespace Actions {
 
 /// CAdvanceTime models a Unsteady PDE problem
 /// @author Tiago Quintino
-class Solver_Actions_API CAdvanceTime : public Common::CAction {
+class Solver_Actions_API CAdvanceTime : public Solver::Action {
 
 public: // typedefs
 
@@ -44,7 +44,7 @@ public: // functions
   virtual void execute();
 
 private:
-  
+
   boost::weak_ptr<CTime> m_time;
 
 };

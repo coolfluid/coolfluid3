@@ -1101,20 +1101,32 @@ Component& Component::configure_property(const std::string& optname, const boost
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Component::configure_option_recursively(const std::string& optname, const boost::any& val)
+void Component::configure_option_recursively(const std::string& opt, const boost::any& val)
 {
-  if (properties().check(optname))
+  if (properties().check(opt))
   {
-    configure_property(optname,val);
+    configure_property(opt,val);
+  }
+
+  foreach_container((std::string name) (boost::shared_ptr<Property> prop), properties())
+  {
+    if (prop->has_tag(opt))
+      configure_property(name,val);
   }
 
   // configure all child's options recursively
   boost_foreach( Component& component, find_components_recursively(*this) )
   {
-    if (component.properties().check(optname))
+    if (component.properties().check(opt))
     {
-      component.configure_property(optname,val);
+      component.configure_property(opt,val);
     }
+    foreach_container((std::string name) (boost::shared_ptr<Property> prop), component.properties())
+    {
+      if (prop->has_tag(opt))
+        component.configure_property(name,val);
+    }
+
   }
 }
 

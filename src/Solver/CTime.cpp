@@ -22,10 +22,11 @@ Common::ComponentBuilder < CTime, Component, LibSolver > CTime_Builder;
 CTime::CTime ( const std::string& name  ) :
   Component ( name ),
   m_time(0.),
-  m_dt(0.)
+  m_dt(0.),
+  m_iter(0)
 {
   mark_basic();
-  
+
   m_properties["brief"] = std::string("Time Tracking object");
   std::string description =
     "Offers configuration options for users to set a time step, the end time,\n"
@@ -34,19 +35,25 @@ CTime::CTime ( const std::string& name  ) :
     "Notice that the configuration options don't change value automatically to reflext the internal state,\n"
     "unless the code explicitely (re)configures them.";
   m_properties["description"] = description;
-  
-  
-  m_properties.add_option< OptionT<Real> > ("time","Time","Current time of the simulation", m_time)->mark_basic();
-  
-  m_properties.add_option< OptionT<Real> > ("time_step","Time Step",
-                                            "Maximal Time Step the simulation will use.\n"
-                                            "A CFL condition will be applied to make time step more strict if required.",
-                                             m_dt)->mark_basic();
 
-  m_properties.add_option< OptionT<Real> > ("end_time","End Time", "Time at which to finish the simulation", m_time)->mark_basic();
+  m_properties.add_option(OptionT<Uint>::create("iteration","Iteration","Current iteration of the simulation", m_iter) )
+      ->link_to(&m_iter)
+      ->mark_basic();
 
-  m_properties["time"].as_option().link_to( &m_time );
-  m_properties["time_step"].as_option().link_to( &m_dt );
+
+  m_properties.add_option(OptionT<Real>::create("time","Time","Current time of the simulation", m_time) )
+      ->link_to(&m_time)
+      ->mark_basic();
+
+  m_properties.add_option(OptionT<Real>::create("time_step","Time Step",
+                                                "Maximal Time Step the simulation will use.\n"
+                                                "A CFL condition will be applied to make time step more strict if required.",
+                                                m_dt) )
+      ->link_to(&m_dt)
+      ->mark_basic();
+
+  m_properties.add_option(OptionT<Real>::create("end_time","End Time", "Time at which to finish the simulation", m_time) )
+      ->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -54,11 +54,19 @@ public: // functions
   /// @return time step
   const Real& dt() const { return m_dt; }
 
+  /// @return modifiable iteration
+  Uint& iter() { return m_iter; }
+
+  /// @return iteration
+  const Uint& iter() const { return m_dt; }
+
 private: // data
 
   Real m_time;
-  
+
   Real m_dt;
+
+  Uint m_iter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

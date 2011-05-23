@@ -36,8 +36,8 @@ public: // typedefs
   typedef boost::shared_ptr<CRegion> Ptr;
   typedef boost::shared_ptr<CRegion const> ConstPtr;
 
-  typedef Common::DerivedComponentIteratorRange<CEntities const> ConstElementsRange;
-  typedef Common::DerivedComponentIteratorRange<CEntities>       ElementsRange;
+  typedef Common::ComponentIteratorRange<CEntities const> ConstElementsRange;
+  typedef Common::ComponentIteratorRange<CEntities>       ElementsRange;
 
 public: // functions
 

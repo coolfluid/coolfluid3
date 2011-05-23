@@ -55,7 +55,7 @@ RKRD::RKRD ( const std::string& name  ) :
 {
   // options
 
-  m_properties["Domain"].as_option().attach_trigger ( boost::bind ( &RKRD::config_domain,   this ) );
+  m_properties["domain"].as_option().attach_trigger ( boost::bind ( &RKRD::config_domain,   this ) );
 
   m_properties.add_option(OptionComponent<CMesh>::create("mesh","Mesh","Mesh the Discretization Method will be applied to",&m_mesh))
     ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
@@ -116,7 +116,7 @@ RKRD::~RKRD() {}
 
 void RKRD::config_domain()
 {
-  CDomain::Ptr domain = access_component_ptr( property("Domain").value<URI>() )->as_ptr<CDomain>();
+  CDomain::Ptr domain = access_component_ptr( property("domain").value<URI>() )->as_ptr<CDomain>();
   if( is_null(domain) )
     throw InvalidURI( FromHere(), "Path does not point to Domain");
 
@@ -208,7 +208,7 @@ void RKRD::solve()
 {
   // ensure domain is sane
 
-  CDomain::Ptr domain = access_component_ptr( property("Domain").value<URI>() )->as_ptr<CDomain>();
+  CDomain::Ptr domain = access_component_ptr( property("domain").value<URI>() )->as_ptr<CDomain>();
   if( is_null(domain) )
     throw InvalidURI( FromHere(), "Path does not poitn to Domain");
 
@@ -230,11 +230,11 @@ void RKRD::signal_create_boundary_term( SignalArgs& node )
   RDM::BoundaryTerm::Ptr bterm = build_component_abstract_type<RDM::BoundaryTerm>(type,name);
   m_compute_boundary_terms->add_component(bterm);
 
-  bterm->configure_property("Regions" , regions);
+  bterm->configure_property("regions" , regions);
   if( m_mesh.lock() )
     bterm->configure_property("mesh", m_mesh.lock()->full_path());
   if( m_physical_model.lock() )
-    bterm->configure_property("physics" , m_physical_model.lock()->full_path());
+    bterm->configure_property("physical_model" , m_physical_model.lock()->full_path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -271,11 +271,11 @@ void RKRD::signal_create_domain_term( SignalArgs& node )
 
   std::vector<URI> regions = options.array<URI>("Regions");
 
-  dterm->configure_property("Regions" , regions);
+  dterm->configure_property("regions" , regions);
   if( m_mesh.lock() )
     dterm->configure_property("mesh", m_mesh.lock()->full_path());
   if( m_physical_model.lock() )
-    dterm->configure_property("physics" , m_physical_model.lock()->full_path());
+    dterm->configure_property("physical_model" , m_physical_model.lock()->full_path());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -318,8 +318,8 @@ void RKRD::signal_initialize_solution( SignalArgs& node )
   else
     init_solution = get_child("init_solution").as_ptr_checked<CInitFieldFunction>();
 
-  init_solution->configure_property( "Functions", functions );
-  init_solution->configure_property( "Field", m_solution.lock()->full_path() );
+  init_solution->configure_property( "functions", functions );
+  init_solution->configure_property( "field", m_solution.lock()->full_path() );
 
   init_solution->transform( m_mesh.lock() );
 }

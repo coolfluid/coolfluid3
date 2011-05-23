@@ -332,7 +332,7 @@ BOOST_AUTO_TEST_CASE( RecursiveRangeEmpty )
   // Use the empty method of boost::range
   BOOST_CHECK_EQUAL(find_components_recursively_with_name<CGroup>(const_root(), "comp1").empty(), true);
   // Explicitely construct a range:
-  ComponentIteratorRange<Component const, CGroup, IsComponentName>::type range = find_components_recursively_with_name<CGroup>(const_root(), "comp1");
+  ComponentIteratorRangeSelector<Component const, CGroup, IsComponentName>::type range = find_components_recursively_with_name<CGroup>(const_root(), "comp1");
   BOOST_CHECK_EQUAL(range.begin() == range.end(), true);
 }
 
@@ -732,23 +732,23 @@ BOOST_AUTO_TEST_CASE( test_range_to_vector )
 
 BOOST_AUTO_TEST_CASE( test_new_range )
 {
-  DerivedComponentIteratorRange<Component> new_range ( root().begin(),root().end() );
+  ComponentIteratorRange<Component> new_range ( root().begin(),root().end() );
   BOOST_FOREACH( Component& comp, new_range )
     CFLogVar(comp.name());
 
   CF_DEBUG_POINT;
-  DerivedComponentIteratorRange<CGroup> new_range2 ( root().begin<CGroup>(), root().end<CGroup>() );
+  ComponentIteratorRange<CGroup> new_range2 ( root().begin<CGroup>(), root().end<CGroup>() );
   BOOST_FOREACH( CGroup& comp, new_range2 )
     CFLogVar(comp.name());
 
   CF_DEBUG_POINT;
-  DerivedComponentIteratorRange<const CGroup,IsComponentName> new_range5 ( const_root().begin<CGroup const>(), const_root().end<CGroup const>(), IsComponentName("group1") );
+  ComponentIteratorRange<const CGroup,IsComponentName> new_range5 ( const_root().begin<CGroup const>(), const_root().end<CGroup const>(), IsComponentName("group1") );
   BOOST_FOREACH( const CGroup& comp, new_range5 )
     CFLogVar(comp.name());
 
   CF_DEBUG_POINT;
-  typedef DerivedComponentIteratorRange<CGroup,IsComponentName> filtered_range;
-  typedef DerivedComponentIteratorRange<CGroup> group_range;
+  typedef ComponentIteratorRange<CGroup,IsComponentName> filtered_range;
+  typedef ComponentIteratorRange<CGroup> group_range;
 
   BOOST_FOREACH( CGroup& comp, filtered_range( root().begin<CGroup>(), root().end<CGroup>() , IsComponentName("group1") ) )
     CFLogVar(comp.name());
@@ -765,19 +765,19 @@ BOOST_AUTO_TEST_CASE( test_new_range )
     CFLogVar(comp.name());
 
   CF_DEBUG_POINT;
-  DerivedConstComponentIteratorRange<CGroup> new_range3 ( const_root().begin<CGroup>(), const_root().end<CGroup>() );
+  ConstComponentIteratorRange<CGroup> new_range3 ( const_root().begin<CGroup>(), const_root().end<CGroup>() );
   BOOST_FOREACH( const CGroup& comp, new_range3 )
     CFLogVar(comp.name());
 
   CF_DEBUG_POINT;
-  DerivedConstComponentIteratorRange<CGroup> new_range6 ( root().begin<CGroup const>(), root().end<CGroup const>() );
+  ConstComponentIteratorRange<CGroup> new_range6 ( root().begin<CGroup const>(), root().end<CGroup const>() );
   BOOST_FOREACH( const CGroup& comp, new_range6 )
     CFLogVar(comp.name());
   CFLogVar(new_range6.size());
 
   //
   // CF_DEBUG_POINT;
-  // BOOST_FOREACH( const CGroup& comp, DerivedConstComponentIteratorRange<CGroup>(const_root()) )
+  // BOOST_FOREACH( const CGroup& comp, ConstComponentIteratorRange<CGroup>(const_root()) )
   //   CFLogVar(comp.name());
 
 }

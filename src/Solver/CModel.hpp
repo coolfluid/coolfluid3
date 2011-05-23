@@ -13,11 +13,13 @@
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
-  namespace Mesh { class CDomain; }
+  namespace Common { class CGroup; }
+  namespace Mesh   { class CDomain; }
 namespace Solver {
 
   class CPhysicalModel;
   class CSolver;
+  class CTime;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +51,9 @@ public: // functions
   /// creates a domain in this model
   virtual Mesh::CDomain& create_domain( const std::string& name );
 
+  /// creates a domain in this model
+  virtual CTime& create_time( const std::string& name );
+
   /// create physics
   virtual CPhysicalModel& create_physics( const std::string& name );
 
@@ -58,14 +63,20 @@ public: // functions
   /// gets the domain from this model
   virtual Mesh::CDomain& domain();
 
+  /// gets the domain from this model
+  virtual CTime& time();
+
   /// gets the physics from this model
   virtual CPhysicalModel& physics();
 
   /// gets the solver from this model
   virtual CSolver& solver();
 
+  /// gets the solver from this model
+  virtual Common::CGroup& tools();
+
   /// Simulates this model
-  virtual void simulate() = 0;
+  virtual void simulate();
 
   /// @name SIGNALS
   //@{
@@ -98,6 +109,8 @@ protected:
 
   /// path to results directory
   Common::URI m_results_dir;
+
+  boost::shared_ptr<Common::CGroup> m_tools;
 
 };
 

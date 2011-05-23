@@ -14,7 +14,6 @@
 #include <boost/mpl/for_each.hpp>
 
 #include "Common/FindComponents.hpp"
-#include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -45,7 +44,7 @@ struct GlobalFixture {
       sphere = allocate_component<CMesh>("sphere");
       MeshParameters params;
       create_mesh(SphereFunction(1.), *sphere, params);
-      CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+      CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
       URI file_out("sphere.msh");
       meshwriter->write_from_to(*sphere,file_out);
     }

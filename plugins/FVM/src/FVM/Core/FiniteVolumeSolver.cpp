@@ -87,7 +87,7 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
 
 
   // Properties
-  property("Domain").as_option().attach_trigger ( boost::bind ( &FiniteVolumeSolver::trigger_domain,   this ) );
+  property("domain").as_option().attach_trigger ( boost::bind ( &FiniteVolumeSolver::trigger_domain,   this ) );
 
   properties().add_option(OptionURI::create("physical_model","Physical Model","cpath:../Physics",URI::Scheme::CPATH))
     ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_physical_model, this ) );
@@ -118,14 +118,14 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
 
   // set the compute rhs action
   m_compute_rhs->create_static_component_ptr<CInitFieldConstant>("2.1_init_residual")
-    ->configure_property("Constant",0.)
+    ->configure_property("constant",0.)
     .mark_basic()
-    .property("Field").as_option().add_tag("residual");
+    .property("field").as_option().add_tag("residual");
 
   m_compute_rhs->create_static_component_ptr<CInitFieldConstant>("2.2_init_wave_speed")
-    ->configure_property("Constant",Math::MathConsts::eps())
+    ->configure_property("constant",Math::MathConsts::eps())
     .mark_basic()
-    .property("Field").as_option().add_tag("wave_speed");
+    .property("field").as_option().add_tag("wave_speed");
 
   m_compute_rhs->create_static_component_ptr<CForAllFaces>("2.3_for_all_faces")
     ->mark_basic();
@@ -150,14 +150,14 @@ void FiniteVolumeSolver::trigger_domain()
   if (m_physical_model.expired())
     trigger_physical_model();
 
-  URI domain; property("Domain").put_value(domain);
+  URI domain; property("domain").put_value(domain);
   m_domain = access_component_ptr_checked(domain)->as_ptr_checked<CDomain>();
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>(*m_domain.lock());
   if (is_null(mesh))
     throw SetupError(FromHere(),"Domain has no mesh");
 
   m_compute_rhs->get_child_ptr("2.3_for_all_faces")
-    ->configure_property("Regions",std::vector<URI>(1,mesh->topology().full_path()));
+    ->configure_property("regions",std::vector<URI>(1,mesh->topology().full_path()));
   CLoopOperation::Ptr add_flux_to_rhs = build_component_abstract_type<CLoopOperation>("CF.FVM.Core.ComputeFlux","add_flux_to_rhs");
   add_flux_to_rhs->mark_basic();
   m_compute_rhs->get_child("2.3_for_all_faces").add_component(add_flux_to_rhs);
@@ -177,7 +177,7 @@ void FiniteVolumeSolver::trigger_domain()
     CField& area = mesh->create_field(Mesh::Tags::area(),CField::Basis::FACE_BASED,"P0");
     area.add_tag(Mesh::Tags::area());
     CLoop::Ptr compute_area = create_component_ptr< CForAllFaces >("compute_area");
-    compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().full_path()));
+    compute_area->configure_property("regions", std::vector<URI>(1,area.topology().full_path()));
     compute_area->create_loop_operation("CF.Solver.Actions.CComputeArea");
     configure_option_recursively(Mesh::Tags::area(),area.full_path());
     compute_area->execute();
@@ -226,8 +226,8 @@ void FiniteVolumeSolver::trigger_domain()
 
   auto_config_fields(*this);
 
-  access_component("iterate/2_compute_rhs/2.1_init_residual").configure_property("Field",residual_ptr->full_path());
-  access_component("iterate/2_compute_rhs/2.2_init_wave_speed").configure_property("Field",wave_speed_ptr->full_path());
+  access_component("iterate/2_compute_rhs/2.1_init_residual").configure_property("field",residual_ptr->full_path());
+  access_component("iterate/2_compute_rhs/2.2_init_wave_speed").configure_property("field",wave_speed_ptr->full_path());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -293,7 +293,7 @@ CAction& FiniteVolumeSolver::create_bc(const std::string& name, const std::vecto
     regions_uri.push_back(region->full_path());
 
   CAction::Ptr for_all_faces = m_apply_bcs->create_component_ptr<CForAllFaces>(name);
-  for_all_faces->configure_property("Regions",regions_uri);
+  for_all_faces->configure_property("regions",regions_uri);
   CAction& bc = for_all_faces->create_action(bc_builder_name,bc_builder_name);
   auto_config_fields(bc);
   return bc;
@@ -304,7 +304,7 @@ CAction& FiniteVolumeSolver::create_bc(const std::string& name, const std::vecto
 CAction& FiniteVolumeSolver::create_bc(const std::string& name, const CRegion& region, const std::string& bc_builder_name)
 {
   CAction::Ptr for_all_faces = m_apply_bcs->create_component_ptr<CForAllFaces>(name);
-  for_all_faces->configure_property("Regions",std::vector<URI>(1,region.full_path()));
+  for_all_faces->configure_property("regions",std::vector<URI>(1,region.full_path()));
   CAction& bc = for_all_faces->create_action(bc_builder_name,bc_builder_name);
   auto_config_fields(bc);
   return bc;
@@ -331,9 +331,9 @@ void FiniteVolumeSolver::signal_create_bc( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name = options.option<std::string>("Name");
+  std::string name = options.option<std::string>("name");
   std::string builder = options.option<std::string>("builder");
-  std::vector<URI> regions_uri = options.array<URI>("Regions");
+  std::vector<URI> regions_uri = options.array<URI>("regions");
   std::vector<CRegion::Ptr> regions(regions_uri.size());
   for (Uint i=0; i<regions_uri.size(); ++i)
   {
@@ -349,7 +349,7 @@ void FiniteVolumeSolver::signature_create_bc( SignalArgs& node )
   SignalOptions options( node );
 
   // name
-  options.add<std::string>("Name", std::string(), "Name for created boundary term" );
+  options.add<std::string>("name", std::string(), "Name for created boundary term" );
 
   // type
   CFactory::Ptr bc_factory = Common::Core::instance().factories().get_factory<BC>();
@@ -365,7 +365,7 @@ void FiniteVolumeSolver::signature_create_bc( SignalArgs& node )
   // regions
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
-  options.add("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
+  options.add("regions", dummy , "Regions where to apply the boundary condition", " ; " );
 
 }
 

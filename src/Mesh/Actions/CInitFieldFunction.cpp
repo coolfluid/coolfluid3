@@ -24,9 +24,9 @@
 namespace CF {
 namespace Mesh {
 namespace Actions {
-  
+
   using namespace Common;
-    
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CInitFieldFunction, CMeshTransformer, LibActions> CInitFieldFunction_Builder;
@@ -36,18 +36,18 @@ Common::ComponentBuilder < CInitFieldFunction, CMeshTransformer, LibActions> CIn
 CInitFieldFunction::CInitFieldFunction( const std::string& name )
 : CMeshTransformer(name)
 {
-   
+
   properties()["brief"] = std::string("Initialize a field");
   std::string desc;
-  desc = 
+  desc =
     "  Usage: CInitFieldFunction vectorial function \n";
   properties()["description"] = desc;
 
-  m_properties.add_option(OptionComponent<CField>::create("Field","Field to initialize",&m_field))
+  m_properties.add_option(OptionComponent<CField>::create("field","Field","Field to initialize",&m_field))
     ->mark_basic();
-  
+
   m_properties.add_option<
-      OptionArrayT<std::string> > ("Functions",
+      OptionArrayT<std::string> > ("functions","Functions",
                                    "Math function applied as initial field (vars x,y,z)",
                                    std::vector<std::string>())
       ->attach_trigger ( boost::bind ( &CInitFieldFunction::config_function, this ) )
@@ -62,12 +62,12 @@ CInitFieldFunction::CInitFieldFunction( const std::string& name )
 CInitFieldFunction::~CInitFieldFunction()
 {
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CInitFieldFunction::config_function()
 {
-  m_function.functions( m_properties["Functions"].value<std::vector<std::string> >() );
+  m_function.functions( m_properties["functions"].value<std::vector<std::string> >() );
   m_function.parse();
 }
 
@@ -76,7 +76,7 @@ void CInitFieldFunction::config_function()
 void CInitFieldFunction::execute()
 {
   if (m_field.expired())
-    throw SetupError(FromHere(), "Field option in ["+full_path().path()+"] was not set");
+    throw SetupError(FromHere(), "Option [field] was not set in ["+full_path().path()+"]");
 
   CField& field = *m_field.lock();
 
@@ -88,19 +88,19 @@ void CInitFieldFunction::execute()
   {
     const Uint nb_pts = field.size();
     for ( Uint idx=0; idx!=nb_pts; ++idx)
-    {      
+    {
       CTable<Real>::ConstRow coords = field.coords(idx);
       for (Uint i=0; i<coords.size(); ++i)
         vars[i] = coords[i];
-      
+
       m_function.evaluate(vars,return_val);
-      
+
       CTable<Real>::Row data_row = field[idx];
       for (Uint i=0; i<data_row.size(); ++i)
         data_row[i] = return_val[i];
     }
   }
-  else 
+  else
   {
     CMultiStateFieldView field_view("field_view");
     field_view.set_field(field);
@@ -112,7 +112,7 @@ void CInitFieldFunction::execute()
         elements.allocate_coordinates(coordinates);
         RealVector centroid(coordinates.cols());
         cf_assert(centroid.size() < 4);
-        
+
         for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
         {
           elements.put_coordinates( coordinates, elem_idx );
@@ -141,9 +141,9 @@ void CInitFieldFunction::execute()
       }
 
     }
-    
+
   }
-  
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

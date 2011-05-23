@@ -7,17 +7,17 @@
 #ifndef CF_SFDM_OutputIterationInfo_hpp
 #define CF_SFDM_OutputIterationInfo_hpp
 
-#include "Common/CAction.hpp"
+#include "Solver/Action.hpp"
 #include "SFDM/LibSFDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh   { class CField; }
-namespace Solver { class CTime;   }
+namespace Solver { class CTime;  }
 namespace SFDM {
 
-class SFDM_API OutputIterationInfo : public Common::CAction
+class SFDM_API OutputIterationInfo : public Solver::Action
 {
 public: // typedefs
 
@@ -41,7 +41,6 @@ public: // functions
 
 private: // data
 
-  boost::weak_ptr<Solver::CTime> m_time;
   boost::weak_ptr<Mesh::CField> m_residual;
 };
 

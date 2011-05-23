@@ -7,6 +7,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
+#include "Common/Log.hpp"
 #include "Common/CFactory.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Signal.hpp"
@@ -14,7 +15,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
- 
+#include "Common/CGroup.hpp"
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"
@@ -24,6 +25,7 @@
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
+#include "Solver/CTime.hpp"
 
 namespace CF {
 namespace Solver {
@@ -31,6 +33,8 @@ namespace Solver {
 using namespace Common;
 using namespace Common::XML;
 using namespace Mesh;
+
+Common::ComponentBuilder < CModel, Component, LibSolver > CModel_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -69,9 +73,32 @@ CModel::CModel( const std::string& name  ) :
 
    regist_signal ( "simulate" , "Simulates this model", "Simulate" )
        ->signal->connect ( boost::bind ( &CModel::signal_simulate, this, _1 ) );
+
+   m_tools = create_static_component_ptr<CGroup>("tools");
+   m_tools->mark_basic();
 }
 
 CModel::~CModel() {}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CModel::simulate ()
+{
+  CFinfo << "\n" << name() << ": start simulation" << CFendl;
+
+  // call all (non-linear) iterative solvers to solve this dt step
+  boost_foreach(CSolver& is, find_components<CSolver>(*this))
+    is.solve();
+
+  CFinfo << name() << ": end simulation\n" << CFendl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CTime& CModel::time()
+{
+  return find_component<CTime>(*this);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -96,6 +123,13 @@ CSolver& CModel::solver()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+CGroup& CModel::tools()
+{
+  return *m_tools;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 CPhysicalModel& CModel::create_physics( const std::string& name )
 {
   return *this->create_component_ptr<CPhysicalModel>( name );
@@ -110,11 +144,18 @@ CDomain& CModel::create_domain( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+CTime& CModel::create_time( const std::string& name )
+{
+  return *this->create_component_ptr<CTime>( name );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 CSolver& CModel::create_solver( const std::string& builder_name)
 {
   std::string solver_name = builder_name;
   solver_name.erase(solver_name.begin(),boost::algorithm::find_last(solver_name,".").begin()+1);
-  
+
   CSolver::Ptr solver = build_component_abstract_type<CSolver>(builder_name,solver_name);
   add_component(solver);
   return *solver;

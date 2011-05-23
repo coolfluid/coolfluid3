@@ -5,6 +5,8 @@ list( APPEND coolfluid_sfdm_files
   ComputeRhsInCell.cpp
   ComputeUpdateCoefficient.hpp
   ComputeUpdateCoefficient.cpp
+  CreateSFDFields.hpp
+  CreateSFDFields.cpp
   CreateSpace.hpp
   CreateSpace.cpp
   LibSFDM.hpp
@@ -17,6 +19,8 @@ list( APPEND coolfluid_sfdm_files
   ShapeFunction.cpp
   SFDSolver.hpp
   SFDSolver.cpp
+  SFDWizard.hpp
+  SFDWizard.cpp
   UpdateSolution.hpp
   UpdateSolution.cpp
 )

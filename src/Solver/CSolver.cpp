@@ -29,7 +29,7 @@ CSolver::CSolver ( const std::string& name  ) :
 
   // options
 
-  m_properties.add_option< OptionURI > ("Domain",
+  m_properties.add_option< OptionURI > ("domain","Domain",
                                         "Domain to solve",
                                         URI("cpath:../Domain"));
 

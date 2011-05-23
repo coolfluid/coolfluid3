@@ -24,9 +24,9 @@
 namespace CF {
 namespace Mesh {
 namespace Actions {
-  
+
   using namespace Common;
-    
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CInitFieldConstant, CMeshTransformer, LibActions> CInitFieldConstant_Builder;
@@ -37,18 +37,18 @@ CInitFieldConstant::CInitFieldConstant( const std::string& name )
 : CMeshTransformer(name),
   m_constant(0.)
 {
-   
+
   properties()["brief"] = std::string("Initialize a field with a constant value");
   std::string desc;
-  desc = 
+  desc =
     "  Usage: CInitFieldConstant constant \n";
   properties()["description"] = desc;
 
-  m_properties.add_option(OptionComponent<CField>::create("Field","Field to initialize",&m_field))
+  m_properties.add_option(OptionComponent<CField>::create("field","Field","Field to initialize",&m_field))
     ->mark_basic();
-  
+
   m_properties.add_option<
-      OptionT<Real> > ("Constant","Constant applied as initial field", m_constant)
+      OptionT<Real> > ("constant","Constant","Constant applied as initial field", m_constant)
       ->link_to( &m_constant )
       ->mark_basic();
 }
@@ -62,18 +62,18 @@ std::string CInitFieldConstant::brief_description() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-  
+
 std::string CInitFieldConstant::help() const
 {
   return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
-}  
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CInitFieldConstant::execute()
 {
   if (m_field.expired())
-    throw SetupError(FromHere(), "Field option in ["+full_path().path()+"] was not set");
+    throw SetupError(FromHere(), "option [field] was not set in ["+full_path().path()+"]");
   m_field.lock()->data() = m_constant;
 }
 

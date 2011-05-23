@@ -7,9 +7,8 @@
 #ifndef CF_Solver_Actions_CLoop_hpp
 #define CF_Solver_Actions_CLoop_hpp
 
-#include "Common/CAction.hpp"
-
 #include "Solver/Actions/LibActions.hpp"
+#include "Solver/Action.hpp"
 #include "Solver/Actions/CLoopOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -27,7 +26,7 @@ namespace Actions {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class Solver_Actions_API CLoop : public Common::CAction
+class Solver_Actions_API CLoop : public Solver::Action
 {
 public: // typedefs
 

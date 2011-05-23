@@ -29,13 +29,13 @@ ComponentBuilder < CForAllCells, CLoop, LibActions > CForAllCells_builder;
 CForAllCells::CForAllCells ( const std::string& name ) :
   CLoop(name)
 {
-   
+
 }
 
 void CForAllCells::execute()
 {
-  boost_foreach(CRegion::Ptr& region, m_loop_regions)
-    boost_foreach(CCells& elements, find_components_recursively<CCells>(*region))
+  boost_foreach(CRegion& region, regions())
+    boost_foreach(CCells& elements, find_components_recursively<CCells>(region))
   {
     // Setup all child operations
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))

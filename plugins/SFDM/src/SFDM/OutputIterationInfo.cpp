@@ -13,6 +13,7 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/CTable.hpp"
 
+#include "Solver/FlowSolver.hpp"
 #include "Solver/CTime.hpp"
 #include "Solver/Actions/CIterate.hpp"
 
@@ -35,14 +36,12 @@ Common::ComponentBuilder < OutputIterationInfo, CAction, LibSFDM > OutputIterati
 ///////////////////////////////////////////////////////////////////////////////////////
 
 OutputIterationInfo::OutputIterationInfo ( const std::string& name ) :
-  CAction(name)
+  Solver::Action(name)
 {
   mark_basic();
+
   // options
-
-  m_properties.add_option(OptionComponent<CTime>::create("time","Time","Time tracking component", &m_time));
-
-  m_properties.add_option(OptionComponent<CField>::create("residual","Residual","Residual", &m_residual));
+  m_properties.add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(),"Residual","Residual", &m_residual));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,9 +58,9 @@ void OutputIterationInfo::execute()
   rhs_L2 = sqrt(rhs_L2) / m_residual.lock()->data().size();
 
   // output convergence info
-  CFinfo << "Iter [" << std::setw(4) << parent().as_ptr_checked<CIterate>()->iter() << "]";
-  CFinfo << "      Time [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << m_time.lock()->time() << "]";
-  CFinfo << "      Time Step [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << m_time.lock()->dt() << "]";
+  CFinfo << "Iter [" << std::setw(4) << time().iter() << "]";
+  CFinfo << "      Time [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << time().time() << "]";
+  CFinfo << "      Time Step [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << time().dt() << "]";
   CFinfo << "      L2(rhs) [" << std::setw(12) << rhs_L2 << "]";
   CFinfo << CFendl;
 }

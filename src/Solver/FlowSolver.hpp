@@ -50,9 +50,9 @@ public: // typedefs
 
 public: // functions
 
-  class Solver_API Tags : public NonInstantiable<Tags> {
-  public:
-
+  class Solver_API Tags : public NonInstantiable<Tags>
+  {
+    public:
     static const char * physical_model() { return "physical_model"; }
     static const char * mesh()           { return "mesh"; }
     static const char * time()           { return "time"; }
@@ -61,6 +61,13 @@ public: // functions
     static const char * inner()          { return "inner"; }
     static const char * solve()          { return "solve"; }
     static const char * setup()          { return "setup"; }
+
+    static const char * solution()       { return "solution"; }
+    static const char * residual()       { return "residual"; }
+    static const char * wave_speed()     { return "wave_speed"; }
+    static const char * update_coeff()   { return "update_coeff"; }
+    static const char * cfl()            { return "cfl"; }
+    static const char * time_accurate()  { return "time_accurate"; }
   }; // Tags
 
   /// Contructor

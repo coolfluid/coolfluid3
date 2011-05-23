@@ -17,7 +17,7 @@ namespace Solver {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Wizard component class
-/// Derived classes typically help users configure 
+/// Derived classes typically help users configure
 /// and setup a simulation
 /// @author Willem Deconinck
 class Solver_API CWizard : public Common::Component {

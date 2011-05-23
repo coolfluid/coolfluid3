@@ -14,6 +14,7 @@
 #include "Mesh/CMesh.hpp"
 
 #include "Solver/CPhysicalModel.hpp"
+#include "Solver/CTime.hpp"
 #include "Solver/Action.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -38,13 +39,18 @@ Action::Action ( const std::string& name ) :
                                                           &m_mesh))
     ->mark_basic();
 
-  m_properties.add_option( OptionComponent<CPhysicalModel>::create("physics",
+  m_properties.add_option( OptionComponent<CPhysicalModel>::create("physical_model", "Physical Model"
                                                                    "Physical model",
                                                                    &m_physical_model))
     ->mark_basic();
 
+  m_properties.add_option( OptionComponent<CTime>::create("time", "Time"
+                                                                   "Time tracking component",
+                                                                   &m_time))
+    ->mark_basic();
+
   std::vector< URI > dummy;
-  m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)
+  m_properties.add_option< OptionArrayT < URI > > ("regions", "Regions", "Regions this action is applied to", dummy)
       ->attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
 
 }
@@ -53,7 +59,7 @@ Action::~Action() {}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-CPhysicalModel::Ptr Action::access_physical_model()
+CPhysicalModel& Action::physical_model()
 {
   CPhysicalModel::Ptr model = m_physical_model.lock();
 
@@ -62,14 +68,49 @@ CPhysicalModel::Ptr Action::access_physical_model()
                              "Physical Model not yet set for component "
                              + full_path().string() );
 
-  return model;
+  return *model;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+CTime& Action::time()
+{
+  CTime::Ptr t = m_time.lock();
+
+  if( is_null(t) )
+    throw Common::SetupError( FromHere(),
+                             "Time not yet set for component "
+                             + full_path().string() );
+
+  return *t;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+CMesh& Action::mesh()
+{
+  CMesh::Ptr m = m_mesh.lock();
+
+  if( is_null(m) )
+    throw Common::SetupError( FromHere(),
+                             "Mesh not yet set for component "
+                             + full_path().string() );
+
+  return *m;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+ComponentIteratorRange<CRegion> Action::regions()
+{
+  return ComponentIteratorRange<CRegion>(m_loop_regions);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void Action::config_regions()
 {
-  std::vector<URI> vec; property("Regions").put_value(vec);
+  std::vector<URI> vec; property("regions").put_value(vec);
 
   boost_foreach(const URI region_path, vec)
   {

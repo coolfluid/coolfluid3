@@ -25,13 +25,9 @@ namespace Actions {
 /////////////////////////////////////////////////////////////////////////////////////
 
 CLoop::CLoop ( const std::string& name ) :
-  Common::CAction(name)
+  Solver::Action(name)
 {
   mark_basic();
-  std::vector< URI > dummy;
-  m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy);
-
-  m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &CLoop::trigger_Regions,   this ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -45,22 +41,6 @@ CLoopOperation& CLoop::create_loop_operation(const std::string action_provider)
     (build_component_abstract_type<CLoopOperation>(action_provider,name));
   add_component(sub_operation);
   return *sub_operation;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-void CLoop::trigger_Regions()
-{
-  std::vector<URI> vec; property("Regions").put_value(vec);
-  BOOST_FOREACH(const URI region_path, vec)
-  {
-    Component::Ptr comp = access_component_ptr(region_path)->as_ptr<CRegion>();
-    if ( is_null(comp) )
-    {
-      throw ValueNotFound ( FromHere(), "Could not find region with path [" + region_path.path() +"]" );
-    }
-    m_loop_regions.push_back(access_component_ptr(region_path)->as_ptr<CRegion>());
-  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

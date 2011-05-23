@@ -25,7 +25,7 @@ Common::ComponentBuilder < CAdvanceTime, CAction, LibActions > CAdvanceTime_Buil
 ////////////////////////////////////////////////////////////////////////////////
 
 CAdvanceTime::CAdvanceTime( const std::string& name  ) :
-  CAction ( name )
+  Solver::Action ( name )
 {
   mark_basic();
 
@@ -33,9 +33,6 @@ CAdvanceTime::CAdvanceTime( const std::string& name  ) :
   std::string description =
     "This object handles time advancing\n";
   properties()["description"] = description;
-
-  properties().add_option(OptionComponent<CTime>::create("time","Time","Time tracking component",&m_time))
-    ->mark_basic();
 
 }
 
@@ -49,15 +46,14 @@ CAdvanceTime::~CAdvanceTime()
 
 void CAdvanceTime::execute ()
 {
-  if (m_time.expired())
-    throw SetupError(FromHere(),"Time option was not set in ["+full_path().path()+"]");
-  m_time.lock()->time() += m_time.lock()->dt();
+  time().time() += time().dt();
+  time().iter() += 1u;
 
   CModel& model = find_parent_component<CModel>(*this);
   boost_foreach(CField& field, find_components_recursively<CField>(model))
   {
-    field.configure_property("time",m_time.lock()->time());
-    field.configure_property("iteration", field.property("iteration").value<Uint>()+1);
+    field.configure_property("time",time().time());
+    field.configure_property("iteration", time().iter());
   }
 }
 

@@ -77,9 +77,7 @@ void WallWeakBc::config_mesh()
 
 void WallWeakBc::execute()
 {
-  CPhysicalModel::Ptr pm = access_physical_model();
-
-  const std::string physics = pm->type();
+  const std::string physics = physical_model().type();
 
   // get the element loop or create it if does not exist
   ElementLoop::Ptr loop;

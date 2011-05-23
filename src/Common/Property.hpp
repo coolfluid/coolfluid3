@@ -14,6 +14,7 @@
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/TypeInfo.hpp"
+#include "Common/TaggedObject.hpp"
 
 namespace CF {
 namespace Common {
@@ -56,7 +57,8 @@ namespace Common {
   ///       - ConfigObject ( ConfigObject, OptionList )
   ///       - Option
   ///       - OptionT
-  class Common_API Property
+  class Common_API Property:
+      public TaggedObject
   {
   public:
 

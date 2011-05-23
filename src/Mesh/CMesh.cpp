@@ -232,7 +232,7 @@ void CMesh::signature_write_mesh ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add<std::string>("File" , name()+".msh" , "File to write" );
+  options.add<std::string>("file" , name()+".msh" , "File to write" );
 
   boost_foreach (CField& field, find_components<CField>(*this))
   {
@@ -249,7 +249,10 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
   SignalOptions options( node );
 
 
-  std::string file = options.option<std::string>("File");
+  std::string file = name()+".msh";
+
+  if (options.exists("file"))
+      file = options.option<std::string>("file");
 
   // check protocol for file loading
   // if( file.scheme() != URI::Scheme::FILE )

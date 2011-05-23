@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( Solver )
   // configure solver
 
   solver.configure_property("physical_model",physics.full_path());
-  solver.configure_property("Domain",domain.full_path());
+  solver.configure_property("domain",domain.full_path());
   solver.configure_option_recursively("riemann_solver",std::string("CF.RiemannSolvers.Roe"));
   solver.configure_option_recursively("roe_state",std::string("CF.AdvectionDiffusion.State"));
   solver.configure_option_recursively("solution_state",physics.solution_state().full_path());
@@ -104,9 +104,9 @@ BOOST_AUTO_TEST_CASE( Solver )
   Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
   //init_field->configure_property("Functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
 
-  std::string gaussian="sigma:="+to_str(1.)+"; mu:="+to_str(5.)+"; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";
-  init_field->configure_property("Functions",std::vector<std::string>(1,gaussian));
-  init_field->configure_property("Field",find_component_with_tag<CField>(mesh,"solution").full_path());
+  std::string gaussian="sigma:=1; mu:=5.; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";
+  init_field->configure_property("functions",std::vector<std::string>(1,gaussian));
+  init_field->configure_property("field",find_component_with_tag<CField>(mesh,"solution").full_path());
   init_field->transform(mesh);
 
 

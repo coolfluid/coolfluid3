@@ -324,6 +324,7 @@ void ComputeRhsInCell::execute()
           CFdebug << "   solve Riemann("<<left<<","<<right<<") = " << H << CFendl;
 
 
+
           /// <li> Add wave speed contributions calculated at every face to the cell
           /// @todo jacobian multiplication to wavespeed contribution, and face area ???
           const Real area = 1.;
@@ -337,6 +338,8 @@ void ComputeRhsInCell::execute()
 
         }
       }
+
+      CFdebug << "flux_in_line = " << flux_in_line.transpose() << CFendl;
 
       /// <li> Compute gradient of flux in solution points in this line
       ///
