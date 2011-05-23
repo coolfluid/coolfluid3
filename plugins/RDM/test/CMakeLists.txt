@@ -49,11 +49,11 @@ coolfluid_add_unit_test( utest-rdm-sinusbump )
 if(CF_ENABLE_GPU AND OPENCL_FOUND)
   set(utest-rdm-rotationadv2dgpu_condition     TRUE)
   set(utest-rdm-translationadv2dgpu_condition  TRUE)
-  set(utest-rdm-euler2d_condition              TRUE)
+  set(utest-rdm-euler2dgpu_condition           TRUE)
 else()
   set(utest-rdm-rotationadv2dgpu_condition     FALSE)
   set(utest-rdm-translationadv2dgpu_condition  FALSE)
-  set(utest-rdm-euler2d_condition              FALSE)
+  set(utest-rdm-euler2dgpu_condition           FALSE)
 endif()
   
   list( APPEND utest-rdm-rotationadv2dgpu_cflibs   coolfluid_rdm_gpu )
@@ -61,29 +61,33 @@ endif()
 
   coolfluid_add_unit_test( utest-rdm-rotationadv2dgpu )
 
-  add_custom_command(TARGET utest-rdm-rotationadv2d-gpu
+  add_custom_command(TARGET utest-rdm-rotationadv2dgpu
                  POST_BUILD
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
+
+##########################################################################
 
   list( APPEND utest-rdm-translationadv2dgpu_cflibs   coolfluid_rdm_gpu )
   list( APPEND utest-rdm-translationadv2dgpu_files    utest-rdm-translationadv2d-gpu.cpp )
 
   coolfluid_add_unit_test( utest-rdm-translationadv2dgpu )
 
-  add_custom_command(TARGET utest-rdm-rotationadv2d-gpu
+  add_custom_command(TARGET utest-rdm-translationadv2dgpu
                  POST_BUILD
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
                 
+##########################################################################
+
   list( APPEND utest-rdm-euler2dgpu_cflibs   coolfluid_rdm_gpu )
   list( APPEND utest-rdm-euler2dgpu_files    utest-rdm-euler2d-gpu.cpp )
 
   coolfluid_add_unit_test( utest-rdm-euler2dgpu )
 
-  add_custom_command(TARGET utest-rdm-euler2d-gpu
+  add_custom_command(TARGET utest-rdm-euler2dgpu
                  POST_BUILD
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
