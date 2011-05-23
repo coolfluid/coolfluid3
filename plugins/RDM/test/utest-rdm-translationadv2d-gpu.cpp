@@ -11,7 +11,8 @@
 
 #include "Common/BoostFilesystem.hpp"
 
-#include "Common/CreateComponent.hpp"
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
 #include "Common/CLink.hpp"
