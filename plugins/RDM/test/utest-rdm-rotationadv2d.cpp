@@ -149,7 +149,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
 
 #ifdef BUBBLE // enrich the mesh with bubble functions
   CMeshTransformer::Ptr enricher =
-      build_component_abstract_typesh.Actions.CBubbleEnrich","enricher");
+      build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
 
   domain.add_component( enricher );
 
