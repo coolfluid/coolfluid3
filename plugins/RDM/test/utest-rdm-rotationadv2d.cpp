@@ -417,7 +417,8 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
 #ifdef BUBBLE // remove the bubble functions from the mesh
   CMeshTransformer::Ptr remover =
-      build_component_abstract_typesh.Actions.CBubbleRemove","remover");
+      build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
+
 
   domain.add_component( remover );
   remover->transform( mesh );
