@@ -58,7 +58,7 @@ public: // functions
   Uint& iter() { return m_iter; }
 
   /// @return iteration
-  const Uint& iter() const { return m_dt; }
+  const Real& iter() const { return m_dt; }
 
 private: // data
 
