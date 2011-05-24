@@ -16,3 +16,5 @@ list( APPEND utest-sfdm-wizard_files  utest-sfdm-wizard.cpp )
 
 coolfluid_add_unit_test( utest-sfdm-wizard )
 
+
+coolfluid_add_acceptance_test( atest-sfdm-linear-advection atest-sfdm-linear_advection.cfscript )

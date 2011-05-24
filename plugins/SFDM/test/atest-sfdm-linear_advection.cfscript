@@ -1,0 +1,34 @@
+configure Environment exception_aborts:bool=true
+configure Environment exception_backtrace:bool=true
+configure Environment exception_outputs:bool=true
+configure Environment log_level:unsigned=3
+
+call //Root/Libraries/load_library lib:uri=file:/Users/willem/workspace/coolfluid3/builds/qt_creator/debug/dso/libcoolfluid_riemannsolvers
+call //Root/Libraries/load_library lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm
+call //Root/Libraries/load_library lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm_sf
+call //Root/Libraries/load_library lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_advectiondiffusion
+
+create wizard CF.SFDM.SFDWizard
+configure wizard \
+   model:string=SFD_simulation \
+   P:unsigned=0 \
+   cfl:real=1 
+
+call wizard/create_simulation
+
+create SFD_simulation/tools/meshgen CF.Mesh.CSimpleMeshGenerator
+configure SFD_simulation/tools/meshgen\
+  lengths:array[real]=10 \
+  nb_cells:array[unsigned]=100 \
+  parent:uri=cpath://Root/SFD_simulation/Domain
+SFD_simulation/tools/meshgen
+
+call wizard/prepare_simulation
+
+call wizard/initialize_solution "functions:array[string]=sigma:=1;mu:=5.;exp(-(x-mu)^2/(2*sigma^2))"
+
+call SFD_simulation/Domain/mesh/write_mesh file:string=initial_condition.msh solution:bool=true 
+
+call wizard/start_simulation end_time:real=5
+
+call SFD_simulation/Domain/mesh/write_mesh file:string=final.msh solution:bool=true
