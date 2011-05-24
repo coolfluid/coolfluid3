@@ -194,15 +194,15 @@ void GraphicalArrayTest::test_signalEmmitting()
   //
   // 2. by simulating keyboard events
   //
-  // note: when validating, we wait 1 ms (last parameter) to let the event being processed
+  // note: when validating, we wait 25 ms (last parameter) to let the event being processed
   lineEdit->clear();
   value->show(); // make the value visible (it ignores keyboard events if not)
   lineEdit->setFocus(Qt::PopupFocusReason);
   QTest::keyClicks(lineEdit, "123" );
-  QTest::keyClick(value, Qt::Key_Enter, Qt::NoModifier, 1); // validate by pressing the 'ENTER' key on the keypad
+  QTest::keyClick(value, Qt::Key_Enter, Qt::NoModifier, 25); // validate by pressing the 'ENTER' key on the keypad
   QTest::keyClicks(lineEdit, "156" );
   QTest::keyClicks(lineEdit, "456" );
-  QTest::keyClick(value, Qt::Key_Return, Qt::NoModifier, 1); // validate by pressing the 'Return' key
+  QTest::keyClick(value, Qt::Key_Return, Qt::NoModifier, 25); // validate by pressing the 'Return' key
 
   // 2 signals should have been emitted (one per validation)
   QCOMPARE( spy.count(), 2 );
