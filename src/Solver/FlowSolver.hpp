@@ -15,15 +15,19 @@
 
 namespace CF {
 
-namespace Common {
+namespace Common
+{
   class CAction;
 }
-namespace Solver {
+
+namespace Solver
+{
   class CPhysicalModel;
   class CTime;
 }
 
-namespace Mesh {
+namespace Mesh
+{
   class CRegion;
   class CMesh;
 }

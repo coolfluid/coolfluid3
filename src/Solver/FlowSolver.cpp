@@ -149,20 +149,11 @@ void FlowSolver::auto_config(Component& component)
 
 void FlowSolver::solve()
 {
-  if ( m_solve.expired() == true )
-    throw SetupError (FromHere(),"solve not set");
-
-  if ( m_setup.expired() == true )
-    throw SetupError (FromHere(),"setup not set");
-
-  if ( m_physical_model.expired() == true )
-    throw SetupError (FromHere(),"physical_model not set");
-
-  if ( m_mesh.expired() == true )
-    throw SetupError (FromHere(),"mesh not set");
-
-  if ( m_time.expired() == true )
-    throw SetupError (FromHere(),"time not set");
+  if ( m_solve.expired() ) throw SetupError (FromHere(),"solve not set");
+  if ( m_setup.expired() ) throw SetupError (FromHere(),"setup not set");
+  if ( m_physical_model.expired() ) throw SetupError (FromHere(),"physical_model not set");
+  if ( m_mesh.expired() )  throw SetupError (FromHere(),"mesh not set");
+  if ( m_time.expired() )  throw SetupError (FromHere(),"time not set");
 
   m_solve.lock()->execute();
 }
