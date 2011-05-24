@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
- 
+
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -130,8 +130,8 @@ BOOST_AUTO_TEST_CASE( test_fields )
 
   /// Initialize solution field with the function sin(2*pi*x)
   Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
-  init_field->configure_property("Functions",std::vector<std::string>(1,"sin(2*pi*x)"));
-  init_field->configure_property("Field",solution.full_path());
+  init_field->configure_property("functions",std::vector<std::string>(1,"sin(2*pi*x)"));
+  init_field->configure_property("field",solution.full_path());
   init_field->transform(*mesh);
 
   //CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
