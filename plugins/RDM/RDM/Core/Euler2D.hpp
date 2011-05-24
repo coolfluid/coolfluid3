@@ -64,6 +64,7 @@ public: // functions
     Real T;
     Real E;
     Real half_gm1_v2;
+    Real Ma;
   };
 
   /// compute physical properties
@@ -101,6 +102,8 @@ public: // functions
                                    + "]");
 
     p.a = sqrt( p.a2 );
+
+    p.Ma = sqrt( p.uuvv / p.a2 );
 
     p.T = p.a2 / ( p.gamma * p.R );
 

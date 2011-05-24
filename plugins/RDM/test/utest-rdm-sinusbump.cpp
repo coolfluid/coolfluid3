@@ -136,7 +136,8 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , sinusbump_local_fixture )
 
   std::vector<URI> files;
 
-  URI file( "file:sinusbump-tg-p1-90.msh" );
+//  URI file( "file:sinusbump-tg-p1-90.msh" );
+    URI file( "file:sinusbump-tg-p1-1344.msh" );
 
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::FILE;
@@ -159,7 +160,7 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , sinusbump_local_fixture )
 
   solver.configure_property("domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_property("cfl", 0.1);
-  solver.get_child("time_stepping").configure_property("MaxIter", 50u);
+  solver.get_child("time_stepping").configure_property("MaxIter", 40u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -188,13 +189,13 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , sinusbump_local_fix
   Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
   BOOST_CHECK( is_not_null(inletbc) );
 
-  std::string bc_density = "1.0";
-//  std::string bc_density = "1.20399";
+//  std::string bc_density = "1.0";
+  std::string bc_density = "1.204751547";
   inletbc->configure_property("rho_in", bc_density);
 
   std::vector<std::string> bc_velocity(2);
-  bc_velocity[XX] = "100.0";
-//  bc_velocity[XX] = "172.0197011603";
+//  bc_velocity[XX] = "100.0";
+  bc_velocity[XX] = "171.570881";
   bc_velocity[YY] = "0.0";
   inletbc->configure_property("vel_in", bc_velocity);
 
@@ -227,8 +228,8 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , sinusbump_local_fi
   Component::Ptr outletbc = find_component_ptr_recursively_with_name( solver, name );
   BOOST_CHECK( is_not_null(outletbc) );
 
-  std::string bc_pressure = "1000.0";
-//  std::string bc_pressure = "101325.216916";
+//  std::string bc_pressure = "1000.0";
+  std::string bc_pressure = "101325.0";
   outletbc->configure_property("p_out", bc_pressure);
 
   BOOST_CHECK(true);
@@ -276,15 +277,19 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , sinusbump_local_fixture )
 
   std::vector<std::string> fns(4);
 
-  fns[0] = "1.5";
-  fns[1] = "100.0";
-  fns[2] = "0.0";
-  fns[3] = "7500.0";
-
-//  fns[0] = "1.20399";
-//  fns[1] = "172.0197011603";
+//  fns[0] = "1.5";
+//  fns[1] = "100.0";
 //  fns[2] = "0.0";
-//  fns[3] = "265601.6732534";
+//  fns[3] = "7500.0";
+
+  fns[0] = "1.204751547"; //rho
+  fns[1] = "206.7002847"; //rho*u
+  fns[2] = "0.0";         //rho*v
+  fns[3] = "271044.375";  //rhoE
+// Corresponding pressure: 101325.0
+
+
+
 
   options.add<std::string>("Functions", fns, " ; ");
 
