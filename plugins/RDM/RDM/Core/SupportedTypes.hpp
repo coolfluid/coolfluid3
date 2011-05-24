@@ -40,7 +40,21 @@
 namespace CF {
 namespace RDM {
 
-//------------------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////////
+
+/// function returning positive number or zero
+inline Real plus ( Real x )
+{
+  return std::max( 0. , x );
+}
+
+/// function returning negative number or zero
+inline Real minus ( Real x )
+{
+  return std::min( 0. , x );
+}
+
+///////////////////////////////////////////////////////////////////////////////////////
 
 /// List of supported 2d face shapefunctions
 typedef boost::mpl::vector<
@@ -88,8 +102,6 @@ struct ElemTypes<DIM_3D>
   typedef FaceTypes3D Faces;
 };
 
-//------------------------------------------------------------------------------------------
-
 /// Predicate class to test if the region contains a specific element type
 template < typename TYPE >
 struct IsElementType
@@ -100,6 +112,8 @@ struct IsElementType
   }
 };
 
+//------------------------------------------------------------------------------------------
+
 template < typename SF, Uint order = SF::order >
 struct DefaultQuadrature
 {
@@ -108,38 +122,11 @@ struct DefaultQuadrature
 
 //------------------------------------------------------------------------------------------
 
-/// Partial specialization for P2 with bubble.
-/// Standard second order integration uses only boundary quadrature points,
-/// where bubble function is zero, thus has uncoupled modes.
-template <>
-struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP2B, 2 >
-{
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP2B::shape> type;
-};
-
-//------------------------------------------------------------------------------------------
-
-/// Partial specialization for P3 triangles
-template <>
-struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP3, 3 >
-{
-  typedef Mesh::Integrators::GaussMappedCoords< 5, Mesh::SF::Triag2DLagrangeP3::shape> type;
-};
-
-/// Partial specialization for P3 quadrilaterals
-template <>
-struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP3, 3 >
-{
-  typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::SF::Quad2DLagrangeP3::shape> type;
-};
-
-//------------------------------------------------------------------------------------------
-
 /// Partial specialization for P1 triangles
 template <>
 struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP1, 1 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP2::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP1::shape> type;
 };
 
 /// Partial specialization for P2 triangles
@@ -163,44 +150,30 @@ struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP2, 2 >
   typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Quad2DLagrangeP2::shape> type;
 };
 
-//------------------ FOR TESTING ----------------------------------
-#if 0
-/// Partial specialization for P1 triangles
+/// Partial specialization for P3 triangles
 template <>
-struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP1, 1 >
+struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP3, 3 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP1::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 5, Mesh::SF::Triag2DLagrangeP3::shape> type;
 };
 
-/// Partial specialization for P1 quadrilaterals
+/// Partial specialization for P3 quadrilaterals
 template <>
-struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP1, 1 >
+struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP3, 3 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 2, Mesh::SF::Quad2DLagrangeP1::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::SF::Quad2DLagrangeP3::shape> type;
 };
 
-/// Partial specialization for P2 quadrilaterals
+//------------------------------------------------------------------------------------------
+
+/// Partial specialization for P2 with bubble.
+/// Standard second order integration uses only boundary quadrature points,
+/// where bubble function is zero, thus has uncoupled modes.
 template <>
-struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP2, 2 >
+struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP2B, 2 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Quad2DLagrangeP3::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP2B::shape> type;
 };
-
-#endif
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-/// function returning positive number or zero
-inline Real plus ( Real x )
-{
-  return std::max( 0. , x );
-}
-
-/// function returning negative number or zero
-inline Real minus ( Real x )
-{
-  return std::min( 0. , x );
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
