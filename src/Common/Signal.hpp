@@ -11,6 +11,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/signal.hpp>
+#include <boost/signals2/connection.hpp>
 
 #include "Common/Exception.hpp"
 
@@ -46,6 +47,8 @@ public:
 
   /// Signal underlying type
   typedef boost::signals2::signal< void ( XML::SignalFrame& ) > Type;
+  /// Signal connection type
+  typedef boost::signals2::connection ConnectionType;
   /// Pointer to Signal
   typedef boost::shared_ptr< Type > TypePtr;
   /// Const Pointer to Signal
