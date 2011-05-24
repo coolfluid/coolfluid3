@@ -11,6 +11,7 @@
 #include "RDM/GPU/CLdeclaration.hpp"
 #include "RDM/GPU/LibGPU.hpp"
 #include "iostream"
+#include <boost/timer.hpp>
 
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -68,6 +69,8 @@ public: // functions
 
     // OpenCL kernel compilation
 
+    std::cout<<"compilation"<<std::endl;
+
     env.program = clCreateProgramWithSource(env.context, 1, (const char**)&GPUSource, NULL, &env.errcode);
     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
@@ -77,6 +80,7 @@ public: // functions
     env.kernel = clCreateKernel(env.program, "interpolation", &env.errcode);
     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
     clReleaseProgram(env.program);
+    std::cout<<"compilationEnd"<<std::endl;
   }
 
   /// Virtual destructor
@@ -124,7 +128,7 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
 {
     std::cout<<"LDAGPU"<<std::endl;
 
-    //boost::timer ctimer;
+    boost::timer ctimer;
     uint dim     = 2;
     uint nEq     = 4;
     uint shape   = SF::nb_nodes;
@@ -169,7 +173,6 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
            uint pos = idx * shape + idy;
            connectTable[pos] = (*B::connectivity_table)[idx][idy];
        }
-
     }
 
     for(uint idx = 0; idx < nodes; idx++ )
@@ -224,8 +227,6 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
                                       __local float* LU,       __local float* LUwq,  __local float* help,
                                       __local float* phiH,     __local float* phiHN )*/
 
-
-
     int n = 0;
     env.errcode  = clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&phi_rGPGPU);
     env.errcode  = clSetKernelArg(env.kernel, n++, sizeof(cl_mem), (void *)&waveSpeedGPGPU);
@@ -248,21 +249,21 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     env.errcode |= clSetKernelArg(env.kernel, n++, quad * dim  *              sizeof(float), 0); // X_eta
     env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // U_quad
     env.errcode |= clSetKernelArg(env.kernel, n++, quad *                     sizeof(float), 0); // jacobi
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq * shape * sizeof(float), 0); // Rv
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq * shape * sizeof(float), 0); // Lv
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq *       shape * sizeof(float), 0); // Dv
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0); // Af
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0); // Bf
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq * shape * sizeof(float), 0); // Ki
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0); // invKi
-    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq * nEq *         sizeof(float), 0); // sumLplus
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  * nEq *        sizeof(float), 0); // Rv
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  * nEq *        sizeof(float), 0); // Lv
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq *               sizeof(float), 0); // Dv
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  * nEq *        sizeof(float), 0); // Af
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  * nEq *        sizeof(float), 0); // Bf
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * shape*nEq  * nEq *  sizeof(float), 0); // Ki
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  * nEq *        sizeof(float), 0); // invKi
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  * nEq *        sizeof(float), 0); // sumLplus
     env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // dudx
     env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // dudy
     env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // LU
     env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // LUwq
     env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // help
     env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq  *             sizeof(float), 0); // PhiH
-    env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq  *             sizeof(float), 0); // phiHN
+    env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq  *             sizeof(float), 0); // phiHN*/
 
     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
@@ -304,12 +305,17 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
        for( int idy = 0; idy < nEq; idy++ )
        {
            int node = idx*nEq + idy;
-           (*B::residual)[idx][idy] = phi[node];
+           double a = phi[node];
+           if(a< 1e-10 && a >= 0 )
+               a = 1e-10;
+           if(a> -1e-10 && a < 0 )
+               a = -1e-10;
+           (*B::residual)[idx][idy] = a;
        }
        (*B::wave_speed)[idx][0] = waveSpeed[idx];
     }
 
-
+    std::cout<< std::scientific<<ctimer.elapsed()<<std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

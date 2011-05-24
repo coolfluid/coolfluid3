@@ -270,6 +270,9 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
    env.errcode |= clEnqueueWriteBuffer(env.command_queue, connectTableGPGPU, CL_FALSE, 0, elements * shape*  sizeof(uint),  connectTable,  0, NULL, NULL);
    opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
+
+
+
    // running GPGPU kernel
 
    /*   __kernel void interpolation(__global float* PHI, __global float* waveSpeed,
@@ -351,10 +354,7 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
         (*wave_speed)[idx][0] = waveSpeed[idx];
    }
 
-   std::cout<<"ENd of LDAGPU"<<std::endl;
-
-
-   //std::cout<<ctimer.elapsed()<<std::endl;
+  //std::cout<<ctimer.elapsed()<<std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

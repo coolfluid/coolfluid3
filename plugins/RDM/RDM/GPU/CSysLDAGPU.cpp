@@ -10,7 +10,7 @@
 
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
-#include "Common/CreateComponent.hpp"
+//#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CRegion.hpp"
 
@@ -50,8 +50,8 @@ void CSysLDAGPU::execute()
   Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
-    loop = create_component_abstract_type< ElementLoop >( "CF.RDM.GPU.CellLoopGPU<" + type_name() + "," + physics + ">" , "LOOP");
-    add_component(loop);
+      loop = build_component_abstract_type< ElementLoop >( "CF.RDM.Core.CellLoopGPU<" + type_name() + "," + physics + ">" , "LOOP");
+      add_component(loop);
   }
   else
     loop = cloop->as_ptr_checked<ElementLoop>();
