@@ -30,8 +30,10 @@ BodePlot::BodePlot(QWidget *parent):
     QwtPlot(parent)
 {
 
+  //do not replot during settings
   setAutoReplot(false);
 
+  //set the background color, the default grid color is black
   setCanvasBackground(QColor(Qt::white));
 
   // grid
@@ -49,32 +51,16 @@ BodePlot::BodePlot(QWidget *parent):
   setAxisMaxMinor(QwtPlot::xBottom, 10); //?
   setAxisScaleEngine(QwtPlot::xBottom, new QwtLinearScaleEngine); // linear or log scale
 
-  // curves
-  /*
-  m_curve = new QwtPlotCurve("");
-  m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
-  m_curve->setPen(QPen(Qt::red));
-  m_curve->setYAxis(QwtPlot::yLeft);
-  m_curve->attach(this);
-
-  const bool doReplot = autoReplot();
-  setAutoReplot(false);
-
-  setAutoReplot(doReplot);
-  */
+  //draw grid and plot
   replot();
 
+  //enable auto-replot (if not, zoom don't work)
   setAutoReplot(true);
 
 }
 
 BodePlot::~BodePlot(){
-/*
-  if(m_curve != 0){
-    delete m_curve;
-    m_curve = 0;
-  }
-*/
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,13 +85,6 @@ BodePlot::BodePlot(QWidget *parent,bool test):
   setAutoReplot(false);
 
   draw_graph();
-
-  //show_xy_label_on_graph(true);
-  //set_fct_name("Gil's function");
-  //show_fct_name_on_graph(true);
-  //show_legend_on_graph(true);
-  //set_graph_title("Gil's awsome graph");
-  //show_title_on_graph(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -147,19 +126,6 @@ void BodePlot::draw_graph()
     setAxisScaleEngine(QwtPlot::xBottom,  new QwtLinearScaleEngine); // linear or log scale
   }
 
-
-  // curves
-  /*
-  m_curve = new QwtPlotCurve(m_fct_name);
-  if(m_antialiasing){
-    m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
-  }
-  m_curve->setPen(QPen(m_fct_color));
-  m_curve->setYAxis(QwtPlot::yLeft);
-  m_curve->attach(this);
-  */
-  //sinus();
-
   replot();
 }
 
@@ -183,22 +149,6 @@ void BodePlot::add_xy_data_on_graph(std::vector<double> & xs,std::vector<double>
 
 void BodePlot::set_xy_data_on_graph(std::vector<double> & xs,std::vector<double> & ys){
   if(m_curve != 0){
-    /*
-    //clear vector
-    m_xs.clear();
-    m_ys.clear();
-
-    //deep copy
-    for (int i = 0; i < xs.size(); ++i)
-    {
-      m_xs.push_back(xs[i]);
-      m_ys.push_back(ys[i]);
-    }
-
-    m_curve->setData(&m_xs[0],&m_ys[0],m_xs.size());
-    */
-
-    //m_curve->setData(&xs[0],&ys[0],xs.size());
 
     m_xs = xs;
     m_ys = ys;
