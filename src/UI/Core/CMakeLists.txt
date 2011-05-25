@@ -11,6 +11,7 @@ NetworkThread.hpp
 NJournalBrowser.hpp
 NJournal.hpp
 NLog.hpp
+NRemoteFSBrowser.hpp
 NRoot.hpp
 NTree.hpp
 PropertyModel.hpp
@@ -51,6 +52,8 @@ NPlugin.cpp
 NPlugin.hpp
 NPlugins.cpp
 NPlugins.hpp
+NRemoteFSBrowser.cpp
+NRemoteFSBrowser.hpp
 NRoot.cpp
 NRoot.hpp
 NTree.cpp

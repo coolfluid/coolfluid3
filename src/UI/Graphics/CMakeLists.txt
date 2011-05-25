@@ -6,6 +6,7 @@
 
 # List of classes to "moc"
 list( APPEND coolfluid_ui_graphics_moc_classes
+  BrowserDialog.hpp
   CentralPanel.hpp
   ModifiedOptionsDialog.hpp
   ConfirmCommitDialog.hpp
@@ -40,6 +41,8 @@ QT4_WRAP_CPP(coolfluid_ui_graphics_moc_files ${coolfluid_ui_graphics_moc_classes
 list( APPEND coolfluid_ui_graphics_files
   AboutCFDialog.cpp
   AboutCFDialog.hpp
+  BrowserDialog.cpp
+  BrowserDialog.hpp
   CentralPanel.cpp
   CentralPanel.hpp
   ConfirmCommitDialog.cpp
