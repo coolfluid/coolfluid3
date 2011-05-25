@@ -7,8 +7,6 @@ list( APPEND coolfluid_rdm_core_files
 # wizards
   SteadyExplicit.hpp
   SteadyExplicit.cpp
-  MySim.hpp
-  MySim.cpp
 # actions
   ElementLoop.hpp
   BoundaryTerm.hpp
