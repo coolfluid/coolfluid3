@@ -1,6 +1,6 @@
 
 # List of classes to "moc"
-set( coolfluid-server_moc_classes
+set( coolfluid_ui_server_moc_classes
   CCore.hpp
   Notifier.hpp
   RemoteClientAppender.hpp
@@ -8,13 +8,12 @@ set( coolfluid-server_moc_classes
   ServerRoot.hpp )
 
 # Create the moc files
-QT4_WRAP_CPP(coolfluid-server_moc_files ${coolfluid-server_moc_classes})
+QT4_WRAP_CPP(coolfluid_ui_server_moc_files ${coolfluid_ui_server_moc_classes})
 
 # Add the project files (including the moc files)
-list( APPEND coolfluid-server_files
+list( APPEND coolfluid_ui_server_files
   CCore.cpp
   CCore.hpp
-  main.cpp
   Notifier.cpp
   Notifier.hpp
   ProcessingThread.cpp
@@ -29,16 +28,10 @@ list( APPEND coolfluid-server_files
   ServerRoot.hpp )
 
 # Use Qt Libraries
-#list( APPEND coolfluid-server_libs ${QT_LIBRARIES} )
+#list( APPEND coolfluid_ui_server_libs ${QT_LIBRARIES} )
 
-if( ParaView_FOUND )
-  add_definitions( -DCF_HAVE_PARAVIEW )
-  include_directories( ${PARAVIEW_INCLUDE_DIRS} )
-  list( APPEND coolfluid-server_libs coolfluid_ui_paraview  )
-endif()
+list( APPEND coolfluid_ui_server_cflibs ${CF_KERNEL_LIBS} )
 
-list( APPEND coolfluid-server_cflibs ${CF_KERNEL_LIBS} )
-
-coolfluid_add_application(coolfluid-server)
+coolfluid_add_library(coolfluid_ui_server)
 
 configure_file( machine.txt   ${CMAKE_CURRENT_BINARY_DIR}/machine.txt    @ONLY)
