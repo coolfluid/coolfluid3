@@ -19,7 +19,9 @@ class QHBoxLayout;
 class QLabel;
 class QLineEdit;
 class QListView;
+class QModelIndex;
 class QPushButton;
+class QSortFilterProxyModel;
 class QTableView;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -45,6 +47,7 @@ private slots:
 
   void filterTypeChanged( int index );
 
+  void doubleClicked(const QModelIndex & index );
 
 private:
 
@@ -77,6 +80,8 @@ private:
   QLineEdit * m_editFilter;
 
   QComboBox * m_comboFilter;
+
+  QSortFilterProxyModel * m_filteringModel;
 
 }; // BrowserDialog
 

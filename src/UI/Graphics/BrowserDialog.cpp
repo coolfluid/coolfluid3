@@ -45,6 +45,7 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
   m_btAddFav = new QPushButton("Add");
   m_btRemoveFav = new QPushButton("Remove");
   m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+  m_filteringModel = new QSortFilterProxyModel(this);
 
   m_pathLayout = new QHBoxLayout();
   m_favButtonsLayout = new QHBoxLayout();
@@ -52,7 +53,10 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
 
   m_mainLayout = new QGridLayout(this);
 
-  m_view->setModel( m_model.get() );
+  m_filteringModel->setSourceModel( m_model.get() );
+  m_view->setModel( m_filteringModel );
+
+  m_filteringModel->setDynamicSortFilter(true);
 
   m_comboFilter->addItems( QStringList() << "Wildcards" << "Regular Expression");
 
@@ -95,6 +99,8 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
   connect(m_comboFilter, SIGNAL(currentIndexChanged(int)),
           this, SLOT(filterTypeChanged(int)));
 
+  connect(m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClicked(QModelIndex)));
+
 //  this->resize(QSize(this->width() /** 1.25*/, this->height() /** 1.25*/) );
   m_view->adjustSize();
   this->adjustSize();
@@ -107,6 +113,13 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
 void BrowserDialog::filterTypeChanged(int index)
 {
   m_view->resizeRowsToContents();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void BrowserDialog::doubleClicked(const QModelIndex &index)
+{
+//  QString path = m_model->
 }
 
 ////////////////////////////////////////////////////////////////////////////
