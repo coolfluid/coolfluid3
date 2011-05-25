@@ -12,6 +12,9 @@
 #include "Common/OptionT.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
+#include "Common/EventHandler.hpp"
+
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Math/MathChecks.hpp"
 
@@ -136,6 +139,17 @@ void ForwardEuler::execute()
     CFinfo << "Iter [" << std::setw(4) << iteration << "] L2(rhs) [" << std::setw(12) << rhs_norm << "]" << CFendl;
    if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
       throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iteration)+" iterations");
+
+   // raise signal that iteration is done
+   /// @todo move this to an Action and/or separate function in base class
+
+   SignalFrame frame ( "iteration_done", URI(), URI() );
+   SignalOptions opts( frame );
+   opts.add<Uint>("iteration", iteration);
+
+   Core::instance().event_handler().raise_event( "iteration_done", frame);
+
+   // increment iteration
 
    property("iteration").change_value( ++iteration ); // update the iteration number
 

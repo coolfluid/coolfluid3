@@ -36,10 +36,13 @@ public: // methods
 
   /// Regists a signal on this EventHandler
   template < typename PTYPE, typename FTYPE >
-  Signal::ConnectionType regist_listener ( const std::string& sname, PTYPE* ptr, FTYPE pfunc, const std::string& desc = "" )
+  Signal::ConnectionType connect_to_event ( const std::string& sname, PTYPE* ptr, FTYPE pfunc, const std::string& desc = "" )
   {
     return regist_signal ( sname , desc )->signal->connect ( boost::bind ( pfunc, ptr, _1 ) );
   }
+
+  /// raises an event and dispatches immedietly to all listeners
+  void raise_event( const std::string& ename, SignalArgs& args);
 
 }; // class EventHandler
 

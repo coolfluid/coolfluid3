@@ -10,6 +10,7 @@
 #include "Common/XML/SignalOptions.hpp"
 #include "UI/ParaView/LibParaView.hpp"
 #include "UI/ParaView/C3DViewBuilder.hpp"
+#include "Common/StringConversion.hpp"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +69,7 @@ void C3DViewBuilder::signal_create_3dview(SignalArgs &args)
   // create and add the component
   Component::Ptr parent_comp = Core::instance().root().access_component_ptr(parent);
   C3DView::Ptr view(new C3DView(name));
-  view->setPort("8080");
+
   parent_comp->add_component( view );
   view->mark_basic();
 }
@@ -82,6 +83,7 @@ void C3DViewBuilder::signature_create_3dview(SignalArgs &args)
   options.set_option("3DView name", std::string(), "Name for the new 3DView");
   options.set_option("Parent", Core::instance().root().full_path(), "Parent of the new component");
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

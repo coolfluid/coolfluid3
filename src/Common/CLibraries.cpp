@@ -84,51 +84,34 @@ void CLibraries::terminate_all_libraries()
 
 void CLibraries::signal_load_library ( SignalArgs& args )
 {
-  SignalFrame p = args.map( Protocol::Tags::key_options() );
+  SignalOptions opts (args);
 
-  URI file = p.get_option<URI>("lib");
-
-  load_library(file);
-
-#if 0
-  std::vector<URI> files = p.get_array<URI>("Libraries");
+  std::vector<URI> files = opts.array<URI>("Libraries");
 
   // check protocol for file loading
-  BOOST_FOREACH(URI file, files)
-  {
-    if( file.empty() || file.scheme() != URI::Scheme::FILE )
-      throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
-  }
-
   if( !files.empty() )
   {
-    // Get the file paths
-    BOOST_FOREACH(URI file, files)
+    boost_foreach( URI file, files )
     {
-      boost::filesystem::path fpath( file.path() );
-
-      OSystem::instance().lib_loader()->load_library( fpath.path() );
+      load_library(file);
     }
   }
   else
-  {
     throw BadValue( FromHere(), "No library was loaded because no files were selected." );
-  }
-#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CLibraries::signature_load_library ( SignalArgs& args )
 {
-  SignalFrame p = args.map( Protocol::Tags::key_options() );
-
   SignalOptions options( args );
 
   std::vector<URI::Scheme::Type> schemes(1);
-
   schemes[0] = URI::Scheme::FILE;
-  options.add("lib", URI(), "Library to load", schemes );
+
+  std::vector<URI> dummy;
+
+  options.add("Libraries", dummy, " ; ", "Libraries to load", schemes );
 
 }
 

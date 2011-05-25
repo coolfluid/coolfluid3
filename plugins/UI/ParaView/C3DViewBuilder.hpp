@@ -48,7 +48,7 @@ public:
 
   //@} END SIGNALS
 
-private: // data
+private:
 
   //process id
   //port

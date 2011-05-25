@@ -13,6 +13,9 @@
 // header
 #include "UI/ParaView/LibParaView.hpp"
 
+#include "Common/Signal.hpp"
+#include "Mesh/CMesh.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 // forward declaration to avoid incuding files
@@ -48,10 +51,6 @@ public:
   /// @param name Name of the node.
   C3DView(const std::string& name);
 
-  /// Port setter.
-  /// @param port The port on the paraview server must be launched.
-  void setPort(QString port);
-
   /// Destructor
   virtual ~C3DView();
 
@@ -64,11 +63,15 @@ public:
 
   /// Dump a vtk or exodusII file.
   /// @param args
-  void dump_file( Common::SignalArgs & args );
+//  void dump_file( Common::SignalArgs & args );
 
   /// Send paths and names of dumped file to the client
   /// @param args
   void send_server_info_to_client( Common::SignalArgs & args );
+
+  /// signal that responds to the event "iteration_done"
+  /// @param args
+  void signal_iteration_done( Common::SignalArgs & args );
 
 private slots:
 
@@ -83,7 +86,19 @@ private : //data
     QProcess * m_pvserver;
 
     /// Port on the paraview server must be launched.
-    QString m_port;
+    Uint m_port;
+
+    /// signal connection for event "iteration_done"
+    Common::Signal::ConnectionType m_connect_iteration_done;
+
+    /// rate of dump file refresh
+    Uint m_refresh_rate;
+
+    /// filename to dump VTK file
+    std::string m_filename;
+
+    /// mesh component to visualize
+    boost::weak_ptr< Mesh::CMesh > m_mesh;
 };
 
 //////////////////////////////////////////////////////////////////////////////

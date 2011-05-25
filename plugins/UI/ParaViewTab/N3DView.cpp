@@ -34,7 +34,7 @@ N3DView::N3DView(const std::string & name) :
   regist_signal("launch_pvserver", "Launch Paraview Server", "Launch Server")->
       signal->connect( boost::bind( &N3DView::launch_pvserver, this, _1));
 
-  regist_signal("send_server_info_to_client", "Send file info to client", "Get file info")->
+  regist_signal("send_server_info_to_client", "Load last dumped file", "Get file info")->
       signal->connect( boost::bind( &N3DView::send_server_info_to_client, this, _1));
 }
 
@@ -80,17 +80,14 @@ void N3DView::send_server_info_to_client( SignalArgs& node ){
   std::vector<std::string> data = options.get_array<std::string>("pathinfo");
 
   std::string path = data[0];
-  std::string path2 = data[1];
-  std::string name = data[2];
-  std::string name2 = data[3];
+  std::string name = data[1];
 
-  std::vector<QString> path_list(2);
+
+  std::vector<QString> path_list(1);
   path_list[0] = QString(path.c_str());
-  path_list[1] = QString(path2.c_str());
 
-  std::vector<QString> name_list(2);
+  std::vector<QString> name_list(1);
   name_list[0] = QString(name.c_str());
-  name_list[1] = QString(name2.c_str());
 
   TabBuilder::instance()->getWidget<Widget3D>(as_ptr<CNode>())
       ->loadPaths(path_list, name_list);
