@@ -114,7 +114,7 @@ void C3DView::launch_pvserver( SignalArgs & args ){
 
   //set the paraview server port
   QString portCommand = "-sp=";
-  portCommand += QString::number(m_port);
+  portCommand += QString::number( m_properties["paraview_server_port"].value<Uint>() );
 
   //Use custom server.
   m_pvserver->start("pvserver", QStringList() << portCommand);
@@ -165,8 +165,8 @@ void C3DView::send_server_info_to_client( SignalArgs & args ){
 
   std::vector<std::string> data(2);
 
-  data[0] = m_filename;
-  data[1] = QFileInfo(m_filename.c_str()).fileName().section('.',0,0).toStdString();
+  data[0] =  m_properties["paraview_server_port"].value<std::string>() ;
+  data[1] = QFileInfo( m_properties["paraview_server_port"].value<std::string>() .c_str()).fileName().section('.',0,0).toStdString();
 
   XmlNode node = options.set_array("pathinfo", data, " ; ");
 

@@ -557,16 +557,17 @@ void Widget3D::reset_camera(){
 }
 
 void Widget3D::show_color_editor(){
-  if(m_RenderView && m_input){
+  if(m_RenderView){
     //get the view representation
     pqDataRepresentation* repr = m_source_list.at(m_actor_list->currentRow())->getRepresentation(m_RenderView);
 
-    if(repr && m_RenderView->getWidget() && m_server && m_server->isRemote() && m_source)
+    if(repr && m_RenderView->getWidget() && m_server && m_server->isRemote())
     {
       //create a scale color selector depending of the representation
       m_scaleEdit = new pqColorScaleEditor(m_RenderView->getWidget());
       m_scaleEdit->setRepresentation(repr);
       m_scaleEdit->show();
+
     }
   }
 }
@@ -580,26 +581,46 @@ void Widget3D::connectToServer(){
 
 void Widget3D::loadPaths(std::vector<QString> paths,std::vector<QString> names){
 
-  if(m_RenderView && m_server && m_server->isRemote()){
+  m_actor_list->setItemSelected(0,false);
 
-    int save_last_index = m_source_list.size();
+  if(m_RenderView && m_server && m_server->isRemote()){
 
     //create source for eatch path
     for(int i=0;i< paths.size();++i){
-      create_source(paths.at(i));
-      m_source_list.push_back(m_source);
 
-      QListWidgetItem * newItem = new QListWidgetItem(names.at(i));
-      newItem->setIcon(QIcon(":/paraview_icons/pqEyeball16.png"));
-      m_actor_list->addItem(newItem);
-    }
+      bool mesh_visible = true;
 
-    //add each source to the render
-    for(int i=0;i< paths.size();++i){
-      m_input = m_source_list.at(i+save_last_index);
+      if(m_paths_list.contains(paths.at(i))){
+
+        mesh_visible = m_source_list.at(m_paths_list.indexOf(paths.at(i)))->getRepresentation(this->m_RenderView)->isVisible();
+
+        //delete previous sources
+        m_object_builder->destroy(m_source_list.at(m_paths_list.indexOf(paths.at(i))));
+        QListWidgetItem * newItem = new QListWidgetItem(names.at(i));
+        newItem->setIcon(QIcon(":/paraview_icons/pqEyeball16.png"));
+
+        m_actor_list->removeItemWidget(m_actor_list->item(m_paths_list.indexOf(paths.at(i))));
+
+        create_source(paths.at(i));
+
+        m_source_list.replace(m_paths_list.indexOf(paths.at(i)),m_source);
+
+      }else{
+        m_paths_list.push_back(paths.at(i));
+        create_source(paths.at(i));
+        m_source_list.push_back(m_source);
+
+        QListWidgetItem * newItem = new QListWidgetItem(names.at(i));
+        newItem->setIcon(QIcon(":/paraview_icons/pqEyeball16.png"));
+        m_actor_list->addItem(newItem);
+      }
+
       //create a data representation in server side, for the render window with the input
-      m_object_builder->createDataRepresentation(m_input->getOutputPort(0), this->m_RenderView);
-      vtkSMSourceProxy::SafeDownCast(m_input->getProxy())->UpdatePipeline();
+      m_object_builder->createDataRepresentation(m_source->getOutputPort(0), this->m_RenderView);
+      vtkSMSourceProxy::SafeDownCast(m_source->getProxy())->UpdatePipeline();
+
+      m_source->getRepresentation(this->m_RenderView)->setVisible(mesh_visible);
+
     }
 
     //zoom to object
@@ -653,14 +674,12 @@ void Widget3D::create_source(QString path){
 void Widget3D::show_hide_actor(QListWidgetItem * itemDuble){
 
   itemDuble->setSelected(true);
-  bool visible = m_RenderView->getRepresentation(m_actor_list->row(itemDuble))->isVisible();
+
+  bool visible = m_source_list.at(m_actor_list->row(itemDuble))->getRepresentation(this->m_RenderView)->isVisible();
 
   for(int i=0;i<m_actor_list->selectedItems().size();++i)
   {
-
       QListWidgetItem * item = m_actor_list->selectedItems().at(i);
-
-      int index = m_actor_list->row(item);
 
       //if actor is visible
       if(visible){
@@ -674,7 +693,8 @@ void Widget3D::show_hide_actor(QListWidgetItem * itemDuble){
       }
 
       //Set actor/region visibility
-      m_RenderView->getRepresentation(index)->setVisible(!visible);
+      m_source_list.at(m_actor_list->selectionModel()->selectedRows().at(i).row())
+          ->getRepresentation(this->m_RenderView)->setVisible(!visible);
 
   }
 

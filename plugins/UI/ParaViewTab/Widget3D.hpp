@@ -282,6 +282,9 @@ private: //data
 
   /// Progress Manager (not used)
   QPointer<pqProgressManager> progMgr;
+
+  /// Mesh path list
+  QList<QString> m_paths_list;
 };
 
 
