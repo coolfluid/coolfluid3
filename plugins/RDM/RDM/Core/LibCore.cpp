@@ -40,10 +40,6 @@ void LibCore::terminate_impl()
       ->remove_component( "Setup_RD_Steady_Explicit" );
   Core::instance().root()
       .get_child_ptr("Tools")
-      ->get_child_ptr("RDM")
-      ->remove_component( "Setup_RD_MySim" );
-  Core::instance().root()
-      .get_child_ptr("Tools")
       ->remove_component("RDM");
 }
 
