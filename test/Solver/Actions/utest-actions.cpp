@@ -14,7 +14,7 @@
 #include <boost/assign/list_of.hpp>
 
 #include "Common/LibCommon.hpp"
- 
+
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 	// Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
 	CLoop::Ptr node_loop2 = root->create_component_ptr< CForAllNodes2 >("node_loop");
 	node_loop2->create_loop_operation("CF.TestActions.CDummyLoopOperation");
-	node_loop2->configure_property("Regions",regions);
+	node_loop2->configure_property("regions",regions);
 	CFinfo << "\n\n\nNode loop 2 " << CFendl;
 	node_loop2->execute();
 
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 	// Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
 	CLoop::Ptr face_loop = root.create_component_ptr< CForAllFaces >("face_loop");
 	face_loop->create_loop_operation("CF.TestActions.CDummyLoopOperation");
-	face_loop->configure_property("Regions",regions);
+	face_loop->configure_property("regions",regions);
 	CFinfo << "\n\n\nFace loop" << CFendl;
 	face_loop->execute();
 
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
 
 	CLoop::Ptr node_loop = root.create_component_ptr< CForAllNodes2 >("node_loop");
-	node_loop->configure_property("Regions",regions);
+	node_loop->configure_property("regions",regions);
 
   node_loop->create_loop_operation("CF.Solver.Actions.CSetFieldValues");
   node_loop->action("CF.Solver.Actions.CSetFieldValues").configure_property("Field",field.full_path());
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK_EQUAL( volume_view[12] , 0.0035918050864676932);
 
   CLoop::Ptr elem_loop = root.create_component_ptr< CForAllElements >("elem_loop");
-  elem_loop->configure_property("Regions",regions);
+  elem_loop->configure_property("regions",regions);
 
   elem_loop->create_loop_operation("CF.Solver.Actions.CComputeVolume");
   elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volume",volumes.full_path());
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   BOOST_CHECK(true);
 
-  compute_all_cell_volumes->configure_property("Regions",topology);
+  compute_all_cell_volumes->configure_property("regions",topology);
   BOOST_CHECK(true);
 
   compute_all_cell_volumes->action().configure_property("Volume",field.full_path());
