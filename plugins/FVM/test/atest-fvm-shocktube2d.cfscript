@@ -1,7 +1,7 @@
 # requires to load coolfluid_fvm library
 
 call //Root/Libraries/load_library \
-     Lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_fvm_core
+     lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_fvm_core
 
 # or in bash: export COOLFLUID_PLUGINS=path/to/libcoolfluid_fvm.dylib
 
@@ -46,7 +46,7 @@ create tools/transform_mesh_for_FVM/4_build_volume_field    CF.Mesh.Actions.CBui
 create tools/transform_mesh_for_FVM/5_build_area_field      CF.Mesh.Actions.CBuildArea
 create tools/transform_mesh_for_FVM/6_build_face_normals    CF.Mesh.Actions.CBuildFaceNormals
 
-configure tools/transform_mesh_for_FVM   Mesh:uri=cpath://Root/shocktube/Domain/mesh
+configure tools/transform_mesh_for_FVM   mesh:uri=cpath://Root/shocktube/Domain/mesh
 tools/transform_mesh_for_FVM
 
 #############################################################################
@@ -65,8 +65,8 @@ call FiniteVolumeSolver/create_bc \
 
 ### initialize the solution
 create tools/initialize_solution     CF.Mesh.Actions.CInitFieldFunction
-configure tools/initialize_solution Field:uri=cpath://Root/shocktube/Domain/mesh/solution
-configure tools/initialize_solution "Functions:array[string]=\
+configure tools/initialize_solution field:uri=cpath://Root/shocktube/Domain/mesh/solution
+configure tools/initialize_solution "functions:array[string]=\
   r_L:=4.696; r_R:=1.408; u_L:=0; u_R:=0; v_L:=0; v_R:=0; p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,r_L,r_R),\
   r_L:=4.696; r_R:=1.408; u_L:=0; u_R:=0; v_L:=0; v_R:=0; p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,r_L*u_L,r_R*u_R),\
   r_L:=4.696; r_R:=1.408; u_L:=0; u_R:=0; v_L:=0; v_R:=0; p_L:=404400; p_R:=101100; g:=1.4; if(x<=5 & y<=5,r_L*v_L,r_R*v_R),\
