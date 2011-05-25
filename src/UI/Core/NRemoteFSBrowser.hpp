@@ -49,6 +49,11 @@ public:
     QString name;
 
     FileType type;
+
+    QString dateModified;
+
+    Uint fileSize;
+
   }; // FileInfo
 
   NRemoteFSBrowser( const std::string & name );
@@ -94,6 +99,12 @@ public:
 
   virtual void disableLocalSignals(QMap<QString, bool>&) const {}
 
+  QString retrieveFullPath( const QModelIndex & index ) const;
+
+  bool isFile( const QModelIndex & index ) const;
+
+  bool isDirectory( const QModelIndex & index ) const;
+
   /// @name Signals
   //@{
 
@@ -104,6 +115,10 @@ public:
 signals:
 
   void currentPathChanged( const QString & newPath );
+
+private: // functions
+
+  QString sizeToString( Uint size ) const;
 
 private: // data
 

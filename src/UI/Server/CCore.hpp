@@ -38,6 +38,17 @@ namespace Server {
   {
     Q_OBJECT
 
+  private:
+
+    struct DirContent
+    {
+      std::vector<std::string> dirs;
+      std::vector<std::string> files;
+      std::vector<Uint> fileSizes;
+      std::vector<std::string> dirDates;
+      std::vector<std::string> fileDates;
+    };
+
   public:
 
     typedef boost::shared_ptr<CCore> Ptr;
@@ -149,8 +160,7 @@ namespace Server {
                        const std::vector<std::string> & extensions,
                        bool includeFiles,
                        bool includeNoExtension,
-                       std::vector<std::string> & dirsList,
-                       std::vector<std::string> & filesList) const;
+                       DirContent & content) const;
 
     void read_dir(CF::Common::SignalArgs & node);
 

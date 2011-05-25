@@ -127,10 +127,8 @@ bool CCore::getDirContent(const QString & directory,
                           const std::vector<std::string> & extensions,
                           bool includeFiles,
                           bool includeNoExtension,
-                          std::vector<std::string> & dirsList,
-                          std::vector<std::string> & filesList) const
+                          DirContent & content) const
 {
-  QStringList list;
   QDir dir(directory);
   bool dirExists = dir.exists();
 
@@ -175,17 +173,24 @@ bool CCore::getDirContent(const QString & directory,
     {
       QFileInfo fileInfo = *it;
       QString filename = fileInfo.fileName();
+      QString modified = fileInfo.lastModified().toString("yyyy-MM-dd hh:mm:ss");
 
       if (filename != "." && filename != "..")
       {
         if(fileInfo.isDir())
-          dirsList.push_back(filename.toStdString());
+        {
+          content.dirs.push_back(filename.toStdString());
+          content.dirDates.push_back(modified.toStdString());
+        }
         else if(includeFiles)
         {
-          if(regex.exactMatch(filename))
-            filesList.push_back(filename.toStdString());
-          else if(includeNoExtension && !filename.contains('.'))
-            filesList.push_back(filename.toStdString());
+          if(regex.exactMatch(filename) ||
+             (includeNoExtension && !filename.contains('.')) )
+          {
+            content.files.push_back(filename.toStdString());
+            content.fileDates.push_back(modified.toStdString());
+            content.fileSizes.push_back(fileInfo.size());
+          }
         }
       }
 
@@ -206,8 +211,9 @@ void CCore::read_dir(SignalArgs & args)
 {
   SignalOptions options( args );
 
-  std::vector<std::string> dirList;
-  std::vector<std::string> fileList;
+//  std::vector<std::string> dirList;
+//  std::vector<std::string> fileList;
+  DirContent content;
   QString directory;
   rapidxml::xml_attribute<>* attr = args.node.content->first_attribute( "clientid" );
   std::string clientId( attr != nullptr ? attr->value() : "" );
@@ -216,8 +222,8 @@ void CCore::read_dir(SignalArgs & args)
   {
     QString dirPath = options.option<std::string>("dirPath").c_str();
     bool includeFiles = options.option<bool>("includeFiles");
-    bool includeNoExtension = options.option<bool>("includeNoExtensions");
-    std::vector<std::string> extensions = options.array<std::string>("extensions");
+    bool includeNoExt = options.option<bool>("includeNoExtensions");
+    std::vector<std::string> exts = options.array<std::string>("extensions");
 
     if(dirPath.isEmpty())
       directory = this->DEFAULT_PATH;
@@ -228,12 +234,13 @@ void CCore::read_dir(SignalArgs & args)
     directory = QDir::cleanPath(directory);
 
     // if the directory is not the root
-    /// @todo test this on Windows
+    /// @todo test this on Windows!!!!
     if(directory != "/")
-      dirList.push_back("..");
+      content.dirs.push_back("..");
 
-    if(!this->getDirContent(directory, extensions, includeFiles,
-                            includeNoExtension, dirList, fileList))
+    content.dirDates.push_back( QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
+
+    if(!this->getDirContent(directory, exts, includeFiles, includeNoExt, content))
     {
       m_commServer->sendMessageToClient(dirPath + ": no such direcrory", LogMessage::ERROR, clientId);
     }
@@ -244,15 +251,17 @@ void CCore::read_dir(SignalArgs & args)
       SignalOptions roptions( reply );
 
       roptions.add("dirPath", directory.toStdString());
-      roptions.add<std::string>("dirs", dirList, " ; ");
-      roptions.add<std::string>("files", fileList, " ; ");
+      roptions.add<std::string>("dirs", content.dirs, " ; ");
+      roptions.add<std::string>("files", content.files, " ; ");
+      roptions.add<std::string>("dirDates", content.dirDates, " ; ");
+      roptions.add<std::string>("fileDates", content.fileDates, " ; ");
+      roptions.add<Uint>("fileSizes", content.fileSizes, " ; ");
     }
   }
   catch(Exception e)
   {
     CFerror << e.what() << CFflush;
   }
-
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

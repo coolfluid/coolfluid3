@@ -17,8 +17,6 @@
 
 #include "Common/XML/FileOperations.hpp"
 
-#include "QFileIconProvider"
-
 using namespace CF::Common::XML;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -38,21 +36,6 @@ NRemoteFSBrowser::NRemoteFSBrowser( const std::string & name ) :
 
   m_headers << "Name" << "Size" << "Date Modified";
 
-  FileInfo * info = new FileInfo();
-
-  info->name = "Directory";
-  info->type = DIRECTORY;
-
-  m_data.append(info);
-
-  info = new FileInfo();
-  info->name = "Blabla.txt";
-  info->type = FILE;
-
-  m_iconProvider = new QFileIconProvider();
-
-  m_data.append(info);
-
   regist_signal("read_dir", "")->signal->
       connect(boost::bind(&NRemoteFSBrowser::signal_read_dir, this, _1));
 
@@ -71,9 +54,13 @@ void NRemoteFSBrowser::signal_read_dir ( Common::SignalArgs & args )
 {
   SignalOptions options( args );
   QStringList completionList;
+  int i;
 
   std::vector<std::string> dirs;
   std::vector<std::string> files;
+  std::vector<std::string> dirDates;
+  std::vector<std::string> fileDates;
+  std::vector<Uint> fileSizes;
 
   std::vector<std::string>::const_iterator itDirs;
   std::vector<std::string>::const_iterator itFiles;
@@ -93,6 +80,9 @@ void NRemoteFSBrowser::signal_read_dir ( Common::SignalArgs & args )
 
   dirs = options.array<std::string>("dirs");
   files = options.array<std::string>("files");
+  dirDates = options.array<std::string>("dirDates");
+  fileDates = options.array<std::string>("fileDates");
+  fileSizes = options.array<Uint>("fileSizes");
 
   // notice the view(s) that the model is about to be completely changed
   emit layoutAboutToBeChanged();
@@ -105,13 +95,15 @@ void NRemoteFSBrowser::signal_read_dir ( Common::SignalArgs & args )
     delete m_data.takeFirst();
 
   // add the directories
-  for( itDirs = dirs.begin() ; itDirs != dirs.end() ; ++itDirs )
+  for( i = 0, itDirs = dirs.begin() ; itDirs != dirs.end() ; ++itDirs, ++i )
   {
     FileInfo * fileInfo = new FileInfo();
     QString name = itDirs->c_str();
 
     fileInfo->name = name;
     fileInfo->type = DIRECTORY;
+
+    fileInfo->dateModified = dirDates[i].c_str();
 
     if(!m_currentPath.isEmpty() && name != "..")
       name.prepend(m_currentPath + (m_currentPath.endsWith("/") ? "" : "/"));
@@ -123,12 +115,14 @@ void NRemoteFSBrowser::signal_read_dir ( Common::SignalArgs & args )
   m_completionModel->setStringList( completionList );
 
   // add the files
-  for(itFiles = files.begin() ; itFiles != files.end() ; ++itFiles )
+  for( i = 0, itFiles = files.begin() ; itFiles != files.end() ; ++itFiles, ++i )
   {
     FileInfo * fileInfo = new FileInfo();
 
     fileInfo->name = itFiles->c_str();
     fileInfo->type = FILE;
+    fileInfo->dateModified = fileDates[i].c_str();
+    fileInfo->fileSize = fileSizes[i];
 
     m_data.append(fileInfo);
   }
@@ -247,20 +241,30 @@ QVariant NRemoteFSBrowser::data ( const QModelIndex & index, int role ) const
 {
   QVariant data;
 
-  if( index.isValid() && index.column() == 0 )
+  if( index.isValid() )
   {
-    FileInfo * item = m_data.at(index.row());
 
-    switch(role)
+    if( role == Qt::DisplayRole )
     {
-    case Qt::DisplayRole:
-      data = item->name;
-      break;
+      FileInfo * item = m_data.at(index.row());
 
-    case Qt::UserRole:
-      data = item->type;
-      break;
+      switch( index.column() )
+      {
+      case 0 :                     // item name
+        data = item->name;
+        break;
+
+      case 1:                      // size (in case it's a file)
+        data = isFile(index) ? sizeToString(item->fileSize) : QString();
+        break;
+
+      case 2:                      // date modified
+        data = item->dateModified;
+        break;
+      }
     }
+    else if( role == Qt::TextAlignmentRole && index.column() == 1)
+      return Qt::AlignRight;
   }
 
   return data;
@@ -312,6 +316,63 @@ QVariant NRemoteFSBrowser::headerData(int section, Qt::Orientation orientation, 
       header = m_headers.at( section );
 
   return header;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+QString NRemoteFSBrowser::retrieveFullPath( const QModelIndex & index ) const
+{
+  QString path;
+
+  if( index.isValid() && index.model() == this )
+    path = m_currentPath + "/" + data(index, Qt::DisplayRole).toString();
+
+  return path;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool NRemoteFSBrowser::isDirectory(const QModelIndex &index) const
+{
+  FileInfo * info = static_cast<FileInfo*>( index.internalPointer() );
+
+  return is_not_null(info) && info->type == DIRECTORY;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool NRemoteFSBrowser::isFile(const QModelIndex &index) const
+{
+  FileInfo * info = static_cast<FileInfo*>( index.internalPointer() );
+
+  return is_not_null(info) && info->type == FILE;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+QString NRemoteFSBrowser::sizeToString( Uint size ) const
+{
+  // MacOS uses the "Kilo computation system" where 1 KB = 1000 bytes
+  // whereas other systems use the "Kibi system" where 1 KB = 2^10 = 1024 bytes
+#ifdef Q_WS_MAC
+  Uint divisionStep = 1000;
+#else
+  Uint divisionStep = 1024;
+#endif
+
+  int iter = 0;
+  QStringList units;
+  Real dividedSize = size;
+
+  units << " B" << "KB" << "MB" << "GB" << "TB";
+
+  while( dividedSize > divisionStep )
+  {
+    dividedSize /= divisionStep;
+    iter++;
+  }
+
+  return QString::number( dividedSize, 'f', 2) + ' ' + units[iter];
 }
 
 /////////////////////////////////////////////////////////////////////////////
