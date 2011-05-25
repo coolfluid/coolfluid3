@@ -57,3 +57,7 @@ add_subdirectory( boost-shared_ptr )
 ###############################################################################
 ### check that compiling with paraview works
 add_subdirectory( paraview-deps )
+
+###############################################################################
+### linear solver trials
+add_subdirectory( lss-trilinos )

@@ -7,6 +7,9 @@
 #ifndef CF_Common_mpi_PE_hpp
 #define CF_Common_mpi_PE_hpp
 
+
+/// @TODO Quentin raised parent-child mpi_comm wrapping via pe -> faking a pe class which is not singleton???
+
 #include <mpi.h>
 
 #include "Common/StringConversion.hpp"
