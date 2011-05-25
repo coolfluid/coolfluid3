@@ -117,8 +117,8 @@ void C3DView::launch_pvserver( SignalArgs & args ){
   portCommand += QString::number(m_port);
 
   //Use custom server.
-  //m_pvserver->start("pvserver", QStringList() << portCommand);
-  m_pvserver->start("/nobackup/st/wertz/./pvserver", QStringList() << portCommand);
+  m_pvserver->start("pvserver", QStringList() << portCommand);
+//  m_pvserver->start("/nobackup/st/wertz/./pvserver", QStringList() << portCommand);
   /** options **/
   //add --use-offscreen-rendering flag for offscreen rendering,
   //paraview server must be compiled with OSMesa,
