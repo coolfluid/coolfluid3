@@ -10,7 +10,6 @@
 
 #include "RDM/Core/LibCore.hpp"
 #include "RDM/Core/SteadyExplicit.hpp"
-#include "RDM/Core/MySim.hpp"
 
 namespace CF {
 namespace RDM {
@@ -30,8 +29,6 @@ void LibCore::initiate_impl()
   rdm_group->mark_basic();
 
   rdm_group->create_component_ptr<RDM::SteadyExplicit>( "Setup_RD_Steady_Explicit" )
-      ->mark_basic();
-  rdm_group->create_component_ptr<RDM::SteadyExplicit>( "Setup_RD_MySim" )
       ->mark_basic();
 }
 
