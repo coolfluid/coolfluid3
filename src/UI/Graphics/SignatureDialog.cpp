@@ -144,7 +144,7 @@ void SignatureDialog::btOkClicked()
       }
 
       node->value( node->document()->allocate_string(val_str.c_str()) );
-      it.value().set_attribute(Protocol::Tags::attr_array_size(), QString(value.count()).toStdString());
+      it.value().set_attribute(Protocol::Tags::attr_array_size(), QString::number(value.count()).toStdString());
     }
   }
 
