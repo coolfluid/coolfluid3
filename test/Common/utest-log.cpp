@@ -40,7 +40,6 @@ BOOST_AUTO_TEST_CASE( openFiles )
     BOOST_CHECK(Logger::instance().getStream(ERROR).isFileOpen());
     BOOST_CHECK(Logger::instance().getStream(WARNING).isFileOpen());
     BOOST_CHECK(Logger::instance().getStream(DEBUG).isFileOpen());
-    BOOST_CHECK(Logger::instance().getStream(TRACE).isFileOpen());
   }
   else
   {
@@ -48,7 +47,6 @@ BOOST_AUTO_TEST_CASE( openFiles )
     BOOST_CHECK(!Logger::instance().getStream(ERROR).isFileOpen());
     BOOST_CHECK(!Logger::instance().getStream(WARNING).isFileOpen());
     BOOST_CHECK(!Logger::instance().getStream(DEBUG).isFileOpen());
-    BOOST_CHECK(!Logger::instance().getStream(TRACE).isFileOpen());
   }
 }
 

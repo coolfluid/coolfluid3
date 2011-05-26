@@ -34,7 +34,6 @@ Logger::Logger()
   m_streams[WARNING] = new LogStream("Warning", WARNING);
   m_streams[INFO]    = new LogStream("Info",    INFO);
   m_streams[DEBUG]   = new LogStream("Debug",   DEBUG);
-  m_streams[TRACE]   = new LogStream("Trace",   TRACE);
 
   m_streams[ERROR]->setFilterRankZero(false);
 
@@ -95,14 +94,6 @@ LogStream & Logger::Debug(const CodeLocation & place)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogStream & Logger::Trace(const CodeLocation & place)
-{
-  return *(m_streams[TRACE]) << place;
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 LogStream & Logger::getStream(LogLevel type)
 {
   return *(m_streams[type]);
@@ -116,28 +107,22 @@ void Logger::openFiles()
   if(mpi::PE::instance().is_active())
   {
     std::ostringstream logFile;
-    std::ostringstream traceFile;
 
     iostreams::file_descriptor_sink fdLogFile;
-    iostreams::file_descriptor_sink fdTraceFile;
 
     int rank = mpi::PE::instance().rank();
 
     filesystem::remove(logFile.str());
-    filesystem::remove(traceFile.str());
 
     logFile << "output-p" << rank << ".log";
-    traceFile << "output-p" << rank << ".trace";
 
     fdLogFile = iostreams::file_descriptor_sink(logFile.str());
-fdTraceFile = iostreams::file_descriptor_sink(traceFile.str());
 
     // setFiles
     m_streams[INFO]->setFile(fdLogFile);
     m_streams[ERROR]->setFile(fdLogFile);
     m_streams[WARNING]->setFile(fdLogFile);
     m_streams[DEBUG]->setFile(fdLogFile);
-    m_streams[TRACE]->setFile(fdTraceFile);
   }
 }
 

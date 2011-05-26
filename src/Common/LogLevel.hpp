@@ -24,7 +24,6 @@ enum LogLevel
   WARNING  = 2, // output errors and warnings
   INFO     = 3, // output errors and warnings and info
   DEBUG    = 4, // output errors and warnings and info and debug
-  TRACE    = 5, // output errors and warnings and info and debug and trace
   VERBOSE  = 10 // output everything
 }; // LogLevel
 

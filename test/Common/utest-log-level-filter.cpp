@@ -95,7 +95,6 @@ BOOST_AUTO_TEST_CASE( write )
   f.m_filter->write(f.m_sink, str.c_str(), str.length());
   BOOST_CHECK_EQUAL(str, f.m_buffer);
 
-  f.m_filter->set_log_level(TRACE);
   f.m_buffer.clear();
   f.m_filter->write(f.m_sink, str.c_str(), str.length());
   BOOST_CHECK_EQUAL(str, f.m_buffer);

@@ -25,9 +25,6 @@ if(CMAKE_BUILD_TYPE_CAPS MATCHES "DEBUG")
 
 
   coolfluid_set_if_not_defined( CF_ENABLE_ASSERTIONS   ON   )
-  coolfluid_set_if_not_defined( CF_ENABLE_TRACE        ON   )
-  coolfluid_set_if_not_defined( CF_ENABLE_LOGALL       ON   )
-  coolfluid_set_if_not_defined( CF_ENABLE_LOGDEBUG     ON   )
   coolfluid_set_if_not_defined( CF_ENABLE_DEBUG_MACROS ON   )
   coolfluid_set_if_not_defined( CF_ENABLE_STATIC       OFF  )
 
@@ -41,9 +38,6 @@ if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELWITHDEBINFO")
   set(CF_BUILD_TYPE_OK ON)
 
   coolfluid_set_if_not_defined( CF_ENABLE_ASSERTIONS   ON   )
-  coolfluid_set_if_not_defined( CF_ENABLE_TRACE        ON  )
-  coolfluid_set_if_not_defined( CF_ENABLE_LOGALL       ON   )
-  coolfluid_set_if_not_defined( CF_ENABLE_LOGOPTIM     ON   )
   coolfluid_set_if_not_defined( CF_ENABLE_OPTIM_MACROS ON   )
   coolfluid_set_if_not_defined( CF_ENABLE_STATIC       OFF  )
 
@@ -63,9 +57,6 @@ if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
   endif()
 
   coolfluid_set_if_not_defined( CF_ENABLE_ASSERTIONS   OFF  )
-  coolfluid_set_if_not_defined( CF_ENABLE_TRACE        OFF  )
-  coolfluid_set_if_not_defined( CF_ENABLE_LOGALL       ON   )
-  coolfluid_set_if_not_defined( CF_ENABLE_LOGDEBUG     OFF  )
   coolfluid_set_if_not_defined( CF_ENABLE_DEBUG_MACROS OFF  )
   coolfluid_set_if_not_defined( CF_ENABLE_STATIC       OFF  )
 

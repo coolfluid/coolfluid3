@@ -7,18 +7,6 @@ endif()
 ###############################################################################
 # Logging options
 
-if( NOT CF_ENABLE_TRACE)
-  add_definitions(-DCF_NO_TRACE)
-endif()
-
-if( NOT CF_ENABLE_LOGALL )
-  add_definitions(-DCF_NO_LOG)
-endif()
-
-if( NOT CF_ENABLE_LOGDEBUG)
-  add_definitions(-DCF_NO_DEBUG_LOG)
-endif()
-
 if( NOT CF_ENABLE_DEBUG_MACROS)
   add_definitions(-DCF_NO_DEBUG_MACROS)
 endif()

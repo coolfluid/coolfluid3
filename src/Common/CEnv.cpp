@@ -55,13 +55,6 @@ CEnv::CEnv ( const std::string& name) : Component ( name )
     ->mark_basic()
     ->attach_trigger(boost::bind(&CEnv::trigger_exception_aborts,this));
 
-  m_properties.add_option(OptionT<bool>::create("trace_active","Trace Active", "If true, trace is active.", false))
-    ->mark_basic()
-    ->attach_trigger(boost::bind(&CEnv::trigger_trace_active,this));
-
-  m_properties.add_option(OptionT<bool>::create("trace_to_std_out","Trace To Std Out", "If true, trace log is also written to the stdout.", true))
-    ->mark_basic();
-
   m_properties.add_option(OptionT<bool>::create("regist_signal_handlers","Regist Signal Handlers", "If true, regist signal handlers", true))
     ->mark_basic();
 
@@ -153,14 +146,6 @@ void CEnv::trigger_log_level()
 {
   Logger::instance().set_log_level(property("log_level").value<Uint>());
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CEnv::trigger_trace_active()
-{
-  CFtrace.set_log_level(property("trace_active").value<bool>() ? TRACE : SILENT);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
