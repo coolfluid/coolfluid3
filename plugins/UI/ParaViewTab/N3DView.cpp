@@ -7,6 +7,13 @@
 // header
 #include "Common/Signal.hpp"
 #include "Common/XML/Protocol.hpp"
+
+
+
+#include <QDebug>
+
+
+
 #include "UI/UICommon/ComponentNames.hpp"
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Graphics/TabBuilder.hpp"
@@ -34,7 +41,7 @@ N3DView::N3DView(const std::string & name) :
   regist_signal("launch_pvserver", "Launch Paraview Server", "Launch Server")->
       signal->connect( boost::bind( &N3DView::launch_pvserver, this, _1));
 
-  regist_signal("send_server_info_to_client", "Load last dumped file", "Get file info")->
+  regist_signal("file_dumped", "Load last dumped file", "Get file info")->
       signal->connect( boost::bind( &N3DView::send_server_info_to_client, this, _1));
 }
 
@@ -81,7 +88,6 @@ void N3DView::send_server_info_to_client( SignalArgs& node ){
 
   std::string path = data[0];
   std::string name = data[1];
-
 
   std::vector<QString> path_list(1);
   path_list[0] = QString(path.c_str());

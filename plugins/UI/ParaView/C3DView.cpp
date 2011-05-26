@@ -57,7 +57,7 @@ C3DView::C3DView(const std::string& name) :
   m_filename = "solution_field.vtk";
   m_properties.add_option< OptionT<std::string> >("filename", "File Name", "File name to dumpmesh in VTK format", m_filename );
 
-  m_refresh_rate = 0;
+  m_refresh_rate = 1;
   m_properties.add_option< OptionT<Uint> >("refresh_rate", "Refresh Rate", "Number of iterations between refreshing the mesh / solution", m_refresh_rate )
   ->mark_basic();
 
@@ -146,22 +146,41 @@ void C3DView::launch_pvserver( SignalArgs & args ){
 
 void C3DView::signal_iteration_done( SignalArgs & args )
 {
+  static Uint curr_iteration = 0;
   SignalOptions opt(args);
+  SignalFrame frame("file_dumped", full_path(), full_path());
+  SignalOptions options(frame);
 
   if (m_mesh.expired())
   {
-	  CMesh& mesh = find_component_recursively<CMesh>( Core::instance().root() );
-		URI mesh_path = mesh.full_path();
-		configure_property("mesh", mesh_path );
+
+    Mesh::CMesh& mesh = find_component_recursively<Mesh::CMesh>( Core::instance().root() );
+    URI mesh_path = mesh.full_path();
+    configure_property("mesh", mesh_path );
   }
-    // throw SetupError( FromHere(), "Mesh option is not configured");
+//  throw SetupError( FromHere(), "Mesh option is not configured");
 
-  Uint curr_iteration = opt.option<Uint>("iteration");
 
-  if(!( curr_iteration % m_refresh_rate ))
+//  Uint curr_iteration = opt.option<Uint>("iteration");
+
+  if( curr_iteration == 1 || ( curr_iteration % m_properties["refresh_rate"].value<Uint>() ) == 0 )
   {
     get_child("writer").as_type<Mesh::CMeshWriter>().write_from_to( *m_mesh.lock(), m_filename);
+
+    std::vector<std::string> data(2);
+
+    data[0] =  QFileInfo( m_properties["filename"].value<std::string>().c_str() )
+        .absoluteFilePath().toStdString() ;
+    data[1] = QFileInfo( m_properties["filename"].value<std::string>().c_str())
+        .fileName().section('.',0,0).toStdString();
+
+    options.add("pathinfo", data);
+
+    Server::ServerRoot::core()->sendSignal( *frame.xml_doc.get() );
   }
+
+  curr_iteration++;
+
 }
 
 void C3DView::send_server_info_to_client( SignalArgs & args ){
