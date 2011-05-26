@@ -149,7 +149,12 @@ void C3DView::signal_iteration_done( SignalArgs & args )
   SignalOptions opt(args);
 
   if (m_mesh.expired())
-    throw SetupError( FromHere(), "Mesh option is not configured");
+  {
+	  CMesh& mesh = find_component_recursively<CMesh>( Core::instance().root() );
+		URI mesh_path = mesh.full_path();
+		configure_property("mesh", mesh_path );
+  }
+    // throw SetupError( FromHere(), "Mesh option is not configured");
 
   Uint curr_iteration = opt.option<Uint>("iteration");
 
