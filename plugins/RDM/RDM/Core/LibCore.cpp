@@ -31,8 +31,8 @@ void LibCore::initiate_impl()
 
   rdm_group->create_component_ptr<RDM::SteadyExplicit>( "Setup_RD_Steady_Explicit" )
       ->mark_basic();
-//  rdm_group->create_component_ptr<RDM::MySim>( "Setup_RD_My_Sim" )
-//      ->mark_basic();
+  rdm_group->create_component_ptr<RDM::MySim>( "Setup_RD_My_Sim" )
+      ->mark_basic();
 }
 
 void LibCore::terminate_impl()
@@ -41,10 +41,10 @@ void LibCore::terminate_impl()
       .get_child_ptr("Tools")
       ->get_child_ptr("RDM")
       ->remove_component( "Setup_RD_Steady_Explicit" );
-//  Core::instance().root()
-//      .get_child_ptr("Tools")
-//      ->get_child_ptr("RDM")
-//      ->remove_component( "Setup_RD_MySim" );
+  Core::instance().root()
+      .get_child_ptr("Tools")
+      ->get_child_ptr("RDM")
+      ->remove_component( "Setup_RD_My_Sim" );
   Core::instance().root()
       .get_child_ptr("Tools")
       ->remove_component("RDM");
