@@ -15,6 +15,7 @@ class QComboBox;
 class QKeyEvent;
 class QGridLayout;
 class QGroupBox;
+class QItemSelection;
 class QLineEdit;
 class QListView;
 class QPushButton;
@@ -49,13 +50,21 @@ namespace Graphics {
 
   private slots:
 
-    void btBrowseClicked();
-
     void btAddClicked();
 
     void btRemoveClicked();
 
     void changeType(const QString & type);
+
+    void moveUp();
+
+    void moveDown();
+
+    void selectionChanged(const QItemSelection& selected, const QItemSelection & delected);
+
+  private: // functions
+
+    void moveItems( int step );
 
   private:
 
@@ -69,13 +78,13 @@ namespace Graphics {
 
     QPushButton * m_btRemove;
 
+    QPushButton * m_btUp;
+
+    QPushButton * m_btDown;
+
     QVBoxLayout * m_buttonsLayout;
 
-    QVBoxLayout * m_leftLayout;
-
     QComboBox * m_comboType;
-
-    QHBoxLayout * m_topLayout;
 
     QGridLayout * m_boxLayout;
 
