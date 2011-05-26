@@ -224,9 +224,6 @@ private: //data
   QPointer<pqPipelineSource> m_source;
 
   /// render window input Pipeline.
-  QPointer<pqPipelineSource> m_input;
-
-  /// render window input Pipeline.
   QList<QPointer<pqPipelineSource> > m_source_list;
 
   /// View where the render is shown.
