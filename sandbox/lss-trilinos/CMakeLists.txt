@@ -1,4 +1,5 @@
 list( APPEND sandbox-lss-trilinos_files
+  lss-trilinos.cpp
   lss-interface.hpp
   blockaccumulator.hpp
 )
