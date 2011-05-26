@@ -1,6 +1,15 @@
 #########################################################################
 # test physics
 
+list( APPEND utest-solver-physics-static_cflibs coolfluid_solver )
+list( APPEND utest-solver-physics-static_files  utest-solver-physics-static.cpp )
+
+coolfluid_add_unit_test( utest-solver-physics-static )
+
+
+#########################################################################
+# test physics
+
 list( APPEND utest-solver-physics_cflibs coolfluid_solver )
 list( APPEND utest-solver-physics_files  utest-solver-physics.cpp )
 
