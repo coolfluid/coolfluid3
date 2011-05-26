@@ -111,6 +111,7 @@ Real Line2DLagrangeP2::volume(const NodeMatrixT& nodes)
 
 Real Line2DLagrangeP2::area(const NodeMatrixT& nodes)
 {
+  throw Common::NotImplemented( FromHere(), "" );
   return (nodes.row(1)-nodes.row(0)).norm();
 }
 

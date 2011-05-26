@@ -166,6 +166,15 @@ struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP3, 3 >
 
 //------------------------------------------------------------------------------------------
 
+/// Partial specialization for P3 lines
+template <>
+struct DefaultQuadrature< Mesh::SF::Line2DLagrangeP3, 3 >
+{
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Line2DLagrangeP3::shape> type;
+};
+
+//------------------------------------------------------------------------------------------
+
 /// Partial specialization for P2 with bubble.
 /// Standard second order integration uses only boundary quadrature points,
 /// where bubble function is zero, thus has uncoupled modes.

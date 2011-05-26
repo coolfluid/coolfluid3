@@ -7,11 +7,8 @@
 #ifndef CF_Mesh_SF_Line2DLagrangeP3_hpp
 #define CF_Mesh_SF_Line2DLagrangeP3_hpp
 
-#include "Math/MatrixTypes.hpp"
-
-#include "Mesh/Line2D.hpp"
-
-#include "Mesh/SF/LibSF.hpp"
+#include "Mesh/SF/Line.hpp"
+#include "Mesh/SF/SFLineLagrangeP3.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -21,75 +18,59 @@ namespace SF {
 /// representation of the solution and/or the geometry in a P3 cubic
 /// line element that lives in 2D space
 /// @author Tiago Quintino
-struct MESH_SF_API Line2DLagrangeP3  : public Line2D
+/// @author Martin Vymazal
+
+
+struct MESH_SF_API Line2DLagrangeP3  : public Line<DIM_2D,SFLineLagrangeP3>
 {
 
+  /// Constructor
   Line2DLagrangeP3(const std::string& name = type_name());
 
+  /// The type name
   static std::string type_name() { return "Line2DLagrangeP3"; }
 
+  /// The name of the builder
   virtual std::string builder_name() const { return LibSF::library_namespace()+"."+type_name(); }
 
-  /// Number of nodes
-  static const Uint nb_nodes = 4;
-
-  /// Order of the shape function
-  static const Uint order = 2;
-  
-  /// Types for the matrices used
-  typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
-  typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
-  typedef Eigen::Matrix<Real, nb_nodes, dimension> NodeMatrixT;
-  typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
-  typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
-  typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
-
-  /// Compute the shape functions corresponding to the given
-  /// mapped coordinates
-  /// @param mappedCoord The mapped coordinates
-  /// @param shapeFunc Vector storing the result
-  static void shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc);
-
-  /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
-  /// mapped coordinates.
-  /// @param mappedCoord The mapped coordinates where the gradient should be calculated
-  /// @param result Storage for the resulting gradient matrix
-  static void shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result);
-
   /// Compute the Jacobian matrix
-  /// In the case of the Line2D element, this is the vector corresponding to the line segment
   /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
-  /// @param result Storage for the resulting Jacobian matrix
-  static void jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result);
+  /// @param result Storage for the resulting Jacobian matrix (dimensionality x dimension)
+  static void jacobian(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes, JacobianT& result);
 
-  /// Normal vector to the surface. Length equals the jacobian norm.
-  /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
-  /// @param result Storage for the resulting Jacobian matrix
-  static void normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result);
-
-  /// Volume of the cell. 0 in case of elements with a dimensionality that is less than
-  /// the dimension of the problem
+  /// Volume of the cell
   static Real volume(const NodeMatrixT& nodes);
 
-  /// The area of an element that represents a surface in the solution space, i.e.
-  /// 1D elements in 2D space or 2D elements in 3D space
+  /// Area of the cell
   static Real area(const NodeMatrixT& nodes);
 
-  /// Given nodal values, write the interpolation
-//   template<typename NodalValuesT, typename ValueT>
-//   void operator()(const RealVector& mapped_coord, const NodalValuesT& nodal_values, ValueT& interpolation) const
-//   {
-//     cf_assert(mapped_coord.size() == dimensionality);
-//     cf_assert(nodal_values.size() == nb_nodes);
-//     const Real ksi = mapped_coord[KSI];
-//     interpolation = 0.5 * ((1. - ksi) * nodal_values[0] + (1. + ksi) * nodal_values[1]);
-//   }
+  /// Normal vector to the surface. Length equals the jacobian norm.
+  /// @param mapped_coord The mapped coordinates where the Jacobian should be calculated
+  /// @param result Storage for the resulting Jacobian matrix
+  static void normal(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes, CoordsT& result);
 
-  /// The volume of an element with a dimensionality that is less than
-  /// the dimension of the problem is 0.
+  /// compute volume using given coordinates.
   virtual Real compute_volume(const NodesT& coord) const;
+
+  /// compute area using given coordinates.
+  /// @note area for a line in 2D is defined as 0
   virtual Real compute_area(const NodesT& coord) const;
-	virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
+
+  /// compute normal using given coordinates.
+  virtual void compute_normal(const NodesT& coord, RealVector& normal) const;
+
+  /// Compute the centroid
+  /// @param coord node coordinates of the line
+  /// @param centroid the computed centroid of the line
+  virtual void compute_centroid(const NodesT& coord, RealVector& centroid ) const;
+
+  /// Check if a coordinate is inside the element
+  /// @param coord  A coordinate
+  /// @param nodes  The coordinates of the nodes of the element
+  /// @return true if the coordinate is inside the element
+  virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
+
+  static const CF::Mesh::ElementType::FaceConnectivity& faces();
   virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
   virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
 

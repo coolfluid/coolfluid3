@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/BasicExceptions.hpp"
+#include <boost/assign/list_of.hpp>
+
 #include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
 #include "Line2DLagrangeP3.hpp"
 #include "Point2DLagrangeP0.hpp"
-#include "SFLineLagrangeP3.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -18,14 +18,14 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Line2DLagrangeP3, ElementType, LibSF > aLine2DLagrangeP3_Builder;
+Common::ComponentBuilder < Line2DLagrangeP3, 
+                           ElementType, 
+                           LibSF > aLine2DLagrangeP3_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Line2DLagrangeP3::Line2DLagrangeP3(const std::string& name) : Line2D(name)
+Line2DLagrangeP3::Line2DLagrangeP3(const std::string& name) : Line<DIM_2D,SFLineLagrangeP3>(name)
 {
-  m_nb_nodes = nb_nodes;
-  m_order = order;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,23 @@ Real Line2DLagrangeP3::compute_area(const NodesT& coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Line2DLagrangeP3::compute_normal(const NodesT& coord, RealVector& normal) const
+{
+  throw Common::NotImplemented( FromHere(), "" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 bool Line2DLagrangeP3::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
-	return false;
+  throw Common::NotImplemented( FromHere(), "" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line2DLagrangeP3::compute_centroid(const NodesT& coord , RealVector& centroid) const
+{
+  throw Common::NotImplemented( FromHere(), "" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,26 +87,9 @@ const CF::Mesh::ElementType& Line2DLagrangeP3::face_type(const CF::Uint face) co
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Line2DLagrangeP3::shape_function_value(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
-{
-  SFLineLagrangeP3::compute_value(mappedCoord,shapeFunc);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Line2DLagrangeP3::shape_function_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
-{
-  SFLineLagrangeP3::compute_gradient(mappedCoord,result);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void Line2DLagrangeP3::jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
 {
   throw Common::NotImplemented( FromHere(), "" );
-
-  result(KSI,XX) = 0.5*(nodes(1, XX) - nodes(0, XX));
-  result(KSI,YY) = 0.5*(nodes(1, YY) - nodes(0, YY));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,9 +97,6 @@ void Line2DLagrangeP3::jacobian(const MappedCoordsT& mappedCoord, const NodeMatr
 void Line2DLagrangeP3::normal(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, CoordsT& result)
 {
   throw Common::NotImplemented( FromHere(), "" );
-
-  result[XX] = 0.5*( nodes(1, YY) - nodes(0, YY));
-  result[YY] = 0.5*(-nodes(1, XX) + nodes(0, XX));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
