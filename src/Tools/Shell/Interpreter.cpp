@@ -1,6 +1,6 @@
-//  (C) Copyright Jean-Daniel Michaud 2007. Permission to copy, use, modify, 
-//  sell and distribute this software is granted provided this copyright notice 
-//  appears in all copies. This software is provided "as is" without express or 
+//  (C) Copyright Jean-Daniel Michaud 2007. Permission to copy, use, modify,
+//  sell and distribute this software is granted provided this copyright notice
+//  appears in all copies. This software is provided "as is" without express or
 //  implied warranty, and with no claim as to its suitability for any purpose.
 
 //  See http://www.boost.org/LICENSE_1_0.txt for licensing.
@@ -33,7 +33,7 @@ using namespace CF::Common;
 using namespace boost::program_options;
 
 namespace CF {
-namespace Tools { 
+namespace Tools {
 namespace Shell {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,19 +56,19 @@ std::string print_line(const std::string& line)
 Interpreter::Interpreter(const commands_description& desc) :
   m_prompt(default_prompt),
   m_desc("Basic Commands")
-{ 
+{
   set_description(desc);
-  
+
   m_handle_unrecognized_commands.push_back(&BasicCommands::unrecognized);
   m_handle_unrecognized_commands.push_back(boost::bind(&Interpreter::interpret_alias,this,_1));
 }
 
 /// Constructor taking description of commands and prompt function
-Interpreter::Interpreter(const commands_description& desc, 
+Interpreter::Interpreter(const commands_description& desc,
                        const prompt_function_pointer_t& prompt) :
   m_prompt(prompt),
   m_desc("Basic Commands")
-{ 
+{
   set_description(desc);
 }
 
@@ -85,7 +85,7 @@ void Interpreter::set_description(const commands_description& desc)
   ("history", value< std::vector<std::string> >()->multitoken()->zero_tokens(), "show history")
   ("reset,r", value< std::vector<std::string> >()->multitoken()->zero_tokens(), "reset history")
   ;
-  
+
   m_desc.add(desc);
 }
 
@@ -98,7 +98,7 @@ void Interpreter::interpret_alias(std::vector<std::string>& unrecognized_command
   {
     std::string alias_str = command;
     std::string arg_str = "";
-    alias_str.erase( boost::algorithm::find_first(alias_str," ").begin(),alias_str.end());    
+    alias_str.erase( boost::algorithm::find_first(alias_str," ").begin(),alias_str.end());
     if (m_alias.find(alias_str) != m_alias.end())
     {
       if (alias_str != command)
@@ -123,7 +123,7 @@ void Interpreter::alias(const std::string& arg)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//Unshamefully copied from the split_winmain function developed by Vladimir Prus 
+//Unshamefully copied from the split_winmain function developed by Vladimir Prus
 std::vector<std::string> Interpreter::split_command_line(const std::string& input)
 {
   std::vector<std::string> result;
@@ -132,46 +132,46 @@ std::vector<std::string> Interpreter::split_command_line(const std::string& inpu
   for(;i != e; ++i)
     if (!isspace((unsigned char)*i))
       break;
- 
-  if (i != e) 
+
+  if (i != e)
   {
     std::string current;
     bool inside_quoted = false;
     int backslash_count = 0;
-    
-    for(; i != e; ++i) 
+
+    for(; i != e; ++i)
     {
-      if (*i == '"') 
+      if (*i == '"')
       {
         // '"' preceded by even number (n) of backslashes generates
         // n/2 backslashes and is a quoted block delimiter
-        if (backslash_count % 2 == 0) 
+        if (backslash_count % 2 == 0)
         {
           current.append(backslash_count / 2, '\\');
           inside_quoted = !inside_quoted;
           // '"' preceded by odd number (n) of backslashes generates
           // (n-1)/2 backslashes and is literal quote.
-        } 
-        else 
+        }
+        else
         {
-          current.append(backslash_count / 2, '\\');                
-          current += '"';                
+          current.append(backslash_count / 2, '\\');
+          current += '"';
         }
         backslash_count = 0;
-      } 
-      else if (*i == '\\') 
+      }
+      else if (*i == '\\')
       {
         ++backslash_count;
-      } else 
+      } else
       {
         // Not quote or backslash. All accumulated backslashes should be
         // added
-        if (backslash_count) 
+        if (backslash_count)
         {
           current.append(backslash_count, '\\');
           backslash_count = 0;
         }
-        if (isspace((unsigned char)*i) && !inside_quoted) 
+        if (isspace((unsigned char)*i) && !inside_quoted)
         {
           // Space outside quoted section terminate the current argument
           result.push_back(current);
@@ -179,9 +179,9 @@ std::vector<std::string> Interpreter::split_command_line(const std::string& inpu
           for(;i != e && isspace((unsigned char)*i); ++i)
             ;
           --i;
-        } 
-        else 
-        {                  
+        }
+        else
+        {
           current += *i;
         }
       }
@@ -194,7 +194,7 @@ std::vector<std::string> Interpreter::split_command_line(const std::string& inpu
     // If we have non-empty 'current' or we're still in quoted
     // section (even if 'current' is empty), add the last token.
     if (!current.empty() || inside_quoted)
-      result.push_back(current);        
+      result.push_back(current);
   }
   return result;
 }
@@ -203,11 +203,14 @@ std::vector<std::string> Interpreter::split_command_line(const std::string& inpu
 
 void Interpreter::handle_read_line(std::string line)
 {
+
+  line = BasicCommands::filter_env_vars(line);
+
   std::vector<std::string> args;
 
   // huu, ugly...
-  args = split_command_line(std::string("--") + line); 
-  
+  args = split_command_line(std::string("--") + line);
+
   try
   {
     parsed_options parsed = command_line_parser(args).options(m_desc).allow_unregistered().run();
@@ -236,7 +239,7 @@ void Interpreter::handle_read_line(std::string line)
       throw boost::program_options::unknown_option("");
     m_history.push_back(line);
   }
-  catch (boost::program_options::unknown_option &e) 
+  catch (boost::program_options::unknown_option &e)
   {
     CFerror << "error: " << e.what() << CFendl;
   }
@@ -260,7 +263,7 @@ void Interpreter::handle_read_line(std::string line)
   {
     CFerror << "Detected unknown exception" << CFendl;
   }
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -271,7 +274,7 @@ void Interpreter::interpret(int argc, char * argv[])
   {
     // parsed_options parsed = parse_command_line(argc, argv, m_desc);
     parsed_options parsed = command_line_parser(argc,argv).options(m_desc).allow_unregistered().run();
-  
+
     if (parsed.options.size())
     {
       typedef basic_option<char> Option;
@@ -279,7 +282,7 @@ void Interpreter::interpret(int argc, char * argv[])
       // notify only 1 program_option at a time to conserve
       // execution order
       parsed_options one_parsed_option(&m_desc);
-    
+
       one_parsed_option.options.resize(1);
       boost_foreach(Option option, parsed.options)
       {
@@ -302,7 +305,7 @@ void Interpreter::interpret(int argc, char * argv[])
         }
         if (unrecognized_commands.size())
           throw boost::program_options::unknown_option("");
-    
+
       }
     }
     else
@@ -311,7 +314,7 @@ void Interpreter::interpret(int argc, char * argv[])
       interpret(std::cin);
     }
   }
-  catch (boost::program_options::unknown_option &e) 
+  catch (boost::program_options::unknown_option &e)
   {
     CFerror << "error: " << e.what() << CFendl;
   }
@@ -342,7 +345,7 @@ void Interpreter::interpret(int argc, char * argv[])
 void Interpreter::notify(variables_map& vm)
 {
   boost::program_options::notify(vm);
-  
+
   if (vm.count("help"))
   {
     CFinfo << m_desc << CFendl;
@@ -353,12 +356,12 @@ void Interpreter::notify(variables_map& vm)
     std::vector<std::string> files = vm["file"].as<std::vector<std::string> >();
     boost_foreach(std::string file_path, files)
     {
-      std::ifstream myfile;          
+      std::ifstream myfile;
       myfile.open (file_path.c_str());
-      if (myfile.is_open()) 
+      if (myfile.is_open())
       {
         interpret(myfile,print_line);
-        myfile.close();            
+        myfile.close();
       }
       else
       {
@@ -373,13 +376,13 @@ void Interpreter::notify(variables_map& vm)
     if (file_path.empty())
       file_path = "history.cfscript";
 
-    std::ofstream myfile;          
+    std::ofstream myfile;
     myfile.open (file_path.c_str());
-    if (myfile.is_open()) 
+    if (myfile.is_open())
     {
       boost_foreach(const std::string& line, m_history)
         myfile << line << std::endl;
-      myfile.close();            
+      myfile.close();
     }
     else
     {
@@ -392,18 +395,18 @@ void Interpreter::notify(variables_map& vm)
     boost_foreach(const std::string& line, m_history)
       CFinfo << line << CFendl;
   }
-  
+
   if (vm.count("reset"))
   {
     m_history.clear();
   }
-  
+
   if (vm.count("interactive"))
   {
     CFinfo << "coolfluid shell - command 'exit' to quit - command 'help' for help" << CFendl;
-    interpret(std::cin);        
+    interpret(std::cin);
   }
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -413,7 +416,7 @@ void Interpreter::interpret(std::istream &input_stream)
   std::string command;
 
   write_prompt();
-  
+
   while (std::getline(input_stream, command, '\n'))
   {
     bool multi_line = boost::algorithm::iends_with(command, "\\");
@@ -460,7 +463,7 @@ void Interpreter::interpret(std::istream &input_stream, readline_function_pointe
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-  
+
 void Interpreter::write_prompt()
 {
   CFinfo << m_prompt() << CFflush;

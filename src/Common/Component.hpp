@@ -370,6 +370,11 @@ public: // functions
   /// format var_name:type=value var_name:array[type]=val1,val2
   void configure (const std::vector<std::string>& args);
 
+  /// Creates or modifies existing properties using the CF human readable language
+  /// For single variables  --> var_name:type=value @n
+  /// For arrays            --> var_name:array[type]=val1,val2
+  void change_property(const std::string args);
+
   /// @name SIGNALS
   //@{
 

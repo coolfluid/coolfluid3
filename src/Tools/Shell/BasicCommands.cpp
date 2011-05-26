@@ -40,12 +40,14 @@ namespace Shell {
 ////////////////////////////////////////////////////////////////////////////////
 
 BasicCommands::BasicCommands()
-{	
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Component::Ptr BasicCommands::current_component = Core::instance().root().self();
+
+Component& environment_component = Core::instance().root().create_component<Component>("env_vars");
 
 BasicCommands::commands_description BasicCommands::description()
 {
@@ -64,6 +66,8 @@ BasicCommands::commands_description BasicCommands::description()
   ("tree",        value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&tree,_1)),       "print tree")
   ("options",     value< std::string >()->implicit_value(std::string())->notifier(boost::bind(&option_list,_1)),"list options")
   ("call",        value< std::vector<std::string> >()->notifier(boost::bind(&call,_1))->multitoken(),           "call executable options")
+  ("export",      value< std::vector<std::string> >()->notifier(boost::bind(&export_env,_1))->multitoken(),     "export a CF environment variable")
+  ("echo",        value< std::vector<std::string> >()->notifier(boost::bind(&echo,_1))->multitoken(),     "print to screen")
   ;
   return desc;
 }
@@ -76,7 +80,7 @@ void BasicCommands::call(const std::vector<std::string>& params)
     throw SetupError(FromHere(),"executable name needed + possible options");
 
   std::string executable_path = params[0];
-  
+
   if ( Component::Ptr executable = current_component->access_component_ptr(executable_path) )
   {
     if ( CAction::Ptr action = executable->as_ptr<CAction>() )
@@ -96,7 +100,7 @@ void BasicCommands::call(const std::vector<std::string>& params)
       signal_options[i] = params[i+1];
 
     signaling_component->call_signal(name,signal_options);
-    
+
   }
 }
 
@@ -117,6 +121,33 @@ void BasicCommands::unrecognized(std::vector<std::string>& unrecognized_commands
     }
     ++idx;
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::string env_var(const std::string& var)
+{
+  return environment_component.property(var).value_str();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::string BasicCommands::filter_env_vars(const std::string &line)
+{
+  std::string filtered_line = line;
+  // Check for environment variables
+  boost::regex re("\\$\\{(\\w+)\\}");
+  boost::sregex_iterator i(filtered_line.begin(), filtered_line.end(), re);
+  boost::sregex_iterator j;
+  for(; i!=j; ++i)
+  {
+    if (current_component->properties().check((*i)[1]) )
+      boost::algorithm::replace_all(filtered_line,std::string((*i)[0]),current_component->property((*i)[1]).value_str());
+
+    if (environment_component.properties().check((*i)[1]) )
+      boost::algorithm::replace_all(filtered_line,std::string((*i)[0]),environment_component.property((*i)[1]).value_str());
+  }
+  return filtered_line;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,7 +201,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
       Uint max_size(0);
       boost_foreach(Component& sub_comp, find_components(*current_component) )
         max_size = std::max(Uint(max_size),Uint(sub_comp.derived_type_name().size()));
-      
+
       boost_foreach(Component& sub_comp, find_components(*current_component) )
       {
         if (current_component->is_child_static(sub_comp.name()))
@@ -243,14 +274,14 @@ void BasicCommands::ls(const std::vector<std::string>& params)
     std::string arg = params[0];
     std::string cpath = params.back();
     Component& parent = current_component->access_component(URI(cpath));
-    
+
     if (arg == "l")
     {
       // ls this_component
       Uint max_size(0);
       boost_foreach(Component& sub_comp, find_components(parent) )
         max_size = std::max(Uint(max_size),Uint(sub_comp.derived_type_name().size()));
-      
+
       boost_foreach(Component& sub_comp, find_components(parent) )
       {
         if (parent.is_child_static(sub_comp.name()))
@@ -309,7 +340,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
       throw ParsingFailed(FromHere(),"unrecognized ls option "+arg);
     }
   }
-  else 
+  else
     throw ParsingFailed (FromHere(), "More than 2 arguments for ls not supported");
 }
 
@@ -400,12 +431,31 @@ void BasicCommands::configure(const std::vector<std::string>& params)
     throw ValueNotFound(FromHere(), "No component found at " + path );
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void BasicCommands::export_env(const std::vector<std::string>& params)
+{
+  if (params.size() != 1)
+    throw SetupError(FromHere(),"export takes only 1 parameter:  var:type=value");
+
+  environment_component.change_property(params[0]);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void BasicCommands::echo(const std::vector<std::string>& params)
+{
+  if (params.size() != 1)
+    throw SetupError(FromHere(),"echo takes only 1 parameter");
+
+  CFinfo << params[0] << CFendl;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void BasicCommands::version(const std::vector<std::string>&)
 {
-  CFinfo << Core::instance().build_info().version_header() << CFendl;  
+  CFinfo << Core::instance().build_info().version_header() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -414,13 +464,13 @@ void BasicCommands::create(const std::vector<std::string>& params)
 {
   if (params.size() != 2)
     throw SetupError(FromHere(),"2 parameters needed for command [create name builder]");
-  const std::string& new_component_path = params[0];
-  
+  const URI new_component_path (params[0]);
+
   Component::Ptr parent_component = current_component->access_component_ptr(URI(new_component_path).base_path());
   if ( is_null(parent_component) )
-    throw ValueNotFound(FromHere(), "component " + URI(new_component_path).base_path().path() + " was not found in " + current_component->full_path().path());
-    
-  parent_component->create_component(URI(new_component_path).name(), params[1]);
+    throw ValueNotFound(FromHere(), "component " + new_component_path.base_path().path() + " was not found in " + current_component->full_path().path());
+
+  parent_component->create_component(new_component_path.name(), params[1]);
 
 }
 

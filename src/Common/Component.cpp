@@ -1132,6 +1132,117 @@ void Component::configure_option_recursively(const std::string& opt, const boost
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Component::change_property(const std::string args)
+{
+  // extract:   variable_name:type=value   or   variable_name:array[type]=value1,value2
+  boost::regex expression(  "([[:word:]]+)(\\:([[:word:]]+)(\\[([[:word:]]+)\\])?=(.*))?"  );
+  boost::match_results<std::string::const_iterator> what;
+
+  std::string name;
+  std::string type;
+  std::string subtype; // in case of array<type>
+  std::string value;
+
+  if (regex_search(args,what,expression))
+  {
+    name=what[1];
+    type=what[3];
+    subtype=what[5];
+    value=what[6];
+    // CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
+
+    if      (type == "bool")
+      properties()[name]=from_str<bool>(value);
+    else if (type == "unsigned")
+      properties()[name]=from_str<Uint>(value);
+    else if (type == "integer")
+      properties()[name]=from_str<int>(value);
+    else if (type == "real")
+      properties()[name]=from_str<Real>(value);
+    else if (type == "string")
+      properties()[name]=value;
+    else if (type == "uri")
+      properties()[name]=from_str<URI>(value);
+    else if (type == "array")
+    {
+      std::vector<std::string> array;
+
+      // the strings could have comma's inside, brackets, etc...
+      Uint in_brackets(0);
+      std::string::iterator first = value.begin();
+      std::string::iterator it = first;
+      for ( ; it!=value.end(); ++it)
+      {
+        if (*it == '(') // opening bracket
+          ++in_brackets;
+        else if (*it == ')') // closing bracket
+          --in_brackets;
+        else if (*it == ',' && in_brackets == 0)
+        {
+          array.push_back(std::string(first,it));
+          boost::algorithm::trim(array.back());
+          first = it+1;
+        }
+      }
+      array.push_back(std::string(first,it));
+      boost::algorithm::trim(array.back());
+
+      if (subtype == "bool")
+      {
+        std::vector<bool> vec; vec.reserve(array.size());
+        boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<bool>(str_val));
+        properties()[name]=vec;
+      }
+      else if (subtype == "unsigned")
+      {
+        std::vector<Uint> vec; vec.reserve(array.size());
+        boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<Uint>(str_val));
+        properties()[name]=vec;
+      }
+      else if (subtype == "integer")
+      {
+        std::vector<int> vec; vec.reserve(array.size());
+        boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<int>(str_val));
+        properties()[name]=vec;
+      }
+      else if (subtype == "real")
+      {
+        std::vector<Real> vec; vec.reserve(array.size());
+        boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<Real>(str_val));
+        properties()[name]=vec;
+      }
+      else if (subtype == "string")
+      {
+        properties()[name]=array;
+      }
+      else if (subtype == "uri")
+      {
+        std::vector<URI> vec; vec.reserve(array.size());
+        boost_foreach(const std::string& str_val,array)
+            vec.push_back(from_str<URI>(str_val));
+        properties()[name]=vec;
+      }
+
+    }
+    else
+      throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + args + "] for ["+ full_path().path() +"] is invalid.\n"+
+                          "Format should be:\n"
+                          " -  for simple types:  variable_name:type=value\n"
+                          " -  for array types:   variable_name:array[type]=value1,value2\n"
+                          "  with possible type: [bool,unsigned,integer,real,string,uri]");
+  }
+  else
+    throw ParsingFailed(FromHere(), "Could not parse [" + args + "] in ["+ full_path().path() +"].\n"+
+                        "Format should be:\n"
+                        " -  for simple types:  variable_name:type=value\n"
+                        " -  for array types:   variable_name:array[type]=value1,value2\n"
+                        "  with possible type: [bool,unsigned,integer,real,string,uri]");
+}
+
 void Component::configure (const std::vector<std::string>& args)
 {
   // extract:   variable_name:type=value   or   variable_name:array[type]=value1,value2
