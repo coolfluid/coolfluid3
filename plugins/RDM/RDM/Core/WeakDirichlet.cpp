@@ -8,7 +8,7 @@
 #include "Common/OptionURI.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/FindComponents.hpp"
- 
+
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
@@ -50,6 +50,8 @@ Common::ComponentBuilder < FaceLoop< WeakDirichlet, Euler2D>        , RDM::Eleme
 WeakDirichlet::WeakDirichlet ( const std::string& name ) :
   RDM::BoundaryTerm(name)
 {
+  regist_typeinfo(this);
+
   // options
 
   m_properties.add_option< OptionURI > ("solution","Solution",
