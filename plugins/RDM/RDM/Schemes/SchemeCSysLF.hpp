@@ -32,11 +32,11 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  Term ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name) {}
+  Term ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name) {     regist_typeinfo(this); }
 
   /// Get the class name
   static std::string type_name () { return "CSysLF.Scheme<" + SF::type_name() + ">"; }
-	
+
   /// execute the action
   virtual void execute ();
 
@@ -115,7 +115,7 @@ void CSysLF::Term<SF,QD,PHYS>::execute()
   } // loop qd points
 
   // update the residual
-  
+
   for (Uint n=0; n<SF::nb_nodes; ++n)
     for (Uint v=0; v < PHYS::neqs; ++v)
       (*B::residual)[nodes_idx[n]][v] += B::Phi_n(n,v);

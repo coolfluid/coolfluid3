@@ -34,13 +34,15 @@ public: // functions
   /// @param name of the component
   Term ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name)
   {
+    regist_typeinfo(this);
+
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       DvPlus[n].setZero();
   }
 
   /// Get the class name
   static std::string type_name () { return "CSysLDA.Scheme<" + SF::type_name() + ">"; }
-	
+
   /// execute the action
   virtual void execute ();
 
@@ -168,7 +170,7 @@ void CSysLDA::Term<SF,QD,PHYS>::execute()
   } // loop qd points
 
   // update the residual
-  
+
   for (Uint n=0; n<SF::nb_nodes; ++n)
     for (Uint v=0; v < PHYS::neqs; ++v)
       (*B::residual)[nodes_idx[n]][v] += B::Phi_n(n,v);
