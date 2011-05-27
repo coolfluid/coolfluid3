@@ -9,7 +9,7 @@
 #include "RDM/Schemes/CSysLF.hpp"
 #include "RDM/Schemes/SchemeCSysLF.hpp"
 
-#include "RDM/Core/SupportedTypes.hpp"    // supported elements
+#include "RDM/Core/SupportedCells.hpp" // supported cells
 
 #include "RDM/Core/Euler2D.hpp"       // supported physics
 

@@ -18,7 +18,6 @@
 #include "Solver/CPhysicalModel.hpp"
 
 #include "RDM/Core/WeakDirichlet.hpp"
-#include "RDM/Core/ElementLoop.hpp"
 
 #include "RDM/Core/LinearAdv2D.hpp"    // to remove
 #include "RDM/Core/LinearAdvSys2D.hpp" // to remove

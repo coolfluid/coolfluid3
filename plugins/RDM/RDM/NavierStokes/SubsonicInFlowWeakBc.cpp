@@ -17,8 +17,6 @@
 
 #include "Solver/CPhysicalModel.hpp"
 
-#include "RDM/Core/ElementLoop.hpp"
-
 #include "RDM/NavierStokes/SubsonicInFlowWeakBc.hpp"
 
 #include "RDM/Core/Euler2D.hpp"

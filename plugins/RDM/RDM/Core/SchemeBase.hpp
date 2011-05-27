@@ -28,7 +28,7 @@
 #include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/Core/LibCore.hpp"
-#include "RDM/Core/ElementLoop.hpp"
+#include "RDM/Core/CellLoop.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 

@@ -3,14 +3,18 @@ list( APPEND coolfluid_rdm_core_files
   LibCore.hpp
   RKRD.cpp
   RKRD.hpp
-  SupportedTypes.hpp
+  SupportedCells.hpp
+  SupportedFaces.hpp
+  Quadrature.hpp
+  ElementLoop.hpp
+  CellLoop.hpp
+  FaceLoop.hpp
 # wizards
   SteadyExplicit.hpp
   SteadyExplicit.cpp
   MySim.cpp
   MySim.hpp
 # actions
-  ElementLoop.hpp
   BoundaryTerm.hpp
   BoundaryTerm.cpp
   DomainTerm.hpp

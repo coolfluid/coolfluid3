@@ -9,7 +9,7 @@
 #include "RDM/Schemes/CSysSUPG.hpp"
 #include "RDM/Schemes/SchemeCSysSUPG.hpp"
 
-#include "RDM/Core/SupportedTypes.hpp"    // supported elements
+#include "RDM/Core/SupportedCells.hpp" // supported cells
 
 #include "RDM/Core/Euler2D.hpp"       // supported physics
 
