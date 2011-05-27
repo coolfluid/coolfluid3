@@ -166,6 +166,21 @@ struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP3, 3 >
 
 //------------------------------------------------------------------------------------------
 
+/// Partial specialization for P1 lines
+template <>
+struct DefaultQuadrature< Mesh::SF::Line2DLagrangeP1, 1 >
+{
+  typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::SF::Line2DLagrangeP1::shape> type;
+};
+
+/// Partial specialization for P2 lines
+template <>
+struct DefaultQuadrature< Mesh::SF::Line2DLagrangeP2, 2 >
+{
+  typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::SF::Line2DLagrangeP2::shape> type;
+};
+
+
 /// Partial specialization for P3 lines
 template <>
 struct DefaultQuadrature< Mesh::SF::Line2DLagrangeP3, 3 >
