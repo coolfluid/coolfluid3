@@ -161,7 +161,7 @@ void ServerRoot::processSignal(const string & target,
 
         if( reply.node.is_valid() )
         {
-          core()->sendSignal(*m_doc.get());
+          core()->sendSignal(*signal.xml_doc.get());
           journal()->add_signal( reply );
         }
       }
