@@ -9,7 +9,7 @@
 #include "RDM/Schemes/CSysB.hpp"
 #include "RDM/Schemes/SchemeCSysB.hpp"
 
-#include "RDM/Core/SupportedTypes.hpp"    // supported elements
+#include "RDM/Core/SupportedCells.hpp" // supported cells
 
 #include "RDM/Core/Burgers2D.hpp"       // supported physics
 
