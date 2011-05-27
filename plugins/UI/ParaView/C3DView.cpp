@@ -79,10 +79,10 @@ C3DView::C3DView(const std::string& name) :
   // hide some signals from the GUI
   signal("create_component")->is_hidden = true;
   signal("iteration_done")->is_hidden = true;
-//  signal("send_server_info_to_client")->is_hidden = true;
-  signal("delete_component")->is_hidden = true;
-  signal("move_component")->is_hidden = true;
-  signal("rename_component")->is_hidden = true;
+
+  // these signals are read-only
+  signal("launch_pvserver")->is_read_only = true;
+
 
   // regist action to event "iteration_done"
   m_connect_iteration_done =

@@ -87,6 +87,8 @@ Component::Component ( const std::string& name ) :
 
   // these signals are read-only
   signal("list_tree")->is_read_only = true;
+  signal("list_content")->is_read_only = true;
+  signal("signal_signature")->is_read_only = true;
 
   // signatures
   signal("create_component")->signature->connect( boost::bind(&Component::signature_create_component, this, _1) );
