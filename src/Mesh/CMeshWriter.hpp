@@ -62,7 +62,7 @@ public: // functions
 
   virtual void write_from_to(const CMesh& mesh, const Common::URI& filepath) = 0;
 
-  void execute();
+  virtual void execute();
 
   void set_fields(const std::vector<boost::shared_ptr<CField> >& fields);
 

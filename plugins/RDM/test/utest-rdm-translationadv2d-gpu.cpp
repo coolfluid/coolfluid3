@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::RDM::ScalarAdvection"
+#define BOOST_TEST_MODULE "Test module for CF::RDM::SteadyExplicit"
 
 #include <boost/test/unit_test.hpp>
 
@@ -17,6 +17,7 @@
 #include "Common/Log.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/XML/Protocol.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
@@ -34,7 +35,7 @@
 
 #include "RDM/Core/RKRD.hpp"
 #include "RDM/Core/DomainTerm.hpp"
-#include "RDM/Core/ScalarAdvection.hpp"
+#include "RDM/Core/SteadyExplicit.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -51,7 +52,7 @@ struct translationadv2d_global_fixture
     Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
 
-    translationadv2d_wizard = allocate_component<ScalarAdvection>("mymodel");
+    translationadv2d_wizard = allocate_component<SteadyExplicit>("mymodel");
 
     SignalFrame frame("", "", "");
     SignalFrame& options = frame.map( Protocol::Tags::key_options() );
@@ -64,7 +65,7 @@ struct translationadv2d_global_fixture
 
   ~translationadv2d_global_fixture() { Core::instance().terminate(); }
 
-  ScalarAdvection::Ptr translationadv2d_wizard;
+  SteadyExplicit::Ptr translationadv2d_wizard;
 
 };
 
@@ -258,7 +259,7 @@ BOOST_FIXTURE_TEST_CASE( output , translationadv2d_local_fixture )
   mesh_writer->configure_property("File",model.name()+".msh");
   mesh_writer->configure_property("Mesh",mesh->full_path());
 
-  mesh_writer->write();
+  mesh_writer->execute();
 
 }
 
