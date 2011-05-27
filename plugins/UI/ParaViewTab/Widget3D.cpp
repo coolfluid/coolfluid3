@@ -305,6 +305,8 @@ Widget3D::Widget3D(QWidget *parent) :
   connect(m_list_selection,SIGNAL(activated(int)),this,SLOT(setActorListSelectionMode(int)));
   connect(NTree::globalTree().get(),SIGNAL(advancedModeChanged(bool)),this,SLOT(showAdvOptions(bool)));
 
+  qDebug() << "widget built";
+
 }
 
 void Widget3D::connectToServer(QString given_host,QString port)
@@ -581,6 +583,13 @@ void Widget3D::connectToServer(){
 
 void Widget3D::loadPaths(std::vector<QString> paths,std::vector<QString> names){
 
+
+  m_actor_list->selectionModel()->clearSelection();
+  m_actor_list->setSelectionMode(QAbstractItemView::NoSelection);
+
+  m_mesh_options->setVisible(false);
+  m_regions_box->setVisible(false);
+
   m_actor_list->setItemSelected(0,false);
 
   if(m_RenderView && m_server && m_server->isRemote()){
@@ -624,20 +633,28 @@ void Widget3D::loadPaths(std::vector<QString> paths,std::vector<QString> names){
     }
 
     //zoom to object
-    this->m_RenderView->resetCamera();
+    reset_camera();
+
+    //refresh widget
+    m_RenderView->getWidget()->update();
 
     //make sure we update the view
-    this->m_RenderView->render();
+//    this->m_RenderView->render();
+
 
     //show options
     m_mesh_options->setVisible(true);
     m_regions_box->setVisible(true);
+
   }else{
     if(!m_server->isRemote())
     {
       NLog::globalLog()->addError("You must be connected to a ParaView server.");
     }
   }
+
+   m_actor_list->setSelectionMode(QAbstractItemView::SingleSelection);
+
 }
 
 void Widget3D::create_source(QString path){
@@ -700,6 +717,7 @@ void Widget3D::show_hide_actor(QListWidgetItem * itemDuble){
 
   //be sure the mesh is updated
   m_RenderView->getWidget()->update();
+  reset_camera();
 
 }
 
