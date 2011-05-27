@@ -19,6 +19,7 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/CField.hpp"
 
 #include "UI/Server/ServerRoot.hpp"
 #include "UI/ParaView/LibParaView.hpp"
@@ -28,6 +29,7 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
+using namespace CF::Mesh;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -165,7 +167,16 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
   if( curr_iteration == 1 || ( curr_iteration % m_properties["refresh_rate"].value<Uint>() ) == 0 )
   {
-    get_child("writer").as_type<Mesh::CMeshWriter>().write_from_to( *m_mesh.lock(), m_filename);
+    Mesh::CMeshWriter& writer = get_child("writer").as_type<Mesh::CMeshWriter>();
+
+
+    std::vector<URI> fields;
+    boost_foreach(const CField& field, find_components_recursively<CField>(*m_mesh.lock()))
+      fields.push_back(field.full_path());
+
+    writer.configure_property("fields",fields);
+
+    writer.write_from_to( *m_mesh.lock(), m_filename);
 
     std::vector<std::string> data(2);
 
