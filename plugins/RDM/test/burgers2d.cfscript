@@ -7,13 +7,13 @@ configure //Root/Environment \
 
 # load the rdm library
 call //Root/Libraries/load_library \
-     lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_core
+    Libraries:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_core
 call //Root/Libraries/load_library \
-    lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_schemes
+    Libraries:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_schemes
 call //Root/Libraries/load_library \
-    lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_scalar
+    Libraries:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_scalar
 call //Root/Libraries/load_library \
-    lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_navierstokes
+    Libraries:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_navierstokes
 
 # create a scalar advection model
 call //Root/Tools/RDM/SetupScalarSimulation/create_model \
