@@ -247,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE( output , translationadv2d_local_fixture )
 
   BOOST_CHECK(true);
 
-  CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  CMeshWriter::Ptr mesh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(mesh_writer);
 
   std::vector<URI> fields;

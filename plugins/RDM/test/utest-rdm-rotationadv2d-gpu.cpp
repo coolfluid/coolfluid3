@@ -145,17 +145,6 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , rotationadv2d_local_fixture )
   domain.signal_load_mesh( frame );
 
   BOOST_CHECK_NE( domain.count_children(), (Uint) 0);
-
-#ifdef BUBBLE // enrich the mesh with bubble functions
-  CMeshTransformer::Ptr enricher =
-      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleEnrich","enricher");
-
-  domain.add_component( enricher );
-
-  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
-
-  enricher->transform( mesh );
-#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -260,7 +249,7 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , rotationadv2d_local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
   std::vector<URI> fields;
@@ -319,93 +308,6 @@ BOOST_FIXTURE_TEST_CASE( solve_lda_gpu , rotationadv2d_local_fixture )
 
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-//BOOST_FIXTURE_TEST_CASE( solve_blended , rotationadv2d_local_fixture )
-//{
-//  BOOST_CHECK(true);
-
-//  CFinfo << "solving with Blended scheme" << CFendl;
-
-//  // delete previous domain terms
-//  Component& domain_terms = solver.get_child("compute_domain_terms");
-//  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
-//  {
-//    const std::string name = term.name();
-//    domain_terms.remove_component( name );
-//  }
-
-//  BOOST_CHECK( domain_terms.count_children() == 0 );
-
-//  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
-
-//  SignalFrame frame;
-//  SignalOptions options( frame );
-
-//  std::vector<URI> regions;
-//  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-//    regions.push_back( region.full_path() );
-
-//  BOOST_CHECK_EQUAL( regions.size() , 1u);
-
-//  options.add<std::string>("Name","INTERNAL");
-//  options.add<std::string>("Type","CF.RDM.Blended");
-//  options.add("Regions", regions, " ; ");
-
-//  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
-
-//  BOOST_CHECK(true);
-
-//  solver.solve();
-
-//  BOOST_CHECK(true);
-
-//}
-
-//////////////////////////////////////////////////////////////////////////////
-
-//BOOST_FIXTURE_TEST_CASE( solve_SUPG , rotationadv2d_local_fixture )
-//{
-//  BOOST_CHECK(true);
-
-//  CFinfo << "solving with SUPG scheme" << CFendl;
-
-//  // delete previous domain terms
-//  Component& domain_terms = solver.get_child("compute_domain_terms");
-//  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
-//  {
-//    const std::string name = term.name();
-//    domain_terms.remove_component( name );
-//  }
-
-//  BOOST_CHECK( domain_terms.count_children() == 0 );
-
-//  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
-
-//  SignalFrame frame;
-//  SignalOptions options( frame );
-
-//  std::vector<URI> regions;
-//  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-//    regions.push_back( region.full_path() );
-
-//  BOOST_CHECK_EQUAL( regions.size() , 1u);
-
-//  options.add<std::string>("Name","INTERNAL");
-//  options.add<std::string>("Type","CF.RDM.SUPG");
-//  options.add("Regions", regions, " ; ");
-
-//  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
-
-//  BOOST_CHECK(true);
-
-//  solver.solve();
-
-//  BOOST_CHECK(true);
-
-//}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
@@ -414,21 +316,13 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-#ifdef BUBBLE // remove the bubble functions from the mesh
-  CMeshTransformer::Ptr remover =
-      create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBubbleRemove","remover");
-
-  domain.add_component( remover );
-  remover->transform( mesh );
-#endif
-
   BOOST_CHECK(true);
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
   gmsh_writer->configure_property("fields",fields);
@@ -437,7 +331,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
   gmsh_writer->execute();
 
- /* CMeshWriter::Ptr vtk_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","VTKWriter");
+ /* CMeshWriter::Ptr vtk_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","VTKWriter");
   model.add_component(vtk_writer);
 
   vtk_writer->configure_property("fields",fields);
@@ -446,7 +340,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
   vtk_writer->execute();*/
 
- /* CMeshWriter::Ptr tec_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
+ /* CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
   model.add_component(tec_writer);
 
   tec_writer->configure_property("fields",fields);
