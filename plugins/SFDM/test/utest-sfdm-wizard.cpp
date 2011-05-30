@@ -25,6 +25,7 @@
 #include "Mesh/CDomain.hpp"
 #include "SFDM/SFDWizard.hpp"
 #include "Solver/CModel.hpp"
+#include "Solver/CSolver.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -50,24 +51,32 @@ BOOST_AUTO_TEST_CASE( Solver )
   CMesh& mesh = model.domain().create_component<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(mesh, 10., 100);
 
+  Component& iterate = model.solver().access_component("iterate");
+  Component& if_milestone = iterate.create_component("7_if_milestone","CF.Solver.Actions.Conditional");
+  //if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneTime");
+  if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneIteration");
+
+  CMeshWriter& gmsh_writer = if_milestone.create_component("gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  gmsh_writer.configure_property("mesh",mesh.full_path());
+  gmsh_writer.configure_property("file",URI("line.msh"));
+
+
   CFdebug << model.tree() << CFendl;
 
   wizard.prepare_simulation();
 
-  std::string gaussian="sigma:="+to_str(1.)+"; mu:="+to_str(5.)+"; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";
+  gmsh_writer.set_fields(std::vector<CField::Ptr>(1,mesh.get_child("solution").as_ptr<CField>()));
+
+  std::string gaussian="sigma:="+to_str(1.)+"; mu:="+to_str(5.)+"; exp( -(x-mu)^2/(2*sigma^2) )";
 
   CFinfo << "\nInitializing solution with [" << gaussian << "]" << CFendl;
   wizard.initialize_solution(std::vector<std::string>(1,gaussian));
 
 
-  CMeshWriter& gmsh_writer = model.tools().create_component("gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
-  gmsh_writer.configure_property("mesh",mesh.uri());
-  gmsh_writer.configure_property("file",URI("line.msh"));
-  gmsh_writer.set_fields(std::vector<CField::Ptr>(1,mesh.get_child("solution").as_ptr<CField>()));
+  model.configure_option_recursively("milestone_dt",0.5);
+  model.configure_option_recursively("milestone_rate",3);
 
   wizard.start_simulation(3.);
-
-  gmsh_writer.execute();
 
 }
 

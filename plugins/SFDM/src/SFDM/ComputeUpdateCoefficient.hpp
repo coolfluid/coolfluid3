@@ -46,6 +46,7 @@ private: // helper functions
   void config_wave_speed();
   void config_volume();
   void config_time();
+  Real limit_end_time(const Real& time, const Real& end_time);
 
 private: // data
 
@@ -56,6 +57,9 @@ private: // data
 
   bool m_time_accurate;
   Real m_CFL;
+
+
+  Real m_tolerance;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

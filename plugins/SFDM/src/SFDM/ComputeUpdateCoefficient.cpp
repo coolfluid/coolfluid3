@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @todo remove
+#include "Common/Log.hpp"
+
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/OptionT.hpp"
@@ -11,13 +14,16 @@
 #include "Mesh/CMesh.hpp"
 #include "Solver/CTime.hpp"
 #include "Solver/CModel.hpp"
+#include "Solver/FlowSolver.hpp"
 #include "SFDM/ComputeUpdateCoefficient.hpp"
+#include "Math/MathConsts.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Solver;
+using namespace CF::Math::MathConsts;
 
 namespace CF {
 namespace SFDM {
@@ -31,35 +37,34 @@ Common::ComponentBuilder < ComputeUpdateCoefficient, CAction, LibSFDM > ComputeU
 ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
   CAction(name),
   m_time_accurate(false),
-  m_CFL(1.)
+  m_CFL(1.),
+  m_tolerance(1e-12)
 {
   mark_basic();
   // options
-  m_properties.add_option< OptionT<bool> > ("time_accurate","Time Accurate", "Time Accurate", m_time_accurate)
+  properties().add_option< OptionT<bool> > ("time_accurate","Time Accurate", "Time Accurate", m_time_accurate)
     ->mark_basic()
     ->link_to(&m_time_accurate)
     ->add_tag("time_accurate");
 
-  m_properties.add_option< OptionT<Real> > ("cfl","CFL", "Courant Number", m_CFL)
+  properties().add_option< OptionT<Real> > ("cfl","CFL", "Courant Number", m_CFL)
     ->mark_basic()
     ->link_to(&m_CFL)
     ->add_tag("cfl");
 
-  m_properties.add_option(OptionURI::create("update_coeff","Update Coefficient","Update coefficient to multiply with residual", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_update_coeff,   this ) )
-    ->add_tag("update_coeff");
+  properties().add_option(OptionURI::create(FlowSolver::Tags::update_coeff(),"Update Coefficient","Update coefficient to multiply with residual", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_update_coeff,   this ) );
 
-  m_properties.add_option(OptionURI::create("wave_speed","Wave Speed","WaveSpeed needed", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_wave_speed,   this ) )
-    ->add_tag("wave_speed");
+  properties().add_option(OptionURI::create(FlowSolver::Tags::wave_speed(),"Wave Speed","WaveSpeed needed", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_wave_speed,   this ) );
 
-  m_properties.add_option(OptionURI::create("volume","Volume","Volume needed for time accurate simulations", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) )
-    ->add_tag(Mesh::Tags::volume());
+  properties().add_option(OptionURI::create("volume","Volume","Volume needed for time accurate simulations", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) );
 
-  m_properties.add_option(OptionURI::create("time","Time","Time Tracking component", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_time,   this ) )
-    ->add_tag("time");
+  properties().add_option(OptionURI::create(FlowSolver::Tags::time(),"Time","Time Tracking component", URI("cpath:"), URI::Scheme::CPATH))
+    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_time,   this ) );
+
+  properties().add_option(OptionT<Real>::create("milestone_dt","Milestone Time Step","Limits time-steps to fall on milestones",0.));
 
 }
 
@@ -117,18 +122,21 @@ void ComputeUpdateCoefficient::execute()
     cf_assert_desc("Fields not compatible: "+to_str(volume.size())+"!="+to_str(wave_speed.size()),volume.size() == wave_speed.size());
     cf_assert_desc("Fields not compatible: "+to_str(update_coeff.size())+"!="+to_str(wave_speed.size()),update_coeff.size() == wave_speed.size());
 
-    // compute which dt to take
-    Real tf = time.property("end_time").value<Real>();
+    // compute time step
+    // -----------------
+    // 1) take user-defined time step
     Real dt = time.property("time_step").value<Real>();
-    if( time.time() + dt > tf )
-      dt = tf - time.time();
-
-    // Make time step stricter through the CFL number
+    // 2) Make time step stricter through the CFL number
     for (Uint i=0; i<wave_speed.size(); ++i)
     {
       if (volume[i][0] > 0)
         dt = std::min(dt, m_CFL*volume[i][0]/wave_speed[i][0] );
     }
+    // 3) Make sure we reach milestones and final simulation time
+    Real tf = limit_end_time(time.time(), time.property("end_time").value<Real>());
+    if( time.time() + dt + m_tolerance > tf )
+      dt = tf - time.time();
+
 
     // Calculate the update_coefficient = dt/dx
     for (Uint i=0; i<update_coeff.size(); ++i)
@@ -149,6 +157,18 @@ void ComputeUpdateCoefficient::execute()
     for (Uint i=0; i<update_coeff.size(); ++i)
       update_coeff[i][0] = m_CFL/wave_speed[i][0];
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real ComputeUpdateCoefficient::limit_end_time(const Real& time, const Real& end_time)
+{
+  const Real milestone_dt   = property("milestone_dt").value<Real>();
+  if (milestone_dt == 0)
+    return end_time;
+
+  const Real milestone_time = (Uint((time+m_tolerance)/milestone_dt)+1.)*milestone_dt;
+  return std::min(milestone_time,end_time);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

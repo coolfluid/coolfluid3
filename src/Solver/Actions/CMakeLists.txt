@@ -11,6 +11,10 @@ list( APPEND coolfluid_solver_actions_files
   CCriterionAbsResidual.cpp
   CCriterionMaxIterations.hpp
   CCriterionMaxIterations.cpp
+  CCriterionMilestoneIteration.hpp
+  CCriterionMilestoneIteration.cpp
+  CCriterionMilestoneTime.hpp
+  CCriterionMilestoneTime.cpp
   CCriterionTime.hpp
   CCriterionTime.cpp
   CIterate.hpp
@@ -38,6 +42,8 @@ list( APPEND coolfluid_solver_actions_files
   CComputeLNorm.cpp
   LibActions.hpp
   LibActions.cpp
+  Conditional.hpp
+  Conditional.cpp
 )
 
 list( APPEND coolfluid_solver_actions_proto_files

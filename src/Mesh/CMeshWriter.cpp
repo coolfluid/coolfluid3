@@ -97,7 +97,7 @@ void CMeshWriter::execute()
   std::string file = property("file").value<URI>().string();
 
   // Check for environment variables
-  CEnv& environment = Core::instance().environment();
+  Component& environment = *this;
   boost::regex re("\\$\\{(\\w+)\\}");
   boost::sregex_iterator i(file.begin(), file.end(), re);
   boost::sregex_iterator j;
