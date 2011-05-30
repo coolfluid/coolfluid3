@@ -46,19 +46,19 @@ public:
   TYPE * getWidget( Core::CNode::ConstPtr node )
   {
     TYPE * widget = nullptr;
-    std::string key = node->full_path().path();
+    std::string key = node->uri().path();
 
     if( !m_tabs.contains(key) )
     {
       TabInfo info;
 
       info.widget = new TYPE(/*this*/);
-      info.tabIndex = addTab(info.widget, node->full_path().path().c_str());
+      info.tabIndex = addTab(info.widget, node->uri().path().c_str());
       info.isVisible = true;
       m_tabs[key] = info;
     }
     else
-      setTabText( m_tabs[key].tabIndex, node->full_path().path().c_str() );
+      setTabText( m_tabs[key].tabIndex, node->uri().path().c_str() );
 
     widget = static_cast<TYPE*>(m_tabs[key].widget);
 

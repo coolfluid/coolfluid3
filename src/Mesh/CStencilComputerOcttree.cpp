@@ -51,7 +51,7 @@ void CStencilComputerOcttree::configure_mesh()
   m_nb_elems_in_mesh = m_mesh.lock()->topology().recursive_filtered_elements_count(IsElementsVolume());
   m_dim = m_mesh.lock()->nodes().coordinates().row_size();
   
-  m_octtree->configure_property("mesh",m_mesh.lock()->full_path());
+  m_octtree->configure_property("mesh",m_mesh.lock()->uri());
   m_octtree->create_octtree();
 }
 

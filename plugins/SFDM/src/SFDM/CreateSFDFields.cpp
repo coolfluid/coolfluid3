@@ -88,9 +88,9 @@ void CreateSFDFields::execute()
     CField& jacobian_determinant = mesh.create_field("jacobian_determinant",CField::Basis::CELL_BASED,solution_space,"jacobian_determinant[1]");
 
     CLoop& compute_jacobian_determinant = create_component< CForAllCells >("compute_jacobian_determinant");
-    compute_jacobian_determinant.configure_property("regions", std::vector<URI>(1,mesh.topology().full_path()));
+    compute_jacobian_determinant.configure_property("regions", std::vector<URI>(1,mesh.topology().uri()));
     compute_jacobian_determinant.create_loop_operation("CF.SFDM.ComputeJacobianDeterminant")
-                                                .configure_property("jacobian_determinant",jacobian_determinant.full_path());
+                                                .configure_property("jacobian_determinant",jacobian_determinant.uri());
     compute_jacobian_determinant.execute();
     remove_component(compute_jacobian_determinant.name());
   }

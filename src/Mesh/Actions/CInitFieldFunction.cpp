@@ -76,7 +76,7 @@ void CInitFieldFunction::config_function()
 void CInitFieldFunction::execute()
 {
   if (m_field.expired())
-    throw SetupError(FromHere(), "Option [field] was not set in ["+full_path().path()+"]");
+    throw SetupError(FromHere(), "Option [field] was not set in ["+uri().path()+"]");
 
   CField& field = *m_field.lock();
 

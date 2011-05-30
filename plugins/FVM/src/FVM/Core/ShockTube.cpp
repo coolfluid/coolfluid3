@@ -148,9 +148,9 @@ void ShockTube::signal_create_model ( SignalArgs& args )
 
   CFinfo << "Creating FiniteVolumeSolver" << CFendl;
   FiniteVolumeSolver& solver = model.create_solver("CF.FVM.Core.FiniteVolumeSolver").as_type<FiniteVolumeSolver>();
-  solver.configure_property("physical_model",physics.full_path());
-  solver.configure_property("domain",domain.full_path());
-  solver.configure_option_recursively("time",model.time().full_path());
+  solver.configure_property("physical_model",physics.uri());
+  solver.configure_property("domain",domain.uri());
+  solver.configure_option_recursively("time",model.time().uri());
   solver.configure_option_recursively("time_accurate",true);
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
 
   CFinfo << "Setting initial condition" << CFendl;
   CInitFieldFunction& init_solution = model.tools().create_component<CInitFieldFunction>("init_solution");
-  init_solution.configure_property("field",find_component_with_tag(mesh,"solution").full_path());
+  init_solution.configure_property("field",find_component_with_tag(mesh,"solution").uri());
 
   const Real r_L = 4.696;             const Real r_R = 1.408;
   const Real p_L = 404400;            const Real p_R = 101100;
@@ -218,9 +218,9 @@ void ShockTube::signal_create_model ( SignalArgs& args )
 
   CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","mesh_writer");
   model.tools().add_component(writer);
-  writer->configure_property("fields",std::vector<URI>(1,find_component_with_tag(mesh,"solution").full_path()));
+  writer->configure_property("fields",std::vector<URI>(1,find_component_with_tag(mesh,"solution").uri()));
   writer->configure_property("file",URI(model.name()+".msh"));
-  writer->configure_property("mesh",mesh.full_path());
+  writer->configure_property("mesh",mesh.uri());
 
 }
 

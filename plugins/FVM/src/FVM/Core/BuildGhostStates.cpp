@@ -96,7 +96,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
       
       boost_foreach(CFaces& faces, find_components<CFaces>(boundary_faces) )
       {
-        // CFinfo << faces.full_path().path() << CFendl;
+        // CFinfo << faces.uri().path() << CFendl;
         CFaceCellConnectivity::Ptr face2cell_ptr = find_component_ptr<CFaceCellConnectivity>(faces);
         if (is_not_null(face2cell_ptr))
         {

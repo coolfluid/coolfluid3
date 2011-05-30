@@ -29,7 +29,7 @@ namespace Common {
     root->m_raw_parent = raw_root;
 
     // put himself in the database
-    root->m_toc[root->full_path().path()] = root;
+    root->m_toc[root->uri().path()] = root;
 
     return root;
   }
@@ -88,7 +88,7 @@ namespace Common {
 
   void CRoot::change_component_path( const URI& path , boost::shared_ptr<Component> comp )
   {
-    remove_component_path( comp->full_path().path() );
+    remove_component_path( comp->uri().path() );
 
     // set the new path
     CompStorage_t::iterator itr = m_toc.find(path.path());
@@ -130,7 +130,7 @@ namespace Common {
     CompStorage_t::const_iterator itr = m_toc.begin();
     for ( ; itr != m_toc.end(); ++itr )
     {
-      out << itr->first << " " << itr->second->full_path().path() << "\n";
+      out << itr->first << " " << itr->second->uri().path() << "\n";
     }
 
     return out.str();

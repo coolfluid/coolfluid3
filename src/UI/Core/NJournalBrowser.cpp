@@ -202,7 +202,7 @@ void NJournalBrowser::setRootNode(const XmlNode * rootNode)
 
 void NJournalBrowser::requestJournal()
 {
-  SignalFrame frame("list_journal", full_path(), SERVER_JOURNAL_PATH);
+  SignalFrame frame("list_journal", uri(), SERVER_JOURNAL_PATH);
 
   ThreadManager::instance().network().send(frame);
 }

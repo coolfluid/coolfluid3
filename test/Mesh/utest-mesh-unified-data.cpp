@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( data_location )
   for (Uint i=0; i<unified_elems->size(); ++i)
   {
     tie(elements,elem_idx) = unified_elems->location(i);
-    CFinfo << i << ": " << elements->full_path().path() << "    ["<<elem_idx<<"]" << CFendl;
+    CFinfo << i << ": " << elements->uri().path() << "    ["<<elem_idx<<"]" << CFendl;
   }
 
   CUnifiedData::Ptr unified_nodes = allocate_component<CUnifiedData>("unified_nodes");
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( data_location )
   for (Uint i=0; i<unified_nodes->size(); ++i)
   {
     tie(nodes,node_idx) = unified_nodes->location(i);
-    CFinfo << i << ": " << nodes->full_path().path() << "    ["<<node_idx<<"]" << CFendl;
+    CFinfo << i << ": " << nodes->uri().path() << "    ["<<node_idx<<"]" << CFendl;
   }
 
 }

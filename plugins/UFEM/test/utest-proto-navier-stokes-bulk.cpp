@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
   // Setup a mesh writer
   CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
   root.add_component(writer);
-  const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").full_path())(mesh->get_child("Pressure").full_path());
+  const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").uri())(mesh->get_child("Pressure").uri());
   writer->configure_property( "fields", out_fields );
   
   // Set initial conditions

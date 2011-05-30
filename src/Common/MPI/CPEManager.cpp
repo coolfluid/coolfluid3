@@ -160,7 +160,7 @@ void CPEManager::spawn_group(const std::string & name, Uint nb_workers,
 
 void CPEManager::kill_group( const std::string & name )
 {
-  SignalFrame frame("exit", full_path(), full_path());
+  SignalFrame frame("exit", uri(), uri());
   std::map<std::string, Communicator>::iterator it = m_groups.find(name);
 
   if( it == m_groups.end() )

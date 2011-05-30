@@ -127,12 +127,12 @@ void SFDWizard::create_simulation()
   build_setup();
   // -------------------------
 
-  solver.configure_property(FlowSolver::Tags::physical_model(),physical_model.full_path());
-  solver.configure_property(FlowSolver::Tags::time(),time.full_path());
+  solver.configure_property(FlowSolver::Tags::physical_model(),physical_model.uri());
+  solver.configure_property(FlowSolver::Tags::time(),time.uri());
 
   model.tools().create_component_ptr<CInitFieldFunction>("initialize_solution");
 
-  CFinfo << "\nCreate the mesh in ["<<domain.full_path().path()<<"] and call \""<<full_path().path()<<"/prepare\"" << CFendl;
+  CFinfo << "\nCreate the mesh in ["<<domain.uri().path()<<"] and call \""<<uri().path()<<"/prepare\"" << CFendl;
 }
 
 void SFDWizard::prepare_simulation()
@@ -154,23 +154,23 @@ void SFDWizard::prepare_simulation()
     }
     else
     {
-      properties().add_option( OptionURI::create("mesh","Mesh","The mesh to solve on",model.domain().full_path()/URI("mesh")) )->mark_basic();
-      throw SetupError(FromHere(),"Multiple meshes exist in ["+model.domain().full_path().path()+"]\n"
+      properties().add_option( OptionURI::create("mesh","Mesh","The mesh to solve on",model.domain().uri()/URI("mesh")) )->mark_basic();
+      throw SetupError(FromHere(),"Multiple meshes exist in ["+model.domain().uri().path()+"]\n"
                        "Set the option \"mesh\" to specify the path to the mesh");
     }
   }
   else
   {
-    model.solver().configure_property("mesh",meshes[0]->full_path());
+    model.solver().configure_property("mesh",meshes[0]->uri());
   }
 
   CFinfo << CFendl;
-  CFinfo << "To add Boundary Conditions:   " << "call " << model.solver().full_path().path() << "/create_bc_action" << CFendl;
-  CFinfo << "To add Inner domain actions:  " << "call " << model.solver().full_path().path() << "/create_inner_action" << CFendl;
-  CFinfo << "To initialize solution:       " << model.tools().get_child("initialize_solution").full_path().path() << "     (needs configuring) " << CFendl;
-  CFinfo << "                    or:       " << "call " << full_path().path() << "/initialize_solution" << CFendl;
+  CFinfo << "To add Boundary Conditions:   " << "call " << model.solver().uri().path() << "/create_bc_action" << CFendl;
+  CFinfo << "To add Inner domain actions:  " << "call " << model.solver().uri().path() << "/create_inner_action" << CFendl;
+  CFinfo << "To initialize solution:       " << model.tools().get_child("initialize_solution").uri().path() << "     (needs configuring) " << CFendl;
+  CFinfo << "                    or:       " << "call " << uri().path() << "/initialize_solution" << CFendl;
   CFinfo << CFendl;
-  CFinfo << "To start simulation:          " << "call " << full_path().path() << "/start_simulation" << CFendl;
+  CFinfo << "To start simulation:          " << "call " << uri().path() << "/start_simulation" << CFendl;
 
 }
 
@@ -325,7 +325,7 @@ void SFDWizard::build_solve()
   solver.configure_option_recursively("riemann_solver",std::string("CF.RiemannSolvers.Roe"));
   solver.configure_option_recursively("roe_state",std::string("CF.AdvectionDiffusion.State"));
 
-  solver.configure_option_recursively("solution_state",m_model_link->follow()->as_type<CModel>().physics().solution_state().full_path());
+  solver.configure_option_recursively("solution_state",m_model_link->follow()->as_type<CModel>().physics().solution_state().uri());
 
 }
 
@@ -370,10 +370,10 @@ void SFDSetup::execute()
 
   /// @todo configure this differently perhaps
   /// 2) set looping regions to the entire mesh
-  access_component("../iterate/2_compute_rhs/2.3_for_all_cells")  .configure_property("regions",std::vector<URI>(1,mesh().topology().full_path()));
+  access_component("../iterate/2_compute_rhs/2.3_for_all_cells")  .configure_property("regions",std::vector<URI>(1,mesh().topology().uri()));
 
   /// 3) configure the initialize_solution component. The field must be set to the solution.
-  access_component("../../tools/initialize_solution").configure_property("field",mesh().get_child(FlowSolver::Tags::solution()).full_path());
+  access_component("../../tools/initialize_solution").configure_property("field",mesh().get_child(FlowSolver::Tags::solution()).uri());
 }
 
 } // SFDM

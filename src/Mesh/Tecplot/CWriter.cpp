@@ -158,7 +158,7 @@ void CWriter::write_file(std::fstream& file)
     // one zone per element type per cpu
     // therefore the title is dependent on those parameters
     file << "ZONE "
-         << "  T=\"" << elements.full_path().path() << "\""
+         << "  T=\"" << elements.uri().path() << "\""
          << ", N=" << used_nodes.size()
          << ", E=" << elements.size()
          << ", DATAPACKING=BLOCK"

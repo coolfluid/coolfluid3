@@ -192,7 +192,7 @@ void CWriter::write_connectivity(std::fstream& file)
     }
     if (!isBC)
     {
-      //CFinfo << "elements from region: " << elementregion->full_path().string() << CFendl;
+      //CFinfo << "elements from region: " << elementregion->uri().string() << CFendl;
       // information of this region with one unique element type
       Uint elm_type;
       Uint nb_nodes;
@@ -345,7 +345,7 @@ void CWriter::write_boundaries(std::fstream& file)
             else
             {
               std::string error_msg = "Face " + to_str(face) + " of element " + to_str(elem)
-                                     + " of " + elementregion.full_path().string() + " has no neighbour.";
+                                     + " of " + elementregion.uri().string() + " has no neighbour.";
               throw ValueNotFound (FromHere(), error_msg);
             }
           }

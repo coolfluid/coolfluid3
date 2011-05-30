@@ -34,7 +34,7 @@ LogForwarder::LogForwarder()
 
 void LogForwarder::message(const std::string &data)
 {
-  std::string path = m_manager->full_path().string();
+  std::string path = m_manager->uri().string();
   SignalFrame frame("message", path, path);
   SignalOptions options(frame);
 

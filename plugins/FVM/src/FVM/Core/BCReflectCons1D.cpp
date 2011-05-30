@@ -83,16 +83,16 @@ void BCReflectCons1D::trigger_elements()
 
 void BCReflectCons1D::execute()
 {
-  // CFinfo << "executing " << full_path().path() << CFendl;
-  // CFinfo << "        on face " << elements().full_path().path() << "["<<idx()<<"]" << CFendl;
+  // CFinfo << "executing " << uri().path() << CFendl;
+  // CFinfo << "        on face " << elements().uri().path() << "["<<idx()<<"]" << CFendl;
   // CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(elements());
   // CTable<Uint>::ConstRow elems = f2c.elements(idx());
   // CCells::Ptr cells;
   // Uint cell_idx(0);
   // boost::tie(cells,cell_idx) = f2c.element_location(elems[INNER]);
-  // CFinfo << "   inner: " << cells->full_path().path() << "["<<cell_idx<<"]" << CFendl;
+  // CFinfo << "   inner: " << cells->uri().path() << "["<<cell_idx<<"]" << CFendl;
   // boost::tie(cells,cell_idx) = f2c.element_location(elems[GHOST]);
-  // CFinfo << "   ghost: " << cells->full_path().path() << "["<<cell_idx<<"]" << CFendl;
+  // CFinfo << "   ghost: " << cells->uri().path() << "["<<cell_idx<<"]" << CFendl;
 
   // Change value in field
   // problem: GHOST does not exist yet.

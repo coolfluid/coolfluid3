@@ -182,14 +182,11 @@ public: // functions
 
   /// Access the name of the component
   std::string name () const { return m_name.path(); }
-
   /// Rename the component
   void rename ( const std::string& name );
 
-  /// Access the path of the component
-  const URI& path () const { return m_path; }
   /// Construct the full path
-  URI full_path () const { return m_path / m_name; }
+  URI uri () const { return m_path / m_name; }
 
   /// Resolves relative elements within a path to complete it.
   /// The path may be relative to this component or absolute.
@@ -647,7 +644,7 @@ inline typename boost::shared_ptr<T> Component::as_ptr_checked()
 {
   typename boost::shared_ptr<T> comp = as_ptr<T>();
   if( is_null(comp) )
-    throw CastingFailed( FromHere(), "Cannot cast component " + full_path().string() + " of type " + derived_type_name() + " to " + T::type_name() );
+    throw CastingFailed( FromHere(), "Cannot cast component " + uri().string() + " of type " + derived_type_name() + " to " + T::type_name() );
   return comp;
 }
 
@@ -658,7 +655,7 @@ inline typename boost::shared_ptr<T const> Component::as_ptr_checked() const
 {
   typename boost::shared_ptr<T const> comp = as_ptr<T>();
   if( is_null(comp) )
-    throw CastingFailed( FromHere(), "Cannot cast const component " + full_path().string() + " of type " + derived_type_name() + " to const " + T::type_name() );
+    throw CastingFailed( FromHere(), "Cannot cast const component " + uri().string() + " of type " + derived_type_name() + " to const " + T::type_name() );
   return comp;
 }
 

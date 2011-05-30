@@ -55,7 +55,7 @@ public:
   }
 
   OptionComponent(const std::string & name, const std::string & desc, data_t* linked_component)
-    : OptionURI(name, desc, linked_component->expired()? URI("cpath:") : linked_component->lock()->full_path())
+    : OptionURI(name, desc, linked_component->expired()? URI("cpath:") : linked_component->lock()->uri())
   {
     m_default = data_t(*linked_component);
     m_value = m_default;
@@ -77,7 +77,7 @@ public:
   }
 
   OptionComponent(const std::string & name, const std::string& readable_name, const std::string & desc, data_t* linked_component)
-    : OptionURI(name, readable_name, desc, linked_component->expired()? URI("cpath:") : linked_component->lock()->full_path())
+    : OptionURI(name, readable_name, desc, linked_component->expired()? URI("cpath:") : linked_component->lock()->uri())
   {
     m_default = data_t(*linked_component);
     m_value = m_default;
@@ -118,7 +118,7 @@ public:
       data_t val = boost::any_cast< data_t >(m_value);
       if (is_null(val.lock()))
         return "cpath:";
-      return val.lock()->full_path().string();
+      return val.lock()->uri().string();
     }
     catch(boost::bad_any_cast& e)
     {
@@ -134,7 +134,7 @@ public:
       data_t val = boost::any_cast< data_t >(m_default);
       if (is_null(val.lock()))
         return "cpath:";
-      return val.lock()->full_path().string();
+      return val.lock()->uri().string();
     }
     catch(boost::bad_any_cast& e)
     {
@@ -183,7 +183,7 @@ protected: // functions
       if ( is_null(data_shared) )
         return URI("cpath:");
       else
-        return data_shared->full_path();
+        return data_shared->uri();
     }
     catch(boost::bad_any_cast& e)
     {

@@ -75,7 +75,7 @@ void CBubbleEnrich::execute()
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
-//    CFinfo << elements.node_connectivity().full_path().string()  << CFendl;    // loop on the elements
+//    CFinfo << elements.node_connectivity().uri().string()  << CFendl;    // loop on the elements
 //    for ( Uint elem = 0; elem != elements.node_connectivity().size(); ++elem )
 //    {
 //      for ( Uint n = 0; n != elements.node_connectivity().row_size(); ++n )
@@ -90,7 +90,7 @@ void CBubbleEnrich::execute()
   {     
     CFinfo << "---------------------------------------------------" << CFendl;
 
-    CFinfo << elements.full_path().string() << CFendl;
+    CFinfo << elements.uri().string() << CFendl;
 
 //    CFinfo << "elems size " << elements.size() << CFendl;
 //    CFinfo << "conn size "  << elements.node_connectivity().size() << " x "
@@ -171,7 +171,7 @@ void CBubbleEnrich::execute()
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
-//    CFinfo << elements.node_connectivity().full_path().string()  << CFendl;    // loop on the elements
+//    CFinfo << elements.node_connectivity().uri().string()  << CFendl;    // loop on the elements
 //    for ( Uint elem = 0; elem != elements.node_connectivity().size(); ++elem )
 //    {
 //      for ( Uint n = 0; n != elements.node_connectivity().row_size(); ++n )

@@ -52,7 +52,7 @@ void PropertyModelTest::initTestCase()
   ThreadManager::instance().tree().root()->addNode( node );
 
   // set the node as the current index
-  NTree::globalTree()->setCurrentIndex( NTree::globalTree()->indexFromPath( node->full_path() ) );
+  NTree::globalTree()->setCurrentIndex( NTree::globalTree()->indexFromPath( node->uri() ) );
 }
 
 /////////////////////////////////////////////////////////////////////////

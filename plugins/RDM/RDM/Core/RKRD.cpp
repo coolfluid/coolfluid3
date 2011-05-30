@@ -122,7 +122,7 @@ void RKRD::config_domain()
 
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>( *domain );
 
-//  CFinfo << "mesh " << mesh->full_path().string() << CFendl;
+//  CFinfo << "mesh " << mesh->uri().string() << CFendl;
   if (is_not_null(mesh))
   {
     m_mesh = mesh;
@@ -141,7 +141,7 @@ void RKRD::config_mesh()
 
   CPhysicalModel::Ptr physmodel = m_physical_model.lock();
   if( is_null( physmodel ) )
-    throw SetupError(FromHere(), "Physical model not yet set for RKRD component " + full_path().string() );
+    throw SetupError(FromHere(), "Physical model not yet set for RKRD component " + uri().string() );
 
   const Uint nbdofs = physmodel->nb_dof();
 
@@ -188,18 +188,18 @@ void RKRD::config_mesh()
 
   // configure field action
 
-  configure_option_recursively("solution", m_solution.lock()->full_path() );
-  configure_option_recursively("residual", m_residual.lock()->full_path() );
-  configure_option_recursively("wave_speed", m_wave_speed.lock()->full_path() );
+  configure_option_recursively("solution", m_solution.lock()->uri() );
+  configure_option_recursively("residual", m_residual.lock()->uri() );
+  configure_option_recursively("wave_speed", m_wave_speed.lock()->uri() );
 
   std::vector<URI> cleanup_fields;
-  cleanup_fields.push_back( m_residual.lock()->full_path() );
-  cleanup_fields.push_back( m_wave_speed.lock()->full_path() );
+  cleanup_fields.push_back( m_residual.lock()->uri() );
+  cleanup_fields.push_back( m_wave_speed.lock()->uri() );
   m_cleanup->configure_property("Fields", cleanup_fields);
 
   m_compute_norm->configure_property("Scale", true);
   m_compute_norm->configure_property("Order", 2u);
-  m_compute_norm->configure_property("Field", m_residual.lock()->full_path());
+  m_compute_norm->configure_property("Field", m_residual.lock()->uri());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -232,9 +232,9 @@ void RKRD::signal_create_boundary_term( SignalArgs& node )
 
   bterm->configure_property("regions" , regions);
   if( m_mesh.lock() )
-    bterm->configure_property("mesh", m_mesh.lock()->full_path());
+    bterm->configure_property("mesh", m_mesh.lock()->uri());
   if( m_physical_model.lock() )
-    bterm->configure_property("physical_model" , m_physical_model.lock()->full_path());
+    bterm->configure_property("physical_model" , m_physical_model.lock()->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -273,9 +273,9 @@ void RKRD::signal_create_domain_term( SignalArgs& node )
 
   dterm->configure_property("regions" , regions);
   if( m_mesh.lock() )
-    dterm->configure_property("mesh", m_mesh.lock()->full_path());
+    dterm->configure_property("mesh", m_mesh.lock()->uri());
   if( m_physical_model.lock() )
-    dterm->configure_property("physical_model" , m_physical_model.lock()->full_path());
+    dterm->configure_property("physical_model" , m_physical_model.lock()->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -304,7 +304,7 @@ void RKRD::signature_signal_create_domain_term( SignalArgs& node )
 void RKRD::signal_initialize_solution( SignalArgs& node )
 {
   if( is_null(m_mesh.lock()) )
-      throw SetupError( FromHere(), "Domain or Mesh has not been configured on solver " + full_path().string() );
+      throw SetupError( FromHere(), "Domain or Mesh has not been configured on solver " + uri().string() );
 
   cf_assert( is_not_null(m_solution.lock()) );
 
@@ -319,7 +319,7 @@ void RKRD::signal_initialize_solution( SignalArgs& node )
     init_solution = get_child("init_solution").as_ptr_checked<CInitFieldFunction>();
 
   init_solution->configure_property( "functions", functions );
-  init_solution->configure_property( "field", m_solution.lock()->full_path() );
+  init_solution->configure_property( "field", m_solution.lock()->uri() );
 
   init_solution->transform( m_mesh.lock() );
 }

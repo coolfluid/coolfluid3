@@ -96,7 +96,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
   solver->mark_basic();
   model->add_component( solver );
 
-  solver->configure_property("physics", pm->full_path() );
+  solver->configure_property("physics", pm->uri() );
 
   // load the mesh
   {
@@ -119,7 +119,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
   // setup solver
   {
-    solver->configure_property("domain", domain.full_path());
+    solver->configure_property("domain", domain.uri());
     solver->get_child("time_stepping").configure_property("cfl", 0.5);
     solver->get_child("time_stepping").configure_property("MaxIter", 2250u);
   }
@@ -131,9 +131,9 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
     std::vector<URI> regions;
     boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
-      regions.push_back( region.full_path() );
+      regions.push_back( region.uri() );
     boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
-      regions.push_back( region.full_path() );
+      regions.push_back( region.uri() );
 
     cf_assert( regions.size() == 2u);
 
@@ -188,7 +188,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
     std::vector<URI> regions;
     boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-      regions.push_back( region.full_path() );
+      regions.push_back( region.uri() );
 
     cf_assert( regions.size() == 1u);
 

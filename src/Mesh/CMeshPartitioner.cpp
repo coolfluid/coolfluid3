@@ -232,7 +232,7 @@ void CMeshPartitioner::show_changes()
         }
         //std::cout << "  to proc " << m_hash->proc_of_part(part) << std::endl;
         std::cout << "  to part " << part << std::endl;
-        std::cout << "  from " << component->full_path().path() << "["<<index<<"]" << std::endl;
+        std::cout << "  from " << component->uri().path() << "["<<index<<"]" << std::endl;
       }
     )
   }

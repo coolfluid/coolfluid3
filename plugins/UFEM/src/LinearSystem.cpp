@@ -106,7 +106,8 @@ CEigenLSS& LinearSystem::lss()
 {
   CEigenLSS::Ptr lss_ptr = m_lss.lock();
   if(lss_ptr == nullptr)
-    throw ValueNotFound(FromHere(), "LSS was not set for LinearSystem " + path().string());
+    throw ValueNotFound(FromHere(), "LSS was not set for LinearSystem " +
+                        uri().string());
 
   return *m_lss.lock();
 }
@@ -273,7 +274,7 @@ void LinearSystem::append_action(CAction& action, const LinearSystem::PhasesT ph
   Property& actions_prop = m_phases[phase].lock()->property("ActionList");
   std::vector<URI> actions; actions_prop.put_value(actions);
   
-  actions.push_back(action.full_path());
+  actions.push_back(action.uri());
   actions_prop.change_value(actions);
 }
 

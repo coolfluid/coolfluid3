@@ -44,7 +44,7 @@ CCriterionTime::~CCriterionTime()
 
 bool CCriterionTime::operator()()
 {
-  if (m_time.expired()) throw SetupError(FromHere(),"Time option was not set in ["+full_path().path()+"]");
+  if (m_time.expired()) throw SetupError(FromHere(),"Time option was not set in ["+uri().path()+"]");
   CTime& t = *m_time.lock();
   
   return ( t.time() + m_tolerance > t.property("end_time").value<Real>() );

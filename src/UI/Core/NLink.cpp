@@ -45,7 +45,7 @@ QString NLink::toolTip() const
   QString path = "<No target>";
 
   if(m_target.get() != nullptr)
-    path = m_target->full_path().path().c_str();
+    path = m_target->uri().path().c_str();
 
   return QString("Target: %1").arg(path);
 }
@@ -57,7 +57,7 @@ URI NLink::targetPath() const
   if(m_target.get() == nullptr)
     return URI();
 
-  return m_target->full_path();
+  return m_target->uri();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -90,12 +90,12 @@ void NLink::goToTarget(SignalArgs & )
 	if ( is_null(m_target) )
 		throw ValueNotFound (FromHere(), "Target of this link is not set or not valid");
 
-	QModelIndex index = NTree::globalTree()->indexFromPath(m_target->full_path());
+	QModelIndex index = NTree::globalTree()->indexFromPath(m_target->uri());
 
 	if(index.isValid())
 		NTree::globalTree()->setCurrentIndex(index);
 	else
-		throw ValueNotFound (FromHere(), m_target->full_path().string() + ": path does not exist");
+		throw ValueNotFound (FromHere(), m_target->uri().string() + ": path does not exist");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ void NLink::change_link(SignalArgs & args)
     this->setTargetPath(path);
 
     NLog::globalLog()->addMessage(QString("Link '%1' now points to '%2'.")
-                                     .arg(full_path().path().c_str()).arg(path.c_str()));
+                                     .arg(uri().path().c_str()).arg(path.c_str()));
 
   }
   catch(InvalidURI & ip)

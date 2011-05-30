@@ -192,11 +192,11 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"right"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 3u);
 
@@ -268,11 +268,11 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , euler2d_local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   gmsh_writer->configure_property("fields",fields);
   gmsh_writer->configure_property("file",URI(model.name()+"_init.msh"));
-  gmsh_writer->configure_property("mesh",mesh->full_path());
+  gmsh_writer->configure_property("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -304,7 +304,7 @@ BOOST_FIXTURE_TEST_CASE( solve_b, euler2d_local_fixture )
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -332,7 +332,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   // gmsh writer
 
@@ -341,7 +341,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
 
   gmsh_writer->configure_property("fields",fields);
   gmsh_writer->configure_property("file",URI(model.name()+".msh"));
-  gmsh_writer->configure_property("mesh",mesh->full_path());
+  gmsh_writer->configure_property("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -352,7 +352,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
 
   tec_writer->configure_property("fields",fields);
   tec_writer->configure_property("file",URI(model.name()+".plt"));
-  tec_writer->configure_property("mesh",mesh->full_path());
+  tec_writer->configure_property("mesh",mesh->uri());
 
   tec_writer->execute();
 

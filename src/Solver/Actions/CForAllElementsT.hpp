@@ -119,7 +119,7 @@ public: // functions
   {
     boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
     {
-      CFinfo << region->full_path().string() << CFendl;
+      CFinfo << region->uri().string() << CFendl;
       
       ElementLooper loop_elements(*m_action,*region);
       boost::mpl::for_each< Mesh::SF::Types >(loop_elements);

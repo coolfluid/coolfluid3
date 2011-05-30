@@ -67,7 +67,7 @@ void CWorkerGroup::signal_solve( Common::SignalArgs & args)
   std::string str;
   char * buffer;
   int remote_size;
-  SignalFrame frame("solve", full_path(), "//Root/Worker");
+  SignalFrame frame("solve", uri(), "//Root/Worker");
 
   to_string( *frame.xml_doc, str);
 

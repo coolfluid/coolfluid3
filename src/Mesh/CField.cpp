@@ -240,7 +240,7 @@ void CField::config_tree()
 void CField::set_topology(CRegion& region)
 {
   m_topology->link_to(region.self());
-  properties()["Topology"]=region.full_path();
+  properties()["Topology"]=region.uri();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -282,7 +282,7 @@ void CField::create_data_storage()
       boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(topology()))
       {
         if (field_elements.exists_space(m_space_name) == false)
-          throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.full_path().path());
+          throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.uri().path());
 
         m_elements_start_idx[field_elements.as_ptr<CEntities>()] = data_size;
         CFieldView field_view("tmp_field_view");
@@ -296,9 +296,9 @@ void CField::create_data_storage()
       Uint data_size = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CCells>(topology()))
       {
-        //CFinfo << name() << ": creating cellbased field storage in " << field_elements.full_path().path() << CFendl;
+        //CFinfo << name() << ": creating cellbased field storage in " << field_elements.uri().path() << CFendl;
         if (field_elements.exists_space(m_space_name) == false)
-          throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.full_path().path());
+          throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.uri().path());
 
         m_elements_start_idx[field_elements.as_ptr<CEntities>()] = data_size;
         CFieldView field_view("tmp_field_view");
@@ -313,7 +313,7 @@ void CField::create_data_storage()
       boost_foreach(CEntities& field_elements, find_components_recursively_with_tag<CEntities>(topology(),Mesh::Tags::face_entity()))
       {
         if (field_elements.exists_space(m_space_name) == false)
-          throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.full_path().path());
+          throw ValueNotFound(FromHere(),"space \""+m_space_name+"\" does not exist in "+field_elements.uri().path());
 
         m_elements_start_idx[field_elements.as_ptr<CEntities>()] = data_size;
         CFieldView field_view("tmp_field_view");

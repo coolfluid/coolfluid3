@@ -45,7 +45,7 @@ CCriterionAbsResidual::~CCriterionAbsResidual() {}
 
 bool CCriterionAbsResidual::operator()()
 {
-  if (m_iter_comp.expired()) throw SetupError(FromHere(),"Component holding iteration number was not set in ["+full_path().string()+"]");
+  if (m_iter_comp.expired()) throw SetupError(FromHere(),"Component holding iteration number was not set in ["+uri().string()+"]");
   Component& comp_iter = *m_iter_comp.lock();
   
   const Uint cur_iter = comp_iter.property("iter").value<Uint>();

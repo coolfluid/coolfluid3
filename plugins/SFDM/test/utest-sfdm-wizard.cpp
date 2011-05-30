@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( Solver )
 
 
   CMeshWriter& gmsh_writer = model.tools().create_component("gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
-  gmsh_writer.configure_property("mesh",mesh.full_path());
+  gmsh_writer.configure_property("mesh",mesh.uri());
   gmsh_writer.configure_property("file",URI("line.msh"));
   gmsh_writer.set_fields(std::vector<CField::Ptr>(1,mesh.get_child("solution").as_ptr<CField>()));
 

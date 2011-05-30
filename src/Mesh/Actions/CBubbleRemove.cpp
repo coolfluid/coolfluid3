@@ -75,7 +75,7 @@ void CBubbleRemove::execute()
   {
     CFinfo << "---------------------------------------------------" << CFendl;
 
-    CFinfo << elements.full_path().string() << CFendl;
+    CFinfo << elements.uri().string() << CFendl;
 
 //    CFinfo << "elems size " << elements.size() << CFendl;
 //    CFinfo << "conn size "  << elements.node_connectivity().size() << " x "

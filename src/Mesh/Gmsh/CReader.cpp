@@ -735,7 +735,7 @@ void CReader::read_variable_header(std::map<std::string,Field>& fields)
   Uint nb_string_tags(0);
   std::string var_name("var");
   std::string field_name("field");
-  std::string field_topology("./"); // to be prepended by m_mesh->topology().full_path().path()
+  std::string field_topology("./"); // to be prepended by m_mesh->topology().uri().path()
   std::string field_basis("PointBased");
   Uint nb_real_tags(0);
   Real field_time(0.);

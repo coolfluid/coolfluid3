@@ -181,7 +181,7 @@ void TreeBrowser::updateButtons()
 
       if(path.isEmpty())
       {
-        path = NTree::globalTree()->treeRoot()->root()->full_path().path().c_str();
+        path = NTree::globalTree()->treeRoot()->root()->uri().path().c_str();
         //icon = NTree::globalTree()->getRoot()->getIcon();
       }
 

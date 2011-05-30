@@ -101,7 +101,7 @@ CRoot::Ptr ServerRoot::root()
     CTable<Real>::Buffer buffer = table->create_buffer(8000);
 
     table->mark_basic();
-    plotter->set_data_set( table->full_path() );
+    plotter->set_data_set( table->uri() );
 
     // fill the table
     std::vector<Real> row(8);

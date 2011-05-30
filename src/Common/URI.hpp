@@ -32,8 +32,7 @@ namespace Common {
 
   public:
 
-    class Common_API Scheme
-    {
+    class Common_API Scheme {
     public:
 
       /// Enumeration of the Shapes recognized in CF
@@ -55,6 +54,14 @@ namespace Common {
       };
 
     }; // Protocol
+
+    // static methods
+
+    /// check that the passed string is a valid path element
+    static bool is_valid_element ( const std::string& str);
+
+    /// separator for path tokens
+    static const std::string& separator ();
 
     // constructors
 
@@ -118,14 +125,8 @@ namespace Common {
     /// @return the base path
     URI base_path() const;
 
-    /// @return the the name of the object, without the path
+    /// @return the name of the object, without the path
     std::string name() const;
-
-    /// check that the passed string is a valid path element
-    static bool is_valid_element ( const std::string& str);
-
-    /// separator for path tokens
-    static const std::string& separator ();
 
     /// Gives the protocol (if any).
     /// @return Returns the protocol. May return @c URI::Protocol::INVALID if no

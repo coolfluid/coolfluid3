@@ -127,7 +127,7 @@ void SelectPathDialog::pathChanged(const QString & path)
         newPath = path.left(lastSlash);
 
       if(newPath == "/")
-        newPath = root->full_path().path().c_str();
+        newPath = root->uri().path().c_str();
 
       node = root->retrieve_component<CNode>(newPath.toStdString());
 

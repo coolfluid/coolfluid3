@@ -135,10 +135,10 @@ void Component::rename ( const std::string& name )
   // notification should be done before the real renaming since the path changes
   raise_path_changed();
 
-  URI new_full_path = m_path / new_name;
+  URI new_uri = m_path / new_name;
 
   if( ! m_root.expired() ) // inform the root about the change in path
-    m_root.lock()->change_component_path( new_full_path , shared_from_this() );
+    m_root.lock()->change_component_path( new_uri , shared_from_this() );
 
   if ( is_not_null(m_raw_parent) ) // rename via parent to insure unique names
   {
@@ -264,7 +264,7 @@ std::string Component::ensure_unique_name ( Component& subcomp )
         new_name = name  + "_" + to_str(count);
       }
 
-//      CFwarn << "Component named \'" << subcomp->full_path().string() << "\' already exists. Component renamed to \'" << new_name << "\'" << CFendl;
+//      CFwarn << "Component named \'" << subcomp->uri().string() << "\' already exists. Component renamed to \'" << new_name << "\'" << CFendl;
 
       break;
     }
@@ -286,7 +286,7 @@ Component::Ptr Component::remove_component ( const std::string& name )
 
     // remove the component from the root
     if( !m_root.expired() )
-      m_root.lock()->remove_component_path(comp->full_path());
+      m_root.lock()->remove_component_path(comp->uri());
 
     m_dynamic_components.erase(itr);               // remove it from the storage
 
@@ -345,20 +345,20 @@ void Component::complete_path ( URI& path ) const
     if ( starts_with(sp,"/") ) // remove leading "/" if any
       boost::algorithm::replace_first(sp, "/", "" );
 
-    // substitute leading "../" for full_path() of parent
+    // substitute leading "../" for uri() of parent
     if (starts_with(sp,".."))
     {
-      std::string pfp = parent->full_path().path();
+      std::string pfp = parent->uri().path();
       boost::algorithm::replace_first(sp, "..", pfp);
     }
-    // substitute leading "./" for full_path() of this component
+    // substitute leading "./" for uri() of this component
     else if (starts_with(sp,"."))
     {
-      boost::algorithm::replace_first(sp, ".", full_path().path());
+      boost::algorithm::replace_first(sp, ".", uri().path());
     }
     else
     {
-      sp = full_path().path()+"/"+sp;
+      sp = uri().path()+"/"+sp;
     }
 
   }
@@ -416,7 +416,7 @@ Component::Ptr Component::get_child_ptr_checked(const std::string& name)
   if(found != m_components.end())
     return found->second;
   else
-    throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + full_path().string() );
+    throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + uri().string() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -426,17 +426,17 @@ void Component::change_parent ( Component* new_parent )
   if( !m_root.expired() )   // get the root and remove the current path
   {
    CRoot::Ptr root = m_root.lock();
-    root->remove_component_path(full_path());
+    root->remove_component_path(uri());
   }
 
   if( new_parent ) // valid ?
   {
-    m_path = new_parent->full_path(); // modify the path
+    m_path = new_parent->uri(); // modify the path
     m_root = new_parent->m_root;      // modify the root
 
     if( !m_root.expired() )   // get the root and set the new path
     {
-      m_root.lock()->change_component_path( full_path() , shared_from_this() );
+      m_root.lock()->change_component_path( uri() , shared_from_this() );
     }
   }
   else // new parent is invalid
@@ -587,7 +587,7 @@ Component::Ptr Component::access_component_ptr_checked (const URI& path )
 {
   Component::Ptr comp = access_component_ptr(path);
   if (is_null(comp))
-    throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + full_path().path());
+    throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + uri().path());
   return comp;
 }
 
@@ -595,7 +595,7 @@ Component::ConstPtr Component::access_component_ptr_checked (const URI& path ) c
 {
   Component::ConstPtr comp = access_component_ptr(path);
   if (is_null(comp))
-    throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + full_path().path());
+    throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + uri().path());
   return comp;
 }
 
@@ -670,7 +670,7 @@ void Component::signal_move_component ( SignalArgs& args  )
 
 void Component::signal_print_info ( SignalArgs& args  )
 {
-  CFinfo << "Info on component \'" << full_path().path() << "\'" << CFendl;
+  CFinfo << "Info on component \'" << uri().path() << "\'" << CFendl;
 
   CFinfo << "  sub components:" << CFendl;
   BOOST_FOREACH( CompStorage_t::value_type c, m_components )
@@ -710,7 +710,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
     if( is_not_null(lnk.get()) ) // if it is a link, we put the target path as value
     {
       if ( lnk->is_linked() )
-       this_node.content->value( this_node.content->document()->allocate_string( lnk->follow()->full_path().string().c_str() ));
+       this_node.content->value( this_node.content->document()->allocate_string( lnk->follow()->uri().string().c_str() ));
 //      else
 //        this_node.value( this_node.document()->allocate_string( "//Root" ));
     }
@@ -735,7 +735,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
 
 void Component::signal_list_tree( SignalArgs& args )
 {
-  SignalFrame reply = args.create_reply( full_path() );
+  SignalFrame reply = args.create_reply( uri() );
 
   write_xml_tree(reply.main_map.content, false);
 }
@@ -750,7 +750,7 @@ std::string Component::tree(Uint level) const
   tree += name() ;
 
   if( is_link() && follow() )
-    tree += " -> " + follow()->full_path().string();
+    tree += " -> " + follow()->uri().string();
 
   tree += "\n";
 
@@ -955,7 +955,7 @@ void Component::signal_configure ( SignalArgs& args )
   }
 
   // add a reply frame
-  SignalFrame reply = args.create_reply( full_path() );
+  SignalFrame reply = args.create_reply( uri() );
   Map map_node = reply.map( Protocol::Tags::key_options() ).main_map;
 
   opt_map.deep_copy( map_node.content );
@@ -1012,7 +1012,7 @@ void Component::signal_save_tree ( SignalArgs& args )
 
 void Component::signal_list_content( SignalArgs& args )
 {
-  SignalFrame reply = args.create_reply( full_path() );
+  SignalFrame reply = args.create_reply( uri() );
 
   signal_list_properties(reply);
   signal_list_signals(reply);
@@ -1022,7 +1022,7 @@ void Component::signal_list_content( SignalArgs& args )
 
 void Component::signal_signature( SignalArgs & args )
 {
-  SignalFrame reply = args.create_reply( full_path() );
+  SignalFrame reply = args.create_reply( uri() );
   SignalOptions options( args );
 
   try
@@ -1052,7 +1052,7 @@ void Component::raise_event ( const std::string & name )
   {
    CRoot::Ptr root = m_root.lock();
 
-    root->raise_new_event(name, full_path());
+    root->raise_new_event(name, uri());
   }
 }
 
@@ -1231,14 +1231,14 @@ void Component::change_property(const std::string args)
 
     }
     else
-      throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + args + "] for ["+ full_path().path() +"] is invalid.\n"+
+      throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + args + "] for ["+ uri().path() +"] is invalid.\n"+
                           "Format should be:\n"
                           " -  for simple types:  variable_name:type=value\n"
                           " -  for array types:   variable_name:array[type]=value1,value2\n"
                           "  with possible type: [bool,unsigned,integer,real,string,uri]");
   }
   else
-    throw ParsingFailed(FromHere(), "Could not parse [" + args + "] in ["+ full_path().path() +"].\n"+
+    throw ParsingFailed(FromHere(), "Could not parse [" + args + "] in ["+ uri().path() +"].\n"+
                         "Format should be:\n"
                         " -  for simple types:  variable_name:type=value\n"
                         " -  for array types:   variable_name:array[type]=value1,value2\n"
@@ -1266,7 +1266,7 @@ void Component::configure (const std::vector<std::string>& args)
       value=what[6];
       // CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
       if (properties().check(name) == false) // not found
-        throw ValueNotFound(FromHere(), "Option with name ["+name+"] not found in "+ full_path().path());
+        throw ValueNotFound(FromHere(), "Option with name ["+name+"] not found in "+ uri().path());
 
       if      (type == "bool")
         configure_property(name,from_str<bool>(value));
@@ -1346,14 +1346,14 @@ void Component::configure (const std::vector<std::string>& args)
 
       }
       else
-        throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] for ["+ full_path().path() +"] is invalid.\n"+
+        throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] for ["+ uri().path() +"] is invalid.\n"+
           "Format should be:\n"
           " -  for simple types:  variable_name:type=value\n"
           " -  for array types:   variable_name:array[type]=value1,value2\n"
           "  with possible type: [bool,unsigned,integer,real,string,uri]");
     }
     else
-      throw ParsingFailed(FromHere(), "Could not parse [" + arg + "] in ["+ full_path().path() +"].\n"+
+      throw ParsingFailed(FromHere(), "Could not parse [" + arg + "] in ["+ uri().path() +"].\n"+
          "Format should be:\n"
          " -  for simple types:  variable_name:type=value\n"
          " -  for array types:   variable_name:array[type]=value1,value2\n"
@@ -1372,7 +1372,7 @@ Component::Ptr build_component(const std::string& builder_name,
   Component::Ptr factories = Core::instance().root().get_child_ptr("Factories");
   if ( is_null(factories) )
     throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in "
-                        + Core::instance().root().full_path().string() );
+                        + Core::instance().root().uri().string() );
 
   // get the factory holding the builder
 
@@ -1396,7 +1396,7 @@ Component::Ptr build_component(const std::string& builder_name,
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
                         "CFactory \'" + factory_type_name
-                        + "\' not found in " + factories->full_path().string() + "." );
+                        + "\' not found in " + factories->uri().string() + "." );
 
   // get the builder
 
@@ -1447,7 +1447,7 @@ Component::Ptr build_component(const std::string& builder_name,
 {
   std::string builder_namespace = CBuilder::extract_namespace(builder_name);
 
-  URI builder_path = Core::instance().libraries().full_path()
+  URI builder_path = Core::instance().libraries().uri()
                    / URI(builder_namespace)
                    / URI(builder_name);
 

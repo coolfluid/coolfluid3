@@ -81,7 +81,7 @@ void CIterate::execute ()
     if (exit_iterations)  break;
 
     if (m_verbose)
-      CFinfo << full_path().path() << "[" << m_iter << "]" << CFendl;
+      CFinfo << uri().path() << "[" << m_iter << "]" << CFendl;
 
     if (m_export)
       Core::instance().environment().properties()["iter"] = m_iter;

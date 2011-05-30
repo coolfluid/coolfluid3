@@ -40,7 +40,7 @@ namespace Shell {
 
 std::string default_prompt()
 {
-  return "["+BasicCommands::current_component->full_path().path()+"] ";
+  return "["+BasicCommands::current_component->uri().path()+"] ";
 }
 
 ////////////////////////////////////////////////////////////////////////////////

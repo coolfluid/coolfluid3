@@ -92,7 +92,7 @@ void BasicCommands::call(const std::vector<std::string>& params)
   {
     Component::Ptr signaling_component = current_component->access_component_ptr(URI(executable_path).base_path());
     if ( is_null(signaling_component) )
-      throw ValueNotFound(FromHere(), "component " + URI(executable_path).base_path().path() + " was not found in " + current_component->full_path().path());
+      throw ValueNotFound(FromHere(), "component " + URI(executable_path).base_path().path() + " was not found in " + current_component->uri().path());
 
     std::string name = URI(executable_path).name();
     std::vector<std::string> signal_options(params.size()-1);
@@ -162,7 +162,7 @@ void BasicCommands::exit(const std::vector<std::string> &)
 
 void BasicCommands::pwd(const std::vector<std::string> &)
 {
-  CFinfo << current_component->full_path().path() << CFendl;
+  CFinfo << current_component->uri().path() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -380,7 +380,7 @@ void BasicCommands::find(const std::vector<std::string>& params)
   boost_foreach(Component& subcomp, find_components_recursively( start_comp ) )
   {
     if ( boost::regex_match(subcomp.name(),expression) )
-      CFinfo << subcomp.full_path().path() << CFendl;
+      CFinfo << subcomp.uri().path() << CFendl;
   }
 }
 
@@ -468,7 +468,7 @@ void BasicCommands::create(const std::vector<std::string>& params)
 
   Component::Ptr parent_component = current_component->access_component_ptr(URI(new_component_path).base_path());
   if ( is_null(parent_component) )
-    throw ValueNotFound(FromHere(), "component " + new_component_path.base_path().path() + " was not found in " + current_component->full_path().path());
+    throw ValueNotFound(FromHere(), "component " + new_component_path.base_path().path() + " was not found in " + current_component->uri().path());
 
   parent_component->create_component(new_component_path.name(), params[1]);
 

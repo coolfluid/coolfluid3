@@ -66,7 +66,7 @@ CPhysicalModel& Action::physical_model()
   if( is_null(model) )
     throw Common::SetupError( FromHere(),
                              "Physical Model not yet set for component "
-                             + full_path().string() );
+                             + uri().string() );
 
   return *model;
 }
@@ -80,7 +80,7 @@ CTime& Action::time()
   if( is_null(t) )
     throw Common::SetupError( FromHere(),
                              "Time not yet set for component "
-                             + full_path().string() );
+                             + uri().string() );
 
   return *t;
 }
@@ -94,7 +94,7 @@ CMesh& Action::mesh()
   if( is_null(m) )
     throw Common::SetupError( FromHere(),
                              "Mesh not yet set for component "
-                             + full_path().string() );
+                             + uri().string() );
 
   return *m;
 }

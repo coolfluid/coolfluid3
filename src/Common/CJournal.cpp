@@ -193,7 +193,7 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
 
 void CJournal::list_journal ( SignalArgs & args )
 {
-  SignalFrame reply = args.create_reply( full_path() );
+  SignalFrame reply = args.create_reply( uri() );
 
   copy_node(m_signals_map.content, reply.main_map.content);
 }

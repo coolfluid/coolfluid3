@@ -105,8 +105,8 @@ void CFaceCellConnectivity::build_connectivity()
   //CFinfo << "building face_cell connectivity using " << CFendl;
   boost_foreach(Component::Ptr cells, used() )
   {
-    //CFinfo << "  " << cells->full_path().path() << CFendl;
-    cf_assert_desc("Must call CMesh::elements().update() to add the elements ["+cells->full_path().path()+"] in the elements registry",
+    //CFinfo << "  " << cells->uri().path() << CFendl;
+    cf_assert_desc("Must call CMesh::elements().update() to add the elements ["+cells->uri().path()+"] in the elements registry",
       m_mesh_elements->contains(*cells));
   }
 

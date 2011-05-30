@@ -77,7 +77,7 @@ void BcDirichlet::config_mesh()
   if( is_null(m_solution.lock()) )
     throw CastingFailed (FromHere(),
                          "Could not find a solution field on mesh "
-                         + m_mesh.lock()->full_path().string() );
+                         + m_mesh.lock()->uri().string() );
 
 }
 
@@ -86,7 +86,7 @@ void BcDirichlet::config_mesh()
 void BcDirichlet::execute()
 {
   if (m_solution.expired())
-    throw SetupError(FromHere(), "Mesh option in ["+full_path().path()+"] was not set");
+    throw SetupError(FromHere(), "Mesh option in ["+uri().path()+"] was not set");
 
   CField& field = *m_solution.lock();
 

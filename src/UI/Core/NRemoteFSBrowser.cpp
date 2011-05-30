@@ -163,7 +163,7 @@ QString NRemoteFSBrowser::currentPath() const
 
 void NRemoteFSBrowser::openDir ( const QString & path )
 {
-  SignalFrame frame("read_dir", full_path(), SERVER_CORE_PATH);
+  SignalFrame frame("read_dir", uri(), SERVER_CORE_PATH);
   SignalOptions options( frame );
 
   std::vector<std::string> vect;

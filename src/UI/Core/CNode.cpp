@@ -298,7 +298,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & opts)
   // modifying local options. It's not the most efficient way to do, but local
   // options are not meant to be modified 10 times each second so this should
   // not affect the application performances.
-  SignalFrame frame("configure", full_path(), full_path());
+  SignalFrame frame("configure", uri(), uri());
   SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
   for( ; it != opts.end() ; it++)
@@ -425,13 +425,13 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
 
   // add the current path
   if(list.isEmpty())
-    list << comp->full_path().path().c_str();
+    list << comp->uri().path().c_str();
 
   for( ; itBegin != itEnd ; itBegin++)
   {
     if(!itBegin->isLocalComponent() || clientNodes)
     {
-      list << itBegin->full_path().path().c_str();
+      list << itBegin->uri().path().c_str();
 
       if(recursive)
         itBegin->listChildPaths(list, recursive, clientNodes);
@@ -466,7 +466,7 @@ void CNode::removeNode(const QString & nodeName)
 
 void CNode::configure_reply(SignalArgs & args)
 {
-  URI path = full_path();
+  URI path = uri();
   QString msg("Node \"%1\" options updated.");
 
   signal_configure(args);
@@ -844,7 +844,7 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
 
 void CNode::requestSignalSignature(const QString & name)
 {
-  URI path = realComponent()->full_path();
+  URI path = realComponent()->uri();
   XmlNode * node;
 
   SignalFrame frame("signal_signature", path, path);
@@ -868,7 +868,7 @@ void CNode::fetchContent()
   NetworkThread& network = ThreadManager::instance().network();
   if(!m_contentListed && !m_listingContent && network.isConnected())
   {
-    URI path = realComponent()->full_path();
+    URI path = realComponent()->uri();
 
     SignalFrame frame("list_content", path, path);
 

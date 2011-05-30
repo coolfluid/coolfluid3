@@ -173,11 +173,11 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , burgers2d_local_fixture )
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"right"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 3u);
 
@@ -242,7 +242,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , burgers2d_local_fixture )
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -288,7 +288,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , burgers2d_local_fixture )
 
 //  std::vector<URI> regions;
 //  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-//    regions.push_back( region.full_path() );
+//    regions.push_back( region.uri() );
 
 //  BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -329,11 +329,11 @@ BOOST_FIXTURE_TEST_CASE( output , burgers2d_local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   mesh_writer->configure_property("fields",fields);
   mesh_writer->configure_property("file",URI(model.name()+".msh"));
-  mesh_writer->configure_property("mesh",mesh->full_path());
+  mesh_writer->configure_property("mesh",mesh->uri());
 
   mesh_writer->execute();
 

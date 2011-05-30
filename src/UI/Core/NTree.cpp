@@ -289,7 +289,7 @@ URI NTree::pathFromIndex(const QModelIndex & index) const
   URI path;
 
   if(treeNode != nullptr)
-    path = treeNode->node()->realComponent()->full_path();
+    path = treeNode->node()->realComponent()->uri();
 
   return path;
 }
@@ -497,7 +497,7 @@ void NTree::list_tree_reply(SignalArgs & args)
 
     if(m_currentIndex.isValid())
     {
-      currentIndexPath = indexToTreeNode(m_currentIndex)->node()->full_path();
+      currentIndexPath = indexToTreeNode(m_currentIndex)->node()->uri();
     }
 
     emit beginResetModel();

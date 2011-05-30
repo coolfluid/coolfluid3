@@ -260,7 +260,7 @@ void CReader::read_zone(CRegion& parent_region)
 void CReader::read_coordinates_unstructured(CRegion& parent_region)
 {
 
-  CFinfo << "creating coordinates in " << parent_region.full_path().string() << CFendl;
+  CFinfo << "creating coordinates in " << parent_region.uri().string() << CFendl;
   CNodes& nodes = parent_region.create_nodes(m_zone.coord_dim);
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();

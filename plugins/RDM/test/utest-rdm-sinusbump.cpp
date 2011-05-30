@@ -174,7 +174,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , sinusbump_local_fix
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"SubInlet"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -213,7 +213,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , sinusbump_local_fi
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"SubOutlet"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -246,9 +246,9 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_wall , sinusbump_local_fixt
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"LowerWall"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"UpperWall"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 2u);
 
@@ -309,11 +309,11 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , sinusbump_local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   gmsh_writer->configure_property("fields",fields);
   gmsh_writer->configure_property("file",URI(model.name()+"_init.msh"));
-  gmsh_writer->configure_property("mesh",mesh->full_path());
+  gmsh_writer->configure_property("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -345,7 +345,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda, sinusbump_local_fixture )
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -373,7 +373,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , sinusbump_local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   // gmsh writer
 
@@ -382,7 +382,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , sinusbump_local_fixture )
 
   gmsh_writer->configure_property("fields",fields);
   gmsh_writer->configure_property("file",URI(model.name()+".msh"));
-  gmsh_writer->configure_property("mesh",mesh->full_path());
+  gmsh_writer->configure_property("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -393,7 +393,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , sinusbump_local_fixture )
 
   tec_writer->configure_property("fields",fields);
   tec_writer->configure_property("file",URI(model.name()+".plt"));
-  tec_writer->configure_property("mesh",mesh->full_path());
+  tec_writer->configure_property("mesh",mesh->uri());
 
   tec_writer->execute();
 

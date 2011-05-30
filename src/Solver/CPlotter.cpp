@@ -82,7 +82,7 @@ void CPlotter::signature_create_xyplot(SignalArgs &args)
   schemes[0] = URI::Scheme::CPATH;
 
   options.add("Plot name", std::string(), "Name for the new plot");
-  options.add("Parent", Core::instance().root().full_path(), "Parent of the new component", schemes);
+  options.add("Parent", Core::instance().root().uri(), "Parent of the new component", schemes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

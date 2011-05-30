@@ -452,7 +452,7 @@ void CReader::read_groups()
 
     CRegion& region = m_region->create_region(group.ELMMAT);
 
-    //CFinfo << "region " << region.full_path().string() << " created" << CFendl;
+    //CFinfo << "region " << region.uri().string() << " created" << CFendl;
     // Create regions for each element type in each group-region
     std::map<std::string,CElements::Ptr> elements = create_cells_in_region(region,*m_nodes,m_supported_types);
     std::map<std::string,CConnectivity::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);

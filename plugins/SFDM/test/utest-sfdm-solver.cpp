@@ -86,14 +86,14 @@ BOOST_AUTO_TEST_CASE( Solver )
   //////////////////////////////////////////////////////////////////////////////
   // configure solver
 
-  solver.configure_property("physical_model",physics.full_path());
-  solver.configure_property("domain",domain.full_path());
+  solver.configure_property("physical_model",physics.uri());
+  solver.configure_property("domain",domain.uri());
   solver.configure_option_recursively("riemann_solver",std::string("CF.RiemannSolvers.Roe"));
   solver.configure_option_recursively("roe_state",std::string("CF.AdvectionDiffusion.State"));
-  solver.configure_option_recursively("solution_state",physics.solution_state().full_path());
+  solver.configure_option_recursively("solution_state",physics.solution_state().uri());
 
 
-  solver.configure_option_recursively("time",model.time().full_path());
+  solver.configure_option_recursively("time",model.time().uri());
   solver.configure_option_recursively("time_accurate",true);
   solver.configure_option_recursively("cfl",1.);
 
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( Solver )
 
   std::string gaussian="sigma:=1; mu:=5.; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";
   init_field->configure_property("functions",std::vector<std::string>(1,gaussian));
-  init_field->configure_property("field",find_component_with_tag<CField>(mesh,"solution").full_path());
+  init_field->configure_property("field",find_component_with_tag<CField>(mesh,"solution").uri());
   init_field->transform(mesh);
 
 
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( Solver )
   fields.push_back(find_component_with_tag<CField>(mesh,"wave_speed").as_ptr<CField>());
 
   CMeshWriter& gmsh_writer = solver.get_child("iterate").create_component("7_gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
-  gmsh_writer.configure_property("mesh",mesh.full_path());
+  gmsh_writer.configure_property("mesh",mesh.uri());
   gmsh_writer.configure_property("file",URI("line_${iter}.msh"));
   gmsh_writer.set_fields(fields);
 

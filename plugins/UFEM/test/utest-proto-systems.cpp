@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   // Setup a mesh writer
   CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   root.add_component(writer);
-  writer->configure_property( "fields", std::vector<URI>(1, mesh->get_child("VectorVariable").full_path() ) );
+  writer->configure_property( "fields", std::vector<URI>(1, mesh->get_child("VectorVariable").uri() ) );
   
   // Set initial condition.
   for_each_node

@@ -73,7 +73,7 @@ std::string CInitFieldConstant::help() const
 void CInitFieldConstant::execute()
 {
   if (m_field.expired())
-    throw SetupError(FromHere(), "option [field] was not set in ["+full_path().path()+"]");
+    throw SetupError(FromHere(), "option [field] was not set in ["+uri().path()+"]");
   m_field.lock()->data() = m_constant;
 }
 

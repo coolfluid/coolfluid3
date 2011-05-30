@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   heat_generator->configure_property("FieldName", std::string("Heat"));
   heat_generator->configure_property("VariableName", std::string("q"));
   heat_generator->configure_property("Value", 0.);
-  heat_generator->configure_property("Mesh", mesh->full_path());
+  heat_generator->configure_property("Mesh", mesh->uri());
   SignalFrame update_heat_frame("", URI(), URI());
   heat_generator->call_signal("update", update_heat_frame);
 

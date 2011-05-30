@@ -93,9 +93,9 @@ public:
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
-    m_properties.add_option< OptionComponent<CConcrete1> >( "OptC", "component option", Core::instance().root().full_path());
+    m_properties.add_option< OptionComponent<CConcrete1> >( "OptC", "component option", Core::instance().root().uri());
     m_properties.link_to_parameter ( "OptC", &m_component );
-    Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2","component option",Core::instance().root().full_path()));
+    Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2","component option",Core::instance().root().uri()));
     m_properties.add_option(opt2)->link_to( &m_component )->mark_basic();
      Option::Ptr opt3 = m_properties.add_option
        (OptionComponent<CConcrete1>::create("OptC3","component option",&m_component));

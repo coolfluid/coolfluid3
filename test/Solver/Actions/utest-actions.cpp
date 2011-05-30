@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
 
   CField& field = *mesh->create_component_ptr<CField>("field");
-  field.configure_property("Topology",mesh->topology().full_path());
+  field.configure_property("Topology",mesh->topology().uri());
   field.configure_property("FieldType",std::string("PointBased"));
   field.create_data_storage();
 
@@ -131,18 +131,18 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 	node_loop->configure_property("regions",regions);
 
   node_loop->create_loop_operation("CF.Solver.Actions.CSetFieldValues");
-  node_loop->action("CF.Solver.Actions.CSetFieldValues").configure_property("Field",field.full_path());
+  node_loop->action("CF.Solver.Actions.CSetFieldValues").configure_property("Field",field.uri());
   node_loop->execute();
 
   BOOST_CHECK(true);
 
   CField& volumes = *mesh->create_component_ptr<CField>("volumes");
-  volumes.configure_property("Topology",mesh->topology().full_path());
+  volumes.configure_property("Topology",mesh->topology().uri());
   volumes.configure_property("FieldType",std::string("ElementBased"));
   volumes.create_data_storage();
 
   CField& areas = *mesh->create_component_ptr<CField>("areas");
-  areas.configure_property("Topology",mesh->topology().full_path());
+  areas.configure_property("Topology",mesh->topology().uri());
   areas.configure_property("FieldType",std::string("ElementBased"));
   areas.create_data_storage();
 
@@ -152,9 +152,9 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
   CElements& elems = root.access_component("//Root/mesh/topology/default_id1084/fluid/Triag").as_type<CElements>();
   BOOST_CHECK(true);
-  compute_volume->configure_property("Volume",volumes.full_path());
+  compute_volume->configure_property("Volume",volumes.uri());
   BOOST_CHECK(true);
-  compute_volume->configure_property("Elements",elems.full_path());
+  compute_volume->configure_property("Elements",elems.uri());
   BOOST_CHECK(true);
   compute_volume->configure_property("LoopIndex",12u);
   BOOST_CHECK(true);
@@ -168,10 +168,10 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   elem_loop->configure_property("regions",regions);
 
   elem_loop->create_loop_operation("CF.Solver.Actions.CComputeVolume");
-  elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volume",volumes.full_path());
+  elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volume",volumes.uri());
 
   elem_loop->create_loop_operation("CF.Solver.Actions.CComputeArea");
-  elem_loop->action("CF.Solver.Actions.CComputeArea").configure_property("area",areas.full_path());
+  elem_loop->action("CF.Solver.Actions.CComputeArea").configure_property("area",areas.uri());
 
   elem_loop->execute();
 
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
   compute_all_cell_volumes->configure_property("regions",topology);
   BOOST_CHECK(true);
 
-  compute_all_cell_volumes->action().configure_property("Volume",field.full_path());
+  compute_all_cell_volumes->action().configure_property("Volume",field.uri());
   BOOST_CHECK(true);
 
   compute_all_cell_volumes->execute();
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE(TestActionDirector)
   CRoot& root = Core::instance().root();
   SetIntegerAction::Ptr test_action = root.create_component_ptr<SetIntegerAction>("testaction");
   CActionDirector::Ptr director = root.create_component_ptr<CActionDirector>("director");
-  const std::vector<URI> action_vector(1, test_action->full_path());
+  const std::vector<URI> action_vector(1, test_action->uri());
   director->configure_property("ActionList", action_vector);
   BOOST_CHECK_EQUAL(test_action->value, 0);
   director->execute();

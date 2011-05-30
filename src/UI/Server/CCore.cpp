@@ -247,7 +247,7 @@ void CCore::read_dir(SignalArgs & args)
     else
     {
       // Build the reply
-      SignalFrame reply = args.create_reply( full_path() );
+      SignalFrame reply = args.create_reply( uri() );
       SignalOptions roptions( reply );
 
       roptions.add("dirPath", directory.toStdString());

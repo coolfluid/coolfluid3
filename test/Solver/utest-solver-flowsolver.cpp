@@ -89,23 +89,23 @@ BOOST_AUTO_TEST_CASE( test_solver_setup1 )
 
   CF_CHECK_THROW( solver.solve() , SetupError );  // physical model not set
 
-  solver.configure_property("physical_model",root.get_child("physical_model").full_path());
+  solver.configure_property("physical_model",root.get_child("physical_model").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("mesh",root.get_child("mesh").full_path());
+  solver.configure_property("mesh",root.get_child("mesh").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("time",root.get_child("time").full_path());
+  solver.configure_property("time",root.get_child("time").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError ); // setup not set
 
-  solver.configure_property("setup",setup.full_path());
+  solver.configure_property("setup",setup.uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError ); // setup not set
 
-  solver.configure_property("solve",solve.full_path());
+  solver.configure_property("solve",solve.uri());
 
   // Finally enough configured to solve
   BOOST_CHECK_NO_THROW(solver.solve());
@@ -126,23 +126,23 @@ BOOST_AUTO_TEST_CASE( test_solver_setup2 )
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("solve",solve.full_path());
+  solver.configure_property("solve",solve.uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("setup",setup.full_path());
+  solver.configure_property("setup",setup.uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("physical_model",root.get_child("physical_model").full_path());
+  solver.configure_property("physical_model",root.get_child("physical_model").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("mesh",root.get_child("mesh").full_path());
+  solver.configure_property("mesh",root.get_child("mesh").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("time",root.get_child("time").full_path());
+  solver.configure_property("time",root.get_child("time").uri());
 
   // Finally enough configured to solve
   BOOST_CHECK_NO_THROW(solver.solve());
@@ -152,10 +152,10 @@ BOOST_AUTO_TEST_CASE( test_solver_setup2 )
   CF_CHECK_THROW(solver.create_inner_action("compute_convective_terms","CF.Solver.Echo",root.get_child("mesh").as_type<CMesh>().topology()), SetupError );
 
   CAction& bc = solver.create_component<CGroupActions>("compute_bc");
-  solver.configure_property("bc",bc.full_path());
+  solver.configure_property("bc",bc.uri());
 
   CAction& inner = solver.create_component<CGroupActions>("compute_inner");
-  solver.configure_property("inner",bc.full_path());
+  solver.configure_property("inner",bc.uri());
 
   BOOST_CHECK_NO_THROW(solver.create_bc_action("compute_convective_terms","CF.Solver.Echo",root.get_child("mesh").as_type<CMesh>().topology()));
 
@@ -183,23 +183,23 @@ BOOST_AUTO_TEST_CASE( test_solver_setup3 )
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("solve",solve.full_path());
+  solver.configure_property("solve",solve.uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("setup",setup.full_path());
+  solver.configure_property("setup",setup.uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("physical_model",root.get_child("physical_model").full_path());
+  solver.configure_property("physical_model",root.get_child("physical_model").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("mesh",root.get_child("mesh").full_path());
+  solver.configure_property("mesh",root.get_child("mesh").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("time",root.get_child("time").full_path());
+  solver.configure_property("time",root.get_child("time").uri());
 
   // Finally enough configured to solve
   BOOST_CHECK_NO_THROW(solver.solve());

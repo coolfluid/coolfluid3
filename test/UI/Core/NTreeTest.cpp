@@ -219,7 +219,7 @@ void NTreeTest::test_listNodeOptions()
   //
   t.treeRoot()->addNode(node);
 
-  index = t.indexFromPath( node->full_path() );
+  index = t.indexFromPath( node->uri() );
 
   QVERIFY(index.isValid());
 
@@ -301,7 +301,7 @@ void NTreeTest::test_nodeByPath()
 
   // note: we can freely use logNode here, even if the previous QCOMPARE() failed,
   // since a failing QCOMPARE() interrupts the test case execution
-  QCOMPARE(logNode->full_path().path(), std::string(CLIENT_LOG_PATH));
+  QCOMPARE(logNode->uri().path(), std::string(CLIENT_LOG_PATH));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -321,7 +321,7 @@ void NTreeTest::test_indexFromPath()
   QCOMPARE( foundRootIndex, rootIndex );
 
   // 2. get another node
-  QModelIndex foundIndex = t.indexFromPath(node->full_path());
+  QModelIndex foundIndex = t.indexFromPath(node->uri());
   QVERIFY( foundIndex.isValid() );
   QCOMPARE( foundIndex, index );
 
@@ -567,8 +567,8 @@ void NTreeTest::test_indexIsVisible()
   t.treeRoot()->addNode(node);
   t.treeRoot()->addNode(myNode);
 
-  QModelIndex nodeIndex = t.indexFromPath( node->full_path() );
-  QModelIndex myNodeIndex = t.indexFromPath( myNode->full_path() );
+  QModelIndex nodeIndex = t.indexFromPath( node->uri() );
+  QModelIndex myNodeIndex = t.indexFromPath( myNode->uri() );
 
   // 1. invalid index
   QVERIFY( !t.isIndexVisible( QModelIndex() ) );

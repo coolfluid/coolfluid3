@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   std::vector<URI> files;
   files.push_back( "file:rectangle-tg-p2.msh" );
 
-  options.add("location", Core::instance().root().get_child("Domain").full_path() );
+  options.add("location", Core::instance().root().get_child("Domain").uri() );
   options.add<std::string>("name", std::string("Mesh") );
   options.add("files", files, " ; ");
 
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( enricher )
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(*mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
-//    CFinfo << elements.node_connectivity().full_path().string()  << CFendl;    // loop on the elements
+//    CFinfo << elements.node_connectivity().uri().string()  << CFendl;    // loop on the elements
 //    for ( Uint elem = 0; elem != elements.node_connectivity().size(); ++elem )
 //    {
 //      for ( Uint n = 0; n != elements.node_connectivity().row_size(); ++n )
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( remover )
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(*mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
-//    CFinfo << elements.node_connectivity().full_path().string()  << CFendl;    // loop on the elements
+//    CFinfo << elements.node_connectivity().uri().string()  << CFendl;    // loop on the elements
 //    for ( Uint elem = 0; elem != elements.node_connectivity().size(); ++elem )
 //    {
 //      for ( Uint n = 0; n != elements.node_connectivity().row_size(); ++n )
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE( remover )
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(*mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
-//    CFinfo << elements.node_connectivity().full_path().string()  << CFendl;    // loop on the elements
+//    CFinfo << elements.node_connectivity().uri().string()  << CFendl;    // loop on the elements
 //    for ( Uint elem = 0; elem != elements.node_connectivity().size(); ++elem )
 //    {
 //      for ( Uint n = 0; n != elements.node_connectivity().row_size(); ++n )

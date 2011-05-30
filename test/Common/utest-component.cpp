@@ -40,8 +40,8 @@ BOOST_AUTO_TEST_CASE( constructors )
   CRoot::Ptr root = CRoot::create ( "root" );
 
   BOOST_CHECK_EQUAL ( root->name() , "root" );
-  BOOST_CHECK_EQUAL ( root->path().string() , "cpath:/" );
-  BOOST_CHECK_EQUAL ( root->full_path().string() , "cpath://root" );
+  BOOST_CHECK_EQUAL ( root->uri().base_path().string() , "cpath:/" );
+  BOOST_CHECK_EQUAL ( root->uri().string() , "cpath://root" );
 
   BOOST_CHECK_EQUAL ( root->properties().check("brief") , true );
   BOOST_CHECK_EQUAL ( root->properties().check("description") , true );
@@ -50,15 +50,15 @@ BOOST_AUTO_TEST_CASE( constructors )
   CGroup dir1 ( "dir1" );
 
   BOOST_CHECK_EQUAL ( dir1.name() , "dir1" );
-  BOOST_CHECK_EQUAL ( dir1.path().string() , "" );
-  BOOST_CHECK_EQUAL ( dir1.full_path().string() , "cpath:dir1" );
+  BOOST_CHECK_EQUAL ( dir1.uri().base_path().string() , "" );
+  BOOST_CHECK_EQUAL ( dir1.uri().string() , "cpath:dir1" );
 
   // constructor with passed path
   CLink lnk ( "lnk" );
 
   BOOST_CHECK_EQUAL ( lnk.name() , "lnk" );
-  BOOST_CHECK_EQUAL ( lnk.path().string() , "" );
-  BOOST_CHECK_EQUAL ( lnk.full_path().string() , "cpath:lnk" );
+  BOOST_CHECK_EQUAL ( lnk.uri().base_path().string() , "" );
+  BOOST_CHECK_EQUAL ( lnk.uri().string() , "cpath:lnk" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,9 +73,9 @@ BOOST_AUTO_TEST_CASE( add_component )
   root->add_component( dir1 );
   dir1->add_component( dir2 );
 
-  BOOST_CHECK_EQUAL ( root->full_path().string() , "cpath://root" );
-  BOOST_CHECK_EQUAL ( dir1->full_path().string() , "cpath://root/dir1" );
-  BOOST_CHECK_EQUAL ( dir2->full_path().string() , "cpath://root/dir1/dir2" );
+  BOOST_CHECK_EQUAL ( root->uri().string() , "cpath://root" );
+  BOOST_CHECK_EQUAL ( dir1->uri().string() , "cpath://root/dir1" );
+  BOOST_CHECK_EQUAL ( dir2->uri().string() , "cpath://root/dir1/dir2" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,15 +111,15 @@ BOOST_AUTO_TEST_CASE( get )
 
   // check that the root returns himself
   BOOST_CHECK_EQUAL ( root->follow()->name(), "root" );
-  BOOST_CHECK_EQUAL ( root->follow()->full_path().string(), "cpath://root" );
+  BOOST_CHECK_EQUAL ( root->follow()->uri().string(), "cpath://root" );
 
   // check that the link is sane
   BOOST_CHECK_EQUAL ( lnk1->name(), "lnk1" );
-  BOOST_CHECK_EQUAL ( lnk1->full_path().string(), "cpath://root/lnk1" );
+  BOOST_CHECK_EQUAL ( lnk1->uri().string(), "cpath://root/lnk1" );
 
   // check that the link returns the dir1
   BOOST_CHECK_EQUAL ( lnk1->follow()->name(), "dir1" );
-  BOOST_CHECK_EQUAL ( lnk1->follow()->full_path().string(), "cpath://root/dir1" );
+  BOOST_CHECK_EQUAL ( lnk1->follow()->uri().string(), "cpath://root/dir1" );
 
 }
 
@@ -203,12 +203,12 @@ BOOST_AUTO_TEST_CASE( access_component_ptr )
   // test relative & complete path
   URI p0 ( "cpath:../dir21" );
   Component::Ptr cp0 = dir22->access_component_ptr( p0 );
-  BOOST_CHECK_EQUAL ( cp0->full_path().string(), "cpath://root/dir1/dir2/dir21" );
+  BOOST_CHECK_EQUAL ( cp0->uri().string(), "cpath://root/dir1/dir2/dir21" );
 
   // test relative & complete path
   URI p1 ( "cpath://root/dir1" );
   Component::Ptr cp1 = dir22->access_component_ptr( p1 );
-  BOOST_CHECK_EQUAL ( cp1->full_path().string(), "cpath://root/dir1" );
+  BOOST_CHECK_EQUAL ( cp1->uri().string(), "cpath://root/dir1" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -224,11 +224,11 @@ BOOST_AUTO_TEST_CASE( move_to )
   root->add_component( dir1 );
   dir1->add_component( dir2 );
 
-  BOOST_CHECK_EQUAL ( dir2->full_path().string(), "cpath://root/dir1/dir2" );
+  BOOST_CHECK_EQUAL ( dir2->uri().string(), "cpath://root/dir1/dir2" );
 
   dir2->move_to( *root );
 
-  BOOST_CHECK_EQUAL ( dir2->full_path().string(), "cpath://root/dir2" );
+  BOOST_CHECK_EQUAL ( dir2->uri().string(), "cpath://root/dir2" );
 
 }
 
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE( problem )
 
   Component::Ptr proot = root->access_component_ptr("cpath://Simulator");
 
-  BOOST_CHECK_EQUAL ( proot->full_path().string(), "cpath://Simulator" );
+  BOOST_CHECK_EQUAL ( proot->uri().string(), "cpath://Simulator" );
 
 }
 

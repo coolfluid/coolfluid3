@@ -270,7 +270,7 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
     {
       bool add_field = options.option<bool>(field.name());
       if (add_field)
-        fields.push_back(field.full_path());
+        fields.push_back(field.uri());
     }
   }
   mesh_writer->write_mesh(*this,fpath,fields);

@@ -226,7 +226,7 @@ Uint CEntities::space_idx(const std::string& name) const
       if (m_spaces[i]->name() == name)
         return i;
   }
-  throw ValueNotFound(FromHere(), "Space with name ["+name+"] not found for elements ["+full_path().path()+"]");
+  throw ValueNotFound(FromHere(), "Space with name ["+name+"] not found for elements ["+uri().path()+"]");
   return 0;
 }
 

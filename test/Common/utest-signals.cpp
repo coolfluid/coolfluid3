@@ -64,7 +64,7 @@ public: // functions
 
   void trigger_signal_list_tree( Component& receiver )
   {
-    SignalFrame signal_frame( "list_tree", full_path(), receiver.full_path());
+    SignalFrame signal_frame( "list_tree", uri(), receiver.uri());
 
 
 //    std::vector < std::pair < Signal::id_t, SignalName > > lists = receiver.list_signals();

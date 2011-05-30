@@ -113,7 +113,7 @@ void CGlobalNumbering::execute()
       elements.put_coordinates(element_coordinates,elem_idx);
       glb_elem_hash.data()[elem_idx]=hash_value(element_coordinates);
       if (m_debug)
-        std::cout << "["<<mpi::PE::instance().rank() << "]  hashing elem ("<< elements.full_path().path() << "["<<elem_idx<<"]) to " << glb_elem_hash.data()[elem_idx] << std::endl;
+        std::cout << "["<<mpi::PE::instance().rank() << "]  hashing elem ("<< elements.uri().path() << "["<<elem_idx<<"]) to " << glb_elem_hash.data()[elem_idx] << std::endl;
       
       //CFinfo << "glb_elem_hash["<<elem_idx<<"] = " <<  glb_elem_hash.data()[elem_idx] << CFendl;
     }
@@ -136,7 +136,7 @@ void CGlobalNumbering::execute()
       for (Uint i=0; i<glb_elem_hash.data().size(); ++i)
       {    
         if (glb_set.insert(glb_elem_hash.data()[i]).second == false)  // it was already in the set
-          throw ValueExists(FromHere(), "elem "+elements.full_path().path()+"["+to_str(i)+"] is duplicated");
+          throw ValueExists(FromHere(), "elem "+elements.uri().path()+"["+to_str(i)+"] is duplicated");
       }
     }
 
@@ -250,7 +250,7 @@ void CGlobalNumbering::execute()
     for (Uint e=0; e<elements.size(); ++e)
     {
       if (m_debug)
-        std::cout << "["<<mpi::PE::instance().rank() << "]  will change elem "<< glb_elem_hash[e] << " (" << elements.full_path().path() << "["<<e<<"]) to " << glb_id << std::endl;
+        std::cout << "["<<mpi::PE::instance().rank() << "]  will change elem "<< glb_elem_hash[e] << " (" << elements.uri().path() << "["<<e<<"]) to " << glb_id << std::endl;
       elements_glb_idx[e] = glb_id;
       ++glb_id;
     }
@@ -273,7 +273,7 @@ void CGlobalNumbering::execute()
       for (Uint i=0; i<elements.size(); ++i)
       {    
         if (glb_set.insert(elements_glb_idx[i]).second == false)  // it was already in the set
-          throw ValueExists(FromHere(), "elem "+elements.full_path().path()+"["+to_str(i)+"] is duplicated");
+          throw ValueExists(FromHere(), "elem "+elements.uri().path()+"["+to_str(i)+"] is duplicated");
       }
     }
 

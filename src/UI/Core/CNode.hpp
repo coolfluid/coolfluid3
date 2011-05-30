@@ -297,7 +297,7 @@ namespace Core {
 
     /// Lists all children paths in a string list.
 
-    /// Strings have the same format as returned by @c CPath::full_path().string().
+    /// Strings have the same format as returned by @c CPath::uri().string().
     /// @param list The string list where paths will be stored. The list is not
     /// cleaned before first use.
     /// @param recursive If @c true, the listing is recursive. Otherwise,

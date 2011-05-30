@@ -69,7 +69,7 @@ struct global_fixture
    CDomain& domain = find_component_recursively<CDomain>(model);
    CSolver& solver = find_component_recursively<CSolver>(model);
 
-   solver.configure_property("domain", domain.full_path() );
+   solver.configure_property("domain", domain.uri() );
 
    CMeshWriter::Ptr gmsh_writer =
        build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
@@ -133,7 +133,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  solver.configure_property("mesh", mesh->full_path() );
+  solver.configure_property("mesh", mesh->uri() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -154,11 +154,11 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   writer.configure_property("fields",fields);
   writer.configure_property("file",URI(model.name()+"_init.msh"));
-  writer.configure_property("mesh",mesh->full_path());
+  writer.configure_property("mesh",mesh->uri());
 
   writer.execute();
 }
@@ -173,9 +173,9 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
     std::vector<URI> regions;
     boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
-        regions.push_back( region.full_path() );
+        regions.push_back( region.uri() );
     boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
-        regions.push_back( region.full_path() );
+        regions.push_back( region.uri() );
 
     BOOST_CHECK_EQUAL( regions.size() , 2u);
 
@@ -228,7 +228,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -249,11 +249,11 @@ BOOST_FIXTURE_TEST_CASE( output , local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   writer.configure_property("fields",fields);
   writer.configure_property("file",URI(model.name()+".msh"));
-  writer.configure_property("mesh",mesh->full_path());
+  writer.configure_property("mesh",mesh->uri());
 
   writer.execute();
 }

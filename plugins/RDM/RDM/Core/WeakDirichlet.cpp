@@ -93,7 +93,7 @@ void WeakDirichlet::config_mesh()
   if( is_null(solution.lock()) )
     throw CastingFailed (FromHere(),
                          "Could not find a solution field on mesh "
-                         + m_mesh.lock()->full_path().string() );
+                         + m_mesh.lock()->uri().string() );
 
 }
 
@@ -119,7 +119,7 @@ void WeakDirichlet::execute()
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
 
-//    std::cout << "REGION [" << region->full_path().string() << "]" << std::endl;
+//    std::cout << "REGION [" << region->uri().string() << "]" << std::endl;
 
     loop->select_region( region );
 

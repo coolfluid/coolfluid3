@@ -72,7 +72,7 @@ void print_connectivity(const Component& root, const bool print_empty = true)
 {
   BOOST_FOREACH(const CFaceConnectivity& face_connectivity, find_components_recursively<CFaceConnectivity>(root))
   {
-    CFinfo << "------------------------- Connectivity for " << face_connectivity.parent().path().string() << "/" << face_connectivity.parent().name() << " -------------------------" << CFendl;
+    CFinfo << "------------------------- Connectivity for " << face_connectivity.parent().uri().base_path().string() << "/" << face_connectivity.parent().name() << " -------------------------" << CFendl;
     const CElements& celements = face_connectivity.parent().as_type<CElements>();
     const Uint nb_elements = celements.node_connectivity().array().size();
     const Uint nb_faces = celements.element_type().nb_faces();
@@ -83,7 +83,7 @@ void print_connectivity(const Component& root, const bool print_empty = true)
         if(face_connectivity.has_adjacent_element(elem, face))
         {
           CFaceConnectivity::ElementReferenceT connected = face_connectivity.adjacent_element(elem, face);
-          CFinfo << "Face " << face << " of element " << elem << " is connected to face " << face_connectivity.adjacent_face(elem, face) << " of element " << connected.second << " of CElements " << connected.first->path().string() << "/" << connected.first->name() << CFendl;
+          CFinfo << "Face " << face << " of element " << elem << " is connected to face " << face_connectivity.adjacent_face(elem, face) << " of element " << connected.second << " of CElements " << connected.first->uri().base_path().string() << "/" << connected.first->name() << CFendl;
         }
         else if(print_empty)
         {
@@ -323,7 +323,7 @@ BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity3D, NeuFixture )
   // Add face connectivity data for surface elements
   BOOST_FOREACH(CElements& celements, find_components_recursively_with_filter<CElements>(*mesh3d, IsElementsSurface()))
   {
-    CFinfo << "surface type = " << celements.full_path().string() << CFendl;
+    CFinfo << "surface type = " << celements.uri().string() << CFendl;
     celements.create_component_ptr<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
 

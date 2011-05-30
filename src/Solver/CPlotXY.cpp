@@ -63,7 +63,7 @@ void CPlotXY::convergence_history( SignalArgs & args )
 {
   if( is_not_null(m_data.get()) )
   {
-    SignalFrame reply = args.create_reply( full_path() );
+    SignalFrame reply = args.create_reply( uri() );
     SignalFrame& options = reply.map( Protocol::Tags::key_options() );
 //    std::vector<Real> data(8000);
     CTable<Real>& table = *m_data.get();

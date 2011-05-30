@@ -169,16 +169,16 @@ BOOST_FIXTURE_TEST_SUITE( ComponentIteration, ComponentIterationFixture )
 BOOST_AUTO_TEST_CASE( test_find_parent )
 {
   const CGroup& group2 = find_parent_component<CGroup>(const_group2_1());
-  BOOST_CHECK_EQUAL(group2.full_path().string() , "cpath://root/group2");
+  BOOST_CHECK_EQUAL(group2.uri().string() , "cpath://root/group2");
 
   CRoot& root = find_parent_component<CRoot>(group2_1());
-  BOOST_CHECK_EQUAL(root.full_path().string() , "cpath://root");
+  BOOST_CHECK_EQUAL(root.uri().string() , "cpath://root");
 
   Component& group22 = find_parent_component_with_filter(group2_1(),IsComponentName("group2"));
-  BOOST_CHECK_EQUAL(group22.full_path().string() , "cpath://root/group2");
+  BOOST_CHECK_EQUAL(group22.uri().string() , "cpath://root/group2");
 
   CRoot& root2 = find_parent_component_with_filter<CRoot>(group2_1(),IsComponentType<CRoot>());
-  BOOST_CHECK_EQUAL(root2.full_path().string() , "cpath://root");
+  BOOST_CHECK_EQUAL(root2.uri().string() , "cpath://root");
 
 }
 //////////////////////////////////////////////////////////////////////////////

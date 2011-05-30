@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   CField& coordinates = *mesh.create_component_ptr<CField>("coordinates");
   names = list_of("coordinates");
   types = list_of("Vector2D");
-  coordinates.configure_property("Topology",mesh.topology().full_path());
+  coordinates.configure_property("Topology",mesh.topology().uri());
   coordinates.configure_property("VarNames",names);
   coordinates.configure_property("VarTypes",types);
   coordinates.configure_property("FieldType",std::string("PointBased"));
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   BOOST_CHECK_EQUAL( coordinates.var_type() , CField::VECTOR_2D );
   BOOST_CHECK_EQUAL( coordinates.var_type(0) , CField::VECTOR_2D );
   BOOST_CHECK_EQUAL( coordinates.var_type("coordinates") , CField::VECTOR_2D );
-  BOOST_CHECK_EQUAL( coordinates.topology().full_path().string() , mesh.topology().full_path().string() );
+  BOOST_CHECK_EQUAL( coordinates.topology().uri().string() , mesh.topology().uri().string() );
   BOOST_CHECK_EQUAL( coordinates.space_name() , std::string("space[0]") );
 
 
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   CField& solution = *mesh.create_component_ptr<CField>("solution");
   names = list_of("rho")("U")("p");
   types = list_of("scalar")("Vector2D")("scalar");
-  solution.configure_property("Topology",mesh.topology().full_path());
+  solution.configure_property("Topology",mesh.topology().uri());
   solution.configure_property("VarNames",names);
   solution.configure_property("VarTypes",types);
   solution.configure_property("FieldType",std::string("PointBased"));
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   BOOST_CHECK_EQUAL( solution.var_type("rho") , CField::SCALAR );
   BOOST_CHECK_EQUAL( solution.var_type("U") , CField::VECTOR_2D );
   BOOST_CHECK_EQUAL( solution.var_type("p") , CField::SCALAR );
-  BOOST_CHECK_EQUAL( solution.topology().full_path().string() , mesh.topology().full_path().string() );
+  BOOST_CHECK_EQUAL( solution.topology().uri().string() , mesh.topology().uri().string() );
   BOOST_CHECK_EQUAL( solution.space_name() , "space[0]" );
 
 }
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( FieldOperators )
   CField& solution_copy = *mesh.create_component_ptr<CField>("solution_copy");
   names = list_of("rho")("U")("p");
   types = list_of("scalar")("Vector2D")("scalar");
-  solution_copy.configure_property("Topology",mesh.topology().full_path());
+  solution_copy.configure_property("Topology",mesh.topology().uri());
   solution_copy.configure_property("VarNames",names);
   solution_copy.configure_property("VarTypes",types);
   solution_copy.configure_property("FieldType",std::string("PointBased"));

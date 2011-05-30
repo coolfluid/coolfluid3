@@ -251,7 +251,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   {
     const std::string shape_name = build_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CCellFaces& faces = *region.create_component_ptr<CCellFaces>(shape_name);
-    //CFinfo << "  creating " << faces.full_path().path() << CFendl;
+    //CFinfo << "  creating " << faces.uri().path() << CFendl;
     faces.initialize(face_type,mesh.nodes());
     if (is_inner)
       faces.add_tag(Mesh::Tags::inner_faces());
@@ -635,7 +635,7 @@ void CBuildFaces::build_cell_face_connectivity(Component& parent)
   Uint face_nb_idx;
   boost_foreach(CEntities& face_elements, find_components_recursively_with_tag<CEntities>(parent,Mesh::Tags::face_entity()) )
   {
-    //CFinfo << face_elements.full_path().path() << CFendl;
+    //CFinfo << face_elements.uri().path() << CFendl;
     CFaceCellConnectivity& f2c = face_elements.get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
     const CTable<Uint>& connectivity = f2c.connectivity();
     const CList<Uint>& is_bdry       = f2c.is_bdry_face();

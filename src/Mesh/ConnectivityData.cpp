@@ -267,7 +267,7 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
   const Uint elements_end = connectivity_table.size();
   const Uint nb_faces = own_celements.element_type().nb_faces();
   CFLogVar(nb_faces);
-  CFLogVar(own_celements.full_path().path());
+  CFLogVar(own_celements.uri().path());
   for(Uint element_idx = elements_begin; element_idx != elements_end; ++element_idx)
   {
     //const Uint global_element_idx = global_offset + element_idx;

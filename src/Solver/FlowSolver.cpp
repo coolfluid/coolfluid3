@@ -96,14 +96,14 @@ void FlowSolver::setup()
     if (m_bc.expired() == true)
     {
       Component::Ptr bc_action = find_component_ptr_recursively_with_tag(*m_solve.lock(),Tags::bc());
-      if (is_not_null(bc_action)) configure_property(Tags::bc(),bc_action->full_path());
+      if (is_not_null(bc_action)) configure_property(Tags::bc(),bc_action->uri());
     }
 
     // Attempt to automatically find m_inner component
     if (m_inner.expired() == true)
     {
       Component::Ptr inner_action = find_component_ptr_recursively_with_tag(*m_solve.lock(),Tags::inner());
-      if (is_not_null(inner_action)) configure_property(Tags::inner(),inner_action->full_path());
+      if (is_not_null(inner_action)) configure_property(Tags::inner(),inner_action->uri());
     }
 
     //m_inner = find_component_ptr_recursively_with_tag<CAction>(*m_solve.lock(),Tags::inner());
@@ -111,18 +111,18 @@ void FlowSolver::setup()
     {
       if ( m_physical_model.expired() == false )
       {
-        m_solve.lock()->configure_option_recursively(Tags::physical_model(),m_physical_model.lock()->full_path());
-        m_setup.lock()->configure_option_recursively(Tags::physical_model(),m_physical_model.lock()->full_path());
+        m_solve.lock()->configure_option_recursively(Tags::physical_model(),m_physical_model.lock()->uri());
+        m_setup.lock()->configure_option_recursively(Tags::physical_model(),m_physical_model.lock()->uri());
 
         if ( m_mesh.expired() == false )
         {
-          m_solve.lock()->configure_option_recursively(Tags::mesh(),m_mesh.lock()->full_path());
-          m_setup.lock()->configure_option_recursively(Tags::mesh(),m_mesh.lock()->full_path());
+          m_solve.lock()->configure_option_recursively(Tags::mesh(),m_mesh.lock()->uri());
+          m_setup.lock()->configure_option_recursively(Tags::mesh(),m_mesh.lock()->uri());
 
           if ( m_time.expired() == false )
           {
-            m_solve.lock()->configure_option_recursively(Tags::time(),m_time.lock()->full_path());
-            m_setup.lock()->configure_option_recursively(Tags::time(),m_time.lock()->full_path());
+            m_solve.lock()->configure_option_recursively(Tags::time(),m_time.lock()->uri());
+            m_setup.lock()->configure_option_recursively(Tags::time(),m_time.lock()->uri());
 
             m_setup.lock()->execute();
             auto_config(*m_solve.lock());
@@ -137,12 +137,12 @@ void FlowSolver::setup()
 
 void FlowSolver::auto_config(Component& component)
 {
-  component.configure_option_recursively(Tags::physical_model(),m_physical_model.lock()->full_path());
-  component.configure_option_recursively(Tags::mesh(),m_mesh.lock()->full_path());
-  component.configure_option_recursively(Tags::time(),m_time.lock()->full_path());
+  component.configure_option_recursively(Tags::physical_model(),m_physical_model.lock()->uri());
+  component.configure_option_recursively(Tags::mesh(),m_mesh.lock()->uri());
+  component.configure_option_recursively(Tags::time(),m_time.lock()->uri());
 
   boost_foreach(CField& field, find_components<CField>(*m_mesh.lock()) )
-    component.configure_option_recursively(field.name(), field.full_path());
+    component.configure_option_recursively(field.name(), field.uri());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -162,7 +162,7 @@ void FlowSolver::solve()
 
 CAction& FlowSolver::create_solve(const std::string& name, const std::string& solve_builder_name)
 {
-  configure_property("solve",create_component(name,solve_builder_name).full_path());
+  configure_property("solve",create_component(name,solve_builder_name).uri());
   m_solve.lock()->mark_basic();
   return *m_solve.lock();
 }
@@ -171,7 +171,7 @@ CAction& FlowSolver::create_solve(const std::string& name, const std::string& so
 
 CAction& FlowSolver::create_setup(const std::string& name, const std::string& setup_builder_name)
 {
-  configure_property("setup",create_component(name,setup_builder_name).full_path());
+  configure_property("setup",create_component(name,setup_builder_name).uri());
   return *m_setup.lock();
 }
 
@@ -184,7 +184,7 @@ CAction& FlowSolver::create_bc_action(const std::string& name, const std::string
 
   std::vector<URI> regions_uri; regions_uri.reserve(regions.size());
   boost_foreach(CRegion::ConstPtr region, regions)
-    regions_uri.push_back(region->full_path());
+    regions_uri.push_back(region->uri());
 
   CAction& bc_action = m_bc.lock()->create_component(name,builder_name).as_type<CAction>();
   bc_action.configure_property("regions",regions_uri);
@@ -210,7 +210,7 @@ CAction& FlowSolver::create_inner_action(const std::string& name, const std::str
 
   std::vector<URI> regions_uri; regions_uri.reserve(regions.size());
   boost_foreach(CRegion::ConstPtr region, regions)
-    regions_uri.push_back(region->full_path());
+    regions_uri.push_back(region->uri());
 
   CAction& inner_action = m_inner.lock()->create_component(name,builder_name).as_type<CAction>();
   inner_action.configure_property("regions",regions_uri);

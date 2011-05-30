@@ -45,13 +45,13 @@ TabBuilder::~TabBuilder()
 
 void TabBuilder::showTab( CNode::ConstPtr node )
 {
-  std::string key = node->full_path().path();
+  std::string key = node->uri().path();
 
   if( m_tabs.contains(key) )
     setCurrentIndex( m_tabs[key].tabIndex );
   else
     throw ValueNotFound(FromHere(), "No tab for component [" +
-                        node->full_path().path() + "] was found.");
+                        node->uri().path() + "] was found.");
 }
 
 ///////////////////////////////////////////////////////////////////////////

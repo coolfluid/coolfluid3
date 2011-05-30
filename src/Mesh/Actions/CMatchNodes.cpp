@@ -95,7 +95,7 @@ void CMatchNodes::execute()
   
   // Check if regions have same number of used nodes
   if ( used_nodes_region_1.size() != used_nodes_region_2.size() )
-    throw SetupError(FromHere(), "Number of used nodes in ["+region_1.full_path().path()+"] and ["+region_2.full_path().path()+"] are different.\n"
+    throw SetupError(FromHere(), "Number of used nodes in ["+region_1.uri().path()+"] and ["+region_2.uri().path()+"] are different.\n"
       "Nodes cannot be matched." );
   
   CTable<Real>& coordinates = mesh.nodes().coordinates();
@@ -131,7 +131,7 @@ void CMatchNodes::execute()
     
   // Check 2 bounding boxes have same shape
   if ( hash_value(bounding_1[MAX] - bounding_1[MIN]) != hash_value(bounding_2[MAX] - bounding_2[MIN]) )
-    throw SetupError(FromHere(), "Bounding boxes of ["+region_1.full_path().path()+"] and ["+region_2.full_path().path()+"] do not have the same shape.\n"
+    throw SetupError(FromHere(), "Bounding boxes of ["+region_1.uri().path()+"] and ["+region_2.uri().path()+"] do not have the same shape.\n"
       "Nodes cannot be matched." );
 
   // put nodes of region 1 in a map with as key the 
@@ -163,7 +163,7 @@ void CMatchNodes::execute()
     }
     else
     {
-      throw SetupError(FromHere(), "1 or more nodes of ["+region_2.full_path().path()+"] do not have a matching node in ["+region_1.full_path().path()+"]." );
+      throw SetupError(FromHere(), "1 or more nodes of ["+region_2.uri().path()+"] do not have a matching node in ["+region_1.uri().path()+"]." );
     }
   }
   CFinfo << "Node matching successful" << CFendl;

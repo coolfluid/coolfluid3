@@ -100,7 +100,7 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
   solver->mark_basic();
   model->add_component( solver );
 
-  solver->configure_property("physics", pm->full_path() );
+  solver->configure_property("physics", pm->uri() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
