@@ -76,9 +76,9 @@ namespace Common {
     //@{
 
     /// creates a component from this component
-    void signal_load_library ( SignalArgs& args );
+    void signal_load_libraries ( SignalArgs& args );
 
-    void signature_load_library ( SignalArgs& args );
+    void signature_load_libraries ( SignalArgs& args );
 
     //@} END SIGNALS
 

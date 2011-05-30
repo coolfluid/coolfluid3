@@ -1,7 +1,7 @@
 # requires to load coolfluid_fvm library
 
-call //Root/Libraries/load_library \
-     lib:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_fvm_core
+call //Root/Libraries/load_libraries \
+     libs:array[uri]=file:@coolfluid_DSO_DIR@/libcoolfluid_fvm_core
 
 # or in bash: export COOLFLUID_PLUGINS=path/to/libcoolfluid_fvm.dylib
 

@@ -32,14 +32,14 @@ CLibraries::CLibraries ( const std::string& name) : Component ( name )
   m_properties["description"] = std::string("Loads external libraries, and holds links to all builders each library offers");
 
   // signals
-  regist_signal ( "load_library" , "loads a library", "Load Library" )->signal->connect ( boost::bind ( &CLibraries::signal_load_library, this, _1 ) );
+  regist_signal ( "load_libraries" , "loads libraries", "Load Libraries" )->signal->connect ( boost::bind ( &CLibraries::signal_load_libraries, this, _1 ) );
 
   signal("create_component")->is_hidden = true;
   signal("rename_component")->is_hidden = true;
   signal("move_component")->is_hidden = true;
   signal("delete_component")->is_hidden = true;
 
-  signal("load_library")->signature->connect( boost::bind(&CLibraries::signature_load_library, this, _1) );
+  signal("load_libraries")->signature->connect( boost::bind(&CLibraries::signature_load_libraries, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,11 +82,11 @@ void CLibraries::terminate_all_libraries()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::signal_load_library ( SignalArgs& args )
+void CLibraries::signal_load_libraries ( SignalArgs& args )
 {
   SignalOptions opts (args);
 
-  std::vector<URI> files = opts.array<URI>("Libraries");
+  std::vector<URI> files = opts.array<URI>("libs");
 
   // check protocol for file loading
   if( !files.empty() )
@@ -102,7 +102,7 @@ void CLibraries::signal_load_library ( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::signature_load_library ( SignalArgs& args )
+void CLibraries::signature_load_libraries ( SignalArgs& args )
 {
   SignalOptions options( args );
 
@@ -111,7 +111,7 @@ void CLibraries::signature_load_library ( SignalArgs& args )
 
   std::vector<URI> dummy;
 
-  options.add("Libraries", dummy, " ; ", "Libraries to load", schemes );
+  options.add("libs", dummy, " ; ", "Libraries to load", schemes );
 
 }
 

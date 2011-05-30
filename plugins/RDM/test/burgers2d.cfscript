@@ -6,14 +6,11 @@ configure //Root/Environment \
   exception_aborts:bool=true
 
 # load the rdm library
-call //Root/Libraries/load_library \
-    Libraries:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_core
-call //Root/Libraries/load_library \
-    Libraries:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_schemes
-call //Root/Libraries/load_library \
-    Libraries:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_scalar
-call //Root/Libraries/load_library \
-    Libraries:uri=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_navierstokes
+call //Root/Libraries/load_libraries "libs:array[uri]= \
+    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_core,\
+    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_schemes,\
+    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_scalar,\
+    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_navierstokes"
 
 # create a scalar advection model
 call //Root/Tools/RDM/SetupScalarSimulation/create_model \
