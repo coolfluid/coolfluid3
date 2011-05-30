@@ -81,7 +81,7 @@ void C3DViewBuilder::signature_create_3dview(SignalArgs &args)
   SignalFrame& options = args.map( Protocol::Tags::key_options() );
 
   options.set_option("3DView name", std::string(), "Name for the new 3DView");
-  options.set_option("Parent", Core::instance().root().full_path(), "Parent of the new component");
+  options.set_option("Parent", Core::instance().root().uri(), "Parent of the new component");
 }
 
 
