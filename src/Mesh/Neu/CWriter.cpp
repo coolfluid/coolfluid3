@@ -24,6 +24,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/ElementData.hpp"
+#include "Mesh/MeshMetadata.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -76,8 +77,6 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   }
   m_fileBasename = boost::filesystem::basename(path);
 
-  compute_mesh_specifics();
-
   // must be in correct order!
   write_headerData(file);
   write_coordinates(file);
@@ -94,7 +93,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 void CWriter::write_headerData(std::fstream& file)
 {
   // get the day of today
-  boost::gregorian::date::ymd_type today = boost::gregorian::day_clock::local_day_ymd();
+  boost::gregorian::date date = boost::gregorian::from_simple_string(m_mesh->metadata()["date"].value_str());
 
   Uint group_counter(0);
   Uint element_counter(0);
@@ -110,7 +109,7 @@ void CWriter::write_headerData(std::fstream& file)
     {
       bool isElementBC(false);
       Uint dimensionality = elementregion.element_type().dimensionality();
-      if (dimensionality < m_max_dimensionality) // is bc
+      if (dimensionality < m_mesh->dimensionality()) // is bc
       {
         isElementBC = true;
         isGroupBC = true;
@@ -137,11 +136,11 @@ void CWriter::write_headerData(std::fstream& file)
   file << "** GAMBIT NEUTRAL FILE\n";
   file << m_fileBasename << "\n";
   file << "PROGRAM:                Gambit     VERSION:  2.3.16\n";
-  file << std::setw(4)  << std::string(today.month.as_long_string()).substr(0,3) << " " << today.year << "\n";
+  file << std::setw(4)  << std::string(date.month().as_long_string()).substr(0,3) << " " << date.year() << "\n";
   file << std::setw(10) << "NUMNP" << std::setw(10) << "NELEM" << std::setw(10) << "NGRPS"
        << std::setw(10) << "NBSETS" << std::setw(10) << "NDFCD" << std::setw(10) << "NDFVL" << std::endl;
   file << std::setw(10) << node_counter << std::setw(10) << element_counter << std::setw(10) << group_counter
-       << std::setw(10) << bc_counter << std::setw(10) << m_coord_dim << std::setw(10) << m_coord_dim << std::endl;
+       << std::setw(10) << bc_counter << std::setw(10) << m_mesh->dimension() << std::setw(10) << m_mesh->dimension() << std::endl;
   file << "ENDOFSECTION" << std::endl ;
 }
 
@@ -161,7 +160,7 @@ void CWriter::write_coordinates(std::fstream& file)
   {
     ++node_number;
     file << std::setw(10) << node_number;
-    for (Uint d=0; d<m_coord_dim; ++d)
+    for (Uint d=0; d<m_mesh->dimension(); ++d)
       file << std::setw(20) << std::scientific << row[d];
     file << std::endl;
   }
@@ -185,7 +184,7 @@ void CWriter::write_connectivity(std::fstream& file)
   {
     bool isBC = false;
     Uint dimensionality = elementregion.element_type().dimensionality();
-    if (dimensionality < m_max_dimensionality) // is bc
+    if (dimensionality < m_mesh->dimensionality()) // is bc
     {
       isBC = true;
     }
@@ -244,7 +243,7 @@ void CWriter::write_groups(std::fstream& file)
     boost_foreach(const CElements& elementregion, find_components_recursively <CElements>(group))
     {
       Uint dimensionality = elementregion.element_type().dimensionality();
-      if (dimensionality < m_max_dimensionality) // is bc
+      if (dimensionality < m_mesh->dimensionality()) // is bc
       {
         isBC = true;
       }

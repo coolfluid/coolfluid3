@@ -10,6 +10,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/CLink.hpp"
+#include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/Signal.hpp"
@@ -38,7 +39,9 @@ Common::ComponentBuilder < CMesh, Component, LibMesh > CMesh_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 CMesh::CMesh ( const std::string& name  ) :
-  Component ( name )
+  Component ( name ),
+  m_dimension(0u),
+  m_dimensionality(0u)
 {
   m_properties.add_property("nb_cells",Uint(0));
   m_properties.add_property("nb_nodes",Uint(0));
@@ -60,6 +63,15 @@ CMesh::CMesh ( const std::string& name  ) :
 
 CMesh::~CMesh()
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMesh::update_statistics()
+{
+  m_dimension = nodes().coordinates().row_size();
+  boost_foreach ( CEntities& elements, find_components_recursively<CEntities>(topology()) )
+    m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

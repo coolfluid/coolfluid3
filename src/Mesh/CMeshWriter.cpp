@@ -24,7 +24,7 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CMeshWriter::CMeshWriter ( const std::string& name  ) :
-  CAction ( name ), m_coord_dim(0), m_max_dimensionality(0)
+  CAction ( name )
 {
   mark_basic();
 
@@ -96,23 +96,6 @@ void CMeshWriter::execute()
 
   // Call implementation
   write_from_to(mesh,file);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void CMeshWriter::compute_mesh_specifics()
-{
-  if( is_null(m_mesh) )
-    throw SetupError( FromHere(), "Mesh has not been configured in writer");
-
-  // - Find maximal dimensionality of the whole mesh
-  m_max_dimensionality = 0;
-  m_coord_dim = 0;
-  BOOST_FOREACH(const CElements& elements, find_components_recursively<CElements>(*m_mesh))
-  {
-    m_max_dimensionality = std::max(elements.element_type().dimensionality() , m_max_dimensionality);
-    m_coord_dim = std::max((Uint) elements.nodes().coordinates().row_size() , m_coord_dim);
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

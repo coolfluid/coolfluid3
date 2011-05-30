@@ -9,7 +9,7 @@
 #include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
- 
+
 #include "Common/Log.hpp"
 
 #include "Mesh/CSimpleMeshGenerator.hpp"
@@ -114,7 +114,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   xpos_connectivity[0][0] = x_segments;
 
   mesh.elements().update();
-
+  mesh.update_statistics();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -203,6 +203,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   }
 
   mesh.elements().update();
+  mesh.update_statistics();
 
 }
 

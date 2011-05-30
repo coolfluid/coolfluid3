@@ -134,7 +134,7 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
   m_file.close();
 
   m_mesh->elements().update();
-
+  m_mesh->update_statistics();
 }
 
 //////////////////////////////////////////////////////////////////////////////

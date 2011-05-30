@@ -110,7 +110,15 @@ public: // functions
 
   void signature_write_mesh ( Common::SignalArgs& node);
 
+  Uint dimension() const { return m_dimension; }
+
+  Uint dimensionality() const { return m_dimensionality; }
+
 private:
+
+  Uint m_dimension;
+
+  Uint m_dimensionality;
 
   boost::shared_ptr<Common::CLink> m_nodes_link;
 

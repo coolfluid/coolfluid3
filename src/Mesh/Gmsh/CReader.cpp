@@ -13,7 +13,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/StreamHelpers.hpp"
 #include "Common/StringConversion.hpp"
- 
+
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
@@ -133,7 +133,7 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
   m_elem_idx_gmsh_to_cf.clear();
 
   m_mesh->elements().update();
-
+  m_mesh->update_statistics();
 //  // clean-up
 
   // close the file

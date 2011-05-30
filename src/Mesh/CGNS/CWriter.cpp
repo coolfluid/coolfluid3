@@ -55,7 +55,6 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& path)
 
   m_fileBasename = path.base_name(); // filename without extension
 
-  compute_mesh_specifics();
 
   CFdebug << "Opening file " << path.path() << CFendl;
   CALL_CGNS(cg_open(path.path().c_str(),CG_MODE_WRITE,&m_file.idx));
@@ -73,8 +72,8 @@ void CWriter::write_base()
 {
   const CRegion& base_region = m_mesh->topology();
   m_base.name = base_region.name();
-  m_base.cell_dim = m_max_dimensionality;
-  m_base.phys_dim = m_coord_dim;
+  m_base.cell_dim = m_mesh->dimensionality();
+  m_base.phys_dim = m_mesh->dimension();
   CFdebug << "Writing base " << m_base.name << CFendl;
   CALL_CGNS(cg_base_write(m_file.idx,m_base.name.c_str(),m_base.cell_dim,m_base.phys_dim,&m_base.idx));
 
@@ -91,7 +90,7 @@ void CWriter::write_zone(const CRegion& region)
 {
   m_zone.name = region.name();
 
-  m_zone.coord_dim = m_coord_dim;
+  m_zone.coord_dim = m_mesh->dimension();
 
   m_zone.total_nbVertices = 0;
   BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(region.parent(),Mesh::Tags::coordinates()))

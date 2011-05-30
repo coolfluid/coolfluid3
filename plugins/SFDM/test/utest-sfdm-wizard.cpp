@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( Solver )
   //if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneIteration");
 
   WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
-  gmsh_writer.configure_property("mesh",mesh.full_path());
+  gmsh_writer.configure_property("mesh",mesh.uri());
   gmsh_writer.configure_property("file",URI("file:line_${date}_iter${iter}_time${time}.msh"));
 
 
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( Solver )
 
   wizard.prepare_simulation();
 
-  gmsh_writer.configure_property("fields",std::vector<URI>(1,mesh.get_child("solution").full_path()));
+  gmsh_writer.configure_property("fields",std::vector<URI>(1,mesh.get_child("solution").uri()));
 
   std::string gaussian="sigma:="+to_str(1.)+"; mu:="+to_str(5.)+"; exp( -(x-mu)^2/(2*sigma^2) )";
 

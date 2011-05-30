@@ -507,7 +507,7 @@ Component::Ptr Component::access_component_ptr ( const URI& path )
   {
     using namespace boost::algorithm;
 
-    cf_assert_desc("Component ["+full_path().string()+"] is not in tree, and no relative path is given for ["+path.string()+"].", path.is_relative() );
+    cf_assert_desc("Component ["+uri().string()+"] is not in tree, and no relative path is given for ["+path.string()+"].", path.is_relative() );
 
     std::string sp = path.path();
 

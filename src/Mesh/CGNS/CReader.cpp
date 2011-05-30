@@ -86,6 +86,7 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
   CALL_CGNS(cg_close(m_file.idx));
 
   m_mesh->elements().update();
+  m_mesh->update_statistics();
 }
 
 //////////////////////////////////////////////////////////////////////////////

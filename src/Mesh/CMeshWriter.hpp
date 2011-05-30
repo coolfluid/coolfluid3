@@ -88,11 +88,6 @@ protected:
 
   CMesh::ConstPtr m_mesh;
 
-  Uint m_coord_dim;
-  Uint m_max_dimensionality;
-
-  void compute_mesh_specifics();
-
   std::vector<boost::weak_ptr<CField> > m_fields;
 
 };

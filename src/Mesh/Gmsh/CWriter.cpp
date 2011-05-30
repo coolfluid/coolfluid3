@@ -111,8 +111,6 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
                                                 boost::system::error_code() );
   }
 
-  compute_mesh_specifics();
-
   // must be in correct order!
   write_header(file);
   write_coordinates(file);
@@ -184,7 +182,7 @@ void CWriter::write_coordinates(std::fstream& file)
     file << ++node_number << " ";
     for (Uint d=0; d<3; d++)
     {
-      if (d<m_coord_dim)
+      if (d<m_mesh->dimension())
         file << row[d] << " ";
       else
         file << 0 << " ";
