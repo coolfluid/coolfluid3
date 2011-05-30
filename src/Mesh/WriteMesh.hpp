@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
+#include "Common/CAction.hpp"
 #include "Common/URI.hpp"
 #include "Mesh/CMeshWriter.hpp"
 
@@ -21,7 +21,7 @@ namespace Mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Tiago Quintino
-class Mesh_API WriteMesh : public Common::Component {
+class Mesh_API WriteMesh : public Common::CAction {
 
 public: // typedefs
 
@@ -55,6 +55,8 @@ public: // functions
   /// function write the mesh
   void write_mesh( const CMesh&, const Common::URI& file, const std::vector<Common::URI>& fields);
 
+  virtual void execute();
+
 protected: // helper functions
 
   /// updates the list of avialable readers and regists each one to the extension it supports
@@ -63,6 +65,10 @@ protected: // helper functions
 private: // data
 
   std::map<std::string,std::vector<Mesh::CMeshWriter::Ptr> > m_extensions_to_writers;
+
+  boost::weak_ptr<CMesh> m_mesh;
+  Common::URI m_file;
+  std::vector<Common::URI> m_fields;
 
 };
 

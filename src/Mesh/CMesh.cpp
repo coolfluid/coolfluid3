@@ -25,6 +25,7 @@
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/WriteMesh.hpp"
+#include "Mesh/MeshMetadata.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -47,8 +48,9 @@ CMesh::CMesh ( const std::string& name  ) :
   mark_basic(); // by default meshes are visible
 
   m_nodes_link = create_static_component_ptr<CLink>(Mesh::Tags::nodes());
-  m_elements = create_static_component_ptr<CMeshElements>("elements");
-  m_topology = create_static_component_ptr<CRegion>("topology");
+  m_elements   = create_static_component_ptr<CMeshElements>("elements");
+  m_topology   = create_static_component_ptr<CRegion>("topology");
+  m_metadata   = create_static_component_ptr<MeshMetadata>("metadata");
 
   regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->signal->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) );
   signal("write_mesh")->signature->connect(boost::bind(&CMesh::signature_write_mesh, this, _1));

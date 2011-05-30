@@ -9,6 +9,8 @@
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/CField.hpp"
+#include "Mesh/CMesh.hpp"
+#include "Mesh/MeshMetadata.hpp"
 #include "Solver/CModel.hpp"
 #include "Solver/CTime.hpp"
 #include "Solver/Actions/CAdvanceTime.hpp"
@@ -48,6 +50,9 @@ void CAdvanceTime::execute ()
 {
   time().time() += time().dt();
   time().iter() += 1u;
+
+  mesh().metadata()["time"] = time().time();
+  mesh().metadata()["iter"] = time().iter();
 
   CModel& model = find_parent_component<CModel>(*this);
   boost_foreach(CField& field, find_components_recursively<CField>(model))

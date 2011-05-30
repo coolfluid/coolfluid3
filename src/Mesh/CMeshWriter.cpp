@@ -4,9 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/regex.hpp>
-#include <boost/algorithm/string/replace.hpp>
-
 #include "Common/Signal.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/OptionArray.hpp"
@@ -15,6 +12,7 @@
 #include "Common/Core.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/MeshMetadata.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CField.hpp"
 
@@ -58,7 +56,7 @@ void CMeshWriter::config_fields()
   m_fields.resize(0);
   boost_foreach ( const URI& uri, field_uris)
   {
-    m_fields.push_back(access_component_ptr(uri)->as_ptr<CField>());
+    m_fields.push_back(access_component_ptr_checked(uri)->as_ptr_checked<CField>());
     if ( is_null(m_fields.back().lock()) )
       throw ValueNotFound(FromHere(),"Invalid URI ["+uri.string()+"]");
   }
@@ -95,17 +93,6 @@ void CMeshWriter::execute()
 
   // Get the file path
   std::string file = property("file").value<URI>().string();
-
-  // Check for environment variables
-  Component& environment = *this;
-  boost::regex re("\\$\\{(\\w+)\\}");
-  boost::sregex_iterator i(file.begin(), file.end(), re);
-  boost::sregex_iterator j;
-  for(; i!=j; ++i)
-  {
-    if (environment.properties().check((*i)[1]) )
-      boost::algorithm::replace_all(file,std::string((*i)[0]),environment.property((*i)[1]).value_str());
-  }
 
   // Call implementation
   write_from_to(mesh,file);

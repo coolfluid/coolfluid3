@@ -22,6 +22,7 @@ namespace Mesh {
   class CNodes;
   class CRegion;
   class CMeshElements;
+  class MeshMetadata;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -92,12 +93,18 @@ public: // functions
 
   /// @return the nodes of the mesh , non-modifiable access
   const CNodes& nodes() const;
-  
+
   /// @return linearized view of all the entities in the mesh
   CMeshElements& elements();
 
   /// @return linearized view of all the entities in the mesh
   const CMeshElements& elements() const;
+\
+  /// @return metadata component
+  MeshMetadata& metadata() { return *m_metadata; }
+
+  /// @return metadata component
+  const MeshMetadata& metadata() const { return *m_metadata; }
 
   void signal_write_mesh ( Common::SignalArgs& node );
 
@@ -108,6 +115,8 @@ private:
   boost::shared_ptr<Common::CLink> m_nodes_link;
 
   boost::shared_ptr<CMeshElements> m_elements;
+
+  boost::shared_ptr<MeshMetadata> m_metadata;
 
   boost::shared_ptr<CRegion> m_topology;
 

@@ -94,8 +94,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 void CWriter::write_headerData(std::fstream& file)
 {
   // get the day of today
-  boost::gregorian::date today = boost::gregorian::day_clock::local_day();
-  boost::gregorian::date::ymd_type today_ymd = today.year_month_day();
+  boost::gregorian::date::ymd_type today = boost::gregorian::day_clock::local_day_ymd();
 
   Uint group_counter(0);
   Uint element_counter(0);
@@ -138,7 +137,7 @@ void CWriter::write_headerData(std::fstream& file)
   file << "** GAMBIT NEUTRAL FILE\n";
   file << m_fileBasename << "\n";
   file << "PROGRAM:                Gambit     VERSION:  2.3.16\n";
-  file << std::setw(4)  << std::string(today_ymd.month.as_long_string()).substr(0,3) << " " << today_ymd.year << "\n";
+  file << std::setw(4)  << std::string(today.month.as_long_string()).substr(0,3) << " " << today.year << "\n";
   file << std::setw(10) << "NUMNP" << std::setw(10) << "NELEM" << std::setw(10) << "NGRPS"
        << std::setw(10) << "NBSETS" << std::setw(10) << "NDFCD" << std::setw(10) << "NDFVL" << std::endl;
   file << std::setw(10) << node_counter << std::setw(10) << element_counter << std::setw(10) << group_counter

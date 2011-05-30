@@ -90,6 +90,8 @@ list( APPEND coolfluid_mesh_files
   ListBufferIterator.hpp
   LoadMesh.hpp
   LoadMesh.cpp
+  MeshMetadata.hpp
+  MeshMetadata.cpp
   Quad2D.hpp
   Quad2D.cpp
   Quad3D.hpp

@@ -63,7 +63,6 @@ void Conditional::execute ()
   {
     boost_foreach(CAction& action, find_components<CAction>(*this))
     {
-      CFinfo << "executing " << action.name() << CFendl;
       action.execute();
     }
   }

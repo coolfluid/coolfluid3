@@ -22,6 +22,7 @@
 #include "Mesh/CEntities.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/WriteMesh.hpp"
 #include "Mesh/CDomain.hpp"
 #include "SFDM/SFDWizard.hpp"
 #include "Solver/CModel.hpp"
@@ -53,19 +54,19 @@ BOOST_AUTO_TEST_CASE( Solver )
 
   Component& iterate = model.solver().access_component("iterate");
   Component& if_milestone = iterate.create_component("7_if_milestone","CF.Solver.Actions.Conditional");
-  //if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneTime");
-  if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneIteration");
+  if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneTime");
+  //if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneIteration");
 
-  CMeshWriter& gmsh_writer = if_milestone.create_component("gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
   gmsh_writer.configure_property("mesh",mesh.full_path());
-  gmsh_writer.configure_property("file",URI("line.msh"));
+  gmsh_writer.configure_property("file",URI("file:line_${date}_iter${iter}_time${time}.msh"));
 
 
-  CFdebug << model.tree() << CFendl;
+  CFinfo << model.tree() << CFendl;
 
   wizard.prepare_simulation();
 
-  gmsh_writer.set_fields(std::vector<CField::Ptr>(1,mesh.get_child("solution").as_ptr<CField>()));
+  gmsh_writer.configure_property("fields",std::vector<URI>(1,mesh.get_child("solution").full_path()));
 
   std::string gaussian="sigma:="+to_str(1.)+"; mu:="+to_str(5.)+"; exp( -(x-mu)^2/(2*sigma^2) )";
 
@@ -76,7 +77,7 @@ BOOST_AUTO_TEST_CASE( Solver )
   model.configure_option_recursively("milestone_dt",0.5);
   model.configure_option_recursively("milestone_rate",3);
 
-  wizard.start_simulation(3.);
+  wizard.start_simulation(5.);
 
 }
 
