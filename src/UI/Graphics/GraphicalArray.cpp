@@ -13,8 +13,6 @@
 #include <QValidator>
 #include <QVBoxLayout>
 
-#include <QDebug>
-
 #include "UI/Core/NLog.hpp"
 
 #include "UI/Graphics/GraphicalArray.hpp"

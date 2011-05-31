@@ -19,8 +19,6 @@
 #include <QListView>
 #include <QMessageBox>
 
-#include <QDebug>
-
 #include <cstdlib>      // for abs()
 
 #include "UI/Core/NRemoteFSBrowser.hpp"

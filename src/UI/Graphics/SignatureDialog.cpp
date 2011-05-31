@@ -8,8 +8,6 @@
 #include <QFormLayout>
 #include <QVBoxLayout>
 
-#include <QDebug>
-
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/XML/Protocol.hpp"

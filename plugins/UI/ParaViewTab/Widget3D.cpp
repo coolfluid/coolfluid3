@@ -21,7 +21,6 @@
 #include <QListWidgetItem>
 #include <QDoubleSpinBox>
 #include <QCheckBox>
-#include <QDebug>
 
 // ParaView header
 #include "pqDataRepresentation.h"
@@ -186,7 +185,7 @@ Widget3D::Widget3D(QWidget *parent) :
   tool_bar->addAction(QIcon(":/paraview_icons/pqShowOrientationAxes32.png"), "Axes Visibility", this, SLOT(setCenterAxesVisibility()));
 
   // Show camera settings dialog button
-  tool_bar->addAction(QIcon(":/paraview_icons/pqProbeLocation24.png"), "Camera settings", this, SLOT(show_camera_settings())); 
+  tool_bar->addAction(QIcon(":/paraview_icons/pqProbeLocation24.png"), "Camera settings", this, SLOT(show_camera_settings()));
 
   // advanced paraview options (not used for now)
   this->m_disp_adv_opt_button = new QPushButton("Region Adv. Settings");
@@ -305,7 +304,7 @@ Widget3D::Widget3D(QWidget *parent) :
   connect(m_list_selection,SIGNAL(activated(int)),this,SLOT(setActorListSelectionMode(int)));
   connect(NTree::globalTree().get(),SIGNAL(advancedModeChanged(bool)),this,SLOT(showAdvOptions(bool)));
 
-  qDebug() << "widget built";
+//  qDebug() << "widget built";
 
 }
 

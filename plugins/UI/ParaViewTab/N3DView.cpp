@@ -8,12 +8,6 @@
 #include "Common/Signal.hpp"
 #include "Common/XML/Protocol.hpp"
 
-
-
-#include <QDebug>
-
-
-
 #include "UI/UICommon/ComponentNames.hpp"
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Graphics/TabBuilder.hpp"
