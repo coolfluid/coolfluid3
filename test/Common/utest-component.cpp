@@ -50,14 +50,14 @@ BOOST_AUTO_TEST_CASE( constructors )
   CGroup dir1 ( "dir1" );
 
   BOOST_CHECK_EQUAL ( dir1.name() , "dir1" );
-  BOOST_CHECK_EQUAL ( dir1.uri().base_path().string() , "" );
+  BOOST_CHECK_EQUAL ( dir1.uri().base_path().string() , "cpath:./" );
   BOOST_CHECK_EQUAL ( dir1.uri().string() , "cpath:dir1" );
 
   // constructor with passed path
   CLink lnk ( "lnk" );
 
   BOOST_CHECK_EQUAL ( lnk.name() , "lnk" );
-  BOOST_CHECK_EQUAL ( lnk.uri().base_path().string() , "" );
+  BOOST_CHECK_EQUAL ( lnk.uri().base_path().string() , "cpath:./" );
   BOOST_CHECK_EQUAL ( lnk.uri().string() , "cpath:lnk" );
 }
 

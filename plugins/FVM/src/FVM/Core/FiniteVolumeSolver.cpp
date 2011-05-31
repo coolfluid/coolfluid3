@@ -16,7 +16,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroupActions.hpp"
- 
+
 #include "Common/XML/SignalOptions.hpp"
 
 #include "FVM/Core/FiniteVolumeSolver.hpp"
@@ -228,6 +228,7 @@ void FiniteVolumeSolver::trigger_domain()
 
   access_component("iterate/2_compute_rhs/2.1_init_residual").configure_property("field",residual_ptr->uri());
   access_component("iterate/2_compute_rhs/2.2_init_wave_speed").configure_property("field",wave_speed_ptr->uri());
+  m_iterate->configure_option_recursively("mesh",mesh->uri());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -247,7 +248,7 @@ void FiniteVolumeSolver::trigger_time()
     m_iterate->configure_option_recursively("time",m_time.lock()->uri());
     m_iterate->configure_option_recursively("time_accurate",true);
   }
-
+  m_iterate->configure_option_recursively("time",m_time.lock()->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -265,6 +266,8 @@ void FiniteVolumeSolver::trigger_physical_model()
   {
     m_physical_model = ptr->as_ptr_checked<CPhysicalModel>();
   }
+
+  m_iterate->configure_option_recursively("physical_model",m_physical_model.lock()->uri());
 
 }
 
