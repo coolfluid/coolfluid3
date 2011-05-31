@@ -4,15 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-
 #ifndef CF_UI_Graphics_BrowserDialog_hpp
 #define CF_UI_Graphics_BrowserDialog_hpp
 
 #include <QDialog>
 
+#include "UI/UICommon/LogMessage.hpp"
+
 #include "UI/Graphics/LibGraphics.hpp"
 
 class QComboBox;
+class QCompleter;
 class QDialogButtonBox;
 class QGridLayout;
 class QHBoxLayout;
@@ -22,7 +24,7 @@ class QListView;
 class QModelIndex;
 class QPushButton;
 class QSortFilterProxyModel;
-class QTableView;
+class QListView;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -32,6 +34,8 @@ namespace UI {
 namespace Core { class NRemoteFSBrowser; }
 
 namespace Graphics {
+
+class FileFilter;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -43,17 +47,35 @@ public:
 
   BrowserDialog ( QWidget *parent = 0 );
 
+  bool show( bool multiSelect, QVariant & selected );
+
+protected:
+
+  virtual void keyPressEvent( QKeyEvent * event );
+
+  virtual bool focusNextPrevChild( bool next );
+
 private slots:
 
   void filterTypeChanged( int index );
 
-  void doubleClicked(const QModelIndex & index );
+  void doubleClicked( const QModelIndex & index );
+
+  void currentPathChanged( const QString & path );
+
+  void completerActivated ( const QString & text );
+
+  void pathEdited( const QString & text );
+
+  void message( const QString& message , UICommon::LogMessage::Type);
 
 private:
 
   boost::shared_ptr<Core::NRemoteFSBrowser> m_model;
 
-  QTableView * m_view;
+  FileFilter * m_filterModel;
+
+  QListView * m_view;
 
   QDialogButtonBox * m_buttons;
 
@@ -81,7 +103,11 @@ private:
 
   QComboBox * m_comboFilter;
 
-  QSortFilterProxyModel * m_filteringModel;
+  QCompleter * m_completer;
+
+  QString m_oldPath;
+
+  bool m_updatingCompleter;
 
 }; // BrowserDialog
 

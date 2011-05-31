@@ -124,8 +124,8 @@ MainWindow::MainWindow()
           this, SLOT(newException(QString)));
 
   connect(NLog::globalLog().get(),
-          SIGNAL(newMessage(QString, CF::UI::UICommon::LogMessage::Type)),
-          this, SLOT(newLogMessage(QString,CF::UI::UICommon::LogMessage::Type)));
+          SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+          this, SLOT(newLogMessage(QString, UICommon::LogMessage::Type)));
 
   connect(root, SIGNAL(connected()), this, SLOT(connectedToServer()));
 

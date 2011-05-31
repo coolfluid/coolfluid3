@@ -71,8 +71,6 @@ void NRemoteFSBrowser::signal_read_dir ( Common::SignalArgs & args )
   if( !m_currentPath.endsWith("/") )
     m_currentPath += "/";
 
-  emit currentPathChanged( m_currentPath );
-
 //  if(!m_updatingCompletion)
 //    m_editPath->setText(m_currentPath);
 //  else
@@ -127,23 +125,10 @@ void NRemoteFSBrowser::signal_read_dir ( Common::SignalArgs & args )
     m_data.append(fileInfo);
   }
 
-//  this->updateModel(m_viewModel, "", dirs, files, m_items);
-//  this->updateModel(m_completerModel, m_currentPath, dirs,
-//                    std::vector<std::string>(), m_itemsCompleter);
-
   // notice the view(s) that the model has finished changing
   emit layoutChanged();
+  emit currentPathChanged(m_currentPath);
 }
-
-/////////////////////////////////////////////////////////////////////////////
-
-//void NRemoteFSBrowser::updateModel(QAbstractItemModel * model, const QString & path,
-//                                   const std::vector<std::string> & dirs,
-//                                   const std::vector<std::string> & files,
-//                                   QList<FilesListItem *> & modelItems)
-//{
-
-//}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -243,11 +228,10 @@ QVariant NRemoteFSBrowser::data ( const QModelIndex & index, int role ) const
 
   if( index.isValid() )
   {
+    FileInfo * item = m_data.at(index.row());
 
     if( role == Qt::DisplayRole )
     {
-      FileInfo * item = m_data.at(index.row());
-
       switch( index.column() )
       {
       case 0 :                     // item name
@@ -265,6 +249,14 @@ QVariant NRemoteFSBrowser::data ( const QModelIndex & index, int role ) const
     }
     else if( role == Qt::TextAlignmentRole && index.column() == 1)
       return Qt::AlignRight;
+    else if( role == Qt::ToolTipRole )
+    {
+      if(item->type == FILE)
+        return QString("Size: %1\nDate modified: %2")
+            .arg(sizeToString(item->fileSize)).arg(item->dateModified);
+      else
+        return QString("Date modified: %1").arg(item->dateModified);
+    }
   }
 
   return data;
@@ -324,8 +316,8 @@ QString NRemoteFSBrowser::retrieveFullPath( const QModelIndex & index ) const
 {
   QString path;
 
-  if( index.isValid() && index.model() == this )
-    path = m_currentPath + "/" + data(index, Qt::DisplayRole).toString();
+  if( index.isValid() )
+    path = m_currentPath + data(index, Qt::DisplayRole).toString();
 
   return path;
 }
@@ -352,19 +344,13 @@ bool NRemoteFSBrowser::isFile(const QModelIndex &index) const
 
 QString NRemoteFSBrowser::sizeToString( Uint size ) const
 {
-  // MacOS uses the "Kilo computation system" where 1 KB = 1000 bytes
-  // whereas other systems use the "Kibi system" where 1 KB = 2^10 = 1024 bytes
-#ifdef Q_WS_MAC
-  Uint divisionStep = 1000;
-#else
   Uint divisionStep = 1024;
-#endif
 
   int iter = 0;
   QStringList units;
   Real dividedSize = size;
 
-  units << " B" << "KB" << "MB" << "GB" << "TB";
+  units << "bytes" << "KB" << "MB" << "GB" << "TB";
 
   while( dividedSize > divisionStep )
   {

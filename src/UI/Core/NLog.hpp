@@ -86,7 +86,7 @@ namespace Core {
     /// @param message Message text
     /// @param isError If @c true it is an error message; otherwise it is
     /// a "normal" message.
-    void newMessage(const QString & message, CF::UI::UICommon::LogMessage::Type type);
+    void newMessage(const QString & message, UICommon::LogMessage::Type type);
 
     /// @brief Signal emitted when an exception arrives
     /// @param message Exception message

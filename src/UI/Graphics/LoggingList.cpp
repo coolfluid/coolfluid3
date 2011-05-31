@@ -25,12 +25,12 @@ LoggingList::LoggingList(QWidget * parent, unsigned int maxLogLines)
   : QTextEdit(parent),
     m_maxLogLines(maxLogLines)
 {
-  qRegisterMetaType<CF::UI::UICommon::LogMessage::Type>("CF::UI::UICommon::LogMessage::Type");
+  qRegisterMetaType<LogMessage::Type>("UICommon::LogMessage::Type");
   this->setWordWrapMode(QTextOption::NoWrap);
   this->setReadOnly(true);
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString,CF::UI::UICommon::LogMessage::Type)),
-           this, SLOT(newMessage(QString,CF::UI::UICommon::LogMessage::Type)));
+  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+           this, SLOT(newMessage(QString, UICommon::LogMessage::Type)));
 }
 
 //////////////////////////////////////////////////////////////////////////

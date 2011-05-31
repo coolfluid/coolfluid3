@@ -10,6 +10,7 @@ list( APPEND coolfluid_ui_graphics_moc_classes
   CentralPanel.hpp
   ModifiedOptionsDialog.hpp
   ConfirmCommitDialog.hpp
+  FileFilter.hpp # needs to be added because base class emits signals
   FilteringModel.hpp # needs to be added because base class emits signals
   GraphicalArray.hpp
   GraphicalArrayRestrictedList.hpp
@@ -47,6 +48,8 @@ list( APPEND coolfluid_ui_graphics_files
   CentralPanel.hpp
   ConfirmCommitDialog.cpp
   ConfirmCommitDialog.hpp
+  FileFilter.cpp
+  FileFilter.hpp
   FilesListItem.cpp
   FilesListItem.hpp
   FilteringModel.cpp

@@ -196,8 +196,8 @@ QString NRemoteBrowser::show(const QString & startingDir, bool * canceled)
   m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
   m_listView->clearSelection();
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString,CF::UI::UICommon::LogMessage::Type)),
-          this, SLOT(message(QString,CF::UI::UICommon::LogMessage::Type)));
+  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+          this, SLOT(message(QString, UICommon::LogMessage::Type)));
 
   this->reinitValues();
 
@@ -242,8 +242,8 @@ QStringList NRemoteBrowser::showMultipleSelect(const QString & startingDir)
   m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   m_listView->clearSelection();
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString,CF::UI::UICommon::LogMessage::Type)),
-          this, SLOT(message(QString,CF::UI::UICommon::LogMessage::Type)));
+  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+          this, SLOT(message(QString, UICommon::LogMessage::Type)));
 
   this->reinitValues();
 

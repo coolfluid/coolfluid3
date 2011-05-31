@@ -71,7 +71,7 @@ namespace Graphics {
 
   private slots:
 
-    void newMessage(const QString & message, CF::UI::UICommon::LogMessage::Type type);
+    void newMessage(const QString & message, UICommon::LogMessage::Type type);
 
   private:
 

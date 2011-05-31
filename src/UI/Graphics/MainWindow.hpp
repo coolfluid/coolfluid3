@@ -147,7 +147,7 @@ namespace Graphics {
 
     void openFileRemotely();
 
-    void newLogMessage(const QString & message, CF::UI::UICommon::LogMessage::Type type);
+    void newLogMessage(const QString & message, UICommon::LogMessage::Type type);
 
     void tabClicked(int num);
 
