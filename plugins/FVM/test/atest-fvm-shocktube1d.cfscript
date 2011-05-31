@@ -55,9 +55,9 @@ call create_solver builder:string=CF.FVM.Core.FiniteVolumeSolver
 
 ### create boundary conditions
 call FiniteVolumeSolver/create_bc \
-  Name:string=left_right \
+  name:string=left_right \
   builder:string=CF.FVM.Core.BCReflectCons1D \
-  "Regions:array[uri]=\
+  "regions:array[uri]=\
     cpath://Root/shocktube/Domain/mesh/topology/xneg, \
     cpath://Root/shocktube/Domain/mesh/topology/xpos"
 
