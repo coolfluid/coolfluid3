@@ -1,5 +1,5 @@
 // Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
-//
+//uri()
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
@@ -150,12 +150,12 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , translationadv2d_local_fi
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"farfield"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
 
-  //regions.push_back( regions.full_path() );
+  //regions.push_back( regions.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 2u);
 
@@ -217,7 +217,7 @@ BOOST_FIXTURE_TEST_CASE( solve_ldagpu , translationadv2d_local_fixture )
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -253,11 +253,11 @@ BOOST_FIXTURE_TEST_CASE( output , translationadv2d_local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   mesh_writer->configure_property("Fields",fields);
   mesh_writer->configure_property("File",model.name()+".msh");
-  mesh_writer->configure_property("Mesh",mesh->full_path());
+  mesh_writer->configure_property("Mesh",mesh->uri());
 
   mesh_writer->execute();
 

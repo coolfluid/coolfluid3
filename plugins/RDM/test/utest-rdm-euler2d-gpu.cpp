@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+uri()// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -173,11 +173,11 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"right"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 3u);
 
@@ -249,11 +249,11 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , euler2d_local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   gmsh_writer->configure_property("fields",fields);
   gmsh_writer->configure_property("file",URI(model.name()+"_init.msh"));
-  gmsh_writer->configure_property("mesh",mesh->full_path());
+  gmsh_writer->configure_property("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -285,7 +285,7 @@ BOOST_FIXTURE_TEST_CASE( solve_CSysLDAGPU, euler2d_local_fixture )
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -313,7 +313,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   // gmsh writer
 
@@ -322,7 +322,7 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
 
   gmsh_writer->configure_property("fields",fields);
   gmsh_writer->configure_property("file",URI(model.name()+".msh"));
-  gmsh_writer->configure_property("mesh",mesh->full_path());
+  gmsh_writer->configure_property("mesh",mesh->uri());
 
   gmsh_writer->execute();
 }
