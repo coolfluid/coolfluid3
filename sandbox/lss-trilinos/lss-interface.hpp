@@ -10,6 +10,8 @@
 // Maybe vector and matrix should be a single class, could be way more performant? But then needs support for multi rhs+solution.
 // matrix should access by sparsity given to it, hiding internal renumbering
 
+// OBJECTIVE: restrictive and simple to use
+
 //////////////////////////////////////////////////////////////////////////////
 
 class Framework_API LSSVector {
@@ -23,7 +25,7 @@ public:
 
   /// Destructor.
   virtual ~LSSVector();
-
+ 
   //@} END CREATION AND DESTRUCTION
 
   /// @name INDIVIDUAL ACCESS
@@ -87,7 +89,10 @@ public:
   /// Setup sparsity structure
   /// should only work with local numbering (parallel computations, plus rcm could be a totally internal matter of the matrix)
   /// internal mapping should be invisible to outside (needs to reorganize to push ghost nodes)
-  virtual void create_sparsity(PE::Communicator &comm /*, WHATEVER*/) = 0;
+  /// maybe 2 ctable csr style
+  /// local numbering
+  /// needs global numbering for communication - ??? commpattern ???
+  virtual void create_sparsity(PE::Communicator &comm /*, WHATEVER*/, blocksize, CTable) = 0;
 
   //@} END CREATION AND DESTRUCTION
 
@@ -101,7 +106,7 @@ public:
   virtual void add_value(const CFint col, const CFint row, const CFreal value) = 0;
 
   /// Get value at given location in the matrix
-  virtual void get_value(const CFint col, const CFint row, const CFreal& value) = 0;
+  virtual void get_value(const CFint col, const CFint row, CFreal& value) = 0;
 
   //@} END INDIVIDUAL ACCESS
 
@@ -112,10 +117,12 @@ public:
   virtual void set_values(const BlockAccumulator& values) = 0;
 
   /// Add a list of values
+  /// local ibdices
+  /// eigen, templatization on top level
   virtual void add_values(const BlockAccumulator& values) = 0;
 
   /// Add a list of values
-  virtual void get_values(const BlockAccumulator& values) = 0;
+  virtual void get_values(BlockAccumulator& values) = 0;
 
   /// Set a row, diagonal and off-diagonals values separately (dirichlet-type boundaries)
   virtual void set_row(const Uint row, CFreal diagval, CFreal offdiagval) = 0;
@@ -128,10 +135,10 @@ public:
   virtual void tie_row_pairs (const Uint colto, const Uint colfrom) = 0;
 
   /// Set the diagonal
-  virtual void set_diagonal(LSSVector& diag) = 0;
+  virtual void set_diagonal(const LSSVector& diag) = 0;
 
   /// Add to the diagonal
-  virtual void add_diagonal(LSSVector& diag) = 0;
+  virtual void add_diagonal(const LSSVector& diag) = 0;
 
   /// Get the diagonal
   virtual void get_diagonal(LSSVector& diag) = 0;
