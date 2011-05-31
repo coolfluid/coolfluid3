@@ -46,13 +46,14 @@ struct CellLoopGPU : public ElementLoop
     /// parametrization of the numerical term
     typedef typename ACTION::template Term< SF, QD, PHYS > TermT;
 
-    TermT& term = this->access_term<TermT>();
+
 
     // loop on the (sub)regions that hold elements of this type
 
     boost_foreach(Mesh::CElements& elements,
                   Common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
     {
+      TermT& term = this->access_term<TermT>();
       // point the term to the elements of the (sub)region
       term.set_elements(elements);
 

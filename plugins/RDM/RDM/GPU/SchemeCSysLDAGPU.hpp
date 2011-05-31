@@ -44,8 +44,8 @@ public: // functions
   /// @param name of the component
   Term ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name)
   {
-    for(Uint n = 0; n < SF::nb_nodes; ++n)
-      DvP[n].setZero();
+    //for(Uint n = 0; n < SF::nb_nodes; ++n)
+      //DvP[n].setZero();
 
     clGetPlatformIDs(1, &env.cpPlatform, NULL);
     clGetDeviceIDs(env.cpPlatform, CL_DEVICE_TYPE_GPU, 1, &env.cdDevice, NULL);
@@ -99,26 +99,7 @@ public: // functions
 
 protected: // data
 
-  /// Matrix KiP_n stores the value L(N_i)+ at each quadrature point for each shape function N_i
-  typename B::PhysicsMT  KiP_n [SF::nb_nodes];
-  /// Matrix KiM_n stores the value L(N_i)- at each quadrature point for each shape function N_i
-  typename B::PhysicsMT  KiM_n [SF::nb_nodes];
-  /// sum of Lplus to be inverted
-  typename B::PhysicsMT  sumKmin;
-  /// inverse Ki+ matix
-  typename B::PhysicsMT  InvKi_n;
-  /// right eigen vector matrix
-  typename B::PhysicsMT  Rv;
-  /// left eigen vector matrix
-  typename B::PhysicsMT  Lv;
-  /// Ki matrix
-  typename B::PhysicsMT  Ki;
-  /// diagonal matrix with eigen values
-  typename B::PhysicsVT  Dv;
-  /// diagonal matrix with positive eigen values
-  typename B::PhysicsVT  DvP [SF::nb_nodes];
-  /// diagonal matrix with negative eigen values
-  typename B::PhysicsVT  DvM [SF::nb_nodes];
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -131,11 +112,11 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     boost::timer ctimer;
     uint dim     = 2;
     uint nEq     = 4;
-    uint shape   = SF::nb_nodes;
-    uint quad    =  QD::nb_points;
+    uint shape   = SF::nb_nodes; //std::cout<< shape<<std::endl;
+    uint quad    =  QD::nb_points; //std::cout<< quad<<std::endl;
     uint nodes   = (*B::coordinates).size();
     uint elements = (*B::connectivity_table).size();
-
+//std::cout<<PHYS::ndim<<std::endl;
     float A_inter[shape*quad], A_ksi[shape*quad], A_eta[shape*quad];
     float weights[quad];
 
@@ -163,7 +144,7 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     env.errcode |= clEnqueueWriteBuffer(env.command_queue, weightsGPGPU,  CL_FALSE, 0, quad * sizeof(float),         weights,    0, NULL, NULL);
     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
-    float X_node[nodes*dim], U_node[nodes*nEq],phi[nodes*nEq], waveSpeed[nodes];
+    float X_node[nodes*dim], U_node[nodes*nEq],phi[elements*shape*nEq], waveSpeed[elements*shape];
     uint connectTable[elements*shape];
 
     for(uint idx = 0; idx < elements; idx++ )
@@ -186,10 +167,26 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
        {
            uint pos = idx * nEq + idy;
            U_node[pos] = (*B::solution)[idx][idy];
-           phi[pos]    = 0;
+       //    phi[pos]    = 0.0;
        }
-       waveSpeed[idx]=0;
+       //waveSpeed[idx]=0.0;
     }
+
+
+    for( uint idx = 0; idx<elements; idx++ )
+    {
+        for(uint idy = 0; idy < shape; idy++ )
+        {
+            waveSpeed[idx*shape+idy] = 0.0;
+            for(uint idz = 0; idz < nEq; idz++ )
+               phi[(idx*shape+idy)*nEq+idz] = 0.0;
+        }
+
+    }
+
+
+
+
     //GPGPU mem reservation
 
     cl_mem X_rGPGPU, U_rGPGPU, phi_rGPGPU, connectTableGPGPU;
@@ -199,14 +196,14 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
 
     X_rGPGPU          = clCreateBuffer(env.context, CL_MEM_READ_ONLY , nodes * dim * sizeof(float), X_node,    &env.errcode);
     U_rGPGPU          = clCreateBuffer(env.context, CL_MEM_READ_ONLY , nodes * nEq * sizeof(float), U_node,    &env.errcode);
-    phi_rGPGPU        = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, nodes * nEq * sizeof(float), phi,       &env.errcode);
-    waveSpeedGPGPU    = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, nodes * sizeof(float),       waveSpeed, &env.errcode);
+    phi_rGPGPU        = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements*shape*nEq * sizeof(float), phi,       &env.errcode);
+    waveSpeedGPGPU    = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements*shape * sizeof(float),       waveSpeed, &env.errcode);
     connectTableGPGPU = clCreateBuffer(env.context, CL_MEM_READ_ONLY,  elements * shape * sizeof(uint),  connectTable, &env.errcode);
 
     env.errcode |= clEnqueueWriteBuffer(env.command_queue, X_rGPGPU,          CL_FALSE, 0, nodes * dim * sizeof(float), X_node,             0, NULL, NULL);
     env.errcode |= clEnqueueWriteBuffer(env.command_queue, U_rGPGPU,          CL_FALSE, 0, nodes * nEq * sizeof(float), U_node,             0, NULL, NULL);
-    env.errcode |= clEnqueueWriteBuffer(env.command_queue, phi_rGPGPU,        CL_FALSE, 0, nodes * nEq * sizeof(float), phi,                0, NULL, NULL);
-    env.errcode |= clEnqueueWriteBuffer(env.command_queue, waveSpeedGPGPU,    CL_FALSE, 0, nodes *  sizeof(float),      waveSpeed,          0, NULL, NULL);
+    env.errcode |= clEnqueueWriteBuffer(env.command_queue, phi_rGPGPU,        CL_FALSE, 0, elements*shape*nEq * sizeof(float), phi,                0, NULL, NULL);
+    env.errcode |= clEnqueueWriteBuffer(env.command_queue, waveSpeedGPGPU,    CL_FALSE, 0, elements*shape *  sizeof(float),      waveSpeed,          0, NULL, NULL);
     env.errcode |= clEnqueueWriteBuffer(env.command_queue, connectTableGPGPU, CL_FALSE, 0, elements * shape*  sizeof(uint),  connectTable,  0, NULL, NULL);
     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
@@ -262,8 +259,10 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // LU
     env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // LUwq
     env.errcode |= clSetKernelArg(env.kernel, n++, quad * nEq  *              sizeof(float), 0); // help
-    env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq  *             sizeof(float), 0); // PhiH
-    env.errcode |= clSetKernelArg(env.kernel, n++, shape * nEq  *             sizeof(float), 0); // phiHN*/
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad*shape * nEq  *        sizeof(float), 0); // PhiH
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad*shape * nEq  *        sizeof(float), 0); // phiHN
+    env.errcode |= clSetKernelArg(env.kernel, n++, quad*shape *               sizeof(float), 0); // waveSpeed
+
 
     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
@@ -280,8 +279,8 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     clFinish(env.command_queue);
 
     // receive data from GPGPU memory
-    env.errcode  = clEnqueueReadBuffer(env.command_queue,phi_rGPGPU,     CL_TRUE, 0, nodes * nEq * sizeof(float), phi,  0, NULL, NULL);
-    env.errcode |= clEnqueueReadBuffer(env.command_queue,waveSpeedGPGPU, CL_TRUE, 0, nodes * sizeof(float), waveSpeed,  0, NULL, NULL);
+    env.errcode  = clEnqueueReadBuffer(env.command_queue,phi_rGPGPU,     CL_TRUE, 0, elements*shape*nEq * sizeof(float), phi,  0, NULL, NULL);
+    env.errcode |= clEnqueueReadBuffer(env.command_queue,waveSpeedGPGPU, CL_TRUE, 0, elements*shape * sizeof(float), waveSpeed,  0, NULL, NULL);
 
     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
@@ -300,7 +299,29 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     clReleaseMemObject( waveSpeedGPGPU );
     clReleaseMemObject( connectTableGPGPU );
 
-    for(uint idx = 0; idx < nodes; idx++ )
+    for( uint idx = 0; idx < elements; idx++ )
+    {
+        for( uint idy = 0; idy < shape; idy++ )
+        {
+            uint adress = connectTable[idx*shape+idy];
+            double wS = waveSpeed[idx*shape+idy];
+            if (wS <= 1e-10 ) wS= 1e-10;
+            (*B::wave_speed)[adress][0] += wS;
+            for( uint idz = 0; idz < nEq; idz++ )
+            {
+                double res = phi[(idx*shape+idy)*nEq+idz];
+                if(res< 1e-10 && res >= 0 )
+                    res = 1e-10;
+                if(res> -1e-10 && res < 0 )
+                    res = -1e-10;
+                (*B::residual)[adress][idz] += res;
+
+            }
+
+        }
+    }
+
+/*   for(uint idx = 0; idx < nodes; idx++ )
     {
        for( int idy = 0; idy < nEq; idy++ )
        {
@@ -310,12 +331,16 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
                a = 1e-10;
            if(a> -1e-10 && a < 0 )
                a = -1e-10;
-           (*B::residual)[idx][idy] = a;
+           (*B::residual)[idx][idy] += a;
        }
-       (*B::wave_speed)[idx][0] = waveSpeed[idx];
-    }
+       double a = waveSpeed[idx];
+       if (a <= 1e-10 ) a= 1e-10;
+       (*B::wave_speed)[idx][0] += a;
+    }*/
 
-    std::cout<< std::scientific<<ctimer.elapsed()<<std::endl;
+//  std::cout<< (*B::residual)[123][0] << " " << (*B::residual)[123][1] << " " << (*B::residual)[123][2] << " " << (*B::residual)[123][3] << std::endl;
+
+  //  std::cout<< std::scientific<<ctimer.elapsed()<<std::endl; */
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
