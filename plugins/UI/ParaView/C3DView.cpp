@@ -134,7 +134,7 @@ void C3DView::launch_pvserver( SignalArgs & args ){
 
 
 
-  SignalFrame reply = args.create_reply( full_path() );
+  SignalFrame reply = args.create_reply( uri() );
   SignalFrame& options = reply.map( Protocol::Tags::key_options() );
 
   std::vector<std::string> data(2);
@@ -150,14 +150,14 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 {
   static Uint curr_iteration = 0;
   SignalOptions opt(args);
-  SignalFrame frame("file_dumped", full_path(), full_path());
+  SignalFrame frame("file_dumped", uri(), uri());
   SignalOptions options(frame);
 
   if (m_mesh.expired())
   {
 
     Mesh::CMesh& mesh = find_component_recursively<Mesh::CMesh>( Core::instance().root() );
-    URI mesh_path = mesh.full_path();
+    URI mesh_path = mesh.uri();
     configure_property("mesh", mesh_path );
   }
 //  throw SetupError( FromHere(), "Mesh option is not configured");
@@ -172,7 +172,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
     std::vector<URI> fields;
     boost_foreach(const CField& field, find_components_recursively<CField>(*m_mesh.lock()))
-      fields.push_back(field.full_path());
+      fields.push_back(field.uri());
 
     writer.configure_property("fields",fields);
 
@@ -195,7 +195,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 }
 
 void C3DView::send_server_info_to_client( SignalArgs & args ){
-  SignalFrame reply = args.create_reply( full_path() );
+  SignalFrame reply = args.create_reply( uri() );
   SignalFrame& options = reply.map( Protocol::Tags::key_options() );
 
   std::vector<std::string> data(2);
