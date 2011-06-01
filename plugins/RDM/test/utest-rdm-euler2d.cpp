@@ -66,8 +66,8 @@ struct euler2d_global_fixture
 
     loader.load_library("coolfluid_mesh_neu");
     loader.load_library("coolfluid_mesh_gmsh");
-    loader.load_library("coolfluid_mesh_tecplot");
-    loader.load_library("coolfluid_mesh_vtklegacy");
+    //loader.load_library("coolfluid_mesh_tecplot");
+    //loader.load_library("coolfluid_mesh_vtklegacy");
 
     euler2d_wizard = allocate_component<SteadyExplicit>("mymodel");
 
@@ -136,9 +136,9 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 
   std::vector<URI> files;
 
-  URI file( "file:square1x1-tg-p1-303n.msh" );     // works
+//  URI file( "file:square1x1-tg-p1-303n.msh" );     // works
 //  URI file( "file:square1x1-tg-p1-7614.msh" );     // works
-//  URI file( "file:trapezium1x1-tg-p1-508.msh");    // works
+  URI file( "file:trapezium1x1-tg-p1-508.msh");    // works
 
 //  URI file( "file:square1x1-tg-p2-333n.msh");
 //  URI file( "file:square1x1-tg-p2-2kn.msh");       // works
@@ -309,7 +309,7 @@ BOOST_FIXTURE_TEST_CASE( solve_b, euler2d_local_fixture )
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
   options.add<std::string>("Name","INTERNAL");
-  options.add<std::string>("Type","CF.RDM.Schemes.CSysB");
+  options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
   options.add("Regions", regions, " ; ");
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
@@ -347,14 +347,14 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
 
   // tecplot writer
 
-  CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
+ /* CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
   model.add_component(tec_writer);
 
   tec_writer->configure_property("fields",fields);
   tec_writer->configure_property("file",URI(model.name()+".plt"));
   tec_writer->configure_property("mesh",mesh->uri());
 
-  tec_writer->execute();
+  tec_writer->execute(); */
 
 }
 

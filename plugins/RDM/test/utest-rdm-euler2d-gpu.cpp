@@ -1,4 +1,4 @@
-uri()// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -12,10 +12,11 @@ uri()// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 
 #include "Common/BoostFilesystem.hpp"
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
+
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/LibLoader.hpp"
@@ -135,8 +136,26 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 
   std::vector<URI> files;
 
-  URI file( "file:euler2d-tg.msh" );     // works
+//  URI file( "file:square1x1-tg-p1-303n.msh" );     // works
+//  URI file( "file:square1x1-tg-p1-7614.msh" );     // works
+  URI file( "file:trapezium1x1-tg-p1-508.msh");    // works
 
+//  URI file( "file:square1x1-tg-p2-333n.msh");
+//  URI file( "file:square1x1-tg-p2-2kn.msh");       // works
+//  URI file( "file:trapezium1x1-tg-p2-1949.msh" );  // works
+
+//  URI file( "file:square1x1-qd-p1-6561n.msh" );
+//  URI file( "file:square1x1-qd-p1-1369.msh" );     // works
+//  URI file( "file:square1x1-qd-p1-256n.msh" );
+//  URI file( "file:square1x1-qd-p2-289n.msh" );     // works
+
+//URI file( "file:trapezium1x1-qd-p1-441.msh" );      // LDA works
+//URI file( "file:trapezium1x1-qd-p2-1681.msh" );     // B crashes but LDA works?
+//URI file( "file:trapezium1x1-qd-p3-3721.msh" );     // B crashes but LDA works?
+
+//  URI file( "file:trapezium1x1-tg-p3-4306.msh");
+
+//  URI file( "file:square1x1-tgqd-p1-298n.msh" );   // works
 
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::FILE;
@@ -157,9 +176,9 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , euler2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  solver.configure_property("Domain",URI("cpath:../Domain"));
+  solver.configure_property("domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_property("cfl", 0.25);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 250u);;
+  solver.get_child("time_stepping").configure_property("MaxIter", 1u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -262,11 +281,11 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , euler2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_CSysLDAGPU, euler2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve_b, euler2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  CFinfo << "solving with LDA scheme" << CFendl;
+  CFinfo << "solving with B scheme" << CFendl;
 
   // delete previous domain terms
   Component& domain_terms = solver.get_child("compute_domain_terms");
@@ -325,6 +344,18 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
   gmsh_writer->configure_property("mesh",mesh->uri());
 
   gmsh_writer->execute();
+
+  // tecplot writer
+
+ /* CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
+  model.add_component(tec_writer);
+
+  tec_writer->configure_property("fields",fields);
+  tec_writer->configure_property("file",URI(model.name()+".plt"));
+  tec_writer->configure_property("mesh",mesh->uri());
+
+  tec_writer->execute(); */
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
