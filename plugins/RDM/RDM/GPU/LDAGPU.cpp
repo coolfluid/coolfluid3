@@ -17,7 +17,7 @@
 
 #include "Solver/CPhysicalModel.hpp"
 
-#include "RDM/Core/SupportedTypes.hpp"    // supported elements
+#include "RDM/Core/SupportedCells.hpp"    // supported elements
 #include "RDM/Core/LinearAdv2D.hpp"       // supported physics
 #include "RDM/Core/RotationAdv2D.hpp"     // supported physics
 #include "RDM/Core/Burgers2D.hpp"         // supported physics

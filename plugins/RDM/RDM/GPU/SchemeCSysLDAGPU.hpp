@@ -305,15 +305,15 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
         {
             uint adress = connectTable[idx*shape+idy];
             double wS = waveSpeed[idx*shape+idy];
-            if (wS <= 1e-10 ) wS= 1e-10;
+            if (wS <= 1e-7 ) wS= 1e-7;
             (*B::wave_speed)[adress][0] += wS;
             for( uint idz = 0; idz < nEq; idz++ )
             {
                 double res = phi[(idx*shape+idy)*nEq+idz];
-                if(res< 1e-10 && res >= 0 )
-                    res = 1e-10;
-                if(res> -1e-10 && res < 0 )
-                    res = -1e-10;
+                if(res< 1e-7 && res >= 0.0 )
+                    res = 1e-7;
+                if(res> -1e-7 && res < 0.0 )
+                    res = -1e-7;
                 (*B::residual)[adress][idz] += res;
 
             }
