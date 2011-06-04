@@ -34,7 +34,7 @@ Common::ComponentBuilder < CFaceCellConnectivity , Component, LibMesh > CFaceCel
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) : 
+CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
   Component(name),
   m_nb_faces(0)
 {
@@ -85,7 +85,7 @@ void CFaceCellConnectivity::add_used (const Component& used_comp)
   }
   if (found == false)
     m_used_components->create_component_ptr<CLink>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
-    
+
   m_mesh_elements = find_parent_component<CMesh>(used_comp).elements().as_non_const()->as_ptr<CMeshElements>();
 }
 
@@ -99,7 +99,7 @@ void CFaceCellConnectivity::build_connectivity()
     CFwarn << "No elements are given to build faces of" << CFendl;
     return;
   }
- 
+
   cf_assert(is_not_null(m_mesh_elements));
   // sanity check
   //CFinfo << "building face_cell connectivity using " << CFendl;
@@ -124,14 +124,14 @@ void CFaceCellConnectivity::build_connectivity()
 
   // calculate max_nb_faces
   boost_foreach ( Component::Ptr elements_comp, used() )
-  { 
+  {
     CElements& elements = elements_comp->as_type<CElements>();
     if (elements.element_type().dimensionality() != elements.element_type().dimension() )
       continue;
     const Uint nb_faces = elements.element_type().nb_faces();
     max_nb_faces += nb_faces * elements.size() ;
   }
-  
+
   // allocate storage if doesn't exist that says if the element is at the boundary of a region
   // ( = not the same as the mesh boundary)
   boost_foreach (Component::Ptr elements_comp, used())
@@ -174,7 +174,7 @@ void CFaceCellConnectivity::build_connectivity()
 
     // loop over the elements of this type
     Uint loc_elem_idx=0;
-    boost_foreach(CTable<Uint>::ConstRow elem, elements.node_connectivity().array() ) 
+    boost_foreach(CTable<Uint>::ConstRow elem, elements.node_connectivity().array() )
     {
       if ( is_bdry_elem[loc_elem_idx] )
       {
@@ -196,13 +196,13 @@ void CFaceCellConnectivity::build_connectivity()
           // nodes building a face
           node = face_nodes[0];
           cf_assert(node<tot_nb_nodes);
-          
+
           found_face = false;
           // search for matching face if they are registered to the node yet
           boost_foreach( face, mapNodeFace[node] )
           {
             nb_matched_nodes = 1;
-            if (nb_nodes > 1) 
+            if (nb_nodes > 1)
             {
               for (face_node_idx=1; face_node_idx!=nb_nodes; ++face_node_idx)
               {
@@ -224,6 +224,7 @@ void CFaceCellConnectivity::build_connectivity()
                   found_face = true;
                   //(*m_connectivity)[elemID][iFace] = currFaceID;
                   f2c.get_row(face)[1]=mesh_elements_idx;
+                  face_number.get_row(face)[1]=face_idx;
                   is_bdry_face.get_row(face)=false;
                   // since it has two neighbor cells,
                   // this face is surely NOT a boundary face
@@ -235,7 +236,7 @@ void CFaceCellConnectivity::build_connectivity()
                 }
               }
             }
-            else // this only applies to the 1D case 
+            else // this only applies to the 1D case
             {
               // the corresponding faceID already exists, meaning
               // that the face is an internal one, shared by two elements
@@ -251,7 +252,7 @@ void CFaceCellConnectivity::build_connectivity()
               break;
             }
           }
-          if (found_face == false) 
+          if (found_face == false)
           {
             // a new face has been found
             // add the ID of the new face in the corresponding nodes
@@ -294,7 +295,7 @@ void CFaceCellConnectivity::build_connectivity()
   cf_assert(m_nb_faces == m_connectivity->size());
 
   for (Uint f=0; f<m_connectivity->size(); ++f)
-  {    
+  {
     boost_foreach (Uint elem, (*m_connectivity)[f])
     {
       if ( elem != Math::MathConsts::Uint_max() )
@@ -306,7 +307,7 @@ void CFaceCellConnectivity::build_connectivity()
       }
     }
   }
-  
+
 
 #if 0
   for (Uint f=0; f<m_connectivity->size(); ++f)
