@@ -11,7 +11,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
-
+#include "Common/StringConversion.hpp"
 #include "Mesh/GeoShape.hpp"
 
 #include "SFDM/Reconstruct.hpp"
@@ -85,7 +85,7 @@ RealMatrix Reconstruct::value(const RealMatrix& from_states) const
 
 RealMatrix Reconstruct::gradient(const RealMatrix& from_states, const CoordRef orientation) const
 {
-  cf_assert_desc("matrix dimensions don't match",from_states.size() == m_gradient_reconstruction_matrix[orientation].cols());
+  cf_assert_desc("matrix dimensions don't match ["+to_str((Uint)from_states.size())+"!="+to_str((Uint)m_gradient_reconstruction_matrix[orientation].cols())+"]  ",from_states.size() == m_gradient_reconstruction_matrix[orientation].cols());
   return m_gradient_reconstruction_matrix[orientation] * from_states;
 }
 

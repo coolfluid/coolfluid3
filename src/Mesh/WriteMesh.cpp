@@ -4,8 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-/// @todo remove
-#include "Common/Log.hpp"
+#include <iomanip>
 
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -162,7 +161,24 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vecto
   {
     if ( metadata.check(matches[i].second) )
     {
-      boost::algorithm::replace_first(file_str,matches[i].first,metadata[matches[i].second].value_str());
+      std::string replace_str;
+      if (matches[i].second == "iter")
+      {
+        std::stringstream ss;
+        ss << std::setw( 4 ) << std::setfill( '0' ) << metadata[matches[i].second].value<Uint>();
+        replace_str = ss.str();
+      }
+      else if (matches[i].second == "time")
+      {
+        std::stringstream ss;
+        ss << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << metadata[matches[i].second].value<Real>();
+        replace_str = ss.str();
+      }
+      else
+      {
+        replace_str = metadata[matches[i].second].value_str();
+      }
+      boost::algorithm::replace_first(file_str,matches[i].first,replace_str);
     }
   }
 

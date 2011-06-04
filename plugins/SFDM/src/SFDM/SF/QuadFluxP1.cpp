@@ -39,6 +39,12 @@ QuadFluxP1::QuadFluxP1(const std::string& name) : ShapeFunction(name)
   m_face_points[KSI][0][RIGHT] = 1;
   m_face_points[ETA][0][LEFT]  = 2;
   m_face_points[ETA][0][RIGHT] = 3;
+
+  m_face_number.resize(boost::extents[nb_orientations][2]);
+  m_face_number[KSI][LEFT ]=3;
+  m_face_number[KSI][RIGHT]=1;
+  m_face_number[ETA][LEFT ]=0;
+  m_face_number[ETA][RIGHT]=2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

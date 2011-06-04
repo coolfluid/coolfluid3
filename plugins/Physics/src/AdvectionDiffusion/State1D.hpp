@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_AdvectionDiffusion_State_hpp
-#define CF_AdvectionDiffusion_State_hpp
+#ifndef CF_AdvectionDiffusion_State1D_hpp
+#define CF_AdvectionDiffusion_State1D_hpp
 
 #include "Solver/State.hpp"
 #include "AdvectionDiffusion/Physics.hpp"
@@ -17,29 +17,29 @@ namespace AdvectionDiffusion {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Base class to interface the State
+/// @brief Base class to interface the State1D
 /// @author Willem Deconinck
-class AdvectionDiffusion_API State : public Solver::State {
+class AdvectionDiffusion_API State1D : public Solver::State {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<State> Ptr;
-  typedef boost::shared_ptr<State const> ConstPtr;
+  typedef boost::shared_ptr<State1D> Ptr;
+  typedef boost::shared_ptr<State1D const> ConstPtr;
 
 public: // functions
 
   /// Contructor
-  State( const std::string& name = type_name() ) : Solver::State(name)
+  State1D( const std::string& name = type_name() ) : Solver::State(name)
   {
     m_var_names.resize(1,"Q");
     m_advection_speed = 1.;
   }
 
   /// Virtual destructor
-  virtual ~State() {}
+  virtual ~State1D() {}
 
   /// Gets the Class name
-  static std::string type_name() { return "State"; }
+  static std::string type_name() { return "State1D"; }
 
   virtual Solver::Physics create_physics()
   {
@@ -73,14 +73,14 @@ public: // functions
                                                         const RealVector& normal,
                                                         RealMatrix& rv)
   {
-    rv(0,0) = 1. * normal[XX];
+    rv(0,0) = 1.;
   }
 
   virtual void compute_fluxjacobian_left_eigenvectors( const Solver::Physics& p,
                                                        const RealVector& normal,
                                                        RealMatrix& lv)
   {
-    lv(0,0) = 1. * normal[XX];
+    lv(0,0) = 1.;
   }
 
   virtual void compute_fluxjacobian_eigenvalues( const Solver::Physics& p,
@@ -109,7 +109,7 @@ public: // functions
 
 private:
   Real m_advection_speed;
-}; // State
+}; // State1D
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -118,4 +118,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_AdvectionDiffusion_State_hpp
+#endif // CF_AdvectionDiffusion_State1D_hpp

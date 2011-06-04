@@ -73,6 +73,7 @@ SFDWizard::SFDWizard( const std::string& name )
   properties()["description"] = std::string("MISSING");
 
   properties().add_option( OptionT<std::string>::create("model","Model Name","Name to give to the simulation model","SFD_simulation") )->mark_basic();
+  properties().add_option( OptionT<Uint>::create("dim","Dimension","Dimension of the simulation",1u) )->mark_basic();
   properties().add_option( OptionT<std::string>::create("physics","Physics","Builder name for the physical model","CF.Physics.") )->mark_basic();
   properties().add_option( OptionT<Uint>::create("P","Polynomial Order","The order of the polynomial of the solution",0u) )->mark_basic();
   properties().add_option( OptionT<Real>::create(FlowSolver::Tags::cfl(),"CFL","The Courant-Friedrichs-Lax Number",1.) )->mark_basic();
@@ -115,7 +116,7 @@ void SFDWizard::create_simulation()
   CPhysicalModel& physical_model = model.create_physics("Physics");
 
   /// @todo should be setup differently
-  physical_model.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State"));
+  physical_model.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State"+property("dim").value_str()+"D"));
 
   CDomain& domain                = model.create_domain("Domain");
   CTime& time                    = model.create_time("Time");
@@ -308,7 +309,7 @@ void SFDWizard::build_solve()
 
   compute_rhs.create_static_component<CInitFieldConstant>("2.2_init_wave_speed")
     .mark_basic()
-    .configure_property("constant",Math::MathConsts::eps())
+    .configure_property("constant",0.)
     .property("field").add_tag(FlowSolver::Tags::wave_speed());
 
   Component& for_all_cells =
@@ -323,7 +324,7 @@ void SFDWizard::build_solve()
 
   /// @todo configure differently
   solver.configure_option_recursively("riemann_solver",std::string("CF.RiemannSolvers.Roe"));
-  solver.configure_option_recursively("roe_state",std::string("CF.AdvectionDiffusion.State"));
+  solver.configure_option_recursively("roe_state",std::string("CF.AdvectionDiffusion.State"+property("dim").value_str()+"D"));
 
   solver.configure_option_recursively("solution_state",m_model_link->follow()->as_type<CModel>().physics().solution_state().uri());
 

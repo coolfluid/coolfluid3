@@ -122,27 +122,37 @@ void ComputeUpdateCoefficient::execute()
     cf_assert_desc("Fields not compatible: "+to_str(volume.size())+"!="+to_str(wave_speed.size()),volume.size() == wave_speed.size());
     cf_assert_desc("Fields not compatible: "+to_str(update_coeff.size())+"!="+to_str(wave_speed.size()),update_coeff.size() == wave_speed.size());
 
-    // compute time step
-    // -----------------
-    // 1) take user-defined time step
+    /// compute time step
+    //  -----------------
+    /// - take user-defined time step
     Real dt = time.property("time_step").value<Real>();
-    // 2) Make time step stricter through the CFL number
+
+    /// - Make time step stricter through the CFL number
+    Real min_dt = dt;
+    Real max_dt = 0.;
     for (Uint i=0; i<wave_speed.size(); ++i)
     {
-      if (volume[i][0] > 0)
-        dt = std::min(dt, m_CFL*volume[i][0]/wave_speed[i][0] );
+      if (volume[i][0] > 0 && wave_speed[i][0] > 0)
+      {
+        dt = m_CFL*volume[i][0]/wave_speed[i][0];
+
+        min_dt = std::min(min_dt,dt);
+        max_dt = std::max(max_dt,dt);
+      }
     }
-    // 3) Make sure we reach milestones and final simulation time
+    dt = min_dt;
+    /// - Make sure we reach milestones and final simulation time
     Real tf = limit_end_time(time.time(), time.property("end_time").value<Real>());
     if( time.time() + dt + m_tolerance > tf )
       dt = tf - time.time();
 
-
-    // Calculate the update_coefficient = dt/dx
+    /// Calculate the update_coefficient
+    //  --------------------------------
+    /// For Forward Euler: update_coefficient = @f$ \Delta t @f$.
+    /// @f[ Q^{n+1} = Q^n + \Delta t \ R @f]
     for (Uint i=0; i<update_coeff.size(); ++i)
     {
-      if (volume[i][0] > 0)
-        update_coeff[i][0] = dt/volume[i][0];
+      update_coeff[i][0] = dt;
     }
 
     // Update the new time step

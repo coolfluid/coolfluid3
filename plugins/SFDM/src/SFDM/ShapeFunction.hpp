@@ -65,6 +65,8 @@ public:
   /// LinePoints face_points()[orientation][line_idx] for a view of one line
   Points face_points() const { return m_face_points; }
 
+  const boost::multi_array<Uint,2>& face_number() const { return m_face_number; }
+
   /// Number of lines per orientation
   /// @returns number of lines per orientation
   Uint nb_lines_per_orientation() const { return m_nb_lines_per_orientation; }
@@ -82,6 +84,9 @@ protected:
 
   /// lookup table for the face_points
   boost::multi_array<Uint,3> m_face_points;
+
+  /// lookup table for the face_number
+  boost::multi_array<Uint,2> m_face_number;
 
   /// storage for number of lines per orientation
   Uint m_nb_lines_per_orientation;

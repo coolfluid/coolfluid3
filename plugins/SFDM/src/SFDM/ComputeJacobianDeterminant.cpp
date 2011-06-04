@@ -67,7 +67,7 @@ void ComputeJacobianDeterminant::trigger_elements()
 void ComputeJacobianDeterminant::execute()
 {
   // idx() is the index that is set using the function set_loop_idx() or configuration LoopIndex
-
+  Real jacobian_determinant;
   const ShapeFunction& shape_func = m_jacobian_determinant->space().shape_function().as_type<ShapeFunction>();
   const ElementType&   geometry   = elements().element_type();
 
@@ -77,7 +77,9 @@ void ComputeJacobianDeterminant::execute()
   RealMatrix local_coords = shape_func.local_coordinates();
   for (Uint point=0; point<shape_func.nb_nodes(); ++point)
   {
-    jacobian_determinant_data[point][0] = geometry.jacobian_determinant(local_coords.row(point),geometry_coords);
+    jacobian_determinant = geometry.jacobian_determinant(local_coords.row(point),geometry_coords);
+    cf_assert( jacobian_determinant > 0. );
+    jacobian_determinant_data[point][0] = jacobian_determinant;
   }
 }
 

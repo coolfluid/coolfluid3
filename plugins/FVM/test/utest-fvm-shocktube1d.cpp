@@ -12,7 +12,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
- 
+
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   model.time().configure_property("end_time",  0.008);
   model.time().configure_property("time_step", 0.008);
   model.configure_option_recursively("cfl", 1.0);
-  find_component_recursively<CIterate>(model).configure_property("MaxIterations",1u);
+  find_component_recursively<CIterate>(model).configure_property("max_iter",1u);
 
   BOOST_CHECK(true);
 

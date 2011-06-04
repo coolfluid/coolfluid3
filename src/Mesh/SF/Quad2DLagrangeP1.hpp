@@ -92,6 +92,7 @@ struct MESH_SF_API Quad2DLagrangeP1  : public Quad2D {
   virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
   virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
   virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
+  virtual Real jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const;
 
   /// Shape function reference
   virtual const ShapeFunction& shape_function() const

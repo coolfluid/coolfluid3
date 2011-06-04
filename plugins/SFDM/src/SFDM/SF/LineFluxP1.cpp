@@ -34,6 +34,10 @@ LineFluxP1::LineFluxP1(const std::string& name) : ShapeFunction(name)
   m_face_points.resize(boost::extents[nb_orientations][nb_lines_per_orientation][2]);
   m_face_points[KSI][0][LEFT]  = 0;
   m_face_points[KSI][0][RIGHT] = 1;
+
+  m_face_number.resize(boost::extents[nb_orientations][2]);
+  m_face_number[KSI][LEFT ]=0;
+  m_face_number[KSI][RIGHT]=1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

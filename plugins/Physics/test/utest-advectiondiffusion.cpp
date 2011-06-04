@@ -9,11 +9,11 @@
 
 #include <boost/test/unit_test.hpp>
 
- 
+
 #include "Common/Log.hpp"
 
 #include "AdvectionDiffusion/Physics.hpp"
-#include "AdvectionDiffusion/State.hpp"
+#include "AdvectionDiffusion/State1D.hpp"
 
 using namespace CF;
 using namespace CF::AdvectionDiffusion;
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_SUITE( AdvectionDiffusion_Suite )
 
 BOOST_AUTO_TEST_CASE( advdiff1d )
 {
-  AdvectionDiffusion::State ad_state;
+  AdvectionDiffusion::State1D ad_state;
   Solver::Physics p = ad_state.create_physics();
 
   RealVector state(1); state << 5. ;

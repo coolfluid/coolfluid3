@@ -2,8 +2,10 @@ list( APPEND coolfluid_advectiondiffusion_files
   Physics.hpp
   LibAdvectionDiffusion.cpp
   LibAdvectionDiffusion.hpp
-  State.cpp
-  State.hpp
+  State1D.cpp
+  State1D.hpp
+  State2D.cpp
+  State2D.hpp
 )
 
 list( APPEND coolfluid_advectiondiffusion_cflibs coolfluid_solver )

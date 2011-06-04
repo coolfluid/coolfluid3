@@ -230,8 +230,6 @@ void ComputeRhsInCell::execute()
 
   Solver::State& sol_state = *m_sol_state.lock();
   Solver::Physics sol_vars = sol_state.create_physics();
-  /// <li> @todo give normal a correct value
-  RealVector normal(1); normal << 1.;
 
   const Uint dimensionality = elements().element_type().dimensionality();
   const SFDM::ShapeFunction& solution_sf = elements().space("solution").shape_function().as_type<SFDM::ShapeFunction>();
@@ -270,21 +268,31 @@ void ComputeRhsInCell::execute()
 
   RealVector flux(nb_vars);
 
+  // Create normals for every orientation
+  std::vector<RealVector> normal(dimensionality);
+  for (Uint orientation = KSI; orientation<dimensionality; ++orientation)
+  {
+    normal[orientation] = RealVector::Zero(dimensionality);
+    normal[orientation][orientation] = 1.;
+  }
+
+
   /// <li> Compute flux gradients in the solution points, and add to the RHS
   // For every orientation
   for (Uint orientation = KSI; orientation<dimensionality; ++orientation)
   { /// <ul>
     /// <li> For every 1D line of every orientation
+    CFdebug << "orientation = " << orientation << CFendl;
     for (Uint line=0; line<solution_sf.nb_lines_per_orientation(); ++line)
     { /// <ul>
-
+      CFdebug << "  line = " << line << CFendl;
       /// <li> Compute analytical flux in the flux points of the line, excluding begin and end point
       ///      @f[ \mathbf{\tilde{F}}_{f,line} = \mathrm{flux}(\mathbf{\tilde{Q}}_{f, line}) @f] (see Solver::State::compute_flux())
 
       for (Uint flux_pt=1; flux_pt<flux_in_line.rows()-1; ++flux_pt)
       {
         sol_state.set_state(solution.row(flux_sf.points()[orientation][line][flux_pt]),sol_vars);
-        sol_state.compute_flux(sol_vars,normal,flux);
+        sol_state.compute_flux(sol_vars,normal[orientation],flux);
         flux_in_line.row(flux_pt) = flux;
       }
 
@@ -293,29 +301,25 @@ void ComputeRhsInCell::execute()
       ///      @f[ \tilde{F}_{\mathrm{facepoint}} = \mathrm{Riemann}(\tilde{Q}_{\mathrm{facepoint},\mathrm{left}},\tilde{Q}_{\mathrm{facepoint},\mathrm{right}}) @f]
       for (Uint side=0; side<2; ++side) // a line connects 2 faces
       {
-        /// @todo 2D and 3D support
-        /// It is now assumed that side == face number (only valid in 1D)
-        cf_assert_desc("only valid in 1D",dimensionality==1);
-
         // Find face
-        boost::tie(faces,face_idx) = c2f.lookup().location( c2f[idx()][side] );
+        boost::tie(faces,face_idx) = c2f.lookup().location( c2f[idx()][flux_sf.face_number()[orientation][side]] );
 
         // Find neighbor cell
         CFaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
         if (f2c.is_bdry_face()[face_idx])
         {
-          CFdebug << "must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
+          CFdebug << "    must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
           /// @todo implement real boundary condition.
           if (side == 0)
           {
             sol_state.set_state(solution.row(flux_sf.points()[orientation][line][0]),sol_vars);
-            sol_state.compute_flux(sol_vars,-normal,flux);
+            sol_state.compute_flux(sol_vars,normal[orientation],flux);
             flux_in_line.topRows<1>() = flux;
           }
           else
           {
             sol_state.set_state(solution.row(flux_sf.points()[orientation][line][flux_in_line.rows()-1]),sol_vars);
-            sol_state.compute_flux(sol_vars,normal,flux);
+            sol_state.compute_flux(sol_vars,normal[orientation],flux);
             flux_in_line.bottomRows<1>() = flux;
           }
         }
@@ -325,7 +329,7 @@ void ComputeRhsInCell::execute()
           Uint unified_neighbor_cell_idx = connected_cells[LEFT] != this_cell_idx ? connected_cells[LEFT] : connected_cells[RIGHT];
           boost::tie(neighbor_cells,neighbor_cell_idx) = f2c.lookup().location( unified_neighbor_cell_idx );
 
-          CFdebug << "must solve Riemann problem on face " << faces->parent().name() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
+          CFdebug << "    must solve Riemann problem on face " << faces->parent().name() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
 
           /// @todo Multi-region support.
           /// It is now assumed for reconstruction that neighbor_cells == elements(), so that the same field_view "m_solution" can be used.
@@ -335,29 +339,28 @@ void ComputeRhsInCell::execute()
           RealRowVector left  = solution         .row ( flux_sf.face_points()[orientation][line][side] );
           RealRowVector right = neighbor_solution.row ( flux_sf.face_points()[orientation][line][!side] ); // the other side
 
-          RealVector normal(1); normal << 1.;
           Real left_wave_speed;
           Real right_wave_speed;
           RealVector H(1);
           if (side == 0)
           {
-            riemann_solver().solve(left,right, -normal,   H,left_wave_speed,right_wave_speed);
+            riemann_solver().solve(left,right, -normal[orientation],   H,left_wave_speed,right_wave_speed);
             flux_in_line.topRows<1>() = -H;
           }
           else
           {
-            riemann_solver().solve(left,right,  normal,   H,left_wave_speed,right_wave_speed);
+            riemann_solver().solve(left,right,  normal[orientation],   H,left_wave_speed,right_wave_speed);
             flux_in_line.bottomRows<1>() = H;
           }
-          CFdebug << "   solve Riemann("<<left<<","<<right<<") = " << H << CFendl;
+          CFdebug << "      solve Riemann("<<left<<","<<right<<") with normal ["<< (side==0?-1.:1.)*normal[orientation].transpose()<<"] = " << H << CFendl;
 
 
 
           /// <li> Add wave speed contributions calculated at every face to the cell
           /// @todo jacobian multiplication to wavespeed contribution, and face area ???
-          const Real area = 1.;
+          const Real area = (dimensionality == 1 ? 1. : 2.);
           const Real wave_speed_contribution = - std::min(left_wave_speed ,0.) * area;
-          CFdebug << "wave_speed_contribution["<<side<<"] = " << wave_speed_contribution << CFendl;
+          CFdebug << "    wave_speed_contribution["<<side<<"] = " << wave_speed_contribution << CFendl;
 
           wave_speed += wave_speed_contribution;
           // Kris:
@@ -367,7 +370,7 @@ void ComputeRhsInCell::execute()
         }
       }
 
-      CFdebug << "flux_in_line = " << flux_in_line.transpose() << CFendl;
+      CFdebug << "    flux_in_line = " << flux_in_line.transpose() << CFendl;
 
       /// <li> Compute gradient of flux in solution points in this line
       ///
@@ -375,15 +378,15 @@ void ComputeRhsInCell::execute()
       /// with @f$ N_f @f$ the number of flux points in the flux 1D shape function.
       ///
       /// This is implemented using SFDM::Reconstruct::gradient()
-      flux_grad_in_line = reconstruct_flux_in_solution_points_in_line.gradient( flux_in_line , static_cast<CoordRef>(orientation) );
-      CFdebug << "flux_grad_in_line = " << flux_grad_in_line.transpose() << CFendl;
+      flux_grad_in_line = reconstruct_flux_in_solution_points_in_line.gradient( flux_in_line , KSI ); // KSI because line has only 1 orientation
+      CFdebug << "    flux_grad_in_line = " << flux_grad_in_line.transpose() << CFendl;
 
       /// <li> Add the flux gradient to the RHS
       ///      @f[ \frac{\partial Q_s}{\partial t} = - \frac{1}{|J_s|} \ \nabla \cdot {\tilde{F}_s} @f]
       for (Uint point=0; point<solution_sf.nb_nodes_per_line(); ++point)
       {
         const Uint solution_idx = solution_sf.points()[orientation][line][point];
-        CFdebug << "jacobian_determinant = " << jacobian_determinant[solution_idx] << CFendl;
+        CFdebug << "    jacobian_determinant["<<point<<"] = " << jacobian_determinant[solution_idx] << CFendl;
         for (Uint var=0; var<nb_vars; ++var)
           residual_data[solution_idx][var] -= flux_grad_in_line(point,var) / jacobian_determinant[solution_idx];
       }

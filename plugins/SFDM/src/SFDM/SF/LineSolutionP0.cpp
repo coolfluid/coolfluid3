@@ -28,6 +28,10 @@ LineSolutionP0::LineSolutionP0(const std::string& name) : ShapeFunction(name)
 
   m_points.resize(boost::extents[nb_orientations][nb_lines_per_orientation][nb_nodes_per_line]);
   m_points[KSI][0][0] = 0;
+
+  m_face_number.resize(boost::extents[nb_orientations][2]);
+  m_face_number[KSI][LEFT ]=0;
+  m_face_number[KSI][RIGHT]=1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

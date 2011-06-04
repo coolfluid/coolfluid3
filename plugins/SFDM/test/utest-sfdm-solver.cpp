@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
- 
+
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( Solver )
   //////////////////////////////////////////////////////////////////////////////
   // configure physics
 
-  physics.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State"));
+  physics.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State1D"));
 
 
   //////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( Solver )
   solver.configure_property("physical_model",physics.uri());
   solver.configure_property("domain",domain.uri());
   solver.configure_option_recursively("riemann_solver",std::string("CF.RiemannSolvers.Roe"));
-  solver.configure_option_recursively("roe_state",std::string("CF.AdvectionDiffusion.State"));
+  solver.configure_option_recursively("roe_state",std::string("CF.AdvectionDiffusion.State1D"));
   solver.configure_option_recursively("solution_state",physics.solution_state().uri());
 
 

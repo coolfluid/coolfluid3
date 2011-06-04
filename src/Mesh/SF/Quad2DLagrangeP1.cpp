@@ -105,7 +105,7 @@ void Quad2DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrix
 {
   const Real x = coord[XX];
   const Real y = coord[YY];
-  
+
   const Real x0 = nodes(0, XX);
   const Real y0 = nodes(0, YY);
   const Real x1 = nodes(1, XX);
@@ -114,7 +114,7 @@ void Quad2DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrix
   const Real y2 = nodes(2, YY);
   const Real x3 = nodes(3, XX);
   const Real y3 = nodes(3, YY);
-  
+
   JacobianCoefficients jc(nodes);
   if(jc.bx*jc.dy != jc.by*jc.dx) // non-zero quadratic term
   {
@@ -136,7 +136,7 @@ void Quad2DLagrangeP1::shape_function_gradient(const MappedCoordsT& mappedCoord,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Quad2DLagrangeP1::jacobian_determinant(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes)
+Real Quad2DLagrangeP1::jacobian_determinant(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes)
 {
   const Real x0 = nodes(0, XX);
   const Real y0 = nodes(0, YY);
@@ -146,13 +146,33 @@ Real Quad2DLagrangeP1::jacobian_determinant(const MappedCoordsT& mappedCoord, co
   const Real y2 = nodes(2, YY);
   const Real x3 = nodes(3, XX);
   const Real y3 = nodes(3, YY);
-  
-  const Real xi  = mappedCoord[0];
-  const Real eta = mappedCoord[1];
+
+  const Real xi  = mapped_coord[0];
+  const Real eta = mapped_coord[1];
   return  ((x2 - x0)*(y3 - y1) + (x1 - x3)*(y2 - y0)
          -((x3 - x0)*(y2 - y1) + (x2 - x1)*(y0 - y3)) * eta
          -((x1 - x0)*(y3 - y2) + (x3 - x2)*(y0 - y1)) * xi)*0.125;
-         
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real Quad2DLagrangeP1::jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const
+{
+  const Real x0 = nodes(0, XX);
+  const Real y0 = nodes(0, YY);
+  const Real x1 = nodes(1, XX);
+  const Real y1 = nodes(1, YY);
+  const Real x2 = nodes(2, XX);
+  const Real y2 = nodes(2, YY);
+  const Real x3 = nodes(3, XX);
+  const Real y3 = nodes(3, YY);
+
+  const Real xi  = mapped_coord[0];
+  const Real eta = mapped_coord[1];
+  return  ((x2 - x0)*(y3 - y1) + (x1 - x3)*(y2 - y0)
+         -((x3 - x0)*(y2 - y1) + (x2 - x1)*(y0 - y3)) * eta
+         -((x1 - x0)*(y3 - y2) + (x3 - x2)*(y0 - y1)) * xi)*0.125;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

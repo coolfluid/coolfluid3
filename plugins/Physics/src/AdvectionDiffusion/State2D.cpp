@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
-#include "AdvectionDiffusion/State.hpp"
+#include "AdvectionDiffusion/State2D.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < AdvectionDiffusion::State, Solver::State, LibAdvectionDiffusion > SolutionState_Builder;
+Common::ComponentBuilder < AdvectionDiffusion::State2D, Solver::State, LibAdvectionDiffusion > SolutionState2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

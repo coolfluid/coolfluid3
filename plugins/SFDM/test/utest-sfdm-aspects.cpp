@@ -12,6 +12,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
+#include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
 #include "Mesh/CMesh.hpp"
@@ -21,16 +22,22 @@
 #include "Mesh/CEntities.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/CDomain.hpp"
 #include "Mesh/Actions/CInitFieldFunction.hpp"
 #include "Mesh/Actions/CreateSpaceP0.hpp"
+#include "Solver/CModel.hpp"
+#include "Solver/FlowSolver.hpp"
+#include "Solver/CTime.hpp"
 #include "SFDM/CreateSpace.hpp"
 #include "SFDM/ShapeFunction.hpp"
 #include "SFDM/Reconstruct.hpp"
+#include "SFDM/SFDWizard.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
 using namespace CF::SFDM;
+using namespace CF::Solver;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -242,6 +249,234 @@ BOOST_AUTO_TEST_CASE( test_fields_quads )
 
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_mesh_transform )
+{
+  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  /// Create a mesh consisting of a line with length 1. and 20 divisions
+  CMesh& mesh = Common::Core::instance().root().get_child("rectangle").as_type<CMesh>();
+
+  CMeshTransformer& build_faces = Common::Core::instance().root().create_component("build_faces","CF.Mesh.Actions.CBuildFaces").as_type<CMeshTransformer>();
+  build_faces.configure_property("store_cell2face",true);
+  build_faces.transform(mesh);
+
+  /// write gmsh file. note that gmsh gets really confused because of the multistate view
+  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+//  gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
+  gmsh_writer->write_from_to(mesh,URI("rectangle.msh"));
+
+  CFinfo << "Mesh \"rectangle.msh\" written" << CFendl;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
+{
+  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  /// Create a mesh consisting of a line with length 1. and 20 divisions
+
+
+  SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
+  wizard.configure_property("model",std::string("test"));
+  wizard.configure_property("dim",2u);
+  wizard.create_simulation();
+
+  CModel& model = wizard.model();
+  CMesh& mesh = model.domain().create_component<CMesh>("2quads");
+  CSimpleMeshGenerator::create_rectangle(mesh, 4., 2. , 2, 1);
+
+  Component& iterate = model.solver().access_component("iterate");
+  iterate.configure_property("max_iter",1u);
+
+  wizard.prepare_simulation();
+
+
+  std::string step="if(x<2,1.5,0.5)";
+
+  CFinfo << "\nInitializing solution with [" << step << "]" << CFendl;
+  wizard.initialize_solution(std::vector<std::string>(1,step));
+
+  CMeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  std::vector<URI> fields;
+  fields.push_back(mesh.get_child("solution").uri());
+  fields.push_back(mesh.get_child("residual").uri());
+  fields.push_back(mesh.get_child("wave_speed").uri());
+  fields.push_back(mesh.get_child("update_coeff").uri());
+  fields.push_back(mesh.get_child("volume").uri());
+  fields.push_back(mesh.get_child("jacobian_determinant").uri());
+  gmsh_writer.configure_property("fields",fields);
+
+
+  gmsh_writer.write_from_to(mesh,URI("2quads_0.msh"));
+  CFinfo << "Mesh \"2quads_0.msh\" written" << CFendl;
+
+  wizard.start_simulation(5.);
+
+  gmsh_writer.write_from_to(mesh,URI("2quads_1.msh"));
+
+  CFinfo << "Mesh \"2quads_1.msh\" written" << CFendl;
+
+  BOOST_CHECK_EQUAL (mesh.get_child("residual").as_type<CField>().data()[0][0] , 0.);
+  BOOST_CHECK_EQUAL (mesh.get_child("residual").as_type<CField>().data()[1][0] , 0.5);
+  BOOST_CHECK_EQUAL (mesh.get_child("solution").as_type<CField>().data()[0][0] , 1.5);
+  BOOST_CHECK_EQUAL (mesh.get_child("solution").as_type<CField>().data()[1][0] , 1.5);
+  BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[0][0] , 0. );
+  BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[1][0] , 2. );
+  BOOST_CHECK_EQUAL (mesh.get_child("volume").as_type<CField>().data()[0][0] , 4. );
+  BOOST_CHECK_EQUAL (mesh.get_child("volume").as_type<CField>().data()[1][0] , 4. );
+  BOOST_CHECK_EQUAL (mesh.get_child("jacobian_determinant").as_type<CField>().data()[0][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("jacobian_determinant").as_type<CField>().data()[1][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("update_coeff").as_type<CField>().data()[0][0] , 2. );
+  BOOST_CHECK_EQUAL (mesh.get_child("update_coeff").as_type<CField>().data()[1][0] , 2. );
+  BOOST_CHECK_EQUAL (model.time().dt() , 2.);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/*
+BOOST_AUTO_TEST_CASE( test_computerhsincell_ydir )
+{
+  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  /// Create a mesh consisting of a line with length 1. and 20 divisions
+
+
+  SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
+  wizard.configure_property("model",std::string("test"));
+  wizard.configure_property("dim",2u);
+  wizard.create_simulation();
+
+  CModel& model = wizard.model();
+  CMesh& mesh = model.domain().create_component<CMesh>("2quads");
+  CSimpleMeshGenerator::create_rectangle(mesh, 2., 4. , 1, 2);
+
+  Component& iterate = model.solver().access_component("iterate");
+  iterate.configure_property("max_iter",1u);
+
+  wizard.prepare_simulation();
+
+
+  std::string step="if(y<2,1.5,0.5)";
+
+  CFinfo << "\nInitializing solution with [" << step << "]" << CFendl;
+  wizard.initialize_solution(std::vector<std::string>(1,step));
+
+  CMeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  std::vector<URI> fields;
+  fields.push_back(mesh.get_child("solution").uri());
+  fields.push_back(mesh.get_child("residual").uri());
+  fields.push_back(mesh.get_child("wave_speed").uri());
+  fields.push_back(mesh.get_child("update_coeff").uri());
+  fields.push_back(mesh.get_child("volume").uri());
+  fields.push_back(mesh.get_child("jacobian_determinant").uri());
+  gmsh_writer.configure_property("fields",fields);
+
+
+  gmsh_writer.write_from_to(mesh,URI("2quads_y_0.msh"));
+  CFinfo << "Mesh \"2quads_y_0.msh\" written" << CFendl;
+
+  wizard.start_simulation(5.);
+
+  gmsh_writer.write_from_to(mesh,URI("2quads_y_1.msh"));
+
+  CFinfo << "Mesh \"2quads_y_1.msh\" written" << CFendl;
+
+  BOOST_CHECK_EQUAL (mesh.get_child("residual").as_type<CField>().data()[0][0] , 0.);
+  BOOST_CHECK_EQUAL (mesh.get_child("residual").as_type<CField>().data()[1][0] , 0.5);
+  BOOST_CHECK_EQUAL (mesh.get_child("solution").as_type<CField>().data()[0][0] , 1.5);
+  BOOST_CHECK_EQUAL (mesh.get_child("solution").as_type<CField>().data()[1][0] , 1.5);
+  BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[0][0] , 0. );
+  BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[1][0] , 2. );
+  BOOST_CHECK_EQUAL (mesh.get_child("volume").as_type<CField>().data()[0][0] , 4. );
+  BOOST_CHECK_EQUAL (mesh.get_child("volume").as_type<CField>().data()[1][0] , 4. );
+  BOOST_CHECK_EQUAL (mesh.get_child("jacobian_determinant").as_type<CField>().data()[0][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("jacobian_determinant").as_type<CField>().data()[1][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("update_coeff").as_type<CField>().data()[0][0] , 2. );
+  BOOST_CHECK_EQUAL (mesh.get_child("update_coeff").as_type<CField>().data()[1][0] , 2. );
+  BOOST_CHECK_EQUAL (model.time().dt() , 2.);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
+{
+  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  /// Create a mesh consisting of a line with length 1. and 20 divisions
+
+
+  SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
+  wizard.configure_property("model",std::string("test"));
+  wizard.configure_property("dim",2u);
+  wizard.create_simulation();
+
+  CModel& model = wizard.model();
+  CMesh& mesh = model.domain().create_component<CMesh>("2quads");
+  CSimpleMeshGenerator::create_rectangle(mesh, 4., 4. , 2, 2);
+
+  Component& iterate = model.solver().access_component("iterate");
+  iterate.configure_property("max_iter",1u);
+
+  wizard.prepare_simulation();
+
+
+  std::string step="if( x<2 & y<2 ,1.5,0.5)";
+
+  CFinfo << "\nInitializing solution with [" << step << "]" << CFendl;
+  wizard.initialize_solution(std::vector<std::string>(1,step));
+
+  CMeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  std::vector<URI> fields;
+  fields.push_back(mesh.get_child("solution").uri());
+  fields.push_back(mesh.get_child("residual").uri());
+  fields.push_back(mesh.get_child("wave_speed").uri());
+  fields.push_back(mesh.get_child("update_coeff").uri());
+  fields.push_back(mesh.get_child("volume").uri());
+  fields.push_back(mesh.get_child("jacobian_determinant").uri());
+  gmsh_writer.configure_property("fields",fields);
+
+
+  gmsh_writer.write_from_to(mesh,URI("4quads_xy_0.msh"));
+  CFinfo << "Mesh \"4quads_xy_0.msh\" written" << CFendl;
+
+  wizard.start_simulation(5.);
+
+  gmsh_writer.write_from_to(mesh,URI("4quads_xy_1.msh"));
+
+  CFinfo << "Mesh \"4quads__xy_1.msh\" written" << CFendl;
+
+  BOOST_CHECK_EQUAL (mesh.get_child("residual").as_type<CField>().data()[0][0] , 0.);
+  BOOST_CHECK_EQUAL (mesh.get_child("residual").as_type<CField>().data()[1][0] , 0.5);
+  BOOST_CHECK_EQUAL (mesh.get_child("residual").as_type<CField>().data()[2][0] , 0.5);
+  BOOST_CHECK_EQUAL (mesh.get_child("residual").as_type<CField>().data()[3][0] , 0.);
+  BOOST_CHECK_EQUAL (mesh.get_child("solution").as_type<CField>().data()[0][0] , 1.5);
+  BOOST_CHECK_EQUAL (mesh.get_child("solution").as_type<CField>().data()[1][0] , 1.0);
+  BOOST_CHECK_EQUAL (mesh.get_child("solution").as_type<CField>().data()[2][0] , 1.0);
+  BOOST_CHECK_EQUAL (mesh.get_child("solution").as_type<CField>().data()[3][0] , 0.5);
+  BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[0][0] , 0. );
+  BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[1][0] , 2. );
+  BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[2][0] , 2. );
+  BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[3][0] , 4. );
+  BOOST_CHECK_EQUAL (mesh.get_child("volume").as_type<CField>().data()[0][0] , 4. );
+  BOOST_CHECK_EQUAL (mesh.get_child("volume").as_type<CField>().data()[1][0] , 4. );
+  BOOST_CHECK_EQUAL (mesh.get_child("volume").as_type<CField>().data()[2][0] , 4. );
+  BOOST_CHECK_EQUAL (mesh.get_child("volume").as_type<CField>().data()[3][0] , 4. );
+  BOOST_CHECK_EQUAL (mesh.get_child("jacobian_determinant").as_type<CField>().data()[0][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("jacobian_determinant").as_type<CField>().data()[1][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("jacobian_determinant").as_type<CField>().data()[2][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("jacobian_determinant").as_type<CField>().data()[3][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("update_coeff").as_type<CField>().data()[0][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("update_coeff").as_type<CField>().data()[1][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("update_coeff").as_type<CField>().data()[2][0] , 1. );
+  BOOST_CHECK_EQUAL (mesh.get_child("update_coeff").as_type<CField>().data()[3][0] , 1. );
+  BOOST_CHECK_EQUAL (model.time().dt() , 2.);
+
+  wizard.start_simulation(5.);
+
+  gmsh_writer.write_from_to(mesh,URI("4quads_xy_2.msh"));
+
+}
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

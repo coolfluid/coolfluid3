@@ -51,7 +51,7 @@ CIterate::CIterate( const std::string& name  ) :
   properties().add_option( OptionT<bool>::create("export","Export","Export the variable ${iter} to Core::environment()",m_export))
     ->link_to(&m_export);
 
-  properties().add_option< OptionT<Uint> >("MaxIterations","Maximal number of iterations",m_max_iter)
+  properties().add_option< OptionT<Uint> >("max_iter","Max Iterations","Maximal number of iterations",m_max_iter)
     ->link_to(&m_max_iter);
 }
 
