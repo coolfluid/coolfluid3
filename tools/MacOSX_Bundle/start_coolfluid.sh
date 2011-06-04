@@ -25,7 +25,6 @@ else
     START_SERVER="Yes" #`osascript -e 'tell app "Finder" to return button returned of (display dialog "Start server?" buttons {"No","Yes"} default button 2)'`
     if [ "$START_SERVER" == "Yes" ]; then
         echo "Starting server"
-        echo  "export COOLFLUID_PLUGINS=$CF3_RESOURCES/CF_VERSION/lib/libcoolfluid_fvm.dylib:$CF3_RESOURCES/coolfluid-CF_VERSION/lib/libcoolfluid_rdm.dylib" > ~/.start_coolfluid-server.command
         echo  "export LD_LIBRARY_PATH=$CF3_RESOURCES/coolfluid-CF_VERSION/lib" >> ~/.start_coolfluid-server.command
         echo  "export DYLD_LIBRARY_PATH=$CF3_RESOURCES/coolfluid-CF_VERSION/lib" >> ~/.start_coolfluid-server.command
         echo  "export PATH=$CF3_RESOURCES/coolfluid-CF_VERSION/bin:$PATH" >> ~/.start_coolfluid-server.command
