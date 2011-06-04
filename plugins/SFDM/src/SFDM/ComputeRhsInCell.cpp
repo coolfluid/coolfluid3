@@ -196,24 +196,37 @@ void ComputeRhsInCell::execute()
   /// For the fluxes a shape function of 1 order higher than the solution shape function is used in the flux direction, so that @f$\frac{\partial F}{\partial \xi}@f$
   /// will be of the same order as the solution @f$ Q @f$
   /// @f[\tilde{F}(\xi,\eta) = \sum_{i=1}^{N_f} \sum_{j=1}^{N_s} \tilde{F}_{ij} \ l_i(\xi) \ h_j(\eta) @f]
-  /// @f[\tilde{G}(\xi,\eta) = \sum_{i=1}^{N_s} \sum_{j=1}^{N_f} \tilde{F}_{ij} \ h_i(\xi) \ l_j(\eta) @f]
+  /// @f[\tilde{G}(\xi,\eta) = \sum_{i=1}^{N_s} \sum_{j=1}^{N_f} \tilde{G}_{ij} \ h_i(\xi) \ l_j(\eta) @f]
   /// with @f$ l_r @f$ the 1D shape function for the flux defined as
   /// @f[ l_r(X) = \prod_{f=0,f \neq r}^{N_f} \frac{X-X_f}{X_r-X_f} @f]
   /// The derivatives of the fluxes are then:
   /// @f[\frac{\partial \tilde{F}}{\partial \xi}(\xi,\eta) = \sum_{i=1}^{N_f} \sum_{j=1}^{N_s} \tilde{F}_{ij} \ l'_i(\xi) \ h_j(\eta) @f]
   /// @f[\frac{\partial \tilde{G}}{\partial \eta}(\xi,\eta) = \sum_{i=1}^{N_s} \sum_{j=1}^{N_f} \tilde{F}_{ij} \ h_i(\xi) \ l'_j(\eta) @f]
-  /// Evaluating in a @a solution @a point I,J simplifies these equations, as @f$ h_j(\eta_J) = \delta_{jJ} @f$
-  /// @f[\left.\frac{\partial \tilde{F}}{\partial \xi}\right|_{IJ}  = \sum_{i=1}^{N_f} \tilde{F}_{iJ} \ l'_i(\xi_I) @f]
-  /// @f[\left.\frac{\partial \tilde{G}}{\partial \eta}\right|_{IJ} = \sum_{j=1}^{N_f} \tilde{G}_{Ij} \ l'_j(\eta_J) @f]
-  /// This means that the flux gradients can be reconstructed in the solution points, using only the flux values along a 1D line.
+  ///
+  /// @subsection _theory_simplification Simplifications
+  /// In the case we are interested only in reconstruction in a line inside the element, and the line for the flux and the line for the solution coincide, these shape functions can be simplified.@n
+  /// Evaluating the solution in a @a flux @a point I on line J becomes (as @f$ h_j(\eta_J) = \delta_{jJ} @f$)
+  /// @f[\tilde{Q}_J(\xi_I)  = \sum_{i=1}^{N_s} \tilde{Q}_{iJ} \ h_i(\xi_I) @f]
+  /// Evaluating the solution in a @a flux @a point J on line I becomes (as @f$ h_i(\xi_I) = \delta_{iI} @f$)
+  /// @f[\tilde{Q}_I(\eta_J) = \sum_{j=1}^{N_s} \tilde{Q}_{Ij} \ h_j(\eta_J) @f]
+  /// Evaluating the flux in a @a solution @a point I on line J becomes (as @f$ h_j(\eta_J) = \delta_{jJ} @f$)
+  /// @f[\tilde{F}_J(\xi_I) = \sum_{i=1}^{N_f} \tilde{F}_{iJ} \ l_i(\xi_I) @f]
+  /// Evaluating the flux in a @a solution @a point J on line I becomes (as @f$ h_i(\xi_I) = \delta_{iI} @f$)
+  /// @f[\tilde{G}_I(\eta_J) = \sum_{j=1}^{N_f} \tilde{G}_{Ij} \ l_j(\eta_J) @f]
+  /// Evaluating the flux gradient in a @a solution @a point I on line J becomes (as @f$ h_j(\eta_J) = \delta_{jJ} @f$)
+  /// @f[\left.\frac{\partial \tilde{F}}{\partial \xi}\right|_{J}(\xi_I)  = \sum_{i=1}^{N_f} \tilde{F}_{iJ} \ l'_i(\xi_I) @f]
+  /// Evaluating the flux gradient in a @a solution @a point J on line I becomes (as @f$ h_i(\xi_I) = \delta_{iI} @f$)
+  /// @f[\left.\frac{\partial \tilde{G}}{\partial \eta}\right|_{I}(\eta_J) = \sum_{j=1}^{N_f} \tilde{G}_{Ij} \ l'_j(\eta_J) @f]
+  /// @n
+  /// This means that the flux values and gradients can be reconstructed in the solution points, using only the flux values along a 1D line.
 
   /// @section _algorithm Algorithm per cell
   /// Definition of RHS: @f$ \frac{\partial Q}{\partial t} = - \frac{1}{|J|} \ \nabla \cdot \tilde{F}@f$ @n
   /// <ul>
   // idx() is the index that is set using the function set_loop_idx() or configuration LoopIndex
 
-  Reconstruct& reconstruct_solution_in_flux_points = *m_reconstruct_solution;
-  Reconstruct& reconstruct_flux_in_solution_points = *m_reconstruct_flux;
+  Reconstruct& reconstruct_solution_in_all_flux_points = *m_reconstruct_solution;
+  Reconstruct& reconstruct_flux_in_solution_points_in_line = *m_reconstruct_flux;
 
   Solver::State& sol_state = *m_sol_state.lock();
   Solver::Physics sol_vars = sol_state.create_physics();
@@ -251,7 +264,7 @@ void ComputeRhsInCell::execute()
   ///      SFDM::Reconstruct::value() provides a precalculated matrix @f$R@f$ with element (f,s) corresponding to @f$L_{s}(\xi_f,\eta_f)@f$.
   ///      @f[ \mathbf{\tilde{Q}_f} = R \ \mathbf{\tilde{Q}_s} @f]
   ///      where subscript @f$ _f @f$ denotes the values in the flux points.
-  RealMatrix solution = reconstruct_solution_in_flux_points.value( jacobian_determinant.asDiagonal() * to_matrix(solution_data) ) ;
+  RealMatrix solution = reconstruct_solution_in_all_flux_points.value( jacobian_determinant.asDiagonal() * to_matrix(solution_data) ) ;
   CFdebug << "solution = " << to_matrix(solution_data).transpose() << CFendl;
   CFdebug << "mapped solution in flux points = " << solution.transpose() << CFendl;
 
@@ -292,7 +305,7 @@ void ComputeRhsInCell::execute()
         if (f2c.is_bdry_face()[face_idx])
         {
           CFdebug << "must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
-          /// @todo implement real boundary condition
+          /// @todo implement real boundary condition.
           if (side == 0)
           {
             sol_state.set_state(solution.row(flux_sf.points()[orientation][line][0]),sol_vars);
@@ -317,7 +330,7 @@ void ComputeRhsInCell::execute()
           /// @todo Multi-region support.
           /// It is now assumed for reconstruction that neighbor_cells == elements(), so that the same field_view "m_solution" can be used.
           cf_assert_desc("does not support multi_region yet",neighbor_cells == elements().self());
-          RealMatrix neighbor_solution = reconstruct_solution_in_flux_points.value( to_matrix( (*m_jacobian_determinant)[neighbor_cell_idx] ).asDiagonal() * to_matrix( (*m_solution)[neighbor_cell_idx] ) );
+          RealMatrix neighbor_solution = reconstruct_solution_in_all_flux_points.value( to_matrix( (*m_jacobian_determinant)[neighbor_cell_idx] ).asDiagonal() * to_matrix( (*m_solution)[neighbor_cell_idx] ) );
 
           RealRowVector left  = solution         .row ( flux_sf.face_points()[orientation][line][side] );
           RealRowVector right = neighbor_solution.row ( flux_sf.face_points()[orientation][line][!side] ); // the other side
@@ -362,7 +375,7 @@ void ComputeRhsInCell::execute()
       /// with @f$ N_f @f$ the number of flux points in the flux 1D shape function.
       ///
       /// This is implemented using SFDM::Reconstruct::gradient()
-      flux_grad_in_line = reconstruct_flux_in_solution_points.gradient( flux_in_line , static_cast<CoordRef>(orientation) );
+      flux_grad_in_line = reconstruct_flux_in_solution_points_in_line.gradient( flux_in_line , static_cast<CoordRef>(orientation) );
       CFdebug << "flux_grad_in_line = " << flux_grad_in_line.transpose() << CFendl;
 
       /// <li> Add the flux gradient to the RHS

@@ -31,23 +31,14 @@ QuadFluxP1::QuadFluxP1(const std::string& name) : ShapeFunction(name)
   m_points.resize(boost::extents[nb_orientations][nb_lines_per_orientation][nb_nodes_per_line]);
   m_points[KSI][0][0] = 0;
   m_points[KSI][0][1] = 1;
-  m_points[KSI][1][0] = 3;
-  m_points[KSI][1][1] = 2;
-  m_points[ETA][0][0] = 0;
+  m_points[ETA][0][0] = 2;
   m_points[ETA][0][1] = 3;
-  m_points[ETA][1][0] = 1;
-  m_points[ETA][1][1] = 2;
 
   m_face_points.resize(boost::extents[nb_orientations][nb_lines_per_orientation][2]);
   m_face_points[KSI][0][LEFT]  = 0;
   m_face_points[KSI][0][RIGHT] = 1;
-  m_face_points[KSI][1][LEFT]  = 3;
-  m_face_points[KSI][1][RIGHT] = 2;
-  m_face_points[ETA][0][LEFT]  = 0;
+  m_face_points[ETA][0][LEFT]  = 2;
   m_face_points[ETA][0][RIGHT] = 3;
-  m_face_points[ETA][1][LEFT]  = 1;
-  m_face_points[ETA][1][RIGHT] = 2;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,23 +60,23 @@ const LineFluxP1& QuadFluxP1::line_type()
 
 void QuadFluxP1::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
-  throw Common::NotImplemented(FromHere(),"");
+  throw Common::NotImplemented(FromHere(),"This should never be called, as fluxes are only being computed using LineFluxP1 instead.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void QuadFluxP1::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
-  throw Common::NotImplemented(FromHere(),"");
+  throw Common::NotImplemented(FromHere(),"This should never be called, as fluxes are only being computed using LineFluxP1 instead.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 RealMatrix QuadFluxP1::s_mapped_sf_nodes =  ( RealMatrix(4,2) <<
-  -1., -1.,
-   1., -1.,
-   1.,  1.,
-  -1.,  1.
+  -1.,  0.,
+   1.,  0.,
+   0., -1.,
+   0.,  1.
 ).finished();
 
 ////////////////////////////////////////////////////////////////////////////////

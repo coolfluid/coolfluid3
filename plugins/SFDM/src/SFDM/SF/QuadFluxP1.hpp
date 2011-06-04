@@ -24,7 +24,7 @@ public:
   static const Mesh::GeoShape::Type shape = Mesh::GeoShape::QUAD;
 
   static const Uint nb_orientations = 2;
-  static const Uint nb_lines_per_orientation = 2;
+  static const Uint nb_lines_per_orientation = 1;
   static const Uint nb_nodes_per_line = 2;
 
 public:

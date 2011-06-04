@@ -21,7 +21,7 @@
 
 namespace CF {
 namespace SFDM {
-  
+
   using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,9 +33,9 @@ Common::ComponentBuilder < Reconstruct, Component, LibSFDM> Reconstruct_Builder;
 Reconstruct::Reconstruct( const std::string& name )
 : Component(name)
 {
-   
-  properties()["brief"] = std::string("Create space for SFDM shape function");
-  properties()["description"] = std::string("The polynomial order \"P\" of the solution is configurable, default: P = 0");
+
+  properties()["brief"] = std::string("Reconstruction between 2 shape functions");
+  properties()["description"] = std::string("Perform reconstruction between 2 shapefunctions inside one element");
 
   std::vector<std::string> from_to(2);
   from_to[0] = "e.g. CF.SFDM.SF.LineSolutionP2";
@@ -46,7 +46,7 @@ Reconstruct::Reconstruct( const std::string& name )
       ->attach_trigger( boost::bind ( &Reconstruct::configure_from_to , this ) );
 
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
 
 void Reconstruct::configure_from_to()
