@@ -92,6 +92,8 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_property("model",std::string("gaussian_2D"));
   wizard.configure_property("dim",2u);
+  wizard.configure_property("P",0u);
+  wizard.configure_property("cfl",1.);
   wizard.create_simulation();
 
   CModel& model = wizard.model();
