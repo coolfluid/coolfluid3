@@ -16,6 +16,12 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+/// @brief Action component that executes all contained actions.
+///
+/// Contained actions must be of a derived type CAction, or of the type CLink, which
+/// points to a derived CAction type.
+///
+/// @author Willem Deconinck
 class Common_API CGroupActions : public CAction {
 
 public: // typedefs
@@ -35,7 +41,7 @@ public: // functions
 
   /// execute the action
   virtual void execute ();
-  
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

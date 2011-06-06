@@ -35,7 +35,6 @@ CIterate::CIterate( const std::string& name  ) :
   CAction ( name ),
   m_iter(0),
   m_verbose(false),
-  m_export(true),
   m_max_iter(Uint_max())
 {
   mark_basic();
@@ -47,9 +46,6 @@ CIterate::CIterate( const std::string& name  ) :
 
   properties().add_option( OptionT<bool>::create("verbose","Verbose","Print iteration number",m_verbose))
     ->link_to(&m_verbose);
-
-  properties().add_option( OptionT<bool>::create("export","Export","Export the variable ${iter} to Core::environment()",m_export))
-    ->link_to(&m_export);
 
   properties().add_option< OptionT<Uint> >("max_iter","Max Iterations","Maximal number of iterations",m_max_iter)
     ->link_to(&m_max_iter);
@@ -83,12 +79,12 @@ void CIterate::execute ()
     if (m_verbose)
       CFinfo << uri().path() << "[" << m_iter << "]" << CFendl;
 
-    if (m_export)
-      Core::instance().environment().properties()["iter"] = m_iter;
-
-    // call all actions inside this component
-    boost_foreach(CAction& action, find_components<CAction>(*this))
-      action.execute();
+    // call all actions and action links inside this component
+    boost_foreach(Component& child, children())
+    {
+      if (CAction::Ptr action = child.follow()->as_ptr<CAction>())
+        action->execute();
+    }
 
     // update the iteration
     ++m_iter;

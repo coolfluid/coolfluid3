@@ -18,7 +18,7 @@ namespace Common {
 ComponentBuilder < CGroupActions, CAction, LibCommon > CGroupActions_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
+
 CGroupActions::CGroupActions ( const std::string& name ) :  CAction(name)
 {
 }
@@ -27,8 +27,12 @@ CGroupActions::CGroupActions ( const std::string& name ) :  CAction(name)
 
 void CGroupActions::execute()
 {
-  boost_foreach(CAction& action, find_components<CAction>(*this))
-    action.execute();
+  // call all actions and action links inside this component
+  boost_foreach(Component& child, children())
+  {
+    if (CAction::Ptr action = child.follow()->as_ptr<CAction>())
+      action->execute();
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

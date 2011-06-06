@@ -18,8 +18,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CIterate models a Unsteady PDE problem
-/// @author Tiago Quintino
+/// @brief Action component that iteratively executes all contained actions.
+///
+/// To stop iterating, the configuration "max_iter" can be specified for the amount
+/// of iterations, or a stop-criterion, derived from the type Solver::Actions::CCriterion
+///
+/// @author Willem Deconinck
 class Solver_Actions_API CIterate : public Common::CAction {
 
 public: // typedefs
@@ -42,18 +46,19 @@ public: // functions
   /// Simulates this model
   virtual void execute();
 
-  Uint iter() { return m_iter; }
+  /// access to iteration number
+  Uint iter() const { return m_iter; }
 
 protected: // data
 
-  /// maximum number of iterations this simulation will do
+  /// count of the iteration
   Uint m_iter;
 
+  /// maximum number of iterations
   Uint m_max_iter;
 
+  /// flag to output iteration info
   bool m_verbose;
-
-  bool m_export;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
