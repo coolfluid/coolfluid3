@@ -210,10 +210,10 @@ void OSystemLayer::regist_os_signal_handlers()
 
   // enable the exceptions that will raise the SIGFPE signal
   feenableexcept ( FE_DIVBYZERO );
-  feenableexcept ( FE_INVALID   );
   feenableexcept ( FE_OVERFLOW  );
   feenableexcept ( FE_UNDERFLOW );
-  //feenableexcept ( FE_INEXACT   );
+  // feenableexcept ( FE_INVALID   );
+  // feenableexcept ( FE_INEXACT   );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
