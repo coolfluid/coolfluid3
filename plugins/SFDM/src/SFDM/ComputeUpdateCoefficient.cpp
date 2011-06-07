@@ -38,6 +38,7 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
   CAction(name),
   m_time_accurate(false),
   m_CFL(1.),
+  m_freeze(false),
   m_tolerance(1e-12)
 {
   mark_basic();
@@ -66,6 +67,8 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
 
   properties().add_option(OptionT<Real>::create("milestone_dt","Milestone Time Step","Limits time-steps to fall on milestones",0.));
 
+  properties().add_option(OptionT<bool>::create("freeze_update_coeff","Freeze Update Coefficient","Disable (re)computation of update_coefficient. Some multistage methods might want to freeze this",m_freeze))
+      ->link_to(&m_freeze);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,68 +107,71 @@ void ComputeUpdateCoefficient::config_time()
 
 void ComputeUpdateCoefficient::execute()
 {
-  if (m_wave_speed.expired())    throw SetupError(FromHere(), "WaveSpeed field was not set");
-  if (m_update_coeff.expired()) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
-
-  CTable<Real>& wave_speed = m_wave_speed.lock()->data();
-  CTable<Real>& update_coeff = m_update_coeff.lock()->data();
-
-
-  if (m_time_accurate) // global time stepping
+  if (m_freeze == false)
   {
-    if (m_time.expired())   throw SetupError(FromHere(), "Time component was not set");
+    if (m_wave_speed.expired())    throw SetupError(FromHere(), "WaveSpeed field was not set");
+    if (m_update_coeff.expired()) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
     if (m_volume.expired()) throw SetupError(FromHere(), "Volume Field was not set");
 
-    CTime& time = *m_time.lock();
+    CTable<Real>& wave_speed = m_wave_speed.lock()->data();
+    CTable<Real>& update_coeff = m_update_coeff.lock()->data();
     CTable<Real>& volume = m_volume.lock()->data();
 
-    cf_assert_desc("Fields not compatible: "+to_str(volume.size())+"!="+to_str(wave_speed.size()),volume.size() == wave_speed.size());
-    cf_assert_desc("Fields not compatible: "+to_str(update_coeff.size())+"!="+to_str(wave_speed.size()),update_coeff.size() == wave_speed.size());
 
-    /// compute time step
-    //  -----------------
-    /// - take user-defined time step
-    Real dt = time.property("time_step").value<Real>();
-
-    /// - Make time step stricter through the CFL number
-    Real min_dt = dt;
-    Real max_dt = 0.;
-    for (Uint i=0; i<wave_speed.size(); ++i)
+    if (m_time_accurate) // global time stepping
     {
-      if (volume[i][0] > 0 && wave_speed[i][0] > 0)
+      if (m_time.expired())   throw SetupError(FromHere(), "Time component was not set");
+
+      CTime& time = *m_time.lock();
+
+      cf_assert_desc("Fields not compatible: "+to_str(volume.size())+"!="+to_str(wave_speed.size()),volume.size() == wave_speed.size());
+      cf_assert_desc("Fields not compatible: "+to_str(update_coeff.size())+"!="+to_str(wave_speed.size()),update_coeff.size() == wave_speed.size());
+
+      /// compute time step
+      //  -----------------
+      /// - take user-defined time step
+      Real dt = time.property("time_step").value<Real>();
+
+      /// - Make time step stricter through the CFL number
+      Real min_dt = dt;
+      Real max_dt = 0.;
+      for (Uint i=0; i<wave_speed.size(); ++i)
       {
-        dt = m_CFL*volume[i][0]/wave_speed[i][0];
+        if (volume[i][0] > 0 && wave_speed[i][0] > 0)
+        {
+          dt = m_CFL*volume[i][0]/wave_speed[i][0];
 
-        min_dt = std::min(min_dt,dt);
-        max_dt = std::max(max_dt,dt);
+          min_dt = std::min(min_dt,dt);
+          max_dt = std::max(max_dt,dt);
+        }
       }
-    }
-    dt = min_dt;
-    /// - Make sure we reach milestones and final simulation time
-    Real tf = limit_end_time(time.time(), time.property("end_time").value<Real>());
-    if( time.time() + dt + m_tolerance > tf )
-      dt = tf - time.time();
+      dt = min_dt;
+      /// - Make sure we reach milestones and final simulation time
+      Real tf = limit_end_time(time.time(), time.property("end_time").value<Real>());
+      if( time.time() + dt + m_tolerance > tf )
+        dt = tf - time.time();
 
-    /// Calculate the update_coefficient
-    //  --------------------------------
-    /// For Forward Euler: update_coefficient = @f$ \Delta t @f$.
-    /// @f[ Q^{n+1} = Q^n + \Delta t \ R @f]
-    for (Uint i=0; i<update_coeff.size(); ++i)
+      /// Calculate the update_coefficient
+      //  --------------------------------
+      /// For Forward Euler: update_coefficient = @f$ \Delta t @f$.
+      /// @f[ Q^{n+1} = Q^n + \Delta t \ R @f]
+      for (Uint i=0; i<update_coeff.size(); ++i)
+      {
+        update_coeff[i][0] = dt;
+      }
+
+      // Update the new time step
+      time.dt() = dt;
+
+    }
+    else // local time stepping
     {
-      update_coeff[i][0] = dt;
+      if (!m_time.expired())  m_time.lock()->dt() = 0.;
+
+      // Calculate the update_coefficient = CFL/wave_speed
+      for (Uint i=0; i<update_coeff.size(); ++i)
+        update_coeff[i][0] = m_CFL*volume[i][0]/wave_speed[i][0];
     }
-
-    // Update the new time step
-    time.dt() = dt;
-
-  }
-  else // local time stepping
-  {
-    if (!m_time.expired())  m_time.lock()->dt() = 0.;
-
-    // Calculate the update_coefficient = CFL/wave_speed
-    for (Uint i=0; i<update_coeff.size(); ++i)
-      update_coeff[i][0] = m_CFL/wave_speed[i][0];
   }
 }
 

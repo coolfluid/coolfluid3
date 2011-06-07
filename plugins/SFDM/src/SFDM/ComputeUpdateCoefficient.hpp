@@ -58,6 +58,7 @@ private: // data
   bool m_time_accurate;
   Real m_CFL;
 
+  bool m_freeze;
 
   Real m_tolerance;
 };

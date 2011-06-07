@@ -76,6 +76,7 @@ SFDWizard::SFDWizard( const std::string& name )
   properties().add_option( OptionT<Uint>::create("dim","Dimension","Dimension of the simulation",1u) )->mark_basic();
   properties().add_option( OptionT<std::string>::create("physics","Physics","Builder name for the physical model","CF.Physics.") )->mark_basic();
   properties().add_option( OptionT<Uint>::create("P","Polynomial Order","The order of the polynomial of the solution",0u) )->mark_basic();
+  properties().add_option( OptionT<Uint>::create("RK_stages","Runge Kutta stages","The number of Runge Kutta stages",2u) )->mark_basic();
   properties().add_option( OptionT<Real>::create(FlowSolver::Tags::cfl(),"CFL","The Courant-Friedrichs-Lax Number",1.) )->mark_basic();
   properties().add_option( OptionT<bool>::create(FlowSolver::Tags::time_accurate(),"Time Accurate","Time accurate or steady state",true) )->mark_basic();
   properties().add_option( OptionT<bool>::create("output_file","Output File","File to write","mesh_t${time}.msh") )->mark_basic();
@@ -299,27 +300,27 @@ void SFDWizard::build_solve()
   FlowSolver& solver = m_model_link->follow()->as_type<CModel>().solver().as_type<FlowSolver>();
 
   Component& iterate = solver.create_solve("iterate","CF.Solver.Actions.CIterate");
-  iterate.create_component<CGroupActions>("1_apply_boundary_conditions").mark_basic().add_tag(FlowSolver::Tags::bc());
-  Component& compute_rhs = iterate.create_component<CGroupActions>("2_compute_rhs").mark_basic();
+  Component& RK = iterate.create_component("1_RK_stages","CF.RungeKutta.RK");
+  RK.configure_property("stages",property("RK_stages").value<Uint>());
+  Component& compute_rhs = iterate.access_component("1_RK_stages/pre_update_actions").create_component<CGroupActions>("1_compute_rhs").mark_basic();
   compute_rhs.add_tag(FlowSolver::Tags::inner());
-  compute_rhs.create_component <CInitFieldConstant>("2.1_init_residual")
+  compute_rhs.create_component <CInitFieldConstant>("1.1_init_residual")
     .mark_basic()
     .configure_property("constant",0.)
     .property("field").add_tag(FlowSolver::Tags::residual());
 
-  compute_rhs.create_static_component<CInitFieldConstant>("2.2_init_wave_speed")
+  compute_rhs.create_static_component<CInitFieldConstant>("1.2_init_wave_speed")
     .mark_basic()
     .configure_property("constant",0.)
     .property("field").add_tag(FlowSolver::Tags::wave_speed());
 
   Component& for_all_cells =
-    compute_rhs.create_component<CForAllCells>("2.3_for_all_cells").mark_basic();
-  Component& compute_rhs_in_cell = for_all_cells.create_component<ComputeRhsInCell>("2.3.1_compute_rhs_in_cell").mark_basic();
+    compute_rhs.create_component<CForAllCells>("1.3_for_all_cells").mark_basic();
+  Component& compute_rhs_in_cell = for_all_cells.create_component<ComputeRhsInCell>("1.3.1_compute_rhs_in_cell").mark_basic();
 
-  iterate.create_component<ComputeUpdateCoefficient>("3_compute_update_coeff").mark_basic();
-  iterate.create_component<UpdateSolution>("4_update_solution").mark_basic();
-  iterate.create_component<CAdvanceTime>("5_advance_time").mark_basic();
-  iterate.create_component<OutputIterationInfo>("6_output_info").mark_basic();
+  RK.access_component("pre_update_actions").create_component<ComputeUpdateCoefficient>("2_compute_update_coeff").mark_basic();
+  iterate.create_component<CAdvanceTime>("2_advance_time").mark_basic();
+  iterate.create_component<OutputIterationInfo>("3_output_info").mark_basic();
   iterate.create_component<CCriterionTime>("time_stop_criterion").mark_basic();
 
   /// @todo configure differently
@@ -371,7 +372,7 @@ void SFDSetup::execute()
 
   /// @todo configure this differently perhaps
   /// 2) set looping regions to the entire mesh
-  access_component("../iterate/2_compute_rhs/2.3_for_all_cells")  .configure_property("regions",std::vector<URI>(1,mesh().topology().uri()));
+  access_component("../iterate/1_RK_stages/pre_update_actions/1_compute_rhs/1.3_for_all_cells").configure_property("regions",std::vector<URI>(1,mesh().topology().uri()));
 
   /// 3) configure the initialize_solution component. The field must be set to the solution.
   access_component("../../tools/initialize_solution").configure_property("field",mesh().get_child(FlowSolver::Tags::solution()).uri());

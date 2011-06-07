@@ -13,7 +13,8 @@ create wizard CF.SFDM.SFDWizard
 configure wizard \
    model:string=SFD_simulation \
    P:unsigned=0 \
-   cfl:real=1
+   cfl:real=1 \
+   RK_stages:unsigned=4
 
 call wizard/create_simulation
 

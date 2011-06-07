@@ -25,7 +25,7 @@ list( APPEND coolfluid_sfdm_files
   UpdateSolution.cpp
 )
 
-list( APPEND coolfluid_sfdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_solver coolfluid_solver_actions coolfluid_riemannsolvers)
+list( APPEND coolfluid_sfdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_solver coolfluid_solver_actions coolfluid_riemannsolvers coolfluid_rungekutta)
 
 coolfluid_add_library( coolfluid_sfdm )
 

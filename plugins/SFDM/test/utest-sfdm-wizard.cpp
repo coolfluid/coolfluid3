@@ -78,6 +78,8 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
 
   model.configure_option_recursively("milestone_dt",0.5);
   model.configure_option_recursively("milestone_rate",3);
+  model.configure_option_recursively("stages",1u);
+
 
   wizard.start_simulation(5.);
 
@@ -92,7 +94,7 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_property("model",std::string("gaussian_2D"));
   wizard.configure_property("dim",2u);
-  wizard.configure_property("P",0u);
+  wizard.configure_property("P",1u);
   wizard.configure_property("cfl",1.);
   wizard.create_simulation();
 
@@ -106,7 +108,7 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
   //if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneIteration");
 
   //WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
-  WriteMesh& gmsh_writer = iterate.create_component("7_gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
+  WriteMesh& gmsh_writer = iterate.create_component("4_gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
   gmsh_writer.configure_property("mesh",mesh.uri());
   gmsh_writer.configure_property("file",URI("file:gaussian_iter${iter}_time${time}.msh"));
 
@@ -127,6 +129,7 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
   //model.configure_option_recursively("milestone_dt",0.5);
   //model.configure_option_recursively("milestone_rate",3);
 
+  model.configure_option_recursively("stages",3u);
 
   gmsh_writer.execute();
 
