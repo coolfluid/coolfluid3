@@ -185,7 +185,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
     data[1] = QFileInfo( m_properties["filename"].value<std::string>().c_str())
         .fileName().section('.',0,0).toStdString();
 
-    options.add("pathinfo", data);
+    options.add<std::string>("pathinfo", data);
 
     Server::ServerRoot::core()->sendSignal( *frame.xml_doc.get() );
   }
