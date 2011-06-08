@@ -61,3 +61,7 @@ add_subdirectory( paraview-deps )
 ###############################################################################
 ### linear solver trials
 add_subdirectory( lss-trilinos )
+
+###############################################################################
+### inheritance metadata
+add_subdirectory( inheritance )
