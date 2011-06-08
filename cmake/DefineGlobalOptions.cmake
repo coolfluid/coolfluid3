@@ -46,7 +46,7 @@ option( CF_CHECK_ORPHAN_FILES        "Check for files in the source tree that ar
 
 option( CF_ENABLE_UNIT_TESTS        "Enable creation of unit tests"    ON  )
 option( CF_ENABLE_PERFORMANCE_TESTS "Run the performance tests"        OFF )
-option( CF_ENABLE_ACCEPTANCE_TESTS  "Run the acceptance tests"         OFF )
+option( CF_ENABLE_ACCEPTANCE_TESTS  "Run the acceptance tests"         ON  )
 
 option( CF_INSTALL_UNIT_TESTS       "Enable testing applications install"   OFF )
 
