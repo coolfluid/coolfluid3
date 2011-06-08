@@ -34,6 +34,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/Actions/CBubbleEnrich.hpp"
 #include "Mesh/Actions/CBubbleRemove.hpp"
+#include "Mesh/Actions/CBuildFaces.hpp"
 
 #include "RDM/Core/RKRD.hpp"
 #include "RDM/Core/DomainTerm.hpp"
@@ -134,6 +135,19 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
   solver.configure_property("mesh", mesh->uri() );
+
+#if 0
+  // create faces to cell connectivity
+
+  CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
+  domain.add_component( facebuilder );
+  facebuilder->set_mesh(mesh);
+  facebuilder->execute();
+
+  // print the domain tree
+
+  CFinfo << domain.tree() << CFendl;
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

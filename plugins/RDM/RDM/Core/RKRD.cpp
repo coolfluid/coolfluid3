@@ -254,6 +254,8 @@ void RKRD::signature_signal_create_boundary_term( SignalArgs& node )
   // name
   options.add<std::string>("Name", std::string(), "Name for created boundary term" );
 
+  /// @todo shoould loop on availabe BCs in factory of BCs
+
   // type
   std::vector< std::string > restricted;
 //  restricted.push_back( std::string("CF.RDM.Core.BcDirichlet") );

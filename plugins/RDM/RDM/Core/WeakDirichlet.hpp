@@ -11,6 +11,9 @@
 
 #include "Math/VectorialFunction.hpp"
 
+#include "Mesh/CElements.hpp"
+#include "Mesh/CFaceCellConnectivity.hpp"
+
 #include "RDM/Core/BoundaryTerm.hpp"
 #include "RDM/Core/BcBase.hpp"
 
@@ -189,9 +192,34 @@ public: // functions
  /// execute the action
  void executeT ()
  {
-//    std::cout << "Face [" << B::idx() << "]" << std::endl;
+	#if 0
+    std::cout << "Face [" << B::idx() << "]" << std::endl;
 
-   // get face connectivity
+    Uint face_idx = B::idx();
+
+    Mesh::CFaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<Mesh::CFaceCellConnectivity>();
+
+    // cf_assert( f2c.is_bdry_face()[face_idx] );
+
+    Mesh::CTable<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
+    Uint unified_neighbor_cell_idx = connected_cells[LEFT]; // boundary faces store idx on LEFT face
+    boost::tie(neighbor_cells,neighbor_cell_idx) = f2c.lookup().location( unified_neighbor_cell_idx );
+
+    std::cout << "neighbor_cells [" << neighbor_cells.uri().string() << "]" << std::endl;
+
+    Mesh::CTable<Uint>::Ptr connectivity_table =
+        neighbor_cells->elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
+
+    const Mesh::CTable<Uint>::ConstRow cell_nodes_idx = connectivity_table->array()[ neighbor_cell_idx ];
+
+    // prints the neighbor cell nodes idx
+
+    std::cout << "cell_nodes_idx : ";
+    std::for_each( cell_nodes_idx.begin(), cell_nodes_idx.end(), CFinfo << _1 << ' ' );
+    std::cout << std::endl;
+	#endif
+
+    // get face connectivity
 
    const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
@@ -228,69 +256,6 @@ public: // functions
 
    Phi_n.setZero();
 
-   #ifdef P1SPECIFIC
-   // ------------------------------------------------------
-   /// @note lagrange P1 line specifc
-
-   const Real x1x0 =  X_n(1,XX) - X_n(0,XX) ;
-   const Real y1y0 =  X_n(1,YY) - X_n(0,YY) ;
-
-   const Real lenght = sqrt(x1x0*x1x0 + y1y0*y1y0);
-
-   const Real jacob = lenght * 0.5 ;
-
-   // std::cout << "jacob [" << jacob << "]" << std::endl;
-
-   // compute transformed integration weights (sum is element area)
-
-   for(Uint q = 0; q < QD::nb_points; ++q)
-     wj[q] = jacob * m_quadrature.weights[q];
-
-   const Real nx = -y1y0 / lenght;
-   const Real ny =  x1x0 / lenght;
-
-//    std::cout << "n [" << nx << "," << ny << "]" << std::endl;
-
-
-   for(Uint q=0; q < QD::nb_points; ++q)
-   {
-     // compute the flux F(u_h) and its correction F(u_g)
-
-     /// @note fixed for scalar inflow with adv. speed (
-     const Real Fu_h_x = 1.0 * U_q(q,0);
-     const Real Fu_h_y = 1.0 * U_q(q,0);
-
-     // std::cout << "Fu_h [" << Fu_h_x << "," << Fu_h_y << "]" << std::endl;
-
-
-     vars[XX] = X_q(q,XX);
-     vars[YY] = X_q(q,YY);
-     vars[ZZ] = 0.0;
-
-     this->parent().as_type<WeakDirichlet>().function.evaluate(vars,return_val);
-
-     const Real Fu_g_x = 1.0 * return_val[0];
-     const Real Fu_g_y = 1.0 * return_val[0];
-
-     // std::cout << "Fu_g [" << Fu_g_x << "," << Fu_g_y << "]" << std::endl;
-
-     for(Uint n=0; n < SF::nb_nodes; ++n)
-     {
-       Phi_n.row(n)[0] -= ( ( Fu_g_x - Fu_h_x ) * nx + ( Fu_g_y - Fu_h_y ) * ny ) * Ni(q,n) * wj[q];
-     }
-
-
-     // compute the wave_speed for scaling the update
-
-     for(Uint n = 0; n < SF::nb_nodes; ++n)
-       (*B::wave_speed)[nodes_idx[n]][0] += 1.0 * wj[q];
-
-   }
-   #endif
-
-
-   #define GENERIC
-   #ifdef GENERIC
    // ------------------------------------------------------
    /// @note Generic version
 
@@ -381,9 +346,6 @@ public: // functions
    } //Loop over quadrature points
 
 //    std::cin.get();
-
-#endif
-
 
 //    std::cout << "Phi_n [" << Phi_n << "]" << std::endl;
 
