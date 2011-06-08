@@ -53,29 +53,32 @@ void* PosixDlopenLibLoader::call_dlopen(const boost::filesystem::path& fpath)
 
   void* hdl = nullptr;
 
-//  CFinfo << "dlopen() loading library \'" << fpath.string() << "\'\n" << CFflush;
+  hdl = dlopen (fpath.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
+
+  if( is_not_null(hdl) )
+    CFinfo << "dlopen() loaded library \'" << fpath.string() << "\'" << CFendl;
 
   // library name
-  if ( fpath.is_complete() )
+  if ( is_null(hdl) && !fpath.is_complete() )
   {
-    hdl = dlopen (fpath.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
-  }
-  else
-  {
-    // relative path from current directory
-    hdl = dlopen (fpath.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
 
     // loop over the search paths and attempt to load the library
+
     std::vector< path >::const_iterator itr = m_search_paths.begin();
-    for (; itr != m_search_paths.end() ; ++itr)
+    for ( ; itr != m_search_paths.end(); ++itr)
     {
 //          CFinfo << "searching in [" << *itr << "]\n" << CFflush;
       path fullqname = *itr / fpath;
 //          CFinfo << "fullqname [" << fullqname.string() << "]\n" << CFflush;
       hdl = dlopen (fullqname.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
-      if( hdl != nullptr ) break;
+      if( hdl != nullptr )
+      {
+        CFinfo << "dlopen() loaded library \'" << fullqname.string() << "\'" << CFendl;
+        break;
+      }
     }
   }
+
   return hdl; // will return nullptr if failed
 }
 
