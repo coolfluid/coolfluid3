@@ -173,7 +173,7 @@ struct ComponentBuilder
     cf_assert ( builder->template as_ptr<CBuilder>() );
 
     // put a CLink to the builder in the respective CLibrary
-    CLibrary::Ptr lib = Core::instance().libraries().get_library<LIB>();
+    CLibrary::Ptr lib = Core::instance().libraries().library<LIB>();
     cf_assert ( is_not_null(lib) );
 
     CLink::Ptr builder_link = lib->create_component_ptr<CLink>( name );

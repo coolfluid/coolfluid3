@@ -65,19 +65,7 @@ std::string CBuilder::extract_namespace (const std::string& builder_name)
 
 std::string CBuilder::extract_library_name (const std::string& builder_name)
 {
-  // Copy holding the result
-  std::string result = builder_name;
-
-  // Strip the class name
-  boost::erase_tail(result, result.end() - boost::find_last(result, ".").begin());
-
-  if(boost::starts_with(result, "CF."))
-    boost::replace_first(result, "CF", "coolfluid");
-
-  boost::replace_all(result, ".", "_");
-  boost::to_lower(result);
-
-  return result;
+  return CLibraries::namespace_to_libname( extract_namespace( builder_name ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -4,8 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string.hpp>
+
+#include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 #include "Common/CLibrary.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/CLibraries.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/LibLoader.hpp"
@@ -50,6 +54,29 @@ CLibraries::~CLibraries()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+std::string CLibraries::namespace_to_libname( const std::string& libnamespace )
+{
+  // Copy holding the result
+  std::string result = libnamespace;
+
+  if( boost::starts_with(result, "CF.") )
+      boost::replace_first(result, "CF", "coolfluid");
+
+  boost::replace_all(result, ".", "_");
+  boost::to_lower(result);
+
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool CLibraries::is_loaded( const std::string& name )
+{
+  return is_not_null( get_child_ptr( name ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void CLibraries::load_library( const URI& file )
 {
   if( file.empty() || file.scheme() != URI::Scheme::FILE )
@@ -57,7 +84,64 @@ void CLibraries::load_library( const URI& file )
 
   boost::filesystem::path fpath( file.path() );
 
-  OSystem::instance().lib_loader()->load_library( fpath.string() );
+  return OSystem::instance().lib_loader()->load_library( fpath.string() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CLibrary::Ptr CLibraries::autoload_library_with_namespace( const std::string& libnamespace )
+{
+  if( libnamespace.empty() )
+    throw BadValue( FromHere(), "Library namespace is empty - cannot guess library name" );
+
+  CLibrary::Ptr lib;
+
+  const std::string lib_name = namespace_to_libname( libnamespace );
+
+  try // to auto-load in case builder not there
+  {
+    CFinfo << "Auto-loading plugin " << lib_name << CFendl;
+    OSystem::instance().lib_loader()->load_library(lib_name);
+    lib = get_child( libnamespace ).as_ptr_checked<CLibrary>();
+  }
+  catch(const std::exception& e)
+  {
+    throw ValueNotFound(FromHere(),
+                        "Failed to auto-load plugin " + lib_name + ": " + e.what());
+  }
+
+  cf_assert( is_not_null(lib) );
+
+  return lib;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CLibrary::Ptr CLibraries::autoload_library_with_builder( const std::string& builder_name )
+{
+  if( builder_name.empty() )
+    throw BadValue( FromHere(), "Builder name is empty - cannot guess library name" );
+
+  CLibrary::Ptr lib;
+
+  const std::string libnamespace = CBuilder::extract_namespace( builder_name );
+  const std::string lib_name = namespace_to_libname( libnamespace );
+
+  try // to auto-load in case builder not there
+  {
+    CFinfo << "Auto-loading plugin " << lib_name << CFendl;
+    OSystem::instance().lib_loader()->load_library(lib_name);
+    lib = get_child( libnamespace ).as_ptr_checked<CLibrary>();
+  }
+  catch(const std::exception& e)
+  {
+    throw ValueNotFound(FromHere(),
+                        "Failed to auto-load plugin " + lib_name + ": " + e.what());
+  }
+
+  cf_assert( is_not_null(lib) );
+
+  return lib;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

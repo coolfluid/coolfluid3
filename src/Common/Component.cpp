@@ -1376,23 +1376,10 @@ Component::Ptr build_component(const std::string& builder_name,
 
   // get the factory holding the builder
 
-  Component::Ptr factory = factories->get_child_ptr( factory_type_name );
-  if ( is_null(factory) )
-  {
-    const std::string lib_name = CBuilder::extract_library_name(builder_name);
-    try // to auto-load in case factory not there
-    {
-      CFinfo << "Auto-loading plugin " << lib_name << CFendl;
-      OSystem::instance().lib_loader()->load_library(lib_name);
-      factory = factories->get_child_ptr( factory_type_name );
-    }
-    catch(const std::exception& e)
-    {
-      throw ValueNotFound(FromHere(),
-                          "Failed to auto-load plugin " + lib_name + ": " + e.what());
-    }
-  }
+  if ( is_null( factories->get_child_ptr( factory_type_name ) ) )
+    Core::instance().libraries().autoload_library_with_builder( builder_name );
 
+  Component::Ptr factory = factories->get_child_ptr( factory_type_name );
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
                         "CFactory \'" + factory_type_name
@@ -1400,26 +1387,14 @@ Component::Ptr build_component(const std::string& builder_name,
 
   // get the builder
 
+  if ( is_null( factory->get_child_ptr( builder_name ) ) )
+    Core::instance().libraries().autoload_library_with_builder( builder_name );
+
   Component::Ptr builder = factory->get_child_ptr( builder_name );
   if ( is_null(builder) )
   {
-    const std::string lib_name = CBuilder::extract_library_name(builder_name);
-    try // to auto-load in case builder not there
-    {
-      CFinfo << "Auto-loading plugin " << lib_name << CFendl;
-      OSystem::instance().lib_loader()->load_library(lib_name);
-      builder = factory->get_child_ptr( builder_name );
-    }
-    catch(const std::exception& e)
-    {
-      throw ValueNotFound(FromHere(),
-                          "Failed to auto-load plugin " + lib_name + ": " + e.what());
-    }
-  }
-
-  if ( is_null(builder) )
-  {
-    std::string msg = "CBuilder \'" + builder_name + "\' not found in factory \'"
+    std::string msg =
+        "CBuilder \'" + builder_name + "\' not found in factory \'"
         + factory_type_name + "\'. Probably forgot to load a library.\n"
         + "Possible builders:";
     boost_foreach(Component& comp, factory->children())
@@ -1445,15 +1420,27 @@ Component::Ptr build_component(const std::string& builder_name,
 Component::Ptr build_component(const std::string& builder_name,
                                const std::string& name )
 {
-  std::string builder_namespace = CBuilder::extract_namespace(builder_name);
+  std::string libnamespace = CBuilder::extract_namespace(builder_name);
 
   URI builder_path = Core::instance().libraries().uri()
-                   / URI(builder_namespace)
+                   / URI(libnamespace)
                    / URI(builder_name);
 
-  const CBuilder& builder =
-      Core::instance().root().access_component( builder_path ).follow()
-      ->as_type<CBuilder const>();
+
+
+  Component::Ptr cbuilder = Core::instance().root().access_component_ptr( builder_path );
+
+  if( is_null(cbuilder) ) // try to load the library that contains the builder
+  {
+    Core::instance().libraries().autoload_library_with_builder( builder_name );
+    cbuilder = Core::instance().root().access_component_ptr( builder_path );
+  }
+
+  if( is_null(cbuilder) ) // if still fails, then give up
+    throw ValueNotFound( FromHere(), "Could not find builder \'" + builder_name + "\'"
+                                     " neither a plugin library that contains it." );
+
+  const CBuilder& builder = cbuilder->follow()->as_type<CBuilder const>();
 
   Component::Ptr comp = builder.build( name );
 
