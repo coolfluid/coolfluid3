@@ -7,7 +7,7 @@
 #ifndef CF_RDM_WeakDirichlet_hpp
 #define CF_RDM_WeakDirichlet_hpp
 
-#include <iostream> // to remove
+#include <iostream>          // to remove
 
 #include "Math/VectorialFunction.hpp"
 

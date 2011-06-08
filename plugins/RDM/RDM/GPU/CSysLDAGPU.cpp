@@ -16,7 +16,7 @@
 
 #include "Solver/CPhysicalModel.hpp"
 
-#include "RDM/Core/ElementLoop.hpp"
+#include "RDM/Core/CellLoop.hpp"
 #include "RDM/GPU/CSysLDAGPU.hpp"
 
 using namespace CF::Common;
@@ -48,7 +48,7 @@ void CSysLDAGPU::execute()
   Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
-      loop = build_component_abstract_type< ElementLoop >( "CF.RDM.Core.CellLoopGPU<" + type_name() + "," + physics + ">" , "LOOP");
+      loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopGPU<" + type_name() + "," + physics + ">" , "LOOP");
       add_component(loop);
   }
   else

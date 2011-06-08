@@ -16,16 +16,27 @@
 namespace CF {
 namespace RDM {
 
-/// FaceLoop defines a functor taking the type that boost::mpl::for_each passes.
+/// FaceLoop defines the base class for all FaceLoopT
 /// It is the core of the looping mechanism over Faces.
-template < typename ACTION, typename PHYS>
 struct FaceLoop : public ElementLoop
 {
   /// Constructor
   FaceLoop( const std::string& name ) : ElementLoop(name) {  regist_typeinfo(this); }
 
   /// Get the class name
-  static std::string type_name () { return "FaceLoop<" + ACTION::type_name() + "," + PHYS::type_name() + ">"; }
+  static std::string type_name () { return "FaceLoop"; }
+
+}; // FaceLoop
+
+/// FaceLoopT defines a functor taking the type that boost::mpl::for_each passes.
+template < typename ACTION, typename PHYS>
+struct FaceLoopT : public FaceLoop
+{
+  /// Constructor
+  FaceLoopT( const std::string& name ) : FaceLoop(name) {  regist_typeinfo(this); }
+
+  /// Get the class name
+  static std::string type_name () { return "FaceLoopT<" + ACTION::type_name() + "," + PHYS::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ()
@@ -64,7 +75,7 @@ struct FaceLoop : public ElementLoop
     }
   }
 
-}; // FaceLoop
+}; // FaceLoopT
 
 } // RDM
 } // CF

@@ -16,16 +16,28 @@
 namespace CF {
 namespace RDM {
 
-/// CellLoop defines a functor taking the type that boost::mpl::for_each passes.
-/// It is the core of the looping mechanism over Cells.
-template < typename ACTION, typename PHYS>
+/// FaceLoop defines the base class for all FaceLoopT
+/// It is the core of the looping mechanism over Faces.
 struct CellLoop : public ElementLoop
 {
   /// Constructor
   CellLoop( const std::string& name ) : ElementLoop(name) {  regist_typeinfo(this); }
 
   /// Get the class name
-  static std::string type_name () { return "CellLoop<" + ACTION::type_name() + "," + PHYS::type_name() + ">"; }
+  static std::string type_name () { return "CellLoop"; }
+
+}; // FaceLoop
+
+/// CellLoopT defines a functor taking the type that boost::mpl::for_each passes.
+/// It is the core of the looping mechanism over Cells.
+template < typename ACTION, typename PHYS>
+struct CellLoopT : public CellLoop
+{
+  /// Constructor
+  CellLoopT( const std::string& name ) : CellLoop(name) {  regist_typeinfo(this); }
+
+  /// Get the class name
+  static std::string type_name () { return "CellLoopT<" + ACTION::type_name() + "," + PHYS::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ()
@@ -65,7 +77,7 @@ struct CellLoop : public ElementLoop
     }
   }
 
-}; // CellLoop
+}; // CellLoopT
 
 } // RDM
 } // CF

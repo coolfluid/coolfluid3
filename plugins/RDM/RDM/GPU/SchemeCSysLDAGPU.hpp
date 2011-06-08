@@ -7,11 +7,12 @@
 #ifndef CF_RDM_SchemeCSysLDAGPU_hpp
 #define CF_RDM_SchemeCSysLDAGPU_hpp
 
+#include <iostream>          // to remove
+#include <boost/timer.hpp>
+
 #include "RDM/Core/SchemeBase.hpp"
 #include "RDM/GPU/CLdeclaration.hpp"
 #include "RDM/GPU/LibGPU.hpp"
-#include "iostream"
-#include <boost/timer.hpp>
 
 
 /////////////////////////////////////////////////////////////////////////////////////

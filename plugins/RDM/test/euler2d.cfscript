@@ -5,75 +5,82 @@ configure //Root/Environment \
   exception_backtrace:bool=true \
   exception_aborts:bool=true
 
-# load the rdm library
-call //Root/Libraries/load_libraries "libs:array[uri]= \
-    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_core,\
-    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_schemes,\
-    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_scalar,\
-    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_navierstokes"
+call //Root/Libraries/load_libraries \
+     libs:array[uri]=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_navierstokes
+
+create Wizard CF.RDM.Core.SteadyExplicit
 
 # create a scalar advection model
-call //Root/Tools/RDM/SetupScalarSimulation/create_model \
+call Wizard/create_model \
      ModelName:string=model \
      PhysicalModel:string=Euler2D
 
 # load the mesh
 call //Root/model/Domain/load_mesh \
-     file:uri=file:@CF_RESOURCE_DIR@/square1x1-qd-p1.msh \
+     file:uri=file:square1x1-qd-p1-1369.msh \
      name:string=mesh
 
 # configure solver
 cd //Root/model/Solver
 
-configure ./ Domain:uri=cpath:../Domain
+configure ./ domain:uri=cpath:../Domain
 
-configure time_stepping CFL:real=0.85
-configure time_stepping MaxIter:unsigned=200
+configure time_stepping cfl:real=0.250
+configure time_stepping MaxIter:unsigned=500
 
 # create boundary term
-#
-#call create_boundary_term Name:string=INLET \
-#     Type:string=CF.RDM.BcDirichlet \
-#     Regions:array[uri]=\
-#//Root/model/Domain/mesh/topology/main/inlet,\
-#//Root/model/Domain/mesh/topology/main/left,\
-#//Root/model/Domain/mesh/topology/main/right
-#
-#configure compute_boundary_terms/INLET Functions:array[string]=if(x>0.5,0.5,1.),\
+
+call create_boundary_term Name:string=INLET \
+     Type:string=CF.RDM.Core.BcDirichlet \
+     Regions:array[uri]=\
+//Root/model/Domain/mesh/topology/bottom,\
+//Root/model/Domain/mesh/topology/left,\
+//Root/model/Domain/mesh/topology/right
+
+
+configure compute_boundary_terms/INLET "Functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
 
 # initialize solution
-call initialize_solution Functions:array[string]=0.5,0.0,1.67332,3.425\\
+
+create init CF.Mesh.Actions.CInitFieldFunction
+
+configure init field:uri=cpath://Root/model/Domain/mesh/solution
+configure init "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
+configure init mesh:uri=//Root/model/Domain/mesh
+
+call init/execute
 
 # create domain term
 
 call create_domain_term Name:string=INTERNAL \
-     Type:string=CF.RDM.CSysLDA \
+     Type:string=CF.RDM.Schemes.CSysLDA \
      Regions:array[uri]=//Root/model/Domain/mesh/topology
 
+# write initial solution
+
+create tec_writer CF.Mesh.Tecplot.CWriter
+
+configure tec_writer fields:array[uri]=//Root/model/Domain/mesh/solution
+configure tec_writer file:uri=solution.init.plt
+configure tec_writer mesh:uri=//Root/model/Domain/mesh
+
+create msh_writer CF.Mesh.Gmsh.CWriter
+
+configure msh_writer fields:array[uri]=//Root/model/Domain/mesh/solution
+configure msh_writer file:uri=solution.init.msh
+configure msh_writer mesh:uri=//Root/model/Domain/mesh
+
+call tec_writer/write_mesh
+call msh_writer/write_mesh
 
 # solve
 
 call solve
-cd ..
 
-# write solution
+# write final solution
 
-create gmsh_writer CF.Mesh.Gmsh.CWriter
+configure tec_writer file:uri=solution.plt
+configure msh_writer file:uri=solution.msh
 
-cd gmsh_writer
-configure ./ Fields:array[uri]=//Root/model/Domain/mesh/solution
-configure ./ File:string=solution.msh
-configure ./ Mesh:uri=//Root/model/Domain/mesh
-
-call write_mesh
-
-cd ..
-
-create tec_writer CF.Mesh.Tecplot.CWriter
-
-cd writer
-configure ./ Fields:array[uri]=//Root/model/Domain/mesh/solution
-configure ./ File:string=solution.plt
-configure ./ Mesh:uri=//Root/model/Domain/mesh
-
-call write_mesh
+call tec_writer/write_mesh
+call msh_writer/write_mesh

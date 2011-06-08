@@ -22,12 +22,12 @@ namespace RDM {
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CellLoopGPU<CSysLDAGPU,RotationAdv2D>,
-                           RDM::ElementLoop,
+                           RDM::CellLoop,
                            LibCore >
                            CSysLDAGPU_LinearAdv2D_Builder;
 
 Common::ComponentBuilder < CellLoopGPU<CSysLDAGPU,Euler2D>,
-                           RDM::ElementLoop,
+                           RDM::CellLoop,
                            LibCore >
                            CSysLDAGPU_Euler2D_Builder;
 

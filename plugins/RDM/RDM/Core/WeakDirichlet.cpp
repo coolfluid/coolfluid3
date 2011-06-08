@@ -38,11 +38,11 @@ namespace RDM {
 
 Common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibCore > WeakDirichlet_Builder;
 
-Common::ComponentBuilder < FaceLoop< WeakDirichlet, LinearAdv2D>    , RDM::ElementLoop, LibCore > WeakDirichlet_LinearAdv2D_Builder;
-Common::ComponentBuilder < FaceLoop< WeakDirichlet, LinearAdvSys2D> , RDM::ElementLoop, LibCore > WeakDirichlet_LinearAdvSys2D_Builder;
-Common::ComponentBuilder < FaceLoop< WeakDirichlet, RotationAdv2D>  , RDM::ElementLoop, LibCore > WeakDirichlet_RotationAdv2D_Builder;
-Common::ComponentBuilder < FaceLoop< WeakDirichlet, Burgers2D>      , RDM::ElementLoop, LibCore > WeakDirichlet_Burgers2D_Builder;
-Common::ComponentBuilder < FaceLoop< WeakDirichlet, Euler2D>        , RDM::ElementLoop, LibCore > WeakDirichlet_Euler2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, LinearAdv2D>    , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdv2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, LinearAdvSys2D> , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, RotationAdv2D>  , RDM::FaceLoop, LibCore > WeakDirichlet_RotationAdv2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Burgers2D>      , RDM::FaceLoop, LibCore > WeakDirichlet_Burgers2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Euler2D>        , RDM::FaceLoop, LibCore > WeakDirichlet_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -108,7 +108,7 @@ void WeakDirichlet::execute()
   Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
-    loop = build_component_abstract_type< ElementLoop >( "CF.RDM.Core.FaceLoop<" + type_name() + "," + physics + ">" , "LOOP");
+    loop = build_component_abstract_type_reduced< FaceLoop >( "FaceLoopT<" + type_name() + "," + physics + ">" , "LOOP");
     add_component(loop);
   }
   else

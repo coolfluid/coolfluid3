@@ -22,7 +22,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoop<CSysN,Burgers2D> , RDM::ElementLoop, LibCore > CSysN_Burgers2D_Builder;
+Common::ComponentBuilder < CellLoopT<CSysN,Burgers2D> , RDM::CellLoop, LibScalar > CSysN_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

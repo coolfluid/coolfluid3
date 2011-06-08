@@ -5,6 +5,9 @@ configure //Root/Environment \
   exception_backtrace:bool=true \
   exception_aborts:bool=true
 
+call //Root/Libraries/load_libraries \
+     libs:array[uri]=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_scalar
+
 create Wizard CF.RDM.Core.SteadyExplicit
 
 # create a scalar advection model
@@ -17,31 +20,29 @@ call //Root/model/Domain/load_mesh \
      file:uri=file:square1x1-tg-p2-2kn.msh \
      name:string=mesh
 
-ls //Root/model/Domain/mesh/topology
-
 # configure solver
 cd //Root/model/Solver
 
 configure ./ domain:uri=cpath:../Domain
 
 configure time_stepping cfl:real=1.0
-configure time_stepping MaxIter:unsigned=1000
+configure time_stepping MaxIter:unsigned=100
 
 # create boundary term
 
 call create_boundary_term Name:string=INLET \
      Type:string=CF.RDM.Core.BcDirichlet \
      Regions:array[uri]=\
-//Root/model/Domain/mesh/topology/inlet,\
+//Root/model/Domain/mesh/topology/bottom,\
 //Root/model/Domain/mesh/topology/left,\
 //Root/model/Domain/mesh/topology/right
 
-configure compute_boundary_terms/INLET Function:string=1.5-2.0*x
+configure compute_boundary_terms/INLET Functions:array[string]=1.5-2.0*x
 
 # create domain term
 
 call create_domain_term Name:string=INTERNAL \
-     Type:string=CF.RDM.Core.LDA \
+     Type:string=CF.RDM.Schemes.CSysLDA \
      Regions:array[uri]=//Root/model/Domain/mesh/topology
 
 # solve
@@ -54,8 +55,8 @@ cd ..
 create writer CF.Mesh.Gmsh.CWriter
 
 cd writer
-configure ./ Fields:array[uri]=//Root/model/Domain/mesh/solution
-configure ./ File:string=solution.msh
-configure ./ Mesh:uri=//Root/model/Domain/mesh
+configure ./ fields:array[uri]=//Root/model/Domain/mesh/solution
+configure ./ file:uri=solution.msh
+configure ./ mesh:uri=//Root/model/Domain/mesh
 
 call write_mesh

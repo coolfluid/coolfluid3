@@ -73,6 +73,14 @@ RKRD::RKRD ( const std::string& name  ) :
 
   // signals
 
+  regist_signal ("initialize_solution" ,
+                 "initializes the solution using analytical math formulas",
+                 "Initialize the solution" )->
+      signal->connect ( boost::bind ( &RKRD::signal_initialize_solution, this, _1 ) );
+
+  signal("initialize_solution")->
+      signature->connect( boost::bind( &RKRD::signature_signal_initialize_solution, this, _1));
+
   regist_signal ("create_boundary_term" ,
                  "creates a boundary condition term",
                  "Create Boundary Condition" )->
@@ -254,7 +262,7 @@ void RKRD::signature_signal_create_boundary_term( SignalArgs& node )
   // regions
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
-  options.add("Regions", dummy , "Regions where to apply the boundary condition", " ; " );
+  options.add("regions", dummy , "Regions where to apply the boundary condition", " ; " );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -296,7 +304,7 @@ void RKRD::signature_signal_create_domain_term( SignalArgs& node )
   // regions
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
-  options.add("Regions", dummy , "Regions where to apply the domain term", " ; " );
+  options.add("regions", dummy , "Regions where to apply the domain term", " ; " );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -310,7 +318,7 @@ void RKRD::signal_initialize_solution( SignalArgs& node )
 
   SignalOptions options( node );
 
-  std::vector< std::string > functions = options.array<std::string>("Functions");
+  std::vector< std::string > functions = options.array<std::string>("functions");
 
   CInitFieldFunction::Ptr init_solution;
   if( is_null(get_child_ptr("init_solution")) )
@@ -331,7 +339,7 @@ void RKRD::signature_signal_initialize_solution( SignalArgs& node )
   SignalOptions options( node );
 
   std::vector<std::string> dummy;
-  options.add< std::string >("Functions", dummy , "Analytical function definitions for initial condition (one per DOF, variables are x,y,z)", " ; " );
+  options.add< std::string >("functions", dummy , "Analytical function definitions for initial condition (one per DOF, variables are x,y,z)", " ; " );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

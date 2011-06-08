@@ -34,7 +34,7 @@ namespace RDM {
 
 Common::ComponentBuilder < SubsonicInFlowWeakBc, RDM::BoundaryTerm, LibCore > SubsonicInFlowWeakBc_Builder;
 
-Common::ComponentBuilder < FaceLoop< SubsonicInFlowWeakBc, Euler2D>, RDM::ElementLoop, LibCore > SubsonicInFlowWeakBc_Euler2D_Builder;
+Common::ComponentBuilder < FaceLoopT< SubsonicInFlowWeakBc, Euler2D>, RDM::FaceLoop, LibCore > SubsonicInFlowWeakBc_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -111,7 +111,7 @@ void SubsonicInFlowWeakBc::execute()
   Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
-    loop = build_component_abstract_type< ElementLoop >( "CF.RDM.Core.FaceLoop<" + type_name() + "," + physics + ">" , "LOOP");
+    loop = build_component_abstract_type_reduced< FaceLoop >( "FaceLoopT<" + type_name() + "," + physics + ">" , "LOOP");
     add_component(loop);
   }
   else

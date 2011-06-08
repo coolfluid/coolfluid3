@@ -8,7 +8,7 @@
 #define CF_RDM_SchemeLDAGPU_hpp
 
 #include <boost/assign.hpp>
-#include <iostream>
+#include <iostream>          // to remove
 
 #include <Eigen/Dense>
 
