@@ -1417,6 +1417,45 @@ Component::Ptr build_component(const std::string& builder_name,
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+Component::Ptr build_component_reduced(const std::string& builder_name,
+                                       const std::string& name,
+                                       const std::string& factory_type_name )
+{
+  // get the factories
+
+  Component::Ptr factories = Core::instance().root().get_child_ptr("Factories");
+  if ( is_null(factories) )
+    throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in "
+                        + Core::instance().root().uri().string() );
+
+  // get the factory holding the builder
+
+  Component::Ptr factory = factories->get_child_ptr( factory_type_name );
+  if ( is_null(factory) )
+    throw ValueNotFound( FromHere(),
+                        "CFactory \'" + factory_type_name
+                        + "\' not found in " + factories->uri().string() + "." );
+
+  CFactory& cfactory = factory->as_type<CFactory>();
+
+  // get the builder
+
+  Component& cbuilder = cfactory.find_builder_with_reduced_name(builder_name);
+
+  // build the component
+
+  Component::Ptr comp = cbuilder.as_type<CBuilder>().build ( name );
+  if ( is_null(comp) )
+    throw NotEnoughMemory ( FromHere(),
+                           "CBuilder \'" + builder_name
+                           + "\' failed to allocate component with name \'" + name + "\'" );
+
+
+  return comp;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 Component::Ptr build_component(const std::string& builder_name,
                                const std::string& name )
 {

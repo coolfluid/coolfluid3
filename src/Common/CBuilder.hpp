@@ -68,7 +68,12 @@ public:
 
   //@} END SIGNALS
 
+  /// Extract the builder's reduced name from the given builder name
+  /// The reduced name is the name with the namespace removed, in other words
+  /// all characters after the last dot
+  static std::string extract_reduced_name (const std::string& builder_name);
   /// Extract the builder's namespace from the given builder name
+  /// The namespace is the name up until the last dot.
   static std::string extract_namespace (const std::string& builder_name);
 
   /// Extract the library name from the given builder name

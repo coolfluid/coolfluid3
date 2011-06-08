@@ -41,6 +41,9 @@ public:
   /// @return the name of the type of this factory
   virtual std::string factory_type_name() const = 0;
 
+  /// returns a build by its name stripped out of the namespace part
+  Component& find_builder_with_reduced_name( const std::string& name );
+
 }; // CFactory
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -48,8 +51,7 @@ public:
 /// @brief Component class for a factory which builds other components
 /// @author Tiago Quintino
 template < typename TYPE >
-class CFactoryT : public CFactory
-{
+class CFactoryT : public CFactory {
 public:
 
   typedef boost::shared_ptr< CFactoryT<TYPE> > Ptr;
@@ -57,10 +59,7 @@ public:
 
   /// @brief Contructor
   /// @param name of component
-  CFactoryT(const std::string& name) : CFactory(name)
-  {
-     
-  }
+  CFactoryT(const std::string& name) : CFactory(name) {}
 
   /// @brief Virtual destructor.
   virtual ~CFactoryT() {};

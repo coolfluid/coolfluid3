@@ -63,6 +63,15 @@ std::string CBuilder::extract_namespace (const std::string& builder_name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+std::string CBuilder::extract_reduced_name (const std::string& builder_name)
+{
+  using namespace boost::algorithm;
+
+  return std::string( find_last(builder_name,".").end(), builder_name.end() );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 std::string CBuilder::extract_library_name (const std::string& builder_name)
 {
   return CLibraries::namespace_to_libname( extract_namespace( builder_name ) );

@@ -869,11 +869,22 @@ Component::Ptr build_component(const std::string& builder_name,
 /// If builder does not exist, tries to auto-load based on the builder name.
 /// @pre Factory must be contain the builder defined by the name
 /// @param [in] provider_name the registry string of the provider
-/// @param [in] name name to give to the created omponent
+/// @param [in] name name to give to the created component
 /// @param [in] factory_type_name name of the factory
 Component::Ptr build_component(const std::string& builder_name,
                                const std::string& name,
                                const std::string& factory_type_name);
+
+/// Create a component by providing the name of its builder.
+/// If factory does not exist, tries to auto-load based on the factory name.
+/// If builder does not exist, tries to auto-load based on the builder name.
+/// @pre Factory must be contain the builder defined by the name
+/// @param [in] provider_name the registry string of the provider
+/// @param [in] name name to give to the created component
+/// @param [in] factory_type_name name of the factory
+Component::Ptr build_component_reduced(const std::string& builder_name,
+                                       const std::string& name,
+                                       const std::string& factory_type_name);
 
 /// Create a component of a given abstract type
 /// @param provider_name the registry string of the provider of the concrete type
@@ -885,6 +896,28 @@ typename ATYPE::Ptr build_component_abstract_type(const std::string& builder_nam
   // create the component
 
   Component::Ptr comp = build_component(builder_name, name, ATYPE::type_name());
+
+  // cast the component
+
+  typename ATYPE::Ptr ccomp = comp->as_ptr<ATYPE>();
+  if ( is_null(ccomp) )
+    throw CastingFailed(FromHere(),
+                        "Pointer created by CBuilder \'" + builder_name + "\'"
+                        +" could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
+
+  return ccomp;
+}
+
+/// Create a component of a given abstract type using a reduced builder name
+/// @param buider_name the reduced builder name (name without namespace)
+/// @name name to give to the created omponent
+template < typename ATYPE >
+typename ATYPE::Ptr build_component_abstract_type_reduced(const std::string& builder_name,
+                                                          const std::string& name )
+{
+  // create the component
+
+  Component::Ptr comp = build_component_reduced(builder_name, name, ATYPE::type_name());
 
   // cast the component
 

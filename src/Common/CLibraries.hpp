@@ -98,10 +98,10 @@ class CLibrary;
     /// @name SIGNALS
     //@{
 
-    /// Signal to load a library
-    void signal_load_library ( SignalArgs& args );
-    /// Signature of the signal to load a library
-    void signature_load_library ( SignalArgs& args );
+    /// Signal to load a list of libraries
+    void signal_load_libraries ( SignalArgs& args );
+    /// Signature of the signal to load a list of libraries
+    void signature_load_libraries ( SignalArgs& args );
 
     //@} END SIGNALS
 
