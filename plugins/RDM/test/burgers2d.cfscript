@@ -5,48 +5,44 @@ configure //Root/Environment \
   exception_backtrace:bool=true \
   exception_aborts:bool=true
 
-# load the rdm library
-call //Root/Libraries/load_libraries "libs:array[uri]= \
-    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_core,\
-    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_schemes,\
-    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_scalar,\
-    file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_navierstokes"
+create Wizard CF.RDM.Core.SteadyExplicit
 
 # create a scalar advection model
-call //Root/Tools/RDM/SetupScalarSimulation/create_model \
+call Wizard/create_model \
      ModelName:string=model \
      PhysicalModel:string=Burgers2D
 
 # load the mesh
 call //Root/model/Domain/load_mesh \
-     file:uri=file:@CF_RESOURCE_DIR@/square1x1-tg-p2.msh \
+     file:uri=file:square1x1-tg-p2-2kn.msh \
      name:string=mesh
+
+ls //Root/model/Domain/mesh/topology
 
 # configure solver
 cd //Root/model/Solver
 
-configure ./ Domain:uri=cpath:../Domain
+configure ./ domain:uri=cpath:../Domain
 
-configure time_stepping CFL:real=1.0
+configure time_stepping cfl:real=1.0
 configure time_stepping MaxIter:unsigned=1000
 
 # create boundary term
 
 call create_boundary_term Name:string=INLET \
-     Type:string=CF.RDM.BcDirichlet \
+     Type:string=CF.RDM.Core.BcDirichlet \
      Regions:array[uri]=\
-//Root/model/Domain/mesh/topology/main/inlet,\
-//Root/model/Domain/mesh/topology/main/left,\
-//Root/model/Domain/mesh/topology/main/right
+//Root/model/Domain/mesh/topology/inlet,\
+//Root/model/Domain/mesh/topology/left,\
+//Root/model/Domain/mesh/topology/right
 
 configure compute_boundary_terms/INLET Function:string=1.5-2.0*x
 
 # create domain term
 
 call create_domain_term Name:string=INTERNAL \
-     Type:string=CF.RDM.LDA \
+     Type:string=CF.RDM.Core.LDA \
      Regions:array[uri]=//Root/model/Domain/mesh/topology
-
 
 # solve
 
