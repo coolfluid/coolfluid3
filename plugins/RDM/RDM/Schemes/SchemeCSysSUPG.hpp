@@ -95,13 +95,14 @@ void CSysSUPG::Term<SF,QD,PHYS>::execute()
        Ki_n[n] = Rv * Dv[n].asDiagonal() * Lv;
     }
 
+    B::sol_gradients_at_qdpoint(q);
+
     // compute L(u)
 
     PHYS::Lu(B::phys_props,
              B::X_q.row(q),
              B::U_q.row(q),
-             B::dUdX[XX].row(q).transpose(),
-             B::dUdX[YY].row(q).transpose(),
+             B::dUdXq,
              B::dFdU,
              B::LU );
 

@@ -11,6 +11,14 @@ coolfluid_add_unit_test( utest-rdm-linearadv2d )
 
 ##########################################################################
 
+list( APPEND utest-rdm-linearadv3d_cflibs coolfluid_rdm_scalar   )
+list( APPEND utest-rdm-linearadv3d_files
+  utest-rdm-linearadv3d.cpp )
+
+coolfluid_add_unit_test( utest-rdm-linearadv3d )
+
+##########################################################################
+
 list( APPEND utest-rdm-rotationadv2d_cflibs coolfluid_rdm_scalar  )
 list( APPEND utest-rdm-rotationadv2d_files  utest-rdm-rotationadv2d.cpp )
 

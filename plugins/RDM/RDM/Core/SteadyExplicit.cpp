@@ -21,6 +21,7 @@
 #include "Solver/CSolver.hpp"
 
 #include "RDM/Core/LinearAdv2D.hpp"       // supported physics
+#include "RDM/Core/LinearAdv3D.hpp"       // supported physics
 #include "RDM/Core/RotationAdv2D.hpp"     // supported physics
 #include "RDM/Core/Burgers2D.hpp"         // supported physics
 #include "RDM/Core/LinearAdvSys2D.hpp"    // supported physics
@@ -80,18 +81,45 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
   pm->configure_property( "Type", phys );
 
   Uint neqs = 0;
-  if( phys == "LinearAdv2D")    neqs = LinearAdv2D::neqs;
-  if( phys == "Burgers2D")      neqs = Burgers2D::neqs;
-  if( phys == "RotationAdv2D")  neqs = RotationAdv2D::neqs;
-  if( phys == "LinearAdvSys2D") neqs = LinearAdvSys2D::neqs;
-  if( phys == "Euler2D")        neqs = Euler2D::neqs;
+  Uint ndim = 0;
 
-  if (neqs == 0)
+  if( phys == "LinearAdv2D")
+  {
+    neqs = LinearAdv2D::neqs;
+    ndim = LinearAdv2D::ndim;
+  }
+  if( phys == "LinearAdv3D")
+  {
+    neqs = LinearAdv3D::neqs;
+    ndim = LinearAdv3D::ndim;
+  }
+  if( phys == "Burgers2D")
+  {
+    neqs = Burgers2D::neqs;
+    ndim = Burgers2D::ndim;
+  }
+  if( phys == "RotationAdv2D")
+  {
+    neqs = RotationAdv2D::neqs;
+    ndim = RotationAdv2D::ndim;
+  }
+  if( phys == "LinearAdvSys2D")
+  {
+    neqs = LinearAdvSys2D::neqs;
+    ndim = LinearAdvSys2D::ndim;
+  }
+  if( phys == "Euler2D")
+  {
+    neqs = Euler2D::neqs;
+    ndim = Euler2D::ndim;
+  }
+
+  if ( (neqs == 0) || (ndim == 0) )
     throw SetupError( FromHere(), "Unsupported physics type : " + phys );
 
   pm->configure_property( "DOFs", neqs );
 
-  pm->configure_property( "Dimensions", 2u );
+  pm->configure_property( "Dimensions", ndim );
 
   model->create_domain( "Domain" );
 
@@ -113,6 +141,7 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
 
   std::vector<std::string> models = boost::assign::list_of
       ( LinearAdv2D::type_name() )
+      ( LinearAdv3D::type_name() )
       ( RotationAdv2D::type_name() )
       ( Euler2D::type_name() )
       ( LinearAdvSys2D::type_name() )

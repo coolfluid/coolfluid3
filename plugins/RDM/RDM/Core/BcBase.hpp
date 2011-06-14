@@ -100,6 +100,7 @@ protected: // typedefs
 
   typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim>       QCoordMT;
   typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       QSolutionMT;
+  typedef Eigen::Matrix<Real, PHYS::neqs, PHYS::ndim>          QSolutionVT;
 
 protected: // data
 

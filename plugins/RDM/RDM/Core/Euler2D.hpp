@@ -68,11 +68,10 @@ public: // functions
   };
 
   /// compute physical properties
-  template < typename CV, typename SV, typename GXV, typename GYV >
+  template < typename CV, typename SV, typename GM >
   static void compute_properties ( const CV&  coord,
                                    const SV&  sol,
-                                   const GXV& dudx,
-                                   const GYV& dudy,
+                                   const GM& gradu,
                                    Properties& p )
   {
     p.gamma = 1.4;                 // diatomic ideal gas
@@ -225,12 +224,11 @@ public: // functions
   }
 
   /// compute the PDE residual
-  template < typename CV, typename SV, typename GXV, typename GYV, typename JM, typename LUV >
+  template < typename CV, typename SV, typename GM, typename JM, typename LUV >
   static void Lu(const Properties& p,
                  const CV&  coord,
                  const SV&  sol,
-                 const GXV& dudx,
-                 const GYV& dudy,
+                 const GM&  gradu,
                  JM         flux_jacob[],
                  LUV&       Lu)
   {
@@ -274,7 +272,7 @@ public: // functions
     B(3,2) = -p.gamma_minus_1*vv + p.H;
     B(3,3) = p.gamma*p.v;
 
-    Lu = A * dudx + B * dudy;
+    Lu = A * gradu.col(XX) + B * gradu.col(YY);
   }
 
 }; // Euler2D

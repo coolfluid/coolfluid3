@@ -37,6 +37,8 @@ list( APPEND coolfluid_rdm_core_files
   Euler2D.cpp
   LinearAdv2D.hpp
   LinearAdv2D.cpp
+  LinearAdv3D.hpp
+  LinearAdv3D.cpp
   LinearAdvSys2D.hpp
   LinearAdvSys2D.cpp
   RotationAdv2D.hpp

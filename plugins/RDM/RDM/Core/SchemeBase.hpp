@@ -62,6 +62,8 @@ public: // functions
   /// @post zeros the local residual matrix
   void interpolate ( const Mesh::CTable<Uint>::ConstRow& nodes_idx );
 
+  void sol_gradients_at_qdpoint(const Uint q);
+
 protected: // helper functions
 
   void change_elements()
@@ -114,6 +116,8 @@ protected: // typedefs
   typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim>       QCoordMT;
   typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       QSolutionMT;
 
+  typedef Eigen::Matrix<Real, PHYS::neqs, PHYS::ndim>          QSolutionVT;
+
 protected: // data
 
   /// pointer to connectivity table, may reset when iterating over element types
@@ -139,6 +143,10 @@ protected: // data
   QSolutionMT U_q;
   /// derivatives of solution to X at each quadrature point, one matrix per dimension
   QSolutionMT dUdX[PHYS::ndim];
+
+  /// derivatives of solution to X at ONE quadrature point, each column stores derivatives
+  /// with respect to given coordinate
+  QSolutionVT dUdXq;
 
   /// contribution to nodal residuals
   SolutionMT Phi_n;
@@ -309,6 +317,17 @@ void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& n
   // zero element residuals
 
   Phi_n.setZero();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+template<typename SF,typename QD, typename PHYS>
+void SchemeBase<SF, QD,PHYS>::sol_gradients_at_qdpoint(const Uint q)
+{
+  for(Uint dim = 0; dim < PHYS::ndim; ++dim)
+  {
+    dUdXq.col(dim) = dUdX[dim].row(q).transpose();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

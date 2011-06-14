@@ -139,6 +139,7 @@ protected: // data
  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim   >     QCoordMT;
  typedef Eigen::Matrix<Real, SF::nb_nodes,  PHYS::neqs   >     SolutionMT;
  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs   >     QSolutionMT;
+ typedef Eigen::Matrix<Real, PHYS::neqs,    PHYS::ndim   >     QSolutionVT;
  typedef Eigen::Matrix<Real, PHYS::neqs,    1u           >     SolutionVT;
  typedef Eigen::Matrix<Real, PHYS::neqs,    PHYS::ndim   >     FluxMT;
  typedef Eigen::Matrix<Real, PHYS::ndim,    1u           >     DimVT;
@@ -159,6 +160,8 @@ protected: // data
  QSolutionMT U_q;
  /// derivatives of solution to X at each quadrature point, one matrix per dimension
  QSolutionMT dUdX[PHYS::ndim];
+ /// derivatives of solution with respect to x,y,z at ONE quadrature point
+ QSolutionVT dUdXq;
  /// Integration factor (jacobian multiplied by quadrature weight)
  WeightVT wj;
  /// contribution to nodal residuals
@@ -224,6 +227,11 @@ public: // functions
    for(Uint q=0; q < QD::nb_points; ++q)
    {
 
+    for(Uint dim = 0; dim < PHYS::ndim; ++dim)
+    {
+      dUdXq.col(dim) = dUdX[dim].row(q).transpose();
+    }
+
     const Real jacob = std::sqrt( dX_q(q,XX)*dX_q(q,XX)+dX_q(q,YY)*dX_q(q,YY) );
 
     wj[q] = jacob * m_quadrature.weights[q];
@@ -237,8 +245,7 @@ public: // functions
 
     PHYS::compute_properties(X_q.row(q),
                              U_q.row(q),
-                             dUdX[XX].row(q).transpose(),
-                             dUdX[YY].row(q).transpose(),
+                             dUdXq,
                              B::phys_props);
 
     PHYS::flux(B::phys_props,
@@ -267,8 +274,7 @@ public: // functions
 
     PHYS::compute_properties(X_q.row(q),
                              u_g,
-                             dUdX[XX].row(q).transpose(),
-                             dUdX[YY].row(q).transpose(),
+                             dUdXq,
                              B::phys_props);
 
     PHYS::flux(B::phys_props,

@@ -92,10 +92,11 @@ void CSysB::Term<SF,QD,PHYS>::execute()
   for(Uint q=0; q < QD::nb_points; ++q)
   {
 
+    B::sol_gradients_at_qdpoint(q);
+
     PHYS::compute_properties(B::X_q.row(q),
                              B::U_q.row(q),
-                             B::dUdX[XX].row(q).transpose(),
-                             B::dUdX[YY].row(q).transpose(),
+                             B::dUdXq,
                              B::phys_props);
 
     for(Uint n=0; n < SF::nb_nodes; ++n)
@@ -123,8 +124,7 @@ void CSysB::Term<SF,QD,PHYS>::execute()
     PHYS::Lu(B::phys_props,
              B::X_q.row(q),
              B::U_q.row(q),
-             B::dUdX[XX].row(q).transpose(),
-             B::dUdX[YY].row(q).transpose(),
+             B::dUdXq,
              B::dFdU,
              B::LU );
 
