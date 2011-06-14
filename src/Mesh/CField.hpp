@@ -146,6 +146,8 @@ public: // functions
 
   boost::iterator_range< Common::ComponentIterator<CEntities const> > field_elements() const;
 
+  void synchronize();
+
 private:
 
   Basis::Type m_basis;
