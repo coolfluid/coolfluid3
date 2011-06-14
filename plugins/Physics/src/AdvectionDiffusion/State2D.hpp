@@ -32,7 +32,7 @@ public: // functions
   State2D( const std::string& name = type_name() ) : Solver::State(name)
   {
     m_var_names.resize(1,"Q");
-    m_advection_speed << 1. , 1.;
+    m_advection_speed << 1. , 0.;
   }
 
   /// Virtual destructor
