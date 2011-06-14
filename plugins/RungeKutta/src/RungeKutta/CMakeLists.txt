@@ -7,6 +7,6 @@ list( APPEND coolfluid_rungekutta_files
   UpdateSolution.cpp
 )
 
-list( APPEND coolfluid_rungekutta_cflibs coolfluid_math coolfluid_solver )
+list( APPEND coolfluid_rungekutta_cflibs coolfluid_math coolfluid_solver coolfluid_solver_actions)
 
 coolfluid_add_library( coolfluid_rungekutta )

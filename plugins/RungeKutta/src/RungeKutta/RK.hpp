@@ -15,8 +15,9 @@
 #include "Solver/Action.hpp"
 
 namespace CF {
-namespace Common { class CGroupActions; }
+namespace Common { class CGroupActions; class CGroup;}
 namespace Mesh { class CField; }
+namespace Solver { namespace Actions { class CAdvanceTime; } }
 namespace RungeKutta {
   class UpdateSolution;
 
@@ -62,9 +63,11 @@ private:
 
   Uint m_stages;
 
+  boost::shared_ptr<Common::CGroup> m_for_each_stage;
   boost::shared_ptr<Common::CGroupActions> m_pre_update;
   boost::shared_ptr<UpdateSolution> m_update;
   boost::shared_ptr<Common::CGroupActions> m_post_update;
+  boost::shared_ptr<Solver::Actions::CAdvanceTime> m_advance_time;
 
   boost::weak_ptr<Mesh::CField> m_solution;
   boost::weak_ptr<Mesh::CField> m_residual;

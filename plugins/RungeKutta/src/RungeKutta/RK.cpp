@@ -10,6 +10,7 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/CGroupActions.hpp"
+#include "Common/CGroup.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CField.hpp"
@@ -17,6 +18,7 @@
 #include "Solver/FlowSolver.hpp"
 #include "Solver/CTime.hpp"
 #include "Solver/CModel.hpp"
+#include "Solver/Actions/CAdvanceTime.hpp"
 #include "RungeKutta/RK.hpp"
 #include "RungeKutta/UpdateSolution.hpp"
 
@@ -26,6 +28,7 @@ namespace RungeKutta {
 using namespace Common;
 using namespace Mesh;
 using namespace Solver;
+using namespace Solver::Actions;
 
 ComponentBuilder<RK, CAction, LibRungeKutta> RK_builder;
 
@@ -48,9 +51,17 @@ RK::RK ( const std::string& name  )
   properties().add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(),"Residual","Residual",&m_residual));
   properties().add_option(OptionComponent<CField>::create(FlowSolver::Tags::update_coeff(),"Update Coefficient","Update Coefficient",&m_update_coeff));
 
-  m_pre_update  = create_static_component_ptr<CGroupActions>("pre_update_actions");
-  m_update      = create_static_component_ptr<UpdateSolution>("update");
-  m_post_update = create_static_component_ptr<CGroupActions>("post_update_actions");
+  m_for_each_stage = create_static_component_ptr<CGroup>("1_for_each_stage");
+  m_for_each_stage->mark_basic();
+  m_pre_update  = m_for_each_stage->create_static_component_ptr<CGroupActions>("1_pre_update_actions");
+  m_pre_update->mark_basic();
+  m_update      = m_for_each_stage->create_static_component_ptr<UpdateSolution>("2_update");
+  m_update->mark_basic();
+  m_post_update = m_for_each_stage->create_static_component_ptr<CGroupActions>("3_post_update_actions");
+  m_post_update->mark_basic();
+  m_advance_time = create_static_component_ptr<CAdvanceTime>("2_advance_time");
+  m_advance_time->mark_basic();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -171,9 +182,11 @@ void RK::execute()
     /// - Post update actions, filters, checks, ...
     m_post_update->execute();
   }
-  /// Set time back to pre-stages time, so that other actions such as Solver::CAdvanceTime might still update the time
+
+  /// Set time back to pre-stages time, so that the action Solver::CAdvanceTime will update the time
   /// @note that time().dt() has been modified
   time().time() = T0;
+  m_advance_time->execute();
 
 }
 

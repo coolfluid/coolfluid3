@@ -302,7 +302,7 @@ void SFDWizard::build_solve()
   Component& iterate = solver.create_solve("iterate","CF.Solver.Actions.CIterate");
   Component& RK = iterate.create_component("1_RK_stages","CF.RungeKutta.RK");
   RK.configure_property("stages",property("RK_stages").value<Uint>());
-  Component& compute_rhs = iterate.access_component("1_RK_stages/pre_update_actions").create_component<CGroupActions>("1_compute_rhs").mark_basic();
+  Component& compute_rhs = RK.access_component("1_for_each_stage/1_pre_update_actions").create_component<CGroupActions>("1_compute_rhs").mark_basic();
   compute_rhs.add_tag(FlowSolver::Tags::inner());
   compute_rhs.create_component <CInitFieldConstant>("1.1_init_residual")
     .mark_basic()
@@ -318,9 +318,8 @@ void SFDWizard::build_solve()
     compute_rhs.create_component<CForAllCells>("1.3_for_all_cells").mark_basic();
   Component& compute_rhs_in_cell = for_all_cells.create_component<ComputeRhsInCell>("1.3.1_compute_rhs_in_cell").mark_basic();
 
-  RK.access_component("pre_update_actions").create_component<ComputeUpdateCoefficient>("2_compute_update_coeff").mark_basic();
-  iterate.create_component<CAdvanceTime>("2_advance_time").mark_basic();
-  iterate.create_component<OutputIterationInfo>("3_output_info").mark_basic();
+  RK.access_component("1_for_each_stage/1_pre_update_actions").create_component<ComputeUpdateCoefficient>("2_compute_update_coeff").mark_basic();
+  iterate.create_component<OutputIterationInfo>("2_output_info").mark_basic();
   iterate.create_component<CCriterionTime>("time_stop_criterion").mark_basic();
 
   /// @todo configure differently
@@ -372,7 +371,7 @@ void SFDSetup::execute()
 
   /// @todo configure this differently perhaps
   /// 2) set looping regions to the entire mesh
-  access_component("../iterate/1_RK_stages/pre_update_actions/1_compute_rhs/1.3_for_all_cells").configure_property("regions",std::vector<URI>(1,mesh().topology().uri()));
+  access_component("../iterate/1_RK_stages/1_for_each_stage/1_pre_update_actions/1_compute_rhs/1.3_for_all_cells").configure_property("regions",std::vector<URI>(1,mesh().topology().uri()));
 
   /// 3) configure the initialize_solution component. The field must be set to the solution.
   access_component("../../tools/initialize_solution").configure_property("field",mesh().get_child(FlowSolver::Tags::solution()).uri());

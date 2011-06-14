@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
   gmsh_writer.configure_property("mesh",mesh.uri());
   gmsh_writer.configure_property("file",URI("file:gaussian_iter${iter}_time${time}.msh"));
 
-  //iterate.configure_property("max_iter",5u);
+  iterate.configure_property("max_iter",3u);
 
   CFinfo << model.tree() << CFendl;
 
