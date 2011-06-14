@@ -57,79 +57,79 @@ std::ostream& operator<<(std::ostream& os, const CTable<std::string>::ConstRow r
   print_vector(os, row);
   return os;
 }
-	
+
 ////////////////////////////////////////////////////////////////////////////////
 
 std::ostream& operator<<(std::ostream& os, const CTable<bool>& table)
 {
-	if (table.size())
-		os << "\n";
-	index_foreach(i,CTable<bool>::ConstRow row, table.array())
-	{
-		os << "  " << i << ":  ";
-		boost_foreach(const bool entry, row)
-			os << entry << " ";
-		os << "\n";
-	}
-	return os;
+  if (table.size())
+    os << "\n";
+  index_foreach(i,CTable<bool>::ConstRow row, table.array())
+  {
+    os << "  " << i << ":  ";
+    boost_foreach(const bool entry, row)
+      os << entry << " ";
+    os << "\n";
+  }
+  return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const CTable<Uint>& table)
 {
-	if (table.size())
-		os << "\n";
-	index_foreach(i,CTable<Uint>::ConstRow row, table.array())
-	{
-		os << "  " << i << ":  ";
-		boost_foreach(const Uint entry, row)
-			os << entry << " ";
-		os << "\n";
-	}
-	return os;
+  if (table.size())
+    os << "\n";
+  index_foreach(i,CTable<Uint>::ConstRow row, table.array())
+  {
+    os << "  " << i << ":  ";
+    boost_foreach(const Uint entry, row)
+      os << entry << " ";
+    os << "\n";
+  }
+  return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const CTable<int>& table)
 {
-	if (table.size())
-		os << "\n";
-	index_foreach(i,CTable<int>::ConstRow row, table.array())
-	{
-		os << "  " << i << ":  ";
-		boost_foreach(const int entry, row)
-			os << entry << " ";
-		os << "\n";
-	}
-	return os;
+  if (table.size())
+    os << "\n";
+  index_foreach(i,CTable<int>::ConstRow row, table.array())
+  {
+    os << "  " << i << ":  ";
+    boost_foreach(const int entry, row)
+      os << entry << " ";
+    os << "\n";
+  }
+  return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const CTable<Real>& table)
 {
-	if (table.size())
-		os << "\n";
-	index_foreach(i,CTable<Real>::ConstRow row, table.array())
-	{
-		os << "  " << i << ":  ";
-		boost_foreach(const Real& entry, row)
-			os << entry << " ";
-		os << "\n";
-	}
-	return os;
+  if (table.size())
+    os << "\n";
+  index_foreach(i,CTable<Real>::ConstRow row, table.array())
+  {
+    os << "  " << i << ":  ";
+    boost_foreach(const Real& entry, row)
+      os << entry << " ";
+    os << "\n";
+  }
+  return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const CTable<std::string>& table)
 {
-	if (table.size())
-		os << "\n";
-	index_foreach(i,CTable<std::string>::ConstRow row, table.array())
-	{
-		os << "  " << i << ":  ";
-		boost_foreach(const std::string& entry, row)
-			os << entry << " ";
-		os << "\n";
-	}
-	return os;
+  if (table.size())
+    os << "\n";
+  index_foreach(i,CTable<std::string>::ConstRow row, table.array())
+  {
+    os << "  " << i << ":  ";
+    boost_foreach(const std::string& entry, row)
+      os << entry << " ";
+    os << "\n";
+  }
+  return os;
 }
-	
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

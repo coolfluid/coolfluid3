@@ -117,7 +117,7 @@ BOOST_FIXTURE_TEST_CASE( all_reduce, PECollectiveFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( all_to_all_ring_ropology, PECollectiveFixture )
+BOOST_FIXTURE_TEST_CASE( all_to_all_ring_topology, PECollectiveFixture )
 {
   int nproc = mpi::PE::instance().size();
   int irank = mpi::PE::instance().rank();

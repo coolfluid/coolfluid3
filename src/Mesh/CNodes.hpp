@@ -19,7 +19,7 @@
 
 namespace CF {
 namespace Mesh {
-	
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CNodes component class
@@ -37,7 +37,7 @@ public: // functions
   /// Contructor
   /// @param name of the component
   CNodes ( const std::string& name );
-    
+
   /// Virtual destructor
   virtual ~CNodes();
 
@@ -49,17 +49,20 @@ public: // functions
 
   CList<bool>& is_ghost() { return *m_is_ghost; }
   const CList<bool>& is_ghost() const { return *m_is_ghost; }
-  
+
+  CList<Uint>& rank() { return *m_rank; }
+  const CList<Uint>& rank() const { return *m_rank; }
+
   CDynTable<Uint>& glb_elem_connectivity() { return *m_glb_elem_connectivity; }
   const CDynTable<Uint>& glb_elem_connectivity() const { return *m_glb_elem_connectivity; }
 
   CList<Uint>& glb_idx() { return *m_global_numbering; }
   const CList<Uint>& glb_idx() const { return *m_global_numbering; }
-  
+
   virtual void resize(const Uint size);
-  
+
   Uint size() const { return coordinates().size(); }
-  
+
   Uint dim() const { return coordinates().row_size(); }
 
 private: // data
@@ -69,6 +72,8 @@ private: // data
   boost::shared_ptr<CDynTable<Uint> > m_glb_elem_connectivity;
 
   boost::shared_ptr<CList<bool> > m_is_ghost;
+
+  boost::shared_ptr<CList<Uint> > m_rank;
 
   boost::shared_ptr<CList<Uint> > m_global_numbering;
 

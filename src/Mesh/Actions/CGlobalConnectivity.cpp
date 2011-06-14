@@ -5,12 +5,11 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/foreach.hpp>
-#include <boost/functional/hash.hpp>
 #include <boost/static_assert.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StreamHelpers.hpp"
@@ -42,7 +41,7 @@
 namespace CF {
 namespace Mesh {
 namespace Actions {
-  
+
   using namespace Common;
   using namespace Math::MathFunctions;
   using namespace Math::MathConsts;
@@ -58,10 +57,10 @@ Common::ComponentBuilder < CGlobalConnectivity, CMeshTransformer, LibActions> CG
 CGlobalConnectivity::CGlobalConnectivity( const std::string& name )
 : CMeshTransformer(name)
 {
-   
+
   properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
   std::string desc;
-  desc = 
+  desc =
     "  Usage: CGlobalConnectivity Regions:array[uri]=region1,region2\n\n";
   properties()["description"] = desc;
 }
@@ -81,12 +80,12 @@ std::string CGlobalConnectivity::brief_description() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-  
+
 std::string CGlobalConnectivity::help() const
 {
   return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
-}  
-  
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CGlobalConnectivity::execute()
@@ -111,31 +110,31 @@ void CGlobalConnectivity::execute()
   std::map<Uint,Uint> node_glb2loc;
   index_foreach(loc_node_idx, Uint glb_node_idx, nodes_glb_idx.array())
     node_glb2loc[glb_node_idx]=loc_node_idx;
-  
+
   //2)
   CNodeElementConnectivity& node2elem = *mesh.nodes().create_component_ptr<CNodeElementConnectivity>("node2elem");
   node2elem.setup(mesh.topology());
-  
+
   // 3)
   Uint nb_ghost(0);
   for (Uint i=0; i<nodes.size(); ++i)
     if (nodes_is_ghost[i])
       ++nb_ghost;
-  
+
   std::vector<Uint> ghostnode_glb_idx(nb_ghost);
   std::vector<Uint> ghostnode_glb_elem_connectivity;
   std::vector<Uint> ghostnode_glb_elem_connectivity_start(nb_ghost+1);
   ghostnode_glb_elem_connectivity_start[0]=0;
   Component::Ptr elem_comp;
   Uint elem_idx;
-  
+
   Uint cnt(0);
   for (Uint i=0; i<mesh.nodes().size(); ++i)
   {
     if (mesh.nodes().is_ghost()[i])
     {
       ghostnode_glb_idx[cnt] = nodes_glb_idx[i];
-      
+
       CDynTable<Uint>::ConstRow elems = node2elem.connectivity()[i];
       boost_foreach(const Uint e, elems)
       {
@@ -143,7 +142,7 @@ void CGlobalConnectivity::execute()
         ghostnode_glb_elem_connectivity.push_back(elem_comp->as_type<CElements>().glb_idx()[elem_idx]);
       }
       ghostnode_glb_elem_connectivity_start[cnt+1] = ghostnode_glb_elem_connectivity_start[cnt] + elems.size();
-            
+
       ++cnt;
     }
   }
@@ -151,7 +150,7 @@ void CGlobalConnectivity::execute()
   // 4)
   std::vector<std::vector<Uint> > glb_elem_connectivity(nodes.size());
   nodes_glb_idx.resize(mesh.nodes().size());
-  
+
   for (Uint root=0; root<mpi::PE::instance().size(); ++root)
   {
     std::vector<Uint> rcv_glb_node_idx(0);//ghostnode_glb_idx.size());
@@ -185,7 +184,7 @@ void CGlobalConnectivity::execute()
     }
   }
 
-  
+
   CDynTable<Uint>& nodes_glb_elem_connectivity = mesh.nodes().glb_elem_connectivity();
   nodes_glb_elem_connectivity.resize(glb_elem_connectivity.size());
   for (Uint i=0; i<glb_elem_connectivity.size(); ++i)
@@ -196,15 +195,15 @@ void CGlobalConnectivity::execute()
     boost_foreach(const Uint e, elems)
     {
       boost::tie(elem_comp,elem_idx) = node2elem.elements().location(e);
-      nodes_glb_elem_connectivity[i][cnt++] = elem_comp->as_type<CElements>().glb_idx()[elem_idx];      
+      nodes_glb_elem_connectivity[i][cnt++] = elem_comp->as_type<CElements>().glb_idx()[elem_idx];
     }
     for (Uint j=0; j<glb_elem_connectivity[i].size(); ++j)
     {
       nodes_glb_elem_connectivity[i][cnt++] = glb_elem_connectivity[i][j];
     }
-    
+
   }
-  
+
   CFinfo << "Connectivity successful" << CFendl;
 }
 

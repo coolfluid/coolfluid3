@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include "Common/Log.hpp"
- 
+
 
 #include "Mesh/CHash.hpp"
 #include "Mesh/CMixedHash.hpp"
@@ -59,18 +59,18 @@ BOOST_AUTO_TEST_CASE( Constructors)
 BOOST_AUTO_TEST_CASE( SingleHash )
 {
   CHash::Ptr hash = allocate_component<CHash>("hash");
-  hash->configure_property("Number of Objects", (Uint) 11);
-  hash->configure_property("Number of Partitions", (Uint) 3);
-  
+  hash->configure_property("nb_obj", (Uint) 11);
+  hash->configure_property("nb_parts", (Uint) 3);
+
   BOOST_CHECK(true);
-  
+
   BOOST_CHECK_EQUAL(hash->part_of_obj(0), (Uint) 0);
   BOOST_CHECK_EQUAL(hash->part_of_obj(2), (Uint) 0);
   BOOST_CHECK_EQUAL(hash->part_of_obj(3), (Uint) 1);
   BOOST_CHECK_EQUAL(hash->part_of_obj(5), (Uint) 1);
   BOOST_CHECK_EQUAL(hash->part_of_obj(6), (Uint) 2);
   BOOST_CHECK_EQUAL(hash->part_of_obj(10), (Uint) 2);
-  
+
   BOOST_CHECK_EQUAL(hash->start_idx_in_part(0), (Uint) 0);
   BOOST_CHECK_EQUAL(hash->start_idx_in_part(1), (Uint) 3);
   BOOST_CHECK_EQUAL(hash->start_idx_in_part(2), (Uint) 6);
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( SingleHash )
   BOOST_CHECK_EQUAL(hash->end_idx_in_part(0), (Uint) 3);
   BOOST_CHECK_EQUAL(hash->end_idx_in_part(1), (Uint) 6);
   BOOST_CHECK_EQUAL(hash->end_idx_in_part(2), (Uint) 11);
-  
+
   BOOST_CHECK_EQUAL(hash->nb_objects_in_part(0), (Uint) 3);
   BOOST_CHECK_EQUAL(hash->nb_objects_in_part(1), (Uint) 3);
   BOOST_CHECK_EQUAL(hash->nb_objects_in_part(2), (Uint) 5);
@@ -92,22 +92,22 @@ BOOST_AUTO_TEST_CASE( MixedHash )
   std::vector<Uint> num_obj(2);
   num_obj[0] = 10;
   num_obj[1] = 8;
-  hash->configure_property("Number of Partitions", (Uint) 3);
-  hash->configure_property("Number of Objects", num_obj);
-  
+  hash->configure_property("nb_parts", (Uint) 3);
+  hash->configure_property("nb_obj", num_obj);
+
   BOOST_CHECK(true);
-  
-  BOOST_CHECK_EQUAL(hash->subhash(0)->part_of_obj(0), (Uint) 0);
-  BOOST_CHECK_EQUAL(hash->subhash(0)->part_of_obj(3), (Uint) 1);
-  BOOST_CHECK_EQUAL(hash->subhash(0)->part_of_obj(6), (Uint) 2);
-  BOOST_CHECK_EQUAL(hash->subhash(1)->part_of_obj(0), (Uint) 0);
-  BOOST_CHECK_EQUAL(hash->subhash(1)->part_of_obj(2), (Uint) 1);
-  BOOST_CHECK_EQUAL(hash->subhash(1)->part_of_obj(4), (Uint) 2);
-  
-  BOOST_CHECK_EQUAL(hash->subhash(0)->part_size(), (Uint) 3);
-  BOOST_CHECK_EQUAL(hash->subhash(1)->part_size(), (Uint) 2);
+
+  BOOST_CHECK_EQUAL(hash->subhash(0).part_of_obj(0), (Uint) 0);
+  BOOST_CHECK_EQUAL(hash->subhash(0).part_of_obj(3), (Uint) 1);
+  BOOST_CHECK_EQUAL(hash->subhash(0).part_of_obj(6), (Uint) 2);
+  BOOST_CHECK_EQUAL(hash->subhash(1).part_of_obj(0), (Uint) 0);
+  BOOST_CHECK_EQUAL(hash->subhash(1).part_of_obj(2), (Uint) 1);
+  BOOST_CHECK_EQUAL(hash->subhash(1).part_of_obj(4), (Uint) 2);
+
+  BOOST_CHECK_EQUAL(hash->subhash(0).part_size(), (Uint) 3);
+  BOOST_CHECK_EQUAL(hash->subhash(1).part_size(), (Uint) 2);
   BOOST_CHECK_EQUAL(hash->part_size(), (Uint) 5);
-  
+
   BOOST_CHECK_EQUAL(hash->part_of_obj(0), (Uint) 0);
   BOOST_CHECK_EQUAL(hash->part_of_obj(2), (Uint) 0);
   BOOST_CHECK_EQUAL(hash->part_of_obj(3), (Uint) 0);
@@ -120,20 +120,20 @@ BOOST_AUTO_TEST_CASE( MixedHash )
   BOOST_CHECK_EQUAL(hash->part_of_obj(13), (Uint) 2);
   BOOST_CHECK_EQUAL(hash->part_of_obj(14), (Uint) 2);
   BOOST_CHECK_EQUAL(hash->part_of_obj(16), (Uint) 2);
-   
+
   BOOST_CHECK_EQUAL(hash->start_idx_in_part(0), (Uint) 0);
   BOOST_CHECK_EQUAL(hash->start_idx_in_part(1), (Uint) 5);
   BOOST_CHECK_EQUAL(hash->start_idx_in_part(2), (Uint) 10);
-  
+
   BOOST_CHECK_EQUAL(hash->end_idx_in_part(0), (Uint) 5);
   BOOST_CHECK_EQUAL(hash->end_idx_in_part(1), (Uint) 10);
   BOOST_CHECK_EQUAL(hash->end_idx_in_part(2), (Uint) 18);
-  
+
   BOOST_CHECK_EQUAL(hash->nb_objects_in_part(0), (Uint) 5);
   BOOST_CHECK_EQUAL(hash->nb_objects_in_part(1), (Uint) 5);
   BOOST_CHECK_EQUAL(hash->nb_objects_in_part(2), (Uint) 8);
-  
-  
+
+
   BOOST_CHECK_EQUAL(hash->subhash_of_obj(0), (Uint) 0);
   BOOST_CHECK_EQUAL(hash->subhash_of_obj(2), (Uint) 0);
   BOOST_CHECK_EQUAL(hash->subhash_of_obj(3), (Uint) 1);
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( MixedHash )
   BOOST_CHECK_EQUAL(hash->subhash_of_obj(13), (Uint) 0);
   BOOST_CHECK_EQUAL(hash->subhash_of_obj(14), (Uint) 1);
   BOOST_CHECK_EQUAL(hash->subhash_of_obj(16), (Uint) 1);
-  
+
 
 }
 

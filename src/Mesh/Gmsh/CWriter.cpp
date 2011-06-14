@@ -12,6 +12,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
+#include "Common/CMap.hpp"
 
 /// @todo remove
 #include "Common/Log.hpp"
@@ -77,6 +78,9 @@ CWriter::CWriter( const std::string& name )
 
   m_elementTypes["CF.Mesh.SF.Quad2DLagrangeP3"] = 36;
   m_elementTypes["CF.Mesh.SF.Quad3DLagrangeP3"] = 36;
+
+  m_cf_2_gmsh_node = create_static_component_ptr<CMap<Uint,Uint> >("to_gmsh_node");
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -113,13 +117,15 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 
   // must be in correct order!
   write_header(file);
+  m_cf_2_gmsh_node->clear();
+  m_cf_2_gmsh_node->reserve(CElements::used_nodes(*m_mesh->topology().as_non_const()).size());
   write_coordinates(file);
   write_connectivity(file);
   write_elem_nodal_data(file);
   write_nodal_data(file);
   //write_element_data(file);
   file.close();
-
+  m_cf_2_gmsh_node->clear();
 }
 /////////////////////////////////////////////////////////////////////////////
 
@@ -171,19 +177,25 @@ void CWriter::write_coordinates(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  const Uint nb_nodes = m_mesh->nodes().size();
+  const CList<Uint>& used_nodes = CElements::used_nodes(*m_mesh->topology().as_non_const());
+  const Uint nb_nodes = used_nodes.size();
+  CMap<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
   file << "$Nodes\n";
   file << nb_nodes << "\n";
 
   Uint node_number=0;
-  boost_foreach(CTable<Real>::ConstRow row, m_mesh->nodes().coordinates().array())
+  const CTable<Real>& coordinates = m_mesh->nodes().coordinates();
+  Uint gmsh_node = 1;
+  boost_foreach( const Uint node, used_nodes.array())
   {
+    to_gmsh_node.insert_blindly(node,gmsh_node++);
+    CTable<Real>::ConstRow coord = coordinates[node];
     file << ++node_number << " ";
     for (Uint d=0; d<3; d++)
     {
       if (d<m_mesh->dimension())
-        file << row[d] << " ";
+        file << coord[d] << " ";
       else
         file << 0 << " ";
     }
@@ -205,6 +217,7 @@ void CWriter::write_connectivity(std::fstream& file)
   // file << "elm-number elm-type number-of-tags < tag > ... node-number-list ...     \n";
   // file << "$EndElements\n";
   Uint nbElems = m_mesh->topology().recursive_elements_count();
+  CMap<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
   file << "$Elements\n";
   file << nbElems << "\n";
@@ -230,7 +243,7 @@ void CWriter::write_connectivity(std::fstream& file)
       file << elm_number+1 << " " << elm_type << " " << number_of_tags << " " << group_number << " " << 0 << " " << partition_number;
       boost_foreach(const Uint node_idx, elements.get_nodes(e))
       {
-        file << " " << node_idx+1;
+        file << " " << to_gmsh_node[node_idx];
       }
       file << "\n";
     }
@@ -467,11 +480,12 @@ void CWriter::write_nodal_data(std::fstream& file)
 
         Uint local_node_idx=0;
         const CTable<Real>& field_data = nodebased_field.data();
-        //const CList<Uint>& used_nodes = nodebased_field.used_nodes();
+        const CList<Uint>& used_nodes = nodebased_field.used_nodes();
+        const CMap<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
         boost_foreach(CTable<Real>::ConstRow field_per_node, field_data.array())
         {
-          file << ++local_node_idx << " ";
+          file << to_gmsh_node[used_nodes[local_node_idx++]] << " ";
 
           if (var_type==CField::TENSOR_2D)
           {

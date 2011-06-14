@@ -19,15 +19,15 @@ namespace CF {
 namespace Mesh {
 
   class CMesh;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CMeshTransformer component class
 /// This class serves as a component that that will operate on meshes
 /// @author Willem Deconinck
-class Mesh_API CMeshTransformer : public Common::CAction 
+class Mesh_API CMeshTransformer : public Common::CAction
 {
-  
+
 public: // typedefs
 
   /// pointer to this type
@@ -50,7 +50,7 @@ public: // functions
 
   virtual void transform(boost::shared_ptr<CMesh> mesh);
   virtual void transform(CMesh& mesh);
-  
+
   virtual void execute();
 
   /// extended help that user can query
@@ -59,8 +59,20 @@ public: // functions
   void set_mesh(boost::shared_ptr<CMesh> mesh);
   void set_mesh(CMesh& mesh);
 
+  CMesh& mesh()
+  {
+    cf_assert(m_mesh.expired() == false);
+    return *m_mesh.lock();
+  }
+
+  const CMesh& mesh() const
+  {
+    cf_assert(m_mesh.expired() == false);
+    return *m_mesh.lock();
+  }
+
 protected: // data
-  
+
   boost::weak_ptr<CMesh> m_mesh;
 
 };

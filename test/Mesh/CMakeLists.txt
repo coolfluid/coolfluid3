@@ -257,7 +257,7 @@ set( utest-pt-scotch_condition ${coolfluid_mesh_ptscotch_builds} )
 set( utest-pt-scotch_mpi_test TRUE )
 set( utest-pt-scotch_mpi_nprocs 3 )
 
-coolfluid_add_unit_test( utest-pt-scotch 3)
+coolfluid_add_unit_test( utest-pt-scotch )
 
 ################################################################################
 
@@ -272,7 +272,7 @@ set( utest-zoltan_condition ${coolfluid_mesh_zoltan_builds} )
 set( utest-zoltan_mpi_test TRUE )
 set( utest-zoltan_mpi_nprocs 2 )
 
-coolfluid_add_unit_test( utest-zoltan 2)
+coolfluid_add_unit_test( utest-zoltan )
 
 ################################################################################
 
@@ -286,7 +286,7 @@ set( utest-blockmesh-mpi_condition ${CF_TMP_HAVE_SIMPLECOMM})
 set( utest-blockmesh-mpi_mpi_test TRUE)
 set( utest-blockmesh-mpi_performance_test TRUE)
 
-coolfluid_add_unit_test( utest-blockmesh-mpi ${CF_MPI_TESTS_NB_PROCS})
+coolfluid_add_unit_test( utest-blockmesh-mpi )
 
 ################################################################################
 
@@ -303,12 +303,35 @@ set( utest-blockmesh-mpi-scale_mpi_test TRUE)
 coolfluid_add_unit_test( utest-blockmesh-mpi-scale )
 
 ##########################################################################
+# test parallel field
+
+list( APPEND utest-parallel-field_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_actions coolfluid_mesh_zoltan)
+list( APPEND utest-parallel-field_files  utest-parallel-field.cpp )
+
+set( utest-parallel-field_condition ${coolfluid_mesh_zoltan_builds} )
+set( utest-parallel-field_mpi_test TRUE )
+set( utest-parallel-field_mpi_nprocs 2 )
+
+coolfluid_add_unit_test( utest-parallel-field )
+
+
+##########################################################################
 # test load mesh wizard
 list( APPEND utest-loadmesh_cflibs coolfluid_solver )
 list( APPEND utest-loadmesh_files  utest-loadmesh.cpp )
 list( APPEND utest-loadmesh_resources ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CF_RESOURCE_DIR}/rotation-qd-p1.neu)
 
 coolfluid_add_unit_test( utest-loadmesh )
+
+##########################################################################
+# test simple mesh generator
+list( APPEND utest-mesh-simplemeshgenerator_cflibs coolfluid_mesh )
+list( APPEND utest-mesh-simplemeshgenerator_files  utest-mesh-simplemeshgenerator.cpp )
+
+set( utest-mesh-simplemeshgenerator_mpi_test   TRUE)
+set( utest-mesh-simplemeshgenerator_mpi_nprocs 2 )
+
+coolfluid_add_unit_test( utest-mesh-simplemeshgenerator )
 
 ##########################################################################
 # test Actions

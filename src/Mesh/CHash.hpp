@@ -46,27 +46,27 @@ public: // functions
   Uint part_of_obj(const Uint obj) const;
 
   Uint proc_of_part(const Uint part) const;
-  
-  Uint proc_of_obj(const Uint obj) const;
-	
+
+	Uint proc_of_obj(const Uint obj) const;
+
 	Uint nb_objects_in_part(const Uint part) const;
-	
+
 	Uint nb_objects_in_proc(const Uint proc) const;
-	
+
 	Uint start_idx_in_part(const Uint part) const;
-	
+
 	Uint end_idx_in_part(const Uint part) const;
-	
+
 	Uint start_idx_in_proc(const Uint proc) const;
 
 	Uint end_idx_in_proc(const Uint proc) const;
 
   bool owns(const Uint obj) const;
-  
+
   Uint part_size() const;
 
 private:
-  
+
   Uint m_nb_obj;
 
   Uint m_base;

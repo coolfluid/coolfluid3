@@ -82,12 +82,50 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 
   // add to add buffer
   // if performance issues, replace for(...) add(...) with direct push_back
-  if (gid->size()!=0) {
+  if (gid->size()!=0)
+  {
     m_isUpToDate=false;
     std::vector<int> map(gid->size());
     for(int i=0; i<(int)map.size(); i++) map[i]=i;
     Uint *igid=(Uint*)gid->pack(map);
     std::vector<Uint>::iterator irank=rank.begin();
+    for (Uint* iigid=igid;irank!=rank.end();irank++,iigid++)
+      add(*iigid,*irank);
+    delete[] igid;
+    /*
+     PECheckPoint(100,"-- Setup comission: --");
+     PEProcessSortedExecute(-1,
+     BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) std::cout << "("<< i.gid << "|" << i.rank << "|" << i.option << ")";
+     std::cout << "\n" << std::flush;
+      )
+    */
+    setup();
+  }
+}
+
+void PECommPattern::setup(PEObjectWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
+{
+  // basic check
+  BOOST_ASSERT( (Uint)gid->size() == rank.size() );
+  if (gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
+  if (gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
+  m_gid=gid;
+  m_gid->add_tag("gid_of_"+this->name());
+  if (get_child_ptr(gid->name()).get() == nullptr) add_component(gid);
+
+  // sizesof datas matching
+  BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(*this) )
+    if ((Uint) pobj.size()!=m_isUpdatable.size()+gid->size())
+      throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
+
+  // add to add buffer
+  // if performance issues, replace for(...) add(...) with direct push_back
+  if (gid->size()!=0) {
+    m_isUpToDate=false;
+    std::vector<int> map(gid->size());
+    for(int i=0; i<(int)map.size(); i++) map[i]=i;
+    Uint *igid=(Uint*)gid->pack(map);
+    boost::multi_array<Uint,1>::iterator irank=rank.begin();
     for (Uint* iigid=igid;irank!=rank.end();irank++,iigid++)
       add(*iigid,*irank);
     delete[] igid;
@@ -129,11 +167,11 @@ void PECommPattern::setup()
   for (int i=1; i<nproc; i++) recvcounter[i]=m_recvCount[i-1]+recvcounter[i-1];
   m_recvMap.reserve(recvSum);
   m_recvMap.resize(recvSum);
-/*
-PECheckPoint(100,"-- step 1 --:");
-PEProcessSortedExecute(-1,PEDebugVector(m_recvCount,m_recvCount.size()));
-PEProcessSortedExecute(-1,PEDebugVector(recvcounter,recvcounter.size()));
-*/
+
+//PECheckPoint(100,"-- step 1 --:");
+//PEProcessSortedExecute(-1,PEDebugVector(m_recvCount,m_recvCount.size()));
+//PEProcessSortedExecute(-1,PEDebugVector(recvcounter,recvcounter.size()));
+
   // fill receive data and inverse send
   std::vector<CPint> receive_gids(recvSum);
   int lid=0;
@@ -147,35 +185,41 @@ PEProcessSortedExecute(-1,PEDebugVector(recvcounter,recvcounter.size()));
     }
     lid++;
   }
-/*
-PECheckPoint(100,"-- step 2 --:");
-PEProcessSortedExecute(-1,PEDebugVector(receive_gids,receive_gids.size()));
-PEProcessSortedExecute(-1,PEDebugVector(m_recvMap,m_recvMap.size()));
-*/
+
+//PECheckPoint(100,"-- step 2 --:");
+//PEProcessSortedExecute(-1,PEDebugVector(receive_gids,receive_gids.size()));
+//PEProcessSortedExecute(-1,PEDebugVector(m_recvMap,m_recvMap.size()));
+
   // communicate gids per receive side
   m_sendMap.resize(0);
   m_sendMap.reserve(0);
   m_sendCount.assign(nproc,-1);
   mpi::PE::instance().all_to_all(receive_gids,m_recvCount,m_sendMap,m_sendCount);
-/*
-PECheckPoint(100,"-- step 3 --:");
-PEProcessSortedExecute(-1,PEDebugVector(m_sendCount,m_sendCount.size()));
-PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
-*/
+
+//PECheckPoint(100,"-- step 3 --:");
+//PEProcessSortedExecute(-1,PEDebugVector(m_sendCount,m_sendCount.size()));
+//PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
+
   // look up the nodes to on send side (brute force searching for now)
   BOOST_FOREACH(int& si, m_sendMap)
   {
+    bool found = false;
     for (int i=0; i<m_gid->size(); i++)
+    {
       if (gid[i]==si)
       {
         si=i;
+        found = true;
         break;
       }
+    }
+    if (found == false)
+      throw ValueNotFound(FromHere(), "requested global id " + to_str(si) + " not found in gid list" );
   }
-/*
-PECheckPoint(100,"-- step 4 --:");
-PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
-*/
+
+//PECheckPoint(100,"-- step 4 --:");
+//PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
+
   return;
   } // end fast
 
@@ -185,7 +229,7 @@ PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
 
   // -- 1 -- data definition
 
-PECheckPoint(100,"-- step 1 --:");
+//PECheckPoint(100,"-- step 1 --:");
 
   // -- 2 -- get environment data and gid
   // get stuff from environment
@@ -197,7 +241,7 @@ PECheckPoint(100,"-- step 1 --:");
   if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
   Uint* gid=(Uint*)m_gid->pack();
 
-PECheckPoint(100,"-- step 2 --:");
+//PECheckPoint(100,"-- step 2 --:");
 
   // -- 3 -- build receive info
   // build receive count and receive map, note that filtering out data from laying on current process
@@ -219,9 +263,9 @@ PECheckPoint(100,"-- step 2 --:");
   BOOST_FOREACH(CPint& i, m_recvMap)
     BOOST_ASSERT(i!=std::numeric_limits<CPint>::max());
 
-PECheckPoint(100,"-- step 3 --:");
-PEProcessSortedExecute(-1,PEDebugVector(m_recvMap,m_recvMap.size()));
-PEProcessSortedExecute(-1,PEDebugVector(m_recvCount,m_recvCount.size()));
+//PECheckPoint(100,"-- step 3 --:");
+//PEProcessSortedExecute(-1,PEDebugVector(m_recvMap,m_recvMap.size()));
+//PEProcessSortedExecute(-1,PEDebugVector(m_recvCount,m_recvCount.size()));
 
   // -- 4 -- building a distributed info for looking up communication
   // setting up m_isUpdatable and its counts (distributed over processes)
@@ -240,9 +284,9 @@ PEProcessSortedExecute(-1,PEDebugVector(m_recvCount,m_recvCount.size()));
   std::vector<int> dist_nupdatabledisp(nproc,0);
   for (int i=1; i<nproc; i++) dist_nupdatabledisp[i]=dist_nupdatable[i-1]+dist_nupdatabledisp[i-1];
 
-PECheckPoint(100,"-- step 4 --:");
-PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatable,dist_nupdatable.size()));
-PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatabledisp,dist_nupdatabledisp.size()));
+//PECheckPoint(100,"-- step 4 --:");
+//PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatable,dist_nupdatable.size()));
+//PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatabledisp,dist_nupdatabledisp.size()));
 
   // building info and communicating dist
   std::vector<dist_struct> dist(dist_nupdatable[irank]);

@@ -7,7 +7,7 @@
 #include <set>
 
 #include "Common/CLink.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/OptionT.hpp"
@@ -47,6 +47,12 @@ CEntities::CEntities ( const std::string& name ) :
 
   m_nodes = create_static_component_ptr<CLink>(Mesh::Tags::nodes());
   m_nodes->add_tag(Mesh::Tags::nodes());
+
+  m_is_ghost = create_static_component_ptr< CList<bool> >("is_ghost");
+  m_is_ghost->add_tag("is_ghost");
+
+  m_rank = create_static_component_ptr< CList<Uint> >("rank");
+  m_rank->add_tag("rank");
 
   regist_signal ( "create_space" , "Create space for other interpretations of fields (e.g. high order)", "Create Space" )->signal->connect ( boost::bind ( &CEntities::signal_create_space, this, _1 ) );
   signal("create_space")->signature->connect(boost::bind(&CEntities::signature_create_space, this, _1));

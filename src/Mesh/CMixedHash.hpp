@@ -18,7 +18,7 @@ namespace CF {
 namespace Mesh {
 
   class CHash;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CMixedHash component class
@@ -49,42 +49,42 @@ public: // functions
   Uint part_of_obj(const Uint obj) const;
 
   Uint proc_of_part(const Uint part) const;
-  
-  Uint proc_of_obj(const Uint obj) const;
-	
+
+	Uint proc_of_obj(const Uint obj) const;
+
 	Uint nb_objects_in_part(const Uint part) const;
-	
+
 	Uint nb_objects_in_proc(const Uint proc) const;
-	
+
 	Uint start_idx_in_part(const Uint part) const;
-	
+
 	Uint end_idx_in_part(const Uint part) const;
-	
+
 	Uint start_idx_in_proc(const Uint proc) const;
 
-  bool owns(const Uint obj) const;
+	bool owns(const Uint obj) const;
 
   Uint part_size() const;
-  
-  boost::shared_ptr<CHash const> subhash(const Uint i) const
+
+  const CHash& subhash(const Uint i) const
   {
-    return m_subhash[i];
+    return *m_subhash[i];
   }
-  
+
   Uint subhash_of_obj(const Uint obj) const;
-  
+
 private:
 
   void config_nb_obj();
-  
+
   void config_nb_parts();
-  
+
   std::vector<Uint> m_nb_obj;
 
   Uint m_base;
 
   Uint m_nb_parts;
-  
+
   std::vector<boost::shared_ptr<CHash> > m_subhash;
 
 };

@@ -21,6 +21,10 @@ list( APPEND coolfluid_mesh_actions_files
   CBuildVolume.cpp
   CGlobalNumbering.hpp
   CGlobalNumbering.cpp
+  CGlobalNumberingElements.hpp
+  CGlobalNumberingElements.cpp
+  CGlobalNumberingNodes.hpp
+  CGlobalNumberingNodes.cpp
   CGlobalConnectivity.hpp
   CGlobalConnectivity.cpp
   CInitFieldConstant.hpp

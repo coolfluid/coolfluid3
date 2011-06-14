@@ -10,9 +10,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
-
+#include "Common/BoostArray.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
+#include "Common/MPI/PEObjectWrapperMultiArray.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -158,6 +159,27 @@ public:
     ow->setup(data,stride,needs_update);
   }
 
+  /// register data coming from std::vector wrapped into weak_ptr (also works with shared_ptr)
+  /// @param name the component will appear under this name
+  /// @param std::vector of data
+  /// @param stride number of array element grouping
+  template<typename T> void insert(const std::string& name, boost::multi_array<T,2>& data, const bool needs_update=true)
+  {
+    PEObjectWrapperMultiArray<T,2>& ow = create_component< PEObjectWrapperMultiArray<T,2> >(name);
+    ow.setup(data,needs_update);
+  }
+
+  /// register data coming from std::vector wrapped into weak_ptr (also works with shared_ptr)
+  /// @param name the component will appear under this name
+  /// @param std::vector of data
+  /// @param stride number of array element grouping
+  template<typename T> void insert(const std::string& name, boost::multi_array<T,1>& data, const bool needs_update=true)
+  {
+    PEObjectWrapperMultiArray<T,1>& ow = create_component< PEObjectWrapperMultiArray<T,1> >(name);
+    ow.setup(data,needs_update);
+  }
+
+
   /// removes data by name
   void clear( const std::string& name)
   {
@@ -177,6 +199,14 @@ public:
   /// @param gid PEObjectWrapper to a Uint tpye of data array
   /// @param rank vector of ranks where given global ids are updatable to add
   void setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank);
+
+  /// build and/or modify communication pattern - add nodes
+  /// this function sets actually up the communication pattern
+  /// beware: interprocess communication heavy
+  /// this overload of setup is designed for making no callback functions, so all the registered data should match the size of current size + number of additions
+  /// @param gid PEObjectWrapper to a Uint tpye of data array
+  /// @param rank vector of ranks where given global ids are updatable to add
+  void setup(PEObjectWrapper::Ptr gid, boost::multi_array<Uint,1>& rank);
 
   /// build and/or modify communication pattern - only incorporate actual buffers
   /// this function sets actually up the communication pattern

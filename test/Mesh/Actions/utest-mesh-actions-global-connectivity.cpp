@@ -11,7 +11,8 @@
 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
-
+#include "Common/MPI/debug.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/Actions/CGlobalConnectivity.hpp"
 #include "Mesh/Actions/CGlobalNumbering.hpp"
@@ -19,12 +20,14 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CMeshReader.hpp"
 
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
+using namespace CF::Common::mpi;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -84,6 +87,17 @@ BOOST_AUTO_TEST_CASE( build )
   CGlobalConnectivity::Ptr build_connectivity = allocate_component<CGlobalConnectivity>("build_glb_connectivity");
   build_connectivity->set_mesh(mesh);
   build_connectivity->execute();
+
+  PEProcessSortedExecute(-1,
+      std::cout << "rank = " << PE::instance().rank() << std::endl;
+      std::cout << "nodes = " << mesh->nodes().glb_idx() << std::endl;
+      std::cout << "ranks = " << mesh->nodes().rank() << std::endl;
+      boost_foreach(const CEntities& entities, mesh->topology().elements_range())
+      {
+        std::cout << "elems = " << entities.glb_idx() << std::endl;
+      }
+
+  )
 
 }
 

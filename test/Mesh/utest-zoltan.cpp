@@ -11,15 +11,21 @@
 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
-
+#include "Common/CEnv.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
 
+#include "Common/MPI/PE.hpp"
+#include "Common/MPI/debug.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/CMeshGenerator.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
 #include "Mesh/CMeshTransformer.hpp"
 
@@ -27,6 +33,7 @@ using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
+using namespace CF::Common::mpi;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -68,9 +75,10 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
+/*
+BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 {
+  Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
   CFinfo << "CMeshPartitioner_test" << CFendl;
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->configure_property("read_boundaries",false);
@@ -81,7 +89,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   // the mesh to store in
   CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
   CMesh& mesh = *mesh_ptr;
-  
+
   CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh_ptr);
   CMeshTransformer::Ptr glb_connectivity = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
@@ -98,12 +106,12 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 
   Core::instance().initiate(m_argc,m_argv);
 
-  //p.configure_property("Number of Partitions", (Uint) 4);
+  //p.configure_property("nb_parts", (Uint) 4);
   p.configure_property("graph_package", std::string("PHG"));
   p.configure_property("debug_level", 2u);
   BOOST_CHECK(true);
   p.initialize(mesh);
-  
+
   BOOST_CHECK_EQUAL(p.proc_of_obj(0), 0u);
   BOOST_CHECK_EQUAL(p.proc_of_obj(7), 0u);
   BOOST_CHECK_EQUAL(p.proc_of_obj(8), 0u);
@@ -112,7 +120,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   BOOST_CHECK_EQUAL(p.proc_of_obj(23), 1u);
   BOOST_CHECK_EQUAL(p.proc_of_obj(24), 1u);
   BOOST_CHECK_EQUAL(p.proc_of_obj(31), 1u);
-  
+
   BOOST_CHECK_EQUAL(p.is_node(0), true);
   BOOST_CHECK_EQUAL(p.is_node(7), true);
   BOOST_CHECK_EQUAL(p.is_node(8), false);
@@ -121,7 +129,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   BOOST_CHECK_EQUAL(p.is_node(23), true);
   BOOST_CHECK_EQUAL(p.is_node(24), false);
   BOOST_CHECK_EQUAL(p.is_node(31), false);
-  
+
   Uint comp_idx;
   Component::Ptr comp;
   Uint idx;
@@ -139,9 +147,9 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
     BOOST_CHECK_EQUAL(comp_idx, 0);
     BOOST_CHECK_EQUAL(idx, 7);
     BOOST_CHECK_EQUAL(found, true);
-    
+
   }
-  
+
   BOOST_CHECK(true);
   p.partition_graph();
   BOOST_CHECK(true);
@@ -149,9 +157,92 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   BOOST_CHECK(true);
   p.migrate();
   BOOST_CHECK(true);
+
+  CMeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering");
+  glb_node_numbering->configure_property("debug",true);
+  glb_node_numbering->transform(mesh);
+
+
+  PEProcessSortedExecute(-1,
+      std::cout << "rank  = "  << PE::instance().rank() << std::endl;
+      std::cout << "nodes = " << mesh.nodes().glb_idx() << std::endl;
+      std::cout << "ranks = " << mesh.nodes().rank() << std::endl;
+      std::cout << "ghost = " << mesh.nodes().is_ghost() << std::endl;
+      boost_foreach(const CEntities& entities, mesh.topology().elements_range())
+      {
+        //std::cout << "elems = " << entities.glb_idx() << std::endl;
+      }
+
+  )
+
   URI fp_out_2 ("quadtriag_repartitioned.msh");
   meshwriter->write_from_to(*mesh_ptr,fp_out_2);
 }
+*/
+BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
+{
+  Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
+  CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+
+  meshgenerator->configure_property("parent",URI("//Root"));
+  meshgenerator->configure_property("name",std::string("rect"));
+  std::vector<Uint> nb_cells(2);  nb_cells[0] = 3;   nb_cells[1] = 2;
+  std::vector<Real> lengths(2);   lengths[0]  = nb_cells[0];  lengths[1]  = nb_cells[1];
+  meshgenerator->configure_property("nb_cells",nb_cells);
+  meshgenerator->configure_property("lengths",lengths);
+  meshgenerator->configure_property("bdry",false);
+  meshgenerator->execute();
+  CMesh& mesh = Core::instance().root().get_child("rect").as_type<CMesh>();
+
+
+  CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  glb_numbering->transform(mesh);
+  CMeshTransformer::Ptr glb_connectivity = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  glb_connectivity->transform(mesh);
+
+  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  meshwriter->write_from_to(mesh,"rect.msh");
+
+  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+
+  CMeshPartitioner& p = *partitioner_ptr;
+  BOOST_CHECK_EQUAL(p.name(),"partitioner");
+
+  Core::instance().initiate(m_argc,m_argv);
+
+  //p.configure_property("nb_parts", (Uint) 4);
+  p.configure_property("graph_package", std::string("PHG"));
+  p.configure_property("debug_level", 2u);
+  BOOST_CHECK(true);
+  p.initialize(mesh);
+  BOOST_CHECK(true);
+  p.partition_graph();
+  BOOST_CHECK(true);
+  p.show_changes();
+  BOOST_CHECK(true);
+  p.migrate();
+  BOOST_CHECK(true);
+
+  CMeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering");
+  glb_node_numbering->configure_property("debug",true);
+  glb_node_numbering->transform(mesh);
+
+
+  PEProcessSortedExecute(-1,
+      std::cout << PERank << "nodes = " << mesh.nodes().coordinates() << std::endl;
+      std::cout << PERank << "ranks = " << mesh.nodes().rank() << std::endl;
+      std::cout << PERank << "ghost = " << mesh.nodes().is_ghost() << std::endl;
+      boost_foreach(const CEntities& entities, mesh.topology().elements_range())
+      {
+        //std::cout << "elems = " << entities.glb_idx() << std::endl;
+      }
+
+  )
+
+  meshwriter->write_from_to(mesh,"rect_repartitioned.msh");
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {

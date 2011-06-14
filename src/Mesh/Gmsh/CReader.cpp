@@ -53,7 +53,7 @@ CReader::CReader( const std::string& name )
   // options
 
   m_properties.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_active()?mpi::PE::instance().rank():0);
-  m_properties.add_option<OptionT <Uint> >("nb_partitions","Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_active()?mpi::PE::instance().size():1);
+  m_properties.add_option<OptionT <Uint> >("nb_parts","Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_active()?mpi::PE::instance().size():1);
   m_properties.add_option<OptionT <bool> >("read_fields","Read Fields","Read the data from the mesh",true)->mark_basic();
 
   // properties
@@ -112,7 +112,7 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
   std::vector<Uint> num_obj(2);
   num_obj[0] = m_total_nb_nodes;
   num_obj[1] = m_total_nb_elements;
-  m_hash->configure_property("Number of Objects",num_obj);
+  m_hash->configure_property("nb_obj",num_obj);
 
   find_ghost_nodes();
 
@@ -285,7 +285,7 @@ void CReader::find_ghost_nodes()
   m_ghost_nodes.clear();
 
   // Only find ghost nodes if the domain is split up
-  if (property("nb_partitions").value<Uint>() > 1)
+  if (property("nb_parts").value<Uint>() > 1)
   {
     m_file.seekg(m_elements_position,std::ios::beg);
     // skip next line
@@ -306,7 +306,7 @@ void CReader::find_ghost_nodes()
           CFinfo << 100*i/m_total_nb_elements << "% " << CFendl;
       }
 
-      if (m_hash->subhash(ELEMS)->owns(i))
+      if (m_hash->subhash(ELEMS).owns(i))
       {
         // element description
         m_file >> elementNumber >> elementType;
@@ -317,7 +317,7 @@ void CReader::find_ghost_nodes()
         for (Uint j=0; j<nbElementNodes; ++j)
         {
           m_file >> gmsh_element_nodes[j];
-          if (!m_hash->subhash(NODES)->owns(gmsh_element_nodes[j]-1))
+          if (!m_hash->subhash(NODES).owns(gmsh_element_nodes[j]-1))
           {
             m_ghost_nodes.insert(gmsh_element_nodes[j]);
           }
@@ -348,7 +348,7 @@ void CReader::read_coordinates()
 
 
   Uint nodes_start_idx = m_nodes->size();
-  m_nodes->resize(nodes_start_idx + m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
+  m_nodes->resize(nodes_start_idx + m_hash->subhash(NODES).nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
 
   std::string line;
   //Skip the line with keyword '$Nodes':
@@ -373,7 +373,7 @@ void CReader::read_coordinates()
     }
     getline(m_file,line);
 
-    if (m_hash->subhash(NODES)->owns(node_idx-1))
+    if (m_hash->subhash(NODES).owns(node_idx-1))
     {
       m_nodes->is_ghost()[coord_idx] = false;
       m_node_idx_gmsh_to_cf[node_idx]=coord_idx;
@@ -512,7 +512,7 @@ void CReader::read_connectivity()
     nb_element_nodes = Shared::m_nodes_in_gmsh_elem[gmsh_element_type];
 
     // get element nodes
-    if (m_hash->subhash(ELEMS)->owns(i))
+    if (m_hash->subhash(ELEMS).owns(i))
     {
       m_file >> nb_tags;
       m_file >> phys_tag;

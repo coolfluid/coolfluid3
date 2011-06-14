@@ -39,10 +39,10 @@ public: // functions
   /// Contructor
   /// @param name of the component
   CEntities ( const std::string& name );
-  
+
   /// Initialize the CEntities using the given type
   void initialize(const std::string& element_type_name, CNodes& nodes);
-    
+
   /// Virtual destructor
   virtual ~CEntities();
 
@@ -57,29 +57,35 @@ public: // functions
 
   /// Mutable access to the nodes
   CNodes& nodes();
-  
+
   /// Const access to the coordinates
   const CNodes& nodes() const;
 
   /// Mutable access to the list of nodes
   CList<Uint>& glb_idx() { return *m_global_numbering; }
-  
+
   /// Const access to the list of nodes
   const CList<Uint>& glb_idx() const { return *m_global_numbering; }
-    
+
+  CList<bool>& is_ghost() { return *m_is_ghost; }
+  const CList<bool>& is_ghost() const { return *m_is_ghost; }
+
+  CList<Uint>& rank() { return *m_rank; }
+  const CList<Uint>& rank() const { return *m_rank; }
+
   /// return the number of elements
   virtual Uint size() const;
 
   static CList<Uint>& used_nodes(Component& parent);
-  
+
   virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
-  
+
   const CSpace& space (const Uint space_idx) const;
 
   const CSpace& space (const std::string& space_name) const;
 
   CSpace& create_space(const std::string& space_name, const std::string& shape_function_builder_name );
-  
+
   bool exists_space(const Uint space_idx) const;
 
   bool exists_space(const std::string& space_name) const;
@@ -101,12 +107,17 @@ protected: // data
   boost::shared_ptr<ElementType> m_element_type;
 
   boost::shared_ptr<Common::CLink> m_nodes;
-  
+
   boost::shared_ptr<CList<Uint> > m_global_numbering;
 
   std::vector<boost::shared_ptr<CSpace> > m_spaces;
 
   boost::shared_ptr<Common::CGroup> m_spaces_group;
+
+  boost::shared_ptr<CList<bool> > m_is_ghost;
+
+  boost::shared_ptr<CList<Uint> > m_rank;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

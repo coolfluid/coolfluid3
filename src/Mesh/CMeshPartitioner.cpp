@@ -36,10 +36,10 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
     m_nb_parts(mpi::PE::instance().size()),
     m_map_built(false)
 {
-  m_properties.add_option<OptionT <Uint> >("nb_partitions","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts)
+  m_properties.add_option<OptionT <Uint> >("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts)
     ->link_to(&m_nb_parts)
     ->mark_basic();
-  
+
   m_global_to_local = allocate_component<CMap<Uint,Uint> >("global_to_local");
   add_static_component(m_global_to_local);
 
@@ -74,16 +74,16 @@ void CMeshPartitioner::load_balance( SignalArgs& node  )
 	if( path.scheme() != URI::Scheme::CPATH )
 		throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
-	// get the domain
+  // get the domain
   CMesh::Ptr mesh = access_component_ptr( path.path() )->as_ptr<CMesh>();
-	if ( is_null(mesh) )
-		throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CMesh." );
+  if ( is_null(mesh) )
+    throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CMesh." );
 
-	initialize(*mesh);
+  initialize(*mesh);
 
-	partition_graph();
+  partition_graph();
 
-	migrate();
+  migrate();
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -100,22 +100,22 @@ void CMeshPartitioner::load_balance_signature ( Common::SignalArgs& node )
 void CMeshPartitioner::initialize(CMesh& mesh)
 {
   m_mesh = mesh.as_ptr<CMesh>();
-  
+
   CList<bool>& node_is_ghost = mesh.nodes().is_ghost();
   Uint nb_ghost(0);
   for (Uint i=0; i<node_is_ghost.size(); ++i)
   {
     if (node_is_ghost[i])
       ++nb_ghost;
-  }  
-  
+  }
+
   Uint tot_nb_owned_nodes=mesh.nodes().size()-nb_ghost;
   Uint tot_nb_owned_elems=0;
   boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
   {
     tot_nb_owned_elems += elements.size();
   }
-  
+
   std::vector<Uint> nb_nodes_per_proc(mpi::PE::instance().size());
   std::vector<Uint> nb_elems_per_proc(mpi::PE::instance().size());
   mpi::PE::instance().all_gather(tot_nb_owned_nodes, nb_nodes_per_proc);
@@ -137,8 +137,8 @@ void CMeshPartitioner::initialize(CMesh& mesh)
     m_start_elem_per_proc[p] = start_id + nb_nodes_per_proc[p];
     m_end_elem_per_proc[p]   = start_id + nb_nodes_per_proc[p] + nb_elems_per_proc[p];
 
-    start_id += nb_nodes_per_proc[p]+nb_elems_per_proc[p];    
-  }  
+    start_id += nb_nodes_per_proc[p]+nb_elems_per_proc[p];
+  }
 
   // CFLogVar(to_vector(nb_nodes_per_proc).transpose());
   // CFLogVar(to_vector(nb_elems_per_proc).transpose());
@@ -161,7 +161,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   m_map_built = true;
   m_nb_owned_obj = 0;
   m_local_start_index.push_back(0);
-  
+
   CNodes& nodes = mesh.nodes();
   CList<bool>& node_is_ghost = nodes.is_ghost();
   CList<Uint>& node_glb_idx = nodes.glb_idx();
@@ -230,7 +230,6 @@ void CMeshPartitioner::show_changes()
         {
           std::cout << "export elem " << glb_obj << std::endl;
         }
-        //std::cout << "  to proc " << m_hash->proc_of_part(part) << std::endl;
         std::cout << "  to part " << part << std::endl;
         std::cout << "  from " << component->uri().path() << "["<<index<<"]" << std::endl;
       }
@@ -241,6 +240,7 @@ void CMeshPartitioner::show_changes()
     CFinfo << "No changes in partitions" << CFendl;
   }
 }
+
 //////////////////////////////////////////////////////////////////////////////
 
 boost::tuple<Uint,Uint,bool> CMeshPartitioner::to_local_indices_from_glb_obj(const Uint glb_obj) const

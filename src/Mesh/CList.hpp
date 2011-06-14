@@ -127,6 +127,14 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
+std::ostream& operator<<(std::ostream& os, const CList<bool>& list);
+std::ostream& operator<<(std::ostream& os, const CList<Uint>& list);
+std::ostream& operator<<(std::ostream& os, const CList<int>& list);
+std::ostream& operator<<(std::ostream& os, const CList<Real>& list);
+std::ostream& operator<<(std::ostream& os, const CList<std::string>& list);
+
+/////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF
 

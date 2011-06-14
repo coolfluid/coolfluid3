@@ -59,7 +59,7 @@ public: // functions
   static std::string type_name () { return "CMeshPartitioner"; }
 
   virtual void execute();
-  
+
   void initialize(CMesh& mesh);
 
   /// Partitioning functions
@@ -70,23 +70,23 @@ public: // functions
 
   void show_changes();
 
-	/// Migrate the elements and nodes to corresponding processors
-	/// @todo this is now virtual because Zoltan is used.
-	virtual void migrate();
+  /// Migrate the elements and nodes to corresponding processors
+  /// @todo this is now virtual because Zoltan is used.
+  virtual void migrate();
 
-	void load_balance ( Common::SignalArgs& xml );
+  void load_balance ( Common::SignalArgs& xml );
 
-	void load_balance_signature ( Common::SignalArgs& node );
+  void load_balance_signature ( Common::SignalArgs& node );
 
-	/// location finding functions
+  /// location finding functions
 
-	boost::tuple<Component::Ptr,Uint> to_local(const Uint glb_obj) const;
+  boost::tuple<Component::Ptr,Uint> to_local(const Uint glb_obj) const;
 
-	void build_global_to_local_index(CMesh& mesh);
+  void build_global_to_local_index(CMesh& mesh);
 
-	/// Graph building functions
+  /// Graph building functions
 
-	Uint nb_owned_objects() const;
+  Uint nb_owned_objects() const;
 
   template <typename VectorT>
   void list_of_owned_objects(VectorT& obj_list) const;
@@ -100,13 +100,13 @@ public: // functions
   template <typename VectorT>
   void list_of_connected_procs(VectorT& proc_per_neighbor) const;
 
-  bool is_node(const Uint glb_obj) const 
+  bool is_node(const Uint glb_obj) const
   {
     Uint p = proc_of_obj(glb_obj);
     return m_start_node_per_proc[p] <= glb_obj && glb_obj < m_end_node_per_proc[p];
   }
 
-	Common::CMap<Uint,Uint>& changes() { return (*m_changes);	}
+  Common::CMap<Uint,Uint>& changes() { return (*m_changes);	}
 
 /// @todo must be protected when migration is moved to this class
 public: // functions
@@ -115,8 +115,8 @@ public: // functions
 
   boost::tuple<Uint,Uint,bool> to_local_indices_from_glb_obj(const Uint glb_obj) const;
 
-	Uint proc_of_obj(const Uint obj) const
-	{
+  Uint proc_of_obj(const Uint obj) const
+  {
     for (Uint p=0; p<m_end_id_per_proc.size(); ++p)
     {
       if ( obj < m_end_id_per_proc[p])
@@ -125,17 +125,17 @@ public: // functions
     cf_assert_desc("Should not be here", false);
     return 0;
   }
-	
-	Uint owns_obj(const Uint obj) const
-	{
-    return proc_of_obj(obj) == Common::mpi::PE::instance().rank();
-	}
 
-	std::vector<Common::Component::Ptr>& components_vector() { return m_local_components; }
+  Uint owns_obj(const Uint obj) const
+  {
+    return proc_of_obj(obj) == Common::mpi::PE::instance().rank();
+  }
+
+  std::vector<Common::Component::Ptr>& components_vector() { return m_local_components; }
 
 protected: // data
 
-	Common::CMap<Uint,Uint>::Ptr m_changes;
+  Common::CMap<Uint,Uint>::Ptr m_changes;
 
 private: // data
 
@@ -161,11 +161,9 @@ private: // data
   std::vector<Uint> m_end_node_per_proc;
   std::vector<Uint> m_start_elem_per_proc;
   std::vector<Uint> m_end_elem_per_proc;
-  
+
 
 };
-
-////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -178,7 +176,7 @@ inline Uint CMeshPartitioner::nb_owned_objects() const
 
 template <typename VectorT>
 void CMeshPartitioner::list_of_owned_objects(VectorT& obj_list) const
-{  
+{
   Uint idx=0;
   foreach_container((const Uint glb_obj),*m_global_to_local)
   {
@@ -202,7 +200,7 @@ Uint CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) con
     if (owns_obj(glb_obj))
     {
       boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
-      
+
       if (is_node(glb_obj))
       {
         const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_type<CNodes>().glb_elem_connectivity();
@@ -225,7 +223,7 @@ Uint CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) con
 
 template <typename VectorT>
 void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) const
-{  
+{
   // declaration for boost::tie
   Uint component_idx;
   Uint loc_idx;
@@ -261,7 +259,7 @@ void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) con
 
 template <typename VectorT>
 void CMeshPartitioner::list_of_connected_procs(VectorT& connected_procs) const
-{  
+{
   // declaration for boost::tie
   Uint component_idx;
   Uint loc_idx;

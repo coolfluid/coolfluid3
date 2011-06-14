@@ -31,8 +31,8 @@ class PEObjectWrapperMultiArray: public PEObjectWrapper
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapperMultiArray(const std::string& name) : PEObjectWrapper(name) 
-    {   
+    PEObjectWrapperMultiArray(const std::string& name) : PEObjectWrapper(name)
+    {
       throw BadValue( FromHere() , "There is no PEObjectWrapper for boost::multi_array with this dimension. Make specialization (see example for dim=1 and dim=2)" );
     }
 
@@ -199,6 +199,7 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
       T* itbuf=tbuf;
       boost_foreach( int local_idx, map)
       {
+        cf_assert(local_idx<m_data->size());
         boost_foreach( const T& val, (*m_data)[local_idx])
           *itbuf++ = val;
       }

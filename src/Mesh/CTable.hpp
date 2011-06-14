@@ -155,7 +155,7 @@ public: // functions
 
   // Index operator.
   // --------------
-  ///  c = U[i]
+  // c = U[i]
   // Real& operator[](int index);
   // const Real& operator[](int index) const;
 
@@ -192,11 +192,21 @@ public: // functions
     return *this;
   }
 
+  /// U = c
   CTable& operator =(const value_type& c)
   {
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] = c;
+    return *this;
+  }
+
+  /// U += c
+  CTable& operator +=(const value_type& c)
+  {
+    for (Uint i=0; i<size(); ++i)
+      for (Uint j=0; j<row_size(); ++j)
+        array()[i][j] += c;
     return *this;
   }
 
@@ -208,6 +218,15 @@ public: // functions
     for (Uint i=0; i<size(); ++i)
       for (Uint j=0; j<row_size(); ++j)
         array()[i][j] += U.array()[i][j];
+    return *this;
+  }
+
+  /// U -= c
+  CTable& operator -=(const value_type& c)
+  {
+    for (Uint i=0; i<size(); ++i)
+      for (Uint j=0; j<row_size(); ++j)
+        array()[i][j] -= c;
     return *this;
   }
 
@@ -251,7 +270,7 @@ public: // functions
     return *this;
   }
 
-  /// U /= a
+  /// U /= c
   CTable& operator /=(const value_type& c)
   {
     for (Uint i=0; i<size(); ++i)

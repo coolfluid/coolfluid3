@@ -33,6 +33,8 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#define PERank "["<<::CF::Common::mpi::PE::instance().rank() << "] "
+
 /**
   Macro for executing something ensured that the execution order is 0..nproc-1.
   @param irank rank of the process where the command is executed (-1 for all processes)

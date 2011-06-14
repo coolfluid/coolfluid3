@@ -50,7 +50,7 @@ CReader::CReader( const std::string& name )
   // options
   m_properties.add_option<OptionT <bool> >("read_groups","Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",true);
   m_properties.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().rank());
-  m_properties.add_option<OptionT <Uint> >("nb_partitions","Total nb_partitions. (e.g. number of processors)",mpi::PE::instance().size());
+  m_properties.add_option<OptionT <Uint> >("nb_parts","Total nb_partitions. (e.g. number of processors)",mpi::PE::instance().size());
   m_properties.add_option<OptionT <bool> >("read_boundaries","Read Boundaries","Read the surface elements for the boundary",true);
 
 
@@ -104,7 +104,7 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
 	std::vector<Uint> num_obj(2);
 	num_obj[0] = m_headerData.NUMNP;
 	num_obj[1] = m_headerData.NELEM;
-	m_hash->configure_property("Number of Objects",num_obj);
+	m_hash->configure_property("nb_obj",num_obj);
 
   // Create a region component inside the mesh with the name mesh_name
   //if (property("new_api").value<bool>())
@@ -209,7 +209,7 @@ void CReader::find_ghost_nodes()
   m_ghost_nodes.clear();
 
   // Only find ghost nodes if the domain is split up
-  if (property("nb_partitions").value<Uint>() > 1)
+  if (property("nb_parts").value<Uint>() > 1)
   {
     m_file.seekg(m_elements_cells_position,std::ios::beg);
     // skip next line
@@ -227,7 +227,7 @@ void CReader::find_ghost_nodes()
           CFinfo << 100*i/m_headerData.NELEM << "% " << CFendl;
       }
 
-      if (m_hash->subhash(ELEMS)->owns(i))
+      if (m_hash->subhash(ELEMS).owns(i))
       {
         // element description
         m_file >> elementNumber >> elementType >> nbElementNodes;
@@ -237,7 +237,7 @@ void CReader::find_ghost_nodes()
         for (Uint j=0; j<nbElementNodes; ++j)
         {
           m_file >> neu_element_nodes[j];
-          if (!m_hash->subhash(NODES)->owns(neu_element_nodes[j]-1))
+          if (!m_hash->subhash(NODES).owns(neu_element_nodes[j]-1))
           {
             m_ghost_nodes.insert(neu_element_nodes[j]);
           }
@@ -259,7 +259,7 @@ void CReader::read_coordinates()
   // Create the nodes
   m_nodes = m_region->create_nodes(m_headerData.NDFCD).as_ptr<CNodes>();
 
-  m_nodes->resize(m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
+  m_nodes->resize(m_hash->subhash(NODES).nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
   std::string line;
   // skip one line
   getline(m_file,line);
@@ -278,7 +278,7 @@ void CReader::read_coordinates()
         CFinfo << 100*node_idx/m_headerData.NUMNP << "% " << CFendl;
     }
     getline(m_file,line);
-    if (m_hash->subhash(NODES)->owns(node_idx-1))
+    if (m_hash->subhash(NODES).owns(node_idx-1))
     {
       m_nodes->is_ghost()[coord_idx] = false;
       m_node_to_coord_idx[node_idx]=coord_idx;
@@ -346,7 +346,7 @@ void CReader::read_connectivity()
     m_file >> elementNumber >> elementType >> nbElementNodes;
 
     // get element nodes
-    if (m_hash->subhash(ELEMS)->owns(i))
+    if (m_hash->subhash(ELEMS).owns(i))
     {
       cf_element.resize(nbElementNodes);
       for (Uint j=0; j<nbElementNodes; ++j)
@@ -429,7 +429,7 @@ void CReader::read_groups()
 		for (Uint i=0; i<NELGP; ++i)
 		{
 			m_file >> I;
-			if (m_hash->subhash(ELEMS)->owns(I-1))
+			if (m_hash->subhash(ELEMS).owns(I-1))
 				nb_elems_in_group++;
 		}
 		// now allocate and read again
@@ -438,7 +438,7 @@ void CReader::read_groups()
 		for (Uint i=0; i<NELGP; ++i)
 		{
 			m_file >> I;
-			if (m_hash->subhash(ELEMS)->owns(I-1))
+			if (m_hash->subhash(ELEMS).owns(I-1))
 				groups[g].ELEM.push_back(I);     // set element index
 		}
 

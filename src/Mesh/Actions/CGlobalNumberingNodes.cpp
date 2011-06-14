@@ -25,7 +25,7 @@
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/debug.hpp"
 
-#include "Mesh/Actions/CGlobalNumbering.hpp"
+#include "Mesh/Actions/CGlobalNumberingNodes.hpp"
 #include "Mesh/CCellFaces.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
@@ -54,11 +54,11 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CGlobalNumbering, CMeshTransformer, LibActions> CGlobalNumbering_Builder;
+Common::ComponentBuilder < CGlobalNumberingNodes, CMeshTransformer, LibActions> CGlobalNumberingNodes_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CGlobalNumbering::CGlobalNumbering( const std::string& name )
+CGlobalNumberingNodes::CGlobalNumberingNodes( const std::string& name )
 : CMeshTransformer(name),
   m_debug(false)
 {
@@ -66,7 +66,7 @@ CGlobalNumbering::CGlobalNumbering( const std::string& name )
   properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
   std::string desc;
   desc =
-    "  Usage: CGlobalNumbering Regions:array[uri]=region1,region2\n\n";
+    "  Usage: CGlobalNumberingNodes Regions:array[uri]=region1,region2\n\n";
   properties()["description"] = desc;
 
   properties().add_option<OptionT<bool> >("debug","Debug","Perform checks on validity",m_debug)->link_to(&m_debug);
@@ -76,7 +76,7 @@ CGlobalNumbering::CGlobalNumbering( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CGlobalNumbering::brief_description() const
+std::string CGlobalNumberingNodes::brief_description() const
 {
   return properties()["brief"].value<std::string>();
 }
@@ -84,14 +84,14 @@ std::string CGlobalNumbering::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
 
-std::string CGlobalNumbering::help() const
+std::string CGlobalNumberingNodes::help() const
 {
   return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CGlobalNumbering::execute()
+void CGlobalNumberingNodes::execute()
 {
   CMesh& mesh = *m_mesh.lock();
 
@@ -110,26 +110,6 @@ void CGlobalNumbering::execute()
     ++i;
   }
 
-  boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
-  {
-    RealMatrix element_coordinates(elements.element_type().nb_nodes(),coordinates.row_size());
-
-    if ( is_null( elements.get_child_ptr("glb_elem_hash") ) )
-      elements.create_component<CVector_size_t>("glb_elem_hash");
-    CVector_size_t& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>();
-    glb_elem_hash.data().resize(elements.size());
-
-    for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
-    {
-      elements.put_coordinates(element_coordinates,elem_idx);
-      glb_elem_hash.data()[elem_idx]=hash_value(element_coordinates);
-      if (m_debug)
-        std::cout << "["<<mpi::PE::instance().rank() << "]  hashing elem ("<< elements.uri().path() << "["<<elem_idx<<"]) to " << glb_elem_hash.data()[elem_idx] << std::endl;
-
-      //CFinfo << "glb_elem_hash["<<elem_idx<<"] = " <<  glb_elem_hash.data()[elem_idx] << CFendl;
-    }
-  }
-
 
   // In debug mode, check if no hashes are duplicated
   if (m_debug)
@@ -140,17 +120,6 @@ void CGlobalNumbering::execute()
       if (glb_set.insert(glb_node_hash.data()[i]).second == false)  // it was already in the set
         throw ValueExists(FromHere(), "node "+to_str(i)+" is duplicated");
     }
-
-    boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
-    {
-      CVector_size_t& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>();
-      for (Uint i=0; i<glb_elem_hash.data().size(); ++i)
-      {
-        if (glb_set.insert(glb_elem_hash.data()[i]).second == false)  // it was already in the set
-          throw ValueExists(FromHere(), "elem "+elements.uri().path()+"["+to_str(i)+"] is duplicated");
-      }
-    }
-
   }
 
 
@@ -182,9 +151,8 @@ void CGlobalNumbering::execute()
   }
 
   Uint tot_nb_owned_ids=nodes.size()-nb_ghost;
-  boost_foreach( CEntities& elements, find_components_recursively<CElements>(mesh) )
-    tot_nb_owned_ids += elements.size();
-
+  if (m_debug) std::cout << "["<<mpi::PE::instance().rank()<<"] nodes owned: " << tot_nb_owned_ids << std::endl;
+  if (m_debug) std::cout << "["<<mpi::PE::instance().rank()<<"] nb ghost: " << nb_ghost << std::endl;
   std::vector<Uint> nb_ids_per_proc(mpi::PE::instance().size());
   //boost::mpi::communicator world;
   //boost::mpi::all_gather(world, tot_nb_owned_ids, nb_ids_per_proc);
@@ -256,70 +224,16 @@ void CGlobalNumbering::execute()
     }
   }
 
-
-  //------------------------------------------------------------------------------
-  // give glb idx to elements
-
-  boost_foreach( CEntities& elements, find_components_recursively<CElements>(mesh) )
-  {
-    CList<Uint>& elements_glb_idx = elements.glb_idx();
-    elements_glb_idx.resize(elements.size());
-    std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
-    cf_assert(glb_elem_hash.size() == elements.size());
-    for (Uint e=0; e<elements.size(); ++e)
-    {
-      if (m_debug)
-        std::cout << "["<<mpi::PE::instance().rank() << "]  will change elem "<< glb_elem_hash[e] << " (" << elements.uri().path() << "["<<e<<"]) to " << glb_id << std::endl;
-      elements_glb_idx[e] = glb_id;
-      ++glb_id;
-    }
-  }
-
-
-  // In debug mode, check if no hashes are duplicated
-  if (m_debug)
-  {
-    std::set<Uint> glb_set;
-    for (Uint i=0; i<nodes_glb_idx.size(); ++i)
-    {
-      if (glb_set.insert(nodes_glb_idx[i]).second == false)  // it was already in the set
-        throw ValueExists(FromHere(), "node "+to_str(i)+" is duplicated");
-    }
-
-    boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
-    {
-      CList<Uint>& elements_glb_idx = elements.glb_idx();
-      for (Uint i=0; i<elements.size(); ++i)
-      {
-        if (glb_set.insert(elements_glb_idx[i]).second == false)  // it was already in the set
-          throw ValueExists(FromHere(), "elem "+elements.uri().path()+"["+to_str(i)+"] is duplicated");
-      }
-    }
-
-  }
-
-
-  CFinfo << "Global Numbering successful" << CFendl;
+  CFinfo << "Global Node Numbering successful" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::size_t CGlobalNumbering::hash_value(const RealVector& coords)
+std::size_t CGlobalNumberingNodes::hash_value(const RealVector& coords)
 {
   std::size_t seed=0;
   for (Uint i=0; i<coords.size(); ++i)
     boost::hash_combine(seed,(float)coords[i]);
-  return seed;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::size_t CGlobalNumbering::hash_value(const RealMatrix& coords)
-{
-  std::size_t seed=0;
-  for (Uint i=0; i<coords.rows(); ++i)
-  for (Uint j=0; j<coords.cols(); ++j)
-    boost::hash_combine(seed,(float)coords(i,j));
   return seed;
 }
 

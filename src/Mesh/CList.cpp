@@ -28,5 +28,62 @@ Common::ComponentBuilder < CList<std::string>, Component, LibMesh > CList_string
 
 ////////////////////////////////////////////////////////////////////////////////
 
+std::ostream& operator<<(std::ostream& os, const CList<bool>& list)
+{
+  if (list.size())
+    os << "\n";
+  for (Uint i=0; i<list.size(); ++i)
+  {
+    os << "  " << i << ":  " << list[i] << "\n";
+  }
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CList<Uint>& list)
+{
+  if (list.size())
+    os << "\n";
+  for (Uint i=0; i<list.size(); ++i)
+  {
+    os << "  " << i << ":  " << list[i] << "\n";
+  }
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CList<int>& list)
+{
+  if (list.size())
+    os << "\n";
+  for (Uint i=0; i<list.size(); ++i)
+  {
+    os << "  " << i << ":  " << list[i] << "\n";
+  }
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CList<Real>& list)
+{
+  if (list.size())
+    os << "\n";
+  for (Uint i=0; i<list.size(); ++i)
+  {
+    os << "  " << i << ":  " << list[i] << "\n";
+  }
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CList<std::string>& list)
+{
+  if (list.size())
+    os << "\n";
+  for (Uint i=0; i<list.size(); ++i)
+  {
+    os << "  " << i << ":  " << list[i] << "\n";
+  }
+  return os;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF
