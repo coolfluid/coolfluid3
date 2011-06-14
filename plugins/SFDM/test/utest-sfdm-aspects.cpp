@@ -117,14 +117,30 @@ BOOST_AUTO_TEST_CASE( test_SF_quads )
   typedef SFDM::ShapeFunction SFD_SF;
   CRoot& root = Core::instance().root();
   SFD_SF& sol_quad_p0 = root.create_component("sol_quad_p0","CF.SFDM.SF.QuadSolutionP0").as_type<SFD_SF>();
+  SFD_SF& sol_quad_p1 = root.create_component("sol_quad_p1","CF.SFDM.SF.QuadSolutionP1").as_type<SFD_SF>();
+  SFD_SF& sol_quad_p2 = root.create_component("sol_quad_p2","CF.SFDM.SF.QuadSolutionP2").as_type<SFD_SF>();
   SFD_SF& flx_quad_p1 = root.create_component("flx_quad_p1","CF.SFDM.SF.QuadFluxP1").as_type<SFD_SF>();
+  SFD_SF& flx_quad_p2 = root.create_component("flx_quad_p2","CF.SFDM.SF.QuadFluxP2").as_type<SFD_SF>();
+  SFD_SF& flx_quad_p3 = root.create_component("flx_quad_p3","CF.SFDM.SF.QuadFluxP3").as_type<SFD_SF>();
 
 
   BOOST_CHECK_EQUAL( sol_quad_p0.nb_nodes() , 1u );
   BOOST_CHECK_EQUAL( sol_quad_p0.line().derived_type_name() , std::string("CF.SFDM.SF.LineSolutionP0") );
 
+  BOOST_CHECK_EQUAL( sol_quad_p1.nb_nodes() , 4u );
+  BOOST_CHECK_EQUAL( sol_quad_p1.line().derived_type_name() , std::string("CF.SFDM.SF.LineSolutionP1") );
+
+  BOOST_CHECK_EQUAL( sol_quad_p2.nb_nodes() , 9u );
+  BOOST_CHECK_EQUAL( sol_quad_p2.line().derived_type_name() , std::string("CF.SFDM.SF.LineSolutionP2") );
+
   BOOST_CHECK_EQUAL( flx_quad_p1.nb_nodes() , 4u );
   BOOST_CHECK_EQUAL( flx_quad_p1.line().derived_type_name() , std::string("CF.SFDM.SF.LineFluxP1") );
+
+  BOOST_CHECK_EQUAL( flx_quad_p2.nb_nodes() , 9u );
+  BOOST_CHECK_EQUAL( flx_quad_p2.line().derived_type_name() , std::string("CF.SFDM.SF.LineFluxP2") );
+
+  BOOST_CHECK_EQUAL( flx_quad_p3.nb_nodes() , 20u );
+  BOOST_CHECK_EQUAL( flx_quad_p3.line().derived_type_name() , std::string("CF.SFDM.SF.LineFluxP3") );
 
   const Uint line0 = 0;
 
@@ -281,6 +297,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_property("model",std::string("test"));
   wizard.configure_property("dim",2u);
+  wizard.configure_property("RK_stages",1u);
   wizard.create_simulation();
 
   CModel& model = wizard.model();
@@ -345,6 +362,8 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_ydir )
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_property("model",std::string("test"));
   wizard.configure_property("dim",2u);
+  wizard.configure_property("RK_stages",1u);
+
   wizard.create_simulation();
 
   CModel& model = wizard.model();
@@ -408,6 +427,8 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_property("model",std::string("test"));
   wizard.configure_property("dim",2u);
+  wizard.configure_property("RK_stages",1u);
+
   wizard.create_simulation();
 
   CModel& model = wizard.model();
