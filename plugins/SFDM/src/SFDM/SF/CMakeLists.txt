@@ -17,10 +17,14 @@ list( APPEND coolfluid_sfdm_sf_files
   QuadFluxP1.cpp
   QuadFluxP2.hpp
   QuadFluxP2.cpp
+  QuadFluxP3.hpp
+  QuadFluxP3.cpp
   QuadSolutionP0.hpp
   QuadSolutionP0.cpp
   QuadSolutionP1.hpp
   QuadSolutionP1.cpp
+  QuadSolutionP2.hpp
+  QuadSolutionP2.cpp
 )
 
 list( APPEND coolfluid_sfdm_sf_cflibs coolfluid_sfdm coolfluid_mesh coolfluid_mesh_sf )
