@@ -525,7 +525,7 @@ BOOST_AUTO_TEST_CASE( ListFlushTest )
   BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 5);
   BOOST_CHECK_EQUAL(list.size(),(Uint) 5);
   BOOST_CHECK_EQUAL(list[4],(Uint) 5);
-
+  CFinfo << list << CFendl;
   // remove row 0, 1, 2
   buffer.rm_row(0);
   buffer.rm_row(1);
@@ -540,6 +540,8 @@ BOOST_AUTO_TEST_CASE( ListFlushTest )
   BOOST_CHECK_EQUAL(list.size(),(Uint) 2);
   BOOST_CHECK_EQUAL(list[0],(Uint) 3);
   BOOST_CHECK_EQUAL(list[1],(Uint) 5);
+
+  CFinfo << list << CFendl;
 
 
 }
@@ -714,6 +716,196 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
   BOOST_CHECK_EQUAL(&mesh->nodes(), &region.nodes() );
 
 }
+
+BOOST_AUTO_TEST_CASE( CList_Uint_Test )
+{
+  // CFinfo << "testing CTable<Uint> \n" << CFflush;
+  Logger::instance().getStream(DEBUG).set_log_level(SILENT);
+  // Create mesh component
+  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+
+  boost::shared_ptr<CMesh> mesh = allocate_component<CMesh>  ( "mesh" ) ;
+
+  root->add_component( mesh );
+
+  // Create one region inside mesh
+  CRegion& region = mesh->topology().create_region("region");
+
+  // Create connectivity table inside the region
+  CList<Uint>& connTable = *region.create_component_ptr<CList<Uint> >("connTable");
+
+  // check constructor
+  BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 0);
+
+  // check initalization
+  CList<Uint>::Buffer tableBuffer = connTable.create_buffer(10);
+
+  BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 0);
+
+  // check for adding rows to table
+
+  tableBuffer.add_row(0);
+  tableBuffer.flush();
+  BOOST_CHECK_EQUAL(connTable.size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 1);
+
+
+  for (Uint i=0; i<10; ++i)
+    tableBuffer.add_row(1);
+  BOOST_CHECK_EQUAL(connTable.size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 1);
+
+  tableBuffer.add_row(1);
+  tableBuffer.flush();
+  BOOST_CHECK_EQUAL(connTable.size(),(Uint) 12);
+  BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 12);
+
+  // check if accessor / mutator works
+  BOOST_CHECK_EQUAL(connTable[0], (Uint) 0);
+  BOOST_CHECK_EQUAL(connTable[1], (Uint) 1);
+  BOOST_CHECK_EQUAL(connTable[2], (Uint) 1);
+
+  // check if a row can be accessed
+  CList<Uint>::value_type rowRef = connTable[6];
+
+  tableBuffer.rm_row(0);
+  tableBuffer.add_row(2);
+  tableBuffer.add_row(3);
+  tableBuffer.add_row(4);
+  tableBuffer.add_row(5);
+  tableBuffer.add_row(6);
+  tableBuffer.rm_row(2);
+  tableBuffer.rm_row(13);
+  tableBuffer.flush();
+
+  CFinfo << connTable << CFendl;
+
+  tableBuffer.rm_row(2);
+  tableBuffer.rm_row(5);
+  tableBuffer.rm_row(7);
+  tableBuffer.rm_row(3);
+  tableBuffer.add_row(10);
+  tableBuffer.add_row(10);
+
+  tableBuffer.flush();
+  CFinfo << connTable << CFendl;
+}
+
+
+BOOST_AUTO_TEST_CASE( CList_Uint_rm_Test )
+{
+  // CFinfo << "testing CTable<Uint> \n" << CFflush;
+  Logger::instance().getStream(DEBUG).set_log_level(SILENT);
+  // Create mesh component
+  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+
+  boost::shared_ptr<CMesh> mesh = allocate_component<CMesh>  ( "mesh" ) ;
+
+  root->add_component( mesh );
+
+  // Create one region inside mesh
+  CRegion& region = mesh->topology().create_region("region");
+
+  // Create connectivity table inside the region
+  CList<Uint>& list = *region.create_component_ptr<CList<Uint> >("connTable");
+
+
+  // check initalization
+  CList<Uint>::Buffer buffer = list.create_buffer();
+
+  // add rows to table
+
+  buffer.add_row(0);
+  buffer.add_row(1);
+  buffer.add_row(2);
+  buffer.add_row(3);
+  buffer.add_row(6);
+  buffer.add_row(7);
+  buffer.add_row(8);
+
+  buffer.flush();
+  BOOST_CHECK_EQUAL( list[0] , 0u);
+  BOOST_CHECK_EQUAL( list[1] , 1u);
+  BOOST_CHECK_EQUAL( list[2] , 2u);
+  BOOST_CHECK_EQUAL( list[3] , 3u);
+  BOOST_CHECK_EQUAL( list[4] , 6u);
+  BOOST_CHECK_EQUAL( list[5] , 7u);
+  BOOST_CHECK_EQUAL( list[6] , 8u);
+
+  buffer.rm_row(0);
+  buffer.rm_row(3);
+  buffer.rm_row(4);
+
+  buffer.flush();
+  BOOST_CHECK_EQUAL( list[0] , 7u);
+  BOOST_CHECK_EQUAL( list[1] , 1u);
+  BOOST_CHECK_EQUAL( list[2] , 2u);
+  BOOST_CHECK_EQUAL( list[3] , 8u);
+}
+
+BOOST_AUTO_TEST_CASE( CList_bool_Test )
+{
+  // CFinfo << "testing CTable<Uint> \n" << CFflush;
+  Logger::instance().getStream(DEBUG).set_log_level(SILENT);
+  // Create mesh component
+  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+
+  boost::shared_ptr<CMesh> mesh = allocate_component<CMesh>  ( "mesh" ) ;
+
+  root->add_component( mesh );
+
+  // Create one region inside mesh
+  CRegion& region = mesh->topology().create_region("region");
+
+  // Create connectivity table inside the region
+  CList<bool>& connTable = *region.create_component_ptr<CList<bool> >("connTable");
+
+  // check constructor
+  BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 0);
+
+  // check initalization
+  CList<bool>::Buffer tableBuffer = connTable.create_buffer(10);
+
+  BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 0);
+
+  // check for adding rows to table
+
+  tableBuffer.add_row(false);
+  tableBuffer.flush();
+  BOOST_CHECK_EQUAL(connTable.size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 1);
+
+  for (Uint i=0; i<10; ++i)
+    tableBuffer.add_row(true);
+  BOOST_CHECK_EQUAL(connTable.size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 1);
+  BOOST_CHECK_EQUAL(tableBuffer.get_row(10),true);
+
+  tableBuffer.add_row(true);
+  tableBuffer.flush();
+  BOOST_CHECK_EQUAL(connTable.size(),(Uint) 12);
+  BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 12);
+
+  // check if accessor / mutator works
+  BOOST_CHECK_EQUAL(connTable[0], false);
+  BOOST_CHECK_EQUAL(connTable[1], true);
+  BOOST_CHECK_EQUAL(connTable[2], true);
+
+  // check if a row can be accessed
+  CList<bool>::value_type rowRef = connTable[6];
+
+  tableBuffer.rm_row(0);
+  tableBuffer.flush();
+  BOOST_CHECK_EQUAL(connTable[0], true);
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

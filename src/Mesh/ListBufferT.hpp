@@ -11,8 +11,7 @@
 
 #include <deque>
 
-#include <boost/foreach.hpp>
-
+#include "Common/Foreach.hpp"
 #include "Common/BoostArray.hpp"
 #include "Common/BasicExceptions.hpp"
 
@@ -149,6 +148,11 @@ private: // functions
   /// @return true if the given row is empty
   bool is_empty(const value_type& val) const  { return val==INVALID; }
 
+  bool is_row_empty(const Uint row) const
+  {
+    return (std::find(m_emptyArrayRows.begin(),m_emptyArrayRows.end(),row) != m_emptyArrayRows.end());
+  }
+
   /// mark the given row as empty
   /// @param [in] val the row to be marked as empty
   void set_empty(value_type& val) { val=INVALID; }
@@ -165,8 +169,22 @@ private: // data
   /// definition of an invalid element
   static const T INVALID;
 
+  struct Buffer
+  {
+    Buffer() {}
+    Buffer(const Uint size) { resize(size); }
+    Array_t row;
+    std::vector<bool> is_not_empty;
+    void resize(const Uint size)
+    {
+      row.resize(boost::extents[size]);
+      is_not_empty.resize(size,false);
+    }
+    Uint size() const { return row.size(); }
+  };
+
   /// vector of temporary buffers
-  std::vector<Array_t> m_buffers;
+  std::vector<Buffer> m_buffers;
 
   /// storage of removed array rows
   std::deque<Uint> m_emptyArrayRows;
@@ -211,7 +229,7 @@ template<typename T>
 inline Uint ListBufferT<T>::total_allocated()
 {
   Uint allocated=m_array.size();
-  BOOST_FOREACH(const Array_t& buffer, m_buffers)
+  BOOST_FOREACH(const Buffer& buffer, m_buffers)
     allocated += buffer.size();
   return allocated;
 }
@@ -229,62 +247,80 @@ void ListBufferT<T>::flush()
   // get total number of empty rows
   Uint nb_emptyRows = m_emptyArrayRows.size() + m_emptyBufferRows.size() + m_newBufferRows.size();
   Uint new_size = allocated_size-nb_emptyRows;
-  if (new_size > old_array_size)
+  if (new_size >= old_array_size)
   {
     // make m_array bigger
     m_array.resize(boost::extents[new_size]);
 
     // copy each buffer into the array
     Uint array_idx=old_array_size;
-    BOOST_FOREACH (Array_t& buffer, m_buffers)
-    BOOST_FOREACH (value_type& row, buffer)
-    if (!is_empty(row))   // for each non-empty row from all buffers
+    boost_foreach (Buffer& buffer, m_buffers)
     {
-      // first find empty rows inside the old part array
-      if (!m_emptyArrayRows.empty())
+      for (Uint row_idx=0; row_idx<buffer.size(); ++row_idx)
       {
-        value_type& empty_array_row = get_row(m_emptyArrayRows.front());
-        m_emptyArrayRows.pop_front();
-        empty_array_row = row;
-      }
-      else // then select the new array rows to be filled
-      {
-        value_type& empty_array_row=m_array[array_idx++];
-        empty_array_row = row;
+        value_type& row = buffer.row[row_idx];
+        if (buffer.is_not_empty[row_idx])   // for each non-empty row from all buffers
+        {
+          // first find empty rows inside the old part array
+          if (!m_emptyArrayRows.empty())
+          {
+            value_type& empty_array_row = get_row(m_emptyArrayRows.front());
+            m_emptyArrayRows.pop_front();
+            empty_array_row = row;
+          }
+          else // then select the new array rows to be filled
+          {
+            cf_assert(array_idx < m_array.size());
+            value_type& empty_array_row=m_array[array_idx++];
+            empty_array_row = row;
+          }
+        }
       }
     }
   }
   else // More rows to be removed than added, now we need to swap rows
   {
     // copy all buffer rows in the m_array
-    BOOST_FOREACH (Array_t& buffer, m_buffers)
-    BOOST_FOREACH (value_type& row, buffer)
-    if (!is_empty(row))   // for each non-empty row from all buffers
+    boost_foreach (Buffer& buffer, m_buffers)
     {
-      Uint empty_array_row_idx = m_emptyArrayRows.front();
-      m_emptyArrayRows.pop_front();
-      value_type& empty_array_row = get_row(empty_array_row_idx);
-      empty_array_row = row;
+      for (Uint row_idx=0; row_idx<buffer.size(); ++row_idx)
+      {
+        value_type& row = buffer.row[row_idx];
+        if (buffer.is_not_empty[row_idx])   // for each non-empty row from all buffers
+        {
+          Uint empty_array_row_idx = m_emptyArrayRows.front();
+          m_emptyArrayRows.pop_front();
+          value_type& empty_array_row = get_row(empty_array_row_idx);
+          empty_array_row = row;
+        }
+      }
     }
-
     Uint full_row_idx = new_size;
-
     // The part of the table with rows > new_size will be deallocated
     // The empty rows from the allocated part must be swapped with filled
     // rows from the part that will be deallocated
-    BOOST_FOREACH(Uint empty_row_idx, m_emptyArrayRows)
+    Uint nb_empty_rows = m_emptyArrayRows.size();
+    for (Uint e=0; e<nb_empty_rows; ++e)
     {
-      // swap only necessary if it the empty row is in the allocated part
+      Uint empty_row_idx = m_emptyArrayRows.front();
+      m_emptyArrayRows.pop_front();
+      // swap only necessary if the empty row is in the allocated part
       if (empty_row_idx < new_size)
       {
         // swap this empty row with a full one in the part that will be deallocated
 
         // 1) find next full row
-        while(is_empty(m_array[full_row_idx]))
+        cf_assert(full_row_idx<m_array.size());
+        while(is_row_empty(full_row_idx))
+        {
           full_row_idx++;
+          cf_assert(full_row_idx<m_array.size());
+        }
 
         // 2) swap them
-        swap(m_array[empty_row_idx],m_array[full_row_idx]);
+        cf_assert(empty_row_idx<m_array.size());
+        m_array[empty_row_idx] = m_array[full_row_idx];
+        m_emptyArrayRows.push_back(full_row_idx);
         full_row_idx++;
       }
     }
@@ -312,10 +348,10 @@ inline typename ListBufferT<T>::value_type& ListBufferT<T>::get_row(const Uint i
   }
   else
   {
-    BOOST_FOREACH(Array_t& buffer, m_buffers)
+    BOOST_FOREACH(Buffer& buffer, m_buffers)
     {
       if (idx<cummulative_size+buffer.size())
-        return buffer[idx-cummulative_size];
+        return buffer.row[idx-cummulative_size];
       cummulative_size += buffer.size();
     }
   }
@@ -332,7 +368,7 @@ inline void ListBufferT<T>::increase_array_size(const size_t increase)
   m_array.resize(boost::extents[new_size]);
   for (Uint i_new=old_size; i_new<new_size; ++i_new)
   {
-    set_empty(m_array[i_new]);
+    //set_empty(m_array[i_new]);
     m_newArrayRows.push_back(i_new);
   }
 }
@@ -343,12 +379,9 @@ template<typename T>
 inline void ListBufferT<T>::add_buffer()
 {
   Uint idx = total_allocated();
-  m_buffers.push_back(Array_t(boost::extents[m_buffersize]));
-  BOOST_FOREACH(value_type& new_row, m_buffers.back())
-  {
-    set_empty(new_row);
+  m_buffers.push_back(Buffer(m_buffersize));
+  for (Uint i=0; i<m_buffersize; ++i)
     m_newBufferRows.push_back(idx++);
-  }
   cf_assert(total_allocated()==idx);
 }
 
@@ -382,8 +415,27 @@ inline Uint ListBufferT<T>::add_row_directly(const value_type& row)
 template<typename T>
 inline void ListBufferT<T>::set_row(const Uint array_idx, const value_type& row)
 {
-	value_type& row_to_set = get_row(array_idx);
-	row_to_set = row;
+  Uint cummulative_size = m_array.size();
+  if (array_idx < cummulative_size)
+  {
+    m_array[array_idx] = row;
+    m_emptyArrayRows.erase(std::find(m_emptyArrayRows.begin(),m_emptyArrayRows.end(),array_idx));
+    return;
+  }
+  else
+  {
+    BOOST_FOREACH(Buffer& buffer, m_buffers)
+    {
+      if (array_idx<cummulative_size+buffer.size())
+      {
+        buffer.row[array_idx-cummulative_size]=row;
+        buffer.is_not_empty[array_idx-cummulative_size]=true;
+        return;
+      }
+      cummulative_size += buffer.size();
+    }
+  }
+  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -391,12 +443,27 @@ inline void ListBufferT<T>::set_row(const Uint array_idx, const value_type& row)
 template<typename T>
 inline void ListBufferT<T>::rm_row(const Uint array_idx)
 {
-  set_empty(get_row(array_idx));
-  if (array_idx < m_array.size())
+  Uint cummulative_size = m_array.size();
+  if (array_idx < cummulative_size)
+  {
     m_emptyArrayRows.push_back(array_idx);
+    return;
+  }
   else
+  {
     m_emptyBufferRows.push_back(array_idx);
 
+    boost_foreach(Buffer& buffer, m_buffers)
+    {
+      if (array_idx<cummulative_size+buffer.size())
+      {
+        buffer.is_not_empty[array_idx-cummulative_size]=false;
+        return;
+      }
+      cummulative_size += buffer.size();
+    }
+  }
+  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
 }
 
 //////////////////////////////////////////////////////////////////////////////
