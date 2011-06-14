@@ -11,6 +11,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/any.hpp>
+#include <boost/type_traits/add_reference.hpp>
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/TypeInfo.hpp"
@@ -110,6 +111,20 @@ namespace Common {
         throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<TYPE>());
       }
     }
+    
+    /// @returns Reference to the value of the option casted to TYPE
+    template < typename TYPE >
+    typename boost::add_reference<TYPE const>::type value_ref() const
+    {
+      try
+      {
+        return boost::any_cast< typename boost::add_reference<TYPE const>::type >(m_value);
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<TYPE>());
+      }
+    }
 
     /// @returns puts the value of the option casted to TYPE on the passed parameter
     /// @param value which to assign the option value
@@ -127,7 +142,7 @@ namespace Common {
     }
 
     /// change the value of this option
-    void change_value ( const boost::any& value);
+    virtual void change_value ( const boost::any& value);
 
     Property & operator = (const boost::any & value);
 

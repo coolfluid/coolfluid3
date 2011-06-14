@@ -157,7 +157,7 @@ namespace Common {
     }
 
     /// change the value of this option
-    void change_value ( const boost::any& value);
+    virtual void change_value ( const boost::any& value);
 
     /// @brief Gives a reference to the restricted list.
     /// @return Returns a reference to the restricted list.

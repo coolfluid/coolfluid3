@@ -159,6 +159,19 @@ public:
   }
 
   //@} END VIRTUAL FUNCTIONS
+  
+  /// Get a reference to the stored component
+  T& component()
+  {
+    data_t val = boost::any_cast< data_t >(m_value);
+    return *val.lock();
+  }
+  
+  T const& component() const
+  {
+    data_t val = boost::any_cast< data_t >(m_value);
+    return *val.lock();
+  }
 
 protected: // functions
 

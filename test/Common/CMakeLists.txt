@@ -272,3 +272,23 @@ list( APPEND utest-create-component-datatype_files
 )
 
 coolfluid_add_unit_test( utest-create-component-datatype )
+
+################################################################################
+# Test options
+
+list( APPEND utest-options_cflibs coolfluid_common )
+list( APPEND utest-options_files
+  utest-options.cpp
+)
+
+coolfluid_add_unit_test( utest-options )
+
+################################################################################
+# Test CActionDirector
+
+list( APPEND utest-action-director_cflibs coolfluid_common )
+list( APPEND utest-action-director_files
+  utest-action-director.cpp
+)
+
+coolfluid_add_unit_test( utest-action-director )
