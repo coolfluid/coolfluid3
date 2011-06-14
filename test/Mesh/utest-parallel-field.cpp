@@ -163,12 +163,12 @@ BOOST_AUTO_TEST_CASE( ParallelFields_test )
   comm_pattern.insert(field.name(),field.data().array(),true);
 
   field.data() = mpi::PE::instance().rank();
-  field.data() += 1.;
 
+  // Synchronize!!!
   comm_pattern.synchronize();
 
 
-  BOOST_CHECK(true);
+  BOOST_CHECK(true); // Tadaa
 
   // Create a field with glb element numbers
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);
