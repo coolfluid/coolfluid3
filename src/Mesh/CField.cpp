@@ -159,7 +159,7 @@ void CField::config_var_types()
     }
   }
   // give property a similar look, not all possible regex combinations
-  property("VarTypes").change_value(var_types);
+  //property("VarTypes").change_value(var_types); // this triggers infinite recursion
 }
 
 ////////////////////////////////////////////////////////////////////////////////
