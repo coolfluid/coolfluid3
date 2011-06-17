@@ -35,11 +35,11 @@ namespace Tecplot {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the Tecplottral mesh format operations
+/// Class defines the Tecplot mesh format operations
 /// @author Willem Deconinck
 class Tecplot_API LibTecplot :
-    public Common::CLibrary
-{
+    public Common::CLibrary {
+
 public:
 
   typedef boost::shared_ptr<LibTecplot> Ptr;
