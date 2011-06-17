@@ -37,7 +37,7 @@ call create_boundary_term Name:string=INLET \
 //Root/model/Domain/mesh/topology/left,\
 //Root/model/Domain/mesh/topology/right
 
-configure compute_boundary_terms/INLET Functions:array[string]=1.5-2.0*x
+configure compute_boundary_terms/INLET functions:array[string]=1.5-2.0*x
 
 # create domain term
 

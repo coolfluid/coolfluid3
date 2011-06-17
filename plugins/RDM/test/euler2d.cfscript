@@ -38,7 +38,7 @@ call create_boundary_term Name:string=INLET \
 //Root/model/Domain/mesh/topology/right
 
 
-configure compute_boundary_terms/INLET "Functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
+configure compute_boundary_terms/INLET "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
 
 # initialize solution
 
