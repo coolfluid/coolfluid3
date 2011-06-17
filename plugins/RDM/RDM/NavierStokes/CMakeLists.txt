@@ -14,6 +14,8 @@ list( APPEND coolfluid_rdm_navierstokes_files
   # boundary terms (BCs)
   WallWeakBc.hpp
   WallWeakBc.cpp
+  WallEdwinBc.hpp
+  WallEdwinBc.cpp
   SubsonicInFlowWeakBc.hpp
   SubsonicInFlowWeakBc.cpp
   SubsonicOutFlowWeakBc.hpp
