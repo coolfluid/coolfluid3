@@ -159,6 +159,11 @@ protected: // data
  typename B::PhysicsVT Dv;
  /// diagonal matrix with positive eigen values
  typename B::PhysicsVT DvPlus;
+ /// matrix of left and right eigenvectors
+ typename B::PhysicsMT Lv;
+ typename B::PhysicsMT Rv;
+ typename B::PhysicsMT P;
+ typename B::PhysicsVT dF;
 
  /// temporary normal on 1 quadrature point
  DimVT dN;
@@ -222,8 +227,8 @@ public: // functions
 
     // compute the normal at quadrature point
 
-    dN[XX] = -dX_q(q,YY)/jacob;
-    dN[YY] =  dX_q(q,XX)/jacob;
+    dN[XX] =  dX_q(q,YY)/jacob;
+    dN[YY] = -dX_q(q,XX)/jacob;
 
     // compute the flux F(u_h) and its correction F(u_g)
 
@@ -237,29 +242,14 @@ public: // functions
                U_q.row(q),
                Fu_h);
 
-    // compute the reflection matrix
+    // compute the ghost state and correction - Mario:
+    const Real u_n = B::phys_props.u*dN[XX] + B::phys_props.v*dN[YY];
 
-//    RM(1,1) = 1. - 2*dN[XX]*dN[XX];
-//    RM(1,2) =    - 2*dN[XX]*dN[YY];
-//    RM(2,1) =    - 2*dN[YY]*dN[XX];
-//    RM(2,2) = 1. - 2*dN[YY]*dN[YY];
-
-//    RM(1,1) = dN[YY]*dN[YY] - dN[XX]*dN[XX];
-//    RM(1,2) = -2.*dN[XX]*dN[YY];
-//    RM(2,1) = -2.*dN[XX]*dN[YY];
-//    RM(2,2) = dN[XX]*dN[XX] - dN[YY]*dN[YY];
-
-    RM(1,1) =  dN[YY]*dN[YY];
-    RM(1,2) = -dN[XX]*dN[YY];
-    RM(2,1) = -dN[XX]*dN[YY];
-    RM(2,2) =  dN[XX]*dN[XX];
-
-    // reflect the current solution on the wall to get the ghost solution
-
-
-    u_g = RM * U_q.row(q).transpose();
-
-    // compute the flux according to the ghost solution u_g
+    u_g[0] = B::phys_props.rho;
+    u_g[1] = B::phys_props.u - u_n*dN[XX];
+    u_g[2] = B::phys_props.v - u_n*dN[YY];
+    u_g[3] = B::phys_props.rhoE - 0.5 * B::phys_props.rho * u_n * u_n;
+//    u_g[3] = B::phys_props.rhoE;
 
     PHYS::compute_properties(X_q.row(q),
                              u_g,
@@ -271,13 +261,51 @@ public: // functions
                u_g,
                Fu_g);
 
-    for(Uint n=0; n < SF::nb_nodes; ++n)
-      for(Uint v=0; v < PHYS::neqs; ++v)
+    PHYS::jacobian_eigen_structure(B::phys_props,X_q.row(q),u_g,dN,Rv,Lv,Dv);
+
+    for(Uint dim = 0; dim < PHYS::ndim; ++dim)
+    {
+      if(Dv[dim] < 0.0) Dv[dim] = 1.0;
+      else
       {
-        Phi_n.row(n)[v] -= ( ( Fu_g(v,XX) - Fu_h(v,XX) ) * dN[XX] +
-                             ( Fu_g(v,YY) - Fu_h(v,YY) ) * dN[YY] )
-                           *   Ni(q,n) * wj[q];
+        Dv[dim]  = 0.0;
+        Lv.row(dim).setZero();
       }
+    }
+
+    P = Rv*Lv;
+
+    dF = ( Fu_g.col(XX) - Fu_h.col(XX) ) * dN[XX] +
+         ( Fu_g.col(YY) - Fu_h.col(YY) ) * dN[YY];
+
+// compute the reflection matrix
+
+//    RM(1,1) = 1. - 2*dN[XX]*dN[XX];
+//    RM(1,2) =    - 2*dN[XX]*dN[YY];
+//    RM(2,1) =    - 2*dN[YY]*dN[XX];
+//    RM(2,2) = 1. - 2*dN[YY]*dN[YY];
+
+//    RM(1,1) = dN[YY]*dN[YY] - dN[XX]*dN[XX];
+//    RM(1,2) = -2.*dN[XX]*dN[YY];
+//    RM(2,1) = -2.*dN[XX]*dN[YY];
+//    RM(2,2) = dN[XX]*dN[XX] - dN[YY]*dN[YY];
+
+//    RM(1,1) =  dN[YY]*dN[YY];
+//    RM(1,2) = -dN[XX]*dN[YY];
+//    RM(2,1) = -dN[XX]*dN[YY];
+//    RM(2,2) =  dN[XX]*dN[XX];
+
+// reflect the current solution on the wall to get the ghost solution
+
+//    u_g = RM * U_q.row(q).transpose();
+
+// compute the flux according to the ghost solution u_g
+
+
+    for(Uint n=0; n < SF::nb_nodes; ++n)
+    {
+      Phi_n.row(n) += ( P * dF * Ni(q,n) * wj[q] );
+    }
 
 
     // compute the wave_speed for scaling the update

@@ -51,12 +51,10 @@ public: // functions
   };
 
   /// compute physical properties
-  template < typename CV, typename SV, typename GXV, typename GYV , typename GZV>
+  template < typename CV, typename SV, typename GM, typename GZV>
   static void compute_properties ( const CV&  coord,
                                    const SV&  sol,
-                                   const GXV& dudx,
-                                   const GYV& dudy,
-                                   const GZV& dudz,
+                                   const GM& gradu,
                                    Properties& p )
   {
   }
@@ -100,13 +98,11 @@ public: // functions
   }
 
   /// compute the PDE residual
-  template < typename CV, typename SV, typename GXV, typename GYV, typename GZV, typename JM, typename LUV >
+  template < typename CV, typename SV, typename GM, typename JM, typename LUV >
   static void Lu(const Properties& p,
                  const CV&  coord,
                  const SV&  sol,
-                 const GXV& dudx,
-                 const GYV& dudy,
-                 const GZV& dudz,
+                 const GM& gradu,
                  JM         flux_jacob[],
                  LUV&       Lu)
   {
@@ -118,7 +114,7 @@ public: // functions
     B(0,0) = p.Vy;
     C(0,0) = p.Vz;
 
-    Lu = A * dudx + B * dudy + C * dudz;
+    Lu = A * gradu.col(XX) + B * gradu.col(YY) + C * gradu.col(ZZ);
   }
 
 };
