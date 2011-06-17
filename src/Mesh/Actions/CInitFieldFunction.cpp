@@ -6,7 +6,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/OptionArray.hpp"
@@ -47,7 +47,7 @@ CInitFieldFunction::CInitFieldFunction( const std::string& name )
     ->mark_basic();
 
   m_properties.add_option<
-      OptionArrayT<std::string> > ("functions","Functions",
+      OptionArrayT<std::string> > ("functions","Functions definition",
                                    "Math function applied as initial field (vars x,y,z)",
                                    std::vector<std::string>())
       ->attach_trigger ( boost::bind ( &CInitFieldFunction::config_function, this ) )

@@ -203,7 +203,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
     std::vector<std::string> fns;
     fns.push_back("cos(2*3.141592*(x+y+z))");
-    inletbc->configure_property("Functions", fns);
+    inletbc->configure_property("functions", fns);
   }
 
   BOOST_CHECK(true);
