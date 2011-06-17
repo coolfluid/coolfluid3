@@ -62,7 +62,7 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
   m_properties["mesh"].as_option().attach_trigger ( boost::bind ( &WeakDirichlet::config_mesh, this ) );
 
   m_properties.add_option<
-      OptionArrayT<std::string> > ("Functions",
+      OptionArrayT<std::string> > ("functions",
                                    "Math function applied as Dirichlet boundary condition (vars x,y)",
                                    std::vector<std::string>())
       ->attach_trigger ( boost::bind ( &WeakDirichlet::config_function, this ) )
@@ -75,7 +75,7 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
 
 void WeakDirichlet::config_function()
 {
-  function.functions( m_properties["Functions"].value<std::vector<std::string> >() );
+  function.functions( m_properties["functions"].value<std::vector<std::string> >() );
   function.parse();
 }
 

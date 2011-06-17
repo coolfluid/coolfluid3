@@ -152,7 +152,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
     fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
 //    fns.push_back("cos(2*3.141592*(x+y))");
 
-    inletbc->configure_property("Functions", fns);
+    inletbc->configure_property("functions", fns);
   }
 
   // initialization
@@ -162,7 +162,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
     std::vector<std::string> functions(1);
     functions[0] = "0.";
-    options.add<std::string>("Functions", functions, " ; ");
+    options.add<std::string>("functions", functions, " ; ");
 
     solver->as_type<RKRD>().signal_initialize_solution( frame );
   }

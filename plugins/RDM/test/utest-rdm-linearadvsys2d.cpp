@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadvsys2d_local_fixtur
   fns.push_back("2.0*cos(2*3.141592*(x+y))");
   fns.push_back("3.0*cos(2*3.141592*(x+y))");
 
-  inletbc->configure_property("Functions", fns);
+  inletbc->configure_property("functions", fns);
 
   BOOST_CHECK(true);
 }
@@ -213,7 +213,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , linearadvsys2d_local_fixtu
   std::vector<std::string> functions(2);
   functions[0] = "x*x+y*y";
   functions[1] = "0.";
-  options.add<std::string>("Functions", functions, " ; ");
+  options.add<std::string>("functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }

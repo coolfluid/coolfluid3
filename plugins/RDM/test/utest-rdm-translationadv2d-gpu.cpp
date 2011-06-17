@@ -187,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , translationadv2d_local_fix
 
   std::vector<std::string> functions(1);
   functions[0] = "0.0";
-  options.set_array("Functions", functions, " ; ");
+  options.set_array("functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }

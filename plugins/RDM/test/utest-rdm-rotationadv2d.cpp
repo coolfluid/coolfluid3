@@ -147,7 +147,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
   std::vector<std::string> functions(1);
   functions[0] = "x*x+y*y";
 //  functions[0] = "7.7777";
-  options.add<std::string>("Functions", functions, " ; ");
+  options.add<std::string>("functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 
@@ -194,7 +194,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
     std::vector<std::string> fns;
     fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
-    inletbc->configure_property("Functions", fns);
+    inletbc->configure_property("functions", fns);
   }
 
   BOOST_CHECK(true);
@@ -222,7 +222,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
     std::vector<std::string> fns;
     fns.push_back("0.0");
-    inletbc->configure_property("Functions", fns);
+    inletbc->configure_property("functions", fns);
   }
 
   BOOST_CHECK(true);

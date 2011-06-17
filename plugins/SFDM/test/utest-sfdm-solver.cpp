@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( Solver )
 
   /// Initialize solution field with the function sin(2*pi*x)
   Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
-  //init_field->configure_property("Functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
+  //init_field->configure_property("functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
 
   std::string gaussian="sigma:=1; mu:=5.; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";
   init_field->configure_property("functions",std::vector<std::string>(1,gaussian));

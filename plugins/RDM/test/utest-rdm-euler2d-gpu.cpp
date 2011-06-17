@@ -223,7 +223,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
 //  fns[2] = "1.67332";
 //  fns[3] = "3.425";
 
-  inletbc->configure_property("Functions", fns);
+  inletbc->configure_property("functions", fns);
 
   BOOST_CHECK(true);
 }
@@ -250,7 +250,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , euler2d_local_fixture )
 //  fns[2] = "1.67332";
 //  fns[3] = "3.425";
 
-  options.add<std::string>("Functions", fns, " ; ");
+  options.add<std::string>("functions", fns, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }

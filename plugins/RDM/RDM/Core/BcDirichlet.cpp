@@ -46,7 +46,7 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
   m_properties["mesh"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_mesh, this ) );
 
   m_properties.add_option<
-      OptionArrayT<std::string> > ("Functions",
+      OptionArrayT<std::string> > ("functions",
                                    "Math function applied as Dirichlet boundary condition (vars x,y)",
                                    std::vector<std::string>())
       ->attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) )
@@ -59,7 +59,7 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 
 void BcDirichlet::config_function()
 {
-  m_function.functions( m_properties["Functions"].value<std::vector<std::string> >() );
+  m_function.functions( m_properties["functions"].value<std::vector<std::string> >() );
   m_function.parse();
 }
 

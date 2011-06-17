@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , burgers2d_local_fixture )
 
   std::vector<std::string> fns;
   fns.push_back("1.5-2.0*x");
-  inletbc->configure_property("Functions", fns);
+  inletbc->configure_property("functions", fns);
 
   BOOST_CHECK(true);
 }
@@ -212,7 +212,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , burgers2d_local_fixture )
 
   std::vector<std::string> functions(1);
   functions[0] = "0.";
-  options.add<std::string>("Functions", functions, " ; ");
+  options.add<std::string>("functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }
