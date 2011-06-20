@@ -41,6 +41,7 @@ void Roe::build_roe_state()
   if (is_not_null(m_roe_state))
     remove_component(*m_roe_state);
   m_roe_state = create_component( "roe_state" , property("roe_state").value_str() ).as_ptr<State>();
+  m_roe_avg_vars = m_roe_state->create_physics();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +65,6 @@ void Roe::setup()
   F_L.resize(size);
   F_R.resize(size);
 
-  m_roe_avg_vars = sol_state.create_physics();
 
   m_phys_vars.resize(2);
   m_phys_vars[LEFT]  = sol_state.create_physics();
@@ -81,31 +81,32 @@ void Roe::solve(const RealVector& left, const RealVector& right, const RealVecto
 
   State& sol_state = *m_sol_state.lock();
   State& roe_state = *m_roe_state;
+  Solver::Physics& roe_avg_vars = *m_roe_avg_vars;
 
   // assumes left and right are in roe states
-  roe_state.set_state(left,  m_phys_vars[LEFT]);
-  roe_state.set_state(right, m_phys_vars[RIGHT]);
-  roe_state.linearize(m_phys_vars, m_roe_avg_vars);
+  sol_state.set_state(left,  *m_phys_vars[LEFT]);
+  sol_state.set_state(right, *m_phys_vars[RIGHT]);
+  roe_state.linearize(m_phys_vars, roe_avg_vars);
 
   // right eigenvectors
-  sol_state.compute_fluxjacobian_right_eigenvectors(m_roe_avg_vars,normal,right_eigenvectors);
+  sol_state.compute_fluxjacobian_right_eigenvectors(roe_avg_vars,normal,right_eigenvectors);
 
   // left eigenvectors = inverse (right_eigenvectors)
-  sol_state.compute_fluxjacobian_left_eigenvectors(m_roe_avg_vars,normal,left_eigenvectors);
+  sol_state.compute_fluxjacobian_left_eigenvectors(roe_avg_vars,normal,left_eigenvectors);
 
   // eigenvalues
-  sol_state.compute_fluxjacobian_eigenvalues(m_roe_avg_vars,normal,eigenvalues);
+  sol_state.compute_fluxjacobian_eigenvalues(roe_avg_vars,normal,eigenvalues);
 
   // calculate absolute jacobian
   abs_jacobian = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
 
   // flux = central part + upwind part
-  sol_state.compute_flux(m_phys_vars[LEFT] ,normal,F_L);
-  sol_state.compute_flux(m_phys_vars[RIGHT],normal,F_R);
+  sol_state.compute_flux(*m_phys_vars[LEFT] ,normal,F_L);
+  sol_state.compute_flux(*m_phys_vars[RIGHT],normal,F_R);
 
   interface_flux = 0.5*(F_L + F_R) - 0.5*abs_jacobian*(right-left);
-  left_wave_speed  = sol_state.max_eigen_value( m_roe_avg_vars, normal );
-  right_wave_speed = sol_state.max_eigen_value( m_roe_avg_vars, -normal );
+  left_wave_speed  = sol_state.max_eigen_value( roe_avg_vars, normal );
+  right_wave_speed = sol_state.max_eigen_value( roe_avg_vars, -normal );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

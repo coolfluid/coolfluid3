@@ -117,6 +117,7 @@ void ComputeUpdateCoefficient::execute()
     CTable<Real>& update_coeff = m_update_coeff.lock()->data();
     CTable<Real>& volume = m_volume.lock()->data();
 
+    CTable<Real>& jacob_det = m_volume.lock()->parent().get_child("jacobian_determinant").as_type<CField>().data();
 
     if (m_time_accurate) // global time stepping
     {
@@ -157,7 +158,7 @@ void ComputeUpdateCoefficient::execute()
       /// @f[ Q^{n+1} = Q^n + \Delta t \ R @f]
       for (Uint i=0; i<update_coeff.size(); ++i)
       {
-        update_coeff[i][0] = dt;
+        update_coeff[i][0] = dt ;/// jacob_det[i][0];
       }
 
       // Update the new time step

@@ -44,10 +44,10 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "Cons1D"; }
 
-  virtual Solver::Physics create_physics()
+  virtual boost::shared_ptr<Solver::Physics> create_physics()
   {
-    Euler::Physics p;
-    return static_cast<Solver::Physics>(p);
+    boost::shared_ptr<Solver::Physics> p (new Euler::Physics);
+    return p;
   }
 
   virtual Uint size() { return 3; }
@@ -55,32 +55,17 @@ public: // functions
   virtual void set_state( const RealVector& state, Solver::Physics& p)
   {
     typedef Euler::Physics P;
-    CF_DEBUG_POINT;
 
     p.init();
-    CF_DEBUG_POINT;
 
     p.set_var(P::gamma, 1.4);
-    CF_DEBUG_POINT;
-
     p.set_var(P::R, 286.9);
-    CF_DEBUG_POINT;
-
     p.set_var(P::rho, state[0]);
-    CF_DEBUG_POINT;
     p.set_var(P::Vx,  state[1]/state[0]);
-    CF_DEBUG_POINT;
     p.set_var(P::Vy,  0.);
     p.set_var(P::Vz,  0.);
     p.set_var(P::E ,  state[2]/state[0]);
-    CF_DEBUG_POINT;
-
-    CFinfo << p << CFendl;
-    CFinfo << p.compute_var(P::gamma_minus_1) << CFendl;
-    CF_DEBUG_POINT;
-    p.set_var(P::p ,  (p.var(P::gamma)-1.)*state[2]-0.5*state[0]*p.compute_var(P::V2));
-
-    CF_DEBUG_POINT;
+    p.set_var(P::p , p.compute_var(P::gamma_minus_1)*(state[2]-0.5*state[0]*p.compute_var(P::V2)) );
   }
 
   virtual void get_state( Solver::Physics& p, RealVector& state)
@@ -100,7 +85,7 @@ public: // functions
     typedef Euler::Physics P;
     const Real un = p.var(P::Vx) * normal[XX];
     flux[0] = p.var(P::rho) * un;
-    flux[1] = p.var(P::rho) * p.var(P::Vx) * un + p.var(P::p);
+    flux[1] = p.var(P::rho) * p.var(P::Vx) * un + p.var(P::p)*normal[XX];
     flux[2] = (p.var(P::rho) * p.compute_var(P::E) + p.var(P::p)) * un;
   }
 
@@ -131,7 +116,6 @@ public: // functions
     const Real gm1=p.var(P::gamma_minus_1);
     const Real r=p.var(P::rho);
     const Real u=p.var(P::Vx);
-    const Real h=p.compute_var(P::H);
     const Real a=p.compute_var(P::a);
     const Real nx=normal[XX];
 
@@ -148,7 +132,6 @@ public: // functions
     typedef Euler::Physics P;
 
     const Real un = p.var(P::Vx) * normal[XX];
-
     ev[0] = un;
     ev[1] = un+p.compute_var(P::a);
     ev[2] = un-p.var(P::a);

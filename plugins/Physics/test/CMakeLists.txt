@@ -9,7 +9,7 @@ coolfluid_add_unit_test( utest-advectiondiffusion )
 #########################################################################################
 # utest-euler
 
-list( APPEND utest-euler_cflibs coolfluid_physics_euler coolfluid_solver)
+list( APPEND utest-euler_cflibs coolfluid_euler coolfluid_solver)
 list( APPEND utest-euler_files  utest-euler.cpp )
 
 coolfluid_add_unit_test( utest-euler )

@@ -1,0 +1,45 @@
+configure Environment exception_aborts:bool=true
+configure Environment exception_backtrace:bool=true
+configure Environment exception_outputs:bool=true
+configure Environment log_level:unsigned=3
+
+echo "Canceled for now. Run atest-sfdm-euler1D-shocktube-P0"
+
+#call //Root/Libraries/load_libraries "libs:array[uri]=\
+#    file:@coolfluid_DSO_DIR@/libcoolfluid_riemannsolvers,\
+#    file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm,\
+#    file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm_sf,\
+#    file:@coolfluid_DSO_DIR@/libcoolfluid_advectiondiffusion"
+
+#create wizard CF.SFDM.SFDWizard
+#configure wizard \
+#   model:string=SFD_simulation \
+#   solution_state:string=CF.Euler.Cons1D \
+#   roe_state:string=CF.Euler.Roe1D \
+#   P:unsigned=0 \
+#   cfl:real=1 \
+#   RK_stages:unsigned=3
+
+#call wizard/create_simulation
+
+#create SFD_simulation/tools/meshgen CF.Mesh.CSimpleMeshGenerator
+#configure SFD_simulation/tools/meshgen\
+#  lengths:array[real]=10 \
+#  nb_cells:array[unsigned]=100 \
+#  parent:uri=cpath://Root/SFD_simulation/Domain
+#SFD_simulation/tools/meshgen
+
+#call wizard/prepare_simulation
+
+#configure SFD_simulation/tools/initialize_solution "functions:array[string]=\
+#  r_L:=4.696; r_R:=1.408; u_L:=0; u_R:=0; p_L:=404400; p_R:=101100; g:=1.4; if(x<=5,r_L,r_R),\
+#  r_L:=4.696; r_R:=1.408; u_L:=0; u_R:=0; p_L:=404400; p_R:=101100; g:=1.4; if(x<=5,r_L*u_L,r_R*u_R),\
+#  r_L:=4.696; r_R:=1.408; u_L:=0; u_R:=0; p_L:=404400; p_R:=101100; g:=1.4; if(x<=5,p_L/(g-1)+0.5*r_L*u_L*u_L,p_R/(g-1)+0.5*r_R*u_R*u_R)"
+#SFD_simulation/tools/initialize_solution
+
+#call SFD_simulation/Domain/mesh/write_mesh file:string=initial_condition.msh solution:bool=true
+
+
+#call wizard/start_simulation end_time:real=0.008
+
+#call SFD_simulation/Domain/mesh/write_mesh file:string=final.msh solution:bool=true

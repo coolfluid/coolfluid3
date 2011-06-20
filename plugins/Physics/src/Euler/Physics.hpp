@@ -54,7 +54,7 @@ public: // functions
     var_deps(T) = list_of(rho)(R)(p);
 
     set_compute_function(a2, bind(&Physics::sound_speed_square,this));
-    var_deps(a2) = list_of(gamma)(R)(p);
+    var_deps(a2) = list_of(gamma)(rho)(p);
 
     set_compute_function(a, bind(&Physics::sound_speed,this));
     var_deps(a) = list_of(a2);
@@ -64,47 +64,47 @@ public: // functions
 
   }
 
-  Real gamma_min_1()
+  Real gamma_min_1() const
   {
     return var(gamma)-1.;
   }
 
-  Real energy()
+  Real energy() const
   {
-    return var(p)/(var(rho)*var(gamma_minus_1)) + 0.5*var(V2);
+    return var(p) / (var(gamma_minus_1) * var(rho)) + 0.5 * var(V2);
   }
 
-  Real enthalpy()
+  Real enthalpy() const
   {
     return var(E) + var(p)/var(rho);
   }
 
-  Real temperature()
+  Real temperature() const
   {
     return var(p)/(var(rho)*var(R));
   }
 
-  Real sound_speed_square()
+  Real sound_speed_square() const
   {
     return var(gamma)*var(p)/var(rho);
   }
 
-  Real sound_speed()
+  Real sound_speed() const
   {
     return std::sqrt(var(a2));
   }
 
-  Real velocity_magnitude_square()
+  Real velocity_magnitude_square() const
   {
     return var(Vx)*var(Vx)+var(Vy)*var(Vy)+var(Vz)*var(Vz);
   }
 
-  Real velocity_magnitude()
+  Real velocity_magnitude() const
   {
     return std::sqrt(var(V2));
   }
 
-  Real mach_number()
+  Real mach_number() const
   {
     return var(V)/var(a);
   }

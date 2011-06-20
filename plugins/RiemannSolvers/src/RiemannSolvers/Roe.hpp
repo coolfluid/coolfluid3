@@ -37,19 +37,19 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Roe"; }
 
-  virtual void solve(const RealVector& left, const RealVector& right, const RealVector& normal, 
+  virtual void solve(const RealVector& left, const RealVector& right, const RealVector& normal,
              RealVector& flux, Real& left_wave_speed, Real& right_wave_speed);
-  
+
   void setup();
 
 private:
 
   void build_roe_state();
-  
+
   boost::shared_ptr<Solver::State> m_roe_state;
 
-  Solver::Physics m_roe_avg_vars;
-  std::vector<Solver::Physics> m_phys_vars;
+  boost::shared_ptr<Solver::Physics> m_roe_avg_vars;
+  std::vector<boost::shared_ptr<Solver::Physics> > m_phys_vars;
 
   RealMatrix right_eigenvectors;
 

@@ -74,7 +74,9 @@ SFDWizard::SFDWizard( const std::string& name )
 
   properties().add_option( OptionT<std::string>::create("model","Model Name","Name to give to the simulation model","SFD_simulation") )->mark_basic();
   properties().add_option( OptionT<Uint>::create("dim","Dimension","Dimension of the simulation",1u) )->mark_basic();
-  properties().add_option( OptionT<std::string>::create("physics","Physics","Builder name for the physical model","CF.Physics.") )->mark_basic();
+  //properties().add_option( OptionT<std::string>::create("physics","Physics","Builder name for the physical model","CF.") )->mark_basic();
+  properties().add_option( OptionT<std::string>::create("solution_state","Solution State","Solution state builder","CF.Euler.Cons1D") )->mark_basic();
+  properties().add_option( OptionT<std::string>::create("roe_state","Roe State","Roe state builder","CF.Euler.Roe1D") )->mark_basic();
   properties().add_option( OptionT<Uint>::create("P","Polynomial Order","The order of the polynomial of the solution",0u) )->mark_basic();
   properties().add_option( OptionT<Uint>::create("RK_stages","Runge Kutta stages","The number of Runge Kutta stages",2u) )->mark_basic();
   properties().add_option( OptionT<Real>::create(FlowSolver::Tags::cfl(),"CFL","The Courant-Friedrichs-Lax Number",1.) )->mark_basic();
@@ -117,7 +119,7 @@ void SFDWizard::create_simulation()
   CPhysicalModel& physical_model = model.create_physics("Physics");
 
   /// @todo should be setup differently
-  physical_model.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State"+property("dim").value_str()+"D"));
+  physical_model.configure_property("solution_state",property("solution_state").value_str());
 
   CDomain& domain                = model.create_domain("Domain");
   CTime& time                    = model.create_time("Time");
@@ -322,9 +324,8 @@ void SFDWizard::build_solve()
   iterate.create_component<OutputIterationInfo>("2_output_info").mark_basic();
   iterate.create_component<CCriterionTime>("time_stop_criterion").mark_basic();
 
-  /// @todo configure differently
   solver.configure_option_recursively("riemann_solver",std::string("CF.RiemannSolvers.Roe"));
-  solver.configure_option_recursively("roe_state",std::string("CF.AdvectionDiffusion.State"+property("dim").value_str()+"D"));
+  solver.configure_option_recursively("roe_state",property("roe_state").value_str());
 
   solver.configure_option_recursively("solution_state",m_model_link->follow()->as_type<CModel>().physics().solution_state().uri());
 

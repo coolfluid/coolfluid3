@@ -41,14 +41,17 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "State"; }
 
-  virtual Physics create_physics()
+  virtual boost::shared_ptr<Physics> create_physics()
   {
-    return Physics();
+    boost::shared_ptr<Physics> p(new Physics);
+    return p;
   }
+
+  const std::vector<std::string>& var_names() const { return m_var_names; }
 
   virtual Uint size() { return 0; }
 
-  virtual void set_state( RealVector& state,
+  virtual void set_state( const RealVector& state,
                           Solver::Physics& p) {}
 
   virtual void get_state( Solver::Physics& p,
@@ -74,12 +77,13 @@ public: // functions
   virtual Real max_eigen_value ( Solver::Physics& p,
                                  const RealVector& normal ) {return 0.;}
 
-  virtual void linearize( std::vector<Solver::Physics>& states,
+  virtual void linearize( std::vector<boost::shared_ptr<Solver::Physics> >& states,
                           Solver::Physics& p ) {}
 
 protected:
 
   std::vector<std::string> m_var_names;
+
 }; // State
 
 ////////////////////////////////////////////////////////////////////////////////

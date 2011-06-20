@@ -7,11 +7,9 @@
 #ifndef CF_Solver_Physics_hpp
 #define CF_Solver_Physics_hpp
 
-/// @todo remove
-#include "Common/Log.hpp"
-
 #include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/StringConversion.hpp"
 #include "Solver/LibSolver.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,11 +29,7 @@ public: // functions
   typedef boost::function<Real (void)> ComputeFunction;
 
   /// Contructor
-  Physics()
-  {
-    /// set 1 property variable in the physics using resize()
-    resize(1);
-  }
+  Physics() {}
 
   /// Virtual destructor
   virtual ~Physics() {}
@@ -56,13 +50,14 @@ public: // functions
     cf_assert(variable_id<m_variables.size());
     m_variables[variable_id] = value;
     m_variables_availability[variable_id]=true;
+
   }
 
   /// Fast access to the value of a variable
   Real var(const Uint variable_id) const
   {
     cf_assert(variable_id<m_variables.size());
-    cf_assert(m_variables_availability[variable_id]);
+    cf_assert_desc(Common::to_str(variable_id)+" not available",m_variables_availability[variable_id]);
     return m_variables[variable_id];
   }
 
@@ -73,11 +68,10 @@ public: // functions
   Real compute_var(const Uint variable_id)
   {
     cf_assert(variable_id<m_variables.size());
-    if (must_compute(variable_id))
+    if (this->must_compute(variable_id))
     {
-      compute_dependent_vars(variable_id);
-      Real value = m_compute_functions[variable_id]();
-      set_var(variable_id, value);
+      this->compute_dependent_vars(variable_id);
+      this->set_var(variable_id,m_compute_functions[variable_id]());
     }
     return m_variables[variable_id];
   }
@@ -102,8 +96,7 @@ public: // functions
       m_variables.resize(size);
       m_variables_availability.resize(size,false);
       m_variables_dependency.resize(size);
-      m_compute_functions.assign(size, boost::bind( &Physics::not_implemented , this) );
-      CFLogVar(m_variables_availability.size());
+      m_compute_functions.resize(size, boost::bind( &Physics::not_implemented , this) );
   }
 
   /// Set the callback function
@@ -118,7 +111,7 @@ public: // functions
   bool must_compute(const Uint variable_id) const
   {
     cf_assert(variable_id<m_variables.size());
-    return ( m_variables_availability[variable_id] == false );
+    return ( ! m_variables_availability[variable_id] );
   }
 
 private: // functions
@@ -128,7 +121,7 @@ private: // functions
   {
     boost_foreach(const Uint dependent_var_id, m_variables_dependency[variable_id])
     {
-      compute_var(dependent_var_id);
+      set_var(dependent_var_id, compute_var(dependent_var_id));
     }
   }
 

@@ -47,6 +47,8 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_property("model",std::string("gaussian_1D"));
+  wizard.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State1D"));
+  wizard.configure_property("roe_state",std::string("CF.AdvectionDiffusion.State1D"));
   wizard.configure_property("dim",1u);
   wizard.create_simulation();
 
@@ -93,8 +95,11 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_property("model",std::string("gaussian_2D"));
+  wizard.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State2D"));
+  wizard.configure_property("roe_state",std::string("CF.AdvectionDiffusion.State2D"));
   wizard.configure_property("dim",2u);
   wizard.configure_property("P",1u);
+  wizard.configure_property("RK_stages",3u);
   wizard.configure_property("cfl",1.);
   wizard.create_simulation();
 
@@ -112,7 +117,6 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
   gmsh_writer.configure_property("mesh",mesh.uri());
   gmsh_writer.configure_property("file",URI("file:gaussian_iter${iter}_time${time}.msh"));
 
-  iterate.configure_property("max_iter",3u);
 
   CFinfo << model.tree() << CFendl;
 
@@ -129,10 +133,9 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
   //model.configure_option_recursively("milestone_dt",0.5);
   //model.configure_option_recursively("milestone_rate",3);
 
-  model.configure_option_recursively("stages",3u);
-
   gmsh_writer.execute();
 
+  iterate.configure_property("max_iter",3u);
   wizard.start_simulation(40.);
 
 }

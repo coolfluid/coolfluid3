@@ -41,10 +41,10 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "State2D"; }
 
-  virtual Solver::Physics create_physics()
+  virtual boost::shared_ptr<Solver::Physics> create_physics()
   {
-    AdvectionDiffusion::Physics p;
-    return static_cast<Solver::Physics>(p);
+    boost::shared_ptr<Solver::Physics> p (new AdvectionDiffusion::Physics);
+    return p;
   }
 
   virtual Uint size() { return 1; }
@@ -96,11 +96,11 @@ public: // functions
     return p.var(Physics::Vx) * normal[XX]  +  p.var(Physics::Vy) * normal[YY];
   }
 
-  virtual void linearize( std::vector<Solver::Physics>& states, Solver::Physics& p )
+  virtual void linearize( std::vector<boost::shared_ptr<Solver::Physics> >& states, Solver::Physics& p )
   {
     Real S=0;
     for (Uint i=0; i<states.size(); ++i)
-      S += states[i].var(AdvectionDiffusion::Physics::S);
+      S += states[i]->var(AdvectionDiffusion::Physics::S);
     S /= static_cast<Real>(states.size());
 
     p.init();

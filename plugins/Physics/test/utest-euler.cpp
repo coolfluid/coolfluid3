@@ -15,6 +15,7 @@
 #include "Common/CEnv.hpp"
 #include "Euler/Physics.hpp"
 #include "Euler/Cons1D.hpp"
+#include "Euler/Roe1D.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -29,15 +30,29 @@ BOOST_AUTO_TEST_SUITE( Euler_Suite )
 BOOST_AUTO_TEST_CASE( eulercons1d )
 {
   Common::Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
-  CF_DEBUG_POINT;
   Euler::Cons1D cons_state;
-  CF_DEBUG_POINT;
-  Solver::Physics p = cons_state.create_physics();
+  Euler::Roe1D  roe_state;
+  boost::shared_ptr<Solver::Physics> phys = cons_state.create_physics();
+  //Euler::Physics p;
+  Solver::Physics& p = *phys;
+  p.set_var(Euler::Physics::gamma,1.4);
+  p.set_var(Euler::Physics::R,286.9);
+  p.set_var(Euler::Physics::rho,4.696);
+  p.set_var(Euler::Physics::Vx,0.);
+  p.set_var(Euler::Physics::Vy,0.);
+  p.set_var(Euler::Physics::Vz,0.);
+  p.set_var(Euler::Physics::p,404400.);
 
-  RealVector state(3); state << 4.696 , 0. , 404400 ;
+  RealVector sol(3);
+  cons_state.get_state(p,sol);
 
-  cons_state.set_state(state,p);
+  RealVector roe(3);
+  roe_state.get_state(p,roe);
 
+  cons_state.set_state(sol,p);
+  CFinfo << p << CFendl;
+  roe_state.set_state(roe,p);
+  CFinfo << p << CFendl;
   RealVector normal(1); normal << 1.;
   RealVector flux(3);
   RealMatrix rv(3,3);
@@ -59,7 +74,6 @@ BOOST_AUTO_TEST_CASE( eulercons1d )
 //  BOOST_CHECK_EQUAL(ev[0], 1.);
 //  BOOST_CHECK_EQUAL(rv(0,0), 1.);
 //  BOOST_CHECK_EQUAL(lv(0,0), 1.);
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

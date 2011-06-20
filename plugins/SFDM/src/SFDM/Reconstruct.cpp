@@ -77,7 +77,7 @@ void Reconstruct::configure_from_to()
 
 RealMatrix Reconstruct::value(const RealMatrix& from_states) const
 {
-  cf_assert_desc("matrix dimensions don't match",from_states.size() == m_value_reconstruction_matrix.cols());
+  cf_assert_desc("matrix dimensions don't match ["+to_str((Uint)from_states.rows())+"!="+to_str((Uint)m_value_reconstruction_matrix.cols())+"]  ",from_states.rows() == m_value_reconstruction_matrix.cols());
   return m_value_reconstruction_matrix * from_states;
 }
 
@@ -85,7 +85,7 @@ RealMatrix Reconstruct::value(const RealMatrix& from_states) const
 
 RealMatrix Reconstruct::gradient(const RealMatrix& from_states, const CoordRef orientation) const
 {
-  cf_assert_desc("matrix dimensions don't match ["+to_str((Uint)from_states.size())+"!="+to_str((Uint)m_gradient_reconstruction_matrix[orientation].cols())+"]  ",from_states.size() == m_gradient_reconstruction_matrix[orientation].cols());
+  cf_assert_desc("matrix dimensions don't match ["+to_str((Uint)from_states.rows())+"!="+to_str((Uint)m_gradient_reconstruction_matrix[orientation].cols())+"]  ",from_states.rows() == m_gradient_reconstruction_matrix[orientation].cols());
   return m_gradient_reconstruction_matrix[orientation] * from_states;
 }
 

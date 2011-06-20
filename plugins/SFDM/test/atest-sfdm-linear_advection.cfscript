@@ -12,6 +12,8 @@ call //Root/Libraries/load_libraries "libs:array[uri]=\
 create wizard CF.SFDM.SFDWizard
 configure wizard \
    model:string=SFD_simulation \
+   solution_state:string=CF.AdvectionDiffusion.State1D \
+   roe_state:string=CF.AdvectionDiffusion.State1D \
    P:unsigned=0 \
    cfl:real=1 \
    RK_stages:unsigned=4

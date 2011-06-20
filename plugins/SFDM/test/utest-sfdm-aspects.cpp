@@ -298,6 +298,9 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
   wizard.configure_property("model",std::string("test"));
   wizard.configure_property("dim",2u);
   wizard.configure_property("RK_stages",1u);
+  wizard.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State2D"));
+  wizard.configure_property("roe_state",std::string("CF.AdvectionDiffusion.State2D"));
+
   wizard.create_simulation();
 
   CModel& model = wizard.model();
@@ -498,6 +501,76 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
 
 }
 */
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_flux_transformation )
+{
+  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  /// Create a mesh consisting of a line with length 1. and 20 divisions
+
+
+  SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
+  wizard.configure_property("model",std::string("test"));
+  wizard.configure_property("dim",2u);
+  wizard.configure_property("RK_stages",1u);
+  wizard.configure_property("solution_state",std::string("CF.Euler.Cons1D"));
+  wizard.configure_property("roe_state",std::string("CF.Euler.Roe1D"));
+  wizard.create_simulation();
+
+  CModel& model = wizard.model();
+  CMesh& mesh = model.domain().create_component<CMesh>("2quads");
+  const Real length = 4.;
+  const Uint nb_cells = 4;
+  CSimpleMeshGenerator::create_line(mesh, length , nb_cells);
+
+  Component& iterate = model.solver().access_component("iterate");
+  iterate.configure_property("max_iter",2u);
+
+  wizard.prepare_simulation();
+
+  const Real r_L = 4.696;             const Real r_R = 1.408;
+  const Real p_L = 404400;            const Real p_R = 101100;
+  const Real u_L = 0.;                const Real u_R = 0.;
+  const Real v_L = 0.;                const Real v_R = 0.;
+  const Real g=1.4;
+
+  RealVector3 left, right;
+  left  << r_L , r_L*u_L , p_L/(g-1) + 0.5*r_L*u_L*u_L;
+  right << r_R , r_R*u_R , p_R/(g-1) + 0.5*r_R*u_R*u_R;
+  std::vector<std::string> function(3);
+  for (Uint i=0; i<function.size(); ++i)
+    function[i]="if(x<="+to_str(length/2.)+","+to_str(left[i])+","+to_str(right[i])+")";
+
+  CFinfo << "\nInitializing solution with \n";
+  boost_foreach(const std::string& f, function)
+      CFinfo << "     " << f << CFendl;
+  wizard.initialize_solution(function);
+
+  CMeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  std::vector<URI> fields;
+  fields.push_back(mesh.get_child("solution").uri());
+  fields.push_back(mesh.get_child("residual").uri());
+  fields.push_back(mesh.get_child("wave_speed").uri());
+  fields.push_back(mesh.get_child("update_coeff").uri());
+  fields.push_back(mesh.get_child("volume").uri());
+  fields.push_back(mesh.get_child("jacobian_determinant").uri());
+  gmsh_writer.configure_property("fields",fields);
+
+
+  gmsh_writer.write_from_to(mesh,URI("2lines_0.msh"));
+  CFinfo << "Mesh \"2lines_0.msh\" written" << CFendl;
+
+  wizard.start_simulation(5.);
+
+  gmsh_writer.write_from_to(mesh,URI("2lines_1.msh"));
+
+  CFinfo << "Mesh \"2lines_1.msh\" written" << CFendl;
+
+//  BOOST_CHECK_EQUAL (model.time().dt() , 2.);
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -7,6 +7,8 @@
 #ifndef CF_Euler_Roe1D_hpp
 #define CF_Euler_Roe1D_hpp
 
+/// @todo remove
+#include "Common/Log.hpp"
 #include "Solver/State.hpp"
 #include "Euler/Physics.hpp"
 
@@ -43,10 +45,10 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "Roe1D"; }
 
-  virtual Solver::Physics create_physics()
+  virtual boost::shared_ptr<Solver::Physics> create_physics()
   {
-    Euler::Physics p;
-    return static_cast<Solver::Physics>(p);
+    boost::shared_ptr<Solver::Physics> p (new Euler::Physics);
+    return p;
   }
 
   virtual Uint size() { return 3; }
@@ -62,8 +64,8 @@ public: // functions
     p.set_var(P::Vy,  0.);
     p.set_var(P::Vz,  0.);
     p.set_var(P::H ,  state[2]);
-    p.set_var(P::E ,  1./p.var(P::gamma) * (p.var(P::H) + 0.5/(p.var(P::rho))*(p.var(P::gamma_minus_1)*p.var(P::V2))) );
-    p.set_var(P::p ,  p.var(P::gamma_minus_1)*p.var(P::E)/p.var(P::rho)-0.5*p.var(P::rho)*p.var(P::V2));
+    p.set_var(P::E ,  1./p.var(P::gamma) * (p.var(P::H) + 0.5/(p.var(P::rho))*(p.compute_var(P::gamma_minus_1)*p.compute_var(P::V2))) );
+    p.set_var(P::p ,  p.var(P::gamma_minus_1)*(p.var(P::E)*p.var(P::rho)-0.5/p.var(P::rho)*p.var(P::V2)) );
   }
 
   virtual void get_state( Solver::Physics& p, RealVector& state)
@@ -72,7 +74,7 @@ public: // functions
 
     state[0] = p.var(P::rho);
     state[1] = p.var(P::Vx);
-    state[2] = p.var(P::H);
+    state[2] = p.compute_var(P::H);
   }
 
 
@@ -109,18 +111,31 @@ public: // functions
     throw Common::NotImplemented(FromHere(),"");
   }
 
-  virtual void linearize( std::vector<Solver::Physics>& states, Solver::Physics& p )
+  virtual void linearize( std::vector<boost::shared_ptr<Solver::Physics> >& states, Solver::Physics& p )
   {
-    RealVector avg_state(3);
-    RealVector dummy_state(3);
-    for (Uint i=0; i<states.size(); ++i)
-    {
-      get_state(states[i],dummy_state);
-      avg_state += dummy_state;
-    }
-    avg_state /= static_cast<Real>(states.size());
+    typedef Euler::Physics P;
 
-    set_state(avg_state,p);
+    enum Side {LEFT=0,RIGHT=1};
+    const Real sqrt_rho_L = sqrt(states[LEFT ]->var(P::rho));
+    const Real sqrt_rho_R = sqrt(states[RIGHT]->var(P::rho));
+    p.init();
+    // compute roe average quantities
+    p.set_var(P::rho , sqrt_rho_L * sqrt_rho_R);
+    p.set_var(P::Vx  , (sqrt_rho_L*states[LEFT]->var(P::Vx) + sqrt_rho_R*states[RIGHT]->var(P::Vx)) / (sqrt_rho_L + sqrt_rho_R) );
+    p.set_var(P::H   , (sqrt_rho_L*states[LEFT]->compute_var(P::H)  + sqrt_rho_R*states[RIGHT]->compute_var(P::H) ) / (sqrt_rho_L + sqrt_rho_R) );
+
+    p.set_var(P::gamma , 1.4);
+    p.set_var(P::R, 286.9);
+    p.set_var(P::Vy  , 0.);
+    p.set_var(P::Vz  , 0.);
+    p.set_var(P::p , p.compute_var(P::gamma_minus_1)/p.var(P::gamma)*p.var(P::rho)*(p.var(P::H)-0.5*p.compute_var(P::V2)) );
+
+    if ( p.compute_var(P::a2) < 0.0 )
+    {
+      std::string msg = "Euler::Roe1D::linearize() : a2 < 0 => a2 = " + Common::to_str(p.var(P::a2));
+      throw Common::BadValue (FromHere(),msg);
+    }
+
   }
 
 }; // Roe1D
