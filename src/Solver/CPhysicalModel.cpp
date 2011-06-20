@@ -25,9 +25,9 @@ namespace Solver {
 
 using namespace Common;
 using namespace Mesh;
-  
+
 ComponentBuilder < CPhysicalModel, Component, LibSolver > CPhysicalModel_Builder;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CPhysicalModel::CPhysicalModel(const std::string& name) : Component(name),
@@ -40,7 +40,7 @@ CPhysicalModel::CPhysicalModel(const std::string& name) : Component(name),
   m_mesh_option = boost::dynamic_pointer_cast< OptionComponent<CMesh> >(properties().add_option< OptionComponent<CMesh> >("mesh", "Mesh", "The mesh that holds the geometry and fields", URI()));
   m_mesh_option.lock()->attach_trigger( boost::bind(&CPhysicalModel::trigger_mesh, this) );
   mark_basic();
-  
+
   /// @todo later this will be removed when the physical model stops beign so generic
 
   m_properties.add_option<OptionT <std::string> >("Type",
@@ -68,7 +68,8 @@ CPhysicalModel::CPhysicalModel(const std::string& name) : Component(name),
 
 bool CPhysicalModel::is_state_variable(const std::string& var_name) const
 {
-
+  throw Common::NotImplemented(FromHere(), "");
+  return true;
 }
 
 Uint CPhysicalModel::offset(const std::string& var_name) const
@@ -76,7 +77,7 @@ Uint CPhysicalModel::offset(const std::string& var_name) const
   std::map<std::string, Uint>::const_iterator it = m_variable_offsets.find(var_name);
   if(it == m_variable_offsets.end())
     throw Common::ValueNotFound(FromHere(), "Offset for variable " + var_name + " not found. Not an equation variable?");
-  
+
   return it->second;
 }
 
@@ -87,7 +88,7 @@ void CPhysicalModel::register_variable(const std::string& name, const std::strin
   {
     if(is_state) // Add to the state variables, if the variable belongs to the state
       m_state_variables.push_back(name);
-    
+
     // Add options for changing the variable name and field name
     properties().add_option< OptionT<std::string> >(name + std::string("FieldName"), "Field name for variable " + name, name);
     properties().add_option< OptionT<std::string> >(name + std::string("VariableName"), "Variable name for variable " + name, symbol);
@@ -97,47 +98,47 @@ void CPhysicalModel::register_variable(const std::string& name, const std::strin
 void CPhysicalModel::create_fields()
 {
   CMesh& mesh = m_mesh_option.lock()->component();
-  
+
   for(VarTypesT::const_iterator it = m_variable_types.begin(); it != m_variable_types.end(); ++it)
   {
     const std::string internal_name = it->first;
     m_field_names[internal_name]    = property(internal_name + std::string("FieldName")   ).value_str();
     m_variable_names[internal_name] = property(internal_name + std::string("VariableName")).value_str();
   }
-  
+
   // Initialize
   m_solution_fields.clear(); m_solution_fields.reserve(m_variable_offsets.size());
   m_solution_variables.clear(); m_solution_variables.reserve(m_variable_offsets.size());
   m_solution_sizes.clear(); m_solution_sizes.reserve(m_variable_offsets.size());
   m_nbdofs = 0;
-  
+
   // Calculate offset and nb_dofs
   boost_foreach(const std::string& eqn_var_name, m_state_variables)
   {
     const Uint var_size = m_variable_types[eqn_var_name] == SCALAR ? 1 : m_dim;
     m_variable_offsets[eqn_var_name] = m_nbdofs;
     m_nbdofs += var_size;
-    
+
     // Update data arrays for incrementing the solution
     m_solution_fields.push_back(m_field_names[eqn_var_name]);
     m_solution_variables.push_back(m_variable_names[eqn_var_name]);
     m_solution_sizes.push_back(var_size);
   }
-  
+
   typedef std::map<std::string, VarTypesT > FieldsT;
   FieldsT fields;
-  
+
   // Collect the unique field and variable names
   for(VarTypesT::const_iterator it = m_variable_types.begin(); it != m_variable_types.end(); ++it)
   {
     const std::string internal_name = it->first;
     fields[m_field_names[internal_name]][m_variable_names[internal_name]] = it->second;
   }
-  
+
   for(FieldsT::const_iterator fd_it = fields.begin(); fd_it != fields.end(); ++fd_it)
-  { 
+  {
     const std::string fd_name = fd_it->first;
-    
+
     // Check if the field exists
     Component::ConstPtr existing_component = mesh.get_child_ptr(fd_name);
     CField::ConstPtr existing_field;
@@ -145,15 +146,15 @@ void CPhysicalModel::create_fields()
       existing_field = existing_component->as_ptr<CField>();
     if(existing_component && !existing_field)
       throw ValueExists(FromHere(), "A component with the name of field " + fd_name + " exists. Field can not be created.");
-    
+
     std::vector<std::string> fd_var_names;
     std::vector<Mesh::CField::VarType> fd_var_types;
-    
+
     for(VarTypesT::const_iterator var_it = fd_it->second.begin(); var_it != fd_it->second.end(); ++var_it)
     {
       fd_var_names.push_back(var_it->first);
       fd_var_types.push_back(static_cast<Mesh::CField::VarType>(var_it->second == SCALAR ? 1 : m_dim));
-      
+
       if(existing_field) // If the field exists, check if it is compatible
       {
         if(!existing_field->has_variable(fd_var_names.back()) // Variable doesn't exist
@@ -161,7 +162,7 @@ void CPhysicalModel::create_fields()
           throw Common::ValueExists(FromHere(), "Field with name " + fd_name + " exists, but is incompatible with the requested solution.");
       }
     }
-    
+
     if(!existing_field)
       mesh.create_field(fd_name, CField::Basis::POINT_BASED, fd_var_names, fd_var_types);
   }
