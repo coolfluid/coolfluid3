@@ -34,7 +34,7 @@ public: // functions
   State( const std::string& name = type_name()) : Component(name)
   {
   }
-  
+
   /// Virtual destructor
   virtual ~State() {}
 
@@ -48,37 +48,37 @@ public: // functions
 
   virtual Uint size() { return 0; }
 
-  virtual void set_state( const RealVector& state,
+  virtual void set_state( RealVector& state,
                           Solver::Physics& p) {}
 
-  virtual void get_state( const Solver::Physics& p,
+  virtual void get_state( Solver::Physics& p,
                           RealVector& state) {}
 
 
-  virtual void compute_flux( const Solver::Physics& p,
+  virtual void compute_flux( Solver::Physics& p,
                              const RealVector& normal,
                              RealVector& flux) {}
 
-  virtual void compute_fluxjacobian_right_eigenvectors( const Solver::Physics& p,
+  virtual void compute_fluxjacobian_right_eigenvectors( Solver::Physics& p,
                                                          const RealVector& normal,
                                                          RealMatrix& rv) {}
 
-  virtual void compute_fluxjacobian_left_eigenvectors( const Solver::Physics& p,
+  virtual void compute_fluxjacobian_left_eigenvectors( Solver::Physics& p,
                                                         const RealVector& normal,
                                                         RealMatrix& lv) {}
 
-  virtual void compute_fluxjacobian_eigenvalues( const Solver::Physics& p,
+  virtual void compute_fluxjacobian_eigenvalues( Solver::Physics& p,
                                                   const RealVector& normal,
                                                   RealVector& ev) {}
 
-  virtual Real max_eigen_value ( const Solver::Physics& p,
+  virtual Real max_eigen_value ( Solver::Physics& p,
                                  const RealVector& normal ) {return 0.;}
 
-  virtual void linearize( const std::vector<Solver::Physics>& states,
+  virtual void linearize( std::vector<Solver::Physics>& states,
                           Solver::Physics& p ) {}
 
 protected:
-  
+
   std::vector<std::string> m_var_names;
 }; // State
 

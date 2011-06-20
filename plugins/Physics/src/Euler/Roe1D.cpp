@@ -4,30 +4,23 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Solver/Physics.hpp"
+#include "Common/CBuilder.hpp"
+#include "Euler/Roe1D.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Solver {
+namespace Euler {
+
+using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<<(std::ostream& os, const Physics& p)
-{
-  for (Uint i=0; i<p.size(); ++i)
-  {
-    os << i << " : ";
-    if (p.must_compute(i) == false) os << p.var(i);
-    os << "\n";
-  }
-  os << std::flush;
-  return os;
-}
+Common::ComponentBuilder < Euler::Roe1D, Solver::State, LibEuler > Roe1D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Solver
+} // Euler
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////

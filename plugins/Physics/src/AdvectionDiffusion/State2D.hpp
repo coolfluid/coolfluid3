@@ -57,46 +57,46 @@ public: // functions
     p.set_var(AdvectionDiffusion::Physics::S , state[0]);
   }
 
-  virtual void get_state( const Solver::Physics& p, RealVector& state)
+  virtual void get_state( Solver::Physics& p, RealVector& state)
   {
     state[0] = p.var(AdvectionDiffusion::Physics::S);
   }
 
 
-  virtual void compute_flux( const Solver::Physics& p,
+  virtual void compute_flux( Solver::Physics& p,
                             const RealVector& normal,
                             RealVector& flux)
   {
     flux[0] = p.var(Physics::S) * (p.var(Physics::Vx)*normal[XX]+p.var(Physics::Vy)*normal[YY]) ;
   }
 
-  virtual void compute_fluxjacobian_right_eigenvectors( const Solver::Physics& p,
+  virtual void compute_fluxjacobian_right_eigenvectors( Solver::Physics& p,
                                                         const RealVector& normal,
                                                         RealMatrix& rv)
   {
     rv(0,0) = 1.;
   }
 
-  virtual void compute_fluxjacobian_left_eigenvectors( const Solver::Physics& p,
+  virtual void compute_fluxjacobian_left_eigenvectors( Solver::Physics& p,
                                                        const RealVector& normal,
                                                        RealMatrix& lv)
   {
     lv(0,0) = 1.;
   }
 
-  virtual void compute_fluxjacobian_eigenvalues( const Solver::Physics& p,
+  virtual void compute_fluxjacobian_eigenvalues( Solver::Physics& p,
                                                  const RealVector& normal,
                                                  RealVector& ev)
   {
     ev[0] = p.var(Physics::Vx) * normal[XX]  +  p.var(Physics::Vy) * normal[YY];
   }
 
-  virtual Real max_eigen_value ( const Solver::Physics& p, const RealVector& normal )
+  virtual Real max_eigen_value ( Solver::Physics& p, const RealVector& normal )
   {
     return p.var(Physics::Vx) * normal[XX]  +  p.var(Physics::Vy) * normal[YY];
   }
 
-  virtual void linearize( const std::vector<Solver::Physics>& states, Solver::Physics& p )
+  virtual void linearize( std::vector<Solver::Physics>& states, Solver::Physics& p )
   {
     Real S=0;
     for (Uint i=0; i<states.size(); ++i)

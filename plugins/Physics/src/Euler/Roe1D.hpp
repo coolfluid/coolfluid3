@@ -4,61 +4,75 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_AdvectionDiffusion_State1D_hpp
-#define CF_AdvectionDiffusion_State1D_hpp
+#ifndef CF_Euler_Roe1D_hpp
+#define CF_Euler_Roe1D_hpp
 
 #include "Solver/State.hpp"
-#include "AdvectionDiffusion/Physics.hpp"
+#include "Euler/Physics.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace AdvectionDiffusion {
+namespace Euler {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Base class to interface the State1D
+/// @brief Base class to interface the Roe1D
 /// @author Willem Deconinck
-class AdvectionDiffusion_API State1D : public Solver::State {
+class Euler_API Roe1D : public Solver::State {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<State1D> Ptr;
-  typedef boost::shared_ptr<State1D const> ConstPtr;
+  typedef boost::shared_ptr<Roe1D> Ptr;
+  typedef boost::shared_ptr<Roe1D const> ConstPtr;
 
 public: // functions
 
   /// Contructor
-  State1D( const std::string& name = type_name() ) : Solver::State(name)
+  Roe1D( const std::string& name = type_name() ) : Solver::State(name)
   {
-    m_var_names.resize(1,"Q");
-    m_advection_speed = 1.;
+    m_var_names.resize(3);
+    m_var_names[0]="rho";
+    m_var_names[1]="Vx";
+    m_var_names[2]="h";
   }
 
   /// Virtual destructor
-  virtual ~State1D() {}
+  virtual ~Roe1D() {}
 
   /// Gets the Class name
-  static std::string type_name() { return "State1D"; }
+  static std::string type_name() { return "Roe1D"; }
 
   virtual Solver::Physics create_physics()
   {
-    AdvectionDiffusion::Physics p;
+    Euler::Physics p;
     return static_cast<Solver::Physics>(p);
   }
 
-  virtual Uint size() { return 1; }
+  virtual Uint size() { return 3; }
 
   virtual void set_state( const RealVector& state, Solver::Physics& p)
   {
+    typedef Euler::Physics P;
     p.init();
-    p.set_var(AdvectionDiffusion::Physics::Vx, m_advection_speed);
-    p.set_var(AdvectionDiffusion::Physics::S , state[0]);
+    p.set_var(P::gamma, 1.4);
+    p.set_var(P::R, 286.9);
+    p.set_var(P::rho, state[0]);
+    p.set_var(P::Vx,  state[1]);
+    p.set_var(P::Vy,  0.);
+    p.set_var(P::Vz,  0.);
+    p.set_var(P::H ,  state[2]);
+    p.set_var(P::E ,  1./p.var(P::gamma) * (p.var(P::H) + 0.5/(p.var(P::rho))*(p.var(P::gamma_minus_1)*p.var(P::V2))) );
+    p.set_var(P::p ,  p.var(P::gamma_minus_1)*p.var(P::E)/p.var(P::rho)-0.5*p.var(P::rho)*p.var(P::V2));
   }
 
   virtual void get_state( Solver::Physics& p, RealVector& state)
   {
-    state[0] = p.var(AdvectionDiffusion::Physics::S);
+    typedef Euler::Physics P;
+
+    state[0] = p.var(P::rho);
+    state[1] = p.var(P::Vx);
+    state[2] = p.var(P::H);
   }
 
 
@@ -66,56 +80,56 @@ public: // functions
                             const RealVector& normal,
                             RealVector& flux)
   {
-    flux[0] = p.var(Physics::Vx)*p.var(Physics::S)*normal[XX];
+    throw Common::NotImplemented(FromHere(),"");
   }
 
   virtual void compute_fluxjacobian_right_eigenvectors( Solver::Physics& p,
                                                         const RealVector& normal,
                                                         RealMatrix& rv)
   {
-    rv(0,0) = 1.;
+    throw Common::NotImplemented(FromHere(),"");
   }
 
   virtual void compute_fluxjacobian_left_eigenvectors( Solver::Physics& p,
                                                        const RealVector& normal,
                                                        RealMatrix& lv)
   {
-    lv(0,0) = 1.;
+    throw Common::NotImplemented(FromHere(),"");
   }
 
   virtual void compute_fluxjacobian_eigenvalues( Solver::Physics& p,
                                                  const RealVector& normal,
                                                  RealVector& ev)
   {
-    ev[0] = p.var(Physics::Vx) * normal[XX];
+    throw Common::NotImplemented(FromHere(),"");
   }
 
   virtual Real max_eigen_value ( Solver::Physics& p, const RealVector& normal )
   {
-    return p.var(Physics::Vx) * normal[XX];
+    throw Common::NotImplemented(FromHere(),"");
   }
 
   virtual void linearize( std::vector<Solver::Physics>& states, Solver::Physics& p )
   {
-    Real S=0;
+    RealVector avg_state(3);
+    RealVector dummy_state(3);
     for (Uint i=0; i<states.size(); ++i)
-      S += states[i].var(AdvectionDiffusion::Physics::S);
-    S /= static_cast<Real>(states.size());
+    {
+      get_state(states[i],dummy_state);
+      avg_state += dummy_state;
+    }
+    avg_state /= static_cast<Real>(states.size());
 
-    p.init();
-    p.set_var(AdvectionDiffusion::Physics::Vx, m_advection_speed);
-    p.set_var(AdvectionDiffusion::Physics::S,  S );
+    set_state(avg_state,p);
   }
 
-private:
-  Real m_advection_speed;
-}; // State1D
+}; // Roe1D
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // AdvectionDiffusion
+} // Euler
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_AdvectionDiffusion_State1D_hpp
+#endif // CF_Euler_Roe1D_hpp
