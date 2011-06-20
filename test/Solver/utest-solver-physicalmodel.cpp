@@ -86,6 +86,12 @@ BOOST_AUTO_TEST_CASE( CreateFields )
   // Check if the statistics are OK
   BOOST_CHECK_EQUAL(physical_model().dimensions(), 2);
   BOOST_CHECK_EQUAL(physical_model().nb_dof(), 3);
+  
+  
+  BOOST_CHECK(physical_model().is_state_variable("Velocity"));
+  BOOST_CHECK(physical_model().is_state_variable("Pressure"));
+  BOOST_CHECK(!physical_model().is_state_variable("Density"));
+  
   BOOST_CHECK_EQUAL(physical_model().offset("Pressure"), 0);
   BOOST_CHECK_EQUAL(physical_model().offset("Velocity"), 1);
   try

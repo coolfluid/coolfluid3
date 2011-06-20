@@ -68,8 +68,7 @@ CPhysicalModel::CPhysicalModel(const std::string& name) : Component(name),
 
 bool CPhysicalModel::is_state_variable(const std::string& var_name) const
 {
-  throw Common::NotImplemented(FromHere(), "");
-  return true;
+  return m_variable_offsets.count(var_name);
 }
 
 Uint CPhysicalModel::offset(const std::string& var_name) const
