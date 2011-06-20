@@ -91,15 +91,16 @@ void QuadSolutionP2::compute_value(const MappedCoordsT& mapped_coord, ValueT& re
   const Real eta = mapped_coord[ETA];
   const Real eta2 = eta*eta;
   const Real ksi2 = ksi*ksi;
-  result[0] = ((-1 + eta)*eta*(-1 + ksi)*ksi)*0.25;
+
+  result[0] =  ((-1 + eta)*eta*(-1 + ksi)*ksi)*0.25;
   result[1] = -((-1 + eta)*eta*(-1 + ksi2))*0.5;
-  result[2] = (-1 + eta2)*(-1 + ksi2);
+  result[2] =  ((-1 + eta)*eta*ksi*(1 + ksi))*0.25;
   result[3] = -((-1 + eta2)*(-1 + ksi)*ksi)*0.5;
-  result[4] = (-1 + eta2)*(-1 + ksi2);
+  result[4] =  (-1 + eta2)*(-1 + ksi2);
   result[5] = -((-1 + eta2)*ksi*(1 + ksi))*0.5;
-  result[6] = (eta*(1 + eta)*(-1 + ksi)*ksi)*0.25;
+  result[6] =  (eta*(1 + eta)*(-1 + ksi)*ksi)*0.25;
   result[7] = -(eta*(1 + eta)*(-1 + ksi2))*0.5;
-  result[8] = (eta*(1 + eta)*ksi*(1 + ksi))*0.25;
+  result[8] =  (eta*(1 + eta)*ksi*(1 + ksi))*0.25;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,20 +116,20 @@ void QuadSolutionP2::compute_gradient(const MappedCoordsT& mapped_coord, Gradien
   result(ETA, 0) = ((-1 + 2*eta)*(-1 + ksi)*ksi)*0.25;
   result(KSI, 1) = -((-1 + eta)*eta*ksi);
   result(ETA, 1) = -((-1 + 2*eta)*(-1 + ksi2))*0.5;
-  result(KSI, 2) = 2*(-1 + eta2)*ksi;
-  result(ETA, 2) = 2*eta*(-1 + ksi2);
+  result(KSI, 2) = ((-1 + eta)*eta*(1 + 2*ksi))*0.25;
+  result(ETA, 2) = ((-1 + 2*eta)*ksi*(1 + ksi))*0.25;
   result(KSI, 3) = -((-1 + eta2)*(-1 + 2*ksi))*0.5;
   result(ETA, 3) = -(eta*(-1 + ksi)*ksi);
-  result(KSI,4) = 2*(-1 + eta2)*ksi;
-  result(ETA,4) = 2*eta*(-1 + ksi2);
-  result(KSI,5) = -((-1 + eta2)*(1 + 2*ksi))*0.5;
-  result(ETA,5) = -(eta*ksi*(1 + ksi));
-  result(KSI,6) = (eta*(1 + eta)*(-1 + 2*ksi))*0.25;
-  result(ETA,6) = ((1 + 2*eta)*(-1 + ksi)*ksi)*0.25;
-  result(KSI,7) = -(eta*(1 + eta)*ksi);
-  result(ETA,7) = -((1 + 2*eta)*(-1 + ksi2))*0.5;
-  result(KSI,8) = (eta*(1 + eta)*(1 + 2*ksi))*0.25;
-  result(ETA,8) = ((1 + 2*eta)*ksi*(1 + ksi))*0.25;
+  result(KSI, 4) = 2*(-1 + eta2)*ksi;
+  result(ETA, 4) = 2*eta*(-1 + ksi2);
+  result(KSI, 5) = -((-1 + eta2)*(1 + 2*ksi))*0.5;
+  result(ETA, 5) = -(eta*ksi*(1 + ksi));
+  result(KSI, 6) = (eta*(1 + eta)*(-1 + 2*ksi))*0.25;
+  result(ETA, 6) = ((1 + 2*eta)*(-1 + ksi)*ksi)*0.25;
+  result(KSI, 7) = -(eta*(1 + eta)*ksi);
+  result(ETA, 7) = -((1 + 2*eta)*(-1 + ksi2))*0.5;
+  result(KSI, 8) = (eta*(1 + eta)*(1 + 2*ksi))*0.25;
+  result(ETA, 8) = ((1 + 2*eta)*ksi*(1 + ksi))*0.25;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
