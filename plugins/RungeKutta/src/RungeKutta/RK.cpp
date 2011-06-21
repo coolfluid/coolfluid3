@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-
 #include "Common/OptionT.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/CBuilder.hpp"
@@ -182,12 +180,10 @@ void RK::execute()
     /// - Post update actions, filters, checks, ...
     m_post_update->execute();
   }
-
   /// Set time back to pre-stages time, so that the action Solver::CAdvanceTime will update the time
   /// @note that time().dt() has been modified
   time().time() = T0;
   m_advance_time->execute();
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -54,8 +54,7 @@ void CAdvanceTime::execute ()
   mesh().metadata()["time"] = time().time();
   mesh().metadata()["iter"] = time().iter();
 
-  CModel& model = find_parent_component<CModel>(*this);
-  boost_foreach(CField& field, find_components_recursively<CField>(model))
+  boost_foreach(CField& field, find_components_recursively<CField>(mesh()))
   {
     field.configure_property("time",time().time());
     field.configure_property("iteration", time().iter());
