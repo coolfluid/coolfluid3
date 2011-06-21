@@ -27,8 +27,8 @@ BOOST_AUTO_TEST_SUITE( AdvectionDiffusion_Suite )
 BOOST_AUTO_TEST_CASE( advdiff1d )
 {
   AdvectionDiffusion::State1D ad_state;
-  Solver::Physics p = ad_state.create_physics();
-
+  boost::shared_ptr<Solver::Physics> p_ptr = ad_state.create_physics();
+  Solver::Physics& p = *p_ptr;
   RealVector state(1); state << 5. ;
 
   ad_state.set_state(state,p);
