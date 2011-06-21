@@ -94,6 +94,17 @@ void CPhysicalModel::register_variable(const std::string& name, const std::strin
   }
 }
 
+Option& CPhysicalModel::field_option(const std::string& name)
+{
+  return property(name + std::string("FieldName")).as_option();
+}
+
+Option& CPhysicalModel::variable_option(const std::string& name)
+{
+  return property(name + std::string("VariableName")).as_option();
+}
+
+
 void CPhysicalModel::create_fields()
 {
   CMesh& mesh = m_mesh_option.lock()->component();

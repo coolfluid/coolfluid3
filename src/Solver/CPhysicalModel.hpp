@@ -73,12 +73,20 @@ public: // functions
   /// Get the offset in the state for the variable with the supplied name, i.e. if the variables are ordered u, v, p in the system, the offset for p is 2.
   Uint offset(const std::string& var_name) const;
   
-  /// Register a variable. The order of registration also determines the storage order for the equations in the physical model.
+  /// Register a variable. The order of registration also determines the storage order for the equations in the physical model. If a variable with the same
+  /// name was already registered, nothing is changed.
   /// @param name Unique name by which this value is referred. By default, this is also the name of the field it will be stored in
   /// @param symbol Short name for the variable.  By default, the variable will be named like this in the field
   /// @param var_type Type of the variable
   /// @param is_equation_var True if the variable represents a state, i.e. something that is solved for
   void register_variable(const std::string& name, const std::string& symbol, const VariableTypesT var_type, const bool is_state);
+  
+  /// The option to set the field name for the given variable
+  Common::Option& field_option(const std::string& name);
+  
+  /// The option to set the variable name for the given variable
+  Common::Option& variable_option(const std::string& name);
+  
 
   /// Create the fields for all registered variables
   void create_fields();
@@ -89,7 +97,6 @@ public: // functions
   /// @return the physical model type
   /// @todo make this a pure virtual function
   std::string type() const { return m_type; }
-
 
   const State& solution_state() const { return *m_solution_state; }
 

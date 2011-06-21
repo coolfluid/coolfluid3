@@ -109,6 +109,19 @@ BOOST_AUTO_TEST_CASE( CreateFields )
   BOOST_CHECK(mesh.get_child_ptr("Density"));
 }
 
+/// Use the variable and field name options
+BOOST_AUTO_TEST_CASE( UseOptions )
+{
+  std::string state_field_name;
+  std::string pressure_var_name;
+  
+  physical_model().field_option("Pressure").link_to(&state_field_name);
+  physical_model().variable_option("Pressure").link_to(&pressure_var_name);
+  
+  BOOST_CHECK_EQUAL("StateField", state_field_name);
+  BOOST_CHECK_EQUAL("p", pressure_var_name);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
