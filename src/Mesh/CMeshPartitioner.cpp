@@ -59,7 +59,7 @@ void CMeshPartitioner::execute()
   CMesh& mesh = *m_mesh.lock();
   initialize(mesh);
   partition_graph();
-  show_changes();
+  //show_changes();
   migrate();
 }
 

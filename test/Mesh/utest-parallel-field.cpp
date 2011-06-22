@@ -109,22 +109,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 //  CMesh& mesh = *mesh_ptr;
 
 
-  // Create global numbering and connectivity of nodes and elements (necessary for partitioning)
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
 
-  // Partition the mesh
-  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
-  CMeshPartitioner& p = *partitioner_ptr;
-  p.configure_property("graph_package", std::string("PHG"));
-  p.initialize(mesh);
-  p.partition_graph();
-  p.migrate();
-
-
-  // Create global node numbering plus ranks (Ranks are necessary for PECommPattern)
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
 
   // create a field and assign it to the comm pattern
 

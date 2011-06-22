@@ -37,6 +37,8 @@ list( APPEND coolfluid_mesh_actions_files
   CreateSpaceP0.cpp
   LibActions.hpp
   LibActions.cpp
+  LoadBalance.hpp
+  LoadBalance.cpp
 )
 
 list( APPEND coolfluid_mesh_actions_cflibs coolfluid_mesh )
