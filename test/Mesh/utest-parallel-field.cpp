@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( ParallelFields_test )
 {
   CFinfo << "ParallelFields_test" << CFendl;
-  Core::instance().environment().configure_property("log_level",(Uint)INFO);
+  Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
 
   // Create a mesh
 
@@ -129,6 +129,7 @@ BOOST_AUTO_TEST_CASE( ParallelFields_test )
   // create the comm pattern and setup the pattern
   PECommPattern& comm_pattern = mesh.create_component<PECommPattern>("comm_pattern_node_based");
 
+  // Extract gid from the nodes.glb_idx()  for only the nodes in the region the fields will use.
   CList<Uint>& nodes = CElements::used_nodes(mesh.topology()).as_type<CList<Uint> >();
   std::vector<Uint> gid;
   std::vector<Uint> rank;
@@ -160,7 +161,8 @@ BOOST_AUTO_TEST_CASE( ParallelFields_test )
   std::cout << "\n\n" << std::endl;
   )
 
-  comm_pattern.insert(field.name(),field.data().array(),true);
+
+  field.parallelize_with(comm_pattern);
 
   field.data() = mpi::PE::instance().rank();
 

@@ -16,6 +16,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 #include "Common/FindComponents.hpp"
+#include "Common/MPI/PECommPattern.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CField.hpp"
@@ -413,6 +414,42 @@ boost::iterator_range< Common::ComponentIterator<CEntities const> > CField::fiel
   ComponentIterator<CEntities const> begin_iter(elements_vec,0);
   ComponentIterator<CEntities const> end_iter(elements_vec,elements_vec.size());
   return boost::make_iterator_range(begin_iter,end_iter);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+PECommPattern& CField::parallelize_with(PECommPattern& comm_pattern)
+{
+  cf_assert_desc("Only point-based fields supported now", m_basis == Basis::POINT_BASED);
+  m_comm_pattern = comm_pattern.as_ptr<Common::PECommPattern>();
+  comm_pattern.insert(name(),data().array(),true);
+  return comm_pattern;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+PECommPattern& CField::parallelize()
+{
+  // Extract gid from the nodes.glb_idx()  for only the nodes in the region the fields will use.
+  const CList<Uint>& nodes = used_nodes();
+  std::vector<Uint> gid;
+  std::vector<Uint> rank;
+  gid.reserve(nodes.size());
+  rank.reserve(nodes.size());
+
+  CMesh& mesh = find_parent_component<CMesh>(*this);
+  boost_foreach (const Uint node, nodes.array())
+  {
+    gid.push_back(mesh.nodes().glb_idx()[node]);
+    rank.push_back(mesh.nodes().rank()[node]);
+  }
+
+  // create the comm pattern and setup the pattern
+  m_comm_pattern = mesh.create_component_ptr<PECommPattern>("comm_pattern_node_based");
+  m_comm_pattern->insert("gid",gid,1,false);
+  m_comm_pattern->setup(m_comm_pattern->get_child("gid").as_ptr<PEObjectWrapper>(),rank);
+
+  return parallelize_with(*m_comm_pattern);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

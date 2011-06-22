@@ -18,6 +18,7 @@ namespace CF {
 namespace Common
 {
   class CLink;
+  class PECommPattern;
 }
 namespace Mesh {
 
@@ -146,6 +147,10 @@ public: // functions
 
   boost::iterator_range< Common::ComponentIterator<CEntities const> > field_elements() const;
 
+  Common::PECommPattern& parallelize();
+
+  Common::PECommPattern& parallelize_with(Common::PECommPattern& comm_pattern);
+
   void synchronize();
 
 private:
@@ -176,6 +181,8 @@ protected:
   boost::shared_ptr<CTable<Real> > m_coords;
 
   boost::shared_ptr<CList<Uint> > m_used_nodes;
+
+  boost::shared_ptr<Common::PECommPattern> m_comm_pattern;
 
 };
 
