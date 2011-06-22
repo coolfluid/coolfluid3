@@ -365,7 +365,7 @@ void ComputeRhsInCell::execute()
           /// <li> Add wave speed contributions calculated at every face to the cell
           /// @todo jacobian multiplication to wavespeed contribution, and face area ???
           const Real area = (m_dimensionality == 1 ? 1. : 2.);
-          const Real wave_speed_contribution = std::max(right_wave_speed ,0.) * area;
+          const Real wave_speed_contribution = std::max(right_wave_speed ,0.) * area / solution_sf.nb_lines_per_orientation();
           //CFdebug << "    left_wave_speed["<<side<<"] = " << left_wave_speed << CFendl;
           //CFdebug << "    right_wave_speed["<<side<<"] = " << right_wave_speed << CFendl;
           //CFdebug << "    wave_speed_contribution["<<side<<"] = " << wave_speed_contribution << CFendl;
