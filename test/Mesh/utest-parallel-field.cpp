@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( ParallelFields_test )
+BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 {
   CFinfo << "ParallelFields_test" << CFendl;
   Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
@@ -126,48 +126,19 @@ BOOST_AUTO_TEST_CASE( ParallelFields_test )
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
 
-  // create the comm pattern and setup the pattern
-  PECommPattern& comm_pattern = mesh.create_component<PECommPattern>("comm_pattern_node_based");
-
-  // Extract gid from the nodes.glb_idx()  for only the nodes in the region the fields will use.
-  CList<Uint>& nodes = CElements::used_nodes(mesh.topology()).as_type<CList<Uint> >();
-  std::vector<Uint> gid;
-  std::vector<Uint> rank;
-  gid.reserve(nodes.size());
-  rank.reserve(nodes.size());
-  boost_foreach (const Uint node, nodes.array())
-  {
-    gid.push_back(mesh.nodes().glb_idx()[node]);
-    rank.push_back(mesh.nodes().rank()[node]);
-  }
-
-  comm_pattern.insert("gid",gid,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PEObjectWrapper>(),rank);
-
-
   // create a field and assign it to the comm pattern
 
   CField& field = mesh.create_field("node_rank",CField::Basis::POINT_BASED);
 
-  BOOST_CHECK_EQUAL(field.data().size(),gid.size());
-  BOOST_CHECK_EQUAL(field.data().size(),rank.size());
-
-  PEProcessSortedExecute(-1,
-  for (Uint i=0; i<gid.size(); ++i)
-  {
-    if (rank[i] != mpi::PE::instance().rank())
-      std::cout << PERank << "   " << i << " : receive " << gid[i] << " from " << rank[i] << std::endl;
-  }
-  std::cout << "\n\n" << std::endl;
-  )
-
-
-  field.parallelize_with(comm_pattern);
+  field.parallelize();
 
   field.data() = mpi::PE::instance().rank();
 
-  // Synchronize!!!
-  comm_pattern.synchronize();
+  // Synchronize
+
+  // comm_pattern.synchronize(); // via the comm_pattern
+
+  field.synchronize(); // via the field
 
 
   BOOST_CHECK(true); // Tadaa
@@ -195,15 +166,15 @@ BOOST_AUTO_TEST_CASE( ParallelFields_test )
   }
 
   // Write the mesh with the fields
-  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","meshwriter");
 
   std::vector<CField::Ptr> fields;
   fields.push_back(field.as_ptr<CField>());
   fields.push_back(glb_elem_idx.as_ptr<CField>());
   fields.push_back(glb_node_idx.as_ptr<CField>());
   meshwriter->set_fields(fields);
-  meshwriter->write_from_to(mesh,"parallel_fields.msh");
-  CFinfo << "parallel_fields_P*.msh written" << CFendl;
+  meshwriter->write_from_to(mesh,"parallel_fields.plt");
+  CFinfo << "parallel_fields_P*.plt written" << CFendl;
 
 }
 

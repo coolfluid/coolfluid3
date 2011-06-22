@@ -456,7 +456,8 @@ PECommPattern& CField::parallelize()
 
 void CField::synchronize()
 {
-
+  if ( is_not_null( m_comm_pattern ) )
+    m_comm_pattern->synchronize( name() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

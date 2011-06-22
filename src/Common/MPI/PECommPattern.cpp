@@ -323,14 +323,47 @@ void PECommPattern::synchronize()
   {
     //PEProcessSortedExecute(-1,std::cout << pobj.name() << "\n" << std::flush; );
     //if (pobj.needs_update()) PEProcessSortedExecute(-1,std::cout << pobj.name() << "\n" << std::flush; );
-    if (pobj.needs_update()) {
+    if (pobj.needs_update())
+    {
       //PECheckPoint(100,pobj.name() << " " << pobj.needs_update() << " " << pobj.size() << " " << pobj.size_of() << " " << pobj.stride());
       char* snd_data=(char*)pobj.pack(m_sendMap);
-      char* rcv_data=mpi::PE::instance().all_to_all(snd_data,&m_sendCount[0],(char*)0,&m_recvCount[0],pobj.size_of()*pobj.stride());
+      char* rcv_data = mpi::PE::instance().all_to_all(snd_data,
+                                                      &m_sendCount[0],
+                                                      (char*)0,
+                                                      &m_recvCount[0],
+                                                      pobj.size_of()*pobj.stride());
+
       pobj.unpack(rcv_data,m_recvMap);
+
+      /// @todo avoid this allocation and deallocation of buffers
+      ///       remember that in explicit synchronize is called frequently
       delete[] snd_data;
       delete[] rcv_data;
     }
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PECommPattern::synchronize( const std::string& name )
+{
+  PEObjectWrapper& pobj = get_child(name).as_type<PEObjectWrapper>();
+
+  if ( pobj.needs_update() )
+  {
+      char* snd_data = (char*)pobj.pack(m_sendMap);
+      char* rcv_data = mpi::PE::instance().all_to_all(snd_data,
+                                                      &m_sendCount[0],
+                                                      (char*)0,
+                                                      &m_recvCount[0],
+                                                      pobj.size_of()*pobj.stride());
+
+      pobj.unpack(rcv_data,m_recvMap);
+
+      /// @todo avoid this allocation and deallocation of buffers
+      ///       remember that in explicit synchronize is called frequently
+      delete[] snd_data;
+      delete[] rcv_data;
   }
 }
 

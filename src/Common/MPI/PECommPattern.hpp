@@ -215,8 +215,12 @@ public:
   /// beware: interprocess communication heavy
   void setup();
 
-  /// synchronize items
+  /// synchronize the parallel objects
   void synchronize();
+
+  /// synchronize the parallel object designated by its name
+  /// @param name the name of the parallel object
+  void synchronize( const std::string& name );
 
   /// add element to the commpattern
   /// when all changes done, all needs to be committed by calling setup
