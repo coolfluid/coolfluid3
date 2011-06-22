@@ -17,12 +17,13 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Solver { class State; }
+namespace Solver { class State; class Physics; }
 namespace RiemannSolvers { class RiemannSolver; }
 namespace SFDM {
 
   class Reconstruct;
   class Flux;
+  class ShapeFunction;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +62,7 @@ private: // helper functions
   void config_residual();
   void config_jacobian_determinant();
   void config_wavespeed();
-
+  void config_solution_physics();
   void trigger_elements();
 
   void build_riemann_solver();
@@ -84,6 +85,21 @@ private: // data
 
   boost::shared_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver;
   boost::weak_ptr<Solver::State> m_sol_state;
+  boost::shared_ptr<Solver::Physics> m_sol_vars;
+
+  boost::shared_ptr<SFDM::ShapeFunction const> m_solution_sf;
+  boost::shared_ptr<SFDM::ShapeFunction const> m_flux_sf;
+
+  std::vector<RealVector> m_normal;
+  Uint m_dimensionality;
+  Uint m_nb_vars;
+  Real left_wave_speed;
+  Real right_wave_speed;
+  RealVector flux;
+  RealMatrix flux_in_line;
+  RealMatrix flux_grad_in_line;
+  RealMatrix solution;
+  RealMatrix neighbor_solution;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -40,7 +40,7 @@ using namespace CF::SFDM;
 BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
-
+/*
 BOOST_AUTO_TEST_CASE( Solver_1D )
 {
   Core::instance().environment().configure_property("log_level", (Uint)INFO);
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
   wizard.start_simulation(5.);
 
 }
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( Solver_2D )
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
 
   gmsh_writer.execute();
 
-  iterate.configure_property("max_iter",3u);
+//  iterate.configure_property("max_iter",3u);
   wizard.start_simulation(40.);
 
 }

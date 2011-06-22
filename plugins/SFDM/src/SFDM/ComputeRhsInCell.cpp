@@ -51,31 +51,26 @@ ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
   // options
   m_properties.add_option(OptionURI::create("solution","Solution","Solution to calculate RHS for", URI("cpath:"),URI::Scheme::CPATH))
     ->mark_basic()
-    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_solution,   this ) )
-    ->add_tag("solution");
+    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_solution,   this ) );
 
   m_properties.add_option(OptionURI::create("residual","Residual","Residual to be calculated", URI("cpath:"),URI::Scheme::CPATH))
     ->mark_basic()
-    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_residual,   this ) )
-    ->add_tag("residual");
+    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_residual,   this ) );
 
   m_properties.add_option(OptionURI::create("wave_speed","Wave Speed","Wave speed to be calculated. Used for stability condition.", URI("cpath:"),URI::Scheme::CPATH))
     ->mark_basic()
-    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_wavespeed,   this ) )
-    ->add_tag("wave_speed");
+    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_wavespeed,   this ) );
 
   m_properties.add_option(OptionURI::create("jacobian_determinant","Jacobian Determinant","Jacobian Determinant of the Transformation to mapped space", URI("cpath:"),URI::Scheme::CPATH))
     ->mark_basic()
-    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_jacobian_determinant,   this ) )
-    ->add_tag("jacobian_determinant");
+    ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_jacobian_determinant,   this ) );
 
   properties().add_option( OptionT<std::string>::create("riemann_solver","Riemann Solver","The component to solve the Rieman Problem on cell-faces","CF.RiemannSolvers.Roe") )
       ->mark_basic()
-      ->attach_trigger ( boost::bind ( &ComputeRhsInCell::build_riemann_solver, this) )
-      ->add_tag("riemann_solver");
+      ->attach_trigger ( boost::bind ( &ComputeRhsInCell::build_riemann_solver, this) );
 
   m_properties.add_option( OptionComponent<Solver::State>::create("solution_state","Solution State","The component describing the solution state",&m_sol_state) )
-      ->add_tag("solution_state");
+      ->attach_trigger (boost::bind ( &ComputeRhsInCell::config_solution_physics, this) );
 
 
   m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &ComputeRhsInCell::trigger_elements,   this ) );
@@ -102,6 +97,15 @@ void ComputeRhsInCell::config_solution()
   m_solution->set_field(comp);
 
   m_mesh_elements = m_solution->field().parent().as_type<CMesh>().elements().as_ptr<CMeshElements>();
+  m_nb_vars = m_solution->field().data().row_size();
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ComputeRhsInCell::config_solution_physics()
+{
+  m_sol_vars = m_sol_state.lock()->create_physics();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,15 +156,31 @@ void ComputeRhsInCell::trigger_elements()
 
   if (m_can_start_loop)
   {
+    m_solution_sf =  elements().space("solution").shape_function().as_ptr_checked<SFDM::ShapeFunction>();
+    m_flux_sf     =  elements().space("flux").shape_function().as_ptr_checked<SFDM::ShapeFunction>();
+
     std::vector<std::string> solution_from_to(2);
-    solution_from_to[0] = elements().space("solution").shape_function().derived_type_name();
-    solution_from_to[1] = elements().space("flux").shape_function().derived_type_name();
+    solution_from_to[0] = m_solution_sf->derived_type_name();
+    solution_from_to[1] = m_flux_sf->derived_type_name();
     m_reconstruct_solution->configure_property("from_to",solution_from_to);
 
     std::vector<std::string> flux_from_to(2);
-    flux_from_to[0] = elements().space("flux").shape_function().as_type<SFDM::ShapeFunction>().line().derived_type_name();
-    flux_from_to[1] = elements().space("solution").shape_function().as_type<SFDM::ShapeFunction>().line().derived_type_name();
+    flux_from_to[0] = m_flux_sf->line().derived_type_name();
+    flux_from_to[1] = m_solution_sf->line().derived_type_name();
     m_reconstruct_flux->configure_property("from_to",flux_from_to);
+
+    m_dimensionality = elements().element_type().dimensionality();
+    // Create normals for every orientation
+    m_normal.resize(m_dimensionality,RealVector::Zero(m_dimensionality));
+    for (Uint orientation = KSI; orientation<m_dimensionality; ++orientation)
+      m_normal[orientation][orientation] = 1.;
+
+    flux.resize(m_nb_vars);
+    flux_in_line.resize(m_flux_sf->nb_nodes_per_line() , m_nb_vars);
+    flux_grad_in_line.resize(m_solution_sf->nb_nodes_per_line() , m_nb_vars);
+
+    solution.resize(m_solution_sf->nb_nodes(),m_nb_vars);
+    neighbor_solution.resize(m_solution_sf->nb_nodes(),m_nb_vars);
   }
 }
 
@@ -229,22 +249,17 @@ void ComputeRhsInCell::execute()
   Reconstruct& reconstruct_flux_in_solution_points_in_line = *m_reconstruct_flux;
 
   Solver::State& sol_state = *m_sol_state.lock();
-  boost::shared_ptr<Solver::Physics> sol_vars_ptr = sol_state.create_physics();
-  Solver::Physics& sol_vars = *sol_vars_ptr;
+  Solver::Physics& sol_vars = *m_sol_vars;
 
-  const Uint dimensionality = elements().element_type().dimensionality();
-  const SFDM::ShapeFunction& solution_sf = elements().space("solution").shape_function().as_type<SFDM::ShapeFunction>();
-  const SFDM::ShapeFunction& flux_sf     = elements().space("flux")    .shape_function().as_type<SFDM::ShapeFunction>();
+  const SFDM::ShapeFunction& solution_sf = *m_solution_sf;
+  const SFDM::ShapeFunction& flux_sf     = *m_flux_sf;
 
-  const Uint nb_vars = m_solution->field().data().row_size();
-  RealMatrix flux_in_line (flux_sf.nb_nodes_per_line() , nb_vars);
-  RealMatrix flux_grad_in_line;// (solution_sf.nb_nodes_per_line() , nb_vars);
 
   CMultiStateFieldView::View solution_data = (*m_solution)[idx()];
   CMultiStateFieldView::View residual_data = (*m_residual)[idx()];
   CMultiStateFieldView::View jacobian_determinant_data = (*m_jacobian_determinant)[idx()];
 
-  RealVector jacobian_determinant = to_matrix(jacobian_determinant_data);
+  RealVector jacobian_determinant = to_matrix(jacobian_determinant_data);  // RealVector is column shaped RealMatrix
 
   Real& wave_speed = (*m_wave_speed)[idx()];
 
@@ -255,46 +270,37 @@ void ComputeRhsInCell::execute()
   Uint neighbor_cell_idx;
   const Uint this_cell_idx = m_mesh_elements.lock()->unified_idx(elements(),idx());
 
-  CFdebug << "\ncell " << idx() << CFendl;
-  CFdebug <<   "------"<<CFendl;
+  //CFdebug << "\ncell " << idx() << CFendl;
+  //CFdebug <<   "------"<<CFendl;
   /// <li> Set all cell solution states in a matrix @f$ \mathbf{Q_s} @f$ (rows are states, columns are variables)@n
   /// <li> Reconstruct the solution in the flux points.
   ///      @f[ \tilde{Q}(\xi,\eta) = \sum_{s=1}^{N} |J_s| {Q}_{s}\  L_{s}(\xi,\eta)@f]
   ///      SFDM::Reconstruct::value() provides a precalculated matrix @f$R@f$ with element (f,s) corresponding to @f$L_{s}(\xi_f,\eta_f)@f$.
   ///      @f[ \mathbf{\tilde{Q}_f} = R \ \mathbf{\tilde{Q}_s} @f]
   ///      where subscript @f$ _f @f$ denotes the values in the flux points.
-  RealMatrix solution = reconstruct_solution_in_all_flux_points.value( jacobian_determinant.asDiagonal() * to_matrix(solution_data) ) ;
-  CFdebug << "rhs = \n" << to_matrix(residual_data) << CFendl;
-  CFdebug << "solution = \n" << to_matrix(solution_data) << CFendl;
-  CFdebug << "mapped solution in flux points = \n" << solution << CFendl;
+  solution = reconstruct_solution_in_all_flux_points.value( jacobian_determinant.asDiagonal() * to_matrix(solution_data) ) ;
+  //CFdebug << "rhs = \n" << to_matrix(residual_data) << CFendl;
+  //CFdebug << "solution = \n" << to_matrix(solution_data) << CFendl;
+  //CFdebug << "mapped solution in flux points = \n" << solution << CFendl;
 
-  RealVector flux(nb_vars);
-
-  // Create normals for every orientation
-  std::vector<RealVector> normal(dimensionality);
-  for (Uint orientation = KSI; orientation<dimensionality; ++orientation)
-  {
-    normal[orientation] = RealVector::Zero(dimensionality);
-    normal[orientation][orientation] = 1.;
-  }
 
 
   /// <li> Compute flux gradients in the solution points, and add to the RHS
   // For every orientation
-  for (Uint orientation = KSI; orientation<dimensionality; ++orientation)
+  for (Uint orientation = KSI; orientation<m_dimensionality; ++orientation)
   { /// <ul>
     /// <li> For every 1D line of every orientation
-    CFdebug << "orientation = " << orientation << CFendl;
+    //CFdebug << "orientation = " << orientation << CFendl;
     for (Uint line=0; line<solution_sf.nb_lines_per_orientation(); ++line)
     { /// <ul>
-      CFdebug << "  line = " << line << CFendl;
+      //CFdebug << "  line = " << line << CFendl;
       /// <li> Compute analytical flux in the flux points of the line, excluding begin and end point
       ///      @f[ \mathbf{\tilde{F}}_{f,line} = \mathrm{flux}(\mathbf{\tilde{Q}}_{f, line}) @f] (see Solver::State::compute_flux())
 
       for (Uint flux_pt=1; flux_pt<flux_in_line.rows()-1; ++flux_pt)
       {
         sol_state.set_state(solution.row(flux_sf.points()[orientation][line][flux_pt]),sol_vars);
-        sol_state.compute_flux(sol_vars,normal[orientation],flux);
+        sol_state.compute_flux(sol_vars,m_normal[orientation],flux);
         flux_in_line.row(flux_pt) = flux;
       }
 
@@ -310,18 +316,18 @@ void ComputeRhsInCell::execute()
         CFaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
         if (f2c.is_bdry_face()[face_idx])
         {
-          CFdebug << "    must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
+          //CFdebug << "    must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
           /// @todo implement real boundary condition.
           if (side == 0)
           {
             sol_state.set_state(solution.row(flux_sf.points()[orientation][line][0]),sol_vars);
-            sol_state.compute_flux(sol_vars,normal[orientation],flux);
+            sol_state.compute_flux(sol_vars,m_normal[orientation],flux);
             flux_in_line.topRows<1>() = flux;
           }
           else
           {
             sol_state.set_state(solution.row(flux_sf.points()[orientation][line][flux_in_line.rows()-1]),sol_vars);
-            sol_state.compute_flux(sol_vars,normal[orientation],flux);
+            sol_state.compute_flux(sol_vars,m_normal[orientation],flux);
             flux_in_line.bottomRows<1>() = flux;
           }
         }
@@ -331,40 +337,38 @@ void ComputeRhsInCell::execute()
           Uint unified_neighbor_cell_idx = connected_cells[LEFT] != this_cell_idx ? connected_cells[LEFT] : connected_cells[RIGHT];
           boost::tie(neighbor_cells,neighbor_cell_idx) = f2c.lookup().location( unified_neighbor_cell_idx );
 
-          CFdebug << "    must solve Riemann problem on face " << faces->parent().name() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
+          //CFdebug << "    must solve Riemann problem on face " << faces->parent().name() << "["<<face_idx<<"]  with cell["<<neighbor_cell_idx<<"]" << CFendl;
 
           /// @todo Multi-region support.
           /// It is now assumed for reconstruction that neighbor_cells == elements(), so that the same field_view "m_solution" can be used.
           cf_assert_desc("does not support multi_region yet",neighbor_cells == elements().self());
-          RealMatrix neighbor_solution = reconstruct_solution_in_all_flux_points.value( to_matrix( (*m_jacobian_determinant)[neighbor_cell_idx] ).asDiagonal() * to_matrix( (*m_solution)[neighbor_cell_idx] ) );
+          neighbor_solution = reconstruct_solution_in_all_flux_points.value( to_matrix( (*m_jacobian_determinant)[neighbor_cell_idx] ).asDiagonal() * to_matrix( (*m_solution)[neighbor_cell_idx] ) );
 
-          RealRowVector left  = solution         .row ( flux_sf.face_points()[orientation][line][side] );
-          RealRowVector right = neighbor_solution.row ( flux_sf.face_points()[orientation][line][!side] ); // the other side
+          const RealRowVector& left  = solution         .row ( flux_sf.face_points()[orientation][line][side] );
+          const RealRowVector& right = neighbor_solution.row ( flux_sf.face_points()[orientation][line][!side] ); // the other side
 
-          Real left_wave_speed;
-          Real right_wave_speed;
-          RealVector H(left.size());
+
           if (side == 0)
           {
-            riemann_solver().solve(left,right, -normal[orientation],   H,left_wave_speed,right_wave_speed);
-            flux_in_line.topRows<1>() = -H;
+            riemann_solver().solve(left,right, -m_normal[orientation],   flux,left_wave_speed,right_wave_speed);
+            flux_in_line.topRows<1>() = -flux;
           }
           else
           {
-            riemann_solver().solve(left,right,  normal[orientation],   H,left_wave_speed,right_wave_speed);
-            flux_in_line.bottomRows<1>() = H;
+            riemann_solver().solve(left,right,  m_normal[orientation],   flux,left_wave_speed,right_wave_speed);
+            flux_in_line.bottomRows<1>() = flux;
           }
-          CFdebug << "      solve Riemann("<<left<<","<<right<<") with normal ["<< (side==0?-1.:1.)*normal[orientation].transpose()<<"] = \n" << H << CFendl;
+          //CFdebug << "      solve Riemann("<<left<<","<<right<<") with normal ["<< (side==0?-1.:1.)*normal[orientation].transpose()<<"] = \n" << H << CFendl;
 
 
 
           /// <li> Add wave speed contributions calculated at every face to the cell
           /// @todo jacobian multiplication to wavespeed contribution, and face area ???
-          const Real area = (dimensionality == 1 ? 1. : 2.);
+          const Real area = (m_dimensionality == 1 ? 1. : 2.);
           const Real wave_speed_contribution = std::max(right_wave_speed ,0.) * area;
-          CFdebug << "    left_wave_speed["<<side<<"] = " << left_wave_speed << CFendl;
-          CFdebug << "    right_wave_speed["<<side<<"] = " << right_wave_speed << CFendl;
-          CFdebug << "    wave_speed_contribution["<<side<<"] = " << wave_speed_contribution << CFendl;
+          //CFdebug << "    left_wave_speed["<<side<<"] = " << left_wave_speed << CFendl;
+          //CFdebug << "    right_wave_speed["<<side<<"] = " << right_wave_speed << CFendl;
+          //CFdebug << "    wave_speed_contribution["<<side<<"] = " << wave_speed_contribution << CFendl;
           wave_speed += wave_speed_contribution;
           // Kris:
           //jacobXIntCoef*
@@ -373,7 +377,7 @@ void ComputeRhsInCell::execute()
         }
       }
 
-      CFdebug << "    flux_in_line = \n" << flux_in_line << CFendl;
+      //CFdebug << "    flux_in_line = \n" << flux_in_line << CFendl;
 
       /// <li> Compute gradient of flux in solution points in this line
       ///
@@ -382,24 +386,24 @@ void ComputeRhsInCell::execute()
       ///
       /// This is implemented using SFDM::Reconstruct::gradient()
       flux_grad_in_line = reconstruct_flux_in_solution_points_in_line.gradient( flux_in_line , KSI ); // KSI because line has only 1 orientation
-      CFdebug << "    flux_grad_in_line = \n" << flux_grad_in_line << CFendl;
+      //CFdebug << "    flux_grad_in_line = \n" << flux_grad_in_line << CFendl;
 
       /// <li> Add the flux gradient to the RHS
       ///      @f[ \frac{\partial Q_s}{\partial t} = - \frac{1}{|J_s|} \ \nabla_{\mathbf{\xi}} \cdot {\tilde{F}_s} @f]
       for (Uint point=0; point<solution_sf.nb_nodes_per_line(); ++point)
       {
         const Uint solution_idx = solution_sf.points()[orientation][line][point];
-        CFdebug << "    jacobian_determinant["<<point<<"] = " << jacobian_determinant[solution_idx] << CFendl;
+        //CFdebug << "    jacobian_determinant["<<point<<"] = " << jacobian_determinant[solution_idx] << CFendl;
         /// @bug I should not have to divide by square of jacobian determinant!!!
-        for (Uint var=0; var<nb_vars; ++var)
+        for (Uint var=0; var<m_nb_vars; ++var)
 //          residual_data[solution_idx][var] -= flux_grad_in_line(point,var) / jacobian_determinant[solution_idx];
           residual_data[solution_idx][var] -= flux_grad_in_line(point,var) / (jacobian_determinant[solution_idx]*jacobian_determinant[solution_idx]);
       }
     } /// </ul>
   } /// </ul>
   /// </ul>
-  CFdebug << "wave_speed = " << wave_speed << CFendl;
-  CFdebug << "rhs = \n" << to_matrix(residual_data) << CFendl;
+  //CFdebug << "wave_speed = " << wave_speed << CFendl;
+  //CFdebug << "rhs = \n" << to_matrix(residual_data) << CFendl;
   /// @section _ideas_for_efficiency Ideas for efficiency
   /// - store Riemann fluxes in face flux points
   /// - work only in mapped space, and do transformations only after
