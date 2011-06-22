@@ -188,7 +188,9 @@ Component& Component::add_component ( Component::Ptr subcomp )
   if ( name != unique_name )
   {
     subcomp->m_name = unique_name; // change name to unique
-    CFinfo << "Component renamed from \'" << name  << "\' to unique name \'" << unique_name << "\'"  << CFendl;
+    CFinfo << "Name conflict - component renamed from \'" << name
+           << "\' to unique name \'" << unique_name << "\'"
+           << CFendl;
   }
 
   m_components[unique_name] = subcomp;           // add to all component list

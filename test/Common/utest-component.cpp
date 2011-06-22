@@ -276,6 +276,30 @@ BOOST_AUTO_TEST_CASE( create_component_signal )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( rename )
+{
+  CRoot::Ptr root = CRoot::create ( "Simulator" );
+
+  Component::Ptr c1 = root->create_component_ptr<Component>("c1");
+
+  BOOST_CHECK_EQUAL ( c1->name(), "c1" );
+
+  Component::Ptr c2 = root->create_component_ptr<Component>("c1");
+
+  BOOST_CHECK_EQUAL ( c2->name(), "c1_1" );
+
+  Component::Ptr c3 = root->create_component_ptr<Component>("c1");
+
+  BOOST_CHECK_EQUAL ( c3->name(), "c1_2" );
+
+  // turn off exception dumping
+  ExceptionManager::instance().ExceptionDumps = false;
+
+  BOOST_CHECK_THROW ( c2->rename("c1_2"), ValueExists );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
