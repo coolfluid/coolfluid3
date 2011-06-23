@@ -51,7 +51,7 @@ public: // functions
   };
 
   /// compute physical properties
-  template < typename CV, typename SV, typename GM, typename GZV>
+  template < typename CV, typename SV, typename GM>
   static void compute_properties ( const CV&  coord,
                                    const SV&  sol,
                                    const GM& gradu,

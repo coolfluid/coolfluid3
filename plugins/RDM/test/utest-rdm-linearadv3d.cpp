@@ -119,8 +119,8 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
   std::vector<URI> files;
 
-  URI file( "file:box-tet-p1-3112.msh");
-
+  URI file( "file:box-tet-p1-3112.msh" );
+//  URI file( "file:box-hexa-p1-1900.msh");
 
   options.add("file", file );
   options.add<std::string>("name", std::string("Mesh") );
@@ -193,7 +193,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
     std::string name ("WEAK_INLET");
 
     options.add<std::string>("Name",name);
-    options.add<std::string>("Type","CF.RDM.Core.WeakDirichlet");
+    options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
     options.add("Regions", regions, " ; ");
 
     solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
@@ -214,43 +214,43 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , local_fixture )
 {
   solver.get_child("time_stepping").configure_property("cfl", 0.5);
-  solver.get_child("time_stepping").configure_property("MaxIter", 1u);
+  solver.get_child("time_stepping").configure_property("MaxIter", 500u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-//BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
-//{
-//  CFinfo << "solving with LDA scheme" << CFendl;
+BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
+{
+  CFinfo << "solving with LDA scheme" << CFendl;
 
-//  // delete previous domain terms
-//  Component& domain_terms = solver.get_child("compute_domain_terms");
-//  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
-//  {
-//    const std::string name = term.name();
-//    domain_terms.remove_component( name );
-//  }
+  // delete previous domain terms
+  Component& domain_terms = solver.get_child("compute_domain_terms");
+  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
+  {
+    const std::string name = term.name();
+    domain_terms.remove_component( name );
+  }
 
-//  BOOST_CHECK( domain_terms.count_children() == 0 );
+  BOOST_CHECK( domain_terms.count_children() == 0 );
 
-//  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-//  SignalFrame frame; SignalOptions options( frame );
+  SignalFrame frame; SignalOptions options( frame );
 
-//  std::vector<URI> regions;
-//  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-//    regions.push_back( region.uri() );
+  std::vector<URI> regions;
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+    regions.push_back( region.uri() );
 
-//  BOOST_CHECK_EQUAL( regions.size() , 1u);
+  BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-//  options.add<std::string>("Name","INTERNAL");
-//  options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
-//  options.add("Regions", regions, " ; ");
+  options.add<std::string>("Name","INTERNAL");
+  options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
+  options.add("Regions", regions, " ; ");
 
-//  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
+  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 
-//  solver.solve();
-//}
+  solver.solve();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

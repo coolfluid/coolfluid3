@@ -13,6 +13,9 @@ list( APPEND rdm_test_meshes_files
   rectangle2x1-tg-p2-3689.msh
   rectangle2x1-qd-p1-861.msh
   rectangle2x1-qd-p2-3321.msh
+   # for LinearAdv3D and LinearAdvSys3D test cases
+  box-tet-p1-3112.msh
+  box-hexa-p1-1900.msh
   # for Burgers2D test case
   square1x1-tg-p1-303n.msh
   square1x1-tg-p1-7614.msh

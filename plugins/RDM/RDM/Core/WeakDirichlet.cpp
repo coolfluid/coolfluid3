@@ -20,6 +20,7 @@
 #include "RDM/Core/WeakDirichlet.hpp"
 
 #include "RDM/Core/LinearAdv2D.hpp"    // to remove
+#include "RDM/Core/LinearAdv3D.hpp"    // to remove
 #include "RDM/Core/LinearAdvSys2D.hpp" // to remove
 #include "RDM/Core/RotationAdv2D.hpp"  // to remove
 #include "RDM/Core/Burgers2D.hpp"      // to remove
@@ -39,6 +40,7 @@ namespace RDM {
 Common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibCore > WeakDirichlet_Builder;
 
 Common::ComponentBuilder < FaceLoopT< WeakDirichlet, LinearAdv2D>    , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdv2D_Builder;
+//Common::ComponentBuilder < FaceLoopT< WeakDirichlet, LinearAdv3D>    , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdv3D_Builder;
 Common::ComponentBuilder < FaceLoopT< WeakDirichlet, LinearAdvSys2D> , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdvSys2D_Builder;
 Common::ComponentBuilder < FaceLoopT< WeakDirichlet, RotationAdv2D>  , RDM::FaceLoop, LibCore > WeakDirichlet_RotationAdv2D_Builder;
 Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Burgers2D>      , RDM::FaceLoop, LibCore > WeakDirichlet_Burgers2D_Builder;
