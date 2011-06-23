@@ -157,8 +157,7 @@ void ForwardEuler::execute()
     /// @todo move current rhs as a property of the iterate or solver components
     // output convergence info
     Real rhs_norm = compute_norm.property("Norm").value<Real>();
-    std::cout << PERank
-              << " Iter [" << std::setw(4) << iteration << "]"
+    std::cout << " Iter [" << std::setw(4) << iteration << "]"
               << " L2(rhs) [" << std::setw(12) << rhs_norm << "]" << std::endl;
 
     if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
