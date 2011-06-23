@@ -80,9 +80,9 @@ public:
     if (row.size() != row_size(array_idx))
       m_array[array_idx].resize(row.size());
 
-    for(Uint j=0; j<row.size(); ++j)
-    index_foreach(j, const typename VectorT::value_type& v, row)
-      m_array[array_idx][j] = v;
+    Uint j=0;
+    boost_foreach( const typename VectorT::value_type& v, row)
+      m_array[array_idx][j++] = v;
   }
   
   Row operator[] (const Uint idx)

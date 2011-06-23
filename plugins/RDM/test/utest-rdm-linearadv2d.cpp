@@ -55,6 +55,10 @@ struct global_fixture
     Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
 
+
+    mpi::PE::instance().init(boost::unit_test::framework::master_test_suite().argc,
+                             boost::unit_test::framework::master_test_suite().argv);
+
     wizard = allocate_component<SteadyExplicit>("wizard");
 
     SignalFrame frame;
@@ -81,6 +85,7 @@ struct global_fixture
   ~global_fixture()
   {
     wizard.reset();
+    mpi::PE::instance().finalize();
     Core::instance().terminate();
   }
 

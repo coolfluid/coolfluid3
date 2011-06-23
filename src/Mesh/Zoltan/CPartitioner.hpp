@@ -53,6 +53,10 @@ public: // functions
 
 private: // functions
 
+  /// returns the handle to zoltan
+  /// @pre must be called after the PE is initialized
+  ZoltanHandle& zoltan_handle();
+
   void set_partitioning_params();
 
   // query function
@@ -104,7 +108,7 @@ private: // functions
 
 private: // data
 
-	ZoltanObject* m_zz;
+  boost::shared_ptr<ZoltanHandle> m_zz;
 
 
 // following data should be local to partitioning function, but is now global

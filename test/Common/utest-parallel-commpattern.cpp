@@ -487,7 +487,7 @@ BOOST_AUTO_TEST_CASE( commpattern )
   PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
 
   // synchronize data
-  pecp.synchronize();
+  pecp.synchronize_all();
 
   PECheckPoint(100,"After");
   PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));

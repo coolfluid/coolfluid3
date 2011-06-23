@@ -100,11 +100,13 @@ RKRD::RKRD ( const std::string& name  ) :
   // setup of the static components
 
   // create apply boundary conditions action
-  m_compute_boundary_terms = create_static_component_ptr<CGroupActions>("compute_boundary_terms");
+  m_compute_boundary_terms =
+      create_static_component_ptr<CGroupActions>("compute_boundary_terms");
   m_compute_boundary_terms->mark_basic();
 
   // create compute rhs action
-  m_compute_domain_terms = create_static_component_ptr<CGroupActions>("compute_domain_terms");
+  m_compute_domain_terms =
+      create_static_component_ptr<CGroupActions>("compute_domain_terms");
   m_compute_domain_terms->mark_basic();
 
   // additional actions
@@ -166,7 +168,8 @@ void RKRD::config_mesh()
      if( i != nbdofs-1 ) vars += ",";
     }
 
-    m_solution = mesh.create_field("solution",CField::Basis::POINT_BASED,"space[0]",vars).as_ptr<CField>();
+    m_solution =
+        mesh.create_field("solution",CField::Basis::POINT_BASED,"space[0]",vars).as_ptr<CField>();
 
     m_solution.lock()->add_tag(solution_tag);
   }

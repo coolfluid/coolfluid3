@@ -16,6 +16,7 @@ namespace CF {
 namespace Mesh {
 
   class CMesh;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CDomain component class
@@ -40,9 +41,13 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CDomain"; }
 
+  /// loads the mesh
+  /// @post mesh will be (automatically) load balanced in case of parallel run
+  CMesh& load_mesh ( const Common::URI& file, const std::string& name );
+
   /// Signal to load a mesh
   void signal_load_mesh ( Common::SignalArgs& node );
-
+  /// Signature of the signal_load_mesh
   void signature_load_mesh ( Common::SignalArgs& node);
 
 };

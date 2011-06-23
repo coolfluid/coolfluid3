@@ -14,7 +14,7 @@
 #include <zoltan_cpp.h>
 
 // typedef for namespace, object conflict
-typedef Zoltan ZoltanObject;
+typedef Zoltan ZoltanHandle;
 
 #include "Common/CLibrary.hpp"
 

@@ -93,6 +93,8 @@ std::string CGlobalNumbering::help() const
 
 void CGlobalNumbering::execute()
 {
+  CFinfo << "creating global node numbering ..." << CFendl;
+
   CMesh& mesh = *m_mesh.lock();
 
   CTable<Real>& coordinates = mesh.nodes().coordinates();
@@ -159,8 +161,9 @@ void CGlobalNumbering::execute()
   //------------------------------------------------------------------------------
   // create node_glb2loc mapping
   std::map<std::size_t,Uint> node_glb2loc;
-  index_foreach(loc_node_idx, std::size_t hash, glb_node_hash.data())
-    node_glb2loc[hash]=loc_node_idx;
+  Uint loc_node_idx(0);
+  boost_foreach(std::size_t hash, glb_node_hash.data())
+    node_glb2loc[hash]=loc_node_idx++;
   std::map<std::size_t,Uint>::iterator node_glb2loc_it;
   std::map<std::size_t,Uint>::iterator hash_not_found = node_glb2loc.end();
 
@@ -297,9 +300,6 @@ void CGlobalNumbering::execute()
     }
 
   }
-
-
-  CFinfo << "Global Numbering successful" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

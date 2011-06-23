@@ -187,8 +187,9 @@ void CFaceCellConnectivity::build_connectivity()
           // construct sets of nodes that make the corresponding face in this element
           nb_nodes = elements.element_type().face_type(face_idx).nb_nodes();
           face_nodes.resize(nb_nodes);
-          index_foreach(i,const Uint face_node_idx, elements.element_type().face_connectivity().face_node_range(face_idx))
-             face_nodes[i] = elem[face_node_idx];
+          Uint i(0);
+          boost_foreach(const Uint face_node_idx, elements.element_type().face_connectivity().face_node_range(face_idx))
+             face_nodes[i++] = elem[face_node_idx];
 
 
           // consider the first node belonging to the current face
@@ -337,9 +338,10 @@ std::vector<Uint> CFaceCellConnectivity::face_nodes(const Uint face) const
   boost::tie(elem_comp,elem_idx) = lookup().location(unified_elem_idx);
   const CElements& elems = elem_comp->as_type<CElements>();
   std::vector<Uint> nodes(elems.element_type().face_type((*m_face_nb_in_elem)[face][0]).nb_nodes());
-  index_foreach (i, Uint node_in_face, elems.element_type().face_connectivity().face_node_range((*m_face_nb_in_elem)[face][0]))
+  Uint i(0);
+  boost_foreach (Uint node_in_face, elems.element_type().face_connectivity().face_node_range((*m_face_nb_in_elem)[face][0]))
   {
-    nodes[i] = elems.node_connectivity()[elem_idx][node_in_face];
+    nodes[i++] = elems.node_connectivity()[elem_idx][node_in_face];
   }
   return nodes;
 }

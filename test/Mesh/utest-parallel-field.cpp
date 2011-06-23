@@ -85,8 +85,11 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   CFinfo << "ParallelFields_test" << CFendl;
   Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
 
-  // Create a mesh
+  // Create or read the mesh
 
+#define NEU
+
+#ifdef GEN
   CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_property("parent",URI("//Root"));
   meshgenerator->configure_property("name",std::string("rect"));
@@ -101,16 +104,27 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   meshgenerator->configure_property("bdry",false);
   meshgenerator->execute();
   CMesh& mesh = Core::instance().root().get_child("rect").as_type<CMesh>();
+#endif
 
-//  Or read a mesh
-//  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-//  meshreader->configure_property("read_boundaries",false);
-//  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.neu");
-//  CMesh& mesh = *mesh_ptr;
+#ifdef NEU
+  CMeshReader::Ptr meshreader =
+      build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
+#endif
 
+#ifdef GMSH
+  CMeshReader::Ptr meshreader =
+      build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
+  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
+#endif
+
+  CMesh& mesh = *mesh_ptr;
+
+  Core::instance().root().add_component(mesh);
 
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
 
+ // Core::instance().tools().get_child("LoadBalancer").as_type<CMeshTransformer>().transform(mesh);
 
   // create a field and assign it to the comm pattern
 
@@ -152,15 +166,27 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   }
 
   // Write the mesh with the fields
-  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","meshwriter");
 
   std::vector<CField::Ptr> fields;
   fields.push_back(field.as_ptr<CField>());
   fields.push_back(glb_elem_idx.as_ptr<CField>());
   fields.push_back(glb_node_idx.as_ptr<CField>());
-  meshwriter->set_fields(fields);
-  meshwriter->write_from_to(mesh,"parallel_fields.plt");
+
+  CMeshWriter::Ptr tec_writer =
+      build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
+
+  tec_writer->set_fields(fields);
+  tec_writer->write_from_to(mesh,"parallel_fields.plt");
+
   CFinfo << "parallel_fields_P*.plt written" << CFendl;
+
+  CMeshWriter::Ptr msh_writer =
+      build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","msh_writer");
+
+  msh_writer->set_fields(fields);
+  msh_writer->write_from_to(mesh,"parallel_fields.msh");
+
+  CFinfo << "parallel_fields_P*.msh written" << CFendl;
 
 }
 

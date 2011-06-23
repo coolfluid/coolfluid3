@@ -159,10 +159,15 @@ CList<Uint>& CEntities::used_nodes(Component& parent)
     }
 
     // Copy the set to the node_list
+
     used_nodes->resize(node_set.size());
+
     CList<Uint>::ListT& nodes_array = used_nodes->array();
-    index_foreach(i,const Uint node, node_set)
-      nodes_array[i] = node;
+    Uint cnt=0;
+    boost_foreach(const Uint node, node_set)
+      nodes_array[cnt++] = node;
+
+
   }
   return *used_nodes;
 }

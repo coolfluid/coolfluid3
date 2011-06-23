@@ -317,29 +317,11 @@ PEProcessSortedExecute(-1,PEDebugVector(dist_rankupdatable,dist_rankupdatable.si
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::synchronize()
+void PECommPattern::synchronize_all()
 {
   BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(*this) )
   {
-    //PEProcessSortedExecute(-1,std::cout << pobj.name() << "\n" << std::flush; );
-    //if (pobj.needs_update()) PEProcessSortedExecute(-1,std::cout << pobj.name() << "\n" << std::flush; );
-    if (pobj.needs_update())
-    {
-      //PECheckPoint(100,pobj.name() << " " << pobj.needs_update() << " " << pobj.size() << " " << pobj.size_of() << " " << pobj.stride());
-      char* snd_data=(char*)pobj.pack(m_sendMap);
-      char* rcv_data = mpi::PE::instance().all_to_all(snd_data,
-                                                      &m_sendCount[0],
-                                                      (char*)0,
-                                                      &m_recvCount[0],
-                                                      pobj.size_of()*pobj.stride());
-
-      pobj.unpack(rcv_data,m_recvMap);
-
-      /// @todo avoid this allocation and deallocation of buffers
-      ///       remember that in explicit synchronize is called frequently
-      delete[] snd_data;
-      delete[] rcv_data;
-    }
+    synchronize_this(pobj);
   }
 }
 
@@ -348,10 +330,23 @@ void PECommPattern::synchronize()
 void PECommPattern::synchronize( const std::string& name )
 {
   PEObjectWrapper& pobj = get_child(name).as_type<PEObjectWrapper>();
+  synchronize_this(pobj);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PECommPattern::synchronize_this( const PEObjectWrapper& pobj )
+{
+
+//  std::cout << PERank << pobj.name() << "\n" << std::flush;
+//  std::cout << PERank << pobj.needs_update() << "\n" << std::flush;
 
   if ( pobj.needs_update() )
   {
+//      PEProcessSortedExecute(-1,std::cout << PERank << "   sync -> " <<  pobj.name() << "\n" << std::flush; );
+
       char* snd_data = (char*)pobj.pack(m_sendMap);
+
       char* rcv_data = mpi::PE::instance().all_to_all(snd_data,
                                                       &m_sendCount[0],
                                                       (char*)0,

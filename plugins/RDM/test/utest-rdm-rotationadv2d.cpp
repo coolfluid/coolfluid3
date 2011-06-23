@@ -54,6 +54,10 @@ struct global_fixture
     Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
 
+
+    mpi::PE::instance().init(boost::unit_test::framework::master_test_suite().argc,
+                             boost::unit_test::framework::master_test_suite().argv);
+
     wizard = allocate_component<SteadyExplicit>("wizard");
 
     SignalFrame frame;
@@ -72,7 +76,7 @@ struct global_fixture
    solver.configure_property("domain", domain.uri() );
 
    CMeshWriter::Ptr gmsh_writer =
-       build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+       build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Tecplot.CWriter", "TecWriter" );
    model.add_component(gmsh_writer);
 
   }
@@ -80,6 +84,7 @@ struct global_fixture
   ~global_fixture()
   {
     wizard.reset();
+    mpi::PE::instance().finalize();
     Core::instance().terminate();
   }
 
@@ -118,7 +123,8 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
   std::vector<URI> files;
 
-  URI file ( "file:rotation-tg-p1.msh" );
+  URI file ( "file:rotation-tg-p1.neu" );
+//  URI file ( "file:rotation-tg-p1.msh" );
 //  URI file ( "file:rotation-tg-p2.msh" );
 //  URI file ( "file:rotation-tg-p4.msh" );
 //  URI file ( "file:rotation-qd-p1.msh" );
@@ -146,7 +152,6 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 
   std::vector<std::string> functions(1);
   functions[0] = "x*x+y*y";
-//  functions[0] = "7.7777";
   options.add<std::string>("functions", functions, " ; ");
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
@@ -240,35 +245,35 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , local_fixture )
 
 BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 {
-  CFinfo << "solving with LDA scheme" << CFendl;
+    CFinfo << "solving with LDA scheme" << CFendl;
 
-  // delete previous domain terms
-  Component& domain_terms = solver.get_child("compute_domain_terms");
-  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
-  {
-    const std::string name = term.name();
-    domain_terms.remove_component( name );
-  }
+    // delete previous domain terms
+    Component& domain_terms = solver.get_child("compute_domain_terms");
+    boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
+    {
+      const std::string name = term.name();
+      domain_terms.remove_component( name );
+    }
 
-  BOOST_CHECK( domain_terms.count_children() == 0 );
+    BOOST_CHECK( domain_terms.count_children() == 0 );
 
-  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+    CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  SignalFrame frame; SignalOptions options( frame );
+    SignalFrame frame; SignalOptions options( frame );
 
-  std::vector<URI> regions;
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    regions.push_back( region.uri() );
+    std::vector<URI> regions;
+    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+      regions.push_back( region.uri() );
 
-  BOOST_CHECK_EQUAL( regions.size() , 1u);
+    BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-  options.add<std::string>("Name","INTERNAL");
-  options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
-  options.add("Regions", regions, " ; ");
+    options.add<std::string>("Name","INTERNAL");
+    options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
+    options.add("Regions", regions, " ; ");
 
-  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
+    solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 
-  solver.solve();
+    solver.solve();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

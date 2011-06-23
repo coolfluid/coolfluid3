@@ -6,10 +6,13 @@
 
 
 #include "Common/CBuilder.hpp"
+#include "Common/Log.hpp"
 
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/Actions/LoadBalance.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -18,7 +21,8 @@ namespace CF {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
+using namespace Common;
+using namespace Common::mpi;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,18 +50,45 @@ LoadBalance::LoadBalance( const std::string& name )
 
 void LoadBalance::execute()
 {
+
   CMesh& mesh = *m_mesh.lock();
 
-  // Create global numbering and connectivity of nodes and elements (necessary for partitioning)
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity")->transform(mesh);
+  // balance if parallel run with multiple processors
+  if( PE::instance().is_active() && PE::instance().size() > 1 )
+  {
 
-  // Partition the mesh
-  m_partitioner->transform(mesh);
+    CFinfo << "partitioning mesh:" << CFendl;
 
-  // Create global node numbering plus ranks (Ranks are necessary for PECommPattern)
+    CFinfo << "  + building joint node & element global numbering" << CFendl;
+
+    // build global numbering and connectivity of nodes and elements (necessary for partitioning)
+    build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
+
+    CFinfo << "  + building global node-element connectivity" << CFendl;
+
+    build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity")->transform(mesh);
+
+    // Partition the mesh
+    m_partitioner->transform(mesh);
+
+    CFinfo << "  + deallocating unused connectivity" << CFendl;
+
+    /// @todo check that this actually frees the memory
+//    mesh.nodes().glb_elem_connectivity().resize(0);
+
+  }
+
+  // Create global node indexes for nodes and elements
+  // plus ranks which are necessary for PECommPattern (both in serial and parallel)
+
+  CFinfo << "creating continuous global node numbering" << CFendl;
+
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+
+  CFinfo << "creating continuous global element numbering" << CFendl;
+
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

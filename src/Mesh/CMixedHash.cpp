@@ -48,12 +48,14 @@ void CMixedHash::config_nb_obj ()
   boost_foreach(CHash::Ptr hash, m_subhash)
     remove_component(hash->name());
   m_subhash.resize(0);
-  index_foreach(i, Uint nb_obj, m_nb_obj)
+  Uint i=0;
+  boost_foreach(Uint nb_obj, m_nb_obj)
   {
     CHash::Ptr hash = create_component_ptr<CHash>("hash_"+to_str(i));
     m_subhash.push_back(hash);
     hash->configure_property("nb_obj", nb_obj);
     hash->configure_property("nb_parts", m_nb_parts);
+    ++i;
   }
 }
 
@@ -166,11 +168,13 @@ Uint CMixedHash::subhash_of_obj(const Uint obj) const
   Uint offset = obj - start_idx_of_obj_part;
 
   Uint psize = 0;
-  index_foreach(i, CHash::ConstPtr hash, m_subhash)
+  Uint i=0;
+  boost_foreach(CHash::ConstPtr hash, m_subhash)
   {
     psize += hash->nb_objects_in_part(part);
     if (offset < psize)
       return i;
+    ++i;
   }
   cf_assert_desc("Should not be here", false);
   return 0;

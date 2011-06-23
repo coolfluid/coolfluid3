@@ -378,7 +378,8 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
   node2faces2.build_connectivity();
 
   Uint f1(0);
-  index_foreach(faces1_idx, Component::Ptr faces1_comp, Ufaces1->components())
+  Uint faces1_idx(0);
+  boost_foreach(Component::Ptr faces1_comp, Ufaces1->components())
   {
     CFaceCellConnectivity& faces1 = faces1_comp->as_type<CFaceCellConnectivity>();
 
@@ -445,6 +446,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
       }
       ++f1;
     }
+    ++faces1_idx;
   }
 
   return interface;

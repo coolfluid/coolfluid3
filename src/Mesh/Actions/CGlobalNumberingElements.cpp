@@ -195,9 +195,6 @@ void CGlobalNumberingElements::execute()
     }
 
   }
-
-
-  CFinfo << "Global Element Numbering successful" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

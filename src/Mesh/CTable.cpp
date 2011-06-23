@@ -64,12 +64,14 @@ std::ostream& operator<<(std::ostream& os, const CTable<bool>& table)
 {
   if (table.size())
     os << "\n";
-  index_foreach(i,CTable<bool>::ConstRow row, table.array())
+  Uint i=0;
+  boost_foreach(CTable<bool>::ConstRow row, table.array())
   {
     os << "  " << i << ":  ";
     boost_foreach(const bool entry, row)
       os << entry << " ";
     os << "\n";
+    ++i;
   }
   return os;
 }
@@ -78,12 +80,14 @@ std::ostream& operator<<(std::ostream& os, const CTable<Uint>& table)
 {
   if (table.size())
     os << "\n";
-  index_foreach(i,CTable<Uint>::ConstRow row, table.array())
+  Uint i=0;
+  boost_foreach(CTable<Uint>::ConstRow row, table.array())
   {
     os << "  " << i << ":  ";
     boost_foreach(const Uint entry, row)
       os << entry << " ";
     os << "\n";
+    ++i;
   }
   return os;
 }
@@ -92,12 +96,14 @@ std::ostream& operator<<(std::ostream& os, const CTable<int>& table)
 {
   if (table.size())
     os << "\n";
-  index_foreach(i,CTable<int>::ConstRow row, table.array())
+  Uint i=0;
+  boost_foreach(CTable<int>::ConstRow row, table.array())
   {
     os << "  " << i << ":  ";
     boost_foreach(const int entry, row)
       os << entry << " ";
     os << "\n";
+    ++i;
   }
   return os;
 }
@@ -106,12 +112,14 @@ std::ostream& operator<<(std::ostream& os, const CTable<Real>& table)
 {
   if (table.size())
     os << "\n";
-  index_foreach(i,CTable<Real>::ConstRow row, table.array())
+  Uint i=0;
+  boost_foreach(CTable<Real>::ConstRow row, table.array())
   {
     os << "  " << i << ":  ";
     boost_foreach(const Real& entry, row)
       os << entry << " ";
     os << "\n";
+    ++i;
   }
   return os;
 }
@@ -120,12 +128,14 @@ std::ostream& operator<<(std::ostream& os, const CTable<std::string>& table)
 {
   if (table.size())
     os << "\n";
-  index_foreach(i,CTable<std::string>::ConstRow row, table.array())
+  Uint i=0;
+  boost_foreach(CTable<std::string>::ConstRow row, table.array())
   {
     os << "  " << i << ":  ";
     boost_foreach(const std::string& entry, row)
       os << entry << " ";
     os << "\n";
+    ++i;
   }
   return os;
 }

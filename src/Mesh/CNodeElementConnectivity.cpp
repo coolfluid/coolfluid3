@@ -65,9 +65,10 @@ void CNodeElementConnectivity::build_connectivity()
       }
     }
   }
-  index_foreach ( i, CDynTable<Uint>::Row row, m_connectivity->array() )
+  Uint i(0);
+  boost_foreach (CDynTable<Uint>::Row row, m_connectivity->array() )
   {
-    row.reserve(connectivity_sizes[i]);
+    row.reserve(connectivity_sizes[i++]);
   }
   
   // fill m_connectivity->array()

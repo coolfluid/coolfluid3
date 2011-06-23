@@ -63,7 +63,8 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<bool>& table)
 {
 	if (table.size())
 		os << "\n";
-	index_foreach(i,CDynTable<bool>::ConstRow row, table.array())
+  Uint i=0;
+  boost_foreach(CDynTable<bool>::ConstRow row, table.array())
 	{
 		os << "  " << i << ":  ";
 		if (row.size() == 0)
@@ -74,6 +75,7 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<bool>& table)
 			os << entry << " ";
 		}
 		os << "\n";
+    ++i;
 	}
 	return os;
 }
@@ -82,8 +84,9 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<Uint>& table)
 {
 	if (table.size())
 		os << "\n";
-	index_foreach(i,CDynTable<Uint>::ConstRow row, table.array())
-	{
+  Uint i=0;
+  boost_foreach(CDynTable<Uint>::ConstRow row, table.array())
+  {
 		os << "  " << i << ":  ";
 		if (row.size() == 0)
 			os << "~";
@@ -93,6 +96,7 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<Uint>& table)
 				os << entry << " ";
 		}
 		os << "\n";
+    ++i;
 	}
 	return os;
 }
@@ -101,8 +105,9 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<int>& table)
 {
 	if (table.size())
 		os << "\n";
-	index_foreach(i,CDynTable<int>::ConstRow row, table.array())
-	{
+  Uint i=0;
+  boost_foreach(CDynTable<int>::ConstRow row, table.array())
+  {
 		os << "  " << i << ":  ";
 		if (row.size() == 0)
 			os << "~";
@@ -112,6 +117,7 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<int>& table)
 				os << entry << " ";
 		}
 		os << "\n";
+    ++i;
 	}
 	return os;
 }
@@ -120,8 +126,9 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<Real>& table)
 {
 	if (table.size())
 		os << "\n";
-	index_foreach(i,CDynTable<Real>::ConstRow row, table.array())
-	{
+  Uint i=0;
+  boost_foreach(CDynTable<Real>::ConstRow row, table.array())
+  {
 		os << "  " << i << ":  ";
 		if (row.size() == 0)
 			os << "~";
@@ -131,6 +138,7 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<Real>& table)
 				os << entry << " ";
 		}
 		os << "\n";
+    ++i;
 	}
 	return os;
 }
@@ -139,8 +147,9 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<std::string>& table)
 {
 	if (table.size())
 		os << "\n";
-	index_foreach(i,CDynTable<std::string>::ConstRow row, table.array())
-	{
+  Uint i=0;
+  boost_foreach(CDynTable<std::string>::ConstRow row, table.array())
+  {
 		os << "  " << i << ":  ";
 		if (row.size() == 0)
 			os << "~";
@@ -150,6 +159,7 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<std::string>& table)
 				os << entry << " ";
 		}
 		os << "\n";
+    ++i;
 	}
 	return os;
 }

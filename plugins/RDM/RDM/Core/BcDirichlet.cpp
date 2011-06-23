@@ -10,6 +10,7 @@
 #include "Common/Log.hpp"
 #include "Common/FindComponents.hpp"
 
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
@@ -17,6 +18,8 @@
 #include "Mesh/CList.hpp"
 
 #include "RDM/Core/BcDirichlet.hpp"
+
+// #include "Common/MPI/debug.hpp" // temporary
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -90,15 +93,24 @@ void BcDirichlet::execute()
 
   CField& field = *m_solution.lock();
 
+//  std::cout << "   field.size() == " << field.size() << std::endl;
+//  std::cout << "   coordinates.size() == " << mesh().nodes().coordinates().size() << std::endl;
+
   std::vector<Real> vars( DIM_3D, 0.);
 
   RealVector return_val( field.data().row_size() );
 
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {
+
+    /// @warning BcDirichlet assumes that solution maps one to one with mesh.nodes()
+
+//    std::cout << PERank << "  region \'" << region->uri().string() << "\'" << std::endl;
     boost_foreach(const Uint node, CElements::used_nodes(*region).array())
     {
-      CTable<Real>::ConstRow coords = field.coords(node);
+      cf_assert(node < field.size());
+
+      CTable<Real>::ConstRow coords = mesh().nodes().coordinates()[node];
 
       for (Uint i=0; i<coords.size(); ++i)
         vars[i] = coords[i];
@@ -109,7 +121,9 @@ void BcDirichlet::execute()
       for (Uint i=0; i<data_row.size(); ++i)
         data_row[i] = return_val[i];
     }
+
   }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

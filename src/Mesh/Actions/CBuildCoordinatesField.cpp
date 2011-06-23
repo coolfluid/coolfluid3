@@ -85,8 +85,12 @@ void CBuildCoordinatesField::execute()
   coordinates.create_data_storage();
   
   CNodes& nodes = mesh.nodes();  
-  index_foreach(data_idx, const Uint node_idx, coordinates.used_nodes().array())
+  Uint data_idx(0);
+  boost_foreach(const Uint node_idx, coordinates.used_nodes().array())
+  {
     coordinates[data_idx] = nodes.coordinates()[node_idx];
+    ++data_idx;
+  }
   
 }
 

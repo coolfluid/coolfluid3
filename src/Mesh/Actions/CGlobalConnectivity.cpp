@@ -108,8 +108,9 @@ void CGlobalConnectivity::execute()
 
   //1)
   std::map<Uint,Uint> node_glb2loc;
-  index_foreach(loc_node_idx, Uint glb_node_idx, nodes_glb_idx.array())
-    node_glb2loc[glb_node_idx]=loc_node_idx;
+  Uint loc_node_idx(0);
+  boost_foreach(Uint glb_node_idx, nodes_glb_idx.array())
+    node_glb2loc[glb_node_idx]=loc_node_idx++;
 
   //2)
   CNodeElementConnectivity& node2elem = *mesh.nodes().create_component_ptr<CNodeElementConnectivity>("node2elem");
@@ -203,8 +204,6 @@ void CGlobalConnectivity::execute()
     }
 
   }
-
-  CFinfo << "Connectivity successful" << CFendl;
 }
 
 //////////////////////////////////////////////////////////////////////////////

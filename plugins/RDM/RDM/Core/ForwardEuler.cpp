@@ -26,6 +26,8 @@
 #include "RDM/Core/ForwardEuler.hpp"
 #include "RDM/Core/UpdateSolution.hpp"
 
+// #include "Common/MPI/debug.hpp" // temporary
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
@@ -111,6 +113,11 @@ void ForwardEuler::execute()
   Common::CAction& update_solution =
       get_child("update_solution").as_type<CAction>();
 
+
+//  std::cout << PERank << " synchronizing initial solution ... " << std::endl;
+  m_solution.lock()->synchronize(); // parallel synchronization
+
+
   // iteration loop
 
   Uint iteration = 1; // iterations start from 1 ( max iter zero will do nothing )
@@ -118,17 +125,29 @@ void ForwardEuler::execute()
 
   while( !stop_condition() )
   {
+//    std::cout << PERank << " cleanup solution ... " << std::endl;
+
     cleanup.execute(); // cleanup fields (typically residual and wave_speed)
 
+//    std::cout << PERank << " apply bcs ... " << std::endl;
+
     compute_boundary_terms.execute();
+
+//    std::cout << PERank << " computing domain terms ... " << std::endl;
 
     compute_domain_terms.execute();
 
     /// @note consider if update solution should not make part of this action
 
+//    std::cout << PERank << " updating solution ... " << std::endl;
+
     update_solution.execute();
 
+//    std::cout << PERank << " synchronizing solution ... " << std::endl;
+
     m_solution.lock()->synchronize(); // parallel synchronization
+
+//    std::cout << PERank << " synchronizing solution ...  done " << std::endl;
 
     compute_norm.execute();
 
@@ -138,9 +157,13 @@ void ForwardEuler::execute()
     /// @todo move current rhs as a property of the iterate or solver components
     // output convergence info
     Real rhs_norm = compute_norm.property("Norm").value<Real>();
-    CFinfo << "Iter [" << std::setw(4) << iteration << "] L2(rhs) [" << std::setw(12) << rhs_norm << "]" << CFendl;
-   if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
-      throw FailedToConverge(FromHere(),"Solution diverged after "+to_str(iteration)+" iterations");
+    std::cout << PERank
+              << " Iter [" << std::setw(4) << iteration << "]"
+              << " L2(rhs) [" << std::setw(12) << rhs_norm << "]" << std::endl;
+
+    if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
+      throw FailedToConverge(FromHere(),
+                             "Solution diverged after "+to_str(iteration)+" iterations");
 
    // raise signal that iteration is done
    /// @todo move this to an Action and/or separate function in base class

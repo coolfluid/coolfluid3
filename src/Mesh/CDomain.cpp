@@ -5,11 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
+#include "Common/CGroup.hpp"
 #include "Common/Signal.hpp"
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/LoadMesh.hpp"
+#include "Mesh/CMeshTransformer.hpp"
+
+#include "Common/MPI/PE.hpp"
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"
@@ -19,6 +23,7 @@ namespace Mesh {
 
 using namespace Common;
 using namespace Common::XML;
+using namespace Common::mpi;
 
 Common::ComponentBuilder < CDomain, Component, LibMesh > CDomain_Builder;
 
@@ -47,14 +52,35 @@ CDomain::~CDomain()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
+{
+  CGroup& tools = Core::instance().tools();
+
+  LoadMesh& mesh_loader =
+      find_component<LoadMesh>( tools );
+
+  CMesh::Ptr mesh = mesh_loader.load_mesh(file);
+  mesh->rename(name);
+  add_component(mesh);
+
+  // rebalance the mesh if necessary and create global idx and ranks
+// not working ? //   tools.get_child("LoadBalancer").as_type<CMeshTransformer>().transform( mesh );
+
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+
+  return *mesh;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void CDomain::signal_load_mesh ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  LoadMesh& mesh_loader = find_component<LoadMesh>( Core::instance().root().get_child("Tools") );
-  CMesh::Ptr mesh = mesh_loader.load_mesh(options.option<URI>("file"));
-  mesh->rename(options.option<std::string>("name"));
-  add_component(mesh);
+  URI fileuri = options.option<URI>("file");
+  std::string name = options.option<std::string>("name");
+
+  load_mesh( fileuri, name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

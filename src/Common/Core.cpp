@@ -183,7 +183,7 @@ Common::CFactories& Core::factories() const
 
 Common::CGroup& Core::tools() const
 {
-  return get_child("Tools").as_type<CGroup>;
+  return root().get_child("Tools").as_type<CGroup>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

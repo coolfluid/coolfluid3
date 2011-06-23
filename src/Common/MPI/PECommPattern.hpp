@@ -215,8 +215,8 @@ public:
   /// beware: interprocess communication heavy
   void setup();
 
-  /// synchronize the parallel objects
-  void synchronize();
+  /// synchronize the all parallel objects
+  void synchronize_all();
 
   /// synchronize the parallel object designated by its name
   /// @param name the name of the parallel object
@@ -260,6 +260,12 @@ public:
   bool isFreeze() const { return m_isFreeze; }
 
   //@} END ACCESSORS
+
+protected: // helper function
+
+  /// function to synchronize this object
+  /// usefull for reusing in the different synchronize functions
+  void synchronize_this ( const PEObjectWrapper& pobj );
 
 private:
 

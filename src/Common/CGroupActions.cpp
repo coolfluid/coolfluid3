@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+//#include <iostream> // temporary
+
 #include "Common/CGroupActions.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
@@ -31,7 +33,10 @@ void CGroupActions::execute()
   boost_foreach(Component& child, children())
   {
     if (CAction::Ptr action = child.follow()->as_ptr<CAction>())
+    {
+//      std::cout << " executing action \'" << action->uri().string() << "\'" << std::endl;
       action->execute();
+    }
   }
 }
 
