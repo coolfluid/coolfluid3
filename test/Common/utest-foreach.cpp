@@ -18,7 +18,7 @@ struct ForeachFixture
 {
   /// common setup for each test case
   ForeachFixture()
-  {    
+  {
   }
 
   /// common tear-down for each test case
@@ -42,16 +42,6 @@ BOOST_AUTO_TEST_CASE ( test_boost_foreach )
 
   boost_foreach(int value, vec)
     BOOST_CHECK_EQUAL(value,1);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE ( test_index_foreach )
-{
-  std::vector<int> vec(5,1);
-
-  index_foreach(i, int value, vec)
-    BOOST_CHECK_EQUAL(value,vec[i]); 
 }
 
 //////////////////////////////////////////////////////////////////////////////

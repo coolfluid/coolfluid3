@@ -101,8 +101,9 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
 
 
   CNodes& nodes = mesh.nodes();
-  index_foreach(data_idx, const Uint node_idx, coordinates.used_nodes().array())
-    coordinates[data_idx] = nodes.coordinates()[node_idx];
+  Uint data_idx(0);
+  boost_foreach(const Uint node_idx, coordinates.used_nodes().array())
+    coordinates[data_idx++] = nodes.coordinates()[node_idx];
 
   BOOST_CHECK( coordinates.data().array() == nodes.coordinates().array() );
 }
