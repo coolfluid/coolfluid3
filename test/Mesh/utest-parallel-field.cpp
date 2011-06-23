@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // Create or read the mesh
 
-#define NEU
+#define GEN
 
 #ifdef GEN
   CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
@@ -110,15 +110,16 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   CMeshReader::Ptr meshreader =
       build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
+  CMesh& mesh = *mesh_ptr;
 #endif
 
 #ifdef GMSH
   CMeshReader::Ptr meshreader =
       build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
   CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
+  CMesh& mesh = *mesh_ptr;
 #endif
 
-  CMesh& mesh = *mesh_ptr;
 
   Core::instance().root().add_component(mesh);
 
