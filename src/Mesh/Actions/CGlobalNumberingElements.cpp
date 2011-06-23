@@ -207,7 +207,7 @@ std::size_t CGlobalNumberingElements::hash_value(const RealMatrix& coords)
   std::size_t seed=0;
   for (Uint i=0; i<coords.rows(); ++i)
   for (Uint j=0; j<coords.cols(); ++j)
-    boost::hash_combine(seed,(float)coords(i,j));
+    boost::hash_combine(seed,coords(i,j));
   return seed;
 }
 

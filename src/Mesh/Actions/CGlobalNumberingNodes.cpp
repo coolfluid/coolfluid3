@@ -233,7 +233,7 @@ std::size_t CGlobalNumberingNodes::hash_value(const RealVector& coords)
 {
   std::size_t seed=0;
   for (Uint i=0; i<coords.size(); ++i)
-    boost::hash_combine(seed,(float)coords[i]);
+    boost::hash_combine(seed,coords[i]);
   return seed;
 }
 
