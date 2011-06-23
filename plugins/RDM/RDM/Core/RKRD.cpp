@@ -171,6 +171,9 @@ void RKRD::config_mesh()
     m_solution.lock()->add_tag(solution_tag);
   }
 
+  // parallelize the solution if not yet done
+  m_solution.lock()->parallelize();
+
   /// @todo here we should check if space() order is correct,
   ///       if not the change space() by enriching or other appropriate action
 

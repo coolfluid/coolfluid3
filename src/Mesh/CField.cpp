@@ -430,6 +430,9 @@ PECommPattern& CField::parallelize_with(PECommPattern& comm_pattern)
 
 PECommPattern& CField::parallelize()
 {
+  if ( is_not_null( m_comm_pattern ) ) // return if already parallel
+    return *m_comm_pattern;
+
   // Extract gid from the nodes.glb_idx()  for only the nodes in the region the fields will use.
   const CList<Uint>& nodes = used_nodes();
   std::vector<Uint> gid;

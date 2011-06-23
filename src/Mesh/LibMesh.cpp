@@ -23,8 +23,8 @@ CF::Common::RegistLibrary<LibMesh> libMesh;
 void LibMesh::initiate_impl()
 {
   Core::instance().root()
-      .get_child_ptr("Tools")
-      ->create_component_ptr<Mesh::LoadMesh>( "LoadMesh" )
+      .get_child("Tools")
+      .create_component_ptr<Mesh::LoadMesh>( "LoadMesh" )
       ->mark_basic();
 
   Core::instance().root()

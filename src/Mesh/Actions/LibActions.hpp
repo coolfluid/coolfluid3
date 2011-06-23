@@ -35,8 +35,8 @@ namespace Actions {
 
 /// Class defines the initialization and termination of the library Actions
 class Mesh_Actions_API LibActions :
-    public Common::CLibrary
-{
+    public Common::CLibrary {
+
 public:
 
   typedef boost::shared_ptr<LibActions> Ptr;
@@ -59,10 +59,9 @@ public: // functions
   /// Static function that returns the description of the module.
   /// Must be implemented for CLibrary registration
   /// @return description of the library
-
   static std::string library_description()
   {
-    return "This library implements the Actions API.";
+    return "This library implements several Mesh Actions.";
   }
 
   /// Gets the Class name

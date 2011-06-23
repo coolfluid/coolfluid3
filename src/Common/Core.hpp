@@ -23,6 +23,7 @@ namespace Common {
   class CodeProfiler;
   class CRoot;
   class CEnv;
+  class CGroup;
   class CLibraries;
   class CFactories;
   class NetworkInfo;
@@ -56,28 +57,27 @@ public: // methods
 
   /// Gets the EventHandler of the CF runtime environment
   /// @pre Core does not need to be initialized before
-  /// @post never nullptr
   Common::EventHandler& event_handler() const;
 
   /// Gets the BuildInfo
   /// @pre Core does not need to be initialized before
-  /// @post never nullptr
   Common::BuildInfo& build_info() const;
 
   /// Gets the CEnv
   /// @pre Core does not need to be initialized before
-  /// @post never nullptr
   Common::CEnv& environment() const;
 
   /// Gets the CLibraries
   /// @pre Core does not need to be initialized before
-  /// @post never nullptr
   Common::CLibraries& libraries() const;
 
   /// Gets the CFactories
   /// @pre Core does not need to be initialized before
-  /// @post never nullptr
   Common::CFactories& factories() const;
+
+  /// Gets the tools
+  /// @pre Core does not need to be initialized before
+  Common::CGroup& tools() const;
 
   /// @brief Sets the profiler.
   /// @param profiler_name Profiler name

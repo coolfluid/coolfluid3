@@ -128,6 +128,8 @@ void ForwardEuler::execute()
 
     update_solution.execute();
 
+    m_solution.lock()->synchronize(); // parallel synchronization
+
     compute_norm.execute();
 
     /// @todo move this into an action

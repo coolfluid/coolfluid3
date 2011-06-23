@@ -170,6 +170,7 @@ Common::CLibraries&  Core::libraries() const
   cf_assert(m_libraries != nullptr);
   return *m_libraries;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::CFactories& Core::factories() const
@@ -177,6 +178,14 @@ Common::CFactories& Core::factories() const
   cf_assert(m_factories != nullptr);
   return *m_factories;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+Common::CGroup& Core::tools() const
+{
+  return get_child("Tools").as_type<CGroup>;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void Core::set_profiler(const std::string & builder_name)
