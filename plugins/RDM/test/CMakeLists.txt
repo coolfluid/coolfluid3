@@ -7,6 +7,8 @@ list( APPEND utest-rdm-linearadv2d_cflibs coolfluid_rdm_scalar   )
 list( APPEND utest-rdm-linearadv2d_files
   utest-rdm-linearadv2d.cpp )
 
+set(utest-rdm-linearadv2d_mpi_test TRUE)
+
 coolfluid_add_unit_test( utest-rdm-linearadv2d )
 
 ##########################################################################
@@ -21,6 +23,8 @@ coolfluid_add_unit_test( utest-rdm-linearadv3d )
 
 list( APPEND utest-rdm-rotationadv2d_cflibs coolfluid_rdm_scalar  )
 list( APPEND utest-rdm-rotationadv2d_files  utest-rdm-rotationadv2d.cpp )
+
+set(utest-rdm-rotationadv2d_mpi_test TRUE)
 
 coolfluid_add_unit_test( utest-rdm-rotationadv2d )
 
