@@ -110,7 +110,8 @@ void CWriter::write_file(std::fstream& file)
       {
         for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
         {
-          cell_centered_var_ids.push_back(++zone_var_id);
+          ++zone_var_id;
+          cell_centered_var_ids.push_back(zone_var_id);
         }
       }
 
@@ -118,11 +119,13 @@ void CWriter::write_file(std::fstream& file)
       {
         for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
         {
+          ++zone_var_id;
           file << " \"" << var_name << "["<<i<<"]\"";
         }
       }
       else
       {
+        ++zone_var_id;
         file << " \"" << var_name <<"\"";
       }
     }
@@ -204,6 +207,8 @@ void CWriter::write_file(std::fstream& file)
       {
         CField::VarType var_type = field.var_type(iVar);
         std::string var_name = field.var_name(iVar);
+        file << "\n### variable " << var_name << "\n\n"; // var name in comment
+
         for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
         {
           if (field.basis() == CField::Basis::POINT_BASED)
