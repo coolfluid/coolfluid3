@@ -172,11 +172,11 @@ BOOST_AUTO_TEST_CASE( definition_of_model )
 {
   PhysModel* pmodel = new Euler2D();
 
-  BOOST_CHECK_EQUAL( pmodel->dim() ,    Euler2D::dimension );
-  BOOST_CHECK_EQUAL( pmodel->nb_eqs() , Euler2D::neqs );
+  BOOST_CHECK_EQUAL( pmodel->dim() ,    (Uint) Euler2D::dimension );
+  BOOST_CHECK_EQUAL( pmodel->nb_eqs() , (Uint) Euler2D::neqs );
 
-  BOOST_CHECK_EQUAL( Euler2DCons::MODEL::dimension , Euler2D::dimension );
-  BOOST_CHECK_EQUAL( Euler2DCons::MODEL::neqs ,      Euler2D::neqs );
+  BOOST_CHECK_EQUAL( Euler2DCons::MODEL::dimension , (Uint) Euler2D::dimension );
+  BOOST_CHECK_EQUAL( Euler2DCons::MODEL::neqs ,      (Uint) Euler2D::neqs );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
