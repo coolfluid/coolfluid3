@@ -4,10 +4,10 @@ configure Environment exception_outputs:bool=true
 configure Environment log_level:unsigned=3
 
 call //Root/Libraries/load_libraries "libs:array[uri]=\
-    file:/Users/willem/workspace/coolfluid3/builds/clang/optim/dso/libcoolfluid_riemannsolvers,\
-    file:/Users/willem/workspace/coolfluid3/builds/clang/optim/dso/libcoolfluid_sfdm,\
-    file:/Users/willem/workspace/coolfluid3/builds/clang/optim/dso/libcoolfluid_sfdm_sf,\
-    file:/Users/willem/workspace/coolfluid3/builds/clang/optim/dso/libcoolfluid_advectiondiffusion"
+    file:@coolfluid_DSO_DIR@/libcoolfluid_riemannsolvers,\
+    file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm,\
+    file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm_sf,\
+    file:@coolfluid_DSO_DIR@/libcoolfluid_advectiondiffusion"
 
 create wizard CF.SFDM.SFDWizard
 configure wizard \
