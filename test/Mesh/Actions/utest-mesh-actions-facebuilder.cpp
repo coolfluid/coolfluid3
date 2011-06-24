@@ -72,6 +72,8 @@ BOOST_AUTO_TEST_CASE( Constructors)
 {
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
   BOOST_CHECK_EQUAL(facebuilder->name(),"facebuilder");
+
+  Core::instance().root().add_component(mesh);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
