@@ -45,7 +45,7 @@ public:
 class Variables {
 public:
   virtual ~Variables() {}
-  virtual void properties( PhysModel::Properties& physp ) = 0;
+  virtual void compute_properties( PhysModel::Properties& physp ) = 0;
   virtual void flux_jacobian( PhysModel::Properties& physp ) = 0;
 };
 
@@ -58,10 +58,10 @@ public:
 
   virtual ~VariablesT() {}
 
-  virtual void properties( PhysModel::Properties& physp )
+  virtual void compute_properties( PhysModel::Properties& physp )
   {
     typename PHYS::PROPS& cphysp = static_cast<typename PHYS::PROPS&>( physp );
-    PHYS::compute( cphysp );
+    PHYS::compute_properties( cphysp );
   }
 
   virtual void flux_jacobian( PhysModel::Properties& physp )
@@ -109,7 +109,7 @@ struct Euler2DCons
   typedef Euler2D           MODEL;
   typedef MODEL::Properties PROPS;
 
-  static void compute (PROPS& p )
+  static void compute_properties (PROPS& p )
   {
     p.u =  0.;
     p.v = 10.;
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE( dynamic_api )
   PhysModel::Properties* props = pmodel->create_properties();
   Variables* pv = pmodel->create_variables( "cons");
 
-  pv->properties(*props);
+  pv->compute_properties(*props);
   pv->flux_jacobian(*props);
 
 }
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( static_api )
 
   Euler2D::Properties* ep = static_cast<Euler2D::Properties*>(props);
 
-  Euler2DCons::compute(*ep);
+  Euler2DCons::compute_properties(*ep);
   Euler2DCons::flux_jacobian(*ep);
 }
 
@@ -175,8 +175,8 @@ BOOST_AUTO_TEST_CASE( definition_of_model )
   BOOST_CHECK_EQUAL( pmodel->dim() ,    (Uint) Euler2D::dimension );
   BOOST_CHECK_EQUAL( pmodel->nb_eqs() , (Uint) Euler2D::neqs );
 
-  BOOST_CHECK_EQUAL( Euler2DCons::MODEL::dimension , (Uint) Euler2D::dimension );
-  BOOST_CHECK_EQUAL( Euler2DCons::MODEL::neqs ,      (Uint) Euler2D::neqs );
+  BOOST_CHECK_EQUAL( (Uint) Euler2DCons::MODEL::dimension , (Uint) Euler2D::dimension );
+  BOOST_CHECK_EQUAL( (Uint) Euler2DCons::MODEL::neqs ,      (Uint) Euler2D::neqs );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
