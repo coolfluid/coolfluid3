@@ -177,12 +177,12 @@ Real Quad2DLagrangeP1::jacobian_determinant(const RealVector& mapped_coord, cons
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Quad2DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
+void Quad2DLagrangeP1::jacobian(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes, JacobianT& result)
 {
   JacobianCoefficients jc(nodes);
 
-  const Real xi = mappedCoord[KSI];
-  const Real eta = mappedCoord[ETA];
+  const Real xi = mapped_coord[KSI];
+  const Real eta = mapped_coord[ETA];
 
   result(KSI,XX) = jc.bx + jc.dx*eta;
   result(KSI,YY) = jc.by + jc.dy*eta;
@@ -192,12 +192,31 @@ void Quad2DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMatr
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Quad2DLagrangeP1::jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
+RealMatrix Quad2DLagrangeP1::jacobian(const RealVector& mapped_coord, const RealMatrix& nodes) const
+{
+  RealMatrix result(dimensionality,dimension);
+
+  JacobianCoefficients jc(nodes);
+
+  const Real xi = mapped_coord[KSI];
+  const Real eta = mapped_coord[ETA];
+
+  result(KSI,XX) = jc.bx + jc.dx*eta;
+  result(KSI,YY) = jc.by + jc.dy*eta;
+  result(ETA,XX) = jc.cx + jc.dx*xi;
+  result(ETA,YY) = jc.cy + jc.dy*xi;
+
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Quad2DLagrangeP1::jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodeMatrixT& nodes, JacobianT& result)
 {
   JacobianCoefficients jc(nodes);
 
-  const Real xi = mappedCoord[KSI];
-  const Real eta = mappedCoord[ETA];
+  const Real xi = mapped_coord[KSI];
+  const Real eta = mapped_coord[ETA];
 
   result(KSI,XX) = jc.cy + jc.dy*xi;
   result(KSI,YY) = -jc.by - jc.dy*eta;

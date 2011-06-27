@@ -51,19 +51,19 @@ public: // functions
   {
     /// Storage for index arrays
     typedef std::vector<Uint> IndicesT;
-    
+
     /// Range of const indices
     typedef boost::iterator_range<IndicesT::const_iterator> RangeT;
-    
+
     /// Index of the first node of each face, relative to the numbering of the parent cell
     IndicesT face_first_nodes;
-    
+
     /// Number of nodes for each face
     IndicesT face_node_counts;
-    
+
     /// Node indices for each face
     IndicesT face_nodes;
-    
+
     /// Iterator range over the nodes of the given face
     RangeT face_node_range(const Uint face) const
     {
@@ -73,7 +73,7 @@ public: // functions
       return boost::make_iterator_range(begin, begin + face_node_counts[face]);
     }
   };
-  
+
   /// Default constructor without arguments
   ElementType( const std::string& name = type_name() );
 
@@ -81,7 +81,7 @@ public: // functions
   virtual ~ElementType();
 
   static std::string type_name() { return "ElementType"; }
-  
+
   /// @return m_nameShape
   std::string shape_name() const { return Mesh::GeoShape::Convert::instance().to_str( m_shape ); }
 
@@ -111,6 +111,8 @@ public: // functions
   /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
   virtual Real jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const;
 
+  virtual RealMatrix jacobian(const RealVector& mapped_coord, const RealMatrix& nodes) const;
+
   std::string builder_name() const;
 
   virtual const ShapeFunction& shape_function() const;
@@ -128,13 +130,13 @@ public: // functions
   /// compute the normal to the element. The direction will be taken according
   /// to the order of the coordinates
   virtual void compute_normal(const NodesT& coord, RealVector& normal) const;
-  
+
   /// compute centroid of element given coordinates
   virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const;
-  
+
   /// Return the face connectivity information
   virtual const FaceConnectivity& face_connectivity() const;
-  
+
   /// Return the face type for the given face
   virtual const ElementType& face_type(const Uint face) const;
 

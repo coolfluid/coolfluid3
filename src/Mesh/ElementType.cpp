@@ -15,7 +15,7 @@ namespace Mesh {
 
 ElementType::ElementType( const std::string& name ) : Common::Component(name)
 {
-   
+
 }
 
 ElementType::~ElementType()
@@ -25,14 +25,14 @@ ElementType::~ElementType()
 ////////////////////////////////////////////////////////////////////////////////
 
 void ElementType::compute_normal(const NodesT& coord, RealVector& normal) const
-{ 
+{
   throw Common::NotImplemented(FromHere(),"compute_normal not implemented for "+derived_type_name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void ElementType::compute_centroid(const NodesT& coord , RealVector& centroid) const
-{ 
+{
   throw Common::NotImplemented(FromHere(),"compute_centroid not implemented for "+derived_type_name());
 }
 
@@ -101,6 +101,14 @@ Real ElementType::jacobian_determinant(const RealVector& mapped_coord, const Rea
 {
   throw Common::NotImplemented(FromHere(),"jacobian_determinant not implemented for "+derived_type_name());
   return 0.;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+RealMatrix ElementType::jacobian(const RealVector& mapped_coord, const RealMatrix& nodes) const
+{
+  throw Common::NotImplemented(FromHere(),"jacobian not implemented for "+derived_type_name());
+  return RealMatrix(0,0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

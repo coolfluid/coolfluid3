@@ -254,6 +254,8 @@ void ComputeRhsInCell::execute()
   const SFDM::ShapeFunction& solution_sf = *m_solution_sf;
   const SFDM::ShapeFunction& flux_sf     = *m_flux_sf;
 
+  const ElementType&   geometry   = elements().element_type();
+  RealMatrix geometry_coords  = elements().get_coordinates( idx() );
 
   CMultiStateFieldView::View solution_data = (*m_solution)[idx()];
   CMultiStateFieldView::View residual_data = (*m_residual)[idx()];
@@ -299,6 +301,7 @@ void ComputeRhsInCell::execute()
 
       for (Uint flux_pt=1; flux_pt<flux_in_line.rows()-1; ++flux_pt)
       {
+        //RealMatrix jacobian = geometry.jacobian(flux_sf.local_coordinates().row(flux_sf.points()[orientation][line][flux_pt]),geometry_coords);
         sol_state.set_state(solution.row(flux_sf.points()[orientation][line][flux_pt]),sol_vars);
         sol_state.compute_flux(sol_vars,m_normal[orientation],flux);
         flux_in_line.row(flux_pt) = flux;
