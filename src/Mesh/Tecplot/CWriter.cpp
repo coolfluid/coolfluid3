@@ -20,6 +20,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CSpace.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CFieldView.hpp"
 
@@ -218,13 +219,29 @@ void CWriter::write_file(std::fstream& file)
           }
           else // element based
           {
-            CFieldView field_view("field_view");
+            CMultiStateFieldView field_view("field_view");
             field_view.set_field(field);
             if (field_view.set_elements(elements))
             {
+              RealVector field_data (field_view.space().nb_states());
+
               for (Uint e=0; e<elements.size(); ++e)
               {
-                file << field_view[e][var_idx] << " ";
+                /// set field data
+                CMultiStateFieldView::View data_view = field_view[e];
+                for (Uint iState=0; iState<field_view.space().nb_states(); ++iState)
+                {
+                  field_data[iState] = data_view[iState][var_idx];
+                }
+
+                /// get cell-centred local coordinates
+                RealVector local_coords = elements.space("P0").shape_function().local_coordinates().row(0);
+
+                /// evaluate field shape function in P0 space
+                Real cell_centred_data = field_view.space().shape_function().value(local_coords)*field_data;
+
+                /// Write cell centred value
+                file << cell_centred_data << " ";
                 CF_BREAK_LINE(file,e);
               }
               file << "\n";
