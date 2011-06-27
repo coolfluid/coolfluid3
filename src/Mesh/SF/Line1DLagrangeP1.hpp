@@ -84,6 +84,10 @@ struct MESH_SF_API Line1DLagrangeP1  : public Line<DIM_1D,SFLineLagrangeP1> {
 
   virtual Real jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const;
 
+  virtual RealVector plane_jacobian_normal(const RealVector& mapped_coords,
+                                           const RealMatrix& nodes,
+                                           const CoordRef orientation) const;
+
   static const CF::Mesh::ElementType::FaceConnectivity& faces();
   virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
   virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;

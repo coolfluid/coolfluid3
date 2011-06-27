@@ -105,16 +105,16 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP1::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Line2DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord)
+void Line2DLagrangeP1::mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mapped_coords)
 {
   const Real x0 = nodes(0, XX);
   const Real x1 = nodes(1, XX);
-  mappedCoord[KSI] = (2*coord[0] - (x1 + x0)) / (x1 - x0);
+  mapped_coords[KSI] = (2*coord[0] - (x1 + x0)) / (x1 - x0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Line2DLagrangeP1::jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result)
+void Line2DLagrangeP1::jacobian(const MappedCoordsT& mapped_coords, const NodeMatrixT& nodes, JacobianT& result)
 {
   result(KSI,XX) = 0.5*(nodes(1, XX) - nodes(0, XX));
   result(KSI,YY) = 0.5*(nodes(1, YY) - nodes(0, YY));

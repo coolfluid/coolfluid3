@@ -33,8 +33,13 @@
 #include "SFDM/Reconstruct.hpp"
 #include "SFDM/SFDWizard.hpp"
 
+#include "Mesh/SF/Quad2DLagrangeP1.hpp"
+#include "Solver/Physics.hpp"
+#include "Physics/src/Euler/Cons1D.hpp"
+
 using namespace CF;
 using namespace CF::Mesh;
+using namespace CF::Mesh::SF;
 using namespace CF::Common;
 using namespace CF::SFDM;
 using namespace CF::Solver;
@@ -342,7 +347,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
   BOOST_CHECK_EQUAL (mesh.get_child("residual").as_type<CField>().data()[1][0] , 0.5);
   BOOST_CHECK_EQUAL (mesh.get_child("solution").as_type<CField>().data()[0][0] , 1.5);
   BOOST_CHECK_EQUAL (mesh.get_child("solution").as_type<CField>().data()[1][0] , 1.5);
-  BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[0][0] , 0. );
+  BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[0][0] , 2. );
   BOOST_CHECK_EQUAL (mesh.get_child("wave_speed").as_type<CField>().data()[1][0] , 2. );
   BOOST_CHECK_EQUAL (mesh.get_child("volume").as_type<CField>().data()[0][0] , 4. );
   BOOST_CHECK_EQUAL (mesh.get_child("volume").as_type<CField>().data()[1][0] , 4. );
@@ -568,8 +573,56 @@ BOOST_AUTO_TEST_CASE( test_flux_transformation )
   CFinfo << "Mesh \"2lines_1.msh\" written" << CFendl;
 
 //  BOOST_CHECK_EQUAL (model.time().dt() , 2.);
-
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+//BOOST_AUTO_TEST_CASE( test_adjoint )
+//{
+//  Quad2DLagrangeP1::MappedCoordsT mapped_coords;
+//  mapped_coords << 0.5,0.;
+
+//  Quad2DLagrangeP1::NodeMatrixT nodes;
+//  nodes <<
+//            0. ,  2.,
+//            3. ,  3.,
+//            4. ,  7.,
+//            2  ,  5;
+
+//  Quad2DLagrangeP1::JacobianT adjoint1;
+//  Quad2DLagrangeP1::JacobianT adjoint2;
+//  Quad2DLagrangeP1::JacobianT jacobian;
+
+//  Quad2DLagrangeP1::jacobian           (mapped_coords,nodes,jacobian);
+//  Quad2DLagrangeP1::jacobian_adjoint   (mapped_coords,nodes,adjoint1);
+//  Quad2DLagrangeP1::jacobian_adjoint_2 (mapped_coords,nodes,adjoint2);
+//  Real determinant = Quad2DLagrangeP1::jacobian_determinant(mapped_coords,nodes);
+//  CFinfo << "jacobian = \n" << jacobian << CFendl;
+//  CFinfo << "determinant = \n" << determinant << CFendl;
+//  CFinfo << "adjoint1 = \n" << adjoint1 << CFendl;
+//  CFinfo << "adjoint2 = \n" << adjoint2 << CFendl;
+
+//  Quad2DLagrangeP1::JacobianT inv_jacob1 = adjoint1/determinant;
+//  Quad2DLagrangeP1::JacobianT inv_jacob2 = adjoint2/determinant;
+
+//  CFinfo << "inv_jacob1 = \n" << inv_jacob1 << CFendl;
+//  CFinfo << "inv_jacob2 = \n" << inv_jacob2 << CFendl;
+
+//  CFinfo << "product1 = \n" << inv_jacob1 * jacobian << CFendl;
+//  CFinfo << "product2 = \n" << inv_jacob2 * jacobian << CFendl;
+
+//  Euler::Cons1D::Ptr euler = allocate_component<Euler::Cons1D>("euler");
+//  boost::shared_ptr<Solver::Physics> p = euler->create_physics();
+
+//  RealVector state(3);
+//  state << 1.4, 20., 101300.;
+
+//  euler->set_state(state,*p);
+
+//  RealVector flux(3);
+//  euler->compute_flux(*p,adjoint1.row(0),flux);
+//  CFinfo << "flux = " << flux.transpose() << CFendl;
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -141,6 +141,7 @@ void ComputeUpdateCoefficient::execute()
         if (volume[i][0] > 0 && wave_speed[i][0] > 0)
         {
           dt = m_CFL*volume[i][0]/wave_speed[i][0];
+//          dt = m_CFL/wave_speed[i][0];
 
           min_dt = std::min(min_dt,dt);
           max_dt = std::max(max_dt,dt);

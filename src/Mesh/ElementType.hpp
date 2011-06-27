@@ -145,8 +145,18 @@ public: // functions
   /// @param [in] nodes  the nodes of the element
   virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
 
-  std::string supported_functions_summary();
-
+  /// Compute the jacobian of the plane or section of the element.
+  /// The section is given by a mapped coordinate, and a direction perpendicular
+  /// to the plane.
+  /// Only elements with the dimension == dimensionality implement this function
+  /// @param mapped_coord [in] coordinates in mapped space (dimensionality x 1)
+  /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
+  /// @param orientation  [in] direction normal to the plane
+  /// @return vector in mapped space scaled with the jacobian of the
+  ///         section (not the volume).
+  virtual RealVector plane_jacobian_normal(const RealVector& mapped_coords,
+                                           const RealMatrix& nodes,
+                                           const CoordRef orientation) const;
 protected: // data
 
   /// the GeoShape::Type corresponding to the shape

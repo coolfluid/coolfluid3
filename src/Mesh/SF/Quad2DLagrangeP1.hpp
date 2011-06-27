@@ -80,6 +80,7 @@ struct MESH_SF_API Quad2DLagrangeP1  : public Quad2D {
   /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting adjoint
   static void jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result);
+  static void jacobian_adjoint_2(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result);
 
   /// Volume of the cell
   static Real volume(const NodeMatrixT& nodes);
@@ -94,6 +95,9 @@ struct MESH_SF_API Quad2DLagrangeP1  : public Quad2D {
   virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
   virtual Real jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const;
   virtual RealMatrix jacobian(const RealVector& mapped_coord, const RealMatrix& nodes) const;
+  virtual RealVector plane_jacobian_normal(const RealVector& mapped_coords,
+                                           const RealMatrix& nodes,
+                                           const CoordRef orientation) const;
 
   /// Shape function reference
   virtual const ShapeFunction& shape_function() const

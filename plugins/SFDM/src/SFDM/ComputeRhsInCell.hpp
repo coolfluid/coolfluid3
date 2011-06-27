@@ -96,6 +96,7 @@ private: // data
   Real left_wave_speed;
   Real right_wave_speed;
   RealVector flux;
+  Real max_wave_speed;
   RealMatrix flux_in_line;
   RealMatrix flux_grad_in_line;
   RealMatrix solution;

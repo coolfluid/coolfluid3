@@ -9,7 +9,7 @@
 #include <boost/assign/list_of.hpp>
 
 #include "Solver/Physics.hpp"
-#include "Euler/LibEuler.hpp"
+#include "Physics/src/Euler/LibEuler.hpp"
 #include "Math/LibMath.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

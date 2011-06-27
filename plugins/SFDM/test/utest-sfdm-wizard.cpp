@@ -40,7 +40,7 @@ using namespace CF::SFDM;
 BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
-/*
+
 BOOST_AUTO_TEST_CASE( Solver_1D )
 {
   Core::instance().environment().configure_property("log_level", (Uint)INFO);
@@ -81,31 +81,32 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
   model.configure_option_recursively("milestone_dt",0.5);
   model.configure_option_recursively("milestone_rate",3);
   model.configure_option_recursively("stages",1u);
+  iterate.configure_property("max_iter",3u);
 
 
   wizard.start_simulation(5.);
 
 }
-*/
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( Solver_2D )
 {
-  //Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_property("model",std::string("gaussian_2D"));
   wizard.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State2D"));
   wizard.configure_property("roe_state",std::string("CF.AdvectionDiffusion.State2D"));
   wizard.configure_property("dim",2u);
-  wizard.configure_property("P",1u);
-  wizard.configure_property("RK_stages",3u);
-  wizard.configure_property("cfl",1.);
+  wizard.configure_property("P",0u);
+  wizard.configure_property("RK_stages",1u);
+  wizard.configure_property("cfl",.5);
   wizard.create_simulation();
 
   CModel& model = wizard.model();
   CMesh& mesh = model.domain().create_component<CMesh>("mesh");
-  CSimpleMeshGenerator::create_rectangle(mesh, 80., 80., 40, 40);
+  CSimpleMeshGenerator::create_rectangle(mesh, 80., 80., 20, 20);
 
   Component& iterate = model.solver().access_component("iterate");
   //Component& if_milestone = iterate.create_component("7_if_milestone","CF.Solver.Actions.Conditional");
@@ -135,7 +136,7 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
 
   gmsh_writer.execute();
 
-//  iterate.configure_property("max_iter",3u);
+  iterate.configure_property("max_iter",3u);
   wizard.start_simulation(40.);
 
 }

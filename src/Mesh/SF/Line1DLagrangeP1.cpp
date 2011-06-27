@@ -135,6 +135,17 @@ void Line1DLagrangeP1::jacobian_adjoint(const MappedCoordsT& mappedCoord, const 
 
 ////////////////////////////////////////////////////////////////////////////////
 
+RealVector Line1DLagrangeP1::plane_jacobian_normal(const RealVector& mapped_coords,
+                                                   const RealMatrix& nodes,
+                                                   const CoordRef orientation) const
+{
+  RealVector result(1);
+  result[XX] = 1.;
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Real Line1DLagrangeP1::volume(const NodeMatrixT& nodes)
 {
   return std::abs(nodes(1, XX) - nodes(0, XX));

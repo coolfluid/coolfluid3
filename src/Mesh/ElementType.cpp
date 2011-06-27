@@ -113,5 +113,15 @@ RealMatrix ElementType::jacobian(const RealVector& mapped_coord, const RealMatri
 
 ////////////////////////////////////////////////////////////////////////////////
 
+RealVector ElementType::plane_jacobian_normal(const RealVector& mapped_coords,
+                                              const RealMatrix& nodes,
+                                              const CoordRef direction) const
+{
+  throw Common::NotImplemented(FromHere(),"jacobian not implemented for "+derived_type_name());
+  return RealVector(1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF

@@ -9,7 +9,7 @@
 
 #include "Common/Log.hpp"
 #include "Solver/State.hpp"
-#include "Euler/Physics.hpp"
+#include "Physics/src/Euler/Physics.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -141,7 +141,7 @@ public: // functions
   {
     typedef Euler::Physics P;
 
-    return p.var(P::Vx) * normal[XX] + p.compute_var(P::a);
+    return std::abs(p.var(P::Vx) * normal[XX]) + p.compute_var(P::a);
   }
 
   virtual void linearize( std::vector<Solver::Physics>& states, Solver::Physics& p )

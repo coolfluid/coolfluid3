@@ -224,6 +224,57 @@ void Quad2DLagrangeP1::jacobian_adjoint(const MappedCoordsT& mapped_coord, const
   result(ETA,YY) = jc.bx + jc.dx*eta;
 }
 
+
+RealVector Quad2DLagrangeP1::plane_jacobian_normal(const RealVector& mapped_coords,
+                                                   const RealMatrix& nodes,
+                                                   const CoordRef orientation) const
+{
+  const Real x0 = nodes(0,XX);
+  const Real y0 = nodes(0,YY);
+
+  const Real x1 = nodes(1,XX);
+  const Real y1 = nodes(1,YY);
+
+  const Real x2 = nodes(2,XX);
+  const Real y2 = nodes(2,YY);
+
+  const Real x3 = nodes(3,XX);
+  const Real y3 = nodes(3,YY);
+
+  const Real xi =  mapped_coords[KSI];
+  const Real eta = mapped_coords[ETA];
+
+  RealVector result(dimensionality);
+
+  switch (orientation)
+  {
+    case KSI:
+    {
+      const Real dN0deta = -(1. - xi);
+      const Real dN1deta = -(1. + xi);
+      const Real dN2deta =  (1. + xi);
+      const Real dN3deta =  (1. - xi);
+      result[XX] = +0.25 * (y0*dN0deta + y1*dN1deta + y2*dN2deta + y3*dN3deta);
+      result[YY] = -0.25 * (x0*dN0deta + x1*dN1deta + x2*dN2deta + x3*dN3deta);
+      return result;
+    }
+    case ETA:
+    {
+      const Real dN0dxi = -(1. - eta);
+      const Real dN1dxi =  (1. - eta);
+      const Real dN2dxi =  (1. + eta);
+      const Real dN3dxi = -(1. + eta);
+      result[XX] = -0.25 * (y0*dN0dxi  + y1*dN1dxi  + y2*dN2dxi  + y3*dN3dxi);
+      result[YY] = +0.25 * (x0*dN0dxi  + x1*dN1dxi  + x2*dN2dxi  + x3*dN3dxi);
+      return result;
+    }
+    case ZTA:
+      throw Common::ShouldNotBeHere(FromHere(),"");
+  }
+  throw Common::ShouldNotBeHere(FromHere(),"orientation not defined");
+  return result;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Real Quad2DLagrangeP1::volume(const NodeMatrixT& nodes)
