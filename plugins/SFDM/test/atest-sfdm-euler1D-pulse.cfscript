@@ -6,9 +6,9 @@ configure Environment log_level:unsigned=3
 echo "Canceled for now. Run atest-sfdm-euler1D-shocktube-P0"
 
 call //Root/Libraries/load_libraries "libs:array[uri]=\
-    file:/Users/willem/workspace/coolfluid3/builds/clang/debug/dso/libcoolfluid_sfdm,\
-    file:/Users/willem/workspace/coolfluid3/builds/clang/debug/dso/libcoolfluid_sfdm_sf,\
-    file:/Users/willem/workspace/coolfluid3/builds/clang/debug/dso/libcoolfluid_euler"
+    file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm,\
+    file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm_sf,\
+    file:@coolfluid_DSO_DIR@/libcoolfluid_euler"
 
 create wizard CF.SFDM.SFDWizard
 configure wizard \
