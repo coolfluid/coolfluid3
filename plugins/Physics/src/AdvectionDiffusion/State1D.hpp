@@ -92,7 +92,7 @@ public: // functions
 
   virtual Real max_eigen_value ( Solver::Physics& p, const RealVector& normal )
   {
-    return std::abs(p.var(Physics::Vx) * normal[XX]);
+    return std::abs(p.var(Physics::Vx)) * normal[XX];
   }
 
   virtual void linearize( std::vector<boost::shared_ptr<Solver::Physics> >& states, Solver::Physics& p )
