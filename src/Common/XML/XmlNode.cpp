@@ -38,6 +38,7 @@ XmlNode::XmlNode (rapidxml::xml_node<> * impl) :
 XmlNode XmlNode::add_node ( const std::string & name, const std::string & value ) const
 {
   cf_assert( is_valid() );
+  cf_assert( is_not_null(content->document()) );
 
   rapidxml::xml_document<>& doc = *content->document();
   rapidxml::xml_node<>* node = doc.allocate_node( rapidxml::node_element,
