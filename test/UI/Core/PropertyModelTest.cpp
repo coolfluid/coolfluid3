@@ -38,6 +38,7 @@ void PropertyModelTest::initTestCase()
   // we clear existing properties and add new ones to ensure the tests will pass
   // even if properties of Component or CNode classes are modified.
   props.store.clear();
+  opts.store.clear();
 
   opts.add_option< OptionURI >("AnUriOption", "", URI("cpath://Root"));
   props.add_property("Euler", Real(2.71));

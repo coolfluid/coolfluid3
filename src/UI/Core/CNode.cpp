@@ -523,13 +523,18 @@ void CNode::listProperties(QMap<QString, QString> & props)
     fetchContent();
   else
   {
-    PropertyList::PropertyStorage_t::const_iterator it = m_properties.store.begin();
+    PropertyList::const_iterator it_prop = m_properties.begin();
+    OptionList::const_iterator it_opt = m_options.begin();
 
     props.clear();
 
-    /// @todo this loop is not optimized
-    for( ; it != m_properties.store.end() ; ++it)
-      props[ it->first.c_str() ] = m_properties.value_str(it->first).c_str();
+    // add the properties
+    for( ; it_prop != m_properties.end() ; ++it_prop)
+      props[ it_prop->first.c_str() ] =  any_to_str(it_prop->second).c_str();
+
+    // add the options
+    for( ; it_opt != m_options.end() ; ++it_opt)
+      props[ it_opt->first.c_str() ] = it_opt->second->value_str().c_str();
   }
 
 }

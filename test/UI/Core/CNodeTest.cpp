@@ -157,7 +157,7 @@ void CNodeTest::test_setProperties()
       "  </value>"
       " </map>"
       "</node>");
-
+  
   // Legend for tree below:
   // (1) a string property (because "is_option" attribute is not defined)
   // (2) a bool property (because "is_option" attribute is set to false)
@@ -203,7 +203,7 @@ void CNodeTest::test_setProperties()
   // 1. should exist
   GUI_CHECK_NO_THROW( prop = node.properties()["anotherProp"] );
   // 2. should be of type "bool"
-  QCOMPARE( QString( any_to_value<std::string>(prop).c_str()), QString(Protocol::Tags::type<bool>()) );
+  QCOMPARE( QString( class_name_from_typeinfo(prop.type()).c_str() ), QString(Protocol::Tags::type<bool>()) );
   // 3. should have the value false
   QVERIFY( !any_to_value<bool>(prop) );
 
@@ -296,7 +296,7 @@ void CNodeTest::test_modifyOptions()
   QCOMPARE( node.option("theAnswer").value<int>(), int(42) );
   QCOMPARE( node.option("someBool").value<bool>(), true );
   QCOMPARE( node.option("myString").value<std::string>(), std::string("This is a string") );
-  QCOMPARE( node.option("someProp").value<Real>(), Real(3.14) );
+  QCOMPARE( node.properties().value<Real>("someProp"), Real(3.14) );
 
   // modify some options
   map["someBool"] = QVariant(false).toString();
@@ -305,11 +305,11 @@ void CNodeTest::test_modifyOptions()
   QCOMPARE( node.option("theAnswer").value<int>(), int(-45782446) );
   QCOMPARE( node.option("someBool").value<bool>(), false );
   QCOMPARE( node.option("myString").value<std::string>(), std::string("This is a string") );
-  QCOMPARE( node.option("someProp").value<Real>(), Real(3.14) );
+  QCOMPARE( node.properties().value<Real>("someProp"), Real(3.14) );
 
   // try to modify a property (should fail)
   map["someProp"] = QString::number(2.71);
-  GUI_CHECK_THROW( node.modifyOptions(map), FailedAssertion );
+  GUI_CHECK_THROW( node.modifyOptions(map), ValueNotFound );
 
   // option that does not exist
   map.clear();
@@ -328,12 +328,13 @@ void CNodeTest::test_listProperties()
 {
   MyNode node("MyNode");
   PropertyList& list = node.properties();
+  int itemCount = list.store.size() + node.options().store.size();
   QMap<QString, QString> map;
   PropertyList::PropertyStorage_t::iterator it = list.begin();
 
   node.listProperties(map);
 
-  QCOMPARE( list.store.size(), size_t(map.size()) );
+  QCOMPARE( itemCount, map.size() );
 
   for( ; it != list.end() ; ++it )
     QVERIFY( map.contains( it->first.c_str() ) );
