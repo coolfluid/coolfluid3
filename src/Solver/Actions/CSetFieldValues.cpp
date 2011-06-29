@@ -25,13 +25,13 @@ namespace Actions {
 Common::ComponentBuilder < CSetFieldValues, CLoopOperation, LibActions > CSetFieldValues_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-CSetFieldValues::CSetFieldValues ( const std::string& name ) : 
+
+CSetFieldValues::CSetFieldValues ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
-  m_properties.add_option< OptionURI > ("Field","Field to set", URI("cpath:"))->mark_basic();
-  m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CSetFieldValues::config_field,   this ) );
+  m_options.add_option< OptionURI > ("Field","Field to set", URI("cpath:"))->mark_basic();
+  m_options["Field"].attach_trigger ( boost::bind ( &CSetFieldValues::config_field,   this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ CSetFieldValues::CSetFieldValues ( const std::string& name ) :
 void CSetFieldValues::config_field()
 {
   URI uri;
-  property("Field").put_value(uri);
+  option("Field").put_value(uri);
   m_field = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(m_field.lock()) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
@@ -56,7 +56,7 @@ void CSetFieldValues::execute()
   CTable<Real>::Row data = field[idx()];
   const Real x = field.coords(idx())[XX];
   //const CF::Real y =  field.coords(idx())[YY];
-  
+
   const Uint row_size = data.size();
   for (Uint i = 0; i != row_size; ++i)
   {

@@ -33,20 +33,22 @@ void PropertyModelTest::initTestCase()
   MyNode::Ptr node(new MyNode("MyAdditionalNode"));
 
   PropertyList& props = node->properties();
+  OptionList& opts = node->options();
 
   // we clear existing properties and add new ones to ensure the tests will pass
   // even if properties of Component or CNode classes are modified.
   props.store.clear();
 
-  props.add_option< OptionURI >("AnUriOption", "", URI("cpath://Root"));
+  opts.add_option< OptionURI >("AnUriOption", "", URI("cpath://Root"));
   props.add_property("Euler", Real(2.71));
-  props.add_option< OptionT<std::string> >("MyString", "", std::string("Hello, World!"));
+  opts.add_option< OptionT<std::string> >("MyString", "", std::string("Hello, World!"));
   props.add_property("Pi", Real(3.14159));
-  props.add_option< OptionT<bool> >("SomeBool", "", true);
-  props.add_option< OptionT<int> >("SomeInt", "", int(-2168454));
+  opts.add_option< OptionT<bool> >("SomeBool", "", true);
+  opts.add_option< OptionT<int> >("SomeInt", "", int(-2168454));
   props.add_property("TheAnswer", Uint(42));
 
-  QCOMPARE( props.store.size(), size_t(7));
+  QCOMPARE( props.store.size(), size_t(3));
+  QCOMPARE( opts.store.size(), size_t(4));
 
   // add the node to the tree
   ThreadManager::instance().tree().root()->addNode( node );

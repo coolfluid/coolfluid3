@@ -32,7 +32,7 @@ Cleanup::Cleanup ( const std::string& name ) : Solver::Action(name)
   mark_basic();
 
   std::vector< URI > dummy;
-  m_properties.add_option< OptionArrayT < URI > > ("Fields", "Fields to cleanup", dummy)
+  m_options.add_option< OptionArrayT < URI > > ("Fields", "Fields to cleanup", dummy)
       ->attach_trigger ( boost::bind ( &Cleanup::config_fields,   this ) );
 }
 
@@ -40,7 +40,7 @@ Cleanup::Cleanup ( const std::string& name ) : Solver::Action(name)
 
 void Cleanup::config_fields()
 {
-  std::vector<URI> vec; property("Fields").put_value(vec);
+  std::vector<URI> vec; option("Fields").put_value(vec);
 
   boost_foreach(const URI field_path, vec)
   {

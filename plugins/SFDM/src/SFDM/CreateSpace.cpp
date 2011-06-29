@@ -6,7 +6,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CBuilder.hpp"
@@ -23,7 +23,7 @@
 
 namespace CF {
 namespace SFDM {
-  
+
   using namespace Common;
   using namespace Mesh;
 
@@ -36,13 +36,13 @@ Common::ComponentBuilder < CreateSpace, CMeshTransformer, LibSFDM> CreateSpace_B
 CreateSpace::CreateSpace( const std::string& name )
 : CMeshTransformer(name)
 {
-   
-  properties()["brief"] = std::string("Create space for SFDM shape function");
-  properties()["description"] = std::string("The polynomial order \"P\" of the solution is configurable, default: P = 0");
 
-  properties().add_option( OptionT<Uint>::create("P","Polynomial Order","The order of the polynomial of the solution",0u) );
+  m_properties["brief"] = std::string("Create space for SFDM shape function");
+  m_properties["description"] = std::string("The polynomial order \"P\" of the solution is configurable, default: P = 0");
+
+  m_options.add_option( OptionT<Uint>::create("P","Polynomial Order","The order of the polynomial of the solution",0u) );
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CreateSpace::execute()
@@ -50,7 +50,7 @@ void CreateSpace::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  Uint p = property("P").value<Uint>();
+  Uint p = option("P").value<Uint>();
   boost_foreach(CEntities& entities, find_components_recursively_with_filter<CEntities>(mesh,IsElementsVolume()))
   {
     entities.create_space("solution","CF.SFDM.SF."+entities.element_type().shape_name()+"SolutionP"+to_str(p));

@@ -159,9 +159,9 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadvsys2d_local_fixt
 {
   BOOST_CHECK(true);
 
-  solver.configure_property("domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("cfl", 0.5);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 500u);;
+  solver.configure_option("domain",URI("cpath:../Domain"));
+  solver.get_child("time_stepping").configure_option("cfl", 0.5);;
+  solver.get_child("time_stepping").configure_option("MaxIter", 500u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadvsys2d_local_fixtur
   fns.push_back("2.0*cos(2*3.141592*(x+y))");
   fns.push_back("3.0*cos(2*3.141592*(x+y))");
 
-  inletbc->configure_property("functions", fns);
+  inletbc->configure_option("functions", fns);
 
   BOOST_CHECK(true);
 }
@@ -286,9 +286,9 @@ BOOST_FIXTURE_TEST_CASE( test_output , linearadvsys2d_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.uri());
 
-  mesh_writer->configure_property("fields",fields);
-  mesh_writer->configure_property("file",URI(model.name()+".msh"));
-  mesh_writer->configure_property("mesh",mesh->uri());
+  mesh_writer->configure_option("fields",fields);
+  mesh_writer->configure_option("file",URI(model.name()+".msh"));
+  mesh_writer->configure_option("mesh",mesh->uri());
 
   mesh_writer->execute();
 }

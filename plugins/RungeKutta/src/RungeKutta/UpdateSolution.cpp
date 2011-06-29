@@ -35,22 +35,22 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
 
   // options
 
-  m_properties.add_option(OptionComponent<CField>::create("solution","Solution","Solution to update", &m_solution));
+  m_options.add_option(OptionComponent<CField>::create("solution","Solution","Solution to update", &m_solution));
 
-  m_properties.add_option(OptionComponent<CField>::create("solution_backup","Solution Backup","Solution Backup", &m_solution_backup));
+  m_options.add_option(OptionComponent<CField>::create("solution_backup","Solution Backup","Solution Backup", &m_solution_backup));
 
-  m_properties.add_option(OptionComponent<CField>::create("update_coeff","Update Coefficient","Update coefficient", &m_update_coeff));
+  m_options.add_option(OptionComponent<CField>::create("update_coeff","Update Coefficient","Update coefficient", &m_update_coeff));
 
-  m_properties.add_option(OptionComponent<CField>::create("residual","Residual","Residual", &m_residual));
+  m_options.add_option(OptionComponent<CField>::create("residual","Residual","Residual", &m_residual));
 
   m_solution_view = create_static_component_ptr<CMultiStateFieldView>("solution_view");
   m_solution_backup_view = create_static_component_ptr<CMultiStateFieldView>("solution_backup_view");
   m_residual_view = create_static_component_ptr<CMultiStateFieldView>("residual_view");
   m_update_coeff_view = create_static_component_ptr<CScalarFieldView>("update_coeff_view");
 
-  m_properties.add_option(OptionT<Real>::create("alpha","alpha","RK coefficient alpha", m_alpha))
+  m_options.add_option(OptionT<Real>::create("alpha","alpha","RK coefficient alpha", m_alpha))
       ->link_to(&m_alpha);
-  m_properties.add_option(OptionT<Real>::create("beta","beta","RK coefficient beta", m_beta))
+  m_options.add_option(OptionT<Real>::create("beta","beta","RK coefficient beta", m_beta))
       ->link_to(&m_beta);
 }
 

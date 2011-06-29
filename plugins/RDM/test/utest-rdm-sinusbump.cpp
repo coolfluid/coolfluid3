@@ -158,9 +158,9 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , sinusbump_local_fixture )
 {
   BOOST_CHECK(true);
 
-  solver.configure_property("domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("cfl", 0.01);
-  solver.get_child("time_stepping").configure_property("MaxIter", 350u);
+  solver.configure_option("domain",URI("cpath:../Domain"));
+  solver.get_child("time_stepping").configure_option("cfl", 0.01);
+  solver.get_child("time_stepping").configure_option("MaxIter", 350u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -191,13 +191,13 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , sinusbump_local_fix
 
 //  std::string bc_density = "1.0";
   std::string bc_density = "1.204751547";
-  inletbc->configure_property("rho_in", bc_density);
+  inletbc->configure_option("rho_in", bc_density);
 
   std::vector<std::string> bc_velocity(2);
 //  bc_velocity[XX] = "100.0";
   bc_velocity[XX] = "171.570881";
   bc_velocity[YY] = "0.0";
-  inletbc->configure_property("vel_in", bc_velocity);
+  inletbc->configure_option("vel_in", bc_velocity);
 
   BOOST_CHECK(true);
 }
@@ -230,7 +230,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , sinusbump_local_fi
 
 //  std::string bc_pressure = "1000.0";
   std::string bc_pressure = "101325.0";
-  outletbc->configure_property("p_out", bc_pressure);
+  outletbc->configure_option("p_out", bc_pressure);
 
   BOOST_CHECK(true);
 }
@@ -311,9 +311,9 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , sinusbump_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.uri());
 
-  gmsh_writer->configure_property("fields",fields);
-  gmsh_writer->configure_property("file",URI(model.name()+"_init.msh"));
-  gmsh_writer->configure_property("mesh",mesh->uri());
+  gmsh_writer->configure_option("fields",fields);
+  gmsh_writer->configure_option("file",URI(model.name()+"_init.msh"));
+  gmsh_writer->configure_option("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -380,9 +380,9 @@ BOOST_FIXTURE_TEST_CASE( test_output , sinusbump_local_fixture )
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
-  gmsh_writer->configure_property("fields",fields);
-  gmsh_writer->configure_property("file",URI(model.name()+".msh"));
-  gmsh_writer->configure_property("mesh",mesh->uri());
+  gmsh_writer->configure_option("fields",fields);
+  gmsh_writer->configure_option("file",URI(model.name()+".msh"));
+  gmsh_writer->configure_option("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -391,9 +391,9 @@ BOOST_FIXTURE_TEST_CASE( test_output , sinusbump_local_fixture )
   CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
   model.add_component(tec_writer);
 
-  tec_writer->configure_property("fields",fields);
-  tec_writer->configure_property("file",URI(model.name()+".plt"));
-  tec_writer->configure_property("mesh",mesh->uri());
+  tec_writer->configure_option("fields",fields);
+  tec_writer->configure_option("file",URI(model.name()+".plt"));
+  tec_writer->configure_option("mesh",mesh->uri());
 
   tec_writer->execute();
 

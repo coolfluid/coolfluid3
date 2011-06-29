@@ -74,17 +74,17 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   // create meshreader
   CMeshGenerator::Ptr mesh_generator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
-  mesh_generator->configure_property("parent",Core::instance().root().uri());
-  mesh_generator->configure_property("lengths",std::vector<Real>(2,10.));
-  mesh_generator->configure_property("nb_cells",std::vector<Uint>(2,5));
+  mesh_generator->configure_option("parent",Core::instance().root().uri());
+  mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
+  mesh_generator->configure_option("nb_cells",std::vector<Uint>(2,5));
   mesh_generator->execute();
 
   // Create and configure interpolator.
-  octtree->configure_property("nb_elems_per_cell", (Uint) 1 );
-  octtree->configure_property("mesh", find_component<CMesh>(Core::instance().root()).uri() );
+  octtree->configure_option("nb_elems_per_cell", (Uint) 1 );
+  octtree->configure_option("mesh", find_component<CMesh>(Core::instance().root()).uri() );
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> nb_cells = boost::assign::list_of(5)(5);
-  octtree->configure_property("nb_cells", nb_cells );
+  octtree->configure_option("nb_cells", nb_cells );
   
 	BOOST_CHECK(true);
 
@@ -109,22 +109,22 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
 
   CStencilComputerOcttree::Ptr stencil_computer = Core::instance().root().create_component_ptr<CStencilComputerOcttree>("stencilcomputer");
-  stencil_computer->configure_property("mesh", find_component<CMesh>(Core::instance().root()).uri() );
+  stencil_computer->configure_option("mesh", find_component<CMesh>(Core::instance().root()).uri() );
 
   std::vector<Uint> stencil;
-  stencil_computer->configure_property("stencil_size", 1u );
+  stencil_computer->configure_option("stencil_size", 1u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 1u);
 
-  stencil_computer->configure_property("stencil_size", 2u );
+  stencil_computer->configure_option("stencil_size", 2u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 9u);
 
-  stencil_computer->configure_property("stencil_size", 10u );
+  stencil_computer->configure_option("stencil_size", 10u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 20u);
   
-  stencil_computer->configure_property("stencil_size", 21u );
+  stencil_computer->configure_option("stencil_size", 21u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 25u); // mesh size
   

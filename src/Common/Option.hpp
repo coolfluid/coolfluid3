@@ -85,6 +85,10 @@ namespace Common {
 
     virtual std::string data_type() const = 0;
 
+    virtual std::string value_str () const = 0;
+
+    boost::any value() const { return m_value; }
+
     /// @returns the type of the option as a string
     virtual std::string type() const;
 
@@ -101,6 +105,20 @@ namespace Common {
       return shared_from_this();
     }
 
+    /// @returns puts the value of the option casted to TYPE on the passed parameter
+    /// @param value which to assign the option value
+    template < typename TYPE >
+        void put_value( TYPE& value ) const
+    {
+      try
+      {
+        value = boost::any_cast<TYPE>(m_value);
+      }
+      catch(boost::bad_any_cast& e)
+      {
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<TYPE>());
+      }
+    }
     /// @returns the name of the option
     std::string name() const { return m_name; }
 

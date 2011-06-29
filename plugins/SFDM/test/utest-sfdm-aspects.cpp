@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( test_Reconstruction_lines )
   std::vector<std::string> from_to(2);
   from_to[0] = "CF.SFDM.SF.LineSolutionP1";
   from_to[1] = "CF.SFDM.SF.LineFluxP2";
-  reconstruct.configure_property("from_to",from_to);
+  reconstruct.configure_option("from_to",from_to);
 
   RealVector solution(2); solution << 0. , 4.;      // in cell <-1,1>
   RealVector rec_sol(3);  rec_sol  << 0. , 2. , 4.;
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( test_Reconstruction_quads )
   std::vector<std::string> from_to(2);
   from_to[0] = "CF.SFDM.SF.QuadSolutionP0";
   from_to[1] = "CF.SFDM.SF.QuadFluxP1";
-  reconstruct.configure_property("from_to",from_to);
+  reconstruct.configure_option("from_to",from_to);
 
   RealVector solution(1); solution << 2. ;      // in cell <-1,1><-1,1>
   RealVector rec_sol(4);  rec_sol  << 2. , 2. , 2. , 2.;
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( test_fields_lines )
 
   /// Create a "space" for SFDM solution of order P2, and for flux a space of order P3
   SFDM::CreateSpace::Ptr space_creator = allocate_component<SFDM::CreateSpace>("space_creator");
-  space_creator->configure_property("P",2u);
+  space_creator->configure_option("P",2u);
   space_creator->transform(*mesh);
 
   /// create the solution field with space "solution"
@@ -212,8 +212,8 @@ BOOST_AUTO_TEST_CASE( test_fields_lines )
 
   /// Initialize solution field with the function sin(2*pi*x)
   Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
-  init_field->configure_property("functions",std::vector<std::string>(1,"sin(2*pi*x)"));
-  init_field->configure_property("field",solution.uri());
+  init_field->configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x)"));
+  init_field->configure_option("field",solution.uri());
   init_field->transform(*mesh);
 
   //CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( test_fields_quads )
 
   /// Create a "space" for SFDM solution of order P2, and for flux a space of order P3
   SFDM::CreateSpace::Ptr space_creator = allocate_component<SFDM::CreateSpace>("space_creator");
-  space_creator->configure_property("P",0u);
+  space_creator->configure_option("P",0u);
   space_creator->transform(*mesh);
 
   /// create the solution field with space "solution"
@@ -255,8 +255,8 @@ BOOST_AUTO_TEST_CASE( test_fields_quads )
   /// Initialize solution field with the function exp( -( (x-mu)^2+(y-mu)^2 )/(2*sigma^2) )
   Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
   std::string gaussian="sigma:="+to_str(0.1)+"; mu:="+to_str(0.5)+"; exp( -( (x-mu)^2+(y-mu)^2 )/(2*sigma^2) )";
-  init_field->configure_property("functions",std::vector<std::string>(1,gaussian));
-  init_field->configure_property("field",solution.uri());
+  init_field->configure_option("functions",std::vector<std::string>(1,gaussian));
+  init_field->configure_option("field",solution.uri());
   init_field->transform(*mesh);
 
   //CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
@@ -274,12 +274,12 @@ BOOST_AUTO_TEST_CASE( test_fields_quads )
 
 BOOST_AUTO_TEST_CASE( test_mesh_transform )
 {
-  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   CMesh& mesh = Common::Core::instance().root().get_child("rectangle").as_type<CMesh>();
 
   CMeshTransformer& build_faces = Common::Core::instance().root().create_component("build_faces","CF.Mesh.Actions.CBuildFaces").as_type<CMeshTransformer>();
-  build_faces.configure_property("store_cell2face",true);
+  build_faces.configure_option("store_cell2face",true);
   build_faces.transform(mesh);
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
@@ -295,16 +295,16 @@ BOOST_AUTO_TEST_CASE( test_mesh_transform )
 
 BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
 {
-  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
   /// Create a mesh consisting of a line with length 1. and 20 divisions
 
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
-  wizard.configure_property("model",std::string("test"));
-  wizard.configure_property("dim",2u);
-  wizard.configure_property("RK_stages",1u);
-  wizard.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State2D"));
-  wizard.configure_property("roe_state",std::string("CF.AdvectionDiffusion.State2D"));
+  wizard.configure_option("model",std::string("test"));
+  wizard.configure_option("dim",2u);
+  wizard.configure_option("RK_stages",1u);
+  wizard.configure_option("solution_state",std::string("CF.AdvectionDiffusion.State2D"));
+  wizard.configure_option("roe_state",std::string("CF.AdvectionDiffusion.State2D"));
 
   wizard.create_simulation();
 
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
   CSimpleMeshGenerator::create_rectangle(mesh, 4., 2. , 2, 1);
 
   Component& iterate = model.solver().access_component("iterate");
-  iterate.configure_property("max_iter",1u);
+  iterate.configure_option("max_iter",1u);
 
   wizard.prepare_simulation();
 
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
   fields.push_back(mesh.get_child("update_coeff").uri());
   fields.push_back(mesh.get_child("volume").uri());
   fields.push_back(mesh.get_child("jacobian_determinant").uri());
-  gmsh_writer.configure_property("fields",fields);
+  gmsh_writer.configure_option("fields",fields);
 
 
   gmsh_writer.write_from_to(mesh,URI("2quads_0.msh"));
@@ -363,14 +363,14 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
 /*
 BOOST_AUTO_TEST_CASE( test_computerhsincell_ydir )
 {
-  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
   /// Create a mesh consisting of a line with length 1. and 20 divisions
 
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
-  wizard.configure_property("model",std::string("test"));
-  wizard.configure_property("dim",2u);
-  wizard.configure_property("RK_stages",1u);
+  wizard.configure_option("model",std::string("test"));
+  wizard.configure_option("dim",2u);
+  wizard.configure_option("RK_stages",1u);
 
   wizard.create_simulation();
 
@@ -379,7 +379,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_ydir )
   CSimpleMeshGenerator::create_rectangle(mesh, 2., 4. , 1, 2);
 
   Component& iterate = model.solver().access_component("iterate");
-  iterate.configure_property("max_iter",1u);
+  iterate.configure_option("max_iter",1u);
 
   wizard.prepare_simulation();
 
@@ -397,7 +397,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_ydir )
   fields.push_back(mesh.get_child("update_coeff").uri());
   fields.push_back(mesh.get_child("volume").uri());
   fields.push_back(mesh.get_child("jacobian_determinant").uri());
-  gmsh_writer.configure_property("fields",fields);
+  gmsh_writer.configure_option("fields",fields);
 
 
   gmsh_writer.write_from_to(mesh,URI("2quads_y_0.msh"));
@@ -428,14 +428,14 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_ydir )
 
 BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
 {
-  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
   /// Create a mesh consisting of a line with length 1. and 20 divisions
 
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
-  wizard.configure_property("model",std::string("test"));
-  wizard.configure_property("dim",2u);
-  wizard.configure_property("RK_stages",1u);
+  wizard.configure_option("model",std::string("test"));
+  wizard.configure_option("dim",2u);
+  wizard.configure_option("RK_stages",1u);
 
   wizard.create_simulation();
 
@@ -444,7 +444,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
   CSimpleMeshGenerator::create_rectangle(mesh, 4., 4. , 2, 2);
 
   Component& iterate = model.solver().access_component("iterate");
-  iterate.configure_property("max_iter",1u);
+  iterate.configure_option("max_iter",1u);
 
   wizard.prepare_simulation();
 
@@ -462,7 +462,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
   fields.push_back(mesh.get_child("update_coeff").uri());
   fields.push_back(mesh.get_child("volume").uri());
   fields.push_back(mesh.get_child("jacobian_determinant").uri());
-  gmsh_writer.configure_property("fields",fields);
+  gmsh_writer.configure_option("fields",fields);
 
 
   gmsh_writer.write_from_to(mesh,URI("4quads_xy_0.msh"));
@@ -511,16 +511,16 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
 
 BOOST_AUTO_TEST_CASE( test_flux_transformation )
 {
-  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
   /// Create a mesh consisting of a line with length 1. and 20 divisions
 
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
-  wizard.configure_property("model",std::string("test"));
-  wizard.configure_property("dim",2u);
-  wizard.configure_property("RK_stages",1u);
-  wizard.configure_property("solution_state",std::string("CF.Euler.Cons1D"));
-  wizard.configure_property("roe_state",std::string("CF.Euler.Roe1D"));
+  wizard.configure_option("model",std::string("test"));
+  wizard.configure_option("dim",2u);
+  wizard.configure_option("RK_stages",1u);
+  wizard.configure_option("solution_state",std::string("CF.Euler.Cons1D"));
+  wizard.configure_option("roe_state",std::string("CF.Euler.Roe1D"));
   wizard.create_simulation();
 
   CModel& model = wizard.model();
@@ -530,7 +530,7 @@ BOOST_AUTO_TEST_CASE( test_flux_transformation )
   CSimpleMeshGenerator::create_line(mesh, length , nb_cells);
 
   Component& iterate = model.solver().access_component("iterate");
-  iterate.configure_property("max_iter",2u);
+  iterate.configure_option("max_iter",2u);
 
   wizard.prepare_simulation();
 
@@ -560,7 +560,7 @@ BOOST_AUTO_TEST_CASE( test_flux_transformation )
   fields.push_back(mesh.get_child("update_coeff").uri());
   fields.push_back(mesh.get_child("volume").uri());
   fields.push_back(mesh.get_child("jacobian_determinant").uri());
-  gmsh_writer.configure_property("fields",fields);
+  gmsh_writer.configure_option("fields",fields);
 
 
   gmsh_writer.write_from_to(mesh,URI("2lines_0.msh"));

@@ -26,19 +26,19 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-CLoopOperation::CLoopOperation ( const std::string& name ) : 
+CLoopOperation::CLoopOperation ( const std::string& name ) :
   Common::CAction(name),
   m_can_start_loop(true),
   m_call_config_elements(true),
   m_idx(0)
-{  
+{
   // Following option is ignored if the loop is not about elements
-  //m_properties.add_option(OptionComponent<Mesh::CEntities>::create("Elements","Elements that are being looped",&m_elements));
-  m_properties.add_option(OptionURI::create("Elements","Elements that are being looped", URI("cpath:"), URI::Scheme::CPATH))
+  //m_options.add_option(OptionComponent<Mesh::CEntities>::create("Elements","Elements that are being looped",&m_elements));
+  m_options.add_option(OptionURI::create("Elements","Elements that are being looped", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
-  
-  m_properties.add_option< OptionT<Uint> > ("LoopIndex","Index that is being looped", 0u )->link_to( &m_idx );
-  
+
+  m_options.add_option< OptionT<Uint> > ("LoopIndex","Index that is being looped", 0u )->link_to( &m_idx );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,11 +50,11 @@ void CLoopOperation::config_elements()
   if (m_call_config_elements)
   {
     URI uri;
-    property("Elements").put_value(uri);
+    option("Elements").put_value(uri);
     m_elements = access_component_ptr_checked(uri)->as_ptr_checked<CEntities>();
     if ( is_null(m_elements.lock()) )
-      throw CastingFailed (FromHere(), "Elements must be of a CEntities or derived type");    
-  }  
+      throw CastingFailed (FromHere(), "Elements must be of a CEntities or derived type");
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,13 +63,13 @@ void CLoopOperation::set_elements(CEntities& elements)
 {
   // disable CLoopOperation::config_elements() trigger
   m_call_config_elements = false;
-  
+
   // Set elements
   m_elements = elements.as_ptr_checked<CEntities>();
 
   // Call triggers
-  property("Elements").as_option().trigger();
-  
+  option("Elements").trigger();
+
   // re-enable CLoop::Operation::config_elements() trigger
   m_call_config_elements = true;
 }

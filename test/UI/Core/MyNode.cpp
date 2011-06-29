@@ -18,11 +18,11 @@ using namespace CF::UI::CoreTest;
 MyNode::MyNode(const std::string & name)
   : CNode(name, "MyNode", CNode::DEBUG_NODE)
 {
-  m_properties.add_option< OptionT<int> >("theAnswer", "The answer to the ultimate "
+  m_options.add_option< OptionT<int> >("theAnswer", "The answer to the ultimate "
                               "question of Life, the Universe, and Everything", 42);
-  m_properties.add_option< OptionT<bool> >("someBool", "The bool value", true);
+  m_options.add_option< OptionT<bool> >("someBool", "The bool value", true);
 
-  m_properties.add_option< OptionT<std::string> >("myString", "A string", std::string("This is a string") );
+  m_options.add_option< OptionT<std::string> >("myString", "A string", std::string("This is a string") );
 
   m_properties.add_property("someProp", Real(3.14));
 

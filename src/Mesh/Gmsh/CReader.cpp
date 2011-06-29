@@ -52,9 +52,9 @@ CReader::CReader( const std::string& name )
 
   // options
 
-  m_properties.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_active()?mpi::PE::instance().rank():0);
-  m_properties.add_option<OptionT <Uint> >("nb_parts","Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_active()?mpi::PE::instance().size():1);
-  m_properties.add_option<OptionT <bool> >("read_fields","Read Fields","Read the data from the mesh",true)->mark_basic();
+  m_options.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_active()?mpi::PE::instance().rank():0);
+  m_options.add_option<OptionT <Uint> >("nb_parts","Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_active()?mpi::PE::instance().size():1);
+  m_options.add_option<OptionT <bool> >("read_fields","Read Fields","Read the data from the mesh",true)->mark_basic();
 
   // properties
 
@@ -112,7 +112,7 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
   std::vector<Uint> num_obj(2);
   num_obj[0] = m_total_nb_nodes;
   num_obj[1] = m_total_nb_elements;
-  m_hash->configure_property("nb_obj",num_obj);
+  m_hash->configure_option("nb_obj",num_obj);
 
   find_ghost_nodes();
 
@@ -122,7 +122,7 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
 
   read_connectivity();
 
-  if (property("read_fields").value<bool>())
+  if (option("read_fields").value<bool>())
   {
     read_element_data();
 
@@ -285,7 +285,7 @@ void CReader::find_ghost_nodes()
   m_ghost_nodes.clear();
 
   // Only find ghost nodes if the domain is split up
-  if (property("nb_parts").value<Uint>() > 1)
+  if (option("nb_parts").value<Uint>() > 1)
   {
     m_file.seekg(m_elements_position,std::ios::beg);
     // skip next line
@@ -599,9 +599,9 @@ void CReader::read_element_data()
     if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
     CField& field = *m_mesh->create_component_ptr<CField>(gmsh_field.name);
     field.set_topology(m_mesh->topology().access_component(gmsh_field.topology).as_type<CRegion>());
-    field.configure_property("VarNames",gmsh_field.var_names);
-    field.configure_property("VarTypes",var_types_str);
-    field.configure_property("FieldType",gmsh_field.basis);
+    field.configure_option("VarNames",gmsh_field.var_names);
+    field.configure_option("VarTypes",var_types_str);
+    field.configure_option("FieldType",gmsh_field.basis);
     field.create_data_storage();
 
     for (Uint i=0; i<field.nb_vars(); ++i)
@@ -681,9 +681,9 @@ void CReader::read_node_data()
     CField& field = *m_mesh->create_component_ptr<CField>(gmsh_field.name);
 
     field.set_topology(m_mesh->topology().access_component(gmsh_field.topology).as_type<CRegion>());
-    field.configure_property("VarNames",gmsh_field.var_names);
-    field.configure_property("VarTypes",var_types_str);
-    field.configure_property("FieldType",std::string("PointBased"));
+    field.configure_option("VarNames",gmsh_field.var_names);
+    field.configure_option("VarTypes",var_types_str);
+    field.configure_option("FieldType",std::string("PointBased"));
     field.create_data_storage();
 
     for (Uint i=0; i<field.nb_vars(); ++i)

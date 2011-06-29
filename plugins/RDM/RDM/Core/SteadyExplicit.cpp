@@ -9,7 +9,7 @@
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
- 
+
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -78,7 +78,7 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
 
   std::string phys  = options.option<std::string>("PhysicalModel");
 
-  pm->configure_property( "Type", phys );
+  pm->configure_option( "Type", phys );
 
   Uint neqs = 0;
   Uint ndim = 0;
@@ -117,9 +117,9 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
   if ( (neqs == 0) || (ndim == 0) )
     throw SetupError( FromHere(), "Unsupported physics type : " + phys );
 
-  pm->configure_property( "DOFs", neqs );
+  pm->configure_option( "DOFs", neqs );
 
-  pm->configure_property( "Dimensions", ndim );
+  pm->configure_option( "Dimensions", ndim );
 
   model->create_domain( "Domain" );
 
@@ -128,7 +128,7 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
   solver->mark_basic();
   model->add_component( solver );
 
-  solver->configure_property("physics", pm->uri() );
+  solver->configure_option("physics", pm->uri() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

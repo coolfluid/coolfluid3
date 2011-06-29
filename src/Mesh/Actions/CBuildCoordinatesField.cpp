@@ -27,10 +27,10 @@
 namespace CF {
 namespace Mesh {
 namespace Actions {
-  
+
   using namespace Common;
   using namespace Math::MathFunctions;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CBuildCoordinatesField, CMeshTransformer, LibActions> CBuildCoordinatesField_Builder;
@@ -40,13 +40,13 @@ Common::ComponentBuilder < CBuildCoordinatesField, CMeshTransformer, LibActions>
 CBuildCoordinatesField::CBuildCoordinatesField( const std::string& name )
 : CMeshTransformer(name)
 {
-   
+
 	properties()["brief"] = std::string("Create a coordinate field in the mesh topology");
 	std::string desc;
-	desc = 
-  "  Usage: CBuildCoordinatesField \n\n"
-  "          Information given: internal mesh hierarchy,\n"
-  "      element distribution for each region, and element type"; 
+	desc =
+	"  Usage: CBuildCoordinatesField \n\n"
+	"          Information given: internal mesh hierarchy,\n"
+	"      element distribution for each region, and element type";
 	properties()["description"] = desc;
 }
 
@@ -59,19 +59,19 @@ std::string CBuildCoordinatesField::brief_description() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-  
+
 std::string CBuildCoordinatesField::help() const
 {
   return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
-}  
-  
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CBuildCoordinatesField::execute()
 {
 
   CMesh& mesh = *m_mesh.lock();
-  
+
   std::vector<std::string> names(1);
   std::vector<Uint> sizes(1);
 
@@ -79,19 +79,19 @@ void CBuildCoordinatesField::execute()
   names[0] = "coordinates";
   sizes[0] = mesh.nodes().coordinates().row_size();
   coordinates.get_child_ptr("topology")->as_ptr<CLink>()->link_to(mesh.topology().self());
-  coordinates.configure_property("VarNames",names);
-  coordinates.configure_property("VarSizes",sizes);
-  coordinates.configure_property("FieldType",std::string("NodeBased"));
+  coordinates.configure_option("VarNames",names);
+  coordinates.configure_option("VarSizes",sizes);
+  coordinates.configure_option("FieldType",std::string("NodeBased"));
   coordinates.create_data_storage();
-  
-  CNodes& nodes = mesh.nodes();  
+
+  CNodes& nodes = mesh.nodes();
   Uint data_idx(0);
   boost_foreach(const Uint node_idx, coordinates.used_nodes().array())
   {
     coordinates[data_idx] = nodes.coordinates()[node_idx];
     ++data_idx;
   }
-  
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -35,7 +35,7 @@ Property::Ptr PropertyList::add_property (const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Property & PropertyList::property( const std::string& pname) const
+const Property & PropertyList::option( const std::string& pname) const
 {
   PropertyStorage_t::const_iterator itr = store.find(pname);
   if ( itr != store.end() )
@@ -54,7 +54,7 @@ const Property & PropertyList::property( const std::string& pname) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Property & PropertyList::property( const std::string& pname)
+Property & PropertyList::option( const std::string& pname)
 {
   PropertyStorage_t::iterator itr = store.find(pname);
   if ( itr != store.end() )
@@ -73,17 +73,17 @@ Property & PropertyList::property( const std::string& pname)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Option & PropertyList::option( const std::string& pname) const
-{
-  return property(pname).as_option();
-}
+//const Option & PropertyList::option( const std::string& pname) const
+//{
+//  return option(pname).as_option();
+//}
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
-Option & PropertyList::option( const std::string& pname)
-{
-  return property(pname).as_option();
-}
+//Option & PropertyList::option( const std::string& pname)
+//{
+//  return option(pname).as_option();
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -134,7 +134,7 @@ const Property & PropertyList::operator [] (const std::string & pname) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PropertyList::configure_property(const std::string& pname, const boost::any& val)
+void PropertyList::configure_option(const std::string& pname, const boost::any& val)
 {
   PropertyStorage_t::iterator itr = store.find(pname);
   if (itr == store.end())
@@ -151,45 +151,8 @@ void PropertyList::configure_property(const std::string& pname, const boost::any
   }
   Property::Ptr prop = itr->second;
 
-  // update the value and trigger its actions (if it is an option)
-  if(prop->is_option())
-  {
-    prop->as_option().change_value(val);
-  }
-  else
-  {
-    prop->change_value(val);
-  }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string PropertyList::list_options()
-{
-  std::string opt_list="";
-//  Uint cnt(0);
-//  foreach_container( (const std::string& name) (Property::Ptr property) , *this )
-//  {
-//    if ( Option::Ptr option = boost::dynamic_pointer_cast<Option>(property) )
-//    {
-//      if (cnt > 0)
-//        opt_list=opt_list+"\n";
-
-//      if (option->tag() ==  XML::Protocol::Tags::node_array())
-//      {
-//        OptionArray::Ptr array_option = boost::dynamic_pointer_cast<OptionArray>(option);
-//        std::string values=array_option->value_str();
-//        boost::algorithm::replace_all(values, "@@", ",");
-//        opt_list = opt_list+name+":array["+array_option->elem_type()+"]="+values;
-//      }
-//      else
-//      {
-//        opt_list = opt_list+name+":"+option->type()+"="+option->value_str();
-//      }
-//      ++cnt;
-//    }
-//  }
-  return opt_list;
+  // update the value
+  prop->change_value(val);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

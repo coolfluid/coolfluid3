@@ -127,7 +127,7 @@ void BasicCommands::unrecognized(std::vector<std::string>& unrecognized_commands
 
 std::string env_var(const std::string& var)
 {
-  return environment_component.property(var).value_str();
+  return environment_component.option(var).value_str();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,11 +141,11 @@ std::string BasicCommands::filter_env_vars(const std::string &line)
   boost::sregex_iterator j;
   for(; i!=j; ++i)
   {
-    if (current_component->properties().check((*i)[1]) )
-      boost::algorithm::replace_all(filtered_line,std::string((*i)[0]),current_component->property((*i)[1]).value_str());
+    if (current_component->options().check((*i)[1]) )
+      boost::algorithm::replace_all(filtered_line,std::string((*i)[0]),current_component->option((*i)[1]).value_str());
 
-    if (environment_component.properties().check((*i)[1]) )
-      boost::algorithm::replace_all(filtered_line,std::string((*i)[0]),environment_component.property((*i)[1]).value_str());
+    if (environment_component.options().check((*i)[1]) )
+      boost::algorithm::replace_all(filtered_line,std::string((*i)[0]),environment_component.option((*i)[1]).value_str());
   }
   return filtered_line;
 }
@@ -401,9 +401,9 @@ void BasicCommands::option_list(const std::string& cpath)
   std::string option_list;
   if (!cpath.empty())
     option_list =
-        current_component->access_component(URI(cpath)).properties().list_options();
+        current_component->access_component(URI(cpath)).options().list_options();
   else
-    option_list = current_component->properties().list_options();
+    option_list = current_component->options().list_options();
   if (!option_list.empty())
   {
     CFinfo << option_list << CFendl;
@@ -438,7 +438,7 @@ void BasicCommands::export_env(const std::vector<std::string>& params)
   if (params.size() != 1)
     throw SetupError(FromHere(),"export takes only 1 parameter:  var:type=value");
 
-  environment_component.change_property(params[0]);
+  environment_component.change_option(params[0]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

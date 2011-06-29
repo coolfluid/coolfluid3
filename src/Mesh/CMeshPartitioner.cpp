@@ -36,7 +36,7 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
     m_nb_parts(mpi::PE::instance().size()),
     m_map_built(false)
 {
-  m_properties.add_option<OptionT <Uint> >("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts)
+  m_options.add_option<OptionT <Uint> >("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts)
     ->link_to(&m_nb_parts)
     ->mark_basic();
 

@@ -23,7 +23,7 @@ Common::ComponentBuilder < CModelSteady, Component, LibSolver > CModelSteady_Bui
 CModelSteady::CModelSteady( const std::string& name  ) :
   CModel ( name )
 {
-   properties()["steady"] = bool(true);
+   m_properties["steady"] = bool(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

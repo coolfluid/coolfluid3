@@ -8,7 +8,7 @@
 #include "Common/OptionURI.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
- 
+
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CSpace.hpp"
@@ -48,22 +48,22 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
   m_wave_speed_right(0)
 {
   // options
-  m_properties.add_option(OptionURI::create("solution","Solution","Cell based solution", URI("cpath:"), URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("solution","Solution","Cell based solution", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_solution,   this ) );
 
-  m_properties.add_option(OptionURI::create("residual","Residual","Residual to compute", URI("cpath:"), URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("residual","Residual","Residual to compute", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_residual,   this ) );
 
-  m_properties.add_option(OptionURI::create("wave_speed","Wave Speed","Wave Speed to compute", URI("cpath:"), URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("wave_speed","Wave Speed","Wave Speed to compute", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_wave_speed,   this ) );
 
-  m_properties.add_option(OptionURI::create(Tags::area(),"area","Face area", URI("cpath:"), URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create(Tags::area(),"area","Face area", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_area,   this ) );
 
-  m_properties.add_option(OptionURI::create(Tags::normal(),"FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create(Tags::normal(),"FaceNormal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &ComputeFlux::config_normal,   this ) );
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &ComputeFlux::trigger_elements,   this ) );
+  m_options["Elements"].attach_trigger ( boost::bind ( &ComputeFlux::trigger_elements,   this ) );
 
 }
 
@@ -71,7 +71,7 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
 
 void ComputeFlux::config_solution()
 {
-  URI uri;  property("solution").put_value(uri);
+  URI uri;  option("solution").put_value(uri);
   CField::Ptr solution = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   m_connected_solution.set_field(solution);
   m_flux.resize(solution->data().row_size());
@@ -89,7 +89,7 @@ void ComputeFlux::config_solution()
 
 void ComputeFlux::config_residual()
 {
-  URI uri;  property("residual").put_value(uri);
+  URI uri;  option("residual").put_value(uri);
   CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   m_connected_residual.set_field(comp);
 }
@@ -98,7 +98,7 @@ void ComputeFlux::config_residual()
 
 void ComputeFlux::config_wave_speed()
 {
-  URI uri;  property("wave_speed").put_value(uri);
+  URI uri;  option("wave_speed").put_value(uri);
   CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   m_connected_wave_speed.set_field(comp);
 }
@@ -107,7 +107,7 @@ void ComputeFlux::config_wave_speed()
 
 void ComputeFlux::config_area()
 {
-  URI uri;  property(Tags::area()).put_value(uri);
+  URI uri;  option(Tags::area()).put_value(uri);
   CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   m_face_area.set_field(comp);
 }
@@ -116,7 +116,7 @@ void ComputeFlux::config_area()
 
 void ComputeFlux::config_normal()
 {
-  URI uri;  property(Tags::normal()).put_value(uri);
+  URI uri;  option(Tags::normal()).put_value(uri);
   CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   m_face_normal.set_field(comp);
 }

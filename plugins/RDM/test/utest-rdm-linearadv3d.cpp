@@ -70,7 +70,7 @@ struct global_fixture
    CDomain& domain = find_component_recursively<CDomain>(model);
    CSolver& solver = find_component_recursively<CSolver>(model);
 
-   solver.configure_property("domain", domain.uri() );
+   solver.configure_option("domain", domain.uri() );
 
    CMeshWriter::Ptr gmsh_writer =
        build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
@@ -131,7 +131,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
   CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
 
-  solver.configure_property("mesh", mesh->uri() );
+  solver.configure_option("mesh", mesh->uri() );
 
 #if 0
   // create faces to cell connectivity
@@ -167,9 +167,9 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.uri());
 
-  writer.configure_property("fields",fields);
-  writer.configure_property("file",URI(model.name()+"_init.msh"));
-  writer.configure_property("mesh",mesh->uri());
+  writer.configure_option("fields",fields);
+  writer.configure_option("file",URI(model.name()+"_init.msh"));
+  writer.configure_option("mesh",mesh->uri());
 
   writer.execute();
 }
@@ -203,7 +203,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
     std::vector<std::string> fns;
     fns.push_back("cos(2*3.141592*(x+y+z))");
-    inletbc->configure_property("functions", fns);
+    inletbc->configure_option("functions", fns);
   }
 
   BOOST_CHECK(true);
@@ -213,8 +213,8 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
 BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , local_fixture )
 {
-  solver.get_child("time_stepping").configure_property("cfl", 0.5);
-  solver.get_child("time_stepping").configure_property("MaxIter", 500u);
+  solver.get_child("time_stepping").configure_option("cfl", 0.5);
+  solver.get_child("time_stepping").configure_option("MaxIter", 500u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -262,9 +262,9 @@ BOOST_FIXTURE_TEST_CASE( output , local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.uri());
 
-  writer.configure_property("fields",fields);
-  writer.configure_property("file",URI(model.name()+".msh"));
-  writer.configure_property("mesh",mesh->uri());
+  writer.configure_option("fields",fields);
+  writer.configure_option("file",URI(model.name()+".msh"));
+  writer.configure_option("mesh",mesh->uri());
 
   writer.execute();
 }

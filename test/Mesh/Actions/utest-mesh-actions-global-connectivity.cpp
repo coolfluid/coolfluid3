@@ -75,13 +75,13 @@ BOOST_AUTO_TEST_CASE( build )
   Core::instance().initiate(m_argc,m_argv);
 
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  meshreader->configure_property("read_boundaries",false);
+  meshreader->configure_option("read_boundaries",false);
   meshreader->read_from_to("quadtriag.neu",*mesh);
 
 
   CGlobalNumbering::Ptr build_glb_numbering = allocate_component<CGlobalNumbering>("build_glb_numbering");
   build_glb_numbering->set_mesh(mesh);
-  build_glb_numbering->configure_property("debug",true);
+  build_glb_numbering->configure_option("debug",true);
   build_glb_numbering->execute();
 
   CGlobalConnectivity::Ptr build_connectivity = allocate_component<CGlobalConnectivity>("build_glb_connectivity");

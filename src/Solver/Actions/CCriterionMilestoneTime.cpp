@@ -24,16 +24,16 @@ CCriterionMilestoneTime::CCriterionMilestoneTime( const std::string& name  ) :
   CCriterion ( name ),
   m_tolerance(1e-12)
 {
-  properties()["brief"] = std::string("Time Criterion object");
+  m_properties["brief"] = std::string("Time Criterion object");
   std::string description = properties()["description"].value<std::string>()+
     "Returns true if a time is reached\n";
-  properties()["description"] = description;
+  m_properties["description"] = description;
 
-  properties().add_option(OptionComponent<CTime>::create("time","Time","Time tracking component",&m_time))
+  m_options.add_option(OptionComponent<CTime>::create("time","Time","Time tracking component",&m_time))
     ->mark_basic()
     ->add_tag("time");
 
-  properties().add_option(OptionT<Real>::create("milestone_dt","Milestone Time Step","Defines the checkpoints for the criterion",0.))
+  m_options.add_option(OptionT<Real>::create("milestone_dt","Milestone Time Step","Defines the checkpoints for the criterion",0.))
       ->mark_basic();
 
 }
@@ -48,7 +48,7 @@ CCriterionMilestoneTime::~CCriterionMilestoneTime()
 
 bool CCriterionMilestoneTime::operator()()
 {
-  const Real dt = property("milestone_dt").value<Real>();
+  const Real dt = option("milestone_dt").value<Real>();
   if ( dt == 0. )
     return true;
 

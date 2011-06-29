@@ -25,18 +25,18 @@ CCriterionAbsResidual::CCriterionAbsResidual( const std::string& name  ) :
   CCriterion ( name ),
   m_max_iter(0)
 {
-  properties()["brief"] = std::string("Maximum Iterations Criterion object");
+  m_properties["brief"] = std::string("Maximum Iterations Criterion object");
   std::string description = properties()["description"].value<std::string>()+
     "Returns true if a the maximum number of iterations is achived\n";
-  properties()["description"] = description;
+  m_properties["description"] = description;
 
-  m_properties.add_option<OptionT <Uint> >("MaxIter",
+  m_options.add_option<OptionT <Uint> >("MaxIter",
                                            "Maximum number of iterations",
                                             m_max_iter)
       ->mark_basic()
       ->link_to( &m_max_iter );
-  
-  properties().add_option(OptionComponent<Component>::create("iteration","Iteration","Iteration tracking component",&m_iter_comp));
+
+  m_options.add_option(OptionComponent<Component>::create("iteration","Iteration","Iteration tracking component",&m_iter_comp));
 }
 
 CCriterionAbsResidual::~CCriterionAbsResidual() {}
@@ -47,8 +47,8 @@ bool CCriterionAbsResidual::operator()()
 {
   if (m_iter_comp.expired()) throw SetupError(FromHere(),"Component holding iteration number was not set in ["+uri().string()+"]");
   Component& comp_iter = *m_iter_comp.lock();
-  
-  const Uint cur_iter = comp_iter.property("iter").value<Uint>();
+
+  const Uint cur_iter = comp_iter.option("iter").value<Uint>();
 
   return ( cur_iter > m_max_iter );
 }

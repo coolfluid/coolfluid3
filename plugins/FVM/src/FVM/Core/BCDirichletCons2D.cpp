@@ -40,10 +40,10 @@ BCDirichletCons2D::BCDirichletCons2D ( const std::string& name ) :
 {
   mark_basic();
   // options
-  m_properties.add_option(OptionURI::create("solution","Solution","Cell based solution","cpath:/",URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("solution","Solution","Cell based solution","cpath:/",URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &BCDirichletCons2D::config_solution,   this ) );
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &BCDirichletCons2D::trigger_elements,   this ) );
+  m_options["Elements"].attach_trigger ( boost::bind ( &BCDirichletCons2D::trigger_elements, this ) );
 
   m_rho=1.225;
   m_u=0.;
@@ -51,15 +51,15 @@ BCDirichletCons2D::BCDirichletCons2D ( const std::string& name ) :
   m_p=101300;
   m_gm1 = 0.4;
 
-  m_properties.add_option< OptionT<Real> >("rho","density",m_rho)->mark_basic();
-  m_properties.add_option< OptionT<Real> >("u","x-velocity",m_u)->mark_basic();
-  m_properties.add_option< OptionT<Real> >("v","y-velocity",m_v)->mark_basic();
-  m_properties.add_option< OptionT<Real> >("p","pressure",m_p)->mark_basic();
+  m_options.add_option< OptionT<Real> >("rho","density",m_rho)->mark_basic();
+  m_options.add_option< OptionT<Real> >("u","x-velocity",m_u)->mark_basic();
+  m_options.add_option< OptionT<Real> >("v","y-velocity",m_v)->mark_basic();
+  m_options.add_option< OptionT<Real> >("p","pressure",m_p)->mark_basic();
 
-  m_properties["rho"].as_option().link_to(&m_rho);
-  m_properties["u"].as_option().link_to(&m_u);
-  m_properties["v"].as_option().link_to(&m_u);
-  m_properties["p"].as_option().link_to(&m_p);
+  m_options["rho"].link_to(&m_rho);
+  m_options["u"].link_to(&m_u);
+  m_options["v"].link_to(&m_u);
+  m_options["p"].link_to(&m_p);
 
 
 }
@@ -68,7 +68,7 @@ BCDirichletCons2D::BCDirichletCons2D ( const std::string& name ) :
 
 void BCDirichletCons2D::config_solution()
 {
-  URI uri;  property("solution").put_value(uri);
+  URI uri;  option("solution").put_value(uri);
   CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_connected_solution.set_field(comp);

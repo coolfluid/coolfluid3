@@ -79,16 +79,16 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
     "Spectral Finite Difference Method:\n"
     "";
 
-  properties()["description"] = description;
+  m_properties["description"] = description;
 
 
   // Properties
-  property("domain").as_option().attach_trigger ( boost::bind ( &SFDSolver::trigger_domain,   this ) );
+  option("domain").attach_trigger ( boost::bind ( &SFDSolver::trigger_domain,   this ) );
 
-  properties().add_option(OptionURI::create("physical_model","Physical Model","cpath:../Physics",URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("physical_model","Physical Model","cpath:../Physics",URI::Scheme::CPATH))
     ->attach_trigger( boost::bind ( &SFDSolver::trigger_physical_model, this ) );
 
-  properties().add_option(OptionURI::create("time","Time","Time tracking component","cpath:../Time",URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("time","Time","Time tracking component","cpath:../Time",URI::Scheme::CPATH))
     ->attach_trigger( boost::bind ( &SFDSolver::trigger_time, this ) );
 
   // Signals
@@ -112,11 +112,11 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
 
   // set the compute rhs action
   m_compute_rhs->create_static_component <CInitFieldConstant>("2.1_init_residual")
-    .configure_property("constant",0.)
+    .configure_option("constant",0.)
     .mark_basic();
 
   m_compute_rhs->create_static_component<CInitFieldConstant>("2.2_init_wave_speed")
-    .configure_property("constant",Math::MathConsts::eps())
+    .configure_option("constant",Math::MathConsts::eps())
     .mark_basic();
 
   Component& for_all_cells =
@@ -143,14 +143,14 @@ void SFDSolver::trigger_domain()
   if (m_physical_model.expired())
     trigger_physical_model();
 
-  URI domain; property("domain").put_value(domain);
+  URI domain; option("domain").put_value(domain);
   m_domain = access_component_ptr_checked(domain)->as_ptr_checked<CDomain>();
   CMesh::Ptr mesh = find_component_ptr_recursively<CMesh>(*m_domain.lock());
   if (is_null(mesh))
     throw SetupError(FromHere(),"Domain has no mesh");
 
   m_compute_rhs->get_child_ptr("2.3_for_all_cells")
-    ->configure_property("regions",std::vector<URI>(1,mesh->topology().uri()));
+    ->configure_option("regions",std::vector<URI>(1,mesh->topology().uri()));
   //CLoopOperation::Ptr add_flux_to_rhs = build_component_abstract_type<CLoopOperation>("CF.SFDM.Core.ComputeFlux","add_flux_to_rhs");
   //add_flux_to_rhs->mark_basic();
   //m_compute_rhs->get_child("2.3_for_all_faces").add_component(add_flux_to_rhs);
@@ -170,7 +170,7 @@ void SFDSolver::trigger_domain()
 //    CField& area = mesh->create_field(Mesh::Tags::area(),CField::Basis::FACE_BASED,"P0");
 //    area.add_tag(Mesh::Tags::area());
 //    CLoop::Ptr compute_area = create_component_ptr< CForAllFaces >("compute_area");
-//    compute_area->configure_property("Regions", std::vector<URI>(1,area.topology().uri()));
+//    compute_area->configure_option("Regions", std::vector<URI>(1,area.topology().uri()));
 //    compute_area->create_action("CF.Solver.Actions.CComputeArea");
 //    configure_option_recursively(Mesh::Tags::area(),area.uri());
 //    compute_area->execute();
@@ -225,17 +225,17 @@ void SFDSolver::trigger_domain()
     CField& jacobian_determinant = mesh->create_scalar_field("jacobian_determinant",solution);
     jacobian_determinant.add_tag("jacobian_determinant");
     CLoop::Ptr compute_jacobian_determinant = create_component_ptr< CForAllCells >("compute_jacobian_determinant");
-    compute_jacobian_determinant->configure_property("regions", std::vector<URI>(1,solution.topology().uri()));
+    compute_jacobian_determinant->configure_option("regions", std::vector<URI>(1,solution.topology().uri()));
     compute_jacobian_determinant->create_loop_operation("CF.SFDM.ComputeJacobianDeterminant")
-                                                .configure_property("jacobian_determinant",jacobian_determinant.uri());
+                                                .configure_option("jacobian_determinant",jacobian_determinant.uri());
     compute_jacobian_determinant->execute();
     remove_component(compute_jacobian_determinant->name());
   }
 
   auto_config_fields(*this);
 
-  access_component("iterate/2_compute_rhs/2.1_init_residual")  .configure_property("field",residual_ptr->uri());
-  access_component("iterate/2_compute_rhs/2.2_init_wave_speed").configure_property("field",wave_speed_ptr->uri());
+  access_component("iterate/2_compute_rhs/2.1_init_residual")  .configure_option("field",residual_ptr->uri());
+  access_component("iterate/2_compute_rhs/2.2_init_wave_speed").configure_option("field",wave_speed_ptr->uri());
 
 
   m_iterate->configure_option_recursively("mesh",mesh->uri());
@@ -245,7 +245,7 @@ void SFDSolver::trigger_domain()
 
 void SFDSolver::trigger_time()
 {
-  URI time_uri = property("time").value<URI>();
+  URI time_uri = option("time").value<URI>();
   Component::Ptr time_ptr = access_component_ptr(time_uri);
   if (is_null(time_ptr))
   {
@@ -263,7 +263,7 @@ void SFDSolver::trigger_time()
 
 void SFDSolver::trigger_physical_model()
 {
-  URI uri = property("physical_model").value<URI>();
+  URI uri = option("physical_model").value<URI>();
   Component::Ptr ptr = access_component_ptr(uri);
   if (is_null(ptr))
   {
@@ -301,7 +301,7 @@ CAction& SFDSolver::create_bc(const std::string& name, const std::vector<CRegion
     regions_uri.push_back(region->uri());
 
   CAction::Ptr for_all_faces = m_apply_bcs->create_component_ptr<CForAllFaces>(name);
-  for_all_faces->configure_property("regions",regions_uri);
+  for_all_faces->configure_option("regions",regions_uri);
   CAction& bc = for_all_faces->create_action(bc_builder_name,bc_builder_name);
   auto_config_fields(bc);
   return bc;
@@ -312,7 +312,7 @@ CAction& SFDSolver::create_bc(const std::string& name, const std::vector<CRegion
 CAction& SFDSolver::create_bc(const std::string& name, const CRegion& region, const std::string& bc_builder_name)
 {
   CAction::Ptr for_all_faces = m_apply_bcs->create_component_ptr<CForAllFaces>(name);
-  for_all_faces->configure_property("regions",std::vector<URI>(1,region.uri()));
+  for_all_faces->configure_option("regions",std::vector<URI>(1,region.uri()));
   CAction& bc = for_all_faces->create_action(bc_builder_name,bc_builder_name);
   auto_config_fields(bc);
   return bc;

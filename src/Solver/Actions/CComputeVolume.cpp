@@ -28,17 +28,17 @@ namespace Actions {
 Common::ComponentBuilder < CComputeVolume, CLoopOperation, LibActions > CComputeVolume_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-CComputeVolume::CComputeVolume ( const std::string& name ) : 
+
+CComputeVolume::CComputeVolume ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
-  m_properties.add_option(OptionURI::create("Volume","Field to set", URI("cpath:"),URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("Volume","Field to set", URI("cpath:"),URI::Scheme::CPATH))
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
     ->add_tag(Mesh::Tags::volume());
-  
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
+
+  m_options["Elements"].attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
 
   m_volume = create_static_component_ptr<CScalarFieldView>("volume_view");
 }
@@ -48,7 +48,7 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
 void CComputeVolume::config_field()
 {
   URI uri;
-  property("Volume").put_value(uri);
+  option("Volume").put_value(uri);
   CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
@@ -69,7 +69,7 @@ void CComputeVolume::trigger_elements()
 void CComputeVolume::execute()
 {
   // idx() is the index that is set using the function set_loop_idx() or configuration LoopIndex
-  
+
   elements().put_coordinates(m_coordinates,idx());
   Real vol = elements().element_type().compute_volume( m_coordinates );
 
@@ -77,12 +77,12 @@ void CComputeVolume::execute()
   Uint var_idx = 0;
 
   // 3 ways to access the field through field views:
-    
+
   // 1) as simple scalar field --> only 1 index needed (this is already default here)
   CScalarFieldView& volume = *m_volume;
   volume[idx()] = vol;
-  
-  // 2) as simple field --> extra index for multiple variables per field 
+
+  // 2) as simple field --> extra index for multiple variables per field
   CFieldView& view = m_volume->as_type<CFieldView>();
   view[idx()][var_idx] = vol;
 

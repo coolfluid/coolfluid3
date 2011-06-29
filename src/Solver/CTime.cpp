@@ -36,23 +36,23 @@ CTime::CTime ( const std::string& name  ) :
     "unless the code explicitely (re)configures them.";
   m_properties["description"] = description;
 
-  m_properties.add_option(OptionT<Uint>::create("iteration","Iteration","Current iteration of the simulation", m_iter) )
+  m_options.add_option(OptionT<Uint>::create("iteration","Iteration","Current iteration of the simulation", m_iter) )
       ->link_to(&m_iter)
       ->mark_basic();
 
 
-  m_properties.add_option(OptionT<Real>::create("time","Time","Current time of the simulation", m_time) )
+  m_options.add_option(OptionT<Real>::create("time","Time","Current time of the simulation", m_time) )
       ->link_to(&m_time)
       ->mark_basic();
 
-  m_properties.add_option(OptionT<Real>::create("time_step","Time Step",
+  m_options.add_option(OptionT<Real>::create("time_step","Time Step",
                                                 "Maximal Time Step the simulation will use.\n"
                                                 "A CFL condition will be applied to make time step more strict if required.",
                                                 m_dt) )
       ->link_to(&m_dt)
       ->mark_basic();
 
-  m_properties.add_option(OptionT<Real>::create("end_time","End Time", "Time at which to finish the simulation", m_time) )
+  m_options.add_option(OptionT<Real>::create("end_time","End Time", "Time at which to finish the simulation", m_time) )
       ->mark_basic();
 }
 

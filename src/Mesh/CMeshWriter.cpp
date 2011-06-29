@@ -29,16 +29,16 @@ CMeshWriter::CMeshWriter ( const std::string& name  ) :
   mark_basic();
 
   std::vector<URI> fields;
-  properties().add_option< OptionArrayT<URI> >("fields","Fields to output",fields)
+  m_options.add_option< OptionArrayT<URI> >("fields","Fields to output",fields)
       ->mark_basic()
       ->attach_trigger( boost::bind( &CMeshWriter::config_fields, this ) );
 
   // Path to the mesh to write
-  properties().add_option( OptionURI::create("mesh","Mesh", "Mesh to write", URI(), URI::Scheme::CPATH) )
+  m_options.add_option( OptionURI::create("mesh","Mesh", "Mesh to write", URI(), URI::Scheme::CPATH) )
       ->mark_basic();
 
   // Output file path
-  properties().add_option( OptionURI::create("file","File","File to write",URI("mesh"),URI::Scheme::FILE) )
+  m_options.add_option( OptionURI::create("file","File","File to write",URI("mesh"),URI::Scheme::FILE) )
       ->mark_basic();
 
   // signal for writing the mesh
@@ -89,10 +89,10 @@ void CMeshWriter::signal_write( SignalArgs& node  )
 void CMeshWriter::execute()
 {
   // Get the mesh
-  const CMesh& mesh = access_component(property("mesh").value<URI>()).as_type<CMesh>();
+  const CMesh& mesh = access_component(option("mesh").value<URI>()).as_type<CMesh>();
 
   // Get the file path
-  std::string file = property("file").value<URI>().string();
+  std::string file = option("file").value<URI>().string();
 
   // Call implementation
   write_from_to(mesh,file);

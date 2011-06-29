@@ -44,15 +44,15 @@ CBuildFaces::CBuildFaces( const std::string& name )
   m_store_cell2face(false)
 {
 
-  properties()["brief"] = std::string("Print information of the mesh");
+  m_properties["brief"] = std::string("Print information of the mesh");
   std::string desc;
   desc =
   "  Usage: Info \n\n"
   "          Information given: internal mesh hierarchy,\n"
   "      element distribution for each region, and element type";
-  properties()["description"] = desc;
+  m_properties["description"] = desc;
 
-  properties().add_option( OptionT<bool>::create("store_cell2face","Store Cell to Face","Optionally store Cell to Face connectivity",m_store_cell2face) )
+  m_options.add_option( OptionT<bool>::create("store_cell2face","Store Cell to Face","Optionally store Cell to Face connectivity",m_store_cell2face) )
       ->mark_basic()
       ->link_to(&m_store_cell2face);
 }

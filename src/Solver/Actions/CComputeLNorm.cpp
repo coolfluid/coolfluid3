@@ -32,7 +32,7 @@ namespace Actions {
 Common::ComponentBuilder < CComputeLNorm, CAction, LibActions > CComputeLNorm_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
+
 CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
 {
   mark_basic();
@@ -43,10 +43,10 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
 
   // options
 
-  m_properties.add_option< OptionT<bool> >("Scale", "Scales (divides) the norm by the number of entries (ignored if order zero)", true);
-  m_properties.add_option< OptionT<Uint> >("Order", "Order of the p-norm, zero if L-inf", 2u);
+  m_options.add_option< OptionT<bool> >("Scale", "Scales (divides) the norm by the number of entries (ignored if order zero)", true);
+  m_options.add_option< OptionT<Uint> >("Order", "Order of the p-norm, zero if L-inf", 2u);
 
-  m_properties.add_option(OptionComponent<CField>::create("Field", "Field for which to compute the norm", &m_field));
+  m_options.add_option(OptionComponent<CField>::create("Field", "Field for which to compute the norm", &m_field));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ void CComputeLNorm::execute()
 
   Real norm = 0.;
 
-  const Uint order = m_properties.option("Order").value<Uint>();
+  const Uint order = m_options.option("Order").value<Uint>();
   switch(order)
   {
   case 2: // L2
@@ -87,10 +87,10 @@ void CComputeLNorm::execute()
     break;
   }
 
-  if( m_properties.option("Scale").value<bool>() && order )
+  if( m_options.option("Scale").value<bool>() && order )
     norm /= nbrows;
 
-  properties().property("Norm").change_value(norm);
+  options().option("Norm").change_value(norm);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

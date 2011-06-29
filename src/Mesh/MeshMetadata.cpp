@@ -25,12 +25,12 @@ MeshMetadata::MeshMetadata(const std::string& name) :
   Common::Component(name)
 {
   // get the day of today
-  properties()["date"] = boost::gregorian::to_iso_extended_string(boost::gregorian::day_clock::local_day());
+  m_properties["date"] = boost::gregorian::to_iso_extended_string(boost::gregorian::day_clock::local_day());
   // to convert back:
-  // boost::gregorian::date date = boost::gregorian::from_simple_string(properties()["date"].value_str());
+  // boost::gregorian::date date = boost::gregorian::from_simple_string(options()["date"].value_str());
 
-  properties()["time"] = 0.;
-  properties()["iter"] = 0u;
+  m_properties["time"] = 0.;
+  m_properties["iter"] = 0u;
 }
 
 
@@ -38,7 +38,7 @@ MeshMetadata::MeshMetadata(const std::string& name) :
 
 Property& MeshMetadata::operator[](const std::string& name)
 {
-  return properties()[name];
+  return  properties()[name];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

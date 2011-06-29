@@ -15,13 +15,13 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RiemannSolver::RiemannSolver ( const std::string& name  ) 
+RiemannSolver::RiemannSolver ( const std::string& name  )
 : Component(name)
 {
   properties()["brief"] = std::string("Riemann Solver");
   properties()["description"] = std::string("Solves the Riemann problem");
-  
-  m_properties.add_option( OptionComponent<Solver::State>::create("solution_state","Solution State","The component describing the solution state",&m_sol_state) )
+
+  m_options.add_option( OptionComponent<Solver::State>::create("solution_state","Solution State","The component describing the solution state",&m_sol_state) )
       ->add_tag("solution_state");
 }
 
@@ -37,7 +37,7 @@ RealVector RiemannSolver::interface_flux(const RealVector& left, const RealVecto
 {
   RealVector interface_flux(left.size());
   Real dummy; // not interested in wavespeeds
-  solve( 
+  solve(
           //input
           left,right,normal,
           //output

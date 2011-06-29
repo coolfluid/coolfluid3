@@ -30,7 +30,7 @@ public: // functions
   /// @param name of the component
   CAbstract ( const std::string& name ) : Component(name)
   {
-     
+
   }
 
   /// Virtual destructor
@@ -60,8 +60,8 @@ public: // functions
   {
     // options
     URI def_path("cpath://");
-    m_properties.add_option< OptionURI > ( "MyRelativeFriend", "a path to another component"   , def_path  );
-    m_properties.add_option< OptionURI > ( "MyAbsoluteFriend", "a path to another component"   , def_path  );
+    m_options.add_option< OptionURI > ( "MyRelativeFriend", "a path to another component"   , def_path  );
+    m_options.add_option< OptionURI > ( "MyAbsoluteFriend", "a path to another component"   , def_path  );
   }
 
   /// Virtual destructor
@@ -89,7 +89,7 @@ public: // functions
   /// @param name of the component
   CConcrete2 ( const std::string& name ) : CAbstract(name)
   {
-     
+
   }
 
   /// Virtual destructor

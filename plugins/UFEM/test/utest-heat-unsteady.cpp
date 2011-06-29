@@ -85,35 +85,35 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   Component::Ptr heat_eq = ufem_method->get_child_ptr("HeatEquation");
   BOOST_CHECK(heat_eq);
 
-  ufem_model->get_child("LSS").configure_property("ConfigFile", std::string(argv[1]));
+  ufem_model->get_child("LSS").configure_option("ConfigFile", std::string(argv[1]));
   
   // Configure region and variable names
-  heat_eq->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads"));
-  heat_eq->configure_property("TemperatureFieldName", std::string("Temperature"));
-  heat_eq->configure_property("TemperatureVariableName", std::string("T"));
+  heat_eq->configure_option("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads"));
+  heat_eq->configure_option("TemperatureFieldName", std::string("Temperature"));
+  heat_eq->configure_option("TemperatureVariableName", std::string("T"));
 
   // Set heat source field
   
   // Setup a constant field for the source term
   Component::Ptr heat_generator = build_component_abstract_type<Component>("CF.Tools.FieldGeneration.FieldGenerator", "HeatFieldGenerator");
   root.add_component(heat_generator);
-  heat_generator->configure_property("FieldName", std::string("Heat"));
-  heat_generator->configure_property("VariableName", std::string("q"));
-  heat_generator->configure_property("Value", 0.);
-  heat_generator->configure_property("Mesh", mesh->uri());
+  heat_generator->configure_option("FieldName", std::string("Heat"));
+  heat_generator->configure_option("VariableName", std::string("q"));
+  heat_generator->configure_option("Value", 0.);
+  heat_generator->configure_option("Mesh", mesh->uri());
   SignalFrame update_heat_frame("", URI(), URI());
   heat_generator->call_signal("update", update_heat_frame);
   
-  heat_eq->configure_property("HeatFieldName", std::string("Heat"));
-  heat_eq->configure_property("HeatVariableName", std::string("q"));
+  heat_eq->configure_option("HeatFieldName", std::string("Heat"));
+  heat_eq->configure_option("HeatVariableName", std::string("q"));
 
   // Material properties (copper)
-  heat_eq->configure_property("k", /*398.*/1.);
-  heat_eq->configure_property("alpha", /*11.57e-5*/1.);
+  heat_eq->configure_option("k", /*398.*/1.);
+  heat_eq->configure_option("alpha", /*11.57e-5*/1.);
   
   // Time stepping parameters
-  ufem_method->configure_property("Timestep", 0.01);
-  ufem_method->configure_property("StopTime", 0.2);
+  ufem_method->configure_option("Timestep", 0.01);
+  ufem_method->configure_option("StopTime", 0.2);
   
   // Initial condition value
   SignalFrame init_frame("", URI(), URI());
@@ -126,8 +126,8 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   ufem_method->call_signal("add_initial_condition", init_frame);
   Component::Ptr init = ufem_method->get_child_ptr("InitialTemperature");
   BOOST_CHECK(init);
-  init->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology"));
-  init->configure_property("InitialTemperature", 500.);
+  init->configure_option("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology"));
+  init->configure_option("InitialTemperature", 500.);
   
   // Inside boundary condition
   SignalFrame inside_bc_frame("", URI(), URI());
@@ -140,8 +140,8 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   ufem_method->call_signal("add_dirichlet_bc", inside_bc_frame);
   Component::Ptr inside_bc = ufem_method->get_child_ptr("Inside");
   BOOST_CHECK(inside_bc);
-  inside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/inner"));
-  inside_bc->configure_property("Inside", 300.);
+  inside_bc->configure_option("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/inner"));
+  inside_bc->configure_option("Inside", 300.);
   
   // Outside boundary condition
   SignalFrame outside_bc_frame("", URI(), URI());
@@ -154,8 +154,8 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   ufem_method->call_signal("add_dirichlet_bc", outside_bc_frame);
   Component::Ptr outside_bc = ufem_method->get_child_ptr("Outside");
   BOOST_CHECK(outside_bc);
-  outside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/outer"));
-  outside_bc->configure_property("Outside", 300.);
+  outside_bc->configure_option("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/outer"));
+  outside_bc->configure_option("Outside", 300.);
   
   // Run the solver
   SignalFrame run_frame("", URI(), URI());
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearUnsteady )
   // Write the solution
   CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   ufem_model->add_component(writer);
-  writer->configure_property( "fields", std::vector<URI>(1, URI("cpath://Root/UFEMHeat/Domain/Mesh/Temperature") ) );
+  writer->configure_option( "fields", std::vector<URI>(1, URI("cpath://Root/UFEMHeat/Domain/Mesh/Temperature") ) );
   writer->write_from_to(*mesh, output_file);
 }
 

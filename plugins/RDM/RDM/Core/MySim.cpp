@@ -81,13 +81,13 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
   std::string phys  = "RotationAdv2D";
 
-  pm->configure_property( "Type", phys );
+  pm->configure_option( "Type", phys );
 
   Uint neqs = LinearAdv2D::neqs;
 
-  pm->configure_property( "DOFs", neqs );
+  pm->configure_option( "DOFs", neqs );
 
-  pm->configure_property( "Dimensions", 2u );
+  pm->configure_option( "Dimensions", 2u );
 
   CDomain& domain = model->create_domain( "Domain" );
 
@@ -96,7 +96,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
   solver->mark_basic();
   model->add_component( solver );
 
-  solver->configure_property("physics", pm->uri() );
+  solver->configure_option("physics", pm->uri() );
 
   // load the mesh
   {
@@ -119,9 +119,9 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
   // setup solver
   {
-    solver->configure_property("domain", domain.uri());
-    solver->get_child("time_stepping").configure_property("cfl", 0.5);
-    solver->get_child("time_stepping").configure_property("MaxIter", 2250u);
+    solver->configure_option("domain", domain.uri());
+    solver->get_child("time_stepping").configure_option("cfl", 0.5);
+    solver->get_child("time_stepping").configure_option("MaxIter", 2250u);
   }
 
   // boudnary term
@@ -152,7 +152,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
     fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
 //    fns.push_back("cos(2*3.141592*(x+y))");
 
-    inletbc->configure_property("functions", fns);
+    inletbc->configure_option("functions", fns);
   }
 
   // initialization

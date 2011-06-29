@@ -25,7 +25,7 @@ namespace CF {
 namespace Mesh {
 
   using namespace Common;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CF::Common::ComponentBuilder < CStencilComputerOcttree, CStencilComputer, LibMesh > CStencilComputerOcttree_Builder;
@@ -34,9 +34,9 @@ CF::Common::ComponentBuilder < CStencilComputerOcttree, CStencilComputer, LibMes
 
 CStencilComputerOcttree::CStencilComputerOcttree( const std::string& name )
   : CStencilComputer(name), m_dim(0), m_nb_elems_in_mesh(0)
-{  
-  property("mesh").as_option().attach_trigger(boost::bind(&CStencilComputerOcttree::configure_mesh,this));
-    
+{
+  option("mesh").attach_trigger(boost::bind(&CStencilComputerOcttree::configure_mesh,this));
+
   m_octtree = create_static_component_ptr<COcttree>("octtree");
   m_octtree->mark_basic();
 }
@@ -47,11 +47,11 @@ void CStencilComputerOcttree::configure_mesh()
 {
   if (m_mesh.expired())
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
-    
+
   m_nb_elems_in_mesh = m_mesh.lock()->topology().recursive_filtered_elements_count(IsElementsVolume());
   m_dim = m_mesh.lock()->nodes().coordinates().row_size();
-  
-  m_octtree->configure_property("mesh",m_mesh.lock()->uri());
+
+  m_octtree->configure_option("mesh",m_mesh.lock()->uri());
   m_octtree->create_octtree();
 }
 
@@ -75,7 +75,7 @@ void CStencilComputerOcttree::compute_stencil(const Uint unified_elem_idx, std::
       m_octtree->gather_elements_around_idx(octtree_cell,ring,stencil);
       if (stencil.size() >= m_nb_elems_in_mesh )
         return;
-    }    
+    }
   }
 }
 

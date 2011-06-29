@@ -35,7 +35,7 @@ CEntities::CEntities ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 
-  properties().add_option(OptionT<std::string>::create("element_type","Element Type","Element type", std::string("")))
+  m_options.add_option(OptionT<std::string>::create("element_type","Element Type","Element type", std::string("")))
     ->attach_trigger(boost::bind(&CEntities::configure_element_type, this));
 
   m_global_numbering = create_static_component_ptr<CList<Uint> >(Mesh::Tags::global_elem_indices());
@@ -70,7 +70,7 @@ CEntities::~CEntities()
 void CEntities::initialize(const std::string& element_type_name, CNodes& nodes)
 {
   m_nodes->link_to(nodes.follow());
-  configure_property("element_type",element_type_name);
+  configure_option("element_type",element_type_name);
   cf_assert(is_not_null(m_element_type));
 }
 
@@ -78,7 +78,7 @@ void CEntities::initialize(const std::string& element_type_name, CNodes& nodes)
 
 void CEntities::configure_element_type()
 {
-  const std::string etype_name = property("element_type").value<std::string>();
+  const std::string etype_name = option("element_type").value<std::string>();
   if (is_not_null(m_element_type))
   {
     remove_component(m_element_type->name());
@@ -88,7 +88,7 @@ void CEntities::configure_element_type()
   add_component( m_element_type );
 
   if (exists_space(0))
-    find_component_recursively_with_tag(*this,"space0").configure_property("shape_function",m_element_type->shape_function().derived_type_name());
+    find_component_recursively_with_tag(*this,"space0").configure_option("shape_function",m_element_type->shape_function().derived_type_name());
   else
   {
     CSpace& space0 = create_space("space[0]",element_type().shape_function().derived_type_name());
@@ -190,7 +190,7 @@ CSpace& CEntities::create_space( const std::string& name, const std::string& sha
 {
   Uint nb_existing_spaces = m_spaces.size();
   CSpace::Ptr space = m_spaces_group->create_component_ptr<CSpace>(name);
-  space->configure_property("shape_function",shape_function_builder_name);
+  space->configure_option("shape_function",shape_function_builder_name);
   m_spaces.push_back(space);
   return *space;
 }

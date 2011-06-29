@@ -34,13 +34,13 @@ Reconstruct::Reconstruct( const std::string& name )
 : Component(name)
 {
 
-  properties()["brief"] = std::string("Reconstruction between 2 shape functions");
-  properties()["description"] = std::string("Perform reconstruction between 2 shapefunctions inside one element");
+  m_properties["brief"] = std::string("Reconstruction between 2 shape functions");
+  m_properties["description"] = std::string("Perform reconstruction between 2 shapefunctions inside one element");
 
   std::vector<std::string> from_to(2);
   from_to[0] = "e.g. CF.SFDM.SF.LineSolutionP2";
   from_to[1] = "e.g. CF.SFDM.SF.LineFluxP3";
-  properties().add_option( OptionArrayT<std::string>::create("from_to","From and To Shape Function","Shape function points from where the states are known",
+  m_options.add_option( OptionArrayT<std::string>::create("from_to","From and To Shape Function","Shape function points from where the states are known",
                                                              from_to ) )
       ->mark_basic()
       ->attach_trigger( boost::bind ( &Reconstruct::configure_from_to , this ) );
@@ -51,7 +51,7 @@ Reconstruct::Reconstruct( const std::string& name )
 
 void Reconstruct::configure_from_to()
 {
-  std::vector<std::string> from_to; property("from_to").put_value(from_to);
+  std::vector<std::string> from_to; option("from_to").put_value(from_to);
 
   if (is_not_null(m_from))
     remove_component(*m_from);

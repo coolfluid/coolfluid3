@@ -72,33 +72,33 @@ CField::CField ( const std::string& name  ) :
   regist_signal ( "create_data_storage" , "Allocate the data", "Create Storage" )->signal->connect ( boost::bind ( &CField::signal_create_data_storage, this, _1 ) );
 
   Option::Ptr uri_option;
-  uri_option = m_properties.add_option<OptionURI>("Topology","The field tree this field will be registered in",URI("cpath:"));
+  uri_option = m_options.add_option<OptionURI>("Topology","The field tree this field will be registered in",URI("cpath:"));
   uri_option->attach_trigger ( boost::bind ( &CField::config_tree,   this ) );
   uri_option->mark_basic();
 
   Option::Ptr option;
-  option = m_properties.add_option< OptionT<std::string> >("FieldType", "The type of the field", std::string("PointBased"));
+  option = m_options.add_option< OptionT<std::string> >("FieldType", "The type of the field", std::string("PointBased"));
   option->restricted_list() += std::string("ElementBased");
   option->restricted_list() += std::string("CellBased");
   option->restricted_list() += std::string("FaceBased");
   option->attach_trigger ( boost::bind ( &CField::config_field_type,   this ) );
   option->mark_basic();
 
-  option = m_properties.add_option< OptionT<std::string> >("Space", "The space of the field is based on", m_space_name);
+  option = m_options.add_option< OptionT<std::string> >("Space", "The space of the field is based on", m_space_name);
   option->link_to(&m_space_name);
   option->mark_basic();
 
   std::vector<std::string> var_names;
   var_names.push_back(name);
-  option = m_properties.add_option<OptionArrayT<std::string> >("VarNames","Names of the variables",var_names);
+  option = m_options.add_option<OptionArrayT<std::string> >("VarNames","Names of the variables",var_names);
   option->attach_trigger ( boost::bind ( &CField::config_var_names,   this ) );
   option->mark_basic();
   config_var_names();
 
   std::vector<std::string> var_types;
   var_types.push_back("scalar");
-  option = m_properties.add_option<OptionArrayT<std::string> >("VarTypes","Types of the variables",var_types);
-  m_properties["VarTypes"].as_option().restricted_list() += std::string("scalar") ,
+  option = m_options.add_option<OptionArrayT<std::string> >("VarTypes","Types of the variables",var_types);
+  m_options["VarTypes"].restricted_list() += std::string("scalar") ,
                                std::string("vector2D"),
                                std::string("vector3D"),
                                std::string("tensor2D"),
@@ -107,10 +107,10 @@ CField::CField ( const std::string& name  ) :
   option->mark_basic();
   config_var_types();
 
-  properties().add_option(OptionT<Uint>::create("iteration","Iteration","Iteration stamp of the field",m_iter_stamp) )
+  m_options.add_option(OptionT<Uint>::create("iteration","Iteration","Iteration stamp of the field",m_iter_stamp) )
       ->link_to(&m_iter_stamp);
 
-  properties().add_option(OptionT<Real>::create("time","Time","Time stamp of the field",m_time_stamp) )
+  m_options.add_option(OptionT<Real>::create("time","Time","Time stamp of the field",m_time_stamp) )
       ->link_to(&m_time_stamp);
 
   m_topology = create_static_component_ptr<CLink>("topology");
@@ -121,7 +121,7 @@ CField::CField ( const std::string& name  ) :
 
 void CField::config_var_types()
 {
-  std::vector<std::string> var_types; property("VarTypes").put_value(var_types);
+  std::vector<std::string> var_types; option("VarTypes").put_value(var_types);
 
   boost::regex e_scalar  ("(s(cal(ar)?)?)|1"     ,boost::regex::perl|boost::regex::icase);
   boost::regex e_vector2d("(v(ec(tor)?)?.?2d?)|2",boost::regex::perl|boost::regex::icase);
@@ -160,14 +160,14 @@ void CField::config_var_types()
     }
   }
   // give property a similar look, not all possible regex combinations
-  //property("VarTypes").change_value(var_types); // this triggers infinite recursion
+  //option("VarTypes").change_value(var_types); // this triggers infinite recursion
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CField::config_var_names()
 {
-  property("VarNames").put_value(m_var_names);
+  option("VarNames").put_value(m_var_names);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +175,7 @@ void CField::config_var_names()
 void CField::config_field_type()
 {
   std::string field_type;
-  property("FieldType").put_value(field_type);
+  option("FieldType").put_value(field_type);
   set_basis( Basis::Convert::instance().to_enum(field_type) );
 }
 
@@ -229,7 +229,7 @@ std::string CField::var_name(Uint i) const
 void CField::config_tree()
 {
   URI topology_uri;
-  property("Topology").put_value(topology_uri);
+  option("Topology").put_value(topology_uri);
   CRegion::Ptr topology = Core::instance().root().access_component(topology_uri).as_ptr<CRegion>();
   if ( is_null(topology) )
     throw CastingFailed (FromHere(), "Topology must be of a CRegion or derived type");
@@ -241,7 +241,7 @@ void CField::config_tree()
 void CField::set_topology(CRegion& region)
 {
   m_topology->link_to(region.self());
-  properties()["Topology"]=region.uri();
+  configure_option( "Topology", region.uri() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

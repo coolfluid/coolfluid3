@@ -81,11 +81,11 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   CField& coordinates = *mesh.create_component_ptr<CField>("coordinates");
   names = list_of("coordinates");
   types = list_of("Vector2D");
-  coordinates.configure_property("Topology",mesh.topology().uri());
-  coordinates.configure_property("VarNames",names);
-  coordinates.configure_property("VarTypes",types);
-  coordinates.configure_property("FieldType",std::string("PointBased"));
-  coordinates.configure_property("Space",std::string("space[0]"));
+  coordinates.configure_option("Topology",mesh.topology().uri());
+  coordinates.configure_option("VarNames",names);
+  coordinates.configure_option("VarTypes",types);
+  coordinates.configure_option("FieldType",std::string("PointBased"));
+  coordinates.configure_option("Space",std::string("space[0]"));
   coordinates.create_data_storage();
 
   BOOST_CHECK_EQUAL( coordinates.basis() , CField::Basis::POINT_BASED );
@@ -120,10 +120,10 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   CField& solution = *mesh.create_component_ptr<CField>("solution");
   names = list_of("rho")("U")("p");
   types = list_of("scalar")("Vector2D")("scalar");
-  solution.configure_property("Topology",mesh.topology().uri());
-  solution.configure_property("VarNames",names);
-  solution.configure_property("VarTypes",types);
-  solution.configure_property("FieldType",std::string("PointBased"));
+  solution.configure_option("Topology",mesh.topology().uri());
+  solution.configure_option("VarNames",names);
+  solution.configure_option("VarTypes",types);
+  solution.configure_option("FieldType",std::string("PointBased"));
   solution.create_data_storage();
 
 
@@ -164,10 +164,10 @@ BOOST_AUTO_TEST_CASE( FieldOperators )
   CField& solution_copy = *mesh.create_component_ptr<CField>("solution_copy");
   names = list_of("rho")("U")("p");
   types = list_of("scalar")("Vector2D")("scalar");
-  solution_copy.configure_property("Topology",mesh.topology().uri());
-  solution_copy.configure_property("VarNames",names);
-  solution_copy.configure_property("VarTypes",types);
-  solution_copy.configure_property("FieldType",std::string("PointBased"));
+  solution_copy.configure_option("Topology",mesh.topology().uri());
+  solution_copy.configure_option("VarNames",names);
+  solution_copy.configure_option("VarTypes",types);
+  solution_copy.configure_option("FieldType",std::string("PointBased"));
   solution_copy.create_data_storage();
 
   solution.data()[0][0] = 25.;

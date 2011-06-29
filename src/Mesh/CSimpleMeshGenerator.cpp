@@ -43,15 +43,17 @@ CSimpleMeshGenerator::CSimpleMeshGenerator ( const std::string& name  ) :
 {
   mark_basic();
 
-  properties().add_option<OptionArrayT<Uint> >("nb_cells","Number of Cells","Vector of number of cells in each direction",m_nb_cells)
+  m_options.add_option<OptionArrayT<Uint> >("nb_cells","Number of Cells","Vector of number of cells in each direction",m_nb_cells)
     ->link_to(&m_nb_cells)
     ->mark_basic();
-  properties().add_option<OptionArrayT<Real> >("lengths","Lengths","Vector of lengths each direction",m_lengths)
+
+  m_options.add_option<OptionArrayT<Real> >("lengths","Lengths","Vector of lengths each direction",m_lengths)
     ->link_to(&m_lengths)
     ->mark_basic();
-  properties().add_option(OptionT<Uint>::create("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",mpi::PE::instance().size()));
 
-  properties().add_option(OptionT<bool>::create("bdry","Boundary","Generate Boundary",true));
+  m_options.add_option(OptionT<Uint>::create("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",mpi::PE::instance().size()));
+
+  m_options.add_option(OptionT<bool>::create("bdry","Boundary","Generate Boundary",true));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,11 +73,11 @@ void CSimpleMeshGenerator::execute()
 
   if (m_nb_cells.size() == 1 && m_lengths.size() == 1)
   {
-    create_line(*m_mesh.lock(), m_lengths[0],m_nb_cells[0],property("nb_parts").value<Uint>(), property("bdry").value<bool>());
+    create_line(*m_mesh.lock(), m_lengths[0],m_nb_cells[0],option("nb_parts").value<Uint>(), option("bdry").value<bool>());
   }
   else if (m_nb_cells.size() == 2  && m_lengths.size() == 2)
   {
-    create_rectangle(*m_mesh.lock(), m_lengths[0],m_lengths[1],m_nb_cells[0],m_nb_cells[1],property("nb_parts").value<Uint>(),property("bdry").value<bool>());
+    create_rectangle(*m_mesh.lock(), m_lengths[0],m_lengths[1],m_nb_cells[0],m_nb_cells[1],option("nb_parts").value<Uint>(),option("bdry").value<bool>());
   }
   else
   {
@@ -95,7 +97,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = x_segments+1;
   num_obj[ELEMS] = x_segments;
-  hash.configure_property("nb_obj",num_obj);
+  hash.configure_option("nb_obj",num_obj);
 
   CRegion& region = mesh.topology().create_region("fluid");
   CNodes& nodes = mesh.topology().create_nodes(DIM_1D);
@@ -182,7 +184,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = (x_segments+1)*(y_segments+1);
   num_obj[ELEMS] = x_segments*y_segments;
-  hash.configure_property("nb_obj",num_obj);
+  hash.configure_option("nb_obj",num_obj);
 
   CRegion& region = mesh.topology().create_region("region");
   CNodes& nodes = region.create_nodes(DIM_2D);

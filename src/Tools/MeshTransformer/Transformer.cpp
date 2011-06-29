@@ -91,7 +91,7 @@ void Transformer::help( const std::string& param )
   boost_foreach(CBuilder& bdt, find_components_recursively<CBuilder>( *meshtrans_fac ))
   {
     CMeshTransformer::Ptr transformer = bdt.build("transformer")->as_ptr<CMeshTransformer>();
-    transformers_description[bdt.builder_concrete_type_name()] = transformer->property("brief").value<std::string>();
+    transformers_description[bdt.builder_concrete_type_name()] = transformer->option("brief").value<std::string>();
     name_to_transformers[bdt.builder_concrete_type_name()] = transformer;
   }
 
@@ -291,7 +291,7 @@ void Transformer::transform( const std::vector<std::string>& params )
   boost_foreach(CBuilder& bdt, find_components_recursively<CBuilder>( *meshtrans_fac ))
   {
     CMeshTransformer::Ptr transformer = bdt.build("transformer")->as_ptr<CMeshTransformer>();
-    transformers_description[bdt.builder_concrete_type_name()] = transformer->property("brief").value<std::string>();
+    transformers_description[bdt.builder_concrete_type_name()] = transformer->option("brief").value<std::string>();
     name_to_transformers[bdt.builder_concrete_type_name()] = transformer;
   }
 

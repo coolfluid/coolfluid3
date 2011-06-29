@@ -43,7 +43,7 @@ LoadBalance::LoadBalance( const std::string& name )
   m_partitioner = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
   add_static_component(*m_partitioner);
 
-  m_partitioner->configure_property("graph_package", std::string("PHG"));
+  m_partitioner->configure_option("graph_package", std::string("PHG"));
 }
 
 /////////////////////////////////////////////////////////////////////////////

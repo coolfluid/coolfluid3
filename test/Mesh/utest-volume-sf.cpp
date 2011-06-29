@@ -47,7 +47,7 @@ struct FunctorForDim<1>
   void operator()(const Uint segments, const ShapeFunctionT& sf, const NodesT& nodes, FunctorT& functor)
   {
     const Real step = ((ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
-    const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.; 
+    const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.;
     for(Uint i = 0; i <= segments; ++i)
     {
       typename ShapeFunctionT::MappedCoordsT mapped_coord;
@@ -64,7 +64,7 @@ struct FunctorForDim<2>
   void operator()(const Uint segments, const ShapeFunctionT& sf, const NodesT& nodes, FunctorT& functor)
   {
     const Real step = ((ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
-    const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.; 
+    const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.;
     for(Uint i = 0; i <= segments; ++i)
     {
       for(Uint j = 0; j <= segments; ++j)
@@ -84,7 +84,7 @@ struct FunctorForDim<3>
   void operator()(const Uint segments, const ShapeFunctionT& sf, const NodesT& nodes, FunctorT& functor)
   {
     const Real step = ((ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
-    const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.; 
+    const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.;
     for(Uint i = 0; i <= segments; ++i)
     {
       for(Uint j = 0; j <= segments; ++j)
@@ -124,11 +124,11 @@ struct VolumeSFFixture
     // If you get a compile error here, you forrgot to add nodes for a new volume shape function type
     nodes
     (
-      boost::fusion::make_pair<Line1DLagrangeP1>( (Line1DLagrangeP1::NodeMatrixT() << 
+      boost::fusion::make_pair<Line1DLagrangeP1>( (Line1DLagrangeP1::NodeMatrixT() <<
         5.,
         10.
       ).finished() ),
-      boost::fusion::make_pair<Triag2DLagrangeP1>( (Triag2DLagrangeP1::NodeMatrixT() << 
+      boost::fusion::make_pair<Triag2DLagrangeP1>( (Triag2DLagrangeP1::NodeMatrixT() <<
         0.5, 0.3,
         1.1, 1.2,
         0.8, 2.1
@@ -192,7 +192,7 @@ struct VolumeSFFixture
 
   // Store test nodes per shape type
   const NodesMapT nodes;
-  
+
   /// Applies a functor if the element is a volume element
   template<typename FunctorT>
   struct VolumeMPLFunctor
@@ -307,8 +307,8 @@ BOOST_FIXTURE_TEST_SUITE( VolumeSFSuite, VolumeSFFixture )
 
 BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 {
-  Core::instance().environment().configure_property("exception_outputs",false);
-  Core::instance().environment().configure_property("exception_backtrace",false);
+  Core::instance().environment().configure_option("exception_outputs",false);
+  Core::instance().environment().configure_option("exception_backtrace",false);
   VolumeMPLFunctor<CheckJacobianDeterminant> functor(nodes);
   boost::mpl::for_each<CellTypes>(functor);
 }

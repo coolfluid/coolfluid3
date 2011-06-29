@@ -34,8 +34,8 @@ BOOST_AUTO_TEST_CASE( test_Roe_adv_diff )
   RiemannSolver& riemannsolver = Core::instance().root().create_component("Roe-solver","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
 
   Component& state = Core::instance().root().create_component("solution-state","CF.AdvectionDiffusion.State1D");
-  riemannsolver.configure_property("solution_state",state.uri());
-  riemannsolver.configure_property("roe_state",std::string("CF.AdvectionDiffusion.State1D"));
+  riemannsolver.configure_option("solution_state",state.uri());
+  riemannsolver.configure_option("roe_state",std::string("CF.AdvectionDiffusion.State1D"));
 
   RealVector left(1);   left   << 1.5;
   RealVector right(1);  right  << 0.5;
@@ -58,8 +58,8 @@ BOOST_AUTO_TEST_CASE( test_Roe_euler )
   RiemannSolver& riemannsolver = Core::instance().root().create_component("Roe-solver","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
 
   Solver::State& state = Core::instance().root().create_component("solution-state","CF.Euler.Cons1D").as_type<Solver::State>();
-  riemannsolver.configure_property("solution_state",state.uri());
-  riemannsolver.configure_property("roe_state",std::string("CF.Euler.Roe1D"));
+  riemannsolver.configure_option("solution_state",state.uri());
+  riemannsolver.configure_option("roe_state",std::string("CF.Euler.Roe1D"));
 
   RealVector left(3);
   RealVector right(3);

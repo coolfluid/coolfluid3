@@ -20,8 +20,8 @@
 #include "Common/Assertions.hpp"
 
 #include "Common/PropertyList.hpp"
+#include "Common/OptionList.hpp"
 #include "Common/SignalHandler.hpp"
-#include "Common/TaggedObject.hpp"
 #include "Common/URI.hpp"
 
 namespace CF {
@@ -346,16 +346,34 @@ public: // functions
   /// @return Returns a constant referent to the property list
   const PropertyList& properties() const { return m_properties; }
 
-  /// access to the property
+  /// @return Returns a reference to the property with a provided name
   const Property& property(const std::string& optname ) const;
 
   /// access to the property
   Property& property(const std::string& optname );
 
+  /// @return Returns a reference to the option with a provided name
+  Option& option(const std::string& optname );
+
+  /// access to the property
+  const Option& option(const std::string& optname ) const;
+
+  /// @return Returns a reference to the property list
+  OptionList& options() { return m_options; }
+
+  /// @return Returns a constant referent to the property list
+  const OptionList& options() const { return m_options; }
+
   /// Configure one property, and trigger its actions
   /// @param [in] optname  The option name
   /// @param [in] val      The new value assigned to the option
   Component& configure_property(const std::string& optname, const boost::any& val);
+
+  /// Configure one option, and trigger its actions
+  /// @param [in] optname  The option name
+  /// @param [in] val      The new value assigned to the option
+  Component& configure_option(const std::string& optname, const boost::any& val);
+
   /// Configures one property recursevely through this component children,
   /// triggering its actions
   /// @param [in] optname  The option name
@@ -370,7 +388,7 @@ public: // functions
   /// Creates or modifies existing properties using the CF human readable language
   /// For single variables  --> var_name:type=value @n
   /// For arrays            --> var_name:array[type]=val1,val2
-  void change_property(const std::string args);
+  void change_option(const std::string args);
 
   /// @name SIGNALS
   //@{
@@ -482,8 +500,10 @@ protected: // data
   URI m_name;
   /// component current path
   URI m_path;
-  /// storage of the option list
+  /// storage of the property list
   PropertyList m_properties;
+  /// storage of the option list
+  OptionList m_options;
   /// list of sub-components
   CompStorage_t m_components;
   /// list of dynamic sub-components

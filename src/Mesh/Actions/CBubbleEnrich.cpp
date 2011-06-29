@@ -163,7 +163,7 @@ void CBubbleEnrich::execute()
     this->remove_component("backup");
 
     // change the shape function
-    elements.configure_property("element_type", std::string("CF.Mesh.SF.Triag2DLagrangeP2B") );
+    elements.configure_option("element_type", std::string("CF.Mesh.SF.Triag2DLagrangeP2B") );
 
   } // loop element types
 

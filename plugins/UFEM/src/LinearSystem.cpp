@@ -31,11 +31,11 @@ class ConfigurableConstant : public Component
 public:
   typedef boost::shared_ptr<ConfigurableConstant> Ptr;
   typedef boost::shared_ptr<ConfigurableConstant const> ConstPtr;
-  
+
   ConfigurableConstant(const std::string& name) : Component(name)
   {
   }
-  
+
   static std::string type_name () { return "ConfigurableConstant"; }
 
   /// Setup a default value and property
@@ -44,12 +44,12 @@ public:
     m_description = description;
     m_value = default_value;
   }
-  
+
   /// Add the property to modify the value to the given component
-  void add_property(Component& parent)
+  void add_option(Component& parent)
   {
-    parent.properties().add_option< OptionT<Real> >(name(), m_description, m_value)->mark_basic();
-    parent.properties()[name()].as_option().attach_trigger(boost::bind(&ConfigurableConstant::trigger_value, this));
+    parent.options().add_option< OptionT<Real> >(name(), m_description, m_value)->mark_basic();
+    parent.options()[name()].attach_trigger(boost::bind(&ConfigurableConstant::trigger_value, this));
     m_parent = parent.follow();
     parent.add_component(shared_from_this());
   }
@@ -62,10 +62,10 @@ public:
 
   void trigger_value()
   {
-    m_value = m_parent.lock()->property(name()).value<Real>();
+    m_value = m_parent.lock()->option(name()).value<Real>();
   }
 
-private:  
+private:
   Real m_value;
   std::string m_description;
   boost::weak_ptr<Component> m_parent;
@@ -73,12 +73,12 @@ private:
 
 LinearSystem::LinearSystem(const std::string& name) : CSolver(name)
 {
-  m_lss_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("LSS", "Linear system solver", std::string()) );
+  m_lss_path = boost::dynamic_pointer_cast<Common::OptionURI>( options().add_option<Common::OptionURI>("LSS", "Linear system solver", std::string()) );
   m_lss_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
   m_lss_path.lock()->mark_basic();
   m_lss_path.lock()->attach_trigger( boost::bind(&LinearSystem::trigger_lss_set, this) );
-  
-  m_region_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().add_option<Common::OptionURI>("Region", "Region over which the problem is solved", std::string()) );
+
+  m_region_path = boost::dynamic_pointer_cast<Common::OptionURI>( options().add_option<Common::OptionURI>("Region", "Region over which the problem is solved", std::string()) );
   m_region_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
   m_region_path.lock()->mark_basic();
 
@@ -95,7 +95,7 @@ LinearSystem::LinearSystem(const std::string& name) : CSolver(name)
   m_phases[ASSEMBLY] = this->create_component_ptr<CActionDirector>("PhaseAssembly");
   m_phases[POST_SOLVE] = this->create_component_ptr<CActionDirector>("PhasePostSolve");
   m_phases[POST_INCREMENT] = this->create_component_ptr<CActionDirector>("PhasePostIncrement");
-  
+
   signal("create_component")->is_hidden = true;
   signal("rename_component")->is_hidden = true;
   signal("delete_component")->is_hidden = true;
@@ -132,14 +132,14 @@ void LinearSystem::signal_add_dirichlet_bc( SignalArgs& args )
 
   ConfigurableConstant::Ptr bc_value = allocate_component<ConfigurableConstant>(bc_name);
   bc_value->setup("Dirichlet boundary condition value", 0.);
-  
+
   MeshTerm<0, ScalarField> bc_var(field_name, var_name);
 
   CAction& bc = build_nodes_action(bc_name, *this, *this, m_physical_model, dirichlet( lss(), bc_var ) = store(bc_value->value()) );
   bc.add_tag("dirichlet_bc");
-  
+
   // Make sure the BC value can be configured from the BC action itself
-  bc_value->add_property(bc);
+  bc_value->add_option(bc);
 }
 
 void LinearSystem::signature_add_initial_condition(SignalArgs& args)
@@ -162,13 +162,13 @@ void LinearSystem::signal_add_initial_condition( SignalArgs& args )
 
   ConfigurableConstant::Ptr value = allocate_component<ConfigurableConstant>(name);
   value->setup("Initial condition value", 0.);
-  
+
   MeshTerm<0, ScalarField> var(field_name, var_name);
 
   CAction& ic = build_nodes_action(name, *this, *this, m_physical_model, var = store(value->value()), m_region_path.lock() );
   ic.add_tag("initial_condition");
-  
-  value->add_property(ic);
+
+  value->add_option(ic);
 }
 
 void LinearSystem::solve()
@@ -186,7 +186,7 @@ void LinearSystem::signal_initialize_fields(SignalArgs& node)
     throw ValueNotFound(FromHere(), "Region at path " +  m_region_path.lock()->value_str() + " not found when looking for calculation Region.");
 
   CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(*region);
-  
+
   // Create the fields and adjust the LSS size
   m_physical_model.create_fields(mesh, properties());
   lss().resize( m_physical_model.nb_dofs() * mesh.nodes().size() );
@@ -196,7 +196,7 @@ void LinearSystem::signal_initialize_fields(SignalArgs& node)
   {
     action.execute();
   }
-  
+
   // Post-init phase
   m_phases[POST_INIT].lock()->execute();
 }
@@ -215,7 +215,7 @@ void LinearSystem::on_solve()
 
   // Build the system
   m_phases[ASSEMBLY].lock()->execute();
-  
+
   // Set the boundary conditions
   boost_foreach(CAction& bc_action, find_components_with_tag<CAction>(*this, "dirichlet_bc"))
   {
@@ -224,13 +224,13 @@ void LinearSystem::on_solve()
 
   // Solve the linear system
   lss().solve();
-  
+
   // Post-solve phase
   m_phases[POST_SOLVE].lock()->execute();
-  
+
   // Increment solution
   m_physical_model.update_fields(mesh, lss().solution());
-  
+
   // Post increment phase
   m_phases[POST_INCREMENT].lock()->execute();
 }
@@ -239,11 +239,11 @@ void LinearSystem::on_solve()
 void LinearSystem::trigger_lss_set()
 {
   // Remove actions from the directors
-  m_phases[POST_INIT].lock()->property("ActionList").change_value(std::vector<URI>());
-  m_phases[ASSEMBLY].lock()->property("ActionList").change_value(std::vector<URI>());
-  m_phases[POST_SOLVE].lock()->property("ActionList").change_value(std::vector<URI>());
-  m_phases[POST_INCREMENT].lock()->property("ActionList").change_value(std::vector<URI>());
-  
+  m_phases[POST_INIT].lock()->option("ActionList").change_value(std::vector<URI>());
+  m_phases[ASSEMBLY].lock()->option("ActionList").change_value(std::vector<URI>());
+  m_phases[POST_SOLVE].lock()->option("ActionList").change_value(std::vector<URI>());
+  m_phases[POST_INCREMENT].lock()->option("ActionList").change_value(std::vector<URI>());
+
   // Any boundary conditions are invalidated by setting the LSS
   boost_foreach(CAction& bc_action, find_components_with_tag<CAction>(*this, "dirichlet_bc"))
   {
@@ -253,11 +253,11 @@ void LinearSystem::trigger_lss_set()
   m_lss = access_component_ptr( m_lss_path.lock()->value_str() )->as_ptr<CEigenLSS>();
 
   add_actions();
-  
+
   // Move any configurable constants to the system builder component
   for(ConstantsT::iterator it = m_configurable_constants.begin(); it != m_configurable_constants.end(); ++it)
-    boost::dynamic_pointer_cast<ConfigurableConstant>(it->second)->add_property(*this);
-  
+    boost::dynamic_pointer_cast<ConfigurableConstant>(it->second)->add_option(*this);
+
   m_configurable_constants.clear();
 }
 
@@ -271,9 +271,9 @@ StoredReference<Real> LinearSystem::add_configurable_constant(const std::string&
 
 void LinearSystem::append_action(CAction& action, const LinearSystem::PhasesT phase)
 {
-  Property& actions_prop = m_phases[phase].lock()->property("ActionList");
+  Option& actions_prop = m_phases[phase].lock()->option("ActionList");
   std::vector<URI> actions; actions_prop.put_value(actions);
-  
+
   actions.push_back(action.uri());
   actions_prop.change_value(actions);
 }

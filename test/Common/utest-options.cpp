@@ -72,10 +72,10 @@ struct SelectValueType
 
 /// Add option, variant with default parameter
 template<typename T>
-typename SelectOptionType<T>::type& add_option(PropertyList& properties, const std::string& name, const typename SelectValueType<T>::type& default_value = typename SelectValueType<T>::type())
+typename SelectOptionType<T>::type& add_option(OptionList& options, const std::string& name, const typename SelectValueType<T>::type& default_value = typename SelectValueType<T>::type())
 {
   typedef typename SelectOptionType<T>::type OptionType;
-  return dynamic_cast<OptionType&>(*properties.add_option<OptionType>(name, "", default_value));
+  return dynamic_cast<OptionType&>(*options.add_option<OptionType>(name, "", default_value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,13 +83,13 @@ typename SelectOptionType<T>::type& add_option(PropertyList& properties, const s
 BOOST_AUTO_TEST_CASE( StringOption )
 {
   CRoot& root = Core::instance().root();
-  
-  //root.properties().add_option< OptionT<std::string> >("test_option", "Test Option", "test01");
-  add_option<std::string>(root.properties(), "test_option", "test01");
-  BOOST_CHECK_EQUAL(root.property("test_option").value_str(), "test01");
-  
-  root.property("test_option").as_option().change_value(std::string("test02"));
-  BOOST_CHECK_EQUAL(root.property("test_option").value_str(), "test02");
+
+  //root.options().add_option< OptionT<std::string> >("test_option", "Test Option", "test01");
+  add_option<std::string>(root.options(), "test_option", "test01");
+  BOOST_CHECK_EQUAL(root.option("test_option").value_str(), "test01");
+
+  root.option("test_option").change_value(std::string("test02"));
+  BOOST_CHECK_EQUAL(root.option("test_option").value_str(), "test02");
 }
 
 BOOST_AUTO_TEST_CASE( ComponentOption )
@@ -97,55 +97,55 @@ BOOST_AUTO_TEST_CASE( ComponentOption )
   ExceptionManager::instance().ExceptionDumps = false;
   ExceptionManager::instance().ExceptionAborts = false;
   ExceptionManager::instance().ExceptionOutputs = false;
-  
+
   CRoot& root = Core::instance().root();
   const Component& referred = root.create_component<Component>("ReferredComponent");
-  
-  //OptionComponent<Component>::Ptr opt = boost::dynamic_pointer_cast< OptionComponent<Component> >(root.properties().add_option< OptionComponent<Component> >("test_component_option", "Test component option", root.uri()));
-  OptionComponent<Component>& opt = add_option<Component>(root.properties(), "test_component_option", root.uri());
-  BOOST_CHECK(root.uri() == root.property("test_component_option").as_option().value<URI>());
+
+  //OptionComponent<Component>::Ptr opt = boost::dynamic_pointer_cast< OptionComponent<Component> >(root.options().add_option< OptionComponent<Component> >("test_component_option", "Test component option", root.uri()));
+  OptionComponent<Component>& opt = add_option<Component>(root.options(), "test_component_option", root.uri());
+  BOOST_CHECK(root.uri() == root.option("test_component_option").value<URI>());
   BOOST_CHECK(root.name() == opt.component().name());
-  
-  root.property("test_component_option").as_option().change_value(referred.uri());
-  BOOST_CHECK(referred.uri() == root.property("test_component_option").as_option().value<URI>());
+
+  root.option("test_component_option").change_value(referred.uri());
+  BOOST_CHECK(referred.uri() == root.option("test_component_option").value<URI>());
   BOOST_CHECK(referred.name() == opt.component().name());
-  
+
   const CGroup& group = root.create_component<CGroup>("TestGroup");
-  //OptionComponent<CGroup>::Ptr group_opt = boost::dynamic_pointer_cast< OptionComponent<CGroup> >(root.properties().add_option< OptionComponent<CGroup> >("test_group_option", "Test group option", URI()));
-  OptionComponent<CGroup>& group_opt = add_option<CGroup>(root.properties(), "test_group_option");
+  //OptionComponent<CGroup>::Ptr group_opt = boost::dynamic_pointer_cast< OptionComponent<CGroup> >(root.options().add_option< OptionComponent<CGroup> >("test_group_option", "Test group option", URI()));
+  OptionComponent<CGroup>& group_opt = add_option<CGroup>(root.options(), "test_group_option");
   try
   {
-    root.property("test_group_option").as_option().change_value(referred.uri());
+    root.option("test_group_option").change_value(referred.uri());
     BOOST_CHECK(false); // Above should throw
   }
   catch(CastingFailed&)
   {
     BOOST_CHECK(true);
   }
-  
-  root.property("test_group_option").as_option().change_value(group.uri());
+
+  root.option("test_group_option").change_value(group.uri());
   BOOST_CHECK(&group == &group_opt.component());
 }
 
 BOOST_AUTO_TEST_CASE( TestOptionArray )
 {
   CRoot& root = Core::instance().root();
-  
+
   std::vector<int> def;
   def += 1,2,3,4,5,6,7,8,9;
-  BOOST_CHECK(add_option< std::vector<int> >(root.properties(), "test_array_option", def).value_vect() == def);
-  
-  BOOST_CHECK(def == root.property("test_array_option").as_option().value< std::vector<int> >());
+  BOOST_CHECK(add_option< std::vector<int> >(root.options(), "test_array_option", def).value_vect() == def);
+
+  BOOST_CHECK(def == root.option("test_array_option").value< std::vector<int> >());
 }
 
 BOOST_AUTO_TEST_CASE( TestOptionURI )
 {
   CRoot& root = Core::instance().root();
-  
+
   // Since the result is properly typed, we can immediately call supported_protocol
-  add_option<URI>(root.properties(), "test_uri_option", root.uri()).supported_protocol(CF::Common::URI::Scheme::CPATH);
-  
-  BOOST_CHECK(root.uri() == root.property("test_uri_option").as_option().value< URI >());
+  add_option<URI>(root.options(), "test_uri_option", root.uri()).supported_protocol(CF::Common::URI::Scheme::CPATH);
+
+  BOOST_CHECK(root.uri() == root.option("test_uri_option").value< URI >());
 }
 
 //////////////////////////////////////////////////////////////////////////////

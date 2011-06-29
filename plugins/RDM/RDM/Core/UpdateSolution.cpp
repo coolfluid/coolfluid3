@@ -39,11 +39,11 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
 
   // options
 
-  m_properties.add_option(OptionComponent<CField>::create("solution","Solution","Solution field", &m_solution));
+  m_options.add_option(OptionComponent<CField>::create("solution","Solution","Solution field", &m_solution));
 
-  m_properties.add_option(OptionComponent<CField>::create("wave_speed","WaveSpeed","Wave speed field", &m_wave_speed));
+  m_options.add_option(OptionComponent<CField>::create("wave_speed","WaveSpeed","Wave speed field", &m_wave_speed));
 
-  m_properties.add_option(OptionComponent<CField>::create("residual","Residual","Residual field", &m_residual));
+  m_options.add_option(OptionComponent<CField>::create("residual","Residual","Residual field", &m_residual));
 
 }
 
@@ -59,7 +59,7 @@ void UpdateSolution::execute()
   CTable<Real>& wave_speed   = m_wave_speed.lock()->data();
   CTable<Real>& residual     = m_residual.lock()->data();
 
-  const Real CFL = parent().property("cfl").value<Real>();
+  const Real CFL = parent().option("cfl").value<Real>();
 
   const Uint nbdofs = solution.size();
   const Uint nbvars = solution.row_size();

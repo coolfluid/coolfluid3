@@ -39,8 +39,8 @@ CPartitioner::CPartitioner ( const std::string& name ) :
   m_partitioned(false)
 {
 
-  m_properties.add_option<OptionT <std::string> >("graph_package","Graph Package","External library zoltan will use for graph partitioning","PHG")->mark_basic();
-  m_properties.add_option<OptionT <Uint> >("debug_level","Debug Level","Internal Zoltan debug level (0 to 10)",0);
+  m_options.add_option<OptionT <std::string> >("graph_package","Graph Package","External library zoltan will use for graph partitioning","PHG")->mark_basic();
+  m_options.add_option<OptionT <Uint> >("debug_level","Debug Level","Internal Zoltan debug level (0 to 10)",0);
 
   float version;
   int error_code = Zoltan_Initialize(Core::instance().argc(),Core::instance().argv(),&version);

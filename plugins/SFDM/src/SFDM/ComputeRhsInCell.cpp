@@ -49,31 +49,31 @@ ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
   Solver::Actions::CLoopOperation(name)
 {
   // options
-  m_properties.add_option(OptionURI::create("solution","Solution","Solution to calculate RHS for", URI("cpath:"),URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("solution","Solution","Solution to calculate RHS for", URI("cpath:"),URI::Scheme::CPATH))
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_solution,   this ) );
 
-  m_properties.add_option(OptionURI::create("residual","Residual","Residual to be calculated", URI("cpath:"),URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("residual","Residual","Residual to be calculated", URI("cpath:"),URI::Scheme::CPATH))
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_residual,   this ) );
 
-  m_properties.add_option(OptionURI::create("wave_speed","Wave Speed","Wave speed to be calculated. Used for stability condition.", URI("cpath:"),URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("wave_speed","Wave Speed","Wave speed to be calculated. Used for stability condition.", URI("cpath:"),URI::Scheme::CPATH))
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_wavespeed,   this ) );
 
-  m_properties.add_option(OptionURI::create("jacobian_determinant","Jacobian Determinant","Jacobian Determinant of the Transformation to mapped space", URI("cpath:"),URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("jacobian_determinant","Jacobian Determinant","Jacobian Determinant of the Transformation to mapped space", URI("cpath:"),URI::Scheme::CPATH))
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_jacobian_determinant,   this ) );
 
-  properties().add_option( OptionT<std::string>::create("riemann_solver","Riemann Solver","The component to solve the Rieman Problem on cell-faces","CF.RiemannSolvers.Roe") )
+  m_options.add_option( OptionT<std::string>::create("riemann_solver","Riemann Solver","The component to solve the Rieman Problem on cell-faces","CF.RiemannSolvers.Roe") )
       ->mark_basic()
       ->attach_trigger ( boost::bind ( &ComputeRhsInCell::build_riemann_solver, this) );
 
-  m_properties.add_option( OptionComponent<Solver::State>::create("solution_state","Solution State","The component describing the solution state",&m_sol_state) )
+  m_options.add_option( OptionComponent<Solver::State>::create("solution_state","Solution State","The component describing the solution state",&m_sol_state) )
       ->attach_trigger (boost::bind ( &ComputeRhsInCell::config_solution_physics, this) );
 
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &ComputeRhsInCell::trigger_elements,   this ) );
+  m_options["Elements"].attach_trigger ( boost::bind ( &ComputeRhsInCell::trigger_elements,   this ) );
 
   m_solution             = create_static_component_ptr<CMultiStateFieldView>("solution_view");
   m_residual             = create_static_component_ptr<CMultiStateFieldView>("residual_view");
@@ -90,7 +90,7 @@ ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
 void ComputeRhsInCell::config_solution()
 {
   URI uri;
-  property("solution").put_value(uri);
+  option("solution").put_value(uri);
   CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
@@ -113,7 +113,7 @@ void ComputeRhsInCell::config_solution_physics()
 void ComputeRhsInCell::config_residual()
 {
   URI uri;
-  property("residual").put_value(uri);
+  option("residual").put_value(uri);
   CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
@@ -125,7 +125,7 @@ void ComputeRhsInCell::config_residual()
 void ComputeRhsInCell::config_jacobian_determinant()
 {
   URI uri;
-  property("jacobian_determinant").put_value(uri);
+  option("jacobian_determinant").put_value(uri);
   CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
@@ -137,7 +137,7 @@ void ComputeRhsInCell::config_jacobian_determinant()
 void ComputeRhsInCell::config_wavespeed()
 {
   URI uri;
-  property("wave_speed").put_value(uri);
+  option("wave_speed").put_value(uri);
   CField::Ptr comp = Core::instance().root().access_component_ptr_checked(uri)->as_ptr_checked<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
@@ -162,12 +162,12 @@ void ComputeRhsInCell::trigger_elements()
     std::vector<std::string> solution_from_to(2);
     solution_from_to[0] = m_solution_sf->derived_type_name();
     solution_from_to[1] = m_flux_sf->derived_type_name();
-    m_reconstruct_solution->configure_property("from_to",solution_from_to);
+    m_reconstruct_solution->configure_option("from_to",solution_from_to);
 
     std::vector<std::string> flux_from_to(2);
     flux_from_to[0] = m_flux_sf->line().derived_type_name();
     flux_from_to[1] = m_solution_sf->line().derived_type_name();
-    m_reconstruct_flux->configure_property("from_to",flux_from_to);
+    m_reconstruct_flux->configure_option("from_to",flux_from_to);
 
     m_dimensionality = elements().element_type().dimensionality();
     // Create normals for every orientation
@@ -190,7 +190,7 @@ void ComputeRhsInCell::build_riemann_solver()
 {
   if (is_not_null(m_riemann_solver))
     remove_component(*m_riemann_solver);
-  m_riemann_solver = create_component("riemann_solver",property("riemann_solver").value<std::string>()).as_ptr<RiemannSolver>();
+  m_riemann_solver = create_component("riemann_solver",option("riemann_solver").value<std::string>()).as_ptr<RiemannSolver>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

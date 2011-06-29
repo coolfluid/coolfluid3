@@ -72,10 +72,10 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->configure_property("parent",URI("//Root"));
-  meshgenerator->configure_property("name",std::string("line"));
-  meshgenerator->configure_property("nb_cells",std::vector<Uint>(1,10));
-  meshgenerator->configure_property("lengths",std::vector<Real>(1,10.));
+  meshgenerator->configure_option("parent",URI("//Root"));
+  meshgenerator->configure_option("name",std::string("line"));
+  meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
+  meshgenerator->configure_option("lengths",std::vector<Real>(1,10.));
   meshgenerator->execute();
   CMesh& mesh = Core::instance().root().get_child("line").as_type<CMesh>();
 
@@ -112,10 +112,10 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->configure_property("parent",URI("//Root"));
-  meshgenerator->configure_property("name",std::string("rect"));
-  meshgenerator->configure_property("nb_cells",std::vector<Uint>(2,2));
-  meshgenerator->configure_property("lengths",std::vector<Real>(2,2.));
+  meshgenerator->configure_option("parent",URI("//Root"));
+  meshgenerator->configure_option("name",std::string("rect"));
+  meshgenerator->configure_option("nb_cells",std::vector<Uint>(2,2));
+  meshgenerator->configure_option("lengths",std::vector<Real>(2,2.));
   meshgenerator->execute();
   CMesh& mesh = Core::instance().root().get_child("rect").as_type<CMesh>();
 

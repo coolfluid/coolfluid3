@@ -26,7 +26,7 @@ CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
 {
   mark_basic();
 
-  properties().add_option(OptionComponent<CMesh>::create("mesh","Mesh","The mesh to be transformed",&m_mesh))
+  m_options.add_option(OptionComponent<CMesh>::create("mesh","Mesh","The mesh to be transformed",&m_mesh))
     ->mark_basic();
 }
 

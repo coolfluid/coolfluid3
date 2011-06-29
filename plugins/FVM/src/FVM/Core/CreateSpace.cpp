@@ -51,7 +51,7 @@ void CreateSpace::execute()
 
   boost_foreach(CEntities& entities, find_components_recursively_with_filter<CEntities>(mesh,IsElementsVolume()))
   {
-    entities.create_space("P0","CF.Mesh.SF.SF"+entities.element_type().shape_name()+"Lagrange"+property("P0").value_str());
+    entities.create_space("P0","CF.Mesh.SF.SF"+entities.element_type().shape_name()+"Lagrange"+option("P0").value_str());
   }
 }
 

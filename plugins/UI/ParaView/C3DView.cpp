@@ -51,20 +51,20 @@ C3DView::C3DView(const std::string& name) :
 
   // options
 
-  m_properties.add_option( OptionComponent<Mesh::CMesh>::create("mesh","Mesh",
+  m_options.add_option( OptionComponent<Mesh::CMesh>::create("mesh","Mesh",
                                                           "Mesh to visualize with given refresh rate",
                                                           &m_mesh))
     ->mark_basic();
 
   m_filename = "solution_field.vtk";
-  m_properties.add_option< OptionT<std::string> >("filename", "File Name", "File name to dumpmesh in VTK format", m_filename );
+  m_options.add_option< OptionT<std::string> >("filename", "File Name", "File name to dumpmesh in VTK format", m_filename );
 
   m_refresh_rate = 1;
-  m_properties.add_option< OptionT<Uint> >("refresh_rate", "Refresh Rate", "Number of iterations between refreshing the mesh / solution", m_refresh_rate )
+  m_options.add_option< OptionT<Uint> >("refresh_rate", "Refresh Rate", "Number of iterations between refreshing the mesh / solution", m_refresh_rate )
   ->mark_basic();
 
   m_port = 8080;
-  m_properties.add_option< OptionT<Uint> >("paraview_server_port", "Server Port", "Port used on paraview server launch", m_port )
+  m_options.add_option< OptionT<Uint> >("paraview_server_port", "Server Port", "Port used on paraview server launch", m_port )
   ->mark_basic();
 
   // signals
@@ -158,7 +158,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
     Mesh::CMesh& mesh = find_component_recursively<Mesh::CMesh>( Core::instance().root() );
     URI mesh_path = mesh.uri();
-    configure_property("mesh", mesh_path );
+    configure_option("mesh", mesh_path );
   }
 //  throw SetupError( FromHere(), "Mesh option is not configured");
 
@@ -174,7 +174,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
     boost_foreach(const CField& field, find_components_recursively<CField>(*m_mesh.lock()))
       fields.push_back(field.uri());
 
-    writer.configure_property("fields",fields);
+    writer.configure_option("fields",fields);
 
     writer.write_from_to( *m_mesh.lock(), m_filename);
 

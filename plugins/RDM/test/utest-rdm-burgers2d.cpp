@@ -157,9 +157,9 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , burgers2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  solver.configure_property("domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("cfl", 0.5);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 250u);;
+  solver.configure_option("domain",URI("cpath:../Domain"));
+  solver.get_child("time_stepping").configure_option("cfl", 0.5);;
+  solver.get_child("time_stepping").configure_option("MaxIter", 250u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , burgers2d_local_fixture )
 
   std::vector<std::string> fns;
   fns.push_back("1.5-2.0*x");
-  inletbc->configure_property("functions", fns);
+  inletbc->configure_option("functions", fns);
 
   BOOST_CHECK(true);
 }
@@ -331,9 +331,9 @@ BOOST_FIXTURE_TEST_CASE( output , burgers2d_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.uri());
 
-  mesh_writer->configure_property("fields",fields);
-  mesh_writer->configure_property("file",URI(model.name()+".msh"));
-  mesh_writer->configure_property("mesh",mesh->uri());
+  mesh_writer->configure_option("fields",fields);
+  mesh_writer->configure_option("file",URI(model.name()+".msh"));
+  mesh_writer->configure_option("mesh",mesh->uri());
 
   mesh_writer->execute();
 

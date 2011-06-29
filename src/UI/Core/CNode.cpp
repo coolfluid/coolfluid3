@@ -159,7 +159,7 @@ void CNode::setProperties(const SignalArgs & options)
       {
         Option::Ptr opt = makeOption(node);
         cf_assert( opt.get() != nullptr );
-        m_properties.store[ opt->name() ] = opt;
+        m_options.store[ opt->name() ] = opt;
       }
       else // it is a property
       {
@@ -178,17 +178,17 @@ void CNode::setProperties(const SignalArgs & options)
             if(m_properties.check(keyVal))
             {
               if( typeVal == Protocol::Tags::type<bool>() )
-                configure_property(keyVal, from_str<bool>(value));
+                configure_option(keyVal, from_str<bool>(value));
               else if( typeVal == Protocol::Tags::type<int>() )
-                configure_property(keyVal, from_str<int>(value));
+                configure_option(keyVal, from_str<int>(value));
               else if( typeVal == Protocol::Tags::type<CF::Uint>() )
-                configure_property(keyVal, from_str<CF::Uint>(value));
+                configure_option(keyVal, from_str<CF::Uint>(value));
               else if( typeVal == Protocol::Tags::type<CF::Real>() )
-                configure_property(keyVal, from_str<CF::Real>(value));
+                configure_option(keyVal, from_str<CF::Real>(value));
               else if( typeVal == Protocol::Tags::type<std::string>() )
-                configure_property(keyVal, std::string(value));
+                configure_option(keyVal, std::string(value));
               else if( typeVal == Protocol::Tags::type<URI>() )
-                configure_property(keyVal, from_str<URI>(value));
+                configure_option(keyVal, from_str<URI>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typeVal + ": Unknown type.");
             }
@@ -303,7 +303,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & opts)
 
   for( ; it != opts.end() ; it++)
   {
-    Option& option = m_properties.option( it.key().toStdString() );
+    Option& option = m_options.option( it.key().toStdString() );
     std::string type( option.type() );
     std::string name( it.key().toStdString() );
     std::string value( it.value().toStdString() );
@@ -501,22 +501,24 @@ void CNode::listOptions(QList<Option::ConstPtr> & list)
 {
   QMutexLocker locker(m_mutex);
 
-  if(!m_contentListed)
-    fetchContent();
-  else
-  {
-    PropertyList::PropertyStorage_t::const_iterator it;
+  throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
 
-    it = m_properties.store.begin();
+//  if(!m_contentListed)
+//    fetchContent();
+//  else
+//  {
+//    PropertyList::PropertyStorage_t::const_iterator it;
 
-    for( ; it != m_properties.store.end() ; it++)
-    {
-      Property::Ptr prop = it->second;
+//    it = m_properties.store.begin();
 
-      if(prop->is_option())
-        list.append(boost::dynamic_pointer_cast<Option const>(prop));
-    }
-  }
+//    for( ; it != m_properties.store.end() ; it++)
+//    {
+//      Property::Ptr prop = it->second;
+
+//      if(prop->is_option())
+//        list.append(boost::dynamic_pointer_cast<Option const>(prop));
+//    }
+//  }
 }
 
 ////////////////////////////////////////////////////////////////////////////

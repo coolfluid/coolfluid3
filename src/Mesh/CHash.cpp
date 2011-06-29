@@ -26,13 +26,13 @@ CHash::CHash ( const std::string& name ) :
     m_base(0),
     m_nb_parts(mpi::PE::instance().size())
 {
-  m_properties.add_option<OptionT <Uint> >("nb_obj","Number of Objects","Total number of objects",m_nb_obj)->mark_basic();
-  m_properties.add_option<OptionT <Uint> >("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
-  m_properties.add_option<OptionT <Uint> >("base","Base","Start index for global numbering",m_base);
+  m_options.add_option<OptionT <Uint> >("nb_obj","Number of Objects","Total number of objects",m_nb_obj)->mark_basic();
+  m_options.add_option<OptionT <Uint> >("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
+  m_options.add_option<OptionT <Uint> >("base","Base","Start index for global numbering",m_base);
 
-  m_properties["nb_parts"].as_option().link_to( &m_nb_parts );
-  m_properties["nb_obj"].as_option().link_to( &m_nb_obj );
-  m_properties["base"].as_option().link_to( &m_base );
+  m_options["nb_parts"].link_to( &m_nb_parts );
+  m_options["nb_obj"].link_to( &m_nb_obj );
+  m_options["base"].link_to( &m_base );
 }
 
 //////////////////////////////////////////////////////////////////////////////

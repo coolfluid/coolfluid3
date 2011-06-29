@@ -21,8 +21,7 @@ namespace Common {
 /////////////////////////////////////////////////////////////////////////////////////
 
 Property::Property (boost::any value)
-  : m_value(value),
-    m_is_option(false)
+  : m_value(value)
 {
 }
 
@@ -62,29 +61,26 @@ void Property::change_value ( const boost::any& value )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Option & Property::as_option()
-{
-  cf_assert(m_is_option);
-  throw NotImplemented(FromHere(), "Property::as_option() -> should be removed");
-//  return *(static_cast< Option* >(this));
-}
+//Option & Property::as_option()
+//{
+//  cf_assert(m_is_option);
+//  throw NotImplemented(FromHere(), "Property::as_option() -> should be removed");
+////  return *(static_cast< Option* >(this));
+//}
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////
 
-const Option & Property::as_option() const
-{
-  cf_assert(m_is_option);
-  throw NotImplemented(FromHere(), "Property::as_option() -> should be removed");
-//  return *(static_cast<const Option* >(this));
-}
+//const Option & Property::as_option() const
+//{
+//  cf_assert(m_is_option);
+//  throw NotImplemented(FromHere(), "Property::as_option() -> should be removed");
+////  return *(static_cast<const Option* >(this));
+//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const char * Property::tag() const
 {
-  if(is_option())
-    return as_option().tag();
-
   return class_name_from_typeinfo(m_value.type()).c_str();
 }
 

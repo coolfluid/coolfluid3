@@ -6,7 +6,7 @@
 
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
- 
+
 
 #include "Mesh/CInterpolator.hpp"
 #include "Mesh/CMesh.hpp"
@@ -24,22 +24,22 @@ using namespace Common::XML;
 CInterpolator::CInterpolator ( const std::string& name  ) :
   Component ( name )
 {
-  properties().add_option(OptionComponent<CField>::create("source","Source Field","Field to interpolate from",&m_source))
-    ->mark_basic();
-    
-  properties().add_option(OptionComponent<CField>::create("target","TargetField","Field to interpolate to",&m_target))
+  m_options.add_option(OptionComponent<CField>::create("source","Source Field","Field to interpolate from",&m_source))
     ->mark_basic();
 
-  properties().add_option(OptionT<bool>::create("store","Store","Flag to store weights and stencils used for faster interpolation",true));
-  
-  properties().add_option(OptionT<std::string>::create("stencil_computer","Stencil Computer","Builder name of the stencil computer",std::string("stencilcomputer")))
+  m_options.add_option(OptionComponent<CField>::create("target","TargetField","Field to interpolate to",&m_target))
+    ->mark_basic();
+
+  m_options.add_option(OptionT<bool>::create("store","Store","Flag to store weights and stencils used for faster interpolation",true));
+
+  m_options.add_option(OptionT<std::string>::create("stencil_computer","Stencil Computer","Builder name of the stencil computer",std::string("stencilcomputer")))
     ->attach_trigger( boost::bind( &CInterpolator::configure_stencil_computer, this ) )
     ->mark_basic();
-    
-  properties().add_option(OptionT<std::string>::create("function","Interpolator Function","Builder name of the interpolator function",std::string("function")))
+
+  m_options.add_option(OptionT<std::string>::create("function","Interpolator Function","Builder name of the interpolator function",std::string("function")))
     ->attach_trigger( boost::bind( &CInterpolator::configure_interpolator_function, this ) )
     ->mark_basic();
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,14 +54,14 @@ void CInterpolator::configure_stencil_computer()
 {
   if (is_not_null(m_stencil_computer))
     remove_component(m_stencil_computer->name());
-  m_stencil_computer = build_component_abstract_type<CStencilComputer>(property("stencil_computer").value<std::string>(),"stencil_computer");
+  m_stencil_computer = build_component_abstract_type<CStencilComputer>(option("stencil_computer").value<std::string>(),"stencil_computer");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CInterpolator::configure_interpolator_function()
 {
-  
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

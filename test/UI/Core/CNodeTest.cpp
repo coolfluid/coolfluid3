@@ -196,9 +196,7 @@ void CNodeTest::test_setProperties()
   GUI_CHECK_NO_THROW( prop = &node.properties()["prop"] );
   // 2. should be of type "std::string"
   QCOMPARE( QString(prop->type().c_str()), QString(Protocol::Tags::type<std::string>()) );
-  // 3. should be a property
-  QVERIFY( !prop->is_option() );
-  // 4. should have the value "Hello, World!"
+  // 3. should have the value "Hello, World!"
   QCOMPARE( QString(prop->value<std::string>().c_str()), QString("Hello, World!") );
 
   //
@@ -208,9 +206,7 @@ void CNodeTest::test_setProperties()
   GUI_CHECK_NO_THROW( prop = &node.properties()["anotherProp"] );
   // 2. should be of type "bool"
   QCOMPARE( QString(prop->type().c_str()), QString(Protocol::Tags::type<bool>()) );
-  // 3. should be a property
-  QVERIFY( !prop->is_option() );
-  // 4. should have the value false
+  // 3. should have the value false
   QVERIFY( !prop->value<bool>() );
 
   //
@@ -219,10 +215,7 @@ void CNodeTest::test_setProperties()
   // parsing is fully tested in test_makeOption()
   //
   // 1. should exist
-  GUI_CHECK_NO_THROW( prop = &node.properties()["pi"] );
-  // 2. should be an option
-  QVERIFY( prop->is_option() );
-
+  GUI_CHECK_NO_THROW( Option & opt = node.options()["pi"] );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -302,19 +295,19 @@ void CNodeTest::test_modifyOptions()
 
   // call with an empty map, nothing should change
   GUI_CHECK_NO_THROW( node.modifyOptions(map) );
-  QCOMPARE( node.property("theAnswer").value<int>(), int(42) );
-  QCOMPARE( node.property("someBool").value<bool>(), true );
-  QCOMPARE( node.property("myString").value<std::string>(), std::string("This is a string") );
-  QCOMPARE( node.property("someProp").value<Real>(), Real(3.14) );
+  QCOMPARE( node.option("theAnswer").value<int>(), int(42) );
+  QCOMPARE( node.option("someBool").value<bool>(), true );
+  QCOMPARE( node.option("myString").value<std::string>(), std::string("This is a string") );
+  QCOMPARE( node.option("someProp").value<Real>(), Real(3.14) );
 
   // modify some options
   map["someBool"] = QVariant(false).toString();
   map["theAnswer"] = QString::number(-45782446);
   GUI_CHECK_NO_THROW( node.modifyOptions(map) );
-  QCOMPARE( node.property("theAnswer").value<int>(), int(-45782446) );
-  QCOMPARE( node.property("someBool").value<bool>(), false );
-  QCOMPARE( node.property("myString").value<std::string>(), std::string("This is a string") );
-  QCOMPARE( node.property("someProp").value<Real>(), Real(3.14) );
+  QCOMPARE( node.option("theAnswer").value<int>(), int(-45782446) );
+  QCOMPARE( node.option("someBool").value<bool>(), false );
+  QCOMPARE( node.option("myString").value<std::string>(), std::string("This is a string") );
+  QCOMPARE( node.option("someProp").value<Real>(), Real(3.14) );
 
   // try to modify a property (should fail)
   map["someProp"] = QString::number(2.71);

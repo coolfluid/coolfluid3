@@ -23,17 +23,17 @@ ComponentBuilder< CCriterionMilestoneIteration, CCriterion, LibActions > CCriter
 CCriterionMilestoneIteration::CCriterionMilestoneIteration( const std::string& name  ) :
   CCriterion ( name )
 {
-  properties()["brief"] = std::string("Time Criterion object");
+  m_properties["brief"] = std::string("Time Criterion object");
   std::string description = properties()["description"].value<std::string>()+
     "Returns true if a time is reached\n";
-  properties()["description"] = description;
+  m_properties["description"] = description;
 
-  properties().add_option(OptionComponent<CTime>::create("time","Time","Time tracking component",&m_time))
+  m_options.add_option(OptionComponent<CTime>::create("time","Time","Time tracking component",&m_time))
     ->mark_basic()
     ->add_tag("time");
 
   Uint def = 1;
-  properties().add_option(OptionT<Uint>::create("milestone_rate","Milestone Rate","Defines the checkpoints for the criterion",def))
+  m_options.add_option(OptionT<Uint>::create("milestone_rate","Milestone Rate","Defines the checkpoints for the criterion",def))
       ->mark_basic();
 
 }
@@ -48,9 +48,9 @@ CCriterionMilestoneIteration::~CCriterionMilestoneIteration()
 
 bool CCriterionMilestoneIteration::operator()()
 {
-  /// @bug normally  property("milestone_rate").value<Uint>() should be used
+  /// @bug normally  option("milestone_rate").value<Uint>() should be used
   /// but that throws a bad any_cast exception somehow !?
-  const Uint rate = property("milestone_rate").value<int>();
+  const Uint rate = option("milestone_rate").value<int>();
   if ( rate == 0 )
     return false;
 

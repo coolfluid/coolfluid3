@@ -26,7 +26,7 @@
   #include "Teuchos_XMLParameterListHelpers.hpp"
   #include "Teuchos_CommandLineProcessor.hpp"
 
-#else 
+#else
   #ifdef CF_HAVE_SUPERLU
     #define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
     #include <Eigen/SuperLUSupport>
@@ -49,22 +49,22 @@ namespace Solver {
 
 using namespace CF::Common;
 using namespace CF::Mesh;
-  
+
 CF::Common::ComponentBuilder < CEigenLSS, Common::Component, LibSolver > aCeigenLSS_Builder;
 
 CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 {
   Common::Option::Ptr config_path =
-      properties().add_option< Common::OptionT<std::string> >("ConfigFile", "Solver config file", std::string());
+      m_options.add_option< Common::OptionT<std::string> >("ConfigFile", "Solver config file", std::string());
   config_path->mark_basic();
-  
+
   if(!mpi::PE::instance().is_active())
     mpi::PE::instance().init();
 }
 
 void CEigenLSS::set_config_file(const std::string& path)
 {
-  configure_property("ConfigFile", path);
+  configure_option("ConfigFile", path);
 }
 
 
@@ -72,11 +72,11 @@ void CEigenLSS::resize ( Uint nb_dofs )
 {
   if(nb_dofs == (Uint) m_system_matrix.rows())
     return;
-  
+
   m_system_matrix.resize(nb_dofs, nb_dofs);
   m_rhs.resize(nb_dofs);
   m_solution.resize(nb_dofs);
-  
+
   set_zero();
 }
 
@@ -110,7 +110,7 @@ void CEigenLSS::set_dirichlet_bc(const CF::Uint row, const CF::Real value, const
     {
       it.valueRef() = coeff;
     }
-  }  
+  }
   m_rhs[row] = coeff * value;
 }
 
@@ -136,7 +136,7 @@ void CEigenLSS::set_dirichlet_bc(const CF::Uint row, const CF::Real value, const
 //       }
 //     }
 //   }
-//   
+//
 //   m_rhs[row] = coeff * value;
 // }
 
@@ -158,13 +158,13 @@ void CEigenLSS::solve()
   Timer timer;
   const Uint nb_rows = size();
   cf_assert(nb_rows == m_system_matrix.outerSize());
-  
+
   Epetra_SerialComm comm;
   Epetra_Map map(nb_rows, 0, comm);
 
   Epetra_Vector ep_rhs(View, map, m_rhs.data());
   Epetra_Vector ep_sol(View, map, m_solution.data());
-  
+
   // Count non-zeros
   std::vector<int> nnz(nb_rows, 0);
   for(int row=0; row < nb_rows; ++row)
@@ -174,10 +174,10 @@ void CEigenLSS::solve()
       ++nnz[row];
     }
   }
-  
+
   Epetra_CrsMatrix ep_A(Copy, map, &nnz[0]);
   time_matrix_construction = timer.elapsed(); timer.restart();
-  
+
   // Fill the matrix
   for(int row=0; row < nb_rows; ++row)
   {
@@ -190,9 +190,9 @@ void CEigenLSS::solve()
     }
     ep_A.InsertGlobalValues(row, nnz[row], &values[0], &indices[0]);
   }
-  
+
   ep_A.FillComplete();
-  
+
   time_matrix_fill = timer.elapsed(); timer.restart();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -203,8 +203,8 @@ void CEigenLSS::solve()
   Teuchos::RCP<Epetra_Vector>    epetra_x=Teuchos::rcpFromRef(ep_sol);
   Teuchos::RCP<Epetra_Vector>    epetra_b=Teuchos::rcpFromRef(ep_rhs);
 
-  const std::string cfile = property("ConfigFile").value_str();
-  
+  const std::string cfile = option("ConfigFile").value_str();
+
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(cfile); // the most important in general setup
 
   Teuchos::RCP<Teuchos::FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream(); // TODO: decouple from fancyostream to ostream or to C stdout when possible
@@ -259,7 +259,7 @@ void CEigenLSS::solve()
   Thyra::solve(*lows, Thyra::NOTRANS, *b, &*x); // solve
 
   time_solve = timer.elapsed(); timer.restart();
-  
+
   // r = b - A*x, final L2 norm
   {
     Epetra_Vector epetra_r(*epetra_b);
@@ -271,13 +271,13 @@ void CEigenLSS::solve()
     epetra_r.Norm2(&nrm_r);
     systemResidual*=nrm_r;
   }
-  
+
   time_residual = timer.elapsed();
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 //END//////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
-  
+
 #else // no trilinos
 
 #ifdef CF_HAVE_SUPERLU
@@ -302,17 +302,17 @@ void CEigenLSS::print_matrix()
 
 
 void increment_solution(const RealVector& solution, const std::vector<std::string>& field_names, const std::vector<std::string>& var_names, const std::vector<Uint>& var_sizes, CMesh& solution_mesh)
-{ 
+{
   const Uint nb_vars = var_names.size();
-  
+
   std::vector<Uint> var_offsets;
   var_offsets.push_back(0);
   for(Uint i = 0; i != nb_vars; ++i)
   {
     var_offsets.push_back(var_offsets.back() + var_sizes[i]);
   }
-  
-  // Copy the data to the fields, where each field value is incremented with the value from the solution vector 
+
+  // Copy the data to the fields, where each field value is incremented with the value from the solution vector
   std::set<std::string> unique_field_names;
   boost_foreach(const std::string& field_name, field_names)
   {
@@ -328,13 +328,13 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
         {
           if(field_names[i] != field_name)
             continue;
-          
+
           const Uint solution_begin = var_offsets.back() * row_idx + var_offsets[i];
           const Uint solution_end = solution_begin + var_sizes[i];
           Uint field_idx = field.var_index(var_names[i]);
-          
+
           cf_assert( (Uint) field.var_type(var_names[i]) == (Uint) var_sizes[i]);
-          
+
           for(Uint sol_idx = solution_begin; sol_idx != solution_end; ++sol_idx)
           {
             row[field_idx++] += solution[sol_idx];

@@ -281,8 +281,8 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
         elementbased_field.basis() == CField::Basis::CELL_BASED    ||
         elementbased_field.basis() == CField::Basis::FACE_BASED    )
     {
-      const Real field_time = 0;//elementbased_field.property("time").value<Real>();
-      const Uint field_iter = 0;//elementbased_field.property("iteration").value<Uint>();
+      const Real field_time = 0;//elementbased_field.option("time").value<Real>();
+      const Uint field_iter = 0;//elementbased_field.option("iteration").value<Uint>();
       const std::string field_name = elementbased_field.name();
       std::string field_topology = elementbased_field.topology().uri().path();
       const std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());
@@ -445,8 +445,8 @@ void CWriter::write_nodal_data(std::fstream& file)
       const std::string field_name = nodebased_field.name();
       std::string field_topology = nodebased_field.topology().uri().path();
       boost::algorithm::replace_first(field_topology,m_mesh->topology().uri().path(),"");
-      const Real field_time = nodebased_field.property("time").value<Real>();
-      const Uint field_iter = nodebased_field.property("iteration").value<Uint>();
+      const Real field_time = nodebased_field.option("time").value<Real>();
+      const Uint field_iter = nodebased_field.option("iteration").value<Uint>();
       // data_header
       Uint row_idx=0;
       for (Uint iVar=0; iVar<nodebased_field.nb_vars(); ++iVar)
@@ -560,8 +560,8 @@ void CWriter::write_element_data(std::fstream& file)
         elementbased_field.basis() == CField::Basis::CELL_BASED    ||
         elementbased_field.basis() == CField::Basis::FACE_BASED    )
     {
-      const Real field_time = elementbased_field.property("time").value<Real>();
-      const Uint field_iter = elementbased_field.property("iteration").value<Uint>();
+      const Real field_time = elementbased_field.option("time").value<Real>();
+      const Uint field_iter = elementbased_field.option("iteration").value<Uint>();
       const std::string field_name = elementbased_field.name();
       std::string field_topology = elementbased_field.topology().uri().path();
       const std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());

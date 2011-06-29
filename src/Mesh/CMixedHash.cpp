@@ -31,20 +31,20 @@ CMixedHash::CMixedHash ( const std::string& name ) :
     m_base(0),
     m_nb_parts(mpi::PE::instance().size())
 {
-  m_properties.add_option<OptionArrayT <Uint> >("nb_obj","Number of Objects","Total number of objects of each subhash. Subhashes will be created upon configuration with names hash_0 hash_1, ...",m_nb_obj);
-  m_properties.add_option<OptionT <Uint> >("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
-  m_properties.add_option<OptionT <Uint> >("base","Base","Start index for global numbering",m_base);
+  m_options.add_option<OptionArrayT <Uint> >("nb_obj","Number of Objects","Total number of objects of each subhash. Subhashes will be created upon configuration with names hash_0 hash_1, ...",m_nb_obj);
+  m_options.add_option<OptionT <Uint> >("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
+  m_options.add_option<OptionT <Uint> >("base","Base","Start index for global numbering",m_base);
 
-  m_properties["nb_parts"].as_option().attach_trigger( boost::bind ( &CMixedHash::config_nb_parts , this) );
-  m_properties["base"].as_option().link_to( &m_base );
-  m_properties["nb_obj"].as_option().attach_trigger( boost::bind ( &CMixedHash::config_nb_obj , this) );
+  m_options["nb_parts"].attach_trigger( boost::bind ( &CMixedHash::config_nb_parts , this) );
+  m_options["base"].link_to( &m_base );
+  m_options["nb_obj"].attach_trigger( boost::bind ( &CMixedHash::config_nb_obj , this) );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CMixedHash::config_nb_obj ()
 {
-  property("nb_obj").put_value(m_nb_obj);
+  option("nb_obj").put_value(m_nb_obj);
   boost_foreach(CHash::Ptr hash, m_subhash)
     remove_component(hash->name());
   m_subhash.resize(0);
@@ -53,8 +53,8 @@ void CMixedHash::config_nb_obj ()
   {
     CHash::Ptr hash = create_component_ptr<CHash>("hash_"+to_str(i));
     m_subhash.push_back(hash);
-    hash->configure_property("nb_obj", nb_obj);
-    hash->configure_property("nb_parts", m_nb_parts);
+    hash->configure_option("nb_obj", nb_obj);
+    hash->configure_option("nb_parts", m_nb_parts);
     ++i;
   }
 }
@@ -63,11 +63,11 @@ void CMixedHash::config_nb_obj ()
 
 void CMixedHash::config_nb_parts ()
 {
-  property("nb_parts").put_value(m_nb_parts);
+  option("nb_parts").put_value(m_nb_parts);
   if (m_subhash.size())
   {
     boost_foreach(CHash::Ptr hash, m_subhash)
-      hash->configure_property("nb_parts", m_nb_parts);
+      hash->configure_option("nb_parts", m_nb_parts);
   }
 }
 

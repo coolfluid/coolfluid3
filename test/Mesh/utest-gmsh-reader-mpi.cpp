@@ -76,9 +76,9 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_triag )
 	std::vector<std::string> extensions = meshreader->get_extensions();
 	BOOST_CHECK_EQUAL( extensions[0] , ".msh" );
 
-//	meshreader->configure_property("Repartition",true);
-//	meshreader->configure_property("OutputRank",(Uint) 0);
-//	meshreader->configure_property("Unified Zones",false);
+//	meshreader->configure_option("Repartition",true);
+//	meshreader->configure_option("OutputRank",(Uint) 0);
+//	meshreader->configure_option("Unified Zones",false);
 
 
   // the mesh to store in

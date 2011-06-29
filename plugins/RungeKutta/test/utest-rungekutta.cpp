@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE( RiemannSolvers_Suite )
 
 BOOST_AUTO_TEST_CASE( test_RK )
 {
-  Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
+  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
   CMesh& mesh = Core::instance().root().create_component<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(mesh,1.,10);
   allocate_component<Mesh::Actions::CreateSpaceP0>("create_space[0]")->transform(mesh);
@@ -48,12 +48,12 @@ BOOST_AUTO_TEST_CASE( test_RK )
   CTime& time = Core::instance().root().create_component<CTime>("time");
 
   CAction& rk4 = Core::instance().root().create_component("RK4","CF.RungeKutta.RK").as_type<CAction>();
-  rk4.configure_property("stages",4u);
+  rk4.configure_option("stages",4u);
   rk4.configure_option_recursively("mesh",mesh.uri());
   rk4.configure_option_recursively("time",time.uri());
-  rk4.configure_property("solution",solution.uri());
-  rk4.configure_property("residual",residual.uri());
-  rk4.configure_property("update_coeff",update_coeff.uri());
+  rk4.configure_option("solution",solution.uri());
+  rk4.configure_option("residual",residual.uri());
+  rk4.configure_option("update_coeff",update_coeff.uri());
   rk4.execute();
 
   CFinfo << rk4.tree() << CFendl;

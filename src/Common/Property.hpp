@@ -89,11 +89,11 @@ namespace Common {
     virtual std::string type() const;
 
     /// @returns @c true if the property is an option
-    bool is_option() const { return m_is_option; }
+//    bool is_option() const { return m_is_option; }
 
-    Option & as_option();
+//    Option & as_option();
 
-    const Option & as_option() const;
+//    const Option & as_option() const;
 
     /// @returns the value of the option as a boost::any
     boost::any value() const { return m_value; }
@@ -111,7 +111,7 @@ namespace Common {
         throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<TYPE>());
       }
     }
-    
+
     /// @returns Reference to the value of the option casted to TYPE
     template < typename TYPE >
     typename boost::add_reference<TYPE const>::type value_ref() const
@@ -152,7 +152,7 @@ namespace Common {
     boost::any m_value;
     /// indicates whether a property is an option. Options are user-modifiable
     /// properties.
-    bool m_is_option;
+//    bool m_is_option;
 
   }; // class Property
 

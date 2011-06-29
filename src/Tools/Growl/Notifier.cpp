@@ -68,22 +68,22 @@ Notifier::Notifier ( const std::string& name ) :
 
   // Configuration options
 
-  properties().add_option( OptionT<std::string>::create("application_name","Application Name","Name of the application",m_application_name) )
+  m_options.add_option( OptionT<std::string>::create("application_name","Application Name","Name of the application",m_application_name) )
       ->link_to(&m_application_name);
 
-  properties().add_option( OptionT<std::string>::create("server","Server","Server to send notification to",m_server) )
+  m_options.add_option( OptionT<std::string>::create("server","Server","Server to send notification to",m_server) )
       ->link_to(&m_server);
 
-  properties().add_option( OptionT<std::string>::create("password","Password","Password for server access",m_password) )
+  m_options.add_option( OptionT<std::string>::create("password","Password","Password for server access",m_password) )
       ->link_to(&m_password);
 
-  properties().add_option( OptionT<std::string>::create("icon","Icon","URL to icon",m_icon) )
+  m_options.add_option( OptionT<std::string>::create("icon","Icon","URL to icon",m_icon) )
       ->link_to(&m_icon);
 
-  properties().add_option( OptionT<std::string>::create("url","URL","URL that is followd upon clicking the notification",m_url) )
+  m_options.add_option( OptionT<std::string>::create("url","URL","URL that is followd upon clicking the notification",m_url) )
       ->link_to(&m_url);
 
-  properties().add_option( OptionT<Uint>::create("protocol","Protocol","Protocol to use: [UDP=0, TCP=1]",m_protocol) )
+  m_options.add_option( OptionT<Uint>::create("protocol","Protocol","Protocol to use: [UDP=0, TCP=1]",m_protocol) )
       ->link_to(&m_protocol);
 
 

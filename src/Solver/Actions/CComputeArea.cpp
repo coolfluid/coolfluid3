@@ -33,12 +33,12 @@ CComputeArea::CComputeArea ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
-  m_properties.add_option(OptionURI::create(Mesh::Tags::area(),"area","Field to set", URI("cpath:"), URI::Scheme::CPATH) )
+  m_options.add_option(OptionURI::create(Mesh::Tags::area(),"area","Field to set", URI("cpath:"), URI::Scheme::CPATH) )
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &CComputeArea::config_field,   this ) )
     ->add_tag(Mesh::Tags::area());
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
+  m_options["Elements"].attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
 
   m_area = create_static_component_ptr<CScalarFieldView>("area_view");
 }
@@ -48,7 +48,7 @@ CComputeArea::CComputeArea ( const std::string& name ) :
 void CComputeArea::config_field()
 {
   URI uri;
-  property(Mesh::Tags::area()).put_value(uri);
+  option(Mesh::Tags::area()).put_value(uri);
   CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) )
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");

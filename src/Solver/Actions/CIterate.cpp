@@ -38,16 +38,16 @@ CIterate::CIterate( const std::string& name  ) :
   m_max_iter(Uint_max())
 {
   mark_basic();
-  properties()["brief"] = std::string("Iterator object");
+  m_properties["brief"] = std::string("Iterator object");
   std::string description =
   "This object handles iterations\n"
   "It can have one or more stop criteria\n";
-  properties()["description"] = description;
+  m_properties["description"] = description;
 
-  properties().add_option( OptionT<bool>::create("verbose","Verbose","Print iteration number",m_verbose))
+  m_options.add_option( OptionT<bool>::create("verbose","Verbose","Print iteration number",m_verbose))
     ->link_to(&m_verbose);
 
-  properties().add_option< OptionT<Uint> >("max_iter","Max Iterations","Maximal number of iterations",m_max_iter)
+  m_options.add_option< OptionT<Uint> >("max_iter","Max Iterations","Maximal number of iterations",m_max_iter)
     ->link_to(&m_max_iter);
 }
 

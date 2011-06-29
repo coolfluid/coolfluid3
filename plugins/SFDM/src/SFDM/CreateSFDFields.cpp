@@ -53,8 +53,8 @@ CreateSFDFields::CreateSFDFields( const std::string& name )
 
 void CreateSFDFields::execute()
 {
-  /// @bug property("mesh").value<URI>() does not work for OptionComponent
-  CMesh& mesh = access_component(property("mesh").value_str()).as_type<CMesh>();
+  /// @bug option("mesh").value<URI>() does not work for OptionComponent
+  CMesh& mesh = access_component(option("mesh").value_str()).as_type<CMesh>();
 
   std::string solution_space = FlowSolver::Tags::solution();
 
@@ -70,10 +70,10 @@ void CreateSFDFields::execute()
 
     CField& field = mesh.create_component<CField>(FlowSolver::Tags::solution());
     field.set_topology(mesh.topology());
-    field.configure_property("Space",solution_space);
-    field.configure_property("VarNames",solution_state.var_names());
-    field.configure_property("VarTypes",types);
-    field.configure_property("FieldType",CField::Basis::Convert::instance().to_str(CField::Basis::CELL_BASED));
+    field.configure_option("Space",solution_space);
+    field.configure_option("VarNames",solution_state.var_names());
+    field.configure_option("VarTypes",types);
+    field.configure_option("FieldType",CField::Basis::Convert::instance().to_str(CField::Basis::CELL_BASED));
     field.create_data_storage();
   }
   CField& solution = mesh.get_child(FlowSolver::Tags::solution()).as_type<CField>();
@@ -102,9 +102,9 @@ void CreateSFDFields::execute()
     CField& jacobian_determinant = mesh.create_scalar_field("jacobian_determinant",solution);
 
     CLoop& compute_jacobian_determinant = create_component< CForAllCells >("compute_jacobian_determinant");
-    compute_jacobian_determinant.configure_property("regions", std::vector<URI>(1,mesh.topology().uri()));
+    compute_jacobian_determinant.configure_option("regions", std::vector<URI>(1,mesh.topology().uri()));
     compute_jacobian_determinant.create_loop_operation("CF.SFDM.ComputeJacobianDeterminant")
-                                                .configure_property("jacobian_determinant",jacobian_determinant.uri());
+                                                .configure_option("jacobian_determinant",jacobian_determinant.uri());
     compute_jacobian_determinant.execute();
     remove_component(compute_jacobian_determinant.name());
   }

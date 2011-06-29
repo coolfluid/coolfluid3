@@ -24,12 +24,12 @@ CSolver::CSolver ( const std::string& name  ) :
 
   // properties
 
-  properties()["brief"] = std::string("Solver");
-  properties()["description"] = std::string("");
+  m_properties["brief"] = std::string("Solver");
+  m_properties["description"] = std::string("");
 
   // options
 
-  m_properties.add_option< OptionURI > ("domain","Domain",
+  m_options.add_option< OptionURI > ("domain","Domain",
                                         "Domain to solve",
                                         URI("cpath:../Domain"));
 

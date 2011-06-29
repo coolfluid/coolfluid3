@@ -116,10 +116,10 @@ CField& CMesh::create_field( const std::string& name ,
 
   CField& field = *create_component_ptr<CField>(name);
   field.set_topology(topology());
-  field.configure_property("Space",space);
-  field.configure_property("VarNames",names);
-  field.configure_property("VarTypes",types);
-  field.configure_property("FieldType",CField::Basis::Convert::instance().to_str(base));
+  field.configure_option("Space",space);
+  field.configure_option("VarNames",names);
+  field.configure_option("VarTypes",types);
+  field.configure_option("FieldType",CField::Basis::Convert::instance().to_str(base));
   field.create_data_storage();
 
   return field;
@@ -133,16 +133,16 @@ CField& CMesh::create_scalar_field( const std::string& name , CField& based_on_f
   field.set_topology(based_on_field.topology());
 
   std::vector<std::string> names(1,name);
-  field.configure_property("VarNames",names);
+  field.configure_option("VarNames",names);
 
   std::vector<std::string> types(1,"scalar");
-  field.configure_property("VarTypes",types);
+  field.configure_option("VarTypes",types);
 
-  std::string base;   based_on_field.property("FieldType").put_value(base);
-  field.configure_property("FieldType",base);
+  std::string base;   based_on_field.option("FieldType").put_value(base);
+  field.configure_option("FieldType",base);
 
-  std::string space; based_on_field.property("Space").put_value(space);
-  field.configure_property("Space",space);
+  std::string space; based_on_field.option("Space").put_value(space);
+  field.configure_option("Space",space);
 
   field.create_data_storage();
 
@@ -157,20 +157,20 @@ CField& CMesh::create_field( const std::string& name , CField& based_on_field)
   CField& field = *create_component_ptr<CField>(name);
   field.set_topology(based_on_field.topology());
 
-  std::vector<std::string> names; based_on_field.property("VarNames").put_value(names);
+  std::vector<std::string> names; based_on_field.option("VarNames").put_value(names);
 
   for (Uint i=0; i<names.size(); ++i)
     names[i] = name+"["+to_str(i)+"]";
-  field.configure_property("VarNames",names);
+  field.configure_option("VarNames",names);
 
-  std::vector<std::string> types; based_on_field.property("VarTypes").put_value(types);
-  field.configure_property("VarTypes",types);
+  std::vector<std::string> types; based_on_field.option("VarTypes").put_value(types);
+  field.configure_option("VarTypes",types);
 
-  std::string base;   based_on_field.property("FieldType").put_value(base);
-  field.configure_property("FieldType",base);
+  std::string base;   based_on_field.option("FieldType").put_value(base);
+  field.configure_option("FieldType",base);
 
-  std::string space; based_on_field.property("Space").put_value(space);
-  field.configure_property("Space",space);
+  std::string space; based_on_field.option("Space").put_value(space);
+  field.configure_option("Space",space);
 
   field.create_data_storage();
   return field;
@@ -202,9 +202,9 @@ CField& CMesh::create_field(const std::string& name, const CField::Basis::Type b
 
   CField& field = *create_component_ptr<CField>(name);
   field.set_topology(topology());
-  field.configure_property("VarNames",variable_names);
-  field.configure_property("VarTypes",types_str);
-  field.configure_property("FieldType", CField::Basis::Convert::instance().to_str(base) );
+  field.configure_option("VarNames",variable_names);
+  field.configure_option("VarTypes",types_str);
+  field.configure_option("FieldType", CField::Basis::Convert::instance().to_str(base) );
   field.create_data_storage();
 
   return field;

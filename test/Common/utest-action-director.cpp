@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(ActionDirectorBasic)
   SetIntegerAction::Ptr test_action = root.create_component_ptr<SetIntegerAction>("testaction");
   CActionDirector::Ptr director = root.create_component_ptr<CActionDirector>("director");
   const std::vector<URI> action_vector(1, test_action->uri());
-  director->configure_property("ActionList", action_vector);
+  director->configure_option("ActionList", action_vector);
   BOOST_CHECK_EQUAL(test_action->value, 0);
   director->execute();
   BOOST_CHECK_EQUAL(test_action->value, 1);
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(ActionDirectorAppend)
   SetIntegerAction& test_action2 = root.create_component<SetIntegerAction>("testaction2");
   director.append(test_action2);
   
-  std::vector<URI> actions; director.property("ActionList").put_value(actions);
+  std::vector<URI> actions; director.option("ActionList").put_value(actions);
   BOOST_CHECK_EQUAL(actions.size(), 2);
   
   BOOST_CHECK_EQUAL(test_action2.value, 1);
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE(ActionDirectorStream)
   // Overloaded shift-left operator for easy chaining of actions
   director << test_action3 << test_action3 << test_action3;
   
-  std::vector<URI> actions; director.property("ActionList").put_value(actions);
+  std::vector<URI> actions; director.option("ActionList").put_value(actions);
   BOOST_CHECK_EQUAL(actions.size(), 5);
   
   BOOST_CHECK_EQUAL(test_action3.value, 3);

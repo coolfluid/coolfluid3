@@ -40,15 +40,15 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 {
   // options
 
-  m_properties.add_option< OptionURI > ("solution","Solution",
+  m_options.add_option< OptionURI > ("solution","Solution",
                                         "Solution field where to apply the boundary condition",
                                         URI("cpath:"))
        ->attach_trigger ( boost::bind ( &BcDirichlet::config_mesh,   this ) )
        ->mark_basic();
 
-  m_properties["mesh"].as_option().attach_trigger ( boost::bind ( &BcDirichlet::config_mesh, this ) );
+  m_options["mesh"].attach_trigger ( boost::bind ( &BcDirichlet::config_mesh, this ) );
 
-  m_properties.add_option<
+  m_options.add_option<
       OptionArrayT<std::string> > ("functions",
                                    "Math function applied as Dirichlet boundary condition (vars x,y)",
                                    std::vector<std::string>())
@@ -72,7 +72,7 @@ void BcDirichlet::config_mesh()
 {
   cf_assert( is_not_null( m_mesh.lock() ) );
 
-  URI sol_uri  = property("solution").value<URI>();
+  URI sol_uri  = option("solution").value<URI>();
   m_solution = access_component_ptr(sol_uri)->as_ptr<CField>();
   if( is_null(m_solution.lock()) )
     m_solution = find_component_ptr_with_tag<CField>( *(m_mesh.lock()) , "solution" );

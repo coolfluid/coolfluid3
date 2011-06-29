@@ -176,9 +176,9 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , euler2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  solver.configure_property("domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("cfl", 0.25);;
-  solver.get_child("time_stepping").configure_property("MaxIter", 250u);;
+  solver.configure_option("domain",URI("cpath:../Domain"));
+  solver.get_child("time_stepping").configure_option("cfl", 0.25);;
+  solver.get_child("time_stepping").configure_option("MaxIter", 250u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -223,7 +223,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
 //  fns[2] = "1.67332";
 //  fns[3] = "3.425";
 
-  inletbc->configure_property("functions", fns);
+  inletbc->configure_option("functions", fns);
 
   BOOST_CHECK(true);
 }
@@ -270,9 +270,9 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , euler2d_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.uri());
 
-  gmsh_writer->configure_property("fields",fields);
-  gmsh_writer->configure_property("file",URI(model.name()+"_init.msh"));
-  gmsh_writer->configure_property("mesh",mesh->uri());
+  gmsh_writer->configure_option("fields",fields);
+  gmsh_writer->configure_option("file",URI(model.name()+"_init.msh"));
+  gmsh_writer->configure_option("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -339,9 +339,9 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
-  gmsh_writer->configure_property("fields",fields);
-  gmsh_writer->configure_property("file",URI(model.name()+".msh"));
-  gmsh_writer->configure_property("mesh",mesh->uri());
+  gmsh_writer->configure_option("fields",fields);
+  gmsh_writer->configure_option("file",URI(model.name()+".msh"));
+  gmsh_writer->configure_option("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -350,9 +350,9 @@ BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
  /* CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
   model.add_component(tec_writer);
 
-  tec_writer->configure_property("fields",fields);
-  tec_writer->configure_property("file",URI(model.name()+".plt"));
-  tec_writer->configure_property("mesh",mesh->uri());
+  tec_writer->configure_option("fields",fields);
+  tec_writer->configure_option("file",URI(model.name()+".plt"));
+  tec_writer->configure_option("mesh",mesh->uri());
 
   tec_writer->execute(); */
 

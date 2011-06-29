@@ -37,31 +37,31 @@ CPhysicalModel::CPhysicalModel(const std::string& name) : Component(name),
 {
   // options
   // Mesh to use
-  m_mesh_option = boost::dynamic_pointer_cast< OptionComponent<CMesh> >(properties().add_option< OptionComponent<CMesh> >("mesh", "Mesh", "The mesh that holds the geometry and fields", URI()));
+  m_mesh_option = boost::dynamic_pointer_cast< OptionComponent<CMesh> >(m_options.add_option< OptionComponent<CMesh> >("mesh", "Mesh", "The mesh that holds the geometry and fields", URI()));
   m_mesh_option.lock()->attach_trigger( boost::bind(&CPhysicalModel::trigger_mesh, this) );
   mark_basic();
 
   /// @todo later this will be removed when the physical model stops beign so generic
 
-  m_properties.add_option<OptionT <std::string> >("Type",
+  m_options.add_option<OptionT <std::string> >("Type",
                                            "Type of the physical model (serves to identify the model)",
                                            "null")
       ->mark_basic()
       ->link_to(&m_type);
 
-  m_properties.add_option<OptionT <Uint> >("Dimensions",
+  m_options.add_option<OptionT <Uint> >("Dimensions",
                                            "Dimensionality of the problem, i.e. the number of components for the spatial coordinates",
                                            0u)
       ->mark_basic()
       ->link_to(&m_dim);
 
-  m_properties.add_option<OptionT <Uint> >("DOFs",
+  m_options.add_option<OptionT <Uint> >("DOFs",
                                            "Degrees of freedom",
                                            0u)
       ->mark_basic()
       ->link_to(&m_nbdofs);
 
-  m_properties.add_option(OptionT<std::string>::create("solution_state","Solution State","Component describing the solution state",std::string("")))
+  m_options.add_option(OptionT<std::string>::create("solution_state","Solution State","Component describing the solution state",std::string("")))
       ->mark_basic()
       ->attach_trigger( boost::bind(&CPhysicalModel::build_solution_state, this) );
 }
@@ -89,19 +89,19 @@ void CPhysicalModel::register_variable(const std::string& name, const std::strin
       m_state_variables.push_back(name);
 
     // Add options for changing the variable name and field name
-    properties().add_option< OptionT<std::string> >(name + std::string("FieldName"), "Field name for variable " + name, name);
-    properties().add_option< OptionT<std::string> >(name + std::string("VariableName"), "Variable name for variable " + name, symbol);
+    m_options.add_option< OptionT<std::string> >(name + std::string("FieldName"), "Field name for variable " + name, name);
+    m_options.add_option< OptionT<std::string> >(name + std::string("VariableName"), "Variable name for variable " + name, symbol);
   }
 }
 
 Option& CPhysicalModel::field_option(const std::string& name)
 {
-  return property(name + std::string("FieldName")).as_option();
+  return option(name + std::string("FieldName"));
 }
 
 Option& CPhysicalModel::variable_option(const std::string& name)
 {
-  return property(name + std::string("VariableName")).as_option();
+  return option(name + std::string("VariableName"));
 }
 
 
@@ -112,8 +112,8 @@ void CPhysicalModel::create_fields()
   for(VarTypesT::const_iterator it = m_variable_types.begin(); it != m_variable_types.end(); ++it)
   {
     const std::string internal_name = it->first;
-    m_field_names[internal_name]    = property(internal_name + std::string("FieldName")   ).value_str();
-    m_variable_names[internal_name] = property(internal_name + std::string("VariableName")).value_str();
+    m_field_names[internal_name]    = option(internal_name + std::string("FieldName")   ).value_str();
+    m_variable_names[internal_name] = option(internal_name + std::string("VariableName")).value_str();
   }
 
   // Initialize
@@ -202,7 +202,7 @@ void CPhysicalModel::build_solution_state()
 {
   if (is_not_null(m_solution_state))
     remove_component(*m_solution_state);
-  m_solution_state = create_component( "solution_state" , property("solution_state").value_str() ).as_ptr<State>();
+  m_solution_state = create_component( "solution_state" , option("solution_state").value_str() ).as_ptr<State>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

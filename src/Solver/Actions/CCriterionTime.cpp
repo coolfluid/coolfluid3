@@ -24,12 +24,12 @@ CCriterionTime::CCriterionTime( const std::string& name  ) :
   CCriterion ( name ),
   m_tolerance(1e-12)
 {
-  properties()["brief"] = std::string("Time Criterion object");
+  m_properties["brief"] = std::string("Time Criterion object");
   std::string description = properties()["description"].value<std::string>()+
     "Returns true if a time is reached\n";
-  properties()["description"] = description;
-  
-  properties().add_option(OptionComponent<CTime>::create("time","Time","Time tracking component",&m_time))
+  m_properties["description"] = description;
+
+  m_options.add_option(OptionComponent<CTime>::create("time","Time","Time tracking component",&m_time))
     ->mark_basic()
     ->add_tag("time");
 }
@@ -46,8 +46,8 @@ bool CCriterionTime::operator()()
 {
   if (m_time.expired()) throw SetupError(FromHere(),"Time option was not set in ["+uri().path()+"]");
   CTime& t = *m_time.lock();
-  
-  return ( t.time() + m_tolerance > t.property("end_time").value<Real>() );
+
+  return ( t.time() + m_tolerance > t.option("end_time").value<Real>() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

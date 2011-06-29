@@ -49,12 +49,14 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
   mark_basic();
 
 
-  properties().add_option( OptionComponent<CMesh>::create("mesh","Mesh","Mesh to write",&m_mesh) )
+  m_options.add_option( OptionComponent<CMesh>::create("mesh","Mesh","Mesh to write",&m_mesh) )
       ->mark_basic();
-  properties().add_option( OptionURI::create("file","File","File to write",m_file,URI::Scheme::FILE) )
+
+  m_options.add_option( OptionURI::create("file","File","File to write",m_file,URI::Scheme::FILE) )
       ->mark_basic()
       ->link_to(&m_file);
-  properties().add_option( OptionArrayT<URI>::create("fields","Fields","Fields to write",m_fields) )
+
+  m_options.add_option( OptionArrayT<URI>::create("fields","Fields","Fields to write",m_fields) )
       ->mark_basic()
       ->link_to(&m_fields);
 
@@ -183,7 +185,7 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vecto
   }
 
   CMeshWriter::Ptr writer = m_extensions_to_writers[extension][0];
-  writer->configure_property("fields",fields);
+  writer->configure_option("fields",fields);
   return writer->write_from_to(mesh,URI(file_str));
 }
 

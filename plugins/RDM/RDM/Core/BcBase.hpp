@@ -50,11 +50,11 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "BcBase<" + SF::type_name() + ">"; }
-	
+
 protected: // helper functions
 
   void change_elements()
-  { 
+  {
     /// @todo improve this (ugly)
 
     connectivity_table = elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
@@ -125,10 +125,10 @@ protected: // data
 template<typename SF, typename QD, typename PHYS>
 BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
   Solver::Actions::CLoopOperation(name)
-{ 
+{
   regist_typeinfo(this);
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &BcBase<SF,QD,PHYS>::change_elements, this ) );
+  m_options["Elements"].attach_trigger ( boost::bind ( &BcBase<SF,QD,PHYS>::change_elements, this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

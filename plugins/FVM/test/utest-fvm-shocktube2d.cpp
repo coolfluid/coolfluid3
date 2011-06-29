@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_SUITE( FVM_Suite )
 BOOST_AUTO_TEST_CASE( constructor )
 {
 
-  Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
+  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
 
   // some verbose xml signature
   SignalFrame frame;
@@ -81,10 +81,10 @@ BOOST_AUTO_TEST_CASE( constructor )
   // 4) Configure time
   // -----------------
 
-  model.time().configure_property("end_time",  0.008);
-  model.time().configure_property("time_step", 0.008);
+  model.time().configure_option("end_time",  0.008);
+  model.time().configure_option("time_step", 0.008);
   // model.configure_option_recursively("cfl", 1.0);
-  find_component_recursively<CIterate>(model).configure_property("max_iter",1u);
+  find_component_recursively<CIterate>(model).configure_option("max_iter",1u);
 
   BOOST_CHECK(true);
 
@@ -106,9 +106,9 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tecplot_writer");
   model.get_child("tools").add_component(writer);
-  writer->configure_property("fields",std::vector<URI>(1,find_component_recursively_with_tag(model,"solution").uri()));
-  writer->configure_property("file",URI(model.name()+".plt"));
-  writer->configure_property("mesh",find_component_recursively<CMesh>(model).uri());
+  writer->configure_option("fields",std::vector<URI>(1,find_component_recursively_with_tag(model,"solution").uri()));
+  writer->configure_option("file",URI(model.name()+".plt"));
+  writer->configure_option("mesh",find_component_recursively<CMesh>(model).uri());
   writer->execute();
 
 

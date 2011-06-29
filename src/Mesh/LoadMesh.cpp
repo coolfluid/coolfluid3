@@ -136,7 +136,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
   // get the domain
   Component& parent_component = access_component( path );
 
-  // std::vector<URI> files = property("Files").value<std::vector<URI> >();
+  // std::vector<URI> files = option("Files").value<std::vector<URI> >();
   std::vector<URI> files = options.array<URI>("files");
 
   // check protocol for file loading

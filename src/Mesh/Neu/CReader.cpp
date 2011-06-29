@@ -48,10 +48,10 @@ CReader::CReader( const std::string& name )
   Shared()
 {
   // options
-  m_properties.add_option<OptionT <bool> >("read_groups","Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",true);
-  m_properties.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().rank());
-  m_properties.add_option<OptionT <Uint> >("nb_parts","Total nb_partitions. (e.g. number of processors)",mpi::PE::instance().size());
-  m_properties.add_option<OptionT <bool> >("read_boundaries","Read Boundaries","Read the surface elements for the boundary",true);
+  m_options.add_option<OptionT <bool> >("read_groups","Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",true);
+  m_options.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().rank());
+  m_options.add_option<OptionT <Uint> >("nb_parts","Total nb_partitions. (e.g. number of processors)",mpi::PE::instance().size());
+  m_options.add_option<OptionT <bool> >("read_boundaries","Read Boundaries","Read the surface elements for the boundary",true);
 
 
   m_properties["brief"] = std::string("Neutral file mesh reader component");
@@ -104,21 +104,21 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
 	std::vector<Uint> num_obj(2);
 	num_obj[0] = m_headerData.NUMNP;
 	num_obj[1] = m_headerData.NELEM;
-	m_hash->configure_property("nb_obj",num_obj);
+	m_hash->configure_option("nb_obj",num_obj);
 
   // Create a region component inside the mesh with the name mesh_name
-  //if (property("new_api").value<bool>())
+  //if (option("new_api").value<bool>())
     m_region = m_mesh->topology().create_region(m_headerData.mesh_name).as_ptr<CRegion>();
   //else
-  //  m_region = m_mesh->create_region(m_headerData.mesh_name,!property("Serial Merge").value<bool>()).as_ptr<CRegion>();
+  //  m_region = m_mesh->create_region(m_headerData.mesh_name,!option("Serial Merge").value<bool>()).as_ptr<CRegion>();
 
   find_ghost_nodes();
   read_coordinates();
   read_connectivity();
-  if (property("read_boundaries").value<bool>())
+  if (option("read_boundaries").value<bool>())
     read_boundaries();
 
-  if (property("read_groups").value<bool>())
+  if (option("read_groups").value<bool>())
     read_groups();
 
   // clean-up
@@ -127,8 +127,8 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
   remove_empty_element_regions(m_mesh->topology());
 
   // update the number of cells and nodes in the mesh
-//  m_mesh->properties()["nb_cells"] = m_headerData.NELEM;
-//  m_mesh->properties()["nb_nodes"] = m_headerData.NUMNP;
+//  m_mesh->options()["nb_cells"] = m_headerData.NELEM;
+//  m_mesh->options()["nb_nodes"] = m_headerData.NUMNP;
 
   // close the file
   m_file.close();
@@ -209,7 +209,7 @@ void CReader::find_ghost_nodes()
   m_ghost_nodes.clear();
 
   // Only find ghost nodes if the domain is split up
-  if (property("nb_parts").value<Uint>() > 1)
+  if (option("nb_parts").value<Uint>() > 1)
   {
     m_file.seekg(m_elements_cells_position,std::ios::beg);
     // skip next line

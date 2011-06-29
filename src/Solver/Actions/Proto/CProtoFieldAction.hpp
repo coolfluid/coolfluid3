@@ -73,7 +73,7 @@ public:
     }
     else
     {
-      m_region_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().template add_option<Common::OptionURI>("Region", "Region to loop over", std::string()) );
+      m_region_path = boost::dynamic_pointer_cast<Common::OptionURI>( options().template add_option<Common::OptionURI>("Region", "Region to loop over", std::string()) );
       m_region_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
       m_region_path.lock()->mark_basic();
     }

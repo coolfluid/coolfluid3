@@ -43,13 +43,13 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 BOOST_AUTO_TEST_CASE( Solver_1D )
 {
-  Core::instance().environment().configure_property("log_level", (Uint)INFO);
+  Core::instance().environment().configure_option("log_level", (Uint)INFO);
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
-  wizard.configure_property("model",std::string("gaussian_1D"));
-  wizard.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State1D"));
-  wizard.configure_property("roe_state",std::string("CF.AdvectionDiffusion.State1D"));
-  wizard.configure_property("dim",1u);
+  wizard.configure_option("model",std::string("gaussian_1D"));
+  wizard.configure_option("solution_state",std::string("CF.AdvectionDiffusion.State1D"));
+  wizard.configure_option("roe_state",std::string("CF.AdvectionDiffusion.State1D"));
+  wizard.configure_option("dim",1u);
   wizard.create_simulation();
 
   CModel& model = wizard.model();
@@ -62,15 +62,15 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
   //if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneIteration");
 
   WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
-  gmsh_writer.configure_property("mesh",mesh.uri());
-  gmsh_writer.configure_property("file",URI("file:line_${date}_iter${iter}_time${time}.msh"));
+  gmsh_writer.configure_option("mesh",mesh.uri());
+  gmsh_writer.configure_option("file",URI("file:line_${date}_iter${iter}_time${time}.msh"));
 
 
   CFinfo << model.tree() << CFendl;
 
   wizard.prepare_simulation();
 
-  gmsh_writer.configure_property("fields",std::vector<URI>(1,mesh.get_child("solution").uri()));
+  gmsh_writer.configure_option("fields",std::vector<URI>(1,mesh.get_child("solution").uri()));
 
   std::string gaussian="sigma:="+to_str(1.)+"; mu:="+to_str(5.)+"; exp( -(x-mu)^2/(2*sigma^2) )";
 
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
   model.configure_option_recursively("milestone_dt",0.5);
   model.configure_option_recursively("milestone_rate",3);
   model.configure_option_recursively("stages",1u);
-  iterate.configure_property("max_iter",3u);
+  iterate.configure_option("max_iter",3u);
 
 
   wizard.start_simulation(5.);
@@ -92,16 +92,16 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
 
 BOOST_AUTO_TEST_CASE( Solver_2D )
 {
-  Core::instance().environment().configure_property("log_level", (Uint)DEBUG);
+  //Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
-  wizard.configure_property("model",std::string("gaussian_2D"));
-  wizard.configure_property("solution_state",std::string("CF.AdvectionDiffusion.State2D"));
-  wizard.configure_property("roe_state",std::string("CF.AdvectionDiffusion.State2D"));
-  wizard.configure_property("dim",2u);
-  wizard.configure_property("P",0u);
-  wizard.configure_property("RK_stages",1u);
-  wizard.configure_property("cfl",.5);
+  wizard.configure_option("model",std::string("gaussian_2D"));
+  wizard.configure_option("solution_state",std::string("CF.AdvectionDiffusion.State2D"));
+  wizard.configure_option("roe_state",std::string("CF.AdvectionDiffusion.State2D"));
+  wizard.configure_option("dim",2u);
+  wizard.configure_option("P",1u);
+  wizard.configure_option("RK_stages",3u);
+  wizard.configure_option("cfl",1.);
   wizard.create_simulation();
 
   CModel& model = wizard.model();
@@ -115,15 +115,15 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
 
   //WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
   WriteMesh& gmsh_writer = iterate.create_component("4_gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
-  gmsh_writer.configure_property("mesh",mesh.uri());
-  gmsh_writer.configure_property("file",URI("file:gaussian_iter${iter}_time${time}.msh"));
+  gmsh_writer.configure_option("mesh",mesh.uri());
+  gmsh_writer.configure_option("file",URI("file:gaussian_iter${iter}_time${time}.msh"));
 
 
   CFinfo << model.tree() << CFendl;
 
   wizard.prepare_simulation();
 
-  gmsh_writer.configure_property("fields",std::vector<URI>(1,mesh.get_child("solution").uri()));
+  gmsh_writer.configure_option("fields",std::vector<URI>(1,mesh.get_child("solution").uri()));
 
   std::string gaussian="sigma:="+to_str(6.)+"; mu:="+to_str(40.)+"; exp( -( (x-mu)^2+(y-mu)^2 )/(2*sigma^2) )";
 
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
 
   gmsh_writer.execute();
 
-  iterate.configure_property("max_iter",3u);
+  iterate.configure_option("max_iter",3u);
   wizard.start_simulation(40.);
 
 }

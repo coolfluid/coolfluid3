@@ -38,7 +38,7 @@ namespace Mesh {
 
   using namespace Common;
   using namespace Math::MathConsts;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CF::Common::ComponentBuilder < COcttree, Component, LibMesh > COcttree_Builder;
@@ -48,23 +48,23 @@ CF::Common::ComponentBuilder < COcttree, Component, LibMesh > COcttree_Builder;
 COcttree::COcttree( const std::string& name )
   : Component(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_octtree_idx(3)
 {
-  
-  m_properties.add_option(OptionComponent<CMesh>::create("mesh","Mesh","Mesh to create octtree from",&m_mesh))
+
+  m_options.add_option(OptionComponent<CMesh>::create("mesh","Mesh","Mesh to create octtree from",&m_mesh))
     ->mark_basic();
 
-  m_properties.add_option< OptionT<Uint> >
+  m_options.add_option< OptionT<Uint> >
   ( "nb_elems_per_cell","Number of Elements per Octtree Cell",
     "The approximate amount of elements that are stored in a structured cell of the octtree" ,
     1 );
 
   std::vector<Uint> dummy;
-  m_properties.add_option< OptionArrayT<Uint> >
+  m_options.add_option< OptionArrayT<Uint> >
   ( "nb_cells","Number of Cells"
     "The number of cells in each direction of the comb. Takes precedence over \"Number of Elements per Octtree Cell\". " ,
     dummy);
-    
+
   m_elements = create_component_ptr<CUnifiedData>("elements");
-  
+
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -77,11 +77,11 @@ void COcttree::create_bounding_box()
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 
   m_dim = m_mesh.lock()->nodes().coordinates().row_size();
-  
+
   // find bounding box coordinates for region 1 and region 2
-  m_bounding[MIN].setConstant(Real_max());    
+  m_bounding[MIN].setConstant(Real_max());
   m_bounding[MAX].setConstant(Real_min());
-    
+
   boost_foreach(CTable<Real>::ConstRow coords, m_mesh.lock()->nodes().coordinates().array())
   {
     for (Uint d=0; d<m_dim; ++d)
@@ -111,16 +111,16 @@ void COcttree::create_octtree()
 
   const Uint nb_elems = m_mesh.lock()->topology().recursive_filtered_elements_count(IsElementsVolume());
 
-  if (property("nb_cells").value<std::vector<Uint> >().size() > 0)
+  if (option("nb_cells").value<std::vector<Uint> >().size() > 0)
   {
-    m_N = property("nb_cells").value<std::vector<Uint> >();
+    m_N = option("nb_cells").value<std::vector<Uint> >();
     for (Uint d=0; d<m_dim; ++d)
       m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
   else
   {
     Real V1 = V/nb_elems;
-    Real D1 = std::pow(V1,1./m_dim)*property("nb_elems_per_cell").value<Uint>();
+    Real D1 = std::pow(V1,1./m_dim)*option("nb_elems_per_cell").value<Uint>();
 
     for (Uint d=0; d<m_dim; ++d)
     {
@@ -142,7 +142,7 @@ void COcttree::create_octtree()
 
   boost_foreach (const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh.lock(),IsElementsVolume()))
     m_elements->add(elements);
-  
+
   Uint unif_elem_idx=0;
   RealVector centroid(m_dim);
   std::vector<Uint> octtree_idx(3);
@@ -150,7 +150,7 @@ void COcttree::create_octtree()
   {
     Uint nb_nodes_per_element = elements.node_connectivity().row_size();
     RealMatrix coordinates(nb_nodes_per_element,m_dim);
-    
+
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
     {
       elements.put_coordinates(coordinates,elem_idx);
@@ -164,7 +164,7 @@ void COcttree::create_octtree()
 
 
   // Uint total=0;
-  // 
+  //
   // switch (m_dim)
   // {
   //   case DIM_2D:
@@ -196,13 +196,13 @@ void COcttree::create_octtree()
   //   default:
   //     break;
   // }
-  // 
+  //
   // CFinfo << "total = " << total << " of " << m_nb_elems << CFendl;
 }
 
 
 //////////////////////////////////////////////////////////////////////////////
-  
+
 bool COcttree::find_octtree_cell(const RealVector& coordinate, std::vector<Uint>& octtree_idx)
 {
   //CFinfo << "point " << coordinate << CFflush;
@@ -218,7 +218,7 @@ bool COcttree::find_octtree_cell(const RealVector& coordinate, std::vector<Uint>
     }
     octtree_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
   }
-      
+
   //CFinfo << " should be in box ("<<m_point_idx[0]<<","<<m_point_idx[1]<<","<<m_point_idx[2]<<")" << CFendl;
   return true;
 }
@@ -233,7 +233,7 @@ void COcttree::gather_elements_around_idx(const std::vector<Uint>& octtree_idx, 
 
   int irmin, jrmin, krmin;
   int irmax, jrmax, krmax;
-  
+
   if (ring == 0)
   {
     boost_foreach(const Uint unif_elem_idx, m_octtree[octtree_idx[XX]][octtree_idx[YY]][octtree_idx[ZZ]])
@@ -262,7 +262,7 @@ void COcttree::gather_elements_around_idx(const std::vector<Uint>& octtree_idx, 
             for (k = kmin; k <= kmax; ++k)
             {
               if ( i == irmin || i == irmax || j == jrmin || j == jrmax || k == krmin || k == krmax)
-              {              
+              {
                 boost_foreach(const Uint unif_elem_idx, m_octtree[i][j][k])
                   unified_elems.push_back(unif_elem_idx);
               }
@@ -272,7 +272,7 @@ void COcttree::gather_elements_around_idx(const std::vector<Uint>& octtree_idx, 
 
         break;
       case DIM_2D:
-      
+
         irmin = int(octtree_idx[XX])-int(ring);  irmax = int(octtree_idx[XX])+int(ring);
         jrmin = int(octtree_idx[YY])-int(ring);  jrmax = int(octtree_idx[YY])+int(ring);
 
@@ -290,9 +290,9 @@ void COcttree::gather_elements_around_idx(const std::vector<Uint>& octtree_idx, 
             }
           }
         }
-        
+
         break;
-        
+
       case DIM_1D:
         irmin = int(octtree_idx[XX])-int(ring);  irmax = int(octtree_idx[XX])+int(ring);
         imin = std::max(int(octtree_idx[XX])-int(ring), 0);  imax = std::min(int(octtree_idx[XX])+int(ring),int(m_N[XX])-1);
@@ -305,17 +305,17 @@ void COcttree::gather_elements_around_idx(const std::vector<Uint>& octtree_idx, 
               unified_elems.push_back(unif_elem_idx);
           }
         }
-        
+
 
         break;
     }
   }
 
-    
+
   //CFinfo << m_pointcloud.size() << " points in the pointcloud " << CFendl;
- 
+
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& target_coord)
@@ -326,9 +326,9 @@ boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& 
 
     Component::ConstPtr component;
     Uint elem_idx;
-    
+
     gather_elements_around_idx(m_octtree_idx,0,unified_elements);
-    
+
     boost_foreach(const Uint unif_elem_idx, unified_elements)
     {
       boost::tie(component,elem_idx)=m_elements->location(unif_elem_idx);
@@ -339,11 +339,11 @@ boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& 
         return boost::make_tuple(elements.as_ptr<CElements>(),elem_idx);
       }
     }
-    
+
     // if arrived here, it means no element has been found. Enlarge the search with one more ring, for possible misses.
     unified_elements.resize(0); unified_elements.reserve(16);
     gather_elements_around_idx(m_octtree_idx,1,unified_elements);
-    
+
     boost_foreach(const Uint unif_elem_idx, unified_elements)
     {
       boost::tie(component,elem_idx)=m_elements->location(unif_elem_idx);
@@ -354,7 +354,7 @@ boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& 
         return boost::make_tuple(elements.as_ptr<CElements>(),elem_idx);
       }
     }
-    
+
   }
   // if arrived here, it means no element has been found. Give up.
   return boost::make_tuple(CElements::ConstPtr(), 0u);

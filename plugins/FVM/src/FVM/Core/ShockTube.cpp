@@ -8,7 +8,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
- 
+
 #include "Common/CGroup.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Signal.hpp"
@@ -105,7 +105,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
 
   CFinfo << "Creating physics" << CFendl;
   CPhysicalModel& physics = model.create_physics("physics");
-  physics.configure_property( "Dimensions", p.get_option<Uint>("dimension") );
+  physics.configure_option( "Dimensions", p.get_option<Uint>("dimension") );
 
   ////////////////////////////////////////////////////////////////////////////////
   // Create tools
@@ -148,8 +148,8 @@ void ShockTube::signal_create_model ( SignalArgs& args )
 
   CFinfo << "Creating FiniteVolumeSolver" << CFendl;
   FiniteVolumeSolver& solver = model.create_solver("CF.FVM.Core.FiniteVolumeSolver").as_type<FiniteVolumeSolver>();
-  solver.configure_property("physical_model",physics.uri());
-  solver.configure_property("domain",domain.uri());
+  solver.configure_option("physical_model",physics.uri());
+  solver.configure_option("domain",domain.uri());
   solver.configure_option_recursively("time",model.time().uri());
   solver.configure_option_recursively("time_accurate",true);
 
@@ -159,7 +159,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
 
   CFinfo << "Setting initial condition" << CFendl;
   CInitFieldFunction& init_solution = model.tools().create_component<CInitFieldFunction>("init_solution");
-  init_solution.configure_property("field",find_component_with_tag(mesh,"solution").uri());
+  init_solution.configure_option("field",find_component_with_tag(mesh,"solution").uri());
 
   const Real r_L = 4.696;             const Real r_R = 1.408;
   const Real p_L = 404400;            const Real p_R = 101100;
@@ -175,7 +175,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
     std::vector<std::string> function(3);
     for (Uint i=0; i<function.size(); ++i)
       function[i]="if(x<=5,"+to_str(left[i])+","+to_str(right[i])+")";
-    init_solution.configure_property("functions",function);
+    init_solution.configure_option("functions",function);
   }
   else if (physics.dimensions() == 2)
   {
@@ -185,7 +185,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
     std::vector<std::string> function(4);
     for (Uint i=0; i<function.size(); ++i)
       function[i]="if(x<=5&y<=5,"+to_str(left[i])+","+to_str(right[i])+")";
-    init_solution.configure_property("functions",function);
+    init_solution.configure_option("functions",function);
   }
   else
     throw NotSupported (FromHere(), "more than 2 dimensions not supported");
@@ -218,9 +218,9 @@ void ShockTube::signal_create_model ( SignalArgs& args )
 
   CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","mesh_writer");
   model.tools().add_component(writer);
-  writer->configure_property("fields",std::vector<URI>(1,find_component_with_tag(mesh,"solution").uri()));
-  writer->configure_property("file",URI(model.name()+".msh"));
-  writer->configure_property("mesh",mesh.uri());
+  writer->configure_option("fields",std::vector<URI>(1,find_component_with_tag(mesh,"solution").uri()));
+  writer->configure_option("file",URI(model.name()+".msh"));
+  writer->configure_option("mesh",mesh.uri());
 
 }
 

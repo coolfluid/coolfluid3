@@ -37,13 +37,13 @@ BCReflectCons2D::BCReflectCons2D ( const std::string& name ) :
 {
   mark_basic();
   // options
-  m_properties.add_option(OptionURI::create("solution","Solution","Cell based solution","cpath:/",URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("solution","Solution","Cell based solution","cpath:/",URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &BCReflectCons2D::config_solution,   this ) );
 
-  m_properties.add_option(OptionURI::create(Mesh::Tags::normal(),"Face Normal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create(Mesh::Tags::normal(),"Face Normal","Unit normal to the face, outward from left cell", URI("cpath:"), URI::Scheme::CPATH))
     ->attach_trigger ( boost::bind ( &BCReflectCons2D::config_normal,   this ) );
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &BCReflectCons2D::trigger_elements,   this ) );
+  m_options["Elements"].attach_trigger ( boost::bind ( &BCReflectCons2D::trigger_elements,   this ) );
 
 }
 
@@ -51,7 +51,7 @@ BCReflectCons2D::BCReflectCons2D ( const std::string& name ) :
 
 void BCReflectCons2D::config_solution()
 {
-  URI uri;  property("solution").put_value(uri);
+  URI uri;  option("solution").put_value(uri);
   CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
   if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_connected_solution.set_field(comp);
@@ -61,7 +61,7 @@ void BCReflectCons2D::config_solution()
 
 void BCReflectCons2D::config_normal()
 {
-  URI uri;  property(Mesh::Tags::normal()).put_value(uri);
+  URI uri;  option(Mesh::Tags::normal()).put_value(uri);
   CField& comp = Common::Core::instance().root().access_component(uri).as_type<CField>();
   m_face_normal.set_field(comp);
 }

@@ -51,7 +51,7 @@ Common::ComponentBuilder < Mesh::Actions::CExtract, Mesh::CMeshTransformer, Mesh
 CExtract::CExtract( const std::string& name )
 : CMeshTransformer(name)
 {
-  properties().add_option<OptionArrayT<std::string> >("Regions","regions to extract, can be regular expression matched with the full path",std::vector<std::string>())
+  m_options.add_option<OptionArrayT<std::string> >("Regions","regions to extract, can be regular expression matched with the full path",std::vector<std::string>())
     ->mark_basic();
 }
 
@@ -102,7 +102,7 @@ void CExtract::execute()
   // Storage of regions to keep
   std::list<std::string> keep_region_paths;
 
-  std::vector<std::string> args;  property("Regions").put_value(args);
+  std::vector<std::string> args;  option("Regions").put_value(args);
 
   // special cases "volumes" and "surfaces" as arg
   BOOST_FOREACH(const std::string region_name, args)

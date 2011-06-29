@@ -39,15 +39,15 @@ RK::RK ( const std::string& name  )
   properties()["brief"] = std::string("Runge Kutta differential equation solver");
   properties()["description"] = std::string("Solves the differential equation using Runge Kutta method");
 
-  properties().add_option(OptionT<Uint>::create("stages","Stages","Number of stages used in the multistage method",m_stages))
+  m_options.add_option(OptionT<Uint>::create("stages","Stages","Number of stages used in the multistage method",m_stages))
       ->link_to(&m_stages)
       ->attach_trigger( boost::bind( &RK::config_stages, this) )
       ->mark_basic();
   config_stages();
 
-  properties().add_option(OptionComponent<CField>::create(FlowSolver::Tags::solution(),"Solution","Solution",&m_solution));
-  properties().add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(),"Residual","Residual",&m_residual));
-  properties().add_option(OptionComponent<CField>::create(FlowSolver::Tags::update_coeff(),"Update Coefficient","Update Coefficient",&m_update_coeff));
+  m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::solution(),"Solution","Solution",&m_solution));
+  m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(),"Residual","Residual",&m_residual));
+  m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::update_coeff(),"Update Coefficient","Update Coefficient",&m_update_coeff));
 
   m_for_each_stage = create_static_component_ptr<CGroup>("1_for_each_stage");
   m_for_each_stage->mark_basic();
@@ -149,10 +149,10 @@ void RK::execute()
   CTable<Real>&       U0 = m_solution_backup.lock()->data();
 
   /// @todo put this in triggers of own config options
-  m_update->configure_property("solution",m_solution.lock()->uri());
-  m_update->configure_property("solution_backup",m_solution_backup.lock()->uri());
-  m_update->configure_property("residual",m_residual.lock()->uri());
-  m_update->configure_property("update_coeff",m_update_coeff.lock()->uri());
+  m_update->configure_option("solution",m_solution.lock()->uri());
+  m_update->configure_option("solution_backup",m_solution_backup.lock()->uri());
+  m_update->configure_option("residual",m_residual.lock()->uri());
+  m_update->configure_option("update_coeff",m_update_coeff.lock()->uri());
 
   /// 1) backup solution and time
   U0 = U;

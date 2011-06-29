@@ -6,7 +6,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/OptionT.hpp"
@@ -38,16 +38,16 @@ CInitFieldConstant::CInitFieldConstant( const std::string& name )
   m_constant(0.)
 {
 
-  properties()["brief"] = std::string("Initialize a field with a constant value");
+  m_properties["brief"] = std::string("Initialize a field with a constant value");
   std::string desc;
   desc =
     "  Usage: CInitFieldConstant constant \n";
-  properties()["description"] = desc;
+  m_properties["description"] = desc;
 
-  m_properties.add_option(OptionComponent<CField>::create("field","Field","Field to initialize",&m_field))
+  m_options.add_option(OptionComponent<CField>::create("field","Field","Field to initialize",&m_field))
     ->mark_basic();
 
-  m_properties.add_option<
+  m_options.add_option<
       OptionT<Real> > ("constant","Constant","Constant applied as initial field", m_constant)
       ->link_to( &m_constant )
       ->mark_basic();

@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/URI.hpp"
- 
+
 
 #include "Common/OptionArray.hpp"
 #include "Common/OptionComponent.hpp"
@@ -34,23 +34,23 @@ Action::Action ( const std::string& name ) :
 
   // options
 
-  m_properties.add_option( OptionComponent<CMesh>::create("mesh","Mesh",
+  m_options.add_option( OptionComponent<CMesh>::create("mesh","Mesh",
                                                           "Mesh the Discretization Method will be applied to",
                                                           &m_mesh))
     ->mark_basic();
 
-  m_properties.add_option( OptionComponent<CPhysicalModel>::create("physical_model", "Physical Model"
+  m_options.add_option( OptionComponent<CPhysicalModel>::create("physical_model", "Physical Model"
                                                                    "Physical model",
                                                                    &m_physical_model))
     ->mark_basic();
 
-  m_properties.add_option( OptionComponent<CTime>::create("time", "Time"
+  m_options.add_option( OptionComponent<CTime>::create("time", "Time"
                                                                    "Time tracking component",
                                                                    &m_time))
     ->mark_basic();
 
   std::vector< URI > dummy;
-  m_properties.add_option< OptionArrayT < URI > > ("regions", "Regions", "Regions this action is applied to", dummy)
+  m_options.add_option< OptionArrayT < URI > > ("regions", "Regions", "Regions this action is applied to", dummy)
       ->attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
 
 }
@@ -110,7 +110,7 @@ ComponentIteratorRange<CRegion> Action::regions()
 
 void Action::config_regions()
 {
-  std::vector<URI> vec; property("regions").put_value(vec);
+  std::vector<URI> vec; option("regions").put_value(vec);
 
   boost_foreach(const URI region_path, vec)
   {

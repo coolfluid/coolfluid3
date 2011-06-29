@@ -57,21 +57,19 @@ ForwardEuler::ForwardEuler ( const std::string& name ) :
 
   // options
 
-  m_properties.add_option< OptionT<Real> > ("cfl","CFL", "Courant Number", m_cfl)
+  m_options.add_option< OptionT<Real> > ("cfl","CFL", "Courant Number", m_cfl)
       ->mark_basic()
       ->link_to(&m_cfl);
 
-  m_properties.add_option<OptionT <Uint> >("MaxIter",
-                                           "Maximum number of iterations",
-                                            m_max_iter)
+  m_options.add_option<OptionT <Uint> >("MaxIter", "Maximum number of iterations", m_max_iter)
       ->mark_basic()
       ->link_to( &m_max_iter );
 
-  m_properties.add_option(OptionComponent<CField>::create("solution","Solution","Solution field", &m_solution));
+  m_options.add_option(OptionComponent<CField>::create("solution","Solution","Solution field", &m_solution));
 
-  m_properties.add_option(OptionComponent<CField>::create("wave_speed","WaveSpeed","Wave speed field", &m_wave_speed));
+  m_options.add_option(OptionComponent<CField>::create("wave_speed","WaveSpeed","Wave speed field", &m_wave_speed));
 
-  m_properties.add_option(OptionComponent<CField>::create("residual","Residual field", &m_residual));
+  m_options.add_option(OptionComponent<CField>::create("residual","Residual field", &m_residual));
 
   create_static_component_ptr<CCriterionMaxIterations>("max_iterations");
 
@@ -95,7 +93,7 @@ void ForwardEuler::execute()
   if (m_wave_speed.expired()) throw SetupError(FromHere(), "WaveSpeed Field was not set");
   if (m_residual.expired())   throw SetupError(FromHere(), "Residual field was not set");
 
-  get_child("max_iterations").configure_property("iterative_step", uri());
+  get_child("max_iterations").configure_option("iterative_step", uri());
 
 //  CTable<Real>& solution     = m_solution.lock()->data();
 //  CTable<Real>& wave_speed   = m_wave_speed.lock()->data();
@@ -121,7 +119,7 @@ void ForwardEuler::execute()
   // iteration loop
 
   Uint iteration = 1; // iterations start from 1 ( max iter zero will do nothing )
-  property("iteration").change_value( iteration );
+  option("iteration").change_value( iteration );
 
   while( !stop_condition() )
   {
@@ -156,7 +154,7 @@ void ForwardEuler::execute()
 
     /// @todo move current rhs as a property of the iterate or solver components
     // output convergence info
-    Real rhs_norm = compute_norm.property("Norm").value<Real>();
+    Real rhs_norm = compute_norm.option("Norm").value<Real>();
     std::cout << " Iter [" << std::setw(4) << iteration << "]"
               << " L2(rhs) [" << std::setw(12) << rhs_norm << "]" << std::endl;
 
@@ -175,7 +173,7 @@ void ForwardEuler::execute()
 
    // increment iteration
 
-   property("iteration").change_value( ++iteration ); // update the iteration number
+   option("iteration").change_value( ++iteration ); // update the iteration number
 
   }
 }

@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/URI.hpp"
- 
+
 
 #include "Common/OptionArray.hpp"
 #include "Common/OptionComponent.hpp"
@@ -24,7 +24,7 @@ namespace Actions {
 
 CActionDirector::CActionDirector(const std::string& name): CAction(name)
 {
-  m_properties.add_option< OptionArrayT <URI> >("ActionList", "Actions to execute in sequence")
+  m_options.add_option< OptionArrayT <URI> >("ActionList", "Actions to execute in sequence")
     ->attach_trigger( boost::bind(&CActionDirector::trigger_actions, this) );
 }
 
@@ -41,7 +41,7 @@ void CActionDirector::execute()
 void CActionDirector::trigger_actions()
 {
   m_actions.clear();
-  std::vector<URI> actions; property("ActionList").put_value(actions);
+  std::vector<URI> actions; option("ActionList").put_value(actions);
   m_actions.reserve(actions.size());
   BOOST_FOREACH(const URI& action_path, actions)
   {
@@ -51,7 +51,7 @@ void CActionDirector::trigger_actions()
     CAction::Ptr action = boost::dynamic_pointer_cast<CAction>(action_component);
     if(!action)
       throw InvalidURI(FromHere(), "Action component with path " + action_path.path() + " exists, but it is not a CAction");
-    
+
     m_actions.push_back(boost::weak_ptr<CAction>(action));
   }
 }

@@ -276,7 +276,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   BOOST_CHECK(true);
 
   // Configure the CAction
-  heat1d_action.configure_property("Region", mesh->topology().uri());
+  heat1d_action.configure_option("Region", mesh->topology().uri());
   
   // Create the fields
   physical_model.create_fields(*mesh, root.properties());
@@ -289,14 +289,14 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Left boundary condition
   CAction& xneg_action = build_nodes_action("xneg", root, root, physical_model, dirichlet(lss, temperature) = 10. );  
-  xneg_action.configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg").uri());
+  xneg_action.configure_option("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg").uri());
   xneg_action.execute();
   
   BOOST_CHECK(true);
 
   // Right boundary condition
   CAction& xpos_action = build_nodes_action("xpos", root, root, physical_model, dirichlet(lss, temperature) = 35. );  
-  xpos_action.configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos").uri());
+  xpos_action.configure_option("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos").uri());
   xpos_action.execute();
   
   // Solve system

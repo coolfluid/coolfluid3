@@ -47,16 +47,16 @@ CModel::CModel( const std::string& name  ) :
 
    std::string cwd = boost::filesystem::current_path().string();
 
-   m_properties.add_option< OptionURI >("WorkingDir", "Your working directory", URI( cwd ) )
+   m_options.add_option< OptionURI >("WorkingDir", "Your working directory", URI( cwd ) )
        ->mark_basic();
-   m_properties.add_option< OptionURI >("ResultsDir", "Directory to store the output files", URI( cwd ) )
+   m_options.add_option< OptionURI >("ResultsDir", "Directory to store the output files", URI( cwd ) )
        ->mark_basic();
-   m_properties.add_option< OptionT<Uint> >("CPUs", "Number of cpus to use in simulation", 1u )
+   m_options.add_option< OptionT<Uint> >("CPUs", "Number of cpus to use in simulation", 1u )
        ->mark_basic();
 
    // properties
 
-   properties()["steady"] = bool(true);
+   m_properties["steady"] = bool(true);
 
    // signals
    SignalPtr sig_create_physics = regist_signal ( "create_physics" , "Create the physical model", "Create Physics" );

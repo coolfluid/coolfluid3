@@ -99,7 +99,7 @@ void Core::initiate ( int argc, char** argv )
   m_argc = argc;
   m_argv = argv;
 
-  if( environment().property("regist_signal_handlers").value<bool>() )
+  if( environment().option("regist_signal_handlers").value<bool>() )
     OSystem::instance().layer()->regist_os_signal_handlers();
 
   // load libraries listed in the COOLFLUID_PLUGINS environment variable

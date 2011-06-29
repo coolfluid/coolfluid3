@@ -69,26 +69,26 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
   // create meshreader
   CMeshGenerator::Ptr mesh_generator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
-  mesh_generator->configure_property("parent",Core::instance().root().uri());
-  mesh_generator->configure_property("lengths",std::vector<Real>(2,10.));
-  mesh_generator->configure_property("nb_cells",std::vector<Uint>(2,5));
+  mesh_generator->configure_option("parent",Core::instance().root().uri());
+  mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
+  mesh_generator->configure_option("nb_cells",std::vector<Uint>(2,5));
   mesh_generator->execute();
   CMesh& mesh = find_component<CMesh>(Core::instance().root()).as_type<CMesh>();
 
   CStencilComputerRings::Ptr stencil_computer = Core::instance().root().create_component_ptr<CStencilComputerRings>("stencilcomputer");
-  stencil_computer->configure_property("mesh", mesh.uri() );
+  stencil_computer->configure_option("mesh", mesh.uri() );
 
   std::vector<Uint> stencil;
-//  stencil_computer->configure_property("stencil_size", 10u );
-  stencil_computer->configure_property("nb_rings", 1u );
+//  stencil_computer->configure_option("stencil_size", 10u );
+  stencil_computer->configure_option("nb_rings", 1u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 9u);
 
-  stencil_computer->configure_property("nb_rings", 2u );
+  stencil_computer->configure_option("nb_rings", 2u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 20u);
 
-  stencil_computer->configure_property("nb_rings", 3u );
+  stencil_computer->configure_option("nb_rings", 3u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 25u);
   

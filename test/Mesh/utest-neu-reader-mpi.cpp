@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
-  meshreader->configure_property("read_groups",true);
+  meshreader->configure_option("read_groups",true);
 
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
@@ -110,10 +110,10 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
-  meshreader->configure_property("number_of_processors",(Uint) PE::instance().size());
-  meshreader->configure_property("rank",(Uint) PE::instance().rank());
-  meshreader->configure_property("Repartition",false);
-  meshreader->configure_property("OutputRank",(Uint) 2);
+  meshreader->configure_option("number_of_processors",(Uint) PE::instance().size());
+  meshreader->configure_option("rank",(Uint) PE::instance().rank());
+  meshreader->configure_option("Repartition",false);
+  meshreader->configure_option("OutputRank",(Uint) 2);
 
   // the file to read from
   boost::filesystem::path fp_in ("hextet.neu");
@@ -141,8 +141,8 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
 
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
-  meshreader->configure_property("Repartition",true);
-  meshreader->configure_property("OutputRank",(Uint) 0);
+  meshreader->configure_option("Repartition",true);
+  meshreader->configure_option("OutputRank",(Uint) 0);
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");

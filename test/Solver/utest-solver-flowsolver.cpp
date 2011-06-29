@@ -33,11 +33,11 @@ using namespace CF::Mesh;
 
 #define CF_CHECK_THROW( command , exception ) \
   { \
-    Core::instance().environment().configure_property("exception_outputs",false); \
-    Core::instance().environment().configure_property("exception_backtrace",false); \
+    Core::instance().environment().configure_option("exception_outputs",false); \
+    Core::instance().environment().configure_option("exception_backtrace",false); \
     BOOST_CHECK_THROW( command , exception ); \
-    Core::instance().environment().configure_property("exception_outputs",true); \
-    Core::instance().environment().configure_property("exception_backtrace",true); \
+    Core::instance().environment().configure_option("exception_outputs",true); \
+    Core::instance().environment().configure_option("exception_backtrace",true); \
   }
 
 namespace CF {
@@ -51,14 +51,14 @@ class Solver_API Echo : public CAction
 
   Echo(const std::string& name ) : CAction(name)
   {
-    properties().add_option(OptionT<std::string>::create("echo","Echo","Print to screen","echo"));
-    properties().add_option(OptionArrayT<URI>::create("regions","Regions","Print to screen",std::vector<URI>()));
+    m_options.add_option(OptionT<std::string>::create("echo","Echo","Print to screen","echo"));
+    m_options.add_option(OptionArrayT<URI>::create("regions","Regions","Print to screen",std::vector<URI>()));
   }
   virtual ~Echo() {}
 
   static std::string type_name() { return "Echo"; }
 
-  virtual void execute() { CFinfo << property("echo").value_str() << CFendl; }
+  virtual void execute() { CFinfo << option("echo").value_str() << CFendl; }
 };
 } // Solver
 } // CF
@@ -83,29 +83,29 @@ BOOST_AUTO_TEST_CASE( test_solver_setup1 )
 
   FlowSolver& solver = root.create_component<FlowSolver>("flowsolver");
   CAction& setup = solver.create_component<Echo>("setup");
-  setup.configure_property("echo",std::string("setup called"));
+  setup.configure_option("echo",std::string("setup called"));
   CAction& solve = solver.create_component<Echo>("solve");
-  solve.configure_property("echo",std::string("solve called"));
+  solve.configure_option("echo",std::string("solve called"));
 
   CF_CHECK_THROW( solver.solve() , SetupError );  // physical model not set
 
-  solver.configure_property("physical_model",root.get_child("physical_model").uri());
+  solver.configure_option("physical_model",root.get_child("physical_model").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("mesh",root.get_child("mesh").uri());
+  solver.configure_option("mesh",root.get_child("mesh").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("time",root.get_child("time").uri());
+  solver.configure_option("time",root.get_child("time").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError ); // setup not set
 
-  solver.configure_property("setup",setup.uri());
+  solver.configure_option("setup",setup.uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError ); // setup not set
 
-  solver.configure_property("solve",solve.uri());
+  solver.configure_option("solve",solve.uri());
 
   // Finally enough configured to solve
   BOOST_CHECK_NO_THROW(solver.solve());
@@ -120,29 +120,29 @@ BOOST_AUTO_TEST_CASE( test_solver_setup2 )
 
   FlowSolver& solver = root.create_component<FlowSolver>("flowsolver_1");
   CAction& setup = solver.create_component<Echo>("setup");
-  setup.configure_property("echo",std::string("setup called"));
+  setup.configure_option("echo",std::string("setup called"));
   CAction& solve = solver.create_component<Echo>("solve");
-  solve.configure_property("echo",std::string("solve called"));
+  solve.configure_option("echo",std::string("solve called"));
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("solve",solve.uri());
+  solver.configure_option("solve",solve.uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("setup",setup.uri());
+  solver.configure_option("setup",setup.uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("physical_model",root.get_child("physical_model").uri());
+  solver.configure_option("physical_model",root.get_child("physical_model").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("mesh",root.get_child("mesh").uri());
+  solver.configure_option("mesh",root.get_child("mesh").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("time",root.get_child("time").uri());
+  solver.configure_option("time",root.get_child("time").uri());
 
   // Finally enough configured to solve
   BOOST_CHECK_NO_THROW(solver.solve());
@@ -152,10 +152,10 @@ BOOST_AUTO_TEST_CASE( test_solver_setup2 )
   CF_CHECK_THROW(solver.create_inner_action("compute_convective_terms","CF.Solver.Echo",root.get_child("mesh").as_type<CMesh>().topology()), SetupError );
 
   CAction& bc = solver.create_component<CGroupActions>("compute_bc");
-  solver.configure_property("bc",bc.uri());
+  solver.configure_option("bc",bc.uri());
 
   CAction& inner = solver.create_component<CGroupActions>("compute_inner");
-  solver.configure_property("inner",bc.uri());
+  solver.configure_option("inner",bc.uri());
 
   BOOST_CHECK_NO_THROW(solver.create_bc_action("compute_convective_terms","CF.Solver.Echo",root.get_child("mesh").as_type<CMesh>().topology()));
 
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( test_solver_setup3 )
   FlowSolver& solver = root.create_component<FlowSolver>("flowsolver_2");
 
   CAction& setup = solver.create_component<Echo>("setup");
-  setup.configure_property("echo",std::string("setup called"));
+  setup.configure_option("echo",std::string("setup called"));
 
   CAction& solve = solver.create_component<CGroupActions>("solve");
   solve.create_component<CGroupActions>("inner")
@@ -183,23 +183,23 @@ BOOST_AUTO_TEST_CASE( test_solver_setup3 )
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("solve",solve.uri());
+  solver.configure_option("solve",solve.uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("setup",setup.uri());
+  solver.configure_option("setup",setup.uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("physical_model",root.get_child("physical_model").uri());
+  solver.configure_option("physical_model",root.get_child("physical_model").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("mesh",root.get_child("mesh").uri());
+  solver.configure_option("mesh",root.get_child("mesh").uri());
 
   CF_CHECK_THROW( solver.solve() , SetupError );
 
-  solver.configure_property("time",root.get_child("time").uri());
+  solver.configure_option("time",root.get_child("time").uri());
 
   // Finally enough configured to solve
   BOOST_CHECK_NO_THROW(solver.solve());
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( test_solver_setup3 )
   BOOST_CHECK_NO_THROW(solver.create_inner_action("compute_diffusive_terms","CF.Solver.Echo",root.get_child("mesh").as_type<CMesh>().topology()));
 
   CFinfo << solver.tree() << CFendl;
-  CFinfo << solver.properties().list_options() << CFendl;
+  CFinfo << solver.options().list_options() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -59,16 +59,17 @@ BOOST_AUTO_TEST_CASE( RegisterVariable )
   physical_model().register_variable("Density", "rho", CPhysicalModel::SCALAR, false);
 
   // Check if the expected options are there
-  BOOST_CHECK_EQUAL(physical_model().property("PressureFieldName").value_str(), "Pressure");
-  BOOST_CHECK_EQUAL(physical_model().property("VelocityFieldName").value_str(), "Velocity");
-  BOOST_CHECK_EQUAL(physical_model().property("DensityFieldName").value_str(), "Density");
-  BOOST_CHECK_EQUAL(physical_model().property("PressureVariableName").value_str(), "p");
-  BOOST_CHECK_EQUAL(physical_model().property("VelocityVariableName").value_str(), "u");
-  BOOST_CHECK_EQUAL(physical_model().property("DensityVariableName").value_str(), "rho");
 
+  BOOST_CHECK_EQUAL(physical_model().option("PressureFieldName").value_str(), "Pressure");
+  BOOST_CHECK_EQUAL(physical_model().option("VelocityFieldName").value_str(), "Velocity");
+  BOOST_CHECK_EQUAL(physical_model().option("DensityFieldName").value_str(), "Density");
+  BOOST_CHECK_EQUAL(physical_model().option("PressureVariableName").value_str(), "p");
+  BOOST_CHECK_EQUAL(physical_model().option("VelocityVariableName").value_str(), "u");
+  BOOST_CHECK_EQUAL(physical_model().option("DensityVariableName").value_str(), "rho");
+  
   // Change the name of the field for the state varialbes
-  physical_model().property("PressureFieldName").change_value(std::string("StateField"));
-  physical_model().property("VelocityFieldName").change_value(std::string("StateField"));
+  physical_model().option("PressureFieldName").change_value(std::string("StateField"));
+  physical_model().option("VelocityFieldName").change_value(std::string("StateField"));
 }
 
 BOOST_AUTO_TEST_CASE( CreateFields )

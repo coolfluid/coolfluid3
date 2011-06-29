@@ -26,9 +26,9 @@ Roe::Roe ( const std::string& name  )
   properties()["brief"] = std::string("Approximate Riemann solver Roe");
   properties()["description"] = std::string("Solves the Riemann problem using the Roe scheme");
 
-  property("solution_state").as_option().attach_trigger( boost::bind(&Roe::setup, this) );
+  option("solution_state").attach_trigger( boost::bind(&Roe::setup, this) );
 
-  m_properties.add_option(OptionT<std::string>::create("roe_state","Roe State","Component describing the Roe state",std::string("")))
+  m_options.add_option(OptionT<std::string>::create("roe_state","Roe State","Component describing the Roe state",std::string("")))
       ->mark_basic()
       ->attach_trigger( boost::bind(&Roe::build_roe_state, this) )
       ->add_tag("roe_state");
@@ -40,7 +40,7 @@ void Roe::build_roe_state()
 {
   if (is_not_null(m_roe_state))
     remove_component(*m_roe_state);
-  m_roe_state = create_component( "roe_state" , property("roe_state").value_str() ).as_ptr<State>();
+  m_roe_state = create_component( "roe_state" , option("roe_state").value_str() ).as_ptr<State>();
   m_roe_avg_vars = m_roe_state->create_physics();
 }
 

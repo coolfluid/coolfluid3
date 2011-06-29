@@ -37,7 +37,7 @@ namespace Mesh {
 
   using namespace Common;
   using namespace Math::MathConsts;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CF::Common::ComponentBuilder < CLinearInterpolator, CInterpolator, LibMesh > CLinearInterpolator_Builder;
@@ -47,19 +47,19 @@ CF::Common::ComponentBuilder < CLinearInterpolator, CInterpolator, LibMesh > CLi
 CLinearInterpolator::CLinearInterpolator( const std::string& name )
   : CInterpolator(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_point_idx(3), m_sufficient_nb_points(0)
 {
-   
 
-  m_properties.add_option< OptionT<Uint> >
+
+  m_options.add_option< OptionT<Uint> >
   ( "ApproximateNbElementsPerCell",
     "The approximate amount of elements that are stored in a structured" ,
     1 );
 
   std::vector<Uint> dummy;
-  m_properties.add_option< OptionArrayT<Uint> >
+  m_options.add_option< OptionArrayT<Uint> >
   ( "Divisions",
     "The number of divisions in each direction of the comb. Takes precedence over \"ApproximateNbElementsPerCell\". " ,
     dummy);
-    
+
   m_elements = create_component_ptr<CUnifiedData>("elements");
 
 }
@@ -75,21 +75,21 @@ void CLinearInterpolator::construct_internal_storage(const CMesh& source)
     create_octtree();
   }
 }
-  
+
 //////////////////////////////////////////////////////////////////////
-  
+
 void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField& target)
-{  
+{
   const CTable<Real>& s_data = source.data();
   CTable<Real>& t_data = target.data();
-  
+
   // Allocations
   CElements::ConstPtr s_elements;
   Uint s_elm_idx;
   RealVector t_node(m_dim); t_node.setZero();
-  
+
   if (source.basis() == CField::Basis::POINT_BASED && target.basis() == CField::Basis::POINT_BASED)
-  {    
+  {
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
       to_vector(t_node,target.coords(t_node_idx));
@@ -99,13 +99,13 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
         CConnectivity::ConstRow s_elm = s_elements->node_connectivity()[s_elm_idx];
         std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));
         fill( s_nodes , s_elements->nodes().coordinates() , s_elm );
-        
+
         std::vector<Real> w(s_nodes.size());
         pseudo_laplacian_weighted_linear_interpolation(s_nodes, t_node, w);
-        
+
         for (Uint idata=0; idata<t_data.row_size(); ++idata)
           t_data[t_node_idx][idata] = 0;
-        
+
         for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
           for (Uint idata=0; idata<t_data.row_size(); ++idata)
             t_data[t_node_idx][idata] += w[s_node_idx]*s_data[s_elm[s_node_idx]][idata];
@@ -113,7 +113,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
     }
   }
   else if (source.basis() == CField::Basis::ELEMENT_BASED && target.basis() == CField::Basis::POINT_BASED)
-  {    
+  {
     Component::ConstPtr component;
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
@@ -121,26 +121,26 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
       if (find_point_in_octtree(t_node,m_point_idx))
       {
         find_pointcloud(m_sufficient_nb_points);
-        
+
         std::vector<Uint> s_data_idx(m_element_cloud.size());
         std::vector<RealVector> s_centroids(m_element_cloud.size(),RealVector(m_dim));
         Uint cnt(0);
         boost_foreach(const Uint glb_elem_idx, m_element_cloud)
         {
           boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
-          CElements const& elements = component->as_type<CElements const>();          
+          CElements const& elements = component->as_type<CElements const>();
           RealMatrix elem_coords = elements.get_coordinates(s_elm_idx);
           elements.element_type().compute_centroid(elem_coords,s_centroids[cnt]);
-          s_data_idx[cnt] = source.elements_start_idx(elements) + s_elm_idx;            
+          s_data_idx[cnt] = source.elements_start_idx(elements) + s_elm_idx;
           ++cnt;
-        } 
-        
+        }
+
         std::vector<Real> w(s_centroids.size());
         pseudo_laplacian_weighted_linear_interpolation(s_centroids, t_node, w);
-        
+
         for (Uint idata=0; idata<t_data.row_size(); ++idata)
           t_data[t_node_idx][idata] = 0;
-        
+
         for (Uint e=0; e<s_centroids.size(); ++e)
           for (Uint idata=0; idata<t_data.row_size(); ++idata)
             t_data[t_node_idx][idata] += w[e] * s_data[s_data_idx[e]][idata];
@@ -159,7 +159,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
     t_centroid.setZero();
     Uint s_elm_idx;
     RealMatrix elem_coordinates;
-    
+
     boost_foreach( CElements& t_elements, find_components_recursively<CElements>(target.topology()) )
     {
       if (t_view.set_elements(t_elements))
@@ -169,7 +169,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
         {
           t_elements.put_coordinates(elem_coordinates,t_elm_idx);
           t_elements.element_type().compute_centroid(elem_coordinates,t_centroid);
-          
+
           boost::tie(s_elements,s_elm_idx) = find_element(t_centroid);
           if (is_not_null(s_elements))
           {
@@ -210,7 +210,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
         {
           t_elements.put_coordinates(elem_coordinates,t_elm_idx);
           t_elements.element_type().compute_centroid(elem_coordinates,t_centroid);
-          
+
 
 
           if (find_point_in_octtree(t_centroid,m_point_idx))
@@ -226,9 +226,9 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
 
               RealMatrix elem_coords = elements.get_coordinates(s_elm_idx);
               elements.element_type().compute_centroid(elem_coords,s_centroids[cnt]);
-              s_data_idx[cnt] = source.elements_start_idx(elements) + s_elm_idx;            
+              s_data_idx[cnt] = source.elements_start_idx(elements) + s_elm_idx;
               ++cnt;
-            } 
+            }
 
             std::vector<Real> w(s_centroids.size());
             pseudo_laplacian_weighted_linear_interpolation(s_centroids, t_centroid, w);
@@ -264,11 +264,11 @@ void CLinearInterpolator::create_bounding_box()
   {
     m_dim = std::max(elements.element_type().dimensionality() , m_dim);
   }
-  
+
   // find bounding box coordinates for region 1 and region 2
-  m_bounding[MIN].setConstant(Real_max());    
+  m_bounding[MIN].setConstant(Real_max());
   m_bounding[MAX].setConstant(Real_min());
-    
+
   boost_foreach(CTable<Real>::ConstRow coords, m_source_mesh->nodes().coordinates().array())
   {
     for (Uint d=0; d<m_dim; ++d)
@@ -295,16 +295,16 @@ void CLinearInterpolator::create_octtree()
   m_nb_elems = m_source_mesh->topology().recursive_filtered_elements_count(IsElementsVolume());
 
 
-  if (property("Divisions").value<std::vector<Uint> >().size() > 0)
+  if (option("Divisions").value<std::vector<Uint> >().size() > 0)
   {
-    m_N = property("Divisions").value<std::vector<Uint> >();
+    m_N = option("Divisions").value<std::vector<Uint> >();
     for (Uint d=0; d<m_dim; ++d)
       m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
   else
   {
     Real V1 = V/m_nb_elems;
-    Real D1 = std::pow(V1,1./m_dim)*property("ApproximateNbElementsPerCell").value<Uint>();
+    Real D1 = std::pow(V1,1./m_dim)*option("ApproximateNbElementsPerCell").value<Uint>();
 
     for (Uint d=0; d<m_dim; ++d)
     {
@@ -326,14 +326,14 @@ void CLinearInterpolator::create_octtree()
 
   boost_foreach(const CElements& elements, find_components_recursively_with_filter<CElements>(*m_source_mesh,IsElementsVolume()))
     m_elements->add(elements);
-  
+
   Uint glb_elem_idx=0;
   RealVector centroid(m_dim);
   boost_foreach(const CElements& elements, find_components_recursively_with_filter<CElements>(*m_source_mesh,IsElementsVolume()))
   {
     Uint nb_nodes_per_element = elements.node_connectivity().row_size();
     RealMatrix coordinates(nb_nodes_per_element,m_dim);
-    
+
     for (Uint elem_idx=0; elem_idx<elements.size(); ++elem_idx)
     {
       elements.put_coordinates(coordinates,elem_idx);
@@ -388,7 +388,7 @@ void CLinearInterpolator::create_octtree()
 
 
 //////////////////////////////////////////////////////////////////////////////
-  
+
 bool CLinearInterpolator::find_point_in_octtree(const RealVector& coordinate, std::vector<Uint>& point_idx)
 {
   //CFinfo << "point " << coordinate << CFflush;
@@ -404,7 +404,7 @@ bool CLinearInterpolator::find_point_in_octtree(const RealVector& coordinate, st
     }
     point_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
   }
-      
+
   //CFinfo << " should be in box ("<<m_point_idx[0]<<","<<m_point_idx[1]<<","<<m_point_idx[2]<<")" << CFendl;
   return true;
 }
@@ -418,10 +418,10 @@ void CLinearInterpolator::find_pointcloud(Uint nb_points)
   int i(0), j(0), k(0);
   int imin, jmin, kmin;
   int imax, jmax, kmax;
-  
+
   if (m_honeycomb[m_point_idx[0]][m_point_idx[1]][m_point_idx[2]].size() <= nb_points)
     r=0;
-  
+
   while (m_element_cloud.size() < nb_points && m_element_cloud.size() < m_nb_elems)
   {
     ++r;
@@ -464,11 +464,11 @@ void CLinearInterpolator::find_pointcloud(Uint nb_points)
         break;
     }
   }
-    
+
   //CFinfo << m_pointcloud.size() << " points in the pointcloud " << CFendl;
- 
+
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 boost::tuple<CElements::ConstPtr,Uint> CLinearInterpolator::find_element(const RealVector& target_coord)
@@ -476,7 +476,7 @@ boost::tuple<CElements::ConstPtr,Uint> CLinearInterpolator::find_element(const R
   if (find_point_in_octtree(target_coord,m_point_idx))
   {
     find_pointcloud(1);
-    
+
     Component::ConstPtr component;
     Uint elem_idx;
     boost_foreach(const Uint glb_elem_idx, m_element_cloud)
@@ -492,11 +492,11 @@ boost::tuple<CElements::ConstPtr,Uint> CLinearInterpolator::find_element(const R
   }
   return boost::make_tuple(CElements::ConstPtr(), 0u);
 }
-  
+
 //////////////////////////////////////////////////////////////////////
-  
+
 void CLinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& s_points, const RealVector& t_point, std::vector<Real>& weights)
-{  
+{
   switch (m_dim)
   {
     case DIM_3D:
@@ -510,18 +510,18 @@ void CLinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const s
         dx = s_points[s_pt_idx][XX] - t_point[XX];
         dy = s_points[s_pt_idx][YY] - t_point[YY];
         dz = s_points[s_pt_idx][ZZ] - t_point[ZZ];
-        
+
         Ixx += dx*dx;
         Ixy += dx*dy;
         Ixz += dx*dz;
         Iyy += dy*dy;
         Iyz += dy*dz;
         Izz += dz*dz;
-        
+
         Rx += dx;
         Ry += dy;
         Rz += dz;
-        
+
         Dx[s_pt_idx]=dx;
         Dy[s_pt_idx]=dy;
         Dz[s_pt_idx]=dz;
@@ -532,14 +532,14 @@ void CLinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const s
             (Ixz*Ixz*Iyy - 2.*Ixy*Ixz*Iyz + Ixx*Iyz*Iyz + Ixy*Ixy*Izz - Ixx*Iyy*Izz);
       Lz =  (-(Ixz*Iyy*Rx) + Ixy*Iyz*Rx + Ixy*Ixz*Ry - Ixx*Iyz*Ry - Ixy*Ixy*Rz + Ixx*Iyy*Rz)/
             (Ixz*Ixz*Iyy - 2.*Ixy*Ixz*Iyz + Ixy*Ixy*Izz + Ixx*(Iyz*Iyz - Iyy*Izz));
-      
+
       Real S(0);
       for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
       {
         weights[s_pt_idx] = 1.0 + Lx*Dx[s_pt_idx] + Ly*Dy[s_pt_idx] + Lz*Dz[s_pt_idx];
         S += weights[s_pt_idx];
       }
-      
+
       for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
         weights[s_pt_idx] /= S;
       return;
@@ -553,20 +553,20 @@ void CLinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const s
       {
         dx = s_points[s_pt_idx][XX] - t_point[XX];
         dy = s_points[s_pt_idx][YY] - t_point[YY];
-        
+
         Ixx += dx*dx;
         Ixy += dx*dy;
         Iyy += dy*dy;
-        
+
         Rx += dx;
         Ry += dy;
-        
+
         Dx[s_pt_idx]=dx;
         Dy[s_pt_idx]=dy;
       }
       Lx =  (Ixy*Ry - Iyy*Rx)/(Ixx*Iyy-Ixy*Ixy);
       Ly =  (Ixy*Rx - Ixx*Ry)/(Ixx*Iyy-Ixy*Ixy);
-      
+
       Real S(0);
       for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
       {
@@ -584,15 +584,15 @@ void CLinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const s
       for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
       {
         dx = s_points[s_pt_idx][XX] - t_point[XX];
-        
+
         Ixx += dx*dx;
-        
+
         Rx += dx;
-        
+
         Dx[s_pt_idx]=dx;
       }
       Lx =  Rx/Ixx;
-      
+
       Real S(0);
       for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
       {
@@ -606,8 +606,8 @@ void CLinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const s
     default:
       throw ShouldNotBeHere(FromHere(), "");
       break;
-  } 
-  
+  }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

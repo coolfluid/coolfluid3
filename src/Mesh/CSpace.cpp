@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -28,10 +28,10 @@ CSpace::CSpace ( const std::string& name ) :
 {
   mark_basic();
 
-  properties()["brief"] = std::string("Spaces are other views of CEntities, for instance a higher-order representation");
-  properties()["description"] = std::string("");
+  m_properties["brief"] = std::string("Spaces are other views of CEntities, for instance a higher-order representation");
+  m_properties["description"] = std::string("");
 
-  properties().add_option(OptionT<std::string>::create("shape_function","Shape Function","Shape Function defined in this space",std::string("")))
+  m_options.add_option(OptionT<std::string>::create("shape_function","Shape Function","Shape Function defined in this space",std::string("")))
       ->attach_trigger(boost::bind(&CSpace::configure_shape_function, this))
       ->mark_basic();
 }
@@ -46,7 +46,7 @@ CSpace::~CSpace()
 
 void CSpace::configure_shape_function()
 {
-  const std::string sf_name = property("shape_function").value<std::string>();
+  const std::string sf_name = option("shape_function").value<std::string>();
   if (is_not_null(m_shape_function))
   {
     remove_component(m_shape_function->name());

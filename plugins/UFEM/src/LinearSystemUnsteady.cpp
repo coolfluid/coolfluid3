@@ -21,22 +21,22 @@ using namespace Solver::Actions::Proto;
 
 LinearSystemUnsteady::LinearSystemUnsteady(const std::string& name) : LinearSystem(name)
 {
-  Common::Option::Ptr tstep_prop = properties().add_option< OptionT<Real> >("Timestep", "Timestep", 1.);
+  Common::Option::Ptr tstep_prop = options().add_option< OptionT<Real> >("Timestep", "Timestep", 1.);
   tstep_prop->attach_trigger( boost::bind(&LinearSystemUnsteady::trigger_timestep, this) );
   tstep_prop->mark_basic();
 
-  Common::Option::Ptr current_prop = properties().add_option< OptionT<Real> >("CurrentTime", "Current time", 0.);
+  Common::Option::Ptr current_prop = options().add_option< OptionT<Real> >("CurrentTime", "Current time", 0.);
   current_prop->mark_basic();
 
-  Common::Option::Ptr stop_prop = properties().add_option< OptionT<Real> >("StopTime", "Stoppint time", 1.);
+  Common::Option::Ptr stop_prop = options().add_option< OptionT<Real> >("StopTime", "Stoppint time", 1.);
   stop_prop->mark_basic();
 }
 
 void LinearSystemUnsteady::on_solve()
 {
-  const Real start_time = property("CurrentTime").value<Real>();
-  const Real stop_time = property("StopTime").value<Real>();
-  const Real dt = property("Timestep").value<Real>();
+  const Real start_time = option("CurrentTime").value<Real>();
+  const Real stop_time = option("StopTime").value<Real>();
+  const Real dt = option("Timestep").value<Real>();
 
   Real current_time = start_time;
   while(current_time < stop_time)
@@ -45,12 +45,12 @@ void LinearSystemUnsteady::on_solve()
     current_time += dt;
   }
 
-  properties()["CurrentTime"].change_value(current_time);
+  options()["CurrentTime"].change_value(current_time);
 }
 
 void LinearSystemUnsteady::trigger_timestep()
 {
-  const Real dt = property("Timestep").value<Real>();
+  const Real dt = option("Timestep").value<Real>();
   m_invdt = 1. / dt;
 }
 

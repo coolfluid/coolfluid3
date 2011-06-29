@@ -16,7 +16,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroupActions.hpp"
- 
+
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Solver/FlowSolver.hpp"
@@ -43,36 +43,36 @@ Common::ComponentBuilder < FlowSolver, CSolver, LibSolver > FlowSolver_Builder;
 
 FlowSolver::FlowSolver ( const std::string& name  ) : CSolver ( name )
 {
-  properties()["brief"] = std::string("Basic Flow Solver component");
+  m_properties["brief"] = std::string("Basic Flow Solver component");
   std::string description = "";
-  properties()["description"] = description;
+  m_properties["description"] = description;
 
 
   // Properties
 
-  properties().add_option(OptionComponent<CMesh>::create(Tags::mesh(),"Mesh","Mesh",&m_mesh))
+  m_options.add_option(OptionComponent<CMesh>::create(Tags::mesh(),"Mesh","Mesh",&m_mesh))
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  properties().add_option(OptionComponent<CPhysicalModel>::create(Tags::physical_model(),"Physical Model","Physical Model",&m_physical_model))
+  m_options.add_option(OptionComponent<CPhysicalModel>::create(Tags::physical_model(),"Physical Model","Physical Model",&m_physical_model))
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  properties().add_option(OptionComponent<CTime>::create(Tags::time(),"Time","Time tracking component",&m_time))
+  m_options.add_option(OptionComponent<CTime>::create(Tags::time(),"Time","Time tracking component",&m_time))
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  properties().add_option(OptionComponent<CAction>::create(Tags::setup(),"Setup","Setup action for the solver",&m_setup))
+  m_options.add_option(OptionComponent<CAction>::create(Tags::setup(),"Setup","Setup action for the solver",&m_setup))
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  properties().add_option(OptionComponent<CAction>::create(Tags::solve(),"Solve","Action that executes the \"solve\"",&m_solve))
+  m_options.add_option(OptionComponent<CAction>::create(Tags::solve(),"Solve","Action that executes the \"solve\"",&m_solve))
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this) )
       ->mark_basic();
 
-  properties().add_option(OptionComponent<CAction>::create(Tags::inner(),"Inner Domain","Action to execute inner domain computations. Tag component with \"inner\" for automatic detection",&m_inner));
+  m_options.add_option(OptionComponent<CAction>::create(Tags::inner(),"Inner Domain","Action to execute inner domain computations. Tag component with \"inner\" for automatic detection",&m_inner));
 
-  properties().add_option(OptionComponent<CAction>::create(Tags::bc(),"Boundary Conditions","Action to execute boundary conditions. Tag component with \"bc\" for automatic detection",&m_bc));
+  m_options.add_option(OptionComponent<CAction>::create(Tags::bc(),"Boundary Conditions","Action to execute boundary conditions. Tag component with \"bc\" for automatic detection",&m_bc));
 
   // Signals
   this->regist_signal ( "create_bc_action"    , "Create Boundary Condition", "Create Boundary Condition" )->signal->connect ( boost::bind ( &FlowSolver::signal_create_bc_action, this , _1) );
@@ -96,14 +96,14 @@ void FlowSolver::setup()
     if (m_bc.expired() == true)
     {
       Component::Ptr bc_action = find_component_ptr_recursively_with_tag(*m_solve.lock(),Tags::bc());
-      if (is_not_null(bc_action)) configure_property(Tags::bc(),bc_action->uri());
+      if (is_not_null(bc_action)) configure_option(Tags::bc(),bc_action->uri());
     }
 
     // Attempt to automatically find m_inner component
     if (m_inner.expired() == true)
     {
       Component::Ptr inner_action = find_component_ptr_recursively_with_tag(*m_solve.lock(),Tags::inner());
-      if (is_not_null(inner_action)) configure_property(Tags::inner(),inner_action->uri());
+      if (is_not_null(inner_action)) configure_option(Tags::inner(),inner_action->uri());
     }
 
     //m_inner = find_component_ptr_recursively_with_tag<CAction>(*m_solve.lock(),Tags::inner());
@@ -162,7 +162,7 @@ void FlowSolver::solve()
 
 CAction& FlowSolver::create_solve(const std::string& name, const std::string& solve_builder_name)
 {
-  configure_property("solve",create_component(name,solve_builder_name).uri());
+  configure_option("solve",create_component(name,solve_builder_name).uri());
   m_solve.lock()->mark_basic();
   return *m_solve.lock();
 }
@@ -171,7 +171,7 @@ CAction& FlowSolver::create_solve(const std::string& name, const std::string& so
 
 CAction& FlowSolver::create_setup(const std::string& name, const std::string& setup_builder_name)
 {
-  configure_property("setup",create_component(name,setup_builder_name).uri());
+  configure_option("setup",create_component(name,setup_builder_name).uri());
   return *m_setup.lock();
 }
 
@@ -187,7 +187,7 @@ CAction& FlowSolver::create_bc_action(const std::string& name, const std::string
     regions_uri.push_back(region->uri());
 
   CAction& bc_action = m_bc.lock()->create_component(name,builder_name).as_type<CAction>();
-  bc_action.configure_property("regions",regions_uri);
+  bc_action.configure_option("regions",regions_uri);
   auto_config(bc_action);
   return bc_action;
 }
@@ -213,7 +213,7 @@ CAction& FlowSolver::create_inner_action(const std::string& name, const std::str
     regions_uri.push_back(region->uri());
 
   CAction& inner_action = m_inner.lock()->create_component(name,builder_name).as_type<CAction>();
-  inner_action.configure_property("regions",regions_uri);
+  inner_action.configure_option("regions",regions_uri);
   auto_config(inner_action);
   return inner_action;
 }

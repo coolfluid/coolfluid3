@@ -36,8 +36,8 @@ CModelUnsteady::CModelUnsteady( const std::string& name  ) :
 {
   m_time = create_static_component_ptr<CTime>("Time");
 
-  properties()["steady"] = bool(false);
-  
+  m_properties["steady"] = bool(false);
+
   properties()["brief"] = std::string("Unsteady simulator object");
   std::string description =
   "This object handles unsteady time accurate simulations.\n"
@@ -67,7 +67,7 @@ void CModelUnsteady::simulate ()
   boost_foreach(CSolver& is, find_components<CSolver>(*this))
     is.solve();
 
-  m_time->configure_property("time",m_time->time());
+  m_time->configure_option("time",m_time->time());
   CFinfo << name() << ": end simulation\n" << CFendl;
 }
 

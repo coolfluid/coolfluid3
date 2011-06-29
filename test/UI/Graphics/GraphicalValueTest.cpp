@@ -339,7 +339,7 @@ void GraphicalValueTest::test_createFromOptionArrayRestrValues()
   vectBool.push_back(true);
   option = OptionArrayT<bool>::Ptr(new OptionArrayT<bool>("OptBool", "", vectBool));
   option->restricted_list() += false;
-  value = GraphicalValue::createFromOption( option );
+  GUI_CHECK_NO_THROW(value = GraphicalValue::createFromOption( option ));
   QVERIFY( is_not_null(value) );
   QVERIFY( is_not_null(dynamic_cast<GraphicalArrayRestrictedList*>(value) ) );
   delete value;

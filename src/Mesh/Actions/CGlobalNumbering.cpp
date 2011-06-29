@@ -63,15 +63,15 @@ CGlobalNumbering::CGlobalNumbering( const std::string& name )
   m_debug(false)
 {
 
-  properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
+  m_properties["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
   std::string desc;
   desc =
     "  Usage: CGlobalNumbering Regions:array[uri]=region1,region2\n\n";
-  properties()["description"] = desc;
+  m_properties["description"] = desc;
 
-  properties().add_option<OptionT<bool> >("debug","Debug","Perform checks on validity",m_debug)->link_to(&m_debug);
+  m_options.add_option<OptionT<bool> >("debug","Debug","Perform checks on validity",m_debug)->link_to(&m_debug);
 
-  properties().add_option<OptionT<bool> >("combined","Combined","Combine nodes and elements in one global numbering",true);
+  m_options.add_option<OptionT<bool> >("combined","Combined","Combine nodes and elements in one global numbering",true);
 }
 
 /////////////////////////////////////////////////////////////////////////////

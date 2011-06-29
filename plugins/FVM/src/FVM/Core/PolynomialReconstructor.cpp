@@ -9,7 +9,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
- 
+
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CSpace.hpp"
@@ -36,16 +36,16 @@ namespace Core {
 Common::ComponentBuilder < PolynomialReconstructor, Component, LibCore > PolynomialReconstructor_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-PolynomialReconstructor::PolynomialReconstructor ( const std::string& name ) : 
+
+PolynomialReconstructor::PolynomialReconstructor ( const std::string& name ) :
   Component(name),
   m_order(0),
   m_dim(0)
 {
   // options
-  m_properties.add_option(OptionT<Uint>::create("order","Order","PolynomialReconstructor order",1));
-  m_properties.add_option(OptionT<Uint>::create("dimension","Dimension","Dimension of PolynomialReconstructor",2));
-  
+  m_options.add_option(OptionT<Uint>::create("order","Order","PolynomialReconstructor order",1));
+  m_options.add_option(OptionT<Uint>::create("dimension","Dimension","Dimension of PolynomialReconstructor",2));
+
   m_stencil_computer = create_static_component_ptr<CStencilComputerRings>("stencil_computer");
 }
 
@@ -71,10 +71,10 @@ void PolynomialReconstructor::set_cell(const Uint unified_elem_idx)
    // DyDz_ave = ZERO;
    // DzDz_ave = ZERO;
    // D = ZERO;
-   
+
    Component::Ptr elements;
    Uint elem_idx;
-   
+
    boost::tie(elements,elem_idx) = m_stencil_computer->unified_elements().location(m_idx);
    RealMatrix coordinates = elements->as_type<CElements>().get_coordinates(elem_idx);
    RealVector X0(coordinates.cols());
@@ -91,12 +91,12 @@ void PolynomialReconstructor::set_cell(const Uint unified_elem_idx)
        dX = X-X0;
      }
    }
-      // 
+      //
       // for ( n2 = 0 ; n2 <= n_pts-1 ; ++n2 ) {
-      //    dX =  Grid.Cell[ i_index[n2] ][ j_index[n2] ][ k_index[n2] ].Xc - 
+      //    dX =  Grid.Cell[ i_index[n2] ][ j_index[n2] ][ k_index[n2] ].Xc -
       //       Grid.Cell[i][j][k].Xc;
       //    DU =  W[ i_index[n2] ][ j_index[n2] ][ k_index[n2] ] -  W[i][j][k];
-      //    
+      //
       //    DUDx_ave += DU*dX.x;
       //    DUDy_ave += DU*dX.y;
       //    DUDz_ave += DU*dX.z;
@@ -106,9 +106,9 @@ void PolynomialReconstructor::set_cell(const Uint unified_elem_idx)
       //    DyDy_ave += dX.y*dX.y;
       //    DyDz_ave += dX.y*dX.z;
       //    DzDz_ave += dX.z*dX.z;
-      //    
+      //
       // } /* endfor */
-      // 
+      //
       // DUDx_ave = DUDx_ave/double(n_pts);
       // DUDy_ave = DUDy_ave/double(n_pts);
       // DUDz_ave = DUDz_ave/double(n_pts);
@@ -118,26 +118,26 @@ void PolynomialReconstructor::set_cell(const Uint unified_elem_idx)
       // DyDy_ave = DyDy_ave/double(n_pts);
       // DyDz_ave = DyDz_ave/double(n_pts);
       // DzDz_ave = DzDz_ave/double(n_pts);
-      // 
+      //
       // // (1) Either write a linear solver for 3x3 linear system
       // // (2) Or simplely use cramer's rule for this simple system
-      // 
-      // D = DxDx_ave*(DyDy_ave* DzDz_ave - DyDz_ave*DyDz_ave) + 
+      //
+      // D = DxDx_ave*(DyDy_ave* DzDz_ave - DyDz_ave*DyDz_ave) +
       //     DxDy_ave*(DxDz_ave*DyDz_ave - DxDy_ave*DzDz_ave)+
       //     DxDz_ave*(DxDy_ave*DyDz_ave - DxDz_ave*DyDy_ave);
-      // 
-      // D1 = DUDx_ave*(DyDy_ave* DzDz_ave - DyDz_ave*DyDz_ave) + 
+      //
+      // D1 = DUDx_ave*(DyDy_ave* DzDz_ave - DyDz_ave*DyDz_ave) +
       //      DUDy_ave*(DxDz_ave*DyDz_ave - DxDy_ave*DzDz_ave)+
       //      DUDz_ave*(DxDy_ave*DyDz_ave - DxDz_ave*DyDy_ave);
-      // 
-      // D2 =DxDx_ave*(DUDy_ave* DzDz_ave - DUDz_ave*DyDz_ave) + 
+      //
+      // D2 =DxDx_ave*(DUDy_ave* DzDz_ave - DUDz_ave*DyDz_ave) +
       //     DxDy_ave*(DxDz_ave*DUDz_ave - DUDx_ave*DzDz_ave)+
       //     DxDz_ave*(DUDx_ave*DyDz_ave - DxDz_ave*DUDy_ave);
-      // 
-      // D3 =DxDx_ave*(DyDy_ave* DUDz_ave - DyDz_ave*DUDy_ave) + 
+      //
+      // D3 =DxDx_ave*(DyDy_ave* DUDz_ave - DyDz_ave*DUDy_ave) +
       //     DxDy_ave*(DUDx_ave*DyDz_ave - DxDy_ave*DUDz_ave)+
       //     DxDz_ave*(DxDy_ave*DUDy_ave - DUDx_ave*DyDy_ave);
-      // 
+      //
       // dWdx[i][j][k] = D1/D;
       // dWdy[i][j][k] = D2/D;
       // dWdz[i][j][k] = D3/D;

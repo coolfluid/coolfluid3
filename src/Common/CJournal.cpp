@@ -47,9 +47,9 @@ CJournal::CJournal (const std::string & name)
 
   signal("list_journal")->is_hidden = true;
 
-  m_properties.add_option< OptionT<bool> >("RecordReplies", "If true, both signal and reply frames are recorded. If false, only signal frames are recorded.\nRecording replies will significantly increase the journal size and the memory used.", false);
+  m_options.add_option< OptionT<bool> >("RecordReplies", "If true, both signal and reply frames are recorded. If false, only signal frames are recorded.\nRecording replies will significantly increase the journal size and the memory used.", false);
 
-  m_properties["RecordReplies"].as_option().mark_basic();
+  m_options["RecordReplies"].mark_basic();
 
   XmlNode doc_node = Protocol::goto_doc_node(*m_xmldoc.get());
   const char * tag_map = Protocol::Tags::node_map();

@@ -39,7 +39,7 @@ void print_error(const T&)
 {
   T::print_error();
 }
-  
+
 /// Creates a variable that has unique ID I
 template<typename I, typename T>
 struct Var : I
@@ -62,13 +62,13 @@ struct Var : I
 
   template<typename T1, typename T2>
   Var(T1& par1, T2& par2) : variable_value(par1, par2) {}
-  
+
   template<typename T1, typename T2, typename T3>
   Var(const T1& par1, const T2& par2, const T3& par3) : variable_value(par1, par2, par3) {}
 
   template<typename T1, typename T2, typename T3>
   Var(T1& par1, T2& par2, T3& par3) : variable_value(par1, par2, par3) {}
-  
+
   type variable_value;
 };
 
@@ -105,7 +105,7 @@ protected:
 template< typename OptionValueT >
 inline typename OptionType<OptionValueT>::type OptionVariable::add_option(Common::Component& owner, const std::string& name, const std::string& description, const OptionValueT& default_val, Common::Option::Trigger_t trigger)
 {
-  Common::Option& option = owner.properties().check(name) ? owner.properties().option(name) : *owner.properties().add_option< Common::OptionT<OptionValueT> >(name, description, default_val);
+  Common::Option& option = owner.options().check(name) ? owner.options().option(name) : *owner.options().add_option< Common::OptionT<OptionValueT> >(name, description, default_val);
   option.mark_basic();
   option.attach_trigger( trigger );
   boost::shared_ptr< Common::OptionT<OptionValueT> > cast_option = boost::dynamic_pointer_cast< Common::OptionT<OptionValueT> >(option.shared_from_this());
@@ -117,7 +117,7 @@ inline typename OptionType<OptionValueT>::type OptionVariable::add_option(Common
 template<>
 inline OptionType<Common::URI>::type OptionVariable::add_option<Common::URI>(Common::Component& owner, const std::string& name, const std::string& description, const Common::URI& default_val, Common::Option::Trigger_t trigger)
 {
-  Common::Option& option = owner.properties().check(name) ? owner.properties().option(name) : *owner.properties().add_option< Common::OptionURI >(name, description, default_val);
+  Common::Option& option = owner.options().check(name) ? owner.options().option(name) : *owner.options().add_option< Common::OptionURI >(name, description, default_val);
   option.mark_basic();
   option.attach_trigger( trigger );
   boost::shared_ptr< Common::OptionURI > cast_option = boost::dynamic_pointer_cast< Common::OptionURI >(option.shared_from_this());
@@ -178,16 +178,16 @@ struct FieldBase : OptionVariable
 
   /// Name of the referred field
   std::string field_name;
-  
+
   /// Name of the variable
   std::string var_name;
-  
+
   inline const std::string& internal_name() const
   {
     return m_internal_name;
   }
 
-private:  
+private:
   /// Called when the field name option is changed
   void on_field_changed()
   {
@@ -199,13 +199,13 @@ private:
   {
     var_name = m_var_option.lock()->value<std::string>();
   }
-  
+
   /// Option for the field name
   boost::weak_ptr< Common::OptionT<std::string> > m_field_option;
 
   /// Option for the variable name
   boost::weak_ptr< Common::OptionT<std::string> > m_var_option;
-  
+
   /// Internal name, guaranteed to remain the same irrespective of user settings
   std::string m_internal_name;
 };
@@ -274,13 +274,13 @@ struct StoredReference
   explicit StoredReference(T& t) : m_t(&t)
   {
   }
-  
+
   /// Get a reference to the originally referenced object
   T& get() const
   {
     return *m_t;
   }
-  
+
 private:
   T* m_t;
 };

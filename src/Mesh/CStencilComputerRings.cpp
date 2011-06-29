@@ -29,7 +29,7 @@ namespace CF {
 namespace Mesh {
 
   using namespace Common;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CF::Common::ComponentBuilder < CStencilComputerRings, CStencilComputer, LibMesh > CStencilComputerRings_Builder;
@@ -38,10 +38,10 @@ CF::Common::ComponentBuilder < CStencilComputerRings, CStencilComputer, LibMesh 
 
 CStencilComputerRings::CStencilComputerRings( const std::string& name )
   : CStencilComputer(name), m_nb_rings(0)
-{  
-  property("mesh").as_option().attach_trigger(boost::bind(&CStencilComputerRings::configure_mesh,this));
-    
-  properties().add_option(OptionT<Uint>::create("nb_rings","Number of Rings", "Number of neighboring rings of elements in stencil", m_nb_rings))
+{
+  option("mesh").attach_trigger(boost::bind(&CStencilComputerRings::configure_mesh,this));
+
+  m_options.add_option(OptionT<Uint>::create("nb_rings","Number of Rings", "Number of neighboring rings of elements in stencil", m_nb_rings))
     ->link_to(&m_nb_rings);
 
 }
@@ -52,7 +52,7 @@ void CStencilComputerRings::configure_mesh()
 {
   if (m_mesh.expired())
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
-    
+
   CMesh& mesh = *m_mesh.lock();
   CNodeElementConnectivity::Ptr node2cell_ptr = find_component_ptr<CNodeElementConnectivity>(mesh);
   if (is_null(node2cell_ptr))
@@ -72,10 +72,10 @@ void CStencilComputerRings::compute_stencil(const Uint unified_elem_idx, std::ve
   std::set<Uint> included;
   visited_nodes.clear();
   compute_neighbors(included,unified_elem_idx);
-  
+
   if (included.size() < m_min_stencil_size)
     CFwarn << "stencil size computed for element " << unified_elem_idx << " is " << included.size() <<". This is smaller than the requested " << m_min_stencil_size << "." << CFendl;
-  
+
   stencil.clear(); stencil.reserve(included.size());
   boost_foreach (const Uint elem, included)
     stencil.push_back(elem);
@@ -84,9 +84,9 @@ void CStencilComputerRings::compute_stencil(const Uint unified_elem_idx, std::ve
 ////////////////////////////////////////////////////////////////////////////////
 
 void CStencilComputerRings::compute_neighbors(std::set<Uint>& included, const Uint unified_elem_idx, const Uint level)
-{ 
+{
   included.insert(unified_elem_idx);
-  
+
   if (level < m_nb_rings)
   {
     Component::Ptr elements;
@@ -99,7 +99,7 @@ void CStencilComputerRings::compute_neighbors(std::set<Uint>& included, const Ui
       boost_foreach(Uint neighbor_elem, node2cell().connectivity()[node_idx])
       {
         compute_neighbors(included,neighbor_elem,level+1);
-      }        
+      }
     }
   }
 }

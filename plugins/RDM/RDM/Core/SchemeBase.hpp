@@ -57,7 +57,7 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "SchemeBase<" + SF::type_name() + ">"; }
-	
+
   /// interpolates the shape functions and gradient values
   /// @post zeros the local residual matrix
   void interpolate ( const Mesh::CTable<Uint>::ConstRow& nodes_idx );
@@ -67,7 +67,7 @@ public: // functions
 protected: // helper functions
 
   void change_elements()
-  { 
+  {
     /// @todo improve this (ugly)
 
     connectivity_table = elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
@@ -192,10 +192,10 @@ template<typename SF, typename QD, typename PHYS>
 SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
   CLoopOperation(name),
   m_quadrature( QD::instance() )
-{ 
+{
   regist_typeinfo(this);
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeBase<SF,QD,PHYS>::change_elements, this ) );
+  m_options["Elements"].attach_trigger ( boost::bind ( &SchemeBase<SF,QD,PHYS>::change_elements, this ) );
 
   for(Uint d = 0; d < PHYS::ndim; ++d)
     dFdU[d].setZero();

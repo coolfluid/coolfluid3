@@ -108,10 +108,10 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   // Create and configure interpolator.
   CInterpolator::Ptr interpolator = build_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
-  interpolator->configure_property("ApproximateNbElementsPerCell", (Uint) 1 );
+  interpolator->configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
-  //interpolator->configure_property("Divisions", divisions );
+  //interpolator->configure_option("Divisions", divisions );
 
   // Create the honeycomb
   interpolator->construct_internal_storage(*source);
