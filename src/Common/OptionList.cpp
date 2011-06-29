@@ -168,28 +168,26 @@ void OptionList::configure_option(const std::string& pname, const boost::any& va
 std::string OptionList::list_options()
 {
   std::string opt_list="";
-//  Uint cnt(0);
-//  foreach_container( (const std::string& name) (Property::Ptr property) , *this )
-//  {
-//    if ( Option::Ptr option = boost::dynamic_pointer_cast<Option>(property) )
-//    {
-//      if (cnt > 0)
-//        opt_list=opt_list+"\n";
+  Uint cnt(0);
+  foreach_container( (const std::string& name) (Option::Ptr option) , *this )
+  {
+    if (cnt > 0)
+      opt_list=opt_list+"\n";
 
-//      if (option->tag() ==  XML::Protocol::Tags::node_array())
-//      {
-//        OptionArray::Ptr array_option = boost::dynamic_pointer_cast<OptionArray>(option);
-//        std::string values=array_option->value_str();
-//        boost::algorithm::replace_all(values, "@@", ",");
-//        opt_list = opt_list+name+":array["+array_option->elem_type()+"]="+values;
-//      }
-//      else
-//      {
-//        opt_list = opt_list+name+":"+option->type()+"="+option->value_str();
-//      }
-//      ++cnt;
-//    }
-//  }
+    if (option->tag() == XML::Protocol::Tags::node_array())
+    {
+      OptionArray::Ptr array_option = boost::dynamic_pointer_cast<OptionArray>(option);
+      std::string values=array_option->value_str();
+      boost::algorithm::replace_all(values, "@@", ",");
+      opt_list = opt_list + name + ":array[" + array_option->elem_type() + "]=" + values;
+    }
+    else
+    {
+      opt_list = opt_list + name + ":" + option->type() + "=" + option->value_str();
+    }
+//     
+    ++cnt;
+  }
   return opt_list;
 }
 

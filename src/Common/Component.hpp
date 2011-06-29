@@ -388,7 +388,7 @@ public: // functions
   /// Creates or modifies existing properties using the CF human readable language
   /// For single variables  --> var_name:type=value @n
   /// For arrays            --> var_name:array[type]=val1,val2
-  void change_option(const std::string args);
+  void change_property(const std::string args);
 
   /// @name SIGNALS
   //@{

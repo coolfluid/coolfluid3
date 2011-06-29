@@ -58,9 +58,9 @@ Component::Component ( const std::string& name ) :
   regist_signal( "list_tree" , "lists the component tree inside this component", "List tree" )->signal->connect ( boost::bind ( &Component::signal_list_tree, this, _1 ) );
 
   regist_signal( "list_properties" , "lists the properties of this component", "List properties" )->signal->connect ( boost::bind ( &Component::signal_list_properties, this, _1 ) );
-  
+
   regist_signal( "list_options" , "lists the options of this component", "List properties" )->signal->connect ( boost::bind ( &Component::signal_list_options, this, _1 ) );
-  
+
   regist_signal( "list_signals" , "lists the options of this component", "List signals" )->signal->connect ( boost::bind ( &Component::signal_list_signals, this, _1 ) );
 
   regist_signal( "configure" , "configures this component", "Configure" )->signal->connect ( boost::bind ( &Component::signal_configure, this, _1 ) );
@@ -808,38 +808,38 @@ void add_array_to_xml(Map & map, const std::string & name,
 // void add_prop_to_xml(Map & map, const std::string & name,
 //                      boost::any prop)
 // {
-// 
+//
 // //   throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
-// 
+//
 // //  if( prop->is_option() )
 // //  {
 // //    Option & opt = prop->as_option();
 // //    XmlNode value_node = map.set_value( name, opt.value<TYPE>() );
-// // 
+// //
 // //    bool basic = opt.has_tag("basic");
 // //    std::string desc = opt.description();
-// // 
+// //
 // //    value_node.set_attribute( Protocol::Tags::attr_descr(), desc);
 // //    value_node.set_attribute( "is_option", to_str(prop->is_option()) );
 // //    value_node.set_attribute( "mode", (basic ? "basic" : "adv") );
-// // 
+// //
 // //    if( opt.has_restricted_list() )
 // //    {
 // //      Map value_map(value_node);
 // //      std::vector<TYPE> vect;
 // //      std::vector<boost::any>::iterator it = opt.restricted_list().begin();
-// // 
+// //
 // //      for( ; it != opt.restricted_list().end() ; ++it )
 // //        vect.push_back( boost::any_cast<TYPE>(*it) );
-// // 
+// //
 // //      value_map.set_array( Protocol::Tags::key_restricted_values(), vect, " ; " );
 // //    }
-// // 
+// //
 // //    if(std::strcmp(opt.tag(), "uri") == 0)
 // //    {
 // //      std::vector<URI::Scheme::Type> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
 // //      std::vector<URI::Scheme::Type>::iterator it = prots.begin();
-// // 
+// //
 // //      for( ; it != prots.end() ; it++)
 // //        value_node.set_attribute( Protocol::Tags::attr_uri_schemes(), URI::Scheme::Convert::instance().to_str(*it));
 // //    }
@@ -889,11 +889,11 @@ void Component::signal_list_properties( SignalFrame& args )
 //    else
 //    {
 //      boost::shared_ptr<OptionArray> optArray;
-// 
+//
 //      optArray = boost::dynamic_pointer_cast<OptionArray>(value);
-// 
+//
 //      const char * elem_type = optArray->elem_type();
-// 
+//
 //      if(strcmp(elem_type, Protocol::Tags::type<std::string>()) == 0)
 //        add_array_to_xml< std::string >(options, name, optArray);
 //      else if(strcmp(elem_type, Protocol::Tags::type<bool>()) == 0)
@@ -919,12 +919,12 @@ void Component::signal_list_properties( SignalFrame& args )
 template<typename TYPE>
 void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
 {
-  
+
   XmlNode value_node;
   bool basic = opt->has_tag("basic");
   std::string desc = opt->description();
-  
-  
+
+
   if( !is_array )
     value_node = opt_map.set_value<TYPE>( opt->name(), opt->value<TYPE>(), desc );
   else
@@ -938,7 +938,7 @@ void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
 
   if( opt->has_restricted_list() )
   {
-    Map value_map(value_node); 
+    Map value_map(value_node);
     std::vector<TYPE> vect;
     std::vector<boost::any>::iterator it = opt->restricted_list().begin();
 
@@ -1020,37 +1020,35 @@ void Component::signal_configure ( SignalArgs& args )
 {
   using namespace rapidxml;
 
-  throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
+ if ( !args.has_map( Protocol::Tags::key_options() ) )
+   throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(Protocol::Tags::key_options()) + "\' map" );
 
-//  if ( !args.has_map( Protocol::Tags::key_options() ) )
-//    throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(Protocol::Tags::key_options()) + "\' map" );
+ XmlNode opt_map = args.map( Protocol::Tags::key_options() ).main_map.content;
 
-//  XmlNode opt_map = args.map( Protocol::Tags::key_options() ).main_map.content;
+ // get the list of options
+ OptionList::OptionStorage_t& options = m_options.store;
 
-//  // get the list of options
-//  PropertyList::PropertyStorage_t& options = m_properties.store;
+ // loop on the param nodes
+ for (xml_node<>* itr =  opt_map.content->first_node(); itr; itr = itr->next_sibling() )
+ {
+   // search for the attribute with key
+   xml_attribute<>* att = itr->first_attribute( Protocol::Tags::attr_key() );
+   if ( is_not_null(att) )
+   {
+     OptionList::iterator opt = options.find( att->value() );
+     if (opt != options.end() )
+     {
+       XmlNode node(itr);
+       opt->second->configure_option( node );
+     }
+   }
+ }
 
-//  // loop on the param nodes
-//  for (xml_node<>* itr =  opt_map.content->first_node(); itr; itr = itr->next_sibling() )
-//  {
-//    // search for the attribute with key
-//    xml_attribute<>* att = itr->first_attribute( Protocol::Tags::attr_key() );
-//    if ( is_not_null(att) )
-//    {
-//      PropertyList::PropertyStorage_t::iterator opt = options.find( att->value() );
-//      if (opt != options.end() && opt->second->is_option())
-//      {
-//        XmlNode node(itr);
-//        opt->second->as_option().configure_option( node );
-//      }
-//    }
-//  }
+ // add a reply frame
+ SignalFrame reply = args.create_reply( uri() );
+ Map map_node = reply.map( Protocol::Tags::key_options() ).main_map;
 
-//  // add a reply frame
-//  SignalFrame reply = args.create_reply( uri() );
-//  Map map_node = reply.map( Protocol::Tags::key_options() ).main_map;
-
-//  opt_map.deep_copy( map_node.content );
+ opt_map.deep_copy( map_node.content );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1251,117 +1249,117 @@ void Component::configure_option_recursively(const std::string& opt_nane, const 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Component::change_option(const std::string args)
+void Component::change_property(const std::string args)
 {
-  throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
+//  throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
 
   // extract:   variable_name:type=value   or   variable_name:array[type]=value1,value2
-//  boost::regex expression(  "([[:word:]]+)(\\:([[:word:]]+)(\\[([[:word:]]+)\\])?=(.*))?"  );
-//  boost::match_results<std::string::const_iterator> what;
+ boost::regex expression(  "([[:word:]]+)(\\:([[:word:]]+)(\\[([[:word:]]+)\\])?=(.*))?"  );
+ boost::match_results<std::string::const_iterator> what;
 
-//  std::string name;
-//  std::string type;
-//  std::string subtype; // in case of array<type>
-//  std::string value;
+ std::string name;
+ std::string type;
+ std::string subtype; // in case of array<type>
+ std::string value;
 
-//  if (regex_search(args,what,expression))
-//  {
-//    name=what[1];
-//    type=what[3];
-//    subtype=what[5];
-//    value=what[6];
-//    // CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
+ if (regex_search(args,what,expression))
+ {
+   name=what[1];
+   type=what[3];
+   subtype=what[5];
+   value=what[6];
+   // CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
 
-//    if      (type == "bool")
-//      options()[name]=from_str<bool>(value);
-//    else if (type == "unsigned")
-//      options()[name]=from_str<Uint>(value);
-//    else if (type == "integer")
-//      options()[name]=from_str<int>(value);
-//    else if (type == "real")
-//      options()[name]=from_str<Real>(value);
-//    else if (type == "string")
-//      options()[name]=value;
-//    else if (type == "uri")
-//      options()[name]=from_str<URI>(value);
-//    else if (type == "array")
-//    {
-//      std::vector<std::string> array;
+   if      (type == "bool")
+     m_properties[name]=from_str<bool>(value);
+   else if (type == "unsigned")
+     m_properties[name]=from_str<Uint>(value);
+   else if (type == "integer")
+     m_properties[name]=from_str<int>(value);
+   else if (type == "real")
+     m_properties[name]=from_str<Real>(value);
+   else if (type == "string")
+     m_properties[name]=value;
+   else if (type == "uri")
+     m_properties[name]=from_str<URI>(value);
+   else if (type == "array")
+   {
+     std::vector<std::string> array;
 
-//      // the strings could have comma's inside, brackets, etc...
-//      Uint in_brackets(0);
-//      std::string::iterator first = value.begin();
-//      std::string::iterator it = first;
-//      for ( ; it!=value.end(); ++it)
-//      {
-//        if (*it == '(') // opening bracket
-//          ++in_brackets;
-//        else if (*it == ')') // closing bracket
-//          --in_brackets;
-//        else if (*it == ',' && in_brackets == 0)
-//        {
-//          array.push_back(std::string(first,it));
-//          boost::algorithm::trim(array.back());
-//          first = it+1;
-//        }
-//      }
-//      array.push_back(std::string(first,it));
-//      boost::algorithm::trim(array.back());
+     // the strings could have comma's inside, brackets, etc...
+     Uint in_brackets(0);
+     std::string::iterator first = value.begin();
+     std::string::iterator it = first;
+     for ( ; it!=value.end(); ++it)
+     {
+       if (*it == '(') // opening bracket
+         ++in_brackets;
+       else if (*it == ')') // closing bracket
+         --in_brackets;
+       else if (*it == ',' && in_brackets == 0)
+       {
+         array.push_back(std::string(first,it));
+         boost::algorithm::trim(array.back());
+         first = it+1;
+       }
+     }
+     array.push_back(std::string(first,it));
+     boost::algorithm::trim(array.back());
 
-//      if (subtype == "bool")
-//      {
-//        std::vector<bool> vec; vec.reserve(array.size());
-//        boost_foreach(const std::string& str_val,array)
-//            vec.push_back(from_str<bool>(str_val));
-//        options()[name]=vec;
-//      }
-//      else if (subtype == "unsigned")
-//      {
-//        std::vector<Uint> vec; vec.reserve(array.size());
-//        boost_foreach(const std::string& str_val,array)
-//            vec.push_back(from_str<Uint>(str_val));
-//        options()[name]=vec;
-//      }
-//      else if (subtype == "integer")
-//      {
-//        std::vector<int> vec; vec.reserve(array.size());
-//        boost_foreach(const std::string& str_val,array)
-//            vec.push_back(from_str<int>(str_val));
-//        options()[name]=vec;
-//      }
-//      else if (subtype == "real")
-//      {
-//        std::vector<Real> vec; vec.reserve(array.size());
-//        boost_foreach(const std::string& str_val,array)
-//            vec.push_back(from_str<Real>(str_val));
-//        options()[name]=vec;
-//      }
-//      else if (subtype == "string")
-//      {
-//        options()[name]=array;
-//      }
-//      else if (subtype == "uri")
-//      {
-//        std::vector<URI> vec; vec.reserve(array.size());
-//        boost_foreach(const std::string& str_val,array)
-//            vec.push_back(from_str<URI>(str_val));
-//        options()[name]=vec;
-//      }
+     if (subtype == "bool")
+     {
+       std::vector<bool> vec; vec.reserve(array.size());
+       boost_foreach(const std::string& str_val,array)
+           vec.push_back(from_str<bool>(str_val));
+       m_properties[name]=vec;
+     }
+     else if (subtype == "unsigned")
+     {
+       std::vector<Uint> vec; vec.reserve(array.size());
+       boost_foreach(const std::string& str_val,array)
+           vec.push_back(from_str<Uint>(str_val));
+       m_properties[name]=vec;
+     }
+     else if (subtype == "integer")
+     {
+       std::vector<int> vec; vec.reserve(array.size());
+       boost_foreach(const std::string& str_val,array)
+           vec.push_back(from_str<int>(str_val));
+       m_properties[name]=vec;
+     }
+     else if (subtype == "real")
+     {
+       std::vector<Real> vec; vec.reserve(array.size());
+       boost_foreach(const std::string& str_val,array)
+           vec.push_back(from_str<Real>(str_val));
+       m_properties[name]=vec;
+     }
+     else if (subtype == "string")
+     {
+       m_properties[name]=array;
+     }
+     else if (subtype == "uri")
+     {
+       std::vector<URI> vec; vec.reserve(array.size());
+       boost_foreach(const std::string& str_val,array)
+           vec.push_back(from_str<URI>(str_val));
+       m_properties[name]=vec;
+     }
 
-//    }
-//    else
-//      throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + args + "] for ["+ uri().path() +"] is invalid.\n"+
-//                          "Format should be:\n"
-//                          " -  for simple types:  variable_name:type=value\n"
-//                          " -  for array types:   variable_name:array[type]=value1,value2\n"
-//                          "  with possible type: [bool,unsigned,integer,real,string,uri]");
-//  }
-//  else
-//    throw ParsingFailed(FromHere(), "Could not parse [" + args + "] in ["+ uri().path() +"].\n"+
-//                        "Format should be:\n"
-//                        " -  for simple types:  variable_name:type=value\n"
-//                        " -  for array types:   variable_name:array[type]=value1,value2\n"
-//                        "  with possible type: [bool,unsigned,integer,real,string,uri]");
+   }
+   else
+     throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + args + "] for ["+ uri().path() +"] is invalid.\n"+
+                         "Format should be:\n"
+                         " -  for simple types:  variable_name:type=value\n"
+                         " -  for array types:   variable_name:array[type]=value1,value2\n"
+                         "  with possible type: [bool,unsigned,integer,real,string,uri]");
+ }
+ else
+   throw ParsingFailed(FromHere(), "Could not parse [" + args + "] in ["+ uri().path() +"].\n"+
+                       "Format should be:\n"
+                       " -  for simple types:  variable_name:type=value\n"
+                       " -  for array types:   variable_name:array[type]=value1,value2\n"
+                       "  with possible type: [bool,unsigned,integer,real,string,uri]");
 }
 
 void Component::configure (const std::vector<std::string>& args)
@@ -1384,8 +1382,9 @@ void Component::configure (const std::vector<std::string>& args)
       subtype=what[5];
       value=what[6];
       // CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
-      if (options().check(name) == false) // not found
-        throw ValueNotFound(FromHere(), "Option with name ["+name+"] not found in "+ uri().path());
+      if ( !options().check(name) ) // not found
+        throw ValueNotFound(FromHere(), "Option with name [" + name +
+                            "] not found in "+ uri().path());
 
       if      (type == "bool")
         configure_option(name,from_str<bool>(value));
@@ -1465,7 +1464,8 @@ void Component::configure (const std::vector<std::string>& args)
 
       }
       else
-        throw ParsingFailed(FromHere(), "The type ["+type+"] of passed argument [" + arg + "] for ["+ uri().path() +"] is invalid.\n"+
+        throw ParsingFailed(FromHere(), "The type [" + type + "] of passed argument ["
+          + arg + "] for ["+ uri().path() +"] is invalid.\n"+
           "Format should be:\n"
           " -  for simple types:  variable_name:type=value\n"
           " -  for array types:   variable_name:array[type]=value1,value2\n"

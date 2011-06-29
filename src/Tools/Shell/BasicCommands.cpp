@@ -127,7 +127,7 @@ void BasicCommands::unrecognized(std::vector<std::string>& unrecognized_commands
 
 std::string env_var(const std::string& var)
 {
-  return environment_component.option(var).value_str();
+  return environment_component.properties().value_str(var);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,11 +141,11 @@ std::string BasicCommands::filter_env_vars(const std::string &line)
   boost::sregex_iterator j;
   for(; i!=j; ++i)
   {
-    if (current_component->options().check((*i)[1]) )
-      boost::algorithm::replace_all(filtered_line,std::string((*i)[0]),current_component->option((*i)[1]).value_str());
+    if (current_component->properties().check((*i)[1]) )
+      boost::algorithm::replace_all(filtered_line,std::string((*i)[0]),current_component->properties().value_str((*i)[1]));
 
-    if (environment_component.options().check((*i)[1]) )
-      boost::algorithm::replace_all(filtered_line,std::string((*i)[0]),environment_component.option((*i)[1]).value_str());
+    if (environment_component.properties().check((*i)[1]) )
+      boost::algorithm::replace_all(filtered_line,std::string((*i)[0]),environment_component.properties().value_str((*i)[1]));
   }
   return filtered_line;
 }
@@ -438,7 +438,7 @@ void BasicCommands::export_env(const std::vector<std::string>& params)
   if (params.size() != 1)
     throw SetupError(FromHere(),"export takes only 1 parameter:  var:type=value");
 
-  environment_component.change_option(params[0]);
+  environment_component.change_property(params[0]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
