@@ -535,8 +535,9 @@ void CNode::listProperties(QMap<QString, QString> & props)
 
     props.clear();
 
+    /// @todo this loop is not optimized
     for( ; it != m_properties.store.end() ; it++)
-      props[ it->first.c_str() ] = it->second->value_str().c_str();
+      props[ it->first.c_str() ] = m_properties.value_str(it->first).c_str();
   }
 
 }

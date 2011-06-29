@@ -70,7 +70,7 @@ SubsonicInFlowWeakBc::SubsonicInFlowWeakBc ( const std::string& name ) :
 
 void SubsonicInFlowWeakBc::config_density_function()
 {
-  density_function.functions( m_properties["rho_in"].value< std::string >() );
+  density_function.functions( m_options["rho_in"].value< std::string >() );
   density_function.parse();
 }
 
@@ -78,7 +78,7 @@ void SubsonicInFlowWeakBc::config_density_function()
 
 void SubsonicInFlowWeakBc::config_velocity_function()
 {
-  velocity_function.functions( m_properties["vel_in"].value< std::vector<std::string> >() );
+  velocity_function.functions( m_options["vel_in"].value< std::vector<std::string> >() );
   velocity_function.parse();
 }
 

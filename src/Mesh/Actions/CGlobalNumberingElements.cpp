@@ -78,7 +78,7 @@ CGlobalNumberingElements::CGlobalNumberingElements( const std::string& name )
 
 std::string CGlobalNumberingElements::brief_description() const
 {
-  return properties()["brief"].value<std::string>();
+  return properties().value<std::string>("brief");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ std::string CGlobalNumberingElements::brief_description() const
 
 std::string CGlobalNumberingElements::help() const
 {
-  return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
+  return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -62,7 +62,7 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 
 void BcDirichlet::config_function()
 {
-  m_function.functions( m_properties["functions"].value<std::vector<std::string> >() );
+  m_function.functions( m_options["functions"].value<std::vector<std::string> >() );
   m_function.parse();
 }
 

@@ -51,7 +51,7 @@ CMeshWriter::CMeshWriter ( const std::string& name  ) :
 void CMeshWriter::config_fields()
 {
   std::vector<URI> field_uris;
-  m_properties["fields"].put_value(field_uris);
+  m_options["fields"].put_value(field_uris);
 
   m_fields.resize(0);
   boost_foreach ( const URI& uri, field_uris)

@@ -9,6 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "Common/Assertions.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/PropertyList.hpp"
 
@@ -77,15 +78,15 @@ BOOST_AUTO_TEST_CASE( assign )
 
   // test assign
 
-  props.configure_option("name", std::string( "john" ));
+  props.configure_property("name", std::string( "john" ));
 
-  BOOST_CHECK_EQUAL ( props.option("name").value<std::string>(), "john" );
+  BOOST_CHECK_EQUAL ( props.value<std::string>("name"), "john" );
 
   // test re-assign
 
-  props.configure_option("name", std::string( "joanna" ));
+  props.configure_property("name", std::string( "joanna" ));
 
-  BOOST_CHECK_EQUAL ( props.option("name").value<std::string>(), "joanna" );
+  BOOST_CHECK_EQUAL ( props.value<std::string>("name"), "joanna" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +107,7 @@ BOOST_AUTO_TEST_CASE( list )
   for ( ; itr != props.store.end(); ++itr, ++counter )
   {
     const std::string& pname = itr->first;
-    BOOST_CHECK_EQUAL ( props[pname].value<Uint>(), counter );
+    BOOST_CHECK_EQUAL ( props.value<Uint>(pname), counter );
   }
 }
 

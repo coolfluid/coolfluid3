@@ -26,7 +26,7 @@ CCriterionAbsResidual::CCriterionAbsResidual( const std::string& name  ) :
   m_max_iter(0)
 {
   m_properties["brief"] = std::string("Maximum Iterations Criterion object");
-  std::string description = properties()["description"].value<std::string>()+
+  std::string description = properties().value<std::string>("description")+
     "Returns true if a the maximum number of iterations is achived\n";
   m_properties["description"] = description;
 

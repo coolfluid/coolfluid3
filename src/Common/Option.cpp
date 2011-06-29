@@ -6,13 +6,17 @@
 
 #include <boost/assign/std/vector.hpp>
 #include <boost/algorithm/string.hpp>
-#include "Common/Option.hpp"
+
 #include "Common/BasicExceptions.hpp"
 #include "Common/Foreach.hpp"
 
+#include "Common/Option.hpp"
+
 using namespace boost::assign;
-using namespace CF::Common;
 using namespace CF::Common::XML;
+
+namespace CF {
+namespace Common {
 
 Option::Option(const std::string & name, const std::string & desc, boost::any def)
   : m_value(def),
@@ -103,3 +107,6 @@ std::string Option::type() const
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+} // Common
+} // CF

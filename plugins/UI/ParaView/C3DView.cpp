@@ -116,7 +116,7 @@ void C3DView::launch_pvserver( SignalArgs & args ){
 
   //set the paraview server port
   QString portCommand = "-sp=";
-  portCommand += QString::number( m_properties["paraview_server_port"].value<Uint>() );
+  portCommand += QString::number( m_options["paraview_server_port"].value<Uint>() );
 
   //Use custom server.
   m_pvserver->start("pvserver", QStringList() << portCommand);
@@ -165,7 +165,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
 //  Uint curr_iteration = opt.option<Uint>("iteration");
 
-  if( curr_iteration == 1 || ( curr_iteration % m_properties["refresh_rate"].value<Uint>() ) == 0 )
+  if( curr_iteration == 1 || ( curr_iteration % m_options["refresh_rate"].value<Uint>() ) == 0 )
   {
     Mesh::CMeshWriter& writer = get_child("writer").as_type<Mesh::CMeshWriter>();
 
@@ -180,9 +180,9 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
     std::vector<std::string> data(2);
 
-    data[0] =  QFileInfo( m_properties["filename"].value<std::string>().c_str() )
+    data[0] =  QFileInfo( m_options["filename"].value<std::string>().c_str() )
         .absoluteFilePath().toStdString() ;
-    data[1] = QFileInfo( m_properties["filename"].value<std::string>().c_str())
+    data[1] = QFileInfo( m_options["filename"].value<std::string>().c_str())
         .fileName().section('.',0,0).toStdString();
 
     options.add<std::string>("pathinfo", data);
@@ -200,8 +200,8 @@ void C3DView::send_server_info_to_client( SignalArgs & args ){
 
   std::vector<std::string> data(2);
 
-  data[0] =  m_properties["paraview_server_port"].value<std::string>() ;
-  data[1] = QFileInfo( m_properties["paraview_server_port"].value<std::string>() .c_str()).fileName().section('.',0,0).toStdString();
+  data[0] =  m_options["paraview_server_port"].value<std::string>() ;
+  data[1] = QFileInfo( m_options["paraview_server_port"].value<std::string>() .c_str()).fileName().section('.',0,0).toStdString();
 
   XmlNode node = options.set_array("pathinfo", data, " ; ");
 

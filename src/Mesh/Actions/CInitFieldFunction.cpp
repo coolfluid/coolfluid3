@@ -67,7 +67,7 @@ CInitFieldFunction::~CInitFieldFunction()
 
 void CInitFieldFunction::config_function()
 {
-  m_function.functions( m_properties["functions"].value<std::vector<std::string> >() );
+  m_function.functions( m_options["functions"].value<std::vector<std::string> >() );
   m_function.parse();
 }
 

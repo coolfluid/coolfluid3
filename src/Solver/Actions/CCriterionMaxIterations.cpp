@@ -26,7 +26,7 @@ CCriterionMaxIterations::CCriterionMaxIterations( const std::string& name  ) :
 {
   m_properties["brief"] = std::string("Maximum Iterations Criterion object");
   std::string description =
-      m_properties["description"].value<std::string>()+
+      m_properties.value<std::string>("description")+
       "Returns true if a the maximum number of iterations is achived\n";
   m_properties["description"] = description;
 

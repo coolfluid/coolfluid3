@@ -9,7 +9,11 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Option.hpp"
+//#include "Common/Option.hpp"
+
+#include <boost/any.hpp>
+
+#include "Common/CommonAPI.hpp"
 
 namespace CF {
 namespace Common {
@@ -18,12 +22,13 @@ namespace Common {
 
   /// Class defines a list of options to be used in the ConfigObject class
   /// @author Tiago Quintino
-  class Common_API PropertyList {
+  class Common_API PropertyList
+  {
 
   public:
 
     /// type to store the options per name
-    typedef std::map < std::string , Property::Ptr > PropertyStorage_t;
+    typedef std::map < std::string , boost::any > PropertyStorage_t;
 
     typedef PropertyStorage_t::iterator       iterator;
     typedef PropertyStorage_t::const_iterator const_iterator;
@@ -31,7 +36,7 @@ namespace Common {
   public:
 
     /// adds a property to the list
-    Property::Ptr add_property (const std::string& name, const boost::any & value);
+    PropertyList & add_property (const std::string& name, const boost::any & value);
 
 //    /// adds an option to the list
 //    template < typename OPTION_TYPE >
@@ -79,9 +84,9 @@ namespace Common {
 //    }
 
     /// get a const property from the list
-    const Property& option( const std::string& pname ) const;
+    const boost::any& property( const std::string& pname ) const;
     /// get a property from the list
-    Property& option( const std::string& pname );
+    boost::any& property( const std::string& pname );
 
 //    /// get a constant option from the list
 //    const Option& option( const std::string& pname ) const;
@@ -89,14 +94,14 @@ namespace Common {
 //    Option& option( const std::string& pname );
 
     /// contant access operator to properties
-    const Property& operator [] (const std::string & pname) const;
+    const boost::any& operator [] (const std::string & pname) const;
     /// access operator to properties
-    Property& operator [] (const std::string & pname);
+    boost::any& operator [] (const std::string & pname);
 
     /// Configure one option, and trigger its actions
     /// @param [in] optname  The option name
     /// @param [in] val      The new value assigned to the option
-    void configure_option(const std::string& pname, const boost::any& val);
+    void configure_property(const std::string& pname, const boost::any& val);
 
     /// check that a property with the name exists
     /// @param prop_name the property name
@@ -108,6 +113,14 @@ namespace Common {
     /// erases a property
     /// @param prop_name the property name
     void erase (const std::string & pname);
+
+    /// @returns the value of the option cast to TYPE
+    template < typename TYPE >
+    TYPE value( const std::string & pname) const;
+
+    std::string value_str ( const std::string & pname ) const;
+
+    std::string type( const std::string & pname ) const;
 
     iterator begin() { return store.begin(); }
 

@@ -31,7 +31,7 @@ namespace Common {
   public:
 
     /// adds a property to the list
-    Property::Ptr add_property (const std::string& name, const boost::any & value);
+//    Property::Ptr add_property (const std::string& name, const boost::any & value);
 
     /// adds an option to the list
     template < typename OPTION_TYPE >

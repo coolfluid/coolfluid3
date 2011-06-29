@@ -167,18 +167,18 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vecto
       if (matches[i].second == "iter")
       {
         std::stringstream ss;
-        ss << std::setw( 4 ) << std::setfill( '0' ) << metadata[matches[i].second].value<Uint>();
+        ss << std::setw( 4 ) << std::setfill( '0' ) << metadata.properties().value<Uint>(matches[i].second);
         replace_str = ss.str();
       }
       else if (matches[i].second == "time")
       {
         std::stringstream ss;
-        ss << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << metadata[matches[i].second].value<Real>();
+        ss << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << metadata.properties().value<Real>(matches[i].second);
         replace_str = ss.str();
       }
       else
       {
-        replace_str = metadata[matches[i].second].value_str();
+        replace_str = metadata.properties().value_str(matches[i].second);
       }
       boost::algorithm::replace_first(file_str,matches[i].first,replace_str);
     }

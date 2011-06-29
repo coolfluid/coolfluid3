@@ -42,8 +42,8 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "MeshMetadata"; }
 
-  Common::Property& operator[](const std::string& name);
-  const Common::Property& operator[](const std::string& name) const;
+  boost::any& operator[](const std::string& name);
+  const boost::any& operator[](const std::string& name) const;
 
   bool check(const std::string& name) const;
 

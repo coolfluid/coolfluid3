@@ -77,7 +77,7 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
 
 void WeakDirichlet::config_function()
 {
-  function.functions( m_properties["functions"].value<std::vector<std::string> >() );
+  function.functions( m_options["functions"].value<std::vector<std::string> >() );
   function.parse();
 }
 

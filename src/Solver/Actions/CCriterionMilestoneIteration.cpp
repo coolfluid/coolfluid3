@@ -24,7 +24,7 @@ CCriterionMilestoneIteration::CCriterionMilestoneIteration( const std::string& n
   CCriterion ( name )
 {
   m_properties["brief"] = std::string("Time Criterion object");
-  std::string description = properties()["description"].value<std::string>()+
+  std::string description = properties().value<std::string>("description")+
     "Returns true if a time is reached\n";
   m_properties["description"] = description;
 

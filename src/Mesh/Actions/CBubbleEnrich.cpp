@@ -49,7 +49,7 @@ CBubbleEnrich::CBubbleEnrich( const std::string& name )
 
 std::string CBubbleEnrich::brief_description() const
 {
-  return properties()["brief"].value<std::string>();
+  return properties().value<std::string>("brief");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,8 @@ std::string CBubbleEnrich::brief_description() const
   
 std::string CBubbleEnrich::help() const
 {
-  return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
+  return "  " + properties().value<std::string>("brief") + "\n" +
+      properties().value<std::string>("description");
 }  
   
 /////////////////////////////////////////////////////////////////////////////

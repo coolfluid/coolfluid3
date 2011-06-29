@@ -8,6 +8,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include "Common/BoostAnyConversion.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Signal.hpp"
 #include "Common/Core.hpp"
@@ -109,7 +110,7 @@ void CJournal::add_signal ( const SignalArgs & signal_node )
 {
   rapidxml::xml_attribute<> * type_attr = signal_node.node.content->first_attribute("type");
 
-  if(m_properties["RecordReplies"].value<bool>() ||
+  if( m_properties.value<bool>("RecordReplies") ||
      (type_attr != nullptr && std::strcmp(type_attr->value(), "signal") == 0) )
   {
     XmlNode copy = copy_node(signal_node.node, m_signals_map.content);

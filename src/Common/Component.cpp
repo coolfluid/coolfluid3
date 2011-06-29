@@ -801,7 +801,7 @@ void add_array_to_xml(Map & map, const std::string & name,
 /// @param prop Property to add
 template<typename TYPE>
 void add_prop_to_xml(Map & map, const std::string & name,
-                     boost::shared_ptr<Property> prop)
+                     boost::any prop)
 {
 
   throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
@@ -851,60 +851,62 @@ void Component::signal_list_properties( SignalFrame& args )
 {
   PropertyList::PropertyStorage_t::iterator it = m_properties.store.begin();
 
-  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
+    throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
 
-  for( ; it != m_properties.store.end() ; it++)
-  {
-    std::string name = it->first;
-    Property::Ptr prop = it->second;
+//  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
 
-    // if it is not an array
-    if(std::strcmp(prop->tag(), Protocol::Tags::node_array()) != 0)
-    {
-      std::string type = prop->type();
+//  for( ; it != m_properties.store.end() ; it++)
+//  {
+//    std::string name = it->first;
+//    Property::Ptr prop = it->second;
 
-      if(type == Protocol::Tags::type<std::string>())
-        add_prop_to_xml<std::string>(options, name, prop);
-      else if(type == Protocol::Tags::type<bool>())
-        add_prop_to_xml<bool>(options, name, prop);
-      else if(type == Protocol::Tags::type<int>())
-        add_prop_to_xml<int>(options, name, prop);
-      else if(type == Protocol::Tags::type<Uint>())
-        add_prop_to_xml<Uint>(options, name, prop);
-      else if(type == Protocol::Tags::type<Real>())
-        add_prop_to_xml<Real>(options, name, prop);
-      else if(type == Protocol::Tags::type<URI>())
-        add_prop_to_xml<URI>(options, name, prop);
-      else
-        throw ShouldNotBeHere(FromHere(),
-             std::string("Don't know how the manage \"") + type + "\" type.");
-    }
-    else
-    {
-      boost::shared_ptr<OptionArray> optArray;
+//    // if it is not an array
+//    if(std::strcmp(prop->tag(), Protocol::Tags::node_array()) != 0)
+//    {
+//      std::string type = prop->type();
 
-      optArray = boost::dynamic_pointer_cast<OptionArray>(prop);
+//      if(type == Protocol::Tags::type<std::string>())
+//        add_prop_to_xml<std::string>(options, name, prop);
+//      else if(type == Protocol::Tags::type<bool>())
+//        add_prop_to_xml<bool>(options, name, prop);
+//      else if(type == Protocol::Tags::type<int>())
+//        add_prop_to_xml<int>(options, name, prop);
+//      else if(type == Protocol::Tags::type<Uint>())
+//        add_prop_to_xml<Uint>(options, name, prop);
+//      else if(type == Protocol::Tags::type<Real>())
+//        add_prop_to_xml<Real>(options, name, prop);
+//      else if(type == Protocol::Tags::type<URI>())
+//        add_prop_to_xml<URI>(options, name, prop);
+//      else
+//        throw ShouldNotBeHere(FromHere(),
+//             std::string("Don't know how the manage \"") + type + "\" type.");
+//    }
+//    else
+//    {
+//      boost::shared_ptr<OptionArray> optArray;
 
-      const char * elem_type = optArray->elem_type();
+//      optArray = boost::dynamic_pointer_cast<OptionArray>(prop);
 
-      if(strcmp(elem_type, Protocol::Tags::type<std::string>()) == 0)
-        add_array_to_xml< std::string >(options, name, optArray);
-      else if(strcmp(elem_type, Protocol::Tags::type<bool>()) == 0)
-        add_array_to_xml< bool >(options, name, optArray);
-      else if(strcmp(elem_type, Protocol::Tags::type<int>()) == 0)
-        add_array_to_xml< int >(options, name, optArray);
-      else if(strcmp(elem_type, Protocol::Tags::type<Uint>()) == 0)
-        add_array_to_xml< Uint >(options, name, optArray);
-      else if(strcmp(elem_type, Protocol::Tags::type<Real>()) == 0)
-        add_array_to_xml< Real >(options, name, optArray);
-      else if(strcmp(elem_type, Protocol::Tags::type<URI>()) == 0)
-        add_array_to_xml< URI >(options, name, optArray);
-      else
-        throw ShouldNotBeHere(FromHere(),
-             std::string("Don't know how the manage OptionArrayT<") +
-                  elem_type + ">.");
-    }
-  }
+//      const char * elem_type = optArray->elem_type();
+
+//      if(strcmp(elem_type, Protocol::Tags::type<std::string>()) == 0)
+//        add_array_to_xml< std::string >(options, name, optArray);
+//      else if(strcmp(elem_type, Protocol::Tags::type<bool>()) == 0)
+//        add_array_to_xml< bool >(options, name, optArray);
+//      else if(strcmp(elem_type, Protocol::Tags::type<int>()) == 0)
+//        add_array_to_xml< int >(options, name, optArray);
+//      else if(strcmp(elem_type, Protocol::Tags::type<Uint>()) == 0)
+//        add_array_to_xml< Uint >(options, name, optArray);
+//      else if(strcmp(elem_type, Protocol::Tags::type<Real>()) == 0)
+//        add_array_to_xml< Real >(options, name, optArray);
+//      else if(strcmp(elem_type, Protocol::Tags::type<URI>()) == 0)
+//        add_array_to_xml< URI >(options, name, optArray);
+//      else
+//        throw ShouldNotBeHere(FromHere(),
+//             std::string("Don't know how the manage OptionArrayT<") +
+//                  elem_type + ">.");
+//    }
+//  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -969,16 +971,16 @@ void Component::signal_configure ( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-const Property& Component::property( const std::string& optname ) const
+const boost::any& Component::property( const std::string& optname ) const
 {
-  return m_properties.option(optname);
+  return m_properties.property(optname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Property& Component::property( const std::string& optname )
+boost::any& Component::property( const std::string& optname )
 {
-  return m_properties.option(optname);
+  return m_properties.property(optname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1125,7 +1127,7 @@ Component& Component::configure_option(const std::string& optname, const boost::
 
 Component& Component::configure_property(const std::string& optname, const boost::any& val)
 {
-  m_properties.configure_option(optname,val);
+  m_properties.configure_property(optname,val);
   return *this;
 }
 

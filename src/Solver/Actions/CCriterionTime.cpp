@@ -25,7 +25,7 @@ CCriterionTime::CCriterionTime( const std::string& name  ) :
   m_tolerance(1e-12)
 {
   m_properties["brief"] = std::string("Time Criterion object");
-  std::string description = properties()["description"].value<std::string>()+
+  std::string description = properties().value<std::string>("description")+
     "Returns true if a time is reached\n";
   m_properties["description"] = description;
 

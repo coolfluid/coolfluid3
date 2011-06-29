@@ -36,14 +36,14 @@ MeshMetadata::MeshMetadata(const std::string& name) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Property& MeshMetadata::operator[](const std::string& name)
+boost::any& MeshMetadata::operator[](const std::string& name)
 {
-  return  properties()[name];
+  return  property(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Property& MeshMetadata::operator[](const std::string& name) const
+const boost::any& MeshMetadata::operator[](const std::string& name) const
 {
   return property(name);
 }

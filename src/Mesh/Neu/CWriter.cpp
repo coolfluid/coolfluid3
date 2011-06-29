@@ -93,7 +93,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 void CWriter::write_headerData(std::fstream& file)
 {
   // get the day of today
-  boost::gregorian::date date = boost::gregorian::from_simple_string(m_mesh->metadata()["date"].value_str());
+  boost::gregorian::date date = boost::gregorian::from_simple_string(m_mesh->metadata().properties().value_str("date"));
 
   Uint group_counter(0);
   Uint element_counter(0);

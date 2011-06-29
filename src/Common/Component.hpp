@@ -347,10 +347,10 @@ public: // functions
   const PropertyList& properties() const { return m_properties; }
 
   /// @return Returns a reference to the property with a provided name
-  const Property& property(const std::string& optname ) const;
+  const boost::any& property(const std::string& optname ) const;
 
   /// access to the property
-  Property& property(const std::string& optname );
+  boost::any& property(const std::string& optname );
 
   /// @return Returns a reference to the option with a provided name
   Option& option(const std::string& optname );

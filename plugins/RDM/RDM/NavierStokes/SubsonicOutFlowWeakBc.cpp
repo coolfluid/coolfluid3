@@ -65,7 +65,7 @@ SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
 
 void SubsonicOutFlowWeakBc::config_pressure_function()
 {
-  pressure_function.functions( m_properties["p_out"].value< std::string >() );
+  pressure_function.functions( m_options["p_out"].value< std::string >() );
   pressure_function.parse();
 }
 

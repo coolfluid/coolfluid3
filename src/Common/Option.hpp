@@ -9,13 +9,15 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
+#include <boost/any.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
-#include "Common/Property.hpp"
+#include "Common/TaggedObject.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/SignalHandler.hpp"
+#include "Common/TypeInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +65,7 @@ namespace Common {
     virtual ~Option();
 
     template<typename TYPE>
-    const TYPE value() const
+    TYPE value() const
     {
       try
       {
@@ -119,6 +121,7 @@ namespace Common {
         throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<TYPE>());
       }
     }
+
     /// @returns the name of the option
     std::string name() const { return m_name; }
 

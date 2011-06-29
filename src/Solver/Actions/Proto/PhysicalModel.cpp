@@ -157,8 +157,8 @@ void PhysicalModel::get_names(const CF::Common::PropertyList& properties)
   for(VarTypesT::const_iterator it = m_variable_types.begin(); it != m_variable_types.end(); ++it)
   {
     const std::string internal_name = it->first;
-    m_field_names[internal_name]    = properties[internal_name + std::string("FieldName")   ].value_str();
-    m_variable_names[internal_name] = properties[internal_name + std::string("VariableName")].value_str();
+    m_field_names[internal_name]    = properties.value_str(internal_name + std::string("FieldName"));
+    m_variable_names[internal_name] = properties.value_str(internal_name + std::string("VariableName"));
   }
 }
 

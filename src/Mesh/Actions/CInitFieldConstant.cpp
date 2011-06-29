@@ -57,7 +57,7 @@ CInitFieldConstant::CInitFieldConstant( const std::string& name )
 
 std::string CInitFieldConstant::brief_description() const
 {
-  return properties()["brief"].value<std::string>();
+  return properties().value<std::string>("brief");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ std::string CInitFieldConstant::brief_description() const
 
 std::string CInitFieldConstant::help() const
 {
-  return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
+  return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

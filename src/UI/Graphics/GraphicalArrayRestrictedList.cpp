@@ -70,62 +70,64 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
   connect(m_btAdd, SIGNAL(clicked()), this, SLOT(btAddClicked()));
   connect(m_btRemove, SIGNAL(clicked()), this, SLOT(btRemoveClicked()));
 
-  if(opt.get() != nullptr && std::strcmp(opt->tag(), "array") == 0 &&
-     opt->has_restricted_list())
-  {
-    OptionArray::ConstPtr array;
-    std::string type;
-    Property::ConstPtr prop = boost::dynamic_pointer_cast< Property const >(opt);
+  throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
 
-    try
-    {
-      array = boost::dynamic_pointer_cast<const OptionArray>(opt);
-    }
-    catch(boost::bad_any_cast & bac)
-    {
-      throw CastingFailed(FromHere(), "Unable to cast to OptionArray");
-    }
+//  if(opt.get() != nullptr && std::strcmp(opt->tag(), "array") == 0 &&
+//     opt->has_restricted_list())
+//  {
+//    OptionArray::ConstPtr array;
+//    std::string type;
+//    Property::ConstPtr prop = boost::dynamic_pointer_cast< Property const >(opt);
 
-    const std::vector<boost::any> & vect = array->restricted_list();
+//    try
+//    {
+//      array = boost::dynamic_pointer_cast<const OptionArray>(opt);
+//    }
+//    catch(boost::bad_any_cast & bac)
+//    {
+//      throw CastingFailed(FromHere(), "Unable to cast to OptionArray");
+//    }
 
-    type = array->elem_type();
+//    const std::vector<boost::any> & vect = array->restricted_list();
 
-    if(type == Protocol::Tags::type<bool>())              // bool option
-    {
-      vectToStringList<bool>(vect, restrList);
-      anyToStringList<bool>(prop->value(), valList);
-    }
-    else if(type == Protocol::Tags::type<Real>())     // Real option
-    {
-      vectToStringList<CF::Real>(vect, restrList);
-      anyToStringList<CF::Real>(prop->value(), valList);
-    }
-    else if(type == Protocol::Tags::type<int>())          // int option
-    {
-      vectToStringList<int>(vect, restrList);
-      anyToStringList<int>(prop->value(), valList);
-    }
-    else if(type == Protocol::Tags::type<Uint>())     // Uint option
-    {
-      vectToStringList<CF::Uint>(vect, restrList);
-      anyToStringList<CF::Uint>(prop->value(), valList);
-    }
-    else if(type == Protocol::Tags::type<std::string>())  // string option
-    {
-      vectToStringList<std::string>(vect, restrList);
-      anyToStringList<std::string>(prop->value(), valList);
-    }
-    else if(type == Protocol::Tags::type<URI>())          // URI option
-    {
-      vectToStringList<URI>(vect, restrList);
-      anyToStringList<URI>(prop->value(), valList);
-    }
-    else
-      throw CastingFailed(FromHere(), type + ": Unknown type");
+//    type = array->elem_type();
 
-    setRestrictedList(restrList);
-    setValue(valList);
-  }
+//    if(type == Protocol::Tags::type<bool>())              // bool option
+//    {
+//      vectToStringList<bool>(vect, restrList);
+//      anyToStringList<bool>(prop->value(), valList);
+//    }
+//    else if(type == Protocol::Tags::type<Real>())     // Real option
+//    {
+//      vectToStringList<CF::Real>(vect, restrList);
+//      anyToStringList<CF::Real>(prop->value(), valList);
+//    }
+//    else if(type == Protocol::Tags::type<int>())          // int option
+//    {
+//      vectToStringList<int>(vect, restrList);
+//      anyToStringList<int>(prop->value(), valList);
+//    }
+//    else if(type == Protocol::Tags::type<Uint>())     // Uint option
+//    {
+//      vectToStringList<CF::Uint>(vect, restrList);
+//      anyToStringList<CF::Uint>(prop->value(), valList);
+//    }
+//    else if(type == Protocol::Tags::type<std::string>())  // string option
+//    {
+//      vectToStringList<std::string>(vect, restrList);
+//      anyToStringList<std::string>(prop->value(), valList);
+//    }
+//    else if(type == Protocol::Tags::type<URI>())          // URI option
+//    {
+//      vectToStringList<URI>(vect, restrList);
+//      anyToStringList<URI>(prop->value(), valList);
+//    }
+//    else
+//      throw CastingFailed(FromHere(), type + ": Unknown type");
+
+//    setRestrictedList(restrList);
+//    setValue(valList);
+//  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

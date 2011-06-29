@@ -404,9 +404,9 @@ void CReader::read_section(CRegion& parent_region)
   {
     if (existing_region.properties().check("cgns_section_name"))
     {
-      if (existing_region.property("cgns_section_name").value<std::string>() == m_section.name)
+      if (existing_region.properties().value<std::string>("cgns_section_name") == m_section.name)
       {
-        existing_region.rename(existing_region.property("cgns_section_name").value<std::string>());
+        existing_region.rename(properties().value<std::string>("cgns_section_name"));
         existing_region.properties()["previous_elem_count"] = existing_region.recursive_elements_count();
         break;
       }
@@ -475,7 +475,7 @@ void CReader::read_section(CRegion& parent_region)
 
 
     // Create element component in this region for this CF element type, automatically creates connectivity_table
-    if (property("SharedCoordinates").value<bool>())
+    if (option("SharedCoordinates").value<bool>())
       this_region.create_elements(etype_CF,all_nodes);
     else
     {
@@ -500,7 +500,7 @@ void CReader::read_section(CRegion& parent_region)
     std::vector<Uint> coords_added;
     std::vector<Uint> row(m_section.elemNodeCount);
     element_buffer.increase_array_size(nbElems);  // we can use increase_array_size + add_row_directly because we know apriori the change
-    if (property("SharedCoordinates").value<bool>())
+    if (option("SharedCoordinates").value<bool>())
     {
       for (int elem=0; elem<nbElems; ++elem) //, ++progress)
       {
@@ -680,7 +680,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (&first_elements->parent() == &last_elements->parent())
       {
         CRegion::Ptr group_region = first_elements->parent().as_ptr<CRegion>();
-        Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
+        Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
           group_region->properties()["cgns_section_name"] = group_region->name();
@@ -729,7 +729,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (&first_elements->parent() == &last_elements->parent())
       {
         CRegion::Ptr group_region = first_elements->parent().as_ptr<CRegion>();
-        Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
+        Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {
           group_region->properties()["cgns_section_name"] = group_region->name();

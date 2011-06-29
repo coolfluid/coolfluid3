@@ -10,14 +10,12 @@
 #include <boost/assign/list_of.hpp>
 
 #include "rapidxml/rapidxml.hpp"
-#include "Common/XML/FileOperations.hpp"
 
+#include "Common/BoostAnyConversion.hpp"
 #include "Common/OptionURI.hpp"
-
-#include "Common/Log.hpp"
-
 #include "Common/OptionArray.hpp"
 
+#include "Common/XML/FileOperations.hpp"
 #include "Common/XML/Protocol.hpp"
 
 #include "UI/Core/TreeThread.hpp"
@@ -187,27 +185,27 @@ void CNodeTest::test_setProperties()
 
   GUI_CHECK_NO_THROW(node.setProperties(XmlNode(correctOpt->content->first_node())));
 
-  Property * prop;
+  boost::any prop;
 
   //
   // Checks for "prop"
   //
   // 1. should exist
-  GUI_CHECK_NO_THROW( prop = &node.properties()["prop"] );
+  GUI_CHECK_NO_THROW( prop = node.properties()["prop"] );
   // 2. should be of type "std::string"
-  QCOMPARE( QString(prop->type().c_str()), QString(Protocol::Tags::type<std::string>()) );
+  QCOMPARE( QString( any_type(prop).c_str() ), QString(Protocol::Tags::type<std::string>()) );
   // 3. should have the value "Hello, World!"
-  QCOMPARE( QString(prop->value<std::string>().c_str()), QString("Hello, World!") );
+  QCOMPARE( QString( any_to_value<std::string>(prop).c_str() ), QString("Hello, World!") );
 
   //
   // Checks for "anotherProp"
   //
   // 1. should exist
-  GUI_CHECK_NO_THROW( prop = &node.properties()["anotherProp"] );
+  GUI_CHECK_NO_THROW( prop = node.properties()["anotherProp"] );
   // 2. should be of type "bool"
-  QCOMPARE( QString(prop->type().c_str()), QString(Protocol::Tags::type<bool>()) );
+  QCOMPARE( QString( any_to_value<std::string>(prop).c_str()), QString(Protocol::Tags::type<bool>()) );
   // 3. should have the value false
-  QVERIFY( !prop->value<bool>() );
+  QVERIFY( !any_to_value<bool>(prop) );
 
   //
   // Checks for "pi"
