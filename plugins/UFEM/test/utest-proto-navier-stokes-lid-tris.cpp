@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLidTris )
     CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
     root.add_component(writer);
     const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").uri())(mesh->get_child("Pressure").uri());
-    writer->configure_property( "fields", out_fields );
+    writer->configure_option( "fields", out_fields );
     
     Timer total_timer;
     
