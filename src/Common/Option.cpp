@@ -78,16 +78,15 @@ Option::Ptr Option::mark_basic()
 
 void Option::change_value ( const boost::any& value )
 {
-//  cf_assert(/*m_restricted_list.size() == 1 ||*/
-//            std::find(m_restricted_list.begin(), m_restricted_list.end(), value)
-//            != m_restricted_list.end());
+  //  cf_assert(/*m_restricted_list.size() == 1 ||*/
+  //            std::find(m_restricted_list.begin(), m_restricted_list.end(), value)
+  //            != m_restricted_list.end());
 
   boost::any data = value_to_data(value);
-  m_value = value; // update the value
+  m_value = data; // update the value
   copy_to_linked_params(data);
-  // call all trigger functors
+    // call all trigger functors
   trigger();
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////

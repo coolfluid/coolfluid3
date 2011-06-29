@@ -188,7 +188,7 @@ void LinearSystem::signal_initialize_fields(SignalArgs& node)
   CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(*region);
 
   // Create the fields and adjust the LSS size
-  m_physical_model.create_fields(mesh, properties());
+  m_physical_model.create_fields(mesh, m_options);
   lss().resize( m_physical_model.nb_dofs() * mesh.nodes().size() );
 
   // Set the initial values

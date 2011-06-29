@@ -119,7 +119,7 @@ void ForwardEuler::execute()
   // iteration loop
 
   Uint iteration = 1; // iterations start from 1 ( max iter zero will do nothing )
-  option("iteration").change_value( iteration );
+  property("iteration") = iteration;
 
   while( !stop_condition() )
   {
@@ -154,7 +154,7 @@ void ForwardEuler::execute()
 
     /// @todo move current rhs as a property of the iterate or solver components
     // output convergence info
-    Real rhs_norm = compute_norm.option("Norm").value<Real>();
+    Real rhs_norm = compute_norm.properties().value<Real>("Norm");
     std::cout << " Iter [" << std::setw(4) << iteration << "]"
               << " L2(rhs) [" << std::setw(12) << rhs_norm << "]" << std::endl;
 
@@ -173,7 +173,7 @@ void ForwardEuler::execute()
 
    // increment iteration
 
-   option("iteration").change_value( ++iteration ); // update the iteration number
+   property("iteration") = ++iteration; // update the iteration number
 
   }
 }

@@ -64,7 +64,7 @@ Option & OptionList::option( const std::string& pname)
   else
   {
     std::string msg;
-    msg += "Property with name ["+pname+"] not found. Available properties are:\n";
+    msg += "Option with name ["+pname+"] not found. Available properties are:\n";
     OptionStorage_t::iterator it = store.begin();
     for (; it!=store.end(); it++)
       msg += "  - " + it->first + "\n";
@@ -106,8 +106,15 @@ Option & OptionList::operator [] (const std::string & pname)
 
   if ( itr != store.end() )
     opt = itr->second;
-//  else
-//    opt = add_option(pname, boost::any());
+  else
+  {
+    std::string msg;
+    msg += "Option with name ["+pname+"] not found. Available options are:\n";
+    OptionStorage_t::const_iterator it = store.begin();
+    for (; it!=store.end(); it++)
+      msg += "  - " + it->first + "\n";
+    throw ValueNotFound(FromHere(),msg);
+  }
 
   return *opt.get();
 }

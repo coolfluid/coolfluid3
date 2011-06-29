@@ -43,7 +43,7 @@ bool CCriterionMaxIterations::operator()()
 
   Component& comp_iter = *m_iter_comp.lock();
 
-  const Uint cur_iter = comp_iter.option("iteration").value<Uint>();
+  const Uint cur_iter = comp_iter.properties().value<Uint>("iteration");
   const Uint max_iter = comp_iter.option("MaxIter").value<Uint>();
 
   return ( cur_iter > max_iter );

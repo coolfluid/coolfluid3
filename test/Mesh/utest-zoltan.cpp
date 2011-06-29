@@ -78,10 +78,10 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 /*
 BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 {
-  Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
+  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
   CFinfo << "CMeshPartitioner_test" << CFendl;
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  meshreader->configure_property("read_boundaries",false);
+  meshreader->configure_option("read_boundaries",false);
 
   // the file to read from
   URI fp_in ("quadtriag.neu");
@@ -106,9 +106,9 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 
   Core::instance().initiate(m_argc,m_argv);
 
-  //p.configure_property("nb_parts", (Uint) 4);
-  p.configure_property("graph_package", std::string("PHG"));
-  p.configure_property("debug_level", 2u);
+  //p.configure_option("nb_parts", (Uint) 4);
+  p.configure_option("graph_package", std::string("PHG"));
+  p.configure_option("debug_level", 2u);
   BOOST_CHECK(true);
   p.initialize(mesh);
 
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   BOOST_CHECK(true);
 
   CMeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering");
-  glb_node_numbering->configure_property("debug",true);
+  glb_node_numbering->configure_option("debug",true);
   glb_node_numbering->transform(mesh);
 
 
@@ -181,16 +181,16 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 */
 BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 {
-  Core::instance().environment().configure_property("log_level",(Uint)DEBUG);
+  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
   CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->configure_property("parent",URI("//Root"));
-  meshgenerator->configure_property("name",std::string("rect"));
+  meshgenerator->configure_option("parent",URI("//Root"));
+  meshgenerator->configure_option("name",std::string("rect"));
   std::vector<Uint> nb_cells(2);  nb_cells[0] = 3;   nb_cells[1] = 2;
   std::vector<Real> lengths(2);   lengths[0]  = nb_cells[0];  lengths[1]  = nb_cells[1];
-  meshgenerator->configure_property("nb_cells",nb_cells);
-  meshgenerator->configure_property("lengths",lengths);
-  meshgenerator->configure_property("bdry",false);
+  meshgenerator->configure_option("nb_cells",nb_cells);
+  meshgenerator->configure_option("lengths",lengths);
+  meshgenerator->configure_option("bdry",false);
   meshgenerator->execute();
   CMesh& mesh = Core::instance().root().get_child("rect").as_type<CMesh>();
 
@@ -210,9 +210,9 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 
   Core::instance().initiate(m_argc,m_argv);
 
-  //p.configure_property("nb_parts", (Uint) 4);
-  p.configure_property("graph_package", std::string("PHG"));
-  p.configure_property("debug_level", 2u);
+  //p.configure_option("nb_parts", (Uint) 4);
+  p.configure_option("graph_package", std::string("PHG"));
+  p.configure_option("debug_level", 2u);
   BOOST_CHECK(true);
   p.initialize(mesh);
   BOOST_CHECK(true);
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   BOOST_CHECK(true);
 
   CMeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering");
-  glb_node_numbering->configure_property("debug",true);
+  glb_node_numbering->configure_option("debug",true);
   glb_node_numbering->transform(mesh);
 
 

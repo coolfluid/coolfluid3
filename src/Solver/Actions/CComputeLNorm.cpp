@@ -90,7 +90,7 @@ void CComputeLNorm::execute()
   if( m_options.option("Scale").value<bool>() && order )
     norm /= nbrows;
 
-  options().option("Norm").change_value(norm);
+  configure_property("Norm", norm);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

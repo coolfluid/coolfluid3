@@ -41,7 +41,7 @@ bool PhysicalModel::is_equation_variable(const std::string& var_name) const
 }
 
 Uint PhysicalModel::offset(const std::string& var_name) const
-{ 
+{
   const std::map<std::string, Uint>::const_iterator it = m_variable_offsets.find(var_name);
   if(it == m_variable_offsets.end())
     throw ValueNotFound(FromHere(), "Variable " + var_name + " does not represent a state");
@@ -83,40 +83,40 @@ void PhysicalModel::create_fields(CMesh& mesh)
 {
   // dimension of the problem
   const Uint dim = mesh.topology().nodes().coordinates().row_size();
-  
+
   // Initialize
   m_solution_fields.clear(); m_solution_fields.reserve(m_variable_offsets.size());
   m_solution_variables.clear(); m_solution_variables.reserve(m_variable_offsets.size());
   m_solution_sizes.clear(); m_solution_sizes.reserve(m_variable_offsets.size());
   m_nb_dofs = 0;
-  
+
   // Calculate offset and nb_dofs
   boost_foreach(const std::string& eqn_var_name, m_equation_variables)
   {
     const Uint var_size = m_variable_types[eqn_var_name] == SCALAR ? 1 : dim;
     m_variable_offsets[eqn_var_name] = m_nb_dofs;
     m_nb_dofs += var_size;
-    
+
     // Update data arrays for incrementing the solution
     m_solution_fields.push_back(m_field_names[eqn_var_name]);
     m_solution_variables.push_back(m_variable_names[eqn_var_name]);
     m_solution_sizes.push_back(var_size);
   }
-  
+
   typedef std::map<std::string, VarTypesT > FieldsT;
   FieldsT fields;
-  
+
   // Collect the unique field and variable names
   for(VarTypesT::const_iterator it = m_variable_types.begin(); it != m_variable_types.end(); ++it)
   {
     const std::string internal_name = it->first;
     fields[m_field_names[internal_name]][m_variable_names[internal_name]] = it->second;
   }
-  
+
   for(FieldsT::const_iterator fd_it = fields.begin(); fd_it != fields.end(); ++fd_it)
-  { 
+  {
     const std::string fd_name = fd_it->first;
-    
+
     // Check if the field exists
     Component::ConstPtr existing_component = mesh.get_child_ptr(fd_name);
     CField::ConstPtr existing_field;
@@ -124,15 +124,15 @@ void PhysicalModel::create_fields(CMesh& mesh)
       existing_field = existing_component->as_ptr<CField>();
     if(existing_component && !existing_field)
       throw ValueExists(FromHere(), "A component with the name of field " + fd_name + " exists. Field can not be created.");
-    
+
     std::vector<std::string> fd_var_names;
     std::vector<Mesh::CField::VarType> fd_var_types;
-    
+
     for(VarTypesT::const_iterator var_it = fd_it->second.begin(); var_it != fd_it->second.end(); ++var_it)
     {
       fd_var_names.push_back(var_it->first);
       fd_var_types.push_back(static_cast<Mesh::CField::VarType>(var_it->second == SCALAR ? 1 : dim));
-      
+
       if(existing_field) // If the field exists, check if it is compatible
       {
         if(!existing_field->has_variable(fd_var_names.back()) // Variable doesn't exist
@@ -140,25 +140,25 @@ void PhysicalModel::create_fields(CMesh& mesh)
           throw Common::ValueExists(FromHere(), "Field with name " + fd_name + " exists, but is incompatible with the requested solution.");
       }
     }
-    
+
     if(!existing_field)
       mesh.create_field(fd_name, CField::Basis::POINT_BASED, fd_var_names, fd_var_types);
   }
 }
 
-void PhysicalModel::create_fields(CMesh& mesh, const CF::Common::PropertyList& properties)
+void PhysicalModel::create_fields(CMesh& mesh, const CF::Common::OptionList& options)
 {
-  get_names(properties);
+  get_names(options);
   create_fields(mesh);
 }
 
-void PhysicalModel::get_names(const CF::Common::PropertyList& properties)
+void PhysicalModel::get_names(const CF::Common::OptionList& options)
 {
   for(VarTypesT::const_iterator it = m_variable_types.begin(); it != m_variable_types.end(); ++it)
   {
     const std::string internal_name = it->first;
-    m_field_names[internal_name]    = properties.value_str(internal_name + std::string("FieldName"));
-    m_variable_names[internal_name] = properties.value_str(internal_name + std::string("VariableName"));
+    m_field_names[internal_name]    = options.option(internal_name + std::string("FieldName")).value_str();
+    m_variable_names[internal_name] = options.option(internal_name + std::string("VariableName")).value_str();
   }
 }
 
@@ -176,7 +176,7 @@ void PhysicalModel::clear()
   m_nb_dofs = 0;
 }
 
- 
+
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver

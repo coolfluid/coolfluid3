@@ -1133,35 +1133,35 @@ Component& Component::configure_property(const std::string& optname, const boost
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Component::configure_option_recursively(const std::string& opt, const boost::any& val)
+void Component::configure_option_recursively(const std::string& opt_nane, const boost::any& val)
 {
-  throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
+//  throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
 
-//  if (properties().check(opt))
-//  {
-//    configure_option(opt,val);
-//  }
+  if (m_options.check(opt_nane))
+  {
+    configure_option(opt_nane,val);
+  }
 
-//  foreach_container((std::string name) (boost::shared_ptr<Property> prop), properties())
-//  {
-//    if (prop->has_tag(opt))
-//      configure_option(name,val);
-//  }
+  foreach_container((std::string name) (boost::shared_ptr<Option> opt), m_options)
+  {
+    if (opt->has_tag(opt_nane))
+      configure_option(name,val);
+  }
 
-//  // configure all child's options recursively
-//  boost_foreach( Component& component, find_components_recursively(*this) )
-//  {
-//    if (component.properties().check(opt))
-//    {
-//      component.configure_option(opt,val);
-//    }
-//    foreach_container((std::string name) (boost::shared_ptr<Property> prop), component.properties())
-//    {
-//      if (prop->has_tag(opt))
-//        component.configure_option(name,val);
-//    }
+  // configure all child's options recursively
+  boost_foreach( Component& component, find_components_recursively(*this) )
+  {
+    if (component.options().check(opt_nane))
+    {
+      component.configure_option(opt_nane,val);
+    }
+    foreach_container((std::string name) (boost::shared_ptr<Option> opt), component.options())
+    {
+      if (opt->has_tag(opt_nane))
+        component.configure_option(name,val);
+    }
 
-//  }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
