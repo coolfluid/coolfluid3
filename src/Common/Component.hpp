@@ -410,7 +410,10 @@ public: // functions
 
   /// lists the properties of this component
   void signal_list_properties ( SignalArgs& args );
-
+  
+  /// lists the properties of this component
+  void signal_list_options ( SignalArgs& args );
+  
   /// lists the signals of this component
   void signal_list_signals ( SignalArgs& args );
 

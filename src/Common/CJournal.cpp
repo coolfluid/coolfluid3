@@ -110,7 +110,7 @@ void CJournal::add_signal ( const SignalArgs & signal_node )
 {
   rapidxml::xml_attribute<> * type_attr = signal_node.node.content->first_attribute("type");
 
-  if( m_properties.value<bool>("RecordReplies") ||
+  if( m_options["RecordReplies"].value<bool>() ||
      (type_attr != nullptr && std::strcmp(type_attr->value(), "signal") == 0) )
   {
     XmlNode copy = copy_node(signal_node.node, m_signals_map.content);

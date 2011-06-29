@@ -14,6 +14,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include "Common/BoostAnyConversion.hpp"
 #include "Common/CF.hpp"
 #include "Common/Signal.hpp"
 #include "Common/OptionArray.hpp"
@@ -178,17 +179,17 @@ void CNode::setProperties(const SignalArgs & options)
             if(m_properties.check(keyVal))
             {
               if( typeVal == Protocol::Tags::type<bool>() )
-                configure_option(keyVal, from_str<bool>(value));
+                configure_property(keyVal, from_str<bool>(value));
               else if( typeVal == Protocol::Tags::type<int>() )
-                configure_option(keyVal, from_str<int>(value));
+                configure_property(keyVal, from_str<int>(value));
               else if( typeVal == Protocol::Tags::type<CF::Uint>() )
-                configure_option(keyVal, from_str<CF::Uint>(value));
+                configure_property(keyVal, from_str<CF::Uint>(value));
               else if( typeVal == Protocol::Tags::type<CF::Real>() )
-                configure_option(keyVal, from_str<CF::Real>(value));
+                configure_property(keyVal, from_str<CF::Real>(value));
               else if( typeVal == Protocol::Tags::type<std::string>() )
-                configure_option(keyVal, std::string(value));
+                configure_property(keyVal, std::string(value));
               else if( typeVal == Protocol::Tags::type<URI>() )
-                configure_option(keyVal, from_str<URI>(value));
+                configure_property(keyVal, from_str<URI>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typeVal + ": Unknown type.");
             }
@@ -499,35 +500,26 @@ void CNode::signal_signature_reply( SignalArgs & node )
 
 void CNode::listOptions(QList<Option::ConstPtr> & list)
 {
-  QMutexLocker locker(m_mutex);
+  QMutexLocker locker( m_mutex );
 
-  throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
+ if( !m_contentListed )
+   fetchContent();
+ else
+ {
+   OptionList::const_iterator it = m_options.begin();
 
-//  if(!m_contentListed)
-//    fetchContent();
-//  else
-//  {
-//    PropertyList::PropertyStorage_t::const_iterator it;
-
-//    it = m_properties.store.begin();
-
-//    for( ; it != m_properties.store.end() ; it++)
-//    {
-//      Property::Ptr prop = it->second;
-
-//      if(prop->is_option())
-//        list.append(boost::dynamic_pointer_cast<Option const>(prop));
-//    }
-//  }
+   for( ; it != m_options.end() ; ++it)
+     list.append( it->second );
+ }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void CNode::listProperties(QMap<QString, QString> & props)
 {
-  QMutexLocker locker(m_mutex);
+  QMutexLocker locker( m_mutex );
 
-  if(!m_contentListed)
+  if( !m_contentListed )
     fetchContent();
   else
   {
@@ -536,7 +528,7 @@ void CNode::listProperties(QMap<QString, QString> & props)
     props.clear();
 
     /// @todo this loop is not optimized
-    for( ; it != m_properties.store.end() ; it++)
+    for( ; it != m_properties.store.end() ; ++it)
       props[ it->first.c_str() ] = m_properties.value_str(it->first).c_str();
   }
 
@@ -546,7 +538,7 @@ void CNode::listProperties(QMap<QString, QString> & props)
 
 void CNode::listSignals(QList<ActionInfo> & actions)
 {
-  QMutexLocker locker(m_mutex);
+  QMutexLocker locker( m_mutex );
 
   QStringList::const_iterator it = m_localSignals.begin();
   QMap<QString, bool> availableLocalSignals;
@@ -699,8 +691,8 @@ Option::Ptr makeOptionT(const std::string & name, const std::string & descr, Xml
 
 template<typename TYPE>
 typename OptionArrayT<TYPE>::Ptr makeOptionArrayT(const std::string & name,
-                                                         const std::string & descr,
-                                                         const XmlNode & node)
+                                                  const std::string & descr,
+                                                  const XmlNode & node)
 {
   std::vector<TYPE> value = Map().array_to_vector<TYPE>(node);
 

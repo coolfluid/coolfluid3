@@ -11,6 +11,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include "Common/BoostAnyConversion.hpp"
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 #include "Common/Foreach.hpp"
@@ -56,8 +57,10 @@ Component::Component ( const std::string& name ) :
 
   regist_signal( "list_tree" , "lists the component tree inside this component", "List tree" )->signal->connect ( boost::bind ( &Component::signal_list_tree, this, _1 ) );
 
-  regist_signal( "list_properties" , "lists the options of this component", "List properties" )->signal->connect ( boost::bind ( &Component::signal_list_properties, this, _1 ) );
-
+  regist_signal( "list_properties" , "lists the properties of this component", "List properties" )->signal->connect ( boost::bind ( &Component::signal_list_properties, this, _1 ) );
+  
+  regist_signal( "list_options" , "lists the options of this component", "List properties" )->signal->connect ( boost::bind ( &Component::signal_list_options, this, _1 ) );
+  
   regist_signal( "list_signals" , "lists the options of this component", "List signals" )->signal->connect ( boost::bind ( &Component::signal_list_signals, this, _1 ) );
 
   regist_signal( "configure" , "configures this component", "Configure" )->signal->connect ( boost::bind ( &Component::signal_configure, this, _1 ) );
@@ -79,6 +82,7 @@ Component::Component ( const std::string& name ) :
   // these signals should not be seen from the GUI
   signal("list_tree")->is_hidden = true;
   signal("list_properties")->is_hidden = true;
+  signal("list_options")->is_hidden = true;
   signal("list_signals")->is_hidden = true;
   signal("configure")->is_hidden = true;
   signal("save_tree")->is_hidden = true;
@@ -723,6 +727,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
         // add properties if needed
         SignalFrame sf(this_node);
         signal_list_properties( sf );
+        signal_list_options( sf );
       }
 
       boost_foreach( CompStorage_t::value_type c, m_components )
@@ -799,51 +804,51 @@ void add_array_to_xml(Map & map, const std::string & name,
 /// @param map   Where to add the property
 /// @param name  Name to give to the property
 /// @param prop Property to add
-template<typename TYPE>
-void add_prop_to_xml(Map & map, const std::string & name,
-                     boost::any prop)
-{
-
-  throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
-
-//  if( prop->is_option() )
-//  {
-//    Option & opt = prop->as_option();
-//    XmlNode value_node = map.set_value( name, opt.value<TYPE>() );
-
-//    bool basic = opt.has_tag("basic");
-//    std::string desc = opt.description();
-
-//    value_node.set_attribute( Protocol::Tags::attr_descr(), desc);
-//    value_node.set_attribute( "is_option", to_str(prop->is_option()) );
-//    value_node.set_attribute( "mode", (basic ? "basic" : "adv") );
-
-//    if( opt.has_restricted_list() )
-//    {
-//      Map value_map(value_node);
-//      std::vector<TYPE> vect;
-//      std::vector<boost::any>::iterator it = opt.restricted_list().begin();
-
-//      for( ; it != opt.restricted_list().end() ; ++it )
-//        vect.push_back( boost::any_cast<TYPE>(*it) );
-
-//      value_map.set_array( Protocol::Tags::key_restricted_values(), vect, " ; " );
-//    }
-
-//    if(std::strcmp(opt.tag(), "uri") == 0)
-//    {
-//      std::vector<URI::Scheme::Type> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
-//      std::vector<URI::Scheme::Type>::iterator it = prots.begin();
-
-//      for( ; it != prots.end() ; it++)
-//        value_node.set_attribute( Protocol::Tags::attr_uri_schemes(), URI::Scheme::Convert::instance().to_str(*it));
-//    }
-//  }
-//  else
-//  {
+// template<typename TYPE>
+// void add_prop_to_xml(Map & map, const std::string & name,
+//                      boost::any prop)
+// {
+// 
+// //   throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
+// 
+// //  if( prop->is_option() )
+// //  {
+// //    Option & opt = prop->as_option();
+// //    XmlNode value_node = map.set_value( name, opt.value<TYPE>() );
+// // 
+// //    bool basic = opt.has_tag("basic");
+// //    std::string desc = opt.description();
+// // 
+// //    value_node.set_attribute( Protocol::Tags::attr_descr(), desc);
+// //    value_node.set_attribute( "is_option", to_str(prop->is_option()) );
+// //    value_node.set_attribute( "mode", (basic ? "basic" : "adv") );
+// // 
+// //    if( opt.has_restricted_list() )
+// //    {
+// //      Map value_map(value_node);
+// //      std::vector<TYPE> vect;
+// //      std::vector<boost::any>::iterator it = opt.restricted_list().begin();
+// // 
+// //      for( ; it != opt.restricted_list().end() ; ++it )
+// //        vect.push_back( boost::any_cast<TYPE>(*it) );
+// // 
+// //      value_map.set_array( Protocol::Tags::key_restricted_values(), vect, " ; " );
+// //    }
+// // 
+// //    if(std::strcmp(opt.tag(), "uri") == 0)
+// //    {
+// //      std::vector<URI::Scheme::Type> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
+// //      std::vector<URI::Scheme::Type>::iterator it = prots.begin();
+// // 
+// //      for( ; it != prots.end() ; it++)
+// //        value_node.set_attribute( Protocol::Tags::attr_uri_schemes(), URI::Scheme::Convert::instance().to_str(*it));
+// //    }
+// //  }
+// //  else
+// //  {
 //    map.set_value( name, prop->value<TYPE>() );
-//  }
-}
+// //  }
+// }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -851,44 +856,44 @@ void Component::signal_list_properties( SignalFrame& args )
 {
   PropertyList::PropertyStorage_t::iterator it = m_properties.store.begin();
 
-    throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
+//     throw NotImplemented(FromHere(), "Adapt to the new Property/Option facility when it is finished");
 
-//  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
+ Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
 
-//  for( ; it != m_properties.store.end() ; it++)
-//  {
-//    std::string name = it->first;
-//    Property::Ptr prop = it->second;
+ for( ; it != m_properties.store.end() ; it++)
+ {
+   std::string name = it->first;
+   boost::any value = it->second;
 
-//    // if it is not an array
+   // if it is not an array
 //    if(std::strcmp(prop->tag(), Protocol::Tags::node_array()) != 0)
 //    {
-//      std::string type = prop->type();
+     std::string type = class_name_from_typeinfo( value.type() );
 
-//      if(type == Protocol::Tags::type<std::string>())
-//        add_prop_to_xml<std::string>(options, name, prop);
-//      else if(type == Protocol::Tags::type<bool>())
-//        add_prop_to_xml<bool>(options, name, prop);
-//      else if(type == Protocol::Tags::type<int>())
-//        add_prop_to_xml<int>(options, name, prop);
-//      else if(type == Protocol::Tags::type<Uint>())
-//        add_prop_to_xml<Uint>(options, name, prop);
-//      else if(type == Protocol::Tags::type<Real>())
-//        add_prop_to_xml<Real>(options, name, prop);
-//      else if(type == Protocol::Tags::type<URI>())
-//        add_prop_to_xml<URI>(options, name, prop);
-//      else
-//        throw ShouldNotBeHere(FromHere(),
-//             std::string("Don't know how the manage \"") + type + "\" type.");
+     if(type == Protocol::Tags::type<std::string>())
+       options.set_value<std::string>( name, any_to_value<std::string>(value) );
+     else if(type == Protocol::Tags::type<bool>())
+       options.set_value<bool>( name, any_to_value<bool>(value) );
+     else if(type == Protocol::Tags::type<int>())
+       options.set_value<int>( name, any_to_value<int>(value) );
+     else if(type == Protocol::Tags::type<Uint>())
+       options.set_value<Uint>( name, any_to_value<Uint>(value) );
+     else if(type == Protocol::Tags::type<Real>())
+       options.set_value<Real>( name, any_to_value<Real>(value) );
+     else if(type == Protocol::Tags::type<URI>())
+       options.set_value<URI>( name, any_to_value<URI>(value) );
+     else
+       throw ShouldNotBeHere(FromHere(),
+            std::string("Don't know how the manage [" + type + "] type."));
 //    }
 //    else
 //    {
 //      boost::shared_ptr<OptionArray> optArray;
-
-//      optArray = boost::dynamic_pointer_cast<OptionArray>(prop);
-
+// 
+//      optArray = boost::dynamic_pointer_cast<OptionArray>(value);
+// 
 //      const char * elem_type = optArray->elem_type();
-
+// 
 //      if(strcmp(elem_type, Protocol::Tags::type<std::string>()) == 0)
 //        add_array_to_xml< std::string >(options, name, optArray);
 //      else if(strcmp(elem_type, Protocol::Tags::type<bool>()) == 0)
@@ -906,7 +911,86 @@ void Component::signal_list_properties( SignalFrame& args )
 //             std::string("Don't know how the manage OptionArrayT<") +
 //                  elem_type + ">.");
 //    }
-//  }
+ }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+template<typename TYPE>
+void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
+{
+  
+  XmlNode value_node;
+  bool basic = opt->has_tag("basic");
+  std::string desc = opt->description();
+  
+  
+  if( !is_array )
+    value_node = opt_map.set_value<TYPE>( opt->name(), opt->value<TYPE>(), desc );
+  else
+  {
+    typename OptionArrayT<TYPE>::Ptr array = boost::dynamic_pointer_cast<OptionArrayT<TYPE> >(opt);
+    value_node = opt_map.set_array<TYPE>( opt->name(), array->value_vect(), ";", desc );
+  }
+
+  value_node.set_attribute( "is_option", to_str<bool>(true) );
+  value_node.set_attribute( "mode", (basic ? "basic" : "adv") );
+
+  if( opt->has_restricted_list() )
+  {
+    Map value_map(value_node); 
+    std::vector<TYPE> vect;
+    std::vector<boost::any>::iterator it = opt->restricted_list().begin();
+
+    for( ; it != opt->restricted_list().end() ; ++it )
+      vect.push_back( boost::any_cast<TYPE>(*it) );
+
+    value_map.set_array( Protocol::Tags::key_restricted_values(), vect, ";" );
+  }
+
+  if( std::strcmp( opt->tag(), Protocol::Tags::type<URI>() ) == 0)
+  {
+    std::vector<URI::Scheme::Type> prots = boost::dynamic_pointer_cast<OptionURI>(opt)->supported_protocols();
+    std::vector<URI::Scheme::Type>::iterator it = prots.begin();
+
+    for( ; it != prots.end() ; it++)
+      value_node.set_attribute( Protocol::Tags::attr_uri_schemes(),
+                                URI::Scheme::Convert::instance().to_str(*it));
+   }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void Component::signal_list_options ( SignalArgs& args )
+{
+  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
+  OptionList::iterator opt_it = m_options.begin();
+
+  for( ; opt_it != m_options.end() ; ++opt_it )
+  {
+    std::string name = opt_it->first;
+    Option::Ptr option = opt_it->second;
+    std::string type = option->tag();
+    bool is_array = ( type == Protocol::Tags::node_array() );
+
+    if( is_array )
+      type = boost::dynamic_pointer_cast<OptionArray>( option )->elem_type();
+
+    if ( type == Protocol::Tags::type<bool>() )
+      add_opt_to_xml<bool>( options, option, is_array );
+    else if ( type == Protocol::Tags::type<int>() )
+      add_opt_to_xml<int>( options, option, is_array );
+    else if ( type == Protocol::Tags::type<Uint>() )
+      add_opt_to_xml<Uint>( options, option, is_array );
+    else if ( type == Protocol::Tags::type<Real>() )
+      add_opt_to_xml<Real>( options, option, is_array );
+    else if ( type == Protocol::Tags::type<std::string>() )
+      add_opt_to_xml<std::string>( options, option, is_array );
+    else if ( type == Protocol::Tags::type<URI>() )
+      add_opt_to_xml<URI>( options, option, is_array );
+    else
+      throw ShouldNotBeHere(FromHere(), "Unable to handle options of type [" + type +"].");
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1037,6 +1121,7 @@ void Component::signal_list_content( SignalArgs& args )
   SignalFrame reply = args.create_reply( uri() );
 
   signal_list_properties(reply);
+  signal_list_options(reply);
   signal_list_signals(reply);
 }
 
