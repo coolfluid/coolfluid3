@@ -64,7 +64,7 @@ public:
     TypeInfo::instance().regist<data_t>("CF::Common::OptionComponent<"+T::type_name()+">::data_t");
     m_linked_params.push_back(linked_component);
   }
-  
+
   OptionComponent(const std::string & name, const std::string& readable_name, const std::string & desc, const URI & def)
     : OptionURI(name, readable_name, desc, def)
   {
@@ -86,7 +86,7 @@ public:
     TypeInfo::instance().regist<data_t>("CF::Common::OptionComponent<"+T::type_name()+">::data_t");
     m_linked_params.push_back(linked_component);
   }
-  
+
 
   static Option::Ptr create(const std::string & name, const std::string& readable_name, const std::string & desc, data_t* linked_component)
   {
@@ -159,18 +159,32 @@ public:
   }
 
   //@} END VIRTUAL FUNCTIONS
-  
+
   /// Get a reference to the stored component
   T& component()
   {
-    data_t val = boost::any_cast< data_t >(m_value);
-    return *val.lock();
+    try
+    {
+      data_t val = boost::any_cast< data_t >(m_value);
+      return *val.lock();
+    }
+    catch(boost::bad_any_cast& e)
+    {
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+class_name<data_t>());
+    }
   }
-  
+
   T const& component() const
   {
-    data_t val = boost::any_cast< data_t >(m_value);
-    return *val.lock();
+    try
+    {
+      data_t val = boost::any_cast< data_t >(m_value);
+      return *val.lock();
+    }
+    catch(boost::bad_any_cast& e)
+    {
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+class_name<data_t>());
+    }
   }
 
 protected: // functions
