@@ -65,7 +65,8 @@ void Property::change_value ( const boost::any& value )
 Option & Property::as_option()
 {
   cf_assert(m_is_option);
-  return *(static_cast< Option* >(this));
+  throw NotImplemented(FromHere(), "Property::as_option() -> should be removed");
+//  return *(static_cast< Option* >(this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +74,8 @@ Option & Property::as_option()
 const Option & Property::as_option() const
 {
   cf_assert(m_is_option);
-  return *(static_cast<const Option* >(this));
+  throw NotImplemented(FromHere(), "Property::as_option() -> should be removed");
+//  return *(static_cast<const Option* >(this));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

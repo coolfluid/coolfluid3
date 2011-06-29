@@ -15,13 +15,12 @@ using namespace CF::Common;
 using namespace CF::Common::XML;
 
 Option::Option(const std::string & name, const std::string & desc, boost::any def)
-  : Property(def),
+  : m_value(def),
     m_default(def),
     m_name(name),
     m_readable_name(name),
     m_description(desc)
 {
-  m_is_option = true;
   // cf_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
   //                "It may not contain spaces.",
   //   boost::algorithm::all(name,
@@ -31,13 +30,12 @@ Option::Option(const std::string & name, const std::string & desc, boost::any de
 ////////////////////////////////////////////////////////////////////////////////
 
 Option::Option(const std::string& name, const std::string& readable_name, const std::string& desc, boost::any def)
-  : Property(def),
+  : m_value(def),
     m_default(def),
     m_name(name),
     m_readable_name(readable_name),
     m_description(desc)
 {
-  m_is_option = true;
   // cf_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
   //                "It may not contain spaces.",
   //   boost::algorithm::all(name,
@@ -81,7 +79,7 @@ void Option::change_value ( const boost::any& value )
 //            != m_restricted_list.end());
 
   boost::any data = value_to_data(value);
-  Property::change_value(data);
+  m_value = value; // update the value
   copy_to_linked_params(data);
   // call all trigger functors
   trigger();
@@ -95,6 +93,13 @@ void Option::trigger () const
   // call all trigger functors
   boost_foreach( const Option::Trigger_t& call_trigger, m_triggers )
     call_trigger();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::string Option::type() const
+{
+  return class_name_from_typeinfo(m_value.type());
 }
 
 //////////////////////////////////////////////////////////////////////////////

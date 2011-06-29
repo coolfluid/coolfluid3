@@ -22,7 +22,7 @@ Property::Ptr PropertyList::add_property (const std::string& name,
 {
   cf_assert_desc ( "Class has already property with same name",
                    this->store.find(name) == store.end() );
-  // 
+  //
   // cf_assert_desc("The name of property ["+name+"] does not comply with coolfluid standard. "
   //                "It may not contain spaces.",
   //   boost::algorithm::all(name,
@@ -41,7 +41,7 @@ const Property & PropertyList::property( const std::string& pname) const
   if ( itr != store.end() )
     return *itr->second.get();
   else
-  {       
+  {
     std::string msg;
     msg += "Property with name ["+pname+"] not found. Available properties are:\n";
     PropertyStorage_t::const_iterator it = store.begin();
@@ -49,7 +49,7 @@ const Property & PropertyList::property( const std::string& pname) const
       msg += "  - " + it->first + "\n";
     throw ValueNotFound(FromHere(),msg);
   }
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ Property & PropertyList::property( const std::string& pname)
   if ( itr != store.end() )
     return *itr->second.get();
   else
-  {       
+  {
     std::string msg;
     msg += "Property with name ["+pname+"] not found. Available properties are:\n";
     PropertyStorage_t::iterator it = store.begin();
@@ -68,7 +68,7 @@ Property & PropertyList::property( const std::string& pname)
       msg += "  - " + it->first + "\n";
     throw ValueNotFound(FromHere(),msg);
   }
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ const Property & PropertyList::operator [] (const std::string & pname) const
 {
   Property::ConstPtr prop;
   PropertyStorage_t::const_iterator itr = store.find(pname);
-  
+
   if ( itr != store.end() )
     prop = itr->second;
   else
@@ -145,12 +145,12 @@ void PropertyList::configure_property(const std::string& pname, const boost::any
     {
       PropertyStorage_t::iterator it = store.begin();
       for (; it!=store.end(); it++)
-        msg += "  - " + it->first + "\n";      
+        msg += "  - " + it->first + "\n";
     }
     throw ValueNotFound(FromHere(),msg);
   }
   Property::Ptr prop = itr->second;
-  
+
   // update the value and trigger its actions (if it is an option)
   if(prop->is_option())
   {
@@ -161,34 +161,34 @@ void PropertyList::configure_property(const std::string& pname, const boost::any
     prop->change_value(val);
   }
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string PropertyList::list_options()
 {
   std::string opt_list="";
-  Uint cnt(0);
-  foreach_container( (const std::string& name) (Property::Ptr property) , *this )
-  {
-    if ( Option::Ptr option = boost::dynamic_pointer_cast<Option>(property) )
-    {
-      if (cnt > 0)
-        opt_list=opt_list+"\n";
+//  Uint cnt(0);
+//  foreach_container( (const std::string& name) (Property::Ptr property) , *this )
+//  {
+//    if ( Option::Ptr option = boost::dynamic_pointer_cast<Option>(property) )
+//    {
+//      if (cnt > 0)
+//        opt_list=opt_list+"\n";
 
-      if (option->tag() ==  XML::Protocol::Tags::node_array())
-      {
-        OptionArray::Ptr array_option = boost::dynamic_pointer_cast<OptionArray>(option);
-        std::string values=array_option->value_str();
-        boost::algorithm::replace_all(values, "@@", ",");
-        opt_list = opt_list+name+":array["+array_option->elem_type()+"]="+values;
-      }
-      else
-      {
-        opt_list = opt_list+name+":"+option->type()+"="+option->value_str();
-      }
-      ++cnt;
-    }
-  }
+//      if (option->tag() ==  XML::Protocol::Tags::node_array())
+//      {
+//        OptionArray::Ptr array_option = boost::dynamic_pointer_cast<OptionArray>(option);
+//        std::string values=array_option->value_str();
+//        boost::algorithm::replace_all(values, "@@", ",");
+//        opt_list = opt_list+name+":array["+array_option->elem_type()+"]="+values;
+//      }
+//      else
+//      {
+//        opt_list = opt_list+name+":"+option->type()+"="+option->value_str();
+//      }
+//      ++cnt;
+//    }
+//  }
   return opt_list;
 }
 

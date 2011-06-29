@@ -46,7 +46,7 @@ namespace Common {
   /// @author Tiago Quintino
   /// @author Quentin Gasper
   class Common_API Option : public boost::enable_shared_from_this<Option>,
-      public Property
+      public TaggedObject
   {
 
   public:
@@ -84,6 +84,9 @@ namespace Common {
     virtual const char * tag() const = 0;
 
     virtual std::string data_type() const = 0;
+
+    /// @returns the type of the option as a string
+    virtual std::string type() const;
 
     //@} END VIRTUAL FUNCTIONS
 
@@ -182,6 +185,8 @@ namespace Common {
   protected: // data
     /// storage of the default value of the option
     boost::any m_default;
+    /// storage of the value of the option
+    boost::any m_value;
     /// option name
     std::string m_name;
     /// option pretty name

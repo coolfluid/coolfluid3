@@ -24,7 +24,7 @@ namespace Common {
 
     /// type to store the options per name
     typedef std::map < std::string , Property::Ptr > PropertyStorage_t;
-    
+
     typedef PropertyStorage_t::iterator       iterator;
     typedef PropertyStorage_t::const_iterator const_iterator;
 
@@ -42,10 +42,10 @@ namespace Common {
       cf_assert_desc ( "Class has already property with same name",
                        this->store.find(name) == store.end() );
       Option::Ptr opt ( new OPTION_TYPE(name, description, def) );
-      store.insert( std::make_pair(name, opt ) );
+//      store.insert( std::make_pair(name, opt ) );
       return opt;
     }
-    
+
     template < typename OPTION_TYPE >
     Option::Ptr add_option (const std::string& name,
                             const std::string& pretty_name,
@@ -55,10 +55,10 @@ namespace Common {
       cf_assert_desc ( "Class has already property with same name",
                        this->store.find(name) == store.end() );
       Option::Ptr opt ( new OPTION_TYPE(name, pretty_name, description, def) );
-      store.insert( std::make_pair(name, opt ) );
+//      store.insert( std::make_pair(name, opt ) );
       return opt;
     }
-    
+
     /// adds an option to the list
     template < typename OPTION_TYPE >
     Option::Ptr add_option (boost::shared_ptr<OPTION_TYPE> option)
@@ -66,7 +66,7 @@ namespace Common {
       cf_assert_desc ( "Class has already property with same name",
                        this->store.find(option->name()) == store.end() );
       Option::Ptr opt = boost::dynamic_pointer_cast<Option>(option);
-      store.insert( std::make_pair(option->name(), opt ) );
+//      store.insert( std::make_pair(option->name(), opt ) );
       return opt;
     }
 
@@ -97,7 +97,7 @@ namespace Common {
     /// @param [in] optname  The option name
     /// @param [in] val      The new value assigned to the option
     void configure_property(const std::string& pname, const boost::any& val);
-		
+
     /// check that a property with the name exists
     /// @param prop_name the property name
     bool check ( const std::string& prop_name ) const
@@ -108,13 +108,13 @@ namespace Common {
     /// erases a property
     /// @param prop_name the property name
     void erase (const std::string & pname);
-    
+
     iterator begin() { return store.begin(); }
-    
+
     iterator end()  { return store.end(); }
 
     const_iterator begin() const { return store.begin(); }
-    
+
     const_iterator end() const  { return store.end(); }
 
     /// list the options as a string
