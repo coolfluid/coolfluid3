@@ -73,7 +73,7 @@ namespace Common {
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<TYPE>());
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data_to_value(m_value).type())+" to "+Common::class_name<TYPE>());
       }
     }
 
