@@ -38,60 +38,10 @@ namespace Common {
     /// adds a property to the list
     PropertyList & add_property (const std::string& name, const boost::any & value);
 
-//    /// adds an option to the list
-//    template < typename OPTION_TYPE >
-//    Option::Ptr add_option (const std::string& name,
-//                            const std::string& description,
-//                            const typename OPTION_TYPE::value_type& def=typename OPTION_TYPE::value_type() )
-//    {
-//      cf_assert_desc ( "Class has already property with same name",
-//                       this->store.find(name) == store.end() );
-//      Option::Ptr opt ( new OPTION_TYPE(name, description, def) );
-////      store.insert( std::make_pair(name, opt ) );
-//      return opt;
-//    }
-
-//    template < typename OPTION_TYPE >
-//    Option::Ptr add_option (const std::string& name,
-//                            const std::string& pretty_name,
-//                            const std::string& description,
-//                            const typename OPTION_TYPE::value_type& def)
-//    {
-//      cf_assert_desc ( "Class has already property with same name",
-//                       this->store.find(name) == store.end() );
-//      Option::Ptr opt ( new OPTION_TYPE(name, pretty_name, description, def) );
-////      store.insert( std::make_pair(name, opt ) );
-//      return opt;
-//    }
-
-//    /// adds an option to the list
-//    template < typename OPTION_TYPE >
-//    Option::Ptr add_option (boost::shared_ptr<OPTION_TYPE> option)
-//    {
-//      cf_assert_desc ( "Class has already property with same name",
-//                       this->store.find(option->name()) == store.end() );
-//      Option::Ptr opt = boost::dynamic_pointer_cast<Option>(option);
-////      store.insert( std::make_pair(option->name(), opt ) );
-//      return opt;
-//    }
-
-    /// sets a link to the option
-//    template < typename TYPE >
-//        void link_to_parameter ( const std::string& pname, TYPE* par )
-//    {
-//      cf_assert( check(pname) );
-//      store[pname]->as_option().link_to(par);
-//    }
-
     /// get a const property from the list
     const boost::any& property( const std::string& pname ) const;
     /// get a property from the list
     boost::any& property( const std::string& pname );
-
-//    /// get a constant option from the list
-//    const Option& option( const std::string& pname ) const;
-//    /// get an option from the list
-//    Option& option( const std::string& pname );
 
     /// contant access operator to properties
     const boost::any& operator [] (const std::string & pname) const;

@@ -7,14 +7,11 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Common/Assertions.hpp"
-//#include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/PropertyList.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/TypeInfo.hpp"
 #include "Common/URI.hpp"
-//#include "Common/XML/Protocol.hpp"
-//#include "Common/OptionArray.hpp"
 
 namespace CF {
 namespace Common {
@@ -114,20 +111,6 @@ std::string PropertyList::type( const std::string & pname ) const
 {
   return class_name_from_typeinfo( property(pname).type() );
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-//const Option & PropertyList::option( const std::string& pname) const
-//{
-//  return option(pname).as_option();
-//}
-
-//////////////////////////////////////////////////////////////////////////////////
-
-//Option & PropertyList::option( const std::string& pname)
-//{
-//  return option(pname).as_option();
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
