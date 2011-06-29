@@ -67,6 +67,14 @@ void Option::configure_option ( XmlNode& node )
 
 ////////////////////////////////////////////////////////////////////////////
 
+Option& Option::operator =( const boost::any & new_value )
+{
+  change_value( new_value );
+  return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 Option::Ptr Option::mark_basic()
 {
   if(!has_tag("basic"))

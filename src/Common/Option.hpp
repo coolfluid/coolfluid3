@@ -131,6 +131,11 @@ namespace Common {
     /// @returns the description of the option
     std::string description() const { return m_description; }
 
+    /// Assigns a new value to the option
+    /// @param new_value The new value
+    /// @return Returns a reference to this object.
+    Option & operator=( const boost::any & new_value );
+
     /// @returns the default value of the option casted to TYPE
     template < typename TYPE >
         const TYPE def() const
