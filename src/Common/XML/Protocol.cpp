@@ -38,9 +38,11 @@ namespace XML {
 
   const char * Protocol::Tags::attr_frameid() { return "frameid"; }
 
-  const char * Protocol::Tags::attr_key() { return "key"; }
+const char * Protocol::Tags::attr_key() { return "key"; }
 
-  const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"; }
+const char * Protocol::Tags::attr_pretty_name() { return "pretty_name"; }
+
+const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"; }
 
   const char * Protocol::Tags::attr_uri_schemes() { return "schemes"; }
 

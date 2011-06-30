@@ -122,6 +122,9 @@ void OptionLayout::addOption(CF::Common::Option::ConstPtr option)
 
   m_options[name] = value;
 
+  if( !option->pretty_name().empty() )
+    name = option->pretty_name().c_str();
+
   value->setToolTip(option->description().c_str());
 
   addRow(name + ':', value);

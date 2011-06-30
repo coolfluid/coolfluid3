@@ -810,9 +810,15 @@ void Component::signal_list_properties( SignalFrame& args )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Adds an option to an XML map.
+/// @param opt_map Map the option should be added to
+/// @param opt Option to add
+/// @param is_array If @c true, the option is treated as an array.
 template<typename TYPE>
 void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
 {
+  cf_assert( opt_map.content.is_valid() );
+  cf_assert( is_not_null( opt.get() ) );
 
   XmlNode value_node;
   bool basic = opt->has_tag("basic");
@@ -827,6 +833,7 @@ void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
     value_node = opt_map.set_array<TYPE>( opt->name(), array->value_vect(), ";", desc );
   }
 
+  value_node.set_attribute( Protocol::Tags::attr_pretty_name(), opt->pretty_name() );
   value_node.set_attribute( "is_option", to_str<bool>(true) );
   value_node.set_attribute( "mode", (basic ? "basic" : "adv") );
 

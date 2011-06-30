@@ -55,7 +55,6 @@ for( ; itList != list.end() ; itList++)\
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-//using namespace CF::UI::ParaView;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +67,7 @@ namespace Core {
 CNodeNotifier::CNodeNotifier(CNode * parent)
   : m_parent(parent)
 {
-  //qRegisterMetaType<XmlNode>("CF::Common::XmlNode");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -110,7 +109,7 @@ CNode::CNode(const std::string & name, const QString & componentType, Type type)
 
   signal("signal_signature")->is_hidden = true;
 
-  m_properties.add_property("originalComponentType", m_componentType.toStdString());
+  m_properties.add_property("original_component_type", m_componentType.toStdString());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -653,13 +652,15 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
 
 /// Creates an @c #OptionT option with a value of type TYPE.
 /// @param name Option name
+/// @param pretty_name The option pretty name
 /// @param descr Option description
 /// @param node The value node. If it has a sibling node, this node is taken
 /// the restricted values list.
 /// @return Returns the created option.
 
 template<typename TYPE>
-Option::Ptr makeOptionT(const std::string & name, const std::string & descr, XmlNode & node)
+Option::Ptr makeOptionT(const std::string & name, const std::string & pretty_name,
+                        const std::string & descr, XmlNode & node)
 {
   TYPE value;
   to_value(node, value);
@@ -667,7 +668,7 @@ Option::Ptr makeOptionT(const std::string & name, const std::string & descr, Xml
 
   std::vector<TYPE> restr_list;
 
-  Option::Ptr option(new Common::OptionT<TYPE>(name, descr, value));
+  Option::Ptr option(new Common::OptionT<TYPE>(name, pretty_name, descr, value));
 
 
   if(restr_node.is_valid())
@@ -689,19 +690,21 @@ Option::Ptr makeOptionT(const std::string & name, const std::string & descr, Xml
 
 /// Creates an @c #OptionArrayT option with values of type TYPE.
 /// @param name Option name
+/// @param pretty_name The option pretty name
 /// @param descr Option description
-/// @param node The value node. If it has a sibling node, this node is taken
+/// @param node The value node. If it has a sibling node, this node is taken as
 /// the restricted values list.
 /// @return Returns the created option.
 
 template<typename TYPE>
 typename OptionArrayT<TYPE>::Ptr makeOptionArrayT(const std::string & name,
+                                                  const std::string & pretty_name,
                                                   const std::string & descr,
                                                   const XmlNode & node)
 {
   std::vector<TYPE> value = Map().array_to_vector<TYPE>(node);
 
-  typename OptionArrayT<TYPE>::Ptr option(new OptionArrayT<TYPE>(name, descr, value));
+  typename OptionArrayT<TYPE>::Ptr option(new OptionArrayT<TYPE>(name, pretty_name, descr, value));
 
   XmlNode restr_node = Map(node.content->parent()).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
@@ -732,11 +735,16 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
   bool advanced;
   Option::Ptr option;
   std::string type( Map::get_value_type(node) );
+  std::string pretty_name;
   rapidxml::xml_attribute<>* keyAttr = node.content->first_attribute( Protocol::Tags::attr_key() );
   rapidxml::xml_attribute<>* descrAttr = node.content->first_attribute( Protocol::Tags::attr_descr() );
+  rapidxml::xml_attribute<>* pNameAttr = node.content->first_attribute( Protocol::Tags::attr_pretty_name() );
 
   rapidxml::xml_attribute<>* modeAttr = node.content->first_attribute( "mode" );
-  advanced = modeAttr == nullptr || std::strcmp(modeAttr->value(), "adv") == 0;
+  advanced = is_null(modeAttr) || std::strcmp(modeAttr->value(), "adv") == 0;
+
+  if( is_not_null(pNameAttr) )
+    pretty_name = pNameAttr->value();
 
   std::string descr_str( (descrAttr != nullptr) ? descrAttr->value() : "");
 
@@ -749,15 +757,15 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
       XmlNode type_node( node.content->first_node(type.c_str()) );
 
       if(type == Protocol::Tags::type<bool>() )
-        option = makeOptionT<bool>(key_str, descr_str, type_node);
+        option = makeOptionT<bool>(key_str, pretty_name, descr_str, type_node);
       else if(type == Protocol::Tags::type<int>() )
-        option = makeOptionT<int>(key_str, descr_str, type_node);
+        option = makeOptionT<int>(key_str, pretty_name, descr_str, type_node);
       else if(type == Protocol::Tags::type<Uint>() )
-        option = makeOptionT<Uint>(key_str, descr_str, type_node);
+        option = makeOptionT<Uint>(key_str, pretty_name, descr_str, type_node);
       else if(type == Protocol::Tags::type<Real>() )
-        option = makeOptionT<Real>(key_str, descr_str, type_node);
+        option = makeOptionT<Real>(key_str, pretty_name, descr_str, type_node);
       else if(type == Protocol::Tags::type<std::string>() )
-        option = makeOptionT<std::string>(key_str, descr_str, type_node);
+        option = makeOptionT<std::string>(key_str, pretty_name, descr_str, type_node);
       else if(type == Protocol::Tags::type<URI>() )
       {
         URI value;
@@ -771,7 +779,7 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
 
         std::vector<URI> restr_list;
 
-        optURI = OptionURI::Ptr (new Common::OptionURI(key_str, descr_str, value));
+        optURI = OptionURI::Ptr (new Common::OptionURI(key_str, pretty_name, descr_str, value));
 
         if(restr_node.is_valid())
 
@@ -815,17 +823,17 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
     else if( Map::is_array_value(node) )
     {
       if(type == Protocol::Tags::type<bool>() )
-        option = makeOptionArrayT<bool>(key_str, descr_str, node);
+        option = makeOptionArrayT<bool>(key_str, pretty_name, descr_str, node);
       else if(type == Protocol::Tags::type<int>() )
-        option = makeOptionArrayT<int>(key_str, descr_str, node);
+        option = makeOptionArrayT<int>(key_str, pretty_name, descr_str, node);
       else if(type == Protocol::Tags::type<Uint>() )
-        option = makeOptionArrayT<Uint>(key_str, descr_str, node);
+        option = makeOptionArrayT<Uint>(key_str, pretty_name, descr_str, node);
       else if(type == Protocol::Tags::type<Real>() )
-        option = makeOptionArrayT<Real>(key_str, descr_str, node);
+        option = makeOptionArrayT<Real>(key_str, pretty_name, descr_str, node);
       else if(type == Protocol::Tags::type<std::string>() )
-        option = makeOptionArrayT<std::string>(key_str, descr_str, node);
+        option = makeOptionArrayT<std::string>(key_str, pretty_name, descr_str, node);
       else if(type == Protocol::Tags::type<URI>() )
-        option = makeOptionArrayT<URI>(key_str, descr_str, node);
+        option = makeOptionArrayT<URI>(key_str, pretty_name, descr_str, node);
       else
         throw ShouldNotBeHere(FromHere(), type + ": Unknown type");
 

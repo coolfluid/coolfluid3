@@ -55,7 +55,9 @@ namespace XML {
       static const char * attr_frameid ();
       /// @returns Returns the name for attribute that maintains a name (the key).
       static const char * attr_key ();
-
+      /// @returns Returns the name for attribute that maintains a pretty name.
+      static const char * attr_pretty_name ();
+      
       static const char * key_restricted_values ();
 
       /// @returns Returns the name for attribute that maintains protocols for
