@@ -28,8 +28,9 @@ namespace Common {
 
   /// @brief Adds fonctionnalities to @c Property class.
 
-  /// An option is a property of which user can modify the value. Additional
-  /// features an option provides compared to a property:
+  /// An option is a piece of data of which user can modify the value. An option
+  /// provides:
+  /// @li a default value (initial value when option is built)
   /// @li a description string
   /// @li basic/advanced modes
   /// @li change value using a XML node
@@ -37,15 +38,35 @@ namespace Common {
   /// @li triggers management
   /// By default, an option is advanced. It can be marked as basic by calling
   /// @c #mark_basic() method. @n
+  ///
   /// Developer can define a restricted list of values, meaning that only those
   /// values are the valid. The list is obtained with @c #restricted_list() method.
   /// Values can be added using Boost.Assign library. Note that this list always
   /// contains at least one value: the default one. @n
+  ///
   /// Triggers are functions called whenever the value is modified. They can be
   /// registered with @c #attach_trigger() method. Triggers take no parameter
-  /// and return nothing.
+  /// and return nothing.@n @n
+  ///
+  /// About the name:@n
+  /// Although the option name is stored as a string so that there is no language
+  /// limitation to its format, developers are asked to respect some rules
+  /// in order to make the API learning easier:
+  /// @li name should be in lower case
+  /// @li if the name is composed of multiple words, use undescores ('_') to
+  /// separate them (no spaces).
+  /// @li name should be explicit and as short as possible. Use acronyms if
+  /// possible.
 
-  /// @author Tiago Quintino
+  /// An option has also a "pretty name". This is a human readable form of the
+  /// name. It is intended to be displayed on the user interfaces. It should
+  /// contain spaces between words and a capital letter at least for the first
+  /// word. Note that most OS guidelines recommand this kind of strings to have
+  /// a captial letter for each word and to only contain verbs if necessary.
+  /// Pretty name is optional and can be empty.
+
+
+  /// @author Tiago Quintino (initial author)
   /// @author Quentin Gasper
   class Common_API Option : public boost::enable_shared_from_this<Option>,
       public TaggedObject
@@ -53,17 +74,37 @@ namespace Common {
 
   public:
 
+    /// Typedef for shared pointers
     typedef boost::shared_ptr<Option>   Ptr;
+    /// Typedef for const shared pointers
     typedef boost::shared_ptr<Option const>   ConstPtr;
+    /// Typedef for trigger functions
     typedef boost::function< void() >   Trigger_t;
+    /// Typedef for trigger functions storage.
     typedef std::vector< Trigger_t >    TriggerStorage_t;
 
+    /// Constructor.
+
+    /// @param name Option name.
+    /// @param desc Option description.
+    /// @param def Default value.
     Option(const std::string & name, const std::string & desc, boost::any def);
 
-    Option(const std::string & name, const std::string& readable_name, const std::string & desc, boost::any def);
+    /// Constructor.
 
+    /// @param name Option name.
+    /// @param pretty_name Option pretty name.
+    /// @param desc Option description.
+    /// @param def Default value.
+    Option(const std::string & name, const std::string& pretty_name, const std::string & desc, boost::any def);
+
+    /// Desctructor.
     virtual ~Option();
 
+    /// Casts the value to the provided TYPE
+
+    /// @return Returns the cast value.
+    /// @throw CastingFailed if the value could not be cast.
     template<typename TYPE>
     TYPE value() const
     {
@@ -80,15 +121,19 @@ namespace Common {
     /// @name VIRTUAL FUNCTIONS
     //@{
 
-    /// @returns the default value as a sd::string
+    /// @return Returns the default value as a sd::string
     virtual std::string def_str () const = 0;
 
+    /// @return Returns the tag.
     virtual const char * tag() const = 0;
 
+    /// @return Returns the data type
     virtual std::string data_type() const = 0;
 
+    /// @return Returns the value cast to string.
     virtual std::string value_str () const = 0;
 
+    /// @return Returns the value as it is stored.
     boost::any value() const { return m_value; }
 
     /// @returns the type of the option as a string
@@ -110,7 +155,7 @@ namespace Common {
     /// @returns puts the value of the option casted to TYPE on the passed parameter
     /// @param value which to assign the option value
     template < typename TYPE >
-        void put_value( TYPE& value ) const
+    void put_value( TYPE& value ) const
     {
       try
       {
@@ -124,6 +169,9 @@ namespace Common {
 
     /// @returns the name of the option
     std::string name() const { return m_name; }
+
+    /// @returns the pretty name of the option
+    std::string pretty_name() const { return m_pretty_name; }
 
     /// @returns the default value of the option as a boost::any
     boost::any def() const { return m_default; }
@@ -206,6 +254,7 @@ namespace Common {
     /// @param node XML node with data for this option
     virtual void configure ( XML::XmlNode & node ) = 0;
 
+    /// Calls the triggers connected to this option.
     void trigger() const;
 
   protected: // data
@@ -216,20 +265,22 @@ namespace Common {
     /// option name
     std::string m_name;
     /// option pretty name
-    std::string m_readable_name;
+    std::string m_pretty_name;
     /// option description
     std::string m_description;
     /// list of processors that will process the option
     TriggerStorage_t m_triggers;
     /// parameters that also get updated when option is changed
     std::vector< void* > m_linked_params;
-
+    /// Restricted list of values.
     std::vector<boost::any> m_restricted_list;
 
   protected: // function
 
+    /// Gives the option data, based on a value.
     virtual boost::any value_to_data ( const boost::any& value ) const { return value; }
 
+    /// Gives the option value, based on data.
     virtual boost::any data_to_value ( const boost::any& data ) const { return data; }
 
     /// copy the configured update value to all linked parameters

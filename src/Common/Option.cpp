@@ -22,7 +22,7 @@ Option::Option(const std::string & name, const std::string & desc, boost::any de
   : m_value(def),
     m_default(def),
     m_name(name),
-    m_readable_name(name),
+    m_pretty_name(name),
     m_description(desc)
 {
   // cf_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
@@ -33,11 +33,11 @@ Option::Option(const std::string & name, const std::string & desc, boost::any de
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Option::Option(const std::string& name, const std::string& readable_name, const std::string& desc, boost::any def)
+Option::Option(const std::string& name, const std::string& pretty_name, const std::string& desc, boost::any def)
   : m_value(def),
     m_default(def),
     m_name(name),
-    m_readable_name(readable_name),
+    m_pretty_name(pretty_name),
     m_description(desc)
 {
   // cf_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
