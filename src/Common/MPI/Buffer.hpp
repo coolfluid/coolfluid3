@@ -48,6 +48,13 @@ public:
     resize(size);
   }
 
+  Buffer(char* buffer, const Uint size)
+    : m_buffer(buffer),
+      m_size(size),
+      m_packed_size(size),
+      m_unpacked_size(0)
+  {}
+
   /// @brief Destructor, deallocates internal buffer
   virtual ~Buffer()
   {
@@ -56,21 +63,31 @@ public:
   //@}
 
   /// @brief access to the internal buffer
-  const void* buffer() const { return (void*)m_buffer; }
+  const char* buffer() const { return m_buffer; }
+
+  void* buffer() { return (void*)m_buffer; }
 
   /// @brief Allocated memory
-  Uint size() const { return m_size; }
+  int size() const { return m_size; }
 
   /// @brief Packed memory
-  Uint packed_size() const { return m_packed_size; }
+  int packed_size() const { return m_packed_size; }
+
+  /// @brief Packed memory
+  int& packed_size() { return m_packed_size; }
 
   /// @brief Unpacked memory
   ///
   /// Remains to unpack = packed - unpacked
-  Uint unpacked_size() const { return m_unpacked_size; }
+  int unpacked_size() const { return m_unpacked_size; }
+
+  /// @brief Unpacked memory
+  ///
+  /// Remains to unpack = packed - unpacked
+  int& unpacked_size() { return m_unpacked_size; }
 
   /// @brief Tell if everything is unpacked
-  bool more_to_unpack() { return m_unpacked_size < m_packed_size; }
+  bool more_to_unpack() const { return m_unpacked_size < m_packed_size; }
 
   /// @brief resize the buffer to fit memory "size".
   /// The buffer gets resized bigger than necessary in order to reduce future resizes.
@@ -182,28 +199,37 @@ public:
   void unpack(RealVector& data);
   //@}
 
+  /// @name MPI collective operations
+  //@{
+  /// @brief Broadcast the buffer from the root process
+  /// The buffer on all receiving ranks gets resized and overwritten
+  /// with the buffer from the broadcasting rank.
+  /// @param [in] root  The broadcasting rank
+  void broadcast(const Uint root);
+  //@}
+
 private:
 
   /// @brief internal buffer
   char* m_buffer;
 
   /// @brief allocated memory in buffer
-  Uint m_size;
+  int m_size;
 
   /// @brief packed memory in buffer
-  Uint m_packed_size;
+  int m_packed_size;
 
   /// @brief unpacked memory in buffer
-  Uint m_unpacked_size;
+  int m_unpacked_size;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 inline void Buffer::resize(const Uint size)
 {
-  if(m_packed_size+size > m_size)
+  if(m_packed_size+static_cast<int>(size) > m_size)
   {
-    m_size = std::max(2*m_size,m_packed_size+size);
+    m_size = std::max(2*m_size,m_packed_size+static_cast<int>(size));
     char* tmp = new char[m_size];
     memcpy(tmp,m_buffer,m_packed_size);
     delete_ptr_array(m_buffer);
@@ -377,6 +403,25 @@ inline void Buffer::unpack(std::string* data)         { unpack<std::string>(data
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Buffer::broadcast(const Uint root)
+{
+  // broadcast buffer size
+  int p = m_packed_size;
+  MPI_Bcast( &p, 1, get_mpi_datatype(p), root, PE::instance() );
+
+  // resize the buffer on receiving ranks
+  if (PE::instance().rank()!=root)
+  {
+    resize(p);
+    m_packed_size=p;
+  }
+
+  // broadcast buffer as MPI_PACKED
+  MPI_Bcast( m_buffer, m_packed_size, MPI_PACKED, root, PE::instance() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// @brief Pack buffer via stream operator
 template <typename T>
 inline Buffer& operator<< (Buffer& buffer, const T& data)
@@ -391,6 +436,17 @@ inline Buffer& operator>> (Buffer& buffer, T& data)
 {
   buffer.unpack(data);
   return buffer;
+}
+
+
+std::ostream& operator<< (std::ostream& out, const Buffer& buffer)
+{
+  const char* endPtr = buffer.buffer() + buffer.packed_size();
+  for(char* ptr = (char*)buffer.buffer(); (const char*) ptr < endPtr; ptr++)
+    out << *ptr;
+
+
+  return out;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

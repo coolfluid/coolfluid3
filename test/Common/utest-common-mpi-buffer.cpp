@@ -65,9 +65,8 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( test_MPIBuffer )
+BOOST_AUTO_TEST_CASE( test_pack_unpack )
 {
-
   mpi::Buffer buf;
   buf << 1u << 2u << 3.0 << 4 << true;
   BOOST_CHECK_EQUAL( buf.more_to_unpack(), true);
@@ -136,9 +135,55 @@ BOOST_AUTO_TEST_CASE( test_MPIBuffer )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( test_broadcast )
+{
+
+  // Initialize some data, different for every processor
+
+  int first = PE::instance().rank();
+  Real second = (1+static_cast<Real>(PE::instance().rank()))*1e-6;
+  bool third = (first == 0);
+  std::string fourth = "from_proc_" + to_str(first);
+  std::vector<int> fifth(3,first);
+
+
+  // ----------------------------------
+
+  // Create a buffer
+  mpi::Buffer buffer;
+  int root = 0;
+
+  // pack the buffer on root processor
+  if (PE::instance().rank() == root)
+    buffer << first << second << third << fourth << fifth;
+
+  // broad cast the buffer from root processor
+  buffer.broadcast(root);
+
+  // unpack the buffer on other processors
+  if (PE::instance().rank() != root)
+    buffer >> first >> second >> third >> fourth >> fifth;
+
+  // ----------------------------------
+
+  BOOST_CHECK_EQUAL(buffer.packed_size(), 48);
+  BOOST_CHECK_EQUAL(buffer.size(), 48);
+  if (PE::instance().rank() != root)
+    BOOST_CHECK_EQUAL(buffer.more_to_unpack(), false);
+
+  // The data on every processor should be from rank root
+  BOOST_CHECK_EQUAL(first, 0);
+  BOOST_CHECK_EQUAL(second, 1e-6);
+  BOOST_CHECK_EQUAL(third, true);
+  BOOST_CHECK_EQUAL(fourth, "from_proc_0");
+  BOOST_CHECK_EQUAL(fifth[2], 0);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  mpi::PE::instance().finalize();
+  PE::instance().finalize();
   Core::instance().terminate();
 }
 
