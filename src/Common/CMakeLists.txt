@@ -140,6 +140,7 @@ list( APPEND coolfluid_common_files
 # MPI Files
 if(CF_HAVE_MPI)
 list( APPEND coolfluid_common_files
+      MPI/Buffer.hpp
       MPI/CPEManager.cpp
       MPI/CPEManager.hpp
       MPI/CWorkerGroup.cpp

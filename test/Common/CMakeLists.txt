@@ -234,6 +234,17 @@ set( utest-parallel-operations_mpi_test TRUE)
 coolfluid_add_unit_test( utest-parallel-operations )
 
 ################################################################################
+# Test PE - buffer
+
+list( APPEND utest-common-mpi-buffer_cflibs coolfluid_common )
+list( APPEND utest-common-mpi-buffer_files
+  utest-common-mpi-buffer.cpp
+)
+
+set(utest-common-mpi-buffer_mpi_test TRUE)
+coolfluid_add_unit_test( utest-common-mpi-buffer )
+
+################################################################################
 # Test Foreach - boost_foreach etc.
 
 list( APPEND utest-foreach_cflibs coolfluid_common )

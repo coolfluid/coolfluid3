@@ -59,6 +59,18 @@ template <typename T> inline Datatype get_mpi_datatype(const T& ref_of_type)
   return type;
 }
 
+template <typename T> inline Datatype get_mpi_datatype()
+{
+  static Datatype type(nullptr);
+  if (type==nullptr){
+    //PEProcessSortedExecute(-1,CFinfo << "Registering type of size " << sizeof(T) << CFendl;);
+    //if (!boost::is_pod<T>::value) throw NotSupported(FromHere(),"Non-POD (plain old datatype) is not supported by parallel environment communications.");
+    MPI_CHECK_RESULT(MPI_Type_contiguous,(sizeof(T), MPI_BYTE, &type));
+    MPI_CHECK_RESULT(MPI_Type_commit,(&type));
+  }
+  return type;
+}
+
 /// @}
 
 /// @{ DEFAULT DATATYPE WRAPPERS
