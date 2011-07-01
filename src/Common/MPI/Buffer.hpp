@@ -43,17 +43,11 @@ public:
     : m_buffer(nullptr),
       m_size(0),
       m_packed_size(0),
-      m_unpacked_size(0)
+      m_unpacked_size(0),
+      m_index(0)
   {
     resize(size);
   }
-
-  Buffer(char* buffer, const Uint size)
-    : m_buffer(buffer),
-      m_size(size),
-      m_packed_size(size),
-      m_unpacked_size(0)
-  {}
 
   /// @brief Destructor, deallocates internal buffer
   virtual ~Buffer()
@@ -68,7 +62,7 @@ public:
   void* buffer() { return (void*)m_buffer; }
 
   /// @brief Allocated memory
-  int size() const { return m_size; }
+  int allocated_size() const { return m_size; }
 
   /// @brief Packed memory
   int packed_size() const { return m_packed_size; }
@@ -112,6 +106,20 @@ public:
   template <class T>
       void unpack(T* data, const Uint data_size);
   //@}
+
+   Uint new_index()
+   {
+     m_index.push_back((Uint)m_packed_size);
+     return m_index.size()-1;
+   }
+
+   Buffer& operator[] (const Uint index)
+   {
+     m_unpacked_size = m_index[index];
+     return *this;
+   }
+
+   Uint size() const { return m_index.size(); }
 
   /// @name Pack/Unpack functions for POD
   //@{
@@ -197,6 +205,10 @@ public:
   void pack(const RealVector& data);
 
   void unpack(RealVector& data);
+
+  const std::vector<Uint> indexes() const { return m_index; }
+  std::vector<Uint>& indexes() { return m_index; }
+
   //@}
 
   /// @name MPI collective operations
@@ -221,6 +233,9 @@ private:
 
   /// @brief unpacked memory in buffer
   int m_unpacked_size;
+
+  /// @brief index
+  std::vector<Uint> m_index;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -250,6 +265,8 @@ inline void Buffer::reset()
 template <typename T>
 inline void Buffer::pack(const T* data, const Uint data_size)
 {
+  if (m_index.empty())  new_index();
+
   // get size of the package
   int size;
   MPI_Pack_size(data_size, get_mpi_datatype<T>() , PE::instance(), &size);
