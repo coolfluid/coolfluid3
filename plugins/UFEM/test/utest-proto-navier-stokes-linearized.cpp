@@ -5,39 +5,23 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
-
-#include <iomanip>
+#define BOOST_TEST_MODULE "Test module for linearized laminar Navier-Stokes"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Solver/Actions/Proto/ElementLooper.hpp"
-#include "Solver/Actions/Proto/Functions.hpp"
-#include "Solver/Actions/Proto/NodeLooper.hpp"
-#include "Solver/Actions/Proto/Terminals.hpp"
+#include "Solver/Actions/Proto/Expression.hpp"
+#include "Solver/CTime.hpp"
 
-#include "Common/Core.hpp"
- 
+#include "Common/Core.hpp" 
 #include "Common/CRoot.hpp"
-#include "Common/Log.hpp"
-#include "Common/OSystem.hpp"
-#include "Common/Timer.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/ElementData.hpp"
+#include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/SF/Types.hpp"
+#include "UFEM/LinearProblem.hpp"
+#include "UFEM/NavierStokesOps.hpp"
+#include "UFEM/UnsteadyModel.hpp"
 
-#include "Solver/CEigenLSS.hpp"
-
-#include "UFEM/src/NavierStokesOps.hpp"
 
 using namespace CF;
 using namespace CF::Solver;
@@ -46,7 +30,6 @@ using namespace CF::Solver::Actions::Proto;
 using namespace CF::Common;
 using namespace CF::Math::MathConsts;
 using namespace CF::Mesh;
-using namespace CF::UFEM;
 
 using namespace boost;
 
@@ -62,16 +45,67 @@ void probe(const Real coord, const Real val, Real& result)
 
 static boost::proto::terminal< void(*)(Real, Real, Real&) >::type const _probe = {&probe};
 
-BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
+BOOST_AUTO_TEST_SUITE( ProtoNSLinSuite )
+
+/// Stores the coefficients for the SUPG model and shares them inside a proto expression through the state
+struct SUPGCoeffs
+{
+  SUPGCoeffs(Real& p_tau_ps, Real& p_tau_su, Real& p_tau_bulk) :
+    tau_ps(p_tau_ps),
+    tau_su(p_tau_su),
+    tau_bulk(p_tau_bulk)
+  {
+  }
+  
+  /// Reference velocity magnitude
+  Real u_ref;
+  
+  /// Kinematic viscosity
+  Real nu;
+  
+  /// Density
+  Real rho;
+  
+  /// Model coefficients
+  StoredReference<Real> tau_ps, tau_su, tau_bulk;
+};
+
+struct ComputeTau
+{ 
+  /// Dummy result
+  typedef void result_type;
+  
+  template<typename UT>
+  void operator()(const UT& u, SUPGCoeffs& coeffs) const
+  {
+    const Real he=sqrt(4./3.141592654*u.support().volume());
+    const Real ree=coeffs.u_ref*he/(2.*coeffs.nu);
+    const Real xi=std::max(0.,std::min(ree/3.,1.));
+    coeffs.tau_ps.get() = he*xi/(2.*coeffs.u_ref);
+    coeffs.tau_bulk.get() = he*coeffs.u_ref/xi;
+    
+    // Average cell velocity
+    const RealVector2 u_avg = u.value().colwise().mean();
+    const Real umag = u_avg.norm();
+    coeffs.tau_su.get() = 0.;
+    if(umag > 1e-10)
+    {
+      const Real h = 2. * u.support().volume() / (u.support().nodes() * (u_avg / umag)).array().abs().sum();
+      Real ree=umag*h/(2.*coeffs.nu);
+      Real xi=std::max(0.,std::min(ree/3.,1.));
+      coeffs.tau_su.get() = h*xi/(2.*umag);
+    }
+  }
+};
+
+/// Placeholder for the compute_tau operation
+static MakeSFOp<ComputeTau>::type const compute_tau = {};
 
 // Solve the Navier-Stokes equations with SUPG and the bulk viscosity term
-BOOST_AUTO_TEST_CASE( ProtoNavierStokesLinearized )
+BOOST_AUTO_TEST_CASE( ProtoNavierStokesBULK )
 {
   int    argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;
-
-  std::ofstream outfile("navier-stokes-lin-stats.txt");
-  outfile << "# Time(s) Velocity magnitude(m_s)" << std::endl;
   
   const Real start_time = 0.;
   const Real end_time = boost::lexical_cast<Real>(argv[1]);
@@ -83,169 +117,106 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLinearized )
   const Real mu = 0.01;
   const Real rho = 1.;
   
-  const RealVector2 u_inf(10., 0.);
-  const RealVector2 u_wall(0., 0.);
+  RealVector u_inf(2); u_inf << 16, 0.;
+  RealVector u_wall(2); u_wall << 0., 0.;
   const Real p_out = 0.;
   
-  SUPGCoeffs tau;
-  tau.u_ref = u_inf[XX];
-  tau.nu = mu / rho;
-  tau.rho = rho;
+  // Storage for the calculated coefficients
+  Real tau_ps, tau_su, tau_bulk;
   
-  // Setup document structure and mesh
-  CRoot& root = Core::instance().root();
+  SUPGCoeffs coefs(tau_ps, tau_su, tau_bulk);
+  coefs.u_ref = u_inf[XX];
+  coefs.nu = mu / rho;
+  coefs.rho = rho;
   
-  URI input_file = URI(argv[4]);
-  
-  CMeshReader::Ptr mesh_reader = build_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
-  root.add_component(mesh_reader);
-  
-  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
-  mesh_reader->read_from_to(input_file, *mesh);
-  
-  // Linear system
-  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
-  lss.set_config_file(argv[3]);
+  // Setup a UFEM model
+  UFEM::UnsteadyModel& model = Core::instance().root().create_component<UFEM::UnsteadyModel>("Model");
 
-  // Regions
-  CRegion& in = find_component_recursively_with_name<CRegion>(*mesh, "in");
-  CRegion& out = find_component_recursively_with_name<CRegion>(*mesh, "out");
-  CRegion& symm = find_component_recursively_with_name<CRegion>(*mesh, "symm");
-  CRegion& wall = find_component_recursively_with_name<CRegion>(*mesh, "wall");
+  // Linear system setup (TODO: sane default config for this, so this can be skipped)
+  CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
+  lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[3]);
+  model.problem().solve_action().configure_option("lss", lss.uri());
 
+  // shorthand for the problem and boundary conditions
+  UFEM::LinearProblem& pr = model.problem();
+  UFEM::BoundaryConditions& bc = pr.boundary_conditions();
+  
+  // Allowed elements (reducing this list improves compile times)
+  boost::mpl::vector1<Mesh::SF::Triag2DLagrangeP1> allowed_elements;
+  
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", "u");
   MeshTerm<1, ScalarField> p("Pressure", "p");
-  
-  // Set up a physical model (normally handled automatically if using the Component wrappers)
-  PhysicalModel physical_model;
-  physical_model.register_variable(u, true);
-  physical_model.register_variable(p, true);
-  physical_model.create_fields(*mesh);
-  lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
-  
-  // Setup a mesh writer
-  CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
-  root.add_component(writer);
-  const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").uri())(mesh->get_child("Pressure").uri());
-  writer->configure_option( "fields", out_fields );
-  
-  // Set initial conditions
-  for_each_node(mesh->topology(), p = 0.);
-  for_each_node(mesh->topology(), u = u_inf);
-  
-  // Timings
-  Real assemblytime, bctime, increment_time, advect_time, update_advect_time;
-  
-  // Set up fields for velocity extrapolation
-  const std::vector<std::string> advection_vars = boost::assign::list_of("u_adv")("u1")("u2")("u3");
-  CField& u_adv_fld = mesh->create_field( "AdvectionVelocity", CField::Basis::POINT_BASED, advection_vars, std::vector<CField::VarType>(4, CField::VECTOR_2D) );
-  
-  // Variables associated with the advection velocity
   MeshTerm<2, VectorField> u_adv("AdvectionVelocity", "u_adv"); // The extrapolated advection velocity (n+1/2)
   MeshTerm<3, VectorField> u1("AdvectionVelocity", "u1");  // Two timesteps ago (n-1)
   MeshTerm<4, VectorField> u2("AdvectionVelocity", "u2"); // n-2
   MeshTerm<5, VectorField> u3("AdvectionVelocity", "u3"); // n-3
   
-  // initialize
-  for_each_node(mesh->topology(), u1 = u);
-  for_each_node(mesh->topology(), u2 = u);
-  for_each_node(mesh->topology(), u3 = u);
+  URI input_file = URI(argv[4]);
+  model.configure_option("input_file", input_file);
+  SignalArgs a;
+  model.signal_read_mesh(a);
   
-  while(t < end_time)
-  {
-    Timer timer;
-    
-    const Uint tstep = static_cast<Uint>(t / dt);
-    
-    // Extrapolate velocity
-    for_each_node(mesh->topology(), u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3);
-    
-    advect_time = timer.elapsed(); timer.restart();
-    
-    // Fill the system matrix
-    lss.set_zero();
-    
-    for_each_element< boost::mpl::vector1<SF::Triag2DLagrangeP1> >
+  // build up the solver out of different actions
+  model
+  << model.add_action("InitializePressure", nodes_expression(p = 0.))
+  << model.add_action("InitializeVelocity", nodes_expression(u = u_wall))
+  << model.add_action("InitializeU1", nodes_expression(u1 = u))
+  << model.add_action("InitializeU2", nodes_expression(u2 = u))
+  << model.add_action("InitializeU3", nodes_expression(u3 = u)) <<
+  ( // Time loop
+    pr << pr.add_action("ExtrapolateU", nodes_expression(u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3))
+    << pr.add_action
     (
-      mesh->topology(),
-      group <<                             // Note we pass the state here, to calculate and share tau_...
+      "Assembly",
+      elements_expression // assembly
       (
-        _A = _0, _T = _0,
-        compute_tau(u, tau),
-        element_quadrature <<
+        allowed_elements,
+        group <<
         (
-          _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + tau.ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
-          _A(p    , p)     += tau.ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
-          _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u) + tau.su*u_adv*nabla(u)) * u_adv*nabla(u),     // Diffusion + advection
-          _A(u[_i], p)     += 1./rho * transpose(N(u) + tau.su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
-          _A(u[_i], u[_j]) += tau.bulk * transpose(nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity
-          _T(p    , u[_i]) += tau.ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
-          _T(u[_i], u[_i]) += transpose(N(u) + tau.su*u_adv*nabla(u))         * N(u)          // Time, standard
-        ),
-        system_matrix(lss) += invdt * _T + 1.0 * _A,
-        system_rhs(lss) -= _A * _b
+          _A = _0, _T = _0,
+          compute_tau(u, coefs),
+          element_quadrature <<
+          (
+            _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i] + coefs.tau_ps * transpose(nabla(p)[_i]) * u_adv*nabla(u), // Standard continuity + PSPG for advection
+            _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
+            _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u) + coefs.tau_su*u_adv*nabla(u)) * u_adv*nabla(u),     // Diffusion + advection
+            _A(u[_i], p)     += 1./rho * transpose(N(u) + coefs.tau_su*u_adv*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
+            _A(u[_i], u[_j]) += coefs.tau_bulk * transpose(nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity
+            _T(p    , u[_i]) += coefs.tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
+            _T(u[_i], u[_i]) += invdt  * transpose(N(u) + coefs.tau_su*u_adv*nabla(u))         * N(u)          // Time, standard
+          ),
+          pr.system_matrix += invdt * _T + 1.0 * _A,
+          pr.system_rhs -= _A * _b
+        )
       )
-    );
-    
-    assemblytime = timer.elapsed(); timer.restart();
-    
-    // Set boundary conditions
-    for_each_node(in,   dirichlet(lss, u) = u_inf , physical_model);
-    for_each_node(out,  dirichlet(lss, p) = p_out , physical_model);
-    for_each_node(symm, dirichlet(lss, u) = u_inf , physical_model);
-    for_each_node(wall, dirichlet(lss, u) = u_wall, physical_model);
-    
-    bctime = timer.elapsed(); 
-    
-    std::cout << "Solving for time " << t << std::endl;
-    
-    // Solve the system!
-    lss.solve();
-    
-    timer.restart();
-    
-    // Save previous velocities for exrapolation
-    for_each_node(mesh->topology(), u3 = u2);
-    for_each_node(mesh->topology(), u2 = u1);
-    for_each_node(mesh->topology(), u1 = u);
-    update_advect_time = timer.elapsed(); timer.restart();
-    
-    physical_model.update_fields(*mesh, lss.solution());
-    increment_time = timer.elapsed();
-    
-    const Real total_time = assemblytime + bctime + increment_time + lss.time_matrix_construction + lss.time_matrix_fill + lss.time_residual + lss.time_solve + lss.time_solver_setup + advect_time + update_advect_time;
-    std::cout << "  assembly     : " << assemblytime << " (" << assemblytime/total_time*100. << "%)\n"
-              << "  bc           : " << bctime << " (" << bctime/total_time*100. << "%)\n"
-              << "  matrix build : " << lss.time_matrix_construction << " (" << lss.time_matrix_construction/total_time*100. << "%)\n"
-              << "  matrix fill  : " << lss.time_matrix_fill << " (" << lss.time_matrix_fill/total_time*100. << "%)\n"
-              << "  solver setup : " << lss.time_solver_setup << " (" << lss.time_solver_setup/total_time*100. << "%)\n"
-              << "  solve        : " << lss.time_solve << " (" << lss.time_solve/total_time*100. << "%)\n"
-              << "  residual     : " << lss.time_residual << " (" << lss.time_residual/total_time*100. << "%)\n"
-              << "  write field  : " << increment_time << " (" << increment_time/total_time*100. << "%)\n"
-              << "  extrapolate  : " << advect_time << " (" << advect_time/total_time*100. << "%)\n"
-              << "  save tsteps  : " << update_advect_time << " (" << update_advect_time/total_time*100. << "%)\n"
-              << "  total        : " << total_time << std::endl;
-    
-    t += dt;
-    
-    Real probeval = 0;
-    for_each_node(out, _probe(coordinates[1], _sqrt(u[0]*u[0] + u[1]*u[1]), boost::proto::lit(probeval)));
-    
-    outfile << t << " " << probeval << std::endl;
-    
-    // Output solution
-    if(t > 0. && (tstep % write_interval == 0 || t >= end_time))
-    {
-      std::stringstream outname;
-      outname << "navier-stokes-lin-";
-      outname << std::setfill('0') << std::setw(5) << static_cast<Uint>(t / dt);
-      URI output_file(outname.str() + ".vtk");
-      writer->write_from_to(*mesh, output_file);
-    }
-  }
+    ) <<
+    ( // boundary conditions
+      bc
+      << bc.add_constant_bc("in", "Velocity", u_inf)
+      << bc.add_constant_bc("out", "Pressure", p_out)
+      << bc.add_constant_bc("symm", "Velocity", u_inf)
+      << bc.add_constant_bc("wall", "Velocity", u_wall)
+    )
+    << pr.solve_action() // solve
+    << pr.add_action("SaveU2", nodes_expression(u3 = u2))
+    << pr.add_action("SaveU1", nodes_expression(u2 = u1))
+    << pr.add_action("SaveU0", nodes_expression(u1 = u))
+    << pr.add_action("IncrementU", nodes_expression(u += pr.solution(u))) // increment solution
+    << pr.add_action("IncrementP", nodes_expression(p += pr.solution(p)))
+  );
+
+  // Configure timings
+  model.time().configure_option("time_step", dt);
+  model.time().configure_option("end_time", end_time);
+      
+  // Run the solver
+  model.execute();
   
-  
+  // Write result
+  URI output_file("navier-stokes-linearized.msh");
+  model.configure_option("output_file", output_file);
+  model.signal_write_mesh(a);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -231,7 +231,7 @@ private:
   mutable typename SF::CoordsT m_normal_vector;
 };
 
-/// Data associated with VectorField variables
+/// Data associated with field variables
 template<typename ShapeFunctionT, typename SupportSF, Uint Dim, Uint Offset, Uint MatrixSize, bool IsEquationVar>
 class SFVariableData
 {
@@ -327,7 +327,7 @@ public:
     
     m_connectivity = &elements.node_connectivity();    
     
-    var_begin = field->var_index(placeholder.var_name);
+    var_begin = field->var_index(placeholder.variable_name);
   }
 
   /// Update nodes for the current element

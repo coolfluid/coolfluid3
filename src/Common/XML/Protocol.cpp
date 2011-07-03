@@ -18,6 +18,8 @@
 
 #include "Common/XML/Protocol.hpp"
 
+#include "Math/MatrixTypes.hpp"
+
 /////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -83,6 +85,9 @@ const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"
 
   template<>
   Common_API const char * Protocol::Tags::type<URI>() { return "uri"; }
+  
+  template<>
+  Common_API const char * Protocol::Tags::type<RealVector>() { return "realvector"; }
 
 /////////////////////////////////////////////////////////////////////////////////
 

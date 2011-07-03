@@ -18,7 +18,7 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-/// Executes a series of actions, configured through a list of URIs to the actions to execute
+/// Executes a series of actions, configured through a list of names for the actions to execute
 /// Actions are passed through the "ActionList" option and will be executed in the order they are listed
 class Common_API CActionDirector : public CAction
 {
@@ -41,15 +41,6 @@ public: // functions
   
   /// Append an action to the back of the list, returning a reference to self (for chaining purposes)
   CActionDirector& append(const CAction& action);
-
-private:
-
-  /// Called when the list of actions is configured
-  /// This caches pointers to the actions, so the URIs must be valid
-  void trigger_actions();
-  
-  /// list with pointers to the actions to execute
-  std::vector< boost::weak_ptr<CAction> > m_actions;
 };
 
 /// Allow growing of the list of actions using the shift left operator:

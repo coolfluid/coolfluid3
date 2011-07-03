@@ -91,7 +91,7 @@ void LoadMesh::update_list_of_available_readers()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMesh::Ptr LoadMesh::load_mesh(const URI& file)
+void LoadMesh::load_mesh_into(const URI& file, CMesh& mesh)
 {
   update_list_of_available_readers();
 
@@ -115,10 +115,18 @@ CMesh::Ptr LoadMesh::load_mesh(const URI& file)
     else
     {
       CMeshReader::Ptr meshreader = m_extensions_to_readers[extension][0];
-      return meshreader->create_mesh_from(file);
+      meshreader->read_from_to(file, mesh);
     }
   }
 }
+
+boost::shared_ptr< CMesh > LoadMesh::load_mesh(const URI& file)
+{
+  CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
+  load_mesh_into(file, *mesh);
+  return mesh;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

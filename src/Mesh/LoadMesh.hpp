@@ -52,6 +52,9 @@ public: // functions
 
   //@} END SIGNALS
 
+  /// Read the file into an existing mesh
+  void load_mesh_into(const Common::URI& file, CMesh& mesh);
+  
   /// function load the mesh
   boost::shared_ptr<CMesh> load_mesh(const Common::URI& file);
 

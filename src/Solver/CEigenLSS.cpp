@@ -173,6 +173,7 @@ void CEigenLSS::solve()
     {
       ++nnz[row];
     }
+    cf_assert(nnz[row]);
   }
 
   Epetra_CrsMatrix ep_A(Copy, map, &nnz[0]);

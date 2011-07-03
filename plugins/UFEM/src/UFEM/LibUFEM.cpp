@@ -8,7 +8,6 @@
 #include "Common/CRoot.hpp"
 
 #include "LibUFEM.hpp"
-#include "SetupLinearSystem.hpp"
 
 namespace CF {
 namespace UFEM {
@@ -21,19 +20,19 @@ CF::Common::RegistLibrary<LibUFEM> libUFEM;
 
 void LibUFEM::initiate_impl()
 {
-  Core::instance().root()
-    .get_child_ptr("Tools")
-    ->create_component_ptr<SetupLinearSystem>( "SetupHeatConduction" )
-    ->mark_basic();
+//   Core::instance().root()
+//     .get_child_ptr("Tools")
+//     ->create_component_ptr<SetupLinearSystem>( "SetupHeatConduction" )
+//     ->mark_basic();
 
 
 }
 
 void LibUFEM::terminate_impl()
 {
-  Core::instance().root()
-      .get_child_ptr("Tools")
-      ->remove_component("SetupHeatConduction");
+//   Core::instance().root()
+//       .get_child_ptr("Tools")
+//       ->remove_component("SetupHeatConduction");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

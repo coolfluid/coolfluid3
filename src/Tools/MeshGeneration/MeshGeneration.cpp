@@ -66,6 +66,8 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   CTable<Uint>& xpos_connectivity = xpos->node_connectivity();
   xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;
+  
+  mesh.update_statistics();
 }
 
 
@@ -171,6 +173,8 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   CTable<Uint>& center_point_connectivity = center_point->node_connectivity();
   center_point_connectivity.resize(1);
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
+  
+  mesh.update_statistics();
 }
 
 void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
@@ -286,6 +290,8 @@ void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, cons
   CTable<Uint>& center_point_connectivity = center_point->node_connectivity();
   center_point_connectivity.resize(1);
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
+  
+  mesh.update_statistics();
 }
 
 

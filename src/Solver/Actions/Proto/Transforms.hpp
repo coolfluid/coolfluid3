@@ -194,12 +194,11 @@ struct Scalar :
     <
       boost::proto::or_
       <
-        boost::proto::terminal< const StoredReference<const Real>& >,
-        boost::proto::terminal< const StoredReference<Real>& >,
-        boost::proto::terminal< StoredReference<const Real>& >,
-        boost::proto::terminal< StoredReference<Real>& >,
         boost::proto::terminal< StoredReference<const Real> >,
-        boost::proto::terminal< StoredReference<Real> >
+        boost::proto::terminal< StoredReference<Real> >,
+        boost::proto::terminal< StoredReference<Uint> >,
+        boost::proto::terminal< StoredReference<const RealVector> >,
+        boost::proto::terminal< StoredReference<RealVector> >
       >,
       UnwrapStoredReference(boost::proto::_value)
     >
@@ -232,6 +231,11 @@ struct MathTerminals :
     <
       MatVec,
       boost::proto::_value
+    >,
+    boost::proto::when
+    <
+      boost::proto::or_< boost::proto::terminal< StoredReference<RealVector4> >, boost::proto::terminal< StoredReference<const RealVector4> > >,
+      UnwrapStoredReference(boost::proto::_value)
     >
   >
 {
@@ -311,16 +315,6 @@ struct StreamOutput :
       boost::proto::shift_left< StreamOutput<GrammarT>, boost::proto::or_< GrammarT, boost::proto::terminal<const char*> > >
     >,
     boost::proto::_default<GrammarT>
-  >
-{
-};
-
-/// Match field types
-struct FieldTypes :
-  boost::proto::or_
-  <
-    boost::proto::terminal< Var< boost::proto::_, ScalarField > >,
-    boost::proto::terminal< Var<boost::proto::_, VectorField> >
   >
 {
 };

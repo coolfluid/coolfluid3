@@ -13,23 +13,21 @@
 
 #include "Solver/CEigenLSS.hpp"
 
+#include "LSSProxy.hpp"
+#include "Terminals.hpp"
+
 namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
  
 /// Tag for a Dirichlet BC
-struct DirichletBC
+struct DirichletBCTag
 {
 };
 
-/// Placeholder to define dirichlet boundary conditions
-template<Uint I, typename T>
-inline typename boost::proto::result_of::make_expr< boost::proto::tag::function, DirichletBC, StoredReference<Solver::CEigenLSS>, MeshTerm<I, T> const & >::type const
-dirichlet(Solver::CEigenLSS& lss, MeshTerm<I, T> const & var)
-{
-  return boost::proto::make_expr<boost::proto::tag::function>( DirichletBC(), store(lss), boost::ref(var) );
-}
+/// Used to create placeholders for a Dirichlet condition
+typedef LSSComponentTerm<DirichletBCTag> DirichletBC;
 
 /// Helper function for assignment
 inline void assign_dirichlet(CEigenLSS& lss, const Real new_value, const Real old_value, const Uint node_idx, const Uint offset, const Uint nb_dofs)
@@ -64,14 +62,13 @@ struct DirichletBCSetter :
               , typename impl::data_param data
     ) const
     {
-      //std::cout << "setting dirichlet bc for var: " << boost::proto::value(boost::proto::child_c<2>(expr)).variable_value.var_name << std::endl;
-      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>(expr) ).get();
+      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).lss_proxy().lss();
       assign_dirichlet(
         lss,
         state,
-        data.var_data(boost::proto::value(boost::proto::child_c<2>(expr))).value(), // old value
+        data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).value(), // old value
         data.node_idx,
-        data.var_data(boost::proto::value(boost::proto::child_c<2>(expr))).offset,
+        data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset,
         data.nb_dofs()                  
       );
     }
@@ -87,8 +84,7 @@ struct DirichletBCGrammar :
     <
       boost::proto::function
       <
-        boost::proto::terminal<DirichletBC>,
-        boost::proto::terminal< StoredReference<Solver::CEigenLSS> >,
+        boost::proto::terminal< LSSComponent<DirichletBCTag> >,
         FieldTypes
       >,
       GrammarT

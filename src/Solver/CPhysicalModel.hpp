@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/weak_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 
 #include "Common/Component.hpp"
 #include "Solver/State.hpp"
@@ -61,11 +61,14 @@ public: // functions
   
   /// @return dimensionality of the problem, which is
   ///         the number of spatial coordinates used in the PDEs
-  Uint dimensions() const { return m_dim; }
+  Uint dimensions() const;
   
   /// @return the number of degrees of freedom (DOFs), i.e. the number of components of the state vector (the number of scalars needed to represent
   /// the solution at a single node)
-  Uint nb_dof() const { return m_nbdofs; }
+  Uint nb_dof() const;
+  
+  /// @return the number of degrees of nodes in the mesh.
+  Uint nb_nodes() const;
 
   /// True if the variable with the given name is part of the solution state
   bool is_state_variable(const std::string& var_name) const;
@@ -75,72 +78,34 @@ public: // functions
   
   /// Register a variable. The order of registration also determines the storage order for the equations in the physical model. If a variable with the same
   /// name was already registered, nothing is changed.
-  /// @param name Unique name by which this value is referred. By default, this is also the name of the field it will be stored in
+  /// @param name Unique name by which this value is referred.
   /// @param symbol Short name for the variable.  By default, the variable will be named like this in the field
+  /// The given string is also linked to an option that gets created
+  /// @param field_name Default field name
+  /// The given string is also linked to an option that gets created
   /// @param var_type Type of the variable
   /// @param is_equation_var True if the variable represents a state, i.e. something that is solved for
-  void register_variable(const std::string& name, const std::string& symbol, const VariableTypesT var_type, const bool is_state);
+  void register_variable(const std::string& name, std::string& symbol, std::string& field_name, const VariableTypesT var_type, const bool is_state);
   
-  /// The option to set the field name for the given variable
-  Common::Option& field_option(const std::string& name);
-  
-  /// The option to set the variable name for the given variable
-  Common::Option& variable_option(const std::string& name);
-  
-
   /// Create the fields for all registered variables
   void create_fields();
   
-  /// Convenience method to set the mesh
-  void set_mesh(Mesh::CMesh& mesh);
-
+  /// Return the type of the variable with the given key
+  VariableTypesT variable_type(const std::string& name) const;
+  
   /// @return the physical model type
   /// @todo make this a pure virtual function
-  std::string type() const { return m_type; }
+  std::string type() const;
 
-  const State& solution_state() const { return *m_solution_state; }
-
-private: // functions
-
-  void build_solution_state();
+  const State& solution_state() const;
   
-  /// Recreate fields when the mesh changes, and update the dimension
-  void trigger_mesh();
+  /// Stores the URIs of fields used for state variables in fieldlist. Useful for obtaining fields that are written using a mesh writer
+  void state_fields(std::vector<Common::URI>& fieldlist) const;
 
 private: // data
 
-  /// type of the physcial model
-  std::string m_type;
-
-  /// dimensionality of physics
-  Uint m_dim;
-
-  /// number of degrees of freedom
-  Uint m_nbdofs;
-
-  State::Ptr m_solution_state;
-  
-  /// Option for referring to the mesh
-  boost::weak_ptr< Common::OptionComponent<Mesh::CMesh> > m_mesh_option;
-  
-  /// Offset of each equation variable, i.e. in V (vector of u and v) and p, V has offset 0, and p has offset 2 when the order is uvp in the global system
-  std::map<std::string, Uint> m_variable_offsets;
-  
-  /// Ordered list of the equation variables
-  std::vector<std::string> m_state_variables;
-  
-  /// Type of each variable
-  typedef std::map<std::string, VariableTypesT> VarTypesT;
-  VarTypesT m_variable_types;
-  
-  /// Storage for field and variable names
-  std::map<std::string, std::string> m_field_names;
-  std::map<std::string, std::string> m_variable_names;
-  
-  /// Data used to update the solution
-  std::vector<std::string> m_solution_fields;
-  std::vector<std::string> m_solution_variables;
-  std::vector<Uint> m_solution_sizes;
+  class Implementation;
+  boost::scoped_ptr<Implementation> m_implementation;
 }; // CPhysicalModel
 
 ////////////////////////////////////////////////////////////////////////////////

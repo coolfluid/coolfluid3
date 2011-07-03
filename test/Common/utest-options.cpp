@@ -12,6 +12,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
+#include "Math/MatrixTypes.hpp"
+
 #include "Common/BasicExceptions.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/Core.hpp"
@@ -146,6 +148,19 @@ BOOST_AUTO_TEST_CASE( TestOptionURI )
   add_option<URI>(root.options(), "test_uri_option", root.uri()).supported_protocol(CF::Common::URI::Scheme::CPATH);
 
   BOOST_CHECK(root.uri() == root.option("test_uri_option").value< URI >());
+}
+
+BOOST_AUTO_TEST_CASE( TestOptionRealVector )
+{
+  CRoot& root = Core::instance().root();
+
+  RealVector v(2);
+  v.setZero();
+  
+  // Since the result is properly typed, we can immediately call supported_protocol
+  add_option<RealVector>(root.options(), "test_vec_option", v);
+
+  BOOST_CHECK(v == root.option("test_vec_option").value< RealVector >());
 }
 
 //////////////////////////////////////////////////////////////////////////////

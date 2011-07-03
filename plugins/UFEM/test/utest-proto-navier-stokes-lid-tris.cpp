@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLidTris )
   Real assemblytime = 0.;
   Real total_time = 0.;
   
-  for(Uint segments = 8; segments != 128; segments *= 2)
+  for(Uint segments = 32; segments != 64; segments *= 2)
   {
     std::cout << "Running for " << segments << " segments" << std::endl;
     const Real length = 1.;
@@ -248,17 +248,17 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLidTris )
     lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
     
     // Setup a mesh writer
-    CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
-    root.add_component(writer);
-    const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").uri())(mesh->get_child("Pressure").uri());
-    writer->configure_option( "fields", out_fields );
-    
+//     CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
+//     root.add_component(writer);
+//     const std::vector<URI> out_fields = boost::assign::list_of(mesh->get_child("Velocity").uri())(mesh->get_child("Pressure").uri());
+//     writer->configure_option( "fields", out_fields );
+//     
     Timer total_timer;
     
     // Set initial conditions
-    for_each_node(mesh->topology(), p = 0.);
-    for_each_node(mesh->topology(), u = u_wall);
-    
+//     for_each_node(mesh->topology(), p = 0.);
+//     for_each_node(mesh->topology(), u = u_wall);
+//     
     // Set up fields for velocity extrapolation
     const std::vector<std::string> advection_vars = boost::assign::list_of("u_adv")("u1")("u2")("u3");
     CField& u_adv_fld = mesh->create_field( "AdvectionVelocity", CField::Basis::POINT_BASED, advection_vars, std::vector<CField::VarType>(4, CField::VECTOR_2D) );
@@ -270,14 +270,14 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLidTris )
     MeshTerm<5, VectorField> u3("AdvectionVelocity", "u3"); // n-3
     
     // initialize
-    for_each_node(mesh->topology(), u1 = u);
-    for_each_node(mesh->topology(), u2 = u);
-    for_each_node(mesh->topology(), u3 = u);
-    
-    for(Uint iter = 0; iter != 1000; ++iter)
+//     for_each_node(mesh->topology(), u1 = u);
+//     for_each_node(mesh->topology(), u2 = u);
+//     for_each_node(mesh->topology(), u3 = u);
+//     
+    for(Uint iter = 0; iter != 1; ++iter)
     {
       // Extrapolate velocity
-      for_each_node(mesh->topology(), u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3);
+      //for_each_node(mesh->topology(), u_adv = 2.1875*u - 2.1875*u1 + 1.3125*u2 - 0.3125*u3);
       
       // Fill the system matrix
       lss.set_zero();
@@ -291,64 +291,65 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokesLidTris )
         (
           _A(u) = _0, _A(p) = _0, _T(u) = _0, _T(p) = _0,
           compute_tau(u, tau),
-          ns_triags(u_adv, tau, _A, _T),
-          system_matrix(lss) += 100. * _T + 1.0 * _A,
-          system_rhs(lss) -= _A * _b
+          ns_triags(u_adv, tau, _A, _T)
+          //system_matrix(lss) += 100. * _T + 1.0 * _A,
+          //system_rhs(lss) -= _A * _b
         )
       );
       
       assemblytime += timer.elapsed(); timer.restart();
       
       // Set boundary conditions
-      for_each_node(left,   dirichlet(lss, u) = u_wall, physical_model);
-      for_each_node(right,  dirichlet(lss, u) = u_wall, physical_model);
-      for_each_node(top,    dirichlet(lss, u) = u_lid,  physical_model);
-      for_each_node(bottom, dirichlet(lss, u) = u_wall, physical_model);
-      for_each_node(corner, dirichlet(lss, p) = 0., physical_model);
+//       for_each_node(left,   dirichlet(lss, u) = u_wall, physical_model);
+//       for_each_node(right,  dirichlet(lss, u) = u_wall, physical_model);
+//       for_each_node(top,    dirichlet(lss, u) = u_lid,  physical_model);
+//       for_each_node(bottom, dirichlet(lss, u) = u_wall, physical_model);
+//       for_each_node(corner, dirichlet(lss, p) = 0., physical_model);
       
       // Solve the system!
-      lss.solve();
+//       lss.solve();
       
       // Save previous velocities for exrapolation
-      for_each_node(mesh->topology(), u3 = u2);
-      for_each_node(mesh->topology(), u2 = u1);
-      for_each_node(mesh->topology(), u1 = u);
-      
-      physical_model.update_fields(*mesh, lss.solution());
-      
-      // Get the maximum difference between two subsequent solutions
-      Real maxdiff = 0.;
-      for_each_node(mesh->topology(), boost::proto::lit(maxdiff) = _max(maxdiff, (transpose(u - u1) * (u - u1))[0]));
-      
-      if(maxdiff < 1e-12)
-      {
-        std::cout << "Convergence after " << iter << " iterations" << std::endl;
-        break;
-      }
+//       for_each_node(mesh->topology(), u3 = u2);
+//       for_each_node(mesh->topology(), u2 = u1);
+//       for_each_node(mesh->topology(), u1 = u);
+//       
+//       physical_model.update_fields(*mesh, lss.solution());
+//       
+//       // Get the maximum difference between two subsequent solutions
+//       Real maxdiff = 0.;
+//       for_each_node(mesh->topology(), boost::proto::lit(maxdiff) = _max(maxdiff, (transpose(u - u1) * (u - u1))[0]));
+//       std::cout << "maxdiff at iteration " << iter << ": " << maxdiff << std::endl;
+//       
+//       if(maxdiff < 1e-12)
+//       {
+//         std::cout << "Convergence after " << iter << " iterations" << std::endl;
+//         break;
+//       }
     }
     
     total_time += total_timer.elapsed();
     
     // Output solution
-    std::stringstream outname;
-    outname << "navier-stokes-lid-tris-";
-    outname << x_segments << "x" << y_segments;
-    URI output_file(outname.str() + ".vtk");
-    writer->write_from_to(*mesh, output_file);
+//     std::stringstream outname;
+//     outname << "navier-stokes-lid-tris-";
+//     outname << x_segments << "x" << y_segments;
+//     URI output_file(outname.str() + ".vtk");
+//     writer->write_from_to(*mesh, output_file);
+//     
+//     std::stringstream profname;
+//     profname << "lid-center-tris-";
+//     profname << x_segments << "x" << y_segments << ".txt";
+//     std::ofstream profile(profname.str().c_str());
+//     for_each_node(center_line, boost::proto::lit(profile) << coordinates[0] << " " << coordinates[1] << " " << u[0] << " " << u[1] << " " << p << "\n");
     
-    std::stringstream profname;
-    profname << "lid-center-tris-";
-    profname << x_segments << "x" << y_segments << ".txt";
-    std::ofstream profile(profname.str().c_str());
-    for_each_node(center_line, boost::proto::lit(profile) << coordinates[0] << " " << coordinates[1] << " " << u[0] << " " << u[1] << " " << p << "\n");
-    
-    ux.push_back(0.);
-    uy.push_back(0.);
-    pressures.push_back(0.);
-    for_each_node(center_point, _cout << "sampling at point " << coordinates << "\n");
-    for_each_node(center_point,boost::proto::lit(ux.back()) = u[0]);
-    for_each_node(center_point,boost::proto::lit(uy.back()) = u[1]);
-    for_each_node(center_point,boost::proto::lit(pressures.back()) = p);
+//     ux.push_back(0.);
+//     uy.push_back(0.);
+//     pressures.push_back(0.);
+//     for_each_node(center_point, _cout << "sampling at point " << coordinates << "\n");
+//     for_each_node(center_point,boost::proto::lit(ux.back()) = u[0]);
+//     for_each_node(center_point,boost::proto::lit(uy.back()) = u[1]);
+//     for_each_node(center_point,boost::proto::lit(pressures.back()) = p);
   }
   std::cout << "Assembly took " << assemblytime/total_time*100. << "% out of a total of " << total_time << "s" << std::endl;
   std::cout << "Error evolution:" << std::endl;

@@ -45,6 +45,10 @@ BOOST_AUTO_TEST_CASE( Constructor )
   ExceptionManager::instance().ExceptionAborts = false;
   ExceptionManager::instance().ExceptionOutputs = false;
 
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("Grid2D");
+  physical_model().configure_option("mesh", mesh.uri());
+  
+  // Check empty mesh config
   BOOST_CHECK_EQUAL(physical_model().dimensions(), 0u);
   BOOST_CHECK_EQUAL(physical_model().nb_dof(), 0u);
 }
@@ -52,11 +56,18 @@ BOOST_AUTO_TEST_CASE( Constructor )
 BOOST_AUTO_TEST_CASE( RegisterVariable )
 {
   // Register state variables
-  physical_model().register_variable("Pressure", "p", CPhysicalModel::SCALAR, true);
-  physical_model().register_variable("Velocity", "u", CPhysicalModel::VECTOR, true);
+  std::string pressure_symbol = "p";
+  std::string pressure_field = "Pressure";
+  physical_model().register_variable("Pressure", pressure_symbol, pressure_field, CPhysicalModel::SCALAR, true);
+  
+  std::string vel_sym = "u";
+  std::string vel_fd = "Velocity";
+  physical_model().register_variable("Velocity", vel_sym, vel_fd, CPhysicalModel::VECTOR, true);
 
   // Register a non-state var
-  physical_model().register_variable("Density", "rho", CPhysicalModel::SCALAR, false);
+  std::string rho_sym = "rho";
+  std::string rho_fd = "Density";
+  physical_model().register_variable("Density", rho_sym, rho_fd, CPhysicalModel::SCALAR, false);
 
   // Check if the expected options are there
 
@@ -70,23 +81,21 @@ BOOST_AUTO_TEST_CASE( RegisterVariable )
   // Change the name of the field for the state varialbes
   physical_model().option("PressureFieldName").change_value(std::string("StateField"));
   physical_model().option("VelocityFieldName").change_value(std::string("StateField"));
+  
+  BOOST_CHECK_EQUAL(pressure_field, "StateField");
+  BOOST_CHECK_EQUAL(vel_fd, "StateField");
 }
 
 BOOST_AUTO_TEST_CASE( CreateFields )
 {
-  // Create a 2D test mesh
-  CMesh& mesh = Core::instance().root().create_component<CMesh>("Grid2D");
-
   // Make a rectangle
+  CMesh& mesh = Core::instance().root().get_child("Grid2D").as_type<CMesh>();
   CSimpleMeshGenerator::create_rectangle(mesh, 1., 1., 5, 5);
-  BOOST_CHECK_EQUAL(mesh.dimension(), 2);
-
-  // Set the mesh
-  physical_model().set_mesh(mesh);
 
   // Check if the statistics are OK
   BOOST_CHECK_EQUAL(physical_model().dimensions(), 2);
   BOOST_CHECK_EQUAL(physical_model().nb_dof(), 3);
+  BOOST_CHECK_EQUAL(physical_model().nb_nodes(), 36);
 
 
   BOOST_CHECK(physical_model().is_state_variable("Velocity"));
@@ -108,19 +117,6 @@ BOOST_AUTO_TEST_CASE( CreateFields )
   // Check if the fields are there
   BOOST_CHECK(mesh.get_child_ptr("StateField"));
   BOOST_CHECK(mesh.get_child_ptr("Density"));
-}
-
-/// Use the variable and field name options
-BOOST_AUTO_TEST_CASE( UseOptions )
-{
-  std::string state_field_name;
-  std::string pressure_var_name;
-
-  physical_model().field_option("Pressure").link_to(&state_field_name);
-  physical_model().variable_option("Pressure").link_to(&pressure_var_name);
-
-  BOOST_CHECK_EQUAL("StateField", state_field_name);
-  BOOST_CHECK_EQUAL("p", pressure_var_name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

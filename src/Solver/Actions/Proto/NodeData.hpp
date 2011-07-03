@@ -21,7 +21,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 
-#include "PhysicalModel.hpp"
+#include "LSSProxy.hpp"
 #include "Transforms.hpp"
 
 /// @file
@@ -75,9 +75,6 @@ struct NodeVarData
     return m_var;
   }
   
-  /// Sequence in the DOFs
-  Uint offset;
-  
 private:
   T& m_var;
 };
@@ -85,12 +82,15 @@ private:
 template<>
 struct NodeVarData< ScalarField >
 {
-  NodeVarData(const ScalarField& placeholder, Mesh::CRegion& region) :
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField>() ),
+  static const Uint dimension = 1;
+  
+  NodeVarData(const ScalarField& placeholder, Mesh::CRegion& region, const Uint var_offset) :
+    offset(var_offset),
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.name())->as_ptr<Mesh::CField>() ),
     m_data( m_field.data() )
   {
-    m_var_begin = m_field.var_index(placeholder.var_name);
-    cf_assert(m_field.var_type(placeholder.var_name) == 1);
+    m_var_begin = m_field.var_index(placeholder.variable_name);
+    cf_assert(m_field.var_type(placeholder.variable_name) == 1);
   }
   
   void set_node(const Uint idx)
@@ -124,7 +124,7 @@ struct NodeVarData< ScalarField >
     m_data[m_idx][m_var_begin] -= v;
   }
   
-  /// Sequence in the DOFs
+  /// Offset for the variable in the LSS, if any
   Uint offset;
   
 private:
@@ -141,13 +141,16 @@ struct NodeVarData<VectorField, Dim>
   typedef Eigen::Matrix<Real, Dim, 1> ValueT;
   typedef const ValueT& ValueResultT;
   
+  static const Uint dimension = Dim;
+  
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
-  NodeVarData(const VectorField& placeholder, Mesh::CRegion& region) :
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField>() ),
+  NodeVarData(const VectorField& placeholder, Mesh::CRegion& region, const Uint var_offset) :
+    offset(var_offset),
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.name())->as_ptr<Mesh::CField>() ),
     m_data( m_field.data() )
   {
-    m_var_begin = m_field.var_index(placeholder.var_name);
+    m_var_begin = m_field.var_index(placeholder.variable_name);
   }
   
   void set_node(const Uint idx)
@@ -185,7 +188,7 @@ struct NodeVarData<VectorField, Dim>
       m_data[m_idx][m_var_begin + i] -= v[i];
   }
   
-  /// Sequence in the DOFs
+  /// Offset for the variable in the LSS, if any
   Uint offset;
   
 private:
@@ -249,14 +252,34 @@ public:
   /// Type of the coordinates
   typedef Eigen::Matrix<Real, NbDims::value, 1> CoordsT;
   
-  NodeData(VariablesT& variables, Mesh::CRegion& region, const Mesh::CTable<Real>& coords, const PhysicalModel& model) :
+  template<typename ExprT>
+  NodeData(VariablesT& variables, Mesh::CRegion& region, const Mesh::CTable<Real>& coords, const ExprT& expr) :
     m_variables(variables),
     m_region(region),
     m_coordinates(coords),
-    m_nb_dofs(model.nb_dofs() ? model.nb_dofs() : 1)
+    m_nb_dofs(0)
   {
-    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_region, m_variables_data));
-    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(AddVariableOffsets(m_variables, m_variables_data, model));
+    // Get any referred LSS proxies, so we can access the physical model
+    std::vector<LSSProxy*> lss_proxies;
+    CollectLSSProxies()(expr, lss_proxies);
+    CPhysicalModel* physical_model = 0;
+    BOOST_FOREACH(LSSProxy* lss_proxy, lss_proxies)
+    {
+      if(physical_model)
+      {
+        // Currently, we only support a single physical model for the whole expression
+        cf_assert(physical_model == &lss_proxy->physical_model());
+      }
+      else
+      {
+        physical_model = &lss_proxy->physical_model();
+      }
+    }
+    
+    if(physical_model)
+      m_nb_dofs = physical_model->nb_dof();
+    
+    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_region, m_variables_data, physical_model));
   }
   
   ~NodeData()
@@ -285,7 +308,7 @@ public:
     return m_position;
   }
   
-  /// Number of degrees of freedom, i.e. the number of nodes times the number of scalars needed at each node to represent the solution
+  /// DOFs at each node
   Uint nb_dofs() const
   {
     return m_nb_dofs;
@@ -307,61 +330,46 @@ private:
   /// Current coordinates
   mutable CoordsT m_position;
   
-  const Uint m_nb_dofs;
+  /// DOFs at each node
+  Uint m_nb_dofs;
   
   ///////////// helper functions and structs /////////////
 private:
   /// Initializes the pointers in a VariablesDataT fusion sequence
   struct InitVariablesData
   {
-    InitVariablesData(VariablesT& vars, Mesh::CRegion& reg, VariablesDataT& vars_data) :
+    InitVariablesData(VariablesT& vars, Mesh::CRegion& reg, VariablesDataT& vars_data, const CPhysicalModel* a_physical_model) :
       variables(vars),
       region(reg),
-      variables_data(vars_data)
+      variables_data(vars_data),
+      physical_model(a_physical_model)
     {
     }
     
     template<typename I>
     void operator()(const I&)
     {
-      typedef typename DataType<I>::type VarDataT;
-      boost::fusion::at<I>(variables_data) = new VarDataT(boost::fusion::at<I>(variables), region);
+      apply(boost::fusion::at<I>(variables), boost::fusion::at<I>(variables_data));
+    }
+    
+    template<typename VarDataT>
+    void apply(boost::mpl::void_, VarDataT*& data)
+    {
+      data = 0;
+    }
+    
+    template<typename VarT, typename VarDataT>
+    void apply(const VarT& var, VarDataT*& data)
+    {
+      const std::string& var_name = var.name();
+      const Uint offset = (physical_model && physical_model->is_state_variable(var_name)) ? physical_model->offset(var_name) : 0;
+      data = new VarDataT(var, region, offset);
     }
     
     VariablesT& variables;
     Mesh::CRegion& region;
     VariablesDataT& variables_data;
-  };
-  
-  /// Initializes the pointers in a VariablesDataT fusion sequence
-  struct AddVariableOffsets
-  {
-    AddVariableOffsets(VariablesT& vars, VariablesDataT& vars_data, const PhysicalModel& model) :
-      variables(vars),
-      variables_data(vars_data),
-      physical_model(model)
-    {
-    }
-    
-    template<typename I>
-    void operator()(const I&)
-    {
-      execute(boost::fusion::at<I>(variables), boost::fusion::at<I>(variables_data));
-    }
-    
-    template<typename VarT, typename DataT>
-    void execute(VarT& var, DataT* data)
-    {
-      data->offset = physical_model.is_equation_variable(var.internal_name()) ? physical_model.offset(var.internal_name()) : 0;
-    }
-    
-    void execute(boost::mpl::void_&, NodeVarData<boost::mpl::void_>*)
-    {
-    }
-    
-    VariablesT& variables;
-    VariablesDataT& variables_data;
-    const PhysicalModel physical_model;
+    const CPhysicalModel* physical_model;
   };
   
   /// Delete stored per-variable data

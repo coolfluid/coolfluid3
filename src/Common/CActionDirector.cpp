@@ -6,6 +6,7 @@
 
 #include "Common/URI.hpp"
 
+#include "Common/CBuilder.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionComponent.hpp"
 
@@ -16,52 +17,36 @@
 namespace CF {
 namespace Common {
 
+ComponentBuilder < CActionDirector, CAction, LibCommon > CActionDirector_Builder;
+  
 /////////////////////////////////////////////////////////////////////////////////////
 
 CActionDirector::CActionDirector(const std::string& name): CAction(name)
 {
-  m_options.add_option< OptionArrayT <URI> >("ActionList", "Actions to execute in sequence")
-    ->attach_trigger( boost::bind(&CActionDirector::trigger_actions, this) );
+  m_options.add_option< OptionArrayT <std::string> >("ActionList", "Names of the actions to execute in sequence");
 }
 
 void CActionDirector::execute()
 {
-  const Uint nb_actions = m_actions.size();
-  for(Uint i = 0; i != nb_actions; ++i)
-    m_actions[i].lock()->execute();
+  Option& actions_prop = option("ActionList");
+  std::vector<std::string> actions; actions_prop.put_value(actions);
+  
+  BOOST_FOREACH(const std::string& action_name, actions)
+  {
+    dynamic_cast<CAction&>(get_child(action_name)).execute();
+  }
 }
 
 CActionDirector& CActionDirector::append(const CAction& action)
 {
   Option& actions_prop = option("ActionList");
-  std::vector<URI> actions; actions_prop.put_value(actions);
+  std::vector<std::string> actions; actions_prop.put_value(actions);
 
-  actions.push_back(action.uri());
+  actions.push_back(action.name());
   actions_prop.change_value(actions);
 
   return *this;
 }
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-void CActionDirector::trigger_actions()
-{
-  m_actions.clear();
-  std::vector<URI> actions; option("ActionList").put_value(actions);
-  m_actions.reserve(actions.size());
-  BOOST_FOREACH(const URI& action_path, actions)
-  {
-    Component::Ptr action_component = access_component_ptr(action_path);
-    if(!action_component)
-      throw InvalidURI(FromHere(), "Action component with path " + action_path.path() + " does not exist");
-    CAction::Ptr action = boost::dynamic_pointer_cast<CAction>(action_component);
-    if(!action)
-      throw InvalidURI(FromHere(), "Action component with path " + action_path.path() + " exists, but it is not a CAction");
-
-    m_actions.push_back(boost::weak_ptr<CAction>(action));
-  }
-}
-
 
 /////////////////////////////////////////////////////////////////////////////////////
 

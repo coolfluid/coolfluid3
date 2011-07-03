@@ -9,10 +9,14 @@
 #define CF_Solver_Actions_Proto_BlockAccumulator_hpp
 
 #include <boost/proto/core.hpp>
+#include <boost/proto/traits.hpp>
 
 #include "Math/MatrixTypes.hpp"
 
 #include "Solver/CEigenLSS.hpp"
+
+#include "LSSProxy.hpp"
+#include "Terminals.hpp"
 
 /// @file
 /// System matrix block accumultation. Current prototype uses dense a dense Eigen matrix and is purely for proof-of-concept
@@ -21,35 +25,27 @@ namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
-
+  
 /// Tag for system matrix
 struct SystemMatrixTag
 {
 };
 
-/// Indicate that we want to operate on the system matrix of a linear system
-inline boost::proto::result_of::make_expr< boost::proto::tag::function, SystemMatrixTag, StoredReference<Solver::CEigenLSS> >::type const
-system_matrix(Solver::CEigenLSS& lss)
-{
-  return boost::proto::make_expr<boost::proto::tag::function>( SystemMatrixTag(), store(lss));
-}
-  
+/// Represents a system matrix
+typedef LSSComponentTerm<SystemMatrixTag> SystemMatrix;
+
 /// Tag for RHS
 struct SystemRHSTag
 {
 };
-  
-/// Indicate that we want to operate on the RHS of a linear system
-inline boost::proto::result_of::make_expr< boost::proto::tag::function, SystemRHSTag, StoredReference<Solver::CEigenLSS> >::type const
-system_rhs(Solver::CEigenLSS& lss)
-{
-  return boost::proto::make_expr<boost::proto::tag::function>( SystemRHSTag(), store(lss) );
-}
+
+/// Represents an RHS
+typedef LSSComponentTerm<SystemRHSTag> SystemRHS;
 
 /// Grammar matching the LHS of an assignment op
 template<typename TagT>
 struct BlockLhsGrammar :
-  boost::proto::function< boost::proto::terminal<TagT>, boost::proto::terminal< StoredReference<Solver::CEigenLSS> > >
+  boost::proto::terminal< LSSComponent<TagT> >
 {
 };
 
@@ -138,16 +134,13 @@ struct BlockAccumulator :
     typedef typename boost::proto::tag_of<ExprT>::type OpT;
     
     /// Tag indicating if we are modifying the RHS or the system matrix (stored in child 0 of the LHS of the assignment op)
-    typedef typename boost::remove_const
+    typedef typename boost::remove_reference
     <
-      typename boost::remove_reference
+      typename boost::proto::result_of::value
       <
-        typename boost::proto::result_of::value
-        <
-          typename boost::proto::result_of::child_c< typename boost::proto::result_of::left<ExprT>::type, 0 >::type
-        >::type
+        typename boost::proto::result_of::left<ExprT>::type
       >::type
-    >::type SystemTagT;
+    >::type::tag_type SystemTagT;
 
     result_type operator ()(
                 typename impl::expr_param expr // The assignment expression
@@ -155,7 +148,8 @@ struct BlockAccumulator :
               , typename impl::data_param data // data associated with element loop
     ) const
     {
-      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>( boost::proto::left(expr) ) ).get();
+      LSSProxy& proxy = boost::proto::value( boost::proto::left(expr) ).lss_proxy();
+      Solver::CEigenLSS& lss = proxy.lss();
       BlockAssignmentOp<SystemTagT, OpT>()(lss, state, data);
     }
   };

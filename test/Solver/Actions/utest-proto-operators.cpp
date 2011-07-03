@@ -11,6 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Solver/Actions/Proto/ElementLooper.hpp"
+#include "Solver/Actions/Proto/Expression.hpp"
 #include "Solver/Actions/Proto/Functions.hpp"
 #include "Solver/Actions/Proto/NodeLooper.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
@@ -30,6 +31,8 @@
 
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Types.hpp"
+
+#include "Solver/CPhysicalModel.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
@@ -455,23 +458,28 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   
   MeshTerm<0, VectorField> u("Velocity", "u");
   
-  PhysicalModel physical_model;
-  physical_model.register_variable(u, true);
-  physical_model.create_fields(*mesh);
+  CPhysicalModel& physical_model = Core::instance().root().create_component<CPhysicalModel>("PhysicalModel");
   
-  for_each_node
-  (
-    mesh->topology(),
-    u = coordinates
-  );
+  // Create the initialization expression
+  Expression::Ptr init = nodes_expression(u = coordinates);
+  
+  // set up fields
+  init->register_variables(physical_model);
+  physical_model.option("mesh").change_value(mesh);
+  physical_model.create_fields();
+  
+  // Do the initialization
+  init->loop(mesh->topology());
   
   RealVector4 result;
+  result.setZero();
   
-  for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
+  // Run a vector product
+  elements_expression
   (
-    mesh->topology(),
-    element_quadrature(boost::proto::lit(result) += u*nabla(u))
-  );
+    boost::mpl::vector1<SF::Quad2DLagrangeP1>(),
+    element_quadrature(boost::proto::lit(store(result)) += u*nabla(u))
+  )->loop(mesh->topology());
   
   std::cout << result << std::endl;
 }

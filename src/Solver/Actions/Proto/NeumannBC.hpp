@@ -12,6 +12,7 @@
 #include "Math/MatrixTypes.hpp"
 #include "Solver/CEigenLSS.hpp"
 
+#include "LSSProxy.hpp"
 #include "Transforms.hpp"
 
 namespace CF {
@@ -20,17 +21,12 @@ namespace Actions {
 namespace Proto {
  
 /// Tag for a Neumann BC
-struct NeumannBC
+struct NeumannBCTag
 {
 };
 
-/// Placeholder to define dirichlet boundary conditions
-template<Uint I, typename T>
-inline typename boost::proto::result_of::make_expr< boost::proto::tag::function, NeumannBC, StoredReference<Solver::CEigenLSS>, MeshTerm<I, T> const & >::type const
-neumann(Solver::CEigenLSS& lss, MeshTerm<I, T> const & var)
-{
-  return boost::proto::make_expr<boost::proto::tag::function>( NeumannBC(), store(lss), boost::ref(var) );
-}
+/// Used to create placeholders for a Neumann condition
+typedef LSSComponentTerm<NeumannBCTag> NeumannBC;
   
 struct NeumannBCSetter :
   boost::proto::transform< NeumannBCSetter >
@@ -46,8 +42,8 @@ struct NeumannBCSetter :
               , typename impl::data_param data
     ) const
     {
-      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<1>(expr) ).get();
-      const Uint sys_idx = data.node_idx*data.nb_dofs() + data.var_data(boost::proto::value(boost::proto::child_c<2>(expr))).offset;
+      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).lss_proxy().lss();
+      const Uint sys_idx = data.node_idx*data.nb_dofs() + data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset;
       lss.rhs()[sys_idx] = state;
     }
   };
@@ -62,8 +58,7 @@ struct NeumannBCGrammar :
     <
       boost::proto::function
       <
-        boost::proto::terminal<NeumannBC>,
-        boost::proto::terminal< StoredReference<Solver::CEigenLSS> >,
+        boost::proto::terminal< LSSComponent<NeumannBCTag> >,
         FieldTypes
       >,
       GrammarT

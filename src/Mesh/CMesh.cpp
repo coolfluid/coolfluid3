@@ -12,6 +12,7 @@
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/Signal.hpp"
 
@@ -46,7 +47,7 @@ CMesh::CMesh ( const std::string& name  ) :
   m_properties.add_property("nb_cells",Uint(0));
   m_properties.add_property("nb_nodes",Uint(0));
   m_properties.add_property("dimensionality",Uint(0));
-  m_properties.add_property("dimension",Uint(0));
+  m_options.add_option< OptionT<Uint> >("dimension", "Dimension", "Dimension of the mesh (set automatically)", Uint(0))->link_to(&m_dimension); //TODO: Hide this, or make properties with triggers?
 
   mark_basic(); // by default meshes are visible
 
@@ -69,7 +70,7 @@ CMesh::~CMesh()
 
 void CMesh::update_statistics()
 {
-  m_dimension = nodes().coordinates().row_size();
+  option("dimension").change_value(nodes().coordinates().row_size());
   boost_foreach ( CEntities& elements, find_components_recursively<CEntities>(topology()) )
     m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
 }

@@ -160,6 +160,12 @@ public:
 
   //@} END VIRTUAL FUNCTIONS
 
+  /// Check if the stored component is valid
+  bool check() const
+  {
+    return !boost::any_cast<data_t>(m_value).expired();
+  }
+
   /// Get a reference to the stored component
   T& component()
   {
@@ -194,11 +200,28 @@ protected: // functions
   {
     try
     {
-      return data_t(Core::instance().root().access_component_ptr_checked(boost::any_cast<URI const>(value))->as_ptr_checked<T>() );
+      // try casting to a shared_ptr
+      return data_t (boost::any_cast< boost::shared_ptr<T> >(value) );
     }
-    catch(boost::bad_any_cast& e)
+    catch(boost::bad_any_cast&)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(value.type())+" to "+Common::class_name<URI>());
+      try
+      {
+        // try casting to a weak_ptr
+        return data_t (boost::any_cast< boost::weak_ptr<T> >(value) );
+      }
+      catch(boost::bad_any_cast&)
+      {
+        // finally try a URI
+        try
+        {
+          return data_t(Core::instance().root().access_component_ptr_checked(boost::any_cast<URI const>(value))->as_ptr_checked<T>() );
+        }
+        catch(boost::bad_any_cast& e)
+        {
+          throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(value.type())+" to "+Common::class_name<URI>());
+        }
+      }
     }
   }
 

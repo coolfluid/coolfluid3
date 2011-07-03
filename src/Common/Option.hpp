@@ -220,7 +220,7 @@ namespace Common {
     {
       cf_assert_desc (class_name<TYPE>()+"!="+data_type(), class_name<TYPE>() == data_type() );
       m_linked_params.push_back(par);
-      *par = value<TYPE>();
+      *par = boost::any_cast<TYPE>(m_value);
       return shared_from_this();
     }
 

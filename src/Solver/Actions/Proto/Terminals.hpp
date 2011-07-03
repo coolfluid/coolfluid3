@@ -12,9 +12,6 @@
 
 #include <boost/proto/core.hpp>
 
-#include "Common/OptionT.hpp"
-#include "Common/OptionURI.hpp"
-
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/ElementType.hpp"
@@ -39,7 +36,7 @@ void print_error(const T&)
 {
   T::print_error();
 }
-
+  
 /// Creates a variable that has unique ID I
 template<typename I, typename T>
 struct Var : I
@@ -62,88 +59,33 @@ struct Var : I
 
   template<typename T1, typename T2>
   Var(T1& par1, T2& par2) : variable_value(par1, par2) {}
-
+  
   template<typename T1, typename T2, typename T3>
   Var(const T1& par1, const T2& par2, const T3& par3) : variable_value(par1, par2, par3) {}
 
   template<typename T1, typename T2, typename T3>
   Var(T1& par1, T2& par2, T3& par3) : variable_value(par1, par2, par3) {}
-
+  
   type variable_value;
 };
 
-/// Compute the return type of OptionVariable::add_option
-template<typename T>
-struct OptionType
-{
-  typedef boost::shared_ptr< Common::OptionT<T> > type;
-};
-
-template<>
-struct OptionType<Common::URI>
-{
-  typedef boost::shared_ptr< Common::OptionURI > type;
-};
-
-/// Base class for variables that expose a user-controllable option
-class OptionVariable
-{
-public:
-  virtual ~OptionVariable()
-  {
-  }
-
-  /// Add auto-generated options to the supplied component (if they don't exist) and attach the triggers (always, even if the option existed)
-  virtual void add_options(Common::Component& owner) = 0;
-
-protected:
-
-  template< typename OptionValueT >
-  inline typename OptionType<OptionValueT>::type add_option(Common::Component& owner, const std::string& name, const std::string& description, const OptionValueT& default_val, Common::Option::Trigger_t trigger);
-};
-
-template< typename OptionValueT >
-inline typename OptionType<OptionValueT>::type OptionVariable::add_option(Common::Component& owner, const std::string& name, const std::string& description, const OptionValueT& default_val, Common::Option::Trigger_t trigger)
-{
-  Common::Option& option = owner.options().check(name) ? owner.options().option(name) : *owner.options().add_option< Common::OptionT<OptionValueT> >(name, description, default_val);
-  option.mark_basic();
-  option.attach_trigger( trigger );
-  boost::shared_ptr< Common::OptionT<OptionValueT> > cast_option = boost::dynamic_pointer_cast< Common::OptionT<OptionValueT> >(option.shared_from_this());
-  if(is_null(cast_option))
-    throw Common::CastingFailed(FromHere(),"Option could not be cast");
-  return cast_option;
-}
-
-template<>
-inline OptionType<Common::URI>::type OptionVariable::add_option<Common::URI>(Common::Component& owner, const std::string& name, const std::string& description, const Common::URI& default_val, Common::Option::Trigger_t trigger)
-{
-  Common::Option& option = owner.options().check(name) ? owner.options().option(name) : *owner.options().add_option< Common::OptionURI >(name, description, default_val);
-  option.mark_basic();
-  option.attach_trigger( trigger );
-  boost::shared_ptr< Common::OptionURI > cast_option = boost::dynamic_pointer_cast< Common::OptionURI >(option.shared_from_this());
-  if(is_null(cast_option))
-    throw Common::CastingFailed(FromHere(),"Option could not be cast");
-  return cast_option;
-}
-
 /// Base class for field data
-struct FieldBase : OptionVariable
+struct FieldBase
 {
   FieldBase() :
-    field_name("aField"),
-    var_name("aVariable"),
-    m_internal_name("aVariable")
+    m_name("aName"),
+    m_symbol("aSymbol")
   {
   }
 
   /// Construct a new field placeholder
   /// @param name Readable name for the represented quantity (i.e. Temperature)
   /// @param symbol Short symbol to name the variable (i.e. T)
-  /// @param field_nm Name for the field to use by default
-  FieldBase(const std::string& name, const std::string& symbol, const std::string& field_nm) :
-    field_name(field_nm),
-    var_name(symbol),
-    m_internal_name(name)
+  FieldBase(const std::string& name, const std::string& symbol) :
+    field_name(name),
+    variable_name(symbol),
+    m_name(name),
+    m_symbol(symbol)
   {
   }
 
@@ -153,77 +95,42 @@ struct FieldBase : OptionVariable
     return elements.element_type();
     //return is_const ? elements.element_type() : elements.get_field_elements(field_name).element_type();
   }
-
-  virtual void add_options(Common::Component& owner)
+  
+  inline const std::string& name() const
   {
-    m_field_option = add_option<std::string>
-    (
-      owner,
-      m_internal_name + std::string("FieldName"),
-      "Field name for variable " + m_internal_name,
-      field_name,
-      boost::bind(&FieldBase::on_field_changed, this)
-    );
-    cf_assert(is_not_null(m_field_option.lock()));
-    m_var_option = add_option<std::string>
-    (
-      owner,
-      m_internal_name + std::string("VariableName"),
-      "Variable name for variable " + m_internal_name,
-      var_name,
-      boost::bind(&FieldBase::on_var_changed, this)
-    );
-    cf_assert(is_not_null(m_var_option.lock()));
+    return m_name;
   }
-
-  /// Name of the referred field
+  
+  inline const std::string& symbol() const
+  {
+    return m_symbol;
+  }
+  
+  /// Current run-time configured field name for this variable
+  /// Link to an appropriate Option in order to keep current
   std::string field_name;
-
-  /// Name of the variable
-  std::string var_name;
-
-  inline const std::string& internal_name() const
-  {
-    return m_internal_name;
-  }
+  
+  /// Current run-time configured variable name for this variable (with respect to the CField)
+  /// Link to an appropriate Option in order to keep current
+  std::string variable_name;
 
 private:
-  /// Called when the field name option is changed
-  void on_field_changed()
-  {
-    field_name = m_field_option.lock()->value<std::string>();
-  }
-
-  /// Called when the var name option is changed
-  void on_var_changed()
-  {
-    var_name = m_var_option.lock()->value<std::string>();
-  }
-
-  /// Option for the field name
-  boost::weak_ptr< Common::OptionT<std::string> > m_field_option;
-
-  /// Option for the variable name
-  boost::weak_ptr< Common::OptionT<std::string> > m_var_option;
-
-  /// Internal name, guaranteed to remain the same irrespective of user settings
-  std::string m_internal_name;
+  std::string m_name;
+  std::string m_symbol;
 };
 
 /// Field data for a scalar field
 struct ScalarField : FieldBase
 {
   ScalarField() : FieldBase() {}
-  ScalarField(const std::string& varname, const std::string& symbol) : FieldBase(varname, symbol, varname) {}
-  ScalarField(const std::string& varname, const std::string& symbol, const std::string& field_nm) : FieldBase(varname, symbol, field_nm) {}
+  ScalarField(const std::string& varname, const std::string& symbol) : FieldBase(varname, symbol) {}
 };
 
 /// Field data for a vector having the dimension of the problem
 struct VectorField : FieldBase
 {
   VectorField() : FieldBase() {}
-  VectorField(const std::string& varname, const std::string& symbol) : FieldBase(varname, symbol, varname) {}
-  VectorField(const std::string& varname, const std::string& symbol, const std::string& field_nm) : FieldBase(varname, symbol, field_nm) {}
+  VectorField(const std::string& varname, const std::string& symbol) : FieldBase(varname, symbol) {}
 };
 
 /// Shorthand for terminals containing a numbered variable
@@ -274,13 +181,13 @@ struct StoredReference
   explicit StoredReference(T& t) : m_t(&t)
   {
   }
-
+  
   /// Get a reference to the originally referenced object
   T& get() const
   {
     return *m_t;
   }
-
+  
 private:
   T* m_t;
 };
@@ -291,6 +198,16 @@ StoredReference<T> store(T& t)
 {
   return StoredReference<T>(t);
 }
+
+/// Match field types
+struct FieldTypes :
+  boost::proto::or_
+  <
+    boost::proto::terminal< Var< boost::proto::_, ScalarField > >,
+    boost::proto::terminal< Var<boost::proto::_, VectorField> >
+  >
+{
+};
 
 /// Wrap std::cout
 static boost::proto::terminal< std::ostream & >::type _cout = {std::cout};

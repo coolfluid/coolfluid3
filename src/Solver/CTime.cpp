@@ -53,6 +53,7 @@ CTime::CTime ( const std::string& name  ) :
       ->mark_basic();
 
   m_options.add_option(OptionT<Real>::create("end_time","End Time", "Time at which to finish the simulation", m_time) )
+      ->link_to(&m_end_time)
       ->mark_basic();
 }
 

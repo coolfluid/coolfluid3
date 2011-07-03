@@ -7,36 +7,18 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Solver/Actions/Proto/ElementLooper.hpp"
-#include "Solver/Actions/Proto/Functions.hpp"
-#include "Solver/Actions/Proto/NodeLooper.hpp"
-#include "Solver/Actions/Proto/Terminals.hpp"
+#include "Solver/Actions/Proto/Expression.hpp"
+#include "Solver/CTime.hpp"
 
-#include "Common/Core.hpp"
- 
+#include "Common/Core.hpp" 
 #include "Common/CRoot.hpp"
-#include "Common/Log.hpp"
-#include "Common/LibLoader.hpp"
-#include "Common/OSystem.hpp"
-
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/ElementData.hpp"
-
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/SF/Types.hpp"
-
-#include "Solver/CEigenLSS.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
+
+#include "UFEM/LinearProblem.hpp"
+#include "UFEM/UnsteadyModel.hpp"
 
 using namespace CF;
 using namespace CF::Solver;
@@ -53,117 +35,83 @@ typedef std::vector<Uint> SizesT;
 
 BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
 
-// Disabled for rewrite of system handling
 BOOST_AUTO_TEST_CASE( ProtoSystem )
 {
   const Real length = 5.;
-  const RealVector2 outside_temp(1., 1.);
+  RealVector outside_temp(2);
+  outside_temp << 1., 1;
   const RealVector2 initial_temp(100., 200.);
   const Uint nb_segments = 10;
-  const Real start_time = 0.;
   const Real end_time = 0.5;
   const Real dt = 0.1;
-  Real t = start_time;
-  
   const boost::proto::literal<RealVector2> alpha(RealVector2(1., 2.));
   
-  const Real invdt = 1. / dt;
-  
-  // Setup document structure and mesh
-  CRoot& root = Core::instance().root();
-  
-  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
-  Tools::MeshGeneration::create_rectangle(*mesh, length, 0.5*length, 2*nb_segments, nb_segments);
-  
-  // Linear system
-  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
-  lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
-  
-  // Regions
-  CRegion& left = find_component_recursively_with_name<CRegion>(*mesh, "left");
-  CRegion& right = find_component_recursively_with_name<CRegion>(*mesh, "right");
-  CRegion& bottom = find_component_recursively_with_name<CRegion>(*mesh, "bottom");
-  CRegion& top = find_component_recursively_with_name<CRegion>(*mesh, "top");
+  // Setup a UFEM model
+  UFEM::UnsteadyModel& model = Core::instance().root().create_component<UFEM::UnsteadyModel>("Model");
+  CMesh& mesh = model.get_child("Mesh").as_type<CMesh>();
+  Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
 
-  // Expression variables
+  // Linear system setup (TODO: sane default config for this, so this can be skipped)
+  CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
+  lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
+  model.problem().solve_action().configure_option("lss", lss.uri());
+  
+  // Proto placeholders
   MeshTerm<0, VectorField> v("VectorVariable", "v");
   
-  // Set up a physical model (normally handled automatically if using the Component wrappers)
-  PhysicalModel physical_model;
-  physical_model.register_variable(v, true);
-  physical_model.create_fields(*mesh);
-  lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
+  // shorthand for the problem and boundary conditions
+  UFEM::LinearProblem& p = model.problem();
+  UFEM::BoundaryConditions& bc = p.boundary_conditions();
   
-  // Setup a mesh writer
-  CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  root.add_component(writer);
-  writer->configure_option( "fields", std::vector<URI>(1, mesh->get_child("VectorVariable").uri() ) );
-  
-  // Set initial condition.
-  for_each_node
-  (
-    mesh->topology(),
-    v = initial_temp
+  // Allowed elements (reducing this list improves compile times)
+  boost::mpl::vector1<Mesh::SF::Quad2DLagrangeP1> allowed_elements;
+
+  // build up the solver out of different actions
+  model << model.add_action("Initialize", nodes_expression(v = initial_temp)) <<
+  ( // Time loop
+    p << p.add_action
+    (
+      "Assembly",
+      elements_expression // assembly
+      (
+        allowed_elements,
+        group <<
+        (
+          _A = _0, _T = _0,
+          element_quadrature <<
+          (
+            _A(v[_i], v[_i]) += transpose(nabla(v)) * alpha[_i] * nabla(v),
+            _T(v[_i], v[_i]) += model.invdt() * (transpose(N(v)) * N(v))
+          ),
+          p.system_matrix += _T + 0.5 * _A,
+          p.system_rhs -= _A * _b
+        )
+      )
+    ) <<
+    ( // boundary conditions
+      bc
+      << bc.add_constant_bc("left", "VectorVariable", outside_temp)
+      << bc.add_constant_bc("right", "VectorVariable", outside_temp)
+      << bc.add_constant_bc("bottom", "VectorVariable", outside_temp)
+      << bc.add_constant_bc("top", "VectorVariable", outside_temp)
+    )
+    << p.solve_action() // solve
+    << p.add_action("Increment", nodes_expression(v += p.solution(v))) // increment solution
   );
   
-  while(t < end_time)
-  { 
-    // Fill the system matrix
-    lss.set_zero();
-    for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
-    (
-      mesh->topology(),
-      group <<
-      (
-        _A = _0, _T = _0,
-        element_quadrature <<
-        (
-          _A(v[_i], v[_i]) += transpose(nabla(v)) * alpha[_i] * nabla(v),
-          _T(v[_i], v[_i]) += invdt * (transpose(N(v)) * N(v))
-        ),
-        system_matrix(lss) += _T + 0.5 * _A,
-        system_rhs(lss) -= _A * _b
-      )
-    );
-    
-    // All boundaries at outside temp
-    for_each_node
-    (
-      left,
-      dirichlet(lss, v) = outside_temp,
-      physical_model
-    );
-    
-    for_each_node
-    (
-      right,
-      dirichlet(lss, v) = outside_temp,
-      physical_model
-    );
-    
-    for_each_node
-    (
-      top,
-      dirichlet(lss, v) = outside_temp,
-      physical_model
-    );
-    
-    for_each_node
-    (
-      bottom,
-      dirichlet(lss, v) = outside_temp,
-      physical_model
-    );
-     
-    // Solve the system!
-    lss.solve();
-    physical_model.update_fields(*mesh, lss.solution());
-    
-    t += dt;
-  }
+  // Configure timings
+  model.time().configure_option("time_step", dt);
+  model.time().configure_option("end_time", end_time);
+      
+  // Run the solver
+  model.execute();
+  
+  // Write result
   URI output_file("systems.msh");
-  writer->write_from_to(*mesh, output_file);
-}
+  model.configure_option("output_file", output_file);
+  SignalArgs a;
+  model.signal_write_mesh(a);
+};
 
 // Expected matrices:
 // 82:  0.5    0 -0.5    0    0    0    0    0

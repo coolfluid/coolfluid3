@@ -82,10 +82,10 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   // Setup a constant field for the source term
   Component::Ptr heat_generator = build_component_abstract_type<Component>("CF.Tools.FieldGeneration.FieldGenerator", "HeatFieldGenerator");
   root.add_component(heat_generator);
-  heat_generator->configure_property("FieldName", std::string("Heat"));
-  heat_generator->configure_property("VariableName", std::string("q"));
-  heat_generator->configure_property("Value", 0.);
-  heat_generator->configure_property("Mesh", mesh->uri());
+  heat_generator->configure_option("FieldName", std::string("Heat"));
+  heat_generator->configure_option("VariableName", std::string("q"));
+  heat_generator->configure_option("Value", 0.);
+  heat_generator->configure_option("Mesh", mesh->uri());
   SignalFrame update_heat_frame("", URI(), URI());
   heat_generator->call_signal("update", update_heat_frame);
 
@@ -95,18 +95,18 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   Component::Ptr heat_eq = ufem_method->get_child_ptr("HeatEquation");
   BOOST_CHECK(heat_eq);
   
-  ufem_model->get_child("LSS").configure_property("ConfigFile", std::string(argv[1]));
+  ufem_model->get_child("LSS").configure_option("ConfigFile", std::string(argv[1]));
 
-  heat_eq->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring3d"));
+  heat_eq->configure_option("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring3d"));
   BOOST_CHECK(true);
-  heat_eq->configure_property("TemperatureFieldName", std::string("Temperature"));
+  heat_eq->configure_option("TemperatureFieldName", std::string("Temperature"));
   BOOST_CHECK(true);
-  heat_eq->configure_property("TemperatureVariableName", std::string("T"));
+  heat_eq->configure_option("TemperatureVariableName", std::string("T"));
 
-  heat_eq->configure_property("HeatFieldName", std::string("Heat"));
-  heat_eq->configure_property("HeatVariableName", std::string("q"));
+  heat_eq->configure_option("HeatFieldName", std::string("Heat"));
+  heat_eq->configure_option("HeatVariableName", std::string("q"));
 
-  heat_eq->configure_property("k", 0.1);
+  heat_eq->configure_option("k", 0.1);
 
   // Set intial field to 0
   SignalFrame init_frame("", URI(), URI());
@@ -120,8 +120,8 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   
   Component::Ptr init = ufem_method->get_child_ptr("InitialTemperature");
   BOOST_CHECK(init);
-  init->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology"));
-  init->configure_property("InitialTemperature", 0.);
+  init->configure_option("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology"));
+  init->configure_option("InitialTemperature", 0.);
 
   SignalFrame inside_bc_frame("", URI(), URI());
   SignalFrame& inside_bc_p = inside_bc_frame.map( Protocol::Tags::key_options() );
@@ -133,8 +133,8 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   ufem_method->call_signal("add_dirichlet_bc", inside_bc_frame);
   Component::Ptr inside_bc = ufem_method->get_child_ptr("Inside");
   BOOST_CHECK(inside_bc);
-  inside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring3d/inner"));
-  inside_bc->configure_property("Inside", 273.);
+  inside_bc->configure_option("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring3d/inner"));
+  inside_bc->configure_option("Inside", 273.);
 
   SignalFrame outside_bc_frame("", URI(), URI());
   SignalFrame& outside_bc_p = outside_bc_frame.map( Protocol::Tags::key_options() );
@@ -148,9 +148,9 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   BOOST_CHECK(outside_bc);
 
 
-  outside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring3d/outer"));
+  outside_bc->configure_option("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring3d/outer"));
 
-  outside_bc->configure_property("Outside", 500.);
+  outside_bc->configure_option("Outside", 500.);
 
   SignalFrame run_frame("", URI(), URI());
 
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   const std::vector<URI> field_uris = boost::assign::list_of
     ( URI("cpath://Root/UFEMHeat/Domain/Mesh/Temperature") );
     //( URI("cpath://Root/UFEMHeat/Domain/Mesh/Heat") );
-  writer->configure_property( "fields", field_uris );
+  writer->configure_option( "fields", field_uris );
 
   writer->write_from_to(*mesh, output_file);
 

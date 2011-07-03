@@ -59,6 +59,9 @@ public: // functions
 
   /// @return iteration
   const Uint& iter() const { return m_iter; }
+  
+  /// @return end_time
+  Real end_time() const { return m_end_time; }
 
 private: // data
 
@@ -67,6 +70,8 @@ private: // data
   Real m_dt;
 
   Uint m_iter;
+  
+  Real m_end_time;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,10 +9,11 @@
 
 #include "DirichletBC.hpp"
 #include "EigenTransforms.hpp"
+#include "ElementOperations.hpp"
 #include "NeumannBC.hpp"
 #include "NodeData.hpp"
+#include "SolutionVector.hpp"
 #include "Transforms.hpp"
-#include "ElementOperations.hpp"
 
 /// @file
 /// Grammar for node-based expressions
@@ -118,6 +119,7 @@ struct NodeMath :
       VarValue(boost::proto::_value)
     >,
     CoordinatesGrammar,
+    SolutionVectorGrammar,
     NodeAssignGrammar<NodeMath>,
     EigenMath<NodeMath, Integers> // Special Eigen functions and Eigen multiplication (overrides default product)
   >

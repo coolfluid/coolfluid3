@@ -41,8 +41,13 @@ if(CF_ENABLE_PROTO)
     utest-proto-operators.cpp )
   coolfluid_add_unit_test( utest-proto-operators )
 
+  list( APPEND utest-proto-components_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver_actions coolfluid_solver )
+  list( APPEND utest-proto-components_files
+    utest-proto-components.cpp )
+  coolfluid_add_unit_test( utest-proto-components )
+
 else()
 
-  coolfluid_mark_not_orphan(utest-proto-benchmark.cpp utest-proto-operators.cpp)
+  coolfluid_mark_not_orphan(utest-proto-benchmark.cpp utest-proto-operators.cpp utest-proto-components.cpp)
 
 endif()

@@ -12,7 +12,6 @@
 
 #include "NodeData.hpp"
 #include "NodeGrammar.hpp"
-#include "PhysicalModel.hpp"
 
 /// @file
 /// Loop over the nodes for a region
@@ -37,11 +36,10 @@ struct NodeLooperDim
   
   typedef NodeData<VariablesT, NbDimsT> DataT;
   
-  NodeLooperDim(const ExprT& expr, Mesh::CRegion& region, VariablesT& variables, const PhysicalModel& physical_model) :
+  NodeLooperDim(const ExprT& expr, Mesh::CRegion& region, VariablesT& variables) :
     m_expr(expr),
     m_region(region),
-    m_variables(variables),
-    m_physical_model(physical_model)
+    m_variables(variables)
   {
   }
   
@@ -123,7 +121,7 @@ struct NodeLooperDim
   void operator()() const
   {
     // Create data used for the evaluation
-    DataT node_data(m_variables, m_region, m_region.nodes().coordinates(), m_physical_model);
+    DataT node_data(m_variables, m_region, m_region.nodes().coordinates(), m_expr);
     
     // Wrap things up so that we can store the intermediate product results
     do_run(WrapExpression()(m_expr, 0, node_data), node_data);
@@ -149,7 +147,6 @@ private:
   const ExprT& m_expr;
   Mesh::CRegion& m_region;
   VariablesT& m_variables;
-  const PhysicalModel& m_physical_model;
 };
 
 /// Loop over nodes, using static-sized vectors to store coordinates
@@ -159,11 +156,10 @@ struct NodeLooper
   /// Type of a fusion vector that can contain a copy of each variable that is used in the expression
   typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
   
-  NodeLooper(const ExprT& expr, Mesh::CRegion& region, VariablesT& variables, const PhysicalModel& model = PhysicalModel()) :
+  NodeLooper(const ExprT& expr, Mesh::CRegion& region, VariablesT& variables) :
     m_expr(expr),
     m_region(region),
-    m_variables(variables),
-    m_physical_model(model)
+    m_variables(variables)
   {
   }
   
@@ -175,7 +171,7 @@ struct NodeLooper
       return;
   
     // Execute with known dimension
-    NodeLooperDim<ExprT, NbDimsT>(m_expr, m_region, m_variables, m_physical_model)();
+    NodeLooperDim<ExprT, NbDimsT>(m_expr, m_region, m_variables)();
   }
   
 private:
@@ -183,14 +179,13 @@ private:
   const ExprT& m_expr;
   Mesh::CRegion& m_region;
   VariablesT& m_variables;
-  PhysicalModel m_physical_model;
 };
   
 /// Visit all nodes used by root_region exactly once, executing expr
 /// @param variable_names Name of each of the variables, in case a linear system is solved
 /// @param variable_sizes Size (number of scalars) that makes up each variable in the linear system, if any
 template<typename ExprT>
-void for_each_node(Mesh::CRegion& root_region, const ExprT& expr, const PhysicalModel& physical_model = PhysicalModel())
+void for_each_node(Mesh::CRegion& root_region, const ExprT& expr)
 {
   // IF COMPILATION FAILS HERE: the espression passed is invalid
   BOOST_MPL_ASSERT_MSG(
@@ -204,7 +199,7 @@ void for_each_node(Mesh::CRegion& root_region, const ExprT& expr, const Physical
   CopyNumberedVars<VariablesT> ctx(vars);
   boost::proto::eval(expr, ctx);
   
-  boost::mpl::for_each< boost::mpl::range_c<Uint, 1, 4> >( NodeLooper<ExprT>(expr, root_region, vars, physical_model) );
+  boost::mpl::for_each< boost::mpl::range_c<Uint, 1, 4> >( NodeLooper<ExprT>(expr, root_region, vars) );
 }
 
 } // namespace Proto

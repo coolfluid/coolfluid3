@@ -1,8 +1,6 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_solver_actions_files
-  CActionDirector.cpp
-  CActionDirector.hpp
   CAdvanceTime.hpp
   CAdvanceTime.cpp
   CCriterion.hpp
@@ -40,6 +38,8 @@ list( APPEND coolfluid_solver_actions_files
   CComputeVolume.cpp
   CComputeLNorm.hpp
   CComputeLNorm.cpp
+  CSolveSystem.hpp
+  CSolveSystem.cpp
   LibActions.hpp
   LibActions.cpp
   Conditional.hpp
@@ -48,9 +48,11 @@ list( APPEND coolfluid_solver_actions_files
 
 list( APPEND coolfluid_solver_actions_proto_files
     Proto/BlockAccumulator.hpp
-    Proto/CProtoElementsAction.hpp
-    Proto/CProtoFieldAction.hpp
-    Proto/CProtoNodesAction.hpp
+    Proto/ConfigurableConstant.hpp
+    Proto/CProtoAction.hpp
+    Proto/CProtoAction.cpp
+    Proto/CProtoActionDirector.hpp
+    Proto/CProtoActionDirector.cpp
     Proto/DirichletBC.hpp
     Proto/EigenTransforms.hpp
     Proto/ElementData.hpp
@@ -61,16 +63,18 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/ElementMatrix.hpp
     Proto/ElementOperations.hpp
     Proto/ElementTransforms.hpp
+    Proto/Expression.hpp
     Proto/ExpressionGroup.hpp
     Proto/ForEachDimension.hpp
     Proto/Functions.hpp
     Proto/IndexLooping.hpp
+    Proto/LSSProxy.hpp
+    Proto/LSSProxy.cpp
     Proto/NeumannBC.hpp
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp
     Proto/NodeLooper.hpp
-    Proto/PhysicalModel.hpp
-    Proto/PhysicalModel.cpp
+    Proto/SolutionVector.hpp
     Proto/Terminals.hpp
     Proto/Transforms.hpp
 )

@@ -10,10 +10,7 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Solver/Actions/Proto/ElementLooper.hpp"
-#include "Solver/Actions/Proto/Functions.hpp"
-#include "Solver/Actions/Proto/NodeLooper.hpp"
-#include "Solver/Actions/Proto/Terminals.hpp"
+#include "Solver/Actions/Proto/Expression.hpp"
 
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -31,8 +28,12 @@
 #include "Mesh/SF/Types.hpp"
 
 #include "Solver/CEigenLSS.hpp"
+#include "Solver/CTime.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
+
+#include "UFEM/LinearProblem.hpp"
+#include "UFEM/UnsteadyModel.hpp"
 
 using namespace CF;
 using namespace CF::Solver;
@@ -66,8 +67,8 @@ struct ProtoUnsteadyFixture
     k(1.),
     alpha(1.),
     start_time(0.),
-    end_time(10),
-    dt(0.01),
+    end_time(10.),
+    dt(0.05),
     t(start_time),
     write_interval(100)
   {
@@ -132,121 +133,67 @@ BOOST_FIXTURE_TEST_SUITE( ProtoUnsteadySuite, ProtoUnsteadyFixture )
 
 BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
 {
-  const Real invdt = 1. / dt;
+  // Setup a UFEM model
+  UFEM::UnsteadyModel& model = Core::instance().root().create_component<UFEM::UnsteadyModel>("Model");
+  CMesh& mesh = model.get_child("Mesh").as_type<CMesh>();
+  Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
-  // Setup document structure and mesh
-  CRoot& root = Core::instance().root();
-  
-  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
-  Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
-  
-  // Linear system
-  CEigenLSS& lss = *root.create_component_ptr<CEigenLSS>("LSS");
+  // Linear system setup (TODO: sane default config for this, so this can be skipped)
+  CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
+  model.problem().solve_action().configure_option("lss", lss.uri());
   
-  // Create a field for the analytical solution
-  mesh->create_scalar_field("TemperatureAnalytical", "T", CField::Basis::POINT_BASED);
-  
-  // Regions
-  CRegion& xneg = find_component_recursively_with_name<CRegion>(*mesh, "xneg");
-  CRegion& xpos = find_component_recursively_with_name<CRegion>(*mesh, "xpos");
-
+  // Proto placeholders
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   MeshTerm<1, ScalarField> temperature_analytical("TemperatureAnalytical", "T");
   
-    // Set up a physical model (normally handled automatically if using the Component wrappers)
-  PhysicalModel physical_model;
-  physical_model.register_variable(temperature, true);
-  physical_model.create_fields(*mesh);
-  lss.resize(physical_model.nb_dofs() * mesh->nodes().size());
+  // shorthand for the problem and boundary conditions
+  UFEM::LinearProblem& p = model.problem();
+  UFEM::BoundaryConditions& bc = p.boundary_conditions();
   
-  // Set initial condition.
-  set_analytical_solution(mesh->topology(), "Temperature", "T");
+  // Allowed elements (reducing this list improves compile times)
+  boost::mpl::vector1<Mesh::SF::Line1DLagrangeP1> allowed_elements;
 
-// Analytical derivation of the element matrices:
-//  const Real seg_length = length / static_cast<Real>(nb_segments);
-//   RealMatrix2 A;
-//   A << 1, -1, -1, 1;
-//   A *= alpha / seg_length;
-//   
-//   RealMatrix2 T;
-//   T << 1. / 3., 1. / 6. , 1. / 6., 1. / 3.;
-//   T *= invdt * seg_length;
-  
-  while(t < end_time)
-  { 
-    // Fill the system matrix
-    lss.set_zero();
-    for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
-    (
-      mesh->topology(),
-      group <<
-      (
-        _A = _0, _T = _0,
-        element_quadrature <<
+  // add the top-level actions (assembly, BC and solve)
+  model << model.add_action("Initialize", nodes_expression(temperature = initial_temp))
+  << model.add_action("InitializeAnalytical", nodes_expression(temperature_analytical = initial_temp)) <<
+  (
+    p << p.add_action("Assembly", elements_expression
         (
-          _A(temperature) += alpha * transpose(nabla(temperature))*nabla(temperature),
-          _T(temperature) += invdt * transpose(N(temperature))*N(temperature)
-        ),
-        system_matrix(lss) += _T + 0.5 * _A,
-        system_rhs(lss) -= _A * nodal_values(temperature)
-      )
-    );
-    
-    // Left boundary at ambient temperature
-    for_each_node
-    (
-      xneg,
-      dirichlet(lss, temperature) = ambient_temp,
-      physical_model
-    );
-    
-    // Right boundary at ambient temperature
-    for_each_node
-    (
-      xpos,
-      dirichlet(lss, temperature) = ambient_temp,
-      physical_model
-    );
-    
-    // Solve the system!
-    lss.solve();
-    physical_model.update_fields(*mesh, lss.solution());
-    
-    t += dt;
-        
-    // Output solution (pylab-compatible)
-    if(t > 0. && (static_cast<Uint>(t / dt) % write_interval == 0 || t >= end_time))
-    {
-      std::cout << "PyVarX = [";
-      for_each_node
-      (
-        mesh->topology(),
-        _cout << coordinates << ", "
-      );
-      std::cout << "]\n";
+          allowed_elements,
+          group <<
+          (
+            _A = _0, _T = _0,
+            element_quadrature <<
+            (
+              _A(temperature) += alpha * transpose(nabla(temperature))*nabla(temperature),
+              _T(temperature) += model.invdt() * transpose(N(temperature))*N(temperature)
+            ),
+            p.system_matrix += _T + 0.5 * _A,
+            p.system_rhs -= _A * nodal_values(temperature)
+          )
+        ))
+      << ( bc << bc.add_constant_bc("xneg", "Temperature", ambient_temp) << bc.add_constant_bc("xpos", "Temperature", ambient_temp) )
+      << p.solve_action()
+      << p.add_action("Increment", nodes_expression(temperature += p.solution(temperature)))
+  );
+  
+  // Configure timings
+  model.time().configure_option("time_step", dt);
+  model.time().configure_option("end_time", end_time);
       
-      std::cout << "PyVarT = [";
-      for_each_node
-      (
-        mesh->topology(),
-        _cout << temperature << ", "
-      );
-      std::cout << "]\n";
-      
-      std::cout << "PyVarLabel = \'t = " << t << "\'\n";
-      
-      set_analytical_solution(mesh->topology(), "TemperatureAnalytical", "T");
-      
-      std::cout << "Checking solution at t = " << t << std::endl;
-      
-      for_each_node
-      (
-        mesh->topology(),
-        _check_close(temperature_analytical, temperature, 1.)
-      );
-    }
-  }
-}
+  // Run the solver
+  model.execute();
+  
+  // Check result
+  t = model.time().time();
+  std::cout << "Checking solution at time " << t << std::endl;
+  set_analytical_solution(mesh.topology(), "TemperatureAnalytical", "T");
+  for_each_node
+  (
+    mesh.topology(),
+    _check_close(temperature_analytical, temperature, 1.)
+  );
+};
 
 BOOST_AUTO_TEST_SUITE_END()
