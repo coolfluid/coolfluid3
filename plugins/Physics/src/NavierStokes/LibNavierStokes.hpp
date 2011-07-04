@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_Actions_LibActions_hpp
-#define CF_Mesh_Actions_LibActions_hpp
+#ifndef CF_NavierStokes_LibNavierStokes_hpp
+#define CF_NavierStokes_LibNavierStokes_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,59 +13,63 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Actions_API
-/// @note build system defines COOLFLUID_ACTIONS_EXPORTS when compiling MeshTools files
-#ifdef COOLFLUID_MESH_ACTIONS_EXPORTS
-#   define Mesh_Actions_API      CF_EXPORT_API
-#   define Mesh_Actions_TEMPLATE
+/// Define the macro NavierStokes_API
+/// @note build system defines COOLFLUID_NAVIERSTOKES_EXPORTS when compiling Advection diffusion files
+#ifdef COOLFLUID_NAVIERSTOKES_EXPORTS
+#   define NavierStokes_API      CF_EXPORT_API
+#   define TEMPLATE
 #else
-#   define Mesh_Actions_API      CF_IMPORT_API
-#   define Mesh_Actions_TEMPLATE CF_TEMPLATE_EXTERN
+#   define NavierStokes_API      CF_IMPORT_API
+#   define NavierStokes_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh{
 
-/// @brief CAction derived classes for mesh manipulations
-namespace Actions {
+/// @brief %Physics %NavierStokes classes
+///
+/// NavierStokes functionality for the %Physics is added in this library
+/// @author Willem Deconinck
+namespace NavierStokes {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the initialization and termination of the library Actions
-class Mesh_Actions_API LibActions :
-    public Common::CLibrary {
-
+/// Class defines the NavierStokes library
+/// @author Tiago Quintino
+class NavierStokes_API LibNavierStokes : public Common::CLibrary
+{
 public:
 
-  typedef boost::shared_ptr<LibActions> Ptr;
-  typedef boost::shared_ptr<LibActions const> ConstPtr;
+  typedef boost::shared_ptr<LibNavierStokes> Ptr;
+  typedef boost::shared_ptr<LibNavierStokes const> ConstPtr;
 
   /// Constructor
-  LibActions ( const std::string& name) : Common::CLibrary(name) {   }
+  LibNavierStokes ( const std::string& name) : Common::CLibrary(name) { }
+
+  virtual ~LibNavierStokes() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.Actions"; }
-
+  static std::string library_namespace() { return "CF.NavierStokes"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for CLibrary registration
   /// @return name of the library
-  static std::string library_name() { return "Actions"; }
+  static std::string library_name() { return "NavierStokes"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for CLibrary registration
   /// @return description of the library
+
   static std::string library_description()
   {
-    return "This library implements several Mesh Actions.";
+    return "This library implements physics components for the Navier-Stokes fluid flow equations.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibActions"; }
+  static std::string type_name() { return "LibNavierStokes"; }
 
 protected:
 
@@ -75,14 +79,13 @@ protected:
   /// terminate library
   virtual void terminate_impl();
 
-}; // end LibActions
+}; // end LibNavierStokes
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
-} // Mesh
+} // NavierStokes
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Actions_LibActions_hpp
+#endif // CF_NavierStokes_LibNavierStokes_hpp

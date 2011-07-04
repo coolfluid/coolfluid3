@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_Actions_LibActions_hpp
-#define CF_Mesh_Actions_LibActions_hpp
+#ifndef CF_Scalar_LibScalar_hpp
+#define CF_Scalar_LibScalar_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,59 +13,63 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Actions_API
-/// @note build system defines COOLFLUID_ACTIONS_EXPORTS when compiling MeshTools files
-#ifdef COOLFLUID_MESH_ACTIONS_EXPORTS
-#   define Mesh_Actions_API      CF_EXPORT_API
-#   define Mesh_Actions_TEMPLATE
+/// Define the macro Scalar_API
+/// @note build system defines COOLFLUID_SCALAR_EXPORTS when compiling Scalar files
+#ifdef COOLFLUID_SCALAR_EXPORTS
+#   define Scalar_API      CF_EXPORT_API
+#   define Scalar_TEMPLATE
 #else
-#   define Mesh_Actions_API      CF_IMPORT_API
-#   define Mesh_Actions_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Scalar_API      CF_IMPORT_API
+#   define Scalar_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh{
 
-/// @brief CAction derived classes for mesh manipulations
-namespace Actions {
+/// @brief %Scalar classes
+///
+/// Scalar library
+/// @author 
+namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the initialization and termination of the library Actions
-class Mesh_Actions_API LibActions :
-    public Common::CLibrary {
-
+/// Class defines the Scalar library
+/// @author 
+class Scalar_API LibScalar : public Common::CLibrary
+{
 public:
 
-  typedef boost::shared_ptr<LibActions> Ptr;
-  typedef boost::shared_ptr<LibActions const> ConstPtr;
+  typedef boost::shared_ptr<LibScalar> Ptr;
+  typedef boost::shared_ptr<LibScalar const> ConstPtr;
 
   /// Constructor
-  LibActions ( const std::string& name) : Common::CLibrary(name) {   }
+  LibScalar ( const std::string& name) : Common::CLibrary(name) { }
+
+  virtual ~LibScalar() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.Actions"; }
-
+  static std::string library_namespace() { return "CF.Scalar"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for CLibrary registration
   /// @return name of the library
-  static std::string library_name() { return "Actions"; }
+  static std::string library_name() { return "Scalar"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for CLibrary registration
   /// @return description of the library
+
   static std::string library_description()
   {
-    return "This library implements several Mesh Actions.";
+    return "This library implements Scalar";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibActions"; }
+  static std::string type_name() { return "LibScalar"; }
 
 protected:
 
@@ -75,14 +79,14 @@ protected:
   /// terminate library
   virtual void terminate_impl();
 
-}; // end LibActions
+}; // end LibScalar
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
-} // Mesh
+} // Scalar
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Actions_LibActions_hpp
+#endif // CF_Scalar_LibScalar_hpp
+

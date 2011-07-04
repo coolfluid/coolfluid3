@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_LibUICore_hpp
-#define CF_GUI_Core_LibUICore_hpp
+#ifndef CF_LibPhysics_hpp
+#define CF_LibPhysics_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,49 +13,47 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Core_API
-/// @note build system defines COOLFLUID_UI_CORE_EXPORTS when compiling ClientCoreTools files
-#ifdef COOLFLUID_UI_CORE_EXPORTS
-#   define Core_API      CF_EXPORT_API
-#   define Core_TEMPLATE
+/// Define the macro Physics_API
+/// @note build system defines COOLFLUID_SOLVER_EXPORTS when compiling MeshTools files
+#ifdef COOLFLUID_SOLVER_EXPORTS
+#   define Physics_API      CF_EXPORT_API
+#   define Physics_TEMPLATE
 #else
-#   define Core_API      CF_IMPORT_API
-#   define Core_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Physics_API      CF_IMPORT_API
+#   define Physics_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 
-namespace UI {
-/// Basic Classes for client-core library used by coolfluid-client application
-namespace Core {
+  /// Basic Classes for Physics applications used by CF
+  namespace Physics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Class defines the initialization and termination of the library ClientCore
+  /// Class defines the initialization and termination of the library Physics
   /// @author Tiago Quintino
-  class Core_API LibCore :
-      public Common::CLibrary
-  {
+  /// @author Martin Vymazal
+  class Physics_API LibPhysics : public Common::CLibrary {
+
   public:
 
-    typedef boost::shared_ptr<LibCore> Ptr;
-    typedef boost::shared_ptr<LibCore const> ConstPtr;
+    typedef boost::shared_ptr<LibPhysics> Ptr;
+    typedef boost::shared_ptr<LibPhysics const> ConstPtr;
 
     /// Constructor
-    LibCore ( const std::string& name) : Common::CLibrary(name) {   }
+    LibPhysics ( const std::string& name) : Common::CLibrary(name) {   }
 
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.UI.Core"; }
-
+    static std::string library_namespace() { return "CF.Physics"; }
 
     /// Static function that returns the library name.
     /// Must be implemented for CLibrary registration
     /// @return name of the library
-    static std::string library_name() { return "Core"; }
+    static std::string library_name() { return "Physics"; }
 
     /// Static function that returns the description of the library.
     /// Must be implemented for CLibrary registration
@@ -63,11 +61,11 @@ namespace Core {
 
     static std::string library_description()
     {
-      return "This library implements the UI Core manipulation API.";
+      return "This library implements the Physics API.";
     }
 
     /// Gets the Class name
-    static std::string type_name() { return "LibCore"; }
+    static std::string type_name() { return "LibPhysics"; }
 
   protected:
 
@@ -77,14 +75,13 @@ namespace Core {
     /// terminate library
     virtual void terminate_impl();
 
-  }; // end LibsCore
+  }; // end LibPhysics
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
-} // UI
+} // Physics
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_LibUICore_hpp
+#endif // CF_LibPhysics_hpp

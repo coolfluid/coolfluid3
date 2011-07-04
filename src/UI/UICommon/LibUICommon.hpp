@@ -51,12 +51,12 @@ namespace UICommon {
     /// @return string of the library namespace
     static std::string library_namespace() { return "CF.UI.UICommon"; }
 
-    /// Static function that returns the module name.
+    /// Static function that returns the library name.
     /// Must be implemented for CLibrary registration
     /// @return name of the library
     static std::string library_name() { return "LibUICommon"; }
 
-    /// Static function that returns the description of the module.
+    /// Static function that returns the description of the library.
     /// Must be implemented for CLibrary registration
     /// @return description of the library
 
