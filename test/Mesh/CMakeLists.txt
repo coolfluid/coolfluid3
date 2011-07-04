@@ -335,9 +335,10 @@ coolfluid_add_unit_test( utest-mesh-simplemeshgenerator )
 
 ##########################################################################
 # test simple mesh generator
-list( APPEND utest-mesh-parallel-overlap_cflibs coolfluid_mesh )
+list( APPEND utest-mesh-parallel-overlap_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_mesh_zoltan )
 list( APPEND utest-mesh-parallel-overlap_files  utest-mesh-parallel-overlap.cpp )
 
+set( utest-mesh-parallel-overlap_condition ${coolfluid_mesh_zoltan_builds} )
 set( utest-mesh-parallel-overlap_mpi_test   TRUE)
 set( utest-mesh-parallel-overlap_mpi_nprocs 2 )
 
