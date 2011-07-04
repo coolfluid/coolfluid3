@@ -75,7 +75,6 @@ BOOST_AUTO_TEST_CASE( test_pack_unpack )
   Real data_real;
   int data_integer;
   std::vector<Real> data_array_real;
-  RealVector data_realvector;
   std::string data_string;
   std::vector<std::string> data_array_string;
   bool data_bool;
@@ -118,13 +117,6 @@ BOOST_AUTO_TEST_CASE( test_pack_unpack )
   BOOST_CHECK_EQUAL(data_array_real[0], 1.);
   BOOST_CHECK_EQUAL(data_array_real[1], 2.);
   BOOST_CHECK_EQUAL(data_array_real[2], 3.);
-  BOOST_CHECK_EQUAL( buf.more_to_unpack(), false);
-
-  buf << table[2];
-  buf >> data_realvector;
-  BOOST_CHECK_EQUAL(data_realvector[0], 1.);
-  BOOST_CHECK_EQUAL(data_realvector[1], 2.);
-  BOOST_CHECK_EQUAL(data_realvector[2], 3.);
   BOOST_CHECK_EQUAL( buf.more_to_unpack(), false);
 
   buf << std::string("a nice string");

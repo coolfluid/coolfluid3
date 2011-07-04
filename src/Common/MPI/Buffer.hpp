@@ -15,7 +15,6 @@
 
 #include "Common/BoostArray.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Math/MatrixTypes.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -202,10 +201,6 @@ public:
   template <typename T>
       void pack(const boost::detail::multi_array::const_sub_array<T, 1, T const *>& data);
 
-  void pack(const RealVector& data);
-
-  void unpack(RealVector& data);
-
   const std::vector<Uint> indexes() const { return m_index; }
   std::vector<Uint>& indexes() { return m_index; }
 
@@ -329,24 +324,6 @@ inline void Buffer::pack(const boost::detail::multi_array::const_sub_array<T, 1,
 {
   pack(data.size());
   pack(&data[0],data.size());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-inline void Buffer::pack(const RealVector& data)
-{
-  pack(data.size());
-  pack(&data[0],data.size());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-inline void Buffer::unpack(RealVector& data)
-{
-  size_t size;
-  unpack(size);
-  data.resize(size);
-  unpack(&data[0],size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
