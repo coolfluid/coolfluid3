@@ -91,7 +91,7 @@ public: // functions
     ev[0] = p.var(Physics::Vx) * normal[XX]  +  p.var(Physics::Vy) * normal[YY];
   }
 
-  virtual Real max_eigen_value ( Solver::Physics& p, const RealVector& normal )
+  virtual Real max_abs_eigen_value ( Solver::Physics& p, const RealVector& normal )
   {
     return std::abs(p.var(Physics::Vx) * normal[XX]  +  p.var(Physics::Vy) * normal[YY]);
   }

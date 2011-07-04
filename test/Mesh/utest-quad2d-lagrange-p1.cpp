@@ -76,7 +76,7 @@ BOOST_FIXTURE_TEST_SUITE( Quad2DLagrangeP1Suite, LagrangeSFQuad2DLagrangeP1Fixtu
 BOOST_AUTO_TEST_CASE( Volume )
 {
   SFT::NodeMatrixT nodes_quad2D;
-  nodes_quad2D << 
+  nodes_quad2D <<
     0.0, 0.0,
     1.0, 0.0,
     1.0, 1.0,
@@ -100,8 +100,8 @@ BOOST_AUTO_TEST_CASE( Element )
     40, 25,
     25, 30,
     30, 40;
-  
-  BOOST_CHECK_EQUAL(Quad2DLagrangeP1::volume(coord), 150.); 
+
+  BOOST_CHECK_EQUAL(Quad2DLagrangeP1::volume(coord), 150.);
 }
 
 BOOST_AUTO_TEST_CASE( computeShapeFunction )
@@ -122,35 +122,35 @@ BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);
   BOOST_CHECK_LT(std::abs(result[0]), 1e-12);
   BOOST_CHECK_LT(std::abs(result[1]), 1e-12);// sqrt from the expression gives too many ULPS in difference for Accumulator
-  
+
   test_coords = nodes.row(0);
-  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);
   vector_test(result,SFT::MappedCoordsT(-1.0, -1.0),accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
-  
+
   test_coords = nodes.row(1);
-  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);
   vector_test(result,SFT::MappedCoordsT(1.0, -1.0),accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
-  
+
   test_coords = nodes.row(2);
-  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);
   vector_test(result,SFT::MappedCoordsT(1.0, 1.0),accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
-  
+
   test_coords = nodes.row(3);
-  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);
   vector_test(result,SFT::MappedCoordsT(-1.0, 1.0),accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
-  
+
   // Try another element
   SFT::NodeMatrixT nodes_2;
   nodes_2 <<
@@ -160,28 +160,28 @@ BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
     1.0, 2.0;
 
   test_coords = nodes_2.row(0);
-  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
   vector_test(result,SFT::MappedCoordsT(-1.0, -1.0),accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
-  
+
   test_coords = nodes_2.row(1);
-  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);
   vector_test(result,SFT::MappedCoordsT(1.0, -1.0),accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
-  
+
   test_coords = nodes_2.row(2);
-  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);
   vector_test(result,SFT::MappedCoordsT(1.0, 1.0),accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
-  
+
   test_coords = nodes_2.row(3);
-  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);
   vector_test(result,SFT::MappedCoordsT(-1.0, 1.0),accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
@@ -227,6 +227,18 @@ BOOST_AUTO_TEST_CASE( computeJacobian )
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 15);
+
+
+  SFT::NodeMatrixT nodes;
+  nodes << 0. , 0. ,    1. , 0.,   1. , 1. ,   0. , 1.;
+  SFT::MappedCoordsT d_mapped;  d_mapped << 2. , 2.;
+  SFT::MappedCoordsT mapped; mapped << 0.5, 0.5;
+  SFT::JacobianT jacobian;
+  SFT::jacobian(mapped, nodes, jacobian);
+
+  RealVector2 d_phys = jacobian * d_mapped;
+  BOOST_CHECK_EQUAL( d_phys[0], 1. );
+  BOOST_CHECK_EQUAL( d_phys[1], 1. );
 }
 
 BOOST_AUTO_TEST_CASE( computeJacobianAdjoint )

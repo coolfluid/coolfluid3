@@ -509,7 +509,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( test_flux_transformation )
+BOOST_AUTO_TEST_CASE( test_riemannproblem_euler1D )
 {
   Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
   /// Create a mesh consisting of a line with length 1. and 20 divisions
@@ -517,14 +517,14 @@ BOOST_AUTO_TEST_CASE( test_flux_transformation )
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_option("model",std::string("test"));
-  wizard.configure_option("dim",2u);
+  wizard.configure_option("dim",1u);
   wizard.configure_option("RK_stages",1u);
   wizard.configure_option("solution_state",std::string("CF.Euler.Cons1D"));
   wizard.configure_option("roe_state",std::string("CF.Euler.Roe1D"));
   wizard.create_simulation();
 
   CModel& model = wizard.model();
-  CMesh& mesh = model.domain().create_component<CMesh>("2quads");
+  CMesh& mesh = model.domain().create_component<CMesh>("2lines");
   const Real length = 4.;
   const Uint nb_cells = 4;
   CSimpleMeshGenerator::create_line(mesh, length , nb_cells);
@@ -577,52 +577,79 @@ BOOST_AUTO_TEST_CASE( test_flux_transformation )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//BOOST_AUTO_TEST_CASE( test_adjoint )
-//{
-//  Quad2DLagrangeP1::MappedCoordsT mapped_coords;
-//  mapped_coords << 0.5,0.;
+BOOST_AUTO_TEST_CASE( test_riemannproblem_euler2D )
+{
+  Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
+  /// Create a mesh consisting of a line with length 1. and 20 divisions
 
-//  Quad2DLagrangeP1::NodeMatrixT nodes;
-//  nodes <<
-//            0. ,  2.,
-//            3. ,  3.,
-//            4. ,  7.,
-//            2  ,  5;
 
-//  Quad2DLagrangeP1::JacobianT adjoint1;
-//  Quad2DLagrangeP1::JacobianT adjoint2;
-//  Quad2DLagrangeP1::JacobianT jacobian;
+  SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
+  wizard.configure_option("model",std::string("test"));
+  wizard.configure_option("dim",2u);
+  wizard.configure_option("RK_stages",1u);
+  wizard.configure_option("solution_state",std::string("CF.Euler.Cons2D"));
+  wizard.configure_option("roe_state",std::string("CF.Euler.Roe2D"));
+  wizard.create_simulation();
 
-//  Quad2DLagrangeP1::jacobian           (mapped_coords,nodes,jacobian);
-//  Quad2DLagrangeP1::jacobian_adjoint   (mapped_coords,nodes,adjoint1);
-//  Quad2DLagrangeP1::jacobian_adjoint_2 (mapped_coords,nodes,adjoint2);
-//  Real determinant = Quad2DLagrangeP1::jacobian_determinant(mapped_coords,nodes);
-//  CFinfo << "jacobian = \n" << jacobian << CFendl;
-//  CFinfo << "determinant = \n" << determinant << CFendl;
-//  CFinfo << "adjoint1 = \n" << adjoint1 << CFendl;
-//  CFinfo << "adjoint2 = \n" << adjoint2 << CFendl;
+  CModel& model = wizard.model();
+  CMesh& mesh = model.domain().create_component<CMesh>("2quads_euler");
+  const Real length = 2.;
+  const Uint nb_cells = 2;
+  CSimpleMeshGenerator::create_rectangle(mesh, length,length , nb_cells,nb_cells);
 
-//  Quad2DLagrangeP1::JacobianT inv_jacob1 = adjoint1/determinant;
-//  Quad2DLagrangeP1::JacobianT inv_jacob2 = adjoint2/determinant;
+  Component& iterate = model.solver().access_component("iterate");
+  iterate.configure_option("max_iter",1u);
 
-//  CFinfo << "inv_jacob1 = \n" << inv_jacob1 << CFendl;
-//  CFinfo << "inv_jacob2 = \n" << inv_jacob2 << CFendl;
+  wizard.prepare_simulation();
 
-//  CFinfo << "product1 = \n" << inv_jacob1 * jacobian << CFendl;
-//  CFinfo << "product2 = \n" << inv_jacob2 * jacobian << CFendl;
+  const Real r_L = 4.696;             const Real r_R = 1.408;
+  const Real p_L = 404400;            const Real p_R = 101100;
+  const Real u_L = 0.;                const Real u_R = 0.;
+  const Real v_L = 0.;                const Real v_R = 0.;
+  const Real g=1.4;
 
-//  Euler::Cons1D::Ptr euler = allocate_component<Euler::Cons1D>("euler");
-//  boost::shared_ptr<Solver::Physics> p = euler->create_physics();
+  RealVector4 left, right;
+  left  << r_L , r_L*u_L , r_L*v_L,  p_L/(g-1) + 0.5*r_L*(u_L*u_L+v_R*v_R);
+  right << r_R , r_R*u_R , r_R*v_R,  p_R/(g-1) + 0.5*r_R*(u_R*u_R+v_R*v_R);
 
-//  RealVector state(3);
-//  state << 1.4, 20., 101300.;
+  std::vector<std::string> function(4);
+  for (Uint i=0; i<function.size(); ++i)
+    function[i]="if(x<="+to_str(length/2.)+","+to_str(left[i])+","+to_str(right[i])+")";
 
-//  euler->set_state(state,*p);
+  CFinfo << "\nInitializing solution with \n";
+  boost_foreach(const std::string& f, function)
+      CFinfo << "     " << f << CFendl;
+  wizard.initialize_solution(function);
 
-//  RealVector flux(3);
-//  euler->compute_flux(*p,adjoint1.row(0),flux);
-//  CFinfo << "flux = " << flux.transpose() << CFendl;
-//}
+  CMeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  std::vector<URI> fields;
+  fields.push_back(mesh.get_child("solution").uri());
+  fields.push_back(mesh.get_child("residual").uri());
+  fields.push_back(mesh.get_child("wave_speed").uri());
+  fields.push_back(mesh.get_child("update_coeff").uri());
+  fields.push_back(mesh.get_child("volume").uri());
+  fields.push_back(mesh.get_child("jacobian_determinant").uri());
+  gmsh_writer.configure_option("fields",fields);
+
+
+  gmsh_writer.write_from_to(mesh,URI("2quads_euler_0.msh"));
+  CFinfo << "Mesh \"2quads_euler_0.msh\" written" << CFendl;
+
+  wizard.start_simulation(5.);
+
+  gmsh_writer.write_from_to(mesh,URI("2quads_euler_1.msh"));
+
+  CFinfo << "Mesh \"2quads_euler_1.msh\" written" << CFendl;
+
+//  BOOST_CHECK_EQUAL (model.time().dt() , 2.);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_adjoint )
+{
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

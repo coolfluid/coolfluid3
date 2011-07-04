@@ -21,5 +21,9 @@ coolfluid_add_acceptance_test( atest-sfdm-linear-advection atest-sfdm-linear_adv
 
 coolfluid_add_acceptance_test( atest-sfdm-euler1D-shocktube-P0 atest-sfdm-euler1D-shocktube-P0.cfscript )
 
+coolfluid_add_acceptance_test( atest-sfdm-euler2D-shocktube-P0 atest-sfdm-euler2D-shocktube-P0.cfscript )
+
 coolfluid_add_acceptance_test( atest-sfdm-euler1D-pulse atest-sfdm-euler1D-pulse.cfscript )
+
+coolfluid_add_acceptance_test( atest-sfdm-euler2D-pulse atest-sfdm-euler2D-pulse.cfscript )
 

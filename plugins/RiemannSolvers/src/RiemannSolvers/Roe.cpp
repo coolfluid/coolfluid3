@@ -105,8 +105,8 @@ void Roe::solve(const RealVector& left, const RealVector& right, const RealVecto
   sol_state.compute_flux(*m_phys_vars[RIGHT],normal,F_R);
 
   interface_flux = 0.5*(F_L + F_R) - 0.5*abs_jacobian*(right-left);
-  left_wave_speed  = sol_state.max_eigen_value( roe_avg_vars, normal );
-  right_wave_speed = sol_state.max_eigen_value( roe_avg_vars, -normal );
+  left_wave_speed  = sol_state.max_abs_eigen_value( roe_avg_vars, normal );
+  right_wave_speed = sol_state.max_abs_eigen_value( roe_avg_vars, -normal );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

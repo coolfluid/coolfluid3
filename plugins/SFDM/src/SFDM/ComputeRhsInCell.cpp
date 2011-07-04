@@ -307,7 +307,7 @@ void ComputeRhsInCell::execute()
         RealVector plane_area_normal = geometry.plane_jacobian_normal(solution_sf.local_coordinates().row(solution_sf.points()[orientation][line][sol_pt]), geometry_coords , (CF::CoordRef) orientation);
         for (Uint i=0; i<m_dimensionality-1; ++i)
           plane_area_normal = plane_area_normal * 2.;
-        max_wave_speed = std::max(max_wave_speed, sol_state.max_eigen_value(sol_vars, plane_area_normal ) );// / jacobian_determinant[ solution_sf.points()[orientation][line][sol_pt] ] );
+        max_wave_speed = std::max(max_wave_speed, sol_state.max_abs_eigen_value(sol_vars, plane_area_normal ) );// / jacobian_determinant[ solution_sf.points()[orientation][line][sol_pt] ] );
       }
 
       for (Uint flux_pt=1; flux_pt<flux_in_line.rows()-1; ++flux_pt)

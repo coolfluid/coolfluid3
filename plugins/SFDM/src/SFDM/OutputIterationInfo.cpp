@@ -61,7 +61,7 @@ void OutputIterationInfo::execute()
   CFinfo << "Iter [" << std::setw(4) << time().iter() << "]";
   CFinfo << "      Time [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << time().time() << "]";
   CFinfo << "      Time Step [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << time().dt() << "]";
-  CFinfo << "      L2(rhs) [" << std::setw(12) << rhs_L2 << "]";
+  CFinfo << "      L2(rhs) [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << rhs_L2 << "]";
   CFinfo << CFendl;
 }
 

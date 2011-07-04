@@ -294,6 +294,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
 
+  BOOST_CHECK(true);
   CNodes& nodes = mesh.nodes();
 
 
@@ -307,6 +308,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       request_nodes.push_back(nodes.glb_idx()[i]);
   }
   std::cout << PERank << "look for = " << request_nodes << std::endl;
+  BOOST_CHECK(true);
 
   // -----------------------------------------------------------------------------
   // COMMUNICATE NODES TO LOOK FOR
@@ -321,7 +323,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       std::cout << recv_request_nodes[i] << "     ";
     std::cout << std::endl;
   }
-
+  BOOST_CHECK(true);
+  
   // -----------------------------------------------------------------------------
   // SEARCH FOR REQUESTED NODES
 
@@ -359,7 +362,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   for (Uint i=0; i<found_nodes.size(); ++i)
     std::cout << found_nodes[i] << "     ";
   std::cout << std::endl;
-
+  BOOST_CHECK(true);
 
   // -----------------------------------------------------------------------------
   // COMMUNICATE FOUND NODES BACK TO RANK THAT REQUESTED IT
@@ -382,6 +385,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     std::cout << received_nodes[i] << "     ";
   std::cout << std::endl;
 
+  BOOST_CHECK(true);
 /*
   for (Uint p=0; p<received_nodes_buffer.size(); ++p)
   {
