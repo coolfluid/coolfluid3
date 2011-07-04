@@ -79,9 +79,6 @@ BOOST_AUTO_TEST_CASE( test_pack_unpack )
   std::vector<std::string> data_array_string;
   bool data_bool;
 
-  BOOST_CHECK_EQUAL( buf.size(), 1u);
-  buf.new_index();
-  BOOST_CHECK_EQUAL( buf.size(), 2u);
   buf >> data_unsigned;  BOOST_CHECK_EQUAL(data_unsigned, 1u  );
   buf >> data_unsigned;  BOOST_CHECK_EQUAL(data_unsigned, 2u  );
   buf >> data_real;      BOOST_CHECK_EQUAL(data_real,     3.0 );
@@ -102,9 +99,6 @@ BOOST_AUTO_TEST_CASE( test_pack_unpack )
   BOOST_CHECK_EQUAL(data_array_real[2], 6.);
   BOOST_CHECK_EQUAL(data_array_real[3], 6.);
   BOOST_CHECK_EQUAL( buf.more_to_unpack(), false);
-
-  buf.new_index();
-  BOOST_CHECK_EQUAL( buf.size(), 3u);
 
   boost::multi_array<Real,2> table;
   table.resize(boost::extents[4][3]);
@@ -130,15 +124,6 @@ BOOST_AUTO_TEST_CASE( test_pack_unpack )
   BOOST_CHECK_EQUAL(data_array_string[1], std::string("another nice string"));
   BOOST_CHECK_EQUAL(data_array_string[2], std::string("another nice string"));
   BOOST_CHECK_EQUAL(buf.more_to_unpack(), false);
-
-
-  buf[0] >> data_unsigned >> data_unsigned >> data_real >> data_integer >> data_bool;
-  BOOST_CHECK_EQUAL(data_unsigned, 2u  );
-  BOOST_CHECK_EQUAL(data_real,     3.0 );
-  BOOST_CHECK_EQUAL(data_integer,  4   );
-  BOOST_CHECK_EQUAL(data_bool,     true);
-  BOOST_CHECK_EQUAL( buf.more_to_unpack(), true);
-
 
 }
 
@@ -176,7 +161,7 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
   // ----------------------------------
 
   BOOST_CHECK_EQUAL(buffer.packed_size(), 48);
-  BOOST_CHECK_EQUAL(buffer.allocated_size(), 48);
+  BOOST_CHECK_EQUAL(buffer.size(), 48);
   if (PE::instance().rank() != root)
     BOOST_CHECK_EQUAL(buffer.more_to_unpack(), false);
 

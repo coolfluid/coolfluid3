@@ -118,8 +118,7 @@ void my_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::ve
   }
 }
 
-/*
-void my_all_to_all(const std::vector<mpi::Buffer>& send, std::vector<mpi::Buffer>& recv)
+void my_all_to_all(const std::vector<mpi::Buffer>& send, mpi::Buffer& recv)
 {
   std::vector<int> send_strides(send.size());
   std::vector<int> send_displs(send.size());
@@ -141,31 +140,89 @@ void my_all_to_all(const std::vector<mpi::Buffer>& send, std::vector<mpi::Buffer
   for (Uint i=1; i<PE::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
 
-  mpi::Buffer recv_linear(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv_linear.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::instance()));
-
-  recv.resize(recv_strides.size());
-  for (Uint i=0; i<recv_strides.size(); ++i)
-  {
-    recv[i].resize(recv_strides[i]);
-    for (Uint j=0; j<recv_strides[i]; ++j)
-    {
-      recv[i].pack(recv_linear.buffer(),recv_strides[i]);
-    }
-  }
-
-  std::vector < std::vector<Uint> > send_indexes(send.size());
-  for (Uint i=0; i<send.size(); ++i)
-    send_indexes[i] = send[i].indexes();
-
-  std::vector< std::vector<Uint> > recv_indexes(recv.size());
-  my_all_to_all(send_indexes,recv_indexes);
-  for (Uint i=0; i<recv.size(); ++i)
-  {
-    recv[i].indexes() = recv_indexes[i];
-  }
+  recv.resize(recv_displs.back()+recv_strides.back());
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::instance()));
+  recv.packed_size()=recv.size();
 }
-*/
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct PackedNode : public mpi::PackedObject
+{
+  PackedNode(CNodes& nodes, const Uint idx) :
+    mpi::PackedObject(),
+    glb_idx(nodes.glb_idx()[idx]),
+    rank(nodes.rank()[idx]),
+    coords(nodes.coordinates()[idx]),
+    connected_elems(nodes.glb_elem_connectivity()[idx])
+  {
+  }
+
+  virtual void pack(mpi::Buffer& buffer) const
+  {
+    buffer << glb_idx << rank << coords << connected_elems;
+  }
+
+  virtual void unpack(mpi::Buffer& buffer)
+  {
+    buffer >> glb_idx >> rank >> coords >> connected_elems;
+  }
+
+  Uint& glb_idx;
+  Uint& rank;
+  CTable<Real>::Row coords;
+  CDynTable<Uint>::Row connected_elems;
+};
+
+struct UnpackAndAddNodes : PackedObject
+{
+  UnpackAndAddNodes(CNodes& nodes) : PackedObject(),
+    is_ghost (nodes.is_ghost().create_buffer()),
+    glb_idx (nodes.glb_idx().create_buffer()),
+    rank (nodes.rank().create_buffer()),
+    coordinates (nodes.coordinates().create_buffer()),
+    connected_elements (nodes.glb_elem_connectivity().create_buffer())
+  {}
+
+  virtual void pack(Buffer& buf) const {}
+  virtual void unpack(Buffer& buf)
+  {
+    Uint glb_idx_data;
+    Uint rank_data;
+    std::vector<Real> coordinates_data;
+    std::vector<Uint> connected_elems_data;
+
+    buf >> glb_idx_data >> rank_data >> coordinates_data >> connected_elems_data;
+
+    Uint idx, idx_check;
+    idx = glb_idx.add_row(glb_idx_data);
+    idx_check = rank.add_row(rank_data);
+    cf_assert(idx_check == idx);
+    idx_check = coordinates.add_row(coordinates_data);
+    cf_assert(idx_check == idx);
+    idx_check = connected_elements.add_row(connected_elems_data);
+    cf_assert(idx_check == idx);
+    idx_check = is_ghost.add_row(rank_data != PE::instance().rank());
+    cf_assert(idx_check == idx);
+
+    std::cout << PERank << "added node    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    coords = " << coordinates_data << "\t    connected_elem = " << connected_elems_data << std::endl;
+  }
+
+  void flush()
+  {
+    is_ghost.flush();
+    glb_idx.flush();
+    rank.flush();
+    coordinates.flush();
+    connected_elements.flush();
+  }
+
+  CList<bool>::Buffer       is_ghost;
+  CList<Uint>::Buffer       glb_idx;
+  CList<Uint>::Buffer       rank;
+  CTable<Real>::Buffer      coordinates;
+  CDynTable<Uint>::Buffer   connected_elements;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -191,49 +248,6 @@ struct ParallelOverlapTests_Fixture
   char** m_argv;
 };
 
-std::vector<int> who_has_node(const Uint find_glb_idx, const CNodes& nodes)
-{
-  std::vector<int> node_location(PE::instance().size());
-
-  int loc_idx=0;
-  bool found=false;
-  boost_foreach(const Uint glb_idx, nodes.glb_idx().array())
-  {
-    if (glb_idx == find_glb_idx)
-    {
-      //std::cout << PERank << "has node " << find_glb_idx << " at location " << loc_idx << std::endl;
-      found = true;
-      break;
-    }
-    ++loc_idx;
-  }
-  if (!found) loc_idx = -1;
-
-  mpi::PE::instance().all_gather(loc_idx,node_location);
-  return node_location;
-}
-
-
-void pack_node(const Uint loc_idx, const CNodes& nodes, mpi::Buffer& buffer)
-{
-  buffer << nodes.glb_idx()[loc_idx];
-  buffer << nodes.rank()[loc_idx] ;
-  buffer << nodes.coordinates()[loc_idx];
-  buffer << nodes.glb_elem_connectivity()[loc_idx];
-}
-
-void unpack_node(mpi::Buffer& buffer)
-{
-  Uint glb_idx;                           buffer >> glb_idx;
-  Uint rank;                              buffer >> rank;
-  RealVector coords;                      buffer >> coords;
-  std::vector<Uint> connected_elements;   buffer >> connected_elements;
-
-  std::cout << PERank << "glb_idx = " << glb_idx << std::endl;
-  std::cout << PERank << "rank = " << rank << std::endl;
-  std::cout << PERank << "coords = " << coords.transpose() << std::endl;
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_SUITE( ParallelOverlapTests_TestSuite, ParallelOverlapTests_Fixture )
@@ -248,6 +262,49 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
+{
+  CFinfo << "ParallelOverlap_test" << CFendl;
+  Core::instance().environment().configure_option("log_level",(Uint)INFO);
+
+  // Create or read the mesh
+  CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  meshgenerator->configure_option("parent",URI("//Root"));
+  meshgenerator->configure_option("name",std::string("test_mpinode_mesh"));
+  std::vector<Uint> nb_cells(2);
+  std::vector<Real> lengths(2);
+  nb_cells[0] = 3;
+  nb_cells[1] = 2;
+  lengths[0]  = nb_cells[0];
+  lengths[1]  = nb_cells[1];
+  meshgenerator->configure_option("nb_cells",nb_cells);
+  meshgenerator->configure_option("lengths",lengths);
+  meshgenerator->configure_option("bdry",false);
+  meshgenerator->execute();
+  CMesh& mesh = Core::instance().root().get_child("test_mpinode_mesh").as_type<CMesh>();
+
+  Core::instance().root().add_component(mesh);
+
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+
+  BOOST_CHECK(true);
+  CNodes& nodes = mesh.nodes();
+
+
+  mpi::Buffer buf;
+  buf << PackedNode(nodes,0);
+  buf << PackedNode(nodes,1);
+  buf << PackedNode(nodes,2);
+
+  PackedNode node3(nodes,3);
+  buf >> node3;
+
+  BOOST_CHECK_EQUAL(nodes.glb_idx()[3] , nodes.glb_idx()[0]);
+  BOOST_CHECK_EQUAL(nodes.coordinates()[3][0] , nodes.coordinates()[0][0]);
+  BOOST_CHECK_EQUAL(nodes.coordinates()[3][1] , nodes.coordinates()[0][1]);
+
+
+}
 
 BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 {
@@ -302,12 +359,15 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // COLLECT NODES TO LOOK FOR ON OTHER PROCESSORS
 
   std::vector<Uint> request_nodes;
+  PEProcessSortedExecute(-1,
   for (Uint i=0; i<nodes.size(); ++i)
   {
     if (nodes.is_ghost()[i])
       request_nodes.push_back(nodes.glb_idx()[i]);
   }
   std::cout << PERank << "look for = " << request_nodes << std::endl;
+  boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+  )
   BOOST_CHECK(true);
 
   // -----------------------------------------------------------------------------
@@ -324,12 +384,14 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     std::cout << std::endl;
   }
   BOOST_CHECK(true);
-  
+
   // -----------------------------------------------------------------------------
   // SEARCH FOR REQUESTED NODES
 
   std::vector<std::vector<Uint> > found_nodes(PE::instance().size());
-  std::vector<mpi::Buffer> found_nodes_buffer(PE::instance().size());
+  std::vector<mpi::Buffer> nodes_to_send(PE::instance().size());
+  std::vector<Uint> nb_nodes_to_send(PE::instance().size());
+  PEProcessSortedExecute(-1,
   for (Uint proc=0; proc<PE::instance().size(); ++proc)
   {
     if (proc != PE::instance().rank())
@@ -348,8 +410,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
           {
             //          found_nodes[proc].push_back(loc_idx);
             found_nodes[proc].push_back(glb_idx);
-            found_nodes_buffer[proc].new_index();
-            found_nodes_buffer[proc] << glb_idx << loc_idx;
+            nodes_to_send[proc] << PackedNode(nodes,loc_idx);
+            ++nb_nodes_to_send[proc];
             break;
           }
           ++loc_idx;
@@ -363,6 +425,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     std::cout << found_nodes[i] << "     ";
   std::cout << std::endl;
   BOOST_CHECK(true);
+  )
 
   // -----------------------------------------------------------------------------
   // COMMUNICATE FOUND NODES BACK TO RANK THAT REQUESTED IT
@@ -370,53 +433,36 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   std::vector<std::vector<Uint> > received_nodes;
   my_all_to_all(found_nodes,received_nodes);
 
-  /*
-  std::cout << PERank << "found_nodes_buffer[0].size() = " << found_nodes_buffer[0].size() << std::endl;
-  std::cout << PERank << "found_nodes_buffer[1].size() = " << found_nodes_buffer[1].size() << std::endl;
-
-  std::vector<mpi::Buffer> received_nodes_buffer(PE::instance().size());
-  my_all_to_all(found_nodes_buffer,received_nodes_buffer);
-
-  std::cout << PERank << "received_nodes_buffer[0].size() = " << received_nodes_buffer[0].size() << std::endl;
-  std::cout << PERank << "received_nodes_buffer[1].size() = " << received_nodes_buffer[1].size() << std::endl;
-*/
   std::cout << PERank << "received_nodes = ";
   for (Uint i=0; i<received_nodes.size(); ++i)
     std::cout << received_nodes[i] << "     ";
   std::cout << std::endl;
 
   BOOST_CHECK(true);
-/*
-  for (Uint p=0; p<received_nodes_buffer.size(); ++p)
+
+  std::cout << PERank << "nb_nodes_to_send = " << nb_nodes_to_send << std::endl;
+  std::vector<Uint> nb_nodes_to_recv;
+  PE::instance().all_to_all(nb_nodes_to_send,nb_nodes_to_recv);
+  std::cout << PERank << "nb_nodes_to_recv = " << nb_nodes_to_recv << std::endl;
+
+
+  mpi::Buffer received_nodes_buffer;
+  my_all_to_all(nodes_to_send,received_nodes_buffer);
+
+  UnpackAndAddNodes add_node(nodes);
+  for (Uint p=0; p<PE::instance().size(); ++p)
   {
-    // unpack each node
-    std::cout << PERank << " unpacking " << received_nodes_buffer[p].size() << " nodes from proc " << p << std::endl;
-    for (Uint n=0; n<received_nodes_buffer[p].size(); ++p)
+    std::cout << PERank << " unpacking " << nb_nodes_to_recv[p] << " nodes from proc " << p << std::endl;
+    for (Uint n=0; n<nb_nodes_to_recv[p]; ++n)
     {
-      Uint glb_idx, loc_idx;
-      received_nodes_buffer[p][n] >> glb_idx >> loc_idx;
-      std::cout << PERank << "received    glb_idx = " << glb_idx << "    loc_idx = " << loc_idx << std::endl;
+      received_nodes_buffer >> add_node;
     }
   }
-  */
-//  std::vector<int> locations;
-//  locations = who_has_node(0,mesh.nodes());
-//  for (Uint p=0; p<PE::instance().size(); ++p)
-//  {
-//    if (locations[p] >=0 )
-//      std::cout << PERank << " proc " << p << " has node " << 0 << " at location " << locations[p] << std::endl;
-//  }
+  add_node.flush();
 
-//  locations = who_has_node(3,mesh.nodes());
-//  for (Uint p=0; p<PE::instance().size(); ++p)
-//  {
-//    if (locations[p] >=0 )
-//      std::cout << PERank << " proc " << p << " has node " << 3 << " at location " << locations[p] << std::endl;
-//  }
-
-//  mpi::Buffer buffer(1024);
-//  pack_node(5,mesh.nodes(),buffer);
-//  unpack_node(buffer);
+  // -----------------------------------------------------------------------------
+  // REQUESTED NODES HAVE NOW BEEN ADDED
+  // -----------------------------------------------------------------------------
 
 //  // create a field and assign it to the comm pattern
 

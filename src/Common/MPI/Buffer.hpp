@@ -42,8 +42,7 @@ public:
     : m_buffer(nullptr),
       m_size(0),
       m_packed_size(0),
-      m_unpacked_size(0),
-      m_index(0)
+      m_unpacked_size(0)
   {
     resize(size);
   }
@@ -61,7 +60,7 @@ public:
   void* buffer() { return (void*)m_buffer; }
 
   /// @brief Allocated memory
-  int allocated_size() const { return m_size; }
+  int size() const { return m_size; }
 
   /// @brief Packed memory
   int packed_size() const { return m_packed_size; }
@@ -105,20 +104,6 @@ public:
   template <class T>
       void unpack(T* data, const Uint data_size);
   //@}
-
-   Uint new_index()
-   {
-     m_index.push_back((Uint)m_packed_size);
-     return m_index.size()-1;
-   }
-
-   Buffer& operator[] (const Uint index)
-   {
-     m_unpacked_size = m_index[index];
-     return *this;
-   }
-
-   Uint size() const { return m_index.size(); }
 
   /// @name Pack/Unpack functions for POD
   //@{
@@ -189,6 +174,20 @@ public:
 
   /// @name Pack/Unpack of some container types
   //@{
+
+  void pack(const Buffer& other_buf)
+  {
+    resize(other_buf.packed_size());
+    memcpy(m_buffer+m_packed_size,other_buf.m_buffer,other_buf.m_packed_size);
+    m_packed_size += other_buf.m_packed_size;
+  }
+
+  void unpack(const Buffer& other_buf, const Uint data_size)
+  {
+    memcpy(other_buf.m_buffer,m_buffer+m_packed_size,other_buf.m_packed_size);
+    m_unpacked_size += other_buf.m_unpacked_size;
+  }
+
   template <typename T>
       void pack(const std::vector<T>& data);
 
@@ -196,13 +195,16 @@ public:
       void unpack(std::vector<T>& data);
 
   template <typename T>
-      void pack(const boost::detail::multi_array::sub_array<T,1>& data);
+      void pack(boost::detail::multi_array::sub_array<T,1> data);
+
+//  template <typename T>
+//      void pack(const boost::detail::multi_array::sub_array<T,1>& data);
 
   template <typename T>
       void pack(const boost::detail::multi_array::const_sub_array<T, 1, T const *>& data);
 
-  const std::vector<Uint> indexes() const { return m_index; }
-  std::vector<Uint>& indexes() { return m_index; }
+  template <typename T>
+      void unpack(boost::detail::multi_array::sub_array<T,1> data);
 
   //@}
 
@@ -260,8 +262,6 @@ inline void Buffer::reset()
 template <typename T>
 inline void Buffer::pack(const T* data, const Uint data_size)
 {
-  if (m_index.empty())  new_index();
-
   // get size of the package
   int size;
   MPI_Pack_size(data_size, get_mpi_datatype<T>() , PE::instance(), &size);
@@ -311,10 +311,18 @@ inline void Buffer::unpack(std::vector<T>& data)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline void Buffer::pack(const boost::detail::multi_array::sub_array<T,1>& data)
+inline void Buffer::pack(boost::detail::multi_array::sub_array<T,1> data)
 {
   pack(data.size());
   pack(&data[0],data.size());
+}
+
+template <typename T>
+inline void Buffer::unpack(boost::detail::multi_array::sub_array<T,1> data)
+{
+  size_t size;
+  unpack(size);
+  unpack(&data[0],data.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -416,30 +424,173 @@ void Buffer::broadcast(const Uint root)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Pack buffer via stream operator
-template <typename T>
-inline Buffer& operator<< (Buffer& buffer, const T& data)
+#define CF_COMMON_MPI_BUFFER_PACK_OPERATOR(TYPE)\
+  inline Buffer& operator<< (Buffer& buffer, const TYPE& data)\
+  {\
+    buffer.pack(data);\
+    return buffer;\
+  }
+
+#define CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(TYPE)\
+  inline Buffer& operator>> (Buffer& buffer, TYPE& data)\
+  {\
+    buffer.unpack(data);\
+    return buffer;\
+  }
+
+#define CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(TYPE)\
+  inline Buffer& operator<< (Buffer& buffer, const std::vector<TYPE>& data)\
+  {\
+    buffer.pack(data);\
+    return buffer;\
+  }
+
+#define CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(TYPE)\
+  inline Buffer& operator>> (Buffer& buffer, std::vector<TYPE>& data)\
+  {\
+    buffer.unpack(data);\
+    return buffer;\
+  }
+
+
+#define CF_COMMON_MPI_BUFFER_PACK_OPERATOR_SUB_ARRAY(TYPE)\
+  inline Buffer& operator<< (Buffer& buffer, const boost::detail::multi_array::sub_array<TYPE,1>& data)\
+  {\
+    buffer.pack(data);\
+    return buffer;\
+  }
+
+#define CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_SUB_ARRAY(TYPE)\
+  inline Buffer& operator>> (Buffer& buffer, boost::detail::multi_array::sub_array<TYPE,1>& data)\
+  {\
+    buffer.unpack(data);\
+    return buffer;\
+  }
+
+#define CF_COMMON_MPI_BUFFER_PACK_OPERATOR_CONST_SUB_ARRAY(TYPE)\
+  inline Buffer& operator<< (Buffer& buffer, const boost::detail::multi_array::const_sub_array<TYPE, 1, TYPE const *>& data)\
+  {\
+    buffer.pack(data);\
+    return buffer;\
+  }
+
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(bool);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(char);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(unsigned char);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(short);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(unsigned short);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(int);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(unsigned int);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(long);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(unsigned long);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(long long);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(unsigned long long);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(float);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(double);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(long double);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR(std::string);
+
+//CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(bool); // Doesn't compile
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(char);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(unsigned char);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(short);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(unsigned short);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(int);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(unsigned int);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(long);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(unsigned long);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(long long);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(unsigned long long);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(float);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(double);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(long double);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR(std::string);
+
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_SUB_ARRAY(Uint);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_SUB_ARRAY(int);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_SUB_ARRAY(Real);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_SUB_ARRAY(bool);
+
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_CONST_SUB_ARRAY(Uint);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_CONST_SUB_ARRAY(int);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_CONST_SUB_ARRAY(Real);
+CF_COMMON_MPI_BUFFER_PACK_OPERATOR_CONST_SUB_ARRAY(bool);
+
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(bool);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(char);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(unsigned char);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(short);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(unsigned short);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(int);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(unsigned int);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(long);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(unsigned long);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(long long);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(unsigned long long);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(float);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(double);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(long double);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR(std::string);
+
+//CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(bool); // Doesn't compile
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(char);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(unsigned char);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(short);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(unsigned short);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(int);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(unsigned int);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(long);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(unsigned long);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(long long);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(unsigned long long);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(float);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(double);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(long double);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_VECTOR(std::string);
+
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_SUB_ARRAY(Uint);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_SUB_ARRAY(int);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_SUB_ARRAY(Real);
+CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_SUB_ARRAY(bool);
+
+#undef CF_COMMON_MPI_BUFFER_PACK_OPERATOR
+#undef CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR
+#undef CF_COMMON_MPI_BUFFER_PACK_OPERATOR_VECTOR
+#undef CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR
+#undef CF_COMMON_MPI_BUFFER_PACK_OPERATOR_SUB_ARRAY
+#undef CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_SUB_ARRAY
+#undef CF_COMMON_MPI_BUFFER_PACK_OPERATOR_CONST_SUB_ARRAY
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct PackedObject
 {
-  buffer.pack(data);
+  PackedObject() {}
+  PackedObject(mpi::Buffer& buffer) { unpack(buffer); }
+
+  virtual void pack(mpi::Buffer& buffer) const = 0;
+  virtual void unpack(mpi::Buffer& buffer) = 0;
+};
+
+inline Buffer& operator<< (Buffer& buffer, const PackedObject& obj)
+{
+  obj.pack(buffer);
   return buffer;
 }
 
-/// @brief Unpack buffer via stream operator
-template <typename T>
-inline Buffer& operator>> (Buffer& buffer, T& data)
+inline Buffer& operator>> (Buffer& buffer, PackedObject& obj)
 {
-  buffer.unpack(data);
+  obj.unpack(buffer);
   return buffer;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 std::ostream& operator<< (std::ostream& out, const Buffer& buffer)
 {
   const char* endPtr = buffer.buffer() + buffer.packed_size();
   for(char* ptr = (char*)buffer.buffer(); (const char*) ptr < endPtr; ptr++)
     out << *ptr;
-
-
   return out;
 }
 
