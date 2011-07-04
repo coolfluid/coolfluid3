@@ -30,6 +30,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CMeshElements.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshGenerator.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
@@ -224,6 +225,86 @@ struct UnpackAndAddNodes : PackedObject
   CDynTable<Uint>::Buffer   connected_elements;
 };
 
+
+struct PackedElement : public mpi::PackedObject
+{
+  PackedElement(CElements& elem_comp, const Uint idx) :
+    mpi::PackedObject(),
+    elements(elem_comp),
+    glb_idx(elements.glb_idx()[idx]),
+    rank(elements.rank()[idx]),
+    connected_nodes(elements.node_connectivity()[idx])
+  {
+  }
+
+  virtual void pack(mpi::Buffer& buffer) const
+  {
+    std::cout << PERank << "packed element " << glb_idx << " with glb nodes  ";
+
+    buffer << glb_idx << rank;
+    boost_foreach(const Uint n, connected_nodes)
+    {
+      buffer << n;
+      std::cout << n << "  ";
+    }
+    std::cout << std::endl;
+  }
+
+  virtual void unpack(mpi::Buffer& buffer)
+  {
+//    buffer >> glb_idx  >> nodes;
+  }
+
+  CElements& elements;
+  Uint& glb_idx;
+  Uint& rank;
+  CTable<Uint>::Row connected_nodes;
+};
+
+struct UnpackAndAddElements : PackedObject
+{
+  UnpackAndAddElements(CElements& elements) : PackedObject(),
+    glb_idx (elements.glb_idx().create_buffer()),
+    rank (elements.rank().create_buffer()),
+    connected_nodes (elements.node_connectivity().create_buffer()),
+    row_size(elements.node_connectivity().row_size())
+  {}
+
+  virtual void pack(Buffer& buf) const {}
+  virtual void unpack(Buffer& buf)
+  {
+    Uint glb_idx_data;
+    Uint rank_data;
+    std::vector<Uint> connected_nodes_data(row_size);
+
+    buf >> glb_idx_data >> rank_data;
+
+    for (Uint n=0; n<connected_nodes_data.size(); ++n)
+      buf >> connected_nodes_data[n];
+
+    Uint idx, idx_check;
+    idx = glb_idx.add_row(glb_idx_data);
+    idx_check = rank.add_row(rank_data);
+    cf_assert(idx_check == idx);
+    idx_check = connected_nodes.add_row(connected_nodes_data);
+    cf_assert(idx_check == idx);
+
+    std::cout << PERank << "added elem    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    connected_nodes = " << connected_nodes_data << std::endl;
+  }
+
+  void flush()
+  {
+    glb_idx.flush();
+    connected_nodes.flush();
+    rank.flush();
+  }
+
+  CList<Uint>::Buffer       glb_idx;
+  CList<Uint>::Buffer       rank;
+  CTable<Uint>::Buffer      connected_nodes;
+  Uint row_size;
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 struct ParallelOverlapTests_Fixture
@@ -285,7 +366,9 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
 
   Core::instance().root().add_component(mesh);
 
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+  //build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_node_numbering")->transform(mesh);
 
   BOOST_CHECK(true);
   CNodes& nodes = mesh.nodes();
@@ -349,11 +432,84 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   Core::instance().root().add_component(mesh);
 
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+//  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
+
 
   BOOST_CHECK(true);
   CNodes& nodes = mesh.nodes();
 
+  boost::this_thread::sleep(boost::posix_time::milliseconds(20));
+
+
+  // -----------------------------------------------------------------------------
+  // SET NODE CONNECTIVITY TO GLOBAL NUMBERS
+
+  const CList<Uint>& global_node_indices = mesh.nodes().glb_idx();
+  boost_foreach (CEntities& elements, mesh.topology().elements_range())
+  {
+    boost_foreach ( CTable<Uint>::Row nodes, elements.as_type<CElements>().node_connectivity().array() )
+    {
+      boost_foreach ( Uint& node, nodes )
+      {
+        node = global_node_indices[node];
+      }
+    }
+  }
+
+  // -----------------------------------------------------------------------------
+  // SEND ELEMENT 0 AND 1 TO EACHOTHER
+
+  std::vector<Component::Ptr> mesh_element_comps = mesh.elements().components();
+  std::vector<std::vector<Uint> > send_from_idx(mesh_element_comps.size());
+  std::vector<std::vector<Uint> > send_to_proc(mesh_element_comps.size());
+
+
+  for(Uint i=0; i<mesh_element_comps.size(); ++i)
+  {
+    send_from_idx[i].push_back(0);
+    send_to_proc[i].push_back(  PE::instance().rank()==PE::instance().size()-1 ? 0 : PE::instance().rank()+1  );
+
+    send_from_idx[i].push_back(1);
+    send_to_proc[i].push_back(  PE::instance().rank()==PE::instance().size()-1 ? 0 : PE::instance().rank()+1  );
+  }
+
+  std::vector<mpi::Buffer> send_elements(PE::instance().size());
+  mpi::Buffer recv_elements;
+  for(Uint i=0; i<mesh_element_comps.size(); ++i)
+  {
+    for (Uint p=0; p<PE::instance().size(); ++p)
+      send_elements[p].reset();
+    recv_elements.reset();
+
+    std::vector<Uint> nb_elems_to_send(PE::instance().size());
+    for (Uint e=0; e<send_to_proc[i].size(); ++e)
+    {
+      ++nb_elems_to_send[send_to_proc[i][e]];
+      send_elements[send_to_proc[i][e]] << PackedElement(mesh_element_comps[i]->as_type<CElements>(),send_from_idx[i][e]);
+    }
+
+    std::vector<Uint> nb_elems_to_recv(PE::instance().size());
+    PE::instance().all_to_all(nb_elems_to_send,nb_elems_to_recv);
+    my_all_to_all(send_elements,recv_elements);
+
+    UnpackAndAddElements add_element(mesh_element_comps[i]->as_type<CElements>());
+    for (Uint p=0; p<nb_elems_to_recv.size(); ++p)
+    {
+      for (Uint e=0; e<nb_elems_to_recv[p]; ++e)
+      {
+        recv_elements >> add_element;
+      }
+    }
+  }
+
+  // -----------------------------------------------------------------------------
+  // ELEMENTS HAVE BEEN SENT AND ADDED
+  // -----------------------------------------------------------------------------
+
+  boost::this_thread::sleep(boost::posix_time::milliseconds(20));
 
   // -----------------------------------------------------------------------------
   // COLLECT NODES TO LOOK FOR ON OTHER PROCESSORS
@@ -463,68 +619,6 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // -----------------------------------------------------------------------------
   // REQUESTED NODES HAVE NOW BEEN ADDED
   // -----------------------------------------------------------------------------
-
-//  // create a field and assign it to the comm pattern
-
-//  CField& field = mesh.create_field("node_rank",CField::Basis::POINT_BASED);
-
-//  field.parallelize();
-
-//  field.data() = mpi::PE::instance().rank();
-
-//  // Synchronize
-
-//  // comm_pattern.synchronize(); // via the comm_pattern
-
-//  field.synchronize(); // via the field
-
-
-//  BOOST_CHECK(true); // Tadaa
-
-//  // Create a field with glb element numbers
-//  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);
-//  CField& glb_elem_idx = mesh.create_field("glb_elem_idx",CField::Basis::ELEMENT_BASED,"P0");
-//  CFieldView& field_view = glb_elem_idx.create_component<CFieldView>("field_view");
-//  field_view.set_field(glb_elem_idx);
-//  boost_foreach(const CEntities& elements, glb_elem_idx.field_elements())
-//  {
-//    field_view.set_elements(elements);
-//    for (Uint e=0; e<elements.size(); ++e)
-//    {
-//      field_view[e][0] = elements.glb_idx()[e];
-//    }
-//  }
-
-//  // Create a field with glb node numbers
-//  CField& glb_node_idx = mesh.create_field("glb_node_idx",CField::Basis::POINT_BASED);
-//  Uint n=0;
-//  boost_foreach(const Uint node, glb_node_idx.used_nodes().array())
-//  {
-//    glb_node_idx[n++][0] = mesh.nodes().glb_idx()[node];
-//  }
-
-//  // Write the mesh with the fields
-
-//  std::vector<CField::Ptr> fields;
-//  fields.push_back(field.as_ptr<CField>());
-//  fields.push_back(glb_elem_idx.as_ptr<CField>());
-//  fields.push_back(glb_node_idx.as_ptr<CField>());
-
-//  CMeshWriter::Ptr tec_writer =
-//      build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
-
-//  tec_writer->set_fields(fields);
-//  tec_writer->write_from_to(mesh,"parallel_fields.plt");
-
-//  CFinfo << "parallel_fields_P*.plt written" << CFendl;
-
-//  CMeshWriter::Ptr msh_writer =
-//      build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","msh_writer");
-
-//  msh_writer->set_fields(fields);
-//  msh_writer->write_from_to(mesh,"parallel_fields.msh");
-
-//  CFinfo << "parallel_fields_P*.msh written" << CFendl;
 
 }
 
