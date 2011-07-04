@@ -107,7 +107,8 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   cells.initialize("CF.Mesh.SF.Line1DLagrangeP1",nodes);
   CConnectivity& connectivity = cells.node_connectivity();
   connectivity.resize(hash.subhash(ELEMS).nb_objects_in_part(part));
-
+  CList<Uint>& elem_rank = cells.rank();
+  elem_rank.resize(connectivity.size());
   const Real x_step = x_len / static_cast<Real>(x_segments);
   Uint node_idx(0);
   Uint elem_idx(0);
@@ -115,6 +116,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   {
     nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step;
     nodes.is_ghost()[node_idx] = false;
+    nodes.rank()[node_idx] = part;
     ++node_idx;
   }
   for(Uint i = hash.subhash(ELEMS).start_idx_in_part(part); i < hash.subhash(ELEMS).end_idx_in_part(part); ++i)
@@ -123,24 +125,30 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
     {
       nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step;
       nodes.is_ghost()[node_idx] = true;
+      nodes.rank()[node_idx] = hash.subhash(NODES).proc_of_obj(i);
       connectivity[elem_idx][0]=node_idx;
+      elem_rank[elem_idx] = part;
       ++node_idx;
     }
     else
     {
       connectivity[elem_idx][0]=elem_idx;
+      elem_rank[elem_idx] = part;
     }
 
     if (hash.subhash(NODES).owns(i+1) == false)
     {
       nodes.coordinates()[node_idx][XX] = static_cast<Real>(i+1) * x_step;
       nodes.is_ghost()[node_idx] = true;
+      nodes.rank()[node_idx] = hash.subhash(NODES).proc_of_obj(i+1);
       connectivity[elem_idx][1]=node_idx;
+      elem_rank[elem_idx] = part;
       ++node_idx;
     }
     else
     {
       connectivity[elem_idx][1]=elem_idx+1;
+      elem_rank[elem_idx] = part;
     }
     ++elem_idx;
   }
@@ -155,6 +163,9 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
       CConnectivity& xneg_connectivity = xneg.node_connectivity();
       xneg_connectivity.resize(1);
       xneg_connectivity[0][0] = 0;
+      CList<Uint>& xneg_rank = xneg.rank();
+      xneg_rank.resize(1);
+      xneg_rank[0] = part;
     }
 
     // right boundary point
@@ -165,6 +176,9 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
       CConnectivity& xpos_connectivity = xpos.node_connectivity();
       xpos_connectivity.resize(1);
       xpos_connectivity[0][0] = connectivity[hash.subhash(ELEMS).nb_objects_in_part(part)-1][1];
+      CList<Uint>& xpos_rank = xpos.rank();
+      xpos_rank.resize(1);
+      xpos_rank[0] = part;
     }
   }
   mesh.elements().update();
@@ -263,14 +277,17 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     row[XX] = static_cast<Real>(i) * x_step;
     row[YY] = static_cast<Real>(j) * y_step;
     nodes.is_ghost()[loc_ghost_node_idx]=true;
+    nodes.rank()[loc_ghost_node_idx]=hash.subhash(NODES).proc_of_obj(glb_ghost_node_idx);
   }
 
   CCells::Ptr cells = region.create_component_ptr<CCells>("Quad");
   cells->initialize("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
 
   CConnectivity& connectivity = cells->node_connectivity();
-
   connectivity.resize(hash.subhash(ELEMS).nb_objects_in_part(part));
+
+  CList<Uint>& elem_rank = cells->rank();
+  elem_rank.resize(connectivity.size());
 
   Uint glb_elem_start_idx = hash.subhash(ELEMS).start_idx_in_part(part);
   Uint glb_elem_idx;
@@ -283,6 +300,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
       if (hash.subhash(ELEMS).owns(glb_elem_idx))
       {
         CConnectivity::Row nodes = connectivity[glb_elem_idx-glb_elem_start_idx];
+        elem_rank[glb_elem_idx-glb_elem_start_idx] = part;
 
         glb_node_idx = j * (x_segments+1) + i;
         if (hash.subhash(NODES).owns(glb_node_idx) == false)
@@ -318,6 +336,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     CFaces::Ptr left = mesh.topology().create_region("left").create_component_ptr<CFaces>("Line");
     left->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
     CConnectivity::Buffer left_connectivity = left->node_connectivity().create_buffer();
+    CList<Uint>::Buffer left_rank = left->rank().create_buffer();
     for(Uint j = 0; j < y_segments; ++j)
     {
       if (hash.subhash(ELEMS).owns(j*x_segments))
@@ -335,12 +354,15 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
           line_nodes[1] = glb_node_idx-glb_node_start_idx;
 
         left_connectivity.add_row(line_nodes);
+        left_rank.add_row(part);
       }
     }
 
     CFaces::Ptr right = mesh.topology().create_region("right").create_component_ptr<CFaces>("Line");
     right->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
     CConnectivity::Buffer right_connectivity = right->node_connectivity().create_buffer();
+    CList<Uint>::Buffer right_rank = right->rank().create_buffer();
+
     for(Uint j = 0; j < y_segments; ++j)
     {
       if (hash.subhash(ELEMS).owns(j*x_segments+x_segments-1))
@@ -358,12 +380,15 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
           line_nodes[0] = glb_node_idx-glb_node_start_idx;
 
         right_connectivity.add_row(line_nodes);
+        right_rank.add_row(part);
       }
     }
 
     CFaces::Ptr bottom = mesh.topology().create_region("bottom").create_component_ptr<CFaces>("Line");
     bottom->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
     CConnectivity::Buffer bottom_connectivity = bottom->node_connectivity().create_buffer();
+    CList<Uint>::Buffer bottom_rank = bottom->rank().create_buffer();
+
     for(Uint i = 0; i < x_segments; ++i)
     {
       if (hash.subhash(ELEMS).owns(i))
@@ -381,12 +406,15 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
           line_nodes[1] = glb_node_idx-glb_node_start_idx;
 
         bottom_connectivity.add_row(line_nodes);
+        bottom_rank.add_row(part);
       }
     }
 
     CFaces::Ptr top = mesh.topology().create_region("top").create_component_ptr<CFaces>("Line");
     top->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
     CConnectivity::Buffer top_connectivity = top->node_connectivity().create_buffer();
+    CList<Uint>::Buffer top_rank = right->rank().create_buffer();
+
     for(Uint i = 0; i < x_segments; ++i)
     {
       if (hash.subhash(ELEMS).owns(y_segments*(x_segments)+i))
@@ -404,6 +432,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
           line_nodes[0] = glb_node_idx-glb_node_start_idx;
 
         top_connectivity.add_row(line_nodes);
+        top_rank.add_row(part);
       }
     }
   }
