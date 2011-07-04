@@ -45,8 +45,8 @@ public: // functions
   /// @name INTERFACE
   //@{
 
-  virtual void compute_properties( PhysModel::Properties& physp ) = 0;
-  virtual void flux_jacobian( PhysModel::Properties& physp ) = 0;
+  virtual void compute_properties( Physics::Properties& physp ) = 0;
+  virtual void flux_jacobian( Physics::Properties& physp ) = 0;
 
   //@} END INTERFACE
 
@@ -62,20 +62,26 @@ class VariablesT : public Variables {
 public:
 
   /// constructor
-  VariablesT ( const std::string& name ) : Variables( name ) {}
+  VariablesT ( const std::string& name ) : Variables( name )
+  {
+    regist_typeinfo(this);
+  }
 
   /// virtual destructor
   virtual ~VariablesT() {}
 
-  virtual void compute_properties( PhysModel::Properties& physp )
+  /// Get the class name
+  static std::string type_name () { return "VariablesT<"+PHYS::type_name()+">"; }
+
+  virtual void compute_properties( Physics::Properties& physp )
   {
-    typename PHYS::PROPS& cphysp = static_cast<typename PHYS::PROPS&>( physp );
+    typename PHYS::MODEL::Properties& cphysp = static_cast<typename PHYS::MODEL::Properties&>( physp );
     PHYS::compute_properties( cphysp );
   }
 
-  virtual void flux_jacobian( PhysModel::Properties& physp )
+  virtual void flux_jacobian( Physics::Properties& physp )
   {
-    typename PHYS::PROPS& cphysp = static_cast<typename PHYS::PROPS&>( physp );
+    typename PHYS::MODEL::Properties& cphysp = static_cast<typename PHYS::MODEL::Properties&>( physp );
     PHYS::flux_jacobian( cphysp );
   }
 

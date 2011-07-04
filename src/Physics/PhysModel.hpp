@@ -15,7 +15,10 @@ namespace CF {
 
 namespace Physics {
 
-  class Variables;
+  class Variables; // forward declaration
+
+  /// base type for the physical properties
+  struct Properties {};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,9 +32,6 @@ public: //typedefs
 
   typedef boost::shared_ptr<PhysModel> Ptr;
   typedef boost::shared_ptr<PhysModel const> ConstPtr;
-
-  /// base type for the physical properties
-  struct Properties {};
 
 public: // functions
 
@@ -61,7 +61,7 @@ public: // functions
   virtual std::string type() const = 0;
 
   /// create a physical properties
-  virtual PhysModel::Properties* create_properties() = 0;
+  virtual Properties* create_properties() = 0;
 
   /// create a variables description
   virtual Variables* create_variables( const std::string& name ) = 0;
