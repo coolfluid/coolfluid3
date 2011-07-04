@@ -114,9 +114,36 @@ struct EigenPlusAssignProductEval :
     
     typedef void result_type;
     
+    template<typename T>
+    struct LHSHelper
+    {
+      inline T operator()(T arg) const
+      {
+        return arg;
+      }
+    };
+    
+    template<typename T>
+    struct LHSHelper<const T&>
+    {
+      inline T& operator()(const T& arg) const
+      {
+        return const_cast<T&>(arg);
+      }
+    };
+    
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
-      GrammarT()(boost::proto::left(expr), state, data) += GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data);
+      // Result type for the LHS
+      typedef typename boost::result_of
+      <
+        GrammarT(typename boost::proto::result_of::left
+        <
+          typename impl::expr_param
+        >::type, typename impl::state_param, typename impl::data_param)
+      >::type LeftT;
+      
+      LHSHelper<LeftT>()(GrammarT()(boost::proto::left(expr), state, data)) += GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data);
     }
   };
 };

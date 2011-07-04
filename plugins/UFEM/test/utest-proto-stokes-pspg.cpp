@@ -18,6 +18,7 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 #include "UFEM/LinearProblem.hpp"
+#include "UFEM/NavierStokesOps.hpp"
 #include "UFEM/UnsteadyModel.hpp"
 
 using namespace CF;
@@ -27,6 +28,7 @@ using namespace CF::Solver::Actions::Proto;
 using namespace CF::Common;
 using namespace CF::Math::MathConsts;
 using namespace CF::Mesh;
+using namespace CF::UFEM;
 
 using namespace boost;
 
@@ -43,24 +45,6 @@ check_close(const Real a, const Real b, const Real threshold)
 }
 
 static boost::proto::terminal< void(*)(Real, Real, Real) >::type const _check_close = {&check_close};
-
-struct ComputeTau
-{ 
-  /// Dummy result
-  typedef void result_type;
-  
-  template<typename UT>
-  void operator()(const UT& u, const Real u_ref, const Real nu, Real& tau_ps) const
-  {
-    const Real he=sqrt(4./3.141592654*u.support().volume());
-    const Real ree=u_ref*he/(2.*nu);
-    const Real xi=std::max(0.,std::min(ree/3.,1.));
-    tau_ps = he*xi/(2.*u_ref);
-  }
-};
-
-/// Placeholder for the compute_tau operation
-static MakeSFOp<ComputeTau>::type const compute_tau = {};
 
 // Solve the Stokes equations with PSPG
 BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
@@ -107,7 +91,11 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
   // Expression variables
   MeshTerm<0, VectorField> u("Velocity", "u");
   MeshTerm<1, ScalarField> p("Pressure", "p");
-  Real tau_ps_val; StoredReference<Real> tau_ps = store(tau_ps_val);
+  
+  SUPGCoeffs coefs;
+  coefs.u_ref = c;
+  coefs.nu = mu / rho;
+  coefs.rho = rho;
   
   // Special boundary conditions
   CAction& left_bc = bc.add_action("LeftBC", nodes_expression(pr.dirichlet(u) = c * coordinates[1] * (height - coordinates[1]) * u_direction));
@@ -129,14 +117,14 @@ BOOST_AUTO_TEST_CASE( ProtoStokesPSPG )
         group <<
         (
           _A = _0, _T = _0,
-          compute_tau(u, c, nu, tau_ps),
+          compute_tau(u, coefs),
           element_quadrature <<
           (
             _A(p    , u[_i]) +=          transpose(N(p))         * nabla(u)[_i], // Continuity, standard
-            _A(p    , p)     += tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
+            _A(p    , p)     += coefs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
             _A(u[_i], u[_i]) += mu     * transpose(nabla(u))     * nabla(u),     // Diffusion
             _A(u[_i], p)     += 1./rho * transpose(N(u))         * nabla(p)[_i], // Pressure gradient
-            _T(p    , u[_i]) += tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
+            _T(p    , u[_i]) += coefs.tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
             _T(u[_i], u[_i]) += transpose(N(u))         * N(u)          // Time, standard
           ),
           pr.system_matrix += invdt * _T + 0.5 * _A,

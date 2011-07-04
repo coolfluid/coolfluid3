@@ -88,7 +88,7 @@ struct ReplaceConfigurableConstant :
     typedef typename boost::proto::result_of::make_expr
     <
       boost::proto::tag::terminal,
-      StoredReference<ValueT>
+      ValueT&
     >::type result_type;
     
     typedef typename ConstantStorageType<ValueT>::type ValuesT;
@@ -103,7 +103,7 @@ struct ReplaceConfigurableConstant :
       values.descriptions[constant.name] = constant.description;
       std::pair<typename ValuesT::iterator, bool> insert_result = values.values(constant.default_value).insert(std::make_pair(constant.name, constant.default_value));
       
-      return boost::proto::make_expr<boost::proto::tag::terminal>(store(insert_result.first->second));
+      return boost::proto::make_expr<boost::proto::tag::terminal>(boost::ref(insert_result.first->second));
     }
   };
 };

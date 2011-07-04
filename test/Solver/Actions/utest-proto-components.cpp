@@ -76,14 +76,14 @@ static boost::proto::terminal< void(*)(const Uint, const Uint) >::type const _ch
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Check if values stored in a StoredReference change as expected
-BOOST_AUTO_TEST_CASE( StoredReferenceValue )
+/// Check if copying references works as expected
+BOOST_AUTO_TEST_CASE( CopiedReference )
 {
   Uint a = 1;
   Uint b = 2;
-  StoredReference<Uint> b_ref(b);
+  Uint& b_ref = b;
   b = 1;
-  SimpleGrammar()(_check_equal(a, b_ref));
+  SimpleGrammar()( DeepCopy()(_check_equal(a, b_ref)) );
 }
 
 BOOST_AUTO_TEST_CASE( UseConfigurableConstant )
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( ExpressionOptions )
   ConfigurableConstant<Real> a("a", "Multiplication factor");
  
   // Create an expression that sums the volume of a mesh, multiplied with a configurable factor
-  boost::shared_ptr<Expression> expression = elements_expression(lit(store(result)) += a*volume);
+  boost::shared_ptr<Expression> expression = elements_expression(lit(result) += a*volume);
   
   // Test mesh
   CMesh& mesh = Core::instance().root().create_component<CMesh>("line");
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
   
   // Sum up the values for the temperature
   Real temp_sum = 0.;
-  nodes_expression(lit(store(temp_sum)) += T)->loop(mesh.topology());
+  nodes_expression(lit(temp_sum) += T)->loop(mesh.topology());
   BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
 }
 
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   
   // Sum up the values for the temperature
   Real temp_sum = 0.;
-  nodes_expression(lit(store(temp_sum)) += T)->loop(mesh.topology());
+  nodes_expression(lit(temp_sum) += T)->loop(mesh.topology());
   BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
 }
 
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( ProtoActionDomain )
   
   // Add the actions to run on the domain
   domain << domain.add_action( "SetTemp",     nodes_expression(T = 288.) )
-         << domain.add_action( "CheckResult", nodes_expression(lit(store(temp_sum)) += T));
+         << domain.add_action( "CheckResult", nodes_expression(lit(temp_sum) += T));
          
   domain.configure_option("region", mesh.topology().uri());
   
@@ -247,26 +247,24 @@ public:
   
   CustomProtoSolver(const std::string& name) :
     CProtoActionDirector(name),
+    T("Temperature", "T"),
     temp_sum(0.)
-  {
-    // Term to use
-    MeshTerm<0, ScalarField> T("Temperature", "T");
-    
+  { 
     // Add the expressions
     *this << add_action( "SetTemp",  nodes_expression(T = 288.) )
-          << add_action( "SumTemps", nodes_expression(lit(store(temp_sum)) += T));
+          << add_action( "Output", nodes_expression(_cout << T << "\n"))
+          << add_action( "SumTemps", nodes_expression(lit(temp_sum) += T));
   }
   
+  MeshTerm<0, ScalarField> T;
   Real temp_sum;
   
   static std::string type_name() { return "CustomProtoSolver"; }
 };
 
-
-
 BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
 { 
-  const Uint nb_segments = 100;
+  const Uint nb_segments = 25;
   
   // Create a domain
   CustomProtoSolver& domain = Core::instance().root().create_component<CustomProtoSolver>("custom_domain");
@@ -284,6 +282,31 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
   
   // Check
   BOOST_CHECK_EQUAL(domain.temp_sum / static_cast<Real>(1+nb_segments), 288.);
+}
+
+// Check if references inside terminals are kept corectly
+BOOST_AUTO_TEST_CASE( CopyExpression )
+{
+  Real a = 1.;
+  Real result = 0.;
+  
+  // Create an expression that sums the volume of a mesh, multiplied with a configurable factor
+  boost::shared_ptr<Expression> expression = elements_expression(lit(result) += a*volume + 2. * boost::proto::lit(1.));
+  
+  // Test mesh
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("line");
+  Tools::MeshGeneration::create_line(mesh, 1., 5);
+  
+  expression->loop(mesh.topology());
+  
+  // default result
+  BOOST_CHECK_EQUAL(result, 11.);
+  
+  // reconfigure a as 2, and check result
+  a = 2.;
+  result = 0;
+  expression->loop(mesh.topology());
+  BOOST_CHECK_EQUAL(result, 12.);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

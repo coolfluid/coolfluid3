@@ -148,27 +148,6 @@ struct VarValue :
   };
 };
 
-/// Unwraps a StoredReference
-struct UnwrapStoredReference :
-  boost::proto::transform< UnwrapStoredReference >
-{
-  template<typename VarT, typename StateT, typename DataT>
-  struct impl : boost::proto::transform_impl<VarT, StateT, DataT>
-  { 
-    
-    typedef typename boost::remove_reference<VarT>::type::value_type& result_type;
-  
-    result_type operator ()(
-                typename impl::expr_param var
-              , typename impl::state_param state
-              , typename impl::data_param data
-    ) const
-    {
-      return var.get();
-    }
-  };
-};
-
 /// Matches integer terminals
 struct Integers :
   boost::proto::when
@@ -188,19 +167,6 @@ struct Scalar :
     <
       boost::proto::or_< boost::proto::terminal<Real> >, // Plain scalar
       boost::proto::_value
-    >,
-    // Stored references
-    boost::proto::when
-    <
-      boost::proto::or_
-      <
-        boost::proto::terminal< StoredReference<const Real> >,
-        boost::proto::terminal< StoredReference<Real> >,
-        boost::proto::terminal< StoredReference<Uint> >,
-        boost::proto::terminal< StoredReference<const RealVector> >,
-        boost::proto::terminal< StoredReference<RealVector> >
-      >,
-      UnwrapStoredReference(boost::proto::_value)
     >
   >
 {
@@ -231,11 +197,6 @@ struct MathTerminals :
     <
       MatVec,
       boost::proto::_value
-    >,
-    boost::proto::when
-    <
-      boost::proto::or_< boost::proto::terminal< StoredReference<RealVector4> >, boost::proto::terminal< StoredReference<const RealVector4> > >,
-      UnwrapStoredReference(boost::proto::_value)
     >
   >
 {
@@ -315,6 +276,21 @@ struct StreamOutput :
       boost::proto::shift_left< StreamOutput<GrammarT>, boost::proto::or_< GrammarT, boost::proto::terminal<const char*> > >
     >,
     boost::proto::_default<GrammarT>
+  >
+{
+};
+
+/// Transform to copy an expression, keeping terminals that store a value by reference unchanged (thanks to Eric Niebler)
+struct DeepCopy : //boost::proto::functional::deep_copy
+  boost::proto::or_
+  <
+    boost::proto::when
+    <
+      boost::proto::terminal<const Real&>,
+      boost::proto::_make_terminal(boost::proto::_byval(boost::proto::_value))
+    >,
+    boost::proto::terminal<boost::proto::_>,
+    boost::proto::nary_expr<boost::proto::_, boost::proto::vararg< boost::proto::when<DeepCopy, boost::proto::_byval(DeepCopy)> > >
   >
 {
 };

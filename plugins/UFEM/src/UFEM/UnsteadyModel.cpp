@@ -16,8 +16,6 @@
 #include "TimeLoop.hpp"
 #include "UnsteadyModel.hpp"
 
-#include "Solver/Actions/Proto/Terminals.hpp"
-
 namespace CF {
 namespace UFEM {
 
@@ -71,9 +69,9 @@ CTime& UnsteadyModel::time()
   return *m_implementation->m_time.lock();
 }
 
-Actions::Proto::StoredReference< Real > UnsteadyModel::invdt() const
+Real& UnsteadyModel::invdt() const
 {
-  return Actions::Proto::store(m_implementation->m_invdt);
+  return m_implementation->m_invdt;
 }
 
 

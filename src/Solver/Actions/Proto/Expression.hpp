@@ -10,7 +10,7 @@
 #include <map>
 
 #include <boost/mpl/for_each.hpp>
-#include <boost/proto/deep_copy.hpp>
+//#include <boost/proto/deep_copy.hpp>
 
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
@@ -64,7 +64,7 @@ public:
   
   ExpressionBase(const ExprT& expr) :
     m_constant_values(),
-    m_expr( boost::proto::deep_copy( ReplaceConfigurableConstants()(expr, m_constant_values) ) )
+    m_expr( DeepCopy()( ReplaceConfigurableConstants()(expr, m_constant_values) ) )
   {
     // Store the variables
     CopyNumberedVars<VariablesT> ctx(m_variables);
@@ -101,7 +101,7 @@ private:
 protected:
 
   /// Store a copy of the expression
-  typedef typename boost::proto::result_of::deep_copy< typename boost::result_of<ReplaceConfigurableConstants(ExprT, ConstantStorage)>::type >::type CopiedExprT;
+  typedef typename boost::result_of< DeepCopy(typename boost::result_of<ReplaceConfigurableConstants(ExprT, ConstantStorage)>::type) >::type CopiedExprT;
   CopiedExprT m_expr;
   
   // Number of variables

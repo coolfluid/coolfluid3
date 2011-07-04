@@ -15,13 +15,6 @@ list( APPEND coolfluid_ufem_files
   UnsteadyModel.cpp
 )
 
-coolfluid_mark_not_orphan(
-  HeatConductionLinearSteady.cpp
-  HeatConductionLinearSteady.hpp
-  HeatConductionLinearUnsteady.cpp
-  HeatConductionLinearUnsteady.hpp
-)
-
 list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_sf coolfluid_solver_actions)
 
 set( coolfluid_ufem_condition ${CF_ENABLE_PROTO} )

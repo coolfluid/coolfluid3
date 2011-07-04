@@ -173,32 +173,6 @@ struct MeshTerm :
   BOOST_PROTO_EXTENDS_USING_ASSIGN(MeshTerm)
 };
 
-/// Store a given reference, so it can safely be shallow-copied when deep-copying expressions
-template<typename T>
-struct StoredReference
-{
-  typedef T value_type;
-  explicit StoredReference(T& t) : m_t(&t)
-  {
-  }
-  
-  /// Get a reference to the originally referenced object
-  T& get() const
-  {
-    return *m_t;
-  }
-  
-private:
-  T* m_t;
-};
-
-/// Easily store a reference
-template<typename T>
-StoredReference<T> store(T& t)
-{
-  return StoredReference<T>(t);
-}
-
 /// Match field types
 struct FieldTypes :
   boost::proto::or_

@@ -18,13 +18,6 @@ namespace UFEM {
 /// Stores the coefficients for the SUPG model and shares them inside a proto expression through the state
 struct SUPGCoeffs
 {
-  SUPGCoeffs(Real& p_tau_ps, Real& p_tau_su, Real& p_tau_bulk) :
-    tau_ps(p_tau_ps),
-    tau_su(p_tau_su),
-    tau_bulk(p_tau_bulk)
-  {
-  }
-  
   /// Reference velocity magnitude
   Real u_ref;
   
@@ -35,7 +28,7 @@ struct SUPGCoeffs
   Real rho;
   
   /// Model coefficients
-  Solver::Actions::Proto::StoredReference<Real> tau_ps, tau_su, tau_bulk;
+  Real tau_ps, tau_su, tau_bulk;
 };
 
 struct ComputeTau
@@ -49,19 +42,19 @@ struct ComputeTau
     const Real he=sqrt(4./3.141592654*u.support().volume());
     const Real ree=coeffs.u_ref*he/(2.*coeffs.nu);
     const Real xi=std::max(0.,std::min(ree/3.,1.));
-    coeffs.tau_ps.get() = he*xi/(2.*coeffs.u_ref);
-    coeffs.tau_bulk.get() = he*coeffs.u_ref/xi;
+    coeffs.tau_ps = he*xi/(2.*coeffs.u_ref);
+    coeffs.tau_bulk = he*coeffs.u_ref/xi;
     
     // Average cell velocity
     const RealVector2 u_avg = u.value().colwise().mean();
     const Real umag = u_avg.norm();
-    coeffs.tau_su.get() = 0.;
+    coeffs.tau_su = 0.;
     if(umag > 1e-10)
     {
       const Real h = 2. * u.support().volume() / (u.support().nodes() * (u_avg / umag)).array().abs().sum();
       Real ree=umag*h/(2.*coeffs.nu);
       Real xi=std::max(0.,std::min(ree/3.,1.));
-      coeffs.tau_su.get() = h*xi/(2.*umag);
+      coeffs.tau_su = h*xi/(2.*umag);
     }
   }
 };

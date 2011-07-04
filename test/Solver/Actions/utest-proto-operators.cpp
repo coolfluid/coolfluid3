@@ -478,7 +478,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   elements_expression
   (
     boost::mpl::vector1<SF::Quad2DLagrangeP1>(),
-    element_quadrature(boost::proto::lit(store(result)) += u*nabla(u))
+    element_quadrature(boost::proto::lit(result) += u*nabla(u))
   )->loop(mesh->topology());
   
   std::cout << result << std::endl;

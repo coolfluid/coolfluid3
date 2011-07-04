@@ -13,9 +13,7 @@
 #include "Model.hpp"
 
 namespace CF {
-  namespace Solver {
-    namespace Actions { namespace Proto { template<class T > struct StoredReference; } }
-  class CTime; }
+  namespace Solver { class CTime; }
 namespace UFEM {
 
 /// Base class for unsteady problems
@@ -43,7 +41,7 @@ public: // functions
   Solver::CTime& time();
   
   /// Quick access to the inverse of the timestep
-  Solver::Actions::Proto::StoredReference<Real> invdt() const;
+  Real& invdt() const;
   
 private:
   class Implementation;
