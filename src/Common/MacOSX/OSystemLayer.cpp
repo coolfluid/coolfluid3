@@ -63,41 +63,41 @@ std::string OSystemLayer::dump_back_trace ()
   static int i = 0;
   ++i;
 
-	
-	std::ostringstream oss;
+
+  std::ostringstream oss;
   int j, nptrs;
   void *buffer[BUFFER_SIZE];
-  char **strings;	
-	
-  //printf ("dumping %d backtrace ...\n", i);
+  char **strings;
+
+	//printf ("dumping %d backtrace ...\n", i);
 	oss << "dumping " << i << " backtrace ...\n";
-  nptrs = backtrace(buffer, BUFFER_SIZE);
-  oss << "\nbacktrace() returned " << nptrs << " addresses\n";
+	nptrs = backtrace(buffer, BUFFER_SIZE);
+	oss << "\nbacktrace() returned " << nptrs << " addresses\n";
 
   strings = backtrace_symbols(buffer, nptrs);
   if (strings == NULL)
     oss << "\nno backtrace_symbols found\n";
-	
+
 #ifdef CF_HAVE_CXXABI_H
 
 	boost::regex e("([0-9]+)[[:space:]]+(.+)[[:space:]]+(.+)[[:space:]]+(.+)[[:space:]]+\\+[[:space:]]+(.+)");
 	boost::match_results<std::string::const_iterator> what;
-	
+
 	// iterate over the returned symbol lines. skip the first, it is the
 	// address of this function.
 	for (j = 1; j < nptrs; j++)
 	{
 		std::string trace(strings[j]);
-		
+
 		if (boost::regex_search(trace,what,e))
 		{
 			trace = std::string(what[4].first,what[4].second);
 			size_t maxName = 1024;
 			int demangleStatus;
-			
+
 			char* demangledName = (char*) malloc(maxName);
 			if ((demangledName = abi::__cxa_demangle(trace.c_str(), demangledName, &maxName,
-																							 &demangleStatus)) && demangleStatus == 0) 
+																							 &demangleStatus)) && demangleStatus == 0)
 			{
 				trace = demangledName; // the demangled name is now in our trace string
 			}
@@ -107,10 +107,10 @@ std::string OSystemLayer::dump_back_trace ()
 	}
 #else
 	for (j = 0; j < nptrs; j++)
-	  oss << strings[j] << "\n";
+		oss << strings[j] << "\n";
 #endif
-	
-	free(strings);
+
+  free(strings);
 
   #undef BUFFER_SIZE
 
@@ -210,8 +210,8 @@ void OSystemLayer::regist_os_signal_handlers()
 
   // enable the exceptions that will raise the SIGFPE signal
   feenableexcept ( FE_DIVBYZERO );
-  feenableexcept ( FE_OVERFLOW  );
-  feenableexcept ( FE_UNDERFLOW );
+  //feenableexcept ( FE_OVERFLOW  );
+  //feenableexcept ( FE_UNDERFLOW );
   // feenableexcept ( FE_INVALID   );
   // feenableexcept ( FE_INEXACT   );
 }
