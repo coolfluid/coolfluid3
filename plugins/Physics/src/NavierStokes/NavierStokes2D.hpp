@@ -34,11 +34,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "NavierStokes2D"; }
 
-  /// @returns the dimensionality of this model
-  virtual Uint ndim() { return (Uint) _ndim; }
-  /// @returns the number of equations
-  virtual Uint neqs() { return (Uint) _neqs; }
-
   /// physical properties
   struct Properties : public Physics::Properties
   {
@@ -66,12 +61,24 @@ public: // functions
     Real Ma;                  /// mach number
   };
 
+  /// @name INTERFACE
+  //@{
+
+  /// @returns the dimensionality of this model
+  virtual Uint ndim() { return (Uint) _ndim; }
+  /// @returns the number of equations
+  virtual Uint neqs() { return (Uint) _neqs; }
+  /// @return the physical model type
+  virtual std::string type() const { return type_name(); }
+  /// create a physical properties
   virtual Physics::Properties* create_properties()
   {
     return new NavierStokes2D::Properties();
   }
-
+  /// create a variables description
   virtual Physics::Variables* create_variables( const std::string& name );
+
+  //@} END INTERFACE
 
 }; // NavierStokes2D
 

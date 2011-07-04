@@ -50,14 +50,13 @@ public: // functions
 
   /// @return dimensionality of the problem, which is
   ///         the number of spatial coordinates used in the PDEs
-  virtual Uint dimensions() const = 0;
+  virtual Uint ndim() const = 0;
   
   /// @return the number of degrees of freedom (DOFs), i.e. the number of components of the state vector (the number of scalars needed to represent
   /// the solution at a single node)
-  virtual Uint nb_dof() const = 0;
+  virtual Uint neqs() const = 0;
   
   /// @return the physical model type
-  /// @todo make this a pure virtual function
   virtual std::string type() const = 0;
 
   /// create a physical properties
