@@ -18,6 +18,8 @@
 #include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/LibLoader.hpp"
+#include "Common/OSystem.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -59,6 +61,11 @@ struct global_fixture
     mpi::PE::instance().init(boost::unit_test::framework::master_test_suite().argc,
                              boost::unit_test::framework::master_test_suite().argv);
 
+    LibLoader& loader = *OSystem::instance().lib_loader();
+
+    loader.load_library("coolfluid_mesh_neu");
+    loader.load_library("coolfluid_mesh_gmsh");
+
     wizard = allocate_component<SteadyExplicit>("wizard");
 
     SignalFrame frame;
@@ -76,9 +83,9 @@ struct global_fixture
 
    solver.configure_option("domain", domain.uri() );
 
-   CMeshWriter::Ptr gmsh_writer =
-       build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
-   model.add_component(gmsh_writer);
+   CMeshWriter::Ptr writer =
+       build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Tecplot.CWriter", "Writer" );
+   model.add_component(writer);
 
   }
 
@@ -91,7 +98,7 @@ struct global_fixture
 
   SteadyExplicit::Ptr wizard;
 
-};
+}; // !global_fixture
 
 struct local_fixture
 {
@@ -121,8 +128,6 @@ BOOST_AUTO_TEST_SUITE( linearadv2d_test_suite )
 BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 {
   SignalFrame frame; SignalOptions options( frame );
-
-  std::vector<URI> files;
 
   URI file( "file:rectangle2x1-tg-p1-953.msh");
 //  URI file( "file:rectangle2x1-tg-p2-3689.msh");

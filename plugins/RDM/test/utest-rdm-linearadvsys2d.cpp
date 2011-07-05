@@ -18,6 +18,8 @@
 #include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/LibLoader.hpp"
+#include "Common/OSystem.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -49,15 +51,23 @@ using namespace CF::RDM;
 
 //#define BUBBLE
 
-struct linearadvsys2d_global_fixture
+struct global_fixture
 {
-  linearadvsys2d_global_fixture()
+  global_fixture()
   {
     Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
 
 
-    linearadvsys2d_wizard = allocate_component<SteadyExplicit>("mymodel");
+    mpi::PE::instance().init(boost::unit_test::framework::master_test_suite().argc,
+                             boost::unit_test::framework::master_test_suite().argv);
+
+    LibLoader& loader = *OSystem::instance().lib_loader();
+
+    loader.load_library("coolfluid_mesh_neu");
+    loader.load_library("coolfluid_mesh_gmsh");
+
+    wizard = allocate_component<SteadyExplicit>("wizard");
 
     SignalFrame frame;
     SignalOptions options( frame );
@@ -65,23 +75,35 @@ struct linearadvsys2d_global_fixture
     options.add<std::string>("ModelName","mymodel");
     options.add<std::string>("PhysicalModel","LinearAdvSys2D");
 
-    linearadvsys2d_wizard->signal_create_model(frame);
+    wizard->signal_create_model(frame);
+
+   CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
+
+   CDomain& domain = find_component_recursively<CDomain>(model);
+   CSolver& solver = find_component_recursively<CSolver>(model);
+
+   solver.configure_option("domain", domain.uri() );
+
+   CMeshWriter::Ptr writer =
+       build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Tecplot.CWriter", "Writer" );
+   model.add_component(writer);
+
   }
 
-  ~linearadvsys2d_global_fixture()
+  ~global_fixture()
   {
-    linearadvsys2d_wizard.reset();
-
+    wizard.reset();
+    mpi::PE::instance().finalize();
     Core::instance().terminate();
   }
 
-  SteadyExplicit::Ptr linearadvsys2d_wizard;
+  SteadyExplicit::Ptr wizard;
 
-};
+}; // !global_fixture
 
-struct linearadvsys2d_local_fixture
+struct local_fixture
 {
-  linearadvsys2d_local_fixture() :
+  local_fixture() :
     model  ( * Core::instance().root().get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
@@ -95,38 +117,15 @@ struct linearadvsys2d_local_fixture
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( linearadvsys2d_global_fixture )
+BOOST_GLOBAL_FIXTURE( global_fixture )
 
 BOOST_AUTO_TEST_SUITE( linearadvsys2d_test_suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_check_tree , linearadvsys2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 {
-  BOOST_CHECK(true);
-
-  SignalFrame frame;
-  SignalOptions options( frame );
-
-  Core::instance().root().signal_list_tree(frame);
-
-//  CFinfo << model.tree() << CFendl;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadvsys2d_local_fixture )
-{
-  BOOST_CHECK(true);
-
-  // create the xml parameters for the read mesh signal
-
-  SignalFrame frame;
-  SignalOptions options( frame );
-
-  BOOST_CHECK(true);
-
-  std::vector<URI> files;
+  SignalFrame frame; SignalOptions options( frame );
 
   URI file( "file:rectangle2x1-tg-p1-953.msh");
 //  URI file( "file:rectangle2x1-tg-p2-3689.msh");
@@ -140,6 +139,10 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadvsys2d_local_fixture )
   domain.signal_load_mesh( frame );
 
   BOOST_CHECK_NE( domain.count_children(), (Uint) 0);
+
+  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+
+  solver.configure_option("mesh", mesh->uri() );
 
 #ifdef BUBBLE // enrich the mesh with bubble functions
   CMeshTransformer::Ptr enricher =
@@ -155,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , linearadvsys2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadvsys2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -166,7 +169,7 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , linearadvsys2d_local_fixt
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadvsys2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -203,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , linearadvsys2d_local_fixtur
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , linearadvsys2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -220,7 +223,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , linearadvsys2d_local_fixtu
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_lda , linearadvsys2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -263,7 +266,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , linearadvsys2d_local_fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_output , linearadvsys2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_output , local_fixture )
 {
   BOOST_CHECK(true);
 

@@ -19,6 +19,8 @@
 #include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/LibLoader.hpp"
+#include "Common/OSystem.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
@@ -48,14 +50,23 @@ using namespace CF::RDM;
 
 //#define BUBBLE
 
-struct burgers2d_global_fixture
+struct global_fixture
 {
-  burgers2d_global_fixture()
+  global_fixture()
   {
     Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
 
-    burgers2d_wizard = allocate_component<SteadyExplicit>("mymodel");
+
+    mpi::PE::instance().init(boost::unit_test::framework::master_test_suite().argc,
+                             boost::unit_test::framework::master_test_suite().argv);
+
+    LibLoader& loader = *OSystem::instance().lib_loader();
+
+    loader.load_library("coolfluid_mesh_neu");
+    loader.load_library("coolfluid_mesh_gmsh");
+
+    wizard = allocate_component<SteadyExplicit>("wizard");
 
     SignalFrame frame;
     SignalOptions options( frame );
@@ -63,18 +74,36 @@ struct burgers2d_global_fixture
     options.add<std::string>("ModelName","mymodel");
     options.add<std::string>("PhysicalModel","Burgers2D");
 
-    burgers2d_wizard->signal_create_model(frame);
+    wizard->signal_create_model(frame);
+
+   CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
+
+   CDomain& domain = find_component_recursively<CDomain>(model);
+   CSolver& solver = find_component_recursively<CSolver>(model);
+
+   solver.configure_option("domain", domain.uri() );
+
+   CMeshWriter::Ptr writer =
+       build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Tecplot.CWriter", "Writer" );
+   model.add_component(writer);
+
   }
 
-//  ~burgers2d_global_fixture() { Core::instance().terminate(); }
+  ~global_fixture()
+  {
+    wizard.reset();
+    mpi::PE::instance().finalize();
+    Core::instance().terminate();
+  }
 
-  SteadyExplicit::Ptr burgers2d_wizard;
+  SteadyExplicit::Ptr wizard;
 
-};
+}; // !global_fixture
 
-struct burgers2d_local_fixture
+
+struct local_fixture
 {
-  burgers2d_local_fixture() :
+  local_fixture() :
     model  ( * Core::instance().root().get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
@@ -87,13 +116,13 @@ struct burgers2d_local_fixture
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( burgers2d_global_fixture )
+BOOST_GLOBAL_FIXTURE( global_fixture )
 
 BOOST_AUTO_TEST_SUITE( burgers2d_test_suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( check_tree , burgers2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( check_tree , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -106,7 +135,7 @@ BOOST_FIXTURE_TEST_CASE( check_tree , burgers2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( read_mesh , burgers2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -153,7 +182,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , burgers2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , burgers2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -164,7 +193,7 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , burgers2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , burgers2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -203,7 +232,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , burgers2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , burgers2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -219,7 +248,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , burgers2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_lda , burgers2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -265,7 +294,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , burgers2d_local_fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//BOOST_FIXTURE_TEST_CASE( solve_blended , burgers2d_local_fixture )
+//BOOST_FIXTURE_TEST_CASE( solve_blended , local_fixture )
 //{
 //  BOOST_CHECK(true);
 
@@ -308,7 +337,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , burgers2d_local_fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( output , burgers2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( output , local_fixture )
 {
   BOOST_CHECK(true);
 

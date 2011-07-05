@@ -1,12 +1,14 @@
 list( APPEND rdm_test_meshes_files
-	# for RotationAdv2D test cases
-  rotation-qd-p1.msh 
-  rotation-qd-p2.msh 
-  rotation-qd-p3.msh 
-  rotation-qd-p4.msh 
-  rotation-tg-p1.msh 
-  rotation-tg-p2.msh 
-  rotation-tg-p3.msh 
+  # for RotationAdv2D test cases
+  rotation-qd-p1.neu
+  rotation-qd-p1.msh
+  rotation-qd-p2.msh
+  rotation-qd-p3.msh
+  rotation-qd-p4.msh
+  rotation-tg-p1.neu
+  rotation-tg-p1.msh
+  rotation-tg-p2.msh
+  rotation-tg-p3.msh
   rotation-tg-p4.msh
   # for LinearAdv2D and LinearAdvSys2D test cases
   rectangle2x1-tg-p1-953.msh

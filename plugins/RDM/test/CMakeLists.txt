@@ -1,13 +1,13 @@
 # copy test meshes here
 set( RDM_TEST_RUN_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTERNAL "dir for running RDM tests" )
 
+set( CF_ALL_UTESTS_PARALLEL 1 ) # override option here
+
 ##########################################################################
 
 list( APPEND utest-rdm-linearadv2d_cflibs coolfluid_rdm_scalar   )
 list( APPEND utest-rdm-linearadv2d_files
   utest-rdm-linearadv2d.cpp )
-
-set(utest-rdm-linearadv2d_mpi_test TRUE)
 
 coolfluid_add_unit_test( utest-rdm-linearadv2d )
 
@@ -23,8 +23,6 @@ coolfluid_add_unit_test( utest-rdm-linearadv3d )
 
 list( APPEND utest-rdm-rotationadv2d_cflibs coolfluid_rdm_scalar  )
 list( APPEND utest-rdm-rotationadv2d_files  utest-rdm-rotationadv2d.cpp )
-
-set(utest-rdm-rotationadv2d_mpi_test TRUE)
 
 coolfluid_add_unit_test( utest-rdm-rotationadv2d )
 
@@ -57,7 +55,7 @@ list( APPEND utest-rdm-sinusbump_files  utest-rdm-sinusbump.cpp )
 coolfluid_add_unit_test( utest-rdm-sinusbump )
 
 ##########################################################################
-  
+
 if(CF_ENABLE_GPU AND OPENCL_FOUND)
   set(utest-rdm-rotationadv2dgpu_condition     TRUE)
   set(utest-rdm-translationadv2dgpu_condition  TRUE)
@@ -67,7 +65,7 @@ else()
   set(utest-rdm-translationadv2dgpu_condition  FALSE)
   set(utest-rdm-euler2dgpu_condition           FALSE)
 endif()
-  
+
   list( APPEND utest-rdm-rotationadv2dgpu_cflibs   coolfluid_rdm_gpu )
   list( APPEND utest-rdm-rotationadv2dgpu_files    utest-rdm-rotationadv2d-gpu.cpp )
 
@@ -91,7 +89,7 @@ endif()
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd-p1.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
-                
+
 ##########################################################################
 
   list( APPEND utest-rdm-euler2dgpu_cflibs   coolfluid_rdm_gpu )

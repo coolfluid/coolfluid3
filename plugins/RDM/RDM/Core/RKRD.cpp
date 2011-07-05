@@ -320,7 +320,7 @@ void RKRD::signature_signal_create_domain_term( SignalArgs& node )
 void RKRD::signal_initialize_solution( SignalArgs& node )
 {
   if( is_null(m_mesh.lock()) )
-      throw SetupError( FromHere(), "Domain or Mesh has not been configured on solver " + uri().string() );
+      throw SetupError( FromHere(), "Mesh has not been configured on solver " + uri().string() );
 
   cf_assert( is_not_null(m_solution.lock()) );
 

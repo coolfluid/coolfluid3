@@ -50,26 +50,23 @@ using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::RDM;
 
-struct sinusbump_global_fixture
+struct global_fixture
 {
-  sinusbump_global_fixture()
+  global_fixture()
   {
     Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
 
-    // Load the required libraries (we assume the working dir is the binary path)
-    LibLoader& loader = *OSystem::instance().lib_loader();
 
-    const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of
-                                                             ("../../../dso");
-    loader.set_search_paths(lib_paths);
+    mpi::PE::instance().init(boost::unit_test::framework::master_test_suite().argc,
+                             boost::unit_test::framework::master_test_suite().argv);
+
+    LibLoader& loader = *OSystem::instance().lib_loader();
 
     loader.load_library("coolfluid_mesh_neu");
     loader.load_library("coolfluid_mesh_gmsh");
-    loader.load_library("coolfluid_mesh_tecplot");
-    loader.load_library("coolfluid_mesh_vtklegacy");
 
-    sinusbump_wizard = allocate_component<SteadyExplicit>("mymodel");
+    wizard = allocate_component<SteadyExplicit>("wizard");
 
     SignalFrame frame;
     SignalOptions options( frame );
@@ -77,19 +74,35 @@ struct sinusbump_global_fixture
     options.add<std::string>("ModelName","mymodel");
     options.add<std::string>("PhysicalModel","Euler2D");
 
-    sinusbump_wizard->signal_create_model(frame);
+    wizard->signal_create_model(frame);
+
+   CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
+
+   CDomain& domain = find_component_recursively<CDomain>(model);
+   CSolver& solver = find_component_recursively<CSolver>(model);
+
+   solver.configure_option("domain", domain.uri() );
+
+   CMeshWriter::Ptr writer =
+       build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Tecplot.CWriter", "Writer" );
+   model.add_component(writer);
+
   }
 
-//  ~sinusbump_global_fixture() { Core::instance().terminate(); }
+  ~global_fixture()
+  {
+    wizard.reset();
+    mpi::PE::instance().finalize();
+    Core::instance().terminate();
+  }
 
+  SteadyExplicit::Ptr wizard;
 
-  SteadyExplicit::Ptr sinusbump_wizard;
+}; // !global_fixture
 
-};
-
-struct sinusbump_local_fixture
+struct local_fixture
 {
-  sinusbump_local_fixture() :
+  local_fixture() :
     model  ( * Core::instance().root().get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
@@ -103,13 +116,13 @@ struct sinusbump_local_fixture
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( sinusbump_global_fixture )
+BOOST_GLOBAL_FIXTURE( global_fixture )
 
 BOOST_AUTO_TEST_SUITE( sinusbump_test_suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_check_tree , sinusbump_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_check_tree , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -121,7 +134,7 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , sinusbump_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_read_mesh , sinusbump_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_read_mesh , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -154,7 +167,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , sinusbump_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , sinusbump_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -165,7 +178,7 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , sinusbump_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , sinusbump_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -204,7 +217,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , sinusbump_local_fix
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , sinusbump_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -237,7 +250,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , sinusbump_local_fi
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_wall , sinusbump_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_wall , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -268,7 +281,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_wall , sinusbump_local_fixt
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , sinusbump_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -298,7 +311,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , sinusbump_local_fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_init_output , sinusbump_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_init_output , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -322,7 +335,7 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , sinusbump_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_lda, sinusbump_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve_lda, local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -365,7 +378,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda, sinusbump_local_fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_output , sinusbump_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_output , local_fixture )
 {
   BOOST_CHECK(true);
 

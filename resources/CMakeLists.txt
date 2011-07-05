@@ -9,8 +9,6 @@ list( APPEND resources_files
    rectangle-qd-p2.msh
    rectangle-mix-p1.msh
    rectangle-mix-p2.msh
-   rotation-tg-p1.neu
-   rotation-qd-p1.neu
    sinusbump-tg-p1.msh
 )
 

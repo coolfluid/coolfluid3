@@ -23,7 +23,8 @@ call //Root/model/Domain/load_mesh \
 # configure solver
 cd //Root/model/Solver
 
-configure ./ domain:uri=cpath:../Domain
+configure ./ domain:uri=cpath://Root/model/Domain
+configure ./ mesh:uri=cpath://Root/model/Domain/mesh
 
 configure time_stepping cfl:real=0.250
 configure time_stepping MaxIter:unsigned=500

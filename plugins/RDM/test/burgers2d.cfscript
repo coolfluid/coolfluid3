@@ -23,7 +23,8 @@ call //Root/model/Domain/load_mesh \
 # configure solver
 cd //Root/model/Solver
 
-configure ./ domain:uri=cpath:../Domain
+configure ./ domain:uri=cpath://Root/model/Domain
+configure ./ mesh:uri=cpath://Root/model/Domain/mesh
 
 configure time_stepping cfl:real=1.0
 configure time_stepping MaxIter:unsigned=100
@@ -45,18 +46,31 @@ call create_domain_term Name:string=INTERNAL \
      Type:string=CF.RDM.Schemes.CSysLDA \
      Regions:array[uri]=//Root/model/Domain/mesh/topology
 
+# write initial solution
+
+create tec_writer CF.Mesh.Tecplot.CWriter
+
+configure tec_writer fields:array[uri]=//Root/model/Domain/mesh/solution
+configure tec_writer file:uri=solution.init.plt
+configure tec_writer mesh:uri=//Root/model/Domain/mesh
+
+create msh_writer CF.Mesh.Gmsh.CWriter
+
+configure msh_writer fields:array[uri]=//Root/model/Domain/mesh/solution
+configure msh_writer file:uri=solution.init.msh
+configure msh_writer mesh:uri=//Root/model/Domain/mesh
+
+call tec_writer/write_mesh
+call msh_writer/write_mesh
+
 # solve
 
 call solve
-cd ..
 
-# write solution
+# write final solution
 
-create writer CF.Mesh.Gmsh.CWriter
+configure tec_writer file:uri=solution.plt
+configure msh_writer file:uri=solution.msh
 
-cd writer
-configure ./ fields:array[uri]=//Root/model/Domain/mesh/solution
-configure ./ file:uri=solution.msh
-configure ./ mesh:uri=//Root/model/Domain/mesh
-
-call write_mesh
+call tec_writer/write_mesh
+call msh_writer/write_mesh

@@ -50,26 +50,23 @@ using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::RDM;
 
-struct euler2d_global_fixture
+struct global_fixture
 {
-  euler2d_global_fixture()
+  global_fixture()
   {
     Core::instance().initiate(boost::unit_test::framework::master_test_suite().argc,
                               boost::unit_test::framework::master_test_suite().argv);
 
-    // Load the required libraries (we assume the working dir is the binary path)
-    LibLoader& loader = *OSystem::instance().lib_loader();
 
-    const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of
-                                                             ("../../../dso");
-    loader.set_search_paths(lib_paths);
+    mpi::PE::instance().init(boost::unit_test::framework::master_test_suite().argc,
+                             boost::unit_test::framework::master_test_suite().argv);
+
+    LibLoader& loader = *OSystem::instance().lib_loader();
 
     loader.load_library("coolfluid_mesh_neu");
     loader.load_library("coolfluid_mesh_gmsh");
-    //loader.load_library("coolfluid_mesh_tecplot");
-    //loader.load_library("coolfluid_mesh_vtklegacy");
 
-    euler2d_wizard = allocate_component<SteadyExplicit>("mymodel");
+    wizard = allocate_component<SteadyExplicit>("wizard");
 
     SignalFrame frame;
     SignalOptions options( frame );
@@ -77,19 +74,35 @@ struct euler2d_global_fixture
     options.add<std::string>("ModelName","mymodel");
     options.add<std::string>("PhysicalModel","Euler2D");
 
-    euler2d_wizard->signal_create_model(frame);
+    wizard->signal_create_model(frame);
+
+   CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
+
+   CDomain& domain = find_component_recursively<CDomain>(model);
+   CSolver& solver = find_component_recursively<CSolver>(model);
+
+   solver.configure_option("domain", domain.uri() );
+
+   CMeshWriter::Ptr writer =
+       build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Tecplot.CWriter", "Writer" );
+   model.add_component(writer);
+
   }
 
-//  ~euler2d_global_fixture() { Core::instance().terminate(); }
+  ~global_fixture()
+  {
+    wizard.reset();
+    mpi::PE::instance().finalize();
+    Core::instance().terminate();
+  }
 
+  SteadyExplicit::Ptr wizard;
 
-  SteadyExplicit::Ptr euler2d_wizard;
+}; // !global_fixture
 
-};
-
-struct euler2d_local_fixture
+struct local_fixture
 {
-  euler2d_local_fixture() :
+  local_fixture() :
     model  ( * Core::instance().root().get_child_ptr("mymodel")->as_ptr<CModel>() ),
     domain ( find_component_recursively<CDomain>(model)  ),
     solver ( find_component_recursively<CSolver>(model) )
@@ -103,38 +116,15 @@ struct euler2d_local_fixture
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( euler2d_global_fixture )
+BOOST_GLOBAL_FIXTURE( global_fixture )
 
 BOOST_AUTO_TEST_SUITE( euler2d_test_suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_check_tree , euler2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 {
-  BOOST_CHECK(true);
-
-  SignalFrame frame;
-  SignalOptions options( frame );
-
-  Core::instance().root().signal_list_tree(frame);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
-{
-  BOOST_CHECK(true);
-
-//  CFinfo << Core::instance().root().tree() << CFendl;
-
-  // create the xml parameters for the read mesh signal
-
-  SignalFrame frame;
-  SignalOptions options( frame );
-
-  BOOST_CHECK(true);
-
-  std::vector<URI> files;
+  SignalFrame frame; SignalOptions options( frame );
 
 //  URI file( "file:square1x1-tg-p1-303n.msh" );     // works
 //  URI file( "file:square1x1-tg-p1-7614.msh" );     // works
@@ -157,33 +147,31 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
 
 //  URI file( "file:square1x1-tgqd-p1-298n.msh" );   // works
 
-  std::vector<URI::Scheme::Type> schemes(1);
-  schemes[0] = URI::Scheme::FILE;
-
   options.add("file", file );
   options.add<std::string>("name", std::string("Mesh") );
-
-  std::cout << "opening file: " << file.string() << std::endl;
 
   domain.signal_load_mesh( frame );
 
   BOOST_CHECK_NE( domain.count_children(), (Uint) 0);
+
+  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+
+  solver.configure_option("mesh", mesh->uri() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , euler2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , local_fixture )
 {
   BOOST_CHECK(true);
 
-  solver.configure_option("domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_option("cfl", 0.25);;
   solver.get_child("time_stepping").configure_option("MaxIter", 250u);;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -230,7 +218,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , euler2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -257,7 +245,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , euler2d_local_fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_init_output , euler2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_init_output , local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -281,7 +269,7 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , euler2d_local_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( solve_b, euler2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( solve_b, local_fixture )
 {
   BOOST_CHECK(true);
 
@@ -324,7 +312,7 @@ BOOST_FIXTURE_TEST_CASE( solve_b, euler2d_local_fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_output , euler2d_local_fixture )
+BOOST_FIXTURE_TEST_CASE( test_output , local_fixture )
 {
   BOOST_CHECK(true);
 
