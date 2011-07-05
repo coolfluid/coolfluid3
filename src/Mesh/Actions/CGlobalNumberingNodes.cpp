@@ -99,8 +99,13 @@ void CGlobalNumberingNodes::execute()
 
   if ( is_null( mesh.nodes().get_child_ptr("glb_node_hash") ) )
     mesh.nodes().create_component<CVector_size_t>("glb_node_hash");
-  CVector_size_t& glb_node_hash = mesh.nodes().get_child("glb_node_hash").as_type<CVector_size_t>();
+
+  CVector_size_t& glb_node_hash =
+      mesh.nodes().get_child("glb_node_hash").as_type<CVector_size_t>();
+
   glb_node_hash.data().resize(coordinates.size());
+
+
   Uint i(0);
   boost_foreach(CTable<Real>::ConstRow coords, coordinates.array() )
   {
@@ -151,14 +156,18 @@ void CGlobalNumberingNodes::execute()
       nodes_rank[i] = mpi::PE::instance().rank();
   }
 
+
   Uint tot_nb_owned_ids=nodes.size()-nb_ghost;
   if (m_debug) std::cout << "["<<mpi::PE::instance().rank()<<"] nodes owned: " << tot_nb_owned_ids << std::endl;
   if (m_debug) std::cout << "["<<mpi::PE::instance().rank()<<"] nb ghost: " << nb_ghost << std::endl;
+
+
   std::vector<Uint> nb_ids_per_proc(mpi::PE::instance().size());
-  //boost::mpi::communicator world;
-  //boost::mpi::all_gather(world, tot_nb_owned_ids, nb_ids_per_proc);
+
   mpi::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
+
   std::vector<Uint> start_id_per_proc(mpi::PE::instance().size());
+
   Uint start_id=0;
   for (Uint p=0; p<nb_ids_per_proc.size(); ++p)
   {
@@ -224,6 +233,7 @@ void CGlobalNumberingNodes::execute()
       }
     }
   }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
