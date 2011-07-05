@@ -155,6 +155,10 @@ if( ${${UTESTNAME}_builds} ) # dont add if it does not build
     set( ${UTESTNAME}_performance_skip FALSE )
   endif()
 
+  if( CF_ALL_UTESTS_PARALLEL )
+    set( ${UTESTNAME}_mpi_test TRUE )
+  endif()
+
   if( ${UTESTNAME}_mpi_test AND NOT CF_MPI_TESTS_RUN )
     set( ${UTESTNAME}_mpi_skip TRUE )
   else()
@@ -173,7 +177,7 @@ if( ${${UTESTNAME}_builds} ) # dont add if it does not build
     # mpi test
 
       if( NOT DEFINED ${UTESTNAME}_mpi_nprocs )
-         set(${UTESTNAME}_mpi_nprocs ${CF_MPI_TESTS_NB_PROCS})
+         set(${UTESTNAME}_mpi_nprocs "1")
       endif()
 
       add_test( ${UTESTNAME} ${CF_MPIRUN_PROGRAM} "-np" ${${UTESTNAME}_mpi_nprocs} ${UTESTNAME} ${${UTESTNAME}_args} )

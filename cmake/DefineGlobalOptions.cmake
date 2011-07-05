@@ -52,7 +52,8 @@ option( CF_INSTALL_UNIT_TESTS       "Enable testing applications install"   OFF 
 
 # MPI testing options
 
-option( CF_MPI_TESTS_RUN             "Run the MPI tests"               ON )
+option( CF_MPI_TESTS_RUN             "Run the MPI tests"               ON  )
+option( CF_ALL_UTESTS_PARALLEL       "Run the all the utests with mpi" OFF )
 option( CF_MPI_TESTS_RUN_SCALABILITY "Run the MPI scalability tests"   OFF )
 
 set( CF_MPI_TESTS_NB_PROCS     "1" CACHE STRING "Number of processes for the regular MPI tests")
