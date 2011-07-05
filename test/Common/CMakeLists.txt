@@ -169,6 +169,7 @@ list( APPEND utest-parallel-environment_files
 )
 
 set(utest-parallel-environment_mpi_test TRUE)
+set(utest-parallel-environment_mpi_nprocs 4)
 coolfluid_add_unit_test( utest-parallel-environment )
 
 ################################################################################
@@ -187,6 +188,7 @@ list( APPEND utest-parallel-collective_files
 )
 
 set(utest-parallel-collective_mpi_test TRUE)
+set(utest-parallel-collective_mpi_nprocs 4)
 coolfluid_add_unit_test( utest-parallel-collective )
 
 ################################################################################
@@ -198,6 +200,8 @@ list( APPEND utest-parallel-collective-example_files
 )
 
 set( utest-parallel-collective-example_mpi_test TRUE)
+set( utest-parallel-collective-example_mpi_nprocs 4)
+
 coolfluid_add_unit_test( utest-parallel-collective-example )
 
 ################################################################################
@@ -209,6 +213,7 @@ list( APPEND utest-parallel-commpattern_files
 )
 
 set(utest-parallel-commpattern_mpi_test TRUE)
+set(utest-parallel-commpattern_mpi_nprocs 4)
 coolfluid_add_unit_test( utest-parallel-commpattern )
 
 ################################################################################
@@ -220,6 +225,7 @@ list( APPEND utest-parallel-datatype_files
 )
 
 set(utest-parallel-datatype_mpi_test TRUE)
+set(utest-parallel-datatype_mpi_nprocs 4)
 coolfluid_add_unit_test( utest-parallel-datatype )
 
 ################################################################################
@@ -231,6 +237,7 @@ list( APPEND utest-parallel-operations_files
 )
 
 set( utest-parallel-operations_mpi_test TRUE)
+set( utest-parallel-operations_mpi_nprocs 4)
 coolfluid_add_unit_test( utest-parallel-operations )
 
 ################################################################################
@@ -242,6 +249,7 @@ list( APPEND utest-common-mpi-buffer_files
 )
 
 set(utest-common-mpi-buffer_mpi_test TRUE)
+set(utest-common-mpi-buffer_mpi_nprocs 4)
 coolfluid_add_unit_test( utest-common-mpi-buffer )
 
 ################################################################################
