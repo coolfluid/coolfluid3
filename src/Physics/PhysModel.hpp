@@ -18,7 +18,9 @@ namespace Physics {
   class Variables; // forward declaration
 
   /// base type for the physical properties
-  struct Properties {};
+  /// @note class is non copyable becase it might contain Eigen matrices
+  /// @note this class and its derived classes should not ave any virtual functions
+  struct Properties : public boost::noncopyable {};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,8 +54,7 @@ public: // functions
   ///         the number of spatial coordinates used in the PDEs
   virtual Uint ndim() const = 0;
   
-  /// @return the number of degrees of freedom (DOFs), i.e. the number of components of the state vector (the number of scalars needed to represent
-  /// the solution at a single node)
+  /// @return number of independent variables in the PDE
   virtual Uint neqs() const = 0;
   
   /// @return the physical model type
@@ -61,9 +62,6 @@ public: // functions
 
   /// create a physical properties
   virtual std::auto_ptr<Physics::Properties> create_properties() = 0;
-
-  /// create a variables description
-  virtual boost::shared_ptr<Physics::Variables> create_variables( const std::string& name ) = 0;
 
   //@} END INTERFACE
 

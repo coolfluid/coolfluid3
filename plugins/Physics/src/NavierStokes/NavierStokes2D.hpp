@@ -9,6 +9,9 @@
 
 #include "Physics/PhysModel.hpp"
 
+#include "Math/Defs.hpp"
+#include "Math/MatrixTypes.hpp"
+
 #include "LibNavierStokes.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -37,28 +40,34 @@ public: // functions
   /// physical properties
   struct Properties : public Physics::Properties
   {
-    Real gamma;               /// specific heat ratio
-    Real gamma_minus_1;       /// specific heat ratio minus one, very commonly used
-    Real R;                   /// gas constant
+    RealVector2 coords;       ///< position in domain
+    RealVector4 vars;         ///< independent variables with positions described in Variables
 
-    Real rho;                 /// density
-    Real inv_rho;             /// inverse of density, very commonly used
-    Real rhou;                /// rho.u
-    Real rhov;                /// rho.v
-    Real rhoE;                /// rho.E
+    Eigen::Matrix<Real,_neqs,_ndim> grad_vars; /// gradient of independent variables
 
-    Real u;                   /// velocity along XX
-    Real v;                   /// velocity along YY
-    Real uuvv;                /// u^2 + v^2
+    Real gamma;               ///< specific heat ratio
+    Real gamma_minus_1;       ///< specific heat ratio minus one, very commonly used
+    Real R;                   ///< gas constant
 
-    Real H;                   /// specific enthalpy
-    Real a2;                  /// square of speed of sound, very commonly used
-    Real a;                   /// speed of sound
-    Real P;                   /// pressure
-    Real T;                   /// temperature
-    Real E;                   /// specific internal energy
-    Real half_gm1_v2;         /// 1/2.(g-1).(u^2+v^2), very commonly used
-    Real Ma;                  /// mach number
+    Real rho;                 ///< density
+    Real rhou;                ///< rho.u
+    Real rhov;                ///< rho.v
+    Real rhoE;                ///< rho.E
+
+    Real inv_rho;             ///< inverse of density, very commonly used
+
+    Real u;                   ///< velocity along XX
+    Real v;                   ///< velocity along YY
+    Real uuvv;                ///< u^2 + v^2
+
+    Real H;                   ///< specific enthalpy
+    Real a2;                  ///< square of speed of sound, very commonly used
+    Real a;                   ///< speed of sound
+    Real P;                   ///< pressure
+    Real T;                   ///< temperature
+    Real E;                   ///< specific internal energy
+    Real half_gm1_v2;         ///< 1/2.(g-1).(u^2+v^2), very commonly used
+    Real Ma;                  ///< mach number
   };
 
   /// @name INTERFACE

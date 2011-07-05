@@ -16,7 +16,7 @@
 
 #include "Solver/State.hpp"
 #include "RiemannSolvers/RiemannSolver.hpp"
-#include "Mesh/Types.hpp"
+#include "Math/Defs.hpp"
 
 using namespace CF;
 using namespace CF::Common;

@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Mesh/Types.hpp"
+#include "Math/Defs.hpp"
 
 #include "RDM/Core/RotationAdv2D.hpp"
 

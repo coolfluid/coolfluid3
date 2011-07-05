@@ -11,6 +11,8 @@
 
 #include "Common/Component.hpp"
 
+#include "Math/MatrixTypes.hpp"
+
 #include "Physics/PhysModel.hpp"
 
 namespace CF {
@@ -45,8 +47,32 @@ public: // functions
   /// @name INTERFACE
   //@{
 
-  virtual void compute_properties( Physics::Properties& physp ) = 0;
-  virtual void flux_jacobian( Physics::Properties& physp ) = 0;
+  /// compute physical properties
+  virtual void compute_properties (const RealVector& coord,
+                                   const RealVector& sol,
+                                   const RealMatrix& grad_sol,
+                                   Physics::Properties& physp) = 0;
+
+  /// compute the physical flux
+  virtual void flux (const Physics::Properties& p,
+                     RealMatrix& flux) = 0;
+
+  /// compute the eigen values of the flux jacobians
+  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+                                           const RealVector& direction,
+                                           RealVector& evalues) = 0;
+
+  /// decompose the eigen structure of the flux jacobians projected on the gradients
+  virtual void flux_jacobian_eigen_structure (const Physics::Properties& p,
+                                              const RealVector& direction,
+                                              RealMatrix& Rv,
+                                              RealMatrix& Lv,
+                                              RealVector& evalues) = 0;
+  /// compute the PDE residual
+  virtual void residual(const Physics::Properties& p,
+                        RealMatrix  flux_jacob[],
+                        RealVector& res) = 0;
+
 
   //@} END INTERFACE
 
@@ -73,16 +99,62 @@ public:
   /// Get the class name
   static std::string type_name () { return "VariablesT<"+PHYS::type_name()+">"; }
 
-  virtual void compute_properties( Physics::Properties& physp )
+  /// compute physical properties
+  virtual void compute_properties(const RealVector& coord,
+                                  const RealVector& sol,
+                                  const RealMatrix& grad_sol,
+                                  Physics::Properties& p)
   {
-    typename PHYS::MODEL::Properties& cphysp = static_cast<typename PHYS::MODEL::Properties&>( physp );
-    PHYS::compute_properties( cphysp );
+    typename PHYS::MODEL::Properties& cp =
+        static_cast<typename PHYS::MODEL::Properties&>( p );
+
+    PHYS::compute_properties( coord, sol, grad_sol, cp );
   }
 
-  virtual void flux_jacobian( Physics::Properties& physp )
+  /// compute the physical flux
+  virtual void flux (const Physics::Properties& p,
+                     RealMatrix& flux)
   {
-    typename PHYS::MODEL::Properties& cphysp = static_cast<typename PHYS::MODEL::Properties&>( physp );
-    PHYS::flux_jacobian( cphysp );
+    typename PHYS::MODEL::Properties const& cp =
+        static_cast<typename PHYS::MODEL::Properties const&>( p );
+
+    PHYS::flux( cp, flux );
+  }
+
+  /// compute the eigen values of the flux jacobians
+  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+                                           const RealVector& direction,
+                                           RealVector& evalues)
+  {
+    typename PHYS::MODEL::Properties const& cp =
+        static_cast<typename PHYS::MODEL::Properties const&>( p );
+
+    PHYS::flux_jacobian_eigen_values( cp, direction, evalues );
+  }
+
+  /// decompose the eigen structure of the flux jacobians projected on the gradients
+  virtual void flux_jacobian_eigen_structure (const Physics::Properties& p,
+                                              const RealVector& direction,
+                                              RealMatrix& Rv,
+                                              RealMatrix& Lv,
+                                              RealVector& evalues)
+  {
+    typename PHYS::MODEL::Properties const& cp =
+        static_cast<typename PHYS::MODEL::Properties const&>( p );
+
+    PHYS::flux_jacobian_eigen_structure( cp, direction, Rv, Lv, evalues );
+
+  }
+
+  /// compute the PDE residual
+  virtual void residual(const Physics::Properties& p,
+                        RealMatrix  flux_jacob[],
+                        RealVector& res)
+  {
+    typename PHYS::MODEL::Properties const& cp =
+        static_cast<typename PHYS::MODEL::Properties const&>( p );
+
+    PHYS::residual( cp, flux_jacob, res );
   }
 
 }; // VariablesT

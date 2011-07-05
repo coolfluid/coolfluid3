@@ -9,7 +9,7 @@
 
 #include "Common/Component.hpp"
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/Types.hpp"
+#include "Math/Defs.hpp"
 #include "Solver/Physics.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

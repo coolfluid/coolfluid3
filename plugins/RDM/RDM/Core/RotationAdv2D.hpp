@@ -52,7 +52,7 @@ public: // functions
   template < typename CV, typename SV, typename GM >
   static void compute_properties ( const CV&  coord,
                                    const SV&  sol,
-                                   const GM&  gradu,
+                                   const GM&  grad_sol,
                                    Properties& p )
   {
     p.Vx =   coord[YY];
@@ -101,7 +101,7 @@ public: // functions
   static void Lu(const Properties& p,
                  const CV&  coord,
                  const SV&  sol,
-                 const GM&  gradu,
+                 const GM&  grad_sol,
                  JM         flux_jacob[],
                  LUV&       Lu)
   {
@@ -111,7 +111,7 @@ public: // functions
     A(0,0) = p.Vx;
     B(0,0) = p.Vy;
 
-    Lu = A * gradu.col(XX) + B * gradu.col(YY);
+    Lu = A * grad_sol.col(XX) + B * grad_sol.col(YY);
   }
 
 

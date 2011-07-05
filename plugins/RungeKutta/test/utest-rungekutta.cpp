@@ -15,7 +15,7 @@
 #include "Common/CRoot.hpp"
 #include "Common/CEnv.hpp"
 
-#include "Mesh/Types.hpp"
+#include "Math/Defs.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/Actions/CreateSpaceP0.hpp"
 

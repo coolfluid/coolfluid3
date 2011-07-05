@@ -10,7 +10,7 @@
 #include "Common/BoostArray.hpp"
 
 #include "Mesh/ShapeFunction.hpp"
-#include "Mesh/Types.hpp"
+#include "Math/Defs.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 

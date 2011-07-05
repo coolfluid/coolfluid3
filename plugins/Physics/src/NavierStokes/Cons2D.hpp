@@ -8,8 +8,7 @@
 #define CF_NavierStokes_Cons2D_hpp
 
 #include "Common/StringConversion.hpp"
-#include "Math/MatrixTypes.hpp"
-#include "Mesh/Types.hpp"
+#include "Math/Defs.hpp"
 
 #include "NavierStokes2D.hpp"
 
@@ -28,18 +27,16 @@ public: // functions
   static std::string type_name () { return "NavierStokes_Cons2D"; }
 
   /// compute physical properties
-  static void compute_properties( Physics::Properties& p ) {}
-
-  /// compute physical properties
-  static void flux_jacobian( Physics::Properties& p ) {}
-
-  /// compute physical properties
   template < typename CV, typename SV, typename GM >
   static void compute_properties ( const CV& coord,
                                    const SV& sol,
-                                   const GM& gradu,
+                                   const GM& grad_vars,
                                    MODEL::Properties& p )
   {
+    p.coords    = coord;      // cache the coordiantes locally
+    p.vars      = sol;        // cache the variables locally
+    p.grad_vars = grad_vars;   // cache the gradient of variables locally
+
     p.gamma = 1.4;                 // diatomic ideal gas
     p.gamma_minus_1 = p.gamma - 1.;
     p.R = 287.058;                 // air
@@ -80,10 +77,8 @@ public: // functions
   }
 
   /// compute the physical flux
-  template < typename CV, typename SV, typename FM >
+  template < typename FM >
   static void flux( const MODEL::Properties& p,
-                    const CV& coord,
-                    const SV& sol,
                     FM& flux)
   {
     flux(0,XX) = p.rhou;              // rho.u
@@ -98,15 +93,13 @@ public: // functions
   }
 
   /// compute the eigen values of the flux jacobians
-  template < typename CV, typename SV, typename GV, typename EV >
-  static void jacobian_eigen_values( const MODEL::Properties& p,
-                                     const CV& coord,
-                                     const SV& sol,
-                                     const GV& gradN,
-                                     EV& Dv)
+  template < typename GV, typename EV >
+  static void flux_jacobian_eigen_values(const MODEL::Properties& p,
+                                         const GV& direction,
+                                         EV& Dv)
   {
-    const Real nx = gradN[XX];
-    const Real ny = gradN[YY];
+    const Real nx = direction[XX];
+    const Real ny = direction[YY];
 
     const Real um = p.u * nx + p.v * ny;
 
@@ -117,17 +110,15 @@ public: // functions
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
-  template < typename CV, typename SV, typename GV, typename EM, typename EV >
-  static void jacobian_eigen_structure(const MODEL::Properties& p,
-                                       const CV& coord,
-                                       const SV& sol,
-                                       const GV& gradN,
-                                       EM& Rv,
-                                       EM& Lv,
-                                       EV& Dv)
+  template < typename GV, typename EM, typename EV >
+  static void flux_jacobian_eigen_structure(const MODEL::Properties& p,
+                                            const GV& direction,
+                                            EM& Rv,
+                                            EM& Lv,
+                                            EV& Dv)
   {
-    const Real nx = gradN[XX];
-    const Real ny = gradN[YY];
+    const Real nx = direction[XX];
+    const Real ny = direction[YY];
 
     const Real inv_a  = 1. / p.a;
     const Real inv_a2 = inv_a * inv_a;
@@ -190,13 +181,10 @@ public: // functions
   }
 
   /// compute the PDE residual
-  template < typename CV, typename SV, typename GM, typename JM, typename LUV >
-  static void Lu(const MODEL::Properties& p,
-                 const CV&  coord,
-                 const SV&  sol,
-                 const GM&  gradu,
-                 JM         flux_jacob[],
-                 LUV&       Lu)
+  template < typename JM, typename LUV >
+  static void residual(const MODEL::Properties& p,
+                       JM         flux_jacob[],
+                       LUV&       Lu)
   {
     const Real gamma_minus_3 = p.gamma - 3.;
 
@@ -238,7 +226,7 @@ public: // functions
     B(3,2) = -p.gamma_minus_1*vv + p.H;
     B(3,3) = p.gamma*p.v;
 
-    Lu = A * gradu.col(XX) + B * gradu.col(YY);
+    Lu = A * p.grad_vars.col(XX) + B * p.grad_vars.col(YY);
   }
 
 }; // Cons2D

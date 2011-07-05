@@ -106,7 +106,6 @@ list( APPEND coolfluid_mesh_files
   Triag3D.cpp
   Tags.hpp
   Tags.cpp
-  Types.hpp
   WriteMesh.hpp
   WriteMesh.cpp
 

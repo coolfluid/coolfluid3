@@ -8,7 +8,7 @@
 #define CF_RDM_LinearAdvSys2D_hpp
 
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/Types.hpp"
+#include "Math/Defs.hpp"
 
 #include "RDM/Core/LibCore.hpp"
 
@@ -60,7 +60,7 @@ public: // functions
   template < typename CV, typename SV, typename GM >
   static void compute_properties ( const CV&  coord,
                                    const SV&  sol,
-                                   const GM&  gradu,
+                                   const GM&  grad_sol,
                                    Properties& p )
   {
   }
@@ -120,7 +120,7 @@ public: // functions
   static void Lu(const Properties& p,
                  const CV&  coord,
                  const SV&  sol,
-                 const GM&  gradu,
+                 const GM&  grad_sol,
                  JM         flux_jacob[],
                  LUV&       Lu)
   {
@@ -133,7 +133,7 @@ public: // functions
     B(0,0) = p.Vy[0];
     B(1,1) = p.Vy[1];
 
-    Lu = A * gradu.col(XX) + B * gradu.col(YY);
+    Lu = A * grad_sol.col(XX) + B * grad_sol.col(YY);
   }
 
 };
