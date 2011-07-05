@@ -71,7 +71,7 @@ ZoltanHandle& CPartitioner::zoltan_handle()
 
   if ( is_null(m_zz) ) // create it
   {
-    m_zz.reset( new ZoltanHandle( PE::instance() ) );
+    m_zz.reset( new ZoltanHandle( PE::instance().communicator() ) );
     cf_assert (m_zz != nullptr);
   }
 

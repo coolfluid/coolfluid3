@@ -203,7 +203,6 @@ Communicator PE::get_parent() const
 {
   mpi::Communicator comm;
   MPI_CHECK_RESULT(MPI_Comm_get_parent,(&comm));
-//  MPI_Comm_get_parent(&comm);
   return comm;
 }
 

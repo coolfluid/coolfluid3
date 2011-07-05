@@ -11,7 +11,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
- 
+
 
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/all_reduce.hpp"
@@ -170,7 +170,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 
     /// @todo boolean type had to be converted to Uint for it to work
     if (mpi::PE::instance().is_active())
-      mpi::all_reduce(mpi::PE::instance(), mpi::logical_and(), &empty_on_this_rank, 1, &empty_on_all_ranks);
+      mpi::PE::instance().instance().all_reduce( mpi::logical_and(), &empty_on_this_rank, 1, &empty_on_all_ranks);
 
     if ( empty_on_all_ranks )
     {

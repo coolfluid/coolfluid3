@@ -68,7 +68,7 @@ void my_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& rec
     sum_strides += strides[i];
   }
   std::vector<Uint> recv_linear(sum_strides);
-  MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), PE::instance()));
+  MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), PE::instance().communicator()));
 
   recv.resize(strides.size());
   for (Uint i=0; i<strides.size(); ++i)
@@ -106,7 +106,7 @@ void my_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::ve
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
 
   std::vector<Uint> recv_linear(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), PE::instance()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), PE::instance().communicator()));
 
   recv.resize(recv_strides.size());
   for (Uint i=0; i<recv_strides.size(); ++i)
@@ -142,7 +142,7 @@ void my_all_to_all(const std::vector<mpi::Buffer>& send, mpi::Buffer& recv)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
 
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::instance()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::instance().communicator()));
   recv.packed_size()=recv.size();
 }
 

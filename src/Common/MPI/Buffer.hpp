@@ -264,14 +264,14 @@ inline void Buffer::pack(const T* data, const Uint data_size)
 {
   // get size of the package
   int size;
-  MPI_Pack_size(data_size, get_mpi_datatype<T>() , PE::instance(), &size);
+  MPI_Pack_size(data_size, get_mpi_datatype<T>() , PE::instance().communicator(), &size);
 
   // resize buffer to fit the package
   resize(size);
 
   // pack the package in the buffer, and modify the packed_size
   int index = static_cast<int>(m_packed_size);
-  MPI_Pack((void*)data, data_size , get_mpi_datatype<T>(), m_buffer, m_size, &index, PE::instance());
+  MPI_Pack((void*)data, data_size , get_mpi_datatype<T>(), m_buffer, m_size, &index, PE::instance().communicator() );
   m_packed_size = index;
   cf_assert(m_packed_size <= m_size);
 }
@@ -283,7 +283,7 @@ inline void Buffer::unpack(T* data, const Uint data_size)
 {
   // unpack the package and modify the unpacked_size
   int index=static_cast<int>(m_unpacked_size);
-  MPI_Unpack(m_buffer, m_size, &index, (void*)data, data_size, get_mpi_datatype<T>(), PE::instance());
+  MPI_Unpack(m_buffer, m_size, &index, (void*)data, data_size, get_mpi_datatype<T>(), PE::instance().communicator() );
   m_unpacked_size = index;
   cf_assert(m_unpacked_size <= m_packed_size);
 }
@@ -409,7 +409,7 @@ void Buffer::broadcast(const Uint root)
 {
   // broadcast buffer size
   int p = m_packed_size;
-  MPI_Bcast( &p, 1, get_mpi_datatype(p), root, PE::instance() );
+  MPI_Bcast( &p, 1, get_mpi_datatype(p), root, PE::instance().communicator() );
 
   // resize the buffer on receiving ranks
   if (PE::instance().rank()!=root)
@@ -419,7 +419,7 @@ void Buffer::broadcast(const Uint root)
   }
 
   // broadcast buffer as MPI_PACKED
-  MPI_Bcast( m_buffer, m_packed_size, MPI_PACKED, root, PE::instance() );
+  MPI_Bcast( m_buffer, m_packed_size, MPI_PACKED, root, PE::instance().communicator() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
