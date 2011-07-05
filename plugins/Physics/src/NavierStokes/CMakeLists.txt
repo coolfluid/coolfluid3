@@ -4,6 +4,7 @@ list( APPEND coolfluid_navierstokes_files
   NavierStokes2D.cpp
   NavierStokes2D.hpp
   Cons2D.hpp
+  Cons2D.cpp
 )
 
 list( APPEND coolfluid_navierstokes_cflibs coolfluid_physics )

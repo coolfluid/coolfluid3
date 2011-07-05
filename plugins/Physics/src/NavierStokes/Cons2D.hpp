@@ -13,8 +13,6 @@
 
 #include "NavierStokes2D.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 namespace NavierStokes {
 
@@ -27,7 +25,7 @@ public: // functions
   typedef NavierStokes2D     MODEL;
 
   /// Get the class name
-  static std::string type_name () { return "Cons2D"; }
+  static std::string type_name () { return "NavierStokes_Cons2D"; }
 
   /// compute physical properties
   static void compute_properties( Physics::Properties& p ) {}
@@ -37,8 +35,8 @@ public: // functions
 
   /// compute physical properties
   template < typename CV, typename SV, typename GM >
-  static void compute_properties ( const CV&  coord,
-                                   const SV&  sol,
+  static void compute_properties ( const CV& coord,
+                                   const SV& sol,
                                    const GM& gradu,
                                    MODEL::Properties& p )
   {
@@ -249,7 +247,5 @@ public: // functions
 
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_NavierStokes_Cons2D_hpp

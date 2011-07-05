@@ -71,12 +71,10 @@ public: // functions
   /// @return the physical model type
   virtual std::string type() const { return type_name(); }
   /// create a physical properties
-  virtual Physics::Properties* create_properties()
+  virtual std::auto_ptr<Physics::Properties> create_properties()
   {
-    return new NavierStokes2D::Properties();
+    return std::auto_ptr<Physics::Properties>( new NavierStokes2D::Properties() );
   }
-  /// create a variables description
-  virtual Physics::Variables* create_variables( const std::string& name );
 
   //@} END INTERFACE
 

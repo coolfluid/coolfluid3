@@ -25,16 +25,6 @@ NavierStokes2D::~NavierStokes2D()
 {
 }
 
-Physics::Variables* NavierStokes2D::create_variables( const std::string& name )
-{
-  using namespace CF::Physics;
-
-  if (name == "cons")
-    return new VariablesT<Cons2D>( VariablesT<Cons2D>::type_name() );
-  else
-    throw std::string("no such variable set available");
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes

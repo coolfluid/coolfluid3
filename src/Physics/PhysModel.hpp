@@ -60,10 +60,10 @@ public: // functions
   virtual std::string type() const = 0;
 
   /// create a physical properties
-  virtual Properties* create_properties() = 0;
+  virtual std::auto_ptr<Physics::Properties> create_properties() = 0;
 
   /// create a variables description
-  virtual Variables* create_variables( const std::string& name ) = 0;
+  virtual boost::shared_ptr<Physics::Variables> create_variables( const std::string& name ) = 0;
 
   //@} END INTERFACE
 
