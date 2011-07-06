@@ -11,6 +11,7 @@
 #include "Cons2D.hpp"
 
 namespace CF {
+namespace Physics {
 namespace NavierStokes {
 
 using namespace Common;
@@ -28,4 +29,5 @@ NavierStokes2D::~NavierStokes2D()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
+} // Physics
 } // CF

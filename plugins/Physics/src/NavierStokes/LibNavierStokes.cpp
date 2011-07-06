@@ -9,6 +9,7 @@
 #include "NavierStokes/LibNavierStokes.hpp"
 
 namespace CF {
+namespace Physics {
 namespace NavierStokes {
 
   using namespace Common;
@@ -28,4 +29,5 @@ void LibNavierStokes::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
+} // Physics
 } // CF

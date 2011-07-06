@@ -21,6 +21,13 @@ namespace Physics {
 
   class Variables;
 
+  /// base unary real operation
+  /// deriving from std::unary_function is not necessary but provides type knowledge
+  struct UnaryRealOp : public std::unary_function<Real,Real>
+  {
+    virtual Real operator() ( const Real& r ) const { return r; };
+  };
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Interface to a set of variables
@@ -61,6 +68,13 @@ public: // functions
   virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
                                            const RealVector& direction,
                                            RealVector& evalues) = 0;
+
+  /// compute the eigen values of the flux jacobians
+  /// and apply a provided operator
+  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+                                           const RealVector& direction,
+                                           RealVector& evalues,
+                                           UnaryRealOp& op ) = 0;
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
   virtual void flux_jacobian_eigen_structure (const Physics::Properties& p,
@@ -131,6 +145,20 @@ public:
 
     PHYS::flux_jacobian_eigen_values( cp, direction, evalues );
   }
+
+  /// compute the eigen values of the flux jacobians
+  /// and apply a provided operator
+  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+                                           const RealVector& direction,
+                                           RealVector& evalues,
+                                           UnaryRealOp& op )
+  {
+    typename PHYS::MODEL::Properties const& cp =
+        static_cast<typename PHYS::MODEL::Properties const&>( p );
+
+    PHYS::flux_jacobian_eigen_values( cp, direction, evalues, op );
+  }
+
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
   virtual void flux_jacobian_eigen_structure (const Physics::Properties& p,

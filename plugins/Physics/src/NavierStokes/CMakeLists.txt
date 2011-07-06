@@ -1,4 +1,4 @@
-list( APPEND coolfluid_navierstokes_files
+list( APPEND coolfluid_physics_navierstokes_files
   LibNavierStokes.cpp
   LibNavierStokes.hpp
   NavierStokes2D.cpp
@@ -7,6 +7,6 @@ list( APPEND coolfluid_navierstokes_files
   Cons2D.cpp
 )
 
-list( APPEND coolfluid_navierstokes_cflibs coolfluid_physics )
+list( APPEND coolfluid_physics_navierstokes_cflibs coolfluid_physics )
 
-coolfluid_add_library( coolfluid_navierstokes )
+coolfluid_add_library( coolfluid_physics_navierstokes )

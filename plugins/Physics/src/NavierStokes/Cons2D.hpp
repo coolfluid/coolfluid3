@@ -13,6 +13,7 @@
 #include "NavierStokes2D.hpp"
 
 namespace CF {
+namespace Physics {
 namespace NavierStokes {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -33,8 +34,8 @@ public: // functions
                                    const GM& grad_vars,
                                    MODEL::Properties& p )
   {
-    p.coords    = coord;      // cache the coordiantes locally
-    p.vars      = sol;        // cache the variables locally
+    p.coords    = coord;       // cache the coordiantes locally
+    p.vars      = sol;         // cache the variables locally
     p.grad_vars = grad_vars;   // cache the gradient of variables locally
 
     p.gamma = 1.4;                 // diatomic ideal gas
@@ -98,15 +99,32 @@ public: // functions
                                          const GV& direction,
                                          EV& Dv)
   {
-    const Real nx = direction[XX];
-    const Real ny = direction[YY];
-
-    const Real um = p.u * nx + p.v * ny;
+    const Real um = p.u * direction[XX]
+                  + p.v * direction[YY];
 
     Dv[0] = um;
     Dv[1] = um;
     Dv[2] = um + p.a;
     Dv[3] = um - p.a;
+  }
+
+  /// compute the eigen values of the flux jacobians
+  template < typename GV, typename EV, typename OP >
+  static void flux_jacobian_eigen_values(const MODEL::Properties& p,
+                                         const GV& direction,
+                                         EV& Dv,
+                                         OP& op )
+
+  {
+    const Real um = p.u * direction[XX]
+                  + p.v * direction[YY];
+
+    const Real op_um = op(um);
+
+    Dv[0] = op_um;
+    Dv[1] = op_um;
+    Dv[2] = op_um + p.a;
+    Dv[3] = op_um - p.a;
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
@@ -233,7 +251,8 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-} // RDM
+} // NavierStokes
+} // Physics
 } // CF
 
 #endif // CF_NavierStokes_Cons2D_hpp
