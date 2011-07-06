@@ -47,6 +47,7 @@ using namespace CF;
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::Mesh;
+using namespace CF::Mesh::Actions;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::RDM;
@@ -144,7 +145,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
   solver.configure_option("mesh", mesh.uri() );
 
-#if 0
+#if 1
   // create faces to cell connectivity
 
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");

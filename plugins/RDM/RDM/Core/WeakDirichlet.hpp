@@ -195,43 +195,56 @@ public: // functions
  /// execute the action
  void executeT ()
  {
-	#if 0
+  #if 0
+
     std::cout << "Face [" << B::idx() << "]" << std::endl;
 
     Uint face_idx = B::idx();
 
-    Mesh::CFaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<Mesh::CFaceCellConnectivity>();
+    Mesh::CFaceCellConnectivity& f2c =
+        B::elements().get_child("cell_connectivity").as_type<Mesh::CFaceCellConnectivity>();
 
     // cf_assert( f2c.is_bdry_face()[face_idx] );
 
+    Component::Ptr neighbor_cells;
+    Uint neighbor_cell_idx;
+
     Mesh::CTable<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
     Uint unified_neighbor_cell_idx = connected_cells[LEFT]; // boundary faces store idx on LEFT face
+
+    // lookup the neighbor_cell elements and the index in its connectivity
+
     boost::tie(neighbor_cells,neighbor_cell_idx) = f2c.lookup().location( unified_neighbor_cell_idx );
 
-    std::cout << "neighbor_cells [" << neighbor_cells.uri().string() << "]" << std::endl;
+    std::cout << "neighbor_cells [" << neighbor_cells->uri().string() << "]" << std::endl;
 
-    Mesh::CTable<Uint>::Ptr connectivity_table =
-        neighbor_cells->elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
+    Mesh::CTable<Uint>& connectivity_table =
+        neighbor_cells->as_type<Mesh::CElements>().node_connectivity();
 
-    const Mesh::CTable<Uint>::ConstRow cell_nodes_idx = connectivity_table->array()[ neighbor_cell_idx ];
+    const Mesh::CTable<Uint>::ConstRow cell_nodes_idx = connectivity_table[ neighbor_cell_idx ];
 
     // prints the neighbor cell nodes idx
 
     std::cout << "cell_nodes_idx : ";
-    std::for_each( cell_nodes_idx.begin(), cell_nodes_idx.end(), CFinfo << _1 << ' ' );
-    std::cout << std::endl;
-	#endif
+    for( Uint n = 0; n < cell_nodes_idx.size(); ++n )
+    {
+       std::cout << cell_nodes_idx[n] << " ";
+    }
+     std::cout << std::endl;
+
+#endif
 
     // get face connectivity
 
    const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
+//   std::cout << "face_nodes_idx : ";
 //   const Uint nbnodes = nodes_idx.shape()[1];
 //   for( Uint n = 0; n < nbnodes; ++n )
 //   {
-//     // std::cout << nodes_idx[n] << " ";
+//      std::cout << nodes_idx[n] << " ";
 //   }
-//   // std::cout << std::endl;
+//   std::cout << std::endl;
 
    // copy the coordinates from the large array to a small
 
