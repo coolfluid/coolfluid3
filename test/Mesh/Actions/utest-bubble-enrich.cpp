@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE( enricher )
 //  CFinfo << "---------------------------------------------------" << CFendl;
 
   // print connectivity
-//  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+//  CMesh& mesh = find_component<CMesh>(domain);
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(*mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;
@@ -179,10 +179,10 @@ BOOST_AUTO_TEST_CASE( remover )
 
   cf_assert( is_not_null(remover) );
 
-  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+  CMesh& mesh = find_component<CMesh>(domain);
 
   // print connectivity
-//  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+//  CMesh& mesh = find_component<CMesh>(domain);
 //  boost_foreach(CElements& elements, find_components_recursively<CCells>(*mesh))
 //  {
 //    CFinfo << "---------------------------------------------------" << CFendl;

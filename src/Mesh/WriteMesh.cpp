@@ -122,8 +122,25 @@ void WriteMesh::update_list_of_available_writers()
 
 void WriteMesh::execute()
 {
-  if (m_mesh.expired()) throw SetupError (FromHere(), "mesh not set");
-  write_mesh(*m_mesh.lock(),m_file,m_fields);
+  if (m_mesh.expired())
+    throw SetupError (FromHere(), "mesh not set");
+
+  if(m_fields.empty())
+    write_mesh( *m_mesh.lock(), m_file ); // writes all fields
+  else
+    write_mesh( *m_mesh.lock(), m_file, m_fields);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void WriteMesh::write_mesh( const CMesh& mesh, const URI& file )
+{
+  std::vector<URI> fields;
+
+  boost_foreach( const CField& field, find_components<CField>(mesh) )
+    fields.push_back(field.uri());
+
+  write_mesh(mesh,file,fields);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

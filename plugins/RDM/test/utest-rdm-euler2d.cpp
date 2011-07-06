@@ -29,6 +29,7 @@
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/Actions/CLoop.hpp"
 
+#include "Mesh/WriteMesh.hpp"
 #include "Mesh/LoadMesh.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CMeshReader.hpp"
@@ -65,6 +66,7 @@ struct global_fixture
 
     loader.load_library("coolfluid_mesh_neu");
     loader.load_library("coolfluid_mesh_gmsh");
+    loader.load_library("coolfluid_mesh_tecplot");
 
     wizard = allocate_component<SteadyExplicit>("wizard");
 
@@ -83,10 +85,7 @@ struct global_fixture
 
    solver.configure_option("domain", domain.uri() );
 
-   CMeshWriter::Ptr writer =
-       build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Tecplot.CWriter", "Writer" );
-   model.add_component(writer);
-
+   model.create_component_ptr<WriteMesh>("writer");
   }
 
   ~global_fixture()
@@ -102,17 +101,19 @@ struct global_fixture
 
 struct local_fixture
 {
-  local_fixture() :
+    local_fixture() :
     model  ( * Core::instance().root().get_child_ptr("mymodel")->as_ptr<CModel>() ),
-    domain ( find_component_recursively<CDomain>(model)  ),
-    solver ( find_component_recursively<CSolver>(model) )
+    domain ( find_component_recursively<CDomain>(model)   ),
+    solver ( find_component_recursively<CSolver>(model)   ),
+    writer ( find_component_recursively<WriteMesh>(model) )
   {}
 
-  CModel& model;
-  CDomain& domain;
-  CSolver& solver;
-};
+  CModel&     model;
+  CDomain&    domain;
+  CSolver&    solver;
+  WriteMesh&  writer;
 
+};
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -154,9 +155,9 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
   BOOST_CHECK_NE( domain.count_children(), (Uint) 0);
 
-  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+  CMesh& mesh = find_component<CMesh>(domain);
 
-  solver.configure_option("mesh", mesh->uri() );
+  solver.configure_option("mesh", mesh.uri() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -245,26 +246,12 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( test_init_output , local_fixture )
+BOOST_FIXTURE_TEST_CASE( initial_output , local_fixture )
 {
-  BOOST_CHECK(true);
+  CMesh& mesh = find_component<CMesh>(domain);
 
-  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
-
-  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
-  model.add_component(gmsh_writer);
-
-  std::vector<URI> fields;
-  boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.uri());
-
-  gmsh_writer->configure_option("fields",fields);
-  gmsh_writer->configure_option("file",URI(model.name()+"_init.msh"));
-  gmsh_writer->configure_option("mesh",mesh->uri());
-
-  gmsh_writer->execute();
-
-  model.remove_component("GmshWriter");
+  writer.write_mesh(mesh,URI(model.name() + "_init.plt"));
+  writer.write_mesh(mesh,URI(model.name() + "_init.msh"));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -285,13 +272,13 @@ BOOST_FIXTURE_TEST_CASE( solve_b, local_fixture )
 
   BOOST_CHECK( domain_terms.count_children() == 0 );
 
-  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+  CMesh& mesh = find_component<CMesh>(domain);
 
   SignalFrame frame;
   SignalOptions options( frame );
 
   std::vector<URI> regions;
-  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+  boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(mesh,"topology"))
     regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
@@ -314,36 +301,10 @@ BOOST_FIXTURE_TEST_CASE( solve_b, local_fixture )
 
 BOOST_FIXTURE_TEST_CASE( test_output , local_fixture )
 {
-  BOOST_CHECK(true);
+  CMesh& mesh = find_component<CMesh>(domain);
 
-  CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
-
-  std::vector<URI> fields;
-  boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.uri());
-
-  // gmsh writer
-
-  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
-  model.add_component(gmsh_writer);
-
-  gmsh_writer->configure_option("fields",fields);
-  gmsh_writer->configure_option("file",URI(model.name()+".msh"));
-  gmsh_writer->configure_option("mesh",mesh->uri());
-
-  gmsh_writer->execute();
-
-  // tecplot writer
-
- /* CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
-  model.add_component(tec_writer);
-
-  tec_writer->configure_option("fields",fields);
-  tec_writer->configure_option("file",URI(model.name()+".plt"));
-  tec_writer->configure_option("mesh",mesh->uri());
-
-  tec_writer->execute(); */
-
+  writer.write_mesh(mesh,URI(model.name() + ".plt"));
+  writer.write_mesh(mesh,URI(model.name() + ".msh"));
 }
 
 //////////////////////////////////////////////////////////////////////////////

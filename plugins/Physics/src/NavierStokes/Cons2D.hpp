@@ -24,6 +24,8 @@ public: // functions
 
   typedef NavierStokes2D     MODEL;
 
+  enum { Rho = 0, RhoU = 1, RhoV = 2, RhoE = 3 };
+
   /// Get the class name
   static std::string type_name () { return "NavierStokes_Cons2D"; }
 
@@ -42,10 +44,10 @@ public: // functions
     p.gamma_minus_1 = p.gamma - 1.;
     p.R = 287.058;                 // air
 
-    p.rho   = sol[0];
-    p.rhou  = sol[1];
-    p.rhov  = sol[2];
-    p.rhoE  = sol[3];
+    p.rho   = sol[Rho ];
+    p.rhou  = sol[RhoU];
+    p.rhov  = sol[RhoV];
+    p.rhoE  = sol[RhoE];
 
     p.inv_rho = 1. / p.rho;
 

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_NavierStokes_NavierStokes2D_hpp
-#define CF_NavierStokes_NavierStokes2D_hpp
+#ifndef CF_Physics_NavierStokes_NavierStokes2D_hpp
+#define CF_Physics_NavierStokes_NavierStokes2D_hpp
 
 #include "Physics/PhysModel.hpp"
 
@@ -14,20 +14,24 @@
 
 #include "LibNavierStokes.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 namespace Physics {
 namespace NavierStokes {
 
-///////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 class NavierStokes_API NavierStokes2D : public Physics::PhysModel {
 
-public: // functions
+public: // typedefs
 
-  enum { _ndim = 2 };
-  enum { _neqs = 4 };
+  enum { _ndim = 2 }; ///< number of dimensions
+  enum { _neqs = 4 }; ///< number of independent variables or equations
+
+  typedef Eigen::Matrix<Real, _ndim, 1>    GeoV;  ///< type of geometry coordinates vector
+  typedef Eigen::Matrix<Real, _neqs, 1>    SolV;  ///< type of solution variables vector
+  typedef Eigen::Matrix<Real, _neqs,_ndim> SolM;  ///< type of solution gradient matrix
+
+public: // functions
 
   /// Constructor
   NavierStokes2D ( const std::string& name );
@@ -41,10 +45,9 @@ public: // functions
   /// physical properties
   struct Properties : public Physics::Properties
   {
-    RealVector2 coords;       ///< position in domain
-    RealVector4 vars;         ///< independent variables with positions described in Variables
-
-    Eigen::Matrix<Real,_neqs,_ndim> grad_vars; /// gradient of independent variables
+    GeoV coords;       ///< position in domain
+    SolV vars;         ///< independent variables with positions described in Variables
+    SolM grad_vars;    ///< gradient of independent variables
 
     Real gamma;               ///< specific heat ratio
     Real gamma_minus_1;       ///< specific heat ratio minus one, very commonly used
@@ -75,9 +78,9 @@ public: // functions
   //@{
 
   /// @returns the dimensionality of this model
-  virtual Uint ndim() { return (Uint) _ndim; }
+  virtual Uint ndim() const { return (Uint) _ndim; }
   /// @returns the number of equations
-  virtual Uint neqs() { return (Uint) _neqs; }
+  virtual Uint neqs() const { return (Uint) _neqs; }
   /// @return the physical model type
   virtual std::string type() const { return type_name(); }
   /// create a physical properties
@@ -90,12 +93,10 @@ public: // functions
 
 }; // NavierStokes2D
 
-////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
 } // Physics
 } // CF
 
-/////////////////////////////////////////////////////////////////////////////////////
-
-#endif // CF_NavierStokes_NavierStokes2D_hpp
+#endif // CF_Physics_NavierStokes_NavierStokes2D_hpp

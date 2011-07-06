@@ -181,13 +181,13 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
     cf_assert( domain_terms.count_children() == 0 );
 
-    CMesh::Ptr mesh = find_component_ptr<CMesh>(domain);
+    CMesh& mesh = find_component<CMesh>(domain);
 
     SignalFrame frame;
     SignalOptions options( frame );
 
     std::vector<URI> regions;
-    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
+    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(mesh,"topology"))
       regions.push_back( region.uri() );
 
     cf_assert( regions.size() == 1u);

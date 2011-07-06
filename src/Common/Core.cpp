@@ -80,6 +80,7 @@ Core::Core()
 
   // these components are placed on the root structure
   // but ownership is shared with Core, so they get destroyed in ~Core()
+  /// @todo should these be static components?
   m_root->add_component( m_environment ).mark_basic();
   m_root->add_component( m_libraries ).mark_basic();
   m_root->add_component( m_factories ).mark_basic();

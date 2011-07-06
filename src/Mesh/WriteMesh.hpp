@@ -52,8 +52,13 @@ public: // functions
 
   //@} END SIGNALS
 
-  /// function write the mesh
+  /// function to write the mesh
+  /// @param fields selection of the fields of data to write
   void write_mesh( const CMesh&, const Common::URI& file, const std::vector<Common::URI>& fields);
+
+  /// function to write the mesh
+  /// writes all the fields on the mesh
+  void write_mesh( const CMesh&, const Common::URI& file);
 
   virtual void execute();
 

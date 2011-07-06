@@ -16,3 +16,5 @@ coolfluid_add_unit_test( utest-euler )
 
 #########################################################################################
 
+add_subdirectory( NavierStokes )
+

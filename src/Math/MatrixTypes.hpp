@@ -4,55 +4,48 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_MatrixTypes_hpp
-#define CF_MatrixTypes_hpp
-
-////////////////////////////////////////////////////////////////////////////////
+#ifndef CF_Math_MatrixTypes_hpp
+#define CF_Math_MatrixTypes_hpp
 
 #include <Eigen/Dense>
 
-#include <Common/CF.hpp>
-
-////////////////////////////////////////////////////////////////////////////////
+#include "Common/CF.hpp"
 
 namespace CF {
 
-////////////////////////////////////////////////////////////////////////////////
-
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Dynamic sized matrix of Real scalars
 typedef Eigen::Matrix<Real, Eigen::Dynamic, Eigen::Dynamic> RealMatrix;
 
-// Fixed size matrix typedefs for 2x2 , 3x3 and 4x4 matrices
-typedef Eigen::Matrix<Real, 2, 2> RealMatrix2;  ///< Fixed size 2x2 matrix
-typedef Eigen::Matrix<Real, 3, 3> RealMatrix3;  ///< Fixed size 3x3 matrix
-typedef Eigen::Matrix<Real, 4, 4> RealMatrix4;  ///< Fixed size 4x4 matrix
-
 /// Dynamic sized column vector
-typedef Eigen::Matrix<Real, Eigen::Dynamic, 1> RealVector;
+typedef Eigen::Matrix<Real, Eigen::Dynamic, 1>    RealVector;
 
-/// Dynamic sized column vector
-typedef RealVector RealColumnVector;
+/// Dynamic sized column vector (alternative naming)
+typedef RealVector                                RealColVector;
 
 /// Dynamic sized row vector
-typedef Eigen::Matrix<Real, 1, Eigen::Dynamic> RealRowVector;
+typedef Eigen::Matrix<Real, 1, Eigen::Dynamic>    RealRowVector;
+
+// Fixed size matrix typedefs for 2x2, 3x3 and 4x4 matrices
+typedef Eigen::Matrix<Real, 2, 2> RealMatrix2;     ///< Fixed size 2x2 matrix
+typedef Eigen::Matrix<Real, 3, 3> RealMatrix3;     ///< Fixed size 3x3 matrix
+typedef Eigen::Matrix<Real, 4, 4> RealMatrix4;     ///< Fixed size 4x4 matrix
 
 // Fixed size vectors for 1, 2, 3 and 4 elements
-typedef Eigen::Matrix<Real, 1, 1> RealVector1;  ///< Fixed size 1x1 column vector
-typedef Eigen::Matrix<Real, 2, 1> RealVector2;  ///< Fixed size 2x1 column vector
-typedef Eigen::Matrix<Real, 3, 1> RealVector3;  ///< Fixed size 3x1 column vector
-typedef Eigen::Matrix<Real, 4, 1> RealVector4;  ///< Fixed size 4x1 column vector
+typedef Eigen::Matrix<Real, 1, 1> RealVector1;     ///< Fixed size 1x1 column vector
+typedef Eigen::Matrix<Real, 2, 1> RealVector2;     ///< Fixed size 2x1 column vector
+typedef Eigen::Matrix<Real, 3, 1> RealVector3;     ///< Fixed size 3x1 column vector
+typedef Eigen::Matrix<Real, 4, 1> RealVector4;     ///< Fixed size 4x1 column vector
 
-/// Fixed size vectors for 1, 2, 3 and 4 elements
+// Fixed size vectors for 1, 2, 3 and 4 elements
 typedef Eigen::Matrix<Real, 1, 1> RealRowVector1;  ///< Fixed size 1x1 row vector
 typedef Eigen::Matrix<Real, 1, 2> RealRowVector2;  ///< Fixed size 1x2 row vector
 typedef Eigen::Matrix<Real, 1, 3> RealRowVector3;  ///< Fixed size 1x3 row vector
 typedef Eigen::Matrix<Real, 1, 4> RealRowVector4;  ///< Fixed size 1x4 row vector
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
 
 } // CF
 
-////////////////////////////////////////////////////////////////////////////////
-
-#endif // CF_MatrixTypes_hpp
+#endif // CF_Math_MatrixTypes_hpp
