@@ -172,8 +172,11 @@ void OSystemLayer::regist_os_signal_handlers()
 int OSystemLayer::handleSIGFPE (int signal)
 {
   printf("\nreceived signal SIGFPE [%d] - 'Floating Point Exception'\n",signal);
-  static std::string dump = Linux::OSystemLayer::dump_back_trace();
-  printf( "%s\n", dump.c_str() );
+  if(ExceptionManager::instance().ExceptionDumps)
+  {
+    static std::string dump = Linux::OSystemLayer::dump_back_trace();
+    printf( "%s\n", dump.c_str() );
+  }
   throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
 }
 

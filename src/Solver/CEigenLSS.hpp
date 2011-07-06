@@ -21,6 +21,7 @@
 #include "LibSolver.hpp"
 
 namespace CF {
+  namespace Common { class URI; }
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +45,7 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CEigenLSS"; }    
   
-  void set_config_file(const std::string& path);
+  void set_config_file(const Common::URI& path);
   
   /// Set the number of equations
   void resize ( Uint nb_dofs );

@@ -6,6 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionComponent.hpp"
+#include "Common/Signal.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CNodes.hpp"
@@ -55,6 +56,11 @@ Model::Model(const std::string& name) :
 {
   configure_option("physical_model", m_implementation->m_physical_model);
   configure_option("region", m_implementation->m_mesh.lock()->topology().as_ptr<CRegion>());
+  
+  regist_signal( "read_mesh" , "Read the mesh, as configured in the Input File option", "Read Mesh" )
+    ->signal->connect ( boost::bind ( &Model::signal_read_mesh, this, _1 ) );
+  regist_signal( "write_mesh" , "Write the mesh, as configured in the Output File option", "Write Mesh" )
+    ->signal->connect ( boost::bind ( &Model::signal_write_mesh, this, _1 ) );
 }
 
 Model::~Model()

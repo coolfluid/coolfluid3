@@ -34,7 +34,6 @@ inline void assign_dirichlet(CEigenLSS& lss, const Real new_value, const Real ol
 {
   // Index in the global system
   const Uint sys_idx = node_idx*nb_dofs + offset;
-  
   lss.set_dirichlet_bc(sys_idx, new_value - old_value);
 }
 

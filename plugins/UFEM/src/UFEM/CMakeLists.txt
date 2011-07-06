@@ -1,6 +1,8 @@
 list( APPEND coolfluid_ufem_files
   BoundaryConditions.hpp
   BoundaryConditions.cpp
+  HeatConductionSteady.hpp
+  HeatConductionSteady.cpp
   LibUFEM.cpp
   LibUFEM.hpp
   LinearProblem.hpp

@@ -6,8 +6,11 @@
 
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
+
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CNodes.hpp"
 
@@ -21,6 +24,7 @@ namespace CF {
 namespace UFEM {
 
 using namespace Common;
+using namespace Common::XML;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
@@ -51,6 +55,28 @@ struct BoundaryConditions::Implementation
     return m_component.add_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
   }
   
+  void signal_add_constant_bc(SignalArgs& node)
+  {
+    SignalOptions options( node );
+    
+    const std::string region_name = options.option<std::string>("region_name");
+    const std::string variable_name = options.option<std::string>("variable_name");
+    
+    BoundaryConditions& my_bc = dynamic_cast<BoundaryConditions&>(m_component);
+    if(my_bc.physical_model().variable_type(variable_name) == CF::Solver::CPhysicalModel::SCALAR)
+      my_bc << my_bc.add_constant_bc(region_name, variable_name, 0.);
+    else
+      my_bc << my_bc.add_constant_bc(region_name, variable_name, RealVector());
+  }
+  
+  void add_constant_bc_signature(SignalArgs& node)
+  {
+    SignalOptions options( node );
+
+    options.add("region_name", std::string(), "Default region name for this BC");
+    options.add("variable_name", std::string(), "Variable name for this BC");
+  }
+  
   CProtoActionDirector& m_component;
   LSSProxy m_proxy;
   DirichletBC dirichlet;
@@ -61,6 +87,10 @@ BoundaryConditions::BoundaryConditions(const std::string& name) :
   m_implementation( new Implementation(*this) )
 {
   m_options["propagate_region"].change_value(false);
+  
+  regist_signal("add_constant_bc" , "Create a constant Dirichlet BC", "Add Constant BC")
+    ->signal->connect( boost::bind(&Implementation::signal_add_constant_bc, m_implementation.get(), _1) );
+  signal("add_constant_bc")->signature->connect( boost::bind(&Implementation::add_constant_bc_signature, m_implementation.get(), _1) );
 }
 
 BoundaryConditions::~BoundaryConditions()
@@ -78,7 +108,14 @@ CAction& BoundaryConditions::add_constant_bc(const std::string& region_name, con
   {
     CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(region_option.component(), region_name);
     if(region)
+    {
+      CFinfo << "Resolved BC default region as " << region->uri().string() << CFendl;
       result.configure_option("region", region);
+    }
+    else
+    {
+      CFwarn << "Default region with name " << region_name << " was not found" << CFendl;
+    }
   }
   
   return result;

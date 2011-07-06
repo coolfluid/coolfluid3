@@ -55,7 +55,7 @@ CEnv::CEnv ( const std::string& name) : Component ( name )
     ->mark_basic()
     ->attach_trigger(boost::bind(&CEnv::trigger_exception_aborts,this));
 
-  m_options.add_option(OptionT<bool>::create("regist_signal_handlers","Regist Signal Handlers", "If true, regist signal handlers", true))
+  m_options.add_option(OptionT<bool>::create("regist_signal_handlers","Regist Signal Handlers", "If true, regist signal handlers", false))
     ->mark_basic();
 
   m_options.add_option(OptionT<bool>::create("verbose_events","Verbose Events", "If true, events are verbose output.", false))

@@ -1,0 +1,32 @@
+#############################################################################
+### Global settings
+configure //Root/Environment assertion_backtrace:bool=false exception_backtrace:bool=false log_level:unsigned=4 regist_signal_handlers:bool=false
+
+#############################################################################
+### create model
+create HotModel CF.UFEM.HeatConductionSteady
+
+#############################################################################
+### Set input and output files, and read the mesh
+configure HotModel input_file:uri=@UFEM_HEAT_INPUT_MESH@
+configure HotModel output_file:uri=atest-ufem-heat-steady-output.msh
+
+call HotModel/read_mesh
+
+#############################################################################
+### create LSS
+create HotModel/LSS CF.Solver.CEigenLSS
+configure HotModel/LSS config_file:uri=@UFEM_LSS_CONFIG_FILE@
+configure HotModel/LinearProblem/LSSSolveAction lss:uri=cpath://Root/HotModel/LSS
+
+#############################################################################
+### Create and set boundary conditions
+call HotModel/LinearProblem/BoundaryConditions/add_constant_bc region_name:string=inner variable_name:string=Temperature
+call HotModel/LinearProblem/BoundaryConditions/add_constant_bc region_name:string=outer variable_name:string=Temperature
+configure HotModel/LinearProblem/BoundaryConditions/BCinnerTemperature value:real=10
+configure HotModel/LinearProblem/BoundaryConditions/BCouterTemperature value:real=35
+
+#############################################################################
+### Run simulation and write the result
+call HotModel/execute
+call HotModel/write_mesh

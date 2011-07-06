@@ -155,3 +155,8 @@ coolfluid_add_unit_test( utest-proto-navier-stokes-linearized )
 # set( utest-proto-navier-stokes-lid-tris-generic_mpi_nprocs 1 )
 # set( utest-proto-navier-stokes-lid-tris-generic_condition ${ufem_tests_trilinos_condition} )
 # coolfluid_add_unit_test( utest-proto-navier-stokes-lid-tris-generic )
+
+set( UFEM_LSS_CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
+set( UFEM_HEAT_INPUT_MESH ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ) 
+
+coolfluid_add_acceptance_test( atest-ufem-heat-steady atest-ufem-heat-steady.cfscript )

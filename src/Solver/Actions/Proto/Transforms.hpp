@@ -284,9 +284,13 @@ struct StreamOutput :
 struct DeepCopy : //boost::proto::functional::deep_copy
   boost::proto::or_
   <
-    boost::proto::when
+    boost::proto::when // exceptions for terminals that need to be stored by value
     <
-      boost::proto::terminal<const Real&>,
+      boost::proto::or_
+      <
+        boost::proto::terminal<const Real&>,
+        FieldTypes
+      >,
       boost::proto::_make_terminal(boost::proto::_byval(boost::proto::_value))
     >,
     boost::proto::terminal<boost::proto::_>,

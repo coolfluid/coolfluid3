@@ -61,6 +61,8 @@ namespace Common {
 
     virtual ~OptionURI();
 
+    /// Add the supplied protocol type to the list of supported protocols
+    /// No effect if the protocol was already registered with this option.
     void supported_protocol(URI::Scheme::Type protocol);
 
     std::vector<URI::Scheme::Type> supported_protocols() const { return m_protocols; }

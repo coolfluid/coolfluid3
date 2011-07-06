@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
+#include "Common/Log.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/URI.hpp"
 
@@ -71,6 +72,8 @@ void CProtoAction::execute()
 {
   if(m_implementation->m_region.expired())
     throw SetupError(FromHere(), "Region is not set for action " + uri().string());
+  
+  CFdebug << "Running action " << uri().string() << " on region " << m_implementation->m_region.lock()->uri().string() << CFendl;
   
   m_implementation->m_expression->loop(*m_implementation->m_region.lock());
 }
