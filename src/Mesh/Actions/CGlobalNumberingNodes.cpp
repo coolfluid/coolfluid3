@@ -164,7 +164,11 @@ void CGlobalNumberingNodes::execute()
 
   std::vector<Uint> nb_ids_per_proc(mpi::PE::instance().size());
 
-  mpi::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
+  // avoid mpi call if PE not active
+  if( mpi::PE::instance().is_active() )
+    mpi::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
+  else
+    nb_ids_per_proc[0] = tot_nb_owned_ids;
 
   std::vector<Uint> start_id_per_proc(mpi::PE::instance().size());
 
