@@ -27,8 +27,7 @@ using namespace Mesh;
 struct CProtoActionDirector::Implementation
 {
   Implementation(Component& component) :
-    m_component(component),
-    m_option_sink(0)
+    m_component(component)
   {
     m_component.options().add_option( OptionComponent<CPhysicalModel>::create("physical_model", "Physical Model"
                                                                    "Physical model",
@@ -71,7 +70,6 @@ struct CProtoActionDirector::Implementation
   }
   
   Component& m_component;
-  Component* m_option_sink; // raw pointer in case this needs to be set during construction (can happen when subclassing)
   boost::weak_ptr<CPhysicalModel> m_physical_model;
   boost::weak_ptr<CRegion> m_region;
   bool m_propagate_region;
@@ -91,20 +89,12 @@ CAction& CProtoActionDirector::add_action(const std::string& name, const boost::
 {
   CProtoAction& action = create_component<CProtoAction>(name);
   
-  if(m_implementation->m_option_sink)
-    action.set_option_sink(*m_implementation->m_option_sink);
-  
   action.set_expression(expression);
   
   m_implementation->trigger_physical_model();
   m_implementation->trigger_region();
   
   return action;
-}
-
-void CProtoActionDirector::set_option_sink(Component& component)
-{
-  m_implementation->m_option_sink = &component;
 }
 
 CPhysicalModel& CProtoActionDirector::physical_model()

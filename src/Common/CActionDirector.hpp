@@ -40,12 +40,23 @@ public: // functions
   virtual void execute();
   
   /// Append an action to the back of the list, returning a reference to self (for chaining purposes)
-  CActionDirector& append(const CAction& action);
+  /// The supplied action is added as a child if it had no parent, otherwise a link is created
+  /// If this CActionDirector already has a component or an action with the same name that is different from
+  /// the supplied action, an error is raised
+  /// If the supplied action was added before, its name is added to the execution list a second time
+  CActionDirector& append(CAction& action);
+  
+  /// Overload taking a shared pointer
+  CActionDirector& append(const CAction::Ptr& action);
 };
 
 /// Allow growing of the list of actions using the shift left operator:
 /// director << action1 << action2 << action3
-CActionDirector& operator<<(CActionDirector& action_director, const CAction& action);
+/// Same behavior as append.
+CActionDirector& operator<<(CActionDirector& action_director, CAction& action);
+
+/// Overload for shared pointers
+CActionDirector& operator<<(CActionDirector& action_director, const CAction::Ptr& action);
 
 /////////////////////////////////////////////////////////////////////////////////////
 

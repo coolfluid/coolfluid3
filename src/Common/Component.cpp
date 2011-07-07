@@ -170,6 +170,11 @@ void Component::rename ( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+bool Component::has_parent() const
+{
+  return is_not_null(m_raw_parent);
+}
+
 Component& Component::parent()
 {
   cf_assert( is_not_null(m_raw_parent) );

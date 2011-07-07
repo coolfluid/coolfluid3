@@ -29,8 +29,7 @@ ComponentBuilder < CProtoAction, CAction, LibSolver > CProtoAction_Builder;
 struct CProtoAction::Implementation
 {
   Implementation(Component& comp) :
-    m_component(comp),
-    m_option_sink(&comp)
+    m_component(comp)
   {
     m_component.options().add_option( OptionComponent<CPhysicalModel>::create("physical_model", "Physical Model"
                                                                    "Physical model",
@@ -52,8 +51,7 @@ struct CProtoAction::Implementation
 
   Expression::Ptr m_expression;
   Component& m_component;
-  // MUST be a raw pointer, since it might be obtained during construction, when the shared pointer is not valid yet
-  Component* m_option_sink;
+  
   boost::weak_ptr<CPhysicalModel> m_physical_model;
   boost::weak_ptr<CRegion> m_region;
 };
@@ -81,17 +79,9 @@ void CProtoAction::execute()
 void CProtoAction::set_expression(const boost::shared_ptr< Expression >& expression)
 { 
   m_implementation->m_expression = expression;
-  expression->add_options(m_implementation->m_option_sink->options());
+  expression->add_options(options());
   m_implementation->trigger_physical_model();
 }
-
-void CProtoAction::set_option_sink(Component& option_sink)
-{
-  m_implementation->m_option_sink = &option_sink;
-}
-
-
-
 
 } // namespace Proto
 } // namespace Actions

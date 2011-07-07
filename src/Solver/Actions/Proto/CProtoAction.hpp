@@ -41,10 +41,6 @@ public:
   /// @param expression The proto expression to set
   void set_expression(const boost::shared_ptr<Expression> & expression);
   
-  /// Set the component that will be used to set any configuration options needed by the expression
-  /// If this is not called, options are added to the CProtoAction itself
-  void set_option_sink(Component& option_sink);
-  
 private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;

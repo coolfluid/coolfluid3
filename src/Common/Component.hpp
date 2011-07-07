@@ -235,6 +235,9 @@ public: // functions
   /// @post returns always valid pointer
   Ptr access_component_ptr_checked ( const URI& path );
 
+  /// @returns true if the component has a parent
+  bool has_parent() const;
+  
   /// @returns the pointer to parent component
   /// @pre parent pointer is valid
   /// @post returns always valid pointer
