@@ -13,4 +13,5 @@ option( CF_SKIP_CMATH "Skip search for C math library" OFF )
   find_library(CMATH_LIBRARIES m ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(CMATH_LIBRARIES m )
 
-coolfluid_log_deps_result( CMATH CMATH_LIBRARIES  )
+coolfluid_add_package( PACKAGE Cmath DESCRIPTION "C math library"
+                       VARS CMATH_LIBRARIES )

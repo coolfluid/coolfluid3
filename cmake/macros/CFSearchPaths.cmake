@@ -44,27 +44,117 @@ macro( coolfluid_set_trial_library_path LPATHS )
 endmacro( coolfluid_set_trial_library_path )
 ##############################################################################
 
+##############################################################################
+# documents the feature search, for searches that already have an enabled var
+##############################################################################
+function( coolfluid_set_feature FEATURE_NOCAPS FEAT_ENABLE DESC )
+
+  string( TOUPPER ${FEATURE_NOCAPS} FEATURE )
+
+  if( COMMAND add_feature_info )
+    add_feature_info( ${FEATURE_NOCAPS} FEAT_ENABLE ${DESC} )
+  else()
+    if( DEFINED ${FEATURE_NOCAPS}_FOUND )
+      coolfluid_log( "${FEATURE_NOCAPS} [${${FEATURE_NOCAPS}_FOUND}]" )
+    else()
+      if( DEFINED ${FEATURE}_FOUND )
+        coolfluid_log( "${FEATURE_NOCAPS} [${${FEATURE}_FOUND}]" )
+      else()
+        if( DEFINED CF_HAVE_${FEATURE} )
+          coolfluid_log( "${FEATURE_NOCAPS} [${CF_HAVE_${FEATURE}}]" )
+        endif()
+      endif()
+    endif()
+  endif()
+
+endfunction( coolfluid_set_feature )
+##############################################################################
 
 ##############################################################################
-# logs the final result of a dependency search
+# documents the package search, for searches that return Package_FOUND
 ##############################################################################
-macro( coolfluid_log_deps_result LIBNAME )
+function( coolfluid_set_package )
+# CMAKE_PARSE_ARGUMENTS(<prefix> <options> <one_value_keywords> <multi_value_keywords> args...)
+  set( options ) # none
+  set( oneValueArgs PACKAGE DESCRIPTION URL COMMENT )
+  set( multiValueArgs ) # none
 
-mark_as_advanced( ${ARGN} ) # advanced marking
+  cmake_parse_arguments(_P "${options}" "${oneValueArgs}" "${multiValueArgs}"  ${_FIRST_ARG} ${ARGN})
 
-if( NOT CF_SKIP_${LIBNAME} )
+  if(_P_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "Unknown keywords given to coolfluid_set_package(): \"${_P_UNPARSED_ARGUMENTS}\"")
+  endif()
 
-  set( CF_HAVE_${LIBNAME} 1 )
+  if(NOT _P_PACKAGE)
+    message(FATAL_ERROR "The call to coolfluid_set_package() doesn't set the required PACKAGE argument.")
+  endif()
+
+  string( TOUPPER ${_P_PACKAGE} PACKAGE )
+
+#  coolfluid_debug_var(  _P_PACKAGE )
+#  coolfluid_debug_var(  _P_DESCRIPTION )
+#  coolfluid_debug_var(  _P_URL )
+
+  if( COMMAND set_package_info )
+
+    set_package_info( ${_P_PACKAGE} "${_P_DESCRIPTION}" "${_P_URL}" "${_P_COMMENT}" )
+
+  else()
+
+    if( DEFINED ${_P_PACKAGE}_FOUND )
+      coolfluid_log( "${_P_PACKAGE} [${${_P_PACKAGE}_FOUND}]" )
+    else()
+      if( DEFINED ${PACKAGE}_FOUND )
+        coolfluid_log( "${_P_PACKAGE} [${${PACKAGE}_FOUND}]" )
+      else()
+        if( DEFINED CF_HAVE_${PACKAGE} )
+          coolfluid_log( "${_P_PACKAGE} [${CF_HAVE_${PACKAGE}}]" )
+        endif()
+      endif()
+    endif()
+
+  endif()
+
+endfunction( coolfluid_set_package )
+##############################################################################
+
+
+##############################################################################
+# documents the feature search
+##############################################################################
+function( coolfluid_add_package )
+# CMAKE_PARSE_ARGUMENTS(<prefix> <options> <one_value_keywords> <multi_value_keywords> args...)
+  set( options ) # none
+  set( oneValueArgs PACKAGE DESCRIPTION URL )
+  set( multiValueArgs VARS ) # none
+
+  cmake_parse_arguments(_PAR "${options}" "${oneValueArgs}" "${multiValueArgs}"  ${_FIRST_ARG} ${ARGN})
+
+  if(_PAR_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "Unknown keywords given to coolfluid_add_package(): \"${_PAR_UNPARSED_ARGUMENTS}\"")
+  endif()
+
+  if(NOT _PAR_PACKAGE)
+    message(FATAL_ERROR "The call to coolfluid_add_package() doesn't set the required PACKAGE argument.")
+  endif()
+
+  string( TOUPPER ${_PAR_PACKAGE} PACKAGE_CAPS )
+
+  mark_as_advanced( ${_PAR_VARS} ) # advanced marking
+
+  if( NOT CF_SKIP_${PACKAGE_CAPS} )
+
+  set( CF_HAVE_${PACKAGE_CAPS} 1 )
 
   # all vars must be defined and found
 
-  foreach( LISTVAR ${ARGN} )
+  foreach( LISTVAR ${_PAR_VARS} )
 
     if(DEFINED ${LISTVAR}) # ignore variables that are not even defined (not searched for)
 
       foreach( VAR ${${LISTVAR}} )
         if( NOT VAR ) # found ?
-          set( CF_HAVE_${LIBNAME} 0 )
+          set( CF_HAVE_${PACKAGE_CAPS} 0 )
         endif()
       endforeach() # var
 
@@ -74,22 +164,22 @@ if( NOT CF_SKIP_${LIBNAME} )
 
   # set CF_HAVE in cache
 
-  if(CF_HAVE_${LIBNAME})
-    set(CF_HAVE_${LIBNAME} 1 CACHE BOOL "Found dependency ${LIBNAME}")
-    if(DEFINED ${LIBNAME}_LIBRARIES)
-      list( APPEND CF_DEPS_LIBRARIES ${${LIBNAME}_LIBRARIES} )
+  if(CF_HAVE_${PACKAGE_CAPS})
+    set(CF_HAVE_${PACKAGE_CAPS} 1 CACHE BOOL "Found dependency ${PACKAGE_CAPS}")
+    if(DEFINED ${PACKAGE_CAPS}_LIBRARIES)
+      list( APPEND CF_DEPS_LIBRARIES ${${PACKAGE_CAPS}_LIBRARIES} )
     endif()
-    if(DEFINED ${LIBNAME}_EXTRA_LIBRARIES)
-      list( APPEND CF_DEPS_LIBRARIES ${${LIBNAME}_EXTRA_LIBRARIES} )
+    if(DEFINED ${PACKAGE_CAPS}_EXTRA_LIBRARIES)
+      list( APPEND CF_DEPS_LIBRARIES ${${PACKAGE_CAPS}_EXTRA_LIBRARIES} )
     endif()
   else()
-    set(CF_HAVE_${LIBNAME} 0 CACHE BOOL "Did not find dependency ${LIBNAME}")
+    set(CF_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Did not find dependency ${PACKAGE_CAPS}")
   endif()
 
   # logging
 
-  coolfluid_log( "CF_HAVE_${LIBNAME}: [${CF_HAVE_${LIBNAME}}]" )
-  if(CF_HAVE_${LIBNAME})
+  coolfluid_log_file( "CF_HAVE_${PACKAGE_CAPS}: [${CF_HAVE_${PACKAGE_CAPS}}]" )
+  if(CF_HAVE_${PACKAGE_CAPS})
     foreach( LISTVAR ${ARGN} ) # log to file
       coolfluid_log_file( "  ${LISTVAR}:  [${${LISTVAR}}]" )
     endforeach()
@@ -97,10 +187,14 @@ if( NOT CF_SKIP_${LIBNAME} )
 
 else()
 
-    coolfluid_log( "CF_HAVE_${LIBNAME}: - searched skipped" )
-    set(CF_HAVE_${LIBNAME} 0 CACHE BOOL "Skipped dependency ${LIBNAME}")
+    coolfluid_log_file( "CF_HAVE_${PACKAGE_CAPS}: - searched skipped" )
+    set(CF_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Skipped dependency ${PACKAGE_CAPS}")
 
 endif() # skip
 
-endmacro( coolfluid_log_deps_result )
+set( ${_PAR_PACKAGE}_FOUND ${CF_HAVE_${PACKAGE_CAPS}} CACHE BOOL "${_PAR_PACKAGE} package" )
+coolfluid_set_package( PACKAGE ${_PAR_PACKAGE} DESCRIPTION "${_PAR_DESCRIPTION}" URL "${_PAR_URL}" )
+
+endfunction( coolfluid_add_package )
 ##############################################################################
+

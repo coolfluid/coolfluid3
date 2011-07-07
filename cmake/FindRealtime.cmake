@@ -12,4 +12,7 @@ option( CF_SKIP_RT "Skip search for RT library" OFF )
   find_library(RT_LIBRARIES rt ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(RT_LIBRARIES rt )
 
-coolfluid_log_deps_result( RT RT_LIBRARIES  )
+coolfluid_add_package( PACKAGE Realtime
+                       DESCRIPTION "linux real time library"
+                       VARS
+                       RT_LIBRARIES )

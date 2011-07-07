@@ -31,4 +31,9 @@ option( CF_SKIP_GOOGLE_PERFTOOLS "Skip search for google-perftools" OFF )
 
   mark_as_advanced( CF_PPROF_COMMAND CF_DOT_COMMAND )
 
-coolfluid_log_deps_result( GOOGLE_PERFTOOLS GOOGLE_PERFTOOLS_INCLUDE_DIR GOOGLE_PERFTOOLS_LIBRARIES GOOGLE_PERFTOOLS_PROFILER_LIBRARY GOOGLE_PERFTOOLS_TCMALLOC_LIBRARY )
+coolfluid_add_package( PACKAGE GooglePerftools DESCRIPTION "memory and performance analysis tools" URL "http://code.google.com/p/google-perftools"
+                       VARS
+                       GOOGLE_PERFTOOLS_INCLUDE_DIR
+                       GOOGLE_PERFTOOLS_LIBRARIES
+                       GOOGLE_PERFTOOLS_PROFILER_LIBRARY
+                       GOOGLE_PERFTOOLS_TCMALLOC_LIBRARY )

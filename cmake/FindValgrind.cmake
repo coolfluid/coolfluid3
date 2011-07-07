@@ -13,5 +13,9 @@ option( CF_SKIP_VALGRIND "Skip search for Valgrins library" OFF )
   find_path(VALGRIND_INCLUDE_DIR valgrind/valgrind.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
   find_path(VALGRIND_INCLUDE_DIR valgrind/valgrind.h)
 
-coolfluid_log_deps_result( VALGRIND VALGRIND_INCLUDE_DIR  )
+coolfluid_add_package( PACKAGE Valgrind
+                       DESCRIPTION "code analysis and profiling"
+                       URL "http://valgrind.org"
+                       VARS
+                       VALGRIND_INCLUDE_DIR  )
 

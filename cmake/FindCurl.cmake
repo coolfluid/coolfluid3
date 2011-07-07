@@ -19,4 +19,8 @@ option( CF_SKIP_CURL "Skip search for Curl library" OFF )
   find_library(CURL_LIBRARIES curl ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(CURL_LIBRARIES curl )
 
-coolfluid_log_deps_result( CURL CURL_INCLUDE_DIR CURL_LIBRARIES )
+coolfluid_add_package( PACKAGE Curl
+                       DESCRIPTION "URL data access"
+                       URL "http://curl.haxx.se"
+                       VARS CURL_INCLUDE_DIR CURL_LIBRARIES )
+

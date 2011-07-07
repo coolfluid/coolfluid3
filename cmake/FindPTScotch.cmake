@@ -14,7 +14,7 @@ option( CF_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
 
   coolfluid_add_trial_include_path( ${PTSCOTCH_ROOT}/include )
   coolfluid_add_trial_include_path( $ENV{PTSCOTCH_ROOT}/include )
-  
+
   find_path(PTSCOTCH_INCLUDE_DIR ptscotch.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
   find_path(PTSCOTCH_INCLUDE_DIR ptscotch.h )
 
@@ -29,16 +29,16 @@ option( CF_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
 
   find_library(PTSCOTCH_LIB_PTSCOTCHERREXIT ptscotcherrexit ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(PTSCOTCH_LIB_PTSCOTCHERREXIT ptscotcherrexit )
-  
+
   find_library(PTSCOTCH_LIB_PTSCOTCHPARMETIS ptscotchparmetis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(PTSCOTCH_LIB_PTSCOTCHPARMETIS ptscotchparmetis )
-  
+
   find_library(PTSCOTCH_LIB_SCOTCH scotch ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(PTSCOTCH_LIB_SCOTCH scotch )
 
   find_library(PTSCOTCH_LIB_SCOTCHERR scotcherr ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(PTSCOTCH_LIB_SCOTCHERR scotcherr )
-                                   
+
   find_library(PTSCOTCH_LIB_SCOTCHERREXIT scotcherrexit ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(PTSCOTCH_LIB_SCOTCHERREXIT scotcherrexit )
 
@@ -57,13 +57,13 @@ option( CF_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
   )
 
   set( PTSCOTCH_LIBRARIES
-        #${PTSCOTCH_LIB_SCOTCH}   
-        #${PTSCOTCH_LIB_SCOTCHERR}   
-        #${PTSCOTCH_LIB_SCOTCHERREXIT}   
+        #${PTSCOTCH_LIB_SCOTCH}
+        #${PTSCOTCH_LIB_SCOTCHERR}
+        #${PTSCOTCH_LIB_SCOTCHERREXIT}
         #${PTSCOTCH_LIB_SCOTCHMETIS}
-        ${PTSCOTCH_LIB_PTSCOTCH} 
-        ${PTSCOTCH_LIB_PTSCOTCHERR} 
-        #${PTSCOTCH_LIB_PTSCOTCHERREXIT} 
+        ${PTSCOTCH_LIB_PTSCOTCH}
+        ${PTSCOTCH_LIB_PTSCOTCHERR}
+        #${PTSCOTCH_LIB_PTSCOTCHERREXIT}
         #${PTSCOTCH_LIB_PTSCOTCHPARMETIS}
       )
 
@@ -71,5 +71,8 @@ option( CF_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
       list( APPEND PTSCOTCH_EXTRA_LIBRARIES ${ZLIB_LIBRARIES} )
   endif()
 
-coolfluid_log_deps_result( PTSCOTCH PTSCOTCH_INCLUDE_DIR PTSCOTCH_LIBRARIES PTSCOTCH_LIB_SCOTCH PTSCOTCH_LIB_PTSCOTCHERR PTSCOTCH_EXTRA_LIBRARIES )
-
+coolfluid_add_package( PACKAGE PTScotch
+                       DESCRIPTION "parallel graph partitioning"
+                       URL "http://www.labri.fr/perso/pelegrin/scotch"
+                       VARS
+                       PTSCOTCH_INCLUDE_DIR PTSCOTCH_LIBRARIES PTSCOTCH_LIB_SCOTCH PTSCOTCH_LIB_PTSCOTCHERR PTSCOTCH_EXTRA_LIBRARIES )

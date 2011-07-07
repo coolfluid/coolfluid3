@@ -24,4 +24,6 @@ option( CF_SKIP_CGAL "Skip search for CGAL library" OFF )
   find_library(CGAL_LIBRARIES CGAL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(CGAL_LIBRARIES CGAL )
 
-coolfluid_log_deps_result( CGAL CGAL_INCLUDE_DIR CGAL_LIBRARIES )
+coolfluid_add_package( PACKAGE CGAL DESCRIPTION "geometric algorithms" URL "http://www.cgal.org"
+                       VARS
+                       CGAL_INCLUDE_DIR CGAL_LIBRARIES )

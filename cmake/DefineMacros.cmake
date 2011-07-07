@@ -14,7 +14,7 @@ include(CheckCXXSourceCompiles)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
-# include(FeatureSummary)
+include(FeatureSummary)
 
 ##############################################################################
 # include coolfluid macros

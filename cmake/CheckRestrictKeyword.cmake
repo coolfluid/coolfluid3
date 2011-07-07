@@ -46,8 +46,11 @@ else()
         set(CF_RESTRICT_KEYWORD) # not supported so keep it empty
       endif()
     endif()
-  endif()    
+  endif()
 endif()
 
+if( HAVE_KEYWORD_restrict OR HAVE_KEYWORD___restrict OR HAVE_KEYWORD___restrict__ OR HAVE_KEYWORD__Restrict )
+  set( CF_HAVE_RESTRICTED_KEYWORD FOUND )
+endif()
 
-  
+coolfluid_log_file( "+++++  Checking for explicit template support -- ${CF_HAVE_RESTRICTED_KEYWORD}" )

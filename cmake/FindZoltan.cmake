@@ -18,7 +18,7 @@ coolfluid_add_trial_include_path( $ENV{ZOLTAN_HOME}/include )
 
 find_path( ZOLTAN_INCLUDE_DIR zoltan.h PATHS ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH )
 find_path( ZOLTAN_INCLUDE_DIR zoltan.h )
-    
+
 coolfluid_add_trial_library_path(${ZOLTAN_HOME}/lib )
 coolfluid_add_trial_library_path($ENV{ZOLTAN_HOME}/lib)
 
@@ -35,4 +35,8 @@ if( ${CF_HAVE_PTSCOTCH} )
   list( APPEND ZOLTAN_INCLUDE_DIR ${PTSCOTCH_INCLUDE_DIR} )
 endif()
 
-coolfluid_log_deps_result( ZOLTAN ZOLTAN_INCLUDE_DIR ZOLTAN_LIBRARIES  )
+coolfluid_add_package( PACKAGE Zoltan
+                       DESCRIPTION "parallel graph partitioning"
+                       URL "http://trilinos.sandia.gov/packages/zoltan"
+                       VARS
+                       ZOLTAN_INCLUDE_DIR ZOLTAN_LIBRARIES  )

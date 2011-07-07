@@ -223,7 +223,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                         ")
                 ENDIF(APPLE)
             ENDIF(IS_DIRECTORY ${tmpLIBFILE})
-            coolfluid_log("**We need to install lib ${tmpLIBFILE}")
+            coolfluid_log_file("**We need to install lib ${tmpLIBFILE}")
         ENDIF(NOT ${tmpLIBFILE} STREQUAL ${LIBREALPATH})
     ELSE(${isSHAREDLIBRARY} STREQUAL "YES")
         # We have a .a that we need to install to archives.

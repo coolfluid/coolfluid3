@@ -1,21 +1,17 @@
-coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-coolfluid_log( "Checking compiler features:" )
-coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-
 #######################################################################################
 
   exec_program(${CMAKE_CXX_COMPILER}
                ARGS ${CMAKE_CXX_COMPILER_ARG1} -dumpversion
                OUTPUT_VARIABLE CF_CXX_COMPILER_VERSION)
-               
+
   string(REGEX REPLACE "([0-9])\\.([0-9])(\\.[0-9])?" "\\1.\\2"
          CF_CXX_COMPILER_VERSION ${CF_CXX_COMPILER_VERSION})
 
-  coolfluid_log( "+++++  Checking C++ compiler version  -- ${CMAKE_CXX_COMPILER_ID} ${CF_CXX_COMPILER_VERSION}" )
-  
+  coolfluid_log_file( "+++++  Checking C++ compiler version  -- ${CMAKE_CXX_COMPILER_ID} ${CF_CXX_COMPILER_VERSION}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking sizes of types" )
+  coolfluid_log_file( "+++++  Checking sizes of types" )
   CHECK_TYPE_SIZE("void *"       CF_SIZEOF_PTR)
   CHECK_TYPE_SIZE(char           CF_SIZEOF_CHAR)
   CHECK_TYPE_SIZE(short          CF_SIZEOF_SHORT)
@@ -63,13 +59,11 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 
 #######################################################################################
 
-coolfluid_log( "+++++  Checking for pre compiled header support" )
 include(CheckNullPtr)
 
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking C++ compiler has namespaces" )
-  check_cxx_source_compiles (
+  check_cxx_source_compiles(
   " namespace lolo { struct popo { int i; };  }
     using namespace lolo;
     int main(int argc, char* argv[])
@@ -83,25 +77,29 @@ include(CheckNullPtr)
   if( NOT CF_CXX_HAVE_NAMESPACES )
     message( FATAL_ERROR "C++ compiler does not support namespaces" )
   endif()
+  coolfluid_log_file( "+++++  Checking C++ compiler has namespaces -- ${CF_CXX_HAVE_NAMESPACES}" )
 
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for __FUNCTION__ support" )
-  include(CheckFunctionDef)
+  check_cxx_source_compiles(
+  "#include <iostream>
+    int main(int argc, char* argv[])
+    {
+      std::cout << __FUNCTION__ << std::endl;
+    }"
+  CF_HAVE_FUNCTION_DEF )
+  coolfluid_log_file( "+++++  Checking for __FUNCTION__ support -- ${CF_HAVE_FUNCTION_DEF}" )
 
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for restrict keyword" )
   include(CheckRestrictKeyword)
 
 #######################################################################################
 
-  # coolfluid_log( "+++++  Checking for explicit template support" ) # output in macro
   include( CheckExplicitInstantiation )
 
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for mmap support" ) # check memory mmap functions
   # check memory mmap functions
   check_function_exists(mmap   CF_HAVE_MMAP)
   check_function_exists(munmap CF_HAVE_MUNMAP)
@@ -110,94 +108,105 @@ include(CheckNullPtr)
     set( CF_HAVE_ALLOC_MMAP 1 CACHE BOOL "MemoryAllocator_MMAP can be built")
   endif()
 
+  coolfluid_log_file( "+++++  Checking for mmap support -- ${CF_HAVE_ALLOC_MMAP}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for vsnprintf function" ) # check memory mmap functions
   check_function_exists(vsnprintf   CF_HAVE_VSNPRINTF)
 
+  coolfluid_log_file( "+++++  Checking for vsnprintf function -- ${CF_HAVE_VSNPRINTF}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for erfc function" )
-  check_cxx_source_compiles (
+  check_cxx_source_compiles(
   " #include <cmath>
     int main (int argc, char* argv[]) { erfc (0.); }
   "
   CF_HAVE_MATH_ERFC )
 
+  coolfluid_log_file( "+++++  Checking for erfc function -- ${CF_HAVE_MATH_ERFC}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for cbrt function" )
-  check_cxx_source_compiles (
+  check_cxx_source_compiles(
   " #include <cmath>
     int main (int argc, char* argv[]) { cbrt (0.); }
   "
   CF_HAVE_MATH_CBRT )
 
+  coolfluid_log_file( "+++++  Checking for cbrt function -- ${CF_HAVE_MATH_CBRT}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for log2 function" )
-  check_cxx_source_compiles (
+  check_cxx_source_compiles(
   " #include <cmath>
     int main (int argc, char* argv[]) { log2 (0.); }
   "
   CF_HAVE_MATH_LOG2 )
 
+  coolfluid_log_file( "+++++  Checking for log2 function -- ${CF_HAVE_MATH_LOG2}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for hypot function" )
-  check_cxx_source_compiles (
+  check_cxx_source_compiles(
   " #include <cmath>
     int main (int argc, char* argv[]) { hypot (0., 1.2); }
   "
   CF_HAVE_MATH_HYPOT )
 
+  coolfluid_log_file( "+++++  Checking for hypot function -- ${CF_HAVE_MATH_HYPOT}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for exp2 function" )
-  check_cxx_source_compiles (
+  check_cxx_source_compiles(
   " #include <cmath>
     int main (int argc, char* argv[]) { exp2 (0.); }
   "
   CF_HAVE_MATH_EXP2 )
 
+  coolfluid_log_file( "+++++  Checking for exp2 function -- ${CF_HAVE_MATH_EXP2}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for asinh function" )
-  check_cxx_source_compiles (
+  check_cxx_source_compiles(
   " #include <cmath>
     int main (int argc, char* argv[]) { asinh (0.); }
   "
   CF_HAVE_MATH_ASINH )
 
+  coolfluid_log_file( "+++++  Checking for asinh function -- ${CF_HAVE_MATH_ASINH}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for acosh function" )
-  check_cxx_source_compiles (
+  check_cxx_source_compiles(
   " #include <cmath>
     int main (int argc, char* argv[]) { acosh (0.); }
   "
   CF_HAVE_MATH_ACOSH )
 
+  coolfluid_log_file( "+++++  Checking for acosh function -- ${CF_HAVE_MATH_ACOSH}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for atanh function" )
-  check_cxx_source_compiles (
+  check_cxx_source_compiles(
   " #include <cmath>
     int main (int argc, char* argv[]) { atanh (0.); }
   "
   CF_HAVE_MATH_ATANH)
-  
+
+  coolfluid_log_file( "+++++  Checking for atanh function -- ${CF_HAVE_MATH_ATANH}" )
+
 #######################################################################################
 
-  coolfluid_log( "+++++  Checking for the POSIX unistd.h header" )    # check unistd.h
   check_include_file( unistd.h  CF_HAVE_UNISTD_H )
 
+  coolfluid_log_file( "+++++  Checking for the POSIX unistd.h header -- ${CF_HAVE_UNISTD_H}" )
+
 #######################################################################################
 
-  # check for c++ abi, ussually present in GNU compilers
-  coolfluid_log( "+++++  Checking for cxxabi" )
+  # check for c++ abi, usually present in GNU compilers
 
-  check_cxx_source_compiles (
+  check_cxx_source_compiles(
     "#include <cxxabi.h>
     int main(int argc, char* argv[])
     { char * type; int status;
@@ -206,13 +215,17 @@ include(CheckNullPtr)
     }"
     CF_HAVE_CXXABI_H)
 
+  coolfluid_log_file( "+++++  Checking for cxxabi -- ${CF_HAVE_CXXABI_H}" )
+
 #######################################################################################
 
   # check for time headers
-  coolfluid_log( "+++++  Checking for headers with time information" )
+  coolfluid_log_file( "+++++  Checking for headers with time information" )
+
   check_include_file(sys/time.h       CF_HAVE_SYS_TIME_H)
   check_include_file(time.h           CF_HAVE_TIME_H)
   check_include_file(sys/resource.h   CF_HAVE_SYS_RESOURCE_H)
+
   check_function_exists(gettimeofday  CF_HAVE_GETTIMEOFDAY)
 
 #######################################################################################
@@ -221,11 +234,11 @@ include(CheckNullPtr)
 
 if(WIN32)
 
-  coolfluid_log( "+++++  Checking for the Win32 windows.h header" )    # check windows.hfor Windows API
+  coolfluid_log_file( "+++++  Checking for the Win32 windows.h header" )    # check windows.hfor Windows API
   check_include_file_cxx(windows.h CF_HAVE_WINDOWSH)
-  coolfluid_log( "+++++  Checking for the Win32 dbghelp.h header" )    # check dbghelp.h for call stack
+  coolfluid_log_file( "+++++  Checking for the Win32 dbghelp.h header" )    # check dbghelp.h for call stack
   check_include_file_cxx(dbghelp.h CF_HAVE_DBGHELPH)
-  coolfluid_log( "+++++  Checking for the Win32 psapi.h header" )      # check psapi.h for memory info
+  coolfluid_log_file( "+++++  Checking for the Win32 psapi.h header" )      # check psapi.h for memory info
   check_include_file_cxx(psapi.h CF_HAVE_PSAPIH)
 
 endif()
@@ -236,8 +249,10 @@ endif()
 
 if(UNIX)
 
-  coolfluid_log( "+++++  Checking for the dlfcn.h header" )  # for dlopen
+  # for dlopen
   check_include_file_cxx(dlfcn.h CF_HAVE_DLOPEN)
+
+  coolfluid_log_file( "+++++  Checking for the dlfcn.h header -- ${CF_HAVE_DLOPEN}")
 
 endif()
 

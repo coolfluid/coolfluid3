@@ -24,4 +24,6 @@ option( CF_SKIP_METIS "Skip search for Metis library" OFF )
   find_library(METIS_LIBRARIES metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(METIS_LIBRARIES metis )
 
-coolfluid_log_deps_result( METIS METIS_INCLUDE_DIR METIS_LIBRARIES )
+coolfluid_add_package( PACKAGE METIS DESCRIPTION "Serial graph partitioning" URL "http://glaros.dtc.umn.edu/gkhome/views/metis"
+                       VARS
+                       METIS_INCLUDE_DIR METIS_LIBRARIES )

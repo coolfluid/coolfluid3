@@ -59,7 +59,7 @@ else()
   coolfluid_log_file("Qt was not found, skipping ParaView.")
 endif()
 
-coolfluid_log("ParaView_FOUND: [${ParaView_FOUND}]")
+coolfluid_log_file("ParaView_FOUND: [${ParaView_FOUND}]")
 
 if( ParaView_FOUND )
   coolfluid_log_file("ParaView version: [${PARAVIEW_VERSION_MAJOR}.${PARAVIEW_VERSION_MINOR}.${PARAVIEW_VERSION_PATCH}]")
@@ -69,3 +69,9 @@ if( ParaView_FOUND )
   # add paraview libraries to list of third party libraries
   list( APPEND CF_DEPS_LIBRARIES ${ParaView_LIBRARIES} )
 endif()
+
+coolfluid_add_package( PACKAGE ParaView
+                       DESCRIPTION "Parallel visualization"
+                       URL "http://www.paraview.org"
+                       VARS ParaView_FOUND PARAVIEW_LIBRARY_DIRS ParaView_LIBRARIES )
+

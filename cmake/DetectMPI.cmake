@@ -19,7 +19,7 @@ else()
   coolfluid_log_file( "[MPI] No MPI C++ compiler was set. Must find MPI libraries ..." )
 endif()
 
-find_package(MPI) # we always searhc for the libraries in case we need to pack them
+find_package(MPI QUIET) # we always searcH for the libraries in case we need to pack them
 
 coolfluid_log_file( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
 coolfluid_log_file( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
@@ -36,8 +36,6 @@ else()
     message( FATAL_ERROR "[MPI] no MPI compiler or libraries were found.\n   MPI is required to compile coolfluid." )
   endif()
 endif()
-
-coolfluid_log( "CF_HAVE_MPI [${CF_HAVE_MPI}]" )
 
 #######################################################################
 # add MPI include path
@@ -92,4 +90,7 @@ find_program( CF_MPIRUN_PROGRAM mpirun
 coolfluid_log_file( "     CF_MPIRUN_PROGRAM : [${CF_MPIRUN_PROGRAM}]" )
 
 mark_as_advanced( CF_HAVE_MPI CF_MPIRUN_PROGRAM )
+
+set( MPI_FOUND ${CF_HAVE_MPI} )
+coolfluid_set_package( PACKAGE MPI DESCRIPTION "parallel communication" )
 

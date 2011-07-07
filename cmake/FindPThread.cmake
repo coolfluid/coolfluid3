@@ -12,4 +12,6 @@ option( CF_SKIP_PTHREAD "Skip search for pthread library" OFF )
   find_library(PTHREAD_LIBRARIES pthread ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(PTHREAD_LIBRARIES pthread )
 
-coolfluid_log_deps_result( PTHREAD PTHREAD_LIBRARIES  )
+coolfluid_add_package( PACKAGE PThread DESCRIPTION "Posix Threads"
+                       VARS
+                       PTHREAD_LIBRARIES )

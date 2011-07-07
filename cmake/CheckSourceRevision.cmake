@@ -1,7 +1,7 @@
 #########################################################################################
 # subversion support
 
-find_package( Subversion )
+find_package( Subversion QUIET) # no need to inform user about this
 
 # check subversion version if .svn is present
 if( EXISTS ${coolfluid_SOURCE_DIR}/.svn )
@@ -9,13 +9,13 @@ if( EXISTS ${coolfluid_SOURCE_DIR}/.svn )
   set(Subversion_WC FALSE)
 
   if(Subversion_FOUND)
-  
+
     execute_process(COMMAND ${Subversion_SVN_EXECUTABLE} info ${coolfluid_SOURCE_DIR}
       OUTPUT_VARIABLE Subversion_WC_INFO
       ERROR_VARIABLE Subversion_svn_info_error
       RESULT_VARIABLE Subversion_svn_info_result
       OUTPUT_STRIP_TRAILING_WHITESPACE)
-    
+
     if(${Subversion_svn_info_result} EQUAL 0)
       set(Subversion_WC TRUE)
     endif()
@@ -47,11 +47,11 @@ endif() # svn check
 
 if( COMMAND FindGit )
 
-  find_package(Git)
+  find_package(Git QUIET) # no need to inform user about this
 
   # check git svn version if .git is present
   if( EXISTS ${coolfluid_SOURCE_DIR}/.git )
-    
+
     # Check if this is a git repository, and get revision number through "git-svn"
     if(GIT_FOUND)
         execute_process(COMMAND ${GIT_EXECUTABLE} svn info

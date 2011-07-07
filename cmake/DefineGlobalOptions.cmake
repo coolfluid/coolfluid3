@@ -4,27 +4,27 @@
 
 # code compilation options
 
-option( CF_ENABLE_ASSERTIONS         "Enable code assertions" ON )
-option( CF_ENABLE_GUI                "Enable GUI building"                     ON )
+option( CF_ENABLE_ASSERTIONS         "Enable code assertions"                         ON  )
+option( CF_ENABLE_GUI                "Enable GUI building"                            ON  )
 
-option( CF_ENABLE_DOCS               "Enable build of documentation"           ON   )
-option( CF_ENABLE_EXPLICIT_TEMPLATES "Enable explicit template instantiation"  ON   )
+option( CF_ENABLE_DOCS               "Enable build of documentation"                  ON  )
+option( CF_ENABLE_EXPLICIT_TEMPLATES "Enable explicit template instantiation"         ON  )
 option( CF_ENABLE_WARNINGS           "Enable lots of warnings while compiling"        OFF )
 option( CF_ENABLE_STDASSERT          "Enable standard assert() functions "            OFF )
 option( CF_ENABLE_SANDBOX            "Enable build of sandbox projects"               OFF )
 
 option( CF_ENABLE_VECTORIZATION      "Enable floating point vectorization"            ON  )
 
-option( CF_ENABLE_GPU                "Enable GPU computing  (if available)"           OFF )
-# add_feature_info(GPU CF_ENABLE_GPU   "GPU provides accelerated computations using graphics processing units")
-option( CF_ENABLE_CUDA               "Enable CUDA for GPGPU (if available)"           ON  )
+option( CF_ENABLE_GPU                "Enable GPU computing    (if available)"         OFF )
+
+option( CF_ENABLE_CUDA               "Enable CUDA for GPGPU   (if available)"         ON  )
 option( CF_ENABLE_OPENCL             "Enable OpenCL for GPGPU (if available)"         ON  )
 
-option( CF_ENABLE_TCMALLOC           "Use google perftools tcmalloc (can be faster, but buggy)"  OFF )
+option( CF_ENABLE_TCMALLOC           "Google tcmalloc (can be faster, but buggy)"     OFF )
 
-option( CF_ENABLE_STATIC             "Enable static building"         OFF )
+option( CF_ENABLE_STATIC             "Enable static building"                         OFF )
 
-option( CF_ENABLE_STDDEBUG           "Enable debug of STL code"                OFF )
+option( CF_ENABLE_STDDEBUG           "Enable debug of STL code"                       OFF )
 
 # precision for real numbers
 

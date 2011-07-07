@@ -36,19 +36,19 @@ string(ASCII 35 POUND)
    ${coolfluid_BINARY_DIR}/CMakeTmp/CheckExplicitInstantiation
    EXPLICIT OUTPUT_VARIABLE OUTPUT
    )
- 
+
  if(CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES)
-   coolfluid_log( "+++++  Checking support for C++ explicit template instantiation -- yes")
    set(CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES ON CACHE INTERNAL "Support for C++ explict templates")
-   write_file(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
+   write_file(${CF_PROJECT_LOG}
      "Determining if the C++ compiler supports explict template instantiation passed with the following output:\n"
      "${OUTPUT}\n" APPEND)
  else()
-   coolfluid_log( "+++++  Checking support for C++ explicit template instantiation -- no")
    set(CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES OFF CACHE INTERNAL "Support for C++ explict templates")
-   write_file(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
+   write_file(${CF_PROJECT_LOG}
      "Determining if the C++ compiler supports explict template instantiation failed with the following output:\n"
      "${OUTPUT}\n" APPEND)
  endif()
 
- 
+coolfluid_log_file( "+++++  Checking support for C++ explicit template instantiation -- ${CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES}")
+
+

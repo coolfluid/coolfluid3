@@ -46,4 +46,4 @@ int main(void)
 
 check_cxx_source_compiles("${CHECK_nullptr_SRC}" CF_CXX_SUPPORTS_NULLPTR )
 
-# coolfluid_log( "CF_CXX_SUPPORTS_NULLPTR [${CF_CXX_SUPPORTS_NULLPTR}]" )
+coolfluid_log_file( "+++++  Checking for pre compiled header support -- ${CF_CXX_SUPPORTS_NULLPTR}" )

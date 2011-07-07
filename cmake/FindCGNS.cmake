@@ -33,4 +33,5 @@ option( CF_SKIP_CGNS "Skip search for CGNS library" OFF )
         set( CGNS_LIBRARIES ${CGNS_LIBRARIES} ${HDF5_LIBRARIES} )
     endif()
 
-coolfluid_log_deps_result( CGNS CGNS_INCLUDE_DIR CGNS_LIBRARIES )
+coolfluid_add_package( PACKAGE CGNS DESCRIPTION "CFD General Notation System" URL "http://cgns.sourceforge.net"
+                       VARS CGNS_INCLUDE_DIR CGNS_LIBRARIES )
