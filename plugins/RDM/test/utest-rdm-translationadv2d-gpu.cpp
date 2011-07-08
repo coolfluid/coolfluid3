@@ -134,9 +134,9 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , translationadv2d_local_fixture
 {
   BOOST_CHECK(true);
 
-  solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("CFL", 1.);
-  solver.get_child("time_stepping").configure_property("MaxIter", 1000u);
+  solver.configure_option("Domain",URI("cpath:../Domain"));
+  solver.get_child("time_stepping").configure_option("CFL", 1.);
+  solver.get_child("time_stepping").configure_option("MaxIter", 1000u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term , translationadv2d_local_fi
   cf_assert( is_not_null(inletbc) );
 
   inletbc->
-        configure_property("Function", std::string("-4*(y-0.5)*(y-0.5)+1") );
+        configure_option("Function", std::string("-4*(y-0.5)*(y-0.5)+1") );
 
   BOOST_CHECK(true);
 }
@@ -255,9 +255,9 @@ BOOST_FIXTURE_TEST_CASE( output , translationadv2d_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.uri());
 
-  mesh_writer->configure_property("Fields",fields);
-  mesh_writer->configure_property("File",model.name()+".msh");
-  mesh_writer->configure_property("Mesh",mesh->uri());
+  mesh_writer->configure_option("Fields",fields);
+  mesh_writer->configure_option("File",model.name()+".msh");
+  mesh_writer->configure_option("Mesh",mesh->uri());
 
   mesh_writer->execute();
 

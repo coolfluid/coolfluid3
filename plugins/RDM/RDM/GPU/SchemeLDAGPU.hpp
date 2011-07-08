@@ -134,7 +134,7 @@ SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeLDAGPU ( const std::string& na
 {
   regist_typeinfo(this);
 
-  m_properties["Elements"].as_option().attach_trigger ( boost::bind ( &SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
+  m_options["Elements"].attach_trigger ( boost::bind ( &SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
 
   m_phi.resize(SHAPEFUNC::nb_nodes);
 

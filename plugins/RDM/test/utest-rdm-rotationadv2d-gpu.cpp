@@ -153,9 +153,9 @@ BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , rotationadv2d_local_fixture )
 {
   BOOST_CHECK(true);
 
-  solver.configure_property("Domain",URI("cpath:../Domain"));
-  solver.get_child("time_stepping").configure_property("cfl", 1.);
-  solver.get_child("time_stepping").configure_property("MaxIter", 550u);
+  solver.configure_option("Domain",URI("cpath:../Domain"));
+  solver.get_child("time_stepping").configure_option("cfl", 1.);
+  solver.get_child("time_stepping").configure_option("MaxIter", 550u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -186,7 +186,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , rotationadv2d_local
 
   std::vector<std::string> fns;
   fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
-  inletbc->configure_property("functions", fns);
+  inletbc->configure_option("functions", fns);
 
   BOOST_CHECK(true);
 }
@@ -219,7 +219,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_farfield , rotationadv2d_lo
 
   std::vector<std::string> fns;
   fns.push_back("0.0");
-  inletbc->configure_property("functions", fns);
+  inletbc->configure_option("functions", fns);
 
   BOOST_CHECK(true);
 }
@@ -256,9 +256,9 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , rotationadv2d_local_fixture )
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
     fields.push_back(field.full_path());
 
-  gmsh_writer->configure_property("fields",fields);
-  gmsh_writer->configure_property("file",URI(model.name()+"_init.msh"));
-  gmsh_writer->configure_property("mesh",mesh->full_path());
+  gmsh_writer->configure_option("fields",fields);
+  gmsh_writer->configure_option("file",URI(model.name()+"_init.msh"));
+  gmsh_writer->configure_option("mesh",mesh->full_path());
 
   gmsh_writer->execute();
 
@@ -325,27 +325,27 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
-  gmsh_writer->configure_property("fields",fields);
-  gmsh_writer->configure_property("file",URI(model.name()+".msh"));
-  gmsh_writer->configure_property("mesh",mesh->full_path());
+  gmsh_writer->configure_option("fields",fields);
+  gmsh_writer->configure_option("file",URI(model.name()+".msh"));
+  gmsh_writer->configure_option("mesh",mesh->full_path());
 
   gmsh_writer->execute();
 
  /* CMeshWriter::Ptr vtk_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","VTKWriter");
   model.add_component(vtk_writer);
 
-  vtk_writer->configure_property("fields",fields);
-  vtk_writer->configure_property("file",URI(model.name()+".vtk"));
-  vtk_writer->configure_property("mesh",mesh->full_path());
+  vtk_writer->configure_option("fields",fields);
+  vtk_writer->configure_option("file",URI(model.name()+".vtk"));
+  vtk_writer->configure_option("mesh",mesh->full_path());
 
   vtk_writer->execute();*/
 
  /* CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","TecWriter");
   model.add_component(tec_writer);
 
-  tec_writer->configure_property("fields",fields);
-  tec_writer->configure_property("file",URI(model.name()+".plt"));
-  tec_writer->configure_property("mesh",mesh->full_path());
+  tec_writer->configure_option("fields",fields);
+  tec_writer->configure_option("file",URI(model.name()+".plt"));
+  tec_writer->configure_option("mesh",mesh->full_path());
 
   tec_writer->execute();*/
 }
