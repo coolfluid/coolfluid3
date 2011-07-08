@@ -9,12 +9,12 @@
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 
-#include "Tools/GooglePerf/LibGooglePerfTools.hpp"
+#include "Tools/GooglePerfTools/LibGooglePerfTools.hpp"
 
-#include "Tools/GooglePerf/GooglePerfProfiling.hpp"
+#include "Tools/GooglePerfTools/GooglePerfProfiling.hpp"
 
 using namespace CF::Common;
-using namespace CF::Tools::GooglePerf;
+using namespace CF::Tools::GooglePerfTools;
 
 ///////////////////////////////////////////////////////////////////////////////
 

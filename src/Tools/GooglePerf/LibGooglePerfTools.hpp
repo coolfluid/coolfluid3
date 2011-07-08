@@ -14,9 +14,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro GooglePerfTools_API
-/// @note build system defines COOLFLUID_GOOGLE_PERFTOOLS_EXPORTS when compiling
+/// @note build system defines COOLFLUID_GOOGLEPERFTOOLS_EXPORTS when compiling
 /// GooglePerfTools files
-#ifdef COOLFLUID_GOOGLE_PERFTOOLS_EXPORTS
+#ifdef COOLFLUID_GOOGLEPERFTOOLS_EXPORTS
 #   define GooglePerfTools_API      CF_EXPORT_API
 #   define GooglePerfTools_TEMPLATE
 #else
@@ -30,7 +30,7 @@ namespace CF {
 namespace Tools {
 
 /// The classes related to Google perftools
-namespace GooglePerf {
+namespace GooglePerfTools {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +56,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Tools.GooglePerf"; }
+  static std::string library_namespace() { return "CF.Tools.GooglePerfTools"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for CLibrary registration
@@ -87,7 +87,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // GooglePerf
+} // GooglePerfTools
 } // Tools
 } // CF
 

@@ -236,7 +236,7 @@ endif()
 
 # faster allocation and memory porfiling
 if( CF_ENABLE_TCMALLOC )
-  list(APPEND coolfluid_common_libs ${GOOGLE_PERFTOOLS_TCMALLOC_LIBRARY} )
+  list(APPEND coolfluid_common_libs ${GOOGLEPERFTOOLS_TCMALLOC_LIBRARY} )
 endif()
 
 set( coolfluid_common_kernellib TRUE )

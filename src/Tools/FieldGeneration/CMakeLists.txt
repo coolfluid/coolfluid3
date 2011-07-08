@@ -7,8 +7,8 @@ list(APPEND coolfluid_field_generation_files
 
 list( APPEND coolfluid_field_generation_cflibs coolfluid_mesh coolfluid_solver_actions)
 
-if( CF_ENABLE_PROFILING AND coolfluid_google_perftools_builds )
-  list( APPEND coolfluid_field_generation_cflibs coolfluid_google_perftools )
+if( CF_ENABLE_PROFILING AND coolfluid_googleperftools_builds )
+  list( APPEND coolfluid_field_generation_cflibs coolfluid_googleperftools )
 endif()
 
 set( coolfluid_field_generation_condition ${CF_ENABLE_PROTO} )

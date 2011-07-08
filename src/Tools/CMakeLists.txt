@@ -4,7 +4,7 @@ coolfluid_find_orphan_files()
 add_subdirectory(FieldGeneration)
 
 # a library providing an interface to profiling with google perftools
-add_subdirectory( GooglePerf )
+add_subdirectory( GooglePerfTools )
 
 # a library to send notifications to the iPhone app Prowl
 add_subdirectory( Prowl )

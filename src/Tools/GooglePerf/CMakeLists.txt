@@ -1,14 +1,14 @@
-list( APPEND coolfluid_google_perftools_files
+list( APPEND coolfluid_googleperftools_files
     GooglePerfProfiling.cpp
     GooglePerfProfiling.hpp
     LibGooglePerfTools.cpp
     LibGooglePerfTools.hpp
 )
 
-list( APPEND coolfluid_google_perftools_cflibs      coolfluid_common )
-list( APPEND coolfluid_google_perftools_libs        ${GOOGLE_PERFTOOLS_PROFILER_LIBRARY} )
-list( APPEND coolfluid_google_perftools_includedirs ${GOOGLE_PERFTOOLS_INCLUDE_DIR} )
+list( APPEND coolfluid_googleperftools_cflibs      coolfluid_common )
+list( APPEND coolfluid_googleperftools_libs        ${GOOGLEPERFTOOLS_PROFILER_LIBRARY} )
+list( APPEND coolfluid_googleperftools_includedirs ${GOOGLEPERFTOOLS_INCLUDE_DIR} )
 
-set( coolfluid_google_perftools_condition ${CF_HAVE_GOOGLE_PERFTOOLS} )
+set( coolfluid_googleperftools_condition ${CF_HAVE_GOOGLEPERFTOOLS} )
 
-coolfluid_add_library( coolfluid_google_perftools )
+coolfluid_add_library( coolfluid_googleperftools )

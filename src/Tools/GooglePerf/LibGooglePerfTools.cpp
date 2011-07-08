@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Tools/GooglePerf/LibGooglePerfTools.hpp"
+#include "Tools/GooglePerfTools/LibGooglePerfTools.hpp"
 
 #include "Common/Core.hpp"
 #include "Common/RegistLibrary.hpp"
 
 namespace CF {
 namespace Tools {
-namespace GooglePerf {
+namespace GooglePerfTools {
 
 CF::Common::RegistLibrary<LibGooglePerfTools> libGooglePerfTools;
 
@@ -23,6 +23,6 @@ void LibGooglePerfTools::terminate_impl()
 {
 }
 
-} // GooglePerf
+} // GooglePerfTools
 } // Tools
 } // CF

@@ -94,7 +94,7 @@ if(CF_ENABLE_PROFILING)
   if(CF_PROFILER_TOOL MATCHES google-perftools)
 
     # a link library will be added to each executable target
-    if( CF_HAVE_GOOGLE_PERFTOOLS )
+    if( CF_HAVE_GOOGLEPERFTOOLS )
       set( CF_PROFILER_IS_GOOGLE  ON )
     else()
       coolfluid_log("User selected profiler [google-pertools] could not be found")
