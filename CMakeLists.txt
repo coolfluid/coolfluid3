@@ -184,69 +184,7 @@ endforeach()
 # summary
 ##############################################################################
 
-get_property( CF_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES )
-
-coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-coolfluid_log( "+ coolfluid configuration summary " )
-coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-coolfluid_log( " coolfluid release     : [${CF_VERSION}]" )
-coolfluid_log( " coolfluid kernel      : [${CF_KERNEL_VERSION}]" )
-coolfluid_log( " coolfluid revision    : [${coolfluid_svn_revision}]" )
-coolfluid_log( "---------------------------------------------------------" )
-coolfluid_log( " boost version         : [${Boost_LIB_VERSION}]" )
-coolfluid_log( " cmake version         : [${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}]" )
-coolfluid_log( " cmake generator       : [${CMAKE_GENERATOR}]" )
-coolfluid_log( " build type            : [${CMAKE_BUILD_TYPE}]" )
-coolfluid_log( " operating system      : [${CMAKE_SYSTEM}]" )
-coolfluid_log( " memory address (bits) : [${CF_OS_BITS}]" )
-coolfluid_log( "---------------------------------------------------------" )
-coolfluid_log( " compiler id & version : [${CMAKE_CXX_COMPILER_ID} ${CF_CXX_COMPILER_VERSION}]" )
-coolfluid_log_file( " common linker flags   : [${LINK_FLAGS}]" )
-coolfluid_log_file( " shared linker flags   : [${CMAKE_SHARED_LINKER_FLAGS}]" )
-coolfluid_log_file( " link libraries        : [${LINK_LIBRARIES}]" )
-coolfluid_log( " enabled languages     : [${CF_LANGUAGES}]")
-foreach( lang ${CF_LANGUAGES} )
-  coolfluid_log( " language ${lang} " )
-  coolfluid_log( "    compiler           : [${CMAKE_${lang}_COMPILER}]" )
-  coolfluid_log( "    flags              : [${CMAKE_${lang}_FLAGS} ${CMAKE_${lang}_FLAGS_${CMAKE_BUILD_TYPE}}]" )
-  coolfluid_log( "    link flags         : [${CMAKE_CXX_LINK_FLAGS}]" )
-endforeach()
-coolfluid_log( "---------------------------------------------------------" )
-coolfluid_log( " Documentation         : [${CF_ENABLE_DOCS}]")
-coolfluid_log( " Unit Tests            : [${CF_ENABLE_UNIT_TESTS}]")
-coolfluid_log( " Acceptance Tests      : [${CF_ENABLE_ACCEPTANCE_TESTS}]")
-coolfluid_log( " GUI                   : [${CF_ENABLE_GUI}]")
-coolfluid_log( " Sandbox               : [${CF_ENABLE_SANDBOX}]")
-coolfluid_log( " Assertions            : [${CF_ENABLE_ASSERTIONS}]")
-coolfluid_log( " Static libs           : [${CF_ENABLE_STATIC}]")
-coolfluid_log( " Code coverage         : [${CF_ENABLE_CODECOVERAGE}]")
-coolfluid_log( " Explicit Templates    : [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]")
-coolfluid_log( "---------------------------------------------------------" )
-coolfluid_log( " install path          : [${CMAKE_INSTALL_PREFIX}]" )
-coolfluid_log( "---------------------------------------------------------" )
-#coolfluid_log( " Kernel libs           : [${CF_KERNEL_LIBS}]")
-#coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-coolfluid_log( "")
-
-foreach( plugin ${CF_PLUGIN_LIST} )
-  set( list_plugins "${list_plugins}\n ${plugin}" )
-endforeach()
-coolfluid_log( " Enabled plugins: ${list_plugins}")
-coolfluid_log( "")
-
-
-if( COMMAND feature_summary )
-
-   feature_summary( WHAT ENABLED_FEATURES
-                    DESCRIPTION "Enabled Features:"
-                    VAR CF_ENABLED_FEATURES )
-
-   coolfluid_log( "${CF_ENABLED_FEATURES}" )
-
-   feature_summary(WHAT ALL
-                   FILENAME ${PROJECT_LOG_FILE} APPEND)
-
-endif()
+include( PrintSummary )
 
 ##############################################################################
 # finalize build
@@ -260,4 +198,4 @@ include( DumpVariables )         # dump relevant variables in the log file
 
 include( PrepareCPack  )         # packaging instructions
 
-coolfluid_log( "Full configuration log in ${PROJECT_LOG_FILE}" )
+coolfluid_log( "Full configuration log: ${PROJECT_LOG_FILE}" )

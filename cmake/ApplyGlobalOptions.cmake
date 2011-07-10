@@ -51,7 +51,7 @@ endif()
 if( APPLE AND CMAKE_COMPILER_IS_GNUCC )
   set( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for explicit templates deactivated -- Apple with GCC don't support it" FORCE )
   if( CF_ENABLE_EXPLICIT_TEMPLATES )
-    coolfluid_log( "Explicit templates requested but not supported on Mac OS X" )
+    coolfluid_log_file( "Explicit templates requested but not supported on Mac OS X" )
   endif()
 endif()
 

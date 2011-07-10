@@ -16,14 +16,12 @@ coolfluid_mark_not_orphan(
 )
 
 list( APPEND coolfluid_tools_growl_files
-  LibGrowl.hpp 
-  LibGrowl.cpp 
+  LibGrowl.hpp
+  LibGrowl.cpp
   Notifier.hpp
   Notifier.cpp
 )
 
 list( APPEND coolfluid_tools_growl_cflibs coolfluid_common growl )
-
-set( coolfluid_tools_growl_kernellib TRUE )
 
 coolfluid_add_library( coolfluid_tools_growl )
