@@ -164,7 +164,7 @@ public: // functions
     Rv(1,2) = ra*(p.u + p.a*nx);
     Rv(1,3) = ra*(p.u - p.a*nx);
     Rv(2,0) = p.v;
-    Rv(2,1) = -p.rho*nx;;
+    Rv(2,1) = -p.rho*nx;
     Rv(2,2) = ra*(p.v + p.a*ny);
     Rv(2,3) = ra*(p.v - p.a*ny);
     Rv(3,0) = 0.5 * p.uuvv;

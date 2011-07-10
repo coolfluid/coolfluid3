@@ -89,7 +89,7 @@ void NLinkTest::test_goToTarget()
 
  QModelIndex index;
  SignalFrame frame;
- NRoot::Ptr root = ThreadManager::instance().tree().root();;
+ NRoot::Ptr root = ThreadManager::instance().tree().root();
  NGeneric::Ptr target(new NGeneric("Target", "MyType"));
  NGeneric::Ptr wrongTarget(new NGeneric("WrongTarget", "MyType")); // not part of the tree
  NTree::Ptr tree = NTree::globalTree();

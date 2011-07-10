@@ -27,10 +27,10 @@
 namespace CF {
 namespace Mesh {
 namespace Actions {
-  
+
   using namespace Common;
   using namespace Math::MathFunctions;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CBubbleRemove, CMeshTransformer, LibActions> CBubbleRemove_Builder;
@@ -40,9 +40,9 @@ Common::ComponentBuilder < CBubbleRemove, CMeshTransformer, LibActions> CBubbleR
 CBubbleRemove::CBubbleRemove( const std::string& name )
 : CMeshTransformer(name)
 {
-   
+
   properties()["brief"] = std::string("Enriches a Lagrangian space with bubble functions in each element");
-  properties()["description"] = std::string("  Usage: CBubbleRemove");;
+  properties()["description"] = std::string("  Usage: CBubbleRemove");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -54,13 +54,13 @@ std::string CBubbleRemove::brief_description() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-  
+
 std::string CBubbleRemove::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" +
       properties().value<std::string>("description");
-}  
-  
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CBubbleRemove::execute()
