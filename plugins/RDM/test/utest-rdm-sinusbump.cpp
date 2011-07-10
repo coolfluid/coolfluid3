@@ -174,7 +174,7 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , local_fixture )
 
   solver.configure_option("domain",URI("cpath:../Domain"));
   solver.get_child("time_stepping").configure_option("cfl", 0.01);
-  solver.get_child("time_stepping").configure_option("MaxIter", 350u);
+  solver.get_child("time_stepping").configure_option("MaxIter", 50u);
 }
 
 //////////////////////////////////////////////////////////////////////////////

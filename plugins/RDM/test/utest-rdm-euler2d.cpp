@@ -166,8 +166,8 @@ BOOST_FIXTURE_TEST_CASE( test_setup_iterative_solver , local_fixture )
 {
   BOOST_CHECK(true);
 
-  solver.get_child("time_stepping").configure_option("cfl", 0.25);;
-  solver.get_child("time_stepping").configure_option("MaxIter", 250u);;
+  solver.get_child("time_stepping").configure_option("cfl", 0.25);
+  solver.get_child("time_stepping").configure_option("MaxIter", 50u);
 }
 
 //////////////////////////////////////////////////////////////////////////////

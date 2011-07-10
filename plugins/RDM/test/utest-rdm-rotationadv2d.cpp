@@ -251,7 +251,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , local_fixture )
 {
   solver.get_child("time_stepping").configure_option("cfl", 1.);
-  solver.get_child("time_stepping").configure_option("MaxIter", 250u);
+  solver.get_child("time_stepping").configure_option("MaxIter", 50u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
