@@ -11,15 +11,11 @@
 #
 # TODO
 #
+#  * use EXECUTABLE_OUTPUT_PATH  to specify a common place where CMake puts all executable files
+#        set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+#  * use LIBRARY_OUTPUT_PATH to specify a common place where CMake puts all libraries
+#        set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 #  * try using precompiled headers and add a check to their support
-#  * mesh transformers
-#     * CScale, CRotate, CTranslate,
-#     * CMirror, CCopy
-#     * CMerge
-#  * fields
-#     * base fields on other fields defined by analytical functions
-#     * update() function that can be used to trigger dependent fields for update
-#
 #
 ##############################################################################
 

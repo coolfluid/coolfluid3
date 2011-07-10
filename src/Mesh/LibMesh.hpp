@@ -33,6 +33,11 @@ namespace CF {
 namespace Mesh {
 
 /// Class defines the initialization and termination of the library Mesh
+///
+/// @todo Some new mesh transformers: CScale, CRotate, CTranslate, CMirror, CCopy, CMergeMesh
+/// @todo New field functionality - base fields on other fields defined by analytical functions (vectorial functions)
+///       and add a update() function that can be used to trigger dependent (linked) fields for update
+///
 /// @author Tiago Quintino
 class Mesh_API LibMesh :  public Common::CLibrary
 {
