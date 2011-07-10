@@ -44,7 +44,7 @@ endif()
 
 # option to skip fortran language
 # kernel does not need fortran but some plugins might
-# developers that know htat they wont need it may turn it off in systems where is not available
+# developers that know that they wont need it may turn it off in systems where is not available
 if(NOT CF_SKIP_FORTRAN)
   enable_language( Fortran OPTIONAL )
 else()
