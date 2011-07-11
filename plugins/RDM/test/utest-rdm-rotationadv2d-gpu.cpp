@@ -169,7 +169,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , rotationadv2d_local
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -202,7 +202,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_farfield , rotationadv2d_lo
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"farfield"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -254,11 +254,11 @@ BOOST_FIXTURE_TEST_CASE( test_init_output , rotationadv2d_local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   gmsh_writer->configure_option("fields",fields);
   gmsh_writer->configure_option("file",URI(model.name()+"_init.msh"));
-  gmsh_writer->configure_option("mesh",mesh->full_path());
+  gmsh_writer->configure_option("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -290,7 +290,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda_gpu , rotationadv2d_local_fixture )
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"topology"))
-    regions.push_back( region.full_path() );
+    regions.push_back( region.uri() );
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
@@ -320,14 +320,14 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
   std::vector<URI> fields;
   boost_foreach(const CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.full_path());
+    fields.push_back(field.uri());
 
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   model.add_component(gmsh_writer);
 
   gmsh_writer->configure_option("fields",fields);
   gmsh_writer->configure_option("file",URI(model.name()+".msh"));
-  gmsh_writer->configure_option("mesh",mesh->full_path());
+  gmsh_writer->configure_option("mesh",mesh->uri());
 
   gmsh_writer->execute();
 
@@ -336,7 +336,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
   vtk_writer->configure_option("fields",fields);
   vtk_writer->configure_option("file",URI(model.name()+".vtk"));
-  vtk_writer->configure_option("mesh",mesh->full_path());
+  vtk_writer->configure_option("mesh",mesh->uri());
 
   vtk_writer->execute();*/
 
@@ -345,7 +345,7 @@ BOOST_FIXTURE_TEST_CASE( output , rotationadv2d_local_fixture )
 
   tec_writer->configure_option("fields",fields);
   tec_writer->configure_option("file",URI(model.name()+".plt"));
-  tec_writer->configure_option("mesh",mesh->full_path());
+  tec_writer->configure_option("mesh",mesh->uri());
 
   tec_writer->execute();*/
 }
