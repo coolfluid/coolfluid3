@@ -19,7 +19,7 @@ list( APPEND coolfluid_physics_scalar_files
   Scalar3D.cpp
 )
 
-list( APPEND coolfluid_physics_scalar_cflibs coolfluid_common )
+list( APPEND coolfluid_physics_scalar_cflibs coolfluid_physics )
 
 coolfluid_add_library( coolfluid_physics_scalar )
 
