@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_Scalar_LinearAdv2D_hpp
-#define CF_Physics_Scalar_LinearAdv2D_hpp
+#ifndef CF_Physics_Scalar_Burgers2D_hpp
+#define CF_Physics_Scalar_Burgers2D_hpp
 
 #include "Common/StringConversion.hpp"
 #include "Math/Defs.hpp"
@@ -18,7 +18,7 @@ namespace Scalar {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Scalar_API LinearAdv2D : public NonInstantiable<LinearAdv2D> {
+class Scalar_API Burgers2D : public NonInstantiable<Burgers2D> {
 
 public: // functions
 
@@ -27,7 +27,7 @@ public: // functions
   enum { U = 0 };
 
   /// Get the class name
-  static std::string type_name () { return "LinearAdv2D"; }
+  static std::string type_name () { return "Burgers2D"; }
 
   /// compute physical properties
   template < typename CV, typename SV, typename GM >
@@ -40,8 +40,8 @@ public: // functions
     p.vars      = sol;         // cache the variables locally
     p.grad_vars = grad_vars;   // cache the gradient of variables locally
 
-    p.v[XX] = 1.0; // constant vx
-    p.v[YY] = 1.0; // constant vx
+    p.v[XX] =    sol[0];       // non-linear advection velocity
+    p.v[YY] =       1.0;
 
     p.u = sol[0];
 
@@ -105,7 +105,7 @@ public: // functions
     res = A * p.grad_vars.col(XX) + B * p.grad_vars.col(YY);
   }
 
-}; // LinearAdv2D
+}; // Burgers2D
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -113,4 +113,4 @@ public: // functions
 } // Physics
 } // CF
 
-#endif // CF_Physics_Scalar_LinearAdv2D_hpp
+#endif // CF_Physics_Scalar_Burgers2D_hpp
