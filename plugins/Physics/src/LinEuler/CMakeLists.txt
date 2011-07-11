@@ -1,4 +1,4 @@
-# coolfluid_lineuler
+# coolfluid_physics_lineuler
 
 list( APPEND coolfluid_physics_lineuler_files
   LibLinEuler.cpp
@@ -7,7 +7,7 @@ list( APPEND coolfluid_physics_lineuler_files
   LinEuler2D.hpp
 )
 
-list( APPEND coolfluid_lineuler_cflibs coolfluid_physics )
+list( APPEND coolfluid_physics_lineuler_cflibs coolfluid_physics )
 
 coolfluid_add_library( coolfluid_physics_lineuler )
 
