@@ -54,15 +54,15 @@ include( ${coolfluid_BINARY_DIR}/coolfluid.cmake OPTIONAL )
 # include other configurations
 set( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-include( DefineVersions )        # define variables with coolfluid versions
+include( DefineVersions )         # define variables with coolfluid versions
+
+include( DefineMacros )            # define our own macros
 
 ##############################################################################
-# cmake setup
+coolfluid_log("[configuring ${PROJECT_NAME}]")
 ##############################################################################
 
 include( DefineFileExtensions )    # define project files extensions
-
-include( DefineMacros )            # define our own macros
 
 include( CTest )                   # include testing support
 
@@ -70,9 +70,12 @@ include( DefineInstallPaths )      # define where to install the files after bui
 
 include( ResetVariables )          # reset variables used for the build and set DEPS_ROOT if needed
 
+coolfluid_log("")
+
 ##############################################################################
-# configuration options
+coolfluid_log(" setting build options ")
 ##############################################################################
+
 
 include( DefineGlobalOptions )     # add user global options
 
@@ -86,10 +89,10 @@ include( DefineBuildRules )        # defined default compilation flags and linki
 
 include( ApplyGlobalOptions )      # take options into effect
 
+coolfluid_log("")
+
 ##############################################################################
-coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-coolfluid_log_file( "General Configuration ")
-coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log(" generic configuration ")
 ##############################################################################
 
 add_subdirectory( cmake )         # dir with macros to be installed
@@ -102,10 +105,10 @@ include( DetectSoftware )         # find sofwtare dependencies
 
 include( CheckSourceRevision )        # check for subversion support
 
+coolfluid_log("")
+
 ##############################################################################
-coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-coolfluid_log_file( "Kernel Configuration ")
-coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log(" kernel configuration ")
 ##############################################################################
 
 # dir includes
@@ -134,10 +137,10 @@ if( CF_ENABLE_SANDBOX )
   add_subdirectory( sandbox EXCLUDE_FROM_ALL )
 endif()
 
+coolfluid_log("")
+
 ##############################################################################
-coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-coolfluid_log_file( "Plugin's Configuration ")
-coolfluid_log_file( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log(" plugin configuration ")
 ##############################################################################
 
 # add dir with kernel plugins
@@ -175,6 +178,8 @@ foreach( EXDIR ${CF_PLUGIN_DIRS} )
   endforeach()
 
 endforeach()
+
+coolfluid_log("")
 
 ##############################################################################
 # summary
