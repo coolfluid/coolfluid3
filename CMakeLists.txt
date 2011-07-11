@@ -54,13 +54,13 @@ include( ${coolfluid_BINARY_DIR}/coolfluid.cmake OPTIONAL )
 # include other configurations
 set( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
+##############################################################################
+message( STATUS "[configuring ${PROJECT_NAME}]")
+##############################################################################
+
 include( DefineVersions )         # define variables with coolfluid versions
 
 include( DefineMacros )            # define our own macros
-
-##############################################################################
-coolfluid_log("[configuring ${PROJECT_NAME}]")
-##############################################################################
 
 include( DefineFileExtensions )    # define project files extensions
 
