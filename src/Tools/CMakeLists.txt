@@ -30,5 +30,6 @@ add_subdirectory( Shell )
 # acommand-line tool to execute a batch of coolfluid commands
 add_subdirectory( Command )
 
-# a solver app to run simulations using MPI from the UI
+# a solver app to be spawned from the coolfluid-server
+# to run parallel simulations ( started from the UI )
 add_subdirectory( Solver )
