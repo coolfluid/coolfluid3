@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LinEuler_LibLinEuler_hpp
-#define CF_LinEuler_LibLinEuler_hpp
+#ifndef CF_Physics_LinEuler_LibLinEuler_hpp
+#define CF_Physics_LinEuler_LibLinEuler_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,8 +14,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro LinEuler_API
-/// @note build system defines COOLFLUID_LINEULER_EXPORTS when compiling LinEuler files
-#ifdef COOLFLUID_LINEULER_EXPORTS
+/// @note build system defines COOLFLUID_PHYSICS_LINEULER_EXPORTS when compiling LinEuler files
+#ifdef COOLFLUID_PHYSICS_LINEULER_EXPORTS
 #   define LinEuler_API      CF_EXPORT_API
 #   define TEMPLATE
 #else
@@ -27,16 +27,16 @@
 
 namespace CF {
 
-/// @brief %LinEuler classes
+/// @brief %Linearized Euler equations for sound propagation
 ///
 /// LinEuler library
-/// @author 
+/// @author Tiago Quintino
 namespace LinEuler {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the LinEuler library
-/// @author 
+/// @author Tiago Quintino
 class LinEuler_API LibLinEuler : public Common::CLibrary
 {
 public:
@@ -52,7 +52,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.LinEuler"; }
+  static std::string library_namespace() { return "CF.Physics.LinEuler"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for CLibrary registration
@@ -65,7 +65,7 @@ public: // functions
 
   static std::string library_description()
   {
-    return "This library implements LinEuler";
+    return "This library implements linearized Euler equations for acoustic propagation";
   }
 
   /// Gets the Class name
@@ -88,5 +88,5 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_LinEuler_LibLinEuler_hpp
+#endif // CF_Physics_LinEuler_LibLinEuler_hpp
 
