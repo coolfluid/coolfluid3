@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Scalar_LibScalar_hpp
-#define CF_Scalar_LibScalar_hpp
+#ifndef CF_Physics_Scalar_LibScalar_hpp
+#define CF_Physics_Scalar_LibScalar_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,8 +14,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Scalar_API
-/// @note build system defines COOLFLUID_SCALAR_EXPORTS when compiling Scalar files
-#ifdef COOLFLUID_SCALAR_EXPORTS
+/// @note build system defines COOLFLUID_PHYSICS_SCALAR_EXPORTS when compiling Scalar files
+#ifdef COOLFLUID_PHYSICS_SCALAR_EXPORTS
 #   define Scalar_API      CF_EXPORT_API
 #   define Scalar_TEMPLATE
 #else
@@ -27,16 +27,15 @@
 
 namespace CF {
 
-/// @brief %Scalar classes
+/// @brief %Scalar transport equations
 ///
-/// Scalar library
-/// @author 
+/// @author Tiago Quintino
 namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the Scalar library
-/// @author 
+/// @author Tiago Quintino
 class Scalar_API LibScalar : public Common::CLibrary
 {
 public:
@@ -52,7 +51,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Scalar"; }
+  static std::string library_namespace() { return "CF.Physics.Scalar"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for CLibrary registration
@@ -65,7 +64,7 @@ public: // functions
 
   static std::string library_description()
   {
-    return "This library implements Scalar";
+    return "This library implements Scalar equations";
   }
 
   /// Gets the Class name
@@ -88,5 +87,5 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Scalar_LibScalar_hpp
+#endif // CF_Physics_Scalar_LibScalar_hpp
 

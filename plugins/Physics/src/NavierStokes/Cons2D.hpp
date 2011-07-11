@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_NavierStokes_Cons2D_hpp
-#define CF_NavierStokes_Cons2D_hpp
+#ifndef CF_Physics_NavierStokes_Cons2D_hpp
+#define CF_Physics_NavierStokes_Cons2D_hpp
 
 #include "Common/StringConversion.hpp"
 #include "Math/Defs.hpp"
@@ -201,10 +201,10 @@ public: // functions
   }
 
   /// compute the PDE residual
-  template < typename JM, typename LUV >
+  template < typename JM, typename RV >
   static void residual(const MODEL::Properties& p,
                        JM         flux_jacob[],
-                       LUV&       Lu)
+                       RV&        res)
   {
     const Real gamma_minus_3 = p.gamma - 3.;
 
@@ -246,7 +246,7 @@ public: // functions
     B(3,2) = -p.gamma_minus_1*vv + p.H;
     B(3,3) = p.gamma*p.v;
 
-    Lu = A * p.grad_vars.col(XX) + B * p.grad_vars.col(YY);
+    res = A * p.grad_vars.col(XX) + B * p.grad_vars.col(YY);
   }
 
 }; // Cons2D
@@ -257,4 +257,4 @@ public: // functions
 } // Physics
 } // CF
 
-#endif // CF_NavierStokes_Cons2D_hpp
+#endif // CF_Physics_NavierStokes_Cons2D_hpp

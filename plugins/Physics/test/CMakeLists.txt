@@ -1,3 +1,10 @@
+# TQ: I leave the sources ere but deactivate this physical model
+#     as it follows the old API. Willem will upgrade to new one.
+
+list( APPEND utest-advectiondiffusion_condition FALSE )
+list( APPEND utest-euler_condition FALSE )
+
+
 #########################################################################################
 # utest-advectiondiffusion
 

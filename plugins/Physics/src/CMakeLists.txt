@@ -1,8 +1,14 @@
-add_subdirectory( AdvectionDiffusion )  # coolfluid_advectiondiffusion library
+#################################################################
+# old physics - to be removed
+
+add_subdirectory( AdvectionDiffusion )
 
 add_subdirectory( Euler )  # coolfluid_euler library
 
-add_subdirectory( NavierStokes )  # coolfluid_navierstokes library
+#################################################################
+
+# library NavierStokes
+add_subdirectory( NavierStokes )
 
 
 # library Scalar

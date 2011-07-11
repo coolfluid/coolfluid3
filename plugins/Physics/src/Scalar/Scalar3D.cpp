@@ -4,26 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "NavierStokes2D.hpp"
+#include "Scalar3D.hpp"
 
 namespace CF {
 namespace Physics {
-namespace NavierStokes {
+namespace Scalar {
 
 using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NavierStokes2D::NavierStokes2D( const std::string& name ) : Physics::PhysModel(name)
+Scalar3D::Scalar3D( const std::string& name ) : Physics::PhysModel(name)
 {
 }
 
-NavierStokes2D::~NavierStokes2D()
+Scalar3D::~Scalar3D()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // NavierStokes
+} // Scalar
 } // Physics
 } // CF
