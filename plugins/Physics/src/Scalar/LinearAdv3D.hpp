@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_Scalar_LinearAdv2D_hpp
-#define CF_Physics_Scalar_LinearAdv2D_hpp
+#ifndef CF_Physics_Scalar_LinearAdv3D_hpp
+#define CF_Physics_Scalar_LinearAdv3D_hpp
 
 #include "Common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
-#include "Scalar2D.hpp"
+#include "Scalar3D.hpp"
 
 namespace CF {
 namespace Physics {
@@ -18,16 +18,16 @@ namespace Scalar {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Scalar_API LinearAdv2D : public NonInstantiable<LinearAdv2D> {
+class Scalar_API LinearAdv3D : public NonInstantiable<LinearAdv3D> {
 
 public: // functions
 
-  typedef Scalar2D     MODEL;
+  typedef Scalar3D     MODEL;
 
   enum { U = 0 };
 
   /// Get the class name
-  static std::string type_name () { return "LinearAdv2D"; }
+  static std::string type_name () { return "LinearAdv3D"; }
 
   /// compute physical properties
   template < typename CV, typename SV, typename GM >
@@ -42,6 +42,7 @@ public: // functions
 
     p.v[XX] = 1.0; // constant vx
     p.v[YY] = 1.0; // constant vy
+    p.v[ZZ] = 0.0; // constant vz
 
     p.u = sol[U];
 
@@ -55,6 +56,7 @@ public: // functions
   {
     flux(0,XX)   = p.v[XX] * p.u;
     flux(0,YY)   = p.v[YY] * p.u;
+    flux(0,ZZ)   = p.v[ZZ] * p.u;
   }
 
   /// compute the eigen values of the flux jacobians
@@ -63,7 +65,9 @@ public: // functions
                                          const GV& direction,
                                          EV& Dv)
   {
-    Dv[0]   = p.v[XX] * direction[XX] + p.v[YY] * direction[YY];
+    Dv[0]   = p.v[XX] * direction[XX]
+            + p.v[YY] * direction[YY]
+            + p.v[ZZ] * direction[ZZ];
   }
 
   /// compute the eigen values of the flux jacobians
@@ -74,7 +78,9 @@ public: // functions
                                          OP& op )
 
   {
-    Dv[0]   = op( p.v[XX] * direction[XX] + p.v[YY] * direction[YY] );
+    Dv[0] = op( p.v[XX] * direction[XX]
+              + p.v[YY] * direction[YY]
+              + p.v[ZZ] * direction[ZZ] );
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
@@ -87,7 +93,9 @@ public: // functions
   {
     Rv(0,0) = 1.;
     Lv(0,0) = 1.;
-    Dv[0]   = p.v[XX] * direction[XX] + p.v[YY] * direction[YY];
+    Dv[0]   = p.v[XX] * direction[XX]
+            + p.v[YY] * direction[YY]
+            + p.v[ZZ] * direction[ZZ];
   }
 
   /// compute the PDE residual
@@ -96,16 +104,20 @@ public: // functions
                        JM         flux_jacob[],
                        RV&        res)
   {
-    JM& A = flux_jacob[XX];
-    JM& B = flux_jacob[YY];
+    JM& Jx = flux_jacob[XX];
+    JM& Jy = flux_jacob[YY];
+    JM& Jz = flux_jacob[ZZ];
 
-    A(0,0) = p.v[XX];
-    B(0,0) = p.v[YY];
+    Jx(0,0) = p.v[XX];
+    Jy(0,0) = p.v[YY];
+    Jz(0,0) = p.v[ZZ];
 
-    res = A * p.grad_vars.col(XX) + B * p.grad_vars.col(YY);
+    res = Jx * p.grad_vars.col(XX)
+        + Jy * p.grad_vars.col(YY)
+        + Jz * p.grad_vars.col(ZZ);
   }
 
-}; // LinearAdv2D
+}; // LinearAdv3D
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -113,4 +125,4 @@ public: // functions
 } // Physics
 } // CF
 
-#endif // CF_Physics_Scalar_LinearAdv2D_hpp
+#endif // CF_Physics_Scalar_LinearAdv3D_hpp

@@ -40,10 +40,10 @@ public: // functions
     p.vars      = sol;         // cache the variables locally
     p.grad_vars = grad_vars;   // cache the gradient of variables locally
 
-    p.v[XX] =    sol[0];       // non-linear advection velocity
+    p.v[XX] =    sol[U];       // non-linear advection velocity
     p.v[YY] =       1.0;
 
-    p.u = sol[0];
+    p.u = sol[U];
 
     p.mu = 0.;     // no diffusion
   }

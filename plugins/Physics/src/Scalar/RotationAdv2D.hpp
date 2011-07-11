@@ -43,7 +43,7 @@ public: // functions
     p.v[XX] =    coord[YY]; // rigid rotation round origin
     p.v[YY] =  - coord[XX]; //
 
-    p.u = sol[0];
+    p.u = sol[U];
 
     p.mu = 0.;     // no diffusion
   }

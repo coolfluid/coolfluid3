@@ -3,16 +3,20 @@
 list( APPEND coolfluid_physics_scalar_files
   LibScalar.hpp
   LibScalar.cpp
+# scalar 2D
   Scalar2D.hpp
   Scalar2D.cpp
-  Scalar3D.hpp
-  Scalar3D.cpp
   LinearAdv2D.hpp
   LinearAdv2D.cpp
   RotationAdv2D.hpp
   RotationAdv2D.cpp
   Burgers2D.hpp
   Burgers2D.cpp
+# scalar 3D
+  LinearAdv3D.hpp
+  LinearAdv3D.cpp
+  Scalar3D.hpp
+  Scalar3D.cpp
 )
 
 list( APPEND coolfluid_physics_scalar_cflibs coolfluid_common )
