@@ -8,3 +8,7 @@ add_subdirectory( NavierStokes )  # coolfluid_navierstokes library
 # library Scalar
 add_subdirectory( Scalar )
 
+
+# library LinEuler
+add_subdirectory( LinEuler )
+
