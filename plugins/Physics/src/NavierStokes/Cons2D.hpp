@@ -27,7 +27,7 @@ public: // functions
   enum { Rho = 0, RhoU = 1, RhoV = 2, RhoE = 3 };
 
   /// Get the class name
-  static std::string type_name () { return "NavierStokes_Cons2D"; }
+  static std::string type_name () { return "Cons2D"; }
 
   /// compute physical properties
   template < typename CV, typename SV, typename GM >

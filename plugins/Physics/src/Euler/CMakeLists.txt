@@ -1,5 +1,7 @@
-# TQ: I leave the sources ere but deactivate this physical model
-#     as it follows the old API. Willem will upgrade to new one.
+# TQ: NOTE
+#     I leave the sources here but deactivate this code because
+#     it follows the old Physics API.
+#     The owner of this module should upgrade it to the new API or remove it.
 
 list( APPEND coolfluid_euler_condition FALSE )
 

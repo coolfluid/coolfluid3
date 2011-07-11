@@ -9,6 +9,7 @@
 #include "Scalar/LibScalar.hpp"
 
 namespace CF {
+namespace Physics {
 namespace Scalar {
 
   using namespace Common;
@@ -28,5 +29,6 @@ void LibScalar::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
+} // Physics
 } // CF
 
