@@ -174,20 +174,6 @@ public:
 
   /// @name Pack/Unpack of some container types
   //@{
-
-  void pack(const Buffer& other_buf)
-  {
-    resize(other_buf.packed_size());
-    memcpy(m_buffer+m_packed_size,other_buf.m_buffer,other_buf.m_packed_size);
-    m_packed_size += other_buf.m_packed_size;
-  }
-
-  void unpack(const Buffer& other_buf, const Uint data_size)
-  {
-    memcpy(other_buf.m_buffer,m_buffer+m_packed_size,other_buf.m_packed_size);
-    m_unpacked_size += other_buf.m_unpacked_size;
-  }
-
   template <typename T>
       void pack(const std::vector<T>& data);
 
@@ -262,18 +248,21 @@ inline void Buffer::reset()
 template <typename T>
 inline void Buffer::pack(const T* data, const Uint data_size)
 {
-  // get size of the package
-  int size;
-  MPI_Pack_size(data_size, get_mpi_datatype<T>() , PE::instance().communicator(), &size);
+  if (data_size)
+  {
+    // get size of the package
+    int size;
+    MPI_Pack_size(data_size, get_mpi_datatype<T>() , PE::instance().communicator() , &size);
 
-  // resize buffer to fit the package
-  resize(size);
+    // resize buffer to fit the package
+    resize(size);
 
-  // pack the package in the buffer, and modify the packed_size
-  int index = static_cast<int>(m_packed_size);
-  MPI_Pack((void*)data, data_size , get_mpi_datatype<T>(), m_buffer, m_size, &index, PE::instance().communicator() );
-  m_packed_size = index;
-  cf_assert(m_packed_size <= m_size);
+    // pack the package in the buffer, and modify the packed_size
+    int index = static_cast<int>(m_packed_size);
+    MPI_Pack((void*)data, data_size , get_mpi_datatype<T>(), m_buffer, m_size, &index, PE::instance().communicator());
+    m_packed_size = index;
+    cf_assert(m_packed_size <= m_size);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -281,11 +270,14 @@ inline void Buffer::pack(const T* data, const Uint data_size)
 template <class T>
 inline void Buffer::unpack(T* data, const Uint data_size)
 {
-  // unpack the package and modify the unpacked_size
-  int index=static_cast<int>(m_unpacked_size);
-  MPI_Unpack(m_buffer, m_size, &index, (void*)data, data_size, get_mpi_datatype<T>(), PE::instance().communicator() );
-  m_unpacked_size = index;
-  cf_assert(m_unpacked_size <= m_packed_size);
+  if (data_size)
+  {
+    // unpack the package and modify the unpacked_size
+    int index=static_cast<int>(m_unpacked_size);
+    MPI_Unpack(m_buffer, m_size, &index, (void*)data, data_size, get_mpi_datatype<T>(), PE::instance().communicator());
+    m_unpacked_size = index;
+    cf_assert(m_unpacked_size <= m_packed_size);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

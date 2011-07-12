@@ -243,10 +243,10 @@ void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) con
       else
       {
         const CConnectivity& connectivity_table = m_local_components[component_idx]->as_type<CElements>().node_connectivity();
-        const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_type<CElements>().nodes().glb_idx();
+        //const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_type<CElements>().nodes().glb_idx();
 
-        boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
-          connected_objects[idx++] = glb_node_indices[ loc_node ];
+        boost_foreach (const Uint glb_node , connectivity_table[loc_idx])
+          connected_objects[idx++] = glb_node; //glb_node_indices[ loc_node ];
       }
     }
   }
@@ -279,9 +279,9 @@ void CMeshPartitioner::list_of_connected_procs(VectorT& connected_procs) const
       else
       {
         const CConnectivity& connectivity_table = m_local_components[component_idx]->as_ptr<CElements>()->node_connectivity();
-        const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_ptr<CElements>()->nodes().glb_idx();
-        boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
-          connected_procs[idx++] = proc_of_obj( glb_node_indices[loc_node] );
+        //const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_ptr<CElements>()->nodes().glb_idx();
+        boost_foreach (const Uint glb_node , connectivity_table[loc_idx])
+          connected_procs[idx++] = proc_of_obj( glb_node ); //glb_node_indices[loc_node] );
       }
     }
   }

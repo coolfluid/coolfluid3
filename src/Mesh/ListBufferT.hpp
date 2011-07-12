@@ -14,6 +14,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/BoostArray.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/StringConversion.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/ListBufferIterator.hpp"
@@ -355,7 +356,7 @@ inline typename ListBufferT<T>::value_type& ListBufferT<T>::get_row(const Uint i
       cummulative_size += buffer.size();
     }
   }
-  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
+  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated: ["+Common::to_str(idx)+">="+Common::to_str(cummulative_size)+"]");
 }
 
 //////////////////////////////////////////////////////////////////////

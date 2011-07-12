@@ -8,6 +8,8 @@
 #define BOOST_TEST_MODULE "Test module for parallel fields"
 
 #include <iomanip>
+#include <set>
+
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
@@ -56,28 +58,32 @@ template <typename T>
 void my_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& recv)
 {
   std::vector<int> strides;
-  std::vector<int> displs(send.size());
-
   PE::instance().all_gather((int)send.size(),strides);
-
-  int sum_strides = strides[0];
-  displs[0] = 0;
-  for (Uint i=1; i<strides.size(); ++i)
+  std::vector<int> displs(strides.size());
+  if (strides.size())
   {
-    displs[i] = displs[i-1] + strides[i-1];
-    sum_strides += strides[i];
-  }
-  std::vector<Uint> recv_linear(sum_strides);
-  MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), PE::instance().communicator()));
-
-  recv.resize(strides.size());
-  for (Uint i=0; i<strides.size(); ++i)
-  {
-    recv[i].resize(strides[i]);
-    for (Uint j=0; j<strides[i]; ++j)
+    int sum_strides = strides[0];
+    displs[0] = 0;
+    for (Uint i=1; i<strides.size(); ++i)
     {
-      recv[i][j]=recv_linear[displs[i]+j];
+      displs[i] = displs[i-1] + strides[i-1];
+      sum_strides += strides[i];
     }
+    std::vector<Uint> recv_linear(sum_strides);
+    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), PE::instance().communicator()));
+    recv.resize(strides.size());
+    for (Uint i=0; i<strides.size(); ++i)
+    {
+      recv[i].resize(strides[i]);
+      for (Uint j=0; j<strides[i]; ++j)
+      {
+        recv[i][j]=recv_linear[displs[i]+j];
+      }
+    }
+  }
+  else
+  {
+    recv.resize(0);
   }
 }
 
@@ -126,21 +132,23 @@ void my_all_to_all(const std::vector<mpi::Buffer>& send, mpi::Buffer& recv)
   for (Uint i=0; i<send.size(); ++i)
     send_strides[i] = send[i].packed_size();
 
-  send_displs[0] = 0;
+  if (send.size()) send_displs[0] = 0;
   for (Uint i=1; i<send.size(); ++i)
     send_displs[i] = send_displs[i-1] + send_strides[i-1];
 
-  mpi::Buffer send_linear(send_displs.back()+send_strides.back());
+  mpi::Buffer send_linear;
+
+  send_linear.resize(send_displs.back()+send_strides.back());
   for (Uint i=0; i<send.size(); ++i)
     send_linear.pack(send[i].buffer(),send[i].packed_size());
 
   std::vector<int> recv_strides(PE::instance().size());
   std::vector<int> recv_displs(PE::instance().size());
   PE::instance().all_to_all(send_strides,recv_strides);
-  recv_displs[0] = 0;
+  if (recv_displs.size()) recv_displs[0] = 0;
   for (Uint i=1; i<PE::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
-
+  recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
   MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::instance().communicator()));
   recv.packed_size()=recv.size();
@@ -305,6 +313,77 @@ struct UnpackAndAddElements : PackedObject
   Uint row_size;
 };
 
+struct RemoveNodes
+{
+  RemoveNodes(CNodes& nodes) :
+    is_ghost (nodes.is_ghost().create_buffer()),
+    glb_idx (nodes.glb_idx().create_buffer()),
+    rank (nodes.rank().create_buffer()),
+    coordinates (nodes.coordinates().create_buffer()),
+    connected_elements (nodes.glb_elem_connectivity().create_buffer())
+  {}
+
+  void operator() (const Uint idx)
+  {
+    Uint val = glb_idx.get_row(idx);
+
+    is_ghost.rm_row(idx);
+    glb_idx.rm_row(idx);
+    rank.rm_row(idx);
+    coordinates.rm_row(idx);
+    connected_elements.rm_row(idx);
+
+    std::cout << PERank << "removed node  " << val << std::endl;
+  }
+
+  void flush()
+  {
+    is_ghost.flush();
+    glb_idx.flush();
+    rank.flush();
+    coordinates.flush();
+    connected_elements.flush();
+  }
+
+  CList<bool>::Buffer       is_ghost;
+  CList<Uint>::Buffer       glb_idx;
+  CList<Uint>::Buffer       rank;
+  CTable<Real>::Buffer      coordinates;
+  CDynTable<Uint>::Buffer   connected_elements;
+};
+
+struct RemoveElements
+{
+  RemoveElements(CElements& elements) :
+    glb_idx (elements.glb_idx().create_buffer()),
+    rank (elements.rank().create_buffer()),
+    connected_nodes (elements.node_connectivity().create_buffer())
+  {}
+
+  void operator() (const Uint idx)
+  {
+    Uint val = glb_idx.get_row(idx);
+
+    glb_idx.rm_row(idx);
+    rank.rm_row(idx);
+    connected_nodes.rm_row(idx);
+
+    std::cout << PERank << "removed element  " << val << std::endl;
+
+  }
+
+  void flush()
+  {
+    glb_idx.flush();
+    connected_nodes.flush();
+    rank.flush();
+  }
+
+  CList<Uint>::Buffer       glb_idx;
+  CList<Uint>::Buffer       rank;
+  CTable<Uint>::Buffer      connected_nodes;
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 struct ParallelOverlapTests_Fixture
@@ -392,7 +471,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
 BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 {
   CFinfo << "ParallelOverlap_test" << CFendl;
-  Core::instance().environment().configure_option("log_level",(Uint)INFO);
+  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
 
   // Create or read the mesh
 
@@ -431,21 +510,15 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
   Core::instance().root().add_component(mesh);
+  CNodes& nodes = mesh.nodes();
 
 //  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
 
 
-  BOOST_CHECK(true);
-  CNodes& nodes = mesh.nodes();
-
-  boost::this_thread::sleep(boost::posix_time::milliseconds(20));
-
-
   // -----------------------------------------------------------------------------
-  // SET NODE CONNECTIVITY TO GLOBAL NUMBERS
+  // SET NODE CONNECTIVITY TO GLOBAL NUMBERS BEFORE PARTITIONING
 
   const CList<Uint>& global_node_indices = mesh.nodes().glb_idx();
   boost_foreach (CEntities& elements, mesh.topology().elements_range())
@@ -460,53 +533,141 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   }
 
   // -----------------------------------------------------------------------------
-  // SEND ELEMENT 0 AND 1 TO EACHOTHER
+  // REMOVE GHOST NODES AND GHOST ELEMENTS
 
-  std::vector<Component::Ptr> mesh_element_comps = mesh.elements().components();
-  std::vector<std::vector<Uint> > send_from_idx(mesh_element_comps.size());
-  std::vector<std::vector<Uint> > send_to_proc(mesh_element_comps.size());
-
-
-  for(Uint i=0; i<mesh_element_comps.size(); ++i)
+  const Uint my_rank = PE::instance().rank();
+  RemoveNodes remove_node(nodes);
+  for (Uint n=0; n<nodes.size(); ++n)
   {
-    send_from_idx[i].push_back(0);
-    send_to_proc[i].push_back(  PE::instance().rank()==PE::instance().size()-1 ? 0 : PE::instance().rank()+1  );
-
-    send_from_idx[i].push_back(1);
-    send_to_proc[i].push_back(  PE::instance().rank()==PE::instance().size()-1 ? 0 : PE::instance().rank()+1  );
+    if (nodes.rank()[n] != my_rank)
+      remove_node(n);
+  }
+  remove_node.flush();
+  boost_foreach(CElements& elements, find_components_recursively<CElements>(mesh.topology()) )
+  {
+    RemoveElements remove_element(elements);
+    for (Uint e=0; e<elements.size(); ++e)
+    {
+      if (elements.rank()[e] != my_rank)
+        remove_element(e);
+    }
+    remove_element.flush();
   }
 
-  std::vector<mpi::Buffer> send_elements(PE::instance().size());
-  mpi::Buffer recv_elements;
+
+  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+
+  CMeshPartitioner& p = *partitioner_ptr;
+  p.configure_option("graph_package", std::string("PHG"));
+  p.initialize(mesh);
+  p.partition_graph();
+  //p.show_changes();
+
+  BOOST_CHECK(true);
+
+  boost::this_thread::sleep(boost::posix_time::milliseconds(20));
+
+  // -----------------------------------------------------------------------------
+  // SEND ELEMENTS AND NODES FROM PARTITIONING ALGORITHM
+
+  std::vector<Component::Ptr> mesh_element_comps = mesh.elements().components();
+
+  std::vector<std::vector<Uint> > export_nodes(PE::instance().size());
+  std::vector<std::vector<std::vector<Uint> > > export_elems(mesh_element_comps.size());
+  for (Uint i=0; i<export_elems.size(); ++i)
+    export_elems[i].resize(PE::instance().size());
+  Uint component_idx;
+  Uint loc_idx;
+  bool found;
+  foreach_container((const Uint glb_obj) (const Uint part), p.changes())
+  {
+    boost::tie(component_idx,loc_idx,found) = p.to_local_indices_from_glb_obj(glb_obj);
+
+    if (component_idx==0)
+    {
+      std::cout << "export node " << loc_idx << std::endl;
+      export_nodes[part].push_back(loc_idx);
+    }
+    else
+    {
+      std::cout << "export elem " << mesh_element_comps[component_idx-1]->uri().path() << "["<<loc_idx<<"]" << std::endl;
+      export_elems[component_idx-1][part].push_back(loc_idx);
+    }
+    std::cout << "  to part " << part << std::endl;
+  }
+
+  std::vector<mpi::Buffer> send_to_proc(PE::instance().size());
+  mpi::Buffer recv_from_all;
+
+  // Move elements
   for(Uint i=0; i<mesh_element_comps.size(); ++i)
   {
+    CElements& elements = mesh_element_comps[i]->as_type<CElements>();
     for (Uint p=0; p<PE::instance().size(); ++p)
-      send_elements[p].reset();
-    recv_elements.reset();
+      send_to_proc[p].reset();
+    recv_from_all.reset();
 
+    RemoveElements remove_element(elements);
     std::vector<Uint> nb_elems_to_send(PE::instance().size());
-    for (Uint e=0; e<send_to_proc[i].size(); ++e)
+    for (Uint p=0; p<PE::instance().size(); ++p)
     {
-      ++nb_elems_to_send[send_to_proc[i][e]];
-      send_elements[send_to_proc[i][e]] << PackedElement(mesh_element_comps[i]->as_type<CElements>(),send_from_idx[i][e]);
+      nb_elems_to_send[p]=export_elems[i][p].size();
+      for (Uint e=0; e<export_elems[i][p].size(); ++e)
+      {
+        send_to_proc[p] << PackedElement(elements,export_elems[i][p][e]);
+        remove_element(export_elems[i][p][e]);
+      }
     }
+    remove_element.flush();
 
     std::vector<Uint> nb_elems_to_recv(PE::instance().size());
     PE::instance().all_to_all(nb_elems_to_send,nb_elems_to_recv);
-    my_all_to_all(send_elements,recv_elements);
+    my_all_to_all(send_to_proc,recv_from_all);
 
-    UnpackAndAddElements add_element(mesh_element_comps[i]->as_type<CElements>());
+    UnpackAndAddElements add_element(elements);
     for (Uint p=0; p<nb_elems_to_recv.size(); ++p)
     {
       for (Uint e=0; e<nb_elems_to_recv[p]; ++e)
       {
-        recv_elements >> add_element;
+        recv_from_all >> add_element;
       }
     }
+    add_element.flush();
   }
 
+  // Move nodes
+   for (Uint p=0; p<PE::instance().size(); ++p)
+    send_to_proc[p].reset();
+   recv_from_all.reset();
+
+   //RemoveNodes remove_node(nodes);
+   std::vector<Uint> nb_nodes_to_send_to_proc(PE::instance().size());
+   for (Uint p=0; p<PE::instance().size(); ++p)
+   {
+     nb_nodes_to_send_to_proc[p]=export_nodes[p].size();
+     for (Uint e=0; e<export_nodes[p].size(); ++e)
+     {
+       send_to_proc[p] << PackedNode(nodes,export_nodes[p][e]);
+       remove_node(export_nodes[p][e]);
+     }
+   }
+   remove_node.flush();
+
+   std::vector<Uint> nb_nodes_to_recv_from_proc(PE::instance().size());
+   PE::instance().all_to_all(nb_nodes_to_send_to_proc,nb_nodes_to_recv_from_proc);
+   my_all_to_all(send_to_proc,recv_from_all);
+
+   UnpackAndAddNodes add_node(nodes);
+   for (Uint p=0; p<nb_nodes_to_recv_from_proc.size(); ++p)
+   {
+     for (Uint e=0; e<nb_nodes_to_recv_from_proc[p]; ++e)
+     {
+       recv_from_all >> add_node;
+     }
+   }
+   add_node.flush();
   // -----------------------------------------------------------------------------
-  // ELEMENTS HAVE BEEN SENT AND ADDED
+  // ELEMENTS AND NODES HAVE BEEN MOVED
   // -----------------------------------------------------------------------------
 
   boost::this_thread::sleep(boost::posix_time::milliseconds(20));
@@ -514,13 +675,31 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // -----------------------------------------------------------------------------
   // COLLECT NODES TO LOOK FOR ON OTHER PROCESSORS
 
-  std::vector<Uint> request_nodes;
-  PEProcessSortedExecute(-1,
-  for (Uint i=0; i<nodes.size(); ++i)
+  std::set<Uint> owned_nodes;
+  std::set<Uint> ghost_nodes;
+  for (Uint n=0; n<nodes.size(); ++n)
   {
-    if (nodes.is_ghost()[i])
-      request_nodes.push_back(nodes.glb_idx()[i]);
+    nodes.rank()[n] = my_rank;
+    owned_nodes.insert(nodes.glb_idx()[n]);
   }
+  boost_foreach(const CElements& elements, find_components_recursively<CElements>(mesh.topology()))
+  {
+    boost_foreach(CConnectivity::ConstRow connected_nodes, elements.node_connectivity().array())
+    {
+      boost_foreach(const Uint node, connected_nodes)
+      {
+        if (owned_nodes.find(node) == owned_nodes.end())
+          ghost_nodes.insert(node);
+      }
+    }
+  }
+
+  std::vector<Uint> request_nodes;  request_nodes.reserve(ghost_nodes.size());
+  boost_foreach(const Uint node, ghost_nodes)
+    request_nodes.push_back(node);
+
+  PEProcessSortedExecute(-1,
+                         std::cout << PERank << "owns nodes" << nodes.glb_idx() << std::endl;
   std::cout << PERank << "look for = " << request_nodes << std::endl;
   boost::this_thread::sleep(boost::posix_time::milliseconds(10));
   )
@@ -531,6 +710,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   std::vector<std::vector<Uint> > recv_request_nodes;
   my_all_gather(request_nodes,recv_request_nodes);
+
+  BOOST_CHECK(true);
 
   if (PE::instance().rank() == 0)
   {
@@ -546,7 +727,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   std::vector<std::vector<Uint> > found_nodes(PE::instance().size());
   std::vector<mpi::Buffer> nodes_to_send(PE::instance().size());
-  std::vector<Uint> nb_nodes_to_send(PE::instance().size());
+  std::vector<Uint> nb_nodes_to_send(PE::instance().size(),0);
   PEProcessSortedExecute(-1,
   for (Uint proc=0; proc<PE::instance().size(); ++proc)
   {
@@ -597,18 +778,17 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   BOOST_CHECK(true);
 
   std::cout << PERank << "nb_nodes_to_send = " << nb_nodes_to_send << std::endl;
-  std::vector<Uint> nb_nodes_to_recv;
+  std::vector<Uint> nb_nodes_to_recv(PE::instance().size(),0);
   PE::instance().all_to_all(nb_nodes_to_send,nb_nodes_to_recv);
   std::cout << PERank << "nb_nodes_to_recv = " << nb_nodes_to_recv << std::endl;
-
 
   mpi::Buffer received_nodes_buffer;
   my_all_to_all(nodes_to_send,received_nodes_buffer);
 
-  UnpackAndAddNodes add_node(nodes);
+  //UnpackAndAddNodes add_node(nodes);
   for (Uint p=0; p<PE::instance().size(); ++p)
   {
-    std::cout << PERank << " unpacking " << nb_nodes_to_recv[p] << " nodes from proc " << p << std::endl;
+    std::cout << PERank << "unpacking " << nb_nodes_to_recv[p] << " nodes from proc " << p << std::endl;
     for (Uint n=0; n<nb_nodes_to_recv[p]; ++n)
     {
       received_nodes_buffer >> add_node;
@@ -619,6 +799,42 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // -----------------------------------------------------------------------------
   // REQUESTED NODES HAVE NOW BEEN ADDED
   // -----------------------------------------------------------------------------
+
+  // -----------------------------------------------------------------------------
+  // FIX NODE CONNECTIVITY
+  std::map<Uint,Uint> glb_to_loc;
+  for (Uint n=0; n<nodes.size(); ++n)
+  {
+    glb_to_loc[nodes.glb_idx()[n]]=n;
+  }
+  boost_foreach (CEntities& elements, mesh.topology().elements_range())
+  {
+    boost_foreach ( CTable<Uint>::Row nodes, elements.as_type<CElements>().node_connectivity().array() )
+    {
+      boost_foreach ( Uint& node, nodes )
+      {
+        node = glb_to_loc[node];
+      }
+    }
+  }
+
+  // -----------------------------------------------------------------------------
+  // RENUMBER NODES AND ELEMENTS SEPARATELY
+
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+
+  // -----------------------------------------------------------------------------
+  // MESH IS NOW COMPLETELY LOAD BALANCED
+  // -----------------------------------------------------------------------------
+
+    CMeshWriter::Ptr msh_writer =
+        build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","msh_writer");
+
+    //msh_writer->set_fields(fields);
+    msh_writer->write_from_to(mesh,"parallel_overlap"+msh_writer->get_extensions()[0]);
+
+    CFinfo << "parallel_overlap_P*"+msh_writer->get_extensions()[0]+" written" << CFendl;
 
 }
 
