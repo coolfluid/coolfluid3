@@ -12,12 +12,13 @@
 
 #include "rapidxml/rapidxml.hpp"
 
- 
+
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/LibLoader.hpp"
-
+#include "Common/Core.hpp"
+#include "Common/CEnv.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -648,7 +649,7 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
 
 BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
 {
-
+  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","meshreader");
 
   // the mesh to store in

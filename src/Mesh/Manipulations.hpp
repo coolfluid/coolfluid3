@@ -56,9 +56,11 @@ struct PackUnpackElements: Common::mpi::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
-  PackUnpackElements(CElements& elements, bool remove_after_pack=false);
+  PackUnpackElements(CElements& elements);
 
-  PackUnpackElements& operator() (const Uint idx);
+  PackUnpackElements& operator() (const Uint idx,const bool remove_after_pack = false);
+
+  void remove(const Uint idx);
 
   virtual void pack(Common::mpi::Buffer& buf);
 
@@ -79,9 +81,11 @@ struct PackUnpackNodes: Common::mpi::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
-  PackUnpackNodes(CNodes& nodes, const bool remove_after_pack = 0);
+  PackUnpackNodes(CNodes& nodes);
 
-  PackUnpackNodes& operator() (const Uint idx);
+  PackUnpackNodes& operator() (const Uint idx,const bool remove_after_pack = false);
+
+  void remove(const Uint idx);
 
   virtual void pack(Common::mpi::Buffer& buf);
 

@@ -259,6 +259,8 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
         CTable<Real>::Row row = nodes.coordinates()[glb_node_idx-glb_node_start_idx];
         row[XX] = static_cast<Real>(i) * x_step;
         row[YY] = y;
+        nodes.is_ghost()[glb_node_idx-glb_node_start_idx]=false;
+        nodes.rank()[glb_node_idx-glb_node_start_idx]=part;
       }
     }
   }
@@ -379,8 +381,8 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
         else
           line_nodes[0] = glb_node_idx-glb_node_start_idx;
 
-        right_connectivity.add_row(line_nodes);
-        right_rank.add_row(part);
+        Uint idx = right_connectivity.add_row(line_nodes);
+        cf_always_assert(right_rank.add_row(part) == idx);
       }
     }
 
@@ -413,7 +415,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     CFaces::Ptr top = mesh.topology().create_region("top").create_component_ptr<CFaces>("Line");
     top->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
     CConnectivity::Buffer top_connectivity = top->node_connectivity().create_buffer();
-    CList<Uint>::Buffer top_rank = right->rank().create_buffer();
+    CList<Uint>::Buffer top_rank = top->rank().create_buffer();
 
     for(Uint i = 0; i < x_segments; ++i)
     {
@@ -438,6 +440,35 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   }
   mesh.elements().update();
   mesh.update_statistics();
+
+
+
+  // sanity checks
+
+  boost_foreach(CElements& elements, find_components_recursively<CElements>(mesh.topology()))
+  {
+    cf_assert_desc(elements.uri().string() + " ( "+to_str(elements.size())+"!="+to_str(elements.rank().size()),elements.size() == elements.rank().size());
+    boost_foreach(Uint r, elements.rank().array())
+    {
+      cf_assert( r == part);
+    }
+  }
+
+  cf_assert(nodes.rank().size() == nodes.size());
+  cf_assert(nodes.is_ghost().size() == nodes.size());
+  for (Uint n=0; n<nodes.size(); ++n)
+  {
+    if ( nodes.rank()[n] != part )
+    {
+      cf_assert( nodes.is_ghost()[n] == true );
+      cf_assert( nodes.is_ghost(n) == true );
+    }
+    else
+    {
+      cf_assert( nodes.is_ghost()[n] == false );
+      cf_assert( nodes.is_ghost(n) == false );
+    }
+  }
 
 }
 

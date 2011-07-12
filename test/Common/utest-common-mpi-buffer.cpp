@@ -160,10 +160,17 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
 
   // ----------------------------------
 
-  BOOST_CHECK_EQUAL(buffer.packed_size(), 48);
-  BOOST_CHECK_EQUAL(buffer.size(), 48);
+  BOOST_CHECK_EQUAL(buffer.packed_size(), 51);
+
   if (PE::instance().rank() != root)
+  {
+    BOOST_CHECK_EQUAL(buffer.size(), 51);
     BOOST_CHECK_EQUAL(buffer.more_to_unpack(), false);
+  }
+  else
+  {
+    BOOST_CHECK_EQUAL(buffer.size(), 96);
+  }
 
   // The data on every processor should be from rank root
   BOOST_CHECK_EQUAL(first, 0);

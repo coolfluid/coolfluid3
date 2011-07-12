@@ -41,7 +41,7 @@ void RemoveNodes::operator() (const Uint idx)
   coordinates.rm_row(idx);
   connected_elements.rm_row(idx);
 
-  std::cout << PERank << "removed node  " << val << std::endl;
+//  std::cout << PERank << "removed node  " << val << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ void RemoveElements::operator() (const Uint idx)
   rank.rm_row(idx);
   connected_nodes.rm_row(idx);
 
-  std::cout << PERank << "removed element  " << val << std::endl;
+//  std::cout << PERank << "removed element  " << val << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,15 +81,15 @@ void RemoveElements::operator() (const Uint idx)
 void RemoveElements::flush()
 {
   glb_idx.flush();
-  connected_nodes.flush();
   rank.flush();
+  connected_nodes.flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PackUnpackElements::PackUnpackElements(CElements& elements, bool remove_after_pack) :
+PackUnpackElements::PackUnpackElements(CElements& elements) :
     m_elements(elements),
-    m_remove_after_pack(remove_after_pack),
+    m_remove_after_pack(false),
     m_idx(Uint_max()),
     glb_idx (elements.glb_idx().create_buffer()),
     rank (elements.rank().create_buffer()),
@@ -98,10 +98,24 @@ PackUnpackElements::PackUnpackElements(CElements& elements, bool remove_after_pa
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PackUnpackElements& PackUnpackElements::operator() (const Uint idx)
+PackUnpackElements& PackUnpackElements::operator() (const Uint idx, const bool remove_after_pack)
 {
   m_idx=idx;
+  m_remove_after_pack = remove_after_pack;
   return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PackUnpackElements::remove(const Uint idx)
+{
+  Uint val = glb_idx.get_row(idx);
+
+  glb_idx.rm_row(idx);
+  rank.rm_row(idx);
+  connected_nodes.rm_row(idx);
+
+  //std::cout << PERank << "removed element  " << val << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,17 +132,11 @@ void PackUnpackElements::pack(mpi::Buffer& buf)
   boost_foreach(const Uint connected_node, m_elements.node_connectivity()[m_idx])
       buf << connected_node;
 
-  if (m_remove_after_pack)
-  {
-    glb_idx.rm_row(m_idx);
-    rank.rm_row(m_idx);
-    connected_nodes.rm_row(m_idx);
-  }
+  //std::cout << PERank << "packed element    glb_idx = " << val << std::endl;
 
   if (m_remove_after_pack)
-    std::cout << PERank << "packed and removed element    glb_idx = " << val << std::endl;
-  else
-    std::cout << PERank << "packed element    glb_idx = " << val << std::endl;
+    remove(m_idx);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,14 +152,12 @@ void PackUnpackElements::unpack(mpi::Buffer& buf)
   for (Uint n=0; n<connected_nodes_data.size(); ++n)
     buf >> connected_nodes_data[n];
 
-  Uint idx, idx_check;
+  Uint idx;
   idx = glb_idx.add_row(glb_idx_data);
-  idx_check = rank.add_row(rank_data);
-  cf_assert(idx_check == idx);
-  idx_check = connected_nodes.add_row(connected_nodes_data);
-  cf_assert(idx_check == idx);
+  cf_always_assert(rank.add_row(rank_data) == idx);
+  cf_always_assert(connected_nodes.add_row(connected_nodes_data) == idx);
 
-  std::cout << PERank << "unpacked and added element    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    connected_nodes = " << connected_nodes_data << std::endl;
+  //std::cout << PERank << "unpacked and added element    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    connected_nodes = " << connected_nodes_data << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,23 +171,43 @@ void PackUnpackElements::flush()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PackUnpackNodes::PackUnpackNodes(CNodes& nodes, const bool remove_after_pack) :
+PackUnpackNodes::PackUnpackNodes(CNodes& nodes) :
   m_nodes(nodes),
-  m_remove_after_pack(remove_after_pack),
+  m_remove_after_pack(false),
   m_idx(Uint_max()),
-  is_ghost (nodes.is_ghost().create_buffer()),
-  glb_idx (nodes.glb_idx().create_buffer()),
-  rank (nodes.rank().create_buffer()),
-  coordinates (nodes.coordinates().create_buffer()),
-  connected_elements (nodes.glb_elem_connectivity().create_buffer())
+  is_ghost (nodes.is_ghost().create_buffer(100)),
+  glb_idx (nodes.glb_idx().create_buffer(100)),
+  rank (nodes.rank().create_buffer(100)),
+  coordinates (nodes.coordinates().create_buffer(100)),
+  connected_elements (nodes.glb_elem_connectivity().create_buffer(100))
 {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PackUnpackNodes& PackUnpackNodes::operator() (const Uint idx)
+PackUnpackNodes& PackUnpackNodes::operator() (const Uint idx, const bool remove_after_pack)
 {
   m_idx=idx;
+  m_remove_after_pack = remove_after_pack;
   return *this;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PackUnpackNodes::remove(const Uint idx)
+{
+  Uint val = glb_idx.get_row(idx);
+
+  cf_assert(idx < m_nodes.size());
+
+  is_ghost.rm_row(idx);
+  glb_idx.rm_row(idx);
+  rank.rm_row(idx);
+  coordinates.rm_row(idx);
+  connected_elements.rm_row(idx);
+
+  if (val == 1999)
+    std::cout << PERank << "removed node  " << val << std::endl;
+  m_idx = Uint_max();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -190,26 +216,32 @@ void PackUnpackNodes::pack(mpi::Buffer& buf)
 {
   cf_assert_desc("Must call using  object(idx).pack(buf), instead of object.pack(buf)" , m_idx != Uint_max());
 
+  cf_assert_desc("["+to_str(m_idx)+">="+to_str(m_nodes.size())+"]",m_idx < m_nodes.size());
+  cf_assert(m_idx < m_nodes.glb_idx().size());
+  cf_assert(m_idx < m_nodes.rank().size());
+  cf_assert(m_idx < m_nodes.coordinates().size());
+  cf_assert(m_idx < m_nodes.glb_elem_connectivity().size());
+
+
   Uint val = m_nodes.glb_idx()[m_idx];
 
-  buf << m_nodes.glb_idx()[m_idx]
-      << m_nodes.rank()[m_idx]
-      << m_nodes.coordinates()[m_idx]
-      << m_nodes.glb_elem_connectivity()[m_idx];
+  buf << m_nodes.glb_idx()[m_idx];
+
+  buf << m_nodes.rank()[m_idx];
+
+  buf << m_nodes.coordinates()[m_idx];
+
+  buf << m_nodes.glb_elem_connectivity()[m_idx];
+
+//  std::cout << PERank << "packed node    glb_idx = " << val << std::endl;
+
+  if (val == 1999)
+    std::cout << PERank << "packed node  " << val << std::endl;
 
   if (m_remove_after_pack)
-  {
-    glb_idx.rm_row(m_idx);
-    rank.rm_row(m_idx);
-    coordinates.rm_row(m_idx);
-    is_ghost.rm_row(m_idx);
-    connected_elements.rm_row(m_idx);
-  }
+    remove(m_idx);
 
-  if (m_remove_after_pack)
-    std::cout << PERank << "packed and removed node    glb_idx = " << val << std::endl;
-  else
-    std::cout << PERank << "packed node    glb_idx = " << val << std::endl;
+  m_idx = Uint_max();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -230,7 +262,11 @@ void PackUnpackNodes::unpack(mpi::Buffer& buf)
   cf_always_assert(connected_elements.add_row(connected_elems_data) == idx);
   cf_always_assert(is_ghost.add_row(rank_data != PE::instance().rank()));
 
-  std::cout << PERank << "added node    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    coords = " << coordinates_data << "\t    connected_elem = " << connected_elems_data << std::endl;
+  if (glb_idx_data == 1999)
+    std::cout << PERank << "upacked node  " << glb_idx_data << std::endl;
+
+  //std::cout << PERank << "added node    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    coords = " << coordinates_data << "\t    connected_elem = " << connected_elems_data << std::endl;
+  m_idx = Uint_max();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -242,6 +278,7 @@ void PackUnpackNodes::flush()
   rank.flush();
   coordinates.flush();
   connected_elements.flush();
+  m_idx = Uint_max();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

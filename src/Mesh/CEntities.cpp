@@ -120,9 +120,15 @@ CNodes& CEntities::nodes()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CList<Uint>& CEntities::used_nodes(Component& parent)
+CList<Uint>& CEntities::used_nodes(Component& parent, const bool rebuild)
 {
   CList<Uint>::Ptr used_nodes = find_component_ptr_with_tag<CList<Uint> >(parent,Mesh::Tags::nodes_used());
+  if (rebuild && is_not_null(used_nodes))
+  {
+    parent.remove_component(*used_nodes);
+    used_nodes.reset();
+  }
+
   if (is_null(used_nodes))
   {
     used_nodes = parent.create_component_ptr<CList<Uint> >(Mesh::Tags::nodes_used());

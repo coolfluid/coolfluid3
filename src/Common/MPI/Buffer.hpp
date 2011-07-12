@@ -228,10 +228,13 @@ inline void Buffer::resize(const Uint size)
   if(m_packed_size+static_cast<int>(size) > m_size)
   {
     m_size = std::max(2*m_size,m_packed_size+static_cast<int>(size));
-    char* tmp = new char[m_size];
-    memcpy(tmp,m_buffer,m_packed_size);
-    delete_ptr_array(m_buffer);
-    m_buffer = tmp;
+    char* new_buffer = new char[m_size];
+    if (is_not_null(m_buffer))
+    {
+      memcpy(new_buffer,m_buffer,m_packed_size);
+      delete_ptr_array(m_buffer);
+    }
+    m_buffer = new_buffer;
   }
 }
 
@@ -334,7 +337,7 @@ inline void Buffer::pack<bool>(const bool* data, const Uint data_size)
 {
   for (Uint i=0; i<data_size; i++)
   {
-    pack( data[i] ? 'T' : 'F');
+    pack( data[i] ? 1u : 0u);
   }
 }
 
@@ -349,9 +352,9 @@ inline void Buffer::unpack<bool>(bool* data, const Uint data_size)
 {
   for (Uint i=0; i<data_size; i++)
   {
-    char c;
-    unpack(c);
-    data[i] = (c=='T') ? true : false;
+    Uint u;
+    unpack(u);
+    data[i] = (u==1u) ? true : false;
   }
 }
 
@@ -558,7 +561,6 @@ CF_COMMON_MPI_BUFFER_UNPACK_OPERATOR_SUB_ARRAY(bool);
 struct PackedObject
 {
   PackedObject() {}
-  PackedObject(mpi::Buffer& buffer) { unpack(buffer); }
 
   virtual void pack(mpi::Buffer& buffer) = 0;
   virtual void unpack(mpi::Buffer& buffer) = 0;

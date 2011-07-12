@@ -92,8 +92,18 @@ void CPartitioner::partition_graph()
     numExport, exportGlobalIds, exportLocalIds, exportProcs, exportToPart);
 
   m_changes->reserve(numExport);
+  Uint comp; Uint loc_idx; bool found;
   for (Uint i=0; i<(Uint)numExport; ++i)
   {
+    boost::tie(comp,loc_idx,found) = to_local_indices_from_glb_obj(exportGlobalIds[i]);
+    if (is_node(exportGlobalIds[i]))
+    {
+      m_nodes_to_export[exportToPart[i]].push_back(loc_idx);
+    }
+    else
+    {
+      m_elements_to_export[comp-1][exportToPart[i]].push_back(loc_idx);
+    }
     m_changes->insert_blindly(exportGlobalIds[i],exportToPart[i]);
   }
 

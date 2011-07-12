@@ -6,6 +6,7 @@
 
 
 #include "Common/CBuilder.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CTable.hpp"
@@ -15,6 +16,7 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+using namespace Common::mpi;
 
 Common::ComponentBuilder < CNodes, Component, LibMesh > CNodes_Builder;
 
@@ -54,6 +56,14 @@ void CNodes::resize(const Uint size)
   coordinates().resize(size);
   is_ghost().resize(size);
   rank().resize(size);
+}
+
+bool CNodes::is_ghost(const Uint idx) const
+{
+  cf_assert_desc(to_str(idx)+">="+to_str(size()),idx < size());
+  cf_assert(size() == m_rank->size());
+  cf_assert(idx<m_rank->size());
+  return (*m_rank)[idx] != PE::instance().rank();
 }
 
 //////////////////////////////////////////////////////////////////////////////

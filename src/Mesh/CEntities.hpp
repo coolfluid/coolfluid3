@@ -76,7 +76,7 @@ public: // functions
   /// return the number of elements
   virtual Uint size() const;
 
-  static CList<Uint>& used_nodes(Component& parent);
+  static CList<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
   virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
 

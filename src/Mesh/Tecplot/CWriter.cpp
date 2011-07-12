@@ -146,7 +146,7 @@ void CWriter::write_file(std::fstream& file)
 
     zone_id[elements.self()] = zone_idx++;
 
-    CList<Uint>& used_nodes = CEntities::used_nodes(*elements.as_non_const()); // VERY DIRTY HACK to remove constness!!!
+    CList<Uint>& used_nodes = CEntities::used_nodes(*elements.as_non_const(),true); // VERY DIRTY HACK to remove constness!!!
     std::map<Uint,Uint> zone_node_idx;
     for (Uint n=0; n<used_nodes.size(); ++n)
       zone_node_idx[ used_nodes[n] ] = n+1;

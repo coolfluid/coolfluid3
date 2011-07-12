@@ -132,6 +132,18 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
   m_node_idx_gmsh_to_cf.clear();
   m_elem_idx_gmsh_to_cf.clear();
 
+
+  boost_foreach(CElements& elements, find_components_recursively<CElements>(m_mesh->topology()))
+  {
+    elements.rank().resize(elements.size());
+    Uint my_rank = option("part").value<Uint>();
+    for (Uint e=0; e<elements.size(); ++e)
+    {
+      elements.rank()[e] = my_rank;
+    }
+  }
+
+
   m_mesh->elements().update();
   m_mesh->update_statistics();
 //  // clean-up
@@ -346,9 +358,9 @@ void CReader::read_coordinates()
   // Create the coordinates array
   m_nodes = m_region->create_nodes(m_mesh_dimension).as_ptr<CNodes>();
 
-
+  Uint part = option("part").value<Uint>();
   Uint nodes_start_idx = m_nodes->size();
-  m_nodes->resize(nodes_start_idx + m_hash->subhash(NODES).nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
+  m_nodes->resize(nodes_start_idx + m_hash->subhash(NODES).nb_objects_in_part(part) + m_ghost_nodes.size());
 
   std::string line;
   //Skip the line with keyword '$Nodes':
@@ -376,6 +388,7 @@ void CReader::read_coordinates()
     if (m_hash->subhash(NODES).owns(node_idx-1))
     {
       m_nodes->is_ghost()[coord_idx] = false;
+      m_nodes->rank()[coord_idx] = part;
       m_node_idx_gmsh_to_cf[node_idx]=coord_idx;
       std::stringstream ss(line);
       Uint nodeNumber;
@@ -392,6 +405,7 @@ void CReader::read_coordinates()
       {
         // add global node index
         m_nodes->is_ghost()[coord_idx] = true;
+        m_nodes->rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
         m_node_idx_gmsh_to_cf[node_idx]=coord_idx;
         std::stringstream ss(line);
         Uint nodeNumber;
@@ -428,6 +442,8 @@ void CReader::read_coordinates()
 
 void CReader::read_connectivity()
 {
+
+  Uint part = option("part").value<Uint>();
 
  //Each entry of this vector holds a map (gmsh_type_idx, pointer to connectivity table of this gmsh type).
  //Each row corresponds to one region of the mesh
@@ -471,7 +487,7 @@ void CReader::read_connectivity()
        CConnectivity& elem_table = elements->as_ptr<CElements>()->node_connectivity();
        elem_table.set_row_size(Shared::m_nodes_in_gmsh_elem[etype]);
        elem_table.resize((m_nb_gmsh_elem_in_region[ir])[etype]);
-
+       elements->rank().resize(m_nb_gmsh_elem_in_region[ir][etype]);
        conn_table_idx[ir].insert(std::pair<Uint,CEntities*>(etype,elements.get()));
      }
 
@@ -542,6 +558,8 @@ void CReader::read_connectivity()
       {
          element_nodes[node] = cf_element[node];
       }
+
+      elements_region->rank()[row_idx] = part;
 
       (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type]++;
 

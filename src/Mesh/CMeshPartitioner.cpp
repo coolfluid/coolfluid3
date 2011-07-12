@@ -101,25 +101,28 @@ void CMeshPartitioner::initialize(CMesh& mesh)
 {
   m_mesh = mesh.as_ptr<CMesh>();
 
-  CList<bool>& node_is_ghost = mesh.nodes().is_ghost();
-  Uint nb_ghost(0);
-  for (Uint i=0; i<node_is_ghost.size(); ++i)
+  CNodes& nodes = mesh.nodes();
+  Uint tot_nb_owned_nodes(0);
+  for (Uint i=0; i<nodes.size(); ++i)
   {
-    if (node_is_ghost[i])
-      ++nb_ghost;
+    if (nodes.is_ghost(i) == false)
+      ++tot_nb_owned_nodes;
   }
 
-  Uint tot_nb_owned_nodes=mesh.nodes().size()-nb_ghost;
-  Uint tot_nb_owned_elems=0;
+  Uint tot_nb_owned_elems(0);
   boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
   {
     tot_nb_owned_elems += elements.size();
   }
 
+  Uint tot_nb_owned_obj = tot_nb_owned_nodes + tot_nb_owned_elems;
+
   std::vector<Uint> nb_nodes_per_proc(mpi::PE::instance().size());
   std::vector<Uint> nb_elems_per_proc(mpi::PE::instance().size());
+  std::vector<Uint> nb_obj_per_proc(mpi::PE::instance().size());
   mpi::PE::instance().all_gather(tot_nb_owned_nodes, nb_nodes_per_proc);
   mpi::PE::instance().all_gather(tot_nb_owned_elems, nb_elems_per_proc);
+  mpi::PE::instance().all_gather(tot_nb_owned_obj, nb_obj_per_proc);
   m_start_id_per_proc.resize(mpi::PE::instance().size());
   m_start_node_per_proc.resize(mpi::PE::instance().size());
   m_start_elem_per_proc.resize(mpi::PE::instance().size());
@@ -127,18 +130,23 @@ void CMeshPartitioner::initialize(CMesh& mesh)
   m_end_node_per_proc.resize(mpi::PE::instance().size());
   m_end_elem_per_proc.resize(mpi::PE::instance().size());
 
-  Uint start_id=0;
+  Uint start_id(0);
   for (Uint p=0; p<mpi::PE::instance().size(); ++p)
   {
     m_start_id_per_proc[p]   = start_id;
-    m_end_id_per_proc[p]     = start_id + nb_nodes_per_proc[p] + nb_elems_per_proc[p];
+    m_end_id_per_proc[p]     = start_id + nb_obj_per_proc[p];
     m_start_node_per_proc[p] = start_id;
     m_end_node_per_proc[p]   = start_id + nb_nodes_per_proc[p];
     m_start_elem_per_proc[p] = start_id + nb_nodes_per_proc[p];
     m_end_elem_per_proc[p]   = start_id + nb_nodes_per_proc[p] + nb_elems_per_proc[p];
 
-    start_id += nb_nodes_per_proc[p]+nb_elems_per_proc[p];
+    start_id += nb_obj_per_proc[p];
   }
+
+  m_nodes_to_export.resize(m_nb_parts);
+  m_elements_to_export.resize(find_components_recursively<CElements>(mesh.topology()).size());
+  for (Uint c=0; c<m_elements_to_export.size(); ++c)
+    m_elements_to_export[c].resize(m_nb_parts);
 
   // CFLogVar(to_vector(nb_nodes_per_proc).transpose());
   // CFLogVar(to_vector(nb_elems_per_proc).transpose());
@@ -163,11 +171,10 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   m_local_start_index.push_back(0);
 
   CNodes& nodes = mesh.nodes();
-  CList<bool>& node_is_ghost = nodes.is_ghost();
   CList<Uint>& node_glb_idx = nodes.glb_idx();
   for (Uint i=0; i<nodes.size(); ++i)
   {
-    if (!node_is_ghost[i])
+    if (!nodes.is_ghost(i))
     {
       //std::cout << mpi::PE::instance().rank() << " --   owning node " << node_glb_idx[i] << std::endl;
       ++m_nb_owned_obj;
@@ -189,8 +196,25 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   //CFinfo << "adding nodes to map " << CFendl;
   boost_foreach (Uint glb_idx, node_glb_idx.array())
   {
-    m_global_to_local->insert_blindly(glb_idx,loc_idx++);
     //CFinfo << "  adding node with glb " << glb_idx << CFendl;
+    if (nodes.is_ghost(loc_idx) == false)
+    {
+      cf_assert(glb_idx >= m_start_id_per_proc[mpi::PE::instance().rank()]);
+      cf_assert(glb_idx >= m_start_node_per_proc[mpi::PE::instance().rank()]);
+      cf_assert_desc(to_str(glb_idx)+">="+to_str(m_end_id_per_proc[mpi::PE::instance().rank()]),glb_idx < m_end_id_per_proc[mpi::PE::instance().rank()]);
+      cf_assert_desc(to_str(glb_idx)+">="+to_str(m_end_node_per_proc[mpi::PE::instance().rank()]),glb_idx < m_end_node_per_proc[mpi::PE::instance().rank()]);
+    }
+    else
+    {
+      cf_assert(glb_idx > m_start_id_per_proc[mpi::PE::instance().rank()] ||
+                glb_idx <= m_end_id_per_proc[mpi::PE::instance().rank()]);
+
+      cf_assert(glb_idx > m_start_node_per_proc[mpi::PE::instance().rank()] ||
+                glb_idx <= m_end_node_per_proc[mpi::PE::instance().rank()]);
+
+    }
+
+    m_global_to_local->insert_blindly(glb_idx,loc_idx++);
   }
 
   //CFinfo << "adding elements " << CFendl;
@@ -198,6 +222,9 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   {
     boost_foreach (Uint glb_idx, elements.glb_idx().array())
     {
+      cf_assert_desc(to_str(glb_idx)+"<"+to_str(m_start_elem_per_proc[mpi::PE::instance().rank()]),glb_idx >= m_start_elem_per_proc[mpi::PE::instance().rank()]);
+      cf_assert_desc(to_str(glb_idx)+">="+to_str(m_end_elem_per_proc[mpi::PE::instance().rank()]),glb_idx < m_end_elem_per_proc[mpi::PE::instance().rank()]);
+      cf_assert_desc(to_str(glb_idx)+">="+to_str(m_end_id_per_proc[mpi::PE::instance().rank()]),glb_idx < m_end_id_per_proc[mpi::PE::instance().rank()]);
       m_global_to_local->insert_blindly(glb_idx,loc_idx++);
       //CFinfo << "  adding element with glb " << glb_idx << CFendl;
     }

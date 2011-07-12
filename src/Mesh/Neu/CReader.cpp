@@ -126,6 +126,17 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
   // Remove regions with empty connectivity tables
   remove_empty_element_regions(m_mesh->topology());
 
+
+  boost_foreach(CElements& elements, find_components_recursively<CElements>(m_mesh->topology()))
+  {
+    elements.rank().resize(elements.size());
+    Uint my_rank = option("part").value<Uint>();
+    for (Uint e=0; e<elements.size(); ++e)
+    {
+      elements.rank()[e] = my_rank;
+    }
+  }
+
   // update the number of cells and nodes in the mesh
 //  m_mesh->options()["nb_cells"] = m_headerData.NELEM;
 //  m_mesh->options()["nb_nodes"] = m_headerData.NUMNP;
@@ -281,6 +292,7 @@ void CReader::read_coordinates()
     if (m_hash->subhash(NODES).owns(node_idx-1))
     {
       m_nodes->is_ghost()[coord_idx] = false;
+      m_nodes->rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
       m_node_to_coord_idx[node_idx]=coord_idx;
       std::stringstream ss(line);
       Uint nodeNumber;
@@ -295,6 +307,7 @@ void CReader::read_coordinates()
       {
         // add global node index
         m_nodes->is_ghost()[coord_idx] = true;
+        m_nodes->rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
         m_node_to_coord_idx[node_idx]=coord_idx;
         std::stringstream ss(line);
         Uint nodeNumber;

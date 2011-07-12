@@ -6,7 +6,7 @@
 
 #include <boost/foreach.hpp>
 
-#define BOOST_HASH_NO_IMPLICIT_CASTS
+//#define BOOST_HASH_NO_IMPLICIT_CASTS
 #include <boost/functional/hash.hpp>
 
 #include <boost/static_assert.hpp>
@@ -93,8 +93,6 @@ std::string CGlobalNumbering::help() const
 
 void CGlobalNumbering::execute()
 {
-  CFinfo << "creating global node numbering ..." << CFendl;
-
   CMesh& mesh = *m_mesh.lock();
 
   CTable<Real>& coordinates = mesh.nodes().coordinates();
@@ -160,6 +158,7 @@ void CGlobalNumbering::execute()
 
   //------------------------------------------------------------------------------
   // create node_glb2loc mapping
+  CNodes& nodes = mesh.nodes();
   std::map<std::size_t,Uint> node_glb2loc;
   Uint loc_node_idx(0);
   boost_foreach(std::size_t hash, glb_node_hash.data())
@@ -167,30 +166,30 @@ void CGlobalNumbering::execute()
   std::map<std::size_t,Uint>::iterator node_glb2loc_it;
   std::map<std::size_t,Uint>::iterator hash_not_found = node_glb2loc.end();
 
+  // Check if all nodes have been added to the map
+  cf_assert(loc_node_idx==nodes.size());
 
   //------------------------------------------------------------------------------
   // get tot nb of owned indexes and communicate
 
-  Uint nb_ghost(0);
-  CNodes& nodes = mesh.nodes();
-  CList<bool>& nodes_is_ghost = mesh.nodes().is_ghost();
+  Uint nb_owned_nodes(0);
+  //CList<bool>& nodes_is_ghost = mesh.nodes().is_ghost();
   CList<Uint>& nodes_rank = mesh.nodes().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
-    if (nodes_is_ghost[i])
-      ++nb_ghost;
-    else
+    if (nodes.is_ghost(i) == false)
+    {
+      ++nb_owned_nodes;
       nodes_rank[i] = mpi::PE::instance().rank();
+    }
   }
 
-  Uint tot_nb_owned_ids=nodes.size()-nb_ghost;
+  Uint tot_nb_owned_ids=nb_owned_nodes;
   boost_foreach( CEntities& elements, find_components_recursively<CElements>(mesh) )
     tot_nb_owned_ids += elements.size();
 
   std::vector<Uint> nb_ids_per_proc(mpi::PE::instance().size());
-  //boost::mpi::communicator world;
-  //boost::mpi::all_gather(world, tot_nb_owned_ids, nb_ids_per_proc);
   mpi::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
   std::vector<Uint> start_id_per_proc(mpi::PE::instance().size());
   Uint start_id=0;
@@ -200,12 +199,11 @@ void CGlobalNumbering::execute()
     start_id += nb_ids_per_proc[p];
   }
 
-
   //------------------------------------------------------------------------------
   // add glb_idx to owned nodes, broadcast/receive glb_idx for ghost nodes
 
-  std::vector<size_t> node_from(nodes.size()-nb_ghost);
-  std::vector<Uint>   node_to(nodes.size()-nb_ghost);
+  std::vector<size_t> node_from(nb_owned_nodes);
+  std::vector<Uint>   node_to(nb_owned_nodes);
 
   CList<Uint>& nodes_glb_idx = mesh.nodes().glb_idx();
   nodes_glb_idx.resize(nodes.size());
@@ -214,26 +212,25 @@ void CGlobalNumbering::execute()
   Uint glb_id = start_id_per_proc[mpi::PE::instance().rank()];
   for (Uint i=0; i<nodes.size(); ++i)
   {
-    if ( ! nodes_is_ghost[i] )
+    if ( ! nodes.is_ghost(i) )
     {
       nodes_glb_idx[i] = glb_id++;
       node_from[cnt] = glb_node_hash.data()[i];
       node_to[cnt]   = nodes_glb_idx[i];
       ++cnt;
     }
+    else
+    {
+      nodes_glb_idx[i] = Uint_max();
+    }
   }
 
   for (Uint root=0; root<mpi::PE::instance().size(); ++root)
   {
-    //std::vector<std::size_t> rcv_node_from = mpi::broadcast(node_from, root);
-    //std::vector<Uint>        rcv_node_to   = mpi::broadcast(node_to, root);
-    // PECheckPoint(100,"001");
-    std::vector<std::size_t> rcv_node_from(0);//node_from.size());
+    std::vector<std::size_t> rcv_node_from(0);
     mpi::PE::instance().broadcast(node_from,rcv_node_from,root);
-    //PECheckPoint(100,"002");
-    std::vector<Uint>        rcv_node_to(0);//node_to.size());
+    std::vector<Uint>        rcv_node_to(0);
     mpi::PE::instance().broadcast(node_to,rcv_node_to,root);
-    //PECheckPoint(100,"003");
     if (mpi::PE::instance().rank() != root)
     {
       for (Uint p=0; p<mpi::PE::instance().size(); ++p)
@@ -249,6 +246,7 @@ void CGlobalNumbering::execute()
               if (m_debug)
                 std::cout << "["<<mpi::PE::instance().rank() << "]  will change node "<< node_glb2loc_it->first << " (" << node_glb2loc_it->second << ") to " << rcv_node_to[rcv_idx] << std::endl;
               nodes_glb_idx[node_glb2loc_it->second]=rcv_node_to[rcv_idx];
+              cf_assert(nodes.is_ghost(node_glb2loc_it->second));
               nodes_rank[node_glb2loc_it->second]=root;
             }
             ++rcv_idx;
@@ -259,6 +257,18 @@ void CGlobalNumbering::execute()
     }
   }
 
+  if (m_debug)
+  {
+    for (Uint i=0; i<nodes.size(); ++i)
+    {
+      cf_assert(nodes.glb_idx()[i] != Uint_max());
+      if (nodes.is_ghost(i) == false)
+      {
+        cf_assert(nodes.glb_idx()[i] >= start_id_per_proc[mpi::PE::instance().rank()]);
+        cf_assert(nodes.glb_idx()[i] < start_id_per_proc[mpi::PE::instance().rank()] + nb_owned_nodes);
+      }
+    }
+  }
 
   //------------------------------------------------------------------------------
   // give glb idx to elements
@@ -298,18 +308,8 @@ void CGlobalNumbering::execute()
           throw ValueExists(FromHere(), "elem "+elements.uri().path()+"["+to_str(i)+"] is duplicated");
       }
     }
-
   }
-}
 
-////////////////////////////////////////////////////////////////////////////////
-
-std::size_t CGlobalNumbering::hash_value(const RealVector& coords)
-{
-  std::size_t seed=0;
-  for (Uint i=0; i<coords.size(); ++i)
-    boost::hash_combine(seed,coords[i]);
-  return seed;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -319,7 +319,10 @@ std::size_t CGlobalNumbering::hash_value(const RealMatrix& coords)
   std::size_t seed=0;
   for (Uint i=0; i<coords.rows(); ++i)
   for (Uint j=0; j<coords.cols(); ++j)
-    boost::hash_combine(seed,coords(i,j));
+  {
+    // multiply with 1e-5 (arbitrary) to avoid hash collisions
+    boost::hash_combine(seed,1e-3*coords(i,j));
+  }
   return seed;
 }
 

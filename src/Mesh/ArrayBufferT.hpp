@@ -51,8 +51,31 @@ public: // typedef
   typedef boost::shared_ptr<ArrayBufferT> Ptr;
 
   typedef boost::multi_array<T,2> Array_t;
+  typedef T value_type;
+
   typedef boost::detail::multi_array::sub_array<T,1> SubArray_t;
   typedef boost::detail::multi_array::const_sub_array<T,1> ConstSubArray_t;
+
+private:
+
+  struct Buffer
+  {
+    Buffer() {}
+    Buffer(const Uint size, const Uint nb_cols) { resize(size,nb_cols); }
+    Array_t rows;
+    std::vector<bool> is_not_empty;
+    void resize(const Uint size, const Uint nb_cols)
+    {
+      rows.resize(boost::extents[size][nb_cols]);
+      is_not_empty.resize(size);
+      is_not_empty.assign(size,false);
+    }
+    void reset()
+    {
+      is_not_empty.assign(size(),false);
+    }
+    Uint size() const { return rows.size(); }
+  };
 
 public: // functions
 
@@ -72,28 +95,28 @@ public: // functions
   /// Change the buffer to the new size
   void change_buffersize(const size_t nbRows);
 
-	/// Flush the buffer in the connectivity Buffer
-	/// 2 cases:
-	/// - Array has to expand
-	///   - resize array
-	///   - copy all non-empty buffer entries in sequence to array entries marked to be removed (first one removed, is first one refilled)
-	///   - copy all non-empty buffer entries in sequence to array entries in the expanded part
-	/// - Array has to shrink
-	///   - copy all non-empty buffer entries in sequence to array entries marked to be removed (lower indices first)
-	///   - swap entries in the array starting from the index old_array_size to remaining empty array entries in the new array
-	///   - resize array
-	/// @return for every index of the new array, the index it had in the array + buffer structure created using add_row()
-	boost::shared_ptr< std::vector<Uint> > flush();
+  /// Flush the buffer in the connectivity Buffer
+  /// 2 cases:
+  /// - Array has to expand
+  ///   - resize array
+  ///   - copy all non-empty buffer entries in sequence to array entries marked to be removed (first one removed, is first one refilled)
+  ///   - copy all non-empty buffer entries in sequence to array entries in the expanded part
+  /// - Array has to shrink
+  ///   - copy all non-empty buffer entries in sequence to array entries marked to be removed (lower indices first)
+  ///   - swap entries in the array starting from the index old_array_size to remaining empty array entries in the new array
+  ///   - resize array
 
-	/// Add a row to the buffer.
-	/// rows are only added to the buffer, even if there are empty rows in the array!
-	/// Only when flush() is called, will the empty rows be filled.
-	/// @param [in] row Row to be added to buffer
-	/// @return the index in the array+buffers. If array has size 4, and buffer size 3, the last idx will be 6;
-	template<typename vectorType>
-	Uint add_row(const vectorType& row);
+  void flush();
 
-	Uint add_empty_row();
+  /// Add a row to the buffer.
+  /// rows are only added to the buffer, even if there are empty rows in the array!
+  /// Only when flush() is called, will the empty rows be filled.
+  /// @param [in] row Row to be added to buffer
+  /// @return the index in the array+buffers. If array has size 4, and buffer size 3, the last idx will be 6;
+  template<typename vectorType>
+  Uint add_row(const vectorType& row);
+
+  Uint add_empty_row();
 
   /// Add a row directly to the array
   /// @param [in] row Row to be added to buffer or array
@@ -128,22 +151,31 @@ public: // functions
 
 private: // functions
 
-  /// Create a new buffer, allocate it with m_buffersize, and fill m_newBufferRows with the new ones.
+  /// Create a new buffer, allocate it with m_buffersize, and fill m_new_buffer_rows with the new ones.
   void add_buffer();
 
-  /// Swap 2 rows in a table
-  /// @param [in,out] lhs row to be swapped with rhs
-  /// @param [in,out] rhs row to be swapped with lhs
-  template <typename TValue, boost::detail::multi_array::size_type K>
-  void swap(boost::detail::multi_array::sub_array<TValue, K> lhs,
-            boost::detail::multi_array::sub_array<TValue, K> rhs);
+  bool is_array_row_empty(const Uint row) const
+  {
+    return (std::find(m_empty_array_rows.begin(),m_empty_array_rows.end(),row) != m_empty_array_rows.end());
+  }
 
-  /// @return true if the given row is empty
-  bool is_empty(const SubArray_t& row) const  { return row[0]==INVALID; }
+  void reset()
+  {
+    m_buffers.resize(0);
+    m_new_buffer_rows.clear();
+//    Uint idx = m_array.size();
+//    BOOST_FOREACH(Buffer& buffer, m_buffers)
+//    {
+//       buffer.reset();
+//       m_new_buffer_rows.push_back(idx++);
+//    }
 
-  /// mark the given row as empty
-  /// @param [in] row the row to be marked as empty
-  void set_empty(SubArray_t row) { row[0]=INVALID; }
+    m_new_array_rows.clear();
+    m_empty_array_rows.clear();
+    m_empty_buffer_rows.clear();
+  }
+
+  std::string string();
 
 private: // data
 
@@ -157,30 +189,22 @@ private: // data
   /// @note it is safe to change in the middle of buffer operations
   Uint m_buffersize;
 
-  /// definition of an invalid element
-  static const T INVALID;
-
   /// vector of temporary buffers
-  std::vector<Array_t> m_buffers;
+  std::vector<Buffer> m_buffers;
 
   /// storage of removed array rows
-  std::deque<Uint> m_emptyArrayRows;
+  std::deque<Uint> m_empty_array_rows;
 
   /// storage of array rows where rows can be added directly using add_row_directly
-  std::deque<Uint> m_newArrayRows;
+  std::deque<Uint> m_new_array_rows;
 
   /// storage of removed buffer rows
-  std::deque<Uint> m_emptyBufferRows;
+  std::deque<Uint> m_empty_buffer_rows;
 
   /// storage of buffer rows where rows can be added
-  std::deque<Uint> m_newBufferRows;
+  std::deque<Uint> m_new_buffer_rows;
 
 }; // ConnectivityTable
-
-//////////////////////////////////////////////////////////////////////////////
-
-template<typename T>
-const T ArrayBufferT<T>::INVALID = std::numeric_limits<T>::max();
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -207,7 +231,7 @@ template<typename T>
 inline Uint ArrayBufferT<T>::total_allocated()
 {
   Uint allocated=m_array.size();
-  BOOST_FOREACH(const Array_t& buffer, m_buffers)
+  BOOST_FOREACH(const Buffer& buffer, m_buffers)
     allocated += buffer.size();
   return allocated;
 }
@@ -215,7 +239,7 @@ inline Uint ArrayBufferT<T>::total_allocated()
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-boost::shared_ptr< std::vector<Uint> > ArrayBufferT<T>::flush()
+void ArrayBufferT<T>::flush()
 {
 
   // get total number of allocated rows
@@ -223,16 +247,8 @@ boost::shared_ptr< std::vector<Uint> > ArrayBufferT<T>::flush()
   Uint old_array_size = m_array.size();
 
   // get total number of empty rows
-  Uint nb_emptyRows = m_emptyArrayRows.size() + m_emptyBufferRows.size() + m_newBufferRows.size();
+  Uint nb_emptyRows = m_empty_array_rows.size() + m_empty_buffer_rows.size() + m_new_buffer_rows.size();
   Uint new_size = allocated_size-nb_emptyRows;
-
-	// a vector of index changes compared to before the flush
-	boost::shared_ptr< std::vector<Uint> > old_indexes_sptr (new std::vector<Uint>(new_size));
-	std::vector<Uint>& old_indexes = *old_indexes_sptr;
-	for (Uint i=0; i<new_size; ++i)
-		old_indexes[i]=i;
-	Uint new_idx;
-	Uint old_idx = old_array_size;
 
   if (new_size > old_array_size)
   {
@@ -241,80 +257,71 @@ boost::shared_ptr< std::vector<Uint> > ArrayBufferT<T>::flush()
 
     // copy each buffer into the array
     Uint array_idx=old_array_size;
-    BOOST_FOREACH (Array_t& buffer, m_buffers)
-    BOOST_FOREACH (SubArray_t row, buffer)
+    BOOST_FOREACH (Buffer& buffer, m_buffers)
     {
-      if (!is_empty(row))   // for each non-empty row from all buffers
+      for (Uint row_idx=0; row_idx<buffer.size(); ++row_idx)
       {
-        // first find empty rows inside the old part array
-        if (!m_emptyArrayRows.empty())
+        SubArray_t row = buffer.rows[row_idx];
+        if (buffer.is_not_empty[row_idx])   // for each non-empty row from all buffers
         {
-          new_idx = m_emptyArrayRows.front();
-          m_emptyArrayRows.pop_front();
-
-					SubArray_t empty_array_row = get_row(new_idx);
-					old_indexes[new_idx]=old_idx;
-
-					for(Uint j=0; j<m_nbCols; ++j)
-						empty_array_row[j] = row[j];
-				}
-				else // then select the new array rows to be filled
-				{
-					SubArray_t empty_array_row=m_array[array_idx++];
-					for(Uint j=0; j<m_nbCols; ++j)
-						empty_array_row[j] = row[j];
-				}
-			}
-			++old_idx;
-		}
-	}
-	else // More rows to be removed than added, now we need to swap rows
-	{
-		// copy all buffer rows in the m_array
-		BOOST_FOREACH (Array_t& buffer, m_buffers)
-		{
-			BOOST_FOREACH (SubArray_t row, buffer)
-			if (!is_empty(row))   // for each non-empty row from all buffers
-			{
-				new_idx = m_emptyArrayRows.front();
-				m_emptyArrayRows.pop_front();
-
-				SubArray_t empty_array_row = get_row(new_idx);
-				old_indexes[new_idx]=old_idx;
-
-				for(Uint j=0; j<m_nbCols; ++j)
-					empty_array_row[j] = row[j];
-			}
-			++old_idx;
-		}
-
+          // first find empty rows inside the old part array
+          if (!m_empty_array_rows.empty())
+          {
+            SubArray_t empty_array_row = get_row(m_empty_array_rows.front());
+            m_empty_array_rows.pop_front();
+            empty_array_row = row;
+          }
+          else // then select the new array rows to be filled
+          {
+            cf_assert(array_idx < m_array.size());
+            SubArray_t empty_array_row=m_array[array_idx++];
+            empty_array_row = row;
+          }
+        }
+      }
+    }
+  }
+  else // More rows to be removed than added, now we need to swap rows
+  {
+    // copy all buffer rows in the m_array
+    BOOST_FOREACH (Buffer& buffer, m_buffers)
+    {
+      for (Uint row_idx=0; row_idx<buffer.size(); ++row_idx)
+      {
+        SubArray_t row = buffer.rows[row_idx];
+        if (buffer.is_not_empty[row_idx])   // for each non-empty row from all buffers
+        {
+          Uint empty_array_row_idx = m_empty_array_rows.front();
+          m_empty_array_rows.pop_front();
+          SubArray_t empty_array_row = get_row(empty_array_row_idx);
+          empty_array_row = row;
+        }
+      }
+    }
     Uint full_row_idx = new_size;
     // The part of the table with rows > new_size will be deallocated
     // The empty rows from the allocated part must be swapped with filled
     // rows from the part that will be deallocated
-    BOOST_FOREACH(Uint empty_row_idx, m_emptyArrayRows)
+    Uint nb_empty_rows = m_empty_array_rows.size();
+    for (Uint e=0; e<nb_empty_rows; ++e)
     {
-      // swap only necessary if it the empty row is in the allocated part
+      Uint empty_row_idx = m_empty_array_rows[e];
+      // swap only necessary if the empty row is in the allocated part
       if (empty_row_idx < new_size)
       {
         // swap this empty row with a full one in the part that will be deallocated
 
         // 1) find next full row
-        while(is_empty(m_array[full_row_idx]))
+        cf_assert(full_row_idx<m_array.size());
+        while(is_array_row_empty(full_row_idx))
         {
           full_row_idx++;
           cf_assert(full_row_idx<m_array.size());
         }
 
-				// 2) swap them
-				cf_assert(empty_row_idx < m_array.size());
-				cf_assert(full_row_idx < m_array.size());
-				swap(m_array[empty_row_idx],m_array[full_row_idx]);
-				// 3) add to change_set
-				new_idx = empty_row_idx;
-				old_idx = full_row_idx;
-				old_indexes[new_idx]=old_idx;
-
+        // 2) swap them
+        cf_assert(empty_row_idx<m_array.size());
+        m_array[empty_row_idx] = m_array[full_row_idx];
         full_row_idx++;
       }
     }
@@ -324,12 +331,7 @@ boost::shared_ptr< std::vector<Uint> > ArrayBufferT<T>::flush()
   }
 
   // clear all buffers
-  m_buffers.resize(0);
-  m_emptyArrayRows.clear();
-  m_emptyBufferRows.clear();
-  m_newBufferRows.clear();
-
-  return old_indexes_sptr;
+  reset();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -344,16 +346,15 @@ inline typename ArrayBufferT<T>::SubArray_t ArrayBufferT<T>::get_row(const Uint 
   }
   else
   {
-    BOOST_FOREACH(Array_t& buffer, m_buffers)
+    BOOST_FOREACH(Buffer& buffer, m_buffers)
     {
       if (idx<cummulative_size+buffer.size())
-        return buffer[idx-cummulative_size];
+        return buffer.rows[idx-cummulative_size];
       cummulative_size += buffer.size();
     }
   }
-  std::string msg = "Trying to access index " + Common::to_str(idx)
-  + " that is not allocated: size = " + Common::to_str(cummulative_size);
-  throw Common::BadValue(FromHere(),msg);
+  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated: ["+Common::to_str(idx)+">="+Common::to_str(cummulative_size)+"]");
+  return m_array[0];
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -366,8 +367,7 @@ inline void ArrayBufferT<T>::increase_array_size(const size_t increase)
   m_array.resize(boost::extents[new_size][m_nbCols]);
   for (Uint i_new=old_size; i_new<new_size; ++i_new)
   {
-    set_empty(m_array[i_new]);
-    m_newArrayRows.push_back(i_new);
+    m_new_array_rows.push_back(i_new);
   }
 }
 
@@ -377,12 +377,9 @@ template<typename T>
 inline void ArrayBufferT<T>::add_buffer()
 {
   Uint idx = total_allocated();
-  m_buffers.push_back(Array_t(boost::extents[m_buffersize][m_nbCols]));
-  BOOST_FOREACH(SubArray_t new_row, m_buffers.back())
-  {
-    set_empty(new_row);
-    m_newBufferRows.push_back(idx++);
-  }
+  m_buffers.push_back(Buffer(m_buffersize,m_nbCols));
+  for (Uint i=0; i<m_buffersize; ++i)
+    m_new_buffer_rows.push_back(idx++);
   cf_assert(total_allocated()==idx);
 }
 
@@ -392,23 +389,11 @@ template<typename T>
 template<typename vectorType>
 inline Uint ArrayBufferT<T>::add_row(const vectorType& row)
 {
-  if (m_newBufferRows.empty())
-    add_buffer(); // will make a whole lot of new newBufferRows
-  Uint idx = m_newBufferRows.front();
+  if (m_new_buffer_rows.empty())
+    add_buffer(); // will make a whole lot of new new_buffer_rows
+  Uint idx = m_new_buffer_rows.front();
   set_row(idx,row);
-  m_newBufferRows.pop_front();
-  return idx;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-template<typename T>
-inline Uint ArrayBufferT<T>::add_empty_row()
-{
-  if (m_newBufferRows.empty())
-    add_buffer(); // will make a whole lot of new newBufferRows
-  Uint idx = m_newBufferRows.front();
-  m_newBufferRows.pop_front();
+  m_new_buffer_rows.pop_front();
   return idx;
 }
 
@@ -418,10 +403,10 @@ template<typename T>
 template<typename vectorType>
 inline Uint ArrayBufferT<T>::add_row_directly(const vectorType& row)
 {
-  cf_assert(!m_newArrayRows.empty());
-  Uint idx = m_newArrayRows.front();
+  cf_assert(!m_new_array_rows.empty());
+  Uint idx = m_new_array_rows.front();
   set_row(idx,row);
-  m_newArrayRows.pop_front();
+  m_new_array_rows.pop_front();
   return idx;
 }
 
@@ -432,11 +417,29 @@ template<typename vectorType>
 inline void ArrayBufferT<T>::set_row(const Uint array_idx, const vectorType& row)
 {
   cf_assert(row.size() == m_nbCols);
-
-  SubArray_t row_to_set = get_row(array_idx);
-
-  for(Uint j=0; j<m_nbCols; ++j)
-    row_to_set[j] = row[j];
+  Uint cummulative_size = m_array.size();
+  if (array_idx < cummulative_size)
+  {
+    for (Uint i=0; i<row.size(); ++i)
+      m_array[array_idx][i] = row[i];
+    m_empty_array_rows.erase(std::find(m_empty_array_rows.begin(),m_empty_array_rows.end(),array_idx));
+    return;
+  }
+  else
+  {
+    BOOST_FOREACH(Buffer& buffer, m_buffers)
+    {
+      if (array_idx<cummulative_size+buffer.size())
+      {
+        for (Uint i=0; i<row.size(); ++i)
+          buffer.rows[array_idx-cummulative_size][i]=row[i];
+        buffer.is_not_empty[array_idx-cummulative_size]=true;
+        return;
+      }
+      cummulative_size += buffer.size();
+    }
+  }
+  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -444,12 +447,27 @@ inline void ArrayBufferT<T>::set_row(const Uint array_idx, const vectorType& row
 template<typename T>
 inline void ArrayBufferT<T>::rm_row(const Uint array_idx)
 {
-  set_empty(get_row(array_idx));
-  if (array_idx < m_array.size())
-    m_emptyArrayRows.push_back(array_idx);
+  Uint cummulative_size = m_array.size();
+  if (array_idx < cummulative_size)
+  {
+    m_empty_array_rows.push_back(array_idx);
+    return;
+  }
   else
-    m_emptyBufferRows.push_back(array_idx);
+  {
+    m_empty_buffer_rows.push_back(array_idx);
 
+    BOOST_FOREACH(Buffer& buffer, m_buffers)
+    {
+      if (array_idx<cummulative_size+buffer.size())
+      {
+        buffer.is_not_empty[array_idx-cummulative_size]=false;
+        return;
+      }
+      cummulative_size += buffer.size();
+    }
+  }
+  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -460,19 +478,59 @@ inline void ArrayBufferT<T>::change_buffersize(const size_t buffersize)
   m_buffersize = buffersize;
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-template <typename TValue, boost::detail::multi_array::size_type K>
-inline void ArrayBufferT<T>::swap(
-    boost::detail::multi_array::sub_array<TValue, K> lhs,
-    boost::detail::multi_array::sub_array<TValue, K> rhs)
+inline std::string ArrayBufferT<T>::string()
 {
-  boost::multi_array<TValue, K> tmp = lhs;
-  lhs = rhs;
-  rhs = tmp;
+  using namespace Common;
+  std::string str;
+  for (Uint i=0; i<m_array.size(); ++i)
+  {
+    str += "    " + to_str(i) + ":    ";
+    if (is_array_row_empty(i))
+    {
+      str += "X   ( ";
+      for (Uint j=0; j<m_array[i].size(); ++j)
+        str += to_str(m_array[i][j]) + " ";
+      str += ")\n";
+    }
+    else
+    {
+      for (Uint j=0; j<m_array[i].size(); ++j)
+        str += to_str(m_array[i][j]) + " ";
+      str += "\n";
+    }
+  }
+  Uint s=m_array.size();
+  for (Uint b=0; b<m_buffers.size(); ++b)
+  {
+    str += "    ----buffer["+to_str(b)+"]----\n";
+    for (Uint i=0; i<m_buffers[b].size(); ++i)
+    {
+      str += "    " + to_str(s) + ":    ";
+      if ( std::find(m_empty_buffer_rows.begin(),m_empty_buffer_rows.end(),s) != m_empty_buffer_rows.end())
+      {
+        str += "X   ( ";
+        for (Uint j=0; j<m_buffers[b].rows[i].size(); ++j)
+          str += to_str(m_buffers[b].rows[i][j]) + " ";
+        str += ")\n";
+      }
+      else if( std::find(m_new_buffer_rows.begin(),m_new_buffer_rows.end(),s) != m_new_buffer_rows.end())
+      {
+        str += "\n";
+      }
+      else
+      {
+        for (Uint j=0; j<m_buffers[b].rows[i].size(); ++j)
+          str += to_str(m_buffers[b].rows[i][j]) + " ";
+        str += "\n";
+      }
+      ++s;
+    }
+  }
+  return str;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

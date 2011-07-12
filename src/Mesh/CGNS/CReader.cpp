@@ -284,32 +284,36 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
       CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, &one, &m_zone.total_nbVertices, xCoord));
   }
 
-  CTable<Real>::Buffer buffer = nodes.coordinates().create_buffer();
-  buffer.increase_array_size(m_zone.total_nbVertices);
-  std::vector<Real> row(m_zone.coord_dim);
+  nodes.resize(m_zone.total_nbVertices);
+  CTable<Real>& coords = nodes.coordinates();
+  CList<Uint>& rank = nodes.rank();
+  //  CTable<Real>::Buffer buffer = nodes.coordinates().create_buffer();
+  //buffer.increase_array_size(m_zone.total_nbVertices);
+  //std::vector<Real> row(m_zone.coord_dim);
   for (int i=0; i<m_zone.total_nbVertices; ++i)
   {
     switch (m_zone.coord_dim)
     {
       case 3:
-        row[2] = zCoord[i];
+        coords[i][2] = zCoord[i];
        case 2:
-        row[1] = yCoord[i];
+        coords[i][1] = yCoord[i];
        case 1:
-        row[0] = xCoord[i];
+        coords[i][0] = xCoord[i];
      }
-    buffer.add_row_directly(row);
+    rank[i] = 0;
   }
 
   switch (m_zone.coord_dim)
   {
     case 3:
-      delete_ptr(zCoord);
+      delete_ptr_array(zCoord);
     case 2:
-      delete_ptr(yCoord);
+      delete_ptr_array(yCoord);
     case 1:
-      delete_ptr(xCoord);
+      delete_ptr_array(xCoord);
   }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -342,10 +346,10 @@ void CReader::read_coordinates_structured(CRegion& parent_region)
       CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, one, m_zone.nbVertices, xCoord));
   }
 
-  CTable<Real>::Buffer buffer = nodes.coordinates().create_buffer();
-  buffer.increase_array_size(m_zone.total_nbVertices);
-  std::vector<Real> row(m_zone.coord_dim);
+  CTable<Real>& coords = nodes.coordinates();
+  nodes.resize(m_zone.total_nbVertices);
 
+  Uint n(0);
   switch (m_zone.coord_dim)
   {
     case 3:
@@ -353,40 +357,41 @@ void CReader::read_coordinates_structured(CRegion& parent_region)
         for (int j=0; j<m_zone.nbVertices[YY]; ++j)
           for (int i=0; i<m_zone.nbVertices[XX]; ++i)
           {
+            CTable<Real>::Row row = coords[n++];
             row[0] = xCoord[structured_node_idx(i,j,k)];
             row[1] = yCoord[structured_node_idx(i,j,k)];
             row[2] = zCoord[structured_node_idx(i,j,k)];
-            buffer.add_row_directly(row);
           }
       break;
     case 2:
       for (int j=0; j<m_zone.nbVertices[YY]; ++j)
         for (int i=0; i<m_zone.nbVertices[XX]; ++i)
         {
+          CTable<Real>::Row row = coords[n++];
           row[0] = xCoord[structured_node_idx(i,j,0)];
           row[1] = yCoord[structured_node_idx(i,j,0)];
-          buffer.add_row_directly(row);
         }
       break;
 
     case 1:
       for (int i=0; i<m_zone.nbVertices[XX]; ++i)
       {
+        CTable<Real>::Row row = coords[n++];
         row[0] = xCoord[i];
-        buffer.add_row_directly(row);
       }
       break;
   }
 
-  delete_ptr(xCoord);
-  delete_ptr(yCoord);
-  delete_ptr(zCoord);
+  delete_ptr_array(xCoord);
+  delete_ptr_array(yCoord);
+  delete_ptr_array(zCoord);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::read_section(CRegion& parent_region)
 {
+
   char section_name_char[CGNS_CHAR_MAX];
 
   // read section information
@@ -397,7 +402,6 @@ void CReader::read_section(CRegion& parent_region)
   // replace whitespace by underscore
   boost::algorithm::replace_all(m_section.name," ","_");
   boost::algorithm::replace_all(m_section.name,".","_");
-
 
   BOOST_FOREACH(CRegion& existing_region, find_components<CRegion>(parent_region))
   if (existing_region.follow())
@@ -415,8 +419,6 @@ void CReader::read_section(CRegion& parent_region)
 
   // Create a new region for this section
   CRegion& this_region = parent_region.create_region(m_section.name);
-
-
 
   CNodes& all_nodes = *m_zone.nodes;
   Uint start_idx = m_zone.nodes_start_idx;
@@ -460,7 +462,6 @@ void CReader::read_section(CRegion& parent_region)
   } // if mixed
   else // Single element type in this section
   {
-
     // Read the number of nodes in this section
     CALL_CGNS(cg_npe(m_section.type,&m_section.elemNodeCount));
 
@@ -470,9 +471,9 @@ void CReader::read_section(CRegion& parent_region)
     // Calculate the number of elements
     int nbElems = m_section.elemDataSize/m_section.elemNodeCount;
 
+
     // Convert the CGNS element type to the CF element type
     const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
-
 
     // Create element component in this region for this CF element type, automatically creates connectivity_table
     if (option("SharedCoordinates").value<bool>())
@@ -487,8 +488,7 @@ void CReader::read_section(CRegion& parent_region)
     CElements& element_region= *this_region.get_child_ptr("elements_"+etype_CF)->as_ptr<CElements>();
 
     // Create a buffer for this element component, to start filling in the elements we will read.
-    CConnectivity::Buffer element_buffer = element_region.node_connectivity().create_buffer();
-    CTable<Real>::Buffer coord_buffer   = element_region.nodes().coordinates().create_buffer();
+    CConnectivity& node_connectivity = element_region.node_connectivity();
 
     // Create storage for element nodes
     int* elemNodes = new int [m_section.elemDataSize];
@@ -499,45 +499,17 @@ void CReader::read_section(CRegion& parent_region)
     // --------------------------------------------- Fill connectivity table
     std::vector<Uint> coords_added;
     std::vector<Uint> row(m_section.elemNodeCount);
-    element_buffer.increase_array_size(nbElems);  // we can use increase_array_size + add_row_directly because we know apriori the change
-    if (option("SharedCoordinates").value<bool>())
+    node_connectivity.resize(nbElems);
+
+    for (int elem=0; elem<nbElems; ++elem) //, ++progress)
     {
-      for (int elem=0; elem<nbElems; ++elem) //, ++progress)
-      {
-        for (int node=0;node<m_section.elemNodeCount;++node)
-          row[node] = start_idx + elemNodes[node+elem*m_section.elemNodeCount]-1;  // -1 because cgns has index-base 1 instead of 0;
-        element_buffer.add_row_directly(row);
+      for (int node=0;node<m_section.elemNodeCount;++node)
+        node_connectivity[elem][node] = start_idx + elemNodes[node+elem*m_section.elemNodeCount]-1;  // -1 because cgns has index-base 1 instead of 0;
 
-        // Store the global element number to a pair of (region , local element number)
-        m_global_to_region.push_back(Region_TableIndex_pair(boost::dynamic_pointer_cast<CElements>(element_region.shared_from_this()),elem));
-      } // for elem
-    }
-    else // every elements region gets his own coordinates
-    {
-      Uint global_coord_idx;
-      Uint local_coord_idx;
-      for (int elem=0; elem<nbElems; ++elem) //, ++progress)
-      {
-        for (int node=0;node<m_section.elemNodeCount;++node)
-        {
-          global_coord_idx = start_idx + elemNodes[node+elem*m_section.elemNodeCount]-1;  // -1 because cgns has index-base 1 instead of 0
+      // Store the global element number to a pair of (region , local element number)
+      m_global_to_region.push_back(Region_TableIndex_pair(boost::dynamic_pointer_cast<CElements>(element_region.shared_from_this()),elem));
+    } // for elem
 
-          // check if this node was already added
-          local_coord_idx = std::find(coords_added.begin(),coords_added.end(),global_coord_idx)-coords_added.begin();
-          // if not found in coords_added, it has to be added to the buffer
-          if (local_coord_idx >= coords_added.size())
-          {
-            local_coord_idx = coord_buffer.add_row_directly(all_nodes.coordinates()[global_coord_idx]);
-            coords_added.push_back(global_coord_idx);
-          }
-          row[node] = local_coord_idx;
-        }
-        element_buffer.add_row_directly(row);
-
-        // Store the global element number to a pair of (region , local element number)
-        m_global_to_region.push_back(Region_TableIndex_pair(element_region.as_ptr<CElements>(),elem));
-      } // for elem
-    }
 
 
     // Delete storage for element nodes
@@ -585,21 +557,21 @@ void CReader::create_structured_elements(CRegion& parent_region)
   CElements& element_region = this_region.create_elements(etype_CF,nodes);
 
   // Create a buffer for this element component, to start filling in the elements we will read.
-  CConnectivity::Buffer element_buffer = element_region.node_connectivity().create_buffer();
-
+  CConnectivity& node_connectivity = element_region.node_connectivity();
+  node_connectivity.resize(m_zone.total_nbElements);
   // --------------------------------------------- Fill connectivity table
-  //std::vector<Uint> row(m_section.elemNodeCount);
-  element_buffer.increase_array_size(m_zone.total_nbElements);  // we can use increase_array_size + add_row_directly because we know apriori the change
+
 
   switch (m_base.cell_dim)
   {
     case 3: // Hexahedrons
     {
-      std::vector<Uint> row(8);
+      Uint e(0);
       for (int k=0; k<m_zone.nbVertices[ZZ]-1; ++k)
         for (int j=0; j<m_zone.nbVertices[YY]-1; ++j)
           for (int i=0; i<m_zone.nbVertices[XX]-1; ++i)
           {
+            CConnectivity::Row row = node_connectivity[e++];
             row[0] = structured_node_idx(i  ,j  ,k  );
             row[1] = structured_node_idx(i+1,j  ,k  );
             row[2] = structured_node_idx(i+1,j+1,k  );
@@ -608,35 +580,33 @@ void CReader::create_structured_elements(CRegion& parent_region)
             row[5] = structured_node_idx(i+1,j  ,k+1);
             row[6] = structured_node_idx(i+1,j+1,k+1);
             row[7] = structured_node_idx(i  ,j+1,k+1);
-            element_buffer.add_row_directly(row);
-
           }
       break;
     }
     case 2: // Quadrilaterals
     {
-      std::vector<Uint> row(4);
+    Uint e(0);
       int k=0;
       for (int j=0; j<m_zone.nbVertices[YY]-1; ++j)
         for (int i=0; i<m_zone.nbVertices[XX]-1; ++i)
           {
+            CConnectivity::Row row = node_connectivity[e++];
             row[0] = structured_node_idx(i  ,j  ,k  );
             row[1] = structured_node_idx(i+1,j  ,k  );
             row[2] = structured_node_idx(i+1,j+1,k  );
             row[3] = structured_node_idx(i  ,j+1,k  );
-            element_buffer.add_row_directly(row);
           }
       break;
     }
     case 1: // Segments
     {
-      std::vector<Uint> row(2);
+    Uint e(0);
       int j=0, k=0;
       for (int i=0; i<m_zone.nbVertices[XX]-1; ++i)
       {
+        CConnectivity::Row row = node_connectivity[e++];
         row[0] = structured_node_idx(i  ,j  ,k  );
         row[1] = structured_node_idx(i+1,j  ,k  );
-        element_buffer.add_row_directly(row);
       }
       break;
     }
@@ -821,7 +791,7 @@ void CReader::read_boco_structured(CRegion& parent_region)
 
   CElements& elements = this_region.create_elements(etypeBC_CF,nodes);
   //CTable<Uint>& source_elements = parent_region.get_child_ptr("Inner")->get_child_ptr<CElements>("elements_"+etype_CF)->node_connectivity();
-  CConnectivity::Buffer buffer = elements.node_connectivity().create_buffer();
+  CConnectivity& node_connectivity = elements.node_connectivity();
 
 
 
@@ -846,86 +816,87 @@ void CReader::read_boco_structured(CRegion& parent_region)
       jmin=boco_elems[YY+0*m_base.cell_dim]-1; jmax=boco_elems[YY+1*m_base.cell_dim]-1;
       kmin=boco_elems[ZZ+0*m_base.cell_dim]-1; kmax=boco_elems[ZZ+1*m_base.cell_dim]-1;
 
-      std::vector<Uint> row(4);
       if (imin == imax) // i = constant plane
       {
         m_boco.nBC_elem = (jmax-jmin)*(kmax-kmin);
-        buffer.increase_array_size(m_boco.nBC_elem);
+        node_connectivity.resize(m_boco.nBC_elem);
+        Uint e(0);
         if (imin == 0)
           for (int k=kmin; k<kmax; ++k)
             for (int j=jmin; j<jmax; ++j)
             {
+              CConnectivity::Row row = node_connectivity[e++];
               row[0] = structured_node_idx(imin, j  , k  );
               row[1] = structured_node_idx(imin, j  , k+1);
               row[2] = structured_node_idx(imin, j+1, k+1);
               row[3] = structured_node_idx(imin, j+1, k  );
-              buffer.add_row_directly(row);
             }
         else
           for (int k=kmin; k<kmax; ++k)
             for (int j=jmin; j<jmax; ++j)
             {
+              CConnectivity::Row row = node_connectivity[e++];
               row[0] = structured_node_idx(imax, j  ,k  );
               row[1] = structured_node_idx(imax ,j+1,k  );
               row[2] = structured_node_idx(imax, j+1,k+1);
               row[3] = structured_node_idx(imax, j  ,k+1);
-              buffer.add_row_directly(row);
             }
       }
 
       if (jmin == jmax) // j = constant plane
       {
         m_boco.nBC_elem = (imax-imin)*(kmax-kmin);
-        buffer.increase_array_size(m_boco.nBC_elem);
+        node_connectivity.resize(m_boco.nBC_elem);
+        Uint e(0);
         if (jmin == 0)
           for (int k=kmin; k<kmax; ++k)
             for (int i=imin; i<imax; ++i)
             {
+              CConnectivity::Row row = node_connectivity[e++];
               row[0] = structured_node_idx(i  , jmin, k  );
               row[1] = structured_node_idx(i+1, jmin, k  );
               row[2] = structured_node_idx(i+1, jmin, k+1);
               row[3] = structured_node_idx(i  , jmin, k+1);
-              buffer.add_row_directly(row);
             }
         else
           for (int k=kmin; k<kmax; ++k)
             for (int i=imin; i<imax; ++i)
             {
+              CConnectivity::Row row = node_connectivity[e++];
               row[0] = structured_node_idx(i  ,jmax, k  );
               row[1] = structured_node_idx(i  ,jmax, k+1);
               row[2] = structured_node_idx(i+1,jmax, k+1);
               row[3] = structured_node_idx(i+1,jmax, k  );
-              buffer.add_row_directly(row);
             }
       }
 
       if (kmin == kmax) // k = constant plane
       {
         m_boco.nBC_elem = (imax-imin)*(jmax-jmin);
-        buffer.increase_array_size(m_boco.nBC_elem);
+        node_connectivity.resize(m_boco.nBC_elem);
+        Uint e(0);
         if (kmin == 0)
           for (int i=imin; i<imax; ++i)
             for (int j=jmin; j<jmax; ++j)
             {
+              CConnectivity::Row row = node_connectivity[e++];
               row[0] = structured_node_idx(i  ,j  , kmin  );
               row[1] = structured_node_idx(i  ,j+1, kmin  );
               row[2] = structured_node_idx(i+1,j+1, kmin  );
               row[3] = structured_node_idx(i+1,j  , kmin  );
-              buffer.add_row_directly(row);
             }
         else
           for (int i=imin; i<imax; ++i)
             for (int j=jmin; j<jmax; ++j)
             {
+              CConnectivity::Row row = node_connectivity[e++];
               row[0] = structured_node_idx(i  ,j  , kmax);
               row[1] = structured_node_idx(i+1,j  , kmax);
               row[2] = structured_node_idx(i+1,j+1, kmax);
               row[3] = structured_node_idx(i  ,j+1, kmax);
-              buffer.add_row_directly(row);
             }
       }
-      buffer.flush();
-      delete_ptr(boco_elems);
+      delete_ptr_array(boco_elems);
 
       break;
     }

@@ -65,6 +65,8 @@ public: // functions
 
   Uint dim() const { return coordinates().row_size(); }
 
+  bool is_ghost(const Uint idx) const;
+
 private: // data
 
   boost::shared_ptr<CTable<Real> > m_coordinates;

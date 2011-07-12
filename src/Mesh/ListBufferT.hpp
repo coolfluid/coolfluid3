@@ -39,7 +39,6 @@ namespace Mesh {
 template < typename T >
 class ListBufferT
 {
-
 public: // typedef
 
   /// type of the iterator
@@ -52,6 +51,27 @@ public: // typedef
   typedef T value_type;
 
   typedef boost::shared_ptr<ListBufferT> Ptr;
+
+private:
+
+  struct Buffer
+  {
+    Buffer() {}
+    Buffer(const Uint size) { resize(size); }
+    Array_t rows;
+    std::vector<bool> is_not_empty;
+    void resize(const Uint size)
+    {
+      rows.resize(boost::extents[size]);
+      is_not_empty.resize(size);
+      is_not_empty.assign(size,false);
+    }
+    void reset()
+    {
+      is_not_empty.assign(size(),false);
+    }
+    Uint size() const { return rows.size(); }
+  };
 
 public: // functions
 
@@ -133,30 +153,33 @@ public: // functions
     return const_iterator(*this,total_allocated());
   }
 
+  void reset()
+  {
+    m_buffers.resize(0);
+    m_new_buffer_rows.clear();
+//    Uint idx = m_array.size();
+//    boost_foreach(Buffer& buffer, m_buffers)
+//    {
+//       buffer.reset();
+//       m_new_buffer_rows.push_back(idx++);
+//    }
 
+    m_new_array_rows.clear();
+    m_empty_array_rows.clear();
+    m_empty_buffer_rows.clear();
+  }
+
+  std::string string();
 
 private: // functions
 
-  /// Create a new buffer, allocate it with m_buffersize, and fill m_newBufferRows with the new ones.
+  /// Create a new buffer, allocate it with m_buffersize, and fill m_new_buffer_rows with the new ones.
   void add_buffer();
 
-  /// Swap 2 rows in a table
-  /// @param [in,out] lhs row to be swapped with rhs
-  /// @param [in,out] rhs row to be swapped with lhs
-  void swap(value_type& lhs,
-            value_type& rhs);
-
-  /// @return true if the given row is empty
-  bool is_empty(const value_type& val) const  { return val==INVALID; }
-
-  bool is_row_empty(const Uint row) const
+  bool is_array_row_empty(const Uint row) const
   {
-    return (std::find(m_emptyArrayRows.begin(),m_emptyArrayRows.end(),row) != m_emptyArrayRows.end());
+    return (std::find(m_empty_array_rows.begin(),m_empty_array_rows.end(),row) != m_empty_array_rows.end());
   }
-
-  /// mark the given row as empty
-  /// @param [in] val the row to be marked as empty
-  void set_empty(value_type& val) { val=INVALID; }
 
 private: // data
 
@@ -167,44 +190,22 @@ private: // data
   /// @note it is safe to change in the middle of buffer operations
   Uint m_buffersize;
 
-  /// definition of an invalid element
-  static const T INVALID;
-
-  struct Buffer
-  {
-    Buffer() {}
-    Buffer(const Uint size) { resize(size); }
-    Array_t row;
-    std::vector<bool> is_not_empty;
-    void resize(const Uint size)
-    {
-      row.resize(boost::extents[size]);
-      is_not_empty.resize(size,false);
-    }
-    Uint size() const { return row.size(); }
-  };
-
   /// vector of temporary buffers
   std::vector<Buffer> m_buffers;
 
   /// storage of removed array rows
-  std::deque<Uint> m_emptyArrayRows;
+  std::deque<Uint> m_empty_array_rows;
 
   /// storage of array rows where rows can be added directly using add_row_directly
-  std::deque<Uint> m_newArrayRows;
+  std::deque<Uint> m_new_array_rows;
 
   /// storage of removed buffer rows
-  std::deque<Uint> m_emptyBufferRows;
+  std::deque<Uint> m_empty_buffer_rows;
 
   /// storage of buffer rows where rows can be added
-  std::deque<Uint> m_newBufferRows;
+  std::deque<Uint> m_new_buffer_rows;
 
 }; // ConnectivityTable
-
-//////////////////////////////////////////////////////////////////////////////
-
-template<typename T>
-const T ListBufferT<T>::INVALID = std::numeric_limits<T>::max();
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -246,7 +247,7 @@ void ListBufferT<T>::flush()
   Uint old_array_size = m_array.size();
 
   // get total number of empty rows
-  Uint nb_emptyRows = m_emptyArrayRows.size() + m_emptyBufferRows.size() + m_newBufferRows.size();
+  Uint nb_emptyRows = m_empty_array_rows.size() + m_empty_buffer_rows.size() + m_new_buffer_rows.size();
   Uint new_size = allocated_size-nb_emptyRows;
   if (new_size >= old_array_size)
   {
@@ -259,14 +260,14 @@ void ListBufferT<T>::flush()
     {
       for (Uint row_idx=0; row_idx<buffer.size(); ++row_idx)
       {
-        value_type& row = buffer.row[row_idx];
+        value_type& row = buffer.rows[row_idx];
         if (buffer.is_not_empty[row_idx])   // for each non-empty row from all buffers
         {
           // first find empty rows inside the old part array
-          if (!m_emptyArrayRows.empty())
+          if (!m_empty_array_rows.empty())
           {
-            value_type& empty_array_row = get_row(m_emptyArrayRows.front());
-            m_emptyArrayRows.pop_front();
+            value_type& empty_array_row = get_row(m_empty_array_rows.front());
+            m_empty_array_rows.pop_front();
             empty_array_row = row;
           }
           else // then select the new array rows to be filled
@@ -286,11 +287,11 @@ void ListBufferT<T>::flush()
     {
       for (Uint row_idx=0; row_idx<buffer.size(); ++row_idx)
       {
-        value_type& row = buffer.row[row_idx];
+        value_type& row = buffer.rows[row_idx];
         if (buffer.is_not_empty[row_idx])   // for each non-empty row from all buffers
         {
-          Uint empty_array_row_idx = m_emptyArrayRows.front();
-          m_emptyArrayRows.pop_front();
+          Uint empty_array_row_idx = m_empty_array_rows.front();
+          m_empty_array_rows.pop_front();
           value_type& empty_array_row = get_row(empty_array_row_idx);
           empty_array_row = row;
         }
@@ -300,11 +301,10 @@ void ListBufferT<T>::flush()
     // The part of the table with rows > new_size will be deallocated
     // The empty rows from the allocated part must be swapped with filled
     // rows from the part that will be deallocated
-    Uint nb_empty_rows = m_emptyArrayRows.size();
+    Uint nb_empty_rows = m_empty_array_rows.size();
     for (Uint e=0; e<nb_empty_rows; ++e)
     {
-      Uint empty_row_idx = m_emptyArrayRows.front();
-      m_emptyArrayRows.pop_front();
+      Uint empty_row_idx = m_empty_array_rows[e];
       // swap only necessary if the empty row is in the allocated part
       if (empty_row_idx < new_size)
       {
@@ -312,7 +312,7 @@ void ListBufferT<T>::flush()
 
         // 1) find next full row
         cf_assert(full_row_idx<m_array.size());
-        while(is_row_empty(full_row_idx))
+        while(is_array_row_empty(full_row_idx))
         {
           full_row_idx++;
           cf_assert(full_row_idx<m_array.size());
@@ -321,7 +321,7 @@ void ListBufferT<T>::flush()
         // 2) swap them
         cf_assert(empty_row_idx<m_array.size());
         m_array[empty_row_idx] = m_array[full_row_idx];
-        m_emptyArrayRows.push_back(full_row_idx);
+        //m_empty_array_rows.push_back(full_row_idx);
         full_row_idx++;
       }
     }
@@ -331,10 +331,7 @@ void ListBufferT<T>::flush()
   }
 
   // clear all buffers
-  m_buffers.resize(0);
-  m_emptyArrayRows.clear();
-  m_emptyBufferRows.clear();
-  m_newBufferRows.clear();
+  reset();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -352,11 +349,12 @@ inline typename ListBufferT<T>::value_type& ListBufferT<T>::get_row(const Uint i
     BOOST_FOREACH(Buffer& buffer, m_buffers)
     {
       if (idx<cummulative_size+buffer.size())
-        return buffer.row[idx-cummulative_size];
+        return buffer.rows[idx-cummulative_size];
       cummulative_size += buffer.size();
     }
   }
   throw Common::BadValue(FromHere(),"Trying to access index that is not allocated: ["+Common::to_str(idx)+">="+Common::to_str(cummulative_size)+"]");
+  return m_array[0];
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -369,8 +367,7 @@ inline void ListBufferT<T>::increase_array_size(const size_t increase)
   m_array.resize(boost::extents[new_size]);
   for (Uint i_new=old_size; i_new<new_size; ++i_new)
   {
-    //set_empty(m_array[i_new]);
-    m_newArrayRows.push_back(i_new);
+    m_new_array_rows.push_back(i_new);
   }
 }
 
@@ -382,7 +379,7 @@ inline void ListBufferT<T>::add_buffer()
   Uint idx = total_allocated();
   m_buffers.push_back(Buffer(m_buffersize));
   for (Uint i=0; i<m_buffersize; ++i)
-    m_newBufferRows.push_back(idx++);
+    m_new_buffer_rows.push_back(idx++);
   cf_assert(total_allocated()==idx);
 }
 
@@ -391,11 +388,11 @@ inline void ListBufferT<T>::add_buffer()
 template<typename T>
 inline Uint ListBufferT<T>::add_row(const value_type& row)
 {
-  if (m_newBufferRows.empty())
-    add_buffer(); // will make a whole lot of new newBufferRows
-  Uint idx = m_newBufferRows.front();
+  if (m_new_buffer_rows.empty())
+    add_buffer(); // will make a whole lot of new new_buffer_rows
+  Uint idx = m_new_buffer_rows.front();
   set_row(idx,row);
-  m_newBufferRows.pop_front();
+  m_new_buffer_rows.pop_front();
   return idx;
 }
 
@@ -404,10 +401,10 @@ inline Uint ListBufferT<T>::add_row(const value_type& row)
 template<typename T>
 inline Uint ListBufferT<T>::add_row_directly(const value_type& row)
 {
-  cf_assert(!m_newArrayRows.empty());
-  Uint idx = m_newArrayRows.front();
+  cf_assert(!m_new_array_rows.empty());
+  Uint idx = m_new_array_rows.front();
   set_row(idx,row);
-  m_newArrayRows.pop_front();
+  m_new_array_rows.pop_front();
   return idx;
 }
 
@@ -420,7 +417,7 @@ inline void ListBufferT<T>::set_row(const Uint array_idx, const value_type& row)
   if (array_idx < cummulative_size)
   {
     m_array[array_idx] = row;
-    m_emptyArrayRows.erase(std::find(m_emptyArrayRows.begin(),m_emptyArrayRows.end(),array_idx));
+    m_empty_array_rows.erase(std::find(m_empty_array_rows.begin(),m_empty_array_rows.end(),array_idx));
     return;
   }
   else
@@ -429,7 +426,7 @@ inline void ListBufferT<T>::set_row(const Uint array_idx, const value_type& row)
     {
       if (array_idx<cummulative_size+buffer.size())
       {
-        buffer.row[array_idx-cummulative_size]=row;
+        buffer.rows[array_idx-cummulative_size]=row;
         buffer.is_not_empty[array_idx-cummulative_size]=true;
         return;
       }
@@ -447,12 +444,12 @@ inline void ListBufferT<T>::rm_row(const Uint array_idx)
   Uint cummulative_size = m_array.size();
   if (array_idx < cummulative_size)
   {
-    m_emptyArrayRows.push_back(array_idx);
+    m_empty_array_rows.push_back(array_idx);
     return;
   }
   else
   {
-    m_emptyBufferRows.push_back(array_idx);
+    m_empty_buffer_rows.push_back(array_idx);
 
     boost_foreach(Buffer& buffer, m_buffers)
     {
@@ -478,17 +475,38 @@ inline void ListBufferT<T>::change_buffersize(const size_t buffersize)
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-inline void ListBufferT<T>::swap(
-    value_type& lhs,
-    value_type& rhs)
+inline std::string ListBufferT<T>::string()
 {
-  value_type tmp = lhs;
-  lhs = rhs;
-  rhs = tmp;
+  using namespace Common;
+  std::string str;
+  for (Uint i=0; i<m_array.size(); ++i)
+  {
+    str += "    " + to_str(i) + ":    ";
+    if (is_array_row_empty(i))
+      str += "X   (" + to_str(m_array[i]) + ")\n";
+    else
+      str += to_str(m_array[i]) + "\n";
+  }
+  Uint s=m_array.size();
+  for (Uint b=0; b<m_buffers.size(); ++b)
+  {
+    str += "    ----buffer["+to_str(b)+"]----\n";
+    for (Uint i=0; i<m_buffers[b].size(); ++i)
+    {
+      str += "    " + to_str(s) + ":    ";
+      if ( std::find(m_empty_buffer_rows.begin(),m_empty_buffer_rows.end(),s) != m_empty_buffer_rows.end())
+        str += "X   (" + to_str(m_buffers[b].rows[i]) + ")\n";
+      else if( std::find(m_new_buffer_rows.begin(),m_new_buffer_rows.end(),s) != m_new_buffer_rows.end())
+        str += "\n";
+      else
+        str += to_str(m_buffers[b].rows[i]) + "\n";
+      ++s;
+    }
+  }
+  return str;
 }
 
-
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

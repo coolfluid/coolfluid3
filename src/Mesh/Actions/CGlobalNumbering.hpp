@@ -58,10 +58,11 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const;
 
-private: // functions
+public: // functions
 
-  std::size_t hash_value(const RealVector& coords);
-  std::size_t hash_value(const RealMatrix& coords);
+  static std::size_t hash_value(const RealMatrix& coords);
+
+private: // data
 
   bool m_debug;
 }; // end CGlobalNumbering
