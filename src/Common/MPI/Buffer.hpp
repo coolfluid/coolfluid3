@@ -560,11 +560,11 @@ struct PackedObject
   PackedObject() {}
   PackedObject(mpi::Buffer& buffer) { unpack(buffer); }
 
-  virtual void pack(mpi::Buffer& buffer) const = 0;
+  virtual void pack(mpi::Buffer& buffer) = 0;
   virtual void unpack(mpi::Buffer& buffer) = 0;
 };
 
-inline Buffer& operator<< (Buffer& buffer, const PackedObject& obj)
+inline Buffer& operator<< (Buffer& buffer, PackedObject& obj)
 {
   obj.pack(buffer);
   return buffer;

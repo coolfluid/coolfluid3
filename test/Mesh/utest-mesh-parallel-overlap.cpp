@@ -26,6 +26,8 @@
 #include "Common/MPI/Buffer.hpp"
 #include "Common/MPI/debug.hpp"
 
+#include "Math/MathConsts.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CFieldView.hpp"
 #include "Mesh/CElements.hpp"
@@ -37,12 +39,14 @@
 #include "Mesh/CMeshGenerator.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
 #include "Mesh/CMeshTransformer.hpp"
+#include "Mesh/Manipulations.hpp"
 
 using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
 using namespace CF::Common::mpi;
+using namespace CF::Math::MathConsts;
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out , const std::vector<T>& v)
@@ -156,233 +160,6 @@ void my_all_to_all(const std::vector<mpi::Buffer>& send, mpi::Buffer& recv)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct PackedNode : public mpi::PackedObject
-{
-  PackedNode(CNodes& nodes, const Uint idx) :
-    mpi::PackedObject(),
-    glb_idx(nodes.glb_idx()[idx]),
-    rank(nodes.rank()[idx]),
-    coords(nodes.coordinates()[idx]),
-    connected_elems(nodes.glb_elem_connectivity()[idx])
-  {
-  }
-
-  virtual void pack(mpi::Buffer& buffer) const
-  {
-    buffer << glb_idx << rank << coords << connected_elems;
-  }
-
-  virtual void unpack(mpi::Buffer& buffer)
-  {
-    buffer >> glb_idx >> rank >> coords >> connected_elems;
-  }
-
-  Uint& glb_idx;
-  Uint& rank;
-  CTable<Real>::Row coords;
-  CDynTable<Uint>::Row connected_elems;
-};
-
-struct UnpackAndAddNodes : PackedObject
-{
-  UnpackAndAddNodes(CNodes& nodes) : PackedObject(),
-    is_ghost (nodes.is_ghost().create_buffer()),
-    glb_idx (nodes.glb_idx().create_buffer()),
-    rank (nodes.rank().create_buffer()),
-    coordinates (nodes.coordinates().create_buffer()),
-    connected_elements (nodes.glb_elem_connectivity().create_buffer())
-  {}
-
-  virtual void pack(Buffer& buf) const {}
-  virtual void unpack(Buffer& buf)
-  {
-    Uint glb_idx_data;
-    Uint rank_data;
-    std::vector<Real> coordinates_data;
-    std::vector<Uint> connected_elems_data;
-
-    buf >> glb_idx_data >> rank_data >> coordinates_data >> connected_elems_data;
-
-    Uint idx, idx_check;
-    idx = glb_idx.add_row(glb_idx_data);
-    idx_check = rank.add_row(rank_data);
-    cf_assert(idx_check == idx);
-    idx_check = coordinates.add_row(coordinates_data);
-    cf_assert(idx_check == idx);
-    idx_check = connected_elements.add_row(connected_elems_data);
-    cf_assert(idx_check == idx);
-    idx_check = is_ghost.add_row(rank_data != PE::instance().rank());
-    cf_assert(idx_check == idx);
-
-    std::cout << PERank << "added node    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    coords = " << coordinates_data << "\t    connected_elem = " << connected_elems_data << std::endl;
-  }
-
-  void flush()
-  {
-    is_ghost.flush();
-    glb_idx.flush();
-    rank.flush();
-    coordinates.flush();
-    connected_elements.flush();
-  }
-
-  CList<bool>::Buffer       is_ghost;
-  CList<Uint>::Buffer       glb_idx;
-  CList<Uint>::Buffer       rank;
-  CTable<Real>::Buffer      coordinates;
-  CDynTable<Uint>::Buffer   connected_elements;
-};
-
-
-struct PackedElement : public mpi::PackedObject
-{
-  PackedElement(CElements& elem_comp, const Uint idx) :
-    mpi::PackedObject(),
-    elements(elem_comp),
-    glb_idx(elements.glb_idx()[idx]),
-    rank(elements.rank()[idx]),
-    connected_nodes(elements.node_connectivity()[idx])
-  {
-  }
-
-  virtual void pack(mpi::Buffer& buffer) const
-  {
-    std::cout << PERank << "packed element " << glb_idx << " with glb nodes  ";
-
-    buffer << glb_idx << rank;
-    boost_foreach(const Uint n, connected_nodes)
-    {
-      buffer << n;
-      std::cout << n << "  ";
-    }
-    std::cout << std::endl;
-  }
-
-  virtual void unpack(mpi::Buffer& buffer)
-  {
-//    buffer >> glb_idx  >> nodes;
-  }
-
-  CElements& elements;
-  Uint& glb_idx;
-  Uint& rank;
-  CTable<Uint>::Row connected_nodes;
-};
-
-struct UnpackAndAddElements : PackedObject
-{
-  UnpackAndAddElements(CElements& elements) : PackedObject(),
-    glb_idx (elements.glb_idx().create_buffer()),
-    rank (elements.rank().create_buffer()),
-    connected_nodes (elements.node_connectivity().create_buffer()),
-    row_size(elements.node_connectivity().row_size())
-  {}
-
-  virtual void pack(Buffer& buf) const {}
-  virtual void unpack(Buffer& buf)
-  {
-    Uint glb_idx_data;
-    Uint rank_data;
-    std::vector<Uint> connected_nodes_data(row_size);
-
-    buf >> glb_idx_data >> rank_data;
-
-    for (Uint n=0; n<connected_nodes_data.size(); ++n)
-      buf >> connected_nodes_data[n];
-
-    Uint idx, idx_check;
-    idx = glb_idx.add_row(glb_idx_data);
-    idx_check = rank.add_row(rank_data);
-    cf_assert(idx_check == idx);
-    idx_check = connected_nodes.add_row(connected_nodes_data);
-    cf_assert(idx_check == idx);
-
-    std::cout << PERank << "added elem    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    connected_nodes = " << connected_nodes_data << std::endl;
-  }
-
-  void flush()
-  {
-    glb_idx.flush();
-    connected_nodes.flush();
-    rank.flush();
-  }
-
-  CList<Uint>::Buffer       glb_idx;
-  CList<Uint>::Buffer       rank;
-  CTable<Uint>::Buffer      connected_nodes;
-  Uint row_size;
-};
-
-struct RemoveNodes
-{
-  RemoveNodes(CNodes& nodes) :
-    is_ghost (nodes.is_ghost().create_buffer()),
-    glb_idx (nodes.glb_idx().create_buffer()),
-    rank (nodes.rank().create_buffer()),
-    coordinates (nodes.coordinates().create_buffer()),
-    connected_elements (nodes.glb_elem_connectivity().create_buffer())
-  {}
-
-  void operator() (const Uint idx)
-  {
-    Uint val = glb_idx.get_row(idx);
-
-    is_ghost.rm_row(idx);
-    glb_idx.rm_row(idx);
-    rank.rm_row(idx);
-    coordinates.rm_row(idx);
-    connected_elements.rm_row(idx);
-
-    std::cout << PERank << "removed node  " << val << std::endl;
-  }
-
-  void flush()
-  {
-    is_ghost.flush();
-    glb_idx.flush();
-    rank.flush();
-    coordinates.flush();
-    connected_elements.flush();
-  }
-
-  CList<bool>::Buffer       is_ghost;
-  CList<Uint>::Buffer       glb_idx;
-  CList<Uint>::Buffer       rank;
-  CTable<Real>::Buffer      coordinates;
-  CDynTable<Uint>::Buffer   connected_elements;
-};
-
-struct RemoveElements
-{
-  RemoveElements(CElements& elements) :
-    glb_idx (elements.glb_idx().create_buffer()),
-    rank (elements.rank().create_buffer()),
-    connected_nodes (elements.node_connectivity().create_buffer())
-  {}
-
-  void operator() (const Uint idx)
-  {
-    Uint val = glb_idx.get_row(idx);
-
-    glb_idx.rm_row(idx);
-    rank.rm_row(idx);
-    connected_nodes.rm_row(idx);
-
-    std::cout << PERank << "removed element  " << val << std::endl;
-
-  }
-
-  void flush()
-  {
-    glb_idx.flush();
-    connected_nodes.flush();
-    rank.flush();
-  }
-
-  CList<Uint>::Buffer       glb_idx;
-  CList<Uint>::Buffer       rank;
-  CTable<Uint>::Buffer      connected_nodes;
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -448,22 +225,23 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   //build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
   CNodes& nodes = mesh.nodes();
 
-
+  PackUnpackNodes copy_node(nodes);
   mpi::Buffer buf;
-  buf << PackedNode(nodes,0);
-  buf << PackedNode(nodes,1);
-  buf << PackedNode(nodes,2);
+  buf << copy_node(0);
+  buf << copy_node(1);
+  copy_node.flush();
+  buf >> copy_node;
+  copy_node.flush();
 
-  PackedNode node3(nodes,3);
-  buf >> node3;
 
-  BOOST_CHECK_EQUAL(nodes.glb_idx()[3] , nodes.glb_idx()[0]);
-  BOOST_CHECK_EQUAL(nodes.coordinates()[3][0] , nodes.coordinates()[0][0]);
-  BOOST_CHECK_EQUAL(nodes.coordinates()[3][1] , nodes.coordinates()[0][1]);
+  BOOST_CHECK_EQUAL(nodes.glb_idx()[nodes.size()-1] , nodes.glb_idx()[0]);
+  BOOST_CHECK_EQUAL(nodes.coordinates()[nodes.size()-1][0] , nodes.coordinates()[0][0]);
+  BOOST_CHECK_EQUAL(nodes.coordinates()[nodes.size()-1][1] , nodes.coordinates()[0][1]);
 
 
 }
@@ -607,32 +385,30 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       send_to_proc[p].reset();
     recv_from_all.reset();
 
-    RemoveElements remove_element(elements);
+    PackUnpackElements migrate_element(elements,PackUnpackElements::MIGRATE);
     std::vector<Uint> nb_elems_to_send(PE::instance().size());
     for (Uint p=0; p<PE::instance().size(); ++p)
     {
       nb_elems_to_send[p]=export_elems[i][p].size();
       for (Uint e=0; e<export_elems[i][p].size(); ++e)
       {
-        send_to_proc[p] << PackedElement(elements,export_elems[i][p][e]);
-        remove_element(export_elems[i][p][e]);
+        send_to_proc[p] << migrate_element(export_elems[i][p][e]);
       }
     }
-    remove_element.flush();
+    migrate_element.flush();
 
     std::vector<Uint> nb_elems_to_recv(PE::instance().size());
     PE::instance().all_to_all(nb_elems_to_send,nb_elems_to_recv);
     my_all_to_all(send_to_proc,recv_from_all);
 
-    UnpackAndAddElements add_element(elements);
     for (Uint p=0; p<nb_elems_to_recv.size(); ++p)
     {
       for (Uint e=0; e<nb_elems_to_recv[p]; ++e)
       {
-        recv_from_all >> add_element;
+        recv_from_all >> migrate_element;
       }
     }
-    add_element.flush();
+    migrate_element.flush();
   }
 
   // Move nodes
@@ -640,32 +416,31 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     send_to_proc[p].reset();
    recv_from_all.reset();
 
-   //RemoveNodes remove_node(nodes);
+   PackUnpackNodes migrate_node(nodes,PackUnpackNodes::MIGRATE);
    std::vector<Uint> nb_nodes_to_send_to_proc(PE::instance().size());
    for (Uint p=0; p<PE::instance().size(); ++p)
    {
      nb_nodes_to_send_to_proc[p]=export_nodes[p].size();
-     for (Uint e=0; e<export_nodes[p].size(); ++e)
+     for (Uint n=0; n<export_nodes[p].size(); ++n)
      {
-       send_to_proc[p] << PackedNode(nodes,export_nodes[p][e]);
-       remove_node(export_nodes[p][e]);
+       send_to_proc[p] << migrate_node(export_nodes[p][n]);
      }
    }
-   remove_node.flush();
+   migrate_node.flush();
 
    std::vector<Uint> nb_nodes_to_recv_from_proc(PE::instance().size());
    PE::instance().all_to_all(nb_nodes_to_send_to_proc,nb_nodes_to_recv_from_proc);
    my_all_to_all(send_to_proc,recv_from_all);
 
-   UnpackAndAddNodes add_node(nodes);
    for (Uint p=0; p<nb_nodes_to_recv_from_proc.size(); ++p)
    {
      for (Uint e=0; e<nb_nodes_to_recv_from_proc[p]; ++e)
      {
-       recv_from_all >> add_node;
+       recv_from_all >> migrate_node;
      }
    }
-   add_node.flush();
+   migrate_node.flush();
+
   // -----------------------------------------------------------------------------
   // ELEMENTS AND NODES HAVE BEEN MOVED
   // -----------------------------------------------------------------------------
@@ -673,7 +448,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   boost::this_thread::sleep(boost::posix_time::milliseconds(20));
 
   // -----------------------------------------------------------------------------
-  // COLLECT NODES TO LOOK FOR ON OTHER PROCESSORS
+  // COLLECT GHOST-NODES TO LOOK FOR ON OTHER PROCESSORS
 
   std::set<Uint> owned_nodes;
   std::set<Uint> ghost_nodes;
@@ -725,6 +500,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // -----------------------------------------------------------------------------
   // SEARCH FOR REQUESTED NODES
 
+  PackUnpackNodes copy_node(nodes,PackUnpackNodes::COPY);
   std::vector<std::vector<Uint> > found_nodes(PE::instance().size());
   std::vector<mpi::Buffer> nodes_to_send(PE::instance().size());
   std::vector<Uint> nb_nodes_to_send(PE::instance().size(),0);
@@ -747,7 +523,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
           {
             //          found_nodes[proc].push_back(loc_idx);
             found_nodes[proc].push_back(glb_idx);
-            nodes_to_send[proc] << PackedNode(nodes,loc_idx);
+            nodes_to_send[proc] << copy_node(loc_idx);
             ++nb_nodes_to_send[proc];
             break;
           }
@@ -785,19 +561,19 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   mpi::Buffer received_nodes_buffer;
   my_all_to_all(nodes_to_send,received_nodes_buffer);
 
-  //UnpackAndAddNodes add_node(nodes);
+  PackUnpackNodes add_node(nodes);
   for (Uint p=0; p<PE::instance().size(); ++p)
   {
     std::cout << PERank << "unpacking " << nb_nodes_to_recv[p] << " nodes from proc " << p << std::endl;
     for (Uint n=0; n<nb_nodes_to_recv[p]; ++n)
     {
-      received_nodes_buffer >> add_node;
+      received_nodes_buffer >> copy_node;
     }
   }
-  add_node.flush();
+  copy_node.flush();
 
   // -----------------------------------------------------------------------------
-  // REQUESTED NODES HAVE NOW BEEN ADDED
+  // REQUESTED GHOST-NODES HAVE NOW BEEN ADDED
   // -----------------------------------------------------------------------------
 
   // -----------------------------------------------------------------------------
@@ -825,7 +601,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
 
   // -----------------------------------------------------------------------------
-  // MESH IS NOW COMPLETELY LOAD BALANCED
+  // MESH IS NOW COMPLETELY LOAD BALANCED WITHOUT OVERLAP
   // -----------------------------------------------------------------------------
 
     CMeshWriter::Ptr msh_writer =
