@@ -182,7 +182,7 @@ void my_all_to_all(const mpi::Buffer& send, std::vector<int>& send_strides, mpi:
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::instance()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::instance().communicator()));
   recv.packed_size()=recv_displs.back()+recv_strides.back();
 }
 
