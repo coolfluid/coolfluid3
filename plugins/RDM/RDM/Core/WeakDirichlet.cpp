@@ -19,17 +19,18 @@
 
 #include "RDM/Core/WeakDirichlet.hpp"
 
-#include "RDM/Core/LinearAdv2D.hpp"    // to remove
-#include "RDM/Core/LinearAdv3D.hpp"    // to remove
-#include "RDM/Core/LinearAdvSys2D.hpp" // to remove
-#include "RDM/Core/RotationAdv2D.hpp"  // to remove
-#include "RDM/Core/Burgers2D.hpp"      // to remove
-#include "RDM/Core/Euler2D.hpp"        // to remove
+#include "Physics/Scalar/LinearAdv2D.hpp"    // to remove
+#include "Physics/Scalar/LinearAdv3D.hpp"    // to remove
+#include "Physics/Scalar/LinearAdvSys2D.hpp" // to remove
+#include "Physics/Scalar/RotationAdv2D.hpp"  // to remove
+#include "Physics/Scalar/Burgers2D.hpp"      // to remove
+#include "Physics/NavierStokes/Cons2D.hpp"   // to remove
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Physics;
 using namespace CF::Solver;
 
 namespace CF {
@@ -39,12 +40,12 @@ namespace RDM {
 
 Common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibCore > WeakDirichlet_Builder;
 
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, LinearAdv2D>    , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdv2D_Builder;
-//Common::ComponentBuilder < FaceLoopT< WeakDirichlet, LinearAdv3D>    , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdv3D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, LinearAdvSys2D> , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdvSys2D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, RotationAdv2D>  , RDM::FaceLoop, LibCore > WeakDirichlet_RotationAdv2D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Burgers2D>      , RDM::FaceLoop, LibCore > WeakDirichlet_Burgers2D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Euler2D>        , RDM::FaceLoop, LibCore > WeakDirichlet_Euler2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv2D>    , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdv2D_Builder;
+//Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv3D>    , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdv3D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdvSys2D> , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::RotationAdv2D>  , RDM::FaceLoop, LibCore > WeakDirichlet_RotationAdv2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::Burgers2D>      , RDM::FaceLoop, LibCore > WeakDirichlet_Burgers2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, NavierStokes::Cons2D>   , RDM::FaceLoop, LibCore > WeakDirichlet_Cons2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

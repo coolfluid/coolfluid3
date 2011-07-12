@@ -11,7 +11,7 @@
 
 #include "RDM/Core/SupportedCells.hpp" // supported cells
 
-#include "RDM/Core/Burgers2D.hpp"       // supported physics
+#include "Physics/Scalar/Burgers2D.hpp"       // supported physics
 
 #include "RDM/Scalar/LibScalar.hpp"
 
@@ -22,7 +22,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<CSysLF,Burgers2D> , RDM::CellLoop, LibScalar > CSysLF_Burgers2D_Builder;
+Common::ComponentBuilder < CellLoopT<CSysLF, Physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > CSysLF_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -84,9 +84,7 @@ void CSysSUPG::Term<SF,QD,PHYS>::execute()
       B::dN[XX] = B::dNdX[XX](q,n);
       B::dN[YY] = B::dNdX[YY](q,n);
 
-      PHYS::jacobian_eigen_structure(B::phys_props,
-                                     B::X_q.row(q),
-                                     B::U_q.row(q),
+      PHYS::flux_jacobian_eigen_structure(B::phys_props,
                                      B::dN,
                                      Rv,
                                      Lv,
@@ -99,10 +97,7 @@ void CSysSUPG::Term<SF,QD,PHYS>::execute()
 
     // compute L(u)
 
-    PHYS::Lu(B::phys_props,
-             B::X_q.row(q),
-             B::U_q.row(q),
-             B::dUdXq,
+    PHYS::residual(B::phys_props,
              B::dFdU,
              B::LU );
 
@@ -119,7 +114,7 @@ void CSysSUPG::Term<SF,QD,PHYS>::execute()
 
     for(Uint n = 0; n < SF::nb_nodes; ++n)
     {
-      for (Uint v=0; v < PHYS::neqs; ++v)
+      for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
         Ni[v] = B::Ni(q,n);
 
 //      B::Phi_n.row(n) += (  tau_stab * Ki_n[n] + Ni.asDiagonal() ) * B::LU * B::wj[q];
@@ -130,7 +125,7 @@ void CSysSUPG::Term<SF,QD,PHYS>::execute()
   // update the residual
 
   for (Uint n=0; n<SF::nb_nodes; ++n)
-    for (Uint v=0; v < PHYS::neqs; ++v)
+    for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
       (*B::residual)[nodes_idx[n]][v] += B::Phi_n(n,v);
 
 }

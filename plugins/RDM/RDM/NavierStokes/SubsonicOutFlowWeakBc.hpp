@@ -129,13 +129,13 @@ protected: // data
  typedef typename SF::NodeMatrixT                             NodeMT;
 
  typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes >     SFMatrixT;
- typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim   >     QCoordMT;
- typedef Eigen::Matrix<Real, SF::nb_nodes,  PHYS::neqs   >     SolutionMT;
- typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs   >     QSolutionMT;
- typedef Eigen::Matrix<Real, PHYS::neqs,    PHYS::ndim   >     QSolutionVT;
- typedef Eigen::Matrix<Real, PHYS::neqs,    1u           >     SolutionVT;
- typedef Eigen::Matrix<Real, PHYS::neqs,    PHYS::ndim   >     FluxMT;
- typedef Eigen::Matrix<Real, PHYS::ndim,    1u           >     DimVT;
+ typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_ndim   >     QCoordMT;
+ typedef Eigen::Matrix<Real, SF::nb_nodes,  PHYS::MODEL::_neqs   >     SolutionMT;
+ typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs   >     QSolutionMT;
+ typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs,    PHYS::MODEL::_ndim   >     QSolutionVT;
+ typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs,    1u           >     SolutionVT;
+ typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs,    PHYS::MODEL::_ndim   >     FluxMT;
+ typedef Eigen::Matrix<Real, PHYS::MODEL::_ndim,    1u           >     DimVT;
 
  /// derivative matrix - values of shapefunction derivative in Ksi at each quadrature point
  SFMatrixT  dNdKSI;
@@ -152,7 +152,7 @@ protected: // data
  /// solution at quadrature points in physical space
  QSolutionMT U_q;
  /// derivatives of solution to X at each quadrature point, one matrix per dimension
- QSolutionMT dUdX[PHYS::ndim];
+ QSolutionMT dUdX[PHYS::MODEL::_ndim];
  /// derivatives of solution with respect to x,y,z at ONE quadrature point
  QSolutionVT dUdXq;
  /// Integration factor (jacobian multiplied by quadrature weight)
@@ -196,7 +196,7 @@ public: // functions
    // copy the solution from the large array to a small
 
    for(Uint n = 0; n < SF::nb_nodes; ++n)
-     for (Uint v=0; v < PHYS::neqs; ++v)
+     for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
        U_n(n,v) = (*B::solution)[ nodes_idx[n] ][v];
 
    // coordinates of quadrature points in physical space
@@ -220,7 +220,7 @@ public: // functions
    for(Uint q=0; q < QD::nb_points; ++q)
    {
 
-    for(Uint dim = 0; dim < PHYS::ndim; ++dim)
+    for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
     {
       dUdXq.col(dim) = dUdX[dim].row(q).transpose();
     }
@@ -241,10 +241,7 @@ public: // functions
                              dUdXq,
                              B::phys_props);
 
-    PHYS::flux(B::phys_props,
-               X_q.row(q),
-               U_q.row(q),
-               Fu_h);
+    PHYS::flux(B::phys_props, Fu_h);
 
     vars[XX] = X_q(q,XX);
     vars[YY] = X_q(q,YY);
@@ -266,13 +263,10 @@ public: // functions
                              B::phys_props);
 
 
-    PHYS::flux(B::phys_props,
-               X_q.row(q),
-               u_g,
-               Fu_g);
+    PHYS::flux(B::phys_props, Fu_g);
 
     for(Uint n=0; n < SF::nb_nodes; ++n)
-      for(Uint v=0; v < PHYS::neqs; ++v)
+      for(Uint v=0; v < PHYS::MODEL::_neqs; ++v)
       {
         Phi_n.row(n)[v] -= ( ( Fu_g(v,XX) - Fu_h(v,XX) ) * dN[XX] +
                              ( Fu_g(v,YY) - Fu_h(v,YY) ) * dN[YY] )
@@ -282,11 +276,7 @@ public: // functions
 
     // compute the wave_speed for scaling the update
 
-    PHYS::jacobian_eigen_values(B::phys_props,
-                                X_q.row(q),
-                                U_q.row(q),
-                                dN,
-                                Dv );
+    PHYS::flux_jacobian_eigen_values(B::phys_props, dN, Dv );
 
     DvPlus = Dv.unaryExpr(std::ptr_fun(plus));
 
@@ -299,7 +289,7 @@ public: // functions
    // update the residual
 
    for (Uint n=0; n<SF::nb_nodes; ++n)
-     for (Uint v=0; v < PHYS::neqs; ++v)
+     for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
        (*B::residual)[nodes_idx[n]][v] += Phi_n(n,v);
 
  }

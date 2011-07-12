@@ -19,7 +19,7 @@
 
 #include "RDM/NavierStokes/SubsonicInFlowWeakBc.hpp"
 
-#include "RDM/Core/Euler2D.hpp"
+#include "Physics/NavierStokes/Cons2D.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,7 @@ namespace RDM {
 
 Common::ComponentBuilder < SubsonicInFlowWeakBc, RDM::BoundaryTerm, LibCore > SubsonicInFlowWeakBc_Builder;
 
-Common::ComponentBuilder < FaceLoopT< SubsonicInFlowWeakBc, Euler2D>, RDM::FaceLoop, LibCore > SubsonicInFlowWeakBc_Euler2D_Builder;
+Common::ComponentBuilder < FaceLoopT< SubsonicInFlowWeakBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibCore > SubsonicInFlowWeakBc_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

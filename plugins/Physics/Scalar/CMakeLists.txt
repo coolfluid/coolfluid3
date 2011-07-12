@@ -17,6 +17,11 @@ list( APPEND coolfluid_physics_scalar_files
   LinearAdv3D.cpp
   Scalar3D.hpp
   Scalar3D.cpp
+# scalar system 2D
+  ScalarSys2D.hpp
+  ScalarSys2D.cpp
+  LinearAdvSys2D.hpp
+  LinearAdvSys2D.cpp
 )
 
 list( APPEND coolfluid_physics_scalar_cflibs coolfluid_physics )

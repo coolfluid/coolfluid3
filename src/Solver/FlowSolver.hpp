@@ -15,16 +15,9 @@
 
 namespace CF {
 
-namespace Common
-{
-  class CAction;
-}
-
-namespace Solver
-{
-  class CPhysicalModel;
-  class CTime;
-}
+namespace Common  { class CAction; }
+namespace Physics { class PhysModel; }
+namespace Solver  { class CTime; }
 
 namespace Mesh
 {
@@ -122,7 +115,7 @@ private: // data
   boost::weak_ptr<Common::CAction> m_bc;
   boost::weak_ptr<Common::CAction> m_inner;
 
-  boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
+  boost::weak_ptr<Physics::PhysModel>     m_physical_model;
   boost::weak_ptr<Solver::CTime>          m_time;
   boost::weak_ptr<Mesh::CMesh>            m_mesh;
 

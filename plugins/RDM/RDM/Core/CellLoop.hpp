@@ -42,7 +42,7 @@ struct CellLoopT : public CellLoop
   /// execute the action
   virtual void execute ()
   {
-    boost::mpl::for_each< typename RDM::CellTypes< PHYS::ndim >::Cells >( boost::ref(*this) );
+    boost::mpl::for_each< typename RDM::CellTypes< PHYS::MODEL::_ndim >::Cells >( boost::ref(*this) );
   }
 
   /// operator needed for the loop over element types (SF)

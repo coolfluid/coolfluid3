@@ -20,14 +20,14 @@
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CSolver.hpp"
 
-#include "RDM/Core/LinearAdv2D.hpp"       // supported physics
-#include "RDM/Core/LinearAdv3D.hpp"       // supported physics
-#include "RDM/Core/RotationAdv2D.hpp"     // supported physics
-#include "RDM/Core/Burgers2D.hpp"         // supported physics
-#include "RDM/Core/LinearAdvSys2D.hpp"    // supported physics
-#include "RDM/Core/Euler2D.hpp"           // supported physics
-
 #include "RDM/Core/SteadyExplicit.hpp"
+
+// supported physical models
+
+#include "Physics/Scalar/Scalar2D.hpp"
+#include "Physics/Scalar/ScalarSys2D.hpp"
+#include "Physics/Scalar/Scalar3D.hpp"
+#include "Physics/NavierStokes/NavierStokes2D.hpp"
 
 namespace CF {
 namespace RDM {
@@ -35,6 +35,7 @@ namespace RDM {
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::Mesh;
+using namespace CF::Physics;
 using namespace CF::Solver;
 
 Common::ComponentBuilder < SteadyExplicit, Solver::CWizard, LibCore > SteadyExplicit_Builder;
@@ -70,63 +71,27 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
 
   std::string name  = options.option<std::string>("ModelName");
 
-  CModel::Ptr model = Core::instance().root().create_component_ptr<CModelSteady>( name );
+  CModel& model = Core::instance().root().create_component<CModelSteady>( name );
+
+  // create the domain
+
+  model.create_domain( "Domain" );
 
   // create the Physical Model
-  CPhysicalModel::Ptr pm = model->create_component_ptr<CPhysicalModel>("Physics");
-  pm->mark_basic();
 
   std::string phys  = options.option<std::string>("PhysicalModel");
 
-  pm->configure_option( "Type", phys );
+  PhysModel::Ptr pm = build_component_abstract_type<PhysModel>( phys, "Physics");
+  pm->mark_basic();
 
-  Uint neqs = 0;
-  Uint ndim = 0;
-
-  if( phys == "LinearAdv2D")
-  {
-    neqs = LinearAdv2D::neqs;
-    ndim = LinearAdv2D::ndim;
-  }
-  if( phys == "LinearAdv3D")
-  {
-    neqs = LinearAdv3D::neqs;
-    ndim = LinearAdv3D::ndim;
-  }
-  if( phys == "Burgers2D")
-  {
-    neqs = Burgers2D::neqs;
-    ndim = Burgers2D::ndim;
-  }
-  if( phys == "RotationAdv2D")
-  {
-    neqs = RotationAdv2D::neqs;
-    ndim = RotationAdv2D::ndim;
-  }
-  if( phys == "LinearAdvSys2D")
-  {
-    neqs = LinearAdvSys2D::neqs;
-    ndim = LinearAdvSys2D::ndim;
-  }
-  if( phys == "Euler2D")
-  {
-    neqs = Euler2D::neqs;
-    ndim = Euler2D::ndim;
-  }
-
-  if ( (neqs == 0) || (ndim == 0) )
-    throw SetupError( FromHere(), "Unsupported physics type : " + phys );
-
-  pm->configure_option( "DOFs", neqs );
-
-  pm->configure_option( "Dimensions", ndim );
-
-  model->create_domain( "Domain" );
+  model.add_component(pm);
 
   // setup iterative solver
-  CSolver::Ptr solver = build_component_abstract_type<CSolver>( LibCore::library_namespace() + ".RKRD", "Solver");
+
+  CSolver::Ptr solver = build_component_abstract_type_reduced<CSolver>( "RKRD", "Solver");
   solver->mark_basic();
-  model->add_component( solver );
+
+  model.add_component( solver );
 
   solver->configure_option("physics", pm->uri() );
 }
@@ -140,12 +105,10 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
   options.add<std::string>("ModelName", std::string(), "Name for created model" );
 
   std::vector<std::string> models = boost::assign::list_of
-      ( LinearAdv2D::type_name() )
-      ( LinearAdv3D::type_name() )
-      ( RotationAdv2D::type_name() )
-      ( Euler2D::type_name() )
-      ( LinearAdvSys2D::type_name() )
-      ( Burgers2D::type_name() ) ;
+      ( Scalar::Scalar2D::type_name() )
+      ( Scalar::Scalar3D::type_name() )
+      ( Scalar::ScalarSys2D::type_name() )
+      ( NavierStokes::NavierStokes2D::type_name() ) ;
 
   options.add<std::string>("PhysicalModel", std::string(), "Name of the Physical Model", models, " ; ");
 

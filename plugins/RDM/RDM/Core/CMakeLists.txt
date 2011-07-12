@@ -32,21 +32,8 @@ list( APPEND coolfluid_rdm_core_files
   ForwardEuler.cpp
   UpdateSolution.hpp
   UpdateSolution.cpp
-# physical models
-  Euler2D.hpp
-  Euler2D.cpp
-  LinearAdv2D.hpp
-  LinearAdv2D.cpp
-  LinearAdv3D.hpp
-  LinearAdv3D.cpp
-  LinearAdvSys2D.hpp
-  LinearAdvSys2D.cpp
-  RotationAdv2D.hpp
-  RotationAdv2D.cpp
-  Burgers2D.hpp
-  Burgers2D.cpp
 )
 
-list( APPEND coolfluid_rdm_core_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_solver_actions coolfluid_solver )
+list( APPEND coolfluid_rdm_core_cflibs coolfluid_physics coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_solver_actions coolfluid_solver )
 
 coolfluid_add_library( coolfluid_rdm_core )

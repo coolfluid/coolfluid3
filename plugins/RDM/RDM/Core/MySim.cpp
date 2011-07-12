@@ -22,11 +22,10 @@
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CRegion.hpp"
 
-#include "Solver/CModelSteady.hpp"
-#include "Solver/CPhysicalModel.hpp"
-#include "Solver/CSolver.hpp"
+#include "Physics/PhysModel.hpp"
 
-#include "RDM/Core/LinearAdv2D.hpp"       // supported physics
+#include "Solver/CModelSteady.hpp"
+#include "Solver/CSolver.hpp"
 
 #include "RDM/Core/MySim.hpp"
 #include "RDM/Core/RKRD.hpp"
@@ -38,6 +37,7 @@ namespace RDM {
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::Mesh;
+using namespace CF::Physics;
 using namespace CF::Solver;
 
 Common::ComponentBuilder < MySim, Solver::CWizard, LibCore > MySim_Builder;
@@ -75,23 +75,18 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
   CModel::Ptr model = Core::instance().root().create_component_ptr<CModelSteady>( name );
 
-  // create the Physical Model
-  CPhysicalModel::Ptr pm = model->create_component_ptr<CPhysicalModel>("Physics");
-  pm->mark_basic();
-
-  std::string phys  = "RotationAdv2D";
-
-  pm->configure_option( "Type", phys );
-
-  Uint neqs = LinearAdv2D::neqs;
-
-  pm->configure_option( "DOFs", neqs );
-
-  pm->configure_option( "Dimensions", 2u );
+  // create domain
 
   CDomain& domain = model->create_domain( "Domain" );
 
+  // create the Physical Model
+
+  PhysModel::Ptr pm = build_component_abstract_type<PhysModel>( "Scalar2D", "Physics");
+  pm->mark_basic();
+  model->add_component( pm );
+
   // setup iterative solver
+
   CSolver::Ptr solver = build_component_abstract_type<CSolver>( LibCore::library_namespace() + ".RKRD", "Solver");
   solver->mark_basic();
   model->add_component( solver );

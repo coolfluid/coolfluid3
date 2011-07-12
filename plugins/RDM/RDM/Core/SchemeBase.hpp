@@ -96,27 +96,27 @@ protected: // typedefs
 
   typedef Eigen::Matrix<Real, QD::nb_points, 1u>               WeightVT;
 
-  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       ResidualMT;
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>       ResidualMT;
 
-  typedef Eigen::Matrix<Real, PHYS::neqs, PHYS::neqs >         EigenValueMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs >         EigenValueMT;
 
-  typedef Eigen::Matrix<Real, PHYS::neqs, PHYS::neqs>          PhysicsMT;
-  typedef Eigen::Matrix<Real, PHYS::neqs, 1u>                  PhysicsVT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs>          PhysicsMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, 1u>                  PhysicsVT;
 
-  typedef Eigen::Matrix<Real, SF::nb_nodes,   PHYS::neqs>      SolutionMT;
-  typedef Eigen::Matrix<Real, 1u, PHYS::neqs >                 SolutionVT;
+  typedef Eigen::Matrix<Real, SF::nb_nodes,   PHYS::MODEL::_neqs>      SolutionMT;
+  typedef Eigen::Matrix<Real, 1u, PHYS::MODEL::_neqs >                 SolutionVT;
 
   typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>     SFMatrixT;
   typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >               SFVectorT;
 
-  typedef Eigen::Matrix<Real, PHYS::ndim, 1u>                  DimVT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_ndim, 1u>                  DimVT;
 
-  typedef Eigen::Matrix<Real, PHYS::ndim, PHYS::ndim>          JMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_ndim, PHYS::MODEL::_ndim>          JMT;
 
-  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim>       QCoordMT;
-  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       QSolutionMT;
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_ndim>       QCoordMT;
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>       QSolutionMT;
 
-  typedef Eigen::Matrix<Real, PHYS::neqs, PHYS::ndim>          QSolutionVT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_ndim>          QSolutionVT;
 
 protected: // data
 
@@ -137,12 +137,12 @@ protected: // data
   /// coordinates of quadrature points in physical space
   QCoordMT X_q;
   /// stores dX/dksi and dx/deta at each quadrature point, one matrix per dimension
-  QCoordMT dX[PHYS::ndim];
+  QCoordMT dX[PHYS::MODEL::_ndim];
 
   /// solution at quadrature points in physical space
   QSolutionMT U_q;
   /// derivatives of solution to X at each quadrature point, one matrix per dimension
-  QSolutionMT dUdX[PHYS::ndim];
+  QSolutionMT dUdX[PHYS::MODEL::_ndim];
 
   /// derivatives of solution to X at ONE quadrature point, each column stores derivatives
   /// with respect to given coordinate
@@ -157,14 +157,14 @@ protected: // data
   /// Values of the operator L(u) computed in quadrature points.
   PhysicsVT  LU;
   /// flux jacobians
-  PhysicsMT  dFdU[PHYS::ndim];
+  PhysicsMT  dFdU[PHYS::MODEL::_ndim];
   /// interporlation matrix - values of shapefunction at each quadrature point
   SFMatrixT  Ni;
   /// derivative matrix - values of shapefunction derivative in Ksi at each quadrature point
-  SFMatrixT  dNdKSI[PHYS::ndim];
+  SFMatrixT  dNdKSI[PHYS::MODEL::_ndim];
   /// derivatives of shape functions on physical space at all quadrature points,
   /// one matrix per dimenison
-  SFMatrixT  dNdX[PHYS::ndim];
+  SFMatrixT  dNdX[PHYS::MODEL::_ndim];
   /// jacobian of transformation at each quadrature point
   WeightVT jacob;
   /// Integration factor (jacobian multiplied by quadrature weight)
@@ -172,7 +172,7 @@ protected: // data
   /// temporary local gradient of 1 shape function
   DimVT dN;
   /// physical properties
-  typename PHYS::Properties phys_props;
+  typename PHYS::MODEL::Properties phys_props;
 
 private:
 
@@ -197,7 +197,7 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
   m_options["Elements"].attach_trigger ( boost::bind ( &SchemeBase<SF,QD,PHYS>::change_elements, this ) );
 
-  for(Uint d = 0; d < PHYS::ndim; ++d)
+  for(Uint d = 0; d < PHYS::MODEL::_ndim; ++d)
     dFdU[d].setZero();
 
   // Gradient of the shape functions in reference space
@@ -215,7 +215,7 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
        Ni(q,n) = ValueSF[n];
 
-       for(Uint d = 0; d < PHYS::ndim; ++d)
+       for(Uint d = 0; d < PHYS::MODEL::_ndim; ++d)
          dNdKSI[d](q,n) = GradSF(d,n);
     }
 
@@ -244,7 +244,7 @@ void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& n
   // copy the solution from the large array to a small
 
   for(Uint n = 0; n < SF::nb_nodes; ++n)
-    for (Uint v=0; v < PHYS::neqs; ++v)
+    for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
       U_n(n,v) = (*solution)[ nodes_idx[n] ][v];
 
   // coordinates of quadrature points in physical space
@@ -262,9 +262,9 @@ void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& n
   // dX[XX].col(KSI) has the values of dx/dksi at all quadrature points
   // dX[XX].col(ETA) has the values of dx/deta at all quadrature points
 
-  for(Uint dimx = 0; dimx < PHYS::ndim; ++dimx)
+  for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
   {
-    for(Uint dimksi = 0; dimksi < PHYS::ndim; ++dimksi)
+    for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
     {
       dX[dimx].col(dimksi) = dNdKSI[dimksi] * X_n.col(dimx);
     }
@@ -273,9 +273,9 @@ void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& n
   // Fill Jacobi matrix (matrix of transformation phys. space -> ref. space) at qd. point q
   for(Uint q = 0; q < QD::nb_points; ++q)
   {
-    for(Uint dimx = 0; dimx < PHYS::ndim; ++dimx)
+    for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
     {
-      for(Uint dimksi = 0; dimksi < PHYS::ndim; ++dimksi)
+      for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
       {
        JM(dimksi,dimx) = dX[dimx](q,dimksi);
       }
@@ -288,14 +288,14 @@ void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& n
 
    for(Uint n = 0; n < SF::nb_nodes; ++n)
    {
-     for(Uint dimksi = 0; dimksi < PHYS::ndim; ++ dimksi)
+     for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++ dimksi)
      {
        dNref[dimksi] = dNdKSI[dimksi](q,n);
      }
 
      dNphys = JMinv * dNref;
 
-     for(Uint dimx = 0; dimx < PHYS::ndim; ++ dimx)
+     for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++ dimx)
      {
        dNdX[dimx](q,n) = dNphys[dimx];
      }
@@ -324,7 +324,7 @@ void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& n
 template<typename SF,typename QD, typename PHYS>
 void SchemeBase<SF, QD,PHYS>::sol_gradients_at_qdpoint(const Uint q)
 {
-  for(Uint dim = 0; dim < PHYS::ndim; ++dim)
+  for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
   {
     dUdXq.col(dim) = dUdX[dim].row(q).transpose();
   }

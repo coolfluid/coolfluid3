@@ -11,9 +11,9 @@
 
 #include "RDM/Core/SupportedCells.hpp" // supported cells
 
-#include "RDM/Core/LinearAdv2D.hpp"       // supported physics
-#include "RDM/Core/LinearAdvSys2D.hpp"    // supported physics
-#include "RDM/Core/RotationAdv2D.hpp"     // supported physics
+#include "Physics/Scalar/LinearAdv2D.hpp"       // supported physics
+#include "Physics/Scalar/LinearAdvSys2D.hpp"    // supported physics
+#include "Physics/Scalar/RotationAdv2D.hpp"     // supported physics
 
 #include "RDM/Scalar/LibScalar.hpp"
 
@@ -24,11 +24,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<CSysSUPG,LinearAdv2D> , RDM::CellLoop, LibScalar > CSysSUPG_LinearAdv2D_Builder;
+Common::ComponentBuilder < CellLoopT<CSysSUPG, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > CSysSUPG_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysSUPG,LinearAdvSys2D> , RDM::CellLoop, LibScalar > CSysSUPG_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < CellLoopT<CSysSUPG, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > CSysSUPG_LinearAdvSys2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysSUPG,RotationAdv2D> , RDM::CellLoop, LibScalar > CSysSUPG_RotationAdv2D_Builder;
+Common::ComponentBuilder < CellLoopT<CSysSUPG, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > CSysSUPG_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

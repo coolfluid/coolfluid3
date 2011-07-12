@@ -104,9 +104,7 @@ void CSysB::Term<SF,QD,PHYS>::execute()
       B::dN[XX] = B::dNdX[XX](q,n);
       B::dN[YY] = B::dNdX[YY](q,n);
 
-      PHYS::jacobian_eigen_structure(B::phys_props,
-                                     B::X_q.row(q),
-                                     B::U_q.row(q),
+      PHYS::flux_jacobian_eigen_structure(B::phys_props,
                                      B::dN,
                                      Rv,
                                      Lv,
@@ -121,10 +119,7 @@ void CSysB::Term<SF,QD,PHYS>::execute()
 
     // compute L(u)
 
-    PHYS::Lu(B::phys_props,
-             B::X_q.row(q),
-             B::U_q.row(q),
-             B::dUdXq,
+    PHYS::residual(B::phys_props,
              B::dFdU,
              B::LU );
 
@@ -171,7 +166,7 @@ void CSysB::Term<SF,QD,PHYS>::execute()
 
   // update the residual
 
-  for (Uint v=0; v < PHYS::neqs; ++v)
+  for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
   {
     sum_phi   = 0.0;
     sum_phi_N = 0.0;

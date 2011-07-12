@@ -93,8 +93,8 @@ public: // functions
    // std::cout << "SF        ::type_name()    [" << SF::type_name()   << "]" << std::endl << std::flush;
    // std::cout << "SF        ::nb_nodes       [" << SF::nb_nodes      << "]" << std::endl << std::flush;
    // std::cout << "QD        ::nb_points      [" << QD::nb_points     << "]" << std::endl << std::flush;
-   // std::cout << "PHYS      ::ndim           [" << PHYS::ndim        << "]" << std::endl << std::flush;
-   // std::cout << "PHYS      ::neqs           [" << PHYS::neqs        << "]" << std::endl << std::flush;
+   // std::cout << "PHYS      ::ndim           [" << PHYS::MODEL::_ndim        << "]" << std::endl << std::flush;
+   // std::cout << "PHYS      ::neqs           [" << PHYS::MODEL::_neqs        << "]" << std::endl << std::flush;
    // std::cout << "PHYS      ::type_name()    [" << PHYS::type_name() << "]" << std::endl << std::flush;
 
 
@@ -116,14 +116,14 @@ public: // functions
         Ni(q,n)     = ValueSF[n];
         dNdKSI(q,n) = GradSF[n];
 
-//        for(Uint d = 0; d < PHYS::ndim; ++d)
+//        for(Uint d = 0; d < PHYS::MODEL::_ndim; ++d)
      }
 
    // std::cout << FromHere().str() << std::endl << std::flush;
 
    vars.resize(DIM_3D);
 
-   return_val.resize(PHYS::neqs );
+   return_val.resize(PHYS::MODEL::_neqs );
  }
 
  /// Get the class name
@@ -144,12 +144,12 @@ protected: // data
  typedef typename SF::NodeMatrixT                             NodeMT;
 
  typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes >     SFMatrixT;
- typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim   >     QCoordMT;
- typedef Eigen::Matrix<Real, SF::nb_nodes , PHYS::neqs   >     SolutionMT;
- typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs   >     QSolutionMT;
- typedef Eigen::Matrix<Real, PHYS::neqs,    PHYS::ndim   >     QSolutionVT;
- typedef Eigen::Matrix<Real, PHYS::neqs,    PHYS::ndim   >     FluxMT;
- typedef Eigen::Matrix<Real, PHYS::ndim,    1u           >     DimVT;
+ typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_ndim   >     QCoordMT;
+ typedef Eigen::Matrix<Real, SF::nb_nodes , PHYS::MODEL::_neqs   >     SolutionMT;
+ typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs   >     QSolutionMT;
+ typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs,    PHYS::MODEL::_ndim   >     QSolutionVT;
+ typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs,    PHYS::MODEL::_ndim   >     FluxMT;
+ typedef Eigen::Matrix<Real, PHYS::MODEL::_ndim,    1u           >     DimVT;
 
  /// derivative matrix - values of shapefunction derivative in Ksi at each quadrature point
  SFMatrixT  dNdKSI;
@@ -166,7 +166,7 @@ protected: // data
  /// solution at quadrature points in physical space
  QSolutionMT U_q;
  /// derivatives of solution to X at each quadrature point, one matrix per dimension
- QSolutionMT dUdX[PHYS::ndim];
+ QSolutionMT dUdX[PHYS::MODEL::_ndim];
  /// derivatives of solution with respect to x,y,z at ONE quadrature point
  QSolutionVT dUdXq;
  /// Integration factor (jacobian multiplied by quadrature weight)
@@ -253,7 +253,7 @@ public: // functions
    // copy the solution from the large array to a small
 
    for(Uint n = 0; n < SF::nb_nodes; ++n)
-     for (Uint v=0; v < PHYS::neqs; ++v)
+     for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
        U_n(n,v) = (*B::solution)[ nodes_idx[n] ][v];
 
    // coordinates of quadrature points in physical space
@@ -283,7 +283,7 @@ public: // functions
 //    std::cout << "nr. of cols = " << dNdKSI.cols() << std::endl;
 
 
-    for(Uint dim = 0; dim < PHYS::ndim; ++dim)
+    for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
     {
       dUdXq.col(dim) = dUdX[dim].row(q).transpose();
     }
@@ -306,10 +306,7 @@ public: // functions
                              dUdXq,
                              B::phys_props);
 
-    PHYS::flux(B::phys_props,
-               X_q.row(q),
-               U_q.row(q),
-               Fu_h);
+    PHYS::flux(B::phys_props, Fu_h);
 
 //     std::cout << "U_q =\n " << U_q.row(q) << std::endl;
 //     std::cout << "Fu_h[XX] =" << std::endl;
@@ -328,10 +325,7 @@ public: // functions
                              dUdXq,
                              B::phys_props);
 
-    PHYS::flux(B::phys_props,
-               X_q.row(q),
-               return_val,
-               Fu_g);
+    PHYS::flux(B::phys_props, Fu_g);
 
 //     std::cout << "Prescribed value =\n " << return_val << std::endl;
 //     std::cout << "Fu_g[XX] =" << std::endl;
@@ -341,7 +335,7 @@ public: // functions
 //     std::cin.get();
 
     for(Uint n=0; n < SF::nb_nodes; ++n)
-      for(Uint v=0; v < PHYS::neqs; ++v)
+      for(Uint v=0; v < PHYS::MODEL::_neqs; ++v)
       {
         Phi_n.row(n)[v] -= ( ( Fu_g(v,XX) - Fu_h(v,XX) ) * dN[XX] +
                              ( Fu_g(v,YY) - Fu_h(v,YY) ) * dN[YY] )
@@ -351,11 +345,9 @@ public: // functions
 
     // compute the wave_speed for scaling the update
 
-    PHYS::jacobian_eigen_values(B::phys_props,
-                                X_q.row(q),
-                                U_q.row(q),
-                                dN,
-                                Dv );
+    PHYS::flux_jacobian_eigen_values(B::phys_props,
+                                     dN,
+                                     Dv );
 
     DvPlus = Dv.unaryExpr(std::ptr_fun(plus));
 
@@ -375,7 +367,7 @@ public: // functions
    // update the residual
 
    for (Uint n=0; n<SF::nb_nodes; ++n)
-     for (Uint v=0; v < PHYS::neqs; ++v)
+     for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
        (*B::residual)[nodes_idx[n]][v] += Phi_n(n,v);
 
 //   if (B::idx() > 3) exit(0);

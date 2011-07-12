@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <iomanip>
+
 #include <boost/assign/list_of.hpp>
 
 #include "Common/Signal.hpp"
@@ -19,15 +20,15 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
-#include "Solver/FlowSolver.hpp"
-
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
-#include "Solver/CPhysicalModel.hpp"
-#include "Solver/CTime.hpp"
 
+#include "Physics/PhysModel.hpp"
+
+#include "Solver/CTime.hpp"
+#include "Solver/FlowSolver.hpp"
 
 namespace CF {
 namespace Solver {
@@ -35,6 +36,7 @@ namespace Solver {
 using namespace boost::assign;
 using namespace Common;
 using namespace Mesh;
+using namespace Physics;
 using namespace Solver;
 
 Common::ComponentBuilder < FlowSolver, CSolver, LibSolver > FlowSolver_Builder;
@@ -44,9 +46,7 @@ Common::ComponentBuilder < FlowSolver, CSolver, LibSolver > FlowSolver_Builder;
 FlowSolver::FlowSolver ( const std::string& name  ) : CSolver ( name )
 {
   m_properties["brief"] = std::string("Basic Flow Solver component");
-  std::string description = "";
-  m_properties["description"] = description;
-
+  m_properties["description"] = std::string("");
 
   // Properties
 
@@ -54,7 +54,7 @@ FlowSolver::FlowSolver ( const std::string& name  ) : CSolver ( name )
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<CPhysicalModel>::create(Tags::physical_model(),"Physical Model","Physical Model",&m_physical_model))
+  m_options.add_option(OptionComponent<PhysModel>::create(Tags::physical_model(),"Physical Model","Physical Model",&m_physical_model))
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 

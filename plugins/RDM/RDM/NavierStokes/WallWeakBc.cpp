@@ -21,7 +21,7 @@
 
 #include "RDM/NavierStokes/WallWeakBc.hpp"
 
-#include "RDM/Core/Euler2D.hpp"
+#include "Physics/NavierStokes/Cons2D.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace RDM {
 
 Common::ComponentBuilder < WallWeakBc, RDM::BoundaryTerm, LibCore > WallWeakBc_Builder;
 
-Common::ComponentBuilder < FaceLoopT< WallWeakBc, Euler2D>, RDM::FaceLoop, LibCore > WallWeakBc_Euler2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WallWeakBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibCore > WallWeakBc_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

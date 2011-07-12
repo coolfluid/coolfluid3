@@ -4,23 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Euler/Roe1D.hpp"
-
-////////////////////////////////////////////////////////////////////////////////
+#include "ScalarSys2D.hpp"
 
 namespace CF {
-namespace Euler {
+namespace Physics {
+namespace Scalar {
 
 using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Euler::Roe1D, Solver::State, LibEuler > Roe1D_Builder;
+ScalarSys2D::ScalarSys2D( const std::string& name ) : Physics::PhysModel(name)
+{
+}
+
+ScalarSys2D::~ScalarSys2D()
+{
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Euler
+} // Scalar
+} // Physics
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////

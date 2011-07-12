@@ -41,7 +41,7 @@ struct FaceLoopT : public FaceLoop
   /// execute the action
   virtual void execute ()
   {
-    boost::mpl::for_each< typename RDM::FaceTypes< PHYS::ndim >::Faces >( boost::ref(*this) );
+    boost::mpl::for_each< typename RDM::FaceTypes< PHYS::MODEL::_ndim >::Faces >( boost::ref(*this) );
   }
 
   /// operator needed for the loop over element types (SF)

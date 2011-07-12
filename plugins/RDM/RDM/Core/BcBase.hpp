@@ -83,24 +83,24 @@ protected: // typedefs
 
   typedef Eigen::Matrix<Real, QD::nb_points, 1u>               WeightVT;
 
-  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       ResidualMT;
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>       ResidualMT;
 
-  typedef Eigen::Matrix<Real, PHYS::neqs, PHYS::neqs >         EigenValueMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs >         EigenValueMT;
 
-  typedef Eigen::Matrix<Real, PHYS::neqs, PHYS::neqs>          PhysicsMT;
-  typedef Eigen::Matrix<Real, PHYS::neqs, 1u>                  PhysicsVT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs>          PhysicsMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, 1u>                  PhysicsVT;
 
-  typedef Eigen::Matrix<Real, SF::nb_nodes,   PHYS::neqs>      SolutionMT;
-  typedef Eigen::Matrix<Real, 1u, PHYS::neqs >                 SolutionVT;
+  typedef Eigen::Matrix<Real, SF::nb_nodes,   PHYS::MODEL::_neqs>      SolutionMT;
+  typedef Eigen::Matrix<Real, 1u, PHYS::MODEL::_neqs >                 SolutionVT;
 
   typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>     SFMatrixT;
   typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >               SFVectorT;
 
-  typedef Eigen::Matrix<Real, PHYS::ndim, 1u>                  DimVT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_ndim, 1u>                  DimVT;
 
-  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::ndim>       QCoordMT;
-  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::neqs>       QSolutionMT;
-  typedef Eigen::Matrix<Real, PHYS::neqs, PHYS::ndim>          QSolutionVT;
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_ndim>       QCoordMT;
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>       QSolutionMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_ndim>          QSolutionVT;
 
 protected: // data
 
@@ -116,7 +116,7 @@ protected: // data
   Mesh::CTable<Real>::Ptr wave_speed;
 
   /// physical properties
-  typename PHYS::Properties phys_props;
+  typename PHYS::MODEL::Properties phys_props;
 
 };
 
