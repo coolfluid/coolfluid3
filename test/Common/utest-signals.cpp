@@ -54,11 +54,13 @@ public: // functions
 
   void trigger_signal_print_message ( Component& receiver )
   {
-    SignalFrame signal_frame( "Target", "//Root", "//Root");
+    SignalFrame signal_frame;
 
-    SignalOptions options( signal_frame );
+    SignalOptions options;
 
     options.add_option< OptionT<int> >( "Counter", 10 );
+
+    signal_frame = options.create_frame("Target", "//Root", "//Root");
 
     receiver.call_signal( "print_message", signal_frame );
   }

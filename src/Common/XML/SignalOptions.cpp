@@ -47,7 +47,6 @@ Option::Ptr make_option_t(const std::string & name, const std::string & pretty_n
   XmlNode restr_node = Map(node.content->parent())
       .find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
-  std::vector<TYPE> restr_list;
 
   Option::Ptr option(new Common::OptionT<TYPE>(name, value));
 
@@ -56,9 +55,12 @@ Option::Ptr make_option_t(const std::string & name, const std::string & pretty_n
 
   if(restr_node.is_valid())
   {
-    restr_list = Map().array_to_vector<TYPE>( restr_node );
+    std::string delimiter;
+    std::vector<TYPE> restr_list = Map().array_to_vector<TYPE>( restr_node, &delimiter );
 
     typename std::vector<TYPE>::iterator it;
+
+    option->set_separator(delimiter);
 
 //    option->restricted_list().push_back( value );
 
@@ -85,20 +87,21 @@ typename OptionArrayT<TYPE>::Ptr make_option_array_t(const std::string & name,
                                                      const std::string & descr,
                                                      const XmlNode & node)
 {
-  std::vector<TYPE> value = Map().array_to_vector<TYPE>(node);
+  std::string delimiter;
+  std::vector<TYPE> value = Map().array_to_vector<TYPE>(node, &delimiter);
 
   typename OptionArrayT<TYPE>::Ptr option(new OptionArrayT<TYPE>(name, value));
 
   option->set_description( descr );
   option->set_pretty_name( pretty_name );
+  option->set_separator(delimiter);
 
   XmlNode restr_node = Map(node.content->parent()).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
-  std::vector<TYPE> restr_list;
 
   if(restr_node.is_valid())
   {
-    restr_list = Map().array_to_vector<TYPE>( restr_node );
+    std::vector<TYPE> restr_list = Map().array_to_vector<TYPE>( restr_node );
 
     typename std::vector<TYPE>::iterator it;
 
@@ -114,19 +117,7 @@ typename OptionArrayT<TYPE>::Ptr make_option_array_t(const std::string & name,
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Converts an XML node to an option (if possible).
-
-/// This function handles all kind of options supported by COOLFluiD :
-/// @li single values or arrays
-/// @li advanced or basic options
-/// @li with or without a restricted list of values
-/// @param node The node to convert. Must be valid.
-/// @return Returns the converted.
-/// @throw ProtocolError if the "key" attribute is missing
-/// @throw CastingFailed if the value could not be cast to the destination type
-/// @throw ShouldNotBeHere if the option type is not recognized
-/// @author Quentin Gasper.
-Option::Ptr xml_to_option( const XmlNode & node )
+Option::Ptr SignalOptions::xml_to_option( const XmlNode & node )
 {
   cf_assert( node.is_valid() );
 
@@ -292,7 +283,7 @@ void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
   else
   {
     typename OptionArrayT<TYPE>::Ptr array = boost::dynamic_pointer_cast<OptionArrayT<TYPE> >(opt);
-    value_node = opt_map.set_array<TYPE>( opt->name(), array->value_vect(), ";", desc );
+    value_node = opt_map.set_array<TYPE>( opt->name(), array->value_vect(), opt->separator(), desc );
   }
 
   value_node.set_attribute( Protocol::Tags::attr_pretty_name(), opt->pretty_name() );
@@ -308,7 +299,7 @@ void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
     for( ; it != opt->restricted_list().end() ; ++it )
       vect.push_back( boost::any_cast<TYPE>(*it) );
 
-    value_map.set_array( Protocol::Tags::key_restricted_values(), vect, ";" );
+    value_map.set_array( Protocol::Tags::key_restricted_values(), vect, opt->separator() );
   }
 
   if( std::strcmp( opt->tag(), Protocol::Tags::type<URI>() ) == 0)
@@ -378,18 +369,18 @@ SignalFrame SignalOptions::create_frame( const std::string & name,
   SignalFrame frame(name, sender, receiver);
   Map map = frame.map( Protocol::Tags::key_options() ).main_map;
 
-  add_to_map( map );
+  add_to_map( map, *this );
 
   return frame;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SignalOptions::add_to_map( Map & map ) const
+void SignalOptions::add_to_map( Map & map, const OptionList & list )
 {
   cf_assert( map.content.is_valid() );
 
-  for( OptionStorage_t::const_iterator it = begin() ; it != end() ; ++it )
+  for( OptionStorage_t::const_iterator it = list.begin() ; it != list.end() ; ++it )
   {
     Option::Ptr option = it->second;
     std::string type = option->tag();
@@ -442,7 +433,7 @@ std::vector<TYPE> SignalOptions::array( const std::string & name ) const
 void SignalOptions::flush()
 {
   if( m_map.content.is_valid() )
-    add_to_map( m_map );
+    add_to_map( m_map, *this );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -454,7 +445,7 @@ SignalFrame SignalOptions::create_reply_to( SignalFrame & frame, const URI & sen
   SignalFrame reply = frame.create_reply( sender );
   Map map = reply.map( Protocol::Tags::key_options() ).main_map;
 
-  add_to_map(map);
+  add_to_map(map, *this);
 
   return reply;
 }

@@ -28,7 +28,7 @@
   Common_TEMPLATE template XmlNode Map::set_array<T>(const std::string&, const std::vector<T>&, const std::string&, const std::string&);\
   Common_TEMPLATE template T Map::get_value<T>(const std::string&) const;\
   Common_TEMPLATE template std::vector<T> Map::get_array<T>(const std::string&) const;\
-  Common_TEMPLATE template std::vector<T> Map::array_to_vector<T>(const XmlNode&) const
+  Common_TEMPLATE template std::vector<T> Map::array_to_vector<T>(const XmlNode&, std::string*) const
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -353,7 +353,7 @@ std::vector<TYPE> Map::get_array ( const std::string& array_key ) const
 ///////////////////////////////////////////////////////////////////////////////////
 
 template<typename TYPE>
-std::vector<TYPE> Map::array_to_vector ( const XmlNode & array_node ) const
+std::vector<TYPE> Map::array_to_vector ( const XmlNode & array_node, std::string * delim ) const
 {
   cf_assert( array_node.is_valid() );
   std::vector<TYPE> result;
@@ -365,6 +365,8 @@ std::vector<TYPE> Map::array_to_vector ( const XmlNode & array_node ) const
   if(delim_attr == nullptr || delim_attr->value()[0] == '\0')
     throw XmlError(FromHere(), "No delimiter found.");
 
+  if( is_not_null(delim) )
+    *delim = delim_attr->value();
 
   rapidxml::xml_attribute<>* size_attr = array_node.content->first_attribute( Protocol::Tags::attr_array_size() );
   if ( !size_attr )

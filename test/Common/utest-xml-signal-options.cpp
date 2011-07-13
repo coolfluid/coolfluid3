@@ -11,23 +11,19 @@
 
 #include "rapidxml/rapidxml.hpp"
 #include <boost/test/unit_test.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include "Common/OptionArray.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 
+#include "Common/XML/FileOperations.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
-//#include "Common/Log.hpp"
-//#include "Common/URI.hpp"
-
-//#include "Common/XML/SignalFrame.hpp"
-//#include "Common/XML/Protocol.hpp"
-//#include "Common/XML/XmlDoc.hpp"
-//#include "Common/XML/FileOperations.hpp"
-
+using namespace boost::assign;
+using namespace CF;
 using namespace CF::Common;
 using namespace CF::Common::XML;
 
@@ -123,6 +119,224 @@ BOOST_AUTO_TEST_CASE ( contructors )
 }
 
 /////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE ( xml_to_option )
+{
+  XmlDoc::Ptr xmldoc;
+  Option::Ptr option;
+  XmlNode node;
+
+  //
+  // 1. a Real option with a description
+  //
+  xmldoc = parse_cstring(
+      "<value key=\"theOption\" is_option=\"true\" descr=\"This is a description\">"
+      "  <real>2.71</real>"
+      "</value>");
+  node.content = xmldoc->content->first_node();
+  BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(node) );
+  // 1a. check the name
+  BOOST_CHECK_EQUAL( option->name(), std::string("theOption"));
+  // 1b. check the type
+  BOOST_CHECK_EQUAL( option->type(), std::string("real") );
+  // 1c. check the value
+  BOOST_CHECK_EQUAL( option->value<Real>(), Real(2.71) );
+  // 1d. check the description
+  BOOST_CHECK_EQUAL( option->description(), std::string("This is a description") );
+
+  //
+  // 2. an Uint option with a missing description
+  //
+  xmldoc = parse_cstring(
+      "<value key=\"theAnswer\" is_option=\"true\">"
+      "  <integer>42</integer>"
+      "</value>");
+  node.content = xmldoc->content->first_node();
+  BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(node) );
+  // 2a. check the name
+  BOOST_CHECK_EQUAL( option->name(), std::string("theAnswer"));
+  // 2b. check the type
+  BOOST_CHECK_EQUAL( option->type(), std::string("integer") );
+  // 2c. check the value
+  BOOST_CHECK_EQUAL( option->value<int>(), int(42) );
+  // 2d. check the description
+  BOOST_CHECK_EQUAL( option->description(), std::string("") );
+
+  //
+  // 3. no key attribute
+  //
+  xmldoc = XML::parse_cstring(
+      "<value is_option=\"true\">"
+      "  <integer>42</integer>"
+      "</value>");
+  node.content = xmldoc->content->first_node();
+  BOOST_CHECK_THROW( SignalOptions::xml_to_option(node), ProtocolError );
+
+  //
+  // 4. option mode (basic/adv)
+  //
+  XmlDoc doc;
+  Map map( doc.add_node( Protocol::Tags::node_map() ) );
+
+  XmlNode theAnswer = map.set_value("theAnswer", int(42) );
+  XmlNode pi = map.set_value("pi", Real(3.14159) );
+  XmlNode euler = map.set_value("euler", Real(2.71) );
+
+  // theAnswer is not marked as basic
+  pi.set_attribute("mode", "basic");
+  euler.set_attribute("mode", "adv");
+
+  BOOST_CHECK( !SignalOptions::xml_to_option(theAnswer)->has_tag("basic") );
+  BOOST_CHECK( SignalOptions::xml_to_option(pi)->has_tag("basic") );
+  BOOST_CHECK( !SignalOptions::xml_to_option(euler)->has_tag("basic") );
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( xml_to_option_types )
+{
+  XmlDoc::Ptr xmldoc(new XmlDoc());
+  Option::Ptr option;
+
+  Map map(xmldoc->add_node("map"));
+
+  XmlNode optBool = map.set_value("optBool", true);
+  XmlNode optInt = map.set_value("optInt", int(-15468));
+  XmlNode optUint = map.set_value("optUint", Uint(17513214));
+  XmlNode optReal = map.set_value("optReal", Real(3.14159));
+  XmlNode optString = map.set_value("optString", std::string("I am a string value"));
+  XmlNode optURI = map.set_value("optURI", URI("cpath://Root"));
+
+  XmlNode wrongOpt = map.content.add_node( Protocol::Tags::node_value() );
+
+  wrongOpt.set_attribute( Protocol::Tags::attr_key(), "optOfUnknownType");
+  wrongOpt.add_node("unknown_type", "Don't know how to interpret this.");
+
+  // 1. bool
+  BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(optBool) );
+  BOOST_CHECK_EQUAL( option->type(), std::string("bool") );
+  BOOST_CHECK_EQUAL( option->value<bool>(), true);
+
+  // 2. int
+  BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(optInt) );
+  BOOST_CHECK_EQUAL( option->type(), std::string("integer") );
+  BOOST_CHECK_EQUAL( option->value<int>(), -15468 );
+
+  // 3. Uint
+  BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(optUint) );
+  BOOST_CHECK_EQUAL( option->type(), std::string("unsigned") );
+  BOOST_CHECK_EQUAL( option->value<Uint>(), Uint(17513214) );
+
+  // 4. Real
+  BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(optReal) );
+  BOOST_CHECK_EQUAL( option->type(), std::string("real") );
+  BOOST_CHECK_EQUAL( option->value<Real>(), Real(3.14159) );
+
+  // 5. string
+  BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(optString) );
+  BOOST_CHECK_EQUAL( option->type(), std::string("string") );
+  BOOST_CHECK_EQUAL( option->value<std::string>(), std::string("I am a string value") );
+
+  // 6. uri
+  BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(optURI) );
+  BOOST_CHECK_EQUAL( option->type(), std::string("uri") );
+  BOOST_CHECK_EQUAL( option->value<URI>().string(), std::string("cpath://Root") );
+
+  // 7. unknown type
+  BOOST_CHECK_THROW( SignalOptions::xml_to_option(wrongOpt), ShouldNotBeHere );
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( xml_to_option_uri_schemes )
+{
+  XmlDoc::Ptr xmldoc(new XmlDoc());
+  Map map(xmldoc->add_node("map"));
+  const char * tag = Protocol::Tags::attr_uri_schemes();
+
+  XmlNode opt1 = map.set_value("opt1", URI());
+  XmlNode opt2 = map.set_value("opt2", URI());
+  XmlNode opt3 = map.set_value("opt3", URI());
+  XmlNode opt4 = map.set_value("opt4", URI());
+  XmlNode opt5 = map.set_value("opt5", URI());
+
+  // opt1 has no scheme attribute defined
+  opt2.set_attribute(tag, "");                  // no scheme defined
+  opt3.set_attribute(tag, "http");              // one scheme
+  opt4.set_attribute(tag, "cpath,https,file");  // several schemes
+  opt5.set_attribute(tag, "cpath,scheme");      // a wrong scheme
+
+  OptionURI::Ptr opt;
+  std::vector<URI::Scheme::Type> vect;
+
+  // 1. check opt1
+  opt = boost::dynamic_pointer_cast<OptionURI>( SignalOptions::xml_to_option(opt1) );
+
+  BOOST_CHECK( opt->supported_protocols().empty() );
+
+  // 2. check opt2
+  opt = boost::dynamic_pointer_cast<OptionURI>( SignalOptions::xml_to_option(opt2) );
+
+  BOOST_CHECK( opt->supported_protocols().empty() );
+
+  // 3. check opt3
+  opt = boost::dynamic_pointer_cast<OptionURI>( SignalOptions::xml_to_option(opt3) );
+
+  vect = opt->supported_protocols();
+
+  BOOST_CHECK_EQUAL( vect.size() , size_t(1) );
+  BOOST_CHECK_EQUAL( vect[0], URI::Scheme::HTTP );
+
+  // 4. check opt4
+  opt = boost::dynamic_pointer_cast<OptionURI>( SignalOptions::xml_to_option(opt4) );
+
+  vect = opt->supported_protocols();
+
+  BOOST_CHECK_EQUAL( vect.size() , size_t(3) );
+  BOOST_CHECK_EQUAL( vect[0], URI::Scheme::CPATH );
+  BOOST_CHECK_EQUAL( vect[1], URI::Scheme::HTTPS );
+  BOOST_CHECK_EQUAL( vect[2], URI::Scheme::FILE  );
+
+  // 5. check opt5
+  BOOST_CHECK_THROW( SignalOptions::xml_to_option( opt5 ), CastingFailed);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE ( xml_to_option_restricted_lists )
+{
+  XmlDoc::Ptr xmldoc(new XmlDoc());
+  Map map(xmldoc->add_node("map"));
+  Option::Ptr option;
+  std::vector<int> vectInt = list_of<int>(344646)(544684)(446454)
+                                                        (878764)(646316);
+
+  XmlNode optInt = map.set_value("optInt", int(13));
+  XmlNode optIntRestrList = map.set_value("optIntRestrList", int(-15468));
+
+  Map(optIntRestrList).set_array(Protocol::Tags::key_restricted_values(), vectInt, " ; ");
+
+  // test without restricted list
+  BOOST_CHECK_NO_THROW(option = SignalOptions::xml_to_option( optInt ) );
+  BOOST_CHECK( !option->has_restricted_list() );
+
+  // test with restricted list
+  BOOST_CHECK_NO_THROW(option = SignalOptions::xml_to_option( optIntRestrList ) );
+
+  BOOST_CHECK( option->has_restricted_list() );
+
+  std::vector<boost::any> & restr_list = option->restricted_list();
+
+  BOOST_CHECK_EQUAL( restr_list.size(), size_t( vectInt.size() + 1 ) );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[0]), int(-15468) );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[1]), vectInt[0] );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[2]), vectInt[1] );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[3]), vectInt[2] );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[4]), vectInt[3] );
+  BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[5]), vectInt[4] );
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
 

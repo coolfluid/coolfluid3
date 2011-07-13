@@ -67,10 +67,22 @@ public:
   /// @return Returns the created frame.
   SignalFrame create_reply_to( SignalFrame & frame, const URI & sender = URI() ) const;
 
+  /// Converts an XML node to an option (if possible).
+
+  /// This function handles all kind of options supported by COOLFluiD :
+  /// @li single values or arrays
+  /// @li advanced or basic options
+  /// @li with or without a restricted list of values
+  /// @param node The node to convert. Must be valid.
+  /// @return Returns the converted.
+  /// @throw ProtocolError if the "key" attribute is missing
+  /// @throw CastingFailed if the value could not be cast to the destination type
+  /// @throw ShouldNotBeHere if the option type is not recognized
+  static Option::Ptr xml_to_option( const XmlNode & node );
+
   /// Adds options to a provided map.
-  /// This method does not need a valid managed map. It is ignored if it exists.
   /// @param map Map options will be added to. Must be valid.
-  void add_to_map( Map & map ) const;
+  static void add_to_map( Map & map, const OptionList & list ) ;
 
   /// Gives an option value converted to a specified TYPE.
   /// This method is a shortcut provided to make the calling code more readable.
@@ -99,6 +111,11 @@ private:
 
 }; // SignalOptionList
 
+//////////////////////////////////////////////////////////////////////////////
+
+} // XML
+} // Common
+} // CF
 //////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_XML_SignalOptions_hpp

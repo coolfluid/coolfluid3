@@ -11,6 +11,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "UI/Core/NLog.hpp"
 #include "UI/Core/TreeThread.hpp"
@@ -72,7 +73,7 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title, bool block)
 
   for( ; node.is_valid() ; node.content = node.content->next_sibling())
   {
-    m_dataLayout->addOption( CNode::makeOption(node) );
+    m_dataLayout->addOption( SignalOptions::xml_to_option(node) );
 
     name = node.content->first_attribute( Protocol::Tags::attr_key() )->value();
 

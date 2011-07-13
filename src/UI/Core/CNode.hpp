@@ -306,14 +306,6 @@ namespace Core {
     /// result. Otherwise, they are ignored.
     void listChildPaths(QStringList & list, bool recursive, bool clientNode = true) const;
 
-    /// Creates an option from an XML node.
-
-    /// This method handles @c OptionT, @c OptionURI and @c OptionArray types.
-    /// @param node THe XML node from where the option has to be created.
-    /// @return Returns the created option.
-    /// @note This function should be removed once the new XML layer is operational.
-    static Common::Option::Ptr makeOption(const Common::XML::XmlNode & node);
-
     void requestSignalSignature(const QString & name);
 
     /// @name Signals

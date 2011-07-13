@@ -53,18 +53,6 @@ private slots:
 
   void test_listChildPaths();
 
-  void test_makeOption();
-
-  void test_makeOptionTypes();
-
-  void test_makeOptionUriSchemes();
-
-  void test_makeOptionRestrictedLists();
-
-  void test_makeOptionArrayTypes();
-
-  void test_makeOptionArrayRestrictedLists();
-
 }; // class CNodeTest
 
 //////////////////////////////////////////////////////////////////////////

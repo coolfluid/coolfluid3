@@ -132,7 +132,6 @@ BOOST_FIXTURE_TEST_CASE( test_check_tree , local_fixture )
   BOOST_CHECK(true);
 
   SignalFrame frame;
-  SignalOptions options( frame );
 
   Core::instance().root().signal_list_tree(frame);
 }

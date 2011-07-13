@@ -816,88 +816,10 @@ void Component::signal_list_properties( SignalFrame& args )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Adds an option to an XML map.
-/// @param opt_map Map the option should be added to
-/// @param opt Option to add
-/// @param is_array If @c true, the option is treated as an array.
-template<typename TYPE>
-void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
-{
-  cf_assert( opt_map.content.is_valid() );
-  cf_assert( is_not_null( opt.get() ) );
-
-  XmlNode value_node;
-  bool basic = opt->has_tag("basic");
-  std::string desc = opt->description();
-
-
-  if( !is_array )
-    value_node = opt_map.set_value<TYPE>( opt->name(), opt->value<TYPE>(), desc );
-  else
-  {
-    typename OptionArrayT<TYPE>::Ptr array = boost::dynamic_pointer_cast<OptionArrayT<TYPE> >(opt);
-    value_node = opt_map.set_array<TYPE>( opt->name(), array->value_vect(), ";", desc );
-  }
-
-  value_node.set_attribute( Protocol::Tags::attr_pretty_name(), opt->pretty_name() );
-  value_node.set_attribute( "is_option", to_str<bool>(true) );
-  value_node.set_attribute( "mode", (basic ? "basic" : "adv") );
-
-  if( opt->has_restricted_list() )
-  {
-    Map value_map(value_node);
-    std::vector<TYPE> vect;
-    std::vector<boost::any>::iterator it = opt->restricted_list().begin();
-
-    for( ; it != opt->restricted_list().end() ; ++it )
-      vect.push_back( boost::any_cast<TYPE>(*it) );
-
-    value_map.set_array( Protocol::Tags::key_restricted_values(), vect, ";" );
-  }
-
-  if( std::strcmp( opt->tag(), Protocol::Tags::type<URI>() ) == 0)
-  {
-    std::vector<URI::Scheme::Type> prots = boost::dynamic_pointer_cast<OptionURI>(opt)->supported_protocols();
-    std::vector<URI::Scheme::Type>::iterator it = prots.begin();
-
-    for( ; it != prots.end() ; it++)
-      value_node.set_attribute( Protocol::Tags::attr_uri_schemes(),
-                                URI::Scheme::Convert::instance().to_str(*it));
-   }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
 void Component::signal_list_options ( SignalArgs& args )
 {
   Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
-  OptionList::iterator opt_it = m_options.begin();
-
-  for( ; opt_it != m_options.end() ; ++opt_it )
-  {
-    std::string name = opt_it->first;
-    Option::Ptr option = opt_it->second;
-    std::string type = option->tag();
-    bool is_array = ( type == Protocol::Tags::node_array() );
-
-    if( is_array )
-      type = boost::dynamic_pointer_cast<OptionArray>( option )->elem_type();
-
-    if ( type == Protocol::Tags::type<bool>() )
-      add_opt_to_xml<bool>( options, option, is_array );
-    else if ( type == Protocol::Tags::type<int>() )
-      add_opt_to_xml<int>( options, option, is_array );
-    else if ( type == Protocol::Tags::type<Uint>() )
-      add_opt_to_xml<Uint>( options, option, is_array );
-    else if ( type == Protocol::Tags::type<Real>() )
-      add_opt_to_xml<Real>( options, option, is_array );
-    else if ( type == Protocol::Tags::type<std::string>() )
-      add_opt_to_xml<std::string>( options, option, is_array );
-    else if ( type == Protocol::Tags::type<URI>() )
-      add_opt_to_xml<URI>( options, option, is_array );
-    else
-      throw ShouldNotBeHere(FromHere(), "Unable to handle options of type [" + type +"].");
-  }
+  SignalOptions::add_to_map( options, m_options );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
