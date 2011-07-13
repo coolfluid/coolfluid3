@@ -341,8 +341,8 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 
 //  BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-//  options.add<std::string>("Name","INTERNAL");
-//  options.add<std::string>("Type","CF.RDM.Blended");
+//  options.add_option< OptionT<std::string> >("Name","INTERNAL");
+//  options.add_option< OptionT<std::string> >("Type","CF.RDM.Blended");
 //  options.add("Regions", regions, " ; ");
 
 //  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);

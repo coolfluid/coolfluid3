@@ -12,7 +12,9 @@
 
 #include "Common/BoostFilesystem.hpp"
 
-
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
@@ -74,8 +76,8 @@ struct euler2d_global_fixture
     SignalFrame frame;
     SignalOptions options( frame );
 
-    options.add<std::string>("ModelName","mymodel");
-    options.add<std::string>("PhysicalModel","Euler2D");
+    options.add_option< OptionT<std::string> >("ModelName","mymodel");
+    options.add_option< OptionT<std::string> >("PhysicalModel","Euler2D");
 
     euler2d_wizard->signal_create_model(frame);
   }
@@ -160,8 +162,8 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , euler2d_local_fixture )
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::FILE;
 
-  options.add("file", file );
-  options.add<std::string>("name", std::string("Mesh") );
+  options.add_option< OptionURI >("file", file );
+  options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
 
   std::cout << "opening file: " << file.string() << std::endl;
 
@@ -202,9 +204,9 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , euler2d_local_fixture )
 
   std::string name ("INLET");
 
-  options.add<std::string>("Name",name);
-  options.add<std::string>("Type","CF.RDM.Core.WeakDirichlet");
-  options.add("Regions", regions, " ; ");
+  options.add_option< OptionT<std::string> >("Name",name);
+  options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.WeakDirichlet");
+  options.add_option< OptionArrayT<URI> >("Regions", regions);
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -250,7 +252,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , euler2d_local_fixture )
 //  fns[2] = "1.67332";
 //  fns[3] = "3.425";
 
-  options.add<std::string>("functions", fns, " ; ");
+  options.add_option< OptionArrayT<std::string> >("functions", fns);
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }
@@ -308,9 +310,9 @@ BOOST_FIXTURE_TEST_CASE( solve_b, euler2d_local_fixture )
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-  options.add<std::string>("Name","INTERNAL");
-  options.add<std::string>("Type","CF.RDM.Schemes.CSysLDAGPU");
-  options.add("Regions", regions, " ; ");
+  options.add_option< OptionT<std::string> >("Name","INTERNAL");
+  options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.CSysLDAGPU");
+  options.add_option< OptionArrayT<URI> >("Regions", regions);
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 

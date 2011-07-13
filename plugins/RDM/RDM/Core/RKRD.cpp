@@ -314,7 +314,7 @@ void RKRD::signature_signal_create_domain_term( SignalArgs& node )
   // type
 //  std::vector< std::string > restricted;
 //  restricted.push_back( std::string("CF.RDM.Core.BcDirichlet") );
-//  XmlNode type_node = options.add<std::string>("Type", std::string("CF.RDM.Core.BcDirichlet"), "Type for created boundary");
+//  XmlNode type_node = options.add_option< OptionT<std::string> >("Type", std::string("CF.RDM.Core.BcDirichlet"), "Type for created boundary");
 //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions

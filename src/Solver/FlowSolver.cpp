@@ -275,7 +275,7 @@ void FlowSolver::signature_create_bc_action( SignalArgs& node )
   //      bcs.push_back(bdr.name());
 
   // create de value and add the restricted list
-  //  options.add<std::string>( "builder", std::string() , "Choose BC", bcs, " ; ");
+  //  options.add_option< OptionT<std::string> >( "builder", std::string() , "Choose BC", bcs, " ; ");
 
   // name
   options.add_option< OptionT<std::string> >("name", std::string())

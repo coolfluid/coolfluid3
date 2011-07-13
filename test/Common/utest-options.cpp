@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE( StringOption )
   CRoot& root = Core::instance().root();
 
   //root.options().add_option< OptionT<std::string> >("test_option", "Test Option", "test01");
-  add_option<std::string>(root.options(), "test_option", "test01");
+  root.options().add_option< OptionT<std::string> >( "test_option", "test01");
   BOOST_CHECK_EQUAL(root.option("test_option").value_str(), "test01");
 
   root.option("test_option").change_value(std::string("test02"));
