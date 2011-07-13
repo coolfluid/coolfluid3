@@ -184,7 +184,7 @@ void CModel::signature_create_physics ( Common::SignalArgs& node )
   SignalOptions options( node );
 
   CFactory::Ptr pm_factory = Core::instance().factories().get_factory<Physics::PhysModel>();
-  std::vector<std::string> pms;
+  std::vector<boost::any> pms;
 
   // build the restricted list
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *pm_factory ) )
@@ -193,7 +193,9 @@ void CModel::signature_create_physics ( Common::SignalArgs& node )
   }
 
   // create de value and add the restricted list
-  options.add( "builder", std::string() , "Choose solver", pms, " ; ");
+  options.add_option< OptionT<std::string> >( "builder", std::string() )
+      ->set_description("Choose solver")
+      ->restricted_list() = pms;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -201,7 +203,7 @@ void CModel::signature_create_physics ( Common::SignalArgs& node )
 void CModel::signal_create_physics ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
-  std::string builder = options.option<std::string>( "builder" );
+  std::string builder = options.value<std::string>( "builder" );
   create_physics( builder );
 }
 
