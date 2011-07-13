@@ -117,7 +117,7 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     uint quad    =  QD::nb_points; //std::cout<< quad<<std::endl;
     uint nodes   = (*B::coordinates).size();
     uint elements = (*B::connectivity_table).size();
-//std::cout<<PHYS::ndim<<std::endl;
+//std::cout<<PHYS::MODEL::_ndim<<std::endl;
     float A_inter[shape*quad], A_ksi[shape*quad], A_eta[shape*quad];
     float weights[quad];
 

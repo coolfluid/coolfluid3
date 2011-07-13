@@ -25,8 +25,6 @@
 
 #include "Solver/Actions/CLoopOperation.hpp"
 
-#include "RDM/Schemes/FluxOp2D.hpp"
-
 #include "RDM/GPU/CLdeclaration.hpp"
 #include "RDM/GPU/LibGPU.hpp"
 
@@ -37,7 +35,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template < typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS >
+template < typename SF, typename QD, typename PHYS >
 class RDM_GPU_API SchemeLDAGPU : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
@@ -47,9 +45,6 @@ public: // typedefs
   typedef boost::shared_ptr< SchemeLDAGPU const> ConstPtr;
 
   CLEnv env;
-
-  /// type of the helper object to compute the physical operator Lu
-  typedef FluxOp2D<SHAPEFUNC,QUADRATURE,PHYSICS> DiscreteOpType;
 
 public: // functions
 
@@ -66,7 +61,7 @@ public: // functions
   };
 
   /// Get the class name
-  static std::string type_name () { return "SchemeLDAGPU<" + SHAPEFUNC::type_name() + ">"; }
+  static std::string type_name () { return "SchemeLDAGPU<" + SF::type_name() + ">"; }
 	
   /// execute the action
   virtual void execute ();
@@ -111,32 +106,32 @@ private: // data
   /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr wave_speed;
 
-  const QUADRATURE& m_quadrature;
+  const QD& m_quadrature;
 
   /// Values of the solution located in the dof of the element
-  typename DiscreteOpType::SolutionMatrixT m_solution_nd;
+  Eigen::Matrix<Real, SF::nb_nodes, PHYS::MODEL::_neqs>  m_solution_nd;
   /// Values of the operator L(u) computed in quadrature points.
-  typename DiscreteOpType::ResidualMatrixT m_Lu_qd;
+  Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>    m_Lu_qd;
   /// Nodal residuals
-  typename DiscreteOpType::SolutionMatrixT m_phi;
+  Eigen::Matrix<Real, SF::nb_nodes, PHYS::MODEL::_neqs>  m_phi;
 
   /// Integration factor (jacobian multiplied by quadrature weight)
-  Eigen::Matrix<Real, QUADRATURE::nb_points, 1u> m_wj;
+  Eigen::Matrix<Real, QD::nb_points, 1u> m_wj;
 
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename SHAPEFUNC, typename QUADRATURE, typename PHYSICS>
-SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeLDAGPU ( const std::string& name ) :
+template<typename SF, typename QD, typename PHYS>
+SchemeLDAGPU<SF,QD,PHYS>::SchemeLDAGPU ( const std::string& name ) :
   CLoopOperation(name),
-  m_quadrature( QUADRATURE::instance() )
+  m_quadrature( QD::instance() )
 {
   regist_typeinfo(this);
 
-  m_options["Elements"].attach_trigger ( boost::bind ( &SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::change_elements, this ) );
+  m_options["Elements"].attach_trigger ( boost::bind ( &SchemeLDAGPU<SF,QD,PHYS>::change_elements, this ) );
 
-  m_phi.resize(SHAPEFUNC::nb_nodes);
+  m_phi.resize(SF::nb_nodes);
 
   clGetPlatformIDs(1, &env.cpPlatform, NULL);
   clGetDeviceIDs(env.cpPlatform, CL_DEVICE_TYPE_GPU, 1, &env.cdDevice, NULL);
@@ -175,21 +170,21 @@ SchemeLDAGPU<SHAPEFUNC,QUADRATURE,PHYSICS>::SchemeLDAGPU ( const std::string& na
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-template<typename SHAPEFUNC,typename QUADRATURE, typename PHYSICS>
-void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
+template<typename SF,typename QD, typename PHYS>
+void SchemeLDAGPU<SF, QD,PHYS>::execute()
 {
    std::cout<<"LDAGPU"<<std::endl;
 
 
    //boost::timer ctimer;
    uint dim     = 2;
-   uint shape   = SHAPEFUNC::nb_nodes;
-   uint quad    =  QUADRATURE::nb_points;
+   uint shape   = SF::nb_nodes;
+   uint quad    =  QD::nb_points;
    uint nodes   = (*coordinates).size();
    uint elements = (*connectivity_table).size();
 
-   typename SHAPEFUNC::MappedGradientT m_sf_grad_ref; //Gradient of the shape functions in reference space
-   typename SHAPEFUNC::ShapeFunctionsT m_sf_ref;   //Values of shape functions in reference space
+   typename SF::MappedGradientT m_sf_grad_ref; //Gradient of the shape functions in reference space
+   typename SF::ShapeFunctionsT m_sf_ref;   //Values of shape functions in reference space
 
    float A_inter[shape*quad], A_ksi[shape*quad], A_eta[shape*quad];
    float weights[quad];
@@ -200,8 +195,8 @@ void SchemeLDAGPU<SHAPEFUNC, QUADRATURE,PHYSICS>::execute()
        {
            uint elem = idx * shape + idy;
 
-           SHAPEFUNC::shape_function_gradient( m_quadrature.coords.col(idx), m_sf_grad_ref );
-           SHAPEFUNC::shape_function_value ( m_quadrature.coords.col(idx), m_sf_ref   );
+           SF::shape_function_gradient( m_quadrature.coords.col(idx), m_sf_grad_ref );
+           SF::shape_function_value ( m_quadrature.coords.col(idx), m_sf_ref   );
 
            A_inter[elem] = m_sf_ref[idy];
            A_ksi[elem]   = m_sf_grad_ref(KSI,idy);

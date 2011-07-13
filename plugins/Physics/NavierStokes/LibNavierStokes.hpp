@@ -14,8 +14,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro NavierStokes_API
-/// @note build system defines COOLFLUID_NAVIERSTOKES_EXPORTS when compiling Advection diffusion files
-#ifdef COOLFLUID_NAVIERSTOKES_EXPORTS
+/// @note build system defines COOLFLUID_PHYSICS_NAVIERSTOKES_EXPORTS when compiling Advection diffusion files
+#ifdef COOLFLUID_PHYSICS_NAVIERSTOKES_EXPORTS
 #   define NavierStokes_API      CF_EXPORT_API
 #   define TEMPLATE
 #else

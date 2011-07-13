@@ -18,9 +18,10 @@
 #include "Physics/PhysModel.hpp"
 
 #include "RDM/Core/SupportedCells.hpp"    // supported elements
-#include "RDM/Core/LinearAdv2D.hpp"       // supported physics
-#include "RDM/Core/RotationAdv2D.hpp"     // supported physics
-#include "RDM/Core/Burgers2D.hpp"         // supported physics
+
+#include "Physics/Scalar/LinearAdv2D.hpp"       // supported physics
+#include "Physics/Scalar/RotationAdv2D.hpp"     // supported physics
+#include "Physics/Scalar/Burgers2D.hpp"         // supported physics
 
 #include "RDM/GPU/LDAGPU.hpp"
 #include "RDM/GPU/SchemeLDAGPU.hpp"
@@ -104,19 +105,19 @@ void LDAGPU::execute()
     if ( physics == "LinearAdv2D" )
     {
 
-      LDAGPU::ElementLoop<LinearAdv2D> loop( *this, *region );
+      LDAGPU::ElementLoop< Physics::Scalar::LinearAdv2D > loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
 
     if ( physics == "RotationAdv2D" )
     {
-      LDAGPU::ElementLoop<RotationAdv2D> loop( *this, *region );
+      LDAGPU::ElementLoop< Physics::Scalar::RotationAdv2D > loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
 
     if ( physics == "Burgers2D" )
     {
-      LDAGPU::ElementLoop<Burgers2D> loop( *this, *region );
+      LDAGPU::ElementLoop< Physics::Scalar::Burgers2D > loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
   }
