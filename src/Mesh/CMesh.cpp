@@ -47,7 +47,11 @@ CMesh::CMesh ( const std::string& name  ) :
   m_properties.add_property("nb_cells",Uint(0));
   m_properties.add_property("nb_nodes",Uint(0));
   m_properties.add_property("dimensionality",Uint(0));
-  m_options.add_option< OptionT<Uint> >("dimension", "Dimension", "Dimension of the mesh (set automatically)", Uint(0))->link_to(&m_dimension); //TODO: Hide this, or make properties with triggers?
+
+  m_options.add_option< OptionT<Uint> >("dimension", Uint(0))
+      ->set_description("Dimension of the mesh (set automatically)")
+      ->set_pretty_name("Dimension")
+      ->link_to(&m_dimension); //TODO: Hide this, or make properties with triggers?
 
   mark_basic(); // by default meshes are visible
 
@@ -247,11 +251,13 @@ void CMesh::signature_write_mesh ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add<std::string>("file" , name()+".msh" , "File to write" );
+  options.add_option< OptionT<std::string> >("file" , name() + ".msh" )
+      ->set_description("File to write" );
 
   boost_foreach (CField& field, find_components<CField>(*this))
   {
-    options.add<bool>(field.name(), false, "Mark if field gets to be written");
+    options.add_option< OptionT<bool> >(field.name(), false )
+        ->set_description("Mark if field gets to be written");
   }
 }
 
@@ -263,11 +269,10 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
 
   SignalOptions options( node );
 
-
   std::string file = name()+".msh";
 
-  if (options.exists("file"))
-      file = options.option<std::string>("file");
+  if (options.check("file"))
+    file = options.value<std::string>("file");
 
   // check protocol for file loading
   // if( file.scheme() != URI::Scheme::FILE )
@@ -281,9 +286,9 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
 
   boost_foreach( CField& field, find_components<CField>(*this))
   {
-    if (options.exists(field.name()))
+    if (options.check(field.name()))
     {
-      bool add_field = options.option<bool>(field.name());
+      bool add_field = options.value<bool>( field.name() );
       if (add_field)
         fields.push_back(field.uri());
     }

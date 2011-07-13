@@ -33,19 +33,23 @@ struct Model::Implementation
     m_physical_model(m_component.create_static_component_ptr<CPhysicalModel>("PhysicalModel"))
   {
     m_physical_model.lock()->configure_option("mesh", m_mesh);
-    m_component.options().add_option< OptionURI >("input_file", "Input File", "Path to the mesh that is read when the \"Read Mesh\" signal is called")
-      ->link_to(&m_input_file);
-    m_component.options().add_option< OptionURI >("output_file", "Output File", "Path to the mesh that is written when the \"Write Mesh\" signal is called")
-      ->link_to(&m_output_file);
+    m_component.options().add_option< OptionURI >("input_file", URI())
+        ->set_description("Path to the mesh that is read when the \"Read Mesh\" signal is called")
+        ->set_pretty_name("Input File")
+        ->link_to(&m_input_file);
+    m_component.options().add_option< OptionURI >("output_file", URI())
+        ->set_description("Path to the mesh that is written when the \"Write Mesh\" signal is called")
+        ->set_pretty_name("Output File")
+        ->link_to(&m_output_file);
   }
-  
+
   Component& m_component;
   boost::weak_ptr<CMesh> m_mesh;
   boost::weak_ptr<CPhysicalModel> m_physical_model;
-  
+
   boost::weak_ptr<LoadMesh> m_load_mesh;
   boost::weak_ptr<WriteMesh> m_write_mesh;
-  
+
   URI m_input_file;
   URI m_output_file;
 };
@@ -56,7 +60,7 @@ Model::Model(const std::string& name) :
 {
   configure_option("physical_model", m_implementation->m_physical_model);
   configure_option("region", m_implementation->m_mesh.lock()->topology().as_ptr<CRegion>());
-  
+
   regist_signal( "read_mesh" , "Read the mesh, as configured in the Input File option", "Read Mesh" )
     ->signal->connect ( boost::bind ( &Model::signal_read_mesh, this, _1 ) );
   regist_signal( "write_mesh" , "Write the mesh, as configured in the Output File option", "Write Mesh" )
@@ -78,7 +82,7 @@ void Model::signal_read_mesh(CF::Common::SignalArgs& node)
 {
   if(m_implementation->m_load_mesh.expired()) // created on-demand
     m_implementation->m_load_mesh = create_static_component_ptr<LoadMesh>("MeshLoader");
-  
+
   m_implementation->m_load_mesh.lock()->load_mesh_into(m_implementation->m_input_file, *m_implementation->m_mesh.lock());
 }
 
@@ -87,7 +91,7 @@ void Model::signal_write_mesh(CF::Common::SignalArgs& node)
 {
   if(m_implementation->m_write_mesh.expired()) // created on-demand
     m_implementation->m_write_mesh = create_static_component_ptr<WriteMesh>("MeshWriter");
-  
+
   std::vector<URI> state_fields;
   physical_model().state_fields(state_fields);
   m_implementation->m_write_mesh.lock()->write_mesh(*m_implementation->m_mesh.lock(), m_implementation->m_output_file, state_fields);

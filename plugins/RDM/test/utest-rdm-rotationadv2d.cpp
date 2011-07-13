@@ -20,6 +20,9 @@
 #include "Common/Foreach.hpp"
 #include "Common/LibLoader.hpp"
 #include "Common/OSystem.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -71,8 +74,10 @@ struct global_fixture
     SignalFrame frame;
     SignalOptions options( frame );
 
-    options.add<std::string>("ModelName","mymodel");
-    options.add<std::string>("PhysicalModel","RotationAdv2D");
+    options.add_option< OptionT<std::string> >("ModelName","mymodel");
+    options.add_option< OptionT<std::string> >("PhysicalModel","RotationAdv2D");
+
+    options.flush();
 
     wizard->signal_create_model(frame);
 
@@ -134,8 +139,10 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 //  URI file ( "file:rotation-qd-p3.msh" );
 //  URI file ( "file:rotation-qd-p4.msh" );
 
-  options.add("file", file );
-  options.add<std::string>("name", std::string("Mesh") );
+  options.add_option< OptionURI >("file", file );
+  options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
+
+  options.flush();
 
   domain.signal_load_mesh( frame );
 
@@ -154,7 +161,9 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 
   std::vector<std::string> functions(1);
   functions[0] = "x*x+y*y";
-  options.add<std::string>("functions", functions, " ; ");
+  options.add_option< OptionArrayT<std::string> >("functions", functions);
+
+  options.flush();
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 
@@ -200,9 +209,11 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
     std::string name ("INLET");
 
-    options.add<std::string>("Name",name);
-    options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
-    options.add("Regions", regions, " ; ");
+    options.add_option< OptionT<std::string> >("Name",name);
+    options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.BcDirichlet");
+    options.add_option< OptionArrayT<URI> >("Regions", regions);
+
+    options.flush();
 
     solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -228,9 +239,11 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
     std::string name ("FARFIELD");
 
-    options.add<std::string>("Name",name);
-    options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
-    options.add("Regions", regions, " ; ");
+    options.add_option< OptionT<std::string> >("Name",name);
+    options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.BcDirichlet");
+    options.add_option< OptionArrayT<URI> >("Regions", regions);
+
+    options.flush();
 
     solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -279,9 +292,11 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 
     BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-    options.add<std::string>("Name","INTERNAL");
-    options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
-    options.add("Regions", regions, " ; ");
+    options.add_option< OptionT<std::string> >("Name","INTERNAL");
+    options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.CSysLDA");
+    options.add_option< OptionArrayT<URI> >("Regions", regions);
+
+    options.flush();
 
     solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 

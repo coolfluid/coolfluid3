@@ -11,6 +11,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/CGroupActions.hpp"
 #include "Common/Signal.hpp"
 
@@ -72,16 +73,55 @@ SFDWizard::SFDWizard( const std::string& name )
   m_properties["brief"] = std::string("MISSING");
   m_properties["description"] = std::string("MISSING");
 
-  m_options.add_option( OptionT<std::string>::create("model","Model Name","Name to give to the simulation model","SFD_simulation") )->mark_basic();
-  m_options.add_option( OptionT<Uint>::create("dim","Dimension","Dimension of the simulation",1u) )->mark_basic();
-  //options().add_option( OptionT<std::string>::create("physics","Physics","Builder name for the physical model","CF.") )->mark_basic();
-  m_options.add_option( OptionT<std::string>::create("solution_state","Solution State","Solution state builder","CF.Euler.Cons1D") )->mark_basic();
-  m_options.add_option( OptionT<std::string>::create("roe_state","Roe State","Roe state builder","CF.Euler.Roe1D") )->mark_basic();
-  m_options.add_option( OptionT<Uint>::create("P","Polynomial Order","The order of the polynomial of the solution",0u) )->mark_basic();
-  m_options.add_option( OptionT<Uint>::create("RK_stages","Runge Kutta stages","The number of Runge Kutta stages",2u) )->mark_basic();
-  m_options.add_option( OptionT<Real>::create(FlowSolver::Tags::cfl(),"CFL","The Courant-Friedrichs-Lax Number",1.) )->mark_basic();
-  m_options.add_option( OptionT<bool>::create(FlowSolver::Tags::time_accurate(),"Time Accurate","Time accurate or steady state",true) )->mark_basic();
-  m_options.add_option( OptionT<bool>::create("output_file","Output File","File to write","mesh_t${time}.msh") )->mark_basic();
+  m_options.add_option( OptionT<std::string>::create("model", "SFD_simulation") )
+    ->set_description("Name to give to the simulation model")
+    ->set_pretty_name("Model Name")
+    ->mark_basic();
+
+  m_options.add_option( OptionT<Uint>::create("dim", 1u) )
+    ->set_description("Dimension of the simulation")
+    ->set_pretty_name("Dimension")
+    ->mark_basic();
+
+  //options().add_option( OptionT<std::string>::create("physics", "CF.") )
+  //  ->set_description("Builder name for the physical model")
+  //  ->set_pretty_name("Physics")
+  //  ->mark_basic();
+
+  m_options.add_option( OptionT<std::string>::create("solution_state", "CF.Euler.Cons1D") )
+    ->set_description("Solution state builder")
+    ->set_pretty_name("Solution State")
+    ->mark_basic();
+
+  m_options.add_option( OptionT<std::string>::create("roe_state", "CF.Euler.Roe1D") )
+    ->set_description("Roe state builder")
+    ->set_pretty_name("Roe State")
+    ->mark_basic();
+
+  m_options.add_option( OptionT<Uint>::create("P", 0u) )
+    ->set_description("The order of the polynomial of the solution")
+    ->set_pretty_name("Polynomial Order")
+    ->mark_basic();
+
+  m_options.add_option( OptionT<Uint>::create("RK_stages", 2u) )
+    ->set_description("The number of Runge Kutta stages")
+    ->set_pretty_name("Runge Kutta stages")
+    ->mark_basic();
+
+  m_options.add_option( OptionT<Real>::create(FlowSolver::Tags::cfl(), 1.) )
+    ->set_description("The Courant-Friedrichs-Lax Number")
+    ->set_pretty_name("CFL")
+    ->mark_basic();
+
+  m_options.add_option( OptionT<bool>::create(FlowSolver::Tags::time_accurate(), true) )
+    ->set_description("Time accurate or steady state")
+    ->set_pretty_name("Time Accurate")
+    ->mark_basic();
+
+  m_options.add_option( OptionT<bool>::create("output_file", "mesh_t${time}.msh") )
+    ->set_description("File to write")
+    ->set_pretty_name("Output File")
+    ->mark_basic();
 
   SignalPtr sig_create_simulation = regist_signal ( "create_simulation" , "Create a simulation", "Create Simulation" );
     sig_create_simulation->signal    -> connect ( boost::bind ( &SFDWizard::signal_create_simulation, this, _1 ) );
@@ -250,7 +290,8 @@ void SFDWizard::signature_initialize_solution( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add("functions", std::vector<std::string>() , "Analytical functions (x,y,z) ", " ; " );
+  options.add_option< OptionArrayT<std::string> >("functions", std::vector<std::string>() )
+     ->set_description("Analytical functions (x,y,z)");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -285,9 +326,12 @@ void SFDWizard::signature_start_simulation( SignalArgs& node )
 
   // name
   CTime& time = m_model_link->follow()->as_type<CModel>().time();
-  options.add<Real>("current_time", time.time() , "End Time" );
-  options.add<Real>("end_time", time.option("end_time").value<Real>() , "End Time" );
-  options.add<Real>("time_step", time.option("time_step").value<Real>() , "End Time" );
+  options.add_option< OptionT<Real> >("current_time", time.time())
+     ->set_description("Current Time" );
+  options.add_option< OptionT<Real> >("end_time", time.option("end_time").value<Real>())
+     ->set_description("End Time" );
+  options.add_option< OptionT<Real> >("time_step", time.option("time_step").value<Real>())
+     ->set_description("Time Step" );
 }
 
 //////////////////////////////////////////////////////////////////////////////

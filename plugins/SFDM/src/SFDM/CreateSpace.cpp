@@ -40,7 +40,9 @@ CreateSpace::CreateSpace( const std::string& name )
   m_properties["brief"] = std::string("Create space for SFDM shape function");
   m_properties["description"] = std::string("The polynomial order \"P\" of the solution is configurable, default: P = 0");
 
-  m_options.add_option( OptionT<Uint>::create("P","Polynomial Order","The order of the polynomial of the solution",0u) );
+  m_options.add_option( OptionT<Uint>::create("P", 0u) )
+    ->set_description("The order of the polynomial of the solution")
+    ->set_pretty_name("Polynomial Order");
 }
 
 /////////////////////////////////////////////////////////////////////////////

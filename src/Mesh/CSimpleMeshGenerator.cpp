@@ -43,17 +43,25 @@ CSimpleMeshGenerator::CSimpleMeshGenerator ( const std::string& name  ) :
 {
   mark_basic();
 
-  m_options.add_option<OptionArrayT<Uint> >("nb_cells","Number of Cells","Vector of number of cells in each direction",m_nb_cells)
-    ->link_to(&m_nb_cells)
-    ->mark_basic();
+  m_options.add_option<OptionArrayT<Uint> >("nb_cells", m_nb_cells)
+      ->set_description("Vector of number of cells in each direction")
+      ->set_pretty_name("Number of Cells")
+      ->link_to(&m_nb_cells)
+      ->mark_basic();
 
-  m_options.add_option<OptionArrayT<Real> >("lengths","Lengths","Vector of lengths each direction",m_lengths)
-    ->link_to(&m_lengths)
-    ->mark_basic();
+  m_options.add_option<OptionArrayT<Real> >("lengths", m_lengths)
+      ->set_description("Vector of lengths each direction")
+      ->set_pretty_name("Lengths")
+      ->link_to(&m_lengths)
+      ->mark_basic();
 
-  m_options.add_option(OptionT<Uint>::create("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",mpi::PE::instance().size()));
+  m_options.add_option(OptionT<Uint>::create("nb_parts", mpi::PE::instance().size()))
+      ->set_description("Total number of partitions (e.g. number of processors)")
+      ->set_pretty_name("Number of Partitions");
 
-  m_options.add_option(OptionT<bool>::create("bdry","Boundary","Generate Boundary",true));
+  m_options.add_option(OptionT<bool>::create("bdry", true))
+      ->set_description("Generate Boundary")
+      ->set_pretty_name("Boundary");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +89,7 @@ void CSimpleMeshGenerator::execute()
   }
   else
   {
-    throw SetupError(FromHere(),"Invalid size of the vector number of cells. Only 1D and 2D supported now.");
+    throw SetupError(FromHere(), "Invalid size of the vector number of cells. Only 1D and 2D supported now.");
   }
 
 }

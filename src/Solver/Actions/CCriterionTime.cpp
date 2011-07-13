@@ -29,9 +29,11 @@ CCriterionTime::CCriterionTime( const std::string& name  ) :
     "Returns true if a time is reached\n";
   m_properties["description"] = description;
 
-  m_options.add_option(OptionComponent<CTime>::create("time","Time","Time tracking component",&m_time))
-    ->mark_basic()
-    ->add_tag("time");
+  m_options.add_option(OptionComponent<CTime>::create("time", &m_time))
+      ->set_description("Time tracking component")
+      ->set_pretty_name("Time")
+      ->mark_basic()
+      ->add_tag("time");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

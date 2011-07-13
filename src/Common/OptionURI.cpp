@@ -17,18 +17,18 @@
 using namespace CF::Common;
 using namespace CF::Common::XML;
 
-OptionURI::OptionURI(const std::string & name, const std::string & desc,
-                     const URI & def) :
-  Option(name, desc, def)
+///////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace Common {
+
+///////////////////////////////////////////////////////////////////////////////
+
+
+OptionURI::OptionURI(const std::string & name, const URI & def) :
+  Option(name,  def)
 {
   m_restricted_list.push_back(def);
-}
-
-OptionURI::OptionURI(const std::string & name, const std::string& readable_name,
-                     const std::string & desc, const URI & def) :
-  Option(name, readable_name, desc, def)
-{
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -107,4 +107,18 @@ void OptionURI::copy_to_linked_params ( const boost::any& val )
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+void OptionURI::set_supported_protocols( const std::vector<URI::Scheme::Type> & prots )
+{
+  std::vector<URI::Scheme::Type>::const_iterator it = prots.begin();
+  m_protocols.clear();
+
+  for( ; it != prots.end() ; ++it)
+    supported_protocol( *it );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+} // Common
+} // CF
 

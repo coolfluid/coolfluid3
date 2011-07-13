@@ -9,13 +9,16 @@
 
 #include <boost/test/unit_test.hpp>
 
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
 #include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -53,10 +56,11 @@ BOOST_AUTO_TEST_CASE( constructor )
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:rotation-tg-p1.neu" );
-  options.add("location", URI( domain->uri().string()) );
-  options.add<std::string>("name", std::string("Mesh") );
-  options.add("files", files, " ; ");
+  options.add_option< OptionURI >("location", URI( domain->uri().string()) );
+  options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
+  options.add_option< OptionArrayT<URI> >("files", files);
 
+  options.flush();
   load_mesh->signal_load_mesh(frame);
 }
 

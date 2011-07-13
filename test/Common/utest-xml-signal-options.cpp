@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   map.set_value<URI>("website", URI("http://coolfluidsrv.vki.ac.be"), "CF website")
       .set_attribute( Protocol::Tags::attr_uri_schemes(), "http");
 
-  SignalOptionList options( frame );
+  SignalOptions options( frame );
 
   //
   // 1. check option "my_bool"

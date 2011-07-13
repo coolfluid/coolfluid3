@@ -77,7 +77,7 @@ template<typename T>
 typename SelectOptionType<T>::type& add_option(OptionList& options, const std::string& name, const typename SelectValueType<T>::type& default_value = typename SelectValueType<T>::type())
 {
   typedef typename SelectOptionType<T>::type OptionType;
-  return dynamic_cast<OptionType&>(*options.add_option<OptionType>(name, "", default_value));
+  return dynamic_cast<OptionType&>(*options.add_option<OptionType>(name, default_value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( TestOptionRealVector )
 
   RealVector v(2);
   v.setZero();
-  
+
   // Since the result is properly typed, we can immediately call supported_protocol
   add_option<RealVector>(root.options(), "test_vec_option", v);
 

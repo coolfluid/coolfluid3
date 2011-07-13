@@ -57,19 +57,27 @@ ForwardEuler::ForwardEuler ( const std::string& name ) :
 
   // options
 
-  m_options.add_option< OptionT<Real> > ("cfl","CFL", "Courant Number", m_cfl)
+  m_options.add_option< OptionT<Real> > ("cfl", m_cfl)
+      ->set_description("Courant Number")
+      ->set_pretty_name("CFL")
       ->mark_basic()
       ->link_to(&m_cfl);
 
-  m_options.add_option<OptionT <Uint> >("MaxIter", "Maximum number of iterations", m_max_iter)
+  m_options.add_option<OptionT <Uint> >("MaxIter", m_max_iter)
+      ->set_description("Maximum number of iterations")
       ->mark_basic()
       ->link_to( &m_max_iter );
 
-  m_options.add_option(OptionComponent<CField>::create("solution","Solution","Solution field", &m_solution));
+  m_options.add_option(OptionComponent<CField>::create("solution", &m_solution))
+      ->set_description("Solution field")
+      ->set_pretty_name("Solution");
 
-  m_options.add_option(OptionComponent<CField>::create("wave_speed","WaveSpeed","Wave speed field", &m_wave_speed));
+  m_options.add_option(OptionComponent<CField>::create("wave_speed", &m_wave_speed))
+      ->set_description("Wave speed field")
+      ->set_pretty_name("WaveSpeed");
 
-  m_options.add_option(OptionComponent<CField>::create("residual","Residual field", &m_residual));
+  m_options.add_option(OptionComponent<CField>::create("residual", &m_residual))
+      ->set_description("Residual field");
 
   create_static_component_ptr<CCriterionMaxIterations>("max_iterations");
 
@@ -167,7 +175,9 @@ void ForwardEuler::execute()
 
    SignalFrame frame ( "iteration_done", URI(), URI() );
    SignalOptions opts( frame );
-   opts.add<Uint>("iteration", iteration);
+   opts.add_option< OptionT<Uint> >("iteration", iteration);
+
+   opts.flush();
 
    Core::instance().event_handler().raise_event( "iteration_done", frame);
 

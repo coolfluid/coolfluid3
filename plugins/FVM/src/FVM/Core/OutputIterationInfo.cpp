@@ -41,9 +41,13 @@ OutputIterationInfo::OutputIterationInfo ( const std::string& name ) :
   mark_basic();
   // options
 
-  m_options.add_option(OptionComponent<CTime>::create("time","Time","Time tracking component", &m_time));
+  m_options.add_option(OptionComponent<CTime>::create("time", &m_time))
+      ->set_description("Time tracking component")
+      ->set_pretty_name("Time");
 
-  m_options.add_option(OptionComponent<CField>::create("residual","Residual","Residual", &m_residual));
+  m_options.add_option(OptionComponent<CField>::create("residual", &m_residual))
+      ->set_description("Residual")
+      ->set_pretty_name("Residual");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

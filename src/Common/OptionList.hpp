@@ -9,16 +9,24 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+//#include <boost/type_traits/is_base_of.hpp>
+
 #include "Common/Option.hpp"
 
 namespace CF {
 namespace Common {
 
+//class Component;
+//template<typename T> class OptionComponent;
+//template<typename T> class OptionT;
+//template<typename T> struct SelectValueType;
+
 /////////////////////////////////////////////////////////////////////////////////////
 
   /// Class defines a list of options to be used in the ConfigObject class
   /// @author Tiago Quintino
-  class Common_API OptionList {
+  class Common_API OptionList
+  {
 
   public:
 
@@ -28,33 +36,28 @@ namespace Common {
     typedef OptionStorage_t::iterator       iterator;
     typedef OptionStorage_t::const_iterator const_iterator;
 
-  public:
+//    /// Helper to choose the appropriate return type
+//    template<typename T>
+//    struct SelectOptionType
+//    {
+//      typedef typename boost::mpl::if_
+//      <
+//        boost::is_base_of<Component, T>, // If T is a component...
+//        OptionComponent<T>,              // we return an OptionComponent
+//        OptionT<T>                       // otherwise we have a generic option
+//      >::type type;
+//    };
 
-    /// adds a property to the list
-//    Property::Ptr add_property (const std::string& name, const boost::any & value);
+  public:
 
     /// adds an option to the list
     template < typename OPTION_TYPE >
     Option::Ptr add_option (const std::string& name,
-                            const std::string& description,
                             const typename OPTION_TYPE::value_type& def=typename OPTION_TYPE::value_type() )
     {
       cf_assert_desc ( "Class has already property with same name",
                        this->store.find(name) == store.end() );
-      Option::Ptr opt ( new OPTION_TYPE(name, description, def) );
-      store.insert( std::make_pair(name, opt ) );
-      return opt;
-    }
-
-    template < typename OPTION_TYPE >
-    Option::Ptr add_option (const std::string& name,
-                            const std::string& pretty_name,
-                            const std::string& description,
-                            const typename OPTION_TYPE::value_type& def)
-    {
-      cf_assert_desc ( "Class has already property with same name",
-                       this->store.find(name) == store.end() );
-      Option::Ptr opt ( new OPTION_TYPE(name, pretty_name, description, def) );
+      Option::Ptr opt ( new OPTION_TYPE(name, def) );
       store.insert( std::make_pair(name, opt ) );
       return opt;
     }
@@ -69,6 +72,11 @@ namespace Common {
       store.insert( std::make_pair(option->name(), opt ) );
       return opt;
     }
+
+
+//    /// Add option, variant with default parameter
+//    template<typename T>
+//    typename SelectOptionType<T>::type::Ptr add_opt(const std::string& name, const typename SelectOptionType<T>::type::value_type & default_value = typename SelectValueType<T>::type());
 
     /// sets a link to the option
     template < typename TYPE >

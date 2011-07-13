@@ -24,6 +24,8 @@
 #include <stdexcept>
 #include <cstdlib>      // for abs()
 
+#include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/Signal.hpp"
 
 #include "Common/XML/Protocol.hpp"
@@ -738,10 +740,10 @@ void NRemoteBrowser::openDir(const QString & path)
     it++;
   }
 
-  options.add("dirPath", path.toStdString());
-  options.add("includeFiles", m_includeFiles);
-  options.add("includeNoExtensions", m_includeNoExtension);
-  options.add<std::string>("extensions", vect, " ; ");
+  options.add_option< OptionT<std::string> >("dirPath", path.toStdString());
+  options.add_option< OptionT<bool> >("includeFiles", m_includeFiles);
+  options.add_option< OptionT<bool> >("includeNoExtensions", m_includeNoExtension);
+  options.add_option< OptionArrayT<std::string> >("extensions", vect);
 
   ThreadManager::instance().network().send(frame);
 }
@@ -755,7 +757,7 @@ void NRemoteBrowser::read_dir(SignalArgs & args)
   std::vector<std::string> dirs;
   std::vector<std::string> files;
 
-  m_currentPath = options.option<std::string>("dirPath").c_str();
+  m_currentPath = options.value<std::string>("dirPath").c_str();
 
   // add an ending '/' if the string does not have any
   if(!m_currentPath.endsWith(m_pathSep))

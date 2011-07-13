@@ -668,7 +668,10 @@ Option::Ptr makeOptionT(const std::string & name, const std::string & pretty_nam
 
   std::vector<TYPE> restr_list;
 
-  Option::Ptr option(new Common::OptionT<TYPE>(name, pretty_name, descr, value));
+  Option::Ptr option(new Common::OptionT<TYPE>(name, value));
+
+  option->set_description( descr );
+  option->set_pretty_name( pretty_name );
 
 
   if(restr_node.is_valid())
@@ -704,7 +707,10 @@ typename OptionArrayT<TYPE>::Ptr makeOptionArrayT(const std::string & name,
 {
   std::vector<TYPE> value = Map().array_to_vector<TYPE>(node);
 
-  typename OptionArrayT<TYPE>::Ptr option(new OptionArrayT<TYPE>(name, pretty_name, descr, value));
+  typename OptionArrayT<TYPE>::Ptr option(new OptionArrayT<TYPE>(name, value));
+
+  option->set_description( descr );
+  option->set_pretty_name( pretty_name );
 
   XmlNode restr_node = Map(node.content->parent()).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
@@ -779,7 +785,10 @@ Option::Ptr CNode::makeOption(const XmlNode & node)
 
         std::vector<URI> restr_list;
 
-        optURI = OptionURI::Ptr (new Common::OptionURI(key_str, pretty_name, descr_str, value));
+        optURI = OptionURI::Ptr (new Common::OptionURI(key_str, value));
+
+        optURI->set_description( descr_str );
+        optURI->set_pretty_name( pretty_name );
 
         if(restr_node.is_valid())
 

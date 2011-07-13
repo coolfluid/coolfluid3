@@ -37,14 +37,11 @@ namespace Common {
 
     typedef TYPE value_type;
 
-    OptionT ( const std::string& name, const std::string& desc, value_type def);
+    OptionT ( const std::string& name, value_type def);
 
-    OptionT ( const std::string& name, const std::string& readable_name, const std::string& desc, value_type def);
-
-    static Option::Ptr create(const std::string & name, const std::string& readable_name,
-                              const std::string & desc, const TYPE& def)
+    static Option::Ptr create(const std::string & name, const TYPE& def)
     {
-      return Option::Ptr ( new OptionT(name,readable_name,desc,def) );
+      return Option::Ptr ( new OptionT(name, def) );
     }
 
     /// @name VIRTUAL FUNCTIONS

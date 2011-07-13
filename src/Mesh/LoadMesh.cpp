@@ -7,10 +7,12 @@
 #include "Common/Signal.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -136,7 +138,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
 
   SignalOptions options( node );
 
-  URI path = options.option<URI>("location");
+  URI path = options.value<URI>("location");
 
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Parent Component, expecting a \'cpath\' but got \'" + path.string() +"\'");
@@ -158,7 +160,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = parent_component.create_component_ptr<CMesh>(options.option<std::string>("name"));
+    CMesh::Ptr mesh = parent_component.create_component_ptr<CMesh>(options["name"].value<std::string>());
 
     // Get the file paths
     boost_foreach(URI file, files)
@@ -204,7 +206,7 @@ void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
 
   std::vector<URI> dummy;
   CFactory::Ptr meshreader_factory = Core::instance().factories().get_factory<CMeshReader>();
-  std::vector<std::string> readers;
+  std::vector<boost::any> readers;
 
   // build the restricted list
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_factory ) )
@@ -212,14 +214,19 @@ void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
     readers.push_back(bdr.name());
   }
 
-  options.add("location", URI(), "Path to the component to hold the mesh" );
+  options.add_option<OptionURI>("location", URI() )
+      ->set_description("Path to the component to hold the mesh");
 
-  options.add<std::string>("name", std::string("mesh"), "Name of the mesh" );
+  options.add_option< OptionT<std::string> >("name", std::string("mesh") )
+      ->set_description("Name of the mesh");
 
   // create de value and add the restricted list
-  options.add( "readers", readers[0] , "Available readers", readers, " ; ");
+  options.add_option< OptionT<std::string> >( "readers", boost::any_cast<std::string>(readers[0]) )
+      ->set_description("Available readers" )
+      ->restricted_list() = readers ;
 
-  options.add("files", dummy , " ; ", "Files to read" );
+  options.add_option< OptionArrayT<URI> >( "files", dummy )
+      ->set_description( "Files to read" );
 }
 
 } // Mesh

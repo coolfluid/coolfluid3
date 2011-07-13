@@ -40,12 +40,12 @@ void PropertyModelTest::initTestCase()
   props.store.clear();
   opts.store.clear();
 
-  opts.add_option< OptionURI >("AnUriOption", "", URI("cpath://Root"));
+  opts.add_option< OptionURI >("AnUriOption", URI("cpath://Root"));
   props.add_property("Euler", Real(2.71));
-  opts.add_option< OptionT<std::string> >("MyString", "", std::string("Hello, World!"));
+  opts.add_option< OptionT<std::string> >("MyString", std::string("Hello, World!"));
   props.add_property("Pi", Real(3.14159));
-  opts.add_option< OptionT<bool> >("SomeBool", "", true);
-  opts.add_option< OptionT<int> >("SomeInt", "", int(-2168454));
+  opts.add_option< OptionT<bool> >("SomeBool", true);
+  opts.add_option< OptionT<int> >("SomeInt", int(-2168454));
   props.add_property("TheAnswer", Uint(42));
 
   QCOMPARE( props.store.size(), size_t(3));

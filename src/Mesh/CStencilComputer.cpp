@@ -29,15 +29,19 @@ CStencilComputer::CStencilComputer( const std::string& name )
   : Component(name)
 {
 
-  m_options.add_option(OptionComponent<CMesh>::create("mesh","Mesh","Mesh to create octtree from",&m_mesh))
-    ->attach_trigger(boost::bind(&CStencilComputer::configure_mesh,this))
-    ->mark_basic();
+  m_options.add_option(OptionComponent<CMesh>::create("mesh", &m_mesh))
+      ->set_description("Mesh to create octtree from")
+      ->set_pretty_name("Mesh")
+      ->attach_trigger(boost::bind(&CStencilComputer::configure_mesh,this))
+      ->mark_basic();
 
   m_elements = create_component_ptr<CUnifiedData>("elements");
 
   m_min_stencil_size=1;
-  m_options.add_option(OptionT<Uint>::create("stencil_size","Stencil Size","The minimum amount of cells in a stencil", m_min_stencil_size ))
-    ->link_to(&m_min_stencil_size);
+  m_options.add_option(OptionT<Uint>::create("stencil_size", m_min_stencil_size ))
+      ->set_description("The minimum amount of cells in a stencil")
+      ->set_pretty_name("Stencil Size")
+      ->link_to(&m_min_stencil_size);
 
 }
 

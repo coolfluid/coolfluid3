@@ -68,7 +68,7 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name  = options.option<std::string>("ModelName");
+  std::string name  = options.value<std::string>("ModelName");
 
   CModel& model = Core::instance().root().create_component<CModelSteady>( name );
 
@@ -78,7 +78,7 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
 
   // create the Physical Model
 
-  std::string phys  = options.option<std::string>("PhysicalModel");
+  std::string phys  = options.value<std::string>("PhysicalModel");
 
   PhysModel::Ptr pm = build_component_abstract_type<PhysModel>( phys, "Physics");
   pm->mark_basic();
@@ -101,16 +101,18 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add<std::string>("ModelName", std::string(), "Name for created model" );
+  options.add_option< OptionT<std::string> >("ModelName", std::string() )
+      ->set_description("Name for created model" );
 
-  std::vector<std::string> models = boost::assign::list_of
+  std::vector<boost::any> models = boost::assign::list_of
       ( Scalar::Scalar2D::type_name() )
       ( Scalar::Scalar3D::type_name() )
       ( Scalar::ScalarSys2D::type_name() )
       ( NavierStokes::NavierStokes2D::type_name() ) ;
 
-  options.add<std::string>("PhysicalModel", std::string(), "Name of the Physical Model", models, " ; ");
-
+  options.add_option< OptionT<std::string> >("PhysicalModel", std::string() )
+      ->set_description("Name of the Physical Model")
+      ->restricted_list() = models;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

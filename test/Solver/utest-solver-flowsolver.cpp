@@ -52,8 +52,13 @@ class Solver_API Echo : public CAction
 
   Echo(const std::string& name ) : CAction(name)
   {
-    m_options.add_option(OptionT<std::string>::create("echo","Echo","Print to screen","echo"));
-    m_options.add_option(OptionArrayT<URI>::create("regions","Regions","Print to screen",std::vector<URI>()));
+    m_options.add_option(OptionT<std::string>::create("echo", "echo"))
+        ->set_description("Print to screen")
+        ->set_pretty_name("Echo");
+
+    m_options.add_option(OptionArrayT<URI>::create("regions", std::vector<URI>()))
+        ->set_description("Print to screen")
+        ->set_pretty_name("Regions");
   }
   virtual ~Echo() {}
 

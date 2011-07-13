@@ -18,6 +18,9 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/LibLoader.hpp"
 #include "Common/OSystem.hpp"
@@ -72,8 +75,11 @@ struct global_fixture
     SignalFrame frame;
     SignalOptions options( frame );
 
-    options.add<std::string>("ModelName","mymodel");
-    options.add<std::string>("PhysicalModel","Euler2D");
+
+    options.add_option< OptionT<std::string> >("ModelName","mymodel");
+    options.add_option< OptionT<std::string> >("PhysicalModel","Euler2D");
+
+    options.flush();
 
     wizard->signal_create_model(frame);
 
@@ -147,8 +153,10 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
 //  URI file( "file:square1x1-tgqd-p1-298n.msh" );   // works
 
-  options.add("file", file );
-  options.add<std::string>("name", std::string("Mesh") );
+  options.add_option< OptionURI >("file", file );
+  options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
+
+  options.flush();
 
   domain.signal_load_mesh( frame );
 
@@ -190,9 +198,11 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , local_fixture )
 
   std::string name ("INLET");
 
-  options.add<std::string>("Name",name);
-  options.add<std::string>("Type","CF.RDM.Core.WeakDirichlet");
-  options.add("Regions", regions, " ; ");
+  options.add_option< OptionT<std::string> >("Name",name);
+  options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.WeakDirichlet");
+  options.add_option< OptionArrayT<URI> >("Regions", regions);
+
+  options.flush();
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -238,7 +248,9 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 //  fns[2] = "1.67332";
 //  fns[3] = "3.425";
 
-  options.add<std::string>("functions", fns, " ; ");
+  options.add_option< OptionArrayT<std::string> >("functions", fns);
+
+  options.flush();
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }
@@ -282,9 +294,11 @@ BOOST_FIXTURE_TEST_CASE( solve_b, local_fixture )
 
   BOOST_CHECK_EQUAL( regions.size() , 1u);
 
-  options.add<std::string>("Name","INTERNAL");
-  options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
-  options.add("Regions", regions, " ; ");
+  options.add_option< OptionT<std::string> >("Name","INTERNAL");
+  options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.CSysLDA");
+  options.add_option< OptionArrayT<URI> >("Regions", regions);
+
+  options.flush();
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 

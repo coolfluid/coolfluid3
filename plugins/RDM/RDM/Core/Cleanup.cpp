@@ -26,13 +26,14 @@ namespace RDM {
 Common::ComponentBuilder < Cleanup, CAction, LibCore > Cleanup_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
+
 Cleanup::Cleanup ( const std::string& name ) : Solver::Action(name)
 {
   mark_basic();
 
   std::vector< URI > dummy;
-  m_options.add_option< OptionArrayT < URI > > ("Fields", "Fields to cleanup", dummy)
+  m_options.add_option< OptionArrayT < URI > > ("Fields", dummy)
+      ->set_description("Fields to cleanup")
       ->attach_trigger ( boost::bind ( &Cleanup::config_fields,   this ) );
 }
 

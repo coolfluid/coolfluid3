@@ -8,6 +8,7 @@
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/debug.hpp"
 #include "Common/StringConversion.hpp"
@@ -36,9 +37,11 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
     m_nb_parts(mpi::PE::instance().size()),
     m_map_built(false)
 {
-  m_options.add_option<OptionT <Uint> >("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts)
-    ->link_to(&m_nb_parts)
-    ->mark_basic();
+  m_options.add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
+      ->set_description("Total number of partitions (e.g. number of processors)")
+      ->set_pretty_name("Number of Partitions")
+      ->link_to(&m_nb_parts)
+      ->mark_basic();
 
   m_global_to_local = allocate_component<CMap<Uint,Uint> >("global_to_local");
   add_static_component(m_global_to_local);
@@ -46,7 +49,7 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
   m_changes = allocate_component<CMap<Uint,Uint> >("changes");
   add_static_component(m_changes);
 
-  regist_signal ( "load_balance" , "partitions and migrates elements between processors", "Load Balance" )->
+  regist_signal ( "load_balance" , "Partitions and migrates elements between processors", "Load Balance" )->
       signal->connect ( boost::bind ( &CMeshPartitioner::load_balance,this, _1 ) );
 
   signal("load_balance")->signature->connect( boost::bind(&CMeshPartitioner::load_balance_signature, this, _1));
@@ -69,10 +72,10 @@ void CMeshPartitioner::load_balance( SignalArgs& node  )
 {
   SignalOptions options( node );
 
-  URI path = options.option<URI>("Mesh");
+  URI path = options.value<URI>("Mesh");
 
-	if( path.scheme() != URI::Scheme::CPATH )
-		throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
+  if( path.scheme() != URI::Scheme::CPATH )
+    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
   CMesh::Ptr mesh = access_component_ptr( path.path() )->as_ptr<CMesh>();
@@ -92,7 +95,8 @@ void CMeshPartitioner::load_balance_signature ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add("Mesh", URI(), "Mesh to load balance" );
+  options.add_option<OptionURI>("Mesh", URI())
+      ->set_description("Mesh to load balance");
 }
 
 //////////////////////////////////////////////////////////////////////

@@ -43,15 +43,16 @@ SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
 
   // options
 
-  m_options.add_option< OptionURI > ("solution","Solution",
-                                        "Solution field where to apply the boundary condition",
-                                        URI("cpath:"))
-       ->attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_mesh,   this ) )
-       ->mark_basic();
+  m_options.add_option< OptionURI > ("solution", URI("cpath:"))
+      ->set_description("Solution field where to apply the boundary condition")
+      ->set_pretty_name("Solution")
+      ->attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_mesh,   this ) )
+      ->mark_basic();
 
   m_options["mesh"].attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_mesh, this ) );
 
-  m_options.add_option< OptionT<std::string> > ("p_out", "Outlet pressure (vars x,y)", std::string() )
+  m_options.add_option< OptionT<std::string> > ("p_out", std::string() )
+      ->set_description("Outlet pressure (vars x,y)")
       ->attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_pressure_function, this ) )
       ->mark_basic();
 

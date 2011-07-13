@@ -60,22 +60,22 @@ public:
   MyC ( const std::string& name ) :  Component(name)
   {
     // POD's (plain old data)
-    m_options.add_option< OptionT<bool> >            ( "OptBool", "bool option"   , false  );
-    m_options.add_option< OptionT<int> >             ( "OptInt",  "int option"    , -5     );
-    m_options.add_option< OptionT<Uint> >            ( "OptUInt", "int option"    , 10     );
-    m_options.add_option< OptionT<Real> >            ( "OptReal", "real option"   , 0.0   );
-    m_options.add_option< OptionT<std::string> >     ( "OptStr",  "string option" , "LOLO" );
-    m_options.add_option< OptionURI >             ( "OptURI",  "URI option"    , URI("cpath://lolo") );
+    m_options.add_option< OptionT<bool> > ( "OptBool", false )->set_description("bool option");
+    m_options.add_option< OptionT<int> > ( "OptInt", -5 )->set_description("int option");
+    m_options.add_option< OptionT<Uint> > ( "OptUInt", 10 )->set_description("int option");
+    m_options.add_option< OptionT<Real> > ( "OptReal", 0.0 )->set_description("real option");
+    m_options.add_option< OptionT<std::string> > ( "OptStr", "LOLO" )->set_description("string option");
+    m_options.add_option< OptionURI > ( "OptURI", URI("cpath://lolo") )->set_description( "URI option");
 
     // vector of POD's
     std::vector<int> def;
     def += 1,2,3,4,5,6,7,8,9; /* uses boost::assign */
-    m_options.add_option< OptionArrayT< int >  >  ( "VecInt",  "vector ints option" , def );
+    m_options.add_option< OptionArrayT<int> >( "VecInt", def )->set_description("vector ints option");
 
     // vector of POD's
     std::vector< std::string > defs;
     defs += "lolo","koko";     /* uses boost::assign */
-    m_options.add_option< OptionArrayT< std::string >  >   ( "VecStr",  "vector strs option" , defs );
+    m_options.add_option< OptionArrayT<std::string> >( "VecStr", defs )->set_description("vector strs option");;
 
 //    option("OptInt").set_value(10);
 
@@ -93,12 +93,16 @@ public:
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
-    m_options.add_option< OptionComponent<CConcrete1> >( "OptC", "component option", Core::instance().root().uri());
+    m_options.add_option< OptionComponent<CConcrete1> >( "OptC", Core::instance().root().uri())
+        ->set_description("component option");
     m_options.link_to_parameter ( "OptC", &m_component );
-    Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2","component option",Core::instance().root().uri()));
+    Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2",Core::instance().root().uri()));
+    opt2->set_description("component option");
     m_options.add_option(opt2)->link_to( &m_component )->mark_basic();
      Option::Ptr opt3 = m_options.add_option
-       (OptionComponent<CConcrete1>::create("OptC3","component option",&m_component));
+       (OptionComponent<CConcrete1>::create("OptC3",&m_component));
+
+     opt3->set_description("component option");
 
      CFinfo << opt3->value_str() << CFendl;
      CFinfo << opt3->def_str() << CFendl;

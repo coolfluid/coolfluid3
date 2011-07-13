@@ -32,26 +32,27 @@ public: // typedefs
   typedef boost::shared_ptr<TimeLoop const> ConstPtr;
 
 public: // functions
-  
+
   /// Contructor
   /// @param name of the component
   TimeLoop ( const std::string& name ) : BaseT(name)
   {
-    BaseT::options().add_option( Common::OptionComponent<Solver::CTime>::create("time", "Time"
-                                                                   "Time tracking component",
-                                                                   &m_time))->mark_basic();
+    BaseT::options().add_option(Common::OptionComponent<Solver::CTime>::create("time", &m_time))
+        ->set_description("Time tracking component")
+        ->set_pretty_name("Time")
+        ->mark_basic();
   }
-  
+
   virtual ~TimeLoop() {}
 
   /// Get the class name
   static std::string type_name () { return "TimeLoop"; }
-  
+
   virtual void execute()
   {
     if(m_time.expired())
       throw Common::SetupError(FromHere(), "Error executing TimeLoop " + BaseT::uri().string() + ": Time is invalid");
-  
+
     Solver::CTime& time = *m_time.lock();
     const Real& t = time.time();
     const Real dt = time.dt();
@@ -63,7 +64,7 @@ public: // functions
       time.configure_option("time", dt * static_cast<Real>(iter));
     }
   }
-  
+
 private:
   boost::weak_ptr<Solver::CTime> m_time;
 };

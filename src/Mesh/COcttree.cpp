@@ -49,19 +49,20 @@ COcttree::COcttree( const std::string& name )
   : Component(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_octtree_idx(3)
 {
 
-  m_options.add_option(OptionComponent<CMesh>::create("mesh","Mesh","Mesh to create octtree from",&m_mesh))
-    ->mark_basic();
+  m_options.add_option(OptionComponent<CMesh>::create("mesh", &m_mesh))
+      ->set_description("Mesh to create octtree from")
+      ->set_pretty_name("Mesh")
+      ->mark_basic();
 
-  m_options.add_option< OptionT<Uint> >
-  ( "nb_elems_per_cell","Number of Elements per Octtree Cell",
-    "The approximate amount of elements that are stored in a structured cell of the octtree" ,
-    1 );
+  m_options.add_option< OptionT<Uint> >( "nb_elems_per_cell", 1 )
+      ->set_description("The approximate amount of elements that are stored in a structured cell of the octtree")
+      ->set_pretty_name("Number of Elements per Octtree Cell");
 
   std::vector<Uint> dummy;
-  m_options.add_option< OptionArrayT<Uint> >
-  ( "nb_cells","Number of Cells"
-    "The number of cells in each direction of the comb. Takes precedence over \"Number of Elements per Octtree Cell\". " ,
-    dummy);
+  m_options.add_option< OptionArrayT<Uint> >( "nb_cells", dummy)
+      ->set_description("The number of cells in each direction of the comb. "
+                        "Takes precedence over \"Number of Elements per Octtree Cell\". ")
+      ->set_pretty_name("Number of Cells");
 
   m_elements = create_component_ptr<CUnifiedData>("elements");
 

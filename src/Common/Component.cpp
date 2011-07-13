@@ -18,6 +18,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/FindComponents.hpp"
@@ -626,16 +627,16 @@ void Component::signal_create_component ( SignalArgs& args  )
   SignalOptions options( args );
 
   std::string name  = "untitled";
-  if (options.exists("name"))
-    name = options.option<std::string>("name");
+  if (options.check("name"))
+    name = options.value<std::string>("name");
 
-  std::string builder_name = options.option<std::string>("type");
+  std::string builder_name = options.value<std::string>("type");
 
   Component& comp = create_component( name, builder_name );
 
-  if( options.exists("basic_mode") )
+  if( options.check("basic_mode") )
   {
-    if (options.option<bool>("basic_mode"))
+    if (options["basic_mode"].value<bool>())
       comp.mark_basic();
   }
   else
@@ -670,7 +671,7 @@ void Component::signal_move_component ( SignalArgs& args  )
 {
   SignalOptions options( args );
 
-  URI path = options.option<URI>("Path");
+  URI path = options.value<URI>("Path");
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
@@ -991,7 +992,7 @@ void Component::signal_rename_component ( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  std::string new_name = options.option<std::string>("New name");
+  std::string new_name = options.value<std::string>("New name");
 
   rename(new_name);
 }
@@ -1002,7 +1003,7 @@ void Component::signal_save_tree ( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  const URI filename = options.option<URI>("filename");
+  const URI filename = options.value<URI>("filename");
 
   if(filename.scheme() != URI::Scheme::FILE)
     throw InvalidURI(FromHere(), "A file was expected but got \'" + filename.string() + "\'");
@@ -1038,12 +1039,14 @@ void Component::signal_signature( SignalArgs & args )
 
   try
   {
-    ( *signal( options.option<std::string>("name") )->signature )(reply);
+    // execute the registered signal (if any) for this signature
+    ( *signal( options["name"].value<std::string>() )->signature )(reply);
   }
   catch(Exception & e)
   {
+    // an exception occured, we remove the reply node...
     reply.node.content->parent()->remove_node(reply.node.content);
-    throw;
+    throw; // ... and we forward the exception to an upper level
   }
 
 }
@@ -1081,9 +1084,12 @@ void Component::signature_create_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add("name", std::string("untitled") , "Name for created component.");
-  options.add("type", std::string("CF.Common.CGroup"), "Concrete type of the component.");
-  options.add("basic_mode", true, "Component will be visible in basic mode.");
+  options.add_option< OptionT<std::string> >("name", std::string("untitled") )
+      ->set_description("Name for created component.");
+  options.add_option< OptionT<std::string> >("type", std::string("CF.Common.CGroup") )
+      ->set_description("Concrete type of the component.");
+  options.add_option< OptionT<bool> >("basic_mode", true )
+      ->set_description("Component will be visible in basic mode.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1092,7 +1098,8 @@ void Component::signature_rename_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add("name", std::string(), "Component new name.");
+  options.add_option< OptionT<std::string> >("name", std::string() )
+      ->set_description("Component new name.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1101,7 +1108,8 @@ void Component::signature_move_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add("path", std::string(), "Path to the new component to which this one will move to.");
+  options.add_option< OptionT<std::string> >("path", std::string() )
+      ->set_description("Path to the new component to which this one will move to.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

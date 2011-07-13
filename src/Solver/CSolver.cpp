@@ -29,9 +29,9 @@ CSolver::CSolver ( const std::string& name  ) :
 
   // options
 
-  m_options.add_option< OptionURI > ("domain","Domain",
-                                        "Domain to solve",
-                                        URI("cpath:../Domain"));
+  m_options.add_option< OptionURI > ("domain", URI("cpath:../Domain"))
+      ->set_description("Domain to solve")
+      ->set_pretty_name("Domain");
 
   // signals
 

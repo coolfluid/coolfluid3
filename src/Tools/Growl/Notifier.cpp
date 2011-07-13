@@ -68,22 +68,34 @@ Notifier::Notifier ( const std::string& name ) :
 
   // Configuration options
 
-  m_options.add_option( OptionT<std::string>::create("application_name","Application Name","Name of the application",m_application_name) )
+  m_options.add_option( OptionT<std::string>::create("application_name", m_application_name) )
+      ->set_description("Name of the application")
+      ->set_pretty_name("Application Name")
       ->link_to(&m_application_name);
 
-  m_options.add_option( OptionT<std::string>::create("server","Server","Server to send notification to",m_server) )
+  m_options.add_option( OptionT<std::string>::create("server", m_server) )
+      ->set_description("Server to send notification to")
+      ->set_pretty_name("Server")
       ->link_to(&m_server);
 
-  m_options.add_option( OptionT<std::string>::create("password","Password","Password for server access",m_password) )
+  m_options.add_option( OptionT<std::string>::create("password", m_password) )
+      ->set_description("Password for server access")
+      ->set_pretty_name("Password")
       ->link_to(&m_password);
 
-  m_options.add_option( OptionT<std::string>::create("icon","Icon","URL to icon",m_icon) )
+  m_options.add_option( OptionT<std::string>::create("icon", m_icon) )
+      ->set_description("URL to icon")
+      ->set_pretty_name("Icon")
       ->link_to(&m_icon);
 
-  m_options.add_option( OptionT<std::string>::create("url","URL","URL that is followd upon clicking the notification",m_url) )
+  m_options.add_option( OptionT<std::string>::create("url", m_url) )
+      ->set_description("URL that is followd upon clicking the notification")
+      ->set_pretty_name("URL")
       ->link_to(&m_url);
 
-  m_options.add_option( OptionT<Uint>::create("protocol","Protocol","Protocol to use: [UDP=0, TCP=1]",m_protocol) )
+  m_options.add_option( OptionT<Uint>::create("protocol", m_protocol) )
+      ->set_description("Protocol to use: [UDP=0, TCP=1]")
+      ->set_pretty_name("Protocol")
       ->link_to(&m_protocol);
 
 
@@ -177,8 +189,11 @@ void Notifier::signature_notify ( SignalArgs& node)
 {
   SignalOptions options( node );
 
-  options.add<std::string>("event" , "new_event" , "Event name" );
-  options.add<std::string>("description" , " " , "Description of the event" );
+  options.add_option< OptionT<std::string> >("event", "new_event")
+      ->set_description("Event name");
+
+  options.add_option< OptionT<std::string> >("description" , " ")
+      ->set_description("Description of the event");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -187,10 +202,10 @@ void Notifier::signal_notify ( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string event       = options.exists("event")       ? options.option<std::string>("event")       : " ";
-  std::string description = options.exists("description") ? options.option<std::string>("description") : " ";
+  std::string event       = options.check("event")       ? options.value<std::string>("event")       : " ";
+  std::string description = options.check("description") ? options.value<std::string>("description") : " ";
 
-  notify(event,description);
+  notify(event ,description);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

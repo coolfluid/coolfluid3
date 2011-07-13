@@ -29,34 +29,18 @@ namespace Common {
     typedef boost::shared_ptr<OptionURI> Ptr;
     typedef boost::shared_ptr<OptionURI const> ConstPtr;
 
-    OptionURI(const std::string & name, const std::string & desc,
-              const URI & def);
+    OptionURI(const std::string & name, const URI & def);
 
-    OptionURI(const std::string & name, const std::string& readable_name,
-              const std::string & desc, const URI & def);
-
-    static Option::Ptr create(const std::string & name, const std::string& readable_name,
-                              const std::string & desc, const URI& def)
+    static Option::Ptr create(const std::string & name, const URI& def)
     {
-      return Option::Ptr ( new OptionURI(name,readable_name,desc,def) );
+      return Option::Ptr ( new OptionURI(name, def) );
     }
 
-    static Option::Ptr create(const std::string & name, const std::string& readable_name,
-                              const std::string & desc, const URI& def, URI::Scheme::Type protocol)
+    static Option::Ptr create(const std::string & name, const URI& def, URI::Scheme::Type protocol)
     {
-      Option::Ptr option ( new OptionURI(name,readable_name,desc,def) );
-      boost::dynamic_pointer_cast<OptionURI>(option)->supported_protocol(protocol);
+      Option::Ptr option ( new OptionURI(name, def) );
+      option->cast_to<OptionURI>()->supported_protocol(protocol);
       return option;
-    }
-    
-    static Option::Ptr create(const std::string & name, const std::string & desc, const URI& def)
-    {
-      return create(name,name,desc,def);
-    }
-
-    static Option::Ptr create(const std::string & name, const std::string & desc, const URI& def, URI::Scheme::Type protocol)
-    {
-      return create(name,name,desc,def,protocol);
     }
 
     virtual ~OptionURI();
@@ -64,6 +48,10 @@ namespace Common {
     /// Add the supplied protocol type to the list of supported protocols
     /// No effect if the protocol was already registered with this option.
     void supported_protocol(URI::Scheme::Type protocol);
+
+    /// Sets multiple supported protocols
+    /// The internal list of protocols is cleared.
+    void set_supported_protocols( const std::vector<URI::Scheme::Type> & prots );
 
     std::vector<URI::Scheme::Type> supported_protocols() const { return m_protocols; }
 

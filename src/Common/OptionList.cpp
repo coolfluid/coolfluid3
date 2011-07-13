@@ -8,32 +8,21 @@
 
 #include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/OptionList.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/OptionArray.hpp"
+
+#include "Common/Component.hpp"
+#include "Common/OptionComponent.hpp"
+#include "Common/OptionURI.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+
+#include "Common/OptionList.hpp"
 
 namespace CF {
 namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
-
-//Option::Ptr OptionList::add_property (const std::string& name,
-//                                          const boost::any & value )
-//{
-//  cf_assert_desc ( "Class has already property with same name",
-//                   this->store.find(name) == store.end() );
-//  //
-//  // cf_assert_desc("The name of property ["+name+"] does not comply with coolfluid standard. "
-//  //                "It may not contain spaces.",
-//  //   boost::algorithm::all(name,
-//  //     boost::algorithm::is_alnum() || boost::algorithm::is_any_of("-_")) );
-
-//  Property::Ptr prop ( new Property(value) );
-//  store.insert( std::make_pair(name, prop ) );
-//  return prop;
-//}
-
-////////////////////////////////////////////////////////////////////////////////
 
 const Option & OptionList::option( const std::string& pname) const
 {
@@ -44,7 +33,7 @@ const Option & OptionList::option( const std::string& pname) const
   else
   {
     std::string msg;
-    msg += "Option with name ["+pname+"] not found. Available properties are:\n";
+    msg += "Option with name ["+pname+"] not found. Available options are:\n";
     OptionStorage_t::const_iterator it = store.begin();
     for (; it!=store.end(); it++)
       msg += "  - " + it->first + "\n";
@@ -64,7 +53,7 @@ Option & OptionList::option( const std::string& pname)
   else
   {
     std::string msg;
-    msg += "Option with name ["+pname+"] not found. Available properties are:\n";
+    msg += "Option with name ["+pname+"] not found. Available options are:\n";
     OptionStorage_t::iterator it = store.begin();
     for (; it!=store.end(); it++)
       msg += "  - " + it->first + "\n";
@@ -72,19 +61,6 @@ Option & OptionList::option( const std::string& pname)
   }
 
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-//const Option & OptionList::option( const std::string& pname) const
-//{
-//  return option(pname).as_option();
-//}
-//////////////////////////////////////////////////////////////////////////////////
-
-//Option & OptionList::option( const std::string& pname)
-//{
-//  return option(pname).as_option();
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -185,11 +161,62 @@ std::string OptionList::list_options()
     {
       opt_list = opt_list + name + ":" + option->type() + "=" + option->value_str();
     }
-//     
+//
     ++cnt;
   }
   return opt_list;
 }
+
+//// "Magic" add_option implementation
+
+//// Specialization for URI
+//template<>
+//struct OptionList::SelectOptionType<URI>
+//{
+//  typedef OptionURI type;
+//};
+
+//// Specialization for OptionArray
+//template<typename T>
+//struct OptionList::SelectOptionType< std::vector<T> >
+//{
+//  typedef OptionArrayT<T> type;
+//};
+
+///// Shortcut to choose the appropriate value type
+//template<typename T>
+//struct SelectValueType
+//{
+//  typedef typename OptionList::SelectOptionType<T>::type::value_type type;
+//};
+
+//template<typename T>
+//typename OptionList::SelectOptionType<T>::type::Ptr OptionList::add_opt(
+//  const std::string& name, const typename SelectOptionType<T>::type::value_type & default_value)
+//{
+//  typedef typename OptionList::SelectOptionType<T>::type OptionType;
+//  return dynamic_cast<OptionType>(add_option<OptionType>(name, default_value));
+//}
+
+//#define EXPLICIT_TEMPLATE_INSTANCIATION(T) \
+//  Common_TEMPLATE template OptionList::SelectOptionType<T>::type::Ptr OptionList::add_opt<T>(const std::string&, const typename OptionList::SelectOptionType<T>::type&);\
+//Common_TEMPLATE template OptionList::SelectOptionType<std::vector<T> >::type::Ptr OptionList::add_opt<std::vector<T> >(const std::string&, const typename OptionList::SelectOptionType<std::vector<T> >::type&)
+
+//Common_TEMPLATE template class OptionList::SelectOptionType< std::vector<bool> >;
+//Common_TEMPLATE template class OptionList::SelectOptionType< std::vector<int> >;
+//Common_TEMPLATE template class OptionList::SelectOptionType< std::vector<Uint> >;
+//Common_TEMPLATE template class OptionList::SelectOptionType< std::vector<Real> >;
+//Common_TEMPLATE template class OptionList::SelectOptionType< std::vector<std::string> >;
+//Common_TEMPLATE template class OptionList::SelectOptionType< std::vector<URI> >;
+
+//EXPLICIT_TEMPLATE_INSTANCIATION(bool);
+//EXPLICIT_TEMPLATE_INSTANCIATION(int);
+//EXPLICIT_TEMPLATE_INSTANCIATION(Uint);
+//EXPLICIT_TEMPLATE_INSTANCIATION(Real);
+//EXPLICIT_TEMPLATE_INSTANCIATION(std::string);
+//EXPLICIT_TEMPLATE_INSTANCIATION(URI);
+
+//#undef EXPLICIT_TEMPLATE_INSTANCIATION
 
 /////////////////////////////////////////////////////////////////////////////////////
 

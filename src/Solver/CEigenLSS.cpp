@@ -55,9 +55,11 @@ CF::Common::ComponentBuilder < CEigenLSS, Common::Component, LibSolver > aCeigen
 
 CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 {
-  Common::Option::Ptr config_path = options().add_option< Common::OptionURI >("config_file", "Config File", "Solver config file", URI());
-  boost::dynamic_pointer_cast<OptionURI>(config_path)->supported_protocol(URI::Scheme::FILE);
-  config_path->mark_basic();
+  m_options.add_option< OptionURI >("config_file", URI())
+      ->set_description("Solver config file")
+      ->set_pretty_name("Config File")
+      ->mark_basic()
+      ->cast_to<OptionURI>()->supported_protocol(URI::Scheme::FILE);
 
   if(!mpi::PE::instance().is_active())
     mpi::PE::instance().init();
@@ -207,7 +209,7 @@ void CEigenLSS::solve()
 
   const URI config_uri = option("config_file").value<URI>();
   const std::string config_path = config_uri.path();
-  
+
   CFinfo << "opening solver config file " << config_path << CFendl;
 
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(config_path); // the most important in general setup

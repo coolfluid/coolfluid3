@@ -26,9 +26,18 @@ CHash::CHash ( const std::string& name ) :
     m_base(0),
     m_nb_parts(mpi::PE::instance().size())
 {
-  m_options.add_option<OptionT <Uint> >("nb_obj","Number of Objects","Total number of objects",m_nb_obj)->mark_basic();
-  m_options.add_option<OptionT <Uint> >("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
-  m_options.add_option<OptionT <Uint> >("base","Base","Start index for global numbering",m_base);
+  m_options.add_option<OptionT <Uint> >("nb_obj", m_nb_obj)
+      ->set_description("Total number of objects")
+      ->set_pretty_name("Number of Objects")
+      ->mark_basic();
+
+  m_options.add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
+      ->set_description("Total number of partitions (e.g. number of processors)")
+      ->set_pretty_name("Number of Partitions");
+
+  m_options.add_option<OptionT <Uint> >("base", m_base)
+      ->set_description("Start index for global numbering")
+      ->set_pretty_name("Base");
 
   m_options["nb_parts"].link_to( &m_nb_parts );
   m_options["nb_obj"].link_to( &m_nb_obj );
@@ -105,8 +114,8 @@ Uint CHash::end_idx_in_part(const Uint part) const
 
 Uint CHash::start_idx_in_proc(const Uint proc) const
 {
-	Uint part_begin = m_nb_parts/mpi::PE::instance().size()*proc;
-	return start_idx_in_part(part_begin);
+  Uint part_begin = m_nb_parts/mpi::PE::instance().size()*proc;
+  return start_idx_in_part(part_begin);
 }
 
 //////////////////////////////////////////////////////////////////////////////

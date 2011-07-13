@@ -82,13 +82,17 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
   m_properties["description"] = description;
 
 
-  // Properties
+  // options
   option("domain").attach_trigger ( boost::bind ( &SFDSolver::trigger_domain,   this ) );
 
-  m_options.add_option(OptionURI::create("physical_model","Physical Model","cpath:../Physics",URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("physical_model", "cpath:../Physics",URI::Scheme::CPATH))
+    ->set_description("Physical Model")
+    ->set_pretty_name("Physical Model")   
     ->attach_trigger( boost::bind ( &SFDSolver::trigger_physical_model, this ) );
 
-  m_options.add_option(OptionURI::create("time","Time","Time tracking component","cpath:../Time",URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("time", "cpath:../Time", URI::Scheme::CPATH))
+    ->set_description("Time tracking component")
+    ->set_pretty_name("Time")
     ->attach_trigger( boost::bind ( &SFDSolver::trigger_time, this ) );
 
   // Signals
@@ -339,8 +343,8 @@ void SFDSolver::signal_create_bc( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name = options.option<std::string>("name");
-  std::string builder = options.option<std::string>("builder");
+  std::string name = options.value<std::string>("name");
+  std::string builder = options.value<std::string>("builder");
   std::vector<URI> regions_uri = options.array<URI>("regions");
   std::vector<CRegion::Ptr> regions(regions_uri.size());
   for (Uint i=0; i<regions_uri.size(); ++i)

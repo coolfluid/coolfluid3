@@ -43,8 +43,8 @@ public:
   typedef boost::shared_ptr<OptionComponent> Ptr;
   typedef boost::shared_ptr<OptionComponent const> ConstPtr;
 
-  OptionComponent(const std::string & name, const std::string & desc, const URI & def)
-    : OptionURI(name, desc, def)
+  OptionComponent(const std::string & name, const URI & def)
+    : OptionURI(name, def)
   {
     typename T::Ptr component = Core::instance().root().access_component_ptr(def)->as_ptr<T>();
     m_default = data_t(component);
@@ -54,8 +54,8 @@ public:
     TypeInfo::instance().regist<data_t>("CF::Common::OptionComponent<"+T::type_name()+">::data_t");
   }
 
-  OptionComponent(const std::string & name, const std::string & desc, data_t* linked_component)
-    : OptionURI(name, desc, linked_component->expired()? URI("cpath:") : linked_component->lock()->uri())
+  OptionComponent(const std::string & name, data_t* linked_component)
+    : OptionURI(name, linked_component->expired()? URI("cpath:") : linked_component->lock()->uri())
   {
     m_default = data_t(*linked_component);
     m_value = m_default;
@@ -65,37 +65,9 @@ public:
     m_linked_params.push_back(linked_component);
   }
 
-  OptionComponent(const std::string & name, const std::string& readable_name, const std::string & desc, const URI & def)
-    : OptionURI(name, readable_name, desc, def)
+  static Option::Ptr create(const std::string & name, data_t* linked_component)
   {
-    typename T::Ptr component = Core::instance().root().access_component(def).as_ptr<T>();
-    m_default = data_t(component);
-    m_value = m_default;
-    supported_protocol(URI::Scheme::CPATH);
-
-    TypeInfo::instance().regist<data_t>("CF::Common::OptionComponent<"+T::type_name()+">::data_t");
-  }
-
-  OptionComponent(const std::string & name, const std::string& readable_name, const std::string & desc, data_t* linked_component)
-    : OptionURI(name, readable_name, desc, linked_component->expired()? URI("cpath:") : linked_component->lock()->uri())
-  {
-    m_default = data_t(*linked_component);
-    m_value = m_default;
-    supported_protocol(URI::Scheme::CPATH);
-
-    TypeInfo::instance().regist<data_t>("CF::Common::OptionComponent<"+T::type_name()+">::data_t");
-    m_linked_params.push_back(linked_component);
-  }
-
-
-  static Option::Ptr create(const std::string & name, const std::string& readable_name, const std::string & desc, data_t* linked_component)
-  {
-    return Option::Ptr ( new OptionComponent<T>(name,readable_name,desc,linked_component) );
-  }
-
-  static Option::Ptr create(const std::string & name, const std::string & desc, data_t* linked_component)
-  {
-    return create(name,name,desc,linked_component);
+    return Option::Ptr ( new OptionComponent<T>(name, linked_component) );
   }
 
   virtual ~OptionComponent() {}

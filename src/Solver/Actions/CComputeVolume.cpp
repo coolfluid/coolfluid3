@@ -33,10 +33,11 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
-  m_options.add_option(OptionURI::create("Volume","Field to set", URI("cpath:"),URI::Scheme::CPATH))
-    ->mark_basic()
-    ->attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
-    ->add_tag(Mesh::Tags::volume());
+  m_options.add_option(OptionURI::create("Volume", URI("cpath:"), URI::Scheme::CPATH))
+      ->set_description("Field to set")
+      ->mark_basic()
+      ->attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
+      ->add_tag(Mesh::Tags::volume());
 
   m_options["Elements"].attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
 

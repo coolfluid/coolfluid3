@@ -43,8 +43,13 @@ PolynomialReconstructor::PolynomialReconstructor ( const std::string& name ) :
   m_dim(0)
 {
   // options
-  m_options.add_option(OptionT<Uint>::create("order","Order","PolynomialReconstructor order",1));
-  m_options.add_option(OptionT<Uint>::create("dimension","Dimension","Dimension of PolynomialReconstructor",2));
+  m_options.add_option(OptionT<Uint>::create("order", 1))
+      ->set_description("PolynomialReconstructor order")
+      ->set_pretty_name("Order");
+
+  m_options.add_option(OptionT<Uint>::create("dimension", 2))
+      ->set_description("Dimension of PolynomialReconstructor")
+      ->set_pretty_name("Dimension");
 
   m_stencil_computer = create_static_component_ptr<CStencilComputerRings>("stencil_computer");
 }

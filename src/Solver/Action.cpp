@@ -35,23 +35,25 @@ Action::Action ( const std::string& name ) :
 
   // options
 
-  m_options.add_option( OptionComponent<CMesh>::create("mesh","Mesh",
-                                                          "Mesh the Discretization Method will be applied to",
-                                                          &m_mesh))
-    ->mark_basic();
+  m_options.add_option( OptionComponent<CMesh>::create("mesh", &m_mesh))
+      ->set_description("Mesh the Discretization Method will be applied to")
+      ->set_pretty_name("Mesh")
+      ->mark_basic();
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", "Physical Model"
-                                                                    "Physical model",
-                                                                    &m_physical_model))
-    ->mark_basic();
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model))
+      ->set_description("Physical model")
+      ->set_pretty_name("Physical Model")
+      ->mark_basic();
 
-  m_options.add_option( OptionComponent<CTime>::create("time", "Time"
-                                                                   "Time tracking component",
-                                                                   &m_time))
-    ->mark_basic();
+  m_options.add_option( OptionComponent<CTime>::create("time", &m_time))
+      ->set_description("Time tracking component")
+      ->set_pretty_name("Time")
+      ->mark_basic();
 
   std::vector< URI > dummy;
-  m_options.add_option< OptionArrayT < URI > > ("regions", "Regions", "Regions this action is applied to", dummy)
+  m_options.add_option< OptionArrayT<URI> > ("regions", dummy)
+      ->set_description("Regions this action is applied to")
+      ->set_pretty_name("Regions")
       ->attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
 
 }

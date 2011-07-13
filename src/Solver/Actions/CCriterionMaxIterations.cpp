@@ -30,7 +30,9 @@ CCriterionMaxIterations::CCriterionMaxIterations( const std::string& name  ) :
       "Returns true if a the maximum number of iterations is achived\n";
   m_properties["description"] = description;
 
-  m_options.add_option(OptionComponent<Component>::create("iterative_step","Iteration","Iteration tracking component",&m_iter_comp));
+  m_options.add_option(OptionComponent<Component>::create("iterative_step", &m_iter_comp))
+      ->set_description("Iteration tracking component")
+      ->set_pretty_name("Iteration");
 }
 
 CCriterionMaxIterations::~CCriterionMaxIterations() {}

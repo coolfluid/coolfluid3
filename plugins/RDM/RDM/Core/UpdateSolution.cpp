@@ -39,11 +39,17 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
 
   // options
 
-  m_options.add_option(OptionComponent<CField>::create("solution","Solution","Solution field", &m_solution));
+  m_options.add_option(OptionComponent<CField>::create("solution", &m_solution))
+      ->set_description("Solution field")
+      ->set_pretty_name("Solution");
 
-  m_options.add_option(OptionComponent<CField>::create("wave_speed","WaveSpeed","Wave speed field", &m_wave_speed));
+  m_options.add_option(OptionComponent<CField>::create("wave_speed", &m_wave_speed))
+      ->set_description("Wave speed field")
+      ->set_pretty_name("WaveSpeed");
 
-  m_options.add_option(OptionComponent<CField>::create("residual","Residual","Residual field", &m_residual));
+  m_options.add_option(OptionComponent<CField>::create("residual", &m_residual))
+      ->set_description("Residual field")
+      ->set_pretty_name("Residual");
 
 }
 

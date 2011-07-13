@@ -10,9 +10,12 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/FindComponents.hpp"
- 
+
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -105,9 +108,10 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   std::vector<URI> files;
   files.push_back( "file:rectangle-tg-p2.msh" );
 
-  options.add("location", Core::instance().root().get_child("Domain").uri() );
-  options.add<std::string>("name", std::string("Mesh") );
-  options.add("files", files, " ; ");
+  options.add_option< OptionURI >("location", Core::instance().root().get_child("Domain").uri() );
+  options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
+  options.add_option< OptionArrayT<URI> >("files", files);
+  options.flush();
 
   // get the generic mesh loader from the Tools
 

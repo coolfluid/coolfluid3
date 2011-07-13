@@ -7,6 +7,8 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 
+#include "Common/OptionT.hpp"
+
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Tools/Solver/LogForwarder.hpp"
@@ -38,7 +40,7 @@ void LogForwarder::message(const std::string &data)
   SignalFrame frame("message", path, path);
   SignalOptions options(frame);
 
-  options.add<std::string>("message", data);
+  options.add_option< OptionT<std::string> >("message", data);
 //  frame.set_option<std::string>("message", data);
 
   m_manager->send_to_parent( frame );

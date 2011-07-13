@@ -12,6 +12,8 @@
 
 #include "rapidxml/rapidxml.hpp"
 
+#include "Common/OptionT.hpp"
+
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"
@@ -180,8 +182,8 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
   SignalFrame frame("frame_rejected", sender, CLIENT_ROOT_PATH);
   SignalOptions options( frame );
 
-  options.add("frameid", frameid);
-  options.add("reason", reason.toStdString());
+  options.add_option< OptionT<std::string> >("frameid", frameid);
+  options.add_option< OptionT<std::string> >("reason", reason.toStdString());
 
   return this->send(clientId, *frame.xml_doc.get()) != 0;
 }
@@ -199,8 +201,8 @@ bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message
   if(type == LogMessage::INVALID)
     type = LogMessage::INFO;
 
-  options.add("type", LogMessage::Convert::instance().to_str(type));
-  options.add("text", message.toStdString());
+  options.add_option< OptionT<std::string> >("type", LogMessage::Convert::instance().to_str(type));
+  options.add_option< OptionT<std::string> >("text", message.toStdString());
 
   return this->send(client, *frame.xml_doc.get()) != 0;
 }
@@ -243,21 +245,21 @@ QTcpSocket * ServerNetworkComm::getSocket(const string & uuid) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 string ServerNetworkComm::getAttr(const XmlNode & node, const char * paramName,
-																	QString & reason)
+                                  QString & reason)
 {
-	string param;
+  string param;
 
-	if (reason.isEmpty())
-	{
-		rapidxml::xml_attribute<>* tmpAttr = node.content->first_attribute(paramName);
+  if (reason.isEmpty())
+  {
+    rapidxml::xml_attribute<>* tmpAttr = node.content->first_attribute(paramName);
 
-		if(tmpAttr == nullptr)
-			reason = QString("%1 is missing.").arg(paramName);
-		else
-			param = tmpAttr->value();
-	}
+    if(tmpAttr == nullptr)
+      reason = QString("%1 is missing.").arg(paramName);
+    else
+      param = tmpAttr->value();
+  }
 
-	return param;
+  return param;
 }
 
 
@@ -342,7 +344,7 @@ void ServerNetworkComm::newData()
             SignalFrame reply = sig_frame->create_reply();
             SignalOptions roptions( reply );
 
-            roptions.add<bool>("accepted", true);
+            roptions.add_option< OptionT<bool> >("accepted", true);
 
             this->send(socket, *xmldoc.get());
 
@@ -378,8 +380,8 @@ void ServerNetworkComm::newData()
     errorMsg = QString("An unknown exception has been caught.");
   }
 
-	if(!errorMsg.isEmpty())
-		this->sendFrameRejected(socket, frameId, SERVER_CORE_PATH, errorMsg);
+  if(!errorMsg.isEmpty())
+    this->sendFrameRejected(socket, frameId, SERVER_CORE_PATH, errorMsg);
 
 }
 

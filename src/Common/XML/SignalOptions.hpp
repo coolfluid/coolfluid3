@@ -21,17 +21,29 @@ namespace XML {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class Common_API SignalOptionList : public Common::OptionList
+class Common_API SignalOptions : public Common::OptionList
 {
 public:
 
-  SignalOptionList( const SignalFrame & frame = SignalFrame() );
+  SignalOptions( SignalFrame & frame );
 
   SignalFrame create_frame( const std::string & name = std::string(),
                             const URI & sender = URI(),
                             const URI & receiver = URI() ) const;
 
-  void add_to_map( Map & map ) const;
+  void add_to_map( Map & m_map ) const;
+
+  template<typename TYPE>
+  TYPE value( const std::string & name ) const;
+
+  template<typename TYPE>
+  std::vector<TYPE> array( const std::string & name ) const;
+
+  void flush();
+
+private:
+
+  Map m_map;
 
 }; // SignalOptionList
 
@@ -50,116 +62,116 @@ public:
 
 /// @author Quentin Gasper.
 
-class Common_API SignalOptions
-{
+//class Common_API SignalOptions
+//{
 
-public:
+//public:
 
-  /// Constructor.
+//  /// Constructor.
 
-  /// Searches for an "option" map. If it does not exist, it is created.
-  /// @param frame The signal frame to work with. May be modified. Must be valid.
-  SignalOptions( SignalFrame & frame );
+//  /// Searches for an "option" map. If it does not exist, it is created.
+//  /// @param frame The signal frame to work with. May be modified. Must be valid.
+//  SignalOptions( SignalFrame & frame );
 
-  /// Adds an option.
+//  /// Adds an option.
 
-  /// @param name The option name. Cannot be empty.
-  /// @param value The option value.
-  /// @param descr The option description. May be empty.
-  /// @param restr_values List of restricted values. Can be empty. If not
-  /// empty, the @c value must present in it.
-  /// @param delimiter The string used to delimit the values for the list
-  /// of restricted values. Cannot be empty.
-  /// @return Returns a reference to this object to allow nested operations.
-  /// @throw BadValue if the name is empty.
-  /// @throw ValueExists if an option with this name already exixts.
-  template<typename TYPE>
-  SignalOptions & add ( const std::string & name, const TYPE & value,
-                        const std::string & descr = std::string(),
-                        const std::vector<TYPE> & restr_values =  std::vector<TYPE>(),
-                        const std::string & restr_values_delim = " ; ");
+//  /// @param name The option name. Cannot be empty.
+//  /// @param value The option value.
+//  /// @param descr The option description. May be empty.
+//  /// @param restr_values List of restricted values. Can be empty. If not
+//  /// empty, the @c value must present in it.
+//  /// @param delimiter The string used to delimit the values for the list
+//  /// of restricted values. Cannot be empty.
+//  /// @return Returns a reference to this object to allow nested operations.
+//  /// @throw BadValue if the name is empty.
+//  /// @throw ValueExists if an option with this name already exixts.
+//  template<typename TYPE>
+//  SignalOptions & add ( const std::string & name, const TYPE & value,
+//                        const std::string & descr = std::string(),
+//                        const std::vector<TYPE> & restr_values =  std::vector<TYPE>(),
+//                        const std::string & restr_values_delim = " ; ");
 
-  /// Adds an array.
+//  /// Adds an array.
 
-  /// @param name The array name. Cannot be empty.
-  /// @param value The array value.
-  /// @param delimiter The string used to delimit the values. Cannot be empty.
-  /// @param descr The option description. May be empty.
-  /// @param restr_values List of restricted values. Can be empty.
-  /// The delimiter is the same as for the array.
-  /// @return Returns a reference to this object to allow nested operations.
-  /// @throw BadValue if the name or the delimiter is empty.
-  /// @throw ValueExists if an option with this name already exixts.
-  template<typename TYPE>
-  SignalOptions & add ( const std::string & name,
-                        const std::vector<TYPE> & value,
-                        const std::string & delimiter = " ; ",
-                        const std::string & descr = std::string(),
-                        const std::vector<TYPE> & restr_values =  std::vector<TYPE>() );
+//  /// @param name The array name. Cannot be empty.
+//  /// @param value The array value.
+//  /// @param delimiter The string used to delimit the values. Cannot be empty.
+//  /// @param descr The option description. May be empty.
+//  /// @param restr_values List of restricted values. Can be empty.
+//  /// The delimiter is the same as for the array.
+//  /// @return Returns a reference to this object to allow nested operations.
+//  /// @throw BadValue if the name or the delimiter is empty.
+//  /// @throw ValueExists if an option with this name already exixts.
+//  template<typename TYPE>
+//  SignalOptions & add ( const std::string & name,
+//                        const std::vector<TYPE> & value,
+//                        const std::string & delimiter = " ; ",
+//                        const std::string & descr = std::string(),
+//                        const std::vector<TYPE> & restr_values =  std::vector<TYPE>() );
 
-  /// Adds an URI option.
+//  /// Adds an URI option.
 
-  /// @param name The option name. Cannot be empty.
-  /// @param value The option value.
-  /// @param descr The option description. May be empty.
-  /// @param sup_schemes List of allowed schemes. Can be empty (all schemes allowed).
-  /// @param restr_values List of restricted values. Can be empty. If not
-  /// empty, the @c value must present in it.
-  /// @param delimiter The string used to delimit the values for the list
-  /// of restricted values. Cannot be empty.
-  /// @return Returns a reference to this object to allow nested operations.
-  /// @throw BadValue if the name is empty.
-  /// @throw ValueExists if an option with this name already exixts.
-  SignalOptions & add ( const std::string & name, const URI & value,
-                        const std::string & descr = std::string(),
-                        const std::vector<URI::Scheme::Type> & sup_schemes = std::vector<URI::Scheme::Type>(),
-                        const std::vector<URI> & restr_values =  std::vector<URI>(),
-                        const std::string & restr_values_delim = " ; ");
+//  /// @param name The option name. Cannot be empty.
+//  /// @param value The option value.
+//  /// @param descr The option description. May be empty.
+//  /// @param sup_schemes List of allowed schemes. Can be empty (all schemes allowed).
+//  /// @param restr_values List of restricted values. Can be empty. If not
+//  /// empty, the @c value must present in it.
+//  /// @param delimiter The string used to delimit the values for the list
+//  /// of restricted values. Cannot be empty.
+//  /// @return Returns a reference to this object to allow nested operations.
+//  /// @throw BadValue if the name is empty.
+//  /// @throw ValueExists if an option with this name already exixts.
+//  SignalOptions & add ( const std::string & name, const URI & value,
+//                        const std::string & descr = std::string(),
+//                        const std::vector<URI::Scheme::Type> & sup_schemes = std::vector<URI::Scheme::Type>(),
+//                        const std::vector<URI> & restr_values =  std::vector<URI>(),
+//                        const std::string & restr_values_delim = " ; ");
 
-  /// Adds an array.
+//  /// Adds an array.
 
-  /// @param name The array name. Cannot be empty.
-  /// @param value The array value.
-  /// @param delimiter The string used to delimit the values. Cannot be empty.
-  /// @param descr The option description. May be empty.
-  /// @param sup_schemes List of allowed schemes. Can be empty (all schemes allowed).
-  /// @param restr_values List of restricted values. Can be empty.
-  /// The delimiter is the same as for the array.
-  /// @return Returns a reference to this object to allow nested operations.
-  /// @throw BadValue if the name or the delimiter is empty.
-  /// @throw ValueExists if an option with this name already exixts.
-  SignalOptions & add ( const std::string & name,
-                        const std::vector<URI> & value,
-                        const std::string & delimiter = " ; ",
-                        const std::string & descr = std::string(),
-                        const std::vector<URI::Scheme::Type> & sup_schemes = std::vector<URI::Scheme::Type>(),
-                        const std::vector<URI> & restr_values =  std::vector<URI>() );
+//  /// @param name The array name. Cannot be empty.
+//  /// @param value The array value.
+//  /// @param delimiter The string used to delimit the values. Cannot be empty.
+//  /// @param descr The option description. May be empty.
+//  /// @param sup_schemes List of allowed schemes. Can be empty (all schemes allowed).
+//  /// @param restr_values List of restricted values. Can be empty.
+//  /// The delimiter is the same as for the array.
+//  /// @return Returns a reference to this object to allow nested operations.
+//  /// @throw BadValue if the name or the delimiter is empty.
+//  /// @throw ValueExists if an option with this name already exixts.
+//  SignalOptions & add ( const std::string & name,
+//                        const std::vector<URI> & value,
+//                        const std::string & delimiter = " ; ",
+//                        const std::string & descr = std::string(),
+//                        const std::vector<URI::Scheme::Type> & sup_schemes = std::vector<URI::Scheme::Type>(),
+//                        const std::vector<URI> & restr_values =  std::vector<URI>() );
 
-  template<typename TYPE>
-  TYPE option( const std::string & name ) const;
+//  template<typename TYPE>
+//  TYPE option( const std::string & name ) const;
 
-  template<typename TYPE>
-  std::vector<TYPE> array( const std::string & name ) const;
+//  template<typename TYPE>
+//  std::vector<TYPE> array( const std::string & name ) const;
 
-  /// Removes an option.
+//  /// Removes an option.
 
-  /// If the name is empty or the option does not exist, nothing is done.
-  /// @param name The name of the option to remove.
-  /// @return Returns a reference to this object to allow nested operations.
-  SignalOptions & remove ( const std::string & name );
+//  /// If the name is empty or the option does not exist, nothing is done.
+//  /// @param name The name of the option to remove.
+//  /// @return Returns a reference to this object to allow nested operations.
+//  SignalOptions & remove ( const std::string & name );
 
-  /// Checks if an option exists.
+//  /// Checks if an option exists.
 
-  /// @param name The option name.
-  /// @return Returns @c true if the option exists. Otherwise, returns @c false.
-  bool exists ( const std::string & name ) const;
+//  /// @param name The option name.
+//  /// @return Returns @c true if the option exists. Otherwise, returns @c false.
+//  bool exists ( const std::string & name ) const;
 
-private: // data
+//private: // data
 
-  /// The managed map.
-  Map map;
+//  /// The managed map.
+//  Map map;
 
-}; // SignalOptions
+//}; // SignalOptions
 
 //////////////////////////////////////////////////////////////////////////////
 

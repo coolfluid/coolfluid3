@@ -31,7 +31,9 @@ CSpace::CSpace ( const std::string& name ) :
   m_properties["brief"] = std::string("Spaces are other views of CEntities, for instance a higher-order representation");
   m_properties["description"] = std::string("");
 
-  m_options.add_option(OptionT<std::string>::create("shape_function","Shape Function","Shape Function defined in this space",std::string("")))
+  m_options.add_option(OptionT<std::string>::create("shape_function", std::string("")))
+      ->set_description("Shape Function defined in this space")
+      ->set_pretty_name("Shape Function")
       ->attach_trigger(boost::bind(&CSpace::configure_shape_function, this))
       ->mark_basic();
 }

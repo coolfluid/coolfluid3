@@ -9,6 +9,8 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/OptionComponent.hpp"
 
 #include "CActionDirector.hpp"
@@ -19,19 +21,20 @@ namespace CF {
 namespace Common {
 
 ComponentBuilder < CActionDirector, CAction, LibCommon > CActionDirector_Builder;
-  
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 CActionDirector::CActionDirector(const std::string& name): CAction(name)
 {
-  m_options.add_option< OptionArrayT <std::string> >("ActionList", "Names of the actions to execute in sequence");
+  m_options.add_option< OptionArrayT<std::string> >("ActionList", std::vector<std::string>())
+      ->set_description("Names of the actions to execute in sequence");
 }
 
 void CActionDirector::execute()
 {
   Option& actions_prop = option("ActionList");
   std::vector<std::string> actions; actions_prop.put_value(actions);
-  
+
   BOOST_FOREACH(const std::string& action_name, actions)
   {
     dynamic_cast<CAction&>(get_child(action_name)).execute();
@@ -62,14 +65,14 @@ CActionDirector& CActionDirector::append(const CAction::Ptr& action)
   {
     // If a child with the given name existed, check that it corresponds to the supplied action
     CAction::Ptr existing_action = boost::dynamic_pointer_cast<CAction>(existing_child);
-    
+
     if(is_null(existing_action))
       throw ValueExists(FromHere(), "A component named " + action->name() + " already exists in " + uri().string() + ", but it is not a CAction");
-    
+
     if(existing_action != action)
       throw ValueExists(FromHere(), "An action named " + action->name() + " already exists in " + uri().string() + ", but it is different from the appended action");
   }
-  
+
   Option& actions_prop = option("ActionList");
   std::vector<std::string> actions; actions_prop.put_value(actions);
 

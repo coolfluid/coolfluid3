@@ -30,13 +30,14 @@ CCriterionAbsResidual::CCriterionAbsResidual( const std::string& name  ) :
     "Returns true if a the maximum number of iterations is achived\n";
   m_properties["description"] = description;
 
-  m_options.add_option<OptionT <Uint> >("MaxIter",
-                                           "Maximum number of iterations",
-                                            m_max_iter)
+  m_options.add_option<OptionT <Uint> >("MaxIter", m_max_iter)
+      ->set_description("Maximum number of iterations")
       ->mark_basic()
       ->link_to( &m_max_iter );
 
-  m_options.add_option(OptionComponent<Component>::create("iteration","Iteration","Iteration tracking component",&m_iter_comp));
+  m_options.add_option(OptionComponent<Component>::create("iteration", &m_iter_comp))
+      ->set_description("Iteration tracking component")
+      ->set_pretty_name("Iteration");
 }
 
 CCriterionAbsResidual::~CCriterionAbsResidual() {}

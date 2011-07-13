@@ -49,14 +49,20 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
   mark_basic();
 
 
-  m_options.add_option( OptionComponent<CMesh>::create("mesh","Mesh","Mesh to write",&m_mesh) )
+  m_options.add_option( OptionComponent<CMesh>::create("mesh", &m_mesh) )
+      ->set_description("Mesh to write")
+      ->set_pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option( OptionURI::create("file","File","File to write",m_file,URI::Scheme::FILE) )
+  m_options.add_option( OptionURI::create("file", m_file, URI::Scheme::FILE) )
+      ->set_description("File to write")
+      ->set_pretty_name("File")
       ->mark_basic()
       ->link_to(&m_file);
 
-  m_options.add_option( OptionArrayT<URI>::create("fields","Fields","Fields to write",m_fields) )
+  m_options.add_option( OptionArrayT<URI>::create("fields", m_fields) )
+      ->set_description("Fields to write")
+      ->set_pretty_name("Fields")
       ->mark_basic()
       ->link_to(&m_fields);
 
@@ -214,12 +220,12 @@ void WriteMesh::signal_write_mesh ( Common::SignalArgs& node )
 
   update_list_of_available_writers();
 
-  URI mesh_uri = options.option<URI>("mesh");
+  URI mesh_uri = options.value<URI>("mesh");
 
   // get the mesh
   const CMesh& mesh = access_component( mesh_uri ).as_type<CMesh>();
 
-  const URI file = options.option<URI>("file");
+  const URI file = options.value<URI>("file");
 
   const std::vector<URI> fields;
 
@@ -233,9 +239,7 @@ void WriteMesh::signature_write_mesh ( Common::SignalArgs& node)
   SignalOptions options( node );
 
   CFactory::Ptr meshwriter_factory = Core::instance().factories().get_factory<CMeshWriter>();
-  std::vector<std::string> writers;
-  std::vector<URI::Scheme::Type> schemes(1);
-  schemes[0] = URI::Scheme::CPATH;
+  std::vector<boost::any> writers;
 
   // build the restricted list
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshwriter_factory ) )
@@ -243,12 +247,17 @@ void WriteMesh::signature_write_mesh ( Common::SignalArgs& node)
     writers.push_back(bdr.name());
   }
 
-  options.add("mesh", URI(), "Path to the mesh", schemes );
+  options.add_option<OptionURI>("mesh", URI() )
+      ->set_description("Path to the mesh")
+      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
 
   // create the value and add the restricted list
-  options.add( "Available writers", std::string() , "Available writers", writers, " ; ");
+  options.add_option< OptionT<std::string> >( "Available writers", std::string() )
+      ->set_description("Available writers")
+      ->restricted_list() = writers;
 
-  options.add<std::string>("file", std::string() , "File to write" );
+  options.add_option< OptionT<std::string> >("file", std::string() )
+      ->set_description("File to write");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

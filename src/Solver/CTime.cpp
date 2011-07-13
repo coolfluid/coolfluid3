@@ -36,23 +36,29 @@ CTime::CTime ( const std::string& name  ) :
     "unless the code explicitely (re)configures them.";
   m_properties["description"] = description;
 
-  m_options.add_option(OptionT<Uint>::create("iteration","Iteration","Current iteration of the simulation", m_iter) )
+  m_options.add_option(OptionT<Uint>::create("iteration", m_iter) )
+      ->set_description("Current iteration of the simulation")
+      ->set_pretty_name("Iteration")
       ->link_to(&m_iter)
       ->mark_basic();
 
 
-  m_options.add_option(OptionT<Real>::create("time","Time","Current time of the simulation", m_time) )
+  m_options.add_option(OptionT<Real>::create("time", m_time) )
+      ->set_description("Current time of the simulation")
+      ->set_pretty_name("Time")
       ->link_to(&m_time)
       ->mark_basic();
 
-  m_options.add_option(OptionT<Real>::create("time_step","Time Step",
-                                                "Maximal Time Step the simulation will use.\n"
-                                                "A CFL condition will be applied to make time step more strict if required.",
-                                                m_dt) )
+  m_options.add_option(OptionT<Real>::create("time_step", m_dt) )
+      ->set_description("Maximal Time Step the simulation will use.\n"
+                        "A CFL condition will be applied to make time step more strict if required.")
+      ->set_pretty_name("Time Step")
       ->link_to(&m_dt)
       ->mark_basic();
 
-  m_options.add_option(OptionT<Real>::create("end_time","End Time", "Time at which to finish the simulation", m_time) )
+  m_options.add_option(OptionT<Real>::create("end_time", m_time) )
+      ->set_description("Time at which to finish the simulation")
+      ->set_pretty_name("End Time")
       ->link_to(&m_end_time)
       ->mark_basic();
 }

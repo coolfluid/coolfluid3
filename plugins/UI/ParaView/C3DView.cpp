@@ -14,6 +14,7 @@
 #include "Common/EventHandler.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Signal.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/XML/SignalOptions.hpp"
@@ -51,21 +52,30 @@ C3DView::C3DView(const std::string& name) :
 
   // options
 
-  m_options.add_option( OptionComponent<Mesh::CMesh>::create("mesh","Mesh",
-                                                          "Mesh to visualize with given refresh rate",
-                                                          &m_mesh))
-    ->mark_basic();
+  m_options.add_option( OptionComponent<Mesh::CMesh>::create("mesh", &m_mesh))
+      ->set_description("Mesh to visualize with given refresh rate")
+      ->set_pretty_name("Mesh")
+      ->mark_basic();
 
   m_filename = "solution_field.vtk";
-  m_options.add_option< OptionT<std::string> >("filename", "File Name", "File name to dumpmesh in VTK format", m_filename );
+  m_options.add_option< OptionT<std::string> >("filename", m_filename )
+      ->set_description("File name to dumpmesh in VTK format")
+      ->set_pretty_name("File Name")
+      ->link_to(&m_filename);
 
   m_refresh_rate = 1;
-  m_options.add_option< OptionT<Uint> >("refresh_rate", "Refresh Rate", "Number of iterations between refreshing the mesh / solution", m_refresh_rate )
-  ->mark_basic();
+  m_options.add_option< OptionT<Uint> >("refresh_rate", m_refresh_rate )
+      ->set_description("Number of iterations between refreshing the mesh / solution")
+      ->set_pretty_name("Refresh Rate")
+      ->mark_basic()
+      ->link_to(&m_refresh_rate);
 
   m_port = 8080;
-  m_options.add_option< OptionT<Uint> >("paraview_server_port", "Server Port", "Port used on paraview server launch", m_port )
-  ->mark_basic();
+  m_options.add_option< OptionT<Uint> >("paraview_server_port", m_port )
+      ->set_description("Port used on paraview server launch")
+      ->set_pretty_name("Server Port")
+      ->mark_basic()
+      ->link_to(&m_port);
 
   // signals
 
@@ -185,7 +195,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
     data[1] = QFileInfo( m_options["filename"].value<std::string>().c_str())
         .fileName().section('.',0,0).toStdString();
 
-    options.add<std::string>("pathinfo", data);
+    options.add_option< OptionArrayT<std::string> >("pathinfo", data);
 
     Server::ServerRoot::core()->sendSignal( *frame.xml_doc.get() );
   }

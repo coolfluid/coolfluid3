@@ -36,31 +36,43 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
 {
   mark_basic();
   // options
-  m_options.add_option< OptionT<bool> > ("time_accurate","Time Accurate", "Time Accurate", m_time_accurate)
-    ->mark_basic()
-    ->link_to(&m_time_accurate)
-    ->add_tag("time_accurate");
+  m_options.add_option< OptionT<bool> > ("time_accurate", m_time_accurate)
+      ->set_description("Time Accurate")
+      ->set_pretty_name("Time Accurate")
+      ->mark_basic()
+      ->link_to(&m_time_accurate)
+      ->add_tag("time_accurate");
 
-  m_options.add_option< OptionT<Real> > ("cfl","CFL", "Courant Number", m_CFL)
-    ->mark_basic()
-    ->link_to(&m_CFL)
-    ->add_tag("cfl");
+  m_options.add_option< OptionT<Real> > ("cfl", m_CFL)
+      ->set_description("Courant Number")
+      ->set_pretty_name("CFL")
+      ->mark_basic()
+      ->link_to(&m_CFL)
+      ->add_tag("cfl");
 
-  m_options.add_option(OptionURI::create("update_coeff","Update Coefficient","Update coefficient to multiply with residual", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_update_coeff,   this ) )
-    ->add_tag("update_coeff");
+  m_options.add_option(OptionURI::create("update_coeff", URI("cpath:"), URI::Scheme::CPATH))
+      ->set_description("Update coefficient to multiply with residual")
+      ->set_pretty_name("Update Coefficient")
+      ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_update_coeff,   this ) )
+      ->add_tag("update_coeff");
 
-  m_options.add_option(OptionURI::create("wave_speed","Wave Speed","WaveSpeed needed", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_wave_speed,   this ) )
-    ->add_tag("wave_speed");
+  m_options.add_option(OptionURI::create("wave_speed", URI("cpath:"), URI::Scheme::CPATH))
+      ->set_description("WaveSpeed needed")
+      ->set_pretty_name("Wave Speed")
+      ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_wave_speed,   this ) )
+      ->add_tag("wave_speed");
 
-  m_options.add_option(OptionURI::create("volume","Volume","Volume needed for time accurate simulations", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) )
-    ->add_tag(Mesh::Tags::volume());
+  m_options.add_option(OptionURI::create("volume", URI("cpath:"), URI::Scheme::CPATH))
+      ->set_description("Volume needed for time accurate simulations")
+      ->set_pretty_name("Volume")
+      ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) )
+      ->add_tag(Mesh::Tags::volume());
 
-  m_options.add_option(OptionURI::create("time","Time","Time Tracking component", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_time,   this ) )
-    ->add_tag("time");
+  m_options.add_option(OptionURI::create("time", URI("cpath:"), URI::Scheme::CPATH))
+      ->set_description("Time Tracking component")
+      ->set_pretty_name("Time")
+      ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_time,   this ) )
+      ->add_tag("time");
 
 }
 

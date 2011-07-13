@@ -41,9 +41,10 @@ CStencilComputerRings::CStencilComputerRings( const std::string& name )
 {
   option("mesh").attach_trigger(boost::bind(&CStencilComputerRings::configure_mesh,this));
 
-  m_options.add_option(OptionT<Uint>::create("nb_rings","Number of Rings", "Number of neighboring rings of elements in stencil", m_nb_rings))
-    ->link_to(&m_nb_rings);
-
+  m_options.add_option(OptionT<Uint>::create("nb_rings", m_nb_rings))
+      ->set_description("Number of neighboring rings of elements in stencil")
+      ->set_pretty_name("Number of Rings")
+      ->link_to(&m_nb_rings);
 }
 
 //////////////////////////////////////////////////////////////////////

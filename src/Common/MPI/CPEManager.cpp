@@ -4,12 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/assign/std/vector.hpp> // for 'operator+=()'
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/BoostFilesystem.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/Signal.hpp"
 
 #include "Common/XML/FileOperations.hpp"
@@ -23,6 +27,7 @@
 
 #include "Common/Log.hpp"
 
+using namespace boost::assign; // bring 'operator+=()' into scope
 using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -95,24 +100,24 @@ void CPEManager::new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr sig)
   rapidxml::xml_attribute<>* tmpAttr = sig_frame.node.content->first_attribute("target");
 
 
-	if( is_null(tmpAttr) )
-		throw ValueNotFound(FromHere(), "Could not find the target.");
+  if( is_null(tmpAttr) )
+    throw ValueNotFound(FromHere(), "Could not find the target.");
 
-	std::string target = tmpAttr->value();
+  std::string target = tmpAttr->value();
 
-	tmpAttr = sig_frame.node.content->first_attribute("receiver");
+  tmpAttr = sig_frame.node.content->first_attribute("receiver");
 
-	if( is_null(tmpAttr) )
-		throw ValueNotFound(FromHere(), "Could not find the receiver.");
+  if( is_null(tmpAttr) )
+    throw ValueNotFound(FromHere(), "Could not find the receiver.");
 
 
-	if( !m_root.expired() )
-	{
-		CRoot::Ptr root = m_root.lock();
-		Component::Ptr comp = root->retrieve_component_checked( tmpAttr->value() );
+  if( !m_root.expired() )
+  {
+    CRoot::Ptr root = m_root.lock();
+    Component::Ptr comp = root->retrieve_component_checked( tmpAttr->value() );
 
-		comp->call_signal(target, sig_frame);
-	}
+    comp->call_signal(target, sig_frame);
+  }
 
 }
 
@@ -264,9 +269,9 @@ void CPEManager::signal_spawn_group ( SignalArgs & args )
   SignalOptions options( args );
   const char * cmd = "../../Tools/Solver/coolfluid-solver";
 
-  Uint nb_workers = options.option<Uint>("Workers Count");
-  std::string name = options.option<std::string>("Name");
-  std::string forward = options.option<std::string>("Log Forwarding");
+  Uint nb_workers = options.value<Uint>("Workers Count");
+  std::string name = options.value<std::string>("Name");
+  std::string forward = options.value<std::string>("Log Forwarding");
 
   if(forward == "None")
     forward = "none";
@@ -285,7 +290,7 @@ void CPEManager::signal_spawn_group ( SignalArgs & args )
 void CPEManager::signal_kill_group ( SignalArgs & args )
 {
   SignalOptions options(args);
-  std::string group_name = options.option<std::string>("Group to kill");
+  std::string group_name = options.value<std::string>("Group to kill");
 
   kill_group( group_name );
 }
@@ -303,7 +308,7 @@ void CPEManager::signal_message ( SignalArgs & args )
 {
   SignalOptions options(args);
 
-  std::string msg = options.option<std::string>("message");
+  std::string msg = options.value<std::string>("message");
 
   CFinfo << msg << CFendl;
 }
@@ -331,16 +336,17 @@ void CPEManager::signal_exit( SignalArgs & args )
 void CPEManager::signature_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
-  std::vector<std::string> forwards(3);
 
-  forwards[0] = "None";
-  forwards[1] = "Only rank 0";
-  forwards[2] = "All ranks";
+  options.add_option< OptionT<std::string> >("Name", std::string())
+      ->set_description("Name of the new group") ;
 
-  options.add("Name", std::string(), "Name of the new group.");
-  options.add("Workers Count", Uint(1), "Number of workers to spawn.");
-  options.add("Log Forwarding", std::string("None"), "Defines the way the log is forwarded from the workers.",
-              forwards, ";");
+  options.add_option< OptionT<Uint> >("Workers Count", Uint(1))
+      ->set_description("Number of workers to spawn.");
+
+  options.add_option< OptionT<std::string> >("Log Forwarding", std::string("None") )
+      ->set_description("Defines the way the log is forwarded from the workers.")
+      ->restricted_list() += std::string("Only rank 0"), std::string("All ranks");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -348,7 +354,7 @@ void CPEManager::signature_spawn_group ( SignalArgs & args )
 void CPEManager::signature_kill_group ( SignalArgs & args )
 {
   SignalOptions options( args );
-  std::vector<std::string> groups( m_groups.size() );
+  std::vector<boost::any> groups( m_groups.size() - 1 );
   std::map<std::string, Communicator>::iterator it = m_groups.begin();
 
   if(m_groups.empty())
@@ -357,8 +363,9 @@ void CPEManager::signature_kill_group ( SignalArgs & args )
   for(int i = 0 ; it != m_groups.end() ; ++it, ++i )
     groups[i] = it->first;
 
-  options.add<std::string>("Group to kill", groups[0],
-                           "Processes belonging to the selected group will be exited.", groups, ";");
+  options.add_option< OptionT<std::string> >("Group to kill", m_groups.begin()->first )
+      ->set_description("Processes belonging to the selected group will be exited.")
+      ->restricted_list() = groups;
 }
 
 ////////////////////////////////////////////////////////////////////////////

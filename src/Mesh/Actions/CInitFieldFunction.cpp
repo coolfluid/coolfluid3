@@ -43,13 +43,14 @@ CInitFieldFunction::CInitFieldFunction( const std::string& name )
     "  Usage: CInitFieldFunction vectorial function \n";
   properties()["description"] = desc;
 
-  m_options.add_option(OptionComponent<CField>::create("field","Field","Field to initialize",&m_field))
-    ->mark_basic();
+  m_options.add_option(OptionComponent<CField>::create("field", &m_field))
+      ->set_description("Field to initialize")
+      ->set_pretty_name("Field")
+      ->mark_basic();
 
-  m_options.add_option<
-      OptionArrayT<std::string> > ("functions","Functions definition",
-                                   "Math function applied as initial field (vars x,y,z)",
-                                   std::vector<std::string>())
+  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
+      ->set_description("Math function applied as initial field (vars x,y,z)")
+      ->set_pretty_name("Functions definition")
       ->attach_trigger ( boost::bind ( &CInitFieldFunction::config_function, this ) )
       ->mark_basic();
 

@@ -6,6 +6,8 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/CGroup.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/Signal.hpp"
 #include "Common/FindComponents.hpp"
 
@@ -77,8 +79,8 @@ void CDomain::signal_load_mesh ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  URI fileuri = options.option<URI>("file");
-  std::string name = options.option<std::string>("name");
+  URI fileuri = options.value<URI>("file");
+  std::string name = options.value<std::string>("name");
 
   load_mesh( fileuri, name);
 }
@@ -92,8 +94,13 @@ void CDomain::signature_load_mesh ( Common::SignalArgs& node )
   std::vector<URI::Scheme::Type> schemes(1);
   schemes[0] = URI::Scheme::FILE;
 
-  options.add("file", URI(), "Location of the file holding the mesh", schemes );
-  options.add<std::string>("name", std::string(), "Location of the file holding the mesh" );
+
+  options.add_option< OptionURI >("file", URI() )
+      ->set_description("Location of the file holding the mesh")
+      ->cast_to<OptionURI>()->set_supported_protocols(schemes);
+
+  options.add_option< OptionT<std::string> >("name", std::string() )
+      ->set_description("Location of the file holding the mesh");
 
 }
 

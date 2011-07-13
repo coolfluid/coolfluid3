@@ -43,10 +43,14 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
 
   // options
 
-  m_options.add_option< OptionT<bool> >("Scale", "Scales (divides) the norm by the number of entries (ignored if order zero)", true);
-  m_options.add_option< OptionT<Uint> >("Order", "Order of the p-norm, zero if L-inf", 2u);
+  m_options.add_option< OptionT<bool> >("Scale", true)
+      ->set_description("Scales (divides) the norm by the number of entries (ignored if order zero)");
 
-  m_options.add_option(OptionComponent<CField>::create("Field", "Field for which to compute the norm", &m_field));
+  m_options.add_option< OptionT<Uint> >("Order", 2u)
+      ->set_description("Order of the p-norm, zero if L-inf");
+
+  m_options.add_option(OptionComponent<CField>::create("Field", &m_field))
+      ->set_description("Field for which to compute the norm");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

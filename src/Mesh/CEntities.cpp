@@ -35,8 +35,10 @@ CEntities::CEntities ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 
-  m_options.add_option(OptionT<std::string>::create("element_type","Element Type","Element type", std::string("")))
-    ->attach_trigger(boost::bind(&CEntities::configure_element_type, this));
+  m_options.add_option(OptionT<std::string>::create("element_type", std::string("")))
+      ->set_description("Element type")
+      ->set_pretty_name("Element type")
+      ->attach_trigger(boost::bind(&CEntities::configure_element_type, this));
 
   m_global_numbering = create_static_component_ptr<CList<Uint> >(Mesh::Tags::global_elem_indices());
   m_global_numbering->add_tag(Mesh::Tags::global_elem_indices());
@@ -274,8 +276,11 @@ void CEntities::allocate_coordinates(RealMatrix& coords) const
 void CEntities::signature_create_space ( SignalArgs& node)
 {
   XML::SignalOptions options( node );
-  options.add<std::string>("name" , std::string("space["+to_str(m_spaces.size())+"]") , "name to add to space" );
-  options.add<std::string>("shape_function" , std::string("CF.Mesh.SF.SFLineP0Lagrange") , "Shape Function to add as space" );
+  options.add_option< OptionT<std::string> >("name" , std::string("space["+to_str(m_spaces.size())+"]") )
+      ->set_description("Name to add to space");
+
+  options.add_option< OptionT<std::string> >("shape_function" , std::string("CF.Mesh.SF.SFLineP0Lagrange") )
+      ->set_description("Shape Function to add as space");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -285,12 +290,12 @@ void CEntities::signal_create_space ( SignalArgs& node )
   XML::SignalOptions options( node );
 
   std::string name = "space["+to_str(m_spaces.size())+"]";
-  if (options.exists("name"))
-    name = options.option<std::string>("name");
+  if (options.check("name"))
+    name = options.value<std::string>("name");
 
-  std::string shape_function_builder = options.option<std::string>("shape_function");
+  std::string shape_function_builder = options.value<std::string>("shape_function");
 
-  CSpace& space = create_space(name,shape_function_builder);
+  CSpace& space = create_space(name, shape_function_builder);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -48,11 +48,20 @@ CReader::CReader( const std::string& name )
   Shared()
 {
   // options
-  m_options.add_option<OptionT <bool> >("read_groups","Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",true);
-  m_options.add_option<OptionT <Uint> >("part","Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().rank());
-  m_options.add_option<OptionT <Uint> >("nb_parts","Total nb_partitions. (e.g. number of processors)",mpi::PE::instance().size());
-  m_options.add_option<OptionT <bool> >("read_boundaries","Read Boundaries","Read the surface elements for the boundary",true);
+  m_options.add_option<OptionT <bool> >("read_groups" ,true)
+      ->set_description("Reads Neu Groups and splits the mesh in these subgroups")
+      ->set_pretty_name("Unified Zones");
 
+  m_options.add_option<OptionT <Uint> >("part", mpi::PE::instance().rank())
+      ->set_description("Number of the part of the mesh to read. (e.g. rank of processor)")
+      ->set_pretty_name("Part");
+
+  m_options.add_option<OptionT <Uint> >("nb_parts", mpi::PE::instance().size())
+      ->set_description("Total nb_partitions. (e.g. number of processors)");
+
+  m_options.add_option<OptionT <bool> >("read_boundaries", true)
+      ->set_description("Read the surface elements for the boundary")
+      ->set_pretty_name("Read Boundaries");
 
   m_properties["brief"] = std::string("Neutral file mesh reader component");
 
@@ -99,12 +108,12 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
   // Read mesh information
   read_headerData();
 
-	// Create a hash
-	m_hash = create_component_ptr<CMixedHash>("hash");
-	std::vector<Uint> num_obj(2);
-	num_obj[0] = m_headerData.NUMNP;
-	num_obj[1] = m_headerData.NELEM;
-	m_hash->configure_option("nb_obj",num_obj);
+  // Create a hash
+  m_hash = create_component_ptr<CMixedHash>("hash");
+  std::vector<Uint> num_obj(2);
+  num_obj[0] = m_headerData.NUMNP;
+  num_obj[1] = m_headerData.NELEM;
+  m_hash->configure_option("nb_obj",num_obj);
 
   // Create a region component inside the mesh with the name mesh_name
   //if (option("new_api").value<bool>())
@@ -436,24 +445,24 @@ void CReader::read_groups()
     //    and the elements from the tmp region have to be distributed among
     //    these new regions.
 
-		// Read first to see howmany elements to allocate
-		int p = m_file.tellg();
-		Uint nb_elems_in_group = 0;
-		for (Uint i=0; i<NELGP; ++i)
-		{
-			m_file >> I;
-			if (m_hash->subhash(ELEMS).owns(I-1))
-				nb_elems_in_group++;
-		}
-		// now allocate and read again
-		groups[g].ELEM.reserve(nb_elems_in_group);
-		m_file.seekg(p,std::ios::beg);
-		for (Uint i=0; i<NELGP; ++i)
-		{
-			m_file >> I;
-			if (m_hash->subhash(ELEMS).owns(I-1))
-				groups[g].ELEM.push_back(I);     // set element index
-		}
+    // Read first to see howmany elements to allocate
+    int p = m_file.tellg();
+    Uint nb_elems_in_group = 0;
+    for (Uint i=0; i<NELGP; ++i)
+    {
+      m_file >> I;
+      if (m_hash->subhash(ELEMS).owns(I-1))
+        nb_elems_in_group++;
+    }
+    // now allocate and read again
+    groups[g].ELEM.reserve(nb_elems_in_group);
+    m_file.seekg(p,std::ios::beg);
+    for (Uint i=0; i<NELGP; ++i)
+    {
+      m_file >> I;
+      if (m_hash->subhash(ELEMS).owns(I-1))
+        groups[g].ELEM.push_back(I);     // set element index
+    }
 
     getline(m_file,line);  // finish the line (read new line)
     getline(m_file,line);  // ENDOFSECTION

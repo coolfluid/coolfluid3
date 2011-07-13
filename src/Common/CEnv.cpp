@@ -23,56 +23,84 @@ Common::ComponentBuilder < CEnv, Component, LibCommon > CEnv_Builder;
 
 CEnv::CEnv ( const std::string& name) : Component ( name )
 {
+  // properties
   m_properties["brief"] = std::string("Environment");
   m_properties["description"] = std::string("Controls general behavior of coolfluid");
 
-  // properties
-  m_options.add_option(OptionT<bool>::create("only_cpu0_writes","Only CP0 Writes", "If true, only processor P0 writes the log info to files. If false, all processors write.", true))
-    ->mark_basic()
-    ->attach_trigger(boost::bind(&CEnv::trigger_only_cpu0_writes,this));
+  // options
+  m_options.add_option< OptionT<bool> >("only_cpu0_writes", true)
+      ->set_pretty_name("Only CP0 Writes")
+      ->set_description("If true, only processor P0 writes the log info to files. If false, all processors write.")
+      ->mark_basic()
+      ->attach_trigger(boost::bind(&CEnv::trigger_only_cpu0_writes,this));
 
-  m_options.add_option(OptionT<bool>::create("assertion_to_exception","Assertion To Exception", "If true, failed assertions throw exceptions instead of aborting. (Only for Debug builds)", AssertionManager::instance().AssertionThrows))
-    ->mark_basic()
-    ->attach_trigger(boost::bind(&CEnv::trigger_assertion_throws,this));
+  m_options.add_option< OptionT<bool> >("assertion_to_exception", AssertionManager::instance().AssertionThrows)
+      ->set_pretty_name("Assertion To Exception")
+      ->set_description("If true, failed assertions throw exceptions instead of aborting. (Only for Debug builds)")
+      ->mark_basic()
+      ->attach_trigger(boost::bind(&CEnv::trigger_assertion_throws,this));
 
-  m_options.add_option(OptionT<bool>::create("assertion_backtrace","Assertion Backtrace", "If true, failed assertions dump the backtrace. (Only for Debug builds)", AssertionManager::instance().AssertionDumps))
-    ->mark_basic()
-    ->attach_trigger(boost::bind(&CEnv::trigger_assertion_backtrace,this));
+  m_options.add_option< OptionT<bool> >("assertion_backtrace", AssertionManager::instance().AssertionDumps)
+      ->set_pretty_name("Assertion Backtrace")
+      ->set_description("If true, failed assertions dump the backtrace. (Only for Debug builds)")
+      ->mark_basic()
+      ->attach_trigger(boost::bind(&CEnv::trigger_assertion_backtrace,this));
 
-  m_options.add_option(OptionT<bool>::create("disable_assertions","Disable Assertions", "If true, assertions will be ignored. (Only for Debug builds)", ! AssertionManager::instance().DoAssertions))
-    ->mark_basic()
-    ->attach_trigger(boost::bind(&CEnv::trigger_disable_assertions,this));
+  m_options.add_option< OptionT<bool> >("disable_assertions", ! AssertionManager::instance().DoAssertions)
+      ->set_pretty_name("Disable Assertions")
+      ->set_description("If true, assertions will be ignored. (Only for Debug builds)")
+      ->mark_basic()
+      ->attach_trigger(boost::bind(&CEnv::trigger_disable_assertions,this));
 
-  m_options.add_option(OptionT<bool>::create("exception_outputs","Exception Outputs", "If true, raised exceptions output immediately, before being handled.", ExceptionManager::instance().ExceptionOutputs))
-    ->mark_basic()
-    ->attach_trigger(boost::bind(&CEnv::trigger_exception_outputs,this));
+  m_options.add_option< OptionT<bool> >("exception_outputs", ExceptionManager::instance().ExceptionOutputs)
+      ->set_pretty_name("Exception Outputs")
+      ->set_description("If true, raised exceptions output immediately, before being handled.")
+      ->mark_basic()
+      ->attach_trigger(boost::bind(&CEnv::trigger_exception_outputs,this));
 
-  m_options.add_option(OptionT<bool>::create("exception_backtrace","Exception Backtrace", "If true, raised exceptions dump immediately the backtrace, before being handled.", ExceptionManager::instance().ExceptionDumps))
-    ->mark_basic()
-    ->attach_trigger(boost::bind(&CEnv::trigger_exception_backtrace,this));
+  m_options.add_option< OptionT<bool> >("exception_backtrace", ExceptionManager::instance().ExceptionDumps)
+      ->set_pretty_name("Exception Backtrace")
+      ->set_description("If true, raised exceptions dump immediately the backtrace, before being handled.")
+      ->mark_basic()
+      ->attach_trigger(boost::bind(&CEnv::trigger_exception_backtrace,this));
 
-  m_options.add_option(OptionT<bool>::create("exception_aborts","Exception Aborts", "If true, raised exceptions abort program immediately, before being handled.", ExceptionManager::instance().ExceptionAborts))
-    ->mark_basic()
-    ->attach_trigger(boost::bind(&CEnv::trigger_exception_aborts,this));
+  m_options.add_option< OptionT<bool> >("exception_aborts", ExceptionManager::instance().ExceptionAborts)
+      ->set_pretty_name("Exception Aborts")
+      ->set_description("If true, raised exceptions abort program immediately, before being handled.")
+      ->mark_basic()
+      ->attach_trigger(boost::bind(&CEnv::trigger_exception_aborts,this));
 
-  m_options.add_option(OptionT<bool>::create("regist_signal_handlers","Regist Signal Handlers", "If true, regist signal handlers", false))
-    ->mark_basic();
+  m_options.add_option< OptionT<bool> >("regist_signal_handlers", false)
+      ->set_pretty_name("Regist Signal Handlers")
+      ->set_description("If true, regist signal handlers")
+      ->mark_basic();
 
-  m_options.add_option(OptionT<bool>::create("verbose_events","Verbose Events", "If true, events are verbose output.", false))
-    ->mark_basic();
+  m_options.add_option< OptionT<bool> >("verbose_events", false)
+      ->set_pretty_name("Verbose Events")
+      ->set_description("If true, events are verbose output.")
+      ->mark_basic();
 
-  m_options.add_option(OptionT<bool>::create("error_on_unused_config","ErrorOnUnusedConfig", "If true, signal error when some user provided config parameters are not used.", false))
-    ->mark_basic();
+  m_options.add_option< OptionT<bool> >("error_on_unused_config", false)
+      ->set_pretty_name("Error On Unused Config")
+      ->set_description("If true, signal error when some user provided config parameters are not used.")
+      ->mark_basic();
 
-  m_options.add_option(OptionT<std::string>::create("main_logger_file_name","Main Logger File Name", "The name if the file in which to put the logging messages.", "output.log"))
-    ->mark_basic();
+  m_options.add_option< OptionT<std::string> >("main_logger_file_name", std::string("output.log"))
+      ->set_pretty_name("Main Logger File Name")
+      ->set_description("The name if the file in which to put the logging messages.")
+      ->mark_basic();
 
-  m_options.add_option(OptionT<Uint>::create("exception_log_level","Exception Log Level", "The log level for exceptions", (Uint) ERROR))
-    ->mark_basic();
+  m_options.add_option< OptionT<Uint> >("exception_log_level", (Uint) ERROR)
+      ->set_pretty_name("Exception Log Level")
+      ->set_description("The log level for exceptions")
+      ->mark_basic();
 
-  m_options.add_option(OptionT<Uint>::create("log_level","Log Level", "The log level [SILENT=0, ERROR=1, WARNING=2, INFO=3, DEBUG=4, TRACE=5, VERBOSE=10", 3))
-    ->mark_basic()
-    ->attach_trigger(boost::bind(&CEnv::trigger_log_level,this));
+  m_options.add_option< OptionT<Uint> >("log_level", 3)
+      ->set_pretty_name("Log Level")
+      ->set_description("The log level [SILENT=0, ERROR=1, WARNING=2, INFO=3, DEBUG=4, TRACE=5, VERBOSE=10")
+      ->mark_basic()
+      ->attach_trigger(boost::bind(&CEnv::trigger_log_level,this));
+
   trigger_log_level();
 
   // signals

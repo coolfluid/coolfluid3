@@ -12,6 +12,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/CLibraries.hpp"
 #include "Common/OSystem.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/LibLoader.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
@@ -190,12 +191,14 @@ void CLibraries::signature_load_libraries ( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  std::vector<URI::Scheme::Type> schemes(1);
-  schemes[0] = URI::Scheme::FILE;
+//  std::vector<URI::Scheme::Type> schemes(1);
+//  schemes[0] = URI::Scheme::FILE;
 
   std::vector<URI> dummy;
 
-  options.add("libs", dummy, " ; ", "Libraries to load", schemes );
+  options.add_option< OptionArrayT<URI> >("libs", dummy)
+      ->set_description("Libraries to load");
+      //->cast_to<OptionURI>()->set_supported_protocols(schemes);
 
 }
 

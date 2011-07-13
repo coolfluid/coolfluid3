@@ -30,8 +30,11 @@ CSetFieldValues::CSetFieldValues ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
-  m_options.add_option< OptionURI > ("Field","Field to set", URI("cpath:"))->mark_basic();
-  m_options["Field"].attach_trigger ( boost::bind ( &CSetFieldValues::config_field,   this ) );
+  m_options.add_option< OptionURI > ("Field", URI("cpath:"))
+      ->set_description("Field to set")
+      ->mark_basic()
+      ->attach_trigger ( boost::bind ( &CSetFieldValues::config_field, this ) )
+      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

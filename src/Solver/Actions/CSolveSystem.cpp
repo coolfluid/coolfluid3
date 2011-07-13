@@ -31,10 +31,11 @@ CSolveSystem::CSolveSystem( const std::string& name  ) :
   std::string description =
     "This object executes a linear system solver\n";
   properties()["description"] = description;
-  
-  options().add_option( OptionComponent<CEigenLSS>::create("lss", "LSS", "Linear System solver that gets executed",
-                                                                   &m_lss))
-    ->mark_basic();
+
+  options().add_option( OptionComponent<CEigenLSS>::create("lss", &m_lss))
+      ->set_description("Linear System solver that gets executed")
+      ->set_pretty_name("LSS")
+      ->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,12 +44,12 @@ void CSolveSystem::execute ()
 {
   if(m_lss.expired())
     throw SetupError(FromHere(), "LSS not set for component " + uri().string());
-  
+
   CEigenLSS& lss = *m_lss.lock();
-  
+
   if(!lss.size())
     throw SetupError(FromHere(), "LSS at " + lss.uri().string() + " is empty!");
-  
+
   lss.solve();
 }
 

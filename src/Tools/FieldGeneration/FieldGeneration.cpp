@@ -44,13 +44,22 @@ void create_constant_scalar_field(CMesh& mesh, const std::string& field_name, co
 
 FieldGenerator::FieldGenerator(const std::string& name) : Component(name)
 {
-  OptionURI::Ptr mesh_path = boost::dynamic_pointer_cast<OptionURI>( m_options.add_option<OptionURI>("Mesh", "Mesh to add the field to", std::string()) );
-  mesh_path->supported_protocol(CF::Common::URI::Scheme::CPATH);
+  Option::Ptr mesh_path = m_options.add_option<OptionURI>("Mesh", std::string());
+  mesh_path->set_description("Mesh to add the field to");
   mesh_path->mark_basic();
+  mesh_path->cast_to<OptionURI>()->supported_protocol(CF::Common::URI::Scheme::CPATH);
 
-  m_options.add_option< OptionT<std::string> >("FieldName", "Name of the field to create", "")->mark_basic();
-  m_options.add_option< OptionT<std::string> >("VariableName", "Name of the variable to create", "")->mark_basic();
-  m_options.add_option< OptionT<Real> >("Value", "Value for every node in the field", 0.)->mark_basic();
+  m_options.add_option< OptionT<std::string> >("FieldName", "")
+      ->set_description("Name of the field to create")
+      ->mark_basic();
+
+  m_options.add_option< OptionT<std::string> >("VariableName", "")
+      ->set_description("Name of the variable to create")
+      ->mark_basic();
+
+  m_options.add_option< OptionT<Real> >("Value", 0.)
+      ->set_description("Value for every node in the field")
+      ->mark_basic();
 
   this->regist_signal("update" , "Update the field value according to the options", "Update")->signal->connect( boost::bind ( &FieldGenerator::signal_update, this, _1 ) );
 }

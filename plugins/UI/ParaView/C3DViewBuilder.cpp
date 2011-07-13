@@ -53,8 +53,8 @@ void C3DViewBuilder::signal_create_3dview(SignalArgs &args)
 {
   SignalOptions options( args );
 
-  std::string name = options.option<std::string>("3DView name");
-  URI parent = options.option<URI>("Parent");
+  std::string name = options.value<std::string>("3DView name");
+  URI parent = options.value<URI>("Parent");
 
   // some checks
   if(name.empty())

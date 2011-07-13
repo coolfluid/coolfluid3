@@ -72,45 +72,54 @@ CField::CField ( const std::string& name  ) :
   regist_signal ( "create_data_storage" , "Allocate the data", "Create Storage" )->signal->connect ( boost::bind ( &CField::signal_create_data_storage, this, _1 ) );
 
   Option::Ptr uri_option;
-  uri_option = m_options.add_option<OptionURI>("Topology","The field tree this field will be registered in",URI("cpath:"));
+  uri_option = m_options.add_option<OptionURI>("Topology", URI("cpath:"));
+  uri_option->set_description("The field tree this field will be registered in");
   uri_option->attach_trigger ( boost::bind ( &CField::config_tree,   this ) );
   uri_option->mark_basic();
 
   Option::Ptr option;
-  option = m_options.add_option< OptionT<std::string> >("FieldType", "The type of the field", std::string("PointBased"));
+  option = m_options.add_option< OptionT<std::string> >("FieldType", std::string("PointBased"));
+  option->set_description("The type of the field");
   option->restricted_list() += std::string("ElementBased");
   option->restricted_list() += std::string("CellBased");
   option->restricted_list() += std::string("FaceBased");
   option->attach_trigger ( boost::bind ( &CField::config_field_type,   this ) );
   option->mark_basic();
 
-  option = m_options.add_option< OptionT<std::string> >("Space", "The space of the field is based on", m_space_name);
+  option = m_options.add_option< OptionT<std::string> >("Space", m_space_name);
+  option->set_description("The space of the field is based on");
   option->link_to(&m_space_name);
   option->mark_basic();
 
   std::vector<std::string> var_names;
   var_names.push_back(name);
-  option = m_options.add_option<OptionArrayT<std::string> >("VarNames","Names of the variables",var_names);
-  option->attach_trigger ( boost::bind ( &CField::config_var_names,   this ) );
+  option = m_options.add_option<OptionArrayT<std::string> >("VarNames", var_names);
+  option->set_description("Names of the variables");
+  option->attach_trigger ( boost::bind ( &CField::config_var_names, this ) );
   option->mark_basic();
   config_var_names();
 
   std::vector<std::string> var_types;
   var_types.push_back("scalar");
-  option = m_options.add_option<OptionArrayT<std::string> >("VarTypes","Types of the variables",var_types);
-  m_options["VarTypes"].restricted_list() += std::string("scalar") ,
-                               std::string("vector2D"),
-                               std::string("vector3D"),
-                               std::string("tensor2D"),
-                               std::string("tensor3D");
+  option = m_options.add_option<OptionArrayT<std::string> >("VarTypes", var_types);
+  option->set_description("Types of the variables");
+  option->restricted_list() += std::string("scalar") ,
+                                std::string("vector2D"),
+                                std::string("vector3D"),
+                                std::string("tensor2D"),
+                                std::string("tensor3D");
   option->attach_trigger ( boost::bind ( &CField::config_var_types,   this ) );
   option->mark_basic();
   config_var_types();
 
-  m_options.add_option(OptionT<Uint>::create("iteration","Iteration","Iteration stamp of the field",m_iter_stamp) )
+  m_options.add_option(OptionT<Uint>::create("iteration", m_iter_stamp) )
+      ->set_description("Iteration stamp of the field")
+      ->set_pretty_name("Iteration")
       ->link_to(&m_iter_stamp);
 
-  m_options.add_option(OptionT<Real>::create("time","Time","Time stamp of the field",m_time_stamp) )
+  m_options.add_option(OptionT<Real>::create("time", m_time_stamp) )
+      ->set_description("Time stamp of the field")
+      ->set_pretty_name("Time")
       ->link_to(&m_time_stamp);
 
   m_topology = create_static_component_ptr<CLink>("topology");

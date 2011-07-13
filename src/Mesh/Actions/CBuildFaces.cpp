@@ -52,7 +52,9 @@ CBuildFaces::CBuildFaces( const std::string& name )
   "      element distribution for each region, and element type";
   m_properties["description"] = desc;
 
-  m_options.add_option( OptionT<bool>::create("store_cell2face","Store Cell to Face","Optionally store Cell to Face connectivity",m_store_cell2face) )
+  m_options.add_option( OptionT<bool>::create("store_cell2face", m_store_cell2face) )
+      ->set_description("Optionally store Cell to Face connectivity")
+      ->set_pretty_name("Store Cell to Face")
       ->mark_basic()
       ->link_to(&m_store_cell2face);
 }

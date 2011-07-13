@@ -10,8 +10,10 @@
 
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
 #include "Common/OptionComponent.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
@@ -50,29 +52,43 @@ FlowSolver::FlowSolver ( const std::string& name  ) : CSolver ( name )
 
   // Properties
 
-  m_options.add_option(OptionComponent<CMesh>::create(Tags::mesh(),"Mesh","Mesh",&m_mesh))
+  m_options.add_option(OptionComponent<CMesh>::create(Tags::mesh(), &m_mesh))
+      ->set_description("Mesh")
+      ->set_pretty_name("Mesh")
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<PhysModel>::create(Tags::physical_model(),"Physical Model","Physical Model",&m_physical_model))
+  m_options.add_option(OptionComponent<PhysModel>::create(Tags::physical_model(), &m_physical_model))
+      ->set_description("Mesh")
+      ->set_pretty_name("Mesh")
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<CTime>::create(Tags::time(),"Time","Time tracking component",&m_time))
+  m_options.add_option(OptionComponent<CTime>::create(Tags::time(), &m_time))
+      ->set_description("Time tracking component")
+      ->set_pretty_name("Time")
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<CAction>::create(Tags::setup(),"Setup","Setup action for the solver",&m_setup))
+  m_options.add_option(OptionComponent<CAction>::create(Tags::setup(), &m_setup))
+      ->set_description("Setup action for the solver")
+      ->set_pretty_name("Setup")
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<CAction>::create(Tags::solve(),"Solve","Action that executes the \"solve\"",&m_solve))
+  m_options.add_option(OptionComponent<CAction>::create(Tags::solve(), &m_solve))
+      ->set_description("Action that executes the \"solve\"")
+      ->set_pretty_name("Solve")
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this) )
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<CAction>::create(Tags::inner(),"Inner Domain","Action to execute inner domain computations. Tag component with \"inner\" for automatic detection",&m_inner));
+  m_options.add_option(OptionComponent<CAction>::create(Tags::inner(), &m_inner))
+      ->set_description("Action to execute inner domain computations. Tag component with \"inner\" for automatic detection")
+      ->set_pretty_name("Inner Domain");
 
-  m_options.add_option(OptionComponent<CAction>::create(Tags::bc(),"Boundary Conditions","Action to execute boundary conditions. Tag component with \"bc\" for automatic detection",&m_bc));
+  m_options.add_option(OptionComponent<CAction>::create(Tags::bc(), &m_bc))
+      ->set_description("Action to execute boundary conditions. Tag component with \"bc\" for automatic detection")
+      ->set_pretty_name("Boundary Conditions");
 
   // Signals
   this->regist_signal ( "create_bc_action"    , "Create Boundary Condition", "Create Boundary Condition" )->signal->connect ( boost::bind ( &FlowSolver::signal_create_bc_action, this , _1) );
@@ -233,8 +249,8 @@ void FlowSolver::signal_create_bc_action( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name = options.option<std::string>("name");
-  std::string builder = options.option<std::string>("builder");
+  std::string name = options.value<std::string>("name");
+  std::string builder = options.value<std::string>("builder");
   std::vector<URI> regions_uri = options.array<URI>("regions");
   std::vector<CRegion::ConstPtr> regions(regions_uri.size());
   for (Uint i=0; i<regions_uri.size(); ++i)
@@ -262,13 +278,16 @@ void FlowSolver::signature_create_bc_action( SignalArgs& node )
   //  options.add<std::string>( "builder", std::string() , "Choose BC", bcs, " ; ");
 
   // name
-  options.add<std::string>("name", std::string(), "Name for created boundary condition" );
+  options.add_option< OptionT<std::string> >("name", std::string())
+      ->set_description("Name for created boundary condition" );
 
   // builder
-  options.add<std::string>( "builder", std::string() , "Builder name of boundary condition computation");
+  options.add_option< OptionT<std::string> >( "builder", std::string() )
+      ->set_description("Builder name of boundary condition computation");
 
   // regions
-  options.add("regions", std::vector<URI>() , "Regions where to apply the boundary condition", " ; " );
+  options.add_option< OptionArrayT<URI> >("regions", std::vector<URI>() )
+      ->set_description("Regions where to apply the boundary condition");
 
 }
 
@@ -278,8 +297,8 @@ void FlowSolver::signal_create_inner_action( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name = options.option<std::string>("name");
-  std::string builder = options.option<std::string>("builder");
+  std::string name = options.value<std::string>("name");
+  std::string builder = options.value<std::string>("builder");
   std::vector<URI> regions_uri = options.array<URI>("regions");
   std::vector<CRegion::ConstPtr> regions(regions_uri.size());
   for (Uint i=0; i<regions_uri.size(); ++i)
@@ -296,13 +315,16 @@ void FlowSolver::signature_create_inner_action( SignalArgs& node )
   SignalOptions options( node );
 
   // name
-  options.add<std::string>("name", std::string(), "Name for created inner action" );
+  options.add_option< OptionT<std::string> >("name", std::string())
+      ->set_description("Name for created inner action" );
 
   // builder
-  options.add<std::string>( "builder", std::string() , "Builder name of inner action");
+  options.add_option< OptionT<std::string> >( "builder", std::string())
+      ->set_description("Builder name of inner action");
 
   // regions
-  options.add("regions", std::vector<URI>() , "Regions where to apply the boundary condition", " ; " );
+  options.add_option< OptionArrayT<URI> >("regions", std::vector<URI>())
+      ->set_description("Regions where to apply the boundary condition");
 
 }
 

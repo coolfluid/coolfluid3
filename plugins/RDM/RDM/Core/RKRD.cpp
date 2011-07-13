@@ -58,14 +58,16 @@ RKRD::RKRD ( const std::string& name  ) :
 
   m_options["domain"].attach_trigger ( boost::bind ( &RKRD::config_domain,   this ) );
 
-  m_options.add_option(OptionComponent<CMesh>::create("mesh","Mesh","Mesh the Discretization Method will be applied to",&m_mesh))
-    ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
+  m_options.add_option(OptionComponent<CMesh>::create("mesh", &m_mesh))
+      ->set_description("Mesh the Discretization Method will be applied to")
+      ->set_pretty_name("Mesh")
+      ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
 
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physics","Physics",
-                                                                   "Physical model to discretize",
-                                                                   &m_physical_model))
-    ->mark_basic();
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physics", &m_physical_model))
+      ->set_description("Physical model to discretize")
+      ->set_pretty_name("Physics")
+      ->mark_basic();
 
   // properties
 
@@ -237,8 +239,8 @@ void RKRD::signal_create_boundary_term( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name = options.option<std::string>("Name");
-  std::string type = options.option<std::string>("Type");
+  std::string name = options.value<std::string>("Name");
+  std::string type = options.value<std::string>("Type");
 
   std::vector<URI> regions = options.array<URI>("Regions");
 
@@ -259,19 +261,23 @@ void RKRD::signature_signal_create_boundary_term( SignalArgs& node )
   SignalOptions options( node );
 
   // name
-  options.add<std::string>("Name", std::string(), "Name for created boundary term" );
+  options.add_option< OptionT<std::string> >("Name", std::string() )
+      ->set_description("Name for created boundary term" );
 
   /// @todo shoould loop on availabe BCs in factory of BCs
 
   // type
-  std::vector< std::string > restricted;
+  std::vector< boost::any > restricted;
 //  restricted.push_back( std::string("CF.RDM.Core.BcDirichlet") );
-  options.add<std::string>("Type", std::string("CF.RDM.Core.BcDirichlet"), "Type for created boundary", restricted, " ; " );
+  options.add_option< OptionT<std::string> >("Type", std::string("CF.RDM.Core.BcDirichlet") )
+      ->set_description("Type for created boundary")
+      ->restricted_list() = restricted;
 
   // regions
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
-  options.add("regions", dummy , "Regions where to apply the boundary condition", " ; " );
+  options.add_option< OptionArrayT<URI> >("regions", dummy )
+      ->set_description("Regions where to apply the boundary condition");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -280,8 +286,8 @@ void RKRD::signal_create_domain_term( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name = options.option<std::string>("Name");
-  std::string type = options.option<std::string>("Type");
+  std::string name = options.value<std::string>("Name");
+  std::string type = options.value<std::string>("Type");
 
   RDM::DomainTerm::Ptr dterm = build_component_abstract_type<RDM::DomainTerm>(type,name);
   m_compute_domain_terms->add_component(dterm);
@@ -302,7 +308,8 @@ void RKRD::signature_signal_create_domain_term( SignalArgs& node )
   SignalOptions options( node );
 
   // name
-  options.add<std::string>("Name", std::string(), "Name for created volume term" );
+  options.add_option< OptionT<std::string> >("Name", std::string() )
+      ->set_description("Name for created volume term");
 
   // type
 //  std::vector< std::string > restricted;
@@ -313,7 +320,8 @@ void RKRD::signature_signal_create_domain_term( SignalArgs& node )
   // regions
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
-  options.add("regions", dummy , "Regions where to apply the domain term", " ; " );
+  options.add_option< OptionArrayT<URI> >("regions", dummy )
+      ->set_description("Regions where to apply the domain term");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -348,7 +356,8 @@ void RKRD::signature_signal_initialize_solution( SignalArgs& node )
   SignalOptions options( node );
 
   std::vector<std::string> dummy;
-  options.add< std::string >("functions", dummy , "Analytical function definitions for initial condition (one per DOF, variables are x,y,z)", " ; " );
+  options.add_option< OptionArrayT<std::string> >("functions", dummy )
+      ->set_description("Analytical function definitions for initial condition (one per DOF, variables are x,y,z)");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

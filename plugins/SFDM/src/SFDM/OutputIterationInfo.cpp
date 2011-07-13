@@ -41,7 +41,9 @@ OutputIterationInfo::OutputIterationInfo ( const std::string& name ) :
   mark_basic();
 
   // options
-  m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(),"Residual","Residual", &m_residual));
+  m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(), &m_residual))
+    ->set_description("Residual")
+    ->set_pretty_name("Residual");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -33,10 +33,12 @@ CComputeArea::CComputeArea ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
-  m_options.add_option(OptionURI::create(Mesh::Tags::area(),"area","Field to set", URI("cpath:"), URI::Scheme::CPATH) )
-    ->mark_basic()
-    ->attach_trigger ( boost::bind ( &CComputeArea::config_field,   this ) )
-    ->add_tag(Mesh::Tags::area());
+  m_options.add_option(OptionURI::create(Mesh::Tags::area(), URI("cpath:"), URI::Scheme::CPATH) )
+      ->set_description("Field to set")
+      ->set_pretty_name("Area")
+      ->mark_basic()
+      ->attach_trigger ( boost::bind ( &CComputeArea::config_field, this ) )
+      ->add_tag(Mesh::Tags::area());
 
   m_options["Elements"].attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
 

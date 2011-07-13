@@ -32,7 +32,9 @@ ComputeJacobianDeterminant::ComputeJacobianDeterminant ( const std::string& name
   Solver::Actions::CLoopOperation(name)
 {
   // options
-  m_options.add_option(OptionURI::create("jacobian_determinant","Jacobian Determinant","Field storing the Jacobian Determinant", URI("cpath:"),URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("jacobian_determinant", URI("cpath:"), URI::Scheme::CPATH))
+    ->set_description("Field storing the Jacobian Determinant")
+    ->set_pretty_name("Jacobian Determinant")
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeJacobianDeterminant::config_jacobian_determinant,   this ) )
     ->add_tag("jacobian_determinant");

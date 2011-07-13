@@ -15,9 +15,11 @@
 #include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionURI.hpp"
 
 #include "Common/FindComponents.hpp"
- 
+
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/SignalOptions.hpp"
@@ -212,7 +214,9 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_2 )
   SignalOptions options( frame );
 
   // URI with a wrong protocol
-  options.add("location", URI("file://Root"));
+  options.add_option<OptionURI>("location", URI("file://Root"));
+
+  options.flush();
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
 }
 
@@ -224,8 +228,10 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
 
   // no file (no error and the domain should be still empty afterwards)
   std::vector<URI> files;
-  options.add("location", URI("cpath://Root/MyDom"));
-  options.add("files", files, " ; ");
+  options.add_option<OptionURI>("location", URI("cpath://Root/MyDom"));
+  options.add_option<OptionArrayT<URI> >("files", files);
+
+  options.flush();
 
   std::string str;
   XML::to_string(frame.node, str);
@@ -244,8 +250,9 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
   std::vector<URI> files;
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
-  options.add("location", URI("cpath://Root/MyDom"));
-  options.add("files", files, " ; ");
+  options.add_option<OptionURI>("location", URI("cpath://Root/MyDom"));
+  options.add_option<OptionArrayT<URI> >("files", files);
+  options.flush();
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
   BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
 }
@@ -260,8 +267,9 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
   files.push_back( "file:hextet.neu" );
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
-  options.add("location", URI("cpath://Root/MyDom"));
-  options.add("files", files, " ; ");
+  options.add_option<OptionURI>("location", URI("cpath://Root/MyDom"));
+  options.add_option<OptionArrayT<URI> >("files", files);
+  options.flush();
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
   BOOST_CHECK_EQUAL( domain->count_children(), (Uint) 0);
 }
@@ -275,8 +283,9 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
   std::vector<URI> files;
   files.push_back( "file:hextet.neu" );
   files.push_back( "file:quadtriag.neu" );
-  options.add("location", URI("cpath://Root/MyDom"));
-  options.add("files", files, " ; ");
+  options.add_option<OptionURI>("location", URI("cpath://Root/MyDom"));
+  options.add_option<OptionArrayT<URI> >("files", files);
+  options.flush();
   BOOST_CHECK_NO_THROW( reader->signal_read(frame) );
   BOOST_CHECK_NE( domain->count_children(), (Uint) 0);
 }

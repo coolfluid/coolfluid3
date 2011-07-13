@@ -57,7 +57,7 @@ void GraphicalValueTest::test_createFromOption()
   //
   // 2. check bool, should get a GraphicalBool
   //
-  option = OptionT<bool>::Ptr(new OptionT<bool>("OptBool", "", true));
+  option = OptionT<bool>::Ptr(new OptionT<bool>("OptBool", true));
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
   QVERIFY( is_not_null(dynamic_cast<GraphicalBool*>(value) ) );
@@ -67,7 +67,7 @@ void GraphicalValueTest::test_createFromOption()
   //
   // 3. check int, should get a GraphicalInt
   //
-  option = OptionT<int>::Ptr(new OptionT<int>("OptInt", "", int(-156754)));
+  option = OptionT<int>::Ptr(new OptionT<int>("OptInt", int(-156754)));
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
   QVERIFY( is_not_null(dynamic_cast<GraphicalInt*>(value) ) );
@@ -77,7 +77,7 @@ void GraphicalValueTest::test_createFromOption()
   //
   // 4. check Uint, should get a GraphicalInt
   //
-  option = OptionT<Uint>::Ptr(new OptionT<Uint>("OptUint", "", Uint(42)));
+  option = OptionT<Uint>::Ptr(new OptionT<Uint>("OptUint", Uint(42)));
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
   QVERIFY( is_not_null(dynamic_cast<GraphicalInt*>(value) ) );
@@ -87,7 +87,7 @@ void GraphicalValueTest::test_createFromOption()
   //
   // 5. check Uint, should get a GraphicalReal
   //
-  option = OptionT<Real>::Ptr(new OptionT<Real>("OptReal", "", Real(3.141592)));
+  option = OptionT<Real>::Ptr(new OptionT<Real>("OptReal", Real(3.141592)));
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
   QVERIFY( is_not_null(dynamic_cast<GraphicalDouble*>(value) ) );
@@ -97,7 +97,7 @@ void GraphicalValueTest::test_createFromOption()
   //
   // 6. check str::string, should get a GraphicalString
   //
-  option = OptionT<std::string>::Ptr(new OptionT<std::string>("OptString", "", std::string()));
+  option = OptionT<std::string>::Ptr(new OptionT<std::string>("OptString", std::string()));
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
   QVERIFY( is_not_null(dynamic_cast<GraphicalString*>(value) ) );
@@ -107,7 +107,7 @@ void GraphicalValueTest::test_createFromOption()
   //
   // 7. check URI, should get a GraphicalUri
   //
-  option = OptionURI::Ptr(new OptionURI("OptUri", "", URI()));
+  option = OptionURI::Ptr(new OptionURI("OptUri", URI()));
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
   QVERIFY( is_not_null(dynamic_cast<GraphicalUri*>(value) ) );
@@ -131,7 +131,7 @@ void GraphicalValueTest::test_createFromOptionArray()
   //
   // 2. check bool, should get a GraphicalArray
   //
-  option = OptionArrayT<bool>::Ptr(new OptionArrayT<bool>("OptBool", "", std::vector<bool>()));
+  option = OptionArrayT<bool>::Ptr(new OptionArrayT<bool>("OptBool", std::vector<bool>()));
   value = GraphicalValue::createFromOption( option );
 
   // 2a. check that it is a GraphicalArray
@@ -154,7 +154,7 @@ void GraphicalValueTest::test_createFromOptionArray()
   //
   // 3. check int, should get a GraphicalArray
   //
-  option = OptionArrayT<int>::Ptr(new OptionArrayT<int>("OptInt", "", std::vector<int>()));
+  option = OptionArrayT<int>::Ptr(new OptionArrayT<int>("OptInt", std::vector<int>()));
   value = GraphicalValue::createFromOption( option );
 
   // 3a. check that it is a GraphicalArray
@@ -177,7 +177,7 @@ void GraphicalValueTest::test_createFromOptionArray()
   //
   // 4. check Uint, should get a GraphicalArray
   //
-  option = OptionArrayT<Uint>::Ptr(new OptionArrayT<Uint>("OptUint", "", std::vector<Uint>()));
+  option = OptionArrayT<Uint>::Ptr(new OptionArrayT<Uint>("OptUint", std::vector<Uint>()));
   value = GraphicalValue::createFromOption( option );
 
   // 4a. check that it is a GraphicalArray
@@ -201,7 +201,7 @@ void GraphicalValueTest::test_createFromOptionArray()
   //
   // 5. check Real, should get a GraphicalArray
   //
-  option = OptionArrayT<Real>::Ptr(new OptionArrayT<Real>("OptReal", "", std::vector<Real>()));
+  option = OptionArrayT<Real>::Ptr(new OptionArrayT<Real>("OptReal", std::vector<Real>()));
   value = GraphicalValue::createFromOption( option );
 
   // 5a. check that it is a GraphicalArray
@@ -224,7 +224,7 @@ void GraphicalValueTest::test_createFromOptionArray()
   //
   // 6. check str::string, should get a GraphicalArray
   //
-  option = OptionArrayT<std::string>::Ptr(new OptionArrayT<std::string>("OptString", "", std::vector<std::string>()));
+  option = OptionArrayT<std::string>::Ptr(new OptionArrayT<std::string>("OptString", std::vector<std::string>()));
   value = GraphicalValue::createFromOption( option );
 
   // 6a. check that it is a GraphicalArray
@@ -241,7 +241,7 @@ void GraphicalValueTest::test_createFromOptionArray()
   //
   // 7. check URI, should get a GraphicalUriArray
   //
-  option = OptionArrayT<URI>::Ptr(new OptionArrayT<URI>("OptString", "", std::vector<URI>()));
+  option = OptionArrayT<URI>::Ptr(new OptionArrayT<URI>("OptString", std::vector<URI>()));
   value = GraphicalValue::createFromOption( option );
 
   // check that is is a GraphicalUriArray
@@ -261,7 +261,7 @@ void GraphicalValueTest::test_createFromOptionRestrValues()
   //
   // 1. check bool
   //
-  option = OptionT<bool>::Ptr(new OptionT<bool>("OptBool", "", true));
+  option = OptionT<bool>::Ptr(new OptionT<bool>("OptBool", true));
   option->restricted_list() += false;
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
@@ -272,7 +272,7 @@ void GraphicalValueTest::test_createFromOptionRestrValues()
   //
   // 2. check int
   //
-  option = OptionT<int>::Ptr(new OptionT<int>("OptInt", "", int(-156754)));
+  option = OptionT<int>::Ptr(new OptionT<int>("OptInt", int(-156754)));
   option->restricted_list() += int(47687876);
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
@@ -283,7 +283,7 @@ void GraphicalValueTest::test_createFromOptionRestrValues()
   //
   // 3. check Uint
   //
-  option = OptionT<Uint>::Ptr(new OptionT<Uint>("OptUint", "", Uint(42)));
+  option = OptionT<Uint>::Ptr(new OptionT<Uint>("OptUint", Uint(42)));
   option->restricted_list() += Uint(314);
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
@@ -294,7 +294,7 @@ void GraphicalValueTest::test_createFromOptionRestrValues()
   //
   // 4. check Real
   //
-  option = OptionT<Real>::Ptr(new OptionT<Real>("OptReal", "", Real(3.141592)));
+  option = OptionT<Real>::Ptr(new OptionT<Real>("OptReal", Real(3.141592)));
   option->restricted_list() += Real(2.71);
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
@@ -305,7 +305,7 @@ void GraphicalValueTest::test_createFromOptionRestrValues()
   //
   // 5. check str::string
   //
-  option = OptionT<std::string>::Ptr(new OptionT<std::string>("OptString", "", std::string()));
+  option = OptionT<std::string>::Ptr(new OptionT<std::string>("OptString", std::string()));
   option->restricted_list() += std::string("Hello, World!");
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
@@ -316,7 +316,7 @@ void GraphicalValueTest::test_createFromOptionRestrValues()
   //
   // 6. check URI
   //
-  option = OptionURI::Ptr(new OptionURI("OptUri", "", URI("http://www.google.com")));
+  option = OptionURI::Ptr(new OptionURI("OptUri", URI("http://www.google.com")));
   option->restricted_list().push_back( URI("cpath://Root") );
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
@@ -337,7 +337,7 @@ void GraphicalValueTest::test_createFromOptionArrayRestrValues()
   //
   std::vector<bool> vectBool;
   vectBool.push_back(true);
-  option = OptionArrayT<bool>::Ptr(new OptionArrayT<bool>("OptBool", "", vectBool));
+  option = OptionArrayT<bool>::Ptr(new OptionArrayT<bool>("OptBool", vectBool));
   option->restricted_list() += false;
   GUI_CHECK_NO_THROW(value = GraphicalValue::createFromOption( option ));
   QVERIFY( is_not_null(value) );
@@ -350,7 +350,7 @@ void GraphicalValueTest::test_createFromOptionArrayRestrValues()
   //
   std::vector<int> vectInt;
   vectInt.push_back(-154786);
-  option = OptionArrayT<int>::Ptr(new OptionArrayT<int>("OptInt", "", vectInt));
+  option = OptionArrayT<int>::Ptr(new OptionArrayT<int>("OptInt", vectInt));
   option->restricted_list() += int(47687876);
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
@@ -363,7 +363,7 @@ void GraphicalValueTest::test_createFromOptionArrayRestrValues()
   //
   std::vector<Uint> vectUint;
   vectUint.push_back(42);
-  option = OptionArrayT<Uint>::Ptr(new OptionArrayT<Uint>("OptUint", "", vectUint));
+  option = OptionArrayT<Uint>::Ptr(new OptionArrayT<Uint>("OptUint", vectUint));
   option->restricted_list() += Uint(3654614);
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
@@ -376,7 +376,7 @@ void GraphicalValueTest::test_createFromOptionArrayRestrValues()
   //
   std::vector<Real> vectReal;
   vectReal.push_back(3.141592);
-  option = OptionArrayT<Real>::Ptr(new OptionArrayT<Real>("OptReal", "", vectReal));
+  option = OptionArrayT<Real>::Ptr(new OptionArrayT<Real>("OptReal", vectReal));
   option->restricted_list() += Real(2.71);
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
@@ -389,7 +389,7 @@ void GraphicalValueTest::test_createFromOptionArrayRestrValues()
   //
   std::vector<std::string> vectString;
   vectString.push_back("Hello");
-  option = OptionArrayT<std::string>::Ptr(new OptionArrayT<std::string>("OptString", "", vectString));
+  option = OptionArrayT<std::string>::Ptr(new OptionArrayT<std::string>("OptString", vectString));
   option->restricted_list() += std::string(", World!");
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );
@@ -402,7 +402,7 @@ void GraphicalValueTest::test_createFromOptionArrayRestrValues()
   //
   std::vector<URI> vectUri;
   vectUri.push_back( URI("http://coolfluidsrv.vki.ac.be") );
-  option = OptionArrayT<URI>::Ptr(new OptionArrayT<URI>("OptUri", "", vectUri));
+  option = OptionArrayT<URI>::Ptr(new OptionArrayT<URI>("OptUri", vectUri));
   option->restricted_list() += URI("cpath://Root");
   value = GraphicalValue::createFromOption( option );
   QVERIFY( is_not_null(value) );

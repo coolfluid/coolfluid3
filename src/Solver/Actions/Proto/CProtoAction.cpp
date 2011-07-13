@@ -31,18 +31,18 @@ struct CProtoAction::Implementation
   Implementation(Component& comp) :
     m_component(comp)
   {
-    m_component.options().add_option( OptionComponent<CPhysicalModel>::create("physical_model", "Physical Model"
-                                                                   "Physical model",
-                                                                   &m_physical_model))
-      ->mark_basic()
-      ->attach_trigger(boost::bind(&Implementation::trigger_physical_model, this));
+    m_component.options().add_option( OptionComponent<CPhysicalModel>::create("physical_model",&m_physical_model))
+        ->set_description("Physical model")
+        ->set_pretty_name("Physical Model")
+        ->mark_basic()
+        ->attach_trigger(boost::bind(&Implementation::trigger_physical_model, this));
 
-    m_component.options().add_option( OptionComponent<CRegion>::create("region", "Region"
-                                                                   "Region over which the action executes",
-                                                                   &m_region))
-      ->mark_basic();
+    m_component.options().add_option( OptionComponent<CRegion>::create("region", &m_region))
+        ->set_description("Region over which the action executes")
+        ->set_pretty_name("Region")
+        ->mark_basic();
   }
-  
+
   void trigger_physical_model()
   {
     if(m_expression && !m_physical_model.expired())
@@ -51,7 +51,7 @@ struct CProtoAction::Implementation
 
   Expression::Ptr m_expression;
   Component& m_component;
-  
+
   boost::weak_ptr<CPhysicalModel> m_physical_model;
   boost::weak_ptr<CRegion> m_region;
 };
@@ -70,14 +70,14 @@ void CProtoAction::execute()
 {
   if(m_implementation->m_region.expired())
     throw SetupError(FromHere(), "Region is not set for action " + uri().string());
-  
+
   CFdebug << "Running action " << uri().string() << " on region " << m_implementation->m_region.lock()->uri().string() << CFendl;
-  
+
   m_implementation->m_expression->loop(*m_implementation->m_region.lock());
 }
 
 void CProtoAction::set_expression(const boost::shared_ptr< Expression >& expression)
-{ 
+{
   m_implementation->m_expression = expression;
   expression->add_options(options());
   m_implementation->trigger_physical_model();

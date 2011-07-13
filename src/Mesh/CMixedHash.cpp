@@ -31,9 +31,18 @@ CMixedHash::CMixedHash ( const std::string& name ) :
     m_base(0),
     m_nb_parts(mpi::PE::instance().size())
 {
-  m_options.add_option<OptionArrayT <Uint> >("nb_obj","Number of Objects","Total number of objects of each subhash. Subhashes will be created upon configuration with names hash_0 hash_1, ...",m_nb_obj);
-  m_options.add_option<OptionT <Uint> >("nb_parts","Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
-  m_options.add_option<OptionT <Uint> >("base","Base","Start index for global numbering",m_base);
+  m_options.add_option<OptionArrayT <Uint> >("nb_obj", m_nb_obj)
+      ->set_description("Total number of objects of each subhash. Subhashes will "
+                        "be created upon configuration with names hash_0 hash_1, ...")
+      ->set_pretty_name("Number of Objects");
+
+  m_options.add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
+      ->set_description("Total number of partitions (e.g. number of processors)")
+      ->set_pretty_name("Number of Partitions");
+
+  m_options.add_option<OptionT <Uint> >("base", m_base)
+      ->set_description("Start index for global numbering")
+      ->set_pretty_name("Base");
 
   m_options["nb_parts"].attach_trigger( boost::bind ( &CMixedHash::config_nb_parts , this) );
   m_options["base"].link_to( &m_base );
@@ -155,8 +164,8 @@ Uint CMixedHash::end_idx_in_part(const Uint part) const
 
 Uint CMixedHash::start_idx_in_proc(const Uint proc) const
 {
-	Uint part_begin = m_nb_parts/mpi::PE::instance().size()*proc;
-	return start_idx_in_part(part_begin);
+  Uint part_begin = m_nb_parts/mpi::PE::instance().size()*proc;
+  return start_idx_in_part(part_begin);
 }
 
 //////////////////////////////////////////////////////////////////////////////

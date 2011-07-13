@@ -6,6 +6,9 @@
 
 #include "Common/Signal.hpp"
 
+#include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
+
 #include "Common/XML/SignalOptions.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
@@ -17,6 +20,7 @@
 
 #include "Common/XML/FileOperations.hpp"
 
+using namespace CF::Common;
 using namespace CF::Common::XML;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -65,7 +69,7 @@ void NRemoteFSBrowser::signal_read_dir ( Common::SignalArgs & args )
   std::vector<std::string>::const_iterator itDirs;
   std::vector<std::string>::const_iterator itFiles;
 
-  m_currentPath = options.option<std::string>("dirPath").c_str();
+  m_currentPath = options.value<std::string>("dirPath").c_str();
 
   // add an ending '/' if the string does not have any
   if( !m_currentPath.endsWith("/") )
@@ -160,10 +164,10 @@ void NRemoteFSBrowser::openDir ( const QString & path )
     it++;
   }
 
-  options.add("dirPath", path.toStdString());
-  options.add("includeFiles", m_includeFiles);
-  options.add("includeNoExtensions", m_includeNoExtensions);
-  options.add<std::string>("extensions", vect, ";");
+  options.add_option< OptionT<std::string> >("dirPath", path.toStdString());
+  options.add_option< OptionT<bool> >("includeFiles", m_includeFiles);
+  options.add_option< OptionT<bool> >("includeNoExtensions", m_includeNoExtensions);
+  options.add_option< OptionArrayT<std::string> >("extensions", vect);
 
   ThreadManager::instance().network().send(frame);
 }

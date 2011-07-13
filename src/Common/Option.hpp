@@ -86,9 +86,8 @@ namespace Common {
     /// Constructor.
 
     /// @param name Option name.
-    /// @param desc Option description.
     /// @param def Default value.
-    Option(const std::string & name, const std::string & desc, boost::any def);
+    Option(const std::string & name, boost::any def);
 
     /// Constructor.
 
@@ -96,7 +95,7 @@ namespace Common {
     /// @param pretty_name Option pretty name.
     /// @param desc Option description.
     /// @param def Default value.
-    Option(const std::string & name, const std::string& pretty_name, const std::string & desc, boost::any def);
+    //Option(const std::string & name, const std::string& pretty_name, const std::string & desc, boost::any def);
 
     /// Desctructor.
     virtual ~Option();
@@ -116,6 +115,22 @@ namespace Common {
       {
         throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data_to_value(m_value).type())+" to "+Common::class_name<TYPE>());
       }
+    }
+
+    template<typename OPTION_TYPE>
+    typename OPTION_TYPE::Ptr cast_to ()
+    {
+      typename OPTION_TYPE::Ptr ptr = boost::dynamic_pointer_cast<OPTION_TYPE>(shared_from_this());
+      cf_assert( is_not_null(ptr.get()) );
+      return ptr;
+    }
+
+    template<typename OPTION_TYPE>
+    typename OPTION_TYPE::ConstPtr cast_to () const
+    {
+      typename OPTION_TYPE::ConstPtr ptr = boost::dynamic_pointer_cast<const OPTION_TYPE>(shared_from_this());
+      cf_assert( is_not_null(ptr.get()) );
+      return ptr;
     }
 
     /// @name VIRTUAL FUNCTIONS
@@ -139,7 +154,28 @@ namespace Common {
     /// @returns the type of the option as a string
     virtual std::string type() const;
 
+
     //@} END VIRTUAL FUNCTIONS
+
+    /// Sets the option pretty name.
+
+    /// @param pretty_name The option pretty name.
+    /// @return Returns a reference to this object.
+    Ptr set_pretty_name( const std::string & pretty_name );
+
+    /// Sets the option description.
+
+    /// @param pretty_name The option description.
+    /// @return Returns a reference to this object.
+    Ptr set_description( const std::string & description );
+
+    /// Sets the option operator.
+
+    /// The separator is used in some convertions to string to separate items,
+    /// i.e. the restricted list of values or the option value if it is an array.
+    /// @param pretty_name The option description.
+    /// @return Returns a reference to this object.
+    Ptr set_separator( const std::string & separator );
 
     /// configure this option using the passed xml node
     void configure_option ( XML::XmlNode & node );
@@ -178,6 +214,9 @@ namespace Common {
 
     /// @returns the description of the option
     std::string description() const { return m_description; }
+
+    /// @returns the separator of the option
+    std::string separator() const { return m_separator; }
 
     /// Assigns a new value to the option
     /// @param new_value The new value
@@ -274,6 +313,8 @@ namespace Common {
     std::vector< void* > m_linked_params;
     /// Restricted list of values.
     std::vector<boost::any> m_restricted_list;
+    /// Option separator.
+    std::string m_separator;
 
   protected: // function
 

@@ -18,12 +18,13 @@ using namespace CF::Common::XML;
 namespace CF {
 namespace Common {
 
-Option::Option(const std::string & name, const std::string & desc, boost::any def)
+Option::Option(const std::string & name, boost::any def)
   : m_value(def),
     m_default(def),
     m_name(name),
-    m_pretty_name(name),
-    m_description(desc)
+    m_pretty_name(),
+    m_description(),
+    m_separator(";")
 {
   // cf_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
   //                "It may not contain spaces.",
@@ -33,18 +34,18 @@ Option::Option(const std::string & name, const std::string & desc, boost::any de
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Option::Option(const std::string& name, const std::string& pretty_name, const std::string& desc, boost::any def)
-  : m_value(def),
-    m_default(def),
-    m_name(name),
-    m_pretty_name(pretty_name),
-    m_description(desc)
-{
-  // cf_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
-  //                "It may not contain spaces.",
-  //   boost::algorithm::all(name,
-  //     boost::algorithm::is_alnum() || boost::algorithm::is_any_of("-_")) );
-}
+//Option::Option(const std::string& name, const std::string& pretty_name, const std::string& desc, boost::any def)
+//  : m_value(def),
+//    m_default(def),
+//    m_name(name),
+//    m_pretty_name(pretty_name),
+//    m_description(desc)
+//{
+//  // cf_assert_desc("The name of option ["+name+"] does not comply with coolfluid standard. "
+//  //                "It may not contain spaces.",
+//  //   boost::algorithm::all(name,
+//  //     boost::algorithm::is_alnum() || boost::algorithm::is_any_of("-_")) );
+//}
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -111,6 +112,30 @@ void Option::trigger () const
 std::string Option::type() const
 {
   return class_name_from_typeinfo(m_value.type());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+Option::Ptr Option::set_description ( const std::string & description )
+{
+  m_description = description;
+  return shared_from_this();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+Option::Ptr Option::set_pretty_name ( const std::string & pretty_name )
+{
+  m_pretty_name = pretty_name;
+  return shared_from_this();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+Option::Ptr Option::set_separator ( const std::string & separator )
+{
+  m_separator = separator;
+  return shared_from_this();
 }
 
 //////////////////////////////////////////////////////////////////////////////

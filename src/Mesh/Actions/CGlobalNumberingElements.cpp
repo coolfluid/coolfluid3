@@ -69,9 +69,14 @@ CGlobalNumberingElements::CGlobalNumberingElements( const std::string& name )
     "  Usage: CGlobalNumberingElements Regions:array[uri]=region1,region2\n\n";
   m_properties["description"] = desc;
 
-  m_options.add_option<OptionT<bool> >("debug","Debug","Perform checks on validity",m_debug)->link_to(&m_debug);
+  m_options.add_option<OptionT<bool> >("debug", m_debug)
+      ->set_description("Perform checks on validity")
+      ->set_pretty_name("Debug")
+      ->link_to(&m_debug);
 
-  m_options.add_option<OptionT<bool> >("combined","Combined","Combine nodes and elements in one global numbering",true);
+  m_options.add_option<OptionT<bool> >("combined", true)
+      ->set_description("Combine nodes and elements in one global numbering")
+      ->set_pretty_name("Combined");
 }
 
 /////////////////////////////////////////////////////////////////////////////

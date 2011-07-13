@@ -43,21 +43,23 @@ SubsonicInFlowWeakBc::SubsonicInFlowWeakBc ( const std::string& name ) :
 
   // options
 
-  m_options.add_option< OptionURI > ("solution","Solution",
-                                        "Solution field where to apply the boundary condition",
-                                        URI("cpath:"))
-       ->attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_mesh,   this ) )
-       ->mark_basic();
+  m_options.add_option< OptionURI > ("solution",URI("cpath:"))
+      ->set_description("Solution field where to apply the boundary condition")
+      ->set_pretty_name("Solution")
+      ->attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_mesh,   this ) )
+      ->mark_basic();
 
   m_options["mesh"].attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_mesh, this ) );
 
-  m_options.add_option< OptionT<std::string> > ("rho_in", "Inlet density (vars x,y)", std::string() )
+  m_options.add_option< OptionT<std::string> > ("rho_in", std::string() )
+      ->set_description("Inlet density (vars x,y)")
       ->attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_density_function, this ) )
       ->mark_basic();
 
   density_function.variables("x,y,z");
 
-  m_options.add_option< OptionArrayT<std::string> > ("vel_in", "Inlet velocity (vars x,y)", std::vector<std::string>())
+  m_options.add_option< OptionArrayT<std::string> > ("vel_in",std::vector<std::string>())
+      ->set_description("Inlet velocity (vars x,y)")
       ->attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_velocity_function, this ) )
       ->mark_basic();
 

@@ -87,15 +87,15 @@ void NLink::setTargetNode(const CNode::Ptr & node)
 
 void NLink::goToTarget(SignalArgs & )
 {
-	if ( is_null(m_target) )
-		throw ValueNotFound (FromHere(), "Target of this link is not set or not valid");
+  if ( is_null(m_target) )
+    throw ValueNotFound (FromHere(), "Target of this link is not set or not valid");
 
-	QModelIndex index = NTree::globalTree()->indexFromPath(m_target->uri());
+  QModelIndex index = NTree::globalTree()->indexFromPath(m_target->uri());
 
-	if(index.isValid())
-		NTree::globalTree()->setCurrentIndex(index);
-	else
-		throw ValueNotFound (FromHere(), m_target->uri().string() + ": path does not exist");
+  if(index.isValid())
+    NTree::globalTree()->setCurrentIndex(index);
+  else
+    throw ValueNotFound (FromHere(), m_target->uri().string() + ": path does not exist");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ void NLink::change_link(SignalArgs & args)
 
   try
   {
-    std::string path = options.option<std::string>("target_path");
+    std::string path = options.value<std::string>("target_path");
 
     this->setTargetPath(path);
 

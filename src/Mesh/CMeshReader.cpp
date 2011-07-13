@@ -56,7 +56,7 @@ void CMeshReader::signal_read( SignalArgs& node  )
 {
   SignalOptions options( node );
 
-  URI path = options.option<URI>("location");
+  URI path = options.value<URI>("location");
 
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the location component, expecting a \'cpath\' but got \'" + path.string() +"\'");
@@ -198,12 +198,14 @@ void CMeshReader::read_signature( SignalArgs& node )
   SignalOptions options( node );
 
   std::vector<URI> dummy;
-  std::vector<URI::Scheme::Type> schemes(1);
 
-  schemes[0] = URI::Scheme::CPATH;
-  options.add("location", URI(), "Component to load mesh into", schemes );
-  schemes[0] = URI::Scheme::FILE;
-  options.add("files", dummy, " ; " , "Files to read", schemes);
+  options.add_option< OptionURI >("location", URI() )
+      ->set_description("Component to load mesh into")
+      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
+
+  options.add_option< OptionURI >("files", URI("", URI::Scheme::FILE) )
+      ->set_description("Files to read")
+      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::FILE );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

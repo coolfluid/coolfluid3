@@ -14,6 +14,8 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/Log.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/Signal.hpp"
 
 #include "Common/XML/Protocol.hpp"
@@ -220,9 +222,9 @@ void CCore::read_dir(SignalArgs & args)
 
   try
   {
-    QString dirPath = options.option<std::string>("dirPath").c_str();
-    bool includeFiles = options.option<bool>("includeFiles");
-    bool includeNoExt = options.option<bool>("includeNoExtensions");
+    QString dirPath = options.value<std::string>("dirPath").c_str();
+    bool includeFiles = options.value<bool>("includeFiles");
+    bool includeNoExt = options.value<bool>("includeNoExtensions");
     std::vector<std::string> exts = options.array<std::string>("extensions");
 
     if(dirPath.isEmpty())
@@ -250,12 +252,12 @@ void CCore::read_dir(SignalArgs & args)
       SignalFrame reply = args.create_reply( uri() );
       SignalOptions roptions( reply );
 
-      roptions.add("dirPath", directory.toStdString());
-      roptions.add<std::string>("dirs", content.dirs, " ; ");
-      roptions.add<std::string>("files", content.files, " ; ");
-      roptions.add<std::string>("dirDates", content.dirDates, " ; ");
-      roptions.add<std::string>("fileDates", content.fileDates, " ; ");
-      roptions.add<Uint>("fileSizes", content.fileSizes, " ; ");
+      roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
+      roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
+      roptions.add_option<OptionArrayT<std::string> >("files", content.files);
+      roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dirDates);
+      roptions.add_option<OptionArrayT<std::string> >("fileDates", content.fileDates);
+      roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.fileSizes);
     }
   }
   catch(Exception e)

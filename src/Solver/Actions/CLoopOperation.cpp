@@ -34,10 +34,13 @@ CLoopOperation::CLoopOperation ( const std::string& name ) :
 {
   // Following option is ignored if the loop is not about elements
   //m_options.add_option(OptionComponent<Mesh::CEntities>::create("Elements","Elements that are being looped",&m_elements));
-  m_options.add_option(OptionURI::create("Elements","Elements that are being looped", URI("cpath:"), URI::Scheme::CPATH))
-    ->attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
+  m_options.add_option(OptionURI::create("Elements", URI("cpath:"), URI::Scheme::CPATH))
+      ->set_description("Elements that are being looped")
+      ->attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
 
-  m_options.add_option< OptionT<Uint> > ("LoopIndex","Index that is being looped", 0u )->link_to( &m_idx );
+  m_options.add_option< OptionT<Uint> > ("LoopIndex", 0u)
+      ->set_description("Index that is being looped")
+      ->link_to( &m_idx );
 
 }
 

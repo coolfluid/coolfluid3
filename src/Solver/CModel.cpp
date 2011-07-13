@@ -48,11 +48,16 @@ CModel::CModel( const std::string& name  ) :
 
    std::string cwd = boost::filesystem::current_path().string();
 
-   m_options.add_option< OptionURI >("WorkingDir", "Your working directory", URI( cwd ) )
+   m_options.add_option< OptionURI >("WorkingDir", URI( cwd ) )
+       ->set_description("Your working directory")
        ->mark_basic();
-   m_options.add_option< OptionURI >("ResultsDir", "Directory to store the output files", URI( cwd ) )
+
+   m_options.add_option< OptionURI >("ResultsDir", URI( cwd ) )
+       ->set_description("Directory to store the output files")
        ->mark_basic();
-   m_options.add_option< OptionT<Uint> >("CPUs", "Number of cpus to use in simulation", 1u )
+
+   m_options.add_option< OptionT<Uint> >("CPUs", 1u )
+       ->set_description("Number of cpus to use in simulation")
        ->mark_basic();
 
    // properties
@@ -223,7 +228,7 @@ void CModel::signature_create_solver ( Common::SignalArgs& node )
   SignalOptions options( node );
 
   CFactory::Ptr solver_factory = Core::instance().factories().get_factory<CSolver>();
-  std::vector<std::string> solvers;
+  std::vector<boost::any> solvers;
 
   // build the restricted list
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *solver_factory ) )
@@ -232,7 +237,9 @@ void CModel::signature_create_solver ( Common::SignalArgs& node )
   }
 
   // create de value and add the restricted list
-  options.add( "builder", std::string() , "Choose solver", solvers, " ; ");
+  options.add_option< OptionT<std::string> >( "builder", std::string() )
+      ->set_description("Choose solver")
+      ->restricted_list() = solvers;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -240,8 +247,8 @@ void CModel::signature_create_solver ( Common::SignalArgs& node )
 void CModel::signal_create_solver ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
-  std::string builder = options.option<std::string>( "builder" );
-  create_solver( builder );
+  std::string builder_name = options.value<std::string>( "builder" );
+  create_solver(builder_name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

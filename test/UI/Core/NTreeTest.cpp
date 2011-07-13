@@ -207,9 +207,9 @@ void NTreeTest::test_listNodeOptions()
   //
   // 2. the list is not empty
   //
-  options.append( Option::Ptr(new OptionT<bool>("opt1", "", true)) );
-  options.append( Option::Ptr(new OptionT<int>("opt2", "", 42)) );
-  options.append( Option::Ptr(new OptionT<std::string>("opt3", "", std::string())) );
+  options.append( Option::Ptr(new OptionT<bool>("opt1", true)) );
+  options.append( Option::Ptr(new OptionT<int>("opt2", 42)) );
+  options.append( Option::Ptr(new OptionT<std::string>("opt3", std::string())) );
   t.listNodeOptions(QModelIndex(), options, &ok);
   QVERIFY(!ok);
   QCOMPARE(options.count(), 0);

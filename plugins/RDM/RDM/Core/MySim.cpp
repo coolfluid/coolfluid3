@@ -9,7 +9,9 @@
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/FindComponents.hpp"
 
 
@@ -71,7 +73,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name  = options.option<std::string>("ModelName");
+  std::string name  = options.value<std::string>("ModelName");
 
   CModel::Ptr model = Core::instance().root().create_component_ptr<CModelSteady>( name );
 
@@ -106,8 +108,8 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
   //  URI file( "file:rectangle2x1-qd-p1-861.msh");
   //  URI file( "file:rectangle2x1-qd-p2-3321.msh");
 
-    options.add("file", file );
-    options.add<std::string>("name", std::string("Mesh") );
+    options.add_option<OptionURI>("file", file );
+    options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
 
     domain.signal_load_mesh( frame );
   }
@@ -134,9 +136,9 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
     std::string name ("WEAK_INLET");
 
-    options.add<std::string>("Name",name);
-    options.add<std::string>("Type","CF.RDM.Core.BcDirichlet");
-    options.add("Regions", regions, " ; ");
+    options.add_option< OptionT<std::string> >("Name",name);
+    options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.BcDirichlet");
+    options.add_option< OptionArrayT<URI> >("Regions", regions);
 
     solver->as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -157,7 +159,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
     std::vector<std::string> functions(1);
     functions[0] = "0.";
-    options.add<std::string>("functions", functions, " ; ");
+    options.add_option< OptionArrayT<std::string> >("functions", functions);
 
     solver->as_type<RKRD>().signal_initialize_solution( frame );
   }
@@ -187,9 +189,9 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
     cf_assert( regions.size() == 1u);
 
-    options.add<std::string>("Name","INTERNAL");
-    options.add<std::string>("Type","CF.RDM.Schemes.CSysLDA");
-    options.add("Regions", regions, " ; ");
+    options.add_option< OptionT<std::string> >("Name","INTERNAL");
+    options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.CSysLDA");
+    options.add_option< OptionArrayT<URI> >("Regions", regions);
 
     solver->as_ptr<RKRD>()->signal_create_domain_term(frame);
 
@@ -204,7 +206,8 @@ void MySim::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add<std::string>("ModelName", std::string(), "Name for created model" );
+  options.add_option< OptionT<std::string> >("ModelName", std::string())
+      ->set_description("Name for created model");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

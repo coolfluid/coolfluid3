@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/Signal.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
@@ -51,8 +53,8 @@ void CPlotter::signal_create_xyplot(SignalArgs &args)
 {
   SignalOptions options( args );
 
-  std::string name = options.option<std::string>("Plot name");
-  URI parent = options.option<URI>("Parent");
+  std::string name = options.value<std::string>("Plot name");
+  URI parent = options.value<URI>("Parent");
 
   // some checks
   if(name.empty())
@@ -77,12 +79,13 @@ void CPlotter::signal_create_xyplot(SignalArgs &args)
 void CPlotter::signature_create_xyplot(SignalArgs &args)
 {
   SignalOptions options( args );
-  std::vector<URI::Scheme::Type> schemes(1);
 
-  schemes[0] = URI::Scheme::CPATH;
+  options.add_option< OptionT<std::string> >("Plot name", std::string() )
+      ->set_description("Name for the new plot");
 
-  options.add("Plot name", std::string(), "Name for the new plot");
-  options.add("Parent", Core::instance().root().uri(), "Parent of the new component", schemes);
+  options.add_option< OptionURI >("Parent", Core::instance().root().uri() )
+      ->set_description("Parent of the new component")
+      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

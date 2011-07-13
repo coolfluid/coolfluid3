@@ -112,8 +112,8 @@ void NLog::message(SignalArgs & node)
 {
   SignalOptions options( node );
 
-  std::string typeStr = options.option<std::string>("type");
-  std::string message = options.option<std::string>("text");
+  std::string typeStr = options.value<std::string>("type");
+  std::string message = options.value<std::string>("text");
   LogMessage::Type type = LogMessage::Convert::instance().to_enum(typeStr);
 
   cf_assert(type != LogMessage::INVALID);

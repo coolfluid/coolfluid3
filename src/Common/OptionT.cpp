@@ -25,8 +25,8 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename TYPE>
-OptionT<TYPE>::OptionT ( const std::string& name, const std::string& desc, value_type def) :
-    Option(name, desc, def)
+OptionT<TYPE>::OptionT ( const std::string& name, value_type def) :
+    Option(name, def)
 {
 //    CFinfo
 //        << " creating OptionT [" << m_name << "]"
@@ -38,19 +38,6 @@ OptionT<TYPE>::OptionT ( const std::string& name, const std::string& desc, value
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-template < typename TYPE>
-OptionT<TYPE>::OptionT ( const std::string& name, const std::string& readable_name, const std::string& desc, value_type def) :
-    Option(name, readable_name, desc, def)
-{
-//    CFinfo
-//        << " creating OptionT [" << m_name << "]"
-//        << " of type [" << m_type << "]"
-//        << " w default [" << def_str() << "]"
-//        << " w desc [" << m_description << "]\n"
-//        << CFendl;
-  m_restricted_list.push_back(def);
-}
 
 template < typename TYPE>
 void OptionT<TYPE>::configure ( XmlNode& node )

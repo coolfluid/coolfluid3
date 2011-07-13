@@ -27,10 +27,7 @@ namespace Common {
     typedef boost::shared_ptr<OptionArray> Ptr;
     typedef boost::shared_ptr<OptionArray const> ConstPtr;
 
-    OptionArray(const std::string& name, const std::string& desc, boost::any def);
-
-    OptionArray(const std::string& name, const std::string& readable_name, 
-                const std::string& desc, boost::any def);
+    OptionArray(const std::string& name, boost::any def);
 
     virtual ~OptionArray();
 
@@ -62,18 +59,14 @@ namespace Common {
 
     virtual std::string data_type() const { return type(); }
 
-    OptionArrayT( const std::string& name, const std::string& desc, const value_type& def);
-
-    OptionArrayT( const std::string& name, const std::string& readable_name, 
-                  const std::string& desc, const value_type& def);
+    OptionArrayT( const std::string& name, const value_type& def);
 
     virtual ~OptionArrayT() {}
 
 
-    static Option::Ptr create(const std::string & name, const std::string& readable_name,
-                              const std::string & desc, const value_type& def)
+    static Option::Ptr create(const std::string & name, const value_type& def)
     {
-      return Option::Ptr ( new OptionArrayT(name,readable_name,desc,def) );
+      return Option::Ptr ( new OptionArrayT(name, def) );
     }
 
     /// @name VIRTUAL FUNCTIONS

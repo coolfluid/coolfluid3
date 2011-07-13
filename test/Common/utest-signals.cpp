@@ -14,6 +14,7 @@
 #include "Common/LibCommon.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
+#include "Common/OptionT.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -57,7 +58,7 @@ public: // functions
 
     SignalOptions options( signal_frame );
 
-    options.add<int>( "Counter", 10 );
+    options.add_option< OptionT<int> >( "Counter", 10 );
 
     receiver.call_signal( "print_message", signal_frame );
   }
