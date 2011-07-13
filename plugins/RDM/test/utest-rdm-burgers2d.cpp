@@ -24,7 +24,6 @@
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
-#include "Solver/CPhysicalModel.hpp"
 #include "Solver/Actions/CLoop.hpp"
 
 #include "Mesh/WriteMesh.hpp"

@@ -22,7 +22,8 @@
 
 #include "Mesh/CDomain.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
+
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
 #include "Solver/CTime.hpp"
@@ -87,6 +88,7 @@ void CModel::simulate ()
   CFinfo << "\n" << name() << ": start simulation" << CFendl;
 
   // call all (non-linear) iterative solvers to solve this dt step
+
   boost_foreach(CSolver& is, find_components<CSolver>(*this))
     is.solve();
 
@@ -102,9 +104,9 @@ CTime& CModel::time()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CPhysicalModel& CModel::physics()
+Physics::PhysModel& CModel::physics()
 {
-  return find_component<CPhysicalModel>(*this);
+  return find_component<Physics::PhysModel>(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -130,9 +132,16 @@ CGroup& CModel::tools()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CPhysicalModel& CModel::create_physics( const std::string& name )
+Physics::PhysModel& CModel::create_physics( const std::string& builder )
 {
-  return *this->create_component_ptr<CPhysicalModel>( name );
+  std::string pm_name = CBuilder::extract_reduced_name(builder);
+
+  Physics::PhysModel::Ptr pm =
+      build_component_abstract_type_reduced<Physics::PhysModel>( builder , pm_name );
+
+  add_component(pm);
+
+  return *pm;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -151,13 +160,15 @@ CTime& CModel::create_time( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CSolver& CModel::create_solver( const std::string& builder_name)
+CSolver& CModel::create_solver( const std::string& builder)
 {
-  std::string solver_name = builder_name;
-  solver_name.erase(solver_name.begin(),boost::algorithm::find_last(solver_name,".").begin()+1);
+  std::string solver_name = CBuilder::extract_reduced_name(builder);
 
-  CSolver::Ptr solver = build_component_abstract_type<CSolver>(builder_name,solver_name);
+  CSolver::Ptr solver =
+      build_component_abstract_type<CSolver>( builder, solver_name );
+
   add_component(solver);
+
   return *solver;
 }
 
@@ -165,19 +176,35 @@ CSolver& CModel::create_solver( const std::string& builder_name)
 
 void CModel::signature_create_physics ( Common::SignalArgs& node )
 {
+  SignalOptions options( node );
+
+  CFactory::Ptr pm_factory = Core::instance().factories().get_factory<Physics::PhysModel>();
+  std::vector<std::string> pms;
+
+  // build the restricted list
+  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *pm_factory ) )
+  {
+    pms.push_back(bdr.name());
+  }
+
+  // create de value and add the restricted list
+  options.add( "builder", std::string() , "Choose solver", pms, " ; ");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CModel::signal_create_physics ( Common::SignalArgs& node )
 {
-  create_physics("Physics");
+  SignalOptions options( node );
+  std::string builder = options.option<std::string>( "builder" );
+  create_physics( builder );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CModel::signature_create_domain ( Common::SignalArgs& node )
 {
+  // no signature parameters needed
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -213,16 +240,15 @@ void CModel::signature_create_solver ( Common::SignalArgs& node )
 void CModel::signal_create_solver ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
-  std::string builder_name = options.option<std::string>( "builder" );
-  create_solver(builder_name);
+  std::string builder = options.option<std::string>( "builder" );
+  create_solver( builder );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CModel::signal_simulate ( Common::SignalArgs& node )
 {
-  // XmlParams p ( node );
-  this->simulate(); // dispatch tos virtual function
+  this->simulate(); // dispatch to virtual function
 }
 
 ////////////////////////////////////////////////////////////////////////////////

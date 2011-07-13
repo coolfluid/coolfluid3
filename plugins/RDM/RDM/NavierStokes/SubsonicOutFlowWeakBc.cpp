@@ -15,8 +15,6 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
-
 #include "RDM/NavierStokes/SubsonicOutFlowWeakBc.hpp"
 
 #include "Physics/NavierStokes/Cons2D.hpp"

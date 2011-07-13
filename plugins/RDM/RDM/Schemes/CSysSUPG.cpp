@@ -8,11 +8,9 @@
 
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
- 
+
 
 #include "Mesh/CRegion.hpp"
-
-#include "Solver/CPhysicalModel.hpp"
 
 #include "RDM/Core/CellLoop.hpp"
 #include "RDM/Schemes/CSysSUPG.hpp"

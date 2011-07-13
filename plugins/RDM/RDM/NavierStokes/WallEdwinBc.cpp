@@ -15,8 +15,6 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
-
 #include "RDM/Core/FaceLoop.hpp"
 
 #include "RDM/NavierStokes/WallEdwinBc.hpp"

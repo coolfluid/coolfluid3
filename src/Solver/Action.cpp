@@ -13,7 +13,8 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMesh.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
+
 #include "Solver/CTime.hpp"
 #include "Solver/Action.hpp"
 
@@ -39,9 +40,9 @@ Action::Action ( const std::string& name ) :
                                                           &m_mesh))
     ->mark_basic();
 
-  m_options.add_option( OptionComponent<CPhysicalModel>::create("physical_model", "Physical Model"
-                                                                   "Physical model",
-                                                                   &m_physical_model))
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", "Physical Model"
+                                                                    "Physical model",
+                                                                    &m_physical_model))
     ->mark_basic();
 
   m_options.add_option( OptionComponent<CTime>::create("time", "Time"
@@ -59,9 +60,9 @@ Action::~Action() {}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-CPhysicalModel& Action::physical_model()
+Physics::PhysModel& Action::physical_model()
 {
-  CPhysicalModel::Ptr model = m_physical_model.lock();
+  Physics::PhysModel::Ptr model = m_physical_model.lock();
 
   if( is_null(model) )
     throw Common::SetupError( FromHere(),

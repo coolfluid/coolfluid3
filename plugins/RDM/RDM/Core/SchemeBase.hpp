@@ -25,6 +25,8 @@
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
 
+#include "Physics/PhysModel.hpp"
+
 #include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/Core/LibCore.hpp"
@@ -53,7 +55,7 @@ public: // functions
   SchemeBase ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~SchemeBase() {};
+  virtual ~SchemeBase() {}
 
   /// Get the class name
   static std::string type_name () { return "SchemeBase<" + SF::type_name() + ">"; }

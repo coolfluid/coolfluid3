@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Solver::CPhysicalModel"
+#define BOOST_TEST_MODULE "Test module for CF::Physics::PhysModel"
 
 #include <iostream>
 

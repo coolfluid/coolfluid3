@@ -33,7 +33,7 @@
 #include "Mesh/Actions/CInitFieldConstant.hpp"
 
 #include "Solver/CSolver.hpp"
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 #include "Solver/CTime.hpp"
 
 #include "Solver/Actions/CForAllFaces.hpp"
@@ -189,8 +189,8 @@ void FiniteVolumeSolver::trigger_domain()
   if ( is_null(solution_ptr) )
   {
     ///@todo get variable names etc, from Physics
-    CFinfo <<  "  Creating field \"solution\", cellbased, with vars rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]" << CFendl;
-    CField& solution = mesh->create_field("solution",CField::Basis::CELL_BASED,"P0","rho[1],rhoU["+to_str(m_physical_model.lock()->dimensions())+"],rhoE[1]");
+    CFinfo <<  "  Creating field \"solution\", cellbased, with vars rho[1],rhoU["+to_str(m_physical_model.lock()->ndim())+"],rhoE[1]" << CFendl;
+    CField& solution = mesh->create_field("solution",CField::Basis::CELL_BASED,"P0","rho[1],rhoU["+to_str(m_physical_model.lock()->ndim())+"],rhoE[1]");
     solution.add_tag("solution");
   }
 
@@ -264,7 +264,7 @@ void FiniteVolumeSolver::trigger_physical_model()
   }
   else
   {
-    m_physical_model = ptr->as_ptr_checked<CPhysicalModel>();
+    m_physical_model = ptr->as_ptr_checked<Physics::PhysModel>();
   }
 
   m_iterate->configure_option_recursively("physical_model",m_physical_model.lock()->uri());

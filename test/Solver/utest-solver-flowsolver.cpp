@@ -22,8 +22,9 @@
 #include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/CMesh.hpp"
 
+#include "Physics/PhysModel.hpp"
+
 #include "Solver/FlowSolver.hpp"
-#include "Solver/CPhysicalModel.hpp"
 #include "Solver/CTime.hpp"
 
 using namespace CF;
@@ -76,7 +77,11 @@ BOOST_AUTO_TEST_CASE( test_solver_setup1 )
 {
   CRoot& root = Core::instance().root();
 
-  CPhysicalModel& physical_model = root.create_component<CPhysicalModel>("physical_model");
+  Physics::PhysModel::Ptr physical_model =
+      build_component_abstract_type<Physics::PhysModel>( "CF.Physics.DynamicModel", "physical_model" );
+
+  root.add_component(physical_model);
+
   CMesh& mesh = root.create_component<CMesh>("mesh");
   CTime& time = root.create_component<CTime>("time");
 

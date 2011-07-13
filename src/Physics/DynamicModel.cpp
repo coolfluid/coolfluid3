@@ -4,16 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Solver/State.hpp"
-
-////////////////////////////////////////////////////////////////////////////////
+#include "DynamicModel.hpp"
 
 namespace CF {
-namespace Solver {
+namespace Physics {
+
+using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+DynamicModel::DynamicModel( const std::string& name ) : Physics::PhysModel(name)
+{
+}
+
+DynamicModel::~DynamicModel()
+{
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Solver
+} // Physics
 } // CF

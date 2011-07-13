@@ -28,7 +28,7 @@
 #include "Mesh/CSimpleMeshGenerator.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 #include "Solver/CSolver.hpp"
 #include "Solver/Actions/CForAllElements.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
@@ -104,7 +104,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
 
   CFinfo << "Creating physics" << CFendl;
-  CPhysicalModel& physics = model.create_physics("physics");
+  Physics::PhysModel& physics = model.create_physics("physics");
   physics.configure_option( "Dimensions", p.get_option<Uint>("dimension") );
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -167,7 +167,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   const Real v_L = 0.;                const Real v_R = 0.;
   const Real g=1.4;
 
-  if (physics.dimensions() == 1)
+  if (physics.ndim() == 1)
   {
     RealVector3 left, right;
     left  << r_L , r_L*u_L , p_L/(g-1) + 0.5*r_L*u_L*u_L;
@@ -177,7 +177,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
       function[i]="if(x<=5,"+to_str(left[i])+","+to_str(right[i])+")";
     init_solution.configure_option("functions",function);
   }
-  else if (physics.dimensions() == 2)
+  else if (physics.ndim() == 2)
   {
     RealVector4 left, right;
     left  << r_L , r_L*u_L , r_L*v_L, p_L/(g-1) + 0.5*r_L*(u_L*u_L+v_L*v_L);
@@ -197,12 +197,12 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
 
   CFinfo << "Setting Reflective Boundary conditions" << CFendl;
-  if (physics.dimensions() == 1)
+  if (physics.ndim() == 1)
   {
     solver.create_bc("inlet",   find_component_recursively_with_name<CRegion>(mesh.topology(),"xneg"),   "CF.FVM.Core.BCReflectCons1D");
     solver.create_bc("outlet",   find_component_recursively_with_name<CRegion>(mesh.topology(),"xpos"),   "CF.FVM.Core.BCReflectCons1D");
   }
-  else if (physics.dimensions() == 2)
+  else if (physics.ndim() == 2)
   {
     solver.create_bc("top",   find_component_recursively_with_name<CRegion>(mesh.topology(),"top"),   "CF.FVM.Core.BCReflectCons2D");
     solver.create_bc("bottom",find_component_recursively_with_name<CRegion>(mesh.topology(),"bottom"),"CF.FVM.Core.BCReflectCons2D");

@@ -16,9 +16,9 @@
 namespace CF {
 
 namespace Mesh { class CRegion; class CMesh; }
+namespace Physics { class PhysModel; }
 namespace Solver {
 
-  class CPhysicalModel;
   class CTime;
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ public: // functions
 
  public:
 
-  Solver::CPhysicalModel& physical_model();
+  Physics::PhysModel& physical_model();
   Solver::CTime&          time();
   Mesh::CMesh&            mesh();
   Common::ComponentIteratorRange<Mesh::CRegion> regions();
@@ -57,7 +57,7 @@ protected:
   /// mesh where this action data resides
   boost::weak_ptr< Mesh::CMesh > m_mesh;
   /// physical model used by this action
-  boost::weak_ptr< Solver::CPhysicalModel > m_physical_model;
+  boost::weak_ptr< Physics::PhysModel > m_physical_model;
   /// time used by this action
   boost::weak_ptr< Solver::CTime > m_time;
   /// regions of the mesh to loop over

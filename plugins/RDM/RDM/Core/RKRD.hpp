@@ -18,8 +18,8 @@
 
 namespace CF {
 
-namespace Mesh   { class CField; class CMesh; }
-namespace Solver { class CPhysicalModel; }
+namespace Mesh    { class CField; class CMesh; }
+namespace Physics { class PhysModel; }
 
 namespace RDM {
 
@@ -52,10 +52,10 @@ public: // functions
   static std::string type_name () { return "RKRD"; }
 
   // functions specific to the RKRD component
-  
+
   /// solves the PDE's
   virtual void solve();
-  
+
   /// @name SIGNALS
   //@{
 
@@ -85,7 +85,7 @@ private: // functions
 private: // data
 
   /// physical model discretized by this solver
-  boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
+  boost::weak_ptr< Physics::PhysModel > m_physical_model;
 
   /// mesh which this solver operates
   boost::weak_ptr<Mesh::CMesh> m_mesh;

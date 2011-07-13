@@ -17,7 +17,6 @@
 #include "Mesh/CDomain.hpp"
 
 #include "Solver/CModelSteady.hpp"
-#include "Solver/CPhysicalModel.hpp"
 #include "Solver/CSolver.hpp"
 
 #include "RDM/Core/SteadyExplicit.hpp"

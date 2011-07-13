@@ -13,11 +13,13 @@
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
-  namespace Common { class CGroup; }
-  namespace Mesh   { class CDomain; }
-namespace Solver {
 
-  class CPhysicalModel;
+  namespace Common  { class CGroup; }
+  namespace Mesh    { class CDomain; }
+  namespace Physics { class PhysModel; }
+
+  namespace Solver {
+
   class CSolver;
   class CTime;
 
@@ -55,10 +57,12 @@ public: // functions
   virtual CTime& create_time( const std::string& name );
 
   /// create physics
-  virtual CPhysicalModel& create_physics( const std::string& name );
+  /// @param builder name of the CBuilder of the physics
+  virtual Physics::PhysModel& create_physics( const std::string& builder );
 
-  /// create physics
-  virtual CSolver& create_solver( const std::string& name );
+  /// create solver
+  /// @param builder_name name of the CBuilder of the solver
+  virtual CSolver& create_solver( const std::string& builder );
 
   /// gets the domain from this model
   virtual Mesh::CDomain& domain();
@@ -67,7 +71,7 @@ public: // functions
   virtual CTime& time();
 
   /// gets the physics from this model
-  virtual CPhysicalModel& physics();
+  virtual Physics::PhysModel& physics();
 
   /// gets the solver from this model
   virtual CSolver& solver();

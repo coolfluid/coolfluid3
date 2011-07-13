@@ -25,8 +25,9 @@
 
 #include "Mesh/Actions/CInitFieldFunction.hpp"
 
+#include "Physics/PhysModel.hpp"
+
 #include "Solver/Actions/CComputeLNorm.hpp"
-#include "Solver/CPhysicalModel.hpp"
 
 #include "RDM/Core/RKRD.hpp"
 #include "RDM/Core/DomainTerm.hpp"
@@ -61,7 +62,7 @@ RKRD::RKRD ( const std::string& name  ) :
     ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
 
 
-  m_options.add_option( OptionComponent<CPhysicalModel>::create("physics","Physics",
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physics","Physics",
                                                                    "Physical model to discretize",
                                                                    &m_physical_model))
     ->mark_basic();
@@ -149,11 +150,11 @@ void RKRD::config_mesh()
 
   CMesh& mesh = *(m_mesh.lock());
 
-  CPhysicalModel::Ptr physmodel = m_physical_model.lock();
+  Physics::PhysModel::Ptr physmodel = m_physical_model.lock();
   if( is_null( physmodel ) )
     throw SetupError(FromHere(), "Physical model not yet set for RKRD component " + uri().string() );
 
-  const Uint nbdofs = physmodel->nb_dof();
+  const Uint nbdofs = physmodel->neqs();
 
   // configure solution
 

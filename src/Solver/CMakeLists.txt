@@ -9,8 +9,6 @@ list( APPEND coolfluid_solver_files
   CModelSteady.cpp
   CModelUnsteady.hpp
   CModelUnsteady.cpp
-  CPhysicalModel.cpp
-  CPhysicalModel.hpp
   CEigenLSS.cpp
   CEigenLSS.hpp
   CSolver.hpp
@@ -27,10 +25,6 @@ list( APPEND coolfluid_solver_files
   FlowSolver.cpp
   LibSolver.hpp
   LibSolver.cpp
-  Physics.hpp
-  Physics.cpp
-  State.hpp
-  State.cpp
 )
 
 set( coolfluid_solver_kernellib TRUE )

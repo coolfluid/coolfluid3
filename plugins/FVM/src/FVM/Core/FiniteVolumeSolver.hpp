@@ -16,19 +16,22 @@
 
 namespace CF {
 
-namespace Common {
+namespace Common
+{
   class CAction;
   class CLink;
 }
-namespace Solver { 
-  namespace Actions { 
-    class CIterate;     
-  }
-  class CPhysicalModel;
+
+namespace Physics { class PhysModel; }
+
+namespace Solver
+{
+  namespace Actions {  class CIterate; }
   class CTime;
 }
 
-namespace Mesh {
+namespace Mesh
+{
   class CField;
   class CRegion;
   class CDomain;
@@ -64,9 +67,9 @@ public: // functions
   static std::string type_name () { return "FiniteVolumeSolver"; }
 
   // functions specific to the FiniteVolumeSolver component
-  
+
   virtual void solve();
-  
+
   /// @name SIGNALS
   //@{
 
@@ -80,7 +83,7 @@ public: // functions
   Common::CAction& create_bc(const std::string& name, const std::vector<boost::shared_ptr<Mesh::CRegion> >& regions, const std::string& bc_builder_name);
   Common::CAction& create_bc(const std::string& name, const Mesh::CRegion& region, const std::string& bc_builder_name);
 
-  
+
 private: // functions
 
   void trigger_domain();
@@ -88,11 +91,11 @@ private: // functions
   void trigger_time();
 
   void trigger_physical_model();
-  
+
   void auto_config_fields(Component& parent);
 
 private: // data
-  
+
   boost::shared_ptr<Common::CLink> m_solution;
   boost::shared_ptr<Common::CLink> m_residual;
   boost::shared_ptr<Common::CLink> m_wave_speed;
@@ -104,7 +107,7 @@ private: // data
   boost::shared_ptr<ComputeUpdateCoefficient> m_compute_update_coefficient;
   boost::shared_ptr<UpdateSolution> m_update_solution;
 
-  boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
+  boost::weak_ptr<Physics::PhysModel> m_physical_model;
   boost::weak_ptr<Solver::CTime>          m_time;
   boost::weak_ptr<Mesh::CDomain>        m_domain;
 };
