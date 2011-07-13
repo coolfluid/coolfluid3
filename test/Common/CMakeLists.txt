@@ -130,6 +130,16 @@ list( APPEND utest-xml-signal-frame_files
 coolfluid_add_unit_test( utest-xml-signal-frame )
 
 ################################################################################
+# Test XML Options
+
+list( APPEND utest-xml-signal-options_cflibs coolfluid_common )
+list( APPEND utest-xml-signal-options_files
+  utest-xml-signal-options.cpp
+)
+
+coolfluid_add_unit_test( utest-xml-signal-options )
+
+################################################################################
 # Test Component
 
 list( APPEND utest-static-sub-component_cflibs coolfluid_common )

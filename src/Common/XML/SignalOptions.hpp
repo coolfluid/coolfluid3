@@ -9,6 +9,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include "Common/OptionList.hpp"
+
 #include "Common/XML/SignalFrame.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -18,6 +20,20 @@ namespace Common {
 namespace XML {
 
 //////////////////////////////////////////////////////////////////////////////
+
+class Common_API SignalOptionList : public Common::OptionList
+{
+public:
+
+  SignalOptionList( const SignalFrame & frame = SignalFrame() );
+
+  SignalFrame create_frame( const std::string & name = std::string(),
+                            const URI & sender = URI(),
+                            const URI & receiver = URI() ) const;
+
+  void add_to_map( Map & map ) const;
+
+}; // SignalOptionList
 
 /// Abstracts the use of XML when adding options to a signal frame.
 
