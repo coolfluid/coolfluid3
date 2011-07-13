@@ -4,6 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string/predicate.hpp>
+
+#include "Physics/Variables.hpp"
+
 #include "Scalar3D.hpp"
 
 namespace CF {
@@ -22,11 +26,11 @@ Scalar3D::~Scalar3D()
 {
 }
 
-boost::shared_ptr< Physics::Variables > Scalar3D::create_variables( const std::string type )
+boost::shared_ptr< Physics::Variables > Scalar3D::create_variables( const std::string type, const std::string name )
 {
   Physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
-        build_component_abstract_type< Physics::Variables >( type ) :
-        build_component_abstract_type< Physics::Variables >( LibScalar::library_namespace() + "." + type );
+        build_component_abstract_type< Physics::Variables >( type, name ) :
+        build_component_abstract_type< Physics::Variables >( LibScalar::library_namespace() + "." + type, name );
 
   add_component( vars );
 

@@ -23,11 +23,11 @@ DynamicModel::~DynamicModel()
 {
 }
 
-Variables::Ptr DynamicModel::create_variables(const std::string type)
+Variables::Ptr DynamicModel::create_variables(const std::string type, const std::string name )
 {
   if( type == DynamicVars::type_name() )
   {
-    return create_component_ptr< DynamicVars >( DynamicVars::type_name() );
+    return create_component_ptr< DynamicVars >( name );
   }
   else
     throw ValueNotFound( FromHere(), "Unknown variable type \'" + type + "\'" );
