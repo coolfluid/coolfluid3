@@ -11,22 +11,20 @@
 #include "RDM/GPU/CSysLDAGPU.hpp"
 #include "RDM/GPU/SchemeCSysLDAGPU.hpp"
 
-#include "RDM/Core/LinearAdv2D.hpp"       // supported physics
-#include "RDM/Core/LinearAdvSys2D.hpp"    // supported physics
-#include "RDM/Core/RotationAdv2D.hpp"     // supported physics
-#include "RDM/Core/Euler2D.hpp"           // supported physics
+#include "Physics/Scalar/RotationAdv2D.hpp"     // supported physics
+#include "Physics/NavierStokes/Cons2D.hpp"      // supported physics
 
 namespace CF {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopGPU<CSysLDAGPU,RotationAdv2D>,
+Common::ComponentBuilder < CellLoopGPU<CSysLDAGPU,Physics::Scalar::RotationAdv2D>,
                            RDM::CellLoop,
                            LibCore >
                            CSysLDAGPU_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < CellLoopGPU<CSysLDAGPU,Euler2D>,
+Common::ComponentBuilder < CellLoopGPU<CSysLDAGPU,Physics::NavierStokes::Cons2D>,
                            RDM::CellLoop,
                            LibCore >
                            CSysLDAGPU_Euler2D_Builder;
