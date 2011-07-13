@@ -73,12 +73,12 @@ struct global_fixture
     wizard = allocate_component<SteadyExplicit>("wizard");
 
     SignalFrame frame;
-    SignalOptions options( frame );
+    SignalOptions options;
 
     options.add_option< OptionT<std::string> >("ModelName","mymodel");
     options.add_option< OptionT<std::string> >("PhysicalModel","Euler2D");
 
-    options.flush();
+    frame = options.create_frame();
 
     wizard->signal_create_model(frame);
 
@@ -148,7 +148,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , local_fixture )
   // create the xml parameters for the read mesh signal
 
   SignalFrame frame;
-  SignalOptions options( frame );
+  SignalOptions options;
 
   BOOST_CHECK(true);
 
@@ -163,7 +163,7 @@ BOOST_FIXTURE_TEST_CASE( test_read_mesh , local_fixture )
   options.add_option< OptionURI >("file", file );
   options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
 
-  options.flush();
+  frame = options.create_frame();
 
   std::cout << "opening file: " << file.string() << std::endl;
 
@@ -190,7 +190,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , local_fixture )
   BOOST_CHECK(true);
 
   SignalFrame frame;
-  SignalOptions options( frame );
+  SignalOptions options;
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"SubInlet"))
@@ -204,7 +204,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , local_fixture )
   options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.SubsonicInFlowWeakBc");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
-  options.flush();
+  frame = options.create_frame();
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -231,7 +231,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , local_fixture )
   BOOST_CHECK(true);
 
   SignalFrame frame;
-  SignalOptions options( frame );
+  SignalOptions options;
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"SubOutlet"))
@@ -245,7 +245,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , local_fixture )
   options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.SubsonicOutFlowWeakBc");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
-  options.flush();
+  frame = options.create_frame();
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -266,7 +266,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_wall , local_fixture )
   BOOST_CHECK(true);
 
   SignalFrame frame;
-  SignalOptions options( frame );
+  SignalOptions options;
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"LowerWall"))
@@ -282,7 +282,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_wall , local_fixture )
   options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.WallWeakBc");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
-  options.flush();
+  frame = options.create_frame();
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -299,7 +299,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
   BOOST_CHECK(true);
 
   SignalFrame frame;
-  SignalOptions options( frame );
+  SignalOptions options;
 
   std::vector<std::string> fns(4);
 
@@ -319,7 +319,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 
   options.add_option< OptionArrayT<std::string> >("functions", fns);
 
-  options.flush();
+  frame = options.create_frame();
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }
@@ -355,7 +355,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda, local_fixture )
   CMesh& mesh = find_component<CMesh>(domain);
 
   SignalFrame frame;
-  SignalOptions options( frame );
+  SignalOptions options;
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(mesh,"topology"))
@@ -367,7 +367,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda, local_fixture )
   options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.CSysLDA");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
-  options.flush();
+  frame = options.create_frame();
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 

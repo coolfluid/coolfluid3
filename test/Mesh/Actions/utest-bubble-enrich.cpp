@@ -100,8 +100,8 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   // create the xml parameters for the signal
 
 
-  SignalFrame frame("Target", "//Root", "//Root");
-  SignalOptions options( frame );
+  SignalFrame frame;
+  SignalOptions options;
 
   BOOST_CHECK(true);
 
@@ -111,7 +111,8 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   options.add_option< OptionURI >("location", Core::instance().root().get_child("Domain").uri() );
   options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
   options.add_option< OptionArrayT<URI> >("files", files);
-  options.flush();
+
+  frame = options.create_frame( "Target", "//Root", "//Root");
 
   // get the generic mesh loader from the Tools
 

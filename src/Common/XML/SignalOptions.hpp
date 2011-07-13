@@ -25,11 +25,19 @@ class Common_API SignalOptions : public Common::OptionList
 {
 public:
 
+  SignalOptions();
+
   SignalOptions( SignalFrame & frame );
+
+  SignalOptions( const OptionList & list );
+
+  ~SignalOptions();
 
   SignalFrame create_frame( const std::string & name = std::string(),
                             const URI & sender = URI(),
                             const URI & receiver = URI() ) const;
+
+  SignalFrame create_reply_to( SignalFrame & frame, const URI & sender = URI() ) const;
 
   void add_to_map( Map & m_map ) const;
 

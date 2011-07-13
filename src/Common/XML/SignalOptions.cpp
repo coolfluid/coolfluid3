@@ -41,17 +41,18 @@ namespace XML {
 /// @param name Option name
 /// @param pretty_name The option pretty name
 /// @param descr Option description
-/// @param node The value node. If it has a sibling node, this node is taken
+/// @param node The value node. If it has a sibling node, this node is taken as
 /// the restricted values list.
 /// @return Returns the created option.
 /// @author Quentin Gasper.
 template<typename TYPE>
-Option::Ptr makeOptionT(const std::string & name, const std::string & pretty_name,
-                        const std::string & descr, XmlNode & node)
+Option::Ptr make_option_t(const std::string & name, const std::string & pretty_name,
+                          const std::string & descr, XmlNode & node)
 {
   TYPE value;
   to_value(node, value);
-  XmlNode restr_node = Map(node.content->parent()).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
+  XmlNode restr_node = Map(node.content->parent())
+      .find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
   std::vector<TYPE> restr_list;
 
@@ -59,7 +60,6 @@ Option::Ptr makeOptionT(const std::string & name, const std::string & pretty_nam
 
   option->set_description( descr );
   option->set_pretty_name( pretty_name );
-
 
   if(restr_node.is_valid())
   {
@@ -87,10 +87,10 @@ Option::Ptr makeOptionT(const std::string & name, const std::string & pretty_nam
 /// @return Returns the created option.
 /// @author Quentin Gasper.
 template<typename TYPE>
-typename OptionArrayT<TYPE>::Ptr makeOptionArrayT(const std::string & name,
-                                                  const std::string & pretty_name,
-                                                  const std::string & descr,
-                                                  const XmlNode & node)
+typename OptionArrayT<TYPE>::Ptr make_option_array_t(const std::string & name,
+                                                     const std::string & pretty_name,
+                                                     const std::string & descr,
+                                                     const XmlNode & node)
 {
   std::vector<TYPE> value = Map().array_to_vector<TYPE>(node);
 
@@ -129,6 +129,9 @@ typename OptionArrayT<TYPE>::Ptr makeOptionArrayT(const std::string & name,
 /// @li with or without a restricted list of values
 /// @param node The node to convert. Must be valid.
 /// @return Returns the converted.
+/// @throw ProtocolError if the "key" attribute is missing
+/// @throw CastingFailed if the value could not be cast to the destination type
+/// @throw ShouldNotBeHere if the option type is not recognized
 /// @author Quentin Gasper.
 Option::Ptr xml_to_option( const XmlNode & node )
 {
@@ -163,15 +166,15 @@ Option::Ptr xml_to_option( const XmlNode & node )
     XmlNode type_node( node.content->first_node(opt_type.c_str()) );
 
     if( opt_type == Protocol::Tags::type<bool>() )
-      option = makeOptionT<bool>(key_str, pretty_name, descr_str, type_node);
+      option = make_option_t<bool>(key_str, pretty_name, descr_str, type_node);
     else if( opt_type == Protocol::Tags::type<int>() )
-      option = makeOptionT<int>(key_str, pretty_name, descr_str, type_node);
+      option = make_option_t<int>(key_str, pretty_name, descr_str, type_node);
     else if( opt_type == Protocol::Tags::type<Uint>() )
-      option = makeOptionT<Uint>(key_str, pretty_name, descr_str, type_node);
+      option = make_option_t<Uint>(key_str, pretty_name, descr_str, type_node);
     else if( opt_type == Protocol::Tags::type<Real>() )
-      option = makeOptionT<Real>(key_str, pretty_name, descr_str, type_node);
+      option = make_option_t<Real>(key_str, pretty_name, descr_str, type_node);
     else if( opt_type == Protocol::Tags::type<std::string>() )
-      option = makeOptionT<std::string>(key_str, pretty_name, descr_str, type_node);
+      option = make_option_t<std::string>(key_str, pretty_name, descr_str, type_node);
     else if( opt_type == Protocol::Tags::type<URI>() )
     {
       // in the case of a URI value, we have to create an OptionURI and
@@ -231,7 +234,7 @@ Option::Ptr xml_to_option( const XmlNode & node )
           URI::Scheme::Type scheme = URI::Scheme::Convert::instance().to_enum(*it);
 
           if( scheme == URI::Scheme::INVALID )
-            throw CastingFailed(FromHere(), "[" + *it + "] is not a valied scheme.");
+            throw CastingFailed(FromHere(), "[" + *it + "] is not a valid scheme.");
 
           option_uri->supported_protocol(scheme);
         }
@@ -240,25 +243,25 @@ Option::Ptr xml_to_option( const XmlNode & node )
       option = option_uri;
     }
     else
-      throw ShouldNotBeHere(FromHere(), opt_type + ": Unknown type");
+      throw ShouldNotBeHere(FromHere(), opt_type + ": Unknown option type");
 
   }
   else if( Map::is_array_value(node) ) // it is an array value
   {
     if(opt_type == Protocol::Tags::type<bool>() )
-      option = makeOptionArrayT<bool>(key_str, pretty_name, descr_str, node);
+      option = make_option_array_t<bool>(key_str, pretty_name, descr_str, node);
     else if(opt_type == Protocol::Tags::type<int>() )
-      option = makeOptionArrayT<int>(key_str, pretty_name, descr_str, node);
+      option = make_option_array_t<int>(key_str, pretty_name, descr_str, node);
     else if(opt_type == Protocol::Tags::type<Uint>() )
-      option = makeOptionArrayT<Uint>(key_str, pretty_name, descr_str, node);
+      option = make_option_array_t<Uint>(key_str, pretty_name, descr_str, node);
     else if(opt_type == Protocol::Tags::type<Real>() )
-      option = makeOptionArrayT<Real>(key_str, pretty_name, descr_str, node);
+      option = make_option_array_t<Real>(key_str, pretty_name, descr_str, node);
     else if(opt_type == Protocol::Tags::type<std::string>() )
-      option = makeOptionArrayT<std::string>(key_str, pretty_name, descr_str, node);
+      option = make_option_array_t<std::string>(key_str, pretty_name, descr_str, node);
     else if(opt_type == Protocol::Tags::type<URI>() )
-      option = makeOptionArrayT<URI>(key_str, pretty_name, descr_str, node);
+      option = make_option_array_t<URI>(key_str, pretty_name, descr_str, node);
     else
-      throw ShouldNotBeHere(FromHere(), opt_type + ": Unknown type");
+      throw ShouldNotBeHere(FromHere(), opt_type + ": Unknown option type");
 
   }
   else
@@ -328,6 +331,22 @@ void add_opt_to_xml( Map& opt_map, Option::Ptr opt, bool is_array)
 
 //////////////////////////////////////////////////////////////////////////////
 
+SignalOptions::SignalOptions()
+  : OptionList()
+{
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+SignalOptions::SignalOptions(const OptionList &list)
+  : OptionList(list)
+{
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 SignalOptions::SignalOptions( SignalFrame & frame )
   : OptionList()
 {
@@ -350,6 +369,13 @@ SignalOptions::SignalOptions( SignalFrame & frame )
       }
     }
   }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+SignalOptions::~SignalOptions()
+{
+  flush();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -426,6 +452,20 @@ void SignalOptions::flush()
 {
   if( m_map.content.is_valid() )
     add_to_map( m_map );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+SignalFrame SignalOptions::create_reply_to( SignalFrame & frame, const URI & sender ) const
+{
+  cf_assert( m_map.content.is_valid() );
+
+  SignalFrame reply = frame.create_reply( sender );
+  Map map = reply.map( Protocol::Tags::key_options() ).main_map;
+
+  add_to_map(map);
+
+  return reply;
 }
 
 //////////////////////////////////////////////////////////////////////////////

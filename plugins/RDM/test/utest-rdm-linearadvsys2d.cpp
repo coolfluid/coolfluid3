@@ -74,12 +74,12 @@ struct global_fixture
     wizard = allocate_component<SteadyExplicit>("wizard");
 
     SignalFrame frame;
-    SignalOptions options( frame );
+    SignalOptions options;
 
     options.add_option< OptionT<std::string> >("ModelName","mymodel");
     options.add_option< OptionT<std::string> >("PhysicalModel","LinearAdvSys2D");
 
-    options.flush();
+    frame = options.create_frame();
 
     wizard->signal_create_model(frame);
 
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_SUITE( linearadvsys2d_test_suite )
 
 BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 {
-  SignalFrame frame; SignalOptions options( frame );
+  SignalFrame frame; SignalOptions options;
 
   URI file( "file:rectangle2x1-tg-p1-953.msh");
 //  URI file( "file:rectangle2x1-tg-p2-3689.msh");
@@ -141,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
   options.add_option< OptionURI >("file", file );
   options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
 
-  options.flush();
+  frame = options.create_frame();
 
   domain.signal_load_mesh( frame );
 
@@ -181,7 +181,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , local_fixture )
   BOOST_CHECK(true);
 
   SignalFrame frame;
-  SignalOptions options( frame );
+  SignalOptions options;
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
@@ -197,7 +197,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , local_fixture )
   options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.BcDirichlet");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
-  options.flush();
+  frame = options.create_frame();
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
 
@@ -220,14 +220,14 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
   BOOST_CHECK(true);
 
   SignalFrame frame;
-  SignalOptions options( frame );
+  SignalOptions options;
 
   std::vector<std::string> functions(2);
   functions[0] = "x*x+y*y";
   functions[1] = "0.";
   options.add_option< OptionArrayT<std::string> >("functions", functions);
 
-  options.flush();
+  frame = options.create_frame();
 
   solver.as_type<RKRD>().signal_initialize_solution( frame );
 }
@@ -263,7 +263,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
   CMesh& mesh = find_component<CMesh>(domain);
 
   SignalFrame frame;
-  SignalOptions options( frame );
+  SignalOptions options;
 
   std::vector<URI> regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(mesh,"topology"))
@@ -275,7 +275,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
   options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.CSysLDA");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
-  options.flush();
+  frame = options.create_frame();
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 

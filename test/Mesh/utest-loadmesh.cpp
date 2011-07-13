@@ -50,8 +50,8 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   BOOST_CHECK(true);
 
-  SignalFrame frame("Target", "//Root", "//Root");
-  SignalOptions options( frame );
+  SignalFrame frame;
+  SignalOptions options;
 
   // everything is OK
   std::vector<URI> files;
@@ -60,7 +60,8 @@ BOOST_AUTO_TEST_CASE( constructor )
   options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
   options.add_option< OptionArrayT<URI> >("files", files);
 
-  options.flush();
+  frame = options.create_frame("Target", "//Root", "//Root");
+
   load_mesh->signal_load_mesh(frame);
 }
 

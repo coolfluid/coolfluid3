@@ -173,11 +173,12 @@ void ForwardEuler::execute()
    // raise signal that iteration is done
    /// @todo move this to an Action and/or separate function in base class
 
-   SignalFrame frame ( "iteration_done", URI(), URI() );
-   SignalOptions opts( frame );
-   opts.add_option< OptionT<Uint> >("iteration", iteration);
+   SignalOptions opts;
+   SignalFrame frame;
 
-   opts.flush();
+   opts.add_option< OptionT<Uint> >( "iteration", iteration );
+
+   frame = opts.create_frame("iteration_done", URI(), URI());
 
    Core::instance().event_handler().raise_event( "iteration_done", frame);
 
