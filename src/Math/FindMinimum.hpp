@@ -10,8 +10,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
-#include "Math/MathFunctions.hpp"
-#include "Math/MathConsts.hpp"
+#include "Math/Functions.hpp"
+#include "Math/Consts.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,7 @@ class BracketMethod {
 public:
 
   /// Default constructor
-  BracketMethod() : m_maxStep(MathConsts::Real_max()) {}
+  BracketMethod() : m_maxStep(Consts::Real_max()) {}
 
   /// Bracket the minimum in a given function,
   /// starting with 2 values pointing downwards
@@ -69,7 +69,7 @@ public:
     Real r=(bx-ax)*(fb-fc);
     Real q=(bx-cx)*(fb-fa);
     Real u=bx-((bx-cx)*q-(bx-ax)*r)/
-      (2.0*Math::MathFunctions::change_sign(std::max(std::abs(q-r),TINY),q-r));
+      (2.0*Math::Functions::change_sign(std::max(std::abs(q-r),TINY),q-r));
     Real ulim=bx+GLIMIT*(cx-bx);
     if ((bx-u)*(u-cx) > 0.0) {
       fu=func(u);
@@ -244,7 +244,7 @@ public:
   {
     const Uint ITMAX=100;
     const Real CGOLD=0.3819660;
-    const Real ZEPS=Math::MathConsts::eps()*1.0e-3;
+    const Real ZEPS=Math::Consts::eps()*1.0e-3;
     Real a,b,d=0.0,etemp,fu,fv,fw,fx;
     Real p,q,r,tol1,tol2,u,v,w,x,xm;
     Real e=0.0;
@@ -276,12 +276,12 @@ public:
       d=p/q;
       u=x+d;
       if (u-a < tol2 || b-u < tol2)
-        d=Math::MathFunctions::change_sign(tol1,xm-x);
+        d=Math::Functions::change_sign(tol1,xm-x);
       }
     } else {
       d=CGOLD*(e=(x >= xm ? a-x : b-x));
     }
-    u=(std::abs(d) >= tol1 ? x+d : x+Math::MathFunctions::change_sign(tol1,d));
+    u=(std::abs(d) >= tol1 ? x+d : x+Math::Functions::change_sign(tol1,d));
     fu=func(u);
     if (fu <= fx) {
       if (u >= x) a=x; else b=x;
@@ -343,7 +343,7 @@ public:
   Real minimize(T &funcd)
   {
     const Uint ITMAX=100;
-    const Real ZEPS=Math::MathConsts::eps()*1.0e-3;
+    const Real ZEPS=Math::Consts::eps()*1.0e-3;
     bool ok1,ok2;
     Real a,b,d=0.0,d1,d2,du,dv,dw,dx,e=0.0;
     Real fu,fv,fw,fx,olde,tol1,tol2,u,u1,u2,v,w,x,xm;
@@ -382,7 +382,7 @@ public:
       if (std::abs(d) <= std::abs(0.5*olde)) {
         u=x+d;
         if (u-a < tol2 || b-u < tol2)
-        d=Math::MathFunctions::change_sign(tol1,xm-x);
+        d=Math::Functions::change_sign(tol1,xm-x);
       } else {
         d=0.5*(e=(dx >= 0.0 ? a-x : b-x));
       }
@@ -396,7 +396,7 @@ public:
       u=x+d;
       fu=funcd(u);
     } else {
-      u=x+Math::MathFunctions::change_sign(tol1,d);
+      u=x+Math::Functions::change_sign(tol1,d);
       fu=funcd(u);
       if (fu > fx) {
       fmin=fx;

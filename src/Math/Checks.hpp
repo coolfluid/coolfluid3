@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_MathChecks_hpp
-#define CF_Math_MathChecks_hpp
+#ifndef CF_Math_Checks_hpp
+#define CF_Math_Checks_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
 
 #include "Math/BoostMath.hpp"
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +23,7 @@ namespace Math {
 
 /// @brief Static functions for checking Real numbers
 /// @author Tiago Quintino, Willem Deconinck
-namespace MathChecks
+namespace Checks
 {
   /// Function to check if two Real numbers are equal.
   /// @param x
@@ -106,7 +106,7 @@ namespace MathChecks
   /// @return true if equal or almost equal within the accepted error fuzz.
   inline bool is_equal(const Real& x,  const Real& y)
   {
-    return is_equal_with_error(x,y,MathConsts::Real_min());
+    return is_equal_with_error(x,y,Consts::Real_min());
   }
 
   /// Function to check if two Real numbers are not equal.
@@ -115,7 +115,7 @@ namespace MathChecks
   /// @return true if not equal or almost unequal within the accepted error fuzz.
   inline bool is_not_equal(const Real& x,  const Real& y)
   {
-    return is_not_equal_with_error(x,y,MathConsts::Real_min());
+    return is_not_equal_with_error(x,y,Consts::Real_min());
   }
 
   /// Function to check if two Real numbers are equal.
@@ -185,7 +185,7 @@ namespace MathChecks
   /// @return true if equal to zero or almost equal within the accepted error fuzz.
   inline bool is_zero(const Real& x)
   {
-    return is_zero_with_error(x,MathConsts::Real_min());
+    return is_zero_with_error(x,Consts::Real_min());
   }
 
   /// Function to check if a Real number is not zero or very close.
@@ -193,7 +193,7 @@ namespace MathChecks
   /// @return true if not equal to zero or not almost equal within the accepted error fuzz.
   inline bool is_not_zero(const Real& x)
   {
-    return is_not_zero_with_error(x,MathConsts::Real_min());
+    return is_not_zero_with_error(x,Consts::Real_min());
   }
 
   /// Checks is real is positive.
@@ -210,7 +210,7 @@ namespace MathChecks
     return !is_pos(value);
   }
 
-} // MathChecks
+} // Checks
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -219,4 +219,4 @@ namespace MathChecks
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_MathChecks_hpp
+#endif // CF_Math_Checks_hpp

@@ -11,7 +11,7 @@
 #include "Common/FindComponents.hpp"
 
 
-#include "Math/MathFunctions.hpp"
+#include "Math/Functions.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -30,7 +30,7 @@
 
 using namespace CF::Common;
 using namespace CF::Mesh;
-using namespace CF::Math::MathFunctions;
+using namespace CF::Math::Functions;
 
 namespace CF {
 namespace FVM {

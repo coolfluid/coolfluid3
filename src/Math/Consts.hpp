@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_MathConsts_hpp
-#define CF_Math_MathConsts_hpp
+#ifndef CF_Math_Consts_hpp
+#define CF_Math_Consts_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,7 @@ namespace Math {
 
 /// @brief Static functions for mathematical constants
 /// @author Tiago Quintino, Willem Deconinck
-namespace MathConsts
+namespace Consts
 { 
   /// Returns the maximum number representable with the chosen precision
   inline Real int_max() { return std::numeric_limits<int>::max(); }
@@ -40,7 +40,7 @@ namespace MathConsts
   inline Real Real_min() { return std::numeric_limits<Real>::min(); }
   /// Definition of the maximum difference recognazible between two numbers with
   /// the chosen precision. Usefull for comparisons to zero  with real numbers:
-  /// @code std::abs(x) > Math::MathConsts::eps()  @endcode
+  /// @code std::abs(x) > Math::Consts::eps()  @endcode
   inline Real eps() { return std::numeric_limits<Real>::epsilon(); }
   /// Definition of Infinity
   inline Real inf() { return std::numeric_limits<Real>::infinity(); }
@@ -57,4 +57,4 @@ namespace MathConsts
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_MathConsts_hpp
+#endif // CF_Math_Consts_hpp

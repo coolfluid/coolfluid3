@@ -36,8 +36,8 @@
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Math/MathFunctions.hpp"
-#include "Math/MathConsts.hpp"
+#include "Math/Functions.hpp"
+#include "Math/Consts.hpp"
 #include "Mesh/ElementData.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -47,8 +47,8 @@ namespace Mesh {
 namespace Actions {
 
   using namespace Common;
-  using namespace Math::MathFunctions;
-  using namespace Math::MathConsts;
+  using namespace Math::Functions;
+  using namespace Math::Consts;
 
   create_component_data_type( std::vector<std::size_t> , Mesh_Actions_API , CVector_size_t , "CVector<size_t>" );
 

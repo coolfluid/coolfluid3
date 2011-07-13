@@ -8,7 +8,7 @@
 #include <QVariant>
 #include <QVBoxLayout>
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "UI/Graphics/GraphicalInt.hpp"
 
@@ -29,9 +29,9 @@ GraphicalInt::GraphicalInt(bool isUint, QVariant value, QWidget * parent)
   m_spinBox = new QDoubleSpinBox(/*isUint, */this);
 
   if(m_isUint)
-    m_spinBox->setRange(MathConsts::Uint_min(), MathConsts::Uint_max());
+    m_spinBox->setRange(Consts::Uint_min(), Consts::Uint_max());
   else
-    m_spinBox->setRange(MathConsts::int_min(), MathConsts::int_max());
+    m_spinBox->setRange(Consts::int_min(), Consts::int_max());
 
   m_layout->addWidget(m_spinBox);
 

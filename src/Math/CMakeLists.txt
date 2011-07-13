@@ -6,10 +6,10 @@ list( APPEND coolfluid_math_files
  BoostMath.hpp
  Defs.hpp
  FindMinimum.hpp
- MathConsts.hpp
- MathFunctions.hpp
+ Consts.hpp
+ Functions.hpp
  MatrixTypes.hpp
- MathChecks.hpp
+ Checks.hpp
  MathExceptions.hpp
  MathExceptions.cpp
  VectorialFunction.hpp

@@ -14,15 +14,15 @@
 #include "Common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"
-#include "Math/MathChecks.hpp"
+#include "Math/Checks.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
 
-using namespace CF::Math::MathChecks;
-using namespace CF::Math::MathConsts;
+using namespace CF::Math::Checks;
+using namespace CF::Math::Consts;
 
 using namespace Eigen;
 

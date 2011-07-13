@@ -15,7 +15,7 @@
 #include "Common/Core.hpp"
 #include "Common/CEnv.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Solver/Actions/CIterate.hpp"
 #include "Solver/Actions/CCriterion.hpp"
@@ -25,7 +25,7 @@ namespace Solver {
 namespace Actions {
 
 using namespace Common;
-using namespace Math::MathConsts;
+using namespace Math::Consts;
 
 Common::ComponentBuilder < CIterate, CAction, LibActions > CIterate_Builder;
 

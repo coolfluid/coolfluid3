@@ -26,7 +26,7 @@
 #include "Common/MPI/Buffer.hpp"
 #include "Common/MPI/debug.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CFieldView.hpp"
@@ -46,7 +46,7 @@ using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
 using namespace CF::Common::mpi;
-using namespace CF::Math::MathConsts;
+using namespace CF::Math::Consts;
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out , const std::vector<T>& v)

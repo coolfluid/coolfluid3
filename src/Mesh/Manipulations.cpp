@@ -6,7 +6,7 @@
 
 #include "Common/MPI/debug.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/Manipulations.hpp"
 #include "Mesh/CNodes.hpp"
@@ -17,7 +17,7 @@ namespace Mesh {
 
 using namespace Common;
 using namespace Common::mpi;
-using namespace Math::MathConsts;
+using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 

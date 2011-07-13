@@ -13,7 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/CTable.hpp"
 #include "Mesh/CTable.hpp"
@@ -57,7 +57,7 @@ struct LagrangeSFLine3DLagrangeP1Fixture
     const Uint dim = Line3DLagrangeP1::dimension;
     const Uint nb_nodes = Line3DLagrangeP1::nb_nodes;
     const Real start_angle = 0.;
-    const Real end_angle = tours*2.*MathConsts::pi();
+    const Real end_angle = tours*2.*Consts::pi();
 
     coordinates.set_row_size(dim);
     CTable<Real>::ArrayT& coord_array = coordinates.array();
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( LineIntegral )
   // Check the length, using the line integral of one times the norm of the tangent vector
   Real length = 0.;
   integrate_region(length, TangentVectorNorm(), coordinates, connectivity);
-  BOOST_CHECK_CLOSE(length, tours*sqrt((square(2.*MathConsts::pi()*radius)+square(height/tours))), 0.01);
+  BOOST_CHECK_CLOSE(length, tours*sqrt((square(2.*Consts::pi()*radius)+square(height/tours))), 0.01);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

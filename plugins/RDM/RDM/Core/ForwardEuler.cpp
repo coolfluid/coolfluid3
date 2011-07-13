@@ -16,7 +16,7 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
-#include "Math/MathChecks.hpp"
+#include "Math/Checks.hpp"
 
 #include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
@@ -31,7 +31,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
-using namespace CF::Math::MathChecks;
+using namespace CF::Math::Checks;
 using namespace CF::Mesh;
 using namespace CF::Solver::Actions;
 

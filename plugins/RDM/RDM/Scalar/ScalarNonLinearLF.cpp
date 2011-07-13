@@ -7,7 +7,6 @@
 #include "Common/CBuilder.hpp"
 
 #include "RDM/Schemes/CSysLF.hpp"
-#include "RDM/Schemes/SchemeCSysLF.hpp"
 
 #include "RDM/Core/SupportedCells.hpp" // supported cells
 

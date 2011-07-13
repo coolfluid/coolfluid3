@@ -9,7 +9,7 @@
 
 #include <Eigen/Dense>
 
-#include "Math/MathFunctions.hpp"
+#include "Math/Functions.hpp"
 
 #include "Mesh/Hexa3D.hpp"
 

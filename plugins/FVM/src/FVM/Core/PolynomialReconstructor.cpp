@@ -16,8 +16,8 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/ElementType.hpp"
 
-#include "Math/MathChecks.hpp"
-#include "Math/MathConsts.hpp"
+#include "Math/Checks.hpp"
+#include "Math/Consts.hpp"
 
 #include "FVM/Core/PolynomialReconstructor.hpp"
 #include "Mesh/CStencilComputerRings.hpp"
@@ -26,7 +26,7 @@
 
 using namespace CF::Common;
 using namespace CF::Mesh;
-using namespace CF::Math::MathConsts;
+using namespace CF::Math::Consts;
 namespace CF {
 namespace FVM {
 namespace Core {

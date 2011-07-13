@@ -13,7 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/CTable.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
@@ -26,7 +26,7 @@
 using namespace boost::assign;
 using namespace CF;
 using namespace CF::Math;
-using namespace CF::Math::MathConsts;
+using namespace CF::Math::Consts;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Integrators;
 using namespace CF::Mesh::SF;
@@ -52,11 +52,11 @@ struct Triag3DLagrangeP1Fixture
   }
 
   /// Fills the given coordinate and connectivity data to create a cylinder along the Z-axis, consisting of Triag3DLagrangeP1 elements
-  void create_cylinder(CTable<Real>& coordinates, CTable<Uint>& connectivity, const Real radius, const Uint u_segments, const Uint v_segments, const Real height, const Real start_angle = 0., const Real end_angle = 2.*MathConsts::pi())
+  void create_cylinder(CTable<Real>& coordinates, CTable<Uint>& connectivity, const Real radius, const Uint u_segments, const Uint v_segments, const Real height, const Real start_angle = 0., const Real end_angle = 2.*Consts::pi())
   {
     const Uint dim = Triag3DLagrangeP1::dimension;
     const Uint nb_nodes = Triag3DLagrangeP1::nb_nodes;
-    const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*MathConsts::pi()) < eps();
+    const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*Consts::pi()) < eps();
 
     coordinates.set_row_size(dim);
     CTable<Real>::ArrayT& coord_array = coordinates.array();
@@ -189,7 +189,7 @@ struct Triag3DLagrangeP1Fixture
     {
       SFT::CoordsT normal;
       SFT::normal(mapped_coords, nodes, normal);
-      return MathFunctions::inner_product(normal, m_vector);
+      return Functions::inner_product(normal, m_vector);
     }
 
   private:
@@ -239,7 +239,7 @@ struct Triag3DLagrangeP1Fixture
     // Pressure in function of theta
     Real pressure(const Real theta)
     {
-      Real tmp = (2. * m_u * sin(theta) + m_circulation / (2. * MathConsts::pi() * m_radius));
+      Real tmp = (2. * m_u * sin(theta) + m_circulation / (2. * Consts::pi() * m_radius));
       return 0.5 * m_rho * tmp * tmp;
     }
   };
@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   // Check the area
   Real area = 0.;
   integrate_region(area, NormalVectorNorm(), coordinates, connectivity);
-  BOOST_CHECK_CLOSE(area, 2.*MathConsts::pi()*radius*height, 0.1);
+  BOOST_CHECK_CLOSE(area, 2.*Consts::pi()*radius*height, 0.1);
 
   // Flux from a constant vector field through a closed surface should be 0
   Real zero_flux = 0.;
@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE( ArcIntegral )
   // half cylinder arc
   CTable<Real> arc_coordinates(Mesh::Tags::coordinates());
   CTable<Uint> arc_connectivity("connectivity");
-  create_cylinder(arc_coordinates, arc_connectivity, 1., 100, 24, 3., 0., MathConsts::pi());
+  create_cylinder(arc_coordinates, arc_connectivity, 1., 100, 24, 3., 0., Consts::pi());
   Real arc_flux = 0.;
   const SFT::CoordsT y_vector(0., 1., 0.);
   integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity);

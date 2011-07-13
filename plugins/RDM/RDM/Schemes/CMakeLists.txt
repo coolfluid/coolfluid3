@@ -11,11 +11,6 @@ list( APPEND coolfluid_rdm_schemes_files
   CSysB.cpp
   CSysSUPG.hpp
   CSysSUPG.cpp
-  SchemeCSysN.hpp
-  SchemeCSysLDA.hpp
-  SchemeCSysB.hpp
-  SchemeCSysLF.hpp
-  SchemeCSysSUPG.hpp
 )
 
 coolfluid_mark_not_orphan(

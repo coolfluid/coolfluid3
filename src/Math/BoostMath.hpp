@@ -18,8 +18,7 @@
 // for is_finite() is_nan() is_inf()
 #include <boost/math/special_functions/fpclassify.hpp>
 
-#ifdef CF_HAVE_BOOST_ERFC
+// for erfc
 #include <boost/math/special_functions/erf.hpp>
-#endif
 
 #endif // CF_Math_BOOSTMATH_HPP

@@ -7,7 +7,7 @@
 #include <QHBoxLayout>
 #include <QRegExpValidator>
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Common/OptionArray.hpp"
 

@@ -14,8 +14,8 @@
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ElementData.hpp"
-#include "Math/MathChecks.hpp"
-#include "Math/MathConsts.hpp"
+#include "Math/Checks.hpp"
+#include "Math/Consts.hpp"
 
 #include "FVM/Core/ComputeFlux.hpp"
 #include "FVM/Core/RiemannSolver.hpp"
@@ -25,7 +25,7 @@
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Solver::Actions;
-using namespace CF::Math::MathConsts;
+using namespace CF::Math::Consts;
 
 namespace CF {
 namespace FVM {

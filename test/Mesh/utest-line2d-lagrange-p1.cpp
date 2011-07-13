@@ -14,7 +14,7 @@
 #include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/CTable.hpp"
 #include "Mesh/CNodes.hpp"
@@ -144,7 +144,7 @@ struct LagrangeSFLine2DLagrangeP1Fixture
     // Pressure in function of theta
     Real pressure(const Real theta)
     {
-      Real tmp = (2. * m_u * sin(theta) + m_circulation / (2. * MathConsts::pi() * m_radius));
+      Real tmp = (2. * m_u * sin(theta) + m_circulation / (2. * Consts::pi() * m_radius));
       return 0.5 * m_rho * tmp * tmp;
     }
 
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   // Check the length, using the line integral of one times the norm of the tangent vector
   Real length = 0.;
   integrate_region(length, NormalVectorNorm(), coordinates, connectivity);
-  BOOST_CHECK_CLOSE(length, 2.*MathConsts::pi(), 0.1);
+  BOOST_CHECK_CLOSE(length, 2.*Consts::pi(), 0.1);
 
   // Flux from a constant vector field through a closed surface should be 0
   Real zero_flux = 0.;
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half circle arc, so the flux of a uniform field of unit vectors should equal the diameter
   CMesh::Ptr mesh = allocate_component<CMesh>("mesh");  
-  create_circle_2d(*mesh, 1., 100, 0., MathConsts::pi());
+  create_circle_2d(*mesh, 1., 100, 0., Consts::pi());
   CTable<Real>& arc_coordinates = find_component_recursively<CNodes>(*mesh).coordinates();
   CTable<Uint>& arc_connectivity = find_component_recursively<CElements>(*mesh).node_connectivity();
   Real arc_flux = 0.;

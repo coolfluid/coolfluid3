@@ -19,7 +19,7 @@ using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::BlockMesh;
 using namespace CF::Math;
-using namespace CF::Math::MathConsts;
+using namespace CF::Math::Consts;
 
 using namespace boost::assign;
 

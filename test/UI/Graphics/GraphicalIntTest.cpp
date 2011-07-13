@@ -11,7 +11,7 @@
 
 #include "UI/Graphics/GraphicalInt.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "test/UI/Core/ExceptionThrowHandler.hpp"
 
@@ -47,8 +47,8 @@ void GraphicalIntTest::test_constructor()
   QVERIFY( is_not_null(spinBox) );
 
   // 1. check the range
-  QCOMPARE( spinBox->minimum(), MathConsts::int_min() );
-  QCOMPARE( spinBox->maximum(), MathConsts::int_max() );
+  QCOMPARE( spinBox->minimum(), Consts::int_min() );
+  QCOMPARE( spinBox->maximum(), Consts::int_max() );
 
   // 2. value is empty, the line edit should be empty as well
   QCOMPARE( int(spinBox->value()), 0 );

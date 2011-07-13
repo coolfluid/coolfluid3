@@ -8,7 +8,7 @@
 #define CF_Mesh_SF_Tetra3DLagrangeP1_hpp
 
 #include "Math/MatrixTypes.hpp"
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/Tetra3D.hpp"

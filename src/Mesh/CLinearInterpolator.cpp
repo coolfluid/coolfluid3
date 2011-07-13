@@ -17,7 +17,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/CLink.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 #include "Mesh/CLinearInterpolator.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
@@ -36,7 +36,7 @@ namespace CF {
 namespace Mesh {
 
   using namespace Common;
-  using namespace Math::MathConsts;
+  using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 

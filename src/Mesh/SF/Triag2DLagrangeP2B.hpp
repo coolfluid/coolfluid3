@@ -10,7 +10,7 @@
 #include "Common/BasicExceptions.hpp"
 
 #include "Math/MatrixTypes.hpp"
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/Triag2D.hpp"
 

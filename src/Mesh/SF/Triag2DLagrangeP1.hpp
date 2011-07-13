@@ -8,7 +8,7 @@
 #define CF_Mesh_SF_Triag2DLagrangeP1_hpp
 
 #include "Math/MatrixTypes.hpp"
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/Triag2D.hpp"
 

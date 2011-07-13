@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_MathFunctions_hpp
-#define CF_Math_MathFunctions_hpp
+#ifndef CF_Math_Functions_hpp
+#define CF_Math_Functions_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,7 @@ namespace CF {
 /// @author Andrea Lani
 /// @author Tiago Quintino
 /// @author Mehmet Sarp Yalim
-namespace MathFunctions
+namespace Functions
 {
   /// Signum function
   /// @param value the real to which infer the sign
@@ -54,7 +54,6 @@ namespace MathFunctions
   Real heavyside(const Real& value);
 
   /// Calculate the euclidean distance between two "points"
-  /// (Node, State, RealVector, ...)
   /// @pre T1 and T2 must have the overloading of the operator[] implemented
   template <class T1, class T2>
   Real get_distance(const T1& n1, const T2& n2);
@@ -224,7 +223,7 @@ namespace MathFunctions
 
 
 
-} // end namespace MathFunctions
+} // end namespace Functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -234,4 +233,4 @@ namespace MathFunctions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_MathFunctions_hpp
+#endif // CF_Math_Functions_hpp

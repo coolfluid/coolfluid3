@@ -150,8 +150,8 @@ bool Triag2DLagrangeP2::in_element(const CoordsT& coord, const NodeMatrixT& node
 
   MappedCoordsT mapped_coord;
   mapped_coordinates(coord, nodes, mapped_coord);
-  if( (mapped_coord[KSI] >= -Math::MathConsts::eps()) &&
-      (mapped_coord[ETA] >= -Math::MathConsts::eps()) &&
+  if( (mapped_coord[KSI] >= -Math::Consts::eps()) &&
+      (mapped_coord[ETA] >= -Math::Consts::eps()) &&
       (mapped_coord.sum() <= 1.))
   {
     return true;

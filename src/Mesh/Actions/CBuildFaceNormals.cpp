@@ -26,7 +26,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CCellFaces.hpp"
-#include "Math/MathFunctions.hpp"
+#include "Math/Functions.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ namespace Mesh {
 namespace Actions {
 
   using namespace Common;
-  using namespace Math::MathFunctions;
+  using namespace Math::Functions;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -43,7 +43,7 @@
 #include "Solver/Actions/CAdvanceTime.hpp"
 
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/Actions/CInitFieldConstant.hpp"
 #include "Mesh/Actions/CBuildFaceNormals.hpp"
@@ -123,7 +123,7 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
     .option("field").add_tag("residual");
 
   m_compute_rhs->create_static_component_ptr<CInitFieldConstant>("2.2_init_wave_speed")
-    ->configure_option("constant",Math::MathConsts::eps())
+    ->configure_option("constant",Math::Consts::eps())
     .mark_basic()
     .option("field").add_tag("wave_speed");
 

@@ -27,8 +27,8 @@
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Math/MathFunctions.hpp"
-#include "Math/MathConsts.hpp"
+#include "Math/Functions.hpp"
+#include "Math/Consts.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -37,8 +37,8 @@ namespace Mesh {
 namespace Actions {
 
   using namespace Common;
-  using namespace Math::MathFunctions;
-  using namespace Math::MathConsts;
+  using namespace Math::Functions;
+  using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 

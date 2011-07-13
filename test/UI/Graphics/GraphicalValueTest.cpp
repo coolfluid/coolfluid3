@@ -14,7 +14,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "UI/Graphics/GraphicalArray.hpp"
 #include "UI/Graphics/GraphicalArrayRestrictedList.hpp"

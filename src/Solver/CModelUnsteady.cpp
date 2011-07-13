@@ -12,7 +12,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
