@@ -22,13 +22,6 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
-// makes explicit instantiation for all template functions with a same type
-//#define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
-//  Common_TEMPLATE template SignalOptions & SignalOptions::add<T>(const std::string&, const T&, const std::string &, const std::vector<T>&, const std::string&);\
-//  Common_TEMPLATE template SignalOptions & SignalOptions::add<T>(const std::string&, const std::vector<T>&, const std::string&, const std::string &, const std::vector<T>&);\
-//  Common_TEMPLATE template T SignalOptions::option<T>(const std::string&) const;\
-//  Common_TEMPLATE template std::vector<T> SignalOptions::array<T>(const std::string&) const;
-
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -350,24 +343,22 @@ SignalOptions::SignalOptions(const OptionList &list)
 SignalOptions::SignalOptions( SignalFrame & frame )
   : OptionList()
 {
-  if( frame.node.is_valid() /*&& frame.has_map( Protocol::Tags::key_options() )*/ )
-  {
+  cf_assert( frame.node.is_valid() );
+
+  if( frame.has_map( Protocol::Tags::key_options() ) )
+
     m_map = frame.map( Protocol::Tags::key_options() ).main_map;
 
-    if( m_map.content.is_valid() )
-    {
-      rapidxml::xml_node<> * value_node = m_map.content.content->first_node();
+  rapidxml::xml_node<> * value_node = m_map.content.content->first_node();
 
-      for( ; is_not_null(value_node) ; value_node = value_node->next_sibling() )
-      {
-        Option::Ptr option = xml_to_option( XmlNode(value_node) );
+  for( ; is_not_null(value_node) ; value_node = value_node->next_sibling() )
+  {
+    Option::Ptr option = xml_to_option( XmlNode(value_node) );
 
-        if( check(option->name()) )
-          throw ValueExists(FromHere(), "Option [" + option->name() + "] already exists.");
+    if( check(option->name()) )
+      throw ValueExists(FromHere(), "Option [" + option->name() + "] already exists.");
 
-        store[ option->name() ] = option;
-      }
-    }
+    store[ option->name() ] = option;
   }
 }
 
@@ -470,184 +461,6 @@ SignalFrame SignalOptions::create_reply_to( SignalFrame & frame, const URI & sen
 
 //////////////////////////////////////////////////////////////////////////////
 
-//SignalOptions::SignalOptions( SignalFrame & frame )
-//{
-//  // note: no need to check if frame is valid, SignalFrame::map() does that
-//  // for us.
-
-//  map = frame.map( Protocol::Tags::key_options() ).main_map;
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//template<typename TYPE>
-//SignalOptions & SignalOptions::add ( const std::string & name, const TYPE & value,
-//                                     const std::string & descr,
-//                                     const std::vector<TYPE> & restr_values,
-//                                     const std::string & restr_values_delim )
-//{
-//  // if there are restricted values:
-//  // 1. the delimiter can not be empty
-//  cf_assert( restr_values.empty() || !restr_values_delim.empty() );
-//  // 2. the value must be present in the restricted list of values
-//  cf_assert( restr_values.empty() || std::find(restr_values.begin(), restr_values.end(), value) != restr_values.end() );
-
-//  if( map.check_entry(name) )
-//    throw ValueExists(FromHere(), "Option with name [" + name + "] already exists.");
-
-//  XmlNode node = map.set_value( name, value, descr );
-
-//  // if there are restricted, we add them as an array
-//  if( !restr_values.empty() )
-//    Map(node).set_array( Protocol::Tags::key_restricted_values(), restr_values, restr_values_delim );
-
-//  return *this;
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//template<typename TYPE>
-//SignalOptions & SignalOptions::add ( const std::string & name,
-//                                     const std::vector<TYPE> & value,
-//                                     const std::string & delimiter,
-//                                     const std::string & descr,
-//                                     const std::vector<TYPE> & restr_values )
-//{
-//  if( map.check_entry(name) )
-//    throw ValueExists(FromHere(), "Option with name [" + name + "] already exists.");
-
-//  XmlNode node = map.set_array( name, value, delimiter, descr );
-
-//  // if there are restricted, we add them as an array
-//  if( !restr_values.empty() )
-//    Map(node).set_array( Protocol::Tags::key_restricted_values(), restr_values, delimiter );
-
-//  return *this;
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//SignalOptions & SignalOptions::add ( const std::string & name, const URI & value,
-//                                     const std::string & descr,
-//                                     const std::vector<URI::Scheme::Type> & sup_schemes,
-//                                     const std::vector<URI> & restr_values,
-//                                     const std::string & restr_values_delim)
-
-//{
-//  // if there are restricted values:
-//  // 1. the delimiter can not be empty
-//  cf_assert( restr_values.empty() || !restr_values_delim.empty() );
-//  // 2. the value must be present in the restricted list of values
-//  cf_assert( restr_values.empty() || std::find(restr_values.begin(), restr_values.end(), value) != restr_values.end() );
-
-//  if( map.check_entry(name) )
-//    throw ValueExists(FromHere(), "Option with name [" + name + "] already exists.");
-
-//  XmlNode node = map.set_value( name, value, descr );
-//  std::string schemes_str;
-//  std::vector<URI::Scheme::Type>::const_iterator it = sup_schemes.begin();
-
-//  // if there are restricted, we add them as an array
-//  if( !restr_values.empty() )
-//    Map(node).set_array( Protocol::Tags::key_restricted_values(), restr_values, restr_values_delim );
-
-//  // build the allowed scheme string
-//  for( ; it != sup_schemes.end() ; ++it )
-//  {
-//    if( !schemes_str.empty() )
-//      schemes_str += ',';
-
-//    schemes_str += URI::Scheme::Convert::instance().to_str(*it);
-//  }
-
-//  node.set_attribute( Protocol::Tags::attr_uri_schemes(), schemes_str );
-
-//  return *this;
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//SignalOptions & SignalOptions::add ( const std::string & name,
-//                                     const std::vector<URI> & value,
-//                                     const std::string & delimiter,
-//                                     const std::string & descr,
-//                                     const std::vector<URI::Scheme::Type> & sup_schemes,
-//                                     const std::vector<URI> & restr_values )
-//{
-//  if( map.check_entry(name) )
-//    throw ValueExists(FromHere(), "Option with name [" + name + "] already exists.");
-
-//  XmlNode node = map.set_array( name, value, delimiter, descr );
-//  std::string schemes_str;
-//  std::vector<URI::Scheme::Type>::const_iterator it = sup_schemes.begin();
-
-
-//  // if there are restricted, we add them as an array
-//  if( !restr_values.empty() )
-//    Map(node).set_array( Protocol::Tags::key_restricted_values(), restr_values, delimiter );
-
-//  // build the allowed scheme string
-//  for( ; it != sup_schemes.end() ; ++it )
-//  {
-//    if( !schemes_str.empty() )
-//      schemes_str += ',';
-
-//    schemes_str += URI::Scheme::Convert::instance().to_str(*it);
-//  }
-
-//  node.set_attribute( Protocol::Tags::attr_uri_schemes(), schemes_str );
-
-//  return *this;
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//template<typename TYPE>
-//TYPE SignalOptions::option( const std::string & name ) const
-//{
-//  return map.get_value<TYPE>( name );
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//template<typename TYPE>
-//std::vector<TYPE> SignalOptions::array( const std::string & name ) const
-//{
-//  return map.get_array<TYPE>( name );
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//SignalOptions & SignalOptions::remove ( const std::string & name )
-//{
-//  if( !name.empty() )
-//  {
-//    XmlNode value_node = map.find_value( name );
-
-//    // if the node was found, we remove it
-//    if( value_node.is_valid() )
-//      value_node.content->parent()->remove_node( value_node.content );
-//  }
-
-//  return *this;
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
-//bool SignalOptions::exists ( const std::string & name ) const
-//{
-//  return map.check_entry(name);
-//}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-///// explicit instantiation to avoid missing symbols on certain compilers
-//TEMPLATE_EXPLICIT_INSTANTIATION( bool );
-//TEMPLATE_EXPLICIT_INSTANTIATION( int );
-//TEMPLATE_EXPLICIT_INSTANTIATION( std::string );
-//TEMPLATE_EXPLICIT_INSTANTIATION( CF::Uint );
-//TEMPLATE_EXPLICIT_INSTANTIATION( CF::Real );
-
 #define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
   Common_TEMPLATE template T SignalOptions::value<T>(const std::string&) const;\
   Common_TEMPLATE template std::vector<T> SignalOptions::array<T>(const std::string&) const
@@ -661,9 +474,6 @@ TEMPLATE_EXPLICIT_INSTANTIATION( CF::Real );
 TEMPLATE_EXPLICIT_INSTANTIATION( URI );
 
 #undef TEMPLATE_EXPLICIT_INSTANTIATION
-
-//Common_TEMPLATE template URI SignalOptions::option<URI>(const std::string&) const;
-//Common_TEMPLATE template std::vector<URI> SignalOptions::array<URI>(const std::string&) const;
 
 //////////////////////////////////////////////////////////////////////////////
 
