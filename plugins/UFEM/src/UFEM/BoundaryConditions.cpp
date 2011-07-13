@@ -67,7 +67,7 @@ struct BoundaryConditions::Implementation
     const std::string variable_name = options.value<std::string>("variable_name");
 
     BoundaryConditions& my_bc = dynamic_cast<BoundaryConditions&>(m_component);
-    if(my_bc.physical_model().variable_type(variable_name) == CF::Solver::CPhysicalModel::SCALAR)
+    if(my_bc.physical_model().variable_type(variable_name) == CF::Solver::Physics::PhysModel::SCALAR)
       my_bc << my_bc.add_constant_bc(region_name, variable_name, 0.);
     else
       my_bc << my_bc.add_constant_bc(region_name, variable_name, RealVector());
@@ -106,7 +106,7 @@ BoundaryConditions::~BoundaryConditions()
 
 CAction& BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
 {
-  CAction& result = physical_model().variable_type(variable_name) == CF::Solver::CPhysicalModel::SCALAR ?
+  CAction& result = physical_model().variable_type(variable_name) == CF::Solver::Physics::PhysModel::SCALAR ?
     m_implementation->add_scalar_bc(region_name, variable_name, boost::any_cast<Real>(default_value)) :
     m_implementation->add_vector_bc(region_name, variable_name, boost::any_cast<RealVector>(default_value));
 

@@ -32,7 +32,7 @@
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Types.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
@@ -458,7 +458,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   
   MeshTerm<0, VectorField> u("Velocity", "u");
   
-  CPhysicalModel& physical_model = Core::instance().root().create_component<CPhysicalModel>("PhysicalModel");
+  Physics::PhysModel& physical_model = Core::instance().root().create_component<Physics::PhysModel>("PhysicalModel");
   
   // Create the initialization expression
   Expression::Ptr init = nodes_expression(u = coordinates);

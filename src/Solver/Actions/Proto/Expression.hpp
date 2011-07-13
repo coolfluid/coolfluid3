@@ -21,7 +21,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 #include "ConfigurableConstant.hpp"
 #include "ElementLooper.hpp"
@@ -51,9 +51,9 @@ public:
   virtual void add_options(Common::OptionList& options) = 0;
 
   /// Register the variables that appear in the expression with a physical model
-  virtual void register_variables(CPhysicalModel& physical_model) = 0;
-
-  virtual ~Expression() {}
+  virtual void register_variables(Physics::PhysModel& physical_model) = 0;
+  
+	virtual ~Expression() {}
 };
 
 /// Boilerplate implementation
@@ -91,8 +91,8 @@ public:
       option.link_to(&it->second);
     }
   }
-
-  void register_variables(CPhysicalModel& physical_model)
+  
+  void register_variables(Physics::PhysModel& physical_model)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >( RegisterVariables(physical_model, m_variables) );
   }
@@ -121,7 +121,7 @@ private:
   /// Functor to register variables in a physical model
   struct RegisterVariables
   {
-    RegisterVariables(CPhysicalModel& physical_model, VariablesT& variables) :
+    RegisterVariables(Physics::PhysModel& physical_model, VariablesT& variables) :
       m_physical_model(physical_model),
       m_variables(variables)
     {
@@ -142,17 +142,17 @@ private:
     /// Register a scalar
     void apply(ScalarField& field, const bool is_equation_var) const
     {
-      m_physical_model.register_variable(field.name(), field.variable_name, field.field_name, CPhysicalModel::SCALAR, is_equation_var);
+      m_physical_model.register_variable(field.name(), field.variable_name, field.field_name, Physics::PhysModel::SCALAR, is_equation_var);
     }
 
     /// Register a vector field
     void apply(VectorField& field, const bool is_equation_var) const
     {
-      m_physical_model.register_variable(field.name(), field.variable_name, field.field_name, CPhysicalModel::VECTOR, is_equation_var);
+      m_physical_model.register_variable(field.name(), field.variable_name, field.field_name, Physics::PhysModel::VECTOR, is_equation_var);
     }
 
   private:
-    CPhysicalModel& m_physical_model;
+    Physics::PhysModel& m_physical_model;
     VariablesT& m_variables;
   };
 };

@@ -20,7 +20,7 @@
 
 #include "Mesh/CMesh.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 #include "Solver/Actions/Proto/ConfigurableConstant.hpp"
 #include "Solver/Actions/Proto/CProtoAction.hpp"
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
   CMesh& mesh = Core::instance().root().create_component<CMesh>("line2");
   Tools::MeshGeneration::create_line(mesh, 1., nb_segments);
   
-  CPhysicalModel& physical_model = Core::instance().root().create_component<CPhysicalModel>("PhysicalModel");
+  Physics::PhysModel& physical_model = Core::instance().root().create_component<Physics::PhysModel>("PhysicalModel");
   physical_model.configure_option("mesh", mesh.uri());
   
   // Declare a mesh variable
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   CMesh& mesh = Core::instance().root().create_component<CMesh>("line3");
   Tools::MeshGeneration::create_line(mesh, 1., nb_segments);
   
-  CPhysicalModel& physical_model = Core::instance().root().create_component<CPhysicalModel>("PhysicalModel2");
+  Physics::PhysModel& physical_model = Core::instance().root().create_component<Physics::PhysModel>("PhysicalModel2");
   physical_model.configure_option("mesh", mesh.uri());
   
   // Declare a mesh variable
@@ -209,7 +209,7 @@ BOOST_AUTO_TEST_CASE( ProtoActionDomain )
   // Create a domain
   CProtoActionDirector& domain = Core::instance().root().create_component<CProtoActionDirector>("domain");
   CMesh& mesh = domain.create_component<CMesh>("mesh");
-  CPhysicalModel& physical_model = domain.create_component<CPhysicalModel>("physical_model");
+  Physics::PhysModel& physical_model = domain.create_component<Physics::PhysModel>("physical_model");
   domain.configure_option("physical_model", physical_model.uri());
   
   // Setup mesh
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
   // Create a domain
   CustomProtoSolver& domain = Core::instance().root().create_component<CustomProtoSolver>("custom_domain");
   CMesh& mesh = domain.create_component<CMesh>("mesh");
-  CPhysicalModel& physical_model = domain.create_component<CPhysicalModel>("physical_model");
+  Physics::PhysModel& physical_model = domain.create_component<Physics::PhysModel>("physical_model");
   domain.configure_option("physical_model", physical_model.uri());
   
   // Setup mesh

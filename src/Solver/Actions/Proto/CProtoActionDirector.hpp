@@ -17,7 +17,7 @@ namespace CF {
   namespace Common { template<typename T> class OptionComponent; }
   namespace Mesh { class CMesh; class CRegion; }
 namespace Solver {
-  class CPhysicalModel;
+  class Physics::PhysModel;
 namespace Actions {
 namespace Proto {
  
@@ -42,7 +42,7 @@ public:
 
 protected:
   /// Reference to the physical model. A user friendly error is thrown if it's not available
-  CPhysicalModel& physical_model();
+  Physics::PhysModel& physical_model();
   
 private:
   class Implementation;

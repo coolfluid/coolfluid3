@@ -32,7 +32,7 @@
 #include "Mesh/SF/Types.hpp"
 
 #include "Solver/CEigenLSS.hpp"
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   lss.set_config_file(solver_config);
 
   // Physical model
-  CPhysicalModel& physical_model = root.create_component<CPhysicalModel>("PhysicalModel");
+  Physics::PhysModel& physical_model = root.create_component<Physics::PhysModel>("PhysicalModel");
 
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   LSSProxy p(lss, physical_model);
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   assemble_matrix->register_variables(physical_model);
   physical_model.configure_option("mesh", mesh.uri());
   physical_model.create_fields();
-  lss.resize(physical_model.nb_dof() * mesh.topology().nodes().size());
+  lss.resize(physical_model.neqs() * mesh.topology().nodes().size());
   
   elements_expression
   (
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   lss.set_config_file(solver_config);
 
   // Physical model
-  CPhysicalModel& physical_model = root.create_component<CPhysicalModel>("PhysicalModel");
+  Physics::PhysModel& physical_model = root.create_component<Physics::PhysModel>("PhysicalModel");
 
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   LSSProxy lss_proxy(lss, physical_model);
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   assemble_matrix->register_variables(physical_model);
   physical_model.configure_option("mesh", mesh.uri());
   physical_model.create_fields();
-  lss.resize(physical_model.nb_dof() * mesh.topology().nodes().size());
+  lss.resize(physical_model.neqs() * mesh.topology().nodes().size());
   
   // Run the assembly
   assemble_matrix->loop(mesh.topology());
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
   lss.set_config_file(solver_config);
 
   // Physical model
-  CPhysicalModel& physical_model = root.create_component<CPhysicalModel>("PhysicalModel");
+  Physics::PhysModel& physical_model = root.create_component<Physics::PhysModel>("PhysicalModel");
 
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   LSSProxy lss_proxy(lss, physical_model);
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
   assemble_matrix->register_variables(physical_model);
   physical_model.configure_option("mesh", mesh.uri());
   physical_model.create_fields();
-  lss.resize(physical_model.nb_dof() * mesh.topology().nodes().size());
+  lss.resize(physical_model.neqs() * mesh.topology().nodes().size());
   
   // Run the assembly
   assemble_matrix->loop(mesh.topology());
@@ -338,7 +338,7 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   lss.set_config_file(solver_config);
 
   // Physical model
-  CPhysicalModel& physical_model = root.create_component<CPhysicalModel>("PhysicalModel");
+  Physics::PhysModel& physical_model = root.create_component<Physics::PhysModel>("PhysicalModel");
 
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   MeshTerm<1, ScalarField> heat("heat", "q");
@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   assemble_matrix->register_variables(physical_model);
   physical_model.configure_option("mesh", mesh.uri());
   physical_model.create_fields();
-  lss.resize(physical_model.nb_dof() * mesh.topology().nodes().size());
+  lss.resize(physical_model.neqs() * mesh.topology().nodes().size());
   
   // Initialize volume term
   for_each_node(mesh.topology(), heat = q);

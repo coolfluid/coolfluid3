@@ -12,7 +12,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 #include "CProtoActionDirector.hpp"
 
@@ -29,7 +29,7 @@ struct CProtoActionDirector::Implementation
   Implementation(Component& component) :
     m_component(component)
   {
-    m_component.options().add_option( OptionComponent<CPhysicalModel>::create("physical_model", &m_physical_model))
+    m_component.options().add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model))
         ->set_description("Physical Model")
         ->mark_basic()
         ->attach_trigger(boost::bind(&Implementation::trigger_physical_model, this));
@@ -71,7 +71,7 @@ struct CProtoActionDirector::Implementation
   }
 
   Component& m_component;
-  boost::weak_ptr<CPhysicalModel> m_physical_model;
+  boost::weak_ptr<Physics::PhysModel> m_physical_model;
   boost::weak_ptr<CRegion> m_region;
   bool m_propagate_region;
 };
@@ -98,7 +98,7 @@ CAction& CProtoActionDirector::add_action(const std::string& name, const boost::
   return action;
 }
 
-CPhysicalModel& CProtoActionDirector::physical_model()
+Physics::PhysModel& CProtoActionDirector::physical_model()
 {
   if(m_implementation->m_physical_model.expired())
     throw SetupError(FromHere(), "Physical model not set for component at " + uri().string());

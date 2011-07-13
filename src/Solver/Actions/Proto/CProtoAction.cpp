@@ -11,7 +11,7 @@
 
 #include "Mesh/CRegion.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 #include "CProtoAction.hpp"
 #include "Expression.hpp"
@@ -31,7 +31,7 @@ struct CProtoAction::Implementation
   Implementation(Component& comp) :
     m_component(comp)
   {
-    m_component.options().add_option( OptionComponent<CPhysicalModel>::create("physical_model",&m_physical_model))
+    m_component.options().add_option( OptionComponent<Physics::PhysModel>::create("physical_model",&m_physical_model))
         ->set_description("Physical model")
         ->set_pretty_name("Physical Model")
         ->mark_basic()
@@ -51,8 +51,7 @@ struct CProtoAction::Implementation
 
   Expression::Ptr m_expression;
   Component& m_component;
-
-  boost::weak_ptr<CPhysicalModel> m_physical_model;
+  boost::weak_ptr<Physics::PhysModel> m_physical_model;
   boost::weak_ptr<CRegion> m_region;
 };
 

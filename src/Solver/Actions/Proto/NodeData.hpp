@@ -262,7 +262,7 @@ public:
     // Get any referred LSS proxies, so we can access the physical model
     std::vector<LSSProxy*> lss_proxies;
     CollectLSSProxies()(expr, lss_proxies);
-    CPhysicalModel* physical_model = 0;
+    Physics::PhysModel* physical_model = 0;
     BOOST_FOREACH(LSSProxy* lss_proxy, lss_proxies)
     {
       if(physical_model)
@@ -277,7 +277,7 @@ public:
     }
     
     if(physical_model)
-      m_nb_dofs = physical_model->nb_dof();
+      m_nb_dofs = physical_model->neqs();
     
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_region, m_variables_data, physical_model));
   }
@@ -338,7 +338,7 @@ private:
   /// Initializes the pointers in a VariablesDataT fusion sequence
   struct InitVariablesData
   {
-    InitVariablesData(VariablesT& vars, Mesh::CRegion& reg, VariablesDataT& vars_data, const CPhysicalModel* a_physical_model) :
+    InitVariablesData(VariablesT& vars, Mesh::CRegion& reg, VariablesDataT& vars_data, const Physics::PhysModel* a_physical_model) :
       variables(vars),
       region(reg),
       variables_data(vars_data),
@@ -369,7 +369,7 @@ private:
     VariablesT& variables;
     Mesh::CRegion& region;
     VariablesDataT& variables_data;
-    const CPhysicalModel* physical_model;
+    const Physics::PhysModel* physical_model;
   };
   
   /// Delete stored per-variable data

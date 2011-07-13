@@ -18,7 +18,7 @@ namespace Proto {
 
 using namespace Common;
   
-LSSProxy::LSSProxy(CEigenLSS& lss, CPhysicalModel& physical_model) :
+LSSProxy::LSSProxy(CEigenLSS& lss, Physics::PhysModel& physical_model) :
   m_lss(&lss),
   m_physical_model(&physical_model)
 {
@@ -30,7 +30,7 @@ LSSProxy::LSSProxy(Common::Option& lss_option, Common::Option& physical_model_op
 {
   // Store links to the options
   m_lss_option = boost::dynamic_pointer_cast< OptionComponent<CEigenLSS> >( lss_option.shared_from_this() );
-  m_physical_model_option = boost::dynamic_pointer_cast< OptionComponent<CPhysicalModel> >( physical_model_option.shared_from_this() );
+  m_physical_model_option = boost::dynamic_pointer_cast< OptionComponent<Physics::PhysModel> >( physical_model_option.shared_from_this() );
   
   // Attach the triggers
   lss_option.attach_trigger( boost::bind(&LSSProxy::trigger_lss, this) );
@@ -62,7 +62,7 @@ CEigenLSS& LSSProxy::lss()
   return *m_lss;
 }
 
-CPhysicalModel& LSSProxy::physical_model()
+Physics::PhysModel& LSSProxy::physical_model()
 {
   return *m_physical_model;
 }

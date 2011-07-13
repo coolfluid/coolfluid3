@@ -14,7 +14,7 @@
 #include "Mesh/LoadMesh.hpp"
 #include "Mesh/WriteMesh.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 #include "Model.hpp"
 
@@ -30,7 +30,7 @@ struct Model::Implementation
   Implementation(Component& comp) :
     m_component(comp),
     m_mesh(m_component.create_static_component_ptr<CMesh>("Mesh")),
-    m_physical_model(m_component.create_static_component_ptr<CPhysicalModel>("PhysicalModel"))
+    m_physical_model(m_component.create_static_component_ptr<Physics::PhysModel>("PhysicalModel"))
   {
     m_physical_model.lock()->configure_option("mesh", m_mesh);
     m_component.options().add_option< OptionURI >("input_file", URI())
@@ -45,8 +45,7 @@ struct Model::Implementation
 
   Component& m_component;
   boost::weak_ptr<CMesh> m_mesh;
-  boost::weak_ptr<CPhysicalModel> m_physical_model;
-
+  boost::weak_ptr<Physics::PhysModel> m_physical_model;
   boost::weak_ptr<LoadMesh> m_load_mesh;
   boost::weak_ptr<WriteMesh> m_write_mesh;
 

@@ -16,7 +16,7 @@ namespace CF {
   namespace Common { template<typename T> class OptionComponent; }
   namespace Mesh { class CRegion; }
 namespace Solver {
-  class CPhysicalModel;
+  class Physics::PhysModel;
 namespace Actions {
 namespace Proto {
 

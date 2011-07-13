@@ -77,7 +77,7 @@ void LinearProblem::execute()
   if(m_implementation->m_lss.expired())
     throw SetupError(FromHere(), "Error executing " + uri().string() + ": Invalid LSS");
   
-  m_implementation->m_lss.lock()->resize(physical_model().nb_dof() * physical_model().nb_nodes());
+  m_implementation->m_lss.lock()->resize(physical_model().neqs() * physical_model().nb_nodes());
   m_implementation->m_lss.lock()->set_zero();
   CProtoActionDirector::execute();
 }

@@ -13,7 +13,7 @@
 #include "Common/OptionComponent.hpp"
 
 #include "Solver/CEigenLSS.hpp"
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 /// @file
 /// Proxy for a linear system, providing access to the linear system solver and physical model components when needed
@@ -28,7 +28,7 @@ class LSSProxy : boost::noncopyable
 public:
   /// Construction using references to the actual components (mainly useful in utests or other non-dynamic code)
   /// Using this constructor does not use dynamic configuration through options
-  LSSProxy(CEigenLSS& lss, CPhysicalModel& physical_model);
+  LSSProxy(CEigenLSS& lss, Physics::PhysModel& physical_model);
   
   /// Construction using the options that define the LSS and physical model
   /// Triggers are attached to the options to ensure the LSS and physical model always correspond
@@ -39,19 +39,19 @@ public:
   CEigenLSS& lss();
   
   /// Return the current physical model
-  CPhysicalModel& physical_model();
+  Physics::PhysModel& physical_model();
   
 private:
   /// Link to the LSS option, if any
   boost::weak_ptr< Common::OptionComponent<CEigenLSS> > m_lss_option;
   /// Link to the physical model option, if any
-  boost::weak_ptr< Common::OptionComponent<CPhysicalModel> > m_physical_model_option;
+  boost::weak_ptr< Common::OptionComponent<Physics::PhysModel> > m_physical_model_option;
 
   /// LSS (raw pointer for performance)
   /// There is no way these go out-of-scope during expression execution
   CEigenLSS* m_lss;
   /// Physical model (raw pointer for performance)
-  CPhysicalModel* m_physical_model;
+  Physics::PhysModel* m_physical_model;
   
   /// Trigger for LSS change
   void trigger_lss();

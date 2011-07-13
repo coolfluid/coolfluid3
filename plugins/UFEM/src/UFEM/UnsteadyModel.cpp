@@ -10,7 +10,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CNodes.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 #include "LinearProblem.hpp"
 #include "TimeLoop.hpp"

@@ -15,7 +15,7 @@
 
 #include "Mesh/CRegion.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 #include "RDM/Core/SupportedCells.hpp"    // supported elements
 #include "RDM/Core/LinearAdv2D.hpp"       // supported physics
@@ -93,7 +93,7 @@ LDAGPU::~LDAGPU() {}
 void LDAGPU::execute()
 {
   /// @todo physical model should be a configuration option of the solver
-  CPhysicalModel::Ptr pm = find_component_ptr_recursively<CPhysicalModel>( Core::instance().root() );
+  Physics::PhysModel::Ptr pm = find_component_ptr_recursively<Physics::PhysModel>( Core::instance().root() );
   if( is_null(pm) )
     throw ValueNotFound(FromHere(), "could not found any physical model to use");
 

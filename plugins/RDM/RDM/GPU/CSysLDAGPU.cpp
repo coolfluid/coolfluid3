@@ -14,7 +14,7 @@
 
 #include "Mesh/CRegion.hpp"
 
-#include "Solver/CPhysicalModel.hpp"
+#include "Physics/PhysModel.hpp"
 
 #include "RDM/Core/CellLoop.hpp"
 #include "RDM/GPU/CSysLDAGPU.hpp"
