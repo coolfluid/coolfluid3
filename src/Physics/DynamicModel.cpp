@@ -4,7 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "DynamicModel.hpp"
+#include "Physics/DynamicModel.hpp"
+
+#include "Physics/DynamicVars.hpp"
 
 namespace CF {
 namespace Physics {
@@ -21,7 +23,15 @@ DynamicModel::~DynamicModel()
 {
 }
 
-
+Variables::Ptr DynamicModel::create_variables(const std::string type)
+{
+  if( type == DynamicVars::type_name() )
+  {
+    return create_component_ptr< DynamicVars >( DynamicVars::type_name() );
+  }
+  else
+    throw ValueNotFound( FromHere(), "Unknown variable type \'" + type + "\'" );
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

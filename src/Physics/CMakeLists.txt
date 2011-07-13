@@ -10,6 +10,8 @@ list( APPEND coolfluid_physics_files
   # a concrete physical model where the physics are dynamically configured
   DynamicModel.cpp
   DynamicModel.hpp
+  DynamicVars.cpp
+  DynamicVars.hpp
 )
 
 set( coolfluid_physics_kernellib TRUE )

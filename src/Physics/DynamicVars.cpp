@@ -6,23 +6,23 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Physics/Variables.hpp"
-
-#include "LinearAdv2D.hpp"
+#include "Physics/DynamicVars.hpp"
 
 namespace CF {
 namespace Physics {
-namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Physics::VariablesT< Scalar::LinearAdv2D >,
+Common::ComponentBuilder < Physics::DynamicVars,
                            Physics::Variables,
-                           LibScalar >
-                           Variables_LinearAdv2D;
+                           LibPhysics >
+                           Builder_DynamicVars;
+
+DynamicVars::DynamicVars(const std::string &name) : Variables(name) {}
+
+DynamicVars::~DynamicVars() {}
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-} // Scalar
 } // Physics
 } // CF

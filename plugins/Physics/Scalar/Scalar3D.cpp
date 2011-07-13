@@ -22,6 +22,16 @@ Scalar3D::~Scalar3D()
 {
 }
 
+boost::shared_ptr< Physics::Variables > Scalar3D::create_variables( const std::string type )
+{
+  Physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
+        build_component_abstract_type< Physics::Variables >( type ) :
+        build_component_abstract_type< Physics::Variables >( LibScalar::library_namespace() + "." + type );
+
+  add_component( vars );
+
+  return vars;
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar

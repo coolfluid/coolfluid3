@@ -53,15 +53,21 @@ public: // functions
   /// @return dimensionality of the problem, which is
   ///         the number of spatial coordinates used in the PDEs
   virtual Uint ndim() const = 0;
-  
+
   /// @return number of independent variables in the PDE
   virtual Uint neqs() const = 0;
-  
+
   /// @return the physical model type
   virtual std::string type() const = 0;
 
   /// create a physical properties
-  virtual std::auto_ptr<Physics::Properties> create_properties() = 0;
+  virtual std::auto_ptr< Physics::Properties > create_properties() = 0;
+
+  /// Create a Variables component
+  /// @param type is the name of the Variables
+  /// @post the component will be a sub-component of this model but maybe be moved away
+  /// @throws ValueNotFound if the type does not match a variable type this model supports
+  virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type ) = 0;
 
   //@} END INTERFACE
 

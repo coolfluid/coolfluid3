@@ -22,6 +22,17 @@ NavierStokes3D::~NavierStokes3D()
 {
 }
 
+boost::shared_ptr< Physics::Variables > NavierStokes3D::create_variables( const std::string type )
+{
+  Physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
+        build_component_abstract_type< Physics::Variables >( type ) :
+        build_component_abstract_type< Physics::Variables >( LibNavierStokes::library_namespace() + "." + type );
+
+  add_component( vars );
+
+  return vars;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes

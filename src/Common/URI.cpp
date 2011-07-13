@@ -8,7 +8,6 @@
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/find.hpp>
 
 #include "Common/BoostFilesystem.hpp"
 #include "Common/BasicExceptions.hpp"

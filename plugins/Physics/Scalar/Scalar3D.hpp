@@ -71,6 +71,12 @@ public: // functions
     return std::auto_ptr<Physics::Properties>( new Scalar3D::Properties() );
   }
 
+  /// Create a Variables component
+  /// @param type is the name of the Variables
+  /// @post the component will be a sub-component of this model but maybe be moved away
+  /// @throws ValueNotFound if the type does not match a variable type this model supports
+  virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type );
+
   //@} END INTERFACE
 
 }; // Scalar3D

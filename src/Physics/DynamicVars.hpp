@@ -4,113 +4,100 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_Scalar_LinearAdv2D_hpp
-#define CF_Physics_Scalar_LinearAdv2D_hpp
+#ifndef CF_Physics_DynamicVars_hpp
+#define CF_Physics_DynamicVars_hpp
 
-#include "Common/StringConversion.hpp"
-#include "Math/Defs.hpp"
-
-#include "Scalar2D.hpp"
+#include "Physics/DynamicModel.hpp"
+#include "Physics/Variables.hpp"
 
 namespace CF {
 namespace Physics {
-namespace Scalar {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Scalar_API LinearAdv2D : public NonInstantiable<LinearAdv2D> {
+class Physics_API DynamicVars : public Variables {
 
 public: // functions
 
-  typedef Scalar2D     MODEL;
+  typedef DynamicModel     MODEL;
 
-  enum { U = 0 };
+  typedef boost::shared_ptr<DynamicVars> Ptr;
+  typedef boost::shared_ptr<DynamicVars const> ConstPtr;
+
+public: // functions
+
+  /// constructor
+  /// @param name of the component
+  DynamicVars ( const std::string& name );
+
+  /// virtual destructor
+  virtual ~DynamicVars();
 
   /// Get the class name
-  static std::string type_name () { return "LinearAdv2D"; }
+  static std::string type_name () { return "DynamicVars"; }
+
+  /// @name INTERFACE
+  //@{
 
   /// compute physical properties
-  template < typename CV, typename SV, typename GM >
-  static void compute_properties ( const CV& coord,
-                                   const SV& sol,
-                                   const GM& grad_vars,
-                                   MODEL::Properties& p )
+  virtual void compute_properties (const RealVector& coord,
+                                   const RealVector& sol,
+                                   const RealMatrix& grad_sol,
+                                   Physics::Properties& physp)
   {
-    p.coords    = coord;       // cache the coordiantes locally
-    p.vars      = sol;         // cache the variables locally
-    p.grad_vars = grad_vars;   // cache the gradient of variables locally
-
-    p.v[XX] = 1.0; // constant vx
-    p.v[YY] = 1.0; // constant vy
-
-    p.u = sol[U];
-
-    p.mu = 0.;     // no diffusion
+    /// @todo to be implemented in the .cpp
   }
 
   /// compute the physical flux
-  template < typename FM >
-  static void flux( const MODEL::Properties& p,
-                    FM& flux)
+  virtual void flux (const Physics::Properties& p,
+                     RealMatrix& flux)
   {
-    flux(0,XX)   = p.v[XX] * p.u;
-    flux(0,YY)   = p.v[YY] * p.u;
+    /// @todo to be implemented in the .cpp
   }
 
   /// compute the eigen values of the flux jacobians
-  template < typename GV, typename EV >
-  static void flux_jacobian_eigen_values(const MODEL::Properties& p,
-                                         const GV& direction,
-                                         EV& Dv)
+  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+                                           const RealVector& direction,
+                                           RealVector& evalues)
   {
-    Dv[0]   = p.v[XX] * direction[XX] + p.v[YY] * direction[YY];
+    /// @todo to be implemented in the .cpp
   }
 
   /// compute the eigen values of the flux jacobians
-  template < typename GV, typename EV, typename OP >
-  static void flux_jacobian_eigen_values(const MODEL::Properties& p,
-                                         const GV& direction,
-                                         EV& Dv,
-                                         OP& op )
-
+  /// and apply a provided operator
+  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+                                           const RealVector& direction,
+                                           RealVector& evalues,
+                                           UnaryRealOp& op )
   {
-    Dv[0]   = op( p.v[XX] * direction[XX] + p.v[YY] * direction[YY] );
+    /// @todo to be implemented in the .cpp
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
-  template < typename GV, typename EM, typename EV >
-  static void flux_jacobian_eigen_structure(const MODEL::Properties& p,
-                                            const GV& direction,
-                                            EM& Rv,
-                                            EM& Lv,
-                                            EV& Dv)
+  virtual void flux_jacobian_eigen_structure (const Physics::Properties& p,
+                                              const RealVector& direction,
+                                              RealMatrix& Rv,
+                                              RealMatrix& Lv,
+                                              RealVector& evalues)
   {
-    Rv(0,0) = 1.;
-    Lv(0,0) = 1.;
-    Dv[0]   = p.v[XX] * direction[XX] + p.v[YY] * direction[YY];
+    /// @todo to be implemented in the .cpp
   }
 
   /// compute the PDE residual
-  template < typename JM, typename RV >
-  static void residual(const MODEL::Properties& p,
-                       JM         flux_jacob[],
-                       RV&        res)
+  virtual void residual(const Physics::Properties& p,
+                        RealMatrix  flux_jacob[],
+                        RealVector& res)
   {
-    JM& A = flux_jacob[XX];
-    JM& B = flux_jacob[YY];
-
-    A(0,0) = p.v[XX];
-    B(0,0) = p.v[YY];
-
-    res = A * p.grad_vars.col(XX) + B * p.grad_vars.col(YY);
+    /// @todo to be implemented in the .cpp
   }
 
-}; // LinearAdv2D
+  //@} END INTERFACE
+
+}; // DynamicVars
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-} // Scalar
 } // Physics
 } // CF
 
-#endif // CF_Physics_Scalar_LinearAdv2D_hpp
+#endif // CF_Physics_DynamicVars_hpp

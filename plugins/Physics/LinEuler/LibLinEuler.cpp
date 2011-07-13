@@ -9,6 +9,7 @@
 #include "LinEuler/LibLinEuler.hpp"
 
 namespace CF {
+namespace Physics {
 namespace LinEuler {
 
   using namespace Common;
@@ -28,5 +29,6 @@ void LibLinEuler::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LinEuler
+} // Physics
 } // CF
 
