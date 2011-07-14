@@ -54,6 +54,9 @@ public: // functions
   /// @name INTERFACE
   //@{
 
+  /// @return the variables type
+  virtual std::string type() const = 0;
+
   /// compute physical properties
   virtual void compute_properties (const RealVector& coord,
                                    const RealVector& sol,
@@ -112,6 +115,9 @@ public:
 
   /// Get the class name
   static std::string type_name () { return "VariablesT<"+PHYS::type_name()+">"; }
+
+  /// @return the physical model type
+  virtual std::string type() const { return PHYS::type_name(); };
 
   /// compute physical properties
   virtual void compute_properties(const RealVector& coord,

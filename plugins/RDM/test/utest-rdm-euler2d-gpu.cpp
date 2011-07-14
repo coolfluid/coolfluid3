@@ -77,9 +77,15 @@ struct euler2d_global_fixture
     SignalOptions options( frame );
 
     options.add_option< OptionT<std::string> >("ModelName","mymodel");
-    options.add_option< OptionT<std::string> >("PhysicalModel","Euler2D");
+    options.add_option< OptionT<std::string> >("PhysicalModel","NavierStokes2D");
 
     euler2d_wizard->signal_create_model(frame);
+
+    CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
+
+    CSolver& solver = find_component_recursively<CSolver>(model);
+
+    solver.configure_option( RDM::Tags::update_vars() , std::string("Euler2D") );
   }
 
 //  ~euler2d_global_fixture() { Core::instance().terminate(); }

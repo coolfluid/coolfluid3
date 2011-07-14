@@ -6,6 +6,8 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
+#include "Common/CBuilder.hpp"
+
 #include "Physics/Variables.hpp"
 
 #include "Scalar3D.hpp"
@@ -17,6 +19,11 @@ namespace Scalar {
 using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentBuilder < Scalar::Scalar3D,
+                           Physics::PhysModel,
+                           LibScalar >
+                           Builder_Scalar3D;
 
 Scalar3D::Scalar3D( const std::string& name ) : Physics::PhysModel(name)
 {

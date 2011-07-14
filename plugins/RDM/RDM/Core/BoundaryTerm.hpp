@@ -16,9 +16,11 @@
 namespace CF {
 namespace RDM {
 
+  class ElementLoop;
+
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_CORE_API BoundaryTerm : public Solver::Action {
+class RDM_Core_API BoundaryTerm : public Solver::Action {
 
 public: // typedefs
 
@@ -37,6 +39,8 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "BoundaryTerm"; }
+
+  ElementLoop& access_element_loop( const std::string& type_name );
 
 };
 

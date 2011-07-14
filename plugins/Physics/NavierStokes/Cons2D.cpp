@@ -6,8 +6,6 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Physics/Variables.hpp"
-
 #include "Cons2D.hpp"
 
 namespace CF {
@@ -16,10 +14,16 @@ namespace NavierStokes {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Physics::VariablesT< NavierStokes::Cons2D >,
+Common::ComponentBuilder < NavierStokes::Cons2D,
                            Physics::Variables,
                            LibNavierStokes >
-                           Variables_Cons2D;
+                           Builder_Cons2D;
+
+Cons2D::Cons2D(const std::string& name) : VariablesT<Cons2D>(name)
+{
+}
+
+Cons2D::~Cons2D() {}
 
 ////////////////////////////////////////////////////////////////////////////////////
 

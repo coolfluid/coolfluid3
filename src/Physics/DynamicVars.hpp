@@ -39,6 +39,9 @@ public: // functions
   /// @name INTERFACE
   //@{
 
+  /// @return the variables type
+  virtual std::string type() const { return DynamicVars::type_name(); };
+
   /// compute physical properties
   virtual void compute_properties (const RealVector& coord,
                                    const RealVector& sol,

@@ -6,6 +6,8 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
+#include "Common/CBuilder.hpp"
+
 #include "Physics/Variables.hpp"
 
 #include "LinEuler/LinEuler2D.hpp"
@@ -17,6 +19,11 @@ namespace LinEuler {
 using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentBuilder < LinEuler::LinEuler2D,
+                           Physics::PhysModel,
+                           LibLinEuler >
+                           Builder_LinEuler2D;
 
 LinEuler2D::LinEuler2D( const std::string& name ) : Physics::PhysModel(name)
 {

@@ -13,14 +13,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro RDM_CORE_API
+/// Define the macro RDM_Core_API
 /// @note build system defines COOLFLUID_RDM_EXPORTS when compiling
 /// RDM files
 #ifdef COOLFLUID_RDM_CORE_EXPORTS
-#   define RDM_CORE_API      CF_EXPORT_API
+#   define RDM_Core_API      CF_EXPORT_API
 #   define RDM_TEMPLATE
 #else
-#   define RDM_CORE_API      CF_IMPORT_API
+#   define RDM_Core_API      CF_IMPORT_API
 #   define RDM_CORE_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
@@ -33,7 +33,7 @@ namespace RDM {
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_CORE_API LibCore : public Common::CLibrary {
+class RDM_Core_API LibCore : public Common::CLibrary {
 
 public:
 
@@ -75,10 +75,10 @@ protected:
 
 }; // end LibCore
 
-
-
 } // RDM
 } // CF
+
+#include "RDM/Core/Tags.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

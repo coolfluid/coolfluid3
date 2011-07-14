@@ -58,9 +58,15 @@ struct translationadv2d_global_fixture
     SignalFrame& options = frame.map( Protocol::Tags::key_options() );
 
     options.set_option<std::string>("ModelName","mymodel");
-    options.set_option<std::string>("PhysicalModel","LinearAdv2D");
+    options.set_option<std::string>("PhysicalModel","Scalar2D");
 
     translationadv2d_wizard->signal_create_model(frame);
+
+    CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
+
+    CSolver& solver = find_component_recursively<CSolver>(model);
+
+    solver.configure_option( RDM::Tags::update_vars() , std::string("LinearAdv2D") );
   }
 
   ~translationadv2d_global_fixture() { Core::instance().terminate(); }

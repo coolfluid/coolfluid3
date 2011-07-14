@@ -36,28 +36,17 @@ CSysLF::~CSysLF() {}
 
 void CSysLF::execute()
 {
-  const std::string physics = physical_model().type();
-
-  // get the element loop or create it if does not exist
-  ElementLoop::Ptr loop;
-  Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
-  if( is_null( cloop ) )
-  {
-    loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopT<" + type_name() + "," + physics + ">" , "LOOP");
-    add_component(loop);
-  }
-  else
-    loop = cloop->as_ptr_checked<ElementLoop>();
+  ElementLoop& loop = access_element_loop( type_name() );
 
   // loop on all regions configured by the user
 
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
-    loop->select_region( region );
+    loop.select_region( region );
 
     // loop all elements of this region
 
-    loop->execute();
+    loop.execute();
   }
 }
 

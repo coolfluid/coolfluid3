@@ -6,8 +6,6 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Physics/Variables.hpp"
-
 #include "LinearAdvSys2D.hpp"
 
 namespace CF {
@@ -16,10 +14,16 @@ namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Physics::VariablesT< Scalar::LinearAdvSys2D >,
+Common::ComponentBuilder < Scalar::LinearAdvSys2D,
                            Physics::Variables,
                            LibScalar >
-                           Variables_LinearAdvSys2D;
+                           Builder_LinearAdvSys2D;
+
+LinearAdvSys2D::LinearAdvSys2D(const std::string& name) : VariablesT<LinearAdvSys2D>(name)
+{
+}
+
+LinearAdvSys2D::~LinearAdvSys2D() {}
 
 ////////////////////////////////////////////////////////////////////////////////////
 

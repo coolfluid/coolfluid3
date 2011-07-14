@@ -16,6 +16,6 @@ ScalarNonLinearN.cpp
 ScalarNonLinearB.cpp
 )
 
-list( APPEND coolfluid_rdm_scalar_cflibs coolfluid_rdm_schemes )
+list( APPEND coolfluid_rdm_scalar_cflibs coolfluid_physics_scalar coolfluid_rdm_schemes )
 
 coolfluid_add_library( coolfluid_rdm_scalar )

@@ -10,6 +10,8 @@
 #include "Common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
+#include "Physics/Variables.hpp"
+
 #include "Scalar2D.hpp"
 
 namespace CF {
@@ -18,13 +20,25 @@ namespace Scalar {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Scalar_API RotationAdv2D : public NonInstantiable<RotationAdv2D> {
+class Scalar_API RotationAdv2D : public VariablesT<RotationAdv2D> {
 
-public: // functions
+public: //typedefs
 
   typedef Scalar2D     MODEL;
 
   enum { U = 0 };
+
+  typedef boost::shared_ptr<RotationAdv2D> Ptr;
+  typedef boost::shared_ptr<RotationAdv2D const> ConstPtr;
+
+public: // functions
+
+  /// constructor
+  /// @param name of the component
+  RotationAdv2D ( const std::string& name );
+
+  /// virtual destructor
+  virtual ~RotationAdv2D();
 
   /// Get the class name
   static std::string type_name () { return "RotationAdv2D"; }

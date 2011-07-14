@@ -21,7 +21,7 @@ namespace CF {
 namespace RDM {
 
 /// Abstract RDM looping component
-class RDM_CORE_API ElementLoop : public Common::Component {
+class RDM_Core_API ElementLoop : public Common::Component {
 
 public: // typedefs
 

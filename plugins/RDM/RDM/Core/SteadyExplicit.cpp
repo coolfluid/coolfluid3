@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "boost/assign/list_of.hpp"
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
@@ -15,6 +16,7 @@
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CDomain.hpp"
+#include "Mesh/WriteMesh.hpp"
 
 #include "Solver/CModelSteady.hpp"
 #include "Solver/CSolver.hpp"
@@ -74,25 +76,31 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
 
   // create the domain
 
-  model.create_domain( "Domain" );
+  CDomain& domain = model.create_domain( "Domain" );
 
   // create the Physical Model
 
   std::string phys  = options.value<std::string>("PhysicalModel");
 
-  PhysModel::Ptr pm = build_component_abstract_type<PhysModel>( phys, "Physics");
+  PhysModel::Ptr pm  = boost::algorithm::contains( phys, "." ) ?
+        build_component_abstract_type< Physics::PhysModel >( phys, "Physics" ) :
+        build_component_abstract_type_reduced< Physics::PhysModel >( phys, "Physics" );
+
   pm->mark_basic();
 
   model.add_component(pm);
 
   // setup iterative solver
 
-  CSolver::Ptr solver = build_component_abstract_type_reduced<CSolver>( "RKRD", "Solver");
+  CSolver::Ptr solver = build_component_abstract_type<CSolver>( "CF.RDM.Core.RKRD", "Solver");
   solver->mark_basic();
 
   model.add_component( solver );
 
   solver->configure_option("physics", pm->uri() );
+  solver->configure_option("domain", domain.uri() );
+
+  model.create_component_ptr<WriteMesh>("writer");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

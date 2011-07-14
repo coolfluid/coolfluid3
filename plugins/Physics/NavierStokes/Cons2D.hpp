@@ -10,6 +10,8 @@
 #include "Common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
+#include "Physics/Variables.hpp"
+
 #include "NavierStokes2D.hpp"
 
 namespace CF {
@@ -18,13 +20,25 @@ namespace NavierStokes {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class NavierStokes_API Cons2D : public NonInstantiable<Cons2D> {
+class NavierStokes_API Cons2D : public VariablesT<Cons2D> {
 
-public: // functions
+public: //typedefs
 
   typedef NavierStokes2D     MODEL;
 
   enum { Rho = 0, RhoU = 1, RhoV = 2, RhoE = 3 };
+
+  typedef boost::shared_ptr<Cons2D> Ptr;
+  typedef boost::shared_ptr<Cons2D const> ConstPtr;
+
+public: // functions
+
+  /// constructor
+  /// @param name of the component
+  Cons2D ( const std::string& name );
+
+  /// virtual destructor
+  virtual ~Cons2D();
 
   /// Get the class name
   static std::string type_name () { return "Cons2D"; }

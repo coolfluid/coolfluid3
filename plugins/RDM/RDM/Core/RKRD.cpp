@@ -26,6 +26,7 @@
 #include "Mesh/Actions/CInitFieldFunction.hpp"
 
 #include "Physics/PhysModel.hpp"
+#include "Physics/Variables.hpp"
 
 #include "Solver/Actions/CComputeLNorm.hpp"
 
@@ -58,6 +59,9 @@ RKRD::RKRD ( const std::string& name  ) :
 
   m_options["domain"].attach_trigger ( boost::bind ( &RKRD::config_domain,   this ) );
 
+  m_options.add_option< OptionT<std::string> >( Tags::update_vars(), "")
+      ->attach_trigger ( boost::bind ( &RKRD::config_physics,   this ) );
+
   m_options.add_option(OptionComponent<CMesh>::create("mesh", &m_mesh))
       ->set_description("Mesh the Discretization Method will be applied to")
       ->set_pretty_name("Mesh")
@@ -67,7 +71,8 @@ RKRD::RKRD ( const std::string& name  ) :
   m_options.add_option( OptionComponent<Physics::PhysModel>::create("physics", &m_physical_model))
       ->set_description("Physical model to discretize")
       ->set_pretty_name("Physics")
-      ->mark_basic();
+      ->mark_basic()
+      ->attach_trigger ( boost::bind ( &RKRD::config_physics,   this ) );
 
   // properties
 
@@ -124,6 +129,39 @@ RKRD::RKRD ( const std::string& name  ) :
 ////////////////////////////////////////////////////////////////////////////////
 
 RKRD::~RKRD() {}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void RKRD::config_physics()
+{
+  using namespace CF::Physics;
+
+  if( is_null(m_physical_model.lock()) )
+    return;
+
+  std::string user_vars = option(  Tags::update_vars() ).value<std::string>();
+  if( user_vars.empty() )
+    return;
+
+  Physics::PhysModel& pm = * m_physical_model.lock();
+
+  Component::Ptr upv =
+      find_component_ptr_with_tag(pm, Tags::update_vars());
+
+  if( is_not_null(upv) ) // if exits insure is the good one
+  {
+    Variables& vars = upv->as_type<Variables>();
+    if( vars.type() != user_vars )
+    {
+      pm.remove_component(vars.name() );
+      upv.reset();
+    }
+  }
+
+  if( is_null(upv) )
+    pm.create_variables( user_vars, Tags::update_vars() );
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

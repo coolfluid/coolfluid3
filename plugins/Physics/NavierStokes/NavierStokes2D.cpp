@@ -6,6 +6,8 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
+#include "Common/CBuilder.hpp"
+
 #include "Physics/Variables.hpp"
 
 #include "NavierStokes2D.hpp"
@@ -17,6 +19,11 @@ namespace NavierStokes {
 using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentBuilder < NavierStokes::NavierStokes2D,
+                           Physics::PhysModel,
+                           LibNavierStokes >
+                           Builder_NavierStokes2D;
 
 NavierStokes2D::NavierStokes2D( const std::string& name ) : Physics::PhysModel(name)
 {

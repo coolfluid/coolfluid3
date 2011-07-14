@@ -6,8 +6,6 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Physics/Variables.hpp"
-
 #include "RotationAdv2D.hpp"
 
 namespace CF {
@@ -16,10 +14,16 @@ namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Physics::VariablesT< Scalar::RotationAdv2D >,
+Common::ComponentBuilder < Scalar::RotationAdv2D,
                            Physics::Variables,
                            LibScalar >
-                           Variables_RotationAdv2D;
+                           Builder_RotationAdv2D;
+
+RotationAdv2D::RotationAdv2D(const std::string& name) : VariablesT<RotationAdv2D>(name)
+{
+}
+
+RotationAdv2D::~RotationAdv2D() {}
 
 ////////////////////////////////////////////////////////////////////////////////////
 

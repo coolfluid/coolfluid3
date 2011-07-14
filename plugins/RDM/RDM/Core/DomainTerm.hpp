@@ -11,14 +11,14 @@
 
 #include "RDM/Core/LibCore.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 namespace RDM {
 
+  class ElementLoop;
+
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_CORE_API DomainTerm : public Solver::Action {
+class RDM_Core_API DomainTerm : public Solver::Action {
 
 public: // typedefs
 
@@ -38,13 +38,13 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "DomainTerm"; }
 
+  ElementLoop& access_element_loop( const std::string& type_name );
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_RDM_DomainTerm_hpp

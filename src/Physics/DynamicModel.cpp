@@ -4,8 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Physics/DynamicModel.hpp"
+#include "Common/CBuilder.hpp"
 
+#include "Physics/DynamicModel.hpp"
 #include "Physics/DynamicVars.hpp"
 
 namespace CF {
@@ -14,6 +15,11 @@ namespace Physics {
 using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentBuilder < Physics::DynamicModel,
+                           Physics::PhysModel,
+                           LibPhysics >
+                           Builder_DynamicModel;
 
 DynamicModel::DynamicModel( const std::string& name ) : Physics::PhysModel(name)
 {

@@ -6,6 +6,10 @@
 
 #include "Common/Signal.hpp"
 
+#include "Physics/PhysModel.hpp"
+#include "Physics/Variables.hpp"
+
+#include "RDM/Core/CellLoop.hpp"
 #include "RDM/Core/DomainTerm.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -28,9 +32,29 @@ DomainTerm::DomainTerm ( const std::string& name ) :
   signal("move_component"  )->is_hidden = true;
 }
 
-DomainTerm::~DomainTerm()
+DomainTerm::~DomainTerm() {}
+
+ElementLoop& DomainTerm::access_element_loop( const std::string& type_name )
 {
+  const std::string update_vars_type =
+      physical_model().get_child( RDM::Tags::update_vars() )
+                      .as_type<Physics::Variables>()
+                      .type();
+
+  // get the element loop or create it if does not exist
+  ElementLoop::Ptr loop;
+  Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
+  if( is_null( cloop ) )
+  {
+    loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopT<" + type_name + "," + update_vars_type + ">" , "LOOP");
+    add_component(loop);
+  }
+  else
+    loop = cloop->as_ptr_checked<ElementLoop>();
+
+  return *loop;
 }
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 

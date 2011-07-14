@@ -40,7 +40,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_CORE_API SchemeBase : public Solver::Actions::CLoopOperation {
+class RDM_Core_API SchemeBase : public Solver::Actions::CLoopOperation {
 
 public: // typedefs
 

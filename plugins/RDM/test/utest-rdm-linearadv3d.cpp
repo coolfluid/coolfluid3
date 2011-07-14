@@ -76,20 +76,17 @@ struct global_fixture
     SignalOptions options;
 
     options.add_option< OptionT<std::string> >("ModelName","mymodel");
-    options.add_option< OptionT<std::string> >("PhysicalModel","LinearAdv3D");
+    options.add_option< OptionT<std::string> >("PhysicalModel","Scalar3D");
 
     frame = options.create_frame();
 
     wizard->signal_create_model(frame);
 
-   CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
+    CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
 
-   CDomain& domain = find_component_recursively<CDomain>(model);
-   CSolver& solver = find_component_recursively<CSolver>(model);
+    CSolver& solver = find_component_recursively<CSolver>(model);
 
-   solver.configure_option("domain", domain.uri() );
-
-   model.create_component_ptr<WriteMesh>("writer");
+    solver.configure_option( RDM::Tags::update_vars() , std::string("LinearAdv3D") );
   }
 
   ~global_fixture()
@@ -244,7 +241,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , local_fixture )
 {
   solver.get_child("time_stepping").configure_option("cfl", 0.5);
-  solver.get_child("time_stepping").configure_option("MaxIter", 500u);
+  solver.get_child("time_stepping").configure_option("MaxIter", 50u);
 }
 
 //////////////////////////////////////////////////////////////////////////////

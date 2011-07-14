@@ -20,7 +20,7 @@ namespace RDM {
 
 /// Wizard to setup a scalar advection simulation
 /// @author Tiago Quintino
-class RDM_CORE_API MySim : public Solver::CWizard {
+class RDM_Core_API MySim : public Solver::CWizard {
 
 public: // typedefs
 

@@ -19,7 +19,7 @@
 namespace CF {
 
 namespace Mesh    { class CField; class CMesh; }
-namespace Physics { class PhysModel; }
+namespace Physics { class PhysModel; class Variables; }
 
 namespace RDM {
 
@@ -32,7 +32,7 @@ namespace RDM {
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_CORE_API RKRD : public Solver::CSolver {
+class RDM_Core_API RKRD : public Solver::CSolver {
 
 public: // typedefs
 
@@ -79,8 +79,12 @@ public: // functions
 
 private: // functions
 
+  /// called when domain option is set in the solver
   void config_domain();
+  /// called when mesh option is set in the solver
   void config_mesh();
+  /// called when variables are configured
+  void config_physics();
 
 private: // data
 

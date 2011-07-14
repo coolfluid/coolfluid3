@@ -77,20 +77,17 @@ struct global_fixture
 
 
     options.add_option< OptionT<std::string> >("ModelName","mymodel");
-    options.add_option< OptionT<std::string> >("PhysicalModel","Euler2D");
+    options.add_option< OptionT<std::string> >("PhysicalModel","NavierStokes2D");
 
     frame = options.create_frame();
 
     wizard->signal_create_model(frame);
 
-   CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
+    CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
 
-   CDomain& domain = find_component_recursively<CDomain>(model);
-   CSolver& solver = find_component_recursively<CSolver>(model);
+    CSolver& solver = find_component_recursively<CSolver>(model);
 
-   solver.configure_option("domain", domain.uri() );
-
-   model.create_component_ptr<WriteMesh>("writer");
+    solver.configure_option( RDM::Tags::update_vars() , std::string("Cons2D") );
   }
 
   ~global_fixture()

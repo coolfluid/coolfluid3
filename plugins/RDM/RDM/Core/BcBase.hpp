@@ -31,7 +31,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_CORE_API BcBase : public Solver::Actions::CLoopOperation {
+class RDM_Core_API BcBase : public Solver::Actions::CLoopOperation {
 
 public: // typedefs
 
