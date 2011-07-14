@@ -13,7 +13,7 @@ create Wizard CF.RDM.Core.SteadyExplicit
 # create a scalar advection model
 call Wizard/create_model \
      ModelName:string=model \
-     PhysicalModel:string=Euler2D
+     PhysicalModel:string=NavierStokes2D
 
 # load the mesh
 call //Root/model/Domain/load_mesh \
@@ -25,6 +25,7 @@ cd //Root/model/Solver
 
 configure ./ domain:uri=cpath://Root/model/Domain
 configure ./ mesh:uri=cpath://Root/model/Domain/mesh
+configure ./ update_vars:string=Cons2D
 
 configure time_stepping cfl:real=0.250
 configure time_stepping MaxIter:unsigned=500

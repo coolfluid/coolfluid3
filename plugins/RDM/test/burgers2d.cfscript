@@ -13,7 +13,7 @@ create Wizard CF.RDM.Core.SteadyExplicit
 # create a scalar advection model
 call Wizard/create_model \
      ModelName:string=model \
-     PhysicalModel:string=Burgers2D
+     PhysicalModel:string=Scalar2D
 
 # load the mesh
 call //Root/model/Domain/load_mesh \
@@ -25,6 +25,7 @@ cd //Root/model/Solver
 
 configure ./ domain:uri=cpath://Root/model/Domain
 configure ./ mesh:uri=cpath://Root/model/Domain/mesh
+configure ./ update_vars:string=Burgers2D
 
 configure time_stepping cfl:real=1.0
 configure time_stepping MaxIter:unsigned=100
