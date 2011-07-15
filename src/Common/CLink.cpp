@@ -55,7 +55,7 @@ Component::ConstPtr CLink::follow() const
 
 bool CLink::is_linked () const
 {
-  return  is_not_null( m_link_component.lock() );
+  return !m_link_component.expired();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

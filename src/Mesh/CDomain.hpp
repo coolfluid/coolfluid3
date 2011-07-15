@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/scoped_ptr.hpp>
+
 #include "Common/Component.hpp"
 #include "Mesh/LibMesh.hpp"
 
@@ -20,7 +22,7 @@ namespace Mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CDomain component class
-/// CDomain stores the meshes
+/// CDomain stores the meshes and contains a link to the "active" mesh
 /// @author Tiago Quintino
 class Mesh_API CDomain : public Common::Component {
 
@@ -44,11 +46,30 @@ public: // functions
   /// loads the mesh
   /// @post mesh will be (automatically) load balanced in case of parallel run
   CMesh& load_mesh ( const Common::URI& file, const std::string& name );
+  
+  /// write the active mesh
+  void write_mesh(const Common::URI& file);
+  
+  /// Set the currently active mesh
+  void set_active_mesh(CMesh& mesh);
+  
+  /// Get the currently active mesh
+  CMesh& active_mesh();
 
+  /// @name SIGNALS
+  //@{
+    
   /// Signal to load a mesh
-  void signal_load_mesh ( Common::SignalArgs& node );
-  /// Signature of the signal_load_mesh
-  void signature_load_mesh ( Common::SignalArgs& node);
+  void signal_load_mesh( Common::SignalArgs& node );
+  
+  /// Signal to write the active mesh
+  void signal_write_mesh( Common::SignalArgs& node );
+  
+  //@} END SIGNALS
+
+private:
+  class Implementation;
+  boost::scoped_ptr<Implementation> m_implementation;
 
 };
 

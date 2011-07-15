@@ -11,7 +11,6 @@
 
 #include "Solver/CModel.hpp"
 #include "Solver/LibSolver.hpp"
-#include "Solver/CTime.hpp"
 
 namespace CF {
 namespace Mesh{
@@ -19,6 +18,8 @@ namespace Mesh{
 }
 namespace Solver {
 
+  class CTime;
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CModelUnsteady models a Unsteady PDE problem
@@ -45,13 +46,18 @@ public: // functions
   /// Simulates this model
   virtual void simulate();
   
-  CTime& time() { return *m_time; }
-
- protected: // data
-
-  /// the time component
-  CTime::Ptr m_time;
-
+  /// Create CTime component
+  CTime& create_time(const std::string& name = "Time");
+  
+  /// Signal to create time
+  void signal_create_time(Common::SignalArgs node);
+  
+  /// Reference to the time
+  CTime& time();
+  
+private: // data
+  class Implementation;
+  boost::scoped_ptr<Implementation> m_implementation;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

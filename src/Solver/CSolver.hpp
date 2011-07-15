@@ -9,19 +9,27 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/scoped_ptr.hpp>
+
 #include "Common/Component.hpp"
+#include "Common/CActionDirector.hpp"
+
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
+  namespace Mesh { class CDomain; class CMesh; }
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Solver component class
-/// Abstract base class for solvers, requiring the implementation of the solve() function
+/// Base class for solvers. By default, actions added through the CActionDirector interface are
+/// executed in the configured order. Override the execute function to change behavior.
+/// Adds an option to set a domain
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class Solver_API CSolver : public Common::Component {
+/// @author Bart Janssens
+class Solver_API CSolver : public Common::CActionDirector {
 
 public: // typedefs
 
@@ -41,20 +49,18 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CSolver"; }
-
-  // functions specific to the CSolver component
-
-  /// Calls the concrete implementation of the solver
-  virtual void solve() = 0;
-
-  /// @name SIGNALS
-  //@{
-
-  /// Signal to start solving
-  void signal_solve ( Common::SignalArgs& node );
-
-  //@} END SIGNALS
-
+  
+  /// Called when the mesh changed
+  virtual void mesh_changed(Mesh::CMesh& mesh);
+  
+protected:
+  
+  /// Checked access to the domain (throws if domain is not properly configured)
+  Mesh::CDomain& domain();
+  
+private:
+  class Implementation;
+  boost::scoped_ptr<Implementation> m_implementation;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

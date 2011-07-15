@@ -23,6 +23,7 @@ CTime::CTime ( const std::string& name  ) :
   Component ( name ),
   m_time(0.),
   m_dt(0.),
+  m_invdt(0.),
   m_iter(0)
 {
   mark_basic();
@@ -54,7 +55,8 @@ CTime::CTime ( const std::string& name  ) :
                         "A CFL condition will be applied to make time step more strict if required.")
       ->set_pretty_name("Time Step")
       ->link_to(&m_dt)
-      ->mark_basic();
+      ->mark_basic()
+      ->attach_trigger(boost::bind(&CTime::trigger_timestep, this));
 
   m_options.add_option(OptionT<Real>::create("end_time", m_time) )
       ->set_description("Time at which to finish the simulation")
@@ -67,6 +69,13 @@ CTime::CTime ( const std::string& name  ) :
 
 CTime::~CTime()
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CTime::trigger_timestep()
+{
+  m_invdt = 1. / m_dt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

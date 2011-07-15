@@ -12,6 +12,7 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include "Common/CActionDirector.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
@@ -24,7 +25,6 @@
 
 #include "Solver/Actions/Proto/ConfigurableConstant.hpp"
 #include "Solver/Actions/Proto/CProtoAction.hpp"
-#include "Solver/Actions/Proto/CProtoActionDirector.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 #include "Solver/Actions/Proto/Transforms.hpp"
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   CProtoAction& action = Core::instance().root().create_component<CProtoAction>("Action");
   action.set_expression(nodes_expression(T = 288.));
   action.configure_option("physical_model", physical_model.uri());
-  action.configure_option("region", mesh.topology().uri());
+  action.configure_option("regions", std::vector<URI>(1, mesh.topology().uri()));
   
   // Create the fields
   physical_model.create_fields();
@@ -207,10 +207,9 @@ BOOST_AUTO_TEST_CASE( ProtoActionDomain )
   const Uint nb_segments = 100;
   
   // Create a domain
-  CProtoActionDirector& domain = Core::instance().root().create_component<CProtoActionDirector>("domain");
+  CActionDirector& domain = Core::instance().root().create_component<CActionDirector>("domain");
   CMesh& mesh = domain.create_component<CMesh>("mesh");
   Physics::PhysModel& physical_model = domain.create_component<Physics::PhysModel>("physical_model");
-  domain.configure_option("physical_model", physical_model.uri());
   
   // Setup mesh
   Tools::MeshGeneration::create_line(mesh, 1., nb_segments);
@@ -222,10 +221,11 @@ BOOST_AUTO_TEST_CASE( ProtoActionDomain )
   Real temp_sum = 0.;
   
   // Add the actions to run on the domain
-  domain << domain.add_action( "SetTemp",     nodes_expression(T = 288.) )
-         << domain.add_action( "CheckResult", nodes_expression(lit(temp_sum) += T));
+  domain << create_proto_action( "SetTemp",     nodes_expression(T = 288.) )
+         << create_proto_action( "CheckResult", nodes_expression(lit(temp_sum) += T));
          
-  domain.configure_option("region", mesh.topology().uri());
+  domain.configure_option_recursively("regions", std::vector<URI>(1, mesh.topology().uri()));
+  domain.configure_option_recursively("physical_model", physical_model.uri());
   
   // Complete setup
   physical_model.configure_option("mesh", mesh.uri());
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( ProtoActionDomain )
 }
 
 /// Create a custom actiondomain
-class CustomProtoSolver : public CProtoActionDirector
+class CustomProtoSolver : public CActionDirector
 {
 public:
   
@@ -246,14 +246,14 @@ public:
   typedef boost::shared_ptr<CustomProtoSolver const> ConstPtr;
   
   CustomProtoSolver(const std::string& name) :
-    CProtoActionDirector(name),
+    CActionDirector(name),
     T("Temperature", "T"),
     temp_sum(0.)
   { 
     // Add the expressions
-    *this << add_action( "SetTemp",  nodes_expression(T = 288.) )
-          << add_action( "Output", nodes_expression(_cout << T << "\n"))
-          << add_action( "SumTemps", nodes_expression(lit(temp_sum) += T));
+    *this << create_proto_action( "SetTemp",  nodes_expression(T = 288.) )
+          << create_proto_action( "Output", nodes_expression(_cout << T << "\n"))
+          << create_proto_action( "SumTemps", nodes_expression(lit(temp_sum) += T));
   }
   
   MeshTerm<0, ScalarField> T;
@@ -270,12 +270,12 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
   CustomProtoSolver& domain = Core::instance().root().create_component<CustomProtoSolver>("custom_domain");
   CMesh& mesh = domain.create_component<CMesh>("mesh");
   Physics::PhysModel& physical_model = domain.create_component<Physics::PhysModel>("physical_model");
-  domain.configure_option("physical_model", physical_model.uri());
+  domain.configure_option_recursively("physical_model", physical_model.uri());
   
   // Setup mesh
   Tools::MeshGeneration::create_line(mesh, 1., nb_segments);
   physical_model.configure_option("mesh", mesh.uri());
-  domain.configure_option("region", mesh.topology().uri());
+  domain.configure_option_recursively("regions", std::vector<URI>(1, mesh.topology().uri()));
   
   // Run the actions
   domain.execute();

@@ -48,6 +48,12 @@ public: // functions
   
   /// Overload taking a shared pointer
   CActionDirector& append(const CAction::Ptr& action);
+  
+protected:
+  /// Called when an action is added. The default implementation does nothing,
+  /// derived classes may override this to complete the configuration of added actions
+  /// Only invoked when the action was not already a child of this director.
+  virtual void on_action_added(CAction& action);
 };
 
 /// Allow growing of the list of actions using the shift left operator:

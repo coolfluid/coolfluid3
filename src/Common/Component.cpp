@@ -1052,29 +1052,29 @@ Component& Component::configure_property(const std::string& optname, const boost
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Component::configure_option_recursively(const std::string& opt_nane, const boost::any& val)
+void Component::configure_option_recursively(const std::string& opt_name, const boost::any& val)
 {
-  if (m_options.check(opt_nane))
+  if (m_options.check(opt_name) && !m_options[opt_name].has_tag("norecurse"))
   {
-    configure_option(opt_nane,val);
+    configure_option(opt_name,val);
   }
 
   foreach_container((std::string name) (boost::shared_ptr<Option> opt), m_options)
   {
-    if (opt->has_tag(opt_nane))
+    if (opt->has_tag(opt_name) && !opt->has_tag("norecurse"))
       configure_option(name,val);
   }
 
   // configure all child's options recursively
   boost_foreach( Component& component, find_components_recursively(*this) )
   {
-    if (component.options().check(opt_nane))
+    if (component.options().check(opt_name) && !component.option(opt_name).has_tag("norecurse"))
     {
-      component.configure_option(opt_nane,val);
+      component.configure_option(opt_name,val);
     }
     foreach_container((std::string name) (boost::shared_ptr<Option> opt), component.options())
     {
-      if (opt->has_tag(opt_nane))
+      if (opt->has_tag(opt_name) && !opt->has_tag("norecurse"))
         component.configure_option(name,val);
     }
 

@@ -37,7 +37,21 @@ void CActionDirector::execute()
 
   BOOST_FOREACH(const std::string& action_name, actions)
   {
-    dynamic_cast<CAction&>(get_child(action_name)).execute();
+    // First check if the child exists
+    Component::Ptr child = get_child_ptr(action_name);
+    if(is_null(child))
+      throw SetupError(FromHere(), "No component with name " + action_name + " when executing actions in " + uri().string());
+    
+    // If it's a link, ensure the link is valid
+    Component::Ptr linked_child = child->follow();
+    if(is_null(linked_child))
+      throw SetupError(FromHere(), "Linked action " + action_name + " points to null in " + uri().string());
+    
+    CAction::Ptr action = boost::dynamic_pointer_cast<CAction>(linked_child);
+    if(is_null(action))
+      throw SetupError(FromHere(), "Component with name " + action_name + " is not an action in " + uri().string());
+    
+    action->execute();
   }
 }
 
@@ -60,6 +74,7 @@ CActionDirector& CActionDirector::append(const CAction::Ptr& action)
     {
       add_component(action);
     }
+    on_action_added(*action);
   }
   else
   {
@@ -93,6 +108,13 @@ CActionDirector& operator<<(CActionDirector& action_director, CAction& action)
 CActionDirector& operator<<(CActionDirector& action_director, const CAction::Ptr& action)
 {
   return action_director.append(action);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void CActionDirector::on_action_added(CAction& action)
+{
 }
 
 

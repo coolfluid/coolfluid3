@@ -51,8 +51,6 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/ConfigurableConstant.hpp
     Proto/CProtoAction.hpp
     Proto/CProtoAction.cpp
-    Proto/CProtoActionDirector.hpp
-    Proto/CProtoActionDirector.cpp
     Proto/DirichletBC.hpp
     Proto/EigenTransforms.hpp
     Proto/ElementData.hpp

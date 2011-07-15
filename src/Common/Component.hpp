@@ -209,9 +209,7 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
-  /// @return constant Ptr to component
-  /// @throws InvalidURI in case a component is not found at that path
-  /// @post returns always valid pointer
+  /// @return constant Ptr to component or null if no component was found
   ConstPtr access_component_ptr ( const URI& path ) const;
 
   /// Looks for a component via its path
@@ -223,9 +221,7 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
-  /// @return Ptr to component
-  /// @throws InvalidURI in case a component is not found at that path
-  /// @post returns always valid pointer
+  /// @return Ptr to component, or null if none was found
   Ptr access_component_ptr ( const URI& path );
 
   /// Looks for a component via its path
@@ -378,7 +374,8 @@ public: // functions
   Component& configure_option(const std::string& optname, const boost::any& val);
 
   /// Configures one property recursevely through this component children,
-  /// triggering its actions
+  /// triggering its actions. If an option has the tag "norecurse" recursion is inhibited
+  /// on that option
   /// @param [in] optname  The option name
   /// @param [in] val      The new value assigned to the option
   void configure_option_recursively(const std::string& optname, const boost::any& val);

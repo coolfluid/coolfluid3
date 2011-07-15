@@ -210,8 +210,6 @@ void CEigenLSS::solve()
   const URI config_uri = option("config_file").value<URI>();
   const std::string config_path = config_uri.path();
 
-  CFinfo << "opening solver config file " << config_path << CFendl;
-
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(config_path); // the most important in general setup
 
   Teuchos::RCP<Teuchos::FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream(); // TODO: decouple from fancyostream to ostream or to C stdout when possible

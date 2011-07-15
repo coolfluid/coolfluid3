@@ -10,7 +10,6 @@
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/BlockMesh/WriteDict.hpp"
 
-#include "Mesh/SimpleCommunicationPattern.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
@@ -485,7 +484,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
   
 } // detail
 
-void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPattern::IndicesT& nodes_dist)
+void build_mesh(const BlockData& block_data, CMesh& mesh, std::vector<Uint>& nodes_dist)
 {
   const Uint nb_procs = mpi::PE::instance().size();
   const Uint rank = mpi::PE::instance().rank();

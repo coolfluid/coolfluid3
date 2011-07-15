@@ -34,8 +34,8 @@ CEnv::CEnv ( const std::string& name) : Component ( name )
       ->mark_basic()
       ->attach_trigger(boost::bind(&CEnv::trigger_only_cpu0_writes,this));
 
-  m_options.add_option< OptionT<bool> >("assertion_to_exception", AssertionManager::instance().AssertionThrows)
-      ->set_pretty_name("Assertion To Exception")
+  m_options.add_option< OptionT<bool> >("assertion_throws", AssertionManager::instance().AssertionThrows)
+      ->set_pretty_name("Assertion Throws")
       ->set_description("If true, failed assertions throw exceptions instead of aborting. (Only for Debug builds)")
       ->mark_basic()
       ->attach_trigger(boost::bind(&CEnv::trigger_assertion_throws,this));
@@ -130,7 +130,7 @@ void CEnv::trigger_only_cpu0_writes()
 
 void CEnv::trigger_assertion_throws()
 {
-  AssertionManager::instance().AssertionThrows = option("assertion_to_exception").value<bool>();
+  AssertionManager::instance().AssertionThrows = option("assertion_throws").value<bool>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

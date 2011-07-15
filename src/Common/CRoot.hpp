@@ -42,10 +42,8 @@ namespace Common {
 
     /// Access the component described by the path
     /// The path should be absolute
-    /// @throws InvalidURI if no component can be found at the path
-    /// @post never returns nullptr
     /// @param path to the component
-    /// @return pointer to Component
+    /// @return pointer to Component, or null if no component was found
     Component::Ptr retrieve_component ( const URI& path );
 
     /// Access the component described by the path

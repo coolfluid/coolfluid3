@@ -53,6 +53,12 @@ public: // functions
 
   /// @return time step
   const Real& dt() const { return m_dt; }
+  
+  /// @return Inverse timestep, updated automatically when the time step is changed
+  const Real& invdt() const { return m_invdt; }
+  
+  /// @return Inverse timestep, updated automatically when the time step is changed
+  Real& invdt() { return m_invdt; }
 
   /// @return modifiable iteration
   Uint& iter() { return m_iter; }
@@ -66,12 +72,12 @@ public: // functions
 private: // data
 
   Real m_time;
-
   Real m_dt;
-
+  Real m_invdt;
   Uint m_iter;
-  
   Real m_end_time;
+  
+  void trigger_timestep();
 };
 
 ////////////////////////////////////////////////////////////////////////////////

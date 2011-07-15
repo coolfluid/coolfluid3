@@ -19,6 +19,7 @@
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CSolver.hpp"
+#include "Solver/CTime.hpp"
 
 namespace CF {
 namespace Solver {
@@ -30,12 +31,23 @@ Common::ComponentBuilder < CModelUnsteady, Component, LibSolver > CModelUnsteady
 
 ////////////////////////////////////////////////////////////////////////////////
 
+struct CModelUnsteady::Implementation
+{
+  Implementation(Component& component) :
+    m_component(component)
+  {
+  }
+  
+  Component& m_component;
+  boost::weak_ptr<CTime> m_time;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 CModelUnsteady::CModelUnsteady( const std::string& name  ) :
   CModel ( name ),
-  m_time()
+  m_implementation(new Implementation(*this))
 {
-  m_time = create_static_component_ptr<CTime>("Time");
-
   m_properties["steady"] = bool(false);
 
   properties()["brief"] = std::string("Unsteady simulator object");
@@ -65,13 +77,36 @@ void CModelUnsteady::simulate ()
 
   // call all (non-linear) iterative solvers to solve this dt step
   boost_foreach(CSolver& is, find_components<CSolver>(*this))
-    is.solve();
+    is.execute();
 
-  m_time->configure_option("time",m_time->time());
+  time().configure_option("time",time().time());
   CFinfo << name() << ": end simulation\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+CTime& CModelUnsteady::create_time(const std::string& name)
+{
+  CTime::Ptr time = create_component_ptr<CTime>(name);
+  m_implementation->m_time = time;
+  
+  configure_option_recursively("time_component", time->uri());
+  
+  return *time;
+}
+
+void CModelUnsteady::signal_create_time(SignalArgs node)
+{
+  create_time();
+}
+
+CTime& CModelUnsteady::time()
+{
+  if(m_implementation->m_time.expired())
+    throw SetupError(FromHere(), "Time is not configured for model " + uri().string());
+  
+  return *m_implementation->m_time.lock();
+}
 
 } // Solver
 } // CF

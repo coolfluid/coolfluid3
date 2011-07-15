@@ -11,6 +11,7 @@
 
 #include "Common/Component.hpp"
 #include "Solver/LibSolver.hpp"
+#include <boost/scoped_ptr.hpp>
 
 namespace CF {
 
@@ -21,7 +22,6 @@ namespace CF {
   namespace Solver {
 
   class CSolver;
-  class CTime;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,9 +53,6 @@ public: // functions
   /// creates a domain in this model
   virtual Mesh::CDomain& create_domain( const std::string& name );
 
-  /// creates a domain in this model
-  virtual CTime& create_time( const std::string& name );
-
   /// create physics
   /// @param builder name of the CBuilder of the physics
   virtual Physics::PhysModel& create_physics( const std::string& builder );
@@ -66,9 +63,6 @@ public: // functions
 
   /// gets the domain from this model
   virtual Mesh::CDomain& domain();
-
-  /// gets the domain from this model
-  virtual CTime& time();
 
   /// gets the physics from this model
   virtual Physics::PhysModel& physics();
@@ -81,6 +75,10 @@ public: // functions
 
   /// Simulates this model
   virtual void simulate();
+  
+  /// Short setup
+  /// @param builder_name Name of the builder for the solver
+  virtual void setup(const std::string& builder_name);
 
   /// @name SIGNALS
   //@{
@@ -100,21 +98,20 @@ public: // functions
   /// Signal to create a domain and load a mesh into it
   void signal_create_solver ( Common::SignalArgs& node );
 
+  /// Signature to easily set up a model
+  void signature_setup(Common::SignalArgs& node);
+  /// Signal to set up the model, i.e. create the domain, solver and physical model
+  void signal_setup(Common::SignalArgs& node);
+  
   /// Signal to start simulating
   void signal_simulate ( Common::SignalArgs& node );
 
   //@} END SIGNALS
 
 
-protected:
-
-  /// path to working directory
-  Common::URI m_working_dir;
-
-  /// path to results directory
-  Common::URI m_results_dir;
-
-  boost::shared_ptr<Common::CGroup> m_tools;
+private:
+  class Implementation;
+  boost::scoped_ptr<Implementation> m_implementation;
 
 };
 

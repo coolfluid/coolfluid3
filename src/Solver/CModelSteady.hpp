@@ -37,10 +37,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CModelSteady"; }
-
-  /// Simulates this model
-  virtual void simulate();
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////
