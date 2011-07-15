@@ -28,14 +28,14 @@ namespace Graphics {
 //////////////////////////////////////////////////////////////////////////
 
 GraphicalArray::GraphicalArray(QValidator * validator, const QString& sep, QWidget * parent)
-  : GraphicalValue(parent),
-    m_separator(sep)
+  : GraphicalValue(parent)
 {
   m_groupBox = new QGroupBox(this);
   m_editAdd = new QLineEdit(this);
   m_model = new QStringListModel(this);
   m_listView = new QListView(this);
   m_btRemove = new QPushButton("Remove", this);
+  m_separator = sep;
 
   m_boxLayout = new QGridLayout(m_groupBox);
 

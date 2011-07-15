@@ -36,8 +36,7 @@ namespace Graphics {
 //////////////////////////////////////////////////////////////////////////
 
 GraphicalUriArray::GraphicalUriArray(const QString& sep, QWidget * parent)
-  : GraphicalValue(parent),
-    m_separator(sep)
+  : GraphicalValue(parent)
 {
   m_groupBox = new QGroupBox(parent);
   m_editAdd = new QLineEdit(m_groupBox);
@@ -48,6 +47,7 @@ GraphicalUriArray::GraphicalUriArray(const QString& sep, QWidget * parent)
   m_btUp = new QPushButton("Up", m_groupBox);
   m_btDown = new QPushButton("Down", m_groupBox);
   m_comboType = new QComboBox(m_groupBox);
+  m_separator = sep;
 
   m_buttonsLayout = new QVBoxLayout();
   m_boxLayout = new QGridLayout(m_groupBox);

@@ -119,7 +119,7 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
       {
         QIntValidator * val = new QIntValidator();
         val->setBottom(0);
-        value = new GraphicalArray(val, parent);
+        value = new GraphicalArray(val, sep, parent);
       }
       else if(type == Protocol::Tags::type<std::string>())      // string option
         value = new GraphicalArray(nullptr,sep,  parent);
