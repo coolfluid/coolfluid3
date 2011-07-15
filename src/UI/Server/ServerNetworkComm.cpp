@@ -346,6 +346,8 @@ void ServerNetworkComm::newData()
 
             roptions.add_option< OptionT<bool> >("accepted", true);
 
+            roptions.flush();
+
             this->send(socket, *xmldoc.get());
 
             emit newClientConnected(clientId);
