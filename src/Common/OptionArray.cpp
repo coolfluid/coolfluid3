@@ -116,7 +116,7 @@ std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
     BOOST_FOREACH ( TYPE v, values )
     {
       if(!result.empty())
-        result += "@@";
+        result += separator();
 
       result += to_str( v );
     }

@@ -290,7 +290,7 @@ XmlNode Map::find_value ( const std::string & value_key, const char * value_type
           found_value.content = curr_child;
           break;
         }
-      } // END "for"    Map::split_string(value, "@@", data);
+      } // END "for"
 
     } // END "if( !value_key.empty() )"
   }

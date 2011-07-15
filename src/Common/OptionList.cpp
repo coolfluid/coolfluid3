@@ -154,7 +154,7 @@ std::string OptionList::list_options()
     {
       OptionArray::Ptr array_option = boost::dynamic_pointer_cast<OptionArray>(option);
       std::string values=array_option->value_str();
-      boost::algorithm::replace_all(values, "@@", ",");
+      boost::algorithm::replace_all(values, array_option->separator(), ",");
       opt_list = opt_list + name + ":array[" + array_option->elem_type() + "]=" + values;
     }
     else
