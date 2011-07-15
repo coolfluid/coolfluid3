@@ -27,8 +27,9 @@ namespace Graphics {
 
 //////////////////////////////////////////////////////////////////////////
 
-GraphicalArray::GraphicalArray(QValidator * validator, QWidget * parent)
-  : GraphicalValue(parent)
+GraphicalArray::GraphicalArray(QValidator * validator, const QString& sep, QWidget * parent)
+  : GraphicalValue(parent),
+    m_separator(sep)
 {
   m_groupBox = new QGroupBox(this);
   m_editAdd = new QLineEdit(this);
@@ -81,7 +82,7 @@ bool GraphicalArray::setValue(const QVariant & value)
   int pos;
 
   if(value.type() == QVariant::String)
-    values = value.toString().split("@@");
+    values = value.toString().split(m_separator);
   else if(value.type() == QVariant::StringList)
     values = value.toStringList();
   else

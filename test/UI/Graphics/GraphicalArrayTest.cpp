@@ -99,7 +99,8 @@ void GraphicalArrayTest::test_setValidator()
 
 void GraphicalArrayTest::test_setValue()
 {
-  GraphicalArray * value = new GraphicalArray( new QIntValidator() );
+  QString sep(";");
+  GraphicalArray * value = new GraphicalArray( new QIntValidator(), sep );
   QLineEdit * lineEdit = findLineEdit(value);
   QStringListModel * model = findModel(value);
 
@@ -115,7 +116,7 @@ void GraphicalArrayTest::test_setValue()
   // 1. check with strings
   //
   // 1a. list that only contains valid values
-  QVERIFY( value->setValue( validList.join("@@") ) );
+  QVERIFY( value->setValue( validList.join(sep) ) );
   QCOMPARE( model->stringList(), validList );
 
   // 1c. only one value
@@ -124,7 +125,7 @@ void GraphicalArrayTest::test_setValue()
   QCOMPARE( model->stringList().at(0), QString("1456789") );
 
   // 1b. list that contains some invalid values
-  QVERIFY( !value->setValue( invalidList.join("@@") ) );
+  QVERIFY( !value->setValue( invalidList.join(sep) ) );
   QStringList list = model->stringList();
 
   // "something" and "3.14" are invalid integers and so the value shouldn't have changed

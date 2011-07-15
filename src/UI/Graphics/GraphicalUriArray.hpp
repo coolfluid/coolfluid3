@@ -38,7 +38,7 @@ namespace Graphics {
 
   public:
 
-    GraphicalUriArray(QWidget * parent = nullptr);
+    GraphicalUriArray(const QString & sep = QString(), QWidget * parent = nullptr);
 
     ~GraphicalUriArray();
 

@@ -98,22 +98,23 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
     else
     {
       OptionArray::ConstPtr array = boost::dynamic_pointer_cast<OptionArray const>(option);
-      std::string value_str = array->value_str();
-      std::string type(array->elem_type());
+      std::string value_str( array->value_str() );
+      std::string type( array->elem_type() );
+      QString sep( array->separator().c_str() );
 
       if(type == Protocol::Tags::type<bool>())                 // bool option
       {
         QRegExp regex("(true)|(false)|(1)|(0)|(on)|(off)");
-        value = new GraphicalArray(new QRegExpValidator(regex, parent), parent);
+        value = new GraphicalArray(new QRegExpValidator(regex, parent), sep, parent);
       }
       else if(type == Protocol::Tags::type<Real>())            // Real option
       {
         QDoubleValidator * val = new QDoubleValidator(nullptr);
         val->setNotation(QDoubleValidator::ScientificNotation);
-        value = new GraphicalArray(val, parent);
+        value = new GraphicalArray(val, sep, parent);
       }
       else if(type == Protocol::Tags::type<int>())              // int option
-        value = new GraphicalArray(new QIntValidator(), parent);
+        value = new GraphicalArray(new QIntValidator(), sep, parent);
       else if(type == Protocol::Tags::type<Uint>())             // Uint option
       {
         QIntValidator * val = new QIntValidator();
@@ -121,13 +122,13 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
         value = new GraphicalArray(val, parent);
       }
       else if(type == Protocol::Tags::type<std::string>())      // string option
-        value = new GraphicalArray(nullptr, parent);
+        value = new GraphicalArray(nullptr,sep,  parent);
       else if(type == Protocol::Tags::type<URI>())              // URI option
-        value = new GraphicalUriArray(parent);
+        value = new GraphicalUriArray(sep, parent);
       else
         throw CastingFailed(FromHere(), tag + ": Unknown type");
 
-      value->setValue( QString(value_str.c_str()).split("@@") );
+      value->setValue( QString(value_str.c_str()).split(array->separator().c_str()) );
     }
   }
   return value;
@@ -140,7 +141,7 @@ QString GraphicalValue::valueString() const
   QVariant value = this->value();
 
   if(value.type() == QVariant::StringList)
-    return value.toStringList().join("@@");
+    return value.toStringList().join( m_separator );
 
   return value.toString();
 }
@@ -157,7 +158,7 @@ QVariant GraphicalValue::originalValue() const
 QString GraphicalValue::originalValueString() const
 {
   if(m_originalValue.type() == QVariant::StringList)
-    return m_originalValue.toStringList().join("@@");
+    return m_originalValue.toStringList().join( m_separator );
 
   return m_originalValue.toString();
 }

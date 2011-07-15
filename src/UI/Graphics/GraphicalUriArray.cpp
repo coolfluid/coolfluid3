@@ -35,8 +35,9 @@ namespace Graphics {
 
 //////////////////////////////////////////////////////////////////////////
 
-GraphicalUriArray::GraphicalUriArray(QWidget * parent)
-  : GraphicalValue(parent)
+GraphicalUriArray::GraphicalUriArray(const QString& sep, QWidget * parent)
+  : GraphicalValue(parent),
+    m_separator(sep)
 {
   m_groupBox = new QGroupBox(parent);
   m_editAdd = new QLineEdit(m_groupBox);
@@ -126,7 +127,7 @@ bool GraphicalUriArray::setValue(const QVariant & value)
 
   if(value.type() == QVariant::String)
   {
-    list = value.toString().split("@@");
+    list = value.toString().split(m_separator);
     list.removeAll(QString());
     m_originalValue = list;
     m_model->setStringList(list);

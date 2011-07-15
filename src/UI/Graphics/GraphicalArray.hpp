@@ -36,7 +36,8 @@ namespace Graphics {
 
   public:
 
-    GraphicalArray(QValidator * validator = nullptr, QWidget * parent = nullptr);
+    GraphicalArray(QValidator * validator = nullptr, const QString& sep = QString(),
+                   QWidget * parent = nullptr);
 
     ~GraphicalArray();
 

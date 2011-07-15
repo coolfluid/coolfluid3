@@ -52,6 +52,8 @@ namespace Graphics {
 
     void commit();
 
+    QString separator() const { return m_separator; }
+
   signals:
 
     void valueChanged();
@@ -63,6 +65,8 @@ namespace Graphics {
     QHBoxLayout * m_layout;
 
     bool m_committing;
+
+    QString m_separator;
 
   }; // class GraphicalValue
 
