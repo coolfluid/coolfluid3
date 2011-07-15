@@ -1,6 +1,8 @@
 # copy test meshes here
 set( RDM_TEST_RUN_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTERNAL "dir for running RDM tests" )
 
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+
 set( CF_ALL_UTESTS_PARALLEL 1 ) # override option here
 
 ##########################################################################

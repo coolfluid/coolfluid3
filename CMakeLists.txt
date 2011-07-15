@@ -169,8 +169,6 @@ foreach( EXDIR ${CF_PLUGIN_DIRS} )
 
       get_filename_component( aPluginName ${aPluginDir} NAME )
 
-      coolfluid_define_plugin( ${aPluginName} ${aPluginDir} )
-
       add_subdirectory( ${aPluginDir} plugins/${aPluginName} )
 
     endif()

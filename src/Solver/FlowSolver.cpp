@@ -91,8 +91,13 @@ FlowSolver::FlowSolver ( const std::string& name  ) : CSolver ( name )
       ->set_pretty_name("Boundary Conditions");
 
   // Signals
-  this->regist_signal ( "create_bc_action"    , "Create Boundary Condition", "Create Boundary Condition" )->signal->connect ( boost::bind ( &FlowSolver::signal_create_bc_action, this , _1) );
-  this->regist_signal ( "create_inner_action" , "Create Inner Domain action", "Create Inner Domain action" )->signal->connect ( boost::bind ( &FlowSolver::signal_create_inner_action, this , _1) );
+  this->regist_signal ( "create_bc_action"    , "Create Boundary Condition", "Create Boundary Condition" )
+      ->signal
+      ->connect ( boost::bind ( &FlowSolver::signal_create_bc_action, this , _1) );
+
+  this->regist_signal ( "create_inner_action" , "Create Inner Domain action", "Create Inner Domain action" )
+      ->signal
+      ->connect ( boost::bind ( &FlowSolver::signal_create_inner_action, this , _1) );
 
 }
 

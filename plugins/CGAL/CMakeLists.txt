@@ -6,6 +6,8 @@ cmake_minimum_required( VERSION 2.8 FATAL_ERROR )
 
 project( CGAL CXX )
 
+coolfluid_define_plugin( CGAL ${CMAKE_CURRENT_SOURCE_DIR} )
+
 find_package(CGAL)
 
 # disable optimizations to avoid enormous compilation times and memory usage

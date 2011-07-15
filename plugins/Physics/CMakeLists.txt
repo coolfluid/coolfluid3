@@ -6,6 +6,8 @@ cmake_minimum_required( VERSION 2.8 FATAL_ERROR )
 
 project( Physics CXX )
 
+coolfluid_define_plugin( Physics ${CMAKE_CURRENT_SOURCE_DIR} )
+
 coolfluid_find_orphan_files()
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
