@@ -305,7 +305,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda_gpu , rotationadv2d_local_fixture )
 
   BOOST_CHECK(true);
 
-  solver.solve();
+  solver.execute();
 
   BOOST_CHECK(true);
 

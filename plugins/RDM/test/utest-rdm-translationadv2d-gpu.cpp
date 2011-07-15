@@ -238,7 +238,7 @@ BOOST_FIXTURE_TEST_CASE( solve_ldagpu , translationadv2d_local_fixture )
 
   BOOST_CHECK(true);
 
-  solver.solve();
+  solver.execute();
 
   BOOST_CHECK(true);
 

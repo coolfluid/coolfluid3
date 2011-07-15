@@ -278,7 +278,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 
   solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
 
-  solver.solve();
+  solver.execute();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

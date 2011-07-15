@@ -301,7 +301,7 @@ BOOST_FIXTURE_TEST_CASE( solve_b, local_fixture )
 
   BOOST_CHECK(true);
 
-  solver.solve();
+  solver.execute();
 
   BOOST_CHECK(true);
 

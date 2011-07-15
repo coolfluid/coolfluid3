@@ -97,28 +97,28 @@ BOOST_AUTO_TEST_CASE( test_solver_setup1 )
   CAction& solve = solver.create_component<Echo>("solve");
   solve.configure_option("echo",std::string("solve called"));
 
-  CF_CHECK_THROW( solver.solve() , SetupError );  // physical model not set
+  CF_CHECK_THROW( solver.execute() , SetupError );  // physical model not set
 
   solver.configure_option("physical_model",root.get_child("physical_model").uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("mesh",root.get_child("mesh").uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("time",root.get_child("time").uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError ); // setup not set
+  CF_CHECK_THROW( solver.execute() , SetupError ); // setup not set
 
   solver.configure_option("setup",setup.uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError ); // setup not set
+  CF_CHECK_THROW( solver.execute() , SetupError ); // setup not set
 
   solver.configure_option("solve",solve.uri());
 
   // Finally enough configured to solve
-  BOOST_CHECK_NO_THROW(solver.solve());
+  BOOST_CHECK_NO_THROW(solver.execute());
 
 }
 
@@ -134,28 +134,28 @@ BOOST_AUTO_TEST_CASE( test_solver_setup2 )
   CAction& solve = solver.create_component<Echo>("solve");
   solve.configure_option("echo",std::string("solve called"));
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("solve",solve.uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("setup",setup.uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("physical_model",root.get_child("physical_model").uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("mesh",root.get_child("mesh").uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("time",root.get_child("time").uri());
 
   // Finally enough configured to solve
-  BOOST_CHECK_NO_THROW(solver.solve());
+  BOOST_CHECK_NO_THROW(solver.execute());
 
 
   CF_CHECK_THROW(solver.create_bc_action("compute_inlet","CF.Solver.Echo",root.get_child("mesh").as_type<CMesh>().topology()) , SetupError );
@@ -191,28 +191,28 @@ BOOST_AUTO_TEST_CASE( test_solver_setup3 )
   solve.create_component<CGroupActions>("bc")
       .add_tag(FlowSolver::Tags::bc());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("solve",solve.uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("setup",setup.uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("physical_model",root.get_child("physical_model").uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("mesh",root.get_child("mesh").uri());
 
-  CF_CHECK_THROW( solver.solve() , SetupError );
+  CF_CHECK_THROW( solver.execute() , SetupError );
 
   solver.configure_option("time",root.get_child("time").uri());
 
   // Finally enough configured to solve
-  BOOST_CHECK_NO_THROW(solver.solve());
+  BOOST_CHECK_NO_THROW(solver.execute());
 
   // bc component should be automatically detected.
   BOOST_CHECK_NO_THROW(solver.create_bc_action("compute_inlet","CF.Solver.Echo",root.get_child("mesh").as_type<CMesh>().topology()));
