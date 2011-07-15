@@ -251,21 +251,22 @@ void CNode::setSignals(const SignalArgs & args)
 ////////////////////////////////////////////////////////////////////////////
 
 template<typename TYPE>
-void addValueToXml(const std::string& name, const std::string& value, bool is_array,
-                   SignalFrame& options)
+void addValueToXml(const std::string& name, const std::string& value,
+                   const std::string& sep, SignalOptions& options)
 {
-  if( is_array )
+  // if it is an array, the separator is not empty
+  if( !sep.empty() )
   {
     std::vector<TYPE> data;
-    Map::split_string(value, "@@", data);
+    Map::split_string(value, sep, data);
 
-    options.set_array<TYPE>(name, data, " ; ");
+    options.add_option< OptionArrayT<TYPE> >(name, data);
   }
   else
   {
     try
     {
-      options.set_option<TYPE>(name, from_str<TYPE>(value));
+      options.add_option< OptionT<TYPE> >(name, from_str<TYPE>(value));
     }
     catch( const boost::bad_lexical_cast & e)
     {
@@ -287,15 +288,21 @@ void CNode::modifyOptions(const QMap<QString, QString> & opts)
   // modifying local options. It's not the most efficient way to do, but local
   // options are not meant to be modified 10 times each second so this should
   // not affect the application performances.
-  SignalFrame frame("configure", uri(), uri());
-  SignalFrame& options = frame.map( Protocol::Tags::key_options() );
+  //  SignalFrame frame("configure", uri(), uri());
+  //  SignalOptions options(frame);
+  SignalOptions options;
 
   for( ; it != opts.end() ; it++)
   {
-    Option& option = m_options.option( it.key().toStdString() );
-    std::string type( option.type() );
+    std::string sep;
     std::string name( it.key().toStdString() );
     std::string value( it.value().toStdString() );
+
+    if( !m_options.check(name) )
+      throw ValueNotFound(FromHere(), "Could not find an option with name ["+name+"]");
+
+    Option& option = m_options[name];
+    std::string type( option.type() );
     bool is_array = std::strcmp(option.tag(), "array") == 0;
 
     // if it is an array, we need to get the element type
@@ -308,27 +315,41 @@ void CNode::modifyOptions(const QMap<QString, QString> & opts)
       cf_assert(optArray != nullptr);
 
       type = optArray->elem_type();
+      sep = optArray->separator();
     }
 
     if(type == Protocol::Tags::type<bool>())              // bool
-      addValueToXml<bool>(name, value, is_array, options);
+      addValueToXml<bool>(name, value, sep, options);
     else if(type == Protocol::Tags::type<int>())          // int
-      addValueToXml<int>(name, value, is_array, options);
+      addValueToXml<int>(name, value, sep, options);
     else if(type == Protocol::Tags::type<Uint>())         // Uint
-      addValueToXml<Uint>(name, value, is_array, options);
+      addValueToXml<Uint>(name, value, sep, options);
     else if(type == Protocol::Tags::type<Real>())         // Real
-      addValueToXml<Real>(name, value, is_array, options);
+      addValueToXml<Real>(name, value, sep, options);
     else if(type == Protocol::Tags::type<std::string>())  // string
-      addValueToXml<std::string>(name, value, is_array, options);
+      addValueToXml<std::string>(name, value, sep, options);
     else if(type == Protocol::Tags::type<URI>())          // URI
-      addValueToXml<URI>(name, value, is_array, options);
+    {
+      // since OptionT<URI> does not exist, using addValueToXml for
+      // this type would lead to an undefined reference linking error
+      if( sep.empty() )
+        options.add_option< OptionURI >(name, from_str<URI>(value));
+      else
+      {
+        std::vector<URI> data;
+        Map::split_string(value, sep, data);
+        options.add_option< OptionArrayT<URI> >(name, data);
+      }
+    }
     else
       throw ValueNotFound(FromHere(), type + ": Unknown type for option [" + name + "]." );
   }
 
   // if there were options to modify
-  if(!opts.isEmpty())
+  if( !options.store.empty() )
   {
+    SignalFrame frame = options.create_frame("configure", uri(), uri());
+
     if( isLocalComponent() )
       signal_configure( frame );
     else
