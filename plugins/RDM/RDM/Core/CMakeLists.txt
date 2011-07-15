@@ -9,6 +9,7 @@ list( APPEND coolfluid_rdm_core_files
   ElementLoop.hpp
   CellLoop.hpp
   FaceLoop.hpp
+  Tags.hpp
 # wizards
   SteadyExplicit.hpp
   SteadyExplicit.cpp
