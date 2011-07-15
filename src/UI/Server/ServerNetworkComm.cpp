@@ -13,6 +13,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/OptionT.hpp"
+#include "Common/Log.hpp"
 
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/Protocol.hpp"
@@ -185,6 +186,8 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
   options.add_option< OptionT<std::string> >("frameid", frameid);
   options.add_option< OptionT<std::string> >("reason", reason.toStdString());
 
+  options.flush();
+
   return this->send(clientId, *frame.xml_doc.get()) != 0;
 }
 
@@ -203,6 +206,8 @@ bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message
 
   options.add_option< OptionT<std::string> >("type", LogMessage::Convert::instance().to_str(type));
   options.add_option< OptionT<std::string> >("text", message.toStdString());
+
+  options.flush();
 
   return this->send(client, *frame.xml_doc.get()) != 0;
 }

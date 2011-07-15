@@ -90,7 +90,10 @@ namespace Core {
     /// @return Return the node name.
     inline QString nodeName() const
     {
-      return m_node->name().c_str();
+      if( !m_node.expired() )
+        return m_node.lock()->name().c_str();
+      else
+        return QString();
     }
 
     /// @brief Retrieves a child from its name.
@@ -114,7 +117,7 @@ namespace Core {
   private:
 
     /// @brief Handled node.
-    CNode::Ptr m_node;
+    boost::weak_ptr<CNode> m_node;
 
     /// @brief The parent. May be @c nullptr
     TreeNode * m_parent;

@@ -336,21 +336,18 @@ SignalOptions::SignalOptions( SignalFrame & frame )
 {
   cf_assert( frame.node.is_valid() );
 
-  if( frame.has_map( Protocol::Tags::key_options() ) )
+  m_map = frame.map( Protocol::Tags::key_options() ).main_map;
+
+  rapidxml::xml_node<> * value_node = m_map.content.content->first_node();
+
+  for( ; is_not_null(value_node) ; value_node = value_node->next_sibling() )
   {
-    m_map = frame.map( Protocol::Tags::key_options() ).main_map;
+    Option::Ptr option = xml_to_option( XmlNode(value_node) );
 
-    rapidxml::xml_node<> * value_node = m_map.content.content->first_node();
+    if( check(option->name()) )
+      throw ValueExists(FromHere(), "Option [" + option->name() + "] already exists.");
 
-    for( ; is_not_null(value_node) ; value_node = value_node->next_sibling() )
-    {
-      Option::Ptr option = xml_to_option( XmlNode(value_node) );
-
-      if( check(option->name()) )
-        throw ValueExists(FromHere(), "Option [" + option->name() + "] already exists.");
-
-      store[ option->name() ] = option;
-    }
+    store[ option->name() ] = option;
   }
 }
 

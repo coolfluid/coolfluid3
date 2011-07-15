@@ -24,7 +24,7 @@ namespace Core {
   cf_assert(node.get() != nullptr);
   cf_assert(rowNumber >= 0);
 
-  m_node->connectNotifier(this, SIGNAL(childCountChanged()), SLOT(updateChildList()));
+  m_node.lock()->connectNotifier(this, SIGNAL(childCountChanged()), SLOT(updateChildList()));
 
   this->updateChildList();
 }
@@ -49,20 +49,24 @@ bool TreeNode::hasParent() const
 TreeNode * TreeNode::child(int rowNumber)
 {
   TreeNode * child = nullptr;
-  // if the TreeNode corresponding to this child has already been created,
-  // it is returned...
-  if (rowNumber >= 0 && rowNumber < childCount())
-    child = m_childNodes.at(rowNumber);
 
-  // ...otherwise, if the index is valid, it is created and returned...
-  if(child == nullptr && rowNumber>= 0 && rowNumber < childCount())
+  if( !m_node.expired() )
   {
-    CNode::Ptr childNode;
+    // if the TreeNode corresponding to this child has already been created,
+    // it is returned...
+    if (rowNumber >= 0 && rowNumber < childCount())
+      child = m_childNodes.at(rowNumber);
 
-    childNode = m_node->child(rowNumber);
+    // ...otherwise, if the index is valid, it is created and returned...
+    if(child == nullptr && rowNumber>= 0 && rowNumber < childCount())
+    {
+      CNode::Ptr childNode;
 
-    child = new TreeNode(childNode, this, rowNumber);
-    m_childNodes.replace(rowNumber, child);
+      childNode = m_node.lock()->child(rowNumber);
+
+      child = new TreeNode(childNode, this, rowNumber);
+      m_childNodes.replace(rowNumber, child);
+    }
   }
 
   // ...if the index is not valid, return a nullptr pointer
@@ -73,14 +77,16 @@ TreeNode * TreeNode::child(int rowNumber)
 
 CNode::Ptr TreeNode::node()
 {
-  return m_node;
+  cf_assert( !m_node.expired() );
+  return m_node.lock();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 CNode::ConstPtr TreeNode::node() const
 {
-  return m_node;
+  cf_assert( !m_node.expired() );
+  return m_node.lock();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -101,7 +107,10 @@ int TreeNode::rowNumber() const
 
 int TreeNode::childCount() const
 {
-  return m_node->realComponent()->count_children();
+  if( !m_node.expired() )
+    return m_node.lock()->realComponent()->count_children();
+  else
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -115,7 +124,9 @@ TreeNode * TreeNode::childByName(const QString & name)
   for(int i = 0 ; i < childCount() && !found ; i++)
   {
     treeNode = this->child(i);
-    found = treeNode->nodeName() == name;
+
+    if(treeNode != nullptr)
+      found = treeNode->nodeName() == name;
   }
 
   if(!found)

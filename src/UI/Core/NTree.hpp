@@ -354,6 +354,9 @@ namespace Core {
     /// @brief Indicates whether we are in debug mode or not
     bool m_debugModeEnabled;
 
+    /// @brief Mutex to control concurrent access.
+    QMutex * m_mutex;
+
     /// @brief Converts an index to a tree node
 
     /// @param index Node index to convert

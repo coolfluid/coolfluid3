@@ -136,7 +136,7 @@ void NRoot::shutdown(SignalArgs & node)
 
 void NRoot::client_registration(SignalArgs & node)
 {
-  if( node.map(Protocol::Tags::key_options()).get_option<bool>("accepted") )
+  if( SignalOptions(node).value<bool>("accepted") )
   {
     NLog::globalLog()->addMessage("Registration was successful.");
     emit connected();

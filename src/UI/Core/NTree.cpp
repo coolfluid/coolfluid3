@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <QMutex>
+#include <QDebug>
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/Signal.hpp"
@@ -35,10 +38,14 @@ NTree::NTree(NRoot::Ptr rootNode)
     m_advancedMode(false),
     m_debugModeEnabled(false)
 {
+
+
   if(rootNode.get() == nullptr)
     m_rootNode = new TreeNode(ThreadManager::instance().tree().root(), nullptr, 0);
   else
     m_rootNode = new TreeNode(rootNode, nullptr, 0);
+
+  m_mutex = new QMutex();
 
   m_columns << "Name" << "Type";
 
@@ -52,6 +59,10 @@ NTree::NTree(NRoot::Ptr rootNode)
 
 void NTree::setRoot(NRoot::Ptr rootNode)
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   // initiate the removing process
   emit layoutAboutToBeChanged();
   delete m_rootNode;
@@ -68,6 +79,8 @@ void NTree::setRoot(NRoot::Ptr rootNode)
 
 NRoot::Ptr NTree::treeRoot() const
 {
+
+
   return m_rootNode->node()->castTo<NRoot>();
 }
 
@@ -75,6 +88,10 @@ NRoot::Ptr NTree::treeRoot() const
 
 void NTree::setCurrentIndex(const QModelIndex & newIndex)
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   if(!this->areFromSameNode(m_currentIndex, newIndex))
   {
     QModelIndex oldIndex = m_currentIndex;
@@ -87,6 +104,8 @@ void NTree::setCurrentIndex(const QModelIndex & newIndex)
 
 QModelIndex NTree::currentIndex() const
 {
+
+
   return m_currentIndex;
 }
 
@@ -94,6 +113,8 @@ QModelIndex NTree::currentIndex() const
 
 URI NTree::currentPath() const
 {
+
+
   return pathFromIndex( m_currentIndex );
 }
 
@@ -103,6 +124,10 @@ void NTree::listNodeOptions(const QModelIndex & index,
                            QList<Option::ConstPtr> & options,
                            bool * ok) const
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   TreeNode * node = this->indexToTreeNode(index);
 
   if(ok != nullptr)
@@ -119,6 +144,10 @@ void NTree::listNodeOptions(const QModelIndex & index,
 void NTree::listNodeProperties(const QModelIndex &index,
                               QMap<QString, QString> &props, bool *ok) const
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   TreeNode * node = this->indexToTreeNode(index);
 
   if(ok != nullptr)
@@ -135,6 +164,10 @@ void NTree::listNodeProperties(const QModelIndex &index,
 void NTree::listNodeActions(const QModelIndex & index, QList<ActionInfo> & actions,
                            bool * ok) const
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   TreeNode * node = this->indexToTreeNode(index);
 
   if(ok != nullptr)
@@ -150,6 +183,10 @@ void NTree::listNodeActions(const QModelIndex & index, QList<ActionInfo> & actio
 
 QString NTree::nodePath(const QModelIndex & index) const
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   QString path;
 
   this->buildNodePathRec(index, path);
@@ -161,6 +198,10 @@ QString NTree::nodePath(const QModelIndex & index) const
 
 void NTree::setAdvancedMode(bool advanceMode)
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   if(m_advancedMode ^ advanceMode) // if values are different
   {
     /// @todo find a better way to refresh the tree
@@ -175,6 +216,8 @@ void NTree::setAdvancedMode(bool advanceMode)
 
 bool NTree::isAdvancedMode() const
 {
+
+
   return m_advancedMode;
 }
 
@@ -182,6 +225,8 @@ bool NTree::isAdvancedMode() const
 
 bool NTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right) const
 {
+
+
   return left.isValid() && left.internalPointer() == right.internalPointer();
 }
 
@@ -189,6 +234,10 @@ bool NTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right)
 
 CNode::ConstPtr NTree::nodeByPath(const URI & path) const
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   QString pathStr = path.path().c_str();
   QStringList comps;
   QStringList::iterator it;
@@ -219,6 +268,10 @@ CNode::ConstPtr NTree::nodeByPath(const URI & path) const
 
 CNode::Ptr NTree::nodeByPath(const URI & path)
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   QString pathStr = path.path().c_str();
   QStringList comps;
   QStringList::iterator it;
@@ -249,6 +302,8 @@ CNode::Ptr NTree::nodeByPath(const URI & path)
 
 QModelIndex NTree::indexFromPath(const URI & path) const
 {
+
+
   QModelIndex index = this->index(0,0);
   QString pathStr = path.path().c_str();
   QStringList comps;
@@ -285,6 +340,10 @@ QModelIndex NTree::indexFromPath(const URI & path) const
 
 URI NTree::pathFromIndex(const QModelIndex & index) const
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   TreeNode * treeNode = this->indexToTreeNode(index);
   URI path;
 
@@ -298,6 +357,10 @@ URI NTree::pathFromIndex(const QModelIndex & index) const
 
 void NTree::setDebugModeEnabled(bool debugMode)
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   if(m_debugModeEnabled ^ debugMode)
   {
     emit layoutAboutToBeChanged();
@@ -310,6 +373,8 @@ void NTree::setDebugModeEnabled(bool debugMode)
 
 bool NTree::isDebugModeEnabled() const
 {
+
+
   return m_debugModeEnabled;
 }
 
@@ -317,6 +382,10 @@ bool NTree::isDebugModeEnabled() const
 
 void NTree::updateRootChildren()
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   emit layoutAboutToBeChanged();
   m_rootNode->updateChildList();
   emit layoutChanged();
@@ -326,6 +395,8 @@ void NTree::updateRootChildren()
 
 void NTree::optionsChanged(const URI & path)
 {
+
+
   QModelIndex index = this->indexFromPath(path);
 
   if(index.isValid())
@@ -336,6 +407,10 @@ void NTree::optionsChanged(const URI & path)
 
 bool NTree::nodeMatches(const QModelIndex & index, const QRegExp & regex) const
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   Component::Ptr node = m_rootNode->node()->castTo<NRoot>()->root();
 
   // if the index is value, we get the right node
@@ -352,6 +427,10 @@ bool NTree::nodeMatches(const QModelIndex & index, const QRegExp & regex) const
 
 bool NTree::isIndexVisible(const QModelIndex & index) const
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   bool visible = false;
 
   if(index.isValid())
@@ -376,6 +455,10 @@ bool NTree::isIndexVisible(const QModelIndex & index) const
 void NTree::modifyOptions(const QModelIndex & index,
                           const QMap<QString, QString> & options)
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   TreeNode * node = this->indexToTreeNode(index);
 
   if(node != nullptr)
@@ -388,10 +471,13 @@ void NTree::modifyOptions(const QModelIndex & index,
 
 QVariant NTree::data(const QModelIndex & index, int role) const
 {
+
+
   QVariant data;
 
   if(isIndexVisible(index))
   {
+    //QMutexLocker locker(m_mutex);
     CNode::Ptr node = this->indexToNode(index);
 
     if(role == Qt::DisplayRole)
@@ -417,6 +503,9 @@ QVariant NTree::data(const QModelIndex & index, int role) const
 
 QModelIndex NTree::index(int row, int column, const QModelIndex & parent) const
 {
+
+
+
   TreeNode * childNode;
   QModelIndex index;
 
@@ -438,6 +527,10 @@ QModelIndex NTree::index(int row, int column, const QModelIndex & parent) const
 
 QModelIndex NTree::parent(const QModelIndex &child) const
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   QModelIndex index;
 
   if(child.isValid())
@@ -455,6 +548,11 @@ QModelIndex NTree::parent(const QModelIndex &child) const
 
 int NTree::rowCount(const QModelIndex & parent) const
 {
+
+
+  /// @find
+//  //QMutexLocker locker(m_mutex);
+
   if (parent.column() > 0)
     return 0;
 
@@ -469,6 +567,8 @@ int NTree::rowCount(const QModelIndex & parent) const
 
 int NTree::columnCount(const QModelIndex & parent) const
 {
+
+
   return m_columns.count();
 }
 
@@ -477,6 +577,8 @@ int NTree::columnCount(const QModelIndex & parent) const
 QVariant NTree::headerData(int section, Qt::Orientation orientation,
                            int role) const
 {
+
+
   if(role == Qt::DisplayRole && orientation == Qt::Horizontal && section >= 0
      && section < m_columns.size())
     return m_columns.at(section);
@@ -488,6 +590,13 @@ QVariant NTree::headerData(int section, Qt::Orientation orientation,
 
 void NTree::list_tree_reply(SignalArgs & args)
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
+  qDebug() << "updating tree...";
+  emit beginResetModel();
+
   try
   {
     NRoot::Ptr treeRoot = m_rootNode->node()->castTo<NRoot>();
@@ -500,7 +609,7 @@ void NTree::list_tree_reply(SignalArgs & args)
       currentIndexPath = indexToTreeNode(m_currentIndex)->node()->uri();
     }
 
-    emit beginResetModel();
+
 
     //
     // rename the root
@@ -540,10 +649,6 @@ void NTree::list_tree_reply(SignalArgs & args)
     if(!currentIndexPath.path().empty())
       m_currentIndex = this->indexFromPath(currentIndexPath);
 
-    // tell the view to update the whole thing
-    emit endResetModel();
-
-    emit currentIndexChanged(m_currentIndex, QModelIndex());
 
     NLog::globalLog()->addMessage("Tree updated.");
   }
@@ -551,12 +656,23 @@ void NTree::list_tree_reply(SignalArgs & args)
   {
     NLog::globalLog()->addException(xe.what());
   }
+
+  // tell the view to update the whole thing
+  emit endResetModel();
+
+  emit currentIndexChanged(m_currentIndex, QModelIndex());
+
+//  qDebug() << "tree updated !";
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 void NTree::clearTree()
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   NRoot::Ptr treeRoot = m_rootNode->node()->castTo<NRoot>();
   ComponentIterator<CNode> itRem = treeRoot->root()->begin<CNode>();
   QMap<int, std::string> listToRemove;
@@ -585,6 +701,10 @@ void NTree::clearTree()
 
 URI NTree::completeRelativePath(const URI & uri) const
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   cf_assert(m_currentIndex.isValid());
 
   URI completedPath(uri);
@@ -598,6 +718,10 @@ URI NTree::completeRelativePath(const URI & uri) const
 
 void NTree::contentListed(Component::Ptr node)
 {
+
+
+  //QMutexLocker locker(m_mutex);
+
   if(m_currentIndex.isValid() && indexToNode(m_currentIndex).get() == node.get())
   {
     emit currentIndexChanged(m_currentIndex, QModelIndex());
@@ -608,6 +732,8 @@ void NTree::contentListed(Component::Ptr node)
 
 void NTree::updateTree()
 {
+
+
   SignalFrame frame("list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
   ThreadManager::instance().network().send(frame);
 }
@@ -620,6 +746,8 @@ void NTree::updateTree()
 
 void NTree::buildNodePathRec(const QModelIndex & index, QString & path) const
 {
+
+
   TreeNode * node = this->indexToTreeNode(index);
 
   if(node != nullptr)
@@ -635,6 +763,8 @@ void NTree::buildNodePathRec(const QModelIndex & index, QString & path) const
 
 QString NTree::toolTip() const
 {
+
+
   return this->componentType();
 }
 
@@ -642,6 +772,8 @@ QString NTree::toolTip() const
 
 bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
 {
+
+
   bool match = QString(node->name().c_str()).contains(regex);
   ComponentIterator<CNode> it = node->begin<CNode>();
 
@@ -655,6 +787,8 @@ bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
 
 NTree::Ptr NTree::globalTree()
 {
+
+
   static NTree::Ptr tree = ThreadManager::instance().tree().rootChild<NTree>(CLIENT_TREE);
   cf_assert( tree.get() != nullptr );
 
@@ -665,6 +799,8 @@ NTree::Ptr NTree::globalTree()
 
 TreeNode * NTree::indexToTreeNode(const QModelIndex & index) const
 {
+
+
   return static_cast<TreeNode *>(index.internalPointer());
 }
 
@@ -672,6 +808,8 @@ TreeNode * NTree::indexToTreeNode(const QModelIndex & index) const
 
 CNode::Ptr NTree::indexToNode(const QModelIndex & index) const
 {
+
+
   return this->indexToTreeNode(index)->node();
 }
 

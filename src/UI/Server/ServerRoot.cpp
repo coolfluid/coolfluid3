@@ -139,7 +139,7 @@ void ServerRoot::processSignal(const string & target,
   if(m_mutex.tryLock())
   {
     m_doc.swap(signal.xml_doc);
-    Component::Ptr receivingCompo = root()->retrieve_component(receiver);
+    Component::Ptr receivingCompo = root()->retrieve_component_checked(receiver);
 
     m_thread = new ProcessingThread(signal, target, receivingCompo);
     QObject::connect(m_thread, SIGNAL(finished()), m_catcher, SLOT(finished()));
@@ -150,7 +150,7 @@ void ServerRoot::processSignal(const string & target,
   {
     try
     {
-      Component::Ptr comp = root()->retrieve_component(receiver);
+      Component::Ptr comp = root()->retrieve_component_checked(receiver);
 
       if( comp->signal(target)->is_read_only )
       {

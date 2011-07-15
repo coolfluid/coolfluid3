@@ -22,7 +22,7 @@ ProcessingThread::ProcessingThread(SignalArgs & signal, const std::string & targ
     m_target(target),
     m_receiver(receiver)
 {
-
+  cf_assert( is_not_null(receiver) );
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
