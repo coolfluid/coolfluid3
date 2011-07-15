@@ -4,21 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef lss_interface_hpp
-#define lss_interface_hpp
+#ifndef lss_trilinos_hpp
+#define lss_trilinos_hpp
 
-// Maybe vector and matrix should be a single class, could be way more performant? But then needs support for multi rhs+solution.
-// matrix should access by sparsity given to it, hiding internal renumbering
-
-// OBJECTIVE: restrictive and simple to use
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-#include <boost/utility.hpp>
-
-#include "Common/CommonAPI.hpp"
-#include "Common/MPI/PE.hpp"
-#include "blockaccumulator.hpp"
+#include "lss-interface.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,18 +16,18 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LSSVector : boost::noncopyable {
+class Common_API LSSTrilinosVector : public LSSVector {
 public:
 
   /// @name CREATION AND DESTRUCTION
   //@{
 
   /// Default constructor without arguments.
-  LSSVector();
+  LSSTrilinosVector();
 
   /// Destructor.
-  virtual ~LSSVector();
- 
+  virtual ~LSSTrilinosVector();
+
   //@} END CREATION AND DESTRUCTION
 
   /// @name INDIVIDUAL ACCESS
@@ -87,17 +76,17 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LSSMatrix : boost::noncopyable {
+class Common_API LSSTrilinosMatrix : public LSSMatrix {
 public:
 
   /// @name CREATION AND DESTRUCTION
   //@{
 
   /// Default constructor without arguments.
-  LSSMatrix();
+  LSSTrilinosMatrix();
 
   /// Destructor.
-  virtual ~LSSMatrix();
+  virtual ~LSSTrilinosMatrix();
 
   /// Setup sparsity structure
   /// should only work with local numbering (parallel computations, plus rcm could be a totally internal matter of the matrix)
@@ -142,19 +131,19 @@ public:
 
   /// Get a column and replace it to zero (dirichlet-type boundaries, when trying to preserve symmetry)
   /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
-  virtual void get_column_and_replace_to_zero(const Uint col, LSSVector& values) = 0;
+  virtual void get_column_and_replace_to_zero(const Uint col, LSSTrilinosVector& values) = 0;
 
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)
   virtual void tie_row_pairs (const Uint colto, const Uint colfrom) = 0;
 
   /// Set the diagonal
-  virtual void set_diagonal(const LSSVector& diag) = 0;
+  virtual void set_diagonal(const LSSTrilinosVector& diag) = 0;
 
   /// Add to the diagonal
-  virtual void add_diagonal(const LSSVector& diag) = 0;
+  virtual void add_diagonal(const LSSTrilinosVector& diag) = 0;
 
   /// Get the diagonal
-  virtual void get_diagonal(LSSVector& diag) = 0;
+  virtual void get_diagonal(LSSTrilinosVector& diag) = 0;
 
   /// Reset Matrix
   virtual void reset_to_zero() = 0;
@@ -172,19 +161,11 @@ public:
 
   //@} END MISCELLANEOUS
 
-private:
-
-  /// Copy constructor
-  LSSMatrix(const LSSMatrix& other);
-
-  /// Overloading of the assignment operator
-  const LSSMatrix& operator= (const LSSMatrix& other);
-
-}; // end of class LSSMatrix
+}; // end of class LSSTrilinosMatrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // namespace Common
 } // namespace CF
 
-#endif // lss_interface_hpp
+#endif // lss_trilinos_hpp

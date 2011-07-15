@@ -49,6 +49,37 @@ struct PECommPatternFixture
   {
   }
 
+  /// function for setting up a gid & rank combo (with size of 6*nproc on each process)
+  void setupGidAndRank(std::vector<Uint>& gid, std::vector<Uint>& rank)
+  {
+    // global indices and ranks, ordering: 0 1 2 ... 0 0 1 1 2 2 ... 0 0 0 1 1 1 2 2 2 ...
+    int nproc=mpi::PE::instance().size();
+    int irank=mpi::PE::instance().rank();
+    gid.resize(6*nproc);
+    rank.resize(6*nproc);
+    for (Uint i=0; i<nproc; i++)
+    {
+      rank[0*nproc+1*i+0]=i;
+      gid[ 0*nproc+1*i+0]=(6*nproc-1)-(6*i+0);
+    }
+    for (Uint i=0; i<nproc; i++)
+    {
+      rank[1*nproc+2*i+0]=i;
+      rank[1*nproc+2*i+1]=i;
+      gid[ 1*nproc+2*i+0]=(6*nproc-1)-(6*i+1);
+      gid[ 1*nproc+2*i+1]=(6*nproc-1)-(6*i+2);
+    }
+    for (Uint i=0; i<nproc; i++)
+    {
+      rank[3*nproc+3*i+0]=i;
+      rank[3*nproc+3*i+1]=i;
+      rank[3*nproc+3*i+2]=i;
+      gid[ 3*nproc+3*i+0]=(6*nproc-1)-(6*i+3);
+      gid[ 3*nproc+3*i+1]=(6*nproc-1)-(6*i+4);
+      gid[ 3*nproc+3*i+2]=(6*nproc-1)-(6*i+5);
+    }
+  }
+
   /// common params
   int m_argc;
   char** m_argv;
@@ -434,8 +465,9 @@ BOOST_AUTO_TEST_CASE( commpattern_cast )
   PEObjectWrapper globid=pecp.get_child("gid").as_type<PECommPattern>();
 }
 */
+////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( commpattern )
+BOOST_AUTO_TEST_CASE( commpattern_mainstream )
 {
   // general constants in this routine
   const int nproc=mpi::PE::instance().size();
@@ -444,31 +476,13 @@ BOOST_AUTO_TEST_CASE( commpattern )
   // commpattern
   PECommPattern pecp("CommPattern");
 
-  // global indices and ranks, ordering: 0 1 2 ... 0 0 1 1 2 2 ... 0 0 0 1 1 1 2 2 2 ...
-  std::vector<Uint> gid(6*nproc);
-  pecp.insert("gid",gid,1,false);
-  std::vector<Uint> rank(6*nproc);
-  for (Uint i=0; i<nproc; i++)
-  {
-    rank[0*nproc+1*i+0]=i;
-    gid[ 0*nproc+1*i+0]=(6*nproc-1)-(6*i+0);
-  }
-  for (Uint i=0; i<nproc; i++)
-  {
-    rank[1*nproc+2*i+0]=i;
-    rank[1*nproc+2*i+1]=i;
-    gid[ 1*nproc+2*i+0]=(6*nproc-1)-(6*i+1);
-    gid[ 1*nproc+2*i+1]=(6*nproc-1)-(6*i+2);
-  }
-  for (Uint i=0; i<nproc; i++)
-  {
-    rank[3*nproc+3*i+0]=i;
-    rank[3*nproc+3*i+1]=i;
-    rank[3*nproc+3*i+2]=i;
-    gid[ 3*nproc+3*i+0]=(6*nproc-1)-(6*i+3);
-    gid[ 3*nproc+3*i+1]=(6*nproc-1)-(6*i+4);
-    gid[ 3*nproc+3*i+2]=(6*nproc-1)-(6*i+5);
-  }
+  // setup gid & rank
+  std::vector<Uint> gid;
+  std::vector<Uint> rank;
+  setupGidAndRank(gid,rank);
+  const int stride=1;
+  const bool to_synchronize=false;
+  pecp.insert("gid",gid,stride,to_synchronize);
 
   // additional arrays for testing
   std::vector<int> v1;
@@ -504,9 +518,60 @@ BOOST_AUTO_TEST_CASE( commpattern )
   for (i=0; i< 2*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-0*nproc)/2)+1)*1000+idx+1) );
   for (   ; i< 6*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-2*nproc)/4)+1)*1000+idx+1) );
   for (   ; i<12*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-6*nproc)/6)+1)*1000+idx+1) );
-
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( commpattern_external_synchronization )
+{
+  // general constants in this routine
+  const int nproc=mpi::PE::instance().size();
+  const int irank=mpi::PE::instance().rank();
+
+  // commpattern
+  PECommPattern pecp("CommPattern");
+
+  // setup gid & rank
+  std::vector<Uint> pre_gid; // it is used to feed through series of adds
+  std::vector<Uint> gid(0);
+  std::vector<Uint> rank;
+  setupGidAndRank(pre_gid,rank);
+  pecp.insert("gid",gid,1,false);
+
+  // additional arrays for testing
+  std::vector<int> v1;
+  for(int i=0;i<6*nproc;i++) v1.push_back(-((irank+1)*1000+i+1));
+  std::vector<double> v2;
+  for(int i=0;i<12*nproc;i++) v2.push_back((double)((irank+1)*1000+i+1));
+
+  // initial setup
+  for (int i=0; i<gid.size(); i++) pecp.add(pre_gid[i],rank[i]);
+  pecp.setup();
+
+  PECheckPoint(100,"Before");
+  PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
+
+  // synchronize data
+  pecp.synchronize_all();
+
+  PECheckPoint(100,"After");
+  PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
+
+  // check results
+  Uint idx=0;
+  Uint i;
+  for (i=0; i<  nproc; i++, idx++ ) BOOST_CHECK_EQUAL( v1[i], (int)(-((((i-0*nproc)/1)+1)*1000+idx+1)) );
+  for (   ; i<3*nproc; i++, idx++ ) BOOST_CHECK_EQUAL( v1[i], (int)(-((((i-1*nproc)/2)+1)*1000+idx+1)) );
+  for (   ; i<6*nproc; i++, idx++ ) BOOST_CHECK_EQUAL( v1[i], (int)(-((((i-3*nproc)/3)+1)*1000+idx+1)) );
+  idx=0;
+  for (i=0; i< 2*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-0*nproc)/2)+1)*1000+idx+1) );
+  for (   ; i< 6*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-2*nproc)/4)+1)*1000+idx+1) );
+  for (   ; i<12*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-6*nproc)/6)+1)*1000+idx+1) );
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

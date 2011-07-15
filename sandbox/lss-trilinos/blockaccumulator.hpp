@@ -7,12 +7,24 @@
 #ifndef blockaccumulator_hpp
 #define blockaccumulator_hpp
 
-// blockaccumulator would keep local matrix and rhs and solution together
+// blockaccumulator would keep local RealMatrix and rhs and solution together
 // time splitting could be implemented here?
 // multi rhs+sol thinggy?
 // blockaccumulator should collect solution beforehand to avoid the mess of looking out for values in the big vector at assembly -> what if for example fvm looks for neighbours?
 
-template <typename T> class blockaccumulator {
+////////////////////////////////////////////////////////////////////////////////////////////
+
+#include <Math/MatrixTypes.hpp>
+#include <Common/CommonAPI.hpp>
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace Common {
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+class Common_API BlockAccumulator {
 public:
 
   /// how many rows
@@ -27,27 +39,32 @@ public:
   /// local numbering of the columns
   const Uint* col_idxs();
 
-  /// accessor to blockaccumulator's matrix
-  /// maybe made friends with lssmatrix
-  Matrix<T,Dynamic,Dynamic> get_blockaccumulator_matrix();
+  /// accessor to blockaccumulator's RealMatrix
+  /// maybe made friends with lssRealMatrix
+  RealMatrix get_mat();
 
   /// accessor to blockaccumulator's solution vector
   /// maybe made friends with lssvector
-  Matrix<T,Dynamic,1> get_blockaccumulator_sol();
+  RealVector get_sol();
 
   /// accessor to blockaccumulator's right hand side vector
   /// maybe made friends with lssvector
-  Matrix<T,Dynamic,1> get_blockaccumulator_rhs();
+  RealVector get_rhs();
 
   // rest of the operations should directly be the stuff off eigen
 
 private:
 
   /// data holders are directly from eigen
-  Matrix<T,Dynamic,Dynamic> mat;
-  Matrix<T,Dynamic,1> sol;
-  Matrix<T,Dynamic,1> rhs;
+  RealMatrix m_mat;
+  RealVector m_sol;
+  RealVector m_rhs;
 
 };
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+} // namespace Common
+} // namespace CF
 
 #endif // blockaccumulator_hpp
