@@ -3,6 +3,8 @@ list( APPEND coolfluid_rdm_core_files
   LibCore.hpp
   RKRD.cpp
   RKRD.hpp
+  Solver.cpp
+  Solver.hpp
   SupportedCells.hpp
   SupportedFaces.hpp
   Quadrature.hpp
