@@ -177,7 +177,7 @@ void CWriter::write_coordinates(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  const CList<Uint>& used_nodes = CElements::used_nodes(*m_mesh->topology().as_non_const());
+  const CList<Uint>& used_nodes = CElements::used_nodes(*m_mesh->topology().as_non_const(),true);
   const Uint nb_nodes = used_nodes.size();
   CMap<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 

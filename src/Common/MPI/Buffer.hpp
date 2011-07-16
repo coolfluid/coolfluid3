@@ -400,7 +400,7 @@ inline void Buffer::unpack(std::string* data)         { unpack<std::string>(data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Buffer::broadcast(const Uint root)
+inline void Buffer::broadcast(const Uint root)
 {
   // broadcast buffer size
   int p = m_packed_size;
@@ -580,7 +580,7 @@ inline Buffer& operator>> (Buffer& buffer, PackedObject& obj)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<< (std::ostream& out, const Buffer& buffer)
+inline std::ostream& operator<< (std::ostream& out, const Buffer& buffer)
 {
   const char* endPtr = buffer.buffer() + buffer.packed_size();
   for(char* ptr = (char*)buffer.buffer(); (const char*) ptr < endPtr; ptr++)

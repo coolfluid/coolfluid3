@@ -80,65 +80,61 @@ public: // functions
 
   /// location finding functions
 
-  boost::tuple<Component::Ptr,Uint> to_local(const Uint glb_obj) const;
-
   void build_global_to_local_index(CMesh& mesh);
 
   /// Graph building functions
 
-  Uint nb_owned_objects() const;
+  Uint nb_objects_owned_by_part(const Uint part) const;
 
   template <typename VectorT>
-  void list_of_owned_objects(VectorT& obj_list) const;
+  void list_of_objects_owned_by_part(const Uint part, VectorT& obj_list) const;
 
   template <typename VectorT>
-  Uint nb_connected_objects(VectorT& nb_connections_per_obj) const;
+  Uint nb_connected_objects_in_part(const Uint part, VectorT& nb_connections_per_obj) const;
 
   template <typename VectorT>
-  void list_of_connected_objects(VectorT& connections_per_obj) const;
+  void list_of_connected_objects_in_part(const Uint part, VectorT& connections_per_obj) const;
 
   template <typename VectorT>
-  void list_of_connected_procs(VectorT& proc_per_neighbor) const;
+  void list_of_connected_procs_in_part(const Uint part, VectorT& proc_per_neighbor) const;
+
+
+public: // functions
+
+  const std::vector<std::vector<Uint> >& exported_nodes() { return m_nodes_to_export; }
+
+  const std::vector<std::vector<std::vector<Uint> > >& exported_elements() { return m_elements_to_export; }
+
+protected: // functions
 
   bool is_node(const Uint glb_obj) const
   {
-    Uint p = proc_of_obj(glb_obj);
-    return m_start_node_per_proc[p] <= glb_obj && glb_obj < m_end_node_per_proc[p];
+    Uint p = part_of_obj(glb_obj);
+    return m_start_node_per_part[p] <= glb_obj && glb_obj < m_end_node_per_part[p];
   }
 
-  Common::CMap<Uint,Uint>& changes() { return (*m_changes);	}
-
-/// @todo must be protected when migration is moved to this class
-public: // functions
-
-  boost::tuple<Uint,Uint> to_local_indices_from_loc_obj(const Uint loc_obj) const;
-
-  boost::tuple<Uint,Uint,bool> to_local_indices_from_glb_obj(const Uint glb_obj) const;
-
-  Uint proc_of_obj(const Uint obj) const
+  bool is_elem(const Uint glb_obj) const
   {
-    for (Uint p=0; p<m_end_id_per_proc.size(); ++p)
+    Uint p = part_of_obj(glb_obj);
+    return m_start_node_per_part[p] <= glb_obj && glb_obj < m_end_node_per_part[p];
+  }
+
+  boost::tuple<Uint,Uint> location_idx(const Uint glb_obj) const;
+
+  boost::tuple<Common::Component::Ptr,Uint> location(const Uint glb_obj) const;
+
+  Uint part_of_obj(const Uint obj) const
+  {
+    for (Uint p=0; p<m_end_id_per_part.size(); ++p)
     {
-      if ( obj < m_end_id_per_proc[p])
+      if ( obj < m_end_id_per_part[p])
         return p;
     }
-    cf_assert_desc("[obj " + Common::to_str(obj)+ ">"+Common::to_str(m_end_id_per_proc.back())+" Should not be here", false);
+    cf_assert_desc("[obj " + Common::to_str(obj)+ ">"+Common::to_str(m_end_id_per_part.back())+" Should not be here", false);
     return 0;
   }
 
-  Uint owns_obj(const Uint obj) const
-  {
-    return proc_of_obj(obj) == Common::mpi::PE::instance().rank();
-  }
-
-  std::vector<Common::Component::Ptr>& components_vector() { return m_local_components; }
-
-  const std::vector<std::vector<Uint> >& exported_nodes() { return m_nodes_to_export; }
-  const std::vector<std::vector<std::vector<Uint> > >& exported_elements() { return m_elements_to_export; }
-
 protected: // data
-
-  Common::CMap<Uint,Uint>::Ptr m_changes;
 
   /// nodes_to_export[part][loc_node_idx]
   std::vector< std::vector<Uint> >                m_nodes_to_export;
@@ -154,29 +150,23 @@ private: // data
 
   Uint m_nb_owned_obj;
 
-  bool m_map_built;
-
-  std::vector<Common::Component::Ptr> m_local_components;
-
-  std::vector<Uint> m_local_start_index;
-
-  std::vector<Uint> m_local_index;
 
   Common::CMap<Uint,Uint>::Ptr m_global_to_local;
 
-  std::vector<Uint> m_start_id_per_proc;
-  std::vector<Uint> m_end_id_per_proc;
-  std::vector<Uint> m_start_node_per_proc;
-  std::vector<Uint> m_end_node_per_proc;
-  std::vector<Uint> m_start_elem_per_proc;
-  std::vector<Uint> m_end_elem_per_proc;
+  std::vector<Uint> m_start_id_per_part;
+  std::vector<Uint> m_end_id_per_part;
+  std::vector<Uint> m_start_node_per_part;
+  std::vector<Uint> m_end_node_per_part;
+  std::vector<Uint> m_start_elem_per_part;
+  std::vector<Uint> m_end_elem_per_part;
 
+  CUnifiedData::Ptr m_lookup;
 
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-inline Uint CMeshPartitioner::nb_owned_objects() const
+inline Uint CMeshPartitioner::nb_objects_owned_by_part(const Uint part) const
 {
   return m_nb_owned_obj;
 }
@@ -184,12 +174,12 @@ inline Uint CMeshPartitioner::nb_owned_objects() const
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename VectorT>
-void CMeshPartitioner::list_of_owned_objects(VectorT& obj_list) const
+void CMeshPartitioner::list_of_objects_owned_by_part(const Uint part, VectorT& obj_list) const
 {
   Uint idx=0;
   foreach_container((const Uint glb_obj),*m_global_to_local)
   {
-    if (owns_obj(glb_obj))
+    if (part_of_obj(glb_obj) == part)
       obj_list[idx++] = glb_obj;
   }
 }
@@ -197,62 +187,62 @@ void CMeshPartitioner::list_of_owned_objects(VectorT& obj_list) const
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename VectorT>
-Uint CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) const
+Uint CMeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_connections_per_obj) const
 {
   // declaration for boost::tie
-  Uint component_idx;
+  Common::Component::Ptr comp;
   Uint loc_idx;
   Uint size = 0;
   Uint idx = 0;
   foreach_container((const Uint glb_obj)(const Uint loc_obj),*m_global_to_local)
   {
-    if (owns_obj(glb_obj))
+    if (part_of_obj(glb_obj) == part)
     {
-      boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
+      boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
 
-      if (is_node(glb_obj))
+      if (CNodes::Ptr nodes = comp->as_ptr<CNodes>())
       {
-        const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_type<CNodes>().glb_elem_connectivity();
+        const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
       }
-      else
+      else if (CElements::Ptr elements = comp->as_ptr<CElements>())
       {
-        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_type<CElements>().node_connectivity();
+        const CTable<Uint>& connectivity_table = elements->node_connectivity();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
       size += nb_connections_per_obj[idx];
       ++idx;
     }
   }
-  cf_assert_desc(Common::to_str(idx)+"!="+Common::to_str(nb_owned_objects()), idx == nb_owned_objects());
+  cf_assert_desc(Common::to_str(idx)+"!="+Common::to_str(nb_objects_owned_by_part(part)), idx == nb_objects_owned_by_part(part));
   return size;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename VectorT>
-void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) const
+void CMeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT& connected_objects) const
 {
   // declaration for boost::tie
-  Uint component_idx;
+  Common::Component::Ptr comp;
   Uint loc_idx;
 
   Uint idx = 0;
   foreach_container((const Uint glb_obj)(const Uint loc_obj),*m_global_to_local)
   {
-    if (owns_obj(glb_obj))
+    if (part_of_obj(glb_obj) == part)
     {
-      boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
-      if (is_node(glb_obj))
+      boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
+      if (CNodes::Ptr nodes = comp->as_ptr<CNodes>())
       {
-        const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_type<CNodes>().glb_elem_connectivity();
+        const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
           connected_objects[idx++] = glb_elm;
       }
-      else
+      else if (CElements::Ptr elements = comp->as_ptr<CElements>())
       {
-        const CConnectivity& connectivity_table = m_local_components[component_idx]->as_type<CElements>().node_connectivity();
-        const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_type<CElements>().nodes().glb_idx();
+        const CConnectivity& connectivity_table = elements->node_connectivity();
+        const CList<Uint>& glb_node_indices    = elements->nodes().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_objects[idx++] = glb_node_indices[ loc_node ];
@@ -260,42 +250,42 @@ void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) con
     }
   }
 
-	std::vector<Uint> edges(m_nb_owned_obj);
-	cf_assert( idx == nb_connected_objects(edges) );
+  std::vector<Uint> edges(m_nb_owned_obj);
+  cf_assert( idx == nb_connected_objects_in_part(part,edges) );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename VectorT>
-void CMeshPartitioner::list_of_connected_procs(VectorT& connected_procs) const
+void CMeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& connected_procs) const
 {
   // declaration for boost::tie
-  Uint component_idx;
+  Common::Component::Ptr comp;
   Uint loc_idx;
 
   Uint idx = 0;
   foreach_container((const Uint glb_obj)(const Uint loc_obj),*m_global_to_local)
   {
-    if (owns_obj(glb_obj))
+    if (part_of_obj(glb_obj) == part)
     {
-      boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
-      if (is_node(glb_obj))
+      boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
+      if (CNodes::Ptr nodes = comp->as_ptr<CNodes>())
       {
-        const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_ptr<CNodes>()->glb_elem_connectivity();
+        const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
-          connected_procs[idx++] = proc_of_obj(glb_elm);
+          connected_procs[idx++] = part_of_obj(glb_elm); /// @todo should be proc of obj, not part!!!
       }
-      else
+      else if (CElements::Ptr elements = comp->as_ptr<CElements>())
       {
-        const CConnectivity& connectivity_table = m_local_components[component_idx]->as_ptr<CElements>()->node_connectivity();
-        const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_ptr<CElements>()->nodes().glb_idx();
+        const CConnectivity& connectivity_table = elements->node_connectivity();
+        const CList<Uint>& glb_node_indices    = elements->nodes().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
-          connected_procs[idx++] = proc_of_obj( glb_node_indices[loc_node] );
+          connected_procs[idx++] = part_of_obj( glb_node_indices[loc_node] ); /// @todo should be proc of obj, not part!!!
       }
     }
   }
   std::vector<Uint> edges(m_nb_owned_obj);
-  cf_assert( idx == nb_connected_objects(edges) );
+  cf_assert( idx == nb_connected_objects_in_part(part,edges) );
 }
 
 //////////////////////////////////////////////////////////////////////////////

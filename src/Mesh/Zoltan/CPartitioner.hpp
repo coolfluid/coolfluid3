@@ -45,11 +45,9 @@ public: // functions
 
   /// Partitioning functions
 
-  virtual void build_graph() {}
+  virtual void build_graph() { /* Does nothing, as partition_graph() will use call-back functions to construct the graph */ }
 
   virtual void partition_graph();
-
-  virtual void migrate();
 
 private: // functions
 
@@ -78,61 +76,26 @@ private: // functions
 
 
 
-	//////////////////////////////////////////////////////////////////////
-
-	// Functions for migration
-
-	static 	void get_elems_sizes(void *data, int gidSize, int lidSize, int num_ids,
-															 ZOLTAN_ID_PTR globalIDs, ZOLTAN_ID_PTR localIDs, int *sizes, int *ierr);
-
-	static 	void pack_elems_messages(void *data, int gidSize, int lidSize, int num_ids,
-																	 ZOLTAN_ID_PTR globalIDs, ZOLTAN_ID_PTR localIDs, int *dests, int *sizes, int *idx, char *buf, int *ierr);
-
-	static	void unpack_elems_messages(void *data, int gidSize, int num_ids,
-																		 ZOLTAN_ID_PTR globalIDs, int *sizes, int *idx, char *buf, int *ierr);
-
-	static 	void get_nodes_sizes(void *data, int gidSize, int lidSize, int num_ids,
-															 ZOLTAN_ID_PTR globalIDs, ZOLTAN_ID_PTR localIDs, int *sizes, int *ierr);
-
-	static 	void pack_nodes_messages(void *data, int gidSize, int lidSize, int num_ids,
-																	 ZOLTAN_ID_PTR globalIDs, ZOLTAN_ID_PTR localIDs, int *dests, int *sizes, int *idx, char *buf, int *ierr);
-
-	static void mid_migrate_nodes (void *data, int num_gid_entries, int num_lid_entries,
-																 int num_import, ZOLTAN_ID_PTR import_global_ids, ZOLTAN_ID_PTR import_local_ids, int *import_procs, int *import_to_part,
-																 int num_export, ZOLTAN_ID_PTR export_global_ids, ZOLTAN_ID_PTR export_local_ids, int *export_procs, int *export_to_part,
-																 int *ierr);
-
-	static	void unpack_nodes_messages(void *data, int gidSize, int num_ids,
-																		 ZOLTAN_ID_PTR globalIDs, int *sizes, int *idx, char *buf, int *ierr);
-
 
 private: // data
+
+  bool m_partitioned;
+  int changes;
+  int numGidEntries;
+  int numLidEntries;
+  int numImport;
+  ZOLTAN_ID_PTR importGlobalIds;
+  ZOLTAN_ID_PTR importLocalIds;
+  int *importProcs;
+  int *importToPart;
+  int numExport;
+  ZOLTAN_ID_PTR exportGlobalIds;
+  ZOLTAN_ID_PTR exportLocalIds;
+  int *exportProcs;
+  int *exportToPart;
 
   boost::shared_ptr<ZoltanHandle> m_zz;
-
-
-// following data should be local to partitioning function, but is now global
-// for access for temporary migration function
-private: // data
-
-	bool m_partitioned;
-	int changes;
-	int numGidEntries;
-	int numLidEntries;
-	int numImport;
-	ZOLTAN_ID_PTR importGlobalIds;
-	ZOLTAN_ID_PTR importLocalIds;
-	int *importProcs;
-	int *importToPart;
-	int numExport;
-	ZOLTAN_ID_PTR exportGlobalIds;
-	ZOLTAN_ID_PTR exportLocalIds;
-	int *exportProcs;
-	int *exportToPart;
-
-	Real m_zoltan_version;
-
-	boost::shared_ptr<Common::CMap<Uint,Uint> > m_changes_import;
+  Real m_zoltan_version;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
