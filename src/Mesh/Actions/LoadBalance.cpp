@@ -57,7 +57,7 @@ void LoadBalance::execute()
   if( PE::instance().is_active() && PE::instance().size() > 1 )
   {
 
-    CFinfo << "partitioning mesh:" << CFendl;
+    CFinfo << "loadbalancing mesh:" << CFendl;
 
     CFinfo << "  + building joint node & element global numbering" << CFendl;
 
@@ -68,13 +68,18 @@ void LoadBalance::execute()
 
     build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity")->transform(mesh);
 
-    // Partition the mesh
+
+    CFinfo << "  + partitioning and migrating" << CFendl;
     m_partitioner->transform(mesh);
+
+    CFinfo << "  + growing overlap layer" << CFendl;
+    build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.GrowOverlap","grow_overlap")->transform(mesh);
+
 
     CFinfo << "  + deallocating unused connectivity" << CFendl;
 
     /// @todo check that this actually frees the memory
-//    mesh.nodes().glb_elem_connectivity().resize(0);
+    mesh.nodes().glb_elem_connectivity().resize(0);
 
   }
 

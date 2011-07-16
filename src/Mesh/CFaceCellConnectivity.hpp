@@ -107,6 +107,8 @@ private: // data
 
   CMeshElements::Ptr m_mesh_elements;
 
+  bool m_face_building_algorithm;
+
 }; // CFaceCellConnectivity
 
 ////////////////////////////////////////////////////////////////////////////////

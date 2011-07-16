@@ -35,6 +35,8 @@ list( APPEND coolfluid_mesh_actions_files
   CMatchNodes.cpp
   CreateSpaceP0.hpp
   CreateSpaceP0.cpp
+  GrowOverlap.hpp
+  GrowOverlap.cpp
   LibActions.hpp
   LibActions.cpp
   LoadBalance.hpp

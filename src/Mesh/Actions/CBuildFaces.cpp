@@ -165,6 +165,7 @@ void CBuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
     {
       //std::cout << PERank << "building face_cell connectivity for region " << region.uri().path() << std::endl;
       CFaceCellConnectivity::Ptr face_to_cell = region.create_component_ptr<CFaceCellConnectivity>("face_to_cell");
+      face_to_cell->configure_option("face_building_algorithm",true);
       face_to_cell->add_tag(Mesh::Tags::inner_faces());
       face_to_cell->setup(region);
     }
@@ -331,6 +332,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
   CMesh& mesh = *m_mesh.lock();
   // interface connectivity
   CFaceCellConnectivity::Ptr interface = allocate_component<CFaceCellConnectivity>("interface_connectivity");
+  interface->configure_option("face_building_algorithm",true);
   CTable<Uint>::Buffer i2c = find_component_with_name<CTable<Uint> >(*interface,Mesh::Tags::connectivity_table()).create_buffer();
   CTable<Uint>::Buffer fnb = find_component_with_name<CTable<Uint> >(*interface,"face_number").create_buffer();
   CList<bool>::Buffer bdry = find_component_with_name<CList<bool> >(*interface,"is_bdry_face").create_buffer();
@@ -498,6 +500,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
     if (is_null(bdry_face_to_cell))
     {
       bdry_face_to_cell = bdry_faces.create_component_ptr<CFaceCellConnectivity>("cell_connectivity");
+      bdry_face_to_cell->configure_option("face_building_algorithm",true);
     }
 
     CTable<Uint>& bdry_face_connectivity = bdry_face_to_cell->connectivity();

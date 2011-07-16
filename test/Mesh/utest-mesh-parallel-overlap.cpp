@@ -204,7 +204,7 @@ bool check_nodes_sanity(CNodes& nodes)
   return sane;
 }
 
-bool check_elements_sanity(CMesh& mesh)
+bool check_element_nodes_sanity(CMesh& mesh)
 {
   bool sane = true;
 
@@ -227,6 +227,28 @@ bool check_elements_sanity(CMesh& mesh)
 
   return sane;
 }
+
+
+bool check_elements_sanity(CEntities& entities)
+{
+  bool sane = true;
+  std::map<Uint,Uint> glb_elem_2_loc_elem;
+  std::map<Uint,Uint>::iterator glb_elem_not_found = glb_elem_2_loc_elem.end();
+  for (Uint e=0; e<entities.size(); ++e)
+  {
+    if ( glb_elem_2_loc_elem.find(entities.glb_idx()[e]) == glb_elem_not_found )
+    {
+      glb_elem_2_loc_elem[entities.glb_idx()[e]] = e;
+    }
+    else
+    {
+      std::cout << PERank << "glb elem idx " << entities.glb_idx()[e] << " already exists...  ("<<e<< "<-->"<<glb_elem_2_loc_elem[entities.glb_idx()[e]] << ")" << std::endl;
+      sane = false;
+    }
+  }
+  return sane;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -329,8 +351,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   meshgenerator->configure_option("name",std::string("rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
-  nb_cells[0] = 20;
-  nb_cells[1] = 20;
+  nb_cells[0] = 100;
+  nb_cells[1] = 100;
   lengths[0]  = nb_cells[0];
   lengths[1]  = nb_cells[1];
   meshgenerator->configure_option("nb_cells",nb_cells);
@@ -420,12 +442,39 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 //  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
 //  CFinfo << "Global Connectivity... done" << CFendl;
 
+  std::set<Uint> debug_nodes;
 
+
+  /// @todo debug
+  const std::vector<Component::Ptr>& mesh_elements = mesh.elements().components();
+
+  std::vector<std::set<Uint> > debug_elems(mesh_elements.size());
+
+
+  Uint nb_overlap=4;
+  for (Uint o=0; o<nb_overlap; ++o)
+  {
+    CFinfo << "Growing overlap..." << CFendl;
+    build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.GrowOverlap","grow_overlap")->transform(mesh);
+    CFinfo << "Growing overlap... done" << CFendl;
+  }
+
+#if 0
+  Uint nb_overlap=4;
+  // Grow overlap nb_overlap times
+  for (Uint o=0; o<nb_overlap; ++o)
+  {
   CFinfo << "Growing Overlap... " << CFendl;
+
+  debug_nodes.clear();
+  boost_foreach( std::set<Uint>& elems, debug_elems)
+      elems.clear();
+
 
   CFaceCellConnectivity& face2cell = mesh.create_component<CFaceCellConnectivity>("face2cell");
   face2cell.setup(mesh.topology());
 
+//  std::cout << PERank << "nb_faces = " << face2cell.size() << std::endl;
 
   std::map<Uint,Uint> glb_node_2_loc_node;
   std::map<Uint,Uint>::iterator glb_node_not_found = glb_node_2_loc_node.end();
@@ -437,7 +486,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     }
     else
     {
-      std::cout << PERank << "glb idx " << nodes.glb_idx()[n] << " already exists..." << std::endl;
+      std::cout << PERank << "node glb idx " << nodes.glb_idx()[n] << " already exists..." << std::endl;
     }
   }
 
@@ -457,17 +506,10 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       }
       else
       {
-        std::cout << PERank << "glb idx " << elements->glb_idx()[idx] << " already exists..." << std::endl;
+        std::cout << PERank << "elem glb idx " << elements->glb_idx()[idx] << " already exists..." << std::endl;
       }
     }
   }
-  std::set<Uint> debug_nodes;
-
-
-  /// @todo debug
-  const std::vector<Component::Ptr>& mesh_elements = mesh.elements().components();
-
-  std::vector<std::set<Uint> > debug_elems(mesh_elements.size());
 
   std::set<Uint> bdry_nodes;
   if ( find_components_recursively_with_tag<CCellFaces>(mesh.topology(),"outer_faces").size() > 0 )
@@ -504,6 +546,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
         }
       }
     }
+    mesh.remove_component(face2cell);
   }
 //  PEProcessSortedExecute(-1,
 //  std::cout << PERank << "bdry_nodes (" << bdry_nodes.size() << ") = ";
@@ -563,37 +606,19 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
               Uint elem_idx;
               boost::tie(elem_comp_idx,elem_idx) = mesh.elements().location_idx(unif_elem_idx);
 
-              elem_ids_to_send[elem_comp_idx][proc].insert(elem_idx);
+              if (mesh_elements[elem_comp_idx]->as_type<CElements>().is_ghost(elem_idx) == false)
+              {
+                elem_ids_to_send[elem_comp_idx][proc].insert(elem_idx);
+                debug_elems[elem_comp_idx].insert(elem_idx);
+              }
 
-              debug_elems[elem_comp_idx].insert(elem_idx);
+
 
             }
 
           }
           debug_nodes.insert(loc_idx);
         }
-
-
-//        bool found=false;
-//        boost_foreach(const Uint glb_node_idx, nodes.glb_idx().array())
-//        {
-
-//          cf_assert(loc_idx < nodes.size());
-//          if (glb_node_idx == find_glb_node_idx)
-//          {
-//            CDynTable<Uint>::ConstRow connected_elements = nodes.glb_elem_connectivity()[loc_idx];
-//            boost_foreach ( const Uint glb_elem_idx, nodes.glb_elem_connectivity()[loc_idx] )
-//            {
-//              boost::tie(elem_comp_idx,elem_idx) = mesh.elements().location_idx(glb_elem_idx);
-//              elem_ids_to_send[elem_comp_idx][proc].insert(elem_idx);
-//            }
-
-//            debug_nodes.insert(loc_idx);
-
-//            break;
-//          }
-//          ++loc_idx;
-//        }
         // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
       }
     }
@@ -621,7 +646,6 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       {
         boost_foreach(const Uint elem_idx, elem_ids_to_send[comp_idx][to_proc])
         {
-//          elements_to_send[to_proc] << copy(elem_idx,PackUnpackElements::COPY);
 
           elements_to_send[to_proc] << elements.glb_idx()[elem_idx]
                                     << elements.rank()[elem_idx];
@@ -648,18 +672,31 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
       new_elem_size[comp_idx] = elements.size();
 
-//      std::cout << PERank << elements.uri().path() << " grew from size " << old_elem_size[comp_idx] << " to " << new_elem_size[comp_idx] << std::endl;
+      RemoveElements remove(elements);
+      for (Uint e=old_elem_size[comp_idx]; e<new_elem_size[comp_idx]; ++e)
+      {
+        if ( glb_elem_2_loc_elem.find(elements.glb_idx()[e]) != glb_elem_not_found )
+        {
+          remove(e);
+        }
+      }
+      remove.flush();
+      new_elem_size[comp_idx] = elements.size();
+
+      BOOST_CHECK(check_elements_sanity(elements));
+      //      std::cout << PERank << elements.uri().path() << " grew from size " << old_elem_size[comp_idx] << " to " << new_elem_size[comp_idx] << std::endl;
 
       std::set<Uint>::iterator found_bdry_node;
       std::set<Uint>::iterator not_found = bdry_nodes.end();
       for (Uint e=old_elem_size[comp_idx]; e<new_elem_size[comp_idx]; ++e)
       {
-        boost_foreach(const Uint connected_node, elements.node_connectivity()[e])
+        boost_foreach(const Uint connected_glb_node, elements.node_connectivity()[e])
         {
-          if ( bdry_nodes.find(connected_node) == not_found)
-            new_ghost_nodes.insert(connected_node);
+          if ( glb_node_2_loc_node.find(connected_glb_node) == glb_node_not_found)
+            new_ghost_nodes.insert(connected_glb_node);
         }
       }
+
 
     }
     else
@@ -784,15 +821,24 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       debug_nodes.insert(glb_to_loc[node]);
     }
 
-    BOOST_CHECK( check_elements_sanity(mesh) );
+    BOOST_CHECK( check_element_nodes_sanity(mesh) );
 
+  }
+#endif
+
+mesh.elements().reset();
+mesh.elements().update();
+mesh.update_statistics();
+CFinfo << "Growing Overlap... done" << CFendl;
   }
 
 #endif
-CFinfo << "Growing Overlap... done" << CFendl;
+
+
 #if 1
 
 //  CFinfo << mesh.tree() << CFendl;
+
 BOOST_CHECK(true);
 
   CField& glb_node = mesh.create_field("glb_node",CField::Basis::POINT_BASED);
@@ -829,8 +875,8 @@ BOOST_CHECK(true);
   }
 BOOST_CHECK(true);
   std::vector<CField::Ptr> fields_to_output;
-  fields_to_output.push_back(glb_node.as_ptr<CField>());
-  fields_to_output.push_back(glb_elem.as_ptr<CField>());
+//  fields_to_output.push_back(glb_node.as_ptr<CField>());
+//  fields_to_output.push_back(glb_elem.as_ptr<CField>());
   fields_to_output.push_back(elem_rank.as_ptr<CField>());
 BOOST_CHECK(true);
   msh_writer->set_fields(fields_to_output);

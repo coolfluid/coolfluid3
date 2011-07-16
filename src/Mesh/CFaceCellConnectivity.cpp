@@ -36,8 +36,13 @@ Common::ComponentBuilder < CFaceCellConnectivity , Component, LibMesh > CFaceCel
 
 CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
   Component(name),
-  m_nb_faces(0)
+  m_nb_faces(0),
+  m_face_building_algorithm(false)
 {
+
+  options().add_option< OptionT<bool> >("face_building_algorithm", m_face_building_algorithm)
+      ->link_to(&m_face_building_algorithm)
+      ->set_description("Improves efficiency for face building algorithm");
 
   m_used_components = create_static_component_ptr<CGroup>("used_components");
   m_connectivity = create_static_component_ptr<CTable<Uint> >(Mesh::Tags::connectivity_table());
@@ -132,23 +137,26 @@ void CFaceCellConnectivity::build_connectivity()
     max_nb_faces += nb_faces * elements.size() ;
   }
 
-  // allocate storage if doesn't exist that says if the element is at the boundary of a region
-  // ( = not the same as the mesh boundary)
-  boost_foreach (Component::Ptr elements_comp, used())
+  if (m_face_building_algorithm)
   {
-    CElements& elements = elements_comp->as_type<CElements>();
-    Component::Ptr comp = elements.get_child_ptr("is_bdry");
-    if ( is_null( comp ) || is_null(comp->as_ptr< CList<bool> >()) )
+    // allocate storage if doesn't exist that says if the element is at the boundary of a region
+    // ( = not the same as the mesh boundary)
+    boost_foreach (Component::Ptr elements_comp, used())
     {
-      CList<bool>& is_bdry_elem = * elements.create_component_ptr< CList<bool> >("is_bdry");
+      CElements& elements = elements_comp->as_type<CElements>();
+      Component::Ptr comp = elements.get_child_ptr("is_bdry");
+      if ( is_null( comp ) || is_null(comp->as_ptr< CList<bool> >()) )
+      {
+        CList<bool>& is_bdry_elem = * elements.create_component_ptr< CList<bool> >("is_bdry");
 
-      const Uint nb_elem = elements.size();
-      is_bdry_elem.resize(nb_elem);
+        const Uint nb_elem = elements.size();
+        is_bdry_elem.resize(nb_elem);
 
-      for (Uint e=0; e<nb_elem; ++e)
-        is_bdry_elem[e] = true;
+        for (Uint e=0; e<nb_elem; ++e)
+          is_bdry_elem[e] = true;
+      }
+      cf_assert( elements.get_child_ptr("is_bdry")->as_ptr< CList<bool> >() );
     }
-    cf_assert( elements.get_child_ptr("is_bdry")->as_ptr< CList<bool> >() );
   }
 
   // Declarations to save frequent allocations in the loop algorithm
@@ -170,117 +178,123 @@ void CFaceCellConnectivity::build_connectivity()
   {
     CElements& elements = elements_comp->as_type<CElements>();
     const Uint nb_faces_in_elem = elements.element_type().nb_faces();
-    CList<bool>& is_bdry_elem = *elements.get_child_ptr("is_bdry")->as_ptr< CList<bool> >();
+
+    CList<bool>::Ptr is_bdry_elem;
+
+    if (m_face_building_algorithm)
+      is_bdry_elem = elements.get_child_ptr("is_bdry")->as_ptr< CList<bool> >();
 
     // loop over the elements of this type
     Uint loc_elem_idx=0;
     boost_foreach(CTable<Uint>::ConstRow elem, elements.node_connectivity().array() )
     {
-      if ( is_bdry_elem[loc_elem_idx] )
+      if ( is_not_null(is_bdry_elem) )
+        if ( (*is_bdry_elem)[loc_elem_idx] == false )
+          continue;
+
+      Uint mesh_elements_idx = m_mesh_elements->unified_idx(elements,loc_elem_idx);
+
+
+      cf_assert(lookup().location(mesh_elements_idx).get<0>() == elements_comp);
+      cf_assert(lookup().location(mesh_elements_idx).get<1>() == loc_elem_idx);
+
+      // loop over the faces in the current element
+      for (Uint face_idx = 0; face_idx != nb_faces_in_elem; ++face_idx)
       {
-        Uint mesh_elements_idx = m_mesh_elements->unified_idx(elements,loc_elem_idx);
+        // construct sets of nodes that make the corresponding face in this element
+        nb_nodes = elements.element_type().face_type(face_idx).nb_nodes();
+        face_nodes.resize(nb_nodes);
+        Uint i(0);
+        boost_foreach(const Uint face_node_idx, elements.element_type().face_connectivity().face_node_range(face_idx))
+            face_nodes[i++] = elem[face_node_idx];
 
 
-        cf_assert(lookup().location(mesh_elements_idx).get<0>() == elements_comp);
-        cf_assert(lookup().location(mesh_elements_idx).get<1>() == loc_elem_idx);
+        // consider the first node belonging to the current face
+        // check if you find a face ID shared between all the other
+        // nodes building a face
+        node = face_nodes[0];
+        cf_assert(node<tot_nb_nodes);
 
-        // loop over the faces in the current element
-        for (Uint face_idx = 0; face_idx != nb_faces_in_elem; ++face_idx)
+        found_face = false;
+        // search for matching face if they are registered to the node yet
+        boost_foreach( face, mapNodeFace[node] )
         {
-          // construct sets of nodes that make the corresponding face in this element
-          nb_nodes = elements.element_type().face_type(face_idx).nb_nodes();
-          face_nodes.resize(nb_nodes);
-          Uint i(0);
-          boost_foreach(const Uint face_node_idx, elements.element_type().face_connectivity().face_node_range(face_idx))
-             face_nodes[i++] = elem[face_node_idx];
-
-
-          // consider the first node belonging to the current face
-          // check if you find a face ID shared between all the other
-          // nodes building a face
-          node = face_nodes[0];
-          cf_assert(node<tot_nb_nodes);
-
-          found_face = false;
-          // search for matching face if they are registered to the node yet
-          boost_foreach( face, mapNodeFace[node] )
+          nb_matched_nodes = 1;
+          if (nb_nodes > 1)
           {
-            nb_matched_nodes = 1;
-            if (nb_nodes > 1)
+            for (face_node_idx=1; face_node_idx!=nb_nodes; ++face_node_idx)
             {
-              for (face_node_idx=1; face_node_idx!=nb_nodes; ++face_node_idx)
+              boost_foreach (connected_face, mapNodeFace[face_nodes[face_node_idx]])
               {
-                boost_foreach (connected_face, mapNodeFace[face_nodes[face_node_idx]])
+                if (connected_face == face)
                 {
-                  if (connected_face == face)
-                  {
-                    ++nb_matched_nodes;
-                    break;
-                  }
-                }
-
-
-                if (nb_matched_nodes == nb_nodes) // face matches the nodes
-                {
-                  // the corresponding face already exists, meaning
-                  // that the face is an internal one, shared by two elements
-                  // here you set the second element (==state) neighbor of the face
-                  found_face = true;
-                  //(*m_connectivity)[elemID][iFace] = currFaceID;
-                  f2c.get_row(face)[1]=mesh_elements_idx;
-                  face_number.get_row(face)[1]=face_idx;
-                  is_bdry_face.get_row(face)=false;
-                  // since it has two neighbor cells,
-                  // this face is surely NOT a boundary face
-                  // m_isBFace[currFaceID] = false;
-
-                  // increment number of inner faces (they always have 2 states)
-                  ++nb_inner_faces;
+                  ++nb_matched_nodes;
                   break;
                 }
               }
-            }
-            else // this only applies to the 1D case
-            {
-              // the corresponding faceID already exists, meaning
-              // that the face is an internal one, shared by two elements
-              // here you set the second element (==state) neighbor of the face
-              found_face = true;
-              //(*elem_to_face)[elemID][iFace] = currFaceID;
-              f2c.get_row(face)[1]=mesh_elements_idx;
-              face_number.get_row(face)[1]=face_idx;
-              is_bdry_face.get_row(face)=false;
 
-              // increment number of inner faces (they always have 2 states)
-              ++nb_inner_faces;
-              break;
+
+              if (nb_matched_nodes == nb_nodes) // face matches the nodes
+              {
+                // the corresponding face already exists, meaning
+                // that the face is an internal one, shared by two elements
+                // here you set the second element (==state) neighbor of the face
+                found_face = true;
+                //(*m_connectivity)[elemID][iFace] = currFaceID;
+                f2c.get_row(face)[1]=mesh_elements_idx;
+                face_number.get_row(face)[1]=face_idx;
+                is_bdry_face.get_row(face)=false;
+                // since it has two neighbor cells,
+                // this face is surely NOT a boundary face
+                // m_isBFace[currFaceID] = false;
+
+                // increment number of inner faces (they always have 2 states)
+                ++nb_inner_faces;
+                break;
+              }
             }
           }
-          if (found_face == false)
+          else // this only applies to the 1D case
           {
-            // a new face has been found
-            // add the ID of the new face in the corresponding nodes
-            // referencing it
-            boost_foreach (face_node, face_nodes)
-            {
-              mapNodeFace[face_node].push_back(m_nb_faces);
-            }
+            // the corresponding faceID already exists, meaning
+            // that the face is an internal one, shared by two elements
+            // here you set the second element (==state) neighbor of the face
+            found_face = true;
+            //(*elem_to_face)[elemID][iFace] = currFaceID;
+            f2c.get_row(face)[1]=mesh_elements_idx;
+            face_number.get_row(face)[1]=face_idx;
+            is_bdry_face.get_row(face)=false;
 
-            // increment the number of faces
-            dummy_row[0]=mesh_elements_idx;
-            f2c.add_row(dummy_row);
-
-            dummy_row[0]=face_idx;
-            face_number.add_row(dummy_row);
-
-            is_bdry_face.add_row(true);
-            ++m_nb_faces;
+            // increment number of inner faces (they always have 2 states)
+            ++nb_inner_faces;
+            break;
           }
         }
-        ++loc_elem_idx;
+        if (found_face == false)
+        {
+          // a new face has been found
+          // add the ID of the new face in the corresponding nodes
+          // referencing it
+          boost_foreach (face_node, face_nodes)
+          {
+            mapNodeFace[face_node].push_back(m_nb_faces);
+          }
+
+          // increment the number of faces
+          dummy_row[0]=mesh_elements_idx;
+          f2c.add_row(dummy_row);
+
+          dummy_row[0]=face_idx;
+          face_number.add_row(dummy_row);
+
+          is_bdry_face.add_row(true);
+          ++m_nb_faces;
+        }
       }
-    }
-  }
+      ++loc_elem_idx;
+    } // end foreach element
+  } // end foreach elements component
+
   f2c.flush();
   face_number.flush();
   is_bdry_face.flush();
@@ -298,22 +312,24 @@ void CFaceCellConnectivity::build_connectivity()
 
   cf_assert(m_nb_faces == m_connectivity->size());
 
-  for (Uint f=0; f<m_connectivity->size(); ++f)
+  if (m_face_building_algorithm)
   {
-    boost_foreach (Uint elem, (*m_connectivity)[f])
+    for (Uint f=0; f<m_connectivity->size(); ++f)
     {
-      if ( elem != Math::Consts::Uint_max() )
+      boost_foreach (Uint elem, (*m_connectivity)[f])
       {
+        if ( elem != Math::Consts::Uint_max() )
+        {
 
-        boost::tie(elem_location_comp,elem_location_idx) = lookup().location(elem);
+          boost::tie(elem_location_comp,elem_location_idx) = lookup().location(elem);
 
-        CCells& elems = elem_location_comp->as_type<CCells>();
-        CList<bool>& is_bdry_elem = elems.get_child("is_bdry").as_type< CList<bool> >();
-        is_bdry_elem[elem_location_idx] = is_bdry_elem[elem_location_idx] || is_bdry_face.get_row(f) ;
+          CCells& elems = elem_location_comp->as_type<CCells>();
+          CList<bool>& is_bdry_elem = elems.get_child("is_bdry").as_type< CList<bool> >();
+          is_bdry_elem[elem_location_idx] = is_bdry_elem[elem_location_idx] || is_bdry_face.get_row(f) ;
+        }
       }
     }
   }
-
 
 #if 0
   for (Uint f=0; f<m_connectivity->size(); ++f)
