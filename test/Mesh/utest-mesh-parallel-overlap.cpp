@@ -274,7 +274,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
 BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 {
   CFinfo << "ParallelOverlap_test" << CFendl;
-  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
+//  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
 
   // Create or read the mesh
 
@@ -317,357 +317,33 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   Core::instance().root().add_component(mesh);
   CNodes& nodes = mesh.nodes();
 
-
   CMeshWriter::Ptr msh_writer =
       build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","msh_writer");
 
-  msh_writer->write_from_to(mesh,"parallel_overlap_before"+msh_writer->get_extensions()[0]);
 
+  msh_writer->write_from_to(mesh,"parallel_overlap_before"+msh_writer->get_extensions()[0]);
   CFinfo << "parallel_overlap_before_P*"+msh_writer->get_extensions()[0]+" written" << CFendl;
 
   CFinfo << "Global Numbering..." << CFendl;
-
 //  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
   CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
-  glb_numbering->configure_option("debug",true);
+//  glb_numbering->configure_option("debug",true);
   glb_numbering->transform(mesh);
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
-
   CFinfo << "Global Numbering... done" << CFendl;
 
   CFinfo << "Partitioning..." << CFendl;
   CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
-
   CMeshPartitioner& p = *partitioner_ptr;
   p.configure_option("graph_package", std::string("PHG"));
   p.initialize(mesh);
   p.partition_graph();
   //p.show_changes();
-
-  BOOST_CHECK(true);
-
   CFinfo << "Partitioning... done" << CFendl;
 
-  const Uint my_rank = PE::instance().rank();
-
   CFinfo << "Migration..." << CFendl;
-
-  mpi::PE::instance().barrier();
-  boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-
-#define NEW_MIGRATION
-
-#ifndef NEW_MIGRATION
   p.migrate();
-#else
-  // ----------------------------------------------------------------------------
-  // ----------------------------------------------------------------------------
-  //                            MIGRATION ALGORITHM
-  // ----------------------------------------------------------------------------
-  // ----------------------------------------------------------------------------
-
-  PackUnpackNodes node_manipulation(nodes);
-
-  // -----------------------------------------------------------------------------
-  // REMOVE GHOST NODES AND GHOST ELEMENTS
-
-
-  for (Uint n=0; n<nodes.size(); ++n)
-  {
-    if (nodes.is_ghost(n))
-      node_manipulation.remove(n);
-  }
-
-  // DONT FLUSH YET!!! node_manipulation.flush()
-
-  PECheckArrivePoint(10,"ghost nodes removed");
-
-  boost_foreach(CElements& elements, find_components_recursively<CElements>(mesh.topology()) )
-  {
-    PackUnpackElements element_manipulation(elements);
-
-    if (elements.rank().size() != elements.size())
-      throw ValueNotFound(FromHere(),elements.uri().string()+" --> mismatch in element sizes (rank.size() = "+to_str(elements.rank().size())+" , elements.size() = "+to_str(elements.size())+")");
-    for (Uint e=0; e<elements.size(); ++e)
-    {
-      if (elements.rank()[e] != my_rank)
-        element_manipulation.remove(e);
-    }
-    /// @todo mechanism not to flush element_manipulation until during real migration
-  }
-
-  PECheckArrivePoint(10,"ghost elements removed");
-
-  // -----------------------------------------------------------------------------
-  // SET NODE CONNECTIVITY TO GLOBAL NUMBERS BEFORE PARTITIONING
-
-  const CList<Uint>& global_node_indices = mesh.nodes().glb_idx();
-  boost_foreach (CEntities& elements, mesh.topology().elements_range())
-  {
-    boost_foreach ( CTable<Uint>::Row nodes, elements.as_type<CElements>().node_connectivity().array() )
-    {
-      boost_foreach ( Uint& node, nodes )
-      {
-        node = global_node_indices[node];
-      }
-    }
-  }
-  PECheckArrivePoint(10,"glb node connectivity renumbered");
-
-
-  // -----------------------------------------------------------------------------
-  // SEND ELEMENTS AND NODES FROM PARTITIONING ALGORITHM
-
-  std::vector<Component::Ptr> mesh_element_comps = mesh.elements().components();
-
-  mpi::Buffer send_to_proc;  std::vector<int> send_strides(PE::instance().size());
-  mpi::Buffer recv_from_all; std::vector<int> recv_strides(PE::instance().size());
-
-  // Move elements
-  for(Uint i=0; i<mesh_element_comps.size(); ++i)
-  {
-    CElements& elements = mesh_element_comps[i]->as_type<CElements>();
-
-    send_to_proc.reset();
-    recv_from_all.reset();
-
-    PackUnpackElements migrate_element(elements);
-    std::vector<Uint> nb_elems_to_send(PE::instance().size());
-
-    for (Uint r=0; r<PE::instance().size(); ++r)
-    {
-      Uint displs = send_to_proc.packed_size();
-      for (Uint e=0; e<p.exported_elements()[i][r].size(); ++e)
-        send_to_proc << migrate_element(p.exported_elements()[i][r][e],PackUnpackElements::MIGRATE);
-      send_strides[r] = send_to_proc.packed_size() - displs;
-    }
-
-    std::cout << PERank << "elements " << elements.uri().path() << " send_strides = " << send_strides << std::endl;
-
-    my_all_to_all(send_to_proc,send_strides,recv_from_all,recv_strides);
-
-    std::cout << PERank << "elements " << elements.uri().path() << " recv_strides = " << recv_strides << std::endl;
-
-    while(recv_from_all.more_to_unpack())
-      recv_from_all >> migrate_element;
-    migrate_element.flush();
-  }
-
-  PECheckArrivePoint(10,"elements moved");
-
-
-  // Move nodes
-   send_to_proc.reset();
-   recv_from_all.reset();
-
-   std::set<Uint> packed_nodes;
-   for (Uint r=0; r<PE::instance().size(); ++r)
-   {
-     Uint displs = send_to_proc.packed_size();
-     for (Uint n=0; n<p.exported_nodes()[r].size(); ++n)
-     {
-       send_to_proc << node_manipulation(p.exported_nodes()[r][n],PackUnpackNodes::MIGRATE);
-     }
-     send_strides[r] = send_to_proc.packed_size() - displs;
-   }
-
-  // STILL DONT FLUSH!!! node_manipulation.flush();
-
-   PECheckArrivePoint(10,"nodes packed and removed");
-
-   std::cout << PERank << "nodes send_strides = " << send_strides << std::endl;
-   my_all_to_all(send_to_proc,send_strides,recv_from_all,recv_strides);
-   std::cout << PERank << "nodes recv_strides = " << recv_strides << std::endl;
-
-   PECheckArrivePoint(10,"nodes communicated");
-
-   while (recv_from_all.more_to_unpack())
-    recv_from_all >> node_manipulation;
-
-   // FINALLY FLUSH NODES
-   node_manipulation.flush();
-
-   PECheckArrivePoint(10,"nodes moved");
-
-   // -----------------------------------------------------------------------------
-   // MARK EVERYTHING AS OWNED
-
-   for (Uint n=0; n<nodes.size(); ++n)
-     nodes.rank()[n] = my_rank;
-
-   boost_foreach(CEntities& elements, mesh.topology().elements_range())
-   {
-     for (Uint e=0; e<elements.size(); ++e)
-       elements.rank()[e] = my_rank;
-   }
-
-   PECheckArrivePoint(10,"everything marked as owned");
-
-
-  // -----------------------------------------------------------------------------
-  // ELEMENTS AND NODES HAVE BEEN MOVED
-  // -----------------------------------------------------------------------------
-
-  boost::this_thread::sleep(boost::posix_time::milliseconds(20));
-
-  // -----------------------------------------------------------------------------
-  // COLLECT GHOST-NODES TO LOOK FOR ON OTHER PROCESSORS
-
-  std::set<Uint> owned_nodes;
-  for (Uint n=0; n<nodes.size(); ++n)
-    owned_nodes.insert(nodes.glb_idx()[n]);
-
-  std::set<Uint> ghost_nodes;
-  boost_foreach(const CElements& elements, find_components_recursively<CElements>(mesh.topology()))
-  {
-    boost_foreach(CConnectivity::ConstRow connected_nodes, elements.node_connectivity().array())
-    {
-      boost_foreach(const Uint node, connected_nodes)
-      {
-        if (owned_nodes.find(node) == owned_nodes.end())
-          ghost_nodes.insert(node);
-      }
-    }
-  }
-
-  std::vector<Uint> request_nodes;  request_nodes.reserve(ghost_nodes.size());
-  boost_foreach(const Uint node, ghost_nodes)
-    request_nodes.push_back(node);
-
-//  PEProcessSortedExecute(-1,
-//  std::cout << PERank << "look for = " << request_nodes << std::endl;
-//  boost::this_thread::sleep(boost::posix_time::milliseconds(10));
-//  )
-  BOOST_CHECK(true);
-
-  // -----------------------------------------------------------------------------
-  // COMMUNICATE NODES TO LOOK FOR
-
-  std::vector<std::vector<Uint> > recv_request_nodes;
-  my_all_gather(request_nodes,recv_request_nodes);
-
-  BOOST_CHECK(true);
-
-//  if (PE::instance().rank() == 0)
-//  {
-//    std::cout << "[*] everybody is looking for = ";
-//    for (Uint i=0; i<recv_request_nodes.size(); ++i)
-//      std::cout << recv_request_nodes[i] << "     ";
-//    std::cout << std::endl;
-//  }
-  BOOST_CHECK(true);
-
-  // -----------------------------------------------------------------------------
-  // SEARCH FOR REQUESTED NODES
-
-  PackUnpackNodes& copy_node = node_manipulation;
-  std::vector<std::vector<Uint> > found_nodes(PE::instance().size());
-  std::vector<mpi::Buffer> nodes_to_send(PE::instance().size());
-  std::vector<Uint> nb_nodes_to_send(PE::instance().size(),0);
-  for (Uint proc=0; proc<PE::instance().size(); ++proc)
-  {
-    if (proc != PE::instance().rank())
-    {
-
-      for (Uint n=0; n<recv_request_nodes[proc].size(); ++n)
-      {
-        Uint find_glb_idx = recv_request_nodes[proc][n];
-
-        // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-        /// @todo THIS ALGORITHM HAS TO BE IMPROVED (BRUTE FORCE)
-        Uint loc_idx=0;
-        bool found=false;
-        boost_foreach(const Uint glb_idx, nodes.glb_idx().array())
-        {
-
-          cf_assert(loc_idx < nodes.size());
-          if (glb_idx == find_glb_idx)
-          {
-            //          found_nodes[proc].push_back(loc_idx);
-            found_nodes[proc].push_back(glb_idx);
-            //std::cout << PERank << "copying node " << glb_idx << " from loc " << loc_idx << std::flush;
-            nodes_to_send[proc] << copy_node(loc_idx,PackUnpackNodes::COPY);
-
-            ++nb_nodes_to_send[proc];
-            break;
-          }
-          ++loc_idx;
-        }
-        // +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-      }
-    }
-  }
-//  PEProcessSortedExecute(-1,
-//  std::cout << PERank << "found_nodes = ";
-//  for (Uint i=0; i<found_nodes.size(); ++i)
-//    std::cout << found_nodes[i] << "     ";
-//  std::cout << std::endl;
-//  BOOST_CHECK(true);
-//  )
-
-  PECheckArrivePoint(10,"ready to send ghost nodes");
-
-  // -----------------------------------------------------------------------------
-  // COMMUNICATE FOUND NODES BACK TO RANK THAT REQUESTED IT
-
-  std::vector<std::vector<Uint> > received_nodes;
-  my_all_to_all(found_nodes,received_nodes);
-
-//  std::cout << PERank << "received_nodes = ";
-//  for (Uint i=0; i<received_nodes.size(); ++i)
-//    std::cout << received_nodes[i] << "     ";
-//  std::cout << std::endl;
-
-  BOOST_CHECK(true);
-
-  std::cout << PERank << "nb_nodes_to_send = " << nb_nodes_to_send << std::endl;
-  std::vector<Uint> nb_nodes_to_recv(PE::instance().size(),0);
-  PE::instance().all_to_all(nb_nodes_to_send,nb_nodes_to_recv);
-  std::cout << PERank << "nb_nodes_to_recv = " << nb_nodes_to_recv << std::endl;
-
-  mpi::Buffer received_nodes_buffer;
-  my_all_to_all(nodes_to_send,received_nodes_buffer);
-
-  PackUnpackNodes add_node(nodes);
-  for (Uint p=0; p<PE::instance().size(); ++p)
-  {
-    std::cout << PERank << "unpacking " << nb_nodes_to_recv[p] << " nodes from proc " << p << std::endl;
-    for (Uint n=0; n<nb_nodes_to_recv[p]; ++n)
-    {
-      received_nodes_buffer >> copy_node;
-    }
-  }
-  copy_node.flush();
-
-  PECheckArrivePoint(10,"ghost nodes added");
-
-  // -----------------------------------------------------------------------------
-  // REQUESTED GHOST-NODES HAVE NOW BEEN ADDED
-  // -----------------------------------------------------------------------------
-
-  // -----------------------------------------------------------------------------
-  // FIX NODE CONNECTIVITY
-  std::map<Uint,Uint> glb_to_loc;
-  std::map<Uint,Uint>::iterator it;
-  bool inserted;
-  for (Uint n=0; n<nodes.size(); ++n)
-  {
-    boost::tie(it,inserted) = glb_to_loc.insert(std::make_pair(nodes.glb_idx()[n],n));
-    if (! inserted)
-      throw ValueExists(FromHere(), std::string(nodes.is_ghost(n)? "ghost " : "" ) + "node["+to_str(n)+"] with glb_idx "+to_str(nodes.glb_idx()[n])+" already exists as "+to_str(glb_to_loc[n]));
-  }
-  boost_foreach (CEntities& elements, mesh.topology().elements_range())
-  {
-    boost_foreach ( CTable<Uint>::Row nodes, elements.as_type<CElements>().node_connectivity().array() )
-    {
-      boost_foreach ( Uint& node, nodes )
-      {
-        node = glb_to_loc[node];
-      }
-    }
-  }
-
-  PECheckArrivePoint(10,"renumbered node connectivity back to normal");
+  CFinfo << "Migration... done" << CFendl;
 
   // -----------------------------------------------------------------------------
   // RENUMBER NODES AND ELEMENTS SEPARATELY
@@ -679,8 +355,19 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // MESH IS NOW COMPLETELY LOAD BALANCED WITHOUT OVERLAP
   // -----------------------------------------------------------------------------
 
-#endif
 
+  // -----------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------
+  //                                GROW OVERLAP
+  // -----------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------
+  // -----------------------------------------------------------------------------
+
+
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBuildFaces","build_faces")->transform(mesh);
+
+  CFinfo << mesh.tree() << CFendl;
 
   // Create a field with glb element numbers
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);

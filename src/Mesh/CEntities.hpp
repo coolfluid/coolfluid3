@@ -73,6 +73,8 @@ public: // functions
   CList<Uint>& rank() { return *m_rank; }
   const CList<Uint>& rank() const { return *m_rank; }
 
+  bool is_ghost(const Uint idx) const;
+
   /// return the number of elements
   virtual Uint size() const;
 

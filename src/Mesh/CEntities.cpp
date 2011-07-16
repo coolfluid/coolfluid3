@@ -13,6 +13,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/Signal.hpp"
 #include "Common/XML/SignalOptions.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/CConnectivity.hpp"
 #include "Mesh/CList.hpp"
@@ -296,6 +297,16 @@ void CEntities::signal_create_space ( SignalArgs& node )
   std::string shape_function_builder = options.value<std::string>("shape_function");
 
   CSpace& space = create_space(name, shape_function_builder);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool CEntities::is_ghost(const Uint idx) const
+{
+  cf_assert_desc(to_str(idx)+">="+to_str(size()),idx < size());
+  cf_assert(size() == m_rank->size());
+  cf_assert(idx<m_rank->size());
+  return (*m_rank)[idx] != mpi::PE::instance().rank();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

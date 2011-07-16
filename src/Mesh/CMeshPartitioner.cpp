@@ -406,7 +406,6 @@ void flex_all_to_all(const mpi::Buffer& send, std::vector<int>& send_strides, mp
   recv_strides.resize(mpi::PE::instance().size());
   std::vector<int> recv_displs(mpi::PE::instance().size());
   mpi::PE::instance().all_to_all(send_strides,recv_strides);
-  //std::cout << PERank << "recv_strides = " << recv_strides << std::endl;
   if (recv_displs.size()) recv_displs[0] = 0;
   for (Uint i=1; i<mpi::PE::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
