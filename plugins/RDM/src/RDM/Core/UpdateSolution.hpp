@@ -17,7 +17,7 @@ namespace CF {
 namespace Mesh { class CField; }
 namespace RDM {
 
-class RDM_Core_API UpdateSolution : public Solver::Action
+class RDM_Core_API UpdateSolution : public CF::Solver::Action
 {
 public: // typedefs
 

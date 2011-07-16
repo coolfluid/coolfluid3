@@ -21,8 +21,12 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CDomain.hpp"
+#include "Mesh/CMesh.hpp"
+#include "Mesh/CNodes.hpp"
+#include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
+#include "Physics/VariableManager.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
@@ -52,6 +56,12 @@ struct CModel::Implementation
   {
     cf_assert(!m_domain.expired());
     CDomain& domain = *m_domain.lock();
+    
+    if(m_physics.expired())
+      throw SetupError(FromHere(), "Physical model not created for " + m_component.uri().string());
+    
+    m_physics.lock()->variable_manager().configure_option("dimensions", domain.active_mesh().topology().nodes().dim());
+    
     boost_foreach(CSolver& solver, find_components<CSolver>(m_component))
     {
       solver.mesh_changed(domain.active_mesh());
@@ -61,6 +71,7 @@ struct CModel::Implementation
   Component& m_component;
   CGroup& m_tools;
   boost::weak_ptr<CDomain> m_domain;
+  boost::weak_ptr<Physics::PhysModel> m_physics;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,12 +126,13 @@ CModel::~CModel() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::simulate ()
+void CModel::simulate()
 {
   CFinfo << "\n" << name() << ": start simulation" << CFendl;
-
-  CDomain& dom = domain();
-    
+  
+  // Create the fields, if they don't exist already
+  create_fields();
+  
   // call all the solvers
   boost_foreach(CSolver& solver, find_components<CSolver>(*this))
   {
@@ -162,15 +174,15 @@ CGroup& CModel::tools()
 
 Physics::PhysModel& CModel::create_physics( const std::string& builder )
 {
-  //CPhysicalModel& physical_model = create_component<CPhysicalModel>(name);
-  //configure_option_recursively("physical_model", physical_model.uri());
-  
-	std::string pm_name = CBuilder::extract_reduced_name(builder);
+  std::string pm_name = CBuilder::extract_reduced_name(builder);
 
   Physics::PhysModel::Ptr pm =
-      build_component_abstract_type_reduced<Physics::PhysModel>( builder , pm_name );
+      build_component_abstract_type<Physics::PhysModel>( builder , pm_name );
 
   add_component(pm);
+  m_implementation->m_physics = pm;
+  
+  configure_option_recursively("physical_model", pm->uri());
 
   return *pm;
 }
@@ -199,6 +211,44 @@ CSolver& CModel::create_solver( const std::string& builder)
   add_component(solver);
 
   return *solver;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CModel::create_fields()
+{
+  typedef std::map<std::string, std::string> FieldsT;
+  FieldsT fields;
+  physics().variable_manager().field_specification(fields);
+  
+  CMesh& mesh = domain().active_mesh();
+  
+  for(FieldsT::const_iterator it = fields.begin(); it != fields.end(); ++it)
+  {
+    const std::string& field_name = it->first;
+    const std::string& var_spec = it->second;
+    
+    Component::Ptr field_comp = mesh.get_child_ptr(field_name);
+    if(is_not_null(field_comp))
+    {
+      CField::Ptr field = boost::dynamic_pointer_cast<CField>(field_comp);
+      if(!field)
+        throw SetupError(FromHere(), "Adding fields in " + uri().string() + ": Component with name " + field_name + " exists, but it is not a field");
+      
+      // Check if the existing field is compatible with the new one
+      std::stringstream existing_spec;
+      for(Uint i = 0; i != field->nb_vars(); ++i)
+      {
+        existing_spec << (i > 0 ? "," : "") << field->var_name(i) << "[" << field->var_type(i) << "]";
+      }
+      if(existing_spec.str() != var_spec)
+        throw SetupError(FromHere(), "Adding fields in " + uri().string() + ": Field with name " + field_name + " exists, but it is incompatible: old spec " + existing_spec.str() + " != new spec " + var_spec);
+    }
+    else
+    {
+      mesh.create_field(field_name, CF::Mesh::CField::Basis::POINT_BASED, "space[0]", var_spec);
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -279,25 +329,32 @@ void CModel::signal_create_solver ( Common::SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::setup(const std::string& builder_name)
+void CModel::setup(const std::string& solver_builder_name, const std::string& physics_builder_name)
 {
   create_domain("Domain");
-  create_solver(builder_name);
-  create_physics("Physics");
+  create_solver(solver_builder_name);
+  create_physics(physics_builder_name);
 }
 
 void CModel::signature_setup(SignalArgs& node)
 {
   SignalOptions options( node );
-  options.add_option< OptionT<std::string> >("builder")
+ 
+  options.add_option< OptionT<std::string> >("solver_builder")
+    ->set_pretty_name("Solver Builder")
     ->set_description("Builder name");
+    
+  options.add_option< OptionT<std::string> >("physics_builder")
+    ->set_pretty_name("Physics Builder")
+    ->set_description("Builder name for the physics");
 }
 
 void CModel::signal_setup(SignalArgs& node)
 {
   SignalOptions options( node );
-  const std::string builder_name = options.value<std::string>( "builder" );
-  setup(builder_name);
+  const std::string solver_builder_name = options.value<std::string>( "solver_builder" );
+  const std::string physics_builder_name = options.value<std::string>( "physics_builder" );
+  setup(solver_builder_name, physics_builder_name);
 }
 
 

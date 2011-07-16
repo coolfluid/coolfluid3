@@ -10,7 +10,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include "LibUFEM.hpp"
-#include "SteadyModel.hpp"
+#include "LinearSolver.hpp"
 
 namespace CF {
 
@@ -18,7 +18,7 @@ namespace UFEM {
 
 /// Special case of steady FEM problems: only one LSS solve is needed to get the solution of the problem
 /// Useful for i.e. linear heat conduction
-class UFEM_API HeatConductionSteady : public SteadyModel
+class UFEM_API HeatConductionSteady : public LinearSolver
 {
 public: // typedefs
 

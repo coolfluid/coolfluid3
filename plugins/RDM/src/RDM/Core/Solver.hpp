@@ -32,7 +32,7 @@ namespace RDM {
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_Core_API Solver : public Solver::CSolver {
+class RDM_Core_API Solver : public CF::Solver::CSolver {
 
 public: // typedefs
 
@@ -107,13 +107,13 @@ private: // data
   Common::CAction::Ptr m_compute_domain_terms;
 
   /// action to update the solution
-  Solver::Action::Ptr m_update_solution;
+  CF::Solver::Action::Ptr m_update_solution;
   /// compute the L-norm for convergence
   Common::CAction::Ptr m_compute_norm;
   /// action to cleanup
-  Solver::Action::Ptr m_cleanup;
+  CF::Solver::Action::Ptr m_cleanup;
   /// action to iterate solution
-  Solver::Action::Ptr m_time_stepping;
+  CF::Solver::Action::Ptr m_time_stepping;
 
 };
 

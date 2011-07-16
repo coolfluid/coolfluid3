@@ -17,7 +17,7 @@
 
 namespace CF {
 namespace Common { class CLink; }
-namespace Solver { class CModel; }
+namespace Solver { class CModelUnsteady; }
 namespace SFDM {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ public: // functions
 
   //@} END SIGNALS
 
-  Solver::CModel& model();
+  Solver::CModelUnsteady& model();
 
 private: // functions
 

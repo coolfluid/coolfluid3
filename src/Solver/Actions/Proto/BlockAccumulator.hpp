@@ -157,7 +157,7 @@ struct BlockAccumulator :
 
 /// Grammar matching block accumulation expressions
 template<typename GrammarT>
-struct BlockAccumulation : 
+struct BlockAccumulation :
   boost::proto::when
   <
     boost::proto::or_< boost::proto::switch_< MatrixAssignOpsCases<SystemMatrixTag> >, boost::proto::switch_< MatrixAssignOpsCases<SystemRHSTag> > >,

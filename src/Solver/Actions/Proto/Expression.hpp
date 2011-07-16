@@ -22,6 +22,7 @@
 #include "Mesh/CElements.hpp"
 
 #include "Physics/PhysModel.hpp"
+#include "Physics/VariableManager.hpp"
 
 #include "ConfigurableConstant.hpp"
 #include "ElementLooper.hpp"
@@ -142,13 +143,13 @@ private:
     /// Register a scalar
     void apply(ScalarField& field, const bool is_equation_var) const
     {
-      m_physical_model.register_variable(field.name(), field.variable_name, field.field_name, Physics::PhysModel::SCALAR, is_equation_var);
+      m_physical_model.variable_manager().register_variable(field.name(), field.variable_name, field.field_name, CF::Physics::VariableManager::SCALAR, is_equation_var);
     }
 
     /// Register a vector field
     void apply(VectorField& field, const bool is_equation_var) const
     {
-      m_physical_model.register_variable(field.name(), field.variable_name, field.field_name, Physics::PhysModel::VECTOR, is_equation_var);
+      m_physical_model.variable_manager().register_variable(field.name(), field.variable_name, field.field_name, CF::Physics::VariableManager::VECTOR, is_equation_var);
     }
 
   private:

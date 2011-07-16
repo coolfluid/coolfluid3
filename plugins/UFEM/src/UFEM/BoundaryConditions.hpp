@@ -14,7 +14,6 @@
 #include "Solver/CSolver.hpp"
 
 #include "Solver/Actions/Proto/BlockAccumulator.hpp"
-#include "Solver/Actions/Proto/CProtoActionDirector.hpp"
 #include "Solver/Actions/Proto/DirichletBC.hpp"
 
 #include "LibUFEM.hpp"
@@ -24,7 +23,7 @@ namespace CF {
 namespace UFEM {
 
 /// BoundaryConditions for UFEM problems
-class UFEM_API BoundaryConditions : public Solver::Actions::Proto::CProtoActionDirector
+class UFEM_API BoundaryConditions : public Common::CActionDirector
 {
 public: // typedefs
 
@@ -42,11 +41,14 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "BoundaryConditions"; }
   
-  /// Add a constant dirichlet BC
+  /// Create constant dirichlet BC
   /// @param region_name Name of the boundary region. Must be unique in the problem region
   /// @param variable_name Name of the variable for which to set the BC
   /// @param default_value Default value
-  CAction& add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value);
+  void add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value);
+  
+  /// Signal to create a constant BC and add it to the sequence of executed actions
+  void signal_add_constant_bc(Common::SignalArgs& node);
   
 private:
   class Implementation;

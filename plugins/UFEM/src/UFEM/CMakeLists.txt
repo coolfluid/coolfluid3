@@ -5,19 +5,16 @@ list( APPEND coolfluid_ufem_files
   HeatConductionSteady.cpp
   LibUFEM.cpp
   LibUFEM.hpp
-  LinearProblem.hpp
-  LinearProblem.cpp
-  Model.hpp
-  Model.cpp
+  LinearSolver.hpp
+  LinearSolver.cpp
+  LinearSolverUnsteady.hpp
+  LinearSolverUnsteady.cpp
   NavierStokesOps.hpp
-  SteadyModel.hpp
-  SteadyModel.cpp
   TimeLoop.hpp
-  UnsteadyModel.hpp
-  UnsteadyModel.cpp
+  TimeLoop.cpp
 )
 
-list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_sf coolfluid_solver_actions)
+list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_sf coolfluid_solver_actions coolfluid_physics)
 
 set( coolfluid_ufem_condition ${CF_ENABLE_PROTO} )
 

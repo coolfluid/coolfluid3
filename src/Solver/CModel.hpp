@@ -60,6 +60,12 @@ public: // functions
   /// create solver
   /// @param builder_name name of the CBuilder of the solver
   virtual CSolver& create_solver( const std::string& builder );
+  
+  /// Create the fields needed to run the simulation. This is called at the start of every
+  /// simulation, and calling it when the fields have been created does nothing.
+  /// Affects the current active mesh in the domain, and uses field data provided by
+  /// the physical model's VariableManager
+  virtual void create_fields();
 
   /// gets the domain from this model
   virtual Mesh::CDomain& domain();
@@ -77,8 +83,9 @@ public: // functions
   virtual void simulate();
   
   /// Short setup
-  /// @param builder_name Name of the builder for the solver
-  virtual void setup(const std::string& builder_name);
+  /// @param solver_builder_name Name of the builder for the solver
+  /// @param physics_builder_name Name of the builder for the physics
+  virtual void setup(const std::string& solver_builder_name, const std::string& physics_builder_name);
 
   /// @name SIGNALS
   //@{

@@ -9,8 +9,7 @@ add_subdirectory( Eigen )
 add_subdirectory( Common )
 add_subdirectory( Math )
 add_subdirectory( Mesh )
+add_subdirectory( Physics )
 add_subdirectory( Solver )
-
-add_subdirectory( UI )
-
 add_subdirectory( Tools )
+add_subdirectory( UI )

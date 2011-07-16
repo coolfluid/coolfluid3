@@ -43,8 +43,8 @@ namespace RDM {
 using namespace Common;
 using namespace Mesh;
 using namespace Mesh::Actions;
-using namespace Solver;
-using namespace Solver::Actions;
+using namespace CF::Solver;
+using namespace CF::Solver::Actions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -120,7 +120,7 @@ Solver::Solver ( const std::string& name  ) :
   // additional actions
 
   m_cleanup      = create_static_component_ptr<Cleanup>("cleanup");
-  m_compute_norm = create_static_component_ptr<Solver::Actions::CComputeLNorm>("compute_norm");
+  m_compute_norm = create_static_component_ptr<CF::Solver::Actions::CComputeLNorm>("compute_norm");
 
   m_time_stepping = create_static_component_ptr<ForwardEuler>("time_stepping");
 

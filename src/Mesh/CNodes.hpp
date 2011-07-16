@@ -58,8 +58,10 @@ public: // functions
 
   virtual void resize(const Uint size);
 
+  /// The number of nodes in the mesh
   Uint size() const { return coordinates().size(); }
 
+  /// The dimension for the coordinates of the mesh
   Uint dim() const { return coordinates().row_size(); }
 
   bool is_ghost(const Uint idx) const;

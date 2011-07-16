@@ -21,6 +21,9 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 
+#include "Physics/PhysModel.hpp"
+#include "Physics/VariableManager.hpp"
+
 #include "LSSProxy.hpp"
 #include "Transforms.hpp"
 
@@ -86,7 +89,7 @@ struct NodeVarData< ScalarField >
   
   NodeVarData(const ScalarField& placeholder, Mesh::CRegion& region, const Uint var_offset) :
     offset(var_offset),
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.name())->as_ptr<Mesh::CField>() ),
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField>() ),
     m_data( m_field.data() )
   {
     m_var_begin = m_field.var_index(placeholder.variable_name);
@@ -362,7 +365,7 @@ private:
     void apply(const VarT& var, VarDataT*& data)
     {
       const std::string& var_name = var.name();
-      const Uint offset = (physical_model && physical_model->is_state_variable(var_name)) ? physical_model->offset(var_name) : 0;
+      const Uint offset = (physical_model && physical_model->variable_manager().is_state_variable(var_name)) ? physical_model->variable_manager().offset(var_name) : 0;
       data = new VarDataT(var, region, offset);
     }
     

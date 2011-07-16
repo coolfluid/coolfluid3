@@ -9,23 +9,29 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Solver/Actions/Proto/Expression.hpp"
+#include "Common/Core.hpp" 
+#include "Common/CEnv.hpp"
+#include "Common/CRoot.hpp"
+
+#include "Mesh/CDomain.hpp"
+
+#include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
 
-#include "Common/Core.hpp" 
-#include "Common/CRoot.hpp"
+#include "Solver/Actions/Proto/CProtoAction.hpp"
+#include "Solver/Actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "UFEM/LinearProblem.hpp"
-#include "UFEM/UnsteadyModel.hpp"
+#include "UFEM/LinearSolverUnsteady.hpp"
+#include "UFEM/TimeLoop.hpp"
 
 using namespace CF;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::Solver::Actions::Proto;
 using namespace CF::Common;
-using namespace CF::Math::MathConsts;
+using namespace CF::Math::Consts;
 using namespace CF::Mesh;
 
 using namespace boost;
@@ -46,71 +52,76 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   const Real dt = 0.1;
   const boost::proto::literal<RealVector2> alpha(RealVector2(1., 2.));
   
-  // Setup a UFEM model
-  UFEM::UnsteadyModel& model = Core::instance().root().create_component<UFEM::UnsteadyModel>("Model");
-  CMesh& mesh = model.get_child("Mesh").as_type<CMesh>();
+  // Setup a model
+  CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
+  CDomain& domain = model.create_domain("Domain");
+  UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
+  
+  // Setup mesh
+  CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
   CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
-  model.problem().solve_action().configure_option("lss", lss.uri());
+  solver.solve_action().configure_option("lss", lss.uri());
   
   // Proto placeholders
   MeshTerm<0, VectorField> v("VectorVariable", "v");
-  
-  // shorthand for the problem and boundary conditions
-  UFEM::LinearProblem& p = model.problem();
-  UFEM::BoundaryConditions& bc = p.boundary_conditions();
   
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<Mesh::SF::Quad2DLagrangeP1> allowed_elements;
 
   // build up the solver out of different actions
-  model << model.add_action("Initialize", nodes_expression(v = initial_temp)) <<
-  ( // Time loop
-    p << p.add_action
+  solver 
+    << create_proto_action("Initialize", nodes_expression(v = initial_temp))
+    <<
     (
-      "Assembly",
-      elements_expression // assembly
+      solver.create_component<UFEM::TimeLoop>("TimeLoop")
+      << solver.zero_action()
+      << create_proto_action
       (
-        allowed_elements,
-        group <<
+        "Assembly",
+        elements_expression // assembly
         (
-          _A = _0, _T = _0,
-          element_quadrature <<
+          allowed_elements,
+          group <<
           (
-            _A(v[_i], v[_i]) += transpose(nabla(v)) * alpha[_i] * nabla(v),
-            _T(v[_i], v[_i]) += model.invdt() * (transpose(N(v)) * N(v))
-          ),
-          p.system_matrix += _T + 0.5 * _A,
-          p.system_rhs -= _A * _b
+            _A = _0, _T = _0,
+            element_quadrature <<
+            (
+              _A(v[_i], v[_i]) += transpose(nabla(v)) * alpha[_i] * nabla(v),
+              _T(v[_i], v[_i]) += solver.invdt() * (transpose(N(v)) * N(v))
+            ),
+            solver.system_matrix += _T + 0.5 * _A,
+            solver.system_rhs -= _A * _b
+          )
         )
       )
-    ) <<
-    ( // boundary conditions
-      bc
-      << bc.add_constant_bc("left", "VectorVariable", outside_temp)
-      << bc.add_constant_bc("right", "VectorVariable", outside_temp)
-      << bc.add_constant_bc("bottom", "VectorVariable", outside_temp)
-      << bc.add_constant_bc("top", "VectorVariable", outside_temp)
-    )
-    << p.solve_action() // solve
-    << p.add_action("Increment", nodes_expression(v += p.solution(v))) // increment solution
-  );
+      << solver.boundary_conditions()
+      << solver.solve_action()
+      << create_proto_action("Increment", nodes_expression(v += solver.solution(v)))
+    );
+  
+  // Creating the physics here makes sure everything is up-to-date
+  model.create_physics("CF.Physics.DynamicModel");
+  domain.set_active_mesh(mesh);
+  
+  solver.boundary_conditions().add_constant_bc("left", "VectorVariable", outside_temp);
+  solver.boundary_conditions().add_constant_bc("right", "VectorVariable", outside_temp);
+  solver.boundary_conditions().add_constant_bc("bottom", "VectorVariable", outside_temp);
+  solver.boundary_conditions().add_constant_bc("top", "VectorVariable", outside_temp);
   
   // Configure timings
-  model.time().configure_option("time_step", dt);
-  model.time().configure_option("end_time", end_time);
-      
+  CTime& time = model.create_time();
+  time.configure_option("time_step", dt);
+  time.configure_option("end_time", end_time);
+  
   // Run the solver
-  model.execute();
+  model.simulate();
   
   // Write result
-  URI output_file("systems.msh");
-  model.configure_option("output_file", output_file);
-  SignalArgs a;
-  model.signal_write_mesh(a);
+  domain.write_mesh(URI("systems.msh"));
 };
 
 // Expected matrices:

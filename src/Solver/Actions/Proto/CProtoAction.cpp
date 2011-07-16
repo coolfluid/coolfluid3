@@ -23,24 +23,17 @@ namespace Proto {
 
 using namespace Common;
 using namespace Mesh;
+using namespace Physics;
 
 ComponentBuilder < CProtoAction, CAction, LibSolver > CProtoAction_Builder;
 
 struct CProtoAction::Implementation
 {
-  Implementation(Component& comp) :
-    m_component(comp)
+  Implementation(Component& comp, const boost::weak_ptr<PhysModel>& physical_model) :
+    m_component(comp),
+    m_physical_model(physical_model)
   {
-    m_component.options().add_option( OptionComponent<Physics::PhysModel>::create("physical_model",&m_physical_model))
-        ->set_description("Physical model")
-        ->set_pretty_name("Physical Model")
-        ->mark_basic()
-        ->attach_trigger(boost::bind(&Implementation::trigger_physical_model, this));
-
-    m_component.options().add_option( OptionComponent<CRegion>::create("region", &m_region))
-        ->set_description("Region over which the action executes")
-        ->set_pretty_name("Region")
-        ->mark_basic();
+    m_component.option("physical_model").attach_trigger(boost::bind(&Implementation::trigger_physical_model, this));
   }
 
   void trigger_physical_model()
@@ -51,13 +44,13 @@ struct CProtoAction::Implementation
 
   Expression::Ptr m_expression;
   Component& m_component;
-  boost::weak_ptr<Physics::PhysModel> m_physical_model;
-  boost::weak_ptr<CRegion> m_region;
+  
+  const boost::weak_ptr<PhysModel>& m_physical_model;
 };
 
 CProtoAction::CProtoAction(const std::string& name) :
-  CAction(name),
-  m_implementation(new Implementation(*this))
+  Action(name),
+  m_implementation(new Implementation(*this, m_physical_model))
 {
 }
 
@@ -67,12 +60,14 @@ CProtoAction::~CProtoAction()
 
 void CProtoAction::execute()
 {
-  if(m_implementation->m_region.expired())
-    throw SetupError(FromHere(), "Region is not set for action " + uri().string());
+  if(m_loop_regions.empty())
+    CFwarn << "No regions to loop over for action " << uri().string() << CFendl;
 
-  CFdebug << "Running action " << uri().string() << " on region " << m_implementation->m_region.lock()->uri().string() << CFendl;
-
-  m_implementation->m_expression->loop(*m_implementation->m_region.lock());
+  boost_foreach(const CRegion::Ptr& region, m_loop_regions)
+  {
+    CFdebug << "Running action " << uri().string() << " on region " << region->uri().string() << CFendl;
+    m_implementation->m_expression->loop(*region);
+  }
 }
 
 void CProtoAction::set_expression(const boost::shared_ptr< Expression >& expression)
@@ -81,6 +76,15 @@ void CProtoAction::set_expression(const boost::shared_ptr< Expression >& express
   expression->add_options(options());
   m_implementation->trigger_physical_model();
 }
+
+CProtoAction::Ptr create_proto_action(const std::string& name, const boost::shared_ptr< Expression >& expression)
+{
+  CProtoAction::Ptr action = allocate_component<CProtoAction>(name);
+  action->set_expression(expression);
+  
+  return action;
+}
+
 
 } // namespace Proto
 } // namespace Actions

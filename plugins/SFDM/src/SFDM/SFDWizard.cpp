@@ -17,7 +17,7 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
-#include "Solver/CModel.hpp"
+#include "Solver/CModelUnsteady.hpp"
 #include "Solver/FlowSolver.hpp"
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CTime.hpp"
@@ -144,16 +144,16 @@ SFDWizard::SFDWizard( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-CModel& SFDWizard::model()
+CModelUnsteady& SFDWizard::model()
 {
-  return m_model_link->follow()->as_type<CModel>();
+  return m_model_link->follow()->as_type<CModelUnsteady>();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 void SFDWizard::create_simulation()
 {
-  CModel& model = Core::instance().root().create_component<CModel>(option("model").value_str());
+  CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>(option("model").value_str());
   m_model_link->link_to(model);
 
   CPhysicalModel& physical_model = model.create_physics("Physics");
@@ -225,7 +225,7 @@ void SFDWizard::start_simulation(const Real& end_time, const Real& time_step)
   if (m_model_link->is_linked() == false)
     throw SetupError(FromHere(),"Model was not created through this wizard");
 
-  CModel& model = m_model_link->follow()->as_type<CModel>();
+  CModelUnsteady& model = m_model_link->follow()->as_type<CModelUnsteady>();
 
   model.time()
       .configure_option("end_time",end_time)
@@ -325,7 +325,7 @@ void SFDWizard::signature_start_simulation( SignalArgs& node )
   SignalOptions options( node );
 
   // name
-  CTime& time = m_model_link->follow()->as_type<CModel>().time();
+  CTime& time = m_model_link->follow()->as_type<CModelUnsteady>().time();
   options.add_option< OptionT<Real> >("current_time", time.time())
      ->set_description("Current Time" );
   options.add_option< OptionT<Real> >("end_time", time.option("end_time").value<Real>())

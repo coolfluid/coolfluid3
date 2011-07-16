@@ -7,40 +7,32 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for heat-conduction related proto operations"
 
-#include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Solver/Actions/Proto/Expression.hpp"
-
-#include "Common/Core.hpp"
+#include "Common/Core.hpp" 
+#include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/ElementData.hpp"
+#include "Mesh/CDomain.hpp"
 
-#include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/SF/Types.hpp"
-
-#include "Solver/CEigenLSS.hpp"
+#include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
+
+#include "Solver/Actions/Proto/CProtoAction.hpp"
+#include "Solver/Actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "UFEM/LinearProblem.hpp"
-#include "UFEM/UnsteadyModel.hpp"
+#include "UFEM/LinearSolverUnsteady.hpp"
+#include "UFEM/TimeLoop.hpp"
+
 
 using namespace CF;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
 using namespace CF::Solver::Actions::Proto;
 using namespace CF::Common;
-using namespace CF::Math::MathConsts;
+using namespace CF::Math::Consts;
 using namespace CF::Mesh;
 
 using namespace boost;
@@ -133,32 +125,42 @@ BOOST_FIXTURE_TEST_SUITE( ProtoUnsteadySuite, ProtoUnsteadyFixture )
 
 BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
 {
-  // Setup a UFEM model
-  UFEM::UnsteadyModel& model = Core::instance().root().create_component<UFEM::UnsteadyModel>("Model");
-  CMesh& mesh = model.get_child("Mesh").as_type<CMesh>();
+  // debug output
+  Core::instance().environment().configure_option("log_level", 4u);
+  
+  // Setup a model
+  CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
+  CDomain& domain = model.create_domain("Domain");
+  UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
+  
+  // Setup mesh
+  CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
   CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
-  model.problem().solve_action().configure_option("lss", lss.uri());
+  solver.solve_action().configure_option("lss", lss.uri());
   
   // Proto placeholders
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   MeshTerm<1, ScalarField> temperature_analytical("TemperatureAnalytical", "T");
   
-  // shorthand for the problem and boundary conditions
-  UFEM::LinearProblem& p = model.problem();
-  UFEM::BoundaryConditions& bc = p.boundary_conditions();
-  
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<Mesh::SF::Line1DLagrangeP1> allowed_elements;
 
   // add the top-level actions (assembly, BC and solve)
-  model << model.add_action("Initialize", nodes_expression(temperature = initial_temp))
-  << model.add_action("InitializeAnalytical", nodes_expression(temperature_analytical = initial_temp)) <<
-  (
-    p << p.add_action("Assembly", elements_expression
+  solver 
+    << create_proto_action("Initialize", nodes_expression(temperature = initial_temp))
+    << create_proto_action("InitializeAnalytical", nodes_expression(temperature_analytical = initial_temp))
+    <<
+    (
+      solver.create_component<UFEM::TimeLoop>("TimeLoop")
+      << solver.zero_action()
+      << create_proto_action
+      (
+        "Assembly",
+        elements_expression
         (
           allowed_elements,
           group <<
@@ -167,23 +169,32 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
             element_quadrature <<
             (
               _A(temperature) += alpha * transpose(nabla(temperature))*nabla(temperature),
-              _T(temperature) += model.invdt() * transpose(N(temperature))*N(temperature)
+              _T(temperature) += solver.invdt() * transpose(N(temperature))*N(temperature)
             ),
-            p.system_matrix += _T + 0.5 * _A,
-            p.system_rhs -= _A * nodal_values(temperature)
+            solver.system_matrix += _T + 0.5 * _A,
+            solver.system_rhs -= _A * nodal_values(temperature)
           )
-        ))
-      << ( bc << bc.add_constant_bc("xneg", "Temperature", ambient_temp) << bc.add_constant_bc("xpos", "Temperature", ambient_temp) )
-      << p.solve_action()
-      << p.add_action("Increment", nodes_expression(temperature += p.solution(temperature)))
-  );
+        )
+      )
+      << solver.boundary_conditions()
+      << solver.solve_action()
+      << create_proto_action("Increment", nodes_expression(temperature += solver.solution(temperature)))
+    );
+
+  // Creating the physics here makes sure everything is up-to-date
+  model.create_physics("CF.Physics.DynamicModel");
+  domain.set_active_mesh(mesh);
+    
+  solver.boundary_conditions().add_constant_bc("xneg", "Temperature", ambient_temp);
+  solver.boundary_conditions().add_constant_bc("xpos", "Temperature", ambient_temp);
   
   // Configure timings
-  model.time().configure_option("time_step", dt);
-  model.time().configure_option("end_time", end_time);
-      
+  CTime& time = model.create_time();
+  time.configure_option("time_step", dt);
+  time.configure_option("end_time", end_time);
+
   // Run the solver
-  model.execute();
+  model.simulate();
   
   // Check result
   t = model.time().time();

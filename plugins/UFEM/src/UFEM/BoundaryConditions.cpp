@@ -7,6 +7,7 @@
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -17,6 +18,8 @@
 
 #include "Solver/CEigenLSS.hpp"
 #include "Solver/Actions/CSolveSystem.hpp"
+
+#include "Solver/Actions/Proto/CProtoAction.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"
 
 #include "BoundaryConditions.hpp"
@@ -33,44 +36,38 @@ using namespace Solver::Actions::Proto;
 
 struct BoundaryConditions::Implementation
 {
-  Implementation(CProtoActionDirector& comp) :
-   m_component(comp),
-   m_proxy(*m_component.options().add_option< OptionComponent<CEigenLSS> >("lss", URI()), m_component.option("physical_model")),
-   dirichlet(m_proxy)
+  Implementation(CActionDirector& comp) :
+    m_component(comp),
+    m_physical_model(),
+    m_proxy(*(m_component.options().add_option< OptionComponent<CEigenLSS> >("lss", URI())
+              ->set_pretty_name("LSS")
+              ->set_description("The referenced linear system solver")),
+            *(m_component.options().add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model) )
+              ->set_pretty_name("Physical Model")
+              ->set_description("Physical Model"))
+           ),
+    dirichlet(m_proxy)
   {
-    m_component.option("lss")
-        .set_description("The referenced linear system solver")
-        ->set_pretty_name("LSS");
+    m_component.options().add_option< OptionArrayT < URI > > ("regions")
+      ->set_pretty_name("Regions")
+      ->set_description("Regions the boundary condition applies to")
+      ->link_to(&m_region_uris);
   }
 
-  CAction& add_scalar_bc(const std::string& region_name, const std::string& variable_name, const Real default_value)
+  CAction::Ptr create_scalar_bc(const std::string& region_name, const std::string& variable_name, const Real default_value)
   {
     MeshTerm<0, ScalarField> var(variable_name, variable_name);
     ConfigurableConstant<Real> value("value", "Value for constant boundary condition", default_value);
 
-    return m_component.add_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
+    return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
   }
 
-  CAction& add_vector_bc(const std::string& region_name, const std::string& variable_name, const RealVector default_value)
+  CAction::Ptr create_vector_bc(const std::string& region_name, const std::string& variable_name, const RealVector default_value)
   {
     MeshTerm<0, VectorField> var(variable_name, variable_name);
     ConfigurableConstant<RealVector> value("value", "Value for constant boundary condition", default_value);
 
-    return m_component.add_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
-  }
-
-  void signal_add_constant_bc(SignalArgs& node)
-  {
-    SignalOptions options( node );
-
-    const std::string region_name = options.value<std::string>("region_name");
-    const std::string variable_name = options.value<std::string>("variable_name");
-
-    BoundaryConditions& my_bc = dynamic_cast<BoundaryConditions&>(m_component);
-    if(my_bc.physical_model().variable_type(variable_name) == CF::Solver::Physics::PhysModel::SCALAR)
-      my_bc << my_bc.add_constant_bc(region_name, variable_name, 0.);
-    else
-      my_bc << my_bc.add_constant_bc(region_name, variable_name, RealVector());
+    return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
   }
 
   void add_constant_bc_signature(SignalArgs& node)
@@ -84,19 +81,28 @@ struct BoundaryConditions::Implementation
         ->set_description("Variable name for this BC");
   }
 
-  CProtoActionDirector& m_component;
+  // Checked access to the physical model
+  Physics::PhysModel& physical_model()
+  {
+    if(m_physical_model.expired())
+      throw SetupError(FromHere(), "Error accessing physical_model from " + m_component.uri().string());
+    
+    return *m_physical_model.lock();
+  }
+  
+  CActionDirector& m_component;
+  boost::weak_ptr<Physics::PhysModel> m_physical_model;
   LSSProxy m_proxy;
   DirichletBC dirichlet;
+  std::vector<URI> m_region_uris;
 };
 
 BoundaryConditions::BoundaryConditions(const std::string& name) :
-  CProtoActionDirector(name),
+  CActionDirector(name),
   m_implementation( new Implementation(*this) )
 {
-  m_options["propagate_region"].change_value(false);
-
   regist_signal("add_constant_bc" , "Create a constant Dirichlet BC", "Add Constant BC")
-    ->signal->connect( boost::bind(&Implementation::signal_add_constant_bc, m_implementation.get(), _1) );
+    ->signal->connect( boost::bind(&BoundaryConditions::signal_add_constant_bc, this, _1) );
   signal("add_constant_bc")->signature->connect( boost::bind(&Implementation::add_constant_bc_signature, m_implementation.get(), _1) );
 }
 
@@ -104,28 +110,60 @@ BoundaryConditions::~BoundaryConditions()
 {
 }
 
-CAction& BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
+void BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
 {
-  CAction& result = physical_model().variable_type(variable_name) == CF::Solver::Physics::PhysModel::SCALAR ?
-    m_implementation->add_scalar_bc(region_name, variable_name, boost::any_cast<Real>(default_value)) :
-    m_implementation->add_vector_bc(region_name, variable_name, boost::any_cast<RealVector>(default_value));
+  CAction::Ptr result = m_implementation->physical_model().variable_manager().variable_type(variable_name) == Physics::VariableManager::SCALAR ?
+    m_implementation->create_scalar_bc(region_name, variable_name, boost::any_cast<Real>(default_value)) :
+    m_implementation->create_vector_bc(region_name, variable_name, boost::any_cast<RealVector>(default_value));
+    
+  *this << result; // Append action
 
-  OptionComponent<CRegion>& region_option = dynamic_cast< OptionComponent<CRegion>& >(option("region"));
-  if(region_option.check())
+  std::vector<URI> bc_regions;
+  
+  // find the URIs of all the regions that match the region_name
+  boost_foreach(const URI& region_uri, m_implementation->m_region_uris)
   {
-    CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(region_option.component(), region_name);
+    Component::Ptr region_comp = access_component_ptr(region_uri);
+    if(!region_comp)
+      throw SetupError(FromHere(), "No component found at " + region_uri.string() + " when reading regions from " + uri().string());
+    CRegion::Ptr root_region = boost::dynamic_pointer_cast<CRegion>(region_comp);
+    if(!root_region)
+      throw SetupError(FromHere(), "Component at " + region_uri.string() + " is not a region when reading regions from " + uri().string());
+    
+    CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*root_region, region_name);
     if(region)
+      bc_regions.push_back(region->uri());
+  }
+  
+  // debug output
+  if(bc_regions.empty())
+  {
+    CFdebug << "No default regions found for region name " << region_name << CFendl;
+  }
+  else
+  {
+    CFdebug << "Region name " << region_name << " resolved to:\n";
+    boost_foreach(const URI& uri, bc_regions)
     {
-      CFinfo << "Resolved BC default region as " << region->uri().string() << CFendl;
-      result.configure_option("region", region);
-    }
-    else
-    {
-      CFwarn << "Default region with name " << region_name << " was not found" << CFendl;
+      CFdebug << "  " << uri.string() << CFendl;
     }
   }
 
-  return result;
+  result->configure_option("regions", bc_regions);
+  result->configure_option("physical_model", m_implementation->m_physical_model);
+}
+
+void BoundaryConditions::signal_add_constant_bc(SignalArgs& node)
+{
+  SignalOptions options( node );
+  
+  const std::string region_name = options.value<std::string>("region_name");
+  const std::string variable_name = options.value<std::string>("variable_name");
+  
+  if(m_implementation->physical_model().variable_manager().variable_type(variable_name) == Physics::VariableManager::SCALAR)
+    add_constant_bc(region_name, variable_name, 0.);
+  else
+    add_constant_bc(region_name, variable_name, RealVector());
 }
 
 } // UFEM

@@ -9,6 +9,8 @@
 
 #include <boost/proto/core.hpp>
 
+#include "Terminals.hpp"
+
 #include "Math/MatrixTypes.hpp"
 
 /// @file EigenTransforms.hpp 
@@ -324,13 +326,6 @@ struct ColTag
 
 static boost::proto::terminal<RowTag>::type _row = {};
 static boost::proto::terminal<ColTag>::type _col = {};
-
-struct ZeroTag
-{
-};
-
-/// Placeholder for the zero matrix
-static boost::proto::terminal<ZeroTag>::type _0 = {};
 
 /// Indexing into Eigen expressions
 template<typename GrammarT, typename IntegersT>

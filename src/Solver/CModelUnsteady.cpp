@@ -73,14 +73,8 @@ CModelUnsteady::~CModelUnsteady()
 
 void CModelUnsteady::simulate ()
 {
-  CFinfo << "\n" << name() << ": start simulation" << CFendl;
-
-  // call all (non-linear) iterative solvers to solve this dt step
-  boost_foreach(CSolver& is, find_components<CSolver>(*this))
-    is.execute();
-
+  CModel::simulate();
   time().configure_option("time",time().time());
-  CFinfo << name() << ": end simulation\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -18,7 +18,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_Core_API DomainTerm : public Solver::Action {
+class RDM_Core_API DomainTerm : public CF::Solver::Action {
 
 public: // typedefs
 

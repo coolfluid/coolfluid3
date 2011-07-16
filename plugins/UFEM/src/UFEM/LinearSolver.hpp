@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_LinearProblem_hpp
-#define CF_UFEM_LinearProblem_hpp
+#ifndef CF_UFEM_LinearSolver_hpp
+#define CF_UFEM_LinearSolver_hpp
 
 #include "Common/CActionDirector.hpp"
 #include "Common/OptionURI.hpp"
@@ -14,7 +14,6 @@
 #include "Solver/CSolver.hpp"
 
 #include "Solver/Actions/Proto/BlockAccumulator.hpp"
-#include "Solver/Actions/Proto/CProtoActionDirector.hpp"
 #include "Solver/Actions/Proto/DirichletBC.hpp"
 #include "Solver/Actions/Proto/SolutionVector.hpp"
 
@@ -25,36 +24,42 @@ namespace CF {
 
 namespace UFEM {
 
-/// LinearProblem for UFEM problems, allowing dynamic configuration and profiding access to
-/// * Linear solver
+/// LinearSolver for UFEM problems, allowing dynamic configuration and providing access to
+/// * Linear system solver
 /// * Physical model
 /// * Mesh used
 /// * Region to loop over
-class UFEM_API LinearProblem : public Solver::Actions::Proto::CProtoActionDirector
+class UFEM_API LinearSolver : public Solver::CSolver
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<LinearProblem> Ptr;
-  typedef boost::shared_ptr<LinearProblem const> ConstPtr;
+  typedef boost::shared_ptr<LinearSolver> Ptr;
+  typedef boost::shared_ptr<LinearSolver const> ConstPtr;
 
 public: // functions
   
   /// Contructor
   /// @param name of the component
-  LinearProblem ( const std::string& name );
+  LinearSolver ( const std::string& name );
   
-  virtual ~LinearProblem();
+  virtual ~LinearSolver();
 
   /// Get the class name
-  static std::string type_name () { return "LinearProblem"; }
+  static std::string type_name () { return "LinearSolver"; }
   
   virtual void execute();
+  
+  virtual void mesh_changed(Mesh::CMesh& mesh);
+  
+  /// Return an action that resets the LSS to zero
+  Common::CAction& zero_action();
   
   /// Return the action used for solving the system
   Common::CAction& solve_action();
   
   /// Get the component that manages boundary conditions
   BoundaryConditions& boundary_conditions();
+  
   
 private:
   class Implementation;
@@ -75,4 +80,4 @@ public:
 } // CF
 
 
-#endif // CF_UFEM_LinearProblem_hpp
+#endif // CF_UFEM_LinearSolver_hpp

@@ -16,6 +16,7 @@ namespace CF {
 namespace Physics {
 
   class Variables; // forward declaration
+  class VariableManager;
 
   /// base type for the physical properties
   /// @note class is non copyable becase it might contain Eigen matrices
@@ -70,6 +71,13 @@ public: // functions
   virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type, const std::string name ) = 0;
 
   //@} END INTERFACE
+  
+  /// Access to the VariableManager
+  VariableManager& variable_manager();
+  const VariableManager& variable_manager() const;
+  
+private:
+  VariableManager& m_variable_manager;
 
 }; // PhysModel
 

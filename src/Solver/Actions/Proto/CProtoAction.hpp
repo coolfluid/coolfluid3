@@ -10,20 +10,20 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "Common/CAction.hpp"
+#include "Solver/Action.hpp"
 
 namespace CF {
   namespace Common { template<typename T> class OptionComponent; }
   namespace Mesh { class CRegion; }
+  namespace Physics { class PhysModel; }
 namespace Solver {
-  class Physics::PhysModel;
 namespace Actions {
 namespace Proto {
 
 class Expression;
   
 /// Class to encapsulate Proto actions
-class CProtoAction : public Common::CAction
+class CProtoAction : public Solver::Action
 {
 public:
   typedef boost::shared_ptr< CProtoAction > Ptr;
@@ -45,6 +45,9 @@ private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
 };
+
+/// Create a new CProtoAction, immediatly setting the expression
+CProtoAction::Ptr create_proto_action(const std::string& name, const boost::shared_ptr< Expression >& expression);
 
 } // namespace Proto
 } // namespace Actions

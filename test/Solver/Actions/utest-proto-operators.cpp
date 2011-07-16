@@ -10,6 +10,10 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
+
+#include "Solver/CModel.hpp"
+#include "Solver/CSolver.hpp"
+
 #include "Solver/Actions/Proto/ElementLooper.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"
 #include "Solver/Actions/Proto/Functions.hpp"
@@ -37,6 +41,7 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 #include "Tools/Testing/ProfiledTestFixture.hpp"
+#include <Mesh/CDomain.hpp>
 
 using namespace CF;
 using namespace CF::Solver;
@@ -45,7 +50,7 @@ using namespace CF::Solver::Actions::Proto;
 using namespace CF::Mesh;
 using namespace CF::Common;
 
-using namespace CF::Math::MathConsts;
+using namespace CF::Math::Consts;
 
 using namespace boost;
 
@@ -453,23 +458,25 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
 
 BOOST_AUTO_TEST_CASE( VectorMultiplication )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("QuadGrid2");
-  Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
-  
   MeshTerm<0, VectorField> u("Velocity", "u");
   
-  Physics::PhysModel& physical_model = Core::instance().root().create_component<Physics::PhysModel>("PhysicalModel");
+  CModel& model = Core::instance().root().create_component<CModel>("Model");
+  CDomain& dom = model.create_domain("Domain");
+  CMesh& mesh = dom.create_component<CMesh>("QuadGrid2");
+  Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
+  
+  Physics::PhysModel& physics = model.create_physics("CF.Physics.DynamicModel");
+  dom.set_active_mesh(mesh);
   
   // Create the initialization expression
   Expression::Ptr init = nodes_expression(u = coordinates);
   
   // set up fields
-  init->register_variables(physical_model);
-  physical_model.option("mesh").change_value(mesh);
-  physical_model.create_fields();
+  init->register_variables(physics);
+  model.create_fields();
   
   // Do the initialization
-  init->loop(mesh->topology());
+  init->loop(mesh.topology());
   
   RealVector4 result;
   result.setZero();
@@ -479,7 +486,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   (
     boost::mpl::vector1<SF::Quad2DLagrangeP1>(),
     element_quadrature(boost::proto::lit(result) += u*nabla(u))
-  )->loop(mesh->topology());
+  )->loop(mesh.topology());
   
   std::cout << result << std::endl;
 }

@@ -289,6 +289,8 @@ struct DeepCopy : //boost::proto::functional::deep_copy
       boost::proto::or_
       <
         boost::proto::terminal<const Real&>,
+        boost::proto::terminal<const Uint&>,
+        boost::proto::terminal<const int&>,
         FieldTypes
       >,
       boost::proto::_make_terminal(boost::proto::_byval(boost::proto::_value))

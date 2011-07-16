@@ -13,6 +13,7 @@
 #include "Math/MatrixTypes.hpp"
 
 #include "LibPhysics.hpp"
+#include <boost/scoped_ptr.hpp>
 
 namespace CF {
 namespace Physics {
@@ -50,11 +51,11 @@ public: // functions
   //@{
 
   /// @returns the dimensionality of this model
-  virtual Uint ndim() const { return m_ndim; }
+  virtual Uint ndim() const;
   /// @returns the number of equations
-  virtual Uint neqs() const { return m_neqs; }
+  virtual Uint neqs() const;
   /// @return the physical model type
-  virtual std::string type() const { return m_type; }
+  virtual std::string type() const;
 
   /// create a physical properties
   virtual std::auto_ptr<Physics::Properties> create_properties()
@@ -71,11 +72,8 @@ public: // functions
   //@} END INTERFACE
 
 private: // data
-
-  Uint m_ndim;          ///< number of dimentions
-  Uint m_neqs;          ///< number of equations
-
-  std::string m_type;   ///< name of the physics type
+  class Implementation;
+  boost::scoped_ptr<Implementation> m_implementation;
 
 }; // DynamicModel
 

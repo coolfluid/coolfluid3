@@ -20,7 +20,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_Core_API BoundaryTerm : public Solver::Action {
+class RDM_Core_API BoundaryTerm : public CF::Solver::Action {
 
 public: // typedefs
 
