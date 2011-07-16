@@ -51,9 +51,6 @@ CEntities::CEntities ( const std::string& name ) :
   m_nodes = create_static_component_ptr<CLink>(Mesh::Tags::nodes());
   m_nodes->add_tag(Mesh::Tags::nodes());
 
-  m_is_ghost = create_static_component_ptr< CList<bool> >("is_ghost");
-  m_is_ghost->add_tag("is_ghost");
-
   m_rank = create_static_component_ptr< CList<Uint> >("rank");
   m_rank->add_tag("rank");
 

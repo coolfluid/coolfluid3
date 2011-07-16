@@ -150,12 +150,11 @@ void CGlobalNumberingNodes::execute()
 
   Uint nb_ghost(0);
   CNodes& nodes = mesh.nodes();
-  CList<bool>& nodes_is_ghost = mesh.nodes().is_ghost();
   CList<Uint>& nodes_rank = mesh.nodes().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
-    if (nodes_is_ghost[i])
+    if (nodes.is_ghost(i))
       ++nb_ghost;
     else
       nodes_rank[i] = mpi::PE::instance().rank();
@@ -198,7 +197,7 @@ void CGlobalNumberingNodes::execute()
   Uint glb_id = start_id_per_proc[mpi::PE::instance().rank()];
   for (Uint i=0; i<nodes.size(); ++i)
   {
-    if ( ! nodes_is_ghost[i] )
+    if ( ! nodes.is_ghost(i) )
     {
       nodes_glb_idx[i] = glb_id++;
       node_from[cnt] = glb_node_hash.data()[i];

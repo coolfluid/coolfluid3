@@ -566,6 +566,7 @@ void CMeshPartitioner::migrate()
   // ELEMENTS AND NODES HAVE BEEN MOVED
   // -----------------------------------------------------------------------------
 
+
   // -----------------------------------------------------------------------------
   // COLLECT GHOST-NODES TO LOOK FOR ON OTHER PROCESSORS
 
@@ -592,19 +593,18 @@ void CMeshPartitioner::migrate()
 
 
   // -----------------------------------------------------------------------------
+  // SEARCH FOR REQUESTED NODES
+  // in  : requested nodes                std::vector<Uint>
+  // out : buffer with packed nodes       mpi::Buffer(nodes)
+
   // COMMUNICATE NODES TO LOOK FOR
 
   std::vector<std::vector<Uint> > recv_request_nodes;
   flex_all_gather(request_nodes,recv_request_nodes);
 
 
-  // -----------------------------------------------------------------------------
-  // SEARCH FOR REQUESTED NODES
-
-  PackUnpackNodes& copy_node = node_manipulation;
-  std::vector<std::vector<Uint> > found_nodes(PE::instance().size());
+  PackUnpackNodes copy_node(nodes);
   std::vector<mpi::Buffer> nodes_to_send(PE::instance().size());
-  std::vector<Uint> nb_nodes_to_send(PE::instance().size(),0);
   for (Uint proc=0; proc<PE::instance().size(); ++proc)
   {
     if (proc != PE::instance().rank())
@@ -624,12 +624,9 @@ void CMeshPartitioner::migrate()
           cf_assert(loc_idx < nodes.size());
           if (glb_idx == find_glb_idx)
           {
-            //          found_nodes[proc].push_back(loc_idx);
-            found_nodes[proc].push_back(glb_idx);
             //std::cout << PERank << "copying node " << glb_idx << " from loc " << loc_idx << std::flush;
             nodes_to_send[proc] << copy_node(loc_idx,PackUnpackNodes::COPY);
 
-            ++nb_nodes_to_send[proc];
             break;
           }
           ++loc_idx;
@@ -639,31 +636,25 @@ void CMeshPartitioner::migrate()
     }
   }
 
-  // -----------------------------------------------------------------------------
   // COMMUNICATE FOUND NODES BACK TO RANK THAT REQUESTED IT
-
-  std::vector<std::vector<Uint> > received_nodes;
-  flex_all_to_all(found_nodes,received_nodes);
-
-  std::vector<Uint> nb_nodes_to_recv(PE::instance().size(),0);
-  PE::instance().all_to_all(nb_nodes_to_send,nb_nodes_to_recv);
 
   mpi::Buffer received_nodes_buffer;
   flex_all_to_all(nodes_to_send,received_nodes_buffer);
 
+  // out: buffer containing requested nodes
+  // -----------------------------------------------------------------------------
+
+  // ADD GHOST NODES
+
   PackUnpackNodes add_node(nodes);
-  for (Uint p=0; p<PE::instance().size(); ++p)
-  {
-    for (Uint n=0; n<nb_nodes_to_recv[p]; ++n)
-    {
-      received_nodes_buffer >> copy_node;
-    }
-  }
-  copy_node.flush();
+  while (received_nodes_buffer.more_to_unpack())
+    received_nodes_buffer >> add_node;
+  add_node.flush();
 
   // -----------------------------------------------------------------------------
   // REQUESTED GHOST-NODES HAVE NOW BEEN ADDED
   // -----------------------------------------------------------------------------
+
 
   // -----------------------------------------------------------------------------
   // FIX NODE CONNECTIVITY
@@ -690,6 +681,10 @@ void CMeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // MESH IS NOW COMPLETELY LOAD BALANCED WITHOUT OVERLAP
   // -----------------------------------------------------------------------------
+
+  mesh.update_statistics();
+  mesh.elements().reset();
+  mesh.elements().update();
 }
 
 //////////////////////////////////////////////////////////////////////////////

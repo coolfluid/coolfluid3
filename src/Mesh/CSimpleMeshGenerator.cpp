@@ -123,7 +123,6 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   for(Uint i = hash.subhash(NODES).start_idx_in_part(part); i < hash.subhash(NODES).end_idx_in_part(part); ++i)
   {
     nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step;
-    nodes.is_ghost()[node_idx] = false;
     nodes.rank()[node_idx] = part;
     ++node_idx;
   }
@@ -132,7 +131,6 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
     if (hash.subhash(NODES).owns(i) == false)
     {
       nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step;
-      nodes.is_ghost()[node_idx] = true;
       nodes.rank()[node_idx] = hash.subhash(NODES).proc_of_obj(i);
       connectivity[elem_idx][0]=node_idx;
       elem_rank[elem_idx] = part;
@@ -147,7 +145,6 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
     if (hash.subhash(NODES).owns(i+1) == false)
     {
       nodes.coordinates()[node_idx][XX] = static_cast<Real>(i+1) * x_step;
-      nodes.is_ghost()[node_idx] = true;
       nodes.rank()[node_idx] = hash.subhash(NODES).proc_of_obj(i+1);
       connectivity[elem_idx][1]=node_idx;
       elem_rank[elem_idx] = part;
@@ -267,7 +264,6 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
         CTable<Real>::Row row = nodes.coordinates()[glb_node_idx-glb_node_start_idx];
         row[XX] = static_cast<Real>(i) * x_step;
         row[YY] = y;
-        nodes.is_ghost()[glb_node_idx-glb_node_start_idx]=false;
         nodes.rank()[glb_node_idx-glb_node_start_idx]=part;
       }
     }
@@ -286,7 +282,6 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     CTable<Real>::Row row = nodes.coordinates()[loc_ghost_node_idx];
     row[XX] = static_cast<Real>(i) * x_step;
     row[YY] = static_cast<Real>(j) * y_step;
-    nodes.is_ghost()[loc_ghost_node_idx]=true;
     nodes.rank()[loc_ghost_node_idx]=hash.subhash(NODES).proc_of_obj(glb_ghost_node_idx);
   }
 
@@ -463,17 +458,14 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   }
 
   cf_assert(nodes.rank().size() == nodes.size());
-  cf_assert(nodes.is_ghost().size() == nodes.size());
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if ( nodes.rank()[n] != part )
     {
-      cf_assert( nodes.is_ghost()[n] == true );
       cf_assert( nodes.is_ghost(n) == true );
     }
     else
     {
-      cf_assert( nodes.is_ghost()[n] == false );
       cf_assert( nodes.is_ghost(n) == false );
     }
   }

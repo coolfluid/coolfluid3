@@ -115,7 +115,7 @@ void CGlobalNumbering::execute()
     ++i;
   }
 
-  boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
+  boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
   {
     RealMatrix element_coordinates(elements.element_type().nb_nodes(),coordinates.row_size());
 
@@ -146,7 +146,7 @@ void CGlobalNumbering::execute()
         throw ValueExists(FromHere(), "node "+to_str(i)+" is duplicated");
     }
 
-    boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
+    boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
     {
       CVector_size_t& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>();
       for (Uint i=0; i<glb_elem_hash.data().size(); ++i)
@@ -178,7 +178,6 @@ void CGlobalNumbering::execute()
   // get tot nb of owned indexes and communicate
 
   Uint nb_owned_nodes(0);
-  //CList<bool>& nodes_is_ghost = mesh.nodes().is_ghost();
   CList<Uint>& nodes_rank = mesh.nodes().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
@@ -190,9 +189,23 @@ void CGlobalNumbering::execute()
     }
   }
 
-  Uint tot_nb_owned_ids=nb_owned_nodes;
-  boost_foreach( CEntities& elements, find_components_recursively<CElements>(mesh) )
-    tot_nb_owned_ids += elements.size();
+  Uint nb_owned_elems(0);
+  boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
+  {
+    CList<Uint>& elem_rank = elements.rank();
+    elem_rank.resize(elements.size());
+
+    for (Uint e=0; e<elements.size(); ++e)
+    {
+      if (elements.is_ghost(e) == false)
+      {
+        ++nb_owned_elems;
+        elem_rank[e] = mpi::PE::instance().rank();
+      }
+    }
+  }
+
+  Uint tot_nb_owned_ids=nb_owned_nodes + nb_owned_elems;
 
   std::vector<Uint> nb_ids_per_proc(mpi::PE::instance().size());
   mpi::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
@@ -278,20 +291,89 @@ void CGlobalNumbering::execute()
   //------------------------------------------------------------------------------
   // give glb idx to elements
 
-  boost_foreach( CEntities& elements, find_components_recursively<CElements>(mesh) )
+  boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
   {
+    std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
+    CList<Uint>& elem_rank = elements.rank();
+    elem_rank.resize(elements.size());
+
+    //------------------------------------------------------------------------------
+    // create elem_glb2loc mapping
+    Uint nb_owned_elems=0;
+    std::map<std::size_t,Uint> elem_glb2loc;
+    std::map<std::size_t,Uint>::iterator elem_glb2loc_it;
+    std::map<std::size_t,Uint>::iterator hash_not_found = elem_glb2loc.end();
+
+    for (Uint e=0; e<elements.size(); ++e)
+    {
+      elem_glb2loc [ glb_elem_hash[e] ] = e;
+      if ( ! elements.is_ghost(e) )
+        ++nb_owned_elems;
+    }
+
+
+    std::vector<size_t> send_hash(nb_owned_elems);
+    std::vector<Uint>   send_id(nb_owned_elems);
+
     CList<Uint>& elements_glb_idx = elements.glb_idx();
     elements_glb_idx.resize(elements.size());
-    std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
     cf_assert(glb_elem_hash.size() == elements.size());
+
+    Uint cnt(0);
     for (Uint e=0; e<elements.size(); ++e)
     {
       if (m_debug)
         std::cout << "["<<mpi::PE::instance().rank() << "]  will change elem "<< glb_elem_hash[e] << " (" << elements.uri().path() << "["<<e<<"]) to " << glb_id << std::endl;
-      elements_glb_idx[e] = glb_id;
-      ++glb_id;
-    }
-  }
+
+      if ( ! elements.is_ghost(e) )
+      {
+        elements_glb_idx[e] = glb_id++;
+        send_hash[cnt] = glb_elem_hash[e];
+        send_id[cnt]   = elements_glb_idx[e];
+        ++cnt;
+      }
+      else
+      {
+        elements_glb_idx[e] = Uint_max();
+      }
+    } // end foreach elem_idx
+    cf_assert(cnt == nb_owned_elems);
+
+    for (Uint root=0; root<mpi::PE::instance().size(); ++root)
+    {
+      std::vector<std::size_t> recv_hash(0);
+      mpi::PE::instance().broadcast(send_hash,recv_hash,root);
+      std::vector<Uint>        recv_id(0);
+      mpi::PE::instance().broadcast(send_id,recv_id,root);
+      if (mpi::PE::instance().rank() != root)
+      {
+        for (Uint p=0; p<mpi::PE::instance().size(); ++p)
+        {
+          if (p == mpi::PE::instance().rank())
+          {
+            Uint recv_idx(0);
+            boost_foreach(const std::size_t hash, recv_hash)
+            {
+              elem_glb2loc_it = elem_glb2loc.find(hash);
+              if ( elem_glb2loc_it != hash_not_found )
+              {
+                if (m_debug)
+                  std::cout << "["<<mpi::PE::instance().rank() << "]  will change elem "<< elem_glb2loc_it->first << " (" << elem_glb2loc_it->second << ") to " << recv_id[recv_idx] << std::endl;
+                elements_glb_idx[elem_glb2loc_it->second]=recv_id[recv_idx];
+                cf_assert(elements.is_ghost(elem_glb2loc_it->second));
+                elem_rank[elem_glb2loc_it->second]=root;
+              }
+              ++recv_idx;
+            }
+            break;
+          }
+        }
+      }
+    } // end foreach broadcasting process
+
+
+
+  } // end foreach elements
 
 
   // In debug mode, check if no hashes are duplicated
@@ -304,7 +386,7 @@ void CGlobalNumbering::execute()
         throw ValueExists(FromHere(), "node "+to_str(i)+" is duplicated");
     }
 
-    boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
+    boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
     {
       CList<Uint>& elements_glb_idx = elements.glb_idx();
       for (Uint i=0; i<elements.size(); ++i)
@@ -314,6 +396,15 @@ void CGlobalNumbering::execute()
       }
     }
   }
+
+
+  mesh.nodes().remove_component(glb_node_hash);
+
+  boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
+  {
+    elements.remove_component("glb_elem_hash");
+  }
+
 
 }
 

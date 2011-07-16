@@ -31,7 +31,6 @@ struct RemoveNodes
 
   void flush();
 
-  CList<bool>::Buffer       is_ghost;
   CList<Uint>::Buffer       glb_idx;
   CList<Uint>::Buffer       rank;
   CTable<Real>::Buffer      coordinates;
@@ -96,7 +95,6 @@ struct PackUnpackNodes: Common::mpi::PackedObject
   CNodes& m_nodes;
   Uint m_idx;
   bool m_remove_after_pack;
-  CList<bool>::Buffer       is_ghost;
   CList<Uint>::Buffer       glb_idx;
   CList<Uint>::Buffer       rank;
   CTable<Real>::Buffer      coordinates;

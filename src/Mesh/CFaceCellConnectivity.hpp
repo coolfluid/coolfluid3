@@ -69,9 +69,9 @@ public:
   const CTable<Uint>& connectivity() const { return *m_connectivity; }
 
   /// access to see if the face is a bdry face
-  CList<Uint>& is_bdry_face() { cf_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
+  CList<bool>& is_bdry_face() { cf_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
 
-  const CList<Uint>& is_bdry_face() const { cf_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
+  const CList<bool>& is_bdry_face() const { cf_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
 
   CTable<Uint>& face_number() { cf_assert( is_not_null(m_face_nb_in_elem) ); return *m_face_nb_in_elem; }
 
@@ -103,7 +103,7 @@ private: // data
   CTable<Uint>::Ptr m_face_nb_in_elem;
 
   // @todo make a CList<bool> (some bug prevents using CList<bool>::Buffer with CList<bool> )
-  CList<Uint>::Ptr m_is_bdry_face;
+  CList<bool>::Ptr m_is_bdry_face;
 
   CMeshElements::Ptr m_mesh_elements;
 

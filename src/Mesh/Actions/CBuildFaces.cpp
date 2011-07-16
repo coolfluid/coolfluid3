@@ -8,7 +8,7 @@
 #include <boost/foreach.hpp>
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
-
+#include "Common/MPI/debug.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StreamHelpers.hpp"
@@ -102,7 +102,7 @@ void CBuildFaces::make_interfaces(Component& parent)
     is_not_null( parent.as_ptr<CMesh>() ) || is_not_null( parent.as_ptr<CRegion>() ) );
 
   CElements::Ptr comp;
-  //CFinfo << "make interfaces for " << parent.name() << CFendl;
+  //std::cout << PERank << "make interfaces for " << parent.name() << std::endl;
 
   std::vector<CRegion::Ptr> regions = range_to_vector(find_components<CRegion>(parent));
   const Uint n=regions.size();
@@ -112,13 +112,13 @@ void CBuildFaces::make_interfaces(Component& parent)
     for (Uint i=0; i<n; ++i)
     for (Uint j=i+1; j<n; ++j)
     {
-      //CFinfo << "checking interface for " << regions[i]->name() << " to " << regions[j]->name() << CFendl;
+      //std::cout << PERank << "checking interface for " << regions[i]->name() << " to " << regions[j]->name() << std::endl;
 
       if ( find_components_with_filter<CElements>(*regions[i],IsElementsSurface()).size() != 0 )
       {
         if ( find_components_with_filter<CElements>(*regions[j],IsElementsVolume()).size() !=0 )
         {
-          //CFinfo << "matching boundary face to cell for " << regions[i]->name() << " to " << regions[j]->name() << CFendl;
+          //std::cout << PERank << "matching boundary face to cell for " << regions[i]->name() << " to " << regions[j]->name() << std::endl;
 
           match_boundary(*regions[i],*regions[j]);
         }
@@ -127,7 +127,7 @@ void CBuildFaces::make_interfaces(Component& parent)
       {
         if ( find_components_with_filter<CElements>(*regions[i],IsElementsVolume()).size() !=0 )
         {
-          //CFinfo << "matching boundary face to cell for " << regions[j]->name() << " to " << regions[i]->name() << CFendl;
+          //std::cout << PERank << "matching boundary face to cell for " << regions[j]->name() << " to " << regions[i]->name() << std::endl;
 
           match_boundary(*regions[j],*regions[i]);
         }
@@ -137,7 +137,7 @@ void CBuildFaces::make_interfaces(Component& parent)
         CRegion& interface = parent.create_component<CRegion>("interface_"+regions[i]->name()+"_to_"+regions[j]->name());
         interface.add_tag( Mesh::Tags::interface() );
 
-        //CFinfo << "creating face to cell for interfaces for " << regions[i]->name() << " to " << regions[j]->name() << CFendl;
+        //std::cout << PERank << "creating face to cell for interfaces for " << regions[i]->name() << " to " << regions[j]->name() << std::endl;
         CFaceCellConnectivity::Ptr f2c = match_faces(*regions[i],*regions[j]);
 
         build_face_elements(interface,*f2c,true);
@@ -163,6 +163,7 @@ void CBuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
 
     if ( count( find_components_with_filter<CElements>(region,IsElementsVolume()) ) != 0 )
     {
+      //std::cout << PERank << "building face_cell connectivity for region " << region.uri().path() << std::endl;
       CFaceCellConnectivity::Ptr face_to_cell = region.create_component_ptr<CFaceCellConnectivity>("face_to_cell");
       face_to_cell->add_tag(Mesh::Tags::inner_faces());
       face_to_cell->setup(region);
@@ -193,7 +194,7 @@ void CBuildFaces::build_faces_bottom_up(Component& parent)
 
       CFaceCellConnectivity& face_to_cell = find_component<CFaceCellConnectivity>(region);
 
-      //CFinfo << "create cells" << CFendl;
+      //std::cout << PERank << "create cells" << std::endl;
       CRegion& cells = region.create_component<CRegion>("cells");
       boost_foreach(CElements& elements, find_components_with_filter<CElements>(region,IsElementsVolume()))
       {
@@ -208,11 +209,11 @@ void CBuildFaces::build_faces_bottom_up(Component& parent)
         }
       }
 
-      //CFinfo << "create inner faces" << CFendl;
+      //std::cout << PERank << "create inner faces" << std::endl;
       CRegion& inner_faces = region.create_region(Mesh::Tags::inner_faces());
       build_face_elements(inner_faces,face_to_cell, true);
 
-      //CFinfo << "create outer faces" << CFendl;
+      //std::cout << PERank << "create outer faces" << std::endl;
       CRegion& outer_faces = region.create_region(Mesh::Tags::outer_faces());
       build_face_elements(outer_faces,face_to_cell, false);
       if (outer_faces.recursive_elements_count() == 0)
@@ -236,7 +237,8 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   std::set<std::string> face_types;
   std::map<std::string,CTable<Uint>::Buffer::Ptr > f2c_buffer_map;
   std::map<std::string,CTable<Uint>::Buffer::Ptr > fnb_buffer_map;
-  std::map<std::string,CList<Uint>::Buffer::Ptr  > bdry_buffer_map;
+  std::map<std::string,CList<bool>::Buffer::Ptr  > bdry_buffer_map;
+  std::map<std::string,CList<Uint>::Buffer::Ptr  > rank_buffer_map;
 
   Component::Ptr elem_comp;
   Uint elem_idx;
@@ -254,7 +256,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   {
     const std::string shape_name = build_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CCellFaces& faces = *region.create_component_ptr<CCellFaces>(shape_name);
-    //CFinfo << "  creating " << faces.uri().path() << CFendl;
+    //std::cout << PERank << "  creating " << faces.uri().path() << std::endl;
     faces.initialize(face_type,mesh.nodes());
     if (is_inner)
       faces.add_tag(Mesh::Tags::inner_faces());
@@ -268,7 +270,8 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
       f2c.add_used(*cells);
     f2c_buffer_map[face_type] = raw_table.create_buffer_ptr();
     fnb_buffer_map[face_type] = f2c.get_child_ptr("face_number")->as_ptr< CTable<Uint> >()->create_buffer_ptr();
-    bdry_buffer_map[face_type] = f2c.get_child_ptr("is_bdry_face")->as_ptr< CList<Uint> >()->create_buffer_ptr();
+    bdry_buffer_map[face_type] = f2c.get_child_ptr("is_bdry_face")->as_ptr< CList<bool> >()->create_buffer_ptr();
+    rank_buffer_map[face_type] = faces.rank().create_buffer_ptr();
   }
 
   for (Uint f=0; f<face_to_cell.size(); ++f)
@@ -285,6 +288,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
         f2c_buffer_map[face_type]->add_row(face_to_cell.connectivity()[f]);
         fnb_buffer_map[face_type]->add_row(face_number[f]);
         bdry_buffer_map[face_type]->add_row(face_to_cell.is_bdry_face()[f]);
+        rank_buffer_map[face_type]->add_row(mpi::PE::instance().rank());
       }
     }
     else
@@ -295,6 +299,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
         f2c_buffer_map[face_type]->add_row(dummy);
         fnb_buffer_map[face_type]->add_row(face_number[f]);
         bdry_buffer_map[face_type]->add_row(face_to_cell.is_bdry_face()[f]);
+        rank_buffer_map[face_type]->add_row(mpi::PE::instance().rank());
       }
     }
   }
@@ -312,7 +317,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
 
     CFaceCellConnectivity&  f2c  = faces.cell_connectivity();
     CTable<Uint>&           fnb  = f2c.get_child("face_number" ).as_type< CTable<Uint> >();
-    CList<Uint>&            bdry = f2c.get_child("is_bdry_face").as_type< CList<Uint> >();
+    CList<bool>&            bdry = f2c.get_child("is_bdry_face").as_type< CList<bool> >();
     cf_assert(f2c.size() == fnb.size());
     cf_assert(fnb.size() == faces.size());
     cf_assert(bdry.size() == faces.size());
@@ -328,7 +333,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
   CFaceCellConnectivity::Ptr interface = allocate_component<CFaceCellConnectivity>("interface_connectivity");
   CTable<Uint>::Buffer i2c = find_component_with_name<CTable<Uint> >(*interface,Mesh::Tags::connectivity_table()).create_buffer();
   CTable<Uint>::Buffer fnb = find_component_with_name<CTable<Uint> >(*interface,"face_number").create_buffer();
-  CList<Uint>::Buffer bdry = find_component_with_name<CList<Uint> >(*interface,"is_bdry_face").create_buffer();
+  CList<bool>::Buffer bdry = find_component_with_name<CList<bool> >(*interface,"is_bdry_face").create_buffer();
 
   // unified face-cell-connectivity from left and right
   CUnifiedData::Ptr Ufaces1 = allocate_component<CUnifiedData>("unified_faces1");
@@ -341,8 +346,8 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
   // create buffers for each sub-face_cell_connectivity
   std::vector<boost::shared_ptr<CTable<Uint>::Buffer> > buf_fnb1;
   std::vector<boost::shared_ptr<CTable<Uint>::Buffer> > buf_fnb2;
-  std::vector<boost::shared_ptr<CList<Uint>::Buffer> >  buf_bdryf1;
-  std::vector<boost::shared_ptr<CList<Uint>::Buffer> >  buf_bdryf2;
+  std::vector<boost::shared_ptr<CList<bool>::Buffer> >  buf_bdryf1;
+  std::vector<boost::shared_ptr<CList<bool>::Buffer> >  buf_bdryf2;
   std::vector<boost::shared_ptr<CTable<Uint>::Buffer> > buf_f2c1;
   std::vector<boost::shared_ptr<CTable<Uint>::Buffer> > buf_f2c2;
   std::vector<Uint> elems_1_start_idx;
@@ -353,7 +358,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
     CFaceCellConnectivity& faces1 = faces1_comp->as_type<CFaceCellConnectivity>();
     elems_1_start_idx.push_back(nb_elems);
     buf_fnb1.push_back( boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(faces1.face_number().create_buffer())));
-    buf_bdryf1.push_back( boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(faces1.is_bdry_face().create_buffer())));
+    buf_bdryf1.push_back( boost::shared_ptr<CList<bool>::Buffer> ( new CList<bool>::Buffer(faces1.is_bdry_face().create_buffer())));
     buf_f2c1.push_back( boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(faces1.connectivity().create_buffer())));
     boost_foreach(Component::Ptr cells, faces1.used())
       interface->add_used(cells->as_type<CCells>());
@@ -365,7 +370,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
     CFaceCellConnectivity& faces2 = faces2_comp->as_type<CFaceCellConnectivity>();
     elems_2_start_idx.push_back(nb_elems);
     buf_fnb2.push_back( boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(faces2.face_number().create_buffer())));
-    buf_bdryf2.push_back( boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(faces2.is_bdry_face().create_buffer())));
+    buf_bdryf2.push_back( boost::shared_ptr<CList<bool>::Buffer> ( new CList<bool>::Buffer(faces2.is_bdry_face().create_buffer())));
     buf_f2c2.push_back( boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(faces2.connectivity().create_buffer())));
     boost_foreach(Component::Ptr cells, faces2.used())
       interface->add_used(cells->as_type<CCells>());
@@ -424,7 +429,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
               elems[LEFT]  = faces1.connectivity()[f1_idx][0] + elems_1_start_idx[faces1_idx];
               elems[RIGHT] = faces2.connectivity()[f2_idx][0] + elems_2_start_idx[faces2_idx];
 
-              //CFinfo << "match found: " << elems[LEFT] << " <--> " << elems[RIGHT] << CFendl;
+              //std::cout << PERank << "match found: " << elems[LEFT] << " <--> " << elems[RIGHT] << std::endl;
 
               // Remove matches from the 2 connectivity tables and add to the interface
               i2c.add_row(elems);
@@ -467,14 +472,14 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
 
   // create buffers for each face_cell_connectivity of unified_inner_faces_to_cells
   std::vector<boost::shared_ptr<CTable<Uint>::Buffer> >  buf_vec_inner_face_nb;
-  std::vector<boost::shared_ptr<CList<Uint>::Buffer> >  buf_vec_inner_face_is_bdry;
+  std::vector<boost::shared_ptr<CList<bool>::Buffer> >  buf_vec_inner_face_is_bdry;
   std::vector<boost::shared_ptr<CTable<Uint>::Buffer> > buf_vec_inner_face_connectivity;
 
   boost_foreach(Component::Ptr inner_faces_comp, unified_inner_faces_to_cells->components())
   {
     CFaceCellConnectivity& inner_faces = inner_faces_comp->as_type<CFaceCellConnectivity>();
     buf_vec_inner_face_nb.push_back( boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(inner_faces.face_number().create_buffer())));
-    buf_vec_inner_face_is_bdry.push_back( boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(inner_faces.is_bdry_face().create_buffer())));
+    buf_vec_inner_face_is_bdry.push_back( boost::shared_ptr<CList<bool>::Buffer> ( new CList<bool>::Buffer(inner_faces.is_bdry_face().create_buffer())));
     buf_vec_inner_face_connectivity.push_back( boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(inner_faces.connectivity().create_buffer())));
   }
 
@@ -497,7 +502,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
 
     CTable<Uint>& bdry_face_connectivity = bdry_face_to_cell->connectivity();
     CTable<Uint>& bdry_face_nb = bdry_face_to_cell->face_number();
-    CList<Uint>& bdry_face_is_bdry = bdry_face_to_cell->is_bdry_face();
+    CList<bool>& bdry_face_is_bdry = bdry_face_to_cell->is_bdry_face();
 
     bdry_face_connectivity.set_row_size(1);
     bdry_face_connectivity.resize(bdry_faces.size());
@@ -543,6 +548,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
             if (nb_nodes_per_face == 1)
             {
               match_found = true;
+
               CFaceCellConnectivity::Ptr inner_faces_to_cells;
               Uint inner_faces_comp_idx;
               Uint inner_face_idx;
@@ -550,7 +556,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
               inner_faces_to_cells = unified_inner_faces_to_cells->components()[inner_faces_comp_idx]->as_ptr<CFaceCellConnectivity>();
               elems[0] = inner_faces_to_cells->connectivity()[inner_face_idx][0];
 
-              //CFinfo << "match found: " << unified_bdry_face_idx << " <--> " << elems[0] << CFendl;
+              //std::cout << PERank << "match found: " << unified_bdry_face_idx << " <--> " << elems[0] << std::endl;
 
               // Remove matches from the inner_faces_connectivity tables and add to the boundary
               bdry_face_connectivity.set_row(local_bdry_face_idx,elems);
@@ -579,12 +585,12 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
               inner_faces_to_cells = unified_inner_faces_to_cells->components()[inner_faces_comp_idx]->as_ptr<CFaceCellConnectivity>();
               elems[0] = inner_faces_to_cells->connectivity()[inner_face_idx][0];
 
-              // Component::Ptr inner_cell_comp;
-              // Uint inner_cell_idx;
-              // boost::tie(inner_cell_comp,inner_cell_idx) = inner_faces_to_cells->cells().location(inner_faces_to_cells->connectivity()[inner_face_idx][0]);
-
-              //CFinfo << "match found: " << bdry_faces.parent().name() << "/" << bdry_faces.name() << "["<<local_bdry_face_idx<<"] <--> "
-              //       << inner_cell_comp->parent().name()<<"/"<<inner_cell_comp->name()<<"["<<inner_cell_idx<<"]" << CFendl;
+              // ----------- debug -----------
+              //Component::Ptr inner_cell_comp;
+              //Uint inner_cell_idx;
+              //boost::tie(inner_cell_comp,inner_cell_idx) = inner_faces_to_cells->lookup().location(inner_faces_to_cells->connectivity()[inner_face_idx][0]);
+              //std::cout << PERank << "match found: " << bdry_faces.parent().name() << "/" << bdry_faces.name() << "["<<local_bdry_face_idx<<"] <--> " << inner_cell_comp->parent().name()<<"/"<<inner_cell_comp->name()<<"["<<inner_cell_idx<<"]" << std::endl;
+              // -----------------------------
 
                // RealMatrix cell_coordinates = inner_cell_comp->as_type<CElements>().get_coordinates(inner_cell_idx);
                // RealVector face_coordinates = bdry_faces.get_coordinates(local_bdry_face_idx).row(0);
@@ -640,19 +646,19 @@ void CBuildFaces::build_cell_face_connectivity(Component& parent)
   Uint face_nb_idx;
   boost_foreach(CEntities& face_elements, find_components_recursively_with_tag<CEntities>(parent,Mesh::Tags::face_entity()) )
   {
-    //CFinfo << face_elements.uri().path() << CFendl;
+    //std::cout << PERank << face_elements.uri().path() << std::endl;
     CFaceCellConnectivity& f2c = face_elements.get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
     const CTable<Uint>& connectivity = f2c.connectivity();
-    const CList<Uint>& is_bdry       = f2c.is_bdry_face();
+    const CList<bool>& is_bdry       = f2c.is_bdry_face();
     const CTable<Uint>& face_nb      = f2c.face_number();
 
     for (Uint face_idx=0; face_idx<face_elements.size(); ++face_idx)
     {
-      //CFinfo << "    face["<<face_idx<<"]" << CFendl;;
+      //std::cout << PERank << "    face["<<face_idx<<"]" << std::endl;;
       unified_cell_idx = connectivity[face_idx][LEFT];
       face_nb_idx      = face_nb[face_idx][LEFT];
       boost::tie(cells,cell_idx)=f2c.lookup().location(unified_cell_idx);
-      //CFinfo << "        --->  cell["<<cell_idx<<"]"<< CFendl;
+      //std::cout << PERank << "        --->  cell["<<cell_idx<<"]"<< std::endl;
       CConnectivity& c2f = cells->get_child("face_connectivity").as_type<CConnectivity>();
       c2f[cell_idx][face_nb_idx] = c2f.lookup().unified_idx(face_elements,face_idx);
       if (is_bdry[face_idx] == false)
@@ -664,7 +670,7 @@ void CBuildFaces::build_cell_face_connectivity(Component& parent)
         cf_assert(cell_idx < c2f.size());
         cf_assert(face_nb_idx < c2f.row_size());
         c2f[cell_idx][face_nb_idx] = c2f.lookup().unified_idx(face_elements,face_idx);
-        //CFinfo << "        --->  cell[" << cell_idx<<"]"<< CFendl;
+        //std::cout << PERank << "        --->  cell[" << cell_idx<<"]"<< std::endl;
       }
     }
   }

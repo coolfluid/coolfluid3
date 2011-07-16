@@ -13,7 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
- 
+
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( Construct_CNodes )
 
   nodes->resize(10);
   BOOST_CHECK_EQUAL(nodes->coordinates().size() , 10u);
-  BOOST_CHECK_EQUAL(nodes->is_ghost().size() , 10u);
+  BOOST_CHECK_EQUAL(nodes->rank().size() , 10u);
   BOOST_CHECK_EQUAL(nodes->glb_elem_connectivity().size() , 0u);
   BOOST_CHECK_EQUAL(nodes->glb_idx().size() , 0u);
 

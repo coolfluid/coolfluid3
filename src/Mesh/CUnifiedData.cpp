@@ -50,12 +50,13 @@ Uint CUnifiedData::unified_idx(const boost::tuple<Common::Component::Ptr,Uint>& 
 
 void CUnifiedData::reset()
 {
-  m_data_vector.resize(0);
-  m_data_indices->resize(0);
-  boost_foreach(Common::Component& link, find_components(*m_data_links))
-    m_data_links->remove_component(link.name());
-  m_size = 0;
   m_start_idx.clear();
+  boost_foreach(Component& data_link, m_data_links->children())
+    m_data_links->remove_component(data_link);
+  m_data_vector.resize(0);
+  m_data_indices->resize(1);
+  m_data_indices->array()[0]=0;
+  m_size=0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

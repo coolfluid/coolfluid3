@@ -22,7 +22,6 @@ using namespace Math::Consts;
 ////////////////////////////////////////////////////////////////////////////////
 
 RemoveNodes::RemoveNodes(CNodes& nodes) :
-    is_ghost (nodes.is_ghost().create_buffer()),
     glb_idx (nodes.glb_idx().create_buffer()),
     rank (nodes.rank().create_buffer()),
     coordinates (nodes.coordinates().create_buffer()),
@@ -35,7 +34,6 @@ void RemoveNodes::operator() (const Uint idx)
 {
   Uint val = glb_idx.get_row(idx);
 
-  is_ghost.rm_row(idx);
   glb_idx.rm_row(idx);
   rank.rm_row(idx);
   coordinates.rm_row(idx);
@@ -48,7 +46,6 @@ void RemoveNodes::operator() (const Uint idx)
 
 void RemoveNodes::flush()
 {
-  is_ghost.flush();
   glb_idx.flush();
   rank.flush();
   coordinates.flush();
@@ -157,7 +154,7 @@ void PackUnpackElements::unpack(mpi::Buffer& buf)
   cf_always_assert(rank.add_row(rank_data) == idx);
   cf_always_assert(connected_nodes.add_row(connected_nodes_data) == idx);
 
-  //std::cout << PERank << "unpacked and added element    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    connected_nodes = " << connected_nodes_data << std::endl;
+  // std::cout << PERank << "unpacked and added element    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    connected_nodes = " << connected_nodes_data << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +172,6 @@ PackUnpackNodes::PackUnpackNodes(CNodes& nodes) :
   m_nodes(nodes),
   m_remove_after_pack(false),
   m_idx(Uint_max()),
-  is_ghost (nodes.is_ghost().create_buffer(100)),
   glb_idx (nodes.glb_idx().create_buffer(100)),
   rank (nodes.rank().create_buffer(100)),
   coordinates (nodes.coordinates().create_buffer(100)),
@@ -199,14 +195,11 @@ void PackUnpackNodes::remove(const Uint idx)
 
   cf_assert(idx < m_nodes.size());
 
-  is_ghost.rm_row(idx);
   glb_idx.rm_row(idx);
   rank.rm_row(idx);
   coordinates.rm_row(idx);
   connected_elements.rm_row(idx);
 
-  if (val == 1999)
-    std::cout << PERank << "removed node  " << val << std::endl;
   m_idx = Uint_max();
 }
 
@@ -235,9 +228,6 @@ void PackUnpackNodes::pack(mpi::Buffer& buf)
 
 //  std::cout << PERank << "packed node    glb_idx = " << val << std::endl;
 
-  if (val == 1999)
-    std::cout << PERank << "packed node  " << val << std::endl;
-
   if (m_remove_after_pack)
     remove(m_idx);
 
@@ -256,14 +246,10 @@ void PackUnpackNodes::unpack(mpi::Buffer& buf)
   buf >> glb_idx_data >> rank_data >> coordinates_data >> connected_elems_data;
 
   Uint idx;
-  idx = glb_idx.add_row(glb_idx_data);
-  cf_always_assert(coordinates.add_row(coordinates_data) == idx);
+             idx = glb_idx.add_row(glb_idx_data);
   cf_always_assert(rank.add_row(rank_data) == idx);
+  cf_always_assert(coordinates.add_row(coordinates_data) == idx);
   cf_always_assert(connected_elements.add_row(connected_elems_data) == idx);
-  cf_always_assert(is_ghost.add_row(rank_data != PE::instance().rank()));
-
-  if (glb_idx_data == 1999)
-    std::cout << PERank << "upacked node  " << glb_idx_data << std::endl;
 
   //std::cout << PERank << "added node    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    coords = " << coordinates_data << "\t    connected_elem = " << connected_elems_data << std::endl;
   m_idx = Uint_max();
@@ -273,7 +259,6 @@ void PackUnpackNodes::unpack(mpi::Buffer& buf)
 
 void PackUnpackNodes::flush()
 {
-  is_ghost.flush();
   glb_idx.flush();
   rank.flush();
   coordinates.flush();

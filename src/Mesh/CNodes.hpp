@@ -47,9 +47,6 @@ public: // functions
   CTable<Real>& coordinates() { return *m_coordinates; }
   const CTable<Real>& coordinates() const { return *m_coordinates; }
 
-  CList<bool>& is_ghost() { return *m_is_ghost; }
-  const CList<bool>& is_ghost() const { return *m_is_ghost; }
-
   CList<Uint>& rank() { return *m_rank; }
   const CList<Uint>& rank() const { return *m_rank; }
 
@@ -72,8 +69,6 @@ private: // data
   boost::shared_ptr<CTable<Real> > m_coordinates;
 
   boost::shared_ptr<CDynTable<Uint> > m_glb_elem_connectivity;
-
-  boost::shared_ptr<CList<bool> > m_is_ghost;
 
   boost::shared_ptr<CList<Uint> > m_rank;
 

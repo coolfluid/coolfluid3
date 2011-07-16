@@ -396,7 +396,6 @@ void CReader::read_coordinates()
 
     if (m_hash->subhash(NODES).owns(node_idx-1))
     {
-      m_nodes->is_ghost()[coord_idx] = false;
       m_nodes->rank()[coord_idx] = part;
       m_node_idx_gmsh_to_cf[node_idx]=coord_idx;
       std::stringstream ss(line);
@@ -413,7 +412,6 @@ void CReader::read_coordinates()
       if (it != m_ghost_nodes.end())
       {
         // add global node index
-        m_nodes->is_ghost()[coord_idx] = true;
         m_nodes->rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
         m_node_idx_gmsh_to_cf[node_idx]=coord_idx;
         std::stringstream ss(line);

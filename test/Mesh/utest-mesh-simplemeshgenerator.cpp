@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
   CNodes& nodes = mesh.nodes();
   for (Uint n=0; n<nodes.size(); ++n)
   {
-    if (nodes.is_ghost()[n])
+    if (nodes.is_ghost(n))
     {
       CFinfo << "node " << n << " is a ghost node" << CFendl;
       ++nb_ghosts;
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
   CNodes& nodes = mesh.nodes();
   for (Uint n=0; n<nodes.size(); ++n)
   {
-    if (nodes.is_ghost()[n])
+    if (nodes.is_ghost(n))
     {
       CFinfo << "node " << n << " is a ghost node" << CFendl;
       ++nb_ghosts;

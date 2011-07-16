@@ -67,9 +67,6 @@ public: // functions
   /// Const access to the list of nodes
   const CList<Uint>& glb_idx() const { return *m_global_numbering; }
 
-  CList<bool>& is_ghost() { return *m_is_ghost; }
-  const CList<bool>& is_ghost() const { return *m_is_ghost; }
-
   CList<Uint>& rank() { return *m_rank; }
   const CList<Uint>& rank() const { return *m_rank; }
 
@@ -115,8 +112,6 @@ protected: // data
   std::vector<boost::shared_ptr<CSpace> > m_spaces;
 
   boost::shared_ptr<Common::CGroup> m_spaces_group;
-
-  boost::shared_ptr<CList<bool> > m_is_ghost;
 
   boost::shared_ptr<CList<Uint> > m_rank;
 

@@ -42,7 +42,7 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
   m_used_components = create_static_component_ptr<CGroup>("used_components");
   m_connectivity = create_static_component_ptr<CTable<Uint> >(Mesh::Tags::connectivity_table());
   m_face_nb_in_elem = create_static_component_ptr<CTable<Uint> >("face_number");
-  m_is_bdry_face = create_static_component_ptr<CList<Uint> >("is_bdry_face");
+  m_is_bdry_face = create_static_component_ptr<CList<bool> >("is_bdry_face");
   m_connectivity->set_row_size(2);
   m_face_nb_in_elem->set_row_size(2);
 }
@@ -114,7 +114,7 @@ void CFaceCellConnectivity::build_connectivity()
   m_connectivity->resize(0);
   CTable<Uint>::Buffer f2c = m_connectivity->create_buffer();
   CTable<Uint>::Buffer face_number = m_face_nb_in_elem->create_buffer();
-  CList<Uint>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
+  CList<bool>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
   CNodes& nodes = find_parent_component<CMesh>(*used()[0]).nodes();
   Uint tot_nb_nodes = nodes.size();
   std::vector < std::vector<Uint> > mapNodeFace(tot_nb_nodes);
@@ -179,8 +179,11 @@ void CFaceCellConnectivity::build_connectivity()
       if ( is_bdry_elem[loc_elem_idx] )
       {
         Uint mesh_elements_idx = m_mesh_elements->unified_idx(elements,loc_elem_idx);
+
+
         cf_assert(lookup().location(mesh_elements_idx).get<0>() == elements_comp);
         cf_assert(lookup().location(mesh_elements_idx).get<1>() == loc_elem_idx);
+
         // loop over the faces in the current element
         for (Uint face_idx = 0; face_idx != nb_faces_in_elem; ++face_idx)
         {
@@ -301,7 +304,9 @@ void CFaceCellConnectivity::build_connectivity()
     {
       if ( elem != Math::Consts::Uint_max() )
       {
+
         boost::tie(elem_location_comp,elem_location_idx) = lookup().location(elem);
+
         CCells& elems = elem_location_comp->as_type<CCells>();
         CList<bool>& is_bdry_elem = elems.get_child("is_bdry").as_type< CList<bool> >();
         is_bdry_elem[elem_location_idx] = is_bdry_elem[elem_location_idx] || is_bdry_face.get_row(f) ;
@@ -332,15 +337,20 @@ void CFaceCellConnectivity::build_connectivity()
 
 std::vector<Uint> CFaceCellConnectivity::face_nodes(const Uint face) const
 {
+  cf_assert(face < m_connectivity->size());
+  cf_assert(face < m_face_nb_in_elem->size());
   Uint unified_elem_idx = (*m_connectivity)[face][0];
   Component::ConstPtr elem_comp;
   Uint elem_idx;
+
   boost::tie(elem_comp,elem_idx) = lookup().location(unified_elem_idx);
+
   const CElements& elems = elem_comp->as_type<CElements>();
   std::vector<Uint> nodes(elems.element_type().face_type((*m_face_nb_in_elem)[face][0]).nb_nodes());
   Uint i(0);
   boost_foreach (Uint node_in_face, elems.element_type().face_connectivity().face_node_range((*m_face_nb_in_elem)[face][0]))
   {
+    cf_assert(elem_idx < elems.node_connectivity().size());
     nodes[i++] = elems.node_connectivity()[elem_idx][node_in_face];
   }
   return nodes;

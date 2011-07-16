@@ -31,9 +31,6 @@ CNodes::CNodes ( const std::string& name ) :
   m_glb_elem_connectivity = create_static_component_ptr< CDynTable<Uint> >("glb_elem_connectivity");
   m_glb_elem_connectivity->add_tag("glb_elem_connectivity");
 
-  m_is_ghost = create_static_component_ptr< CList<bool> >("is_ghost");
-  m_is_ghost->add_tag("is_ghost");
-
   m_rank = create_static_component_ptr< CList<Uint> >("rank");
   m_rank->add_tag("rank");
 
@@ -54,7 +51,6 @@ CNodes::~CNodes()
 void CNodes::resize(const Uint size)
 {
   coordinates().resize(size);
-  is_ghost().resize(size);
   rank().resize(size);
 }
 

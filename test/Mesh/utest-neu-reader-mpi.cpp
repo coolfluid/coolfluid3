@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
- 
+
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   CNodes& nodes = find_component_recursively<CNodes>(*mesh);
   for (Uint n=0; n<nodes.size(); ++n)
   {
-    if (nodes.is_ghost()[n])
+    if (nodes.is_ghost(n))
     {
       CFinfo << "node " << n << " is a ghost node" << CFendl;
       ++nb_ghosts;
