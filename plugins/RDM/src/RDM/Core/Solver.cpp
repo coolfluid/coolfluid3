@@ -39,6 +39,7 @@
 
 namespace CF {
 namespace RDM {
+namespace Core {
 
 using namespace Common;
 using namespace Mesh;
@@ -48,7 +49,7 @@ using namespace CF::Solver::Actions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Solver, CSolver, LibCore > Solver_Builder;
+Common::ComponentBuilder < RDM::Core::Solver, CSolver, LibCore > Solver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -400,5 +401,6 @@ void Solver::signature_signal_initialize_solution( SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+} // Core
 } // RDM
 } // CF
