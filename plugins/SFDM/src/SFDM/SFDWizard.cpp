@@ -123,21 +123,29 @@ SFDWizard::SFDWizard( const std::string& name )
     ->set_pretty_name("Output File")
     ->mark_basic();
 
-  SignalPtr sig_create_simulation = regist_signal ( "create_simulation" , "Create a simulation", "Create Simulation" );
-    sig_create_simulation->signal    -> connect ( boost::bind ( &SFDWizard::signal_create_simulation, this, _1 ) );
-    sig_create_simulation->signature -> connect ( boost::bind ( &SFDWizard::signature_create_simulation, this, _1) );
+  regist_signal( "create_simulation" )
+    ->description("Create a simulation")
+    ->pretty_name("Create Simulation")
+    ->connect ( boost::bind ( &SFDWizard::signal_create_simulation, this, _1 ) )
+    ->signature( boost::bind ( &SFDWizard::signature_create_simulation, this, _1) );
 
-  SignalPtr sig_prepare_simulation = regist_signal ( "prepare_simulation" , "Prepare a simulation", "Prepare Simulation" );
-    sig_prepare_simulation->signal    -> connect ( boost::bind ( &SFDWizard::signal_prepare_simulation, this, _1 ) );
-    sig_prepare_simulation->signature -> connect ( boost::bind ( &SFDWizard::signature_prepare_simulation, this, _1) );
+  SignalPtr sig_prepare_simulation = regist_signal( "prepare_simulation" )
+    ->description("Prepare a simulation")
+    ->pretty_name("Prepare Simulation")
+    ->connect( boost::bind ( &SFDWizard::signal_prepare_simulation, this, _1 ) )
+    ->signature( boost::bind ( &SFDWizard::signature_prepare_simulation, this, _1) );
 
-  SignalPtr sig_init_sol = regist_signal ( "initialize_solution" , "Initialize Solution", "Initialize Solution" );
-    sig_init_sol->signal    -> connect ( boost::bind ( &SFDWizard::signal_initialize_solution, this, _1 ) );
-    sig_init_sol->signature -> connect ( boost::bind ( &SFDWizard::signature_initialize_solution, this, _1) );
+  SignalPtr sig_init_sol = regist_signal( "initialize_solution" )
+    ->description("Initialize Solution")
+    ->pretty_name("Initialize Solution")
+    ->connect( boost::bind ( &SFDWizard::signal_initialize_solution, this, _1 ) )
+    ->signature( boost::bind ( &SFDWizard::signature_initialize_solution, this, _1) );
 
-  SignalPtr sig_start_simulation = regist_signal ( "start_simulation" , "Start a simulation", "Start Simulation" );
-    sig_start_simulation->signal    -> connect ( boost::bind ( &SFDWizard::signal_start_simulation, this, _1 ) );
-    sig_start_simulation->signature -> connect ( boost::bind ( &SFDWizard::signature_start_simulation, this, _1) );
+  SignalPtr sig_start_simulation = regist_signal( "start_simulation" )
+    ->description("Start a simulation")
+    ->pretty_name("Start Simulation")
+    ->connect ( boost::bind ( &SFDWizard::signal_start_simulation, this, _1 ) )
+    ->signature( boost::bind ( &SFDWizard::signature_start_simulation, this, _1) );
 
   m_model_link = create_static_component_ptr<CLink>("current_model");
 }

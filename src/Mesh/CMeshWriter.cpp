@@ -47,8 +47,10 @@ CMeshWriter::CMeshWriter ( const std::string& name  ) :
       ->mark_basic();
 
   // signal for writing the mesh
-  regist_signal("write_mesh" , "Write the mesh", "Write Mesh")->
-      signal->connect( boost::bind ( &CMeshWriter::signal_write, this, _1 ) );
+  regist_signal( "write_mesh" )
+    ->connect( boost::bind( &CMeshWriter::signal_write, this, _1 ) )
+    ->description("Write the mesh")
+    ->pretty_name("Write Mesh");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

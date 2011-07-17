@@ -87,16 +87,24 @@ CNode::CNode(const std::string & name, const QString & componentType, Type type)
   m_mutex = new QMutex();
 
   // unregister some base class signals
-  m_signals.erase("signal_signature");
-  m_signals.erase("configure");
 
-  regist_signal("configure", "Update component options")->signal->connect(boost::bind(&CNode::configure_reply, this, _1));
-  regist_signal("tree_updated", "Event that notifies a path has changed")->signal->connect(boost::bind(&CNode::update_tree, this, _1));
-  regist_signal("list_content", "Updates node contents")->signal->connect(boost::bind(&CNode::list_content_reply, this, _1));
+  unregist_signal("signal_signature");
+  unregist_signal("configure");
 
-  regist_signal("signal_signature", "");
+  regist_signal( "configure" )
+    ->description("Update component options")
+    ->connect(boost::bind(&CNode::configure_reply, this, _1));
 
-  signal("signal_signature")->is_hidden = true;
+  regist_signal( "tree_updated" )
+    ->description("Event that notifies a path has changed")
+    ->connect(boost::bind(&CNode::update_tree, this, _1));
+
+  regist_signal( "list_content" )
+    ->description("Updates node contents")
+    ->connect(boost::bind(&CNode::list_content_reply, this, _1));
+
+  regist_signal("signal_signature")
+      ->hidden(true);
 
   m_properties.add_property("original_component_type", m_componentType.toStdString());
 }
@@ -361,7 +369,8 @@ void CNode::modifyOptions(const QMap<QString, QString> & opts)
 
 void CNode::localSignature(const QString & name, SignalArgs& node )
 {
-  ( *signal( name.toStdString() )->signature )(node);
+  std::string sname = name.toStdString();
+  ( * signal( sname )->signature() ) ( node );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -569,14 +578,16 @@ void CNode::listSignals(QList<ActionInfo> & actions)
   for( ; it != m_localSignals.end() ; it++)
   {
 
-    if(m_signals.find(it->toStdString()) != m_signals.end())
+    std::string sname = it->toStdString();
+
+    if( signal_exists( sname ) )
     {
       ActionInfo ai;
-      SignalPtr sig = m_signals.find(it->toStdString())->second;
+      SignalPtr sig = signal( sname );
 
-      ai.name = it->toStdString().c_str();
-      ai.description = sig->description.c_str();
-      ai.readableName = sig->readable_name.c_str();
+      ai.name = sname.c_str();
+      ai.description = sig->description().c_str();
+      ai.readableName = sig->pretty_name().c_str();
       ai.isLocal = true;
       ai.isEnabled = availableLocalSignals[*it];
 

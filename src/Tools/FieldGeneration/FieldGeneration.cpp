@@ -61,7 +61,10 @@ FieldGenerator::FieldGenerator(const std::string& name) : Component(name)
       ->set_description("Value for every node in the field")
       ->mark_basic();
 
-  this->regist_signal("update" , "Update the field value according to the options", "Update")->signal->connect( boost::bind ( &FieldGenerator::signal_update, this, _1 ) );
+  regist_signal( "update" )
+    ->connect( boost::bind( &FieldGenerator::signal_update, this, _1 ) )
+    ->description("Update the field value according to the options")
+    ->pretty_name("Update");
 }
 
 void FieldGenerator::signal_update(Common::SignalArgs& node)

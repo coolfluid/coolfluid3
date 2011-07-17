@@ -56,6 +56,8 @@ list( APPEND coolfluid_common_files
     EnumT.hpp
     EventHandler.hpp
     EventHandler.cpp
+    ConnectionManager.hpp
+    ConnectionManager.cpp
     Exception.cpp
     Exception.hpp
     Foreach.hpp

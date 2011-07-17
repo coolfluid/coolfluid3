@@ -104,10 +104,10 @@ CEnv::CEnv ( const std::string& name) : Component ( name )
   trigger_log_level();
 
   // signals
-  signal("create_component")->is_hidden = true;
-  signal("rename_component")->is_hidden = true;
-  signal("delete_component")->is_hidden = true;
-  signal("move_component")->is_hidden   = true;
+  signal("create_component")->hidden(true);
+  signal("rename_component")->hidden(true);
+  signal("delete_component")->hidden(true);
+  signal("move_component")->hidden(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

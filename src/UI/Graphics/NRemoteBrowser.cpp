@@ -60,8 +60,9 @@ NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * pare
     CNode(NBrowser::globalBrowser()->generateName().toStdString(), componentType, CNode::DEBUG_NODE)
 {
 
-  regist_signal("read_dir", "Directory content")->
-      signal->connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
+  regist_signal( "read_dir" )
+    ->description("Directory content")
+    ->pretty_name("")->connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
 
   this->setWindowTitle("Open file");
 

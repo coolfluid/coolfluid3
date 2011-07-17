@@ -34,17 +34,18 @@ CPlotter::CPlotter(const std::string & name) :
    Component(name)
 {
   // signals
-  regist_signal("create_xyplot", "Creates an XY-Plot", "New XY-Plot")->
-      signal->connect( boost::bind(&CPlotter::signal_create_xyplot, this, _1) );
+  regist_signal("create_xyplot")
+      ->description("Creates an XY-Plot")
+      ->pretty_name("New XY-Plot")
+      ->connect( boost::bind(&CPlotter::signal_create_xyplot, this, _1) )
+      ->signature( boost::bind(&CPlotter::signature_create_xyplot, this, _1) );
 
   // hide some signals from the GUI
-  signal("create_component")->is_hidden = true;
-  signal("delete_component")->is_hidden = true;
-  signal("move_component")->is_hidden = true;
-  signal("rename_component")->is_hidden = true;
+  signal("create_component")->hidden(true);
+  signal("delete_component")->hidden(true);
+  signal("move_component")->hidden(true);
+  signal("rename_component")->hidden(true);
 
-  // signatures
-  signal("create_xyplot")->signature->connect( boost::bind(&CPlotter::signature_create_xyplot, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

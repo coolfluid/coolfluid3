@@ -32,8 +32,10 @@ namespace Core {
 NLink::NLink(const std::string & name)
   : CNode(name, "CLink", CNode::STANDARD_NODE)
 {
-  regist_signal("goToTarget", "Switch to the target node", "Go to target node")->
-      signal->connect(boost::bind(&NLink::goToTarget, this, _1));
+  regist_signal( "goToTarget" )
+    ->connect( boost::bind( &NLink::goToTarget, this, _1 ) )
+    ->description("Switch to the target node")
+    ->pretty_name("Go to target node");
 
   m_localSignals << "goToTarget";
 }

@@ -38,8 +38,9 @@ NLog::NLog()
   m_typeNames[ LogMessage::ERROR ]     = "  Error  ";
   m_typeNames[ LogMessage::WARNING ]   = " Warning ";
 
-  regist_signal("message", "Log message")->
-      signal->connect(boost::bind(&NLog::message, this, _1));
+  regist_signal( "message" )
+    ->description("Log message")
+    ->pretty_name("")->connect(boost::bind(&NLog::message, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////

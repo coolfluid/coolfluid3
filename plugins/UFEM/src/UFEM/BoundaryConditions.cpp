@@ -86,10 +86,10 @@ struct BoundaryConditions::Implementation
   {
     if(m_physical_model.expired())
       throw SetupError(FromHere(), "Error accessing physical_model from " + m_component.uri().string());
-    
+
     return *m_physical_model.lock();
   }
-  
+
   CActionDirector& m_component;
   boost::weak_ptr<Physics::PhysModel> m_physical_model;
   LSSProxy m_proxy;
@@ -101,9 +101,11 @@ BoundaryConditions::BoundaryConditions(const std::string& name) :
   CActionDirector(name),
   m_implementation( new Implementation(*this) )
 {
-  regist_signal("add_constant_bc" , "Create a constant Dirichlet BC", "Add Constant BC")
-    ->signal->connect( boost::bind(&BoundaryConditions::signal_add_constant_bc, this, _1) );
-  signal("add_constant_bc")->signature->connect( boost::bind(&Implementation::add_constant_bc_signature, m_implementation.get(), _1) );
+  regist_signal( "add_constant_bc" )
+    ->connect( boost::bind( &BoundaryConditions::signal_add_constant_bc, this, _1 ) )
+    ->description("Create a constant Dirichlet BC")
+    ->pretty_name("Add Constant BC")
+    ->signature( boost::bind(&Implementation::add_constant_bc_signature, m_implementation.get(), _1) );
 }
 
 BoundaryConditions::~BoundaryConditions()
@@ -115,11 +117,11 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
   CAction::Ptr result = m_implementation->physical_model().variable_manager().variable_type(variable_name) == Physics::VariableManager::SCALAR ?
     m_implementation->create_scalar_bc(region_name, variable_name, boost::any_cast<Real>(default_value)) :
     m_implementation->create_vector_bc(region_name, variable_name, boost::any_cast<RealVector>(default_value));
-    
+
   *this << result; // Append action
 
   std::vector<URI> bc_regions;
-  
+
   // find the URIs of all the regions that match the region_name
   boost_foreach(const URI& region_uri, m_implementation->m_region_uris)
   {
@@ -129,12 +131,12 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
     CRegion::Ptr root_region = boost::dynamic_pointer_cast<CRegion>(region_comp);
     if(!root_region)
       throw SetupError(FromHere(), "Component at " + region_uri.string() + " is not a region when reading regions from " + uri().string());
-    
+
     CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*root_region, region_name);
     if(region)
       bc_regions.push_back(region->uri());
   }
-  
+
   // debug output
   if(bc_regions.empty())
   {
@@ -156,10 +158,10 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
 void BoundaryConditions::signal_add_constant_bc(SignalArgs& node)
 {
   SignalOptions options( node );
-  
+
   const std::string region_name = options.value<std::string>("region_name");
   const std::string variable_name = options.value<std::string>("variable_name");
-  
+
   if(m_implementation->physical_model().variable_manager().variable_type(variable_name) == Physics::VariableManager::SCALAR)
     add_constant_bc(region_name, variable_name, 0.);
   else

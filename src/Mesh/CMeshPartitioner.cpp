@@ -53,9 +53,11 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
   m_global_to_local = create_static_component_ptr<CMap<Uint,Uint> >("global_to_local");
   m_lookup = create_static_component_ptr<CUnifiedData >("lookup");
 
-  SignalPtr load_balance_signal = regist_signal ( "load_balance" , "Partitions and migrates elements between processors", "Load Balance" );
-  load_balance_signal->signal   ->connect ( boost::bind ( &CMeshPartitioner::load_balance,this, _1 ) );
-  load_balance_signal->signature->connect ( boost::bind ( &CMeshPartitioner::load_balance_signature, this, _1));
+  regist_signal( "load_balance" )
+    ->description("Partitions and migrates elements between processors")
+    ->pretty_name("Load Balance")
+    ->connect ( boost::bind ( &CMeshPartitioner::load_balance,this, _1 ) )
+    ->signature ( boost::bind ( &CMeshPartitioner::load_balance_signature, this, _1));
 }
 
 //////////////////////////////////////////////////////////////////////////////

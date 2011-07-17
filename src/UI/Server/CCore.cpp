@@ -61,10 +61,12 @@ CCore::CCore()
 
   connect(rca, SIGNAL(newData(QString)), this, SLOT(message(QString)));
 
-  regist_signal("read_dir", "Read directory content")->
-      signal->connect(boost::bind(&CCore::read_dir, this, _1));
-  regist_signal("shutdown", "Shutdown the server")->
-      signal->connect(boost::bind(&CCore::shutdown, this, _1));
+  regist_signal( "read_dir" )
+    ->description("Read directory content")
+    ->pretty_name("")->connect(boost::bind(&CCore::read_dir, this, _1));
+  regist_signal( "shutdown" )
+    ->description("Shutdown the server")
+    ->pretty_name("")->connect(boost::bind(&CCore::shutdown, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.+++

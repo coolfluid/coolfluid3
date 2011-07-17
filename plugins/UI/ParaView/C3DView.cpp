@@ -79,21 +79,27 @@ C3DView::C3DView(const std::string& name) :
 
   // signals
 
-  regist_signal("launch_pvserver", "Launch Paraview Server", "Launch Server")->
-      signal->connect( boost::bind( &C3DView::launch_pvserver, this, _1));
+  regist_signal( "launch_pvserver" )
+    ->description("Launch Paraview Server")
+    ->pretty_name("Launch Server")
+    ->connect( boost::bind( &C3DView::launch_pvserver, this, _1));
 
-  regist_signal("iteration_done", "iteration done", "iteration done")->
-      signal->connect( boost::bind( &C3DView::signal_iteration_done, this, _1));
+  regist_signal( "iteration_done" )
+    ->description("iteration done")
+    ->pretty_name("iteration done")
+    ->connect( boost::bind( &C3DView::signal_iteration_done, this, _1));
 
-  regist_signal("send_server_info_to_client", "Load last dumped file", "Get file info")->
-      signal->connect( boost::bind( &C3DView::send_server_info_to_client, this, _1));
+  regist_signal( "send_server_info_to_client" )
+    ->description("Load last dumped file")
+    ->pretty_name("Get file info")
+     ->connect( boost::bind( &C3DView::send_server_info_to_client, this, _1));
 
   // hide some signals from the GUI
-  signal("create_component")->is_hidden = true;
-  signal("iteration_done")->is_hidden = true;
+  signal("create_component")->hidden(true);
+  signal("iteration_done")->hidden(true);
 
   // these signals are read-only
-  signal("launch_pvserver")->is_read_only = true;
+  signal("launch_pvserver")->read_only(true);
 
 
   // regist action to event "iteration_done"

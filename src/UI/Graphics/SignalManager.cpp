@@ -69,7 +69,7 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
   m_node = node;
   m_currentAction = nullptr;
 
-  node->signal("signal_signature")->signal
+  node->signal("signal_signature")
       ->connect( boost::bind(&SignalManager::signalSignature, this, _1) );
 
 //  connect(node->notifier(), SIGNAL(signalSignature(CF::Common::SignalArgs*)),

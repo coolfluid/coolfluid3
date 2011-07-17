@@ -56,8 +56,11 @@ Notifier::Notifier ( const std::string& name ) :
       ->link_to(&m_api_key)
       ->mark_basic();
 
-  regist_signal ( "notify" , "Notify iPhone Prowl app", "Notify" )->signal->connect ( boost::bind ( &Notifier::signal_notify, this, _1 ) );
-  signal("notify")->signature->connect(boost::bind(&Notifier::signature_notify, this, _1));
+  regist_signal( "notify" )
+    ->connect( boost::bind( &Notifier::signal_notify, this, _1 ) )
+    ->description("Notify iPhone Prowl app")
+    ->pretty_name("Notify");
+  signal("notify")->signature(boost::bind(&Notifier::signature_notify, this, _1));
 
 }
 

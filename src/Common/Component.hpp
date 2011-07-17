@@ -22,6 +22,7 @@
 #include "Common/PropertyList.hpp"
 #include "Common/OptionList.hpp"
 #include "Common/SignalHandler.hpp"
+#include "Common/ConnectionManager.hpp"
 #include "Common/URI.hpp"
 
 namespace CF {
@@ -70,8 +71,8 @@ class Common_API Component :
   public boost::enable_shared_from_this<Component>,
   public boost::noncopyable,
   public SignalHandler,
-  public TaggedObject
-{
+  public ConnectionManager,
+  public TaggedObject  {
 
 public: // typedef
 
@@ -233,7 +234,7 @@ public: // functions
 
   /// @returns true if the component has a parent
   bool has_parent() const;
-  
+
   /// @returns the pointer to parent component
   /// @pre parent pointer is valid
   /// @post returns always valid pointer
@@ -410,10 +411,10 @@ public: // functions
 
   /// lists the properties of this component
   void signal_list_properties ( SignalArgs& args );
-  
+
   /// lists the properties of this component
   void signal_list_options ( SignalArgs& args );
-  
+
   /// lists the signals of this component
   void signal_list_signals ( SignalArgs& args );
 
@@ -922,7 +923,7 @@ typename ATYPE::Ptr build_component_abstract_type(const std::string& builder_nam
 
   // cast the component
 
-  typename ATYPE::Ptr ccomp = comp->as_ptr<ATYPE>();
+  typename ATYPE::Ptr ccomp = comp->as_ptr_checked<ATYPE>();
   if ( is_null(ccomp) )
     throw CastingFailed(FromHere(),
                         "Pointer created by CBuilder \'" + builder_name + "\'"

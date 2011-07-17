@@ -60,8 +60,11 @@ CMesh::CMesh ( const std::string& name  ) :
   m_topology   = create_static_component_ptr<CRegion>("topology");
   m_metadata   = create_static_component_ptr<MeshMetadata>("metadata");
 
-  regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->signal->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) );
-  signal("write_mesh")->signature->connect(boost::bind(&CMesh::signature_write_mesh, this, _1));
+  regist_signal ( "write_mesh" )
+      ->description( "Write mesh, guessing automatically the format" )
+      ->pretty_name("Write Mesh" )
+      ->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) )
+      ->signature(boost::bind(&CMesh::signature_write_mesh, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -48,8 +48,10 @@ void JournalNotifier::regist(const NJournal * journal)
 NJournal::NJournal(const std::string & name)
   : CNode(name, "CJournal", CNode::STANDARD_NODE)
 {
-  regist_signal("list_journal", "List journal", "List journal")->
-      signal->connect(boost::bind(&NJournal::list_journal, this, _1));
+  regist_signal( "list_journal" )
+    ->connect( boost::bind( &NJournal::list_journal, this, _1 ) )
+    ->description("List journal")
+    ->pretty_name("List journal");
 
   m_localSignals << "list_journal";
 

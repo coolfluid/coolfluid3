@@ -42,7 +42,7 @@ struct CDomain::Implementation
       ->set_pretty_name("Active Mesh")
       ->set_description("Root region below which the boundary conditions are defined");
   }
-  
+
   void signature_load_mesh( Common::SignalArgs& node )
   {
       SignalOptions options( node );
@@ -58,7 +58,7 @@ struct CDomain::Implementation
   options.add_option< OptionT<std::string> >("name", std::string() )
       ->set_description("Name for the mesh to load");
   }
-  
+
   void signature_write_mesh( Common::SignalArgs& node )
   {
     SignalOptions options( node );
@@ -70,7 +70,7 @@ struct CDomain::Implementation
       ->set_description("Location of the file holding the mesh")
       ->cast_to<OptionURI>()->set_supported_protocols(schemes);
   }
-  
+
   Component& m_component;
   boost::weak_ptr<WriteMesh> m_write_mesh;
   boost::weak_ptr<CMesh> m_active_mesh;
@@ -90,11 +90,17 @@ CDomain::CDomain( const std::string& name  ) :
    "Offers signals to load or generate a mesh";
   m_properties["description"] = description;
 
-  regist_signal ( "load_mesh" , "Load a new mesh", "Load Mesh" )->signal->connect ( boost::bind ( &CDomain::signal_load_mesh, this, _1 ) );
-  signal("load_mesh")->signature->connect( boost::bind( &Implementation::signature_load_mesh, m_implementation.get(), _1));
-  
-  regist_signal ( "write_mesh" , "Load a new mesh", "Load Mesh" )->signal->connect ( boost::bind ( &CDomain::signal_write_mesh, this, _1 ) );
-  signal("write_mesh")->signature->connect( boost::bind( &Implementation::signature_write_mesh, m_implementation.get(), _1));
+  regist_signal( "load_mesh" )
+    ->connect( boost::bind( &CDomain::signal_load_mesh, this, _1 ) )
+    ->description("Load a new mesh")
+    ->pretty_name("Load Mesh");
+  signal("load_mesh")->signature( boost::bind( &Implementation::signature_load_mesh, m_implementation.get(), _1));
+
+  regist_signal( "write_mesh" )
+    ->connect( boost::bind( &CDomain::signal_write_mesh, this, _1 ) )
+    ->description("Load a new mesh")
+    ->pretty_name("Load Mesh");
+  signal("write_mesh")->signature( boost::bind( &Implementation::signature_write_mesh, m_implementation.get(), _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,7 +126,7 @@ CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
 // not working ? //   tools.get_child("LoadBalancer").as_type<CMeshTransformer>().transform( mesh );
 
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
-  
+
   if(m_implementation->m_active_mesh.expired()) // If this is the first mesh loaded, make it active
     set_active_mesh(*mesh);
 
@@ -131,7 +137,7 @@ void CDomain::write_mesh(const URI& file)
 {
   if(m_implementation->m_write_mesh.expired()) // created on-demand
     m_implementation->m_write_mesh = create_static_component_ptr<WriteMesh>("MeshWriter");
-  
+
   std::vector<URI> state_fields;
   CMesh& mesh = active_mesh();
   boost_foreach(const CField& field, find_components_recursively<CField>(mesh))

@@ -90,6 +90,14 @@ list( APPEND utest-uri_files
 coolfluid_add_unit_test( utest-uri )
 
 ################################################################################
+# Test EventHandler
+
+list( APPEND utest-eventhandler_cflibs coolfluid_common )
+list( APPEND utest-eventhandler_files  utest-eventhandler.cpp )
+
+coolfluid_add_unit_test( utest-eventhandler )
+
+################################################################################
 # Test Component
 
 list( APPEND utest-properties_cflibs coolfluid_common )

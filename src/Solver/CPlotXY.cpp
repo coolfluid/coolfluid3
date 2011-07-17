@@ -40,14 +40,16 @@ CPlotXY::CPlotXY(const std::string& name) :
     Component(name),
     m_num_it(10000)
 {
-  regist_signal("convergence_history", "Lists convergence history", "Get history")->
-      signal->connect( boost::bind( &CPlotXY::convergence_history, this, _1));
+  regist_signal( "convergence_history" )
+    ->connect( boost::bind( &CPlotXY::convergence_history, this, _1 ) )
+    ->description("Lists convergence history")
+    ->pretty_name("Get history");
 
   // hide some signals from the GUI
-  signal("create_component")->is_hidden = true;
-//  signal("delete_component")->is_hidden = true;
-//  signal("move_component")->is_hidden = true;
-//  signal("rename_component")->is_hidden = true;
+  signal("create_component")->hidden(true);
+//  signal("delete_component")->hidden(true);
+//  signal("move_component")->hidden(true);
+//  signal("rename_component")->hidden(true);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

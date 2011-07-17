@@ -43,7 +43,9 @@ public: // functions
   /// @param name of the component
   CSmall ( const std::string& name ) : Component ( name )
   {
-    this->regist_signal ( "print_message" , "prints" )->signal->connect ( boost::bind ( &CSmall::print_message, this, _1 ) );
+    this->regist_signal( "print_message" )
+    ->description("prints")
+    ->pretty_name("")->connect ( boost::bind ( &CSmall::print_message, this, _1 ) );
   }
 
   /// Virtual destructor
@@ -68,13 +70,6 @@ public: // functions
   void trigger_signal_list_tree( Component& receiver )
   {
     SignalFrame signal_frame( "list_tree", uri(), receiver.uri());
-
-
-//    std::vector < std::pair < Signal::id_t, SignalName > > lists = receiver.list_signals();
-//    for ( int i = 0; i < lists.size(); i++)
-//    {
-//      CFinfo << "signal [" << lists[i].first << "] desc [" << lists[i].second << "]" << CFendl;
-//    }
 
     receiver.call_signal( "list_tree", signal_frame );
 

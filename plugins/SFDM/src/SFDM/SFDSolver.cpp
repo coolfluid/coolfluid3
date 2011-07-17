@@ -96,7 +96,9 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
     ->attach_trigger( boost::bind ( &SFDSolver::trigger_time, this ) );
 
   // Signals
-  this->regist_signal ( "create_bc" , "Create Boundary Condition", "Create Boundary Condition" )->signal->connect ( boost::bind ( &SFDSolver::signal_create_bc, this , _1) );
+  this->regist_signal( "create_bc" )
+    ->description("Create Boundary Condition")
+    ->pretty_name("Create Boundary Condition")->signal->connect ( boost::bind ( &SFDSolver::signal_create_bc, this , _1) );
 
 
   // initializations

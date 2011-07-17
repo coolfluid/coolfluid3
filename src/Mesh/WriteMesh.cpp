@@ -69,14 +69,17 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
 
   // signals
 
-  regist_signal ( "write_mesh" , "Write mesh, guessing automatically the format", "Write Mesh" )->signal->connect ( boost::bind ( &WriteMesh::signal_write_mesh, this, _1 ) );
+  regist_signal ( "write_mesh" )
+      ->description( "Write mesh, guessing automatically the format" )
+      ->pretty_name("Write Mesh" )
+      ->connect ( boost::bind ( &WriteMesh::signal_write_mesh, this, _1 ) )
+      ->signature(boost::bind(&WriteMesh::signature_write_mesh, this, _1));
 
-  signal("create_component")->is_hidden = true;
-  signal("rename_component")->is_hidden = true;
-  signal("delete_component")->is_hidden = true;
-  signal("move_component")->is_hidden   = true;
+  signal("create_component")->hidden(true);
+  signal("rename_component")->hidden(true);
+  signal("delete_component")->hidden(true);
+  signal("move_component")->hidden(true);
 
-  signal("write_mesh")->signature->connect(boost::bind(&WriteMesh::signature_write_mesh, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -40,8 +40,11 @@ CMeshReader::CMeshReader ( const std::string& name  ) :
   mark_basic();
 
   // signals
-  this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->signal->connect ( boost::bind ( &CMeshReader::signal_read, this, _1 ) );
-  signal("read")->signature->connect( boost::bind(&CMeshReader::read_signature, this, _1) );
+  regist_signal( "read" )
+    ->connect( boost::bind( &CMeshReader::signal_read, this, _1 ) )
+    ->description("reads a mesh")
+    ->pretty_name("Read mesh");
+  signal("read")->signature( boost::bind(&CMeshReader::read_signature, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

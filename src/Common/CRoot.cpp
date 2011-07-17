@@ -7,6 +7,7 @@
 #include <sstream>
 
 #include "Common/Log.hpp"
+#include "Common/Signal.hpp"
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/CF.hpp"
@@ -42,7 +43,8 @@ namespace Common {
     // put into ComponentBuilder because the constructor is private
     TypeInfo::instance().regist<CRoot>( type_name() );
 
-    regist_signal("new_event", "Notifies new events.");
+    regist_signal("new_event")
+        ->description( "Notifies new events." );
 
     m_path = "/";
   }
@@ -83,7 +85,7 @@ namespace Common {
     else
       throw InvalidURI(FromHere(), "No component exists with path [" + path.path() + "]");
   }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
   void CRoot::change_component_path( const URI& path , boost::shared_ptr<Component> comp )

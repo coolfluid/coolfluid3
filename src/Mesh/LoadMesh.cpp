@@ -44,14 +44,16 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
 
   // signals
 
-  regist_signal ( "load_mesh" , "Loads meshes, guessing automatically the format", "Load Mesh" )->signal->connect ( boost::bind ( &LoadMesh::signal_load_mesh, this, _1 ) );
+  regist_signal ( "load_mesh" )
+      ->description( "Loads meshes, guessing automatically the format" )
+      ->pretty_name("Load Mesh" )
+      ->connect ( boost::bind ( &LoadMesh::signal_load_mesh, this, _1 ) )
+      ->signature(boost::bind(&LoadMesh::signature_load_mesh, this, _1));
 
-  signal("create_component")->is_hidden = true;
-  signal("rename_component")->is_hidden = true;
-  signal("delete_component")->is_hidden = true;
-  signal("move_component")->is_hidden   = true;
-
-  signal("load_mesh")->signature->connect(boost::bind(&LoadMesh::signature_load_mesh, this, _1));
+  signal("create_component")->hidden(true);
+  signal("rename_component")->hidden(true);
+  signal("delete_component")->hidden(true);
+  signal("move_component")->hidden(true);
 }
 
 LoadMesh::~LoadMesh() {}

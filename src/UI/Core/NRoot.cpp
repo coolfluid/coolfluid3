@@ -42,23 +42,30 @@ NRoot::NRoot(const std::string & name)
   m_isRoot = true;
   m_uuid = boost::uuids::random_generator()();
 
-  regist_signal("shutdown", "Server shutdown")->signal->
-      connect(boost::bind(&NRoot::shutdown, this, _1));
-  regist_signal("client_registration", "Registration confirmation")->signal->
-      connect(boost::bind(&NRoot::client_registration, this, _1));
-  regist_signal("frame_rejected", "Frame rejected by the server")->signal->
-      connect(boost::bind(&NRoot::frame_rejected, this, _1));
+  regist_signal( "shutdown" )
+    ->description("Server shutdown")
+    ->pretty_name("")->connect(boost::bind(&NRoot::shutdown, this, _1));
+  regist_signal( "client_registration" )
+    ->description("Registration confirmation")
+    ->pretty_name("")->connect(boost::bind(&NRoot::client_registration, this, _1));
+  regist_signal( "frame_rejected" )
+    ->description("Frame rejected by the server")
+    ->pretty_name("")->connect(boost::bind(&NRoot::frame_rejected, this, _1));
 
-  regist_signal("connect_server", "Connects to the server", "Connect to server")->signal
-      ->connect( boost::bind(&NRoot::signal_connect_server, this, _1));
-  regist_signal("disconnect_server", "Disconnects from the server", "Disconnect from server")->signal
-      ->connect( boost::bind(&NRoot::signal_disconnect_server, this, _1));
+  regist_signal( "connect_server" )
+    ->connect( boost::bind( &NRoot::signal_connect_server, this, _1 ) )
+    ->description("Connects to the server")
+    ->pretty_name("Connect to server");
+  regist_signal( "disconnect_server" )
+    ->connect( boost::bind( &NRoot::signal_disconnect_server, this, _1 ) )
+    ->description("Disconnects from the server")
+    ->pretty_name("Disconnect from server");
 
   m_localSignals << "connect_server" << "disconnect_server";
 
   // signatures
-  signal("connect_server")->signature->connect( boost::bind(&NRoot::signature_connect_server, this, _1) );
-  signal("disconnect_server")->signature->connect( boost::bind(&NRoot::signature_disconnect_server, this, _1) );
+  signal("connect_server")->signature( boost::bind(&NRoot::signature_connect_server, this, _1) );
+  signal("disconnect_server")->signature( boost::bind(&NRoot::signature_disconnect_server, this, _1) );
 
   m_root = CRoot::create(name);
 

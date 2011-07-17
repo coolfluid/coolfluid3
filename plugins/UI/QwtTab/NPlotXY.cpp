@@ -36,14 +36,20 @@ NPlotXY::NPlotXY(const std::string & name) :
 
 //  TabBuilder::instance()->getWidget<Graph>(as_const());
 
-  regist_signal("convergence_history", "Lists convergence history", "Get history")->
-      signal->connect( boost::bind( &NPlotXY::convergence_history, this, _1));
+  regist_signal( "convergence_history" )
+      ->connect( boost::bind( &NPlotXY::convergence_history, this, _1 ) )
+      ->description("Lists convergence history")
+      ->pretty_name("Get history");
 
-  regist_signal("show_hide_plot", "Shows or hides the plot tab", "Show/Hide plot")
-      ->signal->connect( boost::bind( &NPlotXY::show_hide_plot, this, _1) );
-  regist_signal("go_to_tab", "Activates the tab", "Switch to tab")
-      ->signal->connect( boost::bind( &NPlotXY::go_to_plot, this, _1) );
-;
+  regist_signal("show_hide_plot")
+      ->connect( boost::bind( &NPlotXY::show_hide_plot, this, _1) )
+      ->description("Shows or hides the plot tab")
+      ->pretty_name("Show/Hide plot");
+
+  regist_signal( "go_to_tab" )
+      ->connect( boost::bind( &NPlotXY::go_to_plot, this, _1 ) )
+      ->description("Activates the tab")
+      ->pretty_name("Switch to tab");
 
   m_localSignals << "show_hide_plot" << "go_to_tab";
 }

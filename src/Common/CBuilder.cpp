@@ -20,11 +20,13 @@ RegistTypeInfo<CBuilder,LibCommon> CBuilder_TypeRegistration();
 
 CBuilder::CBuilder ( const std::string& name) : Component ( name )
 {
-  regist_signal ( "create_component" , "builds a component", "Build component" )->
-      signal->connect ( boost::bind ( &CBuilder::signal_create_component, this, _1 ) );
+  regist_signal( "create_component" )
+    ->connect( boost::bind( &CBuilder::signal_create_component, this, _1 ) )
+    ->description("builds a component")
+    ->pretty_name("Build component");
 
   signal("create_component")->
-      signature->connect(boost::bind(&CBuilder::signature_signal_create_component, this, _1));
+      signature(boost::bind(&CBuilder::signature_signal_create_component, this, _1));
 
 }
 

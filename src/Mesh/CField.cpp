@@ -69,7 +69,10 @@ CField::CField ( const std::string& name  ) :
 {
   mark_basic();
 
-  regist_signal ( "create_data_storage" , "Allocate the data", "Create Storage" )->signal->connect ( boost::bind ( &CField::signal_create_data_storage, this, _1 ) );
+  regist_signal( "create_data_storage" )
+    ->connect( boost::bind( &CField::signal_create_data_storage, this, _1 ) )
+    ->description("Allocate the data")
+    ->pretty_name("Create Storage");
 
   Option::Ptr uri_option;
   uri_option = m_options.add_option<OptionURI>("Topology", URI("cpath:"));

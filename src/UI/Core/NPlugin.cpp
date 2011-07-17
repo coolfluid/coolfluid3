@@ -37,7 +37,9 @@ SignalPtr NPlugin::addSignal( const std::string& name,
                               const std::string& descr,
                               const std::string& readable_name )
 {
-  SignalPtr signal = regist_signal(name, descr, readable_name);
+  SignalPtr signal = regist_signal(name)
+      ->description(descr)
+      ->pretty_name(readable_name);
 
   m_localSignals << name.c_str();
 

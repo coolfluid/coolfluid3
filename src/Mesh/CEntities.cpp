@@ -54,8 +54,11 @@ CEntities::CEntities ( const std::string& name ) :
   m_rank = create_static_component_ptr< CList<Uint> >("rank");
   m_rank->add_tag("rank");
 
-  regist_signal ( "create_space" , "Create space for other interpretations of fields (e.g. high order)", "Create Space" )->signal->connect ( boost::bind ( &CEntities::signal_create_space, this, _1 ) );
-  signal("create_space")->signature->connect(boost::bind(&CEntities::signature_create_space, this, _1));
+  regist_signal ( "create_space" )
+      ->connect ( boost::bind ( &CEntities::signal_create_space, this, _1 ) )
+      ->description( "Create space for other interpretations of fields (e.g. high order)" )
+      ->pretty_name( "Create space" )
+      ->signature(boost::bind(&CEntities::signature_create_space, this, _1));
 
 }
 

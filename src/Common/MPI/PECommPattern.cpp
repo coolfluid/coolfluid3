@@ -49,7 +49,7 @@ PECommPattern::PECommPattern(const std::string& name): Component(name), m_gid(ne
   m_recvCount(mpi::PE::instance().size(),0),
   m_recvMap(0)
 {
-  //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->signal->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
+  //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
   m_isUpToDate=false;
   m_isFreeze=false;
 }

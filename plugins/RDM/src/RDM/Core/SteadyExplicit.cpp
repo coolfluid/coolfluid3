@@ -48,14 +48,17 @@ SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
 {
   // signals
 
-  this->regist_signal ( "create_model" , "Creates a scalar advection model", "Create Model" )->signal->connect ( boost::bind ( &SteadyExplicit::signal_create_model, this, _1 ) );
+  regist_signal( "create_model" )
+    ->connect( boost::bind( &SteadyExplicit::signal_create_model, this, _1 ) )
+    ->description("Creates a scalar advection model")
+    ->pretty_name("Create Model");
 
-  signal("create_component")->is_hidden = true;
-  signal("rename_component")->is_hidden = true;
-  signal("delete_component")->is_hidden = true;
-  signal("move_component")->is_hidden   = true;
+  signal("create_component")->hidden(true);
+  signal("rename_component")->hidden(true);
+  signal("delete_component")->hidden(true);
+  signal("move_component")->hidden(true);
 
-  signal("create_model")->signature->connect( boost::bind( &SteadyExplicit::signature_create_model, this, _1));
+  signal("create_model")->signature( boost::bind( &SteadyExplicit::signature_create_model, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

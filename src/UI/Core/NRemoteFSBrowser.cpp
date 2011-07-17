@@ -40,8 +40,8 @@ NRemoteFSBrowser::NRemoteFSBrowser( const std::string & name ) :
 
   m_headers << "Name" << "Size" << "Date Modified";
 
-  regist_signal("read_dir", "")->signal->
-      connect(boost::bind(&NRemoteFSBrowser::signal_read_dir, this, _1));
+  regist_signal("read_dir")
+      ->connect(boost::bind(&NRemoteFSBrowser::signal_read_dir, this, _1));
 
 }
 

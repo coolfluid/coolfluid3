@@ -9,9 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/shared_ptr.hpp>
-
-#include "Common/Exception.hpp"
 #include "Common/XML/SignalFrame.hpp"  // try forward declaration
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,62 +21,62 @@ class Signal;
 
 /// signal key
 typedef std::string SignalID;
-/// signal readable name
-typedef std::string SignalName;
 /// signal return type
 typedef void SignalRet;
 /// signal argument
 typedef XML::SignalFrame SignalArgs;
 /// signal pointer
-typedef boost::shared_ptr<Signal> SignalPtr;
+typedef Signal * SignalPtr;
 /// signal pointer
-typedef boost::shared_ptr<Signal const> SignalCPtr;
+typedef Signal *const SignalCPtr;
 
-/// SignalHandler executes calls received as string by issuing singals to the slots
+/// SignalHandler executes calls received as string by issuing signals to the slots
 /// Slots may be:
 ///  * its own derived classes that regist  member functions to be called dynamically
 ///  * other classes that regist themselves to be notified when a signal is issued
 ///
 /// @author Tiago Quintino
-class Common_API SignalHandler
-{
-  public:
+class Common_API SignalHandler {
 
-    /// storage type for signals
-  typedef std::map < SignalID , SignalPtr >  sigmap_t;
+public:
 
-  public:
+  /// storage type for signals
+  typedef std::vector < SignalPtr >  storage_t;
 
-    /// Get the list of signals and respective descriptions
-    std::vector < SignalPtr > list_signals () const;
+public:
 
-    /// @return the signals
-    const sigmap_t& signals_map () const;
-    
-    /// Access to signal by providing its name
-    /// @throw SignalError if signal with name does not exist
-    SignalPtr signal ( const SignalID& sname );
+  ~SignalHandler();
 
-    /// Const access to a signal by providing its name
-    /// @throw SignalError if signal with name does not exist
-    SignalCPtr signal ( const SignalID& sname ) const;
+  /// @return the signals
+  const storage_t& signal_list () const;
 
-    /// Calls the signal by providing its name and input
-    SignalRet call_signal ( const SignalID& sname, SignalArgs& sinput );
+  /// Access to signal by providing its name
+  /// @throw SignalError if signal with name does not exist
+  SignalPtr signal ( const SignalID& sname );
 
-    /// Calls the signal by providing its name and input
-    SignalRet call_signal ( const SignalID& sname, std::vector<std::string>& sinput );
-    
-    /// Checks if a signal exists or not
-    bool check_signal ( const SignalID& sname );
+  /// Const access to a signal by providing its name
+  /// @throw SignalError if signal with name does not exist
+  SignalCPtr signal ( const SignalID& sname ) const;
 
-    /// Regist signal
-    SignalPtr regist_signal ( const SignalID& sname, const std::string& desc, const SignalName& readable_name = SignalName() );
+  /// Calls the signal by providing its name and input
+  SignalRet call_signal ( const SignalID& sname, SignalArgs& sinput );
 
-  public: // data
+  /// Calls the signal by providing its name and input
+  SignalRet call_signal ( const SignalID& sname, std::vector<std::string>& sinput );
 
-    /// storage of the signals
-    sigmap_t  m_signals;
+  /// Checks if a signal exists or not
+  bool signal_exists ( const SignalID& sname ) const;
+
+  /// Regist signal
+  SignalPtr regist_signal ( const SignalID& sname );
+
+  /// Unregist signal
+  void unregist_signal ( const SignalID& sname );
+
+public: // data
+
+  /// storage of the signals
+  storage_t  m_signals;
 
 }; // SignalHandler
 

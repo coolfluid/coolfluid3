@@ -54,32 +54,40 @@ CPEManager::CPEManager( const std::string & name )
     m_listener->start_listening();
   }
 
-  regist_signal("spawn_group", "Creates a new group of workers.", "Spawn new group")
-      ->signal->connect( boost::bind(&CPEManager::signal_spawn_group, this, _1) );
-  regist_signal("kill_group", "Kills a group of workers.", "Kill group")
-      ->signal->connect( boost::bind(&CPEManager::signal_kill_group, this, _1) );
-  regist_signal("kill_all", "Kills all groups of workers.", "Kill all groups")
-      ->signal->connect( boost::bind(&CPEManager::signal_kill_all, this, _1) );
-  regist_signal("exit", "Stops the listening thread", "")
-      ->signal->connect( boost::bind(&CPEManager::signal_exit, this, _1) );
+  regist_signal( "spawn_group" )
+    ->description("Creates a new group of workers")
+    ->pretty_name("Spawn new group")->connect( boost::bind(&CPEManager::signal_spawn_group, this, _1) );
 
-  regist_signal("forward_signal", "Called when there is a signal to forward,")->is_hidden = true;
+  regist_signal( "kill_group" )
+    ->description("Kills a group of workers")
+    ->pretty_name("Kill group")->connect( boost::bind(&CPEManager::signal_kill_group, this, _1) );
 
-  regist_signal("message", "New message has arrived from a worker")
-      ->signal->connect( boost::bind(&CPEManager::signal_message, this, _1) );
+  regist_signal( "kill_all" )
+    ->description("Kills all groups of workers")
+    ->hidden(true)
+    ->pretty_name("Kill all groups")->connect( boost::bind(&CPEManager::signal_kill_all, this, _1) );
 
-  signal("spawn_group")->signature->connect( boost::bind(&CPEManager::signature_spawn_group, this, _1) );
-  signal("kill_group")->signature->connect( boost::bind(&CPEManager::signature_kill_group, this, _1) );
+  regist_signal("exit")
+      ->connect( boost::bind(&CPEManager::signal_exit, this, _1) )
+      ->hidden(true)
+      ->description( "Stops the listening thread" );
 
-  signal("create_component")->is_hidden = true;
-  signal("rename_component")->is_hidden = true;
-  signal("delete_component")->is_hidden = true;
-  signal("move_component")->is_hidden   = true;
-  signal("message")->is_hidden = true;
+  regist_signal("forward_signal")
+      ->hidden(true)
+      ->description("Called when there is a signal to forward");
 
-  // temporary hide
-  signal("exit")->is_hidden = true;
-  signal("kill_all")->is_hidden = true;
+  regist_signal( "message" )
+    ->description("New message has arrived from a worker")
+    ->pretty_name("")->connect( boost::bind(&CPEManager::signal_message, this, _1) );
+
+  signal("spawn_group")->signature( boost::bind(&CPEManager::signature_spawn_group, this, _1) );
+  signal("kill_group")->signature( boost::bind(&CPEManager::signature_kill_group, this, _1) );
+
+  signal("create_component")->hidden(true);
+  signal("rename_component")->hidden(true);
+  signal("delete_component")->hidden(true);
+  signal("move_component")->hidden(true);
+  signal("message")->hidden(true);
 
   m_listener->new_signal.connect( boost::bind(&CPEManager::new_signal, this, _1, _2) );
 }

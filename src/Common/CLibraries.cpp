@@ -37,14 +37,17 @@ CLibraries::CLibraries ( const std::string& name) : Component ( name )
   m_properties["description"] = std::string("Loads external libraries, and holds links to all builders each library offers");
 
   // signals
-  regist_signal ( "load_libraries" , "loads libraries", "Load Libraries" )->signal->connect ( boost::bind ( &CLibraries::signal_load_libraries, this, _1 ) );
+  regist_signal( "load_libraries" )
+    ->connect( boost::bind( &CLibraries::signal_load_libraries, this, _1 ) )
+    ->description("loads libraries")
+    ->pretty_name("Load Libraries");
 
-  signal("create_component")->is_hidden = true;
-  signal("rename_component")->is_hidden = true;
-  signal("move_component")->is_hidden = true;
-  signal("delete_component")->is_hidden = true;
+  signal("create_component")->hidden(true);
+  signal("rename_component")->hidden(true);
+  signal("move_component")->hidden(true);
+  signal("delete_component")->hidden(true);
 
-  signal("load_libraries")->signature->connect( boost::bind(&CLibraries::signature_load_libraries, this, _1) );
+  signal("load_libraries")->signature( boost::bind(&CLibraries::signature_load_libraries, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -71,13 +71,16 @@ ShockTube::ShockTube ( const std::string& name  ) :
 
   // signals
 
-  signal("create_component")->is_hidden = true;
-  signal("rename_component")->is_hidden = true;
-  signal("delete_component")->is_hidden = true;
-  signal("move_component")->is_hidden   = true;
+  signal("create_component")->hidden(true);
+  signal("rename_component")->hidden(true);
+  signal("delete_component")->hidden(true);
+  signal("move_component")->hidden(true);
 
-  regist_signal ( "create_model" , "Creates a shocktube model", "Create Model" )->signal->connect ( boost::bind ( &ShockTube::signal_create_model, this, _1 ) );
-  signal("create_model")->signature->connect( boost::bind( &ShockTube::signature_create_model, this, _1));
+  regist_signal( "create_model" )
+    ->connect( boost::bind( &ShockTube::signal_create_model, this, _1 ) )
+    ->description("Creates a shocktube model")
+    ->pretty_name("Create Model")
+    ->signature( boost::bind( &ShockTube::signature_create_model, this, _1));
 
 }
 

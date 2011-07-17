@@ -14,8 +14,8 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
-#include "Common/TaggedObject.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/TaggedObject.hpp"
 #include "Common/SignalHandler.hpp"
 #include "Common/TypeInfo.hpp"
 
@@ -66,7 +66,7 @@ namespace Common {
   /// Pretty name is optional and can be empty.
 
 
-  /// @author Tiago Quintino (initial author)
+  /// @author Tiago Quintino
   /// @author Quentin Gasper
   class Common_API Option : public boost::enable_shared_from_this<Option>,
       public TaggedObject

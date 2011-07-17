@@ -100,7 +100,10 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
       ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_time, this ) );
 
   // Signals
-  this->regist_signal ( "create_bc" , "Create Boundary Condition", "Create Boundary Condition" )->signal->connect ( boost::bind ( &FiniteVolumeSolver::signal_create_bc, this , _1) );
+  regist_signal( "create_bc" )
+    ->connect( boost::bind( &FiniteVolumeSolver::signal_create_bc, this, _1 ) )
+    ->description("Create Boundary Condition")
+    ->pretty_name("Create Boundary Condition");
 
 
   // initializations

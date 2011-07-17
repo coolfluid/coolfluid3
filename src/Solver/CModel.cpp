@@ -50,7 +50,7 @@ struct CModel::Implementation
   {
     m_tools.mark_basic();
   }
-  
+
   /// Called when the active mesh in the domain changes
   void trigger_active_mesh()
   {
@@ -67,7 +67,7 @@ struct CModel::Implementation
     
     m_active_mesh = domain.active_mesh().as_ptr<CMesh>();
   }
-  
+
   Component& m_component;
   CGroup& m_tools;
   boost::weak_ptr<CDomain> m_domain;
@@ -104,23 +104,34 @@ CModel::CModel( const std::string& name  ) :
   m_properties["steady"] = bool(true);
 
   // signals
-  SignalPtr sig_create_physics = regist_signal ( "create_physics" , "Create the physical model", "Create Physics" );
-    sig_create_physics->signal    -> connect ( boost::bind ( &CModel::signal_create_physics, this, _1 ) );
-    sig_create_physics->signature -> connect ( boost::bind ( &CModel::signature_create_physics, this, _1) );
+  regist_signal( "create_physics" )
+    ->connect( boost::bind( &CModel::signal_create_physics, this, _1 ) )
+    ->description("Create the physical model")
+    ->pretty_name("Create Physics")
+    ->signature( boost::bind ( &CModel::signature_create_physics, this, _1) );
 
-  SignalPtr sig_create_domain = regist_signal ( "create_domain" , "Create the domain and load a mesh", "Create Domain" );
-    sig_create_domain->signal    -> connect ( boost::bind ( &CModel::signal_create_domain, this, _1 ) );
-    sig_create_domain->signature -> connect ( boost::bind ( &CModel::signature_create_domain, this, _1) );
+  regist_signal( "create_domain" )
+    ->connect( boost::bind( &CModel::signal_create_domain, this, _1 ) )
+    ->description("Create the domain and load a mesh")
+    ->pretty_name("Create Domain")
+    ->signature( boost::bind ( &CModel::signature_create_domain, this, _1) );
 
-  SignalPtr sig_create_solver = regist_signal ( "create_solver" , "Create the solver", "Create Solver" );
-    sig_create_solver->signal    -> connect ( boost::bind ( &CModel::signal_create_solver, this, _1 ) );
-    sig_create_solver->signature -> connect ( boost::bind ( &CModel::signature_create_solver, this, _1) );
+  regist_signal( "create_solver" )
+    ->connect( boost::bind( &CModel::signal_create_solver, this, _1 ) )
+    ->description("Create the solver")
+    ->pretty_name("Create Solver")
+    ->signature( boost::bind ( &CModel::signature_create_solver, this, _1) );
 
-  regist_signal ( "simulate" , "Simulates this model", "Simulate" )
-    ->signal->connect ( boost::bind ( &CModel::signal_simulate, this, _1 ) );
-  SignalPtr sig_setup = regist_signal ( "setup" , "Set up the model, using a specific solver", "Setup" );
-    sig_setup->signal->connect ( boost::bind ( &CModel::signal_setup, this, _1 ) );
-    sig_setup->signature->connect( boost::bind ( &CModel::signature_setup, this, _1 ) );
+  regist_signal( "simulate" )
+    ->connect( boost::bind( &CModel::signal_simulate, this, _1 ) )
+    ->description("Simulates this model")
+    ->pretty_name("Simulate");
+
+  regist_signal ( "setup" )
+    ->connect( boost::bind ( &CModel::signal_setup, this, _1 ) )
+    ->description( "Set up the model using a specific solver" )
+    ->pretty_name( "Setup" )
+    ->signature( boost::bind ( &CModel::signature_setup, this, _1 ) );
 }
 
 CModel::~CModel() {}
@@ -130,10 +141,10 @@ CModel::~CModel() {}
 void CModel::simulate()
 {
   CFinfo << "\n" << name() << ": start simulation" << CFendl;
-  
+
   // Create the fields, if they don't exist already
   create_fields();
-  
+
   // call all the solvers
   boost_foreach(CSolver& solver, find_components<CSolver>(*this))
   {
@@ -198,7 +209,7 @@ CDomain& CModel::create_domain( const std::string& name )
   CDomain::Ptr dom = create_component_ptr<CDomain>( name );
   m_implementation->m_domain = dom;
   dom->option("active_mesh").attach_trigger(boost::bind(&Implementation::trigger_active_mesh, m_implementation.get()));
-  
+
   return *dom;
 }
 
@@ -224,21 +235,21 @@ void CModel::create_fields()
   typedef std::map<std::string, std::string> FieldsT;
   FieldsT fields;
   physics().variable_manager().field_specification(fields);
-  
+
   CMesh& mesh = domain().active_mesh();
-  
+
   for(FieldsT::const_iterator it = fields.begin(); it != fields.end(); ++it)
   {
     const std::string& field_name = it->first;
     const std::string& var_spec = it->second;
-    
+
     Component::Ptr field_comp = mesh.get_child_ptr(field_name);
     if(is_not_null(field_comp))
     {
       CField::Ptr field = boost::dynamic_pointer_cast<CField>(field_comp);
       if(!field)
         throw SetupError(FromHere(), "Adding fields in " + uri().string() + ": Component with name " + field_name + " exists, but it is not a field");
-      
+
       // Check if the existing field is compatible with the new one
       std::stringstream existing_spec;
       for(Uint i = 0; i != field->nb_vars(); ++i)
@@ -343,11 +354,11 @@ void CModel::setup(const std::string& solver_builder_name, const std::string& ph
 void CModel::signature_setup(SignalArgs& node)
 {
   SignalOptions options( node );
- 
+
   options.add_option< OptionT<std::string> >("solver_builder")
     ->set_pretty_name("Solver Builder")
     ->set_description("Builder name");
-    
+
   options.add_option< OptionT<std::string> >("physics_builder")
     ->set_pretty_name("Physics Builder")
     ->set_description("Builder name for the physics");

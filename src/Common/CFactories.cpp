@@ -20,10 +20,10 @@ CFactories::CFactories ( const std::string& name) : Component ( name )
     "Builders can be accessed in advanced mode, to build components\n";
   m_properties["description"] = description;
   
-  signal("create_component")->is_hidden = true;
-  signal("rename_component")->is_hidden = true;
-  signal("delete_component")->is_hidden = true;
-  signal("move_component")->is_hidden   = true;
+  signal("create_component")->hidden(true);
+  signal("rename_component")->hidden(true);
+  signal("delete_component")->hidden(true);
+  signal("move_component")->hidden(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

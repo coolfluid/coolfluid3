@@ -21,11 +21,10 @@ EventHandler::~EventHandler()
 
 void EventHandler::raise_event( const std::string& ename, SignalArgs& args)
 {
-  sigmap_t::iterator itr = m_signals.find(ename);
-
-  if ( itr == m_signals.end() ) return;
+  if ( signal_exists(ename) == false ) return;
 
   // event exists so dispatch
+
   call_signal(ename, args);
 }
 

@@ -39,14 +39,19 @@ CJournal::CJournal (const std::string & name)
   : Component(name),
     m_xmldoc(Protocol::create_doc())
 {
-  regist_signal("list_journal", "Lists all journal entries.", "List journal")->
-      signal->connect( boost::bind( &CJournal::list_journal, this, _1) );
-  regist_signal("load_journal", "Loads the journal entries from file.", "Load journal")->
-      signal->connect( boost::bind( &CJournal::load_journal, this, _1) );
-  regist_signal("save_journal", "Saves all journal entries.", "Save journal")->
-      signal->connect( boost::bind( &CJournal::save_journal, this, _1) );
+  regist_signal( "list_journal" )
+    ->description("Lists all journal entries")
+    ->pretty_name("List journal")->connect( boost::bind( &CJournal::list_journal, this, _1) );
 
-  signal("list_journal")->is_hidden = true;
+  regist_signal( "load_journal" )
+    ->description("Loads the journal entries from file")
+    ->pretty_name("Load journal")->connect( boost::bind( &CJournal::load_journal, this, _1) );
+
+  regist_signal( "save_journal" )
+    ->description("Saves all journal entries")
+    ->pretty_name("Save journal")->connect( boost::bind( &CJournal::save_journal, this, _1) );
+
+  signal("list_journal")->hidden(true);
 
   m_options.add_option< OptionT<bool> >("RecordReplies", false)
       ->set_description("If true, both signal and reply frames are recorded. If "

@@ -42,8 +42,10 @@ NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
 {
   setRootNode(rootNode);
 
-  regist_signal("list_journal", "List journal", "List journal")->
-      signal->connect(boost::bind(&NJournalBrowser::list_journal, this, _1));
+  regist_signal( "list_journal" )
+    ->connect( boost::bind( &NJournalBrowser::list_journal, this, _1 ) )
+    ->description("List journal")
+    ->pretty_name("List journal");
 
   m_columns << "Target" << "Sender" << "Receiver" << "Type" << "Direction" << "Time" /*<< "Status" << "Excecute"*/;
 }

@@ -20,7 +20,10 @@ namespace Common {
   
 CAction::CAction ( const std::string& name ) : Component(name)
 {
-  this->regist_signal ( "execute" , "Execute the action", "Execute" )->signal->connect ( boost::bind ( &CAction::signal_execute, this, _1 ) );
+  regist_signal( "execute" )
+    ->connect( boost::bind( &CAction::signal_execute, this, _1 ) )
+    ->description("Execute the action")
+    ->pretty_name("Execute");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

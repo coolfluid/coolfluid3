@@ -28,7 +28,10 @@ CLink::CLink ( const std::string& name) : Component ( name )
 {
   m_is_link = true;
 
-  regist_signal("change_link", "Change link path", "Change target")->signal->connect(boost::bind(&CLink::change_link, this, _1));
+  regist_signal( "change_link" )
+    ->connect( boost::bind( &CLink::change_link, this, _1 ) )
+    ->description("Change link path")
+    ->pretty_name("Change target");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

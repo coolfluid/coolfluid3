@@ -49,10 +49,11 @@ NTree::NTree(NRoot::Ptr rootNode)
 
   m_columns << "Name" << "Type";
 
-  m_signals.erase("list_tree"); // unregister base class signal
+  unregist_signal("list_tree"); // unregister base class signal
 
-  regist_signal("list_tree", "New tree")->
-      signal->connect(boost::bind(&NTree::list_tree_reply, this, _1));
+  regist_signal( "list_tree" )
+    ->description("New tree")
+    ->pretty_name("")->connect(boost::bind(&NTree::list_tree_reply, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////

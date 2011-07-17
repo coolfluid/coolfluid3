@@ -82,29 +82,23 @@ Solver::Solver ( const std::string& name  ) :
 
   // signals
 
-  regist_signal ("initialize_solution" ,
-                 "initializes the solution using analytical math formulas",
-                 "Initialize the solution" )->
-      signal->connect ( boost::bind ( &Solver::signal_initialize_solution, this, _1 ) );
+  regist_signal( "initialize_solution" )
+    ->connect( boost::bind( &Solver::signal_initialize_solution, this, _1 ) )
+    ->description("initializes the solution using analytical math formulas")
+    ->pretty_name("Initialize the solution")
+      ->signature( boost::bind( &Solver::signature_signal_initialize_solution, this, _1));
 
-  signal("initialize_solution")->
-      signature->connect( boost::bind( &Solver::signature_signal_initialize_solution, this, _1));
+  regist_signal( "create_boundary_term" )
+    ->connect( boost::bind( &Solver::signal_create_boundary_term, this, _1 ) )
+    ->description("creates a boundary condition term")
+    ->pretty_name("Create Boundary Condition")
+      ->signature( boost::bind( &Solver::signature_signal_create_boundary_term, this, _1));
 
-  regist_signal ("create_boundary_term" ,
-                 "creates a boundary condition term",
-                 "Create Boundary Condition" )->
-      signal->connect ( boost::bind ( &Solver::signal_create_boundary_term, this, _1 ) );
-
-  signal("create_boundary_term")->
-      signature->connect( boost::bind( &Solver::signature_signal_create_boundary_term, this, _1));
-
-  regist_signal ("create_domain_term",
-                 "creates a domain volume term",
-                 "Create Domain Term" )->
-      signal->connect ( boost::bind ( &Solver::signal_create_domain_term, this, _1 ) );
-
-  signal("create_domain_term")->
-      signature->connect( boost::bind( &Solver::signature_signal_create_domain_term, this, _1));
+  regist_signal( "create_domain_term" )
+    ->connect( boost::bind( &Solver::signal_create_domain_term, this, _1 ) )
+    ->description("creates a domain volume term")
+    ->pretty_name("Create Domain Term")
+      ->signature( boost::bind( &Solver::signature_signal_create_domain_term, this, _1));
 
   // setup of the static components
 
