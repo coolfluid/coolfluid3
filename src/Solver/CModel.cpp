@@ -57,21 +57,22 @@ struct CModel::Implementation
     cf_assert(!m_domain.expired());
     CDomain& domain = *m_domain.lock();
     
-    if(m_physics.expired())
-      throw SetupError(FromHere(), "Physical model not created for " + m_component.uri().string());
-    
-    m_physics.lock()->variable_manager().configure_option("dimensions", domain.active_mesh().topology().nodes().dim());
+    if(!m_physics.expired())
+      m_physics.lock()->variable_manager().configure_option("dimensions", domain.active_mesh().topology().nodes().dim());
     
     boost_foreach(CSolver& solver, find_components<CSolver>(m_component))
     {
       solver.mesh_changed(domain.active_mesh());
     }
+    
+    m_active_mesh = domain.active_mesh().as_ptr<CMesh>();
   }
   
   Component& m_component;
   CGroup& m_tools;
   boost::weak_ptr<CDomain> m_domain;
   boost::weak_ptr<Physics::PhysModel> m_physics;
+  boost::weak_ptr<CMesh> m_active_mesh;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -181,6 +182,9 @@ Physics::PhysModel& CModel::create_physics( const std::string& builder )
 
   add_component(pm);
   m_implementation->m_physics = pm;
+  
+  if(!m_implementation->m_active_mesh.expired())
+    pm->variable_manager().configure_option("dimensions", m_implementation->m_active_mesh.lock()->topology().nodes().dim());
   
   configure_option_recursively("physical_model", pm->uri());
 
