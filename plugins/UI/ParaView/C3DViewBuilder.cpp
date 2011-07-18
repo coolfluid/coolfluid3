@@ -35,18 +35,18 @@ C3DViewBuilder::C3DViewBuilder(const std::string & name) :
 {
   // signals
   regist_signal( "create_3dview" )
-    ->description("Creates a 3D View")
-    ->pretty_name("New 3D View")->
-      signal->connect( boost::bind(&C3DViewBuilder::signal_create_3dview, this, _1) );
+      ->description("Creates a 3D View")
+      ->pretty_name("New 3D View")
+      ->connect( boost::bind(&C3DViewBuilder::signal_create_3dview, this, _1) )
+      ->signature( boost::bind(&C3DViewBuilder::signature_create_3dview, this, _1) );
 
   // hide some signals from the GUI
+
   signal("create_component")->hidden(true);
   signal("delete_component")->hidden(true);
   signal("move_component")->hidden(true);
   signal("rename_component")->hidden(true);
 
-  // signatures
-  signal("create_3dview")->signature->connect( boost::bind(&C3DViewBuilder::signature_create_3dview, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
