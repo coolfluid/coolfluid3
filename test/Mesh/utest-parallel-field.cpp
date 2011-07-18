@@ -94,8 +94,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   meshgenerator->configure_option("name",std::string("rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
-  nb_cells[0] = 3;
-  nb_cells[1] = 2;
+  nb_cells[0] = 10;
+  nb_cells[1] = 5;
   lengths[0]  = nb_cells[0];
   lengths[1]  = nb_cells[1];
   meshgenerator->configure_option("nb_cells",nb_cells);
