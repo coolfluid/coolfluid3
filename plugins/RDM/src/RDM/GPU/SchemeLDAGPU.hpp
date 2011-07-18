@@ -62,14 +62,14 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "SchemeLDAGPU<" + SF::type_name() + ">"; }
-	
+
   /// execute the action
   virtual void execute ();
 
 private: // helper functions
 
   void change_elements()
-  { 
+  {
     /// @todo improve this (ugly)
 
     connectivity_table = elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
@@ -177,11 +177,11 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
 
 
    //boost::timer ctimer;
-   uint dim     = 2;
-   uint shape   = SF::nb_nodes;
-   uint quad    =  QD::nb_points;
-   uint nodes   = (*coordinates).size();
-   uint elements = (*connectivity_table).size();
+   Uint dim     = 2;
+   Uint shape   = SF::nb_nodes;
+   Uint quad    =  QD::nb_points;
+   Uint nodes   = (*coordinates).size();
+   Uint elements = (*connectivity_table).size();
 
    typename SF::MappedGradientT m_sf_grad_ref; //Gradient of the shape functions in reference space
    typename SF::ShapeFunctionsT m_sf_ref;   //Values of shape functions in reference space
@@ -189,11 +189,11 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
    float A_inter[shape*quad], A_ksi[shape*quad], A_eta[shape*quad];
    float weights[quad];
 
-   for( uint idx = 0; idx < quad; idx++ )
+   for( Uint idx = 0; idx < quad; idx++ )
    {
-       for( uint idy = 0; idy<shape;idy++ )
+       for( Uint idy = 0; idy<shape;idy++ )
        {
-           uint elem = idx * shape + idy;
+           Uint elem = idx * shape + idy;
 
            SF::shape_function_gradient( m_quadrature.coords.col(idx), m_sf_grad_ref );
            SF::shape_function_value ( m_quadrature.coords.col(idx), m_sf_ref   );
@@ -222,23 +222,23 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
    // ************************************************************************************************
 
    float X_node[nodes*dim], U_node[nodes],phi[nodes], waveSpeed[nodes];
-   uint connectTable[elements*shape];
+   Uint connectTable[elements*shape];
 
-   for(uint idx = 0; idx < elements; idx++ )
+   for(Uint idx = 0; idx < elements; idx++ )
    {
-       for(uint idy = 0; idy < shape; idy++)
+       for(Uint idy = 0; idy < shape; idy++)
        {
-           uint pos = idx * shape + idy;
+           Uint pos = idx * shape + idy;
            connectTable[pos] = (*connectivity_table)[idx][idy];
        }
 
    }
 
-   for(uint idx = 0; idx < nodes; idx++ )
+   for(Uint idx = 0; idx < nodes; idx++ )
    {
-       for(uint idy = 0; idy < dim; idy++)
+       for(Uint idy = 0; idy < dim; idy++)
        {
-           uint pos = idx * dim + idy;
+           Uint pos = idx * dim + idy;
            X_node[ pos ] = (*coordinates)[idx][idy];
        }
        U_node[idx] = (*solution)[idx][0];
@@ -257,12 +257,12 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
    U_rGPGPU          = clCreateBuffer(env.context, CL_MEM_READ_ONLY , nodes * sizeof(float),        U_node,    &env.errcode);
    phi_rGPGPU        = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, nodes * sizeof(float),        phi,       &env.errcode);
    waveSpeedGPGPU    = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, nodes * sizeof(float),        waveSpeed, &env.errcode);
-   connectTableGPGPU = clCreateBuffer(env.context, CL_MEM_READ_ONLY,  elements * shape * sizeof(uint),  connectTable, &env.errcode);
+   connectTableGPGPU = clCreateBuffer(env.context, CL_MEM_READ_ONLY,  elements * shape * sizeof(Uint),  connectTable, &env.errcode);
    env.errcode |= clEnqueueWriteBuffer(env.command_queue, X_rGPGPU,          CL_FALSE, 0, nodes * dim * sizeof(float), X_node,             0, NULL, NULL);
    env.errcode |= clEnqueueWriteBuffer(env.command_queue, U_rGPGPU,          CL_FALSE, 0, nodes * sizeof(float),       U_node,             0, NULL, NULL);
    env.errcode |= clEnqueueWriteBuffer(env.command_queue, phi_rGPGPU,        CL_FALSE, 0, nodes * sizeof(float),       phi,                0, NULL, NULL);
    env.errcode |= clEnqueueWriteBuffer(env.command_queue, waveSpeedGPGPU,    CL_FALSE, 0, nodes *  sizeof(float),      waveSpeed,          0, NULL, NULL);
-   env.errcode |= clEnqueueWriteBuffer(env.command_queue, connectTableGPGPU, CL_FALSE, 0, elements * shape*  sizeof(uint),  connectTable,  0, NULL, NULL);
+   env.errcode |= clEnqueueWriteBuffer(env.command_queue, connectTableGPGPU, CL_FALSE, 0, elements * shape*  sizeof(Uint),  connectTable,  0, NULL, NULL);
    opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
 
@@ -274,7 +274,7 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
                                     __global float* A, __global float* A_ksi, __global float* A_eta,
                                     __global float* weights,
                                     __global float* X_node, __global float* U_node,
-                                    __global uint* connectTable,
+                                    __global Uint* connectTable,
                                     int shape, int quad, int dim, int elem,
                                     __local float* X_shape, __local float* U_shape,
                                     __local float* X_quad, __local float* X_ksi, __local float* X_eta )        */
@@ -338,7 +338,7 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
    clReleaseMemObject( waveSpeedGPGPU );
    clReleaseMemObject( connectTableGPGPU );
 
-   for(uint idx = 0; idx < nodes; idx++ )
+   for(Uint idx = 0; idx < nodes; idx++ )
    {
        double a= phi[idx];
        if(a< 1e-10 && a >= 0 )

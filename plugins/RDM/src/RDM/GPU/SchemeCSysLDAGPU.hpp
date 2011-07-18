@@ -111,21 +111,21 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     std::cout<<"LDAGPU"<<std::endl;
 
     boost::timer ctimer;
-    uint dim     = 2;
-    uint nEq     = 4;
-    uint shape   = SF::nb_nodes; //std::cout<< shape<<std::endl;
-    uint quad    =  QD::nb_points; //std::cout<< quad<<std::endl;
-    uint nodes   = (*B::coordinates).size();
-    uint elements = (*B::connectivity_table).size();
+    Uint dim     = 2;
+    Uint nEq     = 4;
+    Uint shape   = SF::nb_nodes; //std::cout<< shape<<std::endl;
+    Uint quad    =  QD::nb_points; //std::cout<< quad<<std::endl;
+    Uint nodes   = (*B::coordinates).size();
+    Uint elements = (*B::connectivity_table).size();
 //std::cout<<PHYS::MODEL::_ndim<<std::endl;
     float A_inter[shape*quad], A_ksi[shape*quad], A_eta[shape*quad];
     float weights[quad];
 
-    for( uint idx = 0; idx < quad; idx++ )
+    for( Uint idx = 0; idx < quad; idx++ )
     {
-       for( uint idy = 0; idy<shape;idy++ )
+       for( Uint idy = 0; idy<shape;idy++ )
        {
-           uint elem = idx * shape + idy;
+           Uint elem = idx * shape + idy;
 
            A_inter[elem] = B::Ni(idx,idy);
            A_ksi[elem]   = B::dNdKSI[0](idx,idy);
@@ -146,27 +146,27 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
     float X_node[nodes*dim], U_node[nodes*nEq],phi[elements*shape*nEq], waveSpeed[elements*shape];
-    uint connectTable[elements*shape];
+    Uint connectTable[elements*shape];
 
-    for(uint idx = 0; idx < elements; idx++ )
+    for(Uint idx = 0; idx < elements; idx++ )
     {
-       for(uint idy = 0; idy < shape; idy++)
+       for(Uint idy = 0; idy < shape; idy++)
        {
-           uint pos = idx * shape + idy;
+           Uint pos = idx * shape + idy;
            connectTable[pos] = (*B::connectivity_table)[idx][idy];
        }
     }
 
-    for(uint idx = 0; idx < nodes; idx++ )
+    for(Uint idx = 0; idx < nodes; idx++ )
     {
-       for(uint idy = 0; idy < dim; idy++)
+       for(Uint idy = 0; idy < dim; idy++)
        {
-           uint pos = idx * dim + idy;
+           Uint pos = idx * dim + idy;
            X_node[pos] = (*B::coordinates)[idx][idy];
        }
-       for( uint idy = 0; idy < nEq; idy++ )
+       for( Uint idy = 0; idy < nEq; idy++ )
        {
-           uint pos = idx * nEq + idy;
+           Uint pos = idx * nEq + idy;
            U_node[pos] = (*B::solution)[idx][idy];
        //    phi[pos]    = 0.0;
        }
@@ -174,12 +174,12 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     }
 
 
-    for( uint idx = 0; idx<elements; idx++ )
+    for( Uint idx = 0; idx<elements; idx++ )
     {
-        for(uint idy = 0; idy < shape; idy++ )
+        for(Uint idy = 0; idy < shape; idy++ )
         {
             waveSpeed[idx*shape+idy] = 0.0;
-            for(uint idz = 0; idz < nEq; idz++ )
+            for(Uint idz = 0; idz < nEq; idz++ )
                phi[(idx*shape+idy)*nEq+idz] = 0.0;
         }
 
@@ -199,13 +199,13 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     U_rGPGPU          = clCreateBuffer(env.context, CL_MEM_READ_ONLY , nodes * nEq * sizeof(float), U_node,    &env.errcode);
     phi_rGPGPU        = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements*shape*nEq * sizeof(float), phi,       &env.errcode);
     waveSpeedGPGPU    = clCreateBuffer(env.context, CL_MEM_WRITE_ONLY, elements*shape * sizeof(float),       waveSpeed, &env.errcode);
-    connectTableGPGPU = clCreateBuffer(env.context, CL_MEM_READ_ONLY,  elements * shape * sizeof(uint),  connectTable, &env.errcode);
+    connectTableGPGPU = clCreateBuffer(env.context, CL_MEM_READ_ONLY,  elements * shape * sizeof(Uint),  connectTable, &env.errcode);
 
     env.errcode |= clEnqueueWriteBuffer(env.command_queue, X_rGPGPU,          CL_FALSE, 0, nodes * dim * sizeof(float), X_node,             0, NULL, NULL);
     env.errcode |= clEnqueueWriteBuffer(env.command_queue, U_rGPGPU,          CL_FALSE, 0, nodes * nEq * sizeof(float), U_node,             0, NULL, NULL);
     env.errcode |= clEnqueueWriteBuffer(env.command_queue, phi_rGPGPU,        CL_FALSE, 0, elements*shape*nEq * sizeof(float), phi,                0, NULL, NULL);
     env.errcode |= clEnqueueWriteBuffer(env.command_queue, waveSpeedGPGPU,    CL_FALSE, 0, elements*shape *  sizeof(float),      waveSpeed,          0, NULL, NULL);
-    env.errcode |= clEnqueueWriteBuffer(env.command_queue, connectTableGPGPU, CL_FALSE, 0, elements * shape*  sizeof(uint),  connectTable,  0, NULL, NULL);
+    env.errcode |= clEnqueueWriteBuffer(env.command_queue, connectTableGPGPU, CL_FALSE, 0, elements * shape*  sizeof(Uint),  connectTable,  0, NULL, NULL);
     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
     // running GPGPU kernel
@@ -214,7 +214,7 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
                                       __global float* A, __global float* A_ksi, __global float* A_eta,
                                       __global float* weights,
                                       __global float* X_node, __global float* U_node,
-                                      __global uint* connectTable,
+                                      __global Uint* connectTable,
                                         int shape, int quad, int dim, int elem, int nEq,
                                       __local float* X_shape,  __local float* U_shape,
                                       __local float* X_quad,   __local float* X_ksi, __local float* X_eta,
@@ -300,15 +300,15 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     clReleaseMemObject( waveSpeedGPGPU );
     clReleaseMemObject( connectTableGPGPU );
 
-    for( uint idx = 0; idx < elements; idx++ )
+    for( Uint idx = 0; idx < elements; idx++ )
     {
-        for( uint idy = 0; idy < shape; idy++ )
+        for( Uint idy = 0; idy < shape; idy++ )
         {
-            uint adress = connectTable[idx*shape+idy];
+            Uint adress = connectTable[idx*shape+idy];
             double wS = waveSpeed[idx*shape+idy];
             if (wS <= 1e-7 ) wS= 1e-7;
             (*B::wave_speed)[adress][0] += wS;
-            for( uint idz = 0; idz < nEq; idz++ )
+            for( Uint idz = 0; idz < nEq; idz++ )
             {
                 double res = phi[(idx*shape+idy)*nEq+idz];
                 if(res< 1e-7 && res >= 0.0 )
@@ -322,7 +322,7 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
         }
     }
 
-/*   for(uint idx = 0; idx < nodes; idx++ )
+/*   for(Uint idx = 0; idx < nodes; idx++ )
     {
        for( int idy = 0; idy < nEq; idy++ )
        {
