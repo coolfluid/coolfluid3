@@ -7,24 +7,15 @@
 #ifndef CF_UI_ParaView_C3DVIEW_HPP
 #define CF_UI_ParaView_C3DVIEW_HPP
 
-// Qt header
-#include <QObject>
-
-// header
-#include "UI/ParaView/LibParaView.hpp"
+#include <QObject> // Qt header
 
 #include "Common/Signal.hpp"
+
 #include "Mesh/CMesh.hpp"
 
-////////////////////////////////////////////////////////////////////////////////
+#include "UI/ParaView/LibParaView.hpp"
 
-// forward declaration to avoid incuding files
-// Qt class
 class QProcess;
-
-//////////////////////////////////////////////////////////////////////////////
-
-
 
 namespace CF {
 namespace UI {
@@ -82,23 +73,16 @@ private slots:
     void readyReadStandardError();
 
 private : //data
-    /// Process of the paraview server.
-    QProcess * m_pvserver;
 
-    /// Port on the paraview server must be launched.
-    Uint m_port;
+    QProcess * m_pvserver;                 ///< Process of the paraview server.
 
-    /// signal connection for event "iteration_done"
-    Common::Signal::ConnectionType m_connect_iteration_done;
+    Uint m_port;                           ///< Paraview server port
 
-    /// rate of dump file refresh
-    Uint m_refresh_rate;
+    Uint m_refresh_rate;                   ///< rate of dump file refresh
 
-    /// filename to dump VTK file
-    std::string m_filename;
+    std::string m_filename;                ///< filename to dump VTK file
 
-    /// mesh component to visualize
-    boost::weak_ptr< Mesh::CMesh > m_mesh;
+    boost::weak_ptr< Mesh::CMesh > m_mesh; ///< mesh component to visualize
 };
 
 //////////////////////////////////////////////////////////////////////////////

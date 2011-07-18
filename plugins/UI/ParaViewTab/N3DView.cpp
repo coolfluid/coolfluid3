@@ -33,14 +33,14 @@ N3DView::N3DView(const std::string & name) :
     CNode( name, "N3DView", CNode::STANDARD_NODE )
 {
   regist_signal( "launch_pvserver" )
-    ->description("Launch Paraview Server")
-    ->pretty_name("Launch Server")->
-      signal->connect( boost::bind( &N3DView::launch_pvserver, this, _1));
+      ->description("Launch Paraview Server")
+      ->pretty_name("Launch Server")
+      ->connect( boost::bind( &N3DView::launch_pvserver, this, _1));
 
   regist_signal( "file_dumped" )
-    ->description("Load last dumped file")
-    ->pretty_name("Get file info")->
-      signal->connect( boost::bind( &N3DView::send_server_info_to_client, this, _1));
+      ->description("Load last dumped file")
+      ->pretty_name("Get file info")
+      ->connect( boost::bind( &N3DView::send_server_info_to_client, this, _1));
 }
 
 //////////////////////////////////////////////////////////////////////////////

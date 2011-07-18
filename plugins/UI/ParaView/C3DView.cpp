@@ -80,19 +80,19 @@ C3DView::C3DView(const std::string& name) :
   // signals
 
   regist_signal( "launch_pvserver" )
-    ->description("Launch Paraview Server")
-    ->pretty_name("Launch Server")
-    ->connect( boost::bind( &C3DView::launch_pvserver, this, _1));
+      ->description("Launch Paraview Server")
+      ->pretty_name("Launch Server")
+      ->connect( boost::bind( &C3DView::launch_pvserver, this, _1));
 
   regist_signal( "iteration_done" )
-    ->description("iteration done")
-    ->pretty_name("iteration done")
-    ->connect( boost::bind( &C3DView::signal_iteration_done, this, _1));
+      ->description("iteration done")
+      ->pretty_name("iteration done")
+      ->connect( boost::bind( &C3DView::signal_iteration_done, this, _1));
 
   regist_signal( "send_server_info_to_client" )
-    ->description("Load last dumped file")
-    ->pretty_name("Get file info")
-     ->connect( boost::bind( &C3DView::send_server_info_to_client, this, _1));
+      ->description("Load last dumped file")
+      ->pretty_name("Get file info")
+      ->connect( boost::bind( &C3DView::send_server_info_to_client, this, _1));
 
   // hide some signals from the GUI
   signal("create_component")->hidden(true);
@@ -101,26 +101,20 @@ C3DView::C3DView(const std::string& name) :
   // these signals are read-only
   signal("launch_pvserver")->read_only(true);
 
+  Core::instance().event_handler().connect_to_event( "iteration_done",
+                                                     this,
+                                                     &C3DView::signal_iteration_done );
 
-  // regist action to event "iteration_done"
-  m_connect_iteration_done =
-      Core::instance().event_handler().connect_to_event( "iteration_done", this, &C3DView::signal_iteration_done );
-
-  cf_assert( m_connect_iteration_done.connected() );
-
-  Mesh::CMeshWriter::Ptr meshwriter = build_component_abstract_type<Mesh::CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","writer");
+  Mesh::CMeshWriter::Ptr meshwriter =
+      build_component_abstract_type<Mesh::CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","writer");
   add_component(meshwriter);
 
 }
 
-C3DView::~C3DView()
+C3DView::~C3DView() {}
+
+void C3DView::launch_pvserver( SignalArgs & args )
 {
-  // disconnet action to event "iteration_done"
-  m_connect_iteration_done.disconnect();
-}
-
-void C3DView::launch_pvserver( SignalArgs & args ){
-
   m_pvserver = new QProcess();
 
   m_pvserver->setProcessChannelMode(QProcess::ForwardedChannels);
