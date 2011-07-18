@@ -301,7 +301,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
       {
         if (hidden_signals.find(sig->name())==hidden_signals.end())
         {
-          if ( sig->is_hidden == false)
+          if ( sig->is_hidden() == false)
             CFinfo << sig->name() << CFendl;
         }
       }
@@ -325,9 +325,9 @@ void BasicCommands::ls(const std::vector<std::string>& params)
       {
         if (hidden_signals.find(sig->name())==hidden_signals.end())
         {
-          if ( ! sig->is_hidden )
+          if ( ! sig->is_hidden() )
           {
-            if ( sig->is_read_only )
+            if ( sig->is_read_only() )
               CFinfo << "r-s    " << sig->name() << CFendl;
             else
               CFinfo << "rws    " << sig->name() << CFendl;

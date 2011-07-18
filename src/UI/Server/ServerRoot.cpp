@@ -152,7 +152,7 @@ void ServerRoot::processSignal(const string & target,
     {
       Component::Ptr comp = root()->retrieve_component_checked(receiver);
 
-      if( comp->signal(target)->is_read_only )
+      if( comp->signal(target)->is_read_only() )
       {
         comp->call_signal(target, signal );
         journal()->add_signal(signal);
