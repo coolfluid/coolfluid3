@@ -52,11 +52,11 @@ CReader::CReader( const std::string& name )
 
   // options
 
-  m_options.add_option<OptionT <Uint> >("part", mpi::PE::instance().is_active() ? mpi::PE::instance().rank() : 0)
+  m_options.add_option<OptionT <Uint> >("part", mpi::PE::instance().rank() )
       ->set_description("Number of the part of the mesh to read. (e.g. rank of processor)")
       ->set_pretty_name("Part");
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", mpi::PE::instance().is_active() ? mpi::PE::instance().size() : 1)
+  m_options.add_option<OptionT <Uint> >("nb_parts", mpi::PE::instance().size() )
       ->set_description("Total number of parts. (e.g. number of processors)")
       ->set_pretty_name("nb_parts");
 
@@ -111,17 +111,12 @@ void CReader::read_from_to(const URI& file, CMesh& mesh)
 
   // Create a region component inside the mesh with a generic mesh name
   // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
-  m_region = m_mesh->topology().as_ptr<CRegion>();//.create_region("main").as_ptr<CRegion>();
+  m_region = m_mesh->topology().as_ptr<CRegion>();
 
   // Read file once and store positions
   get_file_positions();
 
-  //Create a hash
-  m_hash = create_component_ptr<CMixedHash>("hash");
-  std::vector<Uint> num_obj(2);
-  num_obj[0] = m_total_nb_nodes;
-  num_obj[1] = m_total_nb_elements;
-  m_hash->configure_option("nb_obj",num_obj);
+
 
   find_ghost_nodes();
 
@@ -221,6 +216,14 @@ void CReader::get_file_positions()
       m_file >> m_total_nb_elements;
       //CFinfo << "The total number of elements is " << m_total_nb_elements << CFendl;
 
+      //Create a hash
+      m_hash = create_component_ptr<CMixedHash>("hash");
+      std::vector<Uint> num_obj(2);
+      num_obj[0] = m_total_nb_nodes;
+      num_obj[1] = m_total_nb_elements;
+      m_hash->configure_option("nb_obj",num_obj);
+
+
       Uint elem_idx, elem_type, nb_tags, phys_tag;
 
       //Let's count how many elements of each type are present
@@ -232,7 +235,9 @@ void CReader::get_file_positions()
           m_file >> phys_tag;
           cf_assert(phys_tag > 0);
           getline(m_file,line);
-          (m_nb_gmsh_elem_in_region[phys_tag-1])[elem_type]++;
+          if (m_hash->subhash(ELEMS).owns(ie))
+            (m_nb_gmsh_elem_in_region[phys_tag-1])[elem_type]++;
+          m_region_list[phys_tag-1].element_types.insert(elem_type);
       }
     }
     else if (line.find(element_data)!=std::string::npos)
@@ -319,6 +324,8 @@ void CReader::find_ghost_nodes()
 
     // read every line and store the connectivity in the correct region through the buffer
     Uint elementNumber, elementType, nbElementNodes;
+    Uint gmsh_node_number, nb_tags, phys_tag, other_tag;
+
     for (Uint i=0; i<m_total_nb_elements; ++i)
     {
       if (m_total_nb_elements > 100000)
@@ -329,18 +336,27 @@ void CReader::find_ghost_nodes()
 
       if (m_hash->subhash(ELEMS).owns(i))
       {
+
         // element description
         m_file >> elementNumber >> elementType;
+//        CFinfo << "element: " << elementNumber << CFendl;
         nbElementNodes = Shared::m_nodes_in_gmsh_elem[elementType];
+
+        m_file >> nb_tags;
+        m_file >> phys_tag;
+        for(Uint itag = 0; itag < (nb_tags-1); ++itag)
+            m_file >> other_tag;
 
         // check if element nodes are ghost
         std::vector<Uint> gmsh_element_nodes(nbElementNodes);
         for (Uint j=0; j<nbElementNodes; ++j)
         {
           m_file >> gmsh_element_nodes[j];
-          if (!m_hash->subhash(NODES).owns(gmsh_element_nodes[j]-1))
+          --gmsh_element_nodes[j];
+          if (!m_hash->subhash(NODES).owns(gmsh_element_nodes[j]))
           {
             m_ghost_nodes.insert(gmsh_element_nodes[j]);
+//            CFinfo << "ghost node: " << gmsh_element_nodes[j] +1 << CFendl;
           }
         }
       }
@@ -385,7 +401,7 @@ void CReader::read_coordinates()
 
   Uint coord_idx=nodes_start_idx;
 
-  for (Uint node_idx=1; node_idx<=m_total_nb_nodes; ++node_idx)
+  for (Uint node_idx=0; node_idx<m_total_nb_nodes; ++node_idx)
   {
     if (m_total_nb_nodes > 100000)
     {
@@ -394,7 +410,7 @@ void CReader::read_coordinates()
     }
     getline(m_file,line);
 
-    if (m_hash->subhash(NODES).owns(node_idx-1))
+    if (m_hash->subhash(NODES).owns(node_idx))
     {
       m_nodes->rank()[coord_idx] = part;
       m_node_idx_gmsh_to_cf[node_idx]=coord_idx;
@@ -412,18 +428,25 @@ void CReader::read_coordinates()
       if (it != m_ghost_nodes.end())
       {
         // add global node index
-        m_nodes->rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
+        m_nodes->rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx);
         m_node_idx_gmsh_to_cf[node_idx]=coord_idx;
         std::stringstream ss(line);
         Uint nodeNumber;
         ss >> nodeNumber;
+//        CFinfo << "reading ghostnode " << nodeNumber;
         for (Uint dim=0; dim<m_mesh_dimension; ++dim)
         ss >> m_nodes->coordinates()[coord_idx][dim];
+//        CFinfo << "    (" << m_nodes->coordinates()[coord_idx][0] << " , " << m_nodes->coordinates()[coord_idx][1] << ")" << CFendl;
         if(m_mesh_dimension < DIM_3D) getline(ss, line);
 
         coord_idx++;
       }
+      else
+      {
+//        getline(m_file,line);
+      }
     }
+
 
   } //loop over nodes
 
@@ -450,9 +473,10 @@ void CReader::read_coordinates()
 void CReader::read_connectivity()
 {
 
+
   Uint part = option("part").value<Uint>();
 
- //Each entry of this vector holds a map (gmsh_type_idx, pointer to connectivity table of this gmsh type).
+  //Each entry of this vector holds a map (gmsh_type_idx, pointer to connectivity table of this gmsh type).
  //Each row corresponds to one region of the mesh
  std::vector<std::map<Uint, CEntities* > > conn_table_idx;
  conn_table_idx.resize(m_nb_regions);
@@ -463,6 +487,10 @@ void CReader::read_connectivity()
 
  std::map<Uint, CEntities*>::iterator elem_table_iter;
 
+// std::vector<std::map<std::string,CElements::Ptr> > elements(m_nb_regions);
+// std::vector<std::map<std::string,CConnectivity::Buffer::Ptr> > buffer(m_nb_regions);
+
+
  m_elem_idx_gmsh_to_cf.clear();
  //Loop over all regions and allocate a connectivity table of proper size for each element type that
  //is present in each region. Counting of elements was done during the first pass in the function
@@ -472,10 +500,14 @@ void CReader::read_connectivity()
    // create new region
    CRegion::Ptr region = m_region_list[ir].region;
 
+//   elements[ir] = create_cells_in_region(*region,m_mesh->nodes(),m_supported_types);
+//   buffer[ir] = create_connectivity_buffermap(elements[ir]);
+
+
    // Take the gmsh element types present in this region and generate new names of elements which correspond
    // to coolfuid naming:
    for(Uint etype = 0; etype < Shared::nb_gmsh_types; ++etype)
-     if((m_nb_gmsh_elem_in_region[ir])[etype] > 0)
+     if(m_region_list[ir].element_types.find(etype) !=  m_region_list[ir].element_types.end())
      {
        const std::string cf_elem_name = Shared::gmsh_name_to_cf_name(m_mesh_dimension,etype);
 
@@ -504,6 +536,7 @@ void CReader::read_connectivity()
    std::string etype_CF;
    std::set<Uint>::const_iterator it;
    std::vector<Uint> cf_element;
+   Uint element_number, gmsh_element_type, nb_element_nodes;
    Uint gmsh_node_number, nb_tags, phys_tag, other_tag;
    Uint cf_node_number;
    Uint cf_idx;
@@ -529,7 +562,6 @@ void CReader::read_connectivity()
     }
 
     // element description
-    Uint element_number, gmsh_element_type, nb_element_nodes;
     m_file >> element_number >> gmsh_element_type;
 
     nb_element_nodes = Shared::m_nodes_in_gmsh_elem[gmsh_element_type];
@@ -550,6 +582,7 @@ void CReader::read_connectivity()
       {
         cf_idx = m_nodes_gmsh_to_cf[gmsh_element_type][j];
         m_file >> gmsh_node_number;
+        --gmsh_node_number;
         cf_node_number = m_node_idx_gmsh_to_cf[gmsh_node_number];
         cf_element[cf_idx] = cf_node_number;
       }
@@ -574,6 +607,8 @@ void CReader::read_connectivity()
 
     else
     {
+//      getline(m_file,line);
+
       for (Uint j=0; j<nb_element_nodes; ++j)
       {
         m_file >> gmsh_node_number;

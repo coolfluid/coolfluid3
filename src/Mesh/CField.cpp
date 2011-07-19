@@ -455,6 +455,8 @@ PECommPattern& CField::parallelize()
   CMesh& mesh = find_parent_component<CMesh>(*this);
   boost_foreach (const Uint node, nodes.array())
   {
+    cf_assert_desc(to_str(node)+">="+to_str(mesh.nodes().glb_idx().size()), node < mesh.nodes().glb_idx().size());
+    cf_assert_desc(to_str(node)+">="+to_str(mesh.nodes().rank().size()), node < mesh.nodes().rank().size());
     gid.push_back(mesh.nodes().glb_idx()[node]);
     rank.push_back(mesh.nodes().rank()[node]);
   }

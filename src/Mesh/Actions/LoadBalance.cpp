@@ -82,18 +82,27 @@ void LoadBalance::execute()
     //mesh.nodes().glb_elem_connectivity().resize(0);
 
   }
+  else
+  {
+    /// @todo disable this when below is re-enabled
+    CFinfo << "  + building joint node & element global numbering" << CFendl;
+    build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
+  }
 
+
+  /// @todo this has to be re-enabled
+#if 0
   // Create global node indexes for nodes and elements
   // plus ranks which are necessary for PECommPattern (both in serial and parallel)
 
   CFinfo << "creating continuous global node numbering" << CFendl;
 
-  //build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
 
   CFinfo << "creating continuous global element numbering" << CFendl;
 
-  //build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
-
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

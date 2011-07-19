@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // Create or read the mesh
 
-#define GEN
+#define GMSH
 
 #ifdef GEN
   CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
@@ -374,7 +374,9 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 #ifdef GMSH
   CMeshReader::Ptr meshreader =
       build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
-  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
+  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("sinusbump-tg-p1.msh");
+//  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.msh");
+//  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
   CMesh& mesh = *mesh_ptr;
 #endif
 
@@ -382,12 +384,18 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   Core::instance().root().add_component(mesh);
   CNodes& nodes = mesh.nodes();
 
-  CMeshWriter::Ptr msh_writer =
-      build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","msh_writer");
+  CMeshWriter::Ptr tec_writer =
+      build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
+
+  CMeshWriter::Ptr gmsh_writer =
+      build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","gmsh_writer");
 
 
-  msh_writer->write_from_to(mesh,"parallel_overlap_before"+msh_writer->get_extensions()[0]);
-  CFinfo << "parallel_overlap_before_P*"+msh_writer->get_extensions()[0]+" written" << CFendl;
+  tec_writer->write_from_to(mesh,"parallel_overlap_before"+tec_writer->get_extensions()[0]);
+  CFinfo << "parallel_overlap_before_P*"+tec_writer->get_extensions()[0]+" written" << CFendl;
+
+  gmsh_writer->write_from_to(mesh,"parallel_overlap_before"+gmsh_writer->get_extensions()[0]);
+  CFinfo << "parallel_overlap_before_P*"+gmsh_writer->get_extensions()[0]+" written" << CFendl;
 
   CFinfo << "Global Numbering..." << CFendl;
 //  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
@@ -451,7 +459,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   std::vector<std::set<Uint> > debug_elems(mesh_elements.size());
 
 
-  Uint nb_overlap=4;
+  Uint nb_overlap=1;
   for (Uint o=0; o<nb_overlap; ++o)
   {
     CFinfo << "Growing overlap..." << CFendl;
@@ -879,12 +887,10 @@ BOOST_CHECK(true);
 //  fields_to_output.push_back(glb_elem.as_ptr<CField>());
   fields_to_output.push_back(elem_rank.as_ptr<CField>());
 BOOST_CHECK(true);
-  msh_writer->set_fields(fields_to_output);
-  msh_writer->write_from_to(mesh,"parallel_overlap"+msh_writer->get_extensions()[0]);
-  CFinfo << "parallel_overlap_P*"+msh_writer->get_extensions()[0]+" written" << CFendl;
+  tec_writer->set_fields(fields_to_output);
+  tec_writer->write_from_to(mesh,"parallel_overlap"+tec_writer->get_extensions()[0]);
+  CFinfo << "parallel_overlap_P*"+tec_writer->get_extensions()[0]+" written" << CFendl;
 BOOST_CHECK(true);
-  CMeshWriter::Ptr gmsh_writer =
-      build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","gmsh_writer");
   gmsh_writer->set_fields(fields_to_output);
   gmsh_writer->write_from_to(mesh,"parallel_overlap"+gmsh_writer->get_extensions()[0]);
   CFinfo << "parallel_overlap_P*"+gmsh_writer->get_extensions()[0]+" written" << CFendl;

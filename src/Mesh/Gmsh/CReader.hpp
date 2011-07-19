@@ -96,6 +96,7 @@ private: // data
     Uint index;
     std::string name;
     boost::shared_ptr<CRegion> region;
+    std::set<Uint> element_types;
   };
 
   Uint m_nb_regions; // This corresponds to the number of physical groups in
