@@ -32,6 +32,7 @@
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
+#include <Common/EventHandler.hpp>
 
 namespace CF {
 namespace Solver {
@@ -53,28 +54,10 @@ struct CModel::Implementation
     m_tools.mark_basic();
   }
 
-  /// Called when the active mesh in the domain changes
-  void trigger_active_mesh()
-  {
-    cf_assert(!m_domain.expired());
-    CDomain& domain = *m_domain.lock();
-
-    if(!m_physics.expired())
-      m_physics.lock()->variable_manager().configure_option("dimensions", domain.active_mesh().topology().nodes().dim());
-
-    boost_foreach(CSolver& solver, find_components<CSolver>(m_component))
-    {
-      solver.mesh_changed(domain.active_mesh());
-    }
-
-    m_active_mesh = domain.active_mesh().as_ptr<CMesh>();
-  }
-
   Component& m_component;
   CGroup& m_tools;
   boost::weak_ptr<CDomain> m_domain;
   boost::weak_ptr<Physics::PhysModel> m_physics;
-  boost::weak_ptr<CMesh> m_active_mesh;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,6 +117,9 @@ CModel::CModel( const std::string& name  ) :
     ->description( "Set up the model using a specific solver" )
     ->pretty_name( "Setup" )
     ->signature( boost::bind ( &CModel::signature_setup, this, _1 ) );
+    
+  // Listen to mesh_updated events, emitted by the domain
+  Core::instance().event_handler().connect_to_event("mesh_updated", this, &CModel::on_mesh_updated_event);
 }
 
 CModel::~CModel() {}
@@ -196,9 +182,13 @@ Physics::PhysModel& CModel::create_physics( const std::string& builder )
 
   add_component(pm);
   m_implementation->m_physics = pm;
-
-  if(!m_implementation->m_active_mesh.expired())
-    pm->variable_manager().configure_option("dimensions", m_implementation->m_active_mesh.lock()->topology().nodes().dim());
+  
+  if(!m_implementation->m_domain.expired())
+  {
+    CMesh::Ptr single_mesh_ptr = find_component_ptr<CMesh>(domain());
+    if(single_mesh_ptr)
+      pm->variable_manager().configure_option("dimensions", single_mesh_ptr->topology().nodes().dim());
+  }
 
   configure_option_recursively("physical_model", pm->uri());
 
@@ -211,7 +201,6 @@ CDomain& CModel::create_domain( const std::string& name )
 {
   CDomain::Ptr dom = create_component_ptr<CDomain>( name );
   m_implementation->m_domain = dom;
-  dom->option("active_mesh").attach_trigger(boost::bind(&Implementation::trigger_active_mesh, m_implementation.get()));
 
   return *dom;
 }
@@ -238,8 +227,15 @@ void CModel::create_fields()
   typedef std::map<std::string, std::string> FieldsT;
   FieldsT fields;
   physics().variable_manager().field_specification(fields);
-
-  CMesh& mesh = domain().active_mesh();
+  
+  CMesh::Ptr single_mesh_ptr = find_component_ptr<CMesh>(domain());
+  if(!single_mesh_ptr)
+  {
+    CFwarn << "No single mesh found in the domain, default field creation failed" << CFendl;
+    return;
+  }
+  
+  CMesh& mesh = *single_mesh_ptr;
 
   for(FieldsT::const_iterator it = fields.begin(); it != fields.end(); ++it)
   {
@@ -381,6 +377,33 @@ void CModel::signal_setup(SignalArgs& node)
 void CModel::signal_simulate ( Common::SignalArgs& node )
 {
   this->simulate(); // dispatch to virtual function
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CModel::on_mesh_updated_event(SignalArgs& args)
+{
+  // If we have no domain, the event can't be for us
+  if(m_implementation->m_domain.expired())
+    return;
+  
+  SignalOptions options(args);
+  
+  if(options.value<URI>("domain_uri") == domain().uri()) // Only handle events coming from our own domain
+  {
+    // Get a reference to the mesh that changed
+    CMesh& mesh = access_component(options.value<URI>("mesh_uri")).as_type<CMesh>();
+    
+    // Set dimensions in the physics, if it exists
+    if(!m_implementation->m_physics.expired())
+      m_implementation->m_physics.lock()->variable_manager().configure_option("dimensions", mesh.topology().nodes().dim());
+    
+    // Inform the solvers of the change
+    boost_foreach(CSolver& solver, find_components<CSolver>(*this))
+    {
+      solver.mesh_changed(mesh);
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

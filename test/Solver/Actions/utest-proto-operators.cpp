@@ -466,7 +466,6 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
   
   Physics::PhysModel& physics = model.create_physics("CF.Physics.DynamicModel");
-  dom.set_active_mesh(mesh);
   
   // Create the initialization expression
   Expression::Ptr init = nodes_expression(u = coordinates);

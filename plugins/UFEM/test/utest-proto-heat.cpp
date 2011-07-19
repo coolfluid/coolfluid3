@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   
   // Creating the physics here makes sure everything is up-to-date
   model.create_physics("CF.Physics.DynamicModel");
-  domain.set_active_mesh(mesh);
+  solver.mesh_changed(mesh);
     
   // Set boundary conditions
   solver.boundary_conditions().add_constant_bc("xneg", "Temperature", 10.);

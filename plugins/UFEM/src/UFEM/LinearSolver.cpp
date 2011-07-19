@@ -104,6 +104,7 @@ struct LinearSolver::Implementation
   SolutionVector solution;
   
   boost::weak_ptr<CEigenLSS> m_lss;
+  boost::weak_ptr<CMesh> m_mesh;
 };
 
 LinearSolver::LinearSolver(const std::string& name) :
@@ -127,7 +128,12 @@ void LinearSolver::execute()
   
   Physics::PhysModel& physical_model = m_implementation->physical_model();
   
-  m_implementation->m_lss.lock()->resize(physical_model.variable_manager().nb_dof() * domain().active_mesh().topology().nodes().size());
+  if(m_implementation->m_mesh.expired())
+    throw SetupError(FromHere(), "No mesh set for solver at " + uri().string());
+  
+  CMesh& mesh = *m_implementation->m_mesh.lock();
+  
+  m_implementation->m_lss.lock()->resize(physical_model.variable_manager().nb_dof() * mesh.topology().nodes().size());
   CSolver::execute();
 }
 
@@ -137,6 +143,7 @@ void LinearSolver::mesh_changed(CMesh& mesh)
   std::vector<URI> root_regions;
   root_regions.push_back(mesh.topology().uri());
   configure_option_recursively("regions", root_regions);
+  m_implementation->m_mesh = mesh.as_ptr<CMesh>();
 }
 
 CAction& LinearSolver::zero_action()

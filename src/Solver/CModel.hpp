@@ -119,6 +119,9 @@ public: // functions
 private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
+  
+  /// This function is hooked to the mesh_updated event
+  void on_mesh_updated_event(Common::SignalArgs& args);
 
 };
 

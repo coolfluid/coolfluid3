@@ -120,7 +120,6 @@ BOOST_AUTO_TEST_CASE( SetupModel )
   CDomain& dom = model.create_domain("Domain");
   CMesh& mesh = dom.create_component<CMesh>("mesh");
   Tools::MeshGeneration::create_line(mesh, 1., 5);
-  dom.set_active_mesh(mesh);
 }
 
 /// Test option creation from an expression
@@ -138,12 +137,12 @@ BOOST_AUTO_TEST_CASE( ExpressionOptions )
   BOOST_CHECK(model.options().check("a"));
   
   // a is zero by default, so the result should be zero
-  expression->loop(model.domain().active_mesh().topology());
+  expression->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
   BOOST_CHECK_EQUAL(result, 0.);
   
   // reconfigure a as 1, and check result
   model.options().option("a").change_value(1.);
-  expression->loop(model.domain().active_mesh().topology());
+  expression->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
   BOOST_CHECK_EQUAL(result, 1.);
 }
 
@@ -163,14 +162,14 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
   
   // Create the fields
   model.create_fields();
-  BOOST_CHECK(model.domain().active_mesh().get_child_ptr("Temperature"));
+  BOOST_CHECK(model.domain().get_child("mesh").as_type<CMesh>().get_child_ptr("Temperature"));
   
   // Do the initialization
-  init_temp->loop(model.domain().active_mesh().topology());
+  init_temp->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
   
   // Sum up the values for the temperature
   Real temp_sum = 0.;
-  nodes_expression(lit(temp_sum) += T)->loop(model.domain().active_mesh().topology());
+  nodes_expression(lit(temp_sum) += T)->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
   BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
 }
 
@@ -187,18 +186,18 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   CProtoAction& action = Core::instance().root().create_component<CProtoAction>("Action");
   action.set_expression(nodes_expression(T = 288.));
   action.configure_option("physical_model", model.physics().uri());
-  action.configure_option("regions", std::vector<URI>(1, model.domain().active_mesh().topology().uri()));
+  action.configure_option("regions", std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   
   // Create the fields
   model.create_fields();
-  BOOST_CHECK(model.domain().active_mesh().get_child_ptr("Temperature2"));
+  BOOST_CHECK(model.domain().get_child("mesh").as_type<CMesh>().get_child_ptr("Temperature2"));
   
   // Run the action
   action.execute();
   
   // Sum up the values for the temperature
   Real temp_sum = 0.;
-  nodes_expression(lit(temp_sum) += T)->loop(model.domain().active_mesh().topology());
+  nodes_expression(lit(temp_sum) += T)->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
   BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
 }
 
@@ -220,7 +219,7 @@ BOOST_AUTO_TEST_CASE( ProtoActionDomain )
   solver << create_proto_action( "SetTemp",     nodes_expression(T = 288.) )
          << create_proto_action( "CheckResult", nodes_expression(lit(temp_sum) += T));
          
-  solver.configure_option_recursively("regions", std::vector<URI>(1, model.domain().active_mesh().topology().uri()));
+  solver.configure_option_recursively("regions", std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   solver.configure_option_recursively("physical_model", model.physics().uri());
   
   // Run the actions
@@ -261,7 +260,7 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
   
   CustomProtoSolver& solver = model.create_component<CustomProtoSolver>("CustomSolver");
-  solver.configure_option_recursively("regions", std::vector<URI>(1, model.domain().active_mesh().topology().uri()));
+  solver.configure_option_recursively("regions", std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   solver.configure_option_recursively("physical_model", model.physics().uri());
   
   // Run the actions
@@ -275,7 +274,7 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
 BOOST_AUTO_TEST_CASE( CopyExpression )
 {
   const Uint nb_segments = 5;
-  CMesh& mesh = Core::instance().root().get_child("Model").as_type<CModel>().domain().active_mesh();
+  CMesh& mesh = Core::instance().root().get_child("Model").as_type<CModel>().domain().get_child("mesh").as_type<CMesh>();
   
   Real a = 1.;
   Real result = 0.;

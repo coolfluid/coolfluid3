@@ -8,6 +8,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/Signal.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 

@@ -50,7 +50,7 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CSolver"; }
   
-  /// Called when the mesh changed
+  /// Called when a mesh changed
   virtual void mesh_changed(Mesh::CMesh& mesh);
   
 protected:

@@ -49,12 +49,6 @@ public: // functions
   
   /// write the active mesh
   void write_mesh(const Common::URI& file);
-  
-  /// Set the currently active mesh
-  void set_active_mesh(CMesh& mesh);
-  
-  /// Get the currently active mesh
-  CMesh& active_mesh();
 
   /// @name SIGNALS
   //@{
