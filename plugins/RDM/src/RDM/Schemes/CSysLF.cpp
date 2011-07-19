@@ -23,11 +23,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSysLF, RDM::DomainTerm, LibSchemes > CSysLF_Builder;
+Common::ComponentBuilder < CSysLF, RDM::CellTerm, LibSchemes > CSysLF_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CSysLF::CSysLF ( const std::string& name ) : RDM::DomainTerm(name)
+CSysLF::CSysLF ( const std::string& name ) : RDM::CellTerm(name)
 {
   regist_typeinfo(this);
 }

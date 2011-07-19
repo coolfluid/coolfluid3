@@ -35,13 +35,15 @@ public: // functions
   BcDirichlet ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~BcDirichlet() {};
+  virtual ~BcDirichlet() {}
 
   /// Get the class name
   static std::string type_name () { return "BcDirichlet"; }
 
   /// execute the action
   virtual void execute ();
+
+  virtual bool is_weak() const { return false; }
 
 private: // helper functions
 

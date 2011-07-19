@@ -9,7 +9,7 @@
 
 #include "Math/Checks.hpp"
 
-#include "RDM/Core/DomainTerm.hpp"
+#include "RDM/Core/CellTerm.hpp"
 #include "RDM/Core/SchemeBase.hpp"
 
 #include "RDM/Schemes/LibSchemes.hpp"
@@ -19,7 +19,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_SCHEMES_API CSysB : public RDM::DomainTerm {
+class RDM_SCHEMES_API CSysB : public RDM::CellTerm {
 
 public: // typedefs
 

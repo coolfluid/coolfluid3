@@ -132,8 +132,8 @@ void ComputeUpdateCoefficient::execute()
     // compute which dt to take
     Real tf = time.option("end_time").value<Real>();
     Real dt = time.option("time_step").value<Real>();
-    if( time.time() + dt > tf )
-      dt = tf - time.time();
+    if( time.current_time() + dt > tf )
+      dt = tf - time.current_time();
 
     // Make time step stricter through the CFL number
     for (Uint i=0; i<wave_speed.size(); ++i)

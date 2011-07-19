@@ -31,7 +31,7 @@
 #include "Solver/Actions/CComputeLNorm.hpp"
 
 #include "RDM/Core/RKRD.hpp"
-#include "RDM/Core/DomainTerm.hpp"
+#include "RDM/Core/CellTerm.hpp"
 #include "RDM/Core/BoundaryTerm.hpp"
 #include "RDM/Core/Cleanup.hpp"
 #include "RDM/Core/UpdateSolution.hpp"
@@ -45,6 +45,7 @@ using namespace Mesh;
 using namespace Mesh::Actions;
 using namespace Solver;
 using namespace Solver::Actions;
+using namespace RDM::Core;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -321,7 +322,7 @@ void RKRD::signal_create_domain_term( SignalArgs& node )
   std::string name = options.value<std::string>("Name");
   std::string type = options.value<std::string>("Type");
 
-  RDM::DomainTerm::Ptr dterm = build_component_abstract_type<RDM::DomainTerm>(type,name);
+  RDM::CellTerm::Ptr dterm = build_component_abstract_type<RDM::CellTerm>(type,name);
   m_compute_domain_terms->add_component(dterm);
 
   std::vector<URI> regions = options.array<URI>("Regions");

@@ -1,0 +1,42 @@
+#############################################################################
+### Global settings
+
+configure //Root/Environment assertion_throws:bool=false \
+                             assertion_backtrace:bool=false \
+                             exception_backtrace:bool=false \
+                             log_level:unsigned=4 \
+                             regist_signal_handlers:bool=false
+
+#############################################################################
+### create model
+
+create Model CF.Solver.CModelSteady
+
+call Model/setup solver_builder:string=CF.RDM.Core.Solver \
+                 physics_builder:string=CF.Physics.Scalar.Scalar2D
+
+#############################################################################
+### read mesh
+
+call Model/Domain/load_mesh file:uri=file:square1x1-tg-p2-2kn.msh \
+                            name:string=mesh
+
+#############################################################################
+### solver
+
+configure Model/Solver/TimeStepping/Time              end_time:real=1.0 time_step:real=0.1
+configure Model/Solver/TimeStepping/MaxIterations     max:unsigned=30
+
+configure Model/Solver                                update_vars:string=LinearAdv2D
+
+
+#############################################################################
+### simulate and write the result
+
+call Model/Solver/InitialConditions
+
+call Model/Domain/write_mesh file:uri=atest-rdm-linearadv2d-initial.msh
+
+call Model/simulate
+
+call Model/Domain/write_mesh file:uri=atest-rdm-linearadv2d-solution.msh

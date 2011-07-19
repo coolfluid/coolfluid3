@@ -101,7 +101,7 @@ void ForwardEuler::execute()
   if (m_wave_speed.expired()) throw SetupError(FromHere(), "WaveSpeed Field was not set");
   if (m_residual.expired())   throw SetupError(FromHere(), "Residual field was not set");
 
-  get_child("max_iterations").configure_option("iterative_step", uri());
+  get_child("max_iterations").configure_option("iterator", uri());
 
 //  CTable<Real>& solution     = m_solution.lock()->data();
 //  CTable<Real>& wave_speed   = m_wave_speed.lock()->data();

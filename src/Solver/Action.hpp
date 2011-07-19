@@ -47,9 +47,12 @@ public: // functions
 
  public:
 
+  Mesh::CMesh& mesh();
+
   Physics::PhysModel& physical_model();
-  Solver::CTime&          time();
-  Mesh::CMesh&            mesh();
+
+  Solver::CTime& time();
+
   Common::ComponentIteratorRange<Mesh::CRegion> regions();
 
 protected:
@@ -60,6 +63,7 @@ protected:
   boost::weak_ptr< Physics::PhysModel > m_physical_model;
   /// time used by this action
   boost::weak_ptr< Solver::CTime > m_time;
+
   /// regions of the mesh to loop over
   std::vector< boost::shared_ptr< Mesh::CRegion > > m_loop_regions;
 

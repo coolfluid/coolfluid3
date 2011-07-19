@@ -32,14 +32,14 @@ public: // functions
   CComputeLNorm ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CComputeLNorm() {};
+  virtual ~CComputeLNorm() {}
 
   /// Get the class name
   static std::string type_name () { return "CComputeLNorm"; }
-  
+
   /// execute the action
   virtual void execute ();
-  
+
 private: // data
 
   boost::weak_ptr<Mesh::CField> m_field;

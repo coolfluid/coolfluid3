@@ -32,18 +32,18 @@ public: // functions
   UpdateSolution ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~UpdateSolution() {};
+  virtual ~UpdateSolution() {}
 
   /// Get the class name
   static std::string type_name () { return "UpdateSolution"; }
-  
+
   /// execute the action
   virtual void execute ();
-  
+
 private: // data
 
   boost::weak_ptr<Mesh::CField> m_solution;
-  boost::weak_ptr<Mesh::CField> m_residual;  
+  boost::weak_ptr<Mesh::CField> m_residual;
   boost::weak_ptr<Mesh::CField> m_update_coeff;
 };
 

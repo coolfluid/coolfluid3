@@ -16,9 +16,10 @@
 namespace CF {
 namespace Mesh { class CField; }
 namespace RDM {
+namespace Core {
 
-class RDM_Core_API Cleanup : public CF::Solver::Action
-{
+class RDM_Core_API Cleanup : public CF::Solver::Action {
+
 public: // typedefs
 
   /// pointers
@@ -31,29 +32,28 @@ public: // functions
   Cleanup ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~Cleanup() {};
+  virtual ~Cleanup() {}
 
   /// Get the class name
   static std::string type_name () { return "Cleanup"; }
-  
+
   /// execute the action
   virtual void execute ();
 
 private: // helper functions
 
   void config_fields();
-  
+
 private: // data
-  
+
   std::vector< boost::weak_ptr<Mesh::CField> > m_fields;
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
+} // Core
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_RDM_Cleanup_hpp

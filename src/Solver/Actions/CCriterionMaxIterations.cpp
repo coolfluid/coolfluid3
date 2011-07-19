@@ -30,9 +30,14 @@ CCriterionMaxIterations::CCriterionMaxIterations( const std::string& name  ) :
       "Returns true if a the maximum number of iterations is achived\n";
   m_properties["description"] = description;
 
-  m_options.add_option(OptionComponent<Component>::create("iterative_step", &m_iter_comp))
-      ->set_description("Iteration tracking component")
-      ->set_pretty_name("Iteration");
+  m_options.add_option(OptionComponent<Component>::create("iterator", &m_iter_comp))
+      ->set_description("Component performing iterations")
+      ->set_pretty_name("Iterative component");
+
+  m_options.add_option< OptionT<Uint> >( "max", 1 )
+      ->set_description("Maximum number of iterations (0 will perform none)")
+      ->set_pretty_name("Maximum number");
+
 }
 
 CCriterionMaxIterations::~CCriterionMaxIterations() {}
@@ -41,12 +46,13 @@ CCriterionMaxIterations::~CCriterionMaxIterations() {}
 
 bool CCriterionMaxIterations::operator()()
 {
-  if (m_iter_comp.expired()) throw SetupError(FromHere(),"Component holding iteration number was not set in ["+uri().string()+"]");
+  if (m_iter_comp.expired())
+    throw SetupError(FromHere(),"Component holding iteration number was not set in ["+uri().string()+"]");
 
   Component& comp_iter = *m_iter_comp.lock();
 
   const Uint cur_iter = comp_iter.properties().value<Uint>("iteration");
-  const Uint max_iter = comp_iter.option("MaxIter").value<Uint>();
+  const Uint max_iter = option("max").value<Uint>();
 
   return ( cur_iter > max_iter );
 }

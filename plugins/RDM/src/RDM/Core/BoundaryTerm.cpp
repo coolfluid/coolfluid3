@@ -32,10 +32,7 @@ BoundaryTerm::BoundaryTerm ( const std::string& name ) :
   signal("move_component"  )->hidden(true);
 }
 
-BoundaryTerm::~BoundaryTerm()
-{
-}
-
+BoundaryTerm::~BoundaryTerm() {}
 
 ElementLoop& BoundaryTerm::access_element_loop( const std::string& type_name )
 {

@@ -7,7 +7,7 @@
 #ifndef CF_RDM_Schemes_CSysSUPG_hpp
 #define CF_RDM_Schemes_CSysSUPG_hpp
 
-#include "RDM/Core/DomainTerm.hpp"
+#include "RDM/Core/CellTerm.hpp"
 #include "RDM/Core/SchemeBase.hpp"
 
 #include "RDM/Schemes/LibSchemes.hpp"
@@ -19,7 +19,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_SCHEMES_API CSysSUPG : public RDM::DomainTerm {
+class RDM_SCHEMES_API CSysSUPG : public RDM::CellTerm {
 
 public: // typedefs
 

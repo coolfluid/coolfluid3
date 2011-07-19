@@ -18,11 +18,18 @@
 
 namespace CF {
 
-namespace Mesh    { class CField; class CMesh; }
+namespace Mesh    { class CField;    class CMesh; }
 namespace Physics { class PhysModel; class Variables; }
+namespace Solver  { namespace Actions { class CSynchronizeFields; } }
 
 namespace RDM {
 namespace Core {
+
+class BoundaryConditions;
+class InitialConditions;
+class DomainDiscretization;
+class IterativeSolver;
+class TimeStepping;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,64 +64,40 @@ public: // functions
   /// solves the PDE's
   virtual void execute();
 
+  /// @return subcomponent for initial conditions
+  InitialConditions&    initial_conditions();
+  /// @return subcomponent for boundary conditions
+  BoundaryConditions&   boundary_conditions();
+  /// @return subcomponent for domain terms
+  DomainDiscretization& domain_discretization();
+  /// @return subcomponent for non linear iterative steps
+  IterativeSolver&      iterative_solver();
+  /// @return subcomponent for time stepping
+  TimeStepping&         time_stepping();
+
   /// @name SIGNALS
   //@{
 
-  /// signature for @see signal_initialize_solution
-  void signature_signal_initialize_solution( Common::SignalArgs& node );
-  /// initializes the solution
-  void signal_initialize_solution( Common::SignalArgs& xml );
-
-  /// signature for @see signal_create_boundary_term
-  void signature_signal_create_boundary_term( Common::SignalArgs& node );
-  /// creates a boundary term
-  void signal_create_boundary_term( Common::SignalArgs& xml );
-
-  /// signature for @see signal_create_boundary_term
-  void signature_signal_create_domain_term( Common::SignalArgs& node );
-  /// creates a domain term
-  void signal_create_domain_term( Common::SignalArgs& xml );
-
   //@} END SIGNALS
 
+private: // helper functions
 
-private: // functions
-
-  /// called when domain option is set in the solver
-  void config_domain();
-  /// called when mesh option is set in the solver
-  void config_mesh();
-  /// called when variables are configured
   void config_physics();
 
 private: // data
 
-  /// physical model discretized by this solver
-  boost::weak_ptr< Physics::PhysModel > m_physical_model;
+  boost::shared_ptr<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
 
-  /// mesh which this solver operates
-  boost::weak_ptr<Mesh::CMesh> m_mesh;
+  boost::shared_ptr<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
 
-  /// solution field pointer
-  boost::weak_ptr<Mesh::CField> m_solution;
-  /// residual field pointer
-  boost::weak_ptr<Mesh::CField> m_residual;
-  /// wave_speed field pointer
-  boost::weak_ptr<Mesh::CField> m_wave_speed;
+  boost::shared_ptr<DomainDiscretization> m_domain_discretization; ///< subcomponent for domain terms
 
-  /// action to compute the boundary face terms
-  Common::CAction::Ptr m_compute_boundary_terms;
-  /// action to compute the domain cell terms
-  Common::CAction::Ptr m_compute_domain_terms;
+  boost::shared_ptr<IterativeSolver>      m_iterative_solver;      ///< subcomponent for non linear iterative steps
 
-  /// action to update the solution
-  CF::Solver::Action::Ptr m_update_solution;
-  /// compute the L-norm for convergence
-  Common::CAction::Ptr m_compute_norm;
-  /// action to cleanup
-  CF::Solver::Action::Ptr m_cleanup;
-  /// action to iterate solution
-  CF::Solver::Action::Ptr m_time_stepping;
+  boost::shared_ptr<TimeStepping>         m_time_stepping;         ///< subcomponent for time stepping
+
+  boost::shared_ptr<CF::Solver::Actions::CSynchronizeFields> m_synchronize; ///< solution synchronization action
+
 
 };
 
@@ -123,7 +106,5 @@ private: // data
 } // Core
 } // RDM
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_RDM_Solver_hpp

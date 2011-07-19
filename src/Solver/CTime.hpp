@@ -43,20 +43,20 @@ public: // functions
   static std::string type_name () { return "CTime"; }
 
   /// @return modifiable time
-  Real& time() { return m_time; }
+  Real& current_time() { return m_current_time; }
 
   /// @return time
-  const Real& time() const { return m_time; }
+  const Real& current_time() const { return m_current_time; }
 
   /// @return modifiable time step
   Real& dt() { return m_dt; }
 
   /// @return time step
   const Real& dt() const { return m_dt; }
-  
+
   /// @return Inverse timestep, updated automatically when the time step is changed
   const Real& invdt() const { return m_invdt; }
-  
+
   /// @return Inverse timestep, updated automatically when the time step is changed
   Real& invdt() { return m_invdt; }
 
@@ -65,18 +65,18 @@ public: // functions
 
   /// @return iteration
   const Uint& iter() const { return m_iter; }
-  
+
   /// @return end_time
   Real end_time() const { return m_end_time; }
 
 private: // data
 
-  Real m_time;
+  Real m_current_time;
   Real m_dt;
   Real m_invdt;
   Uint m_iter;
   Real m_end_time;
-  
+
   void trigger_timestep();
 };
 

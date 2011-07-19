@@ -102,7 +102,7 @@ BoundaryConditions::BoundaryConditions(const std::string& name) :
   m_implementation( new Implementation(*this) )
 {
   regist_signal( "add_constant_bc" )
-    ->connect( boost::bind( &BoundaryConditions::signal_add_constant_bc, this, _1 ) )
+    ->connect( boost::bind( &BoundaryConditions::signal_create_constant_bc, this, _1 ) )
     ->description("Create a constant Dirichlet BC")
     ->pretty_name("Add Constant BC")
     ->signature( boost::bind(&Implementation::add_constant_bc_signature, m_implementation.get(), _1) );
@@ -155,7 +155,7 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
   result->configure_option("physical_model", m_implementation->m_physical_model);
 }
 
-void BoundaryConditions::signal_add_constant_bc(SignalArgs& node)
+void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
 {
   SignalOptions options( node );
 

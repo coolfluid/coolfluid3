@@ -51,7 +51,7 @@ void TimeLoop::execute()
     throw Common::SetupError(FromHere(), "Error executing TimeLoop " + uri().string() + ": Time is invalid");
 
   Solver::CTime& time = *m_implementation->m_time.lock();
-  const Real& t = time.time();
+  const Real& t = time.current_time();
   const Real dt = time.dt();
   Uint iter = time.iter();
   while(t < time.end_time())

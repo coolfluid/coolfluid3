@@ -12,9 +12,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh {
-  class CScalarFieldView;
-}
+namespace Mesh { class CScalarFieldView; }
 namespace Solver {
 namespace Actions {
 
@@ -34,7 +32,7 @@ public: // functions
   CComputeArea ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CComputeArea() {};
+  virtual ~CComputeArea() {}
 
   /// Get the class name
   static std::string type_name () { return "CComputeArea"; }
@@ -47,13 +45,13 @@ private: // helper functions
   void config_field();
 
   void trigger_elements();
-  
+
 private: // data
-  
+
   boost::shared_ptr<Mesh::CScalarFieldView> m_area;
-  
+
   RealMatrix m_coordinates;
-    
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -37,7 +37,7 @@ struct CModelUnsteady::Implementation
     m_component(component)
   {
   }
-  
+
   Component& m_component;
   boost::weak_ptr<CTime> m_time;
 };
@@ -63,44 +63,42 @@ CModelUnsteady::CModelUnsteady( const std::string& name  ) :
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
+CModelUnsteady::~CModelUnsteady() {}
 
-CModelUnsteady::~CModelUnsteady()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 void CModelUnsteady::simulate ()
 {
   CModel::simulate();
-  time().configure_option("time",time().time());
+  time().configure_option("time", time().current_time() );
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 CTime& CModelUnsteady::create_time(const std::string& name)
 {
   CTime::Ptr time = create_component_ptr<CTime>(name);
   m_implementation->m_time = time;
-  
+
   configure_option_recursively("time_component", time->uri());
-  
+
   return *time;
 }
+
 
 void CModelUnsteady::signal_create_time(SignalArgs node)
 {
   create_time();
 }
 
+
 CTime& CModelUnsteady::time()
 {
   if(m_implementation->m_time.expired())
     throw SetupError(FromHere(), "Time is not configured for model " + uri().string());
-  
+
   return *m_implementation->m_time.lock();
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
 } // CF

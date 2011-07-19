@@ -48,15 +48,15 @@ CAdvanceTime::~CAdvanceTime()
 
 void CAdvanceTime::execute ()
 {
-  time().time() += time().dt();
+  time().current_time() += time().dt();
   time().iter() += 1u;
 
-  mesh().metadata()["time"] = time().time();
+  mesh().metadata()["time"] = time().current_time();
   mesh().metadata()["iter"] = time().iter();
 
   boost_foreach(CField& field, find_components_recursively<CField>(mesh()))
   {
-    field.configure_option("time",time().time());
+    field.configure_option("time",time().current_time());
     field.configure_option("iteration", time().iter());
   }
 }

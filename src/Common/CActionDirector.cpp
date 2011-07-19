@@ -26,13 +26,13 @@ ComponentBuilder < CActionDirector, CAction, LibCommon > CActionDirector_Builder
 
 CActionDirector::CActionDirector(const std::string& name): CAction(name)
 {
-  m_options.add_option< OptionArrayT<std::string> >("ActionList", std::vector<std::string>())
+  m_options.add_option< OptionArrayT<std::string> >("ActionOrder", std::vector<std::string>())
       ->set_description("Names of the actions to execute in sequence");
 }
 
 void CActionDirector::execute()
 {
-  Option& actions_prop = option("ActionList");
+  Option& actions_prop = option("ActionOrder");
   std::vector<std::string> actions; actions_prop.put_value(actions);
 
   BOOST_FOREACH(const std::string& action_name, actions)
@@ -41,16 +41,16 @@ void CActionDirector::execute()
     Component::Ptr child = get_child_ptr(action_name);
     if(is_null(child))
       throw SetupError(FromHere(), "No component with name " + action_name + " when executing actions in " + uri().string());
-    
+
     // If it's a link, ensure the link is valid
     Component::Ptr linked_child = child->follow();
     if(is_null(linked_child))
       throw SetupError(FromHere(), "Linked action " + action_name + " points to null in " + uri().string());
-    
+
     CAction::Ptr action = boost::dynamic_pointer_cast<CAction>(linked_child);
     if(is_null(action))
       throw SetupError(FromHere(), "Component with name " + action_name + " is not an action in " + uri().string());
-    
+
     action->execute();
   }
 }
@@ -88,7 +88,7 @@ CActionDirector& CActionDirector::append(const CAction::Ptr& action)
       throw ValueExists(FromHere(), "An action named " + action->name() + " already exists in " + uri().string() + ", but it is different from the appended action");
   }
 
-  Option& actions_prop = option("ActionList");
+  Option& actions_prop = option("ActionOrder");
   std::vector<std::string> actions; actions_prop.put_value(actions);
 
   actions.push_back(action->name());

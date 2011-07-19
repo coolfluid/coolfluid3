@@ -37,7 +37,7 @@ public: // functions
   CComputeVolume ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CComputeVolume() {};
+  virtual ~CComputeVolume() {}
 
   /// Get the class name
   static std::string type_name () { return "CComputeVolume"; }
@@ -50,13 +50,13 @@ private: // helper functions
   void config_field();
 
   void trigger_elements();
-  
+
 private: // data
-  
+
   boost::shared_ptr<Mesh::CScalarFieldView> m_volume;
-  
+
   RealMatrix m_coordinates;
-    
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

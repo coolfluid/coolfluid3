@@ -80,7 +80,7 @@ public: // functions
   //@{
 
   /// creates a component from this component
-  void print_message ( SignalArgs& xml )
+  void print_message ( SignalArgs& args )
   {
 //    XmlParams p (xml);
 

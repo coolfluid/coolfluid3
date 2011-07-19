@@ -42,7 +42,7 @@
 #include "Mesh/Actions/CBuildFaces.hpp"
 
 #include "RDM/Core/RKRD.hpp"
-#include "RDM/Core/DomainTerm.hpp"
+#include "RDM/Core/CellTerm.hpp"
 #include "RDM/Core/SteadyExplicit.hpp"
 
 using namespace CF;
@@ -252,7 +252,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 
   // delete previous domain terms
   Component& domain_terms = solver.get_child("compute_domain_terms");
-  boost_foreach( RDM::DomainTerm& term, find_components_recursively<RDM::DomainTerm>( domain_terms ))
+  boost_foreach( RDM::CellTerm& term, find_components_recursively<RDM::CellTerm>( domain_terms ))
   {
     const std::string name = term.name();
     domain_terms.remove_component( name );

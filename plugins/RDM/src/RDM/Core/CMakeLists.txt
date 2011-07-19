@@ -12,6 +12,16 @@ list( APPEND coolfluid_rdm_core_files
   CellLoop.hpp
   FaceLoop.hpp
   Tags.hpp
+  BoundaryConditions.hpp
+  BoundaryConditions.cpp
+  InitialConditions.hpp
+  InitialConditions.cpp
+  DomainDiscretization.hpp
+  DomainDiscretization.cpp
+  TimeStepping.hpp
+  TimeStepping.cpp
+  IterativeSolver.hpp
+  IterativeSolver.cpp
 # wizards
   SteadyExplicit.hpp
   SteadyExplicit.cpp
@@ -20,8 +30,10 @@ list( APPEND coolfluid_rdm_core_files
 # actions
   BoundaryTerm.hpp
   BoundaryTerm.cpp
-  DomainTerm.hpp
-  DomainTerm.cpp
+  CellTerm.hpp
+  CellTerm.cpp
+  FaceTerm.hpp
+  FaceTerm.cpp
   BcDirichlet.hpp
   BcDirichlet.cpp
   BcBase.hpp

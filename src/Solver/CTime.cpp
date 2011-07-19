@@ -21,7 +21,7 @@ Common::ComponentBuilder < CTime, Component, LibSolver > CTime_Builder;
 
 CTime::CTime ( const std::string& name  ) :
   Component ( name ),
-  m_time(0.),
+  m_current_time(0.),
   m_dt(0.),
   m_invdt(0.),
   m_iter(0)
@@ -44,10 +44,10 @@ CTime::CTime ( const std::string& name  ) :
       ->mark_basic();
 
 
-  m_options.add_option(OptionT<Real>::create("time", m_time) )
+  m_options.add_option(OptionT<Real>::create("time", m_current_time) )
       ->set_description("Current time of the simulation")
       ->set_pretty_name("Time")
-      ->link_to(&m_time)
+      ->link_to(&m_current_time)
       ->mark_basic();
 
   m_options.add_option(OptionT<Real>::create("time_step", m_dt) )
@@ -58,7 +58,7 @@ CTime::CTime ( const std::string& name  ) :
       ->mark_basic()
       ->attach_trigger(boost::bind(&CTime::trigger_timestep, this));
 
-  m_options.add_option(OptionT<Real>::create("end_time", m_time) )
+  m_options.add_option(OptionT<Real>::create("end_time", m_current_time) )
       ->set_description("Time at which to finish the simulation")
       ->set_pretty_name("End Time")
       ->link_to(&m_end_time)

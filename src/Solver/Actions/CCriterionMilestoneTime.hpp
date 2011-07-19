@@ -18,7 +18,7 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CCriterionMilestoneTime models a Unsteady PDE problem
+/// CCriterionMilestoneTime
 /// @author Willem Deconinck
 class Solver_Actions_API CCriterionMilestoneTime : public CCriterion {
 

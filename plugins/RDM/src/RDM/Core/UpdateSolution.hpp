@@ -31,11 +31,11 @@ public: // functions
   UpdateSolution ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~UpdateSolution() {};
+  virtual ~UpdateSolution() {}
 
   /// Get the class name
   static std::string type_name () { return "UpdateSolution"; }
-  
+
   /// execute the action
   virtual void execute ();
 

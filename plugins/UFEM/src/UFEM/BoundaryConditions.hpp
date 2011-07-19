@@ -48,7 +48,7 @@ public: // functions
   void add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value);
   
   /// Signal to create a constant BC and add it to the sequence of executed actions
-  void signal_add_constant_bc(Common::SignalArgs& node);
+  void signal_create_constant_bc(Common::SignalArgs& node);
   
 private:
   class Implementation;

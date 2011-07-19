@@ -24,11 +24,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSysSUPG, RDM::DomainTerm, LibSchemes > CSysSUPG_Builder;
+Common::ComponentBuilder < CSysSUPG, RDM::CellTerm, LibSchemes > CSysSUPG_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CSysSUPG::CSysSUPG ( const std::string& name ) : RDM::DomainTerm(name)
+CSysSUPG::CSysSUPG ( const std::string& name ) : RDM::CellTerm(name)
 {
   regist_typeinfo(this);
 }

@@ -167,14 +167,14 @@ void RK::execute()
 
   /// 1) backup solution and time
   U0 = U;
-  const Real T0 = time().time();
+  const Real T0 = time().current_time();
 
   /// For every stage of the Runge Kutta scheme
   m_pre_update->configure_option_recursively("freeze_update_coeff",false);
   for (Uint k=0; k<m_stages; ++k)
   {
     /// - Set the time for this stage (notice that at first stage time is not modified since m_gamma[0] = 0)
-    time().time() = T0 + m_gamma[k]*time().dt();
+    time().current_time() = T0 + m_gamma[k]*time().dt();
 
     /// - Pre update actions, must compute residual, update_coefficient (and thus time().dt())
     m_pre_update->execute();
@@ -193,7 +193,7 @@ void RK::execute()
   }
   /// Set time back to pre-stages time, so that the action Solver::CAdvanceTime will update the time
   /// @note that time().dt() has been modified
-  time().time() = T0;
+  time().current_time() = T0;
   m_advance_time->execute();
 }
 

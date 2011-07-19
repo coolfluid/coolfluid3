@@ -7,10 +7,11 @@
 #ifndef CF_UFEM_TimeLoop_hpp
 #define CF_UFEM_TimeLoop_hpp
 
+#include <boost/scoped_ptr.hpp>
+
 #include "Common/CActionDirector.hpp"
 
 #include "LibUFEM.hpp"
-#include <boost/scoped_ptr.hpp>
 
 namespace CF {
 

@@ -40,6 +40,14 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "BoundaryTerm"; }
 
+  /// Identifies if this boundary condition is wek or strong
+  /// A strong BC forces directly the solution values, whereas a weak is applied
+  /// by changing the contribution of the equations, therefore indirectly.
+  /// @returns if this term is a weak term
+  virtual bool is_weak() const = 0;
+
+  /// @return the element loop for the element type identified by the string
+  /// @post will create the element loop if does not exist
   ElementLoop& access_element_loop( const std::string& type_name );
 
 };

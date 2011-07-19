@@ -398,7 +398,7 @@ public: // functions
   void signal_configure ( SignalArgs& args );
 
   /// creates a component from this component
-  void signal_create_component ( SignalArgs& xml );
+  void signal_create_component ( SignalArgs& args );
 
   /// deletes a component from this component
   void signal_delete_component ( SignalArgs& args );

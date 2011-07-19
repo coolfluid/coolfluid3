@@ -23,6 +23,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class RDM_Core_API WallWeakBc : public RDM::BoundaryTerm {
+
 public: // typedefs
 
   /// the actual BC implementation is a nested class
@@ -39,13 +40,15 @@ public: // functions
   WallWeakBc ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~WallWeakBc() {};
+  virtual ~WallWeakBc() {}
 
   /// Get the class name
   static std::string type_name () { return "WallWeakBc"; }
 
   /// execute the action
   virtual void execute ();
+
+  virtual bool is_weak() const { return true; }
 
 private: // helper functions
 

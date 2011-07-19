@@ -56,7 +56,7 @@ bool CCriterionMilestoneTime::operator()()
   if ( dt == 0. )
     return true;
 
-  const Real t = m_time.lock()->time();
+  const Real t = m_time.lock()->current_time();
   return ( t - Uint(t/dt) * dt == 0 );
 }
 

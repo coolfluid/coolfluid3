@@ -32,6 +32,8 @@ list( APPEND coolfluid_solver_actions_files
   CLoop.cpp
   CSetFieldValues.hpp
   CSetFieldValues.cpp
+  CSynchronizeFields.hpp
+  CSynchronizeFields.cpp
   CComputeArea.hpp
   CComputeArea.cpp
   CComputeVolume.hpp

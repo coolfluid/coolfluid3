@@ -44,13 +44,15 @@ public: // functions
   WeakDirichlet ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~WeakDirichlet() {};
+  virtual ~WeakDirichlet() {}
 
   /// Get the class name
   static std::string type_name () { return "WeakDirichlet"; }
 
   /// execute the action
   virtual void execute ();
+
+  virtual bool is_weak() const { return true; }
 
 private: // helper functions
 

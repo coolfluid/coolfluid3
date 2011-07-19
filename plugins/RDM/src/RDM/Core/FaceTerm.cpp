@@ -9,8 +9,8 @@
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
 
-#include "RDM/Core/CellLoop.hpp"
-#include "RDM/Core/DomainTerm.hpp"
+#include "RDM/Core/FaceLoop.hpp"
+#include "RDM/Core/FaceTerm.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-DomainTerm::DomainTerm ( const std::string& name ) :
+FaceTerm::FaceTerm ( const std::string& name ) :
   Solver::Action(name)
 {
   mark_basic();
@@ -32,9 +32,9 @@ DomainTerm::DomainTerm ( const std::string& name ) :
   signal("move_component"  )->hidden(true);
 }
 
-DomainTerm::~DomainTerm() {}
+FaceTerm::~FaceTerm() {}
 
-ElementLoop& DomainTerm::access_element_loop( const std::string& type_name )
+ElementLoop& FaceTerm::access_element_loop( const std::string& type_name )
 {
   const std::string update_vars_type =
       physical_model().get_child( RDM::Tags::update_vars() )
@@ -46,7 +46,7 @@ ElementLoop& DomainTerm::access_element_loop( const std::string& type_name )
   Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
-    loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopT<" + type_name + "," + update_vars_type + ">" , "LOOP");
+    loop = build_component_abstract_type_reduced< FaceLoop >( "FaceLoopT<" + type_name + "," + update_vars_type + ">" , "LOOP");
     add_component(loop);
   }
   else

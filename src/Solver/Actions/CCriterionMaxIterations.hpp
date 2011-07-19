@@ -18,8 +18,8 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CCriterionMaxIterations models a Unsteady PDE problem
-/// @author Tiago Quintino
+/// CCriterionMaxIterations
+/// @author Willem Deconinck
 class Solver_Actions_API CCriterionMaxIterations : public CCriterion {
 
 public: // typedefs
@@ -41,9 +41,9 @@ public: // functions
 
   /// Simulates this model
   virtual bool operator()();
-  
+
 private:
-  
+
   /// component where to access the current iteration
   boost::weak_ptr<Component> m_iter_comp;
 

@@ -65,7 +65,7 @@ void OutputIterationInfo::execute()
 
   // output convergence info
   CFinfo << "Iter [" << std::setw(4) << parent().as_ptr_checked<CIterate>()->iter() << "]";
-  CFinfo << "      Time [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << m_time.lock()->time() << "]";
+  CFinfo << "      Time [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << m_time.lock()->current_time() << "]";
   CFinfo << "      Time Step [" << std::setprecision(4) << std::setiosflags(std::ios_base::scientific) << std::setw(10) << m_time.lock()->dt() << "]";
   CFinfo << "      L2(rhs) [" << std::setw(12) << rhs_L2 << "]";
   CFinfo << CFendl;

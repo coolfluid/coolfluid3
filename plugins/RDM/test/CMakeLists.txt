@@ -92,6 +92,8 @@ coolfluid_add_unit_test( utest-rdm-euler2dgpu )
 
 # list( APPEND atest-rdm-burgers2d_reference ${CMAKE_CURRENT_SOURCE_DIR}/reference.msh )
 
-coolfluid_add_acceptance_test( atest-rdm-burgers2d burgers2d.cfscript )
+coolfluid_add_acceptance_test( atest-rdm-linearadv2d atest-rdm-linearadv2d.cfscript )
 
-coolfluid_add_acceptance_test( atest-rdm-euler2d euler2d.cfscript )
+coolfluid_add_acceptance_test( atest-rdm-burgers2d atest-rdm-burgers2d.cfscript )
+
+coolfluid_add_acceptance_test( atest-rdm-euler2d atest-rdm-euler2d.cfscript )

@@ -42,8 +42,10 @@ public: // functions
 
   /// @name SIGNALS
   //@{
+
   /// signal to execute this action
   void signal_execute ( Common::SignalArgs& node );
+
   //@} END SIGNALS
 
 };

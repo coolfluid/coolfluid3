@@ -74,8 +74,8 @@ public: // functions
   //@{
 
   /// creates a boundary condition
-  void signal_create_bc( Common::SignalArgs& xml );
-  void signature_create_bc( Common::SignalArgs& xml );
+  void signal_create_bc( Common::SignalArgs& args );
+  void signature_create_bc( Common::SignalArgs& args );
 
   //@} END SIGNALS
 

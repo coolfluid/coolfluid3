@@ -19,9 +19,9 @@ namespace Common {
 /////////////////////////////////////////////////////////////////////////////////////
 
 /// Executes a series of actions, configured through a list of names for the actions to execute
-/// Actions are passed through the "ActionList" option and will be executed in the order they are listed
-class Common_API CActionDirector : public CAction
-{
+/// Actions are passed through the "ActionOrder" option and will be executed in the order they are listed
+class Common_API CActionDirector : public CAction {
+
 public: // typedefs
 
   typedef boost::shared_ptr<CActionDirector> Ptr;
@@ -35,20 +35,20 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CActionDirector"; }
-  
+
   /// CAction implementation
   virtual void execute();
-  
+
   /// Append an action to the back of the list, returning a reference to self (for chaining purposes)
   /// The supplied action is added as a child if it had no parent, otherwise a link is created
   /// If this CActionDirector already has a component or an action with the same name that is different from
   /// the supplied action, an error is raised
   /// If the supplied action was added before, its name is added to the execution list a second time
   CActionDirector& append(CAction& action);
-  
+
   /// Overload taking a shared pointer
   CActionDirector& append(const CAction::Ptr& action);
-  
+
 protected:
   /// Called when an action is added. The default implementation does nothing,
   /// derived classes may override this to complete the configuration of added actions

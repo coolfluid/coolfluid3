@@ -83,14 +83,14 @@ public: // functions
   //@{
 
   /// creates a boundary condition
-  void signal_create_bc_action( Common::SignalArgs& xml );
-  void signature_create_bc_action( Common::SignalArgs& xml );
+  void signal_create_bc_action( Common::SignalArgs& args );
+  void signature_create_bc_action( Common::SignalArgs& args );
 
-  void signal_create_inner_action( Common::SignalArgs& xml );
-  void signature_create_inner_action( Common::SignalArgs& xml );
+  void signal_create_inner_action( Common::SignalArgs& args );
+  void signature_create_inner_action( Common::SignalArgs& args );
 
-  void signal_create_solve( Common::SignalArgs& xml );
-  void signature_create_solve( Common::SignalArgs& xml );
+  void signal_create_solve( Common::SignalArgs& args );
+  void signature_create_solve( Common::SignalArgs& args );
 
   //@} END SIGNALS
 

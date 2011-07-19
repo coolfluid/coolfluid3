@@ -31,11 +31,11 @@ public: // functions
   ForwardEuler ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~ForwardEuler() {};
+  virtual ~ForwardEuler() {}
 
   /// Get the class name
   static std::string type_name () { return "ForwardEuler"; }
-  
+
   /// execute the action
   virtual void execute ();
 

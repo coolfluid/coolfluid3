@@ -24,11 +24,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSysLDA, RDM::DomainTerm, LibSchemes > CSysLDA_Builder;
+Common::ComponentBuilder < CSysLDA, RDM::CellTerm, LibSchemes > CSysLDA_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CSysLDA::CSysLDA ( const std::string& name ) : RDM::DomainTerm(name)
+CSysLDA::CSysLDA ( const std::string& name ) : RDM::CellTerm(name)
 {
   regist_typeinfo(this);
 }
