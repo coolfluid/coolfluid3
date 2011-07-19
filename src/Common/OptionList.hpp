@@ -101,16 +101,16 @@ namespace Common {
     /// @param [in] val      The new value assigned to the option
     void configure_option(const std::string& pname, const boost::any& val);
 
-    /// check that a property with the name exists
-    /// @param prop_name the property name
-    bool check ( const std::string& prop_name ) const
+    /// check that a option with the name exists
+    /// @param opt_name the property name
+    bool check ( const std::string& opt_name ) const
     {
-      return store.find(prop_name) != store.end();
+      return store.find(opt_name) != store.end();
     }
 
-    /// erases a property
-    /// @param prop_name the property name
-    void erase (const std::string & pname);
+    /// erases an option from the list
+    /// @param name the option name to erase
+    void erase (const std::string & name);
 
     iterator begin() { return store.begin(); }
 

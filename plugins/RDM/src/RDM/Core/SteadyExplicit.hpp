@@ -41,6 +41,8 @@ public: // functions
 
   // functions specific to the SteadyExplicit component
 
+  void create_model( const std::string& model_name, const std::string& physics_builder );
+
   /// @name SIGNALS
   //@{
 

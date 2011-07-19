@@ -76,7 +76,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name  = options.value<std::string>("ModelName");
+  std::string name  = options.value<std::string>("model_name");
 
   CModel::Ptr model = Core::instance().root().create_component_ptr<CModelSteady>( name );
 
@@ -209,7 +209,7 @@ void MySim::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option< OptionT<std::string> >("ModelName", std::string())
+  options.add_option< OptionT<std::string> >("model_name", std::string())
       ->set_description("Name for created model");
 }
 

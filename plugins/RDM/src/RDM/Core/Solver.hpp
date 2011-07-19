@@ -86,6 +86,8 @@ private: // helper functions
 
 private: // data
 
+  boost::weak_ptr< Physics::PhysModel >   m_physical_model;  ///< physical model
+
   boost::shared_ptr<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
 
   boost::shared_ptr<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions

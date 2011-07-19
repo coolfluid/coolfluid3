@@ -31,7 +31,7 @@ using namespace Common::mpi;
 
 Common::ComponentBuilder < CDomain, Component, LibMesh > CDomain_Builder;
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 struct CDomain::Implementation
 {
@@ -39,24 +39,24 @@ struct CDomain::Implementation
     m_component(component)
   {
     m_component.options().add_option(OptionComponent<CMesh>::create("active_mesh", &m_active_mesh))
-      ->set_pretty_name("Active Mesh")
-      ->set_description("Root region below which the boundary conditions are defined");
+        ->set_pretty_name("Active Mesh")
+        ->set_description("Root region below which the boundary conditions are defined");
   }
 
   void signature_load_mesh( Common::SignalArgs& node )
   {
-      SignalOptions options( node );
+    SignalOptions options( node );
 
-  std::vector<URI::Scheme::Type> schemes(1);
-  schemes[0] = URI::Scheme::FILE;
+    std::vector<URI::Scheme::Type> schemes(1);
+    schemes[0] = URI::Scheme::FILE;
 
 
-  options.add_option< OptionURI >("file", URI() )
-      ->set_description("Location of the file holding the mesh")
-      ->cast_to<OptionURI>()->set_supported_protocols(schemes);
+    options.add_option< OptionURI >("file", URI() )
+        ->set_description("Location of the file holding the mesh")
+        ->cast_to<OptionURI>()->set_supported_protocols(schemes);
 
-  options.add_option< OptionT<std::string> >("name", std::string() )
-      ->set_description("Name for the mesh to load");
+    options.add_option< OptionT<std::string> >("name", std::string() )
+        ->set_description("Name for the mesh to load");
   }
 
   void signature_write_mesh( Common::SignalArgs& node )
@@ -67,16 +67,17 @@ struct CDomain::Implementation
     schemes[0] = URI::Scheme::FILE;
 
     options.add_option< OptionURI >("file", URI() )
-      ->set_description("Location of the file holding the mesh")
-      ->cast_to<OptionURI>()->set_supported_protocols(schemes);
+        ->set_description("Location of the file holding the mesh")
+        ->cast_to<OptionURI>()->set_supported_protocols(schemes);
   }
 
   Component& m_component;
   boost::weak_ptr<WriteMesh> m_write_mesh;
   boost::weak_ptr<CMesh> m_active_mesh;
+
 };
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 CDomain::CDomain( const std::string& name  ) :
   Component ( name ),
@@ -86,30 +87,27 @@ CDomain::CDomain( const std::string& name  ) :
 
   m_properties["brief"] = std::string("Domain for a simulation");
   std::string description =
-   "Holds one or more meshes.\n\n"
-   "Offers signals to load or generate a mesh";
+      "Holds one or more meshes.\n\n"
+      "Offers signals to load or generate a mesh";
   m_properties["description"] = description;
 
   regist_signal( "load_mesh" )
-    ->connect( boost::bind( &CDomain::signal_load_mesh, this, _1 ) )
-    ->description("Load a new mesh")
-    ->pretty_name("Load Mesh");
-  signal("load_mesh")->signature( boost::bind( &Implementation::signature_load_mesh, m_implementation.get(), _1));
+      ->connect( boost::bind( &CDomain::signal_load_mesh, this, _1 ) )
+      ->description("Load a new mesh")
+      ->pretty_name("Load Mesh")
+      ->signature( boost::bind( &Implementation::signature_load_mesh, m_implementation.get(), _1));
 
   regist_signal( "write_mesh" )
-    ->connect( boost::bind( &CDomain::signal_write_mesh, this, _1 ) )
-    ->description("Load a new mesh")
-    ->pretty_name("Load Mesh");
-  signal("write_mesh")->signature( boost::bind( &Implementation::signature_write_mesh, m_implementation.get(), _1));
+      ->connect( boost::bind( &CDomain::signal_write_mesh, this, _1 ) )
+      ->description("Load a new mesh")
+      ->pretty_name("Load Mesh")
+      ->signature( boost::bind( &Implementation::signature_write_mesh, m_implementation.get(), _1));
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
-CDomain::~CDomain()
-{
-}
+CDomain::~CDomain() {}
 
-////////////////////////////////////////////////////////////////////////////////
+
 
 CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
 {
@@ -125,13 +123,16 @@ CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
   // rebalance the mesh if necessary and create global idx and ranks
 // not working ? //   tools.get_child("LoadBalancer").as_type<CMeshTransformer>().transform( mesh );
 
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")
+      ->transform(mesh);
 
   if(m_implementation->m_active_mesh.expired()) // If this is the first mesh loaded, make it active
     set_active_mesh(*mesh);
 
   return *mesh;
 }
+
+
 
 void CDomain::write_mesh(const URI& file)
 {
@@ -147,6 +148,8 @@ void CDomain::write_mesh(const URI& file)
   m_implementation->m_write_mesh.lock()->write_mesh(mesh, file, state_fields);
 }
 
+
+
 void CDomain::set_active_mesh(CMesh& mesh)
 {
   configure_option("active_mesh", mesh.as_ptr<CMesh>());
@@ -159,17 +162,23 @@ CMesh& CDomain::active_mesh()
   return *m_implementation->m_active_mesh.lock();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
+
 
 void CDomain::signal_load_mesh ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
   URI fileuri = options.value<URI>("file");
-  std::string name = options.value<std::string>("name");
+
+  std::string name ("mesh");
+  if( options.check("name") )
+    name = options.value<std::string>("name");
 
   load_mesh( fileuri, name);
 }
+
+
 
 void CDomain::signal_write_mesh(SignalArgs& node)
 {

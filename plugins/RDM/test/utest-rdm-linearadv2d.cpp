@@ -76,8 +76,8 @@ struct global_fixture
     SignalFrame frame;
     SignalOptions options;
 
-    options.add_option< OptionT<std::string> >("ModelName","mymodel");
-    options.add_option< OptionT<std::string> >("PhysicalModel","CF.Physics.Scalar.Scalar2D");
+    options.add_option< OptionT<std::string> >("model_name","mymodel");
+    options.add_option< OptionT<std::string> >("physical_model","CF.Physics.Scalar.Scalar2D");
 
     frame = options.create_frame();
 

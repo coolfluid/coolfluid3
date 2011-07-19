@@ -69,7 +69,7 @@ RKRD::RKRD ( const std::string& name  ) :
       ->attach_trigger ( boost::bind ( &RKRD::config_mesh,   this ) );
 
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physics", &m_physical_model))
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model))
       ->set_description("Physical model to discretize")
       ->set_pretty_name("Physics")
       ->mark_basic()

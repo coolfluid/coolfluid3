@@ -14,6 +14,7 @@
 
 #include "Solver/Actions/CSynchronizeFields.hpp"
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
+#include "Solver/Actions/CComputeLNorm.hpp"
 
 #include "RDM/Core/Cleanup.hpp"
 
@@ -54,6 +55,10 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   CCriterionMaxIterations& maxiter =
       create_component<CCriterionMaxIterations>( "MaxIterations" );
+
+  CComputeLNorm& cnorm =
+      create_component<CComputeLNorm>( "ComputeNorm" );
+  m_post_actions->append( cnorm );
 
   // properties
 

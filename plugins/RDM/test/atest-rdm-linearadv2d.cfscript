@@ -10,25 +10,43 @@ configure //Root/Environment assertion_throws:bool=false \
 #############################################################################
 ### create model
 
-create Model CF.Solver.CModelSteady
+create Wizard CF.RDM.Core.SteadyExplicit
 
-call Model/setup solver_builder:string=CF.RDM.Core.Solver \
-                 physics_builder:string=CF.Physics.Scalar.Scalar2D
+call Wizard/create_model  model_name:string=Model \
+                          physical_model:string=CF.Physics.Scalar.Scalar2D
 
 #############################################################################
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:square1x1-tg-p2-2kn.msh \
-                            name:string=mesh
+call Model/Domain/load_mesh file:uri=file:square1x1-tg-p2-2kn.msh
 
 #############################################################################
 ### solver
 
-configure Model/Solver/TimeStepping/Time              end_time:real=1.0 time_step:real=0.1
-configure Model/Solver/TimeStepping/MaxIterations     max:unsigned=30
-
 configure Model/Solver                                update_vars:string=LinearAdv2D
 
+configure Model/Solver/TimeStepping/Time              end_time:real=1.0 time_step:real=0.1
+configure Model/Solver/TimeStepping/MaxIterations     max:unsigned=30
+configure Model/Solver/IterativeSolver/MaxIterations  max:unsigned=10
+
+# boundary conditions #####
+
+call Model/Solver/BoundaryConditions/create_boundary_condition \
+     Name:string=INLET \
+     Type:string=CF.RDM.Core.BcDirichlet \
+     Regions:array[uri]=\
+//Root/model/Domain/mesh/topology/bottom,\
+//Root/model/Domain/mesh/topology/left,\
+//Root/model/Domain/mesh/topology/right
+
+configure Model/Solver/BoundaryConditions/INLET functions:array[string]=1.5-2.0*x
+
+# domain discretization #####
+
+call Model/Solver/DomainDiscretization/create_cell_term \
+     Name:string=INTERNAL \
+     Type:string=CF.RDM.Schemes.CSysLDA \
+     Regions:array[uri]=//Root/model/Domain/mesh/topology
 
 #############################################################################
 ### simulate and write the result

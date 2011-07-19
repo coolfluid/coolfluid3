@@ -4,8 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "boost/assign/list_of.hpp"
-#include <boost/algorithm/string/predicate.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
@@ -50,7 +49,7 @@ SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
 
   regist_signal( "create_model" )
     ->connect( boost::bind( &SteadyExplicit::signal_create_model, this, _1 ) )
-    ->description("Creates a scalar advection model")
+    ->description("Creates a model for solving steady problms with RD using explicit iterations")
     ->pretty_name("Create Model");
 
   signal("create_component")->hidden(true);
@@ -63,19 +62,14 @@ SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SteadyExplicit::~SteadyExplicit()
+SteadyExplicit::~SteadyExplicit() {}
+
+
+void SteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
 {
-}
+  // create the model
 
-////////////////////////////////////////////////////////////////////////////////
-
-void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
-{
-  SignalOptions options( node );
-
-  std::string name  = options.value<std::string>("ModelName");
-
-  CModel& model = Core::instance().root().create_component<CModelSteady>( name );
+  CModel& model = Core::instance().root().create_component<CModelSteady>( model_name );
 
   // create the domain
 
@@ -83,27 +77,28 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
 
   // create the Physical Model
 
-  std::string phys  = options.value<std::string>("PhysicalModel");
+  PhysModel& pm = model.create_physics( physics_builder );
 
-  PhysModel::Ptr pm  = boost::algorithm::contains( phys, "." ) ?
-        build_component_abstract_type< Physics::PhysModel >( phys, "Physics" ) :
-        build_component_abstract_type_reduced< Physics::PhysModel >( phys, "Physics" );
-
-  pm->mark_basic();
-
-  model.add_component(pm);
+  pm.mark_basic();
 
   // setup iterative solver
 
-  CSolver::Ptr solver = build_component_abstract_type<CSolver>( "CF.RDM.Core.RKRD", "Solver");
-  solver->mark_basic();
+  CSolver& solver = model.create_solver( "CF.RDM.Core.Solver" );
 
-  model.add_component( solver );
+  solver.mark_basic();
 
-  solver->configure_option("physics", pm->uri() );
-  solver->configure_option("domain", domain.uri() );
+  solver.configure_option( "domain", domain.uri() );
+}
 
-  model.create_component_ptr<WriteMesh>("writer");
+
+void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
+{
+  SignalOptions options( node );
+
+  std::string model_name  = options.value<std::string>("model_name");
+  std::string phys  = options.value<std::string>("physical_model");
+
+  create_model( model_name, phys );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,8 +107,9 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option< OptionT<std::string> >("ModelName", std::string() )
-      ->set_description("Name for created model" );
+  options.add_option< OptionT<std::string> >("model_name", std::string() )
+      ->set_description("Name for created model" )
+      ->set_pretty_name("Model Name");
 
   std::vector<boost::any> models = boost::assign::list_of
       ( Scalar::Scalar2D::type_name() )
@@ -121,8 +117,9 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
       ( Scalar::ScalarSys2D::type_name() )
       ( NavierStokes::NavierStokes2D::type_name() ) ;
 
-  options.add_option< OptionT<std::string> >("PhysicalModel", std::string() )
+  options.add_option< OptionT<std::string> >("physical_model", std::string() )
       ->set_description("Name of the Physical Model")
+      ->set_pretty_name("Physical Model Type")
       ->restricted_list() = models;
 }
 

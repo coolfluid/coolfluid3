@@ -64,13 +64,13 @@ Option & OptionList::option( const std::string& pname)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OptionList::erase( const std::string& pname)
+void OptionList::erase( const std::string& name)
 {
-  OptionStorage_t::iterator itr = store.find(pname);
+  OptionStorage_t::iterator itr = store.find(name);
   if ( itr != store.end() )
     store.erase(itr);
   else
-    throw ValueNotFound(FromHere(), "Option with name [" + pname + "] not found" );
+    throw ValueNotFound(FromHere(), "Option with name [" + name + "] not found" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

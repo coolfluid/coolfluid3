@@ -76,8 +76,8 @@ struct global_fixture
     SignalOptions options;
 
 
-    options.add_option< OptionT<std::string> >("ModelName","mymodel");
-    options.add_option< OptionT<std::string> >("PhysicalModel","NavierStokes2D");
+    options.add_option< OptionT<std::string> >("model_name","mymodel");
+    options.add_option< OptionT<std::string> >("physical_model","NavierStokes2D");
 
     frame = options.create_frame();
 

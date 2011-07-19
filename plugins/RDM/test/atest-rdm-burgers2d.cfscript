@@ -16,9 +16,7 @@ call Wizard/create_model \
      PhysicalModel:string=Scalar2D
 
 # load the mesh
-call //Root/model/Domain/load_mesh \
-     file:uri=file:square1x1-tg-p2-2kn.msh \
-     name:string=mesh
+call //Root/model/Domain/load_mesh  file:uri=file:square1x1-tg-p2-2kn.msh
 
 # configure solver
 cd //Root/model/Solver

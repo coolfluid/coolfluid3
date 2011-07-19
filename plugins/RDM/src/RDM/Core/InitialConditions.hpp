@@ -44,7 +44,7 @@ public: // functions
 
   /// adds an initialization
   void signal_create_initial_condition( Common::SignalArgs& args );
-  /// signature for @see signal_create_boundary_condition
+  /// signature for @see signal_create_initial_condition
   void signature_signal_create_initial_condition( Common::SignalArgs& node );
 
   //@} END SIGNALS

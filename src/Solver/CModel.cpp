@@ -3,7 +3,9 @@
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
+
 #include <boost/algorithm/string/find.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "Common/BoostFilesystem.hpp"
 
@@ -56,15 +58,15 @@ struct CModel::Implementation
   {
     cf_assert(!m_domain.expired());
     CDomain& domain = *m_domain.lock();
-    
+
     if(!m_physics.expired())
       m_physics.lock()->variable_manager().configure_option("dimensions", domain.active_mesh().topology().nodes().dim());
-    
+
     boost_foreach(CSolver& solver, find_components<CSolver>(m_component))
     {
       solver.mesh_changed(domain.active_mesh());
     }
-    
+
     m_active_mesh = domain.active_mesh().as_ptr<CMesh>();
   }
 
@@ -188,15 +190,16 @@ Physics::PhysModel& CModel::create_physics( const std::string& builder )
 {
   std::string pm_name = CBuilder::extract_reduced_name(builder);
 
-  Physics::PhysModel::Ptr pm =
-      build_component_abstract_type<Physics::PhysModel>( builder , pm_name );
+  Physics::PhysModel::Ptr pm = boost::algorithm::contains( builder, "." ) ?
+        build_component_abstract_type< Physics::PhysModel >( builder, pm_name ) :
+        build_component_abstract_type_reduced< Physics::PhysModel >( builder, pm_name );
 
   add_component(pm);
   m_implementation->m_physics = pm;
-  
+
   if(!m_implementation->m_active_mesh.expired())
     pm->variable_manager().configure_option("dimensions", m_implementation->m_active_mesh.lock()->topology().nodes().dim());
-  
+
   configure_option_recursively("physical_model", pm->uri());
 
   return *pm;
@@ -219,10 +222,10 @@ CSolver& CModel::create_solver( const std::string& builder)
 {
   std::string solver_name = CBuilder::extract_reduced_name(builder);
 
-  CSolver::Ptr solver =
-      build_component_abstract_type<CSolver>( builder, solver_name );
+  CSolver::Ptr solver = boost::algorithm::contains( builder, "." ) ?
+              build_component_abstract_type< Solver::CSolver >( builder, solver_name ) :
+              build_component_abstract_type_reduced< Solver::CSolver >( builder, solver_name );
 
-  CFdebug << "Created solver with name " << solver_name << CFendl;
   add_component(solver);
 
   return *solver;

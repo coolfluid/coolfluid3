@@ -7,6 +7,10 @@
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionComponent.hpp"
+
+#include "Physics/PhysModel.hpp"
+#include "Physics/Variables.hpp"
 
 #include "Solver/Actions/CSynchronizeFields.hpp"
 
@@ -15,12 +19,12 @@
 #include "RDM/Core/DomainDiscretization.hpp"
 #include "RDM/Core/IterativeSolver.hpp"
 #include "RDM/Core/TimeStepping.hpp"
-
 #include "RDM/Core/Solver.hpp"
 
 using namespace CF::Common;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
+using namespace CF::Physics;
 
 namespace CF {
 namespace RDM {
@@ -38,7 +42,15 @@ Solver::Solver ( const std::string& name  ) :
   // options
 
   m_options.add_option< OptionT<std::string> >( Tags::update_vars(), "")
-      ->attach_trigger ( boost::bind ( &Solver::config_physics,   this ) );
+      ->attach_trigger ( boost::bind ( &Solver::config_physics, this ) );
+
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model))
+      ->set_description("Physical model to discretize")
+      ->set_pretty_name("Physics")
+      ->mark_basic()
+      ->attach_trigger ( boost::bind ( &Solver::config_physics, this ) );
+
+
 
   // subcomponents
 
@@ -77,6 +89,30 @@ void Solver::execute()
 
 void Solver::config_physics()
 {
+  if( is_null(m_physical_model.lock()) )
+    return;
+
+  std::string user_vars = option(  Tags::update_vars() ).value<std::string>();
+  if( user_vars.empty() )
+    return;
+
+  Physics::PhysModel& pm = * m_physical_model.lock();
+
+  Component::Ptr upv =
+      find_component_ptr_with_tag(pm, Tags::update_vars());
+
+  if( is_not_null(upv) ) // if exits insure is the good one
+  {
+    Variables& vars = upv->as_type<Variables>();
+    if( vars.type() != user_vars )
+    {
+      pm.remove_component(vars.name() );
+      upv.reset();
+    }
+  }
+
+  if( is_null(upv) )
+    pm.create_variables( user_vars, Tags::update_vars() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

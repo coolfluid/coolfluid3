@@ -34,8 +34,18 @@ BoundaryConditions::BoundaryConditions ( const std::string& name ) :
 {
   mark_basic();
 
+  // subcomponents
+
   m_weak_bcs   = create_static_component_ptr<CActionDirector>("WeakBCs");
   m_strong_bcs = create_static_component_ptr<CActionDirector>("StrongBCs");
+
+  // signals
+
+  regist_signal( "create_boundary_condition" )
+      ->connect  ( boost::bind( &BoundaryConditions::signal_create_boundary_condition, this, _1 ) )
+      ->signature( boost::bind( &BoundaryConditions::signature_signal_create_boundary_condition, this, _1))
+      ->description("creates a boundary condition for the solution")
+      ->pretty_name("Create Boundary Condition");
 }
 
 
@@ -63,6 +73,10 @@ void BoundaryConditions::signal_create_boundary_condition ( SignalArgs& node )
   std::vector<URI> regions = options.array<URI>("Regions");
 
   RDM::BoundaryTerm::Ptr bterm = build_component_abstract_type<RDM::BoundaryTerm>(type,name);
+
+  add_component( bterm ); // stays owned here
+
+  // place link either in the weak or strong bcs
 
   if ( bterm->is_weak() )
     m_weak_bcs->append( bterm );
