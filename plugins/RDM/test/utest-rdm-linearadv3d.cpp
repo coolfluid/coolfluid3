@@ -41,9 +41,9 @@
 #include "Mesh/Actions/CBubbleRemove.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
 
-#include "RDM/Core/RKRD.hpp"
-#include "RDM/Core/CellTerm.hpp"
-#include "RDM/Core/SteadyExplicit.hpp"
+#include "RDM/RKRD.hpp"
+#include "RDM/CellTerm.hpp"
+#include "RDM/SteadyExplicit.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -86,7 +86,7 @@ struct global_fixture
 
     CSolver& solver = find_component_recursively<CSolver>(model);
 
-    solver.configure_option( Core::Tags::update_vars() , std::string("LinearAdv3D") );
+    solver.configure_option( RDM::Tags::update_vars() , std::string("LinearAdv3D") );
   }
 
   ~global_fixture()
@@ -144,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
   CMesh& mesh = find_component<CMesh>(domain);
 
-  solver.configure_option( Tags::mesh(), mesh.uri() );
+  solver.configure_option( RDM::Tags::mesh(), mesh.uri() );
 
 #if 0
   // create faces to cell connectivity
@@ -184,7 +184,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 
   writer.configure_option("fields",fields);
   writer.configure_option("file",URI(model.name()+"_init.msh"));
-  writer.configure_option( Tags::mesh(),mesh.uri());
+  writer.configure_option( RDM::Tags::mesh(),mesh.uri());
 
   writer.execute();
 }
@@ -218,7 +218,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
     std::string name ("WEAK_INLET");
 
     options.add_option< OptionT<std::string> >("Name",name);
-    options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.BcDirichlet");
+    options.add_option< OptionT<std::string> >("Type","CF.RDM.BcDirichlet");
     options.add_option< OptionArrayT<URI> >("Regions", regions);
 
     frame = options.create_frame();

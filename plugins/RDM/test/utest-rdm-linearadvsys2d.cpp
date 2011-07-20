@@ -40,9 +40,9 @@
 #include "Mesh/Actions/CBubbleEnrich.hpp"
 #include "Mesh/Actions/CBubbleRemove.hpp"
 
-#include "RDM/Core/RKRD.hpp"
-#include "RDM/Core/CellTerm.hpp"
-#include "RDM/Core/SteadyExplicit.hpp"
+#include "RDM/RKRD.hpp"
+#include "RDM/CellTerm.hpp"
+#include "RDM/SteadyExplicit.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -87,7 +87,7 @@ struct global_fixture
 
     CSolver& solver = find_component_recursively<CSolver>(model);
 
-    solver.configure_option( Core::Tags::update_vars() , std::string("LinearAdvSys2D") );
+    solver.configure_option( RDM::Tags::update_vars() , std::string("LinearAdvSys2D") );
   }
 
   ~global_fixture()
@@ -146,7 +146,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
   CMesh& mesh = find_component<CMesh>(domain);
 
-  solver.configure_option( Tags::mesh(), mesh.uri() );
+  solver.configure_option( RDM::Tags::mesh(), mesh.uri() );
 
 #ifdef BUBBLE // enrich the mesh with bubble functions
   CMeshTransformer::Ptr enricher =
@@ -191,7 +191,7 @@ BOOST_FIXTURE_TEST_CASE( test_create_boundary_term , local_fixture )
   std::string name ("INLET");
 
   options.add_option< OptionT<std::string> >("Name",name);
-  options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.BcDirichlet");
+  options.add_option< OptionT<std::string> >("Type","CF.RDM.BcDirichlet");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
   frame = options.create_frame();

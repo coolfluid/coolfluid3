@@ -40,9 +40,9 @@
 #include "Mesh/Actions/CBubbleEnrich.hpp"
 #include "Mesh/Actions/CBubbleRemove.hpp"
 
-#include "RDM/Core/RKRD.hpp"
-#include "RDM/Core/DomainTerm.hpp"
-#include "RDM/Core/SteadyExplicit.hpp"
+#include "RDM/RKRD.hpp"
+#include "RDM/DomainTerm.hpp"
+#include "RDM/SteadyExplicit.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -179,7 +179,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , rotationadv2d_local
   std::string name ("INLET");
 
   options.add_option< OptionT<std::string> >("Name",name);
-  options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.BcDirichlet");
+  options.add_option< OptionT<std::string> >("Type","CF.RDM.BcDirichlet");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
@@ -212,7 +212,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_farfield , rotationadv2d_lo
   std::string name ("FARFIELD");
 
   options.add_option< OptionT<std::string> >("Name",name);
-  options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.BcDirichlet");
+  options.add_option< OptionT<std::string> >("Type","CF.RDM.BcDirichlet");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
   solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);

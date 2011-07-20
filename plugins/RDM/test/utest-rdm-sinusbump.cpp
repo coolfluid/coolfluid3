@@ -41,9 +41,9 @@
 #include "Mesh/Actions/CBubbleEnrich.hpp"
 #include "Mesh/Actions/CBubbleRemove.hpp"
 
-#include "RDM/Core/RKRD.hpp"
-#include "RDM/Core/CellTerm.hpp"
-#include "RDM/Core/SteadyExplicit.hpp"
+#include "RDM/RKRD.hpp"
+#include "RDM/CellTerm.hpp"
+#include "RDM/SteadyExplicit.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -86,7 +86,7 @@ struct global_fixture
 
     CSolver& solver = find_component_recursively<CSolver>(model);
 
-    solver.configure_option( Core::Tags::update_vars() , std::string("Cons2D") );
+    solver.configure_option( RDM::Tags::update_vars() , std::string("Cons2D") );
   }
 
   ~global_fixture()
@@ -197,7 +197,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_inlet , local_fixture )
   std::string name ("INLET");
 
   options.add_option< OptionT<std::string> >("Name",name);
-  options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.SubsonicInFlowWeakBc");
+  options.add_option< OptionT<std::string> >("Type","CF.RDM.SubsonicInFlowWeakBc");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
   frame = options.create_frame();
@@ -238,7 +238,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_outlet , local_fixture )
   std::string name ("OUTLET");
 
   options.add_option< OptionT<std::string> >("Name",name);
-  options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.SubsonicOutFlowWeakBc");
+  options.add_option< OptionT<std::string> >("Type","CF.RDM.SubsonicOutFlowWeakBc");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
   frame = options.create_frame();
@@ -275,7 +275,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundary_term_wall , local_fixture )
   std::string name ("WALL");
 
   options.add_option< OptionT<std::string> >("Name",name);
-  options.add_option< OptionT<std::string> >("Type","CF.RDM.Core.WallWeakBc");
+  options.add_option< OptionT<std::string> >("Type","CF.RDM.WallWeakBc");
   options.add_option< OptionArrayT<URI> >("Regions", regions);
 
   frame = options.create_frame();

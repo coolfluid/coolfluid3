@@ -10,7 +10,7 @@
 #include <iostream>          // to remove
 #include <boost/timer.hpp>
 
-#include "RDM/Core/SchemeBase.hpp"
+#include "RDM/SchemeBase.hpp"
 #include "RDM/GPU/CLdeclaration.hpp"
 #include "RDM/GPU/LibGPU.hpp"
 

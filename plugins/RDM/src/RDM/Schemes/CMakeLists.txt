@@ -13,6 +13,6 @@ list( APPEND coolfluid_rdm_schemes_files
   CSysSUPG.cpp
 )
 
-list( APPEND coolfluid_rdm_schemes_cflibs coolfluid_rdm_core )
+list( APPEND coolfluid_rdm_schemes_cflibs coolfluid_rdm )
 
 coolfluid_add_library( coolfluid_rdm_schemes )

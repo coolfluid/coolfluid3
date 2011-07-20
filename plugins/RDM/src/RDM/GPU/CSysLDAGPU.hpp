@@ -7,7 +7,7 @@
 #ifndef CF_RDM_CSysLDAGPU_hpp
 #define CF_RDM_CSysLDAGPU_hpp
 
-#include "RDM/Core/DomainTerm.hpp"
+#include "RDM/DomainTerm.hpp"
 
 #include "RDM/Schemes/LibSchemes.hpp"
 #include "RDM/GPU/LibGPU.hpp"

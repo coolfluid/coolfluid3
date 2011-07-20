@@ -10,7 +10,7 @@ configure //Root/Environment assertion_throws:bool=false \
 #############################################################################
 ### create model
 
-create Wizard CF.RDM.Core.SteadyExplicit
+create Wizard CF.RDM.SteadyExplicit
 
 call Wizard/create_model  model_name:string=Model \
                           physical_model:string=CF.Physics.Scalar.Scalar2D
@@ -33,7 +33,7 @@ configure Model/Solver/IterativeSolver/MaxIterations  max:unsigned=10
 
 call Model/Solver/BoundaryConditions/create_boundary_condition \
      Name:string=INLET \
-     Type:string=CF.RDM.Core.BcDirichlet \
+     Type:string=CF.RDM.BcDirichlet \
      Regions:array[uri]=\
 //Root/model/Domain/mesh/topology/bottom,\
 //Root/model/Domain/mesh/topology/left,\

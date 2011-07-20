@@ -17,7 +17,7 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "RDM/Core/SupportedCells.hpp"    // supported elements
+#include "RDM/SupportedCells.hpp"    // supported elements
 
 #include "Physics/Scalar/LinearAdv2D.hpp"       // supported physics
 #include "Physics/Scalar/RotationAdv2D.hpp"     // supported physics

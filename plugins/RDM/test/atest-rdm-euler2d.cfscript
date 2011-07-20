@@ -8,7 +8,7 @@ configure //Root/Environment \
 call //Root/Libraries/load_libraries \
      libs:array[uri]=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_navierstokes
 
-create Wizard CF.RDM.Core.SteadyExplicit
+create Wizard CF.RDM.SteadyExplicit
 
 # create a scalar advection model
 call Wizard/create_model \
@@ -33,7 +33,7 @@ configure time_stepping MaxIter:unsigned=500
 # create boundary term
 
 call create_boundary_term Name:string=INLET \
-     Type:string=CF.RDM.Core.BcDirichlet \
+     Type:string=CF.RDM.BcDirichlet \
      Regions:array[uri]=\
 //Root/model/Domain/mesh/topology/bottom,\
 //Root/model/Domain/mesh/topology/left,\

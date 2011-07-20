@@ -8,7 +8,7 @@
 
 #include "RDM/Schemes/CSysSUPG.hpp"
 
-#include "RDM/Core/SupportedCells.hpp" // supported cells
+#include "RDM/SupportedCells.hpp" // supported cells
 
 #include "Physics/NavierStokes/Cons2D.hpp"       // supported physics
 

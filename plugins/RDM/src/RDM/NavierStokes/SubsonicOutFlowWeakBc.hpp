@@ -11,8 +11,8 @@
 
 #include "Math/VectorialFunction.hpp"
 
-#include "RDM/Core/BoundaryTerm.hpp"
-#include "RDM/Core/BcBase.hpp"
+#include "RDM/BoundaryTerm.hpp"
+#include "RDM/BcBase.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 

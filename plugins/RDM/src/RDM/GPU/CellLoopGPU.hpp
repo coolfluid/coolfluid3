@@ -7,8 +7,8 @@
 #ifndef CF_RDM_CellLoopGPU_hpp
 #define CF_RDM_CellLoopGPU_hpp
 
-#include "RDM/Core/ElementLoop.hpp"
-#include "RDM/Core/SupportedCells.hpp"
+#include "RDM/ElementLoop.hpp"
+#include "RDM/SupportedCells.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 

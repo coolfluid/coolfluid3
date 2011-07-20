@@ -16,7 +16,7 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "RDM/Core/CellLoop.hpp"
+#include "RDM/CellLoop.hpp"
 #include "RDM/GPU/CSysLDAGPU.hpp"
 
 using namespace CF::Common;

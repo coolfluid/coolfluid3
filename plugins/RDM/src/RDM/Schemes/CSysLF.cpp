@@ -11,7 +11,7 @@
 
 #include "Mesh/CRegion.hpp"
 
-#include "RDM/Core/CellLoop.hpp"
+#include "RDM/CellLoop.hpp"
 #include "RDM/Schemes/CSysLF.hpp"
 
 using namespace CF::Common;

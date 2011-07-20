@@ -15,7 +15,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 
-#include "RDM/Core/FaceLoop.hpp"
+#include "RDM/FaceLoop.hpp"
 
 #include "RDM/NavierStokes/WallWeakBc.hpp"
 

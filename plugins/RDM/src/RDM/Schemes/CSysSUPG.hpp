@@ -7,8 +7,8 @@
 #ifndef CF_RDM_Schemes_CSysSUPG_hpp
 #define CF_RDM_Schemes_CSysSUPG_hpp
 
-#include "RDM/Core/CellTerm.hpp"
-#include "RDM/Core/SchemeBase.hpp"
+#include "RDM/CellTerm.hpp"
+#include "RDM/SchemeBase.hpp"
 
 #include "RDM/Schemes/LibSchemes.hpp"
 

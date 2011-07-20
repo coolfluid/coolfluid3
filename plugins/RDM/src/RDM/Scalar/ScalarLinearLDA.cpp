@@ -8,7 +8,7 @@
 
 #include "RDM/Schemes/CSysLDA.hpp"
 
-#include "RDM/Core/SupportedCells.hpp" // supported cells
+#include "RDM/SupportedCells.hpp" // supported cells
 
 #include "Physics/Scalar/LinearAdv2D.hpp"       // supported physics
 #include "Physics/Scalar/LinearAdv3D.hpp"       // supported physics

@@ -7,7 +7,7 @@
 #ifndef CF_RDM_LDAGPU_hpp
 #define CF_RDM_LDAGPU_hpp
 
-#include "RDM/Core/DomainTerm.hpp"
+#include "RDM/DomainTerm.hpp"
 #include "RDM/GPU/LibGPU.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -9,8 +9,8 @@
 
 #include <iostream> // to remove
 
-#include "RDM/Core/BoundaryTerm.hpp"
-#include "RDM/Core/BcBase.hpp"
+#include "RDM/BoundaryTerm.hpp"
+#include "RDM/BcBase.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
