@@ -13,7 +13,7 @@ list( APPEND sandbox-lss-trilinos_libs ${TRILINOS_LIBRARIES})
 list( APPEND sandbox-lss-trilinos_cflibs coolfluid_common)
 
 set( sandbox-lss-trilinos_sandbox_app TRUE )
-#set( sandbox-lss-trilinos_condition ${CF_HAVE_ZOLTAN} )
+set( sandbox-lss-trilinos_condition ${CF_HAVE_TRILINOS} )
 
 coolfluid_add_application( sandbox-lss-trilinos )
 
