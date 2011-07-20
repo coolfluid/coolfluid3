@@ -88,9 +88,12 @@ void SetupFields::execute()
 
   // place link to the fields in the Fields group
 
-  fields.create_component<CLink>( RDM::Tags::solution()   ).link_to(solution);
-  fields.create_component<CLink>( RDM::Tags::residual()   ).link_to(residual);
-  fields.create_component<CLink>( RDM::Tags::wave_speed() ).link_to(wave_speed);
+  if( ! fields.get_child_ptr( RDM::Tags::solution() ) )
+    fields.create_component<CLink>( RDM::Tags::solution()   ).link_to(solution);
+  if( ! fields.get_child_ptr( RDM::Tags::residual() ) )
+    fields.create_component<CLink>( RDM::Tags::residual()   ).link_to(residual);
+  if( ! fields.get_child_ptr( RDM::Tags::wave_speed() ) )
+    fields.create_component<CLink>( RDM::Tags::wave_speed() ).link_to(wave_speed);
 
 
   /// @todo apply here the bubble insertion if needed

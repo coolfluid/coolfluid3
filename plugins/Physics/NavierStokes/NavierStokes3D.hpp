@@ -82,6 +82,8 @@ public: // functions
   virtual Uint ndim() const { return (Uint) _ndim; }
   /// @returns the number of equations
   virtual Uint neqs() const { return (Uint) _neqs; }
+  /// @return the physical model generic type
+  virtual std::string model_type() const { return "NavierStokes"; }
   /// @return the physical model type
   virtual std::string type() const { return type_name(); }
   /// create a physical properties

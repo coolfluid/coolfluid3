@@ -58,6 +58,8 @@ public: // functions
   /// @return number of independent variables in the PDE
   virtual Uint neqs() const = 0;
 
+  /// @return the physical model generic type
+  virtual std::string model_type() const = 0;
   /// @return the physical model type
   virtual std::string type() const = 0;
 
@@ -71,11 +73,11 @@ public: // functions
   virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type, const std::string name ) = 0;
 
   //@} END INTERFACE
-  
+
   /// Access to the VariableManager
   VariableManager& variable_manager();
   const VariableManager& variable_manager() const;
-  
+
 private:
   VariableManager& m_variable_manager;
 

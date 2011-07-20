@@ -117,7 +117,7 @@ CModel::CModel( const std::string& name  ) :
     ->description( "Set up the model using a specific solver" )
     ->pretty_name( "Setup" )
     ->signature( boost::bind ( &CModel::signature_setup, this, _1 ) );
-    
+
   // Listen to mesh_updated events, emitted by the domain
   Core::instance().event_handler().connect_to_event("mesh_updated", this, &CModel::on_mesh_updated_event);
 }
@@ -130,8 +130,10 @@ void CModel::simulate()
 {
   CFinfo << "\n" << name() << ": start simulation" << CFendl;
 
+  /// @warning create_fields cannot be here
+  /// @todo  move create_fields to the concrete solver, triggered when mesh is loaded
   // Create the fields, if they don't exist already
-  create_fields();
+  // create_fields();
 
   // call all the solvers
   boost_foreach(CSolver& solver, find_components<CSolver>(*this))
@@ -182,7 +184,7 @@ Physics::PhysModel& CModel::create_physics( const std::string& builder )
 
   add_component(pm);
   m_implementation->m_physics = pm;
-  
+
   if(!m_implementation->m_domain.expired())
   {
     CMesh::Ptr single_mesh_ptr = find_component_ptr<CMesh>(domain());
@@ -227,14 +229,14 @@ void CModel::create_fields()
   typedef std::map<std::string, std::string> FieldsT;
   FieldsT fields;
   physics().variable_manager().field_specification(fields);
-  
+
   CMesh::Ptr single_mesh_ptr = find_component_ptr<CMesh>(domain());
   if(!single_mesh_ptr)
   {
     CFwarn << "No single mesh found in the domain, default field creation failed" << CFendl;
     return;
   }
-  
+
   CMesh& mesh = *single_mesh_ptr;
 
   for(FieldsT::const_iterator it = fields.begin(); it != fields.end(); ++it)
@@ -386,18 +388,18 @@ void CModel::on_mesh_updated_event(SignalArgs& args)
   // If we have no domain, the event can't be for us
   if(m_implementation->m_domain.expired())
     return;
-  
+
   SignalOptions options(args);
-  
+
   if(options.value<URI>("domain_uri") == domain().uri()) // Only handle events coming from our own domain
   {
     // Get a reference to the mesh that changed
     CMesh& mesh = access_component(options.value<URI>("mesh_uri")).as_type<CMesh>();
-    
+
     // Set dimensions in the physics, if it exists
     if(!m_implementation->m_physics.expired())
       m_implementation->m_physics.lock()->variable_manager().configure_option("dimensions", mesh.topology().nodes().dim());
-    
+
     // Inform the solvers of the change
     boost_foreach(CSolver& solver, find_components<CSolver>(*this))
     {

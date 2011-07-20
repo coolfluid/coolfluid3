@@ -4,10 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/algorithm/string.hpp>
+
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionComponent.hpp"
+#include "Common/OSystem.hpp"
+#include "Common/LibLoader.hpp"
 
 #include "Mesh/CMesh.hpp"
 
@@ -48,12 +52,12 @@ Solver::Solver ( const std::string& name  ) :
   m_options.add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &Solver::config_physics, this ) );
 
-  m_options.add_option(OptionComponent<CMesh>::create("mesh", &m_mesh))
+  m_options.add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
       ->set_description("Mesh the Discretization Method will be applied to")
       ->set_pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &Solver::config_mesh,   this ) );
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model))
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create( RDM::Tags::physical_model(), &m_physical_model))
       ->set_description("Physical model to discretize")
       ->set_pretty_name("Physics")
       ->mark_basic()
@@ -104,8 +108,6 @@ void Solver::execute()
 
 void Solver::config_physics()
 {
-  configure_option_recursively( RDM::Tags::solver(), uri() );
-
   if( is_null(m_physical_model.lock()) )
     return;
 
@@ -131,14 +133,20 @@ void Solver::config_physics()
   if( is_null(upv) )
     pm.create_variables( user_vars, RDM::Tags::update_vars() );
 
-  configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
+  boost_foreach( Component& comp, find_components(*this) )
+    comp.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
+
+  // load the library which has the correct RDM physics
+
+  std::string modeltype = pm.model_type();
+  boost::to_lower( modeltype );
+  OSystem::instance().lib_loader()->load_library( "coolfluid_rdm_" + modeltype );
+
 }
 
 
 void Solver::config_mesh()
 {
-  configure_option_recursively( RDM::Tags::solver(), uri() );
-
   if( is_null(m_mesh.lock()) ) return;
 
   CMesh& mesh = *(m_mesh.lock());
@@ -149,6 +157,7 @@ void Solver::config_mesh()
 
   CAction& setup = create_component<SetupFields>("SetupFields");
 
+  setup.configure_option( RDM::Tags::solver(), uri() );
   setup.configure_option( RDM::Tags::mesh(), mesh.uri() );
   setup.configure_option( RDM::Tags::physical_model(), physmodel->uri() );
 
@@ -156,8 +165,8 @@ void Solver::config_mesh()
 
   remove_component(setup);
 
-  configure_option_recursively( RDM::Tags::mesh(), mesh.uri() );
-
+  boost_foreach( Component& comp, find_components(*this) )
+    comp.configure_option_recursively( RDM::Tags::mesh(), mesh.uri() );
 }
 
 

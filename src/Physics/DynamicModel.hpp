@@ -54,6 +54,8 @@ public: // functions
   virtual Uint ndim() const;
   /// @returns the number of equations
   virtual Uint neqs() const;
+  /// @return the physical model generic type
+  virtual std::string model_type() const { return "Dynamic"; }
   /// @return the physical model type
   virtual std::string type() const;
 

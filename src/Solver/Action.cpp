@@ -33,6 +33,11 @@ Action::Action ( const std::string& name ) :
 
   // options
 
+  m_options.add_option( OptionComponent<CSolver>::create("solver", &m_solver))
+      ->set_description("Link to the solver discretizing the problem")
+      ->set_pretty_name("Solver")
+      ->mark_basic();
+
   m_options.add_option( OptionComponent<CMesh>::create("mesh", &m_mesh))
       ->set_description("Mesh the Discretization Method will be applied to")
       ->set_pretty_name("Mesh")

@@ -56,7 +56,7 @@ BoundaryConditions::BoundaryConditions ( const std::string& name ) :
 
 void BoundaryConditions::execute()
 {
-  CFinfo << "[RDM] applying boundary conditions " << CFendl;
+//  CFinfo << "[RDM] applying boundary conditions " << CFendl;
 
   // apply first weak bcs, since they do not set any value directly
 

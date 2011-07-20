@@ -1087,6 +1087,9 @@ Component& Component::configure_property(const std::string& optname, const boost
 
 void Component::configure_option_recursively(const std::string& opt_name, const boost::any& val)
 {
+
+//  CFinfo << "+++ recurse config option [" << opt_name << "] from [" << uri().string() << "]" << CFendl;
+
   if (m_options.check(opt_name) && !m_options[opt_name].has_tag("norecurse"))
   {
     configure_option(opt_name,val);
@@ -1099,12 +1102,21 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
   }
 
   // configure all child's options recursively
+
   boost_foreach( Component& component, find_components_recursively(*this) )
   {
+
+//    CFinfo << "        in [" << component.name() << "]" << CFendl;
+
+    // configure the option that matches the name
+
     if (component.options().check(opt_name) && !component.option(opt_name).has_tag("norecurse"))
     {
       component.configure_option(opt_name,val);
     }
+
+    // configure the options that matches the tags
+
     foreach_container((std::string name) (boost::shared_ptr<Option> opt), component.options())
     {
       if (opt->has_tag(opt_name) && !opt->has_tag("norecurse"))

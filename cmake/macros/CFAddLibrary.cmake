@@ -176,3 +176,24 @@ macro( coolfluid_add_library LIBNAME )
 
 endmacro( coolfluid_add_library )
 ##############################################################################
+
+
+##############################################################################
+function( coolfluid_add_library_new  )
+# CMAKE_PARSE_ARGUMENTS(<prefix> <options> <one_value_keywords> <multi_value_keywords> args...)
+  set( options ) # none
+  set( oneValueArgs LIBRARY )
+  set( multiValueArgs SOURCES CONDITIONS INCLUDEDIRS CFLIBS LIBS ) # none
+
+  cmake_parse_arguments(_PAR "${options}" "${oneValueArgs}" "${multiValueArgs}"  ${_FIRST_ARG} ${ARGN})
+
+  if(_PAR_UNPARSED_ARGUMENTS)
+    message(FATAL_ERROR "Unknown keywords given to coolfluid_add_library_new(): \"${_PAR_UNPARSED_ARGUMENTS}\"")
+  endif()
+
+  if(NOT _PAR_LIBRARY)
+    message(FATAL_ERROR "The call to coolfluid_add_library_new() doesn't set the required LIBRARY argument.")
+  endif()
+
+endfunction()
+##############################################################################

@@ -87,7 +87,9 @@ void SteadyExplicit::create_model( const std::string& model_name, const std::str
 
   solver.mark_basic();
 
-  solver.configure_option( "domain", domain.uri() );
+  solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
+  solver.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
+  solver.configure_option_recursively( RDM::Tags::solver(),         solver.uri() );
 }
 
 

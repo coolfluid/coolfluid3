@@ -13,6 +13,7 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -62,15 +63,16 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
 
 void DomainDiscretization::execute()
 {
-  CFinfo << "[RDM] applying domain discretization" << CFendl;
+//  CFinfo << "[RDM] applying domain discretization" << CFendl;
 
-  // apply first weak bcs, since they do not set any value directly
+  // compute first the cell terms, since they may store something for faces to use
+
+  m_cell_terms->execute();
+
+  // compute the face terms
 
   m_face_terms->execute();
 
-  // strong bcs need to be updated last
-
-  m_cell_terms->execute();
 }
 
 
@@ -85,8 +87,17 @@ void DomainDiscretization::signal_create_cell_term( SignalArgs& args )
 
   m_cell_terms->append(term);
 
-  std::vector<URI> regions = options.array<URI>("Regions");
+  // configure the regions
 
+  std::vector<URI> regions;
+  if( options.check("Regions") )
+  {
+    regions = options.array<URI>("Regions");
+  }
+  else // if user did not specify, then use the whole topology (all regions)
+  {
+    regions.push_back(mesh().topology().uri());
+  }
   term->configure_option("regions" , regions);
 
   if( m_mesh.lock() )
@@ -108,8 +119,17 @@ void DomainDiscretization::signal_create_face_term( SignalArgs& args )
 
   m_face_terms->append(term);
 
-  std::vector<URI> regions = options.array<URI>("Regions");
+  // configure the regions
 
+  std::vector<URI> regions;
+  if( options.check("Regions") )
+  {
+    regions = options.array<URI>("Regions");
+  }
+  else // if user did not specify, then use the whole topology (all regions)
+  {
+    regions.push_back(mesh().topology().uri());
+  }
   term->configure_option("regions" , regions);
 
   if( m_mesh.lock() )

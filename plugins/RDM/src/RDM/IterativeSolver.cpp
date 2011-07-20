@@ -4,6 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iomanip>
+
+#include "Math/Checks.hpp"
+
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
@@ -23,8 +27,9 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::Solver::Actions;
+using namespace CF::Math::Checks;
 using namespace CF::Mesh;
+using namespace CF::Solver::Actions;
 
 namespace CF {
 namespace RDM {
@@ -51,7 +56,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // dynamic components
 
-  Cleanup::Ptr cleanup  = create_component_ptr<Cleanup>("Zero");
+  Cleanup::Ptr cleanup  = m_pre_actions->create_component_ptr<Cleanup>("Zero");
 
   m_pre_actions->append( cleanup );
 
@@ -59,7 +64,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
       create_component<CCriterionMaxIterations>( "MaxIterations" );
 
   CComputeLNorm& cnorm =
-      create_component<CComputeLNorm>( "ComputeNorm" );
+      m_post_actions->create_component<CComputeLNorm>( "ComputeNorm" );
 
   m_post_actions->append( cnorm );
 
@@ -83,24 +88,26 @@ bool IterativeSolver::stop_condition()
 
 void IterativeSolver::execute()
 {
+  RDM::Solver& mysolver = solver().as_type< RDM::Solver >();
+
+  //----------------------------------------------------------------------------------------
 
   /// @todo this configuration sould be in constructor but does not work there
 
   get_child("MaxIterations").configure_option( "iterator", this->uri() );
 
-  //--------------------------------------------------
-#if 0
   std::vector<URI> cleanup_fields;
-  cleanup_fields.push_back( m_residual.lock()->uri() );
-  cleanup_fields.push_back( m_wave_speed.lock()->uri() );
-  m_cleanup->configure_option("Fields", cleanup_fields);
+  cleanup_fields.push_back( mysolver.fields().get_child( RDM::Tags::residual()).follow()->uri() );
+  cleanup_fields.push_back( mysolver.fields().get_child( RDM::Tags::wave_speed()).follow()->uri() );
 
-  m_compute_norm->configure_option("Field", m_residual.lock()->uri());
-#endif
-  //--------------------------------------------------
+  m_pre_actions->get_child("Zero").configure_option("Fields", cleanup_fields);
+
+  m_post_actions->get_child("ComputeNorm")
+      .configure_option("Field", mysolver.fields().get_child( RDM::Tags::solution()).follow()->uri() );
+
+  //----------------------------------------------------------------------------------------
 
   CFinfo << "[RDM] iterative solve" << CFendl;
-
 
   CActionDirector& boundary_conditions =
       access_component( "cpath:../BoundaryConditions" ).as_type<CActionDirector>();
@@ -108,8 +115,9 @@ void IterativeSolver::execute()
   CActionDirector& domain_discretization =
       access_component( "cpath:../DomainDiscretization" ).as_type<CActionDirector>();
 
-  CAction& synchronize =
-      solver().as_type< RDM::Solver >().actions().get_child("Synchronize").as_type<CAction>();
+  CAction& synchronize = mysolver.actions().get_child("Synchronize").as_type<CAction>();
+
+  Component& cnorm = m_post_actions->get_child("ComputeNorm");
 
   // iteration loop
 
@@ -119,11 +127,6 @@ void IterativeSolver::execute()
 
   while( ! stop_condition() ) // non-linear loop
   {
-
-    // print iteration
-
-    CFinfo << "    K-iter [" << k << "]" << CFendl;
-
     // (1) the pre actions - cleanup residual, pre-process something, etc
 
     m_pre_actions->execute();
@@ -151,6 +154,19 @@ void IterativeSolver::execute()
     // increment iteration
 
     property("iteration") = ++k; // update the iteration number
+
+    /// @todo move current rhs as a property of the iterate or solver components
+
+    // output convergence info
+
+    Real rhs_norm = cnorm.properties().value<Real>("Norm");
+    std::cout << " Iter [" << std::setw(4) << k << "]"
+              << " L2(rhs) [" << std::setw(12) << rhs_norm << "]" << std::endl;
+
+    if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
+      throw FailedToConverge(FromHere(),
+                             "Solution diverged after "+to_str(k)+" iterations");
+
 
   }
 }

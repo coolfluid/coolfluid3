@@ -25,6 +25,7 @@ public:
   static const char * fields()         { return "Fields";  }
   static const char * actions()        { return "Actions"; }
 
+  static const char * domain()         { return "domain"; }
   static const char * solver()         { return "solver"; }
   static const char * mesh()           { return "mesh"; }
   static const char * physical_model() { return "physical_model"; }
