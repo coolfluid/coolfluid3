@@ -37,7 +37,7 @@ public:
   LSSVector();
 
   /// Destructor.
-  virtual ~LSSVector();
+  virtual ~LSSVector() = 0;
  
   //@} END CREATION AND DESTRUCTION
 
@@ -94,10 +94,10 @@ public:
   //@{
 
   /// Default constructor without arguments.
-  LSSMatrix();
+  LSSMatrix(){};
 
   /// Destructor.
-  virtual ~LSSMatrix();
+  ~LSSMatrix(){};
 
   /// Setup sparsity structure
   /// should only work with local numbering (parallel computations, plus rcm could be a totally internal matter of the matrix)
@@ -105,7 +105,7 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create_sparsity(mpi::Communicator &comm)=0; // *, WHATEVER*/, blocksize, CTable) = 0;
+  virtual void create_sparsity(PECommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices) = 0;
 
   //@} END CREATION AND DESTRUCTION
 

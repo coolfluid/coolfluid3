@@ -27,29 +27,37 @@ namespace Common {
 class Common_API BlockAccumulator {
 public:
 
+  /// setting up sizes
+  void prepare(Uint numnodes, Uint numeqs)
+  {
+    const Uint size=numnodes*numeqs;
+    m_mat.resize(size,size);
+    m_sol.resize(size);
+    m_rhs.resize(size);
+    m_row_idxs.resize(numnodes);
+    m_col_idxs.resize(numnodes);
+  };
+
   /// how many rows
-  const Uint num_rows();
+  const Uint num_rows() { return m_mat.size(); };
 
   /// how many columns
-  const Uint num_cols();
+  const Uint num_cols() { return m_mat.size(); };
 
   /// local numbering of the rows
-  const Uint* row_idxs();
+  RealVector& row_idxs() { return m_row_idxs; };
 
   /// local numbering of the columns
-  const Uint* col_idxs();
+  RealVector& col_idxs() { return m_col_idxs; };
 
   /// accessor to blockaccumulator's RealMatrix
-  /// maybe made friends with lssRealMatrix
-  RealMatrix get_mat();
+  RealMatrix& mat() { return m_mat; };
 
   /// accessor to blockaccumulator's solution vector
-  /// maybe made friends with lssvector
-  RealVector get_sol();
+  RealVector& sol() { return m_sol; };
 
   /// accessor to blockaccumulator's right hand side vector
-  /// maybe made friends with lssvector
-  RealVector get_rhs();
+  RealVector& rhs() { return m_rhs; };
 
   // rest of the operations should directly be the stuff off eigen
 
@@ -59,6 +67,10 @@ private:
   RealMatrix m_mat;
   RealVector m_sol;
   RealVector m_rhs;
+  RealVector m_row_idxs;
+  RealVector m_col_idxs;
+
+  /// private constructor
 
 };
 
