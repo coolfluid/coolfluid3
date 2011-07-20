@@ -7,9 +7,7 @@
 #ifndef CF_RDM_Solver_hpp
 #define CF_RDM_Solver_hpp
 
-////////////////////////////////////////////////////////////////////////////////
-
-#include "Common/CLink.hpp"
+#include "Common/CGroup.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/Action.hpp"
@@ -75,6 +73,11 @@ public: // functions
   /// @return subcomponent for time stepping
   TimeStepping&         time_stepping();
 
+  /// @returns the group of shared actions
+  Common::CGroup& actions() { return *m_actions; }
+  /// @returns the group of shared fields
+  Common::CGroup& fields()  { return *m_fields; }
+
   /// @name SIGNALS
   //@{
 
@@ -83,10 +86,13 @@ public: // functions
 private: // helper functions
 
   void config_physics();
+  void config_mesh();
 
 private: // data
 
-  boost::weak_ptr< Physics::PhysModel >   m_physical_model;  ///< physical model
+  Common::CGroup::Ptr m_actions;  ///< the group of shared actions
+
+  Common::CGroup::Ptr m_fields;   ///< the group of fields
 
   boost::shared_ptr<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
 
@@ -98,8 +104,9 @@ private: // data
 
   boost::shared_ptr<TimeStepping>         m_time_stepping;         ///< subcomponent for time stepping
 
-  boost::shared_ptr<CF::Solver::Actions::CSynchronizeFields> m_synchronize; ///< solution synchronization action
+  boost::weak_ptr< Physics::PhysModel >   m_physical_model;        ///< physical model
 
+  boost::weak_ptr<Mesh::CMesh> m_mesh; ///< mesh which this solver operates
 
 };
 

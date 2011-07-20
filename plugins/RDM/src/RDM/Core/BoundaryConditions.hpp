@@ -7,7 +7,7 @@
 #ifndef CF_RDM_BoundaryConditions_hpp
 #define CF_RDM_BoundaryConditions_hpp
 
-#include "Common/CActionDirector.hpp"
+#include "Solver/ActionDirector.hpp"
 
 #include "RDM/Core/LibCore.hpp"
 
@@ -17,7 +17,7 @@ namespace Core {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_Core_API BoundaryConditions : public Common::CActionDirector {
+class RDM_Core_API BoundaryConditions : public CF::Solver::ActionDirector {
 
 public: // typedefs
 

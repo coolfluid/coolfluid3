@@ -282,9 +282,9 @@ void RKRD::signal_create_boundary_term( SignalArgs& node )
 
   bterm->configure_option("regions" , regions);
   if( m_mesh.lock() )
-    bterm->configure_option("mesh", m_mesh.lock()->uri());
+    bterm->configure_option( Tags::mesh(), m_mesh.lock()->uri());
   if( m_physical_model.lock() )
-    bterm->configure_option("physical_model" , m_physical_model.lock()->uri());
+    bterm->configure_option( Tags::physical_model() , m_physical_model.lock()->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -329,9 +329,9 @@ void RKRD::signal_create_domain_term( SignalArgs& node )
 
   dterm->configure_option("regions" , regions);
   if( m_mesh.lock() )
-    dterm->configure_option("mesh", m_mesh.lock()->uri());
+    dterm->configure_option( Tags::mesh(), m_mesh.lock()->uri());
   if( m_physical_model.lock() )
-    dterm->configure_option("physical_model" , m_physical_model.lock()->uri());
+    dterm->configure_option( Tags::physical_model() , m_physical_model.lock()->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

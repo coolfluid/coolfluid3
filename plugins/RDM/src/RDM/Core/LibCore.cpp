@@ -14,6 +14,7 @@
 
 namespace CF {
 namespace RDM {
+namespace Core {
 
 using namespace CF::Common;
 
@@ -24,7 +25,7 @@ CF::Common::RegistLibrary<LibCore> LibCore;
 void LibCore::initiate_impl()
 {
   CGroup::Ptr rdm_group =
-    Core::instance().root()
+    Common::Core::instance().root()
       .get_child_ptr("Tools")
       ->create_component_ptr<CGroup>( "RDM" );
   rdm_group->mark_basic();
@@ -37,20 +38,21 @@ void LibCore::initiate_impl()
 
 void LibCore::terminate_impl()
 {
-  Core::instance().root()
+  Common::Core::instance().root()
       .get_child_ptr("Tools")
       ->get_child_ptr("RDM")
       ->remove_component( "Setup_RD_Steady_Explicit" );
-  Core::instance().root()
+  Common::Core::instance().root()
       .get_child_ptr("Tools")
       ->get_child_ptr("RDM")
       ->remove_component( "Setup_RD_My_Sim" );
-  Core::instance().root()
+  Common::Core::instance().root()
       .get_child_ptr("Tools")
       ->remove_component("RDM");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
+} // Core
 } // RDM
 } // CF

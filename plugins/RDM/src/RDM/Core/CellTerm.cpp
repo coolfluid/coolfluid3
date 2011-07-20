@@ -37,7 +37,7 @@ CellTerm::~CellTerm() {}
 ElementLoop& CellTerm::access_element_loop( const std::string& type_name )
 {
   const std::string update_vars_type =
-      physical_model().get_child( RDM::Tags::update_vars() )
+      physical_model().get_child( Core::Tags::update_vars() )
                       .as_type<Physics::Variables>()
                       .type();
 

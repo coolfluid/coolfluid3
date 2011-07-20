@@ -9,6 +9,8 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionComponent.hpp"
 
+#include "Mesh/CMesh.hpp"
+
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
 
@@ -20,11 +22,13 @@
 #include "RDM/Core/IterativeSolver.hpp"
 #include "RDM/Core/TimeStepping.hpp"
 #include "RDM/Core/Solver.hpp"
+#include "RDM/Core/SetupFields.hpp"
 
 using namespace CF::Common;
+using namespace CF::Mesh;
+using namespace CF::Physics;
 using namespace CF::Solver;
 using namespace CF::Solver::Actions;
-using namespace CF::Physics;
 
 namespace CF {
 namespace RDM {
@@ -50,8 +54,6 @@ Solver::Solver ( const std::string& name  ) :
       ->mark_basic()
       ->attach_trigger ( boost::bind ( &Solver::config_physics, this ) );
 
-
-
   // subcomponents
 
   m_initial_conditions =
@@ -71,8 +73,15 @@ Solver::Solver ( const std::string& name  ) :
 
   m_time_stepping->append( *m_iterative_solver );
 
-  m_synchronize =
-      create_static_component_ptr<CSynchronizeFields>("Synchronize");
+  // for storing links to fields
+
+  m_fields  = create_static_component_ptr< CGroup >( Tags::fields()  );
+
+  m_actions = create_static_component_ptr< CGroup >( Tags::actions() );
+
+  // create the parallel synchronization action
+
+  m_actions->create_component_ptr<CSynchronizeFields>("Synchronize");
 
 }
 
@@ -86,6 +95,7 @@ void Solver::execute()
 
   m_time_stepping->execute();
 }
+
 
 void Solver::config_physics()
 {
@@ -113,7 +123,43 @@ void Solver::config_physics()
 
   if( is_null(upv) )
     pm.create_variables( user_vars, Tags::update_vars() );
+
+  configure_option_recursively( Tags::physical_model(), pm.uri() );
+  configure_option_recursively( "solver", uri() );
 }
+
+
+void Solver::config_mesh()
+{
+  if( is_null(m_mesh.lock()) ) return;
+
+  CMesh& mesh = *(m_mesh.lock());
+
+  Physics::PhysModel::Ptr physmodel = m_physical_model.lock();
+  if( is_null( physmodel ) )
+    throw SetupError(FromHere(), "Physical model not yet set for RKRD component " + uri().string() );
+
+  CAction& setup = create_component<SetupFields>("SetupFields");
+
+  setup.configure_option( "mesh", mesh.uri() );
+  setup.configure_option( "physical_model", physmodel->uri() );
+
+  setup.execute();
+
+  remove_component(setup);
+
+  //--------------------------------------------------
+#if 0
+  std::vector<URI> cleanup_fields;
+  cleanup_fields.push_back( m_residual.lock()->uri() );
+  cleanup_fields.push_back( m_wave_speed.lock()->uri() );
+  m_cleanup->configure_option("Fields", cleanup_fields);
+
+  m_compute_norm->configure_option("Field", m_residual.lock()->uri());
+#endif
+  //--------------------------------------------------
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

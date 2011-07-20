@@ -38,7 +38,7 @@ using namespace CF::Mesh;
 using namespace CF::Physics;
 using namespace CF::Solver;
 
-Common::ComponentBuilder < SteadyExplicit, Solver::CWizard, LibCore > SteadyExplicit_Builder;
+Common::ComponentBuilder < SteadyExplicit, Solver::CWizard, Core::LibCore > SteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +69,7 @@ void SteadyExplicit::create_model( const std::string& model_name, const std::str
 {
   // create the model
 
-  CModel& model = Core::instance().root().create_component<CModelSteady>( model_name );
+  CModel& model = Common::Core::instance().root().create_component<CModelSteady>( model_name );
 
   // create the domain
 

@@ -7,7 +7,7 @@
 #ifndef CF_RDM_TimeStepping_hpp
 #define CF_RDM_TimeStepping_hpp
 
-#include "Common/CActionDirector.hpp"
+#include "Solver/ActionDirector.hpp"
 
 #include "RDM/Core/LibCore.hpp"
 
@@ -20,7 +20,7 @@ namespace Core {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_Core_API TimeStepping : public Common::CActionDirector {
+class RDM_Core_API TimeStepping : public CF::Solver::ActionDirector {
 
 public: // typedefs
 

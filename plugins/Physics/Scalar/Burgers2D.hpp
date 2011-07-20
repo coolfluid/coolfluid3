@@ -10,6 +10,8 @@
 #include "Common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
+#include "Physics/Variables.hpp"
+
 #include "Scalar2D.hpp"
 
 namespace CF {
@@ -18,7 +20,7 @@ namespace Scalar {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Scalar_API Burgers2D : public NonInstantiable<Burgers2D> {
+class Scalar_API Burgers2D : public VariablesT<Burgers2D> {
 
 public: // functions
 

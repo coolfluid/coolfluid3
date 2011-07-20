@@ -12,6 +12,10 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
+#include "Mesh/CMesh.hpp"
+
+#include "Physics/PhysModel.hpp"
+
 #include "RDM/Core/CellTerm.hpp"
 #include "RDM/Core/FaceTerm.hpp"
 
@@ -32,7 +36,7 @@ Common::ComponentBuilder < DomainDiscretization, CAction, LibCore > DomainDiscre
 ///////////////////////////////////////////////////////////////////////////////////////
 
 DomainDiscretization::DomainDiscretization ( const std::string& name ) :
-  Common::CActionDirector(name)
+  CF::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -85,10 +89,10 @@ void DomainDiscretization::signal_create_cell_term( SignalArgs& args )
 
   term->configure_option("regions" , regions);
 
-//  if( m_mesh.lock() )
-//    dterm->configure_option("mesh", m_mesh.lock()->uri());
-//  if( m_physical_model.lock() )
-//    dterm->configure_option("physical_model" , m_physical_model.lock()->uri());
+  if( m_mesh.lock() )
+    term->configure_option( Tags::mesh(), m_mesh.lock()->uri());
+  if( m_physical_model.lock() )
+    term->configure_option( Tags::physical_model() , m_physical_model.lock()->uri());
 
 }
 
@@ -108,10 +112,10 @@ void DomainDiscretization::signal_create_face_term( SignalArgs& args )
 
   term->configure_option("regions" , regions);
 
-//  if( m_mesh.lock() )
-//    dterm->configure_option("mesh", m_mesh.lock()->uri());
-//  if( m_physical_model.lock() )
-//    dterm->configure_option("physical_model" , m_physical_model.lock()->uri());
+  if( m_mesh.lock() )
+    term->configure_option( Tags::mesh(), m_mesh.lock()->uri());
+  if( m_physical_model.lock() )
+    term->configure_option( Tags::physical_model() , m_physical_model.lock()->uri());
 
 }
 

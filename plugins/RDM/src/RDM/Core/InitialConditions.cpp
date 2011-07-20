@@ -10,6 +10,10 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
 
+#include "Mesh/CMesh.hpp"
+
+#include "Physics/PhysModel.hpp"
+
 #include "Common/XML/SignalOptions.hpp"
 
 #include "InitialConditions.hpp"
@@ -28,7 +32,7 @@ Common::ComponentBuilder < InitialConditions, CAction, LibCore > InitialConditio
 ///////////////////////////////////////////////////////////////////////////////////////
 
 InitialConditions::InitialConditions ( const std::string& name ) :
-  Common::CActionDirector(name)
+  CF::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -60,7 +64,7 @@ void InitialConditions::execute()
   // synchronize fields to insure consistency of parallel data
 
   CAction& synchronize =
-      access_component( "cpath:../Synchronize" ).as_type<CAction>();
+      access_component( "cpath:../Actions/Synchronize" ).as_type<CAction>();
 
   synchronize.execute();
 }
@@ -83,10 +87,10 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
 
   ic->configure_option( "regions", regions );
 
-//  if( m_mesh.lock() )
-//    bterm->configure_option("mesh", m_mesh.lock()->uri());
-//  if( m_physical_model.lock() )
-//    bterm->configure_option("physical_model" , m_physical_model.lock()->uri());
+  if( m_mesh.lock() )
+    ic->configure_option( Tags::mesh(), m_mesh.lock()->uri());
+  if( m_physical_model.lock() )
+    ic->configure_option( Tags::physical_model() , m_physical_model.lock()->uri());
 
 }
 

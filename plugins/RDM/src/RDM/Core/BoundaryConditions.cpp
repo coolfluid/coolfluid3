@@ -12,6 +12,10 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
+#include "Mesh/CMesh.hpp"
+
+#include "Physics/PhysModel.hpp"
+
 #include "RDM/Core/BoundaryTerm.hpp"
 
 #include "BoundaryConditions.hpp"
@@ -31,7 +35,7 @@ Common::ComponentBuilder < BoundaryConditions, CAction, LibCore > BoundaryCondit
 ///////////////////////////////////////////////////////////////////////////////////////
 
 BoundaryConditions::BoundaryConditions ( const std::string& name ) :
-  Common::CActionDirector(name)
+  CF::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -86,10 +90,10 @@ void BoundaryConditions::signal_create_boundary_condition ( SignalArgs& node )
 
   bterm->configure_option("regions" , regions);
 
-//  if( m_mesh.lock() )
-//    bterm->configure_option("mesh", m_mesh.lock()->uri());
-//  if( m_physical_model.lock() )
-//    bterm->configure_option("physical_model" , m_physical_model.lock()->uri());
+  if( m_mesh.lock() )
+    bterm->configure_option( Tags::mesh(), m_mesh.lock()->uri());
+  if( m_physical_model.lock() )
+    bterm->configure_option( Tags::physical_model() , m_physical_model.lock()->uri());
 
 }
 

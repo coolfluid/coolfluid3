@@ -22,6 +22,8 @@ list( APPEND coolfluid_rdm_core_files
   TimeStepping.cpp
   IterativeSolver.hpp
   IterativeSolver.cpp
+  SetupFields.hpp
+  SetupFields.cpp
 # wizards
   SteadyExplicit.hpp
   SteadyExplicit.cpp

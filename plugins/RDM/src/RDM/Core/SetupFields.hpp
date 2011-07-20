@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_UpdateSolution_hpp
-#define CF_RDM_UpdateSolution_hpp
+#ifndef CF_RDM_SetupFields_hpp
+#define CF_RDM_SetupFields_hpp
 
 #include "Solver/Action.hpp"
 
@@ -14,45 +14,41 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh { class CField; }
-namespace RDM {
 
-class RDM_Core_API UpdateSolution : public CF::Solver::Action {
+namespace Mesh { class CField; }
+
+namespace RDM {
+namespace Core {
+
+class RDM_Core_API SetupFields : public CF::Solver::Action {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<UpdateSolution> Ptr;
-  typedef boost::shared_ptr<UpdateSolution const> ConstPtr;
+  typedef boost::shared_ptr<SetupFields> Ptr;
+  typedef boost::shared_ptr<SetupFields const> ConstPtr;
 
 public: // functions
+
   /// Contructor
   /// @param name of the component
-  UpdateSolution ( const std::string& name );
+  SetupFields ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~UpdateSolution() {}
+  virtual ~SetupFields() {}
 
   /// Get the class name
-  static std::string type_name () { return "UpdateSolution"; }
+  static std::string type_name () { return "SetupFields"; }
 
   /// execute the action
   virtual void execute ();
-
-private: // data
-
-  /// solution field pointer
-  boost::weak_ptr<Mesh::CField> m_solution;
-  /// residual field pointer
-  boost::weak_ptr<Mesh::CField> m_residual;
-  /// wave_speed field pointer
-  boost::weak_ptr<Mesh::CField> m_wave_speed;
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
+} // Core
 } // RDM
 } // CF
 
-#endif // CF_RDM_UpdateSolution_hpp
+#endif // CF_RDM_SetupFields_hpp

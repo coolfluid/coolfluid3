@@ -87,7 +87,7 @@ struct global_fixture
 
     CSolver& solver = find_component_recursively<CSolver>(model);
 
-    solver.configure_option( RDM::Tags::update_vars() , std::string("LinearAdvSys2D") );
+    solver.configure_option( Core::Tags::update_vars() , std::string("LinearAdvSys2D") );
   }
 
   ~global_fixture()
@@ -146,7 +146,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
   CMesh& mesh = find_component<CMesh>(domain);
 
-  solver.configure_option("mesh", mesh.uri() );
+  solver.configure_option( Tags::mesh(), mesh.uri() );
 
 #ifdef BUBBLE // enrich the mesh with bubble functions
   CMeshTransformer::Ptr enricher =

@@ -16,6 +16,7 @@
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
 #include "Solver/Actions/CComputeLNorm.hpp"
 
+#include "RDM/Core/Solver.hpp"
 #include "RDM/Core/Cleanup.hpp"
 
 #include "IterativeSolver.hpp"
@@ -36,7 +37,7 @@ Common::ComponentBuilder < IterativeSolver, CAction, LibCore > IterativeSolver_B
 ///////////////////////////////////////////////////////////////////////////////////////
 
 IterativeSolver::IterativeSolver ( const std::string& name ) :
-  Common::CActionDirector(name)
+  CF::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -51,6 +52,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
   // dynamic components
 
   Cleanup::Ptr cleanup  = create_component_ptr<Cleanup>("Zero");
+
   m_pre_actions->append( cleanup );
 
   CCriterionMaxIterations& maxiter =
@@ -58,7 +60,11 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   CComputeLNorm& cnorm =
       create_component<CComputeLNorm>( "ComputeNorm" );
+
   m_post_actions->append( cnorm );
+
+  cnorm.configure_option("Scale", true);
+  cnorm.configure_option("Order", 2u);
 
   // properties
 
@@ -75,9 +81,15 @@ bool IterativeSolver::stop_condition()
 }
 
 
-
 void IterativeSolver::execute()
 {
+
+//  m_compute_norm->configure_option("Field", m_residual.lock()->uri());
+
+//  std::vector<URI> cleanup_fields;
+//  cleanup_fields.push_back( m_residual.lock()->uri() );
+//  cleanup_fields.push_back( m_wave_speed.lock()->uri() );
+//  m_cleanup->configure_option("Fields", cleanup_fields);
 
   CFinfo << "[RDM] iterative solve" << CFendl;
 
@@ -89,7 +101,8 @@ void IterativeSolver::execute()
       access_component( "cpath:../DomainDiscretization" ).as_type<CActionDirector>();
 
   CAction& synchronize =
-      access_component( "cpath:../Synchronize" ).as_type<CAction>();
+      solver().as_type< Core::Solver >()
+      .actions().get_child("Synchronize").as_type<CAction>();
 
   /// @todo this configuration sould be in constructor but does not work there
 

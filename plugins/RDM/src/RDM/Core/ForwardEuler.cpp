@@ -40,7 +40,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ForwardEuler, CAction, LibCore > ForwardEuler_Builder;
+Common::ComponentBuilder < ForwardEuler, CAction, Core::LibCore > ForwardEuler_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -180,7 +180,7 @@ void ForwardEuler::execute()
 
    frame = opts.create_frame("iteration_done", URI(), URI());
 
-   Core::instance().event_handler().raise_event( "iteration_done", frame);
+   Common::Core::instance().event_handler().raise_event( "iteration_done", frame);
 
    // increment iteration
 

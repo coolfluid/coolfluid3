@@ -37,7 +37,7 @@ Common::ComponentBuilder < TimeStepping, CAction, LibCore > TimeStepping_Builder
 ///////////////////////////////////////////////////////////////////////////////////////
 
 TimeStepping::TimeStepping ( const std::string& name ) :
-  Common::CActionDirector(name)
+  CF::Solver::ActionDirector(name)
 {
   mark_basic();
 

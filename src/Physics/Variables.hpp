@@ -94,7 +94,7 @@ public: // functions
 
 
   //@} END INTERFACE
-                        
+
 }; // Variables
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ public:
   static std::string type_name () { return "VariablesT<"+PHYS::type_name()+">"; }
 
   /// @return the physical model type
-  virtual std::string type() const { return PHYS::type_name(); };
+  virtual std::string type() const { return PHYS::type_name(); }
 
   /// compute physical properties
   virtual void compute_properties(const RealVector& coord,

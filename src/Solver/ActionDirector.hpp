@@ -4,20 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Action_hpp
-#define CF_Solver_Action_hpp
+#ifndef CF_Solver_ActionDirector_hpp
+#define CF_Solver_ActionDirector_hpp
 
-#include "Common/CAction.hpp"
+#include "Common/CActionDirector.hpp"
 #include "Common/FindComponents.hpp"
 
 #include "Solver/LibSolver.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 
-namespace Mesh { class CRegion; class CMesh; }
+namespace Mesh { class CMesh; }
 namespace Physics { class PhysModel; }
+
 namespace Solver {
 
 class CSolver;
@@ -25,25 +24,25 @@ class CTime;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class Solver_API Action : public Common::CAction {
+class Solver_API ActionDirector : public Common::CActionDirector {
 
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< Action > Ptr;
-  typedef boost::shared_ptr< Action const > ConstPtr;
+  typedef boost::shared_ptr< ActionDirector > Ptr;
+  typedef boost::shared_ptr< ActionDirector const > ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  Action ( const std::string& name );
+  ActionDirector ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~Action();
+  virtual ~ActionDirector();
 
   /// Get the class name
-  static std::string type_name () { return "Action"; }
+  static std::string type_name () { return "ActionDirector"; }
 
   /// @name ACCESSORS
   //@{
@@ -61,9 +60,6 @@ public: // functions
   /// @deprecated CTime makes no sense in certain simulations
   ///             This will eventually be removed
   Solver::CTime& time();
-
-  /// @returns the regions this action is operating on
-  Common::ComponentIteratorRange<Mesh::CRegion> regions();
 
   //@} END ACCESSORS
 
@@ -85,9 +81,6 @@ protected: // data
   /// @todo eventually removed time from Action
   boost::weak_ptr< Solver::CTime > m_time;
 
-  /// regions of the mesh to loop over
-  std::vector< boost::shared_ptr< Mesh::CRegion > > m_loop_regions;
-
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -95,6 +88,4 @@ protected: // data
 } // Solver
 } // CF
 
-/////////////////////////////////////////////////////////////////////////////////////
-
-#endif // CF_Solver_Action_hpp
+#endif // CF_Solver_ActionDirector_hpp

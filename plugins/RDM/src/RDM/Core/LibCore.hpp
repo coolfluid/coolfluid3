@@ -28,6 +28,7 @@
 
 namespace CF {
 namespace RDM {
+namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +76,7 @@ protected:
 
 }; // end LibCore
 
+} // Core
 } // RDM
 } // CF
 

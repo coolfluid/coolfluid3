@@ -85,7 +85,7 @@ struct global_fixture
 
     CSolver& solver = find_component_recursively<CSolver>(model);
 
-    solver.configure_option( RDM::Tags::update_vars() , std::string("RotationAdv2D") );
+    solver.configure_option( Core::Tags::update_vars() , std::string("RotationAdv2D") );
   }
 
   ~global_fixture()
@@ -147,7 +147,7 @@ BOOST_FIXTURE_TEST_CASE( read_mesh , local_fixture )
 
   CMesh& mesh = find_component<CMesh>(domain);
 
-  solver.configure_option("mesh", mesh.uri() );
+  solver.configure_option( Tags::mesh(), mesh.uri() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 
   writer.configure_option("fields",fields);
   writer.configure_option("file",URI(model.name()+"_init.plt"));
-  writer.configure_option("mesh",mesh.uri());
+  writer.configure_option( Tags::mesh(),mesh.uri());
 
   writer.execute();
 }

@@ -86,7 +86,7 @@ struct global_fixture
 
     CSolver& solver = find_component_recursively<CSolver>(model);
 
-    solver.configure_option( RDM::Tags::update_vars() , std::string("Cons2D") );
+    solver.configure_option( Core::Tags::update_vars() , std::string("Cons2D") );
   }
 
   ~global_fixture()

@@ -42,7 +42,7 @@ using namespace CF::Mesh;
 using namespace CF::Physics;
 using namespace CF::Solver;
 
-Common::ComponentBuilder < MySim, Solver::CWizard, LibCore > MySim_Builder;
+Common::ComponentBuilder < MySim, Solver::CWizard, Core::LibCore > MySim_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -78,7 +78,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
   std::string name  = options.value<std::string>("model_name");
 
-  CModel::Ptr model = Core::instance().root().create_component_ptr<CModelSteady>( name );
+  CModel::Ptr model = Common::Core::instance().root().create_component_ptr<CModelSteady>( name );
 
   // create domain
 
@@ -92,7 +92,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
   // setup iterative solver
 
-  CSolver::Ptr solver = build_component_abstract_type<CSolver>( LibCore::library_namespace() + ".RKRD", "Solver");
+  CSolver::Ptr solver = build_component_abstract_type<CSolver>( Core::LibCore::library_namespace() + ".RKRD", "Solver");
   solver->mark_basic();
   model->add_component( solver );
 

@@ -36,14 +36,14 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibCore > WeakDirichlet_Builder;
+Common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, Core::LibCore > WeakDirichlet_Builder;
 
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv2D>    , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdv2D_Builder;
-//Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv3D>    , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdv3D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdvSys2D> , RDM::FaceLoop, LibCore > WeakDirichlet_LinearAdvSys2D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::RotationAdv2D>  , RDM::FaceLoop, LibCore > WeakDirichlet_RotationAdv2D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::Burgers2D>      , RDM::FaceLoop, LibCore > WeakDirichlet_Burgers2D_Builder;
-Common::ComponentBuilder < FaceLoopT< WeakDirichlet, NavierStokes::Cons2D>   , RDM::FaceLoop, LibCore > WeakDirichlet_Cons2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv2D>    , RDM::FaceLoop, Core::LibCore > WeakDirichlet_LinearAdv2D_Builder;
+//Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv3D>    , RDM::FaceLoop, Core::LibCore > WeakDirichlet_LinearAdv3D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdvSys2D> , RDM::FaceLoop, Core::LibCore > WeakDirichlet_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::RotationAdv2D>  , RDM::FaceLoop, Core::LibCore > WeakDirichlet_RotationAdv2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::Burgers2D>      , RDM::FaceLoop, Core::LibCore > WeakDirichlet_Burgers2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WeakDirichlet, NavierStokes::Cons2D>   , RDM::FaceLoop, Core::LibCore > WeakDirichlet_Cons2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

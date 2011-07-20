@@ -8,13 +8,12 @@
 #include "Common/OptionArray.hpp"
 #include "Common/OptionComponent.hpp"
 
-#include "Mesh/CRegion.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "Physics/PhysModel.hpp"
 
 #include "Solver/CTime.hpp"
-#include "Solver/Action.hpp"
+#include "Solver/ActionDirector.hpp"
 #include "Solver/CSolver.hpp"
 
 
@@ -26,8 +25,8 @@ namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Action::Action ( const std::string& name ) :
-  Common::CAction(name)
+ActionDirector::ActionDirector ( const std::string& name ) :
+  Common::CActionDirector(name)
 {
   mark_basic();
 
@@ -47,20 +46,12 @@ Action::Action ( const std::string& name ) :
       ->set_description("Time tracking component")
       ->set_pretty_name("Time")
       ->mark_basic();
-
-  std::vector< URI > dummy;
-  m_options.add_option< OptionArrayT<URI> > ("regions", dummy)
-      ->set_description("Regions this action is applied to")
-      ->set_pretty_name("Regions")
-      ->attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
-
 }
 
+ActionDirector::~ActionDirector() {}
 
-Action::~Action() {}
 
-
-Physics::PhysModel& Action::physical_model()
+Physics::PhysModel& ActionDirector::physical_model()
 {
   Physics::PhysModel::Ptr model = m_physical_model.lock();
   if( is_null(model) )
@@ -70,7 +61,7 @@ Physics::PhysModel& Action::physical_model()
 }
 
 
-CTime& Action::time()
+CTime& ActionDirector::time()
 {
   CTime::Ptr t = m_time.lock();
   if( is_null(t) )
@@ -80,7 +71,7 @@ CTime& Action::time()
 }
 
 
-CMesh& Action::mesh()
+CMesh& ActionDirector::mesh()
 {
   CMesh::Ptr m = m_mesh.lock();
   if( is_null(m) )
@@ -90,7 +81,7 @@ CMesh& Action::mesh()
 }
 
 
-Solver::CSolver& Action::solver()
+Solver::CSolver& ActionDirector::solver()
 {
   Solver::CSolver::Ptr s = m_solver.lock();
   if( is_null(s) )
@@ -99,28 +90,6 @@ Solver::CSolver& Action::solver()
   return *s;
 }
 
-
-ComponentIteratorRange<CRegion> Action::regions()
-{
-  return ComponentIteratorRange<CRegion>(m_loop_regions);
-}
-
-
-void Action::config_regions()
-{
-  std::vector<URI> vec; option("regions").put_value(vec);
-
-  boost_foreach(const URI region_path, vec)
-  {
-    Component& comp = access_component(region_path);
-
-    if ( CRegion::Ptr region = comp.as_ptr<CRegion>() )
-      m_loop_regions.push_back( region );
-    else
-      throw ValueNotFound ( FromHere(),
-                           "Could not find region with path [" + region_path.path() +"]" );
-  }
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

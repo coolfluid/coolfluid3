@@ -200,7 +200,7 @@ CField& CMesh::create_field(const std::string& name, const CField::Basis::Type b
 {
   cf_assert(variable_names.size() == variable_types.size());
 
-  // TODO: Treat variable_types using EnumT, and store enum values in the option instead of strings
+  /// @todo Treat variable_types using EnumT, and store enum values in the option instead of strings
   std::vector<std::string> types_str;
   types_str.reserve( variable_types.size() );
   boost_foreach(const CField::VarType var_type, variable_types)
