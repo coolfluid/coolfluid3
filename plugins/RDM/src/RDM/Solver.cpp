@@ -48,6 +48,11 @@ Solver::Solver ( const std::string& name  ) :
   m_options.add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &Solver::config_physics, this ) );
 
+  m_options.add_option(OptionComponent<CMesh>::create("mesh", &m_mesh))
+      ->set_description("Mesh the Discretization Method will be applied to")
+      ->set_pretty_name("Mesh")
+      ->attach_trigger ( boost::bind ( &Solver::config_mesh,   this ) );
+
   m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model))
       ->set_description("Physical model to discretize")
       ->set_pretty_name("Physics")
@@ -99,7 +104,7 @@ void Solver::execute()
 
 void Solver::config_physics()
 {
-  configure_option_recursively( "solver", uri() );
+  configure_option_recursively( RDM::Tags::solver(), uri() );
 
   if( is_null(m_physical_model.lock()) )
     return;
@@ -132,7 +137,7 @@ void Solver::config_physics()
 
 void Solver::config_mesh()
 {
-  configure_option_recursively( "solver", uri() );
+  configure_option_recursively( RDM::Tags::solver(), uri() );
 
   if( is_null(m_mesh.lock()) ) return;
 
@@ -140,27 +145,27 @@ void Solver::config_mesh()
 
   Physics::PhysModel::Ptr physmodel = m_physical_model.lock();
   if( is_null( physmodel ) )
-    throw SetupError(FromHere(), "Physical model not yet set for RKRD component " + uri().string() );
+    throw SetupError(FromHere(), "Physical model not yet set for RDM solver [" + uri().string() + "]" );
 
   CAction& setup = create_component<SetupFields>("SetupFields");
 
-  setup.configure_option( "mesh", mesh.uri() );
-  setup.configure_option( "physical_model", physmodel->uri() );
+  setup.configure_option( RDM::Tags::mesh(), mesh.uri() );
+  setup.configure_option( RDM::Tags::physical_model(), physmodel->uri() );
 
   setup.execute();
 
   remove_component(setup);
 
-  //--------------------------------------------------
-#if 0
-  std::vector<URI> cleanup_fields;
-  cleanup_fields.push_back( m_residual.lock()->uri() );
-  cleanup_fields.push_back( m_wave_speed.lock()->uri() );
-  m_cleanup->configure_option("Fields", cleanup_fields);
+  configure_option_recursively( RDM::Tags::mesh(), mesh.uri() );
 
-  m_compute_norm->configure_option("Field", m_residual.lock()->uri());
-#endif
-  //--------------------------------------------------
+}
+
+
+void Solver::mesh_changed(CMesh& mesh)
+{
+  // this triggers the config_mesh() function
+
+  configure_option( RDM::Tags::mesh(), mesh.uri() );
 }
 
 

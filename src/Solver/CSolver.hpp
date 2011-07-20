@@ -7,8 +7,6 @@
 #ifndef CF_Solver_CSolver_hpp
 #define CF_Solver_CSolver_hpp
 
-////////////////////////////////////////////////////////////////////////////////
-
 #include <boost/scoped_ptr.hpp>
 
 #include "Common/Component.hpp"
@@ -17,7 +15,9 @@
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
-  namespace Mesh { class CDomain; class CMesh; }
+
+namespace Mesh { class CDomain; class CMesh; }
+
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,15 +49,15 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CSolver"; }
-  
+
   /// Called when a mesh changed
   virtual void mesh_changed(Mesh::CMesh& mesh);
-  
+
 protected:
-  
+
   /// Checked access to the domain (throws if domain is not properly configured)
   Mesh::CDomain& domain();
-  
+
 private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
@@ -67,7 +67,5 @@ private:
 
 } // Solver
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Solver_CSolver_hpp

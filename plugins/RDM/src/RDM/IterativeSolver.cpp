@@ -84,12 +84,20 @@ bool IterativeSolver::stop_condition()
 void IterativeSolver::execute()
 {
 
-//  m_compute_norm->configure_option("Field", m_residual.lock()->uri());
+  /// @todo this configuration sould be in constructor but does not work there
 
-//  std::vector<URI> cleanup_fields;
-//  cleanup_fields.push_back( m_residual.lock()->uri() );
-//  cleanup_fields.push_back( m_wave_speed.lock()->uri() );
-//  m_cleanup->configure_option("Fields", cleanup_fields);
+  get_child("MaxIterations").configure_option( "iterator", this->uri() );
+
+  //--------------------------------------------------
+#if 0
+  std::vector<URI> cleanup_fields;
+  cleanup_fields.push_back( m_residual.lock()->uri() );
+  cleanup_fields.push_back( m_wave_speed.lock()->uri() );
+  m_cleanup->configure_option("Fields", cleanup_fields);
+
+  m_compute_norm->configure_option("Field", m_residual.lock()->uri());
+#endif
+  //--------------------------------------------------
 
   CFinfo << "[RDM] iterative solve" << CFendl;
 
@@ -101,12 +109,7 @@ void IterativeSolver::execute()
       access_component( "cpath:../DomainDiscretization" ).as_type<CActionDirector>();
 
   CAction& synchronize =
-      solver().as_type< RDM::Solver >()
-      .actions().get_child("Synchronize").as_type<CAction>();
-
-  /// @todo this configuration sould be in constructor but does not work there
-
-  get_child("MaxIterations").configure_option( "iterator", this->uri() );
+      solver().as_type< RDM::Solver >().actions().get_child("Synchronize").as_type<CAction>();
 
   // iteration loop
 

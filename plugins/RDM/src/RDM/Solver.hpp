@@ -85,8 +85,14 @@ public: // functions
 
 private: // helper functions
 
+  /// Triggered when physical model is configured
   void config_physics();
+
+  /// Triggered when the mesh is configured
   void config_mesh();
+
+  /// Called when a mesh changed
+  virtual void mesh_changed(Mesh::CMesh& mesh);
 
 private: // data
 
