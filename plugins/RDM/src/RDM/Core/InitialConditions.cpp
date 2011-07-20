@@ -23,11 +23,11 @@ using namespace CF::Common::XML;
 
 namespace CF {
 namespace RDM {
-namespace Core {
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < InitialConditions, CAction, LibCore > InitialConditions_Builder;
+Common::ComponentBuilder < InitialConditions, CAction, LibRDM > InitialConditions_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -128,6 +128,6 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
 ///////////////////////////////////////////////////////////////////////////////
 
-} // Core
+
 } // RDM
 } // CF

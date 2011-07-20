@@ -1,6 +1,6 @@
 list( APPEND coolfluid_rdm_core_files
-  LibCore.cpp
-  LibCore.hpp
+  LibRDM.cpp
+  LibRDM.hpp
   RKRD.cpp
   RKRD.hpp
   Solver.cpp

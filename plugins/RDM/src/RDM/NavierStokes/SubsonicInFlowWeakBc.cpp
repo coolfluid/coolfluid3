@@ -30,9 +30,9 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SubsonicInFlowWeakBc, RDM::BoundaryTerm, LibCore > SubsonicInFlowWeakBc_Builder;
+Common::ComponentBuilder < SubsonicInFlowWeakBc, RDM::BoundaryTerm, LibRDM > SubsonicInFlowWeakBc_Builder;
 
-Common::ComponentBuilder < FaceLoopT< SubsonicInFlowWeakBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibCore > SubsonicInFlowWeakBc_Euler2D_Builder;
+Common::ComponentBuilder < FaceLoopT< SubsonicInFlowWeakBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > SubsonicInFlowWeakBc_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

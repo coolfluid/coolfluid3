@@ -9,15 +9,15 @@
 
 #include "Solver/ActionDirector.hpp"
 
-#include "RDM/Core/LibCore.hpp"
+#include "RDM/Core/LibRDM.hpp"
 
 namespace CF {
 namespace RDM {
-namespace Core {
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_Core_API BoundaryConditions : public CF::Solver::ActionDirector {
+class RDM_API BoundaryConditions : public CF::Solver::ActionDirector {
 
 public: // typedefs
 
@@ -59,7 +59,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Core
+
 } // RDM
 } // CF
 

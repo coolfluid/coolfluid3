@@ -22,7 +22,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_Core_API WallWeakBc : public RDM::BoundaryTerm {
+class RDM_API WallWeakBc : public RDM::BoundaryTerm {
 
 public: // typedefs
 
@@ -64,7 +64,7 @@ public: // data
 //------------------------------------------------------------------------------------------
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_Core_API WallWeakBc::Term : public BcBase<SF,QD,PHYS> {
+class RDM_API WallWeakBc::Term : public BcBase<SF,QD,PHYS> {
 
 public: // typedefs
 

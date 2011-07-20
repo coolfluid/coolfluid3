@@ -32,9 +32,9 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < WallWeakBc, RDM::BoundaryTerm, LibCore > WallWeakBc_Builder;
+Common::ComponentBuilder < WallWeakBc, RDM::BoundaryTerm, LibRDM > WallWeakBc_Builder;
 
-Common::ComponentBuilder < FaceLoopT< WallWeakBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibCore > WallWeakBc_Euler2D_Builder;
+Common::ComponentBuilder < FaceLoopT< WallWeakBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > WallWeakBc_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

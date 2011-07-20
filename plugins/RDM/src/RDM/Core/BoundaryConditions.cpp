@@ -26,11 +26,11 @@ using namespace CF::Mesh;
 
 namespace CF {
 namespace RDM {
-namespace Core {
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BoundaryConditions, CAction, LibCore > BoundaryConditions_Builder;
+Common::ComponentBuilder < BoundaryConditions, CAction, LibRDM > BoundaryConditions_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -126,6 +126,6 @@ void BoundaryConditions::signature_signal_create_boundary_condition ( SignalArgs
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
+
 } // RDM
 } // CF

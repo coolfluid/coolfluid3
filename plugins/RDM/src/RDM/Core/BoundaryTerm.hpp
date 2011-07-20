@@ -9,7 +9,7 @@
 
 #include "Solver/Action.hpp"
 
-#include "RDM/Core/LibCore.hpp"
+#include "RDM/Core/LibRDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +20,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_Core_API BoundaryTerm : public CF::Solver::Action {
+class RDM_API BoundaryTerm : public CF::Solver::Action {
 
 public: // typedefs
 

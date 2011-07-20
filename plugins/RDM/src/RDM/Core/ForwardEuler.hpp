@@ -9,7 +9,7 @@
 
 #include "Solver/Action.hpp"
 
-#include "RDM/Core/LibCore.hpp"
+#include "RDM/Core/LibRDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@ namespace CF {
 namespace Mesh { class CField; }
 namespace RDM {
 
-class RDM_Core_API ForwardEuler : public CF::Solver::Action
+class RDM_API ForwardEuler : public CF::Solver::Action
 {
 public: // typedefs
 

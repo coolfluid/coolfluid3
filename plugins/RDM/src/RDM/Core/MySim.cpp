@@ -42,7 +42,7 @@ using namespace CF::Mesh;
 using namespace CF::Physics;
 using namespace CF::Solver;
 
-Common::ComponentBuilder < MySim, Solver::CWizard, Core::LibCore > MySim_Builder;
+Common::ComponentBuilder < MySim, Solver::CWizard, LibRDM > MySim_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +92,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
   // setup iterative solver
 
-  CSolver::Ptr solver = build_component_abstract_type<CSolver>( Core::LibCore::library_namespace() + ".RKRD", "Solver");
+  CSolver::Ptr solver = build_component_abstract_type<CSolver>( LibRDM::library_namespace() + ".RKRD", "Solver");
   solver->mark_basic();
   model->add_component( solver );
 

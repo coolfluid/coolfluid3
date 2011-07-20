@@ -8,21 +8,21 @@
 #include "Common/CRoot.hpp"
 #include "Common/CGroup.hpp"
 
-#include "RDM/Core/LibCore.hpp"
+#include "RDM/Core/LibRDM.hpp"
 #include "RDM/Core/SteadyExplicit.hpp"
 #include "RDM/Core/MySim.hpp"
 
 namespace CF {
 namespace RDM {
-namespace Core {
+
 
 using namespace CF::Common;
 
-CF::Common::RegistLibrary<LibCore> LibCore;
+CF::Common::RegistLibrary<LibRDM> LibRDM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibCore::initiate_impl()
+void LibRDM::initiate_impl()
 {
   CGroup::Ptr rdm_group =
     Common::Core::instance().root()
@@ -36,7 +36,7 @@ void LibCore::initiate_impl()
       ->mark_basic();
 }
 
-void LibCore::terminate_impl()
+void LibRDM::terminate_impl()
 {
   Common::Core::instance().root()
       .get_child_ptr("Tools")
@@ -53,6 +53,6 @@ void LibCore::terminate_impl()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
+
 } // RDM
 } // CF

@@ -12,7 +12,7 @@
 #include "Solver/CSolver.hpp"
 #include "Solver/Action.hpp"
 
-#include "RDM/Core/LibCore.hpp"
+#include "RDM/Core/LibRDM.hpp"
 
 namespace CF {
 
@@ -21,7 +21,7 @@ namespace Physics { class PhysModel; class Variables; }
 namespace Solver  { namespace Actions { class CSynchronizeFields; } }
 
 namespace RDM {
-namespace Core {
+
 
 class BoundaryConditions;
 class InitialConditions;
@@ -38,7 +38,7 @@ class TimeStepping;
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_Core_API Solver : public CF::Solver::CSolver {
+class RDM_API Solver : public CF::Solver::CSolver {
 
 public: // typedefs
 
@@ -112,7 +112,7 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
+
 } // RDM
 } // CF
 

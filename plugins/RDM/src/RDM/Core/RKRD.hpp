@@ -14,7 +14,7 @@
 #include "Solver/CSolver.hpp"
 #include "Solver/Action.hpp"
 
-#include "RDM/Core/LibCore.hpp"
+#include "RDM/Core/LibRDM.hpp"
 
 namespace CF {
 
@@ -32,7 +32,7 @@ namespace RDM {
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_Core_API RKRD : public Solver::CSolver {
+class RDM_API RKRD : public Solver::CSolver {
 
 public: // typedefs
 

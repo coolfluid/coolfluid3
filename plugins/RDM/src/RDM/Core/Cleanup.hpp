@@ -9,16 +9,16 @@
 
 #include "Solver/Action.hpp"
 
-#include "RDM/Core/LibCore.hpp"
+#include "RDM/Core/LibRDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh { class CField; }
 namespace RDM {
-namespace Core {
 
-class RDM_Core_API Cleanup : public CF::Solver::Action {
+
+class RDM_API Cleanup : public CF::Solver::Action {
 
 public: // typedefs
 
@@ -52,7 +52,7 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
+
 } // RDM
 } // CF
 

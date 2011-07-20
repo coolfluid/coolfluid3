@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_LibCore_hpp
-#define CF_RDM_LibCore_hpp
+#ifndef CF_RDM_LibRDM_hpp
+#define CF_RDM_LibRDM_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,14 +13,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro RDM_Core_API
+/// Define the macro RDM_API
 /// @note build system defines COOLFLUID_RDM_EXPORTS when compiling
 /// RDM files
 #ifdef COOLFLUID_RDM_CORE_EXPORTS
-#   define RDM_Core_API      CF_EXPORT_API
+#   define RDM_API      CF_EXPORT_API
 #   define RDM_TEMPLATE
 #else
-#   define RDM_Core_API      CF_IMPORT_API
+#   define RDM_API      CF_IMPORT_API
 #   define RDM_CORE_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
@@ -28,21 +28,21 @@
 
 namespace CF {
 namespace RDM {
-namespace Core {
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_Core_API LibCore : public Common::CLibrary {
+class RDM_API LibRDM : public Common::CLibrary {
 
 public:
 
-  typedef boost::shared_ptr<LibCore> Ptr;
-  typedef boost::shared_ptr<LibCore const> ConstPtr;
+  typedef boost::shared_ptr<LibRDM> Ptr;
+  typedef boost::shared_ptr<LibRDM const> ConstPtr;
 
   /// Constructor
-  LibCore ( const std::string& name) : Common::CLibrary(name) {   }
+  LibRDM ( const std::string& name) : Common::CLibrary(name) {   }
 
 public: // functions
 
@@ -64,7 +64,7 @@ public: // functions
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibCore"; }
+  static std::string type_name() { return "LibRDM"; }
 
 protected:
 
@@ -74,9 +74,9 @@ protected:
   /// terminate library
   virtual void terminate_impl();
 
-}; // end LibCore
+}; // end LibRDM
 
-} // Core
+
 } // RDM
 } // CF
 
@@ -84,4 +84,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_LibCore_hpp
+#endif // CF_RDM_LibRDM_hpp

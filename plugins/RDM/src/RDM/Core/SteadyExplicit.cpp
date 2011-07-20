@@ -38,7 +38,7 @@ using namespace CF::Mesh;
 using namespace CF::Physics;
 using namespace CF::Solver;
 
-Common::ComponentBuilder < SteadyExplicit, Solver::CWizard, Core::LibCore > SteadyExplicit_Builder;
+Common::ComponentBuilder < SteadyExplicit, Solver::CWizard, LibRDM > SteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

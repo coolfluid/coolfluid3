@@ -11,7 +11,7 @@
 
 #include "Solver/CWizard.hpp"
 
-#include "RDM/Core/LibCore.hpp"
+#include "RDM/Core/LibRDM.hpp"
 
 namespace CF {
 namespace RDM {
@@ -20,7 +20,7 @@ namespace RDM {
 
 /// Wizard to setup a scalar advection simulation
 /// @author Tiago Quintino
-class RDM_Core_API MySim : public Solver::CWizard {
+class RDM_API MySim : public Solver::CWizard {
 
 public: // typedefs
 

@@ -9,18 +9,18 @@
 
 #include "Solver/ActionDirector.hpp"
 
-#include "RDM/Core/LibCore.hpp"
+#include "RDM/Core/LibRDM.hpp"
 
 namespace CF {
 
   namespace Solver { class CTime; }
 
 namespace RDM {
-namespace Core {
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_Core_API TimeStepping : public CF::Solver::ActionDirector {
+class RDM_API TimeStepping : public CF::Solver::ActionDirector {
 
 public: // typedefs
 
@@ -63,7 +63,7 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Core
+
 } // RDM
 } // CF
 

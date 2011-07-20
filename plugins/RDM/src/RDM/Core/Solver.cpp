@@ -32,11 +32,11 @@ using namespace CF::Solver::Actions;
 
 namespace CF {
 namespace RDM {
-namespace Core {
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < RDM::Core::Solver, CSolver, LibCore > Solver_Builder;
+Common::ComponentBuilder < RDM::Solver, CSolver, LibRDM > Solver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -99,6 +99,8 @@ void Solver::execute()
 
 void Solver::config_physics()
 {
+  configure_option_recursively( "solver", uri() );
+
   if( is_null(m_physical_model.lock()) )
     return;
 
@@ -125,12 +127,13 @@ void Solver::config_physics()
     pm.create_variables( user_vars, Tags::update_vars() );
 
   configure_option_recursively( Tags::physical_model(), pm.uri() );
-  configure_option_recursively( "solver", uri() );
 }
 
 
 void Solver::config_mesh()
 {
+  configure_option_recursively( "solver", uri() );
+
   if( is_null(m_mesh.lock()) ) return;
 
   CMesh& mesh = *(m_mesh.lock());
@@ -163,6 +166,6 @@ void Solver::config_mesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
+
 } // RDM
 } // CF

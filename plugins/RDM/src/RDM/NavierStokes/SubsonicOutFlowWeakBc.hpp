@@ -24,7 +24,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_Core_API SubsonicOutFlowWeakBc : public RDM::BoundaryTerm {
+class RDM_API SubsonicOutFlowWeakBc : public RDM::BoundaryTerm {
 public: // typedefs
 
   /// the actual BC implementation is a nested class
@@ -69,7 +69,7 @@ public: // data
 //------------------------------------------------------------------------------------------
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_Core_API SubsonicOutFlowWeakBc::Term : public BcBase<SF,QD,PHYS> {
+class RDM_API SubsonicOutFlowWeakBc::Term : public BcBase<SF,QD,PHYS> {
 
 public: // typedefs
 

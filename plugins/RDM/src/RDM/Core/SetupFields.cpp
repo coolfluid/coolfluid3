@@ -25,11 +25,11 @@ using namespace CF::Mesh;
 
 namespace CF {
 namespace RDM {
-namespace Core {
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SetupFields, CAction, LibCore > SetupFields_Builder;
+Common::ComponentBuilder < SetupFields, CAction, LibRDM > SetupFields_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ SetupFields::SetupFields ( const std::string& name ) : CF::Solver::Action(name)
 
 void SetupFields::execute()
 {
-  RDM::Core::Solver& mysolver = solver().as_type< RDM::Core::Solver >();
+  RDM::Solver& mysolver = solver().as_type< RDM::Solver >();
 
   CMesh& mesh = *m_mesh.lock();
 
@@ -103,6 +103,6 @@ void SetupFields::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Core
+
 } // RDM
 } // CF

@@ -27,11 +27,11 @@ using namespace CF::Mesh;
 
 namespace CF {
 namespace RDM {
-namespace Core {
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < DomainDiscretization, CAction, LibCore > DomainDiscretization_Builder;
+Common::ComponentBuilder < DomainDiscretization, CAction, LibRDM > DomainDiscretization_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -179,6 +179,6 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Core
+
 } // RDM
 } // CF
