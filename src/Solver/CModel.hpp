@@ -60,12 +60,6 @@ public: // functions
   /// create solver
   /// @param builder_name name of the CBuilder of the solver
   virtual CSolver& create_solver( const std::string& builder );
-  
-  /// Create the fields needed to run the simulation. This is called at the start of every
-  /// simulation, and calling it when the fields have been created does nothing.
-  /// Affects the current active mesh in the domain, and uses field data provided by
-  /// the physical model's VariableManager
-  virtual void create_fields();
 
   /// gets the domain from this model
   virtual Mesh::CDomain& domain();
@@ -120,8 +114,10 @@ private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
   
-  /// This function is hooked to the mesh_updated event
-  void on_mesh_updated_event(Common::SignalArgs& args);
+  /// This function is hooked to the mesh_loaded event.
+  /// It checks if the mesh that raised the event is in the domain, and if so
+  /// calls the mesh_loaded function of the solvers
+  void on_mesh_loaded_event(Common::SignalArgs& args);
 
 };
 

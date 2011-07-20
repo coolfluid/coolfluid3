@@ -722,7 +722,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
 
   for (Uint count=0; count<4; ++count)
   {
-    meshreader->read_from_to("grid_c.cgns",*mesh);
+    meshreader->do_read_mesh_into("grid_c.cgns",*mesh);
     //info->transform(mesh);
     BOOST_CHECK_EQUAL(find_component<CRegion>(*mesh).recursive_elements_count(), (1+count)*3776);
   }

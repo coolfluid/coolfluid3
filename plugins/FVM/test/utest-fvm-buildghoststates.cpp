@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   boost::filesystem::path fp_in("quadtriag.neu");
-  //meshreader->read_from_to(fp_in,mesh);
+  //meshreader->do_read_mesh_into(fp_in,mesh);
 
   //Tools::MeshGeneration::create_line(*mesh, 10. , 10);
   CSimpleMeshGenerator::create_rectangle(*mesh, 10. , 10., 4 , 4 );

@@ -60,11 +60,7 @@ struct LinearSolver::Implementation
    m_solver(comp.create_static_component<CSolveSystem>("LSSSolveAction")),
    m_bc(comp.create_static_component<BoundaryConditions>("BoundaryConditions")),
    m_zero_action(comp.create_static_component<ZeroAction>("ZeroLSS")),
-   m_physical_model(),
-   m_proxy(m_solver.option("lss"),
-           *(m_component.options().add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model) )
-              ->set_pretty_name("Physical Model")
-              ->set_description("Physical Model"))),
+   m_proxy(m_solver.option("lss"), m_component.option("physical_model")),
    system_matrix(m_proxy),
    system_rhs(m_proxy),
    dirichlet(m_proxy),
@@ -81,21 +77,11 @@ struct LinearSolver::Implementation
     m_bc.option("lss").change_value(m_lss.lock()->uri());
     m_zero_action.m_lss = m_lss;
   }
-  
-  // Checked access to the physical model
-  Physics::PhysModel& physical_model()
-  {
-    if(m_physical_model.expired())
-      throw SetupError(FromHere(), "Error accessing physical model from " + m_component.uri().string());
-    
-    return *m_physical_model.lock();
-  }
 
   Component& m_component;
   CSolveSystem& m_solver;
   BoundaryConditions& m_bc;
   ZeroAction& m_zero_action;
-  boost::weak_ptr<Physics::PhysModel> m_physical_model;
   LSSProxy m_proxy;
 
   SystemMatrix system_matrix;
@@ -104,11 +90,10 @@ struct LinearSolver::Implementation
   SolutionVector solution;
   
   boost::weak_ptr<CEigenLSS> m_lss;
-  boost::weak_ptr<CMesh> m_mesh;
 };
 
 LinearSolver::LinearSolver(const std::string& name) :
-  CSolver(name),
+  CSimpleSolver(name),
   m_implementation( new Implementation(*this) ),
   system_matrix(m_implementation->system_matrix),
   system_rhs(m_implementation->system_rhs),
@@ -126,24 +111,18 @@ void LinearSolver::execute()
   if(m_implementation->m_lss.expired())
     throw SetupError(FromHere(), "Error executing " + uri().string() + ": Invalid LSS");
   
-  Physics::PhysModel& physical_model = m_implementation->physical_model();
-  
-  if(m_implementation->m_mesh.expired())
-    throw SetupError(FromHere(), "No mesh set for solver at " + uri().string());
-  
-  CMesh& mesh = *m_implementation->m_mesh.lock();
-  
-  m_implementation->m_lss.lock()->resize(physical_model.variable_manager().nb_dof() * mesh.topology().nodes().size());
-  CSolver::execute();
+  m_implementation->m_lss.lock()->resize(physics().variable_manager().nb_dof() * mesh().topology().nodes().size());
+  CSimpleSolver::execute();
 }
 
-void LinearSolver::mesh_changed(CMesh& mesh)
+void LinearSolver::mesh_loaded(CMesh& mesh)
 {
+  CSimpleSolver::mesh_loaded(mesh);
+  
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;
   root_regions.push_back(mesh.topology().uri());
   configure_option_recursively("regions", root_regions);
-  m_implementation->m_mesh = mesh.as_ptr<CMesh>();
 }
 
 CAction& LinearSolver::zero_action()

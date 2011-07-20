@@ -74,10 +74,6 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   CModel& model = root.create_component<CModel>("Model");
   CDomain& domain = model.create_domain("Domain");
   UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
-  
-  // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
-  Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
   CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
@@ -114,7 +110,10 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   
   // Creating the physics here makes sure everything is up-to-date
   model.create_physics("CF.Physics.DynamicModel");
-  solver.mesh_changed(mesh);
+  
+  // Setup mesh
+  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Tools::MeshGeneration::create_line(mesh, length, nb_segments);
     
   // Set boundary conditions
   solver.boundary_conditions().add_constant_bc("xneg", "Temperature", 10.);

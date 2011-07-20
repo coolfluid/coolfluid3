@@ -92,7 +92,7 @@ private: // helper functions
   void config_mesh();
 
   /// Called when a mesh changed
-  virtual void mesh_changed(Mesh::CMesh& mesh);
+  virtual void mesh_loaded(Mesh::CMesh& mesh);
 
 private: // data
 

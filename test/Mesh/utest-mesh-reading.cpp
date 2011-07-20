@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
-  meshreader->read_from_to("quadtriag.neu",*mesh);
+  meshreader->read_mesh_into("quadtriag.neu",*mesh);
 
   BOOST_CHECK(true);
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   //CFinfo << "ready to read" << CFendl;
-  meshreader->read_from_to("quadtriag_write.neu",*mesh);
+  meshreader->read_mesh_into("quadtriag_write.neu",*mesh);
 
   //CFinfo << "ready to write" << CFendl;
   meshwriter->write_from_to(*mesh,"quadtriag_write.msh");
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
-  meshreader->read_from_to("hextet.neu",*mesh);
+  meshreader->read_mesh_into("hextet.neu",*mesh);
 
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(*mesh,"hextet.msh");
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   //CFinfo << "ready to read" << CFendl;
-  meshreader->read_from_to("hextet_write.neu",*mesh);
+  meshreader->read_mesh_into("hextet_write.neu",*mesh);
 
   //CFinfo << "ready to write" << CFendl;
   meshwriter->write_from_to(*mesh,"hextet_write.msh");
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( read_multiple )
 
   for (Uint count=1; count<=4; ++count)
   {
-    meshreader->read_from_to(fp_in,mesh);
+    meshreader->read_mesh_into(fp_in,mesh);
     BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), count*28);
   }
 

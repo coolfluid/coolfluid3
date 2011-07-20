@@ -60,7 +60,7 @@ std::vector<std::string> CReader::get_extensions()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_from_to(const URI& file, CMesh& mesh)
+void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
 {
   // Set the internal mesh pointer
   m_mesh = mesh.as_ptr<CMesh>();

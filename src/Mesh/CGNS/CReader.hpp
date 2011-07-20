@@ -45,13 +45,13 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CReader"; }
 
-  virtual void read_from_to(const Common::URI& fp, CMesh& mesh);
-
   virtual std::string get_format() { return "CGNS"; }
 
   virtual std::vector<std::string> get_extensions();
 
 private: // functions
+
+  virtual void do_read_mesh_into(const Common::URI& fp, CMesh& mesh);
 
   void read_base(CMesh& parent_region);
   void read_zone(CRegion& parent_region);

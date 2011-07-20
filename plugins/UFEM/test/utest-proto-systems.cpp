@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   
   // Creating the physics here makes sure everything is up-to-date
   model.create_physics("CF.Physics.DynamicModel");
-  solver.mesh_changed(mesh);
+  solver.mesh_loaded(mesh);
   
   solver.boundary_conditions().add_constant_bc("left", "VectorVariable", outside_temp);
   solver.boundary_conditions().add_constant_bc("right", "VectorVariable", outside_temp);

@@ -84,7 +84,7 @@ std::vector<std::string> CReader::get_extensions()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_from_to(const URI& file, CMesh& mesh)
+void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
 {
 
   // if the file is present open it

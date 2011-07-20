@@ -21,7 +21,6 @@
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"
-#include <Common/EventHandler.hpp>
 
 namespace CF {
 namespace Mesh {
@@ -112,23 +111,14 @@ CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
   LoadMesh& mesh_loader =
       find_component<LoadMesh>( tools );
 
-  CMesh::Ptr mesh = mesh_loader.load_mesh(file);
-  mesh->rename(name);
-  add_component(mesh);
+  CMesh::Ptr mesh = create_component_ptr<CMesh>(name);
+  mesh_loader.load_mesh_into(file, *mesh);
 
   // rebalance the mesh if necessary and create global idx and ranks
 // not working ? //   tools.get_child("LoadBalancer").as_type<CMeshTransformer>().transform( mesh );
 
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")
       ->transform(mesh);
-
-  // Raise an event to indicate that a mesh update happened
-  SignalOptions options;
-  options.add_option< OptionURI >("domain_uri", uri());
-  options.add_option< OptionURI >("mesh_uri", mesh->uri());
-  
-  SignalFrame f= options.create_frame();
-  Core::instance().event_handler().raise_event( "mesh_updated", f );
   
   return *mesh;
 }

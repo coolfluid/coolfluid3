@@ -88,7 +88,7 @@ CSolver::~CSolver()
 }
 
 
-void CSolver::mesh_changed(CMesh& mesh)
+void CSolver::mesh_loaded(CMesh& mesh)
 {
 }
 

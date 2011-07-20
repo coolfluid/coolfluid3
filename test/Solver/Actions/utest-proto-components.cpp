@@ -19,12 +19,14 @@
 
 #include "Math/MatrixTypes.hpp"
 
+#include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "Physics/PhysModel.hpp"
 
 #include "Solver/CModel.hpp"
-#include "Solver/CSolver.hpp"
+#include "Solver/CreateFields.hpp"
+#include "Solver/CSimpleSolver.hpp"
 
 #include "Solver/Actions/Proto/ConfigurableConstant.hpp"
 #include "Solver/Actions/Proto/CProtoAction.hpp"
@@ -33,7 +35,6 @@
 #include "Solver/Actions/Proto/Transforms.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
-#include <Mesh/CDomain.hpp>
 
 using namespace CF;
 using namespace CF::Common;
@@ -161,7 +162,7 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
   init_temp->register_variables(model.physics());
   
   // Create the fields
-  model.create_fields();
+  create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
   BOOST_CHECK(model.domain().get_child("mesh").as_type<CMesh>().get_child_ptr("Temperature"));
   
   // Do the initialization
@@ -189,7 +190,7 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   action.configure_option("regions", std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   
   // Create the fields
-  model.create_fields();
+  create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
   BOOST_CHECK(model.domain().get_child("mesh").as_type<CMesh>().get_child_ptr("Temperature2"));
   
   // Run the action
@@ -201,8 +202,8 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
 }
 
-/// Test CProtoActionDomain
-BOOST_AUTO_TEST_CASE( ProtoActionDomain )
+/// Test CSimpleSolver
+BOOST_AUTO_TEST_CASE( SimpleSolver )
 { 
   const Uint nb_segments = 5;
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
@@ -210,7 +211,7 @@ BOOST_AUTO_TEST_CASE( ProtoActionDomain )
   // Declare a mesh variable
   MeshTerm<0, ScalarField> T("Temperature3", "T3");
   
-  CSolver& solver = model.create_component<CSolver>("GenericSolver");
+  CSolver& solver = model.create_component<CSimpleSolver>("GenericSolver");
   
   // Storage for the result check
   Real temp_sum = 0.;
@@ -218,9 +219,10 @@ BOOST_AUTO_TEST_CASE( ProtoActionDomain )
   // Add the actions to run on the domain
   solver << create_proto_action( "SetTemp",     nodes_expression(T = 288.) )
          << create_proto_action( "CheckResult", nodes_expression(lit(temp_sum) += T));
-         
+  
   solver.configure_option_recursively("regions", std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   solver.configure_option_recursively("physical_model", model.physics().uri());
+  solver.mesh_loaded(model.domain().get_child("mesh").as_type<CMesh>());
   
   // Run the actions
   model.simulate();
@@ -230,7 +232,7 @@ BOOST_AUTO_TEST_CASE( ProtoActionDomain )
 }
 
 /// Create a custom actiondomain
-class CustomProtoSolver : public CSolver
+class CustomProtoSolver : public CSimpleSolver
 {
 public:
   
@@ -238,7 +240,7 @@ public:
   typedef boost::shared_ptr<CustomProtoSolver const> ConstPtr;
   
   CustomProtoSolver(const std::string& name) :
-    CSolver(name),
+    CSimpleSolver(name),
     T("Temperature4", "T4"),
     temp_sum(0.)
   { 
@@ -262,6 +264,7 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
   CustomProtoSolver& solver = model.create_component<CustomProtoSolver>("CustomSolver");
   solver.configure_option_recursively("regions", std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   solver.configure_option_recursively("physical_model", model.physics().uri());
+  solver.mesh_loaded(model.domain().get_child("mesh").as_type<CMesh>());
   
   // Run the actions
   model.simulate();

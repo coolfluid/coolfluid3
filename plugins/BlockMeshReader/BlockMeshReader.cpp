@@ -42,7 +42,7 @@ std::vector< std::string > BlockMeshReader::get_extensions()
   return result;
 }
 
-void BlockMeshReader::read_from_to(boost::filesystem::path& path, const CMesh::Ptr& mesh)
+void BlockMeshReader::do_read_mesh_into(boost::filesystem::path& path, const CMesh::Ptr& mesh)
 {
   // if the file is present open it
   boost::filesystem::fstream file;

@@ -12,6 +12,7 @@
 
 
 #include "Solver/CModel.hpp"
+#include "Solver/CreateFields.hpp"
 #include "Solver/CSolver.hpp"
 
 #include "Solver/Actions/Proto/ElementLooper.hpp"
@@ -26,6 +27,7 @@
 
 #include "Math/MatrixTypes.hpp"
 
+#include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
@@ -41,7 +43,6 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 #include "Tools/Testing/ProfiledTestFixture.hpp"
-#include <Mesh/CDomain.hpp>
 
 using namespace CF;
 using namespace CF::Solver;
@@ -466,13 +467,14 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
   
   Physics::PhysModel& physics = model.create_physics("CF.Physics.DynamicModel");
+  physics.variable_manager().configure_option("dimensions", 2u);
   
   // Create the initialization expression
   Expression::Ptr init = nodes_expression(u = coordinates);
   
   // set up fields
   init->register_variables(physics);
-  model.create_fields();
+  create_fields(mesh, physics);
   
   // Do the initialization
   init->loop(mesh.topology());

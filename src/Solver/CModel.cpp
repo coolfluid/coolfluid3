@@ -9,6 +9,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 
+#include "Common/EventHandler.hpp"
 #include "Common/Log.hpp"
 #include "Common/CFactory.hpp"
 #include "Common/CBuilder.hpp"
@@ -32,7 +33,6 @@
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
-#include <Common/EventHandler.hpp>
 
 namespace CF {
 namespace Solver {
@@ -119,7 +119,7 @@ CModel::CModel( const std::string& name  ) :
     ->signature( boost::bind ( &CModel::signature_setup, this, _1 ) );
 
   // Listen to mesh_updated events, emitted by the domain
-  Core::instance().event_handler().connect_to_event("mesh_updated", this, &CModel::on_mesh_updated_event);
+  Core::instance().event_handler().connect_to_event("mesh_loaded", this, &CModel::on_mesh_loaded_event);
 }
 
 CModel::~CModel() {}
@@ -129,11 +129,6 @@ CModel::~CModel() {}
 void CModel::simulate()
 {
   CFinfo << "\n" << name() << ": start simulation" << CFendl;
-
-  /// @warning create_fields cannot be here
-  /// @todo  move create_fields to the concrete solver, triggered when mesh is loaded
-  // Create the fields, if they don't exist already
-  // create_fields();
 
   // call all the solvers
   boost_foreach(CSolver& solver, find_components<CSolver>(*this))
@@ -185,13 +180,6 @@ Physics::PhysModel& CModel::create_physics( const std::string& builder )
   add_component(pm);
   m_implementation->m_physics = pm;
 
-  if(!m_implementation->m_domain.expired())
-  {
-    CMesh::Ptr single_mesh_ptr = find_component_ptr<CMesh>(domain());
-    if(single_mesh_ptr)
-      pm->variable_manager().configure_option("dimensions", single_mesh_ptr->topology().nodes().dim());
-  }
-
   configure_option_recursively("physical_model", pm->uri());
 
   return *pm;
@@ -220,51 +208,6 @@ CSolver& CModel::create_solver( const std::string& builder)
   add_component(solver);
 
   return *solver;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CModel::create_fields()
-{
-  typedef std::map<std::string, std::string> FieldsT;
-  FieldsT fields;
-  physics().variable_manager().field_specification(fields);
-
-  CMesh::Ptr single_mesh_ptr = find_component_ptr<CMesh>(domain());
-  if(!single_mesh_ptr)
-  {
-    CFwarn << "No single mesh found in the domain, default field creation failed" << CFendl;
-    return;
-  }
-
-  CMesh& mesh = *single_mesh_ptr;
-
-  for(FieldsT::const_iterator it = fields.begin(); it != fields.end(); ++it)
-  {
-    const std::string& field_name = it->first;
-    const std::string& var_spec = it->second;
-
-    Component::Ptr field_comp = mesh.get_child_ptr(field_name);
-    if(is_not_null(field_comp))
-    {
-      CField::Ptr field = boost::dynamic_pointer_cast<CField>(field_comp);
-      if(!field)
-        throw SetupError(FromHere(), "Adding fields in " + uri().string() + ": Component with name " + field_name + " exists, but it is not a field");
-
-      // Check if the existing field is compatible with the new one
-      std::stringstream existing_spec;
-      for(Uint i = 0; i != field->nb_vars(); ++i)
-      {
-        existing_spec << (i > 0 ? "," : "") << field->var_name(i) << "[" << field->var_type(i) << "]";
-      }
-      if(existing_spec.str() != var_spec)
-        throw SetupError(FromHere(), "Adding fields in " + uri().string() + ": Field with name " + field_name + " exists, but it is incompatible: old spec " + existing_spec.str() + " != new spec " + var_spec);
-    }
-    else
-    {
-      mesh.create_field(field_name, CF::Mesh::CField::Basis::POINT_BASED, "space[0]", var_spec);
-    }
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -383,27 +326,25 @@ void CModel::signal_simulate ( Common::SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::on_mesh_updated_event(SignalArgs& args)
+void CModel::on_mesh_loaded_event(SignalArgs& args)
 {
   // If we have no domain, the event can't be for us
   if(m_implementation->m_domain.expired())
     return;
 
   SignalOptions options(args);
-
-  if(options.value<URI>("domain_uri") == domain().uri()) // Only handle events coming from our own domain
+  
+  URI mesh_uri = options.value<URI>("mesh_uri");
+  
+  if(mesh_uri.base_path() == domain().uri()) // Only handle events coming from our own domain
   {
     // Get a reference to the mesh that changed
-    CMesh& mesh = access_component(options.value<URI>("mesh_uri")).as_type<CMesh>();
-
-    // Set dimensions in the physics, if it exists
-    if(!m_implementation->m_physics.expired())
-      m_implementation->m_physics.lock()->variable_manager().configure_option("dimensions", mesh.topology().nodes().dim());
+    CMesh& mesh = access_component(mesh_uri).as_type<CMesh>();
 
     // Inform the solvers of the change
     boost_foreach(CSolver& solver, find_components<CSolver>(*this))
     {
-      solver.mesh_changed(mesh);
+      solver.mesh_loaded(mesh);
     }
   }
 }

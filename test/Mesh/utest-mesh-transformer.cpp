@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   // 
   // // the mesh to store in
   // 
-  // meshreader->read_from_to(fp_in,mesh);
+  // meshreader->do_read_mesh_into(fp_in,mesh);
 
 }
 

@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
   // Read mesh from file
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  meshreader->read_from_to("rotation-tg-p1.neu",*mesh);
+  meshreader->read_mesh_into("rotation-tg-p1.neu",*mesh);
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology/default_id1084/inlet"))
                                     (URI("cpath://Root/mesh/topology/default_id1084/outlet"));
 
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 
   // Read mesh from file
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  meshreader->read_from_to("rotation-tg-p1.neu",*mesh);
+  meshreader->read_mesh_into("rotation-tg-p1.neu",*mesh);
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
 
   // Create inner_faces
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   // Read mesh from file
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  meshreader->read_from_to("rotation-tg-p1.neu",*mesh);
+  meshreader->read_mesh_into("rotation-tg-p1.neu",*mesh);
 
   BOOST_CHECK(true);
 

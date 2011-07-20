@@ -29,8 +29,9 @@ public:
   virtual std::string get_format() { return "blockMeshDict"; }
 
   virtual std::vector<std::string> get_extensions();
-  
-  virtual void read_from_to(boost::filesystem::path& path, const Mesh::CMesh::Ptr& mesh);
+
+private:
+  virtual void do_read_mesh_into(boost::filesystem::path& path, const Mesh::CMesh::Ptr& mesh);
   
 }; // end BlockMeshReader
 

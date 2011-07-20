@@ -8,6 +8,12 @@
 
 #include "MeshGeneration.hpp"
 
+#include "Common/Core.hpp"
+#include "Common/EventHandler.hpp"
+#include "Common/OptionURI.hpp"
+#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CFaces.hpp"
@@ -16,6 +22,7 @@
 #include "Mesh/CNodes.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Mesh::BlockMesh;
 using namespace CF::Math;
@@ -28,6 +35,19 @@ using namespace boost::assign;
 namespace CF {
 namespace Tools {
 namespace MeshGeneration {
+
+/// Helper function to raise the mesh_loaded event and update mesh statustics
+/// This must be called at the end of every mesh generation method
+void mesh_loaded(CMesh& mesh)
+{
+  mesh.update_statistics();
+  // Raise an event to indicate that a mesh was loaded happened
+  SignalOptions options;
+  options.add_option< OptionURI >("mesh_uri", mesh.uri());
+  
+  SignalFrame f= options.create_frame();
+  Core::instance().event_handler().raise_event( "mesh_loaded", f );
+}
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +87,7 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;
   
-  mesh.update_statistics();
+  mesh_loaded(mesh);
 }
 
 
@@ -174,7 +194,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   center_point_connectivity.resize(1);
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
   
-  mesh.update_statistics();
+  mesh_loaded(mesh);
 }
 
 void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
@@ -291,7 +311,7 @@ void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, cons
   center_point_connectivity.resize(1);
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
   
-  mesh.update_statistics();
+  mesh_loaded(mesh);
 }
 
 
@@ -369,6 +389,7 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
     coord_row[XX] = radius * cos(end_angle);
     coord_row[YY] = radius * sin(end_angle);
   }
+  mesh_loaded(mesh);
 }
 
 void create_channel_3d(BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)
@@ -404,6 +425,7 @@ void create_channel_3d(BlockData& blocks, const Real length, const Real half_hei
                          list_of(2)(4)(5)(3)(8)(9)(11)(10),
                          list_of(0)(6)(8)(2)(1)(3)(9)(7),
                          list_of(2)(8)(10)(4)(3)(5)(11)(9);
+                         
 }
 
 

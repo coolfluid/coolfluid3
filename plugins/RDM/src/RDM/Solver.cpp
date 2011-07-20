@@ -170,7 +170,7 @@ void Solver::config_mesh()
 }
 
 
-void Solver::mesh_changed(CMesh& mesh)
+void Solver::mesh_loaded(CMesh& mesh)
 {
   // this triggers the config_mesh() function
 

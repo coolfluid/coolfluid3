@@ -119,7 +119,7 @@ void LoadMesh::load_mesh_into(const URI& file, CMesh& mesh)
     else
     {
       CMeshReader::Ptr meshreader = m_extensions_to_readers[extension][0];
-      meshreader->read_from_to(file, mesh);
+      meshreader->read_mesh_into(file, mesh);
     }
   }
 }
@@ -189,7 +189,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
         else
         {
           CMeshReader::Ptr meshreader = m_extensions_to_readers[extension][0];
-          meshreader->read_from_to(file, *mesh);
+          meshreader->read_mesh_into(file, *mesh);
         }
       }
     }

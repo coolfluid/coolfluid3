@@ -71,9 +71,9 @@ private: // functions
 
   void read_node_data();
 
-  virtual void read_from_to(const Common::URI& fp, CMesh& mesh);
-
 private: // data
+
+  virtual void do_read_mesh_into(const Common::URI& fp, CMesh& mesh);
 
   enum HashType { NODES=0, ELEMS=1 };
   boost::shared_ptr<CMixedHash> m_hash;

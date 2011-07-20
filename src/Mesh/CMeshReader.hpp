@@ -72,10 +72,10 @@ public: // functions
   /// @return the list of possible extensions of the file format
   virtual std::vector<std::string> get_extensions() = 0;
 
-  /// Read a given file to a given mesh
+  /// Read a given file to a given mesh. This calls a concrete implementation given by do_read_mesh_into
   /// @param [in]     path  the file to read in
   /// @param [in,out] mesh  the mesh to write to
-  virtual void read_from_to(const Common::URI& path, CMesh& mesh) = 0;
+  void read_mesh_into(const Common::URI& path, CMesh& mesh);
 
   /// Read a given file and create a mesh
   /// @param [in]   path    the file to read in
@@ -107,6 +107,12 @@ protected: // functions
   void remove_empty_element_regions(CRegion& parent_region);
 
 protected: // data
+
+private:
+  /// this function implements the concrete mesh reading algorithm and is called by read_mesh_into
+  /// @param [in]     path  the file to read in
+  /// @param [in,out] mesh  the mesh to write to
+  virtual void do_read_mesh_into(const Common::URI& path, CMesh& mesh) = 0;
 
 };
 

@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( build )
 
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->configure_option("read_boundaries",false);
-  meshreader->read_from_to("quadtriag.neu",*mesh);
+  meshreader->read_mesh_into("quadtriag.neu",*mesh);
 
 
   CGlobalNumbering::Ptr build_glb_numbering = allocate_component<CGlobalNumbering>("build_glb_numbering");

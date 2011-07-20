@@ -209,7 +209,7 @@ void Transformer::input( const std::vector<std::string>& params )
     }
 
     CFinfo << "\nReading " << inputfile.path() << " with " << reader->get_format() << CFendl;
-    if (!dryrun) reader->read_from_to(inputfile,*mesh);
+    if (!dryrun) reader->read_mesh_into(inputfile,*mesh);
   }
 }
 

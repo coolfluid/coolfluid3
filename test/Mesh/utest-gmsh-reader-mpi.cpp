@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_triag )
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_from_to("rectangle-tg-p1.msh",*mesh);
+  meshreader->read_mesh_into("rectangle-tg-p1.msh",*mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh->tree() << CFendl;
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p2 )
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_from_to("rectangle-tg-p2.msh",*mesh);
+  meshreader->read_mesh_into("rectangle-tg-p2.msh",*mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh->tree() << CFendl;
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_quad_p1 )
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_from_to("rectangle-qd-p2.msh",*mesh);
+  meshreader->read_mesh_into("rectangle-qd-p2.msh",*mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh->tree() << CFendl;
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_quad_p2 )
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_from_to("rectangle-qd-p2.msh",*mesh);
+  meshreader->read_mesh_into("rectangle-qd-p2.msh",*mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh->tree() << CFendl;
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1 )
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_from_to("rectangle-mix-p1.msh",*mesh);
+  meshreader->read_mesh_into("rectangle-mix-p1.msh",*mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh->tree() << CFendl;
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p2 )
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_from_to("rectangle-mix-p2.msh",*mesh);
+  meshreader->read_mesh_into("rectangle-mix-p2.msh",*mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh->tree() << CFendl;
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_from_to("rectangle-mix-p1-out.msh",*mesh);
+  meshreader->read_mesh_into("rectangle-mix-p1-out.msh",*mesh);
   // CFinfo.setFilterRankZero(true);
   BOOST_CHECK(true);
 

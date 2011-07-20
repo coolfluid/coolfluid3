@@ -11,7 +11,7 @@
 #include "Common/OptionURI.hpp"
 
 #include "Solver/CEigenLSS.hpp"
-#include "Solver/CSolver.hpp"
+#include "Solver/CSimpleSolver.hpp"
 
 #include "Solver/Actions/Proto/BlockAccumulator.hpp"
 #include "Solver/Actions/Proto/DirichletBC.hpp"
@@ -29,7 +29,7 @@ namespace UFEM {
 /// * Physical model
 /// * Mesh used
 /// * Region to loop over
-class UFEM_API LinearSolver : public Solver::CSolver
+class UFEM_API LinearSolver : public Solver::CSimpleSolver
 {
 public: // typedefs
 
@@ -49,7 +49,7 @@ public: // functions
   
   virtual void execute();
   
-  virtual void mesh_changed(Mesh::CMesh& mesh);
+  virtual void mesh_loaded(Mesh::CMesh& mesh);
   
   /// Return an action that resets the LSS to zero
   Common::CAction& zero_action();

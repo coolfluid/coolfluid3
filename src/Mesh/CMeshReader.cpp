@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Core.hpp"
+#include "Common/EventHandler.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/BoostFilesystem.hpp"
 #include "Common/Signal.hpp"
@@ -84,7 +86,7 @@ void CMeshReader::signal_read( SignalArgs& node  )
     // Get the file paths
     boost_foreach(const URI& file, files)
     {
-      read_from_to(file, mesh);
+      do_read_mesh_into(file, mesh);
     }
   }
   else
@@ -95,13 +97,28 @@ void CMeshReader::signal_read( SignalArgs& node  )
 
 //////////////////////////////////////////////////////////////////////////////
 
+void CMeshReader::read_mesh_into(const URI& path, CMesh& mesh)
+{
+  // Call the concrete implementation
+  do_read_mesh_into(path, mesh);
+  
+  // Raise an event to indicate that a mesh was loaded happened
+  SignalOptions options;
+  options.add_option< OptionURI >("mesh_uri", mesh.uri());
+  
+  SignalFrame f= options.create_frame();
+  Core::instance().event_handler().raise_event( "mesh_loaded", f );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 CMesh::Ptr CMeshReader::create_mesh_from(const URI& file)
 {
   // Create the mesh
   CMesh::Ptr mesh ( allocate_component<CMesh>("mesh") );
 
   // Call implementation
-  read_from_to(file,*mesh);
+  do_read_mesh_into(file,*mesh);
 
   // return the mesh
   return mesh;

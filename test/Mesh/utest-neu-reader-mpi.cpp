@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   // the mesh to store in
   CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
-  meshreader->read_from_to("quadtriag.neu",*mesh);
+  meshreader->read_mesh_into("quadtriag.neu",*mesh);
 
 
   CFinfo << "elements count = " << find_component<CRegion>(*mesh).recursive_elements_count() << CFendl;
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 
 
   CFinfo.setFilterRankZero(false);
-  meshreader->read_from_to(fp_in,mesh);
+  meshreader->do_read_mesh_into(fp_in,mesh);
   CFinfo.setFilterRankZero(true);
 
   boost::filesystem::path fp_out ("hextet.msh");
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
   for (Uint count=1; count<=2; ++count)
   {
     CFinfo << "\n\n\nMesh parallel:" << CFendl;
-    meshreader->read_from_to(fp_in,mesh);
+    meshreader->do_read_mesh_into(fp_in,mesh);
   }
 
 
