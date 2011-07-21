@@ -10,16 +10,23 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
 
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CRegion.hpp"
+
+//#include "Mesh/Actions/CInitFieldFunction.hpp"
 
 #include "Physics/PhysModel.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "RDM/RDSolver.hpp"
+#include "RDM/Init.hpp"
 
 #include "InitialConditions.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
+using namespace CF::Mesh;
 
 namespace CF {
 namespace RDM {
@@ -75,23 +82,29 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
   SignalOptions options( node );
 
   std::string name = options.value<std::string>("Name");
-  std::string type = options.value<std::string>("Type");
 
-  std::vector<URI> regions = options.array<URI>("Regions");
-
-  /// @todo maybe this should be more specific class not CAction
-
-  CAction::Ptr ic = build_component_abstract_type< CAction >(type,name);
-
+  CAction::Ptr ic = allocate_component< RDM::Init >(name);
   append( ic );
 
-  ic->configure_option( "regions", regions );
 
-  if( m_mesh.lock() )
-    ic->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  if( m_physical_model.lock() )
-    ic->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+  URI solution_uri = solver().as_type< RDSolver >().fields().get_child( Tags::solution() ).follow()->uri();
 
+  ic->configure_option( "field", solution_uri );
+
+  std::vector<URI> regions;
+  if( options.check("Regions") )
+  {
+    regions = options.array<URI>("Regions");
+  }
+  else // if user did not specify, then use the whole topology (all regions)
+  {
+    regions.push_back(mesh().topology().uri());
+  }
+  ic->configure_option("regions" , regions);
+
+  ic->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
+  ic->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
+  ic->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
 }
 
 
@@ -102,19 +115,7 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
   // name
 
   options.add_option< OptionT<std::string> >("Name", std::string() )
-      ->set_description("Name for created boundary term" );
-
-  // type
-
-  /// @todo should loop on availabe BCs in factory of BCs
-
-  std::vector< boost::any > restricted;
-
-  //  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-
-  options.add_option< OptionT<std::string> >("Type", std::string("CF.RDM.BcDirichlet") )
-      ->set_description("Type for created boundary")
-      ->restricted_list() = restricted;
+      ->set_description("Name for created initial condition" );
 
   // regions
 
@@ -122,8 +123,8 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   /// @todo create here the list of restricted regions, both volume and surface
 
-  options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->set_description("Regions where to apply the boundary condition");
+  options.add_option< OptionArrayT<URI> >("Regions", dummy )
+      ->set_description("Regions where to apply the initial condition [optional]");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

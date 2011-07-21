@@ -17,6 +17,8 @@
 
 #include "Physics/PhysModel.hpp"
 
+#include "Solver/CSolver.hpp"
+
 #include "RDM/CellTerm.hpp"
 #include "RDM/FaceTerm.hpp"
 
@@ -75,6 +77,39 @@ void DomainDiscretization::execute()
 
 }
 
+RDM::CellTerm& DomainDiscretization::create_cell_term( const std::string& type,
+                                                       const std::string& name,
+                                                       const std::vector<URI>& regions )
+{
+  RDM::CellTerm::Ptr term = build_component_abstract_type<RDM::CellTerm>(type,name);
+
+  m_cell_terms->append(term);
+
+  term->configure_option("regions" , regions);
+
+  term->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
+  term->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
+  term->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+
+  return *term;
+}
+
+RDM::FaceTerm& DomainDiscretization::create_face_term( const std::string& type,
+                                                       const std::string& name,
+                                                       const std::vector<URI>& regions )
+{
+  RDM::FaceTerm::Ptr term = build_component_abstract_type<RDM::FaceTerm>(type,name);
+
+  m_face_terms->append(term);
+
+  term->configure_option("regions" , regions);
+
+  term->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
+  term->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
+  term->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+
+  return *term;
+}
 
 void DomainDiscretization::signal_create_cell_term( SignalArgs& args )
 {
@@ -83,28 +118,16 @@ void DomainDiscretization::signal_create_cell_term( SignalArgs& args )
   std::string name = options.value<std::string>("Name");
   std::string type = options.value<std::string>("Type");
 
-  RDM::CellTerm::Ptr term = build_component_abstract_type<RDM::CellTerm>(type,name);
-
-  m_cell_terms->append(term);
-
   // configure the regions
+  // if user did not specify, then use the whole topology (all regions)
 
   std::vector<URI> regions;
   if( options.check("Regions") )
-  {
     regions = options.array<URI>("Regions");
-  }
-  else // if user did not specify, then use the whole topology (all regions)
-  {
+  else
     regions.push_back(mesh().topology().uri());
-  }
-  term->configure_option("regions" , regions);
 
-  if( m_mesh.lock() )
-    term->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  if( m_physical_model.lock() )
-    term->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
-
+  create_cell_term( type, name, regions );
 }
 
 
@@ -120,23 +143,15 @@ void DomainDiscretization::signal_create_face_term( SignalArgs& args )
   m_face_terms->append(term);
 
   // configure the regions
+  // if user did not specify, then use the whole topology (all regions)
 
   std::vector<URI> regions;
   if( options.check("Regions") )
-  {
     regions = options.array<URI>("Regions");
-  }
-  else // if user did not specify, then use the whole topology (all regions)
-  {
+  else
     regions.push_back(mesh().topology().uri());
-  }
-  term->configure_option("regions" , regions);
 
-  if( m_mesh.lock() )
-    term->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  if( m_physical_model.lock() )
-    term->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
-
+  create_face_term( type, name, regions );
 }
 
 

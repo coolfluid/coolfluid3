@@ -14,6 +14,9 @@
 #include "RDM/LibRDM.hpp"
 
 namespace CF {
+
+ namespace Solver { class CModel; }
+
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +44,8 @@ public: // functions
 
   // functions specific to the SteadyExplicit component
 
-  void create_model( const std::string& model_name, const std::string& physics_builder );
+  CF::Solver::CModel& create_model( const std::string& model_name,
+                                    const std::string& physics_builder );
 
   /// @name SIGNALS
   //@{

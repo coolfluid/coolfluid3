@@ -68,11 +68,11 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
       ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) )
       ->add_tag(Mesh::Tags::volume());
 
-  m_options.add_option(OptionURI::create("time", URI("cpath:"), URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("ctime", URI("cpath:"), URI::Scheme::CPATH))
       ->set_description("Time Tracking component")
       ->set_pretty_name("Time")
       ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_time,   this ) )
-      ->add_tag("time");
+      ->add_tag("ctime");
 
 }
 
@@ -104,7 +104,7 @@ void ComputeUpdateCoefficient::config_wave_speed()
 
 void ComputeUpdateCoefficient::config_time()
 {
-  URI uri;  option("time").put_value(uri);
+  URI uri;  option("ctime").put_value(uri);
   m_time = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CTime>();
 }
 

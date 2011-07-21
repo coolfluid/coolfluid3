@@ -28,6 +28,7 @@ public:
   static const char * domain()         { return "domain"; }
   static const char * solver()         { return "solver"; }
   static const char * mesh()           { return "mesh"; }
+  static const char * time()           { return "ctime"; }
   static const char * physical_model() { return "physical_model"; }
 
   static const char * residual()      { return "residual"; }

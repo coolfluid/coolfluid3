@@ -40,7 +40,7 @@
 #include "Mesh/Actions/CBubbleEnrich.hpp"
 #include "Mesh/Actions/CBubbleRemove.hpp"
 
-#include "RDM/RKRD.hpp"
+#include "RDM/RDSolver.hpp"
 #include "RDM/CellTerm.hpp"
 #include "RDM/SteadyExplicit.hpp"
 
@@ -162,7 +162,7 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 
   frame = options.create_frame();
 
-  solver.as_type<RKRD>().signal_initialize_solution( frame );
+  solver.as_type<RDSolver>().initial_conditions().signal_create_initial_condition( frame );
 
   BOOST_CHECK(true);
 
@@ -212,7 +212,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
     frame = options.create_frame();
 
-    solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
+    solver.as_type<RDSolver>().boundary_conditions().signal_create_boundary_condition(frame);
 
     Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
     BOOST_CHECK( is_not_null(inletbc) );
@@ -242,7 +242,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
     frame = options.create_frame();
 
-    solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
+    solver.as_type<RDSolver>().boundary_conditions().signal_create_boundary_condition(frame);
 
     Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
     BOOST_CHECK( is_not_null(inletbc) );
@@ -295,7 +295,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 
     frame = options.create_frame();
 
-    solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
+    solver.as_ptr<RDSolver>()->signal_create_domain_term(frame);
 
     solver.execute();
 }

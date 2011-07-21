@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_BcDirichlet_hpp
-#define CF_RDM_BcDirichlet_hpp
+#ifndef CF_RDM_Init_hpp
+#define CF_RDM_Init_hpp
 
 #include "Math/VectorialFunction.hpp"
 
@@ -19,29 +19,27 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API BcDirichlet : public RDM::BoundaryTerm {
+class RDM_API Init : public CF::Solver::Action {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<BcDirichlet> Ptr;
-  typedef boost::shared_ptr<BcDirichlet const> ConstPtr;
+  typedef boost::shared_ptr<Init> Ptr;
+  typedef boost::shared_ptr<Init const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  BcDirichlet ( const std::string& name );
+  Init ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~BcDirichlet() {}
+  virtual ~Init() {}
 
   /// Get the class name
-  static std::string type_name () { return "BcDirichlet"; }
+  static std::string type_name () { return "Init"; }
 
   /// execute the action
   virtual void execute ();
-
-  virtual bool is_weak() const { return false; }
 
 private: // helper functions
 
@@ -49,8 +47,8 @@ private: // helper functions
 
 private: // data
 
-  /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::CField> m_solution;
+  boost::weak_ptr<Mesh::CField> m_field;  ///< access to the field to initialize
+
   /// function parser for the math formula of the dirichlet condition
   Math::VectorialFunction  m_function;
 
@@ -61,4 +59,4 @@ private: // data
 } // RDM
 } // CF
 
-#endif // CF_RDM_BcDirichlet_hpp
+#endif // CF_RDM_Init_hpp

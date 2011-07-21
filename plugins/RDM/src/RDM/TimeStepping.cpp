@@ -61,17 +61,12 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   // dyanmic components
 
-  CCriterionTime& maxtime =
-      create_component<CCriterionTime>( "TimeLimit" );
+/// @todo this component will be added by the Wizard
+//  CCriterionTime& maxtime =
+//      create_component<CCriterionTime>( "TimeLimit" );
 
   CCriterionMaxIterations& maxiter =
       create_component<CCriterionMaxIterations>( "MaxIterations" );
-
-  // this does not work here
-  //
-  //  maxtime.configure_option( "time", URI("../Time") );
-  //  maxiter.configure_option( "iterator", URI("..") );
-
 }
 
 bool TimeStepping::stop_condition()
@@ -84,13 +79,11 @@ bool TimeStepping::stop_condition()
 
 void TimeStepping::execute()
 {
-  CFinfo << "[RDM] time stepping" << CFendl;
-
   /// @todo these configurations sould be in constructor but does not work there
+  ///       becasue uri() is undefined on the constructor ( component is still free )
 
-  get_child("TimeLimit").configure_option( "time", m_time->uri() );
-  get_child("MaxIterations").configure_option( "iterator", this->uri() );
-
+  configure_option_recursively( "ctime", m_time->uri() );
+  configure_option_recursively( "iterator", this->uri() );
 
   // start loop - iterations start from 1 ( max iter zero will do nothing )
 
@@ -102,7 +95,7 @@ void TimeStepping::execute()
 
     // print iteration
 
-    CFinfo << "    time [" << m_time->current_time() << "] iter [" << k << "]" << CFendl;
+    CFinfo << "    time [" << m_time->current_time() << "] iteration [" << k << "]" << CFendl;
 
     // (1) the pre actions - pre-process, user defined actions, etc
 

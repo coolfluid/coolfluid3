@@ -24,8 +24,6 @@
 #include "Physics/Scalar/Burgers2D.hpp"      // to remove
 #include "Physics/NavierStokes/Cons2D.hpp"   // to remove
 
-/////////////////////////////////////////////////////////////////////////////////////
-
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Physics;
@@ -54,14 +52,6 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
 
   // options
 
-  m_options.add_option< OptionURI > ("solution", URI("cpath:"))
-      ->set_description("Solution field where to apply the boundary condition")
-      ->set_pretty_name("Solution")
-      ->attach_trigger ( boost::bind ( &WeakDirichlet::config_mesh,   this ) )
-      ->mark_basic();
-
-  m_options["mesh"].attach_trigger ( boost::bind ( &WeakDirichlet::config_mesh, this ) );
-
   m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->set_description("Math function applied as Dirichlet boundary condition (vars x,y)")
       ->attach_trigger ( boost::bind ( &WeakDirichlet::config_function, this ) )
@@ -70,7 +60,6 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
   function.variables("x,y,z");
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void WeakDirichlet::config_function()
 {
@@ -78,25 +67,6 @@ void WeakDirichlet::config_function()
   function.parse();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-void WeakDirichlet::config_mesh()
-{
-  cf_assert( is_not_null( m_mesh.lock() ) );
-
-  URI sol_uri  = option("solution").value<URI>();
-  solution = access_component_ptr(sol_uri)->as_ptr<CField>();
-  if( is_null(solution.lock()) )
-    solution = find_component_ptr_with_tag<CField>( *(m_mesh.lock()) , "solution" );
-
-  if( is_null(solution.lock()) )
-    throw CastingFailed (FromHere(),
-                         "Could not find a solution field on mesh "
-                         + m_mesh.lock()->uri().string() );
-
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 void WeakDirichlet::execute()
 {
@@ -121,6 +91,3 @@ void WeakDirichlet::execute()
 
 } // RDM
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////////
-

@@ -6,21 +6,22 @@
 
 #include <iomanip>
 
-#include "Math/Checks.hpp"
-
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/EventHandler.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
+
+#include "Math/Checks.hpp"
 
 #include "Solver/Actions/CSynchronizeFields.hpp"
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
 #include "Solver/Actions/CComputeLNorm.hpp"
 
-#include "RDM/Solver.hpp"
+#include "RDM/RDSolver.hpp"
 #include "RDM/Cleanup.hpp"
 
 #include "IterativeSolver.hpp"
@@ -88,7 +89,7 @@ bool IterativeSolver::stop_condition()
 
 void IterativeSolver::execute()
 {
-  RDM::Solver& mysolver = solver().as_type< RDM::Solver >();
+  RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
 
   //----------------------------------------------------------------------------------------
 
@@ -121,8 +122,8 @@ void IterativeSolver::execute()
 
   // iteration loop
 
-  Uint k = 1; // iterations start from 1 ( max iter zero will do nothing )
-  property("iteration") = k;
+  Uint iter = 1; // iterations start from 1 ( max iter zero will do nothing )
+  property("iteration") = iter;
 
 
   while( ! stop_condition() ) // non-linear loop
@@ -151,22 +152,33 @@ void IterativeSolver::execute()
 
     m_post_actions->execute();
 
-    // increment iteration
-
-    property("iteration") = ++k; // update the iteration number
-
-    /// @todo move current rhs as a property of the iterate or solver components
-
     // output convergence info
 
-    Real rhs_norm = cnorm.properties().value<Real>("Norm");
-    std::cout << " Iter [" << std::setw(4) << k << "]"
-              << " L2(rhs) [" << std::setw(12) << rhs_norm << "]" << std::endl;
+    /// @todo move current rhs as a property of the iterate or solver components
+    {
+      Real rhs_norm = cnorm.properties().value<Real>("Norm");
+      std::cout << " Iter [" << std::setw(4) << iter << "]"
+                << " L2(rhs) [" << std::setw(12) << rhs_norm << "]" << std::endl;
 
-    if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
-      throw FailedToConverge(FromHere(),
-                             "Solution diverged after "+to_str(k)+" iterations");
+      if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
+        throw FailedToConverge(FromHere(),
+                               "Solution diverged after "+to_str(iter)+" iterations");
+    }
 
+    // raise signal that iteration is done
+
+    /// @todo move this to an Action and/or separate function in base class
+    {
+      SignalOptions opts; SignalFrame frame;
+      opts.add_option< OptionT<Uint> >( "iteration", iter );
+      frame = opts.create_frame("iteration_done", uri(), URI());
+
+      Common::Core::instance().event_handler().raise_event( "iteration_done", frame);
+    }
+
+    // increment iteration
+
+    property("iteration") = ++iter; // update the iteration number
 
   }
 }

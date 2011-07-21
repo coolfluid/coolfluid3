@@ -41,7 +41,7 @@ OutputIterationInfo::OutputIterationInfo ( const std::string& name ) :
   mark_basic();
   // options
 
-  m_options.add_option(OptionComponent<CTime>::create("time", &m_time))
+  m_options.add_option(OptionComponent<CTime>::create("ctime", &m_time))
       ->set_description("Time tracking component")
       ->set_pretty_name("Time");
 

@@ -1,10 +1,8 @@
 list( APPEND coolfluid_rdm_files
   LibRDM.cpp
   LibRDM.hpp
-  RKRD.cpp
-  RKRD.hpp
-  Solver.cpp
-  Solver.hpp
+  RDSolver.cpp
+  RDSolver.hpp
   SupportedCells.hpp
   SupportedFaces.hpp
   Quadrature.hpp
@@ -30,6 +28,8 @@ list( APPEND coolfluid_rdm_files
   MySim.cpp
   MySim.hpp
 # actions
+  Cleanup.hpp
+  Cleanup.cpp
   BoundaryTerm.hpp
   BoundaryTerm.cpp
   CellTerm.hpp
@@ -42,11 +42,9 @@ list( APPEND coolfluid_rdm_files
   SchemeBase.hpp
   WeakDirichlet.cpp
   WeakDirichlet.hpp
-  Cleanup.hpp
-  Cleanup.cpp
+  Init.hpp
+  Init.cpp
 # time stepping
-  ForwardEuler.hpp
-  ForwardEuler.cpp
   UpdateSolution.hpp
   UpdateSolution.cpp
 )

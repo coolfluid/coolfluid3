@@ -16,6 +16,8 @@
 
 #include "Physics/PhysModel.hpp"
 
+#include "Solver/CSolver.hpp"
+
 #include "RDM/BoundaryTerm.hpp"
 
 #include "BoundaryConditions.hpp"
@@ -67,16 +69,10 @@ void BoundaryConditions::execute()
   m_strong_bcs->execute();
 }
 
-
-void BoundaryConditions::signal_create_boundary_condition ( SignalArgs& node )
+RDM::BoundaryTerm& BoundaryConditions::create_boundary_condition( const std::string& type,
+                                                                  const std::string& name,
+                                                                  const std::vector<URI>& regions )
 {
-  SignalOptions options( node );
-
-  std::string name = options.value<std::string>("Name");
-  std::string type = options.value<std::string>("Type");
-
-  std::vector<URI> regions = options.array<URI>("Regions");
-
   RDM::BoundaryTerm::Ptr bterm = build_component_abstract_type<RDM::BoundaryTerm>(type,name);
 
   add_component( bterm ); // stays owned here
@@ -90,11 +86,23 @@ void BoundaryConditions::signal_create_boundary_condition ( SignalArgs& node )
 
   bterm->configure_option("regions" , regions);
 
-  if( m_mesh.lock() )
-    bterm->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  if( m_physical_model.lock() )
-    bterm->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+  bterm->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
+  bterm->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
+  bterm->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
 
+  return *bterm;
+}
+
+void BoundaryConditions::signal_create_boundary_condition ( SignalArgs& node )
+{
+  SignalOptions options( node );
+
+  std::string name = options.value<std::string>("Name");
+  std::string type = options.value<std::string>("Type");
+
+  std::vector<URI> regions = options.array<URI>("Regions");
+
+  create_boundary_condition( type, name, regions );
 }
 
 

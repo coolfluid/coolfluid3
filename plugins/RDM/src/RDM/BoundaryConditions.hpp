@@ -14,6 +14,7 @@
 namespace CF {
 namespace RDM {
 
+class BoundaryTerm;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -39,6 +40,9 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
+  RDM::BoundaryTerm& create_boundary_condition( const std::string& type,
+                                                const std::string& name,
+                                                const std::vector<Common::URI>& regions );
   /// @name SIGNALS
   //@{
 

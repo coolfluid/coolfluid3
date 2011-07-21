@@ -41,36 +41,6 @@ Common::ComponentBuilder < FaceLoopT< WallWeakBc, Physics::NavierStokes::Cons2D>
 WallWeakBc::WallWeakBc ( const std::string& name ) :
   RDM::BoundaryTerm(name)
 {
-  regist_typeinfo(this);
-
-  // options
-
-  m_options.add_option< OptionURI > ("solution", URI("cpath:"))
-      ->set_description("Solution field where to apply the boundary condition")
-      ->set_pretty_name("Solution")
-      ->attach_trigger ( boost::bind ( &WallWeakBc::config_mesh,   this ) )
-      ->mark_basic()
-      ->add_tag("solution");
-
-  m_options["mesh"].attach_trigger ( boost::bind ( &WallWeakBc::config_mesh, this ) );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void WallWeakBc::config_mesh()
-{
-  cf_assert( is_not_null( m_mesh.lock() ) );
-
-  URI sol_uri  = option("solution").value<URI>();
-  solution = access_component_ptr(sol_uri)->as_ptr<CField>();
-  if( is_null(solution.lock()) )
-    solution = find_component_ptr_with_tag<CField>( *(m_mesh.lock()) , "solution" );
-
-  if( is_null(solution.lock()) )
-    throw CastingFailed (FromHere(),
-                         "Could not find a solution field on mesh "
-                         + m_mesh.lock()->uri().string() );
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

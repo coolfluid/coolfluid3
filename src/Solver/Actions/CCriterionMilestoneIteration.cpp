@@ -28,7 +28,7 @@ CCriterionMilestoneIteration::CCriterionMilestoneIteration( const std::string& n
     "Returns true if a time is reached\n";
   m_properties["description"] = description;
 
-  m_options.add_option(OptionComponent<CTime>::create("time", &m_time))
+  m_options.add_option(OptionComponent<CTime>::create("ctime", &m_time))
       ->set_description("Time tracking component")
       ->set_pretty_name("Time")
       ->mark_basic()

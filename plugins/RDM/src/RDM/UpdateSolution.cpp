@@ -15,6 +15,7 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 
+#include "RDM/RDSolver.hpp"
 #include "RDM/UpdateSolution.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -33,33 +34,24 @@ Common::ComponentBuilder < UpdateSolution, CAction, LibRDM > UpdateSolution_Buil
 ///////////////////////////////////////////////////////////////////////////////////////
 
 UpdateSolution::UpdateSolution ( const std::string& name ) :
-  Solver::Action(name)
+  CF::Solver::Action(name)
 {
   mark_basic();
-
-  // options
-
-  m_options.add_option(OptionComponent<CField>::create("solution", &m_solution))
-      ->set_description("Solution field")
-      ->set_pretty_name("Solution");
-
-  m_options.add_option(OptionComponent<CField>::create("wave_speed", &m_wave_speed))
-      ->set_description("Wave speed field")
-      ->set_pretty_name("WaveSpeed");
-
-  m_options.add_option(OptionComponent<CField>::create("residual", &m_residual))
-      ->set_description("Residual field")
-      ->set_pretty_name("Residual");
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void UpdateSolution::execute()
 {
-  if (m_solution.expired())   throw SetupError(FromHere(), "Solution field was not set");
-  if (m_wave_speed.expired()) throw SetupError(FromHere(), "WaveSpeed Field was not set");
-  if (m_residual.expired())   throw SetupError(FromHere(), "Residual field was not set");
+  RDSolver& mysolver = solver().as_type< RDSolver >();
+
+  if (m_solution.expired())
+    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<CField>();
+  if (m_wave_speed.expired())
+    m_wave_speed = mysolver.fields().get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<CField>();
+  if (m_residual.expired())
+    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<CField>();
+
 
   CTable<Real>& solution     = m_solution.lock()->data();
   CTable<Real>& wave_speed   = m_wave_speed.lock()->data();

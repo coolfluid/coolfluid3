@@ -1,4 +1,3 @@
-#############################################################################
 ### Global settings
 
 configure //Root/Environment assertion_throws:bool=false \
@@ -9,7 +8,6 @@ configure //Root/Environment assertion_throws:bool=false \
                              log_level:unsigned=4 \
                              regist_signal_handlers:bool=false
 
-#############################################################################
 ### create model
 
 create Wizard CF.RDM.SteadyExplicit
@@ -17,23 +15,25 @@ create Wizard CF.RDM.SteadyExplicit
 call Wizard/create_model  model_name:string=Model \
                           physical_model:string=CF.Physics.Scalar.Scalar2D
 
-#############################################################################
 ### read mesh
 
 call Model/Domain/load_mesh file:uri=file:square1x1-tg-p2-2kn.msh
 
-#############################################################################
 ### solver
 
-configure Model/Solver                                update_vars:string=LinearAdv2D
+configure Model/RDSolver                                update_vars:string=LinearAdv2D
 
-configure Model/Solver/TimeStepping/Time              end_time:real=1.0 time_step:real=0.1
-configure Model/Solver/TimeStepping/MaxIterations     max:unsigned=1
-configure Model/Solver/IterativeSolver/MaxIterations  max:unsigned=100
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=100
 
-# boundary conditions #####
+### initial conditions
 
-call Model/Solver/BoundaryConditions/create_boundary_condition \
+call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
+
+configure Model/RDSolver/InitialConditions/INIT functions:array[string]=sin(x)
+
+### boundary conditions
+
+call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Name:string=INLET \
      Type:string=CF.RDM.BcDirichlet \
      Regions:array[uri]=\
@@ -41,18 +41,17 @@ call Model/Solver/BoundaryConditions/create_boundary_condition \
 //Root/Model/Domain/mesh/topology/left,\
 //Root/Model/Domain/mesh/topology/right
 
-configure Model/Solver/BoundaryConditions/INLET functions:array[string]=1.5-2.0*x
+configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]=1.5-2.0*x
 
-# domain discretization #####
+### domain discretization
 
-call Model/Solver/DomainDiscretization/create_cell_term \
+call Model/RDSolver/DomainDiscretization/create_cell_term \
      Name:string=INTERNAL \
      Type:string=CF.RDM.Schemes.CSysLDA
 
-#############################################################################
 ### simulate and write the result
 
-call Model/Solver/InitialConditions
+call Model/RDSolver/InitialConditions
 
 call Model/Domain/write_mesh file:uri=atest-rdm-linearadv2d-initial.msh
 

@@ -25,7 +25,7 @@
 #include "RDM/DomainDiscretization.hpp"
 #include "RDM/IterativeSolver.hpp"
 #include "RDM/TimeStepping.hpp"
-#include "RDM/Solver.hpp"
+#include "RDM/RDSolver.hpp"
 #include "RDM/SetupFields.hpp"
 
 using namespace CF::Common;
@@ -40,28 +40,33 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < RDM::Solver, CSolver, LibRDM > Solver_Builder;
+Common::ComponentBuilder < RDM::RDSolver, CSolver, LibRDM > Solver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Solver::Solver ( const std::string& name  ) :
+RDSolver::RDSolver ( const std::string& name  ) :
   CSolver ( name )
 {
+  // properties
+
+  properties()["brief"] = std::string("Residual Distribution Solver");
+  properties()["description"] = std::string("Long description not available");
+
   // options
 
   m_options.add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
-      ->attach_trigger ( boost::bind ( &Solver::config_physics, this ) );
+      ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
   m_options.add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
       ->set_description("Mesh the Discretization Method will be applied to")
       ->set_pretty_name("Mesh")
-      ->attach_trigger ( boost::bind ( &Solver::config_mesh,   this ) );
+      ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
   m_options.add_option( OptionComponent<Physics::PhysModel>::create( RDM::Tags::physical_model(), &m_physical_model))
       ->set_description("Physical model to discretize")
       ->set_pretty_name("Physics")
       ->mark_basic()
-      ->attach_trigger ( boost::bind ( &Solver::config_physics, this ) );
+      ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
   // subcomponents
 
@@ -95,10 +100,25 @@ Solver::Solver ( const std::string& name  ) :
 }
 
 
-Solver::~Solver() {}
+RDSolver::~RDSolver() {}
+
+InitialConditions&    RDSolver::initial_conditions()     { return *m_initial_conditions; }
+
+BoundaryConditions&   RDSolver::boundary_conditions()    { return *m_boundary_conditions; }
+
+DomainDiscretization& RDSolver::domain_discretization()  { return *m_domain_discretization; }
+
+IterativeSolver&      RDSolver::iterative_solver()       { return *m_iterative_solver; }
+
+TimeStepping&         RDSolver::time_stepping()          { return *m_time_stepping; }
+
+Common::CGroup& RDSolver::actions() { return *m_actions; }
+
+Common::CGroup& RDSolver::fields()  { return *m_fields; }
 
 
-void Solver::execute()
+
+void RDSolver::execute()
 {
   CFinfo << "[RDM] solver" << CFendl;
 
@@ -106,7 +126,7 @@ void Solver::execute()
 }
 
 
-void Solver::config_physics()
+void RDSolver::config_physics()
 {
   if( is_null(m_physical_model.lock()) )
     return;
@@ -145,7 +165,7 @@ void Solver::config_physics()
 }
 
 
-void Solver::config_mesh()
+void RDSolver::config_mesh()
 {
   if( is_null(m_mesh.lock()) ) return;
 
@@ -170,7 +190,7 @@ void Solver::config_mesh()
 }
 
 
-void Solver::mesh_loaded(CMesh& mesh)
+void RDSolver::mesh_loaded(CMesh& mesh)
 {
   // this triggers the config_mesh() function
 

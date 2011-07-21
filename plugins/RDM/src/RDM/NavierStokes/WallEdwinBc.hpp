@@ -51,8 +51,6 @@ public: // functions
 
 private: // helper functions
 
-  void config_mesh();
-
 public: // data
 
   /// access to the solution field on the mesh

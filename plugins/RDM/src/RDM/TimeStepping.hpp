@@ -41,6 +41,11 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
+  Common::CActionDirector& pre_actions()  { return *m_pre_actions; }
+  Common::CActionDirector& post_actions() { return *m_post_actions; }
+
+  CF::Solver::CTime&           time()         { return *m_time; }
+
   /// @name SIGNALS
   //@{
 

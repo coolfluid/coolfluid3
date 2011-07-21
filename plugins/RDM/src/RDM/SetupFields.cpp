@@ -15,7 +15,7 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "RDM/Solver.hpp"
+#include "RDM/RDSolver.hpp"
 #include "RDM/SetupFields.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ SetupFields::SetupFields ( const std::string& name ) : CF::Solver::Action(name)
 
 void SetupFields::execute()
 {
-  RDM::Solver& mysolver = solver().as_type< RDM::Solver >();
+  RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
 
   CMesh& mesh = *m_mesh.lock();
 

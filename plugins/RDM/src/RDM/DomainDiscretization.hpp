@@ -14,6 +14,8 @@
 namespace CF {
 namespace RDM {
 
+class CellTerm;
+class FaceTerm;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,6 +39,15 @@ public: // functions
 
   /// execute the action
   virtual void execute ();
+
+  RDM::CellTerm& create_cell_term( const std::string& type,
+                                   const std::string& name,
+                                   const std::vector<Common::URI>& regions );
+
+  RDM::FaceTerm& create_face_term( const std::string& type,
+                                   const std::string& name,
+                                   const std::vector<Common::URI>& regions );
+
 
   /// @name SIGNALS
   //@{

@@ -12,6 +12,9 @@
 #include "RDM/LibRDM.hpp"
 
 namespace CF {
+
+namespace Mesh { class CField; }
+
 namespace RDM {
 
   class ElementLoop;
@@ -39,6 +42,29 @@ public: // functions
   static std::string type_name () { return "FaceTerm"; }
 
   ElementLoop& access_element_loop( const std::string& type_name );
+
+  /// @name ACCESSORS
+  //@{
+
+  Mesh::CField& solution()    { return *m_solution.lock(); }
+
+  Mesh::CField& residual()    { return *m_residual.lock(); }
+
+  Mesh::CField& wave_speed()  { return *m_wave_speed.lock(); }
+
+  //@} END ACCESSORS
+
+protected: // function
+
+  void link_fields();
+
+protected: // data
+
+  boost::weak_ptr<Mesh::CField> m_solution;     ///< access to the solution field
+
+  boost::weak_ptr<Mesh::CField> m_residual;     ///< access to the residual field
+
+  boost::weak_ptr<Mesh::CField> m_wave_speed;   ///< access to the wave_speed field
 
 };
 

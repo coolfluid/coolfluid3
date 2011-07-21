@@ -53,17 +53,14 @@ public: // functions
 
 private: // helper functions
 
-  void config_mesh();
   void config_density_function();
   void config_velocity_function();
 
 public: // data
 
-  /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::CField> solution;
-
-  /// function parser to set the value of density and velocity
+  /// function parser to set the value of density
   Math::VectorialFunction  density_function;
+  /// function parser to set the value of velocity
   Math::VectorialFunction  velocity_function;
 
 }; // !SubsonicInFlowWeakBc

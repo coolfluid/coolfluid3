@@ -50,15 +50,6 @@ public: // functions
 
   virtual bool is_weak() const { return true; }
 
-private: // helper functions
-
-  void config_mesh();
-
-public: // data
-
-  /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::CField> solution;
-
 }; // !WallWeakBc
 
 //------------------------------------------------------------------------------------------

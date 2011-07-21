@@ -41,14 +41,17 @@ CSysLDAGPU::~CSysLDAGPU() {}
 
 void CSysLDAGPU::execute()
 {
-  const std::string physics = physical_model().type();
-
   // get the element loop or create it if does not exist
   ElementLoop::Ptr loop;
   Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
-      loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopGPU<" + type_name() + "," + physics + ">" , "LOOP");
+    const std::string update_vars_type =
+        physical_model().get_child( RDM::Tags::update_vars() )
+                        .as_type<Physics::Variables>()
+                        .type();
+
+      loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopGPU<" + type_name() + "," + update_vars_type + ">" , "LOOP");
       add_component(loop);
   }
   else

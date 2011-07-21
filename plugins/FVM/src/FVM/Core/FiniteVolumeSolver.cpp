@@ -94,7 +94,7 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
       ->set_description("Physical Model")
       ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_physical_model, this ) );
 
-  m_options.add_option(OptionURI::create("time", "cpath:../Time", URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("ctime", "cpath:../Time", URI::Scheme::CPATH))
       ->set_description("Time tracking component")
       ->set_pretty_name("Time")
       ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_time, this ) );
@@ -243,7 +243,7 @@ void FiniteVolumeSolver::trigger_domain()
 void FiniteVolumeSolver::trigger_time()
 {
 
-  URI time_uri = option("time").value<URI>();
+  URI time_uri = option("ctime").value<URI>();
   Component::Ptr time_ptr = access_component_ptr(time_uri);
   if (is_null(time_ptr))
   {
@@ -252,10 +252,10 @@ void FiniteVolumeSolver::trigger_time()
   else
   {
     m_time = time_ptr->as_ptr_checked<CTime>();
-    m_iterate->configure_option_recursively("time",m_time.lock()->uri());
+    m_iterate->configure_option_recursively("ctime",m_time.lock()->uri());
     m_iterate->configure_option_recursively("time_accurate",true);
   }
-  m_iterate->configure_option_recursively("time",m_time.lock()->uri());
+  m_iterate->configure_option_recursively("ctime",m_time.lock()->uri());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

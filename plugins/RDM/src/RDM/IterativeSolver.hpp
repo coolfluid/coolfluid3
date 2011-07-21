@@ -25,6 +25,7 @@ public: // typedefs
   typedef boost::shared_ptr<IterativeSolver const> ConstPtr;
 
 public: // functions
+
   /// Contructor
   /// @param name of the component
   IterativeSolver ( const std::string& name );
@@ -37,6 +38,10 @@ public: // functions
 
   /// execute the action
   virtual void execute ();
+
+  Common::CActionDirector& pre_actions()  { return *m_pre_actions; }
+  Common::CActionDirector& update()       { return *m_update; }
+  Common::CActionDirector& post_actions() { return *m_post_actions; }
 
   /// @name SIGNALS
   //@{

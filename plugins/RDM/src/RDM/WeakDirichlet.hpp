@@ -7,8 +7,6 @@
 #ifndef CF_RDM_WeakDirichlet_hpp
 #define CF_RDM_WeakDirichlet_hpp
 
-#include <iostream>          // to remove
-
 #include "Math/VectorialFunction.hpp"
 
 #include "Mesh/CElements.hpp"
@@ -16,8 +14,6 @@
 
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 
@@ -56,7 +52,6 @@ public: // functions
 
 private: // helper functions
 
-  void config_mesh();
   void config_function();
 
 public: // data
@@ -381,7 +376,5 @@ public: // functions
 
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_RDM_WeakDirichlet_hpp

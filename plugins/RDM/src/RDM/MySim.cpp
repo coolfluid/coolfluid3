@@ -29,8 +29,12 @@
 #include "Solver/CModelSteady.hpp"
 #include "Solver/CSolver.hpp"
 
+#include "RDM/SteadyExplicit.hpp"
 #include "RDM/MySim.hpp"
-#include "RDM/RKRD.hpp"
+#include "RDM/RDSolver.hpp"
+#include "RDM/BoundaryConditions.hpp"
+#include "RDM/InitialConditions.hpp"
+#include "RDM/DomainDiscretization.hpp"
 #include "RDM/CellTerm.hpp"
 
 namespace CF {
@@ -76,27 +80,14 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 {
   SignalOptions options( node );
 
+  SteadyExplicit& wizard = create_component<SteadyExplicit>("wizard");
+
   std::string name  = options.value<std::string>("model_name");
 
-  CModel::Ptr model = Common::Core::instance().root().create_component_ptr<CModelSteady>( name );
+  CModel& model = wizard.create_model(name, "Scalar2D");
 
-  // create domain
-
-  CDomain& domain = model->create_domain( "Domain" );
-
-  // create the Physical Model
-
-  PhysModel::Ptr pm = build_component_abstract_type<PhysModel>( "Scalar2D", "Physics");
-  pm->mark_basic();
-  model->add_component( pm );
-
-  // setup iterative solver
-
-  CSolver::Ptr solver = build_component_abstract_type<CSolver>( LibRDM::library_namespace() + ".RKRD", "Solver");
-  solver->mark_basic();
-  model->add_component( solver );
-
-  solver->configure_option("physics", pm->uri() );
+  CDomain&     domain = model.get_child("Domain").as_type<CDomain>();
+  RDM::RDSolver& solver = model.get_child("Solver").as_type<RDM::RDSolver>();
 
   // load the mesh
   {
@@ -119,9 +110,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
   // setup solver
   {
-    solver->configure_option("domain", domain.uri());
-    solver->get_child("time_stepping").configure_option("cfl", 0.5);
-    solver->get_child("time_stepping").configure_option("MaxIter", 2250u);
+    solver.get_child("IterativeSolver").configure_option_recursively("MaxIter", 2250u);
   }
 
   // boudnary term
@@ -141,16 +130,15 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
     options.add_option< OptionT<std::string> >("Name",name);
     options.add_option< OptionT<std::string> >("Type","CF.RDM.BcDirichlet");
-    options.add_option< OptionArrayT<URI> >("Regions", regions);
+    options.add_option< OptionArrayT<URI> >   ("Regions", regions);
 
-    solver->as_ptr<RKRD>()->signal_create_boundary_term(frame);
+    solver.boundary_conditions().signal_create_boundary_condition(frame);
 
-    Component::Ptr inletbc = find_component_ptr_recursively_with_name( *solver, name );
+    Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
     cf_assert( is_not_null(inletbc) );
 
     std::vector<std::string> fns;
     fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
-//    fns.push_back("cos(2*3.141592*(x+y))");
 
     inletbc->configure_option("functions", fns);
   }
@@ -164,7 +152,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
     functions[0] = "0.";
     options.add_option< OptionArrayT<std::string> >("functions", functions);
 
-    solver->as_type<RKRD>().signal_initialize_solution( frame );
+    solver.initial_conditions().signal_create_initial_condition( frame );
   }
 
   // LDA scheme
@@ -172,7 +160,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
     CFinfo << "solving with LDA scheme" << CFendl;
 
     // delete previous domain terms
-    Component& domain_terms = solver->get_child("compute_domain_terms");
+    Component& domain_terms = solver.get_child("compute_domain_terms");
     boost_foreach( RDM::CellTerm& term, find_components_recursively<RDM::CellTerm>( domain_terms ))
     {
       const std::string name = term.name();
@@ -194,9 +182,9 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
 
     options.add_option< OptionT<std::string> >("Name","INTERNAL");
     options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.CSysLDA");
-    options.add_option< OptionArrayT<URI> >("Regions", regions);
+    options.add_option< OptionArrayT<URI> >   ("Regions", regions);
 
-    solver->as_ptr<RKRD>()->signal_create_domain_term(frame);
+    solver.domain_discretization().signal_create_cell_term(frame);
 
     // solver->solve();
   }

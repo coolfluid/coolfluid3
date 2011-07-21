@@ -41,7 +41,9 @@
 #include "Mesh/Actions/CBubbleRemove.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
 
-#include "RDM/RKRD.hpp"
+#include "RDM/BoundaryConditions.hpp"
+#include "RDM/InitialConditions.hpp"
+#include "RDM/DomainDiscretization.hpp"
 #include "RDM/CellTerm.hpp"
 #include "RDM/SteadyExplicit.hpp"
 
@@ -85,7 +87,7 @@ struct global_fixture
 
     CModel& model = Core::instance().root().get_child("mymodel").as_type<CModel>();
 
-    CSolver& solver = find_component_recursively<CSolver>(model);
+    RDSolver& solver = find_component_recursively<RDSolver>(model);
 
     solver.configure_option( RDM::Tags::update_vars() , std::string("LinearAdv2D") );
   }
@@ -112,7 +114,7 @@ struct local_fixture
 
   CModel&     model;
   CDomain&    domain;
-  CSolver&    solver;
+  RDSolver&    solver;
   WriteMesh&  writer;
 
 };
@@ -167,37 +169,21 @@ BOOST_FIXTURE_TEST_CASE( signal_initialize_solution , local_fixture )
 {
   SignalFrame frame; SignalOptions options;
 
-  std::vector<std::string> functions(1);
-  functions[0] = "7.7777";
-  options.add_option< OptionArrayT<std::string> >("functions", functions);
+  options.add_option< OptionT<std::string> > ( "Name", "INIT" );
 
   frame = options.create_frame();
 
-  solver.as_type<RKRD>().signal_initialize_solution( frame );
+  solver.initial_conditions().signal_create_initial_condition( frame );
 
-  BOOST_CHECK(true);
+  std::vector<std::string> functions(1);
+  functions[0] = "7.7777";
 
-  CMesh& mesh = find_component<CMesh>(domain);
+  solver.initial_conditions().get_child("INIT").configure_option("functions", functions);
 
-  std::vector<URI> fields;
-  boost_foreach(const CField& field, find_components_recursively<CField>(mesh))
-    fields.push_back(field.uri());
+  solver.initial_conditions().execute();
 
-  writer.configure_option("fields",fields);
-  writer.configure_option("file",URI(model.name()+"_init.msh"));
-  writer.configure_option( RDM::Tags::mesh(),mesh.uri());
-
-  writer.execute();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-BOOST_FIXTURE_TEST_CASE( initial_output , local_fixture )
-{
-  CMesh& mesh = find_component<CMesh>(domain);
-
-  writer.write_mesh(mesh,URI(model.name() + "_init.plt"));
-  writer.write_mesh(mesh,URI(model.name() + "_init.msh"));
+  domain.write_mesh( URI(model.name() + "_init.plt") );
+  domain.write_mesh( URI(model.name() + "_init.msh") );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -224,7 +210,7 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
     frame = options.create_frame();
 
-    solver.as_ptr<RKRD>()->signal_create_boundary_term(frame);
+    solver.boundary_conditions().signal_create_boundary_condition(frame);
 
     Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
     cf_assert( is_not_null(inletbc) );
@@ -241,8 +227,8 @@ BOOST_FIXTURE_TEST_CASE( signal_create_boundaries , local_fixture )
 
 BOOST_FIXTURE_TEST_CASE( setup_iterative_solver , local_fixture )
 {
-  solver.get_child("time_stepping").configure_option("cfl", 0.5);
-  solver.get_child("time_stepping").configure_option("MaxIter", 50u);
+  solver.iterative_solver().configure_option_recursively("cfl",     0.5);
+  solver.iterative_solver().configure_option_recursively("MaxIter", 50u);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -277,7 +263,7 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 
   frame = options.create_frame();
 
-  solver.as_ptr<RKRD>()->signal_create_domain_term(frame);
+  solver.as_ptr<RDSolver>()->signal_create_domain_term(frame);
 
   solver.execute();
 }
@@ -286,10 +272,8 @@ BOOST_FIXTURE_TEST_CASE( solve_lda , local_fixture )
 
 BOOST_FIXTURE_TEST_CASE( output , local_fixture )
 {
-  CMesh& mesh = find_component<CMesh>(domain);
-
-  writer.write_mesh(mesh,URI(model.name() + ".plt"));
-  writer.write_mesh(mesh,URI(model.name() + ".msh"));
+  domain.write_mesh( URI(model.name() + "_init.plt") );
+  domain.write_mesh( URI(model.name() + "_init.msh") );
 }
 
 //////////////////////////////////////////////////////////////////////////////

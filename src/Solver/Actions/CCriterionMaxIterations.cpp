@@ -34,7 +34,7 @@ CCriterionMaxIterations::CCriterionMaxIterations( const std::string& name  ) :
       ->set_description("Component performing iterations")
       ->set_pretty_name("Iterative component");
 
-  m_options.add_option< OptionT<Uint> >( "max", 1 )
+  m_options.add_option< OptionT<Uint> >( "maxiter", 1u )
       ->set_description("Maximum number of iterations (0 will perform none)")
       ->set_pretty_name("Maximum number");
 
@@ -52,7 +52,7 @@ bool CCriterionMaxIterations::operator()()
   Component& comp_iter = *m_iter_comp.lock();
 
   const Uint cur_iter = comp_iter.properties().value<Uint>("iteration");
-  const Uint max_iter = option("max").value<Uint>();
+  const Uint max_iter = option("maxiter").value<Uint>();
 
   return ( cur_iter > max_iter );
 }

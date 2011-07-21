@@ -38,24 +38,24 @@ class TimeStepping;
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_API Solver : public CF::Solver::CSolver {
+class RDM_API RDSolver : public CF::Solver::CSolver {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Solver> Ptr;
-  typedef boost::shared_ptr<Solver const> ConstPtr;
+  typedef boost::shared_ptr<RDSolver> Ptr;
+  typedef boost::shared_ptr<RDSolver const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  Solver ( const std::string& name );
+  RDSolver ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~Solver();
+  virtual ~RDSolver();
 
   /// Get the class name
-  static std::string type_name () { return "Solver"; }
+  static std::string type_name () { return "RDSolver"; }
 
   // functions specific to the Solver component
 
@@ -74,9 +74,9 @@ public: // functions
   TimeStepping&         time_stepping();
 
   /// @returns the group of shared actions
-  Common::CGroup& actions() { return *m_actions; }
+  Common::CGroup& actions();
   /// @returns the group of shared fields
-  Common::CGroup& fields()  { return *m_fields; }
+  Common::CGroup& fields();
 
   /// @name SIGNALS
   //@{

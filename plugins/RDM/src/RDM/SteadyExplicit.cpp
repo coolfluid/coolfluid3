@@ -10,7 +10,6 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 
-
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMeshReader.hpp"
@@ -21,6 +20,10 @@
 #include "Solver/CSolver.hpp"
 
 #include "RDM/SteadyExplicit.hpp"
+#include "RDM/RDSolver.hpp"
+#include "RDM/IterativeSolver.hpp"
+#include "RDM/TimeStepping.hpp"
+#include "RDM/UpdateSolution.hpp"
 
 // supported physical models
 
@@ -38,12 +41,12 @@ using namespace CF::Mesh;
 using namespace CF::Physics;
 using namespace CF::Solver;
 
-Common::ComponentBuilder < SteadyExplicit, Solver::CWizard, LibRDM > SteadyExplicit_Builder;
+Common::ComponentBuilder < SteadyExplicit, CF::Solver::CWizard, LibRDM > SteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
-  Solver::CWizard ( name )
+  CF::Solver::CWizard ( name )
 {
   // signals
 
@@ -65,7 +68,7 @@ SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
 SteadyExplicit::~SteadyExplicit() {}
 
 
-void SteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
+CModel& SteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
 {
   // create the model
 
@@ -83,13 +86,25 @@ void SteadyExplicit::create_model( const std::string& model_name, const std::str
 
   // setup iterative solver
 
-  CSolver& solver = model.create_solver( "CF.RDM.Solver" );
+  CF::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< CF::RDM::RDSolver >();
 
   solver.mark_basic();
+
+  // explicit time stepping  - forward euler
+
+  solver.iterative_solver().update()
+      .append( allocate_component<UpdateSolution>("ExplicitStep") );
 
   solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
   solver.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
   solver.configure_option_recursively( RDM::Tags::solver(),         solver.uri() );
+
+//  solver.time_stepping().configure_option_recursively( "time_step", Real(0) );
+//  solver.time_stepping().configure_option_recursively( "end_time",  Real(0) );
+
+  solver.time_stepping().configure_option_recursively( "maxiter",   1u);
+
+  return model;
 }
 
 

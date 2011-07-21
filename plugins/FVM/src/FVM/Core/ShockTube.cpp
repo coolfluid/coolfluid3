@@ -155,7 +155,7 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   FiniteVolumeSolver& solver = model.create_solver("CF.FVM.Core.FiniteVolumeSolver").as_type<FiniteVolumeSolver>();
   solver.configure_option("physical_model",physics.uri());
   solver.configure_option("domain",domain.uri());
-  solver.configure_option_recursively("time",model.as_type<CModelUnsteady>().time().uri());
+  solver.configure_option_recursively("ctime",model.as_type<CModelUnsteady>().time().uri());
   solver.configure_option_recursively("time_accurate",true);
 
   ////////////////////////////////////////////////////////////////////////////////

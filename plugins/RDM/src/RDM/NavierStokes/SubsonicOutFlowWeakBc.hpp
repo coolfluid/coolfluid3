@@ -25,6 +25,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class RDM_API SubsonicOutFlowWeakBc : public RDM::BoundaryTerm {
+
 public: // typedefs
 
   /// the actual BC implementation is a nested class
@@ -36,6 +37,7 @@ public: // typedefs
   typedef boost::shared_ptr<SubsonicOutFlowWeakBc const> ConstPtr;
 
 public: // functions
+
   /// Contructor
   /// @param name of the component
   SubsonicOutFlowWeakBc ( const std::string& name );
@@ -53,7 +55,6 @@ public: // functions
 
 private: // helper functions
 
-  void config_mesh();
   void config_pressure_function();
 
 public: // data
