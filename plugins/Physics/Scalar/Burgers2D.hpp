@@ -22,11 +22,23 @@ namespace Scalar {
 
 class Scalar_API Burgers2D : public VariablesT<Burgers2D> {
 
-public: // functions
+public: //typedefs
 
   typedef Scalar2D     MODEL;
 
   enum { U = 0 };
+
+  typedef boost::shared_ptr<Burgers2D> Ptr;
+  typedef boost::shared_ptr<Burgers2D const> ConstPtr;
+
+public: // functions
+
+  /// constructor
+  /// @param name of the component
+  Burgers2D ( const std::string& name );
+
+  /// virtual destructor
+  virtual ~Burgers2D();
 
   /// Get the class name
   static std::string type_name () { return "Burgers2D"; }

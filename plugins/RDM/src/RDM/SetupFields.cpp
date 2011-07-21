@@ -100,7 +100,7 @@ void SetupFields::execute()
 
   // parallelize the solution if not yet done
 
-  solution->parallelize();
+//  solution->parallelize();
 
 }
 

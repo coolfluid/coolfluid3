@@ -17,11 +17,11 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:square1x1-tg-p2-2kn.msh
+call Model/Domain/load_mesh file:uri=file:rectangle2x1-tg-p1-953.msh
 
 ### solver
 
-configure Model/RDSolver                                update_vars:string=Burgers2D
+configure Model/RDSolver                                update_vars:string=LinearAdv2D
 
 configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=250
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
@@ -42,7 +42,7 @@ call Model/RDSolver/BoundaryConditions/create_boundary_condition \
 //Root/Model/Domain/mesh/topology/left,\
 //Root/Model/Domain/mesh/topology/right
 
-configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]=1.5-2.0*x
+configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]=cos(2*3.141592*(x+y))
 
 ### domain discretization
 
@@ -54,8 +54,8 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 
 call Model/RDSolver/InitialConditions
 
-call Model/Domain/write_mesh file:uri=atest-rdm-burgers2d-initial.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-sinusbump-initial.msh
 
 call Model/simulate
 
-call Model/Domain/write_mesh file:uri=atest-rdm-burgers2d-solution.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-sinusbump-solution.msh

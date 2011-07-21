@@ -1,88 +1,76 @@
-# be totally unforgiving for exceptions and assertions (batch)
-configure //Root/Environment \
-  assertion_to_exception:bool=false \
-  exception_outputs:bool=true \
-  exception_backtrace:bool=true \
-  exception_aborts:bool=true
+### Global settings
 
-call //Root/Libraries/load_libraries \
-     libs:array[uri]=file:@coolfluid_DSO_DIR@/libcoolfluid_rdm_navierstokes
+configure //Root/Environment assertion_throws:bool=false   \
+                             assertion_backtrace:bool=true \
+                             exception_backtrace:bool=true \
+                             exception_aborts:bool=true    \
+                             exception_outputs:bool=true   \
+                             log_level:unsigned=4          \
+                             regist_signal_handlers:bool=false
+
+### create model
 
 create Wizard CF.RDM.SteadyExplicit
 
-# create a scalar advection model
-call Wizard/create_model \
-     ModelName:string=model \
-     PhysicalModel:string=NavierStokes2D
+call Wizard/create_model  model_name:string=Model \
+                          physical_model:string=CF.Physics.NavierStokes.NavierStokes2D
 
-# load the mesh
-call //Root/model/Domain/load_mesh \
-     file:uri=file:square1x1-qd-p1-1369.msh \
-     name:string=mesh
+### read mesh
 
-# configure solver
-cd //Root/model/Solver
+call Model/Domain/load_mesh file:uri=file:trapezium1x1-tg-p1-508.msh
+# "file:square1x1-tg-p1-303n.msh"      // works
+# "file:square1x1-tg-p1-7614.msh"      // works
+#  file:trapezium1x1-tg-p1-508.msh       // works
+# "file:square1x1-tg-p2-333n.msh"
+# "file:square1x1-tg-p2-2kn.msh"       // works
+# "file:trapezium1x1-tg-p2-1949.msh"   // works
+# "file:square1x1-qd-p1-6561n.msh"
+# "file:square1x1-qd-p1-1369.msh"      // works
+# "file:square1x1-qd-p1-256n.msh"
+# "file:square1x1-qd-p2-289n.msh"      // works
+# "file:trapezium1x1-qd-p1-441.msh"       // LDA works
+# "file:trapezium1x1-qd-p2-1681.msh"      // B crashes but LDA works?
+# "file:trapezium1x1-qd-p3-3721.msh"      // B crashes but LDA works?
+# "file:trapezium1x1-tg-p3-4306.msh"
+# "file:square1x1-tgqd-p1-298n.msh"    // works
 
-configure ./ domain:uri=cpath://Root/model/Domain
-configure ./ mesh:uri=cpath://Root/model/Domain/mesh
-configure ./ update_vars:string=Cons2D
+### solver
 
-configure time_stepping cfl:real=0.250
-configure time_stepping MaxIter:unsigned=500
+configure Model/RDSolver                                update_vars:string=Cons2D
 
-# create boundary term
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=250
+configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
-call create_boundary_term Name:string=INLET \
+### initial conditions
+
+call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
+
+configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
+
+### boundary conditions
+
+call Model/RDSolver/BoundaryConditions/create_boundary_condition \
+     Name:string=INLET \
      Type:string=CF.RDM.BcDirichlet \
      Regions:array[uri]=\
-//Root/model/Domain/mesh/topology/bottom,\
-//Root/model/Domain/mesh/topology/left,\
-//Root/model/Domain/mesh/topology/right
+//Root/Model/Domain/mesh/topology/bottom,\
+//Root/Model/Domain/mesh/topology/left,\
+//Root/Model/Domain/mesh/topology/right
 
+configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
 
-configure compute_boundary_terms/INLET "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
+### domain discretization
 
-# initialize solution
+call Model/RDSolver/DomainDiscretization/create_cell_term \
+     Name:string=INTERNAL \
+     Type:string=CF.RDM.Schemes.CSysLDA
 
-create init CF.Mesh.Actions.CInitFieldFunction
+### simulate and write the result
 
-configure init field:uri=cpath://Root/model/Domain/mesh/solution
-configure init "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
-configure init mesh:uri=//Root/model/Domain/mesh
+call Model/RDSolver/InitialConditions
 
-call init/execute
+call Model/Domain/write_mesh file:uri=atest-rdm-euler2d-initial.msh
 
-# create domain term
+call Model/simulate
 
-call create_domain_term Name:string=INTERNAL \
-     Type:string=CF.RDM.Schemes.CSysLDA \
-     Regions:array[uri]=//Root/model/Domain/mesh/topology
-
-# write initial solution
-
-create tec_writer CF.Mesh.Tecplot.CWriter
-
-configure tec_writer fields:array[uri]=//Root/model/Domain/mesh/solution
-configure tec_writer file:uri=solution.init.plt
-configure tec_writer mesh:uri=//Root/model/Domain/mesh
-
-create msh_writer CF.Mesh.Gmsh.CWriter
-
-configure msh_writer fields:array[uri]=//Root/model/Domain/mesh/solution
-configure msh_writer file:uri=solution.init.msh
-configure msh_writer mesh:uri=//Root/model/Domain/mesh
-
-call tec_writer/write_mesh
-call msh_writer/write_mesh
-
-# solve
-
-call execute
-
-# write final solution
-
-configure tec_writer file:uri=solution.plt
-configure msh_writer file:uri=solution.msh
-
-call tec_writer/write_mesh
-call msh_writer/write_mesh
+call Model/Domain/write_mesh file:uri=atest-rdm-euler2d-solution.msh

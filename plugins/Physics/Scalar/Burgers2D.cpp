@@ -6,8 +6,6 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Physics/Variables.hpp"
-
 #include "Burgers2D.hpp"
 
 namespace CF {
@@ -16,10 +14,17 @@ namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Physics::VariablesT< Scalar::Burgers2D >,
+Common::ComponentBuilder < Scalar::Burgers2D,
                            Physics::Variables,
                            LibScalar >
                            Variables_Burgers2D;
+
+
+Burgers2D::Burgers2D(const std::string& name) : VariablesT<Burgers2D>(name)
+{
+}
+
+Burgers2D::~Burgers2D() {}
 
 ////////////////////////////////////////////////////////////////////////////////////
 

@@ -13,15 +13,18 @@ configure //Root/Environment assertion_throws:bool=false   \
 create Wizard CF.RDM.SteadyExplicit
 
 call Wizard/create_model  model_name:string=Model \
-                          physical_model:string=CF.Physics.Scalar.Scalar2D
+                          physical_model:string=CF.Physics.Scalar.ScalarSys2D
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:square1x1-tg-p2-2kn.msh
+call Model/Domain/load_mesh file:uri=file:rectangle2x1-tg-p1-953.msh
+# "file:rectangle2x1-tg-p2-3689.msh"
+# "file:rectangle2x1-qd-p1-861.msh"
+# "file:rectangle2x1-qd-p2-3321.msh"
 
 ### solver
 
-configure Model/RDSolver                                update_vars:string=Burgers2D
+configure Model/RDSolver                                update_vars:string=LinearAdvSys2D
 
 configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=250
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
@@ -30,7 +33,7 @@ configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
 
-configure Model/RDSolver/InitialConditions/INIT functions:array[string]=sin(x)
+configure Model/RDSolver/InitialConditions/INIT functions:array[string]="x*x+y*y,0"
 
 ### boundary conditions
 
@@ -39,10 +42,9 @@ call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Type:string=CF.RDM.BcDirichlet \
      Regions:array[uri]=\
 //Root/Model/Domain/mesh/topology/bottom,\
-//Root/Model/Domain/mesh/topology/left,\
-//Root/Model/Domain/mesh/topology/right
+//Root/Model/Domain/mesh/topology/left
 
-configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]=1.5-2.0*x
+configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]="2.0*cos(2*3.141592*(x+y)),3.0*cos(2*3.141592*(x+y))"
 
 ### domain discretization
 
@@ -54,8 +56,8 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 
 call Model/RDSolver/InitialConditions
 
-call Model/Domain/write_mesh file:uri=atest-rdm-burgers2d-initial.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-linearadvsys2d-initial.msh
 
 call Model/simulate
 
-call Model/Domain/write_mesh file:uri=atest-rdm-burgers2d-solution.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-linearadvsys2d-solution.msh
