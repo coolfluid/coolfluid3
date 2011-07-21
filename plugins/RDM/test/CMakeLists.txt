@@ -3,59 +3,6 @@ set( RDM_TEST_RUN_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTE
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
-set( CF_ALL_UTESTS_PARALLEL 1 ) # override option here
-
-##########################################################################
-
-list( APPEND utest-rdm-linearadv2d_cflibs coolfluid_rdm_scalar   )
-list( APPEND utest-rdm-linearadv2d_files
-  utest-rdm-linearadv2d.cpp )
-
-coolfluid_add_unit_test( utest-rdm-linearadv2d )
-
-##########################################################################
-
-list( APPEND utest-rdm-linearadv3d_cflibs coolfluid_rdm_scalar   )
-list( APPEND utest-rdm-linearadv3d_files
-  utest-rdm-linearadv3d.cpp )
-
-coolfluid_add_unit_test( utest-rdm-linearadv3d )
-
-##########################################################################
-
-list( APPEND utest-rdm-rotationadv2d_cflibs coolfluid_rdm_scalar  )
-list( APPEND utest-rdm-rotationadv2d_files  utest-rdm-rotationadv2d.cpp )
-
-coolfluid_add_unit_test( utest-rdm-rotationadv2d )
-
-##########################################################################
-
-list( APPEND utest-rdm-burgers2d_cflibs coolfluid_rdm_scalar )
-list( APPEND utest-rdm-burgers2d_files  utest-rdm-burgers2d.cpp )
-
-coolfluid_add_unit_test( utest-rdm-burgers2d )
-
-##########################################################################
-
-list( APPEND utest-rdm-linearadvsys2d_cflibs coolfluid_rdm_scalar   )
-list( APPEND utest-rdm-linearadvsys2d_files  utest-rdm-linearadvsys2d.cpp )
-
-coolfluid_add_unit_test( utest-rdm-linearadvsys2d )
-
-##########################################################################
-
-list( APPEND utest-rdm-euler2d_cflibs  coolfluid_rdm_navierstokes  )
-list( APPEND utest-rdm-euler2d_files  utest-rdm-euler2d.cpp )
-
-coolfluid_add_unit_test( utest-rdm-euler2d )
-
-##########################################################################
-
-list( APPEND utest-rdm-sinusbump_cflibs  coolfluid_rdm_navierstokes  )
-list( APPEND utest-rdm-sinusbump_files  utest-rdm-sinusbump.cpp )
-
-coolfluid_add_unit_test( utest-rdm-sinusbump )
-
 ##########################################################################
 
 if(CF_ENABLE_GPU AND OPENCL_FOUND)
