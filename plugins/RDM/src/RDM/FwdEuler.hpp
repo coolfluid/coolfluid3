@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_UpdateSolution_hpp
-#define CF_RDM_UpdateSolution_hpp
+#ifndef CF_RDM_FwdEuler_hpp
+#define CF_RDM_FwdEuler_hpp
 
 #include "Solver/Action.hpp"
 
@@ -17,24 +17,24 @@ namespace CF {
 namespace Mesh { class CField; }
 namespace RDM {
 
-class RDM_API UpdateSolution : public CF::Solver::Action {
+class RDM_API FwdEuler : public CF::Solver::Action {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<UpdateSolution> Ptr;
-  typedef boost::shared_ptr<UpdateSolution const> ConstPtr;
+  typedef boost::shared_ptr<FwdEuler> Ptr;
+  typedef boost::shared_ptr<FwdEuler const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  UpdateSolution ( const std::string& name );
+  FwdEuler ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~UpdateSolution() {}
+  virtual ~FwdEuler() {}
 
   /// Get the class name
-  static std::string type_name () { return "UpdateSolution"; }
+  static std::string type_name () { return "FwdEuler"; }
 
   /// execute the action
   virtual void execute ();
@@ -55,4 +55,4 @@ private: // data
 } // RDM
 } // CF
 
-#endif // CF_RDM_UpdateSolution_hpp
+#endif // CF_RDM_FwdEuler_hpp

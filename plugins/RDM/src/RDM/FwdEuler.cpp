@@ -16,7 +16,7 @@
 #include "Mesh/CMesh.hpp"
 
 #include "RDM/RDSolver.hpp"
-#include "RDM/UpdateSolution.hpp"
+#include "RDM/FwdEuler.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,19 +29,24 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < UpdateSolution, CAction, LibRDM > UpdateSolution_Builder;
+Common::ComponentBuilder < FwdEuler, CAction, LibRDM > FwdEuler_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-UpdateSolution::UpdateSolution ( const std::string& name ) :
+FwdEuler::FwdEuler ( const std::string& name ) :
   CF::Solver::Action(name)
 {
   mark_basic();
+
+  m_options.add_option< OptionT<Real> >( "cfl", 1.0 )
+      ->set_pretty_name("CFL")
+      ->set_description("Courant-Fredrichs-Levy stability number");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void UpdateSolution::execute()
+void FwdEuler::execute()
 {
   RDSolver& mysolver = solver().as_type< RDSolver >();
 
@@ -52,12 +57,11 @@ void UpdateSolution::execute()
   if (m_residual.expired())
     m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<CField>();
 
-
   CTable<Real>& solution     = m_solution.lock()->data();
   CTable<Real>& wave_speed   = m_wave_speed.lock()->data();
   CTable<Real>& residual     = m_residual.lock()->data();
 
-  const Real CFL = parent().option("cfl").value<Real>();
+  const Real CFL = options().option("cfl").value<Real>();
 
   const Uint nbdofs = solution.size();
   const Uint nbvars = solution.row_size();

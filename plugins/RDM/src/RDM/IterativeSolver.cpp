@@ -104,7 +104,7 @@ void IterativeSolver::execute()
   m_pre_actions->get_child("Zero").configure_option("Fields", cleanup_fields);
 
   m_post_actions->get_child("ComputeNorm")
-      .configure_option("Field", mysolver.fields().get_child( RDM::Tags::solution()).follow()->uri() );
+      .configure_option("Field", mysolver.fields().get_child( RDM::Tags::residual()).follow()->uri() );
 
   //----------------------------------------------------------------------------------------
 

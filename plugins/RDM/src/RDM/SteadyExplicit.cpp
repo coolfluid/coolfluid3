@@ -23,7 +23,7 @@
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
 #include "RDM/TimeStepping.hpp"
-#include "RDM/UpdateSolution.hpp"
+#include "RDM/FwdEuler.hpp"
 
 // supported physical models
 
@@ -93,7 +93,7 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
   // explicit time stepping  - forward euler
 
   solver.iterative_solver().update()
-      .append( allocate_component<UpdateSolution>("ExplicitStep") );
+      .append( allocate_component<FwdEuler>("Step") );
 
   solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
   solver.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );

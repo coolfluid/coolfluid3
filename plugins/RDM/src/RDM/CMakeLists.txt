@@ -45,8 +45,8 @@ list( APPEND coolfluid_rdm_files
   Init.hpp
   Init.cpp
 # time stepping
-  UpdateSolution.hpp
-  UpdateSolution.cpp
+  FwdEuler.hpp
+  FwdEuler.cpp
 )
 
 list( APPEND coolfluid_rdm_cflibs coolfluid_physics coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_solver_actions coolfluid_solver )
