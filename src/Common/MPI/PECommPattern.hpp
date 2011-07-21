@@ -259,6 +259,10 @@ public:
   /// @return true or false, respectively
   bool isFreeze() const { return m_isFreeze; }
 
+  /// accessor to the m_isUpdatable vector
+  /// @return vector of bools
+  std::vector<bool>& isUpdatable() { return m_isUpdatable; }
+
   //@} END ACCESSORS
 
 protected: // helper function

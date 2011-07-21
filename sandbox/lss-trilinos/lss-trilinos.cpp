@@ -9,8 +9,6 @@
   Will use Epetra::FECrsMatrix for the time beign, TPetra does not support Stratimikos. Conversion seems reasonably simple according to trilinos doc.
 **/
 
-#include <Common/MPI/PECommPattern.hpp>
-
 #include "lss-trilinos.hpp"
 #include "test_matrix.hpp"
 
@@ -31,6 +29,7 @@ int main(void)
 
   // setting up the matrix
   LSSTrilinosMatrix lssm;
+  lssm.create_sparsity(cp,m.column_indices,m.rowstart_positions);
 
   // afscheid
   mpi::PE::instance().finalize();

@@ -157,6 +157,7 @@ void PECommPattern::setup()
   if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
   if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
   Uint* gid=(Uint*)m_gid->pack();
+  m_isUpdatable.resize(m_gid->size(),true);
 
   // get counts on receive side
   BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) m_recvCount[i.rank]++;
@@ -181,6 +182,7 @@ void PECommPattern::setup()
     {
       receive_gids[recvcounter[i.rank]]=i.gid;
       m_recvMap[recvcounter[i.rank]]=lid;
+      m_isUpdatable[lid]=false;
       recvcounter[i.rank]++;
     }
     lid++;

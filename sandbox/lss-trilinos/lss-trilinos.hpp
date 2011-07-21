@@ -8,8 +8,17 @@
 #define lss_trilinos_hpp
 
 #include <Epetra_MpiComm.h>
+#include <Epetra_BlockMap.h>
+#include <Epetra_FEVbrMatrix.h>
+#include "Teuchos_GlobalMPISession.hpp"
+#include "Teuchos_VerboseObject.hpp"
+#include "Teuchos_XMLParameterListHelpers.hpp"
+#include "Teuchos_CommandLineProcessor.hpp"
 
 #include "lss-interface.hpp"
+
+#include <Common/MPI/PECommPattern.hpp>
+#include <Common/MPI/debug.hpp>
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,8 +111,34 @@ public:
   /// needs global numbering for communication - ??? commpattern ???
   virtual void create_sparsity(PECommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
   {
+    // get gid
     /// @todo don't hardcode the name, rather write an accessor to it in pecommpattern
     Uint *gid=(Uint*)cp.get_child_ptr("gid")->as_ptr<PEObjectWrapper>()->pack();
+
+    // blockmap
+    int nmyglobalelements=0;
+    std::vector<int> myglobalelements(0);
+    std::vector<int> elementsizelist(0);
+    for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
+    {
+      if (cp.isUpdatable()[i])
+      {
+        ++nmyglobalelements;
+        myglobalelements.push_back((int)gid[i]);
+        elementsizelist.push_back((int)(starting_indices[i+1]-starting_indices[i]));
+      }
+    }
+
+    Epetra_BlockMap bm(-1,nmyglobalelements,&myglobalelements[0],&elementsizelist[0],0,m_comm);
+    myglobalelements.resize(0);
+    myglobalelements.reserve(0);
+    elementsizelist.resize(0);
+    elementsizelist.reserve(0);
+
+//PEProcessSortedExecute(-1,bm.Print(std::cout););
+
+    // matrix
+    //m_matrix=new Epetra_FEVbrMatrix();
 
 
   }
@@ -173,9 +208,22 @@ public:
 
   //@} END MISCELLANEOUS
 
-private:
+public: // for testing purposes and direct access of trilinos own debug
+//private:
 
+  /// mpi universe of epetra
   Epetra_MpiComm m_comm;
+
+  /// the actual matrix wrapped into teuchos's smart pointer
+  Teuchos::RCP<Epetra_FEVbrMatrix> m_matrix;
+
+  /// sparsity pattern of the block
+  RealMatrix block_sparsity;
+
+  /// row-wise sum of the nonzero
+  RealVector block_sparsity_count;
+
+
 
 }; // end of class LSSTrilinosMatrix
 

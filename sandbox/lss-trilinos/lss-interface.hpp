@@ -18,6 +18,7 @@
 
 #include "Common/CommonAPI.hpp"
 #include "Common/MPI/PE.hpp"
+#include "Common/MPI/PECommPattern.hpp"
 #include "blockaccumulator.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
