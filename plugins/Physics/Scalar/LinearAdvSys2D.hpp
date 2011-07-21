@@ -58,7 +58,7 @@ public: // functions
     p.v(U0,YY) = 1.0;
 
     p.v(U1,XX) = 1.0;
-    p.v(U1,YY) = 0.8;
+    p.v(U1,YY) = 0.5;
 
     p.u0 = sol[U0];
     p.u1 = sol[U1];
@@ -125,7 +125,7 @@ public: // functions
     Jx.diagonal() = p.v.col(XX);
     Jy.diagonal() = p.v.col(YY);
 
-    res = Jx * p.grad_vars.col(XX) + Jx * p.grad_vars.col(YY);
+    res = Jx * p.grad_vars.col(XX) + Jy * p.grad_vars.col(YY);
   }
 
 }; // LinearAdvSys2D
