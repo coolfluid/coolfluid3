@@ -109,6 +109,10 @@ void TimeStepping::execute()
 
     m_post_actions->execute();
 
+    // raise event of time_step done
+
+		raise_timestep_done();
+
     // advance time & iteration
 
     m_time->current_time() += m_time->dt();
@@ -118,6 +122,18 @@ void TimeStepping::execute()
   }
 }
 
+void TimeStepping::raise_timestep_done()
+{
+	SignalOptions opts;
+	
+	opts.add_option< OptionT<Uint> >( "time",  m_time->current_time() );
+	opts.add_option< OptionT<Uint> >( "dt",  m_time->dt() );
+	opts.add_option< OptionT<Uint> >( "iteration", properties().value<Uint>("iteration") );
+	
+	SignalFrame frame = opts.create_frame("timestep_done", uri(), URI());
+
+	Common::Core::instance().event_handler().raise_event( "timestep_done", frame);
+}
 ///////////////////////////////////////////////////////////////////////////////////////
 
 

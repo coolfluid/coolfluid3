@@ -55,6 +55,8 @@ private: // functions
 
   /// @returns true if any of the stop criteria is achieved
   bool stop_condition();
+  /// raises event when timestep is done
+  void raise_timestep_done();
 
 private: // data
 
